@@ -288,23 +288,22 @@ func (k Keeper) MustGetMembers(ctx sdk.Context, groupID tss.GroupID) []types.Mem
 	return members
 }
 
-// GetActiveMembers retrieves all active members of a group from the store.
-func (k Keeper) GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member, error) {
-	var members []types.Member
+// GetAvailableMembers retrieves all active members of a group from the store.
+func (k Keeper) GetAvailableMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member, error) {
+	var activeMembers []types.Member
 	iterator := k.GetGroupMembersIterator(ctx, groupID)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var member types.Member
 		k.cdc.MustUnmarshal(iterator.Value(), &member)
 
-		address := sdk.MustAccAddressFromBech32(member.Address)
-		if isActive := k.GetMemberIsActive(ctx, address); isActive {
-			members = append(members, member)
+		if member.IsActive {
+			activeMembers = append(activeMembers, member)
 		}
 	}
 
 	// Filter members that have DE left
-	filteredMembers, err := k.FilterMembersHaveDE(ctx, members)
+	filteredMembers, err := k.FilterMembersHaveDE(ctx, activeMembers)
 	if err != nil {
 		return nil, err
 	}
@@ -318,6 +317,34 @@ func (k Keeper) GetActiveMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.
 // SetLastExpiredGroupID sets the last expired group ID in the store.
 func (k Keeper) SetLastExpiredGroupID(ctx sdk.Context, groupID tss.GroupID) {
 	ctx.KVStore(k.storeKey).Set(types.LastExpiredGroupIDStoreKey, sdk.Uint64ToBigEndian(uint64(groupID)))
+}
+
+// SetMemberIsActive sets a boolean flag represent activeness of the user.
+func (k Keeper) SetMemberIsActive(ctx sdk.Context, groupID tss.GroupID, address sdk.AccAddress, status bool) error {
+	members := k.MustGetMembers(ctx, groupID)
+	for _, m := range members {
+		if m.Address == address.String() {
+			m.IsActive = status
+			k.SetMember(ctx, m)
+			return nil
+		}
+	}
+
+	return types.ErrMemberNotFound.Wrapf(
+		"failed to set member active status with groupID: %d and address: %s",
+		groupID,
+		address,
+	)
+}
+
+// ActivateMember sets a boolean flag represent activeness of the user to true.
+func (k Keeper) ActivateMember(ctx sdk.Context, groupID tss.GroupID, address sdk.AccAddress) error {
+	return k.SetMemberIsActive(ctx, groupID, address, true)
+}
+
+// DeactivateMember sets a boolean flag represent activeness of the user to false.
+func (k Keeper) DeactivateMember(ctx sdk.Context, groupID tss.GroupID, address sdk.AccAddress) error {
+	return k.SetMemberIsActive(ctx, groupID, address, false)
 }
 
 // GetLastExpiredGroupID retrieves the last expired group ID from the store.
@@ -350,7 +377,10 @@ func (k Keeper) HandleExpiredGroups(ctx sdk.Context) {
 		// Check group is not active
 		if group.Status != types.GROUP_STATUS_ACTIVE && group.Status != types.GROUP_STATUS_FALLEN {
 			// Handle the hooks before setting group to be expired.
-			k.Hooks().BeforeSetGroupExpired(ctx, group)
+			// this shouldn't return any error.
+			if err := k.Hooks().BeforeSetGroupExpired(ctx, group); err != nil {
+				panic(err)
+			}
 
 			// Update group status
 			group.Status = types.GROUP_STATUS_EXPIRED
@@ -370,58 +400,6 @@ func (k Keeper) HandleExpiredGroups(ctx sdk.Context) {
 		// Set the last expired group ID to the current group ID
 		k.SetLastExpiredGroupID(ctx, currentGroupID)
 	}
-}
-
-// SetMemberIsActive sets a boolean flag represent activeness of the user.
-func (k Keeper) SetMemberIsActive(ctx sdk.Context, address sdk.AccAddress, status bool) {
-	value := uint64(0)
-	if status {
-		value = 1
-	}
-
-	ctx.KVStore(k.storeKey).Set(types.IsActiveStoreKey(address), sdk.Uint64ToBigEndian(value))
-}
-
-// GetMemberIsActive retrieves a boolean flag whether the address is active or not.
-func (k Keeper) GetMemberIsActive(ctx sdk.Context, address sdk.AccAddress) bool {
-	bz := ctx.KVStore(k.storeKey).Get(types.IsActiveStoreKey(address))
-	if bz == nil {
-		return false
-	}
-
-	return sdk.BigEndianToUint64(bz) != 0
-}
-
-func (k Keeper) GetMemberIsActives(ctx sdk.Context) ([]sdk.AccAddress, []bool) {
-	var addresses []sdk.AccAddress
-	var isActives []bool
-	iterator := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.IsActiveStoreKeyPrefix)
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		address := sdk.AccAddress(iterator.Key()[1:])
-		isActive := sdk.BigEndianToUint64(iterator.Value()) != 0
-
-		addresses = append(addresses, address)
-		isActives = append(isActives, isActive)
-	}
-
-	return addresses, isActives
-}
-
-func (k Keeper) GetMemberIsActivesGenesis(ctx sdk.Context) []types.IsActiveGenesis {
-	addresses, isActives := k.GetMemberIsActives(ctx)
-
-	var data []types.IsActiveGenesis
-	for i := range addresses {
-		data = append(data, types.IsActiveGenesis{Address: addresses[i].String(), IsActive: isActives[i]})
-	}
-
-	return data
-}
-
-// DeleteMemberIsActive removes the flag of the given address from the store.
-func (k Keeper) DeleteMemberIsActive(ctx sdk.Context, address sdk.AccAddress) {
-	ctx.KVStore(k.storeKey).Delete(types.IsActiveStoreKey(address))
 }
 
 // AddPendingProcessGroup adds a new pending process group to the store.
@@ -481,8 +459,10 @@ func (k Keeper) HandleProcessGroup(ctx sdk.Context, groupID tss.GroupID) {
 		group.Status = types.GROUP_STATUS_FALLEN
 		k.SetGroup(ctx, group)
 
-		// Handle the hooks when group creation is fallen
-		k.Hooks().AfterCreatingGroupFailed(ctx, group)
+		// Handle the hooks when group creation is fallen; this shouldn't return any error.
+		if err := k.Hooks().AfterCreatingGroupFailed(ctx, group); err != nil {
+			panic(err)
+		}
 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
@@ -498,8 +478,10 @@ func (k Keeper) HandleProcessGroup(ctx sdk.Context, groupID tss.GroupID) {
 			group.Status = types.GROUP_STATUS_ACTIVE
 			k.SetGroup(ctx, group)
 
-			// Handle the hooks when group is ready.
-			k.Hooks().AfterCreatingGroupCompleted(ctx, group)
+			// Handle the hooks when group is ready. this shouldn't return any error.
+			if err := k.Hooks().AfterCreatingGroupCompleted(ctx, group); err != nil {
+				panic(err)
+			}
 
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
@@ -512,8 +494,10 @@ func (k Keeper) HandleProcessGroup(ctx sdk.Context, groupID tss.GroupID) {
 			group.Status = types.GROUP_STATUS_FALLEN
 			k.SetGroup(ctx, group)
 
-			// Handle the hooks when group creation is fallen
-			k.Hooks().AfterCreatingGroupFailed(ctx, group)
+			// Handle the hooks when group creation is fallen; this shouldn't return any error.
+			if err := k.Hooks().AfterCreatingGroupFailed(ctx, group); err != nil {
+				panic(err)
+			}
 
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
@@ -640,8 +624,10 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 		replacement.Status = types.REPLACEMENT_STATUS_FALLEN
 		k.SetReplacement(ctx, replacement)
 
-		// Handle the hooks when group is replaced.
-		k.Hooks().AfterReplacingGroupFailed(ctx, replacement)
+		// Handle the hooks when group is replaced; this shouldn't return any error.
+		if err := k.Hooks().AfterReplacingGroupFailed(ctx, replacement); err != nil {
+			panic(err)
+		}
 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
@@ -662,8 +648,10 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 		replacement.Status = types.REPLACEMENT_STATUS_FALLEN
 		k.SetReplacement(ctx, replacement)
 
-		// Handle the hooks when group is replaced.
-		k.Hooks().AfterReplacingGroupFailed(ctx, replacement)
+		// Handle the hooks when group is replaced; this shouldn't return any error.
+		if err := k.Hooks().AfterReplacingGroupFailed(ctx, replacement); err != nil {
+			panic(err)
+		}
 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
@@ -704,8 +692,10 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, replacement types.Replacemen
 	replacement.Status = types.REPLACEMENT_STATUS_SUCCESS
 	k.SetReplacement(ctx, replacement)
 
-	// Handle the hooks when group is replaced.
-	k.Hooks().AfterReplacingGroupCompleted(ctx, replacement)
+	// Handle the hooks when group is replaced; this shouldn't return any error.
+	if err := k.Hooks().AfterReplacingGroupCompleted(ctx, replacement); err != nil {
+		panic(err)
+	}
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

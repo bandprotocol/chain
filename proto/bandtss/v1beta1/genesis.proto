@@ -4,6 +4,7 @@ package bandtss.v1beta1;
 import "gogoproto/gogo.proto";
 import "google/protobuf/duration.proto";
 import "bandtss/v1beta1/bandtss.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "cosmos_proto/cosmos.proto";
 
 option go_package = "github.com/bandprotocol/chain/v2/x/bandtss/types";
@@ -12,8 +13,20 @@ option go_package = "github.com/bandprotocol/chain/v2/x/bandtss/types";
 message GenesisState {
   // params defines all the paramiters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
-  // statuses is an array containing status of all addresses
-  repeated Status statuses = 2 [(gogoproto.nullable) = false];
+  // members is an array containing member information.
+  repeated Member members = 2 [(gogoproto.nullable) = false];
+  // current_group_id is the current group id of the module.
+  uint64 current_group_id = 3 [
+    (gogoproto.customname) = "CurrentGroupID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
+  // replacing_group_id is the current group id of the module.
+  uint64 replacing_group_id = 4 [
+    (gogoproto.customname) = "ReplacingGroupID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
+  // signing_fee is the fee that will be paid for each signing request.
+  repeated SigningFee signing_fees = 5 [(gogoproto.nullable) = false];
 }
 
 // Params defines the set of module parameters.
@@ -27,4 +40,7 @@ message Params {
   google.protobuf.Duration inactive_penalty_duration = 3 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
   // jail_penalty_duration is the duration where a member cannot activate back after jail.
   google.protobuf.Duration jail_penalty_duration = 4 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  // fee is the tokens that will be paid per signing.
+  repeated cosmos.base.v1beta1.Coin fee = 5
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }

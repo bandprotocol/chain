@@ -9,32 +9,31 @@ import "cosmos_proto/cosmos.proto";
 option go_package            = "github.com/bandprotocol/chain/v2/x/bandtss/types";
 option (gogoproto.equal_all) = true;
 
-// MemberStatus is an enumeration of the possible statuses of a member.
-enum MemberStatus {
-  option (gogoproto.goproto_enum_prefix) = false;
-
-  // MEMBER_STATUS_UNSPECIFIED is unknown status.
-  MEMBER_STATUS_UNSPECIFIED = 0;
-  // MEMBER_STATUS_ACTIVE is the active status.
-  MEMBER_STATUS_ACTIVE = 1;
-  // MEMBER_STATUS_PAUSED is the paused status.
-  MEMBER_STATUS_PAUSED = 2;
-  // MEMBER_STATUS_INACTIVE is the inactive status.
-  MEMBER_STATUS_INACTIVE = 3;
-  // MEMBER_STATUS_JAIL is the status when member is jailed.
-  MEMBER_STATUS_JAIL = 4;
-}
-
-// Status maintains whether a member is an active member.
-message Status {
+// Member maintains member information for monitoring their liveness activity.
+message Member {
   option (gogoproto.equal) = true;
 
   // address is the address of the member.
   string address = 1;
-  // status represents the current status of the member
-  MemberStatus status = 2;
+  // is_active is a flag to indicate whether a member is active or not.
+  bool is_active = 2;
   // since is a block timestamp when a member has been activated/deactivated/jailed
   google.protobuf.Timestamp since = 3 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
   // last_active is a latest block timestamp when a member is active
   google.protobuf.Timestamp last_active = 4 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+}
+
+message SigningFee {
+  option (gogoproto.equal) = true;
+
+  // signing_ids is a list of signing IDs.
+  uint64 signing_id = 1 [
+    (gogoproto.customname) = "SigningID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+  ];
+  // fee is the total tokens that will be paid for this signing
+  repeated cosmos.base.v1beta1.Coin fee = 2
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  // requester is the address of requester who paid for the Bandtss fee.
+  string requester = 3;
 }

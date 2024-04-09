@@ -30,8 +30,6 @@ message GenesisState {
   repeated DEQueue de_queues = 9 [(gogoproto.customname) = "DEQueues", (gogoproto.nullable) = false];
   // des_genesis is an array containing the des of all the addressres.
   repeated DEGenesis des_genesis = 10 [(gogoproto.customname) = "DEsGenesis", (gogoproto.nullable) = false];
-  // is_actives_genesis is an array containing status of all addresses
-  repeated IsActiveGenesis is_actives_genesis = 11 [(gogoproto.nullable) = false];
 }
 
 // Params defines the set of module parameters.
@@ -54,12 +52,4 @@ message DEGenesis {
   uint64 index = 2;
   // de defines the difference de this balance holds.
   DE de = 3 [(gogoproto.customname) = "DE", (gogoproto.nullable) = false];
-}
-
-// IsActiveGenesis defines an account address and whether that address is active.
-message IsActiveGenesis {
-  // address is the address of the de holder.
-  string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  // is_active is the boolean value of whether the address is active.
-  bool is_active = 2;
 }

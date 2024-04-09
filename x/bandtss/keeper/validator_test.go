@@ -96,7 +96,7 @@ func (s *KeeperTestSuite) TestAllocateTokensOneActive() {
 	})
 	s.Require().NoError(err)
 
-	err = k.SetActiveStatus(ctx, testapp.Validators[1].Address)
+	err = k.ActivateMember(ctx, testapp.Validators[1].Address)
 	s.Require().NoError(err)
 
 	k.AllocateTokens(ctx, defaultVotes())
@@ -164,17 +164,18 @@ func (s *KeeperTestSuite) TestHandleInactiveValidators() {
 	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 	address := testapp.Validators[0].Address
 
-	status := types.Status{
-		Status:     types.MEMBER_STATUS_ACTIVE,
+	member := types.Member{
 		Address:    address.String(),
+		IsActive:   true,
 		Since:      time.Time{},
 		LastActive: time.Time{},
 	}
-	k.SetStatus(ctx, status)
+	k.SetMember(ctx, member)
 	ctx = ctx.WithBlockTime(time.Now())
 
 	k.HandleInactiveValidators(ctx)
 
-	status = k.GetStatus(ctx, address)
-	s.Require().Equal(types.MEMBER_STATUS_INACTIVE, status.Status)
+	member, err := k.GetMember(ctx, address)
+	s.Require().NoError(err)
+	s.Require().False(member.IsActive)
 }

@@ -37,18 +37,18 @@ func New(ctx *cylinder.Context) (*HealthCheck, error) {
 // updateHealthCheck updates last active
 func (a *HealthCheck) updateHealthCheck() {
 	// Query active information
-	status, err := a.client.QueryStatus(a.context.Config.Granter)
+	member, err := a.client.QueryMember(a.context.Config.Granter)
 	if err != nil {
 		a.logger.Error(":cold_sweat: Failed to query status information: %s", err)
 		return
 	}
 
-	if status.Status != bandtsstypes.MEMBER_STATUS_ACTIVE && status.Status != bandtsstypes.MEMBER_STATUS_PAUSED {
-		a.context.ErrCh <- errors.New("the status of the address is not active / paused")
+	if !member.IsActive {
+		a.context.ErrCh <- errors.New("the status of the address is not active")
 		return
 	}
 
-	if time.Now().Before(status.LastActive.Add(a.context.Config.ActivePeriod)) {
+	if time.Now().Before(member.LastActive.Add(a.context.Config.ActivePeriod)) {
 		return
 	}
 

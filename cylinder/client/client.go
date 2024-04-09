@@ -165,19 +165,19 @@ func (c *Client) QueryDE(address string, offset uint64, limit uint64) (*DERespon
 	return NewDEResponse(der), nil
 }
 
-// QueryStatus queries the status information of the given address.
+// QueryMember queries the member information of the given address.
 // It returns the de response or an error.
-func (c *Client) QueryStatus(address string) (*bandtsstypes.Status, error) {
+func (c *Client) QueryMember(address string) (*bandtsstypes.Member, error) {
 	queryClient := bandtsstypes.NewQueryClient(c.context)
 
-	res, err := queryClient.Status(context.Background(), &bandtsstypes.QueryStatusRequest{
+	res, err := queryClient.Member(context.Background(), &bandtsstypes.QueryMemberRequest{
 		Address: address,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return &res.Status, nil
+	return &res.Member, nil
 }
 
 // QueryPendingGroups queries the all pending groups with the given address.

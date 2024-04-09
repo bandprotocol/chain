@@ -40,14 +40,9 @@ func (k msgServer) CreateGroup(
 			return nil, err
 		}
 		members = append(members, address)
-
-		status := k.GetStatus(ctx, address)
-		if status.Status != types.MEMBER_STATUS_ACTIVE {
-			return nil, types.ErrStatusIsNotActive
-		}
 	}
 
-	if _, err := k.tssKeeper.CreateGroup(ctx, members, req.Threshold, req.Fee, types.ModuleName); err != nil {
+	if _, err := k.tssKeeper.CreateGroup(ctx, members, req.Threshold, types.ModuleName); err != nil {
 		return nil, err
 	}
 
@@ -70,31 +65,22 @@ func (k msgServer) ReplaceGroup(
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	currentGroupID := k.GetCurrentGroupID(ctx)
+	if req.CurrentGroupID != currentGroupID {
+		return nil, types.ErrInvalidGroupID.Wrapf("invalid currentGroupID; expect %d got %d", currentGroupID, req.CurrentGroupID)
+	}
+
+	if k.GetReplacingGroupID(ctx) != 0 {
+		return nil, types.ErrReplacementInProgress
+	}
+
 	_, err = k.tssKeeper.ReplaceGroup(ctx, req.CurrentGroupID, req.NewGroupID, req.ExecTime, authority, sdk.NewCoins())
 	if err != nil {
 		return nil, err
 	}
+	k.SetReplacingGroupID(ctx, req.NewGroupID)
 
 	return &types.MsgReplaceGroupResponse{}, nil
-}
-
-// UpdateGroupFee updates the fee for a specific group based on the provided request.
-func (k msgServer) UpdateGroupFee(
-	goCtx context.Context,
-	req *types.MsgUpdateGroupFee,
-) (*types.MsgUpdateGroupFeeResponse, error) {
-	if k.authority != req.Authority {
-		return nil, errors.Wrapf(govtypes.ErrInvalidSigner, "expected %s got %s", k.authority, req.Authority)
-	}
-
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	_, err := k.tssKeeper.UpdateGroupFee(ctx, req.GroupID, req.Fee)
-	if err != nil {
-		return nil, err
-	}
-
-	return &types.MsgUpdateGroupFeeResponse{}, nil
 }
 
 // RequestSignature initiates the signing process by requesting signatures from assigned members.
@@ -128,7 +114,7 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 		return nil, err
 	}
 
-	if err = k.SetActiveStatus(ctx, address); err != nil {
+	if err = k.ActivateMember(ctx, address); err != nil {
 		return nil, err
 	}
 

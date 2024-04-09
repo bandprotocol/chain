@@ -56,7 +56,6 @@ func (s *KeeperTestSuite) TestCreateGroupReq() {
 		_, err := msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
 			Members:   members,
 			Threshold: 3,
-			Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 			Authority: s.authority.String(),
 		})
 		s.Require().NoError(err)
@@ -154,61 +153,6 @@ func (s *KeeperTestSuite) TestSuccessReplaceGroup() {
 	s.Require().Equal(gotReplacementID, currentGroup.LatestReplacementID)
 }
 
-func (s *KeeperTestSuite) TestFailedUpdateGroupFee() {
-	ctx, msgSrvr := s.ctx, s.msgSrvr
-
-	groupID := tss.GroupID(1)
-	var req types.MsgUpdateGroupFee
-	tcs := []TestCase{
-		{
-			"failure due to incorrect authority",
-			func() {
-				req = types.MsgUpdateGroupFee{
-					GroupID:   groupID,
-					Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
-					Authority: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-				}
-			},
-			func() {
-			},
-			govtypes.ErrInvalidSigner,
-		},
-	}
-
-	for _, tc := range tcs {
-		s.Run(fmt.Sprintf("Case %s", tc.Msg), func() {
-			tc.Malleate()
-
-			_, err := msgSrvr.UpdateGroupFee(ctx, &req)
-			s.Require().ErrorIs(tc.ExpectedErr, err)
-
-			tc.PostTest()
-		})
-	}
-}
-
-func (s *KeeperTestSuite) TestSuccessUpdateGroupFee() {
-	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
-
-	groupID := tss.GroupID(1)
-	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
-	fee := sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
-
-	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
-
-	msg := types.MsgUpdateGroupFee{
-		GroupID:   groupID,
-		Fee:       fee,
-		Authority: authority.String(),
-	}
-
-	_, err := msgSrvr.UpdateGroupFee(ctx, &msg)
-	s.Require().NoError(err)
-
-	got := k.MustGetGroup(ctx, groupID)
-	s.Require().Equal(fee, got.Fee)
-}
-
 func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
 
@@ -240,7 +184,6 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 					Size_:     5,
 					Threshold: 3,
 					PubKey:    nil,
-					Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 					Status:    tsstypes.GROUP_STATUS_FALLEN,
 				}
 				k.SetGroup(ctx, inactiveGroup)

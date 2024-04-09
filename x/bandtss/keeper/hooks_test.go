@@ -19,10 +19,8 @@ func (s *KeeperTestSuite) TestAfterSigningFailed() {
 		{
 			"10uband with 2 members",
 			types.Signing{
-				ID:        1,
-				GroupID:   1,
-				Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
-				Requester: testapp.FeePayer.Address.String(),
+				ID:      1,
+				GroupID: 1,
 				AssignedMembers: []types.AssignedMember{
 					{MemberID: 1},
 					{MemberID: 2},
@@ -33,10 +31,8 @@ func (s *KeeperTestSuite) TestAfterSigningFailed() {
 		{
 			"10uband,15token with 2 members",
 			types.Signing{
-				ID:        1,
-				GroupID:   1,
-				Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10), sdk.NewInt64Coin("token", 15)),
-				Requester: testapp.FeePayer.Address.String(),
+				ID:      1,
+				GroupID: 1,
 				AssignedMembers: []types.AssignedMember{
 					{MemberID: 1},
 					{MemberID: 2},
@@ -47,10 +43,8 @@ func (s *KeeperTestSuite) TestAfterSigningFailed() {
 		{
 			"0uband with 2 members",
 			types.Signing{
-				ID:        2,
-				GroupID:   1,
-				Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
-				Requester: testapp.FeePayer.Address.String(),
+				ID:      2,
+				GroupID: 1,
 				AssignedMembers: []types.AssignedMember{
 					{MemberID: 1},
 					{MemberID: 2},
@@ -63,8 +57,6 @@ func (s *KeeperTestSuite) TestAfterSigningFailed() {
 			types.Signing{
 				ID:              3,
 				GroupID:         1,
-				Fee:             sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
-				Requester:       testapp.FeePayer.Address.String(),
 				AssignedMembers: []types.AssignedMember{},
 			},
 			sdk.NewCoins(),
@@ -76,7 +68,8 @@ func (s *KeeperTestSuite) TestAfterSigningFailed() {
 			balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
 			balancesModuleBefore := s.app.BankKeeper.GetAllBalances(ctx, k.GetBandtssAccount(ctx).GetAddress())
 
-			hook.AfterSigningFailed(ctx, tc.signing)
+			err := hook.AfterSigningFailed(ctx, tc.signing)
+			s.Require().NoError(err)
 
 			balancesAfter := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
 			balancesModuleAfter := s.app.BankKeeper.GetAllBalances(ctx, k.GetBandtssAccount(ctx).GetAddress())

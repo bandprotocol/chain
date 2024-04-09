@@ -30,26 +30,109 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// QueryStatusesRequest is the request type for the Query/Statuses RPC method.
-type QueryStatusesRequest struct {
-	// status define filter on statuses
-	Status MemberStatus `protobuf:"varint,1,opt,name=status,proto3,enum=bandtss.v1beta1.MemberStatus" json:"status,omitempty"`
+// QueryParamsRequest is request type for the Query/Params RPC method.
+type QueryParamsRequest struct {
+}
+
+func (m *QueryParamsRequest) Reset()         { *m = QueryParamsRequest{} }
+func (m *QueryParamsRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryParamsRequest) ProtoMessage()    {}
+func (*QueryParamsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_85d3a287ab772b87, []int{0}
+}
+func (m *QueryParamsRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryParamsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryParamsRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryParamsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryParamsRequest.Merge(m, src)
+}
+func (m *QueryParamsRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryParamsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryParamsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryParamsRequest proto.InternalMessageInfo
+
+// QueryParamsResponse is response type for the Query/Params RPC method.
+type QueryParamsResponse struct {
+	// pagination defines an optional pagination for the request.
+	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
+}
+
+func (m *QueryParamsResponse) Reset()         { *m = QueryParamsResponse{} }
+func (m *QueryParamsResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryParamsResponse) ProtoMessage()    {}
+func (*QueryParamsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_85d3a287ab772b87, []int{1}
+}
+func (m *QueryParamsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryParamsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryParamsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryParamsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryParamsResponse.Merge(m, src)
+}
+func (m *QueryParamsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryParamsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryParamsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryParamsResponse proto.InternalMessageInfo
+
+func (m *QueryParamsResponse) GetParams() Params {
+	if m != nil {
+		return m.Params
+	}
+	return Params{}
+}
+
+// QueryMembersRequest is the request type for the Query/Members RPC method.
+type QueryMembersRequest struct {
+	// is_active define filter on members
+	IsActive bool `protobuf:"varint,1,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
 	// pagination defines pagination settings for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
-func (m *QueryStatusesRequest) Reset()         { *m = QueryStatusesRequest{} }
-func (m *QueryStatusesRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryStatusesRequest) ProtoMessage()    {}
-func (*QueryStatusesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{0}
+func (m *QueryMembersRequest) Reset()         { *m = QueryMembersRequest{} }
+func (m *QueryMembersRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryMembersRequest) ProtoMessage()    {}
+func (*QueryMembersRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_85d3a287ab772b87, []int{2}
 }
-func (m *QueryStatusesRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryMembersRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryStatusesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryMembersRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryStatusesRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryMembersRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -59,52 +142,52 @@ func (m *QueryStatusesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return b[:n], nil
 	}
 }
-func (m *QueryStatusesRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryStatusesRequest.Merge(m, src)
+func (m *QueryMembersRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryMembersRequest.Merge(m, src)
 }
-func (m *QueryStatusesRequest) XXX_Size() int {
+func (m *QueryMembersRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryStatusesRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryStatusesRequest.DiscardUnknown(m)
+func (m *QueryMembersRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryMembersRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryStatusesRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryMembersRequest proto.InternalMessageInfo
 
-func (m *QueryStatusesRequest) GetStatus() MemberStatus {
+func (m *QueryMembersRequest) GetIsActive() bool {
 	if m != nil {
-		return m.Status
+		return m.IsActive
 	}
-	return MEMBER_STATUS_UNSPECIFIED
+	return false
 }
 
-func (m *QueryStatusesRequest) GetPagination() *query.PageRequest {
+func (m *QueryMembersRequest) GetPagination() *query.PageRequest {
 	if m != nil {
 		return m.Pagination
 	}
 	return nil
 }
 
-// QueryStatusesResponse is the response type for the Query/Statuses RPC method.
-type QueryStatusesResponse struct {
-	// statuses is the statuses request.
-	Statuses []*Status `protobuf:"bytes,1,rep,name=statuses,proto3" json:"statuses,omitempty"`
+// QueryMembersResponse is the response type for the Query/Members RPC method.
+type QueryMembersResponse struct {
+	// members are those individuals who correspond to the provided is_active status.
+	Members []*Member `protobuf:"bytes,1,rep,name=members,proto3" json:"members,omitempty"`
 	// pagination defines the pagination in the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
-func (m *QueryStatusesResponse) Reset()         { *m = QueryStatusesResponse{} }
-func (m *QueryStatusesResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryStatusesResponse) ProtoMessage()    {}
-func (*QueryStatusesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{1}
+func (m *QueryMembersResponse) Reset()         { *m = QueryMembersResponse{} }
+func (m *QueryMembersResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryMembersResponse) ProtoMessage()    {}
+func (*QueryMembersResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_85d3a287ab772b87, []int{3}
 }
-func (m *QueryStatusesResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryMembersResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryStatusesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryMembersResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryStatusesResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryMembersResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -114,50 +197,50 @@ func (m *QueryStatusesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return b[:n], nil
 	}
 }
-func (m *QueryStatusesResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryStatusesResponse.Merge(m, src)
+func (m *QueryMembersResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryMembersResponse.Merge(m, src)
 }
-func (m *QueryStatusesResponse) XXX_Size() int {
+func (m *QueryMembersResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryStatusesResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryStatusesResponse.DiscardUnknown(m)
+func (m *QueryMembersResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryMembersResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryStatusesResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryMembersResponse proto.InternalMessageInfo
 
-func (m *QueryStatusesResponse) GetStatuses() []*Status {
+func (m *QueryMembersResponse) GetMembers() []*Member {
 	if m != nil {
-		return m.Statuses
+		return m.Members
 	}
 	return nil
 }
 
-func (m *QueryStatusesResponse) GetPagination() *query.PageResponse {
+func (m *QueryMembersResponse) GetPagination() *query.PageResponse {
 	if m != nil {
 		return m.Pagination
 	}
 	return nil
 }
 
-// QueryStatusRequest is the request type for the Query/Status RPC method.
-type QueryStatusRequest struct {
+// QueryMemberRequest is the request type for the Query/Member RPC method.
+type QueryMemberRequest struct {
 	// address is the member address.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
 
-func (m *QueryStatusRequest) Reset()         { *m = QueryStatusRequest{} }
-func (m *QueryStatusRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryStatusRequest) ProtoMessage()    {}
-func (*QueryStatusRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{2}
+func (m *QueryMemberRequest) Reset()         { *m = QueryMemberRequest{} }
+func (m *QueryMemberRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryMemberRequest) ProtoMessage()    {}
+func (*QueryMemberRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_85d3a287ab772b87, []int{4}
 }
-func (m *QueryStatusRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryMemberRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryStatusRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryMemberRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryStatusRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryMemberRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -167,43 +250,43 @@ func (m *QueryStatusRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return b[:n], nil
 	}
 }
-func (m *QueryStatusRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryStatusRequest.Merge(m, src)
+func (m *QueryMemberRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryMemberRequest.Merge(m, src)
 }
-func (m *QueryStatusRequest) XXX_Size() int {
+func (m *QueryMemberRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryStatusRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryStatusRequest.DiscardUnknown(m)
+func (m *QueryMemberRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryMemberRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryStatusRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryMemberRequest proto.InternalMessageInfo
 
-func (m *QueryStatusRequest) GetAddress() string {
+func (m *QueryMemberRequest) GetAddress() string {
 	if m != nil {
 		return m.Address
 	}
 	return ""
 }
 
-// QueryStatusResponse is the response type for the Query/Status RPC method.
-type QueryStatusResponse struct {
-	// status is the status request.
-	Status Status `protobuf:"bytes,1,opt,name=status,proto3" json:"status"`
+// QueryMemberResponse is the response type for the Query/Member RPC method.
+type QueryMemberResponse struct {
+	// member is the member detail.
+	Member Member `protobuf:"bytes,1,opt,name=member,proto3" json:"member"`
 }
 
-func (m *QueryStatusResponse) Reset()         { *m = QueryStatusResponse{} }
-func (m *QueryStatusResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryStatusResponse) ProtoMessage()    {}
-func (*QueryStatusResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{3}
+func (m *QueryMemberResponse) Reset()         { *m = QueryMemberResponse{} }
+func (m *QueryMemberResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryMemberResponse) ProtoMessage()    {}
+func (*QueryMemberResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_85d3a287ab772b87, []int{5}
 }
-func (m *QueryStatusResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryMemberResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryStatusResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryMemberResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryStatusResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryMemberResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -213,64 +296,248 @@ func (m *QueryStatusResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return b[:n], nil
 	}
 }
-func (m *QueryStatusResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryStatusResponse.Merge(m, src)
+func (m *QueryMemberResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryMemberResponse.Merge(m, src)
 }
-func (m *QueryStatusResponse) XXX_Size() int {
+func (m *QueryMemberResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryStatusResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryStatusResponse.DiscardUnknown(m)
+func (m *QueryMemberResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryMemberResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryStatusResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryMemberResponse proto.InternalMessageInfo
 
-func (m *QueryStatusResponse) GetStatus() Status {
+func (m *QueryMemberResponse) GetMember() Member {
 	if m != nil {
-		return m.Status
+		return m.Member
 	}
-	return Status{}
+	return Member{}
+}
+
+// QueryCurrentGroupRequest is the request type for the Query/CurrentGroup RPC method.
+type QueryCurrentGroupRequest struct {
+}
+
+func (m *QueryCurrentGroupRequest) Reset()         { *m = QueryCurrentGroupRequest{} }
+func (m *QueryCurrentGroupRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryCurrentGroupRequest) ProtoMessage()    {}
+func (*QueryCurrentGroupRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_85d3a287ab772b87, []int{6}
+}
+func (m *QueryCurrentGroupRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryCurrentGroupRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryCurrentGroupRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryCurrentGroupRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryCurrentGroupRequest.Merge(m, src)
+}
+func (m *QueryCurrentGroupRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryCurrentGroupRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryCurrentGroupRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryCurrentGroupRequest proto.InternalMessageInfo
+
+// QueryCurrentGroupResponse is the response type for the Query/CurrentGroup RPC method.
+type QueryCurrentGroupResponse struct {
+	// TODO: add more field later when add election flow.
+	GroupID uint64 `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+}
+
+func (m *QueryCurrentGroupResponse) Reset()         { *m = QueryCurrentGroupResponse{} }
+func (m *QueryCurrentGroupResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryCurrentGroupResponse) ProtoMessage()    {}
+func (*QueryCurrentGroupResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_85d3a287ab772b87, []int{7}
+}
+func (m *QueryCurrentGroupResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryCurrentGroupResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryCurrentGroupResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryCurrentGroupResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryCurrentGroupResponse.Merge(m, src)
+}
+func (m *QueryCurrentGroupResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryCurrentGroupResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryCurrentGroupResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryCurrentGroupResponse proto.InternalMessageInfo
+
+func (m *QueryCurrentGroupResponse) GetGroupID() uint64 {
+	if m != nil {
+		return m.GroupID
+	}
+	return 0
+}
+
+// QueryReplacingGroupRequest is the request type for the Query/ReplacingGroup RPC method.
+type QueryReplacingGroupRequest struct {
+}
+
+func (m *QueryReplacingGroupRequest) Reset()         { *m = QueryReplacingGroupRequest{} }
+func (m *QueryReplacingGroupRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryReplacingGroupRequest) ProtoMessage()    {}
+func (*QueryReplacingGroupRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_85d3a287ab772b87, []int{8}
+}
+func (m *QueryReplacingGroupRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryReplacingGroupRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryReplacingGroupRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryReplacingGroupRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryReplacingGroupRequest.Merge(m, src)
+}
+func (m *QueryReplacingGroupRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryReplacingGroupRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryReplacingGroupRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryReplacingGroupRequest proto.InternalMessageInfo
+
+// QueryReplacingGroupResponse is the response type for the Query/ReplacingGroup RPC method.
+type QueryReplacingGroupResponse struct {
+	// TODO: add more field later when add election flow.
+	GroupID uint64 `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
+}
+
+func (m *QueryReplacingGroupResponse) Reset()         { *m = QueryReplacingGroupResponse{} }
+func (m *QueryReplacingGroupResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryReplacingGroupResponse) ProtoMessage()    {}
+func (*QueryReplacingGroupResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_85d3a287ab772b87, []int{9}
+}
+func (m *QueryReplacingGroupResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryReplacingGroupResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryReplacingGroupResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryReplacingGroupResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryReplacingGroupResponse.Merge(m, src)
+}
+func (m *QueryReplacingGroupResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryReplacingGroupResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryReplacingGroupResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryReplacingGroupResponse proto.InternalMessageInfo
+
+func (m *QueryReplacingGroupResponse) GetGroupID() uint64 {
+	if m != nil {
+		return m.GroupID
+	}
+	return 0
 }
 
 func init() {
-	proto.RegisterType((*QueryStatusesRequest)(nil), "bandtss.v1beta1.QueryStatusesRequest")
-	proto.RegisterType((*QueryStatusesResponse)(nil), "bandtss.v1beta1.QueryStatusesResponse")
-	proto.RegisterType((*QueryStatusRequest)(nil), "bandtss.v1beta1.QueryStatusRequest")
-	proto.RegisterType((*QueryStatusResponse)(nil), "bandtss.v1beta1.QueryStatusResponse")
+	proto.RegisterType((*QueryParamsRequest)(nil), "bandtss.v1beta1.QueryParamsRequest")
+	proto.RegisterType((*QueryParamsResponse)(nil), "bandtss.v1beta1.QueryParamsResponse")
+	proto.RegisterType((*QueryMembersRequest)(nil), "bandtss.v1beta1.QueryMembersRequest")
+	proto.RegisterType((*QueryMembersResponse)(nil), "bandtss.v1beta1.QueryMembersResponse")
+	proto.RegisterType((*QueryMemberRequest)(nil), "bandtss.v1beta1.QueryMemberRequest")
+	proto.RegisterType((*QueryMemberResponse)(nil), "bandtss.v1beta1.QueryMemberResponse")
+	proto.RegisterType((*QueryCurrentGroupRequest)(nil), "bandtss.v1beta1.QueryCurrentGroupRequest")
+	proto.RegisterType((*QueryCurrentGroupResponse)(nil), "bandtss.v1beta1.QueryCurrentGroupResponse")
+	proto.RegisterType((*QueryReplacingGroupRequest)(nil), "bandtss.v1beta1.QueryReplacingGroupRequest")
+	proto.RegisterType((*QueryReplacingGroupResponse)(nil), "bandtss.v1beta1.QueryReplacingGroupResponse")
 }
 
 func init() { proto.RegisterFile("bandtss/v1beta1/query.proto", fileDescriptor_85d3a287ab772b87) }
 
 var fileDescriptor_85d3a287ab772b87 = []byte{
-	// 446 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x92, 0x4f, 0x8b, 0xd3, 0x40,
-	0x18, 0xc6, 0x33, 0x55, 0xeb, 0x3a, 0x0b, 0x0a, 0xe3, 0x8a, 0xb1, 0xeb, 0xc6, 0xda, 0x75, 0xd7,
-	0xa2, 0x30, 0xe3, 0xa6, 0xf8, 0x05, 0x7a, 0x50, 0x10, 0x05, 0x8d, 0x37, 0x6f, 0x93, 0x74, 0x48,
-	0x03, 0x6d, 0x26, 0xcd, 0x4c, 0x8a, 0x45, 0x05, 0xf1, 0xe4, 0x51, 0x10, 0xbf, 0x53, 0x8f, 0x05,
-	0x2f, 0x9e, 0x44, 0x5a, 0x3f, 0x88, 0x64, 0x66, 0x12, 0xdb, 0xf4, 0xdf, 0x2d, 0x99, 0xf7, 0x79,
-	0xdf, 0xe7, 0xf7, 0x3e, 0x33, 0xf0, 0xd8, 0xa7, 0x71, 0x4f, 0x0a, 0x41, 0xc6, 0x17, 0x3e, 0x93,
-	0xf4, 0x82, 0x8c, 0x32, 0x96, 0x4e, 0x70, 0x92, 0x72, 0xc9, 0xd1, 0x0d, 0x53, 0xc4, 0xa6, 0xd8,
-	0x38, 0x0a, 0x79, 0xc8, 0x55, 0x8d, 0xe4, 0x5f, 0x5a, 0xd6, 0x78, 0x14, 0x70, 0x31, 0xe4, 0x82,
-	0xf8, 0x54, 0x30, 0xdd, 0x5f, 0x4e, 0x4b, 0x68, 0x18, 0xc5, 0x54, 0x46, 0x3c, 0x36, 0xda, 0xbb,
-	0x21, 0xe7, 0xe1, 0x80, 0x11, 0x9a, 0x44, 0x84, 0xc6, 0x31, 0x97, 0xaa, 0x28, 0x4c, 0xf5, 0xa4,
-	0x4a, 0x53, 0x00, 0xa8, 0x72, 0xeb, 0x07, 0x80, 0x47, 0x6f, 0xf2, 0xf9, 0x6f, 0x25, 0x95, 0x99,
-	0x60, 0xc2, 0x63, 0xa3, 0x8c, 0x09, 0x89, 0x9e, 0xc2, 0xba, 0x50, 0x47, 0x36, 0x68, 0x82, 0xf6,
-	0x75, 0xf7, 0x04, 0x57, 0xc8, 0xf1, 0x2b, 0x36, 0xf4, 0x59, 0xaa, 0xfb, 0x3c, 0x23, 0x46, 0xcf,
-	0x20, 0xfc, 0x0f, 0x68, 0xd7, 0x9a, 0xa0, 0x7d, 0xe8, 0x9e, 0x63, 0xbd, 0x0d, 0xce, 0xb7, 0xc1,
-	0x3a, 0x8d, 0x62, 0xc8, 0x6b, 0x1a, 0x32, 0x63, 0xe9, 0x2d, 0x75, 0xe6, 0x5c, 0xb7, 0x2a, 0x5c,
-	0x22, 0xe1, 0xb1, 0x60, 0xa8, 0x03, 0x0f, 0x84, 0x39, 0xb3, 0x41, 0xf3, 0x52, 0xfb, 0xd0, 0xbd,
-	0xbd, 0x86, 0x66, 0xa0, 0x4a, 0x21, 0x7a, 0xbe, 0x01, 0xeb, 0xe1, 0x5e, 0x2c, 0xed, 0xb8, 0xc2,
-	0x85, 0x21, 0x5a, 0xc2, 0x2a, 0xc2, 0xb2, 0xe1, 0x55, 0xda, 0xeb, 0xa5, 0x4c, 0xe8, 0xb4, 0xae,
-	0x79, 0xc5, 0x6f, 0xeb, 0x25, 0xbc, 0xb9, 0xa2, 0x37, 0x4b, 0xac, 0xa6, 0xbb, 0x7d, 0x85, 0xee,
-	0xe5, 0xe9, 0xef, 0x7b, 0x56, 0x91, 0xae, 0xfb, 0xb5, 0x06, 0xaf, 0xa8, 0x71, 0xe8, 0x23, 0x3c,
-	0x28, 0x92, 0x41, 0x67, 0x6b, 0xcd, 0x9b, 0x6e, 0xb4, 0x71, 0xbe, 0x4f, 0xa6, 0xd9, 0x5a, 0xf7,
-	0xbf, 0xfc, 0xfc, 0xfb, 0xbd, 0x76, 0x8c, 0xee, 0x90, 0xea, 0xd3, 0x29, 0xe3, 0xfc, 0x0c, 0x60,
-	0x5d, 0xf7, 0xa1, 0xd3, 0x5d, 0x53, 0x0b, 0xeb, 0x07, 0xbb, 0x45, 0xc6, 0xf8, 0xb1, 0x32, 0x3e,
-	0x43, 0xa7, 0x5b, 0x8d, 0xc9, 0x07, 0x93, 0xeb, 0xa7, 0xee, 0x8b, 0xe9, 0xdc, 0x01, 0xb3, 0xb9,
-	0x03, 0xfe, 0xcc, 0x1d, 0xf0, 0x6d, 0xe1, 0x58, 0xb3, 0x85, 0x63, 0xfd, 0x5a, 0x38, 0xd6, 0xbb,
-	0x27, 0x61, 0x24, 0xfb, 0x99, 0x8f, 0x03, 0x3e, 0x54, 0x83, 0xd4, 0x43, 0x0f, 0xf8, 0x80, 0x04,
-	0x7d, 0x1a, 0xc5, 0x64, 0xec, 0x92, 0xf7, 0xa5, 0x81, 0x9c, 0x24, 0x4c, 0xf8, 0x75, 0x25, 0xe9,
-	0xfc, 0x0b, 0x00, 0x00, 0xff, 0xff, 0x69, 0xd9, 0x40, 0x2d, 0xba, 0x03, 0x00, 0x00,
+	// 634 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x54, 0x41, 0x6f, 0xd3, 0x30,
+	0x18, 0x6d, 0xc6, 0xd6, 0x76, 0x1e, 0x02, 0xc9, 0x54, 0x5a, 0x96, 0x8e, 0xb4, 0x0a, 0xa5, 0x8c,
+	0x82, 0x12, 0x5a, 0xc4, 0x0f, 0xa0, 0x03, 0xa6, 0x21, 0x90, 0x20, 0x47, 0x2e, 0x95, 0x93, 0x5a,
+	0x99, 0xa5, 0x36, 0xce, 0x62, 0xb7, 0xda, 0x40, 0x08, 0x89, 0x3b, 0x12, 0x02, 0x71, 0xe7, 0xe7,
+	0xec, 0x38, 0x89, 0x0b, 0xa7, 0x09, 0xb5, 0xfc, 0x10, 0x54, 0xdb, 0x69, 0x97, 0x36, 0xdd, 0xc6,
+	0x6d, 0xf1, 0x7b, 0xdf, 0x7b, 0xcf, 0x9f, 0xdf, 0x0a, 0xca, 0x1e, 0x0a, 0xbb, 0x9c, 0x31, 0x67,
+	0xd8, 0xf4, 0x30, 0x47, 0x4d, 0xe7, 0x70, 0x80, 0xe3, 0x63, 0x3b, 0x8a, 0x29, 0xa7, 0xf0, 0xa6,
+	0x02, 0x6d, 0x05, 0x1a, 0xa5, 0x80, 0x06, 0x54, 0x60, 0xce, 0xe4, 0x2f, 0x49, 0x33, 0x1a, 0x3e,
+	0x65, 0x7d, 0xca, 0x1c, 0x0f, 0x31, 0x2c, 0xe7, 0xa7, 0x6a, 0x11, 0x0a, 0x48, 0x88, 0x38, 0xa1,
+	0xa1, 0xe2, 0x6e, 0x07, 0x94, 0x06, 0x3d, 0xec, 0xa0, 0x88, 0x38, 0x28, 0x0c, 0x29, 0x17, 0x20,
+	0x53, 0xe8, 0xed, 0xf9, 0x34, 0x49, 0x80, 0x25, 0x70, 0x80, 0x43, 0xcc, 0x88, 0x82, 0xad, 0x12,
+	0x80, 0x6f, 0x27, 0xee, 0x6f, 0x50, 0x8c, 0xfa, 0xcc, 0xc5, 0x87, 0x03, 0xcc, 0xb8, 0xf5, 0x0a,
+	0xdc, 0x4a, 0x9d, 0xb2, 0x88, 0x86, 0x0c, 0xc3, 0x27, 0x20, 0x1f, 0x89, 0x13, 0x5d, 0xab, 0x6a,
+	0x3b, 0x1b, 0xad, 0x4d, 0x7b, 0xee, 0xb2, 0xb6, 0x1c, 0x68, 0xaf, 0x9e, 0x9c, 0x55, 0x72, 0xae,
+	0x22, 0x5b, 0xef, 0x95, 0xda, 0x6b, 0xdc, 0xf7, 0x70, 0x9c, 0x98, 0xc0, 0x32, 0x58, 0x27, 0xac,
+	0x83, 0x7c, 0x4e, 0x86, 0x58, 0x08, 0x16, 0xdd, 0x22, 0x61, 0x4f, 0xc5, 0x37, 0x7c, 0x01, 0xc0,
+	0x6c, 0x0f, 0xfa, 0x8a, 0xb0, 0xab, 0xdb, 0x72, 0x69, 0xf6, 0x64, 0x69, 0xb6, 0x5c, 0xfa, 0xcc,
+	0x38, 0xc0, 0x4a, 0xd8, 0x3d, 0x37, 0x69, 0x7d, 0xd3, 0x40, 0x29, 0x6d, 0xae, 0xee, 0xd2, 0x04,
+	0x85, 0xbe, 0x3c, 0xd2, 0xb5, 0xea, 0xb5, 0xcc, 0xcb, 0xc8, 0x11, 0x37, 0xe1, 0xc1, 0xbd, 0x8c,
+	0x4c, 0xf7, 0x2e, 0xcd, 0x24, 0xfd, 0x52, 0xa1, 0x6c, 0xb5, 0x74, 0x65, 0xa0, 0xf6, 0xa1, 0x83,
+	0x02, 0xea, 0x76, 0x63, 0xcc, 0xe4, 0x7a, 0xd7, 0xdd, 0xe4, 0x73, 0xfa, 0x1c, 0x09, 0x7f, 0xf6,
+	0x1c, 0x32, 0xda, 0xd2, 0xe7, 0x90, 0x03, 0xc9, 0x73, 0x48, 0xb2, 0x65, 0x00, 0x5d, 0xa8, 0xed,
+	0x0e, 0xe2, 0x18, 0x87, 0x7c, 0x2f, 0xa6, 0x83, 0x28, 0x79, 0xf8, 0x5d, 0xb0, 0x95, 0x81, 0x29,
+	0xbf, 0x3a, 0x28, 0x06, 0x93, 0x83, 0x0e, 0xe9, 0x0a, 0xc7, 0xd5, 0xf6, 0xc6, 0xe8, 0xac, 0x52,
+	0x10, 0xa4, 0xfd, 0x67, 0x6e, 0x41, 0x80, 0xfb, 0x5d, 0x6b, 0x1b, 0x18, 0x42, 0xc4, 0xc5, 0x51,
+	0x0f, 0xf9, 0x24, 0x0c, 0x52, 0x16, 0xcf, 0x41, 0x39, 0x13, 0xfd, 0x3f, 0x93, 0xd6, 0xcf, 0x35,
+	0xb0, 0x26, 0x74, 0x20, 0x07, 0x79, 0x59, 0x3b, 0x78, 0x67, 0x61, 0x01, 0x8b, 0xdd, 0x36, 0x6a,
+	0x17, 0x93, 0x64, 0x0c, 0xab, 0xf2, 0xf9, 0xd7, 0xdf, 0xef, 0x2b, 0x5b, 0x70, 0xd3, 0x99, 0xff,
+	0xff, 0x91, 0xa5, 0x86, 0x47, 0xa0, 0xa0, 0x2a, 0x05, 0x97, 0x28, 0xa6, 0xeb, 0x6e, 0xdc, 0xbd,
+	0x84, 0xa5, 0x8c, 0xab, 0xc2, 0xd8, 0x80, 0xfa, 0x82, 0x71, 0x52, 0xc3, 0x4f, 0x20, 0x2f, 0x87,
+	0x96, 0xdd, 0x37, 0x55, 0x2b, 0xa3, 0x76, 0x31, 0x49, 0xd9, 0x36, 0x84, 0x6d, 0x0d, 0x5a, 0xcb,
+	0x6c, 0x9d, 0x0f, 0xaa, 0x8d, 0x1f, 0xe1, 0x17, 0x0d, 0x5c, 0x3f, 0x5f, 0x10, 0x78, 0x3f, 0xdb,
+	0x22, 0xa3, 0x60, 0x46, 0xe3, 0x2a, 0x54, 0x95, 0xa9, 0x2e, 0x32, 0x55, 0xa1, 0xb9, 0x90, 0xc9,
+	0x97, 0xf4, 0x8e, 0x28, 0x03, 0xfc, 0xa1, 0x81, 0x1b, 0xe9, 0x36, 0xc1, 0x07, 0xd9, 0x36, 0x99,
+	0x8d, 0x34, 0x1e, 0x5e, 0x8d, 0xac, 0x52, 0xed, 0x88, 0x54, 0x16, 0xac, 0x2e, 0xa4, 0x8a, 0x93,
+	0x01, 0x99, 0xab, 0xfd, 0xf2, 0x64, 0x64, 0x6a, 0xa7, 0x23, 0x53, 0xfb, 0x33, 0x32, 0xb5, 0xaf,
+	0x63, 0x33, 0x77, 0x3a, 0x36, 0x73, 0xbf, 0xc7, 0x66, 0xee, 0xdd, 0xa3, 0x80, 0xf0, 0x83, 0x81,
+	0x67, 0xfb, 0xb4, 0x2f, 0x54, 0xc4, 0x6f, 0xb1, 0x4f, 0x7b, 0x8e, 0x7f, 0x80, 0x48, 0xe8, 0x0c,
+	0x5b, 0xce, 0xd1, 0x54, 0x9d, 0x1f, 0x47, 0x98, 0x79, 0x79, 0x41, 0x79, 0xfc, 0x2f, 0x00, 0x00,
+	0xff, 0xff, 0xc3, 0x76, 0xa8, 0xb3, 0x7c, 0x06, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -285,10 +552,14 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	// Statuses queries all statuses.
-	Statuses(ctx context.Context, in *QueryStatusesRequest, opts ...grpc.CallOption) (*QueryStatusesResponse, error)
-	// Status queries the status of the address.
-	Status(ctx context.Context, in *QueryStatusRequest, opts ...grpc.CallOption) (*QueryStatusResponse, error)
+	// Params queries parameters of Bandtss module
+	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
+	// Members queries all members.
+	Members(ctx context.Context, in *QueryMembersRequest, opts ...grpc.CallOption) (*QueryMembersResponse, error)
+	// Member queries the member information of the address.
+	Member(ctx context.Context, in *QueryMemberRequest, opts ...grpc.CallOption) (*QueryMemberResponse, error)
+	CurrentGroup(ctx context.Context, in *QueryCurrentGroupRequest, opts ...grpc.CallOption) (*QueryCurrentGroupResponse, error)
+	ReplacingGroup(ctx context.Context, in *QueryReplacingGroupRequest, opts ...grpc.CallOption) (*QueryReplacingGroupResponse, error)
 }
 
 type queryClient struct {
@@ -299,18 +570,45 @@ func NewQueryClient(cc grpc1.ClientConn) QueryClient {
 	return &queryClient{cc}
 }
 
-func (c *queryClient) Statuses(ctx context.Context, in *QueryStatusesRequest, opts ...grpc.CallOption) (*QueryStatusesResponse, error) {
-	out := new(QueryStatusesResponse)
-	err := c.cc.Invoke(ctx, "/bandtss.v1beta1.Query/Statuses", in, out, opts...)
+func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error) {
+	out := new(QueryParamsResponse)
+	err := c.cc.Invoke(ctx, "/bandtss.v1beta1.Query/Params", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *queryClient) Status(ctx context.Context, in *QueryStatusRequest, opts ...grpc.CallOption) (*QueryStatusResponse, error) {
-	out := new(QueryStatusResponse)
-	err := c.cc.Invoke(ctx, "/bandtss.v1beta1.Query/Status", in, out, opts...)
+func (c *queryClient) Members(ctx context.Context, in *QueryMembersRequest, opts ...grpc.CallOption) (*QueryMembersResponse, error) {
+	out := new(QueryMembersResponse)
+	err := c.cc.Invoke(ctx, "/bandtss.v1beta1.Query/Members", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) Member(ctx context.Context, in *QueryMemberRequest, opts ...grpc.CallOption) (*QueryMemberResponse, error) {
+	out := new(QueryMemberResponse)
+	err := c.cc.Invoke(ctx, "/bandtss.v1beta1.Query/Member", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) CurrentGroup(ctx context.Context, in *QueryCurrentGroupRequest, opts ...grpc.CallOption) (*QueryCurrentGroupResponse, error) {
+	out := new(QueryCurrentGroupResponse)
+	err := c.cc.Invoke(ctx, "/bandtss.v1beta1.Query/CurrentGroup", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) ReplacingGroup(ctx context.Context, in *QueryReplacingGroupRequest, opts ...grpc.CallOption) (*QueryReplacingGroupResponse, error) {
+	out := new(QueryReplacingGroupResponse)
+	err := c.cc.Invoke(ctx, "/bandtss.v1beta1.Query/ReplacingGroup", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -319,59 +617,126 @@ func (c *queryClient) Status(ctx context.Context, in *QueryStatusRequest, opts .
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	// Statuses queries all statuses.
-	Statuses(context.Context, *QueryStatusesRequest) (*QueryStatusesResponse, error)
-	// Status queries the status of the address.
-	Status(context.Context, *QueryStatusRequest) (*QueryStatusResponse, error)
+	// Params queries parameters of Bandtss module
+	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
+	// Members queries all members.
+	Members(context.Context, *QueryMembersRequest) (*QueryMembersResponse, error)
+	// Member queries the member information of the address.
+	Member(context.Context, *QueryMemberRequest) (*QueryMemberResponse, error)
+	CurrentGroup(context.Context, *QueryCurrentGroupRequest) (*QueryCurrentGroupResponse, error)
+	ReplacingGroup(context.Context, *QueryReplacingGroupRequest) (*QueryReplacingGroupResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
 type UnimplementedQueryServer struct {
 }
 
-func (*UnimplementedQueryServer) Statuses(ctx context.Context, req *QueryStatusesRequest) (*QueryStatusesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Statuses not implemented")
+func (*UnimplementedQueryServer) Params(ctx context.Context, req *QueryParamsRequest) (*QueryParamsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
 }
-func (*UnimplementedQueryServer) Status(ctx context.Context, req *QueryStatusRequest) (*QueryStatusResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Status not implemented")
+func (*UnimplementedQueryServer) Members(ctx context.Context, req *QueryMembersRequest) (*QueryMembersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Members not implemented")
+}
+func (*UnimplementedQueryServer) Member(ctx context.Context, req *QueryMemberRequest) (*QueryMemberResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Member not implemented")
+}
+func (*UnimplementedQueryServer) CurrentGroup(ctx context.Context, req *QueryCurrentGroupRequest) (*QueryCurrentGroupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CurrentGroup not implemented")
+}
+func (*UnimplementedQueryServer) ReplacingGroup(ctx context.Context, req *QueryReplacingGroupRequest) (*QueryReplacingGroupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ReplacingGroup not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
 	s.RegisterService(&_Query_serviceDesc, srv)
 }
 
-func _Query_Statuses_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryStatusesRequest)
+func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryParamsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).Statuses(ctx, in)
+		return srv.(QueryServer).Params(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bandtss.v1beta1.Query/Statuses",
+		FullMethod: "/bandtss.v1beta1.Query/Params",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).Statuses(ctx, req.(*QueryStatusesRequest))
+		return srv.(QueryServer).Params(ctx, req.(*QueryParamsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryStatusRequest)
+func _Query_Members_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryMembersRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).Status(ctx, in)
+		return srv.(QueryServer).Members(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bandtss.v1beta1.Query/Status",
+		FullMethod: "/bandtss.v1beta1.Query/Members",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).Status(ctx, req.(*QueryStatusRequest))
+		return srv.(QueryServer).Members(ctx, req.(*QueryMembersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_Member_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryMemberRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Member(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bandtss.v1beta1.Query/Member",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Member(ctx, req.(*QueryMemberRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_CurrentGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryCurrentGroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).CurrentGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bandtss.v1beta1.Query/CurrentGroup",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).CurrentGroup(ctx, req.(*QueryCurrentGroupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_ReplacingGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryReplacingGroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).ReplacingGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bandtss.v1beta1.Query/ReplacingGroup",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).ReplacingGroup(ctx, req.(*QueryReplacingGroupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -381,19 +746,31 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Statuses",
-			Handler:    _Query_Statuses_Handler,
+			MethodName: "Params",
+			Handler:    _Query_Params_Handler,
 		},
 		{
-			MethodName: "Status",
-			Handler:    _Query_Status_Handler,
+			MethodName: "Members",
+			Handler:    _Query_Members_Handler,
+		},
+		{
+			MethodName: "Member",
+			Handler:    _Query_Member_Handler,
+		},
+		{
+			MethodName: "CurrentGroup",
+			Handler:    _Query_CurrentGroup_Handler,
+		},
+		{
+			MethodName: "ReplacingGroup",
+			Handler:    _Query_ReplacingGroup_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "bandtss/v1beta1/query.proto",
 }
 
-func (m *QueryStatusesRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryParamsRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -403,12 +780,68 @@ func (m *QueryStatusesRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryStatusesRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryParamsRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryStatusesRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryParamsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryParamsResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryParamsResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryParamsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.Params.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryMembersRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryMembersRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryMembersRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -425,15 +858,20 @@ func (m *QueryStatusesRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
-	if m.Status != 0 {
-		i = encodeVarintQuery(dAtA, i, uint64(m.Status))
+	if m.IsActive {
+		i--
+		if m.IsActive {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
 		i--
 		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryStatusesResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryMembersResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -443,12 +881,12 @@ func (m *QueryStatusesResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryStatusesResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryMembersResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryStatusesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryMembersResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -465,10 +903,10 @@ func (m *QueryStatusesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.Statuses) > 0 {
-		for iNdEx := len(m.Statuses) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.Members) > 0 {
+		for iNdEx := len(m.Members) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.Statuses[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.Members[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -482,7 +920,7 @@ func (m *QueryStatusesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryStatusRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryMemberRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -492,12 +930,12 @@ func (m *QueryStatusRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryStatusRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryMemberRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryStatusRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryMemberRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -512,7 +950,7 @@ func (m *QueryStatusRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryStatusResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryMemberResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -522,18 +960,18 @@ func (m *QueryStatusResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryStatusResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryMemberResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryStatusResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryMemberResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	{
-		size, err := m.Status.MarshalToSizedBuffer(dAtA[:i])
+		size, err := m.Member.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
@@ -542,6 +980,108 @@ func (m *QueryStatusResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	}
 	i--
 	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryCurrentGroupRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryCurrentGroupRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryCurrentGroupRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryCurrentGroupResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryCurrentGroupResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryCurrentGroupResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.GroupID != 0 {
+		i = encodeVarintQuery(dAtA, i, uint64(m.GroupID))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryReplacingGroupRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryReplacingGroupRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryReplacingGroupRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryReplacingGroupResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryReplacingGroupResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryReplacingGroupResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.GroupID != 0 {
+		i = encodeVarintQuery(dAtA, i, uint64(m.GroupID))
+		i--
+		dAtA[i] = 0x8
+	}
 	return len(dAtA) - i, nil
 }
 
@@ -556,14 +1096,34 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *QueryStatusesRequest) Size() (n int) {
+func (m *QueryParamsRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	if m.Status != 0 {
-		n += 1 + sovQuery(uint64(m.Status))
+	return n
+}
+
+func (m *QueryParamsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Params.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
+func (m *QueryMembersRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.IsActive {
+		n += 2
 	}
 	if m.Pagination != nil {
 		l = m.Pagination.Size()
@@ -572,14 +1132,14 @@ func (m *QueryStatusesRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryStatusesResponse) Size() (n int) {
+func (m *QueryMembersResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	if len(m.Statuses) > 0 {
-		for _, e := range m.Statuses {
+	if len(m.Members) > 0 {
+		for _, e := range m.Members {
 			l = e.Size()
 			n += 1 + l + sovQuery(uint64(l))
 		}
@@ -591,7 +1151,7 @@ func (m *QueryStatusesResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryStatusRequest) Size() (n int) {
+func (m *QueryMemberRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -604,14 +1164,56 @@ func (m *QueryStatusRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryStatusResponse) Size() (n int) {
+func (m *QueryMemberResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = m.Status.Size()
+	l = m.Member.Size()
 	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
+func (m *QueryCurrentGroupRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *QueryCurrentGroupResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.GroupID != 0 {
+		n += 1 + sovQuery(uint64(m.GroupID))
+	}
+	return n
+}
+
+func (m *QueryReplacingGroupRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *QueryReplacingGroupResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.GroupID != 0 {
+		n += 1 + sovQuery(uint64(m.GroupID))
+	}
 	return n
 }
 
@@ -621,7 +1223,7 @@ func sovQuery(x uint64) (n int) {
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *QueryStatusesRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryParamsRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -644,17 +1246,67 @@ func (m *QueryStatusesRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryStatusesRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryParamsRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryStatusesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryParamsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryParamsResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryParamsResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryParamsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Params", wireType)
 			}
-			m.Status = 0
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowQuery
@@ -664,11 +1316,95 @@ func (m *QueryStatusesRequest) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Status |= MemberStatus(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Params.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryMembersRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryMembersRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryMembersRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field IsActive", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.IsActive = bool(v != 0)
 		case 2:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
@@ -726,7 +1462,7 @@ func (m *QueryStatusesRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryStatusesResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryMembersResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -749,15 +1485,15 @@ func (m *QueryStatusesResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryStatusesResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryMembersResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryStatusesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryMembersResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Statuses", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Members", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -784,8 +1520,8 @@ func (m *QueryStatusesResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Statuses = append(m.Statuses, &Status{})
-			if err := m.Statuses[len(m.Statuses)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.Members = append(m.Members, &Member{})
+			if err := m.Members[len(m.Members)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -846,7 +1582,7 @@ func (m *QueryStatusesResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryStatusRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryMemberRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -869,10 +1605,10 @@ func (m *QueryStatusRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryStatusRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryMemberRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryStatusRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryMemberRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -928,7 +1664,7 @@ func (m *QueryStatusRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryStatusResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryMemberResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -951,15 +1687,15 @@ func (m *QueryStatusResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryStatusResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryMemberResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryStatusResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryMemberResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Member", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -986,10 +1722,248 @@ func (m *QueryStatusResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Status.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.Member.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryCurrentGroupRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryCurrentGroupRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryCurrentGroupRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryCurrentGroupResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryCurrentGroupResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryCurrentGroupResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GroupID", wireType)
+			}
+			m.GroupID = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.GroupID |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryReplacingGroupRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryReplacingGroupRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryReplacingGroupRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryReplacingGroupResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryReplacingGroupResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryReplacingGroupResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GroupID", wireType)
+			}
+			m.GroupID = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.GroupID |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipQuery(dAtA[iNdEx:])

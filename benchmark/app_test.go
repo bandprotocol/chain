@@ -242,7 +242,7 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 				IsMalicious: false,
 			})
 
-			err := bandtssKeeper.SetActiveStatus(ctx, ba.Sender.Address)
+			err := bandtssKeeper.AddNewMember(ctx, ba.Sender.Address)
 			require.NoError(ba.TB, err)
 		}
 
@@ -252,7 +252,6 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 			Threshold:     tc.Group.Threshold,
 			PubKey:        tc.Group.PubKey,
 			Status:        tsstypes.GROUP_STATUS_ACTIVE,
-			Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 			CreatedHeight: 1,
 		})
 		k.SetDKGContext(ctx, tc.Group.ID, tc.Group.DKGContext)

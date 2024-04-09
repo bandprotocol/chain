@@ -324,8 +324,8 @@ func (k Keeper) HandleAssignedMembers(
 		)
 	}
 
-	// Get active members
-	members, err := k.GetActiveMembers(ctx, group.ID)
+	// Get available members
+	members, err := k.GetAvailableMembers(ctx, group.ID)
 	if err != nil {
 		return types.AssignedMembers{}, err
 	}
@@ -436,8 +436,10 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 
 		// Set the signing status to expired
 		if signing.Status != types.SIGNING_STATUS_FALLEN && signing.Status != types.SIGNING_STATUS_SUCCESS {
-			// Handle hooks before setting signing to be expired
-			k.Hooks().BeforeSetSigningExpired(ctx, signing)
+			// Handle hooks before setting signing to be expired; this shouldn't return any error.
+			if err := k.Hooks().BeforeSetSigningExpired(ctx, signing); err != nil {
+				panic(err)
+			}
 
 			signing.Status = types.SIGNING_STATUS_EXPIRED
 			k.SetSigning(ctx, signing)
@@ -506,8 +508,10 @@ func (k Keeper) HandleProcessSigning(ctx sdk.Context, signingID tss.SigningID) {
 	signing.Status = types.SIGNING_STATUS_SUCCESS
 	k.SetSigning(ctx, signing)
 
-	// Handle hooks after signing completed.
-	k.Hooks().AfterSigningCompleted(ctx, signing)
+	// Handle hooks after signing completed; this shouldn't return any error.
+	if err := k.Hooks().AfterSigningCompleted(ctx, signing); err != nil {
+		panic(err)
+	}
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -525,7 +529,9 @@ func (k Keeper) handleFailedSigning(ctx sdk.Context, signing types.Signing, reas
 	k.SetSigning(ctx, signing)
 
 	// Handle hooks after signing failed
-	k.Hooks().AfterSigningFailed(ctx, signing)
+	if err := k.Hooks().AfterSigningFailed(ctx, signing); err != nil {
+		panic(err)
+	}
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -562,8 +568,6 @@ func (k Keeper) CreateSigning(
 	ctx sdk.Context,
 	group types.Group,
 	message []byte,
-	fee sdk.Coins,
-	feePayer sdk.AccAddress,
 ) (*types.Signing, error) {
 	// Handle assigned members within the context of the group.
 	assignedMembers, err := k.HandleAssignedMembers(ctx, group, message)
@@ -585,18 +589,11 @@ func (k Keeper) CreateSigning(
 		message,
 		groupPubNonce,
 		nil,
-		fee,
 		types.SIGNING_STATUS_WAITING,
-		feePayer.String(),
 	))
 
 	signing, err := k.GetSigning(ctx, signingID)
 	if err != nil {
-		return nil, err
-	}
-
-	// Handle hooks after signing initiated.
-	if err := k.Hooks().AfterSigningCreated(ctx, signing); err != nil {
 		return nil, err
 	}
 

@@ -3,6 +3,10 @@ package types
 import (
 	"fmt"
 	"time"
+
+	"cosmossdk.io/errors"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 const (
@@ -14,18 +18,22 @@ const (
 	DefaultRewardPercentage = uint64(50)
 )
 
+var DefaultFee = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
+
 // NewParams creates a new Params instance
 func NewParams(
 	activeDuration time.Duration,
 	rewardPercentage uint64,
 	inactivePenaltyDuration time.Duration,
 	jailPenaltyDuration time.Duration,
+	fee sdk.Coins,
 ) Params {
 	return Params{
 		ActiveDuration:          activeDuration,
 		RewardPercentage:        rewardPercentage,
 		InactivePenaltyDuration: inactivePenaltyDuration,
 		JailPenaltyDuration:     jailPenaltyDuration,
+		Fee:                     fee,
 	}
 }
 
@@ -36,6 +44,7 @@ func DefaultParams() Params {
 		RewardPercentage:        DefaultRewardPercentage,
 		InactivePenaltyDuration: DefaultInactivePenaltyDuration,
 		JailPenaltyDuration:     DefaultJailPenaltyDuration,
+		Fee:                     DefaultFee,
 	}
 }
 
@@ -55,6 +64,11 @@ func (p Params) Validate() error {
 
 	if err := validateUint64("reward percentage", false)(p.RewardPercentage); err != nil {
 		return err
+	}
+
+	// Validate fee
+	if !p.Fee.IsValid() {
+		return errors.Wrap(sdkerrors.ErrInvalidCoins, p.Fee.String())
 	}
 
 	return nil

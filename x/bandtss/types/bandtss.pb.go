@@ -5,8 +5,10 @@ package types
 
 import (
 	fmt "fmt"
+	github_com_bandprotocol_chain_v2_pkg_tss "github.com/bandprotocol/chain/v2/pkg/tss"
 	_ "github.com/cosmos/cosmos-proto"
-	_ "github.com/cosmos/cosmos-sdk/types"
+	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
+	types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
 	github_com_cosmos_gogoproto_types "github.com/cosmos/gogoproto/types"
@@ -29,70 +31,30 @@ var _ = time.Kitchen
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// MemberStatus is an enumeration of the possible statuses of a member.
-type MemberStatus int32
-
-const (
-	// MEMBER_STATUS_UNSPECIFIED is unknown status.
-	MEMBER_STATUS_UNSPECIFIED MemberStatus = 0
-	// MEMBER_STATUS_ACTIVE is the active status.
-	MEMBER_STATUS_ACTIVE MemberStatus = 1
-	// MEMBER_STATUS_PAUSED is the paused status.
-	MEMBER_STATUS_PAUSED MemberStatus = 2
-	// MEMBER_STATUS_INACTIVE is the inactive status.
-	MEMBER_STATUS_INACTIVE MemberStatus = 3
-	// MEMBER_STATUS_JAIL is the status when member is jailed.
-	MEMBER_STATUS_JAIL MemberStatus = 4
-)
-
-var MemberStatus_name = map[int32]string{
-	0: "MEMBER_STATUS_UNSPECIFIED",
-	1: "MEMBER_STATUS_ACTIVE",
-	2: "MEMBER_STATUS_PAUSED",
-	3: "MEMBER_STATUS_INACTIVE",
-	4: "MEMBER_STATUS_JAIL",
-}
-
-var MemberStatus_value = map[string]int32{
-	"MEMBER_STATUS_UNSPECIFIED": 0,
-	"MEMBER_STATUS_ACTIVE":      1,
-	"MEMBER_STATUS_PAUSED":      2,
-	"MEMBER_STATUS_INACTIVE":    3,
-	"MEMBER_STATUS_JAIL":        4,
-}
-
-func (x MemberStatus) String() string {
-	return proto.EnumName(MemberStatus_name, int32(x))
-}
-
-func (MemberStatus) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_2effaef066b71284, []int{0}
-}
-
-// Status maintains whether a member is an active member.
-type Status struct {
+// Member maintains member information for monitoring their liveness activity.
+type Member struct {
 	// address is the address of the member.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-	// status represents the current status of the member
-	Status MemberStatus `protobuf:"varint,2,opt,name=status,proto3,enum=bandtss.v1beta1.MemberStatus" json:"status,omitempty"`
+	// is_active is a flag to indicate whether a member is active or not.
+	IsActive bool `protobuf:"varint,2,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
 	// since is a block timestamp when a member has been activated/deactivated/jailed
 	Since time.Time `protobuf:"bytes,3,opt,name=since,proto3,stdtime" json:"since"`
 	// last_active is a latest block timestamp when a member is active
 	LastActive time.Time `protobuf:"bytes,4,opt,name=last_active,json=lastActive,proto3,stdtime" json:"last_active"`
 }
 
-func (m *Status) Reset()         { *m = Status{} }
-func (m *Status) String() string { return proto.CompactTextString(m) }
-func (*Status) ProtoMessage()    {}
-func (*Status) Descriptor() ([]byte, []int) {
+func (m *Member) Reset()         { *m = Member{} }
+func (m *Member) String() string { return proto.CompactTextString(m) }
+func (*Member) ProtoMessage()    {}
+func (*Member) Descriptor() ([]byte, []int) {
 	return fileDescriptor_2effaef066b71284, []int{0}
 }
-func (m *Status) XXX_Unmarshal(b []byte) error {
+func (m *Member) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *Status) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *Member) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_Status.Marshal(b, m, deterministic)
+		return xxx_messageInfo_Member.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -102,92 +64,156 @@ func (m *Status) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *Status) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Status.Merge(m, src)
+func (m *Member) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Member.Merge(m, src)
 }
-func (m *Status) XXX_Size() int {
+func (m *Member) XXX_Size() int {
 	return m.Size()
 }
-func (m *Status) XXX_DiscardUnknown() {
-	xxx_messageInfo_Status.DiscardUnknown(m)
+func (m *Member) XXX_DiscardUnknown() {
+	xxx_messageInfo_Member.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_Status proto.InternalMessageInfo
+var xxx_messageInfo_Member proto.InternalMessageInfo
 
-func (m *Status) GetAddress() string {
+func (m *Member) GetAddress() string {
 	if m != nil {
 		return m.Address
 	}
 	return ""
 }
 
-func (m *Status) GetStatus() MemberStatus {
+func (m *Member) GetIsActive() bool {
 	if m != nil {
-		return m.Status
+		return m.IsActive
 	}
-	return MEMBER_STATUS_UNSPECIFIED
+	return false
 }
 
-func (m *Status) GetSince() time.Time {
+func (m *Member) GetSince() time.Time {
 	if m != nil {
 		return m.Since
 	}
 	return time.Time{}
 }
 
-func (m *Status) GetLastActive() time.Time {
+func (m *Member) GetLastActive() time.Time {
 	if m != nil {
 		return m.LastActive
 	}
 	return time.Time{}
 }
 
+type SigningFee struct {
+	// signing_ids is a list of signing IDs.
+	SigningID github_com_bandprotocol_chain_v2_pkg_tss.SigningID `protobuf:"varint,1,opt,name=signing_id,json=signingId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.SigningID" json:"signing_id,omitempty"`
+	// fee is the total tokens that will be paid for this signing
+	Fee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,2,rep,name=fee,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"fee"`
+	// requester is the address of requester who paid for the Bandtss fee.
+	Requester string `protobuf:"bytes,3,opt,name=requester,proto3" json:"requester,omitempty"`
+}
+
+func (m *SigningFee) Reset()         { *m = SigningFee{} }
+func (m *SigningFee) String() string { return proto.CompactTextString(m) }
+func (*SigningFee) ProtoMessage()    {}
+func (*SigningFee) Descriptor() ([]byte, []int) {
+	return fileDescriptor_2effaef066b71284, []int{1}
+}
+func (m *SigningFee) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *SigningFee) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_SigningFee.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *SigningFee) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SigningFee.Merge(m, src)
+}
+func (m *SigningFee) XXX_Size() int {
+	return m.Size()
+}
+func (m *SigningFee) XXX_DiscardUnknown() {
+	xxx_messageInfo_SigningFee.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SigningFee proto.InternalMessageInfo
+
+func (m *SigningFee) GetSigningID() github_com_bandprotocol_chain_v2_pkg_tss.SigningID {
+	if m != nil {
+		return m.SigningID
+	}
+	return 0
+}
+
+func (m *SigningFee) GetFee() github_com_cosmos_cosmos_sdk_types.Coins {
+	if m != nil {
+		return m.Fee
+	}
+	return nil
+}
+
+func (m *SigningFee) GetRequester() string {
+	if m != nil {
+		return m.Requester
+	}
+	return ""
+}
+
 func init() {
-	proto.RegisterEnum("bandtss.v1beta1.MemberStatus", MemberStatus_name, MemberStatus_value)
-	proto.RegisterType((*Status)(nil), "bandtss.v1beta1.Status")
+	proto.RegisterType((*Member)(nil), "bandtss.v1beta1.Member")
+	proto.RegisterType((*SigningFee)(nil), "bandtss.v1beta1.SigningFee")
 }
 
 func init() { proto.RegisterFile("bandtss/v1beta1/bandtss.proto", fileDescriptor_2effaef066b71284) }
 
 var fileDescriptor_2effaef066b71284 = []byte{
-	// 418 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x92, 0x31, 0x8f, 0xd3, 0x30,
-	0x1c, 0xc5, 0xe3, 0xbb, 0x50, 0xc0, 0x87, 0x20, 0xb2, 0x4e, 0xa7, 0x5c, 0xa4, 0x3a, 0x15, 0x53,
-	0xc5, 0x10, 0x73, 0x45, 0x2c, 0xb7, 0xa5, 0x77, 0x41, 0x0a, 0xa2, 0xd5, 0x29, 0x49, 0x19, 0x58,
-	0x22, 0x27, 0x35, 0xb9, 0x48, 0x4d, 0x5c, 0xd5, 0x6e, 0x05, 0xdf, 0x80, 0xb1, 0x3b, 0x0b, 0x12,
-	0x0b, 0x1f, 0xa5, 0x63, 0x47, 0x26, 0x40, 0xe9, 0xc2, 0xc7, 0x40, 0x8d, 0x13, 0x44, 0x61, 0x62,
-	0xf3, 0xd3, 0xef, 0xbd, 0xbf, 0xff, 0x4f, 0xfa, 0xc3, 0x6e, 0x42, 0xcb, 0xa9, 0x14, 0x82, 0xac,
-	0x2e, 0x12, 0x26, 0xe9, 0x05, 0x69, 0xb4, 0x33, 0x5f, 0x70, 0xc9, 0xd1, 0xa3, 0x56, 0x36, 0xd8,
-	0x3a, 0xcd, 0x78, 0xc6, 0x6b, 0x46, 0xf6, 0x2f, 0x65, 0xb3, 0xec, 0x8c, 0xf3, 0x6c, 0xc6, 0x48,
-	0xad, 0x92, 0xe5, 0x5b, 0x22, 0xf3, 0x82, 0x09, 0x49, 0x8b, 0x79, 0x63, 0xc0, 0x29, 0x17, 0x05,
-	0x17, 0x24, 0xa1, 0x82, 0xfd, 0xfe, 0x2a, 0xe5, 0x79, 0xd9, 0xf0, 0x73, 0xc5, 0x63, 0x35, 0x59,
-	0x09, 0x85, 0x1e, 0x57, 0x00, 0x76, 0x42, 0x49, 0xe5, 0x52, 0x20, 0x13, 0xde, 0xa5, 0xd3, 0xe9,
-	0x82, 0x09, 0x61, 0x82, 0x1e, 0xe8, 0xdf, 0x0f, 0x5a, 0x89, 0x9e, 0xc3, 0x8e, 0xa8, 0x3d, 0xe6,
-	0x51, 0x0f, 0xf4, 0x1f, 0x0e, 0xba, 0xce, 0x5f, 0x8b, 0x3b, 0x23, 0x56, 0x24, 0x6c, 0xa1, 0x06,
-	0x05, 0x8d, 0x19, 0x5d, 0xc2, 0x3b, 0x22, 0x2f, 0x53, 0x66, 0x1e, 0xf7, 0x40, 0xff, 0x64, 0x60,
-	0x39, 0xaa, 0x87, 0xd3, 0xf6, 0x70, 0xa2, 0xb6, 0xc7, 0xf0, 0xde, 0xe6, 0x9b, 0xad, 0xad, 0xbf,
-	0xdb, 0x20, 0x50, 0x11, 0xe4, 0xc1, 0x93, 0x19, 0x15, 0x32, 0xa6, 0xa9, 0xcc, 0x57, 0xcc, 0xd4,
-	0xff, 0x63, 0x02, 0xdc, 0x07, 0xdd, 0x3a, 0x77, 0xa9, 0xff, 0xfc, 0x64, 0x83, 0x27, 0x1f, 0x01,
-	0x7c, 0xf0, 0xe7, 0x86, 0xa8, 0x0b, 0xcf, 0x47, 0xde, 0x68, 0xe8, 0x05, 0x71, 0x18, 0xb9, 0xd1,
-	0x24, 0x8c, 0x27, 0xe3, 0xf0, 0xc6, 0xbb, 0xf2, 0x5f, 0xf8, 0xde, 0xb5, 0xa1, 0x21, 0x13, 0x9e,
-	0x1e, 0x62, 0xf7, 0x2a, 0xf2, 0x5f, 0x7b, 0x06, 0xf8, 0x97, 0xdc, 0xb8, 0x93, 0xd0, 0xbb, 0x36,
-	0x8e, 0x90, 0x05, 0xcf, 0x0e, 0x89, 0x3f, 0x6e, 0x52, 0xc7, 0xe8, 0x0c, 0xa2, 0x43, 0xf6, 0xd2,
-	0xf5, 0x5f, 0x19, 0xba, 0xa5, 0x7f, 0xf8, 0x8c, 0xb5, 0xe1, 0xf8, 0x4b, 0x85, 0xc1, 0xa6, 0xc2,
-	0x60, 0x5b, 0x61, 0xf0, 0xa3, 0xc2, 0x60, 0xbd, 0xc3, 0xda, 0x76, 0x87, 0xb5, 0xaf, 0x3b, 0xac,
-	0xbd, 0x79, 0x9a, 0xe5, 0xf2, 0x76, 0x99, 0x38, 0x29, 0x2f, 0xea, 0xeb, 0xa9, 0xab, 0xa7, 0x7c,
-	0x46, 0xd2, 0x5b, 0x9a, 0x97, 0x64, 0x35, 0x20, 0xef, 0xda, 0xab, 0x22, 0xf2, 0xfd, 0x9c, 0x89,
-	0xa4, 0x53, 0x5b, 0x9e, 0xfd, 0x0a, 0x00, 0x00, 0xff, 0xff, 0xab, 0xc8, 0x90, 0xb5, 0x7d, 0x02,
-	0x00, 0x00,
+	// 436 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x52, 0xb1, 0x8e, 0xd3, 0x40,
+	0x10, 0xcd, 0x92, 0x70, 0xc4, 0x9b, 0x02, 0xc9, 0xa2, 0xc8, 0x05, 0xb0, 0xa3, 0xab, 0xdc, 0xe0,
+	0xbd, 0x0b, 0xdd, 0x75, 0xe4, 0x00, 0xe9, 0x0a, 0x28, 0x0c, 0x15, 0x12, 0x8a, 0xbc, 0xf6, 0xdc,
+	0xde, 0xea, 0x62, 0xaf, 0xf1, 0x6c, 0x22, 0xf8, 0x8b, 0xfb, 0x04, 0x4a, 0xc4, 0x97, 0xa4, 0xbc,
+	0x92, 0x2a, 0x87, 0x9c, 0x86, 0x9e, 0x8e, 0x0a, 0x79, 0x77, 0x1d, 0xe8, 0x10, 0x95, 0xfd, 0xfc,
+	0x66, 0xde, 0xbc, 0x99, 0x67, 0xfa, 0x98, 0xa7, 0x65, 0xae, 0x11, 0xd9, 0xfa, 0x84, 0x83, 0x4e,
+	0x4f, 0x98, 0xc3, 0x71, 0x55, 0x2b, 0xad, 0xfc, 0xfb, 0x1d, 0x74, 0xf4, 0xe4, 0x81, 0x50, 0x42,
+	0x19, 0x8e, 0xb5, 0x6f, 0xb6, 0x6c, 0x12, 0x0a, 0xa5, 0xc4, 0x12, 0x98, 0x41, 0x7c, 0x75, 0xc1,
+	0xb4, 0x2c, 0x00, 0x75, 0x5a, 0x54, 0xae, 0x20, 0xc8, 0x14, 0x16, 0x0a, 0x19, 0x4f, 0x11, 0xf6,
+	0xa3, 0x32, 0x25, 0x4b, 0xc7, 0x1f, 0x5a, 0x7e, 0x61, 0x95, 0x2d, 0xb0, 0xd4, 0xd1, 0x86, 0xd0,
+	0x83, 0x57, 0x50, 0x70, 0xa8, 0xfd, 0x31, 0xbd, 0x97, 0xe6, 0x79, 0x0d, 0x88, 0x63, 0x32, 0x25,
+	0x91, 0x97, 0x74, 0xd0, 0x7f, 0x48, 0x3d, 0x89, 0x8b, 0x34, 0xd3, 0x72, 0x0d, 0xe3, 0x3b, 0x53,
+	0x12, 0x0d, 0x93, 0xa1, 0xc4, 0x67, 0x06, 0xfb, 0xa7, 0xf4, 0x2e, 0xca, 0x32, 0x83, 0x71, 0x7f,
+	0x4a, 0xa2, 0xd1, 0x6c, 0x12, 0x5b, 0xb7, 0x71, 0xe7, 0x36, 0x7e, 0xdb, 0xb9, 0x9d, 0x0f, 0x37,
+	0xdb, 0xb0, 0x77, 0x7d, 0x1b, 0x92, 0xc4, 0xb6, 0xf8, 0x2f, 0xe8, 0x68, 0x99, 0xa2, 0xee, 0xa4,
+	0x07, 0xff, 0xa1, 0x40, 0xdb, 0x46, 0x6b, 0xe1, 0x74, 0xf0, 0xe3, 0x73, 0x48, 0x8e, 0x7e, 0x12,
+	0x4a, 0xdf, 0x48, 0x51, 0xca, 0x52, 0xbc, 0x04, 0xf0, 0x39, 0xa5, 0x68, 0xd1, 0x42, 0xe6, 0x66,
+	0xa3, 0xc1, 0xfc, 0xac, 0xd9, 0x86, 0x9e, 0xab, 0x39, 0x7f, 0xfe, 0x6b, 0x1b, 0xce, 0x84, 0xd4,
+	0x97, 0x2b, 0x1e, 0x67, 0xaa, 0x30, 0xd9, 0x98, 0x91, 0x99, 0x5a, 0xb2, 0xec, 0x32, 0x95, 0x25,
+	0x5b, 0xcf, 0x58, 0x75, 0x25, 0x58, 0x1b, 0xd1, 0xbe, 0x2b, 0xf1, 0x9c, 0xec, 0x79, 0xee, 0xbf,
+	0xa7, 0xfd, 0x0b, 0x68, 0x4f, 0xd2, 0x8f, 0x46, 0xb3, 0xc3, 0xd8, 0x5d, 0xb6, 0x8d, 0xa1, 0x8b,
+	0x34, 0x3e, 0x53, 0xb2, 0x9c, 0x1f, 0xb7, 0xb6, 0xbf, 0xde, 0x86, 0xd1, 0x5f, 0xe3, 0x5c, 0x66,
+	0xf6, 0xf1, 0x04, 0xf3, 0x2b, 0xa6, 0x3f, 0x55, 0x80, 0xa6, 0x01, 0x93, 0x56, 0xd7, 0x7f, 0x44,
+	0xbd, 0x1a, 0x3e, 0xac, 0x00, 0x35, 0xd4, 0xe6, 0xbc, 0x5e, 0xf2, 0xe7, 0x83, 0xdd, 0x7a, 0xfe,
+	0xfa, 0x4b, 0x13, 0x90, 0x4d, 0x13, 0x90, 0x9b, 0x26, 0x20, 0xdf, 0x9b, 0x80, 0x5c, 0xef, 0x82,
+	0xde, 0xcd, 0x2e, 0xe8, 0x7d, 0xdb, 0x05, 0xbd, 0x77, 0xc7, 0xff, 0xdc, 0xef, 0x63, 0xf7, 0x4f,
+	0xda, 0xf1, 0xfc, 0xc0, 0x94, 0x3c, 0xfd, 0x1d, 0x00, 0x00, 0xff, 0xff, 0x03, 0xac, 0xf1, 0xbe,
+	0xbb, 0x02, 0x00, 0x00,
 }
 
-func (this *Status) Equal(that interface{}) bool {
+func (this *Member) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
 	}
 
-	that1, ok := that.(*Status)
+	that1, ok := that.(*Member)
 	if !ok {
-		that2, ok := that.(Status)
+		that2, ok := that.(Member)
 		if ok {
 			that1 = &that2
 		} else {
@@ -202,7 +228,7 @@ func (this *Status) Equal(that interface{}) bool {
 	if this.Address != that1.Address {
 		return false
 	}
-	if this.Status != that1.Status {
+	if this.IsActive != that1.IsActive {
 		return false
 	}
 	if !this.Since.Equal(that1.Since) {
@@ -213,7 +239,42 @@ func (this *Status) Equal(that interface{}) bool {
 	}
 	return true
 }
-func (m *Status) Marshal() (dAtA []byte, err error) {
+func (this *SigningFee) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*SigningFee)
+	if !ok {
+		that2, ok := that.(SigningFee)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.SigningID != that1.SigningID {
+		return false
+	}
+	if len(this.Fee) != len(that1.Fee) {
+		return false
+	}
+	for i := range this.Fee {
+		if !this.Fee[i].Equal(&that1.Fee[i]) {
+			return false
+		}
+	}
+	if this.Requester != that1.Requester {
+		return false
+	}
+	return true
+}
+func (m *Member) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -223,12 +284,12 @@ func (m *Status) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *Status) MarshalTo(dAtA []byte) (int, error) {
+func (m *Member) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *Status) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *Member) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -249,8 +310,13 @@ func (m *Status) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i = encodeVarintBandtss(dAtA, i, uint64(n2))
 	i--
 	dAtA[i] = 0x1a
-	if m.Status != 0 {
-		i = encodeVarintBandtss(dAtA, i, uint64(m.Status))
+	if m.IsActive {
+		i--
+		if m.IsActive {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
 		i--
 		dAtA[i] = 0x10
 	}
@@ -260,6 +326,55 @@ func (m *Status) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintBandtss(dAtA, i, uint64(len(m.Address)))
 		i--
 		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *SigningFee) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *SigningFee) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *SigningFee) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Requester) > 0 {
+		i -= len(m.Requester)
+		copy(dAtA[i:], m.Requester)
+		i = encodeVarintBandtss(dAtA, i, uint64(len(m.Requester)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.Fee) > 0 {
+		for iNdEx := len(m.Fee) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Fee[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintBandtss(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if m.SigningID != 0 {
+		i = encodeVarintBandtss(dAtA, i, uint64(m.SigningID))
+		i--
+		dAtA[i] = 0x8
 	}
 	return len(dAtA) - i, nil
 }
@@ -275,7 +390,7 @@ func encodeVarintBandtss(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *Status) Size() (n int) {
+func (m *Member) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -285,13 +400,35 @@ func (m *Status) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovBandtss(uint64(l))
 	}
-	if m.Status != 0 {
-		n += 1 + sovBandtss(uint64(m.Status))
+	if m.IsActive {
+		n += 2
 	}
 	l = github_com_cosmos_gogoproto_types.SizeOfStdTime(m.Since)
 	n += 1 + l + sovBandtss(uint64(l))
 	l = github_com_cosmos_gogoproto_types.SizeOfStdTime(m.LastActive)
 	n += 1 + l + sovBandtss(uint64(l))
+	return n
+}
+
+func (m *SigningFee) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.SigningID != 0 {
+		n += 1 + sovBandtss(uint64(m.SigningID))
+	}
+	if len(m.Fee) > 0 {
+		for _, e := range m.Fee {
+			l = e.Size()
+			n += 1 + l + sovBandtss(uint64(l))
+		}
+	}
+	l = len(m.Requester)
+	if l > 0 {
+		n += 1 + l + sovBandtss(uint64(l))
+	}
 	return n
 }
 
@@ -301,7 +438,7 @@ func sovBandtss(x uint64) (n int) {
 func sozBandtss(x uint64) (n int) {
 	return sovBandtss(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *Status) Unmarshal(dAtA []byte) error {
+func (m *Member) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -324,10 +461,10 @@ func (m *Status) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: Status: wiretype end group for non-group")
+			return fmt.Errorf("proto: Member: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Status: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: Member: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -364,9 +501,9 @@ func (m *Status) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field IsActive", wireType)
 			}
-			m.Status = 0
+			var v int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowBandtss
@@ -376,11 +513,12 @@ func (m *Status) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Status |= MemberStatus(b&0x7F) << shift
+				v |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			m.IsActive = bool(v != 0)
 		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Since", wireType)
@@ -446,6 +584,141 @@ func (m *Status) Unmarshal(dAtA []byte) error {
 			if err := github_com_cosmos_gogoproto_types.StdTimeUnmarshal(&m.LastActive, dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipBandtss(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthBandtss
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *SigningFee) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowBandtss
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: SigningFee: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: SigningFee: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SigningID", wireType)
+			}
+			m.SigningID = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBandtss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.SigningID |= github_com_bandprotocol_chain_v2_pkg_tss.SigningID(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Fee", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBandtss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthBandtss
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthBandtss
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Fee = append(m.Fee, types.Coin{})
+			if err := m.Fee[len(m.Fee)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Requester", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBandtss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthBandtss
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthBandtss
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Requester = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

@@ -6,6 +6,7 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
@@ -421,14 +422,7 @@ func (s *KeeperTestSuite) TestCreateSigning() {
 	groupID := tss.GroupID(1)
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
-
-	// Set the group fee to zero
 	group := k.MustGetGroup(ctx, groupID)
-	group.Fee = sdk.NewCoins()
-	k.SetGroup(ctx, group)
-
-	// Define the fee payer's address.
-	feePayer, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 
 	// Create a new request for the request signature
 	content := types.NewTextSignatureOrder([]byte("example"))
@@ -437,7 +431,7 @@ func (s *KeeperTestSuite) TestCreateSigning() {
 	msg, err := k.HandleSigningContent(ctx, content)
 	s.Require().NoError(err)
 
-	signing, err := k.CreateSigning(ctx, group, msg, sdk.NewCoins(), feePayer)
+	signing, err := k.CreateSigning(ctx, group, msg)
 	s.Require().NoError(err)
 
 	s.Require().NoError(err)
@@ -485,16 +479,21 @@ func (s *KeeperTestSuite) TestGetSetPendingProcessSignings() {
 func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
+	alice := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey()).String()
+
+	s.app.BandtssKeeper.SetSigningFee(ctx, bandtsstypes.SigningFee{
+		SigningID: tss.SigningID(1),
+		Fee:       sdk.NewCoins(),
+	})
 
 	// Set member
 	k.SetMember(ctx, types.Member{
-		ID:      memberID,
-		GroupID: groupID,
-		Address: testapp.Alice.Address.String(),
+		ID:       memberID,
+		GroupID:  groupID,
+		Address:  alice,
+		IsActive: false,
 	})
-
-	// Set isActive flag
-	k.SetMemberIsActive(ctx, testapp.Alice.Address, false)
 
 	// Create signing
 	signingID := k.AddSigning(ctx, types.Signing{
@@ -519,10 +518,9 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	s.Require().NoError(err)
 	s.Require().Equal(types.SIGNING_STATUS_EXPIRED, gotSigning.Status)
 	s.Require().Nil(gotSigning.AssignedMembers)
-
-	gotStatus := k.GetMemberIsActive(ctx, testapp.Alice.Address)
-	s.Require().False(gotStatus)
-
+	member, err := k.GetMemberByAddress(ctx, testutil.TestCases[0].Group.ID, alice)
+	s.Require().NoError(err)
+	s.Require().False(member.IsActive)
 	gotLastExpiredSigningID := k.GetLastExpiredSigningID(ctx)
 	s.Require().Equal(signingID, gotLastExpiredSigningID)
 

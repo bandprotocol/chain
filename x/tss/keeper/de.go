@@ -130,11 +130,6 @@ func (k Keeper) HandleSetDEs(ctx sdk.Context, address sdk.AccAddress, des []type
 
 	k.SetDEQueue(ctx, deQueue)
 
-	// Handle hooks after setting DEs.
-	if err := k.Hooks().AfterHandleSetDEs(ctx, address); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -173,11 +168,6 @@ func (k Keeper) HandleAssignedMembersPollDE(
 
 		de, err := k.PollDE(ctx, accMember)
 		if err != nil {
-			return nil, err
-		}
-
-		// Handle hooks after polling DE.
-		if err := k.Hooks().AfterPollDE(ctx, accMember); err != nil {
 			return nil, err
 		}
 

@@ -50,13 +50,6 @@ func (q queryServer) Group(goCtx context.Context, req *types.QueryGroupRequest) 
 		return nil, err
 	}
 
-	var isActives []bool
-	for _, m := range members {
-		address := sdk.MustAccAddressFromBech32(m.Address)
-		status := q.k.GetMemberIsActive(ctx, address)
-		isActives = append(isActives, status)
-	}
-
 	// Ignore error as dkgContext can be deleted
 	dkgContext, _ := q.k.GetDKGContext(ctx, groupID)
 
@@ -71,7 +64,6 @@ func (q queryServer) Group(goCtx context.Context, req *types.QueryGroupRequest) 
 		Group:                group,
 		DKGContext:           dkgContext,
 		Members:              members,
-		IsActives:            isActives,
 		Round1Infos:          round1Infos,
 		Round2Infos:          round2Infos,
 		ComplaintsWithStatus: complaints,
@@ -269,27 +261,6 @@ func (q queryServer) Signing(
 		Signing:                   signing,
 		EVMSignature:              evmSignature,
 		ReceivedPartialSignatures: pzs,
-	}, nil
-}
-
-// Status function handles the request to get the status of a given account address.
-func (q queryServer) IsActive(
-	goCtx context.Context,
-	req *types.QueryIsActiveRequest,
-) (*types.QueryIsActiveResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	// Convert the address from Bech32 format to AccAddress format
-	address, err := sdk.AccAddressFromBech32(req.Address)
-	if err != nil {
-		return nil, errors.Wrapf(types.ErrInvalidAccAddressFormat, "invalid account address: %s", err)
-	}
-
-	// Get all statuses of the address
-	isActive := q.k.GetMemberIsActive(ctx, address)
-
-	return &types.QueryIsActiveResponse{
-		IsActive: isActive,
 	}, nil
 }
 

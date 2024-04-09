@@ -105,17 +105,14 @@ var (
 	// PartialSignatureStoreKeyPrefix is the key for keeps partial signature.
 	PartialSignatureStoreKeyPrefix = []byte{0x10}
 
-	// IsActiveStoreKeyPrefix is the prefix for status store.
-	IsActiveStoreKeyPrefix = []byte{0x11}
-
 	// ParamsKeyPrefix is a prefix for keys that store TSS's parameters
-	ParamsKeyPrefix = []byte{0x12}
+	ParamsKeyPrefix = []byte{0x11}
 
 	// ReplacementPrefix is the prefix for keeps replacement group data.
-	ReplacementKeyPrefix = []byte{0x13}
+	ReplacementKeyPrefix = []byte{0x12}
 
 	// ReplacementQueuePrefix is the prefix for keeps replacement group queue.
-	ReplacementQueuePrefix = []byte{0x14}
+	ReplacementQueuePrefix = []byte{0x13}
 )
 
 func GroupStoreKey(groupID tss.GroupID) []byte {
@@ -229,10 +226,6 @@ func MemberIDFromPartialSignatureMemberStoreKey(key []byte) tss.MemberID {
 
 func SigningIDFromPendingSignStoreKey(key []byte) uint64 {
 	return sdk.BigEndianToUint64(key[len(key)-uint64Len:])
-}
-
-func IsActiveStoreKey(address sdk.AccAddress) []byte {
-	return append(IsActiveStoreKeyPrefix, address...)
 }
 
 func ReplacementKey(replacementID uint64) []byte {

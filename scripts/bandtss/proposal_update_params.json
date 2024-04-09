@@ -1,0 +1,24 @@
+{
+  "messages": [
+    {
+      "@type": "/bandtss.v1beta1.MsgUpdateParams",
+      "params": {
+        "active_duration": "86400s",
+        "reward_percentage": "50",
+        "inactive_penalty_duration": "600s",
+        "jail_penalty_duration": "2592000s",
+        "fee": [
+          {
+            "denom": "uband",
+            "amount": "50"
+          }
+        ]
+      },
+      "authority": "band10d07y265gmmuvt4z0w9aw880jnsr700jrdn8wm"
+    }
+  ],
+  "metadata": "ipfs://",
+  "deposit": "1000000000uband",
+  "title": "Update Params",
+  "summary": "This proposal is to update group fee in params"
+}

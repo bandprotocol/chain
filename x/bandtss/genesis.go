@@ -13,15 +13,25 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 		panic(err)
 	}
 
-	for _, status := range data.Statuses {
-		k.SetStatus(ctx, status)
+	for _, member := range data.Members {
+		k.SetMember(ctx, member)
 	}
+
+	for _, signingFee := range data.SigningFees {
+		k.SetSigningFee(ctx, signingFee)
+	}
+
+	k.SetCurrentGroupID(ctx, data.CurrentGroupID)
+	k.SetReplacingGroupID(ctx, data.ReplacingGroupID)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
-		Params:   k.GetParams(ctx),
-		Statuses: k.GetStatuses(ctx),
+		Params:           k.GetParams(ctx),
+		Members:          k.GetMembers(ctx),
+		CurrentGroupID:   k.GetCurrentGroupID(ctx),
+		ReplacingGroupID: k.GetReplacingGroupID(ctx),
+		SigningFees:      k.GetSigningFees(ctx),
 	}
 }

@@ -69,15 +69,8 @@ type TSSKeeper interface {
 		ctx sdk.Context,
 		members []sdk.AccAddress,
 		threshold uint64,
-		fee sdk.Coins,
 		moduleOwner string,
 	) (tss.GroupID, error)
-
-	UpdateGroupFee(
-		ctx sdk.Context,
-		groupID tss.GroupID,
-		fee sdk.Coins,
-	) (*tsstypes.Group, error)
 
 	ReplaceGroup(
 		ctx sdk.Context,
@@ -92,15 +85,16 @@ type TSSKeeper interface {
 		ctx sdk.Context,
 		group tsstypes.Group,
 		message []byte,
-		fee sdk.Coins,
-		feePayer sdk.AccAddress,
 	) (*tsstypes.Signing, error)
+
+	MustGetMembers(ctx sdk.Context, groupID tss.GroupID) []tsstypes.Member
+	GetMemberByAddress(ctx sdk.Context, groupID tss.GroupID, address string) (tsstypes.Member, error)
+	ActivateMember(ctx sdk.Context, groupID tss.GroupID, address sdk.AccAddress) error
+	DeactivateMember(ctx sdk.Context, groupID tss.GroupID, address sdk.AccAddress) error
 
 	GetDECount(ctx sdk.Context, address sdk.AccAddress) uint64
 	GetGroup(ctx sdk.Context, groupID tss.GroupID) (tsstypes.Group, error)
 	GetPenalizedMembersExpiredGroup(ctx sdk.Context, group tsstypes.Group) ([]sdk.AccAddress, error)
 	GetPenalizedMembersExpiredSigning(ctx sdk.Context, signing tsstypes.Signing) ([]sdk.AccAddress, error)
 	HandleSigningContent(ctx sdk.Context, content tsstypes.Content) ([]byte, error)
-
-	SetMemberIsActive(ctx sdk.Context, address sdk.AccAddress, status bool)
 }

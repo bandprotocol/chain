@@ -40,10 +40,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 
 	for _, m := range members {
 		address := sdk.MustAccAddressFromBech32(m)
-		err := bandtssKeeper.SetActiveStatus(ctx, sdk.MustAccAddressFromBech32(m))
-		s.Require().NoError(err)
-
-		err = k.HandleSetDEs(ctx, address, []types.DE{
+		err := k.HandleSetDEs(ctx, address, []types.DE{
 			{
 				PubD: testutil.HexDecode("dddd"),
 				PubE: testutil.HexDecode("eeee"),
@@ -148,6 +145,13 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	k.AddConfirm(ctx, groupID, confirm1)
 	k.AddConfirm(ctx, groupID, confirm2)
 
+	bandtssKeeper.SetCurrentGroupID(ctx, groupID)
+	for _, m := range members {
+		address := sdk.MustAccAddressFromBech32(m)
+		err := bandtssKeeper.AddNewMember(ctx, address)
+		s.Require().NoError(err)
+	}
+
 	var req types.QueryGroupRequest
 	testCases := []struct {
 		msg      string
@@ -176,37 +180,38 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 			func(res *types.QueryGroupResponse) {
 				dkgContextB, _ := hex.DecodeString("6c31fc15422ebad28aaf9089c306702f67540b53c7eea8b7d2941044b027100f")
 
-				expectedMemberStatuses := []bandtsstypes.Status{
+				expectedMembers := []bandtsstypes.Member{
 					{
-						Address: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
-						Status:  bandtsstypes.MEMBER_STATUS_ACTIVE,
-						Since:   ctx.BlockTime(),
+						Address:  "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+						IsActive: true,
+						Since:    ctx.BlockTime(),
 					},
 					{
-						Address: "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
-						Status:  bandtsstypes.MEMBER_STATUS_ACTIVE,
-						Since:   ctx.BlockTime(),
+						Address:  "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
+						IsActive: true,
+						Since:    ctx.BlockTime(),
 					},
 					{
-						Address: "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
-						Status:  bandtsstypes.MEMBER_STATUS_ACTIVE,
-						Since:   ctx.BlockTime(),
+						Address:  "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+						IsActive: true,
+						Since:    ctx.BlockTime(),
 					},
 					{
-						Address: "band1s3k4330ps8gj3dkw8x77ug0qf50ff6vqdmwax9",
-						Status:  bandtsstypes.MEMBER_STATUS_ACTIVE,
-						Since:   ctx.BlockTime(),
+						Address:  "band1s3k4330ps8gj3dkw8x77ug0qf50ff6vqdmwax9",
+						IsActive: true,
+						Since:    ctx.BlockTime(),
 					},
 					{
-						Address: "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
-						Status:  bandtsstypes.MEMBER_STATUS_ACTIVE,
-						Since:   ctx.BlockTime(),
+						Address:  "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
+						IsActive: true,
+						Since:    ctx.BlockTime(),
 					},
 				}
 
-				for _, expectedStatus := range expectedMemberStatuses {
-					status := bandtssKeeper.GetStatus(ctx, sdk.MustAccAddressFromBech32(expectedStatus.Address))
-					s.Require().Equal(status, expectedStatus)
+				for _, expectedMember := range expectedMembers {
+					member, err := bandtssKeeper.GetMember(ctx, sdk.MustAccAddressFromBech32(expectedMember.Address))
+					s.Require().NoError(err)
+					s.Require().Equal(member, expectedMember)
 				}
 
 				s.Require().Equal(&types.QueryGroupResponse{
@@ -226,6 +231,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 							Address:     "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 							PubKey:      nil,
 							IsMalicious: false,
+							IsActive:    true,
 						},
 						{
 							ID:          2,
@@ -233,6 +239,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 							Address:     "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
 							PubKey:      nil,
 							IsMalicious: false,
+							IsActive:    true,
 						},
 						{
 							ID:          3,
@@ -240,6 +247,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 							Address:     "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
 							PubKey:      nil,
 							IsMalicious: false,
+							IsActive:    true,
 						},
 						{
 							ID:          4,
@@ -247,6 +255,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 							Address:     "band1s3k4330ps8gj3dkw8x77ug0qf50ff6vqdmwax9",
 							PubKey:      nil,
 							IsMalicious: false,
+							IsActive:    true,
 						},
 						{
 							ID:          5,
@@ -254,9 +263,9 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 							Address:     "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
 							PubKey:      nil,
 							IsMalicious: false,
+							IsActive:    true,
 						},
 					},
-					IsActives: []bool{true, true, true, true, true},
 					Round1Infos: []types.Round1Info{
 						round1Info1,
 						round1Info2,

@@ -53,7 +53,7 @@ func (s *KeeperTestSuite) SetupTest() {
 }
 
 func (s *KeeperTestSuite) setupCreateGroup() {
-	ctx, bandtssMsgSrvr, bandtssKeeper, tssKeeper := s.ctx, s.msgSrvr, s.app.BandtssKeeper, s.app.TSSKeeper
+	ctx, bandtssMsgSrvr, tssKeeper := s.ctx, s.msgSrvr, s.app.TSSKeeper
 
 	// Create group from testutil
 	for _, tc := range testutil.TestCases {
@@ -62,15 +62,12 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 		for _, m := range tc.Group.Members {
 			address := sdk.AccAddress(m.PubKey())
 			members = append(members, address.String())
-			err := bandtssKeeper.SetActiveStatus(ctx, address)
-			s.Require().NoError(err)
 		}
 
 		// Create group
 		_, err := bandtssMsgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
 			Members:   members,
 			Threshold: tc.Group.Threshold,
-			Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 			Authority: s.authority.String(),
 		})
 		s.Require().NoError(err)

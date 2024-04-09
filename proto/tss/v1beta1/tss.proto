@@ -22,15 +22,12 @@ message Group {
   bytes pub_key = 4 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // status represents the current stage of the group in the DKG or signing process.
   GroupStatus status = 5;
-  // fee is the tokens that will be paid per signing.
-  repeated cosmos.base.v1beta1.Coin fee = 6
-      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
   // latest_replacement_id is the latest replacement ID of the group.
-  uint64 latest_replacement_id = 7 [(gogoproto.customname) = "LatestReplacementID"];
+  uint64 latest_replacement_id = 6 [(gogoproto.customname) = "LatestReplacementID"];
   // created_height is the block height when the group was created.
-  uint64 created_height = 8;
+  uint64 created_height = 7;
   // module_owner is the module that creates this group.
-  string module_owner = 9;
+  string module_owner = 8;
 }
 
 // Replacement represents a group that will replaced with another group in the replacement process.
@@ -139,15 +136,10 @@ message Signing {
   bytes group_pub_nonce = 6 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // signature is the group's signature on the message.
   bytes signature = 7 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"];
-  // fee is the total tokens that will be paid for this signing
-  repeated cosmos.base.v1beta1.Coin fee = 8
-      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
   // status represents the current stage of the signing in the signing process.
-  SigningStatus status = 9;
+  SigningStatus status = 8;
   // created_height is the block height when the signing was created.
-  uint64 created_height = 10;
-  // requester is the address of requester who paid for the TSS fee.
-  string requester = 11;
+  uint64 created_height = 9;
 }
 
 // AssignedMember is a type representing a member that has been assigned to a signing process.
@@ -205,6 +197,8 @@ message Member {
   bytes pub_key = 4 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // is_malicious is a boolean flag indicating whether the member is considered malicious.
   bool is_malicious = 5;
+  // is_active is a boolean flag indicating whether the member is currently active in the protocol.
+  bool is_active = 6;
 }
 
 // GroupStatus is an enumeration of the possible statuses of a group.

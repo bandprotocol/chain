@@ -53,7 +53,7 @@ func (s *KeeperTestSuite) SetupTest() {
 }
 
 func (s *KeeperTestSuite) setupCreateGroup() {
-	ctx, bandtssKeeper, tssKeeper := s.ctx, s.app.BandtssKeeper, s.app.TSSKeeper
+	ctx, bandtssKeeper := s.ctx, s.app.BandtssKeeper
 	bandtssMsgSrvr := bandtsskeeper.NewMsgServerImpl(bandtssKeeper)
 
 	// Create group from testutil
@@ -61,22 +61,13 @@ func (s *KeeperTestSuite) setupCreateGroup() {
 		// Initialize members
 		var members []string
 		for _, m := range tc.Group.Members {
-			address := sdk.AccAddress(m.PubKey())
-			members = append(members, address.String())
-
-			bandtssKeeper.SetStatus(ctx, bandtsstypes.Status{
-				Address: address.String(),
-				Status:  bandtsstypes.MEMBER_STATUS_ACTIVE,
-				Since:   ctx.BlockTime(),
-			})
-			tssKeeper.SetMemberIsActive(ctx, address, true)
+			members = append(members, sdk.AccAddress(m.PubKey()).String())
 		}
 
 		// Create group
 		_, err := bandtssMsgSrvr.CreateGroup(ctx, &bandtsstypes.MsgCreateGroup{
 			Members:   members,
 			Threshold: tc.Group.Threshold,
-			Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 			Authority: s.authority.String(),
 		})
 		s.Require().NoError(err)
@@ -381,49 +372,35 @@ func (s *KeeperTestSuite) TestGetMembers() {
 func (s *KeeperTestSuite) TestGetSetMemberIsActive() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 
+	groupID := tss.GroupID(10)
 	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-	k.SetMemberIsActive(ctx, address, true)
+	k.SetMember(ctx, types.Member{
+		ID:       tss.MemberID(1),
+		GroupID:  groupID,
+		Address:  address.String(),
+		PubKey:   nil,
+		IsActive: true,
+	})
 
 	// check when being set to active
-	got := k.GetMemberIsActive(ctx, address)
-	s.Require().True(got)
+	members, err := k.GetGroupMembers(ctx, groupID)
+	s.Require().NoError(err)
+	s.Require().Len(members, 1)
 
-	gotAddrs, gotIsActives := k.GetMemberIsActives(ctx)
-	cntFound := 0
-	for i := range gotAddrs {
-		if gotAddrs[i].String() == address.String() {
-			s.Require().True(gotIsActives[i])
-			cntFound++
-		}
+	for _, member := range members {
+		s.Require().True(member.IsActive)
 	}
-	s.Require().Equal(1, cntFound)
 
-	// check when being set to false
-	k.SetMemberIsActive(ctx, address, false)
+	err = k.SetMemberIsActive(ctx, groupID, address, false)
+	s.Require().NoError(err)
 
-	got = k.GetMemberIsActive(ctx, address)
-	s.Require().False(got)
+	members, err = k.GetGroupMembers(ctx, groupID)
+	s.Require().NoError(err)
+	s.Require().Len(members, 1)
 
-	gotAddrs, gotIsActives = k.GetMemberIsActives(ctx)
-	cntFound = 0
-	for i := range gotAddrs {
-		if gotAddrs[i].String() == address.String() {
-			s.Require().False(gotIsActives[i])
-			cntFound++
-		}
+	for _, member := range members {
+		s.Require().False(member.IsActive)
 	}
-	s.Require().Equal(1, cntFound)
-
-	// check when being deleted
-	k.DeleteMemberIsActive(ctx, address)
-	gotAddrs, _ = k.GetMemberIsActives(ctx)
-	cntFound = 0
-	for i := range gotAddrs {
-		if gotAddrs[i].String() == address.String() {
-			cntFound++
-		}
-	}
-	s.Require().Equal(0, cntFound)
 }
 
 func (s *KeeperTestSuite) TestSetLastExpiredGroupID() {
@@ -633,7 +610,6 @@ func (s *KeeperTestSuite) TestSuccessHandleReplaceGroup() {
 		Threshold:     4,
 		PubKey:        testutil.HexDecode("02a37461c1621d12f2c436b98ffe95d6ff0fedc102e8b5b35a08c96b889cb448fd"),
 		Status:        types.GROUP_STATUS_ACTIVE,
-		Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 15)),
 		CreatedHeight: 2,
 	}
 	initialCurrentGroup := types.Group{
@@ -642,7 +618,6 @@ func (s *KeeperTestSuite) TestSuccessHandleReplaceGroup() {
 		Threshold:     3,
 		PubKey:        testutil.HexDecode("0260aa1c85288f77aeaba5d02e984d987b16dd7f6722544574a03d175b48d8b83b"),
 		Status:        types.GROUP_STATUS_ACTIVE,
-		Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 		CreatedHeight: 1,
 	}
 	initialSigning := types.Signing{
@@ -680,7 +655,6 @@ func (s *KeeperTestSuite) TestSuccessHandleReplaceGroup() {
 	s.Require().Equal(initialNewGroup.Threshold, updatedGroup.Threshold)
 	s.Require().Equal(initialNewGroup.PubKey, updatedGroup.PubKey)
 	s.Require().Equal(initialNewGroup.Status, updatedGroup.Status)
-	s.Require().Equal(initialNewGroup.Fee, updatedGroup.Fee)
 }
 
 func (s *KeeperTestSuite) TestFailedHandleReplaceGroup() {
@@ -697,7 +671,6 @@ func (s *KeeperTestSuite) TestFailedHandleReplaceGroup() {
 		Threshold:     4,
 		PubKey:        testutil.HexDecode("02a37461c1621d12f2c436b98ffe95d6ff0fedc102e8b5b35a08c96b889cb448fd"),
 		Status:        types.GROUP_STATUS_ACTIVE,
-		Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 15)),
 		CreatedHeight: 2,
 	}
 	initialCurrentGroup := types.Group{
@@ -706,7 +679,6 @@ func (s *KeeperTestSuite) TestFailedHandleReplaceGroup() {
 		Threshold:     3,
 		PubKey:        testutil.HexDecode("0260aa1c85288f77aeaba5d02e984d987b16dd7f6722544574a03d175b48d8b83b"),
 		Status:        types.GROUP_STATUS_ACTIVE,
-		Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 		CreatedHeight: 1,
 	}
 	initialSigning := types.Signing{

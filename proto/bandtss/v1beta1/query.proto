@@ -5,46 +5,87 @@ import "gogoproto/gogo.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "google/api/annotations.proto";
 import "bandtss/v1beta1/bandtss.proto";
+import "bandtss/v1beta1/genesis.proto";
 
 option go_package = "github.com/bandprotocol/chain/v2/x/bandtss/types";
 
 // Query defines the gRPC querier service.
 service Query {
-  // Statuses queries all statuses.
-  rpc Statuses(QueryStatusesRequest) returns (QueryStatusesResponse) {
-    option (google.api.http).get = "/bandtss/v1beta1/statuses";
+  // Params queries parameters of Bandtss module
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/bandtss/v1beta1/params";
   }
 
-  // Status queries the status of the address.
-  rpc Status(QueryStatusRequest) returns (QueryStatusResponse) {
-    option (google.api.http).get = "/bandtss/v1beta1/statuses/{address}";
+  // Members queries all members.
+  rpc Members(QueryMembersRequest) returns (QueryMembersResponse) {
+    option (google.api.http).get = "/bandtss/v1beta1/members";
+  }
+
+  // Member queries the member information of the address.
+  rpc Member(QueryMemberRequest) returns (QueryMemberResponse) {
+    option (google.api.http).get = "/bandtss/v1beta1/members/{address}";
+  }
+
+  rpc CurrentGroup(QueryCurrentGroupRequest) returns (QueryCurrentGroupResponse) {
+    option (google.api.http).get = "/bandtss/v1beta1/current_group";
+  }
+
+  rpc ReplacingGroup(QueryReplacingGroupRequest) returns (QueryReplacingGroupResponse) {
+    option (google.api.http).get = "/bandtss/v1beta1/replacing_group";
   }
 }
 
-// QueryStatusesRequest is the request type for the Query/Statuses RPC method.
-message QueryStatusesRequest {
-  // status define filter on statuses
-  MemberStatus status = 1;
+// QueryParamsRequest is request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // pagination defines an optional pagination for the request.
+  Params params = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryMembersRequest is the request type for the Query/Members RPC method.
+message QueryMembersRequest {
+  // is_active define filter on members
+  bool is_active = 1;
   // pagination defines pagination settings for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
-// QueryStatusesResponse is the response type for the Query/Statuses RPC method.
-message QueryStatusesResponse {
-  // statuses is the statuses request.
-  repeated Status statuses = 1;
+// QueryMembersResponse is the response type for the Query/Members RPC method.
+message QueryMembersResponse {
+  // members are those individuals who correspond to the provided is_active status.
+  repeated Member members = 1;
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
-// QueryStatusRequest is the request type for the Query/Status RPC method.
-message QueryStatusRequest {
+// QueryMemberRequest is the request type for the Query/Member RPC method.
+message QueryMemberRequest {
   // address is the member address.
   string address = 1;
 }
 
-// QueryStatusResponse is the response type for the Query/Status RPC method.
-message QueryStatusResponse {
-  // status is the status request.
-  Status status = 1 [(gogoproto.nullable) = false];
+// QueryMemberResponse is the response type for the Query/Member RPC method.
+message QueryMemberResponse {
+  // member is the member detail.
+  Member member = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryCurrentGroupRequest is the request type for the Query/CurrentGroup RPC method.
+message QueryCurrentGroupRequest {}
+
+// QueryCurrentGroupResponse is the response type for the Query/CurrentGroup RPC method.
+message QueryCurrentGroupResponse {
+  // TODO: add more field later when add election flow.
+  uint64 group_id = 1 [(gogoproto.customname) = "GroupID"];
+}
+
+// QueryReplacingGroupRequest is the request type for the Query/ReplacingGroup RPC method.
+message QueryReplacingGroupRequest {}
+
+// QueryReplacingGroupResponse is the response type for the Query/ReplacingGroup RPC method.
+message QueryReplacingGroupResponse {
+  // TODO: add more field later when add election flow.
+  uint64 group_id = 1 [(gogoproto.customname) = "GroupID"];
 }
