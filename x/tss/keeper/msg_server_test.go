@@ -575,6 +575,9 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			s.T().Log(err)
 			s.Require().NoError(err)
 
+			bandtssSigningID := bandtsstypes.SigningID(app.BandtssKeeper.GetSigningCount(ctx))
+			s.Require().NotEqual(bandtsstypes.SigningID(0), bandtssSigningID)
+
 			// Get the signing information
 			signing, err := k.GetSigning(ctx, tss.SigningID(i+1))
 			s.Require().NoError(err)
@@ -627,7 +630,6 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			// Execute the EndBlocker to process signings
 			app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
 
-			bandtssSigningID := s.app.BandtssKeeper.GetSigningIDMapping(ctx, signing.ID)
 			req, err := s.app.BandtssKeeper.GetSigning(ctx, bandtssSigningID)
 			s.Require().NoError(err)
 

@@ -187,5 +187,6 @@ func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) 
 		}
 	}
 
+	h.k.DeleteSigningIDMapping(ctx, signing.ID)
 	return nil
 }

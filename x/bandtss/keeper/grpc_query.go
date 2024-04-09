@@ -112,7 +112,7 @@ func (q queryServer) Signing(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Get signing and partial sigs using signingID
-	signing, err := q.k.GetSigning(ctx, req.SigningID)
+	signing, err := q.k.GetSigning(ctx, types.SigningID(req.SigningId))
 	if err != nil {
 		return nil, err
 	}
@@ -131,6 +131,8 @@ func (q queryServer) Signing(
 	}
 
 	return &types.QuerySigningResponse{
+		Fee:                         signing.Fee,
+		Requester:                   signing.Requester,
 		CurrentGroupSigningResult:   *currentGroupSigningResult,
 		ReplacingGroupSigningResult: *replacingGroupSigningResult,
 	}, nil

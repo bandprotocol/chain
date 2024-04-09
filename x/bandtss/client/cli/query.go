@@ -159,7 +159,7 @@ func GetQueryCmdSigning() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.Signing(cmd.Context(), &types.QuerySigningRequest{
-				SigningID: types.SigningID(signingID),
+				SigningId: signingID,
 			})
 			if err != nil {
 				return err
