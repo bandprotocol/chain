@@ -15,6 +15,11 @@ func handleBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, k *keeper.Kee
 
 // handleEndBlock handles tasks at the end of a block.
 func handleEndBlock(ctx sdk.Context, k *keeper.Keeper) {
+	// Handle replacement of the current group with the new group.
+	if err := k.HandleReplaceGroup(ctx, ctx.BlockHeader().Time); err != nil {
+		panic(err)
+	}
+
 	// Handles marking validator as inactive if the validator is not active recently.
 	k.HandleInactiveValidators(ctx)
 }

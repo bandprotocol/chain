@@ -30,6 +30,8 @@ message GenesisState {
   // signing_request_mappings is the list of mapping between tss signing id and bandtss signing id.
   repeated SigningIDMappingGenesis signing_id_mappings = 6
       [(gogoproto.nullable) = false, (gogoproto.customname) = "SigningIDMappings"];
+  // replacement is the replacement of the current group.
+  Replacement replacement = 7 [(gogoproto.nullable) = false];
 }
 
 // Params defines the set of module parameters.

@@ -66,3 +66,13 @@ message SigningResult {
   // received_partial_signatures is a list of received partial signatures.
   repeated .tss.v1beta1.PartialSignature received_partial_signatures = 3 [(gogoproto.nullable) = false];
 }
+
+message Replacement {
+  // signing_id is a tss signing ID of the replacing group signing request.
+  uint64 signing_id = 1 [
+    (gogoproto.customname) = "SigningID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+  ];
+  // replacement_exec_time is the time when the replacement will be executed.
+  google.protobuf.Timestamp exec_time = 2 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
+}

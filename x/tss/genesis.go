@@ -27,11 +27,6 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 		k.SetSigning(ctx, signing)
 	}
 
-	k.SetReplacementCount(ctx, data.ReplacementCount)
-	for _, rep := range data.Replacements {
-		k.SetReplacement(ctx, rep)
-	}
-
 	for _, deq := range data.DEQueues {
 		k.SetDEQueue(ctx, deq)
 	}
@@ -45,15 +40,13 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
-		Params:           k.GetParams(ctx),
-		GroupCount:       k.GetGroupCount(ctx),
-		Groups:           k.GetGroups(ctx),
-		Members:          k.GetMembers(ctx),
-		SigningCount:     k.GetSigningCount(ctx),
-		Signings:         k.GetSignings(ctx),
-		ReplacementCount: k.GetReplacementCount(ctx),
-		Replacements:     k.GetReplacements(ctx),
-		DEQueues:         k.GetDEQueues(ctx),
-		DEsGenesis:       k.GetDEsGenesis(ctx),
+		Params:       k.GetParams(ctx),
+		GroupCount:   k.GetGroupCount(ctx),
+		Groups:       k.GetGroups(ctx),
+		Members:      k.GetMembers(ctx),
+		SigningCount: k.GetSigningCount(ctx),
+		Signings:     k.GetSignings(ctx),
+		DEQueues:     k.GetDEQueues(ctx),
+		DEsGenesis:   k.GetDEsGenesis(ctx),
 	}
 }

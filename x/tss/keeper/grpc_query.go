@@ -8,8 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
@@ -27,9 +25,8 @@ func NewQueryServer(k *Keeper) types.QueryServer {
 func (q queryServer) Counts(c context.Context, req *types.QueryCountsRequest) (*types.QueryCountsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	return &types.QueryCountsResponse{
-		GroupCount:       q.k.GetGroupCount(ctx),
-		SigningCount:     q.k.GetSigningCount(ctx),
-		ReplacementCount: q.k.GetReplacementCount(ctx),
+		GroupCount:   q.k.GetGroupCount(ctx),
+		SigningCount: q.k.GetSigningCount(ctx),
 	}, nil
 }
 
@@ -262,58 +259,4 @@ func (q queryServer) Signing(
 		EVMSignature:              evmSignature,
 		ReceivedPartialSignatures: pzs,
 	}, nil
-}
-
-// Replacement function handles the request to get replacement of a given ID.
-func (q queryServer) Replacement(
-	goCtx context.Context,
-	req *types.QueryReplacementRequest,
-) (*types.QueryReplacementResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	// Get replacement
-	r, err := q.k.GetReplacement(ctx, req.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	return &types.QueryReplacementResponse{
-		Replacement: &r,
-	}, nil
-}
-
-// Replacements function handles the request to get replacements.
-func (q queryServer) Replacements(
-	goCtx context.Context,
-	req *types.QueryReplacementsRequest,
-) (*types.QueryReplacementsResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-	replacementStore := prefix.NewStore(ctx.KVStore(q.k.storeKey), types.ReplacementKeyPrefix)
-
-	// Get pending replace groups
-	filteredReplacements, pageRes, err := query.GenericFilteredPaginate(
-		q.k.cdc,
-		replacementStore,
-		req.Pagination,
-		func(key []byte, rg *types.Replacement) (*types.Replacement, error) {
-			matchStatus := true
-
-			// match status (if supplied/valid)
-			if types.ValidReplacementStatus(req.Status) {
-				matchStatus = rg.Status == req.Status
-			}
-
-			if matchStatus {
-				return rg, nil
-			}
-
-			return nil, nil
-		}, func() *types.Replacement {
-			return &types.Replacement{}
-		})
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
-	return &types.QueryReplacementsResponse{Replacements: filteredReplacements, Pagination: pageRes}, nil
 }

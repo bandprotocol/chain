@@ -22,56 +22,10 @@ message Group {
   bytes pub_key = 4 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // status represents the current stage of the group in the DKG or signing process.
   GroupStatus status = 5;
-  // latest_replacement_id is the latest replacement ID of the group.
-  uint64 latest_replacement_id = 6 [(gogoproto.customname) = "LatestReplacementID"];
   // created_height is the block height when the group was created.
-  uint64 created_height = 7;
+  uint64 created_height = 6;
   // module_owner is the module that creates this group.
-  string module_owner = 8;
-}
-
-// Replacement represents a group that will replaced with another group in the replacement process.
-message Replacement {
-  // id is the unique identifier of the replacement.
-  uint64 id = 1 [(gogoproto.customname) = "ID"];
-  // signing_id is the unique identifier of the signing process.
-  uint64 signing_id = 2 [
-    (gogoproto.customname) = "SigningID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
-  ];
-  // current_group_id is the ID of the group that will be replaced.
-  uint64 current_group_id = 3 [
-    (gogoproto.customname) = "CurrentGroupID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
-  ];
-  // current_pub_key is the public key pair that used for sign & verify replace group msg.
-  bytes current_pub_key = 4 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
-  // new_group_id is the ID of the new group that be a new key candidate.
-  uint64 new_group_id = 5 [
-    (gogoproto.customname) = "NewGroupID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
-  ];
-  // new_pub_key is the public key of the group that will be the next key of this group
-  bytes new_pub_key = 6 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
-  // status is an enumeration of the possible statuses of a group replacement process.
-  ReplacementStatus status = 7;
-  // exec_time is the time that will be substituted in place of the group.
-  google.protobuf.Timestamp exec_time = 8 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
-}
-
-// ReplacementStatus is an enumeration of the possible statuses of a group replacement process.
-enum ReplacementStatus {
-  option (gogoproto.goproto_enum_prefix) = false;
-
-  // REPLACEMENT_STATUS_UNSPECIFIED is the status of a group replacement that has not been specified.
-  REPLACEMENT_STATUS_UNSPECIFIED = 0;
-  // REPLACEMENT_STATUS_WAITING is the status of a group replacement that is waiting to be replaced in the
-  // protocol.
-  REPLACEMENT_STATUS_WAITING = 1;
-  // REPLACEMENT_STATUS_SUCCESS is the status of a group replacement that has success in the protocol.
-  REPLACEMENT_STATUS_SUCCESS = 2;
-  // REPLACEMENT_STATUS_FALLEN is the status of a group replacement that has fallen out of the protocol.
-  REPLACEMENT_STATUS_FALLEN = 3;
+  string module_owner = 7;
 }
 
 // Round1Info contains all necessary information for handling round 1 of the DKG process.

@@ -3,7 +3,6 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
@@ -45,49 +44,6 @@ func (h Hooks) AfterCreatingGroupFailed(ctx sdk.Context, group tsstypes.Group) e
 
 func (h Hooks) BeforeSetGroupExpired(ctx sdk.Context, group tsstypes.Group) error {
 	// TODO: Penalize members will be slashed in the future.
-	return nil
-}
-
-func (h Hooks) AfterReplacingGroupCompleted(ctx sdk.Context, replacement tsstypes.Replacement) error {
-	// check if this signing is from the bandtss module
-	group, err := h.k.tssKeeper.GetGroup(ctx, replacement.CurrentGroupID)
-	if err != nil {
-		return err
-	}
-	if group.ModuleOwner != types.ModuleName {
-		return nil
-	}
-
-	oldMembers := h.k.tssKeeper.MustGetMembers(ctx, replacement.CurrentGroupID)
-	for _, m := range oldMembers {
-		h.k.DeleteMember(ctx, sdk.MustAccAddressFromBech32(m.Address))
-	}
-
-	h.k.SetCurrentGroupID(ctx, replacement.NewGroupID)
-	h.k.SetReplacingGroupID(ctx, tss.GroupID(0))
-
-	newMembers := h.k.tssKeeper.MustGetMembers(ctx, replacement.NewGroupID)
-	for _, m := range newMembers {
-		if err := h.k.AddNewMember(ctx, sdk.MustAccAddressFromBech32(m.Address)); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (h Hooks) AfterReplacingGroupFailed(ctx sdk.Context, replacement tsstypes.Replacement) error {
-	// check if this signing is from the bandtss module
-	group, err := h.k.tssKeeper.GetGroup(ctx, replacement.CurrentGroupID)
-	if err != nil {
-		return err
-	}
-
-	if group.ModuleOwner != types.ModuleName {
-		return nil
-	}
-
-	h.k.SetReplacingGroupID(ctx, tss.GroupID(0))
 	return nil
 }
 

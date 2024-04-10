@@ -137,3 +137,20 @@ func (k Keeper) SetReplacingGroupID(ctx sdk.Context, groupID tss.GroupID) {
 func (k Keeper) GetReplacingGroupID(ctx sdk.Context) tss.GroupID {
 	return tss.GroupID(sdk.BigEndianToUint64(ctx.KVStore(k.storeKey).Get(types.ReplacingGroupIDStoreKey)))
 }
+
+// SetReplacementSigningID sets a signingID of group replacement singing request.
+func (k Keeper) SetReplacement(ctx sdk.Context, replacement types.Replacement) {
+	ctx.KVStore(k.storeKey).Set(types.ReplacementStoreKey, k.cdc.MustMarshal(&replacement))
+}
+
+// GetReplacementSigningID retrieves a signingID of group replacement singing request.
+func (k Keeper) GetReplacement(ctx sdk.Context) (types.Replacement, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.ReplacementStoreKey)
+
+	replacement := types.Replacement{}
+	err := k.cdc.Unmarshal(bz, &replacement)
+	if err != nil {
+		return types.Replacement{}, err
+	}
+	return replacement, nil
+}

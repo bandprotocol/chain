@@ -122,9 +122,7 @@ func (s *KeeperTestSuite) TestFailedReplaceGroup() {
 }
 
 func (s *KeeperTestSuite) TestSuccessReplaceGroup() {
-	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
-
-	currentGroupID, replacementID := tss.GroupID(1), uint64(1)
+	ctx, msgSrvr, _ := s.ctx, s.msgSrvr, s.app.TSSKeeper
 
 	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 
@@ -136,21 +134,10 @@ func (s *KeeperTestSuite) TestSuccessReplaceGroup() {
 		ExecTime:       now,
 		Authority:      s.authority.String(),
 	})
+
 	s.Require().NoError(err)
+	s.Require().Equal(tss.GroupID(2), s.app.BandtssKeeper.GetReplacingGroupID(ctx))
 
-	replacement, err := k.GetReplacement(ctx, replacementID)
-	s.Require().NoError(err)
-
-	replacementIterator := k.ReplacementQueueIterator(ctx, now)
-	s.Require().True(replacementIterator.Valid())
-
-	gotReplacementID, _ := tsstypes.SplitReplacementQueueKey(replacementIterator.Key())
-	s.Require().Equal(replacement.ID, gotReplacementID)
-
-	replacementIterator.Close()
-
-	currentGroup := k.MustGetGroup(ctx, currentGroupID)
-	s.Require().Equal(gotReplacementID, currentGroup.LatestReplacementID)
 }
 
 func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {

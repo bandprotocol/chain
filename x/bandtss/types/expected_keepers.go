@@ -1,8 +1,6 @@
 package types
 
 import (
-	time "time"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
@@ -71,15 +69,6 @@ type TSSKeeper interface {
 		threshold uint64,
 		moduleOwner string,
 	) (tss.GroupID, error)
-
-	ReplaceGroup(
-		ctx sdk.Context,
-		currentGroupID tss.GroupID,
-		newGroupID tss.GroupID,
-		execTime time.Time,
-		feePayer sdk.AccAddress,
-		fee sdk.Coins,
-	) (uint64, error)
 
 	CreateSigning(
 		ctx sdk.Context,

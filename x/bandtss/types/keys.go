@@ -28,18 +28,17 @@ var (
 	ParamsKeyPrefix = []byte{0x01}
 	// MemberStoreKeyPrefix is the prefix for member store.
 	MemberStoreKeyPrefix = []byte{0x02}
-	// GroupIDStoreKeyPrefix is the prefix for groupID store.
-	GroupIDStoreKeyPrefix = []byte{0x03}
 	// SigningStoreKeyPrefix is the prefix for bandtss Signing store.
-	SigningStoreKeyPrefix = []byte{0x04}
+	SigningStoreKeyPrefix = []byte{0x03}
 
 	// SigningCountStoreKey is the key that keeps the total number of Signing.
 	SigningCountStoreKey = append(GlobalStoreKeyPrefix, []byte("SigningCount")...)
-
 	// CurrentGroupIDKey is the key for storing the current group ID under GroupIDStoreKeyPrefix.
-	CurrentGroupIDStoreKey = append(GroupIDStoreKeyPrefix, []byte{0x00}...)
+	CurrentGroupIDStoreKey = append(GlobalStoreKeyPrefix, []byte("CurrentGroupID")...)
 	// ReplacingGroupIDKey  is the key for storing the replacing group ID under GroupIDStoreKeyPrefix.
-	ReplacingGroupIDStoreKey = append(GroupIDStoreKeyPrefix, []byte{0x01}...)
+	ReplacingGroupIDStoreKey = append(GlobalStoreKeyPrefix, []byte("ReplacingGroupID")...)
+	// ReplacementSigningIDStoreKey is the key for storing the signing ID of the group replacement.
+	ReplacementStoreKey = append(GlobalStoreKeyPrefix, []byte("Replacement")...)
 
 	// SigningInfoStoreKeyPrefix is the key for storing the bandtss signing info under SigningStoreKeyPrefix.
 	SigningInfoStoreKeyPrefix = append(SigningStoreKeyPrefix, []byte{0x00}...)

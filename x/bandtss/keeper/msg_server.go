@@ -74,11 +74,10 @@ func (k msgServer) ReplaceGroup(
 		return nil, types.ErrReplacementInProgress
 	}
 
-	_, err = k.tssKeeper.ReplaceGroup(ctx, req.CurrentGroupID, req.NewGroupID, req.ExecTime, authority, sdk.NewCoins())
+	_, err = k.CreateGroupReplacement(ctx, req.NewGroupID, req.ExecTime, authority, sdk.NewCoins())
 	if err != nil {
 		return nil, err
 	}
-	k.SetReplacingGroupID(ctx, req.NewGroupID)
 
 	return &types.MsgReplaceGroupResponse{}, nil
 }

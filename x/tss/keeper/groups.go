@@ -3,7 +3,6 @@ package keeper
 import (
 	"encoding/hex"
 	"fmt"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -66,91 +65,6 @@ func (k Keeper) CreateGroup(
 	ctx.EventManager().EmitEvent(event)
 
 	return groupID, nil
-}
-
-// ReplaceGroup creates a new replacement info and put it into queue.
-func (k Keeper) ReplaceGroup(
-	ctx sdk.Context,
-	currentGroupID tss.GroupID,
-	newGroupID tss.GroupID,
-	execTime time.Time,
-	feePayer sdk.AccAddress,
-	fee sdk.Coins,
-) (uint64, error) {
-	// Check if NewGroupID and CurrentGroupID are active
-	newGroup, err := k.GetActiveGroup(ctx, newGroupID)
-	if err != nil {
-		return 0, err
-	}
-
-	currentGroup, err := k.GetActiveGroup(ctx, currentGroupID)
-	if err != nil {
-		return 0, err
-	}
-
-	// Verify whether the group is not in the pending replacement process.
-	lastReplacementID := currentGroup.LatestReplacementID
-	if lastReplacementID != uint64(0) {
-		lastReplacement, err := k.GetReplacement(ctx, lastReplacementID)
-		if err != nil {
-			return 0, err
-		}
-
-		if lastReplacement.Status == types.REPLACEMENT_STATUS_WAITING {
-			return 0, types.ErrRequestReplacementFailed.Wrap(
-				"the group is in the pending replacement process",
-			)
-		}
-	}
-
-	msg := append(types.ReplaceGroupMsgPrefix, newGroup.PubKey...)
-	signing, err := k.CreateSigning(ctx, currentGroup, msg)
-	if err != nil {
-		return 0, err
-	}
-
-	nextID := k.GetNextReplacementCount(ctx)
-	replacement := types.Replacement{
-		ID:             nextID,
-		SigningID:      signing.ID,
-		CurrentGroupID: currentGroup.ID,
-		CurrentPubKey:  currentGroup.PubKey,
-		NewGroupID:     newGroup.ID,
-		NewPubKey:      newGroup.PubKey,
-		ExecTime:       execTime,
-		Status:         types.REPLACEMENT_STATUS_WAITING,
-	}
-	k.SetReplacement(ctx, replacement)
-
-	k.InsertReplacementQueue(ctx, nextID, execTime)
-
-	// Update latest replacement ID to the group
-	currentGroup.LatestReplacementID = nextID
-	k.SetGroup(ctx, currentGroup)
-
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeReplacement,
-			sdk.NewAttribute(types.AttributeKeyReplacementID, fmt.Sprintf("%d", replacement.ID)),
-		),
-	)
-
-	return replacement.ID, nil
-}
-
-// GetActiveGroup returns the active group with the given groupID. If the group is not active,
-// return error.
-func (k Keeper) GetActiveGroup(ctx sdk.Context, groupID tss.GroupID) (types.Group, error) {
-	group, err := k.GetGroup(ctx, groupID)
-	if err != nil {
-		return types.Group{}, err
-	}
-
-	if group.Status != types.GROUP_STATUS_ACTIVE {
-		return types.Group{}, types.ErrGroupIsNotActive.Wrap("group status is not active")
-	}
-
-	return group, nil
 }
 
 // GetPenalizedMembersExpiredGroup gets the list of members who should be penalized due to not
