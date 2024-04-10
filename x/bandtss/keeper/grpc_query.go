@@ -104,6 +104,23 @@ func (q queryServer) ReplacingGroup(
 	}, nil
 }
 
+// Replacement function handles the request to get the group replacement information.
+func (q queryServer) Replacement(
+	goCtx context.Context,
+	req *types.QueryReplacementRequest,
+) (*types.QueryReplacementResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	replacement, err := q.k.GetReplacement(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.QueryReplacementResponse{
+		Replacement: replacement,
+	}, nil
+}
+
 // Signing function handles the request to get the bandtss signing information.
 func (q queryServer) Signing(
 	goCtx context.Context,

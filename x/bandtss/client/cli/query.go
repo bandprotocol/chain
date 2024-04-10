@@ -26,6 +26,7 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdReplacingGroup(),
 		GetQueryCmdParams(),
 		GetQueryCmdSigning(),
+		GetQueryCmdReplacement(),
 	)
 
 	return cmd
@@ -161,6 +162,33 @@ func GetQueryCmdSigning() *cobra.Command {
 			res, err := queryClient.Signing(cmd.Context(), &types.QuerySigningRequest{
 				SigningId: signingID,
 			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetQueryCmdReplacement creates a CLI command for querying group replacement information.
+func GetQueryCmdReplacement() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "replacement",
+		Short: "Query the replacement information",
+		Args:  cobra.ExactArgs(0),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.Replacement(cmd.Context(), &types.QueryReplacementRequest{})
 			if err != nil {
 				return err
 			}

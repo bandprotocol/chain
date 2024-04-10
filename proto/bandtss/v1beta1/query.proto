@@ -41,6 +41,11 @@ service Query {
   rpc Signing(QuerySigningRequest) returns (QuerySigningResponse) {
     option (google.api.http).get = "/bandtss/v1beta1/signings/{signing_id}";
   }
+
+  // Replacement queries the replacement information.
+  rpc Replacement(QueryReplacementRequest) returns (QueryReplacementResponse) {
+    option (google.api.http).get = "/bandtss/v1beta1/replacement";
+  }
 }
 
 // QueryParamsRequest is request type for the Query/Params RPC method.
@@ -115,4 +120,13 @@ message QuerySigningResponse {
   SigningResult current_group_signing_result = 3 [(gogoproto.nullable) = false];
   // replacing_group_signing_result is the signing result from the replacing group.
   SigningResult replacing_group_signing_result = 4 [(gogoproto.nullable) = false];
+}
+
+// QueryReplacementRequest is the request type for the Query/Replacement RPC method.
+message QueryReplacementRequest {}
+
+// QueryReplacementResponse is the response type for the Query/Replacement RPC method.
+message QueryReplacementResponse {
+  // replacement is the replacement information.
+  Replacement replacement = 1 [(gogoproto.nullable) = false];
 }
