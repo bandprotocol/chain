@@ -137,7 +137,6 @@ func (s *KeeperTestSuite) TestSuccessReplaceGroup() {
 
 	s.Require().NoError(err)
 	s.Require().Equal(tss.GroupID(2), s.app.BandtssKeeper.GetReplacingGroupID(ctx))
-
 }
 
 func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
