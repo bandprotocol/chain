@@ -14,8 +14,6 @@ func (k Keeper) CreateGroupReplacement(
 	ctx sdk.Context,
 	newGroupID tss.GroupID,
 	execTime time.Time,
-	feePayer sdk.AccAddress,
-	fee sdk.Coins,
 ) (tss.SigningID, error) {
 	currentGroupID := k.GetCurrentGroupID(ctx)
 	currentGroup, err := k.tssKeeper.GetGroup(ctx, currentGroupID)

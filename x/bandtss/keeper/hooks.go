@@ -58,6 +58,15 @@ func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) err
 		return nil
 	}
 
+	// skip the process if the signing is for replacement
+	replacement, err := h.k.GetReplacement(ctx)
+	if err != nil {
+		return err
+	}
+	if signing.ID == replacement.SigningID {
+		return nil
+	}
+
 	bandtssSigningID := h.k.GetSigningIDMapping(ctx, signing.ID)
 	if bandtssSigningID == 0 {
 		return types.ErrSigningNotFound
@@ -82,11 +91,17 @@ func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing
 		return nil
 	}
 
+	replacement, err := h.k.GetReplacement(ctx)
+	if err != nil {
+		return err
+	}
+
 	bandtssSigningID := h.k.GetSigningIDMapping(ctx, signing.ID)
-	if bandtssSigningID == 0 {
+	if bandtssSigningID == 0 && signing.ID != replacement.SigningID {
 		return types.ErrSigningNotFound
 	}
 
+	// penalize members who didn't submit their partial signatures.
 	penalizedMembers, err := h.k.tssKeeper.GetPenalizedMembersExpiredSigning(ctx, signing)
 	if err != nil {
 		return err
@@ -98,7 +113,13 @@ func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing
 		}
 	}
 
-	// check if the module should refund fee to requester.
+	// if the signing is for replacement, exit the hooks.
+	if signing.ID == replacement.SigningID {
+		return nil
+	}
+
+	// if it is a signing initiated from bandtss module, check if the fee should be refunded and
+	// remove the id mapping.
 	if err := h.k.CheckRefundFee(ctx, signing); err != nil {
 		return err
 	}
@@ -117,6 +138,15 @@ func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) 
 		return nil
 	}
 
+	// if it is a signing for replacement, exit the hooks.
+	replacement, err := h.k.GetReplacement(ctx)
+	if err != nil {
+		return err
+	}
+	if signing.ID == replacement.SigningID {
+		return nil
+	}
+
 	bandtssSigningID := h.k.GetSigningIDMapping(ctx, signing.ID)
 	if bandtssSigningID == 0 {
 		return types.ErrSigningNotFound
@@ -124,22 +154,19 @@ func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) 
 
 	bandtssSigning := h.k.MustGetSigning(ctx, bandtssSigningID)
 
-	// no fee is transferred, end process.
-	if bandtssSigning.Fee.IsZero() || signing.ID != bandtssSigning.CurrentGroupSigningID {
-		return nil
-	}
+	// Send fee to assigned members, if any.
+	if signing.ID == bandtssSigning.CurrentGroupSigningID && !bandtssSigning.Fee.IsZero() {
+		for _, am := range signing.AssignedMembers {
+			address := sdk.MustAccAddressFromBech32(am.Address)
 
-	// Send fee to assigned members.
-	for _, am := range signing.AssignedMembers {
-		address := sdk.MustAccAddressFromBech32(am.Address)
-
-		if err := h.k.bankKeeper.SendCoinsFromModuleToAccount(
-			ctx,
-			types.ModuleName,
-			address,
-			bandtssSigning.Fee,
-		); err != nil {
-			return err
+			if err := h.k.bankKeeper.SendCoinsFromModuleToAccount(
+				ctx,
+				types.ModuleName,
+				address,
+				bandtssSigning.Fee,
+			); err != nil {
+				return err
+			}
 		}
 	}
 
