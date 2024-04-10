@@ -49,7 +49,6 @@ func (h Hooks) BeforeSetGroupExpired(ctx sdk.Context, group tsstypes.Group) erro
 
 func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) error {
 	// check if this signing is from the bandtss module
-	// unlikely to get an error from GetGroup but log the error just in case.
 	group, err := h.k.tssKeeper.GetGroup(ctx, signing.GroupID)
 	if err != nil {
 		return err

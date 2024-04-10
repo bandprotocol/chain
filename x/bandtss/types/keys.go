@@ -21,7 +21,6 @@ const (
 )
 
 var (
-
 	// GlobalStoreKeyPrefix is the prefix for global primitive state variables.
 	GlobalStoreKeyPrefix = []byte{0x00}
 	// ParamsKeyPrefix is a prefix for keys that store bandtss's parameters
