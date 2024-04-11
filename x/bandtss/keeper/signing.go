@@ -198,9 +198,7 @@ func (k Keeper) HandleCreateSigning(
 	bandtssSigningID := k.AddSigning(ctx, types.Signing{
 		Fee:                     feePerSigner,
 		Requester:               sender.String(),
-		CurrentGroupID:          k.GetCurrentGroupID(ctx),
 		CurrentGroupSigningID:   currentGroupSigning.ID,
-		ReplacingGroupID:        replacingGroupID,
 		ReplacingGroupSigningID: replacingGroupSigningID,
 	})
 
@@ -219,7 +217,12 @@ func (k Keeper) CheckRefundFee(ctx sdk.Context, signing tsstypes.Signing) error 
 		return err
 	}
 
-	if bandtssSigning.Fee.IsZero() || signing.GroupID != bandtssSigning.CurrentGroupID {
+	tssSigning, err := k.tssKeeper.GetSigning(ctx, bandtssSigning.CurrentGroupSigningID)
+	if err != nil {
+		return err
+	}
+
+	if bandtssSigning.Fee.IsZero() || signing.GroupID != tssSigning.GroupID {
 		return nil
 	}
 

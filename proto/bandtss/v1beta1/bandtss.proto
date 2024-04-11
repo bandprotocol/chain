@@ -34,23 +34,13 @@ message Signing {
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
   // requester is the address of requester who paid for the Bandtss signing.
   string requester = 3;
-  // current_group_id is the id of the current group.
-  uint64 current_group_id = 4 [
-    (gogoproto.customname) = "CurrentGroupID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
-  ];
   // current_group_signing_id is a tss signing ID of a current group.
-  uint64 current_group_signing_id = 5 [
+  uint64 current_group_signing_id = 4 [
     (gogoproto.customname) = "CurrentGroupSigningID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
   ];
-  // replacing_group_id is the id of the replacing group.
-  uint64 replacing_group_id = 6 [
-    (gogoproto.customname) = "ReplacingGroupID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
-  ];
   // replacing_group_signing_id is a tss signing ID of the replacing group.
-  uint64 replacing_group_signing_id = 7 [
+  uint64 replacing_group_signing_id = 5 [
     (gogoproto.customname) = "ReplacingGroupSigningID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
   ];
