@@ -30,7 +30,7 @@ message Signing {
 
   // id is the unique identifier of the bandtss signing.
   uint64 id = 1 [(gogoproto.customname) = "ID", (gogoproto.casttype) = "SigningID"];
-  // fee is the total tokens that will be paid for this bandtss signing.
+  // fee is the tokens that will be paid per signer for this bandtss signing.
   repeated cosmos.base.v1beta1.Coin fee = 2
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
   // requester is the address of requester who paid for the Bandtss signing.
