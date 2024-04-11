@@ -134,11 +134,11 @@ func (k Keeper) HandleCreateSigning(
 	content tsstypes.Content,
 	sender sdk.AccAddress,
 	feeLimit sdk.Coins,
-) (*types.Signing, error) {
+) (types.SigningID, error) {
 	// Execute the handler to process the request.
 	msg, err := k.tssKeeper.HandleSigningContent(ctx, content)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	currentGroupID := k.GetCurrentGroupID(ctx)
@@ -146,7 +146,7 @@ func (k Keeper) HandleCreateSigning(
 
 	currentGroup, err := k.tssKeeper.GetGroup(ctx, currentGroupID)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	// charged fee if necessary; If found any coins that exceed limit then return error
@@ -157,7 +157,7 @@ func (k Keeper) HandleCreateSigning(
 		for _, fc := range totalFee {
 			limitAmt := feeLimit.AmountOf(fc.Denom)
 			if fc.Amount.GT(limitAmt) {
-				return nil, types.ErrNotEnoughFee.Wrapf(
+				return 0, types.ErrNotEnoughFee.Wrapf(
 					"require: %s, limit: %s%s",
 					fc.String(),
 					limitAmt.String(),
@@ -170,26 +170,26 @@ func (k Keeper) HandleCreateSigning(
 		if !totalFee.IsZero() {
 			err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, totalFee)
 			if err != nil {
-				return nil, err
+				return 0, err
 			}
 		}
 	}
 
 	currentGroupSigning, err := k.tssKeeper.CreateSigning(ctx, currentGroup, msg)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	replacingGroupSigningID := tss.SigningID(0)
 	if replacingGroupID != 0 {
 		replacingGroup, err := k.tssKeeper.GetGroup(ctx, replacingGroupID)
 		if err != nil {
-			return nil, err
+			return 0, err
 		}
 
 		replacingGroupSigning, err := k.tssKeeper.CreateSigning(ctx, replacingGroup, msg)
 		if err != nil {
-			return nil, err
+			return 0, err
 		}
 
 		replacingGroupSigningID = replacingGroupSigning.ID
@@ -205,8 +205,7 @@ func (k Keeper) HandleCreateSigning(
 		ReplacingGroupSigningID: replacingGroupSigningID,
 	})
 
-	bandtssSigning := k.MustGetSigning(ctx, bandtssSigningID)
-	return &bandtssSigning, nil
+	return bandtssSigningID, nil
 }
 
 // CheckRefundFee refunds the fee to the requester.
