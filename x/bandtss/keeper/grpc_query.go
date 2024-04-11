@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 var _ types.QueryServer = queryServer{}
@@ -117,14 +118,14 @@ func (q queryServer) Signing(
 		return nil, err
 	}
 
-	currentGroupSigningResult, err := q.k.GetSigningResult(ctx, signing.CurrentGroupSigningID)
+	currentGroupSigningResult, err := q.k.tssKeeper.GetSigningResult(ctx, signing.CurrentGroupSigningID)
 	if err != nil {
 		return nil, err
 	}
 
-	replacingGroupSigningResult := &types.SigningResult{}
+	replacingGroupSigningResult := &tsstypes.SigningResult{}
 	if signing.ReplacingGroupSigningID != 0 {
-		replacingGroupSigningResult, err = q.k.GetSigningResult(ctx, signing.ReplacingGroupSigningID)
+		replacingGroupSigningResult, err = q.k.tssKeeper.GetSigningResult(ctx, signing.ReplacingGroupSigningID)
 		if err != nil {
 			return nil, err
 		}

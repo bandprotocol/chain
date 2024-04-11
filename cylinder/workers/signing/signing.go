@@ -105,7 +105,7 @@ func (s *Signing) handleSigning(sid tss.SigningID) {
 		return
 	}
 
-	signing := signingRes.Signing
+	signing := signingRes.SigningResult.Signing
 	assignedMember, err := signingRes.GetAssignedMember(s.context.Config.Granter)
 	if err != nil {
 		return

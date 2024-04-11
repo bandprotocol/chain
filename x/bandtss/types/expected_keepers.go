@@ -100,5 +100,5 @@ type TSSKeeper interface {
 
 	GetSigning(ctx sdk.Context, signingID tss.SigningID) (tsstypes.Signing, error)
 	HandleSigningContent(ctx sdk.Context, content tsstypes.Content) ([]byte, error)
-	GetPartialSignaturesWithKey(ctx sdk.Context, signingID tss.SigningID) []tsstypes.PartialSignature
+	GetSigningResult(ctx sdk.Context, signingID tss.SigningID) (*tsstypes.SigningResult, error)
 }

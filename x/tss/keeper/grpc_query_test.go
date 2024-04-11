@@ -757,9 +757,9 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 			true,
 			func(res *types.QuerySigningResponse, err error) {
 				s.Require().NoError(err)
-				s.Require().Equal(signing, res.Signing)
+				s.Require().Equal(signing, res.SigningResult.Signing)
 				s.Require().
-					Equal([]types.PartialSignature{{MemberID: memberID, Signature: sig}}, res.ReceivedPartialSignatures)
+					Equal([]types.PartialSignature{{MemberID: memberID, Signature: sig}}, res.SigningResult.ReceivedPartialSignatures)
 			},
 		},
 	}

@@ -257,10 +257,14 @@ func (q queryServer) Signing(
 		}
 	}
 
-	return &types.QuerySigningResponse{
+	signingResult := types.SigningResult{
 		Signing:                   signing,
 		EVMSignature:              evmSignature,
 		ReceivedPartialSignatures: pzs,
+	}
+
+	return &types.QuerySigningResponse{
+		SigningResult: signingResult,
 	}, nil
 }
 
