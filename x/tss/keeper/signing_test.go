@@ -501,7 +501,6 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 		Status: types.SIGNING_STATUS_WAITING,
 	})
 	s.app.BandtssKeeper.AddSigning(ctx, bandtsstypes.Signing{
-		CurrentGroupID:        tss.GroupID(1),
 		CurrentGroupSigningID: tss.SigningID(1),
 		Fee:                   sdk.NewCoins(),
 	})

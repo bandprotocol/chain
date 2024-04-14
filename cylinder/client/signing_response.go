@@ -19,12 +19,12 @@ func NewSigningResponse(gr *types.QuerySigningResponse) *SigningResponse {
 
 // GetMemberIDs returns all assigned member's id of the assigned members
 func (sr SigningResponse) GetMemberIDs() []tss.MemberID {
-	return sr.Signing.AssignedMembers.MemberIDs()
+	return sr.SigningResult.Signing.AssignedMembers.MemberIDs()
 }
 
 // GetAssignedMember returns assigned member of the specific address
 func (sr SigningResponse) GetAssignedMember(address string) (types.AssignedMember, error) {
-	for _, am := range sr.Signing.AssignedMembers {
+	for _, am := range sr.SigningResult.Signing.AssignedMembers {
 		if am.Address == address {
 			return am, nil
 		}

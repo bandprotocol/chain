@@ -279,3 +279,13 @@ enum PrefixMsgType {
   // PREFIX_MSG_TYPE_ORACLE is the type of prefix that signs an oracle result msg in the protocol.
   PREFIX_MSG_TYPE_ORACLE = 3;
 }
+
+// SigningResult is a bandtss signing result from querying bandtss signing information.
+message SigningResult {
+  // signing is the tss signing result.
+  Signing signing = 1 [(gogoproto.nullable) = false];
+  // evm_signature is the signature in the format that can use directly in EVM.
+  EVMSignature evm_signature = 2 [(gogoproto.customname) = "EVMSignature"];
+  // received_partial_signatures is a list of received partial signatures.
+  repeated PartialSignature received_partial_signatures = 3 [(gogoproto.nullable) = false];
+}

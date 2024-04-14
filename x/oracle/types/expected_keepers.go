@@ -97,5 +97,5 @@ type BandtssKeeper interface {
 		content tsstypes.Content,
 		sender sdk.AccAddress,
 		feeLimit sdk.Coins,
-	) (*bandtsstypes.Signing, error)
+	) (bandtsstypes.SigningID, error)
 }

@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	tmbytes "github.com/cometbft/cometbft/libs/bytes"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -134,11 +133,11 @@ func (k Keeper) HandleCreateSigning(
 	content tsstypes.Content,
 	sender sdk.AccAddress,
 	feeLimit sdk.Coins,
-) (*types.Signing, error) {
+) (types.SigningID, error) {
 	// Execute the handler to process the request.
 	msg, err := k.tssKeeper.HandleSigningContent(ctx, content)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	currentGroupID := k.GetCurrentGroupID(ctx)
@@ -146,7 +145,7 @@ func (k Keeper) HandleCreateSigning(
 
 	currentGroup, err := k.tssKeeper.GetGroup(ctx, currentGroupID)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	// charged fee if necessary; If found any coins that exceed limit then return error
@@ -157,7 +156,7 @@ func (k Keeper) HandleCreateSigning(
 		for _, fc := range totalFee {
 			limitAmt := feeLimit.AmountOf(fc.Denom)
 			if fc.Amount.GT(limitAmt) {
-				return nil, types.ErrNotEnoughFee.Wrapf(
+				return 0, types.ErrNotEnoughFee.Wrapf(
 					"require: %s, limit: %s%s",
 					fc.String(),
 					limitAmt.String(),
@@ -170,26 +169,26 @@ func (k Keeper) HandleCreateSigning(
 		if !totalFee.IsZero() {
 			err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, totalFee)
 			if err != nil {
-				return nil, err
+				return 0, err
 			}
 		}
 	}
 
 	currentGroupSigning, err := k.tssKeeper.CreateSigning(ctx, currentGroup, msg)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	replacingGroupSigningID := tss.SigningID(0)
 	if replacingGroupID != 0 {
 		replacingGroup, err := k.tssKeeper.GetGroup(ctx, replacingGroupID)
 		if err != nil {
-			return nil, err
+			return 0, err
 		}
 
 		replacingGroupSigning, err := k.tssKeeper.CreateSigning(ctx, replacingGroup, msg)
 		if err != nil {
-			return nil, err
+			return 0, err
 		}
 
 		replacingGroupSigningID = replacingGroupSigning.ID
@@ -199,14 +198,11 @@ func (k Keeper) HandleCreateSigning(
 	bandtssSigningID := k.AddSigning(ctx, types.Signing{
 		Fee:                     feePerSigner,
 		Requester:               sender.String(),
-		CurrentGroupID:          k.GetCurrentGroupID(ctx),
 		CurrentGroupSigningID:   currentGroupSigning.ID,
-		ReplacingGroupID:        replacingGroupID,
 		ReplacingGroupSigningID: replacingGroupSigningID,
 	})
 
-	bandtssSigning := k.MustGetSigning(ctx, bandtssSigningID)
-	return &bandtssSigning, nil
+	return bandtssSigningID, nil
 }
 
 // CheckRefundFee refunds the fee to the requester.
@@ -221,7 +217,12 @@ func (k Keeper) CheckRefundFee(ctx sdk.Context, signing tsstypes.Signing) error 
 		return err
 	}
 
-	if bandtssSigning.Fee.IsZero() || signing.GroupID != bandtssSigning.CurrentGroupID {
+	tssSigning, err := k.tssKeeper.GetSigning(ctx, bandtssSigning.CurrentGroupSigningID)
+	if err != nil {
+		return err
+	}
+
+	if bandtssSigning.Fee.IsZero() || signing.GroupID != tssSigning.GroupID {
 		return nil
 	}
 
@@ -229,33 +230,4 @@ func (k Keeper) CheckRefundFee(ctx sdk.Context, signing tsstypes.Signing) error 
 	address := sdk.MustAccAddressFromBech32(bandtssSigning.Requester)
 	feeCoins := bandtssSigning.Fee.MulInt(sdk.NewInt(int64(len(signing.AssignedMembers))))
 	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, feeCoins)
-}
-
-// GetSigningResult returns the signing result of the given tss signingID.
-func (k Keeper) GetSigningResult(ctx sdk.Context, signingID tss.SigningID) (*types.SigningResult, error) {
-	tssSigning, err := k.tssKeeper.GetSigning(ctx, signingID)
-	if err != nil {
-		return nil, err
-	}
-
-	pzs := k.tssKeeper.GetPartialSignaturesWithKey(ctx, signingID)
-
-	var evmSignature *tsstypes.EVMSignature
-	if tssSigning.Signature != nil {
-		rAddress, err := tssSigning.Signature.R().Address()
-		if err != nil {
-			return nil, err
-		}
-
-		evmSignature = &tsstypes.EVMSignature{
-			RAddress:  rAddress,
-			Signature: tmbytes.HexBytes(tssSigning.Signature.S()),
-		}
-	}
-
-	return &types.SigningResult{
-		Signing:                   tssSigning,
-		EVMSignature:              evmSignature,
-		ReceivedPartialSignatures: pzs,
-	}, nil
 }
