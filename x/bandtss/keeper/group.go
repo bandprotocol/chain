@@ -81,7 +81,7 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, endBlockTime time.Time) erro
 
 	// If the signing process is unsuccessful, cleared data and emit event that fails to replace group.
 	if signing.Status != tsstypes.SIGNING_STATUS_SUCCESS {
-		k.SetReplacement(ctx, types.Replacement{})
+		k.DeleteReplacement(ctx)
 		k.SetReplacingGroupID(ctx, tss.GroupID(0))
 
 		ctx.EventManager().EmitEvent(

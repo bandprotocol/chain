@@ -143,6 +143,11 @@ func (k Keeper) SetReplacement(ctx sdk.Context, replacement types.Replacement) {
 	ctx.KVStore(k.storeKey).Set(types.ReplacementStoreKey, k.cdc.MustMarshal(&replacement))
 }
 
+// DeleteReplacement removes a replacement information in the store.
+func (k Keeper) DeleteReplacement(ctx sdk.Context) {
+	ctx.KVStore(k.storeKey).Delete(types.ReplacementStoreKey)
+}
+
 // GetReplacement retrieves a replacement information in the store.
 func (k Keeper) GetReplacement(ctx sdk.Context) (types.Replacement, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.ReplacementStoreKey)
