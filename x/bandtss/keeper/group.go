@@ -112,7 +112,7 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, endBlockTime time.Time) erro
 	}
 
 	// clear replacement info and emit an event.
-	k.SetReplacement(ctx, types.Replacement{})
+	k.DeleteReplacement(ctx)
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeReplacementSuccess,
