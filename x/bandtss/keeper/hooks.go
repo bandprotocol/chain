@@ -121,6 +121,11 @@ func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing
 		return nil
 	}
 
+	// check if the module should refund fee to requester.
+	if err := h.k.CheckRefundFee(ctx, signing); err != nil {
+		return err
+	}
+
 	penalizedMembers, err := h.k.tssKeeper.GetPenalizedMembersExpiredSigning(ctx, signing)
 	if err != nil {
 		return err
@@ -130,11 +135,6 @@ func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing
 		if err := h.k.DeactivateMember(ctx, addr); err != nil {
 			return err
 		}
-	}
-
-	// check if the module should refund fee to requester.
-	if err := h.k.CheckRefundFee(ctx, signing); err != nil {
-		return err
 	}
 
 	h.k.DeleteSigningIDMapping(ctx, signing.ID)
