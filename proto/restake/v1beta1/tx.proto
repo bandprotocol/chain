@@ -1,0 +1,27 @@
+syntax = "proto3";
+package restake.v1beta1;
+
+option go_package = "github.com/bandprotocol/chain/v2/x/restake/types";
+
+import "gogoproto/gogo.proto";
+import "oracle/v1/oracle.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/msg/v1/msg.proto";
+import "amino/amino.proto";
+
+// Msg defines the oracle Msg service.
+service Msg {
+  rpc WithdrawRewards(MsgWithdrawRewards) returns (MsgWithdrawRewardsResponse);
+}
+
+// MsgUpdateParams is the Msg/WithdrawRewards request type.
+message MsgWithdrawRewards {
+  option (cosmos.msg.v1.signer) = "address";
+  option (amino.name)           = "restake/MsgWithdrawRewards";
+
+  string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgWithdrawRewardsResponse defines ...
+message MsgWithdrawRewardsResponse {}

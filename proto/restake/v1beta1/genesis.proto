@@ -1,0 +1,6 @@
+syntax = "proto3";
+package restake.v1beta1;
+
+option go_package = "github.com/bandprotocol/chain/v2/x/restake/types";
+
+message GenesisState {}

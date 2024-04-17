@@ -1,0 +1,22 @@
+syntax = "proto3";
+package restake.v1beta1;
+
+option go_package = "github.com/bandprotocol/chain/v2/x/restake/types";
+
+import "google/api/annotations.proto";
+
+// Query defines the gRPC querier service.
+service Query {
+  // Rewards ...
+  rpc Rewards(QueryRewardsRequest) returns (QueryRewardsResponse) {
+    option (google.api.http).get = "/restake/v1beta1/addresses/{address}/rewards";
+  }
+}
+
+// QueryRewardsRequest is request type for the Query/Rewards RPC method.
+message QueryRewardsRequest {
+  string address = 1;
+}
+
+// QueryRewardsResponse is response type for the Query/Rewards RPC method.
+message QueryRewardsResponse {}
