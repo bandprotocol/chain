@@ -17,6 +17,7 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 		k.SetMember(ctx, member)
 	}
 
+	k.SetSigningCount(ctx, data.SigningCount)
 	for _, signingInfo := range data.Signings {
 		k.SetSigning(ctx, signingInfo)
 	}
@@ -36,6 +37,7 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 		Members:           k.GetMembers(ctx),
 		CurrentGroupID:    k.GetCurrentGroupID(ctx),
 		ReplacingGroupID:  k.GetReplacingGroupID(ctx),
+		SigningCount:      k.GetSigningCount(ctx),
 		Signings:          k.GetSignings(ctx),
 		SigningIDMappings: k.GetSigningIDMappings(ctx),
 	}
