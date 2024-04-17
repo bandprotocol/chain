@@ -90,9 +90,11 @@ func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing
 		return err
 	}
 
-	bandtssSigningID := h.k.GetSigningIDMapping(ctx, signing.ID)
-	if bandtssSigningID == 0 && signing.ID != replacement.SigningID {
-		return types.ErrSigningNotFound
+	// check if the signing is not for replacement, the module should refund fee to requester.
+	if signing.ID != replacement.SigningID {
+		if err := h.k.CheckRefundFee(ctx, signing); err != nil {
+			return err
+		}
 	}
 
 	// penalize members who didn't submit their partial signatures.
@@ -107,18 +109,11 @@ func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing
 		}
 	}
 
-	// if the signing is for replacement, exit the hooks.
-	if signing.ID == replacement.SigningID {
-		return nil
+	// if the signing is not for replacement, remove the mapping id.
+	if signing.ID != replacement.SigningID {
+		h.k.DeleteSigningIDMapping(ctx, signing.ID)
 	}
 
-	// if it is a signing initiated from bandtss module, check if the fee should be refunded and
-	// remove the id mapping.
-	if err := h.k.CheckRefundFee(ctx, signing); err != nil {
-		return err
-	}
-
-	h.k.DeleteSigningIDMapping(ctx, signing.ID)
 	return nil
 }
 
