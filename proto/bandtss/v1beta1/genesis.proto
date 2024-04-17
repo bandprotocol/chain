@@ -25,13 +25,15 @@ message GenesisState {
     (gogoproto.customname) = "ReplacingGroupID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
+  // signing_count is the number of signings.
+  uint64 signing_count = 5;
   // signings is the bandtss signing info.
-  repeated Signing signings = 5 [(gogoproto.nullable) = false];
+  repeated Signing signings = 6 [(gogoproto.nullable) = false];
   // signing_request_mappings is the list of mapping between tss signing id and bandtss signing id.
-  repeated SigningIDMappingGenesis signing_id_mappings = 6
+  repeated SigningIDMappingGenesis signing_id_mappings = 7
       [(gogoproto.nullable) = false, (gogoproto.customname) = "SigningIDMappings"];
   // replacement is the replacement of the current group.
-  Replacement replacement = 7 [(gogoproto.nullable) = false];
+  Replacement replacement = 8 [(gogoproto.nullable) = false];
 }
 
 // Params defines the set of module parameters.
