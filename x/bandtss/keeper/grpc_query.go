@@ -123,7 +123,7 @@ func (q queryServer) Signing(
 		return nil, err
 	}
 
-	replacingGroupSigningResult := &tsstypes.SigningResult{}
+	var replacingGroupSigningResult *tsstypes.SigningResult
 	if signing.ReplacingGroupSigningID != 0 {
 		replacingGroupSigningResult, err = q.k.tssKeeper.GetSigningResult(ctx, signing.ReplacingGroupSigningID)
 		if err != nil {

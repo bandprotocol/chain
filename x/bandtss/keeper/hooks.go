@@ -121,11 +121,6 @@ func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing
 		return nil
 	}
 
-	bandtssSigningID := h.k.GetSigningIDMapping(ctx, signing.ID)
-	if bandtssSigningID == 0 {
-		return types.ErrSigningNotFound
-	}
-
 	penalizedMembers, err := h.k.tssKeeper.GetPenalizedMembersExpiredSigning(ctx, signing)
 	if err != nil {
 		return err
