@@ -280,7 +280,7 @@ enum PrefixMsgType {
   PREFIX_MSG_TYPE_ORACLE = 3;
 }
 
-// SigningResult is a bandtss signing result from querying bandtss signing information.
+// SigningResult is a tss signing result from querying tss signing information.
 message SigningResult {
   // signing is the tss signing result.
   Signing signing = 1 [(gogoproto.nullable) = false];

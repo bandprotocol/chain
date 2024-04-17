@@ -151,8 +151,8 @@ func (q queryServer) Signing(
 	return &types.QuerySigningResponse{
 		Fee:                         signing.Fee,
 		Requester:                   signing.Requester,
-		CurrentGroupSigningResult:   *currentGroupSigningResult,
-		ReplacingGroupSigningResult: *replacingGroupSigningResult,
+		CurrentGroupSigningResult:   currentGroupSigningResult,
+		ReplacingGroupSigningResult: replacingGroupSigningResult,
 	}, nil
 }
 

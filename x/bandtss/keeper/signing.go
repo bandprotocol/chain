@@ -2,6 +2,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/kv"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
@@ -68,7 +69,7 @@ func (k Keeper) MustGetSigning(ctx sdk.Context, id types.SigningID) types.Signin
 
 // GetSigningIterator gets an iterator all bandtss signing.
 func (k Keeper) GetSigningIterator(ctx sdk.Context) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.SigningStoreKeyPrefix)
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.SigningInfoStoreKeyPrefix)
 }
 
 // GetSignings retrieves all signing of the store.
@@ -82,11 +83,6 @@ func (k Keeper) GetSignings(ctx sdk.Context) []types.Signing {
 		reqs = append(reqs, req)
 	}
 	return reqs
-}
-
-// DeleteSigning removes the bandtss signing of the given id
-func (k Keeper) DeleteSigning(ctx sdk.Context, id types.SigningID) {
-	ctx.KVStore(k.storeKey).Delete(types.SigningStoreKey(id))
 }
 
 // SetSigningIDMapping sets a mapping between tss.signingID and bandtss signing id.
@@ -105,7 +101,7 @@ func (k Keeper) GetSigningIDMapping(ctx sdk.Context, signingID tss.SigningID) ty
 
 // GetSigningIDMappingIterator gets an iterator all signingIDMapping.
 func (k Keeper) GetSigningRequestIDMappingIterator(ctx sdk.Context) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.SigningStoreKeyPrefix)
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.SigningIDMappingStoreKeyPrefix)
 }
 
 // GetSigningIDMappings retrieves all signingID mapping items of the store.
@@ -115,7 +111,7 @@ func (k Keeper) GetSigningIDMappings(ctx sdk.Context) []types.SigningIDMappingGe
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		mappings = append(mappings, types.SigningIDMappingGenesis{
-			SigningID:        tss.SigningID(sdk.BigEndianToUint64(iterator.Key())),
+			SigningID:        decodeSigningMappingKeyToSigningID(iterator.Key()),
 			BandtssSigningID: types.SigningID(sdk.BigEndianToUint64(iterator.Value())),
 		})
 	}
@@ -217,12 +213,8 @@ func (k Keeper) CheckRefundFee(ctx sdk.Context, signing tsstypes.Signing) error 
 		return err
 	}
 
-	tssSigning, err := k.tssKeeper.GetSigning(ctx, bandtssSigning.CurrentGroupSigningID)
-	if err != nil {
-		return err
-	}
-
-	if bandtssSigning.Fee.IsZero() || signing.GroupID != tssSigning.GroupID {
+	// Check fee is not zero and this signing is the current signing ID.
+	if bandtssSigning.Fee.IsZero() || signing.ID != bandtssSigning.CurrentGroupSigningID {
 		return nil
 	}
 
@@ -230,4 +222,9 @@ func (k Keeper) CheckRefundFee(ctx sdk.Context, signing tsstypes.Signing) error 
 	address := sdk.MustAccAddressFromBech32(bandtssSigning.Requester)
 	feeCoins := bandtssSigning.Fee.MulInt(sdk.NewInt(int64(len(signing.AssignedMembers))))
 	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, feeCoins)
+}
+
+func decodeSigningMappingKeyToSigningID(key []byte) tss.SigningID {
+	kv.AssertKeyLength(key, 10)
+	return tss.SigningID(sdk.BigEndianToUint64(key[2:]))
 }

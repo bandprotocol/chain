@@ -1382,7 +1382,7 @@ func (m *EVMSignature) GetSignature() github_com_cometbft_cometbft_libs_bytes.He
 	return nil
 }
 
-// SigningResult is a bandtss signing result from querying bandtss signing information.
+// SigningResult is a tss signing result from querying tss signing information.
 type SigningResult struct {
 	// signing is the tss signing result.
 	Signing Signing `protobuf:"bytes,1,opt,name=signing,proto3" json:"signing"`

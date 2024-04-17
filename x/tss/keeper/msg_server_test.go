@@ -576,7 +576,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			s.Require().NoError(err)
 
 			bandtssSigningID := bandtsstypes.SigningID(app.BandtssKeeper.GetSigningCount(ctx))
-			s.Require().NotEqual(bandtsstypes.SigningID(0), bandtssSigningID)
+			s.Require().NotZero(bandtssSigningID)
 
 			// Get the signing information
 			signing, err := k.GetSigning(ctx, tss.SigningID(i+1))
