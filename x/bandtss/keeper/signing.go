@@ -111,7 +111,7 @@ func (k Keeper) GetSigningIDMappings(ctx sdk.Context) []types.SigningIDMappingGe
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		mappings = append(mappings, types.SigningIDMappingGenesis{
-			SigningID:        getSigningMappingKey(iterator.Key()),
+			SigningID:        decodeSigningMappingKeyToSigningID(iterator.Key()),
 			BandtssSigningID: types.SigningID(sdk.BigEndianToUint64(iterator.Value())),
 		})
 	}
@@ -213,12 +213,8 @@ func (k Keeper) CheckRefundFee(ctx sdk.Context, signing tsstypes.Signing) error 
 		return err
 	}
 
-	tssSigning, err := k.tssKeeper.GetSigning(ctx, bandtssSigning.CurrentGroupSigningID)
-	if err != nil {
-		return err
-	}
-
-	if bandtssSigning.Fee.IsZero() || signing.GroupID != tssSigning.GroupID {
+	// Check fee is not zero and this signing is the current signing ID.
+	if bandtssSigning.Fee.IsZero() || signing.ID != bandtssSigning.CurrentGroupSigningID {
 		return nil
 	}
 
@@ -228,7 +224,7 @@ func (k Keeper) CheckRefundFee(ctx sdk.Context, signing tsstypes.Signing) error 
 	return k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, feeCoins)
 }
 
-func getSigningMappingKey(key []byte) tss.SigningID {
+func decodeSigningMappingKeyToSigningID(key []byte) tss.SigningID {
 	kv.AssertKeyLength(key, 10)
 	return tss.SigningID(sdk.BigEndianToUint64(key[2:]))
 }

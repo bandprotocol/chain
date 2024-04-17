@@ -102,11 +102,6 @@ func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) err
 		return nil
 	}
 
-	bandtssSigningID := h.k.GetSigningIDMapping(ctx, signing.ID)
-	if bandtssSigningID == 0 {
-		return types.ErrSigningNotFound
-	}
-
 	// refund fee to requester. Unlikely to get an error from refund fee, but log it just in case.
 	if err := h.k.CheckRefundFee(ctx, signing); err != nil {
 		return err

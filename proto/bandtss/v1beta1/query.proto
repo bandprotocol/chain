@@ -113,7 +113,7 @@ message QuerySigningResponse {
   // requester is the address of requester who paid for the Bandtss signing.
   string requester = 2;
   // current_group_signing_result is the signing result from the current group.
-  .tss.v1beta1.SigningResult current_group_signing_result = 3 [(gogoproto.nullable) = false];
+  .tss.v1beta1.SigningResult current_group_signing_result = 3;
   // replacing_group_signing_result is the signing result from the replacing group.
-  .tss.v1beta1.SigningResult replacing_group_signing_result = 4 [(gogoproto.nullable) = false];
+  .tss.v1beta1.SigningResult replacing_group_signing_result = 4;
 }
