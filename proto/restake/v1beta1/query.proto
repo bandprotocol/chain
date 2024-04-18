@@ -3,6 +3,7 @@ package restake.v1beta1;
 
 option go_package = "github.com/bandprotocol/chain/v2/x/restake/types";
 
+import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "restake/v1beta1/types.proto";
 
@@ -13,9 +14,9 @@ service Query {
     option (google.api.http).get = "/restake/v1beta1/addresses/{address}/rewards";
   }
 
-  // Lock ...
-  rpc LockTokens(QueryLockTokensRequest) returns (QueryLockTokensResponse) {
-    option (google.api.http).get = "/restake/v1beta1/addresses/{address}/lock_tokens";
+  // Locks ...
+  rpc Locks(QueryLocksRequest) returns (QueryLocksResponse) {
+    option (google.api.http).get = "/restake/v1beta1/addresses/{address}/locks";
   }
 }
 
@@ -26,15 +27,15 @@ message QueryRewardsRequest {
 
 // QueryRewardsResponse is response type for the Query/Rewards RPC method.
 message QueryRewardsResponse {
-  repeated Reward rewards = 1;
+  repeated Reward rewards = 1 [(gogoproto.nullable) = false];
 }
 
-// QueryLockTokensRequest is request type for the Query/LockTokens RPC method.
-message QueryLockTokensRequest {
+// QueryLocksRequest is request type for the Query/Locks RPC method.
+message QueryLocksRequest {
   string address = 1;
 }
 
-// QueryLockTokensResponse is response type for the Query/LockTokens RPC method.
-message QueryLockTokensResponse {
-  repeated LockToken lock_tokens = 1;
+// QueryLocksResponse is response type for the Query/Locks RPC method.
+message QueryLocksResponse {
+  repeated Lock locks = 1 [(gogoproto.nullable) = false];
 }

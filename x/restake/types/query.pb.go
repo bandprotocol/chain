@@ -6,6 +6,7 @@ package types
 import (
 	context "context"
 	fmt "fmt"
+	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
 	proto "github.com/cosmos/gogoproto/proto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -75,7 +76,7 @@ func (m *QueryRewardsRequest) GetAddress() string {
 
 // QueryRewardsResponse is response type for the Query/Rewards RPC method.
 type QueryRewardsResponse struct {
-	Rewards []*Reward `protobuf:"bytes,1,rep,name=rewards,proto3" json:"rewards,omitempty"`
+	Rewards []Reward `protobuf:"bytes,1,rep,name=rewards,proto3" json:"rewards"`
 }
 
 func (m *QueryRewardsResponse) Reset()         { *m = QueryRewardsResponse{} }
@@ -111,30 +112,30 @@ func (m *QueryRewardsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryRewardsResponse proto.InternalMessageInfo
 
-func (m *QueryRewardsResponse) GetRewards() []*Reward {
+func (m *QueryRewardsResponse) GetRewards() []Reward {
 	if m != nil {
 		return m.Rewards
 	}
 	return nil
 }
 
-// QueryLockTokensRequest is request type for the Query/LockTokens RPC method.
-type QueryLockTokensRequest struct {
+// QueryLocksRequest is request type for the Query/Locks RPC method.
+type QueryLocksRequest struct {
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
 
-func (m *QueryLockTokensRequest) Reset()         { *m = QueryLockTokensRequest{} }
-func (m *QueryLockTokensRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryLockTokensRequest) ProtoMessage()    {}
-func (*QueryLockTokensRequest) Descriptor() ([]byte, []int) {
+func (m *QueryLocksRequest) Reset()         { *m = QueryLocksRequest{} }
+func (m *QueryLocksRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryLocksRequest) ProtoMessage()    {}
+func (*QueryLocksRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_0a9e24db325d090c, []int{2}
 }
-func (m *QueryLockTokensRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryLocksRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryLockTokensRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryLocksRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryLockTokensRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryLocksRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -144,42 +145,42 @@ func (m *QueryLockTokensRequest) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return b[:n], nil
 	}
 }
-func (m *QueryLockTokensRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryLockTokensRequest.Merge(m, src)
+func (m *QueryLocksRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryLocksRequest.Merge(m, src)
 }
-func (m *QueryLockTokensRequest) XXX_Size() int {
+func (m *QueryLocksRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryLockTokensRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryLockTokensRequest.DiscardUnknown(m)
+func (m *QueryLocksRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryLocksRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryLockTokensRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryLocksRequest proto.InternalMessageInfo
 
-func (m *QueryLockTokensRequest) GetAddress() string {
+func (m *QueryLocksRequest) GetAddress() string {
 	if m != nil {
 		return m.Address
 	}
 	return ""
 }
 
-// QueryLockTokensResponse is response type for the Query/LockTokens RPC method.
-type QueryLockTokensResponse struct {
-	LockTokens []*LockToken `protobuf:"bytes,1,rep,name=lock_tokens,json=lockTokens,proto3" json:"lock_tokens,omitempty"`
+// QueryLocksResponse is response type for the Query/Locks RPC method.
+type QueryLocksResponse struct {
+	Locks []Lock `protobuf:"bytes,1,rep,name=locks,proto3" json:"locks"`
 }
 
-func (m *QueryLockTokensResponse) Reset()         { *m = QueryLockTokensResponse{} }
-func (m *QueryLockTokensResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryLockTokensResponse) ProtoMessage()    {}
-func (*QueryLockTokensResponse) Descriptor() ([]byte, []int) {
+func (m *QueryLocksResponse) Reset()         { *m = QueryLocksResponse{} }
+func (m *QueryLocksResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryLocksResponse) ProtoMessage()    {}
+func (*QueryLocksResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_0a9e24db325d090c, []int{3}
 }
-func (m *QueryLockTokensResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryLocksResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryLockTokensResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryLocksResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryLockTokensResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryLocksResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -189,21 +190,21 @@ func (m *QueryLockTokensResponse) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
-func (m *QueryLockTokensResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryLockTokensResponse.Merge(m, src)
+func (m *QueryLocksResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryLocksResponse.Merge(m, src)
 }
-func (m *QueryLockTokensResponse) XXX_Size() int {
+func (m *QueryLocksResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryLockTokensResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryLockTokensResponse.DiscardUnknown(m)
+func (m *QueryLocksResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryLocksResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryLockTokensResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryLocksResponse proto.InternalMessageInfo
 
-func (m *QueryLockTokensResponse) GetLockTokens() []*LockToken {
+func (m *QueryLocksResponse) GetLocks() []Lock {
 	if m != nil {
-		return m.LockTokens
+		return m.Locks
 	}
 	return nil
 }
@@ -211,38 +212,38 @@ func (m *QueryLockTokensResponse) GetLockTokens() []*LockToken {
 func init() {
 	proto.RegisterType((*QueryRewardsRequest)(nil), "restake.v1beta1.QueryRewardsRequest")
 	proto.RegisterType((*QueryRewardsResponse)(nil), "restake.v1beta1.QueryRewardsResponse")
-	proto.RegisterType((*QueryLockTokensRequest)(nil), "restake.v1beta1.QueryLockTokensRequest")
-	proto.RegisterType((*QueryLockTokensResponse)(nil), "restake.v1beta1.QueryLockTokensResponse")
+	proto.RegisterType((*QueryLocksRequest)(nil), "restake.v1beta1.QueryLocksRequest")
+	proto.RegisterType((*QueryLocksResponse)(nil), "restake.v1beta1.QueryLocksResponse")
 }
 
 func init() { proto.RegisterFile("restake/v1beta1/query.proto", fileDescriptor_0a9e24db325d090c) }
 
 var fileDescriptor_0a9e24db325d090c = []byte{
-	// 378 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0x2e, 0x4a, 0x2d, 0x2e,
-	0x49, 0xcc, 0x4e, 0xd5, 0x2f, 0x33, 0x4c, 0x4a, 0x2d, 0x49, 0x34, 0xd4, 0x2f, 0x2c, 0x4d, 0x2d,
-	0xaa, 0xd4, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0x87, 0x4a, 0xea, 0x41, 0x25, 0xa5, 0x64,
-	0xd2, 0xf3, 0xf3, 0xd3, 0x73, 0x52, 0xf5, 0x13, 0x0b, 0x32, 0xf5, 0x13, 0xf3, 0xf2, 0xf2, 0x4b,
-	0x12, 0x4b, 0x32, 0xf3, 0xf3, 0x8a, 0x21, 0xca, 0xa5, 0x30, 0xcc, 0x2a, 0xa9, 0x2c, 0x48, 0x85,
-	0x4a, 0x2a, 0xe9, 0x73, 0x09, 0x07, 0x82, 0x8c, 0x0e, 0x4a, 0x2d, 0x4f, 0x2c, 0x4a, 0x29, 0x0e,
-	0x4a, 0x2d, 0x2c, 0x4d, 0x2d, 0x2e, 0x11, 0x92, 0xe0, 0x62, 0x4f, 0x4c, 0x49, 0x29, 0x4a, 0x2d,
-	0x2e, 0x96, 0x60, 0x54, 0x60, 0xd4, 0xe0, 0x0c, 0x82, 0x71, 0x95, 0x3c, 0xb9, 0x44, 0x50, 0x35,
-	0x14, 0x17, 0xe4, 0xe7, 0x15, 0xa7, 0x0a, 0x19, 0x72, 0xb1, 0x17, 0x41, 0x84, 0x24, 0x18, 0x15,
-	0x98, 0x35, 0xb8, 0x8d, 0xc4, 0xf5, 0xd0, 0x9c, 0xa9, 0x07, 0xd1, 0x12, 0x04, 0x53, 0xa7, 0x64,
-	0xc4, 0x25, 0x06, 0x36, 0xca, 0x27, 0x3f, 0x39, 0x3b, 0x24, 0x3f, 0x3b, 0x35, 0x8f, 0x08, 0xeb,
-	0xc3, 0xb8, 0xc4, 0x31, 0xf4, 0x40, 0x5d, 0x60, 0xcd, 0xc5, 0x9d, 0x93, 0x9f, 0x9c, 0x1d, 0x5f,
-	0x02, 0x16, 0x86, 0xba, 0x42, 0x0a, 0xc3, 0x15, 0x70, 0x9d, 0x41, 0x5c, 0x39, 0x70, 0x43, 0x8c,
-	0x36, 0x31, 0x71, 0xb1, 0x82, 0x0d, 0x16, 0xea, 0x61, 0xe4, 0x62, 0x87, 0x7a, 0x4e, 0x48, 0x05,
-	0x43, 0x37, 0x96, 0xc0, 0x92, 0x52, 0x25, 0xa0, 0x0a, 0xe2, 0x3e, 0x25, 0x93, 0xa6, 0xcb, 0x4f,
-	0x26, 0x33, 0xe9, 0x09, 0xe9, 0xe8, 0xa3, 0x47, 0x08, 0xd4, 0x73, 0xa9, 0xc5, 0xfa, 0xd5, 0x50,
-	0x66, 0xad, 0x3e, 0x34, 0x90, 0x84, 0x66, 0x32, 0x72, 0x71, 0x21, 0x3c, 0x2b, 0xa4, 0x8e, 0xdd,
-	0x2e, 0x8c, 0x20, 0x94, 0xd2, 0x20, 0xac, 0x10, 0xea, 0x2e, 0x0b, 0xb0, 0xbb, 0x8c, 0x84, 0x0c,
-	0x88, 0x72, 0x17, 0x52, 0x10, 0x3b, 0x79, 0x9d, 0x78, 0x24, 0xc7, 0x78, 0xe1, 0x91, 0x1c, 0xe3,
-	0x83, 0x47, 0x72, 0x8c, 0x13, 0x1e, 0xcb, 0x31, 0x5c, 0x78, 0x2c, 0xc7, 0x70, 0xe3, 0xb1, 0x1c,
-	0x43, 0x94, 0x41, 0x7a, 0x66, 0x49, 0x46, 0x69, 0x92, 0x5e, 0x72, 0x7e, 0xae, 0x7e, 0x52, 0x62,
-	0x5e, 0x0a, 0x38, 0xb1, 0x25, 0xe7, 0xe7, 0xe8, 0x27, 0x67, 0x24, 0x66, 0xe6, 0xe9, 0x97, 0x19,
-	0xe9, 0x57, 0xc0, 0x6d, 0x03, 0x27, 0xc7, 0x24, 0x36, 0xb0, 0x12, 0x63, 0x40, 0x00, 0x00, 0x00,
-	0xff, 0xff, 0xee, 0xb8, 0xfe, 0xb0, 0xfa, 0x02, 0x00, 0x00,
+	// 383 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x92, 0xc1, 0x4b, 0xe3, 0x40,
+	0x14, 0xc6, 0x33, 0xdd, 0xed, 0x96, 0x9d, 0x3d, 0x2c, 0x8e, 0x15, 0x4b, 0x94, 0x58, 0xa2, 0x42,
+	0x91, 0x9a, 0xb1, 0x51, 0xf0, 0xde, 0x8b, 0x20, 0x82, 0x98, 0xa3, 0xb7, 0x49, 0x32, 0xa4, 0xa1,
+	0x35, 0x93, 0x66, 0xa6, 0xd5, 0x22, 0x5e, 0xc4, 0xa3, 0x07, 0xc1, 0xb3, 0xff, 0x4f, 0x8f, 0x05,
+	0x2f, 0x9e, 0x44, 0x5a, 0xff, 0x10, 0xc9, 0x64, 0x2a, 0xb5, 0x2d, 0xda, 0xdb, 0x64, 0xbe, 0xef,
+	0xcd, 0xef, 0x7b, 0x2f, 0x0f, 0xae, 0x25, 0x94, 0x0b, 0xd2, 0xa4, 0xb8, 0x5b, 0x73, 0xa9, 0x20,
+	0x35, 0xdc, 0xee, 0xd0, 0xa4, 0x67, 0xc5, 0x09, 0x13, 0x0c, 0xfd, 0x57, 0xa2, 0xa5, 0x44, 0xbd,
+	0x18, 0xb0, 0x80, 0x49, 0x0d, 0xa7, 0xa7, 0xcc, 0xa6, 0xaf, 0x07, 0x8c, 0x05, 0x2d, 0x8a, 0x49,
+	0x1c, 0x62, 0x12, 0x45, 0x4c, 0x10, 0x11, 0xb2, 0x88, 0x2b, 0x75, 0x86, 0x20, 0x7a, 0x31, 0x55,
+	0xa2, 0x89, 0xe1, 0xf2, 0x59, 0x0a, 0x74, 0xe8, 0x25, 0x49, 0x7c, 0xee, 0xd0, 0x76, 0x87, 0x72,
+	0x81, 0x4a, 0xb0, 0x40, 0x7c, 0x3f, 0xa1, 0x9c, 0x97, 0x40, 0x19, 0x54, 0xfe, 0x3a, 0xe3, 0x4f,
+	0xf3, 0x14, 0x16, 0xbf, 0x16, 0xf0, 0x98, 0x45, 0x9c, 0xa2, 0x43, 0x58, 0x48, 0xb2, 0xab, 0x12,
+	0x28, 0xff, 0xaa, 0xfc, 0xb3, 0x57, 0xad, 0xa9, 0xf0, 0x56, 0x56, 0x52, 0xff, 0xdd, 0x7f, 0xdd,
+	0xd0, 0x9c, 0xb1, 0xdb, 0xdc, 0x85, 0x4b, 0xf2, 0xc1, 0x13, 0xe6, 0x35, 0x17, 0xe0, 0x1f, 0x41,
+	0x34, 0x69, 0x57, 0xf4, 0x1a, 0xcc, 0xb7, 0xd2, 0x0b, 0xc5, 0x5e, 0x99, 0x61, 0xa7, 0x76, 0x45,
+	0xce, 0x9c, 0xf6, 0x53, 0x0e, 0xe6, 0xe5, 0x4b, 0xe8, 0x1e, 0xc0, 0x82, 0x6a, 0x07, 0x6d, 0xcd,
+	0x54, 0xce, 0x19, 0x8f, 0xbe, 0xfd, 0x83, 0x2b, 0x4b, 0x65, 0x1e, 0xdc, 0x3e, 0xbf, 0x3f, 0xe6,
+	0x2c, 0x54, 0xc5, 0xd3, 0xbf, 0x40, 0x75, 0x43, 0x39, 0xbe, 0x56, 0xc7, 0x1b, 0xac, 0x06, 0x82,
+	0xee, 0x00, 0xcc, 0xcb, 0xee, 0x90, 0x39, 0x1f, 0x33, 0x39, 0x29, 0x7d, 0xf3, 0x5b, 0x8f, 0x0a,
+	0x62, 0xcb, 0x20, 0x55, 0xb4, 0xb3, 0x50, 0x10, 0x39, 0x9f, 0xfa, 0x71, 0x7f, 0x68, 0x80, 0xc1,
+	0xd0, 0x00, 0x6f, 0x43, 0x03, 0x3c, 0x8c, 0x0c, 0x6d, 0x30, 0x32, 0xb4, 0x97, 0x91, 0xa1, 0x9d,
+	0xef, 0x05, 0xa1, 0x68, 0x74, 0x5c, 0xcb, 0x63, 0x17, 0xd8, 0x25, 0x91, 0x2f, 0x37, 0xc9, 0x63,
+	0x2d, 0xec, 0x35, 0x48, 0x18, 0xe1, 0xae, 0x8d, 0xaf, 0x3e, 0x39, 0x72, 0xd7, 0xdc, 0x3f, 0xd2,
+	0xb2, 0xff, 0x11, 0x00, 0x00, 0xff, 0xff, 0x84, 0x59, 0x40, 0xc7, 0xed, 0x02, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -259,8 +260,8 @@ const _ = grpc.SupportPackageIsVersion4
 type QueryClient interface {
 	// Rewards ...
 	Rewards(ctx context.Context, in *QueryRewardsRequest, opts ...grpc.CallOption) (*QueryRewardsResponse, error)
-	// Lock ...
-	LockTokens(ctx context.Context, in *QueryLockTokensRequest, opts ...grpc.CallOption) (*QueryLockTokensResponse, error)
+	// Locks ...
+	Locks(ctx context.Context, in *QueryLocksRequest, opts ...grpc.CallOption) (*QueryLocksResponse, error)
 }
 
 type queryClient struct {
@@ -280,9 +281,9 @@ func (c *queryClient) Rewards(ctx context.Context, in *QueryRewardsRequest, opts
 	return out, nil
 }
 
-func (c *queryClient) LockTokens(ctx context.Context, in *QueryLockTokensRequest, opts ...grpc.CallOption) (*QueryLockTokensResponse, error) {
-	out := new(QueryLockTokensResponse)
-	err := c.cc.Invoke(ctx, "/restake.v1beta1.Query/LockTokens", in, out, opts...)
+func (c *queryClient) Locks(ctx context.Context, in *QueryLocksRequest, opts ...grpc.CallOption) (*QueryLocksResponse, error) {
+	out := new(QueryLocksResponse)
+	err := c.cc.Invoke(ctx, "/restake.v1beta1.Query/Locks", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -293,8 +294,8 @@ func (c *queryClient) LockTokens(ctx context.Context, in *QueryLockTokensRequest
 type QueryServer interface {
 	// Rewards ...
 	Rewards(context.Context, *QueryRewardsRequest) (*QueryRewardsResponse, error)
-	// Lock ...
-	LockTokens(context.Context, *QueryLockTokensRequest) (*QueryLockTokensResponse, error)
+	// Locks ...
+	Locks(context.Context, *QueryLocksRequest) (*QueryLocksResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -304,8 +305,8 @@ type UnimplementedQueryServer struct {
 func (*UnimplementedQueryServer) Rewards(ctx context.Context, req *QueryRewardsRequest) (*QueryRewardsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Rewards not implemented")
 }
-func (*UnimplementedQueryServer) LockTokens(ctx context.Context, req *QueryLockTokensRequest) (*QueryLockTokensResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method LockTokens not implemented")
+func (*UnimplementedQueryServer) Locks(ctx context.Context, req *QueryLocksRequest) (*QueryLocksResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Locks not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -330,20 +331,20 @@ func _Query_Rewards_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_LockTokens_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryLockTokensRequest)
+func _Query_Locks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryLocksRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).LockTokens(ctx, in)
+		return srv.(QueryServer).Locks(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/restake.v1beta1.Query/LockTokens",
+		FullMethod: "/restake.v1beta1.Query/Locks",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).LockTokens(ctx, req.(*QueryLockTokensRequest))
+		return srv.(QueryServer).Locks(ctx, req.(*QueryLocksRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -357,8 +358,8 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Query_Rewards_Handler,
 		},
 		{
-			MethodName: "LockTokens",
-			Handler:    _Query_LockTokens_Handler,
+			MethodName: "Locks",
+			Handler:    _Query_Locks_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -432,7 +433,7 @@ func (m *QueryRewardsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryLockTokensRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryLocksRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -442,12 +443,12 @@ func (m *QueryLockTokensRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryLockTokensRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryLocksRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryLockTokensRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryLocksRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -462,7 +463,7 @@ func (m *QueryLockTokensRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) 
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryLockTokensResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryLocksResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -472,20 +473,20 @@ func (m *QueryLockTokensResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryLockTokensResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryLocksResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryLockTokensResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryLocksResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.LockTokens) > 0 {
-		for iNdEx := len(m.LockTokens) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.Locks) > 0 {
+		for iNdEx := len(m.Locks) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.LockTokens[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.Locks[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -538,7 +539,7 @@ func (m *QueryRewardsResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryLockTokensRequest) Size() (n int) {
+func (m *QueryLocksRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -551,14 +552,14 @@ func (m *QueryLockTokensRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryLockTokensResponse) Size() (n int) {
+func (m *QueryLocksResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	if len(m.LockTokens) > 0 {
-		for _, e := range m.LockTokens {
+	if len(m.Locks) > 0 {
+		for _, e := range m.Locks {
 			l = e.Size()
 			n += 1 + l + sovQuery(uint64(l))
 		}
@@ -712,7 +713,7 @@ func (m *QueryRewardsResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Rewards = append(m.Rewards, &Reward{})
+			m.Rewards = append(m.Rewards, Reward{})
 			if err := m.Rewards[len(m.Rewards)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -738,7 +739,7 @@ func (m *QueryRewardsResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryLockTokensRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryLocksRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -761,10 +762,10 @@ func (m *QueryLockTokensRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryLockTokensRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryLocksRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryLockTokensRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryLocksRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -820,7 +821,7 @@ func (m *QueryLockTokensRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryLockTokensResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryLocksResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -843,15 +844,15 @@ func (m *QueryLockTokensResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryLockTokensResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryLocksResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryLockTokensResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryLocksResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field LockTokens", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Locks", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -878,8 +879,8 @@ func (m *QueryLockTokensResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.LockTokens = append(m.LockTokens, &LockToken{})
-			if err := m.LockTokens[len(m.LockTokens)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.Locks = append(m.Locks, Lock{})
+			if err := m.Locks[len(m.Locks)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
