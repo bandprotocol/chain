@@ -12,13 +12,13 @@ import (
 // RegisterLegacyAminoCodec registers the necessary x/restake interfaces and concrete types
 // on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	legacy.RegisterAminoMsg(cdc, &MsgWithdrawRewards{}, "restake/MsgWithdrawRewards")
+	legacy.RegisterAminoMsg(cdc, &MsgClaimRewards{}, "restake/MsgClaimRewards")
 }
 
 // RegisterInterfaces registers the x/restake interfaces types with the interface registry
 func RegisterInterfaces(registry types.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
-		&MsgWithdrawRewards{},
+		&MsgClaimRewards{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

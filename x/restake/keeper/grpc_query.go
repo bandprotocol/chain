@@ -16,7 +16,6 @@ type Querier struct {
 
 var _ types.QueryServer = Querier{}
 
-// Validators queries all validators that match the given status
 func (k Querier) Rewards(
 	c context.Context,
 	req *types.QueryRewardsRequest,
@@ -26,4 +25,15 @@ func (k Querier) Rewards(
 	}
 
 	return &types.QueryRewardsResponse{}, nil
+}
+
+func (k Querier) LockTokens(
+	c context.Context,
+	req *types.QueryLockTokensRequest,
+) (*types.QueryLockTokensResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "empty request")
+	}
+
+	return &types.QueryLockTokensResponse{}, nil
 }

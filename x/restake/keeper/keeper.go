@@ -12,11 +12,12 @@ import (
 
 // Keeper of the x/restake store
 type Keeper struct {
-	storeKey   storetypes.StoreKey
-	cdc        codec.BinaryCodec
-	authKeeper types.AccountKeeper
-	bankKeeper types.BankKeeper
-	authority  string
+	storeKey      storetypes.StoreKey
+	cdc           codec.BinaryCodec
+	authKeeper    types.AccountKeeper
+	bankKeeper    types.BankKeeper
+	stakingKeeper types.StakingKeeper
+	authority     string
 }
 
 // NewKeeper creates a new restake Keeper instance
@@ -25,19 +26,21 @@ func NewKeeper(
 	key storetypes.StoreKey,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
+	sk types.StakingKeeper,
 	authority string,
-) *Keeper {
+) Keeper {
 	// ensure that authority is a valid AccAddress
 	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
 		panic("authority is not a valid acc address")
 	}
 
-	return &Keeper{
-		storeKey:   key,
-		cdc:        cdc,
-		authKeeper: ak,
-		bankKeeper: bk,
-		authority:  authority,
+	return Keeper{
+		storeKey:      key,
+		cdc:           cdc,
+		authKeeper:    ak,
+		bankKeeper:    bk,
+		stakingKeeper: sk,
+		authority:     authority,
 	}
 }
 

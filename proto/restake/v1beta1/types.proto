@@ -4,4 +4,34 @@ package restake.v1beta1;
 option go_package = "github.com/bandprotocol/chain/v2/x/restake/types";
 
 import "gogoproto/gogo.proto";
-import "google/protobuf/timestamp.proto";
+import "amino/amino.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+// Reward message defines a structure for storing reward details.
+message Reward {
+  // Setting gogoproto annotations for equality.
+  option (gogoproto.equal) = true;
+  // Unique identifier for the reward.
+  string key = 1;
+  // List of reward amounts in different denominations.
+  repeated cosmos.base.v1beta1.Coin coins = 2 [
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+}
+
+// LockToken message defines a structure for storing locked token details.
+message LockToken {
+  // Setting gogoproto annotations for equality.
+  option (gogoproto.equal) = true;
+  // Unique identifier for the locked token.
+  string key = 1;
+  // Balance of the locked token.
+  string amount = 2 [
+    (cosmos_proto.scalar)  = "cosmos.Int",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable)   = false
+  ];
+}

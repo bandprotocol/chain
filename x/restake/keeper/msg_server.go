@@ -20,12 +20,12 @@ func NewMsgServerImpl(keeper *Keeper) types.MsgServer {
 
 var _ types.MsgServer = msgServer{}
 
-// WithdrawRewards defines a method for creating a new validator
-func (k msgServer) WithdrawRewards(
+// ClaimRewards defines a method for creating a new validator
+func (k msgServer) ClaimRewards(
 	goCtx context.Context,
-	msg *types.MsgWithdrawRewards,
-) (*types.MsgWithdrawRewardsResponse, error) {
+	msg *types.MsgClaimRewards,
+) (*types.MsgClaimRewardsResponse, error) {
 	_ = sdk.UnwrapSDKContext(goCtx)
 
-	return &types.MsgWithdrawRewardsResponse{}, nil
+	return &types.MsgClaimRewardsResponse{}, nil
 }

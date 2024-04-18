@@ -126,6 +126,9 @@ import (
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/restake"
+	restakekeeper "github.com/bandprotocol/chain/v2/x/restake/keeper"
+	restaketypes "github.com/bandprotocol/chain/v2/x/restake/types"
 )
 
 const (
@@ -174,6 +177,7 @@ var (
 		ica.AppModuleBasic{},
 		oracle.AppModuleBasic{},
 		globalfee.AppModule{},
+		restake.AppModuleBasic{},
 	)
 	// module account permissions
 	maccPerms = map[string][]string{
@@ -286,6 +290,7 @@ func NewBandApp(
 		group.StoreKey,
 		oracletypes.StoreKey,
 		globalfeetypes.StoreKey,
+		restaketypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -414,8 +419,21 @@ func NewBandApp(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
+	app.RestakeKeeper = restakekeeper.NewKeeper(
+		appCodec,
+		keys[restaketypes.StoreKey],
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.StakingKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
 	app.StakingKeeper.SetHooks(
-		stakingtypes.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks()),
+		stakingtypes.NewMultiStakingHooks(
+			app.DistrKeeper.Hooks(),
+			app.SlashingKeeper.Hooks(),
+			app.RestakeKeeper.Hooks(),
+		),
 	)
 
 	// create IBC Keeper
@@ -615,6 +633,7 @@ func NewBandApp(
 		icaModule,
 		oracleModule,
 		globalfee.NewAppModule(app.GlobalfeeKeeper),
+		restake.NewAppModule(appCodec, &app.RestakeKeeper),
 	)
 
 	// NOTE: Oracle module must occur before distr as it takes some fee to distribute to active oracle validators.
@@ -626,6 +645,7 @@ func NewBandApp(
 		capabilitytypes.ModuleName,
 		minttypes.ModuleName,
 		oracletypes.ModuleName,
+		restaketypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -652,6 +672,7 @@ func NewBandApp(
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
 		oracletypes.ModuleName,
+		restaketypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
@@ -703,6 +724,7 @@ func NewBandApp(
 		consensusparamtypes.ModuleName,
 		oracletypes.ModuleName,
 		globalfeetypes.ModuleName,
+		restaketypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(app.CrisisKeeper)

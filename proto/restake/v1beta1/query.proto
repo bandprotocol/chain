@@ -4,12 +4,18 @@ package restake.v1beta1;
 option go_package = "github.com/bandprotocol/chain/v2/x/restake/types";
 
 import "google/api/annotations.proto";
+import "restake/v1beta1/types.proto";
 
 // Query defines the gRPC querier service.
 service Query {
   // Rewards ...
   rpc Rewards(QueryRewardsRequest) returns (QueryRewardsResponse) {
     option (google.api.http).get = "/restake/v1beta1/addresses/{address}/rewards";
+  }
+
+  // Lock ...
+  rpc LockTokens(QueryLockTokensRequest) returns (QueryLockTokensResponse) {
+    option (google.api.http).get = "/restake/v1beta1/addresses/{address}/lock_tokens";
   }
 }
 
@@ -19,4 +25,16 @@ message QueryRewardsRequest {
 }
 
 // QueryRewardsResponse is response type for the Query/Rewards RPC method.
-message QueryRewardsResponse {}
+message QueryRewardsResponse {
+  repeated Reward rewards = 1;
+}
+
+// QueryLockTokensRequest is request type for the Query/LockTokens RPC method.
+message QueryLockTokensRequest {
+  string address = 1;
+}
+
+// QueryLockTokensResponse is response type for the Query/LockTokens RPC method.
+message QueryLockTokensResponse {
+  repeated LockToken lock_tokens = 1;
+}

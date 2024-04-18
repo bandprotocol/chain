@@ -6,5 +6,5 @@ import (
 
 // x/restake module sentinel errors
 var (
-	ErrEmptyValidatorAddr = sdkerrors.Register(ModuleName, 2, "empty validator address")
+	ErrUnableToUndelegate = sdkerrors.Register(ModuleName, 2, "unable to undelegate")
 )

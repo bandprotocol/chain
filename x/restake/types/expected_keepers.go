@@ -1,8 +1,10 @@
 package types
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 // DistributionKeeper expected distribution keeper (noalias)
@@ -46,4 +48,14 @@ type BankKeeper interface {
 	) error
 
 	BurnCoins(ctx sdk.Context, name string, amt sdk.Coins) error
+}
+
+// StakingKeeper defines the expected staking keeper.
+type StakingKeeper interface {
+	GetBondedValidatorsByPower(ctx sdk.Context) []stakingtypes.Validator
+	IterateBondedValidatorsByPower(
+		ctx sdk.Context,
+		fn func(index int64, validator stakingtypes.ValidatorI) (stop bool),
+	)
+	GetDelegatorBonded(ctx sdk.Context, delegator sdk.AccAddress) math.Int
 }

@@ -23,6 +23,7 @@ import (
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
 	globalfeekeeper "github.com/bandprotocol/chain/v2/x/globalfee/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	restakekeeper "github.com/bandprotocol/chain/v2/x/restake/keeper"
 )
 
 type AppKeepers struct {
@@ -49,6 +50,7 @@ type AppKeepers struct {
 	OracleKeeper          oraclekeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	GlobalfeeKeeper       globalfeekeeper.Keeper
+	RestakeKeeper         restakekeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper

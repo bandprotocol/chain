@@ -6,12 +6,9 @@ package types
 import (
 	context "context"
 	fmt "fmt"
-	_ "github.com/bandprotocol/chain/v2/x/oracle/types"
 	_ "github.com/cosmos/cosmos-proto"
-	_ "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/cosmos-sdk/types/msgservice"
 	_ "github.com/cosmos/cosmos-sdk/types/tx/amino"
-	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
 	proto "github.com/cosmos/gogoproto/proto"
 	grpc "google.golang.org/grpc"
@@ -33,23 +30,24 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// MsgUpdateParams is the Msg/WithdrawRewards request type.
-type MsgWithdrawRewards struct {
+// MsgClaimRewards is the request message type for claiming rewards.
+type MsgClaimRewards struct {
+	// Address of the account to claim rewards for.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
 
-func (m *MsgWithdrawRewards) Reset()         { *m = MsgWithdrawRewards{} }
-func (m *MsgWithdrawRewards) String() string { return proto.CompactTextString(m) }
-func (*MsgWithdrawRewards) ProtoMessage()    {}
-func (*MsgWithdrawRewards) Descriptor() ([]byte, []int) {
+func (m *MsgClaimRewards) Reset()         { *m = MsgClaimRewards{} }
+func (m *MsgClaimRewards) String() string { return proto.CompactTextString(m) }
+func (*MsgClaimRewards) ProtoMessage()    {}
+func (*MsgClaimRewards) Descriptor() ([]byte, []int) {
 	return fileDescriptor_4c6a768b7b224a47, []int{0}
 }
-func (m *MsgWithdrawRewards) XXX_Unmarshal(b []byte) error {
+func (m *MsgClaimRewards) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgWithdrawRewards) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgClaimRewards) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgWithdrawRewards.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgClaimRewards.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -59,41 +57,41 @@ func (m *MsgWithdrawRewards) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return b[:n], nil
 	}
 }
-func (m *MsgWithdrawRewards) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgWithdrawRewards.Merge(m, src)
+func (m *MsgClaimRewards) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgClaimRewards.Merge(m, src)
 }
-func (m *MsgWithdrawRewards) XXX_Size() int {
+func (m *MsgClaimRewards) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgWithdrawRewards) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgWithdrawRewards.DiscardUnknown(m)
+func (m *MsgClaimRewards) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgClaimRewards.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgWithdrawRewards proto.InternalMessageInfo
+var xxx_messageInfo_MsgClaimRewards proto.InternalMessageInfo
 
-func (m *MsgWithdrawRewards) GetAddress() string {
+func (m *MsgClaimRewards) GetAddress() string {
 	if m != nil {
 		return m.Address
 	}
 	return ""
 }
 
-// MsgWithdrawRewardsResponse defines ...
-type MsgWithdrawRewardsResponse struct {
+// MsgClaimRewardsResponse is the response message type for claiming rewards.
+type MsgClaimRewardsResponse struct {
 }
 
-func (m *MsgWithdrawRewardsResponse) Reset()         { *m = MsgWithdrawRewardsResponse{} }
-func (m *MsgWithdrawRewardsResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgWithdrawRewardsResponse) ProtoMessage()    {}
-func (*MsgWithdrawRewardsResponse) Descriptor() ([]byte, []int) {
+func (m *MsgClaimRewardsResponse) Reset()         { *m = MsgClaimRewardsResponse{} }
+func (m *MsgClaimRewardsResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgClaimRewardsResponse) ProtoMessage()    {}
+func (*MsgClaimRewardsResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_4c6a768b7b224a47, []int{1}
 }
-func (m *MsgWithdrawRewardsResponse) XXX_Unmarshal(b []byte) error {
+func (m *MsgClaimRewardsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgWithdrawRewardsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgClaimRewardsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgWithdrawRewardsResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgClaimRewardsResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -103,48 +101,45 @@ func (m *MsgWithdrawRewardsResponse) XXX_Marshal(b []byte, deterministic bool) (
 		return b[:n], nil
 	}
 }
-func (m *MsgWithdrawRewardsResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgWithdrawRewardsResponse.Merge(m, src)
+func (m *MsgClaimRewardsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgClaimRewardsResponse.Merge(m, src)
 }
-func (m *MsgWithdrawRewardsResponse) XXX_Size() int {
+func (m *MsgClaimRewardsResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgWithdrawRewardsResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgWithdrawRewardsResponse.DiscardUnknown(m)
+func (m *MsgClaimRewardsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgClaimRewardsResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgWithdrawRewardsResponse proto.InternalMessageInfo
+var xxx_messageInfo_MsgClaimRewardsResponse proto.InternalMessageInfo
 
 func init() {
-	proto.RegisterType((*MsgWithdrawRewards)(nil), "restake.v1beta1.MsgWithdrawRewards")
-	proto.RegisterType((*MsgWithdrawRewardsResponse)(nil), "restake.v1beta1.MsgWithdrawRewardsResponse")
+	proto.RegisterType((*MsgClaimRewards)(nil), "restake.v1beta1.MsgClaimRewards")
+	proto.RegisterType((*MsgClaimRewardsResponse)(nil), "restake.v1beta1.MsgClaimRewardsResponse")
 }
 
 func init() { proto.RegisterFile("restake/v1beta1/tx.proto", fileDescriptor_4c6a768b7b224a47) }
 
 var fileDescriptor_4c6a768b7b224a47 = []byte{
-	// 326 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x90, 0xbf, 0x4a, 0x03, 0x41,
-	0x10, 0xc6, 0x73, 0x08, 0x8a, 0xd7, 0x04, 0x8f, 0xa0, 0xf1, 0x90, 0x45, 0x62, 0x23, 0x09, 0xde,
-	0x9a, 0xd8, 0xd9, 0x99, 0x52, 0x48, 0x13, 0x0b, 0xc1, 0x46, 0xf6, 0xf6, 0x96, 0xcd, 0x69, 0x6e,
-	0x27, 0xec, 0x6c, 0xfe, 0xd8, 0x5a, 0x5a, 0xf9, 0x28, 0x29, 0x7c, 0x08, 0xcb, 0x60, 0x65, 0x29,
-	0x49, 0x91, 0xd7, 0x90, 0xdc, 0xee, 0x21, 0xe4, 0x1a, 0x9b, 0x63, 0x66, 0x7e, 0xdf, 0x7c, 0x73,
-	0xfb, 0xf9, 0x75, 0x2d, 0xd0, 0xb0, 0x67, 0x41, 0x27, 0xed, 0x58, 0x18, 0xd6, 0xa6, 0x66, 0x16,
-	0x8d, 0x34, 0x18, 0x08, 0xaa, 0x8e, 0x44, 0x8e, 0x84, 0x35, 0x09, 0x12, 0x72, 0x46, 0x37, 0x95,
-	0x95, 0x85, 0x87, 0xa0, 0x19, 0x1f, 0x6e, 0xf6, 0xa9, 0xad, 0xdc, 0x9c, 0x70, 0xc0, 0x0c, 0x90,
-	0xc6, 0x0c, 0xff, 0xcc, 0x39, 0xa4, 0xca, 0xf1, 0x63, 0xcb, 0x1f, 0xad, 0xa1, 0x6d, 0x1c, 0x3a,
-	0x72, 0xab, 0x19, 0xca, 0x8d, 0x6d, 0x86, 0xd2, 0x81, 0x03, 0x96, 0xa5, 0x0a, 0x68, 0xfe, 0xb5,
-	0xa3, 0xc6, 0xd8, 0x0f, 0x7a, 0x28, 0xef, 0x53, 0x33, 0x48, 0x34, 0x9b, 0xf6, 0xc5, 0x94, 0xe9,
-	0x04, 0x83, 0x8e, 0xbf, 0xc7, 0x92, 0x44, 0x0b, 0xc4, 0xba, 0x77, 0xea, 0x9d, 0xef, 0x77, 0xeb,
-	0x5f, 0x1f, 0x17, 0x35, 0x77, 0xe4, 0xc6, 0x92, 0x3b, 0xa3, 0x53, 0x25, 0xfb, 0x85, 0xf0, 0xba,
-	0xf5, 0xba, 0x9e, 0x37, 0x8b, 0xee, 0x6d, 0x3d, 0x6f, 0x86, 0x45, 0x34, 0xe5, 0x03, 0x8d, 0x13,
-	0x3f, 0x2c, 0x4f, 0xfb, 0x02, 0x47, 0xa0, 0x50, 0x74, 0x9e, 0xfc, 0x9d, 0x1e, 0xca, 0x80, 0xfb,
-	0xd5, 0xed, 0x1f, 0x3b, 0x8b, 0xb6, 0x52, 0x8d, 0xca, 0x36, 0x61, 0xeb, 0x1f, 0xa2, 0xe2, 0x56,
-	0xf7, 0xf6, 0x73, 0x49, 0xbc, 0xc5, 0x92, 0x78, 0x3f, 0x4b, 0xe2, 0xbd, 0xaf, 0x48, 0x65, 0xb1,
-	0x22, 0x95, 0xef, 0x15, 0xa9, 0x3c, 0x5c, 0xca, 0xd4, 0x0c, 0xc6, 0x71, 0xc4, 0x21, 0xa3, 0x31,
-	0x53, 0x49, 0x1e, 0x18, 0x87, 0x21, 0xe5, 0x03, 0x96, 0x2a, 0x3a, 0xe9, 0xd0, 0x19, 0x2d, 0x9e,
-	0x68, 0x5e, 0x46, 0x02, 0xe3, 0xdd, 0x5c, 0x72, 0xf5, 0x1b, 0x00, 0x00, 0xff, 0xff, 0x7c, 0x9b,
-	0x5e, 0xba, 0x15, 0x02, 0x00, 0x00,
+	// 287 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0x28, 0x4a, 0x2d, 0x2e,
+	0x49, 0xcc, 0x4e, 0xd5, 0x2f, 0x33, 0x4c, 0x4a, 0x2d, 0x49, 0x34, 0xd4, 0x2f, 0xa9, 0xd0, 0x2b,
+	0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0x87, 0xca, 0xe8, 0x41, 0x65, 0xa4, 0x24, 0x93, 0xf3, 0x8b,
+	0x73, 0xf3, 0x8b, 0xe3, 0xc1, 0xd2, 0xfa, 0x10, 0x0e, 0x44, 0xad, 0x94, 0x38, 0x84, 0xa7, 0x9f,
+	0x5b, 0x9c, 0xae, 0x5f, 0x66, 0x08, 0xa2, 0xa0, 0x12, 0x82, 0x89, 0xb9, 0x99, 0x79, 0xf9, 0xfa,
+	0x60, 0x12, 0x22, 0xa4, 0x94, 0xcf, 0xc5, 0xef, 0x5b, 0x9c, 0xee, 0x9c, 0x93, 0x98, 0x99, 0x1b,
+	0x94, 0x5a, 0x9e, 0x58, 0x94, 0x52, 0x2c, 0x64, 0xc4, 0xc5, 0x9e, 0x98, 0x92, 0x52, 0x94, 0x5a,
+	0x5c, 0x2c, 0xc1, 0xa8, 0xc0, 0xa8, 0xc1, 0xe9, 0x24, 0x71, 0x69, 0x8b, 0xae, 0x08, 0xd4, 0x06,
+	0x47, 0x88, 0x4c, 0x70, 0x49, 0x51, 0x66, 0x5e, 0x7a, 0x10, 0x4c, 0xa1, 0x95, 0x46, 0xd3, 0xf3,
+	0x0d, 0x5a, 0x30, 0x5e, 0xd7, 0xf3, 0x0d, 0x5a, 0xe2, 0x30, 0x9f, 0xa0, 0x99, 0xae, 0x24, 0xc9,
+	0x25, 0x8e, 0x26, 0x14, 0x94, 0x5a, 0x5c, 0x90, 0x9f, 0x57, 0x9c, 0x6a, 0x94, 0xc8, 0xc5, 0xec,
+	0x5b, 0x9c, 0x2e, 0x14, 0xc5, 0xc5, 0x83, 0xe2, 0x1e, 0x05, 0x3d, 0x34, 0xbf, 0xeb, 0xa1, 0x19,
+	0x20, 0xa5, 0x41, 0x48, 0x05, 0xcc, 0x0a, 0x27, 0xaf, 0x13, 0x8f, 0xe4, 0x18, 0x2f, 0x3c, 0x92,
+	0x63, 0x7c, 0xf0, 0x48, 0x8e, 0x71, 0xc2, 0x63, 0x39, 0x86, 0x0b, 0x8f, 0xe5, 0x18, 0x6e, 0x3c,
+	0x96, 0x63, 0x88, 0x32, 0x48, 0xcf, 0x2c, 0xc9, 0x28, 0x4d, 0xd2, 0x4b, 0xce, 0xcf, 0xd5, 0x4f,
+	0x4a, 0xcc, 0x4b, 0x01, 0x07, 0x4f, 0x72, 0x7e, 0x8e, 0x7e, 0x72, 0x46, 0x62, 0x66, 0x9e, 0x7e,
+	0x99, 0x91, 0x7e, 0x85, 0x3e, 0xcc, 0x4f, 0x25, 0x95, 0x05, 0xa9, 0xc5, 0x49, 0x6c, 0x60, 0x25,
+	0xc6, 0x80, 0x00, 0x00, 0x00, 0xff, 0xff, 0xb9, 0xc0, 0x78, 0x4d, 0xb5, 0x01, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -159,7 +154,8 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	WithdrawRewards(ctx context.Context, in *MsgWithdrawRewards, opts ...grpc.CallOption) (*MsgWithdrawRewardsResponse, error)
+	// RPC method for claiming rewards.
+	ClaimRewards(ctx context.Context, in *MsgClaimRewards, opts ...grpc.CallOption) (*MsgClaimRewardsResponse, error)
 }
 
 type msgClient struct {
@@ -170,9 +166,9 @@ func NewMsgClient(cc grpc1.ClientConn) MsgClient {
 	return &msgClient{cc}
 }
 
-func (c *msgClient) WithdrawRewards(ctx context.Context, in *MsgWithdrawRewards, opts ...grpc.CallOption) (*MsgWithdrawRewardsResponse, error) {
-	out := new(MsgWithdrawRewardsResponse)
-	err := c.cc.Invoke(ctx, "/restake.v1beta1.Msg/WithdrawRewards", in, out, opts...)
+func (c *msgClient) ClaimRewards(ctx context.Context, in *MsgClaimRewards, opts ...grpc.CallOption) (*MsgClaimRewardsResponse, error) {
+	out := new(MsgClaimRewardsResponse)
+	err := c.cc.Invoke(ctx, "/restake.v1beta1.Msg/ClaimRewards", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -181,35 +177,36 @@ func (c *msgClient) WithdrawRewards(ctx context.Context, in *MsgWithdrawRewards,
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	WithdrawRewards(context.Context, *MsgWithdrawRewards) (*MsgWithdrawRewardsResponse, error)
+	// RPC method for claiming rewards.
+	ClaimRewards(context.Context, *MsgClaimRewards) (*MsgClaimRewardsResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
 type UnimplementedMsgServer struct {
 }
 
-func (*UnimplementedMsgServer) WithdrawRewards(ctx context.Context, req *MsgWithdrawRewards) (*MsgWithdrawRewardsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method WithdrawRewards not implemented")
+func (*UnimplementedMsgServer) ClaimRewards(ctx context.Context, req *MsgClaimRewards) (*MsgClaimRewardsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ClaimRewards not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
 	s.RegisterService(&_Msg_serviceDesc, srv)
 }
 
-func _Msg_WithdrawRewards_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgWithdrawRewards)
+func _Msg_ClaimRewards_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgClaimRewards)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).WithdrawRewards(ctx, in)
+		return srv.(MsgServer).ClaimRewards(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/restake.v1beta1.Msg/WithdrawRewards",
+		FullMethod: "/restake.v1beta1.Msg/ClaimRewards",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).WithdrawRewards(ctx, req.(*MsgWithdrawRewards))
+		return srv.(MsgServer).ClaimRewards(ctx, req.(*MsgClaimRewards))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -219,15 +216,15 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*MsgServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "WithdrawRewards",
-			Handler:    _Msg_WithdrawRewards_Handler,
+			MethodName: "ClaimRewards",
+			Handler:    _Msg_ClaimRewards_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "restake/v1beta1/tx.proto",
 }
 
-func (m *MsgWithdrawRewards) Marshal() (dAtA []byte, err error) {
+func (m *MsgClaimRewards) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -237,12 +234,12 @@ func (m *MsgWithdrawRewards) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgWithdrawRewards) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgClaimRewards) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgWithdrawRewards) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgClaimRewards) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -257,7 +254,7 @@ func (m *MsgWithdrawRewards) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgWithdrawRewardsResponse) Marshal() (dAtA []byte, err error) {
+func (m *MsgClaimRewardsResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -267,12 +264,12 @@ func (m *MsgWithdrawRewardsResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgWithdrawRewardsResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgClaimRewardsResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgWithdrawRewardsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgClaimRewardsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -291,7 +288,7 @@ func encodeVarintTx(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *MsgWithdrawRewards) Size() (n int) {
+func (m *MsgClaimRewards) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -304,7 +301,7 @@ func (m *MsgWithdrawRewards) Size() (n int) {
 	return n
 }
 
-func (m *MsgWithdrawRewardsResponse) Size() (n int) {
+func (m *MsgClaimRewardsResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -319,7 +316,7 @@ func sovTx(x uint64) (n int) {
 func sozTx(x uint64) (n int) {
 	return sovTx(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *MsgWithdrawRewards) Unmarshal(dAtA []byte) error {
+func (m *MsgClaimRewards) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -342,10 +339,10 @@ func (m *MsgWithdrawRewards) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgWithdrawRewards: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgClaimRewards: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgWithdrawRewards: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgClaimRewards: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -401,7 +398,7 @@ func (m *MsgWithdrawRewards) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgWithdrawRewardsResponse) Unmarshal(dAtA []byte) error {
+func (m *MsgClaimRewardsResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -424,10 +421,10 @@ func (m *MsgWithdrawRewardsResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgWithdrawRewardsResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgClaimRewardsResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgWithdrawRewardsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgClaimRewardsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
