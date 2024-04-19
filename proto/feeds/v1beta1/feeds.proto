@@ -41,6 +41,10 @@ message Feed {
 
   // The timestamp of the last time interval is updated.
   int64 last_interval_update_timestamp = 4;
+
+  // The deviation_in_thousandth signifies the maximum deviation value, expressed in thousandths, that this price feed
+  // can tolerate.
+  int64 deviation_in_thousandth = 5;
 }
 
 // PriceOption defines the price option of a price.
