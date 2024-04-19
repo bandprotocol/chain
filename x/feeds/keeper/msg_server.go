@@ -93,10 +93,10 @@ func (ms msgServer) SubmitPrices(
 		return nil, err
 	}
 
-	transitionTime := ms.GetParams(ctx).TransitionTime
+	cooldownTime := ms.GetParams(ctx).CooldownTime
 
 	for _, price := range req.Prices {
-		priceVal, err := ms.NewPriceValidator(ctx, blockTime, price, val, transitionTime)
+		priceVal, err := ms.NewPriceValidator(ctx, blockTime, price, val, cooldownTime)
 		if err != nil {
 			return nil, err
 		}
@@ -105,16 +105,6 @@ func (ms msgServer) SubmitPrices(
 		if err != nil {
 			return nil, err
 		}
-
-		priceVal = types.PriceValidator{
-			PriceOption: price.PriceOption,
-			Validator:   req.Validator,
-			SignalID:    price.SignalID,
-			Price:       price.Price,
-			Timestamp:   blockTime,
-		}
-
-		_ = ms.Keeper.SetPriceValidator(ctx, priceVal)
 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(

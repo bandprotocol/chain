@@ -46,14 +46,11 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // IsInTopValidator checks is the validator is in the top bonded validators.
-func (k Keeper) IsInTopValidator(ctx sdk.Context, validator string) bool {
-	vals := k.stakingKeeper.GetBondedValidatorsByPower(ctx)
-
-	for _, val := range vals {
-		if validator == val.GetOperator().String() {
-			return true
-		}
+func (k Keeper) IsTopValidator(ctx sdk.Context, valAddr string) bool {
+	val, found := k.stakingKeeper.GetValidator(ctx, sdk.ValAddress(valAddr))
+	if !found {
+		return false
 	}
 
-	return false
+	return val.IsBonded()
 }

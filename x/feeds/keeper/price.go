@@ -7,8 +7,8 @@ import (
 )
 
 func (k Keeper) ValidateSubmitPricesRequest(ctx sdk.Context, blockTime int64, req *types.MsgSubmitPrices) error {
-	isInTop := k.IsInTopValidator(ctx, req.Validator)
-	if !isInTop {
+	isTop := k.IsTopValidator(ctx, req.Validator)
+	if !isTop {
 		return types.ErrNotTopValidator
 	}
 
@@ -37,15 +37,16 @@ func (k Keeper) NewPriceValidator(
 	blockTime int64,
 	price types.SubmitPrice,
 	val sdk.ValAddress,
-	transitionTime int64,
+	cooldownTime int64,
 ) (types.PriceValidator, error) {
 	s, err := k.GetFeed(ctx, price.SignalID)
 	if err != nil {
 		return types.PriceValidator{}, err
 	}
 
+	// check if price is not too fast
 	priceVal, err := k.GetPriceValidator(ctx, price.SignalID, val)
-	if err == nil && blockTime < priceVal.Timestamp+s.Interval-transitionTime {
+	if err == nil && blockTime < priceVal.Timestamp+cooldownTime {
 		return types.PriceValidator{}, types.ErrPriceTooFast.Wrapf(
 			"signal_id: %s, old: %d, new: %d, interval: %d",
 			price.SignalID,
