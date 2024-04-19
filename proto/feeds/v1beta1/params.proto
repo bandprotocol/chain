@@ -37,4 +37,10 @@ message Params {
 
   // cooldown_time represents the duration (in seconds) during which validators are prohibited from sending new prices.
   int64 cooldown_time = 8;
+
+  // min_deviation_in_thousandth is the minimum limit of every feeds' deviation (in thousandth).
+  int64 min_deviation_in_thousandth = 9;
+
+  // max_deviation_in_thousandth is the maximum limit of every feeds' deviation (in thousandth).
+  int64 max_deviation_in_thousandth = 10;
 }

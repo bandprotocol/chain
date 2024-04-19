@@ -6,13 +6,15 @@ import (
 
 const (
 	// Default values for Params
-	DefaultAllowDiffTime     = int64(30)
-	DefaultTransitionTime    = int64(30)
-	DefaultMinInterval       = int64(60)
-	DefaultMaxInterval       = int64(3600)
-	DefaultPowerThreshold    = int64(1_000_000_000)
-	DefaultMaxSupportedFeeds = int64(100)
-	DefaultCooldownTime      = int64(30)
+	DefaultAllowDiffTime            = int64(30)
+	DefaultTransitionTime           = int64(30)
+	DefaultMinInterval              = int64(60)
+	DefaultMaxInterval              = int64(3600)
+	DefaultPowerThreshold           = int64(1_000_000_000)
+	DefaultMaxSupportedFeeds        = int64(100)
+	DefaultCooldownTime             = int64(30)
+	DefaultMinDeviationInThousandth = int64(5)
+	DefaultMaxDeviationInThousandth = int64(300)
 )
 
 // NewParams creates a new Params instance
@@ -25,16 +27,20 @@ func NewParams(
 	powerThreshold int64,
 	maxSupportedFeeds int64,
 	cooldownTime int64,
+	minDeviationInThousandth int64,
+	maxDeviationInThousandth int64,
 ) Params {
 	return Params{
-		Admin:             admin,
-		AllowDiffTime:     allowDiffTime,
-		TransitionTime:    transitionTime,
-		MinInterval:       minInterval,
-		MaxInterval:       maxInterval,
-		PowerThreshold:    powerThreshold,
-		MaxSupportedFeeds: maxSupportedFeeds,
-		CooldownTime:      cooldownTime,
+		Admin:                    admin,
+		AllowDiffTime:            allowDiffTime,
+		TransitionTime:           transitionTime,
+		MinInterval:              minInterval,
+		MaxInterval:              maxInterval,
+		PowerThreshold:           powerThreshold,
+		MaxSupportedFeeds:        maxSupportedFeeds,
+		CooldownTime:             cooldownTime,
+		MinDeviationInThousandth: minDeviationInThousandth,
+		MaxDeviationInThousandth: maxDeviationInThousandth,
 	}
 }
 
@@ -49,6 +55,8 @@ func DefaultParams() Params {
 		DefaultPowerThreshold,
 		DefaultMaxSupportedFeeds,
 		DefaultCooldownTime,
+		DefaultMinDeviationInThousandth,
+		DefaultMaxDeviationInThousandth,
 	)
 }
 
@@ -76,6 +84,12 @@ func (p Params) Validate() error {
 		return err
 	}
 	if err := validateInt64("cooldown time", true)(p.CooldownTime); err != nil {
+		return err
+	}
+	if err := validateInt64("min deviation in thousandth", true)(p.MinDeviationInThousandth); err != nil {
+		return err
+	}
+	if err := validateInt64("max deviation in thousandth", true)(p.MaxDeviationInThousandth); err != nil {
 		return err
 	}
 

@@ -4,17 +4,25 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-func calculateInterval(power int64, param types.Params) int64 {
+func calculateIntervalAndDeviation(power int64, param types.Params) (interval int64, deviation int64) {
 	if power < param.PowerThreshold {
-		return 0
+		return 0, 0
 	}
 
 	// divide power by power threshold to create steps
-	interval := param.MaxInterval / (power / param.PowerThreshold)
+	powerFactor := power / param.PowerThreshold
+
+	interval = param.MaxInterval / powerFactor
 	if interval < param.MinInterval {
-		return param.MinInterval
+		interval = param.MinInterval
 	}
-	return interval
+
+	deviation = param.MaxDeviationInThousandth / powerFactor
+	if deviation < param.MinDeviationInThousandth {
+		deviation = param.MinDeviationInThousandth
+	}
+
+	return
 }
 
 func sumPower(signals []types.Signal) (sum uint64) {
