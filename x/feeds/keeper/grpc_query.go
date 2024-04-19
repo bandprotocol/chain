@@ -164,8 +164,8 @@ func (q queryServer) ValidValidator(
 	flag := true
 
 	// check if it's in top bonded validators.
-	isInTop := q.keeper.IsInTopValidator(ctx, req.Validator)
-	if !isInTop {
+	isTop := q.keeper.IsTopValidator(ctx, req.Validator)
+	if !isTop {
 		flag = false
 	}
 

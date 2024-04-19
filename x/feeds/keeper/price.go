@@ -7,8 +7,8 @@ import (
 )
 
 func (k Keeper) ValidateSubmitPricesRequest(ctx sdk.Context, blockTime int64, req *types.MsgSubmitPrices) error {
-	isInTop := k.IsInTopValidator(ctx, req.Validator)
-	if !isInTop {
+	isTop := k.IsTopValidator(ctx, req.Validator)
+	if !isTop {
 		return types.ErrNotTopValidator
 	}
 
