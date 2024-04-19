@@ -34,4 +34,7 @@ message Params {
 
   // max_support_feeds is the maximum number of feeds supported at a time.
   int64 max_supported_feeds = 7;
+
+  // cooldown_time represents the duration (in seconds) during which validators are prohibited from sending new prices.
+  int64 cooldown_time = 8;
 }

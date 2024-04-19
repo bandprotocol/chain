@@ -12,6 +12,7 @@ const (
 	DefaultMaxInterval       = int64(3600)
 	DefaultPowerThreshold    = int64(1_000_000_000)
 	DefaultMaxSupportedFeeds = int64(100)
+	DefaultCooldownTime      = int64(30)
 )
 
 // NewParams creates a new Params instance
@@ -23,6 +24,7 @@ func NewParams(
 	maxInterval int64,
 	powerThreshold int64,
 	maxSupportedFeeds int64,
+	cooldownTime int64,
 ) Params {
 	return Params{
 		Admin:             admin,
@@ -32,6 +34,7 @@ func NewParams(
 		MaxInterval:       maxInterval,
 		PowerThreshold:    powerThreshold,
 		MaxSupportedFeeds: maxSupportedFeeds,
+		CooldownTime:      cooldownTime,
 	}
 }
 
@@ -45,6 +48,7 @@ func DefaultParams() Params {
 		DefaultMaxInterval,
 		DefaultPowerThreshold,
 		DefaultMaxSupportedFeeds,
+		DefaultCooldownTime,
 	)
 }
 
@@ -69,6 +73,9 @@ func (p Params) Validate() error {
 		return err
 	}
 	if err := validateInt64("max supported feeds", true)(p.MaxSupportedFeeds); err != nil {
+		return err
+	}
+	if err := validateInt64("cooldown time", true)(p.CooldownTime); err != nil {
 		return err
 	}
 
