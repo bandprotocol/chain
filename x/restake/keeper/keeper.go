@@ -13,20 +13,24 @@ import (
 
 // Keeper of the x/restake store
 type Keeper struct {
-	storeKey      storetypes.StoreKey
-	cdc           codec.BinaryCodec
-	authKeeper    types.AccountKeeper
-	bankKeeper    types.BankKeeper
-	stakingKeeper types.StakingKeeper
-	authority     string
+	storeKey         storetypes.StoreKey
+	cdc              codec.BinaryCodec
+	feeCollectorName string
+	authKeeper       types.AccountKeeper
+	bankKeeper       types.BankKeeper
+	distrKeeper      types.DistrKeeper
+	stakingKeeper    types.StakingKeeper
+	authority        string
 }
 
 // NewKeeper creates a new restake Keeper instance
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	key storetypes.StoreKey,
+	feeCollectorName string,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
+	dk types.DistrKeeper,
 	sk types.StakingKeeper,
 	authority string,
 ) Keeper {
@@ -36,12 +40,14 @@ func NewKeeper(
 	}
 
 	return Keeper{
-		storeKey:      key,
-		cdc:           cdc,
-		authKeeper:    ak,
-		bankKeeper:    bk,
-		stakingKeeper: sk,
-		authority:     authority,
+		storeKey:         key,
+		cdc:              cdc,
+		feeCollectorName: feeCollectorName,
+		authKeeper:       ak,
+		bankKeeper:       bk,
+		distrKeeper:      dk,
+		stakingKeeper:    sk,
+		authority:        authority,
 	}
 }
 
@@ -57,24 +63,50 @@ func (k Keeper) SetLockedToken(ctx sdk.Context, addr sdk.AccAddress, keyName str
 		return types.ErrDelegationNotEnough
 	}
 
-	// create key if it doesn't exist
-	if !k.HasKey(ctx, keyName) {
-		k.SetKey(ctx, types.Key{
-			Name:     keyName,
-			IsActive: true,
-		})
+	key := k.GetOrCreateKey(ctx, keyName)
+	key = k.updateRewardPerShares(ctx, key)
+
+	// check if there is a lock before
+	// if yes, remove total lock in the key
+	// if no, create the lock
+	lock, err := k.GetLock(ctx, addr, keyName)
+	if err != nil {
+		lock = types.Lock{
+			Address:     addr.String(),
+			Key:         keyName,
+			Amount:      amount,
+			RewardDebts: key.RewardPerShares,
+			RewardLefts: sdk.NewDecCoins(),
+		}
+		k.SetLock(ctx, lock)
+	} else {
+		lock = k.updateRewardLefts(ctx, key, lock)
+		key.TotalLock = key.TotalLock.Sub(lock.Amount)
+		lock.Amount = amount
+		k.SetLock(ctx, lock)
 	}
 
-	k.SetLock(ctx, types.Lock{
-		Address: addr.String(),
-		Key:     keyName,
-		Amount:  amount,
-	})
+	// add total lock from new amount
+	key.TotalLock = key.TotalLock.Add(lock.Amount)
+	k.SetKey(ctx, key)
 
 	return nil
 }
 
-func (k Keeper) DistributeToken(ctx sdk.Context, keyName string, amount sdk.Coins) error {
+func (k Keeper) AddRewards(ctx sdk.Context, keyName string, rewards sdk.Coins) error {
+	err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, k.feeCollectorName, types.ModuleName, rewards)
+	if err != nil {
+		panic(err)
+	}
+
+	key, err := k.GetKey(ctx, keyName)
+	if err != nil {
+		return err
+	}
+
+	key.CurrentRewards = key.CurrentRewards.Add(sdk.NewDecCoinsFromCoins(rewards...)...)
+	k.SetKey(ctx, key)
+
 	return nil
 }
 
@@ -92,7 +124,14 @@ func (k Keeper) CancelKey(ctx sdk.Context, keyName string) error {
 		return types.ErrKeyNotFound
 	}
 
+	// TODO: can't delete as people won't be able to claim reward
 	k.DeleteKey(ctx, keyName)
 
 	return nil
+}
+
+func (k Keeper) addFeePool(ctx sdk.Context, decCoins sdk.DecCoins) {
+	feePool := k.distrKeeper.GetFeePool(ctx)
+	feePool.CommunityPool = feePool.CommunityPool.Add(decCoins...)
+	k.distrKeeper.SetFeePool(ctx, feePool)
 }

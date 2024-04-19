@@ -6,6 +6,22 @@ import (
 	"github.com/bandprotocol/chain/v2/x/restake/types"
 )
 
+func (k Keeper) GetOrCreateKey(ctx sdk.Context, keyName string) types.Key {
+	key, err := k.GetKey(ctx, keyName)
+	if err != nil {
+		key = types.Key{
+			Name:            keyName,
+			TotalLock:       sdk.NewInt(0),
+			RewardPerShares: sdk.NewDecCoins(),
+			CurrentRewards:  sdk.NewDecCoins(),
+		}
+
+		k.SetKey(ctx, key)
+	}
+
+	return key
+}
+
 func (k Keeper) GetKeysIterator(ctx sdk.Context) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.KeyStoreKeyPrefix)
 }
@@ -45,4 +61,17 @@ func (k Keeper) SetKey(ctx sdk.Context, key types.Key) {
 
 func (k Keeper) DeleteKey(ctx sdk.Context, keyName string) {
 	ctx.KVStore(k.storeKey).Delete(types.KeyStoreKey(keyName))
+}
+
+func (k Keeper) updateRewardPerShares(ctx sdk.Context, key types.Key) types.Key {
+	if key.TotalLock.IsZero() {
+		k.addFeePool(ctx, key.CurrentRewards)
+	} else {
+		key.RewardPerShares = key.RewardPerShares.Add(
+			key.CurrentRewards.QuoDecTruncate(sdk.NewDecFromInt(key.TotalLock))...)
+		key.CurrentRewards = sdk.NewDecCoins()
+		k.SetKey(ctx, key)
+	}
+
+	return key
 }

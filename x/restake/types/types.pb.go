@@ -32,7 +32,7 @@ type Reward struct {
 	// Unique identifier for the reward.
 	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
 	// List of reward amounts in different denominations.
-	Coins github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,2,rep,name=coins,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"coins"`
+	Rewards github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,2,rep,name=rewards,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"rewards"`
 }
 
 func (m *Reward) Reset()         { *m = Reward{} }
@@ -75,17 +75,19 @@ func (m *Reward) GetKey() string {
 	return ""
 }
 
-func (m *Reward) GetCoins() github_com_cosmos_cosmos_sdk_types.Coins {
+func (m *Reward) GetRewards() github_com_cosmos_cosmos_sdk_types.DecCoins {
 	if m != nil {
-		return m.Coins
+		return m.Rewards
 	}
 	return nil
 }
 
 // Key message defines ...
 type Key struct {
-	Name     string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	IsActive bool   `protobuf:"varint,2,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
+	Name            string                                      `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	RewardPerShares github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,2,rep,name=reward_per_shares,json=rewardPerShares,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"reward_per_shares"`
+	TotalLock       github_com_cosmos_cosmos_sdk_types.Int      `protobuf:"bytes,3,opt,name=total_lock,json=totalLock,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"total_lock"`
+	CurrentRewards  github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,4,rep,name=current_rewards,json=currentRewards,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"current_rewards"`
 }
 
 func (m *Key) Reset()         { *m = Key{} }
@@ -128,18 +130,27 @@ func (m *Key) GetName() string {
 	return ""
 }
 
-func (m *Key) GetIsActive() bool {
+func (m *Key) GetRewardPerShares() github_com_cosmos_cosmos_sdk_types.DecCoins {
 	if m != nil {
-		return m.IsActive
+		return m.RewardPerShares
 	}
-	return false
+	return nil
+}
+
+func (m *Key) GetCurrentRewards() github_com_cosmos_cosmos_sdk_types.DecCoins {
+	if m != nil {
+		return m.CurrentRewards
+	}
+	return nil
 }
 
 // Lock message defines ...
 type Lock struct {
-	Address string                                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-	Key     string                                 `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
-	Amount  github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,3,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"amount"`
+	Address     string                                      `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	Key         string                                      `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	Amount      github_com_cosmos_cosmos_sdk_types.Int      `protobuf:"bytes,3,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"amount"`
+	RewardDebts github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,4,rep,name=reward_debts,json=rewardDebts,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"reward_debts"`
+	RewardLefts github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,5,rep,name=reward_lefts,json=rewardLefts,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"reward_lefts"`
 }
 
 func (m *Lock) Reset()         { *m = Lock{} }
@@ -189,6 +200,20 @@ func (m *Lock) GetKey() string {
 	return ""
 }
 
+func (m *Lock) GetRewardDebts() github_com_cosmos_cosmos_sdk_types.DecCoins {
+	if m != nil {
+		return m.RewardDebts
+	}
+	return nil
+}
+
+func (m *Lock) GetRewardLefts() github_com_cosmos_cosmos_sdk_types.DecCoins {
+	if m != nil {
+		return m.RewardLefts
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*Reward)(nil), "restake.v1beta1.Reward")
 	proto.RegisterType((*Key)(nil), "restake.v1beta1.Key")
@@ -198,32 +223,37 @@ func init() {
 func init() { proto.RegisterFile("restake/v1beta1/types.proto", fileDescriptor_be4ee20adc0c7118) }
 
 var fileDescriptor_be4ee20adc0c7118 = []byte{
-	// 395 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0x2e, 0x4a, 0x2d, 0x2e,
-	0x49, 0xcc, 0x4e, 0xd5, 0x2f, 0x33, 0x4c, 0x4a, 0x2d, 0x49, 0x34, 0xd4, 0x2f, 0xa9, 0x2c, 0x48,
-	0x2d, 0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0x87, 0x4a, 0xea, 0x41, 0x25, 0xa5, 0x44,
-	0xd2, 0xf3, 0xd3, 0xf3, 0xc1, 0x72, 0xfa, 0x20, 0x16, 0x44, 0x99, 0x94, 0x60, 0x62, 0x6e, 0x66,
-	0x5e, 0xbe, 0x3e, 0x98, 0x84, 0x0a, 0x49, 0x26, 0xe7, 0x17, 0xe7, 0xe6, 0x17, 0xc7, 0x43, 0xd4,
-	0x42, 0x38, 0x50, 0x29, 0x39, 0x08, 0x4f, 0x3f, 0x29, 0xb1, 0x18, 0x61, 0x6b, 0x72, 0x7e, 0x66,
-	0x1e, 0x44, 0x5e, 0xa9, 0x83, 0x91, 0x8b, 0x2d, 0x28, 0xb5, 0x3c, 0xb1, 0x28, 0x45, 0x48, 0x80,
-	0x8b, 0x39, 0x3b, 0xb5, 0x52, 0x82, 0x51, 0x81, 0x51, 0x83, 0x33, 0x08, 0xc4, 0x14, 0x4a, 0xe3,
-	0x62, 0x05, 0x29, 0x2d, 0x96, 0x60, 0x52, 0x60, 0xd6, 0xe0, 0x36, 0x92, 0xd4, 0x83, 0x1a, 0x0d,
-	0x32, 0x0c, 0xe6, 0x4a, 0x3d, 0xe7, 0xfc, 0xcc, 0x3c, 0x27, 0xd3, 0x13, 0xf7, 0xe4, 0x19, 0x56,
-	0xdd, 0x97, 0xd7, 0x48, 0xcf, 0x2c, 0xc9, 0x28, 0x4d, 0xd2, 0x4b, 0xce, 0xcf, 0x85, 0xba, 0x03,
-	0x4a, 0xe9, 0x16, 0xa7, 0x64, 0x43, 0x7d, 0x0b, 0xd2, 0x50, 0xbc, 0xe2, 0xf9, 0x06, 0x2d, 0xc6,
-	0x20, 0x88, 0xf1, 0x56, 0x2c, 0x2f, 0x16, 0xc8, 0x33, 0x2a, 0xd9, 0x70, 0x31, 0x7b, 0xa7, 0x56,
-	0x0a, 0x09, 0x71, 0xb1, 0xe4, 0x25, 0xe6, 0xa6, 0x42, 0xdd, 0x01, 0x66, 0x0b, 0x49, 0x73, 0x71,
-	0x66, 0x16, 0xc7, 0x27, 0x26, 0x97, 0x64, 0x96, 0xa5, 0x4a, 0x30, 0x29, 0x30, 0x6a, 0x70, 0x04,
-	0x71, 0x64, 0x16, 0x3b, 0x82, 0xf9, 0x50, 0xdd, 0x7d, 0x8c, 0x5c, 0x2c, 0x3e, 0xf9, 0xc9, 0xd9,
-	0x42, 0x12, 0x5c, 0xec, 0x89, 0x29, 0x29, 0x45, 0xa9, 0xc5, 0xc5, 0x50, 0x23, 0x60, 0x5c, 0x98,
-	0x07, 0x99, 0x10, 0x1e, 0x0c, 0xe1, 0x62, 0x4b, 0xcc, 0xcd, 0x2f, 0xcd, 0x2b, 0x91, 0x60, 0x06,
-	0x09, 0x3a, 0xd9, 0x80, 0xbc, 0x71, 0xeb, 0x9e, 0xbc, 0x1a, 0x11, 0xde, 0xf0, 0xcc, 0x2b, 0xb9,
-	0xb4, 0x45, 0x97, 0x0b, 0x1a, 0x24, 0x9e, 0x79, 0x25, 0x41, 0x50, 0xb3, 0x20, 0x0e, 0x72, 0xf2,
-	0x3a, 0xf1, 0x48, 0x8e, 0xf1, 0xc2, 0x23, 0x39, 0xc6, 0x07, 0x8f, 0xe4, 0x18, 0x27, 0x3c, 0x96,
-	0x63, 0xb8, 0xf0, 0x58, 0x8e, 0xe1, 0xc6, 0x63, 0x39, 0x86, 0x28, 0x03, 0x24, 0xd3, 0x93, 0x12,
-	0xf3, 0x52, 0xc0, 0x31, 0x91, 0x9c, 0x9f, 0xa3, 0x9f, 0x9c, 0x91, 0x98, 0x99, 0xa7, 0x5f, 0x66,
-	0xa4, 0x5f, 0xa1, 0x0f, 0x4b, 0x28, 0x60, 0xbb, 0x92, 0xd8, 0xc0, 0x4a, 0x8c, 0x01, 0x01, 0x00,
-	0x00, 0xff, 0xff, 0xc3, 0x1e, 0xd2, 0xa5, 0x40, 0x02, 0x00, 0x00,
+	// 477 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x94, 0xb1, 0x6e, 0xd4, 0x30,
+	0x18, 0xc7, 0xcf, 0xcd, 0x71, 0x55, 0x5d, 0xc4, 0x51, 0x8b, 0x21, 0x14, 0x94, 0xab, 0x3a, 0xa0,
+	0x0a, 0xd4, 0x98, 0x96, 0x05, 0x21, 0xa6, 0xa3, 0x4b, 0xa1, 0x03, 0x0a, 0x4c, 0x30, 0x44, 0x8e,
+	0xf3, 0x71, 0x17, 0xe5, 0x62, 0x9f, 0x6c, 0x5f, 0xe1, 0x26, 0xa4, 0x8a, 0x07, 0x40, 0x3c, 0x01,
+	0x23, 0x62, 0x62, 0xe0, 0x21, 0x3a, 0x56, 0x4c, 0x88, 0xa1, 0xa0, 0xbb, 0x01, 0x1e, 0x03, 0xc5,
+	0x76, 0xd4, 0xb2, 0x31, 0x70, 0x2c, 0x89, 0x9d, 0xff, 0x97, 0xff, 0xef, 0x6f, 0x7f, 0x4e, 0xf0,
+	0x35, 0x05, 0xda, 0xb0, 0x12, 0xe8, 0xe1, 0x4e, 0x06, 0x86, 0xed, 0x50, 0x33, 0x1d, 0x83, 0x8e,
+	0xc7, 0x4a, 0x1a, 0x49, 0xba, 0x5e, 0x8c, 0xbd, 0xb8, 0x7e, 0x65, 0x20, 0x07, 0xd2, 0x6a, 0xb4,
+	0x1e, 0xb9, 0xb2, 0xf5, 0x35, 0x56, 0x15, 0x42, 0x52, 0x7b, 0xf5, 0x8f, 0xae, 0x72, 0xa9, 0x2b,
+	0xa9, 0x53, 0x57, 0xeb, 0x26, 0x5e, 0x8a, 0xdc, 0x8c, 0x66, 0x4c, 0x9f, 0x51, 0xb9, 0x2c, 0x84,
+	0xd3, 0x37, 0xdf, 0x21, 0xdc, 0x49, 0xe0, 0x25, 0x53, 0x39, 0xb9, 0x8c, 0x83, 0x12, 0xa6, 0x21,
+	0xda, 0x40, 0x5b, 0x2b, 0x49, 0x3d, 0x24, 0x63, 0xbc, 0xac, 0xac, 0xa6, 0xc3, 0xa5, 0x8d, 0x60,
+	0x6b, 0x75, 0xf7, 0x7a, 0xec, 0xcd, 0x6b, 0xbb, 0x26, 0x67, 0xbc, 0x07, 0xfc, 0x81, 0x2c, 0x44,
+	0xff, 0xee, 0xf1, 0x69, 0xaf, 0xf5, 0xf1, 0x7b, 0xef, 0xd6, 0xa0, 0x30, 0xc3, 0x49, 0x16, 0x73,
+	0x59, 0xf9, 0x30, 0xfe, 0xb6, 0xad, 0xf3, 0xd2, 0x2f, 0xd9, 0xbf, 0xa3, 0x3f, 0xfc, 0xfc, 0x74,
+	0x13, 0x25, 0x0d, 0xe6, 0x5e, 0xfb, 0xd7, 0xfb, 0x1e, 0xda, 0x3c, 0x0a, 0x70, 0xf0, 0x08, 0xa6,
+	0x84, 0xe0, 0xb6, 0x60, 0x15, 0xf8, 0x48, 0x76, 0x4c, 0x8e, 0x10, 0x5e, 0x73, 0xd5, 0xe9, 0x18,
+	0x54, 0xaa, 0x87, 0x4c, 0xc1, 0xa2, 0xe3, 0x75, 0x1d, 0xf0, 0x31, 0xa8, 0x27, 0x16, 0x47, 0x9e,
+	0x63, 0x6c, 0xa4, 0x61, 0xa3, 0x74, 0x24, 0x79, 0x19, 0x06, 0x75, 0xbc, 0xfe, 0xfd, 0xda, 0xfe,
+	0xdb, 0x69, 0xef, 0xc6, 0x5f, 0xd8, 0xef, 0x0b, 0xf3, 0xe5, 0xf3, 0x36, 0xf6, 0x69, 0xf7, 0x85,
+	0x49, 0x56, 0xac, 0xdf, 0x81, 0xe4, 0x25, 0x79, 0x8d, 0xbb, 0x7c, 0xa2, 0x14, 0x08, 0x93, 0x36,
+	0xbb, 0xdf, 0x5e, 0xe8, 0xf2, 0x2e, 0x79, 0x5c, 0xf2, 0x47, 0x13, 0xde, 0x04, 0xb8, 0x6d, 0xf3,
+	0x84, 0x78, 0x99, 0xe5, 0xb9, 0x02, 0xad, 0x7d, 0x23, 0x9a, 0x69, 0x73, 0x62, 0x96, 0xce, 0x4e,
+	0xcc, 0x53, 0xdc, 0x61, 0x95, 0x9c, 0x08, 0xf3, 0x4f, 0x36, 0xc5, 0x7b, 0x91, 0x29, 0xbe, 0xe8,
+	0x5b, 0x9e, 0x43, 0x66, 0x16, 0xbd, 0x1d, 0xab, 0x8e, 0xb5, 0x57, 0xa3, 0xce, 0xa1, 0x47, 0xf0,
+	0xc2, 0xe8, 0xf0, 0xc2, 0xff, 0x40, 0x1f, 0xd4, 0x28, 0xd7, 0x86, 0xfe, 0xc3, 0xe3, 0x59, 0x84,
+	0x4e, 0x66, 0x11, 0xfa, 0x31, 0x8b, 0xd0, 0xdb, 0x79, 0xd4, 0x3a, 0x99, 0x47, 0xad, 0xaf, 0xf3,
+	0xa8, 0xf5, 0xec, 0xf6, 0x39, 0xfb, 0x8c, 0x89, 0xdc, 0x7e, 0xd0, 0x5c, 0x8e, 0x28, 0x1f, 0xb2,
+	0x42, 0xd0, 0xc3, 0x5d, 0xfa, 0x8a, 0x36, 0xff, 0x1b, 0x0b, 0xcb, 0x3a, 0xb6, 0xe4, 0xce, 0xef,
+	0x00, 0x00, 0x00, 0xff, 0xff, 0x12, 0x7b, 0xe8, 0x64, 0x87, 0x04, 0x00, 0x00,
 }
 
 func (this *Reward) Equal(that interface{}) bool {
@@ -248,11 +278,11 @@ func (this *Reward) Equal(that interface{}) bool {
 	if this.Key != that1.Key {
 		return false
 	}
-	if len(this.Coins) != len(that1.Coins) {
+	if len(this.Rewards) != len(that1.Rewards) {
 		return false
 	}
-	for i := range this.Coins {
-		if !this.Coins[i].Equal(&that1.Coins[i]) {
+	for i := range this.Rewards {
+		if !this.Rewards[i].Equal(&that1.Rewards[i]) {
 			return false
 		}
 	}
@@ -280,8 +310,24 @@ func (this *Key) Equal(that interface{}) bool {
 	if this.Name != that1.Name {
 		return false
 	}
-	if this.IsActive != that1.IsActive {
+	if len(this.RewardPerShares) != len(that1.RewardPerShares) {
 		return false
+	}
+	for i := range this.RewardPerShares {
+		if !this.RewardPerShares[i].Equal(&that1.RewardPerShares[i]) {
+			return false
+		}
+	}
+	if !this.TotalLock.Equal(that1.TotalLock) {
+		return false
+	}
+	if len(this.CurrentRewards) != len(that1.CurrentRewards) {
+		return false
+	}
+	for i := range this.CurrentRewards {
+		if !this.CurrentRewards[i].Equal(&that1.CurrentRewards[i]) {
+			return false
+		}
 	}
 	return true
 }
@@ -313,6 +359,22 @@ func (this *Lock) Equal(that interface{}) bool {
 	if !this.Amount.Equal(that1.Amount) {
 		return false
 	}
+	if len(this.RewardDebts) != len(that1.RewardDebts) {
+		return false
+	}
+	for i := range this.RewardDebts {
+		if !this.RewardDebts[i].Equal(&that1.RewardDebts[i]) {
+			return false
+		}
+	}
+	if len(this.RewardLefts) != len(that1.RewardLefts) {
+		return false
+	}
+	for i := range this.RewardLefts {
+		if !this.RewardLefts[i].Equal(&that1.RewardLefts[i]) {
+			return false
+		}
+	}
 	return true
 }
 func (m *Reward) Marshal() (dAtA []byte, err error) {
@@ -335,10 +397,10 @@ func (m *Reward) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.Coins) > 0 {
-		for iNdEx := len(m.Coins) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.Rewards) > 0 {
+		for iNdEx := len(m.Rewards) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.Coins[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.Rewards[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -379,15 +441,43 @@ func (m *Key) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.IsActive {
-		i--
-		if m.IsActive {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
+	if len(m.CurrentRewards) > 0 {
+		for iNdEx := len(m.CurrentRewards) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.CurrentRewards[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTypes(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x22
 		}
-		i--
-		dAtA[i] = 0x10
+	}
+	{
+		size := m.TotalLock.Size()
+		i -= size
+		if _, err := m.TotalLock.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTypes(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x1a
+	if len(m.RewardPerShares) > 0 {
+		for iNdEx := len(m.RewardPerShares) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.RewardPerShares[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTypes(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
 	}
 	if len(m.Name) > 0 {
 		i -= len(m.Name)
@@ -419,6 +509,34 @@ func (m *Lock) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.RewardLefts) > 0 {
+		for iNdEx := len(m.RewardLefts) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.RewardLefts[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTypes(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x2a
+		}
+	}
+	if len(m.RewardDebts) > 0 {
+		for iNdEx := len(m.RewardDebts) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.RewardDebts[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTypes(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x22
+		}
+	}
 	{
 		size := m.Amount.Size()
 		i -= size
@@ -467,8 +585,8 @@ func (m *Reward) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTypes(uint64(l))
 	}
-	if len(m.Coins) > 0 {
-		for _, e := range m.Coins {
+	if len(m.Rewards) > 0 {
+		for _, e := range m.Rewards {
 			l = e.Size()
 			n += 1 + l + sovTypes(uint64(l))
 		}
@@ -486,8 +604,19 @@ func (m *Key) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTypes(uint64(l))
 	}
-	if m.IsActive {
-		n += 2
+	if len(m.RewardPerShares) > 0 {
+		for _, e := range m.RewardPerShares {
+			l = e.Size()
+			n += 1 + l + sovTypes(uint64(l))
+		}
+	}
+	l = m.TotalLock.Size()
+	n += 1 + l + sovTypes(uint64(l))
+	if len(m.CurrentRewards) > 0 {
+		for _, e := range m.CurrentRewards {
+			l = e.Size()
+			n += 1 + l + sovTypes(uint64(l))
+		}
 	}
 	return n
 }
@@ -508,6 +637,18 @@ func (m *Lock) Size() (n int) {
 	}
 	l = m.Amount.Size()
 	n += 1 + l + sovTypes(uint64(l))
+	if len(m.RewardDebts) > 0 {
+		for _, e := range m.RewardDebts {
+			l = e.Size()
+			n += 1 + l + sovTypes(uint64(l))
+		}
+	}
+	if len(m.RewardLefts) > 0 {
+		for _, e := range m.RewardLefts {
+			l = e.Size()
+			n += 1 + l + sovTypes(uint64(l))
+		}
+	}
 	return n
 }
 
@@ -580,7 +721,7 @@ func (m *Reward) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Coins", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Rewards", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -607,8 +748,8 @@ func (m *Reward) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Coins = append(m.Coins, types.Coin{})
-			if err := m.Coins[len(m.Coins)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.Rewards = append(m.Rewards, types.DecCoin{})
+			if err := m.Rewards[len(m.Rewards)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -695,10 +836,10 @@ func (m *Key) Unmarshal(dAtA []byte) error {
 			m.Name = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field IsActive", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RewardPerShares", wireType)
 			}
-			var v int
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTypes
@@ -708,12 +849,94 @@ func (m *Key) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				v |= int(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			m.IsActive = bool(v != 0)
+			if msglen < 0 {
+				return ErrInvalidLengthTypes
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTypes
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.RewardPerShares = append(m.RewardPerShares, types.DecCoin{})
+			if err := m.RewardPerShares[len(m.RewardPerShares)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TotalLock", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTypes
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTypes
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTypes
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.TotalLock.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CurrentRewards", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTypes
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTypes
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTypes
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.CurrentRewards = append(m.CurrentRewards, types.DecCoin{})
+			if err := m.CurrentRewards[len(m.CurrentRewards)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTypes(dAtA[iNdEx:])
@@ -859,6 +1082,74 @@ func (m *Lock) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if err := m.Amount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RewardDebts", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTypes
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTypes
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTypes
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.RewardDebts = append(m.RewardDebts, types.DecCoin{})
+			if err := m.RewardDebts[len(m.RewardDebts)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RewardLefts", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTypes
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTypes
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTypes
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.RewardLefts = append(m.RewardLefts, types.DecCoin{})
+			if err := m.RewardLefts[len(m.RewardLefts)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

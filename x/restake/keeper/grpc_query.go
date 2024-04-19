@@ -21,13 +21,37 @@ func (k Querier) Rewards(
 	c context.Context,
 	req *types.QueryRewardsRequest,
 ) (*types.QueryRewardsResponse, error) {
-	_ = sdk.UnwrapSDKContext(c)
+	ctx := sdk.UnwrapSDKContext(c)
 
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
-	return &types.QueryRewardsResponse{}, nil
+	address, err := sdk.AccAddressFromBech32(req.Address)
+	if err != nil {
+		return nil, err
+	}
+
+	rewards := []types.Reward{}
+
+	locks := k.GetLocks(ctx, address)
+	for _, lock := range locks {
+		key, err := k.GetKey(ctx, lock.Key)
+		if err != nil {
+			return nil, err
+		}
+		key = k.updateRewardPerShares(ctx, key)
+		lock = k.updateRewardLefts(ctx, key, lock)
+
+		rewards = append(rewards, types.Reward{
+			Key:     key.Name,
+			Rewards: lock.RewardLefts,
+		})
+	}
+
+	return &types.QueryRewardsResponse{
+		Rewards: rewards,
+	}, nil
 }
 
 func (k Querier) Locks(
@@ -40,11 +64,11 @@ func (k Querier) Locks(
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
 
-	addresss, err := sdk.AccAddressFromBech32(req.Address)
+	address, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
 		return nil, err
 	}
 
-	locks := k.GetLocks(ctx, addresss)
+	locks := k.GetLocks(ctx, address)
 	return &types.QueryLocksResponse{Locks: locks}, nil
 }

@@ -51,3 +51,12 @@ func (k Keeper) SetLock(ctx sdk.Context, lock types.Lock) {
 func (k Keeper) DeleteLock(ctx sdk.Context, address sdk.AccAddress, keyName string) {
 	ctx.KVStore(k.storeKey).Delete(types.LockStoreKey(address, keyName))
 }
+
+func (k Keeper) updateRewardLefts(ctx sdk.Context, key types.Key, lock types.Lock) types.Lock {
+	diff := key.RewardPerShares.Sub(lock.RewardDebts)
+	lock.RewardLefts = lock.RewardLefts.Add(diff.MulDecTruncate(sdk.NewDecFromInt(lock.Amount))...)
+	lock.RewardDebts = key.RewardPerShares
+	k.SetLock(ctx, lock)
+
+	return lock
+}
