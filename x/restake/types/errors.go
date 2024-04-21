@@ -8,6 +8,8 @@ import (
 var (
 	ErrUnableToUndelegate  = errorsmod.Register(ModuleName, 2, "unable to undelegate")
 	ErrKeyNotFound         = errorsmod.Register(ModuleName, 3, "key not found")
-	ErrLockNotFound        = errorsmod.Register(ModuleName, 4, "lock not found")
-	ErrDelegationNotEnough = errorsmod.Register(ModuleName, 5, "delegation not enough")
+	ErrKeyNotActive        = errorsmod.Register(ModuleName, 4, "key not active")
+	ErrStakeNotFound       = errorsmod.Register(ModuleName, 5, "stake not found")
+	ErrRemainderNotFound   = errorsmod.Register(ModuleName, 6, "remainder not found")
+	ErrDelegationNotEnough = errorsmod.Register(ModuleName, 7, "delegation not enough")
 )

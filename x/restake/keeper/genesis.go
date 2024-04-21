@@ -8,6 +8,9 @@ import (
 
 // InitGenesis initializes the module's state from a provided genesis state.
 func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
+	k.SetRemainder(ctx, types.Remainder{
+		Amount: sdk.NewDecCoins(),
+	})
 }
 
 // ExportGenesis returns the module's exported genesis

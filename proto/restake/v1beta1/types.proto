@@ -27,17 +27,18 @@ message Key {
   option (gogoproto.equal) = true;
 
   string   name                                          = 1;
-  repeated cosmos.base.v1beta1.DecCoin reward_per_shares = 2 [
+  bool     is_active                                     = 2;
+  repeated cosmos.base.v1beta1.DecCoin reward_per_shares = 3 [
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
     (gogoproto.nullable)     = false,
     (amino.dont_omitempty)   = true
   ];
-  string total_lock = 3 [
+  string total_lock = 4 [
     (cosmos_proto.scalar)  = "cosmos.Int",
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.nullable)   = false
   ];
-  repeated cosmos.base.v1beta1.DecCoin current_rewards = 4 [
+  repeated cosmos.base.v1beta1.DecCoin current_rewards = 5 [
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
     (gogoproto.nullable)     = false,
     (amino.dont_omitempty)   = true
@@ -46,6 +47,18 @@ message Key {
 
 // Lock message defines ...
 message Lock {
+  option (gogoproto.equal) = true;
+
+  string key    = 1;
+  string amount = 2 [
+    (cosmos_proto.scalar)  = "cosmos.Int",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable)   = false
+  ];
+}
+
+// Staker message defines ...
+message Stake {
   option (gogoproto.equal) = true;
 
   string address = 1;
@@ -62,6 +75,17 @@ message Lock {
   ];
 
   repeated cosmos.base.v1beta1.DecCoin reward_lefts = 5 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true
+  ];
+}
+
+// Remainder message defines ...
+message Remainder {
+  option (gogoproto.equal) = true;
+
+  repeated cosmos.base.v1beta1.DecCoin amount = 4 [
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
     (gogoproto.nullable)     = false,
     (amino.dont_omitempty)   = true

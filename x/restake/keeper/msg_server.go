@@ -34,17 +34,22 @@ func (k msgServer) ClaimRewards(
 
 	rewards := sdk.NewDecCoins()
 
-	locks := k.GetLocks(ctx, address)
-	for _, lock := range locks {
-		key, err := k.GetKey(ctx, lock.Key)
+	stakes := k.GetStakes(ctx, address)
+	for _, stake := range stakes {
+		key, err := k.GetKey(ctx, stake.Key)
 		if err != nil {
 			return nil, err
 		}
 		key = k.updateRewardPerShares(ctx, key)
-		lock = k.updateRewardLefts(ctx, key, lock)
-		rewards = rewards.Add(lock.RewardLefts...)
-		lock.RewardLefts = sdk.NewDecCoins()
-		k.SetLock(ctx, lock)
+		stake = k.updateRewardLefts(ctx, key, stake)
+		rewards = rewards.Add(stake.RewardLefts...)
+		stake.RewardLefts = sdk.NewDecCoins()
+
+		if key.IsActive {
+			k.SetStake(ctx, stake)
+		} else {
+			k.DeleteStake(ctx, address, key.Name)
+		}
 	}
 
 	// truncate reward dec coins, return remainder to community pool
@@ -57,7 +62,57 @@ func (k msgServer) ClaimRewards(
 			return nil, err
 		}
 	}
-	k.addFeePool(ctx, remainder)
+	k.addRemainderAmount(ctx, remainder)
 
 	return &types.MsgClaimRewardsResponse{}, nil
+}
+
+func (k msgServer) LockToken(
+	goCtx context.Context,
+	msg *types.MsgLockToken,
+) (*types.MsgLockTokenResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	address, err := sdk.AccAddressFromBech32(msg.Address)
+	if err != nil {
+		return nil, err
+	}
+
+	err = k.SetLockedToken(ctx, address, msg.Key, msg.Amount)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgLockTokenResponse{}, nil
+}
+func (k msgServer) AddRewards(
+	goCtx context.Context,
+	msg *types.MsgAddRewards,
+) (*types.MsgAddRewardsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	if err != nil {
+		return nil, err
+	}
+
+	err = k.Keeper.AddRewards(ctx, sender, msg.Key, msg.Rewards)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgAddRewardsResponse{}, nil
+}
+func (k msgServer) DeactivateKey(
+	goCtx context.Context,
+	msg *types.MsgDeactivateKey,
+) (*types.MsgDeactivateKeyResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	err := k.Keeper.DeactivateKey(ctx, msg.Key)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgDeactivateKeyResponse{}, nil
 }

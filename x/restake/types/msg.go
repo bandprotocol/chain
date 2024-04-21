@@ -1,17 +1,18 @@
 package types
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-var _ sdk.Msg = &MsgClaimRewards{}
+var _, _, _, _ sdk.Msg = &MsgClaimRewards{}, &MsgLockToken{}, &MsgAddRewards{}, &MsgDeactivateKey{}
 
 // NewMsgClaimRewards creates a new MsgClaimRewards instance
 func NewMsgClaimRewards(
-	address string,
+	address sdk.AccAddress,
 ) *MsgClaimRewards {
 	return &MsgClaimRewards{
-		Address: address,
+		Address: address.String(),
 	}
 }
 
@@ -34,6 +35,124 @@ func (m MsgClaimRewards) GetSignBytes() []byte {
 
 // ValidateBasic implements the sdk.Msg interface.
 func (m MsgClaimRewards) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(m.Address)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// NewMsgLockToken creates a new MsgLockToken instance
+func NewMsgLockToken(
+	address sdk.AccAddress,
+	key string,
+	amount math.Int,
+) *MsgLockToken {
+	return &MsgLockToken{
+		Address: address.String(),
+		Key:     key,
+		Amount:  amount,
+	}
+}
+
+// Route implements the sdk.Msg interface.
+func (m MsgLockToken) Route() string { return sdk.MsgTypeURL(&m) }
+
+// Type implements the sdk.Msg interface.
+func (m MsgLockToken) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSigners implements the sdk.Msg interface.
+func (m MsgLockToken) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
+}
+
+// GetSignBytes implements the sdk.Msg interface.
+func (m MsgLockToken) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(&m)
+	return sdk.MustSortJSON(bz)
+}
+
+// ValidateBasic implements the sdk.Msg interface.
+func (m MsgLockToken) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(m.Address)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// NewMsgAddRewards creates a new MsgAddRewards instance
+func NewMsgAddRewards(
+	sender sdk.AccAddress,
+	key string,
+	rewards sdk.Coins,
+) *MsgAddRewards {
+	return &MsgAddRewards{
+		Sender:  sender.String(),
+		Key:     key,
+		Rewards: rewards,
+	}
+}
+
+// Route implements the sdk.Msg interface.
+func (m MsgAddRewards) Route() string { return sdk.MsgTypeURL(&m) }
+
+// Type implements the sdk.Msg interface.
+func (m MsgAddRewards) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSigners implements the sdk.Msg interface.
+func (m MsgAddRewards) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
+}
+
+// GetSignBytes implements the sdk.Msg interface.
+func (m MsgAddRewards) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(&m)
+	return sdk.MustSortJSON(bz)
+}
+
+// ValidateBasic implements the sdk.Msg interface.
+func (m MsgAddRewards) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(m.Sender)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// NewMsgDeactivateKey creates a new MsgDeactivateKey instance
+func NewMsgDeactivateKey(
+	address sdk.AccAddress,
+	key string,
+) *MsgDeactivateKey {
+	return &MsgDeactivateKey{
+		Address: address.String(),
+		Key:     key,
+	}
+}
+
+// Route implements the sdk.Msg interface.
+func (m MsgDeactivateKey) Route() string { return sdk.MsgTypeURL(&m) }
+
+// Type implements the sdk.Msg interface.
+func (m MsgDeactivateKey) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSigners implements the sdk.Msg interface.
+func (m MsgDeactivateKey) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
+}
+
+// GetSignBytes implements the sdk.Msg interface.
+func (m MsgDeactivateKey) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(&m)
+	return sdk.MustSortJSON(bz)
+}
+
+// ValidateBasic implements the sdk.Msg interface.
+func (m MsgDeactivateKey) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.Address)
 	if err != nil {
 		return err

@@ -52,12 +52,15 @@ func (h Hooks) BeforeDelegationRemoved(_ sdk.Context, _ sdk.AccAddress, _ sdk.Va
 func (h Hooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, _ sdk.ValAddress) error {
 	delegated := h.k.stakingKeeper.GetDelegatorBonded(ctx, delAddr)
 
-	locks := h.k.GetLocks(ctx, delAddr)
-	for _, lock := range locks {
-		if h.k.HasKey(ctx, lock.Key) {
-			if delegated.LT(lock.Amount) {
-				return types.ErrUnableToUndelegate
-			}
+	stakes := h.k.GetStakes(ctx, delAddr)
+	for _, stake := range stakes {
+		key, err := h.k.GetKey(ctx, stake.Key)
+		if err != nil || !key.IsActive {
+			continue
+		}
+
+		if delegated.LT(stake.Amount) {
+			return types.ErrUnableToUndelegate
 		}
 	}
 

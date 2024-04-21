@@ -69,34 +69,34 @@ func (k Keeper) SetLockedToken(ctx sdk.Context, addr sdk.AccAddress, keyName str
 	// check if there is a lock before
 	// if yes, remove total lock in the key
 	// if no, create the lock
-	lock, err := k.GetLock(ctx, addr, keyName)
+	stake, err := k.GetStake(ctx, addr, keyName)
 	if err != nil {
-		lock = types.Lock{
+		stake = types.Stake{
 			Address:     addr.String(),
 			Key:         keyName,
 			Amount:      amount,
 			RewardDebts: key.RewardPerShares,
 			RewardLefts: sdk.NewDecCoins(),
 		}
-		k.SetLock(ctx, lock)
+		k.SetStake(ctx, stake)
 	} else {
-		lock = k.updateRewardLefts(ctx, key, lock)
-		key.TotalLock = key.TotalLock.Sub(lock.Amount)
-		lock.Amount = amount
-		k.SetLock(ctx, lock)
+		stake = k.updateRewardLefts(ctx, key, stake)
+		key.TotalLock = key.TotalLock.Sub(stake.Amount)
+		stake.Amount = amount
+		k.SetStake(ctx, stake)
 	}
 
 	// add total lock from new amount
-	key.TotalLock = key.TotalLock.Add(lock.Amount)
+	key.TotalLock = key.TotalLock.Add(stake.Amount)
 	k.SetKey(ctx, key)
 
 	return nil
 }
 
-func (k Keeper) AddRewards(ctx sdk.Context, keyName string, rewards sdk.Coins) error {
-	err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, k.feeCollectorName, types.ModuleName, rewards)
+func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName string, rewards sdk.Coins) error {
+	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, rewards)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	key, err := k.GetKey(ctx, keyName)
@@ -110,28 +110,19 @@ func (k Keeper) AddRewards(ctx sdk.Context, keyName string, rewards sdk.Coins) e
 	return nil
 }
 
-func (k Keeper) GetLockedToken(ctx sdk.Context, addr sdk.AccAddress, keyName string) math.Int {
-	lock, err := k.GetLock(ctx, addr, keyName)
+func (k Keeper) GetLockedToken(ctx sdk.Context, addr sdk.AccAddress, keyName string) (math.Int, error) {
+	key, err := k.GetKey(ctx, keyName)
 	if err != nil {
-		return sdk.NewInt(0)
+		return math.Int{}, types.ErrKeyNotFound
+	}
+	if !key.IsActive {
+		return math.Int{}, types.ErrKeyNotActive
 	}
 
-	return lock.Amount
-}
-
-func (k Keeper) CancelKey(ctx sdk.Context, keyName string) error {
-	if !k.HasKey(ctx, keyName) {
-		return types.ErrKeyNotFound
+	stake, err := k.GetStake(ctx, addr, keyName)
+	if err != nil {
+		return math.Int{}, types.ErrStakeNotFound
 	}
 
-	// TODO: can't delete as people won't be able to claim reward
-	k.DeleteKey(ctx, keyName)
-
-	return nil
-}
-
-func (k Keeper) addFeePool(ctx sdk.Context, decCoins sdk.DecCoins) {
-	feePool := k.distrKeeper.GetFeePool(ctx)
-	feePool.CommunityPool = feePool.CommunityPool.Add(decCoins...)
-	k.distrKeeper.SetFeePool(ctx, feePool)
+	return stake.Amount, nil
 }

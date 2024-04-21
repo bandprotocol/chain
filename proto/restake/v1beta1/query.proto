@@ -5,10 +5,16 @@ option go_package = "github.com/bandprotocol/chain/v2/x/restake/types";
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
 import "restake/v1beta1/types.proto";
 
 // Query defines the gRPC querier service.
 service Query {
+  // Keys ...
+  rpc Keys(QueryKeysRequest) returns (QueryKeysResponse) {
+    option (google.api.http).get = "/restake/v1beta1/keys";
+  }
+
   // Rewards ...
   rpc Rewards(QueryRewardsRequest) returns (QueryRewardsResponse) {
     option (google.api.http).get = "/restake/v1beta1/addresses/{address}/rewards";
@@ -18,6 +24,24 @@ service Query {
   rpc Locks(QueryLocksRequest) returns (QueryLocksResponse) {
     option (google.api.http).get = "/restake/v1beta1/addresses/{address}/locks";
   }
+
+  // Remainder ...
+  rpc Remainder(QueryRemainderRequest) returns (QueryRemainderResponse) {
+    option (google.api.http).get = "/restake/v1beta1/remainder";
+  }
+}
+
+// QueryKeysRequest is request type for the Query/Keys RPC method.
+message QueryKeysRequest {
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+// QueryKeysResponse is response type for the Query/Keys RPC method.
+message QueryKeysResponse {
+  repeated Key keys = 1;
+  // pagination defines the pagination in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // QueryRewardsRequest is request type for the Query/Rewards RPC method.
@@ -38,4 +62,12 @@ message QueryLocksRequest {
 // QueryLocksResponse is response type for the Query/Locks RPC method.
 message QueryLocksResponse {
   repeated Lock locks = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryRemainderRequest is request type for the Query/Remainder RPC method.
+message QueryRemainderRequest {}
+
+// QueryRemainderResponse is response type for the Query/Remainder RPC method.
+message QueryRemainderResponse {
+  Remainder remainder = 1 [(gogoproto.nullable) = false];
 }

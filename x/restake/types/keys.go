@@ -21,18 +21,20 @@ const (
 var (
 	GlobalStoreKeyPrefix = []byte{0x00}
 
-	KeyStoreKeyPrefix  = []byte{0x01}
-	LockStoreKeyPrefix = []byte{0x02}
+	RemainderStoreKey = append(GlobalStoreKeyPrefix, []byte("Remainder")...)
+
+	KeyStoreKeyPrefix   = []byte{0x01}
+	StakeStoreKeyPrefix = []byte{0x02}
 )
 
 func KeyStoreKey(keyName string) []byte {
 	return append(KeyStoreKeyPrefix, []byte(keyName)...)
 }
 
-func LocksStoreKey(address sdk.AccAddress) []byte {
-	return append(LockStoreKeyPrefix, address...)
+func StakesStoreKey(address sdk.AccAddress) []byte {
+	return append(StakeStoreKeyPrefix, address...)
 }
 
-func LockStoreKey(address sdk.AccAddress, keyName string) []byte {
-	return append(LocksStoreKey(address), []byte(keyName)...)
+func StakeStoreKey(address sdk.AccAddress, keyName string) []byte {
+	return append(StakesStoreKey(address), []byte(keyName)...)
 }
