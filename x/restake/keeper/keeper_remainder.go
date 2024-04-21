@@ -26,14 +26,16 @@ func (k Keeper) ProcessRemainder(ctx sdk.Context) {
 	remainder := k.GetRemainder(ctx)
 	truncatedCoins, changedCoins := remainder.Amount.TruncateDecimal()
 
-	address := k.authKeeper.GetModuleAddress(types.ModuleName)
-	err := k.distrKeeper.FundCommunityPool(ctx, truncatedCoins, address)
-	if err != nil {
-		return
-	}
+	if !truncatedCoins.IsZero() {
+		address := k.authKeeper.GetModuleAddress(types.ModuleName)
+		err := k.distrKeeper.FundCommunityPool(ctx, truncatedCoins, address)
+		if err != nil {
+			return
+		}
 
-	remainder.Amount = changedCoins
-	k.SetRemainder(ctx, remainder)
+		remainder.Amount = changedCoins
+		k.SetRemainder(ctx, remainder)
+	}
 }
 
 func (k Keeper) addRemainderAmount(ctx sdk.Context, decCoins sdk.DecCoins) {

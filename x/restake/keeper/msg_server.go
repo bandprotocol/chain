@@ -85,6 +85,7 @@ func (k msgServer) LockToken(
 
 	return &types.MsgLockTokenResponse{}, nil
 }
+
 func (k msgServer) AddRewards(
 	goCtx context.Context,
 	msg *types.MsgAddRewards,
@@ -103,6 +104,7 @@ func (k msgServer) AddRewards(
 
 	return &types.MsgAddRewardsResponse{}, nil
 }
+
 func (k msgServer) DeactivateKey(
 	goCtx context.Context,
 	msg *types.MsgDeactivateKey,
