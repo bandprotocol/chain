@@ -57,9 +57,10 @@ func (k Keeper) NewPriceValidator(
 	}
 
 	return types.PriceValidator{
-		Validator: val.String(),
-		SignalID:  price.SignalID,
-		Price:     price.Price,
-		Timestamp: blockTime,
+		Validator:   val.String(),
+		SignalID:    price.SignalID,
+		Price:       price.Price,
+		Timestamp:   blockTime,
+		BlockHeight: ctx.BlockHeight(),
 	}, nil
 }
