@@ -561,6 +561,8 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 	// Iterate through test cases from testutil
 	for i, tc := range testutil.TestCases {
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
+			s.app.BandtssKeeper.SetCurrentGroupID(ctx, tc.Group.ID)
+
 			// Request signature for the first member in the group
 			msg, err := bandtsstypes.NewMsgRequestSignature(
 				tc.Group.ID,
@@ -572,6 +574,9 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			_, err = bandtssMsgSrvr.RequestSignature(ctx, msg)
 			s.T().Log(err)
 			s.Require().NoError(err)
+
+			bandtssSigningID := bandtsstypes.SigningID(app.BandtssKeeper.GetSigningCount(ctx))
+			s.Require().NotZero(bandtssSigningID)
 
 			// Get the signing information
 			signing, err := k.GetSigning(ctx, tss.SigningID(i+1))
@@ -625,7 +630,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			// Execute the EndBlocker to process signings
 			app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
 
-			signingFee, err := s.app.BandtssKeeper.GetSigningFee(ctx, signing.ID)
+			req, err := s.app.BandtssKeeper.GetSigning(ctx, bandtssSigningID)
 			s.Require().NoError(err)
 
 			// Each assigned member should receive fee for the signature
@@ -634,7 +639,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 					ctx,
 					sdk.AccAddress(tc.Group.GetMember(am.MemberID).PubKey()),
 				)
-				s.Require().Equal(signingFee.Fee, balancesAfter.Sub(balancesBefores[i]...))
+				s.Require().Equal(req.Fee, balancesAfter.Sub(balancesBefores[i]...))
 			}
 
 			// Retrieve the signing information after signing

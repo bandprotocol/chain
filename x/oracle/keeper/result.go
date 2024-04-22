@@ -83,11 +83,11 @@ func (k Keeper) ResolveSuccess(
 
 	// handle signing content
 	createSigningFunc := func(ctx sdk.Context) error {
-		signing, err := k.bandtssKeeper.HandleCreateSigning(
+		signingID, err := k.bandtssKeeper.HandleCreateSigning(
 			ctx,
-			gid,
 			types.NewOracleResultSignatureOrder(id, encodeType),
-			sdk.MustAccAddressFromBech32(requester), feeLimit,
+			sdk.MustAccAddressFromBech32(requester),
+			feeLimit,
 		)
 		if err != nil {
 			return err
@@ -95,12 +95,12 @@ func (k Keeper) ResolveSuccess(
 
 		// save signing result and emit an event.
 		signingResult := &types.SigningResult{
-			SigningID: signing.ID,
+			SigningID: signingID,
 		}
 		k.SetSigningResult(ctx, id, *signingResult)
 
 		event = event.AppendAttributes(
-			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signing.ID)),
+			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
 		)
 
 		return nil

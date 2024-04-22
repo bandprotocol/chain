@@ -3,9 +3,11 @@ package bandtss.v1beta1;
 
 import "gogoproto/gogo.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
+import "cosmos/base/v1beta1/coin.proto";
 import "google/api/annotations.proto";
 import "bandtss/v1beta1/bandtss.proto";
 import "bandtss/v1beta1/genesis.proto";
+import "tss/v1beta1/tss.proto";
 
 option go_package = "github.com/bandprotocol/chain/v2/x/bandtss/types";
 
@@ -26,12 +28,19 @@ service Query {
     option (google.api.http).get = "/bandtss/v1beta1/members/{address}";
   }
 
+  // CurrentGroup queries the current group information.
   rpc CurrentGroup(QueryCurrentGroupRequest) returns (QueryCurrentGroupResponse) {
     option (google.api.http).get = "/bandtss/v1beta1/current_group";
   }
 
+  // ReplacingGroup queries the replacing group information.
   rpc ReplacingGroup(QueryReplacingGroupRequest) returns (QueryReplacingGroupResponse) {
     option (google.api.http).get = "/bandtss/v1beta1/replacing_group";
+  }
+
+  // Signing queries the signing result of the signing request.
+  rpc Signing(QuerySigningRequest) returns (QuerySigningResponse) {
+    option (google.api.http).get = "/bandtss/v1beta1/signings/{signing_id}";
   }
 }
 
@@ -88,4 +97,23 @@ message QueryReplacingGroupRequest {}
 message QueryReplacingGroupResponse {
   // TODO: add more field later when add election flow.
   uint64 group_id = 1 [(gogoproto.customname) = "GroupID"];
+}
+
+// QuerySingingRequest is the request type for the Query/Signing RPC method.
+message QuerySigningRequest {
+  // signing_id is the ID of the signing request.
+  uint64 signing_id = 1;
+}
+
+// QuerySigningResponse is the response type for the Query/Signing RPC method.
+message QuerySigningResponse {
+  // fee is the total tokens that will be paid for this bandtss signing.
+  repeated cosmos.base.v1beta1.Coin fee = 1
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  // requester is the address of requester who paid for the Bandtss signing.
+  string requester = 2;
+  // current_group_signing_result is the signing result from the current group.
+  .tss.v1beta1.SigningResult current_group_signing_result = 3;
+  // replacing_group_signing_result is the signing result from the replacing group.
+  .tss.v1beta1.SigningResult replacing_group_signing_result = 4;
 }

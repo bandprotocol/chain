@@ -482,11 +482,6 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 	alice := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey()).String()
 
-	s.app.BandtssKeeper.SetSigningFee(ctx, bandtsstypes.SigningFee{
-		SigningID: tss.SigningID(1),
-		Fee:       sdk.NewCoins(),
-	})
-
 	// Set member
 	k.SetMember(ctx, types.Member{
 		ID:       memberID,
@@ -504,6 +499,10 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 			},
 		},
 		Status: types.SIGNING_STATUS_WAITING,
+	})
+	s.app.BandtssKeeper.AddSigning(ctx, bandtsstypes.Signing{
+		CurrentGroupSigningID: tss.SigningID(1),
+		Fee:                   sdk.NewCoins(),
 	})
 
 	// Set the current block height

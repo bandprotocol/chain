@@ -134,7 +134,6 @@ func NewMsgRequestSignature(
 	sender sdk.AccAddress,
 ) (*MsgRequestSignature, error) {
 	m := &MsgRequestSignature{
-		GroupID:  gid,
 		FeeLimit: feeLimit,
 		Sender:   sender.String(),
 	}

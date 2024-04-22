@@ -97,7 +97,7 @@ func (k msgServer) RequestSignature(
 	}
 
 	// Execute the handler to process the request.
-	_, err = k.HandleCreateSigning(ctx, req.GroupID, req.GetContent(), feePayer, req.FeeLimit)
+	_, err = k.HandleCreateSigning(ctx, req.GetContent(), feePayer, req.FeeLimit)
 	if err != nil {
 		return nil, err
 	}

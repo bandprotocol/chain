@@ -1,6 +1,8 @@
 package cli
 
 import (
+	"strconv"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
@@ -23,6 +25,7 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdCurrentGroup(),
 		GetQueryCmdReplacingGroup(),
 		GetQueryCmdParams(),
+		GetQueryCmdSigning(),
 	)
 
 	return cmd
@@ -133,5 +136,40 @@ func GetQueryCmdParams() *cobra.Command {
 		},
 	}
 	flags.AddQueryFlagsToCmd(cmd)
+	return cmd
+}
+
+// GetQueryCmdSigning creates a CLI command for Query/Signing.
+func GetQueryCmdSigning() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "signing [id]",
+		Short: "Query a signing by signing ID",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			signingID, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.Signing(cmd.Context(), &types.QuerySigningRequest{
+				SigningId: signingID,
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
 	return cmd
 }

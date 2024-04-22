@@ -7,6 +7,7 @@ import (
 	"sort"
 
 	"cosmossdk.io/errors"
+	tmbytes "github.com/cometbft/cometbft/libs/bytes"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"golang.org/x/exp/slices"
 
@@ -621,4 +622,33 @@ func (k Keeper) emitCreateSigningEvent(ctx sdk.Context, msg []byte, signing type
 		)
 	}
 	ctx.EventManager().EmitEvent(event)
+}
+
+// GetSigningResult returns the signing result of the given tss signingID.
+func (k Keeper) GetSigningResult(ctx sdk.Context, signingID tss.SigningID) (*types.SigningResult, error) {
+	tssSigning, err := k.GetSigning(ctx, signingID)
+	if err != nil {
+		return nil, err
+	}
+
+	pzs := k.GetPartialSignaturesWithKey(ctx, signingID)
+
+	var evmSignature *types.EVMSignature
+	if tssSigning.Signature != nil {
+		rAddress, err := tssSigning.Signature.R().Address()
+		if err != nil {
+			return nil, err
+		}
+
+		evmSignature = &types.EVMSignature{
+			RAddress:  rAddress,
+			Signature: tmbytes.HexBytes(tssSigning.Signature.S()),
+		}
+	}
+
+	return &types.SigningResult{
+		Signing:                   tssSigning,
+		EVMSignature:              evmSignature,
+		ReceivedPartialSignatures: pzs,
+	}, nil
 }

@@ -17,8 +17,13 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 		k.SetMember(ctx, member)
 	}
 
-	for _, signingFee := range data.SigningFees {
-		k.SetSigningFee(ctx, signingFee)
+	k.SetSigningCount(ctx, data.SigningCount)
+	for _, signingInfo := range data.Signings {
+		k.SetSigning(ctx, signingInfo)
+	}
+
+	for _, mapping := range data.SigningIDMappings {
+		k.SetSigningIDMapping(ctx, mapping.SigningID, mapping.BandtssSigningID)
 	}
 
 	k.SetCurrentGroupID(ctx, data.CurrentGroupID)
@@ -28,10 +33,12 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
-		Params:           k.GetParams(ctx),
-		Members:          k.GetMembers(ctx),
-		CurrentGroupID:   k.GetCurrentGroupID(ctx),
-		ReplacingGroupID: k.GetReplacingGroupID(ctx),
-		SigningFees:      k.GetSigningFees(ctx),
+		Params:            k.GetParams(ctx),
+		Members:           k.GetMembers(ctx),
+		CurrentGroupID:    k.GetCurrentGroupID(ctx),
+		ReplacingGroupID:  k.GetReplacingGroupID(ctx),
+		SigningCount:      k.GetSigningCount(ctx),
+		Signings:          k.GetSignings(ctx),
+		SigningIDMappings: k.GetSigningIDMappings(ctx),
 	}
 }

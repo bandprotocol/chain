@@ -80,16 +80,13 @@ message MsgRequestSignature {
   option (amino.name)                = "bandtss/MsgRequestSignature";
   option (gogoproto.goproto_getters) = false;
 
-  // group_id is the unique identifier of the group.
-  uint64 group_id = 1
-      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
   // content is the signature order of this request signature message.
-  google.protobuf.Any content = 2 [(cosmos_proto.accepts_interface) = "Content"];
+  google.protobuf.Any content = 1 [(cosmos_proto.accepts_interface) = "Content"];
   // fee_limit is the maximum tokens that will be paid for this request.
-  repeated cosmos.base.v1beta1.Coin fee_limit = 3
+  repeated cosmos.base.v1beta1.Coin fee_limit = 2
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
   // sender is the requester of the signing process.
-  string sender = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string sender = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // MsgRequestSignatureResponse is response data for MsgRequestSignature message

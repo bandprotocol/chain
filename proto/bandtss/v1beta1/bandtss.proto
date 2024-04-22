@@ -23,17 +23,26 @@ message Member {
   google.protobuf.Timestamp last_active = 4 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
 }
 
-message SigningFee {
+// Signing is a bandtss signing information.
+message Signing {
   option (gogoproto.equal) = true;
 
-  // signing_ids is a list of signing IDs.
-  uint64 signing_id = 1 [
-    (gogoproto.customname) = "SigningID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
-  ];
-  // fee is the total tokens that will be paid for this signing
+  // id is the unique identifier of the bandtss signing.
+  uint64 id = 1 [(gogoproto.customname) = "ID", (gogoproto.casttype) = "SigningID"];
+  // fee is the tokens that will be paid per signer for this bandtss signing.
   repeated cosmos.base.v1beta1.Coin fee = 2
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
-  // requester is the address of requester who paid for the Bandtss fee.
+  // requester is the address of requester who paid for the Bandtss signing.
   string requester = 3;
+  // current_group_signing_id is a tss signing ID of a current group.
+  uint64 current_group_signing_id = 4 [
+    (gogoproto.customname) = "CurrentGroupSigningID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+  ];
+  // replacing_group_signing_id is a tss signing ID of the replacing group.
+  uint64 replacing_group_signing_id = 5 [
+    (gogoproto.customname) = "ReplacingGroupSigningID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+  ];
 }
+

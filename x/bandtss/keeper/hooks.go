@@ -93,6 +93,7 @@ func (h Hooks) AfterReplacingGroupFailed(ctx sdk.Context, replacement tsstypes.R
 
 func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) error {
 	// check if this signing is from the bandtss module
+	// unlikely to get an error from GetGroup but log the error just in case.
 	group, err := h.k.tssKeeper.GetGroup(ctx, signing.GroupID)
 	if err != nil {
 		return err
@@ -101,11 +102,12 @@ func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) err
 		return nil
 	}
 
-	if err := h.k.RefundFee(ctx, signing); err != nil {
+	// refund fee to requester. Unlikely to get an error from refund fee, but log it just in case.
+	if err := h.k.CheckRefundFee(ctx, signing); err != nil {
 		return err
 	}
 
-	h.k.DeleteSigningFee(ctx, signing.ID)
+	h.k.DeleteSigningIDMapping(ctx, signing.ID)
 	return nil
 }
 
@@ -119,6 +121,11 @@ func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing
 		return nil
 	}
 
+	// check if the module should refund fee to requester.
+	if err := h.k.CheckRefundFee(ctx, signing); err != nil {
+		return err
+	}
+
 	penalizedMembers, err := h.k.tssKeeper.GetPenalizedMembersExpiredSigning(ctx, signing)
 	if err != nil {
 		return err
@@ -130,11 +137,7 @@ func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing
 		}
 	}
 
-	if err := h.k.RefundFee(ctx, signing); err != nil {
-		return err
-	}
-
-	h.k.DeleteSigningFee(ctx, signing.ID)
+	h.k.DeleteSigningIDMapping(ctx, signing.ID)
 	return nil
 }
 
@@ -148,13 +151,15 @@ func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) 
 		return nil
 	}
 
-	signingFee, err := h.k.GetSigningFee(ctx, signing.ID)
-	if err != nil {
-		return err
+	bandtssSigningID := h.k.GetSigningIDMapping(ctx, signing.ID)
+	if bandtssSigningID == 0 {
+		return types.ErrSigningNotFound
 	}
 
+	bandtssSigning := h.k.MustGetSigning(ctx, bandtssSigningID)
+
 	// no fee is transferred, end process.
-	if signingFee.Fee.IsZero() {
+	if bandtssSigning.Fee.IsZero() || signing.ID != bandtssSigning.CurrentGroupSigningID {
 		return nil
 	}
 
@@ -166,11 +171,12 @@ func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) 
 			ctx,
 			types.ModuleName,
 			address,
-			signingFee.Fee,
+			bandtssSigning.Fee,
 		); err != nil {
 			return err
 		}
 	}
 
+	h.k.DeleteSigningIDMapping(ctx, signing.ID)
 	return nil
 }

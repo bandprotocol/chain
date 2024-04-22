@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -14,7 +14,7 @@ func TestGetSetSigningResult(t *testing.T) {
 	_, ctx, k := testapp.CreateTestInput(true)
 	rid := types.RequestID(123)
 	signingResult := types.SigningResult{
-		SigningID:      tss.SigningID(456),
+		SigningID:      bandtsstypes.SigningID(456),
 		ErrorCodespace: "",
 		ErrorCode:      0,
 	}
