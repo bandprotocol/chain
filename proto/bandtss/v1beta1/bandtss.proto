@@ -78,13 +78,16 @@ enum ReplacementStatus {
 
   // REPLACEMENT_STATUS_UNSPECIFIED is the status of a group replacement that has not been specified.
   REPLACEMENT_STATUS_UNSPECIFIED = 0;
-  // REPLACEMENT_STATUS_WAITING is the status of a group replacement that is waiting to be replaced in the
-  // protocol.
-  REPLACEMENT_STATUS_WAITING = 1;
+  // REPLACEMENT_STATUS_WAITING_SIGNING is the status of a group replacement that is waiting 
+  // current group to sign the replacement message.
+  REPLACEMENT_STATUS_WAITING_SIGNING = 1;
+  // REPLACEMENT_STATUS_WAITING_REPLACE is the status of a group replacement that is waiting 
+  // to be replaced in the protocol.
+  REPLACEMENT_STATUS_WAITING_REPLACE = 2;
   // REPLACEMENT_STATUS_SUCCESS is the status of a group replacement that has success in the protocol.
-  REPLACEMENT_STATUS_SUCCESS = 2;
+  REPLACEMENT_STATUS_SUCCESS = 3;
   // REPLACEMENT_STATUS_FALLEN is the status of a group replacement that has fallen out of the protocol.
-  REPLACEMENT_STATUS_FALLEN = 3;
+  REPLACEMENT_STATUS_FALLEN = 4;
 }
 
 

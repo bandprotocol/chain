@@ -73,7 +73,7 @@ func TestReplaceGroups(t *testing.T) {
 		NewGroupID:     newGroupID,
 		NewPubKey:      initialNewGroup.PubKey,
 		ExecTime:       beforenow,
-		Status:         types.REPLACEMENT_STATUS_WAITING,
+		Status:         types.REPLACEMENT_STATUS_WAITING_REPLACE,
 	})
 	tssKeeper.SetSigning(ctx, initialSigning)
 

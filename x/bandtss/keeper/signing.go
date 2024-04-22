@@ -176,7 +176,7 @@ func (k Keeper) HandleCreateSigning(
 	}
 
 	replacingGroupSigningID := tss.SigningID(0)
-	if replacement.Status == types.REPLACEMENT_STATUS_WAITING {
+	if replacement.Status == types.REPLACEMENT_STATUS_WAITING_REPLACE {
 		replacingGroup, err := k.tssKeeper.GetGroup(ctx, replacement.NewGroupID)
 		if err != nil {
 			return 0, err
