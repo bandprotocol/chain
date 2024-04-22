@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -45,26 +46,34 @@ func (h Hooks) BeforeDelegationSharesModified(_ sdk.Context, _ sdk.AccAddress, _
 	return nil
 }
 
-func (h Hooks) BeforeDelegationRemoved(_ sdk.Context, _ sdk.AccAddress, _ sdk.ValAddress) error {
-	return nil
-}
-
-func (h Hooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, _ sdk.ValAddress) error {
+func (h Hooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
 	delegated := h.k.stakingKeeper.GetDelegatorBonded(ctx, delAddr)
 
-	stakes := h.k.GetStakes(ctx, delAddr)
-	for _, stake := range stakes {
-		key, err := h.k.GetKey(ctx, stake.Key)
-		if err != nil || !key.IsActive {
-			continue
+	// remove power of removed delegation from total delegation
+	removedDelegation, found := h.k.stakingKeeper.GetDelegation(ctx, delAddr, valAddr)
+	if found {
+		validatorAddr, err := sdk.ValAddressFromBech32(removedDelegation.ValidatorAddress)
+		if err != nil {
+			panic(err) // shouldn't happen
 		}
-
-		if delegated.LT(stake.Amount) {
-			return types.ErrUnableToUndelegate
+		validator, found := h.k.stakingKeeper.GetValidator(ctx, validatorAddr)
+		if found {
+			shares := removedDelegation.Shares
+			tokens := validator.TokensFromSharesTruncated(shares)
+			delegated = delegated.Sub(tokens.RoundInt())
 		}
 	}
 
-	return nil
+	// check if it's able to unbond
+	return h.isAbleToUnbond(ctx, delAddr, delegated)
+}
+
+func (h Hooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, _ sdk.ValAddress) error {
+	// get totla delegation
+	delegated := h.k.stakingKeeper.GetDelegatorBonded(ctx, delAddr)
+
+	// check if it's able to unbond
+	return h.isAbleToUnbond(ctx, delAddr, delegated)
 }
 
 func (h Hooks) BeforeValidatorSlashed(_ sdk.Context, _ sdk.ValAddress, _ sdk.Dec) error {
@@ -72,5 +81,30 @@ func (h Hooks) BeforeValidatorSlashed(_ sdk.Context, _ sdk.ValAddress, _ sdk.Dec
 }
 
 func (h Hooks) AfterUnbondingInitiated(_ sdk.Context, _ uint64) error {
+	return nil
+}
+
+func (h Hooks) isAbleToUnbond(ctx sdk.Context, address sdk.AccAddress, delegated math.Int) error {
+	iterator := sdk.KVStoreReversePrefixIterator(ctx.KVStore(h.k.storeKey), types.StakesByAmountIndexKey(address))
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		keyName := string(iterator.Value())
+		stake, err := h.k.GetStake(ctx, address, keyName)
+		if err != nil {
+			panic(err)
+		}
+
+		if h.k.IsActiveKey(ctx, keyName) {
+			if delegated.LT(stake.Amount) {
+				return types.ErrUnableToUndelegate
+			}
+
+			return nil
+		}
+
+		h.k.ProcessStake(ctx, stake)
+	}
+
 	return nil
 }

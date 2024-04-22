@@ -56,6 +56,10 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 func (k Keeper) SetLockedToken(ctx sdk.Context, addr sdk.AccAddress, keyName string, amount math.Int) error {
+	if !amount.IsUint64() {
+		return types.ErrInvalidAmount
+	}
+
 	// check if delegation is not less than amount
 	delegation := k.stakingKeeper.GetDelegatorBonded(ctx, addr)
 	if delegation.LT(amount) {
@@ -63,27 +67,27 @@ func (k Keeper) SetLockedToken(ctx sdk.Context, addr sdk.AccAddress, keyName str
 	}
 
 	key := k.GetOrCreateKey(ctx, keyName)
-	key = k.updateRewardPerShares(ctx, key)
+	if !key.IsActive {
+		return types.ErrKeyNotActive
+	}
+	key = k.ProcessKey(ctx, key)
 
 	// check if there is a lock before
-	// if yes, remove total lock in the key
-	// if no, create the lock
+	// if yes, update reward
 	stake, err := k.GetStake(ctx, addr, keyName)
-	if err != nil {
-		stake = types.Stake{
-			Address:     addr.String(),
-			Key:         keyName,
-			Amount:      amount,
-			RewardDebts: key.RewardPerShares,
-			RewardLefts: sdk.NewDecCoins(),
-		}
-		k.SetStake(ctx, stake)
-	} else {
-		stake = k.updateRewardLefts(ctx, key, stake)
+	if err == nil {
+		k.ProcessStake(ctx, stake)
 		key.TotalLock = key.TotalLock.Sub(stake.Amount)
-		stake.Amount = amount
-		k.SetStake(ctx, stake)
 	}
+
+	// update stake to new point
+	stake = types.Stake{
+		Address:     addr.String(),
+		Key:         keyName,
+		Amount:      amount,
+		RewardDebts: key.RewardPerShares,
+	}
+	k.SetStake(ctx, stake)
 
 	// add total lock from new amount
 	key.TotalLock = key.TotalLock.Add(stake.Amount)
@@ -93,12 +97,16 @@ func (k Keeper) SetLockedToken(ctx sdk.Context, addr sdk.AccAddress, keyName str
 }
 
 func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName string, rewards sdk.Coins) error {
-	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, rewards)
+	key, err := k.GetKey(ctx, keyName)
 	if err != nil {
 		return err
 	}
 
-	key, err := k.GetKey(ctx, keyName)
+	if !key.IsActive {
+		return types.ErrKeyNotActive
+	}
+
+	err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, rewards)
 	if err != nil {
 		return err
 	}
@@ -114,6 +122,7 @@ func (k Keeper) GetLockedToken(ctx sdk.Context, addr sdk.AccAddress, keyName str
 	if err != nil {
 		return math.Int{}, types.ErrKeyNotFound
 	}
+
 	if !key.IsActive {
 		return math.Int{}, types.ErrKeyNotActive
 	}

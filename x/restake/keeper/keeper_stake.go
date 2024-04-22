@@ -18,8 +18,7 @@ func (k Keeper) GetActiveStakes(ctx sdk.Context, address sdk.AccAddress) (stakes
 		var stake types.Stake
 		k.cdc.MustUnmarshal(iterator.Value(), &stake)
 
-		key, err := k.GetKey(ctx, stake.Key)
-		if err != nil || !key.IsActive {
+		if !k.IsActiveKey(ctx, stake.Key) {
 			continue
 		}
 
@@ -64,18 +63,48 @@ func (k Keeper) GetStake(ctx sdk.Context, address sdk.AccAddress, keyName string
 
 func (k Keeper) SetStake(ctx sdk.Context, stake types.Stake) {
 	address := sdk.MustAccAddressFromBech32(stake.Address)
+	k.DeleteStake(ctx, address, stake.Key)
+
 	ctx.KVStore(k.storeKey).Set(types.StakeStoreKey(address, stake.Key), k.cdc.MustMarshal(&stake))
+	k.setStakeByAmount(ctx, stake)
+}
+
+func (k Keeper) setStakeByAmount(ctx sdk.Context, stake types.Stake) {
+	ctx.KVStore(k.storeKey).Set(types.StakeByAmountIndexKey(stake), []byte(stake.Key))
 }
 
 func (k Keeper) DeleteStake(ctx sdk.Context, address sdk.AccAddress, keyName string) {
+	stake, err := k.GetStake(ctx, address, keyName)
+	if err != nil {
+		return
+	}
 	ctx.KVStore(k.storeKey).Delete(types.StakeStoreKey(address, keyName))
+	k.deleteStakeByAmount(ctx, stake)
 }
 
-func (k Keeper) updateRewardLefts(ctx sdk.Context, key types.Key, stake types.Stake) types.Stake {
-	diff := key.RewardPerShares.Sub(stake.RewardDebts)
-	stake.RewardLefts = stake.RewardLefts.Add(diff.MulDecTruncate(sdk.NewDecFromInt(stake.Amount))...)
-	stake.RewardDebts = key.RewardPerShares
-	k.SetStake(ctx, stake)
+func (k Keeper) deleteStakeByAmount(ctx sdk.Context, stake types.Stake) {
+	ctx.KVStore(k.storeKey).Delete(types.StakeByAmountIndexKey(stake))
+}
 
-	return stake
+func (k Keeper) ProcessStake(ctx sdk.Context, stake types.Stake) {
+	key := k.MustGetKey(ctx, stake.Key)
+	key = k.ProcessKey(ctx, key)
+
+	address := sdk.MustAccAddressFromBech32(stake.Address)
+	diff := key.RewardPerShares.Sub(stake.RewardDebts)
+
+	// update reward
+	if !diff.IsZero() {
+		reward := k.GetOrCreateReward(ctx, address, stake.Key)
+		reward.Amounts = reward.Amounts.Add(diff.MulDecTruncate(sdk.NewDecFromInt(stake.Amount))...)
+		k.SetReward(ctx, address, reward)
+
+		// update debt
+		stake.RewardDebts = key.RewardPerShares
+		k.SetStake(ctx, stake)
+	}
+
+	if !key.IsActive {
+		k.DeleteStake(ctx, address, stake.Key)
+	}
 }

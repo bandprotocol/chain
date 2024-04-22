@@ -24,7 +24,7 @@ func (k Keeper) SetRemainder(ctx sdk.Context, remainder types.Remainder) {
 
 func (k Keeper) ProcessRemainder(ctx sdk.Context) {
 	remainder := k.GetRemainder(ctx)
-	truncatedCoins, changedCoins := remainder.Amount.TruncateDecimal()
+	truncatedCoins, changedCoins := remainder.Amounts.TruncateDecimal()
 
 	if !truncatedCoins.IsZero() {
 		address := k.authKeeper.GetModuleAddress(types.ModuleName)
@@ -33,13 +33,13 @@ func (k Keeper) ProcessRemainder(ctx sdk.Context) {
 			return
 		}
 
-		remainder.Amount = changedCoins
+		remainder.Amounts = changedCoins
 		k.SetRemainder(ctx, remainder)
 	}
 }
 
 func (k Keeper) addRemainderAmount(ctx sdk.Context, decCoins sdk.DecCoins) {
 	remainder := k.GetRemainder(ctx)
-	remainder.Amount = remainder.Amount.Add(decCoins...)
+	remainder.Amounts = remainder.Amounts.Add(decCoins...)
 	k.SetRemainder(ctx, remainder)
 }

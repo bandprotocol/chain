@@ -54,25 +54,13 @@ func (k Querier) Rewards(
 		return nil, err
 	}
 
-	var rewards []types.Reward
-
 	stakes := k.GetStakes(ctx, address)
 	for _, stake := range stakes {
-		key, err := k.GetKey(ctx, stake.Key)
-		if err != nil {
-			return nil, err
-		}
-		key = k.updateRewardPerShares(ctx, key)
-		stake = k.updateRewardLefts(ctx, key, stake)
-
-		rewards = append(rewards, types.Reward{
-			Key:     key.Name,
-			Rewards: stake.RewardLefts,
-		})
+		k.ProcessStake(ctx, stake)
 	}
 
 	return &types.QueryRewardsResponse{
-		Rewards: rewards,
+		Rewards: k.GetRewards(ctx, address),
 	}, nil
 }
 

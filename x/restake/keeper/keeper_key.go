@@ -44,6 +44,28 @@ func (k Keeper) HasKey(ctx sdk.Context, keyName string) bool {
 	return ctx.KVStore(k.storeKey).Has(types.KeyStoreKey(keyName))
 }
 
+func (k Keeper) MustGetKey(ctx sdk.Context, keyName string) types.Key {
+	key, err := k.GetKey(ctx, keyName)
+	if err != nil {
+		panic(err)
+	}
+
+	return key
+}
+
+func (k Keeper) IsActiveKey(ctx sdk.Context, keyName string) bool {
+	key, err := k.GetKey(ctx, keyName)
+	if err != nil {
+		return false
+	}
+
+	if !key.IsActive {
+		return false
+	}
+
+	return true
+}
+
 func (k Keeper) GetKey(ctx sdk.Context, keyName string) (types.Key, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.KeyStoreKey(keyName))
 	if bz == nil {
@@ -60,10 +82,6 @@ func (k Keeper) SetKey(ctx sdk.Context, key types.Key) {
 	ctx.KVStore(k.storeKey).Set(types.KeyStoreKey(key.Name), k.cdc.MustMarshal(&key))
 }
 
-func (k Keeper) DeleteKey(ctx sdk.Context, keyName string) {
-	ctx.KVStore(k.storeKey).Delete(types.KeyStoreKey(keyName))
-}
-
 func (k Keeper) DeactivateKey(ctx sdk.Context, keyName string) error {
 	key, err := k.GetKey(ctx, keyName)
 	if err != nil {
@@ -76,15 +94,16 @@ func (k Keeper) DeactivateKey(ctx sdk.Context, keyName string) error {
 	return nil
 }
 
-func (k Keeper) updateRewardPerShares(ctx sdk.Context, key types.Key) types.Key {
+func (k Keeper) ProcessKey(ctx sdk.Context, key types.Key) types.Key {
 	if key.TotalLock.IsZero() {
 		k.addRemainderAmount(ctx, key.CurrentRewards)
 	} else {
 		key.RewardPerShares = key.RewardPerShares.Add(
 			key.CurrentRewards.QuoDecTruncate(sdk.NewDecFromInt(key.TotalLock))...)
-		key.CurrentRewards = sdk.NewDecCoins()
-		k.SetKey(ctx, key)
 	}
+
+	key.CurrentRewards = sdk.NewDecCoins()
+	k.SetKey(ctx, key)
 
 	return key
 }

@@ -4,6 +4,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 // AccountKeeper defines the expected account keeper (noalias)
@@ -31,6 +32,13 @@ type BankKeeper interface {
 // StakingKeeper defines the expected staking keeper.
 type StakingKeeper interface {
 	GetDelegatorBonded(ctx sdk.Context, delegator sdk.AccAddress) math.Int
+	GetDelegation(
+		ctx sdk.Context,
+		delAddr sdk.AccAddress,
+		valAddr sdk.ValAddress,
+	) (delegation stakingtypes.Delegation, found bool)
+	GetValidator(ctx sdk.Context, addr sdk.ValAddress) (validator stakingtypes.Validator, found bool)
+	TokensToConsensusPower(ctx sdk.Context, tokens math.Int) int64
 }
 
 // DistrKeeper defines the expected distribution keeper.

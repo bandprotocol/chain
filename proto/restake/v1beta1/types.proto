@@ -15,7 +15,7 @@ message Reward {
   // Unique identifier for the reward.
   string key = 1;
   // List of reward amounts in different denominations.
-  repeated cosmos.base.v1beta1.DecCoin rewards = 2 [
+  repeated cosmos.base.v1beta1.DecCoin amounts = 2 [
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
     (gogoproto.nullable)     = false,
     (amino.dont_omitempty)   = true
@@ -73,19 +73,13 @@ message Stake {
     (gogoproto.nullable)     = false,
     (amino.dont_omitempty)   = true
   ];
-
-  repeated cosmos.base.v1beta1.DecCoin reward_lefts = 5 [
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
-    (gogoproto.nullable)     = false,
-    (amino.dont_omitempty)   = true
-  ];
 }
 
 // Remainder message defines ...
 message Remainder {
   option (gogoproto.equal) = true;
 
-  repeated cosmos.base.v1beta1.DecCoin amount = 4 [
+  repeated cosmos.base.v1beta1.DecCoin amounts = 4 [
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
     (gogoproto.nullable)     = false,
     (amino.dont_omitempty)   = true

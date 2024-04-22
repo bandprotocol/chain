@@ -32,28 +32,22 @@ func (k msgServer) ClaimRewards(
 		return nil, err
 	}
 
-	rewards := sdk.NewDecCoins()
-
+	// update rewards from all stakes of an address
 	stakes := k.GetStakes(ctx, address)
 	for _, stake := range stakes {
-		key, err := k.GetKey(ctx, stake.Key)
-		if err != nil {
-			return nil, err
-		}
-		key = k.updateRewardPerShares(ctx, key)
-		stake = k.updateRewardLefts(ctx, key, stake)
-		rewards = rewards.Add(stake.RewardLefts...)
-		stake.RewardLefts = sdk.NewDecCoins()
+		k.ProcessStake(ctx, stake)
+	}
 
-		if key.IsActive {
-			k.SetStake(ctx, stake)
-		} else {
-			k.DeleteStake(ctx, address, key.Name)
-		}
+	// calculate claim rewards
+	claimRewards := sdk.NewDecCoins()
+	rewards := k.GetRewards(ctx, address)
+	for _, reward := range rewards {
+		claimRewards = claimRewards.Add(reward.Amounts...)
+		k.DeleteReward(ctx, address, reward.Key)
 	}
 
 	// truncate reward dec coins, return remainder to community pool
-	finalRewards, remainder := rewards.TruncateDecimal()
+	finalRewards, remainder := claimRewards.TruncateDecimal()
 
 	// add coins to user account
 	if !finalRewards.IsZero() {

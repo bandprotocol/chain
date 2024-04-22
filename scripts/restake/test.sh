@@ -17,7 +17,7 @@ bandd tx restake add-rewards test2 100uband --from requester --keyring-backend t
 sleep 4
 
 # lock
-bandd tx restake lock-token test 100 --from requester --keyring-backend test --gas-prices 0.0025uband -y 
+bandd tx restake lock-token test 70 --from requester --keyring-backend test --gas-prices 0.0025uband -y 
 sleep 4
 bandd tx restake lock-token test2 100 --from requester --keyring-backend test --gas-prices 0.0025uband -y 
 sleep 4
@@ -31,3 +31,11 @@ bandd tx restake claim-rewards --from requester --keyring-backend test --gas-pri
 sleep 4
 bandd tx restake claim-rewards --from validator --keyring-backend test --gas-prices 0.0025uband -y 
 sleep 4
+
+# deactivate
+bandd tx restake deactivate test2 --from requester --keyring-backend test --gas-prices 0.0025uband -y 
+sleep 4
+
+
+# undelegate
+bandd tx staking unbond bandvaloper1p40yh3zkmhcv0ecqp3mcazy83sa57rgjde6wec 70uband --from requester --keyring-backend test --gas-prices 0.0025uband -y
