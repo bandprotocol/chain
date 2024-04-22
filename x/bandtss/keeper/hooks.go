@@ -48,23 +48,15 @@ func (h Hooks) BeforeSetGroupExpired(ctx sdk.Context, group tsstypes.Group) erro
 }
 
 func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) error {
-	// check if this signing is from the bandtss module
-	group, err := h.k.tssKeeper.GetGroup(ctx, signing.GroupID)
-	if err != nil {
-		return err
-	}
-	if group.ModuleOwner != types.ModuleName {
-		return nil
-	}
-
-	// skip the process if the signing is for replacement
-	replacement := h.k.GetReplacement(ctx)
-	if signing.ID == replacement.SigningID {
+	// Skip the process if the bandtssSigningID is not found in the mapping. If the signing
+	// is for replacement, it does not have the bandtssSigningID, and no refund is required.
+	bandtssSigningID := h.k.GetSigningIDMapping(ctx, signing.ID)
+	if bandtssSigningID == 0 {
 		return nil
 	}
 
 	// refund fee to requester. Unlikely to get an error from refund fee, but log it just in case.
-	if err := h.k.CheckRefundFee(ctx, signing); err != nil {
+	if err := h.k.CheckRefundFee(ctx, signing, bandtssSigningID); err != nil {
 		return err
 	}
 
@@ -73,62 +65,44 @@ func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) err
 }
 
 func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing) error {
-	// check if this signing is from the bandtss module
-	group, err := h.k.tssKeeper.GetGroup(ctx, signing.GroupID)
-	if err != nil {
-		return err
+	// penalize members who didn't submit their partial signatures if the signing is from
+	// the current group (at the moment).
+	currentGroupID := h.k.GetCurrentGroupID(ctx)
+	if signing.GroupID == currentGroupID {
+		penalizedMembers, err := h.k.tssKeeper.GetPenalizedMembersExpiredSigning(ctx, signing)
+		if err != nil {
+			return err
+		}
+
+		for _, addr := range penalizedMembers {
+			if err := h.k.DeactivateMember(ctx, addr); err != nil {
+				return err
+			}
+		}
 	}
-	if group.ModuleOwner != types.ModuleName {
+
+	// Skip the process if the bandtssSigningID is not found in the mapping. If the signing
+	// is for replacement, it does not have the bandtssSigningID, and no refund is required.
+	bandtssSigningID := h.k.GetSigningIDMapping(ctx, signing.ID)
+	if bandtssSigningID == 0 {
 		return nil
 	}
 
-	// check if the signing is not for replacement, the module should refund fee to requester.
-	replacement := h.k.GetReplacement(ctx)
-	if signing.ID != replacement.SigningID {
-		if err := h.k.CheckRefundFee(ctx, signing); err != nil {
-			return err
-		}
-	}
-
-	// penalize members who didn't submit their partial signatures.
-	penalizedMembers, err := h.k.tssKeeper.GetPenalizedMembersExpiredSigning(ctx, signing)
-	if err != nil {
+	// refund fee to requester and delete the signingID mapping.
+	if err := h.k.CheckRefundFee(ctx, signing, bandtssSigningID); err != nil {
 		return err
 	}
-
-	for _, addr := range penalizedMembers {
-		if err := h.k.DeactivateMember(ctx, addr); err != nil {
-			return err
-		}
-	}
-
-	// if the signing is not for replacement, remove the mapping id.
-	if signing.ID != replacement.SigningID {
-		h.k.DeleteSigningIDMapping(ctx, signing.ID)
-	}
+	h.k.DeleteSigningIDMapping(ctx, signing.ID)
 
 	return nil
 }
 
 func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) error {
-	// check if this signing is from the bandtss module
-	group, err := h.k.tssKeeper.GetGroup(ctx, signing.GroupID)
-	if err != nil {
-		return err
-	}
-	if group.ModuleOwner != types.ModuleName {
-		return nil
-	}
-
-	// if it is a signing for replacement, exit the hooks.
-	replacement := h.k.GetReplacement(ctx)
-	if signing.ID == replacement.SigningID {
-		return nil
-	}
-
+	// Skip the process if the bandtssSigningID is not found in the mapping. If the signing
+	// is for replacement, it does not have the bandtssSigningID, and no fee transfer is required.
 	bandtssSigningID := h.k.GetSigningIDMapping(ctx, signing.ID)
 	if bandtssSigningID == 0 {
-		return types.ErrSigningNotFound
+		return nil
 	}
 
 	bandtssSigning := h.k.MustGetSigning(ctx, bandtssSigningID)
