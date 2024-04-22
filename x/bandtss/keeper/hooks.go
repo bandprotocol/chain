@@ -58,10 +58,7 @@ func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) err
 	}
 
 	// skip the process if the signing is for replacement
-	replacement, err := h.k.GetReplacement(ctx)
-	if err != nil {
-		return err
-	}
+	replacement := h.k.GetReplacement(ctx)
 	if signing.ID == replacement.SigningID {
 		return nil
 	}
@@ -85,12 +82,8 @@ func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing
 		return nil
 	}
 
-	replacement, err := h.k.GetReplacement(ctx)
-	if err != nil {
-		return err
-	}
-
 	// check if the signing is not for replacement, the module should refund fee to requester.
+	replacement := h.k.GetReplacement(ctx)
 	if signing.ID != replacement.SigningID {
 		if err := h.k.CheckRefundFee(ctx, signing); err != nil {
 			return err
@@ -128,10 +121,7 @@ func (h Hooks) AfterSigningCompleted(ctx sdk.Context, signing tsstypes.Signing) 
 	}
 
 	// if it is a signing for replacement, exit the hooks.
-	replacement, err := h.k.GetReplacement(ctx)
-	if err != nil {
-		return err
-	}
+	replacement := h.k.GetReplacement(ctx)
 	if signing.ID == replacement.SigningID {
 		return nil
 	}

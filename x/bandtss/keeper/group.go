@@ -22,11 +22,8 @@ func (k Keeper) CreateGroupReplacement(
 		return 0, err
 	}
 
-	replacement, err := k.GetReplacement(ctx)
-	if err != nil {
-		return 0, err
-	}
-	if replacement.SigningID != 0 {
+	replacement := k.GetReplacement(ctx)
+	if replacement.Status == types.REPLACEMENT_STATUS_WAITING {
 		return 0, types.ErrReplacementInProgress
 	}
 
@@ -42,10 +39,14 @@ func (k Keeper) CreateGroupReplacement(
 	}
 
 	k.SetReplacement(ctx, types.Replacement{
-		SigningID: signing.ID,
-		ExecTime:  execTime,
+		SigningID:      signing.ID,
+		CurrentGroupID: currentGroupID,
+		CurrentPubKey:  currentGroup.PubKey,
+		NewGroupID:     newGroupID,
+		NewPubKey:      newGroup.PubKey,
+		Status:         types.REPLACEMENT_STATUS_WAITING,
+		ExecTime:       execTime,
 	})
-	k.SetReplacingGroupID(ctx, newGroupID)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -61,17 +62,13 @@ func (k Keeper) CreateGroupReplacement(
 
 // HandleReplaceGroup updates the group information after a successful signing process.
 func (k Keeper) HandleReplaceGroup(ctx sdk.Context, endBlockTime time.Time) error {
-	replacement, err := k.GetReplacement(ctx)
-	if err != nil {
-		return err
-	}
-	if replacement.SigningID == 0 || endBlockTime.Before(replacement.ExecTime) {
+	replacement := k.GetReplacement(ctx)
+	if replacement.Status != types.REPLACEMENT_STATUS_WAITING || endBlockTime.Before(replacement.ExecTime) {
 		return nil
 	}
 
 	// Retrieve information about group.
 	currentGroupID := k.GetCurrentGroupID(ctx)
-	replacingGroupID := k.GetReplacingGroupID(ctx)
 
 	// Retrieve information about signing.
 	signing, err := k.tssKeeper.GetSigning(ctx, replacement.SigningID)
@@ -81,15 +78,15 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, endBlockTime time.Time) erro
 
 	// If the signing process is unsuccessful, cleared data and emit event that fails to replace group.
 	if signing.Status != tsstypes.SIGNING_STATUS_SUCCESS {
-		k.DeleteReplacement(ctx)
-		k.SetReplacingGroupID(ctx, tss.GroupID(0))
+		replacement.Status = types.REPLACEMENT_STATUS_FALLEN
+		k.SetReplacement(ctx, replacement)
 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeReplacementFailed,
 				sdk.NewAttribute(tsstypes.AttributeKeySigningID, fmt.Sprintf("%d", replacement.SigningID)),
 				sdk.NewAttribute(types.AttributeKeyCurrentGroupID, fmt.Sprintf("%d", currentGroupID)),
-				sdk.NewAttribute(types.AttributeKeyReplacingGroupID, fmt.Sprintf("%d", replacingGroupID)),
+				sdk.NewAttribute(types.AttributeKeyReplacingGroupID, fmt.Sprintf("%d", replacement.NewGroupID)),
 			),
 		)
 		return nil
@@ -101,10 +98,9 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, endBlockTime time.Time) erro
 		k.DeleteMember(ctx, sdk.MustAccAddressFromBech32(m.Address))
 	}
 
-	k.SetCurrentGroupID(ctx, replacingGroupID)
-	k.SetReplacingGroupID(ctx, tss.GroupID(0))
+	k.SetCurrentGroupID(ctx, replacement.NewGroupID)
 
-	newMembers := k.tssKeeper.MustGetMembers(ctx, replacingGroupID)
+	newMembers := k.tssKeeper.MustGetMembers(ctx, replacement.NewGroupID)
 	for _, m := range newMembers {
 		if err := k.AddNewMember(ctx, sdk.MustAccAddressFromBech32(m.Address)); err != nil {
 			return err
@@ -112,13 +108,14 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, endBlockTime time.Time) erro
 	}
 
 	// clear replacement info and emit an event.
-	k.DeleteReplacement(ctx)
+	replacement.Status = types.REPLACEMENT_STATUS_SUCCESS
+	k.SetReplacement(ctx, replacement)
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeReplacementSuccess,
 			sdk.NewAttribute(tsstypes.AttributeKeySigningID, fmt.Sprintf("%d", replacement.SigningID)),
 			sdk.NewAttribute(types.AttributeKeyCurrentGroupID, fmt.Sprintf("%d", currentGroupID)),
-			sdk.NewAttribute(types.AttributeKeyReplacingGroupID, fmt.Sprintf("%d", replacingGroupID)),
+			sdk.NewAttribute(types.AttributeKeyReplacingGroupID, fmt.Sprintf("%d", replacement.NewGroupID)),
 		),
 	)
 

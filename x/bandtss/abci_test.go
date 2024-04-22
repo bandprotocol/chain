@@ -66,16 +66,20 @@ func TestReplaceGroups(t *testing.T) {
 	})
 
 	bandtssKeeper.SetCurrentGroupID(ctx, currentGroupID)
-	bandtssKeeper.SetReplacingGroupID(ctx, newGroupID)
 	bandtssKeeper.SetReplacement(ctx, types.Replacement{
-		SigningID: signingID,
-		ExecTime:  beforenow,
+		SigningID:      signingID,
+		CurrentGroupID: currentGroupID,
+		CurrentPubKey:  initialCurrentGroup.PubKey,
+		NewGroupID:     newGroupID,
+		NewPubKey:      initialNewGroup.PubKey,
+		ExecTime:       beforenow,
+		Status:         types.REPLACEMENT_STATUS_WAITING,
 	})
 	tssKeeper.SetSigning(ctx, initialSigning)
 
 	// Call end block
 	app.EndBlocker(ctx, abci.RequestEndBlock{Height: app.LastBlockHeight() + 1})
 
-	require.Equal(t, tss.GroupID(0), bandtssKeeper.GetReplacingGroupID(ctx))
+	require.Equal(t, types.REPLACEMENT_STATUS_SUCCESS, bandtssKeeper.GetReplacement(ctx).Status)
 	require.Equal(t, newGroupID, bandtssKeeper.GetCurrentGroupID(ctx))
 }

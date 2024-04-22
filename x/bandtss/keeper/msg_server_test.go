@@ -65,8 +65,6 @@ func (s *KeeperTestSuite) TestCreateGroupReq() {
 func (s *KeeperTestSuite) TestFailedReplaceGroup() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
-
-	currentGroupID := tss.GroupID(1)
 	newGroupID := tss.GroupID(2)
 
 	var req types.MsgReplaceGroup
@@ -79,10 +77,9 @@ func (s *KeeperTestSuite) TestFailedReplaceGroup() {
 			"failure due to incorrect authority",
 			func() {
 				req = types.MsgReplaceGroup{
-					Authority:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-					CurrentGroupID: currentGroupID,
-					NewGroupID:     newGroupID,
-					ExecTime:       time.Now().UTC(),
+					Authority:  "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+					NewGroupID: newGroupID,
+					ExecTime:   time.Now().UTC(),
 				}
 			},
 			func() {
@@ -93,10 +90,9 @@ func (s *KeeperTestSuite) TestFailedReplaceGroup() {
 			"failure due to group is not active",
 			func() {
 				req = types.MsgReplaceGroup{
-					Authority:      authority.String(),
-					CurrentGroupID: currentGroupID,
-					NewGroupID:     newGroupID,
-					ExecTime:       time.Now().UTC(),
+					Authority:  authority.String(),
+					NewGroupID: newGroupID,
+					ExecTime:   time.Now().UTC(),
 				}
 				group.Status = tsstypes.GROUP_STATUS_FALLEN
 				k.SetGroup(ctx, group)
@@ -129,14 +125,13 @@ func (s *KeeperTestSuite) TestSuccessReplaceGroup() {
 	now := time.Now()
 
 	_, err := msgSrvr.ReplaceGroup(ctx, &types.MsgReplaceGroup{
-		CurrentGroupID: 1,
-		NewGroupID:     2,
-		ExecTime:       now,
-		Authority:      s.authority.String(),
+		NewGroupID: 2,
+		ExecTime:   now,
+		Authority:  s.authority.String(),
 	})
 
 	s.Require().NoError(err)
-	s.Require().Equal(tss.GroupID(2), s.app.BandtssKeeper.GetReplacingGroupID(ctx))
+	s.Require().Equal(types.REPLACEMENT_STATUS_WAITING, s.app.BandtssKeeper.GetReplacement(ctx).Status)
 }
 
 func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {

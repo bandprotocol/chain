@@ -128,34 +128,18 @@ func (k Keeper) GetCurrentGroupID(ctx sdk.Context) tss.GroupID {
 	return tss.GroupID(sdk.BigEndianToUint64(ctx.KVStore(k.storeKey).Get(types.CurrentGroupIDStoreKey)))
 }
 
-// SetReplacingGroupID sets a replacing groupID of the Bandtss module.
-func (k Keeper) SetReplacingGroupID(ctx sdk.Context, groupID tss.GroupID) {
-	ctx.KVStore(k.storeKey).Set(types.ReplacingGroupIDStoreKey, sdk.Uint64ToBigEndian(uint64(groupID)))
-}
-
-// GetReplacingGroupID retrieves a replacing groupID of the Bandtss module.
-func (k Keeper) GetReplacingGroupID(ctx sdk.Context) tss.GroupID {
-	return tss.GroupID(sdk.BigEndianToUint64(ctx.KVStore(k.storeKey).Get(types.ReplacingGroupIDStoreKey)))
-}
-
 // SetReplacement sets a replacement information in the store.
 func (k Keeper) SetReplacement(ctx sdk.Context, replacement types.Replacement) {
 	ctx.KVStore(k.storeKey).Set(types.ReplacementStoreKey, k.cdc.MustMarshal(&replacement))
 }
 
-// DeleteReplacement removes a replacement information in the store.
-func (k Keeper) DeleteReplacement(ctx sdk.Context) {
-	ctx.KVStore(k.storeKey).Delete(types.ReplacementStoreKey)
-}
-
 // GetReplacement retrieves a replacement information in the store.
-func (k Keeper) GetReplacement(ctx sdk.Context) (types.Replacement, error) {
+func (k Keeper) GetReplacement(ctx sdk.Context) types.Replacement {
 	bz := ctx.KVStore(k.storeKey).Get(types.ReplacementStoreKey)
-
-	replacement := types.Replacement{}
-	err := k.cdc.Unmarshal(bz, &replacement)
-	if err != nil {
-		return types.Replacement{}, err
+	if bz == nil {
+		return types.Replacement{}
 	}
-	return replacement, nil
+	var replacement types.Replacement
+	k.cdc.MustUnmarshal(bz, &replacement)
+	return replacement
 }

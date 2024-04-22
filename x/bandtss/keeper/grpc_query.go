@@ -91,20 +91,6 @@ func (q queryServer) CurrentGroup(
 	}, nil
 }
 
-// ReplacingGroup function handles the request to get the replacing group information.
-// TODO: update current group response later when add election flow.
-func (q queryServer) ReplacingGroup(
-	goCtx context.Context,
-	req *types.QueryReplacingGroupRequest,
-) (*types.QueryReplacingGroupResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	groupID := q.k.GetReplacingGroupID(ctx)
-	return &types.QueryReplacingGroupResponse{
-		GroupID: uint64(groupID),
-	}, nil
-}
-
 // Replacement function handles the request to get the group replacement information.
 func (q queryServer) Replacement(
 	goCtx context.Context,
@@ -112,10 +98,7 @@ func (q queryServer) Replacement(
 ) (*types.QueryReplacementResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	replacement, err := q.k.GetReplacement(ctx)
-	if err != nil {
-		return nil, err
-	}
+	replacement := q.k.GetReplacement(ctx)
 
 	return &types.QueryReplacementResponse{
 		Replacement: replacement,
