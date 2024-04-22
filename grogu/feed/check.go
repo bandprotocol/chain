@@ -3,8 +3,12 @@ package feed
 import (
 	"context"
 	"crypto/sha256"
+	"math"
+	"strconv"
+	"strings"
 	"time"
 
+	bothanproto "github.com/bandprotocol/bothan-api/go-proxy/proto"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"golang.org/x/exp/maps"
 
@@ -50,6 +54,16 @@ func checkFeeds(c *grogucontext.Context, l *grogucontext.Logger) {
 	validatorPrices := validatorPricesResponse.ValidatorPrices
 	signalIDTimestampMap := convertToSignalIDTimestampMap(validatorPrices)
 
+	pricesResponse, err := c.QueryClient.Prices(
+		context.Background(),
+		&types.QueryPricesRequest{},
+	)
+	if err != nil {
+		return
+	}
+
+	signalIDChainPriceMap := convertToSignalIDChainPriceMap(pricesResponse.Prices)
+
 	requestedSignalIDs := make(map[string]time.Time)
 	now := time.Now()
 
@@ -59,6 +73,13 @@ func checkFeeds(c *grogucontext.Context, l *grogucontext.Logger) {
 		}
 
 		timestamp, ok := signalIDTimestampMap[feed.SignalID]
+		if !ok {
+			requestedSignalIDs[feed.SignalID] = time.Unix(timestamp, 0).
+				Add(time.Duration(feed.Interval) * time.Second).
+				Add(-time.Duration(params.TransitionTime) * time.Second / 2)
+			c.InProgressSignalIDs.Store(feed.SignalID, time.Now())
+			continue
+		}
 
 		// hash validator address and timestamp of last price submission
 		hashed := sha256.Sum256(append([]byte(c.Validator), sdk.Uint64ToBigEndian(uint64(timestamp))...))
@@ -72,11 +93,38 @@ func checkFeeds(c *grogucontext.Context, l *grogucontext.Logger) {
 		assigned_time := time.Unix(timestamp+2, 0).
 			Add(time.Duration(time_offset) * time.Second)
 
-		if !ok || assigned_time.Before(now) {
+		if assigned_time.Before(now) {
 			requestedSignalIDs[feed.SignalID] = time.Unix(timestamp, 0).
 				Add(time.Duration(feed.Interval) * time.Second).
 				Add(-time.Duration(params.TransitionTime) * time.Second / 2)
 			c.InProgressSignalIDs.Store(feed.SignalID, time.Now())
+			continue
+		}
+
+		if time.Unix(timestamp+2, 0).
+			Add(time.Duration(params.CooldownTime) * time.Second).
+			Before(now) {
+			currentPrices, err := c.PriceService.Query([]string{feed.SignalID})
+			if err != nil || len(currentPrices) == 0 ||
+				currentPrices[0].PriceOption != bothanproto.PriceOption_PRICE_OPTION_AVAILABLE {
+				continue
+			}
+
+			price, err := strconv.ParseFloat(strings.TrimSpace(currentPrices[0].Price), 64)
+			if err != nil {
+				continue
+			}
+
+			if feed.DeviationInThousandth <= deviationInThousandth(
+				signalIDChainPriceMap[feed.SignalID],
+				uint64(price*math.Pow10(9)),
+			) {
+				requestedSignalIDs[feed.SignalID] = time.Unix(timestamp, 0).
+					Add(time.Duration(feed.Interval) * time.Second).
+					Add(-time.Duration(params.TransitionTime) * time.Second / 2)
+				c.InProgressSignalIDs.Store(feed.SignalID, time.Now())
+				continue
+			}
 		}
 	}
 	if len(requestedSignalIDs) != 0 {
@@ -94,6 +142,24 @@ func convertToSignalIDTimestampMap(data []types.PriceValidator) map[string]int64
 	}
 
 	return signalIDTimestampMap
+}
+
+// convertToSignalIDChainPriceMap converts an array of Prices to a map of signal id to its on-chain prices.
+func convertToSignalIDChainPriceMap(data []*types.Price) map[string]uint64 {
+	signalIDChainPriceMap := make(map[string]uint64)
+
+	for _, entry := range data {
+		signalIDChainPriceMap[entry.SignalID] = entry.Price
+	}
+
+	return signalIDChainPriceMap
+}
+
+// deviationInThousandth calculates the deviation in thousandth between two values.
+func deviationInThousandth(originalValue, newValue uint64) int64 {
+	diff := math.Abs(float64(newValue - originalValue))
+	deviation := (diff / float64(originalValue)) * 1000
+	return int64(deviation)
 }
 
 func StartCheckFeeds(c *grogucontext.Context, l *grogucontext.Logger) {
