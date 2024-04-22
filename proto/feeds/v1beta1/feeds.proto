@@ -114,8 +114,8 @@ message PriceValidator {
   // The timestamp at which the price was submitted.
   int64 timestamp = 5;
 
-  // The block height at which the price was submitted.
-  int64 block_height = 6;
+  // Last block hash at which the price was submitted.
+  bytes last_block_hash = 6;
 }
 
 // PriceService defines the information of price service.
