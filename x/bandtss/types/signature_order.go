@@ -9,16 +9,11 @@ import (
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-// Signature order types
-const (
-	// ReplaceGroupPath is the reserved path for replace group msg
-	ReplaceGroupPath = "replace"
-)
+// ReplaceGroupPath is the reserved path for replace group msg
+const ReplaceGroupPath = "replace"
 
-var (
-	// ReplaceGroupMsgPrefix is the prefix for replace group msg.
-	ReplaceGroupMsgPrefix = tss.Hash([]byte(ReplaceGroupPath))[:4]
-)
+// ReplaceGroupMsgPrefix is the prefix for replace group msg.
+var ReplaceGroupMsgPrefix = tss.Hash([]byte(ReplaceGroupPath))[:4]
 
 // Implements SignatureRequest Interface
 var _ tsstypes.Content = &ReplaceGroupSignatureOrder{}
