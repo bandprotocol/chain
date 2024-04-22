@@ -32,7 +32,12 @@ func (k Keeper) CreateGroupReplacement(
 	if err != nil {
 		return 0, err
 	}
-	msg := append(tsstypes.ReplaceGroupMsgPrefix, newGroup.PubKey...)
+
+	// Execute the handler to process the replacement request.
+	msg, err := k.tssKeeper.HandleSigningContent(ctx, types.NewReplaceGroupSignatureOrder(newGroup.PubKey))
+	if err != nil {
+		return 0, err
+	}
 	signing, err := k.tssKeeper.CreateSigning(ctx, currentGroup, msg)
 	if err != nil {
 		return 0, err

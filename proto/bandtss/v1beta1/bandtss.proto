@@ -86,3 +86,12 @@ enum ReplacementStatus {
   // REPLACEMENT_STATUS_FALLEN is the status of a group replacement that has fallen out of the protocol.
   REPLACEMENT_STATUS_FALLEN = 3;
 }
+
+
+// ReplaceGroupSignatureOrder defines a general signature order for group replacement.
+message ReplaceGroupSignatureOrder {
+  option (cosmos_proto.implements_interface) = "Content";
+
+  // pub_key is the public key of new group that the current group needs to be signed.
+  bytes pub_key = 1 [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
+}

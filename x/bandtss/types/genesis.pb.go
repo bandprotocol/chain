@@ -45,7 +45,7 @@ type GenesisState struct {
 	Signings []Signing `protobuf:"bytes,5,rep,name=signings,proto3" json:"signings"`
 	// signing_request_mappings is the list of mapping between tss signing id and bandtss signing id.
 	SigningIDMappings []SigningIDMappingGenesis `protobuf:"bytes,6,rep,name=signing_id_mappings,json=signingIdMappings,proto3" json:"signing_id_mappings"`
-	// replacement is the replacement of the current group.
+	// replacement is the replacement information of the current group and new group.
 	Replacement Replacement `protobuf:"bytes,7,opt,name=replacement,proto3" json:"replacement"`
 }
 

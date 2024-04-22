@@ -19,15 +19,9 @@ const (
 
 	// QuerierRoute is the querier route for the tss module
 	QuerierRoute = ModuleName
-
-	// ReplaceGroupPath is the reserved path for replace group msg
-	ReplaceGroupPath = "replace"
 )
 
 var (
-	// ReplaceGroupMsgPrefix is the prefix for replace group msg.
-	ReplaceGroupMsgPrefix = tss.Hash([]byte(ReplaceGroupPath))[:4]
-
 	// GlobalStoreKeyPrefix is the prefix for global primitive state variables.
 	GlobalStoreKeyPrefix = []byte{0x00}
 
