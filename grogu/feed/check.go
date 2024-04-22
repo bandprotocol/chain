@@ -2,8 +2,10 @@ package feed
 
 import (
 	"context"
+	"crypto/sha256"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"golang.org/x/exp/maps"
 
 	grogucontext "github.com/bandprotocol/chain/v2/grogu/context"
@@ -57,12 +59,20 @@ func checkFeeds(c *grogucontext.Context, l *grogucontext.Logger) {
 		}
 
 		timestamp, ok := signalIDTimestampMap[feed.SignalID]
+
+		// hash validator address and timestamp of last price submission
+		hashed := sha256.Sum256(append([]byte(c.Validator), sdk.Uint64ToBigEndian(uint64(timestamp))...))
+
+		// calculate a time offset for next price submission
+		offset := sdk.BigEndianToUint64(hashed[:])%30 + 50
+		time_offset := feed.Interval * int64(offset) / 100
+
+		// calculate next assigned time for this signal id
 		// add 2 to prevent too fast cases
-		if !ok ||
-			time.Unix(timestamp+2, 0).
-				Add(time.Duration(feed.Interval)*time.Second).
-				Add(-time.Duration(params.TransitionTime)*time.Second).
-				Before(now) {
+		assigned_time := time.Unix(timestamp+2, 0).
+			Add(time.Duration(time_offset) * time.Second)
+
+		if !ok || assigned_time.Before(now) {
 			requestedSignalIDs[feed.SignalID] = time.Unix(timestamp, 0).
 				Add(time.Duration(feed.Interval) * time.Second).
 				Add(-time.Duration(params.TransitionTime) * time.Second / 2)
