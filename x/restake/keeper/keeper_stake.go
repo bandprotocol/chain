@@ -10,6 +10,10 @@ func (k Keeper) GetStakesIterator(ctx sdk.Context, address sdk.AccAddress) sdk.I
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.StakesStoreKey(address))
 }
 
+func (k Keeper) GetAllStakesIterator(ctx sdk.Context) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.StakeStoreKeyPrefix)
+}
+
 func (k Keeper) GetActiveStakes(ctx sdk.Context, address sdk.AccAddress) (stakes []types.Stake) {
 	iterator := k.GetStakesIterator(ctx, address)
 	defer iterator.Close()
@@ -30,6 +34,19 @@ func (k Keeper) GetActiveStakes(ctx sdk.Context, address sdk.AccAddress) (stakes
 
 func (k Keeper) GetStakes(ctx sdk.Context, address sdk.AccAddress) (stakes []types.Stake) {
 	iterator := k.GetStakesIterator(ctx, address)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var stake types.Stake
+		k.cdc.MustUnmarshal(iterator.Value(), &stake)
+		stakes = append(stakes, stake)
+	}
+
+	return stakes
+}
+
+func (k Keeper) GetAllStakes(ctx sdk.Context) (stakes []types.Stake) {
+	iterator := k.GetAllStakesIterator(ctx)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {

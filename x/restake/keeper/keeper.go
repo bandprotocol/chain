@@ -97,16 +97,12 @@ func (k Keeper) SetLockedToken(ctx sdk.Context, addr sdk.AccAddress, keyName str
 }
 
 func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName string, rewards sdk.Coins) error {
-	key, err := k.GetKey(ctx, keyName)
-	if err != nil {
-		return err
-	}
-
+	key := k.GetOrCreateKey(ctx, keyName)
 	if !key.IsActive {
 		return types.ErrKeyNotActive
 	}
 
-	err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, rewards)
+	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, rewards)
 	if err != nil {
 		return err
 	}

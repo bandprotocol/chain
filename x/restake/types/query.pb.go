@@ -30,9 +30,9 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// QueryKeysRequest is request type for the Query/Keys RPC method.
+// QueryKeysRequest represents the request type for the Query/Keys RPC method.
 type QueryKeysRequest struct {
-	// pagination defines an optional pagination for the request.
+	// pagination defines optional pagination parameters.
 	Pagination *query.PageRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -76,10 +76,11 @@ func (m *QueryKeysRequest) GetPagination() *query.PageRequest {
 	return nil
 }
 
-// QueryKeysResponse is response type for the Query/Keys RPC method.
+// QueryKeysResponse represents the response type for the Query/Keys RPC method.
 type QueryKeysResponse struct {
+	// keys contains a list of keys.
 	Keys []*Key `protobuf:"bytes,1,rep,name=keys,proto3" json:"keys,omitempty"`
-	// pagination defines the pagination in the response.
+	// pagination defines pagination parameters in the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -130,8 +131,9 @@ func (m *QueryKeysResponse) GetPagination() *query.PageResponse {
 	return nil
 }
 
-// QueryRewardsRequest is request type for the Query/Rewards RPC method.
+// QueryRewardsRequest represents the request type for the Query/Rewards RPC method.
 type QueryRewardsRequest struct {
+	// address is the target address to query rewards.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
 
@@ -175,8 +177,9 @@ func (m *QueryRewardsRequest) GetAddress() string {
 	return ""
 }
 
-// QueryRewardsResponse is response type for the Query/Rewards RPC method.
+// QueryRewardsResponse represents the response type for the Query/Rewards RPC method.
 type QueryRewardsResponse struct {
+	// rewards contains a list of rewards.
 	Rewards []Reward `protobuf:"bytes,1,rep,name=rewards,proto3" json:"rewards"`
 }
 
@@ -220,8 +223,9 @@ func (m *QueryRewardsResponse) GetRewards() []Reward {
 	return nil
 }
 
-// QueryLocksRequest is request type for the Query/Locks RPC method.
+// QueryLocksRequest represents the request type for the Query/Locks RPC method.
 type QueryLocksRequest struct {
+	// address is the target address to query locks.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
 
@@ -265,8 +269,9 @@ func (m *QueryLocksRequest) GetAddress() string {
 	return ""
 }
 
-// QueryLocksResponse is response type for the Query/Locks RPC method.
+// QueryLocksResponse represents the response type for the Query/Locks RPC method.
 type QueryLocksResponse struct {
+	// locks contains a list of locks.
 	Locks []Lock `protobuf:"bytes,1,rep,name=locks,proto3" json:"locks"`
 }
 
@@ -310,7 +315,7 @@ func (m *QueryLocksResponse) GetLocks() []Lock {
 	return nil
 }
 
-// QueryRemainderRequest is request type for the Query/Remainder RPC method.
+// QueryRemainderRequest represents the request type for the Query/Remainder RPC method.
 type QueryRemainderRequest struct {
 }
 
@@ -347,8 +352,9 @@ func (m *QueryRemainderRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryRemainderRequest proto.InternalMessageInfo
 
-// QueryRemainderResponse is response type for the Query/Remainder RPC method.
+// QueryRemainderResponse represents the response type for the Query/Remainder RPC method.
 type QueryRemainderResponse struct {
+	// remainder contains the remaining state data.
 	Remainder Remainder `protobuf:"bytes,1,opt,name=remainder,proto3" json:"remainder"`
 }
 
@@ -457,13 +463,13 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	// Keys ...
+	// Keys returns a list of keys.
 	Keys(ctx context.Context, in *QueryKeysRequest, opts ...grpc.CallOption) (*QueryKeysResponse, error)
-	// Rewards ...
+	// Rewards returns rewards for a specific address.
 	Rewards(ctx context.Context, in *QueryRewardsRequest, opts ...grpc.CallOption) (*QueryRewardsResponse, error)
-	// Locks ...
+	// Locks returns locks for a specific address.
 	Locks(ctx context.Context, in *QueryLocksRequest, opts ...grpc.CallOption) (*QueryLocksResponse, error)
-	// Remainder ...
+	// Remainder returns the remainder state data.
 	Remainder(ctx context.Context, in *QueryRemainderRequest, opts ...grpc.CallOption) (*QueryRemainderResponse, error)
 }
 
@@ -513,13 +519,13 @@ func (c *queryClient) Remainder(ctx context.Context, in *QueryRemainderRequest, 
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	// Keys ...
+	// Keys returns a list of keys.
 	Keys(context.Context, *QueryKeysRequest) (*QueryKeysResponse, error)
-	// Rewards ...
+	// Rewards returns rewards for a specific address.
 	Rewards(context.Context, *QueryRewardsRequest) (*QueryRewardsResponse, error)
-	// Locks ...
+	// Locks returns locks for a specific address.
 	Locks(context.Context, *QueryLocksRequest) (*QueryLocksResponse, error)
-	// Remainder ...
+	// Remainder returns the remainder state data.
 	Remainder(context.Context, *QueryRemainderRequest) (*QueryRemainderResponse, error)
 }
 

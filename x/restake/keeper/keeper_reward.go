@@ -24,6 +24,10 @@ func (k Keeper) GetRewardsIterator(ctx sdk.Context, address sdk.AccAddress) sdk.
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.RewardsStoreKey(address))
 }
 
+func (k Keeper) GetAllRewardsIterator(ctx sdk.Context) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.RewardStoreKeyPrefix)
+}
+
 func (k Keeper) GetRewards(ctx sdk.Context, address sdk.AccAddress) (rewards []types.Reward) {
 	iterator := k.GetRewardsIterator(ctx, address)
 	defer iterator.Close()
@@ -32,6 +36,25 @@ func (k Keeper) GetRewards(ctx sdk.Context, address sdk.AccAddress) (rewards []t
 		var reward types.Reward
 		k.cdc.MustUnmarshal(iterator.Value(), &reward)
 		rewards = append(rewards, reward)
+	}
+
+	return rewards
+}
+
+func (k Keeper) GetRewardsGenesis(ctx sdk.Context) (rewards []types.RewardGenesis) {
+	iterator := k.GetAllRewardsIterator(ctx)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var reward types.Reward
+		k.cdc.MustUnmarshal(iterator.Value(), &reward)
+
+		_, address, _ := types.SplitRewardStoreKey(iterator.Key())
+		rewards = append(rewards, types.RewardGenesis{
+			Address: address.String(),
+			Key:     reward.Key,
+			Amounts: reward.Amounts,
+		})
 	}
 
 	return rewards

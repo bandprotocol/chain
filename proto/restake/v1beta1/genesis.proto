@@ -3,4 +3,40 @@ package restake.v1beta1;
 
 option go_package = "github.com/bandprotocol/chain/v2/x/restake/types";
 
-message GenesisState {}
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "restake/v1beta1/types.proto";
+
+// GenesisState represents the initial state of the blockchain.
+message GenesisState {
+  // keys contains a list of keys.
+  repeated Key keys = 1 [(gogoproto.nullable) = false];
+
+  // stakes contains a list of stakes.
+  repeated Stake stakes = 2 [(gogoproto.nullable) = false];
+
+  // rewards contains a list of rewards.
+  repeated RewardGenesis rewards = 3 [(gogoproto.nullable) = false];
+
+  // remainder represents the remaining state data.
+  Remainder remainder = 4 [(gogoproto.nullable) = false];
+}
+
+// RewardGenesis message represents reward details for genesis state.
+message RewardGenesis {
+  // Enables equality check for the message.
+  option (gogoproto.equal) = true;
+
+  // Address associated with the reward.
+  string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // Unique identifier for the reward.
+  string key = 2;
+  // Reward amounts in different denominations.
+  repeated cosmos.base.v1beta1.DecCoin amounts = 3 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true
+  ];
+}

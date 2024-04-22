@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/address"
 )
 
 const (
@@ -36,24 +37,24 @@ func KeyStoreKey(keyName string) []byte {
 	return append(KeyStoreKeyPrefix, []byte(keyName)...)
 }
 
-func StakesStoreKey(address sdk.AccAddress) []byte {
-	return append(StakeStoreKeyPrefix, address...)
+func StakesStoreKey(addr sdk.AccAddress) []byte {
+	return append(StakeStoreKeyPrefix, address.MustLengthPrefix(addr)...)
 }
 
-func StakeStoreKey(address sdk.AccAddress, keyName string) []byte {
-	return append(StakesStoreKey(address), []byte(keyName)...)
+func StakeStoreKey(addr sdk.AccAddress, keyName string) []byte {
+	return append(StakesStoreKey(addr), []byte(keyName)...)
 }
 
-func RewardsStoreKey(address sdk.AccAddress) []byte {
-	return append(RewardStoreKeyPrefix, address...)
+func RewardsStoreKey(addr sdk.AccAddress) []byte {
+	return append(RewardStoreKeyPrefix, address.MustLengthPrefix(addr)...)
 }
 
-func RewardStoreKey(address sdk.AccAddress, keyName string) []byte {
-	return append(RewardsStoreKey(address), []byte(keyName)...)
+func RewardStoreKey(addr sdk.AccAddress, keyName string) []byte {
+	return append(RewardsStoreKey(addr), []byte(keyName)...)
 }
 
-func StakesByAmountIndexKey(address sdk.AccAddress) []byte {
-	return append(StakesByAmountIndexKeyPrefix, address...)
+func StakesByAmountIndexKey(addr sdk.AccAddress) []byte {
+	return append(StakesByAmountIndexKeyPrefix, addr...)
 }
 
 func StakeByAmountIndexKey(stake Stake) []byte {
@@ -65,4 +66,9 @@ func StakeByAmountIndexKey(stake Stake) []byte {
 	// key is of format prefix || address || amountBytes || keyBytes
 	bz := append(StakesByAmountIndexKey(address), amountBytes...)
 	return append(bz, []byte(stake.Key)...)
+}
+
+func SplitRewardStoreKey(key []byte) ([]byte, sdk.AccAddress, string) {
+	// <prefix (1 Byte)><addrLen (1 Byte)><addr_Bytes><key_Bytes>
+	return key[0:1], sdk.AccAddress(key[2 : 2+key[1]]), string(key[2+key[1]:])
 }

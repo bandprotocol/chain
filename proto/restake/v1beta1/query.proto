@@ -8,66 +8,72 @@ import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "restake/v1beta1/types.proto";
 
-// Query defines the gRPC querier service.
+// Query service defines the gRPC querier service for restake.
 service Query {
-  // Keys ...
+  // Keys returns a list of keys.
   rpc Keys(QueryKeysRequest) returns (QueryKeysResponse) {
     option (google.api.http).get = "/restake/v1beta1/keys";
   }
 
-  // Rewards ...
+  // Rewards returns rewards for a specific address.
   rpc Rewards(QueryRewardsRequest) returns (QueryRewardsResponse) {
     option (google.api.http).get = "/restake/v1beta1/addresses/{address}/rewards";
   }
 
-  // Locks ...
+  // Locks returns locks for a specific address.
   rpc Locks(QueryLocksRequest) returns (QueryLocksResponse) {
     option (google.api.http).get = "/restake/v1beta1/addresses/{address}/locks";
   }
 
-  // Remainder ...
+  // Remainder returns the remainder state data.
   rpc Remainder(QueryRemainderRequest) returns (QueryRemainderResponse) {
     option (google.api.http).get = "/restake/v1beta1/remainder";
   }
 }
 
-// QueryKeysRequest is request type for the Query/Keys RPC method.
+// QueryKeysRequest represents the request type for the Query/Keys RPC method.
 message QueryKeysRequest {
-  // pagination defines an optional pagination for the request.
+  // pagination defines optional pagination parameters.
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
-// QueryKeysResponse is response type for the Query/Keys RPC method.
+// QueryKeysResponse represents the response type for the Query/Keys RPC method.
 message QueryKeysResponse {
+  // keys contains a list of keys.
   repeated Key keys = 1;
-  // pagination defines the pagination in the response.
+  // pagination defines pagination parameters in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
-// QueryRewardsRequest is request type for the Query/Rewards RPC method.
+// QueryRewardsRequest represents the request type for the Query/Rewards RPC method.
 message QueryRewardsRequest {
+  // address is the target address to query rewards.
   string address = 1;
 }
 
-// QueryRewardsResponse is response type for the Query/Rewards RPC method.
+// QueryRewardsResponse represents the response type for the Query/Rewards RPC method.
 message QueryRewardsResponse {
+  // rewards contains a list of rewards.
   repeated Reward rewards = 1 [(gogoproto.nullable) = false];
 }
 
-// QueryLocksRequest is request type for the Query/Locks RPC method.
+// QueryLocksRequest represents the request type for the Query/Locks RPC method.
 message QueryLocksRequest {
+  // address is the target address to query locks.
   string address = 1;
 }
 
-// QueryLocksResponse is response type for the Query/Locks RPC method.
+// QueryLocksResponse represents the response type for the Query/Locks RPC method.
 message QueryLocksResponse {
+  // locks contains a list of locks.
   repeated Lock locks = 1 [(gogoproto.nullable) = false];
 }
 
-// QueryRemainderRequest is request type for the Query/Remainder RPC method.
+// QueryRemainderRequest represents the request type for the Query/Remainder RPC method.
 message QueryRemainderRequest {}
 
-// QueryRemainderResponse is response type for the Query/Remainder RPC method.
+// QueryRemainderResponse represents the response type for the Query/Remainder RPC method.
 message QueryRemainderResponse {
+  // remainder contains the remaining state data.
   Remainder remainder = 1 [(gogoproto.nullable) = false];
 }
