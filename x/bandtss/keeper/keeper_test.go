@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"testing"
 	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -230,4 +231,8 @@ func (s *KeeperTestSuite) TestParams() {
 			s.Require().Equal(expected, p)
 		})
 	}
+}
+
+func TestKeeperTestSuite(t *testing.T) {
+	suite.Run(t, new(KeeperTestSuite))
 }
