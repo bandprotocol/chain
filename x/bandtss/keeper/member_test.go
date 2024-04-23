@@ -8,7 +8,7 @@ import (
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-func (s *KeeperTestSuite) TestDeactivateMember() {
+func (s *KeeperTestSuite) TestSetInActive() {
 	ctx, k, tssKeeper := s.ctx, s.app.BandtssKeeper, s.app.TSSKeeper
 	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 	address := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey())
@@ -31,7 +31,11 @@ func (s *KeeperTestSuite) TestActivateMember() {
 	address := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey())
 
 	// Success case
-	err := k.ActivateMember(ctx, address)
+	err := k.DeactivateMember(ctx, address)
+	s.Require().NoError(err)
+	ctx = ctx.WithBlockTime(ctx.BlockTime().Add(k.GetParams(ctx).ActiveDuration))
+
+	err = k.ActivateMember(ctx, address)
 	s.Require().NoError(err)
 
 	member, err := k.GetMember(ctx, address)
