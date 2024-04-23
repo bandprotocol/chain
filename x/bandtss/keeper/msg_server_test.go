@@ -332,6 +332,7 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 					ActiveDuration:          types.DefaultActiveDuration,
 					RewardPercentage:        types.DefaultRewardPercentage,
 					InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
+					JailPenaltyDuration:     types.DefaultJailPenaltyDuration,
 					Fee:                     types.DefaultFee,
 				},
 			},
