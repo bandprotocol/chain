@@ -77,7 +77,7 @@ message Remainder {
   option (gogoproto.equal) = true;
 
   // Remaining amounts in different denominations.
-  repeated cosmos.base.v1beta1.DecCoin amounts = 4 [
+  repeated cosmos.base.v1beta1.DecCoin amounts = 1 [
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
     (gogoproto.nullable)     = false,
     (amino.dont_omitempty)   = true

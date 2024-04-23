@@ -69,7 +69,7 @@ func (h Hooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, 
 }
 
 func (h Hooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, _ sdk.ValAddress) error {
-	// get totla delegation
+	// get total delegation
 	delegated := h.k.stakingKeeper.GetDelegatorBonded(ctx, delAddr)
 
 	// check if it's able to unbond

@@ -59,11 +59,7 @@ func (k Keeper) IsActiveKey(ctx sdk.Context, keyName string) bool {
 		return false
 	}
 
-	if !key.IsActive {
-		return false
-	}
-
-	return true
+	return key.IsActive
 }
 
 func (k Keeper) GetKey(ctx sdk.Context, keyName string) (types.Key, error) {
