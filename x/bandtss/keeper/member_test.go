@@ -8,7 +8,7 @@ import (
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-func (s *KeeperTestSuite) TestSetInActive() {
+func (s *KeeperTestSuite) TestDeactivateMember() {
 	ctx, k, tssKeeper := s.ctx, s.app.BandtssKeeper, s.app.TSSKeeper
 	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 	address := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey())
