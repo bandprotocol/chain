@@ -21,12 +21,14 @@ import (
 )
 
 const (
-	flagValidator        = "validator"
-	flagLogLevel         = "log-level"
-	flagPriceService     = "price-service"
-	flagBroadcastTimeout = "broadcast-timeout"
-	flagRPCPollInterval  = "rpc-poll-interval"
-	flagMaxTry           = "max-try"
+	flagValidator                   = "validator"
+	flagLogLevel                    = "log-level"
+	flagPriceService                = "price-service"
+	flagBroadcastTimeout            = "broadcast-timeout"
+	flagRPCPollInterval             = "rpc-poll-interval"
+	flagMaxTry                      = "max-try"
+	flagDistributionStartPercentage = "distribution-start"
+	flagDistributionEndPercentage   = "distribution-end"
 )
 
 func runImpl(c *grogucontext.Context, l *grogucontext.Logger) error {
@@ -129,6 +131,10 @@ func RunCmd(c *grogucontext.Context) *cobra.Command {
 	cmd.Flags().String(flagBroadcastTimeout, "5m", "The time that Grogu will wait for tx commit")
 	cmd.Flags().String(flagRPCPollInterval, "1s", "The duration of rpc poll interval")
 	cmd.Flags().Uint64(flagMaxTry, 5, "The maximum number of tries to submit a transaction")
+	cmd.Flags().
+		Uint64(flagDistributionStartPercentage, 50, "The starting percentage of the distribution range of price sending")
+	cmd.Flags().
+		Uint64(flagDistributionEndPercentage, 30, "The ending percentage of the distribution range of price sending")
 	_ = viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
 	_ = viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode))
 	_ = viper.BindPFlag(flagValidator, cmd.Flags().Lookup(flagValidator))

@@ -15,15 +15,17 @@ import (
 
 // Config data structure for grogu daemon.
 type Config struct {
-	ChainID          string `mapstructure:"chain-id"`          // ChainID of the target chain
-	NodeURI          string `mapstructure:"node"`              // Remote RPC URI of BandChain node to connect to
-	Validator        string `mapstructure:"validator"`         // The validator address that I'm responsible for
-	GasPrices        string `mapstructure:"gas-prices"`        // Gas prices of the transaction
-	LogLevel         string `mapstructure:"log-level"`         // Log level of the logger
-	PriceService     string `mapstructure:"price-service"`     // PriceService name and URL (example: "PriceService name:URL")
-	BroadcastTimeout string `mapstructure:"broadcast-timeout"` // The time that Grogu will wait for tx commit
-	RPCPollInterval  string `mapstructure:"rpc-poll-interval"` // The duration of rpc poll interval
-	MaxTry           uint64 `mapstructure:"max-try"`           // The maximum number of tries to submit a report transaction
+	ChainID                     string `mapstructure:"chain-id"`           // ChainID of the target chain
+	NodeURI                     string `mapstructure:"node"`               // Remote RPC URI of BandChain node to connect to
+	Validator                   string `mapstructure:"validator"`          // The validator address that I'm responsible for
+	GasPrices                   string `mapstructure:"gas-prices"`         // Gas prices of the transaction
+	LogLevel                    string `mapstructure:"log-level"`          // Log level of the logger
+	PriceService                string `mapstructure:"price-service"`      // PriceService name and URL (example: "PriceService name:URL")
+	BroadcastTimeout            string `mapstructure:"broadcast-timeout"`  // The time that Grogu will wait for tx commit
+	RPCPollInterval             string `mapstructure:"rpc-poll-interval"`  // The duration of rpc poll interval
+	MaxTry                      uint64 `mapstructure:"max-try"`            // The maximum number of tries to submit a report transaction
+	DistributionStartPercentage uint64 `mapstructure:"distribution-start"` // The starting percentage of the distribution range of price sending
+	DistributionPercentageRange uint64 `mapstructure:"distribution-range"` // The range of percentage of the distribution range of price sending
 }
 
 // Global instances.

@@ -3,6 +3,7 @@ package feed
 import (
 	"context"
 	"crypto/sha256"
+	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -17,30 +18,83 @@ import (
 )
 
 func checkFeeds(c *grogucontext.Context, l *grogucontext.Logger) {
+	// Fetch parameters, supported feeds, validator prices, and prices
+	params, feeds, validatorPrices, prices, err := fetchData(c)
+	if err != nil {
+		return
+	}
+
+	signalIDTimestampMap := convertToSignalIDTimestampMap(validatorPrices)
+	signalIDChainPriceMap := convertToSignalIDChainPriceMap(prices)
+
+	requestedSignalIDs := make(map[string]time.Time)
+	now := time.Now()
+
+	for _, feed := range feeds {
+		// Skip feeds in progress
+		if _, inProgress := c.InProgressSignalIDs.Load(feed.SignalID); inProgress {
+			continue
+		}
+
+		// Get latest timestamp of the feed
+		timestamp, ok := signalIDTimestampMap[feed.SignalID]
+		// If there is no timestamp yet, then puts it in requested signal id list
+		if !ok {
+			updateRequestedSignalID(c, requestedSignalIDs, feed, timestamp, params)
+			continue
+		}
+
+		// Skip if it's in cooldown
+		if time.Unix(timestamp+2, 0).
+			Add(time.Duration(params.CooldownTime) * time.Second).
+			After(now) {
+			continue
+		}
+
+		// Calculate assigned time for the feed
+		assignedTime := calculateAssignedTime(c.Validator, feed.Interval, timestamp)
+
+		if assignedTime.Before(now) || isDeviate(c, feed, params, signalIDChainPriceMap) {
+			updateRequestedSignalID(c, requestedSignalIDs, feed, timestamp, params)
+			continue
+		}
+	}
+
+	if len(requestedSignalIDs) != 0 {
+		l.Info("found signal ids to send: %v", maps.Keys(requestedSignalIDs))
+		c.PendingSignalIDs <- requestedSignalIDs
+	}
+}
+
+func fetchData(
+	c *grogucontext.Context,
+) (params types.Params, feeds []types.Feed, validatorPrices []types.PriceValidator, prices []*types.Price, err error) {
+	// Fetch validator data
 	validValidator, err := c.QueryClient.ValidValidator(context.Background(), &types.QueryValidValidatorRequest{
 		Validator: c.Validator.String(),
 	})
 	if err != nil {
-		return
+		return types.Params{}, nil, nil, nil, err
 	}
-
 	if !validValidator.Valid {
-		return
+		return types.Params{}, nil, nil, nil, fmt.Errorf("validator is not valid or not required to send price")
 	}
 
+	// Fetch params
 	paramsResponse, err := c.QueryClient.Params(context.Background(), &types.QueryParamsRequest{})
 	if err != nil {
-		return
+		return types.Params{}, nil, nil, nil, err
 	}
-	params := paramsResponse.Params
+	params = paramsResponse.Params
 
+	// Fetch supported feeds
 	feedsResponse, err := c.QueryClient.SupportedFeeds(context.Background(), &types.QuerySupportedFeedsRequest{})
 	if err != nil {
-		return
+		return types.Params{}, nil, nil, nil, err
 	}
+	feeds = feedsResponse.Feeds
 
-	feeds := feedsResponse.Feeds
-
+	// Fetch validator prices
 	validatorPricesResponse, err := c.QueryClient.ValidatorPrices(
 		context.Background(),
 		&types.QueryValidatorPricesRequest{
@@ -48,89 +102,70 @@ func checkFeeds(c *grogucontext.Context, l *grogucontext.Logger) {
 		},
 	)
 	if err != nil {
-		return
+		return types.Params{}, nil, nil, nil, err
 	}
+	validatorPrices = validatorPricesResponse.ValidatorPrices
 
-	validatorPrices := validatorPricesResponse.ValidatorPrices
-	signalIDTimestampMap := convertToSignalIDTimestampMap(validatorPrices)
-
+	// Fetch prices
 	pricesResponse, err := c.QueryClient.Prices(
 		context.Background(),
 		&types.QueryPricesRequest{},
 	)
 	if err != nil {
-		return
+		return types.Params{}, nil, nil, nil, err
+	}
+	prices = pricesResponse.Prices
+
+	return params, feeds, validatorPrices, prices, nil
+}
+
+// calculateAssignedTime calculates the assigned time for the feed
+func calculateAssignedTime(valAddr sdk.ValAddress, interval int64, timestamp int64) time.Time {
+	hashed := sha256.Sum256(append(valAddr.Bytes(), sdk.Uint64ToBigEndian(uint64(timestamp))...))
+	offset := sdk.BigEndianToUint64(
+		hashed[:],
+	)%grogucontext.Cfg.DistributionPercentageRange + grogucontext.Cfg.DistributionStartPercentage
+	timeOffset := interval * int64(offset) / 100
+	// add 2 seconds to prevent too fast case
+	return time.Unix(timestamp+2, 0).Add(time.Duration(timeOffset) * time.Second)
+}
+
+// isDeviate checks if the current price is deviated from the on-chain price
+func isDeviate(
+	c *grogucontext.Context,
+	feed types.Feed,
+	params types.Params,
+	signalIDChainPriceMap map[string]uint64,
+) bool {
+	currentPrices, err := c.PriceService.Query([]string{feed.SignalID})
+	if err != nil || len(currentPrices) == 0 ||
+		currentPrices[0].PriceOption != bothanproto.PriceOption_PRICE_OPTION_AVAILABLE {
+		return false
 	}
 
-	signalIDChainPriceMap := convertToSignalIDChainPriceMap(pricesResponse.Prices)
-
-	requestedSignalIDs := make(map[string]time.Time)
-	now := time.Now()
-
-	for _, feed := range feeds {
-		if _, inProgress := c.InProgressSignalIDs.Load(feed.SignalID); inProgress {
-			continue
-		}
-
-		timestamp, ok := signalIDTimestampMap[feed.SignalID]
-		if !ok {
-			requestedSignalIDs[feed.SignalID] = time.Unix(timestamp, 0).
-				Add(time.Duration(feed.Interval) * time.Second).
-				Add(-time.Duration(params.TransitionTime) * time.Second / 2)
-			c.InProgressSignalIDs.Store(feed.SignalID, time.Now())
-			continue
-		}
-
-		// hash validator address and timestamp of last price submission
-		hashed := sha256.Sum256(append([]byte(c.Validator), sdk.Uint64ToBigEndian(uint64(timestamp))...))
-
-		// calculate a time offset for next price submission
-		offset := sdk.BigEndianToUint64(hashed[:])%30 + 50
-		time_offset := feed.Interval * int64(offset) / 100
-
-		// calculate next assigned time for this signal id
-		// add 2 to prevent too fast cases
-		assigned_time := time.Unix(timestamp+2, 0).
-			Add(time.Duration(time_offset) * time.Second)
-
-		if assigned_time.Before(now) {
-			requestedSignalIDs[feed.SignalID] = time.Unix(timestamp, 0).
-				Add(time.Duration(feed.Interval) * time.Second).
-				Add(-time.Duration(params.TransitionTime) * time.Second / 2)
-			c.InProgressSignalIDs.Store(feed.SignalID, time.Now())
-			continue
-		}
-
-		if time.Unix(timestamp+2, 0).
-			Add(time.Duration(params.CooldownTime) * time.Second).
-			Before(now) {
-			currentPrices, err := c.PriceService.Query([]string{feed.SignalID})
-			if err != nil || len(currentPrices) == 0 ||
-				currentPrices[0].PriceOption != bothanproto.PriceOption_PRICE_OPTION_AVAILABLE {
-				continue
-			}
-
-			price, err := strconv.ParseFloat(strings.TrimSpace(currentPrices[0].Price), 64)
-			if err != nil {
-				continue
-			}
-
-			if feed.DeviationInThousandth <= deviationInThousandth(
-				signalIDChainPriceMap[feed.SignalID],
-				uint64(price*math.Pow10(9)),
-			) {
-				requestedSignalIDs[feed.SignalID] = time.Unix(timestamp, 0).
-					Add(time.Duration(feed.Interval) * time.Second).
-					Add(-time.Duration(params.TransitionTime) * time.Second / 2)
-				c.InProgressSignalIDs.Store(feed.SignalID, time.Now())
-				continue
-			}
-		}
+	price, err := strconv.ParseFloat(strings.TrimSpace(currentPrices[0].Price), 64)
+	if err != nil {
+		return false
 	}
-	if len(requestedSignalIDs) != 0 {
-		l.Info("found signal ids to send: %v", maps.Keys(requestedSignalIDs))
-		c.PendingSignalIDs <- requestedSignalIDs
-	}
+
+	return feed.DeviationInThousandth <= deviationInThousandth(
+		signalIDChainPriceMap[feed.SignalID],
+		uint64(price*math.Pow10(9)),
+	)
+}
+
+// updateRequestedSignalID updates the requestedSignalIDs map and stores the timestamp in InProgressSignalIDs for a feed
+func updateRequestedSignalID(
+	c *grogucontext.Context,
+	requestedSignalIDs map[string]time.Time,
+	feed types.Feed,
+	timestamp int64,
+	params types.Params,
+) {
+	requestedSignalIDs[feed.SignalID] = time.Unix(timestamp, 0).
+		Add(time.Duration(feed.Interval) * time.Second).
+		Add(-time.Duration(params.TransitionTime) * time.Second / 2)
+	c.InProgressSignalIDs.Store(feed.SignalID, time.Now())
 }
 
 // convertToSignalIDTimestampMap converts an array of PriceValidator to a map of signal id to timestamp.
@@ -157,7 +192,7 @@ func convertToSignalIDChainPriceMap(data []*types.Price) map[string]uint64 {
 
 // deviationInThousandth calculates the deviation in thousandth between two values.
 func deviationInThousandth(originalValue, newValue uint64) int64 {
-	diff := math.Abs(float64(newValue - originalValue))
+	diff := math.Abs(float64(newValue) - float64(originalValue))
 	deviation := (diff / float64(originalValue)) * 1000
 	return int64(deviation)
 }
