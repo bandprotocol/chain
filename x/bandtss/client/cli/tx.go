@@ -14,7 +14,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/bandprotocol/chain/v2/pkg/grant"
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
@@ -83,18 +82,13 @@ func GetTxCmdTextRequestSignature() *cobra.Command {
 	return &cobra.Command{
 		Use:   "text [message]",
 		Args:  cobra.ExactArgs(1),
-		Short: "request signature of the message from the group",
+		Short: "request signature of the message from the current group",
 		Example: fmt.Sprintf(
-			`%s tx bandtss request-signature text [message] --group-id 1 --fee-limit 10uband`,
+			`%s tx bandtss request-signature text [message] --fee-limit 10uband`,
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			gid, err := cmd.Flags().GetUint64(flagGroupID)
 			if err != nil {
 				return err
 			}
@@ -117,7 +111,6 @@ func GetTxCmdTextRequestSignature() *cobra.Command {
 			}
 
 			msg, err := types.NewMsgRequestSignature(
-				tss.GroupID(gid),
 				content,
 				feeLimit,
 				clientCtx.GetFromAddress(),

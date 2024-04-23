@@ -148,7 +148,6 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 			"failure with invalid groupID",
 			func() {
 				req, err = types.NewMsgRequestSignature(
-					tss.GroupID(999), // non-existent groupID
 					tsstypes.NewTextSignatureOrder([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 					testapp.FeePayer.Address,
@@ -170,7 +169,6 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 				}
 				k.SetGroup(ctx, inactiveGroup)
 				req, err = types.NewMsgRequestSignature(
-					tss.GroupID(2), // inactive groupID
 					tsstypes.NewTextSignatureOrder([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 					testapp.FeePayer.Address,
@@ -184,7 +182,6 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 			"failure with not enough fee",
 			func() {
 				req, err = types.NewMsgRequestSignature(
-					tss.GroupID(1),
 					tsstypes.NewTextSignatureOrder([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 					testapp.FeePayer.Address,
@@ -239,7 +236,6 @@ func (s *KeeperTestSuite) TestSuccessRequestSignatureReq() {
 				)
 
 				msg, err := types.NewMsgRequestSignature(
-					tc.Group.ID,
 					tsstypes.NewTextSignatureOrder(signing.Data),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 					testapp.FeePayer.Address,

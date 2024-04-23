@@ -127,7 +127,6 @@ func (m MsgReplaceGroup) ValidateBasic() error {
 
 // NewMsgRequestSignature creates a new MsgRequestSignature.
 func NewMsgRequestSignature(
-	gid tss.GroupID,
 	content tsstypes.Content,
 	feeLimit sdk.Coins,
 	sender sdk.AccAddress,

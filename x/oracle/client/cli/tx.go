@@ -705,18 +705,13 @@ func GetCmdRequestSignature() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Request signature from request id.
 Example:
-$ %s tx tss request-signature oracle-result 1 --group-id 1 --fee-limit 10uband
+$ %s tx tss request-signature oracle-result 1 --fee-limit 10uband
 `,
 				version.AppName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			gid, err := cmd.Flags().GetUint64(flagGroupID)
 			if err != nil {
 				return err
 			}
@@ -744,7 +739,7 @@ $ %s tx tss request-signature oracle-result 1 --group-id 1 --fee-limit 10uband
 			from := clientCtx.GetFromAddress()
 			content := types.NewOracleResultSignatureOrder(types.RequestID(rid), types.EncodeType(encodeType))
 
-			msg, err := bandtsstypes.NewMsgRequestSignature(tss.GroupID(gid), content, feeLimit, from)
+			msg, err := bandtsstypes.NewMsgRequestSignature(content, feeLimit, from)
 			if err != nil {
 				return err
 			}
