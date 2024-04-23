@@ -28,7 +28,7 @@ const (
 	flagRPCPollInterval             = "rpc-poll-interval"
 	flagMaxTry                      = "max-try"
 	flagDistributionStartPercentage = "distribution-start"
-	flagDistributionEndPercentage   = "distribution-end"
+	flagDistributionPercentageRange = "distribution-range"
 )
 
 func runImpl(c *grogucontext.Context, l *grogucontext.Logger) error {
@@ -134,7 +134,7 @@ func RunCmd(c *grogucontext.Context) *cobra.Command {
 	cmd.Flags().
 		Uint64(flagDistributionStartPercentage, 50, "The starting percentage of the distribution range of price sending")
 	cmd.Flags().
-		Uint64(flagDistributionEndPercentage, 30, "The ending percentage of the distribution range of price sending")
+		Uint64(flagDistributionPercentageRange, 30, "The ending percentage of the distribution range of price sending")
 	_ = viper.BindPFlag(flags.FlagChainID, cmd.Flags().Lookup(flags.FlagChainID))
 	_ = viper.BindPFlag(flags.FlagNode, cmd.Flags().Lookup(flags.FlagNode))
 	_ = viper.BindPFlag(flagValidator, cmd.Flags().Lookup(flagValidator))
@@ -144,5 +144,7 @@ func RunCmd(c *grogucontext.Context) *cobra.Command {
 	_ = viper.BindPFlag(flagBroadcastTimeout, cmd.Flags().Lookup(flagBroadcastTimeout))
 	_ = viper.BindPFlag(flagRPCPollInterval, cmd.Flags().Lookup(flagRPCPollInterval))
 	_ = viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))
+	_ = viper.BindPFlag(flagDistributionStartPercentage, cmd.Flags().Lookup(flagDistributionStartPercentage))
+	_ = viper.BindPFlag(flagDistributionPercentageRange, cmd.Flags().Lookup(flagDistributionPercentageRange))
 	return cmd
 }
