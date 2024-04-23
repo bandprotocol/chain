@@ -56,6 +56,15 @@ func (k msgServer) ClaimRewards(
 			return nil, err
 		}
 	}
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeClaimRewards,
+			sdk.NewAttribute(types.AttributeKeyAddress, msg.Address),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, finalRewards.String()),
+		),
+	)
+
 	k.addRemainderAmount(ctx, remainder)
 
 	return &types.MsgClaimRewardsResponse{}, nil

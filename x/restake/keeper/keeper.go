@@ -78,6 +78,15 @@ func (k Keeper) SetLockedToken(ctx sdk.Context, addr sdk.AccAddress, keyName str
 	if err == nil {
 		k.ProcessStake(ctx, stake)
 		key.TotalLock = key.TotalLock.Sub(stake.Amount)
+
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeUnlockToken,
+				sdk.NewAttribute(types.AttributeKeyAddress, addr.String()),
+				sdk.NewAttribute(types.AttributeKeyKey, addr.String()),
+				sdk.NewAttribute(sdk.AttributeKeyAmount, stake.Amount.String()),
+			),
+		)
 	}
 
 	// update stake to new point
@@ -92,6 +101,15 @@ func (k Keeper) SetLockedToken(ctx sdk.Context, addr sdk.AccAddress, keyName str
 	// add total lock from new amount
 	key.TotalLock = key.TotalLock.Add(stake.Amount)
 	k.SetKey(ctx, key)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeLockToken,
+			sdk.NewAttribute(types.AttributeKeyAddress, addr.String()),
+			sdk.NewAttribute(types.AttributeKeyKey, addr.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()),
+		),
+	)
 
 	return nil
 }
@@ -109,6 +127,14 @@ func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName strin
 
 	key.CurrentRewards = key.CurrentRewards.Add(sdk.NewDecCoinsFromCoins(rewards...)...)
 	k.SetKey(ctx, key)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeAddRewards,
+			sdk.NewAttribute(types.AttributeKeyKey, keyName),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, rewards.String()),
+		),
+	)
 
 	return nil
 }

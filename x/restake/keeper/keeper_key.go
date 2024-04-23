@@ -91,6 +91,13 @@ func (k Keeper) DeactivateKey(ctx sdk.Context, keyName string) error {
 	key.IsActive = false
 	k.SetKey(ctx, key)
 
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeDeactivateKey,
+			sdk.NewAttribute(types.AttributeKeyKey, keyName),
+		),
+	)
+
 	return nil
 }
 
