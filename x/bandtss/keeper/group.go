@@ -16,7 +16,15 @@ func (k Keeper) CreateGroupReplacement(
 	newGroupID tss.GroupID,
 	execTime time.Time,
 ) (tss.SigningID, error) {
+	if execTime.Before(ctx.BlockTime()) {
+		return 0, types.ErrInvalidExecTime
+	}
+
 	currentGroupID := k.GetCurrentGroupID(ctx)
+	if currentGroupID == 0 {
+		return 0, types.ErrNoActiveGroup
+	}
+
 	currentGroup, err := k.tssKeeper.GetGroup(ctx, currentGroupID)
 	if err != nil {
 		return 0, err
