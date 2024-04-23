@@ -137,6 +137,10 @@ func (k Keeper) HandleCreateSigning(
 	}
 
 	currentGroupID := k.GetCurrentGroupID(ctx)
+	if currentGroupID == 0 {
+		return 0, types.ErrNoActiveGroup
+	}
+
 	replacement := k.GetReplacement(ctx)
 
 	currentGroup, err := k.tssKeeper.GetGroup(ctx, currentGroupID)

@@ -12,7 +12,6 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
-	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
@@ -23,43 +22,8 @@ type TestCase struct {
 	ExpectedErr error
 }
 
-func (s *KeeperTestSuite) TestCreateGroupReq() {
-	ctx, msgSrvr := s.ctx, s.msgSrvr
-	tssMsgSrvr := tsskeeper.NewMsgServerImpl(s.app.TSSKeeper)
-
-	members := []string{
-		"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
-		"band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
-		"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
-		"band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
-	}
-
-	for _, m := range members {
-		_, err := msgSrvr.Activate(ctx, &types.MsgActivate{
-			Address: m,
-		})
-		s.Require().NoError(err)
-
-		_, err = tssMsgSrvr.SubmitDEs(ctx, &tsstypes.MsgSubmitDEs{
-			DEs: []tsstypes.DE{
-				{
-					PubD: testutil.HexDecode("dddd"),
-					PubE: testutil.HexDecode("eeee"),
-				},
-			},
-			Address: m,
-		})
-		s.Require().NoError(err)
-	}
-
-	s.Run("create group", func() {
-		_, err := msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
-			Members:   members,
-			Threshold: 3,
-			Authority: s.authority.String(),
-		})
-		s.Require().NoError(err)
-	})
+func (s *KeeperTestSuite) TestCreateGroup() {
+	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 }
 
 func (s *KeeperTestSuite) TestFailedReplaceGroup() {
@@ -70,7 +34,8 @@ func (s *KeeperTestSuite) TestFailedReplaceGroup() {
 	var req types.MsgReplaceGroup
 
 	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
-	group := k.MustGetGroup(ctx, newGroupID)
+	currentGroupID := s.app.BandtssKeeper.GetCurrentGroupID(ctx)
+	currentGroup := k.MustGetGroup(ctx, currentGroupID)
 
 	tcs := []TestCase{
 		{
@@ -94,12 +59,12 @@ func (s *KeeperTestSuite) TestFailedReplaceGroup() {
 					NewGroupID: newGroupID,
 					ExecTime:   time.Now().UTC(),
 				}
-				group.Status = tsstypes.GROUP_STATUS_FALLEN
-				k.SetGroup(ctx, group)
+				currentGroup.Status = tsstypes.GROUP_STATUS_FALLEN
+				k.SetGroup(ctx, currentGroup)
 			},
 			func() {
-				group.Status = tsstypes.GROUP_STATUS_ACTIVE
-				k.SetGroup(ctx, group)
+				currentGroup.Status = tsstypes.GROUP_STATUS_ACTIVE
+				k.SetGroup(ctx, currentGroup)
 			},
 			tsstypes.ErrGroupIsNotActive,
 		},
@@ -145,8 +110,9 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 
 	tcs := []TestCase{
 		{
-			"failure with invalid groupID",
+			"failure with no groupID",
 			func() {
+				s.app.BandtssKeeper.SetCurrentGroupID(ctx, 0)
 				req, err = types.NewMsgRequestSignature(
 					tsstypes.NewTextSignatureOrder([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
@@ -154,8 +120,10 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 				)
 				s.Require().NoError(err)
 			},
-			func() {},
-			tsstypes.ErrGroupNotFound,
+			func() {
+				s.app.BandtssKeeper.SetCurrentGroupID(ctx, 1)
+			},
+			types.ErrNoActiveGroup,
 		},
 		{
 			"failure with inactive group",
@@ -168,6 +136,8 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 					Status:    tsstypes.GROUP_STATUS_FALLEN,
 				}
 				k.SetGroup(ctx, inactiveGroup)
+				s.app.BandtssKeeper.SetCurrentGroupID(ctx, 2)
+
 				req, err = types.NewMsgRequestSignature(
 					tsstypes.NewTextSignatureOrder([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
@@ -175,7 +145,9 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 				)
 				s.Require().NoError(err)
 			},
-			func() {},
+			func() {
+				s.app.BandtssKeeper.SetCurrentGroupID(ctx, 1)
+			},
 			tsstypes.ErrGroupIsNotActive,
 		},
 		{
@@ -212,8 +184,8 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 			)
 
 			// Check if the balances of payer and module account doesn't change
-			s.Require().Equal(balancesAfter, balancesBefore)
-			s.Require().Equal(balancesModuleAfter, balancesModuleBefore)
+			s.Require().Equal(balancesBefore, balancesAfter)
+			s.Require().Equal(balancesModuleBefore, balancesModuleAfter)
 
 			tc.PostTest()
 		})
@@ -221,7 +193,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 }
 
 func (s *KeeperTestSuite) TestSuccessRequestSignatureReq() {
-	ctx, msgSrvr := s.ctx, s.msgSrvr
+	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.BandtssKeeper
 
 	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
 
@@ -229,6 +201,8 @@ func (s *KeeperTestSuite) TestSuccessRequestSignatureReq() {
 		// Request signature for each member in the group
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
 			for _, signing := range tc.Signings {
+				k.SetCurrentGroupID(ctx, tc.Group.ID)
+
 				balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
 				balancesModuleBefore := s.app.BankKeeper.GetAllBalances(
 					ctx,
@@ -252,7 +226,7 @@ func (s *KeeperTestSuite) TestSuccessRequestSignatureReq() {
 					s.app.BandtssKeeper.GetBandtssAccount(ctx).GetAddress(),
 				)
 
-				diff := sdk.NewCoins(sdk.NewInt64Coin("uband", int64(10*len(signing.AssignedMembers))))
+				diff := k.GetParams(ctx).Fee.MulInt(sdk.NewInt(int64(len(signing.AssignedMembers))))
 				s.Require().Equal(diff, balancesBefore.Sub(balancesAfter...))
 				s.Require().Equal(diff, balancesModuleAfter.Sub(balancesModuleBefore...))
 			}
@@ -266,11 +240,44 @@ func (s *KeeperTestSuite) TestActivateReq() {
 
 	for _, tc := range testutil.TestCases {
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
+			s.app.BandtssKeeper.SetCurrentGroupID(ctx, tc.Group.ID)
+
 			for _, m := range tc.Group.Members {
-				_, err := msgSrvr.Activate(ctx, &types.MsgActivate{
+				addr := sdk.AccAddress(m.PubKey())
+				existed := s.app.BandtssKeeper.HasMember(ctx, addr)
+				if !existed {
+					err := s.app.BandtssKeeper.AddNewMember(ctx, addr)
+					s.Require().NoError(err)
+				}
+
+				existedMember, err := s.app.BandtssKeeper.GetMember(ctx, addr)
+				s.Require().NoError(err)
+				if existedMember.IsActive {
+					err := s.app.BandtssKeeper.DeactivateMember(ctx, addr)
+					s.Require().NoError(err)
+				}
+			}
+
+			// skip time frame.
+			activeDuration := s.app.BandtssKeeper.GetParams(ctx).ActiveDuration
+			ctx = ctx.WithBlockTime(ctx.BlockTime().Add(activeDuration))
+
+			for _, m := range tc.Group.Members {
+				member, err := s.app.BandtssKeeper.GetMember(ctx, sdk.AccAddress(m.PubKey()))
+				s.Require().NoError(err)
+				// There are some test cases in which the members are using the same private key.
+				if member.IsActive {
+					continue
+				}
+
+				_, err = msgSrvr.Activate(ctx, &types.MsgActivate{
 					Address: sdk.AccAddress(m.PubKey()).String(),
 				})
 				s.Require().NoError(err)
+			}
+
+			for _, m := range tc.Group.Members {
+				s.app.BandtssKeeper.DeleteMember(ctx, sdk.AccAddress(m.PubKey()))
 			}
 		})
 	}
@@ -282,7 +289,15 @@ func (s *KeeperTestSuite) TestHealthCheckReq() {
 
 	for _, tc := range testutil.TestCases {
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
+			s.app.BandtssKeeper.SetCurrentGroupID(ctx, tc.Group.ID)
 			for _, m := range tc.Group.Members {
+				addr := sdk.AccAddress(m.PubKey())
+				existed := s.app.BandtssKeeper.HasMember(ctx, addr)
+				if !existed {
+					err := s.app.BandtssKeeper.AddNewMember(ctx, addr)
+					s.Require().NoError(err)
+				}
+
 				_, err := msgSrvr.HealthCheck(ctx, &types.MsgHealthCheck{
 					Address: sdk.AccAddress(m.PubKey()).String(),
 				})
@@ -317,7 +332,7 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 					ActiveDuration:          types.DefaultActiveDuration,
 					RewardPercentage:        types.DefaultRewardPercentage,
 					InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
-					JailPenaltyDuration:     types.DefaultJailPenaltyDuration,
+					Fee:                     types.DefaultFee,
 				},
 			},
 			expectErr: false,
