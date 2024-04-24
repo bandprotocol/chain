@@ -48,11 +48,6 @@ cylinder config random-secret "$(openssl rand -hex 32)" --home $HOME_PATH
 # setup random-secret to cylinder config
 cylinder config active-period "12h" --home $HOME_PATH
 
-bandd tx bandtss activate --from $KEY --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain -b sync -y
-
-# wait for activiting status transaction success
-sleep 4
-
 for i in $(eval echo {1..2})
 do
   # add signer key
