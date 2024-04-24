@@ -1,10 +1,8 @@
 package types
 
-import "fmt"
-
-func (s *Symbol) Validate() error {
-	if s.Interval <= 0 {
-		return fmt.Errorf("minInterval must be positive")
+func (f *Feed) Validate() error {
+	if err := validateInt64("interval", true)(f.Interval); err != nil {
+		return err
 	}
 
 	return nil

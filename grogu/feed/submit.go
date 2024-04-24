@@ -1,11 +1,9 @@
-package grogu
+package feed
 
 import (
-	"context"
 	"fmt"
 	"time"
 
-	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -17,31 +15,29 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
 	band "github.com/bandprotocol/chain/v2/app"
+	grogucontext "github.com/bandprotocol/chain/v2/grogu/context"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-// Proto codec for encoding/decoding proto message
-var cdc = band.MakeEncodingConfig().Marshaler
-
-func StartSubmitPrices(c *Context, l *Logger) {
+func StartSubmitPrices(c *grogucontext.Context, l *grogucontext.Logger) {
 	for {
 		SubmitPrices(c, l)
 	}
 }
 
-func SubmitPrices(c *Context, l *Logger) {
+func SubmitPrices(c *grogucontext.Context, l *grogucontext.Logger) {
 	// Return key and update pending metric when done with SubmitReport whether successfully or not.
-	keyIndex := <-c.freeKeys
+	keyIndex := <-c.FreeKeys
 	defer func() {
-		c.freeKeys <- keyIndex
+		c.FreeKeys <- keyIndex
 	}()
 
-	prices := <-c.pendingPrices
+	prices := <-c.PendingPrices
 
 GetAllPrices:
 	for {
 		select {
-		case nextPrices := <-c.pendingPrices:
+		case nextPrices := <-c.PendingPrices:
 			prices = append(prices, nextPrices...)
 		default:
 			break GetAllPrices
@@ -50,37 +46,37 @@ GetAllPrices:
 
 	defer func() {
 		for _, price := range prices {
-			c.inProgressSymbols.Delete(price.Symbol)
+			c.InProgressSignalIDs.Delete(price.SignalID)
 		}
 	}()
 
 	msg := types.MsgSubmitPrices{
-		Validator: c.validator.String(),
+		Validator: c.Validator.String(),
 		Timestamp: time.Now().Unix(),
 		Prices:    prices,
 	}
 
 	msgs := []sdk.Msg{&msg}
-	key := c.keys[keyIndex]
+	key := c.Keys[keyIndex]
 
 	clientCtx := client.Context{
-		Client:            c.client,
+		Client:            c.Client,
 		TxConfig:          band.MakeEncodingConfig().TxConfig,
 		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
 	}
 
 	gasAdjustment := float64(2.0)
 
-	for sendAttempt := uint64(1); sendAttempt <= c.maxTry; sendAttempt++ {
+	for sendAttempt := uint64(1); sendAttempt <= c.MaxTry; sendAttempt++ {
 		var txHash string
-		l.Info(":e-mail: Sending report transaction attempt: (%d/%d)", sendAttempt, c.maxTry)
-		for broadcastTry := uint64(1); broadcastTry <= c.maxTry; broadcastTry++ {
-			l.Info(":writing_hand: Try to sign and broadcast report transaction(%d/%d)", broadcastTry, c.maxTry)
+		l.Info(":e-mail: Sending report transaction attempt: (%d/%d)", sendAttempt, c.MaxTry)
+		for broadcastTry := uint64(1); broadcastTry <= c.MaxTry; broadcastTry++ {
+			l.Info(":writing_hand: Try to sign and broadcast report transaction(%d/%d)", broadcastTry, c.MaxTry)
 			res, err := signAndBroadcast(c, key, msgs, gasAdjustment)
 			if err != nil {
 				// Use info level because this error can happen and retry process can solve this error.
 				l.Info(":warning: %s", err.Error())
-				time.Sleep(c.rpcPollInterval)
+				time.Sleep(c.RPCPollInterval)
 				continue
 			}
 			if res.Codespace == sdkerrors.RootCodespace && res.Code == sdkerrors.ErrOutOfGas.ABCICode() {
@@ -97,13 +93,13 @@ GetAllPrices:
 			break
 		}
 		if txHash == "" {
-			l.Error(":exploding_head: Cannot try to broadcast more than %d try", c, c.maxTry)
+			l.Error(":exploding_head: Cannot try to broadcast more than %d try", c, c.MaxTry)
 			return
 		}
 		txFound := false
 	FindTx:
-		for start := time.Now(); time.Since(start) < c.broadcastTimeout; {
-			time.Sleep(c.rpcPollInterval)
+		for start := time.Now(); time.Since(start) < c.BroadcastTimeout; {
+			time.Sleep(c.RPCPollInterval)
 			txRes, err := authtx.QueryTx(clientCtx, txHash)
 			if err != nil {
 				l.Debug(":warning: Failed to query tx with error: %s", err.Error())
@@ -139,11 +135,11 @@ GetAllPrices:
 }
 
 func signAndBroadcast(
-	c *Context, key *keyring.Record, msgs []sdk.Msg, gasAdjustment float64,
+	c *grogucontext.Context, key *keyring.Record, msgs []sdk.Msg, gasAdjustment float64,
 ) (*sdk.TxResponse, error) {
 	clientCtx := client.Context{
-		Client:            c.client,
-		Codec:             cdc,
+		Client:            c.Client,
+		Codec:             grogucontext.Cdc,
 		TxConfig:          band.MakeEncodingConfig().TxConfig,
 		BroadcastMode:     flags.BroadcastSync,
 		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
@@ -159,9 +155,9 @@ func signAndBroadcast(
 		WithTxConfig(band.MakeEncodingConfig().TxConfig).
 		WithSimulateAndExecute(true).
 		WithGasAdjustment(gasAdjustment).
-		WithChainID(cfg.ChainID).
-		WithGasPrices(c.gasPrices).
-		WithKeybase(kb).
+		WithChainID(grogucontext.Cfg.ChainID).
+		WithGasPrices(c.GasPrices).
+		WithKeybase(grogucontext.Kb).
 		WithFromName(key.Name).
 		WithAccountRetriever(clientCtx.AccountRetriever)
 
@@ -218,20 +214,4 @@ func queryAccount(clientCtx client.Context, key *keyring.Record) (client.Account
 	}
 
 	return acc, nil
-}
-
-// abciQuery will try to query data from BandChain node maxTry time before give up and return error
-func abciQuery(c *Context, l *Logger, path string, data []byte) (*ctypes.ResultABCIQuery, error) {
-	var lastErr error
-	for try := 0; try < int(c.maxTry); try++ {
-		res, err := c.client.ABCIQuery(context.Background(), path, data)
-		if err != nil {
-			l.Debug(":skull: Failed to query on %s request with error: %s", path, err.Error())
-			lastErr = err
-			time.Sleep(c.rpcPollInterval)
-			continue
-		}
-		return res, nil
-	}
-	return nil, lastErr
 }

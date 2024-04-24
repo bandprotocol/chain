@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	bothanproto "github.com/bandprotocol/bothan-api/go-proxy/proto"
 )
 
 const (
@@ -20,42 +20,45 @@ var (
 )
 
 type PriceService interface {
-	Query(params map[string]string) ([]types.SubmitPrice, error)
+	Query(signalIds []string) ([]*bothanproto.PriceData, error)
 }
 
 // NewPriceService returns priceService by name and priceService URL
-func NewPriceService(priceService string) (exec PriceService, err error) {
-	name, base, timeout, err := parsePriceService(priceService)
+func PriceServiceFromUrl(priceService string) (exec PriceService, err error) {
+	name, base, timeout, err := parsePriceServiceURL(priceService)
 	if err != nil {
 		return nil, err
 	}
 	switch name {
 	case "rest":
-		exec = NewRestService(base, timeout)
+		exec = NewRestService(base.String(), timeout)
+	case "grpc":
+		exec, err = NewGRPCService(base.Host, timeout)
+		if err != nil {
+			return nil, err
+		}
 	default:
 		return nil, fmt.Errorf("invalid priceService name: %s, base: %s", name, base)
 	}
 
 	// TODO: Remove hardcode in test execution
-	_, err = exec.Query(map[string]string{
-		"symbols": "BTC",
-	})
-
+	_, err = exec.Query([]string{"crypto_price.ethusd"})
 	if err != nil {
 		return nil, fmt.Errorf("failed to run test program: %s", err.Error())
 	}
+
 	return exec, nil
 }
 
 // parsePriceService splits the priceService string in the form of "name:base?timeout=" into parts.
-func parsePriceService(priceServiceStr string) (name string, base string, timeout time.Duration, err error) {
+func parsePriceServiceURL(priceServiceStr string) (name string, base *url.URL, timeout time.Duration, err error) {
 	priceService := strings.SplitN(priceServiceStr, ":", 2)
 	if len(priceService) != 2 {
-		return "", "", 0, fmt.Errorf("invalid priceService, cannot parse priceService: %s", priceServiceStr)
+		return "", nil, 0, fmt.Errorf("invalid priceService, cannot parse priceService: %s", priceServiceStr)
 	}
 	u, err := url.Parse(priceService[1])
 	if err != nil {
-		return "", "", 0, fmt.Errorf(
+		return "", nil, 0, fmt.Errorf(
 			"invalid url, cannot parse %s to url with error: %s",
 			priceService[1],
 			err.Error(),
@@ -65,7 +68,7 @@ func parsePriceService(priceServiceStr string) (name string, base string, timeou
 	query := u.Query()
 	timeoutStr := query.Get(flagQueryTimeout)
 	if timeoutStr == "" {
-		return "", "", 0, fmt.Errorf("invalid timeout, priceService requires query timeout")
+		return "", nil, 0, fmt.Errorf("invalid timeout, priceService requires query timeout")
 	}
 	// Remove timeout from query because we need to return `base`
 	query.Del(flagQueryTimeout)
@@ -73,7 +76,7 @@ func parsePriceService(priceServiceStr string) (name string, base string, timeou
 
 	timeout, err = time.ParseDuration(timeoutStr)
 	if err != nil {
-		return "", "", 0, fmt.Errorf("invalid timeout, cannot parse duration with error: %s", err.Error())
+		return "", nil, 0, fmt.Errorf("invalid timeout, cannot parse duration with error: %s", err.Error())
 	}
-	return priceService[0], u.String(), timeout, nil
+	return priceService[0], u, timeout, nil
 }

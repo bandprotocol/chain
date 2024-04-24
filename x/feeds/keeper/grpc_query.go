@@ -45,10 +45,10 @@ func (q queryServer) Prices(
 ) (*types.QueryPricesResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// convert filter symbols to map
-	reqSymbols := make(map[string]bool)
-	for _, s := range req.Symbols {
-		reqSymbols[s] = true
+	// convert filter signal ids to map
+	reqSignalIDs := make(map[string]bool)
+	for _, s := range req.SignalIds {
+		reqSignalIDs[s] = true
 	}
 
 	store := ctx.KVStore(q.keeper.storeKey)
@@ -59,16 +59,16 @@ func (q queryServer) Prices(
 		priceStore,
 		req.Pagination,
 		func(key []byte, p *types.Price) (*types.Price, error) {
-			matchSymbol := true
+			matchSignalID := true
 
-			// match symbol
-			if len(reqSymbols) != 0 {
-				if _, ok := reqSymbols[p.Symbol]; !ok {
-					matchSymbol = false
+			// match signal id
+			if len(reqSignalIDs) != 0 {
+				if _, ok := reqSignalIDs[p.SignalID]; !ok {
+					matchSignalID = false
 				}
 			}
 
-			if matchSymbol {
+			if matchSignalID {
 				return p, nil
 			}
 
@@ -89,13 +89,13 @@ func (q queryServer) Price(
 ) (*types.QueryPriceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	s, err := q.keeper.GetSymbol(ctx, req.Symbol)
+	s, err := q.keeper.GetFeed(ctx, req.SignalId)
 	if err != nil {
 		return nil, err
 	}
 
-	price, _ := q.keeper.GetPrice(ctx, req.Symbol)
-	priceVals := q.keeper.GetPriceValidators(ctx, req.Symbol)
+	price, _ := q.keeper.GetPrice(ctx, req.SignalId)
+	priceVals := q.keeper.GetPriceValidators(ctx, req.SignalId)
 
 	var filteredPriceVals []types.PriceValidator
 	blockTime := ctx.BlockTime().Unix()
@@ -123,9 +123,9 @@ func (q queryServer) ValidatorPrices(
 
 	var priceVals []types.PriceValidator
 
-	symbols := q.keeper.GetSymbols(ctx)
-	for _, symbol := range symbols {
-		priceVal, err := q.keeper.GetPriceValidator(ctx, symbol.Symbol, val)
+	feeds := q.keeper.GetFeeds(ctx)
+	for _, feed := range feeds {
+		priceVal, err := q.keeper.GetPriceValidator(ctx, feed.SignalID, val)
 		if err == nil {
 			priceVals = append(priceVals, priceVal)
 		}
@@ -146,7 +146,7 @@ func (q queryServer) PriceValidator(
 		return nil, err
 	}
 
-	priceVal, err := q.keeper.GetPriceValidator(ctx, req.Symbol, val)
+	priceVal, err := q.keeper.GetPriceValidator(ctx, req.SignalId, val)
 	if err != nil {
 		return nil, err
 	}
@@ -164,15 +164,8 @@ func (q queryServer) ValidValidator(
 	flag := true
 
 	// check if it's in top bonded validators.
-	vals := q.keeper.stakingKeeper.GetBondedValidatorsByPower(ctx)
-	isInTop := false
-	for _, val := range vals {
-		if req.Validator == val.GetOperator().String() {
-			isInTop = true
-			break
-		}
-	}
-	if !isInTop {
+	isTop := q.keeper.IsTopValidator(ctx, req.Validator)
+	if !isTop {
 		flag = false
 	}
 
@@ -189,57 +182,57 @@ func (q queryServer) ValidValidator(
 	return &types.QueryValidValidatorResponse{Valid: flag}, nil
 }
 
-func (q queryServer) Symbols(
-	goCtx context.Context, req *types.QuerySymbolsRequest,
-) (*types.QuerySymbolsResponse, error) {
+func (q queryServer) Feeds(
+	goCtx context.Context, req *types.QueryFeedsRequest,
+) (*types.QueryFeedsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// convert filter symbols to map
-	reqSymbols := make(map[string]bool)
-	for _, s := range req.Symbols {
-		reqSymbols[s] = true
+	// convert filter signal ids to map
+	reqSignalIDs := make(map[string]bool)
+	for _, s := range req.SignalIds {
+		reqSignalIDs[s] = true
 	}
 
 	store := ctx.KVStore(q.keeper.storeKey)
-	symbolStore := prefix.NewStore(store, types.SymbolStoreKeyPrefix)
+	feedStore := prefix.NewStore(store, types.FeedStoreKeyPrefix)
 
-	filteredSymbols, pageRes, err := query.GenericFilteredPaginate(
+	filteredFeeds, pageRes, err := query.GenericFilteredPaginate(
 		q.keeper.cdc,
-		symbolStore,
+		feedStore,
 		req.Pagination,
-		func(key []byte, s *types.Symbol) (*types.Symbol, error) {
-			matchSymbol := true
+		func(key []byte, f *types.Feed) (*types.Feed, error) {
+			matchSignalID := true
 
-			// match symbol
-			if len(reqSymbols) != 0 {
-				if _, ok := reqSymbols[s.Symbol]; !ok {
-					matchSymbol = false
+			// match signal id
+			if len(reqSignalIDs) != 0 {
+				if _, ok := reqSignalIDs[f.SignalID]; !ok {
+					matchSignalID = false
 				}
 			}
 
-			if matchSymbol {
-				return s, nil
+			if matchSignalID {
+				return f, nil
 			}
 
 			return nil, nil
-		}, func() *types.Symbol {
-			return &types.Symbol{}
+		}, func() *types.Feed {
+			return &types.Feed{}
 		},
 	)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QuerySymbolsResponse{Symbols: filteredSymbols, Pagination: pageRes}, nil
+	return &types.QueryFeedsResponse{Feeds: filteredFeeds, Pagination: pageRes}, nil
 }
 
-func (q queryServer) SupportedSymbols(
-	goCtx context.Context, _ *types.QuerySupportedSymbolsRequest,
-) (*types.QuerySupportedSymbolsResponse, error) {
+func (q queryServer) SupportedFeeds(
+	goCtx context.Context, _ *types.QuerySupportedFeedsRequest,
+) (*types.QuerySupportedFeedsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	return &types.QuerySupportedSymbolsResponse{
-		Symbols: q.keeper.GetSupportedSymbolsByPower(ctx),
+	return &types.QuerySupportedFeedsResponse{
+		Feeds: q.keeper.GetSupportedFeedsByPower(ctx),
 	}, nil
 }
 
