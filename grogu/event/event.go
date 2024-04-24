@@ -1,4 +1,4 @@
-package grogu
+package event
 
 import (
 	"fmt"

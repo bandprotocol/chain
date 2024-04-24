@@ -4,19 +4,53 @@ import (
 	"sort"
 )
 
-type PriceFeedInfo struct {
-	Power     uint64
-	Price     uint64
-	Deviation uint64
-	Timestamp int64
-	Index     int64
+func getMultipliers() [5]uint64 {
+	return [5]uint64{60, 40, 20, 11, 10}
 }
 
-func CalculateMedianPriceFeedInfo(pfInfos []PriceFeedInfo) uint64 {
-	totalPower := uint64(0)
+func getSections() [5]uint64 {
+	return [5]uint64{1, 3, 7, 15, 32}
+}
+
+type PriceFeedInfo struct {
+	PriceOption PriceOption
+	Power       uint64
+	Price       uint64
+	Deviation   uint64
+	Timestamp   int64
+	Index       int64
+}
+
+func FilterPfInfos(pfInfos []PriceFeedInfo, opt PriceOption) []PriceFeedInfo {
+	filtered := []PriceFeedInfo{}
+	for _, pfInfo := range pfInfos {
+		if pfInfo.PriceOption == opt {
+			filtered = append(filtered, pfInfo)
+		}
+	}
+	return filtered
+}
+
+func CalPricesPowers(
+	pfInfos []PriceFeedInfo,
+) (totalPower uint64, availablePower uint64, unavailablePower uint64, unsupportedPower uint64) {
 	for _, pfInfo := range pfInfos {
 		totalPower += pfInfo.Power
+
+		switch pfInfo.PriceOption {
+		case PriceOptionAvailable:
+			availablePower += pfInfo.Power
+		case PriceOptionUnavailable:
+			unavailablePower += pfInfo.Power
+		case PriceOptionUnsupported:
+			unsupportedPower += pfInfo.Power
+		}
 	}
+	return totalPower, availablePower, unavailablePower, unsupportedPower
+}
+
+func CalculateMedianPriceFeedInfo(pfInfos []PriceFeedInfo) (uint64, error) {
+	totalPower, _, _, _ := CalPricesPowers(pfInfos)
 
 	// TODO: recheck
 	sort.Slice(pfInfos, func(i, j int) bool {
@@ -31,8 +65,8 @@ func CalculateMedianPriceFeedInfo(pfInfos []PriceFeedInfo) uint64 {
 		return pfInfos[i].Timestamp > pfInfos[j].Timestamp
 	})
 
-	multipliers := []uint64{60, 40, 20, 11, 10}
-	sections := []uint64{1, 3, 7, 15, 32}
+	multipliers := getMultipliers()
+	sections := getSections()
 
 	var wps []WeightedPrice
 	currentSection := 0
@@ -88,7 +122,7 @@ type WeightedPrice struct {
 	Price uint64
 }
 
-func CalculateMedianWeightedPrice(wps []WeightedPrice) uint64 {
+func CalculateMedianWeightedPrice(wps []WeightedPrice) (uint64, error) {
 	sort.Slice(wps, func(i, j int) bool {
 		if wps[i].Price == wps[j].Price {
 			return wps[i].Power < wps[j].Power
@@ -105,10 +139,9 @@ func CalculateMedianWeightedPrice(wps []WeightedPrice) uint64 {
 	for _, wp := range wps {
 		currentPower += wp.Power
 		if currentPower*2 >= totalPower {
-			return wp.Price
+			return wp.Price, nil
 		}
 	}
 
-	// TODO: check if should panic or not
-	return 0
+	return 0, ErrInvalidWeightedPriceArray
 }

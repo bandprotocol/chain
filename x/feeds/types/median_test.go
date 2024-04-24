@@ -17,6 +17,6 @@ func TestCalculateMedianPriceFeedInfo(t *testing.T) {
 		{Price: 109, Deviation: 10, Power: 100, Timestamp: 104, Index: 4},
 	}
 
-	price := types.CalculateMedianPriceFeedInfo(pfInfos)
+	price, _ := types.CalculateMedianPriceFeedInfo(pfInfos)
 	require.Equal(t, uint64(107), price)
 }

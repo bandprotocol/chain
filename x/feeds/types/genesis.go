@@ -1,20 +1,23 @@
 package types
 
 import (
-	"fmt"
+	errorsmod "cosmossdk.io/errors"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-func NewGenesisState(params Params, symbols []Symbol, ps PriceService) *GenesisState {
+func NewGenesisState(params Params, feeds []Feed, ps PriceService, ds []DelegatorSignals) *GenesisState {
 	return &GenesisState{
-		Params:       params,
-		Symbols:      symbols,
-		PriceService: ps,
+		Params:           params,
+		Feeds:            feeds,
+		PriceService:     ps,
+		DelegatorSignals: ds,
 	}
 }
 
 // DefaultGenesisState returns the default genesis state
 func DefaultGenesisState() *GenesisState {
-	return NewGenesisState(DefaultParams(), []Symbol{}, DefaultPriceService())
+	return NewGenesisState(DefaultParams(), []Feed{}, DefaultPriceService(), []DelegatorSignals{})
 }
 
 // Validate performs basic genesis state validation
@@ -23,30 +26,34 @@ func (gs GenesisState) Validate() error {
 		return err
 	}
 
-	for _, symbol := range gs.Symbols {
-		if err := validateInt64("power", true)(symbol.Power); err != nil {
+	for _, feed := range gs.Feeds {
+		if err := validateInt64("power", true)(feed.Power); err != nil {
 			return err
 		}
-		if err := validateInt64("interval", true)(symbol.Interval); err != nil {
+		if err := validateInt64("interval", true)(feed.Interval); err != nil {
 			return err
 		}
-		if err := validateInt64("timestamp", true)(symbol.LastIntervalUpdateTimestamp); err != nil {
+		if err := validateInt64("timestamp", true)(feed.LastIntervalUpdateTimestamp); err != nil {
 			return err
+		}
+	}
+
+	if err := gs.PriceService.Validate(); err != nil {
+		return err
+	}
+
+	for _, ds := range gs.DelegatorSignals {
+		if _, err := sdk.AccAddressFromBech32(ds.Delegator); err != nil {
+			return errorsmod.Wrap(err, "invalid delegator address")
+		}
+		for _, signal := range ds.Signals {
+			if signal.ID == "" || signal.Power == 0 {
+				return sdkerrors.ErrInvalidRequest.Wrap(
+					"signal id cannot be empty and its power cannot be zero",
+				)
+			}
 		}
 	}
 
 	return nil
-}
-
-func validateInt64(name string, positiveOnly bool) func(interface{}) error {
-	return func(i interface{}) error {
-		v, ok := i.(int64)
-		if !ok {
-			return fmt.Errorf("invalid parameter type: %T", i)
-		}
-		if v <= 0 && positiveOnly {
-			return fmt.Errorf("%s must be positive: %d", name, v)
-		}
-		return nil
-	}
 }

@@ -21,23 +21,23 @@ service Msg {
   // RPC method to update parameters
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 
-  // RPC method to signal symbols and their powers
-  rpc SignalSymbols(MsgSignalSymbols) returns (MsgSignalSymbolsResponse);
+  // RPC method to signal ids and their powers
+  rpc SubmitSignals(MsgSubmitSignals) returns (MsgSubmitSignalsResponse);
 }
 
-// MsgSignalSymbols is the transaction message to signal symbols
-message MsgSignalSymbols {
+// MsgSubmitSignals is the transaction message to submit signals
+message MsgSubmitSignals {
   option (cosmos.msg.v1.signer) = "delegator";
-  option (amino.name)           = "feeds/MsgSignalSymbols";
+  option (amino.name)           = "feeds/MsgSubmitSignals";
 
-  // The address of the delegator that want to signal symbols
+  // The address of the delegator that want to submit signals
   string delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // The signal details
   repeated Signal signals = 2 [(gogoproto.nullable) = false];
 }
 
-// MsgSubmitPricesResponse is the response type for the Msg/SignalSymbols RPC method.
-message MsgSignalSymbolsResponse {}
+// MsgSubmitPricesResponse is the response type for the Msg/SubmitSignals RPC method.
+message MsgSubmitSignalsResponse {}
 
 // MsgSubmitPrices is the transaction message to submit multiple prices.
 message MsgSubmitPrices {

@@ -1,12 +1,12 @@
 package types
 
 import (
-	"cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-var _, _, _, _ sdk.Msg = &MsgSubmitPrices{}, &MsgUpdateParams{}, &MsgUpdatePriceService{}, &MsgSignalSymbols{}
+var _, _, _, _ sdk.Msg = &MsgSubmitPrices{}, &MsgUpdateParams{}, &MsgUpdatePriceService{}, &MsgSubmitSignals{}
 
 // ====================================
 // MsgSubmitPrices
@@ -53,6 +53,14 @@ func (m *MsgSubmitPrices) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("validator: %s", m.Validator)
 	}
 
+	for _, price := range m.Prices {
+		if price.PriceOption != PriceOptionAvailable && price.Price != 0 {
+			return sdkerrors.ErrInvalidRequest.Wrap(
+				"price must be initial value if price option is unsupported or unavailable",
+			)
+		}
+	}
+
 	return nil
 }
 
@@ -90,7 +98,7 @@ func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
 // ValidateBasic does a check on the provided data.
 func (m *MsgUpdateParams) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
-		return errors.Wrap(err, "invalid authority address")
+		return errorsmod.Wrap(err, "invalid authority address")
 	}
 
 	if err := m.Params.Validate(); err != nil {
@@ -134,7 +142,7 @@ func (m *MsgUpdatePriceService) GetSigners() []sdk.AccAddress {
 // ValidateBasic does a check on the provided data.
 func (m *MsgUpdatePriceService) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Admin); err != nil {
-		return errors.Wrap(err, "invalid admin address")
+		return errorsmod.Wrap(err, "invalid admin address")
 	}
 
 	if err := m.PriceService.Validate(); err != nil {
@@ -145,37 +153,48 @@ func (m *MsgUpdatePriceService) ValidateBasic() error {
 }
 
 // ====================================
-// MsgSignalSymbols
+// MsgSubmitSignals
 // ====================================
 
-// NewMsgSignalSymbols creates a new MsgSignalSymbols instance.
-func NewMsgSignalSymbols(
+// NewMsgSubmitSignals creates a new MsgSubmitSignals instance.
+func NewMsgSubmitSignals(
 	delegator string,
 	signals []Signal,
-) *MsgSignalSymbols {
-	return &MsgSignalSymbols{
+) *MsgSubmitSignals {
+	return &MsgSubmitSignals{
 		Delegator: delegator,
 		Signals:   signals,
 	}
 }
 
 // Route Implements Msg.
-func (m MsgSignalSymbols) Route() string { return sdk.MsgTypeURL(&m) }
+func (m MsgSubmitSignals) Route() string { return sdk.MsgTypeURL(&m) }
 
 // Type Implements Msg.
-func (m MsgSignalSymbols) Type() string { return sdk.MsgTypeURL(&m) }
+func (m MsgSubmitSignals) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes implements the LegacyMsg interface.
-func (m MsgSignalSymbols) GetSignBytes() []byte {
+func (m MsgSubmitSignals) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
 // GetSigners returns the expected signers for the message.
-func (m *MsgSignalSymbols) GetSigners() []sdk.AccAddress {
+func (m *MsgSubmitSignals) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Delegator)}
 }
 
 // ValidateBasic does a check on the provided data.
-func (m *MsgSignalSymbols) ValidateBasic() error {
+func (m *MsgSubmitSignals) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(m.Delegator); err != nil {
+		return errorsmod.Wrap(err, "invalid delegator address")
+	}
+	for _, signal := range m.Signals {
+		if signal.ID == "" || signal.Power == 0 {
+			return sdkerrors.ErrInvalidRequest.Wrap(
+				"signal id cannot be empty and its power cannot be zero",
+			)
+		}
+	}
+
 	return nil
 }

@@ -2,13 +2,13 @@ package priceservice
 
 import (
 	"encoding/json"
-	"fmt"
-	"math"
+	"net/url"
+	"path"
+	"strings"
 	"time"
 
+	bothanproto "github.com/bandprotocol/bothan-api/go-proxy/proto"
 	"github.com/levigross/grequests"
-
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
 type RestService struct {
@@ -24,34 +24,33 @@ type PriceData struct {
 	Prices map[string]float64 `json:"prices"`
 }
 
-func (e *RestService) Query(params map[string]string) ([]types.SubmitPrice, error) {
+type QueryStruct struct {
+	SignalIds []string `json:"signal_ids"`
+}
+
+func (rs *RestService) Query(signalIds []string) ([]*bothanproto.PriceData, error) {
+	concatSignalIds := strings.Join(signalIds, ",")
+	u, err := url.Parse(rs.url)
+	if err != nil {
+		return nil, err
+	}
+	u.Path = path.Join(u.Path, concatSignalIds)
+
 	resp, err := grequests.Get(
-		e.url,
+		u.String(),
 		&grequests.RequestOptions{
-			Params:         params,
-			RequestTimeout: e.timeout,
+			RequestTimeout: rs.timeout,
 		},
 	)
 	if err != nil {
-		return []types.SubmitPrice{}, err
+		return nil, err
 	}
 
-	var priceData PriceData
-	err = json.Unmarshal(resp.Bytes(), &priceData)
+	var priceResp bothanproto.QueryPricesResponse
+	err = json.Unmarshal(resp.Bytes(), &priceResp)
 	if err != nil {
-		fmt.Println("Error parsing JSON:", err)
-		return []types.SubmitPrice{}, err
+		return nil, err
 	}
 
-	// Convert PriceData to an array of SubmitPrice
-	var submitPrices []types.SubmitPrice
-	for symbol, price := range priceData.Prices {
-		submitPrice := types.SubmitPrice{
-			Symbol: symbol,
-			Price:  uint64(price * math.Pow10(9)), // Assuming you want to convert the float64 price to uint64
-		}
-		submitPrices = append(submitPrices, submitPrice)
-	}
-
-	return submitPrices, nil
+	return priceResp.Prices, nil
 }

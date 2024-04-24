@@ -18,20 +18,29 @@ message Params {
   // prices.
   int64 allow_diff_time = 2;
 
-  // transition_time is the time (in seconds) given for validators to adapt to changing in symbol's interval.
+  // transition_time is the time (in seconds) given for validators to adapt to changing in feed's interval.
   int64 transition_time = 3;
 
-  // min_interval is the minimum limit of every symbols' interval (in seconds).
+  // min_interval is the minimum limit of every feeds' interval (in seconds).
   // If the calculated interval is lower than this, it will be capped at this value.
   int64 min_interval = 4;
 
-  // max_interval is the maximum limit of every symbols' interval (in seconds).
-  // If the calculated interval of a symbol is higher than this, it will not be recognized as a supported symbol.
+  // max_interval is the maximum limit of every feeds' interval (in seconds).
+  // If the calculated interval of a feed is higher than this, it will not be recognized as a supported feed.
   int64 max_interval = 5;
 
-  // power_threshold is the amount of minimum power required to put symbol in the supported list.
+  // power_threshold is the amount of minimum power required to put feed in the supported list.
   int64 power_threshold = 6;
 
-  // max_support_symbol is the maximum number of symbols supported at a time.
-  int64 max_supported_symbol = 7;
+  // max_support_feeds is the maximum number of feeds supported at a time.
+  int64 max_supported_feeds = 7;
+
+  // cooldown_time represents the duration (in seconds) during which validators are prohibited from sending new prices.
+  int64 cooldown_time = 8;
+
+  // min_deviation_in_thousandth is the minimum limit of every feeds' deviation (in thousandth).
+  int64 min_deviation_in_thousandth = 9;
+
+  // max_deviation_in_thousandth is the maximum limit of every feeds' deviation (in thousandth).
+  int64 max_deviation_in_thousandth = 10;
 }
