@@ -44,7 +44,7 @@ from .db import (
 from .feeds_db import (
     price_validators,
     delegator_signals,
-    symbols,
+    feeds,
     prices,
 )
 
@@ -568,7 +568,7 @@ class Handler(object):
             )
 
     def handle_set_price_validator(self, msg):
-        msg["account_id"] = self.get_account_id(msg["validator"])
+        msg["validator_id"] = self.get_validator_id(msg["validator"])
         del msg["validator"]        
         self.conn.execute(
             insert(price_validators).values(**msg).on_conflict_do_update(constraint="price_validators_pkey", set_=msg)
@@ -586,9 +586,9 @@ class Handler(object):
             delegator_signals.delete().where(delegator_signals.c.account_id == self.get_account_id(msg["delegator"]))
         )
         
-    def handle_set_symbol(self, msg):
+    def handle_set_feed(self, msg):
         self.conn.execute(
-            insert(symbols).values(**msg).on_conflict_do_update(constraint="symbols_pkey", set_=msg)
+            insert(feeds).values(**msg).on_conflict_do_update(constraint="feeds_pkey", set_=msg)
         )
         
     def handle_set_price(self, msg):
