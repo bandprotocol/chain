@@ -307,7 +307,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 			tsstypes.ErrGroupIsNotActive,
 		},
 		{
-			"failure with not enough fee",
+			"failure with fee is more than user's limit",
 			func() {
 				req, err = types.NewMsgRequestSignature(
 					tsstypes.NewTextSignatureOrder([]byte("msg")),
@@ -316,7 +316,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 				)
 			},
 			func() {},
-			types.ErrNotEnoughFee,
+			types.ErrFeeExceedsLimit,
 		},
 	}
 

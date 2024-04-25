@@ -157,7 +157,7 @@ func (k Keeper) HandleCreateSigning(
 		for _, fc := range totalFee {
 			limitAmt := feeLimit.AmountOf(fc.Denom)
 			if fc.Amount.GT(limitAmt) {
-				return 0, types.ErrNotEnoughFee.Wrapf(
+				return 0, types.ErrFeeExceedsLimit.Wrapf(
 					"require: %s, limit: %s%s",
 					fc.String(),
 					limitAmt.String(),

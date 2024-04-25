@@ -7,7 +7,7 @@ var (
 	ErrInvalidStatus         = errors.Register(ModuleName, 2, "invalid status")
 	ErrStatusIsNotActive     = errors.Register(ModuleName, 3, "status is not active")
 	ErrTooSoonToActivate     = errors.Register(ModuleName, 4, "too soon to activate")
-	ErrNotEnoughFee          = errors.Register(ModuleName, 5, "not enough fee")
+	ErrFeeExceedsLimit       = errors.Register(ModuleName, 5, "fee exceeds limit")
 	ErrInvalidGroupID        = errors.Register(ModuleName, 6, "invalid groupID")
 	ErrNoActiveGroup         = errors.Register(ModuleName, 7, "no active group")
 	ErrReplacementInProgress = errors.Register(ModuleName, 8, "group replacement is in progress")
