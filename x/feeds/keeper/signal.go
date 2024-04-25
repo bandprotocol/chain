@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
@@ -20,22 +22,21 @@ func (k Keeper) CheckDelegatorDelegation(
 	return nil
 }
 
-// RemoveDelegatorSignal deletes previous signals from delegator and decrease feed power by the previous signals.
-func (k Keeper) RemoveDelegatorPreviousSignals(
+// RemoveSignal deletes previous signals from  and decrease feed power by the previous signals.
+func (k Keeper) RemovePreviousSignals(
 	ctx sdk.Context,
-	delegator sdk.AccAddress,
+	signals []types.Signal,
 	signalIDToIntervalDiff map[string]int64,
 ) (map[string]int64, error) {
-	prevSignals := k.GetDelegatorSignals(ctx, delegator)
-	for _, prevSignal := range prevSignals {
-		feed, err := k.GetFeed(ctx, prevSignal.ID)
+	for _, signal := range signals {
+		feed, err := k.GetFeed(ctx, signal.ID)
 		if err != nil {
 			return nil, err
 		}
 		// before changing in feed, delete the FeedByPower index
 		k.DeleteFeedByPowerIndex(ctx, feed)
 
-		feed.Power -= prevSignal.Power
+		feed.Power -= signal.Power
 		prevInterval := feed.Interval
 		feed.Interval, feed.DeviationInThousandth = calculateIntervalAndDeviation(int64(feed.Power), k.GetParams(ctx))
 		k.SetFeed(ctx, feed)
@@ -46,6 +47,17 @@ func (k Keeper) RemoveDelegatorPreviousSignals(
 		} else {
 			signalIDToIntervalDiff[feed.SignalID] = intervalDiff
 		}
+	}
+	// emit events for the removing signals operation.
+	for _, signal := range signals {
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeRemoveSignals,
+				sdk.NewAttribute(types.AttributeKeySignalID, signal.ID),
+				sdk.NewAttribute(types.AttributeKeyPower, fmt.Sprintf("%d", signal.Power)),
+				sdk.NewAttribute(types.AttributeKeyTimestamp, fmt.Sprintf("%d", ctx.BlockTime().Unix())),
+			),
+		)
 	}
 	// return intervaldiff of signal ids
 	return signalIDToIntervalDiff, nil
@@ -92,11 +104,12 @@ func (k Keeper) RegisterDelegatorSignals(
 func (k Keeper) UpdateFeedIntervalTimestamp(
 	ctx sdk.Context,
 	signalIDToIntervalDiff map[string]int64,
-) error {
+) {
 	for signalID := range signalIDToIntervalDiff {
 		feed, err := k.GetFeed(ctx, signalID)
 		if err != nil {
-			return err
+			// if feed is deleted, no need to update its timestamp
+			continue
 		}
 		// before changing in feed, delete the FeedByPower index
 		k.DeleteFeedByPowerIndex(ctx, feed)
@@ -104,5 +117,4 @@ func (k Keeper) UpdateFeedIntervalTimestamp(
 		feed.LastIntervalUpdateTimestamp = ctx.BlockTime().Unix()
 		k.SetFeed(ctx, feed)
 	}
-	return nil
 }

@@ -42,7 +42,8 @@ func (ms msgServer) SubmitSignals(
 
 	// delete previous signal, decrease feed power by the previous signals
 	signalIDToIntervalDiff := make(map[string]int64)
-	signalIDToIntervalDiff, err = ms.RemoveDelegatorPreviousSignals(ctx, delegator, signalIDToIntervalDiff)
+	prevSignals := ms.GetDelegatorSignals(ctx, delegator)
+	signalIDToIntervalDiff, err = ms.RemovePreviousSignals(ctx, prevSignals, signalIDToIntervalDiff)
 	if err != nil {
 		return nil, err
 	}
@@ -53,10 +54,20 @@ func (ms msgServer) SubmitSignals(
 		return nil, err
 	}
 
-	// update interval timestamp for interval-changed singal ids
-	err = ms.UpdateFeedIntervalTimestamp(ctx, signalIDToIntervalDiff)
-	if err != nil {
-		return nil, err
+	// update interval timestamp for interval-changed signal ids
+	ms.UpdateFeedIntervalTimestamp(ctx, signalIDToIntervalDiff)
+
+	// delete feed that has zero power
+	for _, signal := range prevSignals {
+		feed, err := ms.GetFeed(ctx, signal.ID)
+		if err != nil {
+			// if feed is not existed, no need to delete
+			continue
+		}
+		if feed.Power == 0 {
+			ms.DeleteFeed(ctx, feed.SignalID)
+			ms.DeleteFeedByPowerIndex(ctx, feed)
+		}
 	}
 
 	// emit events for the signaling operation.
