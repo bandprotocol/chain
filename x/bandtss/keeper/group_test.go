@@ -165,7 +165,7 @@ func TestFailCreateGroupReplacement(t *testing.T) {
 	}
 }
 
-func TestHandleReplaceGroup2(t *testing.T) {
+func TestHandleReplaceGroup(t *testing.T) {
 	s := testutil.NewTestSuite(t)
 	ctx, k := s.Ctx, s.Keeper
 
