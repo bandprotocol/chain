@@ -5,6 +5,7 @@ const (
 	EventTypeSubmitPrice          = "submit_price"
 	EventTypeUpdatePrice          = "update_price"
 	EventTypeSubmitSignals        = "submit_signals"
+	EventTypeRemoveSignals        = "remove_signals"
 	EventTypeCalculatePriceFailed = "calculate_price_failed"
 
 	AttributeKeyPriceOption  = "price_option"
