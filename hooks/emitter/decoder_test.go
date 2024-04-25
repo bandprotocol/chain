@@ -28,6 +28,7 @@ import (
 	"github.com/bandprotocol/chain/v2/hooks/emitter"
 	ibctesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -880,6 +881,57 @@ func (suite *DecoderTestSuite) TestDecodeMsgTimeoutOnClose() {
 	suite.testCompareJson(
 		detail,
 		"{\"next_sequence_recv\":1,\"packet\":{\"data\":\"\",\"destination_channel\":\"channel-0\",\"destination_port\":\"oracle\",\"sequence\":1,\"source_channel\":\"channel-0\",\"source_port\":\"oracle\",\"timeout_height\":{\"revision_height\":10,\"revision_number\":0},\"timeout_timestamp\":0},\"proof_close\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_unreceived\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgSubmitPrices() {
+	detail := make(common.JsDict)
+
+	msg := feedstypes.MsgSubmitPrices{
+		Validator: ValAddress.String(),
+		Timestamp: 12345678,
+		Prices: []feedstypes.SubmitPrice{
+			{
+				PriceOption: feedstypes.PriceOptionAvailable,
+				SignalID:    "crypto_price.ethusd",
+				Price:       3500000000000,
+			},
+			{
+				PriceOption: feedstypes.PriceOptionUnavailable,
+				SignalID:    "crypto_price.btcusd",
+				Price:       0,
+			},
+		},
+	}
+
+	emitter.DecodeMsgSubmitPrices(&msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"prices\":[{\"price_option\":3,\"signal_id\":\"crypto_price.ethusd\",\"price\":3500000000000},{\"price_option\":2,\"signal_id\":\"crypto_price.btcusd\"}],\"timestamp\":12345678,\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgSubmitSignals() {
+	detail := make(common.JsDict)
+
+	msg := feedstypes.MsgSubmitSignals{
+		Delegator: DelegatorAddress.String(),
+		Signals: []feedstypes.Signal{
+			{
+				ID:    "crypto_price.btcusd",
+				Power: 30000000000,
+			},
+			{
+				ID:    "crypto_price.ethusd",
+				Power: 60000000000,
+			},
+		},
+	}
+
+	emitter.DecodeMsgSubmitSignals(&msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"delegator\":\"band1g3jkcet8v96x7usqqqqqqqqqqqqqqqqqus6d5g\",\"signals\":[{\"id\":\"crypto_price.btcusd\",\"power\":30000000000},{\"id\":\"crypto_price.ethusd\",\"power\":60000000000}]}",
 	)
 }
 

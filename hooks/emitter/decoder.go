@@ -19,6 +19,7 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -124,6 +125,10 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeMsgGrantAllowance(msg, detail)
 	case *feegranttypes.MsgRevokeAllowance:
 		DecodeMsgRevokeAllowance(msg, detail)
+	case *feedstypes.MsgSubmitPrices:
+		DecodeMsgSubmitPrices(msg, detail)
+	case *feedstypes.MsgSubmitSignals:
+		DecodeMsgSubmitSignals(msg, detail)
 	default:
 		break
 	}
@@ -617,4 +622,15 @@ func DecodeDescription(des stakingtypes.Description) common.JsDict {
 		"security_contact": des.GetSecurityContact(),
 		"website":          des.GetWebsite(),
 	}
+}
+
+func DecodeMsgSubmitPrices(msg *feedstypes.MsgSubmitPrices, detail common.JsDict) {
+	detail["validator"] = msg.GetValidator()
+	detail["timestamp"] = msg.GetTimestamp()
+	detail["prices"] = msg.GetPrices()
+}
+
+func DecodeMsgSubmitSignals(msg *feedstypes.MsgSubmitSignals, detail common.JsDict) {
+	detail["delegator"] = msg.GetDelegator()
+	detail["signals"] = msg.GetSignals()
 }
