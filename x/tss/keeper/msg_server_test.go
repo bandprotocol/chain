@@ -363,7 +363,7 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 							Signature:   signature,
 						},
 					},
-					Address: sdk.AccAddress(tc.Group.Members[0].PubKey()).String(),
+					Address: sdk.AccAddress(m.PubKey()).String(),
 				})
 				s.Require().NoError(err)
 			}

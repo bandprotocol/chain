@@ -27,14 +27,14 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 	testCases := []struct {
 		name        string
 		preProcess  func()
-		input       types.QueryMembersRequest
+		input       *types.QueryMembersRequest
 		expectOut   expectOut
 		postProcess func()
 	}{
 		{
 			name:       "get 2 active members",
 			preProcess: func() {},
-			input: types.QueryMembersRequest{
+			input: &types.QueryMembersRequest{
 				IsActive: true,
 			},
 			expectOut:   expectOut{members: members},
@@ -43,7 +43,7 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 		{
 			name:       "get 1 active members; limit 1 offset 0",
 			preProcess: func() {},
-			input: types.QueryMembersRequest{
+			input: &types.QueryMembersRequest{
 				IsActive:   true,
 				Pagination: &querytypes.PageRequest{Limit: 1, Offset: 0},
 			},
@@ -53,7 +53,7 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 		{
 			name:       "get 1 active members limit 1 offset 1",
 			preProcess: func() {},
-			input: types.QueryMembersRequest{
+			input: &types.QueryMembersRequest{
 				IsActive:   true,
 				Pagination: &querytypes.PageRequest{Limit: 1, Offset: 1},
 			},
@@ -63,7 +63,7 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 		{
 			name:       "get 0 active members; out of pages limit 1 offset 5",
 			preProcess: func() {},
-			input: types.QueryMembersRequest{
+			input: &types.QueryMembersRequest{
 				IsActive:   true,
 				Pagination: &querytypes.PageRequest{Limit: 1, Offset: 5},
 			},
@@ -73,7 +73,7 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 		{
 			name:       "get no active members",
 			preProcess: func() {},
-			input: types.QueryMembersRequest{
+			input: &types.QueryMembersRequest{
 				IsActive: false,
 			},
 			expectOut:   expectOut{members: nil},
@@ -85,7 +85,7 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 				err := s.app.BandtssKeeper.DeactivateMember(ctx, sdk.MustAccAddressFromBech32(members[0].Address))
 				s.Require().NoError(err)
 			},
-			input: types.QueryMembersRequest{
+			input: &types.QueryMembersRequest{
 				IsActive: false,
 			},
 			expectOut: expectOut{members: []*types.Member{
@@ -103,7 +103,7 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 		s.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			tc.preProcess()
 
-			res, err := q.Members(ctx, &tc.input)
+			res, err := q.Members(ctx, tc.input)
 			s.Require().NoError(err)
 			s.Require().Equal(tc.expectOut.members, res.Members)
 

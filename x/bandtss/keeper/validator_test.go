@@ -97,7 +97,8 @@ func (s *KeeperTestSuite) TestAllocateTokensOneActive() {
 	s.Require().NoError(err)
 
 	for _, validator := range testapp.Validators {
-		k.AddNewMember(ctx, validator.Address)
+		err := k.AddNewMember(ctx, validator.Address)
+		s.Require().NoError(err)
 	}
 
 	k.AllocateTokens(ctx, defaultVotes())
@@ -131,7 +132,8 @@ func (s *KeeperTestSuite) TestAllocateTokensAllActive() {
 	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
 
 	for _, validator := range testapp.Validators {
-		k.AddNewMember(ctx, validator.Address)
+		err := k.AddNewMember(ctx, validator.Address)
+		s.Require().NoError(err)
 		deCount := s.app.TSSKeeper.GetDECount(ctx, validator.Address)
 		s.Require().Greater(deCount, uint64(0))
 	}

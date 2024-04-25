@@ -22,8 +22,164 @@ type TestCase struct {
 	ExpectedErr error
 }
 
-func (s *KeeperTestSuite) TestCreateGroup() {
+func (s *KeeperTestSuite) TestFlowCreatingGroup() {
 	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
+}
+
+func (s *KeeperTestSuite) TestSuccessCreateGroup() {
+	ctx, k := s.ctx, s.app.BandtssKeeper
+
+	_, err := s.msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
+		Members:   []string{"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"},
+		Threshold: 1,
+		Authority: s.authority.String(),
+	})
+
+	s.Require().NoError(err)
+
+	// Check if the group is created but not set as active.
+	s.Require().Equal(tss.GroupID(0), k.GetCurrentGroupID(ctx))
+
+	group, err := s.app.TSSKeeper.GetGroup(ctx, tss.GroupID(1))
+	s.Require().NoError(err)
+	s.Require().Equal(tsstypes.GROUP_STATUS_ROUND_1, group.Status)
+	s.Require().Equal(types.ModuleName, group.ModuleOwner)
+	s.Require().Equal(uint64(1), group.Threshold)
+	s.Require().Equal(uint64(1), group.Size_)
+
+	// check if the member is added into the group.
+	actualMembers, err := s.app.TSSKeeper.GetGroupMembers(ctx, tss.GroupID(1))
+	s.Require().NoError(err)
+	s.Require().Equal(1, len(actualMembers))
+	s.Require().Equal("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs", actualMembers[0].Address)
+}
+
+func (s *KeeperTestSuite) TestSuccessCreateNewGroupAfterHavingCurrentGroup() {
+	ctx, k := s.ctx, s.app.BandtssKeeper
+
+	// provided that group is already created
+	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
+
+	s.Require().Equal(tss.GroupID(1), s.app.BandtssKeeper.GetCurrentGroupID(s.ctx))
+
+	members, err := s.app.TSSKeeper.GetGroupMembers(ctx, tss.GroupID(1))
+	s.Require().NoError(err)
+
+	// even member in current group is deactivated, it should not affect the new group.
+	err = k.DeactivateMember(ctx, sdk.MustAccAddressFromBech32(members[0].Address))
+	s.Require().NoError(err)
+
+	expectedGroupID := tss.GroupID(s.app.TSSKeeper.GetGroupCount(ctx) + 1)
+
+	_, err = s.msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
+		Members:   []string{sdk.MustAccAddressFromBech32(members[0].Address).String()},
+		Threshold: 1,
+		Authority: s.authority.String(),
+	})
+	s.Require().NoError(err)
+
+	s.Require().Equal(uint64(expectedGroupID), s.app.TSSKeeper.GetGroupCount(ctx))
+
+	// Check if the group is created but not impact current group ID in bandtss.
+	s.Require().Equal(tss.GroupID(1), k.GetCurrentGroupID(ctx))
+
+	group, err := s.app.TSSKeeper.GetGroup(ctx, expectedGroupID)
+	s.Require().NoError(err)
+	s.Require().Equal(tsstypes.GROUP_STATUS_ROUND_1, group.Status)
+	s.Require().Equal(types.ModuleName, group.ModuleOwner)
+	s.Require().Equal(uint64(1), group.Threshold)
+	s.Require().Equal(uint64(1), group.Size_)
+
+	// check if the member is added into the group.
+	actualMembers, err := s.app.TSSKeeper.GetGroupMembers(ctx, expectedGroupID)
+	s.Require().NoError(err)
+	s.Require().Equal(1, len(actualMembers))
+	s.Require().Equal(members[0].Address, actualMembers[0].Address)
+}
+
+func (s *KeeperTestSuite) TestFailCreateGroup() {
+	ctx := s.ctx
+	tssParams := s.app.TSSKeeper.GetParams(ctx)
+
+	testCases := []struct {
+		name        string
+		input       *types.MsgCreateGroup
+		preProcess  func()
+		expectErr   error
+		postProcess func()
+	}{
+		{
+			name: "invalid authority",
+			input: &types.MsgCreateGroup{
+				Members:   []string{"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"},
+				Threshold: 1,
+				Authority: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+			},
+			preProcess:  func() {},
+			postProcess: func() {},
+			expectErr:   govtypes.ErrInvalidSigner,
+		},
+		{
+			name: "over max group size",
+			input: &types.MsgCreateGroup{
+				Members:   []string{"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs", testapp.Alice.Address.String()},
+				Threshold: 1,
+				Authority: s.authority.String(),
+			},
+			preProcess: func() {
+				err := s.app.TSSKeeper.SetParams(ctx, tsstypes.Params{
+					MaxGroupSize:   1,
+					MaxDESize:      tssParams.MaxDESize,
+					CreatingPeriod: tssParams.CreatingPeriod,
+					SigningPeriod:  tssParams.SigningPeriod,
+				})
+				s.Require().NoError(err)
+			},
+			postProcess: func() {
+				err := s.app.TSSKeeper.SetParams(ctx, tssParams)
+				s.Require().NoError(err)
+			},
+			expectErr: tsstypes.ErrGroupSizeTooLarge,
+		},
+		{
+			name: "duplicate members",
+			input: &types.MsgCreateGroup{
+				Members:   []string{"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs", "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs", "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"},
+				Threshold: 1,
+				Authority: s.authority.String(),
+			},
+			preProcess:  func() {},
+			postProcess: func() {},
+			expectErr:   fmt.Errorf("members can not duplicate"),
+		},
+		{
+			name: "threshold more than members length",
+			input: &types.MsgCreateGroup{
+				Members:   []string{"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"},
+				Threshold: 10,
+				Authority: s.authority.String(),
+			},
+			preProcess:  func() {},
+			postProcess: func() {},
+			expectErr:   fmt.Errorf("threshold must be less than or equal to the members but more than zero"),
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(tc.name, func() {
+			tc.preProcess()
+
+			err := tc.input.ValidateBasic()
+			if err != nil {
+				s.Require().ErrorContains(err, tc.expectErr.Error())
+			} else {
+				_, err := s.msgSrvr.CreateGroup(ctx, tc.input)
+				s.Require().ErrorIs(err, tc.expectErr)
+			}
+
+			tc.postProcess()
+		})
+	}
 }
 
 func (s *KeeperTestSuite) TestFailedReplaceGroup() {

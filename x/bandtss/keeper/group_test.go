@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/stretchr/testify/require"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/testutil"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
@@ -163,7 +163,6 @@ func TestFailCreateGroupReplacement(t *testing.T) {
 			tc.postProcess()
 		})
 	}
-
 }
 
 func TestHandleReplaceGroup2(t *testing.T) {
@@ -314,7 +313,6 @@ func TestHandleReplaceGroup2(t *testing.T) {
 				s.MockTSSKeeper.EXPECT().MustGetMembers(ctx, tss.GroupID(2)).Return([]tsstypes.Member{
 					{ID: 1, Address: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun"},
 				})
-
 			},
 			expectOut: expectOut{
 				replacementStatus: types.REPLACEMENT_STATUS_SUCCESS,
