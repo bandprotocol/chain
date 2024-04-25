@@ -78,7 +78,6 @@ func (q queryServer) Members(
 }
 
 // CurrentGroup function handles the request to get the current group information.
-// TODO: update current group response later when add election flow.
 func (q queryServer) CurrentGroup(
 	goCtx context.Context,
 	req *types.QueryCurrentGroupRequest,
@@ -86,8 +85,21 @@ func (q queryServer) CurrentGroup(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	groupID := q.k.GetCurrentGroupID(ctx)
+	if groupID == 0 {
+		return nil, types.ErrNoActiveGroup
+	}
+
+	group, err := q.k.tssKeeper.GetGroup(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
 	return &types.QueryCurrentGroupResponse{
-		GroupID: uint64(groupID),
+		GroupID:   groupID,
+		Size_:     group.Size_,
+		Threshold: group.Threshold,
+		PubKey:    group.PubKey,
+		Status:    group.Status,
 	}, nil
 }
 
