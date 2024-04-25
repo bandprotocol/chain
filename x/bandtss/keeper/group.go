@@ -41,6 +41,9 @@ func (k Keeper) CreateGroupReplacement(
 	if err != nil {
 		return 0, err
 	}
+	if newGroup.Status != tsstypes.GROUP_STATUS_ACTIVE {
+		return 0, tsstypes.ErrGroupIsNotActive
+	}
 
 	// Execute the handler to process the replacement request.
 	msg, err := k.tssKeeper.HandleSigningContent(ctx, types.NewReplaceGroupSignatureOrder(newGroup.PubKey))
