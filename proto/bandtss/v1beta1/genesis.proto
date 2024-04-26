@@ -40,10 +40,8 @@ message Params {
   uint64 reward_percentage = 2 [(gogoproto.customname) = "RewardPercentage"];
   // inactive_penalty_duration is the duration where a member cannot activate back after inactive.
   google.protobuf.Duration inactive_penalty_duration = 3 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
-  // jail_penalty_duration is the duration where a member cannot activate back after jail.
-  google.protobuf.Duration jail_penalty_duration = 4 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
   // fee is the tokens that will be paid per signing.
-  repeated cosmos.base.v1beta1.Coin fee = 5
+  repeated cosmos.base.v1beta1.Coin fee = 4
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }
 

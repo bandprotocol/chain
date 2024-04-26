@@ -10,9 +10,8 @@ import (
 )
 
 const (
-	DefaultActiveDuration          time.Duration = time.Hour * 24      // 1 days
-	DefaultInactivePenaltyDuration time.Duration = time.Minute * 10    // 10 minutes
-	DefaultJailPenaltyDuration     time.Duration = time.Hour * 24 * 30 // 30 days
+	DefaultActiveDuration          time.Duration = time.Hour * 24   // 1 days
+	DefaultInactivePenaltyDuration time.Duration = time.Minute * 10 // 10 minutes
 	// compute the BandTSS reward following the allocation to Oracle. If the Oracle reward amounts to 40%,
 	// the BandTSS reward will be determined from the remaining 60%.
 	DefaultRewardPercentage = uint64(50)
@@ -25,14 +24,12 @@ func NewParams(
 	activeDuration time.Duration,
 	rewardPercentage uint64,
 	inactivePenaltyDuration time.Duration,
-	jailPenaltyDuration time.Duration,
 	fee sdk.Coins,
 ) Params {
 	return Params{
 		ActiveDuration:          activeDuration,
 		RewardPercentage:        rewardPercentage,
 		InactivePenaltyDuration: inactivePenaltyDuration,
-		JailPenaltyDuration:     jailPenaltyDuration,
 		Fee:                     fee,
 	}
 }
@@ -43,7 +40,6 @@ func DefaultParams() Params {
 		ActiveDuration:          DefaultActiveDuration,
 		RewardPercentage:        DefaultRewardPercentage,
 		InactivePenaltyDuration: DefaultInactivePenaltyDuration,
-		JailPenaltyDuration:     DefaultJailPenaltyDuration,
 		Fee:                     DefaultFee,
 	}
 }
@@ -55,10 +51,6 @@ func (p Params) Validate() error {
 	}
 
 	if err := validateTimeDuration("inactive penalty duration")(p.InactivePenaltyDuration); err != nil {
-		return err
-	}
-
-	if err := validateTimeDuration("jail penalty duration")(p.JailPenaltyDuration); err != nil {
 		return err
 	}
 

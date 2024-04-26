@@ -197,8 +197,8 @@ func (s *KeeperTestSuite) TestParams() {
 			input: types.Params{
 				ActiveDuration:          time.Duration(0),
 				InactivePenaltyDuration: time.Duration(0),
-				JailPenaltyDuration:     time.Duration(0),
 				RewardPercentage:        0,
+				Fee:                     sdk.NewCoins(),
 			},
 			expectErr:    true,
 			expectErrStr: "must be positive:",
@@ -209,7 +209,7 @@ func (s *KeeperTestSuite) TestParams() {
 				ActiveDuration:          types.DefaultActiveDuration,
 				RewardPercentage:        types.DefaultRewardPercentage,
 				InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
-				JailPenaltyDuration:     types.DefaultJailPenaltyDuration,
+				Fee:                     types.DefaultFee,
 			},
 			expectErr: false,
 		},
