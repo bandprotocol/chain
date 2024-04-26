@@ -3,12 +3,13 @@ package bandtss_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/testing/testapp"
 	"github.com/bandprotocol/chain/v2/x/bandtss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/testutil"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
-	"github.com/stretchr/testify/require"
 )
 
 func TestExportGenesis(t *testing.T) {
