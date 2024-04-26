@@ -120,7 +120,9 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 	case *authz.MsgExec:
 		h.handleMsgExec(ctx, txHash, msg, log, detail)
 	case *feedstypes.MsgSubmitSignals:
-		h.handleMsgSubmitSignals(ctx, txHash, msg, evMap, detail)
+		h.handleMsgSubmitSignals(ctx, msg, evMap)
+	case *feedstypes.MsgSubmitPrices:
+		h.handleMsgSubmitPrices(ctx, msg)
 	default:
 		break
 	}
@@ -148,6 +150,8 @@ func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) 
 		h.handleEventTypeTransfer(evMap)
 	case channeltypes.EventTypeSendPacket:
 		h.handleEventSendPacket(ctx, evMap)
+	case feedstypes.EventTypeUpdatePrice:
+		h.handleEventUpdatePrice(ctx, evMap)
 	default:
 		break
 	}

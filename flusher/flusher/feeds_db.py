@@ -31,7 +31,7 @@ feeds = sa.Table(
     Column("signal_id", sa.String, primary_key=True),
     Column("power", sa.BigInteger),
     Column("interval", sa.Integer),
-    Column("last_interval_update_timestamp", sa.Integer),
+    Column("last_interval_update_timestamp", CustomDateTime),
     Column("deviation_in_thousandth", sa.Integer),
 )
 

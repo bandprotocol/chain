@@ -1,6 +1,8 @@
 package emitter
 
 import (
+	"math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
@@ -30,7 +32,7 @@ func (h *Hook) emitSetFeed(feed types.Feed) {
 		"signal_id":                      feed.SignalID,
 		"power":                          feed.Power,
 		"interval":                       feed.Interval,
-		"last_interval_update_timestamp": feed.LastIntervalUpdateTimestamp,
+		"last_interval_update_timestamp": feed.LastIntervalUpdateTimestamp * int64(math.Pow10(9)),
 		"deviation_in_thousandth":        feed.DeviationInThousandth,
 	})
 }
@@ -50,9 +52,27 @@ func (h *Hook) emitSetDelegatorSignal(ctx sdk.Context, delegator string, signal 
 	})
 }
 
+func (h *Hook) emitSetPriceValidator(ctx sdk.Context, validator string, price types.SubmitPrice) {
+	h.Write("SET_PRICE_VALIDATOR", common.JsDict{
+		"validator": validator,
+		"signal_id": price.SignalID,
+		"price":     price.Price,
+		"timestamp": ctx.BlockTime().UnixNano(),
+	})
+}
+
+func (h *Hook) emitSetPrice(price types.Price) {
+	h.Write("SET_PRICE", common.JsDict{
+		"signal_id":    price.SignalID,
+		"price_option": price.PriceOption,
+		"price":        price.Price,
+		"timestamp":    price.Timestamp * int64(math.Pow10(9)),
+	})
+}
+
 // handleMsgSubmitSignals implements emitter handler for MsgSubmitSignals.
 func (h *Hook) handleMsgSubmitSignals(
-	ctx sdk.Context, txHash []byte, msg *types.MsgSubmitSignals, evMap common.EvMap, detail common.JsDict,
+	ctx sdk.Context, msg *types.MsgSubmitSignals, evMap common.EvMap,
 ) {
 	var involvedSignalIDs []string
 	if signal_ids, ok := evMap[types.EventTypeSubmitSignals+"."+types.AttributeKeySignalID]; ok {
@@ -74,5 +94,29 @@ func (h *Hook) handleMsgSubmitSignals(
 	h.emitRemoveDelegatorSignals(msg.Delegator)
 	for _, signal := range msg.Signals {
 		h.emitSetDelegatorSignal(ctx, msg.Delegator, signal)
+	}
+}
+
+// handleMsgSubmitPrices implements emitter handler for MsgSubmitPrices.
+func (h *Hook) handleMsgSubmitPrices(
+	ctx sdk.Context, msg *types.MsgSubmitPrices,
+) {
+	for _, price := range msg.Prices {
+		h.emitSetPriceValidator(ctx, msg.Validator, price)
+	}
+}
+
+// handleMsgSubmitPrices implements emitter handler for MsgSubmitPrices.
+func (h *Hook) handleEventUpdatePrice(
+	ctx sdk.Context, evMap common.EvMap,
+) {
+	if signal_ids, ok := evMap[types.EventTypeUpdatePrice+"."+types.AttributeKeySignalID]; ok {
+		for _, signal_id := range signal_ids {
+			price, err := h.feedsKeeper.GetPrice(ctx, signal_id)
+			if err != nil {
+				continue
+			}
+			h.emitSetPrice(price)
+		}
 	}
 }
