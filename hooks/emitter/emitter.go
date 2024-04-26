@@ -32,6 +32,8 @@ import (
 
 	"github.com/bandprotocol/chain/v2/app/params"
 	"github.com/bandprotocol/chain/v2/hooks/common"
+	feedskeeper "github.com/bandprotocol/chain/v2/x/feeds/keeper"
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -56,12 +58,13 @@ type Hook struct {
 	distrKeeper   distrkeeper.Keeper
 	govKeeper     govkeeper.Keeper
 	oracleKeeper  oraclekeeper.Keeper
+	feedsKeeper   feedskeeper.Keeper
 	icahostKeeper icahostkeeper.Keeper
 
 	// ibc keeper
-	clientkeeper     clientkeeper.Keeper
-	connectionkeeper connectionkeeper.Keeper
-	channelkeeper    channelkeeper.Keeper
+	clientKeeper     clientkeeper.Keeper
+	connectionKeeper connectionkeeper.Keeper
+	channelKeeper    channelkeeper.Keeper
 }
 
 // NewHook creates an emitter hook instance that will be added in Band App.
@@ -76,10 +79,11 @@ func NewHook(
 	distrKeeper distrkeeper.Keeper,
 	govKeeper govkeeper.Keeper,
 	oracleKeeper oraclekeeper.Keeper,
+	feedsKeeper feedskeeper.Keeper,
 	icahostKeeper icahostkeeper.Keeper,
-	clientkeeper clientkeeper.Keeper,
-	connectionkeeper connectionkeeper.Keeper,
-	channelkeeper channelkeeper.Keeper,
+	clientKeeper clientkeeper.Keeper,
+	connectionKeeper connectionkeeper.Keeper,
+	channelKeeper channelkeeper.Keeper,
 	kafkaURI string,
 	emitStartState bool,
 ) *Hook {
@@ -102,10 +106,11 @@ func NewHook(
 		distrKeeper:      distrKeeper,
 		govKeeper:        govKeeper,
 		oracleKeeper:     oracleKeeper,
+		feedsKeeper:      feedsKeeper,
 		icahostKeeper:    icahostKeeper,
-		clientkeeper:     clientkeeper,
-		connectionkeeper: connectionkeeper,
-		channelkeeper:    channelkeeper,
+		clientKeeper:     clientKeeper,
+		connectionKeeper: connectionKeeper,
+		channelKeeper:    channelKeeper,
 		emitStartState:   emitStartState,
 	}
 }
@@ -287,6 +292,18 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	}
 	for idx, os := range oracleState.OracleScripts {
 		h.emitSetOracleScript(oracletypes.OracleScriptID(idx+1), os, nil)
+	}
+
+	// Feeds module
+	var feedsState feedstypes.GenesisState
+	h.cdc.MustUnmarshalJSON(genesisState[feedstypes.ModuleName], &feedsState)
+	for _, feed := range feedsState.Feeds {
+		h.emitSetFeed(feed)
+	}
+	for _, delegatorSignal := range feedsState.DelegatorSignals {
+		for _, signal := range delegatorSignal.Signals {
+			h.emitSetDelegatorSignal(ctx, delegatorSignal.Delegator, signal)
+		}
 	}
 
 	var authzState authz.GenesisState

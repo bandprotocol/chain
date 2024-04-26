@@ -590,6 +590,11 @@ class Handler(object):
         self.conn.execute(
             insert(feeds).values(**msg).on_conflict_do_update(constraint="feeds_pkey", set_=msg)
         )
+
+    def handle_remove_feed(self, msg):
+        self.conn.execute(
+            feeds.delete().where(feeds.c.signal_id == msg["signal_id"])
+        )
         
     def handle_set_price(self, msg):
         self.conn.execute(

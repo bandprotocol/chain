@@ -15,7 +15,7 @@ import (
 )
 
 func (h *Hook) emitSetChannel(ctx sdk.Context, portId string, channelId string) {
-	channel, _ := h.channelkeeper.GetChannel(ctx, portId, channelId)
+	channel, _ := h.channelKeeper.GetChannel(ctx, portId, channelId)
 	hop := channel.ConnectionHops[0]
 	h.Write("SET_CHANNEL", common.JsDict{
 		"connection_id":        hop,
