@@ -71,6 +71,7 @@ func (k Keeper) CreateGroupReplacement(
 			sdk.NewAttribute(tsstypes.AttributeKeySigningID, fmt.Sprintf("%d", signing.ID)),
 			sdk.NewAttribute(types.AttributeKeyCurrentGroupID, fmt.Sprintf("%d", currentGroupID)),
 			sdk.NewAttribute(types.AttributeKeyReplacingGroupID, fmt.Sprintf("%d", newGroupID)),
+			sdk.NewAttribute(types.AttributeKeyReplacementStatus, types.REPLACEMENT_STATUS_WAITING_SIGNING.String()),
 		),
 	)
 
@@ -96,6 +97,15 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, endBlockTime time.Time) erro
 		if signing.Status == tsstypes.SIGNING_STATUS_SUCCESS {
 			replacement.Status = types.REPLACEMENT_STATUS_WAITING_REPLACE
 			k.SetReplacement(ctx, replacement)
+			ctx.EventManager().EmitEvent(
+				sdk.NewEvent(
+					types.EventTypeReplacement,
+					sdk.NewAttribute(tsstypes.AttributeKeySigningID, fmt.Sprintf("%d", replacement.SigningID)),
+					sdk.NewAttribute(types.AttributeKeyCurrentGroupID, fmt.Sprintf("%d", replacement.CurrentGroupID)),
+					sdk.NewAttribute(types.AttributeKeyReplacingGroupID, fmt.Sprintf("%d", replacement.NewGroupID)),
+					sdk.NewAttribute(types.AttributeKeyReplacementStatus, types.REPLACEMENT_STATUS_WAITING_REPLACE.String()),
+				),
+			)
 		}
 	}
 
@@ -112,10 +122,11 @@ func (k Keeper) HandleFailReplacementSigning(ctx sdk.Context, replacement types.
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeReplacementFailed,
+			types.EventTypeReplacement,
 			sdk.NewAttribute(tsstypes.AttributeKeySigningID, fmt.Sprintf("%d", replacement.SigningID)),
 			sdk.NewAttribute(types.AttributeKeyCurrentGroupID, fmt.Sprintf("%d", replacement.CurrentGroupID)),
 			sdk.NewAttribute(types.AttributeKeyReplacingGroupID, fmt.Sprintf("%d", replacement.NewGroupID)),
+			sdk.NewAttribute(types.AttributeKeyReplacementStatus, types.REPLACEMENT_STATUS_FALLEN.String()),
 		),
 	)
 	return nil
@@ -142,10 +153,11 @@ func (k Keeper) ReplaceGroup(ctx sdk.Context, replacement types.Replacement) err
 	k.SetReplacement(ctx, replacement)
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeReplacementSuccess,
+			types.EventTypeReplacement,
 			sdk.NewAttribute(tsstypes.AttributeKeySigningID, fmt.Sprintf("%d", replacement.SigningID)),
 			sdk.NewAttribute(types.AttributeKeyCurrentGroupID, fmt.Sprintf("%d", replacement.CurrentGroupID)),
 			sdk.NewAttribute(types.AttributeKeyReplacingGroupID, fmt.Sprintf("%d", replacement.NewGroupID)),
+			sdk.NewAttribute(types.AttributeKeyReplacementStatus, types.REPLACEMENT_STATUS_SUCCESS.String()),
 		),
 	)
 

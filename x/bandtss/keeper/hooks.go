@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
@@ -34,6 +36,13 @@ func (h Hooks) AfterCreatingGroupCompleted(ctx sdk.Context, group tsstypes.Group
 			return err
 		}
 	}
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeFirstGroupCreated,
+			sdk.NewAttribute(types.AttributeKeyCurrentGroupID, fmt.Sprintf("%d", group.ID)),
+		),
+	)
 
 	return nil
 }

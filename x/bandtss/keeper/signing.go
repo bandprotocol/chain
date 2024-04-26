@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 
@@ -202,6 +204,17 @@ func (k Keeper) HandleCreateSigning(
 		CurrentGroupSigningID:   currentGroupSigning.ID,
 		ReplacingGroupSigningID: replacingGroupSigningID,
 	})
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeSigningRequestCreated,
+			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", bandtssSigningID)),
+			sdk.NewAttribute(types.AttributeKeyCurrentGroupID, fmt.Sprintf("%d", currentGroupID)),
+			sdk.NewAttribute(types.AttributeKeyCurrentGroupSigningID, fmt.Sprintf("%d", currentGroupSigning.ID)),
+			sdk.NewAttribute(types.AttributeKeyReplacingGroupID, fmt.Sprintf("%d", replacement.NewGroupID)),
+			sdk.NewAttribute(types.AttributeKeyReplacingGroupSigningID, fmt.Sprintf("%d", replacingGroupSigningID)),
+		),
+	)
 
 	return bandtssSigningID, nil
 }
