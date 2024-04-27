@@ -2,7 +2,6 @@ package types
 
 const (
 	EventTypeCreateGroup      = "create_group"
-	EventTypeUpdateGroupFee   = "update_group_fee"
 	EventTypeExpiredGroup     = "expired_group"
 	EventTypeSubmitDKGRound1  = "submit_dkg_round1"
 	EventTypeRound1Success    = "round1_success"
