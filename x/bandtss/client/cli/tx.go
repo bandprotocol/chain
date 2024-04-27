@@ -20,7 +20,6 @@ import (
 
 const (
 	flagExpiration = "expiration"
-	flagGroupID    = "group-id"
 	flagFeeLimit   = "fee-limit"
 )
 
@@ -69,10 +68,8 @@ func GetTxCmdRequestSignature() *cobra.Command {
 	}
 
 	cmd.PersistentFlags().String(flagFeeLimit, "", "The maximum tokens that will be paid for this request")
-	cmd.PersistentFlags().Uint64(flagGroupID, 0, "The group that is requested to sign the result")
 
 	_ = cmd.MarkPersistentFlagRequired(flagFeeLimit)
-	_ = cmd.MarkPersistentFlagRequired(flagGroupID)
 
 	return cmd
 }

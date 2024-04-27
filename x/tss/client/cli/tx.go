@@ -20,7 +20,6 @@ import (
 
 const (
 	flagExpiration = "expiration"
-	flagGroupID    = "group-id"
 	flagFeeLimit   = "fee-limit"
 )
 

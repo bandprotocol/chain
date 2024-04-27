@@ -33,7 +33,6 @@ const (
 	flagExecuteGas    = "execute-gas"
 	flagTSSGroupID    = "tss-group-id"
 	flagTSSEncodeType = "tss-encode-type"
-	flagGroupID       = "group-id"
 	flagFeeLimit      = "fee-limit"
 	flagFee           = "fee"
 	flagTreasury      = "treasury"
