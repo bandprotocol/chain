@@ -65,7 +65,7 @@ func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) err
 	}
 
 	// refund fee to requester. Unlikely to get an error from refund fee, but log it just in case.
-	if err := h.k.CheckRefundFee(ctx, signing, bandtssSigningID); err != nil {
+	if err := h.k.RefundFee(ctx, signing, bandtssSigningID); err != nil {
 		return err
 	}
 
@@ -98,7 +98,7 @@ func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing
 	}
 
 	// refund fee to requester and delete the signingID mapping.
-	if err := h.k.CheckRefundFee(ctx, signing, bandtssSigningID); err != nil {
+	if err := h.k.RefundFee(ctx, signing, bandtssSigningID); err != nil {
 		return err
 	}
 	h.k.DeleteSigningIDMapping(ctx, signing.ID)
