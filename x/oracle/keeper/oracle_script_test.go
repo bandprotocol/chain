@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/v2/testing/testapp"
+	"github.com/bandprotocol/chain/v2/testing/testdata"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -143,10 +144,10 @@ func TestGetAllOracleScripts(t *testing.T) {
 func TestAddOracleScriptFile(t *testing.T) {
 	_, _, k := testapp.CreateTestInput(true)
 	// Code should be perferctly compilable.
-	compiledCode, err := testapp.OwasmVM.Compile(testapp.WasmExtra1, types.MaxCompiledWasmCodeSize)
+	compiledCode, err := testapp.OwasmVM.Compile(testdata.WasmExtra1, types.MaxCompiledWasmCodeSize)
 	require.NoError(t, err)
 	// We start by adding the Owasm content to the storage.
-	filename, err := k.AddOracleScriptFile(testapp.WasmExtra1)
+	filename, err := k.AddOracleScriptFile(testdata.WasmExtra1)
 	require.NoError(t, err)
 	// If we get by file name, we should get the compiled content back.
 	require.Equal(t, compiledCode, k.GetFile(filename))

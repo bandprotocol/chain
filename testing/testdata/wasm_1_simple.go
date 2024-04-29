@@ -1,4 +1,4 @@
-package testapp
+package testdata
 
 // Wasm1 is a simple Owasm script with the following specification:
 //
