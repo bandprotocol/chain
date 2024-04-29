@@ -55,7 +55,7 @@ This module is used in the BandChain.
 
 ### Current Group
 
-The signing process mainly happens in the tss module. To handle the signing in bandtss module, a proposal is made to create a tss group for the module. The proposal and bandtss's groups can be created multiple times, but the first one is considered the main group of the module and being used for signing process until a proposal for group replacement is made and approved. Then, the main module group (current group) will be changed.
+The signing process mainly happens in the tss module. To handle the signing in bandtss module, a proposal is made to create a tss group for the module and use it as a main group for a signing process. The proposal and bandtss's groups can be created multiple times, in that case, the first one is considered the main group of the module and being used for signing process until a proposal for group replacement is made and approved.
 
 ### Member
 
@@ -71,9 +71,9 @@ Changing the members of the module can be done by [group replacement process](#r
 
 #### Block rewards
 
-In each block, active validators serving as members on the bandtss system are rewarded with additional block rewards proportional to their validating power, as recognition for their service.
+In each block, active validators being served as members on the bandtss system are rewarded with additional block rewards proportional to their validating power, as recognition for their service.
 
-The `RewardPercentage` parameter determines the percentage of block rewards allocated to these validators. By default, this parameter is set to 50%. However, it's important to note that this percentage is calculated based on the remaining rewards. For instance, if other modules claim 40% of the rewards, the bandtss module will receive only 30% (50% of the remaining 60%) of the total block rewards.
+The `RewardPercentage` parameter determines the percentage of block rewards allocated to these validators. By default, this parameter is set to 50%. However, please note that this percentage is calculated based on the remaining rewards. For instance, if other modules claim 40% of the rewards, the bandtss module will receive only 30% (50% of the remaining 60%) of the total block rewards.
 
 #### Request fee
 
@@ -81,7 +81,7 @@ Users requesting signatures from the bandtss system are required to pay a fee fo
 
 ### Signing
 
-A signing request can be submitted to the module, and the signing process is then forwarded to the TSS module. Subsequently, the bandtss module charges a fee to the requester, which will be transferred later to the assigned members once the message is successfully signed.
+A signing request can be submitted to the module, and the signing process is then forwarded to the TSS module. Subsequently, the bandtss module charges a fee to the requester, which will be transferred later to the assigned members once the message is successfully signed (as a request fee).
 
 ### Replacement
 

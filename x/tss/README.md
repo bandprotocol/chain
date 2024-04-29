@@ -2,9 +2,9 @@
 
 ## Abstract
 
-The TSS module centrally manages the threshold signature scheme (TSS) signing process, allowing other system modules to utilize this method for cryptographic signing.
+The TSS module's main purpose is to manage the threshold signature scheme (TSS) signing process, allowing other system modules to utilize this method for cryptographic signing.
 
-To become a TSS provider, members are simply selected by the caller module. These selected members then submit encrypted secret shares to create a public shared secret of the group, which is subsequently formed and owned by the caller module.
+To handle a signing process, the module has to create a group with selected members. These selected members then submit encrypted secret shares to create a public shared secret of the group, which is subsequently formed and owned by the caller module.
 
 Once the group is established, the group's owner can request specific signatures. The resulting group signature, which can be verified using the group's public key, proves useful in various situations, rendering the TSS module quite valuable. This method of creating signatures not only ensures trust among all participants but also adds an extra layer of security to the system.
 
@@ -61,11 +61,11 @@ This module is used in bandtss module in BandChain.
 
 A group contains multiple members. Each group has its public key that multiple members (at least the threshold of the group) will be able to generate signatures on the message of that public key.
 
-A group will be created through a call by external module with a set of selected members. At first, when creating a group, each assigned member will have to go through a key generation process to generate a group key together. After that, they will receive their private key that will be used to generate part of the signature of the group.
+A group is created through a call by external module with a set of selected members. At first, when creating a group, each assigned member will have to go through a key generation process to generate a group key together. After that, they will receive their private key that will be used to generate part of the signature of the group.
 
 ### Signing
 
-A signing is a request to sign some data from a module to the group. It contains all information of this request such as message, assigned members, and assigned nonce of each member. When a user requests a signing from the group, each member will have to use the key of the group to sign on the message that will combine to generate the final signature of the group.
+A module creates a signing request to the group that the module owns. It contains all information of this request such as message, assigned members, and assigned nonce of each member. When a user requests a signing from the group, each member will have to use the key of the group to sign on the message that will combine to generate the final signature of the group.
 
 ## State
 
