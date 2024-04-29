@@ -21,7 +21,21 @@ func removeDuplicateStr(strSlice []string) []string {
 	return list
 }
 
+func (h *Hook) emitRemovePriceValidators(signalID string) {
+	h.Write("REMOVE_PRICE_VALIDATORS", common.JsDict{
+		"signal_id": signalID,
+	})
+}
+
+func (h *Hook) emitRemovePrice(signalID string) {
+	h.emitRemovePriceValidators(signalID)
+	h.Write("REMOVE_PRICE", common.JsDict{
+		"signal_id": signalID,
+	})
+}
+
 func (h *Hook) emitRemoveFeed(signalID string) {
+	h.emitRemovePrice(signalID)
 	h.Write("REMOVE_FEED", common.JsDict{
 		"signal_id": signalID,
 	})
@@ -64,7 +78,7 @@ func (h *Hook) emitSetPriceValidator(ctx sdk.Context, validator string, price ty
 func (h *Hook) emitSetPrice(price types.Price) {
 	h.Write("SET_PRICE", common.JsDict{
 		"signal_id":    price.SignalID,
-		"price_option": price.PriceOption,
+		"price_option": price.PriceOption.String(),
 		"price":        price.Price,
 		"timestamp":    price.Timestamp * int64(math.Pow10(9)),
 	})
@@ -74,6 +88,7 @@ func (h *Hook) emitSetPrice(price types.Price) {
 func (h *Hook) handleMsgSubmitSignals(
 	ctx sdk.Context, msg *types.MsgSubmitSignals, evMap common.EvMap,
 ) {
+	h.emitRemoveDelegatorSignals(msg.Delegator)
 	var involvedSignalIDs []string
 	if signal_ids, ok := evMap[types.EventTypeSubmitSignals+"."+types.AttributeKeySignalID]; ok {
 		involvedSignalIDs = append(involvedSignalIDs, signal_ids...)
@@ -91,7 +106,6 @@ func (h *Hook) handleMsgSubmitSignals(
 		}
 	}
 
-	h.emitRemoveDelegatorSignals(msg.Delegator)
 	for _, signal := range msg.Signals {
 		h.emitSetDelegatorSignal(ctx, msg.Delegator, signal)
 	}

@@ -572,7 +572,12 @@ class Handler(object):
         del msg["validator"]        
         self.conn.execute(
             insert(price_validators).values(**msg).on_conflict_do_update(constraint="price_validators_pkey", set_=msg)
-        )     
+        )
+    
+    def handle_remove_price_validators(self, msg):
+        self.conn.execute(
+            price_validators.delete().where(price_validators.c.signal_id == msg["signal_id"])
+        )
     
     def handle_set_delegator_signal(self, msg):
         msg["account_id"] = self.get_account_id(msg["delegator"])
@@ -600,4 +605,8 @@ class Handler(object):
         self.conn.execute(
             insert(prices).values(**msg).on_conflict_do_update(constraint="prices_pkey", set_=msg)
         )
-        
+
+    def handle_remove_price(self, msg):
+        self.conn.execute(
+            prices.delete().where(prices.c.signal_id == msg["signal_id"])
+        )  
