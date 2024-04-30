@@ -22,8 +22,8 @@ func (k Keeper) CheckDelegatorDelegation(
 	return nil
 }
 
-// RemoveSignal deletes previous signals from  and decrease feed power by the previous signals.
-func (k Keeper) RemovePreviousSignals(
+// RemoveSignals deletes signals and decrease feeds power of the signals.
+func (k Keeper) RemoveSignals(
 	ctx sdk.Context,
 	signals []types.Signal,
 	signalIDToIntervalDiff map[string]int64,

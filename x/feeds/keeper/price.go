@@ -39,7 +39,7 @@ func (k Keeper) NewPriceValidator(
 	val sdk.ValAddress,
 	cooldownTime int64,
 ) (types.PriceValidator, error) {
-	s, err := k.GetFeed(ctx, price.SignalID)
+	f, err := k.GetFeed(ctx, price.SignalID)
 	if err != nil {
 		return types.PriceValidator{}, err
 	}
@@ -52,7 +52,7 @@ func (k Keeper) NewPriceValidator(
 			price.SignalID,
 			priceVal.Timestamp,
 			blockTime,
-			s.Interval,
+			f.Interval,
 		)
 	}
 

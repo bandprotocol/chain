@@ -113,9 +113,8 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, feed types.Feed) (types.Price, e
 		return types.Price{}, types.ErrNotEnoughPriceValidator
 	}
 
-	// TODO: check final logic later
-	// check if the price is available
-	total, available, unavailable, unsupported := types.CalPricesPowers(pfInfos)
+	total, available, _, unsupported := types.CalPricesPowers(pfInfos)
+	// If more than half of the total have unsupported price options, it returns an unsupported price option.
 	if unsupported > total/2 {
 		return types.Price{
 			PriceOption: types.PriceOptionUnsupported,
@@ -123,7 +122,8 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, feed types.Feed) (types.Price, e
 			Price:       0,
 			Timestamp:   ctx.BlockTime().Unix(),
 		}, nil
-	} else if unavailable > total/2 || available < total/2 {
+		// If less than half of total have available price options, it returns an unavailable price option.
+	} else if available < total/2 {
 		return types.Price{
 			PriceOption: types.PriceOptionUnavailable,
 			SignalID:    feed.SignalID,
@@ -134,7 +134,7 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, feed types.Feed) (types.Price, e
 
 	price, err := types.CalculateMedianPriceFeedInfo(types.FilterPfInfos(pfInfos, types.PriceOptionAvailable))
 	if err != nil {
-		return types.Price{}, nil
+		return types.Price{}, err
 	}
 
 	return types.Price{

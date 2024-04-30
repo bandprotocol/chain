@@ -89,7 +89,7 @@ func (q queryServer) Price(
 ) (*types.QueryPriceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	s, err := q.keeper.GetFeed(ctx, req.SignalId)
+	f, err := q.keeper.GetFeed(ctx, req.SignalId)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func (q queryServer) Price(
 	var filteredPriceVals []types.PriceValidator
 	blockTime := ctx.BlockTime().Unix()
 	for _, priceVal := range priceVals {
-		if priceVal.Timestamp > blockTime-s.Interval {
+		if priceVal.Timestamp > blockTime-f.Interval {
 			filteredPriceVals = append(filteredPriceVals, priceVal)
 		}
 	}
@@ -161,17 +161,17 @@ func (q queryServer) ValidValidator(
 ) (*types.QueryValidValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	val, err := sdk.ValAddressFromBech32(req.Validator)
+	if err != nil {
+		return nil, err
+	}
+
 	flag := true
 
 	// check if it's in top bonded validators.
 	isTop := q.keeper.IsTopValidator(ctx, req.Validator)
 	if !isTop {
 		flag = false
-	}
-
-	val, err := sdk.ValAddressFromBech32(req.Validator)
-	if err != nil {
-		return nil, err
 	}
 
 	validatorStatus := q.keeper.oracleKeeper.GetValidatorStatus(ctx, val)

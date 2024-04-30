@@ -43,7 +43,7 @@ func (ms msgServer) SubmitSignals(
 	// delete previous signal, decrease feed power by the previous signals
 	signalIDToIntervalDiff := make(map[string]int64)
 	prevSignals := ms.GetDelegatorSignals(ctx, delegator)
-	signalIDToIntervalDiff, err = ms.RemovePreviousSignals(ctx, prevSignals, signalIDToIntervalDiff)
+	signalIDToIntervalDiff, err = ms.RemoveSignals(ctx, prevSignals, signalIDToIntervalDiff)
 	if err != nil {
 		return nil, err
 	}
