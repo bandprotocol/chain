@@ -34,7 +34,7 @@ var (
 	SigningCountStoreKey = append(GlobalStoreKeyPrefix, []byte("SigningCount")...)
 	// CurrentGroupIDKey is the key for storing the current group ID under GroupIDStoreKeyPrefix.
 	CurrentGroupIDStoreKey = append(GlobalStoreKeyPrefix, []byte("CurrentGroupID")...)
-	// ReplacementSigningIDStoreKey is the key for storing the signing ID of the group replacement.
+	// ReplacementStoreKey is the key for storing the group replacement information.
 	ReplacementStoreKey = append(GlobalStoreKeyPrefix, []byte("Replacement")...)
 
 	// SigningInfoStoreKeyPrefix is the key for storing the bandtss signing info under SigningStoreKeyPrefix.

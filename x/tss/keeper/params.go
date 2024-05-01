@@ -6,7 +6,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-// GetParams returns the current x/council module parameters.
+// GetParams returns the current x/tss module parameters.
 func (k Keeper) GetParams(ctx sdk.Context) (p types.Params) {
 	store := ctx.KVStore(k.storeKey)
 	bz := store.Get(types.ParamsKeyPrefix)

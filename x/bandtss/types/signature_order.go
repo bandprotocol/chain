@@ -25,7 +25,7 @@ func NewReplaceGroupSignatureOrder(pubKey []byte) *ReplaceGroupSignatureOrder {
 // OrderRoute returns the order router key
 func (rs *ReplaceGroupSignatureOrder) OrderRoute() string { return RouterKey }
 
-// OrderType of TextSignatureOrder is "Text"
+// OrderType of ReplaceGroupSignatureOrder is "replace"
 func (rs *ReplaceGroupSignatureOrder) OrderType() string {
 	return ReplaceGroupPath
 }
