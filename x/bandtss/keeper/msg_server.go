@@ -49,7 +49,7 @@ func (k msgServer) CreateGroup(
 	return &types.MsgCreateGroupResponse{}, nil
 }
 
-// ReplaceGroup handles the replacement of a group with another group. It passes the input to tss module.
+// ReplaceGroup handles the replacement of a group with another group.
 func (k msgServer) ReplaceGroup(
 	goCtx context.Context,
 	req *types.MsgReplaceGroup,
@@ -59,8 +59,7 @@ func (k msgServer) ReplaceGroup(
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	_, err := k.CreateGroupReplacement(ctx, req.NewGroupID, req.ExecTime)
-	if err != nil {
+	if _, err := k.CreateGroupReplacement(ctx, req.NewGroupID, req.ExecTime); err != nil {
 		return nil, err
 	}
 
@@ -134,6 +133,7 @@ func (k msgServer) HealthCheck(
 	return &types.MsgHealthCheckResponse{}, nil
 }
 
+// UpdateParams update the parameter of the module.
 func (k Keeper) UpdateParams(
 	goCtx context.Context,
 	req *types.MsgUpdateParams,

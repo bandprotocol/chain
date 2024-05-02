@@ -155,7 +155,7 @@ func GetTxCmdHealthCheck() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "health-check",
 		Args:  cobra.NoArgs,
-		Short: "update the active status of the address to ensure that the TSS process is still running",
+		Short: "update the active status of the address to ensure that the member in the group is active",
 		Example: fmt.Sprintf(
 			`%s tx bandtss health-check`,
 			version.AppName,

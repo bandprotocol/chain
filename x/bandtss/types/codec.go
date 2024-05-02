@@ -7,6 +7,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// RegisterLegacyAminoCodec registers the necessary x/bandtss interfaces and concrete types
+// on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgCreateGroup{}, "bandtss/CreateGroup")
 	legacy.RegisterAminoMsg(cdc, &MsgReplaceGroup{}, "bandtss/ReplaceGroup")
@@ -16,6 +18,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "bandtss/UpdateParams")
 }
 
+// RegisterInterfaces register the bandtss module interfaces to protobuf Any.
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgCreateGroup{},

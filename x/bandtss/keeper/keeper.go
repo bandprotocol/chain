@@ -60,11 +60,12 @@ func NewKeeper(
 	}
 }
 
-// GetBandtssAccount returns the Bandtss ModuleAccount
+// GetBandtssAccount returns the bandtss ModuleAccount
 func (k Keeper) GetBandtssAccount(ctx sdk.Context) authtypes.ModuleAccountI {
 	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 
+// Logger gets logger object.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
@@ -118,12 +119,12 @@ func (k Keeper) DeleteMember(ctx sdk.Context, address sdk.AccAddress) {
 	ctx.KVStore(k.storeKey).Delete(types.MemberStoreKey(address))
 }
 
-// SetCurrentGroupID sets a current groupID of the Bandtss module.
+// SetCurrentGroupID sets a current groupID of the bandtss module.
 func (k Keeper) SetCurrentGroupID(ctx sdk.Context, groupID tss.GroupID) {
 	ctx.KVStore(k.storeKey).Set(types.CurrentGroupIDStoreKey, sdk.Uint64ToBigEndian(uint64(groupID)))
 }
 
-// GetCurrentGroupID retrieves a current groupID of the Bandtss module.
+// GetCurrentGroupID retrieves a current groupID of the bandtss module.
 func (k Keeper) GetCurrentGroupID(ctx sdk.Context) tss.GroupID {
 	return tss.GroupID(sdk.BigEndianToUint64(ctx.KVStore(k.storeKey).Get(types.CurrentGroupIDStoreKey)))
 }

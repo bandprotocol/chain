@@ -11,6 +11,8 @@ import (
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
+// CreateGroupReplacement creates a replacement request to replace a current group ID with a new one
+// which must be approved, i.e. request must be signed, from the current group.
 func (k Keeper) CreateGroupReplacement(
 	ctx sdk.Context,
 	newGroupID tss.GroupID,
@@ -116,6 +118,7 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, endBlockTime time.Time) erro
 	return nil
 }
 
+// HandleFailReplacementSigning update replacement status and emits an event.
 func (k Keeper) HandleFailReplacementSigning(ctx sdk.Context, replacement types.Replacement) error {
 	replacement.Status = types.REPLACEMENT_STATUS_FALLEN
 	k.SetReplacement(ctx, replacement)
@@ -132,6 +135,8 @@ func (k Keeper) HandleFailReplacementSigning(ctx sdk.Context, replacement types.
 	return nil
 }
 
+// ReplaceGroup handle group replacement which includes manage members of the old and new group.
+// and set new group ID to be a current one. It emits an event at the end.
 func (k Keeper) ReplaceGroup(ctx sdk.Context, replacement types.Replacement) error {
 	// clear members from the current group and add members from the new group.
 	oldMembers := k.tssKeeper.MustGetMembers(ctx, replacement.CurrentGroupID)

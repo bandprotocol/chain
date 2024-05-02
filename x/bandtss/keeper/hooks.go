@@ -16,7 +16,7 @@ type Hooks struct {
 
 var _ tsstypes.TSSHooks = Hooks{}
 
-// Create new Bandtss hooks
+// Create new bandtss hooks
 func (k Keeper) Hooks() Hooks {
 	return Hooks{k}
 }
@@ -52,7 +52,6 @@ func (h Hooks) AfterCreatingGroupFailed(ctx sdk.Context, group tsstypes.Group) e
 }
 
 func (h Hooks) BeforeSetGroupExpired(ctx sdk.Context, group tsstypes.Group) error {
-	// TODO: Penalize members will be slashed in the future.
 	return nil
 }
 

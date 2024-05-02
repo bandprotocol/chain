@@ -12,8 +12,8 @@ import (
 const (
 	DefaultActiveDuration          time.Duration = time.Hour * 24   // 1 days
 	DefaultInactivePenaltyDuration time.Duration = time.Minute * 10 // 10 minutes
-	// compute the BandTSS reward following the allocation to Oracle. If the Oracle reward amounts to 40%,
-	// the BandTSS reward will be determined from the remaining 60%.
+	// compute the bandtss reward following the allocation to Oracle. If the Oracle reward amounts to 40%,
+	// the bandtss reward will be determined from the remaining 60%.
 	DefaultRewardPercentage = uint64(50)
 )
 
