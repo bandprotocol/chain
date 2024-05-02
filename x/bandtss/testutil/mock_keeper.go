@@ -24,6 +24,7 @@ type TestSuite struct {
 	t           *testing.T
 	Keeper      *keeper.Keeper
 	QueryServer types.QueryServer
+	Hook        keeper.Hooks
 
 	MockAccountKeeper *MockAccountKeeper
 	MockBankKeeper    *MockBankKeeper
@@ -77,6 +78,7 @@ func NewTestSuite(t *testing.T) TestSuite {
 		Ctx:               ctx,
 		Authority:         authority,
 		QueryServer:       queryServer,
+		Hook:              bandtssKeeper.Hooks(),
 		t:                 t,
 	}
 }
