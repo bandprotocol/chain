@@ -35,7 +35,7 @@ func (q queryServer) DelegatorSignals(
 
 	signals := q.keeper.GetDelegatorSignals(ctx, delegator)
 	if signals == nil {
-		return nil, status.Error(codes.Internal, "no signal")
+		return nil, status.Error(codes.NotFound, "no signal")
 	}
 	return &types.QueryDelegatorSignalsResponse{Signals: signals}, nil
 }
