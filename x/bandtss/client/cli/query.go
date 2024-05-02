@@ -26,6 +26,7 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdParams(),
 		GetQueryCmdSigning(),
 		GetQueryCmdReplacement(),
+		GetQueryCmdIsGrantee(),
 	)
 
 	return cmd
@@ -161,6 +162,37 @@ func GetQueryCmdReplacement() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.Replacement(cmd.Context(), &types.QueryReplacementRequest{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetQueryCmdIsGrantee creates a CLI command for Query/IsGrantee.
+func GetQueryCmdIsGrantee() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "is-grantee [granter_address] [grantee_address]",
+		Short: "Query grantee status",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.IsGrantee(cmd.Context(), &types.QueryIsGranteeRequest{
+				Granter: args[0],
+				Grantee: args[1],
+			})
 			if err != nil {
 				return err
 			}

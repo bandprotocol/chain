@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/stretchr/testify/suite"
 
@@ -231,6 +232,26 @@ func (s *KeeperTestSuite) TestParams() {
 			s.Require().Equal(expected, p)
 		})
 	}
+}
+
+func (s *KeeperTestSuite) TestIsGrantee() {
+	ctx, k := s.ctx, s.app.BandtssKeeper
+	expTime := time.Unix(0, 0)
+
+	// Init grantee address
+	grantee, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+
+	// Init granter address
+	granter, _ := sdk.AccAddressFromBech32("band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun")
+
+	// Save grant msgs to grantee
+	for _, m := range types.GetBandtssGrantMsgTypes() {
+		err := s.app.AuthzKeeper.SaveGrant(ctx, grantee, granter, authz.NewGenericAuthorization(m), &expTime)
+		s.Require().NoError(err)
+	}
+
+	isGrantee := k.CheckIsGrantee(ctx, granter, grantee)
+	s.Require().True(isGrantee)
 }
 
 func TestKeeperTestSuite(t *testing.T) {

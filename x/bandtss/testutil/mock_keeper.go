@@ -40,6 +40,7 @@ func NewTestSuite(t *testing.T) TestSuite {
 	encCfg := moduletestutil.MakeTestEncodingConfig(bandtss.AppModuleBasic{})
 	ctx := testCtx.Ctx.WithBlockHeader(tmproto.Header{Time: time.Now().UTC()})
 
+	authzKeeper := NewMockAuthzKeeper(ctrl)
 	accountKeeper := NewMockAccountKeeper(ctrl)
 	bankKeeper := NewMockBankKeeper(ctrl)
 	distrKeeper := NewMockDistrKeeper(ctrl)
@@ -52,6 +53,7 @@ func NewTestSuite(t *testing.T) TestSuite {
 		encCfg.Codec.(codec.BinaryCodec),
 		key,
 		paramtypes.Subspace{},
+		authzKeeper,
 		accountKeeper,
 		bankKeeper,
 		distrKeeper,
