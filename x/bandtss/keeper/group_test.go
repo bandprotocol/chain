@@ -167,7 +167,7 @@ func TestHandleReplaceGroup(t *testing.T) {
 		name       string
 		preProcess func(s *testutil.TestSuite)
 		expectOut  expectOut
-		postCheck  func(t *testing.T, s *testutil.TestSuite)
+		postCheck  func(s *testutil.TestSuite)
 	}{
 		{
 			name: "no replacement setup",
@@ -295,10 +295,10 @@ func TestHandleReplaceGroup(t *testing.T) {
 				replacementStatus: types.REPLACEMENT_STATUS_SUCCESS,
 				currentGroupID:    tss.GroupID(2),
 			},
-			postCheck: func(t *testing.T, s *testutil.TestSuite) {
+			postCheck: func(s *testutil.TestSuite) {
 				members := s.Keeper.GetMembers(s.Ctx)
-				require.Len(t, members, 1)
-				require.Equal(t, "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun", members[0].Address)
+				require.Len(s.T(), members, 1)
+				require.Equal(s.T(), "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun", members[0].Address)
 			},
 		},
 		{
@@ -333,7 +333,7 @@ func TestHandleReplaceGroup(t *testing.T) {
 			require.Equal(t, tc.expectOut.currentGroupID, s.Keeper.GetCurrentGroupID(s.Ctx))
 
 			if tc.postCheck != nil {
-				tc.postCheck(t, &s)
+				tc.postCheck(&s)
 			}
 		})
 	}

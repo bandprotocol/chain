@@ -21,7 +21,9 @@ import (
 
 // NOTE: cannot put suite.Suite inside this struct, or else the test get timeout.
 type TestSuite struct {
-	Keeper *keeper.Keeper
+	t           *testing.T
+	Keeper      *keeper.Keeper
+	QueryServer types.QueryServer
 
 	MockAccountKeeper *MockAccountKeeper
 	MockBankKeeper    *MockBankKeeper
@@ -63,6 +65,8 @@ func NewTestSuite(t *testing.T) TestSuite {
 		authtypes.FeeCollectorName,
 	)
 
+	queryServer := keeper.NewQueryServer(bandtssKeeper)
+
 	return TestSuite{
 		Keeper:            bandtssKeeper,
 		MockAccountKeeper: accountKeeper,
@@ -72,5 +76,11 @@ func NewTestSuite(t *testing.T) TestSuite {
 		MockTSSKeeper:     tssKeeper,
 		Ctx:               ctx,
 		Authority:         authority,
+		QueryServer:       queryServer,
+		t:                 t,
 	}
+}
+
+func (s *TestSuite) T() *testing.T {
+	return s.t
 }

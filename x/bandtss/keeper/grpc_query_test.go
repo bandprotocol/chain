@@ -2,88 +2,92 @@ package keeper_test
 
 import (
 	"fmt"
+	"testing"
+	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	querytypes "github.com/cosmos/cosmos-sdk/types/query"
+	"github.com/stretchr/testify/require"
 
+	"github.com/bandprotocol/chain/v2/x/bandtss/testutil"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-func (s *KeeperTestSuite) TestGRPCQueryMembers() {
-	ctx, q := s.ctx, s.queryClient
-
-	s.SetupGroup(tsstypes.GROUP_STATUS_ACTIVE)
-
-	result, err := s.queryClient.Members(ctx, &types.QueryMembersRequest{IsActive: true})
-	s.Require().NoError(err)
-	s.Require().Len(result.Members, 2)
-	members := result.Members
-
+func TestGRPCQueryMembers(t *testing.T) {
 	type expectOut struct {
 		members []*types.Member
 	}
 
+	since := time.Now().UTC()
+	lastActive := time.Now().UTC()
+
+	members := []*types.Member{
+		{
+			Address:    "band1t5x8hrmht463eq4m0xhfgz95h62dyvkq049eek",
+			IsActive:   true,
+			Since:      since,
+			LastActive: lastActive,
+		},
+		{
+			Address:    "band1a22hgwm4tz8gj82y6zad3de2dcg5dpymtj20m5",
+			IsActive:   true,
+			Since:      since,
+			LastActive: lastActive,
+		},
+	}
+
 	testCases := []struct {
-		name        string
-		preProcess  func()
-		input       *types.QueryMembersRequest
-		expectOut   expectOut
-		postProcess func()
+		name       string
+		preProcess func(s *testutil.TestSuite)
+		input      *types.QueryMembersRequest
+		expectOut  expectOut
 	}{
 		{
-			name:       "get 2 active members",
-			preProcess: func() {},
+			name: "get 2 active members",
 			input: &types.QueryMembersRequest{
 				IsActive: true,
 			},
-			expectOut:   expectOut{members: members},
-			postProcess: func() {},
+			expectOut: expectOut{members: members},
 		},
 		{
-			name:       "get 1 active members; limit 1 offset 0",
-			preProcess: func() {},
+			name: "get 1 active members; limit 1 offset 0",
 			input: &types.QueryMembersRequest{
 				IsActive:   true,
 				Pagination: &querytypes.PageRequest{Limit: 1, Offset: 0},
 			},
-			expectOut:   expectOut{members: members[:1]},
-			postProcess: func() {},
+			expectOut: expectOut{members: members[:1]},
 		},
 		{
-			name:       "get 1 active members limit 1 offset 1",
-			preProcess: func() {},
+			name: "get 1 active members limit 1 offset 1",
 			input: &types.QueryMembersRequest{
 				IsActive:   true,
 				Pagination: &querytypes.PageRequest{Limit: 1, Offset: 1},
 			},
-			expectOut:   expectOut{members: members[1:]},
-			postProcess: func() {},
+			expectOut: expectOut{members: members[1:]},
 		},
 		{
-			name:       "get 0 active members; out of pages limit 1 offset 5",
-			preProcess: func() {},
+			name: "get 0 active members; out of pages limit 1 offset 5",
 			input: &types.QueryMembersRequest{
 				IsActive:   true,
 				Pagination: &querytypes.PageRequest{Limit: 1, Offset: 5},
 			},
-			expectOut:   expectOut{members: nil},
-			postProcess: func() {},
+			expectOut: expectOut{members: []*types.Member{}},
 		},
 		{
-			name:       "get no active members",
-			preProcess: func() {},
+			name: "get no inactive members",
 			input: &types.QueryMembersRequest{
 				IsActive: false,
 			},
-			expectOut:   expectOut{members: nil},
-			postProcess: func() {},
+			expectOut: expectOut{members: []*types.Member{}},
 		},
 		{
 			name: "get inactive members",
-			preProcess: func() {
-				err := s.app.BandtssKeeper.DeactivateMember(ctx, sdk.MustAccAddressFromBech32(members[0].Address))
-				s.Require().NoError(err)
+			preProcess: func(s *testutil.TestSuite) {
+				s.Keeper.SetMember(s.Ctx, types.Member{
+					Address:    members[0].Address,
+					IsActive:   false,
+					Since:      members[0].Since,
+					LastActive: members[0].LastActive,
+				})
 			},
 			input: &types.QueryMembersRequest{
 				IsActive: false,
@@ -91,23 +95,25 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 			expectOut: expectOut{members: []*types.Member{
 				{Address: members[0].Address, IsActive: false, Since: members[0].Since, LastActive: members[0].LastActive},
 			}},
-			postProcess: func() {
-				ctx = ctx.WithBlockTime(ctx.BlockTime().Add(types.DefaultInactivePenaltyDuration))
-				err := s.app.BandtssKeeper.ActivateMember(ctx, sdk.MustAccAddressFromBech32(members[0].Address))
-				s.Require().NoError(err)
-			},
 		},
 	}
 
 	for _, tc := range testCases {
-		s.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			tc.preProcess()
+		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
+			s := testutil.NewTestSuite(t)
+			q := s.QueryServer
 
-			res, err := q.Members(ctx, tc.input)
-			s.Require().NoError(err)
-			s.Require().Equal(tc.expectOut.members, res.Members)
+			for _, member := range members {
+				s.Keeper.SetMember(s.Ctx, *member)
+			}
 
-			tc.postProcess()
+			if tc.preProcess != nil {
+				tc.preProcess(&s)
+			}
+
+			res, err := q.Members(s.Ctx, tc.input)
+			require.NoError(t, err)
+			require.Equal(t, tc.expectOut.members, res.Members)
 		})
 	}
 }
