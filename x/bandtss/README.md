@@ -375,7 +375,7 @@ A user can query the `bandtss` module using REST endpoints.
 The `current-group` command allows users to query for current group information.
 
 ```bash
-/tss/v1beta1/current_group
+/bandtss/v1beta1/current_group
 ```
 
 ##### Member
@@ -383,13 +383,13 @@ The `current-group` command allows users to query for current group information.
 The `Member` command allows users to query for member information by giving a member address.
 
 ```bash
-/tss/v1beta1/current_group
+/bandtss/v1beta1/current_group
 ```
 
 Example:
 
 ```bash
-curl localhost:1317/tss/v1beta1/groups/band1nx0xkpnytk35wvflsg7gszf9smw3vaeauk248q
+curl localhost:1317/bandtss/v1beta1/groups/band1nx0xkpnytk35wvflsg7gszf9smw3vaeauk248q
 ```
 
 ##### Replacement
@@ -397,7 +397,7 @@ curl localhost:1317/tss/v1beta1/groups/band1nx0xkpnytk35wvflsg7gszf9smw3vaeauk24
 The `Replacement` command allows users to query for replacement information.
 
 ```bash
-/tss/v1beta1/replacement
+/bandtss/v1beta1/replacement
 ```
 
 ##### Signing
@@ -405,13 +405,13 @@ The `Replacement` command allows users to query for replacement information.
 The `Signing` command allows users to query for bandtss signing information by giving a signing id.
 
 ```bash
-/tss/v1beta1/signing
+/bandtss/v1beta1/signing
 ```
 
 Example:
 
 ```bash
-curl localhost:1317/tss/v1beta1/signing/1
+curl localhost:1317/bandtss/v1beta1/signing/1
 ```
 
 ##### Params
@@ -419,5 +419,5 @@ curl localhost:1317/tss/v1beta1/signing/1
 The `Params` command allows users to query for module's configuration.
 
 ```bash
-/tss/v1beta1/params
+/bandtss/v1beta1/params
 ```
