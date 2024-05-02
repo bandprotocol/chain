@@ -18,12 +18,12 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/v2/pkg/obi"
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 type Account struct {
-	testapp.Account
+	bandtesting.Account
 	Num uint64
 	Seq uint64
 }
@@ -128,7 +128,7 @@ func GenSequenceOfTxs(
 	txs := make([]sdk.Tx, numTxs)
 
 	for i := 0; i < numTxs; i++ {
-		txs[i], _ = testapp.GenTx(
+		txs[i], _ = bandtesting.GenTx(
 			txConfig,
 			msgs,
 			sdk.Coins{sdk.NewInt64Coin("uband", 1)},

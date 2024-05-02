@@ -13,7 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank/testutil"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/x/oracle/simulation"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -22,15 +22,15 @@ type SimTestSuite struct {
 	suite.Suite
 
 	ctx  sdk.Context
-	app  *testapp.TestingApp
+	app  *bandtesting.TestingApp
 	r    *rand.Rand
 	accs []simtypes.Account
 }
 
 func (suite *SimTestSuite) SetupTest() {
-	app, _, _ := testapp.CreateTestInput(true)
+	app, _ := bandtesting.CreateTestApp(suite.T(), true)
 	suite.app = app
-	suite.ctx = app.BaseApp.NewContext(false, tmproto.Header{ChainID: testapp.ChainID})
+	suite.ctx = app.BaseApp.NewContext(false, tmproto.Header{ChainID: bandtesting.ChainID})
 	s := rand.NewSource(1)
 	suite.r = rand.New(s)
 	suite.accs = suite.getTestingAccounts(suite.r, 10)
@@ -39,7 +39,7 @@ func (suite *SimTestSuite) SetupTest() {
 	suite.app.BeginBlock(
 		abci.RequestBeginBlock{
 			Header: tmproto.Header{
-				ChainID: testapp.ChainID,
+				ChainID: bandtesting.ChainID,
 				Height:  suite.app.LastBlockHeight() + 1,
 				AppHash: suite.app.LastCommitID().Hash,
 			},

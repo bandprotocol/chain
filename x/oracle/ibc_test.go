@@ -12,8 +12,8 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/bandprotocol/chain/v2/pkg/obi"
-	ibctesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
+	"github.com/bandprotocol/chain/v2/testing/ibctesting"
 	"github.com/bandprotocol/chain/v2/testing/testdata"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -86,8 +86,8 @@ func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
 		2,
 		2,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(6000000))),
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
@@ -102,7 +102,7 @@ func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
 		types.NewRawReport(2, 0, []byte("data2")),
 		types.NewRawReport(3, 0, []byte("data3")),
 	}
-	_, err = suite.chainB.SendReport(1, raws1, testapp.Validators[0])
+	_, err = suite.chainB.SendReport(1, raws1, bandtesting.Validators[0])
 	suite.Require().NoError(err)
 
 	raws2 := []types.RawReport{
@@ -110,7 +110,7 @@ func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
 		types.NewRawReport(2, 0, []byte("data2")),
 		types.NewRawReport(3, 0, []byte("data3")),
 	}
-	_, err = suite.chainB.SendReport(1, raws2, testapp.Validators[1])
+	_, err = suite.chainB.SendReport(1, raws2, bandtesting.Validators[1])
 	suite.Require().NoError(err)
 
 	oracleResponsePacket := types.NewOracleResponsePacketData(
@@ -156,8 +156,8 @@ func (suite *OracleTestSuite) TestIBCPrepareValidateBasicFail() {
 			1,
 			1,
 			coins,
-			testapp.TestDefaultPrepareGas,
-			testapp.TestDefaultExecuteGas,
+			bandtesting.TestDefaultPrepareGas,
+			bandtesting.TestDefaultExecuteGas,
 		),
 		types.NewOracleRequestPacketData(
 			clientID,
@@ -166,8 +166,8 @@ func (suite *OracleTestSuite) TestIBCPrepareValidateBasicFail() {
 			1,
 			0,
 			coins,
-			testapp.TestDefaultPrepareGas,
-			testapp.TestDefaultExecuteGas,
+			bandtesting.TestDefaultPrepareGas,
+			bandtesting.TestDefaultExecuteGas,
 		),
 		types.NewOracleRequestPacketData(
 			clientID,
@@ -176,8 +176,8 @@ func (suite *OracleTestSuite) TestIBCPrepareValidateBasicFail() {
 			1,
 			2,
 			coins,
-			testapp.TestDefaultPrepareGas,
-			testapp.TestDefaultExecuteGas,
+			bandtesting.TestDefaultPrepareGas,
+			bandtesting.TestDefaultExecuteGas,
 		),
 		types.NewOracleRequestPacketData(
 			strings.Repeat(clientID, 9),
@@ -186,11 +186,29 @@ func (suite *OracleTestSuite) TestIBCPrepareValidateBasicFail() {
 			1,
 			1,
 			coins,
-			testapp.TestDefaultPrepareGas,
-			testapp.TestDefaultExecuteGas,
+			bandtesting.TestDefaultPrepareGas,
+			bandtesting.TestDefaultExecuteGas,
 		),
-		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 1, coins, 0, testapp.TestDefaultExecuteGas),
-		types.NewOracleRequestPacketData(clientID, 1, []byte("beeb"), 1, 1, coins, testapp.TestDefaultPrepareGas, 0),
+		types.NewOracleRequestPacketData(
+			clientID,
+			1,
+			[]byte("beeb"),
+			1,
+			1,
+			coins,
+			0,
+			bandtesting.TestDefaultExecuteGas,
+		),
+		types.NewOracleRequestPacketData(
+			clientID,
+			1,
+			[]byte("beeb"),
+			1,
+			1,
+			coins,
+			bandtesting.TestDefaultPrepareGas,
+			0,
+		),
 		types.NewOracleRequestPacketData(
 			clientID,
 			1,
@@ -207,9 +225,9 @@ func (suite *OracleTestSuite) TestIBCPrepareValidateBasicFail() {
 			[]byte("beeb"),
 			1,
 			1,
-			testapp.BadCoins,
-			testapp.TestDefaultPrepareGas,
-			testapp.TestDefaultExecuteGas,
+			bandtesting.BadCoins,
+			bandtesting.TestDefaultPrepareGas,
+			bandtesting.TestDefaultExecuteGas,
 		),
 	}
 
@@ -234,12 +252,12 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughFund() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 
 	// Use Carol as a relayer
-	carol := testapp.Carol
+	carol := bandtesting.Carol
 	carolExpectedBalance := sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2492500)))
 	_, err := suite.chainB.SendMsgs(banktypes.NewMsgSend(
 		suite.chainB.SenderAccount.GetAddress(),
@@ -276,8 +294,8 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughFeeLimit() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000))),
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
@@ -299,8 +317,8 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidCalldataSize() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
@@ -320,7 +338,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughPrepareGas() {
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
 		1,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
@@ -340,8 +358,8 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidAskCountFail() {
 		17,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
@@ -355,8 +373,8 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidAskCountFail() {
 		3,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 	packet = suite.sendOracleRequestPacket(path, 2, oracleRequestPacket, timeoutHeight)
 
@@ -382,8 +400,8 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestBaseOwasmFeePanic() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
@@ -409,8 +427,8 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestPerValidatorRequestFeePanic()
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
@@ -431,8 +449,8 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestOracleScriptNotFound() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
@@ -452,8 +470,8 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestBadWasmExecutionFail() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
@@ -473,8 +491,8 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestWithEmptyRawRequest() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
@@ -494,8 +512,8 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestUnknownDataSource() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
@@ -523,8 +541,8 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidDataSourceCount() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(4000000))),
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
@@ -544,8 +562,8 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestTooMuchWasmGas() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
@@ -564,8 +582,8 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestTooLargeCalldata() {
 		1,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
@@ -585,7 +603,7 @@ func (suite *OracleTestSuite) TestIBCResolveRequestOutOfGas() {
 		2,
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(6000000))),
-		testapp.TestDefaultPrepareGas,
+		bandtesting.TestDefaultPrepareGas,
 		1,
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
@@ -601,7 +619,7 @@ func (suite *OracleTestSuite) TestIBCResolveRequestOutOfGas() {
 		types.NewRawReport(2, 0, []byte("data2")),
 		types.NewRawReport(3, 0, []byte("data3")),
 	}
-	_, err = suite.chainB.SendReport(1, raws, testapp.Validators[0])
+	_, err = suite.chainB.SendReport(1, raws, bandtesting.Validators[0])
 	suite.Require().NoError(err)
 
 	commitment := suite.chainB.App.IBCKeeper.ChannelKeeper.GetPacketCommitment(
@@ -646,8 +664,8 @@ func (suite *OracleTestSuite) TestIBCResolveReadNilExternalData() {
 		2,
 		2,
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(4000000))),
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
@@ -658,11 +676,11 @@ func (suite *OracleTestSuite) TestIBCResolveReadNilExternalData() {
 	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(5970000))))
 
 	raws1 := []types.RawReport{types.NewRawReport(0, 0, nil), types.NewRawReport(1, 0, []byte("beebd2v1"))}
-	_, err = suite.chainB.SendReport(1, raws1, testapp.Validators[0])
+	_, err = suite.chainB.SendReport(1, raws1, bandtesting.Validators[0])
 	suite.Require().NoError(err)
 
 	raws2 := []types.RawReport{types.NewRawReport(0, 0, []byte("beebd1v2")), types.NewRawReport(1, 0, nil)}
-	_, err = suite.chainB.SendReport(1, raws2, testapp.Validators[1])
+	_, err = suite.chainB.SendReport(1, raws2, bandtesting.Validators[1])
 	suite.Require().NoError(err)
 
 	commitment := suite.chainB.App.IBCKeeper.ChannelKeeper.GetPacketCommitment(
@@ -702,12 +720,12 @@ func (suite *OracleTestSuite) TestIBCResolveRequestNoReturnData() {
 		// 3rd Wasm - do nothing
 		3,
 		[]byte("beeb"),
-		[]sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress},
+		[]sdk.ValAddress{bandtesting.Validators[0].ValAddress, bandtesting.Validators[1].ValAddress},
 		1,
 		suite.chainB.GetContext().
 			BlockHeight()-
 			1,
-		testapp.ParseTime(1577923380),
+		bandtesting.ParseTime(1577923380),
 		path.EndpointA.ClientID,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
@@ -717,7 +735,7 @@ func (suite *OracleTestSuite) TestIBCResolveRequestNoReturnData() {
 	))
 
 	raws := []types.RawReport{types.NewRawReport(1, 0, []byte("beeb"))}
-	_, err := suite.chainB.SendReport(1, raws, testapp.Validators[0])
+	_, err := suite.chainB.SendReport(1, raws, bandtesting.Validators[0])
 	suite.Require().NoError(err)
 
 	commitment := suite.chainB.App.IBCKeeper.ChannelKeeper.GetPacketCommitment(
@@ -757,22 +775,22 @@ func (suite *OracleTestSuite) TestIBCResolveRequestWasmFailure() {
 		// 6th Wasm - out-of-gas
 		6,
 		[]byte("beeb"),
-		[]sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress},
+		[]sdk.ValAddress{bandtesting.Validators[0].ValAddress, bandtesting.Validators[1].ValAddress},
 		1,
 		suite.chainB.GetContext().
 			BlockHeight()-
 			1,
-		testapp.ParseTime(1577923380),
+		bandtesting.ParseTime(1577923380),
 		path.EndpointA.ClientID,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 		},
 		&types.IBCChannel{PortId: path.EndpointB.ChannelConfig.PortID, ChannelId: path.EndpointB.ChannelID},
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultExecuteGas,
 	))
 
 	raws := []types.RawReport{types.NewRawReport(1, 0, []byte("beeb"))}
-	_, err := suite.chainB.SendReport(1, raws, testapp.Validators[0])
+	_, err := suite.chainB.SendReport(1, raws, bandtesting.Validators[0])
 	suite.Require().NoError(err)
 
 	commitment := suite.chainB.App.IBCKeeper.ChannelKeeper.GetPacketCommitment(
@@ -812,22 +830,22 @@ func (suite *OracleTestSuite) TestIBCResolveRequestCallReturnDataSeveralTimes() 
 		// 9th Wasm - set return data several times
 		9,
 		[]byte("beeb"),
-		[]sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress},
+		[]sdk.ValAddress{bandtesting.Validators[0].ValAddress, bandtesting.Validators[1].ValAddress},
 		1,
 		suite.chainB.GetContext().
 			BlockHeight()-
 			1,
-		testapp.ParseTime(1577923380),
+		bandtesting.ParseTime(1577923380),
 		path.EndpointA.ClientID,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
 		},
 		&types.IBCChannel{PortId: path.EndpointB.ChannelConfig.PortID, ChannelId: path.EndpointB.ChannelID},
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultExecuteGas,
 	))
 
 	raws := []types.RawReport{types.NewRawReport(1, 0, []byte("beeb"))}
-	_, err := suite.chainB.SendReport(1, raws, testapp.Validators[0])
+	_, err := suite.chainB.SendReport(1, raws, bandtesting.Validators[0])
 	suite.Require().NoError(err)
 
 	commitment := suite.chainB.App.IBCKeeper.ChannelKeeper.GetPacketCommitment(
