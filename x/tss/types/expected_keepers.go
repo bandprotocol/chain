@@ -37,7 +37,7 @@ type AccountKeeper interface {
 	GetModuleAccount(ctx sdk.Context, name string) types.ModuleAccountI
 }
 
-// TSSHooks event hooks for staking validator object (noalias)
+// TSSHooks event hooks for tss validator object (noalias)
 type TSSHooks interface {
 	// Must be called when a group is created successfully.
 	AfterCreatingGroupCompleted(ctx sdk.Context, group Group) error

@@ -464,6 +464,7 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 	}
 }
 
+// GetPenalizedMembersExpiredSigning get assigned members that do not sign a request.
 func (k Keeper) GetPenalizedMembersExpiredSigning(ctx sdk.Context, signing types.Signing) ([]sdk.AccAddress, error) {
 	pzs := k.GetPartialSignaturesWithKey(ctx, signing.ID)
 	var penalizedMembers []sdk.AccAddress
@@ -487,6 +488,7 @@ func (k Keeper) GetPenalizedMembersExpiredSigning(ctx sdk.Context, signing types
 	return penalizedMembers, nil
 }
 
+// HandleProcessSigning combine and verify group signature.
 func (k Keeper) HandleProcessSigning(ctx sdk.Context, signingID tss.SigningID) {
 	signing := k.MustGetSigning(ctx, signingID)
 	pzs := k.GetPartialSignatures(ctx, signingID)
@@ -544,6 +546,7 @@ func (k Keeper) handleFailedSigning(ctx sdk.Context, signing types.Signing, reas
 	)
 }
 
+// HandleSigningContent convert content to message bytes by the registered router.
 func (k Keeper) HandleSigningContent(
 	ctx sdk.Context,
 	content types.Content,
