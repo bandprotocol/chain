@@ -279,7 +279,7 @@ func setup(t *testing.T, chainID string, withGenesis bool) (*bandapp.BandApp, ba
 		return app, bandapp.NewDefaultGenesisState(), dir
 	}
 
-	return app, bandapp.GenesisState{}, ""
+	return app, bandapp.GenesisState{}, dir
 }
 
 // SetupWithEmptyStore setup a instance with empty DB.
