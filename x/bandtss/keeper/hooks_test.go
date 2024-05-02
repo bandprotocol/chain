@@ -608,3 +608,90 @@ func TestHookAfterSigningComplete(t *testing.T) {
 		})
 	}
 }
+
+func TestHookAfterCreatingGroupComplete(t *testing.T) {
+	members := []sdk.AccAddress{
+		sdk.MustAccAddressFromBech32("band1t5x8hrmht463eq4m0xhfgz95h62dyvkq049eek"),
+		sdk.MustAccAddressFromBech32("band1a22hgwm4tz8gj82y6zad3de2dcg5dpymtj20m5"),
+	}
+
+	testCases := []struct {
+		name       string
+		input      tsstypes.Group
+		preProcess func(s *testutil.TestSuite)
+		postCheck  func(s *testutil.TestSuite)
+	}{
+		{
+			name: "no currentGroup",
+			input: tsstypes.Group{
+				ID:          1,
+				ModuleOwner: types.ModuleName,
+				Status:      tsstypes.GROUP_STATUS_ACTIVE,
+			},
+			preProcess: func(s *testutil.TestSuite) {
+				s.MockTSSKeeper.EXPECT().MustGetMembers(s.Ctx, tss.GroupID(1)).Return([]tsstypes.Member{
+					{ID: 1, Address: members[0].String(), GroupID: 1},
+					{ID: 2, Address: members[1].String(), GroupID: 1},
+				})
+			},
+			postCheck: func(s *testutil.TestSuite) {
+				require.Equal(t, tss.GroupID(1), s.Keeper.GetCurrentGroupID(s.Ctx))
+
+				for _, member_addr := range members {
+					member, err := s.Keeper.GetMember(s.Ctx, member_addr)
+
+					require.NoError(s.T(), err)
+					require.True(s.T(), member.IsActive)
+					require.Equal(s.T(), s.Ctx.BlockTime(), member.Since)
+					require.Equal(s.T(), s.Ctx.BlockTime(), member.LastActive)
+				}
+			},
+		},
+		{
+			name: "already set currentGroup",
+			input: tsstypes.Group{
+				ID:          2,
+				ModuleOwner: types.ModuleName,
+				Status:      tsstypes.GROUP_STATUS_ACTIVE,
+			},
+			preProcess: func(s *testutil.TestSuite) {
+				s.Keeper.SetCurrentGroupID(s.Ctx, 1)
+			},
+			postCheck: func(s *testutil.TestSuite) {
+				require.Equal(t, tss.GroupID(1), s.Keeper.GetCurrentGroupID(s.Ctx))
+			},
+		},
+		{
+			name: "group from another module",
+			input: tsstypes.Group{
+				ID:          2,
+				ModuleOwner: tsstypes.ModuleName,
+				Status:      tsstypes.GROUP_STATUS_ACTIVE,
+			},
+			preProcess: func(s *testutil.TestSuite) {
+				s.Keeper.SetCurrentGroupID(s.Ctx, 1)
+			},
+			postCheck: func(s *testutil.TestSuite) {
+				require.Equal(t, tss.GroupID(1), s.Keeper.GetCurrentGroupID(s.Ctx))
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			s := testutil.NewTestSuite(t)
+
+			if tc.preProcess != nil {
+				tc.preProcess(&s)
+			}
+
+			err := s.Hook.AfterCreatingGroupCompleted(s.Ctx, tc.input)
+			require.NoError(t, err)
+
+			if tc.postCheck != nil {
+				tc.postCheck(&s)
+			}
+		})
+	}
+
+}
