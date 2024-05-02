@@ -1,4 +1,4 @@
-package testapp
+package testdata
 
 var Wasm9 []byte = wat2wasm([]byte(`
 (module

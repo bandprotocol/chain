@@ -1,0 +1,96 @@
+name: Simulation
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.21.7"
+          check-latest: true
+      - name: Install Wabt (wat2wasm)
+        run: |
+          wget https://github.com/WebAssembly/wabt/releases/download/1.0.17/wabt-1.0.17-ubuntu.tar.gz
+          tar -zxf wabt-1.0.17-ubuntu.tar.gz
+          sudo cp wabt-1.0.17/bin/wat2wasm ~/go/bin
+      - name: Install runsim
+        run: go install github.com/cosmos/tools/cmd/runsim@v1.0.0
+      - uses: actions/cache@v4
+        with:
+          path: ~/go/bin
+          key: ${{ runner.os }}-go-binary
+
+  test-sim-import-export:
+    runs-on: ubuntu-latest
+    needs: [build]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.21.7"
+          check-latest: true
+      - uses: actions/cache@v4
+        with:
+          path: ~/go/bin
+          key: ${{ runner.os }}-go-binary
+      - name: test-sim-import-export
+        run: |
+          make test-sim-import-export
+
+  test-sim-after-import:
+    runs-on: ubuntu-latest
+    needs: [build]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.21.7"
+          check-latest: true
+      - uses: actions/cache@v4
+        with:
+          path: ~/go/bin
+          key: ${{ runner.os }}-go-binary
+      - name: test-sim-after-import
+        run: |
+          make test-sim-after-import
+
+  test-sim-multi-seed-short:
+    runs-on: ubuntu-latest
+    needs: [build]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.21.7"
+          check-latest: true
+      - uses: actions/cache@v4
+        with:
+          path: ~/go/bin
+          key: ${{ runner.os }}-go-binary
+      - name: test-sim-multi-seed-short
+        run: |
+          make test-sim-multi-seed-short
+
+  test-sim-deterministic:
+    runs-on: ubuntu-latest
+    needs: [build]
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.21.7"
+          check-latest: true
+      - uses: actions/cache@v4
+        with:
+          path: ~/go/bin
+          key: ${{ runner.os }}-go-binary
+      - name: test-sim-deterministic
+        run: |
+          make test-sim-deterministic

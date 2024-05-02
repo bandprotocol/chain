@@ -43,6 +43,7 @@ import (
 
 	bandapp "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/pkg/filecache"
+	"github.com/bandprotocol/chain/v2/testing/testdata"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -84,6 +85,7 @@ var (
 )
 
 const (
+	ChainID               string = "BANDCHAIN"
 	TestDefaultPrepareGas uint64 = 40000
 	TestDefaultExecuteGas uint64 = 300000
 )
@@ -190,11 +192,11 @@ func getGenesisOracleScripts(homePath string) []types.OracleScript {
 	fc := filecache.New(dir)
 	OracleScripts = []types.OracleScript{{}} // 0th index should be ignored
 	wasms := [][]byte{
-		Wasm1, Wasm2, Wasm3, Wasm4, Wasm56(10), Wasm56(10000000), Wasm78(10), Wasm78(2000), Wasm9,
+		testdata.Wasm1, testdata.Wasm2, testdata.Wasm3, testdata.Wasm4, testdata.Wasm56(10), testdata.Wasm56(10000000), testdata.Wasm78(10), testdata.Wasm78(2000), testdata.Wasm9,
 	}
 	for idx := 0; idx < len(wasms); idx++ {
 		idxStr := fmt.Sprintf("%d", idx+1)
-		hash := fc.AddFile(compile(wasms[idx]))
+		hash := fc.AddFile(testdata.Compile(wasms[idx]))
 		OracleScripts = append(OracleScripts, types.NewOracleScript(
 			Owner.Address, "name"+idxStr, "desc"+idxStr, hash, "schema"+idxStr, "url"+idxStr,
 		))
@@ -385,7 +387,7 @@ func NewTestApp(chainID string, logger log.Logger) *TestingApp {
 
 // CreateTestInput creates a new test environment for unit tests.
 func CreateTestInput(autoActivate bool) (*TestingApp, sdk.Context, keeper.Keeper) {
-	app := NewTestApp("BANDCHAIN", log.NewNopLogger())
+	app := NewTestApp(ChainID, log.NewNopLogger())
 	ctx := app.NewContext(false, tmproto.Header{Height: app.LastBlockHeight()})
 	if autoActivate {
 		_ = app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
@@ -443,7 +445,7 @@ func setup(withGenesis bool, invCheckPeriod uint, chainID string) (*TestingApp, 
 
 // SetupWithEmptyStore setup a TestingApp instance with empty DB
 func SetupWithEmptyStore() *TestingApp {
-	app, _, _ := setup(false, 0, "BANDCHAIN")
+	app, _, _ := setup(false, 0, ChainID)
 	return app
 }
 
