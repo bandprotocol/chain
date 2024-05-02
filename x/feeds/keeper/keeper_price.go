@@ -58,7 +58,7 @@ func (k Keeper) DeletePrice(ctx sdk.Context, signalID string) {
 }
 
 func (k Keeper) CalculatePrice(ctx sdk.Context, feed types.Feed) (types.Price, error) {
-	var pfInfos []types.PriceFeedInfo
+	var priceFeedInfos []types.PriceFeedInfo
 	blockTime := ctx.BlockTime()
 	transitionTime := k.GetParams(ctx).TransitionTime
 
@@ -76,8 +76,8 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, feed types.Feed) (types.Price, e
 				if err == nil {
 					// if timestamp of price is in acception period, append it
 					if priceVal.Timestamp >= blockTime.Unix()-feed.Interval {
-						pfInfos = append(
-							pfInfos, types.PriceFeedInfo{
+						priceFeedInfos = append(
+							priceFeedInfos, types.PriceFeedInfo{
 								PriceOption: priceVal.PriceOption,
 								Price:       priceVal.Price,
 								Power:       power,
@@ -108,12 +108,12 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, feed types.Feed) (types.Price, e
 		},
 	)
 
-	n := len(pfInfos)
+	n := len(priceFeedInfos)
 	if n == 0 {
 		return types.Price{}, types.ErrNotEnoughPriceValidator
 	}
 
-	total, available, _, unsupported := types.CalPricesPowers(pfInfos)
+	total, available, _, unsupported := types.CalculatePricesPowers(priceFeedInfos)
 	// If more than half of the total have unsupported price options, it returns an unsupported price option.
 	if unsupported > total/2 {
 		return types.Price{
@@ -132,7 +132,9 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, feed types.Feed) (types.Price, e
 		}, nil
 	}
 
-	price, err := types.CalculateMedianPriceFeedInfo(types.FilterPfInfos(pfInfos, types.PriceOptionAvailable))
+	price, err := types.CalculateMedianPriceFeedInfo(
+		types.FilterPriceFeedInfos(priceFeedInfos, types.PriceOptionAvailable),
+	)
 	if err != nil {
 		return types.Price{}, err
 	}

@@ -21,7 +21,7 @@ type PriceFeedInfo struct {
 	Index       int64
 }
 
-func FilterPfInfos(pfInfos []PriceFeedInfo, opt PriceOption) []PriceFeedInfo {
+func FilterPriceFeedInfos(pfInfos []PriceFeedInfo, opt PriceOption) []PriceFeedInfo {
 	filtered := []PriceFeedInfo{}
 	for _, pfInfo := range pfInfos {
 		if pfInfo.PriceOption == opt {
@@ -31,10 +31,10 @@ func FilterPfInfos(pfInfos []PriceFeedInfo, opt PriceOption) []PriceFeedInfo {
 	return filtered
 }
 
-func CalPricesPowers(
-	pfInfos []PriceFeedInfo,
+func CalculatePricesPowers(
+	priceFeedInfos []PriceFeedInfo,
 ) (totalPower uint64, availablePower uint64, unavailablePower uint64, unsupportedPower uint64) {
-	for _, pfInfo := range pfInfos {
+	for _, pfInfo := range priceFeedInfos {
 		totalPower += pfInfo.Power
 
 		switch pfInfo.PriceOption {
@@ -49,20 +49,19 @@ func CalPricesPowers(
 	return totalPower, availablePower, unavailablePower, unsupportedPower
 }
 
-func CalculateMedianPriceFeedInfo(pfInfos []PriceFeedInfo) (uint64, error) {
-	totalPower, _, _, _ := CalPricesPowers(pfInfos)
+func CalculateMedianPriceFeedInfo(priceFeedInfos []PriceFeedInfo) (uint64, error) {
+	totalPower, _, _, _ := CalculatePricesPowers(priceFeedInfos)
 
-	// TODO: recheck
-	sort.Slice(pfInfos, func(i, j int) bool {
-		if pfInfos[i].Timestamp == pfInfos[j].Timestamp {
-			if pfInfos[i].Power == pfInfos[j].Power {
-				return pfInfos[i].Index < pfInfos[j].Index
+	sort.Slice(priceFeedInfos, func(i, j int) bool {
+		if priceFeedInfos[i].Timestamp == priceFeedInfos[j].Timestamp {
+			if priceFeedInfos[i].Power == priceFeedInfos[j].Power {
+				return priceFeedInfos[i].Index < priceFeedInfos[j].Index
 			}
 
-			return pfInfos[i].Power > pfInfos[j].Power
+			return priceFeedInfos[i].Power > priceFeedInfos[j].Power
 		}
 
-		return pfInfos[i].Timestamp > pfInfos[j].Timestamp
+		return priceFeedInfos[i].Timestamp > priceFeedInfos[j].Timestamp
 	})
 
 	multipliers := getMultipliers()
@@ -71,8 +70,8 @@ func CalculateMedianPriceFeedInfo(pfInfos []PriceFeedInfo) (uint64, error) {
 	var wps []WeightedPrice
 	currentSection := 0
 	currentPower := uint64(0)
-	for _, pfInfo := range pfInfos {
-		leftPower := pfInfo.Power * 32
+	for _, priceFeedInfo := range priceFeedInfos {
+		leftPower := priceFeedInfo.Power * 32
 		totalWeight := uint64(0)
 		for ; currentSection < len(sections); currentSection++ {
 			takePower := uint64(0)
@@ -94,8 +93,8 @@ func CalculateMedianPriceFeedInfo(pfInfos []PriceFeedInfo) (uint64, error) {
 		wps = append(
 			wps,
 			GetDeviationWeightedPrices(
-				pfInfo.Price,
-				pfInfo.Deviation,
+				priceFeedInfo.Price,
+				priceFeedInfo.Deviation,
 				totalWeight,
 			)...,
 		)

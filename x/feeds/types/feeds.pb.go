@@ -24,17 +24,17 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// PriceOption defines the price option of a price.
+// PriceOption is a structure that defines the price option of a price.
 type PriceOption int32
 
 const (
-	// PRICE_OPTION_UNSPECIFIED defines an unspecified price option.
+	// PRICE_OPTION_UNSPECIFIED is an unspecified price option.
 	PriceOptionUnspecified PriceOption = 0
-	// PRICE_OPTION_UNSUPPORTED defines an unsupported price option.
+	// PRICE_OPTION_UNSUPPORTED is an unsupported price option.
 	PriceOptionUnsupported PriceOption = 1
-	// PRICE_OPTION_UNAVAILABLE defines an unavailable price option.
+	// PRICE_OPTION_UNAVAILABLE is an unavailable price option.
 	PriceOptionUnavailable PriceOption = 2
-	// PRICE_OPTION_AVAILABLE defines an available price option.
+	// PRICE_OPTION_AVAILABLE is an available price option.
 	PriceOptionAvailable PriceOption = 3
 )
 
@@ -60,11 +60,11 @@ func (PriceOption) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_4b338829e148e6ea, []int{0}
 }
 
-// Signal contains signal id and power of that signal.
+// Signal is the data structure that contains signal id and power of that signal.
 type Signal struct {
-	// The id of the signal.
+	// ID is the id of the signal.
 	ID string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// The power of the corresponding signal id.
+	// Power is the power of the corresponding signal id.
 	Power uint64 `protobuf:"varint,2,opt,name=power,proto3" json:"power,omitempty"`
 }
 
@@ -115,9 +115,9 @@ func (m *Signal) GetPower() uint64 {
 	return 0
 }
 
-// DelegatorSignals contains array of signals of a delegator.
+// DelegatorSignals is the data structure that contains array of signals of a delegator.
 type DelegatorSignals struct {
-	// The address of the delegator of this signals.
+	// Delegator is the address of the delegator of this signals.
 	Delegator string `protobuf:"bytes,1,opt,name=delegator,proto3" json:"delegator,omitempty"`
 	// Signals is a list of signals submit by the delegator.
 	Signals []Signal `protobuf:"bytes,2,rep,name=signals,proto3" json:"signals"`
@@ -172,16 +172,15 @@ func (m *DelegatorSignals) GetSignals() []Signal {
 
 // Feed is a structure that holds a signal id, its total power, and its calculated interval.
 type Feed struct {
-	// The unique string that identifies the unit of feed.
+	// SignalID is the unique string that identifies the unit of feed.
 	SignalID string `protobuf:"bytes,1,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
-	// The power of the signal id.
+	// Power is the power of the corresponding feed.
 	Power uint64 `protobuf:"varint,2,opt,name=power,proto3" json:"power,omitempty"`
-	// The interval of the price feed of the signal id.
+	// Interval is the interval of the price feed.
 	Interval int64 `protobuf:"varint,3,opt,name=interval,proto3" json:"interval,omitempty"`
-	// The timestamp of the last time interval is updated.
+	// LastIntervalUpdateTimestamp is the timestamp of the last time interval is updated.
 	LastIntervalUpdateTimestamp int64 `protobuf:"varint,4,opt,name=last_interval_update_timestamp,json=lastIntervalUpdateTimestamp,proto3" json:"last_interval_update_timestamp,omitempty"`
-	// The deviation_in_thousandth signifies the maximum deviation value, expressed in thousandths, that this price feed
-	// can tolerate.
+	// DeviationInThousandth is the maximum deviation value the feed can tolerate, expressed in thousandths.
 	DeviationInThousandth int64 `protobuf:"varint,5,opt,name=deviation_in_thousandth,json=deviationInThousandth,proto3" json:"deviation_in_thousandth,omitempty"`
 }
 
@@ -253,15 +252,15 @@ func (m *Feed) GetDeviationInThousandth() int64 {
 	return 0
 }
 
-// Price defines the price of a signal id.
+// Price is a structure that defines the price of a signal id.
 type Price struct {
-	// PriceOption defines the price option of a signal id.
+	// PriceOption is the price option of a signal id.
 	PriceOption PriceOption `protobuf:"varint,1,opt,name=price_option,json=priceOption,proto3,enum=feeds.v1beta1.PriceOption" json:"price_option,omitempty"`
-	// The signal id of the price.
+	// SignalID is the signal id of the price.
 	SignalID string `protobuf:"bytes,2,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
-	// The price of the signal id.
+	// Price is the price of the signal id.
 	Price uint64 `protobuf:"varint,3,opt,name=price,proto3" json:"price,omitempty"`
-	// The timestamp at which the price was aggregated.
+	// Timestamp is the timestamp at which the price was aggregated.
 	Timestamp int64 `protobuf:"varint,4,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 }
 
@@ -326,13 +325,13 @@ func (m *Price) GetTimestamp() int64 {
 	return 0
 }
 
-// SubmitPrice defines the submit price of a signal id.
+// SubmitPrice is a structure that defines the submit price of a signal id.
 type SubmitPrice struct {
-	// PriceOption defines the price option of a signal id.
+	// PriceOption is the price option of a signal id.
 	PriceOption PriceOption `protobuf:"varint,1,opt,name=price_option,json=priceOption,proto3,enum=feeds.v1beta1.PriceOption" json:"price_option,omitempty"`
-	// The signal id of the price.
+	// SignalID is the signal id of the price.
 	SignalID string `protobuf:"bytes,2,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
-	// The price submitted by the validator.
+	// Price is the price submitted by the validator.
 	Price uint64 `protobuf:"varint,3,opt,name=price,proto3" json:"price,omitempty"`
 }
 
@@ -390,17 +389,17 @@ func (m *SubmitPrice) GetPrice() uint64 {
 	return 0
 }
 
-// PriceValidator defines the price submitted by a validator for a signal id.
+// PriceValidator is a structure that defines the price submitted by a validator for a signal id.
 type PriceValidator struct {
-	// PriceOption defines the price option of a price submitted.
+	// PriceOption is the price option of a price submitted.
 	PriceOption PriceOption `protobuf:"varint,1,opt,name=price_option,json=priceOption,proto3,enum=feeds.v1beta1.PriceOption" json:"price_option,omitempty"`
-	// The validator address.
+	// Validator is the validator address.
 	Validator string `protobuf:"bytes,2,opt,name=validator,proto3" json:"validator,omitempty"`
-	// The signal id of the price.
+	// SignalID is the signal id of the price.
 	SignalID string `protobuf:"bytes,3,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
-	// The price submitted by the validator.
+	// Price is the price submitted by the validator.
 	Price uint64 `protobuf:"varint,4,opt,name=price,proto3" json:"price,omitempty"`
-	// The timestamp at which the price was submitted.
+	// Timestamp is the timestamp at which the price was submitted.
 	Timestamp int64 `protobuf:"varint,5,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 }
 
@@ -472,13 +471,13 @@ func (m *PriceValidator) GetTimestamp() int64 {
 	return 0
 }
 
-// PriceService defines the information of price service.
+// PriceService is a structure that defines the information of price service.
 type PriceService struct {
-	// The hash of the price service.
+	// Hash is the hash of the price service.
 	Hash string `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
-	// The version of the price service.
+	// Version is the version of the price service.
 	Version string `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
-	// The URL of the price service.
+	// Url is the URL of the price service.
 	Url string `protobuf:"bytes,3,opt,name=url,proto3" json:"url,omitempty"`
 }
 

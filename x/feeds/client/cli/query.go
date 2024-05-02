@@ -38,7 +38,7 @@ func GetQueryCmd() *cobra.Command {
 func GetQueryCmdDelegatorSignal() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delegator-signal [delegator-addr]",
-		Short: "shows delegator's currently active signal",
+		Short: "Shows delegator's currently active signal",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -64,7 +64,7 @@ func GetQueryCmdDelegatorSignal() *cobra.Command {
 func GetQueryCmdPrices() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "prices",
-		Short: "shows the latest price of all signal ids",
+		Short: "Shows the latest price of all signal ids",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -93,7 +93,7 @@ func GetQueryCmdPrices() *cobra.Command {
 func GetQueryCmdPrice() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "price [signal_id]",
-		Short: "shows the latest price of a signal id",
+		Short: "Shows the latest price of a signal id",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -118,7 +118,7 @@ func GetQueryCmdPrice() *cobra.Command {
 func GetQueryCmdSupportedFeeds() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "supported-feeds",
-		Short: "shows all currently supported feeds",
+		Short: "Shows all currently supported feeds",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -141,7 +141,7 @@ func GetQueryCmdSupportedFeeds() *cobra.Command {
 func GetQueryCmdValidatorPrices() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "validator-prices [validator]",
-		Short: "shows all prices of the validator",
+		Short: "Shows all prices of the validator",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -166,7 +166,7 @@ func GetQueryCmdValidatorPrices() *cobra.Command {
 func GetQueryCmdPriceValidator() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "price-validator [signal_id] [validator]",
-		Short: "shows the price of validator of the signal id",
+		Short: "Shows the price of validator of the signal id",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -192,7 +192,7 @@ func GetQueryCmdPriceValidator() *cobra.Command {
 func GetQueryCmdFeeds() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "feeds",
-		Short: "shows all information of all feeds",
+		Short: "Shows all information of all feeds",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -221,7 +221,7 @@ func GetQueryCmdFeeds() *cobra.Command {
 func GetQueryCmdPriceService() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "price-service",
-		Short: "shows information of price service",
+		Short: "Shows information of price service",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -244,7 +244,7 @@ func GetQueryCmdPriceService() *cobra.Command {
 func GetQueryCmdParams() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "params",
-		Short: "shows the parameters of the module",
+		Short: "Shows the parameters of the module",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)

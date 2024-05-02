@@ -74,7 +74,7 @@ func (ms msgServer) SubmitSignals(
 	for _, signal := range req.Signals {
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
-				types.EventTypeSubmitSignals,
+				types.EventTypeSubmitSignal,
 				sdk.NewAttribute(types.AttributeKeyDelegator, delegator.String()),
 				sdk.NewAttribute(types.AttributeKeySignalID, signal.ID),
 				sdk.NewAttribute(types.AttributeKeyPower, fmt.Sprintf("%d", signal.Power)),
@@ -93,13 +93,13 @@ func (ms msgServer) SubmitPrices(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	blockTime := ctx.BlockTime().Unix()
 
-	// check if it's in top bonded validators.
-	err := ms.ValidateSubmitPricesRequest(ctx, blockTime, req)
+	val, err := sdk.ValAddressFromBech32(req.Validator)
 	if err != nil {
 		return nil, err
 	}
 
-	val, err := sdk.ValAddressFromBech32(req.Validator)
+	// check if it's in top bonded validators.
+	err = ms.ValidateSubmitPricesRequest(ctx, blockTime, req)
 	if err != nil {
 		return nil, err
 	}
@@ -151,6 +151,15 @@ func (ms msgServer) UpdatePriceService(
 		return nil, err
 	}
 
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeUpdatePriceService,
+			sdk.NewAttribute(types.AttributeKeyHash, req.PriceService.Hash),
+			sdk.NewAttribute(types.AttributeKeyVersion, req.PriceService.Version),
+			sdk.NewAttribute(types.AttributeKeyURL, req.PriceService.Url),
+		),
+	)
+
 	return &types.MsgUpdatePriceServiceResponse{}, nil
 }
 
@@ -171,6 +180,11 @@ func (ms msgServer) UpdateParams(
 	if err := ms.SetParams(ctx, req.Params); err != nil {
 		return nil, err
 	}
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeUpdateParams,
+		sdk.NewAttribute(types.AttributeKeyParams, req.Params.String()),
+	))
 
 	return &types.MsgUpdateParamsResponse{}, nil
 }

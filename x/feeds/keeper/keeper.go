@@ -45,8 +45,8 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-// IsInTopValidator checks is the validator is in the top bonded validators.
-func (k Keeper) IsTopValidator(ctx sdk.Context, valAddr string) bool {
+// IsBondedValidator checks is the validator is in the bonded validators.
+func (k Keeper) IsBondedValidator(ctx sdk.Context, valAddr string) bool {
 	addr, err := sdk.ValAddressFromBech32(valAddr)
 	if err != nil {
 		return false

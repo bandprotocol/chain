@@ -7,14 +7,14 @@ import (
 )
 
 func (k Keeper) ValidateSubmitPricesRequest(ctx sdk.Context, blockTime int64, req *types.MsgSubmitPrices) error {
-	isTop := k.IsTopValidator(ctx, req.Validator)
-	if !isTop {
-		return types.ErrNotTopValidator
-	}
-
 	val, err := sdk.ValAddressFromBech32(req.Validator)
 	if err != nil {
 		return err
+	}
+
+	isValid := k.IsBondedValidator(ctx, req.Validator)
+	if !isValid {
+		return types.ErrNotTopValidator
 	}
 
 	status := k.oracleKeeper.GetValidatorStatus(ctx, val)

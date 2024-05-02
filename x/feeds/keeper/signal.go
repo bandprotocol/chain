@@ -52,7 +52,7 @@ func (k Keeper) RemoveSignals(
 	for _, signal := range signals {
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
-				types.EventTypeRemoveSignals,
+				types.EventTypeRemoveSignal,
 				sdk.NewAttribute(types.AttributeKeySignalID, signal.ID),
 				sdk.NewAttribute(types.AttributeKeyPower, fmt.Sprintf("%d", signal.Power)),
 				sdk.NewAttribute(types.AttributeKeyTimestamp, fmt.Sprintf("%d", ctx.BlockTime().Unix())),

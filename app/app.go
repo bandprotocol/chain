@@ -526,7 +526,11 @@ func NewBandApp(
 	)
 
 	app.StakingKeeper.SetHooks(
-		stakingtypes.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks(), app.FeedsKeeper.Hooks()),
+		stakingtypes.NewMultiStakingHooks(
+			app.DistrKeeper.Hooks(),
+			app.SlashingKeeper.Hooks(),
+			app.FeedsKeeper.Hooks(),
+		),
 	)
 
 	// Create static IBC router, add transfer route, then set and seal it
@@ -754,7 +758,7 @@ func NewBandApp(
 			},
 			AuthzKeeper:     &app.AuthzKeeper,
 			OracleKeeper:    &app.OracleKeeper,
-			Feedskeeper:     &app.FeedsKeeper,
+			FeedsKeeper:     &app.FeedsKeeper,
 			IBCKeeper:       app.IBCKeeper,
 			StakingKeeper:   app.StakingKeeper,
 			GlobalfeeKeeper: &app.GlobalfeeKeeper,

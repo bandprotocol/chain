@@ -33,6 +33,7 @@ func GetTxCmd() *cobra.Command {
 		GetTxCmdAddGrantees(),
 		GetTxCmdRemoveGrantees(),
 		GetTxCmdSubmitSignals(),
+		GetTxCmdUpdatePriceService(),
 	)
 
 	return txCmd
@@ -81,8 +82,8 @@ $ %s tx feeds signal BTC:1000000 --from mykey
 				Delegator: delegator.String(),
 				Signals:   signals,
 			}
-			msgs := []sdk.Msg{&msg}
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &msg)
 		},
 	}
 	flags.AddTxFlagsToCmd(cmd)
@@ -94,7 +95,7 @@ $ %s tx feeds signal BTC:1000000 --from mykey
 func GetTxCmdAddGrantees() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-grantees [grantee1] [grantee2] ...",
-		Short: "Add agents authorized to submit feeds transactions.",
+		Short: "Add agents authorized to submit prices transactions.",
 		Args:  cobra.MinimumNArgs(1),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(
@@ -190,6 +191,46 @@ $ %s tx feeds remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m
 		},
 	}
 
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetTxCmdUpdatePriceService() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "update-price-service [hash] [version] [url]",
+		Short: "Update reference price service",
+		Args:  cobra.ExactArgs(3),
+		Long: strings.TrimSpace(
+			fmt.Sprintf(
+				`Update reference price service that will be use as the default service for price querying.
+Example:
+$ %s tx feeds update-price-service 1234abcedf 1.0.0 http://www.example.com --from mykey
+`,
+				version.AppName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			admin := clientCtx.GetFromAddress()
+			priceService := types.PriceService{
+				Hash:    args[0],
+				Version: args[1],
+				Url:     args[2],
+			}
+
+			msg := types.MsgUpdatePriceService{
+				Admin:        admin.String(),
+				PriceService: priceService,
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &msg)
+		},
+	}
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd

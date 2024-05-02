@@ -6,20 +6,20 @@ option go_package = "github.com/bandprotocol/chain/v2/x/feeds/types";
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 
-// Signal contains signal id and power of that signal.
+// Signal is the data structure that contains signal id and power of that signal.
 message Signal {
   option (gogoproto.equal) = true;
 
-  // The id of the signal.
+  // ID is the id of the signal.
   string id = 1 [(gogoproto.customname) = "ID"];
 
-  // The power of the corresponding signal id.
+  // Power is the power of the corresponding signal id.
   uint64 power = 2;
 }
 
-// DelegatorSignals contains array of signals of a delegator.
+// DelegatorSignals is the data structure that contains array of signals of a delegator.
 message DelegatorSignals {
-  // The address of the delegator of this signals.
+  // Delegator is the address of the delegator of this signals.
   string delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
   // Signals is a list of signals submit by the delegator.
@@ -30,101 +30,100 @@ message DelegatorSignals {
 message Feed {
   option (gogoproto.equal) = true;
 
-  // The unique string that identifies the unit of feed.
+  // SignalID is the unique string that identifies the unit of feed.
   string signal_id = 1 [(gogoproto.customname) = "SignalID"];
 
-  // The power of the signal id.
+  // Power is the power of the corresponding feed.
   uint64 power = 2;
 
-  // The interval of the price feed of the signal id.
+  // Interval is the interval of the price feed.
   int64 interval = 3;
 
-  // The timestamp of the last time interval is updated.
+  // LastIntervalUpdateTimestamp is the timestamp of the last time interval is updated.
   int64 last_interval_update_timestamp = 4;
 
-  // The deviation_in_thousandth signifies the maximum deviation value, expressed in thousandths, that this price feed
-  // can tolerate.
+  // DeviationInThousandth is the maximum deviation value the feed can tolerate, expressed in thousandths.
   int64 deviation_in_thousandth = 5;
 }
 
-// PriceOption defines the price option of a price.
+// PriceOption is a structure that defines the price option of a price.
 enum PriceOption {
   option (gogoproto.goproto_enum_prefix) = false;
 
-  // PRICE_OPTION_UNSPECIFIED defines an unspecified price option.
+  // PRICE_OPTION_UNSPECIFIED is an unspecified price option.
   PRICE_OPTION_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "PriceOptionUnspecified"];
 
-  // PRICE_OPTION_UNSUPPORTED defines an unsupported price option.
+  // PRICE_OPTION_UNSUPPORTED is an unsupported price option.
   PRICE_OPTION_UNSUPPORTED = 1 [(gogoproto.enumvalue_customname) = "PriceOptionUnsupported"];
 
-  // PRICE_OPTION_UNAVAILABLE defines an unavailable price option.
+  // PRICE_OPTION_UNAVAILABLE is an unavailable price option.
   PRICE_OPTION_UNAVAILABLE = 2 [(gogoproto.enumvalue_customname) = "PriceOptionUnavailable"];
 
-  // PRICE_OPTION_AVAILABLE defines an available price option.
+  // PRICE_OPTION_AVAILABLE is an available price option.
   PRICE_OPTION_AVAILABLE = 3 [(gogoproto.enumvalue_customname) = "PriceOptionAvailable"];
 }
 
-// Price defines the price of a signal id.
+// Price is a structure that defines the price of a signal id.
 message Price {
   option (gogoproto.equal) = true;
 
-  // PriceOption defines the price option of a signal id.
+  // PriceOption is the price option of a signal id.
   PriceOption price_option = 1;
 
-  // The signal id of the price.
+  // SignalID is the signal id of the price.
   string signal_id = 2 [(gogoproto.customname) = "SignalID"];
 
-  // The price of the signal id.
+  // Price is the price of the signal id.
   uint64 price = 3;
 
-  // The timestamp at which the price was aggregated.
+  // Timestamp is the timestamp at which the price was aggregated.
   int64 timestamp = 4;
 }
 
-// SubmitPrice defines the submit price of a signal id.
+// SubmitPrice is a structure that defines the submit price of a signal id.
 message SubmitPrice {
   option (gogoproto.equal) = true;
 
-  // PriceOption defines the price option of a signal id.
+  // PriceOption is the price option of a signal id.
   PriceOption price_option = 1;
 
-  // The signal id of the price.
+  // SignalID is the signal id of the price.
   string signal_id = 2 [(gogoproto.customname) = "SignalID"];
 
-  // The price submitted by the validator.
+  // Price is the price submitted by the validator.
   uint64 price = 3;
 }
 
-// PriceValidator defines the price submitted by a validator for a signal id.
+// PriceValidator is a structure that defines the price submitted by a validator for a signal id.
 message PriceValidator {
   option (gogoproto.equal) = true;
 
-  // PriceOption defines the price option of a price submitted.
+  // PriceOption is the price option of a price submitted.
   PriceOption price_option = 1;
 
-  // The validator address.
+  // Validator is the validator address.
   string validator = 2;
 
-  // The signal id of the price.
+  // SignalID is the signal id of the price.
   string signal_id = 3 [(gogoproto.customname) = "SignalID"];
 
-  // The price submitted by the validator.
+  // Price is the price submitted by the validator.
   uint64 price = 4;
 
-  // The timestamp at which the price was submitted.
+  // Timestamp is the timestamp at which the price was submitted.
   int64 timestamp = 5;
 }
 
-// PriceService defines the information of price service.
+// PriceService is a structure that defines the information of price service.
 message PriceService {
   option (gogoproto.equal) = true;
 
-  // The hash of the price service.
+  // Hash is the hash of the price service.
   string hash = 1;
 
-  // The version of the price service.
+  // Version is the version of the price service.
   string version = 2;
 
-  // The URL of the price service.
+  // Url is the URL of the price service.
   string url = 3;
 }
