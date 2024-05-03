@@ -489,7 +489,6 @@ func TestHookAfterSigningComplete(t *testing.T) {
 		preProcess func(s *testutil.TestSuite)
 		postCheck  func(s *testutil.TestSuite)
 	}{
-
 		{
 			name: "signing currentGroup with fee 10ubands 2 members",
 			input: tsstypes.Signing{
@@ -693,5 +692,4 @@ func TestHookAfterCreatingGroupComplete(t *testing.T) {
 			}
 		})
 	}
-
 }
