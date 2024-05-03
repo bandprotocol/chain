@@ -80,7 +80,8 @@ func (k Keeper) CreateGroupReplacement(
 	return signing.ID, nil
 }
 
-// HandleReplaceGroup updates the group information after a successful signing process.
+// HandleReplaceGroup updates the replacement status or update the current group information after
+// passing the replacement execution time and signing is completed. It emits an event at the end.
 func (k Keeper) HandleReplaceGroup(ctx sdk.Context, endBlockTime time.Time) error {
 	replacement := k.GetReplacement(ctx)
 
