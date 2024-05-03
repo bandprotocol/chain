@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,7 +14,7 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
-	testapp "github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	bandtsskeeper "github.com/bandprotocol/chain/v2/x/bandtss/keeper"
 	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
@@ -25,7 +24,7 @@ import (
 )
 
 type BenchmarkApp struct {
-	*testapp.TestingApp
+	*bandtesting.TestingApp
 	Sender         *Account
 	Validator      *Account
 	Oid            uint64
@@ -59,15 +58,16 @@ func GetDEs() []tsstypes.DE {
 }
 
 func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
+	app, _ := bandtesting.CreateTestApp(&testing.T{}, false)
 	ba := &BenchmarkApp{
-		TestingApp: testapp.NewTestApp("", log.NewNopLogger()),
+		TestingApp: app,
 		Sender: &Account{
-			Account: testapp.Owner,
+			Account: bandtesting.Owner,
 			Num:     0,
 			Seq:     0,
 		},
 		Validator: &Account{
-			Account: testapp.Validators[0],
+			Account: bandtesting.Validators[0],
 			Num:     5,
 			Seq:     0,
 		},
@@ -290,7 +290,7 @@ func (ba *BenchmarkApp) GetPendingSignTxs(
 			sig, err := CreateSignature(m.ID, signing, group.PubKey, ownPrivkey)
 			require.NoError(ba.TB, err)
 
-			tx, err := testapp.GenTx(
+			tx, err := bandtesting.GenTx(
 				ba.TxConfig,
 				GenMsgSubmitSignature(tss.SigningID(sid), m.ID, sig, ba.Sender.Address),
 				sdk.Coins{sdk.NewInt64Coin("uband", 1)},

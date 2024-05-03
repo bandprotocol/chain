@@ -8,7 +8,7 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	bandtsskeeper "github.com/bandprotocol/chain/v2/x/bandtss/keeper"
 	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
@@ -568,7 +568,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 				tc.Group.ID,
 				types.NewTextSignatureOrder([]byte("msg")),
 				sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
-				testapp.FeePayer.Address,
+				bandtesting.FeePayer.Address,
 			)
 			s.Require().NoError(err)
 			_, err = bandtssMsgSrvr.RequestSignature(ctx, msg)
