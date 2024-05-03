@@ -7,7 +7,7 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 )
 
 func fromHex(hexStr string) []byte {
@@ -19,7 +19,7 @@ func fromHex(hexStr string) []byte {
 }
 
 func TestRollingSeedCorrect(t *testing.T) {
-	app, ctx, _ := testapp.CreateTestInput(false)
+	app, ctx := bandtesting.CreateTestApp(t, false)
 
 	// Initially rolling seed should be all zeros.
 	require.Equal(
