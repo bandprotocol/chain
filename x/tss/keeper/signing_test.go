@@ -5,7 +5,7 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
@@ -186,7 +186,7 @@ func (s *KeeperTestSuite) TestGetPendingSigns() {
 		AssignedMembers: []types.AssignedMember{
 			{
 				MemberID: memberID,
-				Address:  testapp.Alice.Address.String(),
+				Address:  bandtesting.Alice.Address.String(),
 				PubD:     testutil.HexDecode("02234d901b8d6404b509e9926407d1a2749f456d18b159af647a65f3e907d61ef1"),
 				PubE:     testutil.HexDecode("028a1f3e214831b2f2d6e27384817132ddaa222928b05e9372472aa2735cf1f797"),
 				PubNonce: testutil.HexDecode("03cbb6a27c62baa195dff6c75eae7b6b7713f978732a671855f7d7b86b06e6ac67"),
@@ -198,7 +198,7 @@ func (s *KeeperTestSuite) TestGetPendingSigns() {
 	signingID := k.AddSigning(ctx, signing)
 
 	// Get all PendingSignIDs
-	got := k.GetPendingSignings(ctx, testapp.Alice.Address)
+	got := k.GetPendingSignings(ctx, bandtesting.Alice.Address)
 
 	// Check if the returned signings are equal to the ones we set
 	s.Require().Equal(uint64(signingID), got[0])

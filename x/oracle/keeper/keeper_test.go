@@ -5,12 +5,14 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func TestGetSetRequestCount(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	// Initially request count must be 0.
 	require.Equal(t, uint64(0), k.GetRequestCount(ctx))
 	// After we set the count manually, it should be reflected.
@@ -19,19 +21,32 @@ func TestGetSetRequestCount(t *testing.T) {
 }
 
 func TestGetDataSourceCount(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	k.SetDataSourceCount(ctx, 42)
 	require.Equal(t, uint64(42), k.GetDataSourceCount(ctx))
 }
 
 func TestGetSetOracleScriptCount(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	k.SetOracleScriptCount(ctx, 42)
 	require.Equal(t, uint64(42), k.GetOracleScriptCount(ctx))
 }
 
+func TestGetSetRollingSeed(t *testing.T) {
+	app, ctx := bandtesting.CreateTestApp(t, true)
+
+	app.RollingseedKeeper.SetRollingSeed(ctx, []byte("HELLO_WORLD"))
+	require.Equal(t, []byte("HELLO_WORLD"), app.RollingseedKeeper.GetRollingSeed(ctx))
+}
+
 func TestGetNextRequestID(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	// First request id must be 1.
 	require.Equal(t, types.RequestID(1), k.GetNextRequestID(ctx))
 	// After we add new requests, the request count must increase accordingly.
@@ -43,7 +58,9 @@ func TestGetNextRequestID(t *testing.T) {
 }
 
 func TestGetNextDataSourceID(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	initialID := k.GetDataSourceCount(ctx)
 	require.Equal(t, types.DataSourceID(initialID+1), k.GetNextDataSourceID(ctx))
 	require.Equal(t, types.DataSourceID(initialID+2), k.GetNextDataSourceID(ctx))
@@ -51,7 +68,9 @@ func TestGetNextDataSourceID(t *testing.T) {
 }
 
 func TestGetNextOracleScriptID(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	initialID := k.GetOracleScriptCount(ctx)
 	require.Equal(t, types.OracleScriptID(initialID+1), k.GetNextOracleScriptID(ctx))
 	require.Equal(t, types.OracleScriptID(initialID+2), k.GetNextOracleScriptID(ctx))
@@ -59,7 +78,9 @@ func TestGetNextOracleScriptID(t *testing.T) {
 }
 
 func TestGetSetRequestLastExpiredID(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	// Initially last expired request must be 0.
 	require.Equal(t, types.RequestID(0), k.GetRequestLastExpired(ctx))
 	k.SetRequestLastExpired(ctx, 20)
