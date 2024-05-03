@@ -66,7 +66,7 @@ $ %s tx feeds signal BTC:1000000 --from mykey
 				if len(idAndPower) != 2 {
 					return fmt.Errorf("argument %d is not valid", i)
 				}
-				power, err := strconv.ParseUint(idAndPower[1], 0, 64)
+				power, err := strconv.ParseInt(idAndPower[1], 0, 64)
 				if err != nil {
 					return err
 				}

@@ -14,7 +14,7 @@ message Signal {
   string id = 1 [(gogoproto.customname) = "ID"];
 
   // Power is the power of the corresponding signal id.
-  uint64 power = 2;
+  int64 power = 2;
 }
 
 // DelegatorSignals is the data structure that contains array of signals of a delegator.
@@ -34,7 +34,7 @@ message Feed {
   string signal_id = 1 [(gogoproto.customname) = "SignalID"];
 
   // Power is the power of the corresponding feed.
-  uint64 power = 2;
+  int64 power = 2;
 
   // Interval is the interval of the price feed.
   int64 interval = 3;

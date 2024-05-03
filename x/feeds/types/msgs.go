@@ -189,9 +189,9 @@ func (m *MsgSubmitSignals) ValidateBasic() error {
 		return errorsmod.Wrap(err, "invalid delegator address")
 	}
 	for _, signal := range m.Signals {
-		if signal.ID == "" || signal.Power == 0 {
+		if signal.ID == "" || signal.Power <= 0 {
 			return sdkerrors.ErrInvalidRequest.Wrap(
-				"signal id cannot be empty and its power cannot be zero",
+				"signal id cannot be empty and its power must be positive",
 			)
 		}
 	}

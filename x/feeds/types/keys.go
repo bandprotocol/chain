@@ -55,9 +55,9 @@ func PriceStoreKey(signalID string) []byte {
 	return append(PriceStoreKeyPrefix, []byte(signalID)...)
 }
 
-func FeedsByPowerIndexKey(signalID string, power uint64) []byte {
+func FeedsByPowerIndexKey(signalID string, power int64) []byte {
 	powerBytes := make([]byte, 8)
-	binary.BigEndian.PutUint64(powerBytes, power)
+	binary.BigEndian.PutUint64(powerBytes, uint64(power))
 	powerBytesLen := len(powerBytes) // 8
 
 	signalIDBytes := []byte(signalID)

@@ -44,8 +44,21 @@ func (k Keeper) SetFeeds(ctx sdk.Context, feeds []types.Feed) {
 }
 
 func (k Keeper) SetFeed(ctx sdk.Context, feed types.Feed) {
-	k.setFeedByPowerIndex(ctx, feed)
-	ctx.KVStore(k.storeKey).Set(types.FeedStoreKey(feed.SignalID), k.cdc.MustMarshal(&feed))
+	// set new timestamp if interval is updated
+	prevFeed, err := k.GetFeed(ctx, feed.SignalID)
+	if err == nil {
+		if prevFeed.Interval != feed.Interval {
+			feed.LastIntervalUpdateTimestamp = ctx.BlockTime().Unix()
+		}
+	}
+
+	if feed.Power <= 0 {
+		k.DeleteFeedByPowerIndex(ctx, feed)
+		k.DeleteFeed(ctx, feed.SignalID)
+	} else {
+		ctx.KVStore(k.storeKey).Set(types.FeedStoreKey(feed.SignalID), k.cdc.MustMarshal(&feed))
+		k.setFeedByPowerIndex(ctx, feed)
+	}
 }
 
 func (k Keeper) DeleteFeed(ctx sdk.Context, signalID string) {

@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"fmt"
+	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -40,47 +41,38 @@ func (ms msgServer) SubmitSignals(
 		return nil, err
 	}
 
-	// delete previous signal, decrease feed power by the previous signals
-	signalIDToIntervalDiff := make(map[string]int64)
-	prevSignals := ms.GetDelegatorSignals(ctx, delegator)
-	signalIDToIntervalDiff, err = ms.RemoveSignals(ctx, prevSignals, signalIDToIntervalDiff)
-	if err != nil {
-		return nil, err
+	// calculate power different of each signal by decresing signal power with previous signal
+	signalIDToPowerDiff := ms.CalculateDelegatorSignalsPowerDiff(ctx, delegator, req.Signals)
+
+	// sort keys to guarantee order of signalIDToPowerDiff iteration
+	keys := make([]string, 0, len(signalIDToPowerDiff))
+	for k := range signalIDToPowerDiff {
+		keys = append(keys, k)
 	}
+	sort.Strings(keys)
 
-	// increase feed power by the new signals
-	signalIDToIntervalDiff, err = ms.RegisterDelegatorSignals(ctx, delegator, req.Signals, signalIDToIntervalDiff)
-	if err != nil {
-		return nil, err
-	}
-
-	// update interval timestamp for interval-changed signal ids
-	ms.UpdateFeedIntervalTimestamp(ctx, signalIDToIntervalDiff)
-
-	// delete feed that has zero power
-	for _, signal := range prevSignals {
-		feed, err := ms.GetFeed(ctx, signal.ID)
+	for _, signalID := range keys {
+		powerDiff := signalIDToPowerDiff[signalID]
+		feed, err := ms.GetFeed(ctx, signalID)
 		if err != nil {
-			// if feed is not existed, no need to delete
-			continue
-		}
-		if feed.Power == 0 {
-			ms.DeleteFeed(ctx, feed.SignalID)
+			feed = types.Feed{
+				SignalID:                    signalID,
+				Power:                       0,
+				Interval:                    0,
+				LastIntervalUpdateTimestamp: ctx.BlockTime().Unix(),
+			}
+		} else {
+			// before changing in feed, delete feed by power index
 			ms.DeleteFeedByPowerIndex(ctx, feed)
 		}
-	}
+		feed.Power += powerDiff
 
-	// emit events for the signaling operation.
-	for _, signal := range req.Signals {
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeSubmitSignal,
-				sdk.NewAttribute(types.AttributeKeyDelegator, delegator.String()),
-				sdk.NewAttribute(types.AttributeKeySignalID, signal.ID),
-				sdk.NewAttribute(types.AttributeKeyPower, fmt.Sprintf("%d", signal.Power)),
-				sdk.NewAttribute(types.AttributeKeyTimestamp, fmt.Sprintf("%d", ctx.BlockTime().Unix())),
-			),
-		)
+		if feed.Power < 0 {
+			return nil, types.ErrPowerNegative
+		}
+
+		feed.Interval, feed.DeviationInThousandth = calculateIntervalAndDeviation(feed.Power, ms.GetParams(ctx))
+		ms.SetFeed(ctx, feed)
 	}
 
 	return &types.MsgSubmitSignalsResponse{}, nil

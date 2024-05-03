@@ -14,7 +14,7 @@ func (k Keeper) ValidateSubmitPricesRequest(ctx sdk.Context, blockTime int64, re
 
 	isValid := k.IsBondedValidator(ctx, req.Validator)
 	if !isValid {
-		return types.ErrNotTopValidator
+		return types.ErrNotBondedValidator
 	}
 
 	status := k.oracleKeeper.GetValidatorStatus(ctx, val)

@@ -25,7 +25,7 @@ func calculateIntervalAndDeviation(power int64, param types.Params) (interval in
 	return
 }
 
-func sumPower(signals []types.Signal) (sum uint64) {
+func sumPower(signals []types.Signal) (sum int64) {
 	for _, signal := range signals {
 		sum += signal.Power
 	}

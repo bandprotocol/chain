@@ -50,7 +50,7 @@ func (h Hooks) BeforeDelegationRemoved(_ sdk.Context, _ sdk.AccAddress, _ sdk.Va
 }
 
 func (h Hooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, _ sdk.ValAddress) error {
-	delegated := h.k.stakingKeeper.GetDelegatorBonded(ctx, delAddr).Uint64()
+	delegated := h.k.stakingKeeper.GetDelegatorBonded(ctx, delAddr).Int64()
 	power := sumPower(h.k.GetDelegatorSignals(ctx, delAddr))
 	if power > delegated {
 		return types.ErrUnableToUndelegate
