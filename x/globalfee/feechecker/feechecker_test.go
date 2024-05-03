@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/globalfee/feechecker"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -61,12 +61,13 @@ type FeeCheckerTestSuite struct {
 }
 
 func (suite *FeeCheckerTestSuite) SetupTest() {
-	app, ctx, oracleKeeper := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(suite.T(), true)
+
 	suite.ctx = ctx.WithBlockHeight(999).
 		WithIsCheckTx(true).
 		WithMinGasPrices(sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(1, 4)}})
 
-	err := oracleKeeper.GrantReporter(suite.ctx, testapp.Validators[0].ValAddress, testapp.Alice.Address)
+	err := app.OracleKeeper.GrantReporter(suite.ctx, bandtesting.Validators[0].ValAddress, bandtesting.Alice.Address)
 	suite.Require().NoError(err)
 
 	expiration := ctx.BlockTime().Add(1000 * time.Hour)
@@ -84,20 +85,19 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 	req := oracletypes.NewRequest(
 		1,
 		BasicCalldata,
-		[]sdk.ValAddress{testapp.Validators[0].ValAddress},
+		[]sdk.ValAddress{bandtesting.Validators[0].ValAddress},
 		1,
 		1,
-		testapp.ParseTime(0),
+		bandtesting.ParseTime(0),
 		"",
 		nil,
 		nil,
 		0,
 	)
-	suite.requestID = oracleKeeper.AddRequest(suite.ctx, req)
+	suite.requestID = app.OracleKeeper.AddRequest(suite.ctx, req)
 
 	suite.FeeChecker = feechecker.NewFeeChecker(
-		&app.AuthzKeeper,
-		&oracleKeeper,
+		&app.OracleKeeper,
 		&app.GlobalfeeKeeper,
 		app.StakingKeeper,
 		&app.FeedsKeeper,

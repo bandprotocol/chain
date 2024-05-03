@@ -514,7 +514,14 @@ func NewBandApp(
 		owasmVM,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
-	oracleModule := oracle.NewAppModule(app.OracleKeeper, app.GetSubspace(oracletypes.ModuleName))
+	oracleModule := oracle.NewAppModule(
+		appCodec,
+		app.OracleKeeper,
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.StakingKeeper,
+		app.GetSubspace(oracletypes.ModuleName),
+	)
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
 
 	app.FeedsKeeper = feedskeeper.NewKeeper(
