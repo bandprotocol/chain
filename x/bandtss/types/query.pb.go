@@ -401,89 +401,6 @@ func (m *QueryCurrentGroupResponse) GetGroupID() uint64 {
 	return 0
 }
 
-// QueryReplacingGroupRequest is the request type for the Query/ReplacingGroup RPC method.
-type QueryReplacingGroupRequest struct {
-}
-
-func (m *QueryReplacingGroupRequest) Reset()         { *m = QueryReplacingGroupRequest{} }
-func (m *QueryReplacingGroupRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryReplacingGroupRequest) ProtoMessage()    {}
-func (*QueryReplacingGroupRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{8}
-}
-func (m *QueryReplacingGroupRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryReplacingGroupRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryReplacingGroupRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryReplacingGroupRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryReplacingGroupRequest.Merge(m, src)
-}
-func (m *QueryReplacingGroupRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryReplacingGroupRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryReplacingGroupRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryReplacingGroupRequest proto.InternalMessageInfo
-
-// QueryReplacingGroupResponse is the response type for the Query/ReplacingGroup RPC method.
-type QueryReplacingGroupResponse struct {
-	// TODO: add more field later when add election flow.
-	GroupID uint64 `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
-}
-
-func (m *QueryReplacingGroupResponse) Reset()         { *m = QueryReplacingGroupResponse{} }
-func (m *QueryReplacingGroupResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryReplacingGroupResponse) ProtoMessage()    {}
-func (*QueryReplacingGroupResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{9}
-}
-func (m *QueryReplacingGroupResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryReplacingGroupResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryReplacingGroupResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryReplacingGroupResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryReplacingGroupResponse.Merge(m, src)
-}
-func (m *QueryReplacingGroupResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryReplacingGroupResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryReplacingGroupResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryReplacingGroupResponse proto.InternalMessageInfo
-
-func (m *QueryReplacingGroupResponse) GetGroupID() uint64 {
-	if m != nil {
-		return m.GroupID
-	}
-	return 0
-}
-
 // QuerySingingRequest is the request type for the Query/Signing RPC method.
 type QuerySigningRequest struct {
 	// signing_id is the ID of the signing request.
@@ -494,7 +411,7 @@ func (m *QuerySigningRequest) Reset()         { *m = QuerySigningRequest{} }
 func (m *QuerySigningRequest) String() string { return proto.CompactTextString(m) }
 func (*QuerySigningRequest) ProtoMessage()    {}
 func (*QuerySigningRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{10}
+	return fileDescriptor_85d3a287ab772b87, []int{8}
 }
 func (m *QuerySigningRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -546,7 +463,7 @@ func (m *QuerySigningResponse) Reset()         { *m = QuerySigningResponse{} }
 func (m *QuerySigningResponse) String() string { return proto.CompactTextString(m) }
 func (*QuerySigningResponse) ProtoMessage()    {}
 func (*QuerySigningResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{11}
+	return fileDescriptor_85d3a287ab772b87, []int{9}
 }
 func (m *QuerySigningResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -603,6 +520,89 @@ func (m *QuerySigningResponse) GetReplacingGroupSigningResult() *types1.SigningR
 	return nil
 }
 
+// QueryReplacementRequest is the request type for the Query/Replacement RPC method.
+type QueryReplacementRequest struct {
+}
+
+func (m *QueryReplacementRequest) Reset()         { *m = QueryReplacementRequest{} }
+func (m *QueryReplacementRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryReplacementRequest) ProtoMessage()    {}
+func (*QueryReplacementRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_85d3a287ab772b87, []int{10}
+}
+func (m *QueryReplacementRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryReplacementRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryReplacementRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryReplacementRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryReplacementRequest.Merge(m, src)
+}
+func (m *QueryReplacementRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryReplacementRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryReplacementRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryReplacementRequest proto.InternalMessageInfo
+
+// QueryReplacementResponse is the response type for the Query/Replacement RPC method.
+type QueryReplacementResponse struct {
+	// replacement is the replacement information.
+	Replacement Replacement `protobuf:"bytes,1,opt,name=replacement,proto3" json:"replacement"`
+}
+
+func (m *QueryReplacementResponse) Reset()         { *m = QueryReplacementResponse{} }
+func (m *QueryReplacementResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryReplacementResponse) ProtoMessage()    {}
+func (*QueryReplacementResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_85d3a287ab772b87, []int{11}
+}
+func (m *QueryReplacementResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryReplacementResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryReplacementResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryReplacementResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryReplacementResponse.Merge(m, src)
+}
+func (m *QueryReplacementResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryReplacementResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryReplacementResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryReplacementResponse proto.InternalMessageInfo
+
+func (m *QueryReplacementResponse) GetReplacement() Replacement {
+	if m != nil {
+		return m.Replacement
+	}
+	return Replacement{}
+}
+
 func init() {
 	proto.RegisterType((*QueryParamsRequest)(nil), "bandtss.v1beta1.QueryParamsRequest")
 	proto.RegisterType((*QueryParamsResponse)(nil), "bandtss.v1beta1.QueryParamsResponse")
@@ -612,68 +612,69 @@ func init() {
 	proto.RegisterType((*QueryMemberResponse)(nil), "bandtss.v1beta1.QueryMemberResponse")
 	proto.RegisterType((*QueryCurrentGroupRequest)(nil), "bandtss.v1beta1.QueryCurrentGroupRequest")
 	proto.RegisterType((*QueryCurrentGroupResponse)(nil), "bandtss.v1beta1.QueryCurrentGroupResponse")
-	proto.RegisterType((*QueryReplacingGroupRequest)(nil), "bandtss.v1beta1.QueryReplacingGroupRequest")
-	proto.RegisterType((*QueryReplacingGroupResponse)(nil), "bandtss.v1beta1.QueryReplacingGroupResponse")
 	proto.RegisterType((*QuerySigningRequest)(nil), "bandtss.v1beta1.QuerySigningRequest")
 	proto.RegisterType((*QuerySigningResponse)(nil), "bandtss.v1beta1.QuerySigningResponse")
+	proto.RegisterType((*QueryReplacementRequest)(nil), "bandtss.v1beta1.QueryReplacementRequest")
+	proto.RegisterType((*QueryReplacementResponse)(nil), "bandtss.v1beta1.QueryReplacementResponse")
 }
 
 func init() { proto.RegisterFile("bandtss/v1beta1/query.proto", fileDescriptor_85d3a287ab772b87) }
 
 var fileDescriptor_85d3a287ab772b87 = []byte{
-	// 825 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x55, 0x5d, 0x4f, 0x13, 0x4d,
-	0x14, 0xee, 0x02, 0x6f, 0x4b, 0x87, 0x37, 0xef, 0x9b, 0x8c, 0x18, 0xda, 0x6d, 0xd9, 0x36, 0x2b,
-	0xd6, 0x8a, 0xba, 0x03, 0xa8, 0x3f, 0xc0, 0xa2, 0x12, 0x8c, 0x26, 0xba, 0xde, 0x69, 0x4c, 0xb3,
-	0xdd, 0x8e, 0xcb, 0xc4, 0x76, 0x67, 0xd9, 0xd9, 0x12, 0x90, 0x10, 0x13, 0x2f, 0xbc, 0x33, 0x31,
-	0x1a, 0x7f, 0x84, 0xfe, 0x12, 0x2e, 0x31, 0xde, 0x78, 0x85, 0xa6, 0xf8, 0x43, 0x4c, 0xe7, 0xa3,
-	0xed, 0xb6, 0x5b, 0xc0, 0x2b, 0xd8, 0x39, 0xcf, 0x39, 0xcf, 0x33, 0xcf, 0x39, 0x73, 0x0a, 0x0a,
-	0x0d, 0xc7, 0x6f, 0x46, 0x8c, 0xa1, 0x9d, 0xd5, 0x06, 0x8e, 0x9c, 0x55, 0xb4, 0xdd, 0xc1, 0xe1,
-	0x9e, 0x15, 0x84, 0x34, 0xa2, 0xf0, 0x7f, 0x19, 0xb4, 0x64, 0x50, 0x9f, 0xf7, 0xa8, 0x47, 0x79,
-	0x0c, 0xf5, 0xfe, 0x13, 0x30, 0x7d, 0xd9, 0xa5, 0xac, 0x4d, 0x19, 0x6a, 0x38, 0x0c, 0x8b, 0xfc,
-	0x7e, 0xb5, 0xc0, 0xf1, 0x88, 0xef, 0x44, 0x84, 0xfa, 0x12, 0x6b, 0x0c, 0x63, 0x15, 0xca, 0xa5,
-	0x44, 0xc5, 0x8b, 0x1e, 0xa5, 0x5e, 0x0b, 0x23, 0x27, 0x20, 0xc8, 0xf1, 0x7d, 0x1a, 0xf1, 0x64,
-	0x26, 0xa3, 0x8b, 0xa3, 0x6a, 0x95, 0xc0, 0x09, 0x61, 0x0f, 0xfb, 0x98, 0x11, 0x15, 0xbe, 0x38,
-	0x1c, 0xea, 0x67, 0x99, 0xf3, 0x00, 0x3e, 0xe9, 0x89, 0x7e, 0xec, 0x84, 0x4e, 0x9b, 0xd9, 0x78,
-	0xbb, 0x83, 0x59, 0x64, 0x3e, 0x04, 0x17, 0x62, 0xa7, 0x2c, 0xa0, 0x3e, 0xc3, 0xf0, 0x36, 0x48,
-	0x07, 0xfc, 0x24, 0xa7, 0x95, 0xb5, 0xea, 0xdc, 0xda, 0x82, 0x35, 0xe2, 0x91, 0x25, 0x12, 0x6a,
-	0x33, 0x87, 0xc7, 0xa5, 0x94, 0x2d, 0xc1, 0xe6, 0x6b, 0x59, 0xed, 0x11, 0x6e, 0x37, 0x70, 0xa8,
-	0x48, 0x60, 0x01, 0x64, 0x09, 0xab, 0x3b, 0x6e, 0x44, 0x76, 0x30, 0x2f, 0x38, 0x6b, 0xcf, 0x12,
-	0x76, 0x87, 0x7f, 0xc3, 0xfb, 0x00, 0x0c, 0xec, 0xcb, 0x4d, 0x71, 0xba, 0x8a, 0x25, 0xfc, 0xb3,
-	0x7a, 0xfe, 0x59, 0xa2, 0x57, 0x03, 0x62, 0x0f, 0xcb, 0xc2, 0xf6, 0x50, 0xa6, 0xf9, 0x51, 0x03,
-	0xf3, 0x71, 0x72, 0x79, 0x97, 0x55, 0x90, 0x69, 0x8b, 0xa3, 0x9c, 0x56, 0x9e, 0x4e, 0xbc, 0x8c,
-	0x48, 0xb1, 0x15, 0x0e, 0x6e, 0x24, 0x68, 0xba, 0x72, 0xa6, 0x26, 0xc1, 0x17, 0x13, 0x65, 0x49,
-	0xd3, 0x25, 0x81, 0xf4, 0x23, 0x07, 0x32, 0x4e, 0xb3, 0x19, 0x62, 0x26, 0xec, 0xcd, 0xda, 0xea,
-	0xb3, 0xdf, 0x0e, 0x85, 0x1f, 0xb4, 0x43, 0x48, 0x9b, 0xd8, 0x0e, 0x91, 0xa0, 0xda, 0x21, 0xc0,
-	0xa6, 0x0e, 0x72, 0xbc, 0xda, 0x7a, 0x27, 0x0c, 0xb1, 0x1f, 0x6d, 0x84, 0xb4, 0x13, 0xa8, 0xc6,
-	0xaf, 0x83, 0x7c, 0x42, 0x4c, 0xf2, 0x55, 0xc0, 0xac, 0xd7, 0x3b, 0xa8, 0x93, 0x26, 0x67, 0x9c,
-	0xa9, 0xcd, 0x75, 0x8f, 0x4b, 0x19, 0x0e, 0xda, 0xbc, 0x6b, 0x67, 0x78, 0x70, 0xb3, 0x69, 0x16,
-	0x81, 0xce, 0x8b, 0xd8, 0x38, 0x68, 0x39, 0x2e, 0xf1, 0xbd, 0x18, 0xc5, 0x3d, 0x50, 0x48, 0x8c,
-	0xfe, 0x25, 0xc9, 0x2d, 0xe9, 0xc9, 0x53, 0xe2, 0xf9, 0xc4, 0xf7, 0x94, 0x89, 0x8b, 0x00, 0x30,
-	0x71, 0xd2, 0x2f, 0x60, 0x67, 0xe5, 0xc9, 0x66, 0xd3, 0xfc, 0x36, 0x25, 0xc7, 0xa1, 0x9f, 0x26,
-	0x69, 0x5f, 0x80, 0xe9, 0x97, 0x18, 0xcb, 0x51, 0xc8, 0xc7, 0x9a, 0xaa, 0xcc, 0x5c, 0xa7, 0xc4,
-	0xaf, 0xad, 0xf4, 0xac, 0xfc, 0xfa, 0xb3, 0x54, 0xf5, 0x48, 0xb4, 0xd5, 0x69, 0x58, 0x2e, 0x6d,
-	0x23, 0xf9, 0xaa, 0xc5, 0x9f, 0x1b, 0xac, 0xf9, 0x0a, 0x45, 0x7b, 0x01, 0x66, 0x3c, 0x81, 0xd9,
-	0xbd, 0xba, 0xb0, 0x08, 0xb2, 0xa1, 0x50, 0x88, 0x43, 0x3e, 0x39, 0x59, 0x7b, 0x70, 0x00, 0x9f,
-	0x83, 0xa2, 0x2b, 0x0c, 0xaf, 0x8b, 0xbb, 0xab, 0x2b, 0x84, 0x98, 0x75, 0x5a, 0x51, 0x6e, 0x9a,
-	0xb7, 0x57, 0xb7, 0x86, 0x5b, 0x3b, 0xb8, 0x40, 0xa7, 0x15, 0xd9, 0x79, 0x77, 0xa8, 0x61, 0xb1,
-	0x10, 0xac, 0x03, 0x23, 0x54, 0x56, 0x27, 0x97, 0x9f, 0x39, 0xb3, 0x7c, 0x21, 0x8c, 0x35, 0x2b,
-	0x16, 0x5c, 0xfb, 0x92, 0x06, 0xff, 0x70, 0x4f, 0x61, 0x04, 0xd2, 0x62, 0x01, 0xc0, 0x4b, 0x63,
-	0xa3, 0x38, 0xbe, 0x65, 0xf4, 0xa5, 0xd3, 0x41, 0xa2, 0x33, 0x66, 0xe9, 0xed, 0xf7, 0xdf, 0x9f,
-	0xa6, 0xf2, 0x70, 0x01, 0x8d, 0x2e, 0x38, 0xb1, 0x5e, 0xe0, 0x2e, 0xc8, 0xc8, 0xc7, 0x0d, 0x27,
-	0x54, 0x8c, 0x2f, 0x1e, 0xfd, 0xf2, 0x19, 0x28, 0x49, 0x5c, 0xe6, 0xc4, 0x3a, 0xcc, 0x8d, 0x11,
-	0xab, 0x85, 0xf0, 0x06, 0xa4, 0x45, 0xd2, 0xa4, 0xfb, 0xc6, 0x1e, 0xb8, 0xbe, 0x74, 0x3a, 0x48,
-	0xd2, 0x2e, 0x73, 0xda, 0x25, 0x68, 0x4e, 0xa2, 0x45, 0xfb, 0x72, 0x2f, 0x1c, 0xc0, 0xf7, 0x1a,
-	0xf8, 0x77, 0xf8, 0xa9, 0xc2, 0xab, 0xc9, 0x14, 0x09, 0x4f, 0x5d, 0x5f, 0x3e, 0x0f, 0x54, 0x6a,
-	0xaa, 0x70, 0x4d, 0x65, 0x68, 0x8c, 0x69, 0x8a, 0xcd, 0x2d, 0xfc, 0xac, 0x81, 0xff, 0xe2, 0xef,
-	0x1a, 0x5e, 0x4b, 0xa6, 0x49, 0xdc, 0x0d, 0xfa, 0xf5, 0xf3, 0x81, 0xa5, 0xaa, 0x2a, 0x57, 0x65,
-	0xc2, 0xf2, 0x98, 0xaa, 0x91, 0x81, 0x87, 0xef, 0x34, 0x90, 0x91, 0x43, 0x3b, 0x69, 0x46, 0xe2,
-	0x7b, 0x64, 0xd2, 0x8c, 0x8c, 0xac, 0x0d, 0xd3, 0xe2, 0x12, 0xaa, 0xb0, 0x32, 0x26, 0x41, 0xbe,
-	0x31, 0x86, 0xf6, 0x07, 0xfb, 0xe8, 0xa0, 0xf6, 0xe0, 0xb0, 0x6b, 0x68, 0x47, 0x5d, 0x43, 0xfb,
-	0xd5, 0x35, 0xb4, 0x0f, 0x27, 0x46, 0xea, 0xe8, 0xc4, 0x48, 0xfd, 0x38, 0x31, 0x52, 0xcf, 0x56,
-	0x86, 0x16, 0x4a, 0xaf, 0x16, 0xff, 0x79, 0x76, 0x69, 0x0b, 0xb9, 0x5b, 0x0e, 0xf1, 0xd1, 0xce,
-	0x1a, 0xda, 0xed, 0x73, 0xf0, 0xf5, 0xd2, 0x48, 0x73, 0xc8, 0xcd, 0x3f, 0x01, 0x00, 0x00, 0xff,
-	0xff, 0xfa, 0x49, 0xac, 0x1b, 0xc6, 0x08, 0x00, 0x00,
+	// 842 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x55, 0xc1, 0x6e, 0xd3, 0x4c,
+	0x10, 0x8e, 0xdb, 0xfe, 0x49, 0xb3, 0xf9, 0xa5, 0x5f, 0xda, 0xbf, 0xa8, 0x89, 0x9b, 0x3a, 0x91,
+	0x09, 0x21, 0xad, 0x84, 0xdd, 0x16, 0x78, 0x00, 0xd2, 0x8a, 0xaa, 0x08, 0x24, 0x30, 0x37, 0x10,
+	0x0a, 0x8e, 0xb3, 0xb8, 0x16, 0x89, 0xd7, 0xf5, 0x3a, 0x55, 0x4b, 0x55, 0x21, 0x71, 0x40, 0x5c,
+	0x90, 0x10, 0x5c, 0x79, 0x02, 0x9e, 0xa4, 0xc7, 0x22, 0x2e, 0x9c, 0x0a, 0x4a, 0x79, 0x10, 0xe4,
+	0xdd, 0x71, 0x62, 0xc7, 0x49, 0xdb, 0x53, 0xeb, 0x99, 0x6f, 0xe6, 0xfb, 0x66, 0x66, 0x67, 0x82,
+	0x96, 0xda, 0xa6, 0xdb, 0x09, 0x18, 0xd3, 0xf7, 0xd7, 0xdb, 0x24, 0x30, 0xd7, 0xf5, 0xbd, 0x3e,
+	0xf1, 0x0f, 0x35, 0xcf, 0xa7, 0x01, 0xc5, 0xff, 0x81, 0x53, 0x03, 0xa7, 0xbc, 0x60, 0x53, 0x9b,
+	0x72, 0x9f, 0x1e, 0xfe, 0x27, 0x60, 0xf2, 0xaa, 0x45, 0x59, 0x8f, 0x32, 0xbd, 0x6d, 0x32, 0x22,
+	0xe2, 0x87, 0xd9, 0x3c, 0xd3, 0x76, 0x5c, 0x33, 0x70, 0xa8, 0x0b, 0x58, 0x25, 0x8e, 0x8d, 0x50,
+	0x16, 0x75, 0x22, 0x7f, 0xd9, 0xa6, 0xd4, 0xee, 0x12, 0xdd, 0xf4, 0x1c, 0xdd, 0x74, 0x5d, 0x1a,
+	0xf0, 0x60, 0x06, 0xde, 0xe5, 0x71, 0xb5, 0x91, 0xc0, 0x29, 0x6e, 0x9b, 0xb8, 0x84, 0x39, 0x91,
+	0xfb, 0x5a, 0xdc, 0x35, 0x8c, 0x52, 0x17, 0x10, 0x7e, 0x12, 0x8a, 0x7e, 0x6c, 0xfa, 0x66, 0x8f,
+	0x19, 0x64, 0xaf, 0x4f, 0x58, 0xa0, 0x3e, 0x44, 0xff, 0x27, 0xac, 0xcc, 0xa3, 0x2e, 0x23, 0xf8,
+	0x2e, 0xca, 0x7a, 0xdc, 0x52, 0x94, 0xaa, 0x52, 0xa3, 0xb0, 0xb1, 0xa8, 0x8d, 0xf5, 0x48, 0x13,
+	0x01, 0xcd, 0xb9, 0x93, 0xb3, 0x4a, 0xc6, 0x00, 0xb0, 0xfa, 0x06, 0xb2, 0x3d, 0x22, 0xbd, 0x36,
+	0xf1, 0x23, 0x12, 0xbc, 0x84, 0xf2, 0x0e, 0x6b, 0x99, 0x56, 0xe0, 0xec, 0x13, 0x9e, 0x70, 0xde,
+	0x98, 0x77, 0xd8, 0x3d, 0xfe, 0x8d, 0xef, 0x23, 0x34, 0x6a, 0x5f, 0x71, 0x86, 0xd3, 0xd5, 0x35,
+	0xd1, 0x3f, 0x2d, 0xec, 0x9f, 0x26, 0x66, 0x35, 0x22, 0xb6, 0x09, 0x24, 0x36, 0x62, 0x91, 0xea,
+	0x67, 0x09, 0x2d, 0x24, 0xc9, 0xa1, 0x96, 0x75, 0x94, 0xeb, 0x09, 0x53, 0x51, 0xaa, 0xce, 0x4e,
+	0x2c, 0x46, 0x84, 0x18, 0x11, 0x0e, 0x6f, 0x4f, 0xd0, 0x74, 0xf3, 0x52, 0x4d, 0x82, 0x2f, 0x21,
+	0x4a, 0x83, 0xa6, 0x03, 0x01, 0xf4, 0xa3, 0x88, 0x72, 0x66, 0xa7, 0xe3, 0x13, 0x26, 0xda, 0x9b,
+	0x37, 0xa2, 0xcf, 0xe1, 0x38, 0x22, 0xfc, 0x68, 0x1c, 0x42, 0xda, 0xd4, 0x71, 0x88, 0x80, 0x68,
+	0x1c, 0x02, 0xac, 0xca, 0xa8, 0xc8, 0xb3, 0x6d, 0xf6, 0x7d, 0x9f, 0xb8, 0xc1, 0xb6, 0x4f, 0xfb,
+	0x5e, 0x34, 0xf8, 0x4d, 0x54, 0x9a, 0xe0, 0x03, 0xbe, 0x3a, 0x9a, 0xb7, 0x43, 0x43, 0xcb, 0xe9,
+	0x70, 0xc6, 0xb9, 0x66, 0x61, 0x70, 0x56, 0xc9, 0x71, 0xd0, 0xce, 0x96, 0x91, 0xe3, 0xce, 0x9d,
+	0x8e, 0x7a, 0x07, 0xe4, 0x3e, 0x75, 0x6c, 0xd7, 0x71, 0xed, 0xa8, 0xbe, 0x65, 0x84, 0x98, 0xb0,
+	0x0c, 0x13, 0x18, 0x79, 0xb0, 0xec, 0x74, 0xd4, 0xef, 0x33, 0x30, 0xa9, 0x61, 0x18, 0xd0, 0xbe,
+	0x40, 0xb3, 0xaf, 0x08, 0x81, 0x29, 0x95, 0x12, 0xfd, 0x8e, 0xea, 0xdc, 0xa4, 0x8e, 0xdb, 0x5c,
+	0x0b, 0xab, 0xfc, 0xf6, 0xab, 0xd2, 0xb0, 0x9d, 0x60, 0xb7, 0xdf, 0xd6, 0x2c, 0xda, 0xd3, 0x61,
+	0xe1, 0xc4, 0x9f, 0x5b, 0xac, 0xf3, 0x5a, 0x0f, 0x0e, 0x3d, 0xc2, 0x78, 0x00, 0x33, 0xc2, 0xbc,
+	0xb8, 0x8c, 0xf2, 0xbe, 0x50, 0x48, 0x7c, 0x3e, 0xd4, 0xbc, 0x31, 0x32, 0xe0, 0xe7, 0xa8, 0x6c,
+	0x89, 0x5e, 0xb4, 0x44, 0xed, 0x51, 0x09, 0x3e, 0x61, 0xfd, 0x6e, 0x50, 0x9c, 0xe5, 0x9d, 0x97,
+	0xb5, 0x78, 0xd7, 0x47, 0x05, 0xf4, 0xbb, 0x81, 0x51, 0xb2, 0x62, 0xbd, 0x4c, 0xb8, 0x70, 0x0b,
+	0x29, 0x3e, 0xf1, 0xba, 0xa6, 0x15, 0x26, 0x9c, 0x98, 0x7e, 0xee, 0xd2, 0xf4, 0x4b, 0xc3, 0x0c,
+	0x69, 0x02, 0xb5, 0x84, 0x16, 0x79, 0x4b, 0x0d, 0x8e, 0x21, 0x3d, 0xe2, 0x06, 0xd1, 0xa4, 0x5f,
+	0xc2, 0x2b, 0x48, 0xb8, 0xa0, 0xe3, 0x5b, 0xa8, 0xe0, 0x8f, 0xcc, 0xf0, 0xba, 0xca, 0xa9, 0xd7,
+	0x15, 0x0b, 0x85, 0x27, 0x16, 0x0f, 0xdb, 0xf8, 0x9a, 0x45, 0xff, 0x70, 0x0a, 0x1c, 0xa0, 0xac,
+	0x38, 0x0c, 0xf8, 0x7a, 0x2a, 0x49, 0xfa, 0xfa, 0xc8, 0xb5, 0x8b, 0x41, 0x42, 0xa4, 0x5a, 0x79,
+	0xf7, 0xe3, 0xcf, 0x97, 0x99, 0x12, 0x5e, 0xd4, 0xc7, 0x0f, 0x9f, 0x38, 0x3b, 0xf8, 0x00, 0xe5,
+	0x60, 0xe9, 0xf1, 0x94, 0x8c, 0xc9, 0x83, 0x24, 0xdf, 0xb8, 0x04, 0x05, 0xc4, 0x55, 0x4e, 0x2c,
+	0xe3, 0x62, 0x8a, 0x38, 0x3a, 0x14, 0x6f, 0x51, 0x56, 0x04, 0x4d, 0xab, 0x37, 0xb1, 0xf8, 0x72,
+	0xed, 0x62, 0x10, 0xd0, 0xae, 0x72, 0xda, 0x1a, 0x56, 0xa7, 0xd1, 0xea, 0x47, 0x70, 0x2f, 0x8e,
+	0xf1, 0x47, 0x09, 0xfd, 0x1b, 0x5f, 0x61, 0xbc, 0x32, 0x99, 0x62, 0xc2, 0x09, 0x90, 0x57, 0xaf,
+	0x02, 0x05, 0x4d, 0x75, 0xae, 0xa9, 0x8a, 0x95, 0x94, 0xa6, 0xc4, 0xd2, 0xe0, 0xf7, 0x12, 0xca,
+	0xc1, 0xcb, 0x9c, 0x36, 0x8b, 0xe4, 0xb1, 0x98, 0x36, 0x8b, 0xb1, 0xdb, 0xa0, 0x6a, 0x5c, 0x40,
+	0x03, 0xd7, 0x53, 0x02, 0x60, 0x91, 0x98, 0x7e, 0x34, 0x3a, 0x3a, 0xc7, 0xf8, 0x83, 0x84, 0x0a,
+	0xb1, 0x67, 0x8b, 0x1b, 0x93, 0x69, 0xd2, 0xfb, 0x22, 0xaf, 0x5c, 0x01, 0x09, 0xa2, 0x6a, 0x5c,
+	0x94, 0x82, 0xcb, 0x29, 0x51, 0xb1, 0xf5, 0x68, 0x3e, 0x38, 0x19, 0x28, 0xd2, 0xe9, 0x40, 0x91,
+	0x7e, 0x0f, 0x14, 0xe9, 0xd3, 0xb9, 0x92, 0x39, 0x3d, 0x57, 0x32, 0x3f, 0xcf, 0x95, 0xcc, 0xb3,
+	0xb5, 0xd8, 0x01, 0x0b, 0x33, 0xf0, 0x5f, 0x6a, 0x8b, 0x76, 0x75, 0x6b, 0xd7, 0x74, 0x5c, 0x7d,
+	0x7f, 0x43, 0x3f, 0x18, 0x66, 0xe6, 0xe7, 0xac, 0x9d, 0xe5, 0x90, 0xdb, 0x7f, 0x03, 0x00, 0x00,
+	0xff, 0xff, 0x40, 0x07, 0xf3, 0x27, 0xd1, 0x08, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -696,10 +697,10 @@ type QueryClient interface {
 	Member(ctx context.Context, in *QueryMemberRequest, opts ...grpc.CallOption) (*QueryMemberResponse, error)
 	// CurrentGroup queries the current group information.
 	CurrentGroup(ctx context.Context, in *QueryCurrentGroupRequest, opts ...grpc.CallOption) (*QueryCurrentGroupResponse, error)
-	// ReplacingGroup queries the replacing group information.
-	ReplacingGroup(ctx context.Context, in *QueryReplacingGroupRequest, opts ...grpc.CallOption) (*QueryReplacingGroupResponse, error)
 	// Signing queries the signing result of the signing request.
 	Signing(ctx context.Context, in *QuerySigningRequest, opts ...grpc.CallOption) (*QuerySigningResponse, error)
+	// Replacement queries the replacement information.
+	Replacement(ctx context.Context, in *QueryReplacementRequest, opts ...grpc.CallOption) (*QueryReplacementResponse, error)
 }
 
 type queryClient struct {
@@ -746,18 +747,18 @@ func (c *queryClient) CurrentGroup(ctx context.Context, in *QueryCurrentGroupReq
 	return out, nil
 }
 
-func (c *queryClient) ReplacingGroup(ctx context.Context, in *QueryReplacingGroupRequest, opts ...grpc.CallOption) (*QueryReplacingGroupResponse, error) {
-	out := new(QueryReplacingGroupResponse)
-	err := c.cc.Invoke(ctx, "/bandtss.v1beta1.Query/ReplacingGroup", in, out, opts...)
+func (c *queryClient) Signing(ctx context.Context, in *QuerySigningRequest, opts ...grpc.CallOption) (*QuerySigningResponse, error) {
+	out := new(QuerySigningResponse)
+	err := c.cc.Invoke(ctx, "/bandtss.v1beta1.Query/Signing", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *queryClient) Signing(ctx context.Context, in *QuerySigningRequest, opts ...grpc.CallOption) (*QuerySigningResponse, error) {
-	out := new(QuerySigningResponse)
-	err := c.cc.Invoke(ctx, "/bandtss.v1beta1.Query/Signing", in, out, opts...)
+func (c *queryClient) Replacement(ctx context.Context, in *QueryReplacementRequest, opts ...grpc.CallOption) (*QueryReplacementResponse, error) {
+	out := new(QueryReplacementResponse)
+	err := c.cc.Invoke(ctx, "/bandtss.v1beta1.Query/Replacement", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -774,10 +775,10 @@ type QueryServer interface {
 	Member(context.Context, *QueryMemberRequest) (*QueryMemberResponse, error)
 	// CurrentGroup queries the current group information.
 	CurrentGroup(context.Context, *QueryCurrentGroupRequest) (*QueryCurrentGroupResponse, error)
-	// ReplacingGroup queries the replacing group information.
-	ReplacingGroup(context.Context, *QueryReplacingGroupRequest) (*QueryReplacingGroupResponse, error)
 	// Signing queries the signing result of the signing request.
 	Signing(context.Context, *QuerySigningRequest) (*QuerySigningResponse, error)
+	// Replacement queries the replacement information.
+	Replacement(context.Context, *QueryReplacementRequest) (*QueryReplacementResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -796,11 +797,11 @@ func (*UnimplementedQueryServer) Member(ctx context.Context, req *QueryMemberReq
 func (*UnimplementedQueryServer) CurrentGroup(ctx context.Context, req *QueryCurrentGroupRequest) (*QueryCurrentGroupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CurrentGroup not implemented")
 }
-func (*UnimplementedQueryServer) ReplacingGroup(ctx context.Context, req *QueryReplacingGroupRequest) (*QueryReplacingGroupResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ReplacingGroup not implemented")
-}
 func (*UnimplementedQueryServer) Signing(ctx context.Context, req *QuerySigningRequest) (*QuerySigningResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Signing not implemented")
+}
+func (*UnimplementedQueryServer) Replacement(ctx context.Context, req *QueryReplacementRequest) (*QueryReplacementResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Replacement not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -879,24 +880,6 @@ func _Query_CurrentGroup_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_ReplacingGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryReplacingGroupRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).ReplacingGroup(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/bandtss.v1beta1.Query/ReplacingGroup",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).ReplacingGroup(ctx, req.(*QueryReplacingGroupRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Query_Signing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(QuerySigningRequest)
 	if err := dec(in); err != nil {
@@ -911,6 +894,24 @@ func _Query_Signing_Handler(srv interface{}, ctx context.Context, dec func(inter
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(QueryServer).Signing(ctx, req.(*QuerySigningRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_Replacement_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryReplacementRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Replacement(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bandtss.v1beta1.Query/Replacement",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Replacement(ctx, req.(*QueryReplacementRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -936,12 +937,12 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Query_CurrentGroup_Handler,
 		},
 		{
-			MethodName: "ReplacingGroup",
-			Handler:    _Query_ReplacingGroup_Handler,
-		},
-		{
 			MethodName: "Signing",
 			Handler:    _Query_Signing_Handler,
+		},
+		{
+			MethodName: "Replacement",
+			Handler:    _Query_Replacement_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -1212,57 +1213,6 @@ func (m *QueryCurrentGroupResponse) MarshalToSizedBuffer(dAtA []byte) (int, erro
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryReplacingGroupRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryReplacingGroupRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryReplacingGroupRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	return len(dAtA) - i, nil
-}
-
-func (m *QueryReplacingGroupResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryReplacingGroupResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryReplacingGroupResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.GroupID != 0 {
-		i = encodeVarintQuery(dAtA, i, uint64(m.GroupID))
-		i--
-		dAtA[i] = 0x8
-	}
-	return len(dAtA) - i, nil
-}
-
 func (m *QuerySigningRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1356,6 +1306,62 @@ func (m *QuerySigningResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			dAtA[i] = 0xa
 		}
 	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryReplacementRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryReplacementRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryReplacementRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryReplacementResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryReplacementResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryReplacementResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.Replacement.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
 }
 
@@ -1470,27 +1476,6 @@ func (m *QueryCurrentGroupResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryReplacingGroupRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	return n
-}
-
-func (m *QueryReplacingGroupResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.GroupID != 0 {
-		n += 1 + sovQuery(uint64(m.GroupID))
-	}
-	return n
-}
-
 func (m *QuerySigningRequest) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1527,6 +1512,26 @@ func (m *QuerySigningResponse) Size() (n int) {
 		l = m.ReplacingGroupSigningResult.Size()
 		n += 1 + l + sovQuery(uint64(l))
 	}
+	return n
+}
+
+func (m *QueryReplacementRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *QueryReplacementResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Replacement.Size()
+	n += 1 + l + sovQuery(uint64(l))
 	return n
 }
 
@@ -2179,125 +2184,6 @@ func (m *QueryCurrentGroupResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryReplacingGroupRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryReplacingGroupRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryReplacingGroupRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryReplacingGroupResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryReplacingGroupResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryReplacingGroupResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field GroupID", wireType)
-			}
-			m.GroupID = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.GroupID |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
 func (m *QuerySigningRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2531,6 +2417,139 @@ func (m *QuerySigningResponse) Unmarshal(dAtA []byte) error {
 				m.ReplacingGroupSigningResult = &types1.SigningResult{}
 			}
 			if err := m.ReplacingGroupSigningResult.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryReplacementRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryReplacementRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryReplacementRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryReplacementResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryReplacementResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryReplacementResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Replacement", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Replacement.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

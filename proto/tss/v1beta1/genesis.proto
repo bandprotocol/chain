@@ -22,14 +22,10 @@ message GenesisState {
   uint64 signing_count = 5;
   // signings is an array containing information about each signing.
   repeated Signing signings = 6 [(gogoproto.nullable) = false];
-  // replacement_count defines the number of replacements.
-  uint64 replacement_count = 7;
-  // replacements is an array containing information about each replacement.
-  repeated Replacement replacements = 8 [(gogoproto.nullable) = false];
   // de_queues is an array containing the de queues of all the addressres.
-  repeated DEQueue de_queues = 9 [(gogoproto.customname) = "DEQueues", (gogoproto.nullable) = false];
+  repeated DEQueue de_queues = 7 [(gogoproto.customname) = "DEQueues", (gogoproto.nullable) = false];
   // des_genesis is an array containing the des of all the addressres.
-  repeated DEGenesis des_genesis = 10 [(gogoproto.customname) = "DEsGenesis", (gogoproto.nullable) = false];
+  repeated DEGenesis des_genesis = 8 [(gogoproto.customname) = "DEsGenesis", (gogoproto.nullable) = false];
 }
 
 // Params defines the set of module parameters.

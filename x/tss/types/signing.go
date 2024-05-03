@@ -24,3 +24,7 @@ func NewSigning(
 		Status:          status,
 	}
 }
+
+func (s Signing) IsFailed() bool {
+	return s.Status == SIGNING_STATUS_EXPIRED || s.Status == SIGNING_STATUS_FALLEN
+}

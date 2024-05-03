@@ -137,7 +137,7 @@ func (k Keeper) HandleCreateSigning(
 	}
 
 	currentGroupID := k.GetCurrentGroupID(ctx)
-	replacingGroupID := k.GetReplacingGroupID(ctx)
+	replacement := k.GetReplacement(ctx)
 
 	currentGroup, err := k.tssKeeper.GetGroup(ctx, currentGroupID)
 	if err != nil {
@@ -176,8 +176,8 @@ func (k Keeper) HandleCreateSigning(
 	}
 
 	replacingGroupSigningID := tss.SigningID(0)
-	if replacingGroupID != 0 {
-		replacingGroup, err := k.tssKeeper.GetGroup(ctx, replacingGroupID)
+	if replacement.Status == types.REPLACEMENT_STATUS_WAITING_REPLACE {
+		replacingGroup, err := k.tssKeeper.GetGroup(ctx, replacement.NewGroupID)
 		if err != nil {
 			return 0, err
 		}
@@ -202,12 +202,7 @@ func (k Keeper) HandleCreateSigning(
 }
 
 // CheckRefundFee refunds the fee to the requester.
-func (k Keeper) CheckRefundFee(ctx sdk.Context, signing tsstypes.Signing) error {
-	bandtssSigningID := k.GetSigningIDMapping(ctx, signing.ID)
-	if bandtssSigningID == 0 {
-		return types.ErrSigningNotFound
-	}
-
+func (k Keeper) CheckRefundFee(ctx sdk.Context, signing tsstypes.Signing, bandtssSigningID types.SigningID) error {
 	bandtssSigning, err := k.GetSigning(ctx, bandtssSigningID)
 	if err != nil {
 		return err

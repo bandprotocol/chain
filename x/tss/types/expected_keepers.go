@@ -48,12 +48,6 @@ type TSSHooks interface {
 	// Must be called before setting group status to expired.
 	BeforeSetGroupExpired(ctx sdk.Context, group Group) error
 
-	// Must be called when a group is replaced successfully.
-	AfterReplacingGroupCompleted(ctx sdk.Context, replacement Replacement) error
-
-	// Must be called when a group cannot be replaced.
-	AfterReplacingGroupFailed(ctx sdk.Context, replacement Replacement) error
-
 	// Must be called when a signing request is unsuccessfully signed.
 	AfterSigningFailed(ctx sdk.Context, signing Signing) error
 

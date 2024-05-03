@@ -23,9 +23,9 @@ func GetQueryCmd() *cobra.Command {
 	cmd.AddCommand(
 		GetQueryCmdMember(),
 		GetQueryCmdCurrentGroup(),
-		GetQueryCmdReplacingGroup(),
 		GetQueryCmdParams(),
 		GetQueryCmdSigning(),
+		GetQueryCmdReplacement(),
 	)
 
 	return cmd
@@ -88,33 +88,6 @@ func GetQueryCmdCurrentGroup() *cobra.Command {
 	return cmd
 }
 
-// GetQueryCmdReplacingGroup creates a CLI command for querying replacing group.
-func GetQueryCmdReplacingGroup() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "replacing-group",
-		Short: "Query the replacingGroup",
-		Args:  cobra.ExactArgs(0),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientQueryContext(cmd)
-			if err != nil {
-				return err
-			}
-			queryClient := types.NewQueryClient(clientCtx)
-
-			res, err := queryClient.ReplacingGroup(cmd.Context(), &types.QueryReplacingGroupRequest{})
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintProto(res)
-		},
-	}
-
-	flags.AddQueryFlagsToCmd(cmd)
-
-	return cmd
-}
-
 func GetQueryCmdParams() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "params",
@@ -161,6 +134,33 @@ func GetQueryCmdSigning() *cobra.Command {
 			res, err := queryClient.Signing(cmd.Context(), &types.QuerySigningRequest{
 				SigningId: signingID,
 			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetQueryCmdReplacement creates a CLI command for querying group replacement information.
+func GetQueryCmdReplacement() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "replacement",
+		Short: "Query the replacement information",
+		Args:  cobra.ExactArgs(0),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.Replacement(cmd.Context(), &types.QueryReplacementRequest{})
 			if err != nil {
 				return err
 			}

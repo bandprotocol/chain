@@ -27,7 +27,7 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 	}
 
 	k.SetCurrentGroupID(ctx, data.CurrentGroupID)
-	k.SetReplacingGroupID(ctx, data.ReplacingGroupID)
+	k.SetReplacement(ctx, data.Replacement)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
@@ -36,9 +36,9 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 		Params:            k.GetParams(ctx),
 		Members:           k.GetMembers(ctx),
 		CurrentGroupID:    k.GetCurrentGroupID(ctx),
-		ReplacingGroupID:  k.GetReplacingGroupID(ctx),
 		SigningCount:      k.GetSigningCount(ctx),
 		Signings:          k.GetSignings(ctx),
 		SigningIDMappings: k.GetSigningIDMappings(ctx),
+		Replacement:       k.GetReplacement(ctx),
 	}
 }

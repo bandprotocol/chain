@@ -33,14 +33,14 @@ service Query {
     option (google.api.http).get = "/bandtss/v1beta1/current_group";
   }
 
-  // ReplacingGroup queries the replacing group information.
-  rpc ReplacingGroup(QueryReplacingGroupRequest) returns (QueryReplacingGroupResponse) {
-    option (google.api.http).get = "/bandtss/v1beta1/replacing_group";
-  }
-
   // Signing queries the signing result of the signing request.
   rpc Signing(QuerySigningRequest) returns (QuerySigningResponse) {
     option (google.api.http).get = "/bandtss/v1beta1/signings/{signing_id}";
+  }
+
+  // Replacement queries the replacement information.
+  rpc Replacement(QueryReplacementRequest) returns (QueryReplacementResponse) {
+    option (google.api.http).get = "/bandtss/v1beta1/replacement";
   }
 }
 
@@ -90,15 +90,6 @@ message QueryCurrentGroupResponse {
   uint64 group_id = 1 [(gogoproto.customname) = "GroupID"];
 }
 
-// QueryReplacingGroupRequest is the request type for the Query/ReplacingGroup RPC method.
-message QueryReplacingGroupRequest {}
-
-// QueryReplacingGroupResponse is the response type for the Query/ReplacingGroup RPC method.
-message QueryReplacingGroupResponse {
-  // TODO: add more field later when add election flow.
-  uint64 group_id = 1 [(gogoproto.customname) = "GroupID"];
-}
-
 // QuerySingingRequest is the request type for the Query/Signing RPC method.
 message QuerySigningRequest {
   // signing_id is the ID of the signing request.
@@ -116,4 +107,13 @@ message QuerySigningResponse {
   .tss.v1beta1.SigningResult current_group_signing_result = 3;
   // replacing_group_signing_result is the signing result from the replacing group.
   .tss.v1beta1.SigningResult replacing_group_signing_result = 4;
+}
+
+// QueryReplacementRequest is the request type for the Query/Replacement RPC method.
+message QueryReplacementRequest {}
+
+// QueryReplacementResponse is the response type for the Query/Replacement RPC method.
+message QueryReplacementResponse {
+  // replacement is the replacement information.
+  Replacement replacement = 1 [(gogoproto.nullable) = false];
 }

@@ -58,27 +58,11 @@ func (k msgServer) ReplaceGroup(
 		return nil, govtypes.ErrInvalidSigner.Wrapf("expected %s got %s", k.authority, req.Authority)
 	}
 
-	authority, err := sdk.AccAddressFromBech32(req.Authority)
-	if err != nil {
-		return nil, err
-	}
-
 	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	currentGroupID := k.GetCurrentGroupID(ctx)
-	if req.CurrentGroupID != currentGroupID {
-		return nil, types.ErrInvalidGroupID.Wrapf("invalid currentGroupID; expect %d got %d", currentGroupID, req.CurrentGroupID)
-	}
-
-	if k.GetReplacingGroupID(ctx) != 0 {
-		return nil, types.ErrReplacementInProgress
-	}
-
-	_, err = k.tssKeeper.ReplaceGroup(ctx, req.CurrentGroupID, req.NewGroupID, req.ExecTime, authority, sdk.NewCoins())
+	_, err := k.CreateGroupReplacement(ctx, req.NewGroupID, req.ExecTime)
 	if err != nil {
 		return nil, err
 	}
-	k.SetReplacingGroupID(ctx, req.NewGroupID)
 
 	return &types.MsgReplaceGroupResponse{}, nil
 }

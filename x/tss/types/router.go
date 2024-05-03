@@ -37,10 +37,6 @@ func (r *Router) AddRoute(path string, h Handler) *Router {
 		panic("router sealed; cannot add route handler")
 	}
 
-	if path == ReplaceGroupPath {
-		panic(fmt.Sprintf("path (%s) is reserved for replacing group only", ReplaceGroupPath))
-	}
-
 	if !sdk.IsAlphaNumeric(path) {
 		panic("route expressions can only contain alphanumeric characters")
 	}

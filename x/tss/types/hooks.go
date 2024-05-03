@@ -43,26 +43,6 @@ func (h MultiTSSHooks) BeforeSetGroupExpired(ctx sdk.Context, group Group) error
 	return nil
 }
 
-func (h MultiTSSHooks) AfterReplacingGroupCompleted(ctx sdk.Context, replacement Replacement) error {
-	for i := range h {
-		if err := h[i].AfterReplacingGroupCompleted(ctx, replacement); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (h MultiTSSHooks) AfterReplacingGroupFailed(ctx sdk.Context, replacement Replacement) error {
-	for i := range h {
-		if err := h[i].AfterReplacingGroupFailed(ctx, replacement); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (h MultiTSSHooks) AfterSigningFailed(ctx sdk.Context, signing Signing) error {
 	for i := range h {
 		if err := h[i].AfterSigningFailed(ctx, signing); err != nil {

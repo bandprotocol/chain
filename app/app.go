@@ -579,7 +579,8 @@ func NewBandApp(
 	// Add TSS route
 	tssRouter.
 		AddRoute(tsstypes.RouterKey, tsstypes.NewSignatureOrderHandler()).
-		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(app.OracleKeeper))
+		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(app.OracleKeeper)).
+		AddRoute(bandtsstypes.RouterKey, bandtsstypes.NewSignatureOrderHandler())
 
 	// It is vital to seal the request signature router here as to not allow
 	// further handlers to be registered after the keeper is created since this

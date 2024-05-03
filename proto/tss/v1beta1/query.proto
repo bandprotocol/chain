@@ -49,16 +49,6 @@ service Query {
   rpc Signing(QuerySigningRequest) returns (QuerySigningResponse) {
     option (google.api.http).get = "/tss/v1beta1/signings/{signing_id}";
   }
-
-  // Replacements queries all replacements.
-  rpc Replacements(QueryReplacementsRequest) returns (QueryReplacementsResponse) {
-    option (google.api.http).get = "/tss/v1beta1/replacements";
-  }
-
-  // Replacement queries replacement by ID.
-  rpc Replacement(QueryReplacementRequest) returns (QueryReplacementResponse) {
-    option (google.api.http).get = "/tss/v1beta1/replacements/{id}";
-  }
 }
 
 // QueryCountsRequest is request type for the Query/Count RPC method.
@@ -70,8 +60,6 @@ message QueryCountsResponse {
   uint64 group_count = 1;
   // signing_count is total number of signing request submitted to the chain
   uint64 signing_count = 2;
-  // ReplacementCount is total number of replacement groups submitted to the chain
-  uint64 replacement_count = 3;
 }
 
 // QueryGroupRequest is the request type for the Query/Group RPC method
@@ -177,32 +165,4 @@ message QuerySigningRequest {
 message QuerySigningResponse {
   // signing_result is the result of the signing.
   SigningResult signing_result = 1 [(gogoproto.nullable) = false];
-}
-
-// QueryReplacementsRequest is the request type for the Query/Replacements RPC method.
-message QueryReplacementsRequest {
-  // status is an enumeration of the possible statuses of a group replacement process.
-  ReplacementStatus status = 1;
-  // pagination defines an optional pagination for the request.
-  cosmos.base.query.v1beta1.PageRequest pagination = 2;
-}
-
-// QueryReplacementsResponse is the response type for the Query/Replacements RPC method.
-message QueryReplacementsResponse {
-  // replacements is a list of replacements.
-  repeated Replacement replacements = 1;
-  // pagination defines the pagination in the response.
-  cosmos.base.query.v1beta1.PageResponse pagination = 2;
-}
-
-// QueryReplacementRequest is the request type for the Query/Replacement RPC method.
-message QueryReplacementRequest {
-  // id is the unique identifier of the replacement.
-  uint64 id = 1;
-}
-
-// QueryReplacementResponse is the response type for the Query/Replacement RPC method.
-message QueryReplacementResponse {
-  // replacement represents a group that will replaced with another group in the replacement process.
-  Replacement replacement = 1;
 }

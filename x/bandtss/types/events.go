@@ -1,11 +1,14 @@
 package types
 
 const (
-	EventTypeActivate       = "activate"
-	EventTypeHealthCheck    = "health_check"
-	EventTypeInactiveStatus = "inactive_status"
-	EventTypePausedStatus   = "paused_status"
-	EventTypeJailStatus     = "jail_status"
+	EventTypeActivate           = "activate"
+	EventTypeHealthCheck        = "health_check"
+	EventTypeInactiveStatus     = "inactive_status"
+	EventTypeReplacement        = "replacement"
+	EventTypeReplacementSuccess = "replacement_success"
+	EventTypeReplacementFailed  = "replacement_failed"
 
-	AttributeKeyAddress = "address"
+	AttributeKeyAddress          = "address"
+	AttributeKeyCurrentGroupID   = "current_group_id"
+	AttributeKeyReplacingGroupID = "replacing_group_id"
 )

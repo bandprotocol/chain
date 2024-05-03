@@ -92,10 +92,9 @@ func NewMsgReplaceGroup(
 	authority string,
 ) *MsgReplaceGroup {
 	return &MsgReplaceGroup{
-		CurrentGroupID: currentGroupID,
-		NewGroupID:     newGroupID,
-		ExecTime:       execTime,
-		Authority:      authority,
+		NewGroupID: newGroupID,
+		ExecTime:   execTime,
+		Authority:  authority,
 	}
 }
 

@@ -22,7 +22,6 @@ func (s *KeeperTestSuite) TestGRPCQueryCounts() {
 	s.Require().Nil(err)
 	s.Require().Equal(k.GetGroupCount(ctx), res.GroupCount)
 	s.Require().Equal(k.GetSigningCount(ctx), res.SigningCount)
-	s.Require().Equal(k.GetReplacementCount(ctx), res.ReplacementCount)
 }
 
 func (s *KeeperTestSuite) TestGRPCQueryGroup() {
@@ -574,118 +573,6 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingSignings() {
 			tc.malleate()
 
 			res, err := q.PendingSignings(ctx, &req)
-			if tc.expPass {
-				s.Require().NoError(err)
-			} else {
-				s.Require().Error(err)
-			}
-
-			tc.postTest(res, err)
-		})
-	}
-}
-
-func (s *KeeperTestSuite) TestGRPCQueryReplacement() {
-	ctx, q, k := s.ctx, s.queryClient, s.app.TSSKeeper
-
-	now := time.Now().UTC()
-
-	// Create a replacement
-	replacement := types.Replacement{
-		ID:             1,
-		SigningID:      1,
-		CurrentGroupID: 1,
-		NewGroupID:     2,
-		CurrentPubKey:  []byte("test_pub_key"),
-		NewPubKey:      []byte("test_pub_key"),
-		Status:         types.REPLACEMENT_STATUS_WAITING,
-		ExecTime:       now,
-	}
-	k.SetReplacement(ctx, replacement)
-
-	var req types.QueryReplacementRequest
-	testCases := []struct {
-		msg      string
-		malleate func()
-		expPass  bool
-		postTest func(res *types.QueryReplacementResponse, err error)
-	}{
-		{
-			"success",
-			func() {
-				req = types.QueryReplacementRequest{
-					Id: replacement.ID,
-				}
-			},
-			true,
-			func(res *types.QueryReplacementResponse, err error) {
-				s.Require().NoError(err)
-				s.Require().NotNil(res)
-				s.Require().Equal(replacement, *res.Replacement)
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			tc.malleate()
-
-			res, err := q.Replacement(ctx, &req)
-			if tc.expPass {
-				s.Require().NoError(err)
-			} else {
-				s.Require().Error(err)
-			}
-
-			tc.postTest(res, err)
-		})
-	}
-}
-
-func (s *KeeperTestSuite) TestGRPCQueryReplacements() {
-	ctx, q, k := s.ctx, s.queryClient, s.app.TSSKeeper
-
-	// Create a replacement
-	replacement := types.Replacement{
-		ID:             1,
-		SigningID:      1,
-		CurrentGroupID: 1,
-		NewGroupID:     2,
-		CurrentPubKey:  []byte("test_pub_key"),
-		NewPubKey:      []byte("test_pub_key"),
-		Status:         types.REPLACEMENT_STATUS_WAITING,
-		ExecTime:       time.Now(),
-	}
-	k.SetReplacement(ctx, replacement)
-
-	var req types.QueryReplacementsRequest
-	testCases := []struct {
-		msg      string
-		malleate func()
-		expPass  bool
-		postTest func(res *types.QueryReplacementsResponse, err error)
-	}{
-		{
-			"success",
-			func() {
-				req = types.QueryReplacementsRequest{
-					Status: types.REPLACEMENT_STATUS_WAITING,
-				}
-			},
-			true,
-			func(res *types.QueryReplacementsResponse, err error) {
-				s.Require().NoError(err)
-				s.Require().NotNil(res)
-				s.Require().Len(res.Replacements, 1)
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			tc.malleate()
-
-			res, err := q.Replacements(ctx, &req)
 			if tc.expPass {
 				s.Require().NoError(err)
 			} else {
