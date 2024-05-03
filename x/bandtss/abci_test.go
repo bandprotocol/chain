@@ -9,14 +9,14 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 func TestReplaceGroups(t *testing.T) {
-	app, ctx, _ := testapp.CreateTestInput(true)
-	bandtssKeeper, tssKeeper := app.BandtssKeeper, app.TSSKeeper
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	tssKeeper, bandtssKeeper := app.TSSKeeper, app.BandtssKeeper
 
 	// Set new block time
 	ctx = ctx.WithBlockTime(time.Now().UTC())

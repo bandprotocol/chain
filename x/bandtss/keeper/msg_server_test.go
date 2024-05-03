@@ -10,7 +10,7 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
@@ -122,7 +122,7 @@ func (s *KeeperTestSuite) TestFailCreateGroup() {
 		{
 			name: "over max group size",
 			input: &types.MsgCreateGroup{
-				Members:   []string{"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs", testapp.Alice.Address.String()},
+				Members:   []string{"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs", bandtesting.Alice.Address.String()},
 				Threshold: 1,
 				Authority: s.authority.String(),
 			},
@@ -272,7 +272,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 				req, err = types.NewMsgRequestSignature(
 					tsstypes.NewTextSignatureOrder([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
-					testapp.FeePayer.Address,
+					bandtesting.FeePayer.Address,
 				)
 				s.Require().NoError(err)
 			},
@@ -297,7 +297,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 				req, err = types.NewMsgRequestSignature(
 					tsstypes.NewTextSignatureOrder([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
-					testapp.FeePayer.Address,
+					bandtesting.FeePayer.Address,
 				)
 				s.Require().NoError(err)
 			},
@@ -312,7 +312,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 				req, err = types.NewMsgRequestSignature(
 					tsstypes.NewTextSignatureOrder([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
-					testapp.FeePayer.Address,
+					bandtesting.FeePayer.Address,
 				)
 			},
 			func() {},
@@ -324,7 +324,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 		s.Run(fmt.Sprintf("Case %s", tc.Msg), func() {
 			tc.Malleate()
 
-			balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
+			balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, bandtesting.FeePayer.Address)
 			balancesModuleBefore := s.app.BankKeeper.GetAllBalances(
 				ctx,
 				s.app.BandtssKeeper.GetBandtssAccount(ctx).GetAddress(),
@@ -333,7 +333,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 			_, err := msgSrvr.RequestSignature(ctx, req)
 			s.Require().ErrorIs(tc.ExpectedErr, err)
 
-			balancesAfter := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
+			balancesAfter := s.app.BankKeeper.GetAllBalances(ctx, bandtesting.FeePayer.Address)
 			balancesModuleAfter := s.app.BankKeeper.GetAllBalances(
 				ctx,
 				s.app.BandtssKeeper.GetBandtssAccount(ctx).GetAddress(),
@@ -359,7 +359,7 @@ func (s *KeeperTestSuite) TestSuccessRequestSignatureReq() {
 			for _, signing := range tc.Signings {
 				k.SetCurrentGroupID(ctx, tc.Group.ID)
 
-				balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
+				balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, bandtesting.FeePayer.Address)
 				balancesModuleBefore := s.app.BankKeeper.GetAllBalances(
 					ctx,
 					s.app.BandtssKeeper.GetBandtssAccount(ctx).GetAddress(),
@@ -368,7 +368,7 @@ func (s *KeeperTestSuite) TestSuccessRequestSignatureReq() {
 				msg, err := types.NewMsgRequestSignature(
 					tsstypes.NewTextSignatureOrder(signing.Data),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
-					testapp.FeePayer.Address,
+					bandtesting.FeePayer.Address,
 				)
 				s.Require().NoError(err)
 
@@ -376,7 +376,7 @@ func (s *KeeperTestSuite) TestSuccessRequestSignatureReq() {
 				s.Require().NoError(err)
 
 				// Fee should be paid after requesting signature
-				balancesAfter := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
+				balancesAfter := s.app.BankKeeper.GetAllBalances(ctx, bandtesting.FeePayer.Address)
 				balancesModuleAfter := s.app.BankKeeper.GetAllBalances(
 					ctx,
 					s.app.BandtssKeeper.GetBandtssAccount(ctx).GetAddress(),

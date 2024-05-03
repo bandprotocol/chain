@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/x/bandtss/testutil"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
@@ -63,7 +63,7 @@ func TestHandleCreateSigning(t *testing.T) {
 				).Return(expectCurrentGroupSigning, nil)
 				s.MockBankKeeper.EXPECT().SendCoinsFromAccountToModule(
 					ctx,
-					testapp.Alice.Address,
+					bandtesting.Alice.Address,
 					types.ModuleName,
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 20)),
 				).Return(nil)
@@ -79,12 +79,12 @@ func TestHandleCreateSigning(t *testing.T) {
 				require.Equal(t, types.Signing{
 					ID:                      types.SigningID(1),
 					Fee:                     sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
-					Requester:               testapp.Alice.Address.String(),
+					Requester:               bandtesting.Alice.Address.String(),
 					CurrentGroupSigningID:   tss.SigningID(1),
 					ReplacingGroupSigningID: tss.SigningID(0),
 				}, bandtssSigning)
 			},
-			input: input{sender: testapp.Alice.Address, feeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100))},
+			input: input{sender: bandtesting.Alice.Address, feeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100))},
 			postProcess: func() {
 				k.SetSigningCount(ctx, 0)
 				k.DeleteSigningIDMapping(ctx, tss.SigningID(1))
@@ -172,7 +172,7 @@ func TestHandleCreateSigning(t *testing.T) {
 				).Return(expectReplaceGroupSigning, nil)
 				s.MockBankKeeper.EXPECT().SendCoinsFromAccountToModule(
 					ctx,
-					testapp.Alice.Address,
+					bandtesting.Alice.Address,
 					types.ModuleName,
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 20)),
 				).Return(nil)
@@ -190,12 +190,12 @@ func TestHandleCreateSigning(t *testing.T) {
 				require.Equal(t, types.Signing{
 					ID:                      types.SigningID(1),
 					Fee:                     sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
-					Requester:               testapp.Alice.Address.String(),
+					Requester:               bandtesting.Alice.Address.String(),
 					CurrentGroupSigningID:   tss.SigningID(2),
 					ReplacingGroupSigningID: tss.SigningID(3),
 				}, bandtssSigning)
 			},
-			input: input{sender: testapp.Alice.Address, feeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100))},
+			input: input{sender: bandtesting.Alice.Address, feeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100))},
 			postProcess: func() {
 				k.SetReplacement(ctx, types.Replacement{})
 				k.SetSigningCount(ctx, 0)
@@ -227,7 +227,7 @@ func TestHandleCreateSigning(t *testing.T) {
 				).Return(expectCurrentGroupSigning, nil)
 				s.MockBankKeeper.EXPECT().SendCoinsFromAccountToModule(
 					ctx,
-					testapp.Alice.Address,
+					bandtesting.Alice.Address,
 					types.ModuleName,
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 20)),
 				).Return(nil)
@@ -243,12 +243,12 @@ func TestHandleCreateSigning(t *testing.T) {
 				require.Equal(t, types.Signing{
 					ID:                      types.SigningID(1),
 					Fee:                     sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
-					Requester:               testapp.Alice.Address.String(),
+					Requester:               bandtesting.Alice.Address.String(),
 					CurrentGroupSigningID:   tss.SigningID(4),
 					ReplacingGroupSigningID: tss.SigningID(0),
 				}, bandtssSigning)
 			},
-			input: input{sender: testapp.Alice.Address, feeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100))},
+			input: input{sender: bandtesting.Alice.Address, feeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100))},
 			postProcess: func() {
 				k.SetReplacement(ctx, types.Replacement{})
 				k.SetSigningCount(ctx, 0)
@@ -260,7 +260,7 @@ func TestHandleCreateSigning(t *testing.T) {
 			name:        "error no active group",
 			preProcess:  func() { k.SetCurrentGroupID(ctx, 0) },
 			postProcess: func() { k.SetCurrentGroupID(ctx, currentGroupID) },
-			input:       input{sender: testapp.Alice.Address, feeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100))},
+			input:       input{sender: bandtesting.Alice.Address, feeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100))},
 			expectErr:   types.ErrNoActiveGroup,
 		},
 		{
@@ -275,7 +275,7 @@ func TestHandleCreateSigning(t *testing.T) {
 				err := k.SetParams(ctx, params)
 				require.NoError(t, err)
 			},
-			input:     input{sender: testapp.Alice.Address, feeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100))},
+			input:     input{sender: bandtesting.Alice.Address, feeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100))},
 			expectErr: types.ErrFeeExceedsLimit,
 		},
 	}

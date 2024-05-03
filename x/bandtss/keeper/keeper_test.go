@@ -14,7 +14,7 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/x/bandtss/keeper"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
@@ -24,7 +24,7 @@ import (
 type KeeperTestSuite struct {
 	suite.Suite
 
-	app         *testapp.TestingApp
+	app         *bandtesting.TestingApp
 	ctx         sdk.Context
 	queryClient types.QueryClient
 	msgSrvr     types.MsgServer
@@ -40,7 +40,7 @@ var (
 )
 
 func (s *KeeperTestSuite) SetupTest() {
-	app, ctx, _ := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(s.T(), true)
 	s.app = app
 	s.ctx = ctx
 

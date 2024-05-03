@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/x/bandtss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/testutil"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
@@ -19,12 +19,12 @@ func TestExportGenesis(t *testing.T) {
 	data := types.GenesisState{
 		Params: types.DefaultParams(),
 		Members: []types.Member{
-			{Address: testapp.Alice.Address.String(), Since: ctx.BlockTime(), IsActive: true, LastActive: ctx.BlockTime()},
+			{Address: bandtesting.Alice.Address.String(), Since: ctx.BlockTime(), IsActive: true, LastActive: ctx.BlockTime()},
 		},
 		CurrentGroupID: tss.GroupID(1),
 		SigningCount:   1,
 		Signings: []types.Signing{
-			{ID: types.SigningID(1), Requester: testapp.Alice.Address.String(), CurrentGroupSigningID: tss.SigningID(3)},
+			{ID: types.SigningID(1), Requester: bandtesting.Alice.Address.String(), CurrentGroupSigningID: tss.SigningID(3)},
 		},
 		SigningIDMappings: []types.SigningIDMappingGenesis{
 			{SigningID: tss.SigningID(1), BandtssSigningID: types.SigningID(3)},
