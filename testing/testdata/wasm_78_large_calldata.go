@@ -16,7 +16,7 @@ func Wasm78(time int) []byte {
 	for idx := 0; idx < time; idx++ {
 		b.Write([]byte("b"))
 	}
-	return wat2wasm([]byte(fmt.Sprintf(`(module
+	return wat2wasm(fmt.Sprintf(`(module
 	 (type $t0 (func))
 	 (type $t1 (func (param i64 i64 i64 i64)))
 	 (type $t2 (func (param i64 i64)))
@@ -39,5 +39,5 @@ func Wasm78(time int) []byte {
 	 (table $T0 1 1 funcref)
 	 (memory $memory (export "memory") 200)
 	 (data (i32.const 1024) "%s"))
-	  `, time, time, b.String())))
+	  `, time, time, b.String()))
 }
