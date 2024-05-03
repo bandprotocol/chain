@@ -6,34 +6,38 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/testing/testdata"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func TestHasOracleScript(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	// We should not have a oracle script ID 42 without setting it.
 	require.False(t, k.HasOracleScript(ctx, 42))
 	// After we set it, we should be able to find it.
 	k.SetOracleScript(ctx, 42, types.NewOracleScript(
-		testapp.Owner.Address, BasicName, BasicDesc, BasicFilename, BasicSchema, BasicSourceCodeURL,
+		bandtesting.Owner.Address, BasicName, BasicDesc, BasicFilename, BasicSchema, BasicSourceCodeURL,
 	))
 	require.True(t, k.HasOracleScript(ctx, 42))
 }
 
 func TestSetterGetterOracleScript(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	// Getting a non-existent oracle script should return error.
 	_, err := k.GetOracleScript(ctx, 42)
 	require.ErrorIs(t, err, types.ErrOracleScriptNotFound)
 	require.Panics(t, func() { _ = k.MustGetOracleScript(ctx, 42) })
 	// Creates some basic oracle scripts.
 	oracleScript1 := types.NewOracleScript(
-		testapp.Alice.Address, "NAME1", "DESCRIPTION1", "FILENAME1", BasicSchema, BasicSourceCodeURL,
+		bandtesting.Alice.Address, "NAME1", "DESCRIPTION1", "FILENAME1", BasicSchema, BasicSourceCodeURL,
 	)
 	oracleScript2 := types.NewOracleScript(
-		testapp.Bob.Address, "NAME2", "DESCRIPTION2", "FILENAME2", BasicSchema, BasicSourceCodeURL,
+		bandtesting.Bob.Address, "NAME2", "DESCRIPTION2", "FILENAME2", BasicSchema, BasicSourceCodeURL,
 	)
 	// Sets id 42 with oracle script 1 and id 42 with oracle script 2.
 	k.SetOracleScript(ctx, 42, oracleScript1)
@@ -54,13 +58,15 @@ func TestSetterGetterOracleScript(t *testing.T) {
 }
 
 func TestAddEditOracleScriptBasic(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	// Creates some basic oracle scripts.
 	oracleScript1 := types.NewOracleScript(
-		testapp.Alice.Address, "NAME1", "DESCRIPTION1", "FILENAME1", BasicSchema, BasicSourceCodeURL,
+		bandtesting.Alice.Address, "NAME1", "DESCRIPTION1", "FILENAME1", BasicSchema, BasicSourceCodeURL,
 	)
 	oracleScript2 := types.NewOracleScript(
-		testapp.Bob.Address, "NAME2", "DESCRIPTION2", "FILENAME2", BasicSchema, BasicSourceCodeURL,
+		bandtesting.Bob.Address, "NAME2", "DESCRIPTION2", "FILENAME2", BasicSchema, BasicSourceCodeURL,
 	)
 	// Adds a new oracle script to the store. We should be able to retrieve it back.
 	id := k.AddOracleScript(ctx, oracleScript1)
@@ -80,13 +86,15 @@ func TestAddEditOracleScriptBasic(t *testing.T) {
 }
 
 func TestAddEditOracleScriptDoNotModify(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	// Creates some basic oracle scripts.
 	oracleScript1 := types.NewOracleScript(
-		testapp.Alice.Address, "NAME1", "DESCRIPTION1", "FILENAME1", BasicSchema, BasicSourceCodeURL,
+		bandtesting.Alice.Address, "NAME1", "DESCRIPTION1", "FILENAME1", BasicSchema, BasicSourceCodeURL,
 	)
 	oracleScript2 := types.NewOracleScript(
-		testapp.Bob.Address, types.DoNotModify, types.DoNotModify, "FILENAME2",
+		bandtesting.Bob.Address, types.DoNotModify, types.DoNotModify, "FILENAME2",
 		types.DoNotModify, types.DoNotModify,
 	)
 	// Adds a new oracle script to the store. We should be able to retrieve it back.
@@ -107,18 +115,20 @@ func TestAddEditOracleScriptDoNotModify(t *testing.T) {
 }
 
 func TestAddOracleScriptMustReturnCorrectID(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	// Initially we expect the oracle script count to be what we have on genesis state.
-	genesisCount := uint64(len(testapp.OracleScripts)) - 1
+	genesisCount := uint64(len(bandtesting.OracleScripts)) - 1
 	require.Equal(t, genesisCount, k.GetOracleScriptCount(ctx))
 	// Every new oracle script we add should return a new ID.
 	id1 := k.AddOracleScript(ctx, types.NewOracleScript(
-		testapp.Owner.Address, BasicName, BasicDesc, BasicFilename, BasicSchema, BasicSourceCodeURL,
+		bandtesting.Owner.Address, BasicName, BasicDesc, BasicFilename, BasicSchema, BasicSourceCodeURL,
 	))
 	require.Equal(t, types.OracleScriptID(genesisCount+1), id1)
 	// Adds another oracle script so now ID should increase by 2.
 	id2 := k.AddOracleScript(ctx, types.NewOracleScript(
-		testapp.Owner.Address, BasicName, BasicDesc, BasicFilename, BasicSchema, BasicSourceCodeURL,
+		bandtesting.Owner.Address, BasicName, BasicDesc, BasicFilename, BasicSchema, BasicSourceCodeURL,
 	))
 	require.Equal(t, types.OracleScriptID(genesisCount+2), id2)
 	// Finally we expect the oracle script to increase as well.
@@ -126,25 +136,31 @@ func TestAddOracleScriptMustReturnCorrectID(t *testing.T) {
 }
 
 func TestEditNonExistentOracleScript(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	// Editing a non-existent oracle script should return error.
 	require.Panics(t, func() {
 		k.MustEditOracleScript(ctx, 42, types.NewOracleScript(
-			testapp.Owner.Address, BasicName, BasicDesc, BasicFilename, BasicSchema, BasicSourceCodeURL,
+			bandtesting.Owner.Address, BasicName, BasicDesc, BasicFilename, BasicSchema, BasicSourceCodeURL,
 		))
 	})
 }
 
 func TestGetAllOracleScripts(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	// We should be able to get all genesis oracle scripts.
-	require.Equal(t, testapp.OracleScripts[1:], k.GetAllOracleScripts(ctx))
+	require.Equal(t, bandtesting.OracleScripts[1:], k.GetAllOracleScripts(ctx))
 }
 
 func TestAddOracleScriptFile(t *testing.T) {
-	_, _, k := testapp.CreateTestInput(true)
+	app, _ := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	// Code should be perferctly compilable.
-	compiledCode, err := testapp.OwasmVM.Compile(testdata.WasmExtra1, types.MaxCompiledWasmCodeSize)
+	compiledCode, err := bandtesting.OwasmVM.Compile(testdata.WasmExtra1, types.MaxCompiledWasmCodeSize)
 	require.NoError(t, err)
 	// We start by adding the Owasm content to the storage.
 	filename, err := k.AddOracleScriptFile(testdata.WasmExtra1)
