@@ -4,6 +4,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
+// calculateIntervalAndDeviation calculates feed interval and deviation from power
 func calculateIntervalAndDeviation(power int64, param types.Params) (interval int64, deviation int64) {
 	if power < param.PowerThreshold {
 		return 0, 0
@@ -25,6 +26,7 @@ func calculateIntervalAndDeviation(power int64, param types.Params) (interval in
 	return
 }
 
+// sumPower sums power from a list of signals
 func sumPower(signals []types.Signal) (sum int64) {
 	for _, signal := range signals {
 		sum += signal.Power

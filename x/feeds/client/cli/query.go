@@ -35,6 +35,7 @@ func GetQueryCmd() *cobra.Command {
 	return queryCmd
 }
 
+// GetQueryCmdDelegatorSignal implements the query delegator signal command.
 func GetQueryCmdDelegatorSignal() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delegator-signal [delegator-addr]",
@@ -61,6 +62,7 @@ func GetQueryCmdDelegatorSignal() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdPrices implements the query prices command.
 func GetQueryCmdPrices() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "prices",
@@ -90,6 +92,7 @@ func GetQueryCmdPrices() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdPrice implements the query price command.
 func GetQueryCmdPrice() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "price [signal_id]",
@@ -115,6 +118,7 @@ func GetQueryCmdPrice() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdSupportedFeeds implements the query supported feeds command.
 func GetQueryCmdSupportedFeeds() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "supported-feeds",
@@ -138,6 +142,7 @@ func GetQueryCmdSupportedFeeds() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdValidatorPrices implements the query validator prices command.
 func GetQueryCmdValidatorPrices() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "validator-prices [validator]",
@@ -163,6 +168,7 @@ func GetQueryCmdValidatorPrices() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdPriceValidator implements the query price validator command.
 func GetQueryCmdPriceValidator() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "price-validator [signal_id] [validator]",
@@ -189,6 +195,7 @@ func GetQueryCmdPriceValidator() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdFeeds implements the query feeds command.
 func GetQueryCmdFeeds() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "feeds",
@@ -218,6 +225,7 @@ func GetQueryCmdFeeds() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdPriceService implements the query price service command.
 func GetQueryCmdPriceService() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "price-service",
@@ -241,6 +249,7 @@ func GetQueryCmdPriceService() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdParams implements the query params command.
 func GetQueryCmdParams() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "params",

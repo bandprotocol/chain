@@ -16,6 +16,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "feeds/MsgUpdateParams")
 }
 
+// RegisterInterfaces register the feeds module interfaces to protobuf Any.
 func RegisterInterfaces(registry types.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
@@ -29,7 +30,13 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 }
 
 var (
-	amino     = codec.NewLegacyAmino()
+	amino = codec.NewLegacyAmino()
+
+	// ModuleCdc references the global x/feeds module codec. Note, the codec
+	// should ONLY be used in certain instances of tests and for JSON encoding.
+	//
+	// The actual codec used for serialization should be provided to x/feeds and
+	// defined at the application level
 	ModuleCdc = codec.NewAminoCodec(amino)
 )
 

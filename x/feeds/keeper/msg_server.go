@@ -24,6 +24,7 @@ func NewMsgServerImpl(k Keeper) types.MsgServer {
 	}
 }
 
+// SubmitSignals register new signals and update feeds.
 func (ms msgServer) SubmitSignals(
 	goCtx context.Context,
 	req *types.MsgSubmitSignals,
@@ -78,6 +79,7 @@ func (ms msgServer) SubmitSignals(
 	return &types.MsgSubmitSignalsResponse{}, nil
 }
 
+// SubmitPrices register new validator-prices.
 func (ms msgServer) SubmitPrices(
 	goCtx context.Context,
 	req *types.MsgSubmitPrices,
@@ -124,6 +126,7 @@ func (ms msgServer) SubmitPrices(
 	return &types.MsgSubmitPricesResponse{}, nil
 }
 
+// UpdatePriceService updates price service.
 func (ms msgServer) UpdatePriceService(
 	goCtx context.Context,
 	req *types.MsgUpdatePriceService,
@@ -155,6 +158,7 @@ func (ms msgServer) UpdatePriceService(
 	return &types.MsgUpdatePriceServiceResponse{}, nil
 }
 
+// UpdateParams updates the feeds module params.
 func (ms msgServer) UpdateParams(
 	goCtx context.Context,
 	req *types.MsgUpdateParams,

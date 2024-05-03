@@ -39,6 +39,7 @@ func GetTxCmd() *cobra.Command {
 	return txCmd
 }
 
+// GetTxCmdSubmitSignals creates a CLI command for submitting signals
 func GetTxCmdSubmitSignals() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "signal [signal_id1]:[power1] [signal_id2]:[power2] ...",
@@ -91,7 +92,7 @@ $ %s tx feeds signal BTC:1000000 --from mykey
 	return cmd
 }
 
-// GetTxCmdAddGrantees creates a CLI command for add new grantees
+// GetTxCmdAddGrantees creates a CLI command for adding new grantees
 func GetTxCmdAddGrantees() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-grantees [grantee1] [grantee2] ...",
@@ -150,7 +151,7 @@ $ %s tx feeds add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq
 	return cmd
 }
 
-// GetTxCmdRemoveGrantees creates a CLI command for remove grantees from granter
+// GetTxCmdRemoveGrantees creates a CLI command for removing grantees from granter
 func GetTxCmdRemoveGrantees() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "remove-grantees [grantee1] [grantee2] ...",
@@ -196,6 +197,7 @@ $ %s tx feeds remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m
 	return cmd
 }
 
+// GetTxCmdUpdatePriceService creates a CLI command for updating price service
 func GetTxCmdUpdatePriceService() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-price-service [hash] [version] [url]",
