@@ -62,9 +62,9 @@ type Hook struct {
 	icahostKeeper icahostkeeper.Keeper
 
 	// ibc keeper
-	clientkeeper     clientkeeper.Keeper
-	connectionkeeper connectionkeeper.Keeper
-	channelkeeper    channelkeeper.Keeper
+	clientKeeper     clientkeeper.Keeper
+	connectionKeeper connectionkeeper.Keeper
+	channelKeeper    channelkeeper.Keeper
 
 	groupStoreKey storetypes.StoreKey
 }
@@ -111,9 +111,9 @@ func NewHook(
 		groupKeeper:      groupKeeper,
 		oracleKeeper:     oracleKeeper,
 		icahostKeeper:    icahostKeeper,
-		clientkeeper:     clientKeeper,
-		connectionkeeper: connectionKeeper,
-		channelkeeper:    channelKeeper,
+		clientKeeper:     clientKeeper,
+		connectionKeeper: connectionKeeper,
+		channelKeeper:    channelKeeper,
 		groupStoreKey:    groupStorekey,
 		emitStartState:   emitStartState,
 	}
