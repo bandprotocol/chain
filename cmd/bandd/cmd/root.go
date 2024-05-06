@@ -34,7 +34,6 @@ import (
 
 const (
 	flagWithEmitter            = "with-emitter"
-	flagEnableFastSync         = "enable-fast-sync"
 	flagWithPricer             = "with-pricer"
 	flagWithRequestSearch      = "with-request-search"
 	flagRequestSearchCacheSize = "request-search-cache-size"

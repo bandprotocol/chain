@@ -1,4 +1,4 @@
-package testapp
+package testdata
 
 // Wasm2 is a bad Owasm script with the following specification:
 //
@@ -6,7 +6,7 @@ package testapp
 //	  CALL set_return_data with RETDATA "beeb" -- Not allowed during prepare
 //	EXECUTE:
 //	  DO NOTHING
-var Wasm2 []byte = wat2wasm([]byte(`
+var Wasm2 []byte = wat2wasm(`
 (module
 	(type $t0 (func))
 	(type $t2 (func (param i64 i64)))
@@ -18,4 +18,4 @@ var Wasm2 []byte = wat2wasm([]byte(`
 	(func $execute (export "execute"))
 	(memory $memory (export "memory") 17)
 	(data (i32.const 1024) "beeb"))
-`))
+`)

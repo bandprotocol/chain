@@ -1,4 +1,4 @@
-package testapp
+package testdata
 
 // Wasm3 is a silly oracle script, primarily to test that you must make at least one raw request:
 //
@@ -6,7 +6,7 @@ package testapp
 //	  DO NOTHING
 //	EXECUTE:
 //	  DO NOTHING
-var Wasm3 []byte = wat2wasm([]byte(`
+var Wasm3 []byte = wat2wasm(`
 (module
 	(type $t0 (func))
 	(type $t1 (func (param i64 i64 i64 i64)))
@@ -18,4 +18,4 @@ var Wasm3 []byte = wat2wasm([]byte(`
 	(table $T0 1 1 funcref)
 	(memory $memory (export "memory") 17)
 	(data (i32.const 1024) "beeb"))
-`))
+`)

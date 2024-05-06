@@ -1,4 +1,4 @@
-package testapp
+package testdata
 
 import (
 	"crypto/sha256"
@@ -6,7 +6,7 @@ import (
 )
 
 // WasmExtra1 is an extra Owasm code to test creating or editing oracle scripts.
-var WasmExtra1 []byte = wat2wasm([]byte(`
+var WasmExtra1 []byte = wat2wasm(`
 (module
 	(type $t0 (func))
 	(type $t2 (func (param i64 i64)))
@@ -15,10 +15,10 @@ var WasmExtra1 []byte = wat2wasm([]byte(`
 	(func $execute (export "execute") (type $t0))
 	(memory $memory (export "memory") 17))
 
-`))
+`)
 
 // WasmExtra2 is another extra Owasm code to test creating or editing oracle scripts.
-var WasmExtra2 []byte = wat2wasm([]byte(`
+var WasmExtra2 []byte = wat2wasm(`
 (module
 	(type $t0 (func))
 	(type $t1 (func (param i64 i64 i64 i64)))
@@ -28,7 +28,7 @@ var WasmExtra2 []byte = wat2wasm([]byte(`
 	(func $prepare (export "prepare") (type $t0))
 	(func $execute (export "execute") (type $t0))
 	(memory $memory (export "memory") 17))
-`))
+`)
 
 var (
 	WasmExtra1FileName string
@@ -36,8 +36,8 @@ var (
 )
 
 func init() {
-	wasm1CompiledHash := sha256.Sum256(compile(WasmExtra1))
-	wasm2CompiledHash := sha256.Sum256(compile(WasmExtra2))
+	wasm1CompiledHash := sha256.Sum256(Compile(WasmExtra1))
+	wasm2CompiledHash := sha256.Sum256(Compile(WasmExtra2))
 	WasmExtra1FileName = hex.EncodeToString(wasm1CompiledHash[:])
 	WasmExtra2FileName = hex.EncodeToString(wasm2CompiledHash[:])
 }
