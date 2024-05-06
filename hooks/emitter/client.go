@@ -22,7 +22,7 @@ func getChainId(clientState exported.ClientState) string {
 }
 
 func (h *Hook) getChainIdFromClientId(ctx sdk.Context, clientId string) string {
-	clientState, _ := h.clientkeeper.GetClientState(ctx, clientId)
+	clientState, _ := h.clientKeeper.GetClientState(ctx, clientId)
 	return getChainId(clientState)
 }
 

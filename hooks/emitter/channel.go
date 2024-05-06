@@ -16,7 +16,7 @@ import (
 )
 
 func (h *Hook) emitSetChannel(ctx sdk.Context, portId string, channelId string) {
-	channel, _ := h.channelkeeper.GetChannel(ctx, portId, channelId)
+	channel, _ := h.channelKeeper.GetChannel(ctx, portId, channelId)
 	hop := channel.ConnectionHops[0]
 	h.Write("SET_CHANNEL", common.JsDict{
 		"connection_id":        hop,
@@ -257,10 +257,10 @@ func (h *Hook) extractOracleRequestPacket(
 				return false
 			}
 
-			reason, _ := hex.DecodeString(reasons[0])
+			_, _ = hex.DecodeString(reasons[0])
 			packet["acknowledgement"] = common.JsDict{
 				"status": "failure",
-				"reason": reason,
+				"reason": evMap[types.EventTypeWriteAck+"."+types.AttributeKeyAck][0],
 			}
 		}
 		return true
