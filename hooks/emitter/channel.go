@@ -256,9 +256,11 @@ func (h *Hook) extractOracleRequestPacket(
 				detail["skip"] = true
 				return false
 			}
+
+			reason, _ := hex.DecodeString(reasons[0])
 			packet["acknowledgement"] = common.JsDict{
 				"status": "failure",
-				"reason": reasons[0],
+				"reason": reason,
 			}
 		}
 		return true
@@ -388,7 +390,7 @@ func (h *Hook) extractOracleResponsePacket(
 
 	eventData, _ := hex.DecodeString(evMap[types.EventTypeSendPacket+"."+types.AttributeKeyDataHex][0])
 	err := oracletypes.ModuleCdc.UnmarshalJSON(
-		[]byte(eventData),
+		eventData,
 		&data,
 	)
 	if err == nil {
