@@ -257,10 +257,10 @@ func (h *Hook) extractOracleRequestPacket(
 				return false
 			}
 
-			_, _ = hex.DecodeString(reasons[0])
+			reason, _ := hex.DecodeString(reasons[0])
 			packet["acknowledgement"] = common.JsDict{
 				"status": "failure",
-				"reason": evMap[types.EventTypeWriteAck+"."+types.AttributeKeyAck][0],
+				"reason": string(reason),
 			}
 		}
 		return true
