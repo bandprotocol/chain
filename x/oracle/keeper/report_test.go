@@ -6,31 +6,33 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func defaultRequest() types.Request {
 	return types.NewRequest(
 		1, BasicCalldata,
-		[]sdk.ValAddress{testapp.Validators[0].ValAddress, testapp.Validators[1].ValAddress},
-		2, 0, testapp.ParseTime(0),
+		[]sdk.ValAddress{bandtesting.Validators[0].ValAddress, bandtesting.Validators[1].ValAddress},
+		2, 0, bandtesting.ParseTime(0),
 		BasicClientID, []types.RawRequest{
 			types.NewRawRequest(42, 1, BasicCalldata),
 			types.NewRawRequest(43, 2, BasicCalldata),
 		}, nil, 0, 0, 0,
-		testapp.FeePayer.Address.String(),
-		testapp.Coins100000000uband,
+		bandtesting.FeePayer.Address.String(),
+		bandtesting.Coins100000000uband,
 	)
 }
 
 func TestHasReport(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	// We should not have a report to request ID 42 from Alice without setting it.
-	require.False(t, k.HasReport(ctx, 42, testapp.Alice.ValAddress))
+	require.False(t, k.HasReport(ctx, 42, bandtesting.Alice.ValAddress))
 	// After we set it, we should be able to find it.
-	k.SetReport(ctx, 42, types.NewReport(testapp.Alice.ValAddress, true, nil))
-	require.True(t, k.HasReport(ctx, 42, testapp.Alice.ValAddress))
+	k.SetReport(ctx, 42, types.NewReport(bandtesting.Alice.ValAddress, true, nil))
+	require.True(t, k.HasReport(ctx, 42, bandtesting.Alice.ValAddress))
 }
 
 func TestGetReportSuccess(t *testing.T) {
@@ -67,17 +69,19 @@ func TestGetReportNotFound(t *testing.T) {
 }
 
 func TestAddReportSuccess(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	k.SetRequest(ctx, 1, defaultRequest())
 	err := k.AddReport(ctx, 1,
-		testapp.Validators[0].ValAddress, true, []types.RawReport{
+		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
 			types.NewRawReport(42, 0, []byte("data1/1")),
 			types.NewRawReport(43, 1, []byte("data2/1")),
 		},
 	)
 	require.NoError(t, err)
 	require.Equal(t, []types.Report{
-		types.NewReport(testapp.Validators[0].ValAddress, true, []types.RawReport{
+		types.NewReport(bandtesting.Validators[0].ValAddress, true, []types.RawReport{
 			types.NewRawReport(42, 0, []byte("data1/1")),
 			types.NewRawReport(43, 1, []byte("data2/1")),
 		}),
@@ -85,9 +89,11 @@ func TestAddReportSuccess(t *testing.T) {
 }
 
 func TestReportOnNonExistingRequest(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	err := k.AddReport(ctx, 1,
-		testapp.Validators[0].ValAddress, true, []types.RawReport{
+		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
 			types.NewRawReport(42, 0, []byte("data1/1")),
 			types.NewRawReport(43, 1, []byte("data2/1")),
 		},
@@ -96,10 +102,12 @@ func TestReportOnNonExistingRequest(t *testing.T) {
 }
 
 func TestReportByNotRequestedValidator(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	k.SetRequest(ctx, 1, defaultRequest())
 	err := k.AddReport(ctx, 1,
-		testapp.Alice.ValAddress, true, []types.RawReport{
+		bandtesting.Alice.ValAddress, true, []types.RawReport{
 			types.NewRawReport(42, 0, []byte("data1/1")),
 			types.NewRawReport(43, 1, []byte("data2/1")),
 		},
@@ -108,17 +116,19 @@ func TestReportByNotRequestedValidator(t *testing.T) {
 }
 
 func TestDuplicateReport(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	k.SetRequest(ctx, 1, defaultRequest())
 	err := k.AddReport(ctx, 1,
-		testapp.Validators[0].ValAddress, true, []types.RawReport{
+		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
 			types.NewRawReport(42, 0, []byte("data1/1")),
 			types.NewRawReport(43, 1, []byte("data2/1")),
 		},
 	)
 	require.NoError(t, err)
 	err = k.AddReport(ctx, 1,
-		testapp.Validators[0].ValAddress, true, []types.RawReport{
+		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
 			types.NewRawReport(42, 0, []byte("data1/1")),
 			types.NewRawReport(43, 1, []byte("data2/1")),
 		},
@@ -127,10 +137,12 @@ func TestDuplicateReport(t *testing.T) {
 }
 
 func TestReportInvalidDataSourceCount(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	k.SetRequest(ctx, 1, defaultRequest())
 	err := k.AddReport(ctx, 1,
-		testapp.Validators[0].ValAddress, true, []types.RawReport{
+		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
 			types.NewRawReport(42, 0, []byte("data1/1")),
 		},
 	)
@@ -138,10 +150,12 @@ func TestReportInvalidDataSourceCount(t *testing.T) {
 }
 
 func TestReportInvalidExternalIDs(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	k.SetRequest(ctx, 1, defaultRequest())
 	err := k.AddReport(ctx, 1,
-		testapp.Validators[0].ValAddress, true, []types.RawReport{
+		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
 			types.NewRawReport(42, 0, []byte("data1/1")),
 			types.NewRawReport(44, 1, []byte("data2/1")), // BAD EXTERNAL ID!
 		},
@@ -150,37 +164,41 @@ func TestReportInvalidExternalIDs(t *testing.T) {
 }
 
 func TestGetReportCount(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	// We start by setting some aribrary reports.
-	k.SetReport(ctx, types.RequestID(1), types.NewReport(testapp.Alice.ValAddress, true, []types.RawReport{}))
-	k.SetReport(ctx, types.RequestID(1), types.NewReport(testapp.Bob.ValAddress, true, []types.RawReport{}))
-	k.SetReport(ctx, types.RequestID(2), types.NewReport(testapp.Alice.ValAddress, true, []types.RawReport{}))
-	k.SetReport(ctx, types.RequestID(2), types.NewReport(testapp.Bob.ValAddress, true, []types.RawReport{}))
-	k.SetReport(ctx, types.RequestID(2), types.NewReport(testapp.Carol.ValAddress, true, []types.RawReport{}))
+	k.SetReport(ctx, types.RequestID(1), types.NewReport(bandtesting.Alice.ValAddress, true, []types.RawReport{}))
+	k.SetReport(ctx, types.RequestID(1), types.NewReport(bandtesting.Bob.ValAddress, true, []types.RawReport{}))
+	k.SetReport(ctx, types.RequestID(2), types.NewReport(bandtesting.Alice.ValAddress, true, []types.RawReport{}))
+	k.SetReport(ctx, types.RequestID(2), types.NewReport(bandtesting.Bob.ValAddress, true, []types.RawReport{}))
+	k.SetReport(ctx, types.RequestID(2), types.NewReport(bandtesting.Carol.ValAddress, true, []types.RawReport{}))
 	// GetReportCount should return the correct values.
 	require.Equal(t, uint64(2), k.GetReportCount(ctx, types.RequestID(1)))
 	require.Equal(t, uint64(3), k.GetReportCount(ctx, types.RequestID(2)))
 }
 
 func TestDeleteReports(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	// We start by setting some arbitrary reports.
-	k.SetReport(ctx, types.RequestID(1), types.NewReport(testapp.Alice.ValAddress, true, []types.RawReport{}))
-	k.SetReport(ctx, types.RequestID(1), types.NewReport(testapp.Bob.ValAddress, true, []types.RawReport{}))
-	k.SetReport(ctx, types.RequestID(2), types.NewReport(testapp.Alice.ValAddress, true, []types.RawReport{}))
-	k.SetReport(ctx, types.RequestID(2), types.NewReport(testapp.Bob.ValAddress, true, []types.RawReport{}))
-	k.SetReport(ctx, types.RequestID(2), types.NewReport(testapp.Carol.ValAddress, true, []types.RawReport{}))
+	k.SetReport(ctx, types.RequestID(1), types.NewReport(bandtesting.Alice.ValAddress, true, []types.RawReport{}))
+	k.SetReport(ctx, types.RequestID(1), types.NewReport(bandtesting.Bob.ValAddress, true, []types.RawReport{}))
+	k.SetReport(ctx, types.RequestID(2), types.NewReport(bandtesting.Alice.ValAddress, true, []types.RawReport{}))
+	k.SetReport(ctx, types.RequestID(2), types.NewReport(bandtesting.Bob.ValAddress, true, []types.RawReport{}))
+	k.SetReport(ctx, types.RequestID(2), types.NewReport(bandtesting.Carol.ValAddress, true, []types.RawReport{}))
 	// All reports should exist on the state.
-	require.True(t, k.HasReport(ctx, types.RequestID(1), testapp.Alice.ValAddress))
-	require.True(t, k.HasReport(ctx, types.RequestID(1), testapp.Bob.ValAddress))
-	require.True(t, k.HasReport(ctx, types.RequestID(2), testapp.Alice.ValAddress))
-	require.True(t, k.HasReport(ctx, types.RequestID(2), testapp.Bob.ValAddress))
-	require.True(t, k.HasReport(ctx, types.RequestID(2), testapp.Carol.ValAddress))
+	require.True(t, k.HasReport(ctx, types.RequestID(1), bandtesting.Alice.ValAddress))
+	require.True(t, k.HasReport(ctx, types.RequestID(1), bandtesting.Bob.ValAddress))
+	require.True(t, k.HasReport(ctx, types.RequestID(2), bandtesting.Alice.ValAddress))
+	require.True(t, k.HasReport(ctx, types.RequestID(2), bandtesting.Bob.ValAddress))
+	require.True(t, k.HasReport(ctx, types.RequestID(2), bandtesting.Carol.ValAddress))
 	// After we delete reports related to request#1, they must disappear.
 	k.DeleteReports(ctx, types.RequestID(1))
-	require.False(t, k.HasReport(ctx, types.RequestID(1), testapp.Alice.ValAddress))
-	require.False(t, k.HasReport(ctx, types.RequestID(1), testapp.Bob.ValAddress))
-	require.True(t, k.HasReport(ctx, types.RequestID(2), testapp.Alice.ValAddress))
-	require.True(t, k.HasReport(ctx, types.RequestID(2), testapp.Bob.ValAddress))
-	require.True(t, k.HasReport(ctx, types.RequestID(2), testapp.Carol.ValAddress))
+	require.False(t, k.HasReport(ctx, types.RequestID(1), bandtesting.Alice.ValAddress))
+	require.False(t, k.HasReport(ctx, types.RequestID(1), bandtesting.Bob.ValAddress))
+	require.True(t, k.HasReport(ctx, types.RequestID(2), bandtesting.Alice.ValAddress))
+	require.True(t, k.HasReport(ctx, types.RequestID(2), bandtesting.Bob.ValAddress))
+	require.True(t, k.HasReport(ctx, types.RequestID(2), bandtesting.Carol.ValAddress))
 }

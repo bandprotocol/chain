@@ -237,154 +237,239 @@ var (
 			},
 		},
 		{
-			"Group: 2 (Threshold: 1, Size: 2)",
+			"Group: 2 (Threshold: 2, Size: 3)",
 			Group{
 				ID:         2,
 				DKGContext: HexDecode("a1cdd234702bbdbd8a4fa9fc17f2a83d569f553ae4bd1755985e5039532d108c"),
-				Threshold:  1,
-				PubKey:     HexDecode("02a37461c1621d12f2c436b98ffe95d6ff0fedc102e8b5b35a08c96b889cb448fd"),
+				Threshold:  2,
+				PubKey:     HexDecode("0251d3a86d64f1a578f4e2cdca2cc2374578c5b5c450dc61c4edc24e89d94017ac"),
 				Members: []Member{
 					{
 						ID:             1,
-						OneTimePrivKey: HexDecode("b688151a692b3742303d15a820f48df74f169e1f335c0eec32a9062485fcec11"),
+						OneTimePrivKey: HexDecode("cd956cec2a3e763d8635581452b86f4a21f59656f1c6b59a6b0114a29c01c367"),
 						OneTimeSignature: HexDecode(
-							"026905d1d2af2fa42f7118b1c5d3ddf65e562485aa4bced9ef16ddb41dab4962520b1a37f255e033ecf2b499b80fe603da131f225e2c514c1facfcd60151f6ab62",
+							"0256826ba9c85c45d275737fecb4ccd8645902815edd7db48a0e8bc87e4c479bb01f767cb4bf77d09de015b754153350ae0324657463858f4ad560a06959c85d54",
 						),
-						A0PrivKey: HexDecode("75455ebc9f9f6aa3471da39a85a1283df7451d4e9b3c5c807bb10dd0c14bb051"),
+						A0PrivKey: HexDecode("32ad23c573d211b2266cd5e710351abe00ead1cd55563bf863ed606174d0fde1"),
 						A0Signature: HexDecode(
-							"02cc374c42e50675c8942de9dd6644a0920f78c9bde40f9020337f42d8db918eacc5e5ab6fc039404098c2e12998ecfedb3d7fa8c5949f1409114a096ec347f957",
+							"0210d598daa4e9874d1323a199c9b60bc063ff9fecf9d76cb2d5b33feb04d8f77fe315e7b20f4957d9ca57fac0144ba4266e28743f8a312ca7c7ee300b52d82e17",
 						),
 						Coefficients: tss.Scalars{
-							HexDecode("75455ebc9f9f6aa3471da39a85a1283df7451d4e9b3c5c807bb10dd0c14bb051"),
+							HexDecode("32ad23c573d211b2266cd5e710351abe00ead1cd55563bf863ed606174d0fde1"),
+							HexDecode("a8bb0d73bb89203897fcbf1607045025e5d1f09ead256684b41c38313da23cd8"),
 						},
 						CoefficientCommits: tss.Points{
-							HexDecode("0262f4888feb37b89c9744444093f6c00b0e196087c7c28671bb8247a32eef704f"),
+							HexDecode("03e90ce3454b707e6e8334428c4da865e912658dba71d5f501fb72b866d0eb8690"),
+							HexDecode("0229c799e84406b43408a35849e301aa54ad995e0132312127cd1138cc7d761d2c"),
 						},
 						KeySyms: tss.Points{
-							HexDecode("036f9072ece9b94f22a5547acd536e25c609fb065f276104444df535ea78288198"),
+							HexDecode("0218ba7f417710821dc5d4e86ba046cc083181971cde692ff7909be1499fcd03de"),
+							HexDecode("0283a20dc326b4cc1a5c6c5d140019ebb88f4970557a8128b6165e1979c5581a9b"),
 						},
 						SecretShares: tss.Scalars{
-							HexDecode("75455ebc9f9f6aa3471da39a85a1283df7451d4e9b3c5c807bb10dd0c14bb051"),
+							HexDecode("84233eaceae45223566654131e3dbb0b11dfd624005868c60c5372371fdf3650"),
+							HexDecode("2cde4c20a66d725bee63132925420b323d02e9dbfe352f0f009d4bdb8d4b31e7"),
 						},
 						EncSecretShares: tss.EncSecretShares{
-							HexDecode(
-								"fa00ec78f1dd3a82b12abebaa084251bde4879e295cab318ae9dcef42cd54c953f3d151aef2e69037c729a8c490a38bb",
-							),
+							HexDecode("5a623a2e84efa588797d7a4fad1765f65ea41559264755de920c55322838eff028ecfd8c84cc823f90b0aa2b0dbea504"),
+							HexDecode("364f4dbd7f9099dfabfacba14a1b71788b52decc479ef6bdb960eabfa01293058817e8b044549dd6ef6e749fe2757316"),
 						},
-						PrivKey: HexDecode("97f0af1189e626c1bb22a0611c8947567b6fb5c29a543669a8e877168b806cbb"),
+						PrivKey: HexDecode("e4b3fd82472bfd8d1d6d8eebb19ef7ec4b5c7b783305fceb4f8b98b7a58b8157"),
 						PubKeySignature: HexDecode(
-							"0398ba0bae0d08502c7112f12d153e3044779ea1c7b4be2931655c906f2e515c4b65904c694643fa9ebe18b28c0852dce2aca58712477a1631651096fefe4ef2a3",
+							"03cda14c12880e5eee98aa652ca80033539bffbc4e2eca8e7d05b5b04c73dbee19fc1977817df73ebc703119a0310ae63958065d10cbce45d92c5cfcbf5d762f59",
 						),
 						ComplaintSignatures: tss.ComplaintSignatures{
-							HexDecode(
-								"03f8d441370179701150e6c87c4e12b9549e8501b6bee9456ed20001a292f495e1034b8a8f569c8a1a3b0a25c963a85d526dafe4c01ce71a7d15db445098a21fdb7bff5bb38f970fd3d6f33161a1eec7056e3b5e9bbebc9f8b617750ce545ee0173b",
-							),
+							HexDecode("0372cbbcaec0d2ec31c3d894c23b3c7497f4383de756835fea963a5c2b5be0c7ed0356b1e3345ed7d7c5039cca70c8c8207fabe09ed51b82d8f8057f0580a43c0f7d1f2926ef027fc226b559ddefead6d3a3da851d369836e766c56885ab7677376e"),
+							HexDecode("032eec8eb3e5be690a4c92260b1c95e31b2ea57f9d06ef3a5c3cbe95d01571a4ee02ae8bdd5e57282ecb88b391ad8c645de71e96509cc32bbe21c63df58d5d955bde400abb72b277199a33a400f6f5c5bc75265fdf7cfaaf11705ad9816df2f09088"),
 						},
 					},
 					{
 						ID:             2,
-						OneTimePrivKey: HexDecode("f11005581a9438273cddb8c00cab5e137b530d30ec874593050d194a328c3152"),
+						OneTimePrivKey: HexDecode("c6b8e5314e8dfd9b0c4880374d27f42ba50fe753c178eb42f735ae78b6b2d68f"),
 						OneTimeSignature: HexDecode(
-							"025a6024eb03400c5bb2758170194b561ec888dc90b0f343cfb193088877d4a6e8f7b1927258296bf023b2cda5b1443fc6b902cd371f3d0484b01211eb09b5968b",
+							"0380c5e12b16b2200b72ebdd950f30cd266266e424bc28511ef81aa37c6a15ca0f76a1e06f75508b700fc85fe9244ba126002280acac3f437e81a9ddeed042638e",
 						),
-						A0PrivKey: HexDecode("22ab5054ea46bc1e7404fcc696e81f18842a9873ff17d9e92d376945ca34bc6a"),
+						A0PrivKey: HexDecode("1895756c29647ca1b14e87096ca67b14ac983559f23c535402f58e0d69aef88b"),
 						A0Signature: HexDecode(
-							"039a483f79423309cae3c4b05b03327c6921411579647cdc2a80a6079ec375dc0b41142f756b007b087faf736609ac670e710003264fbce2b8b2cccc0ba35609f0",
+							"02a381f467a0e84caae5e40d32e162c378c9adb625d583f596421060c6b3bb981146f84a558e8809b4980239e4f78b99fcbe68834d621cb084140e8849ba48d630",
 						),
 						Coefficients: tss.Scalars{
-							HexDecode("22ab5054ea46bc1e7404fcc696e81f18842a9873ff17d9e92d376945ca34bc6a"),
+							HexDecode("1895756c29647ca1b14e87096ca67b14ac983559f23c535402f58e0d69aef88b"),
+							HexDecode("de5839a83e4e110d7d0746f254e74d60e769b6e4ed6fa4fa13e96bbe417afaf3"),
 						},
 						CoefficientCommits: tss.Points{
-							HexDecode("0369f21b7c2841750b8ba29e8559147643f8f49c41b54be2f4f7c453c84b0bc929"),
+							HexDecode("03f19598161ea1aa499f565bab580b9e65a130bc46e08dcca7535308a5c6663d53"),
+							HexDecode("02f115e4f31816720ab285f3eaf08dbd0fa875f4c3ad4395b6f710ed1a21bb5664"),
 						},
 						KeySyms: tss.Points{
-							HexDecode("036f9072ece9b94f22a5547acd536e25c609fb065f276104444df535ea78288198"),
+							HexDecode("0218ba7f417710821dc5d4e86ba046cc083181971cde692ff7909be1499fcd03de"),
+							HexDecode("03e3943bba202780275763d4a765435884d9b0afd078485c759baf89bac3ba9963"),
 						},
 						SecretShares: tss.Scalars{
-							HexDecode("22ab5054ea46bc1e7404fcc696e81f18842a9873ff17d9e92d376945ca34bc6a"),
+							HexDecode("f6edaf1467b28daf2e55cdfbc18dc8759401ec3edfabf84e16def9cbab29f37e"),
+							HexDecode("b39e2264e44eafca28645be06b5c6339ed77a03b5bfa01cabf0d142e8db366e2"),
 						},
 						EncSecretShares: tss.EncSecretShares{
-							HexDecode(
-								"57e9ea849d1a4efba136a950eda2d0119b753a89a42e98b71d0de49249baa137c1e4d34f382090758f29da4c0a52173f",
-							),
+							HexDecode("efa2c5ee920d6b4c704354fbb94c96812fa8d956383a9e93b3e63923fe26365a1c223188ffa46a00ffd912db5ef3f2e1"),
+							HexDecode("487d0f7dfadd7fbcd8cf5b81ba8de0781f72fd4484ebca069d5fbab273216346e29da6d2a55a6df3c4635082d8780f81"),
 						},
-						PrivKey: HexDecode("97f0af1189e626c1bb22a0611c8947567b6fb5c29a543669a8e877168b806cbb"),
+						PrivKey: HexDecode("ffbc3899b67ac41b3222d444a0a2c75e2d2d55a2aa71ed064e9be772c055af55"),
 						PubKeySignature: HexDecode(
-							"02aac6b21e1e05461544f933a2c4b5bc3e37380462f855ebaf62cb3e867514a9df098c3ac9c120d7a4c1f2ce1e0cdc109da41792122440c0a2669d084d96c90441",
+							"0329bece4c42bf6c0bf9b4e6f987a6ef05d16fc0cd557a362da4b2e6909c4905a6a31d4670bdd2b37ba2cd36b58e323c8286984a5cb3d4a6d5ebcafef48c6d703f",
 						),
 						ComplaintSignatures: tss.ComplaintSignatures{
-							HexDecode(
-								"021ab11f3eae2807ead59d5e8cc65d0841cb324de5988be2768ea38116ac130af50399487cefdecbcf378edb1533d41c2640fa35f9e8e98f862ec7108d135e243aea0f1bf8672686f3c8972de0eaeeb989558c1fd01bea58e7c6cfeaa1f143513b55",
-							),
+							HexDecode("03a27d33b3021365d1eab97bf6adef79b511cc278498113e927c891642d81f902002ac71d05629f60219d90cb67b1adfb729407092475094530a97f4939c9b0437e3a70a0e9d3cf044f3aa1ad88b91ce2796bc9a3f3d2de94177f67d7486e38e73f1"),
+							HexDecode("020d6276ada49e605d00700ea66e9ef76e90de8c44094b9fa2dfa92e744277b441028b452cdaaf8c6c59b6ee5b02b89394bfe72b414bcabbedefe859c840872e5f7c98b3063beb346e658278a9ffff4b93d395b562ab5cfb349bf3d6ab2a0fbd0823"),
+						},
+					},
+					{
+						ID:             3,
+						OneTimePrivKey: HexDecode("72e9945e6ccdee9a164574a213de49f6f2532b428234fb67c974ad8244f8fca7"),
+						OneTimeSignature: HexDecode(
+							"02f12cd884d2f0359266caab11ecbe5e7d9726804254e7e65368fdb2e8ae338190f6fd1a81882f87ae43e8bba511116871b7e8b0812d6a571e96f4f8904408af43",
+						),
+						A0PrivKey: HexDecode("7e6929393aa6a8ab30fceca245bf92a7bc089a2674077d83e9985b8dac415ced"),
+						A0Signature: HexDecode(
+							"03740b8ebea15764d9c9648049a40457732637accf05cb9dc5b76e769e2082d7b803f715b0687d6a5a7ffcb6c7180f25d2853af270a55aa7e153bda8f91bd52bf3",
+						),
+						Coefficients: tss.Scalars{
+							HexDecode("7e6929393aa6a8ab30fceca245bf92a7bc089a2674077d83e9985b8dac415ced"),
+							HexDecode("93f4f3fb75779547ffb13f50931831e889f2ec743b682513b6af67e53c1978b5"),
+						},
+						CoefficientCommits: tss.Points{
+							HexDecode("0396ab224ca0dbd7cc3b303f7100a71ac930c20e49dd7308d421b6f72831fdd856"),
+							HexDecode("034a458d016c2841b5d5d39ad9c27bc9569c8ee72e9d2744f221bed5cb7200cf77"),
+						},
+						KeySyms: tss.Points{
+							HexDecode("0283a20dc326b4cc1a5c6c5d140019ebb88f4970557a8128b6165e1979c5581a9b"),
+							HexDecode("03e3943bba202780275763d4a765435884d9b0afd078485c759baf89bac3ba9963"),
+						},
+						SecretShares: tss.Scalars{
+							HexDecode("125e1d34b01e3df330ae2bf2d8d7c4918b4ca9b40027025be07564e618249461"),
+							HexDecode("a65311302595d33b305f6b436beff67a153f96283b8f276f9724cccb543e0d16"),
+						},
+						EncSecretShares: tss.EncSecretShares{
+							HexDecode("3d1dab73ed4bdef79f6fbef372dcc8a747cb1fd8448a405c0dfa8d6971941241cca9f02d758784aa74e86147acf3df39"),
+							HexDecode("4bfd9fd3e644275397009b8486011e2701e26e47aa6616e5012ff5d0c407114b4b4dd72ea5301637829c1a900bc96b57"),
+						},
+						PrivKey: HexDecode("1ac473b125c98aa946d8199d8fa696d1544f52e672953ce58dd9d7a10ae99c12"),
+						PubKeySignature: HexDecode(
+							"02b4c20e7025a241153ed11bf609ca56158ec00ee4659aba5a03ae462b84167a440e771e2ac285e26d0e5d225f0b5d741c4dd74b94c3754a8db49e5aeeefa9dd68",
+						),
+						ComplaintSignatures: tss.ComplaintSignatures{
+							HexDecode("02d0de565cc13dd0fb199920f4d4ad29a4b20b1d23f4b0197fb5f4e70ea1e3e19f039eefb2bc14b2020d4ae8d36484123da3ba8e6ea380d35f934e6c637dd40a919257228ff64901de13157fb80f8b87e211f2ebab8e189c46d3a2fee6ededda84dc"),
+							HexDecode("035ba017738a2c38d1966791bab75ea3330efbac7e6a5e7cadc5a502003c7f7b9c03e8385e4825101ed8b597ace877ee73aed5c3a9b777a21aa5554157fff3698d62feca03f2d8cf15896b6af43e2e10976ee082a965d7cc627d968e34554066ff5d"),
 						},
 					},
 				},
 			},
 			[]Signing{
 				{
-					ID:       3,
+					ID:       1,
 					Data:     []byte("data"),
-					PubNonce: HexDecode("024a00a111b8231ee0b4995f1f97280a3b22f2db298bbc31b1ef07adfd286bf955"),
+					PubNonce: HexDecode("027f0906568a068e3dba900e407b086fcc078284e44d50b877a0589b3354c18789"),
 					Commitment: HexDecode(
-						"000000000000000102a1233c2d1ef055f8ff047518d35e64f2b1b938b37ba3093599f5fe41ce18080402228a0cece369591d357e6c89f29eb779b755912418fd389f94b9060b17ca49d2",
+						"000000000000000202c3e8303ff3ab6162e9937b974d783a71d7c99866d7389b16849b1b31988c034102da5ee04fc506dfdc4dc587efda8a71b9a8633678417a6239bff3561ed62b3bfc0000000000000003030dd45952da828c4c0870858506a325b5de0b1195fbed6ec50c1121c9c13eb04c029f8afbedab3986071f2848db288d87b733da52cbedc27d7ce3b6f7e1a4e01c05",
 					),
 					Signature: HexDecode(
-						"024a00a111b8231ee0b4995f1f97280a3b22f2db298bbc31b1ef07adfd286bf9551c5000d5b8811a82eb25e139727d3bbbc04affcc36a88178b7cba24db58647d4",
-					),
-					AssignedMembers: []AssignedMember{
-						{
-							ID: 1,
-							PrivD: HexDecode(
-								"ff92bb0c646c6aa0bfeda96b76d92a3636fa3481ea8acde486def423a76bf7ff",
-							),
-							PrivE: HexDecode(
-								"ab1ccde9bfa9dfba4a6b07549c9e6ed67703675d3593f7ff93e34a8c48a9ad56",
-							),
-							BindingFactor: HexDecode(
-								"c2209639bb4beb23c553e593174a22c90806d81ba710077a8f78607a40923bf1",
-							),
-							PrivNonce: HexDecode(
-								"41eafa30986f64ef8b7f842916cfd832ee6fda2bd5a54a588f9233d6274e80d7",
-							),
-							Lagrange: HexDecode(
-								"0000000000000000000000000000000000000000000000000000000000000001",
-							),
-							Signature: HexDecode(
-								"024a00a111b8231ee0b4995f1f97280a3b22f2db298bbc31b1ef07adfd286bf9551c5000d5b8811a82eb25e139727d3bbbc04affcc36a88178b7cba24db58647d4",
-							),
-						},
-					},
-				},
-				{
-					ID:       4,
-					Data:     []byte("data"),
-					PubNonce: HexDecode("036b790561a9c631033a9f8a18e2e200f713394be93ff51131d47f43755a181a2e"),
-					Commitment: HexDecode(
-						"0000000000000002023533bf77c50242fe743daba7292644f9a71c34ae9b9d7b8a22526af45828d5f4034df4a62cf3d8e0267dc2392651ca7b544e70abdcfc770b07d1fcb1ededef34bc",
-					),
-					Signature: HexDecode(
-						"036b790561a9c631033a9f8a18e2e200f713394be93ff51131d47f43755a181a2e8d0b88adbbe74eb40af9f00f2d9a43853f82334c30b7bfc2e13e951612292439",
+						"027f0906568a068e3dba900e407b086fcc078284e44d50b877a0589b3354c1878953564beae1470af077ef8bf1da1a94402ef144d3b19deb3c4b01cf01896bc2a6",
 					),
 					AssignedMembers: []AssignedMember{
 						{
 							ID: 2,
 							PrivD: HexDecode(
-								"43cb56ddf0a36b601480ae041d4aca6f504215993191a605a70645110f64f975",
+								"b6f6e21b4090c9e74be0ea9ce6e0efc2eef8ec6a07a11c21a51ce2e90acc3f75",
 							),
 							PrivE: HexDecode(
-								"097bbd65bb9b82f138eb99c569714e692fe1d18fe256cf37cec83a969892ec27",
+								"d4637d5788ce7fd6549a7f9e71fc67fe900482da9c634630e2820c2e32f6dc93",
 							),
 							BindingFactor: HexDecode(
-								"218c8a95e82d00d970f919d99fca9ebaf0833e0fd592533336b1568530c841f7",
+								"6370f893c2c6a690167a7bd6a68e5dba820bdda6bf9918a268d9803f93a4475a",
 							),
 							PrivNonce: HexDecode(
-								"afb2c697eef9fa1f0efd479ec9b56b79d050dfee71b8fb7ccbeb7b4d87d9de3a",
+								"02c503f09190581e520a288425306c6500c0618f2b6fe56257d4a3b1025139b0",
 							),
 							Lagrange: HexDecode(
-								"0000000000000000000000000000000000000000000000000000000000000001",
+								"0000000000000000000000000000000000000000000000000000000000000003",
 							),
 							Signature: HexDecode(
-								"036b790561a9c631033a9f8a18e2e200f713394be93ff51131d47f43755a181a2e8d0b88adbbe74eb40af9f00f2d9a43853f82334c30b7bfc2e13e951612292439",
+								"036907a0d92d5b26e53cedcaf82159a32f40847f70babe112aeb91a2c9a459dba9274ba98cb462610a3b975e15b941f2c6df42e5aab085ee18bdab24769bbfdb6f",
+							),
+						},
+						{
+							ID: 3,
+							PrivD: HexDecode(
+								"f24cc73fab7b57357fdee9a63bc847cc8b0c46d480e97e2a298fd3e2df4f7540",
+							),
+							PrivE: HexDecode(
+								"1f6cf5d526d40e5d8febf625433bd9f4e5c359c4be0602096cd98f67525a34a3",
+							),
+							BindingFactor: HexDecode(
+								"cd5974caff745ea0e0c0188234a8ee2ac44ae70a4041c453ef8d4de84f38f2fa",
+							),
+							PrivNonce: HexDecode(
+								"84db3e9d273ef4d72b7e4b9617f785d26fa340880226f6f803aacc4d3a9a61f0",
+							),
+							Lagrange: HexDecode(
+								"fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd036413f",
+							),
+							Signature: HexDecode(
+								"032526c7d602c2973436b3e7497fd2edbc4353a90628af64c34f71dc6cd010ee712c0aa25e2ce4a9e63c582ddc20d8a1794fae5f290117fd238d56aa8aedabe737",
+							),
+						},
+					},
+				},
+				{
+					ID:       2,
+					Data:     []byte("data"),
+					PubNonce: HexDecode("0375462a5782139d93592a51e26e36d99c8d2bbc51787f165afcfbdf81ca5f3667"),
+					Commitment: HexDecode(
+						"000000000000000202f4e2de38c0f3c190d99772eeee9b91c032ac83ef4e9ad8110be1f922394577b203ef2b2b3d4a0ebdb9b11168bf5b38cdd1ef1e550dad2ec93081926cae9e187b16000000000000000302ff74d305d77671b8ab63a761c6b56215a3c7335161a57b507bbab244700e0fa102ca62e66708596612e44b2044523261cb2e0f52b43475b3b439692eb356289742",
+					),
+					Signature: HexDecode(
+						"0375462a5782139d93592a51e26e36d99c8d2bbc51787f165afcfbdf81ca5f366757220b7a95335cce51623cd25c71aa432a54a24869249da404b1cc1a0c192ade",
+					),
+					AssignedMembers: []AssignedMember{
+						{
+							ID: 2,
+							PrivD: HexDecode(
+								"5b30c4aa92e343416f4b8c83f446a79496cb0fe65c46972ae0b0b6d947ab97e3",
+							),
+							PrivE: HexDecode(
+								"939b931782c40dfb161cb15a26467cd845f3179984929323f33dd7b225142244",
+							),
+							BindingFactor: HexDecode(
+								"b081adee5d407dab4e5a768223822ef1b60105a526a7d9be13b08025757e6c6d",
+							),
+							PrivNonce: HexDecode(
+								"e614528b09b432974fefc98a7167235f6cf439b34d8b07e4728d70e7e8c291bd",
+							),
+							Lagrange: HexDecode(
+								"0000000000000000000000000000000000000000000000000000000000000003",
+							),
+							Signature: HexDecode(
+								"024e0e0836e38da513d044d9ac6ccdbbbec24749296b652b82b203f6d69b3537b24f816d040ffee0e74757ea0cb15d15ade67f279719966895400318f5159c273e",
+							),
+						},
+						{
+							ID: 3,
+							PrivD: HexDecode(
+								"4bf931569bd7db77cae4c7040a90aac9a8ebfec3f4dc4d84afa01d411d1f632f",
+							),
+							PrivE: HexDecode(
+								"55c339819a78d531530afc8c93f4b53c0dd74b90e2fb930859554c68fd951994",
+							),
+							BindingFactor: HexDecode(
+								"f38a9a43ce8ed9f27db69f329ffa257eeba1474edcce58199e776928cd7d25a6",
+							),
+							PrivNonce: HexDecode(
+								"0b6a860495e88e1b68dc03d471320c3dad91ba2c40369614dc6bb9a67bdf2f7b",
+							),
+							Lagrange: HexDecode(
+								"fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd036413f",
+							),
+							Signature: HexDecode(
+								"033ab01cfd5f0884b3a8d2e2feead62ae11d97f12b108ef5fdfcd2b008405055fb07a09e7685347be70a0a52c5ab14949543d57ab14f8e350ec4aeb324f67d03a0",
 							),
 						},
 					},

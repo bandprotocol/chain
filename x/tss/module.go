@@ -13,7 +13,6 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	tssclient "github.com/bandprotocol/chain/v2/x/tss/client"
 	"github.com/bandprotocol/chain/v2/x/tss/client/cli"
 	"github.com/bandprotocol/chain/v2/x/tss/keeper"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
@@ -25,16 +24,7 @@ var (
 )
 
 // AppModuleBasic defines the basic application module used by the tss module.
-type AppModuleBasic struct {
-	signatureOrderHandlers []tssclient.SignatureOrderHandler
-}
-
-// NewAppModuleBasic creates a new AppModuleBasic object
-func NewAppModuleBasic(signatureOrderHandlers ...tssclient.SignatureOrderHandler) AppModuleBasic {
-	return AppModuleBasic{
-		signatureOrderHandlers: signatureOrderHandlers,
-	}
-}
+type AppModuleBasic struct{}
 
 // Name returns the tss module's name.
 func (AppModuleBasic) Name() string {
@@ -58,17 +48,7 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 
 // GetTxCmd returns the transaction commands for the tss module.
 func (a AppModuleBasic) GetTxCmd() *cobra.Command {
-	signatureOrderHandlers := getSignatureOrderCLIHandlers(a.signatureOrderHandlers)
-
-	return cli.GetTxCmd(signatureOrderHandlers)
-}
-
-func getSignatureOrderCLIHandlers(handlers []tssclient.SignatureOrderHandler) []*cobra.Command {
-	signatureOrderHandlers := make([]*cobra.Command, 0, len(handlers))
-	for _, handler := range handlers {
-		signatureOrderHandlers = append(signatureOrderHandlers, handler.CLIHandler())
-	}
-	return signatureOrderHandlers
+	return cli.GetTxCmd()
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the tss module.
@@ -119,7 +99,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 // RegisterInvariants registers the tss module's invariants.
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
-// InitGenesis performs a no-op.
+// InitGenesis performs genesis initialization for the tss module.
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)

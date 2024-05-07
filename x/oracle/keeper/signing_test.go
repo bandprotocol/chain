@@ -5,25 +5,25 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func TestGetSetSigningResult(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
 	rid := types.RequestID(123)
 	signingResult := types.SigningResult{
-		SigningID:      tss.SigningID(456),
+		SigningID:      bandtsstypes.SigningID(456),
 		ErrorCodespace: "",
 		ErrorCode:      0,
 	}
 
 	// Set the signing result by request ID
-	k.SetSigningResult(ctx, rid, signingResult)
+	app.OracleKeeper.SetSigningResult(ctx, rid, signingResult)
 
 	// Get the signing result associated with the request ID
-	got, err := k.GetSigningResult(ctx, rid)
+	got, err := app.OracleKeeper.GetSigningResult(ctx, rid)
 	require.NoError(t, err)
 	require.Equal(t, signingResult, got)
 }

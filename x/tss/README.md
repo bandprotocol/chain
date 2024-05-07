@@ -2,44 +2,32 @@
 
 ## Abstract
 
-This document specifies the TSS module.
+The TSS module's main purpose is to manage the threshold signature scheme (TSS) signing process, allowing other system modules to utilize this method for cryptographic signing.
 
-The TSS module acts like a tool that makes signatures for groups of people within the group.
+To handle a signing process, the module has to create a group with selected members. These selected members then submit encrypted secret shares to create a public shared secret of the group, which is subsequently formed and owned by the caller module.
 
-To become a TSS provider, members simply need to show they're ready to join in by activating their status. The group is then formed from these active members. Once the group is all set up, anyone can ask the group to sign something specific. The resulting group signature, which you can check using the group's public key, becomes handy in various situations, making the TSS module quite useful. This way of creating signatures not only makes sure everyone trusts it but also adds an extra layer of security to the system.
+Once the group is established, the group's owner can request specific signatures. The resulting group signature, which can be verified using the group's public key, proves useful in various situations, rendering the TSS module quite valuable. This method of creating signatures not only ensures trust among all participants but also adds an extra layer of security to the system.
 
-This module is used in the BandChain.
+This module is used in bandtss module in BandChain.
 
 ## Contents
 
-* [`x/tss`](#xtss)
-  + [Abstract](#abstract)
-  + [Contents](#contents)
-  + [Concepts](#concepts)
-    - [Status](#status)
-    - [Reward](#reward)
-    	- [Block rewards](#block-rewards)
-    	- [Request fee](#request-fee)
+- [`x/tss`](#xtss)
+  - [Abstract](#abstract)
+  - [Contents](#contents)
+  - [Concepts](#concepts)
     - [Group](#group)
     - [Signing](#signing)
-    - [Group replacement](#group-replacement)
-  + [State](#state)
-  + [Msg Service](#msg-service)
-    - [Msg/CreateGroup](#msgcreategroup)
-    - [Msg/ReplaceGroup](#msgreplacegroup)
-    - [Msg/UpdateGroupFee](#msgupdategroupfee)
+  - [State](#state)
+  - [Msg Service](#msg-service)
     - [Msg/SubmitDKGRound1](#msgsubmitdkground1)
     - [Msg/SubmitDKGRound2](#msgsubmitdkground2)
     - [Msg/Complain](#msgcomplain)
     - [Msg/Confirm](#msgconfirm)
     - [Msg/SubmitDEs](#msgsubmitdes)
-    - [Msg/RequestSignature](#msgrequestsignature)
     - [Msg/SubmitSignature](#msgsubmitsignature)
-    - [Msg/Activate](#msgactivate)
-    - [Msg/HealthCheck](#msghealthcheck)
     - [Msg/UpdateParams](#msgupdateparams)
-  + [Events](#events)
-    - [EventTypeCreateGroup](#eventtypecreategroup)
+  - [Events](#events)
     - [EventTypeSubmitDKGRound1](#eventtypesubmitdkground1)
     - [EventTypeRound1Success](#eventtyperound1success)
     - [EventTypeSubmitDKGRound2](#eventtypesubmitdkground2)
@@ -54,68 +42,30 @@ This module is used in the BandChain.
     - [EventTypeReplaceSuccess](#eventtypereplacesuccess)
     - [EventTypeSubmitSignature](#eventtypesubmitsignature)
     - [EventTypeSigningFailed](#eventtypesigningfailed)
-    - [EventTypeActivate](#eventtypeactivate)
-    - [EventTypeHealthCheck](#eventtypehealthcheck)
-  + [Parameters](#parameters)
-  + [Client](#client)
+  - [Parameters](#parameters)
+  - [Client](#client)
     - [CLI](#cli)
-    	- [Query](#query)
-		- [Group](#group-1)
-		- [Signing](#signing-1)
+      - [Query](#query)
+    - [Group](#group-1)
+    - [Signing](#signing-1)
     - [gRPC](#grpc)
-    	- [Group](#group-2)
-    	- [Signing](#signing-2)
+      - [Group](#group-2)
+      - [Signing](#signing-2)
     - [REST](#rest)
-    	- [Group](#group-3)
-    	- [Signing](#signing-3)
+      - [Group](#group-3)
+      - [Signing](#signing-3)
 
 ## Concepts
-
-### Status
-
-There are 4 statuses in the TSS system:
-1. Active: This status designates a member who is prepared to engage in the TSS process actively.
-2. Paused: Members assume the paused status when their DE (nonce) is run out.
-3. Jailed: A member is placed in the jailed status if they fail to respond during the group creation process.
-4. Inactive: By default, members are assigned to this status. However, they may be set to inactive status if they fail to respond to a signed request.
-
-Statuses within the TSS system are account-level indicators. To become a participant in the TSS system, an account must send a message to the chain. Upon activating their status in the TSS module, participants are required to send a health-check message to the chain at regular intervals, typically set as the "ActiveDuration" (defaulting to one day).
-
-Failure to submit a health-check message or non-participation in assigned actions, such as group creation or signature requests, results in deactivation for a specific duration based on the action. This mechanism is implemented to remove inactive accounts from the TSS system.
-
-### Reward
-
-#### Block rewards
-
-In each block, all active accounts that are validators will receive more block rewards depending on their validating power as a reward for providing service on the TSS system.
-
-The `RewardPercentage` parameter will be the percent of block rewards that will be assigned to those validators. The default value is 50%. However, this percentage is calculated from the remaining rewards. For example, if somehow other modules took 40% as their rewards. TSS module will receive only 30% (50% of 60%) of the full block rewards.
-
-#### Request fee
-
-All users who request signatures on data from the TSS group will have to pay the fee for the TSS service. The fee will depend on the group. Only assigned accounts of the request will receive this fee as a reward for providing service to the group on top of block rewards.
 
 ### Group
 
 A group contains multiple members. Each group has its public key that multiple members (at least the threshold of the group) will be able to generate signatures on the message of that public key.
 
-A group will be created through a governance proposal at this phase. At first, when creating a group, each assigned member will have to go through a key generation process to generate a group key together. After that, they will receive their private key that will be used to generate part of the signature of the group.
+A group is created through a call by external module with a set of selected members. At first, when creating a group, each assigned member will have to go through a key generation process to generate a group key together. After that, they will receive their private key that will be used to generate part of the signature of the group.
 
 ### Signing
 
-A signing is a request to sign some data from a user to the group. It contains all information of this request such as message, assigned members, and assigned nonce of each member. When a user requests a signing from the group, each member will have to use the key of the group to sign on the message that will combine to generate the final signature of the group.
-
-### Group replacement
-
-The process of group replacement is used when we need to change who is in a group and also update the group's key. We can't just swap out individual members because their keys are linked to the group's key. To replace the group, we have to create a new group and then update the old group's information with the new group's details.
-
-Here are the steps of the replacement process:
-1. Create a new group through a proposal
-2. Create a group replacement proposal with replacement time
-3. After the proposal passed, the old group will be assigned to sign the `changing group` message
-4. Once it reaches replacement time, all information from the old group will be replaced by information from the new group.
-
-This process allows users to have spare time to update their key before it reaches replacement time. Also, users can choose to request from old and new group IDs.
+A module creates a signing request to the group that the module owns. It contains all information of this request such as message, assigned members, and assigned nonce of each member. When a user requests a signing from the group, each member will have to use the key of the group to sign on the message that will combine to generate the final signature of the group.
 
 ## State
 
@@ -123,11 +73,9 @@ The `x/tss` module keeps the state of the following primary objects:
 
 1. Groups
 2. Signings
-3. Statuses
-4. Nonces (DEs)
-5. Replacements
+3. DEs (Nonces being used in a signing process)
 
-In addition, the `x/tss` module still keeps temporary information such as group count, round1Info, round2Info, queue of replacements, groups, and signings.
+In addition, the `x/tss` module still keeps temporary information such as group count, round1Info, round2Info, queue of replacements, groups, and partial signings information.
 
 Here are the prefixes for each object in the KVStore of the TSS module.
 
@@ -135,14 +83,11 @@ Here are the prefixes for each object in the KVStore of the TSS module.
 var (
 	GlobalStoreKeyPrefix = []byte{0x00}
 	GroupCountStoreKey = append(GlobalStoreKeyPrefix, []byte("GroupCount")...)
-	ReplacementCountStoreKey = append(GlobalStoreKeyPrefix, []byte("ReplacementCount")...)
 	LastExpiredGroupIDStoreKey = append(GlobalStoreKeyPrefix, []byte("LastExpiredGroupID")...)
 	SigningCountStoreKey = append(GlobalStoreKeyPrefix, []byte("SigningCount")...)
 	LastExpiredSigningIDStoreKey = append(GlobalStoreKeyPrefix, []byte("LastExpiredSigningID")...)
-	RollingSeedStoreKey = append(GlobalStoreKeyPrefix, []byte("RollingSeed")...)
 	PendingProcessGroupsStoreKey = append(GlobalStoreKeyPrefix, []byte("PendingProcessGroups")...)
 	PendingSigningsStoreKey = append(GlobalStoreKeyPrefix, []byte("PendingProcessSignings")...)
-	PendingReplaceGroupsStoreKey = append(GlobalStoreKeyPrefix, []byte("PendingReplaceGroups")...)
 	GroupStoreKeyPrefix = []byte{0x01}
 	DKGContextStoreKeyPrefix = []byte{0x02}
 	MemberStoreKeyPrefix = []byte{0x03}
@@ -159,44 +104,11 @@ var (
 	SigningStoreKeyPrefix = []byte{0x0e}
 	SigCountStoreKeyPrefix = []byte{0x0f}
 	PartialSignatureStoreKeyPrefix = []byte{0x10}
-	StatusStoreKeyPrefix = []byte{0x11}
-	ParamsKeyPrefix = []byte{0x12}
-	ReplacementKeyPrefix = []byte{0x13}
-	ReplacementQueuePrefix = []byte{0x14}
+	ParamsKeyPrefix = []byte{0x11}
 )
 ```
 
 ## Msg Service
-
-### Msg/CreateGroup
-
-A new group can be created with the `MsgCreateGroup` which needs to open through governance proposal.
-This message contains the list of members, the threshold of the group, and the fee for requesting.
-
-It's expected to fail if:
-
-* The number of members is greater than the `MaxGroupSize` parameters.
-* One of the members has inactive TSS status.
-* Members are not correct (e.g. wrong address format, duplicates).
-
-### Msg/ReplaceGroup
-
-A replacement can be created with the `MsgReplaceGrouup` which needs to open through a governance proposal.
-This message contains `current_group_id` , `new_group_id` , and `exec_time` .
-
-It's expected to fail if:
-
-* The status of groups is not active.
-* The `current_group_id` is in the replacement process.
-* Can't request signing `changing group` message from `current_group_id`
-
-### Msg/UpdateGroupFee
-
-A changing fee of the group can be created with the `MsgUpdateGroupFee` which needs to open through the governance proposal. This message contains the ID of the group and the new fee.
-
-It's expected to fail if:
-
-* The group doesn't exist.
 
 ### Msg/SubmitDKGRound1
 
@@ -228,31 +140,13 @@ In the signing process, each member is required to have their nonces (D and E va
 
 It's expected to fail if:
 
-* The number of remaining DEs exceeds the maximum size (`MaxDESize`) per user.
-
-### Msg/RequestSignature
-
-Anyone who wants to have a signature from the group can use `MsgRequestSignature` to send their message to the group to request a signature.
-
-It contains `group_id`, `fee_limit`, and `request`. `request` is an interface that any module can implement to have its logic get the specific data from its module so that the TSS module can produce a signature for that data.
+- The number of remaining DEs exceeds the maximum size (`MaxDESize`) per user.
 
 ### Msg/SubmitSignature
 
 When a user requests a signature from the group, the assigned member of the group is required to send `MsgSubmitSignature` to the chain. It contains `signing_id`, `member_id`, `address`, and `signature`.
 
 Once all assigned member sends their signature to the chain, the chain will aggregate those signatures to be the final signature of the group for that request.
-
-### Msg/Activate
-
-An account that wants to participate as a TSS provider (signature provider) has to activate its TSS status through `MsgActivate`.
-
-If the account is deactivated by one of the TSS mechanisms (such as a health check, or missing signature), they will have to send `MsgActivate` again to rejoin the system. However, there is a punishment period for rejoining depending on the action that the account got deactivated.
-
-### Msg/HealthCheck
-
-This message is used by participators in the TSS system. All active TSS accounts have to regularly send `MsgHealthCheck` to the chain to show if they are still active.
-
-The frequency of sending is determined by `ActiveDuration` parameters.
 
 ### Msg/UpdateParams
 
@@ -271,10 +165,10 @@ This event ( `create_group` ) is emitted when the group is created.
 | group_id      | {groupID}         |
 | size          | {groupSize}       |
 | thredhold     | {groupThreshold}  |
-| fee           | {groupFee}        |
 | pub_key       | ""                |
 | status        | {groupStatus}     |
 | dkg_context   | {groupDKGContext} |
+| module_owner  | ""                |
 
 ### EventTypeSubmitDKGRound1
 
@@ -398,16 +292,6 @@ This event ( `signing_success` ) is emitted at the end block when all assigned m
 | group_id      | {groupID}       |
 | signature     | {signature}     |
 
-### EventTypeReplaceSuccess
-
-This event ( `replace_success` ) is emitted at the end block when it reaches replacement time and replacement is successful.
-
-| Attribute Key    | Attribute Value  |
-| ---------------- | ---------------- |
-| signing_id       | {signingID}      |
-| current_group_id | {currentGroupID} |
-| new_group_id     | {newGroupID}     |
-
 ### EventTypeSubmitSignature
 
 This event ( `submit_signature` ) is emitted when an assigned member submits his or her signature on the signing request.
@@ -432,22 +316,6 @@ This event ( `signing_failed` ) is emitted at the end block when all assigned me
 | group_id      | {groupID}       |
 | reason        | {failedReason}  |
 
-### EventTypeActivate
-
-This event ( `activate` ) is emitted when an account submitted `MsgActivate` to the chain
-
-| Attribute Key | Attribute Value |
-| ------------- | --------------- |
-| address       | {memberAddress} |
-
-### EventTypeHealthCheck
-
-This event ( `healthcheck` ) is emitted when an account submitted `MsgHealthCheck` to the chain
-
-| Attribute Key | Attribute Value |
-| ------------- | --------------- |
-| address       | {memberAddress} |
-
 ## Parameters
 
 The TSS module contains the following parameters
@@ -462,14 +330,6 @@ type Params struct {
 	CreatingPeriod uint64
 	// SigningPeriod is the number of blocks allowed to sign.
 	SigningPeriod uint64
-	// ActiveDuration is the duration where a member can be active without interaction.
-	ActiveDuration time.Duration
-	// InactivePenaltyDuration is the duration where a member cannot activate back after inactive.
-	InactivePenaltyDuration time.Duration
-	// JailPenaltyDuration is the duration where a member cannot activate back after jail.
-	JailPenaltyDuration time.Duration
-	// RewardPercentage is the percentage of block rewards allocated to active TSS validators after being allocated to oracle rewards.
-	RewardPercentage uint64
 }
 ```
 

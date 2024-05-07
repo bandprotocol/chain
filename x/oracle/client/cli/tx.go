@@ -16,8 +16,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 const (
@@ -33,7 +33,6 @@ const (
 	flagExecuteGas    = "execute-gas"
 	flagTSSGroupID    = "tss-group-id"
 	flagTSSEncodeType = "tss-encode-type"
-	flagGroupID       = "group-id"
 	flagFeeLimit      = "fee-limit"
 	flagFee           = "fee"
 	flagTreasury      = "treasury"
@@ -705,18 +704,13 @@ func GetCmdRequestSignature() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Request signature from request id.
 Example:
-$ %s tx tss request-signature oracle-result 1 --group-id 1 --fee-limit 10uband
+$ %s tx tss request-signature oracle-result 1 --fee-limit 10uband
 `,
 				version.AppName,
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			gid, err := cmd.Flags().GetUint64(flagGroupID)
 			if err != nil {
 				return err
 			}
@@ -744,7 +738,7 @@ $ %s tx tss request-signature oracle-result 1 --group-id 1 --fee-limit 10uband
 			from := clientCtx.GetFromAddress()
 			content := types.NewOracleResultSignatureOrder(types.RequestID(rid), types.EncodeType(encodeType))
 
-			msg, err := tsstypes.NewMsgRequestSignature(tss.GroupID(gid), content, feeLimit, from)
+			msg, err := bandtsstypes.NewMsgRequestSignature(content, feeLimit, from)
 			if err != nil {
 				return err
 			}

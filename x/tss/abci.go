@@ -9,10 +9,7 @@ import (
 )
 
 // handleBeginBlock handles the logic at the beginning of a block.
-func handleBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, k *keeper.Keeper) {
-	// Reward a portion of block rewards (inflation + tx fee) to active tss validators.
-	k.AllocateTokens(ctx, req.LastCommitInfo.GetVotes())
-}
+func handleBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, k *keeper.Keeper) {}
 
 // handleEndBlock handles tasks at the end of a block.
 func handleEndBlock(ctx sdk.Context, k *keeper.Keeper) {
@@ -36,19 +33,9 @@ func handleEndBlock(ctx sdk.Context, k *keeper.Keeper) {
 	// This effectively clears the list, as the processing for all signings has been completed in this block.
 	k.SetPendingProcessSignings(ctx, types.PendingProcessSignings{})
 
-	// Fetch group replacements that have reached the execution time.
-	k.IterateReplacementQueue(ctx, ctx.BlockHeader().Time, func(replacement types.Replacement) bool {
-		k.HandleReplaceGroup(ctx, replacement)
-		k.RemoveFromReplacementQueue(ctx, replacement.ID, replacement.ExecTime)
-		return false
-	})
-
 	// Handles cleanup and actions that are required for groups that have expired.
 	k.HandleExpiredGroups(ctx)
 
 	// Handles cleanup and actions that are required for signings that have expired.
 	k.HandleExpiredSignings(ctx)
-
-	// Handles marking validator as inactive if the validator is not active recently.
-	k.HandleInactiveValidators(ctx)
 }

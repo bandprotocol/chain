@@ -49,26 +49,6 @@ service Query {
   rpc Signing(QuerySigningRequest) returns (QuerySigningResponse) {
     option (google.api.http).get = "/tss/v1beta1/signings/{signing_id}";
   }
-
-  // Statuses queries all statuses.
-  rpc Statuses(QueryStatusesRequest) returns (QueryStatusesResponse) {
-    option (google.api.http).get = "/tss/v1beta1/statuses";
-  }
-
-  // Status queries the status of the address.
-  rpc Status(QueryStatusRequest) returns (QueryStatusResponse) {
-    option (google.api.http).get = "/tss/v1beta1/statuses/{address}";
-  }
-
-  // Replacements queries all replacements.
-  rpc Replacements(QueryReplacementsRequest) returns (QueryReplacementsResponse) {
-    option (google.api.http).get = "/tss/v1beta1/replacements";
-  }
-
-  // Replacement queries replacement by ID.
-  rpc Replacement(QueryReplacementRequest) returns (QueryReplacementResponse) {
-    option (google.api.http).get = "/tss/v1beta1/replacements/{id}";
-  }
 }
 
 // QueryCountsRequest is request type for the Query/Count RPC method.
@@ -80,8 +60,6 @@ message QueryCountsResponse {
   uint64 group_count = 1;
   // signing_count is total number of signing request submitted to the chain
   uint64 signing_count = 2;
-  // ReplacementCount is total number of replacement groups submitted to the chain
-  uint64 replacement_count = 3;
 }
 
 // QueryGroupRequest is the request type for the Query/Group RPC method
@@ -101,16 +79,14 @@ message QueryGroupResponse {
   ];
   // members is the list of members in the group.
   repeated Member members = 3 [(gogoproto.nullable) = false];
-  // members is the list of members in the group.
-  repeated Status statuses = 4 [(gogoproto.nullable) = false];
   // round1_infos is the list of Round 1 information.
-  repeated Round1Info round1_infos = 5 [(gogoproto.nullable) = false];
+  repeated Round1Info round1_infos = 4 [(gogoproto.nullable) = false];
   // round2_infos is the list of Round 2 information.
-  repeated Round2Info round2_infos = 6 [(gogoproto.nullable) = false];
+  repeated Round2Info round2_infos = 5 [(gogoproto.nullable) = false];
   // complaints_with_status is the list of complaints with status.
-  repeated ComplaintsWithStatus complaints_with_status = 7 [(gogoproto.nullable) = false];
+  repeated ComplaintsWithStatus complaints_with_status = 6 [(gogoproto.nullable) = false];
   // confirms is the list of confirms.
-  repeated Confirm confirms = 8 [(gogoproto.nullable) = false];
+  repeated Confirm confirms = 7 [(gogoproto.nullable) = false];
 }
 
 // QueryMembersRequest is the request type for the Query/Members RPC method
@@ -187,66 +163,6 @@ message QuerySigningRequest {
 
 // QuerySigningResponse is the response type for the Query/Signing RPC method.
 message QuerySigningResponse {
-  // signing is the signing request.
-  Signing signing = 1 [(gogoproto.nullable) = false];
-  // evm_signature is the signature in the format that can use directly in EVM.
-  EVMSignature evm_signature = 2 [(gogoproto.customname) = "EVMSignature"];
-  // received_partial_signatures is a list of received partial signatures.
-  repeated PartialSignature received_partial_signatures = 3 [(gogoproto.nullable) = false];
-}
-
-// QueryStatusesRequest is the request type for the Query/Statuses RPC method.
-message QueryStatusesRequest {
-  // status define filter on statuses
-  MemberStatus status = 1;
-  // pagination defines pagination settings for the request.
-  cosmos.base.query.v1beta1.PageRequest pagination = 2;
-}
-
-// QueryStatusesResponse is the response type for the Query/Statuses RPC method.
-message QueryStatusesResponse {
-  // statuses is the statuses request.
-  repeated Status statuses = 1;
-  // pagination defines the pagination in the response.
-  cosmos.base.query.v1beta1.PageResponse pagination = 2;
-}
-
-// QueryStatusRequest is the request type for the Query/Status RPC method.
-message QueryStatusRequest {
-  // address is the member address.
-  string address = 1;
-}
-
-// QueryStatusResponse is the response type for the Query/Status RPC method.
-message QueryStatusResponse {
-  // status is the status request.
-  Status status = 1 [(gogoproto.nullable) = false];
-}
-
-// QueryReplacementsRequest is the request type for the Query/Replacements RPC method.
-message QueryReplacementsRequest {
-  // status is an enumeration of the possible statuses of a group replacement process.
-  ReplacementStatus status = 1;
-  // pagination defines an optional pagination for the request.
-  cosmos.base.query.v1beta1.PageRequest pagination = 2;
-}
-
-// QueryReplacementsResponse is the response type for the Query/Replacements RPC method.
-message QueryReplacementsResponse {
-  // replacements is a list of replacements.
-  repeated Replacement replacements = 1;
-  // pagination defines the pagination in the response.
-  cosmos.base.query.v1beta1.PageResponse pagination = 2;
-}
-
-// QueryReplacementRequest is the request type for the Query/Replacement RPC method.
-message QueryReplacementRequest {
-  // id is the unique identifier of the replacement.
-  uint64 id = 1;
-}
-
-// QueryReplacementResponse is the response type for the Query/Replacement RPC method.
-message QueryReplacementResponse {
-  // replacement represents a group that will replaced with another group in the replacement process.
-  Replacement replacement = 1;
+  // signing_result is the result of the signing.
+  SigningResult signing_result = 1 [(gogoproto.nullable) = false];
 }

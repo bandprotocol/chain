@@ -152,7 +152,7 @@ func (suite *TSSTestSuite) TestSortingCommitmentIDEs() {
 				suite.Require().NoError(err)
 				j := int64(-1)
 				for _, ide := range t.B {
-					suite.Require().Equal(true, j < int64(ide.ID))
+					suite.Require().Less(j, int64(ide.ID))
 					j = int64(ide.ID)
 				}
 			}

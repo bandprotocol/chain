@@ -23,7 +23,8 @@ import (
 	"github.com/bandprotocol/chain/v2/cylinder"
 	"github.com/bandprotocol/chain/v2/pkg/logger"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 type Client struct {
@@ -117,9 +118,9 @@ func (c *Client) GetTxFromTxHash(
 // QueryGroup queries the group information with the given group ID.
 // It returns the group response or an error.
 func (c *Client) QueryGroup(groupID tss.GroupID) (*GroupResponse, error) {
-	queryClient := types.NewQueryClient(c.context)
+	queryClient := tsstypes.NewQueryClient(c.context)
 
-	gr, err := queryClient.Group(context.Background(), &types.QueryGroupRequest{
+	gr, err := queryClient.Group(context.Background(), &tsstypes.QueryGroupRequest{
 		GroupId: uint64(groupID),
 	})
 	if err != nil {
@@ -132,9 +133,9 @@ func (c *Client) QueryGroup(groupID tss.GroupID) (*GroupResponse, error) {
 // QuerySigning queries the signing information with the given signing ID.
 // It returns the signing response or an error.
 func (c *Client) QuerySigning(signingID tss.SigningID) (*SigningResponse, error) {
-	queryClient := types.NewQueryClient(c.context)
+	queryClient := tsstypes.NewQueryClient(c.context)
 
-	sr, err := queryClient.Signing(context.Background(), &types.QuerySigningRequest{
+	sr, err := queryClient.Signing(context.Background(), &tsstypes.QuerySigningRequest{
 		SigningId: uint64(signingID),
 	})
 	if err != nil {
@@ -147,9 +148,9 @@ func (c *Client) QuerySigning(signingID tss.SigningID) (*SigningResponse, error)
 // QueryDE queries the DE information with the given address.
 // It returns the de response or an error.
 func (c *Client) QueryDE(address string, offset uint64, limit uint64) (*DEResponse, error) {
-	queryClient := types.NewQueryClient(c.context)
+	queryClient := tsstypes.NewQueryClient(c.context)
 
-	der, err := queryClient.DE(context.Background(), &types.QueryDERequest{
+	der, err := queryClient.DE(context.Background(), &tsstypes.QueryDERequest{
 		Address: address,
 		Pagination: &query.PageRequest{
 			Offset:     offset,
@@ -164,27 +165,27 @@ func (c *Client) QueryDE(address string, offset uint64, limit uint64) (*DERespon
 	return NewDEResponse(der), nil
 }
 
-// QueryStatus queries the status information of the given address.
+// QueryMember queries the member information of the given address.
 // It returns the de response or an error.
-func (c *Client) QueryStatus(address string) (*types.Status, error) {
-	queryClient := types.NewQueryClient(c.context)
+func (c *Client) QueryMember(address string) (*bandtsstypes.Member, error) {
+	queryClient := bandtsstypes.NewQueryClient(c.context)
 
-	res, err := queryClient.Status(context.Background(), &types.QueryStatusRequest{
+	res, err := queryClient.Member(context.Background(), &bandtsstypes.QueryMemberRequest{
 		Address: address,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return &res.Status, nil
+	return &res.Member, nil
 }
 
 // QueryPendingGroups queries the all pending groups with the given address.
 // It returns the QueryPendingSignsResponse or an error.
-func (c *Client) QueryPendingGroups(address string) (*types.QueryPendingGroupsResponse, error) {
-	queryClient := types.NewQueryClient(c.context)
+func (c *Client) QueryPendingGroups(address string) (*tsstypes.QueryPendingGroupsResponse, error) {
+	queryClient := tsstypes.NewQueryClient(c.context)
 
-	res, err := queryClient.PendingGroups(context.Background(), &types.QueryPendingGroupsRequest{
+	res, err := queryClient.PendingGroups(context.Background(), &tsstypes.QueryPendingGroupsRequest{
 		Address: address,
 	})
 	if err != nil {
@@ -196,10 +197,10 @@ func (c *Client) QueryPendingGroups(address string) (*types.QueryPendingGroupsRe
 
 // QueryPendingSignings queries the all pending signings with the given address.
 // It returns the QueryPendingSignsResponse or an error.
-func (c *Client) QueryPendingSignings(address string) (*types.QueryPendingSigningsResponse, error) {
-	queryClient := types.NewQueryClient(c.context)
+func (c *Client) QueryPendingSignings(address string) (*tsstypes.QueryPendingSigningsResponse, error) {
+	queryClient := tsstypes.NewQueryClient(c.context)
 
-	res, err := queryClient.PendingSignings(context.Background(), &types.QueryPendingSigningsRequest{
+	res, err := queryClient.PendingSignings(context.Background(), &tsstypes.QueryPendingSigningsRequest{
 		Address: address,
 	})
 	if err != nil {

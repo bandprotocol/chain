@@ -6,18 +6,18 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 )
 
 type KeeperTestSuite struct {
 	suite.Suite
 
-	app *testapp.TestingApp
+	app *bandtesting.TestingApp
 	ctx sdk.Context
 }
 
 func (s *KeeperTestSuite) SetupTest() {
-	app, ctx, _ := testapp.CreateTestInput(false)
+	app, ctx := bandtesting.CreateTestApp(s.T(), false)
 	s.app = app
 	s.ctx = ctx
 }

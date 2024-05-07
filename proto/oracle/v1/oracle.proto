@@ -264,7 +264,7 @@ message SigningResult {
   // signing_id is the id of the signing
   uint64 signing_id = 1 [
     (gogoproto.customname) = "SigningID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/x/bandtss/types.SigningID"
   ];
   // error_codespace is the codespace of the error
   string error_codespace = 2;
