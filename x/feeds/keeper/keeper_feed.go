@@ -51,7 +51,7 @@ func (k Keeper) SetFeeds(ctx sdk.Context, feeds []types.Feed) {
 func (k Keeper) SetFeed(ctx sdk.Context, feed types.Feed) {
 	// set new timestamp if interval is updated
 	prevFeed, err := k.GetFeed(ctx, feed.SignalID)
-	k.deleteFeedByPowerIndex(ctx, feed)
+	k.deleteFeedByPowerIndex(ctx, prevFeed)
 	if err == nil {
 		if prevFeed.Interval != feed.Interval {
 			feed.LastIntervalUpdateTimestamp = ctx.BlockTime().Unix()
