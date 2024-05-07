@@ -36,10 +36,12 @@ func TestHasReport(t *testing.T) {
 }
 
 func TestGetReportSuccess(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	k.SetRequest(ctx, 1, defaultRequest())
 	expectedReport := types.NewReport(
-		testapp.Validators[0].ValAddress, true, []types.RawReport{
+		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
 			types.NewRawReport(42, 0, []byte("data1/1")),
 			types.NewRawReport(43, 1, []byte("data2/1")),
 		},
@@ -47,23 +49,24 @@ func TestGetReportSuccess(t *testing.T) {
 	err := k.AddReport(
 		ctx,
 		1,
-		testapp.Validators[0].ValAddress, true, []types.RawReport{
+		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
 			types.NewRawReport(42, 0, []byte("data1/1")),
 			types.NewRawReport(43, 1, []byte("data2/1")),
 		},
 	)
 	require.NoError(t, err)
 
-	report, err := k.GetReport(ctx, 1, testapp.Validators[0].ValAddress)
+	report, err := k.GetReport(ctx, 1, bandtesting.Validators[0].ValAddress)
 	require.NoError(t, err)
 	require.Equal(t, expectedReport, report)
 }
 
 func TestGetReportNotFound(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
 	k.SetRequest(ctx, 1, defaultRequest())
 
-	report, err := k.GetReport(ctx, 1, testapp.Validators[0].ValAddress)
+	report, err := k.GetReport(ctx, 1, bandtesting.Validators[0].ValAddress)
 	require.Empty(t, report)
 	require.ErrorIs(t, err, types.ErrReportNotFound)
 }

@@ -59,9 +59,9 @@ type Hook struct {
 	icahostKeeper icahostkeeper.Keeper
 
 	// ibc keeper
-	clientkeeper     clientkeeper.Keeper
-	connectionkeeper connectionkeeper.Keeper
-	channelkeeper    channelkeeper.Keeper
+	clientKeeper     clientkeeper.Keeper
+	connectionKeeper connectionkeeper.Keeper
+	channelKeeper    channelkeeper.Keeper
 }
 
 // NewHook creates an emitter hook instance that will be added in Band App.
@@ -77,9 +77,9 @@ func NewHook(
 	govKeeper govkeeper.Keeper,
 	oracleKeeper oraclekeeper.Keeper,
 	icahostKeeper icahostkeeper.Keeper,
-	clientkeeper clientkeeper.Keeper,
-	connectionkeeper connectionkeeper.Keeper,
-	channelkeeper channelkeeper.Keeper,
+	clientKeeper clientkeeper.Keeper,
+	connectionKeeper connectionkeeper.Keeper,
+	channelKeeper channelkeeper.Keeper,
 	kafkaURI string,
 	emitStartState bool,
 ) *Hook {
@@ -103,9 +103,9 @@ func NewHook(
 		govKeeper:        govKeeper,
 		oracleKeeper:     oracleKeeper,
 		icahostKeeper:    icahostKeeper,
-		clientkeeper:     clientkeeper,
-		connectionkeeper: connectionkeeper,
-		channelkeeper:    channelkeeper,
+		clientKeeper:     clientKeeper,
+		connectionKeeper: connectionKeeper,
+		channelKeeper:    channelKeeper,
 		emitStartState:   emitStartState,
 	}
 }

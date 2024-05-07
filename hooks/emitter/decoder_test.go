@@ -27,7 +27,7 @@ import (
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/hooks/emitter"
 	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	ibctesting "github.com/bandprotocol/chain/v2/testing"
+	"github.com/bandprotocol/chain/v2/testing/ibctesting"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 

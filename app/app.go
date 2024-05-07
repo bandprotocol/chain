@@ -650,7 +650,7 @@ func NewBandApp(
 		app.BankKeeper,
 		app.StakingKeeper,
 		app.GetSubspace(oracletypes.ModuleName),
-		app.hooks
+		app.hooks,
 	)
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
 

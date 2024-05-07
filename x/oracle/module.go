@@ -107,7 +107,7 @@ func NewAppModule(
 	bk simulation.BankKeeper,
 	sk types.StakingKeeper,
 	ss exported.Subspace,
-	h common.Hook
+	h common.Hook,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{cdc: cdc},

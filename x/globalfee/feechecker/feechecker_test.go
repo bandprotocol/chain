@@ -177,7 +177,11 @@ func (suite *FeeCheckerTestSuite) TestNoAuthzReport() {
 
 func (suite *FeeCheckerTestSuite) TestNotValidReport() {
 	reportMsgs := []sdk.Msg{
-		oracletypes.NewMsgReportData(suite.requestID+1, []oracletypes.RawReport{}, bandtesting.Validators[0].ValAddress),
+		oracletypes.NewMsgReportData(
+			suite.requestID+1,
+			[]oracletypes.RawReport{},
+			bandtesting.Validators[0].ValAddress,
+		),
 	}
 	authzMsg := authz.NewMsgExec(bandtesting.Alice.Address, reportMsgs)
 	stubTx := &StubTx{Msgs: []sdk.Msg{&authzMsg}}
@@ -230,7 +234,11 @@ func (suite *FeeCheckerTestSuite) TestNotReportMsg() {
 }
 
 func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameAuthzMsgs() {
-	reportMsg := oracletypes.NewMsgReportData(suite.requestID, []oracletypes.RawReport{}, bandtesting.Validators[0].ValAddress)
+	reportMsg := oracletypes.NewMsgReportData(
+		suite.requestID,
+		[]oracletypes.RawReport{},
+		bandtesting.Validators[0].ValAddress,
+	)
 	requestMsg := oracletypes.NewMsgRequestData(
 		1,
 		BasicCalldata,
@@ -260,7 +268,11 @@ func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameAuthzMsg
 }
 
 func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameTx() {
-	reportMsg := oracletypes.NewMsgReportData(suite.requestID, []oracletypes.RawReport{}, bandtesting.Validators[0].ValAddress)
+	reportMsg := oracletypes.NewMsgReportData(
+		suite.requestID,
+		[]oracletypes.RawReport{},
+		bandtesting.Validators[0].ValAddress,
+	)
 	requestMsg := oracletypes.NewMsgRequestData(
 		1,
 		BasicCalldata,
