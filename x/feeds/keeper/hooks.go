@@ -45,12 +45,33 @@ func (h Hooks) BeforeDelegationSharesModified(_ sdk.Context, _ sdk.AccAddress, _
 	return nil
 }
 
-func (h Hooks) BeforeDelegationRemoved(_ sdk.Context, _ sdk.AccAddress, _ sdk.ValAddress) error {
+func (h Hooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
+	delegated := h.k.stakingKeeper.GetDelegatorBonded(ctx, delAddr)
+
+	// remove power of removed delegation from total delegation
+	removedDelegation, found := h.k.stakingKeeper.GetDelegation(ctx, delAddr, valAddr)
+	if found {
+		validatorAddr, err := sdk.ValAddressFromBech32(removedDelegation.ValidatorAddress)
+		if err != nil {
+			panic(err) // shouldn't happen
+		}
+		validator, found := h.k.stakingKeeper.GetValidator(ctx, validatorAddr)
+		if found {
+			shares := removedDelegation.Shares
+			tokens := validator.TokensFromSharesTruncated(shares)
+			delegated = delegated.Sub(tokens.RoundInt())
+		}
+	}
+
+	power := sumPower(h.k.GetDelegatorSignals(ctx, delAddr))
+	if power > delegated.Int64() {
+		return types.ErrUnableToUndelegate
+	}
 	return nil
 }
 
 func (h Hooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, _ sdk.ValAddress) error {
-	delegated := h.k.stakingKeeper.GetDelegatorBonded(ctx, delAddr).Uint64()
+	delegated := h.k.stakingKeeper.GetDelegatorBonded(ctx, delAddr).Int64()
 	power := sumPower(h.k.GetDelegatorSignals(ctx, delAddr))
 	if power > delegated {
 		return types.ErrUnableToUndelegate

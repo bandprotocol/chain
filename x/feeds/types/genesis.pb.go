@@ -23,14 +23,15 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// GenesisState defines the feeds module's genesis state.
+// GenesisState is a structure that defines the feeds module's genesis state.
 type GenesisState struct {
-	// Params defines all the parameters of the module.
+	// Params is all parameters of the module.
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 	// Feeds is a list of feeds that requires validators to submit the price.
 	Feeds []Feed `protobuf:"bytes,2,rep,name=feeds,proto3" json:"feeds"`
-	// PriceService defines information about price service.
-	PriceService     PriceService       `protobuf:"bytes,3,opt,name=price_service,json=priceService,proto3" json:"price_service"`
+	// PriceService is the information about price service.
+	PriceService PriceService `protobuf:"bytes,3,opt,name=price_service,json=priceService,proto3" json:"price_service"`
+	// DelegatorSignals is a list of delegator signals submitted by delegators.
 	DelegatorSignals []DelegatorSignals `protobuf:"bytes,4,rep,name=delegator_signals,json=delegatorSignals,proto3" json:"delegator_signals"`
 }
 

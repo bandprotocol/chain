@@ -24,4 +24,9 @@ type StakingKeeper interface {
 		fn func(index int64, validator stakingtypes.ValidatorI) (stop bool),
 	)
 	GetDelegatorBonded(ctx sdk.Context, delegator sdk.AccAddress) math.Int
+	GetDelegation(
+		ctx sdk.Context,
+		delAddr sdk.AccAddress,
+		valAddr sdk.ValAddress,
+	) (delegation stakingtypes.Delegation, found bool)
 }

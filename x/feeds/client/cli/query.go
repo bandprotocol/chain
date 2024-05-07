@@ -35,10 +35,11 @@ func GetQueryCmd() *cobra.Command {
 	return queryCmd
 }
 
+// GetQueryCmdDelegatorSignal implements the query delegator signal command.
 func GetQueryCmdDelegatorSignal() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delegator-signal [delegator-addr]",
-		Short: "shows delegator's currently active signal",
+		Short: "Shows delegator's currently active signal",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -61,10 +62,11 @@ func GetQueryCmdDelegatorSignal() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdPrices implements the query prices command.
 func GetQueryCmdPrices() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "prices",
-		Short: "shows the latest price of all signal ids",
+		Short: "Shows the latest price of all signal ids",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -90,10 +92,11 @@ func GetQueryCmdPrices() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdPrice implements the query price command.
 func GetQueryCmdPrice() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "price [signal_id]",
-		Short: "shows the latest price of a signal id",
+		Short: "Shows the latest price of a signal id",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -115,10 +118,11 @@ func GetQueryCmdPrice() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdSupportedFeeds implements the query supported feeds command.
 func GetQueryCmdSupportedFeeds() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "supported-feeds",
-		Short: "shows all currently supported feeds",
+		Short: "Shows all currently supported feeds",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -138,10 +142,11 @@ func GetQueryCmdSupportedFeeds() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdValidatorPrices implements the query validator prices command.
 func GetQueryCmdValidatorPrices() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "validator-prices [validator]",
-		Short: "shows all prices of the validator",
+		Short: "Shows all prices of the validator",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -163,10 +168,11 @@ func GetQueryCmdValidatorPrices() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdPriceValidator implements the query price validator command.
 func GetQueryCmdPriceValidator() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "price-validator [signal_id] [validator]",
-		Short: "shows the price of validator of the signal id",
+		Short: "Shows the price of validator of the signal id",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -189,10 +195,11 @@ func GetQueryCmdPriceValidator() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdFeeds implements the query feeds command.
 func GetQueryCmdFeeds() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "feeds",
-		Short: "shows all information of all feeds",
+		Short: "Shows all information of all feeds",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -218,10 +225,11 @@ func GetQueryCmdFeeds() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdPriceService implements the query price service command.
 func GetQueryCmdPriceService() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "price-service",
-		Short: "shows information of price service",
+		Short: "Shows information of price service",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -241,10 +249,11 @@ func GetQueryCmdPriceService() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdParams implements the query params command.
 func GetQueryCmdParams() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "params",
-		Short: "shows the parameters of the module",
+		Short: "Shows the parameters of the module",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)

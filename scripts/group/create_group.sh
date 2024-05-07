@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export WALLET_NAME=group1
+export WALLET_NAME=account1
 export ENDPOINT=http://localhost:26657
 
 BASEDIR=$(dirname "$0")

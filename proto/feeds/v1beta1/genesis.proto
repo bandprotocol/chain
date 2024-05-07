@@ -7,16 +7,17 @@ import "gogoproto/gogo.proto";
 import "feeds/v1beta1/params.proto";
 import "feeds/v1beta1/feeds.proto";
 
-// GenesisState defines the feeds module's genesis state.
+// GenesisState is a structure that defines the feeds module's genesis state.
 message GenesisState {
-  // Params defines all the parameters of the module.
+  // Params is all parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
 
   // Feeds is a list of feeds that requires validators to submit the price.
   repeated Feed feeds = 2 [(gogoproto.nullable) = false];
 
-  // PriceService defines information about price service.
+  // PriceService is the information about price service.
   PriceService price_service = 3 [(gogoproto.nullable) = false];
 
+  // DelegatorSignals is a list of delegator signals submitted by delegators.
   repeated DelegatorSignals delegator_signals = 4 [(gogoproto.nullable) = false];
 }

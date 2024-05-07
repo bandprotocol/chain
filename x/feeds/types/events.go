@@ -4,9 +4,11 @@ package types
 const (
 	EventTypeSubmitPrice          = "submit_price"
 	EventTypeUpdatePrice          = "update_price"
-	EventTypeSubmitSignals        = "submit_signals"
-	EventTypeRemoveSignals        = "remove_signals"
+	EventTypeSubmitSignal         = "submit_signal"
+	EventTypeRemoveSignal         = "remove_signal"
 	EventTypeCalculatePriceFailed = "calculate_price_failed"
+	EventTypeUpdatePriceService   = "update_price_service"
+	EventTypeUpdateParams         = "update_params"
 
 	AttributeKeyPriceOption  = "price_option"
 	AttributeKeyValidator    = "validator"
@@ -16,4 +18,8 @@ const (
 	AttributeKeyDelegator    = "delegator"
 	AttributeKeyPower        = "power"
 	AttributeKeyErrorMessage = "error_message"
+	AttributeKeyHash         = "hash"
+	AttributeKeyVersion      = "version"
+	AttributeKeyURL          = "url"
+	AttributeKeyParams       = "params"
 )

@@ -6,15 +6,16 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
+// ValidateSubmitPricesRequest validates price submission.
 func (k Keeper) ValidateSubmitPricesRequest(ctx sdk.Context, blockTime int64, req *types.MsgSubmitPrices) error {
-	isTop := k.IsTopValidator(ctx, req.Validator)
-	if !isTop {
-		return types.ErrNotTopValidator
-	}
-
 	val, err := sdk.ValAddressFromBech32(req.Validator)
 	if err != nil {
 		return err
+	}
+
+	isValid := k.IsBondedValidator(ctx, req.Validator)
+	if !isValid {
+		return types.ErrNotBondedValidator
 	}
 
 	status := k.oracleKeeper.GetValidatorStatus(ctx, val)
@@ -32,6 +33,7 @@ func (k Keeper) ValidateSubmitPricesRequest(ctx sdk.Context, blockTime int64, re
 	return nil
 }
 
+// NewPriceValidator creates new PriceValidator.
 func (k Keeper) NewPriceValidator(
 	ctx sdk.Context,
 	blockTime int64,
@@ -39,7 +41,7 @@ func (k Keeper) NewPriceValidator(
 	val sdk.ValAddress,
 	cooldownTime int64,
 ) (types.PriceValidator, error) {
-	s, err := k.GetFeed(ctx, price.SignalID)
+	f, err := k.GetFeed(ctx, price.SignalID)
 	if err != nil {
 		return types.PriceValidator{}, err
 	}
@@ -52,7 +54,7 @@ func (k Keeper) NewPriceValidator(
 			price.SignalID,
 			priceVal.Timestamp,
 			blockTime,
-			s.Interval,
+			f.Interval,
 		)
 	}
 

@@ -33,9 +33,9 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // QueryPricesRequest is the request type for the Query/Prices RPC method.
 type QueryPricesRequest struct {
-	// List of signal ids to query prices for.
+	// SignalIDs is a List of signal ids to query prices for.
 	SignalIds []string `protobuf:"bytes,1,rep,name=signal_ids,json=signalIds,proto3" json:"signal_ids,omitempty"`
-	// Pagination for the request.
+	// Pagination is the pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -88,9 +88,9 @@ func (m *QueryPricesRequest) GetPagination() *query.PageRequest {
 
 // QueryPricesResponse is the response type for the Query/Prices RPC method.
 type QueryPricesResponse struct {
-	// List of prices.
+	// Prices is a list of prices.
 	Prices []*Price `protobuf:"bytes,1,rep,name=prices,proto3" json:"prices,omitempty"`
-	// Pagination information in the response.
+	// Pagination is the pagination information in the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -143,7 +143,7 @@ func (m *QueryPricesResponse) GetPagination() *query.PageResponse {
 
 // QueryPriceRequest is the request type for the Query/Price RPC method.
 type QueryPriceRequest struct {
-	// Signal id to query the price for.
+	// SignalID is the signal id to query the price for.
 	SignalId string `protobuf:"bytes,1,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
 }
 
@@ -189,9 +189,9 @@ func (m *QueryPriceRequest) GetSignalId() string {
 
 // QueryPriceResponse is the response type for the Query/Price RPC method.
 type QueryPriceResponse struct {
-	// The aggregated price of the signal id.
+	// Price is the aggregated price of the signal id.
 	Price Price `protobuf:"bytes,1,opt,name=price,proto3" json:"price"`
-	// List of prices from each validator.
+	// PriceValidators is a list of prices from each validator.
 	PriceValidators []PriceValidator `protobuf:"bytes,2,rep,name=price_validators,json=priceValidators,proto3" json:"price_validators"`
 }
 
@@ -244,7 +244,7 @@ func (m *QueryPriceResponse) GetPriceValidators() []PriceValidator {
 
 // QueryValidatorPricesRequest is the request type for the Query/ValidatorPrices RPC method.
 type QueryValidatorPricesRequest struct {
-	// Validator address to query prices for.
+	// Validator is the validator address to query prices for.
 	Validator string `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator,omitempty"`
 }
 
@@ -290,7 +290,7 @@ func (m *QueryValidatorPricesRequest) GetValidator() string {
 
 // QueryValidatorPricesResponse is the response type for the Query/ValidatorPrices RPC method.
 type QueryValidatorPricesResponse struct {
-	// List of prices submitted by the validator.
+	// ValidatorPrices is a list of prices submitted by the validator.
 	ValidatorPrices []PriceValidator `protobuf:"bytes,1,rep,name=validator_prices,json=validatorPrices,proto3" json:"validator_prices"`
 }
 
@@ -336,9 +336,9 @@ func (m *QueryValidatorPricesResponse) GetValidatorPrices() []PriceValidator {
 
 // QueryPriceValidatorRequest is the request type for the Query/PriceValidator RPC method.
 type QueryPriceValidatorRequest struct {
-	// Signal id to query the price for.
+	// SignalID is the signal id to query the price for.
 	SignalId string `protobuf:"bytes,1,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
-	// Validator address to query the price for.
+	// Validator is the validator address to query the price for.
 	Validator string `protobuf:"bytes,2,opt,name=validator,proto3" json:"validator,omitempty"`
 }
 
@@ -391,7 +391,7 @@ func (m *QueryPriceValidatorRequest) GetValidator() string {
 
 // QueryPriceValidatorResponse is the response type for the Query/PriceValidator RPC method.
 type QueryPriceValidatorResponse struct {
-	// The requested price submitted by the validator.
+	// PriceValidator is the requested price submitted by the validator.
 	PriceValidator PriceValidator `protobuf:"bytes,1,opt,name=price_validator,json=priceValidator,proto3" json:"price_validator"`
 }
 
@@ -437,7 +437,7 @@ func (m *QueryPriceValidatorResponse) GetPriceValidator() PriceValidator {
 
 // QueryValidValidatorRequest is the request type for the Query/ValidValidator RPC method.
 type QueryValidValidatorRequest struct {
-	// Validator address to query the flag.
+	// Validator is the validator address to query the flag.
 	Validator string `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator,omitempty"`
 }
 
@@ -483,7 +483,7 @@ func (m *QueryValidValidatorRequest) GetValidator() string {
 
 // QueryValidValidatorResponse is the response type for the Query/ValidValidator RPC method.
 type QueryValidValidatorResponse struct {
-	// valid flag.
+	// Valida is a valid flag.
 	Valid bool `protobuf:"varint,1,opt,name=valid,proto3" json:"valid,omitempty"`
 }
 
@@ -529,9 +529,9 @@ func (m *QueryValidValidatorResponse) GetValid() bool {
 
 // QueryFeedsRequest is the request type for the Query/Feeds RPC method.
 type QueryFeedsRequest struct {
-	// List of signal ids to query.
+	// SignalIDs is a list of signal ids to query.
 	SignalIds []string `protobuf:"bytes,1,rep,name=signal_ids,json=signalIds,proto3" json:"signal_ids,omitempty"`
-	// Pagination for the request.
+	// Pagination is the pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -584,9 +584,9 @@ func (m *QueryFeedsRequest) GetPagination() *query.PageRequest {
 
 // QueryFeedsResponse is the response type for the Query/Feeds RPC method.
 type QueryFeedsResponse struct {
-	// List of feeds.
+	// Feeds is a list of feeds.
 	Feeds []*Feed `protobuf:"bytes,1,rep,name=feeds,proto3" json:"feeds,omitempty"`
-	// Pagination information in the response.
+	// Pagination is the pagination information in the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -676,7 +676,7 @@ var xxx_messageInfo_QueryParamsRequest proto.InternalMessageInfo
 
 // QueryParamsResponse is the response type for the Query/Params RPC method.
 type QueryParamsResponse struct {
-	// The parameters of the module.
+	// Params is the parameters of the module.
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 }
 
@@ -759,7 +759,7 @@ var xxx_messageInfo_QueryPriceServiceRequest proto.InternalMessageInfo
 
 // QueryPriceServiceResponse is the response type for the Query/PriceService RPC method.
 type QueryPriceServiceResponse struct {
-	// Information about price service.
+	// PriceService is the information about price service.
 	PriceService PriceService `protobuf:"bytes,1,opt,name=price_service,json=priceService,proto3" json:"price_service"`
 }
 
@@ -805,6 +805,7 @@ func (m *QueryPriceServiceResponse) GetPriceService() PriceService {
 
 // QueryDelegatorSignalsRequest is the request type for the Query/DelegatorSignals RPC method
 type QueryDelegatorSignalsRequest struct {
+	// Delegator is the delegator address to query signal for.
 	Delegator string `protobuf:"bytes,1,opt,name=delegator,proto3" json:"delegator,omitempty"`
 }
 
@@ -932,7 +933,7 @@ var xxx_messageInfo_QuerySupportedFeedsRequest proto.InternalMessageInfo
 
 // QuerySupportedFeedsResponse is the response type for the Query/SupportedFeeds RPC method
 type QuerySupportedFeedsResponse struct {
-	// List of feeds.
+	// Feeds is a list of feeds.
 	Feeds []Feed `protobuf:"bytes,1,rep,name=feeds,proto3" json:"feeds"`
 }
 
@@ -1082,25 +1083,25 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	// RPC method that returns all prices.
+	// Prices is a RPC method that returns all prices.
 	Prices(ctx context.Context, in *QueryPricesRequest, opts ...grpc.CallOption) (*QueryPricesResponse, error)
-	// RPC method that returns price by signal id.
+	// Price is a RPC method that returns price by signal id.
 	Price(ctx context.Context, in *QueryPriceRequest, opts ...grpc.CallOption) (*QueryPriceResponse, error)
-	// RPC method that returns prices of a validator.
+	// ValidatorPrices is a RPC method that returns prices of a validator.
 	ValidatorPrices(ctx context.Context, in *QueryValidatorPricesRequest, opts ...grpc.CallOption) (*QueryValidatorPricesResponse, error)
-	// RPC method that returns price of validator by signal id.
+	// PriceValidator is a RPC method that returns price of validator by signal id.
 	PriceValidator(ctx context.Context, in *QueryPriceValidatorRequest, opts ...grpc.CallOption) (*QueryPriceValidatorResponse, error)
-	// RPC method that returns flag to show if the validator is required to send prices.
+	// ValidValidator is a RPC method that returns flag to show if the validator is required to send prices.
 	ValidValidator(ctx context.Context, in *QueryValidValidatorRequest, opts ...grpc.CallOption) (*QueryValidValidatorResponse, error)
-	// RPC method that returns all feeds.
+	// Feeds is a RPC method that returns all feeds.
 	Feeds(ctx context.Context, in *QueryFeedsRequest, opts ...grpc.CallOption) (*QueryFeedsResponse, error)
-	// RPC method that returns all parameters of the module.
+	// Params is a RPC method that returns all parameters of the module.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
-	// RPC method that returns information of price service.
+	// PriceService is a RPC method that returns information of price service.
 	PriceService(ctx context.Context, in *QueryPriceServiceRequest, opts ...grpc.CallOption) (*QueryPriceServiceResponse, error)
-	// RPC method that returns signals of a delegator
+	// DelegatorSignals is a RPC method that returns signals of a delegator
 	DelegatorSignals(ctx context.Context, in *QueryDelegatorSignalsRequest, opts ...grpc.CallOption) (*QueryDelegatorSignalsResponse, error)
-	// RPC method that return list of currect supported signal ids
+	// SupportedFeeds is a RPC method that return list of currect supported feeds
 	SupportedFeeds(ctx context.Context, in *QuerySupportedFeedsRequest, opts ...grpc.CallOption) (*QuerySupportedFeedsResponse, error)
 }
 
@@ -1204,25 +1205,25 @@ func (c *queryClient) SupportedFeeds(ctx context.Context, in *QuerySupportedFeed
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	// RPC method that returns all prices.
+	// Prices is a RPC method that returns all prices.
 	Prices(context.Context, *QueryPricesRequest) (*QueryPricesResponse, error)
-	// RPC method that returns price by signal id.
+	// Price is a RPC method that returns price by signal id.
 	Price(context.Context, *QueryPriceRequest) (*QueryPriceResponse, error)
-	// RPC method that returns prices of a validator.
+	// ValidatorPrices is a RPC method that returns prices of a validator.
 	ValidatorPrices(context.Context, *QueryValidatorPricesRequest) (*QueryValidatorPricesResponse, error)
-	// RPC method that returns price of validator by signal id.
+	// PriceValidator is a RPC method that returns price of validator by signal id.
 	PriceValidator(context.Context, *QueryPriceValidatorRequest) (*QueryPriceValidatorResponse, error)
-	// RPC method that returns flag to show if the validator is required to send prices.
+	// ValidValidator is a RPC method that returns flag to show if the validator is required to send prices.
 	ValidValidator(context.Context, *QueryValidValidatorRequest) (*QueryValidValidatorResponse, error)
-	// RPC method that returns all feeds.
+	// Feeds is a RPC method that returns all feeds.
 	Feeds(context.Context, *QueryFeedsRequest) (*QueryFeedsResponse, error)
-	// RPC method that returns all parameters of the module.
+	// Params is a RPC method that returns all parameters of the module.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
-	// RPC method that returns information of price service.
+	// PriceService is a RPC method that returns information of price service.
 	PriceService(context.Context, *QueryPriceServiceRequest) (*QueryPriceServiceResponse, error)
-	// RPC method that returns signals of a delegator
+	// DelegatorSignals is a RPC method that returns signals of a delegator
 	DelegatorSignals(context.Context, *QueryDelegatorSignalsRequest) (*QueryDelegatorSignalsResponse, error)
-	// RPC method that return list of currect supported signal ids
+	// SupportedFeeds is a RPC method that return list of currect supported feeds
 	SupportedFeeds(context.Context, *QuerySupportedFeedsRequest) (*QuerySupportedFeedsResponse, error)
 }
 
