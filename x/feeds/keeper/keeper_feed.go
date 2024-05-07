@@ -51,25 +51,26 @@ func (k Keeper) SetFeeds(ctx sdk.Context, feeds []types.Feed) {
 func (k Keeper) SetFeed(ctx sdk.Context, feed types.Feed) {
 	// set new timestamp if interval is updated
 	prevFeed, err := k.GetFeed(ctx, feed.SignalID)
+	k.deleteFeedByPowerIndex(ctx, feed)
 	if err == nil {
 		if prevFeed.Interval != feed.Interval {
 			feed.LastIntervalUpdateTimestamp = ctx.BlockTime().Unix()
 		}
 	}
 
-	if feed.Power <= 0 {
-		k.DeleteFeedByPowerIndex(ctx, feed)
-		k.DeleteFeed(ctx, feed.SignalID)
-	} else {
+	if feed.Power > 0 {
 		ctx.KVStore(k.storeKey).Set(types.FeedStoreKey(feed.SignalID), k.cdc.MustMarshal(&feed))
 		k.setFeedByPowerIndex(ctx, feed)
+	} else {
+		k.DeleteFeed(ctx, feed)
 	}
 }
 
-// DeleteFeed deletes a feed with specified signal id from the feeds store.
-func (k Keeper) DeleteFeed(ctx sdk.Context, signalID string) {
-	k.DeletePrice(ctx, signalID)
-	ctx.KVStore(k.storeKey).Delete(types.FeedStoreKey(signalID))
+// DeleteFeed deletes a feed from the feeds store.
+func (k Keeper) DeleteFeed(ctx sdk.Context, feed types.Feed) {
+	k.DeletePrice(ctx, feed.SignalID)
+	k.deleteFeedByPowerIndex(ctx, feed)
+	ctx.KVStore(k.storeKey).Delete(types.FeedStoreKey(feed.SignalID))
 }
 
 // setFeedByPowerIndex sets a feed in feedx by power index store.
@@ -79,7 +80,7 @@ func (k Keeper) setFeedByPowerIndex(ctx sdk.Context, feed types.Feed) {
 }
 
 // DeleteFeedByPowerIndex deletes a feed from feedx by power index store.
-func (k Keeper) DeleteFeedByPowerIndex(ctx sdk.Context, feed types.Feed) {
+func (k Keeper) deleteFeedByPowerIndex(ctx sdk.Context, feed types.Feed) {
 	ctx.KVStore(k.storeKey).Delete(types.FeedsByPowerIndexKey(feed.SignalID, feed.Power))
 }
 

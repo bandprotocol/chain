@@ -62,9 +62,6 @@ func (ms msgServer) SubmitSignals(
 				Interval:                    0,
 				LastIntervalUpdateTimestamp: ctx.BlockTime().Unix(),
 			}
-		} else {
-			// before changing in feed, delete feed by power index
-			ms.DeleteFeedByPowerIndex(ctx, feed)
 		}
 		feed.Power += powerDiff
 
