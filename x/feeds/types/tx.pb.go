@@ -33,9 +33,9 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // MsgSubmitSignals is the transaction message to submit signals
 type MsgSubmitSignals struct {
-	// The address of the delegator that want to submit signals
+	// Delegator is the address of the delegator that want to submit signals
 	Delegator string `protobuf:"bytes,1,opt,name=delegator,proto3" json:"delegator,omitempty"`
-	// The signal details
+	// Signals is a list of submitted signal
 	Signals []Signal `protobuf:"bytes,2,rep,name=signals,proto3" json:"signals"`
 }
 
@@ -125,11 +125,11 @@ var xxx_messageInfo_MsgSubmitSignalsResponse proto.InternalMessageInfo
 
 // MsgSubmitPrices is the transaction message to submit multiple prices.
 type MsgSubmitPrices struct {
-	// The address of the validator that is performing the operation.
+	// Validator is the address of the validator that is performing the operation.
 	Validator string `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator,omitempty"`
-	// The timestamp use as reference of the data.
+	// Timestamp is the timestamp use as reference of the data.
 	Timestamp int64 `protobuf:"varint,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	// A list of prices to submit.
+	// Prices is a list of prices to submit.
 	Prices []SubmitPrice `protobuf:"bytes,3,rep,name=prices,proto3" json:"prices"`
 }
 
@@ -226,9 +226,9 @@ var xxx_messageInfo_MsgSubmitPricesResponse proto.InternalMessageInfo
 
 // MsgUpdatePriceService is the transaction message to update price service's information.
 type MsgUpdatePriceService struct {
-	// The address of the admin that is performing the operation.
+	// Admin is the address of the admin that is performing the operation.
 	Admin string `protobuf:"bytes,1,opt,name=admin,proto3" json:"admin,omitempty"`
-	// information of price service.
+	// PriceService is the information of price service.
 	PriceService PriceService `protobuf:"bytes,2,opt,name=price_service,json=priceService,proto3" json:"price_service"`
 }
 
@@ -318,9 +318,9 @@ var xxx_messageInfo_MsgUpdatePriceServiceResponse proto.InternalMessageInfo
 
 // MsgUpdateParams is the transaction message to update parameters.
 type MsgUpdateParams struct {
-	// authority is the address of the governance account.
+	// Authority is the address of the governance account.
 	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
-	// params defines the x/feeds parameters to update.
+	// Params is the x/feeds parameters to update.
 	Params Params `protobuf:"bytes,2,opt,name=params,proto3" json:"params"`
 }
 
@@ -475,13 +475,13 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	// RPC method to submit prices
+	// SubmitPrices is a RPC method to submit prices
 	SubmitPrices(ctx context.Context, in *MsgSubmitPrices, opts ...grpc.CallOption) (*MsgSubmitPricesResponse, error)
-	// RPC method to update price service information
+	// UpdatePriceService is a RPC method to update price service information
 	UpdatePriceService(ctx context.Context, in *MsgUpdatePriceService, opts ...grpc.CallOption) (*MsgUpdatePriceServiceResponse, error)
-	// RPC method to update parameters
+	// UpdateParams is a RPC method to update parameters
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
-	// RPC method to signal ids and their powers
+	// SubmitSignals is a RPC method to signal ids and their powers
 	SubmitSignals(ctx context.Context, in *MsgSubmitSignals, opts ...grpc.CallOption) (*MsgSubmitSignalsResponse, error)
 }
 
@@ -531,13 +531,13 @@ func (c *msgClient) SubmitSignals(ctx context.Context, in *MsgSubmitSignals, opt
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// RPC method to submit prices
+	// SubmitPrices is a RPC method to submit prices
 	SubmitPrices(context.Context, *MsgSubmitPrices) (*MsgSubmitPricesResponse, error)
-	// RPC method to update price service information
+	// UpdatePriceService is a RPC method to update price service information
 	UpdatePriceService(context.Context, *MsgUpdatePriceService) (*MsgUpdatePriceServiceResponse, error)
-	// RPC method to update parameters
+	// UpdateParams is a RPC method to update parameters
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
-	// RPC method to signal ids and their powers
+	// SubmitSignals is a RPC method to signal ids and their powers
 	SubmitSignals(context.Context, *MsgSubmitSignals) (*MsgSubmitSignalsResponse, error)
 }
 

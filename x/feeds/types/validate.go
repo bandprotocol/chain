@@ -5,6 +5,7 @@ import (
 	"net/url"
 )
 
+// validateInt64 validates int64 and check its positivity.
 func validateInt64(name string, positiveOnly bool) func(interface{}) error {
 	return func(i interface{}) error {
 		v, ok := i.(int64)
@@ -18,6 +19,7 @@ func validateInt64(name string, positiveOnly bool) func(interface{}) error {
 	}
 }
 
+// validateURL validates URL format.
 func validateURL(name string) func(string) error {
 	return func(u string) error {
 		_, err := url.ParseRequestURI(u)
@@ -28,6 +30,7 @@ func validateURL(name string) func(string) error {
 	}
 }
 
+// validateString validates string.
 func validateString(name string, allowEmpty bool) func(interface{}) error {
 	return func(i interface{}) error {
 		s, ok := i.(string)

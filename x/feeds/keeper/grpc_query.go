@@ -24,6 +24,7 @@ func NewQueryServer(k Keeper) types.QueryServer {
 	}
 }
 
+// DelegatorSignals queries all signals submitted by a delegator.
 func (q queryServer) DelegatorSignals(
 	goCtx context.Context, req *types.QueryDelegatorSignalsRequest,
 ) (*types.QueryDelegatorSignalsResponse, error) {
@@ -35,11 +36,12 @@ func (q queryServer) DelegatorSignals(
 
 	signals := q.keeper.GetDelegatorSignals(ctx, delegator)
 	if signals == nil {
-		return nil, status.Error(codes.Internal, "no signal")
+		return nil, status.Error(codes.NotFound, "no signal")
 	}
 	return &types.QueryDelegatorSignalsResponse{Signals: signals}, nil
 }
 
+// Prices queries all current prices.
 func (q queryServer) Prices(
 	goCtx context.Context, req *types.QueryPricesRequest,
 ) (*types.QueryPricesResponse, error) {
@@ -84,12 +86,13 @@ func (q queryServer) Prices(
 	return &types.QueryPricesResponse{Prices: filteredPrices, Pagination: pageRes}, nil
 }
 
+// Price queries price of a signal id.
 func (q queryServer) Price(
 	goCtx context.Context, req *types.QueryPriceRequest,
 ) (*types.QueryPriceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	s, err := q.keeper.GetFeed(ctx, req.SignalId)
+	f, err := q.keeper.GetFeed(ctx, req.SignalId)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +103,7 @@ func (q queryServer) Price(
 	var filteredPriceVals []types.PriceValidator
 	blockTime := ctx.BlockTime().Unix()
 	for _, priceVal := range priceVals {
-		if priceVal.Timestamp > blockTime-s.Interval {
+		if priceVal.Timestamp > blockTime-f.Interval {
 			filteredPriceVals = append(filteredPriceVals, priceVal)
 		}
 	}
@@ -111,6 +114,7 @@ func (q queryServer) Price(
 	}, nil
 }
 
+// ValidatorPrices queries all price-validator submitted by a validator.
 func (q queryServer) ValidatorPrices(
 	goCtx context.Context, req *types.QueryValidatorPricesRequest,
 ) (*types.QueryValidatorPricesResponse, error) {
@@ -136,6 +140,7 @@ func (q queryServer) ValidatorPrices(
 	}, nil
 }
 
+// PriceValidator queries price-validator of a specified validator and signal id.
 func (q queryServer) PriceValidator(
 	goCtx context.Context, req *types.QueryPriceValidatorRequest,
 ) (*types.QueryPriceValidatorResponse, error) {
@@ -156,22 +161,23 @@ func (q queryServer) PriceValidator(
 	}, nil
 }
 
+// ValidValidator queries whether a validator is required to send price.
 func (q queryServer) ValidValidator(
 	goCtx context.Context, req *types.QueryValidValidatorRequest,
 ) (*types.QueryValidValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	flag := true
-
-	// check if it's in top bonded validators.
-	isTop := q.keeper.IsTopValidator(ctx, req.Validator)
-	if !isTop {
-		flag = false
-	}
-
 	val, err := sdk.ValAddressFromBech32(req.Validator)
 	if err != nil {
 		return nil, err
+	}
+
+	flag := true
+
+	// check if it's bonded validators.
+	isValid := q.keeper.IsBondedValidator(ctx, req.Validator)
+	if !isValid {
+		flag = false
 	}
 
 	validatorStatus := q.keeper.oracleKeeper.GetValidatorStatus(ctx, val)
@@ -182,6 +188,7 @@ func (q queryServer) ValidValidator(
 	return &types.QueryValidValidatorResponse{Valid: flag}, nil
 }
 
+// Feeds queries all current feeds.
 func (q queryServer) Feeds(
 	goCtx context.Context, req *types.QueryFeedsRequest,
 ) (*types.QueryFeedsResponse, error) {
@@ -226,6 +233,7 @@ func (q queryServer) Feeds(
 	return &types.QueryFeedsResponse{Feeds: filteredFeeds, Pagination: pageRes}, nil
 }
 
+// SupportedFeeds queries all current supported feeds.
 func (q queryServer) SupportedFeeds(
 	goCtx context.Context, _ *types.QuerySupportedFeedsRequest,
 ) (*types.QuerySupportedFeedsResponse, error) {
@@ -236,6 +244,7 @@ func (q queryServer) SupportedFeeds(
 	}, nil
 }
 
+// PriceService queries current price service.
 func (q queryServer) PriceService(
 	goCtx context.Context, _ *types.QueryPriceServiceRequest,
 ) (*types.QueryPriceServiceResponse, error) {
@@ -246,6 +255,7 @@ func (q queryServer) PriceService(
 	}, nil
 }
 
+// Params queries all params of feeds module.
 func (q queryServer) Params(c context.Context, _ *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
