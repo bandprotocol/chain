@@ -46,6 +46,7 @@ from .feeds_db import (
     delegator_signals,
     feeds,
     prices,
+    price_services,
 )
 
 
