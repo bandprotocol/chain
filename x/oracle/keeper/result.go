@@ -6,10 +6,8 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	clienttypes "github.com/cosmos/ibc-go/v4/modules/core/02-client/types"
-	channeltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
-	host "github.com/cosmos/ibc-go/v4/modules/core/24-host"
+	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -32,7 +30,7 @@ func (k Keeper) SetResult(ctx sdk.Context, reqID types.RequestID, result types.R
 func (k Keeper) GetResult(ctx sdk.Context, id types.RequestID) (types.Result, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.ResultStoreKey(id))
 	if bz == nil {
-		return types.Result{}, sdkerrors.Wrapf(types.ErrResultNotFound, "id: %d", id)
+		return types.Result{}, types.ErrResultNotFound.Wrapf("id: %d", id)
 	}
 	var result types.Result
 	k.cdc.MustUnmarshal(bz, &result)
@@ -95,7 +93,7 @@ func (k Keeper) SaveResult(
 		r.MinCount,                         // MinCount
 		id,                                 // RequestID
 		reportCount,                        // AnsCount
-		int64(r.RequestTime),               // RequestTime
+		r.RequestTime,                      // RequestTime
 		ctx.BlockTime().Unix(),             // ResolveTime
 		status,                             // ResolveStatus
 		result,                             // Result
@@ -104,36 +102,7 @@ func (k Keeper) SaveResult(
 	if r.IBCChannel != nil {
 		sourceChannel := r.IBCChannel.ChannelId
 		sourcePort := r.IBCChannel.PortId
-		sourceChannelEnd, found := k.channelKeeper.GetChannel(ctx, sourcePort, sourceChannel)
-		if !found {
-			ctx.EventManager().EmitEvent(sdk.NewEvent(
-				types.EventTypeSendPacketFail,
-				sdk.NewAttribute(
-					types.AttributeKeyReason,
-					fmt.Sprintf("Cannot find channel on port ID (%s) channel ID (%s)", sourcePort, sourceChannel),
-				),
-			))
-			return
-		}
-		destinationPort := sourceChannelEnd.Counterparty.PortId
-		destinationChannel := sourceChannelEnd.Counterparty.ChannelId
-		sequence, found := k.channelKeeper.GetNextSequenceSend(
-			ctx, sourcePort, sourceChannel,
-		)
-		if !found {
-			ctx.EventManager().EmitEvent(sdk.NewEvent(
-				types.EventTypeSendPacketFail,
-				sdk.NewAttribute(
-					types.AttributeKeyReason,
-					fmt.Sprintf(
-						"Cannot get sequence number on source port: %s, source channel: %s",
-						sourcePort,
-						sourceChannel,
-					),
-				),
-			))
-			return
-		}
+
 		channelCap, ok := k.scopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(sourcePort, sourceChannel))
 		if !ok {
 			ctx.EventManager().EmitEvent(sdk.NewEvent(
@@ -144,21 +113,18 @@ func (k Keeper) SaveResult(
 		}
 
 		packetData := types.NewOracleResponsePacketData(
-			r.ClientID, id, reportCount, int64(r.RequestTime), ctx.BlockTime().Unix(), status, result,
+			r.ClientID, id, reportCount, r.RequestTime, ctx.BlockTime().Unix(), status, result,
 		)
 
-		packet := channeltypes.NewPacket(
-			packetData.GetBytes(),
-			sequence,
+		if _, err := k.channelKeeper.SendPacket(
+			ctx,
+			channelCap,
 			sourcePort,
 			sourceChannel,
-			destinationPort,
-			destinationChannel,
 			clienttypes.NewHeight(0, 0),
 			uint64(ctx.BlockTime().UnixNano()+packetExpireTime),
-		)
-
-		if err := k.channelKeeper.SendPacket(ctx, channelCap, packet); err != nil {
+			packetData.GetBytes(),
+		); err != nil {
 			ctx.EventManager().EmitEvent(sdk.NewEvent(
 				types.EventTypeSendPacketFail,
 				sdk.NewAttribute(types.AttributeKeyReason, fmt.Sprintf("Unable to send packet: %s", err)),

@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -15,22 +16,20 @@ import (
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
-	ctypes "github.com/tendermint/tendermint/rpc/core/types"
 
 	band "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
-var (
-	// Proto codec for encoding/decoding proto message
-	cdc = band.MakeEncodingConfig().Marshaler
-)
+// Proto codec for encoding/decoding proto message
+var cdc = band.MakeEncodingConfig().Marshaler
 
 func signAndBroadcast(
-	c *Context, key keyring.Info, msgs []sdk.Msg, gasLimit uint64, memo string,
+	c *Context, key *keyring.Record, msgs []sdk.Msg, gasLimit uint64, memo string,
 ) (string, error) {
 	clientCtx := client.Context{
 		Client:            c.client,
+		Codec:             cdc,
 		TxConfig:          band.MakeEncodingConfig().TxConfig,
 		BroadcastMode:     "sync",
 		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
@@ -51,14 +50,19 @@ func signAndBroadcast(
 		WithKeybase(kb).
 		WithAccountRetriever(clientCtx.AccountRetriever)
 
-	execMsg := authz.NewMsgExec(key.GetAddress(), msgs)
-
-	txb, err := tx.BuildUnsignedTx(txf, &execMsg)
+	address, err := key.GetAddress()
 	if err != nil {
 		return "", err
 	}
 
-	err = tx.Sign(txf, key.GetName(), txb, true)
+	execMsg := authz.NewMsgExec(address, msgs)
+
+	txb, err := txf.BuildUnsignedTx(&execMsg)
+	if err != nil {
+		return "", err
+	}
+
+	err = tx.Sign(txf, key.Name, txb, true)
 	if err != nil {
 		return "", err
 	}
@@ -80,9 +84,15 @@ func signAndBroadcast(
 	return res.TxHash, nil
 }
 
-func queryAccount(clientCtx client.Context, key keyring.Info) (client.Account, error) {
+func queryAccount(clientCtx client.Context, key *keyring.Record) (client.Account, error) {
 	accountRetriever := authtypes.AccountRetriever{}
-	acc, err := accountRetriever.GetAccount(clientCtx, key.GetAddress())
+
+	address, err := key.GetAddress()
+	if err != nil {
+		return nil, err
+	}
+
+	acc, err := accountRetriever.GetAccount(clientCtx, address)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +133,7 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 	}
 	memo := fmt.Sprintf("yoda:%s/exec:%s", version.Version, strings.Join(versions, ","))
 	key := c.keys[keyIndex]
-	// cliCtx := sdkCtx.CLIContext{Client: c.client, TrustNode: true, Codec: cdc}
+
 	clientCtx := client.Context{
 		Client:            c.client,
 		TxConfig:          band.MakeEncodingConfig().TxConfig,

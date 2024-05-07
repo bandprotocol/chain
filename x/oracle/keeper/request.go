@@ -4,7 +4,6 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -18,7 +17,7 @@ func (k Keeper) HasRequest(ctx sdk.Context, id types.RequestID) bool {
 func (k Keeper) GetRequest(ctx sdk.Context, id types.RequestID) (types.Request, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.RequestStoreKey(id))
 	if bz == nil {
-		return types.Request{}, sdkerrors.Wrapf(types.ErrRequestNotFound, "id: %d", id)
+		return types.Request{}, types.ErrRequestNotFound.Wrapf("id: %d", id)
 	}
 	var request types.Request
 	k.cdc.MustUnmarshal(bz, &request)
@@ -55,7 +54,7 @@ func (k Keeper) AddRequest(ctx sdk.Context, req types.Request) types.RequestID {
 func (k Keeper) ProcessExpiredRequests(ctx sdk.Context) {
 	currentReqID := k.GetRequestLastExpired(ctx) + 1
 	lastReqID := types.RequestID(k.GetRequestCount(ctx))
-	expirationBlockCount := int64(k.ExpirationBlockCount(ctx))
+	expirationBlockCount := int64(k.GetParams(ctx).ExpirationBlockCount)
 	// Loop through all data requests in chronological order. If a request reaches its
 	// expiration height, we will deactivate validators that didn't report data on the
 	// request. We also resolve requests to status EXPIRED if they are not yet resolved.
@@ -77,7 +76,7 @@ func (k Keeper) ProcessExpiredRequests(ctx sdk.Context) {
 		for _, val := range req.RequestedValidators {
 			v, _ := sdk.ValAddressFromBech32(val)
 			if !k.HasReport(ctx, currentReqID, v) {
-				k.MissReport(ctx, v, time.Unix(int64(req.RequestTime), 0))
+				k.MissReport(ctx, v, time.Unix(req.RequestTime, 0))
 			}
 		}
 

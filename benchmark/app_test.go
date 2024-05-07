@@ -3,20 +3,19 @@ package benchmark
 import (
 	"testing"
 
+	abci "github.com/cometbft/cometbft/abci/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/libs/log"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	testapp "github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 type BenchmarkApp struct {
-	*testapp.TestingApp
+	*bandtesting.TestingApp
 	Sender    *Account
 	Validator *Account
 	Oid       uint64
@@ -28,20 +27,21 @@ type BenchmarkApp struct {
 	Querier   keeper.Querier
 }
 
-func InitializeBenchmarkApp(b testing.TB, maxGasPerBlock int64) *BenchmarkApp {
+func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
+	app, _ := bandtesting.CreateTestApp(&testing.T{}, false)
 	ba := &BenchmarkApp{
-		TestingApp: testapp.NewTestApp("", log.NewNopLogger()),
+		TestingApp: app,
 		Sender: &Account{
-			Account: testapp.Owner,
+			Account: bandtesting.Owner,
 			Num:     0,
 			Seq:     0,
 		},
 		Validator: &Account{
-			Account: testapp.Validators[0],
+			Account: bandtesting.Validators[0],
 			Num:     5,
 			Seq:     0,
 		},
-		TB: b,
+		TB: tb,
 	}
 	ba.Ctx = ba.NewUncachedContext(false, tmproto.Header{})
 	ba.Querier = keeper.Querier{
@@ -57,23 +57,24 @@ func InitializeBenchmarkApp(b testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 
 	// create oracle script
 	oCode, err := GetBenchmarkWasm()
-	require.NoError(b, err)
+	require.NoError(tb, err)
 	_, res, err := ba.DeliverMsg(ba.Sender, GenMsgCreateOracleScript(ba.Sender, oCode))
-	require.NoError(b, err)
+	require.NoError(tb, err)
 	oid, err := GetFirstAttributeOfLastEventValue(res.Events)
-	require.NoError(b, err)
+	require.NoError(tb, err)
 	ba.Oid = uint64(oid)
 
 	// create data source
 	dCode := []byte("hello")
 	_, res, err = ba.DeliverMsg(ba.Sender, GenMsgCreateDataSource(ba.Sender, dCode))
-	require.NoError(b, err)
+	require.NoError(tb, err)
 	did, err := GetFirstAttributeOfLastEventValue(res.Events)
-	require.NoError(b, err)
+	require.NoError(tb, err)
 	ba.Did = uint64(did)
 
 	// activate oracle
-	_, _, _ = ba.DeliverMsg(ba.Validator, GenMsgActivate(ba.Validator))
+	_, _, err = ba.DeliverMsg(ba.Validator, GenMsgActivate(ba.Validator))
+	require.NoError(tb, err)
 
 	ba.CallEndBlock()
 	ba.Commit()
@@ -101,7 +102,7 @@ func (ba *BenchmarkApp) CallEndBlock() abci.ResponseEndBlock {
 }
 
 func (ba *BenchmarkApp) CallDeliver(tx sdk.Tx) (sdk.GasInfo, *sdk.Result, error) {
-	return ba.Deliver(ba.TxEncoder, tx)
+	return ba.SimDeliver(ba.TxEncoder, tx)
 }
 
 func (ba *BenchmarkApp) AddMaxMsgRequests(msg []sdk.Msg) {
@@ -109,7 +110,7 @@ func (ba *BenchmarkApp) AddMaxMsgRequests(msg []sdk.Msg) {
 	for block := 0; block < 10; block++ {
 		ba.CallBeginBlock()
 
-		var totalGas uint64 = 0
+		totalGas := uint64(0)
 		for {
 			tx := GenSequenceOfTxs(
 				ba.TxConfig,

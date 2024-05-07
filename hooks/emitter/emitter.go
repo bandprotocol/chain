@@ -6,6 +6,9 @@ import (
 	"strings"
 	"time"
 
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	tmjson "github.com/cometbft/cometbft/libs/json"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
@@ -16,23 +19,20 @@ import (
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	icahostkeeper "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/host/keeper"
-	clientkeeper "github.com/cosmos/ibc-go/v4/modules/core/02-client/keeper"
-	connectionkeeper "github.com/cosmos/ibc-go/v4/modules/core/03-connection/keeper"
-	channelkeeper "github.com/cosmos/ibc-go/v4/modules/core/04-channel/keeper"
+	icahostkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/keeper"
+	clientkeeper "github.com/cosmos/ibc-go/v7/modules/core/02-client/keeper"
+	connectionkeeper "github.com/cosmos/ibc-go/v7/modules/core/03-connection/keeper"
+	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	"github.com/segmentio/kafka-go"
-	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto/tmhash"
-	tmjson "github.com/tendermint/tendermint/libs/json"
 
 	"github.com/bandprotocol/chain/v2/app/params"
 	"github.com/bandprotocol/chain/v2/hooks/common"
-	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -51,17 +51,17 @@ type Hook struct {
 
 	accountKeeper authkeeper.AccountKeeper
 	bankKeeper    bankkeeper.Keeper
-	stakingKeeper stakingkeeper.Keeper
+	stakingKeeper *stakingkeeper.Keeper
 	mintKeeper    mintkeeper.Keeper
 	distrKeeper   distrkeeper.Keeper
 	govKeeper     govkeeper.Keeper
 	oracleKeeper  oraclekeeper.Keeper
 	icahostKeeper icahostkeeper.Keeper
 
-	//ibc keeper
-	clientkeeper     clientkeeper.Keeper
-	connectionkeeper connectionkeeper.Keeper
-	channelkeeper    channelkeeper.Keeper
+	// ibc keeper
+	clientKeeper     clientkeeper.Keeper
+	connectionKeeper connectionkeeper.Keeper
+	channelKeeper    channelkeeper.Keeper
 }
 
 // NewHook creates an emitter hook instance that will be added in Band App.
@@ -71,15 +71,15 @@ func NewHook(
 	encodingConfig params.EncodingConfig,
 	accountKeeper authkeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper,
-	stakingKeeper stakingkeeper.Keeper,
+	stakingKeeper *stakingkeeper.Keeper,
 	mintKeeper mintkeeper.Keeper,
 	distrKeeper distrkeeper.Keeper,
 	govKeeper govkeeper.Keeper,
-	oracleKeeper keeper.Keeper,
+	oracleKeeper oraclekeeper.Keeper,
 	icahostKeeper icahostkeeper.Keeper,
-	clientkeeper clientkeeper.Keeper,
-	connectionkeeper connectionkeeper.Keeper,
-	channelkeeper channelkeeper.Keeper,
+	clientKeeper clientkeeper.Keeper,
+	connectionKeeper connectionkeeper.Keeper,
+	channelKeeper channelkeeper.Keeper,
 	kafkaURI string,
 	emitStartState bool,
 ) *Hook {
@@ -103,9 +103,9 @@ func NewHook(
 		govKeeper:        govKeeper,
 		oracleKeeper:     oracleKeeper,
 		icahostKeeper:    icahostKeeper,
-		clientkeeper:     clientkeeper,
-		connectionkeeper: connectionkeeper,
-		channelkeeper:    channelkeeper,
+		clientKeeper:     clientKeeper,
+		connectionKeeper: connectionKeeper,
+		channelKeeper:    channelKeeper,
 		emitStartState:   emitStartState,
 	}
 }
@@ -211,30 +211,53 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	}
 
 	// Gov module
-	var govState govtypes.GenesisState
+	var govState govv1.GenesisState
 	h.cdc.MustUnmarshalJSON(genesisState[govtypes.ModuleName], &govState)
 	for _, proposal := range govState.Proposals {
-		content := proposal.GetContent()
-		h.Write("NEW_PROPOSAL", common.JsDict{
-			"id":               proposal.ProposalId,
-			"proposer":         nil,
-			"type":             proposal.ProposalType(),
-			"title":            content.GetTitle(),
-			"description":      content.GetDescription(),
-			"proposal_route":   content.ProposalRoute(),
-			"status":           int(proposal.Status),
-			"submit_time":      proposal.SubmitTime.UnixNano(),
-			"deposit_end_time": proposal.DepositEndTime.UnixNano(),
-			"total_deposit":    proposal.TotalDeposit.String(),
-			"voting_time":      proposal.VotingStartTime.UnixNano(),
-			"voting_end_time":  proposal.VotingEndTime.UnixNano(),
-		})
+		msgs, _ := proposal.GetMsgs()
+		switch subMsg := msgs[0].(type) {
+		case *govv1.MsgExecLegacyContent:
+			content := subMsg.Content.GetCachedValue().(govv1beta1.Content)
+			h.Write("NEW_PROPOSAL", common.JsDict{
+				"id":               proposal.Id,
+				"proposer":         nil,
+				"type":             content.ProposalType(),
+				"title":            content.GetTitle(),
+				"description":      content.GetDescription(),
+				"proposal_route":   content.ProposalRoute(),
+				"status":           int(proposal.Status),
+				"submit_time":      common.TimeToNano(proposal.SubmitTime),
+				"deposit_end_time": common.TimeToNano(proposal.DepositEndTime),
+				"total_deposit":    sdk.NewCoins(proposal.TotalDeposit...).String(),
+				"voting_time":      common.TimeToNano(proposal.VotingStartTime),
+				"voting_end_time":  common.TimeToNano(proposal.VotingEndTime),
+				"content":          content,
+			})
+		case sdk.Msg:
+			h.Write("NEW_PROPOSAL", common.JsDict{
+				"id":               proposal.Id,
+				"proposer":         nil,
+				"type":             sdk.MsgTypeURL(subMsg),
+				"title":            proposal.Title,
+				"description":      proposal.Summary,
+				"proposal_route":   sdk.MsgTypeURL(subMsg),
+				"status":           int(proposal.Status),
+				"submit_time":      common.TimeToNano(proposal.SubmitTime),
+				"deposit_end_time": common.TimeToNano(proposal.DepositEndTime),
+				"total_deposit":    sdk.NewCoins(proposal.TotalDeposit...).String(),
+				"voting_time":      common.TimeToNano(proposal.VotingStartTime),
+				"voting_end_time":  common.TimeToNano(proposal.VotingEndTime),
+				"content":          subMsg,
+			})
+		default:
+			break
+		}
 	}
 	for _, deposit := range govState.Deposits {
 		h.Write("SET_DEPOSIT", common.JsDict{
 			"proposal_id": deposit.ProposalId,
 			"depositor":   deposit.Depositor,
-			"amount":      deposit.Amount.String(),
+			"amount":      sdk.NewCoins(deposit.Amount...).String(),
 			"tx_hash":     nil,
 		})
 	}
@@ -252,7 +275,7 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	h.cdc.MustUnmarshalJSON(genesisState[oracletypes.ModuleName], &oracleState)
 	for idx, ds := range oracleState.DataSources {
 		h.Write("NEW_DATA_SOURCE", common.JsDict{
-			"id":          types.DataSourceID(idx + 1),
+			"id":          oracletypes.DataSourceID(idx + 1),
 			"name":        ds.Name,
 			"description": ds.Description,
 			"owner":       ds.Owner,
@@ -263,7 +286,7 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 		})
 	}
 	for idx, os := range oracleState.OracleScripts {
-		h.emitSetOracleScript(types.OracleScriptID(idx+1), os, nil)
+		h.emitSetOracleScript(oracletypes.OracleScriptID(idx+1), os, nil)
 	}
 
 	var authzState authz.GenesisState
@@ -367,7 +390,7 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 	logs, _ := sdk.ParseABCILogs(res.Log) // Error must always be nil if res.IsOK is true.
 	messages := []map[string]interface{}{}
 	for idx, msg := range tx.GetMsgs() {
-		var detail = make(common.JsDict)
+		detail := make(common.JsDict)
 		DecodeMsg(msg, detail)
 		if res.IsOK() {
 			h.handleMsg(ctx, txHash, msg, logs[idx], detail)
@@ -411,18 +434,23 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 			Value: common.JsDict{
 				"address": acc,
 				"balance": h.bankKeeper.GetAllBalances(ctx, acc).String(),
-			}})
+			},
+		})
 	}
 
 	h.msgs = append(modifiedMsgs, h.msgs[1:]...)
 	h.Write("COMMIT", common.JsDict{"height": req.Height})
 }
 
-func (h *Hook) RequestSearch(req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, bool, error) {
+func (h *Hook) RequestSearch(
+	req *oracletypes.QueryRequestSearchRequest,
+) (*oracletypes.QueryRequestSearchResponse, bool, error) {
 	return nil, false, nil
 }
 
-func (h *Hook) RequestPrice(req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, bool, error) {
+func (h *Hook) RequestPrice(
+	req *oracletypes.QueryRequestPriceRequest,
+) (*oracletypes.QueryRequestPriceResponse, bool, error) {
 	return nil, false, nil
 }
 

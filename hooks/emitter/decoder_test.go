@@ -13,25 +13,27 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	clienttypes "github.com/cosmos/ibc-go/v4/modules/core/02-client/types"
-	connectiontypes "github.com/cosmos/ibc-go/v4/modules/core/03-connection/types"
-	channeltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
-	commitmenttypes "github.com/cosmos/ibc-go/v4/modules/core/23-commitment/types"
-	ibctmtypes "github.com/cosmos/ibc-go/v4/modules/light-clients/07-tendermint/types"
+	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	connectiontypes "github.com/cosmos/ibc-go/v7/modules/core/03-connection/types"
+	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	commitmenttypes "github.com/cosmos/ibc-go/v7/modules/core/23-commitment/types"
+	ibctmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/hooks/emitter"
-	ibctesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
+	"github.com/bandprotocol/chain/v2/testing/ibctesting"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 var (
 	SenderAddress    = sdk.AccAddress(genAddresFromString("Sender"))
+	ReceiverAddress  = sdk.AccAddress(genAddresFromString("Receiver"))
 	ValAddress       = sdk.ValAddress(genAddresFromString("Validator"))
 	TreasuryAddress  = sdk.AccAddress(genAddresFromString("Treasury"))
 	OwnerAddress     = sdk.AccAddress(genAddresFromString("Owner"))
@@ -43,8 +45,6 @@ var (
 
 	clientHeight = clienttypes.NewHeight(0, 10)
 
-	content = govtypes.ContentFromProposalType("Title", "Desc", "Text")
-
 	Delegation        = stakingtypes.NewDelegation(DelegatorAddress, ValAddress, sdk.NewDec(1))
 	SelfDelegation    = sdk.NewCoin("uband", sdk.NewInt(1))
 	MinSelfDelegation = sdk.NewInt(1)
@@ -53,6 +53,9 @@ var (
 	NewRate           = sdk.NewDec(1)
 	PubKey            = newPubKey("0B485CFC0EECC619440448436F8FC9DF40566F2369E72400281454CB552AFB50")
 	Amount            = sdk.NewCoin("uband", sdk.NewInt(1))
+
+	content, _  = govv1beta1.ContentFromProposalType("Title", "Desc", "Text")
+	proposalMsg = banktypes.NewMsgSend(SenderAddress, ReceiverAddress, sdk.Coins{Amount})
 )
 
 type DecoderTestSuite struct {
@@ -114,9 +117,10 @@ func (suite *DecoderTestSuite) TestDecodeMsgGrant() {
 	sendMsg, _ := authz.NewMsgGrant(
 		GranterAddress,
 		GranteeAddress,
-		banktypes.NewSendAuthorization(spendLimit),
-		expiration,
+		banktypes.NewSendAuthorization(spendLimit, []sdk.AccAddress{}),
+		&expiration,
 	)
+
 	emitter.DecodeMsgGrant(sendMsg, detail)
 	suite.testCompareJson(
 		detail,
@@ -128,7 +132,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgGrant() {
 		GranterAddress,
 		GranteeAddress,
 		authz.NewGenericAuthorization(sdk.MsgTypeURL(&oracletypes.MsgReportData{})),
-		expiration,
+		&expiration,
 	)
 	emitter.DecodeMsgGrant(genericMsg, detail)
 	suite.testCompareJson(
@@ -143,7 +147,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgGrant() {
 		stakingtypes.AuthorizationType_AUTHORIZATION_TYPE_DELEGATE,
 		&Amount,
 	)
-	stakeMsg, _ := authz.NewMsgGrant(GranterAddress, GranteeAddress, stakeAuthorization, expiration)
+	stakeMsg, _ := authz.NewMsgGrant(GranterAddress, GranteeAddress, stakeAuthorization, &expiration)
 	emitter.DecodeMsgGrant(stakeMsg, detail)
 	suite.testCompareJson(
 		detail,
@@ -186,9 +190,9 @@ func (suite *DecoderTestSuite) TestDecodeMsgRequestData() {
 		1,
 		1,
 		"cleint_id",
-		testapp.Coins100000000uband,
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.Coins100000000uband,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
 		SenderAddress,
 	)
 	emitter.DecodeMsgRequestData(msg, detail)
@@ -202,7 +206,15 @@ func (suite *DecoderTestSuite) TestDecodeReportData() {
 	detail := make(common.JsDict)
 	msg := oracletypes.NewMsgReportData(
 		1,
-		[]oracletypes.RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}},
+		[]oracletypes.RawReport{{
+			ExternalID: 1,
+			ExitCode:   1,
+			Data:       []byte("data1"),
+		}, {
+			ExternalID: 2,
+			ExitCode:   2,
+			Data:       []byte("data2"),
+		}},
 		ValAddress,
 	)
 	emitter.DecodeMsgReportData(msg, detail)
@@ -218,7 +230,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgCreateDataSource() {
 		"name",
 		"desc",
 		[]byte("exec"),
-		testapp.Coins1000000uband,
+		bandtesting.Coins1000000uband,
 		TreasuryAddress,
 		OwnerAddress,
 		SenderAddress,
@@ -255,7 +267,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgEditDataSource() {
 		"name",
 		"desc",
 		[]byte("exec"),
-		testapp.Coins1000000uband,
+		bandtesting.Coins1000000uband,
 		TreasuryAddress,
 		OwnerAddress,
 		SenderAddress,
@@ -308,8 +320,6 @@ func (suite *DecoderTestSuite) TestDecodeMsgCreateClient() {
 		clientHeight,
 		commitmenttypes.GetSDKSpecs(),
 		ibctesting.UpgradePath,
-		false,
-		false,
 	)
 	msg, _ := clienttypes.NewMsgCreateClient(tendermintClient, consensus, SenderAddress.String())
 	emitter.DecodeMsgCreateClient(msg, detail)
@@ -324,19 +334,46 @@ func (suite *DecoderTestSuite) TestDecodeMsgCreateClient() {
 	// {"client_state":{"chain_id":"testchain0","trust_level":{"numerator":1,"denominator":3},"trusting_period":1209600000000000,"unbonding_period":1814400000000000,"max_clock_drift":10000000000,"frozen_height":{},"latest_height":{"revision_height":10},"proof_specs":[{"leaf_spec":{"hash":1,"prehash_value":1,"length":1,"prefix":"AA=="},"inner_spec":{"child_order":[0,1],"child_size":33,"min_prefix_length":4,"max_prefix_length":12,"hash":1}},{"leaf_spec":{"hash":1,"prehash_value":1,"length":1,"prefix":"AA=="},"inner_spec":{"child_order":[0,1],"child_size":32,"min_prefix_length":1,"max_prefix_length":1,"hash":1}}],"upgrade_path":["upgrade","upgradedIBCState"]},"consensus_state":{"timestamp":"2020-01-02T00:00:00Z","root":{"hash":"I0ofcG04FYhAyDFzygf8Q/6JEpBactgfhm68fSXwBro="},"next_validators_hash":"C8277795F71B45089E58F0994DCF4F88BECD5770C7E492A9A25B706888D6BF2F"},"signer":"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0"}
 }
 
-func (suite *DecoderTestSuite) TestDecodeMsgSubmitProposal() {
+func (suite *DecoderTestSuite) TestDecodeV1beta1MsgSubmitProposal() {
 	detail := make(common.JsDict)
-	msg, _ := govtypes.NewMsgSubmitProposal(content, testapp.Coins1000000uband, SenderAddress)
-	emitter.DecodeMsgSubmitProposal(msg, detail)
+	msg, _ := govv1beta1.NewMsgSubmitProposal(content, bandtesting.Coins1000000uband, SenderAddress)
+	emitter.DecodeV1beta1MsgSubmitProposal(msg, detail)
 	suite.testCompareJson(
 		detail,
 		"{\"content\":{\"title\":\"Title\",\"description\":\"Desc\"},\"initial_deposit\":[{\"denom\":\"uband\",\"amount\":\"1000000\"}],\"proposer\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}",
 	)
 }
 
+func (suite *DecoderTestSuite) TestDecodeMsgSubmitProposal() {
+	detail := make(common.JsDict)
+	msg, _ := govv1.NewMsgSubmitProposal(
+		[]sdk.Msg{proposalMsg},
+		bandtesting.Coins1000000uband,
+		SenderAddress.String(),
+		"metadata",
+		"title",
+		"summary",
+	)
+	emitter.DecodeMsgSubmitProposal(msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"initial_deposit\":[{\"denom\":\"uband\",\"amount\":\"1000000\"}],\"messages\":[{\"msg\":{\"amount\":[{\"denom\":\"uband\",\"amount\":\"1\"}],\"from_address\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\",\"to_address\":\"band12fjkxetfwejhyqqqqqqqqqqqqqqqqqqqrhevnq\"},\"type\":\"/cosmos.bank.v1beta1.MsgSend\"}],\"metadata\":\"metadata\",\"proposer\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\",\"summary\":\"summary\",\"title\":\"title\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeV1beta1MsgDeposit() {
+	detail := make(common.JsDict)
+	msg := govv1beta1.NewMsgDeposit(SenderAddress, 1, bandtesting.Coins1000000uband)
+	emitter.DecodeV1beta1MsgDeposit(msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"amount\":[{\"denom\":\"uband\",\"amount\":\"1000000\"}],\"depositor\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\",\"proposal_id\":1}",
+	)
+}
+
 func (suite *DecoderTestSuite) TestDecodeMsgDeposit() {
 	detail := make(common.JsDict)
-	msg := govtypes.NewMsgDeposit(SenderAddress, 1, testapp.Coins1000000uband)
+	msg := govv1.NewMsgDeposit(SenderAddress, 1, bandtesting.Coins1000000uband)
 	emitter.DecodeMsgDeposit(msg, detail)
 	suite.testCompareJson(
 		detail,
@@ -344,12 +381,22 @@ func (suite *DecoderTestSuite) TestDecodeMsgDeposit() {
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeMsgVote() {
+func (suite *DecoderTestSuite) TestDecodeV1beta1MsgVote() {
 	detail := make(common.JsDict)
-	msg := govtypes.NewMsgVote(SenderAddress, 1, 0)
-	emitter.DecodeMsgVote(msg, detail)
+	msg := govv1beta1.NewMsgVote(SenderAddress, 1, 0)
+	emitter.DecodeV1beta1MsgVote(msg, detail)
 	suite.testCompareJson(detail,
 		"{\"option\":0,\"proposal_id\":1,\"voter\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgVote() {
+	detail := make(common.JsDict)
+	msg := govv1.NewMsgVote(SenderAddress, 1, 0, "metadata")
+	emitter.DecodeMsgVote(msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"metadata\":\"metadata\",\"option\":0,\"proposal_id\":1,\"voter\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}",
 	)
 }
 
@@ -414,6 +461,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgBeginRedelegate() {
 		"{\"amount\":{\"denom\":\"uband\",\"amount\":\"1\"},\"delegator_address\":\"band1g3jkcet8v96x7usqqqqqqqqqqqqqqqqqus6d5g\",\"validator_dst_address\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\",\"validator_src_address\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
 	)
 }
+
 func (suite *DecoderTestSuite) TestDecodeMsgUpdateClient() {
 	detail := make(common.JsDict)
 	msg, _ := clienttypes.NewMsgUpdateClient(
@@ -453,8 +501,6 @@ func (suite *DecoderTestSuite) TestDecodeMsgUpgradeClient() {
 		newClientHeight,
 		commitmenttypes.GetSDKSpecs(),
 		ibctesting.UpgradePath,
-		false,
-		false,
 	)
 	upgradedConsState := &ibctmtypes.ConsensusState{
 		NextValidatorsHash: []byte("nextValsHash"),
@@ -556,8 +602,6 @@ func (suite *DecoderTestSuite) TestDecodeMsgConnectionOpenTry() {
 		clientHeight,
 		commitmenttypes.GetSDKSpecs(),
 		ibctesting.UpgradePath,
-		false,
-		false,
 	)
 	msg := connectiontypes.NewMsgConnectionOpenTry(
 		path.EndpointA.ClientID,
@@ -593,8 +637,6 @@ func (suite *DecoderTestSuite) TestDecodeMsgConnectionOpenAck() {
 		clientHeight,
 		commitmenttypes.GetSDKSpecs(),
 		ibctesting.UpgradePath,
-		false,
-		false,
 	)
 	msg := connectiontypes.NewMsgConnectionOpenAck(
 		path.EndpointA.ConnectionID,

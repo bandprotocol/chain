@@ -4,14 +4,14 @@ import (
 	"encoding/hex"
 	"testing"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 )
 
 func fromHex(hexStr string) []byte {
@@ -23,7 +23,9 @@ func fromHex(hexStr string) []byte {
 }
 
 func TestRollingSeedCorrect(t *testing.T) {
-	app, ctx, k := testapp.CreateTestInput(false)
+	app, ctx := bandtesting.CreateTestApp(t, false)
+	k := app.OracleKeeper
+
 	// Initially rolling seed should be all zeros.
 	require.Equal(
 		t,
@@ -58,34 +60,42 @@ func TestRollingSeedCorrect(t *testing.T) {
 }
 
 func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
-	app, ctx, k := testapp.CreateTestInput(false)
+	app, ctx := bandtesting.CreateTestApp(t, false)
+	k := app.OracleKeeper
+
 	votes := []abci.VoteInfo{{
-		Validator:       abci.Validator{Address: testapp.Validators[0].PubKey.Address(), Power: 70},
+		Validator:       abci.Validator{Address: bandtesting.Validators[0].PubKey.Address(), Power: 70},
 		SignedLastBlock: true,
 	}, {
-		Validator:       abci.Validator{Address: testapp.Validators[1].PubKey.Address(), Power: 30},
+		Validator:       abci.Validator{Address: bandtesting.Validators[1].PubKey.Address(), Power: 30},
 		SignedLastBlock: true,
 	}}
 	// Set collected fee to 100uband + 70% oracle reward proportion + disable minting inflation.
 	// NOTE: we intentionally keep ctx.BlockHeight = 0, so distr's AllocateTokens doesn't get called.
 	feeCollector := app.AccountKeeper.GetModuleAccount(ctx, authtypes.FeeCollectorName)
-	app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("uband", 100)))
-	app.BankKeeper.SendCoinsFromModuleToModule(
+	err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("uband", 100)))
+	require.NoError(t, err)
+	err = app.BankKeeper.SendCoinsFromModuleToModule(
 		ctx,
 		minttypes.ModuleName,
 		authtypes.FeeCollectorName,
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 	)
+	require.NoError(t, err)
+
 	distModule := app.AccountKeeper.GetModuleAccount(ctx, distrtypes.ModuleName)
 
 	app.AccountKeeper.SetAccount(ctx, feeCollector)
 	mintParams := app.MintKeeper.GetParams(ctx)
 	mintParams.InflationMin = sdk.ZeroDec()
 	mintParams.InflationMax = sdk.ZeroDec()
-	app.MintKeeper.SetParams(ctx, mintParams)
+	err = app.MintKeeper.SetParams(ctx, mintParams)
+	require.NoError(t, err)
+
 	params := k.GetParams(ctx)
 	params.OracleRewardPercentage = 70
-	k.SetParams(ctx, params)
+	err = k.SetParams(ctx, params)
+	require.NoError(t, err)
 	require.Equal(
 		t,
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
@@ -94,7 +104,7 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 	// If there are no validators active, Calling begin block should be no-op.
 	app.BeginBlocker(ctx, abci.RequestBeginBlock{
 		Hash:           fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
-		LastCommitInfo: abci.LastCommitInfo{Votes: votes},
+		LastCommitInfo: abci.CommitInfo{Votes: votes},
 	})
 	require.Equal(
 		t,
@@ -102,10 +112,11 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 		app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()),
 	)
 	// 1 validator active, begin block should take 70% of the fee. 2% of that goes to comm pool.
-	k.Activate(ctx, testapp.Validators[1].ValAddress)
+	err = k.Activate(ctx, bandtesting.Validators[1].ValAddress)
+	require.NoError(t, err)
 	app.BeginBlocker(ctx, abci.RequestBeginBlock{
 		Hash:           fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
-		LastCommitInfo: abci.LastCommitInfo{Votes: votes},
+		LastCommitInfo: abci.CommitInfo{Votes: votes},
 	})
 	require.Equal(
 		t,
@@ -124,18 +135,20 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 		app.DistrKeeper.GetFeePool(ctx).CommunityPool,
 	)
 	// 0uband
-	require.Empty(t, app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[0].ValAddress))
+	require.Empty(t, app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtesting.Validators[0].ValAddress))
 	// 100*70%*98% = 68.6uband
 	require.Equal(
 		t,
 		sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(686, 1)}},
-		app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[1].ValAddress).Rewards,
+		app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtesting.Validators[1].ValAddress).Rewards,
 	)
 	// 2 validators active now. 70% of the remaining fee pool will be split 3 ways (comm pool + val1 + val2).
-	k.Activate(ctx, testapp.Validators[0].ValAddress)
+	err = k.Activate(ctx, bandtesting.Validators[0].ValAddress)
+	require.NoError(t, err)
+
 	app.BeginBlocker(ctx, abci.RequestBeginBlock{
 		Hash:           fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
-		LastCommitInfo: abci.LastCommitInfo{Votes: votes},
+		LastCommitInfo: abci.CommitInfo{Votes: votes},
 	})
 	require.Equal(
 		t,
@@ -157,19 +170,19 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 	require.Equal(
 		t,
 		sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(14406, 3)}},
-		app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[0].ValAddress).Rewards,
+		app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtesting.Validators[0].ValAddress).Rewards,
 	)
 	// 68.6uband + 30*70%*98%*30% = 74.774uband
 	require.Equal(
 		t,
 		sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(74774, 3)}},
-		app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[1].ValAddress).Rewards,
+		app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtesting.Validators[1].ValAddress).Rewards,
 	)
 	// 1 validator becomes in active, and will not get reward this time.
-	k.MissReport(ctx, testapp.Validators[1].ValAddress, testapp.ParseTime(100))
+	k.MissReport(ctx, bandtesting.Validators[1].ValAddress, bandtesting.ParseTime(100))
 	app.BeginBlocker(ctx, abci.RequestBeginBlock{
 		Hash:           fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
-		LastCommitInfo: abci.LastCommitInfo{Votes: votes},
+		LastCommitInfo: abci.CommitInfo{Votes: votes},
 	})
 	require.Equal(
 		t,
@@ -191,24 +204,26 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 	require.Equal(
 		t,
 		sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(20286, 3)}},
-		app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[0].ValAddress).Rewards,
+		app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtesting.Validators[0].ValAddress).Rewards,
 	)
 	// 74.774uband
 	require.Equal(
 		t,
 		sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(74774, 3)}},
-		app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[1].ValAddress).Rewards,
+		app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtesting.Validators[1].ValAddress).Rewards,
 	)
 }
 
 func TestAllocateTokensWithDistrAllocateTokens(t *testing.T) {
-	app, ctx, k := testapp.CreateTestInput(false)
+	app, ctx := bandtesting.CreateTestApp(t, false)
+	k := app.OracleKeeper
+
 	ctx = ctx.WithBlockHeight(10) // Set block height to ensure distr's AllocateTokens gets called.
 	votes := []abci.VoteInfo{{
-		Validator:       abci.Validator{Address: testapp.Validators[0].PubKey.Address(), Power: 70},
+		Validator:       abci.Validator{Address: bandtesting.Validators[0].PubKey.Address(), Power: 70},
 		SignedLastBlock: true,
 	}, {
-		Validator:       abci.Validator{Address: testapp.Validators[1].PubKey.Address(), Power: 30},
+		Validator:       abci.Validator{Address: bandtesting.Validators[1].PubKey.Address(), Power: 30},
 		SignedLastBlock: true,
 	}}
 
@@ -216,23 +231,27 @@ func TestAllocateTokensWithDistrAllocateTokens(t *testing.T) {
 	distModule := app.AccountKeeper.GetModuleAccount(ctx, distrtypes.ModuleName)
 
 	// Set collected fee to 100uband + 70% oracle reward proportion + disable minting inflation.
-	app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("uband", 50)))
-	app.BankKeeper.SendCoinsFromModuleToModule(
+	err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("uband", 50)))
+	require.NoError(t, err)
+	err = app.BankKeeper.SendCoinsFromModuleToModule(
 		ctx,
 		minttypes.ModuleName,
 		authtypes.FeeCollectorName,
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 50)),
 	)
+	require.NoError(t, err)
 	app.AccountKeeper.SetAccount(ctx, feeCollector)
 	mintParams := app.MintKeeper.GetParams(ctx)
 	mintParams.InflationMin = sdk.ZeroDec()
 	mintParams.InflationMax = sdk.ZeroDec()
-	app.MintKeeper.SetParams(ctx, mintParams)
+	err = app.MintKeeper.SetParams(ctx, mintParams)
+	require.NoError(t, err)
 	params := k.GetParams(ctx)
 	params.OracleRewardPercentage = 70
-	k.SetParams(ctx, params)
+	err = k.SetParams(ctx, params)
+	require.NoError(t, err)
 	// Set block proposer to Validators[1], who will receive 5% bonus.
-	app.DistrKeeper.SetPreviousProposerConsAddr(ctx, testapp.Validators[1].Address.Bytes())
+	app.DistrKeeper.SetPreviousProposerConsAddr(ctx, bandtesting.Validators[1].Address.Bytes())
 	require.Equal(
 		t,
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 50)),
@@ -252,10 +271,11 @@ func TestAllocateTokensWithDistrAllocateTokens(t *testing.T) {
 	//   Community pool: 0.7 + 0.3 = 1
 	//   Validators[0]: 34.3 + 8.715 = 43.015
 	//   Validators[1]: 2.25 + 3.735 = 5.985
-	k.Activate(ctx, testapp.Validators[0].ValAddress)
+	err = k.Activate(ctx, bandtesting.Validators[0].ValAddress)
+	require.NoError(t, err)
 	app.BeginBlocker(ctx, abci.RequestBeginBlock{
 		Hash:           fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
-		LastCommitInfo: abci.LastCommitInfo{Votes: votes},
+		LastCommitInfo: abci.CommitInfo{Votes: votes},
 	})
 	require.Equal(t, sdk.Coins{}, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
 	require.Equal(
@@ -270,12 +290,12 @@ func TestAllocateTokensWithDistrAllocateTokens(t *testing.T) {
 	)
 	require.Equal(
 		t,
-		sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(43015, 3)}},
-		app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[0].ValAddress).Rewards,
+		sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(44590, 3)}},
+		app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtesting.Validators[0].ValAddress).Rewards,
 	)
 	require.Equal(
 		t,
-		sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(5985, 3)}},
-		app.DistrKeeper.GetValidatorOutstandingRewards(ctx, testapp.Validators[1].ValAddress).Rewards,
+		sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(4410, 3)}},
+		app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtesting.Validators[1].ValAddress).Rewards,
 	)
 }

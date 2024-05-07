@@ -21,18 +21,24 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	"github.com/cosmos/cosmos-sdk/x/group"
+	groupmodule "github.com/cosmos/cosmos-sdk/x/group/module"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/cosmos-sdk/x/upgrade"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	ica "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts"
-	icatypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types"
-	ibctransfer "github.com/cosmos/ibc-go/v4/modules/apps/transfer"
-	ibctransafertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v4/modules/core"
-	ibchost "github.com/cosmos/ibc-go/v4/modules/core/24-host"
+	icagenesistypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/genesis/types"
+	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
+	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
+	ibctransfer "github.com/cosmos/ibc-go/v7/modules/apps/transfer"
+	ibctransafertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	ibc "github.com/cosmos/ibc-go/v7/modules/core"
+	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 
+	"github.com/bandprotocol/chain/v2/app/upgrades/v2_6"
+	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -43,24 +49,25 @@ type GenesisState map[string]json.RawMessage
 // NewDefaultGenesisState generates the default state for the application.
 func NewDefaultGenesisState() GenesisState {
 	cdc := MakeEncodingConfig().Marshaler
+	ModuleBasics.DefaultGenesis(cdc)
 	denom := "uband"
 	// Get default genesis states of the modules we are to override.
 	authGenesis := authtypes.DefaultGenesisState()
 	stakingGenesis := stakingtypes.DefaultGenesisState()
 	distrGenesis := distrtypes.DefaultGenesisState()
 	mintGenesis := minttypes.DefaultGenesisState()
-	govGenesis := govtypes.DefaultGenesisState()
+	govGenesis := govv1.DefaultGenesisState()
 	crisisGenesis := crisistypes.DefaultGenesisState()
 	slashingGenesis := slashingtypes.DefaultGenesisState()
+	icaGenesis := icagenesistypes.DefaultGenesis()
+	globalfeeGenesis := globalfeetypes.DefaultGenesisState()
 	// Override the genesis parameters.
 	authGenesis.Params.TxSizeCostPerByte = 5
 	stakingGenesis.Params.BondDenom = denom
 	stakingGenesis.Params.HistoricalEntries = 1000
-	distrGenesis.Params.BaseProposerReward = sdk.NewDecWithPrec(3, 2)   // 3%
-	distrGenesis.Params.BonusProposerReward = sdk.NewDecWithPrec(12, 2) // 12%
-	mintGenesis.Params.BlocksPerYear = 10519200                         // target 3-second block time
+	mintGenesis.Params.BlocksPerYear = 10519200 // target 3-second block time
 	mintGenesis.Params.MintDenom = denom
-	govGenesis.DepositParams.MinDeposit = sdk.NewCoins(
+	govGenesis.Params.MinDeposit = sdk.NewCoins(
 		sdk.NewCoin(denom, sdk.TokensFromConsensusPower(1000, sdk.DefaultPowerReduction)),
 	)
 	crisisGenesis.ConstantFee = sdk.NewCoin(denom, sdk.TokensFromConsensusPower(10000, sdk.DefaultPowerReduction))
@@ -69,6 +76,16 @@ func NewDefaultGenesisState() GenesisState {
 	slashingGenesis.Params.DowntimeJailDuration = 60 * 10 * time.Second       // 10 minutes
 	slashingGenesis.Params.SlashFractionDoubleSign = sdk.NewDecWithPrec(5, 2) // 5%
 	slashingGenesis.Params.SlashFractionDowntime = sdk.NewDecWithPrec(1, 4)   // 0.01%
+
+	icaGenesis.HostGenesisState.Params = icahosttypes.Params{
+		HostEnabled:   true,
+		AllowMessages: v2_6.ICAAllowMessages,
+	}
+
+	globalfeeGenesis.Params.MinimumGasPrices = sdk.NewDecCoins(
+		sdk.NewDecCoinFromDec(denom, sdk.NewDecWithPrec(25, 4)),
+	)
+
 	return GenesisState{
 		authtypes.ModuleName:         cdc.MustMarshalJSON(authGenesis),
 		genutiltypes.ModuleName:      genutil.AppModuleBasic{}.DefaultGenesis(cdc),
@@ -80,13 +97,15 @@ func NewDefaultGenesisState() GenesisState {
 		govtypes.ModuleName:          cdc.MustMarshalJSON(govGenesis),
 		crisistypes.ModuleName:       cdc.MustMarshalJSON(crisisGenesis),
 		slashingtypes.ModuleName:     cdc.MustMarshalJSON(slashingGenesis),
-		ibchost.ModuleName:           ibc.AppModuleBasic{}.DefaultGenesis(cdc),
+		ibcexported.ModuleName:       ibc.AppModuleBasic{}.DefaultGenesis(cdc),
 		upgradetypes.ModuleName:      upgrade.AppModuleBasic{}.DefaultGenesis(cdc),
 		evidencetypes.ModuleName:     evidence.AppModuleBasic{}.DefaultGenesis(cdc),
 		authz.ModuleName:             authzmodule.AppModuleBasic{}.DefaultGenesis(cdc),
 		feegrant.ModuleName:          feegrantmodule.AppModuleBasic{}.DefaultGenesis(cdc),
+		group.ModuleName:             groupmodule.AppModuleBasic{}.DefaultGenesis(cdc),
 		ibctransafertypes.ModuleName: ibctransfer.AppModuleBasic{}.DefaultGenesis(cdc),
-		icatypes.ModuleName:          ica.AppModuleBasic{}.DefaultGenesis(cdc),
+		icatypes.ModuleName:          cdc.MustMarshalJSON(icaGenesis),
 		oracletypes.ModuleName:       oracle.AppModuleBasic{}.DefaultGenesis(cdc),
+		globalfeetypes.ModuleName:    cdc.MustMarshalJSON(globalfeeGenesis),
 	}
 }

@@ -1,48 +1,49 @@
 package benchmark
 
 import (
-	"io/ioutil"
 	"math"
+	"os"
 	"strconv"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/bandprotocol/chain/v2/pkg/obi"
-	"github.com/bandprotocol/chain/v2/testing/testapp"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	owasm "github.com/bandprotocol/go-owasm/api"
+	types "github.com/cometbft/cometbft/abci/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/require"
-	types "github.com/tendermint/tendermint/abci/types"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	tmtypes "github.com/tendermint/tendermint/types"
+
+	"github.com/bandprotocol/chain/v2/pkg/obi"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
+	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 type Account struct {
-	testapp.Account
+	bandtesting.Account
 	Num uint64
 	Seq uint64
 }
 
 type BenchmarkCalldata struct {
-	DataSourceId uint64
+	DataSourceID uint64
 	Scenario     uint64
 	Value        uint64
 	Text         string
 }
 
 func GetBenchmarkWasm() ([]byte, error) {
-	oCode, err := ioutil.ReadFile("./testdata/benchmark-oracle-script.wasm")
+	oCode, err := os.ReadFile("./testdata/benchmark-oracle-script.wasm")
 	return oCode, err
 }
 
 func GenMsgRequestData(
 	sender *Account,
-	oracleScriptId uint64,
-	dataSourceId uint64,
+	oracleScriptID uint64,
+	dataSourceID uint64,
 	scenario uint64,
 	value uint64,
 	stringLength int,
@@ -50,9 +51,9 @@ func GenMsgRequestData(
 	executeGas uint64,
 ) []sdk.Msg {
 	msg := oracletypes.MsgRequestData{
-		OracleScriptID: oracletypes.OracleScriptID(oracleScriptId),
+		OracleScriptID: oracletypes.OracleScriptID(oracleScriptID),
 		Calldata: obi.MustEncode(BenchmarkCalldata{
-			DataSourceId: dataSourceId,
+			DataSourceID: dataSourceID,
 			Scenario:     scenario,
 			Value:        value,
 			Text:         strings.Repeat("#", stringLength),
@@ -127,7 +128,7 @@ func GenSequenceOfTxs(
 	txs := make([]sdk.Tx, numTxs)
 
 	for i := 0; i < numTxs; i++ {
-		txs[i], _ = testapp.GenTx(
+		txs[i], _ = bandtesting.GenTx(
 			txConfig,
 			msgs,
 			sdk.Coins{sdk.NewInt64Coin("uband", 1)},
@@ -137,7 +138,7 @@ func GenSequenceOfTxs(
 			[]uint64{account.Seq},
 			account.PrivKey,
 		)
-		account.Seq += 1
+		account.Seq++
 	}
 
 	return txs
@@ -153,7 +154,7 @@ func DecodeEvents(events []types.Event) []Event {
 	for _, event := range events {
 		attrs := make(map[string]string, 0)
 		for _, attributes := range event.Attributes {
-			attrs[string(attributes.Key)] = string(attributes.Value)
+			attrs[attributes.Key] = attributes.Value
 		}
 		evs = append(evs, Event{
 			Type:       event.Type,
@@ -164,27 +165,16 @@ func DecodeEvents(events []types.Event) []Event {
 	return evs
 }
 
-func LogEvents(b testing.TB, events []types.Event) {
-	evs := DecodeEvents(events)
-	for i, ev := range evs {
-		b.Logf("Event %d: %+v\n", i, ev)
-	}
-
-	if len(evs) == 0 {
-		b.Logf("No Event")
-	}
-}
-
 func GetFirstAttributeOfLastEventValue(events []types.Event) (int, error) {
 	evt := events[len(events)-1]
 	attr := evt.Attributes[0]
-	value, err := strconv.Atoi(string(attr.Value))
+	value, err := strconv.Atoi(attr.Value)
 
 	return value, err
 }
 
 func InitOwasmTestEnv(
-	b testing.TB,
+	tb testing.TB,
 	cacheSize uint32,
 	scenario uint64,
 	parameter uint64,
@@ -192,18 +182,18 @@ func InitOwasmTestEnv(
 ) (*owasm.Vm, []byte, oracletypes.Request) {
 	// prepare owasm vm
 	owasmVM, err := owasm.NewVm(cacheSize)
-	require.NoError(b, err)
+	require.NoError(tb, err)
 
 	// prepare owasm code
 	oCode, err := GetBenchmarkWasm()
-	require.NoError(b, err)
+	require.NoError(tb, err)
 	compiledCode, err := owasmVM.Compile(oCode, oracletypes.MaxCompiledWasmCodeSize)
-	require.NoError(b, err)
+	require.NoError(tb, err)
 
 	// prepare request
 	req := oracletypes.NewRequest(
 		1, obi.MustEncode(BenchmarkCalldata{
-			DataSourceId: 1,
+			DataSourceID: 1,
 			Scenario:     scenario,
 			Value:        parameter,
 			Text:         strings.Repeat("#", stringLength),
@@ -214,9 +204,9 @@ func InitOwasmTestEnv(
 	return owasmVM, compiledCode, req
 }
 
-func GetConsensusParams(maxGas int64) *types.ConsensusParams {
-	return &types.ConsensusParams{
-		Block: &types.BlockParams{
+func GetConsensusParams(maxGas int64) *tmproto.ConsensusParams {
+	return &tmproto.ConsensusParams{
+		Block: &tmproto.BlockParams{
 			MaxBytes: 200000,
 			MaxGas:   maxGas,
 		},

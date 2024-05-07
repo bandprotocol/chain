@@ -1,13 +1,14 @@
 package emitter
 
 import (
-	"github.com/bandprotocol/chain/v2/hooks/common"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/ibc-go/v4/modules/core/03-connection/types"
+	"github.com/cosmos/ibc-go/v7/modules/core/03-connection/types"
+
+	"github.com/bandprotocol/chain/v2/hooks/common"
 )
 
 func (h *Hook) emitConnection(ctx sdk.Context, connectionId string) {
-	conn, _ := h.connectionkeeper.GetConnection(ctx, connectionId)
+	conn, _ := h.connectionKeeper.GetConnection(ctx, connectionId)
 	chainId := h.getChainIdFromClientId(ctx, conn.ClientId)
 	h.Write("SET_CONNECTION", common.JsDict{
 		"counterparty_chain_id":      chainId,

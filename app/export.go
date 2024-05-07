@@ -2,10 +2,10 @@ package band
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
@@ -15,7 +15,7 @@ import (
 
 // ExportAppStateAndValidators export the state of band for a genesis file
 func (app *BandApp) ExportAppStateAndValidators(
-	forZeroHeight bool, jailAllowedAddrs []string,
+	forZeroHeight bool, jailAllowedAddrs []string, modulesToExport []string,
 ) (servertypes.ExportedApp, error) {
 	// as if they could withdraw from the start of the next block
 	ctx := app.NewContext(true, tmproto.Header{Height: app.LastBlockHeight()})
@@ -28,7 +28,7 @@ func (app *BandApp) ExportAppStateAndValidators(
 		app.prepForZeroHeightGenesis(ctx, jailAllowedAddrs)
 	}
 
-	genState := app.mm.ExportGenesis(ctx, app.appCodec)
+	genState := app.mm.ExportGenesisForModules(ctx, app.appCodec, modulesToExport)
 	appState, err := json.MarshalIndent(genState, "", "  ")
 	if err != nil {
 		return servertypes.ExportedApp{}, err
@@ -88,7 +88,10 @@ func (app *BandApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs [
 		if err != nil {
 			panic(err)
 		}
-		_, _ = app.DistrKeeper.WithdrawDelegationRewards(ctx, delAddr, valAddr)
+
+		if _, err = app.DistrKeeper.WithdrawDelegationRewards(ctx, delAddr, valAddr); err != nil {
+			panic(err)
+		}
 	}
 
 	// clear validator slash events
@@ -109,7 +112,9 @@ func (app *BandApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs [
 		feePool.CommunityPool = feePool.CommunityPool.Add(scraps...)
 		app.DistrKeeper.SetFeePool(ctx, feePool)
 
-		app.DistrKeeper.Hooks().AfterValidatorCreated(ctx, val.GetOperator())
+		if err := app.DistrKeeper.Hooks().AfterValidatorCreated(ctx, val.GetOperator()); err != nil {
+			panic(err)
+		}
 		return false
 	})
 
@@ -119,12 +124,17 @@ func (app *BandApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs [
 		if err != nil {
 			panic(err)
 		}
-		delAddr, err := sdk.AccAddressFromBech32(del.DelegatorAddress)
-		if err != nil {
-			panic(err)
+		delAddr := sdk.MustAccAddressFromBech32(del.DelegatorAddress)
+
+		if err := app.DistrKeeper.Hooks().BeforeDelegationCreated(ctx, delAddr, valAddr); err != nil {
+			// never called as BeforeDelegationCreated always returns nil
+			panic(fmt.Errorf("error while incrementing period: %w", err))
 		}
-		app.DistrKeeper.Hooks().BeforeDelegationCreated(ctx, delAddr, valAddr)
-		app.DistrKeeper.Hooks().AfterDelegationModified(ctx, delAddr, valAddr)
+
+		if err := app.DistrKeeper.Hooks().AfterDelegationModified(ctx, delAddr, valAddr); err != nil {
+			// never called as AfterDelegationModified always returns nil
+			panic(fmt.Errorf("error while creating a new delegation period record: %w", err))
+		}
 	}
 
 	// reset context height
@@ -160,7 +170,7 @@ func (app *BandApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs [
 	counter := int16(0)
 
 	for ; iter.Valid(); iter.Next() {
-		addr := sdk.ValAddress(iter.Key()[1:])
+		addr := sdk.ValAddress(stakingtypes.AddressFromValidatorsKey(iter.Key()))
 		validator, found := app.StakingKeeper.GetValidator(ctx, addr)
 		if !found {
 			panic("expected validator, not found")
@@ -175,7 +185,10 @@ func (app *BandApp) prepForZeroHeightGenesis(ctx sdk.Context, jailAllowedAddrs [
 		counter++
 	}
 
-	iter.Close()
+	if err := iter.Close(); err != nil {
+		app.Logger().Error("error while closing the key-value store reverse prefix iterator: ", err)
+		return
+	}
 
 	_, err := app.StakingKeeper.ApplyAndReturnValidatorSetUpdates(ctx)
 	if err != nil {

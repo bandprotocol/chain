@@ -23,9 +23,7 @@ type Response struct {
 	TxHash string `json:"txHash"`
 }
 
-var (
-	cdc, _ = band.MakeCodecs()
-)
+var cdc, _ = band.MakeCodecs()
 
 func handleRequest(gc *gin.Context, c *Context) {
 	key := <-c.keys
@@ -43,7 +41,14 @@ func handleRequest(gc *gin.Context, c *Context) {
 		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	msg := banktypes.NewMsgSend(key.GetAddress(), to, c.amount)
+
+	address, err := key.GetAddress()
+	if err != nil {
+		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	msg := banktypes.NewMsgSend(address, to, c.amount)
 	if err := msg.ValidateBasic(); err != nil {
 		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -51,12 +56,13 @@ func handleRequest(gc *gin.Context, c *Context) {
 
 	clientCtx := client.Context{
 		Client:            c.client,
+		Codec:             cdc,
 		TxConfig:          band.MakeEncodingConfig().TxConfig,
 		BroadcastMode:     "async",
 		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
 	}
 	accountRetriever := authtypes.AccountRetriever{}
-	acc, err := accountRetriever.GetAccount(clientCtx, key.GetAddress())
+	acc, err := accountRetriever.GetAccount(clientCtx, address)
 	if err != nil {
 		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -73,13 +79,13 @@ func handleRequest(gc *gin.Context, c *Context) {
 		WithKeybase(keybase).
 		WithAccountRetriever(clientCtx.AccountRetriever)
 
-	txb, err := tx.BuildUnsignedTx(txf, msg)
+	txb, err := txf.BuildUnsignedTx(msg)
 	if err != nil {
 		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err = tx.Sign(txf, key.GetName(), txb, true)
+	err = tx.Sign(txf, key.Name, txb, true)
 	if err != nil {
 		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -92,7 +98,7 @@ func handleRequest(gc *gin.Context, c *Context) {
 	}
 
 	// broadcast to a Tendermint node
-	res, err := clientCtx.BroadcastTxCommit(txBytes)
+	res, err := clientCtx.BroadcastTxSync(txBytes)
 	if err != nil {
 		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -102,7 +108,8 @@ func handleRequest(gc *gin.Context, c *Context) {
 		gc.JSON(http.StatusInternalServerError, gin.H{
 			"error": fmt.Sprintf(":exploding_head: Tx returned nonzero code %d with log %s, tx hash: %s",
 				res.Code, res.RawLog, res.TxHash,
-			)})
+			),
+		})
 		return
 	}
 	gc.JSON(200, Response{

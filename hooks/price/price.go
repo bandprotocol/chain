@@ -4,11 +4,11 @@ import (
 	"errors"
 	"fmt"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/syndtr/goleveldb/leveldb"
-	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
@@ -116,15 +116,14 @@ func (h *Hook) RequestPrice(req *types.QueryRequestPriceRequest) (*types.QueryRe
 		bz, err := h.db.Get([]byte(fmt.Sprintf("%d,%d,%s", req.AskCount, req.MinCount, symbol)), nil)
 		if err != nil {
 			if errors.Is(err, leveldb.ErrNotFound) {
-				return nil, true, sdkerrors.Wrapf(
-					sdkerrors.ErrKeyNotFound,
+				return nil, true, sdkerrors.ErrKeyNotFound.Wrapf(
 					"price not found for %s with %d/%d counts",
 					symbol,
 					req.AskCount,
 					req.MinCount,
 				)
 			}
-			return nil, true, sdkerrors.Wrapf(sdkerrors.ErrLogic,
+			return nil, true, sdkerrors.ErrLogic.Wrapf(
 				"unable to get price of %s with %d/%d counts",
 				symbol,
 				req.AskCount,

@@ -5,21 +5,18 @@ import (
 	"testing"
 	"time"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
-func parseEventAttribute(attr interface{}) []byte {
-	return []byte(fmt.Sprint(attr))
-}
-
 func TestSuccessRequestOracleData(t *testing.T) {
-	app, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
 
 	ctx = ctx.WithBlockHeight(4).WithBlockTime(time.Unix(1581589790, 0))
 	handler := oracle.NewHandler(k)
@@ -30,12 +27,11 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		2,
 		"app_test",
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(9000000))),
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
-		testapp.Validators[0].Address,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
+		bandtesting.Validators[0].Address,
 	)
 	res, err := handler(ctx, requestMsg)
-	fmt.Println(err)
 	require.NotNil(t, res)
 	require.NoError(t, err)
 
@@ -43,13 +39,13 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		types.OracleScriptID(1),
 		[]byte("calldata"),
 		[]sdk.ValAddress{
-			testapp.Validators[2].ValAddress,
-			testapp.Validators[0].ValAddress,
-			testapp.Validators[1].ValAddress,
+			bandtesting.Validators[2].ValAddress,
+			bandtesting.Validators[0].ValAddress,
+			bandtesting.Validators[1].ValAddress,
 		},
 		2,
 		4,
-		testapp.ParseTime(1581589790),
+		bandtesting.ParseTime(1581589790),
 		"app_test",
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
@@ -57,7 +53,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 			types.NewRawRequest(3, 3, []byte("beeb")),
 		},
 		nil,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 	app.EndBlocker(ctx, abci.RequestEndBlock{Height: 4})
 	request, err := k.GetRequest(ctx, types.RequestID(1))
@@ -70,7 +66,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 			types.NewRawReport(2, 0, []byte("answer2")),
 			types.NewRawReport(3, 0, []byte("answer3")),
 		},
-		testapp.Validators[0].ValAddress,
+		bandtesting.Validators[0].ValAddress,
 	)
 	res, err = handler(ctx, reportMsg1)
 	require.NotNil(t, res)
@@ -93,7 +89,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 			types.NewRawReport(2, 0, []byte("answer2")),
 			types.NewRawReport(3, 0, []byte("answer3")),
 		},
-		testapp.Validators[1].ValAddress,
+		bandtesting.Validators[1].ValAddress,
 	)
 	res, err = handler(ctx, reportMsg2)
 	require.NotNil(t, res)
@@ -106,14 +102,14 @@ func TestSuccessRequestOracleData(t *testing.T) {
 
 	result = app.EndBlocker(ctx, abci.RequestEndBlock{Height: 8})
 	resPacket := types.NewOracleResponsePacketData(
-		expectRequest.ClientID, types.RequestID(1), 2, int64(expectRequest.RequestTime), 1581589795,
+		expectRequest.ClientID, types.RequestID(1), 2, expectRequest.RequestTime, 1581589795,
 		types.RESOLVE_STATUS_SUCCESS, []byte("beeb"),
 	)
 	expectEvents = []abci.Event{{Type: types.EventTypeResolve, Attributes: []abci.EventAttribute{
-		{Key: []byte(types.AttributeKeyID), Value: parseEventAttribute(resPacket.RequestID)},
-		{Key: []byte(types.AttributeKeyResolveStatus), Value: parseEventAttribute(uint32(resPacket.ResolveStatus))},
-		{Key: []byte(types.AttributeKeyResult), Value: []byte("62656562")},
-		{Key: []byte(types.AttributeKeyGasUsed), Value: []byte("2485000000")},
+		{Key: types.AttributeKeyID, Value: fmt.Sprint(resPacket.RequestID)},
+		{Key: types.AttributeKeyResolveStatus, Value: fmt.Sprint(uint32(resPacket.ResolveStatus))},
+		{Key: types.AttributeKeyResult, Value: "62656562"},
+		{Key: types.AttributeKeyGasUsed, Value: "2485000000"},
 	}}}
 
 	require.Equal(t, expectEvents, result.GetEvents())
@@ -130,7 +126,8 @@ func TestSuccessRequestOracleData(t *testing.T) {
 }
 
 func TestExpiredRequestOracleData(t *testing.T) {
-	app, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
 
 	ctx = ctx.WithBlockHeight(4).WithBlockTime(time.Unix(1581589790, 0))
 	handler := oracle.NewHandler(k)
@@ -141,9 +138,9 @@ func TestExpiredRequestOracleData(t *testing.T) {
 		2,
 		"app_test",
 		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(9000000))),
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
-		testapp.Validators[0].Address,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
+		bandtesting.Validators[0].Address,
 	)
 	res, err := handler(ctx, requestMsg)
 	require.NotNil(t, res)
@@ -153,13 +150,13 @@ func TestExpiredRequestOracleData(t *testing.T) {
 		types.OracleScriptID(1),
 		[]byte("calldata"),
 		[]sdk.ValAddress{
-			testapp.Validators[2].ValAddress,
-			testapp.Validators[0].ValAddress,
-			testapp.Validators[1].ValAddress,
+			bandtesting.Validators[2].ValAddress,
+			bandtesting.Validators[0].ValAddress,
+			bandtesting.Validators[1].ValAddress,
 		},
 		2,
 		4,
-		testapp.ParseTime(1581589790),
+		bandtesting.ParseTime(1581589790),
 		"app_test",
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
@@ -167,7 +164,7 @@ func TestExpiredRequestOracleData(t *testing.T) {
 			types.NewRawRequest(3, 3, []byte("beeb")),
 		},
 		nil,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 	app.EndBlocker(ctx, abci.RequestEndBlock{Height: 4})
 	request, err := k.GetRequest(ctx, types.RequestID(1))
@@ -177,40 +174,40 @@ func TestExpiredRequestOracleData(t *testing.T) {
 	ctx = ctx.WithBlockHeight(132).WithBlockTime(ctx.BlockTime().Add(time.Minute))
 	result := app.EndBlocker(ctx, abci.RequestEndBlock{Height: 132})
 	resPacket := types.NewOracleResponsePacketData(
-		expectRequest.ClientID, types.RequestID(1), 0, int64(expectRequest.RequestTime), ctx.BlockTime().Unix(),
+		expectRequest.ClientID, types.RequestID(1), 0, expectRequest.RequestTime, ctx.BlockTime().Unix(),
 		types.RESOLVE_STATUS_EXPIRED, []byte{},
 	)
 	expectEvents := []abci.Event{{
 		Type: types.EventTypeResolve,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyID), Value: parseEventAttribute(resPacket.RequestID)},
+			{Key: types.AttributeKeyID, Value: fmt.Sprint(resPacket.RequestID)},
 			{
-				Key:   []byte(types.AttributeKeyResolveStatus),
-				Value: parseEventAttribute(uint32(resPacket.ResolveStatus)),
+				Key:   types.AttributeKeyResolveStatus,
+				Value: fmt.Sprint(uint32(resPacket.ResolveStatus)),
 			},
 		},
 	}, {
 		Type: types.EventTypeDeactivate,
 		Attributes: []abci.EventAttribute{
 			{
-				Key:   []byte(types.AttributeKeyValidator),
-				Value: parseEventAttribute(testapp.Validators[2].ValAddress.String()),
+				Key:   types.AttributeKeyValidator,
+				Value: fmt.Sprint(bandtesting.Validators[2].ValAddress.String()),
 			},
 		},
 	}, {
 		Type: types.EventTypeDeactivate,
 		Attributes: []abci.EventAttribute{
 			{
-				Key:   []byte(types.AttributeKeyValidator),
-				Value: parseEventAttribute(testapp.Validators[0].ValAddress.String()),
+				Key:   types.AttributeKeyValidator,
+				Value: fmt.Sprint(bandtesting.Validators[0].ValAddress.String()),
 			},
 		},
 	}, {
 		Type: types.EventTypeDeactivate,
 		Attributes: []abci.EventAttribute{
 			{
-				Key:   []byte(types.AttributeKeyValidator),
-				Value: parseEventAttribute(testapp.Validators[1].ValAddress.String()),
+				Key:   types.AttributeKeyValidator,
+				Value: fmt.Sprint(bandtesting.Validators[1].ValAddress.String()),
 			},
 		},
 	}}

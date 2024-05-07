@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+- (bump) Use cosmos-sdk package v0.47.11 / ibc-go v7.4.0
+- (bump) replace github.com/tendermint/tendermint by github.com/cometbft/cometbft v0.37.5
+- (bump) migrated from gogo/protobuf to cosmos/gogoproto
+- (bump) Use go-owasm v0.3.1
+- (chain) Remove disablefeeless flag
+- (chain) Remove old oracle ante
+- (chain) Remove legacy migrate cmd
+- (chain) Use priority based on gas_prices of uband but MsgReport will have the highest priority
+- (chain) Add globalfee module to set the min-gas-price on protocol level (MinimumGasPrice param)
+- (chain) Add group module from cosmos-sdk
+- (chain) Set MinimumGasPrice to 0.0025uband
+- (chain) Update proof to support newly added module
+- (chain) Migrate REST Endpoint to GRPC
+- (chain) update oracle params to support cosmos-sdk 0.47
+- (chain) Add consensus module to handle managing Tendermint consensus parameters
+
 ## [v2.5.3](https://github.com/bandprotocol/chain/releases/tag/v2.5.3)
 
 - (bump) Use cometbft v0.34.29

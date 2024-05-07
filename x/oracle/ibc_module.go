@@ -5,17 +5,16 @@ import (
 	"math"
 	"strings"
 
-	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
+	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 
-	channeltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
-	porttypes "github.com/cosmos/ibc-go/v4/modules/core/05-port/types"
-	host "github.com/cosmos/ibc-go/v4/modules/core/24-host"
-	ibcexported "github.com/cosmos/ibc-go/v4/modules/core/exported"
+	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 // IBCModule implements the ICS26 interface for oracle given the oracle keeper.
@@ -47,16 +46,14 @@ func ValidateOracleChannelParams(
 		return err
 	}
 	if channelSequence > uint64(math.MaxUint32) {
-		return sdkerrors.Wrapf(
-			types.ErrMaxOracleChannels,
+		return types.ErrMaxOracleChannels.Wrapf(
 			"channel sequence %d is greater than max allowed oracle channels %d",
 			channelSequence,
 			uint64(math.MaxUint32),
 		)
 	}
 	if order != channeltypes.UNORDERED {
-		return sdkerrors.Wrapf(
-			channeltypes.ErrInvalidChannelOrdering,
+		return channeltypes.ErrInvalidChannelOrdering.Wrapf(
 			"expected %s channel, got %s ",
 			channeltypes.UNORDERED,
 			order,
@@ -66,7 +63,7 @@ func ValidateOracleChannelParams(
 	// Require portID is the portID oracle module is bound to
 	boundPort := keeper.GetPort(ctx)
 	if boundPort != portID {
-		return sdkerrors.Wrapf(porttypes.ErrInvalidPort, "invalid port: %s, expected %s", portID, boundPort)
+		return porttypes.ErrInvalidPort.Wrapf("invalid port: %s, expected %s", portID, boundPort)
 	}
 
 	return nil
@@ -92,7 +89,7 @@ func (im IBCModule) OnChanOpenInit(
 	}
 
 	if version != types.Version {
-		return "", sdkerrors.Wrapf(types.ErrInvalidVersion, "got %s, expected %s", version, types.Version)
+		return "", types.ErrInvalidVersion.Wrapf("got %s, expected %s", version, types.Version)
 	}
 
 	// Claim channel capability passed back by IBC module
@@ -119,8 +116,7 @@ func (im IBCModule) OnChanOpenTry(
 	}
 
 	if counterpartyVersion != types.Version {
-		return "", sdkerrors.Wrapf(
-			types.ErrInvalidVersion,
+		return "", types.ErrInvalidVersion.Wrapf(
 			"invalid counterparty version: got: %s, expected %s",
 			counterpartyVersion,
 			types.Version,
@@ -150,8 +146,7 @@ func (im IBCModule) OnChanOpenAck(
 	counterpartyVersion string,
 ) error {
 	if counterpartyVersion != types.Version {
-		return sdkerrors.Wrapf(
-			types.ErrInvalidVersion,
+		return types.ErrInvalidVersion.Wrapf(
 			"invalid counterparty version: %s, expected %s",
 			counterpartyVersion,
 			types.Version,
@@ -176,7 +171,7 @@ func (im IBCModule) OnChanCloseInit(
 	channelID string,
 ) error {
 	// Disallow user-initiated channel closing for oracle channels
-	return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "user cannot close channel")
+	return sdkerrors.ErrInvalidRequest.Wrap("user cannot close channel")
 }
 
 // OnChanCloseConfirm implements the IBCModule interface
@@ -195,7 +190,7 @@ func (im IBCModule) OnRecvPacket(
 	relayer sdk.AccAddress,
 ) ibcexported.Acknowledgement {
 	var data types.OracleRequestPacketData
-	if !im.keeper.IBCRequestEnabled(ctx) {
+	if !im.keeper.GetParams(ctx).IBCRequestEnabled {
 		return channeltypes.NewErrorAcknowledgement(types.ErrIBCRequestDisabled)
 	} else if err := types.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
 		return channeltypes.NewErrorAcknowledgement(errors.New("cannot unmarshal oracle request packet data"))

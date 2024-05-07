@@ -1,6 +1,5 @@
 package types
 
-// nolint
 const (
 	EventTypeCreateDataSource   = "create_data_source"
 	EventTypeEditDataSource     = "edit_data_source"
@@ -15,6 +14,7 @@ const (
 	EventTypeRemoveReporter     = "remove_reporter"
 	EventTypeResolve            = "resolve"
 	EventTypeSendPacketFail     = "send_packet_fail"
+	EventTypeUpdateParams       = "update_params"
 
 	AttributeKeyID             = "id"
 	AttributeKeyDataSourceID   = "data_source_id"
@@ -33,4 +33,5 @@ const (
 	AttributeKeyFee            = "fee"
 	AttributeKeyResult         = "result"
 	AttributeKeyReason         = "reason"
+	AttributeKeyParams         = "params"
 )

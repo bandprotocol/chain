@@ -10,23 +10,25 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bandprotocol/go-owasm/api"
+	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/require"
-	abci "github.com/tendermint/tendermint/abci/types"
 
-	"github.com/bandprotocol/go-owasm/api"
-
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
+	"github.com/bandprotocol/chain/v2/testing/testdata"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func TestCreateDataSourceSuccess(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(false)
+	app, ctx := bandtesting.CreateTestApp(t, false)
+	k := app.OracleKeeper
+
 	dsCount := k.GetDataSourceCount(ctx)
-	treasury := testapp.Treasury.Address
-	owner := testapp.Owner.Address
+	treasury := bandtesting.Treasury.Address
+	owner := bandtesting.Owner.Address
 	name := "data_source_1"
 	description := "description"
 	executable := []byte("executable")
@@ -36,10 +38,10 @@ func TestCreateDataSourceSuccess(t *testing.T) {
 		name,
 		description,
 		executable,
-		testapp.EmptyCoins,
+		bandtesting.EmptyCoins,
 		treasury,
 		owner,
-		testapp.Alice.Address,
+		bandtesting.Alice.Address,
 	)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
@@ -47,35 +49,38 @@ func TestCreateDataSourceSuccess(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(
 		t,
-		types.NewDataSource(testapp.Owner.Address, name, description, filename, testapp.EmptyCoins, treasury),
+		types.NewDataSource(bandtesting.Owner.Address, name, description, filename, bandtesting.EmptyCoins, treasury),
 		ds,
 	)
 	event := abci.Event{
 		Type: types.EventTypeCreateDataSource,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyID), Value: []byte(fmt.Sprintf("%d", dsCount+1))},
+			{Key: types.AttributeKeyID, Value: fmt.Sprintf("%d", dsCount+1)},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[0])
+	require.Equal(t, event, res.Events[0])
 }
 
 func TestCreateGzippedExecutableDataSourceFail(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
-	treasury := testapp.Treasury.Address
-	owner := testapp.Owner.Address
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
+	treasury := bandtesting.Treasury.Address
+	owner := bandtesting.Owner.Address
 	name := "data_source_1"
 	description := "description"
 	executable := []byte("executable")
 	var buf bytes.Buffer
 	zw := gz.NewWriter(&buf)
-	zw.Write(executable)
+	_, err := zw.Write(executable)
+	require.NoError(t, err)
 	zw.Close()
-	sender := testapp.Alice.Address
+	sender := bandtesting.Alice.Address
 	msg := types.NewMsgCreateDataSource(
 		name,
 		description,
 		buf.Bytes()[:5],
-		testapp.EmptyCoins,
+		bandtesting.EmptyCoins,
 		treasury,
 		owner,
 		sender,
@@ -86,7 +91,9 @@ func TestCreateGzippedExecutableDataSourceFail(t *testing.T) {
 }
 
 func TestEditDataSourceSuccess(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(false)
+	app, ctx := bandtesting.CreateTestApp(t, false)
+	k := app.OracleKeeper
+
 	newName := "beeb"
 	newDescription := "new_description"
 	newExecutable := []byte("executable2")
@@ -97,10 +104,10 @@ func TestEditDataSourceSuccess(t *testing.T) {
 		newName,
 		newDescription,
 		newExecutable,
-		testapp.Coins1000000uband,
-		testapp.Treasury.Address,
-		testapp.Alice.Address,
-		testapp.Owner.Address,
+		bandtesting.Coins1000000uband,
+		bandtesting.Treasury.Address,
+		bandtesting.Alice.Address,
+		bandtesting.Owner.Address,
 	)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
@@ -109,24 +116,26 @@ func TestEditDataSourceSuccess(t *testing.T) {
 	require.Equal(
 		t,
 		types.NewDataSource(
-			testapp.Alice.Address,
+			bandtesting.Alice.Address,
 			newName,
 			newDescription,
 			newFilename,
-			testapp.Coins1000000uband,
-			testapp.Treasury.Address,
+			bandtesting.Coins1000000uband,
+			bandtesting.Treasury.Address,
 		),
 		ds,
 	)
 	event := abci.Event{
 		Type:       types.EventTypeEditDataSource,
-		Attributes: []abci.EventAttribute{{Key: []byte(types.AttributeKeyID), Value: []byte("1")}},
+		Attributes: []abci.EventAttribute{{Key: types.AttributeKeyID, Value: "1"}},
 	}
-	require.Equal(t, abci.Event(event), res.Events[0])
+	require.Equal(t, event, res.Events[0])
 }
 
 func TestEditDataSourceFail(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(false)
+	app, ctx := bandtesting.CreateTestApp(t, false)
+	k := app.OracleKeeper
+
 	newName := "beeb"
 	newDescription := "new_description"
 	newExecutable := []byte("executable2")
@@ -136,13 +145,13 @@ func TestEditDataSourceFail(t *testing.T) {
 		newName,
 		newDescription,
 		newExecutable,
-		testapp.EmptyCoins,
-		testapp.Treasury.Address,
-		testapp.Owner.Address,
-		testapp.Owner.Address,
+		bandtesting.EmptyCoins,
+		bandtesting.Treasury.Address,
+		bandtesting.Owner.Address,
+		bandtesting.Owner.Address,
 	)
 	res, err := oracle.NewHandler(k)(ctx, msg)
-	testapp.CheckErrorf(t, err, types.ErrDataSourceNotFound, "id: 42")
+	bandtesting.CheckErrorf(t, err, types.ErrDataSourceNotFound, "id: 42")
 	require.Nil(t, res)
 	// Not owner
 	msg = types.NewMsgEditDataSource(
@@ -150,10 +159,10 @@ func TestEditDataSourceFail(t *testing.T) {
 		newName,
 		newDescription,
 		newExecutable,
-		testapp.EmptyCoins,
-		testapp.Treasury.Address,
-		testapp.Owner.Address,
-		testapp.Bob.Address,
+		bandtesting.EmptyCoins,
+		bandtesting.Treasury.Address,
+		bandtesting.Owner.Address,
+		bandtesting.Bob.Address,
 	)
 	res, err = oracle.NewHandler(k)(ctx, msg)
 	require.ErrorIs(t, err, types.ErrEditorNotAuthorized)
@@ -161,17 +170,18 @@ func TestEditDataSourceFail(t *testing.T) {
 	// Bad Gzip
 	var buf bytes.Buffer
 	zw := gz.NewWriter(&buf)
-	zw.Write(newExecutable)
+	_, err = zw.Write(newExecutable)
+	require.NoError(t, err)
 	zw.Close()
 	msg = types.NewMsgEditDataSource(
 		1,
 		newName,
 		newDescription,
 		buf.Bytes()[:5],
-		testapp.EmptyCoins,
-		testapp.Treasury.Address,
-		testapp.Owner.Address,
-		testapp.Owner.Address,
+		bandtesting.EmptyCoins,
+		bandtesting.Treasury.Address,
+		bandtesting.Owner.Address,
+		bandtesting.Owner.Address,
 	)
 	res, err = oracle.NewHandler(k)(ctx, msg)
 	require.ErrorIs(t, err, types.ErrUncompressionFailed)
@@ -179,11 +189,13 @@ func TestEditDataSourceFail(t *testing.T) {
 }
 
 func TestCreateOracleScriptSuccess(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(false)
+	app, ctx := bandtesting.CreateTestApp(t, false)
+	k := app.OracleKeeper
+
 	osCount := k.GetOracleScriptCount(ctx)
 	name := "os_1"
 	description := "beeb"
-	code := testapp.WasmExtra1
+	code := testdata.WasmExtra1
 	schema := "schema"
 	url := "url"
 	msg := types.NewMsgCreateOracleScript(
@@ -192,8 +204,8 @@ func TestCreateOracleScriptSuccess(t *testing.T) {
 		schema,
 		url,
 		code,
-		testapp.Owner.Address,
-		testapp.Alice.Address,
+		bandtesting.Owner.Address,
+		bandtesting.Alice.Address,
 	)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
@@ -201,21 +213,30 @@ func TestCreateOracleScriptSuccess(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(
 		t,
-		types.NewOracleScript(testapp.Owner.Address, name, description, testapp.WasmExtra1FileName, schema, url),
+		types.NewOracleScript(
+			bandtesting.Owner.Address,
+			name,
+			description,
+			testdata.WasmExtra1FileName,
+			schema,
+			url,
+		),
 		os,
 	)
 
 	event := abci.Event{
 		Type: types.EventTypeCreateOracleScript,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyID), Value: []byte(fmt.Sprintf("%d", osCount+1))},
+			{Key: types.AttributeKeyID, Value: fmt.Sprintf("%d", osCount+1)},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[0])
+	require.Equal(t, event, res.Events[0])
 }
 
 func TestCreateGzippedOracleScriptSuccess(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(false)
+	app, ctx := bandtesting.CreateTestApp(t, false)
+	k := app.OracleKeeper
+
 	osCount := k.GetOracleScriptCount(ctx)
 	name := "os_1"
 	description := "beeb"
@@ -223,7 +244,8 @@ func TestCreateGzippedOracleScriptSuccess(t *testing.T) {
 	url := "url"
 	var buf bytes.Buffer
 	zw := gz.NewWriter(&buf)
-	zw.Write(testapp.WasmExtra1)
+	_, err := zw.Write(testdata.WasmExtra1)
+	require.NoError(t, err)
 	zw.Close()
 	msg := types.NewMsgCreateOracleScript(
 		name,
@@ -231,8 +253,8 @@ func TestCreateGzippedOracleScriptSuccess(t *testing.T) {
 		schema,
 		url,
 		buf.Bytes(),
-		testapp.Owner.Address,
-		testapp.Alice.Address,
+		bandtesting.Owner.Address,
+		bandtesting.Alice.Address,
 	)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
@@ -240,21 +262,30 @@ func TestCreateGzippedOracleScriptSuccess(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(
 		t,
-		types.NewOracleScript(testapp.Owner.Address, name, description, testapp.WasmExtra1FileName, schema, url),
+		types.NewOracleScript(
+			bandtesting.Owner.Address,
+			name,
+			description,
+			testdata.WasmExtra1FileName,
+			schema,
+			url,
+		),
 		os,
 	)
 
 	event := abci.Event{
 		Type: types.EventTypeCreateOracleScript,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyID), Value: []byte(fmt.Sprintf("%d", osCount+1))},
+			{Key: types.AttributeKeyID, Value: fmt.Sprintf("%d", osCount+1)},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[0])
+	require.Equal(t, event, res.Events[0])
 }
 
 func TestCreateOracleScriptFail(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(false)
+	app, ctx := bandtesting.CreateTestApp(t, false)
+	k := app.OracleKeeper
+
 	name := "os_1"
 	description := "beeb"
 	schema := "schema"
@@ -266,16 +297,17 @@ func TestCreateOracleScriptFail(t *testing.T) {
 		schema,
 		url,
 		[]byte("BAD"),
-		testapp.Owner.Address,
-		testapp.Alice.Address,
+		bandtesting.Owner.Address,
+		bandtesting.Alice.Address,
 	)
 	res, err := oracle.NewHandler(k)(ctx, msg)
-	testapp.CheckErrorf(t, err, types.ErrOwasmCompilation, "caused by %s", api.ErrValidation)
+	bandtesting.CheckErrorf(t, err, types.ErrOwasmCompilation, "caused by %s", api.ErrValidation)
 	require.Nil(t, res)
 	// Bad Gzip
 	var buf bytes.Buffer
 	zw := gz.NewWriter(&buf)
-	zw.Write(testapp.WasmExtra1)
+	_, err = zw.Write(testdata.WasmExtra1)
+	require.NoError(t, err)
 	zw.Close()
 	msg = types.NewMsgCreateOracleScript(
 		name,
@@ -283,8 +315,8 @@ func TestCreateOracleScriptFail(t *testing.T) {
 		schema,
 		url,
 		buf.Bytes()[:5],
-		testapp.Owner.Address,
-		testapp.Alice.Address,
+		bandtesting.Owner.Address,
+		bandtesting.Alice.Address,
 	)
 	res, err = oracle.NewHandler(k)(ctx, msg)
 	require.ErrorIs(t, err, types.ErrUncompressionFailed)
@@ -292,10 +324,12 @@ func TestCreateOracleScriptFail(t *testing.T) {
 }
 
 func TestEditOracleScriptSuccess(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(false)
+	app, ctx := bandtesting.CreateTestApp(t, false)
+	k := app.OracleKeeper
+
 	newName := "os_2"
 	newDescription := "beebbeeb"
-	newCode := testapp.WasmExtra2
+	newCode := testdata.WasmExtra2
 	newSchema := "new_schema"
 	newURL := "new_url"
 	msg := types.NewMsgEditOracleScript(
@@ -305,8 +339,8 @@ func TestEditOracleScriptSuccess(t *testing.T) {
 		newSchema,
 		newURL,
 		newCode,
-		testapp.Alice.Address,
-		testapp.Owner.Address,
+		bandtesting.Alice.Address,
+		bandtesting.Owner.Address,
 	)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
@@ -315,10 +349,10 @@ func TestEditOracleScriptSuccess(t *testing.T) {
 	require.Equal(
 		t,
 		types.NewOracleScript(
-			testapp.Alice.Address,
+			bandtesting.Alice.Address,
 			newName,
 			newDescription,
-			testapp.WasmExtra2FileName,
+			testdata.WasmExtra2FileName,
 			newSchema,
 			newURL,
 		),
@@ -327,16 +361,18 @@ func TestEditOracleScriptSuccess(t *testing.T) {
 
 	event := abci.Event{
 		Type:       types.EventTypeEditOracleScript,
-		Attributes: []abci.EventAttribute{{Key: []byte(types.AttributeKeyID), Value: []byte("1")}},
+		Attributes: []abci.EventAttribute{{Key: types.AttributeKeyID, Value: "1"}},
 	}
-	require.Equal(t, abci.Event(event), res.Events[0])
+	require.Equal(t, event, res.Events[0])
 }
 
 func TestEditOracleScriptFail(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(false)
+	app, ctx := bandtesting.CreateTestApp(t, false)
+	k := app.OracleKeeper
+
 	newName := "os_2"
 	newDescription := "beebbeeb"
-	newCode := testapp.WasmExtra2
+	newCode := testdata.WasmExtra2
 	newSchema := "new_schema"
 	newURL := "new_url"
 	// Bad ID
@@ -347,11 +383,11 @@ func TestEditOracleScriptFail(t *testing.T) {
 		newSchema,
 		newURL,
 		newCode,
-		testapp.Owner.Address,
-		testapp.Owner.Address,
+		bandtesting.Owner.Address,
+		bandtesting.Owner.Address,
 	)
 	res, err := oracle.NewHandler(k)(ctx, msg)
-	testapp.CheckErrorf(t, err, types.ErrOracleScriptNotFound, "id: 999")
+	bandtesting.CheckErrorf(t, err, types.ErrOracleScriptNotFound, "id: 999")
 	require.Nil(t, res)
 	// Not owner
 	msg = types.NewMsgEditOracleScript(
@@ -361,8 +397,8 @@ func TestEditOracleScriptFail(t *testing.T) {
 		newSchema,
 		newURL,
 		newCode,
-		testapp.Owner.Address,
-		testapp.Bob.Address,
+		bandtesting.Owner.Address,
+		bandtesting.Bob.Address,
 	)
 	res, err = oracle.NewHandler(k)(ctx, msg)
 	require.EqualError(t, err, "editor not authorized")
@@ -375,16 +411,17 @@ func TestEditOracleScriptFail(t *testing.T) {
 		newSchema,
 		newURL,
 		[]byte("BAD_CODE"),
-		testapp.Owner.Address,
-		testapp.Owner.Address,
+		bandtesting.Owner.Address,
+		bandtesting.Owner.Address,
 	)
 	res, err = oracle.NewHandler(k)(ctx, msg)
-	testapp.CheckErrorf(t, err, types.ErrOwasmCompilation, "caused by %s", api.ErrValidation)
+	bandtesting.CheckErrorf(t, err, types.ErrOwasmCompilation, "caused by %s", api.ErrValidation)
 	require.Nil(t, res)
 	// Bad Gzip
 	var buf bytes.Buffer
 	zw := gz.NewWriter(&buf)
-	zw.Write(testapp.WasmExtra2)
+	_, err = zw.Write(testdata.WasmExtra2)
+	require.NoError(t, err)
 	zw.Close()
 	msg = types.NewMsgEditOracleScript(
 		1,
@@ -393,8 +430,8 @@ func TestEditOracleScriptFail(t *testing.T) {
 		newSchema,
 		newURL,
 		buf.Bytes()[:5],
-		testapp.Owner.Address,
-		testapp.Owner.Address,
+		bandtesting.Owner.Address,
+		bandtesting.Owner.Address,
 	)
 	res, err = oracle.NewHandler(k)(ctx, msg)
 	require.ErrorIs(t, err, types.ErrUncompressionFailed)
@@ -402,28 +439,30 @@ func TestEditOracleScriptFail(t *testing.T) {
 }
 
 func TestRequestDataSuccess(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
-	ctx = ctx.WithBlockHeight(124).WithBlockTime(testapp.ParseTime(1581589790))
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
+	ctx = ctx.WithBlockHeight(124).WithBlockTime(bandtesting.ParseTime(1581589790))
 	msg := types.NewMsgRequestData(
 		1,
 		[]byte("beeb"),
 		2,
 		2,
 		"CID",
-		testapp.Coins100000000uband,
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
-		testapp.FeePayer.Address,
+		bandtesting.Coins100000000uband,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
+		bandtesting.FeePayer.Address,
 	)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
 	require.Equal(t, types.NewRequest(
 		1,
 		[]byte("beeb"),
-		[]sdk.ValAddress{testapp.Validators[2].ValAddress, testapp.Validators[0].ValAddress},
+		[]sdk.ValAddress{bandtesting.Validators[2].ValAddress, bandtesting.Validators[0].ValAddress},
 		2,
 		124,
-		testapp.ParseTime(1581589790),
+		bandtesting.ParseTime(1581589790),
 		"CID",
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
@@ -431,102 +470,104 @@ func TestRequestDataSuccess(t *testing.T) {
 			types.NewRawRequest(3, 3, []byte("beeb")),
 		},
 		nil,
-		uint64(testapp.TestDefaultExecuteGas),
+		bandtesting.TestDefaultExecuteGas,
 	), k.MustGetRequest(ctx, 1))
 	event := abci.Event{
 		Type: authtypes.EventTypeCoinSpent,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(authtypes.AttributeKeySpender), Value: []byte(testapp.FeePayer.Address.String())},
-			{Key: []byte(sdk.AttributeKeyAmount), Value: []byte("2000000uband")},
+			{Key: authtypes.AttributeKeySpender, Value: bandtesting.FeePayer.Address.String()},
+			{Key: sdk.AttributeKeyAmount, Value: "2000000uband"},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[0])
-	require.Equal(t, abci.Event(event), res.Events[4])
-	require.Equal(t, abci.Event(event), res.Events[8])
+	require.Equal(t, event, res.Events[0])
+	require.Equal(t, event, res.Events[4])
+	require.Equal(t, event, res.Events[8])
 	event = abci.Event{
 		Type: authtypes.EventTypeCoinReceived,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(authtypes.AttributeKeyReceiver), Value: []byte(testapp.Treasury.Address.String())},
-			{Key: []byte(sdk.AttributeKeyAmount), Value: []byte("2000000uband")},
+			{Key: authtypes.AttributeKeyReceiver, Value: bandtesting.Treasury.Address.String()},
+			{Key: sdk.AttributeKeyAmount, Value: "2000000uband"},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[1])
-	require.Equal(t, abci.Event(event), res.Events[5])
-	require.Equal(t, abci.Event(event), res.Events[9])
+	require.Equal(t, event, res.Events[1])
+	require.Equal(t, event, res.Events[5])
+	require.Equal(t, event, res.Events[9])
 	event = abci.Event{
 		Type: authtypes.EventTypeTransfer,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(authtypes.AttributeKeyRecipient), Value: []byte(testapp.Treasury.Address.String())},
-			{Key: []byte(authtypes.AttributeKeySender), Value: []byte(testapp.FeePayer.Address.String())},
-			{Key: []byte(sdk.AttributeKeyAmount), Value: []byte("2000000uband")},
+			{Key: authtypes.AttributeKeyRecipient, Value: bandtesting.Treasury.Address.String()},
+			{Key: authtypes.AttributeKeySender, Value: bandtesting.FeePayer.Address.String()},
+			{Key: sdk.AttributeKeyAmount, Value: "2000000uband"},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[2])
-	require.Equal(t, abci.Event(event), res.Events[6])
-	require.Equal(t, abci.Event(event), res.Events[10])
+	require.Equal(t, event, res.Events[2])
+	require.Equal(t, event, res.Events[6])
+	require.Equal(t, event, res.Events[10])
 	event = abci.Event{
 		Type: sdk.EventTypeMessage,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(authtypes.AttributeKeySender), Value: []byte(testapp.FeePayer.Address.String())},
+			{Key: authtypes.AttributeKeySender, Value: bandtesting.FeePayer.Address.String()},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[3])
-	require.Equal(t, abci.Event(event), res.Events[7])
-	require.Equal(t, abci.Event(event), res.Events[11])
+	require.Equal(t, event, res.Events[3])
+	require.Equal(t, event, res.Events[7])
+	require.Equal(t, event, res.Events[11])
 
 	event = abci.Event{
 		Type: types.EventTypeRequest,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyID), Value: []byte("1")},
-			{Key: []byte(types.AttributeKeyClientID), Value: []byte("CID")},
-			{Key: []byte(types.AttributeKeyOracleScriptID), Value: []byte("1")},
-			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("62656562")}, // "beeb" in hex
-			{Key: []byte(types.AttributeKeyAskCount), Value: []byte("2")},
-			{Key: []byte(types.AttributeKeyMinCount), Value: []byte("2")},
-			{Key: []byte(types.AttributeKeyGasUsed), Value: []byte("5294700000")},
-			{Key: []byte(types.AttributeKeyTotalFees), Value: []byte("6000000uband")},
-			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[2].ValAddress.String())},
-			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[0].ValAddress.String())},
+			{Key: types.AttributeKeyID, Value: "1"},
+			{Key: types.AttributeKeyClientID, Value: "CID"},
+			{Key: types.AttributeKeyOracleScriptID, Value: "1"},
+			{Key: types.AttributeKeyCalldata, Value: "62656562"}, // "beeb" in hex
+			{Key: types.AttributeKeyAskCount, Value: "2"},
+			{Key: types.AttributeKeyMinCount, Value: "2"},
+			{Key: types.AttributeKeyGasUsed, Value: "5294700000"},
+			{Key: types.AttributeKeyTotalFees, Value: "6000000uband"},
+			{Key: types.AttributeKeyValidator, Value: bandtesting.Validators[2].ValAddress.String()},
+			{Key: types.AttributeKeyValidator, Value: bandtesting.Validators[0].ValAddress.String()},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[12])
+	require.Equal(t, event, res.Events[12])
 	event = abci.Event{
 		Type: types.EventTypeRawRequest,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyDataSourceID), Value: []byte("1")},
-			{Key: []byte(types.AttributeKeyDataSourceHash), Value: []byte(testapp.DataSources[1].Filename)},
-			{Key: []byte(types.AttributeKeyExternalID), Value: []byte("1")},
-			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("beeb")},
-			{Key: []byte(types.AttributeKeyFee), Value: []byte("1000000uband")},
+			{Key: types.AttributeKeyDataSourceID, Value: "1"},
+			{Key: types.AttributeKeyDataSourceHash, Value: bandtesting.DataSources[1].Filename},
+			{Key: types.AttributeKeyExternalID, Value: "1"},
+			{Key: types.AttributeKeyCalldata, Value: "beeb"},
+			{Key: types.AttributeKeyFee, Value: "1000000uband"},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[13])
+	require.Equal(t, event, res.Events[13])
 	event = abci.Event{
 		Type: types.EventTypeRawRequest,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyDataSourceID), Value: []byte("2")},
-			{Key: []byte(types.AttributeKeyDataSourceHash), Value: []byte(testapp.DataSources[2].Filename)},
-			{Key: []byte(types.AttributeKeyExternalID), Value: []byte("2")},
-			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("beeb")},
-			{Key: []byte(types.AttributeKeyFee), Value: []byte("1000000uband")},
+			{Key: types.AttributeKeyDataSourceID, Value: "2"},
+			{Key: types.AttributeKeyDataSourceHash, Value: bandtesting.DataSources[2].Filename},
+			{Key: types.AttributeKeyExternalID, Value: "2"},
+			{Key: types.AttributeKeyCalldata, Value: "beeb"},
+			{Key: types.AttributeKeyFee, Value: "1000000uband"},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[14])
+	require.Equal(t, event, res.Events[14])
 	event = abci.Event{
 		Type: types.EventTypeRawRequest,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyDataSourceID), Value: []byte("3")},
-			{Key: []byte(types.AttributeKeyDataSourceHash), Value: []byte(testapp.DataSources[3].Filename)},
-			{Key: []byte(types.AttributeKeyExternalID), Value: []byte("3")},
-			{Key: []byte(types.AttributeKeyCalldata), Value: []byte("beeb")},
-			{Key: []byte(types.AttributeKeyFee), Value: []byte("1000000uband")},
+			{Key: types.AttributeKeyDataSourceID, Value: "3"},
+			{Key: types.AttributeKeyDataSourceHash, Value: bandtesting.DataSources[3].Filename},
+			{Key: types.AttributeKeyExternalID, Value: "3"},
+			{Key: types.AttributeKeyCalldata, Value: "beeb"},
+			{Key: types.AttributeKeyFee, Value: "1000000uband"},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[15])
+	require.Equal(t, event, res.Events[15])
 }
 
 func TestRequestDataFail(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(false)
+	app, ctx := bandtesting.CreateTestApp(t, false)
+	k := app.OracleKeeper
+
 	// No active oracle validators
 	res, err := oracle.NewHandler(
 		k,
@@ -538,16 +579,18 @@ func TestRequestDataFail(t *testing.T) {
 			2,
 			2,
 			"CID",
-			testapp.Coins100000000uband,
-			testapp.TestDefaultPrepareGas,
-			testapp.TestDefaultExecuteGas,
-			testapp.FeePayer.Address,
+			bandtesting.Coins100000000uband,
+			bandtesting.TestDefaultPrepareGas,
+			bandtesting.TestDefaultExecuteGas,
+			bandtesting.FeePayer.Address,
 		),
 	)
-	testapp.CheckErrorf(t, err, types.ErrInsufficientValidators, "0 < 2")
+	bandtesting.CheckErrorf(t, err, types.ErrInsufficientValidators, "0 < 2")
 	require.Nil(t, res)
-	k.Activate(ctx, testapp.Validators[0].ValAddress)
-	k.Activate(ctx, testapp.Validators[1].ValAddress)
+	err = k.Activate(ctx, bandtesting.Validators[0].ValAddress)
+	require.NoError(t, err)
+	err = k.Activate(ctx, bandtesting.Validators[1].ValAddress)
+	require.NoError(t, err)
 	// Too large calldata
 	res, err = oracle.NewHandler(
 		k,
@@ -559,13 +602,13 @@ func TestRequestDataFail(t *testing.T) {
 			2,
 			2,
 			"CID",
-			testapp.Coins100000000uband,
-			testapp.TestDefaultPrepareGas,
-			testapp.TestDefaultExecuteGas,
-			testapp.FeePayer.Address,
+			bandtesting.Coins100000000uband,
+			bandtesting.TestDefaultPrepareGas,
+			bandtesting.TestDefaultExecuteGas,
+			bandtesting.FeePayer.Address,
 		),
 	)
-	testapp.CheckErrorf(t, err, types.ErrTooLargeCalldata, "got: 8000, max: 512")
+	bandtesting.CheckErrorf(t, err, types.ErrTooLargeCalldata, "got: 8000, max: 512")
 	require.Nil(t, res)
 	// Too high ask count
 	res, err = oracle.NewHandler(
@@ -578,13 +621,13 @@ func TestRequestDataFail(t *testing.T) {
 			3,
 			2,
 			"CID",
-			testapp.Coins100000000uband,
-			testapp.TestDefaultPrepareGas,
-			testapp.TestDefaultExecuteGas,
-			testapp.FeePayer.Address,
+			bandtesting.Coins100000000uband,
+			bandtesting.TestDefaultPrepareGas,
+			bandtesting.TestDefaultExecuteGas,
+			bandtesting.FeePayer.Address,
 		),
 	)
-	testapp.CheckErrorf(t, err, types.ErrInsufficientValidators, "2 < 3")
+	bandtesting.CheckErrorf(t, err, types.ErrInsufficientValidators, "2 < 3")
 	require.Nil(t, res)
 	// Bad oracle script ID
 	res, err = oracle.NewHandler(
@@ -597,13 +640,13 @@ func TestRequestDataFail(t *testing.T) {
 			2,
 			2,
 			"CID",
-			testapp.Coins100000000uband,
-			testapp.TestDefaultPrepareGas,
-			testapp.TestDefaultExecuteGas,
-			testapp.FeePayer.Address,
+			bandtesting.Coins100000000uband,
+			bandtesting.TestDefaultPrepareGas,
+			bandtesting.TestDefaultExecuteGas,
+			bandtesting.FeePayer.Address,
 		),
 	)
-	testapp.CheckErrorf(t, err, types.ErrOracleScriptNotFound, "id: 999")
+	bandtesting.CheckErrorf(t, err, types.ErrOracleScriptNotFound, "id: 999")
 	require.Nil(t, res)
 	// Pay not enough fee
 	res, err = oracle.NewHandler(
@@ -616,30 +659,32 @@ func TestRequestDataFail(t *testing.T) {
 			2,
 			2,
 			"CID",
-			testapp.EmptyCoins,
-			testapp.TestDefaultPrepareGas,
-			testapp.TestDefaultExecuteGas,
-			testapp.FeePayer.Address,
+			bandtesting.EmptyCoins,
+			bandtesting.TestDefaultPrepareGas,
+			bandtesting.TestDefaultExecuteGas,
+			bandtesting.FeePayer.Address,
 		),
 	)
-	testapp.CheckErrorf(t, err, types.ErrNotEnoughFee, "require: 2000000uband, max: 0uband")
+	bandtesting.CheckErrorf(t, err, types.ErrNotEnoughFee, "require: 2000000uband, max: 0uband")
 	require.Nil(t, res)
 }
 
 func TestReportSuccess(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	// Set up a mock request asking 3 validators with min count 2.
 	k.SetRequest(ctx, 42, types.NewRequest(
 		1,
 		[]byte("beeb"),
 		[]sdk.ValAddress{
-			testapp.Validators[2].ValAddress,
-			testapp.Validators[1].ValAddress,
-			testapp.Validators[0].ValAddress,
+			bandtesting.Validators[2].ValAddress,
+			bandtesting.Validators[1].ValAddress,
+			bandtesting.Validators[0].ValAddress,
 		},
 		2,
 		124,
-		testapp.ParseTime(1581589790),
+		bandtesting.ParseTime(1581589790),
 		"CID",
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
@@ -651,63 +696,65 @@ func TestReportSuccess(t *testing.T) {
 	// Common raw reports for everyone.
 	reports := []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(2, 0, []byte("data2"))}
 	// Validators[0] reports data.
-	res, err := oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[0].ValAddress))
+	res, err := oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, bandtesting.Validators[0].ValAddress))
 	require.NoError(t, err)
 	require.Equal(t, []types.RequestID{}, k.GetPendingResolveList(ctx))
 	event := abci.Event{
 		Type: types.EventTypeReport,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyID), Value: []byte("42")},
-			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[0].ValAddress.String())},
+			{Key: types.AttributeKeyID, Value: "42"},
+			{Key: types.AttributeKeyValidator, Value: bandtesting.Validators[0].ValAddress.String()},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[0])
+	require.Equal(t, event, res.Events[0])
 	// Validators[1] reports data. Now the request should move to pending resolve.
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[1].ValAddress))
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, bandtesting.Validators[1].ValAddress))
 	require.NoError(t, err)
 	require.Equal(t, []types.RequestID{42}, k.GetPendingResolveList(ctx))
 	event = abci.Event{
 		Type: types.EventTypeReport,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyID), Value: []byte("42")},
-			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[1].ValAddress.String())},
+			{Key: types.AttributeKeyID, Value: "42"},
+			{Key: types.AttributeKeyValidator, Value: bandtesting.Validators[1].ValAddress.String()},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[0])
+	require.Equal(t, event, res.Events[0])
 	// Even if we resolve the request, Validators[2] should still be able to report.
 	k.SetPendingResolveList(ctx, []types.RequestID{})
 	k.ResolveSuccess(ctx, 42, []byte("RESOLVE_RESULT!"), 1234)
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[2].ValAddress))
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, bandtesting.Validators[2].ValAddress))
 	require.NoError(t, err)
 	event = abci.Event{
 		Type: types.EventTypeReport,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyID), Value: []byte("42")},
-			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[2].ValAddress.String())},
+			{Key: types.AttributeKeyID, Value: "42"},
+			{Key: types.AttributeKeyValidator, Value: bandtesting.Validators[2].ValAddress.String()},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[0])
+	require.Equal(t, event, res.Events[0])
 	// Check the reports of this request. We should see 3 reports, with report from Validators[2] comes after resolve.
 	finalReport := k.GetReports(ctx, 42)
-	require.Contains(t, finalReport, types.NewReport(testapp.Validators[0].ValAddress, true, reports))
-	require.Contains(t, finalReport, types.NewReport(testapp.Validators[1].ValAddress, true, reports))
-	require.Contains(t, finalReport, types.NewReport(testapp.Validators[2].ValAddress, false, reports))
+	require.Contains(t, finalReport, types.NewReport(bandtesting.Validators[0].ValAddress, true, reports))
+	require.Contains(t, finalReport, types.NewReport(bandtesting.Validators[1].ValAddress, true, reports))
+	require.Contains(t, finalReport, types.NewReport(bandtesting.Validators[2].ValAddress, false, reports))
 }
 
 func TestReportFail(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	// Set up a mock request asking 3 validators with min count 2.
 	k.SetRequest(ctx, 42, types.NewRequest(
 		1,
 		[]byte("beeb"),
 		[]sdk.ValAddress{
-			testapp.Validators[2].ValAddress,
-			testapp.Validators[1].ValAddress,
-			testapp.Validators[0].ValAddress,
+			bandtesting.Validators[2].ValAddress,
+			bandtesting.Validators[1].ValAddress,
+			bandtesting.Validators[0].ValAddress,
 		},
 		2,
 		124,
-		testapp.ParseTime(1581589790),
+		bandtesting.ParseTime(1581589790),
 		"CID",
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
@@ -719,17 +766,17 @@ func TestReportFail(t *testing.T) {
 	// Common raw reports for everyone.
 	reports := []types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(2, 0, []byte("data2"))}
 	// Bad ID
-	res, err := oracle.NewHandler(k)(ctx, types.NewMsgReportData(999, reports, testapp.Validators[0].ValAddress))
-	testapp.CheckErrorf(t, err, types.ErrRequestNotFound, "id: 999")
+	res, err := oracle.NewHandler(k)(ctx, types.NewMsgReportData(999, reports, bandtesting.Validators[0].ValAddress))
+	bandtesting.CheckErrorf(t, err, types.ErrRequestNotFound, "id: 999")
 	require.Nil(t, res)
 	// Not-asked validator
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Alice.ValAddress))
-	testapp.CheckErrorf(
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, bandtesting.Alice.ValAddress))
+	bandtesting.CheckErrorf(
 		t,
 		err,
 		types.ErrValidatorNotRequested,
 		"reqID: 42, val: %s",
-		testapp.Alice.ValAddress.String(),
+		bandtesting.Alice.ValAddress.String(),
 	)
 	require.Nil(t, res)
 	// Too large report data size
@@ -743,10 +790,10 @@ func TestReportFail(t *testing.T) {
 				types.NewRawReport(1, 0, []byte("data1")),
 				types.NewRawReport(2, 0, []byte(strings.Repeat("data2", 2000))),
 			},
-			testapp.Validators[0].ValAddress,
+			bandtesting.Validators[0].ValAddress,
 		),
 	)
-	testapp.CheckErrorf(t, err, types.ErrTooLargeRawReportData, "got: 10000, max: 512")
+	bandtesting.CheckErrorf(t, err, types.ErrTooLargeRawReportData, "got: 10000, max: 512")
 	require.Nil(t, res)
 	// Not having all raw reports
 	res, err = oracle.NewHandler(
@@ -756,7 +803,7 @@ func TestReportFail(t *testing.T) {
 		types.NewMsgReportData(
 			42,
 			[]types.RawReport{types.NewRawReport(1, 0, []byte("data1"))},
-			testapp.Validators[0].ValAddress,
+			bandtesting.Validators[0].ValAddress,
 		),
 	)
 	require.ErrorIs(t, err, types.ErrInvalidReportSize)
@@ -769,57 +816,157 @@ func TestReportFail(t *testing.T) {
 		types.NewMsgReportData(
 			42,
 			[]types.RawReport{types.NewRawReport(1, 0, []byte("data1")), types.NewRawReport(42, 0, []byte("data2"))},
-			testapp.Validators[0].ValAddress,
+			bandtesting.Validators[0].ValAddress,
 		),
 	)
-	testapp.CheckErrorf(t, err, types.ErrRawRequestNotFound, "reqID: 42, extID: 42")
+	bandtesting.CheckErrorf(t, err, types.ErrRawRequestNotFound, "reqID: 42, extID: 42")
 	require.Nil(t, res)
 	// Request already expired
 	k.SetRequestLastExpired(ctx, 42)
-	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, testapp.Validators[0].ValAddress))
+	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, bandtesting.Validators[0].ValAddress))
 	require.ErrorIs(t, err, types.ErrRequestAlreadyExpired)
 	require.Nil(t, res)
 }
 
 func TestActivateSuccess(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(false)
-	ctx = ctx.WithBlockTime(testapp.ParseTime(1000000))
+	app, ctx := bandtesting.CreateTestApp(t, false)
+	k := app.OracleKeeper
+
+	ctx = ctx.WithBlockTime(bandtesting.ParseTime(1000000))
 	require.Equal(t,
 		types.NewValidatorStatus(false, time.Time{}),
-		k.GetValidatorStatus(ctx, testapp.Validators[0].ValAddress),
+		k.GetValidatorStatus(ctx, bandtesting.Validators[0].ValAddress),
 	)
-	msg := types.NewMsgActivate(testapp.Validators[0].ValAddress)
+	msg := types.NewMsgActivate(bandtesting.Validators[0].ValAddress)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
 	require.Equal(t,
-		types.NewValidatorStatus(true, testapp.ParseTime(1000000)),
-		k.GetValidatorStatus(ctx, testapp.Validators[0].ValAddress),
+		types.NewValidatorStatus(true, bandtesting.ParseTime(1000000)),
+		k.GetValidatorStatus(ctx, bandtesting.Validators[0].ValAddress),
 	)
 	event := abci.Event{
 		Type: types.EventTypeActivate,
 		Attributes: []abci.EventAttribute{
-			{Key: []byte(types.AttributeKeyValidator), Value: []byte(testapp.Validators[0].ValAddress.String())},
+			{Key: types.AttributeKeyValidator, Value: bandtesting.Validators[0].ValAddress.String()},
 		},
 	}
-	require.Equal(t, abci.Event(event), res.Events[0])
+	require.Equal(t, event, res.Events[0])
 }
 
 func TestActivateFail(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
-	msg := types.NewMsgActivate(testapp.Validators[0].ValAddress)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
+	msg := types.NewMsgActivate(bandtesting.Validators[0].ValAddress)
 	// Already active.
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.ErrorIs(t, err, types.ErrValidatorAlreadyActive)
 	require.Nil(t, res)
 	// Too soon to activate.
-	ctx = ctx.WithBlockTime(testapp.ParseTime(100000))
-	k.MissReport(ctx, testapp.Validators[0].ValAddress, testapp.ParseTime(99999))
-	ctx = ctx.WithBlockTime(testapp.ParseTime(100001))
+	ctx = ctx.WithBlockTime(bandtesting.ParseTime(100000))
+	k.MissReport(ctx, bandtesting.Validators[0].ValAddress, bandtesting.ParseTime(99999))
+	ctx = ctx.WithBlockTime(bandtesting.ParseTime(100001))
 	res, err = oracle.NewHandler(k)(ctx, msg)
 	require.ErrorIs(t, err, types.ErrTooSoonToActivate)
 	require.Nil(t, res)
 	// OK
-	ctx = ctx.WithBlockTime(testapp.ParseTime(200000))
+	ctx = ctx.WithBlockTime(bandtesting.ParseTime(200000))
 	_, err = oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
+}
+
+func TestUpdateParamsSuccess(t *testing.T) {
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
+	expectedParams := types.Params{
+		MaxRawRequestCount:      1,
+		MaxAskCount:             10,
+		MaxCalldataSize:         256,
+		MaxReportDataSize:       512,
+		ExpirationBlockCount:    30,
+		BaseOwasmGas:            50000,
+		PerValidatorRequestGas:  3000,
+		SamplingTryCount:        3,
+		OracleRewardPercentage:  50,
+		InactivePenaltyDuration: 1000,
+		IBCRequestEnabled:       true,
+	}
+	msg := types.NewMsgUpdateParams(k.GetAuthority(), expectedParams)
+	res, err := oracle.NewHandler(k)(ctx, msg)
+	require.NoError(t, err)
+	require.Equal(t, expectedParams, k.GetParams(ctx))
+	event := abci.Event{
+		Type: types.EventTypeUpdateParams,
+		Attributes: []abci.EventAttribute{
+			{Key: types.AttributeKeyParams, Value: expectedParams.String()},
+		},
+	}
+	require.Equal(t, event, res.Events[0])
+
+	expectedParams = types.Params{
+		MaxRawRequestCount:      2,
+		MaxAskCount:             20,
+		MaxCalldataSize:         512,
+		MaxReportDataSize:       256,
+		ExpirationBlockCount:    40,
+		BaseOwasmGas:            0,
+		PerValidatorRequestGas:  0,
+		SamplingTryCount:        5,
+		OracleRewardPercentage:  0,
+		InactivePenaltyDuration: 0,
+		IBCRequestEnabled:       false,
+	}
+	msg = types.NewMsgUpdateParams(k.GetAuthority(), expectedParams)
+	res, err = oracle.NewHandler(k)(ctx, msg)
+	require.NoError(t, err)
+	require.Equal(t, expectedParams, k.GetParams(ctx))
+	event = abci.Event{
+		Type: types.EventTypeUpdateParams,
+		Attributes: []abci.EventAttribute{
+			{Key: types.AttributeKeyParams, Value: expectedParams.String()},
+		},
+	}
+	require.Equal(t, event, res.Events[0])
+}
+
+func TestUpdateParamsFail(t *testing.T) {
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
+	expectedParams := types.Params{
+		MaxRawRequestCount:      1,
+		MaxAskCount:             10,
+		MaxCalldataSize:         256,
+		MaxReportDataSize:       512,
+		ExpirationBlockCount:    30,
+		BaseOwasmGas:            50000,
+		PerValidatorRequestGas:  3000,
+		SamplingTryCount:        3,
+		OracleRewardPercentage:  50,
+		InactivePenaltyDuration: 1000,
+		IBCRequestEnabled:       true,
+	}
+	msg := types.NewMsgUpdateParams("foo", expectedParams)
+	res, err := oracle.NewHandler(k)(ctx, msg)
+	require.ErrorContains(t, err, "invalid authority")
+	require.Nil(t, res)
+
+	expectedParams = types.Params{
+		MaxRawRequestCount:      0,
+		MaxAskCount:             10,
+		MaxCalldataSize:         256,
+		MaxReportDataSize:       512,
+		ExpirationBlockCount:    30,
+		BaseOwasmGas:            50000,
+		PerValidatorRequestGas:  3000,
+		SamplingTryCount:        3,
+		OracleRewardPercentage:  50,
+		InactivePenaltyDuration: 1000,
+		IBCRequestEnabled:       true,
+	}
+	msg = types.NewMsgUpdateParams(k.GetAuthority(), expectedParams)
+	res, err = oracle.NewHandler(k)(ctx, msg)
+	require.ErrorContains(t, err, "max raw request count must be positive")
+	require.Nil(t, res)
 }

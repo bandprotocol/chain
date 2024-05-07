@@ -1,22 +1,22 @@
 package emitter
 
 import (
+	"encoding/hex"
 	"fmt"
 	"strings"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	icatypes "github.com/cosmos/ibc-go/v4/modules/apps/27-interchain-accounts/types"
-	ibcxfertypes "github.com/cosmos/ibc-go/v4/modules/apps/transfer/types"
-	"github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
-	channeltypes "github.com/cosmos/ibc-go/v4/modules/core/04-channel/types"
+	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
+	ibcxfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	"github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 
+	"github.com/bandprotocol/chain/v2/hooks/common"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func (h *Hook) emitSetChannel(ctx sdk.Context, portId string, channelId string) {
-	channel, _ := h.channelkeeper.GetChannel(ctx, portId, channelId)
+	channel, _ := h.channelKeeper.GetChannel(ctx, portId, channelId)
 	hop := channel.ConnectionHops[0]
 	h.Write("SET_CHANNEL", common.JsDict{
 		"connection_id":        hop,
@@ -155,9 +155,10 @@ func (h *Hook) extractFungibleTokenPacket(
 					"status": "success",
 				}
 			} else {
+				reason, _ := hex.DecodeString(evMap[types.EventTypeWriteAck+"."+types.AttributeKeyAckHex][0])
 				packet["acknowledgement"] = common.JsDict{
 					"status": "failure",
-					"reason": evMap[types.EventTypeWriteAck+"."+types.AttributeKeyAck][0],
+					"reason": string(reason),
 				}
 			}
 		} else {
@@ -250,14 +251,16 @@ func (h *Hook) extractOracleRequestPacket(
 				"execute_gas":      data.ExecuteGas,
 				"fee_limit":        data.FeeLimit.String(),
 			}
-			reasons, ok := evMap[channeltypes.EventTypeWriteAck+"."+channeltypes.AttributeKeyAck]
+			reasons, ok := evMap[types.EventTypeWriteAck+"."+types.AttributeKeyAckHex]
 			if !ok {
 				detail["skip"] = true
 				return false
 			}
+
+			reason, _ := hex.DecodeString(reasons[0])
 			packet["acknowledgement"] = common.JsDict{
 				"status": "failure",
-				"reason": reasons[0],
+				"reason": string(reason),
 			}
 		}
 		return true
@@ -364,7 +367,7 @@ func (h *Hook) handleMsgRecvPacket(
 		msg.Packet.DestinationChannel,
 		txHash,
 	)
-	if _, ok := evMap[channeltypes.EventTypeWriteAck+"."+channeltypes.AttributeKeyData]; ok {
+	if _, ok := evMap[types.EventTypeWriteAck+"."+types.AttributeKeyDataHex]; ok {
 		if ok := h.extractOracleRequestPacket(ctx, txHash, msg.Signer, msg.Packet.Data, evMap, detail, packet, msg.Packet.DestinationPort, msg.Packet.DestinationChannel); ok {
 			h.Write("NEW_INCOMING_PACKET", packet)
 			return
@@ -384,8 +387,10 @@ func (h *Hook) extractOracleResponsePacket(
 	ctx sdk.Context, packet common.JsDict, evMap common.EvMap,
 ) bool {
 	var data oracletypes.OracleResponsePacketData
+
+	eventData, _ := hex.DecodeString(evMap[types.EventTypeSendPacket+"."+types.AttributeKeyDataHex][0])
 	err := oracletypes.ModuleCdc.UnmarshalJSON(
-		[]byte(evMap[types.EventTypeSendPacket+"."+types.AttributeKeyData][0]),
+		eventData,
 		&data,
 	)
 	if err == nil {
