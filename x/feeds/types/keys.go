@@ -20,6 +20,7 @@ const (
 	QuerierRoute = ModuleName
 )
 
+// Constants for keys
 var (
 	GlobalStoreKeyPrefix = []byte{0x00}
 
@@ -35,29 +36,35 @@ var (
 	FeedsByPowerIndexKeyPrefix = []byte{0x20}
 )
 
+// DelegatorSignalStoreKey creates a key for storing delegator signals
 func DelegatorSignalStoreKey(delegator sdk.AccAddress) []byte {
 	return append(DelegatorSignalStoreKeyPrefix, delegator...)
 }
 
+// FeedStoreKey creates a key for storing feed data
 func FeedStoreKey(signalID string) []byte {
 	return append(FeedStoreKeyPrefix, []byte(signalID)...)
 }
 
+// PriceValidatorsStoreKey creates a key for storing price validators
 func PriceValidatorsStoreKey(signalID string) []byte {
 	return append(PriceValidatorStoreKeyPrefix, []byte(signalID)...)
 }
 
+// PriceValidatorStoreKey creates a key for storing a price validator
 func PriceValidatorStoreKey(signalID string, validator sdk.ValAddress) []byte {
 	return append(PriceValidatorsStoreKey(signalID), validator...)
 }
 
+// PriceStoreKey creates a key for storing price data
 func PriceStoreKey(signalID string) []byte {
 	return append(PriceStoreKeyPrefix, []byte(signalID)...)
 }
 
-func FeedsByPowerIndexKey(signalID string, power uint64) []byte {
+// FeedsByPowerIndexKey creates a key for storing feeds by power index
+func FeedsByPowerIndexKey(signalID string, power int64) []byte {
 	powerBytes := make([]byte, 8)
-	binary.BigEndian.PutUint64(powerBytes, power)
+	binary.BigEndian.PutUint64(powerBytes, uint64(power))
 	powerBytesLen := len(powerBytes) // 8
 
 	signalIDBytes := []byte(signalID)

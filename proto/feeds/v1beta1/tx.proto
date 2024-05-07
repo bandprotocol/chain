@@ -10,18 +10,18 @@ import "cosmos_proto/cosmos.proto";
 import "cosmos/msg/v1/msg.proto";
 import "amino/amino.proto";
 
-// Define a gRPC service named Msg
+// Msg defines the feeds Msg service.
 service Msg {
-  // RPC method to submit prices
+  // SubmitPrices is a RPC method to submit prices
   rpc SubmitPrices(MsgSubmitPrices) returns (MsgSubmitPricesResponse);
 
-  // RPC method to update price service information
+  // UpdatePriceService is a RPC method to update price service information
   rpc UpdatePriceService(MsgUpdatePriceService) returns (MsgUpdatePriceServiceResponse);
 
-  // RPC method to update parameters
+  // UpdateParams is a RPC method to update parameters
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 
-  // RPC method to signal ids and their powers
+  // SubmitSignals is a RPC method to signal ids and their powers
   rpc SubmitSignals(MsgSubmitSignals) returns (MsgSubmitSignalsResponse);
 }
 
@@ -30,9 +30,9 @@ message MsgSubmitSignals {
   option (cosmos.msg.v1.signer) = "delegator";
   option (amino.name)           = "feeds/MsgSubmitSignals";
 
-  // The address of the delegator that want to submit signals
+  // Delegator is the address of the delegator that want to submit signals
   string delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  // The signal details
+  // Signals is a list of submitted signal
   repeated Signal signals = 2 [(gogoproto.nullable) = false];
 }
 
@@ -44,13 +44,13 @@ message MsgSubmitPrices {
   option (cosmos.msg.v1.signer) = "validator";
   option (amino.name)           = "feeds/MsgSubmitPrices";
 
-  // The address of the validator that is performing the operation.
+  // Validator is the address of the validator that is performing the operation.
   string validator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
-  // The timestamp use as reference of the data.
+  // Timestamp is the timestamp use as reference of the data.
   int64 timestamp = 2;
 
-  // A list of prices to submit.
+  // Prices is a list of prices to submit.
   repeated SubmitPrice prices = 3 [(gogoproto.nullable) = false];
 }
 
@@ -62,10 +62,10 @@ message MsgUpdatePriceService {
   option (cosmos.msg.v1.signer) = "authority";
   option (amino.name)           = "feeds/MsgUpdateParams";
 
-  // The address of the admin that is performing the operation.
+  // Admin is the address of the admin that is performing the operation.
   string admin = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
-  // information of price service.
+  // PriceService is the information of price service.
   PriceService price_service = 2 [(gogoproto.nullable) = false];
 }
 
@@ -77,10 +77,10 @@ message MsgUpdateParams {
   option (cosmos.msg.v1.signer) = "authority";
   option (amino.name)           = "feeds/MsgUpdateParams";
 
-  // authority is the address of the governance account.
+  // Authority is the address of the governance account.
   string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
-  // params defines the x/feeds parameters to update.
+  // Params is the x/feeds parameters to update.
   Params params = 2 [(gogoproto.nullable) = false];
 }
 

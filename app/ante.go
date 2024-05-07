@@ -24,7 +24,7 @@ type HandlerOptions struct {
 	IBCKeeper       *ibckeeper.Keeper
 	StakingKeeper   *stakingkeeper.Keeper
 	GlobalfeeKeeper *globalfeekeeper.Keeper
-	Feedskeeper     *feedskeeper.Keeper
+	FeedsKeeper     *feedskeeper.Keeper
 }
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
@@ -43,8 +43,8 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	if options.OracleKeeper == nil {
 		return nil, sdkerrors.ErrLogic.Wrap("oracle keeper is required for AnteHandler")
 	}
-	if options.Feedskeeper == nil {
-		return nil, sdkerrors.ErrLogic.Wrap("Feed keeper is required for AnteHandler")
+	if options.FeedsKeeper == nil {
+		return nil, sdkerrors.ErrLogic.Wrap("feeds keeper is required for AnteHandler")
 	}
 	if options.IBCKeeper == nil {
 		return nil, sdkerrors.ErrLogic.Wrap("IBC keeper is required for AnteHandler")
@@ -67,7 +67,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 			options.OracleKeeper,
 			options.GlobalfeeKeeper,
 			options.StakingKeeper,
-			options.Feedskeeper,
+			options.FeedsKeeper,
 		)
 		options.TxFeeChecker = feeChecker.CheckTxFeeWithMinGasPrices
 	}

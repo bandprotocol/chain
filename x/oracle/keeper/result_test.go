@@ -6,12 +6,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
 func TestResultBasicFunctions(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	// We start by setting result of request#1.
 	result := types.NewResult(
 		"alice", 1, BasicCalldata, 1, 1, 1, 1, 1589535020, 1589535022, 1, BasicResult,
@@ -33,14 +35,16 @@ func TestResultBasicFunctions(t *testing.T) {
 }
 
 func TestSaveResultOK(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
-	ctx = ctx.WithBlockTime(testapp.ParseTime(200))
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
+	ctx = ctx.WithBlockTime(bandtesting.ParseTime(200))
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
-	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
+	k.SetReport(ctx, 42, types.NewReport(bandtesting.Validators[0].ValAddress, true, nil))
 	k.SaveResult(ctx, 42, types.RESOLVE_STATUS_SUCCESS, BasicResult)
 	expect := types.NewResult(
-		BasicClientID, 1, BasicCalldata, 2, 2, 42, 1, testapp.ParseTime(0).Unix(),
-		testapp.ParseTime(200).Unix(), types.RESOLVE_STATUS_SUCCESS, BasicResult,
+		BasicClientID, 1, BasicCalldata, 2, 2, 42, 1, bandtesting.ParseTime(0).Unix(),
+		bandtesting.ParseTime(200).Unix(), types.RESOLVE_STATUS_SUCCESS, BasicResult,
 	)
 	result, err := k.GetResult(ctx, 42)
 	require.NoError(t, err)
@@ -48,9 +52,11 @@ func TestSaveResultOK(t *testing.T) {
 }
 
 func TestResolveSuccess(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
-	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
+	k.SetReport(ctx, 42, types.NewReport(bandtesting.Validators[0].ValAddress, true, nil))
 	k.ResolveSuccess(ctx, 42, BasicResult, 1234)
 	require.Equal(t, types.RESOLVE_STATUS_SUCCESS, k.MustGetResult(ctx, 42).ResolveStatus)
 	require.Equal(t, BasicResult, k.MustGetResult(ctx, 42).Result)
@@ -64,9 +70,11 @@ func TestResolveSuccess(t *testing.T) {
 }
 
 func TestResolveFailure(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
-	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
+	k.SetReport(ctx, 42, types.NewReport(bandtesting.Validators[0].ValAddress, true, nil))
 	k.ResolveFailure(ctx, 42, "REASON")
 	require.Equal(t, types.RESOLVE_STATUS_FAILURE, k.MustGetResult(ctx, 42).ResolveStatus)
 	require.Empty(t, k.MustGetResult(ctx, 42).Result)
@@ -79,9 +87,11 @@ func TestResolveFailure(t *testing.T) {
 }
 
 func TestResolveExpired(t *testing.T) {
-	_, ctx, k := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(t, true)
+	k := app.OracleKeeper
+
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
-	k.SetReport(ctx, 42, types.NewReport(testapp.Validators[0].ValAddress, true, nil))
+	k.SetReport(ctx, 42, types.NewReport(bandtesting.Validators[0].ValAddress, true, nil))
 	k.ResolveExpired(ctx, 42)
 	require.Equal(t, types.RESOLVE_STATUS_EXPIRED, k.MustGetResult(ctx, 42).ResolveStatus)
 	require.Empty(t, k.MustGetResult(ctx, 42).Result)

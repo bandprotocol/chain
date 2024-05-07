@@ -33,11 +33,13 @@ func GetTxCmd() *cobra.Command {
 		GetTxCmdAddGrantees(),
 		GetTxCmdRemoveGrantees(),
 		GetTxCmdSubmitSignals(),
+		GetTxCmdUpdatePriceService(),
 	)
 
 	return txCmd
 }
 
+// GetTxCmdSubmitSignals creates a CLI command for submitting signals
 func GetTxCmdSubmitSignals() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "signal [signal_id1]:[power1] [signal_id2]:[power2] ...",
@@ -65,7 +67,7 @@ $ %s tx feeds signal BTC:1000000 --from mykey
 				if len(idAndPower) != 2 {
 					return fmt.Errorf("argument %d is not valid", i)
 				}
-				power, err := strconv.ParseUint(idAndPower[1], 0, 64)
+				power, err := strconv.ParseInt(idAndPower[1], 0, 64)
 				if err != nil {
 					return err
 				}
@@ -81,8 +83,8 @@ $ %s tx feeds signal BTC:1000000 --from mykey
 				Delegator: delegator.String(),
 				Signals:   signals,
 			}
-			msgs := []sdk.Msg{&msg}
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &msg)
 		},
 	}
 	flags.AddTxFlagsToCmd(cmd)
@@ -90,11 +92,11 @@ $ %s tx feeds signal BTC:1000000 --from mykey
 	return cmd
 }
 
-// GetTxCmdAddGrantees creates a CLI command for add new grantees
+// GetTxCmdAddGrantees creates a CLI command for adding new grantees
 func GetTxCmdAddGrantees() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add-grantees [grantee1] [grantee2] ...",
-		Short: "Add agents authorized to submit feeds transactions.",
+		Short: "Add agents authorized to submit prices transactions.",
 		Args:  cobra.MinimumNArgs(1),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(
@@ -149,7 +151,7 @@ $ %s tx feeds add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq
 	return cmd
 }
 
-// GetTxCmdRemoveGrantees creates a CLI command for remove grantees from granter
+// GetTxCmdRemoveGrantees creates a CLI command for removing grantees from granter
 func GetTxCmdRemoveGrantees() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "remove-grantees [grantee1] [grantee2] ...",
@@ -190,6 +192,47 @@ $ %s tx feeds remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m
 		},
 	}
 
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetTxCmdUpdatePriceService creates a CLI command for updating price service
+func GetTxCmdUpdatePriceService() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "update-price-service [hash] [version] [url]",
+		Short: "Update reference price service",
+		Args:  cobra.ExactArgs(3),
+		Long: strings.TrimSpace(
+			fmt.Sprintf(
+				`Update reference price service that will be use as the default service for price querying.
+Example:
+$ %s tx feeds update-price-service 1234abcedf 1.0.0 http://www.example.com --from mykey
+`,
+				version.AppName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			admin := clientCtx.GetFromAddress()
+			priceService := types.PriceService{
+				Hash:    args[0],
+				Version: args[1],
+				Url:     args[2],
+			}
+
+			msg := types.MsgUpdatePriceService{
+				Admin:        admin.String(),
+				PriceService: priceService,
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &msg)
+		},
+	}
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd

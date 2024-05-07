@@ -3,6 +3,7 @@ package keeper
 import (
 	"context"
 	"fmt"
+	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -23,6 +24,7 @@ func NewMsgServerImpl(k Keeper) types.MsgServer {
 	}
 }
 
+// SubmitSignals register new signals and update feeds.
 func (ms msgServer) SubmitSignals(
 	goCtx context.Context,
 	req *types.MsgSubmitSignals,
@@ -40,52 +42,41 @@ func (ms msgServer) SubmitSignals(
 		return nil, err
 	}
 
-	// delete previous signal, decrease feed power by the previous signals
-	signalIDToIntervalDiff := make(map[string]int64)
-	prevSignals := ms.GetDelegatorSignals(ctx, delegator)
-	signalIDToIntervalDiff, err = ms.RemovePreviousSignals(ctx, prevSignals, signalIDToIntervalDiff)
-	if err != nil {
-		return nil, err
+	// calculate power different of each signal by decresing signal power with previous signal
+	signalIDToPowerDiff := ms.CalculateDelegatorSignalsPowerDiff(ctx, delegator, req.Signals)
+
+	// sort keys to guarantee order of signalIDToPowerDiff iteration
+	keys := make([]string, 0, len(signalIDToPowerDiff))
+	for k := range signalIDToPowerDiff {
+		keys = append(keys, k)
 	}
+	sort.Strings(keys)
 
-	// increase feed power by the new signals
-	signalIDToIntervalDiff, err = ms.RegisterDelegatorSignals(ctx, delegator, req.Signals, signalIDToIntervalDiff)
-	if err != nil {
-		return nil, err
-	}
-
-	// update interval timestamp for interval-changed signal ids
-	ms.UpdateFeedIntervalTimestamp(ctx, signalIDToIntervalDiff)
-
-	// delete feed that has zero power
-	for _, signal := range prevSignals {
-		feed, err := ms.GetFeed(ctx, signal.ID)
+	for _, signalID := range keys {
+		powerDiff := signalIDToPowerDiff[signalID]
+		feed, err := ms.GetFeed(ctx, signalID)
 		if err != nil {
-			// if feed is not existed, no need to delete
-			continue
+			feed = types.Feed{
+				SignalID:                    signalID,
+				Power:                       0,
+				Interval:                    0,
+				LastIntervalUpdateTimestamp: ctx.BlockTime().Unix(),
+			}
 		}
-		if feed.Power == 0 {
-			ms.DeleteFeed(ctx, feed.SignalID)
-			ms.DeleteFeedByPowerIndex(ctx, feed)
-		}
-	}
+		feed.Power += powerDiff
 
-	// emit events for the signaling operation.
-	for _, signal := range req.Signals {
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeSubmitSignals,
-				sdk.NewAttribute(types.AttributeKeyDelegator, delegator.String()),
-				sdk.NewAttribute(types.AttributeKeySignalID, signal.ID),
-				sdk.NewAttribute(types.AttributeKeyPower, fmt.Sprintf("%d", signal.Power)),
-				sdk.NewAttribute(types.AttributeKeyTimestamp, fmt.Sprintf("%d", ctx.BlockTime().Unix())),
-			),
-		)
+		if feed.Power < 0 {
+			return nil, types.ErrPowerNegative
+		}
+
+		feed.Interval, feed.DeviationInThousandth = calculateIntervalAndDeviation(feed.Power, ms.GetParams(ctx))
+		ms.SetFeed(ctx, feed)
 	}
 
 	return &types.MsgSubmitSignalsResponse{}, nil
 }
 
+// SubmitPrices register new validator-prices.
 func (ms msgServer) SubmitPrices(
 	goCtx context.Context,
 	req *types.MsgSubmitPrices,
@@ -93,13 +84,13 @@ func (ms msgServer) SubmitPrices(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	blockTime := ctx.BlockTime().Unix()
 
-	// check if it's in top bonded validators.
-	err := ms.ValidateSubmitPricesRequest(ctx, blockTime, req)
+	val, err := sdk.ValAddressFromBech32(req.Validator)
 	if err != nil {
 		return nil, err
 	}
 
-	val, err := sdk.ValAddressFromBech32(req.Validator)
+	// check if it's in top bonded validators.
+	err = ms.ValidateSubmitPricesRequest(ctx, blockTime, req)
 	if err != nil {
 		return nil, err
 	}
@@ -132,6 +123,7 @@ func (ms msgServer) SubmitPrices(
 	return &types.MsgSubmitPricesResponse{}, nil
 }
 
+// UpdatePriceService updates price service.
 func (ms msgServer) UpdatePriceService(
 	goCtx context.Context,
 	req *types.MsgUpdatePriceService,
@@ -151,9 +143,19 @@ func (ms msgServer) UpdatePriceService(
 		return nil, err
 	}
 
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeUpdatePriceService,
+			sdk.NewAttribute(types.AttributeKeyHash, req.PriceService.Hash),
+			sdk.NewAttribute(types.AttributeKeyVersion, req.PriceService.Version),
+			sdk.NewAttribute(types.AttributeKeyURL, req.PriceService.Url),
+		),
+	)
+
 	return &types.MsgUpdatePriceServiceResponse{}, nil
 }
 
+// UpdateParams updates the feeds module params.
 func (ms msgServer) UpdateParams(
 	goCtx context.Context,
 	req *types.MsgUpdateParams,
@@ -171,6 +173,11 @@ func (ms msgServer) UpdateParams(
 	if err := ms.SetParams(ctx, req.Params); err != nil {
 		return nil, err
 	}
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeUpdateParams,
+		sdk.NewAttribute(types.AttributeKeyParams, req.Params.String()),
+	))
 
 	return &types.MsgUpdateParamsResponse{}, nil
 }

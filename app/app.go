@@ -531,6 +531,14 @@ func NewBandApp(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
+	app.FeedsKeeper = feedskeeper.NewKeeper(
+		appCodec,
+		keys[feedstypes.StoreKey],
+		app.OracleKeeper,
+		app.StakingKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
 	if emitterFlag != "" {
 		app.hooks = append(app.hooks, emitter.NewHook(
 			appCodec,
@@ -590,19 +598,23 @@ func NewBandApp(
 	}
 
 	// Add hook to app module for create Querier
-	oracleModule := oracle.NewAppModule(app.OracleKeeper, app.GetSubspace(oracletypes.ModuleName), app.hooks)
+	oracleModule := oracle.NewAppModule(
+		appCodec,
+		app.OracleKeeper,
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.StakingKeeper,
+		app.GetSubspace(oracletypes.ModuleName),
+		app.hooks,
+	)
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
 
-	app.FeedsKeeper = feedskeeper.NewKeeper(
-		appCodec,
-		keys[feedstypes.StoreKey],
-		app.OracleKeeper,
-		app.StakingKeeper,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-	)
-
 	app.StakingKeeper.SetHooks(
-		stakingtypes.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks(), app.FeedsKeeper.Hooks()),
+		stakingtypes.NewMultiStakingHooks(
+			app.DistrKeeper.Hooks(),
+			app.SlashingKeeper.Hooks(),
+			app.FeedsKeeper.Hooks(),
+		),
 	)
 
 	// Create static IBC router, add transfer route, then set and seal it
@@ -830,7 +842,7 @@ func NewBandApp(
 			},
 			AuthzKeeper:     &app.AuthzKeeper,
 			OracleKeeper:    &app.OracleKeeper,
-			Feedskeeper:     &app.FeedsKeeper,
+			FeedsKeeper:     &app.FeedsKeeper,
 			IBCKeeper:       app.IBCKeeper,
 			StakingKeeper:   app.StakingKeeper,
 			GlobalfeeKeeper: &app.GlobalfeeKeeper,

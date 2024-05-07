@@ -6,6 +6,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+// NewGenesisState creates new GenesisState
 func NewGenesisState(params Params, feeds []Feed, ps PriceService, ds []DelegatorSignals) *GenesisState {
 	return &GenesisState{
 		Params:           params,

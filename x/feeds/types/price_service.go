@@ -14,6 +14,7 @@ func DefaultPriceService() PriceService {
 	return NewPriceService("hash", "0.0.1", "https://")
 }
 
+// Validate validates the price service
 func (ps *PriceService) Validate() error {
 	if err := validateString("hash", false)(ps.Hash); err != nil {
 		return err

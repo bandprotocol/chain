@@ -26,28 +26,28 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Params is the data structure that keeps the parameters of the feeds module.
 type Params struct {
-	// The address of the admin that is allowed to perform operations on modules.
+	// Admin is the address of the admin that is allowed to perform operations on modules.
 	Admin string `protobuf:"bytes,1,opt,name=admin,proto3" json:"admin,omitempty"`
-	// allow_diff_time is the allowed difference (in seconds) between timestamp and block_time when validator submits the
+	// AllowDiffTime is the allowed difference (in seconds) between timestamp and block_time when validator submits the
 	// prices.
 	AllowDiffTime int64 `protobuf:"varint,2,opt,name=allow_diff_time,json=allowDiffTime,proto3" json:"allow_diff_time,omitempty"`
-	// transition_time is the time (in seconds) given for validators to adapt to changing in feed's interval.
+	// TransitionTime is the time (in seconds) given for validators to adapt to changing in feed's interval.
 	TransitionTime int64 `protobuf:"varint,3,opt,name=transition_time,json=transitionTime,proto3" json:"transition_time,omitempty"`
-	// min_interval is the minimum limit of every feeds' interval (in seconds).
+	// MinInterval is the minimum limit of every feeds' interval (in seconds).
 	// If the calculated interval is lower than this, it will be capped at this value.
 	MinInterval int64 `protobuf:"varint,4,opt,name=min_interval,json=minInterval,proto3" json:"min_interval,omitempty"`
-	// max_interval is the maximum limit of every feeds' interval (in seconds).
+	// MaxInterval is the maximum limit of every feeds' interval (in seconds).
 	// If the calculated interval of a feed is higher than this, it will not be recognized as a supported feed.
 	MaxInterval int64 `protobuf:"varint,5,opt,name=max_interval,json=maxInterval,proto3" json:"max_interval,omitempty"`
-	// power_threshold is the amount of minimum power required to put feed in the supported list.
+	// PowerThreshold is the amount of minimum power required to put feed in the supported list.
 	PowerThreshold int64 `protobuf:"varint,6,opt,name=power_threshold,json=powerThreshold,proto3" json:"power_threshold,omitempty"`
-	// max_support_feeds is the maximum number of feeds supported at a time.
+	// MaxSupportedFeeds is the maximum number of feeds supported at a time.
 	MaxSupportedFeeds int64 `protobuf:"varint,7,opt,name=max_supported_feeds,json=maxSupportedFeeds,proto3" json:"max_supported_feeds,omitempty"`
-	// cooldown_time represents the duration (in seconds) during which validators are prohibited from sending new prices.
+	// CooldownTime represents the duration (in seconds) during which validators are prohibited from sending new prices.
 	CooldownTime int64 `protobuf:"varint,8,opt,name=cooldown_time,json=cooldownTime,proto3" json:"cooldown_time,omitempty"`
-	// min_deviation_in_thousandth is the minimum limit of every feeds' deviation (in thousandth).
+	// MinDeviationInThousandth is the minimum limit of every feeds' deviation (in thousandth).
 	MinDeviationInThousandth int64 `protobuf:"varint,9,opt,name=min_deviation_in_thousandth,json=minDeviationInThousandth,proto3" json:"min_deviation_in_thousandth,omitempty"`
-	// max_deviation_in_thousandth is the maximum limit of every feeds' deviation (in thousandth).
+	// MaxDeviationInThousandth is the maximum limit of every feeds' deviation (in thousandth).
 	MaxDeviationInThousandth int64 `protobuf:"varint,10,opt,name=max_deviation_in_thousandth,json=maxDeviationInThousandth,proto3" json:"max_deviation_in_thousandth,omitempty"`
 }
 

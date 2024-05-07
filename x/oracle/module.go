@@ -11,6 +11,7 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
@@ -19,6 +20,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/oracle/client/cli"
 	"github.com/bandprotocol/chain/v2/x/oracle/exported"
 	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	"github.com/bandprotocol/chain/v2/x/oracle/simulation"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -26,13 +28,16 @@ import (
 const ConsensusVersion = 2
 
 var (
-	_ module.AppModule      = AppModule{}
-	_ module.AppModuleBasic = AppModuleBasic{}
-	_ porttypes.IBCModule   = IBCModule{}
+	_ module.AppModule           = AppModule{}
+	_ module.AppModuleBasic      = AppModuleBasic{}
+	_ module.AppModuleSimulation = AppModule{}
+	_ porttypes.IBCModule        = IBCModule{}
 )
 
 // AppModuleBasic is Band Oracle's module basic object.
-type AppModuleBasic struct{}
+type AppModuleBasic struct {
+	cdc codec.Codec
+}
 
 // Name returns this module's name - "oracle" (SDK AppModuleBasic interface).
 func (AppModuleBasic) Name() string {
@@ -88,12 +93,29 @@ type AppModule struct {
 	// legacySubspace is used solely for migration of x/params managed parameters
 	legacySubspace exported.Subspace
 	hook           common.Hook
+
+	// for simulation
+	accountKeeper types.AccountKeeper
+	bankKeeper    simulation.BankKeeper
+	stakingKeeper types.StakingKeeper
 }
 
 // NewAppModule creates a new AppModule object.
-func NewAppModule(k keeper.Keeper, ss exported.Subspace, h common.Hook) AppModule {
+func NewAppModule(
+	cdc codec.Codec,
+	k keeper.Keeper,
+	ak types.AccountKeeper,
+	bk simulation.BankKeeper,
+	sk types.StakingKeeper,
+	ss exported.Subspace,
+	h common.Hook,
+) AppModule {
 	return AppModule{
+		AppModuleBasic: AppModuleBasic{cdc: cdc},
 		keeper:         k,
+		accountKeeper:  ak,
+		bankKeeper:     bk,
+		stakingKeeper:  sk,
 		legacySubspace: ss,
 		hook:           h,
 	}
@@ -140,4 +162,23 @@ func (am AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {
 func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	handleEndBlock(ctx, am.keeper)
 	return []abci.ValidatorUpdate{}
+}
+
+// AppModuleSimulation functions
+
+// GenerateGenesisState creates a randomized GenState of the feegrant module.
+func (AppModule) GenerateGenesisState(simState *module.SimulationState) {
+	simulation.RandomizedGenState(simState)
+}
+
+// RegisterStoreDecoder registers a decoder for feegrant module's types
+func (am AppModule) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {
+	sdr[types.StoreKey] = simulation.NewDecodeStore(am.cdc)
+}
+
+// WeightedOperations returns all the oracle module operations with their respective weights.
+func (am AppModule) WeightedOperations(simState module.SimulationState) []simtypes.WeightedOperation {
+	return simulation.WeightedOperations(
+		simState.AppParams, simState.Cdc, am.accountKeeper, am.bankKeeper, am.stakingKeeper, am.keeper,
+	)
 }

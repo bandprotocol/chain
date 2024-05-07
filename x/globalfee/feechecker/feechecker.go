@@ -21,7 +21,7 @@ type FeeChecker struct {
 	OracleKeeper    *oraclekeeper.Keeper
 	GlobalfeeKeeper *keeper.Keeper
 	StakingKeeper   *stakingkeeper.Keeper
-	Feedskeeper     *feedskeeper.Keeper
+	FeedsKeeper     *feedskeeper.Keeper
 
 	FeedsMsgServer feedstypes.MsgServer
 }
@@ -40,7 +40,7 @@ func NewFeeChecker(
 		OracleKeeper:    oracleKeeper,
 		GlobalfeeKeeper: globalfeeKeeper,
 		StakingKeeper:   stakingKeeper,
-		Feedskeeper:     feedsKeeper,
+		FeedsKeeper:     feedsKeeper,
 		FeedsMsgServer:  feedsMsgServer,
 	}
 }
