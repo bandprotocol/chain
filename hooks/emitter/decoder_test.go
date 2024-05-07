@@ -935,6 +935,20 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitSignals() {
 	)
 }
 
+func (suite *DecoderTestSuite) TestDecodeMsgUpdatePriceService() {
+	detail := make(common.JsDict)
+
+	msg := feedstypes.MsgUpdatePriceService{
+		PriceService: feedstypes.NewPriceService("testhash", "1.0.0", "http://example.com"),
+	}
+
+	emitter.DecodeMsgUpdatePriceService(&msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"hash\":\"testhash\",\"url\":\"http://example.com\",\"version\":\"1.0.0\"}",
+	)
+}
+
 func TestDecoderTestSuite(t *testing.T) {
 	suite.Run(t, new(DecoderTestSuite))
 }

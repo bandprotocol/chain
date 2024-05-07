@@ -43,3 +43,12 @@ prices = sa.Table(
     Column("price", sa.BigInteger),
     Column("timestamp", CustomDateTime),
 )
+
+price_services = sa.Table(
+    "price_services",
+    metadata,
+    Column("hash", sa.String),
+    Column("version", sa.String),
+    Column("url", sa.String),
+    Column("timestamp", CustomDateTime),
+)

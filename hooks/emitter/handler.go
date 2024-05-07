@@ -123,6 +123,8 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 		h.handleMsgSubmitSignals(ctx, msg, evMap)
 	case *feedstypes.MsgSubmitPrices:
 		h.handleMsgSubmitPrices(ctx, msg)
+	case *feedstypes.MsgUpdatePriceService:
+		h.handleMsgUpdatePriceService(ctx, msg)
 	default:
 		break
 	}

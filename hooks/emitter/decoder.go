@@ -129,6 +129,8 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeMsgSubmitPrices(msg, detail)
 	case *feedstypes.MsgSubmitSignals:
 		DecodeMsgSubmitSignals(msg, detail)
+	case *feedstypes.MsgUpdatePriceService:
+		DecodeMsgUpdatePriceService(msg, detail)
 	default:
 		break
 	}
@@ -633,4 +635,10 @@ func DecodeMsgSubmitPrices(msg *feedstypes.MsgSubmitPrices, detail common.JsDict
 func DecodeMsgSubmitSignals(msg *feedstypes.MsgSubmitSignals, detail common.JsDict) {
 	detail["delegator"] = msg.GetDelegator()
 	detail["signals"] = msg.GetSignals()
+}
+
+func DecodeMsgUpdatePriceService(msg *feedstypes.MsgUpdatePriceService, detail common.JsDict) {
+	detail["hash"] = msg.GetPriceService().Hash
+	detail["version"] = msg.GetPriceService().Version
+	detail["url"] = msg.GetPriceService().Url
 }

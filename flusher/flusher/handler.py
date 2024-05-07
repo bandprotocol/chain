@@ -610,3 +610,8 @@ class Handler(object):
         self.conn.execute(
             prices.delete().where(prices.c.signal_id == msg["signal_id"])
         )  
+    
+    def handle_set_price_service(self, msg):
+        self.conn.execute(
+            insert(price_services).values(**msg)
+        )

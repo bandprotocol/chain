@@ -84,16 +84,25 @@ func (h *Hook) emitSetPrice(price types.Price) {
 	})
 }
 
+func (h *Hook) emitSetPriceService(ctx sdk.Context, priceService types.PriceService) {
+	h.Write("SET_PRICE_SERVICE", common.JsDict{
+		"hash":      priceService.Hash,
+		"version":   priceService.Version,
+		"url":       priceService.Url,
+		"timestamp": ctx.BlockTime().UnixNano(),
+	})
+}
+
 // handleMsgSubmitSignals implements emitter handler for MsgSubmitSignals.
 func (h *Hook) handleMsgSubmitSignals(
 	ctx sdk.Context, msg *types.MsgSubmitSignals, evMap common.EvMap,
 ) {
 	h.emitRemoveDelegatorSignals(msg.Delegator)
 	var involvedSignalIDs []string
-	if signal_ids, ok := evMap[types.EventTypeSubmitSignals+"."+types.AttributeKeySignalID]; ok {
+	if signal_ids, ok := evMap[types.EventTypeSubmitSignal+"."+types.AttributeKeySignalID]; ok {
 		involvedSignalIDs = append(involvedSignalIDs, signal_ids...)
 	}
-	if signal_ids, ok := evMap[types.EventTypeRemoveSignals+"."+types.AttributeKeySignalID]; ok {
+	if signal_ids, ok := evMap[types.EventTypeRemoveSignal+"."+types.AttributeKeySignalID]; ok {
 		involvedSignalIDs = append(involvedSignalIDs, signal_ids...)
 	}
 
@@ -120,7 +129,7 @@ func (h *Hook) handleMsgSubmitPrices(
 	}
 }
 
-// handleMsgSubmitPrices implements emitter handler for MsgSubmitPrices.
+// handleEventUpdatePrice implements emitter handler for event UpdatePrice.
 func (h *Hook) handleEventUpdatePrice(
 	ctx sdk.Context, evMap common.EvMap,
 ) {
@@ -133,4 +142,11 @@ func (h *Hook) handleEventUpdatePrice(
 			h.emitSetPrice(price)
 		}
 	}
+}
+
+// handleMsgUpdatePriceService implements emitter handler for MsgUpdatePriceService.
+func (h *Hook) handleMsgUpdatePriceService(
+	ctx sdk.Context, msg *types.MsgUpdatePriceService,
+) {
+	h.emitSetPriceService(ctx, msg.PriceService)
 }
