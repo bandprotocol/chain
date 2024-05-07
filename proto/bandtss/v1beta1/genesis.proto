@@ -1,0 +1,57 @@
+syntax = "proto3";
+package bandtss.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
+import "bandtss/v1beta1/bandtss.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos_proto/cosmos.proto";
+
+option go_package = "github.com/bandprotocol/chain/v2/x/bandtss/types";
+
+// GenesisState defines the bandtss module's genesis state.
+message GenesisState {
+  // params defines all the paramiters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+  // members is an array containing member information.
+  repeated Member members = 2 [(gogoproto.nullable) = false];
+  // current_group_id is the current group id of the module.
+  uint64 current_group_id = 3 [
+    (gogoproto.customname) = "CurrentGroupID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
+  // signing_count is the number of signings.
+  uint64 signing_count = 4;
+  // signings is the bandtss signing info.
+  repeated Signing signings = 5 [(gogoproto.nullable) = false];
+  // signing_request_mappings is the list of mapping between tss signing id and bandtss signing id.
+  repeated SigningIDMappingGenesis signing_id_mappings = 6
+      [(gogoproto.nullable) = false, (gogoproto.customname) = "SigningIDMappings"];
+  // replacement is the replacement information of the current group and new group.
+  Replacement replacement = 7 [(gogoproto.nullable) = false];
+}
+
+// Params defines the set of module parameters.
+message Params {
+  // active_duration is the duration where a member can be active without interaction.
+  google.protobuf.Duration active_duration = 1 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  // reward_percentage is the percentage of block rewards allocated to active TSS validators after being allocated to
+  // oracle rewards.
+  uint64 reward_percentage = 2 [(gogoproto.customname) = "RewardPercentage"];
+  // inactive_penalty_duration is the duration where a member cannot activate back after inactive.
+  google.protobuf.Duration inactive_penalty_duration = 3 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  // fee is the tokens that will be paid per signing.
+  repeated cosmos.base.v1beta1.Coin fee = 4
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+}
+
+// SigningIDMappingGenesis defines the genesis state for the signingIDMapping.
+message SigningIDMappingGenesis {
+  // signing_id is the tss signing id.
+  uint64 signing_id = 1 [
+    (gogoproto.customname) = "SigningID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+  ];
+  // bandtss_signing_id is the signing id being referred in bandtss module.
+  uint64 bandtss_signing_id = 2 [(gogoproto.customname) = "BandtssSigningID", (gogoproto.casttype) = "SigningID"];
+}

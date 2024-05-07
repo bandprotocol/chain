@@ -22,55 +22,10 @@ message Group {
   bytes pub_key = 4 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // status represents the current stage of the group in the DKG or signing process.
   GroupStatus status = 5;
-  // fee is the tokens that will be paid per signing.
-  repeated cosmos.base.v1beta1.Coin fee = 6
-      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
-  // latest_replacement_id is the latest replacement ID of the group.
-  uint64 latest_replacement_id = 7 [(gogoproto.customname) = "LatestReplacementID"];
   // created_height is the block height when the group was created.
-  uint64 created_height = 8;
-}
-
-// Replacement represents a group that will replaced with another group in the replacement process.
-message Replacement {
-  // id is the unique identifier of the replacement.
-  uint64 id = 1 [(gogoproto.customname) = "ID"];
-  // signing_id is the unique identifier of the signing process.
-  uint64 signing_id = 2 [
-    (gogoproto.customname) = "SigningID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
-  ];
-  // current_group_id is the ID of the group that will be replaced.
-  uint64 current_group_id = 3 [
-    (gogoproto.customname) = "CurrentGroupID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
-  ];
-  // current_pub_key is the public key pair that used for sign & verify replace group msg.
-  bytes current_pub_key = 4 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
-  // new_group_id is the ID of the new group that be a new key candidate.
-  uint64 new_group_id = 5
-      [(gogoproto.customname) = "NewGroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
-  // new_pub_key is the public key of the group that will be the next key of this group
-  bytes new_pub_key = 6 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
-  // status is an enumeration of the possible statuses of a group replacement process.
-  ReplacementStatus status = 7;
-  // exec_time is the time that will be substituted in place of the group.
-  google.protobuf.Timestamp exec_time = 8 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
-}
-
-// ReplacementStatus is an enumeration of the possible statuses of a group replacement process.
-enum ReplacementStatus {
-  option (gogoproto.goproto_enum_prefix) = false;
-
-  // REPLACEMENT_STATUS_UNSPECIFIED is the status of a group replacement that has not been specified.
-  REPLACEMENT_STATUS_UNSPECIFIED = 0;
-  // REPLACEMENT_STATUS_WAITING is the status of a group replacement that is waiting to be replaced in the
-  // protocol.
-  REPLACEMENT_STATUS_WAITING = 1;
-  // REPLACEMENT_STATUS_SUCCESS is the status of a group replacement that has success in the protocol.
-  REPLACEMENT_STATUS_SUCCESS = 2;
-  // REPLACEMENT_STATUS_FALLEN is the status of a group replacement that has fallen out of the protocol.
-  REPLACEMENT_STATUS_FALLEN = 3;
+  uint64 created_height = 6;
+  // module_owner is the module that creates this group.
+  string module_owner = 7;
 }
 
 // Round1Info contains all necessary information for handling round 1 of the DKG process.
@@ -135,15 +90,10 @@ message Signing {
   bytes group_pub_nonce = 6 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // signature is the group's signature on the message.
   bytes signature = 7 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"];
-  // fee is the total tokens that will be paid for this signing
-  repeated cosmos.base.v1beta1.Coin fee = 8
-      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
   // status represents the current stage of the signing in the signing process.
-  SigningStatus status = 9;
+  SigningStatus status = 8;
   // created_height is the block height when the signing was created.
-  uint64 created_height = 10;
-  // requester is the address of requester who paid for the TSS fee.
-  string requester = 11;
+  uint64 created_height = 9;
 }
 
 // AssignedMember is a type representing a member that has been assigned to a signing process.
@@ -201,35 +151,8 @@ message Member {
   bytes pub_key = 4 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // is_malicious is a boolean flag indicating whether the member is considered malicious.
   bool is_malicious = 5;
-}
-
-// MemberStatus is an enumeration of the possible statuses of a member.
-enum MemberStatus {
-  option (gogoproto.goproto_enum_prefix) = false;
-
-  // MEMBER_STATUS_UNSPECIFIED is unknown status.
-  MEMBER_STATUS_UNSPECIFIED = 0;
-  // MEMBER_STATUS_ACTIVE is the active status.
-  MEMBER_STATUS_ACTIVE = 1;
-  // MEMBER_STATUS_PAUSED is the paused status.
-  MEMBER_STATUS_PAUSED = 2;
-  // MEMBER_STATUS_INACTIVE is the inactive status.
-  MEMBER_STATUS_INACTIVE = 3;
-  // MEMBER_STATUS_JAIL is the status when member is jailed.
-  MEMBER_STATUS_JAIL = 4;
-}
-
-// Status maintains whether a member is an active member.
-message Status {
-  option (gogoproto.equal) = true;
-  // address is the address of the member.
-  string address = 1;
-  // status represents the current status of the member
-  MemberStatus status = 2;
-  // since is a block timestamp when a member has been activated/deactivated/jailed
-  google.protobuf.Timestamp since = 3 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
-  // last_active is a latest block timestamp when a member is active
-  google.protobuf.Timestamp last_active = 4 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+  // is_active is a boolean flag indicating whether the member is currently active in the protocol.
+  bool is_active = 6;
 }
 
 // GroupStatus is an enumeration of the possible statuses of a group.
@@ -355,4 +278,14 @@ enum PrefixMsgType {
   PREFIX_MSG_TYPE_REPLACE_GROUP = 2;
   // PREFIX_MSG_TYPE_ORACLE is the type of prefix that signs an oracle result msg in the protocol.
   PREFIX_MSG_TYPE_ORACLE = 3;
+}
+
+// SigningResult is a tss signing result from querying tss signing information.
+message SigningResult {
+  // signing is the tss signing result.
+  Signing signing = 1 [(gogoproto.nullable) = false];
+  // evm_signature is the signature in the format that can use directly in EVM.
+  EVMSignature evm_signature = 2 [(gogoproto.customname) = "EVMSignature"];
+  // received_partial_signatures is a list of received partial signatures.
+  repeated PartialSignature received_partial_signatures = 3 [(gogoproto.nullable) = false];
 }

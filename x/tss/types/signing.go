@@ -1,8 +1,6 @@
 package types
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 )
 
@@ -14,9 +12,7 @@ func NewSigning(
 	msg []byte,
 	groupPubNonce tss.Point,
 	signature tss.Signature,
-	fee sdk.Coins,
 	status SigningStatus,
-	requester string,
 ) Signing {
 	return Signing{
 		GroupID:         gid,
@@ -25,8 +21,11 @@ func NewSigning(
 		Message:         msg,
 		GroupPubNonce:   groupPubNonce,
 		Signature:       signature,
-		Fee:             fee,
 		Status:          status,
-		Requester:       requester,
 	}
+}
+
+// IsFailed check whether the signing is failed due to expired or fail within the execution.
+func (s Signing) IsFailed() bool {
+	return s.Status == SIGNING_STATUS_EXPIRED || s.Status == SIGNING_STATUS_FALLEN
 }

@@ -26,8 +26,8 @@ import (
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/hooks/emitter"
-	ibctesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
+	"github.com/bandprotocol/chain/v2/testing/ibctesting"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -190,9 +190,9 @@ func (suite *DecoderTestSuite) TestDecodeMsgRequestData() {
 		1,
 		1,
 		"cleint_id",
-		testapp.Coins100000000uband,
-		testapp.TestDefaultPrepareGas,
-		testapp.TestDefaultExecuteGas,
+		bandtesting.Coins100000000uband,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
 		SenderAddress,
 		0,
 		0,
@@ -232,7 +232,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgCreateDataSource() {
 		"name",
 		"desc",
 		[]byte("exec"),
-		testapp.Coins1000000uband,
+		bandtesting.Coins1000000uband,
 		TreasuryAddress,
 		OwnerAddress,
 		SenderAddress,
@@ -269,7 +269,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgEditDataSource() {
 		"name",
 		"desc",
 		[]byte("exec"),
-		testapp.Coins1000000uband,
+		bandtesting.Coins1000000uband,
 		TreasuryAddress,
 		OwnerAddress,
 		SenderAddress,
@@ -338,7 +338,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgCreateClient() {
 
 func (suite *DecoderTestSuite) TestDecodeV1beta1MsgSubmitProposal() {
 	detail := make(common.JsDict)
-	msg, _ := govv1beta1.NewMsgSubmitProposal(content, testapp.Coins1000000uband, SenderAddress)
+	msg, _ := govv1beta1.NewMsgSubmitProposal(content, bandtesting.Coins1000000uband, SenderAddress)
 	emitter.DecodeV1beta1MsgSubmitProposal(msg, detail)
 	suite.testCompareJson(
 		detail,
@@ -350,7 +350,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitProposal() {
 	detail := make(common.JsDict)
 	msg, _ := govv1.NewMsgSubmitProposal(
 		[]sdk.Msg{proposalMsg},
-		testapp.Coins1000000uband,
+		bandtesting.Coins1000000uband,
 		SenderAddress.String(),
 		"metadata",
 		"title",
@@ -365,7 +365,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitProposal() {
 
 func (suite *DecoderTestSuite) TestDecodeV1beta1MsgDeposit() {
 	detail := make(common.JsDict)
-	msg := govv1beta1.NewMsgDeposit(SenderAddress, 1, testapp.Coins1000000uband)
+	msg := govv1beta1.NewMsgDeposit(SenderAddress, 1, bandtesting.Coins1000000uband)
 	emitter.DecodeV1beta1MsgDeposit(msg, detail)
 	suite.testCompareJson(
 		detail,
@@ -375,7 +375,7 @@ func (suite *DecoderTestSuite) TestDecodeV1beta1MsgDeposit() {
 
 func (suite *DecoderTestSuite) TestDecodeMsgDeposit() {
 	detail := make(common.JsDict)
-	msg := govv1.NewMsgDeposit(SenderAddress, 1, testapp.Coins1000000uband)
+	msg := govv1.NewMsgDeposit(SenderAddress, 1, bandtesting.Coins1000000uband)
 	emitter.DecodeMsgDeposit(msg, detail)
 	suite.testCompareJson(
 		detail,

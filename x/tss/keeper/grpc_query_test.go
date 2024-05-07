@@ -10,6 +10,8 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
+	bandtsskeeper "github.com/bandprotocol/chain/v2/x/bandtss/keeper"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
@@ -20,11 +22,11 @@ func (s *KeeperTestSuite) TestGRPCQueryCounts() {
 	s.Require().Nil(err)
 	s.Require().Equal(k.GetGroupCount(ctx), res.GroupCount)
 	s.Require().Equal(k.GetSigningCount(ctx), res.SigningCount)
-	s.Require().Equal(k.GetReplacementCount(ctx), res.ReplacementCount)
 }
 
 func (s *KeeperTestSuite) TestGRPCQueryGroup() {
-	ctx, msgSrvr, q, k := s.ctx, s.msgSrvr, s.queryClient, s.app.TSSKeeper
+	ctx, q, k, bandtssKeeper := s.ctx, s.queryClient, s.app.TSSKeeper, s.app.BandtssKeeper
+	bandtssMsgSrvr := bandtsskeeper.NewMsgServerImpl(s.app.BandtssKeeper)
 	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
 
 	members := []string{
@@ -37,10 +39,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 
 	for _, m := range members {
 		address := sdk.MustAccAddressFromBech32(m)
-		err := k.SetActiveStatus(ctx, sdk.MustAccAddressFromBech32(m))
-		s.Require().NoError(err)
-
-		err = k.HandleSetDEs(ctx, address, []types.DE{
+		err := k.HandleSetDEs(ctx, address, []types.DE{
 			{
 				PubD: testutil.HexDecode("dddd"),
 				PubE: testutil.HexDecode("eeee"),
@@ -122,7 +121,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		OwnPubKeySig: []byte("own_pub_key_sig"),
 	}
 
-	_, err := msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
+	_, err := bandtssMsgSrvr.CreateGroup(ctx, &bandtsstypes.MsgCreateGroup{
 		Members:   members,
 		Threshold: 3,
 		Authority: s.authority.String(),
@@ -144,6 +143,13 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	// Add confirms
 	k.AddConfirm(ctx, groupID, confirm1)
 	k.AddConfirm(ctx, groupID, confirm2)
+
+	bandtssKeeper.SetCurrentGroupID(ctx, groupID)
+	for _, m := range members {
+		address := sdk.MustAccAddressFromBech32(m)
+		err := bandtssKeeper.AddNewMember(ctx, address)
+		s.Require().NoError(err)
+	}
 
 	var req types.QueryGroupRequest
 	testCases := []struct {
@@ -173,13 +179,48 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 			func(res *types.QueryGroupResponse) {
 				dkgContextB, _ := hex.DecodeString("6c31fc15422ebad28aaf9089c306702f67540b53c7eea8b7d2941044b027100f")
 
+				expectedMembers := []bandtsstypes.Member{
+					{
+						Address:  "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+						IsActive: true,
+						Since:    ctx.BlockTime(),
+					},
+					{
+						Address:  "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
+						IsActive: true,
+						Since:    ctx.BlockTime(),
+					},
+					{
+						Address:  "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+						IsActive: true,
+						Since:    ctx.BlockTime(),
+					},
+					{
+						Address:  "band1s3k4330ps8gj3dkw8x77ug0qf50ff6vqdmwax9",
+						IsActive: true,
+						Since:    ctx.BlockTime(),
+					},
+					{
+						Address:  "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
+						IsActive: true,
+						Since:    ctx.BlockTime(),
+					},
+				}
+
+				for _, expectedMember := range expectedMembers {
+					member, err := bandtssKeeper.GetMember(ctx, sdk.MustAccAddressFromBech32(expectedMember.Address))
+					s.Require().NoError(err)
+					s.Require().Equal(member, expectedMember)
+				}
+
 				s.Require().Equal(&types.QueryGroupResponse{
 					Group: types.Group{
-						ID:        1,
-						Size_:     5,
-						Threshold: 3,
-						PubKey:    nil,
-						Status:    types.GROUP_STATUS_ROUND_1,
+						ID:          1,
+						Size_:       5,
+						Threshold:   3,
+						PubKey:      nil,
+						Status:      types.GROUP_STATUS_ROUND_1,
+						ModuleOwner: bandtsstypes.ModuleName,
 					},
 					DKGContext: dkgContextB,
 					Members: []types.Member{
@@ -189,6 +230,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 							Address:     "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
 							PubKey:      nil,
 							IsMalicious: false,
+							IsActive:    true,
 						},
 						{
 							ID:          2,
@@ -196,6 +238,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 							Address:     "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
 							PubKey:      nil,
 							IsMalicious: false,
+							IsActive:    true,
 						},
 						{
 							ID:          3,
@@ -203,6 +246,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 							Address:     "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
 							PubKey:      nil,
 							IsMalicious: false,
+							IsActive:    true,
 						},
 						{
 							ID:          4,
@@ -210,6 +254,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 							Address:     "band1s3k4330ps8gj3dkw8x77ug0qf50ff6vqdmwax9",
 							PubKey:      nil,
 							IsMalicious: false,
+							IsActive:    true,
 						},
 						{
 							ID:          5,
@@ -217,33 +262,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 							Address:     "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
 							PubKey:      nil,
 							IsMalicious: false,
-						},
-					},
-					Statuses: []types.Status{
-						{
-							Address: "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
-							Status:  types.MEMBER_STATUS_ACTIVE,
-							Since:   ctx.BlockTime(),
-						},
-						{
-							Address: "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
-							Status:  types.MEMBER_STATUS_ACTIVE,
-							Since:   ctx.BlockTime(),
-						},
-						{
-							Address: "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
-							Status:  types.MEMBER_STATUS_ACTIVE,
-							Since:   ctx.BlockTime(),
-						},
-						{
-							Address: "band1s3k4330ps8gj3dkw8x77ug0qf50ff6vqdmwax9",
-							Status:  types.MEMBER_STATUS_ACTIVE,
-							Since:   ctx.BlockTime(),
-						},
-						{
-							Address: "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
-							Status:  types.MEMBER_STATUS_ACTIVE,
-							Since:   ctx.BlockTime(),
+							IsActive:    true,
 						},
 					},
 					Round1Infos: []types.Round1Info{
@@ -565,118 +584,6 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingSignings() {
 	}
 }
 
-func (s *KeeperTestSuite) TestGRPCQueryReplacement() {
-	ctx, q, k := s.ctx, s.queryClient, s.app.TSSKeeper
-
-	now := time.Now().UTC()
-
-	// Create a replacement
-	replacement := types.Replacement{
-		ID:             1,
-		SigningID:      1,
-		CurrentGroupID: 1,
-		NewGroupID:     2,
-		CurrentPubKey:  []byte("test_pub_key"),
-		NewPubKey:      []byte("test_pub_key"),
-		Status:         types.REPLACEMENT_STATUS_WAITING,
-		ExecTime:       now,
-	}
-	k.SetReplacement(ctx, replacement)
-
-	var req types.QueryReplacementRequest
-	testCases := []struct {
-		msg      string
-		malleate func()
-		expPass  bool
-		postTest func(res *types.QueryReplacementResponse, err error)
-	}{
-		{
-			"success",
-			func() {
-				req = types.QueryReplacementRequest{
-					Id: replacement.ID,
-				}
-			},
-			true,
-			func(res *types.QueryReplacementResponse, err error) {
-				s.Require().NoError(err)
-				s.Require().NotNil(res)
-				s.Require().Equal(replacement, *res.Replacement)
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			tc.malleate()
-
-			res, err := q.Replacement(ctx, &req)
-			if tc.expPass {
-				s.Require().NoError(err)
-			} else {
-				s.Require().Error(err)
-			}
-
-			tc.postTest(res, err)
-		})
-	}
-}
-
-func (s *KeeperTestSuite) TestGRPCQueryReplacements() {
-	ctx, q, k := s.ctx, s.queryClient, s.app.TSSKeeper
-
-	// Create a replacement
-	replacement := types.Replacement{
-		ID:             1,
-		SigningID:      1,
-		CurrentGroupID: 1,
-		NewGroupID:     2,
-		CurrentPubKey:  []byte("test_pub_key"),
-		NewPubKey:      []byte("test_pub_key"),
-		Status:         types.REPLACEMENT_STATUS_WAITING,
-		ExecTime:       time.Now(),
-	}
-	k.SetReplacement(ctx, replacement)
-
-	var req types.QueryReplacementsRequest
-	testCases := []struct {
-		msg      string
-		malleate func()
-		expPass  bool
-		postTest func(res *types.QueryReplacementsResponse, err error)
-	}{
-		{
-			"success",
-			func() {
-				req = types.QueryReplacementsRequest{
-					Status: types.REPLACEMENT_STATUS_WAITING,
-				}
-			},
-			true,
-			func(res *types.QueryReplacementsResponse, err error) {
-				s.Require().NoError(err)
-				s.Require().NotNil(res)
-				s.Require().Len(res.Replacements, 1)
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			tc.malleate()
-
-			res, err := q.Replacements(ctx, &req)
-			if tc.expPass {
-				s.Require().NoError(err)
-			} else {
-				s.Require().Error(err)
-			}
-
-			tc.postTest(res, err)
-		})
-	}
-}
-
 func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 	ctx, q, k := s.ctx, s.queryClient, s.app.TSSKeeper
 	signingID, memberID, groupID := tss.SigningID(1), tss.MemberID(1), tss.GroupID(1)
@@ -737,9 +644,9 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 			true,
 			func(res *types.QuerySigningResponse, err error) {
 				s.Require().NoError(err)
-				s.Require().Equal(signing, res.Signing)
+				s.Require().Equal(signing, res.SigningResult.Signing)
 				s.Require().
-					Equal([]types.PartialSignature{{MemberID: memberID, Signature: sig}}, res.ReceivedPartialSignatures)
+					Equal([]types.PartialSignature{{MemberID: memberID, Signature: sig}}, res.SigningResult.ReceivedPartialSignatures)
 			},
 		},
 	}
@@ -749,46 +656,6 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 			tc.malleate()
 
 			res, err := q.Signing(ctx, &req)
-			if tc.expPass {
-				s.Require().NoError(err)
-			} else {
-				s.Require().Error(err)
-			}
-
-			tc.postTest(res, err)
-		})
-	}
-}
-
-func (s *KeeperTestSuite) TestGRPCQueryStatuses() {
-	ctx, q := s.ctx, s.queryClient
-
-	var req types.QueryStatusesRequest
-	testCases := []struct {
-		msg      string
-		malleate func()
-		expPass  bool
-		postTest func(res *types.QueryStatusesResponse, err error)
-	}{
-		{
-			"success",
-			func() {
-				req = types.QueryStatusesRequest{}
-			},
-			true,
-			func(res *types.QueryStatusesResponse, err error) {
-				s.Require().NoError(err)
-				s.Require().NotNil(res)
-				s.Require().Len(res.Statuses, 3)
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		s.Run(fmt.Sprintf("Case %s", tc.msg), func() {
-			tc.malleate()
-
-			res, err := q.Statuses(ctx, &req)
 			if tc.expPass {
 				s.Require().NoError(err)
 			} else {

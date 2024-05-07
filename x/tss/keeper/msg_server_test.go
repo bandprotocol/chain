@@ -2,16 +2,15 @@ package keeper_test
 
 import (
 	"fmt"
-	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
+	bandtsskeeper "github.com/bandprotocol/chain/v2/x/bandtss/keeper"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
@@ -20,221 +19,6 @@ type TestCase struct {
 	Malleate    func()
 	PostTest    func()
 	ExpectedErr error
-}
-
-func (s *KeeperTestSuite) TestCreateGroupReq() {
-	ctx, msgSrvr := s.ctx, s.msgSrvr
-
-	members := []string{
-		"band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
-		"band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
-		"band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
-		"band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
-	}
-
-	for _, m := range members {
-		_, err := msgSrvr.Activate(ctx, &types.MsgActivate{
-			Address: m,
-		})
-		s.Require().NoError(err)
-
-		_, err = msgSrvr.SubmitDEs(ctx, &types.MsgSubmitDEs{
-			DEs: []types.DE{
-				{
-					PubD: testutil.HexDecode("dddd"),
-					PubE: testutil.HexDecode("eeee"),
-				},
-			},
-			Address: m,
-		})
-		s.Require().NoError(err)
-	}
-
-	s.Run("create group", func() {
-		_, err := msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
-			Members:   members,
-			Threshold: 3,
-			Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
-			Authority: s.authority.String(),
-		})
-		s.Require().NoError(err)
-	})
-}
-
-func (s *KeeperTestSuite) TestFailedReplaceGroup() {
-	// Set up the test context and message server.
-	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
-
-	// Create an authority address.
-	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
-
-	// Define currentGroupID and newGroupID.
-	currentGroupID := tss.GroupID(1)
-	newGroupID := tss.GroupID(2)
-
-	// Create a replace group message.
-	var req types.MsgReplaceGroup
-
-	// Set up the test by creating an active group.
-	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
-	group := k.MustGetGroup(ctx, newGroupID)
-
-	// Define test cases.
-	tcs := []TestCase{
-		{
-			"failure due to incorrect authority",
-			func() {
-				req = types.MsgReplaceGroup{
-					Authority:      "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-					CurrentGroupID: currentGroupID,
-					NewGroupID:     newGroupID,
-					ExecTime:       time.Now().UTC(),
-				}
-			},
-			func() {
-			},
-			govtypes.ErrInvalidSigner,
-		},
-		{
-			"failure due to group is not active",
-			func() {
-				req = types.MsgReplaceGroup{
-					Authority:      authority.String(),
-					CurrentGroupID: currentGroupID,
-					NewGroupID:     newGroupID,
-					ExecTime:       time.Now().UTC(),
-				}
-				group.Status = types.GROUP_STATUS_FALLEN
-				k.SetGroup(ctx, group)
-			},
-			func() {
-				group.Status = types.GROUP_STATUS_ACTIVE
-				k.SetGroup(ctx, group)
-			},
-			types.ErrGroupIsNotActive,
-		},
-	}
-
-	// Loop through each test case.
-	for _, tc := range tcs {
-		s.Run(fmt.Sprintf("Case %s", tc.Msg), func() {
-			// Modify the request based on the test case.
-			tc.Malleate()
-
-			// Execute the ReplaceGroup method and check for expected errors.
-			_, err := msgSrvr.ReplaceGroup(ctx, &req)
-			s.Require().ErrorIs(tc.ExpectedErr, err)
-
-			// Perform post-test actions.
-			tc.PostTest()
-		})
-	}
-}
-
-func (s *KeeperTestSuite) TestSuccessReplaceGroup() {
-	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
-
-	currentGroupID, replacementID := tss.GroupID(1), uint64(1)
-
-	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
-
-	now := time.Now()
-
-	_, err := msgSrvr.ReplaceGroup(ctx, &types.MsgReplaceGroup{
-		CurrentGroupID: 1,
-		NewGroupID:     2,
-		ExecTime:       now,
-		Authority:      s.authority.String(),
-	})
-	s.Require().NoError(err)
-
-	replacement, err := k.GetReplacement(ctx, replacementID)
-	s.Require().NoError(err)
-
-	replacementIterator := k.ReplacementQueueIterator(ctx, now)
-	s.Require().True(replacementIterator.Valid())
-
-	gotReplacementID, _ := types.SplitReplacementQueueKey(replacementIterator.Key())
-	s.Require().Equal(replacement.ID, gotReplacementID)
-
-	replacementIterator.Close()
-
-	currentGroup := k.MustGetGroup(ctx, currentGroupID)
-	s.Require().Equal(gotReplacementID, currentGroup.LatestReplacementID)
-}
-
-func (s *KeeperTestSuite) TestFailedUpdateGroupFee() {
-	// Set up the test context and message server.
-	ctx, msgSrvr := s.ctx, s.msgSrvr
-
-	// Define GroupID
-	groupID := tss.GroupID(1)
-
-	// Create a update group fee message.
-	var req types.MsgUpdateGroupFee
-
-	// Define test cases.
-	tcs := []TestCase{
-		{
-			"failure due to incorrect authority",
-			func() {
-				req = types.MsgUpdateGroupFee{
-					GroupID:   groupID,
-					Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
-					Authority: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-				}
-			},
-			func() {
-			},
-			govtypes.ErrInvalidSigner,
-		},
-	}
-
-	// Loop through each test case.
-	for _, tc := range tcs {
-		s.Run(fmt.Sprintf("Case %s", tc.Msg), func() {
-			// Modify the request based on the test case.
-			tc.Malleate()
-
-			// Execute the UpdateGroupFee method and check for expected errors.
-			_, err := msgSrvr.UpdateGroupFee(ctx, &req)
-			s.Require().ErrorIs(tc.ExpectedErr, err)
-
-			// Perform post-test actions.
-			tc.PostTest()
-		})
-	}
-}
-
-func (s *KeeperTestSuite) TestSuccessUpdateGroupFee() {
-	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
-
-	// Define GroupID
-	groupID := tss.GroupID(1)
-
-	// Create an authority address.
-	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
-
-	// Define the group fee.
-	fee := sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
-
-	// Set up the test by creating an active group.
-	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
-
-	// Create the update group fee message.
-	msg := types.MsgUpdateGroupFee{
-		GroupID:   groupID,
-		Fee:       fee,
-		Authority: authority.String(),
-	}
-
-	// Execute the ReplaceGroup method.
-	_, err := msgSrvr.UpdateGroupFee(ctx, &msg)
-	s.Require().NoError(err)
-
-	// Check if the pending replace group matches the expected result.
-	got := k.MustGetGroup(ctx, groupID)
-	s.Require().Equal(fee, got.Fee)
 }
 
 func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
@@ -579,7 +363,7 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 							Signature:   signature,
 						},
 					},
-					Address: sdk.AccAddress(tc.Group.Members[0].PubKey()).String(),
+					Address: sdk.AccAddress(m.PubKey()).String(),
 				})
 				s.Require().NoError(err)
 			}
@@ -706,138 +490,6 @@ func (s *KeeperTestSuite) TestSuccessSubmitDEsReq() {
 	}
 }
 
-func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
-	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
-
-	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
-
-	var req *types.MsgRequestSignature
-	var err error
-
-	// Add failed case
-	tcs := []TestCase{
-		{
-			"failure with invalid groupID",
-			func() {
-				req, err = types.NewMsgRequestSignature(
-					tss.GroupID(999), // non-existent groupID
-					types.NewTextSignatureOrder([]byte("msg")),
-					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
-					testapp.FeePayer.Address,
-				)
-				s.Require().NoError(err)
-			},
-			func() {},
-			types.ErrGroupNotFound,
-		},
-		{
-			"failure with inactive group",
-			func() {
-				inactiveGroup := types.Group{
-					ID:        2,
-					Size_:     5,
-					Threshold: 3,
-					PubKey:    nil,
-					Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
-					Status:    types.GROUP_STATUS_FALLEN,
-				}
-				k.SetGroup(ctx, inactiveGroup)
-				req, err = types.NewMsgRequestSignature(
-					tss.GroupID(2), // inactive groupID
-					types.NewTextSignatureOrder([]byte("msg")),
-					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
-					testapp.FeePayer.Address,
-				)
-				s.Require().NoError(err)
-			},
-			func() {},
-			types.ErrGroupIsNotActive,
-		},
-		{
-			"failure with not enough fee",
-			func() {
-				req, err = types.NewMsgRequestSignature(
-					tss.GroupID(1),
-					types.NewTextSignatureOrder([]byte("msg")),
-					sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
-					testapp.FeePayer.Address,
-				)
-			},
-			func() {},
-			types.ErrNotEnoughFee,
-		},
-	}
-
-	for _, tc := range tcs {
-		s.Run(fmt.Sprintf("Case %s", tc.Msg), func() {
-			tc.Malleate()
-
-			balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
-			balancesModuleBefore := s.app.BankKeeper.GetAllBalances(
-				ctx,
-				s.app.TSSKeeper.GetTSSAccount(ctx).GetAddress(),
-			)
-
-			_, err := msgSrvr.RequestSignature(ctx, req)
-			s.Require().ErrorIs(tc.ExpectedErr, err)
-
-			balancesAfter := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
-			balancesModuleAfter := s.app.BankKeeper.GetAllBalances(
-				ctx,
-				s.app.TSSKeeper.GetTSSAccount(ctx).GetAddress(),
-			)
-
-			// Check if the balances of payer and module account doesn't change
-			s.Require().Equal(balancesAfter, balancesBefore)
-			s.Require().Equal(balancesModuleAfter, balancesModuleBefore)
-
-			tc.PostTest()
-		})
-	}
-}
-
-func (s *KeeperTestSuite) TestSuccessRequestSignatureReq() {
-	ctx, msgSrvr := s.ctx, s.msgSrvr
-
-	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
-
-	// Iterate through test cases from testutil
-	for _, tc := range testutil.TestCases {
-		// Request signature for each member in the group
-		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
-			for _, signing := range tc.Signings {
-				balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
-				balancesModuleBefore := s.app.BankKeeper.GetAllBalances(
-					ctx,
-					s.app.TSSKeeper.GetTSSAccount(ctx).GetAddress(),
-				)
-
-				msg, err := types.NewMsgRequestSignature(
-					tc.Group.ID,
-					types.NewTextSignatureOrder(signing.Data),
-					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
-					testapp.FeePayer.Address,
-				)
-				s.Require().NoError(err)
-
-				_, err = msgSrvr.RequestSignature(ctx, msg)
-				s.Require().NoError(err)
-
-				// Fee should be paid after requesting signature
-				balancesAfter := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
-				balancesModuleAfter := s.app.BankKeeper.GetAllBalances(
-					ctx,
-					s.app.TSSKeeper.GetTSSAccount(ctx).GetAddress(),
-				)
-
-				diff := sdk.NewCoins(sdk.NewInt64Coin("uband", int64(10*len(signing.AssignedMembers))))
-				s.Require().Equal(diff, balancesBefore.Sub(balancesAfter...))
-				s.Require().Equal(diff, balancesModuleAfter.Sub(balancesModuleBefore...))
-			}
-		})
-	}
-}
-
 func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
 
@@ -902,22 +554,28 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 
 func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
+	bandtssMsgSrvr := bandtsskeeper.NewMsgServerImpl(s.app.BandtssKeeper)
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
 	// Iterate through test cases from testutil
 	for i, tc := range testutil.TestCases {
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
+			s.app.BandtssKeeper.SetCurrentGroupID(ctx, tc.Group.ID)
+
 			// Request signature for the first member in the group
-			msg, err := types.NewMsgRequestSignature(
-				tc.Group.ID,
+			msg, err := bandtsstypes.NewMsgRequestSignature(
 				types.NewTextSignatureOrder([]byte("msg")),
 				sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
-				testapp.FeePayer.Address,
+				bandtesting.FeePayer.Address,
 			)
 			s.Require().NoError(err)
-			_, err = msgSrvr.RequestSignature(ctx, msg)
+			_, err = bandtssMsgSrvr.RequestSignature(ctx, msg)
+			s.T().Log(err)
 			s.Require().NoError(err)
+
+			bandtssSigningID := bandtsstypes.SigningID(app.BandtssKeeper.GetSigningCount(ctx))
+			s.Require().NotZero(bandtssSigningID)
 
 			// Get the signing information
 			signing, err := k.GetSigning(ctx, tss.SigningID(i+1))
@@ -971,53 +629,22 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			// Execute the EndBlocker to process signings
 			app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
 
+			req, err := s.app.BandtssKeeper.GetSigning(ctx, bandtssSigningID)
+			s.Require().NoError(err)
+
 			// Each assigned member should receive fee for the signature
 			for i, am := range signing.AssignedMembers {
 				balancesAfter := s.app.BankKeeper.GetAllBalances(
 					ctx,
 					sdk.AccAddress(tc.Group.GetMember(am.MemberID).PubKey()),
 				)
-				s.Require().Equal(signing.Fee, balancesAfter.Sub(balancesBefores[i]...))
+				s.Require().Equal(req.Fee, balancesAfter.Sub(balancesBefores[i]...))
 			}
 
 			// Retrieve the signing information after signing
 			signing, err = k.GetSigning(ctx, tss.SigningID(i+1))
 			s.Require().NoError(err)
 			s.Require().NotNil(signing.Signature)
-		})
-	}
-}
-
-func (s *KeeperTestSuite) TestActivateReq() {
-	ctx, msgSrvr := s.ctx, s.msgSrvr
-	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
-
-	// Iterate through test cases from testutil
-	for _, tc := range testutil.TestCases {
-		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
-			for _, m := range tc.Group.Members {
-				_, err := msgSrvr.Activate(ctx, &types.MsgActivate{
-					Address: sdk.AccAddress(m.PubKey()).String(),
-				})
-				s.Require().NoError(err)
-			}
-		})
-	}
-}
-
-func (s *KeeperTestSuite) TestHealthCheckReq() {
-	ctx, msgSrvr := s.ctx, s.msgSrvr
-	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
-
-	// Iterate through test cases from testutil
-	for _, tc := range testutil.TestCases {
-		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
-			for _, m := range tc.Group.Members {
-				_, err := msgSrvr.HealthCheck(ctx, &types.MsgHealthCheck{
-					Address: sdk.AccAddress(m.PubKey()).String(),
-				})
-				s.Require().NoError(err)
-			}
 		})
 	}
 }
@@ -1044,14 +671,10 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 			request: &types.MsgUpdateParams{
 				Authority: k.GetAuthority(),
 				Params: types.Params{
-					MaxGroupSize:            types.DefaultMaxGroupSize,
-					MaxDESize:               types.DefaultMaxDESize,
-					CreatingPeriod:          types.DefaultCreatingPeriod,
-					SigningPeriod:           types.DefaultSigningPeriod,
-					ActiveDuration:          types.DefaultActiveDuration,
-					InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
-					JailPenaltyDuration:     types.DefaultJailPenaltyDuration,
-					RewardPercentage:        types.DefaultRewardPercentage,
+					MaxGroupSize:   types.DefaultMaxGroupSize,
+					MaxDESize:      types.DefaultMaxDESize,
+					CreatingPeriod: types.DefaultCreatingPeriod,
+					SigningPeriod:  types.DefaultSigningPeriod,
 				},
 			},
 			expectErr: false,

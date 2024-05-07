@@ -5,7 +5,8 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
@@ -185,7 +186,7 @@ func (s *KeeperTestSuite) TestGetPendingSigns() {
 		AssignedMembers: []types.AssignedMember{
 			{
 				MemberID: memberID,
-				Address:  testapp.Alice.Address.String(),
+				Address:  bandtesting.Alice.Address.String(),
 				PubD:     testutil.HexDecode("02234d901b8d6404b509e9926407d1a2749f456d18b159af647a65f3e907d61ef1"),
 				PubE:     testutil.HexDecode("028a1f3e214831b2f2d6e27384817132ddaa222928b05e9372472aa2735cf1f797"),
 				PubNonce: testutil.HexDecode("03cbb6a27c62baa195dff6c75eae7b6b7713f978732a671855f7d7b86b06e6ac67"),
@@ -197,7 +198,7 @@ func (s *KeeperTestSuite) TestGetPendingSigns() {
 	signingID := k.AddSigning(ctx, signing)
 
 	// Get all PendingSignIDs
-	got := k.GetPendingSignings(ctx, testapp.Alice.Address)
+	got := k.GetPendingSignings(ctx, bandtesting.Alice.Address)
 
 	// Check if the returned signings are equal to the ones we set
 	s.Require().Equal(uint64(signingID), got[0])
@@ -416,52 +417,23 @@ func (s *KeeperTestSuite) TestHandleAssignedMembers() {
 	}
 }
 
-func (s *KeeperTestSuite) TestHandleRequestSign() {
+func (s *KeeperTestSuite) TestCreateSigning() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
-
-	// Set the group fee to zero
 	group := k.MustGetGroup(ctx, groupID)
-	group.Fee = sdk.NewCoins()
-	k.SetGroup(ctx, group)
-
-	// Define the fee payer's address.
-	feePayer, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-
-	// Set the fee limit to zero.
-	feeLimit := sdk.NewCoins()
 
 	// Create a new request for the request signature
 	content := types.NewTextSignatureOrder([]byte("example"))
 
 	// execute HandleRequestSign
-	signingID, err := k.HandleRequestSign(ctx, groupID, content, feePayer, feeLimit)
+	msg, err := k.HandleSigningContent(ctx, content)
 	s.Require().NoError(err)
 
-	// verify that a new signing is created
-	signing, err := k.GetSigning(ctx, signingID)
-	s.Require().NoError(err)
-	s.Require().Equal(groupID, signing.GroupID)
-	s.Require().Equal(types.SIGNING_STATUS_WAITING, signing.Status)
-}
-
-func (s *KeeperTestSuite) TestHandleReplaceGroupRequestSignature() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID := tss.GroupID(1)
-
-	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
-
-	// Define the fee payer's address.
-	feePayer := sdk.MustAccAddressFromBech32(k.GetAuthority())
-
-	// execute HandleReplaceGroupRequestSignature
-	signingID, err := k.HandleReplaceGroupRequestSignature(ctx, []byte("new public key"), groupID, feePayer)
+	signing, err := k.CreateSigning(ctx, group, msg)
 	s.Require().NoError(err)
 
-	// verify that a new signing is created
-	signing, err := k.GetSigning(ctx, signingID)
 	s.Require().NoError(err)
 	s.Require().Equal(groupID, signing.GroupID)
 	s.Require().Equal(types.SIGNING_STATUS_WAITING, signing.Status)
@@ -507,19 +479,15 @@ func (s *KeeperTestSuite) TestGetSetPendingProcessSignings() {
 func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
+	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
+	alice := sdk.AccAddress(testutil.TestCases[0].Group.Members[0].PubKey()).String()
 
 	// Set member
 	k.SetMember(ctx, types.Member{
-		ID:      memberID,
-		GroupID: groupID,
-		Address: testapp.Alice.Address.String(),
-	})
-
-	// Set status
-	k.SetMemberStatus(ctx, types.Status{
-		Address: testapp.Alice.Address.String(),
-		Status:  types.MEMBER_STATUS_ACTIVE,
-		Since:   ctx.BlockTime(),
+		ID:       memberID,
+		GroupID:  groupID,
+		Address:  alice,
+		IsActive: false,
 	})
 
 	// Create signing
@@ -531,6 +499,10 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 			},
 		},
 		Status: types.SIGNING_STATUS_WAITING,
+	})
+	s.app.BandtssKeeper.AddSigning(ctx, bandtsstypes.Signing{
+		CurrentGroupSigningID: tss.SigningID(1),
+		Fee:                   sdk.NewCoins(),
 	})
 
 	// Set the current block height
@@ -545,105 +517,12 @@ func (s *KeeperTestSuite) TestProcessExpiredSignings() {
 	s.Require().NoError(err)
 	s.Require().Equal(types.SIGNING_STATUS_EXPIRED, gotSigning.Status)
 	s.Require().Nil(gotSigning.AssignedMembers)
-	gotStatus := k.GetStatus(ctx, testapp.Alice.Address)
-	s.Require().Equal(types.MEMBER_STATUS_INACTIVE, gotStatus.Status)
+	member, err := k.GetMemberByAddress(ctx, testutil.TestCases[0].Group.ID, alice)
+	s.Require().NoError(err)
+	s.Require().False(member.IsActive)
 	gotLastExpiredSigningID := k.GetLastExpiredSigningID(ctx)
 	s.Require().Equal(signingID, gotLastExpiredSigningID)
+
 	gotPZs := k.GetPartialSignatures(ctx, signingID)
 	s.Require().Empty(gotPZs)
-}
-
-func (s *KeeperTestSuite) TestRefundFee() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-
-	testCases := []struct {
-		name     string
-		signing  types.Signing
-		expCoins sdk.Coins
-	}{
-		{
-			"10uband with 2 members",
-			types.Signing{
-				ID:        1,
-				GroupID:   1,
-				Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
-				Requester: testapp.FeePayer.Address.String(),
-				AssignedMembers: []types.AssignedMember{
-					{
-						MemberID: 1,
-					},
-					{
-						MemberID: 2,
-					},
-				},
-			},
-			sdk.NewCoins(sdk.NewInt64Coin("uband", 20)),
-		},
-		{
-			"10uband,15token with 2 members",
-			types.Signing{
-				ID:        1,
-				GroupID:   1,
-				Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10), sdk.NewInt64Coin("token", 15)),
-				Requester: testapp.FeePayer.Address.String(),
-				AssignedMembers: []types.AssignedMember{
-					{
-						MemberID: 1,
-					},
-					{
-						MemberID: 2,
-					},
-				},
-			},
-			sdk.NewCoins(sdk.NewInt64Coin("uband", 20), sdk.NewInt64Coin("token", 30)),
-		},
-		{
-			"0uband with 2 members",
-			types.Signing{
-				ID:        2,
-				GroupID:   1,
-				Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
-				Requester: testapp.FeePayer.Address.String(),
-				AssignedMembers: []types.AssignedMember{
-					{
-						MemberID: 1,
-					},
-					{
-						MemberID: 2,
-					},
-				},
-			},
-			sdk.NewCoins(),
-		},
-		{
-			"10uband with 0 member",
-			types.Signing{
-				ID:              3,
-				GroupID:         1,
-				Fee:             sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
-				Requester:       testapp.FeePayer.Address.String(),
-				AssignedMembers: []types.AssignedMember{},
-			},
-			sdk.NewCoins(),
-		},
-	}
-
-	for _, tc := range testCases {
-		s.Run(tc.name, func() {
-			balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
-			balancesModuleBefore := s.app.BankKeeper.GetAllBalances(ctx, k.GetTSSAccount(ctx).GetAddress())
-
-			// Refund fee
-			k.RefundFee(ctx, tc.signing)
-
-			balancesAfter := s.app.BankKeeper.GetAllBalances(ctx, testapp.FeePayer.Address)
-			balancesModuleAfter := s.app.BankKeeper.GetAllBalances(ctx, k.GetTSSAccount(ctx).GetAddress())
-
-			gain := balancesAfter.Sub(balancesBefore...)
-			s.Require().Equal(tc.expCoins, gain)
-
-			lose := balancesModuleBefore.Sub(balancesModuleAfter...)
-			s.Require().Equal(tc.expCoins, lose)
-		})
-	}
 }

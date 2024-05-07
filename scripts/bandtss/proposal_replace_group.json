@@ -1,0 +1,14 @@
+{
+  "messages": [
+    {
+      "@type": "/bandtss.v1beta1.MsgReplaceGroup",
+      "new_group_id": "2",
+      "exec_time": "2024-04-22T17:13:00+00:00",
+      "authority": "band10d07y265gmmuvt4z0w9aw880jnsr700jrdn8wm"
+    }
+  ],
+  "metadata": "ipfs://",
+  "deposit": "1000000000uband",
+  "title": "Replace group",
+  "summary": "This proposal is to replace a group"
+}

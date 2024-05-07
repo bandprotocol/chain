@@ -14,7 +14,9 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
-	"github.com/bandprotocol/chain/v2/testing/testapp"
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
+	bandtsskeeper "github.com/bandprotocol/chain/v2/x/bandtss/keeper"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/tss/keeper"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
@@ -22,7 +24,7 @@ import (
 type KeeperTestSuite struct {
 	suite.Suite
 
-	app         *testapp.TestingApp
+	app         *bandtesting.TestingApp
 	ctx         sdk.Context
 	queryClient types.QueryClient
 	msgSrvr     types.MsgServer
@@ -37,42 +39,35 @@ var (
 )
 
 func (s *KeeperTestSuite) SetupTest() {
-	app, ctx, _ := testapp.CreateTestInput(true)
+	app, ctx := bandtesting.CreateTestApp(s.T(), true)
 	s.app = app
 	s.ctx = ctx
 
 	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, keeper.NewQueryServer(&app.TSSKeeper))
+	types.RegisterQueryServer(queryHelper, keeper.NewQueryServer(app.TSSKeeper))
 	queryClient := types.NewQueryClient(queryHelper)
 
 	s.queryClient = queryClient
-	s.msgSrvr = keeper.NewMsgServerImpl(&app.TSSKeeper)
+	s.msgSrvr = keeper.NewMsgServerImpl(app.TSSKeeper)
 	s.authority = authtypes.NewModuleAddress(govtypes.ModuleName)
 }
 
 func (s *KeeperTestSuite) setupCreateGroup() {
-	ctx, msgSrvr := s.ctx, s.msgSrvr
+	ctx, bandtssKeeper := s.ctx, s.app.BandtssKeeper
+	bandtssMsgSrvr := bandtsskeeper.NewMsgServerImpl(bandtssKeeper)
 
 	// Create group from testutil
 	for _, tc := range testutil.TestCases {
 		// Initialize members
 		var members []string
 		for _, m := range tc.Group.Members {
-			address := sdk.AccAddress(m.PubKey())
-			members = append(members, address.String())
-
-			s.app.TSSKeeper.SetMemberStatus(ctx, types.Status{
-				Address: address.String(),
-				Status:  types.MEMBER_STATUS_ACTIVE,
-				Since:   ctx.BlockTime(),
-			})
+			members = append(members, sdk.AccAddress(m.PubKey()).String())
 		}
 
 		// Create group
-		_, err := msgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
+		_, err := bandtssMsgSrvr.CreateGroup(ctx, &bandtsstypes.MsgCreateGroup{
 			Members:   members,
 			Threshold: tc.Group.Threshold,
-			Fee:       sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 			Authority: s.authority.String(),
 		})
 		s.Require().NoError(err)
@@ -374,6 +369,40 @@ func (s *KeeperTestSuite) TestGetMembers() {
 	s.Require().Equal(members, got)
 }
 
+func (s *KeeperTestSuite) TestGetSetMemberIsActive() {
+	ctx, k := s.ctx, s.app.TSSKeeper
+
+	groupID := tss.GroupID(10)
+	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	k.SetMember(ctx, types.Member{
+		ID:       tss.MemberID(1),
+		GroupID:  groupID,
+		Address:  address.String(),
+		PubKey:   nil,
+		IsActive: true,
+	})
+
+	// check when being set to active
+	members, err := k.GetGroupMembers(ctx, groupID)
+	s.Require().NoError(err)
+	s.Require().Len(members, 1)
+
+	for _, member := range members {
+		s.Require().True(member.IsActive)
+	}
+
+	err = k.SetMemberIsActive(ctx, groupID, address, false)
+	s.Require().NoError(err)
+
+	members, err = k.GetGroupMembers(ctx, groupID)
+	s.Require().NoError(err)
+	s.Require().Len(members, 1)
+
+	for _, member := range members {
+		s.Require().False(member.IsActive)
+	}
+}
+
 func (s *KeeperTestSuite) TestSetLastExpiredGroupID() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
@@ -493,196 +522,6 @@ func (s *KeeperTestSuite) TestHandleProcessGroup() {
 	s.Require().Equal(types.GROUP_STATUS_FALLEN, group.Status)
 }
 
-func (s *KeeperTestSuite) TestGetSetReplacementCount() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	k.SetReplacementCount(ctx, 1)
-
-	replacementCount := k.GetReplacementCount(ctx)
-	s.Require().Equal(uint64(1), replacementCount)
-}
-
-func (s *KeeperTestSuite) TestGetNextReplacementID() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-
-	// Initial replacement count
-	k.SetReplacementCount(ctx, 1)
-
-	replacementCount1 := k.GetNextReplacementCount(ctx)
-	s.Require().Equal(uint64(2), replacementCount1)
-	replacementCount2 := k.GetNextReplacementCount(ctx)
-	s.Require().Equal(uint64(3), replacementCount2)
-}
-
-func (s *KeeperTestSuite) TestGetSetReplacement() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-
-	// Create a replacement
-	replacement := types.Replacement{
-		ID:             1,
-		SigningID:      1,
-		CurrentGroupID: 1,
-		NewGroupID:     2,
-		CurrentPubKey:  []byte("test_pub_key"),
-		NewPubKey:      []byte("test_pub_key"),
-		Status:         types.REPLACEMENT_STATUS_WAITING,
-		ExecTime:       time.Now().UTC(),
-	}
-
-	// Set the replacement using SetReplacement
-	k.SetReplacement(ctx, replacement)
-
-	// Get the stored replacement using GetReplacement
-	got, err := k.GetReplacement(ctx, replacement.ID)
-	s.Require().NoError(err)
-	s.Require().Equal(replacement, got)
-}
-
-func (s *KeeperTestSuite) TestReplacementQueues() {
-	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
-
-	replacementID := uint64(1)
-
-	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
-
-	now := time.Now()
-
-	_, err := msgSrvr.ReplaceGroup(ctx, &types.MsgReplaceGroup{
-		CurrentGroupID: 1,
-		NewGroupID:     2,
-		ExecTime:       now,
-		Authority:      s.authority.String(),
-	})
-	s.Require().NoError(err)
-
-	replacement, err := k.GetReplacement(ctx, replacementID)
-	s.Require().NoError(err)
-
-	replacementIterator := k.ReplacementQueueIterator(ctx, now)
-	s.Require().True(replacementIterator.Valid())
-
-	gotReplacementID, _ := types.SplitReplacementQueueKey(replacementIterator.Key())
-	s.Require().Equal(replacement.ID, gotReplacementID)
-
-	replacementIterator.Close()
-}
-
-func (s *KeeperTestSuite) TestSuccessHandleReplaceGroup() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	signingID := tss.SigningID(1)
-	currentGroupID := tss.GroupID(1)
-	newGroupID := tss.GroupID(2)
-	replacementID := uint64(1)
-
-	// Set up initial state for testing
-	initialNewGroup := types.Group{
-		ID:            newGroupID,
-		Size_:         7,
-		Threshold:     4,
-		PubKey:        testutil.HexDecode("02a37461c1621d12f2c436b98ffe95d6ff0fedc102e8b5b35a08c96b889cb448fd"),
-		Status:        types.GROUP_STATUS_ACTIVE,
-		Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 15)),
-		CreatedHeight: 2,
-	}
-	initialCurrentGroup := types.Group{
-		ID:            currentGroupID,
-		Size_:         5,
-		Threshold:     3,
-		PubKey:        testutil.HexDecode("0260aa1c85288f77aeaba5d02e984d987b16dd7f6722544574a03d175b48d8b83b"),
-		Status:        types.GROUP_STATUS_ACTIVE,
-		Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
-		CreatedHeight: 1,
-	}
-	initialSigning := types.Signing{
-		ID:     signingID,
-		Status: types.SIGNING_STATUS_SUCCESS,
-		// ... other fields ...
-	}
-	initialReplacement := types.Replacement{
-		ID:             replacementID,
-		SigningID:      signingID,
-		CurrentGroupID: initialCurrentGroup.ID,
-		CurrentPubKey:  initialCurrentGroup.PubKey,
-		NewGroupID:     initialNewGroup.ID,
-		NewPubKey:      initialNewGroup.PubKey,
-		Status:         types.REPLACEMENT_STATUS_WAITING,
-		ExecTime:       time.Now(),
-	}
-	k.SetGroup(ctx, initialNewGroup)
-	k.SetGroup(ctx, initialCurrentGroup)
-	k.SetSigning(ctx, initialSigning)
-
-	k.SetReplacement(ctx, types.Replacement{})
-
-	// Call HandleReplaceGroup to process the pending replace group
-	k.HandleReplaceGroup(ctx, initialReplacement)
-
-	// Verify that the currentGroup was replaced with the newGroup's data
-	updatedGroup := k.MustGetGroup(ctx, currentGroupID)
-	// Verify unchanged data
-	s.Require().Equal(currentGroupID, updatedGroup.ID)
-	s.Require().Equal(initialCurrentGroup.CreatedHeight, updatedGroup.CreatedHeight)
-	s.Require().Equal(initialCurrentGroup.LatestReplacementID, updatedGroup.LatestReplacementID)
-	// Verify changed data
-	s.Require().Equal(initialNewGroup.Size_, updatedGroup.Size_)
-	s.Require().Equal(initialNewGroup.Threshold, updatedGroup.Threshold)
-	s.Require().Equal(initialNewGroup.PubKey, updatedGroup.PubKey)
-	s.Require().Equal(initialNewGroup.Status, updatedGroup.Status)
-	s.Require().Equal(initialNewGroup.Fee, updatedGroup.Fee)
-}
-
-func (s *KeeperTestSuite) TestFailedHandleReplaceGroup() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	signingID := tss.SigningID(1)
-	newGroupID := tss.GroupID(1)
-	currentGroupID := tss.GroupID(2)
-	replacementID := uint64(1)
-
-	// Set up initial state for testing
-	initialNewGroup := types.Group{
-		ID:            newGroupID,
-		Size_:         7,
-		Threshold:     4,
-		PubKey:        testutil.HexDecode("02a37461c1621d12f2c436b98ffe95d6ff0fedc102e8b5b35a08c96b889cb448fd"),
-		Status:        types.GROUP_STATUS_ACTIVE,
-		Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 15)),
-		CreatedHeight: 2,
-	}
-	initialCurrentGroup := types.Group{
-		ID:            currentGroupID,
-		Size_:         5,
-		Threshold:     3,
-		PubKey:        testutil.HexDecode("0260aa1c85288f77aeaba5d02e984d987b16dd7f6722544574a03d175b48d8b83b"),
-		Status:        types.GROUP_STATUS_ACTIVE,
-		Fee:           sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
-		CreatedHeight: 1,
-	}
-	initialSigning := types.Signing{
-		ID:     signingID,
-		Status: types.SIGNING_STATUS_FALLEN,
-		// ... other fields ...
-	}
-	initialReplacement := types.Replacement{
-		ID:             replacementID,
-		SigningID:      signingID,
-		CurrentGroupID: initialCurrentGroup.ID,
-		CurrentPubKey:  initialCurrentGroup.PubKey,
-		NewGroupID:     initialNewGroup.ID,
-		NewPubKey:      initialNewGroup.PubKey,
-		Status:         types.REPLACEMENT_STATUS_WAITING,
-		ExecTime:       time.Now(),
-	}
-	k.SetGroup(ctx, initialNewGroup)
-	k.SetGroup(ctx, initialCurrentGroup)
-	k.SetSigning(ctx, initialSigning)
-
-	// Call HandleReplaceGroup to process the pending replace group
-	k.HandleReplaceGroup(ctx, initialReplacement)
-
-	// Verify that the currentGroup is not replaced by the newGroup
-	updatedGroup := k.MustGetGroup(ctx, currentGroupID)
-	s.Require().Equal(initialCurrentGroup, updatedGroup)
-}
-
 func (s *KeeperTestSuite) TestParams() {
 	k := s.app.TSSKeeper
 
@@ -695,14 +534,10 @@ func (s *KeeperTestSuite) TestParams() {
 		{
 			name: "set invalid params",
 			input: types.Params{
-				MaxGroupSize:            0,
-				MaxDESize:               0,
-				CreatingPeriod:          1,
-				SigningPeriod:           1,
-				ActiveDuration:          time.Duration(0),
-				InactivePenaltyDuration: time.Duration(0),
-				JailPenaltyDuration:     time.Duration(0),
-				RewardPercentage:        0,
+				MaxGroupSize:   0,
+				MaxDESize:      0,
+				CreatingPeriod: 1,
+				SigningPeriod:  1,
 			},
 			expectErr:    true,
 			expectErrStr: "must be positive:",
@@ -710,14 +545,10 @@ func (s *KeeperTestSuite) TestParams() {
 		{
 			name: "set full valid params",
 			input: types.Params{
-				MaxGroupSize:            types.DefaultMaxGroupSize,
-				MaxDESize:               types.DefaultMaxDESize,
-				CreatingPeriod:          types.DefaultCreatingPeriod,
-				SigningPeriod:           types.DefaultSigningPeriod,
-				ActiveDuration:          types.DefaultActiveDuration,
-				InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
-				JailPenaltyDuration:     types.DefaultJailPenaltyDuration,
-				RewardPercentage:        types.DefaultRewardPercentage,
+				MaxGroupSize:   types.DefaultMaxGroupSize,
+				MaxDESize:      types.DefaultMaxDESize,
+				CreatingPeriod: types.DefaultCreatingPeriod,
+				SigningPeriod:  types.DefaultSigningPeriod,
 			},
 			expectErr: false,
 		},

@@ -12,34 +12,58 @@ func (suite *TSSTestSuite) TestComputeEncryptedSecretShares() {
 			pubKeys = append(pubKeys, m.OneTimePubKey())
 		}
 
-		encSecretShares, err := tss.ComputeEncryptedSecretShares(
-			member.ID,
-			member.OneTimePrivKey,
-			pubKeys,
-			member.Coefficients,
-			testutil.MockNonce16Generator{
-				MockGenerateFunc: func() ([]byte, error) {
-					return member.EncSecretShares[0].Nonce(), nil
+		var encSecretShares tss.EncSecretShares
+
+		counter := 0
+		for idx := range pubKeys {
+			if idx+1 == int(member.ID) {
+				continue
+			}
+			encSecretShare, err := tss.ComputeEncryptedSecretShares(
+				member.ID,
+				member.OneTimePrivKey,
+				pubKeys,
+				member.Coefficients,
+				testutil.MockNonce16Generator{
+					MockGenerateFunc: func() ([]byte, error) {
+						return member.EncSecretShares[counter].Nonce(), nil
+					},
 				},
-			},
-		)
-		suite.Require().NoError(err)
+			)
+			suite.Require().NoError(err)
+
+			encSecretShares = append(encSecretShares, encSecretShare[counter])
+			counter++
+		}
+
 		suite.Require().Equal(member.EncSecretShares, encSecretShares)
 	})
 }
 
 func (suite *TSSTestSuite) TestEncryptSecretShares() {
 	suite.RunOnMember(suite.testCases, func(tc testutil.TestCase, member testutil.Member) {
-		encSecretShares, err := tss.EncryptSecretShares(
-			member.SecretShares,
-			member.KeySyms,
-			testutil.MockNonce16Generator{
-				MockGenerateFunc: func() ([]byte, error) {
-					return member.EncSecretShares[0].Nonce(), nil
+		var encSecretShares tss.EncSecretShares
+		counter := 0
+		for idx := range tc.Group.Members {
+			if idx+1 == int(member.ID) {
+				continue
+			}
+
+			encSecretShare, err := tss.EncryptSecretShares(
+				member.SecretShares,
+				member.KeySyms,
+				testutil.MockNonce16Generator{
+					MockGenerateFunc: func() ([]byte, error) {
+						return member.EncSecretShares[counter].Nonce(), nil
+					},
 				},
-			},
-		)
-		suite.Require().NoError(err)
+			)
+			suite.Require().NoError(err)
+
+			encSecretShares = append(encSecretShares, encSecretShare[counter])
+			counter++
+		}
+
 		suite.Require().Equal(member.EncSecretShares, encSecretShares)
 	})
 }

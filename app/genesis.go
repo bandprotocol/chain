@@ -38,6 +38,8 @@ import (
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 
 	"github.com/bandprotocol/chain/v2/app/upgrades/v2_6"
+	"github.com/bandprotocol/chain/v2/x/bandtss"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -112,6 +114,7 @@ func NewDefaultGenesisState() GenesisState {
 		rollingseedtypes.ModuleName:  rollingseed.AppModuleBasic{}.DefaultGenesis(cdc),
 		oracletypes.ModuleName:       oracle.AppModuleBasic{}.DefaultGenesis(cdc),
 		tsstypes.ModuleName:          tss.AppModuleBasic{}.DefaultGenesis(cdc),
+		bandtsstypes.ModuleName:      bandtss.AppModuleBasic{}.DefaultGenesis(cdc),
 		globalfeetypes.ModuleName:    cdc.MustMarshalJSON(globalfeeGenesis),
 	}
 }

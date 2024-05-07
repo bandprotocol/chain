@@ -1,6 +1,7 @@
 package emitter
 
 import (
+	"encoding/hex"
 	"fmt"
 	"strings"
 
@@ -15,7 +16,7 @@ import (
 )
 
 func (h *Hook) emitSetChannel(ctx sdk.Context, portId string, channelId string) {
-	channel, _ := h.channelkeeper.GetChannel(ctx, portId, channelId)
+	channel, _ := h.channelKeeper.GetChannel(ctx, portId, channelId)
 	hop := channel.ConnectionHops[0]
 	h.Write("SET_CHANNEL", common.JsDict{
 		"connection_id":        hop,
@@ -154,9 +155,10 @@ func (h *Hook) extractFungibleTokenPacket(
 					"status": "success",
 				}
 			} else {
+				reason, _ := hex.DecodeString(evMap[types.EventTypeWriteAck+"."+types.AttributeKeyAckHex][0])
 				packet["acknowledgement"] = common.JsDict{
 					"status": "failure",
-					"reason": evMap[types.EventTypeWriteAck+"."+types.AttributeKeyAckHex][0],
+					"reason": string(reason),
 				}
 			}
 		} else {
@@ -254,9 +256,11 @@ func (h *Hook) extractOracleRequestPacket(
 				detail["skip"] = true
 				return false
 			}
+
+			reason, _ := hex.DecodeString(reasons[0])
 			packet["acknowledgement"] = common.JsDict{
 				"status": "failure",
-				"reason": reasons[0],
+				"reason": string(reason),
 			}
 		}
 		return true
@@ -383,8 +387,10 @@ func (h *Hook) extractOracleResponsePacket(
 	ctx sdk.Context, packet common.JsDict, evMap common.EvMap,
 ) bool {
 	var data oracletypes.OracleResponsePacketData
+
+	eventData, _ := hex.DecodeString(evMap[types.EventTypeSendPacket+"."+types.AttributeKeyDataHex][0])
 	err := oracletypes.ModuleCdc.UnmarshalJSON(
-		[]byte(evMap[types.EventTypeSendPacket+"."+types.AttributeKeyDataHex][0]),
+		eventData,
 		&data,
 	)
 	if err == nil {

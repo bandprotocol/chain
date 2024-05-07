@@ -1,0 +1,100 @@
+syntax = "proto3";
+package bandtss.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos_proto/cosmos.proto";
+
+option go_package            = "github.com/bandprotocol/chain/v2/x/bandtss/types";
+option (gogoproto.equal_all) = true;
+
+// Member maintains member information for monitoring their liveness activity.
+message Member {
+  option (gogoproto.equal) = true;
+
+  // address is the address of the member.
+  string address = 1;
+  // is_active is a flag to indicate whether a member is active or not.
+  bool is_active = 2;
+  // since is a block timestamp when a member has been activated/deactivated/jailed
+  google.protobuf.Timestamp since = 3 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+  // last_active is a latest block timestamp when a member is active
+  google.protobuf.Timestamp last_active = 4 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+}
+
+// Signing is a bandtss signing information.
+message Signing {
+  option (gogoproto.equal) = true;
+
+  // id is the unique identifier of the bandtss signing.
+  uint64 id = 1 [(gogoproto.customname) = "ID", (gogoproto.casttype) = "SigningID"];
+  // fee is the tokens that will be paid per signer for this bandtss signing.
+  repeated cosmos.base.v1beta1.Coin fee = 2
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  // requester is the address of requester who paid for the Bandtss signing.
+  string requester = 3;
+  // current_group_signing_id is a tss signing ID of a current group.
+  uint64 current_group_signing_id = 4 [
+    (gogoproto.customname) = "CurrentGroupSigningID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+  ];
+  // replacing_group_signing_id is a tss signing ID of the replacing group.
+  uint64 replacing_group_signing_id = 5 [
+    (gogoproto.customname) = "ReplacingGroupSigningID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+  ];
+}
+
+message Replacement {
+  // signing_id is a tss signing ID of the replacing group signing request.
+  uint64 signing_id = 1 [
+    (gogoproto.customname) = "SigningID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+  ];
+  // current_group_id is the ID of the group that will be replaced.
+  uint64 current_group_id = 2 [
+    (gogoproto.customname) = "CurrentGroupID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
+  // current_pub_key is the public key pair that used for sign & verify replace group msg.
+  bytes current_pub_key = 3 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
+  // new_group_id is the ID of the new group that be a new key candidate.
+  uint64 new_group_id = 4 [
+    (gogoproto.customname) = "NewGroupID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
+  // new_pub_key is the public key of the group that will be the next key of this group
+  bytes new_pub_key = 5 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
+  // status is an enumeration of the possible statuses of a group replacement process.
+  ReplacementStatus status = 6;
+  // exec_time is the time when the replacement will be executed.
+  google.protobuf.Timestamp exec_time = 7 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
+}
+
+// ReplacementStatus is an enumeration of the possible statuses of a group replacement process.
+enum ReplacementStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // REPLACEMENT_STATUS_UNSPECIFIED is the status of a group replacement that has not been specified.
+  REPLACEMENT_STATUS_UNSPECIFIED = 0;
+  // REPLACEMENT_STATUS_WAITING_SIGNING is the status of a group replacement that is waiting 
+  // current group to sign the replacement message.
+  REPLACEMENT_STATUS_WAITING_SIGNING = 1;
+  // REPLACEMENT_STATUS_WAITING_REPLACE is the status of a group replacement that is waiting 
+  // to be replaced in the protocol.
+  REPLACEMENT_STATUS_WAITING_REPLACE = 2;
+  // REPLACEMENT_STATUS_SUCCESS is the status of a group replacement that has success in the protocol.
+  REPLACEMENT_STATUS_SUCCESS = 3;
+  // REPLACEMENT_STATUS_FALLEN is the status of a group replacement that has fallen out of the protocol.
+  REPLACEMENT_STATUS_FALLEN = 4;
+}
+
+
+// ReplaceGroupSignatureOrder defines a general signature order for group replacement.
+message ReplaceGroupSignatureOrder {
+  option (cosmos_proto.implements_interface) = "Content";
+
+  // pub_key is the public key of new group that the current group needs to be signed.
+  bytes pub_key = 1 [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
+}

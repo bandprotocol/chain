@@ -6,21 +6,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Code checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
-          go-version: '1.19.1'
-
-      - name: Install Wabt (wat2wasm)
-        run: |
-          wget https://github.com/WebAssembly/wabt/releases/download/1.0.17/wabt-1.0.17-ubuntu.tar.gz
-          tar -zxf wabt-1.0.17-ubuntu.tar.gz
-          sudo cp wabt-1.0.17/bin/wat2wasm /usr/local/bin
+          go-version: '1.21.7'
 
       - name: Check go mod cache
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: ~/go/pkg/mod
           key: ${{ runner.os }}-chain-${{ hashFiles('**/go.sum') }}

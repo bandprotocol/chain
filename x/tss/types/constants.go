@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// GetTSSGrantMsgTypes get message types that can be granted.
 func GetTSSGrantMsgTypes() []string {
 	return []string{
 		sdk.MsgTypeURL(&MsgSubmitDKGRound1{}),
@@ -12,7 +13,6 @@ func GetTSSGrantMsgTypes() []string {
 		sdk.MsgTypeURL(&MsgConfirm{}),
 		sdk.MsgTypeURL(&MsgSubmitDEs{}),
 		sdk.MsgTypeURL(&MsgSubmitSignature{}),
-		sdk.MsgTypeURL(&MsgHealthCheck{}),
 	}
 }
 

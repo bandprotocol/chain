@@ -124,6 +124,9 @@ import (
 	"github.com/bandprotocol/chain/v2/hooks/emitter"
 	"github.com/bandprotocol/chain/v2/hooks/price"
 	"github.com/bandprotocol/chain/v2/hooks/request"
+	"github.com/bandprotocol/chain/v2/x/bandtss"
+	bandtsskeeper "github.com/bandprotocol/chain/v2/x/bandtss/keeper"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	bandbank "github.com/bandprotocol/chain/v2/x/bank"
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
 	"github.com/bandprotocol/chain/v2/x/globalfee"
@@ -186,7 +189,8 @@ var (
 		consensus.AppModuleBasic{},
 		ica.AppModuleBasic{},
 		oracle.AppModuleBasic{},
-		tss.NewAppModuleBasic(oracleclient.OracleSignatureOrderHandler),
+		tss.AppModuleBasic{},
+		bandtss.NewAppModuleBasic(oracleclient.OracleSignatureOrderHandler),
 		globalfee.AppModule{},
 	)
 	// module account permissions
@@ -199,7 +203,7 @@ var (
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
-		tsstypes.ModuleName:            nil,
+		bandtsstypes.ModuleName:        nil,
 	}
 
 	Upgrades = []upgrades.Upgrade{v2_6.Upgrade}
@@ -312,6 +316,7 @@ func NewBandApp(
 		rollingseedtypes.StoreKey,
 		oracletypes.StoreKey,
 		tsstypes.StoreKey,
+		bandtsstypes.StoreKey,
 		globalfeetypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -533,17 +538,32 @@ func NewBandApp(
 		appCodec,
 		keys[tsstypes.StoreKey],
 		app.GetSubspace(tsstypes.ModuleName),
-		authtypes.FeeCollectorName,
 		app.AuthzKeeper,
 		app.RollingseedKeeper,
-		app.AccountKeeper,
-		app.BankKeeper,
-		app.StakingKeeper,
-		app.DistrKeeper,
 		tssRouter,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
-	tssModule := tss.NewAppModule(&app.TSSKeeper)
+	tssModule := tss.NewAppModule(app.TSSKeeper)
+
+	app.BandtssKeeper = bandtsskeeper.NewKeeper(
+		appCodec,
+		keys[bandtsstypes.StoreKey],
+		app.GetSubspace(bandtsstypes.ModuleName),
+		app.AuthzKeeper,
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.DistrKeeper,
+		app.StakingKeeper,
+		app.TSSKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		authtypes.FeeCollectorName,
+	)
+	bandtssModule := bandtss.NewAppModule(app.BandtssKeeper)
+
+	// register TSS Hooks
+	app.TSSKeeper.SetHooks(
+		tsstypes.NewMultiTSSHooks(app.BandtssKeeper.Hooks()),
+	)
 
 	app.OracleKeeper = oraclekeeper.NewKeeper(
 		appCodec,
@@ -558,7 +578,7 @@ func NewBandApp(
 		app.IBCKeeper.ChannelKeeper,
 		&app.IBCKeeper.PortKeeper,
 		app.RollingseedKeeper,
-		app.TSSKeeper,
+		app.BandtssKeeper,
 		scopedOracleKeeper,
 		owasmVM,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
@@ -624,13 +644,22 @@ func NewBandApp(
 	}
 
 	// Add hook to app module for create Querier
-	oracleModule := oracle.NewAppModule(app.OracleKeeper, app.GetSubspace(oracletypes.ModuleName), app.hooks)
+	oracleModule := oracle.NewAppModule(
+		appCodec,
+		app.OracleKeeper,
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.StakingKeeper,
+		app.GetSubspace(oracletypes.ModuleName),
+		app.hooks,
+	)
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
 
 	// Add TSS route
 	tssRouter.
 		AddRoute(tsstypes.RouterKey, tsstypes.NewSignatureOrderHandler()).
-		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(app.OracleKeeper))
+		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(app.OracleKeeper)).
+		AddRoute(bandtsstypes.RouterKey, bandtsstypes.NewSignatureOrderHandler())
 
 	// It is vital to seal the request signature router here as to not allow
 	// further handlers to be registered after the keeper is created since this
@@ -728,6 +757,7 @@ func NewBandApp(
 		rollingseedModule,
 		oracleModule,
 		tssModule,
+		bandtssModule,
 		globalfee.NewAppModule(app.GlobalfeeKeeper),
 	)
 
@@ -742,6 +772,7 @@ func NewBandApp(
 		rollingseedtypes.ModuleName,
 		oracletypes.ModuleName,
 		tsstypes.ModuleName,
+		bandtsstypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -770,6 +801,7 @@ func NewBandApp(
 		rollingseedtypes.ModuleName,
 		oracletypes.ModuleName,
 		tsstypes.ModuleName,
+		bandtsstypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
@@ -822,6 +854,7 @@ func NewBandApp(
 		rollingseedtypes.ModuleName,
 		oracletypes.ModuleName,
 		tsstypes.ModuleName,
+		bandtsstypes.ModuleName,
 		globalfeetypes.ModuleName,
 	)
 
@@ -866,7 +899,8 @@ func NewBandApp(
 			},
 			AuthzKeeper:     &app.AuthzKeeper,
 			OracleKeeper:    &app.OracleKeeper,
-			TSSKeeper:       &app.TSSKeeper,
+			TSSKeeper:       app.TSSKeeper,
+			BandtssKeeper:   app.BandtssKeeper,
 			IBCKeeper:       app.IBCKeeper,
 			GlobalfeeKeeper: &app.GlobalfeeKeeper,
 			StakingKeeper:   app.StakingKeeper,

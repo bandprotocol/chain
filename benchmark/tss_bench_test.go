@@ -41,7 +41,6 @@ func BenchmarkRequestSignatureDeliver(b *testing.B) {
 					ba.TxConfig,
 					GenMsgRequestSignature(
 						ba.Sender,
-						ba.Gid,
 						tsstypes.NewTextSignatureOrder(msg),
 						tc.feeLimit,
 					),
@@ -137,7 +136,7 @@ func BenchmarkEndBlockHandleProcessSigning(b *testing.B) {
 					ba.CallBeginBlock()
 
 					// generate tx
-					ba.RequestSignature(ba.Sender, ba.Gid, tsstypes.NewTextSignatureOrder(msg), tc.feeLimit)
+					ba.RequestSignature(ba.Sender, tsstypes.NewTextSignatureOrder(msg), tc.feeLimit)
 
 					// everyone submit signature
 					txs := ba.GetPendingSignTxs(ba.Gid, testutil.TestCases)
