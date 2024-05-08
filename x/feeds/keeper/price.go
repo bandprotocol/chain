@@ -23,7 +23,7 @@ func (k Keeper) ValidateSubmitPricesRequest(ctx sdk.Context, blockTime int64, re
 		return types.ErrOracleStatusNotActive.Wrapf("val: %s", val.String())
 	}
 
-	if types.AbsInt64(req.Timestamp-blockTime) > k.GetParams(ctx).AllowDiffTime {
+	if types.AbsInt64(req.Timestamp-blockTime) > k.GetParams(ctx).AllowableBlockTimeDiscrepancy {
 		return types.ErrInvalidTimestamp.Wrapf(
 			"block_time: %d, timestamp: %d",
 			blockTime,
@@ -33,23 +33,23 @@ func (k Keeper) ValidateSubmitPricesRequest(ctx sdk.Context, blockTime int64, re
 	return nil
 }
 
-// NewPriceValidator creates new PriceValidator.
-func (k Keeper) NewPriceValidator(
+// NewValidatorPrice creates new ValidatorPrice.
+func (k Keeper) NewValidatorPrice(
 	ctx sdk.Context,
 	blockTime int64,
 	price types.SubmitPrice,
 	val sdk.ValAddress,
 	cooldownTime int64,
-) (types.PriceValidator, error) {
+) (types.ValidatorPrice, error) {
 	f, err := k.GetFeed(ctx, price.SignalID)
 	if err != nil {
-		return types.PriceValidator{}, err
+		return types.ValidatorPrice{}, err
 	}
 
 	// check if price is not too fast
-	priceVal, err := k.GetPriceValidator(ctx, price.SignalID, val)
+	priceVal, err := k.GetValidatorPrice(ctx, price.SignalID, val)
 	if err == nil && blockTime < priceVal.Timestamp+cooldownTime {
-		return types.PriceValidator{}, types.ErrPriceTooFast.Wrapf(
+		return types.ValidatorPrice{}, types.ErrPriceTooFast.Wrapf(
 			"signal_id: %s, old: %d, new: %d, interval: %d",
 			price.SignalID,
 			priceVal.Timestamp,
@@ -58,8 +58,8 @@ func (k Keeper) NewPriceValidator(
 		)
 	}
 
-	return types.PriceValidator{
-		PriceOption: price.PriceOption,
+	return types.ValidatorPrice{
+		PriceStatus: price.PriceStatus,
 		Validator:   val.String(),
 		SignalID:    price.SignalID,
 		Price:       price.Price,

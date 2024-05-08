@@ -69,7 +69,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 			options.StakingKeeper,
 			options.FeedsKeeper,
 		)
-		options.TxFeeChecker = feeChecker.CheckTxFeeWithMinGasPrices
+		options.TxFeeChecker = feeChecker.CheckTxFee
 	}
 
 	anteDecorators := []sdk.AnteDecorator{

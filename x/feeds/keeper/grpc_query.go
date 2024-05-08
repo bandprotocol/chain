@@ -98,9 +98,9 @@ func (q queryServer) Price(
 	}
 
 	price, _ := q.keeper.GetPrice(ctx, req.SignalId)
-	priceVals := q.keeper.GetPriceValidators(ctx, req.SignalId)
+	priceVals := q.keeper.GetValidatorPrices(ctx, req.SignalId)
 
-	var filteredPriceVals []types.PriceValidator
+	var filteredPriceVals []types.ValidatorPrice
 	blockTime := ctx.BlockTime().Unix()
 	for _, priceVal := range priceVals {
 		if priceVal.Timestamp > blockTime-f.Interval {
@@ -110,7 +110,7 @@ func (q queryServer) Price(
 
 	return &types.QueryPriceResponse{
 		Price:           price,
-		PriceValidators: filteredPriceVals,
+		ValidatorPrices: filteredPriceVals,
 	}, nil
 }
 
@@ -125,11 +125,11 @@ func (q queryServer) ValidatorPrices(
 		return nil, err
 	}
 
-	var priceVals []types.PriceValidator
+	var priceVals []types.ValidatorPrice
 
 	feeds := q.keeper.GetFeeds(ctx)
 	for _, feed := range feeds {
-		priceVal, err := q.keeper.GetPriceValidator(ctx, feed.SignalID, val)
+		priceVal, err := q.keeper.GetValidatorPrice(ctx, feed.SignalID, val)
 		if err == nil {
 			priceVals = append(priceVals, priceVal)
 		}
@@ -140,10 +140,10 @@ func (q queryServer) ValidatorPrices(
 	}, nil
 }
 
-// PriceValidator queries price-validator of a specified validator and signal id.
-func (q queryServer) PriceValidator(
-	goCtx context.Context, req *types.QueryPriceValidatorRequest,
-) (*types.QueryPriceValidatorResponse, error) {
+// ValidatorPrice queries price-validator of a specified validator and signal id.
+func (q queryServer) ValidatorPrice(
+	goCtx context.Context, req *types.QueryValidatorPriceRequest,
+) (*types.QueryValidatorPriceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	val, err := sdk.ValAddressFromBech32(req.Validator)
@@ -151,13 +151,13 @@ func (q queryServer) PriceValidator(
 		return nil, err
 	}
 
-	priceVal, err := q.keeper.GetPriceValidator(ctx, req.SignalId, val)
+	priceVal, err := q.keeper.GetValidatorPrice(ctx, req.SignalId, val)
 	if err != nil {
 		return nil, err
 	}
 
-	return &types.QueryPriceValidatorResponse{
-		PriceValidator: priceVal,
+	return &types.QueryValidatorPriceResponse{
+		ValidatorPrice: priceVal,
 	}, nil
 }
 
@@ -172,20 +172,20 @@ func (q queryServer) ValidValidator(
 		return nil, err
 	}
 
-	flag := true
+	isValid := true
 
 	// check if it's bonded validators.
-	isValid := q.keeper.IsBondedValidator(ctx, req.Validator)
-	if !isValid {
-		flag = false
+	isBonded := q.keeper.IsBondedValidator(ctx, req.Validator)
+	if !isBonded {
+		isValid = false
 	}
 
 	validatorStatus := q.keeper.oracleKeeper.GetValidatorStatus(ctx, val)
 	if !validatorStatus.IsActive {
-		flag = false
+		isValid = false
 	}
 
-	return &types.QueryValidValidatorResponse{Valid: flag}, nil
+	return &types.QueryValidValidatorResponse{Valid: isValid}, nil
 }
 
 // Feeds queries all current feeds.

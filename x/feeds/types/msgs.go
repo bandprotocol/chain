@@ -54,9 +54,9 @@ func (m *MsgSubmitPrices) ValidateBasic() error {
 	}
 
 	for _, price := range m.Prices {
-		if price.PriceOption != PriceOptionAvailable && price.Price != 0 {
+		if price.PriceStatus != PriceStatusAvailable && price.Price != 0 {
 			return sdkerrors.ErrInvalidRequest.Wrap(
-				"price must be initial value if price option is unsupported or unavailable",
+				"price must be initial value if price status is unsupported or unavailable",
 			)
 		}
 	}

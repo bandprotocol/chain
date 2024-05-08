@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -98,26 +97,17 @@ func (ms msgServer) SubmitPrices(
 	cooldownTime := ms.GetParams(ctx).CooldownTime
 
 	for _, price := range req.Prices {
-		priceVal, err := ms.NewPriceValidator(ctx, blockTime, price, val, cooldownTime)
+		valPrice, err := ms.NewValidatorPrice(ctx, blockTime, price, val, cooldownTime)
 		if err != nil {
 			return nil, err
 		}
 
-		err = ms.SetPriceValidator(ctx, priceVal)
+		err = ms.SetValidatorPrice(ctx, valPrice)
 		if err != nil {
 			return nil, err
 		}
 
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeSubmitPrice,
-				sdk.NewAttribute(types.AttributeKeyPriceOption, priceVal.PriceOption.String()),
-				sdk.NewAttribute(types.AttributeKeyValidator, priceVal.Validator),
-				sdk.NewAttribute(types.AttributeKeySignalID, priceVal.SignalID),
-				sdk.NewAttribute(types.AttributeKeyPrice, fmt.Sprintf("%d", priceVal.Price)),
-				sdk.NewAttribute(types.AttributeKeyTimestamp, fmt.Sprintf("%d", priceVal.Timestamp)),
-			),
-		)
+		emitEventSubmitPrice(ctx, valPrice)
 	}
 
 	return &types.MsgSubmitPricesResponse{}, nil
@@ -143,14 +133,7 @@ func (ms msgServer) UpdatePriceService(
 		return nil, err
 	}
 
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeUpdatePriceService,
-			sdk.NewAttribute(types.AttributeKeyHash, req.PriceService.Hash),
-			sdk.NewAttribute(types.AttributeKeyVersion, req.PriceService.Version),
-			sdk.NewAttribute(types.AttributeKeyURL, req.PriceService.Url),
-		),
-	)
+	emitEventUpdatePriceService(ctx, req.PriceService)
 
 	return &types.MsgUpdatePriceServiceResponse{}, nil
 }
@@ -174,10 +157,7 @@ func (ms msgServer) UpdateParams(
 		return nil, err
 	}
 
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeUpdateParams,
-		sdk.NewAttribute(types.AttributeKeyParams, req.Params.String()),
-	))
+	emitEventUpdateParams(ctx, req.Params)
 
 	return &types.MsgUpdateParamsResponse{}, nil
 }

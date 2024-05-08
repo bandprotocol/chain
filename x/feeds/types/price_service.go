@@ -16,19 +16,19 @@ func DefaultPriceService() PriceService {
 
 // Validate validates the price service
 func (ps *PriceService) Validate() error {
-	if err := validateString("hash", false)(ps.Hash); err != nil {
+	if err := validateString("hash", false, ps.Hash); err != nil {
 		return err
 	}
 
-	if err := validateString("version", false)(ps.Version); err != nil {
+	if err := validateString("version", false, ps.Version); err != nil {
 		return err
 	}
 
-	if err := validateString("url", false)(ps.Url); err != nil {
+	if err := validateString("url", false, ps.Url); err != nil {
 		return err
 	}
 
-	if err := validateURL("url")(ps.Url); err != nil {
+	if err := validateURL("url", ps.Url); err != nil {
 		return err
 	}
 

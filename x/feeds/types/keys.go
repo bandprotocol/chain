@@ -27,7 +27,7 @@ var (
 	PriceServiceStoreKey = append(GlobalStoreKeyPrefix, []byte("PriceService")...)
 
 	FeedStoreKeyPrefix            = []byte{0x01}
-	PriceValidatorStoreKeyPrefix  = []byte{0x02}
+	ValidatorPriceStoreKeyPrefix  = []byte{0x02}
 	PriceStoreKeyPrefix           = []byte{0x03}
 	DelegatorSignalStoreKeyPrefix = []byte{0x04}
 
@@ -46,14 +46,14 @@ func FeedStoreKey(signalID string) []byte {
 	return append(FeedStoreKeyPrefix, []byte(signalID)...)
 }
 
-// PriceValidatorsStoreKey creates a key for storing price validators
-func PriceValidatorsStoreKey(signalID string) []byte {
-	return append(PriceValidatorStoreKeyPrefix, []byte(signalID)...)
+// ValidatorPricesStoreKey creates a key for storing validator prices
+func ValidatorPricesStoreKey(signalID string) []byte {
+	return append(ValidatorPriceStoreKeyPrefix, []byte(signalID)...)
 }
 
-// PriceValidatorStoreKey creates a key for storing a price validator
-func PriceValidatorStoreKey(signalID string, validator sdk.ValAddress) []byte {
-	return append(PriceValidatorsStoreKey(signalID), validator...)
+// ValidatorPriceStoreKey creates a key for storing a validator price
+func ValidatorPriceStoreKey(signalID string, validator sdk.ValAddress) []byte {
+	return append(ValidatorPricesStoreKey(signalID), validator...)
 }
 
 // PriceStoreKey creates a key for storing price data

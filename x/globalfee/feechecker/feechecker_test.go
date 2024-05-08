@@ -431,8 +431,8 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 			isByPassMinFeeTx := suite.FeeChecker.IsBypassMinFeeTx(suite.ctx, stubTx)
 			suite.Require().Equal(tc.expIsBypassMinFeeTx, isByPassMinFeeTx)
 
-			// test - CheckTxFeeWithMinGasPrices
-			fee, priority, err := suite.FeeChecker.CheckTxFeeWithMinGasPrices(suite.ctx, stubTx)
+			// test - CheckTxFee
+			fee, priority, err := suite.FeeChecker.CheckTxFee(suite.ctx, stubTx)
 			suite.Require().ErrorIs(err, tc.expErr)
 			suite.Require().Equal(fee, tc.expFee)
 			suite.Require().Equal(tc.expPriority, priority)
