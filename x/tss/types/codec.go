@@ -7,18 +7,21 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// RegisterLegacyAminoCodec registers the necessary x/bandtss interfaces and concrete types
+// on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	legacy.RegisterAminoMsg(cdc, &MsgSubmitDKGRound1{}, "tss/SubmitDKGRound1")
-	legacy.RegisterAminoMsg(cdc, &MsgSubmitDKGRound2{}, "tss/SubmitDKGRound2")
-	legacy.RegisterAminoMsg(cdc, &MsgComplain{}, "tss/Complaint")
-	legacy.RegisterAminoMsg(cdc, &MsgConfirm{}, "tss/Confirm")
-	legacy.RegisterAminoMsg(cdc, &MsgSubmitDEs{}, "tss/SubmitDEs")
-	legacy.RegisterAminoMsg(cdc, &MsgSubmitSignature{}, "tss/SubmitSignature")
-	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "tss/UpdateParams")
+	legacy.RegisterAminoMsg(cdc, &MsgSubmitDKGRound1{}, "tss/MsgSubmitDKGRound1")
+	legacy.RegisterAminoMsg(cdc, &MsgSubmitDKGRound2{}, "tss/MsgSubmitDKGRound2")
+	legacy.RegisterAminoMsg(cdc, &MsgComplain{}, "tss/MsgComplaint")
+	legacy.RegisterAminoMsg(cdc, &MsgConfirm{}, "tss/MsgConfirm")
+	legacy.RegisterAminoMsg(cdc, &MsgSubmitDEs{}, "tss/MsgSubmitDEs")
+	legacy.RegisterAminoMsg(cdc, &MsgSubmitSignature{}, "tss/MsgSubmitSignature")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "tss/MsgUpdateParams")
 
 	cdc.RegisterConcrete(&TextSignatureOrder{}, "tss/TextSignatureOrder", nil)
 }
 
+// RegisterInterfaces register the bandtss module interfaces to protobuf Any.
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgSubmitDKGRound1{},

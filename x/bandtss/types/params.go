@@ -4,17 +4,15 @@ import (
 	"fmt"
 	"time"
 
-	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 const (
-	DefaultActiveDuration          time.Duration = time.Hour * 24      // 1 days
-	DefaultInactivePenaltyDuration time.Duration = time.Minute * 10    // 10 minutes
-	DefaultJailPenaltyDuration     time.Duration = time.Hour * 24 * 30 // 30 days
-	// compute the BandTSS reward following the allocation to Oracle. If the Oracle reward amounts to 40%,
-	// the BandTSS reward will be determined from the remaining 60%.
+	DefaultActiveDuration          time.Duration = time.Hour * 24   // 1 days
+	DefaultInactivePenaltyDuration time.Duration = time.Minute * 10 // 10 minutes
+	// compute the bandtss reward following the allocation to Oracle. If the Oracle reward amounts to 40%,
+	// the bandtss reward will be determined from the remaining 60%.
 	DefaultRewardPercentage = uint64(50)
 )
 
@@ -25,14 +23,12 @@ func NewParams(
 	activeDuration time.Duration,
 	rewardPercentage uint64,
 	inactivePenaltyDuration time.Duration,
-	jailPenaltyDuration time.Duration,
 	fee sdk.Coins,
 ) Params {
 	return Params{
 		ActiveDuration:          activeDuration,
 		RewardPercentage:        rewardPercentage,
 		InactivePenaltyDuration: inactivePenaltyDuration,
-		JailPenaltyDuration:     jailPenaltyDuration,
 		Fee:                     fee,
 	}
 }
@@ -43,7 +39,6 @@ func DefaultParams() Params {
 		ActiveDuration:          DefaultActiveDuration,
 		RewardPercentage:        DefaultRewardPercentage,
 		InactivePenaltyDuration: DefaultInactivePenaltyDuration,
-		JailPenaltyDuration:     DefaultJailPenaltyDuration,
 		Fee:                     DefaultFee,
 	}
 }
@@ -58,17 +53,13 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	if err := validateTimeDuration("jail penalty duration")(p.JailPenaltyDuration); err != nil {
-		return err
-	}
-
 	if err := validateUint64("reward percentage", false)(p.RewardPercentage); err != nil {
 		return err
 	}
 
 	// Validate fee
 	if !p.Fee.IsValid() {
-		return errors.Wrap(sdkerrors.ErrInvalidCoins, p.Fee.String())
+		return sdkerrors.ErrInvalidCoins.Wrapf(p.Fee.String())
 	}
 
 	return nil

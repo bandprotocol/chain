@@ -51,10 +51,10 @@ func (k Keeper) GetDEQueues(ctx sdk.Context) []types.DEQueue {
 // GetDECount retrieves the current count of DE for a given address from the context's KVStore.
 func (k Keeper) GetDECount(ctx sdk.Context, address sdk.AccAddress) uint64 {
 	deQueue := k.GetDEQueue(ctx, address)
-
 	if deQueue.Head <= deQueue.Tail {
 		return deQueue.Tail - deQueue.Head
 	}
+
 	return k.GetParams(ctx).MaxDESize - (deQueue.Head - deQueue.Tail)
 }
 

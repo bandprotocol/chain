@@ -96,8 +96,10 @@ func (s *KeeperTestSuite) TestAllocateTokensOneActive() {
 	})
 	s.Require().NoError(err)
 
-	err = k.ActivateMember(ctx, bandtesting.Validators[1].Address)
-	s.Require().NoError(err)
+	for _, validator := range bandtesting.Validators {
+		err := k.AddNewMember(ctx, validator.Address)
+		s.Require().NoError(err)
+	}
 
 	k.AllocateTokens(ctx, defaultVotes())
 
@@ -127,8 +129,15 @@ func (s *KeeperTestSuite) TestAllocateTokensAllActive() {
 
 	feeCollector, err := SetupFeeCollector(app, ctx, *k)
 	s.Require().NoError(err)
-
 	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
+
+	for _, validator := range bandtesting.Validators {
+		err := k.AddNewMember(ctx, validator.Address)
+		s.Require().NoError(err)
+		deCount := s.app.TSSKeeper.GetDECount(ctx, validator.Address)
+		s.Require().Greater(deCount, uint64(0))
+	}
+
 	// From 50% of fee, 1% should go to community pool, the rest get split to validators.
 	k.AllocateTokens(ctx, defaultVotes())
 
@@ -171,6 +180,12 @@ func (s *KeeperTestSuite) TestHandleInactiveValidators() {
 		LastActive: time.Time{},
 	}
 	k.SetMember(ctx, member)
+	s.app.TSSKeeper.SetMember(ctx, tsstypes.Member{
+		ID:       1,
+		GroupID:  1,
+		Address:  address.String(),
+		IsActive: true,
+	})
 	ctx = ctx.WithBlockTime(time.Now())
 
 	k.HandleInactiveValidators(ctx)

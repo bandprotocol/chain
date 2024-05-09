@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
@@ -14,7 +16,7 @@ type Hooks struct {
 
 var _ tsstypes.TSSHooks = Hooks{}
 
-// Create new Bandtss hooks
+// Create new bandtss hooks
 func (k Keeper) Hooks() Hooks {
 	return Hooks{k}
 }
@@ -35,6 +37,14 @@ func (h Hooks) AfterCreatingGroupCompleted(ctx sdk.Context, group tsstypes.Group
 		}
 	}
 
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeNewGroupActivate,
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", group.ID)),
+			sdk.NewAttribute(types.AttributeKeyGroupPubKey, fmt.Sprintf("%v", group.PubKey.String())),
+		),
+	)
+
 	return nil
 }
 
@@ -43,7 +53,6 @@ func (h Hooks) AfterCreatingGroupFailed(ctx sdk.Context, group tsstypes.Group) e
 }
 
 func (h Hooks) BeforeSetGroupExpired(ctx sdk.Context, group tsstypes.Group) error {
-	// TODO: Penalize members will be slashed in the future.
 	return nil
 }
 
@@ -56,7 +65,7 @@ func (h Hooks) AfterSigningFailed(ctx sdk.Context, signing tsstypes.Signing) err
 	}
 
 	// refund fee to requester. Unlikely to get an error from refund fee, but log it just in case.
-	if err := h.k.CheckRefundFee(ctx, signing, bandtssSigningID); err != nil {
+	if err := h.k.RefundFee(ctx, signing, bandtssSigningID); err != nil {
 		return err
 	}
 
@@ -89,7 +98,7 @@ func (h Hooks) BeforeSetSigningExpired(ctx sdk.Context, signing tsstypes.Signing
 	}
 
 	// refund fee to requester and delete the signingID mapping.
-	if err := h.k.CheckRefundFee(ctx, signing, bandtssSigningID); err != nil {
+	if err := h.k.RefundFee(ctx, signing, bandtssSigningID); err != nil {
 		return err
 	}
 	h.k.DeleteSigningIDMapping(ctx, signing.ID)

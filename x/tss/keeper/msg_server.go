@@ -538,6 +538,7 @@ func (k msgServer) SubmitSignature(
 	return &types.MsgSubmitSignatureResponse{}, nil
 }
 
+// UpdateParams update parameter of the module.
 func (k Keeper) UpdateParams(
 	goCtx context.Context,
 	req *types.MsgUpdateParams,

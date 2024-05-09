@@ -135,11 +135,10 @@ func MockByte(n int) []byte {
 
 func GenMsgRequestSignature(
 	sender *Account,
-	gid tss.GroupID,
 	content tsstypes.Content,
 	feeLimit sdk.Coins,
 ) []sdk.Msg {
-	msg, err := bandtsstypes.NewMsgRequestSignature(gid, content, feeLimit, sender.Address)
+	msg, err := bandtsstypes.NewMsgRequestSignature(content, feeLimit, sender.Address)
 	if err != nil {
 		panic(err)
 	}

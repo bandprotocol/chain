@@ -363,7 +363,7 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 							Signature:   signature,
 						},
 					},
-					Address: sdk.AccAddress(tc.Group.Members[0].PubKey()).String(),
+					Address: sdk.AccAddress(m.PubKey()).String(),
 				})
 				s.Require().NoError(err)
 			}
@@ -565,7 +565,6 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 
 			// Request signature for the first member in the group
 			msg, err := bandtsstypes.NewMsgRequestSignature(
-				tc.Group.ID,
 				types.NewTextSignatureOrder([]byte("msg")),
 				sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 				bandtesting.FeePayer.Address,

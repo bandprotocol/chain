@@ -4,7 +4,6 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 )
 
@@ -29,15 +28,7 @@ type RollingseedKeeper interface {
 	GetRollingSeed(ctx sdk.Context) []byte
 }
 
-// AccountKeeper defines the expected account keeper (noalias)
-type AccountKeeper interface {
-	GetAccount(ctx sdk.Context, addr sdk.AccAddress) types.AccountI
-
-	GetModuleAddress(name string) sdk.AccAddress
-	GetModuleAccount(ctx sdk.Context, name string) types.ModuleAccountI
-}
-
-// TSSHooks event hooks for staking validator object (noalias)
+// TSSHooks event hooks for tss validator object (noalias)
 type TSSHooks interface {
 	// Must be called when a group is created successfully.
 	AfterCreatingGroupCompleted(ctx sdk.Context, group Group) error

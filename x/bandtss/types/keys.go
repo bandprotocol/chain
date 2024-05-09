@@ -47,7 +47,7 @@ func MemberStoreKey(address sdk.AccAddress) []byte {
 	return append(MemberStoreKeyPrefix, address...)
 }
 
-func SigningStoreKey(id SigningID) []byte {
+func SigningInfoStoreKey(id SigningID) []byte {
 	return append(SigningInfoStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(id))...)
 }
 

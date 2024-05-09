@@ -1,12 +1,14 @@
 package keeper_test
 
 import (
+	"testing"
 	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/stretchr/testify/suite"
 
@@ -196,8 +198,8 @@ func (s *KeeperTestSuite) TestParams() {
 			input: types.Params{
 				ActiveDuration:          time.Duration(0),
 				InactivePenaltyDuration: time.Duration(0),
-				JailPenaltyDuration:     time.Duration(0),
 				RewardPercentage:        0,
+				Fee:                     sdk.NewCoins(),
 			},
 			expectErr:    true,
 			expectErrStr: "must be positive:",
@@ -208,7 +210,7 @@ func (s *KeeperTestSuite) TestParams() {
 				ActiveDuration:          types.DefaultActiveDuration,
 				RewardPercentage:        types.DefaultRewardPercentage,
 				InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
-				JailPenaltyDuration:     types.DefaultJailPenaltyDuration,
+				Fee:                     types.DefaultFee,
 			},
 			expectErr: false,
 		},
@@ -230,4 +232,28 @@ func (s *KeeperTestSuite) TestParams() {
 			s.Require().Equal(expected, p)
 		})
 	}
+}
+
+func (s *KeeperTestSuite) TestIsGrantee() {
+	ctx, k := s.ctx, s.app.BandtssKeeper
+	expTime := time.Unix(0, 0)
+
+	// Init grantee address
+	grantee, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+
+	// Init granter address
+	granter, _ := sdk.AccAddressFromBech32("band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun")
+
+	// Save grant msgs to grantee
+	for _, m := range types.GetBandtssGrantMsgTypes() {
+		err := s.app.AuthzKeeper.SaveGrant(ctx, grantee, granter, authz.NewGenericAuthorization(m), &expTime)
+		s.Require().NoError(err)
+	}
+
+	isGrantee := k.CheckIsGrantee(ctx, granter, grantee)
+	s.Require().True(isGrantee)
+}
+
+func TestKeeperTestSuite(t *testing.T) {
+	suite.Run(t, new(KeeperTestSuite))
 }

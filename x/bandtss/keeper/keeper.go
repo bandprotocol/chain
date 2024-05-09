@@ -19,6 +19,7 @@ type Keeper struct {
 	storeKey   storetypes.StoreKey
 	paramSpace paramtypes.Subspace
 
+	authzKeeper   types.AuthzKeeper
 	authKeeper    types.AccountKeeper
 	bankKeeper    types.BankKeeper
 	distrKeeper   types.DistrKeeper
@@ -33,6 +34,7 @@ func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey storetypes.StoreKey,
 	paramSpace paramtypes.Subspace,
+	authzKeeper types.AuthzKeeper,
 	authKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
 	distrKeeper types.DistrKeeper,
@@ -50,6 +52,7 @@ func NewKeeper(
 		cdc:              cdc,
 		storeKey:         storeKey,
 		paramSpace:       paramSpace,
+		authzKeeper:      authzKeeper,
 		authKeeper:       authKeeper,
 		bankKeeper:       bankKeeper,
 		distrKeeper:      distrKeeper,
@@ -60,11 +63,12 @@ func NewKeeper(
 	}
 }
 
-// GetBandtssAccount returns the Bandtss ModuleAccount
+// GetBandtssAccount returns the bandtss ModuleAccount
 func (k Keeper) GetBandtssAccount(ctx sdk.Context) authtypes.ModuleAccountI {
 	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 
+// Logger gets logger object.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
@@ -118,12 +122,12 @@ func (k Keeper) DeleteMember(ctx sdk.Context, address sdk.AccAddress) {
 	ctx.KVStore(k.storeKey).Delete(types.MemberStoreKey(address))
 }
 
-// SetCurrentGroupID sets a current groupID of the Bandtss module.
+// SetCurrentGroupID sets a current groupID of the bandtss module.
 func (k Keeper) SetCurrentGroupID(ctx sdk.Context, groupID tss.GroupID) {
 	ctx.KVStore(k.storeKey).Set(types.CurrentGroupIDStoreKey, sdk.Uint64ToBigEndian(uint64(groupID)))
 }
 
-// GetCurrentGroupID retrieves a current groupID of the Bandtss module.
+// GetCurrentGroupID retrieves a current groupID of the bandtss module.
 func (k Keeper) GetCurrentGroupID(ctx sdk.Context) tss.GroupID {
 	return tss.GroupID(sdk.BigEndianToUint64(ctx.KVStore(k.storeKey).Get(types.CurrentGroupIDStoreKey)))
 }
@@ -142,4 +146,22 @@ func (k Keeper) GetReplacement(ctx sdk.Context) types.Replacement {
 	var replacement types.Replacement
 	k.cdc.MustUnmarshal(bz, &replacement)
 	return replacement
+}
+
+// CheckIsGrantee checks if the granter granted permissions to the grantee.
+func (k Keeper) CheckIsGrantee(ctx sdk.Context, granter sdk.AccAddress, grantee sdk.AccAddress) bool {
+	for _, msg := range types.GetBandtssGrantMsgTypes() {
+		cap, _ := k.authzKeeper.GetAuthorization(
+			ctx,
+			grantee,
+			granter,
+			msg,
+		)
+
+		if cap == nil {
+			return false
+		}
+	}
+
+	return true
 }

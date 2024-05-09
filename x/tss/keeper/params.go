@@ -8,8 +8,7 @@ import (
 
 // GetParams returns the current x/tss module parameters.
 func (k Keeper) GetParams(ctx sdk.Context) (p types.Params) {
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.ParamsKeyPrefix)
+	bz := ctx.KVStore(k.storeKey).Get(types.ParamsKeyPrefix)
 	if bz == nil {
 		return p
 	}
@@ -24,9 +23,7 @@ func (k Keeper) SetParams(ctx sdk.Context, p types.Params) error {
 		return err
 	}
 
-	store := ctx.KVStore(k.storeKey)
-	bz := k.cdc.MustMarshal(&p)
-	store.Set(types.ParamsKeyPrefix, bz)
+	ctx.KVStore(k.storeKey).Set(types.ParamsKeyPrefix, k.cdc.MustMarshal(&p))
 
 	return nil
 }

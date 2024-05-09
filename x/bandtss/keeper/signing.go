@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 
@@ -28,7 +30,7 @@ func (k Keeper) GetNextSigningID(ctx sdk.Context) types.SigningID {
 
 // SetSigning sets a signing of the Bandtss module.
 func (k Keeper) SetSigning(ctx sdk.Context, signing types.Signing) {
-	ctx.KVStore(k.storeKey).Set(types.SigningStoreKey(signing.ID), k.cdc.MustMarshal(&signing))
+	ctx.KVStore(k.storeKey).Set(types.SigningInfoStoreKey(signing.ID), k.cdc.MustMarshal(&signing))
 }
 
 // AddSigning adds the Signing data to the store and returns the new Signing ID.
@@ -48,7 +50,7 @@ func (k Keeper) AddSigning(ctx sdk.Context, signing types.Signing) types.Signing
 
 // GetSigning retrieves a bandtss signing info.
 func (k Keeper) GetSigning(ctx sdk.Context, id types.SigningID) (types.Signing, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.SigningStoreKey(id))
+	bz := ctx.KVStore(k.storeKey).Get(types.SigningInfoStoreKey(id))
 	if bz == nil {
 		return types.Signing{}, types.ErrSigningNotFound.Wrapf("signingID: %d", id)
 	}
@@ -137,6 +139,10 @@ func (k Keeper) HandleCreateSigning(
 	}
 
 	currentGroupID := k.GetCurrentGroupID(ctx)
+	if currentGroupID == 0 {
+		return 0, types.ErrNoActiveGroup
+	}
+
 	replacement := k.GetReplacement(ctx)
 
 	currentGroup, err := k.tssKeeper.GetGroup(ctx, currentGroupID)
@@ -146,26 +152,19 @@ func (k Keeper) HandleCreateSigning(
 
 	// charged fee if necessary; If found any coins that exceed limit then return error
 	feePerSigner := sdk.NewCoins()
+	totalFee := sdk.NewCoins()
 	if sender.String() != k.authority {
 		feePerSigner = k.GetParams(ctx).Fee
-		totalFee := feePerSigner.MulInt(sdk.NewInt(int64(currentGroup.Threshold)))
+		totalFee = feePerSigner.MulInt(sdk.NewInt(int64(currentGroup.Threshold)))
 		for _, fc := range totalFee {
 			limitAmt := feeLimit.AmountOf(fc.Denom)
 			if fc.Amount.GT(limitAmt) {
-				return 0, types.ErrNotEnoughFee.Wrapf(
+				return 0, types.ErrFeeExceedsLimit.Wrapf(
 					"require: %s, limit: %s%s",
 					fc.String(),
 					limitAmt.String(),
 					fc.Denom,
 				)
-			}
-		}
-
-		// transfer fee to module account.
-		if !totalFee.IsZero() {
-			err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, totalFee)
-			if err != nil {
-				return 0, err
 			}
 		}
 	}
@@ -190,6 +189,14 @@ func (k Keeper) HandleCreateSigning(
 		replacingGroupSigningID = replacingGroupSigning.ID
 	}
 
+	// transfer fee to module account.
+	if !totalFee.IsZero() {
+		err = k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, totalFee)
+		if err != nil {
+			return 0, err
+		}
+	}
+
 	// save signingInfo
 	bandtssSigningID := k.AddSigning(ctx, types.Signing{
 		Fee:                     feePerSigner,
@@ -198,11 +205,22 @@ func (k Keeper) HandleCreateSigning(
 		ReplacingGroupSigningID: replacingGroupSigningID,
 	})
 
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeSigningRequestCreated,
+			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", bandtssSigningID)),
+			sdk.NewAttribute(types.AttributeKeyCurrentGroupID, fmt.Sprintf("%d", currentGroupID)),
+			sdk.NewAttribute(types.AttributeKeyCurrentGroupSigningID, fmt.Sprintf("%d", currentGroupSigning.ID)),
+			sdk.NewAttribute(types.AttributeKeyReplacingGroupID, fmt.Sprintf("%d", replacement.NewGroupID)),
+			sdk.NewAttribute(types.AttributeKeyReplacingGroupSigningID, fmt.Sprintf("%d", replacingGroupSigningID)),
+		),
+	)
+
 	return bandtssSigningID, nil
 }
 
-// CheckRefundFee refunds the fee to the requester.
-func (k Keeper) CheckRefundFee(ctx sdk.Context, signing tsstypes.Signing, bandtssSigningID types.SigningID) error {
+// RefundFee refunds the fee to the requester.
+func (k Keeper) RefundFee(ctx sdk.Context, signing tsstypes.Signing, bandtssSigningID types.SigningID) error {
 	bandtssSigning, err := k.GetSigning(ctx, bandtssSigningID)
 	if err != nil {
 		return err

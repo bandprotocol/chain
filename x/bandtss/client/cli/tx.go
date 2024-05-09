@@ -14,14 +14,12 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/bandprotocol/chain/v2/pkg/grant"
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 const (
 	flagExpiration = "expiration"
-	flagGroupID    = "group-id"
 	flagFeeLimit   = "fee-limit"
 )
 
@@ -70,10 +68,8 @@ func GetTxCmdRequestSignature() *cobra.Command {
 	}
 
 	cmd.PersistentFlags().String(flagFeeLimit, "", "The maximum tokens that will be paid for this request")
-	cmd.PersistentFlags().Uint64(flagGroupID, 0, "The group that is requested to sign the result")
 
 	_ = cmd.MarkPersistentFlagRequired(flagFeeLimit)
-	_ = cmd.MarkPersistentFlagRequired(flagGroupID)
 
 	return cmd
 }
@@ -83,18 +79,13 @@ func GetTxCmdTextRequestSignature() *cobra.Command {
 	return &cobra.Command{
 		Use:   "text [message]",
 		Args:  cobra.ExactArgs(1),
-		Short: "request signature of the message from the group",
+		Short: "request signature of the message from the current group",
 		Example: fmt.Sprintf(
-			`%s tx bandtss request-signature text [message] --group-id 1 --fee-limit 10uband`,
+			`%s tx bandtss request-signature text [message] --fee-limit 10uband`,
 			version.AppName,
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			gid, err := cmd.Flags().GetUint64(flagGroupID)
 			if err != nil {
 				return err
 			}
@@ -117,7 +108,6 @@ func GetTxCmdTextRequestSignature() *cobra.Command {
 			}
 
 			msg, err := types.NewMsgRequestSignature(
-				tss.GroupID(gid),
 				content,
 				feeLimit,
 				clientCtx.GetFromAddress(),
@@ -165,7 +155,7 @@ func GetTxCmdHealthCheck() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "health-check",
 		Args:  cobra.NoArgs,
-		Short: "update the active status of the address to ensure that the TSS process is still running",
+		Short: "update the active status of the address to ensure that the member in the group is active",
 		Example: fmt.Sprintf(
 			`%s tx bandtss health-check`,
 			version.AppName,

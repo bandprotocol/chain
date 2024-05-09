@@ -64,6 +64,8 @@ func (r *Router) GetRoute(path string) Handler {
 	return r.handlers[path]
 }
 
+// wrapHandler returns a function that converts content into message bytes.
+// It prefixes the message with a selector, which consists of first 4 bytes of the hashed path.
 func wrapHandler(path string, handler Handler) Handler {
 	return func(ctx sdk.Context, req Content) ([]byte, error) {
 		msg, err := handler(ctx, req)

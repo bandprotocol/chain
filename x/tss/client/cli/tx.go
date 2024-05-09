@@ -20,8 +20,6 @@ import (
 
 const (
 	flagExpiration = "expiration"
-	flagGroupID    = "group-id"
-	flagFeeLimit   = "fee-limit"
 )
 
 // GetTxCmd returns a root CLI command handler for all x/tss transaction commands.

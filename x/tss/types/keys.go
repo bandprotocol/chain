@@ -203,7 +203,3 @@ func MemberIDFromPartialSignatureMemberStoreKey(key []byte) tss.MemberID {
 	kv.AssertKeyLength(key, 1+2*uint64Len)
 	return tss.MemberID(sdk.BigEndianToUint64(key[1+uint64Len:]))
 }
-
-func SigningIDFromPendingSignStoreKey(key []byte) uint64 {
-	return sdk.BigEndianToUint64(key[len(key)-uint64Len:])
-}
