@@ -4,10 +4,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 
+	feedskeeper "github.com/bandprotocol/chain/v2/x/feeds/keeper"
 	"github.com/bandprotocol/chain/v2/x/globalfee/feechecker"
 	globalfeekeeper "github.com/bandprotocol/chain/v2/x/globalfee/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
@@ -17,10 +19,12 @@ import (
 // channel keeper.
 type HandlerOptions struct {
 	ante.HandlerOptions
+	AuthzKeeper     *authzkeeper.Keeper
 	OracleKeeper    *oraclekeeper.Keeper
 	IBCKeeper       *ibckeeper.Keeper
 	StakingKeeper   *stakingkeeper.Keeper
 	GlobalfeeKeeper *globalfeekeeper.Keeper
+	FeedsKeeper     *feedskeeper.Keeper
 }
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
@@ -33,8 +37,14 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	if options.SignModeHandler == nil {
 		return nil, sdkerrors.ErrLogic.Wrap("sign mode handler is required for ante builder")
 	}
+	if options.AuthzKeeper == nil {
+		return nil, sdkerrors.ErrLogic.Wrap("authz keeper is required for AnteHandler")
+	}
 	if options.OracleKeeper == nil {
 		return nil, sdkerrors.ErrLogic.Wrap("oracle keeper is required for AnteHandler")
+	}
+	if options.FeedsKeeper == nil {
+		return nil, sdkerrors.ErrLogic.Wrap("feeds keeper is required for AnteHandler")
 	}
 	if options.IBCKeeper == nil {
 		return nil, sdkerrors.ErrLogic.Wrap("IBC keeper is required for AnteHandler")
@@ -53,11 +63,13 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 
 	if options.TxFeeChecker == nil {
 		feeChecker := feechecker.NewFeeChecker(
+			options.AuthzKeeper,
 			options.OracleKeeper,
 			options.GlobalfeeKeeper,
 			options.StakingKeeper,
+			options.FeedsKeeper,
 		)
-		options.TxFeeChecker = feeChecker.CheckTxFeeWithMinGasPrices
+		options.TxFeeChecker = feeChecker.CheckTxFee
 	}
 
 	anteDecorators := []sdk.AnteDecorator{
