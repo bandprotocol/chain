@@ -20,14 +20,6 @@ func NewRestService(url string, timeout time.Duration) *RestService {
 	return &RestService{url: url, timeout: timeout}
 }
 
-type PriceData struct {
-	Prices map[string]float64 `json:"prices"`
-}
-
-type QueryStruct struct {
-	SignalIds []string `json:"signal_ids"`
-}
-
 func (rs *RestService) Query(signalIds []string) ([]*bothanproto.PriceData, error) {
 	concatSignalIds := strings.Join(signalIds, ",")
 	u, err := url.Parse(rs.url)

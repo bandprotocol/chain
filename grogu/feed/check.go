@@ -54,9 +54,8 @@ func checkFeeds(c *grogucontext.Context, l *grogucontext.Logger) {
 		// Calculate assigned time for the feed
 		assignedTime := calculateAssignedTime(c.Validator, feed.Interval, timestamp)
 
-		if assignedTime.Before(now) || isDeviate(c, feed, params, signalIDChainPriceMap) {
+		if assignedTime.Before(now) || isDeviate(c, feed, signalIDChainPriceMap) {
 			updateRequestedSignalID(c, requestedSignalIDs, feed, timestamp, params)
-			continue
 		}
 	}
 
@@ -134,7 +133,6 @@ func calculateAssignedTime(valAddr sdk.ValAddress, interval int64, timestamp int
 func isDeviate(
 	c *grogucontext.Context,
 	feed types.Feed,
-	params types.Params,
 	signalIDChainPriceMap map[string]uint64,
 ) bool {
 	currentPrices, err := c.PriceService.Query([]string{feed.SignalID})
