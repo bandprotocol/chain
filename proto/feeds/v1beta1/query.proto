@@ -27,8 +27,8 @@ service Query {
     option (google.api.http).get = "/feeds/v1beta1/validators/{validator}/prices";
   }
 
-  // PriceValidator is a RPC method that returns price of validator by signal id.
-  rpc PriceValidator(QueryPriceValidatorRequest) returns (QueryPriceValidatorResponse) {
+  // ValidatorPrice is a RPC method that returns price of validator by signal id.
+  rpc ValidatorPrice(QueryValidatorPriceRequest) returns (QueryValidatorPriceResponse) {
     option (google.api.http).get = "/feeds/v1beta1/prices/{signal_id}/validators/{validator}";
   }
 
@@ -92,8 +92,8 @@ message QueryPriceResponse {
   // Price is the aggregated price of the signal id.
   Price price = 1 [(gogoproto.nullable) = false];
 
-  // PriceValidators is a list of prices from each validator.
-  repeated PriceValidator price_validators = 2 [(gogoproto.nullable) = false];
+  // ValidatorPrices is a list of prices from each validator.
+  repeated ValidatorPrice validator_prices = 2 [(gogoproto.nullable) = false];
 }
 
 // QueryValidatorPricesRequest is the request type for the Query/ValidatorPrices RPC method.
@@ -105,11 +105,11 @@ message QueryValidatorPricesRequest {
 // QueryValidatorPricesResponse is the response type for the Query/ValidatorPrices RPC method.
 message QueryValidatorPricesResponse {
   // ValidatorPrices is a list of prices submitted by the validator.
-  repeated PriceValidator validator_prices = 1 [(gogoproto.nullable) = false];
+  repeated ValidatorPrice validator_prices = 1 [(gogoproto.nullable) = false];
 }
 
-// QueryPriceValidatorRequest is the request type for the Query/PriceValidator RPC method.
-message QueryPriceValidatorRequest {
+// QueryValidatorPriceRequest is the request type for the Query/ValidatorPrice RPC method.
+message QueryValidatorPriceRequest {
   // SignalID is the signal id to query the price for.
   string signal_id = 1;
 
@@ -117,10 +117,10 @@ message QueryPriceValidatorRequest {
   string validator = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// QueryPriceValidatorResponse is the response type for the Query/PriceValidator RPC method.
-message QueryPriceValidatorResponse {
-  // PriceValidator is the requested price submitted by the validator.
-  PriceValidator price_validator = 1 [(gogoproto.nullable) = false];
+// QueryValidatorPriceResponse is the response type for the Query/ValidatorPrice RPC method.
+message QueryValidatorPriceResponse {
+  // ValidatorPrice is the requested price submitted by the validator.
+  ValidatorPrice validator_price = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryValidValidatorRequest is the request type for the Query/ValidValidator RPC method.
@@ -131,7 +131,7 @@ message QueryValidValidatorRequest {
 
 // QueryValidValidatorResponse is the response type for the Query/ValidValidator RPC method.
 message QueryValidValidatorResponse {
-  // Valida is a valid flag.
+  // Valid is a valid flag.
   bool valid = 1;
 }
 

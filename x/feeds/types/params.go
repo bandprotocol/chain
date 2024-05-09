@@ -20,7 +20,7 @@ const (
 // NewParams creates a new Params instance
 func NewParams(
 	admin string,
-	allowDiffTime int64,
+	allowableBlockTimeDiscrepancy int64,
 	transitionTime int64,
 	minInterval int64,
 	maxInterval int64,
@@ -31,16 +31,16 @@ func NewParams(
 	maxDeviationInThousandth int64,
 ) Params {
 	return Params{
-		Admin:                    admin,
-		AllowDiffTime:            allowDiffTime,
-		TransitionTime:           transitionTime,
-		MinInterval:              minInterval,
-		MaxInterval:              maxInterval,
-		PowerThreshold:           powerThreshold,
-		MaxSupportedFeeds:        maxSupportedFeeds,
-		CooldownTime:             cooldownTime,
-		MinDeviationInThousandth: minDeviationInThousandth,
-		MaxDeviationInThousandth: maxDeviationInThousandth,
+		Admin:                         admin,
+		AllowableBlockTimeDiscrepancy: allowableBlockTimeDiscrepancy,
+		TransitionTime:                transitionTime,
+		MinInterval:                   minInterval,
+		MaxInterval:                   maxInterval,
+		PowerThreshold:                powerThreshold,
+		MaxSupportedFeeds:             maxSupportedFeeds,
+		CooldownTime:                  cooldownTime,
+		MinDeviationInThousandth:      minDeviationInThousandth,
+		MaxDeviationInThousandth:      maxDeviationInThousandth,
 	}
 }
 
@@ -62,34 +62,34 @@ func DefaultParams() Params {
 
 // Validate validates the set of params
 func (p Params) Validate() error {
-	if err := validateString("admin", true)(p.Admin); err != nil {
+	if err := validateString("admin", true, p.Admin); err != nil {
 		return err
 	}
-	if err := validateInt64("allow diff time", true)(p.AllowDiffTime); err != nil {
+	if err := validateInt64("allowable block time discrepancy", true, p.AllowableBlockTimeDiscrepancy); err != nil {
 		return err
 	}
-	if err := validateInt64("transition time", true)(p.TransitionTime); err != nil {
+	if err := validateInt64("transition time", true, p.TransitionTime); err != nil {
 		return err
 	}
-	if err := validateInt64("min interval", true)(p.MinInterval); err != nil {
+	if err := validateInt64("min interval", true, p.MinInterval); err != nil {
 		return err
 	}
-	if err := validateInt64("max interval", true)(p.MaxInterval); err != nil {
+	if err := validateInt64("max interval", true, p.MaxInterval); err != nil {
 		return err
 	}
-	if err := validateInt64("power threshold", true)(p.PowerThreshold); err != nil {
+	if err := validateInt64("power threshold", true, p.PowerThreshold); err != nil {
 		return err
 	}
-	if err := validateInt64("max supported feeds", true)(p.MaxSupportedFeeds); err != nil {
+	if err := validateInt64("max supported feeds", true, p.MaxSupportedFeeds); err != nil {
 		return err
 	}
-	if err := validateInt64("cooldown time", true)(p.CooldownTime); err != nil {
+	if err := validateInt64("cooldown time", true, p.CooldownTime); err != nil {
 		return err
 	}
-	if err := validateInt64("min deviation in thousandth", true)(p.MinDeviationInThousandth); err != nil {
+	if err := validateInt64("min deviation in thousandth", true, p.MinDeviationInThousandth); err != nil {
 		return err
 	}
-	if err := validateInt64("max deviation in thousandth", true)(p.MaxDeviationInThousandth); err != nil {
+	if err := validateInt64("max deviation in thousandth", true, p.MaxDeviationInThousandth); err != nil {
 		return err
 	}
 

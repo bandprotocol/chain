@@ -4,18 +4,19 @@ import (
 	"sort"
 )
 
-// Constants representing multipliers and sections
+// Constants representing multipliers
 func getMultipliers() [5]uint64 {
 	return [5]uint64{60, 40, 20, 11, 10}
 }
 
+// Constants representing sections
 func getSections() [5]uint64 {
 	return [5]uint64{1, 3, 7, 15, 32}
 }
 
 // PriceFeedInfo contains information about a price feed
 type PriceFeedInfo struct {
-	PriceOption PriceOption // PriceOption represents the state of the price feed
+	PriceStatus PriceStatus // PriceStatus represents the state of the price feed
 	Power       uint64      // Power represents the power of the price feed
 	Price       uint64      // Price represents the reported price
 	Deviation   uint64      // Deviation represents the deviation from the reported price
@@ -23,11 +24,11 @@ type PriceFeedInfo struct {
 	Index       int64       // Index represents the index of the price feed
 }
 
-// FilterPriceFeedInfos filters price feed infos based on price option
-func FilterPriceFeedInfos(pfInfos []PriceFeedInfo, opt PriceOption) []PriceFeedInfo {
+// FilterPriceFeedInfos filters price feed infos based on price status
+func FilterPriceFeedInfos(pfInfos []PriceFeedInfo, opt PriceStatus) []PriceFeedInfo {
 	filtered := []PriceFeedInfo{}
 	for _, pfInfo := range pfInfos {
-		if pfInfo.PriceOption == opt {
+		if pfInfo.PriceStatus == opt {
 			filtered = append(filtered, pfInfo)
 		}
 	}
@@ -41,12 +42,12 @@ func CalculatePricesPowers(
 	for _, pfInfo := range priceFeedInfos {
 		totalPower += pfInfo.Power
 
-		switch pfInfo.PriceOption {
-		case PriceOptionAvailable:
+		switch pfInfo.PriceStatus {
+		case PriceStatusAvailable:
 			availablePower += pfInfo.Power
-		case PriceOptionUnavailable:
+		case PriceStatusUnavailable:
 			unavailablePower += pfInfo.Power
-		case PriceOptionUnsupported:
+		case PriceStatusUnsupported:
 			unsupportedPower += pfInfo.Power
 		}
 	}

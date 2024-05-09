@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	bothanproto "github.com/bandprotocol/bothan-api/go-proxy/proto"
+	bothanproto "github.com/bandprotocol/bothan/bothan-api/client/go-client/query"
 	"github.com/levigross/grequests"
 )
 
@@ -18,14 +18,6 @@ type RestService struct {
 
 func NewRestService(url string, timeout time.Duration) *RestService {
 	return &RestService{url: url, timeout: timeout}
-}
-
-type PriceData struct {
-	Prices map[string]float64 `json:"prices"`
-}
-
-type QueryStruct struct {
-	SignalIds []string `json:"signal_ids"`
 }
 
 func (rs *RestService) Query(signalIds []string) ([]*bothanproto.PriceData, error) {
