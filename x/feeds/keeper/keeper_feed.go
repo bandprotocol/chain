@@ -24,7 +24,7 @@ func (k Keeper) GetFeeds(ctx sdk.Context) (feeds []types.Feed) {
 		feeds = append(feeds, feed)
 	}
 
-	return feeds
+	return
 }
 
 // GetFeed returns a feed by signal id.
@@ -61,8 +61,10 @@ func (k Keeper) SetFeed(ctx sdk.Context, feed types.Feed) {
 	if feed.Power > 0 {
 		ctx.KVStore(k.storeKey).Set(types.FeedStoreKey(feed.SignalID), k.cdc.MustMarshal(&feed))
 		k.setFeedByPowerIndex(ctx, feed)
+		emitEventUpdateFeed(ctx, feed)
 	} else {
 		k.DeleteFeed(ctx, feed)
+		emitEventDeleteFeed(ctx, feed)
 	}
 }
 

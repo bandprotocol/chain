@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
@@ -22,7 +20,7 @@ func (k Keeper) CheckDelegatorDelegation(
 	return nil
 }
 
-// RemoveDelegatorSignals deletes signals and decrease feeds power of the signals of a delegator.
+// CalculateDelegatorSignalsPowerDiff calculates feed power differences from delegator's previous signals and new signals.
 func (k Keeper) CalculateDelegatorSignalsPowerDiff(
 	ctx sdk.Context,
 	delegator sdk.AccAddress,
@@ -32,37 +30,13 @@ func (k Keeper) CalculateDelegatorSignalsPowerDiff(
 	prevSignals := k.GetDelegatorSignals(ctx, delegator)
 	k.DeleteDelegatorSignals(ctx, delegator)
 
-	for _, signal := range prevSignals {
-		signalIDToPowerDiff[signal.ID] -= signal.Power
-	}
-
-	// emit events for the removing signals operation.
-	for _, signal := range prevSignals {
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeRemoveSignal,
-				sdk.NewAttribute(types.AttributeKeyDelegator, delegator.String()),
-				sdk.NewAttribute(types.AttributeKeySignalID, signal.ID),
-				sdk.NewAttribute(types.AttributeKeyPower, fmt.Sprintf("%d", signal.Power)),
-				sdk.NewAttribute(types.AttributeKeyTimestamp, fmt.Sprintf("%d", ctx.BlockTime().Unix())),
-			),
-		)
+	for _, prevSignal := range prevSignals {
+		signalIDToPowerDiff[prevSignal.ID] -= prevSignal.Power
 	}
 
 	k.SetDelegatorSignals(ctx, types.DelegatorSignals{Delegator: delegator.String(), Signals: signals})
 	for _, signal := range signals {
 		signalIDToPowerDiff[signal.ID] += signal.Power
-	}
-	for _, signal := range signals {
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeSubmitSignal,
-				sdk.NewAttribute(types.AttributeKeyDelegator, delegator.String()),
-				sdk.NewAttribute(types.AttributeKeySignalID, signal.ID),
-				sdk.NewAttribute(types.AttributeKeyPower, fmt.Sprintf("%d", signal.Power)),
-				sdk.NewAttribute(types.AttributeKeyTimestamp, fmt.Sprintf("%d", ctx.BlockTime().Unix())),
-			),
-		)
 	}
 	return signalIDToPowerDiff
 }

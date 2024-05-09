@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	bothanproto "github.com/bandprotocol/bothan-api/go-proxy/proto"
+	bothanproto "github.com/bandprotocol/bothan/bothan-api/client/go-client/query"
 	"golang.org/x/exp/maps"
 
 	grogucontext "github.com/bandprotocol/chain/v2/grogu/context"
@@ -44,24 +44,24 @@ GetAllSignalIDs:
 	now := time.Now()
 	submitPrices := []types.SubmitPrice{}
 	for _, priceData := range prices {
-		switch priceData.PriceOption {
-		case bothanproto.PriceOption_PRICE_OPTION_UNSUPPORTED:
+		switch priceData.PriceStatus {
+		case bothanproto.PriceStatus_PRICE_STATUS_UNSUPPORTED:
 			submitPrices = append(submitPrices, types.SubmitPrice{
-				PriceOption: types.PriceOptionUnsupported,
+				PriceStatus: types.PriceStatusUnsupported,
 				SignalID:    priceData.SignalId,
 				Price:       0,
 			})
 			continue
 
-		case bothanproto.PriceOption_PRICE_OPTION_AVAILABLE:
+		case bothanproto.PriceStatus_PRICE_STATUS_AVAILABLE:
 			price, err := strconv.ParseFloat(strings.TrimSpace(priceData.Price), 64)
 			if err != nil || price > float64(maxSafePrice) || price < 0 {
 				l.Error(":exploding_head: Failed to parse price from singal id:", c, priceData.SignalId, err)
-				priceData.PriceOption = bothanproto.PriceOption_PRICE_OPTION_UNAVAILABLE
+				priceData.PriceStatus = bothanproto.PriceStatus_PRICE_STATUS_UNAVAILABLE
 				priceData.Price = ""
 			} else {
 				submitPrices = append(submitPrices, types.SubmitPrice{
-					PriceOption: types.PriceOptionAvailable,
+					PriceStatus: types.PriceStatusAvailable,
 					SignalID:    priceData.SignalId,
 					Price:       uint64(price * math.Pow10(9)),
 				})
@@ -71,7 +71,7 @@ GetAllSignalIDs:
 
 		if signalIDsWithTimeLimit[priceData.SignalId].Before(now) {
 			submitPrices = append(submitPrices, types.SubmitPrice{
-				PriceOption: types.PriceOptionUnavailable,
+				PriceStatus: types.PriceStatusUnavailable,
 				SignalID:    priceData.SignalId,
 				Price:       0,
 			})

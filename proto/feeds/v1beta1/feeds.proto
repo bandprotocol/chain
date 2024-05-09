@@ -46,29 +46,29 @@ message Feed {
   int64 deviation_in_thousandth = 5;
 }
 
-// PriceOption is a structure that defines the price option of a price.
-enum PriceOption {
+// PriceStatus is a structure that defines the price status of a price.
+enum PriceStatus {
   option (gogoproto.goproto_enum_prefix) = false;
 
-  // PRICE_OPTION_UNSPECIFIED is an unspecified price option.
-  PRICE_OPTION_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "PriceOptionUnspecified"];
+  // PRICE_STATUS_UNSPECIFIED is an unspecified price status.
+  PRICE_STATUS_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "PriceStatusUnspecified"];
 
-  // PRICE_OPTION_UNSUPPORTED is an unsupported price option.
-  PRICE_OPTION_UNSUPPORTED = 1 [(gogoproto.enumvalue_customname) = "PriceOptionUnsupported"];
+  // PRICE_STATUS_UNSUPPORTED is an unsupported price status.
+  PRICE_STATUS_UNSUPPORTED = 1 [(gogoproto.enumvalue_customname) = "PriceStatusUnsupported"];
 
-  // PRICE_OPTION_UNAVAILABLE is an unavailable price option.
-  PRICE_OPTION_UNAVAILABLE = 2 [(gogoproto.enumvalue_customname) = "PriceOptionUnavailable"];
+  // PRICE_STATUS_UNAVAILABLE is an unavailable price status.
+  PRICE_STATUS_UNAVAILABLE = 2 [(gogoproto.enumvalue_customname) = "PriceStatusUnavailable"];
 
-  // PRICE_OPTION_AVAILABLE is an available price option.
-  PRICE_OPTION_AVAILABLE = 3 [(gogoproto.enumvalue_customname) = "PriceOptionAvailable"];
+  // PRICE_STATUS_AVAILABLE is an available price status.
+  PRICE_STATUS_AVAILABLE = 3 [(gogoproto.enumvalue_customname) = "PriceStatusAvailable"];
 }
 
 // Price is a structure that defines the price of a signal id.
 message Price {
   option (gogoproto.equal) = true;
 
-  // PriceOption is the price option of a signal id.
-  PriceOption price_option = 1;
+  // PriceStatus is the price status of a signal id.
+  PriceStatus price_status = 1;
 
   // SignalID is the signal id of the price.
   string signal_id = 2 [(gogoproto.customname) = "SignalID"];
@@ -84,8 +84,8 @@ message Price {
 message SubmitPrice {
   option (gogoproto.equal) = true;
 
-  // PriceOption is the price option of a signal id.
-  PriceOption price_option = 1;
+  // PriceStatus is the price status of a signal id.
+  PriceStatus price_status = 1;
 
   // SignalID is the signal id of the price.
   string signal_id = 2 [(gogoproto.customname) = "SignalID"];
@@ -94,12 +94,12 @@ message SubmitPrice {
   uint64 price = 3;
 }
 
-// PriceValidator is a structure that defines the price submitted by a validator for a signal id.
-message PriceValidator {
+// ValidatorPrice is a structure that defines the price submitted by a validator for a signal id.
+message ValidatorPrice {
   option (gogoproto.equal) = true;
 
-  // PriceOption is the price option of a price submitted.
-  PriceOption price_option = 1;
+  // PriceStatus is the price status of a price submitted.
+  PriceStatus price_status = 1;
 
   // Validator is the validator address.
   string validator = 2;
