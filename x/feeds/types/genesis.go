@@ -28,13 +28,13 @@ func (gs GenesisState) Validate() error {
 	}
 
 	for _, feed := range gs.Feeds {
-		if err := validateInt64("power", true)(feed.Power); err != nil {
+		if err := validateInt64("power", true, feed.Power); err != nil {
 			return err
 		}
-		if err := validateInt64("interval", true)(feed.Interval); err != nil {
+		if err := validateInt64("interval", true, feed.Interval); err != nil {
 			return err
 		}
-		if err := validateInt64("timestamp", true)(feed.LastIntervalUpdateTimestamp); err != nil {
+		if err := validateInt64("timestamp", true, feed.LastIntervalUpdateTimestamp); err != nil {
 			return err
 		}
 	}

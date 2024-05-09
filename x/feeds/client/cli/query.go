@@ -25,7 +25,7 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdPrices(),
 		GetQueryCmdPrice(),
 		GetQueryCmdValidatorPrices(),
-		GetQueryCmdPriceValidator(),
+		GetQueryCmdValidatorPrice(),
 		GetQueryCmdFeeds(),
 		GetQueryCmdParams(),
 		GetQueryCmdDelegatorSignal(),
@@ -168,8 +168,8 @@ func GetQueryCmdValidatorPrices() *cobra.Command {
 	return cmd
 }
 
-// GetQueryCmdPriceValidator implements the query price validator command.
-func GetQueryCmdPriceValidator() *cobra.Command {
+// GetQueryCmdValidatorPrice implements the query validator price command.
+func GetQueryCmdValidatorPrice() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "price-validator [signal_id] [validator]",
 		Short: "Shows the price of validator of the signal id",
@@ -178,7 +178,7 @@ func GetQueryCmdPriceValidator() *cobra.Command {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.PriceValidator(context.Background(), &types.QueryPriceValidatorRequest{
+			res, err := queryClient.ValidatorPrice(context.Background(), &types.QueryValidatorPriceRequest{
 				SignalId:  args[0],
 				Validator: args[1],
 			})

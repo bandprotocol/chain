@@ -130,38 +130,35 @@ message BlockRelayProof {
 //
 //                                   ____________________[AppHash]____________________
 //                                  /                                                 \
-//                    ___________[N19]____________                               ____[N20]_____
-//                   /                            \                             /              \                        
-//            _____[N15]_____                 ____[N16]______               __[N17]__          [K]
-//           /               \               /               \             /         \   
-//       __[N8]_          __[N9]_          _[N10]_         _[N11]_       [N12]      [N13]
+//                    ___________[N18]____________                               ____[N19]_____
+//                   /                            \                             /               \                        
+//            _____[N14]_____                 ____[N15]______               __[N16]__          [N17]
+//           /               \               /               \             /         \        /     \
+//       __[N8]_          __[N9]_          _[N10]_         _[N11]_       [N12]      [N13]    [K]    [L]
 //      /       \        /       \        /       \        /      \      /   \      /   \ 
 //    [N0]     [N1]    [N2]     [N3]    [N4]     [N5]    [N6]    [N7]   [G] [H]   [I]  [J]
 //   /   \    /   \    /  \    /   \   /   \    /   \   /   \   /   \
 //  [0] [1]  [2] [3] [4] [5]  [6] [7] [8] [9]  [A] [B] [C] [D] [E] [F]
 //
-// [0] - acc (auth) [1] - authz    [2] - bank     [3] - capability [4] - consensus  [5] - crisis
-// [6] - dist       [7] - evidence [8] - feegrant [9] - globalfee  [A] - gov        [B] - group
-// [C] - ibccore    [D] - icahost  [E] - mint     [F] - oracle     [G] - params     [H] - slashing
-// [I] - staking    [J] - transfer [K] - upgrade
+// [0] - acc (auth) [1] - authz      [2] - bank     [3] - capability [4] - consensus  [5] - crisis
+// [6] - dist       [7] - evidence   [8] - feeds    [9] - feegrant   [A] - globalfee  [B] - gov
+// [C] - group      [D] - ibccore    [E] - icahost  [F] - mint       [G] - oracle     [H] - params
+// [I] - slashing   [J] - staking    [K] - transfer [L] - upgrade
 //
 // Notice that NOT all leaves of the Merkle tree are needed in order to compute the Merkle
-// root hash, since we only want to validate the correctness of [F] In fact, only
-// [E], [N6], [N10], [N15], and [N20] are needed in order to compute [AppHash].
+// root hash, since we only want to validate the correctness of [G] In fact, only
+// [H], [N13], [N17], and [N18] are needed in order to compute [AppHash].
 message MultiStoreProof {
   bytes oracle_iavl_state_hash = 1 [
     (gogoproto.customname) = "OracleIAVLStateHash",
     (gogoproto.casttype)   = "github.com/cometbft/cometbft/libs/bytes.HexBytes"
   ];
-  bytes mint_store_merkle_hash = 2 [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
-  bytes ibc_to_icahost_stores_merkle_hash = 3
+  bytes params_store_merkle_hash = 2 [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
+  bytes slashing_to_staking_stores_merkle_hash = 3
       [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
-  bytes feegrant_to_group_stores_merkle_hash = 4
+  bytes transfer_to_upgrade_stores_merkle_hash = 4
       [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
-  bytes auth_to_evidence_stores_merkle_hash = 5
-      [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
-  bytes params_to_upgrade_stores_merkle_hash = 6
-      [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
+  bytes auth_to_mint_stores_merkle_hash = 5 [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
 }
 
 // BlockHeaderMerkleParts stores a group of hashes using for computing Tendermint's block
