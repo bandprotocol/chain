@@ -20,6 +20,13 @@ const (
 	flagExpiration = "expiration"
 )
 
+// getGrantMsgTypes returns types for GrantMsg.
+func getGrantMsgTypes() []string {
+	return []string{
+		sdk.MsgTypeURL(&types.MsgSubmitPrices{}),
+	}
+}
+
 // GetTxCmd returns the transaction commands for this module
 func GetTxCmd() *cobra.Command {
 	txCmd := &cobra.Command{
@@ -128,7 +135,7 @@ $ %s tx feeds add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq
 					return err
 				}
 
-				gMsgs, err := combineGrantMsgs(granter, grantee, types.GetGrantMsgTypes(), &expTime)
+				gMsgs, err := combineGrantMsgs(granter, grantee, getGrantMsgTypes(), &expTime)
 				if err != nil {
 					return err
 				}
@@ -181,7 +188,7 @@ $ %s tx feeds remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m
 					return err
 				}
 
-				rMsgs, err := combineRevokeMsgs(granter, grantee, types.GetGrantMsgTypes())
+				rMsgs, err := combineRevokeMsgs(granter, grantee, getGrantMsgTypes())
 				if err != nil {
 					return err
 				}
