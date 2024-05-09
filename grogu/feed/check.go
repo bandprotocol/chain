@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	bothanproto "github.com/bandprotocol/bothan-api/go-proxy/proto"
+	bothanproto "github.com/bandprotocol/bothan/bothan-api/client/go-client/query"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"golang.org/x/exp/maps"
 
@@ -68,7 +68,7 @@ func checkFeeds(c *grogucontext.Context, l *grogucontext.Logger) {
 
 func fetchData(
 	c *grogucontext.Context,
-) (params types.Params, feeds []types.Feed, validatorPrices []types.PriceValidator, prices []*types.Price, err error) {
+) (params types.Params, feeds []types.Feed, validatorPrices []types.ValidatorPrice, prices []*types.Price, err error) {
 	// Fetch validator data
 	validValidator, err := c.QueryClient.ValidValidator(context.Background(), &types.QueryValidValidatorRequest{
 		Validator: c.Validator.String(),
@@ -139,7 +139,7 @@ func isDeviate(
 ) bool {
 	currentPrices, err := c.PriceService.Query([]string{feed.SignalID})
 	if err != nil || len(currentPrices) == 0 ||
-		currentPrices[0].PriceOption != bothanproto.PriceOption_PRICE_OPTION_AVAILABLE {
+		currentPrices[0].PriceStatus != bothanproto.PriceStatus_PRICE_STATUS_AVAILABLE {
 		return false
 	}
 
@@ -168,8 +168,8 @@ func updateRequestedSignalID(
 	c.InProgressSignalIDs.Store(feed.SignalID, time.Now())
 }
 
-// convertToSignalIDTimestampMap converts an array of PriceValidator to a map of signal id to timestamp.
-func convertToSignalIDTimestampMap(data []types.PriceValidator) map[string]int64 {
+// convertToSignalIDTimestampMap converts an array of ValidatorPrice to a map of signal id to timestamp.
+func convertToSignalIDTimestampMap(data []types.ValidatorPrice) map[string]int64 {
 	signalIDTimestampMap := make(map[string]int64)
 
 	for _, entry := range data {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	bothanproto "github.com/bandprotocol/bothan-api/go-proxy/proto"
+	bothanproto "github.com/bandprotocol/bothan/bothan-api/client/go-client/query"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

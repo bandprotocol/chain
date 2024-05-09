@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	bothanproto "github.com/bandprotocol/bothan-api/go-proxy/proto"
+	bothanproto "github.com/bandprotocol/bothan/bothan-api/client/go-client/query"
 	"github.com/cometbft/cometbft/libs/log"
 	"github.com/stretchr/testify/require"
 
@@ -18,9 +18,9 @@ import (
 )
 
 var mockData = map[string]*bothanproto.PriceData{
-	"BTC":  {SignalId: "BTC", PriceOption: bothanproto.PriceOption_PRICE_OPTION_AVAILABLE, Price: "50000"},
-	"ETH":  {SignalId: "ETH", PriceOption: bothanproto.PriceOption_PRICE_OPTION_UNAVAILABLE, Price: ""},
-	"BAND": {SignalId: "BAND", PriceOption: bothanproto.PriceOption_PRICE_OPTION_AVAILABLE, Price: "18446744074"},
+	"BTC":  {SignalId: "BTC", PriceStatus: bothanproto.PriceStatus_PRICE_STATUS_AVAILABLE, Price: "50000"},
+	"ETH":  {SignalId: "ETH", PriceStatus: bothanproto.PriceStatus_PRICE_STATUS_UNAVAILABLE, Price: ""},
+	"BAND": {SignalId: "BAND", PriceStatus: bothanproto.PriceStatus_PRICE_STATUS_AVAILABLE, Price: "18446744074"},
 }
 
 // MockPriceService is a mock implementation of the price service for testing.
@@ -36,7 +36,7 @@ func (mps *MockPriceService) Query(signalIDs []string) ([]*bothanproto.PriceData
 		} else {
 			priceData = append(priceData, &bothanproto.PriceData{
 				SignalId:    id,
-				PriceOption: bothanproto.PriceOption_PRICE_OPTION_UNSUPPORTED,
+				PriceStatus: bothanproto.PriceStatus_PRICE_STATUS_UNSUPPORTED,
 			})
 		}
 	}
@@ -81,12 +81,12 @@ func TestQuerySignalIDs(t *testing.T) {
 
 		// Check if BTC price is correct.
 		btcPrice := getPrice(submitPrices, "BTC")
-		require.Equal(t, types.PriceOptionAvailable, btcPrice.PriceOption)
+		require.Equal(t, types.PriceStatusAvailable, btcPrice.PriceStatus)
 		mockBTCPrice, _ := strconv.ParseFloat(strings.TrimSpace(mockData["BTC"].Price), 64)
 		require.Equal(t, uint64(mockBTCPrice*math.Pow10(9)), btcPrice.Price)
 
 		dogePrice := getPrice(submitPrices, "DOGE")
-		require.Equal(t, types.PriceOptionUnsupported, dogePrice.PriceOption)
+		require.Equal(t, types.PriceStatusUnsupported, dogePrice.PriceStatus)
 		require.Equal(t, uint64(0), dogePrice.Price)
 
 	default:
@@ -136,11 +136,11 @@ func TestQuerySignalIDs(t *testing.T) {
 		require.Equal(t, 2, len(submitPrices))
 
 		ethPrice := getPrice(submitPrices, "ETH")
-		require.Equal(t, types.PriceOptionUnavailable, ethPrice.PriceOption)
+		require.Equal(t, types.PriceStatusUnavailable, ethPrice.PriceStatus)
 		require.Equal(t, uint64(0), ethPrice.Price)
 
 		bandPrice := getPrice(submitPrices, "BAND")
-		require.Equal(t, types.PriceOptionUnavailable, bandPrice.PriceOption)
+		require.Equal(t, types.PriceStatusUnavailable, bandPrice.PriceStatus)
 		require.Equal(t, uint64(0), bandPrice.Price)
 	default:
 		t.Error("No prices received")
