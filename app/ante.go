@@ -24,8 +24,8 @@ type HandlerOptions struct {
 	AuthzKeeper     *authzkeeper.Keeper
 	OracleKeeper    *oraclekeeper.Keeper
 	IBCKeeper       *ibckeeper.Keeper
-	GlobalfeeKeeper *globalfeekeeper.Keeper
 	StakingKeeper   *stakingkeeper.Keeper
+	GlobalfeeKeeper *globalfeekeeper.Keeper
 	TSSKeeper       *tsskeeper.Keeper
 	BandtssKeeper   *bandtsskeeper.Keeper
 	FeedsKeeper     *feedskeeper.Keeper

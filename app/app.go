@@ -845,8 +845,8 @@ func NewBandApp(
 			BandtssKeeper:   app.BandtssKeeper,
 			FeedsKeeper:     &app.FeedsKeeper,
 			IBCKeeper:       app.IBCKeeper,
-			GlobalfeeKeeper: &app.GlobalfeeKeeper,
 			StakingKeeper:   app.StakingKeeper,
+			GlobalfeeKeeper: &app.GlobalfeeKeeper,
 		},
 	)
 	if err != nil {
