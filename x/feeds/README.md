@@ -358,4 +358,3 @@ The feeds module emits the following events:
 | deleate_feed | interval                | {interval}              |
 | deleate_feed | timestamp               | {timestamp}             |
 | deleate_feed | deviation_in_thousandth | {deviationInThousandth} |
-
