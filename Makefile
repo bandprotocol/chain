@@ -3,6 +3,7 @@ VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT := $(shell git log -1 --format='%H')
 LEDGER_ENABLED ?= true
 BINDIR ?= $(GOPATH)/bin
+MOCKS_DIR = $(CURDIR)/tests/mocks
 APP = ./app
 
 DOCKER := $(shell which docker)
@@ -45,6 +46,7 @@ install: go.sum
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/bandd
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/yoda
 	go install -mod=readonly $(BUILD_FLAGS) ./cmd/cylinder
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/grogu
 
 release: go.sum
 	env GOOS=linux GOARCH=amd64 \
@@ -59,6 +61,10 @@ release: go.sum
 		go build -mod=readonly -o ./build/yoda_darwin_amd64 $(BUILD_FLAGS) ./cmd/yoda
 	env GOOS=windows GOARCH=amd64 \
 		go build -mod=readonly -o ./build/yoda_windows_amd64 $(BUILD_FLAGS) ./cmd/yoda
+
+mocks:
+	@go install go.uber.org/mock/mockgen@latest
+	sh ./scripts/mockgen.sh
 
 go.sum: go.mod
 	@echo "--> Ensure dependencies have not been modified"
@@ -116,5 +122,5 @@ test-sim-deterministic: runsim
 	@echo "Running application deterministic simulation. This may take awhile!"
 	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(APP) -ExitOnFail 1 1 TestAppStateDeterminism
 
-.PHONY: proto-all proto-gen proto-swagger-gen proto-format proto-lint proto-check-breaking \
+.PHONY: proto-all proto-gen proto-swagger-gen proto-format proto-lint proto-check-breaking mocks \
 	test-sim-import-export test-sim-multi-seed-short test-sim-after-import test-sim-deterministic

@@ -16,6 +16,8 @@ import (
 	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 
 	"github.com/bandprotocol/chain/v2/app/upgrades"
+	bandtsstype "github.com/bandprotocol/chain/v2/x/bandtss/types"
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	rollingseedtypes "github.com/bandprotocol/chain/v2/x/rollingseed/types"
@@ -35,6 +37,8 @@ var Upgrade = upgrades.Upgrade{
 			crisistypes.StoreKey,
 			tsstypes.StoreKey,
 			rollingseedtypes.StoreKey,
+			feedstypes.StoreKey,
+			bandtsstype.StoreKey,
 		},
 	},
 }

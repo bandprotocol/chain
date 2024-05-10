@@ -1,13 +1,12 @@
 module github.com/bandprotocol/chain/v2
 
-go 1.21
-
-toolchain go1.21.7
+go 1.22.0
 
 require (
 	cosmossdk.io/api v0.3.1
 	cosmossdk.io/errors v1.0.1
 	cosmossdk.io/math v1.3.0
+	github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.1
 	github.com/bandprotocol/go-owasm v0.3.1
 	github.com/cometbft/cometbft v0.37.5
 	github.com/cometbft/cometbft-db v0.10.0
@@ -37,9 +36,10 @@ require (
 	go.uber.org/mock v0.4.0
 	golang.org/x/crypto v0.21.0
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
-	google.golang.org/genproto/googleapis/api v0.0.0-20240227224415-6ceb2ff114de
+	google.golang.org/genproto/googleapis/api v0.0.0-20240506185236-b8a5c65736ae
 	google.golang.org/grpc v1.63.2
-	google.golang.org/protobuf v1.34.0
+	google.golang.org/protobuf v1.34.1
+	gopkg.in/yaml.v2 v2.4.0
 	sigs.k8s.io/yaml v1.4.0
 )
 
@@ -115,6 +115,7 @@ require (
 	github.com/gorilla/handlers v1.5.1 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0 // indirect
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.19.1 // indirect
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
 	github.com/gtank/merlin v0.1.1 // indirect
 	github.com/gtank/ristretto255 v0.1.2 // indirect
@@ -179,8 +180,7 @@ require (
 	go.opentelemetry.io/otel v1.22.0 // indirect
 	go.opentelemetry.io/otel/metric v1.22.0 // indirect
 	go.opentelemetry.io/otel/trace v1.22.0 // indirect
-	go.uber.org/atomic v1.10.0 // indirect
-	go.uber.org/multierr v1.9.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/oauth2 v0.17.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
@@ -191,9 +191,8 @@ require (
 	google.golang.org/api v0.162.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto v0.0.0-20240227224415-6ceb2ff114de // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240227224415-6ceb2ff114de // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240429193739-8cf5692501f6 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 	pgregory.net/rapid v1.1.0 // indirect

@@ -12,6 +12,7 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	bandtesting "github.com/bandprotocol/chain/v2/testing"
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/globalfee/feechecker"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
@@ -72,16 +73,18 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 	suite.Require().NoError(err)
 
 	expiration := ctx.BlockTime().Add(1000 * time.Hour)
-	err = app.AuthzKeeper.SaveGrant(
-		ctx,
-		bandtesting.Alice.Address,
-		bandtesting.Validators[0].Address,
-		authz.NewGenericAuthorization(
-			sdk.MsgTypeURL(&tsstypes.MsgSubmitDEs{}),
-		),
-		&expiration,
-	)
-	suite.Require().NoError(err)
+
+	msgTypeURLs := []sdk.Msg{&tsstypes.MsgSubmitDEs{}, &feedstypes.MsgSubmitPrices{}}
+	for _, msg := range msgTypeURLs {
+		err = app.AuthzKeeper.SaveGrant(
+			ctx,
+			bandtesting.Alice.Address,
+			bandtesting.Validators[0].Address,
+			authz.NewGenericAuthorization(sdk.MsgTypeURL(msg)),
+			&expiration,
+		)
+		suite.Require().NoError(err)
+	}
 
 	req := oracletypes.NewRequest(
 		1,
@@ -108,6 +111,7 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 		app.StakingKeeper,
 		app.TSSKeeper,
 		app.BandtssKeeper,
+		&app.FeedsKeeper,
 	)
 }
 
@@ -121,8 +125,8 @@ func (suite *FeeCheckerTestSuite) TestValidRawReport() {
 	isReportTx := suite.FeeChecker.IsBypassMinFeeMsg(suite.ctx, msgs[0])
 	suite.Require().True(isReportTx)
 
-	// test - check tx fee with min gas prices
-	fee, priority, err := suite.FeeChecker.CheckTxFeeWithMinGasPrices(suite.ctx, stubTx)
+	// test - check tx fee
+	fee, priority, err := suite.FeeChecker.CheckTxFee(suite.ctx, stubTx)
 	suite.Require().NoError(err)
 	suite.Require().Equal(sdk.Coins{}, fee)
 	suite.Require().Equal(int64(math.MaxInt64), priority)
@@ -136,8 +140,8 @@ func (suite *FeeCheckerTestSuite) TestNotValidRawReport() {
 	isReportTx := suite.FeeChecker.IsBypassMinFeeMsg(suite.ctx, msgs[0])
 	suite.Require().False(isReportTx)
 
-	// test - check tx fee with min gas prices
-	_, _, err := suite.FeeChecker.CheckTxFeeWithMinGasPrices(suite.ctx, stubTx)
+	// test - check tx fee
+	_, _, err := suite.FeeChecker.CheckTxFee(suite.ctx, stubTx)
 	suite.Require().Error(err)
 }
 
@@ -152,8 +156,8 @@ func (suite *FeeCheckerTestSuite) TestValidReport() {
 	isBypassMinFeeMsg := suite.FeeChecker.IsBypassMinFeeMsg(suite.ctx, reportMsgs[0])
 	suite.Require().True(isBypassMinFeeMsg)
 
-	// test - check tx fee with min gas prices
-	fee, priority, err := suite.FeeChecker.CheckTxFeeWithMinGasPrices(suite.ctx, stubTx)
+	// test - check tx fee
+	fee, priority, err := suite.FeeChecker.CheckTxFee(suite.ctx, stubTx)
 	suite.Require().NoError(err)
 	suite.Require().Equal(sdk.Coins{}, fee)
 	suite.Require().Equal(int64(math.MaxInt64), priority)
@@ -170,8 +174,8 @@ func (suite *FeeCheckerTestSuite) TestNoAuthzReport() {
 	isBypassMinFeeMsg := suite.FeeChecker.IsBypassMinFeeMsg(suite.ctx, &authzMsg)
 	suite.Require().False(isBypassMinFeeMsg)
 
-	// test - check tx fee with min gas prices
-	_, _, err := suite.FeeChecker.CheckTxFeeWithMinGasPrices(suite.ctx, stubTx)
+	// test - check tx fee
+	_, _, err := suite.FeeChecker.CheckTxFee(suite.ctx, stubTx)
 	suite.Require().NoError(err)
 }
 
@@ -186,8 +190,8 @@ func (suite *FeeCheckerTestSuite) TestNotValidReport() {
 	isBypassMinFeeMsg := suite.FeeChecker.IsBypassMinFeeMsg(suite.ctx, &authzMsg)
 	suite.Require().False(isBypassMinFeeMsg)
 
-	// test - check tx fee with min gas prices
-	_, _, err := suite.FeeChecker.CheckTxFeeWithMinGasPrices(suite.ctx, stubTx)
+	// test - check tx fee
+	_, _, err := suite.FeeChecker.CheckTxFee(suite.ctx, stubTx)
 	suite.Require().Error(err)
 }
 
@@ -222,8 +226,8 @@ func (suite *FeeCheckerTestSuite) TestNotReportMsg() {
 	isBypassMinFeeMsg := suite.FeeChecker.IsBypassMinFeeMsg(suite.ctx, requestMsg)
 	suite.Require().False(isBypassMinFeeMsg)
 
-	// test - check tx fee with min gas prices
-	fee, priority, err := suite.FeeChecker.CheckTxFeeWithMinGasPrices(suite.ctx, stubTx)
+	// test - check tx fee
+	fee, priority, err := suite.FeeChecker.CheckTxFee(suite.ctx, stubTx)
 	suite.Require().NoError(err)
 	suite.Require().Equal(stubTx.GetFee(), fee)
 	suite.Require().Equal(int64(30), priority)
@@ -252,8 +256,8 @@ func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameAuthzMsg
 	isBypassMinFeeMsg := suite.FeeChecker.IsBypassMinFeeMsg(suite.ctx, &authzMsg)
 	suite.Require().False(isBypassMinFeeMsg)
 
-	// test - check tx fee with min gas prices
-	fee, priority, err := suite.FeeChecker.CheckTxFeeWithMinGasPrices(suite.ctx, stubTx)
+	// test - check tx fee
+	fee, priority, err := suite.FeeChecker.CheckTxFee(suite.ctx, stubTx)
 	suite.Require().NoError(err)
 	suite.Require().Equal(stubTx.GetFee(), fee)
 	suite.Require().Equal(int64(10000), priority)
@@ -283,14 +287,14 @@ func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameTx() {
 	isBypassMinFeeMsg := suite.FeeChecker.IsBypassMinFeeMsg(suite.ctx, requestMsg)
 	suite.Require().False(isBypassMinFeeMsg)
 
-	// test - check tx fee with min gas prices
-	fee, priority, err := suite.FeeChecker.CheckTxFeeWithMinGasPrices(suite.ctx, stubTx)
+	// test - check tx fee
+	fee, priority, err := suite.FeeChecker.CheckTxFee(suite.ctx, stubTx)
 	suite.Require().NoError(err)
 	suite.Require().Equal(stubTx.GetFee(), fee)
 	suite.Require().Equal(int64(10000), priority)
 }
 
-func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPrices() {
+func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFee() {
 	testCases := []struct {
 		name                string
 		stubTx              func() *StubTx
@@ -624,8 +628,8 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 			isByPassMinFeeTx := suite.FeeChecker.IsBypassMinFeeTx(suite.ctx, stubTx)
 			suite.Require().Equal(tc.expIsBypassMinFeeTx, isByPassMinFeeTx)
 
-			// test - CheckTxFeeWithMinGasPrices
-			fee, priority, err := suite.FeeChecker.CheckTxFeeWithMinGasPrices(suite.ctx, stubTx)
+			// test - CheckTxFee
+			fee, priority, err := suite.FeeChecker.CheckTxFee(suite.ctx, stubTx)
 			suite.Require().ErrorIs(err, tc.expErr)
 			suite.Require().Equal(fee, tc.expFee)
 			suite.Require().Equal(tc.expPriority, priority)

@@ -14,7 +14,10 @@ echo "enlist electric thumb valve inherit visa ecology trust cake argue forward 
     | bandd keys add tss2 --recover --keyring-backend test
 echo "measure fence mail fluid olive cute empower fossil ahead manage snow marble dash citizen tourist skate assist solution bonus spend tip negative try eyebrow" \
     | bandd keys add tss3 --recover --keyring-backend test
-
+echo "erase relief tree tobacco around knee concert toast diesel melody rule sight forum camera oil sick leopard valid furnace casino post dumb tag young" \
+    | bandd keys add account1 --recover --keyring-backend test
+echo "thought insane behind cool expand clarify strategy occur arrive broccoli middle despair foot cake genuine dawn goose abuse curve identify dinner derive genre effort" \
+    | bandd keys add account2 --recover --keyring-backend test
 
 # add accounts to genesis
 bandd genesis add-genesis-account validator 10000000000000uband --keyring-backend test
@@ -24,6 +27,8 @@ bandd genesis add-genesis-account requester 10000000000000uband --keyring-backen
 bandd genesis add-genesis-account tss1 10000000000000uband --keyring-backend test
 bandd genesis add-genesis-account tss2 10000000000000uband --keyring-backend test
 bandd genesis add-genesis-account tss3 10000000000000uband --keyring-backend test
+bandd genesis add-genesis-account account1 10000000000000uband --keyring-backend test
+bandd genesis add-genesis-account account2 10000000000000uband --keyring-backend test
 
 # register initial validators
 bandd genesis gentx validator 100000000uband \
