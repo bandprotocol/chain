@@ -42,7 +42,7 @@ from .db import (
 )
 
 from .feeds_db import (
-    price_validators,
+    validator_prices,
     delegator_signals,
     feeds,
     prices,
@@ -568,16 +568,16 @@ class Handler(object):
                 .values(ibc_received_txs=relayer_tx_stat_days.c.ibc_received_txs + 1, last_update_at=timestamp)
             )
 
-    def handle_set_price_validator(self, msg):
+    def handle_set_validator_price(self, msg):
         msg["validator_id"] = self.get_validator_id(msg["validator"])
         del msg["validator"]        
         self.conn.execute(
-            insert(price_validators).values(**msg).on_conflict_do_update(constraint="price_validators_pkey", set_=msg)
+            insert(validator_prices).values(**msg).on_conflict_do_update(constraint="validator_prices_pkey", set_=msg)
         )
     
-    def handle_remove_price_validators(self, msg):
+    def handle_remove_validator_prices(self, msg):
         self.conn.execute(
-            price_validators.delete().where(price_validators.c.signal_id == msg["signal_id"])
+            validator_prices.delete().where(validator_prices.c.signal_id == msg["signal_id"])
         )
     
     def handle_set_delegator_signal(self, msg):

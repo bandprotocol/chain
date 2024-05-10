@@ -21,14 +21,14 @@ func removeDuplicateStr(strSlice []string) []string {
 	return list
 }
 
-func (h *Hook) emitRemovePriceValidators(signalID string) {
-	h.Write("REMOVE_PRICE_VALIDATORS", common.JsDict{
+func (h *Hook) emitRemoveValidatorPrices(signalID string) {
+	h.Write("REMOVE_VALIDATOR_PRICES", common.JsDict{
 		"signal_id": signalID,
 	})
 }
 
 func (h *Hook) emitRemovePrice(signalID string) {
-	h.emitRemovePriceValidators(signalID)
+	h.emitRemoveValidatorPrices(signalID)
 	h.Write("REMOVE_PRICE", common.JsDict{
 		"signal_id": signalID,
 	})
@@ -66,8 +66,8 @@ func (h *Hook) emitSetDelegatorSignal(ctx sdk.Context, delegator string, signal 
 	})
 }
 
-func (h *Hook) emitSetPriceValidator(ctx sdk.Context, validator string, price types.SubmitPrice) {
-	h.Write("SET_PRICE_VALIDATOR", common.JsDict{
+func (h *Hook) emitSetValidatorPrice(ctx sdk.Context, validator string, price types.SubmitPrice) {
+	h.Write("SET_VALIDATOR_PRICE", common.JsDict{
 		"validator": validator,
 		"signal_id": price.SignalID,
 		"price":     price.Price,
@@ -78,7 +78,7 @@ func (h *Hook) emitSetPriceValidator(ctx sdk.Context, validator string, price ty
 func (h *Hook) emitSetPrice(price types.Price) {
 	h.Write("SET_PRICE", common.JsDict{
 		"signal_id":    price.SignalID,
-		"price_option": price.PriceStatus.String(),
+		"price_status": price.PriceStatus.String(),
 		"price":        price.Price,
 		"timestamp":    price.Timestamp * int64(math.Pow10(9)),
 	})
@@ -125,7 +125,7 @@ func (h *Hook) handleMsgSubmitPrices(
 	ctx sdk.Context, msg *types.MsgSubmitPrices,
 ) {
 	for _, price := range msg.Prices {
-		h.emitSetPriceValidator(ctx, msg.Validator, price)
+		h.emitSetValidatorPrice(ctx, msg.Validator, price)
 	}
 }
 

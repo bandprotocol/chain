@@ -323,7 +323,7 @@ The feeds module emits the following events:
 
 | Type         | Attribute Key | Attribute Value    |
 | ------------ | ------------- | ------------------ |
-| submit_price | price_option  | {priceOption}      |
+| submit_price | price_status  | {priceStatus}      |
 | submit_price | validator     | {validatorAddress} |
 | submit_price | signal_id     | {signalID}         |
 | submit_price | price         | {price}            |

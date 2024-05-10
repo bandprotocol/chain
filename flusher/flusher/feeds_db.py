@@ -7,8 +7,8 @@ from .db import (
 )
 
 
-price_validators = sa.Table(
-    "price_validators",
+validator_prices = sa.Table(
+    "validator_prices",
     metadata,
     Column("validator_id", sa.Integer, sa.ForeignKey("validators.id"), primary_key=True),
     Column("signal_id", sa.String, sa.ForeignKey("feeds.signal_id"), primary_key=True),
@@ -39,7 +39,7 @@ prices = sa.Table(
     "prices",
     metadata,
     Column("signal_id", sa.String, sa.ForeignKey("feeds.signal_id"), primary_key=True),
-    Column("price_option", sa.String),
+    Column("price_status", sa.String),
     Column("price", sa.BigInteger),
     Column("timestamp", CustomDateTime),
 )
