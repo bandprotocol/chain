@@ -33,6 +33,12 @@ func (o *OracleResultSignatureOrder) OrderType() string {
 
 // ValidateBasic validates the request's title and description of the request signature
 func (o *OracleResultSignatureOrder) ValidateBasic() error {
-	// TODO: Add validatebasic request id and encode type
+	if o.RequestID == 0 {
+		return ErrInvalidRequestID
+	}
+
+	if o.EncodeType == ENCODE_TYPE_UNSPECIFIED {
+		return ErrInvalidTSSEncodeType
+	}
 	return nil
 }
