@@ -907,7 +907,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitPrices() {
 	emitter.DecodeMsgSubmitPrices(&msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"prices\":[{\"price_option\":3,\"signal_id\":\"crypto_price.ethusd\",\"price\":3500000000000},{\"price_option\":2,\"signal_id\":\"crypto_price.btcusd\"}],\"timestamp\":12345678,\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
+		"{\"prices\":[{\"price_status\":3,\"signal_id\":\"crypto_price.ethusd\",\"price\":3500000000000},{\"price_status\":2,\"signal_id\":\"crypto_price.btcusd\"}],\"timestamp\":12345678,\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
 	)
 }
 
