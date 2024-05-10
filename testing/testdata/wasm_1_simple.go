@@ -8,7 +8,7 @@ package testdata
 //	  CALL ask_external_data with EID 3 DID 3 CALLDATA "beeb"
 //	EXECUTE:
 //	  CALL set_return_date with RETDATE "beeb"
-var Wasm1 = wat2wasm([]byte(`
+var Wasm1 = wat2wasm(`
 (module
 	(type $t0 (func))
 	(type $t1 (func (param i64 i64 i64 i64)))
@@ -50,4 +50,4 @@ var Wasm1 = wat2wasm([]byte(`
 	(table $T0 1 1 funcref)
 	(memory $memory (export "memory") 17)
 	(data (i32.const 1024) "beeb"))
-`))
+`)

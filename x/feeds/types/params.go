@@ -6,15 +6,15 @@ import (
 
 const (
 	// Default values for Params
-	DefaultAllowDiffTime            = int64(30)
-	DefaultTransitionTime           = int64(30)
-	DefaultMinInterval              = int64(60)
-	DefaultMaxInterval              = int64(3600)
-	DefaultPowerThreshold           = int64(1_000_000_000)
-	DefaultMaxSupportedFeeds        = int64(100)
-	DefaultCooldownTime             = int64(30)
-	DefaultMinDeviationInThousandth = int64(5)
-	DefaultMaxDeviationInThousandth = int64(300)
+	DefaultAllowableBlockTimeDiscrepancy = int64(30)
+	DefaultTransitionTime                = int64(30)
+	DefaultMinInterval                   = int64(60)
+	DefaultMaxInterval                   = int64(3600)
+	DefaultPowerThreshold                = int64(1_000_000_000)
+	DefaultMaxSupportedFeeds             = int64(100)
+	DefaultCooldownTime                  = int64(30)
+	DefaultMinDeviationInThousandth      = int64(5)
+	DefaultMaxDeviationInThousandth      = int64(300)
 )
 
 // NewParams creates a new Params instance
@@ -48,7 +48,7 @@ func NewParams(
 func DefaultParams() Params {
 	return NewParams(
 		"[NOT_SET]",
-		DefaultAllowDiffTime,
+		DefaultAllowableBlockTimeDiscrepancy,
 		DefaultTransitionTime,
 		DefaultMinInterval,
 		DefaultMaxInterval,
