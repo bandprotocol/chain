@@ -1,6 +1,6 @@
 module github.com/bandprotocol/chain/v2
 
-go 1.22.0
+go 1.22.3
 
 require (
 	cosmossdk.io/api v0.3.1
@@ -8,6 +8,7 @@ require (
 	cosmossdk.io/math v1.3.0
 	github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.1
 	github.com/bandprotocol/go-owasm v0.3.1
+	github.com/bytecodealliance/wasmtime-go/v20 v20.0.0
 	github.com/cometbft/cometbft v0.37.5
 	github.com/cometbft/cometbft-db v0.10.0
 	github.com/confio/ics23/go v0.9.0
