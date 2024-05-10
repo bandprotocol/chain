@@ -73,7 +73,7 @@ func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 		},
 		TB: tb,
 	}
-	ba.Ctx = ba.NewUncachedContext(false, tmproto.Header{})
+	ba.Ctx = ba.NewUncachedContext(false, tmproto.Header{ChainID: bandtesting.ChainID})
 	ba.TSSMsgSrvr = tsskeeper.NewMsgServerImpl(ba.TestingApp.TSSKeeper)
 	ba.BandtssMsgSrvr = bandtsskeeper.NewMsgServerImpl(ba.TestingApp.BandtssKeeper)
 	ba.Querier = keeper.Querier{
@@ -127,8 +127,11 @@ func (ba *BenchmarkApp) DeliverMsg(account *Account, msgs []sdk.Msg) (sdk.GasInf
 func (ba *BenchmarkApp) CallBeginBlock() abci.ResponseBeginBlock {
 	return ba.BeginBlock(
 		abci.RequestBeginBlock{
-			Header: tmproto.Header{Height: ba.LastBlockHeight() + 1},
-			Hash:   ba.LastCommitID().Hash,
+			Header: tmproto.Header{
+				Height:  ba.LastBlockHeight() + 1,
+				ChainID: bandtesting.ChainID,
+			},
+			Hash: ba.LastCommitID().Hash,
 		},
 	)
 }

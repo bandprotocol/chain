@@ -56,6 +56,7 @@ func (e *RestExec) Exec(code []byte, arg string, env interface{}) (ExecResult, e
 
 	r := externalExecutionResponse{}
 	err = resp.JSON(&r)
+
 	if err != nil {
 		return ExecResult{}, err
 	}
