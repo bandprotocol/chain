@@ -1,7 +1,7 @@
 package oracle
 
 import (
-	"cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -50,7 +50,7 @@ func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 
 				return append(EncodeTypePartialABIPrefix, bz...), nil
 			default:
-				return nil, errors.Wrapf(
+				return nil, errorsmod.Wrapf(
 					sdkerrors.ErrUnknownRequest,
 					"unrecognized encode type: %d",
 					c.EncodeType,
@@ -58,7 +58,7 @@ func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 			}
 
 		default:
-			return nil, errors.Wrapf(
+			return nil, errorsmod.Wrapf(
 				sdkerrors.ErrUnknownRequest,
 				"unrecognized tss request signature type: %s",
 				c.OrderType(),

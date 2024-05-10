@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -45,7 +45,7 @@ func (k msgServer) SubmitDKGRound1(
 
 	// Check round status
 	if group.Status != types.GROUP_STATUS_ROUND_1 {
-		return nil, errors.Wrap(types.ErrInvalidStatus, "group status is not round 1")
+		return nil, errorsmod.Wrap(types.ErrInvalidStatus, "group status is not round 1")
 	}
 
 	// Get member
@@ -56,7 +56,7 @@ func (k msgServer) SubmitDKGRound1(
 
 	// Verify address
 	if !member.Verify(req.Address) {
-		return nil, errors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			types.ErrMemberNotAuthorized,
 			"memberID %d address %s is not match in this group",
 			memberID,
@@ -67,12 +67,12 @@ func (k msgServer) SubmitDKGRound1(
 	// Check previous submit
 	_, err = k.GetRound1Info(ctx, groupID, req.Round1Info.MemberID)
 	if err == nil {
-		return nil, errors.Wrap(types.ErrMemberAlreadySubmit, "this member already submit round 1")
+		return nil, errorsmod.Wrap(types.ErrMemberAlreadySubmit, "this member already submit round 1")
 	}
 
 	// Check coefficients commit length
 	if uint64(len(req.Round1Info.CoefficientCommits)) != group.Threshold {
-		return nil, errors.Wrap(
+		return nil, errorsmod.Wrap(
 			types.ErrInvalidLengthCoefCommits,
 			"number of coefficients commit is invalid",
 		)
@@ -81,7 +81,7 @@ func (k msgServer) SubmitDKGRound1(
 	// Get dkg-context
 	dkgContext, err := k.GetDKGContext(ctx, groupID)
 	if err != nil {
-		return nil, errors.Wrap(types.ErrDKGContextNotFound, "dkg-context is not found")
+		return nil, errorsmod.Wrap(types.ErrDKGContextNotFound, "dkg-context is not found")
 	}
 
 	// Verify one time signature
@@ -92,7 +92,7 @@ func (k msgServer) SubmitDKGRound1(
 		req.Round1Info.OneTimePubKey,
 	)
 	if err != nil {
-		return nil, errors.Wrap(types.ErrVerifyOneTimeSignatureFailed, err.Error())
+		return nil, errorsmod.Wrap(types.ErrVerifyOneTimeSignatureFailed, err.Error())
 	}
 
 	// Verify A0 signature
@@ -103,13 +103,13 @@ func (k msgServer) SubmitDKGRound1(
 		req.Round1Info.CoefficientCommits[0],
 	)
 	if err != nil {
-		return nil, errors.Wrap(types.ErrVerifyA0SignatureFailed, err.Error())
+		return nil, errorsmod.Wrap(types.ErrVerifyA0SignatureFailed, err.Error())
 	}
 
 	// Add commits to calculate accumulated commits for each index
 	err = k.AddCommits(ctx, groupID, req.Round1Info.CoefficientCommits)
 	if err != nil {
-		return nil, errors.Wrap(types.ErrAddCoefCommit, err.Error())
+		return nil, errorsmod.Wrap(types.ErrAddCoefCommit, err.Error())
 	}
 
 	// Add round 1 info
@@ -157,7 +157,7 @@ func (k msgServer) SubmitDKGRound2(
 
 	// Check round status
 	if group.Status != types.GROUP_STATUS_ROUND_2 {
-		return nil, errors.Wrap(types.ErrInvalidStatus, "group status is not round 2")
+		return nil, errorsmod.Wrap(types.ErrInvalidStatus, "group status is not round 2")
 	}
 
 	// Get member
@@ -168,7 +168,7 @@ func (k msgServer) SubmitDKGRound2(
 
 	// Verify address
 	if !member.Verify(req.Address) {
-		return nil, errors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			types.ErrMemberNotAuthorized,
 			"memberID %d address %s is not match in this group",
 			memberID,
@@ -179,12 +179,12 @@ func (k msgServer) SubmitDKGRound2(
 	// Check previous submit
 	_, err = k.GetRound2Info(ctx, groupID, memberID)
 	if err == nil {
-		return nil, errors.Wrap(types.ErrMemberAlreadySubmit, "this member already submit round 2")
+		return nil, errorsmod.Wrap(types.ErrMemberAlreadySubmit, "this member already submit round 2")
 	}
 
 	// Check encrypted secret shares length
 	if uint64(len(req.Round2Info.EncryptedSecretShares)) != group.Size_-1 {
-		return nil, errors.Wrap(
+		return nil, errorsmod.Wrap(
 			types.ErrInvalidLengthEncryptedSecretShares,
 			"number of encrypted secret shares is invalid",
 		)
@@ -194,7 +194,7 @@ func (k msgServer) SubmitDKGRound2(
 	accCommits := k.GetAllAccumulatedCommits(ctx, groupID)
 	ownPubKey, err := tss.ComputeOwnPublicKey(accCommits, memberID)
 	if err != nil {
-		return nil, errors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			types.ErrComputeOwnPubKeyFailed,
 			"compute own public key failed; %s",
 			err,
@@ -243,7 +243,7 @@ func (k msgServer) Complain(goCtx context.Context, req *types.MsgComplain) (*typ
 
 	// Check round status
 	if group.Status != types.GROUP_STATUS_ROUND_3 {
-		return nil, errors.Wrap(types.ErrInvalidStatus, "group status is not round 3")
+		return nil, errorsmod.Wrap(types.ErrInvalidStatus, "group status is not round 3")
 	}
 
 	// Get member
@@ -254,7 +254,7 @@ func (k msgServer) Complain(goCtx context.Context, req *types.MsgComplain) (*typ
 
 	// Verify address
 	if !member.Verify(req.Address) {
-		return nil, errors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			types.ErrMemberNotAuthorized,
 			"memberID %d address %s is not match in this group",
 			memberID,
@@ -363,7 +363,7 @@ func (k msgServer) Confirm(
 
 	// Check round status
 	if group.Status != types.GROUP_STATUS_ROUND_3 {
-		return nil, errors.Wrap(types.ErrInvalidStatus, "group status is not round 3")
+		return nil, errorsmod.Wrap(types.ErrInvalidStatus, "group status is not round 3")
 	}
 
 	// Get member
@@ -374,7 +374,7 @@ func (k msgServer) Confirm(
 
 	// Verify address
 	if !member.Verify(req.Address) {
-		return nil, errors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			types.ErrMemberNotAuthorized,
 			"memberID %d address %s is not match in this group",
 			memberID,
@@ -431,7 +431,7 @@ func (k msgServer) SubmitDEs(goCtx context.Context, req *types.MsgSubmitDEs) (*t
 	// Convert the address from Bech32 format to AccAddress format
 	member, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
-		return nil, errors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			types.ErrInvalidAccAddressFormat,
 			"invalid account address: %s", err,
 		)
@@ -462,7 +462,7 @@ func (k msgServer) SubmitSignature(
 
 	// Check signing is still waiting for signature
 	if signing.Status != types.SIGNING_STATUS_WAITING {
-		return nil, errors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			types.ErrSigningAlreadySuccess, "signing ID: %d is not in waiting state", req.SigningID,
 		)
 	}
@@ -470,14 +470,14 @@ func (k msgServer) SubmitSignature(
 	// Check sender not in assigned member
 	am, found := signing.AssignedMembers.FindAssignedMember(req.MemberID, req.Address)
 	if !found {
-		return nil, errors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			types.ErrMemberNotAssigned, "member ID/Address: %d is not in assigned members", req.MemberID,
 		)
 	}
 
 	// Verify signature R
 	if !signing.AssignedMembers.VerifySignatureR(req.MemberID, req.Signature.R()) {
-		return nil, errors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			types.ErrPubNonceNotEqualToSigR,
 			"public nonce from member ID: %d is not equal signature r",
 			req.MemberID,
@@ -487,7 +487,7 @@ func (k msgServer) SubmitSignature(
 	// Check member is already signed
 	_, err = k.GetPartialSignature(ctx, req.SigningID, req.MemberID)
 	if err == nil {
-		return nil, errors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			types.ErrAlreadySigned,
 			"member ID: %d is already signed on signing ID: %d",
 			req.MemberID,
@@ -498,7 +498,7 @@ func (k msgServer) SubmitSignature(
 	// Compute lagrange coefficient
 	lagrange, err := tss.ComputeLagrangeCoefficient(req.MemberID, signing.AssignedMembers.MemberIDs())
 	if err != nil {
-		return nil, errors.Wrapf(types.ErrInvalidArgument, err.Error())
+		return nil, errorsmod.Wrapf(types.ErrInvalidArgument, err.Error())
 	}
 
 	// Verify signing signature
@@ -511,7 +511,7 @@ func (k msgServer) SubmitSignature(
 		am.PubKey,
 	)
 	if err != nil {
-		return nil, errors.Wrapf(types.ErrVerifySigningSigFailed, err.Error())
+		return nil, errorsmod.Wrapf(types.ErrVerifySigningSigFailed, err.Error())
 	}
 
 	// Add partial signature
@@ -544,7 +544,7 @@ func (k Keeper) UpdateParams(
 	req *types.MsgUpdateParams,
 ) (*types.MsgUpdateParamsResponse, error) {
 	if k.authority != req.Authority {
-		return nil, errors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			govtypes.ErrInvalidSigner,
 			"invalid authority; expected %s, got %s",
 			k.authority,
@@ -565,7 +565,7 @@ func (k Keeper) UpdateParams(
 func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) error {
 	_, err := k.GetConfirm(ctx, groupID, memberID)
 	if err == nil {
-		return errors.Wrapf(
+		return errorsmod.Wrapf(
 			types.ErrMemberIsAlreadyComplainOrConfirm,
 			"memberID %d already send confirm message",
 			memberID,
@@ -573,7 +573,7 @@ func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, mem
 	}
 	_, err = k.GetComplaintsWithStatus(ctx, groupID, memberID)
 	if err == nil {
-		return errors.Wrapf(
+		return errorsmod.Wrapf(
 			types.ErrMemberIsAlreadyComplainOrConfirm,
 			"memberID %d already send complain message",
 			memberID,

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
@@ -118,7 +118,7 @@ func (k Keeper) handleCreateSigningFailed(
 	existingEvents sdk.Event,
 	err error,
 ) {
-	codespace, code, _ := errors.ABCIInfo(err, false)
+	codespace, code, _ := errorsmod.ABCIInfo(err, false)
 	signingResult := &types.SigningResult{
 		ErrorCodespace: codespace,
 		ErrorCode:      uint64(code),

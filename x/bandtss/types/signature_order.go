@@ -1,7 +1,7 @@
 package types
 
 import (
-	"cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -42,7 +42,7 @@ func NewSignatureOrderHandler() tsstypes.Handler {
 			return append(ReplaceGroupMsgPrefix, c.PubKey...), nil
 
 		default:
-			return nil, errors.Wrapf(
+			return nil, errorsmod.Wrapf(
 				sdkerrors.ErrUnknownRequest,
 				"unrecognized tss request signature message type: %s",
 				c.OrderType(),

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"sort"
 
-	"cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	tmbytes "github.com/cometbft/cometbft/libs/bytes"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"golang.org/x/exp/slices"
@@ -215,7 +215,7 @@ func (k Keeper) GetPartialSignature(
 ) (tss.Signature, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.PartialSignatureMemberStoreKey(signingID, memberID))
 	if bz == nil {
-		return nil, errors.Wrapf(
+		return nil, errorsmod.Wrapf(
 			types.ErrPartialSignatureNotFound,
 			"failed to get partial signature with signingID: %d memberID: %d",
 			signingID,

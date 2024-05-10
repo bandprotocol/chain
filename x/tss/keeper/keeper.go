@@ -3,7 +3,7 @@ package keeper
 import (
 	"fmt"
 
-	"cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -154,7 +154,7 @@ func (k Keeper) SetDKGContext(ctx sdk.Context, groupID tss.GroupID, dkgContext [
 func (k Keeper) GetDKGContext(ctx sdk.Context, groupID tss.GroupID) ([]byte, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.DKGContextStoreKey(groupID))
 	if bz == nil {
-		return nil, errors.Wrapf(types.ErrDKGContextNotFound, "failed to get dkg-context with groupID: %d", groupID)
+		return nil, errorsmod.Wrapf(types.ErrDKGContextNotFound, "failed to get dkg-context with groupID: %d", groupID)
 	}
 	return bz, nil
 }
@@ -189,7 +189,7 @@ func (k Keeper) GetMemberByAddress(ctx sdk.Context, groupID tss.GroupID, address
 		}
 	}
 
-	return types.Member{}, errors.Wrapf(
+	return types.Member{}, errorsmod.Wrapf(
 		types.ErrMemberNotFound,
 		"failed to get member with groupID: %d and address: %s",
 		groupID,
@@ -201,7 +201,7 @@ func (k Keeper) GetMemberByAddress(ctx sdk.Context, groupID tss.GroupID, address
 func (k Keeper) GetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Member, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.MemberOfGroupKey(groupID, memberID))
 	if bz == nil {
-		return types.Member{}, errors.Wrapf(
+		return types.Member{}, errorsmod.Wrapf(
 			types.ErrMemberNotFound,
 			"failed to get member with groupID: %d and memberID: %d",
 			groupID,
@@ -239,7 +239,7 @@ func (k Keeper) GetGroupMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.M
 		members = append(members, member)
 	}
 	if len(members) == 0 {
-		return nil, errors.Wrapf(types.ErrMemberNotFound, "failed to get members with groupID: %d", groupID)
+		return nil, errorsmod.Wrapf(types.ErrMemberNotFound, "failed to get members with groupID: %d", groupID)
 	}
 	return members, nil
 }

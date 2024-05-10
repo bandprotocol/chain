@@ -3,7 +3,7 @@ package keeper
 import (
 	"fmt"
 
-	"cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/tss/types"
@@ -68,7 +68,7 @@ func (k Keeper) SetDE(ctx sdk.Context, address sdk.AccAddress, index uint64, de 
 func (k Keeper) GetDE(ctx sdk.Context, address sdk.AccAddress, index uint64) (types.DE, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.DEIndexStoreKey(address, index))
 	if bz == nil {
-		return types.DE{}, errors.Wrapf(
+		return types.DE{}, errorsmod.Wrapf(
 			types.ErrDENotFound,
 			"failed to get DE with address %s index %d",
 			address,
@@ -192,7 +192,7 @@ func (k Keeper) FilterMembersHaveDE(ctx sdk.Context, members []types.Member) ([]
 		// Convert the address from Bech32 format to AccAddress format
 		accMember, err := sdk.AccAddressFromBech32(member.Address)
 		if err != nil {
-			return nil, errors.Wrapf(
+			return nil, errorsmod.Wrapf(
 				types.ErrInvalidAccAddressFormat,
 				"invalid account address: %s", err,
 			)

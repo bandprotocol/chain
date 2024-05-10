@@ -11,7 +11,7 @@ func (k Keeper) SetSigningResult(ctx sdk.Context, rid types.RequestID, signingRe
 	ctx.KVStore(k.storeKey).Set(types.SigningResultStoreKey(rid), k.cdc.MustMarshal(&signingResult))
 }
 
-// GetSigningID retrieves the signing ID associated with the given request ID from the store.
+// GetSigningResult retrieves the signing result associated with the given request ID from the store.
 func (k Keeper) GetSigningResult(ctx sdk.Context, rid types.RequestID) (types.SigningResult, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.SigningResultStoreKey(rid))
 

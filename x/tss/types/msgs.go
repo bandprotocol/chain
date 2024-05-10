@@ -1,7 +1,7 @@
 package types
 
 import (
-	"cosmossdk.io/errors"
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -200,12 +200,12 @@ func (m MsgConfirm) ValidateBasic() error {
 	// Validate member address
 	_, err := sdk.AccAddressFromBech32(m.Address)
 	if err != nil {
-		return errors.Wrap(err, "member")
+		return errorsmod.Wrap(err, "member")
 	}
 
 	// Validate own pub key sig
 	if err = m.OwnPubKeySig.Validate(); err != nil {
-		return errors.Wrap(err, "own pub key sig")
+		return errorsmod.Wrap(err, "own pub key sig")
 	}
 
 	return nil
