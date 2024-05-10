@@ -1,6 +1,6 @@
 run:
   timeout: 5m
-  go: '1.21.7'
+  go: '1.22.3'
   skip-files:
     - ".*\\.pb\\.go$"
     - ".*\\.pb\\.gw\\.\\.go$"

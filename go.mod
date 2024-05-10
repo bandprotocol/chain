@@ -1,8 +1,6 @@
 module github.com/bandprotocol/chain/v2
 
-go 1.21
-
-toolchain go1.21.7
+go 1.22.3
 
 require (
 	cosmossdk.io/api v0.3.1
