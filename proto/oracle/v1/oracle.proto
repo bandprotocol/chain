@@ -171,13 +171,8 @@ message OracleRequestPacketData {
   uint64 prepare_gas = 7;
   // ExecuteGas is amount of gas to reserve for executing
   uint64 execute_gas = 8;
-  // TSSGroupID is ID of the group that assign for sign the result data on tss module.
-  uint64 tss_group_id = 9 [
-    (gogoproto.customname) = "TSSGroupID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
-  ];
   // TSSEncodeType is the encode type of oracle result that will be sent to TSS.
-  EncodeType tss_encode_type = 10 [(gogoproto.customname) = "TSSEncodeType"];
+  EncodeType tss_encode_type = 9 [(gogoproto.customname) = "TSSEncodeType"];
 }
 
 // OracleRequestPacketAcknowledgement encodes an oracle request acknowledgement
