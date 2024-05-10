@@ -41,7 +41,6 @@ func TestDecodeStore(t *testing.T) {
 		nil,
 		100000,
 		0,
-		0,
 		accAddr.String(),
 		sdk.NewCoins(sdk.NewInt64Coin("band", 1000)),
 	)

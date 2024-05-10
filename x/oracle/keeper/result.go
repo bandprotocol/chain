@@ -11,7 +11,6 @@ import (
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 
 	ctxcache "github.com/bandprotocol/chain/v2/pkg/ctxcache"
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -62,7 +61,6 @@ func (k Keeper) ResolveSuccess(
 	feeLimit sdk.Coins,
 	result []byte,
 	gasUsed uint64,
-	gid tss.GroupID,
 	encodeType types.EncodeType,
 ) {
 	k.SaveResult(ctx, id, types.RESOLVE_STATUS_SUCCESS, result)
@@ -76,7 +74,7 @@ func (k Keeper) ResolveSuccess(
 	)
 
 	// Doesn't require signature from tss module; emit an event and end process here
-	if gid == tss.GroupID(0) {
+	if encodeType == types.ENCODE_TYPE_UNSPECIFIED {
 		ctx.EventManager().EmitEvent(event)
 		return
 	}
@@ -107,7 +105,7 @@ func (k Keeper) ResolveSuccess(
 	}
 
 	if err := ctxcache.ApplyFuncIfNoError(ctx, createSigningFunc); err != nil {
-		k.handleCreateSigningFailed(ctx, id, gid, event, err)
+		k.handleCreateSigningFailed(ctx, id, event, err)
 		return
 	}
 
@@ -117,7 +115,6 @@ func (k Keeper) ResolveSuccess(
 func (k Keeper) handleCreateSigningFailed(
 	ctx sdk.Context,
 	id types.RequestID,
-	gid tss.GroupID,
 	existingEvents sdk.Event,
 	err error,
 ) {
@@ -132,7 +129,6 @@ func (k Keeper) handleCreateSigningFailed(
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeHandleRequestSignFail,
 		sdk.NewAttribute(types.AttributeKeyID, fmt.Sprintf("%d", id)),
-		sdk.NewAttribute(types.AttributeKeyTSSGroupID, fmt.Sprintf("%d", gid)),
 		sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
 	))
 

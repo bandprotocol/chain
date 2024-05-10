@@ -155,7 +155,6 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.FeePayer.Address,
 		0,
-		0,
 	)
 	id, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.Equal(t, types.RequestID(1), id)
@@ -166,7 +165,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 			types.NewRawRequest(1, 1, []byte("beeb")),
 			types.NewRawRequest(2, 2, []byte("beeb")),
 			types.NewRawRequest(3, 3, []byte("beeb")),
-		}, nil, bandtesting.TestDefaultExecuteGas, 0, 0,
+		}, nil, bandtesting.TestDefaultExecuteGas, 0,
 		bandtesting.FeePayer.Address.String(),
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 97000000)),
 	), k.MustGetRequest(ctx, 1))
@@ -227,7 +226,6 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 			sdk.NewAttribute(types.AttributeKeyCalldata, hex.EncodeToString(BasicCalldata)),
 			sdk.NewAttribute(types.AttributeKeyAskCount, "1"),
 			sdk.NewAttribute(types.AttributeKeyMinCount, "1"),
-			sdk.NewAttribute(types.AttributeKeyTSSGroupID, "0"),
 			sdk.NewAttribute(types.AttributeKeyGasUsed, "5294700000"),
 			sdk.NewAttribute(types.AttributeKeyTotalFees, "3000000uband"),
 			sdk.NewAttribute(types.AttributeKeyValidator, bandtesting.Validators[0].ValAddress.String()),
@@ -284,7 +282,6 @@ func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.FeePayer.Address,
 		0,
-		0,
 	)
 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.EqualError(t, err, "require: 1000000uband, max: 0uband: not enough fee")
@@ -298,7 +295,6 @@ func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.FeePayer.Address,
-		0,
 		0,
 	)
 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
@@ -314,7 +310,6 @@ func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.FeePayer.Address,
 		0,
-		0,
 	)
 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.EqualError(t, err, "require: 3000000uband, max: 2000000uband: not enough fee")
@@ -329,7 +324,6 @@ func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.FeePayer.Address,
 		0,
-		0,
 	)
 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.EqualError(t, err, "require: 3000000uband, max: 2999999uband: not enough fee")
@@ -343,7 +337,6 @@ func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.FeePayer.Address,
-		0,
 		0,
 	)
 	id, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
@@ -368,7 +361,6 @@ func TestPrepareRequestNotEnoughFund(t *testing.T) {
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
 		0,
-		0,
 	)
 	_, err := k.PrepareRequest(ctx, m, bandtesting.Alice.Address, nil)
 	require.EqualError(t, err, "spendable balance  is smaller than 1000000uband: insufficient funds")
@@ -388,7 +380,6 @@ func TestPrepareRequestInvalidCalldataSize(t *testing.T) {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
-		0,
 		0,
 	)
 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
@@ -414,7 +405,6 @@ func TestPrepareRequestNotEnoughPrepareGas(t *testing.T) {
 		1,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
-		0,
 		0,
 	)
 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
@@ -450,7 +440,6 @@ func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
 		0,
-		0,
 	)
 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.ErrorIs(t, err, types.ErrInvalidAskCount)
@@ -470,7 +459,6 @@ func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
 		0,
-		0,
 	)
 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.ErrorIs(t, err, types.ErrInsufficientValidators)
@@ -489,7 +477,6 @@ func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
-		0,
 		0,
 	)
 	id, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
@@ -519,7 +506,6 @@ func TestPrepareRequestBaseOwasmFeePanic(t *testing.T) {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
-		0,
 		0,
 	)
 	ctx = ctx.WithGasMeter(sdk.NewGasMeter(90000))
@@ -554,7 +540,6 @@ func TestPrepareRequestPerValidatorRequestFeePanic(t *testing.T) {
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
 		0,
-		0,
 	)
 	ctx = ctx.WithGasMeter(sdk.NewGasMeter(90000))
 	require.PanicsWithValue(
@@ -572,7 +557,6 @@ func TestPrepareRequestPerValidatorRequestFeePanic(t *testing.T) {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
-		0,
 		0,
 	)
 	ctx = ctx.WithGasMeter(sdk.NewGasMeter(1000000))
@@ -596,7 +580,6 @@ func TestPrepareRequestEmptyCalldata(t *testing.T) {
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
 		0,
-		0,
 	)
 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.EqualError(t, err, "runtime error while executing the Wasm script: bad wasm execution")
@@ -616,7 +599,6 @@ func TestPrepareRequestOracleScriptNotFound(t *testing.T) {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
-		0,
 		0,
 	)
 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
@@ -638,7 +620,6 @@ func TestPrepareRequestBadWasmExecutionFail(t *testing.T) {
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
 		0,
-		0,
 	)
 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.EqualError(t, err, "OEI action to invoke is not available: bad wasm execution")
@@ -659,7 +640,6 @@ func TestPrepareRequestWithEmptyRawRequest(t *testing.T) {
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
 		0,
-		0,
 	)
 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.EqualError(t, err, "empty raw requests")
@@ -672,7 +652,7 @@ func TestPrepareRequestUnknownDataSource(t *testing.T) {
 	m := types.NewMsgRequestData(4, obi.MustEncode(testdata.Wasm4Input{
 		IDs:      []int64{1, 2, 99},
 		Calldata: "beeb",
-	}), 1, 1, BasicClientID, bandtesting.Coins100000000uband, bandtesting.TestDefaultPrepareGas, bandtesting.TestDefaultExecuteGas, bandtesting.Alice.Address, 0, 0)
+	}), 1, 1, BasicClientID, bandtesting.Coins100000000uband, bandtesting.TestDefaultPrepareGas, bandtesting.TestDefaultExecuteGas, bandtesting.Alice.Address, 0)
 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.EqualError(t, err, "id: 99: data source not found")
 }
@@ -688,13 +668,13 @@ func TestPrepareRequestInvalidDataSourceCount(t *testing.T) {
 	m := types.NewMsgRequestData(4, obi.MustEncode(testdata.Wasm4Input{
 		IDs:      []int64{1, 2, 3, 4},
 		Calldata: "beeb",
-	}), 1, 1, BasicClientID, bandtesting.Coins100000000uband, bandtesting.TestDefaultPrepareGas, bandtesting.TestDefaultExecuteGas, bandtesting.Alice.Address, 0, 0)
+	}), 1, 1, BasicClientID, bandtesting.Coins100000000uband, bandtesting.TestDefaultPrepareGas, bandtesting.TestDefaultExecuteGas, bandtesting.Alice.Address, 0)
 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.ErrorIs(t, err, types.ErrBadWasmExecution)
 	m = types.NewMsgRequestData(4, obi.MustEncode(testdata.Wasm4Input{
 		IDs:      []int64{1, 2, 3},
 		Calldata: "beeb",
-	}), 1, 1, BasicClientID, bandtesting.Coins100000000uband, bandtesting.TestDefaultPrepareGas, bandtesting.TestDefaultExecuteGas, bandtesting.Alice.Address, 0, 0)
+	}), 1, 1, BasicClientID, bandtesting.Coins100000000uband, bandtesting.TestDefaultPrepareGas, bandtesting.TestDefaultExecuteGas, bandtesting.Alice.Address, 0)
 	id, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.Equal(t, types.RequestID(1), id)
 	require.NoError(t, err)
@@ -715,7 +695,6 @@ func TestPrepareRequestTooMuchWasmGas(t *testing.T) {
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
 		0,
-		0,
 	)
 	id, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.Equal(t, types.RequestID(1), id)
@@ -730,7 +709,6 @@ func TestPrepareRequestTooMuchWasmGas(t *testing.T) {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
-		0,
 		0,
 	)
 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
@@ -752,7 +730,6 @@ func TestPrepareRequestTooLargeCalldata(t *testing.T) {
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
 		0,
-		0,
 	)
 	id, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.Equal(t, types.RequestID(1), id)
@@ -767,7 +744,6 @@ func TestPrepareRequestTooLargeCalldata(t *testing.T) {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
-		0,
 		0,
 	)
 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
@@ -790,7 +766,7 @@ func TestResolveRequestSuccess(t *testing.T) {
 		BasicClientID,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
-		}, nil, bandtesting.TestDefaultExecuteGas, 0, 0,
+		}, nil, bandtesting.TestDefaultExecuteGas, 0,
 		bandtesting.FeePayer.Address.String(),
 		bandtesting.Coins100000000uband,
 	))
@@ -835,7 +811,7 @@ func TestResolveRequestSuccessComplex(t *testing.T) {
 		42, bandtesting.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 			types.NewRawRequest(0, 1, BasicCalldata),
 			types.NewRawRequest(1, 2, BasicCalldata),
-		}, nil, bandtesting.TestDefaultExecuteGas, 0, 0,
+		}, nil, bandtesting.TestDefaultExecuteGas, 0,
 		bandtesting.FeePayer.Address.String(),
 		bandtesting.Coins100000000uband,
 	))
@@ -892,7 +868,7 @@ func TestResolveRequestOutOfGas(t *testing.T) {
 		BasicClientID,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
-		}, nil, 0, 0, 0,
+		}, nil, 0, 0,
 		bandtesting.FeePayer.Address.String(),
 		bandtesting.Coins100000000uband,
 	))
@@ -924,7 +900,7 @@ func TestResolveReadNilExternalData(t *testing.T) {
 		42, bandtesting.ParseTime(1581589790), BasicClientID, []types.RawRequest{
 			types.NewRawRequest(0, 1, BasicCalldata),
 			types.NewRawRequest(1, 2, BasicCalldata),
-		}, nil, bandtesting.TestDefaultExecuteGas, 0, 0,
+		}, nil, bandtesting.TestDefaultExecuteGas, 0,
 		bandtesting.FeePayer.Address.String(),
 		bandtesting.Coins100000000uband,
 	))
@@ -977,7 +953,7 @@ func TestResolveRequestNoReturnData(t *testing.T) {
 		BasicClientID,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
-		}, nil, 1, 0, 0,
+		}, nil, 1, 0,
 		bandtesting.FeePayer.Address.String(),
 		bandtesting.Coins100000000uband,
 	))
@@ -1016,7 +992,7 @@ func TestResolveRequestWasmFailure(t *testing.T) {
 		BasicClientID,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
-		}, nil, 0, 0, 0,
+		}, nil, 0, 0,
 		bandtesting.FeePayer.Address.String(),
 		bandtesting.Coins100000000uband,
 	))
@@ -1055,7 +1031,7 @@ func TestResolveRequestCallReturnDataSeveralTimes(t *testing.T) {
 		BasicClientID,
 		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("beeb")),
-		}, nil, bandtesting.TestDefaultExecuteGas, 0, 0,
+		}, nil, bandtesting.TestDefaultExecuteGas, 0,
 		bandtesting.FeePayer.Address.String(),
 		bandtesting.Coins100000000uband,
 	))

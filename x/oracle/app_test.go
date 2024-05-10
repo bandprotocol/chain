@@ -31,7 +31,6 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Validators[0].Address,
 		0,
-		0,
 	)
 	res, err := handler(ctx, requestMsg)
 	require.NotNil(t, res)
@@ -56,7 +55,6 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		},
 		nil,
 		bandtesting.TestDefaultExecuteGas,
-		0,
 		0,
 		bandtesting.Validators[0].Address.String(),
 		nil,
@@ -153,7 +151,6 @@ func TestExpiredRequestOracleData(t *testing.T) {
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Validators[0].Address,
 		0,
-		0,
 	)
 	res, err := handler(ctx, requestMsg)
 	require.NotNil(t, res)
@@ -178,7 +175,6 @@ func TestExpiredRequestOracleData(t *testing.T) {
 		},
 		nil,
 		bandtesting.TestDefaultExecuteGas,
-		0,
 		0,
 		bandtesting.Validators[0].Address.String(),
 		nil,

@@ -67,7 +67,6 @@ func GenMsgRequestData(
 		MinCount:   1,
 		ClientID:   "",
 		FeeLimit:   sdk.Coins{sdk.NewInt64Coin("uband", 1)},
-		TSSGroupID: 0,
 		PrepareGas: prepareGas,
 		ExecuteGas: executeGas,
 		Sender:     sender.Address.String(),
@@ -202,7 +201,6 @@ func CreateSignature(
 		}
 	}
 
-	// Sign the message
 	return nil, fmt.Errorf("this member is not assigned members")
 }
 
@@ -285,7 +283,7 @@ func InitOwasmTestEnv(
 			Value:        parameter,
 			Text:         strings.Repeat("#", stringLength),
 		}), []sdk.ValAddress{[]byte{}}, 1,
-		1, time.Now(), "", nil, nil, ExecuteGasLimit, 0, 0,
+		1, time.Now(), "", nil, nil, ExecuteGasLimit, 0,
 		bandtesting.FeePayer.Address.String(),
 		bandtesting.Coins100000000uband,
 	)

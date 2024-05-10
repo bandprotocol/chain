@@ -46,7 +46,6 @@ func mockExecEnv() *ExecuteEnv {
 		nil,
 		0,
 		0,
-		0,
 		address4.String(),
 		coins1,
 	)
@@ -77,7 +76,6 @@ func mockFreshPrepareEnv() *PrepareEnv {
 		clientID,
 		nil,
 		nil,
-		0,
 		0,
 		0,
 		address4.String(),

@@ -98,7 +98,6 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 		nil,
 		0,
 		0,
-		0,
 		bandtesting.FeePayer.Address.String(),
 		bandtesting.Coins100000000uband,
 	)
@@ -207,7 +206,6 @@ func (suite *FeeCheckerTestSuite) TestNotReportMsg() {
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.FeePayer.Address,
 		0,
-		0,
 	)
 	stubTx := &StubTx{
 		Msgs: []sdk.Msg{requestMsg},
@@ -246,7 +244,6 @@ func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameAuthzMsg
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.FeePayer.Address,
 		0,
-		0,
 	)
 	msgs := []sdk.Msg{reportMsg, requestMsg}
 	authzMsg := authz.NewMsgExec(bandtesting.Alice.Address, msgs)
@@ -275,7 +272,6 @@ func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameTx() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.FeePayer.Address,
-		0,
 		0,
 	)
 	stubTx := &StubTx{
@@ -521,7 +517,6 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFee() {
 					bandtesting.TestDefaultExecuteGas,
 					bandtesting.FeePayer.Address,
 					0,
-					0,
 				)
 
 				return &StubTx{
@@ -567,7 +562,6 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFee() {
 					bandtesting.TestDefaultExecuteGas,
 					bandtesting.FeePayer.Address,
 					0,
-					0,
 				)
 				msgs := []sdk.Msg{msgReportData, msgRequestData}
 				authzMsg := authz.NewMsgExec(bandtesting.Alice.Address, msgs)
@@ -602,7 +596,6 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFee() {
 					bandtesting.TestDefaultPrepareGas,
 					bandtesting.TestDefaultExecuteGas,
 					bandtesting.FeePayer.Address,
-					0,
 					0,
 				)
 

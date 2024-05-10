@@ -781,7 +781,6 @@ func (suite *OracleTestSuite) TestIBCResolveRequestNoReturnData() {
 		&types.IBCChannel{PortId: path.EndpointB.ChannelConfig.PortID, ChannelId: path.EndpointB.ChannelID},
 		0,
 		0,
-		0,
 		bandtesting.FeePayer.Address.String(),
 		bandtesting.Coins100000000uband,
 	))
@@ -840,7 +839,6 @@ func (suite *OracleTestSuite) TestIBCResolveRequestWasmFailure() {
 		&types.IBCChannel{PortId: path.EndpointB.ChannelConfig.PortID, ChannelId: path.EndpointB.ChannelID},
 		bandtesting.TestDefaultExecuteGas,
 		0,
-		0,
 		bandtesting.FeePayer.Address.String(),
 		bandtesting.Coins100000000uband,
 	))
@@ -898,7 +896,6 @@ func (suite *OracleTestSuite) TestIBCResolveRequestCallReturnDataSeveralTimes() 
 		},
 		&types.IBCChannel{PortId: path.EndpointB.ChannelConfig.PortID, ChannelId: path.EndpointB.ChannelID},
 		bandtesting.TestDefaultExecuteGas,
-		0,
 		0,
 		bandtesting.FeePayer.Address.String(),
 		bandtesting.Coins100000000uband,

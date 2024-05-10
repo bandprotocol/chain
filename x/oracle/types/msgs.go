@@ -6,8 +6,6 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 )
 
 // oracle message types
@@ -44,7 +42,6 @@ func NewMsgRequestData(
 	feeLimit sdk.Coins,
 	prepareGas, executeGas uint64,
 	sender sdk.AccAddress,
-	tssGroupID tss.GroupID,
 	tssEncodeType EncodeType,
 ) *MsgRequestData {
 	return &MsgRequestData{
@@ -57,7 +54,6 @@ func NewMsgRequestData(
 		PrepareGas:     prepareGas,
 		ExecuteGas:     executeGas,
 		Sender:         sender.String(),
-		TSSGroupID:     tssGroupID,
 		TSSEncodeType:  tssEncodeType,
 	}
 }

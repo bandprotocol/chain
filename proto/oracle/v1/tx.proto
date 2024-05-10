@@ -67,13 +67,8 @@ message MsgRequestData {
   uint64 execute_gas = 8;
   // Sender is an account address of message sender.
   string sender = 9 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  // TSSGroupID is ID of the group that assign for sign the result data on tss module.
-  uint64 tss_group_id = 10 [
-    (gogoproto.customname) = "TSSGroupID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
-  ];
   // TSSEncodeType is the encode type of oracle result that will be sent to TSS.
-  EncodeType tss_encode_type = 11 [(gogoproto.customname) = "TSSEncodeType"];
+  EncodeType tss_encode_type = 10 [(gogoproto.customname) = "TSSEncodeType"];
 }
 
 // MsgRequestDataResponse is response data for MsgRequestData message
