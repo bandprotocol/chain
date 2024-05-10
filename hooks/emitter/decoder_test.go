@@ -892,12 +892,12 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitPrices() {
 		Timestamp: 12345678,
 		Prices: []feedstypes.SubmitPrice{
 			{
-				PriceOption: feedstypes.PriceOptionAvailable,
+				PriceStatus: feedstypes.PriceStatusAvailable,
 				SignalID:    "crypto_price.ethusd",
 				Price:       3500000000000,
 			},
 			{
-				PriceOption: feedstypes.PriceOptionUnavailable,
+				PriceStatus: feedstypes.PriceStatusUnavailable,
 				SignalID:    "crypto_price.btcusd",
 				Price:       0,
 			},
@@ -946,6 +946,32 @@ func (suite *DecoderTestSuite) TestDecodeMsgUpdatePriceService() {
 	suite.testCompareJson(
 		detail,
 		"{\"hash\":\"testhash\",\"url\":\"http://example.com\",\"version\":\"1.0.0\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgUpdateParams() {
+	detail := make(common.JsDict)
+
+	msg := feedstypes.MsgUpdateParams{
+		Authority: OwnerAddress.String(),
+		Params: feedstypes.Params{
+			Admin:                         OwnerAddress.String(),
+			AllowableBlockTimeDiscrepancy: 30,
+			TransitionTime:                30,
+			MinInterval:                   60,
+			MaxInterval:                   3600,
+			PowerThreshold:                1_000_000_000,
+			MaxSupportedFeeds:             100,
+			CooldownTime:                  30,
+			MinDeviationInThousandth:      5,
+			MaxDeviationInThousandth:      300,
+		},
+	}
+
+	emitter.DecodeMsgUpdateParams(&msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"admin\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"allowable_block_time_discrepancy\":30,\"authority\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"cooldown_time\":30,\"max_deviation_in_thousandth\":300,\"max_interval\":3600,\"max_supported_feeds\":100,\"min_deviation_in_thousandth\":5,\"min_interval\":60,\"power_threshold\":1000000000,\"transition_time\":30}",
 	)
 }
 

@@ -39,10 +39,10 @@ echo "audit silver absorb involve more aspect girl report open gather excite mir
     | bandd keys add relayer --recover --keyring-backend test
 
 echo "erase relief tree tobacco around knee concert toast diesel melody rule sight forum camera oil sick leopard valid furnace casino post dumb tag young" \
-    | bandd keys add group1 --recover --keyring-backend test
+    | bandd keys add account1 --recover --keyring-backend test
 
 echo "thought insane behind cool expand clarify strategy occur arrive broccoli middle despair foot cake genuine dawn goose abuse curve identify dinner derive genre effort" \
-    | bandd keys add group2 --recover --keyring-backend test
+    | bandd keys add account2 --recover --keyring-backend test
 
 # add accounts to genesis
 bandd genesis add-genesis-account validator1 10000000000000uband --keyring-backend test
@@ -51,8 +51,8 @@ bandd genesis add-genesis-account validator3 10000000000000uband --keyring-backe
 bandd genesis add-genesis-account validator4 10000000000000uband --keyring-backend test
 bandd genesis add-genesis-account requester 100000000000000uband --keyring-backend test
 bandd genesis add-genesis-account relayer 100000000000000uband --keyring-backend test
-bandd genesis add-genesis-account group1 100000000000000uband --keyring-backend test
-bandd genesis add-genesis-account group2 100000000000000uband --keyring-backend test
+bandd genesis add-genesis-account account1 100000000000000uband --keyring-backend test
+bandd genesis add-genesis-account account2 100000000000000uband --keyring-backend test
 
 # create copy of config.toml
 cp ~/.band/config/config.toml ~/.band/config/config.toml.temp
@@ -171,7 +171,7 @@ do
     grogu config validator $(bandd keys show validator$v -a --bech val --keyring-backend test)
 
     # change url to price-service image
-    grogu config price-service "rest:http://price-service$v:8080/crypto?timeout=10s"
+    grogu config price-service "grpc:grpc://price-service$v:50051?timeout=10s"
 
     # activate validator
     echo "y" | bandd tx oracle activate --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync

@@ -78,7 +78,7 @@ func (h *Hook) emitSetPriceValidator(ctx sdk.Context, validator string, price ty
 func (h *Hook) emitSetPrice(price types.Price) {
 	h.Write("SET_PRICE", common.JsDict{
 		"signal_id":    price.SignalID,
-		"price_option": price.PriceOption.String(),
+		"price_option": price.PriceStatus.String(),
 		"price":        price.Price,
 		"timestamp":    price.Timestamp * int64(math.Pow10(9)),
 	})
@@ -99,10 +99,10 @@ func (h *Hook) handleMsgSubmitSignals(
 ) {
 	h.emitRemoveDelegatorSignals(msg.Delegator)
 	var involvedSignalIDs []string
-	if signal_ids, ok := evMap[types.EventTypeSubmitSignal+"."+types.AttributeKeySignalID]; ok {
+	if signal_ids, ok := evMap[types.EventTypeUpdateFeed+"."+types.AttributeKeySignalID]; ok {
 		involvedSignalIDs = append(involvedSignalIDs, signal_ids...)
 	}
-	if signal_ids, ok := evMap[types.EventTypeRemoveSignal+"."+types.AttributeKeySignalID]; ok {
+	if signal_ids, ok := evMap[types.EventTypeDeleteFeed+"."+types.AttributeKeySignalID]; ok {
 		involvedSignalIDs = append(involvedSignalIDs, signal_ids...)
 	}
 

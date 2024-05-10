@@ -131,6 +131,8 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeMsgSubmitSignals(msg, detail)
 	case *feedstypes.MsgUpdatePriceService:
 		DecodeMsgUpdatePriceService(msg, detail)
+	case *feedstypes.MsgUpdateParams:
+		DecodeMsgUpdateParams(msg, detail)
 	default:
 		break
 	}
@@ -638,7 +640,23 @@ func DecodeMsgSubmitSignals(msg *feedstypes.MsgSubmitSignals, detail common.JsDi
 }
 
 func DecodeMsgUpdatePriceService(msg *feedstypes.MsgUpdatePriceService, detail common.JsDict) {
-	detail["hash"] = msg.GetPriceService().Hash
-	detail["version"] = msg.GetPriceService().Version
-	detail["url"] = msg.GetPriceService().Url
+	priceService := msg.GetPriceService()
+	detail["hash"] = priceService.Hash
+	detail["version"] = priceService.Version
+	detail["url"] = priceService.Url
+}
+
+func DecodeMsgUpdateParams(msg *feedstypes.MsgUpdateParams, detail common.JsDict) {
+	params := msg.GetParams()
+	detail["authority"] = msg.GetAuthority()
+	detail["admin"] = params.GetAdmin()
+	detail["allowable_block_time_discrepancy"] = params.GetAllowableBlockTimeDiscrepancy()
+	detail["transition_time"] = params.GetTransitionTime()
+	detail["min_interval"] = params.GetMinInterval()
+	detail["max_interval"] = params.GetMaxInterval()
+	detail["power_threshold"] = params.GetPowerThreshold()
+	detail["max_supported_feeds"] = params.GetMaxSupportedFeeds()
+	detail["cooldown_time"] = params.GetCooldownTime()
+	detail["min_deviation_in_thousandth"] = params.GetMinDeviationInThousandth()
+	detail["max_deviation_in_thousandth"] = params.GetMaxDeviationInThousandth()
 }
