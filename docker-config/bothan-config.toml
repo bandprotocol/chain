@@ -1,0 +1,26 @@
+[grpc]
+addr = "0.0.0.0:50051"
+
+[manager]
+stale_threshold = 300
+
+[source.binance]
+
+[source.bybit]
+
+[source.coingecko]
+api_key = ""
+
+[source.coinmarketcap]
+api_key = ""
+
+[source.cryptocompare]
+api_key = ""
+
+[source.htx]
+
+[source.kraken]
+
+[registry.crypto_price]
+source = "registry/crypto_prices.json"
+version = "1.0"

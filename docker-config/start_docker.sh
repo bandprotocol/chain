@@ -163,7 +163,7 @@ done
 for v in {1..4}
 do
     # run price-service image
-    docker run --network chain_bandchain -d --name price-service$v -e INTERNAL_PRICER_URL='https://px.bandchain.org' -e NETWORK='mainnet' -e PORT='8080' folkband/off-chain-price
+    docker run --network chain_bandchain -d --name price-service$v -v "$(pwd)/docker-config/bothan-config.toml:/app/config.toml" bandprotocol/bothan-api:latest
 
     rm -rf ~/.grogu
     grogu config chain-id bandchain
