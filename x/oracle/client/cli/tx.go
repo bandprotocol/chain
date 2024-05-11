@@ -715,6 +715,9 @@ $ %s tx tss request-signature oracle-result 1 --fee-limit 10uband
 			if err != nil {
 				return err
 			}
+			if encodeType == int64(types.ENCODE_TYPE_UNSPECIFIED) {
+				return types.ErrInvalidOracleEncodeType
+			}
 
 			coinStr, err := cmd.Flags().GetString(flagFeeLimit)
 			if err != nil {

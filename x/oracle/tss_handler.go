@@ -28,20 +28,20 @@ func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 			}
 
 			switch c.EncodeType {
-			case types.ENCODE_TYPE_UNSPECIFIED, types.ENCODE_TYPE_PROTO:
+			case types.ENCODE_TYPE_PROTO:
 				bz, err := k.MarshalResult(ctx, result)
 				if err != nil {
 					return nil, err
 				}
 
-				return append(EncodeTypeFullABIPrefix, bz...), nil
+				return append(EncodeTypeProtoPrefix, bz...), nil
 			case types.ENCODE_TYPE_FULL_ABI:
 				bz, err := result.PackFullABI()
 				if err != nil {
 					return nil, err
 				}
 
-				return append(EncodeTypeProtoPrefix, bz...), nil
+				return append(EncodeTypeFullABIPrefix, bz...), nil
 			case types.ENCODE_TYPE_PARTIAL_ABI:
 				bz, err := result.PackPartialABI()
 				if err != nil {

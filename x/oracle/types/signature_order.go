@@ -38,7 +38,7 @@ func (o *OracleResultSignatureOrder) ValidateBasic() error {
 	}
 
 	if o.EncodeType == ENCODE_TYPE_UNSPECIFIED {
-		return ErrInvalidTSSEncodeType
+		return ErrInvalidOracleEncodeType
 	}
 	return nil
 }
