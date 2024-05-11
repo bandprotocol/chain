@@ -159,6 +159,8 @@ do
     docker start bandchain_yoda${v}
 done
 
+# pull latest image first
+docker pull bandprotocol/bothan-api:latest
 
 for v in {1..4}
 do
