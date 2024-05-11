@@ -20,7 +20,6 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/obi"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -153,20 +152,6 @@ func GenMsgSubmitSignature(sid tss.SigningID, mid tss.MemberID, sig tss.Signatur
 	}
 
 	return []sdk.Msg{&msg}
-}
-
-func FindPrivateKey(tcs []testutil.TestCase, gid tss.GroupID, member sdk.AccAddress) tss.Scalar {
-	for _, tc := range tcs {
-		if tc.Group.ID == gid {
-			for _, m := range tc.Group.Members {
-				a := sdk.AccAddress(m.PubKey())
-				if a.Equals(member) {
-					return m.PrivKey
-				}
-			}
-		}
-	}
-	return nil
 }
 
 func CreateSignature(
