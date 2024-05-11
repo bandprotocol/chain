@@ -93,7 +93,6 @@ type AppModule struct {
 	// legacySubspace is used solely for migration of x/params managed parameters
 	legacySubspace exported.Subspace
 	hook           common.Hook
-
 	// for simulation
 	accountKeeper types.AccountKeeper
 	bankKeeper    simulation.BankKeeper
