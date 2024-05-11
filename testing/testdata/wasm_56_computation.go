@@ -11,7 +11,7 @@ import (
 //	EXECUTE:
 //	  Loop for `time` times and set return data "new beeb".
 func Wasm56(time int) []byte {
-	return wat2wasm([]byte(fmt.Sprintf(`(module
+	return wat2wasm(fmt.Sprintf(`(module
 	 (type $t0 (func))
 	 (type $t1 (func (param i64 i64 i64 i64)))
 	 (type $t2 (func (param i64 i64)))
@@ -49,5 +49,5 @@ func Wasm56(time int) []byte {
 	   call $set_return_data)
 	 (table $T0 1 1 funcref)
 	 (memory $memory (export "memory") 17)
-	 (data (i32.const 1024) "new beeb"))`, time, time)))
+	 (data (i32.const 1024) "new beeb"))`, time, time))
 }
