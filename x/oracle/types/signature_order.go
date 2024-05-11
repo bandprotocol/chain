@@ -1,7 +1,7 @@
 package types
 
 import (
-	tss "github.com/bandprotocol/chain/v2/x/tss/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 // signature order types
@@ -10,14 +10,14 @@ const (
 )
 
 func init() {
-	tss.RegisterSignatureOrderTypeCodec(
+	tsstypes.RegisterSignatureOrderTypeCodec(
 		&OracleResultSignatureOrder{},
 		"oracle/OracleResultSignatureOrder",
 	)
 }
 
 // Implements Content Interface
-var _ tss.Content = &OracleResultSignatureOrder{}
+var _ tsstypes.Content = &OracleResultSignatureOrder{}
 
 func NewOracleResultSignatureOrder(rid RequestID, encodeType EncodeType) *OracleResultSignatureOrder {
 	return &OracleResultSignatureOrder{RequestID: rid, EncodeType: encodeType}
