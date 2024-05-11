@@ -20,14 +20,14 @@ This module is used in the BandChain.
       - [Feed Deviation](#feed-deviation)
       - [How Feed Interval and Deviation are calculated](#how-feed-interval-and-deviation-are-calculated)
       - [Supported Feeds](#supported-feeds)
-    - [Price Validator](#price-validator)
+    - [Validator Price](#validator-price)
     - [Price](#price)
     - [Price Service](#price-service)
   - [State](#state)
     - [PriceService](#priceservice)
     - [Feed](#feed-1)
       - [FeedByPowerIndex](#feedbypowerindex)
-    - [PriceValidator](#pricevalidator)
+    - [ValidatorPrice](#validatorprice)
     - [Price](#price-1)
     - [DelegatorSignal](#delegatorsignal)
     - [Params](#params)
@@ -80,9 +80,9 @@ You can visualize the interval/deviation as resembling the harmonic series times
 
 The list of currently supported feeds includes those with power exceeding the PowerThreshold parameter and ranking within the top MaxSupportedFeeds. Feeds outside of this list are considered unsupported, and validators do not need to submit their prices.
 
-### Price Validator
+### Validator Price
 
-The Price Validator refers to the price submitted by each validator before being aggregated into the final Price.
+The Validator Price refers to the price submitted by each validator before being aggregated into the final Price.
 
 The module only contains the latest price of each validator and signal id.
 
@@ -90,7 +90,7 @@ The module only contains the latest price of each validator and signal id.
 
 A Price is a structure that maintains the current price state for a signal id, including its current price, price status, and the most recent timestamp.
 
-Once the Price Validator is submitted, it will be weighted median which weight by how latest the price and how much validator power of the owner of the price to get the most accurate and trustworthy price.
+Once the Validator Price is submitted, it will be weighted median which weight by how latest the price and how much validator power of the owner of the price to get the most accurate and trustworthy price.
 
 The module only contains the latest price of each signal id.
 
@@ -117,11 +117,11 @@ The Feed is a space for holding current Feeds information.
 `FeedByPowerIndex` allow to retrieve Feeds by power:
 `0x20| BigEndian(Power) | SignalIDLen (1 byte) | SignalID -> SignalID`
 
-### PriceValidator
+### ValidatorPrice
 
-The PriceValidator is a space for holding current Price Validator information.
+The ValidatorPrice is a space for holding current Validator Price information.
 
-* PriceValidator: `0x02 -> ProtocolBuffer(PriceValidator)`
+* ValidatorPrice: `0x02 -> ProtocolBuffer(ValidatorPrice)`
 
 ### Price
 
@@ -151,9 +151,9 @@ message Params {
   // Admin is the address of the admin that is allowed to perform operations on modules.
   string admin = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
-  // AllowDiffTime is the allowed difference (in seconds) between timestamp and block_time when validator submits the
-  // prices.
-  int64 allow_diff_time = 2;
+  // AllowableBlockTimeDiscrepancy is the allowed discrepancy (in seconds) between validator price timestamp and
+  // block_time.
+  int64 allowable_block_time_discrepancy = 2;
 
   // TransitionTime is the time (in seconds) given for validators to adapt to changing in feed's interval.
   int64 transition_time = 3;
@@ -189,8 +189,8 @@ In this section we describe the processing of the feeds messages and the corresp
 
 ### MsgSubmitPrices
 
-Price Validators are submitted using the `MsgSubmitPrices` message.
-The Prices will be updated at endblock using this new Price Validators.
+Validator Prices are submitted using the `MsgSubmitPrices` message.
+The Prices will be updated at endblock using this new Validator Prices.
 
 ```protobuf
 // MsgSubmitPrices is the transaction message to submit multiple prices.
@@ -298,9 +298,9 @@ Each abci end block call, the operations to update prices.
 
 ### Update Prices
 
-At every end block, the Price Validator of every Supported Feed will be obtained and checked if it is within the acceptance period (1 interval).
+At every end block, the Validator Price of every Supported Feed will be obtained and checked if it is within the acceptance period (1 interval).
 Any validator that does not submit a price within this period is considered to have miss-reported and will be deactivated, unless the Feed is in a transition period (where the interval has just been updated within TransitionTime).
-Accepted Price Validators of the same SignalID will be weighted and medianed based on the recency of the price and the power of the validator who submitted the price.
+Accepted Validator Prices of the same SignalID will be weighted and medianed based on the recency of the price and the power of the validator who submitted the price.
 The medianed price is then set as the Price.
 
 ## Events
@@ -312,7 +312,7 @@ The feeds module emits the following events:
 | Type                   | Attribute Key | Attribute Value |
 | ---------------------- | ------------- | --------------- |
 | calculate_price_failed | signal_id     | {signalID}      |
-| calculate_price_failed | error_message | {err}           |
+| calculate_price_failed | error_message | {error}         |
 | update_price           | signal_id     | {signalID}      |
 | update_price           | price         | {price}         |
 | update_price           | timestamp     | {timestamp}     |
@@ -323,7 +323,7 @@ The feeds module emits the following events:
 
 | Type         | Attribute Key | Attribute Value    |
 | ------------ | ------------- | ------------------ |
-| submit_price | price_option  | {priceOption}      |
+| submit_price | price_status  | {priceStatus}      |
 | submit_price | validator     | {validatorAddress} |
 | submit_price | signal_id     | {signalID}         |
 | submit_price | price         | {price}            |
@@ -346,13 +346,15 @@ The feeds module emits the following events:
 
 #### MsgSubmitSignals
 
-| Type          | Attribute Key | Attribute Value |
-| ------------- | ------------- | --------------- |
-| remove_signal | signal_id     | {signalID}      |
-| remove_signal | power         | {power}         |
-| remove_signal | timestamp     | {timestamp}     |
-| submit_signal | delegator     | {delegator}     |
-| submit_signal | signal_id     | {signalID}      |
-| submit_signal | power         | {power}         |
-| submit_signal | timestamp     | {timestamp}     |
-
+| Type         | Attribute Key           | Attribute Value         |
+| ------------ | ----------------------- | ----------------------- |
+| update_feed  | signal_id               | {signalID}              |
+| update_feed  | power                   | {power}                 |
+| update_feed  | interval                | {interval}              |
+| update_feed  | timestamp               | {timestamp}             |
+| update_feed  | deviation_in_thousandth | {deviationInThousandth} |
+| deleate_feed | signal_id               | {signalID}              |
+| deleate_feed | power                   | {power}                 |
+| deleate_feed | interval                | {interval}              |
+| deleate_feed | timestamp               | {timestamp}             |
+| deleate_feed | deviation_in_thousandth | {deviationInThousandth} |
