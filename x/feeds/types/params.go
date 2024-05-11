@@ -11,7 +11,7 @@ const (
 	DefaultMinInterval                   = int64(60)
 	DefaultMaxInterval                   = int64(3600)
 	DefaultPowerThreshold                = int64(1_000_000_000)
-	DefaultMaxSupportedFeeds             = int64(100)
+	DefaultMaxSupportedFeeds             = int64(300)
 	DefaultCooldownTime                  = int64(30)
 	DefaultMinDeviationInThousandth      = int64(5)
 	DefaultMaxDeviationInThousandth      = int64(300)

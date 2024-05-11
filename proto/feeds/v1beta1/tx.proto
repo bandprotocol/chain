@@ -60,7 +60,7 @@ message MsgSubmitPricesResponse {}
 // MsgUpdatePriceService is the transaction message to update price service's information.
 message MsgUpdatePriceService {
   option (cosmos.msg.v1.signer) = "authority";
-  option (amino.name)           = "feeds/MsgUpdateParams";
+  option (amino.name)           = "feeds/MsgUpdatePriceService";
 
   // Admin is the address of the admin that is performing the operation.
   string admin = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
