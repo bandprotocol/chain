@@ -18,8 +18,6 @@ echo "drop video mention casual soldier ostrich resemble harvest casual step des
 # add accounts to genesis
 bandd genesis add-genesis-account validator 10000000000000uband --keyring-backend test
 bandd genesis add-genesis-account requester 10000000000000uband --keyring-backend test
-
-## add test accounts to genesis
 bandd genesis add-genesis-account account1 10000000000000uband --keyring-backend test
 bandd genesis add-genesis-account account2 10000000000000uband --keyring-backend test
 bandd genesis add-genesis-account account3 10000000000000uband --keyring-backend test
