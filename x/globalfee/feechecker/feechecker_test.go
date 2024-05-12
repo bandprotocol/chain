@@ -611,6 +611,109 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFee() {
 			),
 			expPriority: 10000,
 		},
+		{
+			name: "valid MsgSubmitPrices",
+			stubTx: func() *StubTx {
+				return &StubTx{
+					Msgs: []sdk.Msg{
+						feedstypes.NewMsgSubmitPrices(
+							bandtesting.Validators[0].ValAddress.String(),
+							suite.ctx.BlockTime().Unix(),
+							[]feedstypes.SubmitPrice{},
+						),
+					},
+				}
+			},
+			expIsBypassMinFeeTx: true,
+			expErr:              nil,
+			expFee:              sdk.Coins{},
+			expPriority:         math.MaxInt64,
+		},
+		{
+			name: "valid MsgSubmitPrices in valid MsgExec",
+			stubTx: func() *StubTx {
+				msgExec := authz.NewMsgExec(bandtesting.Alice.Address, []sdk.Msg{
+					feedstypes.NewMsgSubmitPrices(
+						bandtesting.Validators[0].ValAddress.String(),
+						suite.ctx.BlockTime().Unix(),
+						[]feedstypes.SubmitPrice{},
+					),
+				})
+
+				return &StubTx{
+					Msgs: []sdk.Msg{
+						&msgExec,
+					},
+				}
+			},
+			expIsBypassMinFeeTx: true,
+			expErr:              nil,
+			expFee:              sdk.Coins{},
+			expPriority:         math.MaxInt64,
+		},
+		{
+			name: "invalid MsgSubmitPrices with not enough fee",
+			stubTx: func() *StubTx {
+				return &StubTx{
+					Msgs: []sdk.Msg{
+						feedstypes.NewMsgSubmitPrices(
+							bandtesting.Alice.ValAddress.String(),
+							suite.ctx.BlockTime().Unix(),
+							[]feedstypes.SubmitPrice{},
+						),
+					},
+				}
+			},
+			expIsBypassMinFeeTx: false,
+			expErr:              sdkerrors.ErrInsufficientFee,
+			expFee:              nil,
+			expPriority:         0,
+		},
+		{
+			name: "invalid MsgSubmitPrices in valid MsgExec with not enough fee",
+			stubTx: func() *StubTx {
+				msgExec := authz.NewMsgExec(bandtesting.Alice.Address, []sdk.Msg{
+					feedstypes.NewMsgSubmitPrices(
+						bandtesting.Alice.ValAddress.String(),
+						suite.ctx.BlockTime().Unix(),
+						[]feedstypes.SubmitPrice{},
+					),
+				})
+
+				return &StubTx{
+					Msgs: []sdk.Msg{
+						&msgExec,
+					},
+				}
+			},
+			expIsBypassMinFeeTx: false,
+			expErr:              sdkerrors.ErrInsufficientFee,
+			expFee:              nil,
+			expPriority:         0,
+		},
+		{
+			name: "valid MsgSubmitPrices in invalid MsgExec with enough fee",
+			stubTx: func() *StubTx {
+				msgExec := authz.NewMsgExec(bandtesting.Bob.Address, []sdk.Msg{
+					feedstypes.NewMsgSubmitPrices(
+						bandtesting.Validators[0].ValAddress.String(),
+						suite.ctx.BlockTime().Unix(),
+						[]feedstypes.SubmitPrice{},
+					),
+				})
+
+				return &StubTx{
+					Msgs: []sdk.Msg{
+						&msgExec,
+					},
+					GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdk.NewInt(1))),
+				}
+			},
+			expIsBypassMinFeeTx: false,
+			expErr:              nil,
+			expFee:              sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(1000000))),
+			expPriority:         10000,
+		},
 	}
 
 	for _, tc := range testCases {

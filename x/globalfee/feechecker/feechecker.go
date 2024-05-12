@@ -132,6 +132,7 @@ func (fc FeeChecker) IsBypassMinFeeTx(ctx sdk.Context, tx sdk.Tx) bool {
 	return true
 }
 
+// IsBypassMinFeeMsg checks whether msg is min fee bypassable.
 func (fc FeeChecker) IsBypassMinFeeMsg(ctx sdk.Context, msg sdk.Msg) bool {
 	switch msg := msg.(type) {
 	case *oracletypes.MsgReportData:
