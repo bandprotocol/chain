@@ -3,7 +3,6 @@ package types
 import (
 	"fmt"
 
-	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	tsslib "github.com/bandprotocol/chain/v2/pkg/tss"
@@ -70,7 +69,7 @@ func wrapHandler(path string, handler Handler) Handler {
 	return func(ctx sdk.Context, req Content) ([]byte, error) {
 		msg, err := handler(ctx, req)
 		if err != nil {
-			return nil, errorsmod.Wrap(ErrHandleSignatureOrderFailed, err.Error())
+			return nil, ErrHandleSignatureOrderFailed.Wrap(err.Error())
 		}
 		selector := tsslib.Hash([]byte(path))[:4]
 

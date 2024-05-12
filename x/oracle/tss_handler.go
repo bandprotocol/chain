@@ -1,7 +1,6 @@
 package oracle
 
 import (
-	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -17,7 +16,7 @@ var (
 	EncodeTypePartialABIPrefix = tsslib.Hash([]byte("PartialABI"))[:4]
 )
 
-// NewSignatureOrderHandler creates a TSS Handler to handle oracle result signature order
+// NewSignatureOrderHandler creates a tss handler to handle oracle result signature order
 func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 	return func(ctx sdk.Context, content tsstypes.Content) ([]byte, error) {
 		switch c := content.(type) {
@@ -50,16 +49,14 @@ func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 
 				return append(EncodeTypePartialABIPrefix, bz...), nil
 			default:
-				return nil, errorsmod.Wrapf(
-					sdkerrors.ErrUnknownRequest,
+				return nil, sdkerrors.ErrUnknownRequest.Wrapf(
 					"unrecognized encode type: %d",
 					c.EncodeType,
 				)
 			}
 
 		default:
-			return nil, errorsmod.Wrapf(
-				sdkerrors.ErrUnknownRequest,
+			return nil, sdkerrors.ErrUnknownRequest.Wrapf(
 				"unrecognized tss request signature type: %s",
 				c.OrderType(),
 			)
