@@ -30,18 +30,14 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	)
 }
 
-// RegisterRequestSignatureTypeCodec registers an external signature request type defined
-// in another module for the internal ModuleCdc. This allows the MsgRequestSignature
-// to be correctly Amino encoded and decoded.
-//
-// NOTE: This should only be used for applications that are still using a concrete
-// Amino codec for serialization.
-func RegisterSignatureOrderTypeCodec(o interface{}, name string) {
-	amino.RegisterConcrete(o, name, nil)
-}
-
 var (
-	amino     = codec.NewLegacyAmino()
+	amino = codec.NewLegacyAmino()
+
+	// ModuleCdc references the global x/bandtss module codec. Note, the codec
+	// should ONLY be used in certain instances of tests and for JSON encoding.
+	//
+	// The actual codec used for serialization should be provided to x/bandtss and
+	// defined at the application level
 	ModuleCdc = codec.NewAminoCodec(amino)
 )
 
