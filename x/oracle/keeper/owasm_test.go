@@ -789,7 +789,9 @@ func TestResolveRequestSuccess(t *testing.T) {
 			sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
 			sdk.NewAttribute(types.AttributeKeyResult, "62656562"), // hex of "beeb"
 			sdk.NewAttribute(types.AttributeKeyGasUsed, "2485000000"),
-		)}, ctx.EventManager().Events(),
+		),
+	},
+		ctx.EventManager().Events(),
 	)
 }
 
