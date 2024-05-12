@@ -154,9 +154,9 @@ do
     # wait for adding reporter transaction success
     sleep 4
 
-    docker create --network chain_bandchain --name bandchain_yoda${v} band-validator:latest yoda r
-    docker cp ~/.yoda bandchain_yoda${v}:/root/.yoda
-    docker start bandchain_yoda${v}
+    docker create --network chain_bandchain --name bandchain-yoda${v} band-validator:latest yoda r
+    docker cp ~/.yoda bandchain-yoda${v}:/root/.yoda
+    docker start bandchain-yoda${v}
 done
 
 # pull latest image first
@@ -199,9 +199,9 @@ do
     # wait for adding feeder transaction success
     sleep 4
 
-    docker create --network chain_bandchain --name bandchain_grogu${v} band-validator:latest grogu r
-    docker cp ~/.grogu bandchain_grogu${v}:/root/.grogu
-    docker start bandchain_grogu${v}
+    docker create --network chain_bandchain --name bandchain-grogu${v} band-validator:latest grogu r
+    docker cp ~/.grogu bandchain-grogu${v}:/root/.grogu
+    docker start bandchain-grogu${v}
 done
 
 
@@ -222,6 +222,6 @@ do
     sleep 4
 done
 
-docker create --network chain_bandchain --name bandchain_faucet -p 5005:5005 band-validator:latest faucet r
-docker cp ~/.faucet bandchain_faucet:/root/.faucet
-docker start bandchain_faucet
+docker create --network chain_bandchain --name bandchain-faucet -p 5005:5005 band-validator:latest faucet r
+docker cp ~/.faucet bandchain-faucet:/root/.faucet
+docker start bandchain-faucet
