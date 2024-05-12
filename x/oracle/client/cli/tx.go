@@ -690,12 +690,12 @@ $ %s tx oracle remove-reporters band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band
 func GetCmdRequestSignature() *cobra.Command {
 	return &cobra.Command{
 		Use:   "oracle-result [request-id] [encode-type]",
-		Short: "Request TSS signature from request id",
+		Short: "Request bandtss signature from oracle request id",
 		Args:  cobra.ExactArgs(2),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Request signature from request id.
 Example:
-$ %s tx tss request-signature oracle-result 1 --fee-limit 10uband
+$ %s tx bandtss request-signature oracle-result 1 --fee-limit 10uband
 `,
 				version.AppName,
 			),
