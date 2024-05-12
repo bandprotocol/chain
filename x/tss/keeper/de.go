@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
@@ -158,7 +159,7 @@ func (k Keeper) PollDEs(ctx sdk.Context, members []types.Member) ([]types.DE, er
 		// Convert the address from Bech32 format to AccAddress format
 		accMember, err := sdk.AccAddressFromBech32(member.Address)
 		if err != nil {
-			return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid account address: %s", err)
+			return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid account address: %s", err)
 		}
 
 		de, err := k.PollDE(ctx, accMember)
@@ -178,7 +179,7 @@ func (k Keeper) FilterMembersHaveDE(ctx sdk.Context, members []types.Member) ([]
 		// Convert the address from Bech32 format to AccAddress format
 		accMember, err := sdk.AccAddressFromBech32(member.Address)
 		if err != nil {
-			return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid account address: %s", err)
+			return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid account address: %s", err)
 		}
 
 		count := k.GetDECount(ctx, accMember)

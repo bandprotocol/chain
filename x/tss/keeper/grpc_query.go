@@ -6,6 +6,7 @@ import (
 	tmbytes "github.com/cometbft/cometbft/libs/bytes"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -95,12 +96,12 @@ func (q queryServer) IsGrantee(
 	// Convert granter and grantee addresses from Bech32 to AccAddress
 	granter, err := sdk.AccAddressFromBech32(req.Granter)
 	if err != nil {
-		return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid granter address: %s", err)
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid granter address: %s", err)
 	}
 
 	grantee, err := sdk.AccAddressFromBech32(req.Grantee)
 	if err != nil {
-		return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid grantee address: %s", err)
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid grantee address: %s", err)
 	}
 
 	return &types.QueryIsGranteeResponse{
@@ -115,7 +116,7 @@ func (q queryServer) DE(goCtx context.Context, req *types.QueryDERequest) (*type
 	// Convert the address from Bech32 format to AccAddress format
 	accAddress, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
-		return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid address: %s", err)
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
 	// Get DEs and paginate the result
@@ -213,7 +214,7 @@ func (q queryServer) PendingSignings(
 
 	address, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
-		return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid address: %s", err)
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
 	// Get pending signs.

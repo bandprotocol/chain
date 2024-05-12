@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -389,7 +390,7 @@ func (k msgServer) SubmitDEs(goCtx context.Context, req *types.MsgSubmitDEs) (*t
 	// Convert the address from Bech32 format to AccAddress format
 	member, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
-		return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid account address: %s", err)
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid account address: %s", err)
 	}
 
 	err = k.HandleSetDEs(ctx, member, req.DEs)
