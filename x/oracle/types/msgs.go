@@ -51,9 +51,9 @@ func NewMsgRequestData(
 		MinCount:       minCount,
 		ClientID:       clientID,
 		FeeLimit:       feeLimit,
+		Sender:         sender.String(),
 		PrepareGas:     prepareGas,
 		ExecuteGas:     executeGas,
-		Sender:         sender.String(),
 		TSSEncodeType:  tssEncodeType,
 	}
 }
