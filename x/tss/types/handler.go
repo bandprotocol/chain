@@ -4,9 +4,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// Content defines an interface that a signature order must implement. It contains
-// information such as the type and routing information for the appropriate handler to process the order.
-// Content can have additional fields, which will handled by a order's Handler.
+// Content defines an interface that a signature order must implement. It contains information
+// such as the type and routing information for the appropriate handler to process the order.
+// Content can have additional fields, which is handled by an order's Handler.
 type Content interface {
 	OrderRoute() string
 	OrderType() string

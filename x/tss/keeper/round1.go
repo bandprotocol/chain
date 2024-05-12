@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -14,19 +13,23 @@ func (k Keeper) AddRound1Info(ctx sdk.Context, groupID tss.GroupID, round1Info t
 	k.SetRound1Info(ctx, groupID, round1Info)
 }
 
-// SetRound1Info sets round 1 info for a member of a group.
+// SetRound1Info sets round1Info for a member of a group.
 func (k Keeper) SetRound1Info(ctx sdk.Context, groupID tss.GroupID, round1Info types.Round1Info) {
 	ctx.KVStore(k.storeKey).
 		Set(types.Round1InfoMemberStoreKey(groupID, round1Info.MemberID), k.cdc.MustMarshal(&round1Info))
 }
 
-// GetRound1Info retrieves round 1 info of a member from the store.
+// HasRound1Info checks if a round1Info of a member exists in the store.
+func (k Keeper) HasRound1Info(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) bool {
+	return ctx.KVStore(k.storeKey).Has(types.Round1InfoMemberStoreKey(groupID, memberID))
+}
+
+// GetRound1Info retrieves round1Info of a member from the store.
 func (k Keeper) GetRound1Info(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round1Info, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.Round1InfoMemberStoreKey(groupID, memberID))
 	if bz == nil {
-		return types.Round1Info{}, errorsmod.Wrapf(
-			types.ErrRound1InfoNotFound,
-			"failed to get round 1 info with groupID: %d and memberID %d",
+		return types.Round1Info{}, types.ErrRound1InfoNotFound.Wrapf(
+			"failed to get round1Info with groupID: %d and memberID %d",
 			groupID,
 			memberID,
 		)
@@ -36,12 +39,12 @@ func (k Keeper) GetRound1Info(ctx sdk.Context, groupID tss.GroupID, memberID tss
 	return r1, nil
 }
 
-// GetRound1InfoIterator gets an iterator over all round 1 info of a group.
+// GetRound1InfoIterator gets an iterator over all round1Info of a group.
 func (k Keeper) GetRound1InfoIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round1InfoStoreKey(groupID))
 }
 
-// GetRound1Infos retrieves round 1 infos for a group from the store.
+// GetRound1Infos retrieves round1Infos for a group from the store.
 func (k Keeper) GetRound1Infos(ctx sdk.Context, groupID tss.GroupID) []types.Round1Info {
 	var round1Infos []types.Round1Info
 	iterator := k.GetRound1InfoIterator(ctx, groupID)
@@ -54,12 +57,12 @@ func (k Keeper) GetRound1Infos(ctx sdk.Context, groupID tss.GroupID) []types.Rou
 	return round1Infos
 }
 
-// DeleteRound1Info removes the round 1 info of a group member from the store.
+// DeleteRound1Info removes the round1Info of a group member from the store.
 func (k Keeper) DeleteRound1Info(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
 	ctx.KVStore(k.storeKey).Delete(types.Round1InfoMemberStoreKey(groupID, memberID))
 }
 
-// DeleteRound1Infos removes all round 1 info associated with a specific group ID from the store.
+// DeleteRound1Infos removes all round1Info associated with a specific group ID from the store.
 func (k Keeper) DeleteRound1Infos(ctx sdk.Context, groupID tss.GroupID) {
 	iterator := k.GetRound1InfoIterator(ctx, groupID)
 	defer iterator.Close()
@@ -70,24 +73,24 @@ func (k Keeper) DeleteRound1Infos(ctx sdk.Context, groupID tss.GroupID) {
 	}
 }
 
-// SetRound1InfoCount sets the count of round 1 info for a group in the store.
+// SetRound1InfoCount sets the count of round1Info for a group in the store.
 func (k Keeper) SetRound1InfoCount(ctx sdk.Context, groupID tss.GroupID, count uint64) {
 	ctx.KVStore(k.storeKey).Set(types.Round1InfoCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))
 }
 
-// GetRound1InfoCount retrieves the count of round 1 info for a group from the store.
+// GetRound1InfoCount retrieves the count of round1Info for a group from the store.
 func (k Keeper) GetRound1InfoCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
 	bz := ctx.KVStore(k.storeKey).Get(types.Round1InfoCountStoreKey(groupID))
 	return sdk.BigEndianToUint64(bz)
 }
 
-// AddRound1InfoCount increments the count of round 1 info for a group in the store.
+// AddRound1InfoCount increments the count of round1Info for a group in the store.
 func (k Keeper) AddRound1InfoCount(ctx sdk.Context, groupID tss.GroupID) {
 	count := k.GetRound1InfoCount(ctx, groupID)
 	k.SetRound1InfoCount(ctx, groupID, count+1)
 }
 
-// DeleteRound1InfoCount remove the round 1 info count data of a group from the store.
+// DeleteRound1InfoCount remove the round1Info count data of a group from the store.
 func (k Keeper) DeleteRound1InfoCount(ctx sdk.Context, groupID tss.GroupID) {
 	ctx.KVStore(k.storeKey).Delete(types.Round1InfoCountStoreKey(groupID))
 }

@@ -92,7 +92,7 @@ $ %s tx tss remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5l
 	return cmd
 }
 
-// GetTxCmdSubmitDKGRound1 creates a CLI command for CLI command for Msg/SubmitDKGRound1.
+// GetTxCmdSubmitDKGRound1 creates a CLI command for submitting DKG round 1 information.
 func GetTxCmdSubmitDKGRound1() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-dkg-round1 [group_id] [member_id] [one_time_pub_key] [a0_sign] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...",
@@ -168,7 +168,7 @@ func GetTxCmdSubmitDKGRound1() *cobra.Command {
 	return cmd
 }
 
-// GetTxCmdSubmitDKGRound2 creates a CLI command for CLI command for Msg/SubmitDKGRound2.
+// GetTxCmdSubmitDKGRound2 creates a CLI command for submitting DKG round 2 information.
 func GetTxCmdSubmitDKGRound2() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-dkg-round2 [group_id] [member_id] [encrypted-secret-share1,encrypted-secret-share2,...]",
@@ -223,7 +223,7 @@ func GetTxCmdSubmitDKGRound2() *cobra.Command {
 	return cmd
 }
 
-// GetTxCmdComplain creates a CLI command for CLI command for Msg/Complaint.
+// GetTxCmdComplain creates a CLI command for submitting complaint message.
 func GetTxCmdComplain() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "complain [group_id] [complaints-json-file]",
@@ -277,7 +277,7 @@ Where complaints.json contains:
 	return cmd
 }
 
-// GetTxCmdConfirm creates a CLI command for CLI command for Msg/Confirm.
+// GetTxCmdConfirm creates a CLI command for submitting confirm message.
 func GetTxCmdConfirm() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "confirm [group_id] [member_id] [own_pub_key_sig]",
@@ -323,7 +323,7 @@ func GetTxCmdConfirm() *cobra.Command {
 	return cmd
 }
 
-// GetTxCmdSubmitDEs creates a CLI command for CLI command for Msg/SubmitDEPairs.
+// GetTxCmdSubmitDEs creates a CLI command for submitting DE message.
 func GetTxCmdSubmitDEs() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-multi-de [d,e] [d,e] ...",
@@ -372,7 +372,7 @@ func GetTxCmdSubmitDEs() *cobra.Command {
 	return cmd
 }
 
-// GetTxCmdSubmitSignature creates a CLI command for CLI command for Msg/SubmitSignature.
+// GetTxCmdSubmitSignature creates a CLI command for submitting a signature.
 func GetTxCmdSubmitSignature() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-signature [signing_id] [member_id] [signature]",

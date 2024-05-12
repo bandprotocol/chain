@@ -1,7 +1,6 @@
 package types
 
 import (
-	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -9,8 +8,13 @@ import (
 )
 
 var (
-	_, _, _, _ sdk.Msg = &MsgSubmitDKGRound1{}, &MsgSubmitDKGRound2{}, &MsgComplain{}, &MsgConfirm{}
-	_, _, _    sdk.Msg = &MsgSubmitDEs{}, &MsgSubmitSignature{}, &MsgUpdateParams{}
+	_ sdk.Msg = &MsgSubmitDKGRound1{}
+	_ sdk.Msg = &MsgSubmitDKGRound2{}
+	_ sdk.Msg = &MsgComplain{}
+	_ sdk.Msg = &MsgConfirm{}
+	_ sdk.Msg = &MsgSubmitDEs{}
+	_ sdk.Msg = &MsgSubmitSignature{}
+	_ sdk.Msg = &MsgUpdateParams{}
 )
 
 // NewMsgSubmitDKGRound1 creates a new MsgSubmitDKGRound1 instance.
@@ -198,14 +202,13 @@ func (m MsgConfirm) GetSigners() []sdk.AccAddress {
 // ValidateBasic does a sanity check on the provided data
 func (m MsgConfirm) ValidateBasic() error {
 	// Validate member address
-	_, err := sdk.AccAddressFromBech32(m.Address)
-	if err != nil {
-		return errorsmod.Wrap(err, "member")
+	if _, err := sdk.AccAddressFromBech32(m.Address); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
 	// Validate own pub key sig
-	if err = m.OwnPubKeySig.Validate(); err != nil {
-		return errorsmod.Wrap(err, "own pub key sig")
+	if err := m.OwnPubKeySig.Validate(); err != nil {
+		return ErrInvalidPublicKey.Wrapf("invalid own public key signature: %s", err)
 	}
 
 	return nil

@@ -85,120 +85,142 @@ var (
 	// SigningStoreKeyPrefix is the key for keeps signing data.
 	SigningStoreKeyPrefix = []byte{0x0e}
 
-	// SigCountStoreKeyPrefix is the key for keeps signature count data.
-	SigCountStoreKeyPrefix = []byte{0x0f}
+	// PartialSignatureCountStoreKeyPrefix is the key for keeps signature count data.
+	PartialSignatureCountStoreKeyPrefix = []byte{0x0f}
 
 	// PartialSignatureStoreKeyPrefix is the key for keeps partial signature.
 	PartialSignatureStoreKeyPrefix = []byte{0x10}
 
-	// ParamsKeyPrefix is a prefix for keys that store TSS's parameters
+	// ParamsKeyPrefix is a prefix for keys that store tss's parameters
 	ParamsKeyPrefix = []byte{0x11}
 )
 
+// GroupStoreKey returns the key for storing group information.
 func GroupStoreKey(groupID tss.GroupID) []byte {
 	return append(GroupStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
+// DKGContextStoreKey returns the key for storing dkg context information.
 func DKGContextStoreKey(groupID tss.GroupID) []byte {
 	return append(DKGContextStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
+// MembersStoreKey returns the prefix for the MemberOfGroupKey.
 func MembersStoreKey(groupID tss.GroupID) []byte {
 	return append(MemberStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
+// MemberOfGroupKey returns the key for storing member information.
 func MemberOfGroupKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
 	return append(MembersStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
+// Round1InfoStoreKey returns the prefix for Round1InfoMemberStoreKey.
 func Round1InfoStoreKey(groupID tss.GroupID) []byte {
 	return append(Round1InfoStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
+// Round1InfoCountStoreKey returns the key for storing round-1 information count.
 func Round1InfoCountStoreKey(groupID tss.GroupID) []byte {
 	return append(Round1InfoCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
+// Round1InfoMemberStoreKey returns the key for storing round-1 information of a given member.
 func Round1InfoMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
 	return append(Round1InfoStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
+// AccumulatedCommitStoreKey returns the prefix for AccumulatedCommitIndexStoreKey.
 func AccumulatedCommitStoreKey(groupID tss.GroupID) []byte {
 	return append(AccumulatedCommitStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
+// AccumulatedCommitIndexStoreKey returns the key for storing accumulated commit of a group.
 func AccumulatedCommitIndexStoreKey(groupID tss.GroupID, index uint64) []byte {
 	return append(AccumulatedCommitStoreKey(groupID), sdk.Uint64ToBigEndian(index)...)
 }
 
+// Round2InfoStoreKey returns the prefix for Round2InfoMemberStoreKey.
 func Round2InfoStoreKey(groupID tss.GroupID) []byte {
 	return append(Round2InfoStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
+// Round2InfoMemberStoreKey returns the key for storing round-2 information of a given member.
 func Round2InfoMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
 	return append(Round2InfoStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
+// Round2InfoCountStoreKey returns the key for storing round-2 information count.
 func Round2InfoCountStoreKey(groupID tss.GroupID) []byte {
 	return append(Round2InfoCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
+// ConfirmStoreKey returns the prefix for ConfirmMemberStoreKey.
 func ConfirmStoreKey(groupID tss.GroupID) []byte {
 	return append(ConfirmStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
+// ConfirmMemberStoreKey returns the key for storing confirm information of a given member.
 func ConfirmMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
 	return append(ConfirmStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
+// ComplainsWithStatusStoreKey returns the prefix for ComplainsWithStatusMemberStoreKey.
 func ComplainsWithStatusStoreKey(groupID tss.GroupID) []byte {
 	return append(ComplainsWithStatusStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
+// ComplainsWithStatusMemberStoreKey returns the key for storing complain with status of a given member.
 func ComplainsWithStatusMemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
 	return append(ComplainsWithStatusStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
+// ConfirmComplainCountStoreKey returns the key for storing confirm complain count.
 func ConfirmComplainCountStoreKey(groupID tss.GroupID) []byte {
 	return append(ConfirmComplainCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
+// DEStoreKey returns the prefix for DEIndexStoreKey.
 func DEStoreKey(address sdk.AccAddress) []byte {
 	return append(DEStoreKeyPrefix, address...)
 }
 
+// DEIndexStoreKey returns the key for storing DE information.
 func DEIndexStoreKey(address sdk.AccAddress, index uint64) []byte {
 	return append(DEStoreKey(address), sdk.Uint64ToBigEndian(index)...)
 }
 
+// AddressAndIndexFromDEStoreKey returns the address and index that is retrieved from the key.
 func AddressAndIndexFromDEStoreKey(key []byte) (sdk.AccAddress, uint64) {
 	return sdk.AccAddress(key[1 : len(key)-uint64Len]), sdk.BigEndianToUint64(key[len(key)-uint64Len:])
 }
 
+// DEQueueStoreKey returns the key for storing DEQueue information.
 func DEQueueKeyStoreKey(address sdk.AccAddress) []byte {
 	return append(DEQueueStoreKeyPrefix, address...)
 }
 
-func AddressFromDEQueueStoreKey(key []byte) sdk.AccAddress {
-	return sdk.AccAddress(key[1:])
-}
-
+// SigningStoreKey returns the key for storing signing information.
 func SigningStoreKey(signingID tss.SigningID) []byte {
 	return append(SigningStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 
-func SigCountStoreKey(signingID tss.SigningID) []byte {
-	return append(SigCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
+// PartialSignatureCountStoreKey returns the key for storing signature count information.
+func PartialSignatureCountStoreKey(signingID tss.SigningID) []byte {
+	return append(PartialSignatureCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 
+// PartialSignatureStoreKey returns the prefix for PartialSignatureMemberStoreKey.
 func PartialSignatureStoreKey(signingID tss.SigningID) []byte {
 	return append(PartialSignatureStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 
+// PartialSignatureMemberStoreKey returns the key for storing partial signature information of a given member.
 func PartialSignatureMemberStoreKey(signingID tss.SigningID, memberID tss.MemberID) []byte {
 	return append(PartialSignatureStoreKey(signingID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
+// MemberIDFromPartialSignatureMemberStoreKey returns the memberID that is retrieved from the key.
 func MemberIDFromPartialSignatureMemberStoreKey(key []byte) tss.MemberID {
 	kv.AssertKeyLength(key, 1+2*uint64Len)
 	return tss.MemberID(sdk.BigEndianToUint64(key[1+uint64Len:]))
