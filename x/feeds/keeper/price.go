@@ -13,7 +13,7 @@ func (k Keeper) ValidateSubmitPricesRequest(ctx sdk.Context, blockTime int64, re
 		return err
 	}
 
-	isValid := k.IsBondedValidator(ctx, req.Validator)
+	isValid := k.IsBondedValidator(ctx, val)
 	if !isValid {
 		return types.ErrNotBondedValidator
 	}
