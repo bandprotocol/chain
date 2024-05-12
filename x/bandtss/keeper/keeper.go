@@ -43,7 +43,7 @@ func NewKeeper(
 	authority string,
 	feeCollectorName string,
 ) *Keeper {
-	// ensure Bandtss module account is set
+	// ensure bandtss module account is set
 	if addr := authKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
@@ -151,13 +151,7 @@ func (k Keeper) GetReplacement(ctx sdk.Context) types.Replacement {
 // CheckIsGrantee checks if the granter granted permissions to the grantee.
 func (k Keeper) CheckIsGrantee(ctx sdk.Context, granter sdk.AccAddress, grantee sdk.AccAddress) bool {
 	for _, msg := range types.GetBandtssGrantMsgTypes() {
-		cap, _ := k.authzKeeper.GetAuthorization(
-			ctx,
-			grantee,
-			granter,
-			msg,
-		)
-
+		cap, _ := k.authzKeeper.GetAuthorization(ctx, grantee, granter, msg)
 		if cap == nil {
 			return false
 		}

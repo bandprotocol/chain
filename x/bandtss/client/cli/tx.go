@@ -23,7 +23,7 @@ const (
 	flagFeeLimit   = "fee-limit"
 )
 
-// GetTxCmd returns a root CLI command handler for all x/bandtss transaction commands.
+// NewTxCmd returns the transaction commands for this module
 func GetTxCmd(requestSignatureCmds []*cobra.Command) *cobra.Command {
 	txCmd := &cobra.Command{
 		Use:                        types.ModuleName,
@@ -60,7 +60,7 @@ func GetTxCmd(requestSignatureCmds []*cobra.Command) *cobra.Command {
 	return txCmd
 }
 
-// GetTxCmdRequestSignature creates a CLI command for CLI command for Msg/RequestSignature.
+// GetTxCmdRequestSignature creates a CLI command for create a signature request.
 func GetTxCmdRequestSignature() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "request-signature",
@@ -74,7 +74,7 @@ func GetTxCmdRequestSignature() *cobra.Command {
 	return cmd
 }
 
-// GetTxCmdTextRequestSignature creates a CLI command for CLI command for Msg/TextRequestSignature.
+// GetTxCmdTextRequestSignature creates a CLI command for create a signature on text message.
 func GetTxCmdTextRequestSignature() *cobra.Command {
 	return &cobra.Command{
 		Use:   "text [message]",
@@ -121,7 +121,7 @@ func GetTxCmdTextRequestSignature() *cobra.Command {
 	}
 }
 
-// GetTxCmdActivate creates a CLI command for CLI command for Msg/Activate.
+// GetTxCmdActivate creates a CLI command for activate the sender.
 func GetTxCmdActivate() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "activate",
@@ -150,7 +150,7 @@ func GetTxCmdActivate() *cobra.Command {
 	return cmd
 }
 
-// GetTxCmdHealthCheck creates a CLI command for CLI command for Msg/HealthCheck.
+// GetTxCmdHealthCheck creates a CLI command for keep sender's status to be active.
 func GetTxCmdHealthCheck() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "health-check",

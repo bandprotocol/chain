@@ -49,7 +49,6 @@ func TestReplaceGroups(t *testing.T) {
 	initialSigning := tsstypes.Signing{
 		ID:     signingID,
 		Status: tsstypes.SIGNING_STATUS_SUCCESS,
-		// ... other fields ...
 	}
 
 	tssKeeper.SetGroup(ctx, initialCurrentGroup)

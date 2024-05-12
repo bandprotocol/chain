@@ -30,7 +30,7 @@ func (q queryServer) Counts(c context.Context, req *types.QueryCountsRequest) (*
 	}, nil
 }
 
-// Group function handles the request to fetch information about a group.
+// Group queries information about a group.
 func (q queryServer) Group(goCtx context.Context, req *types.QueryGroupRequest) (*types.QueryGroupResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	groupID := tss.GroupID(req.GroupId)
@@ -68,7 +68,7 @@ func (q queryServer) Group(goCtx context.Context, req *types.QueryGroupRequest) 
 	}, nil
 }
 
-// Members function handles the request to get members of a group.
+// Members queries members of a group.
 func (q queryServer) Members(
 	goCtx context.Context,
 	req *types.QueryMembersRequest,
@@ -86,7 +86,7 @@ func (q queryServer) Members(
 	}, nil
 }
 
-// IsGrantee function handles the request to check if a specific address is a grantee of another.
+// IsGrantee queries if a specific address is a grantee of another.
 func (q queryServer) IsGrantee(
 	goCtx context.Context,
 	req *types.QueryIsGranteeRequest,
@@ -109,7 +109,7 @@ func (q queryServer) IsGrantee(
 	}, nil
 }
 
-// DE function handles the request to get DEs of a given address.
+// DE queries DEs of a given address.
 func (q queryServer) DE(goCtx context.Context, req *types.QueryDERequest) (*types.QueryDEResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
@@ -138,7 +138,7 @@ func (q queryServer) DE(goCtx context.Context, req *types.QueryDERequest) (*type
 	}, nil
 }
 
-// PendingGroups function handles the request to get pending groups of a given address.
+// PendingGroups queries pending groups creation that waits a given address to submit a message.
 func (q queryServer) PendingGroups(
 	goCtx context.Context,
 	req *types.QueryPendingGroupsRequest,
@@ -205,7 +205,7 @@ func (q queryServer) PendingGroups(
 	}, nil
 }
 
-// PendingSignings function handles the request to get pending signs of a given address.
+// PendingSignings queries signings that waits a given address to sign.
 func (q queryServer) PendingSignings(
 	goCtx context.Context,
 	req *types.QueryPendingSigningsRequest,
@@ -225,7 +225,7 @@ func (q queryServer) PendingSignings(
 	}, nil
 }
 
-// Signing function handles the request to get signing of a given ID.
+// Signing queries signing of a given ID.
 func (q queryServer) Signing(
 	goCtx context.Context,
 	req *types.QuerySigningRequest,

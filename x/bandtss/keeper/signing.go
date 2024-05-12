@@ -28,12 +28,12 @@ func (k Keeper) GetNextSigningID(ctx sdk.Context) types.SigningID {
 	return types.SigningID(signingNumber)
 }
 
-// SetSigning sets a signing of the Bandtss module.
+// SetSigning sets a signing of the bandtss module.
 func (k Keeper) SetSigning(ctx sdk.Context, signing types.Signing) {
 	ctx.KVStore(k.storeKey).Set(types.SigningInfoStoreKey(signing.ID), k.cdc.MustMarshal(&signing))
 }
 
-// AddSigning adds the Signing data to the store and returns the new Signing ID.
+// AddSigning adds the signing data to the store and returns the new Signing ID.
 func (k Keeper) AddSigning(ctx sdk.Context, signing types.Signing) types.SigningID {
 	signing.ID = k.GetNextSigningID(ctx)
 	k.SetSigning(ctx, signing)
@@ -197,7 +197,7 @@ func (k Keeper) HandleCreateSigning(
 		}
 	}
 
-	// save signingInfo
+	// save signing info
 	bandtssSigningID := k.AddSigning(ctx, types.Signing{
 		Fee:                     feePerSigner,
 		Requester:               sender.String(),

@@ -520,21 +520,6 @@ func (mr *MockTSSKeeperMockRecorder) GetMemberByAddress(ctx, groupID, address an
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMemberByAddress", reflect.TypeOf((*MockTSSKeeper)(nil).GetMemberByAddress), ctx, groupID, address)
 }
 
-// GetPenalizedMembersExpiredGroup mocks base method.
-func (m *MockTSSKeeper) GetPenalizedMembersExpiredGroup(ctx types0.Context, group types.Group) ([]types0.AccAddress, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPenalizedMembersExpiredGroup", ctx, group)
-	ret0, _ := ret[0].([]types0.AccAddress)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetPenalizedMembersExpiredGroup indicates an expected call of GetPenalizedMembersExpiredGroup.
-func (mr *MockTSSKeeperMockRecorder) GetPenalizedMembersExpiredGroup(ctx, group any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPenalizedMembersExpiredGroup", reflect.TypeOf((*MockTSSKeeper)(nil).GetPenalizedMembersExpiredGroup), ctx, group)
-}
-
 // GetPenalizedMembersExpiredSigning mocks base method.
 func (m *MockTSSKeeper) GetPenalizedMembersExpiredSigning(ctx types0.Context, signing types.Signing) ([]types0.AccAddress, error) {
 	m.ctrl.T.Helper()
