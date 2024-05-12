@@ -4,17 +4,20 @@ import (
 	"bytes"
 	"encoding/hex"
 	"fmt"
+	"slices"
 	"sort"
 
-	errorsmod "cosmossdk.io/errors"
 	tmbytes "github.com/cometbft/cometbft/libs/bytes"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"golang.org/x/exp/slices"
 
 	"github.com/bandprotocol/chain/v2/pkg/bandrng"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
+
+// ==================================
+// Signing Information Store
+// ==================================
 
 // SetSigningCount sets the number of signing count to the given value.
 func (k Keeper) SetSigningCount(ctx sdk.Context, count uint64) {
@@ -33,12 +36,12 @@ func (k Keeper) GetNextSigningID(ctx sdk.Context) tss.SigningID {
 	return tss.SigningID(signingNumber)
 }
 
-// SetSigning sets the signing data for a given signing ID.
+// SetSigning sets the signing data of a given signing ID.
 func (k Keeper) SetSigning(ctx sdk.Context, signing types.Signing) {
 	ctx.KVStore(k.storeKey).Set(types.SigningStoreKey(signing.ID), k.cdc.MustMarshal(&signing))
 }
 
-// GetSigning retrieves the signing data for a given signing ID from the store.
+// GetSigning retrieves the signing data of a given signing ID from the store.
 func (k Keeper) GetSigning(ctx sdk.Context, signingID tss.SigningID) (types.Signing, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.SigningStoreKey(signingID))
 	if bz == nil {
@@ -52,7 +55,7 @@ func (k Keeper) GetSigning(ctx sdk.Context, signingID tss.SigningID) (types.Sign
 	return signing, nil
 }
 
-// MustGetSigning returns the signing for the given ID. Panics error if not exists.
+// MustGetSigning returns the signing of the given ID. Panics error if not exists.
 func (k Keeper) MustGetSigning(ctx sdk.Context, signingID tss.SigningID) types.Signing {
 	signing, err := k.GetSigning(ctx, signingID)
 	if err != nil {
@@ -88,116 +91,57 @@ func (k Keeper) AddSigning(ctx sdk.Context, signing types.Signing) tss.SigningID
 	return signing.ID
 }
 
-// DeleteSigning deletes the signing data for a given signing ID from the store.
+// DeleteSigning deletes the signing data of a given signing ID from the store.
 func (k Keeper) DeleteSigning(ctx sdk.Context, signingID tss.SigningID) {
 	ctx.KVStore(k.storeKey).Delete(types.SigningStoreKey(signingID))
 }
 
-// DeleteAssignedMembers deletes the assigned members for a given signing ID from the store.
+// DeleteAssignedMembers deletes the assigned members of a given signing ID from the store.
 func (k Keeper) DeleteAssignedMembers(ctx sdk.Context, signingID tss.SigningID) {
 	signing := k.MustGetSigning(ctx, signingID)
 	signing.AssignedMembers = nil
 	k.SetSigning(ctx, signing)
 }
 
-// GetPendingSignings retrieves the pending signing objects associated with the given account address.
-func (k Keeper) GetPendingSignings(ctx sdk.Context, address sdk.AccAddress) []uint64 {
-	// Get the ID of the last expired signing
-	lastExpired := k.GetLastExpiredSigningID(ctx)
+// ==================================
+// Partial Signature information Store
+// ==================================
 
-	// Get the total signing count
-	signingCount := k.GetSigningCount(ctx)
-
-	var pendingSignings []uint64
-	for sid := lastExpired + 1; uint64(sid) <= signingCount; sid++ {
-		// Retrieve the signing object
-		signing := k.MustGetSigning(ctx, sid)
-
-		// Ignore if it's successful already
-		if signing.Status == types.SIGNING_STATUS_SUCCESS {
-			continue
-		}
-
-		// Check if address is assigned for signing
-		for _, am := range signing.AssignedMembers {
-			if am.Address == address.String() {
-				// Add the signing to the pendingSignings if there is no partial sig of the member yet.
-				if _, err := k.GetPartialSignature(ctx, sid, am.MemberID); err != nil {
-					pendingSignings = append(pendingSignings, uint64(signing.ID))
-				}
-			}
-		}
-	}
-
-	return pendingSignings
+// SetPartialSignatureCount sets the count of partial signatures of a given signing ID in the store.
+func (k Keeper) SetPartialSignatureCount(ctx sdk.Context, signingID tss.SigningID, count uint64) {
+	ctx.KVStore(k.storeKey).Set(types.PartialSignatureCountStoreKey(signingID), sdk.Uint64ToBigEndian(count))
 }
 
-// GetPendingSigningsByPubKey retrieves the pending signing objects associated with the given tss public key.
-func (k Keeper) GetPendingSigningsByPubKey(ctx sdk.Context, pubKey tss.Point) []uint64 {
-	// Get the ID of the last expired signing
-	lastExpired := k.GetLastExpiredSigningID(ctx)
-
-	// Get the total signing count
-	signingCount := k.GetSigningCount(ctx)
-
-	var pendingSignings []uint64
-	for sid := lastExpired + 1; uint64(sid) <= signingCount; sid++ {
-		// Retrieve the signing object
-		signing := k.MustGetSigning(ctx, sid)
-
-		// Ignore if it's successful already
-		if signing.Status == types.SIGNING_STATUS_SUCCESS {
-			continue
-		}
-
-		// Check if address is assigned for signing
-		for _, am := range signing.AssignedMembers {
-			if bytes.Equal(am.PubKey, pubKey) {
-				// Add the signing to the pendingSignings if there is no partial sig of the member yet.
-				if _, err := k.GetPartialSignature(ctx, sid, am.MemberID); err != nil {
-					pendingSignings = append(pendingSignings, uint64(signing.ID))
-				}
-			}
-		}
-	}
-
-	return pendingSignings
-}
-
-// SetSignatureCount sets the count of signature data for a sign in the store.
-func (k Keeper) SetSignatureCount(ctx sdk.Context, signingID tss.SigningID, count uint64) {
-	ctx.KVStore(k.storeKey).Set(types.SigCountStoreKey(signingID), sdk.Uint64ToBigEndian(count))
-}
-
-// GetSignatureCount retrieves the count of signature data for a sign from the store.
-func (k Keeper) GetSignatureCount(ctx sdk.Context, signingID tss.SigningID) uint64 {
-	bz := ctx.KVStore(k.storeKey).Get(types.SigCountStoreKey(signingID))
+// GetPartialSignatureCount retrieves the count of partial signatures of a given signing ID from the store.
+func (k Keeper) GetPartialSignatureCount(ctx sdk.Context, signingID tss.SigningID) uint64 {
+	bz := ctx.KVStore(k.storeKey).Get(types.PartialSignatureCountStoreKey(signingID))
 	return sdk.BigEndianToUint64(bz)
 }
 
-// AddSignatureCount increments the count of signature data for a sign in the store.
-func (k Keeper) AddSignatureCount(ctx sdk.Context, signingID tss.SigningID) {
-	count := k.GetSignatureCount(ctx, signingID)
-	k.SetSignatureCount(ctx, signingID, count+1)
+// AddPartialSignatureCount increments the count of partial signatures of a given signing ID in the store.
+func (k Keeper) AddPartialSignatureCount(ctx sdk.Context, signingID tss.SigningID) {
+	count := k.GetPartialSignatureCount(ctx, signingID)
+	k.SetPartialSignatureCount(ctx, signingID, count+1)
 }
 
-// DeleteSignatureCount delete the signature count data of a sign from the store.
-func (k Keeper) DeleteSignatureCount(ctx sdk.Context, signingID tss.SigningID) {
-	ctx.KVStore(k.storeKey).Delete(types.SigCountStoreKey(signingID))
+// DeletePartialSignatureCount delete the signature count data of a sign from the store.
+func (k Keeper) DeletePartialSignatureCount(ctx sdk.Context, signingID tss.SigningID) {
+	ctx.KVStore(k.storeKey).Delete(types.PartialSignatureCountStoreKey(signingID))
 }
 
-// AddPartialSignature adds the partial signature for a specific signing ID and member ID and increments the count of signature data.
+// AddPartialSignature adds the partial signature of a specific signing ID from the given member ID
+// and increments the count of partial signature.
 func (k Keeper) AddPartialSignature(
 	ctx sdk.Context,
 	signingID tss.SigningID,
 	memberID tss.MemberID,
 	signature tss.Signature,
 ) {
-	k.AddSignatureCount(ctx, signingID)
+	k.AddPartialSignatureCount(ctx, signingID)
 	k.SetPartialSignature(ctx, signingID, memberID, signature)
 }
 
-// SetPartialSignature sets the partial signature for a specific signing ID and member ID.
+// SetPartialSignature sets the partial signature of a specific signing ID and member ID.
 func (k Keeper) SetPartialSignature(
 	ctx sdk.Context,
 	signingID tss.SigningID,
@@ -207,7 +151,12 @@ func (k Keeper) SetPartialSignature(
 	ctx.KVStore(k.storeKey).Set(types.PartialSignatureMemberStoreKey(signingID, memberID), signature)
 }
 
-// GetPartialSignature retrieves the partial signature for a specific signing ID and member ID from the store.
+// HasPartialSignature checks if the partial signature of a specific signing ID and member ID exists in the store.
+func (k Keeper) HasPartialSignature(ctx sdk.Context, signingID tss.SigningID, memberID tss.MemberID) bool {
+	return ctx.KVStore(k.storeKey).Has(types.PartialSignatureMemberStoreKey(signingID, memberID))
+}
+
+// GetPartialSignature retrieves the partial signature of a specific signing ID and member ID from the store.
 func (k Keeper) GetPartialSignature(
 	ctx sdk.Context,
 	signingID tss.SigningID,
@@ -215,8 +164,7 @@ func (k Keeper) GetPartialSignature(
 ) (tss.Signature, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.PartialSignatureMemberStoreKey(signingID, memberID))
 	if bz == nil {
-		return nil, errorsmod.Wrapf(
-			types.ErrPartialSignatureNotFound,
+		return nil, types.ErrPartialSignatureNotFound.Wrapf(
 			"failed to get partial signature with signingID: %d memberID: %d",
 			signingID,
 			memberID,
@@ -256,7 +204,8 @@ func (k Keeper) GetPartialSignatures(ctx sdk.Context, signingID tss.SigningID) t
 	return pzs
 }
 
-// GetPartialSignaturesWithKey retrieves all partial signatures for a specific signing ID from the store along with their corresponding member IDs.
+// GetPartialSignaturesWithKey retrieves all partial signatures for a specific signing ID
+// from the store along with their corresponding member IDs.
 func (k Keeper) GetPartialSignaturesWithKey(ctx sdk.Context, signingID tss.SigningID) []types.PartialSignature {
 	var pzs []types.PartialSignature
 	iterator := k.GetPartialSignatureIterator(ctx, signingID)
@@ -270,14 +219,25 @@ func (k Keeper) GetPartialSignaturesWithKey(ctx sdk.Context, signingID tss.Signi
 	return pzs
 }
 
-// GetRandomAssignedMembers generates a random selection of assigned members for a signing process.
-// It selects 't' assigned members out of 'members size' assigned members using a deterministic random number generator (DRBG).
+// ==================================
+// Create Signing
+// ==================================
+
+// GetRandomAssignedMembers select a random assigned members for a signing process.
+// It selects 't' assigned members out of the available members in the given group using
+// a deterministic random number generator (DRBG).
 func (k Keeper) GetRandomAssignedMembers(
 	ctx sdk.Context,
+	groupID tss.GroupID,
 	signingID uint64,
-	members []types.Member,
 	t uint64,
 ) ([]types.Member, error) {
+	// Get available members
+	members, err := k.GetAvailableMembers(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
 	members_size := uint64(len(members))
 	if t > members_size {
 		return nil, types.ErrUnexpectedThreshold.Wrapf("t must less than or equal to size")
@@ -312,30 +272,22 @@ func (k Keeper) GetRandomAssignedMembers(
 	return selected, nil
 }
 
-// HandleAssignedMembers handles the assignment of members for a group signature process.
-func (k Keeper) HandleAssignedMembers(
+// AssignMembers handles the assignment of members for a group signature process.
+func (k Keeper) AssignMembers(
 	ctx sdk.Context,
 	group types.Group,
 	msg []byte,
 ) (types.AssignedMembers, error) {
 	// Check group status
 	if group.Status != types.GROUP_STATUS_ACTIVE {
-		return types.AssignedMembers{}, types.ErrGroupIsNotActive.Wrap(
-			"group status is not active",
-		)
-	}
-
-	// Get available members
-	members, err := k.GetAvailableMembers(ctx, group.ID)
-	if err != nil {
-		return types.AssignedMembers{}, err
+		return types.AssignedMembers{}, types.ErrGroupIsNotActive.Wrap("group status is not active")
 	}
 
 	// Random assigning members
 	selectedMembers, err := k.GetRandomAssignedMembers(
 		ctx,
+		group.ID,
 		k.GetSigningCount(ctx)+1,
-		members,
 		group.Threshold,
 	)
 	if err != nil {
@@ -343,12 +295,25 @@ func (k Keeper) HandleAssignedMembers(
 	}
 
 	// Handle assigned members by polling DE and retrieve assigned members information.
-	assignedMembers, err := k.HandleAssignedMembersPollDE(ctx, selectedMembers)
+	des, err := k.PollDEs(ctx, selectedMembers)
 	if err != nil {
 		return types.AssignedMembers{}, err
 	}
 
-	// Compute commitment from mids, public D and public E
+	var assignedMembers types.AssignedMembers
+	for i, member := range selectedMembers {
+		assignedMembers = append(assignedMembers, types.AssignedMember{
+			MemberID:      member.ID,
+			Address:       member.Address,
+			PubKey:        member.PubKey,
+			PubD:          des[i].PubD,
+			PubE:          des[i].PubE,
+			BindingFactor: nil,
+			PubNonce:      nil,
+		})
+	}
+
+	// Compute commitment from mids, public D, and public E
 	commitment, err := tss.ComputeCommitment(
 		types.Members(selectedMembers).GetIDs(),
 		assignedMembers.PubDs(),
@@ -379,175 +344,8 @@ func (k Keeper) HandleAssignedMembers(
 	return assignedMembers, nil
 }
 
-// SetLastExpiredSigningID sets the last expired signing ID in the store.
-func (k Keeper) SetLastExpiredSigningID(ctx sdk.Context, signingID tss.SigningID) {
-	ctx.KVStore(k.storeKey).Set(types.LastExpiredSigningIDStoreKey, sdk.Uint64ToBigEndian(uint64(signingID)))
-}
-
-// GetLastExpiredSigningID retrieves the last expired signing ID from the store.
-func (k Keeper) GetLastExpiredSigningID(ctx sdk.Context) tss.SigningID {
-	bz := ctx.KVStore(k.storeKey).Get(types.LastExpiredSigningIDStoreKey)
-	return tss.SigningID(sdk.BigEndianToUint64(bz))
-}
-
-// AddPendingProcessSigning adds a new pending process signing to the store.
-func (k Keeper) AddPendingProcessSigning(ctx sdk.Context, signingID tss.SigningID) {
-	pss := k.GetPendingProcessSignings(ctx)
-	pss = append(pss, signingID)
-	k.SetPendingProcessSignings(ctx, types.PendingProcessSignings{
-		SigningIDs: pss,
-	})
-}
-
-// SetPendingProcessSignings sets the given pending process signings in the store.
-func (k Keeper) SetPendingProcessSignings(ctx sdk.Context, pgs types.PendingProcessSignings) {
-	ctx.KVStore(k.storeKey).Set(types.PendingSigningsStoreKey, k.cdc.MustMarshal(&pgs))
-}
-
-// GetPendingProcessSignings retrieves the list of pending process signings from the store.
-// It returns an empty list if the key does not exist in the store.
-func (k Keeper) GetPendingProcessSignings(ctx sdk.Context) []tss.SigningID {
-	bz := ctx.KVStore(k.storeKey).Get(types.PendingSigningsStoreKey)
-	if len(bz) == 0 {
-		// Return an empty list if the key does not exist in the store.
-		return []tss.SigningID{}
-	}
-	pss := types.PendingProcessSignings{}
-	k.cdc.MustUnmarshal(bz, &pss)
-	return pss.SigningIDs
-}
-
-// HandleExpiredSignings cleans up expired signings and removes them from the store.
-func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
-	// Get the current signing ID to start processing from
-	currentSigningID := k.GetLastExpiredSigningID(ctx) + 1
-
-	// Get the last signing ID in the store
-	lastSigningID := tss.SigningID(k.GetSigningCount(ctx))
-
-	// Process each signing starting from currentSigningID
-	for ; currentSigningID <= lastSigningID; currentSigningID++ {
-		// Get the signing
-		signing := k.MustGetSigning(ctx, currentSigningID)
-
-		// Check if the signing is still within the expiration period
-		if signing.CreatedHeight+k.GetParams(ctx).SigningPeriod > uint64(ctx.BlockHeight()) {
-			break
-		}
-
-		// Set the signing status to expired
-		if signing.Status != types.SIGNING_STATUS_FALLEN && signing.Status != types.SIGNING_STATUS_SUCCESS {
-			// Handle hooks before setting signing to be expired; this shouldn't return any error.
-			if err := k.Hooks().BeforeSetSigningExpired(ctx, signing); err != nil {
-				panic(err)
-			}
-
-			signing.Status = types.SIGNING_STATUS_EXPIRED
-			k.SetSigning(ctx, signing)
-
-			ctx.EventManager().EmitEvent(
-				sdk.NewEvent(
-					types.EventTypeExpiredSigning,
-					sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signing.ID)),
-				),
-			)
-		}
-
-		// Remove assigned members from the signing
-		k.DeleteAssignedMembers(ctx, signing.ID)
-
-		// Remove all partial signatures from the store
-		k.DeletePartialSignatures(ctx, signing.ID)
-
-		// Set the last expired signing ID to the current signing ID
-		k.SetLastExpiredSigningID(ctx, currentSigningID)
-	}
-}
-
-// GetPenalizedMembersExpiredSigning get assigned members that do not sign a request.
-func (k Keeper) GetPenalizedMembersExpiredSigning(ctx sdk.Context, signing types.Signing) ([]sdk.AccAddress, error) {
-	pzs := k.GetPartialSignaturesWithKey(ctx, signing.ID)
-	var penalizedMembers []sdk.AccAddress
-
-	mids := signing.AssignedMembers.MemberIDs()
-	for _, mid := range mids {
-		// Check if the member sends partial signature. If found, skip this member.
-		found := slices.ContainsFunc(pzs, func(pz types.PartialSignature) bool { return pz.MemberID == mid })
-		if found {
-			continue
-		}
-
-		member := k.MustGetMember(ctx, signing.GroupID, mid)
-		accAddress, err := sdk.AccAddressFromBech32(member.Address)
-		if err != nil {
-			return nil, err
-		}
-		penalizedMembers = append(penalizedMembers, accAddress)
-	}
-
-	return penalizedMembers, nil
-}
-
-// HandleProcessSigning combine and verify group signature.
-func (k Keeper) HandleProcessSigning(ctx sdk.Context, signingID tss.SigningID) {
-	signing := k.MustGetSigning(ctx, signingID)
-	pzs := k.GetPartialSignatures(ctx, signingID)
-
-	sig, err := tss.CombineSignatures(pzs...)
-	if err != nil {
-		k.handleFailedSigning(ctx, signing, err.Error())
-		return
-	}
-
-	err = tss.VerifyGroupSigningSignature(signing.GroupPubKey, signing.Message, sig)
-	if err != nil {
-		k.handleFailedSigning(ctx, signing, err.Error())
-		return
-	}
-
-	// Set signing with signature
-	signing.Signature = sig
-	// Set signing status
-	signing.Status = types.SIGNING_STATUS_SUCCESS
-	k.SetSigning(ctx, signing)
-
-	// Handle hooks after signing completed; this shouldn't return any error.
-	if err := k.Hooks().AfterSigningCompleted(ctx, signing); err != nil {
-		panic(err)
-	}
-
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeSigningSuccess,
-			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
-			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
-			sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(sig)),
-		),
-	)
-}
-
-func (k Keeper) handleFailedSigning(ctx sdk.Context, signing types.Signing, reason string) {
-	// Set signing status
-	signing.Status = types.SIGNING_STATUS_FALLEN
-	k.SetSigning(ctx, signing)
-
-	// Handle hooks after signing failed
-	if err := k.Hooks().AfterSigningFailed(ctx, signing); err != nil {
-		panic(err)
-	}
-
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeSigningFailed,
-			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signing.ID)),
-			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
-			sdk.NewAttribute(types.AttributeKeyReason, reason),
-		),
-	)
-}
-
-// HandleSigningContent convert content to message bytes by the registered router.
-func (k Keeper) HandleSigningContent(
+// ConvertContentToBytes convert content to message bytes by the registered router.
+func (k Keeper) ConvertContentToBytes(
 	ctx sdk.Context,
 	content types.Content,
 ) ([]byte, error) {
@@ -573,8 +371,8 @@ func (k Keeper) CreateSigning(
 	group types.Group,
 	message []byte,
 ) (*types.Signing, error) {
-	// Handle assigned members within the context of the group.
-	assignedMembers, err := k.HandleAssignedMembers(ctx, group, message)
+	// assigned members within the context of the group.
+	assignedMembers, err := k.AssignMembers(ctx, group, message)
 	if err != nil {
 		return nil, err
 	}
@@ -601,17 +399,12 @@ func (k Keeper) CreateSigning(
 		return nil, err
 	}
 
-	k.emitCreateSigningEvent(ctx, message, signing)
-
-	return &signing, nil
-}
-
-func (k Keeper) emitCreateSigningEvent(ctx sdk.Context, msg []byte, signing types.Signing) {
+	// emit an event.
 	event := sdk.NewEvent(
 		types.EventTypeRequestSignature,
 		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
 		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signing.ID)),
-		sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString(msg)),
+		sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString(message)),
 		sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString(signing.GroupPubNonce)),
 	)
 	for _, am := range signing.AssignedMembers {
@@ -625,7 +418,13 @@ func (k Keeper) emitCreateSigningEvent(ctx sdk.Context, msg []byte, signing type
 		)
 	}
 	ctx.EventManager().EmitEvent(event)
+
+	return &signing, nil
 }
+
+// =====================================
+// Query signing-related information
+// =====================================
 
 // GetSigningResult returns the signing result of the given tss signingID.
 func (k Keeper) GetSigningResult(ctx sdk.Context, signingID tss.SigningID) (*types.SigningResult, error) {
@@ -634,7 +433,7 @@ func (k Keeper) GetSigningResult(ctx sdk.Context, signingID tss.SigningID) (*typ
 		return nil, err
 	}
 
-	pzs := k.GetPartialSignaturesWithKey(ctx, signingID)
+	partialSigs := k.GetPartialSignaturesWithKey(ctx, signingID)
 
 	var evmSignature *types.EVMSignature
 	if tssSigning.Signature != nil {
@@ -652,6 +451,79 @@ func (k Keeper) GetSigningResult(ctx sdk.Context, signingID tss.SigningID) (*typ
 	return &types.SigningResult{
 		Signing:                   tssSigning,
 		EVMSignature:              evmSignature,
-		ReceivedPartialSignatures: pzs,
+		ReceivedPartialSignatures: partialSigs,
 	}, nil
+}
+
+// GetPenalizedMembersExpiredSigning get assigned members that haven't signed a request.
+func (k Keeper) GetPenalizedMembersExpiredSigning(ctx sdk.Context, signing types.Signing) ([]sdk.AccAddress, error) {
+	partialSigs := k.GetPartialSignaturesWithKey(ctx, signing.ID)
+	var penalizedMembers []sdk.AccAddress
+
+	mids := signing.AssignedMembers.MemberIDs()
+	for _, mid := range mids {
+		// Check if the member sends partial signature. If found, skip this member.
+		found := slices.ContainsFunc(partialSigs, func(pz types.PartialSignature) bool { return pz.MemberID == mid })
+		if found {
+			continue
+		}
+
+		member := k.MustGetMember(ctx, signing.GroupID, mid)
+		penalizedMembers = append(penalizedMembers, sdk.MustAccAddressFromBech32(member.Address))
+	}
+
+	return penalizedMembers, nil
+}
+
+// GetPendingSignings retrieves the pending signing objects associated with the given account address.
+func (k Keeper) GetPendingSignings(ctx sdk.Context, address sdk.AccAddress) []uint64 {
+	filterFunc := func(am types.AssignedMember) bool {
+		return am.Address == address.String()
+	}
+
+	return k.getPendingSigningByFilterFunc(ctx, filterFunc)
+}
+
+// GetPendingSigningsByPubKey retrieves the pending signing objects associated with the given tss public key.
+func (k Keeper) GetPendingSigningsByPubKey(ctx sdk.Context, pubKey tss.Point) []uint64 {
+	filterFunc := func(am types.AssignedMember) bool {
+		return bytes.Equal(am.PubKey, pubKey)
+	}
+
+	return k.getPendingSigningByFilterFunc(ctx, filterFunc)
+}
+
+// getPendingSigningByFilterFunc retrieves the pending signing objects associated with the given filter function.
+func (k Keeper) getPendingSigningByFilterFunc(
+	ctx sdk.Context,
+	filterFunc func(m types.AssignedMember) bool,
+) []uint64 {
+	// Get the ID of the last expired signing
+	lastExpired := k.GetLastExpiredSigningID(ctx)
+
+	// Get the total signing count
+	signingCount := k.GetSigningCount(ctx)
+
+	var pendingSignings []uint64
+	for sid := lastExpired + 1; uint64(sid) <= signingCount; sid++ {
+		// Retrieve the signing object
+		signing := k.MustGetSigning(ctx, sid)
+
+		// Ignore if it's successful already
+		if signing.Status == types.SIGNING_STATUS_SUCCESS {
+			continue
+		}
+
+		// Check if address is assigned for signing
+		for _, am := range signing.AssignedMembers {
+			if filterFunc(am) {
+				// Add the signing to the pendingSignings if there is no partial sig of the member yet.
+				if _, err := k.GetPartialSignature(ctx, sid, am.MemberID); err != nil {
+					pendingSignings = append(pendingSignings, uint64(signing.ID))
+				}
+			}
+		}
+	}
+
+	return pendingSignings
 }

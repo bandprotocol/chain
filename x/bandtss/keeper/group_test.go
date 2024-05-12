@@ -36,7 +36,7 @@ func TestSuccessCreateGroupReplacement(t *testing.T) {
 	k.SetCurrentGroupID(ctx, currentGroupID)
 	s.MockTSSKeeper.EXPECT().GetGroup(ctx, currentGroupID).Return(currentGroup, nil).AnyTimes()
 	s.MockTSSKeeper.EXPECT().GetGroup(ctx, newGroupID).Return(newGroup, nil).AnyTimes()
-	s.MockTSSKeeper.EXPECT().HandleSigningContent(ctx, types.NewReplaceGroupSignatureOrder(newGroup.PubKey)).Return([]byte("test-msg"), nil)
+	s.MockTSSKeeper.EXPECT().ConvertContentToBytes(ctx, types.NewReplaceGroupSignatureOrder(newGroup.PubKey)).Return([]byte("test-msg"), nil)
 	s.MockTSSKeeper.EXPECT().CreateSigning(ctx, currentGroup, []byte("test-msg")).Return(expectSigning, nil)
 
 	signingID, err := k.CreateGroupReplacement(ctx, newGroupID, execTime)

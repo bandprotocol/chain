@@ -417,6 +417,21 @@ func (mr *MockTSSKeeperMockRecorder) ActivateMember(ctx, groupID, address any) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ActivateMember", reflect.TypeOf((*MockTSSKeeper)(nil).ActivateMember), ctx, groupID, address)
 }
 
+// ConvertContentToBytes mocks base method.
+func (m *MockTSSKeeper) ConvertContentToBytes(ctx types0.Context, content types.Content) ([]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ConvertContentToBytes", ctx, content)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ConvertContentToBytes indicates an expected call of ConvertContentToBytes.
+func (mr *MockTSSKeeperMockRecorder) ConvertContentToBytes(ctx, content any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConvertContentToBytes", reflect.TypeOf((*MockTSSKeeper)(nil).ConvertContentToBytes), ctx, content)
+}
+
 // CreateGroup mocks base method.
 func (m *MockTSSKeeper) CreateGroup(ctx types0.Context, members []types0.AccAddress, threshold uint64, moduleOwner string) (tss.GroupID, error) {
 	m.ctrl.T.Helper()
@@ -563,21 +578,6 @@ func (m *MockTSSKeeper) GetSigningResult(ctx types0.Context, signingID tss.Signi
 func (mr *MockTSSKeeperMockRecorder) GetSigningResult(ctx, signingID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSigningResult", reflect.TypeOf((*MockTSSKeeper)(nil).GetSigningResult), ctx, signingID)
-}
-
-// HandleSigningContent mocks base method.
-func (m *MockTSSKeeper) HandleSigningContent(ctx types0.Context, content types.Content) ([]byte, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "HandleSigningContent", ctx, content)
-	ret0, _ := ret[0].([]byte)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// HandleSigningContent indicates an expected call of HandleSigningContent.
-func (mr *MockTSSKeeperMockRecorder) HandleSigningContent(ctx, content any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleSigningContent", reflect.TypeOf((*MockTSSKeeper)(nil).HandleSigningContent), ctx, content)
 }
 
 // MustGetMembers mocks base method.

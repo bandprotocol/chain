@@ -32,7 +32,7 @@ func TestHandleCreateSigning(t *testing.T) {
 	err := k.SetParams(ctx, params)
 	require.NoError(t, err)
 
-	s.MockTSSKeeper.EXPECT().HandleSigningContent(ctx, content).Return([]byte("test"), nil).AnyTimes()
+	s.MockTSSKeeper.EXPECT().ConvertContentToBytes(ctx, content).Return([]byte("test"), nil).AnyTimes()
 	s.MockTSSKeeper.EXPECT().GetGroup(ctx, currentGroupID).Return(currentGroup, nil).AnyTimes()
 
 	type input struct {

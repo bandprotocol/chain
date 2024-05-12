@@ -105,6 +105,6 @@ type TSSKeeper interface {
 	GetPenalizedMembersExpiredSigning(ctx sdk.Context, signing tsstypes.Signing) ([]sdk.AccAddress, error)
 
 	GetSigning(ctx sdk.Context, signingID tss.SigningID) (tsstypes.Signing, error)
-	HandleSigningContent(ctx sdk.Context, content tsstypes.Content) ([]byte, error)
+	ConvertContentToBytes(ctx sdk.Context, content tsstypes.Content) ([]byte, error)
 	GetSigningResult(ctx sdk.Context, signingID tss.SigningID) (*tsstypes.SigningResult, error)
 }

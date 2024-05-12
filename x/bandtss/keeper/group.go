@@ -48,7 +48,7 @@ func (k Keeper) CreateGroupReplacement(
 	}
 
 	// Execute the handler to process the replacement request.
-	msg, err := k.tssKeeper.HandleSigningContent(ctx, types.NewReplaceGroupSignatureOrder(newGroup.PubKey))
+	msg, err := k.tssKeeper.ConvertContentToBytes(ctx, types.NewReplaceGroupSignatureOrder(newGroup.PubKey))
 	if err != nil {
 		return 0, err
 	}
@@ -93,7 +93,8 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, endBlockTime time.Time) erro
 			return err
 		}
 
-		if signing.IsFailed() ||
+		if signing.Status == tsstypes.SIGNING_STATUS_EXPIRED ||
+			signing.Status == tsstypes.SIGNING_STATUS_FALLEN ||
 			(signing.Status == tsstypes.SIGNING_STATUS_WAITING && endBlockTime.After(replacement.ExecTime)) {
 			return k.HandleFailReplacementSigning(ctx, replacement)
 		}

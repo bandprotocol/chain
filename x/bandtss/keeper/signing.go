@@ -133,7 +133,7 @@ func (k Keeper) HandleCreateSigning(
 	feeLimit sdk.Coins,
 ) (types.SigningID, error) {
 	// Execute the handler to process the request.
-	msg, err := k.tssKeeper.HandleSigningContent(ctx, content)
+	msg, err := k.tssKeeper.ConvertContentToBytes(ctx, content)
 	if err != nil {
 		return 0, err
 	}
