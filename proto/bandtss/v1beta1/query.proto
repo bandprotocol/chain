@@ -13,12 +13,12 @@ option go_package = "github.com/bandprotocol/chain/v2/x/bandtss/types";
 
 // Query defines the gRPC querier service.
 service Query {
-  // Params queries parameters of Bandtss module
+  // Params queries parameters of bandtss module
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/bandtss/v1beta1/params";
   }
 
-  // IsGrantee queries grant of account on this granter.
+  // IsGrantee queries whether granter grants the grantee.
   rpc IsGrantee(QueryIsGranteeRequest) returns (QueryIsGranteeResponse) {
     option (google.api.http).get = "/bandtss/v1beta1/is_grantee/{granter}/{grantee}";
   }
@@ -28,7 +28,7 @@ service Query {
     option (google.api.http).get = "/bandtss/v1beta1/members";
   }
 
-  // Member queries the member information of the address.
+  // Member queries the member information of the given address.
   rpc Member(QueryMemberRequest) returns (QueryMemberResponse) {
     option (google.api.http).get = "/bandtss/v1beta1/members/{address}";
   }
@@ -38,7 +38,7 @@ service Query {
     option (google.api.http).get = "/bandtss/v1beta1/current_group";
   }
 
-  // Signing queries the signing result of the signing request.
+  // Signing queries the signing result of the given signing request ID.
   rpc Signing(QuerySigningRequest) returns (QuerySigningResponse) {
     option (google.api.http).get = "/bandtss/v1beta1/signings/{signing_id}";
   }
@@ -131,7 +131,7 @@ message QuerySigningResponse {
   // fee is the total tokens that will be paid for this bandtss signing.
   repeated cosmos.base.v1beta1.Coin fee = 1
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
-  // requester is the address of requester who paid for the Bandtss signing.
+  // requester is the address of requester who paid for bandtss signing.
   string requester = 2;
   // current_group_signing_result is the signing result from the current group.
   .tss.v1beta1.SigningResult current_group_signing_result = 3;

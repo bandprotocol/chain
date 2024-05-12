@@ -253,7 +253,7 @@ func (s *KeeperTestSuite) TestSuccessReplaceGroup() {
 
 	s.Require().NoError(err)
 	replacement_status := s.app.BandtssKeeper.GetReplacement(ctx).Status
-	s.Require().Equal(types.REPLACEMENT_STATUS_WAITING_SIGNING, replacement_status)
+	s.Require().Equal(types.REPLACEMENT_STATUS_WAITING_SIGN, replacement_status)
 }
 
 func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {

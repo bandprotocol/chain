@@ -33,7 +33,7 @@ func (k Keeper) CreateGroupReplacement(
 	}
 
 	replacement := k.GetReplacement(ctx)
-	if replacement.Status == types.REPLACEMENT_STATUS_WAITING_SIGNING ||
+	if replacement.Status == types.REPLACEMENT_STATUS_WAITING_SIGN ||
 		replacement.Status == types.REPLACEMENT_STATUS_WAITING_REPLACE {
 		return 0, types.ErrReplacementInProgress
 	}
@@ -63,7 +63,7 @@ func (k Keeper) CreateGroupReplacement(
 		CurrentPubKey:  currentGroup.PubKey,
 		NewGroupID:     newGroupID,
 		NewPubKey:      newGroup.PubKey,
-		Status:         types.REPLACEMENT_STATUS_WAITING_SIGNING,
+		Status:         types.REPLACEMENT_STATUS_WAITING_SIGN,
 		ExecTime:       execTime,
 	})
 
@@ -73,7 +73,7 @@ func (k Keeper) CreateGroupReplacement(
 			sdk.NewAttribute(tsstypes.AttributeKeySigningID, fmt.Sprintf("%d", signing.ID)),
 			sdk.NewAttribute(types.AttributeKeyCurrentGroupID, fmt.Sprintf("%d", currentGroupID)),
 			sdk.NewAttribute(types.AttributeKeyReplacingGroupID, fmt.Sprintf("%d", newGroupID)),
-			sdk.NewAttribute(types.AttributeKeyReplacementStatus, types.REPLACEMENT_STATUS_WAITING_SIGNING.String()),
+			sdk.NewAttribute(types.AttributeKeyReplacementStatus, types.REPLACEMENT_STATUS_WAITING_SIGN.String()),
 			sdk.NewAttribute(types.AttributeKeyExecTime, replacement.ExecTime.Format(time.RFC3339)),
 		),
 	)
@@ -87,7 +87,7 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, endBlockTime time.Time) erro
 	replacement := k.GetReplacement(ctx)
 
 	// check signing status and update replacement status.
-	if replacement.Status == types.REPLACEMENT_STATUS_WAITING_SIGNING {
+	if replacement.Status == types.REPLACEMENT_STATUS_WAITING_SIGN {
 		signing, err := k.tssKeeper.GetSigning(ctx, replacement.SigningID)
 		if err != nil {
 			return err

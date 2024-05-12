@@ -209,7 +209,7 @@ func TestHandleCreateSigning(t *testing.T) {
 				replaceGroupID := tss.GroupID(2)
 				replacement := types.Replacement{
 					SigningID:      tss.SigningID(1),
-					Status:         types.REPLACEMENT_STATUS_WAITING_SIGNING,
+					Status:         types.REPLACEMENT_STATUS_WAITING_SIGN,
 					CurrentGroupID: currentGroupID,
 					NewGroupID:     replaceGroupID,
 				}

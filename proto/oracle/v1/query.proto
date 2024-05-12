@@ -152,7 +152,7 @@ message QueryRequestResponse {
   repeated Report reports = 2 [(gogoproto.nullable) = false];
   // Result is a final form of result data
   Result result = 3;
-  // Signing is the signing detail in the TSS module.
+  // Signing is the signing detail in the bandtss module.
   SigningResult signing = 4;
 }
 
