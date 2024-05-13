@@ -193,7 +193,7 @@ $ %s tx bandtss add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5
 				version.AppName,
 			),
 		),
-		RunE: grant.AddGranteeCmd(types.GetBandtssGrantMsgTypes(), flagExpiration),
+		RunE: grant.AddGranteeCmd(types.BandtssGrantMsgTypes, flagExpiration),
 	}
 
 	cmd.Flags().
@@ -217,7 +217,7 @@ $ %s tx bandtss remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band
 				version.AppName,
 			),
 		),
-		RunE: grant.RemoveGranteeCmd(types.GetBandtssGrantMsgTypes()),
+		RunE: grant.RemoveGranteeCmd(types.BandtssGrantMsgTypes),
 	}
 
 	flags.AddTxFlagsToCmd(cmd)

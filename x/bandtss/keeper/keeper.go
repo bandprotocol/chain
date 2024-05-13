@@ -150,7 +150,7 @@ func (k Keeper) GetReplacement(ctx sdk.Context) types.Replacement {
 
 // CheckIsGrantee checks if the granter granted permissions to the grantee.
 func (k Keeper) CheckIsGrantee(ctx sdk.Context, granter sdk.AccAddress, grantee sdk.AccAddress) bool {
-	for _, msg := range types.GetBandtssGrantMsgTypes() {
+	for _, msg := range types.BandtssGrantMsgTypes {
 		cap, _ := k.authzKeeper.GetAuthorization(ctx, grantee, granter, msg)
 		if cap == nil {
 			return false
