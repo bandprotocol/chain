@@ -136,7 +136,7 @@ do
     # wait for activation transaction success
     sleep 4
 
-    for i in $(eval echo {1..1})
+    for i in $(eval echo {1..4})
     do
         # add reporter key
         yoda keys add reporter$i
@@ -181,7 +181,7 @@ do
     # wait for activation transaction success
     sleep 4
 
-    for i in $(eval echo {1..1})
+    for i in $(eval echo {1..4})
     do
         # add feeder key
         grogu keys add feeder$i
