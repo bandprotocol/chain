@@ -24,7 +24,7 @@ func (s *KeeperTestSuite) TestGetSetMember() {
 	s.Require().Equal(member, got)
 }
 
-func (s *KeeperTestSuite) TestGetMembers() {
+func (s *KeeperTestSuite) TestGetGroupMembers() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	members := []types.Member{
