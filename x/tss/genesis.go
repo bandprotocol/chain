@@ -18,9 +18,7 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 		k.SetGroup(ctx, group)
 	}
 
-	for _, member := range data.Members {
-		k.SetMember(ctx, member)
-	}
+	k.SetMembers(ctx, data.Members)
 
 	k.SetSigningCount(ctx, data.SigningCount)
 	for _, signing := range data.Signings {

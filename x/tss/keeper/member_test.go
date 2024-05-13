@@ -44,10 +44,7 @@ func (s *KeeperTestSuite) TestGetMembers() {
 		},
 	}
 
-	// Set members
-	for _, m := range members {
-		k.SetMember(ctx, m)
-	}
+	k.SetMembers(ctx, members)
 
 	got, err := k.GetGroupMembers(ctx, groupID)
 	s.Require().NoError(err)
