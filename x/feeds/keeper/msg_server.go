@@ -89,7 +89,7 @@ func (ms msgServer) SubmitPrices(
 	}
 
 	// check if it's in top bonded validators.
-	err = ms.ValidateSubmitPricesRequest(ctx, blockTime, req)
+	err = ms.ValidateSubmitPricesRequest(ctx, blockTime, req, val)
 	if err != nil {
 		return nil, err
 	}
