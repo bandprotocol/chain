@@ -5,6 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -21,22 +22,21 @@ func NewQueryServer(k *Keeper) types.QueryServer {
 	return queryServer{k: k}
 }
 
-// IsGrantee function handles the request to check if a specific address is a grantee of another.
+// IsGrantee queries if a specific address is a grantee of another.
 func (q queryServer) IsGrantee(
 	goCtx context.Context,
 	req *types.QueryIsGranteeRequest,
 ) (*types.QueryIsGranteeResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// Convert granter and grantee addresses from Bech32 to AccAddress
 	granter, err := sdk.AccAddressFromBech32(req.Granter)
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid granter address: %s", err)
 	}
 
 	grantee, err := sdk.AccAddressFromBech32(req.Grantee)
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid grantee address: %s", err)
 	}
 
 	return &types.QueryIsGranteeResponse{
@@ -44,20 +44,18 @@ func (q queryServer) IsGrantee(
 	}, nil
 }
 
-// Member function handles the request to get the member of a given account address.
+// Member queries the member information of a given account address.
 func (q queryServer) Member(
 	goCtx context.Context,
 	req *types.QueryMemberRequest,
 ) (*types.QueryMemberResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// Convert the address from Bech32 format to AccAddress format
 	address, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid grantee address: %s", err)
 	}
 
-	// Get member of the address
 	member, err := q.k.GetMember(ctx, address)
 	if err != nil {
 		return nil, err
@@ -68,7 +66,7 @@ func (q queryServer) Member(
 	}, nil
 }
 
-// Members function handles the request to get filtered members based on criteria.
+// Members queries filtered members information based on criteria.
 func (q queryServer) Members(
 	goCtx context.Context,
 	req *types.QueryMembersRequest,
@@ -100,7 +98,7 @@ func (q queryServer) Members(
 	}, nil
 }
 
-// CurrentGroup function handles the request to get the current group information.
+// CurrentGroup queries the current group information.
 func (q queryServer) CurrentGroup(
 	goCtx context.Context,
 	req *types.QueryCurrentGroupRequest,
@@ -126,7 +124,7 @@ func (q queryServer) CurrentGroup(
 	}, nil
 }
 
-// Replacement function handles the request to get the group replacement information.
+// Replacement queries group replacement information.
 func (q queryServer) Replacement(
 	goCtx context.Context,
 	req *types.QueryReplacementRequest,
@@ -140,7 +138,7 @@ func (q queryServer) Replacement(
 	}, nil
 }
 
-// Signing function handles the request to get the bandtss signing information.
+// Signing queries the bandtss signing information.
 func (q queryServer) Signing(
 	goCtx context.Context,
 	req *types.QuerySigningRequest,
@@ -174,7 +172,7 @@ func (q queryServer) Signing(
 	}, nil
 }
 
-// Params return parameters of bandtss module
+// Params queries parameters of bandtss module
 func (q queryServer) Params(stdCtx context.Context, _ *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(stdCtx)
 

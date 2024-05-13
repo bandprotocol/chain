@@ -98,20 +98,6 @@ func (m *MockAccountKeeper) EXPECT() *MockAccountKeeperMockRecorder {
 	return m.recorder
 }
 
-// GetAccount mocks base method.
-func (m *MockAccountKeeper) GetAccount(ctx types0.Context, addr types0.AccAddress) types1.AccountI {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAccount", ctx, addr)
-	ret0, _ := ret[0].(types1.AccountI)
-	return ret0
-}
-
-// GetAccount indicates an expected call of GetAccount.
-func (mr *MockAccountKeeperMockRecorder) GetAccount(ctx, addr any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccount", reflect.TypeOf((*MockAccountKeeper)(nil).GetAccount), ctx, addr)
-}
-
 // GetModuleAccount mocks base method.
 func (m *MockAccountKeeper) GetModuleAccount(ctx types0.Context, name string) types1.ModuleAccountI {
 	m.ctrl.T.Helper()
@@ -175,20 +161,6 @@ func (m *MockBankKeeper) GetAllBalances(ctx types0.Context, addr types0.AccAddre
 func (mr *MockBankKeeperMockRecorder) GetAllBalances(ctx, addr any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllBalances", reflect.TypeOf((*MockBankKeeper)(nil).GetAllBalances), ctx, addr)
-}
-
-// GetBalance mocks base method.
-func (m *MockBankKeeper) GetBalance(ctx types0.Context, addr types0.AccAddress, denom string) types0.Coin {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetBalance", ctx, addr, denom)
-	ret0, _ := ret[0].(types0.Coin)
-	return ret0
-}
-
-// GetBalance indicates an expected call of GetBalance.
-func (mr *MockBankKeeperMockRecorder) GetBalance(ctx, addr, denom any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBalance", reflect.TypeOf((*MockBankKeeper)(nil).GetBalance), ctx, addr, denom)
 }
 
 // SendCoinsFromAccountToModule mocks base method.
@@ -445,6 +417,21 @@ func (mr *MockTSSKeeperMockRecorder) ActivateMember(ctx, groupID, address any) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ActivateMember", reflect.TypeOf((*MockTSSKeeper)(nil).ActivateMember), ctx, groupID, address)
 }
 
+// ConvertContentToBytes mocks base method.
+func (m *MockTSSKeeper) ConvertContentToBytes(ctx types0.Context, content types.Content) ([]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ConvertContentToBytes", ctx, content)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ConvertContentToBytes indicates an expected call of ConvertContentToBytes.
+func (mr *MockTSSKeeperMockRecorder) ConvertContentToBytes(ctx, content any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConvertContentToBytes", reflect.TypeOf((*MockTSSKeeper)(nil).ConvertContentToBytes), ctx, content)
+}
+
 // CreateGroup mocks base method.
 func (m *MockTSSKeeper) CreateGroup(ctx types0.Context, members []types0.AccAddress, threshold uint64, moduleOwner string) (tss.GroupID, error) {
 	m.ctrl.T.Helper()
@@ -533,21 +520,6 @@ func (mr *MockTSSKeeperMockRecorder) GetMemberByAddress(ctx, groupID, address an
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMemberByAddress", reflect.TypeOf((*MockTSSKeeper)(nil).GetMemberByAddress), ctx, groupID, address)
 }
 
-// GetPenalizedMembersExpiredGroup mocks base method.
-func (m *MockTSSKeeper) GetPenalizedMembersExpiredGroup(ctx types0.Context, group types.Group) ([]types0.AccAddress, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPenalizedMembersExpiredGroup", ctx, group)
-	ret0, _ := ret[0].([]types0.AccAddress)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetPenalizedMembersExpiredGroup indicates an expected call of GetPenalizedMembersExpiredGroup.
-func (mr *MockTSSKeeperMockRecorder) GetPenalizedMembersExpiredGroup(ctx, group any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPenalizedMembersExpiredGroup", reflect.TypeOf((*MockTSSKeeper)(nil).GetPenalizedMembersExpiredGroup), ctx, group)
-}
-
 // GetPenalizedMembersExpiredSigning mocks base method.
 func (m *MockTSSKeeper) GetPenalizedMembersExpiredSigning(ctx types0.Context, signing types.Signing) ([]types0.AccAddress, error) {
 	m.ctrl.T.Helper()
@@ -591,21 +563,6 @@ func (m *MockTSSKeeper) GetSigningResult(ctx types0.Context, signingID tss.Signi
 func (mr *MockTSSKeeperMockRecorder) GetSigningResult(ctx, signingID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSigningResult", reflect.TypeOf((*MockTSSKeeper)(nil).GetSigningResult), ctx, signingID)
-}
-
-// HandleSigningContent mocks base method.
-func (m *MockTSSKeeper) HandleSigningContent(ctx types0.Context, content types.Content) ([]byte, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "HandleSigningContent", ctx, content)
-	ret0, _ := ret[0].([]byte)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// HandleSigningContent indicates an expected call of HandleSigningContent.
-func (mr *MockTSSKeeperMockRecorder) HandleSigningContent(ctx, content any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleSigningContent", reflect.TypeOf((*MockTSSKeeper)(nil).HandleSigningContent), ctx, content)
 }
 
 // MustGetMembers mocks base method.

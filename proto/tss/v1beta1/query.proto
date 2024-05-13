@@ -25,7 +25,7 @@ service Query {
     option (google.api.http).get = "/tss/v1beta1/groups/{group_id}/members";
   }
 
-  // IsGrantee queries grant of account on this granter.
+  // IsGrantee queries whether granter grants the grantee.
   rpc IsGrantee(QueryIsGranteeRequest) returns (QueryIsGranteeResponse) {
     option (google.api.http).get = "/tss/v1beta1/is_grantee/{granter}/{grantee}";
   }
@@ -35,17 +35,17 @@ service Query {
     option (google.api.http).get = "/tss/v1beta1/de_list/{address}";
   }
 
-  // PendingGroups queries all pending groups for this address.
+  // PendingGroups queries all pending groups that waits the given address to submit a message.
   rpc PendingGroups(QueryPendingGroupsRequest) returns (QueryPendingGroupsResponse) {
     option (google.api.http).get = "/tss/v1beta1/pending_groups/{address}";
   }
 
-  // PendingSignings queries all pending signs for this address.
+  // PendingSignings queries all pending requests that waits the given address to sign a message.
   rpc PendingSignings(QueryPendingSigningsRequest) returns (QueryPendingSigningsResponse) {
     option (google.api.http).get = "/tss/v1beta1/pending_signings/{address}";
   }
 
-  // Signing queries signing details.
+  // Signing queries signing details from the given id.
   rpc Signing(QuerySigningRequest) returns (QuerySigningResponse) {
     option (google.api.http).get = "/tss/v1beta1/signings/{signing_id}";
   }
@@ -133,7 +133,7 @@ message QueryDEResponse {
 
 // QueryPendingGroupsRequest is the request type for the Query/PendingGroups RPC method.
 message QueryPendingGroupsRequest {
-  // address is the address for the request.
+  // address is the address of the member.
   string address = 1;
 }
 
@@ -145,7 +145,7 @@ message QueryPendingGroupsResponse {
 
 // QueryPendingSigningsRequest is the request type for the Query/PendingSignings RPC method.
 message QueryPendingSigningsRequest {
-  // address is the address for the request.
+  // address is the address of the member.
   string address = 1;
 }
 

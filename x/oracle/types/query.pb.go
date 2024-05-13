@@ -464,7 +464,7 @@ type QueryRequestResponse struct {
 	Reports []Report `protobuf:"bytes,2,rep,name=reports,proto3" json:"reports"`
 	// Result is a final form of result data
 	Result *Result `protobuf:"bytes,3,opt,name=result,proto3" json:"result,omitempty"`
-	// Signing is the signing detail in the TSS module.
+	// Signing is the signing detail in the bandtss module.
 	Signing *SigningResult `protobuf:"bytes,4,opt,name=signing,proto3" json:"signing,omitempty"`
 }
 

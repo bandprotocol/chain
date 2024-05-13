@@ -3,7 +3,6 @@ package types
 import (
 	"fmt"
 
-	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	tsslib "github.com/bandprotocol/chain/v2/pkg/tss"
@@ -64,11 +63,13 @@ func (r *Router) GetRoute(path string) Handler {
 	return r.handlers[path]
 }
 
+// wrapHandler returns a function that converts content into message bytes.
+// It prefixes the message with a selector, which consists of first 4 bytes of the hashed path.
 func wrapHandler(path string, handler Handler) Handler {
 	return func(ctx sdk.Context, req Content) ([]byte, error) {
 		msg, err := handler(ctx, req)
 		if err != nil {
-			return nil, errors.Wrap(ErrHandleSignatureOrderFailed, err.Error())
+			return nil, ErrHandleSignatureOrderFailed.Wrap(err.Error())
 		}
 		selector := tsslib.Hash([]byte(path))[:4]
 

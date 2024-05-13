@@ -35,7 +35,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type GenesisState struct {
 	// params defines all the paramiters of the module.
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
-	// members is an array containing member information.
+	// members is an array containing members information.
 	Members []Member `protobuf:"bytes,2,rep,name=members,proto3" json:"members"`
 	// current_group_id is the current group id of the module.
 	CurrentGroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID `protobuf:"varint,3,opt,name=current_group_id,json=currentGroupId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.GroupID" json:"current_group_id,omitempty"`
@@ -43,7 +43,7 @@ type GenesisState struct {
 	SigningCount uint64 `protobuf:"varint,4,opt,name=signing_count,json=signingCount,proto3" json:"signing_count,omitempty"`
 	// signings is the bandtss signing info.
 	Signings []Signing `protobuf:"bytes,5,rep,name=signings,proto3" json:"signings"`
-	// signing_request_mappings is the list of mapping between tss signing id and bandtss signing id.
+	// signing_id_mappings is the list of mapping between tss signing id and bandtss signing id.
 	SigningIDMappings []SigningIDMappingGenesis `protobuf:"bytes,6,rep,name=signing_id_mappings,json=signingIdMappings,proto3" json:"signing_id_mappings"`
 	// replacement is the replacement information of the current group and new group.
 	Replacement Replacement `protobuf:"bytes,7,opt,name=replacement,proto3" json:"replacement"`
@@ -133,14 +133,14 @@ func (m *GenesisState) GetReplacement() Replacement {
 
 // Params defines the set of module parameters.
 type Params struct {
-	// active_duration is the duration where a member can be active without interaction.
+	// active_duration is the duration where a member is active without interaction.
 	ActiveDuration time.Duration `protobuf:"bytes,1,opt,name=active_duration,json=activeDuration,proto3,stdduration" json:"active_duration"`
-	// reward_percentage is the percentage of block rewards allocated to active TSS validators after being allocated to
-	// oracle rewards.
+	// reward_percentage is the percentage of block rewards allocated to active TSS members.
+	// The reward proportion is calculated after being allocated to oracle rewards.
 	RewardPercentage uint64 `protobuf:"varint,2,opt,name=reward_percentage,json=rewardPercentage,proto3" json:"reward_percentage,omitempty"`
-	// inactive_penalty_duration is the duration where a member cannot activate back after inactive.
+	// inactive_penalty_duration is the duration where a member cannot activate back after being set to inactive.
 	InactivePenaltyDuration time.Duration `protobuf:"bytes,3,opt,name=inactive_penalty_duration,json=inactivePenaltyDuration,proto3,stdduration" json:"inactive_penalty_duration"`
-	// fee is the tokens that will be paid per signing.
+	// fee is the tokens that will be paid per signer.
 	Fee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,4,rep,name=fee,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"fee"`
 }
 

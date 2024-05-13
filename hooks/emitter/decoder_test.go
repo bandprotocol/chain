@@ -195,12 +195,11 @@ func (suite *DecoderTestSuite) TestDecodeMsgRequestData() {
 		bandtesting.TestDefaultExecuteGas,
 		SenderAddress,
 		0,
-		0,
 	)
 	emitter.DecodeMsgRequestData(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"ask_count\":1,\"calldata\":\"Y2FsbGRhdGE=\",\"client_id\":\"cleint_id\",\"execute_gas\":300000,\"fee_limit\":[{\"denom\":\"uband\",\"amount\":\"100000000\"}],\"min_count\":1,\"oracle_script_id\":1,\"prepare_gas\":40000,\"sender\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\",\"tss_group_id\":0}",
+		"{\"ask_count\":1,\"calldata\":\"Y2FsbGRhdGE=\",\"client_id\":\"cleint_id\",\"execute_gas\":300000,\"fee_limit\":[{\"denom\":\"uband\",\"amount\":\"100000000\"}],\"min_count\":1,\"oracle_script_id\":1,\"prepare_gas\":40000,\"sender\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}",
 	)
 }
 

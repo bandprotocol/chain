@@ -574,7 +574,7 @@ func (m *QueryDEResponse) GetPagination() *query.PageResponse {
 
 // QueryPendingGroupsRequest is the request type for the Query/PendingGroups RPC method.
 type QueryPendingGroupsRequest struct {
-	// address is the address for the request.
+	// address is the address of the member.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
 
@@ -666,7 +666,7 @@ func (m *QueryPendingGroupsResponse) GetPendingGroups() []uint64 {
 
 // QueryPendingSigningsRequest is the request type for the Query/PendingSignings RPC method.
 type QueryPendingSigningsRequest struct {
-	// address is the address for the request.
+	// address is the address of the member.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
 
@@ -959,15 +959,15 @@ type QueryClient interface {
 	Group(ctx context.Context, in *QueryGroupRequest, opts ...grpc.CallOption) (*QueryGroupResponse, error)
 	// Members queries all members in this group.
 	Members(ctx context.Context, in *QueryMembersRequest, opts ...grpc.CallOption) (*QueryMembersResponse, error)
-	// IsGrantee queries grant of account on this granter.
+	// IsGrantee queries whether granter grants the grantee.
 	IsGrantee(ctx context.Context, in *QueryIsGranteeRequest, opts ...grpc.CallOption) (*QueryIsGranteeResponse, error)
 	// DE queries all de for this address.
 	DE(ctx context.Context, in *QueryDERequest, opts ...grpc.CallOption) (*QueryDEResponse, error)
-	// PendingGroups queries all pending groups for this address.
+	// PendingGroups queries all pending groups that waits the given address to submit a message.
 	PendingGroups(ctx context.Context, in *QueryPendingGroupsRequest, opts ...grpc.CallOption) (*QueryPendingGroupsResponse, error)
-	// PendingSignings queries all pending signs for this address.
+	// PendingSignings queries all pending requests that waits the given address to sign a message.
 	PendingSignings(ctx context.Context, in *QueryPendingSigningsRequest, opts ...grpc.CallOption) (*QueryPendingSigningsResponse, error)
-	// Signing queries signing details.
+	// Signing queries signing details from the given id.
 	Signing(ctx context.Context, in *QuerySigningRequest, opts ...grpc.CallOption) (*QuerySigningResponse, error)
 }
 
@@ -1059,15 +1059,15 @@ type QueryServer interface {
 	Group(context.Context, *QueryGroupRequest) (*QueryGroupResponse, error)
 	// Members queries all members in this group.
 	Members(context.Context, *QueryMembersRequest) (*QueryMembersResponse, error)
-	// IsGrantee queries grant of account on this granter.
+	// IsGrantee queries whether granter grants the grantee.
 	IsGrantee(context.Context, *QueryIsGranteeRequest) (*QueryIsGranteeResponse, error)
 	// DE queries all de for this address.
 	DE(context.Context, *QueryDERequest) (*QueryDEResponse, error)
-	// PendingGroups queries all pending groups for this address.
+	// PendingGroups queries all pending groups that waits the given address to submit a message.
 	PendingGroups(context.Context, *QueryPendingGroupsRequest) (*QueryPendingGroupsResponse, error)
-	// PendingSignings queries all pending signs for this address.
+	// PendingSignings queries all pending requests that waits the given address to sign a message.
 	PendingSignings(context.Context, *QueryPendingSigningsRequest) (*QueryPendingSigningsResponse, error)
-	// Signing queries signing details.
+	// Signing queries signing details from the given id.
 	Signing(context.Context, *QuerySigningRequest) (*QuerySigningResponse, error)
 }
 

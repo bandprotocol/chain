@@ -1,6 +1,6 @@
 run:
   timeout: 5m
-  go: '1.21.7'
+  go: '1.22.3'
   skip-files:
     - ".*\\.pb\\.go$"
     - ".*\\.pb\\.gw\\.\\.go$"
@@ -67,7 +67,6 @@ linters-settings:
     # Available rules: https://github.com/securego/gosec#available-rules
     # Default: [] - means include all rules
     includes:
-      #  - G101 # Look for hard coded credentials
       - G102 # Bind to all interfaces
       - G103 # Audit the use of unsafe block
       - G104 # Audit errors not checked

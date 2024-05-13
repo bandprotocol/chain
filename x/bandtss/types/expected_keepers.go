@@ -32,8 +32,6 @@ type AuthzKeeper interface {
 
 // AccountKeeper defines the expected account keeper (noalias)
 type AccountKeeper interface {
-	GetAccount(ctx sdk.Context, addr sdk.AccAddress) types.AccountI
-
 	GetModuleAddress(name string) sdk.AccAddress
 	GetModuleAccount(ctx sdk.Context, name string) types.ModuleAccountI
 }
@@ -41,7 +39,6 @@ type AccountKeeper interface {
 // BankKeeper defines the expected interface needed to retrieve account balances.
 type BankKeeper interface {
 	GetAllBalances(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
-	GetBalance(ctx sdk.Context, addr sdk.AccAddress, denom string) sdk.Coin
 
 	SendCoinsFromModuleToAccount(
 		ctx sdk.Context,
@@ -104,10 +101,9 @@ type TSSKeeper interface {
 	GetDECount(ctx sdk.Context, address sdk.AccAddress) uint64
 	GetGroup(ctx sdk.Context, groupID tss.GroupID) (tsstypes.Group, error)
 
-	GetPenalizedMembersExpiredGroup(ctx sdk.Context, group tsstypes.Group) ([]sdk.AccAddress, error)
 	GetPenalizedMembersExpiredSigning(ctx sdk.Context, signing tsstypes.Signing) ([]sdk.AccAddress, error)
 
 	GetSigning(ctx sdk.Context, signingID tss.SigningID) (tsstypes.Signing, error)
-	HandleSigningContent(ctx sdk.Context, content tsstypes.Content) ([]byte, error)
+	ConvertContentToBytes(ctx sdk.Context, content tsstypes.Content) ([]byte, error)
 	GetSigningResult(ctx sdk.Context, signingID tss.SigningID) (*tsstypes.SigningResult, error)
 }

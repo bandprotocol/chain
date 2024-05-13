@@ -113,7 +113,6 @@ func (s *KeeperTestSuite) TestGetDEsGenesis() {
 		if q.Address == string(address) {
 			s.Require().Equal(types.DEGenesis{
 				Address: address.String(),
-				Index:   index,
 				DE:      de,
 			}, q)
 		}
@@ -246,24 +245,16 @@ func (s *KeeperTestSuite) TestHandlePollDEForAssignedMembers() {
 		s.Require().NoError(err)
 	}
 
-	assignedMembers, err := k.HandleAssignedMembersPollDE(ctx, members)
+	des, err := k.PollDEs(ctx, members)
 	s.Require().NoError(err)
-	s.Require().Equal(types.AssignedMembers{
+	s.Require().Equal([]types.DE{
 		{
-			MemberID:      1,
-			Address:       members[0].Address,
-			PubD:          des[0].PubD,
-			PubE:          des[0].PubE,
-			BindingFactor: nil,
-			PubNonce:      nil,
+			PubD: des[0].PubD,
+			PubE: des[0].PubE,
 		},
 		{
-			MemberID:      2,
-			Address:       members[1].Address,
-			PubD:          des[0].PubD,
-			PubE:          des[0].PubE,
-			BindingFactor: nil,
-			PubNonce:      nil,
+			PubD: des[0].PubD,
+			PubE: des[0].PubE,
 		},
-	}, assignedMembers)
+	}, des)
 }

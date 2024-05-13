@@ -10,6 +10,7 @@ import (
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 
 	bandtsskeeper "github.com/bandprotocol/chain/v2/x/bandtss/keeper"
+	feedskeeper "github.com/bandprotocol/chain/v2/x/feeds/keeper"
 	"github.com/bandprotocol/chain/v2/x/globalfee/feechecker"
 	globalfeekeeper "github.com/bandprotocol/chain/v2/x/globalfee/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
@@ -23,10 +24,11 @@ type HandlerOptions struct {
 	AuthzKeeper     *authzkeeper.Keeper
 	OracleKeeper    *oraclekeeper.Keeper
 	IBCKeeper       *ibckeeper.Keeper
-	GlobalfeeKeeper *globalfeekeeper.Keeper
 	StakingKeeper   *stakingkeeper.Keeper
+	GlobalfeeKeeper *globalfeekeeper.Keeper
 	TSSKeeper       *tsskeeper.Keeper
 	BandtssKeeper   *bandtsskeeper.Keeper
+	FeedsKeeper     *feedskeeper.Keeper
 }
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
@@ -51,6 +53,9 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	if options.BandtssKeeper == nil {
 		return nil, sdkerrors.ErrLogic.Wrap("bandtss keeper is required for AnteHandler")
 	}
+	if options.FeedsKeeper == nil {
+		return nil, sdkerrors.ErrLogic.Wrap("feeds keeper is required for AnteHandler")
+	}
 	if options.IBCKeeper == nil {
 		return nil, sdkerrors.ErrLogic.Wrap("IBC keeper is required for AnteHandler")
 	}
@@ -74,8 +79,9 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 			options.StakingKeeper,
 			options.TSSKeeper,
 			options.BandtssKeeper,
+			options.FeedsKeeper,
 		)
-		options.TxFeeChecker = feeChecker.CheckTxFeeWithMinGasPrices
+		options.TxFeeChecker = feeChecker.CheckTxFee
 	}
 
 	anteDecorators := []sdk.AnteDecorator{

@@ -40,6 +40,8 @@ import (
 	"github.com/bandprotocol/chain/v2/app/upgrades/v2_6"
 	"github.com/bandprotocol/chain/v2/x/bandtss"
 	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
+	"github.com/bandprotocol/chain/v2/x/feeds"
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -115,6 +117,7 @@ func NewDefaultGenesisState() GenesisState {
 		oracletypes.ModuleName:       oracle.AppModuleBasic{}.DefaultGenesis(cdc),
 		tsstypes.ModuleName:          tss.AppModuleBasic{}.DefaultGenesis(cdc),
 		bandtsstypes.ModuleName:      bandtss.AppModuleBasic{}.DefaultGenesis(cdc),
+		feedstypes.ModuleName:        feeds.AppModuleBasic{}.DefaultGenesis(cdc),
 		globalfeetypes.ModuleName:    cdc.MustMarshalJSON(globalfeeGenesis),
 	}
 }

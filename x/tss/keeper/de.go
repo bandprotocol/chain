@@ -3,8 +3,8 @@ package keeper
 import (
 	"fmt"
 
-	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
@@ -51,10 +51,10 @@ func (k Keeper) GetDEQueues(ctx sdk.Context) []types.DEQueue {
 // GetDECount retrieves the current count of DE for a given address from the context's KVStore.
 func (k Keeper) GetDECount(ctx sdk.Context, address sdk.AccAddress) uint64 {
 	deQueue := k.GetDEQueue(ctx, address)
-
 	if deQueue.Head <= deQueue.Tail {
 		return deQueue.Tail - deQueue.Head
 	}
+
 	return k.GetParams(ctx).MaxDESize - (deQueue.Head - deQueue.Tail)
 }
 
@@ -68,8 +68,7 @@ func (k Keeper) SetDE(ctx sdk.Context, address sdk.AccAddress, index uint64, de 
 func (k Keeper) GetDE(ctx sdk.Context, address sdk.AccAddress, index uint64) (types.DE, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.DEIndexStoreKey(address, index))
 	if bz == nil {
-		return types.DE{}, errors.Wrapf(
-			types.ErrDENotFound,
+		return types.DE{}, types.ErrDENotFound.Wrapf(
 			"failed to get DE with address %s index %d",
 			address,
 			index,
@@ -98,10 +97,9 @@ func (k Keeper) GetDEsGenesis(ctx sdk.Context) []types.DEGenesis {
 	for ; iterator.Valid(); iterator.Next() {
 		var de types.DE
 		k.cdc.MustUnmarshal(iterator.Value(), &de)
-		address, index := types.AddressAndIndexFromDEStoreKey(iterator.Key())
+		address, _ := types.AddressAndIndexFromDEStoreKey(iterator.Key())
 		des = append(des, types.DEGenesis{
 			Address: address.String(),
-			Index:   index,
 			DE:      de,
 		})
 	}
@@ -151,38 +149,26 @@ func (k Keeper) PollDE(ctx sdk.Context, address sdk.AccAddress) (types.DE, error
 	return de, nil
 }
 
-// HandleAssignedMembersPollDE function handles the polling of DE for the assigned members.
-// It takes a list of member IDs (mids) and members information (members) and returns the assigned members.
-func (k Keeper) HandleAssignedMembersPollDE(
-	ctx sdk.Context,
-	members []types.Member,
-) (types.AssignedMembers, error) {
-	var assignedMembers types.AssignedMembers
+// PollDEs handles the polling of DE from the selected members. It takes a list of member IDs (mids)
+// and members information (members) and returns the list of selected DEs ordered by selected members.
+func (k Keeper) PollDEs(ctx sdk.Context, members []types.Member) ([]types.DE, error) {
+	des := make([]types.DE, 0, len(members))
 
 	for _, member := range members {
 		// Convert the address from Bech32 format to AccAddress format
 		accMember, err := sdk.AccAddressFromBech32(member.Address)
 		if err != nil {
-			return nil, types.ErrInvalidAccAddressFormat.Wrapf("invalid account address: %s", err)
+			return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid account address: %s", err)
 		}
 
 		de, err := k.PollDE(ctx, accMember)
 		if err != nil {
 			return nil, err
 		}
-
-		assignedMembers = append(assignedMembers, types.AssignedMember{
-			MemberID:      member.ID,
-			Address:       member.Address,
-			PubKey:        member.PubKey,
-			PubD:          de.PubD,
-			PubE:          de.PubE,
-			BindingFactor: nil,
-			PubNonce:      nil,
-		})
+		des = append(des, de)
 	}
 
-	return assignedMembers, nil
+	return des, nil
 }
 
 // FilterMembersHaveDEs function retrieves all members that have DEs in the store.
@@ -192,10 +178,7 @@ func (k Keeper) FilterMembersHaveDE(ctx sdk.Context, members []types.Member) ([]
 		// Convert the address from Bech32 format to AccAddress format
 		accMember, err := sdk.AccAddressFromBech32(member.Address)
 		if err != nil {
-			return nil, errors.Wrapf(
-				types.ErrInvalidAccAddressFormat,
-				"invalid account address: %s", err,
-			)
+			return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid account address: %s", err)
 		}
 
 		count := k.GetDECount(ctx, accMember)

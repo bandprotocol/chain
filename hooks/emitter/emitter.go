@@ -10,6 +10,7 @@ import (
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	"github.com/cosmos/cosmos-sdk/codec"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -21,6 +22,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
+	groupkeeper "github.com/cosmos/cosmos-sdk/x/group/keeper"
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -32,6 +34,7 @@ import (
 
 	"github.com/bandprotocol/chain/v2/app/params"
 	"github.com/bandprotocol/chain/v2/hooks/common"
+	bandtsskeeper "github.com/bandprotocol/chain/v2/x/bandtss/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
@@ -56,14 +59,18 @@ type Hook struct {
 	mintKeeper    mintkeeper.Keeper
 	distrKeeper   distrkeeper.Keeper
 	govKeeper     govkeeper.Keeper
+	groupKeeper   groupkeeper.Keeper
 	oracleKeeper  oraclekeeper.Keeper
-	tssKeeper     tsskeeper.Keeper
+	tssKeeper     *tsskeeper.Keeper
+	bandtssKeeper *bandtsskeeper.Keeper
 	icahostKeeper icahostkeeper.Keeper
 
 	// ibc keeper
 	clientKeeper     clientkeeper.Keeper
 	connectionKeeper connectionkeeper.Keeper
 	channelKeeper    channelkeeper.Keeper
+
+	groupStoreKey storetypes.StoreKey
 }
 
 // NewHook creates an emitter hook instance that will be added in Band App.
@@ -77,12 +84,15 @@ func NewHook(
 	mintKeeper mintkeeper.Keeper,
 	distrKeeper distrkeeper.Keeper,
 	govKeeper govkeeper.Keeper,
+	groupKeeper groupkeeper.Keeper,
 	oracleKeeper oraclekeeper.Keeper,
-	tssKeeper tsskeeper.Keeper,
+	tssKeeper *tsskeeper.Keeper,
+	bandtssKeeper *bandtsskeeper.Keeper,
 	icahostKeeper icahostkeeper.Keeper,
 	clientKeeper clientkeeper.Keeper,
 	connectionKeeper connectionkeeper.Keeper,
 	channelKeeper channelkeeper.Keeper,
+	groupStorekey storetypes.StoreKey,
 	kafkaURI string,
 	emitStartState bool,
 ) *Hook {
@@ -104,12 +114,15 @@ func NewHook(
 		mintKeeper:       mintKeeper,
 		distrKeeper:      distrKeeper,
 		govKeeper:        govKeeper,
+		groupKeeper:      groupKeeper,
 		oracleKeeper:     oracleKeeper,
 		tssKeeper:        tssKeeper,
+		bandtssKeeper:    bandtssKeeper,
 		icahostKeeper:    icahostKeeper,
 		clientKeeper:     clientKeeper,
 		connectionKeeper: connectionKeeper,
 		channelKeeper:    channelKeeper,
+		groupStoreKey:    groupStorekey,
 		emitStartState:   emitStartState,
 	}
 }
@@ -428,6 +441,19 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 
 // AfterEndBlock specify actions need to do after end block period (app.Hook interface).
 func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci.ResponseEndBlock) {
+	// update group proposals when voting period is end
+	timeBytes := sdk.FormatTimeBytes(ctx.BlockTime().UTC())
+	lenTimeByte := byte(len(timeBytes))
+	prefix := []byte{groupkeeper.ProposalsByVotingPeriodEndPrefix}
+
+	iterator := ctx.KVStore(h.groupStoreKey).
+		Iterator(prefix, sdk.PrefixEndBytes(append(append(prefix, lenTimeByte), timeBytes...)))
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		proposalID, _ := splitKeyWithTime(iterator.Key())
+		h.doUpdateGroupProposal(ctx, proposalID)
+	}
+
 	for _, event := range res.Events {
 		h.handleBeginBlockEndBlockEvent(ctx, event)
 	}

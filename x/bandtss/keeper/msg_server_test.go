@@ -150,7 +150,7 @@ func (s *KeeperTestSuite) TestFailCreateGroup() {
 			},
 			preProcess:  func() {},
 			postProcess: func() {},
-			expectErr:   fmt.Errorf("members can not duplicate"),
+			expectErr:   fmt.Errorf("duplicated member found within the list"),
 		},
 		{
 			name: "threshold more than members length",
@@ -253,7 +253,7 @@ func (s *KeeperTestSuite) TestSuccessReplaceGroup() {
 
 	s.Require().NoError(err)
 	replacement_status := s.app.BandtssKeeper.GetReplacement(ctx).Status
-	s.Require().Equal(types.REPLACEMENT_STATUS_WAITING_SIGNING, replacement_status)
+	s.Require().Equal(types.REPLACEMENT_STATUS_WAITING_SIGN, replacement_status)
 }
 
 func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {

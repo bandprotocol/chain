@@ -4,9 +4,9 @@ const (
 	EventTypeActivate              = "activate"
 	EventTypeHealthCheck           = "health_check"
 	EventTypeInactiveStatus        = "inactive_status"
-	EventTypeFirstGroupCreated     = "first_group_created"
 	EventTypeReplacement           = "replacement"
 	EventTypeSigningRequestCreated = "bandtss_signing_request_created"
+	EventTypeNewGroupActivate      = "new_group_activate"
 
 	AttributeKeyAddress                 = "address"
 	AttributeKeySigningID               = "bandtss_signing_id"
@@ -15,4 +15,7 @@ const (
 	AttributeKeyCurrentGroupSigningID   = "current_group_signing_id"
 	AttributeKeyReplacingGroupSigningID = "replacing_group_signing_id"
 	AttributeKeyReplacementStatus       = "replacement_status"
+	AttributeKeyExecTime                = "exec_time"
+	AttributeKeyGroupID                 = "group_id"
+	AttributeKeyGroupPubKey             = "group_pub_key"
 )

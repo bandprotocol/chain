@@ -24,8 +24,3 @@ func NewSigning(
 		Status:          status,
 	}
 }
-
-// IsFailed check whether the signing is failed due to expired or fail within the execution.
-func (s Signing) IsFailed() bool {
-	return s.Status == SIGNING_STATUS_EXPIRED || s.Status == SIGNING_STATUS_FALLEN
-}

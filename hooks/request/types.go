@@ -245,7 +245,6 @@ func (r Request) QueryRequestResponse() types.QueryRequestResponse {
 		ibcChannel,
 		r.ExecuteGas,
 		0,
-		0,
 		"",
 		nil,
 	)

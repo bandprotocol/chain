@@ -57,7 +57,7 @@ func TestResolveSuccess(t *testing.T) {
 
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
 	k.SetReport(ctx, 42, types.NewReport(bandtesting.Validators[0].ValAddress, true, nil))
-	k.ResolveSuccess(ctx, 42, defaultRequest().Requester, defaultRequest().FeeLimit, BasicResult, 1234, 0, 0)
+	k.ResolveSuccess(ctx, 42, defaultRequest().Requester, defaultRequest().FeeLimit, BasicResult, 1234, 0)
 	require.Equal(t, types.RESOLVE_STATUS_SUCCESS, k.MustGetResult(ctx, 42).ResolveStatus)
 	require.Equal(t, BasicResult, k.MustGetResult(ctx, 42).Result)
 	require.Equal(t, sdk.Events{sdk.NewEvent(

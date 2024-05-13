@@ -210,10 +210,10 @@ func (s *KeeperTestSuite) TestSetGetSignatureCount() {
 
 	// Set initial SigCount
 	initialCount := uint64(5)
-	k.SetSignatureCount(ctx, signingID, initialCount)
+	k.SetPartialSignatureCount(ctx, signingID, initialCount)
 
 	// Get and check SigCount
-	gotCount := k.GetSignatureCount(ctx, signingID)
+	gotCount := k.GetPartialSignatureCount(ctx, signingID)
 	s.Require().Equal(initialCount, gotCount)
 }
 
@@ -223,13 +223,13 @@ func (s *KeeperTestSuite) TestAddSignatureCount() {
 
 	// Set initial SigCount
 	initialCount := uint64(5)
-	k.SetSignatureCount(ctx, signingID, initialCount)
+	k.SetPartialSignatureCount(ctx, signingID, initialCount)
 
 	// Add to SigCount
-	k.AddSignatureCount(ctx, signingID)
+	k.AddPartialSignatureCount(ctx, signingID)
 
 	// Get and check incremented SigCount
-	gotCount := k.GetSignatureCount(ctx, signingID)
+	gotCount := k.GetPartialSignatureCount(ctx, signingID)
 	s.Require().Equal(initialCount+1, gotCount)
 }
 
@@ -239,13 +239,13 @@ func (s *KeeperTestSuite) TestDeleteSignatureCount() {
 
 	// Set initial SigCount
 	initialCount := uint64(5)
-	k.SetSignatureCount(ctx, signingID, initialCount)
+	k.SetPartialSignatureCount(ctx, signingID, initialCount)
 
 	// Delete SigCount
-	k.DeleteSignatureCount(ctx, signingID)
+	k.DeletePartialSignatureCount(ctx, signingID)
 
 	// Get and check SigCount after deletion
-	gotCount := k.GetSignatureCount(ctx, signingID)
+	gotCount := k.GetPartialSignatureCount(ctx, signingID)
 	s.Require().Equal(uint64(0), gotCount) // usually, Get on a non-existing key will return the zero value of the type
 }
 
@@ -277,7 +277,7 @@ func (s *KeeperTestSuite) TestAddPartialSignature() {
 	gotSig, err := k.GetPartialSignature(ctx, signingID, memberID)
 	s.Require().NoError(err)
 	s.Require().Equal(sig, gotSig)
-	gotCount := k.GetSignatureCount(ctx, signingID)
+	gotCount := k.GetPartialSignatureCount(ctx, signingID)
 	s.Require().Equal(uint64(1), gotCount)
 }
 
@@ -361,6 +361,7 @@ func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 			Address:     "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 			PubKey:      nil,
 			IsMalicious: false,
+			IsActive:    true,
 		},
 		{
 			ID:          2,
@@ -368,12 +369,23 @@ func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 			Address:     "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 			PubKey:      nil,
 			IsMalicious: false,
+			IsActive:    true,
 		},
 	}
 	t := uint64(1)
+	de := types.DE{
+		PubD: []byte("D"),
+		PubE: []byte("E"),
+	}
+
+	for _, m := range members {
+		k.SetMember(ctx, m)
+		k.SetDE(ctx, sdk.MustAccAddressFromBech32(m.Address), 1, de)
+		k.SetDEQueue(ctx, types.DEQueue{Address: m.Address, Head: 0, Tail: 1})
+	}
 
 	// Generate random assigned members
-	ams, err := k.GetRandomAssignedMembers(ctx, signingID, members, t)
+	ams, err := k.GetRandomAssignedMembers(ctx, tss.GroupID(1), signingID, t)
 	s.Require().NoError(err)
 
 	// Check that the number of assigned members is correct
@@ -391,20 +403,20 @@ func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 	s.Require().Equal([]types.Member{members[1]}, ams)
 
 	// Test that it returns an error if t > size
-	_, err = k.GetRandomAssignedMembers(ctx, signingID, members, uint64(len(members)+1))
+	_, err = k.GetRandomAssignedMembers(ctx, tss.GroupID(1), signingID, uint64(len(members)+1))
 	s.Require().Error(err)
 }
 
-func (s *KeeperTestSuite) TestHandleAssignedMembers() {
+func (s *KeeperTestSuite) TestAssignedMembers() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
 
 	group := k.MustGetGroup(ctx, 1)
 
-	// Execute HandleAssignedMembers
+	// Execute AssignedMembers
 	msg := []byte("test message") // or any other sample message data
-	assignedMembers, err := k.HandleAssignedMembers(ctx, group, msg)
+	assignedMembers, err := k.AssignMembers(ctx, group, msg)
 	s.Require().NoError(err)
 
 	// Assert that assigned members have the expected properties
@@ -428,7 +440,7 @@ func (s *KeeperTestSuite) TestCreateSigning() {
 	content := types.NewTextSignatureOrder([]byte("example"))
 
 	// execute HandleRequestSign
-	msg, err := k.HandleSigningContent(ctx, content)
+	msg, err := k.ConvertContentToBytes(ctx, content)
 	s.Require().NoError(err)
 
 	signing, err := k.CreateSigning(ctx, group, msg)

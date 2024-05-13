@@ -129,6 +129,9 @@ import (
 	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	bandbank "github.com/bandprotocol/chain/v2/x/bank"
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
+	"github.com/bandprotocol/chain/v2/x/feeds"
+	feedskeeper "github.com/bandprotocol/chain/v2/x/feeds/keeper"
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/globalfee"
 	globalfeekeeper "github.com/bandprotocol/chain/v2/x/globalfee/keeper"
 	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
@@ -190,7 +193,8 @@ var (
 		ica.AppModuleBasic{},
 		oracle.AppModuleBasic{},
 		tss.AppModuleBasic{},
-		bandtss.NewAppModuleBasic(oracleclient.OracleSignatureOrderHandler),
+		bandtss.NewAppModuleBasic(oracleclient.OracleRequestSignatureHandler),
+		feeds.AppModuleBasic{},
 		globalfee.AppModule{},
 	)
 	// module account permissions
@@ -317,6 +321,7 @@ func NewBandApp(
 		oracletypes.StoreKey,
 		tsstypes.StoreKey,
 		bandtsstypes.StoreKey,
+		feedstypes.StoreKey,
 		globalfeetypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -444,10 +449,6 @@ func NewBandApp(
 		homePath,
 		app.BaseApp,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-	)
-
-	app.StakingKeeper.SetHooks(
-		stakingtypes.NewMultiStakingHooks(app.DistrKeeper.Hooks(), app.SlashingKeeper.Hooks()),
 	)
 
 	// create IBC Keeper
@@ -595,12 +596,15 @@ func NewBandApp(
 			app.MintKeeper,
 			app.DistrKeeper,
 			app.GovKeeper,
+			app.GroupKeeper,
 			app.OracleKeeper,
 			app.TSSKeeper,
+			app.BandtssKeeper,
 			app.ICAHostKeeper,
 			app.IBCKeeper.ClientKeeper,
 			app.IBCKeeper.ConnectionKeeper,
 			app.IBCKeeper.ChannelKeeper,
+			keys[group.StoreKey],
 			emitterFlag,
 			false,
 		))
@@ -665,6 +669,21 @@ func NewBandApp(
 	// further handlers to be registered after the keeper is created since this
 	// could create invalid or non-deterministic behavior.
 	tssRouter.Seal()
+	app.FeedsKeeper = feedskeeper.NewKeeper(
+		appCodec,
+		keys[feedstypes.StoreKey],
+		app.OracleKeeper,
+		app.StakingKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
+	app.StakingKeeper.SetHooks(
+		stakingtypes.NewMultiStakingHooks(
+			app.DistrKeeper.Hooks(),
+			app.SlashingKeeper.Hooks(),
+			app.FeedsKeeper.Hooks(),
+		),
+	)
 
 	// Create static IBC router, add transfer route, then set and seal it
 	ibcRouter := porttypes.NewRouter()
@@ -758,6 +777,7 @@ func NewBandApp(
 		oracleModule,
 		tssModule,
 		bandtssModule,
+		feeds.NewAppModule(appCodec, app.FeedsKeeper),
 		globalfee.NewAppModule(app.GlobalfeeKeeper),
 	)
 
@@ -773,6 +793,7 @@ func NewBandApp(
 		oracletypes.ModuleName,
 		tsstypes.ModuleName,
 		bandtsstypes.ModuleName,
+		feedstypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -802,6 +823,7 @@ func NewBandApp(
 		oracletypes.ModuleName,
 		tsstypes.ModuleName,
 		bandtsstypes.ModuleName,
+		feedstypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
@@ -855,6 +877,7 @@ func NewBandApp(
 		oracletypes.ModuleName,
 		tsstypes.ModuleName,
 		bandtsstypes.ModuleName,
+		feedstypes.ModuleName,
 		globalfeetypes.ModuleName,
 	)
 
@@ -901,9 +924,10 @@ func NewBandApp(
 			OracleKeeper:    &app.OracleKeeper,
 			TSSKeeper:       app.TSSKeeper,
 			BandtssKeeper:   app.BandtssKeeper,
+			FeedsKeeper:     &app.FeedsKeeper,
 			IBCKeeper:       app.IBCKeeper,
-			GlobalfeeKeeper: &app.GlobalfeeKeeper,
 			StakingKeeper:   app.StakingKeeper,
+			GlobalfeeKeeper: &app.GlobalfeeKeeper,
 		},
 	)
 	if err != nil {

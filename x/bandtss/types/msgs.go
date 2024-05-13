@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	proto "github.com/cosmos/gogoproto/proto"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -50,35 +50,24 @@ func (m MsgCreateGroup) GetSigners() []sdk.AccAddress {
 func (m MsgCreateGroup) ValidateBasic() error {
 	// Validate members address
 	for _, member := range m.Members {
-		_, err := sdk.AccAddressFromBech32(member)
-		if err != nil {
-			return errors.Wrap(
-				err,
-				fmt.Sprintf("member: %s", member),
-			)
+		if _, err := sdk.AccAddressFromBech32(member); err != nil {
+			return sdkerrors.ErrInvalidAddress.Wrapf("invalid member address: %s", err)
 		}
 	}
 
 	// Check duplicate member
-	if DuplicateInArray(m.Members) {
-		return errors.Wrap(fmt.Errorf("members can not duplicate"), "members")
+	if tsstypes.DuplicateInArray(m.Members) {
+		return ErrMemberDuplicate
 	}
 
 	// Validate sender address
-	_, err := sdk.AccAddressFromBech32(m.Authority)
-	if err != nil {
-		return errors.Wrap(
-			err,
-			fmt.Sprintf("sender: %s", m.Authority),
-		)
+	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
 	}
 
 	// Validate threshold must be less than or equal to members but more than zero
 	if m.Threshold > uint64(len(m.Members)) || m.Threshold <= 0 {
-		return errors.Wrap(
-			fmt.Errorf("threshold must be less than or equal to the members but more than zero"),
-			"threshold",
-		)
+		return ErrInvalidSigningThreshold.Wrapf("threshold must be less than or equal to the members but more than zero")
 	}
 
 	return nil
@@ -86,7 +75,6 @@ func (m MsgCreateGroup) ValidateBasic() error {
 
 // NewMsgReplaceGroup creates a new MsgReplaceGroup instance.
 func NewMsgReplaceGroup(
-	currentGroupID tss.GroupID,
 	newGroupID tss.GroupID,
 	execTime time.Time,
 	authority string,
@@ -114,12 +102,8 @@ func (m MsgReplaceGroup) GetSigners() []sdk.AccAddress {
 // ValidateBasic does a sanity check on the provided data
 func (m MsgReplaceGroup) ValidateBasic() error {
 	// Validate sender address
-	_, err := sdk.AccAddressFromBech32(m.Authority)
-	if err != nil {
-		return errors.Wrap(
-			err,
-			fmt.Sprintf("sender: %s", m.Authority),
-		)
+	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
 	}
 
 	return nil
@@ -167,9 +151,8 @@ func (m MsgRequestSignature) GetSigners() []sdk.AccAddress {
 // ValidateBasic does a sanity check on the provided data
 func (m MsgRequestSignature) ValidateBasic() error {
 	// Validate sender address
-	_, err := sdk.AccAddressFromBech32(m.Sender)
-	if err != nil {
-		return errors.Wrap(err, "sender")
+	if _, err := sdk.AccAddressFromBech32(m.Sender); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
 	}
 
 	return nil
@@ -218,9 +201,8 @@ func (m MsgActivate) GetSigners() []sdk.AccAddress {
 // ValidateBasic does a sanity check on the provided data
 func (m MsgActivate) ValidateBasic() error {
 	// Validate member address
-	_, err := sdk.AccAddressFromBech32(m.Address)
-	if err != nil {
-		return errors.Wrap(err, "member")
+	if _, err := sdk.AccAddressFromBech32(m.Address); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
 	return nil
@@ -249,9 +231,8 @@ func (m MsgHealthCheck) GetSigners() []sdk.AccAddress {
 // ValidateBasic does a sanity check on the provided data
 func (m MsgHealthCheck) ValidateBasic() error {
 	// Validate member address
-	_, err := sdk.AccAddressFromBech32(m.Address)
-	if err != nil {
-		return errors.Wrap(err, "member")
+	if _, err := sdk.AccAddressFromBech32(m.Address); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
 	return nil
@@ -281,7 +262,7 @@ func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
 // ValidateBasic does a sanity check on the provided data.
 func (m *MsgUpdateParams) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
-		return errors.Wrap(err, "invalid authority address")
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
 	}
 
 	if err := m.Params.Validate(); err != nil {

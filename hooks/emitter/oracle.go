@@ -172,7 +172,6 @@ func (h *Hook) handleMsgRequestData(
 		"ask_count":        msg.AskCount,
 		"min_count":        msg.MinCount,
 		"sender":           msg.Sender,
-		"tss_group_id":     msg.TSSGroupID,
 		"client_id":        msg.ClientID,
 		"resolve_status":   types.RESOLVE_STATUS_OPEN,
 		"timestamp":        ctx.BlockTime().UnixNano(),

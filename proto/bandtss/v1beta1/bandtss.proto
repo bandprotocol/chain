@@ -17,7 +17,7 @@ message Member {
   string address = 1;
   // is_active is a flag to indicate whether a member is active or not.
   bool is_active = 2;
-  // since is a block timestamp when a member has been activated/deactivated/jailed
+  // since is a block timestamp when a member is deactivated
   google.protobuf.Timestamp since = 3 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
   // last_active is a latest block timestamp when a member is active
   google.protobuf.Timestamp last_active = 4 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
@@ -32,14 +32,14 @@ message Signing {
   // fee is the tokens that will be paid per signer for this bandtss signing.
   repeated cosmos.base.v1beta1.Coin fee = 2
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
-  // requester is the address of requester who paid for the Bandtss signing.
+  // requester is the address who pays the Bandtss signing.
   string requester = 3;
   // current_group_signing_id is a tss signing ID of a current group.
   uint64 current_group_signing_id = 4 [
     (gogoproto.customname) = "CurrentGroupSigningID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
   ];
-  // replacing_group_signing_id is a tss signing ID of the replacing group.
+  // replacing_group_signing_id is a tss signing ID of a replacing group, if any.
   uint64 replacing_group_signing_id = 5 [
     (gogoproto.customname) = "ReplacingGroupSigningID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
@@ -78,11 +78,11 @@ enum ReplacementStatus {
 
   // REPLACEMENT_STATUS_UNSPECIFIED is the status of a group replacement that has not been specified.
   REPLACEMENT_STATUS_UNSPECIFIED = 0;
-  // REPLACEMENT_STATUS_WAITING_SIGNING is the status of a group replacement that is waiting 
-  // current group to sign the replacement message.
-  REPLACEMENT_STATUS_WAITING_SIGNING = 1;
-  // REPLACEMENT_STATUS_WAITING_REPLACE is the status of a group replacement that is waiting 
-  // to be replaced in the protocol.
+  // REPLACEMENT_STATUS_WAITING_SIGN is the status of a group replacement that waits members in 
+  // a current group to sign the replacement message.
+  REPLACEMENT_STATUS_WAITING_SIGN = 1;
+  // REPLACEMENT_STATUS_WAITING_REPLACE is the status of a group replacement that a current group 
+  // approved to be replaced but waits for the replacement to be executed.
   REPLACEMENT_STATUS_WAITING_REPLACE = 2;
   // REPLACEMENT_STATUS_SUCCESS is the status of a group replacement that has success in the protocol.
   REPLACEMENT_STATUS_SUCCESS = 3;

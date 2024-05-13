@@ -19,7 +19,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 )
 
-// NOTE: cannot put suite.Suite inside this struct, or else the test get timeout.
+// TestSuite is a struct that embeds a *testing.T and provides a setup for a mock keeper
 type TestSuite struct {
 	t           *testing.T
 	Keeper      *keeper.Keeper
@@ -36,6 +36,7 @@ type TestSuite struct {
 	Authority sdk.AccAddress
 }
 
+// NewTestSuite returns a new TestSuite object
 func NewTestSuite(t *testing.T) TestSuite {
 	ctrl := gomock.NewController(t)
 	key := sdk.NewKVStoreKey(types.StoreKey)

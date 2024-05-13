@@ -8,7 +8,6 @@ func NewGenesisState(
 	members []Member,
 	signingCount uint64,
 	signings []Signing,
-	deQueues []DEQueue,
 	desGenesis []DEGenesis,
 ) *GenesisState {
 	return &GenesisState{
@@ -18,7 +17,6 @@ func NewGenesisState(
 		Members:      members,
 		SigningCount: signingCount,
 		Signings:     signings,
-		DEQueues:     deQueues,
 		DEsGenesis:   desGenesis,
 	}
 }
@@ -32,7 +30,6 @@ func DefaultGenesisState() *GenesisState {
 		[]Member{},
 		0,
 		[]Signing{},
-		[]DEQueue{},
 		[]DEGenesis{},
 	)
 }

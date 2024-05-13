@@ -18,7 +18,7 @@ func defaultRequest() types.Request {
 		BasicClientID, []types.RawRequest{
 			types.NewRawRequest(42, 1, BasicCalldata),
 			types.NewRawRequest(43, 2, BasicCalldata),
-		}, nil, 0, 0, 0,
+		}, nil, 0, 0,
 		bandtesting.FeePayer.Address.String(),
 		bandtesting.Coins100000000uband,
 	)

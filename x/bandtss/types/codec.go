@@ -10,12 +10,12 @@ import (
 // RegisterLegacyAminoCodec registers the necessary x/bandtss interfaces and concrete types
 // on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	legacy.RegisterAminoMsg(cdc, &MsgCreateGroup{}, "bandtss/CreateGroup")
-	legacy.RegisterAminoMsg(cdc, &MsgReplaceGroup{}, "bandtss/ReplaceGroup")
-	legacy.RegisterAminoMsg(cdc, &MsgRequestSignature{}, "bandtss/RequestSignature")
-	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "bandtss/Activate")
-	legacy.RegisterAminoMsg(cdc, &MsgHealthCheck{}, "bandtss/HealthCheck")
-	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "bandtss/UpdateParams")
+	legacy.RegisterAminoMsg(cdc, &MsgCreateGroup{}, "bandtss/MsgCreateGroup")
+	legacy.RegisterAminoMsg(cdc, &MsgReplaceGroup{}, "bandtss/MsgReplaceGroup")
+	legacy.RegisterAminoMsg(cdc, &MsgRequestSignature{}, "bandtss/MsgRequestSignature")
+	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "bandtss/MsgActivate")
+	legacy.RegisterAminoMsg(cdc, &MsgHealthCheck{}, "bandtss/MsgHealthCheck")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "bandtss/MsgUpdateParams")
 }
 
 // RegisterInterfaces register the bandtss module interfaces to protobuf Any.
@@ -30,18 +30,14 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	)
 }
 
-// RegisterRequestSignatureTypeCodec registers an external signature request type defined
-// in another module for the internal ModuleCdc. This allows the MsgRequestSignature
-// to be correctly Amino encoded and decoded.
-//
-// NOTE: This should only be used for applications that are still using a concrete
-// Amino codec for serialization.
-func RegisterSignatureOrderTypeCodec(o interface{}, name string) {
-	amino.RegisterConcrete(o, name, nil)
-}
-
 var (
-	amino     = codec.NewLegacyAmino()
+	amino = codec.NewLegacyAmino()
+
+	// ModuleCdc references the global x/bandtss module codec. Note, the codec
+	// should ONLY be used in certain instances of tests and for JSON encoding.
+	//
+	// The actual codec used for serialization should be provided to x/bandtss and
+	// defined at the application level
 	ModuleCdc = codec.NewAminoCodec(amino)
 )
 

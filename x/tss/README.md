@@ -102,7 +102,7 @@ var (
 	DEStoreKeyPrefix = []byte{0x0c}
 	DEQueueStoreKeyPrefix = []byte{0x0d}
 	SigningStoreKeyPrefix = []byte{0x0e}
-	SigCountStoreKeyPrefix = []byte{0x0f}
+	PartialSignatureCountStoreKeyPrefix = []byte{0x0f}
 	PartialSignatureStoreKeyPrefix = []byte{0x10}
 	ParamsKeyPrefix = []byte{0x11}
 )

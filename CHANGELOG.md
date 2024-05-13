@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- (bump) Use go 1.22.3
 - (bump) Use cosmos-sdk package v0.47.11 / ibc-go v7.4.0
 - (bump) replace github.com/tendermint/tendermint by github.com/cometbft/cometbft v0.37.5
 - (bump) migrated from gogo/protobuf to cosmos/gogoproto
@@ -17,12 +18,15 @@
 - (chain) Migrate REST Endpoint to GRPC
 - (chain) update oracle params to support cosmos-sdk 0.47
 - (chain) Add consensus module to handle managing Tendermint consensus parameters
+- (chain) Support tss feature
+- (chain) Add tss (threshold signature scheme) feature for signing an oracle data.
+- (cylinder) provide a new service for supporting tss process
 
 ## [v2.5.3](https://github.com/bandprotocol/chain/releases/tag/v2.5.3)
 
 - (bump) Use cometbft v0.34.29
 - (yoda) Get information of requests through endpoint instead of events
-  
+
 ## [v2.5.2](https://github.com/bandprotocol/chain/releases/tag/v2.5.2)
 
 - (bump) Use cosmos-sdk v0.45.16 / ibc-go v4.3.1 / cometbft v0.34.28

@@ -18,16 +18,16 @@ service Msg {
   // CreateGroup creates a new group with a list of members.
   rpc CreateGroup(MsgCreateGroup) returns (MsgCreateGroupResponse);
 
-  // ReplaceGroup replaces the group with another group.
+  // ReplaceGroup replaces the current group with another group.
   rpc ReplaceGroup(MsgReplaceGroup) returns (MsgReplaceGroupResponse);
 
   // RequestSignature submits a general message to be signed by a specific group.
   rpc RequestSignature(MsgRequestSignature) returns (MsgRequestSignatureResponse);
 
-  // Activate activates the status of the group's member.
+  // Activate activates the status of the sender.
   rpc Activate(MsgActivate) returns (MsgActivateResponse);
 
-  // HealthCheck marks last active of the mebmer.
+  // HealthCheck marks last active of the sender.
   rpc HealthCheck(MsgHealthCheck) returns (MsgHealthCheckResponse);
 
   // UpdateParams updates the x/bandtss parameters.
@@ -55,7 +55,7 @@ message MsgReplaceGroup {
   option (cosmos.msg.v1.signer) = "authority";
   option (amino.name)           = "bandtss/MsgReplaceGroup";
 
-  // new_group_id is the ID of the group that want to replace, and subsequently remove this group.
+  // new_group_id is the ID of the group that want to replace.
   uint64 new_group_id = 1 [
     (gogoproto.customname) = "NewGroupID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
@@ -87,7 +87,7 @@ message MsgRequestSignature {
 // MsgRequestSignatureResponse is response data for MsgRequestSignature message
 message MsgRequestSignatureResponse {}
 
-// MsgActivate is a message used to activate the status of the group's address.
+// MsgActivate is a message used to activate the status of the sender.
 message MsgActivate {
   option (cosmos.msg.v1.signer) = "address";
   option (amino.name)           = "bandtss/MsgActivate";
@@ -99,7 +99,7 @@ message MsgActivate {
 // MsgActivateResponse is response data for MsgActivate message
 message MsgActivateResponse {}
 
-// MsgHealthCheck is a message used to show active status if the address is still active.
+// MsgHealthCheck is a message used to show if the address is still active.
 message MsgHealthCheck {
   option (cosmos.msg.v1.signer) = "address";
   option (amino.name)           = "bandtss/MsgHealthCheck";
@@ -118,10 +118,9 @@ message MsgUpdateParams {
 
   // params defines the x/tss parameters to update.
   Params params = 1 [(gogoproto.nullable) = false];
-  // authority is the address of the governance account.
+  // authority is the address that controls the module (defaults to x/gov unless overwritten).
   string authority = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// MsgUpdateParamsResponse defines the response structure for executing a
-// MsgUpdateParams message.
+// MsgUpdateParamsResponse defines the response structure for executing a MsgUpdateParams message.
 message MsgUpdateParamsResponse {}

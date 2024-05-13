@@ -1,17 +1,20 @@
 package types
 
 import (
-	"fmt"
-
-	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 )
 
 var (
-	_, _, _, _ sdk.Msg = &MsgSubmitDKGRound1{}, &MsgSubmitDKGRound2{}, &MsgComplain{}, &MsgConfirm{}
-	_, _, _    sdk.Msg = &MsgSubmitDEs{}, &MsgSubmitSignature{}, &MsgUpdateParams{}
+	_ sdk.Msg = &MsgSubmitDKGRound1{}
+	_ sdk.Msg = &MsgSubmitDKGRound2{}
+	_ sdk.Msg = &MsgComplain{}
+	_ sdk.Msg = &MsgConfirm{}
+	_ sdk.Msg = &MsgSubmitDEs{}
+	_ sdk.Msg = &MsgSubmitSignature{}
+	_ sdk.Msg = &MsgUpdateParams{}
 )
 
 // NewMsgSubmitDKGRound1 creates a new MsgSubmitDKGRound1 instance.
@@ -39,31 +42,30 @@ func (m MsgSubmitDKGRound1) GetSigners() []sdk.AccAddress {
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSubmitDKGRound1) ValidateBasic() error {
 	// Validate member address
-	_, err := sdk.AccAddressFromBech32(m.Address)
-	if err != nil {
-		return errors.Wrap(err, "member")
+	if _, err := sdk.AccAddressFromBech32(m.Address); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
 	}
 
 	// Validate coefficients commit
 	for _, c := range m.Round1Info.CoefficientCommits {
 		if err := c.Validate(); err != nil {
-			return errors.Wrap(err, "coefficients commit")
+			return ErrInvalidCoefficientCommit.Wrapf("invalid coefficient commit: %s", err)
 		}
 	}
 
 	// Validate one time pub key
 	if err := m.Round1Info.OneTimePubKey.Validate(); err != nil {
-		return errors.Wrap(err, "one time pub key")
+		return ErrInvalidPublicKey.Wrapf("invalid one-time public key: %s", err)
 	}
 
 	// Validate a0 signature
 	if err := m.Round1Info.A0Signature.Validate(); err != nil {
-		return errors.Wrap(err, "a0 sig")
+		return ErrInvalidSignature.Wrapf("invalid a0 signature: %s", err)
 	}
 
 	// Validate one time signature
 	if err := m.Round1Info.OneTimeSignature.Validate(); err != nil {
-		return errors.Wrap(err, "one time sig")
+		return ErrInvalidSignature.Wrapf("invalid one-time signature: %s", err)
 	}
 
 	return nil
@@ -94,15 +96,14 @@ func (m MsgSubmitDKGRound2) GetSigners() []sdk.AccAddress {
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSubmitDKGRound2) ValidateBasic() error {
 	// Validate member address
-	_, err := sdk.AccAddressFromBech32(m.Address)
-	if err != nil {
-		return errors.Wrap(err, "member")
+	if _, err := sdk.AccAddressFromBech32(m.Address); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
 	// Validate encrypted secret shares
 	for i, ess := range m.Round2Info.EncryptedSecretShares {
 		if err := ess.Validate(); err != nil {
-			return errors.Wrap(err, fmt.Sprintf("encrypted secret shares at index: %d", i))
+			return ErrInvalidSecretShare.Wrapf("encrypted secret shares at index %d: %s", i, err)
 		}
 	}
 
@@ -134,14 +135,13 @@ func (m MsgComplain) GetSigners() []sdk.AccAddress {
 // ValidateBasic does a sanity check on the provided data
 func (m MsgComplain) ValidateBasic() error {
 	// Validate member address
-	_, err := sdk.AccAddressFromBech32(m.Address)
-	if err != nil {
-		return errors.Wrap(err, "member")
+	if _, err := sdk.AccAddressFromBech32(m.Address); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
 	// Validate complaints size
 	if len(m.Complaints) < 1 {
-		return errors.Wrap(fmt.Errorf("must contain at least one complaint"), "complaints")
+		return ErrInvalidComplaint.Wrapf("must contain at least one complaint")
 	}
 
 	// Validate complaints
@@ -149,28 +149,22 @@ func (m MsgComplain) ValidateBasic() error {
 	for i, c := range m.Complaints {
 		// Validate member complainant
 		if i > 0 && memberI != c.Complainant {
-			return errors.Wrap(
-				fmt.Errorf("memberID complainant in the list of complaints must be the same value"),
-				"complainant",
-			)
+			return ErrInvalidComplaint.Wrapf("memberID complainant in the list of complaints must be the same value")
 		}
 
 		// Validate member complainant and respondent
 		if c.Complainant == c.Respondent {
-			return errors.Wrap(
-				fmt.Errorf("memberID complainant and respondent can not be the same value"),
-				"complainant, respondent",
-			)
+			return ErrInvalidComplaint.Wrapf("memberID complainant and respondent can not be the same value")
 		}
 
 		// Validate key sym
 		if err := c.KeySym.Validate(); err != nil {
-			return errors.Wrap(err, "key sym")
+			return ErrInvalidSymmetricKey.Wrapf("invalid symmetric key: %s", err)
 		}
 
 		// Validate signature
 		if err := c.Signature.Validate(); err != nil {
-			return errors.Wrap(err, "signature")
+			return ErrInvalidSignature.Wrapf("invalid signature: %s", err)
 		}
 	}
 
@@ -208,14 +202,13 @@ func (m MsgConfirm) GetSigners() []sdk.AccAddress {
 // ValidateBasic does a sanity check on the provided data
 func (m MsgConfirm) ValidateBasic() error {
 	// Validate member address
-	_, err := sdk.AccAddressFromBech32(m.Address)
-	if err != nil {
-		return errors.Wrap(err, "member")
+	if _, err := sdk.AccAddressFromBech32(m.Address); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
 	// Validate own pub key sig
-	if err = m.OwnPubKeySig.Validate(); err != nil {
-		return errors.Wrap(err, "own pub key sig")
+	if err := m.OwnPubKeySig.Validate(); err != nil {
+		return ErrInvalidPublicKey.Wrapf("invalid own public key signature: %s", err)
 	}
 
 	return nil
@@ -245,21 +238,20 @@ func (m MsgSubmitDEs) GetSigners() []sdk.AccAddress {
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSubmitDEs) ValidateBasic() error {
 	// Validate member address
-	_, err := sdk.AccAddressFromBech32(m.Address)
-	if err != nil {
-		return errors.Wrap(err, "member")
+	if _, err := sdk.AccAddressFromBech32(m.Address); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
 	// Validate DEs
 	for i, de := range m.DEs {
 		// Validate public key D
-		if err = de.PubD.Validate(); err != nil {
-			return errors.Wrap(err, fmt.Sprintf("pub D in DE index: %d", i))
+		if err := de.PubD.Validate(); err != nil {
+			return ErrInvalidDE.Wrapf("pub D in DE index %d: %s", i, err)
 		}
 
 		// Validate public key E
-		if err = de.PubE.Validate(); err != nil {
-			return errors.Wrap(err, fmt.Sprintf("pub E in DE index: %d", i))
+		if err := de.PubE.Validate(); err != nil {
+			return ErrInvalidDE.Wrapf("pub E in DE index %d: %s", i, err)
 		}
 	}
 
@@ -297,14 +289,13 @@ func (m MsgSubmitSignature) GetSigners() []sdk.AccAddress {
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSubmitSignature) ValidateBasic() error {
 	// Validate member address
-	_, err := sdk.AccAddressFromBech32(m.Address)
-	if err != nil {
-		return errors.Wrap(err, "member")
+	if _, err := sdk.AccAddressFromBech32(m.Address); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
 	// Validate member signature
-	if err = m.Signature.Validate(); err != nil {
-		return errors.Wrap(err, "signature")
+	if err := m.Signature.Validate(); err != nil {
+		return ErrInvalidSignature.Wrapf("invalid signature :%s", err)
 	}
 
 	return nil
@@ -334,7 +325,7 @@ func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
 // ValidateBasic does a sanity check on the provided data.
 func (m *MsgUpdateParams) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
-		return errors.Wrap(err, "invalid authority address")
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
 	}
 
 	if err := m.Params.Validate(); err != nil {
