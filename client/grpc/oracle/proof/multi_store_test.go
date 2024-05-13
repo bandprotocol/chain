@@ -12,41 +12,41 @@ import (
 /*
 query at localhost:26657/abci_query?path="/store/oracle/key"&data=0xc000000000000000&prove=true
 {
-    "jsonrpc": "2.0",
-    "id": -1,
-    "result": {
-        "response": {
-            "code": 0,
-            "log": "",
-            "info": "",
-            "index": "0",
+  "jsonrpc": "2.0",
+  "id": -1,
+  "result": {
+    "response": {
+      "code": 0,
+      "log": "",
+      "info": "",
+      "index": "0",
+      "key": "wAAAAAAAAAA=",
+      "value": null,
+      "proofOps": {
+        "ops": [
+          {
+            "type": "ics23:iavl",
             "key": "wAAAAAAAAAA=",
-            "value": null,
-            "proofOps": {
-                "ops": [
-                    {
-                        "type": "ics23:iavl",
-                        "key": "wAAAAAAAAAA=",
-                        "data": "EtsCCgjAAAAAAAAAABKyAQoBBhIdCBAQEBiAAiCABChkMNCGA0ADSChQgOCllrsRWAEaCwgBGAEgASoDAAICIisIARIEAgQCIBohIOtzm7IvSLfzBTqQuiuk/gf6smLK34ZkSJVlxQ/1Bbi9IikIARIlBAYCIDj1W5djJSu7VMElKi6joXfpQCF9Wk/aOzZIKpCY6Ra2ICIpCAESJQYOBCCKaIo830SxbCL1Qk0rvRoWDuKiCxVidDRpX7yqJwZ6YCAamQEKAfASBm9yYWNsZRoLCAEYASABKgMAAgIiKQgBEiUCBAIgdi5vAneYh9+6Qc3ngEMlnwHOKVsdj3MA1Y18Q0Sfv1ggIikIARIlBAYCIDj1W5djJSu7VMElKi6joXfpQCF9Wk/aOzZIKpCY6Ra2ICIpCAESJQYOBCCKaIo830SxbCL1Qk0rvRoWDuKiCxVidDRpX7yqJwZ6YCA="
-                    },
-                    {
-                        "type": "ics23:simple",
-                        "key": "b3JhY2xl",
-                        "data": "CvoBCgZvcmFjbGUSIKOu1UEe8Quc2EL/1+wv12JvlreYOeYIttnz9IEULBF5GgkIARgBIAEqAQAiJQgBEiEBszziiEyGhp8/QWWNpdXqtweFbE6u087DWf5LXq0L+TIiJQgBEiEB3e3II3T8dhCPmDUxvJ1pJX5rydODMevJMyFcgoCkKOoiJQgBEiEB8sFioDJU8QbQ8eoWJa4ohiwrc28YRUAmyvF9anblxgAiJQgBEiEBXRVe5Pdw6aqG0QqzJ4R7u9yNwbcffW/0DrPxR6fSMMQiJwgBEgEBGiCRUnPfxybN1OikJ39IxNDtLuhkE5ECBhk0Y7pLsCJcLQ=="
-                    }
-                ]
-            },
-            "height": "2813",
-            "codespace": ""
-        }
+            "data": "EtsCCgjAAAAAAAAAABKyAQoBBhIdCBAQEBiAAiCABChkMNCGA0ADSChQgOCllrsRWAEaCwgBGAEgASoDAAICIisIARIEAgQCIBohIOtzm7IvSLfzBTqQuiuk/gf6smLK34ZkSJVlxQ/1Bbi9IikIARIlBAYCIDj1W5djJSu7VMElKi6joXfpQCF9Wk/aOzZIKpCY6Ra2ICIpCAESJQYOCCCtJh9hnFH+nCXUc/vv3W7QfQEwx0Ubf2Lxg+N9C127iCAamQEKAfASBm9yYWNsZRoLCAEYASABKgMAAgIiKQgBEiUCBAIgdi5vAneYh9+6Qc3ngEMlnwHOKVsdj3MA1Y18Q0Sfv1ggIikIARIlBAYCIDj1W5djJSu7VMElKi6joXfpQCF9Wk/aOzZIKpCY6Ra2ICIpCAESJQYOCCCtJh9hnFH+nCXUc/vv3W7QfQEwx0Ubf2Lxg+N9C127iCA="
+          },
+          {
+            "type": "ics23:simple",
+            "key": "b3JhY2xl",
+            "data": "Cv4BCgZvcmFjbGUSIKXZZIz6tibuBT/XZFlzvARMvAYUk9E9+irQmktTAc7TGgkIARgBIAEqAQAiJQgBEiEBBTl35L9FDWYOYAUJrkHLr8meoEluSU1g2NfAFCU8a3YiJwgBEgEBGiBV7R+2oGZxTGgzi2R7nTnYoaOt3XoszZUxlOmUxW4YCyInCAESAQEaIOzLegRHxMW0Unv0rFaJyJMuGuReOkAl0zrnevlu2LQ+IicIARIBARog35ba8pwX7BvU9VCfJzDMfY/V9uM4X7KOGVmjRaQvfCEiJQgBEiEBmk6jPft10k6/2duBuAdRbAGsRYdAoafrTV4fKNydPoA="
+          }
+        ]
+      },
+      "height": "4",
+      "codespace": ""
     }
+  }
 }
 */
 
 func TestGetMultiStoreProof(t *testing.T) {
 	key := []byte("oracle")
 	data := base64ToBytes(
-		"CvoBCgZvcmFjbGUSIKOu1UEe8Quc2EL/1+wv12JvlreYOeYIttnz9IEULBF5GgkIARgBIAEqAQAiJQgBEiEBszziiEyGhp8/QWWNpdXqtweFbE6u087DWf5LXq0L+TIiJQgBEiEB3e3II3T8dhCPmDUxvJ1pJX5rydODMevJMyFcgoCkKOoiJQgBEiEB8sFioDJU8QbQ8eoWJa4ohiwrc28YRUAmyvF9anblxgAiJQgBEiEBXRVe5Pdw6aqG0QqzJ4R7u9yNwbcffW/0DrPxR6fSMMQiJwgBEgEBGiCRUnPfxybN1OikJ39IxNDtLuhkE5ECBhk0Y7pLsCJcLQ==",
+		"Cv4BCgZvcmFjbGUSIKXZZIz6tibuBT/XZFlzvARMvAYUk9E9+irQmktTAc7TGgkIARgBIAEqAQAiJQgBEiEBBTl35L9FDWYOYAUJrkHLr8meoEluSU1g2NfAFCU8a3YiJwgBEgEBGiBV7R+2oGZxTGgzi2R7nTnYoaOt3XoszZUxlOmUxW4YCyInCAESAQEaIOzLegRHxMW0Unv0rFaJyJMuGuReOkAl0zrnevlu2LQ+IicIARIBARog35ba8pwX7BvU9VCfJzDMfY/V9uM4X7KOGVmjRaQvfCEiJQgBEiEBmk6jPft10k6/2duBuAdRbAGsRYdAoafrTV4fKNydPoA=",
 	)
 
 	var multistoreOps storetypes.CommitmentOp
@@ -71,20 +71,20 @@ func TestGetMultiStoreProof(t *testing.T) {
 	prefix = append(prefix, 32)     // size of result hash must be 32
 
 	apphash := innerHash(
+		m.AuthToIcahostStoresMerkleHash,
 		innerHash(
-			m.AuthToEvidenceStoresMerkleHash,
 			innerHash(
-				m.FeegrantToGroupStoresMerkleHash,
 				innerHash(
-					m.IbcToIcahostStoresMerkleHash,
 					innerHash(
 						m.MintStoreMerkleHash,
 						leafHash(append(prefix, tmhash.Sum(m.OracleIAVLStateHash)...)),
 					),
+					m.ParamsToRollingseedStoresMerkleHash,
 				),
+				m.SlashingToTssStoresMerkleHash,
 			),
+			m.UpgradeStoreMerkleHash,
 		),
-		m.ParamsToUpgradeStoresMerkleHash,
 	)
 
 	require.Equal(t, expectAppHash, apphash)

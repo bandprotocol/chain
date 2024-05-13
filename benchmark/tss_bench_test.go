@@ -7,7 +7,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
@@ -26,17 +25,11 @@ var RequestSignCases = map[string]struct {
 func BenchmarkRequestSignatureDeliver(b *testing.B) {
 	for name, tc := range RequestSignCases {
 		for _, blen := range tc.byteLength {
-			b.Run(fmt.Sprintf(
-				"%s (byte_length: %d)",
-				name,
-				blen,
-			), func(b *testing.B) {
+			b.Run(fmt.Sprintf("%s (byte_length: %d)", name, blen), func(b *testing.B) {
 				ba := InitializeBenchmarkApp(b, -1)
-
 				ba.SetupTSSGroup()
 
 				msg := MockByte(blen)
-
 				txs := GenSequenceOfTxs(
 					ba.TxConfig,
 					GenMsgRequestSignature(
@@ -73,13 +66,8 @@ func BenchmarkRequestSignatureDeliver(b *testing.B) {
 func BenchmarkSubmitSignatureDeliver(b *testing.B) {
 	for name, tc := range RequestSignCases {
 		for _, blen := range tc.byteLength {
-			b.Run(fmt.Sprintf(
-				"%s (byte_length: %d)",
-				name,
-				blen,
-			), func(b *testing.B) {
+			b.Run(fmt.Sprintf("%s (byte_length: %d)", name, blen), func(b *testing.B) {
 				ba := InitializeBenchmarkApp(b, -1)
-
 				ba.SetupTSSGroup()
 
 				ba.CallBeginBlock()
@@ -90,12 +78,14 @@ func BenchmarkSubmitSignatureDeliver(b *testing.B) {
 
 				// deliver MsgSubmitSignature to the block
 				for i := 0; i < b.N; i++ {
+					gid := ba.BandtssKeeper.GetCurrentGroupID(ba.Ctx)
+					require.NotZero(b, gid)
+
 					// generate tx
 					txs := ba.HandleGenPendingSignTxs(
-						ba.Gid,
+						gid,
 						tsstypes.NewTextSignatureOrder(msg),
 						tc.feeLimit,
-						testutil.TestCases,
 					)
 
 					b.StartTimer()
@@ -117,13 +107,8 @@ func BenchmarkSubmitSignatureDeliver(b *testing.B) {
 func BenchmarkEndBlockHandleProcessSigning(b *testing.B) {
 	for name, tc := range RequestSignCases {
 		for _, blen := range tc.byteLength {
-			b.Run(fmt.Sprintf(
-				"%s (byte_length: %d)",
-				name,
-				blen,
-			), func(b *testing.B) {
+			b.Run(fmt.Sprintf("%s (byte_length: %d)", name, blen), func(b *testing.B) {
 				ba := InitializeBenchmarkApp(b, -1)
-
 				ba.SetupTSSGroup()
 
 				b.ResetTimer()
@@ -135,16 +120,23 @@ func BenchmarkEndBlockHandleProcessSigning(b *testing.B) {
 				for i := 0; i < b.N; i++ {
 					ba.CallBeginBlock()
 
+					gid := ba.BandtssKeeper.GetCurrentGroupID(ba.Ctx)
+					require.NotZero(b, gid)
+
 					// generate tx
 					ba.RequestSignature(ba.Sender, tsstypes.NewTextSignatureOrder(msg), tc.feeLimit)
 
 					// everyone submit signature
-					txs := ba.GetPendingSignTxs(ba.Gid, testutil.TestCases)
+					txs := ba.GetPendingSignTxs(gid)
 					for _, tx := range txs {
 						_, _, err := ba.CallDeliver(tx)
 						require.NoError(b, err)
 					}
-					ba.AddDEs(ba.Gid)
+
+					members := ba.TSSKeeper.MustGetMembers(ba.Ctx, gid)
+					for _, m := range members {
+						ba.AddDEs(sdk.MustAccAddressFromBech32(m.Address))
+					}
 
 					b.StartTimer()
 					ba.CallEndBlock()

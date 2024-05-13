@@ -15,7 +15,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/spf13/cobra"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
 	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -31,7 +30,6 @@ const (
 	flagSourceCodeURL = "url"
 	flagPrepareGas    = "prepare-gas"
 	flagExecuteGas    = "execute-gas"
-	flagTSSGroupID    = "tss-group-id"
 	flagTSSEncodeType = "tss-encode-type"
 	flagFeeLimit      = "fee-limit"
 	flagFee           = "fee"
@@ -129,11 +127,6 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 				return err
 			}
 
-			tssGroupID, err := cmd.Flags().GetUint64(flagTSSGroupID)
-			if err != nil {
-				return err
-			}
-
 			tssEncodeType, err := cmd.Flags().GetInt32(flagTSSEncodeType)
 			if err != nil {
 				return err
@@ -149,7 +142,6 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 				prepareGas,
 				executeGas,
 				clientCtx.GetFromAddress(),
-				tss.GroupID(tssGroupID),
 				types.EncodeType(tssEncodeType),
 			)
 
@@ -167,7 +159,6 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 	cmd.Flags().Uint64(flagExecuteGas, 300000, "Execute gas used in fee counting for execute request")
 	cmd.Flags().
 		String(flagFeeLimit, "", "The maximum tokens paid to all data source and TSS signature providers, if any")
-	cmd.Flags().Uint64(flagTSSGroupID, 0, "The TSS group that is requested to sign the oracle result data")
 	cmd.Flags().
 		Int32(flagTSSEncodeType, 0, "The encode type of oracle result that will be sent to TSS (1=proto, 2=ABI, 3=Partial ABI)")
 
@@ -699,12 +690,12 @@ $ %s tx oracle remove-reporters band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band
 func GetCmdRequestSignature() *cobra.Command {
 	return &cobra.Command{
 		Use:   "oracle-result [request-id] [encode-type]",
-		Short: "Request TSS signature from request id",
+		Short: "Request bandtss signature from oracle request id",
 		Args:  cobra.ExactArgs(2),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Request signature from request id.
 Example:
-$ %s tx tss request-signature oracle-result 1 --fee-limit 10uband
+$ %s tx bandtss request-signature oracle-result 1 --fee-limit 10uband
 `,
 				version.AppName,
 			),
@@ -723,6 +714,9 @@ $ %s tx tss request-signature oracle-result 1 --fee-limit 10uband
 			encodeType, err := strconv.ParseInt(args[1], 10, 32)
 			if err != nil {
 				return err
+			}
+			if encodeType == int64(types.ENCODE_TYPE_UNSPECIFIED) {
+				return types.ErrInvalidOracleEncodeType
 			}
 
 			coinStr, err := cmd.Flags().GetString(flagFeeLimit)

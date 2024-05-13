@@ -13,10 +13,10 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
+	bandtssclient "github.com/bandprotocol/chain/v2/x/bandtss/client"
 	"github.com/bandprotocol/chain/v2/x/bandtss/client/cli"
 	"github.com/bandprotocol/chain/v2/x/bandtss/keeper"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
-	tssclient "github.com/bandprotocol/chain/v2/x/tss/client"
 )
 
 var (
@@ -26,11 +26,11 @@ var (
 
 // AppModuleBasic defines the basic application module used by the bandtss module.
 type AppModuleBasic struct {
-	signatureOrderHandlers []tssclient.SignatureOrderHandler
+	signatureOrderHandlers []bandtssclient.RequestSignatureHandler
 }
 
 // NewAppModuleBasic creates a new AppModuleBasic object
-func NewAppModuleBasic(signatureOrderHandlers ...tssclient.SignatureOrderHandler) AppModuleBasic {
+func NewAppModuleBasic(signatureOrderHandlers ...bandtssclient.RequestSignatureHandler) AppModuleBasic {
 	return AppModuleBasic{
 		signatureOrderHandlers: signatureOrderHandlers,
 	}
@@ -63,7 +63,7 @@ func (a AppModuleBasic) GetTxCmd() *cobra.Command {
 	return cli.GetTxCmd(signatureOrderHandlers)
 }
 
-func getSignatureOrderCLIHandlers(handlers []tssclient.SignatureOrderHandler) []*cobra.Command {
+func getSignatureOrderCLIHandlers(handlers []bandtssclient.RequestSignatureHandler) []*cobra.Command {
 	signatureOrderHandlers := make([]*cobra.Command, 0, len(handlers))
 	for _, handler := range handlers {
 		signatureOrderHandlers = append(signatureOrderHandlers, handler.CLIHandler())

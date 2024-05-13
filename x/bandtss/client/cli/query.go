@@ -10,7 +10,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 )
 
-// GetQueryCmd returns the cli query commands for the bandtss module.
+// GetQueryCmd returns the cli query commands for this module
 func GetQueryCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                        types.ModuleName,
@@ -32,7 +32,7 @@ func GetQueryCmd() *cobra.Command {
 	return cmd
 }
 
-// GetQueryCmdMember creates a CLI command for Query/Member.
+// GetQueryCmdMember creates a CLI command for querying member information.
 func GetQueryCmdMember() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "member [address]",
@@ -89,6 +89,7 @@ func GetQueryCmdCurrentGroup() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdParams creates a CLI command for querying module's parameter.
 func GetQueryCmdParams() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "params",
@@ -113,7 +114,7 @@ func GetQueryCmdParams() *cobra.Command {
 	return cmd
 }
 
-// GetQueryCmdSigning creates a CLI command for Query/Signing.
+// GetQueryCmdSigning creates a CLI command for querying signing information.
 func GetQueryCmdSigning() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "signing [id]",
@@ -175,7 +176,7 @@ func GetQueryCmdReplacement() *cobra.Command {
 	return cmd
 }
 
-// GetQueryCmdIsGrantee creates a CLI command for Query/IsGrantee.
+// GetQueryCmdIsGrantee creates a CLI command for querying whether a grantee is granted by a granter.
 func GetQueryCmdIsGrantee() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "is-grantee [granter_address] [grantee_address]",

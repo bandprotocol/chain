@@ -33,7 +33,7 @@ func TestExportGenesis(t *testing.T) {
 			SigningID:      tss.SigningID(1),
 			CurrentGroupID: tss.GroupID(1),
 			NewGroupID:     tss.GroupID(2),
-			Status:         types.REPLACEMENT_STATUS_WAITING_SIGNING,
+			Status:         types.REPLACEMENT_STATUS_WAITING_SIGN,
 		},
 	}
 

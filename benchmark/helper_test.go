@@ -20,7 +20,6 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/obi"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -67,7 +66,6 @@ func GenMsgRequestData(
 		MinCount:   1,
 		ClientID:   "",
 		FeeLimit:   sdk.Coins{sdk.NewInt64Coin("uband", 1)},
-		TSSGroupID: 0,
 		PrepareGas: prepareGas,
 		ExecuteGas: executeGas,
 		Sender:     sender.Address.String(),
@@ -156,20 +154,6 @@ func GenMsgSubmitSignature(sid tss.SigningID, mid tss.MemberID, sig tss.Signatur
 	return []sdk.Msg{&msg}
 }
 
-func FindPrivateKey(tcs []testutil.TestCase, gid tss.GroupID, member sdk.AccAddress) tss.Scalar {
-	for _, tc := range tcs {
-		if tc.Group.ID == gid {
-			for _, m := range tc.Group.Members {
-				a := sdk.AccAddress(m.PubKey())
-				if a.Equals(member) {
-					return m.PrivKey
-				}
-			}
-		}
-	}
-	return nil
-}
-
 func CreateSignature(
 	mid tss.MemberID,
 	signing tsstypes.Signing,
@@ -202,7 +186,6 @@ func CreateSignature(
 		}
 	}
 
-	// Sign the message
 	return nil, fmt.Errorf("this member is not assigned members")
 }
 
@@ -220,7 +203,7 @@ func GenSequenceOfTxs(
 			msgs,
 			sdk.Coins{sdk.NewInt64Coin("uband", 1)},
 			math.MaxInt64,
-			"",
+			bandtesting.ChainID,
 			[]uint64{account.Num},
 			[]uint64{account.Seq},
 			account.PrivKey,
@@ -285,7 +268,7 @@ func InitOwasmTestEnv(
 			Value:        parameter,
 			Text:         strings.Repeat("#", stringLength),
 		}), []sdk.ValAddress{[]byte{}}, 1,
-		1, time.Now(), "", nil, nil, ExecuteGasLimit, 0, 0,
+		1, time.Now(), "", nil, nil, ExecuteGasLimit, 0,
 		bandtesting.FeePayer.Address.String(),
 		bandtesting.Coins100000000uband,
 	)

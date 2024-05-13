@@ -142,7 +142,7 @@ var xxx_messageInfo_MsgCreateGroupResponse proto.InternalMessageInfo
 
 // MsgReplaceGroup is the Msg/ReplaceGroup request type.
 type MsgReplaceGroup struct {
-	// new_group_id is the ID of the group that want to replace, and subsequently remove this group.
+	// new_group_id is the ID of the group that want to replace.
 	NewGroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID `protobuf:"varint,1,opt,name=new_group_id,json=newGroupId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.GroupID" json:"new_group_id,omitempty"`
 	// exec_time is the time that will be substituted in place of the group.
 	ExecTime time.Time `protobuf:"bytes,2,opt,name=exec_time,json=execTime,proto3,stdtime" json:"exec_time"`
@@ -321,7 +321,7 @@ func (m *MsgRequestSignatureResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgRequestSignatureResponse proto.InternalMessageInfo
 
-// MsgActivate is a message used to activate the status of the group's address.
+// MsgActivate is a message used to activate the status of the sender.
 type MsgActivate struct {
 	// address is the signer of this message, who must be a member of the group.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
@@ -404,7 +404,7 @@ func (m *MsgActivateResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgActivateResponse proto.InternalMessageInfo
 
-// MsgHealthCheck is a message used to show active status if the address is still active.
+// MsgHealthCheck is a message used to show if the address is still active.
 type MsgHealthCheck struct {
 	// address is the signer of this message, who must be a member of the group.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
@@ -491,7 +491,7 @@ var xxx_messageInfo_MsgHealthCheckResponse proto.InternalMessageInfo
 type MsgUpdateParams struct {
 	// params defines the x/tss parameters to update.
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
-	// authority is the address of the governance account.
+	// authority is the address that controls the module (defaults to x/gov unless overwritten).
 	Authority string `protobuf:"bytes,2,opt,name=authority,proto3" json:"authority,omitempty"`
 }
 
@@ -542,8 +542,7 @@ func (m *MsgUpdateParams) GetAuthority() string {
 	return ""
 }
 
-// MsgUpdateParamsResponse defines the response structure for executing a
-// MsgUpdateParams message.
+// MsgUpdateParamsResponse defines the response structure for executing a MsgUpdateParams message.
 type MsgUpdateParamsResponse struct {
 }
 
@@ -670,13 +669,13 @@ const _ = grpc.SupportPackageIsVersion4
 type MsgClient interface {
 	// CreateGroup creates a new group with a list of members.
 	CreateGroup(ctx context.Context, in *MsgCreateGroup, opts ...grpc.CallOption) (*MsgCreateGroupResponse, error)
-	// ReplaceGroup replaces the group with another group.
+	// ReplaceGroup replaces the current group with another group.
 	ReplaceGroup(ctx context.Context, in *MsgReplaceGroup, opts ...grpc.CallOption) (*MsgReplaceGroupResponse, error)
 	// RequestSignature submits a general message to be signed by a specific group.
 	RequestSignature(ctx context.Context, in *MsgRequestSignature, opts ...grpc.CallOption) (*MsgRequestSignatureResponse, error)
-	// Activate activates the status of the group's member.
+	// Activate activates the status of the sender.
 	Activate(ctx context.Context, in *MsgActivate, opts ...grpc.CallOption) (*MsgActivateResponse, error)
-	// HealthCheck marks last active of the mebmer.
+	// HealthCheck marks last active of the sender.
 	HealthCheck(ctx context.Context, in *MsgHealthCheck, opts ...grpc.CallOption) (*MsgHealthCheckResponse, error)
 	// UpdateParams updates the x/bandtss parameters.
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
@@ -748,13 +747,13 @@ func (c *msgClient) UpdateParams(ctx context.Context, in *MsgUpdateParams, opts 
 type MsgServer interface {
 	// CreateGroup creates a new group with a list of members.
 	CreateGroup(context.Context, *MsgCreateGroup) (*MsgCreateGroupResponse, error)
-	// ReplaceGroup replaces the group with another group.
+	// ReplaceGroup replaces the current group with another group.
 	ReplaceGroup(context.Context, *MsgReplaceGroup) (*MsgReplaceGroupResponse, error)
 	// RequestSignature submits a general message to be signed by a specific group.
 	RequestSignature(context.Context, *MsgRequestSignature) (*MsgRequestSignatureResponse, error)
-	// Activate activates the status of the group's member.
+	// Activate activates the status of the sender.
 	Activate(context.Context, *MsgActivate) (*MsgActivateResponse, error)
-	// HealthCheck marks last active of the mebmer.
+	// HealthCheck marks last active of the sender.
 	HealthCheck(context.Context, *MsgHealthCheck) (*MsgHealthCheckResponse, error)
 	// UpdateParams updates the x/bandtss parameters.
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)

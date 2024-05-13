@@ -57,7 +57,6 @@ func (suite *RequestVerificationTestSuite) SetupTest() {
 		nil,
 		0,
 		0,
-		0,
 		bandtesting.FeePayer.Address.String(),
 		bandtesting.Coins100000000uband,
 	)
@@ -605,7 +604,6 @@ func (suite *PendingRequestsTestSuite) TestSuccess() {
 		nil,
 		0,
 		0,
-		0,
 		bandtesting.FeePayer.Address.String(),
 		bandtesting.Coins100000000uband,
 	)
@@ -623,7 +621,6 @@ func (suite *PendingRequestsTestSuite) TestSuccess() {
 			types.NewRawRequest(3, 3, []byte("testdata")),
 		},
 		nil,
-		0,
 		0,
 		0,
 		bandtesting.FeePayer.Address.String(),
@@ -648,7 +645,6 @@ func (suite *PendingRequestsTestSuite) TestSuccess() {
 		nil,
 		0,
 		0,
-		0,
 		bandtesting.FeePayer.Address.String(),
 		bandtesting.Coins100000000uband,
 	)
@@ -669,7 +665,6 @@ func (suite *PendingRequestsTestSuite) TestSuccess() {
 			types.NewRawRequest(3, 3, []byte("testdata")),
 		},
 		nil,
-		0,
 		0,
 		0,
 		bandtesting.FeePayer.Address.String(),

@@ -22,7 +22,7 @@ var (
 	validatorAddress1 = sdk.ValAddress(addr1)
 	validatorAddress2 = sdk.ValAddress(addr2)
 	validatorAddress3 = sdk.ValAddress(addr3)
-	address4          = sdk.AccAddress(addr4)
+	accountAddress4   = sdk.AccAddress(addr4)
 	coins1            = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 )
 
@@ -46,8 +46,7 @@ func mockExecEnv() *ExecuteEnv {
 		nil,
 		0,
 		0,
-		0,
-		address4.String(),
+		accountAddress4.String(),
 		coins1,
 	)
 	rawReport1 := NewRawReport(1, 0, []byte("DATA1"))
@@ -79,8 +78,7 @@ func mockFreshPrepareEnv() *PrepareEnv {
 		nil,
 		0,
 		0,
-		0,
-		address4.String(),
+		accountAddress4.String(),
 		coins1,
 	)
 	env := NewPrepareEnv(request, int64(DefaultMaxCalldataSize), 3, 1024)

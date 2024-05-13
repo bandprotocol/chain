@@ -1,6 +1,8 @@
 package tss
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/tss/keeper"
@@ -18,22 +20,33 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 		k.SetGroup(ctx, group)
 	}
 
-	for _, member := range data.Members {
-		k.SetMember(ctx, member)
-	}
+	k.SetMembers(ctx, data.Members)
 
 	k.SetSigningCount(ctx, data.SigningCount)
 	for _, signing := range data.Signings {
 		k.SetSigning(ctx, signing)
 	}
 
-	for _, deq := range data.DEQueues {
-		k.SetDEQueue(ctx, deq)
+	desMapping := make(map[string][]types.DE)
+	for _, deq := range data.DEsGenesis {
+		desMapping[deq.Address] = append(desMapping[deq.Address], deq.DE)
 	}
 
-	for _, de := range data.DEsGenesis {
-		address := sdk.MustAccAddressFromBech32(de.Address)
-		k.SetDE(ctx, address, de.Index, de.DE)
+	for addr, des := range desMapping {
+		if uint64(len(des)) > data.Params.MaxDESize {
+			panic(fmt.Sprintf("DEsGenesis of %s size exceeds MaxDESize", addr))
+		}
+
+		k.SetDEQueue(ctx, types.DEQueue{
+			Address: addr,
+			Head:    0,
+			Tail:    uint64(len(des)),
+		})
+
+		acc := sdk.MustAccAddressFromBech32(addr)
+		for i, de := range des {
+			k.SetDE(ctx, acc, uint64(i), de)
+		}
 	}
 }
 
@@ -46,7 +59,6 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 		Members:      k.GetMembers(ctx),
 		SigningCount: k.GetSigningCount(ctx),
 		Signings:     k.GetSignings(ctx),
-		DEQueues:     k.GetDEQueues(ctx),
 		DEsGenesis:   k.GetDEsGenesis(ctx),
 	}
 }

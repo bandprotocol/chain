@@ -55,7 +55,6 @@ func TestHasRequest(t *testing.T) {
 			nil,
 			0,
 			0,
-			0,
 			bandtesting.FeePayer.Address.String(),
 			bandtesting.Coins100000000uband,
 		),
@@ -81,7 +80,6 @@ func TestDeleteRequest(t *testing.T) {
 			"",
 			nil,
 			nil,
-			0,
 			0,
 			0,
 			bandtesting.FeePayer.Address.String(),
@@ -118,7 +116,6 @@ func TestSetterGetterRequest(t *testing.T) {
 		nil,
 		0,
 		0,
-		0,
 		bandtesting.FeePayer.Address.String(),
 		bandtesting.Coins100000000uband,
 	)
@@ -132,7 +129,6 @@ func TestSetterGetterRequest(t *testing.T) {
 		"",
 		nil,
 		nil,
-		0,
 		0,
 		0,
 		bandtesting.FeePayer.Address.String(),
@@ -196,7 +192,6 @@ func TestAddDataSourceBasic(t *testing.T) {
 			nil,
 			0,
 			0,
-			0,
 			bandtesting.FeePayer.Address.String(),
 			bandtesting.Coins100000000uband,
 		),
@@ -215,7 +210,6 @@ func TestAddDataSourceBasic(t *testing.T) {
 			"",
 			nil,
 			nil,
-			0,
 			0,
 			0,
 			bandtesting.FeePayer.Address.String(),
@@ -283,9 +277,9 @@ func TestProcessExpiredRequests(t *testing.T) {
 	require.NoError(t, err)
 
 	// Request 1, 2 and 4 gets resolved. Request 3 does not.
-	k.ResolveSuccess(ctx, 1, defaultRequest().Requester, defaultRequest().FeeLimit, BasicResult, 1234, 0, 0)
+	k.ResolveSuccess(ctx, 1, defaultRequest().Requester, defaultRequest().FeeLimit, BasicResult, 1234, 0)
 	k.ResolveFailure(ctx, 2, "ARBITRARY_REASON")
-	k.ResolveSuccess(ctx, 4, defaultRequest().Requester, defaultRequest().FeeLimit, BasicResult, 1234, 0, 0)
+	k.ResolveSuccess(ctx, 4, defaultRequest().Requester, defaultRequest().FeeLimit, BasicResult, 1234, 0)
 	// Initially, last expired request ID should be 0.
 	require.Equal(t, types.RequestID(0), k.GetRequestLastExpired(ctx))
 

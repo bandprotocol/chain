@@ -61,7 +61,7 @@ func GetQueryCmdCounts() *cobra.Command {
 	return cmd
 }
 
-// GetQueryCmdGroup creates a CLI command for Query/Group.
+// GetQueryCmdGroup creates a CLI command for querying group information.
 func GetQueryCmdGroup() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "group [id]",
@@ -96,7 +96,7 @@ func GetQueryCmdGroup() *cobra.Command {
 	return cmd
 }
 
-// GetQueryCmdMembers creates a CLI command for Query/Members.
+// GetQueryCmdMembers creates a CLI command for querying list of members from the given group ID.
 func GetQueryCmdMembers() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "members [group-id]",
@@ -131,7 +131,7 @@ func GetQueryCmdMembers() *cobra.Command {
 	return cmd
 }
 
-// GetQueryCmdIsGrantee creates a CLI command for Query/IsGrantee.
+// GetQueryCmdIsGrantee creates a CLI command for query whether the grantee is granted by a granter.
 func GetQueryCmdIsGrantee() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "is-grantee [granter_address] [grantee_address]",
@@ -192,7 +192,7 @@ func GetQueryCmdDE() *cobra.Command {
 	return cmd
 }
 
-// GetQueryCmdPendingSignings creates a CLI command for Query/PendingSignings.
+// GetQueryCmdPendingSignings creates a CLI command for querying pending signings of the given address.
 func GetQueryCmdPendingSignings() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "pending-signings [address]",
@@ -222,7 +222,7 @@ func GetQueryCmdPendingSignings() *cobra.Command {
 	return cmd
 }
 
-// GetQueryCmdSigning creates a CLI command for Query/Signing.
+// GetQueryCmdSigning creates a CLI command for querying signing information from the given ID.
 func GetQueryCmdSigning() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "signing [id]",

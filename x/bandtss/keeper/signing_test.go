@@ -32,7 +32,7 @@ func TestHandleCreateSigning(t *testing.T) {
 	err := k.SetParams(ctx, params)
 	require.NoError(t, err)
 
-	s.MockTSSKeeper.EXPECT().HandleSigningContent(ctx, content).Return([]byte("test"), nil).AnyTimes()
+	s.MockTSSKeeper.EXPECT().ConvertContentToBytes(ctx, content).Return([]byte("test"), nil).AnyTimes()
 	s.MockTSSKeeper.EXPECT().GetGroup(ctx, currentGroupID).Return(currentGroup, nil).AnyTimes()
 
 	type input struct {
@@ -209,7 +209,7 @@ func TestHandleCreateSigning(t *testing.T) {
 				replaceGroupID := tss.GroupID(2)
 				replacement := types.Replacement{
 					SigningID:      tss.SigningID(1),
-					Status:         types.REPLACEMENT_STATUS_WAITING_SIGNING,
+					Status:         types.REPLACEMENT_STATUS_WAITING_SIGN,
 					CurrentGroupID: currentGroupID,
 					NewGroupID:     replaceGroupID,
 				}

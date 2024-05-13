@@ -2,7 +2,6 @@
 
 export WALLET_NAME=requester
 export REQUEST_ID=1
-export GROUP_ID=1
 export ENCODE_TYPE=1
 
 bandd tx bandtss request-signature oracle-result $REQUEST_ID $ENCODE_TYPE \

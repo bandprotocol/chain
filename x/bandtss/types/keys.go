@@ -37,20 +37,23 @@ var (
 	// ReplacementStoreKey is the key for storing the group replacement information.
 	ReplacementStoreKey = append(GlobalStoreKeyPrefix, []byte("Replacement")...)
 
-	// SigningInfoStoreKeyPrefix is the key for storing the bandtss signing info under SigningStoreKeyPrefix.
+	// SigningInfoStoreKeyPrefix is the prefix for SigningInfoStoreKey.
 	SigningInfoStoreKeyPrefix = append(SigningStoreKeyPrefix, []byte{0x00}...)
-	// SigningIDMappingStoreKey is the key for storing the bandtss signing ID under SigningStoreKeyPrefix.
+	// SigningIDMappingStoreKeyPrefix is the prefix for SigningIDMappingStoreKey.
 	SigningIDMappingStoreKeyPrefix = append(SigningStoreKeyPrefix, []byte{0x01}...)
 )
 
+// MemberStoreKey returns the key for storing the member information.
 func MemberStoreKey(address sdk.AccAddress) []byte {
 	return append(MemberStoreKeyPrefix, address...)
 }
 
-func SigningStoreKey(id SigningID) []byte {
+// SigningInfoStoreKey returns the key for storing the bandtss signing info.
+func SigningInfoStoreKey(id SigningID) []byte {
 	return append(SigningInfoStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(id))...)
 }
 
+// SigningIDMappingStoreKey returns the key for storing the tss signing ID mapping.
 func SigningIDMappingStoreKey(id tss.SigningID) []byte {
 	return append(SigningIDMappingStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(id))...)
 }

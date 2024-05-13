@@ -36,7 +36,7 @@ func TestSuccessCreateGroupReplacement(t *testing.T) {
 	k.SetCurrentGroupID(ctx, currentGroupID)
 	s.MockTSSKeeper.EXPECT().GetGroup(ctx, currentGroupID).Return(currentGroup, nil).AnyTimes()
 	s.MockTSSKeeper.EXPECT().GetGroup(ctx, newGroupID).Return(newGroup, nil).AnyTimes()
-	s.MockTSSKeeper.EXPECT().HandleSigningContent(ctx, types.NewReplaceGroupSignatureOrder(newGroup.PubKey)).Return([]byte("test-msg"), nil)
+	s.MockTSSKeeper.EXPECT().ConvertContentToBytes(ctx, types.NewReplaceGroupSignatureOrder(newGroup.PubKey)).Return([]byte("test-msg"), nil)
 	s.MockTSSKeeper.EXPECT().CreateSigning(ctx, currentGroup, []byte("test-msg")).Return(expectSigning, nil)
 
 	signingID, err := k.CreateGroupReplacement(ctx, newGroupID, execTime)
@@ -49,7 +49,7 @@ func TestSuccessCreateGroupReplacement(t *testing.T) {
 		NewGroupID:     newGroupID,
 		CurrentPubKey:  currentGroup.PubKey,
 		NewPubKey:      newGroup.PubKey,
-		Status:         types.REPLACEMENT_STATUS_WAITING_SIGNING,
+		Status:         types.REPLACEMENT_STATUS_WAITING_SIGN,
 		ExecTime:       execTime,
 	}
 	actualReplacement := k.GetReplacement(ctx)
@@ -78,7 +78,7 @@ func TestFailCreateGroupReplacement(t *testing.T) {
 			name: "replacement in progress - waiting signing",
 			preProcess: func(s *testutil.TestSuite) {
 				s.Keeper.SetReplacement(s.Ctx, types.Replacement{
-					Status: types.REPLACEMENT_STATUS_WAITING_SIGNING,
+					Status: types.REPLACEMENT_STATUS_WAITING_SIGN,
 				})
 			},
 			input: input{
@@ -181,7 +181,7 @@ func TestHandleReplaceGroup(t *testing.T) {
 			preProcess: func(s *testutil.TestSuite) {
 				s.Keeper.SetReplacement(s.Ctx, types.Replacement{
 					SigningID: tss.SigningID(1),
-					Status:    types.REPLACEMENT_STATUS_WAITING_SIGNING,
+					Status:    types.REPLACEMENT_STATUS_WAITING_SIGN,
 					ExecTime:  s.Ctx.BlockTime().Add(10 * time.Minute),
 				})
 				s.MockTSSKeeper.EXPECT().GetSigning(s.Ctx, tss.SigningID(1)).Return(tsstypes.Signing{
@@ -190,7 +190,7 @@ func TestHandleReplaceGroup(t *testing.T) {
 				}, nil)
 			},
 			expectOut: expectOut{
-				replacementStatus: types.REPLACEMENT_STATUS_WAITING_SIGNING,
+				replacementStatus: types.REPLACEMENT_STATUS_WAITING_SIGN,
 				currentGroupID:    currentGroupID,
 			},
 		},
@@ -199,7 +199,7 @@ func TestHandleReplaceGroup(t *testing.T) {
 			preProcess: func(s *testutil.TestSuite) {
 				s.Keeper.SetReplacement(s.Ctx, types.Replacement{
 					SigningID: tss.SigningID(1),
-					Status:    types.REPLACEMENT_STATUS_WAITING_SIGNING,
+					Status:    types.REPLACEMENT_STATUS_WAITING_SIGN,
 					ExecTime:  s.Ctx.BlockTime().Add(10 * time.Minute),
 				})
 				s.MockTSSKeeper.EXPECT().GetSigning(s.Ctx, tss.SigningID(1)).Return(tsstypes.Signing{
@@ -217,7 +217,7 @@ func TestHandleReplaceGroup(t *testing.T) {
 			preProcess: func(s *testutil.TestSuite) {
 				s.Keeper.SetReplacement(s.Ctx, types.Replacement{
 					SigningID: tss.SigningID(1),
-					Status:    types.REPLACEMENT_STATUS_WAITING_SIGNING,
+					Status:    types.REPLACEMENT_STATUS_WAITING_SIGN,
 					ExecTime:  s.Ctx.BlockTime().Add(10 * time.Minute),
 				})
 				s.MockTSSKeeper.EXPECT().GetSigning(s.Ctx, tss.SigningID(1)).Return(tsstypes.Signing{
@@ -235,7 +235,7 @@ func TestHandleReplaceGroup(t *testing.T) {
 			preProcess: func(s *testutil.TestSuite) {
 				s.Keeper.SetReplacement(s.Ctx, types.Replacement{
 					SigningID: tss.SigningID(1),
-					Status:    types.REPLACEMENT_STATUS_WAITING_SIGNING,
+					Status:    types.REPLACEMENT_STATUS_WAITING_SIGN,
 					ExecTime:  s.Ctx.BlockTime().Add(10 * time.Minute),
 				})
 				s.MockTSSKeeper.EXPECT().GetSigning(s.Ctx, tss.SigningID(1)).Return(tsstypes.Signing{
@@ -253,7 +253,7 @@ func TestHandleReplaceGroup(t *testing.T) {
 			preProcess: func(s *testutil.TestSuite) {
 				s.Keeper.SetReplacement(s.Ctx, types.Replacement{
 					SigningID: tss.SigningID(1),
-					Status:    types.REPLACEMENT_STATUS_WAITING_SIGNING,
+					Status:    types.REPLACEMENT_STATUS_WAITING_SIGN,
 					ExecTime:  s.Ctx.BlockTime().Add(10 * time.Minute),
 				})
 
@@ -273,7 +273,7 @@ func TestHandleReplaceGroup(t *testing.T) {
 			preProcess: func(s *testutil.TestSuite) {
 				s.Keeper.SetReplacement(s.Ctx, types.Replacement{
 					SigningID:      tss.SigningID(1),
-					Status:         types.REPLACEMENT_STATUS_WAITING_SIGNING,
+					Status:         types.REPLACEMENT_STATUS_WAITING_SIGN,
 					ExecTime:       s.Ctx.BlockTime().Add(10 * time.Minute),
 					CurrentGroupID: currentGroupID,
 					NewGroupID:     tss.GroupID(2),
@@ -290,6 +290,9 @@ func TestHandleReplaceGroup(t *testing.T) {
 				s.MockTSSKeeper.EXPECT().MustGetMembers(s.Ctx, tss.GroupID(2)).Return([]tsstypes.Member{
 					{ID: 1, Address: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun"},
 				})
+				s.MockTSSKeeper.EXPECT().GetGroup(s.Ctx, tss.GroupID(2)).Return(tsstypes.Group{
+					ID: tss.GroupID(2),
+				}, nil)
 			},
 			expectOut: expectOut{
 				replacementStatus: types.REPLACEMENT_STATUS_SUCCESS,

@@ -195,7 +195,6 @@ func (suite *DecoderTestSuite) TestDecodeMsgRequestData() {
 		bandtesting.TestDefaultExecuteGas,
 		SenderAddress,
 		0,
-		0,
 	)
 	emitter.DecodeMsgRequestData(msg, detail)
 	suite.testCompareJson(

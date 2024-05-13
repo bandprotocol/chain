@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -60,7 +59,7 @@ func (p Params) Validate() error {
 
 	// Validate fee
 	if !p.Fee.IsValid() {
-		return errors.Wrap(sdkerrors.ErrInvalidCoins, p.Fee.String())
+		return sdkerrors.ErrInvalidCoins.Wrapf(p.Fee.String())
 	}
 
 	return nil

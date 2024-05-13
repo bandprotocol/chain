@@ -28,12 +28,12 @@ func (k Keeper) GetNextSigningID(ctx sdk.Context) types.SigningID {
 	return types.SigningID(signingNumber)
 }
 
-// SetSigning sets a signing of the Bandtss module.
+// SetSigning sets a signing of the bandtss module.
 func (k Keeper) SetSigning(ctx sdk.Context, signing types.Signing) {
-	ctx.KVStore(k.storeKey).Set(types.SigningStoreKey(signing.ID), k.cdc.MustMarshal(&signing))
+	ctx.KVStore(k.storeKey).Set(types.SigningInfoStoreKey(signing.ID), k.cdc.MustMarshal(&signing))
 }
 
-// AddSigning adds the Signing data to the store and returns the new Signing ID.
+// AddSigning adds the signing data to the store and returns the new Signing ID.
 func (k Keeper) AddSigning(ctx sdk.Context, signing types.Signing) types.SigningID {
 	signing.ID = k.GetNextSigningID(ctx)
 	k.SetSigning(ctx, signing)
@@ -50,7 +50,7 @@ func (k Keeper) AddSigning(ctx sdk.Context, signing types.Signing) types.Signing
 
 // GetSigning retrieves a bandtss signing info.
 func (k Keeper) GetSigning(ctx sdk.Context, id types.SigningID) (types.Signing, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.SigningStoreKey(id))
+	bz := ctx.KVStore(k.storeKey).Get(types.SigningInfoStoreKey(id))
 	if bz == nil {
 		return types.Signing{}, types.ErrSigningNotFound.Wrapf("signingID: %d", id)
 	}
@@ -133,7 +133,7 @@ func (k Keeper) HandleCreateSigning(
 	feeLimit sdk.Coins,
 ) (types.SigningID, error) {
 	// Execute the handler to process the request.
-	msg, err := k.tssKeeper.HandleSigningContent(ctx, content)
+	msg, err := k.tssKeeper.ConvertContentToBytes(ctx, content)
 	if err != nil {
 		return 0, err
 	}
@@ -197,7 +197,7 @@ func (k Keeper) HandleCreateSigning(
 		}
 	}
 
-	// save signingInfo
+	// save signing info
 	bandtssSigningID := k.AddSigning(ctx, types.Signing{
 		Fee:                     feePerSigner,
 		Requester:               sender.String(),

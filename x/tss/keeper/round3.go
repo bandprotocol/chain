@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -14,19 +13,19 @@ func (k Keeper) HandleVerifyComplaint(
 	groupID tss.GroupID,
 	complaint types.Complaint,
 ) error {
-	// Get round 1 info from member Complainant
+	// Get round1Info from member Complainant
 	round1Complainant, err := k.GetRound1Info(ctx, groupID, complaint.Complainant)
 	if err != nil {
 		return err
 	}
 
-	// Get round 1 info from member Respondent
+	// Get round1Info from member Respondent
 	round1Respondent, err := k.GetRound1Info(ctx, groupID, complaint.Respondent)
 	if err != nil {
 		return err
 	}
 
-	// Get round 2 info from member Respondent
+	// Get round2Info from member Respondent
 	round2Respondent, err := k.GetRound2Info(ctx, groupID, complaint.Respondent)
 	if err != nil {
 		return err
@@ -37,8 +36,7 @@ func (k Keeper) HandleVerifyComplaint(
 
 	// Return error if the slot exceeds length of shares
 	if int(complainantIndex) >= len(round2Respondent.EncryptedSecretShares) {
-		return errors.Wrapf(
-			types.ErrComplainFailed,
+		return types.ErrComplainFailed.Wrapf(
 			"No encrypted secret share from MemberID(%d) to MemberID(%d)",
 			complaint.Respondent,
 			complaint.Complainant,
@@ -56,8 +54,7 @@ func (k Keeper) HandleVerifyComplaint(
 		round1Respondent.CoefficientCommits,
 	)
 	if err != nil {
-		return errors.Wrapf(
-			types.ErrComplainFailed,
+		return types.ErrComplainFailed.Wrapf(
 			"failed to complaint member: %d with groupID: %d; %s",
 			complaint.Respondent,
 			groupID,
@@ -90,8 +87,7 @@ func (k Keeper) HandleVerifyOwnPubKeySig(
 	// Verify own public key sig
 	err = tss.VerifyOwnPubKeySignature(memberID, dkgContext, ownPubKeySig, member.PubKey)
 	if err != nil {
-		return errors.Wrapf(
-			types.ErrConfirmFailed,
+		return types.ErrConfirmFailed.Wrapf(
 			"failed to verify own public key with memberID: %d; %s",
 			memberID,
 			err,
@@ -117,8 +113,15 @@ func (k Keeper) SetComplaintsWithStatus(
 	groupID tss.GroupID,
 	complaintsWithStatus types.ComplaintsWithStatus,
 ) {
-	ctx.KVStore(k.storeKey).
-		Set(types.ComplainsWithStatusMemberStoreKey(groupID, complaintsWithStatus.MemberID), k.cdc.MustMarshal(&complaintsWithStatus))
+	ctx.KVStore(k.storeKey).Set(
+		types.ComplainsWithStatusMemberStoreKey(groupID, complaintsWithStatus.MemberID),
+		k.cdc.MustMarshal(&complaintsWithStatus),
+	)
+}
+
+// HasComplaintsWithStatus checks if the complaints with status exists for a specific groupID and memberID in the store.
+func (k Keeper) HasComplaintsWithStatus(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) bool {
+	return ctx.KVStore(k.storeKey).Has(types.ComplainsWithStatusMemberStoreKey(groupID, memberID))
 }
 
 // GetComplaintsWithStatus retrieves the complaints with status for a specific groupID and memberID from the store.
@@ -129,8 +132,7 @@ func (k Keeper) GetComplaintsWithStatus(
 ) (types.ComplaintsWithStatus, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.ComplainsWithStatusMemberStoreKey(groupID, memberID))
 	if bz == nil {
-		return types.ComplaintsWithStatus{}, errors.Wrapf(
-			types.ErrComplaintsWithStatusNotFound,
+		return types.ComplaintsWithStatus{}, types.ErrComplaintsWithStatusNotFound.Wrapf(
 			"failed to get complaints with status with groupID %d memberID %d",
 			groupID,
 			memberID,
@@ -195,6 +197,11 @@ func (k Keeper) SetConfirm(
 		Set(types.ConfirmMemberStoreKey(groupID, confirm.MemberID), k.cdc.MustMarshal(&confirm))
 }
 
+// HasConfirm checks if a confirm exists for a specific groupID and memberID in the store.
+func (k Keeper) HasConfirm(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) bool {
+	return ctx.KVStore(k.storeKey).Has(types.ConfirmMemberStoreKey(groupID, memberID))
+}
+
 // GetConfirm retrieves the confirm for a specific groupID and memberID from the store.
 func (k Keeper) GetConfirm(
 	ctx sdk.Context,
@@ -203,8 +210,7 @@ func (k Keeper) GetConfirm(
 ) (types.Confirm, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.ConfirmMemberStoreKey(groupID, memberID))
 	if bz == nil {
-		return types.Confirm{}, errors.Wrapf(
-			types.ErrConfirmNotFound,
+		return types.Confirm{}, types.ErrConfirmNotFound.Wrapf(
 			"failed to get confirm with groupID %d memberID %d",
 			groupID,
 			memberID,
@@ -294,13 +300,13 @@ func (k Keeper) DeleteAllDKGInterimData(
 ) {
 	// Delete DKG context
 	k.DeleteDKGContext(ctx, groupID)
-	// Delete round 1 infos
+	// Delete round1Infos
 	k.DeleteRound1Infos(ctx, groupID)
-	// Delete round 1 info count
+	// Delete round1InfoCount
 	k.DeleteRound1InfoCount(ctx, groupID)
-	// Delete round 2 infos
+	// Delete round2Infos
 	k.DeleteRound2Infos(ctx, groupID)
-	// Delete round 2 info count
+	// Delete round2InfoCount
 	k.DeleteRound2InfoCount(ctx, groupID)
 	// Delete all complaint with status
 	k.DeleteAllComplainsWithStatus(ctx, groupID)

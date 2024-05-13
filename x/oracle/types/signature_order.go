@@ -1,8 +1,6 @@
 package types
 
-import (
-	tss "github.com/bandprotocol/chain/v2/x/tss/types"
-)
+import tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 
 // signature order types
 const (
@@ -10,15 +8,16 @@ const (
 )
 
 func init() {
-	tss.RegisterSignatureOrderTypeCodec(
+	tsstypes.RegisterSignatureOrderTypeCodec(
 		&OracleResultSignatureOrder{},
 		"oracle/OracleResultSignatureOrder",
 	)
 }
 
 // Implements Content Interface
-var _ tss.Content = &OracleResultSignatureOrder{}
+var _ tsstypes.Content = &OracleResultSignatureOrder{}
 
+// NewOracleResultSignatureOrder returns a new OracleResultSignatureOrder object
 func NewOracleResultSignatureOrder(rid RequestID, encodeType EncodeType) *OracleResultSignatureOrder {
 	return &OracleResultSignatureOrder{RequestID: rid, EncodeType: encodeType}
 }
@@ -33,6 +32,12 @@ func (o *OracleResultSignatureOrder) OrderType() string {
 
 // ValidateBasic validates the request's title and description of the request signature
 func (o *OracleResultSignatureOrder) ValidateBasic() error {
-	// TODO: Add validatebasic request id and encode type
+	if o.RequestID == 0 {
+		return ErrInvalidRequestID
+	}
+
+	if o.EncodeType == ENCODE_TYPE_UNSPECIFIED {
+		return ErrInvalidOracleEncodeType
+	}
 	return nil
 }

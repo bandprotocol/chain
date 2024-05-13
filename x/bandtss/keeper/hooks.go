@@ -39,8 +39,9 @@ func (h Hooks) AfterCreatingGroupCompleted(ctx sdk.Context, group tsstypes.Group
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeFirstGroupCreated,
-			sdk.NewAttribute(types.AttributeKeyCurrentGroupID, fmt.Sprintf("%d", group.ID)),
+			types.EventTypeNewGroupActivate,
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", group.ID)),
+			sdk.NewAttribute(types.AttributeKeyGroupPubKey, fmt.Sprintf("%v", group.PubKey.String())),
 		),
 	)
 

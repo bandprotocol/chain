@@ -22,10 +22,8 @@ message GenesisState {
   uint64 signing_count = 5;
   // signings is an array containing information about each signing.
   repeated Signing signings = 6 [(gogoproto.nullable) = false];
-  // de_queues is an array containing the de queues of all the addressres.
-  repeated DEQueue de_queues = 7 [(gogoproto.customname) = "DEQueues", (gogoproto.nullable) = false];
   // des_genesis is an array containing the des of all the addressres.
-  repeated DEGenesis des_genesis = 8 [(gogoproto.customname) = "DEsGenesis", (gogoproto.nullable) = false];
+  repeated DEGenesis des_genesis = 7 [(gogoproto.customname) = "DEsGenesis", (gogoproto.nullable) = false];
 }
 
 // Params defines the set of module parameters.
@@ -44,8 +42,6 @@ message Params {
 message DEGenesis {
   // address is the address of the de holder.
   string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  // index is the index for store de of the address
-  uint64 index = 2;
   // de defines the difference de this balance holds.
-  DE de = 3 [(gogoproto.customname) = "DE", (gogoproto.nullable) = false];
+  DE de = 2 [(gogoproto.customname) = "DE", (gogoproto.nullable) = false];
 }

@@ -218,9 +218,6 @@ func (k Querier) Validator(
 		return nil, err
 	}
 	status := k.GetValidatorStatus(ctx, val)
-	if err != nil {
-		return nil, err
-	}
 	return &types.QueryValidatorResponse{Status: &status}, nil
 }
 

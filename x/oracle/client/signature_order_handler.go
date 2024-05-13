@@ -1,9 +1,9 @@
 package client
 
 import (
+	bandtssclient "github.com/bandprotocol/chain/v2/x/bandtss/client"
 	"github.com/bandprotocol/chain/v2/x/oracle/client/cli"
-	tssclient "github.com/bandprotocol/chain/v2/x/tss/client"
 )
 
-// OracleSignatureOrderHandler is the request signature handler.
-var OracleSignatureOrderHandler = tssclient.NewSignatureOrderHandler(cli.GetCmdRequestSignature)
+// OracleRequestSignatureHandler is the request signature handler.
+var OracleRequestSignatureHandler = bandtssclient.NewRequestSignatureHandler(cli.GetCmdRequestSignature)

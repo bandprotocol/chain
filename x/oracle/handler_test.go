@@ -454,7 +454,6 @@ func TestRequestDataSuccess(t *testing.T) {
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.FeePayer.Address,
 		0,
-		0,
 	)
 	res, err := oracle.NewHandler(k)(ctx, msg)
 	require.NoError(t, err)
@@ -473,7 +472,6 @@ func TestRequestDataSuccess(t *testing.T) {
 		},
 		nil,
 		bandtesting.TestDefaultExecuteGas,
-		0,
 		0,
 		bandtesting.FeePayer.Address.String(),
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 94000000)),
@@ -528,7 +526,6 @@ func TestRequestDataSuccess(t *testing.T) {
 			{Key: types.AttributeKeyCalldata, Value: "62656562"}, // "beeb" in hex
 			{Key: types.AttributeKeyAskCount, Value: "2"},
 			{Key: types.AttributeKeyMinCount, Value: "2"},
-			{Key: types.AttributeKeyTSSGroupID, Value: "0"},
 			{Key: types.AttributeKeyGasUsed, Value: "5294700000"},
 			{Key: types.AttributeKeyTotalFees, Value: "6000000uband"},
 			{Key: types.AttributeKeyValidator, Value: bandtesting.Validators[2].ValAddress.String()},
@@ -591,7 +588,6 @@ func TestRequestDataFail(t *testing.T) {
 			bandtesting.TestDefaultExecuteGas,
 			bandtesting.FeePayer.Address,
 			0,
-			0,
 		),
 	)
 	bandtesting.CheckErrorf(t, err, types.ErrInsufficientValidators, "0 < 2")
@@ -616,7 +612,6 @@ func TestRequestDataFail(t *testing.T) {
 			bandtesting.TestDefaultExecuteGas,
 			bandtesting.FeePayer.Address,
 			0,
-			0,
 		),
 	)
 	bandtesting.CheckErrorf(t, err, types.ErrTooLargeCalldata, "got: 8000, max: 512")
@@ -636,7 +631,6 @@ func TestRequestDataFail(t *testing.T) {
 			bandtesting.TestDefaultPrepareGas,
 			bandtesting.TestDefaultExecuteGas,
 			bandtesting.FeePayer.Address,
-			0,
 			0,
 		),
 	)
@@ -658,7 +652,6 @@ func TestRequestDataFail(t *testing.T) {
 			bandtesting.TestDefaultExecuteGas,
 			bandtesting.FeePayer.Address,
 			0,
-			0,
 		),
 	)
 	bandtesting.CheckErrorf(t, err, types.ErrOracleScriptNotFound, "id: 999")
@@ -678,7 +671,6 @@ func TestRequestDataFail(t *testing.T) {
 			bandtesting.TestDefaultPrepareGas,
 			bandtesting.TestDefaultExecuteGas,
 			bandtesting.FeePayer.Address,
-			0,
 			0,
 		),
 	)
@@ -708,7 +700,6 @@ func TestReportSuccess(t *testing.T) {
 			types.NewRawRequest(2, 2, []byte("beeb")),
 		},
 		nil,
-		0,
 		0,
 		0,
 		bandtesting.FeePayer.Address.String(),
@@ -750,7 +741,6 @@ func TestReportSuccess(t *testing.T) {
 		[]byte("RESOLVE_RESULT!"),
 		1234,
 		0,
-		0,
 	)
 	res, err = oracle.NewHandler(k)(ctx, types.NewMsgReportData(42, reports, bandtesting.Validators[2].ValAddress))
 	require.NoError(t, err)
@@ -791,7 +781,6 @@ func TestReportFail(t *testing.T) {
 			types.NewRawRequest(2, 2, []byte("beeb")),
 		},
 		nil,
-		0,
 		0,
 		0,
 		bandtesting.FeePayer.Address.String(),

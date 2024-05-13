@@ -3,8 +3,8 @@ package keeper
 import (
 	"context"
 
-	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
@@ -37,7 +37,7 @@ func (k msgServer) CreateGroup(
 	for _, m := range req.Members {
 		address, err := sdk.AccAddressFromBech32(m)
 		if err != nil {
-			return nil, err
+			return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid member address: %s", err)
 		}
 		members = append(members, address)
 	}
@@ -76,7 +76,7 @@ func (k msgServer) RequestSignature(
 
 	feePayer, err := sdk.AccAddressFromBech32(req.Sender)
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
 	// Execute the handler to process the request.
@@ -94,7 +94,7 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 
 	address, err := sdk.AccAddressFromBech32(msg.Address)
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
 	if err = k.ActivateMember(ctx, address); err != nil {
@@ -118,7 +118,7 @@ func (k msgServer) HealthCheck(
 
 	address, err := sdk.AccAddressFromBech32(msg.Address)
 	if err != nil {
-		return nil, err
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
 	if err = k.SetLastActive(ctx, address); err != nil {
@@ -139,8 +139,7 @@ func (k Keeper) UpdateParams(
 	req *types.MsgUpdateParams,
 ) (*types.MsgUpdateParamsResponse, error) {
 	if k.authority != req.Authority {
-		return nil, errors.Wrapf(
-			govtypes.ErrInvalidSigner,
+		return nil, govtypes.ErrInvalidSigner.Wrapf(
 			"invalid authority; expected %s, got %s",
 			k.authority,
 			req.Authority,
