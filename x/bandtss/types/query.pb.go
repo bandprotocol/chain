@@ -589,7 +589,7 @@ func (m *QuerySigningRequest) GetSigningId() uint64 {
 type QuerySigningResponse struct {
 	// fee is the total tokens that will be paid for this bandtss signing.
 	Fee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=fee,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"fee"`
-	// requester is the address of requester who paid for the Bandtss signing.
+	// requester is the address of requester who paid for bandtss signing.
 	Requester string `protobuf:"bytes,2,opt,name=requester,proto3" json:"requester,omitempty"`
 	// current_group_signing_result is the signing result from the current group.
 	CurrentGroupSigningResult *types.SigningResult `protobuf:"bytes,3,opt,name=current_group_signing_result,json=currentGroupSigningResult,proto3" json:"current_group_signing_result,omitempty"`
@@ -841,17 +841,17 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	// Params queries parameters of Bandtss module
+	// Params queries parameters of bandtss module
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
-	// IsGrantee queries grant of account on this granter.
+	// IsGrantee queries whether granter grants the grantee.
 	IsGrantee(ctx context.Context, in *QueryIsGranteeRequest, opts ...grpc.CallOption) (*QueryIsGranteeResponse, error)
 	// Members queries all members.
 	Members(ctx context.Context, in *QueryMembersRequest, opts ...grpc.CallOption) (*QueryMembersResponse, error)
-	// Member queries the member information of the address.
+	// Member queries the member information of the given address.
 	Member(ctx context.Context, in *QueryMemberRequest, opts ...grpc.CallOption) (*QueryMemberResponse, error)
 	// CurrentGroup queries the current group information.
 	CurrentGroup(ctx context.Context, in *QueryCurrentGroupRequest, opts ...grpc.CallOption) (*QueryCurrentGroupResponse, error)
-	// Signing queries the signing result of the signing request.
+	// Signing queries the signing result of the given signing request ID.
 	Signing(ctx context.Context, in *QuerySigningRequest, opts ...grpc.CallOption) (*QuerySigningResponse, error)
 	// Replacement queries the replacement information.
 	Replacement(ctx context.Context, in *QueryReplacementRequest, opts ...grpc.CallOption) (*QueryReplacementResponse, error)
@@ -930,17 +930,17 @@ func (c *queryClient) Replacement(ctx context.Context, in *QueryReplacementReque
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	// Params queries parameters of Bandtss module
+	// Params queries parameters of bandtss module
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
-	// IsGrantee queries grant of account on this granter.
+	// IsGrantee queries whether granter grants the grantee.
 	IsGrantee(context.Context, *QueryIsGranteeRequest) (*QueryIsGranteeResponse, error)
 	// Members queries all members.
 	Members(context.Context, *QueryMembersRequest) (*QueryMembersResponse, error)
-	// Member queries the member information of the address.
+	// Member queries the member information of the given address.
 	Member(context.Context, *QueryMemberRequest) (*QueryMemberResponse, error)
 	// CurrentGroup queries the current group information.
 	CurrentGroup(context.Context, *QueryCurrentGroupRequest) (*QueryCurrentGroupResponse, error)
-	// Signing queries the signing result of the signing request.
+	// Signing queries the signing result of the given signing request ID.
 	Signing(context.Context, *QuerySigningRequest) (*QuerySigningResponse, error)
 	// Replacement queries the replacement information.
 	Replacement(context.Context, *QueryReplacementRequest) (*QueryReplacementResponse, error)

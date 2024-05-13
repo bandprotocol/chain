@@ -68,7 +68,7 @@ func (ResolveStatus) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_652b57db11528d07, []int{0}
 }
 
-// EncodeType represent encode type of oracle result when using in TSS
+// EncodeType represent encode type of oracle result when using in bandtss
 type EncodeType int32
 
 const (
@@ -456,9 +456,9 @@ type Request struct {
 	ExecuteGas uint64 `protobuf:"varint,10,opt,name=execute_gas,json=executeGas,proto3" json:"execute_gas,omitempty"`
 	// TSSEncodeType is the encode type of oracle result that will be sent to TSS.
 	TSSEncodeType EncodeType `protobuf:"varint,11,opt,name=tss_encode_type,json=tssEncodeType,proto3,enum=oracle.v1.EncodeType" json:"tss_encode_type,omitempty"`
-	// request is the address of requester
+	// Requester is the address of person who requests the data.
 	Requester string `protobuf:"bytes,12,opt,name=requester,proto3" json:"requester,omitempty"`
-	// fee_limit is the fee left for paying fee in this request.
+	// FeeLimit is the maximum tokens that will be paid for this request.
 	FeeLimit github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,13,rep,name=fee_limit,json=feeLimit,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"fee_limit"`
 }
 
@@ -1083,7 +1083,7 @@ func (m *Result) GetResult() []byte {
 
 // SigningResult encodes a result of signing of request
 type SigningResult struct {
-	// signing_id is the id of the signing
+	// signing_id is the id of the bandtss signing
 	SigningID github_com_bandprotocol_chain_v2_x_bandtss_types.SigningID `protobuf:"varint,1,opt,name=signing_id,json=signingId,proto3,casttype=github.com/bandprotocol/chain/v2/x/bandtss/types.SigningID" json:"signing_id,omitempty"`
 	// error_codespace is the codespace of the error
 	ErrorCodespace string `protobuf:"bytes,2,opt,name=error_codespace,json=errorCodespace,proto3" json:"error_codespace,omitempty"`
@@ -1673,11 +1673,11 @@ func (m *PriceResult) GetResolveTime() int64 {
 	return 0
 }
 
-// OracleResultSignatureOrder defines a request id to request TSS signature from the oracle result.
+// OracleResultSignatureOrder defines a request id to request bandtss signature from the oracle result.
 type OracleResultSignatureOrder struct {
-	// RequestID is BandChain's unique identifier for this oracle request.
+	// RequestID is oracle's unique identifier for this oracle request.
 	RequestID RequestID `protobuf:"varint,1,opt,name=request_id,json=requestId,proto3,casttype=RequestID" json:"request_id,omitempty"`
-	// EncodeType is encoding type of the oracle result when it's sent to TSS
+	// EncodeType is encoding type of the oracle result when it's sent to bandtss
 	EncodeType EncodeType `protobuf:"varint,2,opt,name=encode_type,json=encodeType,proto3,enum=oracle.v1.EncodeType" json:"encode_type,omitempty"`
 }
 

@@ -56,7 +56,7 @@ type MsgRequestData struct {
 	ExecuteGas uint64 `protobuf:"varint,8,opt,name=execute_gas,json=executeGas,proto3" json:"execute_gas,omitempty"`
 	// Sender is an account address of message sender.
 	Sender string `protobuf:"bytes,9,opt,name=sender,proto3" json:"sender,omitempty"`
-	// TSSEncodeType is the encode type of oracle result that will be sent to TSS.
+	// TSSEncodeType is the encode type of oracle result that will be sent to bandtss.
 	TSSEncodeType EncodeType `protobuf:"varint,10,opt,name=tss_encode_type,json=tssEncodeType,proto3,enum=oracle.v1.EncodeType" json:"tss_encode_type,omitempty"`
 }
 

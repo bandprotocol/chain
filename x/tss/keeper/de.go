@@ -97,10 +97,9 @@ func (k Keeper) GetDEsGenesis(ctx sdk.Context) []types.DEGenesis {
 	for ; iterator.Valid(); iterator.Next() {
 		var de types.DE
 		k.cdc.MustUnmarshal(iterator.Value(), &de)
-		address, index := types.AddressAndIndexFromDEStoreKey(iterator.Key())
+		address, _ := types.AddressAndIndexFromDEStoreKey(iterator.Key())
 		des = append(des, types.DEGenesis{
 			Address: address.String(),
-			Index:   index,
 			DE:      de,
 		})
 	}

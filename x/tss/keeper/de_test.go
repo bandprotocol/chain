@@ -113,7 +113,6 @@ func (s *KeeperTestSuite) TestGetDEsGenesis() {
 		if q.Address == string(address) {
 			s.Require().Equal(types.DEGenesis{
 				Address: address.String(),
-				Index:   index,
 				DE:      de,
 			}, q)
 		}

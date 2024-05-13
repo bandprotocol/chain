@@ -81,7 +81,7 @@ type Member struct {
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 	// is_active is a flag to indicate whether a member is active or not.
 	IsActive bool `protobuf:"varint,2,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
-	// since is a block timestamp when a member has been activated/deactivated/jailed
+	// since is a block timestamp when a member is deactivated
 	Since time.Time `protobuf:"bytes,3,opt,name=since,proto3,stdtime" json:"since"`
 	// last_active is a latest block timestamp when a member is active
 	LastActive time.Time `protobuf:"bytes,4,opt,name=last_active,json=lastActive,proto3,stdtime" json:"last_active"`
