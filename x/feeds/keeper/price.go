@@ -7,12 +7,12 @@ import (
 )
 
 // ValidateSubmitPricesRequest validates price submission.
-func (k Keeper) ValidateSubmitPricesRequest(ctx sdk.Context, blockTime int64, req *types.MsgSubmitPrices) error {
-	val, err := sdk.ValAddressFromBech32(req.Validator)
-	if err != nil {
-		return err
-	}
-
+func (k Keeper) ValidateSubmitPricesRequest(
+	ctx sdk.Context,
+	blockTime int64,
+	req *types.MsgSubmitPrices,
+	val sdk.ValAddress,
+) error {
 	isValid := k.IsBondedValidator(ctx, val)
 	if !isValid {
 		return types.ErrNotBondedValidator
