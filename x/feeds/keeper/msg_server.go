@@ -83,6 +83,10 @@ func (ms msgServer) SubmitPrices(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	blockTime := ctx.BlockTime().Unix()
 
+	if len(req.Prices) > int(ms.Keeper.GetParams(ctx).MaxSupportedFeeds) {
+		return nil, types.ErrSubmitPricesTooLarge
+	}
+
 	val, err := sdk.ValAddressFromBech32(req.Validator)
 	if err != nil {
 		return nil, err
@@ -95,12 +99,29 @@ func (ms msgServer) SubmitPrices(
 	}
 
 	cooldownTime := ms.GetParams(ctx).CooldownTime
+	supportedFeeds := ms.GetSupportedFeedsByPower(ctx)
+	supportedFeedsMap := make(map[string]bool)
+	for _, feed := range supportedFeeds {
+		supportedFeedsMap[feed.SignalID] = true
+	}
+
+	tooEarlyPriceSubmission := 0
 
 	for _, price := range req.Prices {
-		valPrice, err := ms.NewValidatorPrice(ctx, blockTime, price, val, cooldownTime)
-		if err != nil {
-			return nil, err
+		if _, ok := supportedFeedsMap[price.SignalID]; !ok {
+			return nil, types.ErrSignalIDNotSupported.Wrapf(
+				"signal_id: %s",
+				price.SignalID,
+			)
 		}
+
+		// check if price is not too fast
+		priceVal, err := ms.GetValidatorPrice(ctx, price.SignalID, val)
+		if err == nil && blockTime < priceVal.Timestamp+cooldownTime {
+			tooEarlyPriceSubmission++
+		}
+
+		valPrice := ms.NewValidatorPrice(ctx, blockTime, price, val, cooldownTime)
 
 		err = ms.SetValidatorPrice(ctx, valPrice)
 		if err != nil {
@@ -108,6 +129,10 @@ func (ms msgServer) SubmitPrices(
 		}
 
 		emitEventSubmitPrice(ctx, valPrice)
+	}
+
+	if tooEarlyPriceSubmission > len(req.Prices)/2 {
+		return nil, types.ErrPriceSubmitTooEarly
 	}
 
 	return &types.MsgSubmitPricesResponse{}, nil

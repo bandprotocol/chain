@@ -52,7 +52,13 @@ func checkFeeds(c *grogucontext.Context, l *grogucontext.Logger) {
 		}
 
 		// Calculate assigned time for the feed
-		assignedTime := calculateAssignedTime(c.Validator, feed.Interval, timestamp)
+		assignedTime := calculateAssignedTime(
+			c.Validator,
+			feed.Interval,
+			timestamp,
+			c.Config.DistributionPercentageRange,
+			c.Config.DistributionStartPercentage,
+		)
 
 		if assignedTime.Before(now) || isDeviate(c, feed, signalIDChainPriceMap) {
 			updateRequestedSignalID(c, requestedSignalIDs, feed, timestamp, params)
@@ -119,11 +125,17 @@ func fetchData(
 }
 
 // calculateAssignedTime calculates the assigned time for the feed
-func calculateAssignedTime(valAddr sdk.ValAddress, interval int64, timestamp int64) time.Time {
+func calculateAssignedTime(
+	valAddr sdk.ValAddress,
+	interval int64,
+	timestamp int64,
+	dpRange uint64,
+	dpStart uint64,
+) time.Time {
 	hashed := sha256.Sum256(append(valAddr.Bytes(), sdk.Uint64ToBigEndian(uint64(timestamp))...))
 	offset := sdk.BigEndianToUint64(
 		hashed[:],
-	)%grogucontext.Cfg.DistributionPercentageRange + grogucontext.Cfg.DistributionStartPercentage
+	)%dpRange + dpStart
 	timeOffset := interval * int64(offset) / 100
 	// add 2 seconds to prevent too fast case
 	return time.Unix(timestamp+2, 0).Add(time.Duration(timeOffset) * time.Second)
