@@ -6,7 +6,7 @@ import (
 
 const (
 	// Default values for Params
-	DefaultAllowableBlockTimeDiscrepancy = int64(30)
+	DefaultAllowableBlockTimeDiscrepancy = int64(60)
 	DefaultTransitionTime                = int64(30)
 	DefaultMinInterval                   = int64(60)
 	DefaultMaxInterval                   = int64(3600)

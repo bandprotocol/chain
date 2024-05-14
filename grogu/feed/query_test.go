@@ -71,7 +71,11 @@ func TestQuerySignalIDs(t *testing.T) {
 	mockContext.PriceService = &MockPriceService{}
 
 	// Call the function being tested.
-	feed.QuerySignalIDs(&mockContext, mockLogger)
+	feed.QuerySignalIDs(
+		&mockContext,
+		mockLogger,
+		feed.BlockAndRetrieveBatchedPendingSignalIDs(mockContext.PendingSignalIDs),
+	)
 
 	// Check if the correct prices were sent to the pending prices channel.
 	select {
@@ -107,7 +111,11 @@ func TestQuerySignalIDs(t *testing.T) {
 	mockContext.PendingSignalIDs <- signalIDsWithTimeLimit
 
 	// Call the function being tested.
-	feed.QuerySignalIDs(&mockContext, mockLogger)
+	feed.QuerySignalIDs(
+		&mockContext,
+		mockLogger,
+		feed.BlockAndRetrieveBatchedPendingSignalIDs(mockContext.PendingSignalIDs),
+	)
 
 	// Check if the correct prices were sent to the pending prices channel.
 	select {
@@ -127,7 +135,11 @@ func TestQuerySignalIDs(t *testing.T) {
 	mockContext.PendingSignalIDs <- signalIDsWithTimeLimit
 
 	// Call the function being tested.
-	feed.QuerySignalIDs(&mockContext, mockLogger)
+	feed.QuerySignalIDs(
+		&mockContext,
+		mockLogger,
+		feed.BlockAndRetrieveBatchedPendingSignalIDs(mockContext.PendingSignalIDs),
+	)
 
 	// Check if the correct prices were sent to the pending prices channel.
 	select {
