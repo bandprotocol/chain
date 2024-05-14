@@ -18,10 +18,12 @@ import (
 	grogucontext "github.com/bandprotocol/chain/v2/grogu/context"
 )
 
-func initConfig(c *grogucontext.Context, cmd *cobra.Command) error {
+var DefaultGroguHome string
+
+func initConfig(c *grogucontext.Context, _ *cobra.Command) error {
 	viper.SetConfigFile(path.Join(c.Home, "config.yaml"))
 	_ = viper.ReadInConfig() // If we fail to read config file, we'll just rely on cmd flags.
-	if err := viper.Unmarshal(&grogucontext.Cfg); err != nil {
+	if err := viper.Unmarshal(&c.Config); err != nil {
 		return err
 	}
 	return nil
@@ -33,7 +35,7 @@ func init() {
 		panic(err)
 	}
 
-	grogucontext.DefaultGroguHome = filepath.Join(userHomeDir, ".grogu")
+	DefaultGroguHome = filepath.Join(userHomeDir, ".grogu")
 }
 
 func Main() {
@@ -61,13 +63,14 @@ func Main() {
 		if err := os.MkdirAll(home, os.ModePerm); err != nil {
 			return err
 		}
-		grogucontext.Kb, err = keyring.New("band", keyring.BackendTest, home, nil, grogucontext.Cdc)
+		cdc := band.MakeEncodingConfig().Marshaler
+		ctx.Keyring, err = keyring.New("band", keyring.BackendTest, home, nil, cdc)
 		if err != nil {
 			return err
 		}
 		return initConfig(ctx, rootCmd)
 	}
-	rootCmd.PersistentFlags().String(flags.FlagHome, grogucontext.DefaultGroguHome, "home directory")
+	rootCmd.PersistentFlags().String(flags.FlagHome, DefaultGroguHome, "home directory")
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

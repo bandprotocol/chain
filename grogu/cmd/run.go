@@ -62,10 +62,11 @@ func RunCmd(c *grogucontext.Context) *cobra.Command {
 		Short:   "Run the grogu process",
 		Args:    cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if grogucontext.Cfg.ChainID == "" {
+			config := c.Config
+			if config.ChainID == "" {
 				return errors.New("chain ID must not be empty")
 			}
-			keys, err := grogucontext.Kb.List()
+			keys, err := c.Keyring.List()
 			if err != nil {
 				return err
 			}
@@ -73,7 +74,7 @@ func RunCmd(c *grogucontext.Context) *cobra.Command {
 				return errors.New("no key available")
 			}
 			c.Keys = keys
-			c.Validator, err = sdk.ValAddressFromBech32(grogucontext.Cfg.Validator)
+			c.Validator, err = sdk.ValAddressFromBech32(config.Validator)
 			if err != nil {
 				return err
 			}
@@ -82,36 +83,37 @@ func RunCmd(c *grogucontext.Context) *cobra.Command {
 				return err
 			}
 
-			c.GasPrices = grogucontext.Cfg.GasPrices
+			c.GasPrices = config.GasPrices
 
-			allowLevel, err := log.AllowLevel(grogucontext.Cfg.LogLevel)
+			allowLevel, err := log.AllowLevel(config.LogLevel)
 			if err != nil {
 				return err
 			}
 			l := grogucontext.NewLogger(allowLevel)
-			c.PriceService, err = priceservice.PriceServiceFromUrl(grogucontext.Cfg.PriceService)
+			c.PriceService, err = priceservice.PriceServiceFromUrl(config.PriceService)
 			if err != nil {
 				return err
 			}
-			l.Info(":star: Creating HTTP client with node URI: %s", grogucontext.Cfg.NodeURI)
-			c.Client, err = httpclient.New(grogucontext.Cfg.NodeURI, "/websocket")
+			l.Info(":star: Creating HTTP client with node URI: %s", config.NodeURI)
+			c.Client, err = httpclient.New(config.NodeURI, "/websocket")
 			if err != nil {
 				return err
 			}
+			cdc := band.MakeEncodingConfig().Marshaler
 			clientCtx := client.Context{
 				Client:            c.Client,
-				Codec:             grogucontext.Cdc,
+				Codec:             cdc,
 				TxConfig:          band.MakeEncodingConfig().TxConfig,
 				BroadcastMode:     flags.BroadcastSync,
 				InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
 			}
 			c.QueryClient = types.NewQueryClient(clientCtx)
-			c.BroadcastTimeout, err = time.ParseDuration(grogucontext.Cfg.BroadcastTimeout)
+			c.BroadcastTimeout, err = time.ParseDuration(config.BroadcastTimeout)
 			if err != nil {
 				return err
 			}
-			c.MaxTry = grogucontext.Cfg.MaxTry
-			c.RPCPollInterval, err = time.ParseDuration(grogucontext.Cfg.RPCPollInterval)
+			c.MaxTry = config.MaxTry
+			c.RPCPollInterval, err = time.ParseDuration(config.RPCPollInterval)
 			if err != nil {
 				return err
 			}

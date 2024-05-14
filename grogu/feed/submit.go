@@ -138,9 +138,10 @@ GetAllPrices:
 func signAndBroadcast(
 	c *grogucontext.Context, key *keyring.Record, msgs []sdk.Msg, gasAdjustment float64,
 ) (*sdk.TxResponse, error) {
+	cdc := band.MakeEncodingConfig().Marshaler
 	clientCtx := client.Context{
 		Client:            c.Client,
-		Codec:             grogucontext.Cdc,
+		Codec:             cdc,
 		TxConfig:          band.MakeEncodingConfig().TxConfig,
 		BroadcastMode:     flags.BroadcastSync,
 		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
@@ -156,9 +157,9 @@ func signAndBroadcast(
 		WithTxConfig(band.MakeEncodingConfig().TxConfig).
 		WithSimulateAndExecute(true).
 		WithGasAdjustment(gasAdjustment).
-		WithChainID(grogucontext.Cfg.ChainID).
+		WithChainID(c.Config.ChainID).
 		WithGasPrices(c.GasPrices).
-		WithKeybase(grogucontext.Kb).
+		WithKeybase(c.Keyring).
 		WithFromName(key.Name).
 		WithAccountRetriever(clientCtx.AccountRetriever)
 
