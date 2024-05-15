@@ -39,7 +39,8 @@ func (a *HealthCheck) updateHealthCheck() {
 	// Query active information
 	member, err := a.client.QueryMember(a.context.Config.Granter)
 	if err != nil {
-		a.logger.Error(":cold_sweat: Failed to query status information: %s", err)
+		// maybe because not being a member of the current group or the group is not active;
+		a.logger.Debug(":cold_sweat: Failed to query status information: %s", err)
 		return
 	}
 
