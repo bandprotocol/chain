@@ -11,8 +11,9 @@ level = "info"
 
 [source.bybit]
 
+[source.coinbase]
+
 [source.coingecko]
-api_key = ""
 
 [source.coinmarketcap]
 api_key = ""
@@ -25,5 +26,5 @@ api_key = ""
 [source.kraken]
 
 [registry.crypto_price]
-source = "registry/crypto_prices.json"
+source = "registry/crypto_price.json"
 version = "1.0"
