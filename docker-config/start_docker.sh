@@ -39,13 +39,13 @@ echo "audit silver absorb involve more aspect girl report open gather excite mir
     | bandd keys add relayer --recover --keyring-backend test
 
 echo "drop video mention casual soldier ostrich resemble harvest casual step design gasp grunt lab meadow buzz envelope today spy cliff column habit fall eyebrow" \
-    | bandd keys add tss1 --recover --keyring-backend test
+    | bandd keys add account1 --recover --keyring-backend test
 
 echo "enlist electric thumb valve inherit visa ecology trust cake argue forward hidden thing analyst science treat ice lend pumpkin today ticket purchase process pioneer" \
-    | bandd keys add tss2 --recover --keyring-backend test
+    | bandd keys add account2 --recover --keyring-backend test
 
 echo "measure fence mail fluid olive cute empower fossil ahead manage snow marble dash citizen tourist skate assist solution bonus spend tip negative try eyebrow" \
-    | bandd keys add tss3 --recover --keyring-backend test
+    | bandd keys add account3 --recover --keyring-backend test
 
 # add accounts to genesis
 bandd genesis add-genesis-account validator1 10000000000000uband --keyring-backend test
@@ -54,9 +54,9 @@ bandd genesis add-genesis-account validator3 10000000000000uband --keyring-backe
 bandd genesis add-genesis-account validator4 10000000000000uband --keyring-backend test
 bandd genesis add-genesis-account requester 100000000000000uband --keyring-backend test
 bandd genesis add-genesis-account relayer 100000000000000uband --keyring-backend test
-bandd genesis add-genesis-account tss1 100000000000000uband --keyring-backend test
-bandd genesis add-genesis-account tss2 100000000000000uband --keyring-backend test
-bandd genesis add-genesis-account tss3 100000000000000uband --keyring-backend test
+bandd genesis add-genesis-account account1 100000000000000uband --keyring-backend test
+bandd genesis add-genesis-account account2 100000000000000uband --keyring-backend test
+bandd genesis add-genesis-account account3 100000000000000uband --keyring-backend test
 
 # create copy of config.toml
 cp ~/.band/config/config.toml ~/.band/config/config.toml.temp
@@ -181,28 +181,17 @@ do
     cylinder config random-secret "$(openssl rand -hex 32)"
     cylinder config active-period "12h"
 
-    # activate tss
-    echo "y" | bandd tx tss activate --from tss$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
-
-    # wait for activation transaction success
-    sleep 4
-
     for i in $(eval echo {1..1})
     do
         # add signer key
         cylinder keys add signer$i
     done
 
-    # send band tokens to signers
-    echo "y" | bandd tx bank send tss$v $(cylinder keys list -a) 1000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
+    # activate tss
+    echo "y" | bandd tx tss add-grantees --from account$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband --gas 350000 -b sync
+    echo "y" | bandd tx bandtss add-grantees --from account$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband --gas 350000 -b sync
 
-    # wait for sending band tokens transaction success
-    sleep 4
-
-    # add reporter to bandchain
-    echo "y" | bandd tx tss add-grantees $(cylinder keys list -a) --from tss$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
-
-    # wait for addding reporter transaction success
+    # wait for activating tss transaction success
     sleep 4
 
     docker create --network chain_bandchain --name bandchain_cylinder${v} band-validator:latest cylinder run
