@@ -21,6 +21,13 @@ class ProposalStatus(enum.Enum):
     Inactive = 6
 
 
+class TSSEncodeType(enum.Enum):
+    Unspecified = 0
+    Proto = 1
+    FullABI = 2
+    PartialABI = 3
+
+
 class CustomResolveStatus(sa.types.TypeDecorator):
     impl = sa.Enum(ResolveStatus)
 
@@ -33,6 +40,13 @@ class CustomProposalStatus(sa.types.TypeDecorator):
 
     def process_bind_param(self, value, dialect):
         return ProposalStatus(value)
+
+
+class CustomTSSEncodeType(sa.types.TypeDecorator):
+    impl = sa.Enum(TSSEncodeType)
+
+    def process_bind_param(self, value, dialect):
+        return TSSEncodeType(value)
 
 
 class CustomDateTime(sa.types.TypeDecorator):
@@ -179,8 +193,8 @@ requests = sa.Table(
     Column("prepare_gas_used", sa.Integer, default=0),
     Column("execute_gas", sa.Integer),
     Column("execute_gas_used", sa.Integer, default=0),
+    Column("tss_encode_type", CustomTSSEncodeType),
     Column("sender", sa.String, nullable=True),
-    Column("tss_group_id", sa.Integer, default=0),
     Column("client_id", sa.String),
     Column("request_time", sa.Integer, nullable=True, index=True),
     Column("resolve_status", CustomResolveStatus),
@@ -627,7 +641,12 @@ group_proposals = sa.Table(
 group_votes = sa.Table(
     "group_votes",
     metadata,
-    Column("group_proposal_id", sa.Integer, sa.ForeignKey("group_proposals.id"), primary_key=True),
+    Column(
+        "group_proposal_id",
+        sa.Integer,
+        sa.ForeignKey("group_proposals.id"),
+        primary_key=True,
+    ),
     Column("voter_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
     Column("option", sa.String),
     Column("metadata", sa.String),

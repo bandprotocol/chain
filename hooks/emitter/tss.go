@@ -15,7 +15,7 @@ func (h *Hook) emitNewTSSSigning(signing types.Signing) {
 		"group_pub_key":   parseBytes(signing.GroupPubKey),
 		"msg":             parseBytes(signing.Message),
 		"group_pub_nonce": parseBytes(signing.GroupPubNonce),
-		"status":          int(signing.Status),
+		"status":          signing.Status,
 		"created_height":  signing.CreatedHeight,
 	})
 }
@@ -23,7 +23,7 @@ func (h *Hook) emitNewTSSSigning(signing types.Signing) {
 func (h *Hook) emitUpdateTSSSigningSuccess(signing types.Signing) {
 	h.Write("UPDATE_TSS_SIGNING", common.JsDict{
 		"id":        signing.ID,
-		"status":    int(signing.Status),
+		"status":    signing.Status,
 		"signature": parseBytes(signing.Signature),
 	})
 }
@@ -31,7 +31,7 @@ func (h *Hook) emitUpdateTSSSigningSuccess(signing types.Signing) {
 func (h *Hook) emitUpdateTSSSigningFailed(reason string, signing types.Signing) {
 	h.Write("UPDATE_TSS_SIGNING", common.JsDict{
 		"id":     signing.ID,
-		"status": int(signing.Status),
+		"status": signing.Status,
 		"reason": reason,
 	})
 }
@@ -39,7 +39,7 @@ func (h *Hook) emitUpdateTSSSigningFailed(reason string, signing types.Signing) 
 func (h *Hook) emitUpdateTSSSigningStatus(signing types.Signing) {
 	h.Write("UPDATE_TSS_SIGNING", common.JsDict{
 		"id":     signing.ID,
-		"status": int(signing.Status),
+		"status": signing.Status,
 	})
 }
 
@@ -48,20 +48,22 @@ func (h *Hook) emitSetTSSGroup(group types.Group, dkgContext []byte) {
 		"id":             group.ID,
 		"size":           group.Size_,
 		"threshold":      group.Threshold,
-		"dkg_context":    parseBytes(dkgContext),
 		"pub_key":        parseBytes(group.PubKey),
-		"status":         int(group.Status),
+		"status":         group.Status,
+		"dkg_context":    parseBytes(dkgContext),
+		"module_owner":   group.ModuleOwner,
 		"created_height": group.CreatedHeight,
 	})
 }
 
-func (h *Hook) emitSetTSSGroupMember(member types.Member) {
-	h.Write("SET_TSS_GROUP_MEMBER", common.JsDict{
+func (h *Hook) emitSetTSSMember(member types.Member) {
+	h.Write("SET_TSS_MEMBER", common.JsDict{
 		"id":           member.ID,
 		"tss_group_id": member.GroupID,
 		"address":      member.Address,
 		"pub_key":      parseBytes(member.PubKey),
 		"is_malicious": member.IsMalicious,
+		"is_active":    member.IsActive,
 	})
 }
 
@@ -163,18 +165,6 @@ func (h *Hook) handleSetTSSGroup(ctx sdk.Context, gid tss.GroupID) {
 
 	members := h.tssKeeper.MustGetMembers(ctx, gid)
 	for _, m := range members {
-		h.emitSetTSSGroupMember(m)
+		h.emitSetTSSMember(m)
 	}
-}
-
-// handleTSSMsgSubmitDEs implements emitter handler for MsgSubmitDEs of TSS.
-func (h *Hook) handleTSSMsgSubmitDEs(
-	ctx sdk.Context, msg *types.MsgSubmitDEs,
-) {
-	acc, err := sdk.AccAddressFromBech32(msg.Address)
-	if err != nil {
-		panic(err)
-	}
-
-	h.handleUpdateBandtssStatus(ctx, acc)
 }

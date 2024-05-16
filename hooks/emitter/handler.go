@@ -132,8 +132,6 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 		h.handleBandtssMsgHealthCheck(ctx, msg)
 	case *bandtsstypes.MsgRequestSignature:
 		h.handleEventRequestSignature(ctx, evMap)
-	case *tsstypes.MsgSubmitDEs:
-		h.handleTSSMsgSubmitDEs(ctx, msg)
 	case *group.MsgCreateGroup:
 		h.handleGroupMsgCreateGroup(ctx, evMap)
 	case *group.MsgCreateGroupPolicy:
@@ -206,19 +204,21 @@ func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) 
 	case tsstypes.EventTypeCreateGroup,
 		tsstypes.EventTypeRound2Success,
 		tsstypes.EventTypeRound3Success,
+		tsstypes.EventTypeExpiredGroup,
 		tsstypes.EventTypeComplainSuccess,
-		tsstypes.EventTypeComplainFailed,
-		tsstypes.EventTypeExpiredGroup:
-
+		tsstypes.EventTypeRound3Failed:
 		gid := tss.GroupID(common.Atoi(evMap[event.Type+"."+tsstypes.AttributeKeyGroupID][0]))
 		h.handleSetTSSGroup(ctx, gid)
+	case bandtsstypes.EventTypeNewGroupActivate:
+		gid := tss.GroupID(common.Atoi(evMap[event.Type+"."+tsstypes.AttributeKeyGroupID][0]))
+
+		h.handleNewBandtssGroupActive(ctx, gid)
+		h.handleSetBandtssReplacement(ctx)
+	case bandtsstypes.EventTypeSigningRequestCreated:
+		sid := bandtsstypes.SigningID(common.Atoi(evMap[event.Type+"."+tsstypes.AttributeKeySigningID][0]))
+		h.handleEventSigningRequestCreated(ctx, sid)
 	case bandtsstypes.EventTypeReplacement:
-		if evMap[bandtsstypes.EventTypeReplacement+"."+bandtsstypes.AttributeKeyReplacementStatus][0] == "1" {
-			h.handleInitBandtssReplacement(ctx)
-		} else {
-			// TODO: check EventTypeNewGroupActivate
-			h.handleUpdateBandtssReplacementStatus(ctx)
-		}
+		h.handleSetBandtssReplacement(ctx)
 	case proto.MessageName(&group.EventProposalPruned{}):
 		h.handleGroupEventProposalPruned(ctx, evMap)
 	default:

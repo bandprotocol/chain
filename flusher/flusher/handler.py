@@ -49,10 +49,12 @@ from .db import (
 from .tss_db import (
     tss_signings,
     tss_groups,
-    tss_group_members,
+    band_tss_groups,
+    tss_members,
     tss_assigned_members,
-    tss_statuses,
-    tss_replacements,
+    band_tss_members,
+    band_tss_signings,
+    band_tss_replacements,
 )
 
 
@@ -137,10 +139,18 @@ class Handler(object):
         ).scalar()
 
     def get_group_id_from_policy_address(self, address):
-        return self.conn.execute(select([group_policies.c.group_id]).where(group_policies.c.address == address)).scalar()
+        return self.conn.execute(
+            select([group_policies.c.group_id]).where(
+                group_policies.c.address == address
+            )
+        ).scalar()
 
     def get_group_id_from_policy_address(self, address):
-        return self.conn.execute(select([group_policies.c.group_id]).where(group_policies.c.address == address)).scalar()
+        return self.conn.execute(
+            select([group_policies.c.group_id]).where(
+                group_policies.c.address == address
+            )
+        ).scalar()
 
     def get_ibc_received_txs(self, date, port, channel, address):
         msg = {"date": date, "port": port, "channel": channel, "address": address}
@@ -221,7 +231,9 @@ class Handler(object):
         self.conn.execute(group_policies.insert(), msg)
 
     def handle_new_group_proposal(self, msg):
-        msg["group_id"] = self.get_group_id_from_policy_address(msg["group_policy_address"])
+        msg["group_id"] = self.get_group_id_from_policy_address(
+            msg["group_policy_address"]
+        )
         self.conn.execute(group_proposals.insert(), msg)
 
     def handle_new_group_vote(self, msg):
@@ -234,21 +246,42 @@ class Handler(object):
 
     def handle_remove_group_member(self, msg):
         account_id = self.get_account_id(msg["address"])
-        self.conn.execute(group_members.delete().where((group_members.c.group_id == msg["group_id"]) & (group_members.c.account_id == account_id)))
+        self.conn.execute(
+            group_members.delete().where(
+                (group_members.c.group_id == msg["group_id"])
+                & (group_members.c.account_id == account_id)
+            )
+        )
 
     def handle_remove_group_members_by_group_id(self, msg):
-        self.conn.execute(group_members.delete().where(group_members.c.group_id == msg["group_id"]))
+        self.conn.execute(
+            group_members.delete().where(group_members.c.group_id == msg["group_id"])
+        )
 
     def handle_update_group_policy(self, msg):
-        self.conn.execute(group_policies.update().where(group_policies.c.address == msg["address"]).values(**msg))
-    
+        self.conn.execute(
+            group_policies.update()
+            .where(group_policies.c.address == msg["address"])
+            .values(**msg)
+        )
+
     def handle_update_group_proposal(self, msg):
-        msg["group_id"] = self.get_group_id_from_policy_address(msg["group_policy_address"])
-        self.conn.execute(group_proposals.update().where(group_proposals.c.id == msg["id"]).values(**msg))
+        msg["group_id"] = self.get_group_id_from_policy_address(
+            msg["group_policy_address"]
+        )
+        self.conn.execute(
+            group_proposals.update()
+            .where(group_proposals.c.id == msg["id"])
+            .values(**msg)
+        )
 
     def handle_update_group_proposal_by_id(self, msg):
-        self.conn.execute(group_proposals.update().where(group_proposals.c.id == msg["id"]).values(**msg))
-        
+        self.conn.execute(
+            group_proposals.update()
+            .where(group_proposals.c.id == msg["id"])
+            .values(**msg)
+        )
+
     def handle_set_data_source(self, msg):
         msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
         del msg["tx_hash"]
@@ -295,6 +328,14 @@ class Handler(object):
         if "tss_signing_id" in msg:
             if msg["tss_signing_id"] == 0:
                 del msg["tss_signing_id"]
+
+        if "tss_signing_error_codespace" in msg:
+            if msg["tss_signing_error_codespace"] == "":
+                del msg["tss_signing_error_codespace"]
+
+        if "tss_signing_error_code" in msg:
+            if msg["tss_signing_error_code"] == 0:
+                del msg["tss_signing_error_code"]
 
         condition = True
         for col in requests.primary_key.columns.values():
@@ -764,46 +805,59 @@ class Handler(object):
             condition = (col == msg[col.name]) & condition
         self.conn.execute(tss_signings.update().where(condition).values(**msg))
 
-    def handle_set_tss_status(self, msg):
-        msg["account_id"] = self.get_account_id(msg["address"])
-        del msg["address"]
+    def handle_set_band_tss_member(self, msg):
+        msg["requester_id"] = self.get_account_id(msg["requester"])
+        del msg["requester"]
 
-        if not self.have_tss_account(msg["account_id"]):
-            self.conn.execute(tss_statuses.insert(), msg)
-        else:
-            condition = True
-            for col in tss_statuses.primary_key.columns.values():
-                condition = (col == msg[col.name]) & condition
-            self.conn.execute(tss_statuses.update().where(condition).values(**msg))
+        self.conn.execute(
+            insert(band_tss_signings)
+            .values(**msg)
+            .on_conflict_do_update(constraint="band_tss_signings_pkey", set_=msg)
+        )
 
     def handle_set_tss_group(self, msg):
-        if msg["latest_replacement_id"] == 0:
-            msg["latest_replacement_id"] = None
-
         self.conn.execute(
             insert(tss_groups)
             .values(**msg)
             .on_conflict_do_update(constraint="tss_groups_pkey", set_=msg)
         )
 
-    def handle_set_tss_group_member(self, msg):
+    def handle_set_band_tss_group(self, msg):
+        self.conn.execute(
+            insert(band_tss_groups)
+            .values(**msg)
+            .on_conflict_do_update(constraint="band_tss_groups_pkey", set_=msg)
+        )
+
+    def handle_set_band_tss_replacement(self, msg):
+        self.conn.execute(
+            insert(band_tss_replacements)
+            .values(**msg)
+            .on_conflict_do_update(constraint="band_tss_replacements_pkey", set_=msg)
+        )
+
+    def handle_set_tss_member(self, msg):
         msg["account_id"] = self.get_account_id(msg["address"])
         del msg["address"]
 
         self.conn.execute(
-            insert(tss_group_members)
+            insert(tss_members)
             .values(**msg)
-            .on_conflict_do_update(constraint="tss_group_members_pkey", set_=msg)
+            .on_conflict_do_update(constraint="tss_members_pkey", set_=msg)
         )
+
+    def handle_set_band_tss_member(self, msg):
+        msg["account_id"] = self.get_account_id(msg["address"])
+        del msg["address"]
+
+        self.conn.execute(
+            insert(band_tss_members)
+            .values(**msg)
+            .on_conflict_do_update(constraint="band_tss_members_pkey", set_=msg)
+        )
+
+    def handle_remove_band_tss_members(self, msg):
+        self.conn.execute(band_tss_members.delete())
 
     def handle_new_tss_assigned_member(self, msg):
         self.conn.execute(tss_assigned_members.insert(), msg)
-
-    def handle_new_tss_replacement(self, msg):
-        self.conn.execute(tss_replacements.insert(), msg)
-
-    def handle_update_tss_replacement_status(self, msg):
-        condition = True
-        for col in tss_signings.primary_key.columns.values():
-            condition = (col == msg[col.name]) & condition
-        self.conn.execute(tss_replacements.update().where(condition).values(**msg))

@@ -26,6 +26,9 @@
           table:
             name: validators
             schema: public
+    - name: band_tss_member
+      using:
+        foreign_key_constraint_on: account_id
   array_relationships:
     - name: account_transactions
       using:
@@ -104,12 +107,19 @@
           table:
             name: reports
             schema: public
-    - name: signing_data
+    - name: tss_members
       using:
         foreign_key_constraint_on:
           column: account_id
           table:
-            name: signing_data
+            name: tss_members
+            schema: public
+    - name: band_tss_signings
+      using:
+        foreign_key_constraint_on:
+          column: requester_id
+          table:
+            name: band_tss_signings
             schema: public
     - name: unbonding_delegations
       using:
@@ -154,12 +164,12 @@
           table:
             name: requests
             schema: public
-    - name: signing_data
+    - name: tss_signings
       using:
         foreign_key_constraint_on:
           column: created_height
           table:
-            name: signing_data
+            name: tss_signings
             schema: public
     - name: transactions
       using:
@@ -700,7 +710,10 @@
     - name: oracle_script
       using:
         foreign_key_constraint_on: oracle_script_id
-    - name: signing_datum
+    - name: group
+      using:
+        foreign_key_constraint_on: tss_group_id
+    - name: tss_signing
       using:
         foreign_key_constraint_on: tss_signing_id
     - name: transaction
@@ -729,23 +742,91 @@
             name: val_requests
             schema: public
 - table:
-    name: signing_data
+    name: tss_signings
     schema: public
   object_relationships:
-    - name: account
+    - name: tss_replacement
       using:
-        foreign_key_constraint_on: account_id
-    - name: block
-      using:
-        foreign_key_constraint_on: created_height
+        foreign_key_constraint_on: tss_signing_id
   array_relationships:
-    - name: requests
+    - name: replacing_band_tss_signing
+      using:
+        foreign_key_constraint_on:
+          column: replacing_group_signing_id
+          table:
+            name: band_tss_signing
+            schema: public
+    - name: current_band_tss_signing
+      using:
+        foreign_key_constraint_on:
+          column: current_group_signing_id
+          table:
+            name: band_tss_signing
+            schema: public
+    - name: tss_assigned_members
       using:
         foreign_key_constraint_on:
           column: tss_signing_id
           table:
-            name: requests
+            name: tss_assigned_members
             schema: public
+    - name: tss_replacements
+      using:
+        foreign_key_constraint_on:
+          column: tss_signing_id
+          table:
+            name: tss_replacements
+            schema: public
+- table:
+    name: tss_groups
+    schema: public
+  object_relationships:
+    - name: tss_group
+      using:
+        foreign_key_constraint_on: current_group_id
+  array_relationships:
+    - name: tss_members
+      using:
+        foreign_key_constraint_on:
+          column: tss_group_id
+          table:
+            name: tss_members
+            schema: public
+    - name: tss_assigned_members
+      using:
+        foreign_key_constraint_on:
+          column: tss_group_id
+          table:
+            name: tss_assigned_members
+            schema: public
+    - name: tss_replacements_new_group
+      using:
+        foreign_key_constraint_on:
+          column: new_group_id
+          table:
+            name: tss_replacements
+            schema: public
+    - name: tss_replacements_current_group
+      using:
+        foreign_key_constraint_on:
+          column: current_group_id
+          table:
+            name: tss_replacements
+            schema: public
+- table:
+    name: tss_members
+    schema: public
+  array_relationships:
+    - name: tss_assigned_members
+      using:
+        foreign_key_constraint_on:
+          column: tss_member_id
+          table:
+            name: tss_assigned_members
+            schema: public
+- table:
+    name: tss_replacements
+    schema: public
 - table:
     name: tracking
     schema: public
