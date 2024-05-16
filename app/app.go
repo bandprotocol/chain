@@ -495,6 +495,8 @@ func NewBandApp(
 		scopedICAHostKeeper,
 		app.MsgServiceRouter(),
 	)
+	app.ICAHostKeeper.WithQueryRouter(app.GRPCQueryRouter())
+
 	icaModule := ica.NewAppModule(nil, &app.ICAHostKeeper)
 	icaHostIBCModule := icahost.NewIBCModule(app.ICAHostKeeper)
 
