@@ -105,7 +105,7 @@ func TestMsgUpdateParams_Type(t *testing.T) {
 
 func TestMsgUpdateParams_GetSignBytes(t *testing.T) {
 	msg := NewMsgUpdateParams(ValidAuthority, ValidParams)
-	expected := `{"type":"feeds/MsgUpdateParams","value":{"authority":"cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8","params":{"admin":"[NOT_SET]","allowable_block_time_discrepancy":"30","cooldown_time":"30","max_deviation_in_thousandth":"300","max_interval":"3600","max_supported_feeds":"100","min_deviation_in_thousandth":"5","min_interval":"60","power_threshold":"1000000000","transition_time":"30"}}}`
+	expected := `{"type":"feeds/MsgUpdateParams","value":{"authority":"cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8","params":{"admin":"[NOT_SET]","allowable_block_time_discrepancy":"60","cooldown_time":"30","max_deviation_in_thousandth":"300","max_interval":"3600","max_supported_feeds":"300","min_deviation_in_thousandth":"5","min_interval":"60","power_threshold":"1000000000","transition_time":"30"}}}`
 	require.Equal(t, expected, string(msg.GetSignBytes()))
 }
 

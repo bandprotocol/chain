@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -61,6 +63,35 @@ func (k Keeper) SetPrice(ctx sdk.Context, price types.Price) {
 func (k Keeper) DeletePrice(ctx sdk.Context, signalID string) {
 	k.DeleteValidatorPrices(ctx, signalID)
 	ctx.KVStore(k.storeKey).Delete(types.PriceStoreKey(signalID))
+}
+
+// CalculatePrices calculates final prices for all supported feeds.
+func (k Keeper) CalculatePrices(ctx sdk.Context) {
+	feeds := k.GetSupportedFeedsByPower(ctx)
+	for _, feed := range feeds {
+		price, err := k.CalculatePrice(ctx, feed)
+		if err != nil {
+			ctx.EventManager().EmitEvent(
+				sdk.NewEvent(
+					types.EventTypeCalculatePriceFailed,
+					sdk.NewAttribute(types.AttributeKeySignalID, feed.SignalID),
+					sdk.NewAttribute(types.AttributeKeyErrorMessage, err.Error()),
+				),
+			)
+			continue
+		}
+
+		k.SetPrice(ctx, price)
+
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeUpdatePrice,
+				sdk.NewAttribute(types.AttributeKeySignalID, price.SignalID),
+				sdk.NewAttribute(types.AttributeKeyPrice, fmt.Sprintf("%d", price.Price)),
+				sdk.NewAttribute(types.AttributeKeyTimestamp, fmt.Sprintf("%d", price.Timestamp)),
+			),
+		)
+	}
 }
 
 // CalculatePrice calculates final price from price-validator and punish validators those did not report.

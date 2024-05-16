@@ -210,7 +210,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitPrices() {
 				},
 			},
 			expErr:    true,
-			expErrMsg: "feed not found",
+			expErrMsg: "signal id is not supported",
 		},
 		{
 			name: "invalid timestamp",
@@ -258,7 +258,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitPrices() {
 				},
 			},
 			expErr:    true,
-			expErrMsg: "price is too fast",
+			expErrMsg: "price is submitted too early",
 		},
 	}
 

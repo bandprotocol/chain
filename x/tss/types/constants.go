@@ -8,11 +8,15 @@ const (
 	uint64Len = 8
 )
 
-var TSSGrantMsgTypes = []string{
-	sdk.MsgTypeURL(&MsgSubmitDKGRound1{}),
-	sdk.MsgTypeURL(&MsgSubmitDKGRound2{}),
-	sdk.MsgTypeURL(&MsgComplain{}),
-	sdk.MsgTypeURL(&MsgConfirm{}),
-	sdk.MsgTypeURL(&MsgSubmitDEs{}),
-	sdk.MsgTypeURL(&MsgSubmitSignature{}),
+// GetGrantMsgTypes get message types that can be granted.
+// NOTE: have to be a function, or else sdk cannot find msgTypeURL for granting.
+func GetGrantMsgTypes() []string {
+	return []string{
+		sdk.MsgTypeURL(&MsgSubmitDKGRound1{}),
+		sdk.MsgTypeURL(&MsgSubmitDKGRound2{}),
+		sdk.MsgTypeURL(&MsgComplain{}),
+		sdk.MsgTypeURL(&MsgConfirm{}),
+		sdk.MsgTypeURL(&MsgSubmitDEs{}),
+		sdk.MsgTypeURL(&MsgSubmitSignature{}),
+	}
 }

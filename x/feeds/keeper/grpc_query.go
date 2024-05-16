@@ -175,7 +175,7 @@ func (q queryServer) ValidValidator(
 	isValid := true
 
 	// check if it's bonded validators.
-	isBonded := q.keeper.IsBondedValidator(ctx, req.Validator)
+	isBonded := q.keeper.IsBondedValidator(ctx, val)
 	if !isBonded {
 		isValid = false
 	}
