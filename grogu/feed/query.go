@@ -15,23 +15,33 @@ import (
 
 func StartQuerySignalIDs(c *grogucontext.Context, l *grogucontext.Logger) {
 	for {
-		QuerySignalIDs(c, l)
+		// block for signal ids from channel PendingSignalIDs and retrieve them in batch
+		signalIDsWithTimeLimit := BlockAndRetrieveBatchedPendingSignalIDs(c.PendingSignalIDs)
+		// query prices for signal ids
+		QuerySignalIDs(c, l, signalIDsWithTimeLimit)
 	}
 }
 
-func QuerySignalIDs(c *grogucontext.Context, l *grogucontext.Logger) {
-	signalIDsWithTimeLimit := <-c.PendingSignalIDs
+// BlockAndRetrieveBatchedPendingSignalIDs waits and gets batched pending signal ids from a channel
+func BlockAndRetrieveBatchedPendingSignalIDs(pendingSignalIDs chan map[string]time.Time) map[string]time.Time {
+	signalIDsWithTimeLimit := <-pendingSignalIDs
+
+	counter := 0
 
 GetAllSignalIDs:
-	for {
+	for counter < 10 {
 		select {
-		case nextSignalIDs := <-c.PendingSignalIDs:
+		case nextSignalIDs := <-pendingSignalIDs:
 			maps.Copy(signalIDsWithTimeLimit, nextSignalIDs)
 		default:
 			break GetAllSignalIDs
 		}
 	}
 
+	return signalIDsWithTimeLimit
+}
+
+func QuerySignalIDs(c *grogucontext.Context, l *grogucontext.Logger, signalIDsWithTimeLimit map[string]time.Time) {
 	signalIDs := maps.Keys(signalIDsWithTimeLimit)
 
 	l.Info("Try to get prices for signal ids: %+v", signalIDs)

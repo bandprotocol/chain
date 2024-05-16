@@ -48,12 +48,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 // IsBondedValidator checks is the validator is in the bonded validators.
-func (k Keeper) IsBondedValidator(ctx sdk.Context, valAddr string) bool {
-	addr, err := sdk.ValAddressFromBech32(valAddr)
-	if err != nil {
-		return false
-	}
-
+func (k Keeper) IsBondedValidator(ctx sdk.Context, addr sdk.ValAddress) bool {
 	val, found := k.stakingKeeper.GetValidator(ctx, addr)
 	if !found {
 		return false

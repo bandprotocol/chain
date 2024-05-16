@@ -21,13 +21,14 @@ import (
 
 func StartSubmitPrices(c *grogucontext.Context, l *grogucontext.Logger) {
 	for {
-		SubmitPrices(c, l)
+		// Return key and update pending metric when done with SubmitReport whether successfully or not.
+		keyIndex := <-c.FreeKeys
+		go SubmitPrices(c, l, keyIndex)
 	}
 }
 
-func SubmitPrices(c *grogucontext.Context, l *grogucontext.Logger) {
+func SubmitPrices(c *grogucontext.Context, l *grogucontext.Logger, keyIndex int64) {
 	// Return key and update pending metric when done with SubmitReport whether successfully or not.
-	keyIndex := <-c.FreeKeys
 	defer func() {
 		c.FreeKeys <- keyIndex
 	}()
@@ -65,7 +66,7 @@ GetAllPrices:
 		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
 	}
 
-	gasAdjustment := float64(2.0)
+	gasAdjustment := float64(1.1)
 
 	for sendAttempt := uint64(1); sendAttempt <= c.MaxTry; sendAttempt++ {
 		var txHash string
@@ -137,9 +138,10 @@ GetAllPrices:
 func signAndBroadcast(
 	c *grogucontext.Context, key *keyring.Record, msgs []sdk.Msg, gasAdjustment float64,
 ) (*sdk.TxResponse, error) {
+	cdc := band.MakeEncodingConfig().Marshaler
 	clientCtx := client.Context{
 		Client:            c.Client,
-		Codec:             grogucontext.Cdc,
+		Codec:             cdc,
 		TxConfig:          band.MakeEncodingConfig().TxConfig,
 		BroadcastMode:     flags.BroadcastSync,
 		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
@@ -155,9 +157,9 @@ func signAndBroadcast(
 		WithTxConfig(band.MakeEncodingConfig().TxConfig).
 		WithSimulateAndExecute(true).
 		WithGasAdjustment(gasAdjustment).
-		WithChainID(grogucontext.Cfg.ChainID).
+		WithChainID(c.Config.ChainID).
 		WithGasPrices(c.GasPrices).
-		WithKeybase(grogucontext.Kb).
+		WithKeybase(c.Keyring).
 		WithFromName(key.Name).
 		WithAccountRetriever(clientCtx.AccountRetriever)
 
