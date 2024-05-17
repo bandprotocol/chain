@@ -49,7 +49,7 @@ from .db import (
 from .feeds_db import (
     validator_prices,
     delegator_signals,
-    feeds,
+    signal_total_powers,
     prices,
     price_services,
 )
@@ -641,14 +641,9 @@ class Handler(object):
             delegator_signals.delete().where(delegator_signals.c.account_id == self.get_account_id(msg["delegator"]))
         )
         
-    def handle_set_feed(self, msg):
+    def handle_set_signal_total_power(self, msg):
         self.conn.execute(
-            insert(feeds).values(**msg).on_conflict_do_update(constraint="feeds_pkey", set_=msg)
-        )
-
-    def handle_remove_feed(self, msg):
-        self.conn.execute(
-            feeds.delete().where(feeds.c.signal_id == msg["signal_id"])
+            insert(signal_total_powers).values(**msg).on_conflict_do_update(constraint="signal_total_powers_pkey", set_=msg)
         )
         
     def handle_set_price(self, msg):

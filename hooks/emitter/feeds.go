@@ -41,13 +41,10 @@ func (h *Hook) emitRemoveFeed(signalID string) {
 	})
 }
 
-func (h *Hook) emitSetFeed(feed types.Feed) {
-	h.Write("SET_FEED", common.JsDict{
-		"signal_id":                      feed.SignalID,
-		"power":                          feed.Power,
-		"interval":                       feed.Interval,
-		"last_interval_update_timestamp": feed.LastIntervalUpdateTimestamp * int64(math.Pow10(9)),
-		"deviation_in_thousandth":        feed.DeviationInThousandth,
+func (h *Hook) emitSetSignalTotalPower(stp types.Signal) {
+	h.Write("SET_SIGNAL_TOTAL_POWER", common.JsDict{
+		"signal_id": stp.ID,
+		"power":     stp.Power,
 	})
 }
 
@@ -98,20 +95,13 @@ func (h *Hook) handleMsgSubmitSignals(
 	ctx sdk.Context, msg *types.MsgSubmitSignals, evMap common.EvMap,
 ) {
 	h.emitRemoveDelegatorSignals(msg.Delegator)
-	var involvedSignalIDs []string
-	if signal_ids, ok := evMap[types.EventTypeUpdateFeed+"."+types.AttributeKeySignalID]; ok {
-		involvedSignalIDs = append(involvedSignalIDs, signal_ids...)
-	}
-	if signal_ids, ok := evMap[types.EventTypeDeleteFeed+"."+types.AttributeKeySignalID]; ok {
-		involvedSignalIDs = append(involvedSignalIDs, signal_ids...)
-	}
 
-	for _, signalID := range involvedSignalIDs {
-		feed, err := h.feedsKeeper.GetFeed(ctx, signalID)
-		if err != nil {
-			h.emitRemoveFeed(signalID)
-		} else {
-			h.emitSetFeed(feed)
+	signalIDs := evMap[types.EventTypeUpdateSignalTotalPower+"."+types.AttributeKeySignalID]
+
+	for _, signalID := range signalIDs {
+		stp, err := h.feedsKeeper.GetSignalTotalPower(ctx, signalID)
+		if err == nil {
+			h.emitSetSignalTotalPower(stp)
 		}
 	}
 
