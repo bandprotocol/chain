@@ -131,10 +131,9 @@ func (ms msgServer) SubmitPrices(
 			tooEarlyPriceSubmission++
 		}
 
-		valPrice := ms.NewValidatorPrice(blockTime, price, val, cooldownTime, blockHeight)
+		valPrice := ms.NewValidatorPrice(val, price, blockTime, blockHeight)
 
-		err = ms.SetValidatorPrice(ctx, valPrice)
-		if err != nil {
+		if err = ms.SetValidatorPrice(ctx, valPrice); err != nil {
 			return nil, err
 		}
 

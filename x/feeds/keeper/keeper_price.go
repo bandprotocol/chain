@@ -113,10 +113,15 @@ func (k Keeper) CalculatePrice(
 			status := k.oracleKeeper.GetValidatorStatus(ctx, address)
 
 			if status.IsActive {
-				lastTime := status.Since.Unix()
-				priceVal, err := k.GetValidatorPrice(ctx, feed.SignalID, address)
-				lastBlock := priceVal.BlockHeight
+				timePerBlock := int64(3) // assume block time will be 3 second.
+				lastTime := lastUpdateTimestamp + transitionTime
+				lastBlock := lastUpdateBlock + transitionTime/timePerBlock
 
+				if status.Since.Unix()+transitionTime > lastTime {
+					lastTime = status.Since.Unix() + transitionTime
+				}
+
+				priceVal, err := k.GetValidatorPrice(ctx, feed.SignalID, address)
 				if err == nil {
 					// if timestamp of price is in acception period, append it
 					if priceVal.Timestamp >= blockTime.Unix()-feed.Interval {
@@ -132,24 +137,17 @@ func (k Keeper) CalculatePrice(
 						)
 					}
 
-					// update last time of action
-					if priceVal.Timestamp > lastTime {
-						lastTime = priceVal.Timestamp
+					if priceVal.Timestamp+feed.Interval > lastTime {
+						lastTime = priceVal.Timestamp + feed.Interval
+					}
+
+					if priceVal.BlockHeight+feed.Interval/timePerBlock > lastBlock {
+						lastBlock = priceVal.BlockHeight + feed.Interval/timePerBlock
 					}
 				}
 
-				if lastUpdateTimestamp+transitionTime > lastTime {
-					lastTime = lastUpdateTimestamp + transitionTime
-				}
-				if lastUpdateBlock > lastBlock {
-					lastBlock = lastUpdateBlock
-				}
-
-				// blockOffset is the number of blocks equivalent to the interval
-				blockOffset := feed.Interval / 3
-
-				// deactivate if last time of action is too old
-				if lastTime+feed.Interval < blockTime.Unix() && lastBlock+blockOffset < ctx.BlockHeight() {
+				// deactivate if last action is too old.
+				if lastTime < blockTime.Unix() && lastBlock < ctx.BlockHeight() {
 					k.oracleKeeper.MissReport(ctx, address, blockTime)
 				}
 			}

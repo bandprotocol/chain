@@ -19,15 +19,15 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-func StartSubmitPrices(c *grogucontext.Context, l *grogucontext.Logger) {
+func StartSubmitPrices(c *grogucontext.Context) {
 	for {
 		// Return key and update pending metric when done with SubmitReport whether successfully or not.
 		keyIndex := <-c.FreeKeys
-		go SubmitPrices(c, l, keyIndex)
+		go SubmitPrices(c, keyIndex)
 	}
 }
 
-func SubmitPrices(c *grogucontext.Context, l *grogucontext.Logger, keyIndex int64) {
+func SubmitPrices(c *grogucontext.Context, keyIndex int64) {
 	// Return key and update pending metric when done with SubmitReport whether successfully or not.
 	defer func() {
 		c.FreeKeys <- keyIndex
@@ -70,19 +70,19 @@ GetAllPrices:
 
 	for sendAttempt := uint64(1); sendAttempt <= c.MaxTry; sendAttempt++ {
 		var txHash string
-		l.Info(":e-mail: Sending report transaction attempt: (%d/%d)", sendAttempt, c.MaxTry)
+		c.Logger.Info(":e-mail: Sending report transaction attempt: (%d/%d)", sendAttempt, c.MaxTry)
 		for broadcastTry := uint64(1); broadcastTry <= c.MaxTry; broadcastTry++ {
-			l.Info(":writing_hand: Try to sign and broadcast report transaction(%d/%d)", broadcastTry, c.MaxTry)
+			c.Logger.Info(":writing_hand: Try to sign and broadcast report transaction(%d/%d)", broadcastTry, c.MaxTry)
 			res, err := signAndBroadcast(c, key, msgs, gasAdjustment)
 			if err != nil {
 				// Use info level because this error can happen and retry process can solve this error.
-				l.Info(":warning: %s", err.Error())
+				c.Logger.Info(":warning: %s", err.Error())
 				time.Sleep(c.RPCPollInterval)
 				continue
 			}
 			if res.Codespace == sdkerrors.RootCodespace && res.Code == sdkerrors.ErrOutOfGas.ABCICode() {
 				gasAdjustment += 0.1
-				l.Info(
+				c.Logger.Info(
 					":fuel_pump: Tx(%s) is out of gas and will be rebroadcasted with gas adjustment(%f)",
 					txHash,
 					gasAdjustment,
@@ -94,7 +94,7 @@ GetAllPrices:
 			break
 		}
 		if txHash == "" {
-			l.Error(":exploding_head: Cannot try to broadcast more than %d try", c, c.MaxTry)
+			c.Logger.Error(":exploding_head: Cannot try to broadcast more than %d try", c.MaxTry)
 			return
 		}
 		txFound := false
@@ -103,36 +103,35 @@ GetAllPrices:
 			time.Sleep(c.RPCPollInterval)
 			txRes, err := authtx.QueryTx(clientCtx, txHash)
 			if err != nil {
-				l.Debug(":warning: Failed to query tx with error: %s", err.Error())
+				c.Logger.Debug(":warning: Failed to query tx with error: %s", err.Error())
 				continue
 			}
 
 			if txRes.Code == 0 {
-				l.Info(":smiling_face_with_sunglasses: Successfully broadcast tx with hash: %s", txHash)
+				c.Logger.Info(":smiling_face_with_sunglasses: Successfully broadcast tx with hash: %s", txHash)
 				return
 			}
 			if txRes.Codespace == sdkerrors.RootCodespace &&
 				txRes.Code == sdkerrors.ErrOutOfGas.ABCICode() {
 				// Increase gas adjustment and try to broadcast again
 				gasAdjustment += 0.1
-				l.Info(":fuel_pump: Tx(%s) is out of gas and will be rebroadcasted with gas adjustment(%f)", txHash, gasAdjustment)
+				c.Logger.Info(":fuel_pump: Tx(%s) is out of gas and will be rebroadcasted with gas adjustment(%f)", txHash, gasAdjustment)
 				txFound = true
 				break FindTx
 			} else {
-				l.Error(":exploding_head: Tx returned nonzero code %d with log %s, tx hash: %s", c, txRes.Code, txRes.RawLog, txRes.TxHash)
+				c.Logger.Error(":exploding_head: Tx returned nonzero code %d with log %s, tx hash: %s", txRes.Code, txRes.RawLog, txRes.TxHash)
 				return
 			}
 		}
 		if !txFound {
-			l.Error(
+			c.Logger.Error(
 				":question_mark: Cannot get transaction response from hash: %s transaction might be included in the next few blocks or check your node's health.",
-				c,
 				txHash,
 			)
 			return
 		}
 	}
-	l.Error(":anxious_face_with_sweat: Cannot send price with adjusted gas: %d", c, gasAdjustment)
+	c.Logger.Error(":anxious_face_with_sweat: Cannot send price with adjusted gas: %f", gasAdjustment)
 }
 
 func signAndBroadcast(
