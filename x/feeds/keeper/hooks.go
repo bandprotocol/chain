@@ -67,6 +67,7 @@ func (h Hooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, 
 	if power > delegated.Int64() {
 		return types.ErrUnableToUndelegate
 	}
+
 	return nil
 }
 
@@ -76,6 +77,7 @@ func (h Hooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, 
 	if power > delegated {
 		return types.ErrUnableToUndelegate
 	}
+
 	return nil
 }
 

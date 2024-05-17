@@ -17,7 +17,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-func checkFeeds(c *grogucontext.Context, l *grogucontext.Logger) {
+func checkFeeds(c *grogucontext.Context) {
 	// Fetch parameters, supported feeds, validator prices, and prices
 	params, feeds, validatorPrices, prices, err := fetchData(c)
 	if err != nil {
@@ -66,7 +66,7 @@ func checkFeeds(c *grogucontext.Context, l *grogucontext.Logger) {
 	}
 
 	if len(requestedSignalIDs) != 0 {
-		l.Info("found signal ids to send: %v", maps.Keys(requestedSignalIDs))
+		c.Logger.Info("found signal ids to send: %v", maps.Keys(requestedSignalIDs))
 		c.PendingSignalIDs <- requestedSignalIDs
 	}
 }
@@ -207,9 +207,9 @@ func deviationInThousandth(originalValue, newValue uint64) int64 {
 	return int64(deviation)
 }
 
-func StartCheckFeeds(c *grogucontext.Context, l *grogucontext.Logger) {
+func StartCheckFeeds(c *grogucontext.Context) {
 	for {
-		checkFeeds(c, l)
+		checkFeeds(c)
 		time.Sleep(time.Second)
 	}
 }
