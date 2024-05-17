@@ -121,28 +121,28 @@ func (k Keeper) CalculatePrice(
 					lastTime = status.Since.Unix() + transitionTime
 				}
 
-				priceVal, err := k.GetValidatorPrice(ctx, feed.SignalID, address)
+				valPrice, err := k.GetValidatorPrice(ctx, feed.SignalID, address)
 				if err == nil {
 					// if timestamp of price is in acception period, append it
-					if priceVal.Timestamp >= blockTime.Unix()-feed.Interval {
+					if valPrice.Timestamp >= blockTime.Unix()-feed.Interval {
 						priceFeedInfos = append(
 							priceFeedInfos, types.PriceFeedInfo{
-								PriceStatus: priceVal.PriceStatus,
-								Price:       priceVal.Price,
+								PriceStatus: valPrice.PriceStatus,
+								Price:       valPrice.Price,
 								Power:       power,
 								Deviation:   0,
-								Timestamp:   priceVal.Timestamp,
+								Timestamp:   valPrice.Timestamp,
 								Index:       idx,
 							},
 						)
 					}
 
-					if priceVal.Timestamp+feed.Interval > lastTime {
-						lastTime = priceVal.Timestamp + feed.Interval
+					if valPrice.Timestamp+feed.Interval > lastTime {
+						lastTime = valPrice.Timestamp + feed.Interval
 					}
 
-					if priceVal.BlockHeight+feed.Interval/timePerBlock > lastBlock {
-						lastBlock = priceVal.BlockHeight + feed.Interval/timePerBlock
+					if valPrice.BlockHeight+feed.Interval/timePerBlock > lastBlock {
+						lastBlock = valPrice.BlockHeight + feed.Interval/timePerBlock
 					}
 				}
 
@@ -206,19 +206,19 @@ func (k Keeper) GetValidatorPricesIterator(ctx sdk.Context, signalID string) sdk
 }
 
 // GetValidatorPrices gets a list of all price-validators.
-func (k Keeper) GetValidatorPrices(ctx sdk.Context, signalID string) (priceVals []types.ValidatorPrice) {
+func (k Keeper) GetValidatorPrices(ctx sdk.Context, signalID string) (valPrices []types.ValidatorPrice) {
 	iterator := k.GetValidatorPricesIterator(ctx, signalID)
 	defer func(iterator sdk.Iterator) {
 		_ = iterator.Close()
 	}(iterator)
 
 	for ; iterator.Valid(); iterator.Next() {
-		var priceVal types.ValidatorPrice
-		k.cdc.MustUnmarshal(iterator.Value(), &priceVal)
-		priceVals = append(priceVals, priceVal)
+		var valPrice types.ValidatorPrice
+		k.cdc.MustUnmarshal(iterator.Value(), &valPrice)
+		valPrices = append(valPrices, valPrice)
 	}
 
-	return priceVals
+	return valPrices
 }
 
 // GetValidatorPrice gets a price-validator by signal id.
@@ -232,16 +232,16 @@ func (k Keeper) GetValidatorPrice(ctx sdk.Context, signalID string, val sdk.ValA
 		)
 	}
 
-	var priceVal types.ValidatorPrice
-	k.cdc.MustUnmarshal(bz, &priceVal)
+	var valPrice types.ValidatorPrice
+	k.cdc.MustUnmarshal(bz, &valPrice)
 
-	return priceVal, nil
+	return valPrice, nil
 }
 
 // SetValidatorPrices sets multiple price-validator.
-func (k Keeper) SetValidatorPrices(ctx sdk.Context, priceVals []types.ValidatorPrice) error {
-	for _, priceVal := range priceVals {
-		if err := k.SetValidatorPrice(ctx, priceVal); err != nil {
+func (k Keeper) SetValidatorPrices(ctx sdk.Context, valPrices []types.ValidatorPrice) error {
+	for _, valPrice := range valPrices {
+		if err := k.SetValidatorPrice(ctx, valPrice); err != nil {
 			return err
 		}
 	}
@@ -249,14 +249,14 @@ func (k Keeper) SetValidatorPrices(ctx sdk.Context, priceVals []types.ValidatorP
 }
 
 // SetValidatorPrice sets a new price-validator or replace if price-validator with the same signal id and validator address existed.
-func (k Keeper) SetValidatorPrice(ctx sdk.Context, priceVal types.ValidatorPrice) error {
-	valAddress, err := sdk.ValAddressFromBech32(priceVal.Validator)
+func (k Keeper) SetValidatorPrice(ctx sdk.Context, valPrice types.ValidatorPrice) error {
+	valAddress, err := sdk.ValAddressFromBech32(valPrice.Validator)
 	if err != nil {
 		return err
 	}
 
 	ctx.KVStore(k.storeKey).
-		Set(types.ValidatorPriceStoreKey(priceVal.SignalID, valAddress), k.cdc.MustMarshal(&priceVal))
+		Set(types.ValidatorPriceStoreKey(valPrice.SignalID, valAddress), k.cdc.MustMarshal(&valPrice))
 
 	return nil
 }

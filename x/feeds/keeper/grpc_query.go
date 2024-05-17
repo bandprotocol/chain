@@ -113,18 +113,18 @@ func (q queryServer) ValidatorPrices(
 		return nil, err
 	}
 
-	var priceVals []types.ValidatorPrice
+	var valPrices []types.ValidatorPrice
 
 	feeds := q.keeper.GetSupportedFeeds(ctx).Feeds
 	for _, feed := range feeds {
-		priceVal, err := q.keeper.GetValidatorPrice(ctx, feed.SignalID, val)
+		valPrice, err := q.keeper.GetValidatorPrice(ctx, feed.SignalID, val)
 		if err == nil {
-			priceVals = append(priceVals, priceVal)
+			valPrices = append(valPrices, valPrice)
 		}
 	}
 
 	return &types.QueryValidatorPricesResponse{
-		ValidatorPrices: priceVals,
+		ValidatorPrices: valPrices,
 	}, nil
 }
 
@@ -139,13 +139,13 @@ func (q queryServer) ValidatorPrice(
 		return nil, err
 	}
 
-	priceVal, err := q.keeper.GetValidatorPrice(ctx, req.SignalId, val)
+	valPrice, err := q.keeper.GetValidatorPrice(ctx, req.SignalId, val)
 	if err != nil {
 		return nil, err
 	}
 
 	return &types.QueryValidatorPriceResponse{
-		ValidatorPrice: priceVal,
+		ValidatorPrice: valPrice,
 	}, nil
 }
 

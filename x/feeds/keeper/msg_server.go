@@ -126,12 +126,12 @@ func (ms msgServer) SubmitPrices(
 		}
 
 		// check if price is not too fast
-		priceVal, err := ms.GetValidatorPrice(ctx, price.SignalID, val)
-		if err == nil && blockTime < priceVal.Timestamp+cooldownTime {
+		valPrice, err := ms.GetValidatorPrice(ctx, price.SignalID, val)
+		if err == nil && blockTime < valPrice.Timestamp+cooldownTime {
 			tooEarlyPriceSubmission++
 		}
 
-		valPrice := ms.NewValidatorPrice(val, price, blockTime, blockHeight)
+		valPrice = ms.NewValidatorPrice(val, price, blockTime, blockHeight)
 
 		if err = ms.SetValidatorPrice(ctx, valPrice); err != nil {
 			return nil, err
