@@ -10,12 +10,12 @@ func (suite *KeeperTestSuite) TestGetSetSupportedFeeds() {
 		{
 			SignalID:              "crypto_price.bandusd",
 			Interval:              60,
-			DeviationInThousandth: 1000,
+			DeviationInThousandth: 5,
 		},
 		{
 			SignalID:              "crypto_price.atomusd",
 			Interval:              60,
-			DeviationInThousandth: 1000,
+			DeviationInThousandth: 5,
 		},
 	}
 	suite.feedsKeeper.SetSupportedFeeds(ctx, expFeed)
