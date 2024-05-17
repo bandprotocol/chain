@@ -26,7 +26,7 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdPrice(),
 		GetQueryCmdValidatorPrices(),
 		GetQueryCmdValidatorPrice(),
-		GetQueryCmdFeeds(),
+		GetQueryCmdSignalTotalPowers(),
 		GetQueryCmdParams(),
 		GetQueryCmdDelegatorSignal(),
 		GetQueryCmdSupportedFeeds(),
@@ -195,11 +195,11 @@ func GetQueryCmdValidatorPrice() *cobra.Command {
 	return cmd
 }
 
-// GetQueryCmdFeeds implements the query feeds command.
-func GetQueryCmdFeeds() *cobra.Command {
+// GetQueryCmdSignalTotalPowers implements the query signal-total-powers command.
+func GetQueryCmdSignalTotalPowers() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "feeds",
-		Short: "Shows all information of all feeds",
+		Use:   "signal-total-powers",
+		Short: "Shows all information of all signals and its total power",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -210,7 +210,10 @@ func GetQueryCmdFeeds() *cobra.Command {
 				return err
 			}
 
-			res, err := queryClient.Feeds(context.Background(), &types.QueryFeedsRequest{Pagination: pageReq})
+			res, err := queryClient.SignalTotalPowers(
+				context.Background(),
+				&types.QuerySignalTotalPowersRequest{Pagination: pageReq},
+			)
 			if err != nil {
 				return err
 			}
@@ -219,7 +222,7 @@ func GetQueryCmdFeeds() *cobra.Command {
 		},
 	}
 
-	flags.AddPaginationFlagsToCmd(cmd, "feeds")
+	flags.AddPaginationFlagsToCmd(cmd, "signal-total-powers")
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
