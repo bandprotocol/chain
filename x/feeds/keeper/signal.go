@@ -25,7 +25,7 @@ func (k Keeper) CalculateDelegatorSignalsPowerDiff(
 	ctx sdk.Context,
 	delegator sdk.AccAddress,
 	signals []types.Signal,
-) map[string]int64 {
+) (map[string]int64, error) {
 	signalIDToPowerDiff := make(map[string]int64)
 	prevSignals := k.GetDelegatorSignals(ctx, delegator)
 	k.DeleteDelegatorSignals(ctx, delegator)
@@ -36,7 +36,12 @@ func (k Keeper) CalculateDelegatorSignalsPowerDiff(
 
 	k.SetDelegatorSignals(ctx, types.DelegatorSignals{Delegator: delegator.String(), Signals: signals})
 	for _, signal := range signals {
+		if signal.ID == "" || signal.Power <= 0 {
+			return nil, types.ErrInvalidSignal.Wrap(
+				"signal id cannot be empty and its power must be positive",
+			)
+		}
 		signalIDToPowerDiff[signal.ID] += signal.Power
 	}
-	return signalIDToPowerDiff
+	return signalIDToPowerDiff, nil
 }

@@ -21,4 +21,7 @@ var (
 	ErrPowerNegative             = errorsmod.Register(ModuleName, 14, "power is negative")
 	ErrSignalIDNotSupported      = errorsmod.Register(ModuleName, 15, "signal id is not supported")
 	ErrSubmitPricesTooLarge      = errorsmod.Register(ModuleName, 16, "submit prices list is too large")
+	ErrSignalIDTooLarge          = errorsmod.Register(ModuleName, 17, "signal id is too large")
+	ErrSignalTotalPowerNotFound  = errorsmod.Register(ModuleName, 18, "signal-total-power not found")
+	ErrInvalidSignal             = errorsmod.Register(ModuleName, 19, "signal is invalid")
 )

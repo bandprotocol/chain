@@ -97,7 +97,7 @@ func fetchData(
 	if err != nil {
 		return types.Params{}, nil, nil, nil, err
 	}
-	feeds = feedsResponse.Feeds
+	feeds = feedsResponse.SupportedFeeds.Feeds
 
 	// Fetch validator prices
 	validatorPricesResponse, err := c.QueryClient.ValidatorPrices(

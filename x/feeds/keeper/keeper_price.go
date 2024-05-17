@@ -67,9 +67,9 @@ func (k Keeper) DeletePrice(ctx sdk.Context, signalID string) {
 
 // CalculatePrices calculates final prices for all supported feeds.
 func (k Keeper) CalculatePrices(ctx sdk.Context) {
-	feeds := k.GetSupportedFeedsByPower(ctx)
-	for _, feed := range feeds {
-		price, err := k.CalculatePrice(ctx, feed)
+	supportedFeeds := k.GetSupportedFeeds(ctx)
+	for _, feed := range supportedFeeds.Feeds {
+		price, err := k.CalculatePrice(ctx, feed, supportedFeeds.LastUpdateTimestamp, supportedFeeds.LastUpdateBlock)
 		if err != nil {
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
@@ -95,7 +95,12 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) {
 }
 
 // CalculatePrice calculates final price from price-validator and punish validators those did not report.
-func (k Keeper) CalculatePrice(ctx sdk.Context, feed types.Feed) (types.Price, error) {
+func (k Keeper) CalculatePrice(
+	ctx sdk.Context,
+	feed types.Feed,
+	lastUpdateTimestamp int64,
+	lastUpdateBlock int64,
+) (types.Price, error) {
 	var priceFeedInfos []types.PriceFeedInfo
 	blockTime := ctx.BlockTime()
 	transitionTime := k.GetParams(ctx).TransitionTime
@@ -110,6 +115,7 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, feed types.Feed) (types.Price, e
 			if status.IsActive {
 				lastTime := status.Since.Unix()
 				priceVal, err := k.GetValidatorPrice(ctx, feed.SignalID, address)
+				lastBlock := priceVal.BlockHeight
 
 				if err == nil {
 					// if timestamp of price is in acception period, append it
@@ -132,12 +138,18 @@ func (k Keeper) CalculatePrice(ctx sdk.Context, feed types.Feed) (types.Price, e
 					}
 				}
 
-				if feed.LastIntervalUpdateTimestamp+transitionTime > lastTime {
-					lastTime = feed.LastIntervalUpdateTimestamp + transitionTime
+				if lastUpdateTimestamp+transitionTime > lastTime {
+					lastTime = lastUpdateTimestamp + transitionTime
+				}
+				if lastUpdateBlock > lastBlock {
+					lastBlock = lastUpdateBlock
 				}
 
+				// blockOffset is the number of blocks equivalent to the interval
+				blockOffset := feed.Interval / 3
+
 				// deactivate if last time of action is too old
-				if lastTime < blockTime.Unix()-feed.Interval {
+				if lastTime+feed.Interval < blockTime.Unix() && lastBlock+blockOffset < ctx.BlockHeight() {
 					k.oracleKeeper.MissReport(ctx, address, blockTime)
 				}
 			}

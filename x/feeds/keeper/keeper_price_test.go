@@ -108,12 +108,12 @@ func (suite *KeeperTestSuite) TestCalculatePrice() {
 
 	// set
 	feed := types.Feed{
-		SignalID:                    "crypto_price.bandusd",
-		Power:                       1e10,
-		Interval:                    60,
-		LastIntervalUpdateTimestamp: ctx.BlockTime().Unix(),
+		SignalID:              "crypto_price.bandusd",
+		Interval:              60,
+		DeviationInThousandth: 5,
 	}
-	suite.feedsKeeper.SetFeed(ctx, feed)
+	suite.feedsKeeper.SetSupportedFeeds(ctx, []types.Feed{feed})
+
 	err := suite.feedsKeeper.SetValidatorPrices(ctx, []types.ValidatorPrice{
 		{
 			PriceStatus: types.PriceStatusAvailable,
@@ -133,7 +133,7 @@ func (suite *KeeperTestSuite) TestCalculatePrice() {
 	suite.Require().NoError(err)
 
 	// cal
-	price, err := suite.feedsKeeper.CalculatePrice(ctx, feed)
+	price, err := suite.feedsKeeper.CalculatePrice(ctx, feed, ctx.BlockTime().Unix(), ctx.BlockHeight())
 	suite.Require().NoError(err)
 	suite.Require().Equal(types.Price{
 		PriceStatus: types.PriceStatusAvailable,

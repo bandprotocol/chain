@@ -190,7 +190,7 @@ func (m *MsgSubmitSignals) ValidateBasic() error {
 	}
 	for _, signal := range m.Signals {
 		if signal.ID == "" || signal.Power <= 0 {
-			return sdkerrors.ErrInvalidRequest.Wrap(
+			return ErrInvalidSignal.Wrap(
 				"signal id cannot be empty and its power must be positive",
 			)
 		}
