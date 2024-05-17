@@ -17,6 +17,7 @@ import (
 	grogucontext "github.com/bandprotocol/chain/v2/grogu/context"
 	"github.com/bandprotocol/chain/v2/grogu/feed"
 	"github.com/bandprotocol/chain/v2/grogu/priceservice"
+	"github.com/bandprotocol/chain/v2/pkg/logger"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
@@ -31,8 +32,8 @@ const (
 	flagDistributionPercentageRange = "distribution-range"
 )
 
-func runImpl(c *grogucontext.Context, l *grogucontext.Logger) error {
-	l.Info(":rocket: Starting WebSocket subscriber")
+func runImpl(c *grogucontext.Context) error {
+	c.Logger.Info(":rocket: Starting WebSocket subscriber")
 	err := c.Client.Start()
 	if err != nil {
 		return err
@@ -43,14 +44,14 @@ func runImpl(c *grogucontext.Context, l *grogucontext.Logger) error {
 		c.FreeKeys <- i
 	}
 
-	l.Info(":rocket: Starting Prices submitter")
-	go feed.StartSubmitPrices(c, l)
+	c.Logger.Info(":rocket: Starting Prices submitter")
+	go feed.StartSubmitPrices(c)
 
-	l.Info(":rocket: Starting Prices querier")
-	go feed.StartQuerySignalIDs(c, l)
+	c.Logger.Info(":rocket: Starting Prices querier")
+	go feed.StartQuerySignalIDs(c)
 
-	l.Info(":rocket: Starting Feed checker")
-	feed.StartCheckFeeds(c, l)
+	c.Logger.Info(":rocket: Starting Feed checker")
+	feed.StartCheckFeeds(c)
 
 	return nil
 }
@@ -62,10 +63,11 @@ func RunCmd(c *grogucontext.Context) *cobra.Command {
 		Short:   "Run the grogu process",
 		Args:    cobra.ExactArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if grogucontext.Cfg.ChainID == "" {
+			config := c.Config
+			if config.ChainID == "" {
 				return errors.New("chain ID must not be empty")
 			}
-			keys, err := grogucontext.Kb.List()
+			keys, err := c.Keyring.List()
 			if err != nil {
 				return err
 			}
@@ -73,7 +75,7 @@ func RunCmd(c *grogucontext.Context) *cobra.Command {
 				return errors.New("no key available")
 			}
 			c.Keys = keys
-			c.Validator, err = sdk.ValAddressFromBech32(grogucontext.Cfg.Validator)
+			c.Validator, err = sdk.ValAddressFromBech32(config.Validator)
 			if err != nil {
 				return err
 			}
@@ -82,36 +84,37 @@ func RunCmd(c *grogucontext.Context) *cobra.Command {
 				return err
 			}
 
-			c.GasPrices = grogucontext.Cfg.GasPrices
+			c.GasPrices = config.GasPrices
 
-			allowLevel, err := log.AllowLevel(grogucontext.Cfg.LogLevel)
+			allowLevel, err := log.AllowLevel(config.LogLevel)
 			if err != nil {
 				return err
 			}
-			l := grogucontext.NewLogger(allowLevel)
-			c.PriceService, err = priceservice.PriceServiceFromUrl(grogucontext.Cfg.PriceService)
+			c.Logger = logger.New(allowLevel)
+			c.PriceService, err = priceservice.PriceServiceFromUrl(config.PriceService)
 			if err != nil {
 				return err
 			}
-			l.Info(":star: Creating HTTP client with node URI: %s", grogucontext.Cfg.NodeURI)
-			c.Client, err = httpclient.New(grogucontext.Cfg.NodeURI, "/websocket")
+			c.Logger.Info(":star: Creating HTTP client with node URI: %s", config.NodeURI)
+			c.Client, err = httpclient.New(config.NodeURI, "/websocket")
 			if err != nil {
 				return err
 			}
+			cdc := band.MakeEncodingConfig().Marshaler
 			clientCtx := client.Context{
 				Client:            c.Client,
-				Codec:             grogucontext.Cdc,
+				Codec:             cdc,
 				TxConfig:          band.MakeEncodingConfig().TxConfig,
 				BroadcastMode:     flags.BroadcastSync,
 				InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
 			}
 			c.QueryClient = types.NewQueryClient(clientCtx)
-			c.BroadcastTimeout, err = time.ParseDuration(grogucontext.Cfg.BroadcastTimeout)
+			c.BroadcastTimeout, err = time.ParseDuration(config.BroadcastTimeout)
 			if err != nil {
 				return err
 			}
-			c.MaxTry = grogucontext.Cfg.MaxTry
-			c.RPCPollInterval, err = time.ParseDuration(grogucontext.Cfg.RPCPollInterval)
+			c.MaxTry = config.MaxTry
+			c.RPCPollInterval, err = time.ParseDuration(config.RPCPollInterval)
 			if err != nil {
 				return err
 			}
@@ -119,9 +122,10 @@ func RunCmd(c *grogucontext.Context) *cobra.Command {
 			c.InProgressSignalIDs = &sync.Map{}
 			c.PendingSignalIDs = make(chan map[string]time.Time, 100)
 			c.PendingPrices = make(chan []types.SubmitPrice, 30)
-			return runImpl(c, l)
+			return runImpl(c)
 		},
 	}
+
 	cmd.Flags().String(flags.FlagChainID, "", "chain ID of BandChain network")
 	cmd.Flags().String(flags.FlagNode, "tcp://localhost:26657", "RPC url to BandChain node")
 	cmd.Flags().String(flagValidator, "", "validator address")
@@ -146,5 +150,6 @@ func RunCmd(c *grogucontext.Context) *cobra.Command {
 	_ = viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))
 	_ = viper.BindPFlag(flagDistributionStartPercentage, cmd.Flags().Lookup(flagDistributionStartPercentage))
 	_ = viper.BindPFlag(flagDistributionPercentageRange, cmd.Flags().Lookup(flagDistributionPercentageRange))
+
 	return cmd
 }

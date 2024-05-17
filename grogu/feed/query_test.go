@@ -14,6 +14,7 @@ import (
 
 	grogucontext "github.com/bandprotocol/chain/v2/grogu/context"
 	"github.com/bandprotocol/chain/v2/grogu/feed"
+	"github.com/bandprotocol/chain/v2/pkg/logger"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
@@ -46,8 +47,9 @@ func (mps *MockPriceService) Query(signalIDs []string) ([]*bothanproto.PriceData
 
 func TestQuerySignalIDs(t *testing.T) {
 	// Create a mock context and logger for testing.
-	mockContext := grogucontext.Context{}
-	mockLogger := grogucontext.NewLogger(log.AllowAll())
+	mockContext := grogucontext.Context{
+		Logger: logger.New(log.AllowAll()),
+	}
 
 	// Mock the pending signalIDs channel.
 	mockContext.PendingSignalIDs = make(chan map[string]time.Time, 10)
@@ -71,7 +73,10 @@ func TestQuerySignalIDs(t *testing.T) {
 	mockContext.PriceService = &MockPriceService{}
 
 	// Call the function being tested.
-	feed.QuerySignalIDs(&mockContext, mockLogger)
+	feed.QuerySignalIDs(
+		&mockContext,
+		feed.BlockAndRetrieveBatchedPendingSignalIDs(mockContext.PendingSignalIDs),
+	)
 
 	// Check if the correct prices were sent to the pending prices channel.
 	select {
@@ -107,7 +112,10 @@ func TestQuerySignalIDs(t *testing.T) {
 	mockContext.PendingSignalIDs <- signalIDsWithTimeLimit
 
 	// Call the function being tested.
-	feed.QuerySignalIDs(&mockContext, mockLogger)
+	feed.QuerySignalIDs(
+		&mockContext,
+		feed.BlockAndRetrieveBatchedPendingSignalIDs(mockContext.PendingSignalIDs),
+	)
 
 	// Check if the correct prices were sent to the pending prices channel.
 	select {
@@ -127,7 +135,10 @@ func TestQuerySignalIDs(t *testing.T) {
 	mockContext.PendingSignalIDs <- signalIDsWithTimeLimit
 
 	// Call the function being tested.
-	feed.QuerySignalIDs(&mockContext, mockLogger)
+	feed.QuerySignalIDs(
+		&mockContext,
+		feed.BlockAndRetrieveBatchedPendingSignalIDs(mockContext.PendingSignalIDs),
+	)
 
 	// Check if the correct prices were sent to the pending prices channel.
 	select {

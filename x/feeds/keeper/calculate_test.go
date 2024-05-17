@@ -9,7 +9,7 @@ import (
 )
 
 func TestCalculateIntervalAndDeviation(t *testing.T) {
-	params := types.NewParams("[NOT_SET]", 30, 30, 60, 3600, 1000_000_000, 100, 30, 5, 300)
+	params := types.NewParams("[NOT_SET]", 30, 30, 60, 3600, 1000_000_000, 100, 30, 5, 300, 256, 28800)
 
 	testCases := []struct {
 		name         string
@@ -46,7 +46,7 @@ func TestCalculateIntervalAndDeviation(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
-			interval, deviation := calculateIntervalAndDeviation(tc.power, params)
+			interval, deviation := CalculateIntervalAndDeviation(tc.power, params)
 			require.Equal(tt, tc.expInterval, interval)
 			require.Equal(tt, tc.expDeviation, deviation)
 		})

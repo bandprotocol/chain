@@ -193,7 +193,7 @@ func (s *KeeperTestSuite) TestIsGrantee() {
 	granter, _ := sdk.AccAddressFromBech32("band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun")
 
 	// Save grant msgs to grantee
-	for _, m := range types.TSSGrantMsgTypes {
+	for _, m := range types.GetGrantMsgTypes() {
 		err := s.app.AuthzKeeper.SaveGrant(ctx, grantee, granter, authz.NewGenericAuthorization(m), &expTime)
 		s.Require().NoError(err)
 	}

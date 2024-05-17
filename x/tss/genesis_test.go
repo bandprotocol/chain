@@ -1,6 +1,7 @@
 package tss_test
 
 import (
+	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -71,6 +72,20 @@ func TestExportGenesis(t *testing.T) {
 
 	exported := tss.ExportGenesis(ctx, k)
 	require.Equal(t, data.Params, exported.Params)
+
+	sort.Slice(exported.DEsGenesis, func(i, j int) bool {
+		if exported.DEsGenesis[i].Address != exported.DEsGenesis[j].Address {
+			return exported.DEsGenesis[i].Address < exported.DEsGenesis[j].Address
+		}
+		return i < j
+	})
+
+	sort.Slice(data.DEsGenesis, func(i, j int) bool {
+		if data.DEsGenesis[i].Address != data.DEsGenesis[j].Address {
+			return data.DEsGenesis[i].Address < data.DEsGenesis[j].Address
+		}
+		return i < j
+	})
 	require.Equal(t, data.DEsGenesis, exported.DEsGenesis)
 
 	require.Equal(t, uint64(2), k.GetDECount(ctx, addr1))

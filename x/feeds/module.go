@@ -23,8 +23,10 @@ import (
 const ConsensusVersion = 1
 
 var (
-	_ module.AppModule      = AppModule{}
-	_ module.AppModuleBasic = AppModuleBasic{}
+	_ module.AppModule           = AppModule{}
+	_ module.AppModuleBasic      = AppModuleBasic{}
+	_ module.BeginBlockAppModule = AppModule{}
+	_ module.EndBlockAppModule   = AppModule{}
 )
 
 // ----------------------------------------------------------------------------

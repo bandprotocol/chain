@@ -98,9 +98,7 @@ func (c *Client) Subscribe(subscriber, query string, outCapacity ...int) (out <-
 
 // GetTxFromTxHash retrieves the transaction response for the given transaction hash.
 // It waits for the transaction to be committed and returns the transaction response or an error if it exceeds timeout.
-func (c *Client) GetTxFromTxHash(
-	txHash string,
-) (*sdk.TxResponse, error) {
+func (c *Client) GetTxFromTxHash(txHash string) (*sdk.TxResponse, error) {
 	var err error
 	for start := time.Now(); time.Since(start) < c.timeout; {
 		txRes, err := authtx.QueryTx(c.context, txHash)

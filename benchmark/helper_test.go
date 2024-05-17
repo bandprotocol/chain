@@ -22,6 +22,7 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
@@ -72,6 +73,25 @@ func GenMsgRequestData(
 	}
 
 	return []sdk.Msg{&msg}
+}
+
+func GenMsgSubmitPrices(
+	sender *Account,
+	feeds []feedstypes.Feed,
+	timestamp int64,
+) []sdk.Msg {
+	prices := []feedstypes.SubmitPrice{}
+	for _, feed := range feeds {
+		prices = append(prices, feedstypes.SubmitPrice{
+			PriceStatus: feedstypes.PriceStatusAvailable,
+			SignalID:    feed.SignalID,
+			Price:       60000,
+		})
+	}
+
+	msg := feedstypes.NewMsgSubmitPrices(sender.ValAddress.String(), timestamp, prices)
+
+	return []sdk.Msg{msg}
 }
 
 func GenMsgSend(

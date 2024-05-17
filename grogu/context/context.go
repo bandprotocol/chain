@@ -8,8 +8,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	band "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/grogu/priceservice"
+	"github.com/bandprotocol/chain/v2/pkg/logger"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
@@ -28,15 +28,6 @@ type Config struct {
 	DistributionPercentageRange uint64 `mapstructure:"distribution-range"` // The range of percentage of the distribution range of price sending
 }
 
-// Global instances.
-var (
-	Cfg              Config
-	Kb               keyring.Keyring
-	DefaultGroguHome string
-	// Proto codec for encoding/decoding proto message
-	Cdc = band.MakeEncodingConfig().Marshaler
-)
-
 type Context struct {
 	Client           rpcclient.Client
 	QueryClient      types.QueryClient
@@ -47,6 +38,9 @@ type Context struct {
 	BroadcastTimeout time.Duration
 	MaxTry           uint64
 	RPCPollInterval  time.Duration
+	Config           Config
+	Keyring          keyring.Keyring
+	Logger           *logger.Logger
 
 	PendingSignalIDs    chan map[string]time.Time
 	PendingPrices       chan []types.SubmitPrice

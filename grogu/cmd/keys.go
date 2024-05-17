@@ -73,9 +73,6 @@ func keysAddCmd(c *grogucontext.Context) *cobra.Command {
 				fmt.Printf("Mnemonic: %s\n", mnemonic)
 			}
 
-			if err != nil {
-				return err
-			}
 			account, err := cmd.Flags().GetUint32(flagAccount)
 			if err != nil {
 				return err
@@ -85,7 +82,7 @@ func keysAddCmd(c *grogucontext.Context) *cobra.Command {
 				return err
 			}
 			hdPath := hd.CreateHDPath(band.Bip44CoinType, account, index)
-			info, err := grogucontext.Kb.NewAccount(args[0], mnemonic, "", hdPath.String(), hd.Secp256k1)
+			info, err := c.Keyring.NewAccount(args[0], mnemonic, "", hdPath.String(), hd.Secp256k1)
 			if err != nil {
 				return err
 			}
@@ -99,9 +96,11 @@ func keysAddCmd(c *grogucontext.Context) *cobra.Command {
 			return nil
 		},
 	}
+
 	cmd.Flags().Bool(flagRecover, false, "Provide seed phrase to recover existing key instead of creating")
 	cmd.Flags().Uint32(flagAccount, 0, "Account number for HD derivation")
 	cmd.Flags().Uint32(flagIndex, 0, "Address index number for HD derivation")
+
 	return cmd
 }
 
@@ -114,7 +113,7 @@ func keysDeleteCmd(c *grogucontext.Context) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 
-			_, err := grogucontext.Kb.Key(name)
+			_, err := c.Keyring.Key(name)
 			if err != nil {
 				return err
 			}
@@ -130,7 +129,7 @@ func keysDeleteCmd(c *grogucontext.Context) *cobra.Command {
 				return nil
 			}
 
-			if err := grogucontext.Kb.Delete(name); err != nil {
+			if err := c.Keyring.Delete(name); err != nil {
 				return err
 			}
 
@@ -138,6 +137,7 @@ func keysDeleteCmd(c *grogucontext.Context) *cobra.Command {
 			return nil
 		},
 	}
+
 	return cmd
 }
 
@@ -152,7 +152,7 @@ func keysListCmd(c *grogucontext.Context) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			keys, err := grogucontext.Kb.List()
+			keys, err := c.Keyring.List()
 			if err != nil {
 				return err
 			}
@@ -169,7 +169,7 @@ func keysListCmd(c *grogucontext.Context) *cobra.Command {
 					queryClient := types.NewQueryClient(clientCtx)
 					r, err := queryClient.IsReporter(
 						context.Background(),
-						&types.QueryIsReporterRequest{ValidatorAddress: grogucontext.Cfg.Validator, ReporterAddress: address.String()},
+						&types.QueryIsReporterRequest{ValidatorAddress: c.Config.Validator, ReporterAddress: address.String()},
 					)
 					s := ":question:"
 					if err == nil {
@@ -186,6 +186,7 @@ func keysListCmd(c *grogucontext.Context) *cobra.Command {
 			return nil
 		},
 	}
+
 	cmd.Flags().BoolP(flagAddress, "a", false, "Output the address only")
 	_ = viper.BindPFlag(flagAddress, cmd.Flags().Lookup(flagAddress))
 
@@ -203,7 +204,7 @@ func keysShowCmd(c *grogucontext.Context) *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 
-			key, err := grogucontext.Kb.Key(name)
+			key, err := c.Keyring.Key(name)
 			if err != nil {
 				return err
 			}
@@ -216,5 +217,6 @@ func keysShowCmd(c *grogucontext.Context) *cobra.Command {
 			return nil
 		},
 	}
+
 	return cmd
 }

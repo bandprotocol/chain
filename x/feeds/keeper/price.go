@@ -7,13 +7,13 @@ import (
 )
 
 // ValidateSubmitPricesRequest validates price submission.
-func (k Keeper) ValidateSubmitPricesRequest(ctx sdk.Context, blockTime int64, req *types.MsgSubmitPrices) error {
-	val, err := sdk.ValAddressFromBech32(req.Validator)
-	if err != nil {
-		return err
-	}
-
-	isValid := k.IsBondedValidator(ctx, req.Validator)
+func (k Keeper) ValidateSubmitPricesRequest(
+	ctx sdk.Context,
+	blockTime int64,
+	req *types.MsgSubmitPrices,
+	val sdk.ValAddress,
+) error {
+	isValid := k.IsBondedValidator(ctx, val)
 	if !isValid {
 		return types.ErrNotBondedValidator
 	}
@@ -30,39 +30,23 @@ func (k Keeper) ValidateSubmitPricesRequest(ctx sdk.Context, blockTime int64, re
 			req.Timestamp,
 		)
 	}
+
 	return nil
 }
 
 // NewValidatorPrice creates new ValidatorPrice.
 func (k Keeper) NewValidatorPrice(
-	ctx sdk.Context,
-	blockTime int64,
-	price types.SubmitPrice,
 	val sdk.ValAddress,
-	cooldownTime int64,
-) (types.ValidatorPrice, error) {
-	f, err := k.GetFeed(ctx, price.SignalID)
-	if err != nil {
-		return types.ValidatorPrice{}, err
-	}
-
-	// check if price is not too fast
-	priceVal, err := k.GetValidatorPrice(ctx, price.SignalID, val)
-	if err == nil && blockTime < priceVal.Timestamp+cooldownTime {
-		return types.ValidatorPrice{}, types.ErrPriceTooFast.Wrapf(
-			"signal_id: %s, old: %d, new: %d, interval: %d",
-			price.SignalID,
-			priceVal.Timestamp,
-			blockTime,
-			f.Interval,
-		)
-	}
-
+	price types.SubmitPrice,
+	blockTime int64,
+	blockHeight int64,
+) types.ValidatorPrice {
 	return types.ValidatorPrice{
 		PriceStatus: price.PriceStatus,
 		Validator:   val.String(),
 		SignalID:    price.SignalID,
 		Price:       price.Price,
 		Timestamp:   blockTime,
-	}, nil
+		BlockHeight: blockHeight,
+	}
 }
