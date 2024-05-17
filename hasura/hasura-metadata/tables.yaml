@@ -820,6 +820,13 @@
     - name: tss_assigned_members
       using:
         foreign_key_constraint_on:
+          column: tss_group_id
+          table:
+            name: tss_assigned_members
+            schema: public
+    - name: tss_assigned_members
+      using:
+        foreign_key_constraint_on:
           column: tss_member_id
           table:
             name: tss_assigned_members
