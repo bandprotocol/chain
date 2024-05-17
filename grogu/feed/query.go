@@ -67,9 +67,9 @@ func QuerySignalIDs(c *grogucontext.Context, signalIDsWithTimeLimit map[string]t
 			price, err := strconv.ParseFloat(strings.TrimSpace(priceData.Price), 64)
 			if err != nil || price > float64(maxSafePrice) || price < 0 {
 				c.Logger.Error(
-					":exploding_head: Failed to parse price from signal id: %s with err: %s",
+					":exploding_head: Failed to parse price from signal id: %s with err: %v",
 					priceData.SignalId,
-					err.Error(),
+					err,
 				)
 				priceData.PriceStatus = bothanproto.PriceStatus_PRICE_STATUS_UNAVAILABLE
 				priceData.Price = ""
