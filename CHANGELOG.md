@@ -3,7 +3,7 @@
 ## Unreleased
 
 - (bump) Use go 1.22.3
-- (bump) Use cosmos-sdk package v0.47.11 / ibc-go v7.4.0
+- (bump) Use cosmos-sdk package v0.47.11 / ibc-go v7.5.0
 - (bump) replace github.com/tendermint/tendermint by github.com/cometbft/cometbft v0.37.5
 - (bump) migrated from gogo/protobuf to cosmos/gogoproto
 - (bump) Use go-owasm v0.3.1

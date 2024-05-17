@@ -35,11 +35,11 @@ func (k Keeper) ValidateSubmitPricesRequest(
 
 // NewValidatorPrice creates new ValidatorPrice.
 func (k Keeper) NewValidatorPrice(
-	ctx sdk.Context,
 	blockTime int64,
 	price types.SubmitPrice,
 	val sdk.ValAddress,
 	cooldownTime int64,
+	blockHeight int64,
 ) types.ValidatorPrice {
 	return types.ValidatorPrice{
 		PriceStatus: price.PriceStatus,
@@ -47,5 +47,6 @@ func (k Keeper) NewValidatorPrice(
 		SignalID:    price.SignalID,
 		Price:       price.Price,
 		Timestamp:   blockTime,
+		BlockHeight: blockHeight,
 	}
 }

@@ -24,16 +24,17 @@ const (
 var (
 	GlobalStoreKeyPrefix = []byte{0x00}
 
-	PriceServiceStoreKey = append(GlobalStoreKeyPrefix, []byte("PriceService")...)
+	PriceServiceStoreKey   = append(GlobalStoreKeyPrefix, []byte("PriceService")...)
+	SupportedFeedsStoreKey = append(GlobalStoreKeyPrefix, []byte("SupportedFeeds")...)
 
-	FeedStoreKeyPrefix            = []byte{0x01}
-	ValidatorPriceStoreKeyPrefix  = []byte{0x02}
-	PriceStoreKeyPrefix           = []byte{0x03}
-	DelegatorSignalStoreKeyPrefix = []byte{0x04}
+	ValidatorPriceStoreKeyPrefix   = []byte{0x01}
+	PriceStoreKeyPrefix            = []byte{0x02}
+	DelegatorSignalStoreKeyPrefix  = []byte{0x03}
+	SignalTotalPowerStoreKeyPrefix = []byte{0x04}
 
 	ParamsKey = []byte{0x10}
 
-	FeedsByPowerIndexKeyPrefix = []byte{0x20}
+	SignalTotalPowerByPowerIndexKeyPrefix = []byte{0x20}
 )
 
 // DelegatorSignalStoreKey creates a key for storing delegator signals
@@ -41,9 +42,9 @@ func DelegatorSignalStoreKey(delegator sdk.AccAddress) []byte {
 	return append(DelegatorSignalStoreKeyPrefix, delegator...)
 }
 
-// FeedStoreKey creates a key for storing feed data
-func FeedStoreKey(signalID string) []byte {
-	return append(FeedStoreKeyPrefix, []byte(signalID)...)
+// SignalTotalPowerStoreKey creates a key for storing signal-total-powers
+func SignalTotalPowerStoreKey(signalID string) []byte {
+	return append(SignalTotalPowerStoreKeyPrefix, []byte(signalID)...)
 }
 
 // ValidatorPricesStoreKey creates a key for storing validator prices
@@ -61,8 +62,8 @@ func PriceStoreKey(signalID string) []byte {
 	return append(PriceStoreKeyPrefix, []byte(signalID)...)
 }
 
-// FeedsByPowerIndexKey creates a key for storing feeds by power index
-func FeedsByPowerIndexKey(signalID string, power int64) []byte {
+// SignalTotalPowerByPowerIndexKey creates a key for storing signal-total-powers by power index
+func SignalTotalPowerByPowerIndexKey(signalID string, power int64) []byte {
 	powerBytes := make([]byte, 8)
 	binary.BigEndian.PutUint64(powerBytes, uint64(power))
 	powerBytesLen := len(powerBytes) // 8
@@ -75,7 +76,7 @@ func FeedsByPowerIndexKey(signalID string, power int64) []byte {
 	signalIDBytesLen := len(signalIDBytes)
 
 	key := make([]byte, 1+powerBytesLen+1+signalIDBytesLen)
-	key[0] = FeedsByPowerIndexKeyPrefix[0]
+	key[0] = SignalTotalPowerByPowerIndexKeyPrefix[0]
 	copy(key[1:powerBytesLen+1], powerBytes)
 	key[powerBytesLen+1] = byte(signalIDBytesLen)
 	copy(key[powerBytesLen+2:], signalIDBytes)

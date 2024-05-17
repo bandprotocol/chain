@@ -15,34 +15,45 @@ func (suite *KeeperTestSuite) TestExportGenesis() {
 	err = suite.feedsKeeper.SetPriceService(ctx, types.DefaultPriceService())
 	suite.Require().NoError(err)
 
-	feeds := []types.Feed{
+	delegatorSignals := []types.DelegatorSignals{
 		{
-			SignalID:                    "crypto_price.bandusd",
-			Power:                       10000,
-			Interval:                    60,
-			LastIntervalUpdateTimestamp: 123456789,
+			Delegator: ValidDelegator.String(),
+			Signals: []types.Signal{
+				{
+					ID:    "crypto_price.bandusd",
+					Power: 10000 * 1e6,
+				},
+				{
+					ID:    "crypto_price.btcusd",
+					Power: 20000 * 1e9,
+				},
+			},
+		},
+		{
+			Delegator: ValidDelegator2.String(),
+			Signals: []types.Signal{
+				{
+					ID:    "crypto_price.bandusd",
+					Power: 20000 * 1e6,
+				},
+				{
+					ID:    "crypto_price.btcusd",
+					Power: 40000 * 1e9,
+				},
+			},
 		},
 	}
-	suite.feedsKeeper.SetFeeds(ctx, feeds)
+	suite.feedsKeeper.SetAllDelegatorSignals(ctx, delegatorSignals)
 
 	exportGenesis := suite.feedsKeeper.ExportGenesis(ctx)
 
 	suite.Require().Equal(types.DefaultParams(), exportGenesis.Params)
 	suite.Require().Equal(types.DefaultPriceService(), exportGenesis.PriceService)
-	suite.Require().Equal(feeds, exportGenesis.Feeds)
+	suite.Require().Equal(delegatorSignals, exportGenesis.DelegatorSignals)
 }
 
 func (suite *KeeperTestSuite) TestInitGenesis() {
 	ctx := suite.ctx
-
-	feeds := []types.Feed{
-		{
-			SignalID:                    "crypto_price.bandusd",
-			Power:                       10000,
-			Interval:                    60,
-			LastIntervalUpdateTimestamp: 123456789,
-		},
-	}
 
 	delegatorSignals := []types.DelegatorSignals{
 		{
@@ -50,27 +61,69 @@ func (suite *KeeperTestSuite) TestInitGenesis() {
 			Signals: []types.Signal{
 				{
 					ID:    "crypto_price.bandusd",
-					Power: 1e9,
+					Power: 10000 * 1e6,
 				},
 				{
 					ID:    "crypto_price.btcusd",
-					Power: 1e9,
+					Power: 20000 * 1e6,
+				},
+			},
+		},
+		{
+			Delegator: ValidDelegator2.String(),
+			Signals: []types.Signal{
+				{
+					ID:    "crypto_price.bandusd",
+					Power: 20000 * 1e6,
+				},
+				{
+					ID:    "crypto_price.btcusd",
+					Power: 40000 * 1e6,
 				},
 			},
 		},
 	}
 
 	g := types.DefaultGenesisState()
-	g.Feeds = feeds
 	g.DelegatorSignals = delegatorSignals
 
 	suite.feedsKeeper.InitGenesis(suite.ctx, *g)
 
-	suite.Require().Equal(feeds, suite.feedsKeeper.GetFeeds(suite.ctx))
 	suite.Require().Equal(types.DefaultPriceService(), suite.feedsKeeper.GetPriceService(ctx))
 	suite.Require().Equal(types.DefaultParams(), suite.feedsKeeper.GetParams(ctx))
 	for _, ds := range delegatorSignals {
 		suite.Require().
 			Equal(ds.Signals, suite.feedsKeeper.GetDelegatorSignals(ctx, sdk.MustAccAddressFromBech32(ds.Delegator)))
 	}
+
+	stpBand, err := suite.feedsKeeper.GetSignalTotalPower(ctx, "crypto_price.bandusd")
+	suite.Require().NoError(err)
+	suite.Require().Equal(types.Signal{
+		ID:    "crypto_price.bandusd",
+		Power: 30000 * 1e6,
+	}, stpBand)
+
+	stpBtc, err := suite.feedsKeeper.GetSignalTotalPower(ctx, "crypto_price.btcusd")
+	suite.Require().NoError(err)
+	suite.Require().Equal(types.Signal{
+		ID:    "crypto_price.btcusd",
+		Power: 60000 * 1e6,
+	}, stpBtc)
+
+	suite.Require().Equal(types.SupportedFeeds{
+		Feeds: []types.Feed{
+			{
+				SignalID:              "crypto_price.btcusd",
+				Interval:              60,
+				DeviationInThousandth: 5,
+			},
+			{
+				SignalID:              "crypto_price.bandusd",
+				Interval:              120,
+				DeviationInThousandth: 10,
+			},
+		},
+		LastUpdateTimestamp: ctx.BlockTime().Unix(),
+		LastUpdateBlock:     ctx.BlockHeight(),
+	}, suite.feedsKeeper.GetSupportedFeeds(ctx))
 }

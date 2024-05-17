@@ -25,6 +25,7 @@ var (
 	ValidValidator   = sdk.ValAddress("1234567890")
 	ValidValidator2  = sdk.ValAddress("2345678901")
 	ValidDelegator   = sdk.AccAddress("3456789012")
+	ValidDelegator2  = sdk.AccAddress("4567890123")
 	InvalidValidator = sdk.ValAddress("9876543210")
 	InvalidDelegator = sdk.AccAddress("8765432109")
 )

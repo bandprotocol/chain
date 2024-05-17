@@ -1,24 +1,21 @@
 package types
 
-import (
-	errorsmod "cosmossdk.io/errors"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-)
-
 // NewGenesisState creates new GenesisState
-func NewGenesisState(params Params, feeds []Feed, ps PriceService, ds []DelegatorSignals) *GenesisState {
+func NewGenesisState(
+	params Params,
+	ds []DelegatorSignals,
+	ps PriceService,
+) *GenesisState {
 	return &GenesisState{
 		Params:           params,
-		Feeds:            feeds,
-		PriceService:     ps,
 		DelegatorSignals: ds,
+		PriceService:     ps,
 	}
 }
 
 // DefaultGenesisState returns the default genesis state
 func DefaultGenesisState() *GenesisState {
-	return NewGenesisState(DefaultParams(), []Feed{}, DefaultPriceService(), []DelegatorSignals{})
+	return NewGenesisState(DefaultParams(), []DelegatorSignals{}, DefaultPriceService())
 }
 
 // Validate performs basic genesis state validation
@@ -27,33 +24,15 @@ func (gs GenesisState) Validate() error {
 		return err
 	}
 
-	for _, feed := range gs.Feeds {
-		if err := validateInt64("power", true, feed.Power); err != nil {
-			return err
-		}
-		if err := validateInt64("interval", true, feed.Interval); err != nil {
-			return err
-		}
-		if err := validateInt64("timestamp", true, feed.LastIntervalUpdateTimestamp); err != nil {
+	maxSignalIDCharacters := gs.Params.MaxSignalIDCharacters
+	for _, ds := range gs.DelegatorSignals {
+		if err := ds.Validate(maxSignalIDCharacters); err != nil {
 			return err
 		}
 	}
 
 	if err := gs.PriceService.Validate(); err != nil {
 		return err
-	}
-
-	for _, ds := range gs.DelegatorSignals {
-		if _, err := sdk.AccAddressFromBech32(ds.Delegator); err != nil {
-			return errorsmod.Wrap(err, "invalid delegator address")
-		}
-		for _, signal := range ds.Signals {
-			if signal.ID == "" || signal.Power == 0 {
-				return sdkerrors.ErrInvalidRequest.Wrap(
-					"signal id cannot be empty and its power cannot be zero",
-				)
-			}
-		}
 	}
 
 	return nil

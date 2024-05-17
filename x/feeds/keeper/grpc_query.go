@@ -92,25 +92,13 @@ func (q queryServer) Price(
 ) (*types.QueryPriceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	f, err := q.keeper.GetFeed(ctx, req.SignalId)
+	price, err := q.keeper.GetPrice(ctx, req.SignalId)
 	if err != nil {
-		return nil, err
-	}
-
-	price, _ := q.keeper.GetPrice(ctx, req.SignalId)
-	priceVals := q.keeper.GetValidatorPrices(ctx, req.SignalId)
-
-	var filteredPriceVals []types.ValidatorPrice
-	blockTime := ctx.BlockTime().Unix()
-	for _, priceVal := range priceVals {
-		if priceVal.Timestamp > blockTime-f.Interval {
-			filteredPriceVals = append(filteredPriceVals, priceVal)
-		}
+		return &types.QueryPriceResponse{}, err
 	}
 
 	return &types.QueryPriceResponse{
-		Price:           price,
-		ValidatorPrices: filteredPriceVals,
+		Price: price,
 	}, nil
 }
 
@@ -127,7 +115,7 @@ func (q queryServer) ValidatorPrices(
 
 	var priceVals []types.ValidatorPrice
 
-	feeds := q.keeper.GetFeeds(ctx)
+	feeds := q.keeper.GetSupportedFeeds(ctx).Feeds
 	for _, feed := range feeds {
 		priceVal, err := q.keeper.GetValidatorPrice(ctx, feed.SignalID, val)
 		if err == nil {
@@ -188,10 +176,10 @@ func (q queryServer) ValidValidator(
 	return &types.QueryValidValidatorResponse{Valid: isValid}, nil
 }
 
-// Feeds queries all current feeds.
-func (q queryServer) Feeds(
-	goCtx context.Context, req *types.QueryFeedsRequest,
-) (*types.QueryFeedsResponse, error) {
+// SignalTotalPowers queries all current signal-total-powers.
+func (q queryServer) SignalTotalPowers(
+	goCtx context.Context, req *types.QuerySignalTotalPowersRequest,
+) (*types.QuerySignalTotalPowersResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// convert filter signal ids to map
@@ -201,36 +189,39 @@ func (q queryServer) Feeds(
 	}
 
 	store := ctx.KVStore(q.keeper.storeKey)
-	feedStore := prefix.NewStore(store, types.FeedStoreKeyPrefix)
+	signalTotalPowerStore := prefix.NewStore(store, types.SignalTotalPowerStoreKeyPrefix)
 
-	filteredFeeds, pageRes, err := query.GenericFilteredPaginate(
+	filteredSignalTotalPowers, pageRes, err := query.GenericFilteredPaginate(
 		q.keeper.cdc,
-		feedStore,
+		signalTotalPowerStore,
 		req.Pagination,
-		func(key []byte, f *types.Feed) (*types.Feed, error) {
+		func(key []byte, s *types.Signal) (*types.Signal, error) {
 			matchSignalID := true
 
 			// match signal id
 			if len(reqSignalIDs) != 0 {
-				if _, ok := reqSignalIDs[f.SignalID]; !ok {
+				if _, ok := reqSignalIDs[s.ID]; !ok {
 					matchSignalID = false
 				}
 			}
 
 			if matchSignalID {
-				return f, nil
+				return s, nil
 			}
 
 			return nil, nil
-		}, func() *types.Feed {
-			return &types.Feed{}
+		}, func() *types.Signal {
+			return &types.Signal{}
 		},
 	)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryFeedsResponse{Feeds: filteredFeeds, Pagination: pageRes}, nil
+	return &types.QuerySignalTotalPowersResponse{
+		SignalTotalPowers: filteredSignalTotalPowers,
+		Pagination:        pageRes,
+	}, nil
 }
 
 // SupportedFeeds queries all current supported feeds.
@@ -240,7 +231,7 @@ func (q queryServer) SupportedFeeds(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	return &types.QuerySupportedFeedsResponse{
-		Feeds: q.keeper.GetSupportedFeedsByPower(ctx),
+		SupportedFeeds: q.keeper.GetSupportedFeeds(ctx),
 	}, nil
 }
 
