@@ -17,6 +17,7 @@ import (
 	grogucontext "github.com/bandprotocol/chain/v2/grogu/context"
 	"github.com/bandprotocol/chain/v2/grogu/feed"
 	"github.com/bandprotocol/chain/v2/grogu/priceservice"
+	"github.com/bandprotocol/chain/v2/pkg/logger"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
@@ -31,8 +32,8 @@ const (
 	flagDistributionPercentageRange = "distribution-range"
 )
 
-func runImpl(c *grogucontext.Context, l *grogucontext.Logger) error {
-	l.Info(":rocket: Starting WebSocket subscriber")
+func runImpl(c *grogucontext.Context) error {
+	c.Logger.Info(":rocket: Starting WebSocket subscriber")
 	err := c.Client.Start()
 	if err != nil {
 		return err
@@ -43,14 +44,14 @@ func runImpl(c *grogucontext.Context, l *grogucontext.Logger) error {
 		c.FreeKeys <- i
 	}
 
-	l.Info(":rocket: Starting Prices submitter")
-	go feed.StartSubmitPrices(c, l)
+	c.Logger.Info(":rocket: Starting Prices submitter")
+	go feed.StartSubmitPrices(c)
 
-	l.Info(":rocket: Starting Prices querier")
-	go feed.StartQuerySignalIDs(c, l)
+	c.Logger.Info(":rocket: Starting Prices querier")
+	go feed.StartQuerySignalIDs(c)
 
-	l.Info(":rocket: Starting Feed checker")
-	feed.StartCheckFeeds(c, l)
+	c.Logger.Info(":rocket: Starting Feed checker")
+	feed.StartCheckFeeds(c)
 
 	return nil
 }
@@ -89,12 +90,12 @@ func RunCmd(c *grogucontext.Context) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			l := grogucontext.NewLogger(allowLevel)
+			c.Logger = logger.New(allowLevel)
 			c.PriceService, err = priceservice.PriceServiceFromUrl(config.PriceService)
 			if err != nil {
 				return err
 			}
-			l.Info(":star: Creating HTTP client with node URI: %s", config.NodeURI)
+			c.Logger.Info(":star: Creating HTTP client with node URI: %s", config.NodeURI)
 			c.Client, err = httpclient.New(config.NodeURI, "/websocket")
 			if err != nil {
 				return err
@@ -121,9 +122,10 @@ func RunCmd(c *grogucontext.Context) *cobra.Command {
 			c.InProgressSignalIDs = &sync.Map{}
 			c.PendingSignalIDs = make(chan map[string]time.Time, 100)
 			c.PendingPrices = make(chan []types.SubmitPrice, 30)
-			return runImpl(c, l)
+			return runImpl(c)
 		},
 	}
+
 	cmd.Flags().String(flags.FlagChainID, "", "chain ID of BandChain network")
 	cmd.Flags().String(flags.FlagNode, "tcp://localhost:26657", "RPC url to BandChain node")
 	cmd.Flags().String(flagValidator, "", "validator address")
@@ -148,5 +150,6 @@ func RunCmd(c *grogucontext.Context) *cobra.Command {
 	_ = viper.BindPFlag(flagMaxTry, cmd.Flags().Lookup(flagMaxTry))
 	_ = viper.BindPFlag(flagDistributionStartPercentage, cmd.Flags().Lookup(flagDistributionStartPercentage))
 	_ = viper.BindPFlag(flagDistributionPercentageRange, cmd.Flags().Lookup(flagDistributionPercentageRange))
+
 	return cmd
 }

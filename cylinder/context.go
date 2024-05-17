@@ -40,7 +40,7 @@ func NewContext(cfg *Config, kr keyring.Keyring, home string) (*Context, error) 
 	if err != nil {
 		return nil, err
 	}
-	ctx.Logger = logger.NewLogger(allowLevel)
+	ctx.Logger = logger.New(allowLevel)
 
 	// Create the error and message channels
 	ctx.ErrCh = make(chan error, 1)

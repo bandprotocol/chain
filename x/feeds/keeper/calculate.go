@@ -5,7 +5,7 @@ import (
 )
 
 // calculateIntervalAndDeviation calculates feed interval and deviation from power
-func calculateIntervalAndDeviation(power int64, param types.Params) (interval int64, deviation int64) {
+func CalculateIntervalAndDeviation(power int64, param types.Params) (interval int64, deviation int64) {
 	if power < param.PowerThreshold {
 		return 0, 0
 	}

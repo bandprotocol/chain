@@ -13,12 +13,12 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-func StartQuerySignalIDs(c *grogucontext.Context, l *grogucontext.Logger) {
+func StartQuerySignalIDs(c *grogucontext.Context) {
 	for {
 		// block for signal ids from channel PendingSignalIDs and retrieve them in batch
 		signalIDsWithTimeLimit := BlockAndRetrieveBatchedPendingSignalIDs(c.PendingSignalIDs)
 		// query prices for signal ids
-		QuerySignalIDs(c, l, signalIDsWithTimeLimit)
+		QuerySignalIDs(c, signalIDsWithTimeLimit)
 	}
 }
 
@@ -41,13 +41,13 @@ GetAllSignalIDs:
 	return signalIDsWithTimeLimit
 }
 
-func QuerySignalIDs(c *grogucontext.Context, l *grogucontext.Logger, signalIDsWithTimeLimit map[string]time.Time) {
+func QuerySignalIDs(c *grogucontext.Context, signalIDsWithTimeLimit map[string]time.Time) {
 	signalIDs := maps.Keys(signalIDsWithTimeLimit)
 
-	l.Info("Try to get prices for signal ids: %+v", signalIDs)
+	c.Logger.Info("Try to get prices for signal ids: %+v", signalIDs)
 	prices, err := c.PriceService.Query(signalIDs)
 	if err != nil {
-		l.Error(":exploding_head: Failed to get prices from price-service with error: %s", c, err.Error())
+		c.Logger.Error(":exploding_head: Failed to get prices from price-service with error: %s", err.Error())
 	}
 
 	maxSafePrice := math.MaxUint64 / uint64(math.Pow10(9))
@@ -66,7 +66,11 @@ func QuerySignalIDs(c *grogucontext.Context, l *grogucontext.Logger, signalIDsWi
 		case bothanproto.PriceStatus_PRICE_STATUS_AVAILABLE:
 			price, err := strconv.ParseFloat(strings.TrimSpace(priceData.Price), 64)
 			if err != nil || price > float64(maxSafePrice) || price < 0 {
-				l.Error(":exploding_head: Failed to parse price from singal id:", c, priceData.SignalId, err)
+				c.Logger.Error(
+					":exploding_head: Failed to parse price from signal id: %s with err: %v",
+					priceData.SignalId,
+					err,
+				)
 				priceData.PriceStatus = bothanproto.PriceStatus_PRICE_STATUS_UNAVAILABLE
 				priceData.Price = ""
 			} else {
@@ -97,10 +101,10 @@ func QuerySignalIDs(c *grogucontext.Context, l *grogucontext.Logger, signalIDsWi
 	}
 
 	if len(submitPrices) == 0 {
-		l.Debug(":exploding_head: query signal got no prices with signal ids: %+v", signalIDs)
+		c.Logger.Debug(":exploding_head: query signal got no prices with signal ids: %+v", signalIDs)
 		return
 	}
-	l.Info("got prices for signal ids: %+v", maps.Keys(signalIDPriceMap))
+	c.Logger.Info("got prices for signal ids: %+v", maps.Keys(signalIDPriceMap))
 	c.PendingPrices <- submitPrices
 }
 

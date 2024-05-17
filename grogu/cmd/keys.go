@@ -73,9 +73,6 @@ func keysAddCmd(c *grogucontext.Context) *cobra.Command {
 				fmt.Printf("Mnemonic: %s\n", mnemonic)
 			}
 
-			if err != nil {
-				return err
-			}
 			account, err := cmd.Flags().GetUint32(flagAccount)
 			if err != nil {
 				return err
@@ -99,9 +96,11 @@ func keysAddCmd(c *grogucontext.Context) *cobra.Command {
 			return nil
 		},
 	}
+
 	cmd.Flags().Bool(flagRecover, false, "Provide seed phrase to recover existing key instead of creating")
 	cmd.Flags().Uint32(flagAccount, 0, "Account number for HD derivation")
 	cmd.Flags().Uint32(flagIndex, 0, "Address index number for HD derivation")
+
 	return cmd
 }
 
@@ -138,6 +137,7 @@ func keysDeleteCmd(c *grogucontext.Context) *cobra.Command {
 			return nil
 		},
 	}
+
 	return cmd
 }
 
@@ -186,6 +186,7 @@ func keysListCmd(c *grogucontext.Context) *cobra.Command {
 			return nil
 		},
 	}
+
 	cmd.Flags().BoolP(flagAddress, "a", false, "Output the address only")
 	_ = viper.BindPFlag(flagAddress, cmd.Flags().Lookup(flagAddress))
 
@@ -216,5 +217,6 @@ func keysShowCmd(c *grogucontext.Context) *cobra.Command {
 			return nil
 		},
 	}
+
 	return cmd
 }

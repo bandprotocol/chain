@@ -43,4 +43,10 @@ message Params {
 
   // MaxDeviationInThousandth is the maximum limit of every feeds' deviation (in thousandth).
   int64 max_deviation_in_thousandth = 10;
+
+  // MaxSignalIDCharacters is the maximum limit of characters of a signal id.
+  uint64 max_signal_id_characters = 11 [(gogoproto.customname) = "MaxSignalIDCharacters"];
+
+  // BlocksPerFeedsUpdate is the number of blocks after which the feed interval and deviation will be recalculated
+  uint64 blocks_per_feeds_update = 12;
 }
