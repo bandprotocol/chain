@@ -83,16 +83,13 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 					suite.feedsKeeper.GetDelegatorSignals(suite.ctx, ValidDelegator),
 				)
 				suite.Require().Equal(
-					[]types.Feed{
+					[]types.Signal{
 						{
-							SignalID:                    "crypto_price.bandusd",
-							Power:                       1e10,
-							Interval:                    360,
-							DeviationInThousandth:       30,
-							LastIntervalUpdateTimestamp: suite.ctx.BlockTime().Unix(),
+							ID:    "crypto_price.bandusd",
+							Power: 1e10,
 						},
 					},
-					suite.feedsKeeper.GetSupportedFeedsByPower(suite.ctx),
+					suite.feedsKeeper.GetSignalTotalPowersByPower(suite.ctx, 300),
 				)
 			},
 		},
@@ -128,23 +125,17 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 					suite.feedsKeeper.GetDelegatorSignals(suite.ctx, ValidDelegator),
 				)
 				suite.Require().Equal(
-					[]types.Feed{
+					[]types.Signal{
 						{
-							SignalID:                    "crypto_price.bandusd",
-							Power:                       1e9,
-							Interval:                    3600,
-							DeviationInThousandth:       300,
-							LastIntervalUpdateTimestamp: suite.ctx.BlockTime().Unix(),
+							ID:    "crypto_price.bandusd",
+							Power: 1e9,
 						},
 						{
-							SignalID:                    "crypto_price.btcusd",
-							Power:                       1e9,
-							Interval:                    3600,
-							DeviationInThousandth:       300,
-							LastIntervalUpdateTimestamp: suite.ctx.BlockTime().Unix(),
+							ID:    "crypto_price.btcusd",
+							Power: 1e9,
 						},
 					},
-					suite.feedsKeeper.GetSupportedFeedsByPower(suite.ctx),
+					suite.feedsKeeper.GetSignalTotalPowersByPower(suite.ctx, 300),
 				)
 			},
 		},
@@ -167,12 +158,11 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 }
 
 func (suite *KeeperTestSuite) TestMsgSubmitPrices() {
-	suite.feedsKeeper.SetFeed(suite.ctx, types.Feed{
-		SignalID:                    "crypto_price.bandusd",
-		Power:                       10e6,
-		Interval:                    100,
-		LastIntervalUpdateTimestamp: suite.ctx.BlockTime().Unix(),
-	})
+	suite.feedsKeeper.SetSupportedFeeds(suite.ctx, []types.Feed{{
+		SignalID:              "crypto_price.bandusd",
+		Interval:              100,
+		DeviationInThousandth: 5,
+	}})
 
 	testCases := []struct {
 		name      string

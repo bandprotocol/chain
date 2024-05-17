@@ -8,41 +8,25 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-func emitEventUpdateFeed(ctx sdk.Context, feed types.Feed) {
+func emitEventUpdateSignalTotalPower(ctx sdk.Context, signal types.Signal) {
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeUpdateFeed,
-			sdk.NewAttribute(types.AttributeKeySignalID, feed.SignalID),
-			sdk.NewAttribute(types.AttributeKeyPower, fmt.Sprintf("%d", feed.Power)),
-			sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", feed.Interval)),
-			sdk.NewAttribute(
-				types.AttributeKeyLastIntervalUpdateTimestamp,
-				fmt.Sprintf("%d", feed.LastIntervalUpdateTimestamp),
-			),
-			sdk.NewAttribute(
-				types.AttributeKeyDeviationInThousandth,
-				fmt.Sprintf("%d", feed.DeviationInThousandth),
-			),
+			types.EventTypeUpdateSignalTotalPower,
+			sdk.NewAttribute(types.AttributeKeySignalID, signal.ID),
+			sdk.NewAttribute(types.AttributeKeyPower, fmt.Sprintf("%d", signal.Power)),
 		),
 	)
 }
 
-func emitEventDeleteFeed(ctx sdk.Context, feed types.Feed) {
+func emitEventUpdateSupportedFeeds(ctx sdk.Context, supportedFeeds types.SupportedFeeds) {
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeDeleteFeed,
-			sdk.NewAttribute(types.AttributeKeySignalID, feed.SignalID),
-			sdk.NewAttribute(types.AttributeKeyPower, fmt.Sprintf("%d", feed.Power)),
-			sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", feed.Interval)),
+			types.EventTypeUpdateSupportedFeeds,
 			sdk.NewAttribute(
-				types.AttributeKeyLastIntervalUpdateTimestamp,
-				fmt.Sprintf("%d", feed.LastIntervalUpdateTimestamp),
+				types.AttributeKeyLastUpdateTimestamp,
+				fmt.Sprintf("%d", supportedFeeds.LastUpdateTimestamp),
 			),
-			sdk.NewAttribute(
-				types.AttributeKeyDeviationInThousandth,
-				fmt.Sprintf("%d", feed.DeviationInThousandth),
-			),
-		),
+			sdk.NewAttribute(types.AttributeKeyLastUpdateBlock, fmt.Sprintf("%d", supportedFeeds.LastUpdateBlock))),
 	)
 }
 

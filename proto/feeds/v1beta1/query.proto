@@ -37,9 +37,9 @@ service Query {
     option (google.api.http).get = "/feeds/v1beta1/validators/{validator}";
   }
 
-  // Feeds is a RPC method that returns all feeds.
-  rpc Feeds(QueryFeedsRequest) returns (QueryFeedsResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/feeds";
+  // Signals is a RPC method that returns all signal-total-powers or specified signal-total-power by signal id.
+  rpc SignalTotalPowers(QuerySignalTotalPowersRequest) returns (QuerySignalTotalPowersResponse) {
+    option (google.api.http).get = "/feeds/v1beta1/signal-total-powers";
   }
 
   // Params is a RPC method that returns all parameters of the module.
@@ -91,9 +91,6 @@ message QueryPriceRequest {
 message QueryPriceResponse {
   // Price is the aggregated price of the signal id.
   Price price = 1 [(gogoproto.nullable) = false];
-
-  // ValidatorPrices is a list of prices from each validator.
-  repeated ValidatorPrice validator_prices = 2 [(gogoproto.nullable) = false];
 }
 
 // QueryValidatorPricesRequest is the request type for the Query/ValidatorPrices RPC method.
@@ -135,8 +132,8 @@ message QueryValidValidatorResponse {
   bool valid = 1;
 }
 
-// QueryFeedsRequest is the request type for the Query/Feeds RPC method.
-message QueryFeedsRequest {
+// QuerySignalTotalPowersRequest is the request type for the Query/SignalTotalPowers RPC method.
+message QuerySignalTotalPowersRequest {
   // SignalIDs is a list of signal ids to query.
   repeated string signal_ids = 1;
 
@@ -144,10 +141,10 @@ message QueryFeedsRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
-// QueryFeedsResponse is the response type for the Query/Feeds RPC method.
-message QueryFeedsResponse {
-  // Feeds is a list of feeds.
-  repeated Feed feeds = 1;
+// QuerySignalTotalPowersResponse is the response type for the Query/SignalTotalPowers RPC method.
+message QuerySignalTotalPowersResponse {
+  // SingalTotalPowers is a list of signal-total-powers.
+  repeated Signal signal_total_powers = 1;
 
   // Pagination is the pagination information in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
@@ -187,6 +184,6 @@ message QuerySupportedFeedsRequest {}
 
 // QuerySupportedFeedsResponse is the response type for the Query/SupportedFeeds RPC method
 message QuerySupportedFeedsResponse {
-  // Feeds is a list of feeds.
-  repeated Feed feeds = 1 [(gogoproto.nullable) = false];
+  // SupportedFeeds is a list of currently supported feeds, and its last update time and block.
+  SupportedFeeds supported_feeds = 1 [(gogoproto.nullable) = false];
 }

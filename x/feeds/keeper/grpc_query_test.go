@@ -128,13 +128,6 @@ func (suite *KeeperTestSuite) TestQueryPrice() {
 	ctx, queryClient := suite.ctx, suite.queryClient
 
 	// setup
-	feed := types.Feed{
-		SignalID:                    "crypto_price.bandusd",
-		Power:                       100000000,
-		Interval:                    100,
-		LastIntervalUpdateTimestamp: 1234567890,
-	}
-	suite.feedsKeeper.SetFeed(ctx, feed)
 
 	price := types.Price{
 		SignalID:  "crypto_price.bandusd",
@@ -160,15 +153,12 @@ func (suite *KeeperTestSuite) TestQueryPrice() {
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryPriceResponse{
 		Price: price,
-		ValidatorPrices: []types.ValidatorPrice{
-			priceVal,
-		},
 	}, res)
 
 	res, err = queryClient.Price(gocontext.Background(), &types.QueryPriceRequest{
 		SignalId: "crypto_price.atomusd",
 	})
-	suite.Require().ErrorContains(err, "feed not found")
+	suite.Require().ErrorContains(err, "price not found")
 	suite.Require().Nil(res)
 }
 
@@ -178,21 +168,18 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 	// setup
 	feeds := []types.Feed{
 		{
-			SignalID:                    "crypto_price.atomusd",
-			Power:                       100000000,
-			Interval:                    100,
-			LastIntervalUpdateTimestamp: 1234567890,
+			SignalID:              "crypto_price.atomusd",
+			Interval:              100,
+			DeviationInThousandth: 5,
 		},
 		{
-			SignalID:                    "crypto_price.bandusd",
-			Power:                       100000000,
-			Interval:                    100,
-			LastIntervalUpdateTimestamp: 1234567890,
+			SignalID:              "crypto_price.bandusd",
+			Interval:              100,
+			DeviationInThousandth: 5,
 		},
 	}
-	for _, feed := range feeds {
-		suite.feedsKeeper.SetFeed(ctx, feed)
-	}
+
+	suite.feedsKeeper.SetSupportedFeeds(ctx, feeds)
 
 	priceVals := []types.ValidatorPrice{
 		{
@@ -283,33 +270,29 @@ func (suite *KeeperTestSuite) TestQueryValidValidator() {
 	}, res)
 }
 
-func (suite *KeeperTestSuite) TestQueryFeeds() {
+func (suite *KeeperTestSuite) TestQuerySignalTotalPowers() {
 	ctx, queryClient := suite.ctx, suite.queryClient
 
 	// setup
-	feeds := []*types.Feed{
+	signals := []*types.Signal{
 		{
-			SignalID:                    "crypto_price.atomusd",
-			Power:                       100000000,
-			Interval:                    100,
-			LastIntervalUpdateTimestamp: 1234567890,
+			ID:    "crypto_price.atomusd",
+			Power: 100000000,
 		},
 		{
-			SignalID:                    "crypto_price.bandusd",
-			Power:                       100000000,
-			Interval:                    100,
-			LastIntervalUpdateTimestamp: 1234567890,
+			ID:    "crypto_price.bandusd",
+			Power: 100000000,
 		},
 	}
 
-	for _, feed := range feeds {
-		suite.feedsKeeper.SetFeed(ctx, *feed)
+	for _, signal := range signals {
+		suite.feedsKeeper.SetSignalTotalPower(ctx, *signal)
 	}
 
 	// query and check
 	var (
-		req    *types.QueryFeedsRequest
-		expRes *types.QueryFeedsResponse
+		req    *types.QuerySignalTotalPowersRequest
+		expRes *types.QuerySignalTotalPowersResponse
 	)
 
 	testCases := []struct {
@@ -320,9 +303,9 @@ func (suite *KeeperTestSuite) TestQueryFeeds() {
 		{
 			"all feeds",
 			func() {
-				req = &types.QueryFeedsRequest{}
-				expRes = &types.QueryFeedsResponse{
-					Feeds: feeds,
+				req = &types.QuerySignalTotalPowersRequest{}
+				expRes = &types.QuerySignalTotalPowersResponse{
+					SignalTotalPowers: signals,
 				}
 			},
 			true,
@@ -330,11 +313,11 @@ func (suite *KeeperTestSuite) TestQueryFeeds() {
 		{
 			"limit 1",
 			func() {
-				req = &types.QueryFeedsRequest{
+				req = &types.QuerySignalTotalPowersRequest{
 					Pagination: &query.PageRequest{Limit: 1},
 				}
-				expRes = &types.QueryFeedsResponse{
-					Feeds: feeds[:1],
+				expRes = &types.QuerySignalTotalPowersResponse{
+					SignalTotalPowers: signals[:1],
 				}
 			},
 			true,
@@ -342,11 +325,11 @@ func (suite *KeeperTestSuite) TestQueryFeeds() {
 		{
 			"filter",
 			func() {
-				req = &types.QueryFeedsRequest{
+				req = &types.QuerySignalTotalPowersRequest{
 					SignalIds: []string{"crypto_price.bandusd"},
 				}
-				expRes = &types.QueryFeedsResponse{
-					Feeds: feeds[1:],
+				expRes = &types.QuerySignalTotalPowersResponse{
+					SignalTotalPowers: signals[1:],
 				}
 			},
 			true,
@@ -357,14 +340,14 @@ func (suite *KeeperTestSuite) TestQueryFeeds() {
 		suite.Run(fmt.Sprintf("Case %s", testCase.msg), func() {
 			testCase.malleate()
 
-			res, err := queryClient.Feeds(gocontext.Background(), req)
+			res, err := queryClient.SignalTotalPowers(gocontext.Background(), req)
 
 			if testCase.expPass {
 				suite.Require().NoError(err)
-				suite.Require().Equal(expRes.GetFeeds(), res.GetFeeds())
+				suite.Require().Equal(expRes.SignalTotalPowers, res.SignalTotalPowers)
 			} else {
 				suite.Require().Error(err)
-				suite.Require().Nil(expRes)
+				suite.Require().Nil(res)
 			}
 		})
 	}
@@ -388,7 +371,13 @@ func (suite *KeeperTestSuite) TestQuerySupportedFeeds() {
 			"no supported feeds",
 			func() {
 				req = &types.QuerySupportedFeedsRequest{}
-				expRes = &types.QuerySupportedFeedsResponse{}
+				expRes = &types.QuerySupportedFeedsResponse{
+					SupportedFeeds: types.SupportedFeeds{
+						Feeds:               nil,
+						LastUpdateTimestamp: ctx.BlockTime().Unix(),
+						LastUpdateBlock:     ctx.BlockHeight(),
+					},
+				}
 			},
 			true,
 		},
@@ -397,20 +386,21 @@ func (suite *KeeperTestSuite) TestQuerySupportedFeeds() {
 			func() {
 				feeds := []types.Feed{
 					{
-						SignalID:                    "crypto_price.bandusd",
-						Power:                       100000000,
-						Interval:                    100,
-						LastIntervalUpdateTimestamp: 1234567890,
+						SignalID:              "crypto_price.bandusd",
+						Interval:              100,
+						DeviationInThousandth: 5,
 					},
 				}
 
-				for _, feed := range feeds {
-					suite.feedsKeeper.SetFeed(ctx, feed)
-				}
+				suite.feedsKeeper.SetSupportedFeeds(ctx, feeds)
 
 				req = &types.QuerySupportedFeedsRequest{}
 				expRes = &types.QuerySupportedFeedsResponse{
-					Feeds: feeds,
+					SupportedFeeds: types.SupportedFeeds{
+						Feeds:               feeds,
+						LastUpdateTimestamp: ctx.BlockTime().Unix(),
+						LastUpdateBlock:     ctx.BlockHeight(),
+					},
 				}
 			},
 			true,
