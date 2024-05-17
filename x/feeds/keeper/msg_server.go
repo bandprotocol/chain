@@ -42,7 +42,10 @@ func (ms msgServer) SubmitSignals(
 	}
 
 	// calculate power different of each signal by decresing signal power with previous signal
-	signalIDToPowerDiff := ms.CalculateDelegatorSignalsPowerDiff(ctx, delegator, req.Signals)
+	signalIDToPowerDiff, err := ms.CalculateDelegatorSignalsPowerDiff(ctx, delegator, req.Signals)
+	if err != nil {
+		return nil, err
+	}
 
 	// sort keys to guarantee order of signalIDToPowerDiff iteration
 	keys := make([]string, 0, len(signalIDToPowerDiff))
@@ -51,25 +54,31 @@ func (ms msgServer) SubmitSignals(
 	}
 	sort.Strings(keys)
 
+	maxSignalIDCharacters := ms.Keeper.GetParams(ctx).MaxSignalIDCharacters
+
 	for _, signalID := range keys {
+		signalIDLength := len(signalID)
+		if uint64(signalIDLength) > maxSignalIDCharacters {
+			return nil, types.ErrSignalIDTooLarge.Wrapf(
+				"maximum number of characters is %d but received %d characters",
+				maxSignalIDCharacters, signalIDLength,
+			)
+		}
 		powerDiff := signalIDToPowerDiff[signalID]
-		feed, err := ms.GetFeed(ctx, signalID)
+		signalTotalPower, err := ms.GetSignalTotalPower(ctx, signalID)
 		if err != nil {
-			feed = types.Feed{
-				SignalID:                    signalID,
-				Power:                       0,
-				Interval:                    0,
-				LastIntervalUpdateTimestamp: ctx.BlockTime().Unix(),
+			signalTotalPower = types.Signal{
+				ID:    signalID,
+				Power: 0,
 			}
 		}
-		feed.Power += powerDiff
+		signalTotalPower.Power += powerDiff
 
-		if feed.Power < 0 {
+		if signalTotalPower.Power < 0 {
 			return nil, types.ErrPowerNegative
 		}
 
-		feed.Interval, feed.DeviationInThousandth = calculateIntervalAndDeviation(feed.Power, ms.GetParams(ctx))
-		ms.SetFeed(ctx, feed)
+		ms.SetSignalTotalPower(ctx, signalTotalPower)
 	}
 
 	return &types.MsgSubmitSignalsResponse{}, nil
@@ -82,6 +91,7 @@ func (ms msgServer) SubmitPrices(
 ) (*types.MsgSubmitPricesResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	blockTime := ctx.BlockTime().Unix()
+	blockHeight := ctx.BlockHeight()
 
 	if len(req.Prices) > int(ms.Keeper.GetParams(ctx).MaxSupportedFeeds) {
 		return nil, types.ErrSubmitPricesTooLarge
@@ -99,9 +109,9 @@ func (ms msgServer) SubmitPrices(
 	}
 
 	cooldownTime := ms.GetParams(ctx).CooldownTime
-	supportedFeeds := ms.GetSupportedFeedsByPower(ctx)
+	supportedFeeds := ms.GetSupportedFeeds(ctx)
 	supportedFeedsMap := make(map[string]bool)
-	for _, feed := range supportedFeeds {
+	for _, feed := range supportedFeeds.Feeds {
 		supportedFeedsMap[feed.SignalID] = true
 	}
 
@@ -116,15 +126,14 @@ func (ms msgServer) SubmitPrices(
 		}
 
 		// check if price is not too fast
-		priceVal, err := ms.GetValidatorPrice(ctx, price.SignalID, val)
-		if err == nil && blockTime < priceVal.Timestamp+cooldownTime {
+		valPrice, err := ms.GetValidatorPrice(ctx, price.SignalID, val)
+		if err == nil && blockTime < valPrice.Timestamp+cooldownTime {
 			tooEarlyPriceSubmission++
 		}
 
-		valPrice := ms.NewValidatorPrice(ctx, blockTime, price, val, cooldownTime)
+		valPrice = ms.NewValidatorPrice(val, price, blockTime, blockHeight)
 
-		err = ms.SetValidatorPrice(ctx, valPrice)
-		if err != nil {
+		if err = ms.SetValidatorPrice(ctx, valPrice); err != nil {
 			return nil, err
 		}
 

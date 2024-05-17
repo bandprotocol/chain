@@ -15,9 +15,9 @@ func TestGenesisStateValidate(t *testing.T) {
 		{
 			"valid genesisState",
 			GenesisState{
-				Params:       DefaultParams(),
-				Feeds:        []Feed{},
-				PriceService: DefaultPriceService(),
+				Params:           DefaultParams(),
+				DelegatorSignals: []DelegatorSignals{},
+				PriceService:     DefaultPriceService(),
 			},
 			false,
 		},
@@ -29,34 +29,18 @@ func TestGenesisStateValidate(t *testing.T) {
 		{
 			"invalid params",
 			GenesisState{
-				Params:       Params{},
-				Feeds:        []Feed{},
-				PriceService: DefaultPriceService(),
-			},
-			true,
-		},
-		{
-			"invalid symbol",
-			GenesisState{
-				Params: DefaultParams(),
-				Feeds: []Feed{
-					{
-						SignalID:                    "crypto_price.bandusd",
-						Power:                       10,
-						Interval:                    -5,
-						LastIntervalUpdateTimestamp: 1234567890,
-					},
-				},
-				PriceService: DefaultPriceService(),
+				Params:           Params{},
+				DelegatorSignals: []DelegatorSignals{},
+				PriceService:     DefaultPriceService(),
 			},
 			true,
 		},
 		{
 			"invalid price service",
 			GenesisState{
-				Params:       DefaultParams(),
-				Feeds:        []Feed{},
-				PriceService: PriceService{},
+				Params:           DefaultParams(),
+				DelegatorSignals: []DelegatorSignals{},
+				PriceService:     PriceService{},
 			},
 			true,
 		},

@@ -12,8 +12,8 @@ type Logger struct {
 	logger log.Logger
 }
 
-// NewLogger creates a new instance of the Logger.
-func NewLogger(level log.Option) *Logger {
+// New creates a new instance of the Logger.
+func New(level log.Option) *Logger {
 	return &Logger{logger: log.NewFilter(log.NewTMLogger(os.Stdout), level)}
 }
 

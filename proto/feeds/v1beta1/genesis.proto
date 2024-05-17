@@ -12,12 +12,9 @@ message GenesisState {
   // Params is all parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
 
-  // Feeds is a list of feeds that requires validators to submit the price.
-  repeated Feed feeds = 2 [(gogoproto.nullable) = false];
+  // DelegatorSignals is a list of delegator signals submitted by delegators.
+  repeated DelegatorSignals delegator_signals = 2 [(gogoproto.nullable) = false];
 
   // PriceService is the information about price service.
   PriceService price_service = 3 [(gogoproto.nullable) = false];
-
-  // DelegatorSignals is a list of delegator signals submitted by delegators.
-  repeated DelegatorSignals delegator_signals = 4 [(gogoproto.nullable) = false];
 }
