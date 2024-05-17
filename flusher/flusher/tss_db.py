@@ -86,7 +86,12 @@ band_tss_signings = sa.Table(
     Column("fee", sa.String),
     Column("requester_id", sa.Integer, sa.ForeignKey("accounts.id")),
     Column("current_group_signing_id", sa.Integer, sa.ForeignKey("tss_signings.id")),
-    Column("replacing_group_signing_id", sa.Integer, sa.ForeignKey("tss_signings.id")),
+    Column(
+        "replacing_group_signing_id",
+        sa.Integer,
+        sa.ForeignKey("tss_signings.id"),
+        nullable=True,
+    ),
 )
 
 tss_groups = sa.Table(
@@ -107,6 +112,7 @@ band_tss_groups = sa.Table(
     metadata,
     Column("id", sa.Integer, primary_key=True),
     Column("current_group_id", sa.Integer, sa.ForeignKey("tss_groups.id")),
+    Column("since", CustomDateTime),
 )
 
 tss_members = sa.Table(
@@ -125,6 +131,7 @@ tss_members = sa.Table(
 band_tss_members = sa.Table(
     "band_tss_members",
     metadata,
+    Column("band_tss_groups_id", sa.ForeignKey("band_tss_groups.id"), primary_key=True),
     Column("account_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
     Column("is_active", sa.Boolean),
     Column("since", CustomDateTime),
@@ -146,7 +153,6 @@ tss_assigned_members = sa.Table(
     Column(
         "tss_member_id",
         sa.Integer,
-        sa.ForeignKey("tss_members.id"),
         primary_key=True,
     ),
     Column("pub_d", CustomBase64),
@@ -162,8 +168,9 @@ tss_assigned_members = sa.Table(
 band_tss_replacements = sa.Table(
     "band_tss_replacements",
     metadata,
-    Column("id", sa.Integer, primary_key=True),
-    Column("tss_signing_id", sa.Integer, sa.ForeignKey("tss_signings.id")),
+    Column(
+        "tss_signing_id", sa.Integer, sa.ForeignKey("tss_signings.id"), primary_key=True
+    ),
     Column("new_group_id", sa.Integer, sa.ForeignKey("tss_groups.id")),
     Column("new_pub_key", CustomBase64),
     Column("current_group_id", sa.Integer, sa.ForeignKey("tss_groups.id")),

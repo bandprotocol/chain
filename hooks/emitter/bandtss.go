@@ -1,6 +1,8 @@
 package emitter
 
 import (
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
@@ -10,7 +12,6 @@ import (
 
 func (h *Hook) emitSetBandtssReplacement(replacement types.Replacement) {
 	h.Write("SET_BAND_TSS_REPLACEMENT", common.JsDict{
-		"id":               1,
 		"tss_signing_id":   replacement.SigningID,
 		"new_group_id":     replacement.NewGroupID,
 		"new_pub_key":      parseBytes(replacement.NewPubKey),
@@ -23,8 +24,8 @@ func (h *Hook) emitSetBandtssReplacement(replacement types.Replacement) {
 
 func (h *Hook) emitSetBandtssGroup(gid tss.GroupID) {
 	h.Write("SET_BAND_TSS_GROUP", common.JsDict{
-		"id":               1,
 		"current_group_id": gid,
+		"since":            time.Now().UnixNano(),
 	})
 }
 
@@ -101,7 +102,7 @@ func (h *Hook) handleEventSigningRequestCreated(ctx sdk.Context, sid types.Signi
 	h.emitSetBandtssSigning(signing)
 }
 
-// handleSetBandtssReplacement implements emitter handler events related to replacements.
+// handleSetBandtssReplacement implements emitter handler events related to create replacements.
 func (h *Hook) handleSetBandtssReplacement(ctx sdk.Context) {
 	r := h.bandtssKeeper.GetReplacement(ctx)
 	h.emitSetBandtssReplacement(r)

@@ -132,6 +132,8 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 		h.handleBandtssMsgHealthCheck(ctx, msg)
 	case *bandtsstypes.MsgRequestSignature:
 		h.handleEventRequestSignature(ctx, evMap)
+		sid := bandtsstypes.SigningID(common.Atoi(evMap[bandtsstypes.EventTypeSigningRequestCreated+"."+bandtsstypes.AttributeKeySigningID][0]))
+		h.handleEventSigningRequestCreated(ctx, sid)
 	case *group.MsgCreateGroup:
 		h.handleGroupMsgCreateGroup(ctx, evMap)
 	case *group.MsgCreateGroupPolicy:
@@ -210,12 +212,10 @@ func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) 
 		gid := tss.GroupID(common.Atoi(evMap[event.Type+"."+tsstypes.AttributeKeyGroupID][0]))
 		h.handleSetTSSGroup(ctx, gid)
 	case bandtsstypes.EventTypeNewGroupActivate:
-		gid := tss.GroupID(common.Atoi(evMap[event.Type+"."+tsstypes.AttributeKeyGroupID][0]))
-
+		gid := tss.GroupID(common.Atoi(evMap[event.Type+"."+bandtsstypes.AttributeKeyGroupID][0]))
 		h.handleNewBandtssGroupActive(ctx, gid)
-		h.handleSetBandtssReplacement(ctx)
 	case bandtsstypes.EventTypeSigningRequestCreated:
-		sid := bandtsstypes.SigningID(common.Atoi(evMap[event.Type+"."+tsstypes.AttributeKeySigningID][0]))
+		sid := bandtsstypes.SigningID(common.Atoi(evMap[event.Type+"."+bandtsstypes.AttributeKeySigningID][0]))
 		h.handleEventSigningRequestCreated(ctx, sid)
 	case bandtsstypes.EventTypeReplacement:
 		h.handleSetBandtssReplacement(ctx)

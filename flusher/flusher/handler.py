@@ -92,16 +92,6 @@ class Handler(object):
             ).scalar()
         return id
 
-    def have_tss_account(self, account_id):
-        return (
-            self.conn.execute(
-                select([tss_statuses.c.account_id]).where(
-                    tss_statuses.c.account_id == account_id
-                )
-            ).scalar()
-            is not None
-        )
-
     def get_request_count(self, date):
         return self.conn.execute(
             select([request_count_per_days.c.count]).where(
@@ -161,6 +151,12 @@ class Handler(object):
         return self.conn.execute(
             select([relayer_tx_stat_days.c.ibc_received_txs]).where(condition)
         ).scalar()
+
+    def get_latest_band_tss_group_id(self):
+        result = self.conn.execute(
+            "SELECT id FROM band_tss_groups ORDER BY id DESC LIMIT 1"
+        ).fetchone()
+        return result[0] if result else None
 
     def handle_new_block(self, msg):
         self.conn.execute(blocks.insert(), msg)
@@ -795,8 +791,6 @@ class Handler(object):
             )
 
     def handle_new_tss_signing(self, msg):
-        msg["account_id"] = self.get_account_id(msg["requester"])
-        del msg["requester"]
         self.conn.execute(tss_signings.insert(), msg)
 
     def handle_update_tss_signing(self, msg):
@@ -805,9 +799,12 @@ class Handler(object):
             condition = (col == msg[col.name]) & condition
         self.conn.execute(tss_signings.update().where(condition).values(**msg))
 
-    def handle_set_band_tss_member(self, msg):
+    def handle_set_band_tss_signing(self, msg):
         msg["requester_id"] = self.get_account_id(msg["requester"])
         del msg["requester"]
+
+        if msg["replacing_group_signing_id"] == 0:
+            del msg["replacing_group_signing_id"]
 
         self.conn.execute(
             insert(band_tss_signings)
@@ -823,11 +820,7 @@ class Handler(object):
         )
 
     def handle_set_band_tss_group(self, msg):
-        self.conn.execute(
-            insert(band_tss_groups)
-            .values(**msg)
-            .on_conflict_do_update(constraint="band_tss_groups_pkey", set_=msg)
-        )
+        self.conn.execute(band_tss_groups.insert(), msg)
 
     def handle_set_band_tss_replacement(self, msg):
         self.conn.execute(
@@ -847,6 +840,8 @@ class Handler(object):
         )
 
     def handle_set_band_tss_member(self, msg):
+        msg["band_tss_groups_id"] = self.get_latest_band_tss_group_id()
+
         msg["account_id"] = self.get_account_id(msg["address"])
         del msg["address"]
 

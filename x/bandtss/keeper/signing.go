@@ -205,7 +205,6 @@ func (k Keeper) HandleCreateSigning(
 		ReplacingGroupSigningID: replacingGroupSigningID,
 	})
 
-	// TODO: emit AttributeKeyRequester
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeSigningRequestCreated,

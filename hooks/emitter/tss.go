@@ -69,13 +69,13 @@ func (h *Hook) emitSetTSSMember(member types.Member) {
 
 func (h *Hook) emitNewTSSAssignedMember(sid tss.SigningID, gid tss.GroupID, am types.AssignedMember) {
 	h.Write("NEW_TSS_ASSIGNED_MEMBER", common.JsDict{
-		"tss_signing_id":      sid,
-		"tss_group_id":        gid,
-		"tss_group_member_id": am.MemberID,
-		"pub_d":               parseBytes(am.PubD),
-		"pub_e":               parseBytes(am.PubE),
-		"binding_factor":      parseBytes(am.PubKey),
-		"pub_nonce":           parseBytes(am.PubNonce),
+		"tss_signing_id": sid,
+		"tss_group_id":   gid,
+		"tss_member_id":  am.MemberID,
+		"pub_d":          parseBytes(am.PubD),
+		"pub_e":          parseBytes(am.PubE),
+		"binding_factor": parseBytes(am.PubKey),
+		"pub_nonce":      parseBytes(am.PubNonce),
 	})
 }
 
