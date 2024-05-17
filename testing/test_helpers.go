@@ -69,14 +69,15 @@ var (
 )
 
 var (
-	EmptyCoins          = sdk.Coins(nil)
-	Coins1uband         = sdk.NewCoins(sdk.NewInt64Coin("uband", 1))
-	Coins10uband        = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
-	Coins11uband        = sdk.NewCoins(sdk.NewInt64Coin("uband", 11))
-	Coins1000000uband   = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
-	Coins99999999uband  = sdk.NewCoins(sdk.NewInt64Coin("uband", 99999999))
-	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
-	BadCoins            = []sdk.Coin{{Denom: "uband", Amount: sdk.NewInt(-1)}}
+	EmptyCoins              = sdk.Coins(nil)
+	Coins1uband             = sdk.NewCoins(sdk.NewInt64Coin("uband", 1))
+	Coins10uband            = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
+	Coins11uband            = sdk.NewCoins(sdk.NewInt64Coin("uband", 11))
+	Coins1000000uband       = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
+	Coins99999999uband      = sdk.NewCoins(sdk.NewInt64Coin("uband", 99999999))
+	Coins100000000uband     = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
+	Coins1000000000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000000000))
+	BadCoins                = []sdk.Coin{{Denom: "uband", Amount: sdk.NewInt(-1)}}
 )
 
 const (
@@ -139,14 +140,14 @@ func (app *TestingApp) GetTxConfig() client.TxConfig {
 func init() {
 	bandapp.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
 	r := rand.New(rand.NewSource(time.Now().Unix()))
-	Owner = createArbitraryAccount(r)
-	Treasury = createArbitraryAccount(r)
-	FeePayer = createArbitraryAccount(r)
-	Alice = createArbitraryAccount(r)
-	Bob = createArbitraryAccount(r)
-	Carol = createArbitraryAccount(r)
+	Owner = CreateArbitraryAccount(r)
+	Treasury = CreateArbitraryAccount(r)
+	FeePayer = CreateArbitraryAccount(r)
+	Alice = CreateArbitraryAccount(r)
+	Bob = CreateArbitraryAccount(r)
+	Carol = CreateArbitraryAccount(r)
 	for i := 0; i < 3; i++ {
-		Validators = append(Validators, createArbitraryAccount(r))
+		Validators = append(Validators, CreateArbitraryAccount(r))
 	}
 
 	// Sorted list of validators is needed for ibctest when signing a commit block
@@ -180,7 +181,7 @@ func CreateTestApp(t *testing.T, autoActivate bool) (*TestingApp, sdk.Context) {
 	balances := []banktypes.Balance{
 		{
 			Address: Owner.Address.String(),
-			Coins:   Coins1000000uband,
+			Coins:   Coins1000000000000uband,
 		},
 		{Address: FeePayer.Address.String(), Coins: Coins100000000uband},
 		{Address: Alice.Address.String(), Coins: Coins1000000uband},
@@ -400,8 +401,8 @@ func SetupWithGenesisValSet(
 	return &TestingApp{app}
 }
 
-// createArbitraryAccount generates a random Account using a provided random number generator.
-func createArbitraryAccount(r *rand.Rand) Account {
+// CreateArbitraryAccount generates a random Account using a provided random number generator.
+func CreateArbitraryAccount(r *rand.Rand) Account {
 	privkeySeed := make([]byte, 12)
 	r.Read(privkeySeed)
 	privKey := secp256k1.GenPrivKeyFromSecret(privkeySeed)
