@@ -30,6 +30,7 @@ func (k Keeper) ValidateSubmitPricesRequest(
 			req.Timestamp,
 		)
 	}
+
 	return nil
 }
 

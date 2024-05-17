@@ -13,6 +13,7 @@ func (k Keeper) SetParams(ctx sdk.Context, p types.Params) error {
 	}
 
 	ctx.KVStore(k.storeKey).Set(types.ParamsKey, k.cdc.MustMarshal(&p))
+
 	return nil
 }
 
@@ -24,5 +25,6 @@ func (k Keeper) GetParams(ctx sdk.Context) (p types.Params) {
 	}
 
 	k.cdc.MustUnmarshal(bz, &p)
+
 	return p
 }

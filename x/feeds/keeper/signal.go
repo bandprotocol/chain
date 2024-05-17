@@ -17,6 +17,7 @@ func (k Keeper) CheckDelegatorDelegation(
 	if sumPower > sumDelegation {
 		return types.ErrNotEnoughDelegation
 	}
+
 	return nil
 }
 
@@ -27,6 +28,7 @@ func (k Keeper) CalculateDelegatorSignalsPowerDiff(
 	signals []types.Signal,
 ) (map[string]int64, error) {
 	signalIDToPowerDiff := make(map[string]int64)
+
 	prevSignals := k.GetDelegatorSignals(ctx, delegator)
 	k.DeleteDelegatorSignals(ctx, delegator)
 
@@ -35,6 +37,7 @@ func (k Keeper) CalculateDelegatorSignalsPowerDiff(
 	}
 
 	k.SetDelegatorSignals(ctx, types.DelegatorSignals{Delegator: delegator.String(), Signals: signals})
+
 	for _, signal := range signals {
 		if signal.ID == "" || signal.Power <= 0 {
 			return nil, types.ErrInvalidSignal.Wrap(
@@ -43,5 +46,6 @@ func (k Keeper) CalculateDelegatorSignalsPowerDiff(
 		}
 		signalIDToPowerDiff[signal.ID] += signal.Power
 	}
+
 	return signalIDToPowerDiff, nil
 }

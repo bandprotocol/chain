@@ -13,6 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
 
+	"github.com/bandprotocol/chain/v2/pkg/grant"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
@@ -114,37 +115,7 @@ $ %s tx feeds add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq
 				version.AppName,
 			),
 		),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			exp, err := cmd.Flags().GetInt64(flagExpiration)
-			if err != nil {
-				return err
-			}
-			expTime := time.Unix(exp, 0)
-
-			granter := clientCtx.GetFromAddress()
-			var msgs []sdk.Msg
-
-			for _, arg := range args {
-				grantee, err := sdk.AccAddressFromBech32(arg)
-				if err != nil {
-					return err
-				}
-
-				gMsgs, err := combineGrantMsgs(granter, grantee, getGrantMsgTypes(), &expTime)
-				if err != nil {
-					return err
-				}
-
-				msgs = append(msgs, gMsgs...)
-			}
-
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
-		},
+		RunE: grant.AddGranteeCmd(getGrantMsgTypes(), flagExpiration),
 	}
 
 	cmd.Flags().
@@ -173,30 +144,7 @@ $ %s tx feeds remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m
 				version.AppName,
 			),
 		),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			granter := clientCtx.GetFromAddress()
-			var msgs []sdk.Msg
-
-			for _, arg := range args {
-				grantee, err := sdk.AccAddressFromBech32(arg)
-				if err != nil {
-					return err
-				}
-
-				rMsgs, err := combineRevokeMsgs(granter, grantee, getGrantMsgTypes())
-				if err != nil {
-					return err
-				}
-
-				msgs = append(msgs, rMsgs...)
-			}
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
-		},
+		RunE: grant.RemoveGranteeCmd(getGrantMsgTypes()),
 	}
 
 	flags.AddTxFlagsToCmd(cmd)

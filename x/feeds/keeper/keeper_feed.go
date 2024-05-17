@@ -7,15 +7,15 @@ import (
 )
 
 // GetSupportedFeeds gets the current supported feeds.
-func (k Keeper) GetSupportedFeeds(ctx sdk.Context) (oc types.SupportedFeeds) {
+func (k Keeper) GetSupportedFeeds(ctx sdk.Context) (sp types.SupportedFeeds) {
 	bz := ctx.KVStore(k.storeKey).Get(types.SupportedFeedsStoreKey)
 	if bz == nil {
-		return oc
+		return sp
 	}
 
-	k.cdc.MustUnmarshal(bz, &oc)
+	k.cdc.MustUnmarshal(bz, &sp)
 
-	return oc
+	return sp
 }
 
 // SetSupportedFeeds sets new supported feeds to the store.

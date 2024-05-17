@@ -162,6 +162,7 @@ func (k Keeper) CalculatePrice(
 	}
 
 	totalPower, availablePower, _, unsupportedPower := types.CalculatePricesPowers(priceFeedInfos)
+
 	// If more than half of the total have unsupported price status, it returns an unsupported price status.
 	if unsupportedPower > totalPower/2 {
 		return types.Price{
@@ -171,6 +172,7 @@ func (k Keeper) CalculatePrice(
 			Timestamp:   ctx.BlockTime().Unix(),
 		}, nil
 	}
+
 	// If less than half of total have available price status, it returns an unavailable price status.
 	if availablePower < totalPower/2 {
 		return types.Price{
@@ -245,6 +247,7 @@ func (k Keeper) SetValidatorPrices(ctx sdk.Context, valPrices []types.ValidatorP
 			return err
 		}
 	}
+
 	return nil
 }
 
