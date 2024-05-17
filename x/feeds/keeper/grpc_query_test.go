@@ -136,14 +136,14 @@ func (suite *KeeperTestSuite) TestQueryPrice() {
 	}
 	suite.feedsKeeper.SetPrice(ctx, price)
 
-	priceVal := types.ValidatorPrice{
+	valPrice := types.ValidatorPrice{
 		PriceStatus: types.PriceStatusAvailable,
 		Validator:   ValidValidator.String(),
 		SignalID:    "crypto_price.bandusd",
 		Price:       1e9,
 		Timestamp:   ctx.BlockTime().Unix(),
 	}
-	err := suite.feedsKeeper.SetValidatorPrice(ctx, priceVal)
+	err := suite.feedsKeeper.SetValidatorPrice(ctx, valPrice)
 	suite.Require().NoError(err)
 
 	// query and check
@@ -181,7 +181,7 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 
 	suite.feedsKeeper.SetSupportedFeeds(ctx, feeds)
 
-	priceVals := []types.ValidatorPrice{
+	valPrices := []types.ValidatorPrice{
 		{
 			Validator: ValidValidator.String(),
 			SignalID:  "crypto_price.atomusd",
@@ -195,8 +195,8 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 			Timestamp: ctx.BlockTime().Unix(),
 		},
 	}
-	for _, priceVal := range priceVals {
-		err := suite.feedsKeeper.SetValidatorPrice(ctx, priceVal)
+	for _, valPrice := range valPrices {
+		err := suite.feedsKeeper.SetValidatorPrice(ctx, valPrice)
 		suite.Require().NoError(err)
 	}
 
@@ -206,7 +206,7 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryValidatorPricesResponse{
-		ValidatorPrices: priceVals,
+		ValidatorPrices: valPrices,
 	}, res)
 
 	res, err = queryClient.ValidatorPrices(gocontext.Background(), &types.QueryValidatorPricesRequest{
@@ -222,13 +222,13 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrice() {
 	ctx, queryClient := suite.ctx, suite.queryClient
 
 	// setup
-	priceVal := types.ValidatorPrice{
+	valPrice := types.ValidatorPrice{
 		Validator: ValidValidator.String(),
 		SignalID:  "crypto_price.bandusd",
 		Price:     1e9,
 		Timestamp: ctx.BlockTime().Unix(),
 	}
-	err := suite.feedsKeeper.SetValidatorPrice(ctx, priceVal)
+	err := suite.feedsKeeper.SetValidatorPrice(ctx, valPrice)
 	suite.Require().NoError(err)
 
 	// query and check
@@ -238,7 +238,7 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrice() {
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryValidatorPriceResponse{
-		ValidatorPrice: priceVal,
+		ValidatorPrice: valPrice,
 	}, res)
 
 	res, err = queryClient.ValidatorPrice(gocontext.Background(), &types.QueryValidatorPriceRequest{

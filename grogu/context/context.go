@@ -9,6 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/grogu/priceservice"
+	"github.com/bandprotocol/chain/v2/pkg/logger"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
@@ -39,6 +40,7 @@ type Context struct {
 	RPCPollInterval  time.Duration
 	Config           Config
 	Keyring          keyring.Keyring
+	Logger           *logger.Logger
 
 	PendingSignalIDs    chan map[string]time.Time
 	PendingPrices       chan []types.SubmitPrice

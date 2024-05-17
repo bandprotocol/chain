@@ -7,15 +7,15 @@ import (
 )
 
 // GetPriceService gets the current price service.
-func (k Keeper) GetPriceService(ctx sdk.Context) (oc types.PriceService) {
+func (k Keeper) GetPriceService(ctx sdk.Context) (ps types.PriceService) {
 	bz := ctx.KVStore(k.storeKey).Get(types.PriceServiceStoreKey)
 	if bz == nil {
-		return oc
+		return ps
 	}
 
-	k.cdc.MustUnmarshal(bz, &oc)
+	k.cdc.MustUnmarshal(bz, &ps)
 
-	return oc
+	return ps
 }
 
 // SetPriceService sets new price service to the store.
@@ -25,5 +25,6 @@ func (k Keeper) SetPriceService(ctx sdk.Context, ps types.PriceService) error {
 	}
 
 	ctx.KVStore(k.storeKey).Set(types.PriceServiceStoreKey, k.cdc.MustMarshal(&ps))
+
 	return nil
 }
