@@ -166,7 +166,7 @@ docker pull bandprotocol/bothan-api:latest
 for v in {1..4}
 do
     # run price-service image
-    docker run --network chain_bandchain -d --name price-service$v -v "$(pwd)/docker-config/bothan-config.toml:/app/config.toml" bandprotocol/bothan-api:latest
+    docker run --log-opt max-size=10m --log-opt max-file=3 --network chain_bandchain -d --name price-service$v -v "$(pwd)/docker-config/bothan-config.toml:/app/config.toml" bandprotocol/bothan-api:latest
 
     rm -rf ~/.grogu
     grogu config chain-id bandchain
