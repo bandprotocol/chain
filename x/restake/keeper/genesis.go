@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/restake/types"
@@ -8,6 +10,16 @@ import (
 
 // InitGenesis initializes the module's state from a provided genesis state.
 func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
+	moduleAcc := k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
+	if moduleAcc == nil {
+		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
+	}
+
+	balance := k.bankKeeper.GetAllBalances(ctx, moduleAcc.GetAddress())
+	if balance.IsZero() {
+		k.authKeeper.SetModuleAccount(ctx, moduleAcc)
+	}
+
 	for _, key := range data.Keys {
 		k.SetKey(ctx, key)
 	}

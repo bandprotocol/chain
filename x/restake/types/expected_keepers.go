@@ -10,11 +10,14 @@ import (
 // AccountKeeper defines the expected account keeper (noalias)
 type AccountKeeper interface {
 	GetModuleAddress(name string) sdk.AccAddress
-	GetModuleAccount(ctx sdk.Context, moduleName string) authtypes.ModuleAccountI
+
+	GetModuleAccount(ctx sdk.Context, name string) authtypes.ModuleAccountI
+	SetModuleAccount(sdk.Context, authtypes.ModuleAccountI)
 }
 
 // BankKeeper defines the expected interface needed to retrieve account balances.
 type BankKeeper interface {
+	GetAllBalances(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
 	SendCoinsFromModuleToAccount(
 		ctx sdk.Context,
 		senderModule string,
