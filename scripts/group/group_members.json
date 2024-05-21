@@ -1,0 +1,14 @@
+{
+    "members": [
+        {
+            "address": "band1w8yurh6naeqg4mjx4zcs7hsu3fppwu0f4q4l7f",
+            "weight": "1",
+            "metadata": "account1"
+        },
+        {
+            "address": "band1ph8tcg7ncxxx5vndfc9h6ffsn4st4whq3rn260",
+            "weight": "1",
+            "metadata": "account2"
+        }
+    ]
+}
