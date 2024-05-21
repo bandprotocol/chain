@@ -133,7 +133,7 @@ func GenSequenceOfTxs(
 			msgs,
 			sdk.Coins{sdk.NewInt64Coin("uband", 1)},
 			math.MaxInt64,
-			"",
+			bandtesting.ChainID,
 			[]uint64{account.Num},
 			[]uint64{account.Seq},
 			account.PrivKey,
