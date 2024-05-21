@@ -49,3 +49,10 @@ price_services = sa.Table(
     Column("url", sa.String),
     Column("timestamp", CustomDateTime),
 )
+
+feeders = sa.Table(
+    "feeders",
+    metadata,
+    Column("feeder_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
+    Column("operator_address", sa.String, primary_key=True),
+)

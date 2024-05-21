@@ -52,6 +52,7 @@ from .feeds_db import (
     signal_total_powers,
     prices,
     price_services,
+    feeders,
 )
 
 
@@ -660,3 +661,20 @@ class Handler(object):
         self.conn.execute(
             insert(price_services).values(**msg)
         )
+    
+    def handle_set_feeder(self, msg):
+        msg["operator_address"] = msg["validator"]
+        del msg["validator"]
+        msg["feeder_id"] = self.get_account_id(msg["feeder"])
+        del msg["feeder"]
+        self.conn.execute(insert(feeders).values(msg).on_conflict_do_nothing(constraint="feeders_pkey"))
+
+    def handle_remove_feeder(self, msg):
+        msg["operator_address"] = msg["validator"]
+        del msg["validator"]
+        msg["feeder_id"] = self.get_account_id(msg["feeder"])
+        del msg["feeder"]
+        condition = True
+        for col in feeders.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+        self.conn.execute(feeders.delete().where(condition))
