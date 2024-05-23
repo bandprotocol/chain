@@ -52,6 +52,13 @@ func (h *Hook) emitSetBandtssSigning(signing types.Signing) {
 	})
 }
 
+// handleInitBandTSSModule implements emitter handler for init bandtss module.
+func (h *Hook) handleInitBandTSSModule(ctx sdk.Context) {
+	for _, signing := range h.bandtssKeeper.GetSignings(ctx) {
+		h.emitSetBandtssSigning(signing)
+	}
+}
+
 // handleNewBandtssGroupActive implements emitter handler for new bandtss group active.
 func (h *Hook) handleNewBandtssGroupActive(ctx sdk.Context, gid tss.GroupID) {
 	h.emitSetBandtssGroup(gid)

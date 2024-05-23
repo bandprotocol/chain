@@ -154,7 +154,7 @@ class Handler(object):
 
     def get_latest_band_tss_group_id(self):
         result = self.conn.execute(
-            "SELECT id FROM band_tss_groups ORDER BY id DESC LIMIT 1"
+            "SELECT id FROM band_tss_groups ORDER BY since DESC LIMIT 1"
         ).fetchone()
         return result[0] if result else None
 

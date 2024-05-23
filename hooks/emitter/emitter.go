@@ -290,6 +290,9 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	// TSS module
 	h.handleInitTSSModule(ctx)
 
+	// BandTSS module
+	h.handleInitBandTSSModule(ctx)
+
 	// Oracle module
 	var oracleState oracletypes.GenesisState
 	h.cdc.MustUnmarshalJSON(genesisState[oracletypes.ModuleName], &oracleState)

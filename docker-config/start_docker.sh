@@ -189,7 +189,6 @@ do
 
     # activate tss
     echo "y" | bandd tx tss add-grantees --from account$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband --gas 350000 -b sync
-    echo "y" | bandd tx bandtss add-grantees --from account$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband --gas 350000 -b sync
 
     # wait for activating tss transaction success
     sleep 4
