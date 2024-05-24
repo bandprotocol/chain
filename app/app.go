@@ -524,7 +524,6 @@ func NewBandApp(
 	app.TSSKeeper = tsskeeper.NewKeeper(
 		appCodec,
 		keys[tsstypes.StoreKey],
-		app.GetSubspace(tsstypes.ModuleName),
 		app.AuthzKeeper,
 		app.RollingseedKeeper,
 		tssRouter,
@@ -535,7 +534,6 @@ func NewBandApp(
 	app.BandtssKeeper = bandtsskeeper.NewKeeper(
 		appCodec,
 		keys[bandtsstypes.StoreKey],
-		app.GetSubspace(bandtsstypes.ModuleName),
 		app.AuthzKeeper,
 		app.AccountKeeper,
 		app.BankKeeper,

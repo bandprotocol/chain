@@ -8,16 +8,14 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 )
 
 type Keeper struct {
-	cdc        codec.BinaryCodec
-	storeKey   storetypes.StoreKey
-	paramSpace paramtypes.Subspace
+	cdc      codec.BinaryCodec
+	storeKey storetypes.StoreKey
 
 	authzKeeper   types.AuthzKeeper
 	authKeeper    types.AccountKeeper
@@ -33,7 +31,6 @@ type Keeper struct {
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey storetypes.StoreKey,
-	paramSpace paramtypes.Subspace,
 	authzKeeper types.AuthzKeeper,
 	authKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
@@ -51,7 +48,6 @@ func NewKeeper(
 	return &Keeper{
 		cdc:              cdc,
 		storeKey:         storeKey,
-		paramSpace:       paramSpace,
 		authzKeeper:      authzKeeper,
 		authKeeper:       authKeeper,
 		bankKeeper:       bankKeeper,
