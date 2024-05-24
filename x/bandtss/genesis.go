@@ -1,6 +1,8 @@
 package bandtss
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/bandtss/keeper"
@@ -9,6 +11,17 @@ import (
 
 // InitGenesis performs genesis initialization for this module.
 func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
+	// check if the module account exists
+	moduleAcc := k.GetBandtssAccount(ctx)
+	if moduleAcc == nil {
+		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
+	}
+
+	// Set module account if its balance is zero
+	if balance := k.GetModuleBalance(ctx); balance.IsZero() {
+		k.SetModuleAccount(ctx, moduleAcc)
+	}
+
 	if err := k.SetParams(ctx, data.Params); err != nil {
 		panic(err)
 	}

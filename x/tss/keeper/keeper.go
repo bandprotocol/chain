@@ -31,6 +31,10 @@ func NewKeeper(
 	rtr *types.Router,
 	authority string,
 ) *Keeper {
+	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
+		panic(fmt.Errorf("invalid tss authority address: %w", err))
+	}
+
 	return &Keeper{
 		cdc:               cdc,
 		storeKey:          storeKey,
