@@ -48,7 +48,6 @@ func recoverETHAddress(msg, sig, signer []byte) ([]byte, uint8, error) {
 }
 
 func GetPrefix(t tmproto.SignedMsgType, height int64, round int64) ([]byte, error) {
-	fmt.Println(t, height, round)
 	prefix, err := protoio.MarshalDelimited(
 		&tmproto.CanonicalVote{
 			Type:   t,

@@ -11,12 +11,10 @@ import (
 )
 
 var RequestSignCases = map[string]struct {
-	scenario   uint64
 	byteLength []int
 	feeLimit   sdk.Coins
 }{
 	"request_signature": {
-		scenario:   1,
 		byteLength: []int{1, 200, 400, 600},
 		feeLimit:   sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10000))),
 	},

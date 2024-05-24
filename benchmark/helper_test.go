@@ -181,11 +181,13 @@ func CreateSignature(
 	ownPrivKey tss.Scalar,
 ) (tss.Signature, error) {
 	// Compute Lagrange coefficient
-	var lgc tss.Scalar
-	lgc, _ = tss.ComputeLagrangeCoefficient(
+	lgc, err := tss.ComputeLagrangeCoefficient(
 		mid,
 		signing.AssignedMembers.MemberIDs(),
 	)
+	if err != nil {
+		return nil, err
+	}
 
 	for _, am := range signing.AssignedMembers {
 		if am.MemberID == mid {
