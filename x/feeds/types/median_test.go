@@ -36,6 +36,16 @@ func TestCalculateMedianPriceFeedInfo(t *testing.T) {
 			},
 			expRes: 109,
 		},
+		{
+			name: "case 3",
+			priceFeedInfos: []types.PriceFeedInfo{
+				{Price: 1000, Deviation: 0, Power: 5000, Timestamp: 1716448424, Index: 0},
+				{Price: 2000, Deviation: 0, Power: 4000, Timestamp: 1716448424, Index: 1},
+				{Price: 2000, Deviation: 0, Power: 4000, Timestamp: 1716448424, Index: 2},
+				{Price: 2000, Deviation: 0, Power: 4000, Timestamp: 1716448424, Index: 3},
+			},
+			expRes: 1000,
+		},
 	}
 
 	for _, tc := range testCases {

@@ -97,12 +97,6 @@ func (k Keeper) SetSignalTotalPowers(ctx sdk.Context, signalTotalPowersList []ty
 	}
 }
 
-func (k Keeper) DeleteSignalTotalPower(ctx sdk.Context, signalTotalPower types.Signal) {
-	k.DeletePrice(ctx, signalTotalPower.ID)
-	k.deleteSignalTotalPowerByPowerIndex(ctx, signalTotalPower)
-	ctx.KVStore(k.storeKey).Delete(types.SignalTotalPowerStoreKey(signalTotalPower.ID))
-}
-
 func (k Keeper) setSignalTotalPowerByPowerIndex(ctx sdk.Context, signalTotalPower types.Signal) {
 	ctx.KVStore(k.storeKey).
 		Set(types.SignalTotalPowerByPowerIndexKey(signalTotalPower.ID, signalTotalPower.Power), []byte(signalTotalPower.ID))
