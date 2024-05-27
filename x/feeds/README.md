@@ -39,7 +39,6 @@ This module is used in the BandChain.
     - [MsgSubmitSignals](#msgsubmitsignals)
   - [End-Block](#end-block)
     - [Update Prices](#update-prices)
-      - [Price aggregation logic](#price-aggregation-logic)
     - [Update Supported Feeds](#update-supported-feeds)
   - [Events](#events)
     - [EndBlocker](#endblocker)
@@ -315,11 +314,9 @@ Each abci end block call, the operations to update prices.
 At every end block, the Validator Price of all supported feeds will be obtained and checked if it is within the acceptance period (1 interval).
 Any validator that does not submit a price within this period is considered to have miss-reported and will be deactivated unless the Supported feeds are in a transition period.
 Accepted Validator Prices of the same SignalID will be weighted and median based on the recency of the price and the power of the validator who submitted the price.
-The median price is then set as the Price.
+The median price is then set as the Price. Here is the price aggregation logic:
 
-#### Price Aggregation logic
-
-**Input**
+#### Input
 
 A list of PriceFeedInfo objects, each containing:
 - `Price`: The reported price from the feeder
@@ -327,15 +324,15 @@ A list of PriceFeedInfo objects, each containing:
 - `Power`: The feeder's power
 - `Timestamp`: The time at which the price is reported
 
-**Objective**
+#### Objective
 
-An aggregated price from the list of priceFeedInfo.
+- An aggregated price from the list of priceFeedInfo.
 
-**Assumption**
+#### Assumption
 
 1. No PriceFeedInfo has a power that exceeds 25% of the total power in the list.
 
-**Procedure**
+#### Procedure
 
 1. Order the List:
 
@@ -364,73 +361,6 @@ An aggregated price from the list of priceFeedInfo.
 
 - Compute the weighted median of the generated points to determine the final aggregated price.
 - The weighted median price is the price at which the cumulative power (sorted by increasing price) crosses half of the total weighted power.
-
-**Example**
-
-Input
-
-```
-PriceFeedInfos = [
-    {Price=100, Deviation=5, Power=16, Timestamp=2024-05-23 12:00:00},
-    {Price=105, Deviation=3, Power=16, Timestamp=2024-05-23 12:05:00},
-    {Price=110, Deviation=2, Power=16, Timestamp=2024-05-23 12:10:00},
-    {Price=120, Deviation=1, Power=16, Timestamp=2024-05-23 12:15:00},
-]
-```
-
-Procedure
-
-1. Order the List:
-
-```
-PriceFeedInfos = [
-    {Price=120, Deviation=1, Power=16, Timestamp=2024-05-23 12:15:00},
-    {Price=110, Deviation=2, Power=16, Timestamp=2024-05-23 12:10:00},
-    {Price=105, Deviation=3, Power=16, Timestamp=2024-05-23 12:05:00},
-    {Price=100, Deviation=5, Power=16, Timestamp=2024-05-23 12:00:00},
-]
-```
-
-with a total power of 64
-
-2. Applying weight.
-
-- First 1/32 (of 64 = 2) goes to `{Price=120, Deviation=1, Power=2*6=12}`
-- Next 1/16 (of 64 = 4) goest to `{Price=120, Deviation=1,Power=4*4=16}`
-- Next 1/8 (of 64 = 8) goes to `{Price=120, Deviation=1, Power=8*2=16}`
-- Next 1/4 (of 64 = 16) goes to 
-```
-    {Price=120, Deviation=1, Power=2*1.1=2.2}
-    {Price=110, Deviation=2, Power=14*1.1=15.4}
-```
-- The Remaining `{Price=110, Deviation=2, Power=2*1=2}`
-- The remaining power for all subsequent segments is 1.
-
-3. Generating Points
-
-There will be the following:
-
-```
-[{Price=120, Power=12}, {Price=119, Power=12}, {Price=121, Power=12},
-{Price=120, Power=16}, {Price=119, Power=16}, {Price=121, Power=16},
-{Price=120, Power=16}, {Price=119, Power=16}, {Price=121, Power=16},
-{Price=120, Power=2.2}, {Price=119, Power=2.2}, {Price=121, Power=2.2},
-{Price=110, Power=15.4}, {Price=108, Power=15.4}, {Price=112, Power=15.4},
-...,
-{Price=105, Power=16}, {Price=102, Power=16}, {Price=108, Power=16}
-{Price=100, Power=16}, {Price=95, Power=16}, {Price=105, Power=16}] 
-```
-
-4. Calculating Weight Median
-
-Points and Weights are
-```
-(95,16),(100,16),(102,16),(105,32),(108,33.6),(110,17.6),(112,17.6),
-(119,46.4),(120,46.4),(121,46.4)(95,16),(100,16),(102,16),(105,32),
-(108,33.6),(110,17.6),(112,17.6),(119,46.4),(120,46.4),(121,46.4)
-```
-
-Finding the weighted median at Price=110
 
 ### Update supported feeds
 
