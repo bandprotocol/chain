@@ -187,6 +187,7 @@ var (
 		ica.AppModuleBasic{},
 		oracle.AppModuleBasic{},
 		tss.AppModuleBasic{},
+		rollingseed.AppModuleBasic{},
 		bandtss.NewAppModuleBasic(oracleclient.OracleRequestSignatureHandler),
 		feeds.AppModuleBasic{},
 		globalfee.AppModule{},

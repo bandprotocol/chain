@@ -264,20 +264,6 @@ message EVMSignature {
   bytes signature = 2 [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
 }
 
-// PrefixMsgType is an enumeration of the possible prefixes of a singing msg.
-enum PrefixMsgType {
-  option (gogoproto.goproto_enum_prefix) = false;
-
-  // PREFIX_MSG_TYPE_UNSPECIFIED is the type of prefix that has not been specified.
-  PREFIX_MSG_TYPE_UNSPECIFIED = 0;
-  // PREFIX_MSG_TYPE_TEXT is the type of prefix that signs a text msg in the protocol.
-  PREFIX_MSG_TYPE_TEXT = 1;
-  // PREFIX_MSG_TYPE_REPLACE_GROUP is the type of prefix that signs a replace group msg in the protocol.
-  PREFIX_MSG_TYPE_REPLACE_GROUP = 2;
-  // PREFIX_MSG_TYPE_ORACLE is the type of prefix that signs an oracle result msg in the protocol.
-  PREFIX_MSG_TYPE_ORACLE = 3;
-}
-
 // SigningResult is a tss signing result from querying tss signing information.
 message SigningResult {
   // signing is the tss signing result.
