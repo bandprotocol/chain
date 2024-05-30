@@ -100,7 +100,7 @@ var (
 	ConfirmComplainCountStoreKeyPrefix = []byte{0x0a}
 	ConfirmStoreKeyPrefix = []byte{0x0b}
 	DEStoreKeyPrefix = []byte{0x0c}
-	DEQueueStoreKeyPrefix = []byte{0x0d}
+	DECountStoreKeyPrefix = []byte{0x0d}
 	SigningStoreKeyPrefix = []byte{0x0e}
 	PartialSignatureCountStoreKeyPrefix = []byte{0x0f}
 	PartialSignatureStoreKeyPrefix = []byte{0x10}

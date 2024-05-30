@@ -49,7 +49,7 @@ var (
 	ErrPubNonceNotEqualToSigR           = errorsmod.Register(ModuleName, 32, "public nonce not equal to signature r")
 	ErrMemberNotAssigned                = errorsmod.Register(ModuleName, 33, "member is not assigned")
 	ErrVerifySigningSigFailed           = errorsmod.Register(ModuleName, 34, "failed to verify signing signature")
-	ErrDEQueueFull                      = errorsmod.Register(ModuleName, 35, "de queue is full")
+	ErrDEReachMaximumLimit              = errorsmod.Register(ModuleName, 35, "the number of existing DEs reach the limit")
 	ErrHandleSignatureOrderFailed       = errorsmod.Register(ModuleName, 36, "failed to handle signature order")
 	ErrNoSignatureOrderHandlerExists    = errorsmod.Register(ModuleName, 37, "no handler exists for signature order type")
 	ErrInvalidCoefficientCommit         = errorsmod.Register(ModuleName, 38, "invalid coefficient commit")

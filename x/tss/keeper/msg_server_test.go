@@ -422,21 +422,19 @@ func (s *KeeperTestSuite) TestSuccessConfirmReq() {
 
 func (s *KeeperTestSuite) TestFailedSubmitDEsReq() {
 	ctx, msgSrvr := s.ctx, s.msgSrvr
-	de := types.DE{
-		PubD: []byte("D"),
-		PubE: []byte("E"),
-	}
 
 	var req types.MsgSubmitDEs
-
 	// Add failed case
 	tcs := []TestCase{
 		{
 			"failure with number of DE more than max",
 			func() {
 				var deList []types.DE
-				for i := 0; i < 100; i++ {
-					deList = append(deList, de)
+				for i := 0; i < 101; i++ {
+					deList = append(deList, types.DE{
+						PubD: []byte{uint8(i)},
+						PubE: []byte{uint8(i)},
+					})
 				}
 
 				req = types.MsgSubmitDEs{
@@ -445,7 +443,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDEsReq() {
 				}
 			},
 			func() {},
-			types.ErrDEQueueFull,
+			types.ErrDEReachMaximumLimit,
 		},
 	}
 
@@ -454,7 +452,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDEsReq() {
 			tc.Malleate()
 
 			_, err := msgSrvr.SubmitDEs(ctx, &req)
-			s.Require().ErrorIs(tc.ExpectedErr, err)
+			s.Require().ErrorIs(err, tc.ExpectedErr)
 
 			tc.PostTest()
 		})
@@ -482,9 +480,8 @@ func (s *KeeperTestSuite) TestSuccessSubmitDEsReq() {
 
 			// Verify that each member has the correct DE
 			for _, m := range tc.Group.Members {
-				got, err := k.GetDE(ctx, sdk.AccAddress(m.PubKey()), 0)
-				s.Require().NoError(err)
-				s.Require().Equal(de, got)
+				hasDE := k.HasDE(ctx, sdk.AccAddress(m.PubKey()), de)
+				s.Require().True(hasDE)
 			}
 		})
 	}

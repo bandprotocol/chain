@@ -184,6 +184,11 @@ func (s *Store) GetDE(pubDE types.DE) (DE, error) {
 	return de, err
 }
 
+func (s *Store) HasDE(pubDE types.DE) bool {
+	bytes, err := s.DB.Get(DEStoreKey(pubDE))
+	return err == nil && bytes != nil
+}
+
 // DeleteDE deletes the private (d, E) by the given public (D, E)
 func (s *Store) DeleteDE(pubDE types.DE) error {
 	return s.DB.DeleteSync(DEStoreKey(pubDE))

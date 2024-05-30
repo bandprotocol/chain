@@ -89,14 +89,6 @@ func TestExportGenesis(t *testing.T) {
 	require.Equal(t, data.DEsGenesis, exported.DEsGenesis)
 
 	require.Equal(t, uint64(2), k.GetDECount(ctx, addr1))
-	de, err := k.GetDE(ctx, addr1, 1)
-	require.NoError(t, err)
-	require.Equal(
-		t,
-		types.DE{
-			PubD: []byte("pubD2"),
-			PubE: []byte("pubE2"),
-		},
-		de,
-	)
+	hasDE := k.HasDE(ctx, addr1, types.DE{PubD: []byte("pubD2"), PubE: []byte("pubE2")})
+	require.True(t, hasDE)
 }
