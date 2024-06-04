@@ -54,6 +54,7 @@ func (suite *KeeperTestSuite) TestExportGenesis() {
 
 func (suite *KeeperTestSuite) TestInitGenesis() {
 	ctx := suite.ctx
+	params := types.NewParams("[NOT_SET]", 30, 30, 60, 3600, 1000_000_000, 100, 30, 5, 300, 256, 28800)
 
 	delegatorSignals := []types.DelegatorSignals{
 		{
@@ -86,11 +87,12 @@ func (suite *KeeperTestSuite) TestInitGenesis() {
 
 	g := types.DefaultGenesisState()
 	g.DelegatorSignals = delegatorSignals
+	g.Params = params
 
 	suite.feedsKeeper.InitGenesis(suite.ctx, *g)
 
 	suite.Require().Equal(types.DefaultPriceService(), suite.feedsKeeper.GetPriceService(ctx))
-	suite.Require().Equal(types.DefaultParams(), suite.feedsKeeper.GetParams(ctx))
+	suite.Require().Equal(params, suite.feedsKeeper.GetParams(ctx))
 	for _, ds := range delegatorSignals {
 		suite.Require().
 			Equal(ds.Signals, suite.feedsKeeper.GetDelegatorSignals(ctx, sdk.MustAccAddressFromBech32(ds.Delegator)))
