@@ -206,6 +206,14 @@ func ExtractValueFromDEStoreKey(key []byte) (sdk.AccAddress, DE) {
 	return address, DE{PubD: pubD, PubE: pubE}
 }
 
+// ExtractValueFromDEPaginationKey returns DE information that is retrieved from the key
+func ExtractValueFromDEPaginationKey(key []byte) DE {
+	lenPubD := int(key[0])
+	pubD := key[1 : 1+lenPubD]
+	pubE := key[2+lenPubD:]
+	return DE{PubD: pubD, PubE: pubE}
+}
+
 // DEStoreKeyPerAddressPrefix returns the prefix of the key for user's DE.
 func DEStoreKeyPerAddressPrefix(address sdk.AccAddress) []byte {
 	return append(append(DEStoreKeyPrefix, byte(len(address))), address...)
