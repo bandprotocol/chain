@@ -176,7 +176,7 @@ do
     cylinder config broadcast-timeout "5m"
     cylinder config rpc-poll-interval "1s"
     cylinder config max-try 5
-    cylinder config gas-prices "0.0025uband"
+    cylinder config gas-prices "0uband"
     cylinder config min-de 20
     cylinder config gas-adjust-start 1.6
     cylinder config gas-adjust-step 0.2
@@ -189,8 +189,12 @@ do
         cylinder keys add signer$i
     done
 
+    # send band tokens to grantees
+    bandd tx multi-send 1000000uband $(cylinder keys list -a) --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain --from $KEY -b sync -y
+
     # activate tss
     echo "y" | bandd tx tss add-grantees $(cylinder keys list -a) --from account$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband --gas 350000 -b sync
+    echo "y" | bandd tx bandtss add-grantees $(cylinder keys list -a) --from account$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband --gas 350000 -b sync
 
     # wait for activating tss transaction success
     sleep 4
