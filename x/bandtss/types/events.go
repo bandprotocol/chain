@@ -18,4 +18,7 @@ const (
 	AttributeKeyExecTime                = "exec_time"
 	AttributeKeyGroupID                 = "group_id"
 	AttributeKeyGroupPubKey             = "group_pub_key"
+	AttributeKeyNewGroupPubKey          = "new_group_pub_key"
+	AttributeKeyRAddress                = "r_address"
+	AttributeKeySignature               = "signature"
 )
