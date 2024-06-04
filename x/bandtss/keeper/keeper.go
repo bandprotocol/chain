@@ -8,16 +8,14 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 )
 
 type Keeper struct {
-	cdc        codec.BinaryCodec
-	storeKey   storetypes.StoreKey
-	paramSpace paramtypes.Subspace
+	cdc      codec.BinaryCodec
+	storeKey storetypes.StoreKey
 
 	authzKeeper   types.AuthzKeeper
 	authKeeper    types.AccountKeeper
@@ -33,7 +31,6 @@ type Keeper struct {
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey storetypes.StoreKey,
-	paramSpace paramtypes.Subspace,
 	authzKeeper types.AuthzKeeper,
 	authKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
@@ -48,10 +45,13 @@ func NewKeeper(
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
 
+	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
+		panic(fmt.Errorf("invalid bandtss authority address: %w", err))
+	}
+
 	return &Keeper{
 		cdc:              cdc,
 		storeKey:         storeKey,
-		paramSpace:       paramSpace,
 		authzKeeper:      authzKeeper,
 		authKeeper:       authKeeper,
 		bankKeeper:       bankKeeper,
@@ -66,6 +66,16 @@ func NewKeeper(
 // GetBandtssAccount returns the bandtss ModuleAccount
 func (k Keeper) GetBandtssAccount(ctx sdk.Context) authtypes.ModuleAccountI {
 	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
+}
+
+// GetModuleBalance returns the balance of the bandtss ModuleAccount
+func (k Keeper) GetModuleBalance(ctx sdk.Context) sdk.Coins {
+	return k.bankKeeper.GetAllBalances(ctx, k.GetBandtssAccount(ctx).GetAddress())
+}
+
+// SetModuleAccount sets a module account in the account keeper.
+func (k Keeper) SetModuleAccount(ctx sdk.Context, acc authtypes.ModuleAccountI) {
+	k.authKeeper.SetModuleAccount(ctx, acc)
 }
 
 // Logger gets logger object.

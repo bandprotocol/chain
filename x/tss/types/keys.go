@@ -1,6 +1,8 @@
 package types
 
 import (
+	"bytes"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 
@@ -76,11 +78,11 @@ var (
 	// ConfirmStoreKeyPrefix is the key that keeps confirm.
 	ConfirmStoreKeyPrefix = []byte{0x0b}
 
-	// DEStoreKeyPrefix is the key for keeps pre-commit DE.
+	// DEStoreKeyPrefix is the key for keeping pre-commit DEs.
 	DEStoreKeyPrefix = []byte{0x0c}
 
-	// DEQueueStoreKeyPrefix is the key for keeps first and last index of the DEQueue.
-	DEQueueStoreKeyPrefix = []byte{0x0d}
+	// DECountStoreKeyPrefix is the prefix key for keeping the number of DE of the specific address.
+	DECountStoreKeyPrefix = []byte{0x0d}
 
 	// SigningStoreKeyPrefix is the key for keeps signing data.
 	SigningStoreKeyPrefix = []byte{0x0e}
@@ -180,24 +182,38 @@ func ConfirmComplainCountStoreKey(groupID tss.GroupID) []byte {
 	return append(ConfirmComplainCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-// DEStoreKey returns the prefix for DEIndexStoreKey.
-func DEStoreKey(address sdk.AccAddress) []byte {
-	return append(DEStoreKeyPrefix, address...)
+// DEStoreKey returns the key for storing whether DE exists or not.
+func DEStoreKey(address sdk.AccAddress, de DE) []byte {
+	return bytes.Join([][]byte{
+		DEStoreKeyPrefix,
+		{byte(len(address))},
+		address,
+		{byte(len(de.PubD))},
+		de.PubD,
+		{byte(len(de.PubE))},
+		de.PubE,
+	}, []byte(""))
 }
 
-// DEIndexStoreKey returns the key for storing DE information.
-func DEIndexStoreKey(address sdk.AccAddress, index uint64) []byte {
-	return append(DEStoreKey(address), sdk.Uint64ToBigEndian(index)...)
+// ExtractValueFromDEStoreKey returns address and DE information that is retrieved from the key.
+func ExtractValueFromDEStoreKey(key []byte) (sdk.AccAddress, DE) {
+	lenAddr := int(key[1])
+	lenPubD := int(key[2+lenAddr])
+	address := sdk.AccAddress(key[2 : 2+lenAddr])
+	pubD := key[3+lenAddr : 3+lenAddr+lenPubD]
+	pubE := key[4+lenAddr+lenPubD:]
+
+	return address, DE{PubD: pubD, PubE: pubE}
 }
 
-// AddressAndIndexFromDEStoreKey returns the address and index that is retrieved from the key.
-func AddressAndIndexFromDEStoreKey(key []byte) (sdk.AccAddress, uint64) {
-	return sdk.AccAddress(key[1 : len(key)-uint64Len]), sdk.BigEndianToUint64(key[len(key)-uint64Len:])
+// DEStoreKeyPerAddressPrefix returns the prefix of the key for user's DE.
+func DEStoreKeyPerAddressPrefix(address sdk.AccAddress) []byte {
+	return append(append(DEStoreKeyPrefix, byte(len(address))), address...)
 }
 
-// DEQueueStoreKey returns the key for storing DEQueue information.
-func DEQueueKeyStoreKey(address sdk.AccAddress) []byte {
-	return append(DEQueueStoreKeyPrefix, address...)
+// DECountStoreKey returns the key for storing the number of DE of specific address.
+func DECountStoreKey(address sdk.AccAddress) []byte {
+	return append(DECountStoreKeyPrefix, address...)
 }
 
 // SigningStoreKey returns the key for storing signing information.

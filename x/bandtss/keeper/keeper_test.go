@@ -155,14 +155,19 @@ func (s *KeeperTestSuite) setupDE() {
 	for _, tc := range testutil.TestCases {
 		for _, m := range tc.Group.Members {
 			// Submit DEs for each member
+			des := make([]tsstypes.DE, 0, 5)
+			for i := 0; i < 5; i++ {
+				privD, err := tss.GenerateSigningNonce(m.PrivKey)
+				s.Require().NoError(err)
+
+				privE, err := tss.GenerateSigningNonce(m.PrivKey)
+				s.Require().NoError(err)
+
+				des = append(des, tsstypes.DE{PubD: privD.Point(), PubE: privE.Point()})
+			}
+
 			_, err := tssMsgSrvr.SubmitDEs(ctx, &tsstypes.MsgSubmitDEs{
-				DEs: []tsstypes.DE{
-					{PubD: PubD, PubE: PubE},
-					{PubD: PubD, PubE: PubE},
-					{PubD: PubD, PubE: PubE},
-					{PubD: PubD, PubE: PubE},
-					{PubD: PubD, PubE: PubE},
-				},
+				DEs:     des,
 				Address: sdk.AccAddress(m.PubKey()).String(),
 			})
 			s.Require().NoError(err)

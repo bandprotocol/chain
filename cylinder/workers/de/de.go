@@ -121,7 +121,11 @@ func (de *DE) updateDE() {
 	de.logger.Info(":delivery_truck: Updating DE")
 
 	// Generate new DE pairs
-	privDEs, err := GenerateDEs(de.context.Config.MinDE, de.context.Config.RandomSecret)
+	privDEs, err := GenerateDEs(
+		de.context.Config.MinDE,
+		de.context.Config.RandomSecret,
+		de.context.Store,
+	)
 	if err != nil {
 		de.logger.Error(":cold_sweat: Failed to generate new DE pairs: %s", err)
 		return

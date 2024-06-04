@@ -1,71 +1,37 @@
 package keeper_test
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-func (s *KeeperTestSuite) TestGetSetDEQueue() {
+func (s *KeeperTestSuite) TestGetSetDECount() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	address := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
 	accAddress := sdk.MustAccAddressFromBech32(address)
-	deQueue := types.DEQueue{
-		Address: address,
-		Head:    1,
-		Tail:    2,
-	}
 
-	// Set de queue
-	k.SetDEQueue(ctx, deQueue)
+	// Set DECount
+	k.SetDECount(ctx, accAddress, 1)
 
-	// Get de queue
-	got := k.GetDEQueue(ctx, accAddress)
-
-	s.Require().Equal(deQueue, got)
-}
-
-func (s *KeeperTestSuite) TestGetDEQueuesGenesis() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-
-	before := k.GetDEQueues(ctx)
-	deQueue := types.DEQueue{
-		Address: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-		Head:    1,
-		Tail:    2,
-	}
-
-	// Set de queue
-	k.SetDEQueue(ctx, deQueue)
-
-	// Get de queues with address
-	after := k.GetDEQueues(ctx)
-
-	s.Require().Equal(len(before)+1, len(after))
-	for _, q := range after {
-		if q.Address == deQueue.Address {
-			s.Require().Equal(deQueue, q)
-		}
-	}
+	// Get DECount
+	s.Require().Equal(uint64(1), k.GetDECount(ctx, accAddress))
 }
 
 func (s *KeeperTestSuite) TestGetSetDE() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-	index := uint64(1)
 	de := types.DE{
 		PubD: []byte("D"),
 		PubE: []byte("E"),
 	}
 
 	// Set DE
-	k.SetDE(ctx, address, index, de)
+	k.SetDE(ctx, address, de)
 
-	// Get DE
-	got, err := k.GetDE(ctx, address, index)
+	s.Require().True(k.HasDE(ctx, address, de))
 
+	got, err := k.GetFirstDE(ctx, address)
 	s.Require().NoError(err)
 	s.Require().Equal(de, got)
 }
@@ -73,21 +39,21 @@ func (s *KeeperTestSuite) TestGetSetDE() {
 func (s *KeeperTestSuite) TestDeleteDE() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-	index := uint64(1)
 	de := types.DE{
 		PubD: []byte("D"),
 		PubE: []byte("E"),
 	}
 
 	// Set DE
-	k.SetDE(ctx, address, index, de)
+	k.SetDE(ctx, address, de)
 
 	// Get DE
-	k.DeleteDE(ctx, address, index)
+	k.DeleteDE(ctx, address, de)
 
 	// Try to get the deleted DE
-	got, err := k.GetDE(ctx, address, index)
+	s.Require().False(k.HasDE(ctx, address, de))
 
+	got, err := k.GetFirstDE(ctx, address)
 	s.Require().ErrorIs(types.ErrDENotFound, err)
 	s.Require().Equal(types.DE{}, got)
 }
@@ -95,7 +61,6 @@ func (s *KeeperTestSuite) TestDeleteDE() {
 func (s *KeeperTestSuite) TestGetDEsGenesis() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-	index := uint64(1)
 	before := k.GetDEsGenesis(ctx)
 	de := types.DE{
 		PubD: []byte("D"),
@@ -103,7 +68,7 @@ func (s *KeeperTestSuite) TestGetDEsGenesis() {
 	}
 
 	// Set DE
-	k.SetDE(ctx, address, index, de)
+	k.SetDE(ctx, address, de)
 
 	// Get des with address and index
 	after := k.GetDEsGenesis(ctx)
@@ -116,39 +81,6 @@ func (s *KeeperTestSuite) TestGetDEsGenesis() {
 				DE:      de,
 			}, q)
 		}
-	}
-}
-
-func (s *KeeperTestSuite) TestNextQueueValue() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-
-	testCases := []struct {
-		name     string
-		value    uint64
-		expValue uint64
-	}{
-		{
-			"first value",
-			0,
-			1,
-		},
-		{
-			"second value",
-			1,
-			2,
-		},
-		{
-			"last value",
-			99,
-			0,
-		},
-	}
-
-	for _, tc := range testCases {
-		s.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			nextVal := k.NextQueueValue(ctx, tc.value)
-			s.Require().Equal(tc.expValue, nextVal)
-		})
 	}
 }
 
@@ -170,15 +102,13 @@ func (s *KeeperTestSuite) TestHandleSetDEs() {
 	err := k.HandleSetDEs(ctx, address, des)
 	s.Require().NoError(err)
 
-	// Get DEQueue
-	deQueue := k.GetDEQueue(ctx, address)
+	// Get DECount
+	cnt := k.GetDECount(ctx, address)
+	s.Require().Equal(uint64(len(des)), cnt)
 
 	// Check that all DEs have been stored correctly
-	s.Require().Equal(uint64(len(des)), deQueue.Tail)
-	for i := uint64(0); i < deQueue.Tail; i++ {
-		gotDE, err := k.GetDE(ctx, address, i)
-		s.Require().NoError(err)
-		s.Require().Equal(des[i], gotDE)
+	for _, de := range des {
+		s.Require().True(k.HasDE(ctx, address, de))
 	}
 }
 
@@ -191,9 +121,8 @@ func (s *KeeperTestSuite) TestPollDE() {
 			PubE: []byte("E"),
 		},
 	}
-	index := uint64(1)
 
-	// Set DE and DEQueue
+	// Set DE
 	err := k.HandleSetDEs(ctx, address, des)
 	s.Require().NoError(err)
 
@@ -205,11 +134,12 @@ func (s *KeeperTestSuite) TestPollDE() {
 	s.Require().Equal(des[0], polledDE)
 
 	// Attempt to get deleted DE
-	deletedDE, err := k.GetDE(ctx, address, index)
+	s.Require().False(k.HasDE(ctx, address, des[0]))
+	got, err := k.GetFirstDE(ctx, address)
 
 	// Should return error
 	s.Require().ErrorIs(types.ErrDENotFound, err)
-	s.Require().Equal(types.DE{}, deletedDE)
+	s.Require().Equal(types.DE{}, got)
 }
 
 func (s *KeeperTestSuite) TestHandlePollDEForAssignedMembers() {

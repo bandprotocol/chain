@@ -19,13 +19,13 @@ import (
 
 func checkFeeds(c *grogucontext.Context) {
 	// Fetch parameters, supported feeds, validator prices, and prices
-	params, feeds, validatorPrices, prices, err := fetchData(c)
+	params, feeds, validatorPrices, _, err := fetchData(c)
 	if err != nil {
 		return
 	}
 
 	signalIDTimestampMap := convertToSignalIDTimestampMap(validatorPrices)
-	signalIDChainPriceMap := convertToSignalIDChainPriceMap(prices)
+	signalIDValidatorPriceMap := convertToSignalIDValidatorPriceMap(validatorPrices)
 
 	requestedSignalIDs := make(map[string]time.Time)
 	now := time.Now()
@@ -60,7 +60,7 @@ func checkFeeds(c *grogucontext.Context) {
 			c.Config.DistributionStartPercentage,
 		)
 
-		if assignedTime.Before(now) || isDeviate(c, feed, signalIDChainPriceMap) {
+		if assignedTime.Before(now) || isDeviate(c, feed, signalIDValidatorPriceMap) {
 			updateRequestedSignalID(c, requestedSignalIDs, feed, timestamp, params)
 		}
 	}
@@ -141,11 +141,11 @@ func calculateAssignedTime(
 	return time.Unix(timestamp+2, 0).Add(time.Duration(timeOffset) * time.Second)
 }
 
-// isDeviate checks if the current price is deviated from the on-chain price
+// isDeviate checks if the current price is deviated from the on-chain validator price
 func isDeviate(
 	c *grogucontext.Context,
 	feed types.Feed,
-	signalIDChainPriceMap map[string]uint64,
+	signalIDValidatorPriceMap map[string]uint64,
 ) bool {
 	currentPrices, err := c.PriceService.Query([]string{feed.SignalID})
 	if err != nil || len(currentPrices) == 0 ||
@@ -158,8 +158,12 @@ func isDeviate(
 		return false
 	}
 
+	if signalIDValidatorPriceMap[feed.SignalID] == 0 {
+		return true
+	}
+
 	return feed.DeviationInThousandth <= deviationInThousandth(
-		signalIDChainPriceMap[feed.SignalID],
+		signalIDValidatorPriceMap[feed.SignalID],
 		uint64(price*math.Pow10(9)),
 	)
 }
@@ -189,15 +193,15 @@ func convertToSignalIDTimestampMap(data []types.ValidatorPrice) map[string]int64
 	return signalIDTimestampMap
 }
 
-// convertToSignalIDChainPriceMap converts an array of Prices to a map of signal id to its on-chain prices.
-func convertToSignalIDChainPriceMap(data []*types.Price) map[string]uint64 {
-	signalIDChainPriceMap := make(map[string]uint64)
+// convertToSignalIDValidatorPriceMap converts an array of Prices to a map of signal id to its on-chain validator prices.
+func convertToSignalIDValidatorPriceMap(data []types.ValidatorPrice) map[string]uint64 {
+	signalIDValidatorPriceMap := make(map[string]uint64)
 
 	for _, entry := range data {
-		signalIDChainPriceMap[entry.SignalID] = entry.Price
+		signalIDValidatorPriceMap[entry.SignalID] = entry.Price
 	}
 
-	return signalIDChainPriceMap
+	return signalIDValidatorPriceMap
 }
 
 // deviationInThousandth calculates the deviation in thousandth between two values.

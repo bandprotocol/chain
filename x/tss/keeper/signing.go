@@ -254,16 +254,20 @@ func (k Keeper) GetRandomAssignedMembers(
 	}
 
 	var selected []types.Member
+	memberIdx := make([]int, members_size)
+	for i := 0; i < int(members_size); i++ {
+		memberIdx[i] = i
+	}
+
 	for i := uint64(0); i < t; i++ {
-		randomNumber := rng.NextUint64() % members_size
+		randomNumber := rng.NextUint64() % (members_size - i)
 
-		// Get the selected member.
-		selected = append(selected, members[randomNumber])
+		// Swap the selected member with the last member in the list
+		memberId := memberIdx[randomNumber]
+		memberIdx[randomNumber] = memberIdx[members_size-i-1]
 
-		// Remove the selected member from the list.
-		members = append(members[:randomNumber], members[randomNumber+1:]...)
-
-		members_size -= 1
+		// Append the selected member to the selected list
+		selected = append(selected, members[memberId])
 	}
 
 	// Sort selected members

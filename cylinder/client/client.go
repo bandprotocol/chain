@@ -50,8 +50,7 @@ func New(cfg *cylinder.Config, kr keyring.Keyring) (*Client, error) {
 	}
 
 	// Start the client to establish a connection
-	err = c.Start()
-	if err != nil {
+	if err = c.Start(); err != nil {
 		return nil, err
 	}
 

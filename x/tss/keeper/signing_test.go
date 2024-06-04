@@ -380,8 +380,8 @@ func (s *KeeperTestSuite) TestGetRandomAssigningParticipants() {
 
 	for _, m := range members {
 		k.SetMember(ctx, m)
-		k.SetDE(ctx, sdk.MustAccAddressFromBech32(m.Address), 1, de)
-		k.SetDEQueue(ctx, types.DEQueue{Address: m.Address, Head: 0, Tail: 1})
+		k.SetDE(ctx, sdk.MustAccAddressFromBech32(m.Address), de)
+		k.SetDECount(ctx, sdk.MustAccAddressFromBech32(m.Address), 1)
 	}
 
 	// Generate random assigned members

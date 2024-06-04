@@ -11,7 +11,6 @@ import (
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"go.uber.org/mock/gomock"
 
 	"github.com/bandprotocol/chain/v2/x/bandtss"
@@ -56,7 +55,6 @@ func NewTestSuite(t *testing.T) TestSuite {
 	bandtssKeeper := keeper.NewKeeper(
 		encCfg.Codec.(codec.BinaryCodec),
 		key,
-		paramtypes.Subspace{},
 		authzKeeper,
 		accountKeeper,
 		bankKeeper,

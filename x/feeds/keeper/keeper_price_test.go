@@ -129,6 +129,13 @@ func (suite *KeeperTestSuite) TestCalculatePrice() {
 			Price:       2000,
 			Timestamp:   ctx.BlockTime().Unix(),
 		},
+		{
+			PriceStatus: types.PriceStatusAvailable,
+			Validator:   ValidValidator3.String(),
+			SignalID:    "crypto_price.bandusd",
+			Price:       2000,
+			Timestamp:   ctx.BlockTime().Unix(),
+		},
 	})
 	suite.Require().NoError(err)
 

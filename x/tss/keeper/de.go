@@ -1,87 +1,54 @@
 package keeper
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-// SetDEQueue sets the DEQueue for a given address in the context's KVStore.
-func (k Keeper) SetDEQueue(ctx sdk.Context, deQueue types.DEQueue) {
-	address := sdk.MustAccAddressFromBech32(deQueue.Address)
-	ctx.KVStore(k.storeKey).Set(types.DEQueueKeyStoreKey(address), k.cdc.MustMarshal(&deQueue))
+// SetDECount sets the number of existing DE for a given address.
+func (k Keeper) SetDECount(ctx sdk.Context, address sdk.AccAddress, count uint64) {
+	ctx.KVStore(k.storeKey).Set(types.DECountStoreKey(address), sdk.Uint64ToBigEndian(count))
 }
 
-// GetDEQueue retrieves the DEQueue for a given address from the context's KVStore.
-func (k Keeper) GetDEQueue(ctx sdk.Context, address sdk.AccAddress) types.DEQueue {
-	bz := ctx.KVStore(k.storeKey).Get(types.DEQueueKeyStoreKey(address))
-	if bz == nil {
-		return types.DEQueue{
-			Address: address.String(),
-			Head:    0,
-			Tail:    0,
-		}
-	}
-	var deQueue types.DEQueue
-	k.cdc.MustUnmarshal(bz, &deQueue)
-	return deQueue
-}
-
-// GetDEQueueIterator function gets an iterator over all de queue from the context's KVStore.
-func (k Keeper) GetDEQueueIterator(ctx sdk.Context) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.DEQueueStoreKeyPrefix)
-}
-
-// GetDEQueues retrieves all DEQueues from the context's KVStore.
-func (k Keeper) GetDEQueues(ctx sdk.Context) []types.DEQueue {
-	var deQueues []types.DEQueue
-	iterator := k.GetDEQueueIterator(ctx)
-	defer iterator.Close()
-	for ; iterator.Valid(); iterator.Next() {
-		var deQueue types.DEQueue
-		k.cdc.MustUnmarshal(iterator.Value(), &deQueue)
-		deQueues = append(deQueues, deQueue)
-	}
-	return deQueues
-}
-
-// GetDECount retrieves the current count of DE for a given address from the context's KVStore.
+// GetDECount retrieves the number of existing DE for a given address.
 func (k Keeper) GetDECount(ctx sdk.Context, address sdk.AccAddress) uint64 {
-	deQueue := k.GetDEQueue(ctx, address)
-	if deQueue.Head <= deQueue.Tail {
-		return deQueue.Tail - deQueue.Head
-	}
-
-	return k.GetParams(ctx).MaxDESize - (deQueue.Head - deQueue.Tail)
+	return sdk.BigEndianToUint64(ctx.KVStore(k.storeKey).Get(types.DECountStoreKey(address)))
 }
 
-// SetDE sets a DE object in the context's KVStore for a given address and index.
-func (k Keeper) SetDE(ctx sdk.Context, address sdk.AccAddress, index uint64, de types.DE) {
-	ctx.KVStore(k.storeKey).Set(types.DEIndexStoreKey(address, index), k.cdc.MustMarshal(&de))
+// GetDEByAddressIterator function gets an iterator over the DEs of the given address.
+func (k Keeper) GetDEByAddressIterator(ctx sdk.Context, addr sdk.AccAddress) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.DEStoreKeyPerAddressPrefix(addr))
 }
 
-// GetDE retrieves a DE object from the context's KVStore for a given address and index.
+// HasDE checks if a DE object exists in the context's KVStore.
+func (k Keeper) HasDE(ctx sdk.Context, address sdk.AccAddress, de types.DE) bool {
+	return ctx.KVStore(k.storeKey).Has(types.DEStoreKey(address, de))
+}
+
+// SetDE sets a DE object in the context's KVStore for a given address.
+func (k Keeper) SetDE(ctx sdk.Context, address sdk.AccAddress, de types.DE) {
+	ctx.KVStore(k.storeKey).Set(types.DEStoreKey(address, de), []byte{1})
+}
+
+// GetFirstDE retrieves a DE object from the context's KVStore for a given address.
 // Returns an error if DE is not found.
-func (k Keeper) GetDE(ctx sdk.Context, address sdk.AccAddress, index uint64) (types.DE, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.DEIndexStoreKey(address, index))
-	if bz == nil {
-		return types.DE{}, types.ErrDENotFound.Wrapf(
-			"failed to get DE with address %s index %d",
-			address,
-			index,
-		)
+func (k Keeper) GetFirstDE(ctx sdk.Context, address sdk.AccAddress) (types.DE, error) {
+	iterator := k.GetDEByAddressIterator(ctx, address)
+	defer iterator.Close()
+
+	if !iterator.Valid() {
+		return types.DE{}, types.ErrDENotFound.Wrapf("failed to get DE with address %s", address)
 	}
-	var de types.DE
-	k.cdc.MustUnmarshal(bz, &de)
+
+	_, de := types.ExtractValueFromDEStoreKey(iterator.Key())
 	return de, nil
 }
 
 // DeleteDE removes a DE object from the context's KVStore for a given address and index.
-func (k Keeper) DeleteDE(ctx sdk.Context, address sdk.AccAddress, index uint64) {
-	ctx.KVStore(k.storeKey).Delete(types.DEIndexStoreKey(address, index))
+func (k Keeper) DeleteDE(ctx sdk.Context, address sdk.AccAddress, de types.DE) {
+	ctx.KVStore(k.storeKey).Delete(types.DEStoreKey(address, de))
 }
 
 // GetDEIterator function gets an iterator over all de from the context's KVStore
@@ -94,10 +61,9 @@ func (k Keeper) GetDEsGenesis(ctx sdk.Context) []types.DEGenesis {
 	var des []types.DEGenesis
 	iterator := k.GetDEIterator(ctx)
 	defer iterator.Close()
+
 	for ; iterator.Valid(); iterator.Next() {
-		var de types.DE
-		k.cdc.MustUnmarshal(iterator.Value(), &de)
-		address, _ := types.AddressAndIndexFromDEStoreKey(iterator.Key())
+		address, de := types.ExtractValueFromDEStoreKey(iterator.Key())
 		des = append(des, types.DEGenesis{
 			Address: address.String(),
 			DE:      de,
@@ -106,45 +72,38 @@ func (k Keeper) GetDEsGenesis(ctx sdk.Context) []types.DEGenesis {
 	return des
 }
 
-// NextQueueValue returns next value of head/tail for DE queue
-func (k Keeper) NextQueueValue(ctx sdk.Context, val uint64) uint64 {
-	nextVal := (val + 1) % k.GetParams(ctx).MaxDESize
-	return nextVal
-}
-
 // HandleSetDEs sets multiple DE objects for a given address in the context's KVStore,
-// if tail reaches to head, return err as DE is full
+// if the given DEs reach maximum limit, return err as DE will be over the limit.
 func (k Keeper) HandleSetDEs(ctx sdk.Context, address sdk.AccAddress, des []types.DE) error {
-	deQueue := k.GetDEQueue(ctx, address)
-
+	added := uint64(0)
 	for _, de := range des {
-		k.SetDE(ctx, address, deQueue.Tail, de)
-		deQueue.Tail = k.NextQueueValue(ctx, deQueue.Tail)
-
-		if deQueue.Tail == deQueue.Head {
-			return types.ErrDEQueueFull.Wrap(fmt.Sprintf("DE size exceeds %d", k.GetParams(ctx).MaxDESize))
+		if k.HasDE(ctx, address, de) {
+			continue
 		}
+
+		k.SetDE(ctx, address, de)
+		added++
 	}
 
-	k.SetDEQueue(ctx, deQueue)
-
+	cnt := k.GetDECount(ctx, address)
+	if cnt+added > k.GetParams(ctx).MaxDESize {
+		return types.ErrDEReachMaximumLimit.Wrapf("DE size exceeds %d", k.GetParams(ctx).MaxDESize)
+	}
+	k.SetDECount(ctx, address, cnt+uint64(len(des)))
 	return nil
 }
 
-// PollDE retrieves and removes the DE object at the head of the DEQueue for a given address,
-// then increments the head index in the DEQueue.
-// Returns an error if the DE object could not be retrieved.
+// PollDE retrieves and removes the first DE object being retrieved from the iterator of
+// the given address. Returns an error if the DE object could not be retrieved.
 func (k Keeper) PollDE(ctx sdk.Context, address sdk.AccAddress) (types.DE, error) {
-	deQueue := k.GetDEQueue(ctx, address)
-	de, err := k.GetDE(ctx, address, deQueue.Head)
+	de, err := k.GetFirstDE(ctx, address)
 	if err != nil {
 		return types.DE{}, err
 	}
 
-	k.DeleteDE(ctx, address, deQueue.Head)
-
-	deQueue.Head = k.NextQueueValue(ctx, deQueue.Head)
-	k.SetDEQueue(ctx, deQueue)
+	cnt := k.GetDECount(ctx, address)
+	k.SetDECount(ctx, address, cnt-1)
+	k.DeleteDE(ctx, address, de)
 
 	return de, nil
 }
