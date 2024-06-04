@@ -34,6 +34,8 @@ import (
 
 	"github.com/bandprotocol/chain/v2/app/params"
 	"github.com/bandprotocol/chain/v2/hooks/common"
+	feedskeeper "github.com/bandprotocol/chain/v2/x/feeds/keeper"
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
@@ -59,6 +61,7 @@ type Hook struct {
 	govKeeper     govkeeper.Keeper
 	groupKeeper   groupkeeper.Keeper
 	oracleKeeper  oraclekeeper.Keeper
+	feedsKeeper   feedskeeper.Keeper
 	icahostKeeper icahostkeeper.Keeper
 
 	// ibc keeper
@@ -82,6 +85,7 @@ func NewHook(
 	govKeeper govkeeper.Keeper,
 	groupKeeper groupkeeper.Keeper,
 	oracleKeeper oraclekeeper.Keeper,
+	feedsKeeper feedskeeper.Keeper,
 	icahostKeeper icahostkeeper.Keeper,
 	clientKeeper clientkeeper.Keeper,
 	connectionKeeper connectionkeeper.Keeper,
@@ -110,6 +114,7 @@ func NewHook(
 		govKeeper:        govKeeper,
 		groupKeeper:      groupKeeper,
 		oracleKeeper:     oracleKeeper,
+		feedsKeeper:      feedsKeeper,
 		icahostKeeper:    icahostKeeper,
 		clientKeeper:     clientKeeper,
 		connectionKeeper: connectionKeeper,
@@ -296,6 +301,22 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	}
 	for idx, os := range oracleState.OracleScripts {
 		h.emitSetOracleScript(oracletypes.OracleScriptID(idx+1), os, nil)
+	}
+
+	// Feeds module
+	var feedsState feedstypes.GenesisState
+	h.cdc.MustUnmarshalJSON(genesisState[feedstypes.ModuleName], &feedsState)
+	for _, delegatorSignal := range feedsState.DelegatorSignals {
+		for _, signal := range delegatorSignal.Signals {
+			h.emitSetDelegatorSignal(ctx, delegatorSignal.Delegator, signal)
+		}
+	}
+	signalTotalPowers, err := h.feedsKeeper.CalculateNewSignalTotalPowers(ctx)
+	if err != nil {
+		panic(err)
+	}
+	for _, stp := range signalTotalPowers {
+		h.emitSetSignalTotalPower(stp)
 	}
 
 	var authzState authz.GenesisState

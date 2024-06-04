@@ -136,13 +136,13 @@ message BlockRelayProof {
 //           /               \               /               \                 /               \
 //       _[N12]_          _[N13]_          _[N14]_          _[N15]_          _[N16]_          _[N17]_
 //      /       \        /       \        /       \        /       \        /       \        /       \       
-//    [N0]     [N1]    [N2]     [N3]    [N4]     [N5]    [N6]     [N7]    [N8]     [N9]   [N10]    [N11]   
+//    [N0]     [N1]    [N2]     [N3]    [N4]     [N5]    [N6]     [N7]    [N8]     [N9]   [N10]    [N11]
 //   /   \    /   \    /  \    /   \   /   \    /   \   /   \    /   \   /   \    /   \   /   \    /   \
 //  [0] [1]  [2] [3] [4] [5]  [6] [7] [8] [9]  [A] [B] [C] [D]  [E] [F] [G] [H]  [I] [J] [K] [L]  [M] [N]
 //
-// [0] - acc (auth) [1] - authz       [2] - bandtss  [3] - bank       [4] - capability [5] - consensus  
-// [6] - crisis     [7] - dist        [8] - evidence [9] - feeds      [A] - feegrant   [B] - globalfee  
-// [C] - gov        [D] - group       [E] - ibccore  [F] - icahost    [G] - mint       [H] - oracle     
+// [0] - acc (auth) [1] - authz       [2] - bandtss  [3] - bank       [4] - capability [5] - consensus
+// [6] - crisis     [7] - dist        [8] - evidence [9] - feeds      [A] - feegrant   [B] - globalfee
+// [C] - gov        [D] - group       [E] - ibccore  [F] - icahost    [G] - mint       [H] - oracle
 // [I] - params     [J] - rollingseed [K] - slashing [L] - staking    [M] - transfer   [N] - tss
 // [O] - upgrade
 //
@@ -160,7 +160,8 @@ message MultiStoreProof {
   bytes slashing_to_tss_stores_merkle_hash = 4
       [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
   bytes upgrade_store_merkle_hash = 5 [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
-  bytes auth_to_icahost_stores_merkle_hash = 6 [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
+  bytes auth_to_icahost_stores_merkle_hash = 6
+      [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
 }
 
 // BlockHeaderMerkleParts stores a group of hashes using for computing Tendermint's block

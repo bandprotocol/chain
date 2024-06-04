@@ -28,6 +28,7 @@ import (
 	"github.com/bandprotocol/chain/v2/hooks/emitter"
 	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/testing/ibctesting"
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -881,6 +882,97 @@ func (suite *DecoderTestSuite) TestDecodeMsgTimeoutOnClose() {
 	suite.testCompareJson(
 		detail,
 		"{\"next_sequence_recv\":1,\"packet\":{\"data\":\"\",\"destination_channel\":\"channel-0\",\"destination_port\":\"oracle\",\"sequence\":1,\"source_channel\":\"channel-0\",\"source_port\":\"oracle\",\"timeout_height\":{\"revision_height\":10,\"revision_number\":0},\"timeout_timestamp\":0},\"proof_close\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_unreceived\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgSubmitPrices() {
+	detail := make(common.JsDict)
+
+	msg := feedstypes.MsgSubmitPrices{
+		Validator: ValAddress.String(),
+		Timestamp: 12345678,
+		Prices: []feedstypes.SubmitPrice{
+			{
+				PriceStatus: feedstypes.PriceStatusAvailable,
+				SignalID:    "crypto_price.ethusd",
+				Price:       3500000000000,
+			},
+			{
+				PriceStatus: feedstypes.PriceStatusUnavailable,
+				SignalID:    "crypto_price.btcusd",
+				Price:       0,
+			},
+		},
+	}
+
+	emitter.DecodeMsgSubmitPrices(&msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"prices\":[{\"price_status\":3,\"signal_id\":\"crypto_price.ethusd\",\"price\":3500000000000},{\"price_status\":2,\"signal_id\":\"crypto_price.btcusd\"}],\"timestamp\":12345678,\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgSubmitSignals() {
+	detail := make(common.JsDict)
+
+	msg := feedstypes.MsgSubmitSignals{
+		Delegator: DelegatorAddress.String(),
+		Signals: []feedstypes.Signal{
+			{
+				ID:    "crypto_price.btcusd",
+				Power: 30000000000,
+			},
+			{
+				ID:    "crypto_price.ethusd",
+				Power: 60000000000,
+			},
+		},
+	}
+
+	emitter.DecodeMsgSubmitSignals(&msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"delegator\":\"band1g3jkcet8v96x7usqqqqqqqqqqqqqqqqqus6d5g\",\"signals\":[{\"id\":\"crypto_price.btcusd\",\"power\":30000000000},{\"id\":\"crypto_price.ethusd\",\"power\":60000000000}]}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgUpdatePriceService() {
+	detail := make(common.JsDict)
+
+	msg := feedstypes.MsgUpdatePriceService{
+		PriceService: feedstypes.NewPriceService("testhash", "1.0.0", "http://example.com"),
+	}
+
+	emitter.DecodeMsgUpdatePriceService(&msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"hash\":\"testhash\",\"url\":\"http://example.com\",\"version\":\"1.0.0\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgUpdateParams() {
+	detail := make(common.JsDict)
+
+	msg := feedstypes.MsgUpdateParams{
+		Authority: OwnerAddress.String(),
+		Params: feedstypes.Params{
+			Admin:                         OwnerAddress.String(),
+			AllowableBlockTimeDiscrepancy: 30,
+			TransitionTime:                30,
+			MinInterval:                   60,
+			MaxInterval:                   3600,
+			PowerThreshold:                1_000_000_000,
+			MaxSupportedFeeds:             100,
+			CooldownTime:                  30,
+			MinDeviationInThousandth:      5,
+			MaxDeviationInThousandth:      300,
+		},
+	}
+
+	emitter.DecodeMsgUpdateParams(&msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"admin\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"allowable_block_time_discrepancy\":30,\"authority\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"cooldown_time\":30,\"max_deviation_in_thousandth\":300,\"max_interval\":3600,\"max_supported_feeds\":100,\"min_deviation_in_thousandth\":5,\"min_interval\":60,\"power_threshold\":1000000000,\"transition_time\":30}",
 	)
 }
 

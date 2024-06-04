@@ -22,6 +22,7 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
@@ -123,6 +124,12 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 		h.handleMsgRevoke(msg, detail)
 	case *authz.MsgExec:
 		h.handleMsgExec(ctx, txHash, msg, log, detail)
+	case *feedstypes.MsgSubmitSignals:
+		h.handleMsgSubmitSignals(ctx, msg, evMap)
+	case *feedstypes.MsgSubmitPrices:
+		h.handleMsgSubmitPrices(ctx, msg)
+	case *feedstypes.MsgUpdatePriceService:
+		h.handleMsgUpdatePriceService(ctx, msg)
 	case *group.MsgCreateGroup:
 		h.handleGroupMsgCreateGroup(ctx, evMap)
 	case *group.MsgCreateGroupPolicy:
@@ -179,6 +186,8 @@ func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) 
 		h.handleEventTypeTransfer(evMap)
 	case channeltypes.EventTypeSendPacket:
 		h.handleEventSendPacket(ctx, evMap)
+	case feedstypes.EventTypeUpdatePrice:
+		h.handleEventUpdatePrice(ctx, evMap)
 	case proto.MessageName(&group.EventProposalPruned{}):
 		h.handleGroupEventProposalPruned(ctx, evMap)
 	default:
