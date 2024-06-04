@@ -23,7 +23,7 @@ const (
 	flagFeeLimit   = "fee-limit"
 )
 
-// NewTxCmd returns the transaction commands for this module
+// GetTxCmd returns the transaction commands for this module
 func GetTxCmd(requestSignatureCmds []*cobra.Command) *cobra.Command {
 	txCmd := &cobra.Command{
 		Use:                        types.ModuleName,

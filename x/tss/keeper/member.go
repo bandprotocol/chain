@@ -27,7 +27,7 @@ func (k Keeper) GetMemberByAddress(ctx sdk.Context, groupID tss.GroupID, address
 	}
 
 	for _, member := range members {
-		if member.Verify(address) {
+		if member.IsAddress(address) {
 			return member, nil
 		}
 	}

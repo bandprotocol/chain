@@ -50,7 +50,7 @@ func (k msgServer) SubmitDKGRound1(
 	if err != nil {
 		return nil, err
 	}
-	if !member.Verify(req.Address) {
+	if !member.IsAddress(req.Address) {
 		return nil, types.ErrMemberNotAuthorized.Wrapf(
 			"memberID %d address %s is not match in this group",
 			memberID,
@@ -153,7 +153,7 @@ func (k msgServer) SubmitDKGRound2(
 	if err != nil {
 		return nil, err
 	}
-	if !member.Verify(req.Address) {
+	if !member.IsAddress(req.Address) {
 		return nil, types.ErrMemberNotAuthorized.Wrapf(
 			"memberID %d address %s is not match in this group",
 			memberID,
@@ -226,7 +226,7 @@ func (k msgServer) Complain(goCtx context.Context, req *types.MsgComplain) (*typ
 	if err != nil {
 		return nil, err
 	}
-	if !member.Verify(req.Address) {
+	if !member.IsAddress(req.Address) {
 		return nil, types.ErrMemberNotAuthorized.Wrapf(
 			"memberID %d address %s is not match in this group",
 			memberID,
@@ -337,7 +337,7 @@ func (k msgServer) Confirm(
 	if err != nil {
 		return nil, err
 	}
-	if !member.Verify(req.Address) {
+	if !member.IsAddress(req.Address) {
 		return nil, types.ErrMemberNotAuthorized.Wrapf(
 			"memberID %d address %s is not match in this group",
 			memberID,
