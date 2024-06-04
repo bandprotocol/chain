@@ -171,7 +171,7 @@ do
     rm -rf ~/.cylinder
     cylinder config node tcp://multi-validator$v-node:26657
     cylinder config chain-id bandchain
-    cylinder config granter $(bandd keys show tss$v -a --keyring-backend test)
+    cylinder config granter $(bandd keys show account$v -a --keyring-backend test)
     cylinder config max-messages 10
     cylinder config broadcast-timeout "5m"
     cylinder config rpc-poll-interval "1s"
@@ -190,7 +190,7 @@ do
     done
 
     # activate tss
-    echo "y" | bandd tx tss add-grantees --from account$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband --gas 350000 -b sync
+    echo "y" | bandd tx tss add-grantees $(cylinder keys list -a) --from account$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband --gas 350000 -b sync
 
     # wait for activating tss transaction success
     sleep 4
