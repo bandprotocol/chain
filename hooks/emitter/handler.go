@@ -24,6 +24,7 @@ import (
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
@@ -134,6 +135,12 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 		h.handleEventRequestSignature(ctx, evMap)
 		sid := bandtsstypes.SigningID(common.Atoi(evMap[bandtsstypes.EventTypeSigningRequestCreated+"."+bandtsstypes.AttributeKeySigningID][0]))
 		h.handleEventSigningRequestCreated(ctx, sid)
+	case *feedstypes.MsgSubmitSignals:
+		h.handleMsgSubmitSignals(ctx, msg, evMap)
+	case *feedstypes.MsgSubmitPrices:
+		h.handleMsgSubmitPrices(ctx, msg)
+	case *feedstypes.MsgUpdatePriceService:
+		h.handleMsgUpdatePriceService(ctx, msg)
 	case *group.MsgCreateGroup:
 		h.handleGroupMsgCreateGroup(ctx, evMap)
 	case *group.MsgCreateGroupPolicy:
@@ -219,6 +226,8 @@ func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) 
 		h.handleEventSigningRequestCreated(ctx, sid)
 	case bandtsstypes.EventTypeReplacement:
 		h.handleSetBandtssReplacement(ctx)
+	case feedstypes.EventTypeUpdatePrice:
+		h.handleEventUpdatePrice(ctx, evMap)
 	case proto.MessageName(&group.EventProposalPruned{}):
 		h.handleGroupEventProposalPruned(ctx, evMap)
 	default:

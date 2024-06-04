@@ -16,7 +16,7 @@ backend hasura {
 }
 
 backend faucet {
-  .host = "bandchain_faucet";
+  .host = "bandchain-faucet";
   .port = "5005";
 }
 

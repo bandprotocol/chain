@@ -121,7 +121,7 @@ func (q queryServer) DE(goCtx context.Context, req *types.QueryDERequest) (*type
 
 	// Get DEs and paginate the result
 	var des []types.DE
-	deStore := prefix.NewStore(ctx.KVStore(q.k.storeKey), types.DEStoreKey(accAddress))
+	deStore := prefix.NewStore(ctx.KVStore(q.k.storeKey), types.DEStoreKeyPerAddressPrefix(accAddress))
 	pageRes, err := query.Paginate(deStore, req.Pagination, func(key []byte, value []byte) error {
 		var de types.DE
 		q.k.cdc.MustUnmarshal(value, &de)

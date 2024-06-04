@@ -193,6 +193,7 @@ var (
 		ica.AppModuleBasic{},
 		oracle.AppModuleBasic{},
 		tss.AppModuleBasic{},
+		rollingseed.AppModuleBasic{},
 		bandtss.NewAppModuleBasic(oracleclient.OracleRequestSignatureHandler),
 		feeds.AppModuleBasic{},
 		globalfee.AppModule{},
@@ -540,7 +541,6 @@ func NewBandApp(
 	app.TSSKeeper = tsskeeper.NewKeeper(
 		appCodec,
 		keys[tsstypes.StoreKey],
-		app.GetSubspace(tsstypes.ModuleName),
 		app.AuthzKeeper,
 		app.RollingseedKeeper,
 		tssRouter,
@@ -551,7 +551,6 @@ func NewBandApp(
 	app.BandtssKeeper = bandtsskeeper.NewKeeper(
 		appCodec,
 		keys[bandtsstypes.StoreKey],
-		app.GetSubspace(bandtsstypes.ModuleName),
 		app.AuthzKeeper,
 		app.AccountKeeper,
 		app.BankKeeper,
@@ -602,6 +601,7 @@ func NewBandApp(
 			app.OracleKeeper,
 			app.TSSKeeper,
 			app.BandtssKeeper,
+			app.FeedsKeeper,
 			app.ICAHostKeeper,
 			app.IBCKeeper.ClientKeeper,
 			app.IBCKeeper.ConnectionKeeper,

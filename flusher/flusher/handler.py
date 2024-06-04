@@ -57,6 +57,15 @@ from .tss_db import (
     band_tss_replacements,
 )
 
+from .feeds_db import (
+    validator_prices,
+    delegator_signals,
+    signal_total_powers,
+    prices,
+    price_services,
+    feeders,
+)
+
 
 class Handler(object):
     def __init__(self, conn):
@@ -856,3 +865,76 @@ class Handler(object):
 
     def handle_new_tss_assigned_member(self, msg):
         self.conn.execute(tss_assigned_members.insert(), msg)
+
+    def handle_set_validator_price(self, msg):
+        msg["validator_id"] = self.get_validator_id(msg["validator"])
+        del msg["validator"]
+        self.conn.execute(
+            insert(validator_prices)
+            .values(**msg)
+            .on_conflict_do_update(constraint="validator_prices_pkey", set_=msg)
+        )
+
+    def handle_remove_validator_prices(self, msg):
+        self.conn.execute(
+            validator_prices.delete().where(
+                validator_prices.c.signal_id == msg["signal_id"]
+            )
+        )
+
+    def handle_set_delegator_signal(self, msg):
+        msg["account_id"] = self.get_account_id(msg["delegator"])
+        del msg["delegator"]
+        self.conn.execute(
+            insert(delegator_signals)
+            .values(**msg)
+            .on_conflict_do_update(constraint="delegator_signals_pkey", set_=msg)
+        )
+
+    def handle_remove_delegator_signals(self, msg):
+        self.conn.execute(
+            delegator_signals.delete().where(
+                delegator_signals.c.account_id == self.get_account_id(msg["delegator"])
+            )
+        )
+
+    def handle_set_signal_total_power(self, msg):
+        self.conn.execute(
+            insert(signal_total_powers)
+            .values(**msg)
+            .on_conflict_do_update(constraint="signal_total_powers_pkey", set_=msg)
+        )
+
+    def handle_set_price(self, msg):
+        self.conn.execute(
+            insert(prices)
+            .values(**msg)
+            .on_conflict_do_update(constraint="prices_pkey", set_=msg)
+        )
+
+    def handle_remove_price(self, msg):
+        self.conn.execute(prices.delete().where(prices.c.signal_id == msg["signal_id"]))
+
+    def handle_set_price_service(self, msg):
+        self.conn.execute(insert(price_services).values(**msg))
+
+    def handle_set_feeder(self, msg):
+        msg["operator_address"] = msg["validator"]
+        del msg["validator"]
+        msg["feeder_id"] = self.get_account_id(msg["feeder"])
+        del msg["feeder"]
+        self.conn.execute(
+            insert(feeders)
+            .values(msg)
+            .on_conflict_do_nothing(constraint="feeders_pkey")
+        )
+
+    def handle_remove_feeder(self, msg):
+        msg["operator_address"] = msg["validator"]
+        del msg["validator"]
+        msg["feeder_id"] = self.get_account_id(msg["feeder"])
+        del msg["feeder"]
+        condition = True
+        for col in feeders.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+        self.conn.execute(feeders.delete().where(condition))

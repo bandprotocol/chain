@@ -22,12 +22,13 @@ import (
 )
 
 var (
-	ValidValidator   = sdk.ValAddress("1234567890")
-	ValidValidator2  = sdk.ValAddress("2345678901")
-	ValidDelegator   = sdk.AccAddress("3456789012")
-	ValidDelegator2  = sdk.AccAddress("4567890123")
-	InvalidValidator = sdk.ValAddress("9876543210")
-	InvalidDelegator = sdk.AccAddress("8765432109")
+	ValidValidator   = sdk.ValAddress("1000000001")
+	ValidValidator2  = sdk.ValAddress("1000000002")
+	ValidValidator3  = sdk.ValAddress("1000000003")
+	ValidDelegator   = sdk.AccAddress("2000000001")
+	ValidDelegator2  = sdk.AccAddress("2000000002")
+	InvalidValidator = sdk.ValAddress("9000000001")
+	InvalidDelegator = sdk.AccAddress("9000000002")
 )
 
 type KeeperTestSuite struct {
@@ -64,6 +65,10 @@ func (suite *KeeperTestSuite) SetupTest() {
 		Return(oracletypes.NewValidatorStatus(true, suite.ctx.BlockHeader().Time)).
 		AnyTimes()
 	oracleKeeper.EXPECT().
+		GetValidatorStatus(gomock.Any(), gomock.Eq(ValidValidator3)).
+		Return(oracletypes.NewValidatorStatus(true, suite.ctx.BlockHeader().Time)).
+		AnyTimes()
+	oracleKeeper.EXPECT().
 		GetValidatorStatus(gomock.Any(), gomock.Eq(InvalidValidator)).
 		Return(oracletypes.NewValidatorStatus(false, suite.ctx.BlockHeader().Time)).
 		AnyTimes()
@@ -76,6 +81,10 @@ func (suite *KeeperTestSuite) SetupTest() {
 		AnyTimes()
 	stakingKeeper.EXPECT().
 		GetValidator(gomock.Any(), gomock.Eq(ValidValidator2)).
+		Return(stakingtypes.Validator{Status: stakingtypes.Bonded}, true).
+		AnyTimes()
+	stakingKeeper.EXPECT().
+		GetValidator(gomock.Any(), gomock.Eq(ValidValidator3)).
 		Return(stakingtypes.Validator{Status: stakingtypes.Bonded}, true).
 		AnyTimes()
 	stakingKeeper.EXPECT().
@@ -92,6 +101,10 @@ func (suite *KeeperTestSuite) SetupTest() {
 				},
 				{
 					OperatorAddress: ValidValidator2.String(),
+					Tokens:          sdk.NewInt(3000),
+				},
+				{
+					OperatorAddress: ValidValidator3.String(),
 					Tokens:          sdk.NewInt(3000),
 				},
 			}

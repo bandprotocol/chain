@@ -2,8 +2,6 @@ syntax = "proto3";
 package tss.v1beta1;
 
 import "gogoproto/gogo.proto";
-import "google/protobuf/timestamp.proto";
-import "cosmos/base/v1beta1/coin.proto";
 import "cosmos_proto/cosmos.proto";
 
 option go_package            = "github.com/bandprotocol/chain/v2/x/tss/types";
@@ -59,16 +57,6 @@ message DE {
   bytes pub_d = 1 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // pub_e is the public value of own commitment (E).
   bytes pub_e = 2 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
-}
-
-// DEQueue is a simple queue data structure for holding DE objects.
-message DEQueue {
-  // address is the address of the de holder.
-  string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  // head is the index of the first element in the queue.
-  uint64 head = 2;
-  // tail is the index of the last element in the queue.
-  uint64 tail = 3;
 }
 
 // Signing contains all necessary information for handling a signing request.
@@ -264,20 +252,6 @@ message EVMSignature {
   bytes r_address = 1 [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
   // signature is the signature part for using in the contract.
   bytes signature = 2 [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
-}
-
-// PrefixMsgType is an enumeration of the possible prefixes of a singing msg.
-enum PrefixMsgType {
-  option (gogoproto.goproto_enum_prefix) = false;
-
-  // PREFIX_MSG_TYPE_UNSPECIFIED is the type of prefix that has not been specified.
-  PREFIX_MSG_TYPE_UNSPECIFIED = 0;
-  // PREFIX_MSG_TYPE_TEXT is the type of prefix that signs a text msg in the protocol.
-  PREFIX_MSG_TYPE_TEXT = 1;
-  // PREFIX_MSG_TYPE_REPLACE_GROUP is the type of prefix that signs a replace group msg in the protocol.
-  PREFIX_MSG_TYPE_REPLACE_GROUP = 2;
-  // PREFIX_MSG_TYPE_ORACLE is the type of prefix that signs an oracle result msg in the protocol.
-  PREFIX_MSG_TYPE_ORACLE = 3;
 }
 
 // SigningResult is a tss signing result from querying tss signing information.

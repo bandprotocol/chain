@@ -3,7 +3,10 @@ package bandtss_test
 import (
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	bandtesting "github.com/bandprotocol/chain/v2/testing"
@@ -15,6 +18,13 @@ import (
 func TestExportGenesis(t *testing.T) {
 	s := testutil.NewTestSuite(t)
 	ctx, k := s.Ctx, s.Keeper
+
+	s.MockAccountKeeper.EXPECT().GetModuleAccount(ctx, gomock.Any()).Return(authtypes.AccountI(&authtypes.ModuleAccount{
+		BaseAccount: &authtypes.BaseAccount{Address: "test"},
+	})).AnyTimes()
+	s.MockAccountKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(sdk.AccAddress{}).AnyTimes()
+	s.MockAccountKeeper.EXPECT().SetModuleAccount(ctx, gomock.Any()).AnyTimes()
+	s.MockBankKeeper.EXPECT().GetAllBalances(ctx, gomock.Any()).Return(sdk.Coins{}).AnyTimes()
 
 	data := types.GenesisState{
 		Params: types.DefaultParams(),

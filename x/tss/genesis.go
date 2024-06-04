@@ -37,15 +37,11 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 			panic(fmt.Sprintf("DEsGenesis of %s size exceeds MaxDESize", addr))
 		}
 
-		k.SetDEQueue(ctx, types.DEQueue{
-			Address: addr,
-			Head:    0,
-			Tail:    uint64(len(des)),
-		})
-
 		acc := sdk.MustAccAddressFromBech32(addr)
-		for i, de := range des {
-			k.SetDE(ctx, acc, uint64(i), de)
+		k.SetDECount(ctx, acc, uint64(len(des)))
+
+		for _, de := range des {
+			k.SetDE(ctx, acc, de)
 		}
 	}
 }
