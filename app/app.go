@@ -586,6 +586,14 @@ func NewBandApp(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
+	app.FeedsKeeper = feedskeeper.NewKeeper(
+		appCodec,
+		keys[feedstypes.StoreKey],
+		app.OracleKeeper,
+		app.StakingKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
 	if emitterFlag != "" {
 		app.hooks = append(app.hooks, emitter.NewHook(
 			appCodec,
@@ -671,13 +679,6 @@ func NewBandApp(
 	// further handlers to be registered after the keeper is created since this
 	// could create invalid or non-deterministic behavior.
 	tssRouter.Seal()
-	app.FeedsKeeper = feedskeeper.NewKeeper(
-		appCodec,
-		keys[feedstypes.StoreKey],
-		app.OracleKeeper,
-		app.StakingKeeper,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-	)
 
 	app.StakingKeeper.SetHooks(
 		stakingtypes.NewMultiStakingHooks(
