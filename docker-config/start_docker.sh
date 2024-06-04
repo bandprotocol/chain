@@ -198,7 +198,7 @@ do
     docker create --network chain_bandchain --name bandchain-cylinder${v} band-validator:latest cylinder run
     docker cp ~/.cylinder bandchain-cylinder${v}:/root/.cylinder
     docker start bandchain-cylinder${v}
-
+done
 
 # pull latest image first
 docker pull bandprotocol/bothan-api:latest
