@@ -123,8 +123,7 @@ func (q queryServer) DE(goCtx context.Context, req *types.QueryDERequest) (*type
 	var des []types.DE
 	deStore := prefix.NewStore(ctx.KVStore(q.k.storeKey), types.DEStoreKeyPerAddressPrefix(accAddress))
 	pageRes, err := query.Paginate(deStore, req.Pagination, func(key []byte, value []byte) error {
-		var de types.DE
-		q.k.cdc.MustUnmarshal(value, &de)
+		de := types.ExtractValueFromDEPaginationKey(key)
 		des = append(des, de)
 		return nil
 	})

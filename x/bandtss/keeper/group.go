@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	tmbytes "github.com/cometbft/cometbft/libs/bytes"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -57,7 +58,7 @@ func (k Keeper) CreateGroupReplacement(
 		return 0, err
 	}
 
-	k.SetReplacement(ctx, types.Replacement{
+	replacement = types.Replacement{
 		SigningID:      signing.ID,
 		CurrentGroupID: currentGroupID,
 		CurrentPubKey:  currentGroup.PubKey,
@@ -65,15 +66,16 @@ func (k Keeper) CreateGroupReplacement(
 		NewPubKey:      newGroup.PubKey,
 		Status:         types.REPLACEMENT_STATUS_WAITING_SIGN,
 		ExecTime:       execTime,
-	})
+	}
+	k.SetReplacement(ctx, replacement)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeReplacement,
-			sdk.NewAttribute(tsstypes.AttributeKeySigningID, fmt.Sprintf("%d", signing.ID)),
-			sdk.NewAttribute(types.AttributeKeyCurrentGroupID, fmt.Sprintf("%d", currentGroupID)),
-			sdk.NewAttribute(types.AttributeKeyReplacingGroupID, fmt.Sprintf("%d", newGroupID)),
-			sdk.NewAttribute(types.AttributeKeyReplacementStatus, types.REPLACEMENT_STATUS_WAITING_SIGN.String()),
+			sdk.NewAttribute(tsstypes.AttributeKeySigningID, fmt.Sprintf("%d", replacement.SigningID)),
+			sdk.NewAttribute(types.AttributeKeyCurrentGroupID, fmt.Sprintf("%d", replacement.CurrentGroupID)),
+			sdk.NewAttribute(types.AttributeKeyReplacingGroupID, fmt.Sprintf("%d", replacement.NewGroupID)),
+			sdk.NewAttribute(types.AttributeKeyReplacementStatus, replacement.Status.String()),
 			sdk.NewAttribute(types.AttributeKeyExecTime, replacement.ExecTime.Format(time.RFC3339)),
 		),
 	)
@@ -102,17 +104,29 @@ func (k Keeper) HandleReplaceGroup(ctx sdk.Context, endBlockTime time.Time) erro
 		if signing.Status == tsstypes.SIGNING_STATUS_SUCCESS {
 			replacement.Status = types.REPLACEMENT_STATUS_WAITING_REPLACE
 			k.SetReplacement(ctx, replacement)
+
+			newGroup, err := k.tssKeeper.GetGroup(ctx, replacement.NewGroupID)
+			if err != nil {
+				return err
+			}
+
+			rAddress, err := signing.Signature.R().Address()
+			if err != nil {
+				return err
+			}
+			sig := tmbytes.HexBytes(signing.Signature.S())
+
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
 					types.EventTypeReplacement,
 					sdk.NewAttribute(tsstypes.AttributeKeySigningID, fmt.Sprintf("%d", replacement.SigningID)),
 					sdk.NewAttribute(types.AttributeKeyCurrentGroupID, fmt.Sprintf("%d", replacement.CurrentGroupID)),
 					sdk.NewAttribute(types.AttributeKeyReplacingGroupID, fmt.Sprintf("%d", replacement.NewGroupID)),
-					sdk.NewAttribute(
-						types.AttributeKeyReplacementStatus,
-						types.REPLACEMENT_STATUS_WAITING_REPLACE.String(),
-					),
+					sdk.NewAttribute(types.AttributeKeyReplacementStatus, replacement.Status.String()),
 					sdk.NewAttribute(types.AttributeKeyExecTime, replacement.ExecTime.Format(time.RFC3339)),
+					sdk.NewAttribute(types.AttributeKeyNewGroupPubKey, newGroup.PubKey.String()),
+					sdk.NewAttribute(types.AttributeKeyRAddress, tmbytes.HexBytes(rAddress).String()),
+					sdk.NewAttribute(types.AttributeKeySignature, sig.String()),
 				),
 			)
 		}
@@ -136,7 +150,7 @@ func (k Keeper) HandleFailReplacementSigning(ctx sdk.Context, replacement types.
 			sdk.NewAttribute(tsstypes.AttributeKeySigningID, fmt.Sprintf("%d", replacement.SigningID)),
 			sdk.NewAttribute(types.AttributeKeyCurrentGroupID, fmt.Sprintf("%d", replacement.CurrentGroupID)),
 			sdk.NewAttribute(types.AttributeKeyReplacingGroupID, fmt.Sprintf("%d", replacement.NewGroupID)),
-			sdk.NewAttribute(types.AttributeKeyReplacementStatus, types.REPLACEMENT_STATUS_FALLEN.String()),
+			sdk.NewAttribute(types.AttributeKeyReplacementStatus, replacement.Status.String()),
 			sdk.NewAttribute(types.AttributeKeyExecTime, replacement.ExecTime.Format(time.RFC3339)),
 		),
 	)
@@ -182,7 +196,7 @@ func (k Keeper) ReplaceGroup(ctx sdk.Context, replacement types.Replacement) err
 		sdk.NewEvent(
 			types.EventTypeNewGroupActivate,
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", newGroup.ID)),
-			sdk.NewAttribute(types.AttributeKeyGroupPubKey, fmt.Sprintf("%v", newGroup.PubKey.String())),
+			sdk.NewAttribute(types.AttributeKeyGroupPubKey, newGroup.PubKey.String()),
 		),
 	)
 

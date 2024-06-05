@@ -22,6 +22,7 @@ func GetQueryCmd() *cobra.Command {
 
 	cmd.AddCommand(
 		GetQueryCmdMember(),
+		GetQueryCmdMembers(),
 		GetQueryCmdCurrentGroup(),
 		GetQueryCmdParams(),
 		GetQueryCmdSigning(),
@@ -62,12 +63,47 @@ func GetQueryCmdMember() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdMembers creates a CLI command for querying members information.
+func GetQueryCmdMembers() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "members [is-active]",
+		Short: "Query the members information of the active group",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			isActive, err := strconv.ParseBool(args[0])
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.Members(cmd.Context(), &types.QueryMembersRequest{
+				IsActive: isActive,
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
 // GetQueryCmdCurrentGroup creates a CLI command for querying current group.
 func GetQueryCmdCurrentGroup() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "current-group",
 		Short: "Query the currentGroup",
-		Args:  cobra.ExactArgs(0),
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -95,7 +131,7 @@ func GetQueryCmdParams() *cobra.Command {
 		Use:   "params",
 		Short: "Show params",
 		Long:  "Show parameter of bandtss module",
-		Args:  cobra.ExactArgs(0),
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -154,7 +190,7 @@ func GetQueryCmdReplacement() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "replacement",
 		Short: "Query the replacement information",
-		Args:  cobra.ExactArgs(0),
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {

@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"encoding/hex"
 	"testing"
 	"time"
 
@@ -157,6 +158,10 @@ func TestFailCreateGroupReplacement(t *testing.T) {
 
 func TestHandleReplaceGroup(t *testing.T) {
 	currentGroupID := tss.GroupID(1)
+	b, err := hex.DecodeString("022E7B370CA78A3814CEFABFEC3EE4919648E60618BB50C0B77594F8F1ED1816658F3125B7522FA215E71AEF46C1DDAC449AC43CF9C78DE829AC8F66BC2FE09EEB")
+	require.NoError(t, err)
+
+	signature := tss.Signature(b)
 
 	type expectOut struct {
 		replacementStatus types.ReplacementStatus
@@ -198,13 +203,20 @@ func TestHandleReplaceGroup(t *testing.T) {
 			name: "have replacement and signed but not meet exec time",
 			preProcess: func(s *testutil.TestSuite) {
 				s.Keeper.SetReplacement(s.Ctx, types.Replacement{
-					SigningID: tss.SigningID(1),
-					Status:    types.REPLACEMENT_STATUS_WAITING_SIGN,
-					ExecTime:  s.Ctx.BlockTime().Add(10 * time.Minute),
+					SigningID:      tss.SigningID(1),
+					CurrentGroupID: tss.GroupID(1),
+					NewGroupID:     tss.GroupID(2),
+					Status:         types.REPLACEMENT_STATUS_WAITING_SIGN,
+					ExecTime:       s.Ctx.BlockTime().Add(10 * time.Minute),
 				})
 				s.MockTSSKeeper.EXPECT().GetSigning(s.Ctx, tss.SigningID(1)).Return(tsstypes.Signing{
-					ID:     tss.SigningID(1),
-					Status: tsstypes.SIGNING_STATUS_SUCCESS,
+					ID:          tss.SigningID(1),
+					Status:      tsstypes.SIGNING_STATUS_SUCCESS,
+					Signature:   signature,
+					GroupPubKey: []byte("test-pubkey-1"),
+				}, nil)
+				s.MockTSSKeeper.EXPECT().GetGroup(s.Ctx, tss.GroupID(2)).Return(tsstypes.Group{
+					PubKey: []byte("test-pubkey-2"),
 				}, nil)
 			},
 			expectOut: expectOut{
@@ -216,9 +228,11 @@ func TestHandleReplaceGroup(t *testing.T) {
 			name: "have replacement and signing failed",
 			preProcess: func(s *testutil.TestSuite) {
 				s.Keeper.SetReplacement(s.Ctx, types.Replacement{
-					SigningID: tss.SigningID(1),
-					Status:    types.REPLACEMENT_STATUS_WAITING_SIGN,
-					ExecTime:  s.Ctx.BlockTime().Add(10 * time.Minute),
+					SigningID:      tss.SigningID(1),
+					CurrentGroupID: tss.GroupID(1),
+					NewGroupID:     tss.GroupID(2),
+					Status:         types.REPLACEMENT_STATUS_WAITING_SIGN,
+					ExecTime:       s.Ctx.BlockTime().Add(10 * time.Minute),
 				})
 				s.MockTSSKeeper.EXPECT().GetSigning(s.Ctx, tss.SigningID(1)).Return(tsstypes.Signing{
 					ID:     tss.SigningID(1),
@@ -281,17 +295,20 @@ func TestHandleReplaceGroup(t *testing.T) {
 				s.Ctx = s.Ctx.WithBlockTime(s.Ctx.BlockTime().Add(11 * time.Minute))
 
 				s.MockTSSKeeper.EXPECT().GetSigning(s.Ctx, tss.SigningID(1)).Return(tsstypes.Signing{
-					ID:     tss.SigningID(1),
-					Status: tsstypes.SIGNING_STATUS_SUCCESS,
+					ID:          tss.SigningID(1),
+					Status:      tsstypes.SIGNING_STATUS_SUCCESS,
+					Signature:   signature,
+					GroupPubKey: []byte("test-pubkey-1"),
 				}, nil)
 				s.MockTSSKeeper.EXPECT().MustGetMembers(s.Ctx, tss.GroupID(1)).Return([]tsstypes.Member{
-					{ID: 1, Address: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"},
+					{ID: 1, Address: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs", PubKey: []byte("test-pubkey-1")},
 				})
 				s.MockTSSKeeper.EXPECT().MustGetMembers(s.Ctx, tss.GroupID(2)).Return([]tsstypes.Member{
-					{ID: 1, Address: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun"},
+					{ID: 1, Address: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun", PubKey: []byte("test-pubkey-2")},
 				})
-				s.MockTSSKeeper.EXPECT().GetGroup(s.Ctx, tss.GroupID(2)).Return(tsstypes.Group{
-					ID: tss.GroupID(2),
+				s.MockTSSKeeper.EXPECT().GetGroup(s.Ctx, tss.GroupID(2)).Times(2).Return(tsstypes.Group{
+					ID:     tss.GroupID(2),
+					PubKey: []byte("test-pubkey-2"),
 				}, nil)
 			},
 			expectOut: expectOut{
