@@ -4,8 +4,8 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 )
 
-// Verify checks if the address of the Member matches the given address
-func (m Member) Verify(address string) bool {
+// IsAddress checks if the address of the Member matches the given address
+func (m Member) IsAddress(address string) bool {
 	return m.Address == address
 }
 

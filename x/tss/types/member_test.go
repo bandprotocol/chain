@@ -38,7 +38,7 @@ func TestVerify(t *testing.T) {
 	// Run the test cases
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result := tc.member.Verify(tc.address)
+			result := tc.member.IsAddress(tc.address)
 			require.Equal(t, tc.expectedMatch, result)
 		})
 	}
