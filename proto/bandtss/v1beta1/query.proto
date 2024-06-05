@@ -74,8 +74,8 @@ message QueryIsGranteeResponse {
 
 // QueryMembersRequest is the request type for the Query/Members RPC method.
 message QueryMembersRequest {
-  // is_active define filter on members
-  bool is_active = 1;
+  // status define type of filter on member's status.
+  MemberStatusFilter status = 1;
   // pagination defines pagination settings for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
@@ -146,4 +146,16 @@ message QueryReplacementRequest {}
 message QueryReplacementResponse {
   // replacement is the replacement information.
   Replacement replacement = 1 [(gogoproto.nullable) = false];
+}
+
+// MemberStatusFilter defines the query options for filtering members by their active status.
+enum MemberStatusFilter {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // MEMBER_STATUS_FILTER_UNSPECIFIED defines a filter for unspecified active status.
+  MEMBER_STATUS_FILTER_UNSPECIFIED = 0;
+  // MEMBER_STATUS_FILTER_ACTIVE defines a filter for active status.
+  MEMBER_STATUS_FILTER_ACTIVE = 1;
+  // MEMBER_STATUS_FILTER_INACTIVE defines a filter for inactive status.
+  MEMBER_STATUS_FILTER_INACTIVE = 2;
 }

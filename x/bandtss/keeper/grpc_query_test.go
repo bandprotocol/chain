@@ -22,6 +22,12 @@ func TestGRPCQueryMembers(t *testing.T) {
 
 	members := []*types.Member{
 		{
+			Address:    "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+			IsActive:   false,
+			Since:      since,
+			LastActive: lastActive,
+		},
+		{
 			Address:    "band1t5x8hrmht463eq4m0xhfgz95h62dyvkq049eek",
 			IsActive:   true,
 			Since:      since,
@@ -42,32 +48,32 @@ func TestGRPCQueryMembers(t *testing.T) {
 		expectOut  expectOut
 	}{
 		{
-			name: "get 2 active members",
+			name: "get all members",
 			input: &types.QueryMembersRequest{
-				IsActive: true,
+				Status: types.MEMBER_STATUS_FILTER_UNSPECIFIED,
 			},
 			expectOut: expectOut{members: members},
 		},
 		{
 			name: "get 1 active members; limit 1 offset 0",
 			input: &types.QueryMembersRequest{
-				IsActive:   true,
+				Status:     types.MEMBER_STATUS_FILTER_ACTIVE,
 				Pagination: &querytypes.PageRequest{Limit: 1, Offset: 0},
 			},
-			expectOut: expectOut{members: members[:1]},
+			expectOut: expectOut{members: members[1:2]},
 		},
 		{
 			name: "get 1 active members limit 1 offset 1",
 			input: &types.QueryMembersRequest{
-				IsActive:   true,
+				Status:     types.MEMBER_STATUS_FILTER_ACTIVE,
 				Pagination: &querytypes.PageRequest{Limit: 1, Offset: 1},
 			},
-			expectOut: expectOut{members: members[1:]},
+			expectOut: expectOut{members: members[2:]},
 		},
 		{
 			name: "get 0 active members; out of pages limit 1 offset 5",
 			input: &types.QueryMembersRequest{
-				IsActive:   true,
+				Status:     types.MEMBER_STATUS_FILTER_ACTIVE,
 				Pagination: &querytypes.PageRequest{Limit: 1, Offset: 5},
 			},
 			expectOut: expectOut{members: []*types.Member{}},
@@ -75,26 +81,9 @@ func TestGRPCQueryMembers(t *testing.T) {
 		{
 			name: "get no inactive members",
 			input: &types.QueryMembersRequest{
-				IsActive: false,
+				Status: types.MEMBER_STATUS_FILTER_INACTIVE,
 			},
-			expectOut: expectOut{members: []*types.Member{}},
-		},
-		{
-			name: "get inactive members",
-			preProcess: func(s *testutil.TestSuite) {
-				s.Keeper.SetMember(s.Ctx, types.Member{
-					Address:    members[0].Address,
-					IsActive:   false,
-					Since:      members[0].Since,
-					LastActive: members[0].LastActive,
-				})
-			},
-			input: &types.QueryMembersRequest{
-				IsActive: false,
-			},
-			expectOut: expectOut{members: []*types.Member{
-				{Address: members[0].Address, IsActive: false, Since: members[0].Since, LastActive: members[0].LastActive},
-			}},
+			expectOut: expectOut{members: members[0:1]},
 		},
 	}
 

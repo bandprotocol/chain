@@ -79,10 +79,20 @@ func (q queryServer) Members(
 		req.Pagination,
 		func(key []byte, m *types.Member) (*types.Member, error) {
 			// filter item out if the member's isActive is not equal to the request status.
-			if m.IsActive != req.IsActive {
-				return nil, nil
+			switch req.Status {
+			case types.MEMBER_STATUS_FILTER_UNSPECIFIED:
+				return m, nil
+			case types.MEMBER_STATUS_FILTER_ACTIVE:
+				if m.IsActive {
+					return m, nil
+				}
+			case types.MEMBER_STATUS_FILTER_INACTIVE:
+				if !m.IsActive {
+					return m, nil
+				}
 			}
-			return m, nil
+
+			return nil, nil
 		},
 		func() *types.Member {
 			return &types.Member{}

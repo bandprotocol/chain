@@ -10,6 +10,10 @@ import (
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 )
 
+const (
+	flagMemberStatusFilter = "status"
+)
+
 // GetQueryCmd returns the cli query commands for this module
 func GetQueryCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -66,24 +70,33 @@ func GetQueryCmdMember() *cobra.Command {
 // GetQueryCmdMembers creates a CLI command for querying members information.
 func GetQueryCmdMembers() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "members [is-active]",
+		Use:   "members",
 		Short: "Query the members information of the active group",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			isActive, err := strconv.ParseBool(args[0])
+			statusFilterFlag, err := cmd.Flags().GetBool(flagMemberStatusFilter)
 			if err != nil {
 				return err
+			}
+
+			var statusFilter types.MemberStatusFilter
+			if !cmd.Flags().Changed(flagMemberStatusFilter) {
+				statusFilter = types.MEMBER_STATUS_FILTER_UNSPECIFIED
+			} else if statusFilterFlag {
+				statusFilter = types.MEMBER_STATUS_FILTER_ACTIVE
+			} else {
+				statusFilter = types.MEMBER_STATUS_FILTER_INACTIVE
 			}
 
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.Members(cmd.Context(), &types.QueryMembersRequest{
-				IsActive: isActive,
+				Status: statusFilter,
 			})
 			if err != nil {
 				return err
@@ -93,6 +106,7 @@ func GetQueryCmdMembers() *cobra.Command {
 		},
 	}
 
+	cmd.Flags().Bool(flagMemberStatusFilter, false, "Filter members by status")
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
