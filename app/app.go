@@ -130,6 +130,7 @@ import (
 	bandbank "github.com/bandprotocol/chain/v2/x/bank"
 	bandbankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
 	"github.com/bandprotocol/chain/v2/x/feeds"
+	feedsclient "github.com/bandprotocol/chain/v2/x/feeds/client"
 	feedskeeper "github.com/bandprotocol/chain/v2/x/feeds/keeper"
 	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/globalfee"
@@ -194,7 +195,10 @@ var (
 		oracle.AppModuleBasic{},
 		tss.AppModuleBasic{},
 		rollingseed.AppModuleBasic{},
-		bandtss.NewAppModuleBasic(oracleclient.OracleRequestSignatureHandler),
+		bandtss.NewAppModuleBasic(
+			oracleclient.OracleRequestSignatureHandler,
+			feedsclient.FeedsRequestSignatureHandler,
+		),
 		feeds.AppModuleBasic{},
 		globalfee.AppModule{},
 	)
@@ -673,7 +677,8 @@ func NewBandApp(
 	tssRouter.
 		AddRoute(tsstypes.RouterKey, tsstypes.NewSignatureOrderHandler()).
 		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(app.OracleKeeper)).
-		AddRoute(bandtsstypes.RouterKey, bandtsstypes.NewSignatureOrderHandler())
+		AddRoute(bandtsstypes.RouterKey, bandtsstypes.NewSignatureOrderHandler()).
+		AddRoute(feedstypes.RouterKey, feeds.NewSignatureOrderHandler(app.FeedsKeeper))
 
 	// It is vital to seal the request signature router here as to not allow
 	// further handlers to be registered after the keeper is created since this
