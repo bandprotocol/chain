@@ -6,6 +6,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
+
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 // RegisterLegacyAminoCodec registers concrete types on the LegacyAmino codec
@@ -14,6 +16,8 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgSubmitPrices{}, "feeds/MsgSubmitPrices")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdatePriceService{}, "feeds/MsgUpdatePriceService")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "feeds/MsgUpdateParams")
+
+	cdc.RegisterConcrete(&FeedsSignatureOrder{}, "feeds/FeedsSignatureOrder", nil)
 }
 
 // RegisterInterfaces register the feeds module interfaces to protobuf Any.
@@ -24,6 +28,11 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		&MsgSubmitPrices{},
 		&MsgUpdatePriceService{},
 		&MsgUpdateParams{},
+	)
+
+	registry.RegisterImplementations(
+		(*tsstypes.Content)(nil),
+		&FeedsSignatureOrder{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

@@ -140,3 +140,50 @@ message PriceService {
   // Url is the URL of the price service.
   string url = 3;
 }
+
+// SignalPrice is a structure that defines the price of a signal id.
+message SignalPrice {
+  option (gogoproto.equal) = true;
+
+  // SignalID is the signal id of the price.
+  string signal_id = 1 [(gogoproto.customname) = "SignalID"];
+
+  // Price is the price of the signal id.
+  uint64 price = 2;
+}
+
+//
+message FeedsPriceData {
+  option (gogoproto.equal) = true;
+
+  // Prices is the list of prices of the feeds.
+  repeated SignalPrice signalPrices = 1 [(gogoproto.nullable) = false];
+
+  // Timestamp is the timestamp at which the price was submitted.
+  int64 timestamp = 2;
+}
+
+// FeedType is a structure that defines the type of feed.
+enum FeedType {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // FEED_TYPE_UNSPECIFIED is an unspecified feed type.
+  FEED_TYPE_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "FEED_TYPE_UNSPECIFIED"];
+
+  // FEED_TYPE_DEFAULT is a default feed type.
+  FEED_TYPE_DEFAULT = 1 [(gogoproto.enumvalue_customname) = "FEED_TYPE_DEFAULT"];
+
+  // FEED_TYPE_TICK is a tick feed type.
+  FEED_TYPE_TICK = 2 [(gogoproto.enumvalue_customname) = "FEED_TYPE_TICK"];
+}
+
+// FeedSignatureOrder defines a general signature order for feed data.
+message FeedsSignatureOrder {
+  option (gogoproto.goproto_getters) = false;
+
+  // SignalIDs is the list of signal ids that require signatures.
+  repeated string signal_ids = 1 [(gogoproto.customname) = "SignalIDs"];
+
+  // FeedType is the type of feed.
+  FeedType feed_type = 2 [(gogoproto.customname) = "FeedType"];
+}
