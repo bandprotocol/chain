@@ -23,4 +23,6 @@ var (
 	ErrSignalIDTooLarge          = errorsmod.Register(ModuleName, 16, "signal id is too large")
 	ErrSignalTotalPowerNotFound  = errorsmod.Register(ModuleName, 17, "signal-total-power not found")
 	ErrInvalidSignal             = errorsmod.Register(ModuleName, 18, "invalid signal")
+	ErrInvalidSignalIDs          = errorsmod.Register(ModuleName, 19, "invalid signal ids")
+	ErrInvalidFeedsType          = errorsmod.Register(ModuleName, 20, "invalid feeds type")
 )
