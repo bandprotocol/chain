@@ -54,18 +54,18 @@ func TestCalculateIntervalAndDeviation(t *testing.T) {
 }
 
 func TestSumPower(t *testing.T) {
-	require.Equal(t, int64(300000), sumPower([]types.Signal{
+	require.Equal(t, int64(1250009), sumPower([]types.Signal{
 		{
 			ID:    "crypto_price.bandusd",
 			Power: 100000,
 		},
 		{
 			ID:    "crypto_price.atomusd",
-			Power: 100000,
+			Power: 150000,
 		},
 		{
 			ID:    "crypto_price.osmousd",
-			Power: 100000,
+			Power: 1000009,
 		},
 	}))
 }

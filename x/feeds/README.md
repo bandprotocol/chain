@@ -314,7 +314,53 @@ Each abci end block call, the operations to update prices.
 At every end block, the Validator Price of all supported feeds will be obtained and checked if it is within the acceptance period (1 interval).
 Any validator that does not submit a price within this period is considered to have miss-reported and will be deactivated unless the Supported feeds are in a transition period.
 Accepted Validator Prices of the same SignalID will be weighted and median based on the recency of the price and the power of the validator who submitted the price.
-The median price is then set as the Price.
+The median price is then set as the Price. Here is the price aggregation logic:
+
+#### Input
+
+A list of PriceFeedInfo objects, each containing:
+- `Price`: The reported price from the feeder
+- `Deviation`: The price deviation
+- `Power`: The feeder's power
+- `Timestamp`: The time at which the price is reported
+
+#### Objective
+
+- An aggregated price from the list of priceFeedInfo.
+
+#### Assumption
+
+1. No PriceFeedInfo has a power that exceeds 25% of the total power in the list.
+
+#### Procedure
+
+1. Order the List:
+
+- Sort the list by `Timestamp` in descending order (latest timestamp first).
+- For entries with the same `Timestamp`, sort by `Power` in descending order.
+
+2. Apply Power Weights:
+
+- Calculate the total power from the list.
+- Assign weights to the powers in segments as follows:
+    - The first 1/32 of the total power is multiplied by 6.
+    - The next 1/16 of the total power is multiplied by 4.
+    - The next 1/8 of the total power is multiplied by 2.
+    - The next 1/4 of the total power is multiplied by 1.1.
+- If PriceFeedInfo overlaps between segments, split it into parts corresponding to each segment and assign the respective multiplier.
+- Any power that falls outside these segments will have a multiplier of 1.
+
+3. Generate Points:
+
+- For each PriceFeedInfo (or its parts if split), generate three points:
+    - One at the `Price` with the assigned `Power`.
+    - One at `Price + Deviation` with the assigned `Power`.
+    - One at `Price - Deviation` with the assigned `Power`.
+
+4. Calculating Weight Median
+
+- Compute the weighted median of the generated points to determine the final aggregated price.
+- The weighted median price is the price at which the cumulative power (sorted by increasing price) crosses half of the total weighted power.
 
 ### Update supported feeds
 
