@@ -158,7 +158,7 @@ func (h *Hook) handleSetTSSGroup(ctx sdk.Context, gid tss.GroupID) {
 	group := h.tssKeeper.MustGetGroup(ctx, gid)
 	dkgContext, err := h.tssKeeper.GetDKGContext(ctx, gid)
 	if err != nil {
-		panic(err)
+		dkgContext = []byte{}
 	}
 
 	h.emitSetTSSGroup(group, dkgContext)
