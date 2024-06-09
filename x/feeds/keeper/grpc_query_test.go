@@ -136,16 +136,6 @@ func (suite *KeeperTestSuite) TestQueryPrice() {
 	}
 	suite.feedsKeeper.SetPrice(ctx, price)
 
-	valPrice := types.ValidatorPrice{
-		PriceStatus: types.PriceStatusAvailable,
-		Validator:   ValidValidator.String(),
-		SignalID:    "crypto_price.bandusd",
-		Price:       1e9,
-		Timestamp:   ctx.BlockTime().Unix(),
-	}
-	err := suite.feedsKeeper.SetValidatorPrice(ctx, valPrice)
-	suite.Require().NoError(err)
-
 	// query and check
 	res, err := queryClient.Price(gocontext.Background(), &types.QueryPriceRequest{
 		SignalId: "crypto_price.bandusd",
