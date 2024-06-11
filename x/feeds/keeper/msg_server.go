@@ -115,8 +115,6 @@ func (ms msgServer) SubmitPrices(
 		supportedFeedsMap[feed.SignalID] = true
 	}
 
-	tooEarlyPriceSubmission := 0
-
 	for _, price := range req.Prices {
 		if _, ok := supportedFeedsMap[price.SignalID]; !ok {
 			return nil, types.ErrSignalIDNotSupported.Wrapf(
@@ -128,7 +126,7 @@ func (ms msgServer) SubmitPrices(
 		// check if price is not too fast
 		valPrice, err := ms.GetValidatorPrice(ctx, price.SignalID, val)
 		if err == nil && blockTime < valPrice.Timestamp+cooldownTime {
-			tooEarlyPriceSubmission++
+			return nil, types.ErrPriceSubmitTooEarly
 		}
 
 		valPrice = ms.NewValidatorPrice(val, price, blockTime, blockHeight)
@@ -138,10 +136,6 @@ func (ms msgServer) SubmitPrices(
 		}
 
 		emitEventSubmitPrice(ctx, valPrice)
-	}
-
-	if tooEarlyPriceSubmission > len(req.Prices)/2 {
-		return nil, types.ErrPriceSubmitTooEarly
 	}
 
 	return &types.MsgSubmitPricesResponse{}, nil
