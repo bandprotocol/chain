@@ -32,7 +32,6 @@ func TestHandleCreateSigning(t *testing.T) {
 	err := k.SetParams(ctx, params)
 	require.NoError(t, err)
 
-	s.MockTSSKeeper.EXPECT().ConvertContentToBytes(ctx, content).Return([]byte("test"), nil).AnyTimes()
 	s.MockTSSKeeper.EXPECT().GetGroup(ctx, currentGroupID).Return(currentGroup, nil).AnyTimes()
 
 	type input struct {
@@ -59,7 +58,7 @@ func TestHandleCreateSigning(t *testing.T) {
 				s.MockTSSKeeper.EXPECT().CreateSigning(
 					ctx,
 					currentGroup,
-					[]byte("test"),
+					content,
 				).Return(expectCurrentGroupSigning, nil)
 				s.MockBankKeeper.EXPECT().SendCoinsFromAccountToModule(
 					ctx,
@@ -102,7 +101,7 @@ func TestHandleCreateSigning(t *testing.T) {
 				s.MockTSSKeeper.EXPECT().CreateSigning(
 					ctx,
 					currentGroup,
-					[]byte("test"),
+					content,
 				).Return(expectCurrentGroupSigning, nil)
 			},
 			postCheck: func() {
@@ -163,12 +162,12 @@ func TestHandleCreateSigning(t *testing.T) {
 				s.MockTSSKeeper.EXPECT().CreateSigning(
 					ctx,
 					currentGroup,
-					[]byte("test"),
+					content,
 				).Return(expectCurrentGroupSigning, nil)
 				s.MockTSSKeeper.EXPECT().CreateSigning(
 					ctx,
 					replaceGroup,
-					[]byte("test"),
+					content,
 				).Return(expectReplaceGroupSigning, nil)
 				s.MockBankKeeper.EXPECT().SendCoinsFromAccountToModule(
 					ctx,
@@ -223,7 +222,7 @@ func TestHandleCreateSigning(t *testing.T) {
 				s.MockTSSKeeper.EXPECT().CreateSigning(
 					ctx,
 					currentGroup,
-					[]byte("test"),
+					content,
 				).Return(expectCurrentGroupSigning, nil)
 				s.MockBankKeeper.EXPECT().SendCoinsFromAccountToModule(
 					ctx,

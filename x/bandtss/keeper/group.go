@@ -49,11 +49,8 @@ func (k Keeper) CreateGroupReplacement(
 	}
 
 	// Execute the handler to process the replacement request.
-	msg, err := k.tssKeeper.ConvertContentToBytes(ctx, types.NewReplaceGroupSignatureOrder(newGroup.PubKey))
-	if err != nil {
-		return 0, err
-	}
-	signing, err := k.tssKeeper.CreateSigning(ctx, currentGroup, msg)
+	content := types.NewReplaceGroupSignatureOrder(newGroup.PubKey)
+	signing, err := k.tssKeeper.CreateSigning(ctx, currentGroup, content)
 	if err != nil {
 		return 0, err
 	}

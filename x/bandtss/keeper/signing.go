@@ -132,12 +132,6 @@ func (k Keeper) HandleCreateSigning(
 	sender sdk.AccAddress,
 	feeLimit sdk.Coins,
 ) (types.SigningID, error) {
-	// Execute the handler to process the request.
-	msg, err := k.tssKeeper.ConvertContentToBytes(ctx, content)
-	if err != nil {
-		return 0, err
-	}
-
 	currentGroupID := k.GetCurrentGroupID(ctx)
 	if currentGroupID == 0 {
 		return 0, types.ErrNoActiveGroup
@@ -169,7 +163,7 @@ func (k Keeper) HandleCreateSigning(
 		}
 	}
 
-	currentGroupSigning, err := k.tssKeeper.CreateSigning(ctx, currentGroup, msg)
+	currentGroupSigning, err := k.tssKeeper.CreateSigning(ctx, currentGroup, content)
 	if err != nil {
 		return 0, err
 	}
@@ -181,7 +175,7 @@ func (k Keeper) HandleCreateSigning(
 			return 0, err
 		}
 
-		replacingGroupSigning, err := k.tssKeeper.CreateSigning(ctx, replacingGroup, msg)
+		replacingGroupSigning, err := k.tssKeeper.CreateSigning(ctx, replacingGroup, content)
 		if err != nil {
 			return 0, err
 		}

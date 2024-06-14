@@ -16,4 +16,5 @@ var (
 	ErrMemberAlreadyActive     = errorsmod.Register(ModuleName, 11, "member already active")
 	ErrMemberDuplicate         = errorsmod.Register(ModuleName, 12, "duplicated member found within the list")
 	ErrInvalidSigningThreshold = errorsmod.Register(ModuleName, 13, "invalid signing threshold number")
+	ErrInvalidRequestSignature = errorsmod.Register(ModuleName, 14, "request signature is invalid")
 )
