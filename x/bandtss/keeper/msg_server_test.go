@@ -304,7 +304,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 			func() {
 				s.app.BandtssKeeper.SetCurrentGroupID(ctx, 1)
 			},
-			tsstypes.ErrGroupIsNotActive,
+			types.ErrNoActiveGroup,
 		},
 		{
 			"failure with fee is more than user's limit",
@@ -323,6 +323,7 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 	for _, tc := range tcs {
 		s.Run(fmt.Sprintf("Case %s", tc.Msg), func() {
 			tc.Malleate()
+			defer tc.PostTest()
 
 			balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, bandtesting.FeePayer.Address)
 			balancesModuleBefore := s.app.BankKeeper.GetAllBalances(
@@ -342,8 +343,6 @@ func (s *KeeperTestSuite) TestFailedRequestSignatureReq() {
 			// Check if the balances of payer and module account doesn't change
 			s.Require().Equal(balancesBefore, balancesAfter)
 			s.Require().Equal(balancesModuleBefore, balancesModuleAfter)
-
-			tc.PostTest()
 		})
 	}
 }

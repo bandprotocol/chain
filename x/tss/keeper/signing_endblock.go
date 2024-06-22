@@ -156,6 +156,7 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
 
 		// Remove all partial signatures from the store
 		k.DeletePartialSignatures(ctx, signing.ID)
+		k.DeletePartialSignatureCount(ctx, signing.ID)
 
 		// Set the last expired signing ID to the current signing ID
 		k.SetLastExpiredSigningID(ctx, currentSigningID)

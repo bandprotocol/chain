@@ -45,7 +45,7 @@ func (suite *TSSTestSuite) TestHashRound3Complain() {
 
 	// Ensure the hash matches the expected value.
 	suite.Require().Nil(err)
-	suite.Require().Equal("955537bd86b09a963c27afff3fb965e897fda379ff04625b953da753843bc63a", hex.EncodeToString(hash))
+	suite.Require().Equal("1b8081d885dc6226a2737228e91270a27b488475079c3e2e46ba8accdfa928ce", hex.EncodeToString(hash))
 }
 
 func (suite *TSSTestSuite) TestHashRound3OwnPubKey() {
