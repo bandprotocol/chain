@@ -91,7 +91,7 @@ type TSSKeeper interface {
 	CreateSigning(
 		ctx sdk.Context,
 		group tsstypes.Group,
-		message []byte,
+		content tsstypes.Content,
 	) (*tsstypes.Signing, error)
 
 	MustGetMembers(ctx sdk.Context, groupID tss.GroupID) []tsstypes.Member
@@ -105,6 +105,5 @@ type TSSKeeper interface {
 	GetPenalizedMembersExpiredSigning(ctx sdk.Context, signing tsstypes.Signing) ([]sdk.AccAddress, error)
 
 	GetSigning(ctx sdk.Context, signingID tss.SigningID) (tsstypes.Signing, error)
-	ConvertContentToBytes(ctx sdk.Context, content tsstypes.Content) ([]byte, error)
 	GetSigningResult(ctx sdk.Context, signingID tss.SigningID) (*tsstypes.SigningResult, error)
 }

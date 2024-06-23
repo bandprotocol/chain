@@ -49,11 +49,8 @@ func (k Keeper) CreateGroupReplacement(
 	}
 
 	// Execute the handler to process the replacement request.
-	msg, err := k.tssKeeper.ConvertContentToBytes(ctx, types.NewReplaceGroupSignatureOrder(newGroup.PubKey))
-	if err != nil {
-		return 0, err
-	}
-	signing, err := k.tssKeeper.CreateSigning(ctx, currentGroup, msg)
+	content := types.NewReplaceGroupSignatureOrder(newGroup.PubKey)
+	signing, err := k.tssKeeper.CreateSigning(ctx, currentGroup, content)
 	if err != nil {
 		return 0, err
 	}
@@ -178,6 +175,16 @@ func (k Keeper) ReplaceGroup(ctx sdk.Context, replacement types.Replacement) err
 	// update replacement status and emit an event.
 	replacement.Status = types.REPLACEMENT_STATUS_SUCCESS
 	k.SetReplacement(ctx, replacement)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeReplacement,
+			sdk.NewAttribute(tsstypes.AttributeKeySigningID, fmt.Sprintf("%d", replacement.SigningID)),
+			sdk.NewAttribute(types.AttributeKeyCurrentGroupID, fmt.Sprintf("%d", replacement.CurrentGroupID)),
+			sdk.NewAttribute(types.AttributeKeyReplacingGroupID, fmt.Sprintf("%d", replacement.NewGroupID)),
+			sdk.NewAttribute(types.AttributeKeyReplacementStatus, replacement.Status.String()),
+		),
+	)
 
 	newGroup, err := k.tssKeeper.GetGroup(ctx, replacement.NewGroupID)
 	if err != nil {

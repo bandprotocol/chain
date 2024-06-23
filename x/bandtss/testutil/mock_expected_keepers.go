@@ -429,21 +429,6 @@ func (mr *MockTSSKeeperMockRecorder) ActivateMember(ctx, groupID, address any) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ActivateMember", reflect.TypeOf((*MockTSSKeeper)(nil).ActivateMember), ctx, groupID, address)
 }
 
-// ConvertContentToBytes mocks base method.
-func (m *MockTSSKeeper) ConvertContentToBytes(ctx types0.Context, content types.Content) ([]byte, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ConvertContentToBytes", ctx, content)
-	ret0, _ := ret[0].([]byte)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ConvertContentToBytes indicates an expected call of ConvertContentToBytes.
-func (mr *MockTSSKeeperMockRecorder) ConvertContentToBytes(ctx, content any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConvertContentToBytes", reflect.TypeOf((*MockTSSKeeper)(nil).ConvertContentToBytes), ctx, content)
-}
-
 // CreateGroup mocks base method.
 func (m *MockTSSKeeper) CreateGroup(ctx types0.Context, members []types0.AccAddress, threshold uint64, moduleOwner string) (tss.GroupID, error) {
 	m.ctrl.T.Helper()
@@ -460,18 +445,18 @@ func (mr *MockTSSKeeperMockRecorder) CreateGroup(ctx, members, threshold, module
 }
 
 // CreateSigning mocks base method.
-func (m *MockTSSKeeper) CreateSigning(ctx types0.Context, group types.Group, message []byte) (*types.Signing, error) {
+func (m *MockTSSKeeper) CreateSigning(ctx types0.Context, group types.Group, content types.Content) (*types.Signing, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateSigning", ctx, group, message)
+	ret := m.ctrl.Call(m, "CreateSigning", ctx, group, content)
 	ret0, _ := ret[0].(*types.Signing)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateSigning indicates an expected call of CreateSigning.
-func (mr *MockTSSKeeperMockRecorder) CreateSigning(ctx, group, message any) *gomock.Call {
+func (mr *MockTSSKeeperMockRecorder) CreateSigning(ctx, group, content any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSigning", reflect.TypeOf((*MockTSSKeeper)(nil).CreateSigning), ctx, group, message)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSigning", reflect.TypeOf((*MockTSSKeeper)(nil).CreateSigning), ctx, group, content)
 }
 
 // DeactivateMember mocks base method.
