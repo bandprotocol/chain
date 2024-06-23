@@ -438,12 +438,7 @@ func (s *KeeperTestSuite) TestCreateSigning() {
 
 	// Create a new request for the request signature
 	content := types.NewTextSignatureOrder([]byte("example"))
-
-	// execute HandleRequestSign
-	msg, err := k.ConvertContentToBytes(ctx, content)
-	s.Require().NoError(err)
-
-	signing, err := k.CreateSigning(ctx, group, msg)
+	signing, err := k.CreateSigning(ctx, group, content)
 	s.Require().NoError(err)
 
 	s.Require().NoError(err)

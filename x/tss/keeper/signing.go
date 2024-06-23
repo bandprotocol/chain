@@ -373,8 +373,13 @@ func (k Keeper) ConvertContentToBytes(
 func (k Keeper) CreateSigning(
 	ctx sdk.Context,
 	group types.Group,
-	message []byte,
+	content types.Content,
 ) (*types.Signing, error) {
+	message, err := k.ConvertContentToBytes(ctx, content)
+	if err != nil {
+		return nil, err
+	}
+
 	// assigned members within the context of the group.
 	assignedMembers, err := k.AssignMembers(ctx, group, message)
 	if err != nil {

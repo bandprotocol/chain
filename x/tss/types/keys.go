@@ -69,7 +69,7 @@ var (
 	// Round2InfoCountStoreKeyPrefix is the key that keeps the round 2 data count.
 	Round2InfoCountStoreKeyPrefix = []byte{0x08}
 
-	// ComplainWithStatusStoreKeyPrefix is the key that keeps complain with status.
+	// ComplainsWithStatusStoreKeyPrefix is the key that keeps complain with status.
 	ComplainsWithStatusStoreKeyPrefix = []byte{0x09}
 
 	// ConfirmComplainCountStoreKeyPrefix is the key for keep track of the progress of round 3.

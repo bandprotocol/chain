@@ -79,8 +79,14 @@ func (k msgServer) RequestSignature(
 		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
+	content := req.GetContent()
+	if content.OrderRoute() == types.RouterKey && content.OrderType() == types.ReplaceGroupPath {
+		return nil, types.ErrInvalidRequestSignature.Wrapf(
+			"invalid request order route: %s order type: %s", content.OrderRoute(), content.OrderType())
+	}
+
 	// Execute the handler to process the request.
-	_, err = k.HandleCreateSigning(ctx, req.GetContent(), feePayer, req.FeeLimit)
+	_, err = k.HandleCreateSigning(ctx, content, feePayer, req.FeeLimit)
 	if err != nil {
 		return nil, err
 	}

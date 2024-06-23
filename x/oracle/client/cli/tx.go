@@ -695,7 +695,7 @@ func GetCmdRequestSignature() *cobra.Command {
 		Long: strings.TrimSpace(
 			fmt.Sprintf(`Request signature from request id.
 Example:
-$ %s tx bandtss request-signature oracle-result 1 --fee-limit 10uband
+$ %s tx bandtss request-signature oracle-result 1 2 --fee-limit 10uband
 `,
 				version.AppName,
 			),

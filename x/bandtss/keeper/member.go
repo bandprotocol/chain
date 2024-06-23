@@ -64,7 +64,7 @@ func (k Keeper) SetLastActive(ctx sdk.Context, address sdk.AccAddress) error {
 	return nil
 }
 
-// DeactivateMember flags is_active to false. This function will panic if the given address
+// DeactivateMember flags is_active to false. This function will return error if the given address
 // isn't the member of the current group.
 func (k Keeper) DeactivateMember(ctx sdk.Context, address sdk.AccAddress) error {
 	member, err := k.GetMember(ctx, address)
