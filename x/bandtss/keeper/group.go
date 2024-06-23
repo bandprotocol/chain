@@ -176,6 +176,16 @@ func (k Keeper) ReplaceGroup(ctx sdk.Context, replacement types.Replacement) err
 	replacement.Status = types.REPLACEMENT_STATUS_SUCCESS
 	k.SetReplacement(ctx, replacement)
 
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeReplacement,
+			sdk.NewAttribute(tsstypes.AttributeKeySigningID, fmt.Sprintf("%d", replacement.SigningID)),
+			sdk.NewAttribute(types.AttributeKeyCurrentGroupID, fmt.Sprintf("%d", replacement.CurrentGroupID)),
+			sdk.NewAttribute(types.AttributeKeyReplacingGroupID, fmt.Sprintf("%d", replacement.NewGroupID)),
+			sdk.NewAttribute(types.AttributeKeyReplacementStatus, replacement.Status.String()),
+		),
+	)
+
 	newGroup, err := k.tssKeeper.GetGroup(ctx, replacement.NewGroupID)
 	if err != nil {
 		return err
