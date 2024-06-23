@@ -144,13 +144,6 @@ class Handler(object):
             )
         ).scalar()
 
-    def get_group_id_from_policy_address(self, address):
-        return self.conn.execute(
-            select([group_policies.c.group_id]).where(
-                group_policies.c.address == address
-            )
-        ).scalar()
-
     def get_ibc_received_txs(self, date, port, channel, address):
         msg = {"date": date, "port": port, "channel": channel, "address": address}
         condition = True
