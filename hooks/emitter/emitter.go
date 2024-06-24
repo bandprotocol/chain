@@ -295,8 +295,8 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	// TSS module
 	h.handleInitTSSModule(ctx)
 
-	// BandTSS module
-	h.handleInitBandTSSModule(ctx)
+	// Bandtss module
+	h.handleInitBandtssModule(ctx)
 
 	// Oracle module
 	var oracleState oracletypes.GenesisState

@@ -53,7 +53,7 @@ func (h *Hook) emitSetBandtssSigning(signing types.Signing) {
 }
 
 // handleInitBandTSSModule implements emitter handler for init bandtss module.
-func (h *Hook) handleInitBandTSSModule(ctx sdk.Context) {
+func (h *Hook) handleInitBandtssModule(ctx sdk.Context) {
 	for _, signing := range h.bandtssKeeper.GetSignings(ctx) {
 		h.emitSetBandtssSigning(signing)
 	}
@@ -70,8 +70,8 @@ func (h *Hook) handleNewBandtssGroupActive(ctx sdk.Context, gid tss.GroupID) {
 	}
 }
 
-// handleUpdateBandtssStatus implements emitter handler for update bandtss status.
-func (h *Hook) handleUpdateBandtssStatus(ctx sdk.Context, address sdk.AccAddress) {
+// handleUpdateBandtssMember implements emitter handler for update bandtss status.
+func (h *Hook) handleUpdateBandtssMember(ctx sdk.Context, address sdk.AccAddress) {
 	member, err := h.bandtssKeeper.GetMember(ctx, address)
 	if err != nil {
 		panic(err)
@@ -88,7 +88,7 @@ func (h *Hook) handleBandtssMsgActivate(
 		panic(err)
 	}
 
-	h.handleUpdateBandtssStatus(ctx, acc)
+	h.handleUpdateBandtssMember(ctx, acc)
 }
 
 // handleBandtssMsgHealthCheck implements emitter handler for MsgHealthCheck of bandtss.
@@ -100,7 +100,7 @@ func (h *Hook) handleBandtssMsgHealthCheck(
 		panic(err)
 	}
 
-	h.handleUpdateBandtssStatus(ctx, acc)
+	h.handleUpdateBandtssMember(ctx, acc)
 }
 
 // handleBandtssMsgRequestSignature implements emitter handler for MsgRequestSignature of bandtss.

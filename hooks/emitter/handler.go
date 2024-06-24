@@ -209,7 +209,7 @@ func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) 
 		address := sdk.MustAccAddressFromBech32(
 			evMap[bandtsstypes.EventTypeInactiveStatus+"."+tsstypes.AttributeKeyAddress][0],
 		)
-		h.handleUpdateBandtssStatus(ctx, address)
+		h.handleUpdateBandtssMember(ctx, address)
 	case tsstypes.EventTypeCreateGroup,
 		tsstypes.EventTypeRound2Success,
 		tsstypes.EventTypeRound3Success,

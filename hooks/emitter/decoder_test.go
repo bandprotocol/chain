@@ -26,10 +26,13 @@ import (
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/hooks/emitter"
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/testing/ibctesting"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 var (
@@ -54,6 +57,10 @@ var (
 	NewRate           = sdk.NewDec(1)
 	PubKey            = newPubKey("0B485CFC0EECC619440448436F8FC9DF40566F2369E72400281454CB552AFB50")
 	Amount            = sdk.NewCoin("uband", sdk.NewInt(1))
+
+	tssPoint          = tss.Point([]byte("point"))
+	tssSignature      = tss.Signature([]byte("signature"))
+	tssEncSecretShare = tss.EncSecretShare([]byte("encSecretShare"))
 
 	content, _  = govv1beta1.ContentFromProposalType("Title", "Desc", "Text")
 	proposalMsg = banktypes.NewMsgSend(SenderAddress, ReceiverAddress, sdk.Coins{Amount})
@@ -200,7 +207,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgRequestData() {
 	emitter.DecodeMsgRequestData(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"ask_count\":1,\"calldata\":\"Y2FsbGRhdGE=\",\"client_id\":\"cleint_id\",\"execute_gas\":300000,\"fee_limit\":[{\"denom\":\"uband\",\"amount\":\"100000000\"}],\"min_count\":1,\"oracle_script_id\":1,\"prepare_gas\":40000,\"sender\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}",
+		"{\"ask_count\":1,\"calldata\":\"Y2FsbGRhdGE=\",\"client_id\":\"cleint_id\",\"execute_gas\":300000,\"fee_limit\":[{\"denom\":\"uband\",\"amount\":\"100000000\"}],\"min_count\":1,\"oracle_script_id\":1,\"prepare_gas\":40000,\"sender\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\",\"tss_encode_type\":0}",
 	)
 }
 
@@ -948,6 +955,85 @@ func (suite *DecoderTestSuite) TestDecodeMsgUpdatePriceService() {
 		detail,
 		"{\"hash\":\"testhash\",\"url\":\"http://example.com\",\"version\":\"1.0.0\"}",
 	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeGroupMsgCreateGroupBandtss() {
+	detail := make(common.JsDict)
+
+	msg := bandtsstypes.MsgCreateGroup{
+		Members:   []string{"member1", "member2"},
+		Threshold: 2,
+		Authority: "some-authority-id",
+	}
+
+	emitter.DecodeGroupMsgCreateGroupBandtss(&msg, detail)
+
+	expectedJSON := `{"authority":"some-authority-id","members":["member1","member2"],"threshold":2}`
+	suite.testCompareJson(detail, expectedJSON)
+}
+
+func (suite *DecoderTestSuite) TestDecodeGroupMsgReplaceGroup() {
+	detail := make(common.JsDict)
+
+	msg := bandtsstypes.MsgReplaceGroup{
+		NewGroupID: 1,
+		ExecTime:   time.Now(),
+		Authority:  "authority123",
+	}
+
+	emitter.DecodeGroupMsgReplaceGroup(&msg, detail)
+
+	expectedJSON := `{"authority":"authority123","exec_time":"` + msg.ExecTime.GoString() + `","new_group_id":1}`
+	suite.testCompareJson(detail, expectedJSON)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgUpdateParamsBandtss() {
+	detail := make(common.JsDict)
+
+	msg := bandtsstypes.MsgUpdateParams{
+		Params: bandtsstypes.NewParams(100, 10, 50, sdk.Coins{Amount}),
+	}
+
+	emitter.DecodeMsgUpdateParamsBandtss(&msg, detail)
+	expectedJSON := "{\"active_duration\":100,\"authority\":\"\",\"fee\":[{\"denom\":\"uband\",\"amount\":\"1\"}],\"inactive_penalty_duration\":50,\"reward_percentage\":10}"
+	suite.testCompareJson(detail, expectedJSON)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgSubmitDKGRound1() {
+	detail := make(common.JsDict)
+
+	msg := tsstypes.MsgSubmitDKGRound1{
+		GroupID: 1,
+		Round1Info: tsstypes.Round1Info{
+			MemberID:           1,
+			CoefficientCommits: tss.Points{tssPoint, tssPoint},
+			OneTimePubKey:      tssPoint,
+			A0Signature:        tssSignature,
+			OneTimeSignature:   tssSignature,
+		},
+		Address: "0x123",
+	}
+
+	emitter.DecodeMsgSubmitDKGRound1(&msg, detail)
+	expectedJSON := "{\"address\":\"0x123\",\"group_id\":1,\"round1_info\":{\"member_id\":1,\"coefficient_commits\":[\"706F696E74\",\"706F696E74\"],\"one_time_pub_key\":\"706F696E74\",\"a0_signature\":\"7369676E6174757265\",\"one_time_signature\":\"7369676E6174757265\"}}"
+	suite.testCompareJson(detail, expectedJSON)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgSubmitDKGRound2() {
+	detail := make(common.JsDict)
+
+	msg := tsstypes.MsgSubmitDKGRound2{
+		GroupID: 1,
+		Round2Info: tsstypes.Round2Info{
+			MemberID:              1,
+			EncryptedSecretShares: tss.EncSecretShares{tssEncSecretShare},
+		},
+		Address: "0x456",
+	}
+
+	emitter.DecodeMsgSubmitDKGRound2(&msg, detail)
+	expectedJSON := "{\"address\":\"0x456\",\"group_id\":1,\"round2_info\":{\"member_id\":1,\"encrypted_secret_shares\":[\"656E635365637265745368617265\"]}}"
+	suite.testCompareJson(detail, expectedJSON)
 }
 
 func (suite *DecoderTestSuite) TestDecodeMsgUpdateParams() {
