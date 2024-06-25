@@ -16,6 +16,7 @@ type Keeper struct {
 	cdc           codec.BinaryCodec
 	oracleKeeper  types.OracleKeeper
 	stakingKeeper types.StakingKeeper
+	authzKeeper   types.AuthzKeeper
 
 	authority string
 }
@@ -55,4 +56,15 @@ func (k Keeper) IsBondedValidator(ctx sdk.Context, addr sdk.ValAddress) bool {
 	}
 
 	return val.IsBonded()
+}
+
+// IsFeeder checks if the given address has been granted as a feeder by the given validator
+func (k Keeper) IsFeeder(ctx sdk.Context, validator sdk.ValAddress, feeder sdk.AccAddress) bool {
+	cap, _ := k.authzKeeper.GetAuthorization(
+		ctx,
+		feeder,
+		sdk.AccAddress(validator),
+		sdk.MsgTypeURL(&types.MsgSubmitPrices{}),
+	)
+	return cap != nil
 }
