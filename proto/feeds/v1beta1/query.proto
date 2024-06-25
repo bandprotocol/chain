@@ -57,9 +57,14 @@ service Query {
     option (google.api.http).get = "/feeds/v1beta1/delegators/{delegator}/signals";
   }
 
-  // SupportedFeeds is a RPC method that return list of currect supported feeds
+  // SupportedFeeds is a RPC method that returns list of currect supported feeds
   rpc SupportedFeeds(QuerySupportedFeedsRequest) returns (QuerySupportedFeedsResponse) {
     option (google.api.http).get = "/feeds/v1beta1/supported-feeds";
+  }
+
+  // IsFeeder is a RPC method that returns whether an account is a feeder for specified validator.
+  rpc IsFeeder(QueryIsFeederRequest) returns (QueryIsFeederResponse) {
+    option (google.api.http).get = "/feeds/v1beta1/feeder/{validator_address}/{feeder_address}";
   }
 }
 
@@ -186,4 +191,18 @@ message QuerySupportedFeedsRequest {}
 message QuerySupportedFeedsResponse {
   // SupportedFeeds is a list of currently supported feeds, and its last update time and block.
   SupportedFeeds supported_feeds = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryIsFeederRequest is request type for the Query/IsFeeder RPC method.
+message QueryIsFeederRequest {
+  // ValidatorAddress is a validator address
+  string validator_address = 1;
+  // FeederAddress is a candidate account
+  string feeder_address = 2;
+}
+
+// QueryIsFeederResponse is response type for the Query/IsFeeder RPC method.
+message QueryIsFeederResponse {
+  // IsFeeder is true if this account has been granted by validator
+  bool is_feeder = 1;
 }

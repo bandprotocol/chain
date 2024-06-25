@@ -254,3 +254,20 @@ func (q queryServer) Params(c context.Context, _ *types.QueryParamsRequest) (*ty
 		Params: q.keeper.GetParams(ctx),
 	}, nil
 }
+
+// IsFeeder queries grant of account on this validator
+func (q queryServer) IsFeeder(
+	c context.Context,
+	req *types.QueryIsFeederRequest,
+) (*types.QueryIsFeederResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	val, err := sdk.ValAddressFromBech32(req.ValidatorAddress)
+	if err != nil {
+		return nil, err
+	}
+	rep, err := sdk.AccAddressFromBech32(req.FeederAddress)
+	if err != nil {
+		return nil, err
+	}
+	return &types.QueryIsFeederResponse{IsFeeder: q.keeper.IsFeeder(ctx, val, rep)}, nil
+}
