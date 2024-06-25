@@ -57,7 +57,7 @@ service Query {
     option (google.api.http).get = "/feeds/v1beta1/delegators/{delegator}/signals";
   }
 
-  // SupportedFeeds is a RPC method that returns list of currect supported feeds
+  // SupportedFeeds is a RPC method that returns list of current supported feeds
   rpc SupportedFeeds(QuerySupportedFeedsRequest) returns (QuerySupportedFeedsResponse) {
     option (google.api.http).get = "/feeds/v1beta1/supported-feeds";
   }
