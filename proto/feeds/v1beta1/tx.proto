@@ -12,16 +12,16 @@ import "amino/amino.proto";
 
 // Msg defines the feeds Msg service.
 service Msg {
-  // SubmitPrices is a RPC method to submit prices
+  // SubmitPrices is an RPC method to submit prices
   rpc SubmitPrices(MsgSubmitPrices) returns (MsgSubmitPricesResponse);
 
-  // UpdatePriceService is a RPC method to update price service information
+  // UpdatePriceService is an RPC method to update price service information
   rpc UpdatePriceService(MsgUpdatePriceService) returns (MsgUpdatePriceServiceResponse);
 
-  // UpdateParams is a RPC method to update parameters
+  // UpdateParams is an RPC method to update parameters
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 
-  // SubmitSignals is a RPC method to signal ids and their powers
+  // SubmitSignals is an RPC method to signal ids and their powers
   rpc SubmitSignals(MsgSubmitSignals) returns (MsgSubmitSignalsResponse);
 }
 

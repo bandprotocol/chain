@@ -58,7 +58,7 @@ func (k Keeper) IsBondedValidator(ctx sdk.Context, addr sdk.ValAddress) bool {
 	return val.IsBonded()
 }
 
-// IsFeeder checks if the validator granted to the feeder
+// IsFeeder checks if the given address has been granted as a feeder by the given validator
 func (k Keeper) IsFeeder(ctx sdk.Context, validator sdk.ValAddress, feeder sdk.AccAddress) bool {
 	cap, _ := k.authzKeeper.GetAuthorization(
 		ctx,

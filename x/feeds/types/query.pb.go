@@ -1184,27 +1184,27 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	// Prices is a RPC method that returns all prices.
+	// Prices is an RPC method that returns all prices.
 	Prices(ctx context.Context, in *QueryPricesRequest, opts ...grpc.CallOption) (*QueryPricesResponse, error)
-	// Price is a RPC method that returns price by signal id.
+	// Price is an RPC method that returns price by signal id.
 	Price(ctx context.Context, in *QueryPriceRequest, opts ...grpc.CallOption) (*QueryPriceResponse, error)
-	// ValidatorPrices is a RPC method that returns prices of a validator.
+	// ValidatorPrices is an RPC method that returns prices of a validator.
 	ValidatorPrices(ctx context.Context, in *QueryValidatorPricesRequest, opts ...grpc.CallOption) (*QueryValidatorPricesResponse, error)
-	// ValidatorPrice is a RPC method that returns price of validator by signal id.
+	// ValidatorPrice is an RPC method that returns price of validator by signal id.
 	ValidatorPrice(ctx context.Context, in *QueryValidatorPriceRequest, opts ...grpc.CallOption) (*QueryValidatorPriceResponse, error)
-	// ValidValidator is a RPC method that returns flag to show if the validator is required to send prices.
+	// ValidValidator is an RPC method that returns flag to show if the validator is required to send prices.
 	ValidValidator(ctx context.Context, in *QueryValidValidatorRequest, opts ...grpc.CallOption) (*QueryValidValidatorResponse, error)
-	// Signals is a RPC method that returns all signal-total-powers or specified signal-total-power by signal id.
+	// Signals is an RPC method that returns all signal-total-powers or specified signal-total-power by signal id.
 	SignalTotalPowers(ctx context.Context, in *QuerySignalTotalPowersRequest, opts ...grpc.CallOption) (*QuerySignalTotalPowersResponse, error)
-	// Params is a RPC method that returns all parameters of the module.
+	// Params is an RPC method that returns all parameters of the module.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
-	// PriceService is a RPC method that returns information of price service.
+	// PriceService is an RPC method that returns information of price service.
 	PriceService(ctx context.Context, in *QueryPriceServiceRequest, opts ...grpc.CallOption) (*QueryPriceServiceResponse, error)
-	// DelegatorSignals is a RPC method that returns signals of a delegator
+	// DelegatorSignals is an RPC method that returns signals of a delegator
 	DelegatorSignals(ctx context.Context, in *QueryDelegatorSignalsRequest, opts ...grpc.CallOption) (*QueryDelegatorSignalsResponse, error)
-	// SupportedFeeds is a RPC method that returns list of currect supported feeds
+	// SupportedFeeds is an RPC method that returns a list of current supported feeds
 	SupportedFeeds(ctx context.Context, in *QuerySupportedFeedsRequest, opts ...grpc.CallOption) (*QuerySupportedFeedsResponse, error)
-	// IsFeeder is a RPC method that returns whether an account is a feeder for specified validator.
+	// IsFeeder is an RPC method that returns whether an account is a feeder for specified validator.
 	IsFeeder(ctx context.Context, in *QueryIsFeederRequest, opts ...grpc.CallOption) (*QueryIsFeederResponse, error)
 }
 
@@ -1317,27 +1317,27 @@ func (c *queryClient) IsFeeder(ctx context.Context, in *QueryIsFeederRequest, op
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	// Prices is a RPC method that returns all prices.
+	// Prices is an RPC method that returns all prices.
 	Prices(context.Context, *QueryPricesRequest) (*QueryPricesResponse, error)
-	// Price is a RPC method that returns price by signal id.
+	// Price is an RPC method that returns price by signal id.
 	Price(context.Context, *QueryPriceRequest) (*QueryPriceResponse, error)
-	// ValidatorPrices is a RPC method that returns prices of a validator.
+	// ValidatorPrices is an RPC method that returns prices of a validator.
 	ValidatorPrices(context.Context, *QueryValidatorPricesRequest) (*QueryValidatorPricesResponse, error)
-	// ValidatorPrice is a RPC method that returns price of validator by signal id.
+	// ValidatorPrice is an RPC method that returns price of validator by signal id.
 	ValidatorPrice(context.Context, *QueryValidatorPriceRequest) (*QueryValidatorPriceResponse, error)
-	// ValidValidator is a RPC method that returns flag to show if the validator is required to send prices.
+	// ValidValidator is an RPC method that returns flag to show if the validator is required to send prices.
 	ValidValidator(context.Context, *QueryValidValidatorRequest) (*QueryValidValidatorResponse, error)
-	// Signals is a RPC method that returns all signal-total-powers or specified signal-total-power by signal id.
+	// Signals is an RPC method that returns all signal-total-powers or specified signal-total-power by signal id.
 	SignalTotalPowers(context.Context, *QuerySignalTotalPowersRequest) (*QuerySignalTotalPowersResponse, error)
-	// Params is a RPC method that returns all parameters of the module.
+	// Params is an RPC method that returns all parameters of the module.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
-	// PriceService is a RPC method that returns information of price service.
+	// PriceService is an RPC method that returns information of price service.
 	PriceService(context.Context, *QueryPriceServiceRequest) (*QueryPriceServiceResponse, error)
-	// DelegatorSignals is a RPC method that returns signals of a delegator
+	// DelegatorSignals is an RPC method that returns signals of a delegator
 	DelegatorSignals(context.Context, *QueryDelegatorSignalsRequest) (*QueryDelegatorSignalsResponse, error)
-	// SupportedFeeds is a RPC method that returns list of currect supported feeds
+	// SupportedFeeds is an RPC method that returns a list of current supported feeds
 	SupportedFeeds(context.Context, *QuerySupportedFeedsRequest) (*QuerySupportedFeedsResponse, error)
-	// IsFeeder is a RPC method that returns whether an account is a feeder for specified validator.
+	// IsFeeder is an RPC method that returns whether an account is a feeder for specified validator.
 	IsFeeder(context.Context, *QueryIsFeederRequest) (*QueryIsFeederResponse, error)
 }
 

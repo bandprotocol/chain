@@ -476,13 +476,13 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	// SubmitPrices is a RPC method to submit prices
+	// SubmitPrices is an RPC method to submit prices
 	SubmitPrices(ctx context.Context, in *MsgSubmitPrices, opts ...grpc.CallOption) (*MsgSubmitPricesResponse, error)
-	// UpdatePriceService is a RPC method to update price service information
+	// UpdatePriceService is an RPC method to update price service information
 	UpdatePriceService(ctx context.Context, in *MsgUpdatePriceService, opts ...grpc.CallOption) (*MsgUpdatePriceServiceResponse, error)
-	// UpdateParams is a RPC method to update parameters
+	// UpdateParams is an RPC method to update parameters
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
-	// SubmitSignals is a RPC method to signal ids and their powers
+	// SubmitSignals is an RPC method to signal ids and their powers
 	SubmitSignals(ctx context.Context, in *MsgSubmitSignals, opts ...grpc.CallOption) (*MsgSubmitSignalsResponse, error)
 }
 
@@ -532,13 +532,13 @@ func (c *msgClient) SubmitSignals(ctx context.Context, in *MsgSubmitSignals, opt
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// SubmitPrices is a RPC method to submit prices
+	// SubmitPrices is an RPC method to submit prices
 	SubmitPrices(context.Context, *MsgSubmitPrices) (*MsgSubmitPricesResponse, error)
-	// UpdatePriceService is a RPC method to update price service information
+	// UpdatePriceService is an RPC method to update price service information
 	UpdatePriceService(context.Context, *MsgUpdatePriceService) (*MsgUpdatePriceServiceResponse, error)
-	// UpdateParams is a RPC method to update parameters
+	// UpdateParams is an RPC method to update parameters
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
-	// SubmitSignals is a RPC method to signal ids and their powers
+	// SubmitSignals is an RPC method to signal ids and their powers
 	SubmitSignals(context.Context, *MsgSubmitSignals) (*MsgSubmitSignalsResponse, error)
 }
 

@@ -255,7 +255,7 @@ func (q queryServer) Params(c context.Context, _ *types.QueryParamsRequest) (*ty
 	}, nil
 }
 
-// IsFeeder queries grant of account on this validator
+// IsFeeder queries if the given address is a feeder grantee of the validator
 func (q queryServer) IsFeeder(
 	c context.Context,
 	req *types.QueryIsFeederRequest,
@@ -265,9 +265,9 @@ func (q queryServer) IsFeeder(
 	if err != nil {
 		return nil, err
 	}
-	rep, err := sdk.AccAddressFromBech32(req.FeederAddress)
+	resp, err := sdk.AccAddressFromBech32(req.FeederAddress)
 	if err != nil {
 		return nil, err
 	}
-	return &types.QueryIsFeederResponse{IsFeeder: q.keeper.IsFeeder(ctx, val, rep)}, nil
+	return &types.QueryIsFeederResponse{IsFeeder: q.keeper.IsFeeder(ctx, val, resp)}, nil
 }
