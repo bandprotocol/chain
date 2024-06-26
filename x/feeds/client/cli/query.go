@@ -30,6 +30,7 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdParams(),
 		GetQueryCmdDelegatorSignal(),
 		GetQueryCmdSupportedFeeds(),
+		GetQueryCmdIsFeeder(),
 	)
 
 	return queryCmd
@@ -264,6 +265,33 @@ func GetQueryCmdParams() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.Params(context.Background(), &types.QueryParamsRequest{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetQueryCmdIsFeeder implements the query if an address is a feeder command.
+func GetQueryCmdIsFeeder() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "is-feeder [validator-address] [feeder-address]",
+		Short: "Checks if the given address is a feeder for the validator",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.IsFeeder(context.Background(), &types.QueryIsFeederRequest{
+				ValidatorAddress: args[0],
+				FeederAddress:    args[1],
+			})
 			if err != nil {
 				return err
 			}

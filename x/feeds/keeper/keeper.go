@@ -27,6 +27,7 @@ func NewKeeper(
 	storeKey storetypes.StoreKey,
 	oracleKeeper types.OracleKeeper,
 	stakingKeeper types.StakingKeeper,
+	authzKeeper types.AuthzKeeper,
 	authority string,
 ) Keeper {
 	return Keeper{
@@ -34,6 +35,7 @@ func NewKeeper(
 		storeKey:      storeKey,
 		oracleKeeper:  oracleKeeper,
 		stakingKeeper: stakingKeeper,
+		authzKeeper:   authzKeeper,
 		authority:     authority,
 	}
 }
