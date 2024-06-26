@@ -265,9 +265,9 @@ func (q queryServer) IsFeeder(
 	if err != nil {
 		return nil, err
 	}
-	resp, err := sdk.AccAddressFromBech32(req.FeederAddress)
+	feeder, err := sdk.AccAddressFromBech32(req.FeederAddress)
 	if err != nil {
 		return nil, err
 	}
-	return &types.QueryIsFeederResponse{IsFeeder: q.keeper.IsFeeder(ctx, val, resp)}, nil
+	return &types.QueryIsFeederResponse{IsFeeder: q.keeper.IsFeeder(ctx, val, feeder)}, nil
 }
