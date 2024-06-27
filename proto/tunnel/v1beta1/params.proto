@@ -1,0 +1,27 @@
+syntax = "proto3";
+package tunnel.v1beta1;
+
+option go_package = "github.com/bandprotocol/chain/v2/x/tunnel/types";
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+import "cosmos_proto/cosmos.proto";
+
+// Params is the data structure that keeps the parameters of the module.
+message Params {
+  option (gogoproto.equal)            = true;  // Use gogoproto.equal for proto3 message equality checks
+  option (gogoproto.goproto_stringer) = false; // Disable stringer generation for better control
+
+  repeated cosmos.base.v1beta1.Coin min_deposit = 1
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  uint64   min_diviation_bps                      = 2 [(gogoproto.customname) = "MinDeviationBPS"];
+  repeated cosmos.base.v1beta1.Coin tss_route_fee = 3 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.customname)   = "TSSRouteFee",
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
+  ];
+  repeated cosmos.base.v1beta1.Coin axelar_route_fee = 4
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  repeated string tss_supported_chains    = 5;
+  repeated string axelar_supported_chains = 6;
+}

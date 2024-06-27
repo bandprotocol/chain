@@ -1,0 +1,25 @@
+syntax = "proto3";
+package tunnel.v1beta1;
+
+option go_package = "github.com/bandprotocol/chain/v2/x/tunnel/types";
+
+import "gogoproto/gogo.proto";
+import "google/api/annotations.proto";
+import "tunnel/v1beta1/params.proto";
+
+// Query service defines the gRPC querier service.
+service Query {
+  // Params is a RPC method that returns all parameters of the module.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/tunnel/v1beta1/params";
+  }
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // Params is the parameters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+}
