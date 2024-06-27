@@ -3,9 +3,10 @@ package keeper
 import (
 	"context"
 
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+
+	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
 var _ types.MsgServer = msgServer{}
