@@ -140,6 +140,9 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tss"
 	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	tunnel "github.com/bandprotocol/chain/v2/x/tunnel"
+	tunnelkeeper "github.com/bandprotocol/chain/v2/x/tunnel/keeper"
+	tunneltypes "github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
 const (
@@ -195,6 +198,7 @@ var (
 		),
 		feeds.AppModuleBasic{},
 		globalfee.AppModule{},
+		tunnel.AppModuleBasic{},
 	)
 	// module account permissions
 	maccPerms = map[string][]string{
@@ -207,6 +211,7 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		bandtsstypes.ModuleName:        nil,
+		tunneltypes.ModuleName:         nil,
 	}
 
 	Upgrades = []upgrades.Upgrade{v2_6.Upgrade}
@@ -312,6 +317,7 @@ func NewBandApp(
 		bandtsstypes.StoreKey,
 		feedstypes.StoreKey,
 		globalfeetypes.StoreKey,
+		tunneltypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -630,6 +636,14 @@ func NewBandApp(
 	app.GlobalfeeKeeper = globalfeekeeper.NewKeeper(
 		appCodec,
 		keys[globalfeetypes.StoreKey],
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
+	app.TunnelKeeper = tunnelkeeper.NewKeeper(
+		appCodec,
+		keys[tunneltypes.StoreKey],
+		app.AccountKeeper,
+		app.BankKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 

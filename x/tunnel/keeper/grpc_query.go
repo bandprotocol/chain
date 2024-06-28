@@ -10,14 +10,10 @@ import (
 
 var _ types.QueryServer = queryServer{}
 
-type queryServer struct {
-	keeper Keeper
-}
+type queryServer struct{ k Keeper }
 
 func NewQueryServer(k Keeper) types.QueryServer {
-	return queryServer{
-		keeper: k,
-	}
+	return queryServer{k: k}
 }
 
 // Params queries all params of the module.
@@ -25,6 +21,6 @@ func (q queryServer) Params(c context.Context, _ *types.QueryParamsRequest) (*ty
 	ctx := sdk.UnwrapSDKContext(c)
 
 	return &types.QueryParamsResponse{
-		Params: q.keeper.GetParams(ctx),
+		Params: q.k.GetParams(ctx),
 	}, nil
 }

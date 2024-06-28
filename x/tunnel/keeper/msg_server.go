@@ -16,17 +16,15 @@ type msgServer struct {
 }
 
 // NewMsgServerImpl returns an implementation of the x/tunnel MsgServer interface.
-func NewMsgServerImpl(k Keeper) types.MsgServer {
-	return &msgServer{
-		Keeper: k,
-	}
+func NewMsgServerImpl(keeper Keeper) types.MsgServer {
+	return &msgServer{Keeper: keeper}
 }
 
 func (ms msgServer) CreateTunnel(
 	_ context.Context,
 	req *types.MsgCreateTunnel,
 ) (*types.MsgCreateTunnelResponse, error) {
-	return nil, nil
+	return &types.MsgCreateTunnelResponse{}, nil
 }
 
 // UpdateParams updates the module params.

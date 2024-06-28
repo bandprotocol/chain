@@ -27,6 +27,7 @@ import (
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	rollingseedKeeper "github.com/bandprotocol/chain/v2/x/rollingseed/keeper"
 	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
+	tunnelkeeper "github.com/bandprotocol/chain/v2/x/tunnel/keeper"
 )
 
 type AppKeepers struct {
@@ -57,6 +58,7 @@ type AppKeepers struct {
 	FeedsKeeper           feedskeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	GlobalfeeKeeper       globalfeekeeper.Keeper
+	TunnelKeeper          tunnelkeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper

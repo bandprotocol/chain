@@ -1,5 +1,7 @@
 package types
 
+import sdk "github.com/cosmos/cosmos-sdk/types"
+
 const (
 	// ModuleName defines the module name
 	ModuleName = "tunnel"
@@ -23,5 +25,29 @@ const (
 var (
 	GlobalStoreKeyPrefix = []byte{0x00}
 
+	TunnelCountStoreKey = append(GlobalStoreKeyPrefix, []byte("TunnelCount")...)
+
+	TSSRouteCountStoreKey = append(GlobalStoreKeyPrefix, []byte("TSSRouteCount")...)
+
+	AxelarRouteCountStoreKey = append(GlobalStoreKeyPrefix, []byte("AxelarRouteCount")...)
+
+	TunnelStoreKeyPrefix = []byte{0x01}
+
+	TSSPacketStoreKeyPrefix = []byte{0x02}
+
+	AxelarStoreKeyPrefix = []byte{0x03}
+
 	ParamsKey = []byte{0x10}
 )
+
+func TunnelStoreKey(id uint64) []byte {
+	return append(TunnelStoreKeyPrefix, sdk.Uint64ToBigEndian(id)...)
+}
+
+func TSSPacketStoreKey(id uint64) []byte {
+	return append(TSSPacketStoreKeyPrefix, sdk.Uint64ToBigEndian(id)...)
+}
+
+func AxelarStoreKey(id uint64) []byte {
+	return append(AxelarStoreKeyPrefix, sdk.Uint64ToBigEndian(id)...)
+}

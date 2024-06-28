@@ -30,6 +30,7 @@ message MsgCreateTunnel {
   feeds.v1beta1.FeedType feed_type          = 3;
   repeated cosmos.base.v1beta1.Coin deposit = 4
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  string creator = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // MsgCreateTunnelResponse is the response type for the Msg/CreateTunnel RPC method.
