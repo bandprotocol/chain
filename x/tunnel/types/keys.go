@@ -27,15 +27,15 @@ var (
 
 	TunnelCountStoreKey = append(GlobalStoreKeyPrefix, []byte("TunnelCount")...)
 
-	TSSRouteCountStoreKey = append(GlobalStoreKeyPrefix, []byte("TSSRouteCount")...)
+	TSSPacketCountStoreKey = append(GlobalStoreKeyPrefix, []byte("TSSPacketCount")...)
 
-	AxelarRouteCountStoreKey = append(GlobalStoreKeyPrefix, []byte("AxelarRouteCount")...)
+	AxelarPacketCountStoreKey = append(GlobalStoreKeyPrefix, []byte("AxelarPacketCount")...)
 
 	TunnelStoreKeyPrefix = []byte{0x01}
 
 	TSSPacketStoreKeyPrefix = []byte{0x02}
 
-	AxelarStoreKeyPrefix = []byte{0x03}
+	AxelarPacketStoreKeyPrefix = []byte{0x03}
 
 	ParamsKey = []byte{0x10}
 )
@@ -48,6 +48,6 @@ func TSSPacketStoreKey(id uint64) []byte {
 	return append(TSSPacketStoreKeyPrefix, sdk.Uint64ToBigEndian(id)...)
 }
 
-func AxelarStoreKey(id uint64) []byte {
-	return append(AxelarStoreKeyPrefix, sdk.Uint64ToBigEndian(id)...)
+func AxelarPacketStoreKey(id uint64) []byte {
+	return append(AxelarPacketStoreKeyPrefix, sdk.Uint64ToBigEndian(id)...)
 }

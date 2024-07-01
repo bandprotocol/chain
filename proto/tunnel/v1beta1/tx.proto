@@ -26,7 +26,7 @@ service Msg {
 // MsgCreateTunnel is the transaction message to create a new tunnel.
 message MsgCreateTunnel {
   repeated SignalInfo    SignalInfos        = 1 [(gogoproto.nullable) = false];
-  google.protobuf.Any    route              = 2 [(cosmos_proto.accepts_interface) = "TunnelRoute"];
+  google.protobuf.Any    route              = 2 [(cosmos_proto.accepts_interface) = "Route"];
   feeds.v1beta1.FeedType feed_type          = 3;
   repeated cosmos.base.v1beta1.Coin deposit = 4
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];

@@ -19,7 +19,7 @@ type KeeperTestSuite struct {
 	suite.Suite
 
 	ctx         sdk.Context
-	feedsKeeper keeper.Keeper
+	keeper      keeper.Keeper
 	queryClient types.QueryClient
 	msgSrvr     types.MsgServer
 	authority   sdk.AccAddress
@@ -28,7 +28,7 @@ type KeeperTestSuite struct {
 func (s *KeeperTestSuite) SetupTest() {
 	app, ctx := bandtesting.CreateTestApp(s.T(), true)
 	s.ctx = ctx
-	s.feedsKeeper = app.TunnelKeeper
+	s.keeper = app.TunnelKeeper
 
 	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, keeper.NewQueryServer(app.TunnelKeeper))
