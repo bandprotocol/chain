@@ -10,4 +10,10 @@ import "tunnel/v1beta1/params.proto";
 message GenesisState {
   // Params is all parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
+  // tunnel_count is the number of tunnels.
+  uint64 tunnel_count = 2;
+  // tss_packet_count is the number of tss packets.
+  uint64 tss_packet_count = 3;
+  // axelar_packet_count is the number of axelar packets.
+  uint64 axelar_packet_count = 4;
 }

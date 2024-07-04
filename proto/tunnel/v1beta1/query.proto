@@ -4,8 +4,10 @@ package tunnel.v1beta1;
 option go_package = "github.com/bandprotocol/chain/v2/x/tunnel/types";
 
 import "gogoproto/gogo.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
 import "google/api/annotations.proto";
 import "tunnel/v1beta1/params.proto";
+import "tunnel/v1beta1/tunnel.proto";
 
 // Query service defines the gRPC querier service.
 service Query {
@@ -13,6 +15,44 @@ service Query {
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/tunnel/v1beta1/params";
   }
+
+  // Tunnels is a RPC method that returns all tunnels.
+  rpc Tunnels(QueryTunnelsRequest) returns (QueryTunnelsResponse) {
+    option (google.api.http).get = "/tunnel/v1beta1/tunnels";
+  }
+
+  // Tunnel is a RPC method that returns a tunnel by its ID.
+  rpc Tunnel(QueryTunnelRequest) returns (QueryTunnelResponse) {
+    option (google.api.http).get = "/tunnel/v1beta1/tunnel/{tunnel_id}";
+  }
+}
+
+// QueryTunnelRequest is the request type for the Query/Tunnel RPC method.
+message QueryTunnelsRequest {
+  // is_active is a flag to filter active tunnels.
+  bool is_active = 1;
+  // pagination defines an optional pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// QueryTunnelResponse is the response type for the Query/Tunnel RPC method.
+message QueryTunnelsResponse {
+  // Tunnels is a list of tunnels.
+  repeated Tunnel tunnels = 1;
+  // pagination defines an optional pagination for the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryTunnelRequest is the request type for the Query/Tunnel RPC method.
+message QueryTunnelRequest {
+  // TunnelID is the ID of the tunnel to query.
+  uint64 tunnel_id = 1;
+}
+
+// QueryTunnelResponse is the response type for the Query/Tunnel RPC method.
+message QueryTunnelResponse {
+  // Tunnel is the tunnel with the given ID.
+  Tunnel tunnel = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.

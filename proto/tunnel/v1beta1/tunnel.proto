@@ -50,10 +50,10 @@ message Tunnel {
   google.protobuf.Any       route                       = 2 [(cosmos_proto.accepts_interface) = "Route"];
   feeds.v1beta1.FeedType    feed_type                   = 3;
   string                    fee_payer                   = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  repeated SignalPriceInfo  signal_price_infos          = 5;
+  repeated SignalPriceInfo  signal_price_infos          = 5 [(gogoproto.nullable) = false];
   uint64                    last_triggered_block_height = 6;
   bool                      is_active                   = 7;
-  google.protobuf.Timestamp created_at                  = 8 [(gogoproto.stdtime) = true];
+  google.protobuf.Timestamp created_at                  = 8 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
   string                    creator                     = 9 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 

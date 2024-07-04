@@ -14,6 +14,10 @@ import (
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "tunnel/MsgUpdateParams")
 	legacy.RegisterAminoMsg(cdc, &MsgCreateTunnel{}, "tunnel/MsgCreateTunnel")
+
+	cdc.RegisterInterface((*Route)(nil), nil)
+	cdc.RegisterConcrete(&TSSRoute{}, "tunnel/TSSRoute", nil)
+	cdc.RegisterConcrete(&AxelarRoute{}, "tunnel/AxelarRoute", nil)
 }
 
 // RegisterInterfaces registers the x/tunnel interfaces types with the interface registry
@@ -22,6 +26,13 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		(*sdk.Msg)(nil),
 		&MsgUpdateParams{},
 		&MsgCreateTunnel{},
+	)
+
+	registry.RegisterInterface(
+		"tunnel.v1beta1.Route",
+		(*Route)(nil),
+		&TSSRoute{},
+		&AxelarRoute{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

@@ -4,9 +4,18 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
+
+// GenerateTunnelAccount generates a new tunnel account
+func (k Keeper) GenerateTunnelAccount(ctx sdk.Context, tunnelID uint64) sdk.AccAddress {
+	tacc := authtypes.NewEmptyModuleAccount(fmt.Sprintf("%s-%d", types.ModuleName, tunnelID))
+	taccI := k.authKeeper.NewAccount(ctx, tacc)
+	k.authKeeper.SetAccount(ctx, taccI)
+	return taccI.GetAddress()
+}
 
 // SetTunnelCount sets the tunnel count in the store
 func (k Keeper) SetTunnelCount(ctx sdk.Context, count uint64) {
@@ -33,6 +42,14 @@ func (k Keeper) SetTunnel(ctx sdk.Context, tunnel types.Tunnel) {
 // AddTunnel adds a tunnel to the store and returns the new tunnel ID
 func (k Keeper) AddTunnel(ctx sdk.Context, tunnel types.Tunnel) uint64 {
 	tunnel.ID = k.GetNextTunnelID(ctx)
+
+	// Generate a new tunnel account
+	acc := k.GenerateTunnelAccount(ctx, tunnel.ID)
+	tunnel.FeePayer = acc.String()
+
+	// Set the creation time
+	tunnel.CreatedAt = ctx.BlockTime()
+
 	k.SetTunnel(ctx, tunnel)
 	return tunnel.ID
 }
@@ -50,17 +67,16 @@ func (k Keeper) GetTunnel(ctx sdk.Context, id uint64) (types.Tunnel, error) {
 }
 
 func (k Keeper) GeneratePackets(ctx sdk.Context, tunnel types.Tunnel) error {
-	switch tunnel.Route.GetCachedValue().(type) {
-	case *types.TSSRoute:
-		// TODO: Implement TSS packet generation
-		k.TSSPacketHandler(ctx, types.TSSPacket{})
-	case *types.AxelarRoute:
-		// TODO: Implement Axelar packet generation
-		k.AxelarPacketHandler(ctx, types.AxelarPacket{})
-
-	default:
-		return fmt.Errorf("unknown route type: %s", tunnel.Route.String())
+	var route types.Route
+	route, ok := tunnel.Route.GetCachedValue().(*types.TSSRoute)
+	if ok {
+		fmt.Printf("TSSRoute: %v\n", route)
+		return nil
 	}
-
-	return nil
+	route, ok = tunnel.Route.GetCachedValue().(*types.AxelarRoute)
+	if ok {
+		fmt.Printf("AxelarRoute: %v\n", route)
+		return nil
+	}
+	return fmt.Errorf("unknown route type: %s", tunnel.Route.String())
 }

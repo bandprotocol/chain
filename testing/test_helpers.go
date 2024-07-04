@@ -48,6 +48,7 @@ import (
 	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	"github.com/bandprotocol/chain/v2/x/oracle/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	tunneltypes "github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
 // Account is a data structure to store key of test account.
@@ -409,6 +410,10 @@ func SetupWithGenesisValSet(
 	// Add bandtss genesis
 	bandtssGenesis := bandtsstypes.DefaultGenesisState()
 	genesisState[bandtsstypes.ModuleName] = app.AppCodec().MustMarshalJSON(bandtssGenesis)
+
+	// Add tunnel genesis
+	tunnelGenesis := tunneltypes.DefaultGenesisState()
+	genesisState[tunneltypes.ModuleName] = app.AppCodec().MustMarshalJSON(tunnelGenesis)
 
 	stateBytes, err := json.MarshalIndent(genesisState, "", " ")
 	require.NoError(t, err)

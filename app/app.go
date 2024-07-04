@@ -719,6 +719,7 @@ func NewBandApp(
 		bandtssModule,
 		feeds.NewAppModule(appCodec, app.FeedsKeeper),
 		globalfee.NewAppModule(app.GlobalfeeKeeper),
+		tunnel.NewAppModule(appCodec, app.TunnelKeeper),
 	)
 
 	// NOTE: Oracle module must occur before distr as it takes some fee to distribute to active oracle validators.
@@ -734,6 +735,7 @@ func NewBandApp(
 		tsstypes.ModuleName,
 		bandtsstypes.ModuleName,
 		feedstypes.ModuleName,
+		tunneltypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -764,6 +766,7 @@ func NewBandApp(
 		tsstypes.ModuleName,
 		bandtsstypes.ModuleName,
 		feedstypes.ModuleName,
+		tunneltypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
@@ -818,6 +821,7 @@ func NewBandApp(
 		tsstypes.ModuleName,
 		bandtsstypes.ModuleName,
 		feedstypes.ModuleName,
+		tunneltypes.ModuleName,
 		globalfeetypes.ModuleName,
 	)
 

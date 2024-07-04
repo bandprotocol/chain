@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -21,9 +22,30 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 }
 
 func (ms msgServer) CreateTunnel(
-	_ context.Context,
+	goCtx context.Context,
 	req *types.MsgCreateTunnel,
 ) (*types.MsgCreateTunnelResponse, error) {
+	// ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// ms.Keeper.AddTunnel(ctx, types.Tunnel{
+	// 	Route:    req.Route,
+	// 	FeedType: req.FeedType,
+	// })
+
+	fmt.Printf("Msg Create Tunnel: %+v\n", req.Route.TypeUrl)
+	fmt.Printf("Msg ROute: %+v\n", req.GetTunnelRoute())
+	fmt.Printf("Msg ROute: %+v\n", req.Route.GetCachedValue().(types.Route))
+	// switch req.Route.GetCachedValue().(type) {
+	// case *types.TSSRoute:
+	// 	// Validate TSSRoute
+	// 	fmt.Printf("TSSRoute\n")
+	// case *types.AxelarRoute:
+	// 	// Validate AxelarRoute
+	// 	fmt.Printf("AxelarRoute\n")
+	// default:
+	// 	return &types.MsgCreateTunnelResponse{}, sdkerrors.ErrUnknownRequest.Wrapf("unknown route type")
+	// }
+
 	return &types.MsgCreateTunnelResponse{}, nil
 }
 

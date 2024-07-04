@@ -1,9 +1,12 @@
 package types
 
 import (
-	errorsmod "cosmossdk.io/errors"
+	fmt "fmt"
+
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	proto "github.com/cosmos/gogoproto/proto"
 
 	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 )
@@ -40,7 +43,7 @@ func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
 // ValidateBasic does a check on the provided data.
 func (m *MsgUpdateParams) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
-		return errorsmod.Wrap(err, "invalid authority address")
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
 	}
 
 	if err := m.Params.Validate(); err != nil {
@@ -52,16 +55,84 @@ func (m *MsgUpdateParams) ValidateBasic() error {
 
 func NewMsgCreateTunnel(
 	signalInfos []SignalInfo,
-	route *types.Any,
 	feedType feedstypes.FeedType,
+	route Route,
 	deposit sdk.Coins,
-) *MsgCreateTunnel {
+	creator sdk.AccAddress,
+) (*MsgCreateTunnel, error) {
+	msg, ok := route.(proto.Message)
+	if !ok {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrPackAny, "cannot proto marshal %T", msg)
+	}
+	any, err := types.NewAnyWithValue(msg)
+	if err != nil {
+		return nil, err
+	}
+
 	return &MsgCreateTunnel{
 		SignalInfos: signalInfos,
-		Route:       route,
+		Route:       any,
 		FeedType:    feedType,
 		Deposit:     deposit,
+		Creator:     creator.String(),
+	}, nil
+}
+
+// NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
+func NewMsgCreateTSSTunnel(
+	signalInfos []SignalInfo,
+	feedType feedstypes.FeedType,
+	destinationChainID string,
+	destinationContractAddress string,
+	deposit sdk.Coins,
+	creator sdk.AccAddress,
+) (*MsgCreateTunnel, error) {
+	m := &MsgCreateTunnel{
+		SignalInfos: signalInfos,
+		FeedType:    feedType,
+		Deposit:     deposit,
+		Creator:     creator.String(),
 	}
+
+	r := &TSSRoute{
+		DestinationChainID:         destinationChainID,
+		DestinationContractAddress: destinationContractAddress,
+	}
+
+	fmt.Printf("tssroute: %+v\n", r)
+
+	err := m.SetTunnelRoute(r)
+	if err != nil {
+		return nil, err
+	}
+
+	return m, nil
+}
+
+// NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
+func NewMsgCreateAxelarTunnel(
+	signalInfos []SignalInfo,
+	feedType feedstypes.FeedType,
+	destinationChainID string,
+	destinationContractAddress string,
+	deposit sdk.Coins,
+	creator sdk.AccAddress,
+) (*MsgCreateTunnel, error) {
+	m := &MsgCreateTunnel{
+		SignalInfos: signalInfos,
+		FeedType:    feedType,
+		Deposit:     deposit,
+		Creator:     creator.String(),
+	}
+
+	err := m.SetTunnelRoute(&AxelarRoute{
+		DestinationChainID:         destinationChainID,
+		DestinationContractAddress: destinationContractAddress,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 // Type Implements Msg.
@@ -79,9 +150,31 @@ func (m *MsgCreateTunnel) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgCreateTunnel) ValidateBasic() error {
-	// Validate signal infos
+	return nil
+}
 
-	// Validate deposit
+// SetRoute sets the route for the message.
+func (m *MsgCreateTunnel) SetTunnelRoute(route Route) error {
+	msg, ok := route.(proto.Message)
+	if !ok {
+		return fmt.Errorf("can't proto marshal %T", msg)
+	}
+	any, err := types.NewAnyWithValue(msg)
+	if err != nil {
+		return err
+	}
+	m.Route = any
+
+	fmt.Printf("set route: %+v\n", m.Route.GetCachedValue())
 
 	return nil
+}
+
+// GetRoute returns the route of the message.
+func (m MsgCreateTunnel) GetTunnelRoute() Route {
+	route, ok := m.Route.GetCachedValue().(Route)
+	if !ok {
+		return nil
+	}
+	return route
 }

@@ -11,7 +11,7 @@ import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "amino/amino.proto";
 
-import "tunnel/v1beta1/types.proto";
+import "tunnel/v1beta1/tunnel.proto";
 import "feeds/v1beta1/feeds.proto";
 
 // Service definition for Msg.
@@ -25,7 +25,10 @@ service Msg {
 
 // MsgCreateTunnel is the transaction message to create a new tunnel.
 message MsgCreateTunnel {
-  repeated SignalInfo    SignalInfos        = 1 [(gogoproto.nullable) = false];
+  option (cosmos.msg.v1.signer) = "creator";
+  option (amino.name)           = "tunnel/MsgCreateTunnel";
+
+  repeated SignalInfo    signal_infos       = 1 [(gogoproto.nullable) = false];
   google.protobuf.Any    route              = 2 [(cosmos_proto.accepts_interface) = "Route"];
   feeds.v1beta1.FeedType feed_type          = 3;
   repeated cosmos.base.v1beta1.Coin deposit = 4
