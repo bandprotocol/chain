@@ -33,6 +33,7 @@ func (ms msgServer) CreateTunnel(
 	// })
 
 	fmt.Printf("Msg Create Tunnel: %+v\n", req.Route.TypeUrl)
+	fmt.Printf("Msg ROute: %+v\n", req.Route.GetCachedValue())
 	fmt.Printf("Msg ROute: %+v\n", req.GetTunnelRoute())
 	fmt.Printf("Msg ROute: %+v\n", req.Route.GetCachedValue().(types.Route))
 	// switch req.Route.GetCachedValue().(type) {

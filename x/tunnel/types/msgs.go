@@ -11,7 +11,10 @@ import (
 	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-var _ sdk.Msg = &MsgUpdateParams{}
+var (
+	_, _ sdk.Msg                       = &MsgUpdateParams{}, &MsgCreateTunnel{}
+	_    types.UnpackInterfacesMessage = &MsgCreateTunnel{}
+)
 
 // NewMsgUpdateParams creates a new MsgUpdateParams instance.
 func NewMsgUpdateParams(
@@ -168,6 +171,12 @@ func (m *MsgCreateTunnel) SetTunnelRoute(route Route) error {
 	fmt.Printf("set route: %+v\n", m.Route.GetCachedValue())
 
 	return nil
+}
+
+// UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
+func (m MsgCreateTunnel) UnpackInterfaces(unpacker types.AnyUnpacker) error {
+	var route Route
+	return unpacker.UnpackAny(m.Route, &route)
 }
 
 // GetRoute returns the route of the message.
