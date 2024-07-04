@@ -70,10 +70,10 @@ func (k msgServer) ClaimRewards(
 	return &types.MsgClaimRewardsResponse{}, nil
 }
 
-func (k msgServer) LockToken(
+func (k msgServer) LockPower(
 	goCtx context.Context,
-	msg *types.MsgLockToken,
-) (*types.MsgLockTokenResponse, error) {
+	msg *types.MsgLockPower,
+) (*types.MsgLockPowerResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	address, err := sdk.AccAddressFromBech32(msg.Address)
@@ -81,12 +81,12 @@ func (k msgServer) LockToken(
 		return nil, err
 	}
 
-	err = k.SetLockedToken(ctx, address, msg.Key, msg.Amount)
+	err = k.SetLockedPower(ctx, address, msg.Key, msg.Amount)
 	if err != nil {
 		return nil, err
 	}
 
-	return &types.MsgLockTokenResponse{}, nil
+	return &types.MsgLockPowerResponse{}, nil
 }
 
 func (k msgServer) AddRewards(

@@ -84,6 +84,10 @@ func (k Keeper) DeactivateKey(ctx sdk.Context, keyName string) error {
 		return err
 	}
 
+	if !key.IsActive {
+		return types.ErrKeyAlreadyDeactivated
+	}
+
 	key.IsActive = false
 	k.SetKey(ctx, key)
 

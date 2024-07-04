@@ -25,7 +25,7 @@ func GetTxCmd() *cobra.Command {
 	txCmd.AddCommand(
 		GetTxCmdClaimRewards(),
 		GetTxCmdAddRewards(),
-		GetTxCmdLockToken(),
+		GetTxCmdLockPower(),
 		GetTxCmdDeactivateKey(),
 	)
 
@@ -57,11 +57,11 @@ func GetTxCmdClaimRewards() *cobra.Command {
 	return cmd
 }
 
-// GetTxCmdLockToken creates a CLI command for locking token
-func GetTxCmdLockToken() *cobra.Command {
+// GetTxCmdLockPower creates a CLI command for locking power
+func GetTxCmdLockPower() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "lock-token [key] [amount]",
-		Short: "lock token to the key",
+		Use:   "lock-power [key] [amount]",
+		Short: "lock power to the key",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -75,7 +75,7 @@ func GetTxCmdLockToken() *cobra.Command {
 				return fmt.Errorf("invalid amount")
 			}
 
-			msg := types.NewMsgLockToken(
+			msg := types.NewMsgLockPower(
 				clientCtx.GetFromAddress(),
 				key,
 				amount,

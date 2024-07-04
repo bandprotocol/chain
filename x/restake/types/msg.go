@@ -5,7 +5,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-var _, _, _, _ sdk.Msg = &MsgClaimRewards{}, &MsgLockToken{}, &MsgAddRewards{}, &MsgDeactivateKey{}
+var _, _, _, _ sdk.Msg = &MsgClaimRewards{}, &MsgLockPower{}, &MsgAddRewards{}, &MsgDeactivateKey{}
 
 // NewMsgClaimRewards creates a new MsgClaimRewards instance
 func NewMsgClaimRewards(
@@ -43,13 +43,13 @@ func (m MsgClaimRewards) ValidateBasic() error {
 	return nil
 }
 
-// NewMsgLockToken creates a new MsgLockToken instance
-func NewMsgLockToken(
+// NewMsgLockPower creates a new MsgLockPower instance
+func NewMsgLockPower(
 	address sdk.AccAddress,
 	key string,
 	amount math.Int,
-) *MsgLockToken {
-	return &MsgLockToken{
+) *MsgLockPower {
+	return &MsgLockPower{
 		Address: address.String(),
 		Key:     key,
 		Amount:  amount,
@@ -57,24 +57,24 @@ func NewMsgLockToken(
 }
 
 // Route implements the sdk.Msg interface.
-func (m MsgLockToken) Route() string { return sdk.MsgTypeURL(&m) }
+func (m MsgLockPower) Route() string { return sdk.MsgTypeURL(&m) }
 
 // Type implements the sdk.Msg interface.
-func (m MsgLockToken) Type() string { return sdk.MsgTypeURL(&m) }
+func (m MsgLockPower) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSigners implements the sdk.Msg interface.
-func (m MsgLockToken) GetSigners() []sdk.AccAddress {
+func (m MsgLockPower) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
 }
 
 // GetSignBytes implements the sdk.Msg interface.
-func (m MsgLockToken) GetSignBytes() []byte {
+func (m MsgLockPower) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(&m)
 	return sdk.MustSortJSON(bz)
 }
 
 // ValidateBasic implements the sdk.Msg interface.
-func (m MsgLockToken) ValidateBasic() error {
+func (m MsgLockPower) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.Address)
 	if err != nil {
 		return err

@@ -18,8 +18,8 @@ service Msg {
   // Methods below are for testing only.
   //////////////////////////////////////////
 
-  // RPC method for locking tokens.
-  rpc LockToken(MsgLockToken) returns (MsgLockTokenResponse);
+  // RPC method for locking powers.
+  rpc LockPower(MsgLockPower) returns (MsgLockPowerResponse);
 
   // RPC method for adding rewards.
   rpc AddRewards(MsgAddRewards) returns (MsgAddRewardsResponse);
@@ -42,10 +42,10 @@ message MsgClaimRewardsResponse {
   // Placeholder for any response fields related to claiming rewards.
 }
 
-// MsgLockToken is the request message type for locking tokens.
-message MsgLockToken {
+// MsgLockPower is the request message type for locking tokens.
+message MsgLockPower {
   option (cosmos.msg.v1.signer) = "address";
-  option (amino.name)           = "restake/MsgLockToken";
+  option (amino.name)           = "restake/MsgLockPower";
 
   // Address of the account to lock tokens for.
   string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
@@ -57,9 +57,9 @@ message MsgLockToken {
   ];
 }
 
-// MsgLockTokenResponse is the response message type for locking tokens.
-message MsgLockTokenResponse {
-  // Placeholder for any response fields related to locking tokens.
+// MsgLockPowerResponse is the response message type for locking power.
+message MsgLockPowerResponse {
+  // Placeholder for any response fields related to locking power.
 }
 
 // MsgAddRewards is the request message type for adding rewards.

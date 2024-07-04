@@ -10,5 +10,4 @@ func BeginBlocker(ctx sdk.Context, k *keeper.Keeper) {
 }
 
 func EndBlocker(ctx sdk.Context, k *keeper.Keeper) {
-	k.ProcessRemainder(ctx)
 }

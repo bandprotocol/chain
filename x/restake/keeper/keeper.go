@@ -62,7 +62,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
-func (k Keeper) SetLockedToken(ctx sdk.Context, addr sdk.AccAddress, keyName string, amount math.Int) error {
+func (k Keeper) SetLockedPower(ctx sdk.Context, addr sdk.AccAddress, keyName string, amount math.Int) error {
 	if !amount.IsUint64() {
 		return types.ErrInvalidAmount
 	}
@@ -88,7 +88,7 @@ func (k Keeper) SetLockedToken(ctx sdk.Context, addr sdk.AccAddress, keyName str
 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
-				types.EventTypeUnlockToken,
+				types.EventTypeUnlockPower,
 				sdk.NewAttribute(types.AttributeKeyAddress, addr.String()),
 				sdk.NewAttribute(types.AttributeKeyKey, addr.String()),
 				sdk.NewAttribute(sdk.AttributeKeyAmount, stake.Amount.String()),
@@ -111,7 +111,7 @@ func (k Keeper) SetLockedToken(ctx sdk.Context, addr sdk.AccAddress, keyName str
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeLockToken,
+			types.EventTypeLockPower,
 			sdk.NewAttribute(types.AttributeKeyAddress, addr.String()),
 			sdk.NewAttribute(types.AttributeKeyKey, addr.String()),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()),
@@ -146,7 +146,7 @@ func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName strin
 	return nil
 }
 
-func (k Keeper) GetLockedToken(ctx sdk.Context, addr sdk.AccAddress, keyName string) (math.Int, error) {
+func (k Keeper) GetLockedPower(ctx sdk.Context, addr sdk.AccAddress, keyName string) (math.Int, error) {
 	key, err := k.GetKey(ctx, keyName)
 	if err != nil {
 		return math.Int{}, types.ErrKeyNotFound

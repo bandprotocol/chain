@@ -22,22 +22,6 @@ func (k Keeper) SetRemainder(ctx sdk.Context, remainder types.Remainder) {
 	ctx.KVStore(k.storeKey).Set(types.RemainderStoreKey, k.cdc.MustMarshal(&remainder))
 }
 
-func (k Keeper) ProcessRemainder(ctx sdk.Context) {
-	remainder := k.GetRemainder(ctx)
-	truncatedCoins, changedCoins := remainder.Amounts.TruncateDecimal()
-
-	if !truncatedCoins.IsZero() {
-		address := k.authKeeper.GetModuleAddress(types.ModuleName)
-		err := k.distrKeeper.FundCommunityPool(ctx, truncatedCoins, address)
-		if err != nil {
-			return
-		}
-
-		remainder.Amounts = changedCoins
-		k.SetRemainder(ctx, remainder)
-	}
-}
-
 func (k Keeper) addRemainderAmount(ctx sdk.Context, decCoins sdk.DecCoins) {
 	remainder := k.GetRemainder(ctx)
 	remainder.Amounts = remainder.Amounts.Add(decCoins...)
