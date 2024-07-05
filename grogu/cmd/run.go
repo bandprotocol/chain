@@ -127,7 +127,7 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 		}
 
 		// Create submit channel
-		submitPriceCh := make(chan []types.SubmitPrice, 300)
+		submitSignalPriceCh := make(chan []types.SignalPrice, 300)
 
 		// Parse validator address
 		valAddr, err := sdk.ValAddressFromBech32(ctx.Config.Validator)
@@ -155,7 +155,7 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 			feedQuerier,
 			bothanService,
 			time.Second,
-			submitPriceCh,
+			submitSignalPriceCh,
 			l,
 			valAddr,
 			&pendingSignalIDs,
@@ -168,7 +168,7 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 			clients,
 			l,
 			ctx.Keyring,
-			submitPriceCh,
+			submitSignalPriceCh,
 			authQuerier,
 			txQuerier,
 			valAddr,

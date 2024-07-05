@@ -31,20 +31,23 @@ func (k Keeper) SetSupportedFeeds(ctx sdk.Context, feeds []types.Feed) {
 }
 
 // CalculateNewSupportedFeeds calculates new supported feeds from current signal-total-powers.
-func (k Keeper) CalculateNewSupportedFeeds(ctx sdk.Context) (feeds []types.Feed) {
+func (k Keeper) CalculateNewSupportedFeeds(ctx sdk.Context) []types.Feed {
 	signalTotalPowers := k.GetSignalTotalPowersByPower(ctx, k.GetParams(ctx).MaxSupportedFeeds)
+	feeds := make([]types.Feed, 0, len(signalTotalPowers))
 	for _, signalTotalPower := range signalTotalPowers {
-		interval, deviationInThousandth := CalculateIntervalAndDeviation(
+		interval := CalculateInterval(
 			signalTotalPower.Power,
 			k.GetParams(ctx),
 		)
-		feed := types.Feed{
-			SignalID:              signalTotalPower.ID,
-			Interval:              interval,
-			DeviationInThousandth: deviationInThousandth,
+		if interval > 0 {
+			feed := types.Feed{
+				SignalID: signalTotalPower.ID,
+				Interval: interval,
+				Power:    signalTotalPower.Power,
+			}
+			feeds = append(feeds, feed)
 		}
-		feeds = append(feeds, feed)
 	}
 
-	return
+	return feeds
 }

@@ -12,11 +12,11 @@ import "amino/amino.proto";
 
 // Msg defines the feeds Msg service.
 service Msg {
-  // SubmitPrices is an RPC method to submit prices
-  rpc SubmitPrices(MsgSubmitPrices) returns (MsgSubmitPricesResponse);
+  // SubmitSignalPrices is an RPC method to submit signal prices
+  rpc SubmitSignalPrices(MsgSubmitSignalPrices) returns (MsgSubmitSignalPricesResponse);
 
-  // UpdatePriceService is an RPC method to update price service information
-  rpc UpdatePriceService(MsgUpdatePriceService) returns (MsgUpdatePriceServiceResponse);
+  // UpdateReferenceSourceConfig is an RPC method to update reference price soruce configuration
+  rpc UpdateReferenceSourceConfig(MsgUpdateReferenceSourceConfig) returns (MsgUpdateReferenceSourceConfigResponse);
 
   // UpdateParams is an RPC method to update parameters
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
@@ -36,13 +36,13 @@ message MsgSubmitSignals {
   repeated Signal signals = 2 [(gogoproto.nullable) = false];
 }
 
-// MsgSubmitPricesResponse is the response type for the Msg/SubmitSignals RPC method.
+// MsgSubmitSignalsResponse is the response type for the Msg/SubmitSignals RPC method.
 message MsgSubmitSignalsResponse {}
 
-// MsgSubmitPrices is the transaction message to submit multiple prices.
-message MsgSubmitPrices {
+// MsgSubmitSignalPrices is the transaction message to submit multiple signal prices.
+message MsgSubmitSignalPrices {
   option (cosmos.msg.v1.signer) = "validator";
-  option (amino.name)           = "feeds/MsgSubmitPrices";
+  option (amino.name)           = "feeds/MsgSubmitSignalPrices";
 
   // Validator is the address of the validator that is performing the operation.
   string validator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
@@ -50,27 +50,27 @@ message MsgSubmitPrices {
   // Timestamp is the timestamp use as reference of the data.
   int64 timestamp = 2;
 
-  // Prices is a list of prices to submit.
-  repeated SubmitPrice prices = 3 [(gogoproto.nullable) = false];
+  // Prices is a list of signal prices to submit.
+  repeated SignalPrice prices = 3 [(gogoproto.nullable) = false];
 }
 
-// MsgSubmitPricesResponse is the response type for the Msg/SubmitPrices RPC method.
-message MsgSubmitPricesResponse {}
+// MsgSubmitSignalPricesResponse is the response type for the Msg/SubmitSignalPrices RPC method.
+message MsgSubmitSignalPricesResponse {}
 
-// MsgUpdatePriceService is the transaction message to update price service's information.
-message MsgUpdatePriceService {
+// MsgUpdateReferenceSourceConfig is the transaction message to update reference price soruce's configuration.
+message MsgUpdateReferenceSourceConfig {
   option (cosmos.msg.v1.signer) = "authority";
-  option (amino.name)           = "feeds/MsgUpdatePriceService";
+  option (amino.name)           = "feeds/MsgUpdateReferenceSourceConfig";
 
   // Admin is the address of the admin that is performing the operation.
   string admin = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
-  // PriceService is the information of price service.
-  PriceService price_service = 2 [(gogoproto.nullable) = false];
+  // ReferenceSourceConfig is the information of reference price soruce.
+  ReferenceSourceConfig reference_source_config = 2 [(gogoproto.nullable) = false];
 }
 
-// MsgUpdatePriceServiceResponse is the response type for the Msg/UpdatePriceService RPC method.
-message MsgUpdatePriceServiceResponse {}
+// MsgUpdateReferenceSourceConfigResponse is the response type for the Msg/UpdateReferenceSourceConfig RPC method.
+message MsgUpdateReferenceSourceConfigResponse {}
 
 // MsgUpdateParams is the transaction message to update parameters.
 message MsgUpdateParams {

@@ -4,18 +4,18 @@ package types
 func NewGenesisState(
 	params Params,
 	ds []DelegatorSignals,
-	ps PriceService,
+	rs ReferenceSourceConfig,
 ) *GenesisState {
 	return &GenesisState{
-		Params:           params,
-		DelegatorSignals: ds,
-		PriceService:     ps,
+		Params:                params,
+		DelegatorSignals:      ds,
+		ReferenceSourceConfig: rs,
 	}
 }
 
 // DefaultGenesisState returns the default genesis state
 func DefaultGenesisState() *GenesisState {
-	return NewGenesisState(DefaultParams(), []DelegatorSignals{}, DefaultPriceService())
+	return NewGenesisState(DefaultParams(), []DelegatorSignals{}, DefaultReferenceSourceConfig())
 }
 
 // Validate performs basic genesis state validation
@@ -24,14 +24,13 @@ func (gs GenesisState) Validate() error {
 		return err
 	}
 
-	maxSignalIDCharacters := gs.Params.MaxSignalIDCharacters
 	for _, ds := range gs.DelegatorSignals {
-		if err := ds.Validate(maxSignalIDCharacters); err != nil {
+		if err := ds.Validate(MaxSignalIDCharacters); err != nil {
 			return err
 		}
 	}
 
-	if err := gs.PriceService.Validate(); err != nil {
+	if err := gs.ReferenceSourceConfig.Validate(); err != nil {
 		return err
 	}
 

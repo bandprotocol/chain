@@ -15,10 +15,10 @@ import (
 )
 
 // isDeviated checks if the deviation between the old price and the new price
-// exceeds a given threshold in thousandths.
+// exceeds a given threshold in basis points.
 
 // Parameters:
-// - deviationInThousandth: the allowable deviation in thousandths (1/1000th)
+// - deviationBasisPoint: the allowable deviation in basis points (1/1000th)
 // - oldPrice: the original price
 // - newPrice: the new price to compare against the original
 //
@@ -28,31 +28,31 @@ import (
 //
 // The deviation is calculated as follows:
 //  1. Calculate the absolute difference between the new price and the old price.
-//  2. Compute the deviation in thousandths by dividing the difference by the
-//     original price and multiplying by 1000.
+//  2. Compute the deviation in basis points by dividing the difference by the
+//     original price and multiplying by 10000.
 //  3. Check if the calculated deviation meets or exceeds the allowable deviation.
-func isDeviated(deviationInThousandth int64, oldPrice uint64, newPrice uint64) bool {
+func isDeviated(deviationBasisPoint int64, oldPrice uint64, newPrice uint64) bool {
 	// Calculate the deviation
 	diff := math.Abs(float64(newPrice) - float64(oldPrice))
-	dev := int64((diff / float64(oldPrice)) * 1000)
+	dev := int64((diff / float64(oldPrice)) * 10000)
 
 	// Check if the new price deviation is meets or exceeds the bounds
-	return deviationInThousandth <= dev
+	return deviationBasisPoint <= dev
 }
 
-func convertPriceData(priceData *proto.PriceData) (types.SubmitPrice, error) {
+func convertPriceData(priceData *proto.PriceData) (types.SignalPrice, error) {
 	switch priceData.PriceStatus {
 	case proto.PriceStatus_PRICE_STATUS_UNSPECIFIED:
 		// This should never happen
 		panic("unspecified price status")
 	case proto.PriceStatus_PRICE_STATUS_UNSUPPORTED:
-		return types.SubmitPrice{
+		return types.SignalPrice{
 			PriceStatus: types.PriceStatusUnsupported,
 			SignalID:    priceData.SignalId,
 			Price:       0,
 		}, nil
 	case proto.PriceStatus_PRICE_STATUS_UNAVAILABLE:
-		return types.SubmitPrice{
+		return types.SignalPrice{
 			PriceStatus: types.PriceStatusUnavailable,
 			SignalID:    priceData.SignalId,
 			Price:       0,
@@ -60,16 +60,16 @@ func convertPriceData(priceData *proto.PriceData) (types.SubmitPrice, error) {
 	case proto.PriceStatus_PRICE_STATUS_AVAILABLE:
 		price, err := safeConvert(priceData.Price)
 		if err != nil {
-			return types.SubmitPrice{}, err
+			return types.SignalPrice{}, err
 		}
-		return types.SubmitPrice{
+		return types.SignalPrice{
 			PriceStatus: types.PriceStatusAvailable,
 			SignalID:    priceData.SignalId,
 			Price:       price,
 		}, nil
 	default:
 		// Handle unexpected price status
-		return types.SubmitPrice{}, fmt.Errorf("unexpected price status: %v", priceData.PriceStatus)
+		return types.SignalPrice{}, fmt.Errorf("unexpected price status: %v", priceData.PriceStatus)
 	}
 }
 

@@ -4,19 +4,18 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-func (suite *KeeperTestSuite) TestGetSetPriceService() {
+func (suite *KeeperTestSuite) TestGetSetReferenceSourceConfig() {
 	ctx := suite.ctx
 
 	// set
-	expPriceService := types.PriceService{
-		Hash:    "hash",
-		Version: "1.0.0",
-		Url:     "https://bandprotocol.com/",
+	expReferenceSourceConfig := types.ReferenceSourceConfig{
+		IPFSHash: "hash",
+		Version:  "1.0.0",
 	}
-	err := suite.feedsKeeper.SetPriceService(ctx, expPriceService)
+	err := suite.feedsKeeper.SetReferenceSourceConfig(ctx, expReferenceSourceConfig)
 	suite.Require().NoError(err)
 
 	// get
-	priceService := suite.feedsKeeper.GetPriceService(ctx)
-	suite.Require().Equal(expPriceService, priceService)
+	referenceSourceConfig := suite.feedsKeeper.GetReferenceSourceConfig(ctx)
+	suite.Require().Equal(expReferenceSourceConfig, referenceSourceConfig)
 }

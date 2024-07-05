@@ -34,7 +34,7 @@ func Main() {
 func createRootCmd(ctx *context.Context) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "grogu",
-		Short: "BandChain daemon to submit prices for feeds module",
+		Short: "BandChain daemon to submit signal prices for feeds module",
 	}
 
 	rootCmd.AddCommand(

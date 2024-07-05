@@ -26,7 +26,7 @@ type Signaller struct {
 	bothanClient bothan.Client
 	// How often to check for signal changes
 	interval         time.Duration
-	submitCh         chan<- []types.SubmitPrice
+	submitCh         chan<- []types.SignalPrice
 	logger           *logger.Logger
 	valAddress       sdk.ValAddress
 	pendingSignalIDs *sync.Map
@@ -34,7 +34,7 @@ type Signaller struct {
 	distributionStartPercentage  uint64
 	distributionOffsetPercentage uint64
 
-	signalIDToFeed           map[string]types.Feed
+	signalIDToFeed           map[string]types.FeedWithDeviation
 	signalIDToValidatorPrice map[string]types.ValidatorPrice
 	params                   *types.Params
 }
@@ -43,7 +43,7 @@ func New(
 	feedQuerier *querier.FeedQuerier,
 	bothanClient bothan.Client,
 	interval time.Duration,
-	submitCh chan<- []types.SubmitPrice,
+	submitCh chan<- []types.SignalPrice,
 	logger *logger.Logger,
 	valAddress sdk.ValAddress,
 	pendingSignalIDs *sync.Map,
@@ -60,7 +60,7 @@ func New(
 		pendingSignalIDs:             pendingSignalIDs,
 		distributionStartPercentage:  distributionStartPercentage,
 		distributionOffsetPercentage: distributionOffsetPercentage,
-		signalIDToFeed:               make(map[string]types.Feed),
+		signalIDToFeed:               make(map[string]types.FeedWithDeviation),
 		signalIDToValidatorPrice:     make(map[string]types.ValidatorPrice),
 		params:                       nil,
 	}
@@ -135,7 +135,7 @@ func (h *Signaller) updateFeedMap() bool {
 		return false
 	}
 
-	h.signalIDToFeed = sliceToMap(resp.SupportedFeeds.Feeds, func(feed types.Feed) string {
+	h.signalIDToFeed = sliceToMap(resp.SupportedFeeds.Feeds, func(feed types.FeedWithDeviation) string {
 		return feed.SignalID
 	})
 
@@ -281,7 +281,7 @@ func (h *Signaller) isPriceValid(
 }
 
 func (h *Signaller) shouldUpdatePrice(
-	feed types.Feed,
+	feed types.FeedWithDeviation,
 	valPrice types.ValidatorPrice,
 	newPrice uint64,
 	now time.Time,
@@ -304,15 +304,15 @@ func (h *Signaller) shouldUpdatePrice(
 	}
 
 	// Check if the price is deviated from the last submission, if it is, add it to the list of prices to update
-	if isDeviated(feed.DeviationInThousandth, valPrice.Price, newPrice) {
+	if isDeviated(feed.DeviationBasisPoint, valPrice.Price, newPrice) {
 		return true
 	}
 
 	return false
 }
 
-func (h *Signaller) prepareSubmitPrices(filteredPrices []*proto.PriceData, now int64) ([]types.SubmitPrice, []string) {
-	submitPrices := make([]types.SubmitPrice, 0, len(filteredPrices))
+func (h *Signaller) prepareSubmitPrices(filteredPrices []*proto.PriceData, now int64) ([]types.SignalPrice, []string) {
+	submitPrices := make([]types.SignalPrice, 0, len(filteredPrices))
 	unusedSignalIDs := make([]string, 0, len(filteredPrices))
 
 	for _, price := range filteredPrices {

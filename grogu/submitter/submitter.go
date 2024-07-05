@@ -17,14 +17,14 @@ import (
 )
 
 type Submitter struct {
-	contexts         []client.Context
-	logger           *logger.Logger
-	keyring          keyring.Keyring
-	submitPriceCh    <-chan []types.SubmitPrice
-	authQuerier      *querier.AuthQuerier
-	txQuerier        *querier.TxQuerier
-	valAddress       sdk.ValAddress
-	pendingSignalIDs *sync.Map
+	contexts            []client.Context
+	logger              *logger.Logger
+	keyring             keyring.Keyring
+	submitSignalPriceCh <-chan []types.SignalPrice
+	authQuerier         *querier.AuthQuerier
+	txQuerier           *querier.TxQuerier
+	valAddress          sdk.ValAddress
+	pendingSignalIDs    *sync.Map
 
 	broadcastTimeout time.Duration
 	broadcastMaxTry  uint64
@@ -38,7 +38,7 @@ func New(
 	contexts []client.Context,
 	logger *logger.Logger,
 	keyring keyring.Keyring,
-	submitPriceCh <-chan []types.SubmitPrice,
+	submitSignalPriceCh <-chan []types.SignalPrice,
 	authQuerier *querier.AuthQuerier,
 	txQuerier *querier.TxQuerier,
 	valAddress sdk.ValAddress,
@@ -66,40 +66,40 @@ func New(
 	}
 
 	return &Submitter{
-		contexts:         contexts,
-		logger:           logger,
-		keyring:          keyring,
-		submitPriceCh:    submitPriceCh,
-		authQuerier:      authQuerier,
-		txQuerier:        txQuerier,
-		valAddress:       valAddress,
-		pendingSignalIDs: pendingSignalIDs,
-		broadcastTimeout: broadcastTimeout,
-		broadcastMaxTry:  broadcastMaxTry,
-		pollingInterval:  pollingInterval,
-		gasPrices:        gasPrices,
-		idleKeyIDChannel: idleKeyIDChannel,
+		contexts:            contexts,
+		logger:              logger,
+		keyring:             keyring,
+		submitSignalPriceCh: submitSignalPriceCh,
+		authQuerier:         authQuerier,
+		txQuerier:           txQuerier,
+		valAddress:          valAddress,
+		pendingSignalIDs:    pendingSignalIDs,
+		broadcastTimeout:    broadcastTimeout,
+		broadcastMaxTry:     broadcastMaxTry,
+		pollingInterval:     pollingInterval,
+		gasPrices:           gasPrices,
+		idleKeyIDChannel:    idleKeyIDChannel,
 	}, nil
 }
 
 func (s *Submitter) Start() {
 	for {
-		submitPrice := <-s.submitPriceCh
+		submitPrice := <-s.submitSignalPriceCh
 		keyID := <-s.idleKeyIDChannel
-		go func(sps []types.SubmitPrice, kid string) {
+		go func(sps []types.SignalPrice, kid string) {
 			s.logger.Debug("[Submitter] starting submission")
 			s.submitPrice(sps, kid)
 		}(submitPrice, keyID)
 	}
 }
 
-func (s *Submitter) submitPrice(prices []types.SubmitPrice, keyID string) {
+func (s *Submitter) submitPrice(prices []types.SignalPrice, keyID string) {
 	defer s.removePending(prices)
 	defer func() {
 		s.idleKeyIDChannel <- keyID
 	}()
 
-	msg := types.MsgSubmitPrices{
+	msg := types.MsgSubmitSignalPrices{
 		Validator: s.valAddress.String(),
 		Timestamp: time.Now().Unix(),
 		Prices:    prices,
@@ -177,7 +177,7 @@ func (s *Submitter) getAccount(addr sdk.AccAddress) (client.Account, error) {
 	return acc, nil
 }
 
-func (s *Submitter) removePending(toSubmitPrices []types.SubmitPrice) {
+func (s *Submitter) removePending(toSubmitPrices []types.SignalPrice) {
 	for _, price := range toSubmitPrices {
 		s.pendingSignalIDs.Delete(price.SignalID)
 	}

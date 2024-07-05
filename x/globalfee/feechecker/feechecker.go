@@ -123,8 +123,8 @@ func (fc FeeChecker) IsBypassMinFeeMsg(ctx sdk.Context, msg sdk.Msg) bool {
 		if err := checkValidMsgReport(ctx, fc.OracleKeeper, msg); err != nil {
 			return false
 		}
-	case *feedstypes.MsgSubmitPrices:
-		if _, err := fc.FeedsMsgServer.SubmitPrices(ctx, msg); err != nil {
+	case *feedstypes.MsgSubmitSignalPrices:
+		if _, err := fc.FeedsMsgServer.SubmitSignalPrices(ctx, msg); err != nil {
 			return false
 		}
 	case *authz.MsgExec:

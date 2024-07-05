@@ -66,7 +66,7 @@ func (k Keeper) IsFeeder(ctx sdk.Context, validator sdk.ValAddress, feeder sdk.A
 		ctx,
 		feeder,
 		sdk.AccAddress(validator),
-		sdk.MsgTypeURL(&types.MsgSubmitPrices{}),
+		sdk.MsgTypeURL(&types.MsgSubmitSignalPrices{}),
 	)
 	return cap != nil
 }

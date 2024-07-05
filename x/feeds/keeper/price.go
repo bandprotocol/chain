@@ -6,11 +6,11 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-// ValidateSubmitPricesRequest validates price submission.
-func (k Keeper) ValidateSubmitPricesRequest(
+// ValidateSubmitSignalPricesRequest validates price submission.
+func (k Keeper) ValidateSubmitSignalPricesRequest(
 	ctx sdk.Context,
 	blockTime int64,
-	req *types.MsgSubmitPrices,
+	req *types.MsgSubmitSignalPrices,
 	val sdk.ValAddress,
 ) error {
 	isValid := k.IsBondedValidator(ctx, val)
@@ -37,7 +37,7 @@ func (k Keeper) ValidateSubmitPricesRequest(
 // NewValidatorPrice creates new ValidatorPrice.
 func (k Keeper) NewValidatorPrice(
 	val sdk.ValAddress,
-	price types.SubmitPrice,
+	price types.SignalPrice,
 	blockTime int64,
 	blockHeight int64,
 ) types.ValidatorPrice {

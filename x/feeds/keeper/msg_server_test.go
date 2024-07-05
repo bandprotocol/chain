@@ -157,25 +157,24 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestMsgSubmitPrices() {
+func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
 	suite.feedsKeeper.SetSupportedFeeds(suite.ctx, []types.Feed{{
-		SignalID:              "crypto_price.bandusd",
-		Interval:              100,
-		DeviationInThousandth: 5,
+		SignalID: "crypto_price.bandusd",
+		Interval: 100,
 	}})
 
 	testCases := []struct {
 		name      string
-		input     *types.MsgSubmitPrices
+		input     *types.MsgSubmitSignalPrices
 		expErr    bool
 		expErrMsg string
 	}{
 		{
 			name: "invalid validator",
-			input: &types.MsgSubmitPrices{
+			input: &types.MsgSubmitSignalPrices{
 				Validator: InvalidValidator.String(),
 				Timestamp: suite.ctx.BlockTime().Unix(),
-				Prices: []types.SubmitPrice{
+				Prices: []types.SignalPrice{
 					{
 						PriceStatus: types.PriceStatusAvailable,
 						SignalID:    "crypto_price.bandusd",
@@ -188,10 +187,10 @@ func (suite *KeeperTestSuite) TestMsgSubmitPrices() {
 		},
 		{
 			name: "invalid symbol",
-			input: &types.MsgSubmitPrices{
+			input: &types.MsgSubmitSignalPrices{
 				Validator: ValidValidator.String(),
 				Timestamp: suite.ctx.BlockTime().Unix(),
-				Prices: []types.SubmitPrice{
+				Prices: []types.SignalPrice{
 					{
 						PriceStatus: types.PriceStatusAvailable,
 						SignalID:    "crypto_price.btcusd",
@@ -204,10 +203,10 @@ func (suite *KeeperTestSuite) TestMsgSubmitPrices() {
 		},
 		{
 			name: "invalid timestamp",
-			input: &types.MsgSubmitPrices{
+			input: &types.MsgSubmitSignalPrices{
 				Validator: ValidValidator.String(),
 				Timestamp: suite.ctx.BlockTime().Unix() - 200,
-				Prices: []types.SubmitPrice{
+				Prices: []types.SignalPrice{
 					{
 						PriceStatus: types.PriceStatusAvailable,
 						SignalID:    "crypto_price.bandusd",
@@ -220,10 +219,10 @@ func (suite *KeeperTestSuite) TestMsgSubmitPrices() {
 		},
 		{
 			name: "valid message",
-			input: &types.MsgSubmitPrices{
+			input: &types.MsgSubmitSignalPrices{
 				Validator: ValidValidator.String(),
 				Timestamp: suite.ctx.BlockTime().Unix(),
-				Prices: []types.SubmitPrice{
+				Prices: []types.SignalPrice{
 					{
 						PriceStatus: types.PriceStatusAvailable,
 						SignalID:    "crypto_price.bandusd",
@@ -236,10 +235,10 @@ func (suite *KeeperTestSuite) TestMsgSubmitPrices() {
 		},
 		{
 			name: "price too fast",
-			input: &types.MsgSubmitPrices{
+			input: &types.MsgSubmitSignalPrices{
 				Validator: ValidValidator.String(),
 				Timestamp: suite.ctx.BlockTime().Unix(),
-				Prices: []types.SubmitPrice{
+				Prices: []types.SignalPrice{
 					{
 						PriceStatus: types.PriceStatusAvailable,
 						SignalID:    "crypto_price.bandusd",
@@ -254,7 +253,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitPrices() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			_, err := suite.msgServer.SubmitPrices(suite.ctx, tc.input)
+			_, err := suite.msgServer.SubmitSignalPrices(suite.ctx, tc.input)
 
 			if tc.expErr {
 				suite.Require().Error(err)
@@ -266,30 +265,30 @@ func (suite *KeeperTestSuite) TestMsgSubmitPrices() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestMsgUpdatePriceService() {
+func (suite *KeeperTestSuite) TestMsgUpdateReferenceSourceConfig() {
 	params := suite.feedsKeeper.GetParams(suite.ctx)
-	priceService := types.DefaultPriceService()
+	referenceSourceConfig := types.DefaultReferenceSourceConfig()
 
 	testCases := []struct {
 		name      string
-		input     *types.MsgUpdatePriceService
+		input     *types.MsgUpdateReferenceSourceConfig
 		expErr    bool
 		expErrMsg string
 	}{
 		{
 			name: "invalid admin",
-			input: &types.MsgUpdatePriceService{
-				Admin:        "invalid",
-				PriceService: priceService,
+			input: &types.MsgUpdateReferenceSourceConfig{
+				Admin:                 "invalid",
+				ReferenceSourceConfig: referenceSourceConfig,
 			},
 			expErr:    true,
 			expErrMsg: "invalid admin",
 		},
 		{
 			name: "all good",
-			input: &types.MsgUpdatePriceService{
-				Admin:        params.Admin,
-				PriceService: priceService,
+			input: &types.MsgUpdateReferenceSourceConfig{
+				Admin:                 params.Admin,
+				ReferenceSourceConfig: referenceSourceConfig,
 			},
 			expErr: false,
 		},
@@ -297,7 +296,7 @@ func (suite *KeeperTestSuite) TestMsgUpdatePriceService() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			_, err := suite.msgServer.UpdatePriceService(suite.ctx, tc.input)
+			_, err := suite.msgServer.UpdateReferenceSourceConfig(suite.ctx, tc.input)
 
 			if tc.expErr {
 				suite.Require().Error(err)
