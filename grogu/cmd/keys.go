@@ -2,99 +2,54 @@ package cmd
 
 import (
 	"bufio"
-	"context"
 	"fmt"
+	"strings"
 
+	"github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/input"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
-	bip39 "github.com/cosmos/go-bip39"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/go-bip39"
 	"github.com/kyokomi/emoji"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
 	band "github.com/bandprotocol/chain/v2/app"
-	grogucontext "github.com/bandprotocol/chain/v2/grogu/context"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	grogu "github.com/bandprotocol/chain/v2/grogu/context"
+	"github.com/bandprotocol/chain/v2/grogu/querier"
 )
 
 const (
-	flagAccount  = "account"
-	flagIndex    = "index"
-	flagCoinType = "coin-type"
-	flagRecover  = "recover"
-	flagAddress  = "address"
+	flagAccount = "account"
+	flagIndex   = "index"
+	flagRecover = "recover"
+	flagAddress = "address"
 )
 
-func KeysCmd(c *grogucontext.Context) *cobra.Command {
+func KeysCmd(ctx *grogu.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "keys",
 		Aliases: []string{"k"},
-		Short:   "Manage key held by the grogu process",
+		Short:   "Manage keys held by Grogu",
 	}
 	cmd.AddCommand(
-		keysAddCmd(c),
-		keysDeleteCmd(c),
-		keysListCmd(c),
-		keysShowCmd(c),
+		keysAddCmd(ctx),
+		keysDeleteCmd(ctx),
+		keysListCmd(ctx),
+		keysShowCmd(ctx),
 	)
 	return cmd
 }
 
-func keysAddCmd(c *grogucontext.Context) *cobra.Command {
+func keysAddCmd(ctx *grogu.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "add [name]",
 		Aliases: []string{"a"},
 		Short:   "Add a new key to the keychain",
 		Args:    cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			var mnemonic string
-			recover, err := cmd.Flags().GetBool(flagRecover)
-			if err != nil {
-				return err
-			}
-			if recover {
-				inBuf := bufio.NewReader(cmd.InOrStdin())
-				var err error
-				mnemonic, err = input.GetString("Enter your bip39 mnemonic", inBuf)
-				if err != nil {
-					return err
-				}
-			} else {
-				seed, err := bip39.NewEntropy(256)
-				if err != nil {
-					return err
-				}
-				mnemonic, err = bip39.NewMnemonic(seed)
-				if err != nil {
-					return err
-				}
-				fmt.Printf("Mnemonic: %s\n", mnemonic)
-			}
-
-			account, err := cmd.Flags().GetUint32(flagAccount)
-			if err != nil {
-				return err
-			}
-			index, err := cmd.Flags().GetUint32(flagIndex)
-			if err != nil {
-				return err
-			}
-			hdPath := hd.CreateHDPath(band.Bip44CoinType, account, index)
-			info, err := c.Keyring.NewAccount(args[0], mnemonic, "", hdPath.String(), hd.Secp256k1)
-			if err != nil {
-				return err
-			}
-
-			address, err := info.GetAddress()
-			if err != nil {
-				return err
-			}
-
-			fmt.Printf("Address: %s\n", address.String())
-			return nil
-		},
+		RunE:    createKeysAddRunE(ctx),
 	}
 
 	cmd.Flags().Bool(flagRecover, false, "Provide seed phrase to recover existing key instead of creating")
@@ -104,87 +59,117 @@ func keysAddCmd(c *grogucontext.Context) *cobra.Command {
 	return cmd
 }
 
-func keysDeleteCmd(c *grogucontext.Context) *cobra.Command {
+func createKeysAddRunE(ctx *grogu.Context) func(cmd *cobra.Command, args []string) error {
+	return func(cmd *cobra.Command, args []string) error {
+		var mnemonic string
+		var passphrase string
+		var err error
+
+		recoverKey, err := cmd.Flags().GetBool(flagRecover)
+		if err != nil {
+			return err
+		}
+
+		if recoverKey {
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+
+			mnemonic, err = input.GetString("Enter your bip39 mnemonic", inBuf)
+			if err != nil {
+				return err
+			}
+
+			passphrase, err = input.GetString("Enter your bip39 passphrase", inBuf)
+			if err != nil {
+				return err
+			}
+		} else {
+			var seed []byte
+			seed, err = bip39.NewEntropy(256)
+			if err != nil {
+				return err
+			}
+
+			mnemonic, err = bip39.NewMnemonic(seed)
+			if err != nil {
+				return err
+			}
+			fmt.Printf("Mnemonic: %s\n", mnemonic)
+		}
+
+		account, err := cmd.Flags().GetUint32(flagAccount)
+		if err != nil {
+			return err
+		}
+
+		index, err := cmd.Flags().GetUint32(flagIndex)
+		if err != nil {
+			return err
+		}
+
+		hdPath := hd.CreateHDPath(band.Bip44CoinType, account, index)
+		info, err := ctx.Keyring.NewAccount(args[0], mnemonic, passphrase, hdPath.String(), hd.Secp256k1)
+		if err != nil {
+			return err
+		}
+
+		address, err := info.GetAddress()
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("Address: %s\n", address.String())
+		return nil
+	}
+}
+
+func keysDeleteCmd(ctx *grogu.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "delete [name]",
 		Aliases: []string{"d"},
 		Short:   "Delete a key from the keychain",
 		Args:    cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			name := args[0]
-
-			_, err := c.Keyring.Key(name)
-			if err != nil {
-				return err
-			}
-
-			inBuf := bufio.NewReader(cmd.InOrStdin())
-			confirmInput, err := input.GetString("Key will be deleted. Continue?[y/N]", inBuf)
-			if err != nil {
-				return err
-			}
-
-			if confirmInput != "y" {
-				fmt.Println("Cancel")
-				return nil
-			}
-
-			if err := c.Keyring.Delete(name); err != nil {
-				return err
-			}
-
-			fmt.Printf("Deleted key: %s\n", name)
-			return nil
-		},
+		RunE:    createKeysDeleteRunE(ctx),
 	}
 
 	return cmd
 }
 
-func keysListCmd(c *grogucontext.Context) *cobra.Command {
+func createKeysDeleteRunE(ctx *grogu.Context) func(cmd *cobra.Command, args []string) error {
+	return func(cmd *cobra.Command, args []string) error {
+		name := args[0]
+
+		_, err := ctx.Keyring.Key(name)
+		if err != nil {
+			return err
+		}
+
+		inBuf := bufio.NewReader(cmd.InOrStdin())
+		confirmInput, err := input.GetString("Key will be deleted. Continue?[y/N]", inBuf)
+		if err != nil {
+			return err
+		}
+
+		if confirmInput != "y" {
+			fmt.Println("Cancel")
+			return nil
+		}
+
+		if err = ctx.Keyring.Delete(name); err != nil {
+			return err
+		}
+
+		fmt.Printf("Deleted key: %s\n", name)
+		return nil
+	}
+}
+
+func keysListCmd(ctx *grogu.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "list",
 		Aliases: []string{"l"},
 		Short:   "List all the keys in the keychain",
 		Args:    cobra.ExactArgs(0),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientQueryContext(cmd)
-			if err != nil {
-				return err
-			}
-			keys, err := c.Keyring.List()
-			if err != nil {
-				return err
-			}
-			isShowAddr := viper.GetBool(flagAddress)
-			for _, key := range keys {
-				address, err := key.GetAddress()
-				if err != nil {
-					return err
-				}
-
-				if isShowAddr {
-					fmt.Printf("%s ", address.String())
-				} else {
-					queryClient := types.NewQueryClient(clientCtx)
-					r, err := queryClient.IsReporter(
-						context.Background(),
-						&types.QueryIsReporterRequest{ValidatorAddress: c.Config.Validator, ReporterAddress: address.String()},
-					)
-					s := ":question:"
-					if err == nil {
-						if r.IsReporter {
-							s = ":white_check_mark:"
-						} else {
-							s = ":x:"
-						}
-					}
-					emoji.Printf("%s%s => %s\n", s, key.Name, address.String())
-				}
-			}
-
-			return nil
-		},
+		RunE:    createKeysListRunE(ctx),
 	}
 
 	cmd.Flags().BoolP(flagAddress, "a", false, "Output the address only")
@@ -195,28 +180,100 @@ func keysListCmd(c *grogucontext.Context) *cobra.Command {
 	return cmd
 }
 
-func keysShowCmd(c *grogucontext.Context) *cobra.Command {
+func createKeysListRunE(ctx *grogu.Context) func(cmd *cobra.Command, args []string) error {
+	return func(cmd *cobra.Command, args []string) error {
+		bandConfig := band.MakeEncodingConfig()
+
+		nodesURIs := strings.Split(viper.GetString(flagNodes), ",")
+		clients := make([]client.Context, 0, len(nodesURIs))
+		for _, URI := range nodesURIs {
+			httpClient, err := http.New(URI, "/websocket")
+			if err != nil {
+				continue
+			}
+			cl := client.Context{
+				Client:            httpClient,
+				ChainID:           ctx.Config.ChainID,
+				Codec:             bandConfig.Marshaler,
+				InterfaceRegistry: bandConfig.InterfaceRegistry,
+				Keyring:           ctx.Keyring,
+				TxConfig:          bandConfig.TxConfig,
+				BroadcastMode:     flags.BroadcastSync,
+			}
+			clients = append(clients, cl)
+		}
+
+		feedQuerier := querier.NewFeedQuerier(clients)
+
+		keys, err := ctx.Keyring.List()
+		if err != nil {
+			return err
+		}
+		isShowAddr := viper.GetBool(flagAddress)
+
+		validatorAddr, err := sdk.ValAddressFromBech32(ctx.Config.Validator)
+		if err != nil {
+			fmt.Printf("Invalid validator address: %s\n", ctx.Config.Validator)
+		}
+
+		for _, key := range keys {
+			address, err := key.GetAddress()
+			if err != nil {
+				return err
+			}
+
+			if isShowAddr {
+				fmt.Printf("%s ", address.String())
+				continue
+			}
+
+			resp, err := feedQuerier.QueryIsFeeder(validatorAddr, address)
+
+			s := ":question:"
+			if err == nil {
+				if resp.IsFeeder {
+					s = ":white_check_mark:"
+				} else {
+					s = ":x:"
+				}
+			}
+			_, err = emoji.Printf("%s%s => %s\n", s, key.Name, address.String())
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
+}
+
+func keysShowCmd(ctx *grogu.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "show [name]",
 		Aliases: []string{"s"},
 		Short:   "Show address from name in the keychain",
 		Args:    cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			name := args[0]
-
-			key, err := c.Keyring.Key(name)
-			if err != nil {
-				return err
-			}
-
-			address, err := key.GetAddress()
-			if err != nil {
-				return err
-			}
-			fmt.Println(address.String())
-			return nil
-		},
+		RunE:    createKeysShowRunE(ctx),
 	}
 
 	return cmd
+}
+
+func createKeysShowRunE(ctx *grogu.Context) func(cmd *cobra.Command, args []string) error {
+	return func(cmd *cobra.Command, args []string) error {
+		name := args[0]
+
+		key, err := ctx.Keyring.Key(name)
+		if err != nil {
+			return err
+		}
+
+		address, err := key.GetAddress()
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(address.String())
+		return nil
+	}
 }

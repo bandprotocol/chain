@@ -9,7 +9,7 @@ grogu config chain-id bandchain
 grogu config validator $(bandd keys show validator -a --bech val --keyring-backend test)
 
 # setup execution endpoint
-grogu config price-service "rest:$PRICE_SERVICE_URL?timeout=10s"
+grogu config bothan "localhost:50051"
 
 # setup broadcast-timeout to grogu config
 grogu config broadcast-timeout "5m"
@@ -19,6 +19,10 @@ grogu config rpc-poll-interval "1s"
 
 # setup max-try to grogu config
 grogu config max-try 5
+
+grogu config log-level debug
+
+grogu config nodes "tcp://localhost:26657,tcp://localhost:26657,tcp://localhost:26657"
 
 echo "y" | bandd tx oracle activate --from validator --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain
 
