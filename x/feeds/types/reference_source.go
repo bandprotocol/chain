@@ -1,7 +1,7 @@
 package types
 
 // NewReferenceSourceConfig creates a new reference source config instance
-func NewReferenceSourceConfig(hash string, version string, url string) ReferenceSourceConfig {
+func NewReferenceSourceConfig(hash string, version string) ReferenceSourceConfig {
 	return ReferenceSourceConfig{
 		IPFSHash: hash,
 		Version:  version,
@@ -10,7 +10,7 @@ func NewReferenceSourceConfig(hash string, version string, url string) Reference
 
 // DefaultReferenceSourceConfig returns a default set of reference source config's information
 func DefaultReferenceSourceConfig() ReferenceSourceConfig {
-	return NewReferenceSourceConfig("hash", "0.0.1", "https://")
+	return NewReferenceSourceConfig("hash", "0.0.1")
 }
 
 // Validate validates the reference source config

@@ -12,6 +12,7 @@ validator_prices = sa.Table(
     metadata,
     Column("validator_id", sa.Integer, sa.ForeignKey("validators.id"), primary_key=True),
     Column("signal_id", sa.String, sa.ForeignKey("signal_total_powers.signal_id"), primary_key=True),
+    Column("price_status", sa.String),
     Column("price", sa.BigInteger),
     Column("timestamp", CustomDateTime),
 )
@@ -41,12 +42,11 @@ prices = sa.Table(
     Column("timestamp", CustomDateTime),
 )
 
-price_services = sa.Table(
-    "price_services",
+reference_source_configs = sa.Table(
+    "reference_source_configs",
     metadata,
-    Column("hash", sa.String),
+    Column("ipfs_hash", sa.String,),
     Column("version", sa.String),
-    Column("url", sa.String),
     Column("timestamp", CustomDateTime),
 )
 

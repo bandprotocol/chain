@@ -36,6 +36,12 @@ func (h *Hook) emitSetSignalTotalPower(stp types.Signal) {
 	})
 }
 
+func (h *Hook) emitRemoveSignalTotalPower(signalID string) {
+	h.Write("REMOVE_SIGNAL_TOTAL_POWER", common.JsDict{
+		"signal_id": signalID,
+	})
+}
+
 func (h *Hook) emitRemoveDelegatorSignals(delegator string) {
 	h.Write("REMOVE_DELEGATOR_SIGNALS", common.JsDict{
 		"delegator": delegator,
@@ -51,12 +57,13 @@ func (h *Hook) emitSetDelegatorSignal(ctx sdk.Context, delegator string, signal 
 	})
 }
 
-func (h *Hook) emitSetValidatorPrice(ctx sdk.Context, validator string, price types.SubmitPrice) {
+func (h *Hook) emitSetValidatorPrice(ctx sdk.Context, validator string, price types.SignalPrice) {
 	h.Write("SET_VALIDATOR_PRICE", common.JsDict{
-		"validator": validator,
-		"signal_id": price.SignalID,
-		"price":     price.Price,
-		"timestamp": ctx.BlockTime().UnixNano(),
+		"validator":    validator,
+		"price_status": price.PriceStatus.String(),
+		"signal_id":    price.SignalID,
+		"price":        price.Price,
+		"timestamp":    ctx.BlockTime().UnixNano(),
 	})
 }
 
@@ -69,11 +76,10 @@ func (h *Hook) emitSetPrice(price types.Price) {
 	})
 }
 
-func (h *Hook) emitSetPriceService(ctx sdk.Context, priceService types.PriceService) {
-	h.Write("SET_PRICE_SERVICE", common.JsDict{
-		"hash":      priceService.Hash,
-		"version":   priceService.Version,
-		"url":       priceService.Url,
+func (h *Hook) emitSetReferenceSourceConfig(ctx sdk.Context, rsc types.ReferenceSourceConfig) {
+	h.Write("SET_REFERENCE_SOURCE_CONFIG", common.JsDict{
+		"ipfs_hash": rsc.IPFSHash,
+		"version":   rsc.Version,
 		"timestamp": ctx.BlockTime().UnixNano(),
 	})
 }
@@ -98,9 +104,9 @@ func (h *Hook) handleMsgSubmitSignals(
 	}
 }
 
-// handleMsgSubmitPrices implements emitter handler for MsgSubmitPrices.
-func (h *Hook) handleMsgSubmitPrices(
-	ctx sdk.Context, msg *types.MsgSubmitPrices,
+// handleMsgSubmitSignalPrices implements emitter handler for MsgSubmitSignalPrices.
+func (h *Hook) handleMsgSubmitSignalPrices(
+	ctx sdk.Context, msg *types.MsgSubmitSignalPrices,
 ) {
 	for _, price := range msg.Prices {
 		h.emitSetValidatorPrice(ctx, msg.Validator, price)
@@ -122,9 +128,9 @@ func (h *Hook) handleEventUpdatePrice(
 	}
 }
 
-// handleMsgUpdatePriceService implements emitter handler for MsgUpdatePriceService.
-func (h *Hook) handleMsgUpdatePriceService(
-	ctx sdk.Context, msg *types.MsgUpdatePriceService,
+// handleMsgUpdateReferenceSourceConfig implements emitter handler for MsgUpdateReferenceSourceConfig.
+func (h *Hook) handleMsgUpdateReferenceSourceConfig(
+	ctx sdk.Context, msg *types.MsgUpdateReferenceSourceConfig,
 ) {
-	h.emitSetPriceService(ctx, msg.PriceService)
+	h.emitSetReferenceSourceConfig(ctx, msg.ReferenceSourceConfig)
 }

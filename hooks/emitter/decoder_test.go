@@ -887,27 +887,27 @@ func (suite *DecoderTestSuite) TestDecodeMsgTimeoutOnClose() {
 func (suite *DecoderTestSuite) TestDecodeMsgSubmitPrices() {
 	detail := make(common.JsDict)
 
-	msg := feedstypes.MsgSubmitPrices{
+	msg := feedstypes.MsgSubmitSignalPrices{
 		Validator: ValAddress.String(),
 		Timestamp: 12345678,
-		Prices: []feedstypes.SubmitPrice{
+		Prices: []feedstypes.SignalPrice{
 			{
 				PriceStatus: feedstypes.PriceStatusAvailable,
-				SignalID:    "crypto_price.ethusd",
+				SignalID:    "CS:ETH-USD",
 				Price:       3500000000000,
 			},
 			{
 				PriceStatus: feedstypes.PriceStatusUnavailable,
-				SignalID:    "crypto_price.btcusd",
+				SignalID:    "CS:BTC-USD",
 				Price:       0,
 			},
 		},
 	}
 
-	emitter.DecodeMsgSubmitPrices(&msg, detail)
+	emitter.DecodeMsgSubmitSignalPrices(&msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"prices\":[{\"price_status\":3,\"signal_id\":\"crypto_price.ethusd\",\"price\":3500000000000},{\"price_status\":2,\"signal_id\":\"crypto_price.btcusd\"}],\"timestamp\":12345678,\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
+		"{\"prices\":[{\"price_status\":3,\"signal_id\":\"CS:ETH-USD\",\"price\":3500000000000},{\"price_status\":2,\"signal_id\":\"CS:BTC-USD\"}],\"timestamp\":12345678,\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
 	)
 }
 
@@ -938,14 +938,15 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitSignals() {
 func (suite *DecoderTestSuite) TestDecodeMsgUpdatePriceService() {
 	detail := make(common.JsDict)
 
-	msg := feedstypes.MsgUpdatePriceService{
-		PriceService: feedstypes.NewPriceService("testhash", "1.0.0", "http://example.com"),
+	msg := feedstypes.MsgUpdateReferenceSourceConfig{
+		Admin:                 OwnerAddress.String(),
+		ReferenceSourceConfig: feedstypes.NewReferenceSourceConfig("testhash", "1.0.0"),
 	}
 
-	emitter.DecodeMsgUpdatePriceService(&msg, detail)
+	emitter.DecodeMsgUpdateReferenceSourceConfig(&msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"hash\":\"testhash\",\"url\":\"http://example.com\",\"version\":\"1.0.0\"}",
+		"{\"ipfs_hash\":\"testhash\",\"version\":\"1.0.0\"}",
 	)
 }
 
@@ -957,21 +958,21 @@ func (suite *DecoderTestSuite) TestDecodeMsgUpdateParams() {
 		Params: feedstypes.Params{
 			Admin:                         OwnerAddress.String(),
 			AllowableBlockTimeDiscrepancy: 30,
-			TransitionTime:                30,
+			GracePeriod:                   30,
 			MinInterval:                   60,
 			MaxInterval:                   3600,
-			PowerThreshold:                1_000_000_000,
+			PowerStepThreshold:            1_000_000_000,
 			MaxSupportedFeeds:             100,
 			CooldownTime:                  30,
-			MinDeviationInThousandth:      5,
-			MaxDeviationInThousandth:      300,
+			MinDeviationBasisPoint:        50,
+			MaxDeviationBasisPoint:        3000,
 		},
 	}
 
 	emitter.DecodeMsgUpdateParams(&msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"admin\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"allowable_block_time_discrepancy\":30,\"authority\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"cooldown_time\":30,\"max_deviation_in_thousandth\":300,\"max_interval\":3600,\"max_supported_feeds\":100,\"min_deviation_in_thousandth\":5,\"min_interval\":60,\"power_threshold\":1000000000,\"transition_time\":30}",
+		"{\"admin\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"allowable_block_time_discrepancy\":30,\"authority\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"cooldown_time\":30,\"grace_period\":30,\"max_deviation_basis_point\":3000,\"max_interval\":3600,\"max_supported_feeds\":100,\"min_deviation_basis_point\":50,\"min_interval\":60,\"power_step_threshold\":1000000000,\"supported_feeds_update_interval\":0}",
 	)
 }
 

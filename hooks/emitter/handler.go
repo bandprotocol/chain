@@ -126,10 +126,10 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 		h.handleMsgExec(ctx, txHash, msg, log, detail)
 	case *feedstypes.MsgSubmitSignals:
 		h.handleMsgSubmitSignals(ctx, msg, evMap)
-	case *feedstypes.MsgSubmitPrices:
-		h.handleMsgSubmitPrices(ctx, msg)
-	case *feedstypes.MsgUpdatePriceService:
-		h.handleMsgUpdatePriceService(ctx, msg)
+	case *feedstypes.MsgSubmitSignalPrices:
+		h.handleMsgSubmitSignalPrices(ctx, msg)
+	case *feedstypes.MsgUpdateReferenceSourceConfig:
+		h.handleMsgUpdateReferenceSourceConfig(ctx, msg)
 	case *group.MsgCreateGroup:
 		h.handleGroupMsgCreateGroup(ctx, evMap)
 	case *group.MsgCreateGroupPolicy:
