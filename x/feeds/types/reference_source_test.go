@@ -8,19 +8,19 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-func TestPriceService_Validate(t *testing.T) {
+func TestReferenceSourceConfig_Validate(t *testing.T) {
 	tests := []struct {
-		name         string
-		priceService types.PriceService
-		wantErr      error
+		name                  string
+		referenceSourceConfig types.ReferenceSourceConfig
+		wantErr               error
 	}{
-		{"default price service", types.DefaultPriceService(), nil},
+		{"default reference source config", types.DefaultReferenceSourceConfig(), nil},
 	}
 
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.priceService.Validate()
+			got := tt.referenceSourceConfig.Validate()
 			if tt.wantErr == nil {
 				require.NoError(t, got)
 				return

@@ -1,7 +1,7 @@
 package keeper_test
 
 import (
-	gocontext "context"
+	"context"
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -30,7 +30,7 @@ func (suite *KeeperTestSuite) TestQueryDelegatorSignals() {
 	suite.Require().NoError(err)
 
 	// query and check
-	res, err := queryClient.DelegatorSignals(gocontext.Background(), &types.QueryDelegatorSignalsRequest{
+	res, err := queryClient.DelegatorSignals(context.Background(), &types.QueryDelegatorSignalsRequest{
 		Delegator: ValidDelegator.String(),
 	})
 	suite.Require().NoError(err)
@@ -111,7 +111,7 @@ func (suite *KeeperTestSuite) TestQueryPrices() {
 		suite.Run(fmt.Sprintf("Case %s", testCase.msg), func() {
 			testCase.malleate()
 
-			res, err := queryClient.Prices(gocontext.Background(), req)
+			res, err := queryClient.Prices(context.Background(), req)
 
 			if testCase.expPass {
 				suite.Require().NoError(err)
@@ -137,7 +137,7 @@ func (suite *KeeperTestSuite) TestQueryPrice() {
 	suite.feedsKeeper.SetPrice(ctx, price)
 
 	// query and check
-	res, err := queryClient.Price(gocontext.Background(), &types.QueryPriceRequest{
+	res, err := queryClient.Price(context.Background(), &types.QueryPriceRequest{
 		SignalId: "crypto_price.bandusd",
 	})
 	suite.Require().NoError(err)
@@ -145,7 +145,7 @@ func (suite *KeeperTestSuite) TestQueryPrice() {
 		Price: price,
 	}, res)
 
-	res, err = queryClient.Price(gocontext.Background(), &types.QueryPriceRequest{
+	res, err = queryClient.Price(context.Background(), &types.QueryPriceRequest{
 		SignalId: "crypto_price.atomusd",
 	})
 	suite.Require().ErrorContains(err, "price not found")
@@ -158,14 +158,12 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 	// setup
 	feeds := []types.Feed{
 		{
-			SignalID:              "crypto_price.atomusd",
-			Interval:              100,
-			DeviationInThousandth: 5,
+			SignalID: "crypto_price.atomusd",
+			Interval: 100,
 		},
 		{
-			SignalID:              "crypto_price.bandusd",
-			Interval:              100,
-			DeviationInThousandth: 5,
+			SignalID: "crypto_price.bandusd",
+			Interval: 100,
 		},
 	}
 
@@ -185,13 +183,12 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 			Timestamp: ctx.BlockTime().Unix(),
 		},
 	}
-	for _, valPrice := range valPrices {
-		err := suite.feedsKeeper.SetValidatorPrice(ctx, valPrice)
-		suite.Require().NoError(err)
-	}
 
-	// query and check
-	res, err := queryClient.ValidatorPrices(gocontext.Background(), &types.QueryValidatorPricesRequest{
+	err := suite.feedsKeeper.SetValidatorPriceList(ctx, ValidValidator, valPrices)
+	suite.Require().NoError(err)
+
+	// query all prices
+	res, err := queryClient.ValidatorPrices(context.Background(), &types.QueryValidatorPricesRequest{
 		Validator: ValidValidator.String(),
 	})
 	suite.Require().NoError(err)
@@ -199,51 +196,41 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 		ValidatorPrices: valPrices,
 	}, res)
 
-	res, err = queryClient.ValidatorPrices(gocontext.Background(), &types.QueryValidatorPricesRequest{
+	// query with specific SignalIds
+	res, err = queryClient.ValidatorPrices(context.Background(), &types.QueryValidatorPricesRequest{
+		Validator: ValidValidator.String(),
+		SignalIds: []string{"crypto_price.atomusd"},
+	})
+	suite.Require().NoError(err)
+	suite.Require().Equal(&types.QueryValidatorPricesResponse{
+		ValidatorPrices: []types.ValidatorPrice{valPrices[0]},
+	}, res)
+
+	// query with invalid validator
+	res, err = queryClient.ValidatorPrices(context.Background(), &types.QueryValidatorPricesRequest{
 		Validator: InvalidValidator.String(),
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryValidatorPricesResponse{
-		ValidatorPrices: nil,
-	}, res)
-}
-
-func (suite *KeeperTestSuite) TestQueryValidatorPrice() {
-	ctx, queryClient := suite.ctx, suite.queryClient
-
-	// setup
-	valPrice := types.ValidatorPrice{
-		Validator: ValidValidator.String(),
-		SignalID:  "crypto_price.bandusd",
-		Price:     1e9,
-		Timestamp: ctx.BlockTime().Unix(),
-	}
-	err := suite.feedsKeeper.SetValidatorPrice(ctx, valPrice)
-	suite.Require().NoError(err)
-
-	// query and check
-	res, err := queryClient.ValidatorPrice(gocontext.Background(), &types.QueryValidatorPriceRequest{
-		SignalId:  "crypto_price.bandusd",
-		Validator: ValidValidator.String(),
-	})
-	suite.Require().NoError(err)
-	suite.Require().Equal(&types.QueryValidatorPriceResponse{
-		ValidatorPrice: valPrice,
+		ValidatorPrices: []types.ValidatorPrice(nil),
 	}, res)
 
-	res, err = queryClient.ValidatorPrice(gocontext.Background(), &types.QueryValidatorPriceRequest{
-		SignalId:  "crypto_price.atomusd",
-		Validator: ValidValidator.String(),
+	// query with specific SignalIds for invalid validator
+	res, err = queryClient.ValidatorPrices(context.Background(), &types.QueryValidatorPricesRequest{
+		Validator: InvalidValidator.String(),
+		SignalIds: []string{"crypto_price.atomusd"},
 	})
-	suite.Require().ErrorContains(err, "validator price not found")
-	suite.Require().Nil(res)
+	suite.Require().NoError(err)
+	suite.Require().Equal(&types.QueryValidatorPricesResponse{
+		ValidatorPrices: []types.ValidatorPrice(nil),
+	}, res)
 }
 
 func (suite *KeeperTestSuite) TestQueryValidValidator() {
 	queryClient := suite.queryClient
 
 	// query and check
-	res, err := queryClient.ValidValidator(gocontext.Background(), &types.QueryValidValidatorRequest{
+	res, err := queryClient.ValidValidator(context.Background(), &types.QueryValidValidatorRequest{
 		Validator: ValidValidator.String(),
 	})
 	suite.Require().NoError(err)
@@ -251,7 +238,7 @@ func (suite *KeeperTestSuite) TestQueryValidValidator() {
 		Valid: true,
 	}, res)
 
-	res, err = queryClient.ValidValidator(gocontext.Background(), &types.QueryValidValidatorRequest{
+	res, err = queryClient.ValidValidator(context.Background(), &types.QueryValidValidatorRequest{
 		Validator: InvalidValidator.String(),
 	})
 	suite.Require().NoError(err)
@@ -330,7 +317,7 @@ func (suite *KeeperTestSuite) TestQuerySignalTotalPowers() {
 		suite.Run(fmt.Sprintf("Case %s", testCase.msg), func() {
 			testCase.malleate()
 
-			res, err := queryClient.SignalTotalPowers(gocontext.Background(), req)
+			res, err := queryClient.SignalTotalPowers(context.Background(), req)
 
 			if testCase.expPass {
 				suite.Require().NoError(err)
@@ -362,7 +349,7 @@ func (suite *KeeperTestSuite) TestQuerySupportedFeeds() {
 			func() {
 				req = &types.QuerySupportedFeedsRequest{}
 				expRes = &types.QuerySupportedFeedsResponse{
-					SupportedFeeds: types.SupportedFeeds{
+					SupportedFeeds: types.SupportedFeedWithDeviations{
 						Feeds:               nil,
 						LastUpdateTimestamp: ctx.BlockTime().Unix(),
 						LastUpdateBlock:     ctx.BlockHeight(),
@@ -376,18 +363,27 @@ func (suite *KeeperTestSuite) TestQuerySupportedFeeds() {
 			func() {
 				feeds := []types.Feed{
 					{
-						SignalID:              "crypto_price.bandusd",
-						Interval:              100,
-						DeviationInThousandth: 5,
+						SignalID: "crypto_price.bandusd",
+						Power:    36000000000,
+						Interval: 100,
 					},
 				}
 
 				suite.feedsKeeper.SetSupportedFeeds(ctx, feeds)
 
+				feedWithDeviations := []types.FeedWithDeviation{
+					{
+						SignalID:            "crypto_price.bandusd",
+						Power:               36000000000,
+						Interval:            100,
+						DeviationBasisPoint: 83,
+					},
+				}
+
 				req = &types.QuerySupportedFeedsRequest{}
 				expRes = &types.QuerySupportedFeedsResponse{
-					SupportedFeeds: types.SupportedFeeds{
-						Feeds:               feeds,
+					SupportedFeeds: types.SupportedFeedWithDeviations{
+						Feeds:               feedWithDeviations,
 						LastUpdateTimestamp: ctx.BlockTime().Unix(),
 						LastUpdateBlock:     ctx.BlockHeight(),
 					},
@@ -401,7 +397,7 @@ func (suite *KeeperTestSuite) TestQuerySupportedFeeds() {
 		suite.Run(fmt.Sprintf("Case %s", testCase.msg), func() {
 			testCase.malleate()
 
-			res, err := queryClient.SupportedFeeds(gocontext.Background(), req)
+			res, err := queryClient.SupportedFeeds(context.Background(), req)
 
 			if testCase.expPass {
 				suite.Require().NoError(err)
@@ -414,14 +410,14 @@ func (suite *KeeperTestSuite) TestQuerySupportedFeeds() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestQueryPriceService() {
+func (suite *KeeperTestSuite) TestQueryReferenceSourceConfig() {
 	ctx, queryClient := suite.ctx, suite.queryClient
 
 	// query and check
-	res, err := queryClient.PriceService(gocontext.Background(), &types.QueryPriceServiceRequest{})
+	res, err := queryClient.ReferenceSourceConfig(context.Background(), &types.QueryReferenceSourceConfigRequest{})
 	suite.Require().NoError(err)
-	suite.Require().Equal(&types.QueryPriceServiceResponse{
-		PriceService: suite.feedsKeeper.GetPriceService(ctx),
+	suite.Require().Equal(&types.QueryReferenceSourceConfigResponse{
+		ReferenceSourceConfig: suite.feedsKeeper.GetReferenceSourceConfig(ctx),
 	}, res)
 }
 
@@ -429,7 +425,7 @@ func (suite *KeeperTestSuite) TestQueryParams() {
 	ctx, queryClient := suite.ctx, suite.queryClient
 
 	// query and check
-	res, err := queryClient.Params(gocontext.Background(), &types.QueryParamsRequest{})
+	res, err := queryClient.Params(context.Background(), &types.QueryParamsRequest{})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryParamsResponse{
 		Params: suite.feedsKeeper.GetParams(ctx),

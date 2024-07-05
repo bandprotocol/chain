@@ -538,6 +538,7 @@ func NewBandApp(
 		keys[feedstypes.StoreKey],
 		app.OracleKeeper,
 		app.StakingKeeper,
+		app.AuthzKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 

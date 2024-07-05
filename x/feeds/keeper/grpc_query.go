@@ -113,39 +113,35 @@ func (q queryServer) ValidatorPrices(
 		return nil, err
 	}
 
-	var valPrices []types.ValidatorPrice
+	valPricesList, err := q.keeper.GetValidatorPriceList(ctx, val)
+	if err != nil {
+		return &types.QueryValidatorPricesResponse{
+			ValidatorPrices: []types.ValidatorPrice{},
+		}, nil
+	}
 
-	feeds := q.keeper.GetSupportedFeeds(ctx).Feeds
-	for _, feed := range feeds {
-		valPrice, err := q.keeper.GetValidatorPrice(ctx, feed.SignalID, val)
-		if err == nil {
-			valPrices = append(valPrices, valPrice)
+	if len(req.SignalIds) == 0 {
+		// Return all validator prices if SignalIds is empty
+		return &types.QueryValidatorPricesResponse{
+			ValidatorPrices: valPricesList.ValidatorPrices,
+		}, nil
+	}
+
+	// Filter validator prices based on requested SignalIds
+	filteredPrices := make([]types.ValidatorPrice, 0, len(req.SignalIds))
+	signalIDSet := make(map[string]struct{})
+	for _, id := range req.SignalIds {
+		signalIDSet[id] = struct{}{}
+	}
+
+	for _, valPrice := range valPricesList.ValidatorPrices {
+		if _, exists := signalIDSet[valPrice.SignalID]; exists {
+			filteredPrices = append(filteredPrices, valPrice)
 		}
 	}
 
 	return &types.QueryValidatorPricesResponse{
-		ValidatorPrices: valPrices,
-	}, nil
-}
-
-// ValidatorPrice queries price-validator of a specified validator and signal id.
-func (q queryServer) ValidatorPrice(
-	goCtx context.Context, req *types.QueryValidatorPriceRequest,
-) (*types.QueryValidatorPriceResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	val, err := sdk.ValAddressFromBech32(req.Validator)
-	if err != nil {
-		return nil, err
-	}
-
-	valPrice, err := q.keeper.GetValidatorPrice(ctx, req.SignalId, val)
-	if err != nil {
-		return nil, err
-	}
-
-	return &types.QueryValidatorPriceResponse{
-		ValidatorPrice: valPrice,
+		ValidatorPrices: filteredPrices,
 	}, nil
 }
 
@@ -224,25 +220,43 @@ func (q queryServer) SignalTotalPowers(
 	}, nil
 }
 
-// SupportedFeeds queries all current supported feeds.
+// SupportedFeeds queries all current supported feed-with-deviations.
 func (q queryServer) SupportedFeeds(
 	goCtx context.Context, _ *types.QuerySupportedFeedsRequest,
 ) (*types.QuerySupportedFeedsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	supportedFeeds := q.keeper.GetSupportedFeeds(ctx)
+	feedWithDeviations := make([]types.FeedWithDeviation, 0, len(supportedFeeds.Feeds))
+	for _, feed := range supportedFeeds.Feeds {
+		deviation := CalculateDeviation(feed.Power, q.keeper.GetParams(ctx))
+		feedWithDeviations = append(
+			feedWithDeviations,
+			types.FeedWithDeviation{
+				SignalID:            feed.SignalID,
+				Power:               feed.Power,
+				Interval:            feed.Interval,
+				DeviationBasisPoint: deviation,
+			})
+	}
+
 	return &types.QuerySupportedFeedsResponse{
-		SupportedFeeds: q.keeper.GetSupportedFeeds(ctx),
+		SupportedFeeds: types.SupportedFeedWithDeviations{
+			Feeds:               feedWithDeviations,
+			LastUpdateTimestamp: supportedFeeds.LastUpdateTimestamp,
+			LastUpdateBlock:     supportedFeeds.LastUpdateBlock,
+		},
 	}, nil
 }
 
-// PriceService queries current price service.
-func (q queryServer) PriceService(
-	goCtx context.Context, _ *types.QueryPriceServiceRequest,
-) (*types.QueryPriceServiceResponse, error) {
+// ReferenceSourceConfig queries current reference source config.
+func (q queryServer) ReferenceSourceConfig(
+	goCtx context.Context, _ *types.QueryReferenceSourceConfigRequest,
+) (*types.QueryReferenceSourceConfigResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	return &types.QueryPriceServiceResponse{
-		PriceService: q.keeper.GetPriceService(ctx),
+	return &types.QueryReferenceSourceConfigResponse{
+		ReferenceSourceConfig: q.keeper.GetReferenceSourceConfig(ctx),
 	}, nil
 }
 
@@ -253,4 +267,21 @@ func (q queryServer) Params(c context.Context, _ *types.QueryParamsRequest) (*ty
 	return &types.QueryParamsResponse{
 		Params: q.keeper.GetParams(ctx),
 	}, nil
+}
+
+// IsFeeder queries if the given address is a feeder grantee of the validator
+func (q queryServer) IsFeeder(
+	c context.Context,
+	req *types.QueryIsFeederRequest,
+) (*types.QueryIsFeederResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	val, err := sdk.ValAddressFromBech32(req.ValidatorAddress)
+	if err != nil {
+		return nil, err
+	}
+	feeder, err := sdk.AccAddressFromBech32(req.FeederAddress)
+	if err != nil {
+		return nil, err
+	}
+	return &types.QueryIsFeederResponse{IsFeeder: q.keeper.IsFeeder(ctx, val, feeder)}, nil
 }

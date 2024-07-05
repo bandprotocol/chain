@@ -24,13 +24,13 @@ const (
 var (
 	GlobalStoreKeyPrefix = []byte{0x00}
 
-	PriceServiceStoreKey   = append(GlobalStoreKeyPrefix, []byte("PriceService")...)
-	SupportedFeedsStoreKey = append(GlobalStoreKeyPrefix, []byte("SupportedFeeds")...)
+	ReferenceSourceConfigStoreKey = append(GlobalStoreKeyPrefix, []byte("ReferenceSourceConfig")...)
+	SupportedFeedsStoreKey        = append(GlobalStoreKeyPrefix, []byte("SupportedFeeds")...)
 
-	ValidatorPriceStoreKeyPrefix   = []byte{0x01}
-	PriceStoreKeyPrefix            = []byte{0x02}
-	DelegatorSignalStoreKeyPrefix  = []byte{0x03}
-	SignalTotalPowerStoreKeyPrefix = []byte{0x04}
+	ValidatorPriceListStoreKeyPrefix = []byte{0x01}
+	PriceStoreKeyPrefix              = []byte{0x02}
+	DelegatorSignalStoreKeyPrefix    = []byte{0x03}
+	SignalTotalPowerStoreKeyPrefix   = []byte{0x04}
 
 	ParamsKey = []byte{0x10}
 
@@ -47,14 +47,9 @@ func SignalTotalPowerStoreKey(signalID string) []byte {
 	return append(SignalTotalPowerStoreKeyPrefix, []byte(signalID)...)
 }
 
-// ValidatorPricesStoreKey creates a key for storing validator prices
-func ValidatorPricesStoreKey(signalID string) []byte {
-	return append(ValidatorPriceStoreKeyPrefix, []byte(signalID)...)
-}
-
-// ValidatorPriceStoreKey creates a key for storing a validator price
-func ValidatorPriceStoreKey(signalID string, validator sdk.ValAddress) []byte {
-	return append(ValidatorPricesStoreKey(signalID), validator...)
+// ValidatorPriceListStoreKey creates a key for storing a validator prices list
+func ValidatorPriceListStoreKey(validator sdk.ValAddress) []byte {
+	return append(ValidatorPriceListStoreKeyPrefix, validator...)
 }
 
 // PriceStoreKey creates a key for storing price data

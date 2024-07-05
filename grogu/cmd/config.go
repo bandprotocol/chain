@@ -6,15 +6,14 @@ import (
 )
 
 func ConfigCmd() *cobra.Command {
-	cmd := &cobra.Command{
+	return &cobra.Command{
 		Use:     "config [key] [value]",
 		Aliases: []string{"c"},
-		Short:   "Set grogu configuration environment",
+		Short:   "Set Grogu's configuration environment",
 		Args:    cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			viper.Set(args[0], args[1])
 			return viper.WriteConfig()
 		},
 	}
-	return cmd
 }

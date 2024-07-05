@@ -68,10 +68,15 @@ func (k Keeper) SetSignalTotalPower(ctx sdk.Context, signal types.Signal) {
 		k.deleteSignalTotalPowerByPowerIndex(ctx, prevSignalTotalPower)
 	}
 
-	ctx.KVStore(k.storeKey).
-		Set(types.SignalTotalPowerStoreKey(signal.ID), k.cdc.MustMarshal(&signal))
-	k.setSignalTotalPowerByPowerIndex(ctx, signal)
-	emitEventUpdateSignalTotalPower(ctx, signal)
+	if signal.Power == 0 {
+		k.deleteSignalTotalPower(ctx, signal.ID)
+		emitEventDeleteSignalTotalPower(ctx, signal)
+	} else {
+		ctx.KVStore(k.storeKey).
+			Set(types.SignalTotalPowerStoreKey(signal.ID), k.cdc.MustMarshal(&signal))
+		k.setSignalTotalPowerByPowerIndex(ctx, signal)
+		emitEventUpdateSignalTotalPower(ctx, signal)
+	}
 }
 
 // GetSignalTotalPower gets a signal-total-power from specified signal id.
@@ -88,6 +93,11 @@ func (k Keeper) GetSignalTotalPower(ctx sdk.Context, signalID string) (types.Sig
 	k.cdc.MustUnmarshal(bz, &s)
 
 	return s, nil
+}
+
+// deleteSignalTotalPower deletes a signal-total-power by signal id.
+func (k Keeper) deleteSignalTotalPower(ctx sdk.Context, signalID string) {
+	ctx.KVStore(k.storeKey).Delete(types.SignalTotalPowerStoreKey(signalID))
 }
 
 // SetSignalTotalPowers sets multiple signal-total-powers.

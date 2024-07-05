@@ -16,6 +16,7 @@ import (
 	math "cosmossdk.io/math"
 	types "github.com/bandprotocol/chain/v2/x/oracle/types"
 	types0 "github.com/cosmos/cosmos-sdk/types"
+	authz "github.com/cosmos/cosmos-sdk/x/authz"
 	types1 "github.com/cosmos/cosmos-sdk/x/staking/types"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -146,4 +147,42 @@ func (m *MockStakingKeeper) IterateBondedValidatorsByPower(ctx types0.Context, f
 func (mr *MockStakingKeeperMockRecorder) IterateBondedValidatorsByPower(ctx, fn any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IterateBondedValidatorsByPower", reflect.TypeOf((*MockStakingKeeper)(nil).IterateBondedValidatorsByPower), ctx, fn)
+}
+
+// MockAuthzKeeper is a mock of AuthzKeeper interface.
+type MockAuthzKeeper struct {
+	ctrl     *gomock.Controller
+	recorder *MockAuthzKeeperMockRecorder
+}
+
+// MockAuthzKeeperMockRecorder is the mock recorder for MockAuthzKeeper.
+type MockAuthzKeeperMockRecorder struct {
+	mock *MockAuthzKeeper
+}
+
+// NewMockAuthzKeeper creates a new mock instance.
+func NewMockAuthzKeeper(ctrl *gomock.Controller) *MockAuthzKeeper {
+	mock := &MockAuthzKeeper{ctrl: ctrl}
+	mock.recorder = &MockAuthzKeeperMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockAuthzKeeper) EXPECT() *MockAuthzKeeperMockRecorder {
+	return m.recorder
+}
+
+// GetAuthorization mocks base method.
+func (m *MockAuthzKeeper) GetAuthorization(ctx types0.Context, grantee, granter types0.AccAddress, msgType string) (authz.Authorization, *time.Time) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAuthorization", ctx, grantee, granter, msgType)
+	ret0, _ := ret[0].(authz.Authorization)
+	ret1, _ := ret[1].(*time.Time)
+	return ret0, ret1
+}
+
+// GetAuthorization indicates an expected call of GetAuthorization.
+func (mr *MockAuthzKeeperMockRecorder) GetAuthorization(ctx, grantee, granter, msgType any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAuthorization", reflect.TypeOf((*MockAuthzKeeper)(nil).GetAuthorization), ctx, grantee, granter, msgType)
 }

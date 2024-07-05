@@ -12,7 +12,7 @@ func (suite *KeeperTestSuite) TestExportGenesis() {
 	err := suite.feedsKeeper.SetParams(ctx, types.DefaultParams())
 	suite.Require().NoError(err)
 
-	err = suite.feedsKeeper.SetPriceService(ctx, types.DefaultPriceService())
+	err = suite.feedsKeeper.SetReferenceSourceConfig(ctx, types.DefaultReferenceSourceConfig())
 	suite.Require().NoError(err)
 
 	delegatorSignals := []types.DelegatorSignals{
@@ -48,13 +48,13 @@ func (suite *KeeperTestSuite) TestExportGenesis() {
 	exportGenesis := suite.feedsKeeper.ExportGenesis(ctx)
 
 	suite.Require().Equal(types.DefaultParams(), exportGenesis.Params)
-	suite.Require().Equal(types.DefaultPriceService(), exportGenesis.PriceService)
+	suite.Require().Equal(types.DefaultReferenceSourceConfig(), exportGenesis.ReferenceSourceConfig)
 	suite.Require().Equal(delegatorSignals, exportGenesis.DelegatorSignals)
 }
 
 func (suite *KeeperTestSuite) TestInitGenesis() {
 	ctx := suite.ctx
-	params := types.NewParams("[NOT_SET]", 30, 30, 60, 3600, 1000_000_000, 100, 30, 5, 300, 256, 28800)
+	params := types.NewParams("[NOT_SET]", 30, 30, 60, 3600, 1000_000_000, 100, 30, 5, 300, 28800)
 
 	delegatorSignals := []types.DelegatorSignals{
 		{
@@ -91,7 +91,7 @@ func (suite *KeeperTestSuite) TestInitGenesis() {
 
 	suite.feedsKeeper.InitGenesis(suite.ctx, *g)
 
-	suite.Require().Equal(types.DefaultPriceService(), suite.feedsKeeper.GetPriceService(ctx))
+	suite.Require().Equal(types.DefaultReferenceSourceConfig(), suite.feedsKeeper.GetReferenceSourceConfig(ctx))
 	suite.Require().Equal(params, suite.feedsKeeper.GetParams(ctx))
 	for _, ds := range delegatorSignals {
 		suite.Require().
@@ -115,14 +115,14 @@ func (suite *KeeperTestSuite) TestInitGenesis() {
 	suite.Require().Equal(types.SupportedFeeds{
 		Feeds: []types.Feed{
 			{
-				SignalID:              "crypto_price.btcusd",
-				Interval:              60,
-				DeviationInThousandth: 5,
+				SignalID: "crypto_price.btcusd",
+				Power:    60000000000,
+				Interval: 60,
 			},
 			{
-				SignalID:              "crypto_price.bandusd",
-				Interval:              120,
-				DeviationInThousandth: 10,
+				SignalID: "crypto_price.bandusd",
+				Power:    30000000000,
+				Interval: 120,
 			},
 		},
 		LastUpdateTimestamp: ctx.BlockTime().Unix(),

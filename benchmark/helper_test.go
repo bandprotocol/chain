@@ -71,21 +71,21 @@ func GenMsgRequestData(
 	return []sdk.Msg{&msg}
 }
 
-func GenMsgSubmitPrices(
+func GenMsgSubmitSignalPrices(
 	sender *Account,
 	feeds []feedstypes.Feed,
 	timestamp int64,
 ) []sdk.Msg {
-	prices := []feedstypes.SubmitPrice{}
+	prices := make([]feedstypes.SignalPrice, 0, len(feeds))
 	for _, feed := range feeds {
-		prices = append(prices, feedstypes.SubmitPrice{
+		prices = append(prices, feedstypes.SignalPrice{
 			PriceStatus: feedstypes.PriceStatusAvailable,
 			SignalID:    feed.SignalID,
 			Price:       60000,
 		})
 	}
 
-	msg := feedstypes.NewMsgSubmitPrices(sender.ValAddress.String(), timestamp, prices)
+	msg := feedstypes.NewMsgSubmitSignalPrices(sender.ValAddress.String(), timestamp, prices)
 
 	return []sdk.Msg{msg}
 }

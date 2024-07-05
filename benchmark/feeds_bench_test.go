@@ -3,6 +3,7 @@ package benchmark
 import (
 	"fmt"
 	"math/rand"
+	"sort"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,8 +16,41 @@ import (
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 )
 
-// benchmark test for delivering MsgSubmitPrices
-func BenchmarkSubmitPricesDeliver(b *testing.B) {
+var (
+	ValidValidator  = sdk.ValAddress("1000000001")
+	ValidValidator2 = sdk.ValAddress("1000000002")
+)
+
+func BenchmarkSortMap(b *testing.B) {
+	b.ResetTimer()
+	b.StopTimer()
+	ba := InitializeBenchmarkApp(b, -1)
+	expValPrices := generateValidatorPrices(300, ValidValidator.String(), ba.Ctx.BlockTime().Unix())
+	valPricesMap := make(map[string]types.ValidatorPrice)
+	for _, valPrice := range expValPrices {
+		valPricesMap[valPrice.SignalID] = valPrice
+	}
+	for i := 0; i < b.N; i++ {
+		for j := 0; j < 2000; j++ {
+			b.StartTimer()
+			keys := make([]string, len(valPricesMap))
+			k := int(0)
+			for key := range valPricesMap {
+				keys[k] = key
+				k++
+			}
+			sort.Strings(keys)
+			valPrices := make([]types.ValidatorPrice, len(valPricesMap))
+			for idx, key := range keys {
+				valPrices[idx] = valPricesMap[key]
+			}
+			b.StopTimer()
+		}
+	}
+}
+
+// benchmark test for delivering MsgSubmitSignalPrices
+func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 	b.ResetTimer()
 	b.StopTimer()
 
@@ -31,13 +65,16 @@ func BenchmarkSubmitPricesDeliver(b *testing.B) {
 		err = setupFeeds(ba)
 		require.NoError(b, err)
 
+		err = setupValidatorPriceList(ba, vals)
+		require.NoError(b, err)
+
 		ba.CallBeginBlock()
 
 		txs := []sdk.Tx{}
 		for _, val := range vals {
 			tx := GenSequenceOfTxs(
 				ba.TxConfig,
-				GenMsgSubmitPrices(
+				GenMsgSubmitSignalPrices(
 					val,
 					ba.FeedsKeeper.GetSupportedFeeds(ba.Ctx).Feeds,
 					ba.Ctx.BlockTime().Unix(),
@@ -105,9 +142,8 @@ func setupFeeds(ba *BenchmarkApp) error {
 	feeds := []types.Feed{}
 	for i := int64(0); i < numFeeds; i++ {
 		feeds = append(feeds, types.Feed{
-			SignalID:              fmt.Sprintf("signal.%d", i),
-			Interval:              60,
-			DeviationInThousandth: 5,
+			SignalID: fmt.Sprintf("signal.%d", i),
+			Interval: 60,
 		})
 	}
 	ba.FeedsKeeper.SetSupportedFeeds(ba.Ctx, feeds)
@@ -118,22 +154,51 @@ func setupFeeds(ba *BenchmarkApp) error {
 	return nil
 }
 
+func setupValidatorPriceList(ba *BenchmarkApp, vals []*Account) error {
+	sfs := ba.FeedsKeeper.GetSupportedFeeds(ba.Ctx)
+
+	ba.CallBeginBlock()
+	for valIdx, val := range vals {
+		valPrices := []types.ValidatorPrice{}
+		for _, feed := range sfs.Feeds {
+			valPrices = append(valPrices, types.ValidatorPrice{
+				PriceStatus: types.PriceStatusAvailable,
+				Validator:   val.ValAddress.String(),
+				SignalID:    feed.SignalID,
+				Price:       (10000 + uint64(valIdx)) * 10e9,
+				Timestamp:   ba.Ctx.BlockTime().Unix() - 40,
+			})
+		}
+		err := ba.FeedsKeeper.SetValidatorPriceList(ba.Ctx, val.ValAddress, valPrices)
+		if err != nil {
+			return err
+		}
+	}
+	ba.CallEndBlock()
+	ba.Commit()
+
+	return nil
+}
+
 func setupValidatorPrices(ba *BenchmarkApp, vals []*Account) error {
 	sfs := ba.FeedsKeeper.GetSupportedFeeds(ba.Ctx)
 
 	ba.CallBeginBlock()
-	for _, feed := range sfs.Feeds {
-		for valIdx, val := range vals {
-			err := ba.FeedsKeeper.SetValidatorPrice(ba.Ctx, types.ValidatorPrice{
+	for valIdx, val := range vals {
+		valPrices := []types.ValidatorPrice{}
+		for _, feed := range sfs.Feeds {
+			valPrices = append(valPrices, types.ValidatorPrice{
 				PriceStatus: types.PriceStatusAvailable,
 				Validator:   val.ValAddress.String(),
 				SignalID:    feed.SignalID,
 				Price:       (10000 + uint64(valIdx)) * 10e9,
 				Timestamp:   ba.Ctx.BlockTime().Unix(),
 			})
-			if err != nil {
-				return err
-			}
+		}
+
+		err := ba.FeedsKeeper.SetValidatorPriceList(ba.Ctx, val.ValAddress, valPrices)
+		if err != nil {
+			return err
 		}
 	}
 	ba.CallEndBlock()
@@ -212,4 +277,19 @@ func generateValidators(ba *BenchmarkApp, num int) ([]*Account, error) {
 	ba.Commit()
 
 	return accs, nil
+}
+
+// generateValidatorPrices generates a slice of ValidatorPrice with the specified number of elements.
+func generateValidatorPrices(numElements int, validatorAddress string, timestamp int64) []types.ValidatorPrice {
+	prices := make([]types.ValidatorPrice, numElements)
+
+	for i := 0; i < numElements; i++ {
+		prices[i] = types.ValidatorPrice{
+			Validator: validatorAddress,
+			SignalID:  fmt.Sprintf("CS:BAND%d-USD", i),
+			Price:     1e10,
+			Timestamp: timestamp,
+		}
+	}
+	return prices
 }
