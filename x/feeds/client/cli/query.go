@@ -25,11 +25,11 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdPrices(),
 		GetQueryCmdPrice(),
 		GetQueryCmdValidatorPrices(),
-		GetQueryCmdValidatorPrice(),
 		GetQueryCmdSignalTotalPowers(),
 		GetQueryCmdParams(),
 		GetQueryCmdDelegatorSignal(),
 		GetQueryCmdSupportedFeeds(),
+		GetQueryCmdIsFeeder(),
 	)
 
 	return queryCmd
@@ -146,14 +146,20 @@ func GetQueryCmdSupportedFeeds() *cobra.Command {
 func GetQueryCmdValidatorPrices() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "validator-prices [validator]",
-		Short: "Shows all prices of the validator",
+		Short: "Shows prices of the validator. Optionally filter by signal IDs.",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			queryClient := types.NewQueryClient(clientCtx)
 
+			signalIds, err := cmd.Flags().GetStringSlice("signal-ids")
+			if err != nil {
+				return err
+			}
+
 			res, err := queryClient.ValidatorPrices(context.Background(), &types.QueryValidatorPricesRequest{
 				Validator: args[0],
+				SignalIds: signalIds,
 			})
 			if err != nil {
 				return err
@@ -164,33 +170,7 @@ func GetQueryCmdValidatorPrices() *cobra.Command {
 	}
 
 	flags.AddQueryFlagsToCmd(cmd)
-
-	return cmd
-}
-
-// GetQueryCmdValidatorPrice implements the query validator price command.
-func GetQueryCmdValidatorPrice() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "price-validator [signal_id] [validator]",
-		Short: "Shows the price of validator of the signal id",
-		Args:  cobra.ExactArgs(2),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			queryClient := types.NewQueryClient(clientCtx)
-
-			res, err := queryClient.ValidatorPrice(context.Background(), &types.QueryValidatorPriceRequest{
-				SignalId:  args[0],
-				Validator: args[1],
-			})
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintProto(res)
-		},
-	}
-
-	flags.AddQueryFlagsToCmd(cmd)
+	cmd.Flags().StringSlice("signal-ids", nil, "Comma-separated list of signal IDs to filter by")
 
 	return cmd
 }
@@ -228,17 +208,20 @@ func GetQueryCmdSignalTotalPowers() *cobra.Command {
 	return cmd
 }
 
-// GetQueryCmdPriceService implements the query price service command.
-func GetQueryCmdPriceService() *cobra.Command {
+// GetQueryCmdReferenceSourceConfig implements the query reference source config command.
+func GetQueryCmdReferenceSourceConfig() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "price-service",
-		Short: "Shows information of price service",
+		Use:   "reference-source-config",
+		Short: "Shows information of reference source config",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.PriceService(context.Background(), &types.QueryPriceServiceRequest{})
+			res, err := queryClient.ReferenceSourceConfig(
+				context.Background(),
+				&types.QueryReferenceSourceConfigRequest{},
+			)
 			if err != nil {
 				return err
 			}
@@ -264,6 +247,33 @@ func GetQueryCmdParams() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.Params(context.Background(), &types.QueryParamsRequest{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetQueryCmdIsFeeder implements the query if an address is a feeder command.
+func GetQueryCmdIsFeeder() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "is-feeder [validator-address] [feeder-address]",
+		Short: "Checks if the given address is a feeder for the validator",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.IsFeeder(context.Background(), &types.QueryIsFeederRequest{
+				ValidatorAddress: args[0],
+				FeederAddress:    args[1],
+			})
 			if err != nil {
 				return err
 			}

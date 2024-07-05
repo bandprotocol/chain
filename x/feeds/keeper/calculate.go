@@ -4,24 +4,30 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-// calculateIntervalAndDeviation calculates feed interval and deviation from power
-func CalculateIntervalAndDeviation(power int64, param types.Params) (interval int64, deviation int64) {
-	if power < param.PowerThreshold {
-		return 0, 0
+// CalculateInterval calculates feed interval from power
+func CalculateInterval(power int64, param types.Params) (interval int64) {
+	if power < param.PowerStepThreshold {
+		return 0
 	}
 
 	// divide power by power threshold to create steps
-	powerFactor := power / param.PowerThreshold
+	powerFactor := power / param.PowerStepThreshold
 
-	interval = param.MaxInterval / powerFactor
-	if interval < param.MinInterval {
-		interval = param.MinInterval
+	interval = max(param.MaxInterval/powerFactor, param.MinInterval)
+
+	return
+}
+
+// CalculateDeviation calculates feed deviation from power
+func CalculateDeviation(power int64, param types.Params) (deviation int64) {
+	if power < param.PowerStepThreshold {
+		return 0
 	}
 
-	deviation = param.MaxDeviationInThousandth / powerFactor
-	if deviation < param.MinDeviationInThousandth {
-		deviation = param.MinDeviationInThousandth
-	}
+	// divide power by power threshold to create steps
+	powerFactor := power / param.PowerStepThreshold
+
+	deviation = max(param.MaxDeviationBasisPoint/powerFactor, param.MinDeviationBasisPoint)
 
 	return
 }

@@ -27,6 +27,7 @@ var (
 	ValidValidator3  = sdk.ValAddress("1000000003")
 	ValidDelegator   = sdk.AccAddress("2000000001")
 	ValidDelegator2  = sdk.AccAddress("2000000002")
+	ValidFeeder      = sdk.AccAddress("3000000001")
 	InvalidValidator = sdk.ValAddress("9000000001")
 	InvalidDelegator = sdk.AccAddress("9000000002")
 )
@@ -127,11 +128,14 @@ func (suite *KeeperTestSuite) SetupTest() {
 		AnyTimes()
 	suite.stakingKeeper = stakingKeeper
 
+	authzKeeper := feedstestutil.NewMockAuthzKeeper(ctrl)
+
 	suite.feedsKeeper = keeper.NewKeeper(
 		encCfg.Codec,
 		key,
 		oracleKeeper,
 		stakingKeeper,
+		authzKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	suite.feedsKeeper.InitGenesis(suite.ctx, *types.DefaultGenesisState())

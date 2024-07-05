@@ -18,6 +18,15 @@ func emitEventUpdateSignalTotalPower(ctx sdk.Context, signal types.Signal) {
 	)
 }
 
+func emitEventDeleteSignalTotalPower(ctx sdk.Context, signal types.Signal) {
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeDeleteSignalTotalPower,
+			sdk.NewAttribute(types.AttributeKeySignalID, signal.ID),
+		),
+	)
+}
+
 func emitEventUpdateSupportedFeeds(ctx sdk.Context, supportedFeeds types.SupportedFeeds) {
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -30,10 +39,10 @@ func emitEventUpdateSupportedFeeds(ctx sdk.Context, supportedFeeds types.Support
 	)
 }
 
-func emitEventSubmitPrice(ctx sdk.Context, valPrice types.ValidatorPrice) {
+func emitEventSubmitSignalPrice(ctx sdk.Context, valPrice types.ValidatorPrice) {
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeSubmitPrice,
+			types.EventTypeSubmitSignalPrice,
 			sdk.NewAttribute(types.AttributeKeyPriceStatus, valPrice.PriceStatus.String()),
 			sdk.NewAttribute(types.AttributeKeyValidator, valPrice.Validator),
 			sdk.NewAttribute(types.AttributeKeySignalID, valPrice.SignalID),
@@ -43,13 +52,12 @@ func emitEventSubmitPrice(ctx sdk.Context, valPrice types.ValidatorPrice) {
 	)
 }
 
-func emitEventUpdatePriceService(ctx sdk.Context, priceService types.PriceService) {
+func emitEventUpdateReferenceSourceConfig(ctx sdk.Context, referenceSourceConfig types.ReferenceSourceConfig) {
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeUpdatePriceService,
-			sdk.NewAttribute(types.AttributeKeyHash, priceService.Hash),
-			sdk.NewAttribute(types.AttributeKeyVersion, priceService.Version),
-			sdk.NewAttribute(types.AttributeKeyURL, priceService.Url),
+			types.EventTypeUpdateReferenceSourceConfig,
+			sdk.NewAttribute(types.AttributeKeyIPFSHash, referenceSourceConfig.IPFSHash),
+			sdk.NewAttribute(types.AttributeKeyVersion, referenceSourceConfig.Version),
 		),
 	)
 }

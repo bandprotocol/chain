@@ -5,6 +5,7 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -29,4 +30,14 @@ type StakingKeeper interface {
 		delAddr sdk.AccAddress,
 		valAddr sdk.ValAddress,
 	) (delegation stakingtypes.Delegation, found bool)
+}
+
+// AuthzKeeper defines the expected authz keeper. for query and testing only don't use to create/remove grant on deliver tx
+type AuthzKeeper interface {
+	GetAuthorization(
+		ctx sdk.Context,
+		grantee sdk.AccAddress,
+		granter sdk.AccAddress,
+		msgType string,
+	) (authz.Authorization, *time.Time)
 }

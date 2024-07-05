@@ -9,7 +9,7 @@ grogu config chain-id bandchain
 grogu config validator $(bandd keys show validator -a --bech val --keyring-backend test)
 
 # setup execution endpoint
-grogu config price-service "rest:$PRICE_SERVICE_URL?timeout=10s"
+grogu config bothan "$BOTHAN_URL"
 
 # setup broadcast-timeout to grogu config
 grogu config broadcast-timeout "5m"

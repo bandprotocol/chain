@@ -6,25 +6,25 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-// GetPriceService gets the current price service.
-func (k Keeper) GetPriceService(ctx sdk.Context) (ps types.PriceService) {
-	bz := ctx.KVStore(k.storeKey).Get(types.PriceServiceStoreKey)
+// GetReferenceSourceConfig gets the current reference source config.
+func (k Keeper) GetReferenceSourceConfig(ctx sdk.Context) (rs types.ReferenceSourceConfig) {
+	bz := ctx.KVStore(k.storeKey).Get(types.ReferenceSourceConfigStoreKey)
 	if bz == nil {
-		return ps
+		return rs
 	}
 
-	k.cdc.MustUnmarshal(bz, &ps)
+	k.cdc.MustUnmarshal(bz, &rs)
 
-	return ps
+	return rs
 }
 
-// SetPriceService sets new price service to the store.
-func (k Keeper) SetPriceService(ctx sdk.Context, ps types.PriceService) error {
-	if err := ps.Validate(); err != nil {
+// SetReferenceSourceConfig sets new reference source config to the store.
+func (k Keeper) SetReferenceSourceConfig(ctx sdk.Context, rs types.ReferenceSourceConfig) error {
+	if err := rs.Validate(); err != nil {
 		return err
 	}
 
-	ctx.KVStore(k.storeKey).Set(types.PriceServiceStoreKey, k.cdc.MustMarshal(&ps))
+	ctx.KVStore(k.storeKey).Set(types.ReferenceSourceConfigStoreKey, k.cdc.MustMarshal(&rs))
 
 	return nil
 }

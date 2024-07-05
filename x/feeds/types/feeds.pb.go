@@ -174,10 +174,10 @@ func (m *DelegatorSignals) GetSignals() []Signal {
 type Feed struct {
 	// SignalID is the unique string that identifies the unit of feed.
 	SignalID string `protobuf:"bytes,1,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
+	// Power is the power of the corresponding signal id.
+	Power int64 `protobuf:"varint,2,opt,name=power,proto3" json:"power,omitempty"`
 	// Interval is the interval of the price feed.
-	Interval int64 `protobuf:"varint,2,opt,name=interval,proto3" json:"interval,omitempty"`
-	// DeviationInThousandth is the maximum deviation value the feed can tolerate, expressed in thousandths.
-	DeviationInThousandth int64 `protobuf:"varint,3,opt,name=deviation_in_thousandth,json=deviationInThousandth,proto3" json:"deviation_in_thousandth,omitempty"`
+	Interval int64 `protobuf:"varint,3,opt,name=interval,proto3" json:"interval,omitempty"`
 }
 
 func (m *Feed) Reset()         { *m = Feed{} }
@@ -220,6 +220,13 @@ func (m *Feed) GetSignalID() string {
 	return ""
 }
 
+func (m *Feed) GetPower() int64 {
+	if m != nil {
+		return m.Power
+	}
+	return 0
+}
+
 func (m *Feed) GetInterval() int64 {
 	if m != nil {
 		return m.Interval
@@ -227,16 +234,82 @@ func (m *Feed) GetInterval() int64 {
 	return 0
 }
 
-func (m *Feed) GetDeviationInThousandth() int64 {
+// FeedWithDeviation is a structure that holds a signal id, its total power, and its calculated interval and deviation.
+type FeedWithDeviation struct {
+	// SignalID is the unique string that identifies the unit of feed.
+	SignalID string `protobuf:"bytes,1,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
+	// Power is the power of the corresponding signal id.
+	Power int64 `protobuf:"varint,2,opt,name=power,proto3" json:"power,omitempty"`
+	// Interval is the interval of the price feed.
+	Interval int64 `protobuf:"varint,3,opt,name=interval,proto3" json:"interval,omitempty"`
+	// DeviationBasisPoint is the maximum deviation value the feed can tolerate, expressed in basis points.
+	DeviationBasisPoint int64 `protobuf:"varint,4,opt,name=deviation_basis_point,json=deviationBasisPoint,proto3" json:"deviation_basis_point,omitempty"`
+}
+
+func (m *FeedWithDeviation) Reset()         { *m = FeedWithDeviation{} }
+func (m *FeedWithDeviation) String() string { return proto.CompactTextString(m) }
+func (*FeedWithDeviation) ProtoMessage()    {}
+func (*FeedWithDeviation) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4b338829e148e6ea, []int{3}
+}
+func (m *FeedWithDeviation) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *FeedWithDeviation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_FeedWithDeviation.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *FeedWithDeviation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FeedWithDeviation.Merge(m, src)
+}
+func (m *FeedWithDeviation) XXX_Size() int {
+	return m.Size()
+}
+func (m *FeedWithDeviation) XXX_DiscardUnknown() {
+	xxx_messageInfo_FeedWithDeviation.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_FeedWithDeviation proto.InternalMessageInfo
+
+func (m *FeedWithDeviation) GetSignalID() string {
 	if m != nil {
-		return m.DeviationInThousandth
+		return m.SignalID
+	}
+	return ""
+}
+
+func (m *FeedWithDeviation) GetPower() int64 {
+	if m != nil {
+		return m.Power
+	}
+	return 0
+}
+
+func (m *FeedWithDeviation) GetInterval() int64 {
+	if m != nil {
+		return m.Interval
+	}
+	return 0
+}
+
+func (m *FeedWithDeviation) GetDeviationBasisPoint() int64 {
+	if m != nil {
+		return m.DeviationBasisPoint
 	}
 	return 0
 }
 
 // SupportedFeeds is a structure that holds a list of currently supported feeds, and its last update time and block.
 type SupportedFeeds struct {
-	// Feed is a list of currently suppored feeds.
+	// Feeds is a list of currently suppored feeds.
 	Feeds []Feed `protobuf:"bytes,1,rep,name=feeds,proto3" json:"feeds"`
 	// LastUpdateTimestamp is the timestamp of the last time supported feeds list is updated.
 	LastUpdateTimestamp int64 `protobuf:"varint,2,opt,name=last_update_timestamp,json=lastUpdateTimestamp,proto3" json:"last_update_timestamp,omitempty"`
@@ -248,7 +321,7 @@ func (m *SupportedFeeds) Reset()         { *m = SupportedFeeds{} }
 func (m *SupportedFeeds) String() string { return proto.CompactTextString(m) }
 func (*SupportedFeeds) ProtoMessage()    {}
 func (*SupportedFeeds) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4b338829e148e6ea, []int{3}
+	return fileDescriptor_4b338829e148e6ea, []int{4}
 }
 func (m *SupportedFeeds) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -298,6 +371,71 @@ func (m *SupportedFeeds) GetLastUpdateBlock() int64 {
 	return 0
 }
 
+// SupportedFeedWithDeviations is a structure that holds a list of currently supported feed-with-deviations, and its
+// last update time and block.
+type SupportedFeedWithDeviations struct {
+	// FeedWithDeviations is a list of currently suppored feed-with-deviations.
+	Feeds []FeedWithDeviation `protobuf:"bytes,1,rep,name=feeds,proto3" json:"feeds"`
+	// LastUpdateTimestamp is the timestamp of the last time supported feeds list is updated.
+	LastUpdateTimestamp int64 `protobuf:"varint,2,opt,name=last_update_timestamp,json=lastUpdateTimestamp,proto3" json:"last_update_timestamp,omitempty"`
+	// LastUpdateBlock is the number of blocks of the last time supported feeds list is updated.
+	LastUpdateBlock int64 `protobuf:"varint,3,opt,name=last_update_block,json=lastUpdateBlock,proto3" json:"last_update_block,omitempty"`
+}
+
+func (m *SupportedFeedWithDeviations) Reset()         { *m = SupportedFeedWithDeviations{} }
+func (m *SupportedFeedWithDeviations) String() string { return proto.CompactTextString(m) }
+func (*SupportedFeedWithDeviations) ProtoMessage()    {}
+func (*SupportedFeedWithDeviations) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4b338829e148e6ea, []int{5}
+}
+func (m *SupportedFeedWithDeviations) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *SupportedFeedWithDeviations) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_SupportedFeedWithDeviations.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *SupportedFeedWithDeviations) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SupportedFeedWithDeviations.Merge(m, src)
+}
+func (m *SupportedFeedWithDeviations) XXX_Size() int {
+	return m.Size()
+}
+func (m *SupportedFeedWithDeviations) XXX_DiscardUnknown() {
+	xxx_messageInfo_SupportedFeedWithDeviations.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SupportedFeedWithDeviations proto.InternalMessageInfo
+
+func (m *SupportedFeedWithDeviations) GetFeeds() []FeedWithDeviation {
+	if m != nil {
+		return m.Feeds
+	}
+	return nil
+}
+
+func (m *SupportedFeedWithDeviations) GetLastUpdateTimestamp() int64 {
+	if m != nil {
+		return m.LastUpdateTimestamp
+	}
+	return 0
+}
+
+func (m *SupportedFeedWithDeviations) GetLastUpdateBlock() int64 {
+	if m != nil {
+		return m.LastUpdateBlock
+	}
+	return 0
+}
+
 // Price is a structure that defines the price of a signal id.
 type Price struct {
 	// PriceStatus is the price status of a signal id.
@@ -314,7 +452,7 @@ func (m *Price) Reset()         { *m = Price{} }
 func (m *Price) String() string { return proto.CompactTextString(m) }
 func (*Price) ProtoMessage()    {}
 func (*Price) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4b338829e148e6ea, []int{4}
+	return fileDescriptor_4b338829e148e6ea, []int{6}
 }
 func (m *Price) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -371,8 +509,8 @@ func (m *Price) GetTimestamp() int64 {
 	return 0
 }
 
-// SubmitPrice is a structure that defines the submit price of a signal id.
-type SubmitPrice struct {
+// SignalPrice is a structure that defines the signaled price of a signal id.
+type SignalPrice struct {
 	// PriceStatus is the price status of a signal id.
 	PriceStatus PriceStatus `protobuf:"varint,1,opt,name=price_status,json=priceStatus,proto3,enum=feeds.v1beta1.PriceStatus" json:"price_status,omitempty"`
 	// SignalID is the signal id of the price.
@@ -381,18 +519,18 @@ type SubmitPrice struct {
 	Price uint64 `protobuf:"varint,3,opt,name=price,proto3" json:"price,omitempty"`
 }
 
-func (m *SubmitPrice) Reset()         { *m = SubmitPrice{} }
-func (m *SubmitPrice) String() string { return proto.CompactTextString(m) }
-func (*SubmitPrice) ProtoMessage()    {}
-func (*SubmitPrice) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4b338829e148e6ea, []int{5}
+func (m *SignalPrice) Reset()         { *m = SignalPrice{} }
+func (m *SignalPrice) String() string { return proto.CompactTextString(m) }
+func (*SignalPrice) ProtoMessage()    {}
+func (*SignalPrice) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4b338829e148e6ea, []int{7}
 }
-func (m *SubmitPrice) XXX_Unmarshal(b []byte) error {
+func (m *SignalPrice) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *SubmitPrice) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *SignalPrice) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_SubmitPrice.Marshal(b, m, deterministic)
+		return xxx_messageInfo_SignalPrice.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -402,33 +540,33 @@ func (m *SubmitPrice) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) 
 		return b[:n], nil
 	}
 }
-func (m *SubmitPrice) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SubmitPrice.Merge(m, src)
+func (m *SignalPrice) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SignalPrice.Merge(m, src)
 }
-func (m *SubmitPrice) XXX_Size() int {
+func (m *SignalPrice) XXX_Size() int {
 	return m.Size()
 }
-func (m *SubmitPrice) XXX_DiscardUnknown() {
-	xxx_messageInfo_SubmitPrice.DiscardUnknown(m)
+func (m *SignalPrice) XXX_DiscardUnknown() {
+	xxx_messageInfo_SignalPrice.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_SubmitPrice proto.InternalMessageInfo
+var xxx_messageInfo_SignalPrice proto.InternalMessageInfo
 
-func (m *SubmitPrice) GetPriceStatus() PriceStatus {
+func (m *SignalPrice) GetPriceStatus() PriceStatus {
 	if m != nil {
 		return m.PriceStatus
 	}
 	return PriceStatusUnspecified
 }
 
-func (m *SubmitPrice) GetSignalID() string {
+func (m *SignalPrice) GetSignalID() string {
 	if m != nil {
 		return m.SignalID
 	}
 	return ""
 }
 
-func (m *SubmitPrice) GetPrice() uint64 {
+func (m *SignalPrice) GetPrice() uint64 {
 	if m != nil {
 		return m.Price
 	}
@@ -455,7 +593,7 @@ func (m *ValidatorPrice) Reset()         { *m = ValidatorPrice{} }
 func (m *ValidatorPrice) String() string { return proto.CompactTextString(m) }
 func (*ValidatorPrice) ProtoMessage()    {}
 func (*ValidatorPrice) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4b338829e148e6ea, []int{6}
+	return fileDescriptor_4b338829e148e6ea, []int{8}
 }
 func (m *ValidatorPrice) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -526,28 +664,27 @@ func (m *ValidatorPrice) GetBlockHeight() int64 {
 	return 0
 }
 
-// PriceService is a structure that defines the information of price service.
-type PriceService struct {
-	// Hash is the hash of the price service.
-	Hash string `protobuf:"bytes,1,opt,name=hash,proto3" json:"hash,omitempty"`
-	// Version is the version of the price service.
-	Version string `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
-	// Url is the URL of the price service.
-	Url string `protobuf:"bytes,3,opt,name=url,proto3" json:"url,omitempty"`
+// ValidatorPriceList is a structure that holds a list of validator prices of
+// a validator and its address.
+type ValidatorPriceList struct {
+	// Validator is the validator address.
+	Validator string `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator,omitempty"`
+	// ValidatorsPrices is a list of validator prices.
+	ValidatorPrices []ValidatorPrice `protobuf:"bytes,2,rep,name=validator_prices,json=validatorPrices,proto3" json:"validator_prices"`
 }
 
-func (m *PriceService) Reset()         { *m = PriceService{} }
-func (m *PriceService) String() string { return proto.CompactTextString(m) }
-func (*PriceService) ProtoMessage()    {}
-func (*PriceService) Descriptor() ([]byte, []int) {
-	return fileDescriptor_4b338829e148e6ea, []int{7}
+func (m *ValidatorPriceList) Reset()         { *m = ValidatorPriceList{} }
+func (m *ValidatorPriceList) String() string { return proto.CompactTextString(m) }
+func (*ValidatorPriceList) ProtoMessage()    {}
+func (*ValidatorPriceList) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4b338829e148e6ea, []int{9}
 }
-func (m *PriceService) XXX_Unmarshal(b []byte) error {
+func (m *ValidatorPriceList) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *PriceService) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *ValidatorPriceList) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_PriceService.Marshal(b, m, deterministic)
+		return xxx_messageInfo_ValidatorPriceList.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -557,35 +694,83 @@ func (m *PriceService) XXX_Marshal(b []byte, deterministic bool) ([]byte, error)
 		return b[:n], nil
 	}
 }
-func (m *PriceService) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_PriceService.Merge(m, src)
+func (m *ValidatorPriceList) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ValidatorPriceList.Merge(m, src)
 }
-func (m *PriceService) XXX_Size() int {
+func (m *ValidatorPriceList) XXX_Size() int {
 	return m.Size()
 }
-func (m *PriceService) XXX_DiscardUnknown() {
-	xxx_messageInfo_PriceService.DiscardUnknown(m)
+func (m *ValidatorPriceList) XXX_DiscardUnknown() {
+	xxx_messageInfo_ValidatorPriceList.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_PriceService proto.InternalMessageInfo
+var xxx_messageInfo_ValidatorPriceList proto.InternalMessageInfo
 
-func (m *PriceService) GetHash() string {
+func (m *ValidatorPriceList) GetValidator() string {
 	if m != nil {
-		return m.Hash
+		return m.Validator
 	}
 	return ""
 }
 
-func (m *PriceService) GetVersion() string {
+func (m *ValidatorPriceList) GetValidatorPrices() []ValidatorPrice {
+	if m != nil {
+		return m.ValidatorPrices
+	}
+	return nil
+}
+
+// ReferenceSourceConfig is a structure that defines the information of reference price source.
+type ReferenceSourceConfig struct {
+	// IPFSHash is the hash of the reference registry.
+	IPFSHash string `protobuf:"bytes,1,opt,name=ipfs_hash,json=ipfsHash,proto3" json:"ipfs_hash,omitempty"`
+	// Version is the version of the reference price source.
+	Version string `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
+}
+
+func (m *ReferenceSourceConfig) Reset()         { *m = ReferenceSourceConfig{} }
+func (m *ReferenceSourceConfig) String() string { return proto.CompactTextString(m) }
+func (*ReferenceSourceConfig) ProtoMessage()    {}
+func (*ReferenceSourceConfig) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4b338829e148e6ea, []int{10}
+}
+func (m *ReferenceSourceConfig) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *ReferenceSourceConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_ReferenceSourceConfig.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *ReferenceSourceConfig) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ReferenceSourceConfig.Merge(m, src)
+}
+func (m *ReferenceSourceConfig) XXX_Size() int {
+	return m.Size()
+}
+func (m *ReferenceSourceConfig) XXX_DiscardUnknown() {
+	xxx_messageInfo_ReferenceSourceConfig.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ReferenceSourceConfig proto.InternalMessageInfo
+
+func (m *ReferenceSourceConfig) GetIPFSHash() string {
+	if m != nil {
+		return m.IPFSHash
+	}
+	return ""
+}
+
+func (m *ReferenceSourceConfig) GetVersion() string {
 	if m != nil {
 		return m.Version
-	}
-	return ""
-}
-
-func (m *PriceService) GetUrl() string {
-	if m != nil {
-		return m.Url
 	}
 	return ""
 }
@@ -595,65 +780,73 @@ func init() {
 	proto.RegisterType((*Signal)(nil), "feeds.v1beta1.Signal")
 	proto.RegisterType((*DelegatorSignals)(nil), "feeds.v1beta1.DelegatorSignals")
 	proto.RegisterType((*Feed)(nil), "feeds.v1beta1.Feed")
+	proto.RegisterType((*FeedWithDeviation)(nil), "feeds.v1beta1.FeedWithDeviation")
 	proto.RegisterType((*SupportedFeeds)(nil), "feeds.v1beta1.SupportedFeeds")
+	proto.RegisterType((*SupportedFeedWithDeviations)(nil), "feeds.v1beta1.SupportedFeedWithDeviations")
 	proto.RegisterType((*Price)(nil), "feeds.v1beta1.Price")
-	proto.RegisterType((*SubmitPrice)(nil), "feeds.v1beta1.SubmitPrice")
+	proto.RegisterType((*SignalPrice)(nil), "feeds.v1beta1.SignalPrice")
 	proto.RegisterType((*ValidatorPrice)(nil), "feeds.v1beta1.ValidatorPrice")
-	proto.RegisterType((*PriceService)(nil), "feeds.v1beta1.PriceService")
+	proto.RegisterType((*ValidatorPriceList)(nil), "feeds.v1beta1.ValidatorPriceList")
+	proto.RegisterType((*ReferenceSourceConfig)(nil), "feeds.v1beta1.ReferenceSourceConfig")
 }
 
 func init() { proto.RegisterFile("feeds/v1beta1/feeds.proto", fileDescriptor_4b338829e148e6ea) }
 
 var fileDescriptor_4b338829e148e6ea = []byte{
-	// 758 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x55, 0x3f, 0x6f, 0xfb, 0x44,
-	0x18, 0xce, 0x25, 0x4e, 0x7e, 0xcd, 0x25, 0x94, 0x70, 0xbf, 0xb4, 0xb8, 0x56, 0x95, 0x84, 0x4e,
-	0xa5, 0x12, 0xb1, 0x1a, 0xa0, 0x42, 0x08, 0x86, 0xa4, 0x49, 0x55, 0x4b, 0x15, 0x44, 0x76, 0xd2,
-	0x81, 0xc5, 0xba, 0xc4, 0xd7, 0xf8, 0x84, 0x63, 0x5b, 0xbe, 0x8b, 0x81, 0x4f, 0x00, 0x2a, 0x0b,
-	0x12, 0x73, 0x25, 0x24, 0x06, 0x06, 0x56, 0x3e, 0x44, 0xc7, 0x8a, 0x89, 0xa9, 0x42, 0xe9, 0xc2,
-	0x17, 0x40, 0xac, 0xc8, 0x77, 0xce, 0xbf, 0x2a, 0x20, 0x06, 0x86, 0xdf, 0x76, 0xef, 0xfb, 0x3c,
-	0xcf, 0x9b, 0xe7, 0x79, 0x75, 0x17, 0xc3, 0x83, 0x1b, 0x42, 0x1c, 0xa6, 0xc7, 0xa7, 0x23, 0xc2,
-	0xf1, 0xa9, 0x2e, 0xaa, 0x66, 0x18, 0x05, 0x3c, 0x40, 0xaf, 0xc9, 0x22, 0x85, 0xb4, 0x83, 0x71,
-	0xc0, 0xa6, 0x01, 0xb3, 0x05, 0xa8, 0xcb, 0x42, 0x32, 0xb5, 0xea, 0x24, 0x98, 0x04, 0xb2, 0x9f,
-	0x9c, 0x64, 0xf7, 0xe8, 0x23, 0x58, 0xb0, 0xe8, 0xc4, 0xc7, 0x1e, 0xda, 0x87, 0x59, 0xea, 0xa8,
-	0xa0, 0x01, 0x8e, 0x8b, 0x9d, 0xc2, 0xfc, 0xb1, 0x9e, 0x35, 0xba, 0x66, 0x96, 0x3a, 0xa8, 0x0a,
-	0xf3, 0x61, 0xf0, 0x05, 0x89, 0xd4, 0x6c, 0x03, 0x1c, 0xe7, 0x4c, 0x59, 0x7c, 0xa8, 0xfc, 0xf1,
-	0x43, 0x1d, 0x1c, 0x7d, 0x0d, 0x60, 0xa5, 0x4b, 0x3c, 0x32, 0xc1, 0x3c, 0x88, 0xe4, 0x1c, 0x86,
-	0xce, 0x60, 0xd1, 0x59, 0xf4, 0xd2, 0x79, 0xea, 0xaf, 0xbf, 0xbc, 0x53, 0x4d, 0xdd, 0xb4, 0x1d,
-	0x27, 0x22, 0x8c, 0x59, 0x3c, 0xa2, 0xfe, 0xc4, 0x5c, 0x51, 0xd1, 0xfb, 0xf0, 0x05, 0x93, 0x23,
-	0xd4, 0x6c, 0x23, 0x77, 0x5c, 0x6a, 0xed, 0x35, 0x37, 0xc2, 0x35, 0xe5, 0x0f, 0x74, 0x94, 0xfb,
-	0xc7, 0x7a, 0xc6, 0x5c, 0x70, 0x53, 0x27, 0xdf, 0x02, 0xa8, 0x5c, 0x10, 0xe2, 0xa0, 0xb7, 0x61,
-	0x51, 0x22, 0xf6, 0x32, 0x4d, 0x79, 0xfe, 0x58, 0xdf, 0x91, 0x62, 0xa3, 0x6b, 0xee, 0x48, 0xd8,
-	0x70, 0x90, 0x06, 0x77, 0xa8, 0xcf, 0x49, 0x14, 0x63, 0x2f, 0x0d, 0xb7, 0xac, 0xd1, 0x19, 0x7c,
-	0xd3, 0x21, 0x31, 0xc5, 0x9c, 0x06, 0xbe, 0x4d, 0x7d, 0x9b, 0xbb, 0xc1, 0x8c, 0x61, 0xdf, 0xe1,
-	0xae, 0x9a, 0x13, 0xd4, 0xbd, 0x25, 0x6c, 0xf8, 0x83, 0x25, 0x98, 0xba, 0xf9, 0x09, 0xc0, 0x5d,
-	0x6b, 0x16, 0x86, 0x41, 0xc4, 0x89, 0x93, 0xd8, 0x62, 0x48, 0x87, 0x79, 0x91, 0x46, 0x05, 0x22,
-	0xdb, 0xcb, 0x67, 0xd9, 0x12, 0x52, 0x9a, 0x4c, 0xf2, 0x50, 0x0b, 0xee, 0x79, 0x98, 0x71, 0x7b,
-	0x16, 0x3a, 0x98, 0x13, 0x9b, 0xd3, 0x29, 0x61, 0x1c, 0x4f, 0xc3, 0xd4, 0xea, 0xcb, 0x04, 0x1c,
-	0x0a, 0x6c, 0xb0, 0x80, 0xd0, 0x09, 0x7c, 0x63, 0x5d, 0x33, 0xf2, 0x82, 0xf1, 0xe7, 0xa9, 0xdf,
-	0xd7, 0x57, 0xfc, 0x4e, 0xd2, 0x4e, 0x9d, 0xfe, 0x0c, 0x60, 0xbe, 0x1f, 0xd1, 0x31, 0x41, 0x1f,
-	0xc3, 0x72, 0x98, 0x1c, 0x6c, 0xc6, 0x31, 0x9f, 0x31, 0xb1, 0xbb, 0xdd, 0x96, 0xf6, 0xcc, 0xa7,
-	0xe0, 0x5a, 0x82, 0x61, 0x96, 0xc2, 0x55, 0xb1, 0xb9, 0xf7, 0xec, 0xbf, 0xee, 0x3d, 0xb9, 0x51,
-	0x89, 0x52, 0x38, 0x53, 0x4c, 0x59, 0xa0, 0x43, 0x58, 0x5c, 0x65, 0x54, 0x84, 0xe7, 0x55, 0x23,
-	0x75, 0xfb, 0x3d, 0x80, 0x25, 0x6b, 0x36, 0x9a, 0x52, 0xfe, 0x4a, 0x78, 0x4e, 0x5d, 0xfd, 0x09,
-	0xe0, 0xee, 0x35, 0xf6, 0xa8, 0x93, 0x5c, 0xe3, 0xff, 0xc5, 0xd8, 0x21, 0x2c, 0xc6, 0x8b, 0x81,
-	0xd2, 0x98, 0xb9, 0x6a, 0x6c, 0xda, 0xce, 0xfd, 0x37, 0xdb, 0xca, 0x3f, 0xae, 0x3a, 0xff, 0x6c,
-	0xd5, 0xe8, 0x2d, 0x58, 0x16, 0x17, 0xc7, 0x76, 0x09, 0x9d, 0xb8, 0x5c, 0x2d, 0x08, 0x42, 0x49,
-	0xf4, 0x2e, 0x45, 0x2b, 0xcd, 0x3d, 0x80, 0x65, 0x99, 0x80, 0x44, 0x71, 0x32, 0x16, 0x41, 0xc5,
-	0xc5, 0xcc, 0x95, 0xaf, 0xce, 0x14, 0x67, 0xa4, 0xc2, 0x17, 0x31, 0x89, 0x18, 0x0d, 0xfc, 0x34,
-	0xc7, 0xa2, 0x44, 0x15, 0x98, 0x9b, 0x45, 0x9e, 0xf4, 0x6f, 0x26, 0x47, 0x39, 0xf5, 0xe4, 0x2f,
-	0x00, 0x4b, 0x6b, 0x8b, 0x41, 0x1f, 0x40, 0xb5, 0x6f, 0x1a, 0xe7, 0x3d, 0xdb, 0x1a, 0xb4, 0x07,
-	0x43, 0xcb, 0x1e, 0x7e, 0x62, 0xf5, 0x7b, 0xe7, 0xc6, 0x85, 0xd1, 0xeb, 0x56, 0x32, 0x9a, 0x76,
-	0x7b, 0xd7, 0xd8, 0x5f, 0xa3, 0x0f, 0x7d, 0x16, 0x92, 0x31, 0xbd, 0xa1, 0xc4, 0xd9, 0xa6, 0x1c,
-	0xf6, 0xfb, 0x9f, 0x9a, 0x83, 0x5e, 0xb7, 0x02, 0xb6, 0x29, 0x17, 0x2f, 0x76, 0x8b, 0xb2, 0x7d,
-	0xdd, 0x36, 0xae, 0xda, 0x9d, 0xab, 0x5e, 0x25, 0xbb, 0x45, 0x89, 0x63, 0x4c, 0x3d, 0x3c, 0xf2,
-	0x08, 0x7a, 0x0f, 0xee, 0x6f, 0x28, 0x57, 0xba, 0x9c, 0xa6, 0xde, 0xde, 0x35, 0xaa, 0x6b, 0xba,
-	0xf6, 0x42, 0xa5, 0x29, 0xdf, 0xfc, 0x58, 0xcb, 0x74, 0x2e, 0xef, 0xe7, 0x35, 0xf0, 0x30, 0xaf,
-	0x81, 0xdf, 0xe7, 0x35, 0xf0, 0xdd, 0x53, 0x2d, 0xf3, 0xf0, 0x54, 0xcb, 0xfc, 0xf6, 0x54, 0xcb,
-	0x7c, 0xd6, 0x9c, 0x50, 0xee, 0xce, 0x46, 0xcd, 0x71, 0x30, 0xd5, 0x47, 0xd8, 0x77, 0xc4, 0x7f,
-	0xf7, 0x38, 0xf0, 0xf4, 0xb1, 0x8b, 0xa9, 0xaf, 0xc7, 0x2d, 0xfd, 0x4b, 0xf9, 0x55, 0xd0, 0xf9,
-	0x57, 0x21, 0x61, 0xa3, 0x82, 0x20, 0xbc, 0xfb, 0x77, 0x00, 0x00, 0x00, 0xff, 0xff, 0x83, 0x3b,
-	0x22, 0xb5, 0x39, 0x06, 0x00, 0x00,
+	// 847 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x55, 0xcf, 0x6f, 0xe3, 0x44,
+	0x14, 0xce, 0x24, 0x69, 0xb7, 0x99, 0x94, 0x6e, 0x76, 0xfa, 0x43, 0xde, 0xb0, 0xa4, 0x61, 0x4f,
+	0x65, 0x25, 0x62, 0x6d, 0xf9, 0x21, 0x84, 0x96, 0x43, 0xd2, 0xa4, 0x6a, 0xa4, 0x6a, 0x89, 0xec,
+	0x66, 0x91, 0xb8, 0x58, 0x63, 0x7b, 0x62, 0x8f, 0x70, 0x3d, 0x96, 0x67, 0x62, 0xe0, 0x2f, 0x60,
+	0xb5, 0x27, 0x24, 0xce, 0x2b, 0x21, 0x71, 0x40, 0x82, 0x2b, 0xff, 0x00, 0xb7, 0x3d, 0xae, 0x38,
+	0x71, 0xaa, 0x50, 0x7a, 0xe1, 0x1f, 0x40, 0x5c, 0x91, 0x67, 0xec, 0x24, 0x8e, 0x52, 0xc1, 0x01,
+	0xc4, 0xde, 0xe6, 0xbd, 0xef, 0xfb, 0xde, 0xfb, 0xde, 0xcb, 0x64, 0x0c, 0xef, 0x4e, 0x08, 0x71,
+	0xb9, 0x9e, 0x3c, 0xb4, 0x89, 0xc0, 0x0f, 0x75, 0x19, 0x75, 0xa2, 0x98, 0x09, 0x86, 0x5e, 0x53,
+	0x41, 0x06, 0x35, 0xef, 0x3a, 0x8c, 0x5f, 0x32, 0x6e, 0x49, 0x50, 0x57, 0x81, 0x62, 0x36, 0xf7,
+	0x3c, 0xe6, 0x31, 0x95, 0x4f, 0x4f, 0x2a, 0x7b, 0xff, 0x11, 0xdc, 0x34, 0xa9, 0x17, 0xe2, 0x00,
+	0x1d, 0xc0, 0x32, 0x75, 0x35, 0xd0, 0x06, 0x47, 0xb5, 0xde, 0xe6, 0xec, 0xea, 0xb0, 0x3c, 0xec,
+	0x1b, 0x65, 0xea, 0xa2, 0x3d, 0xb8, 0x11, 0xb1, 0xcf, 0x49, 0xac, 0x95, 0xdb, 0xe0, 0xa8, 0x62,
+	0xa8, 0xe0, 0xc3, 0xea, 0xef, 0xdf, 0x1e, 0x82, 0xfb, 0x5f, 0x01, 0xd8, 0xe8, 0x93, 0x80, 0x78,
+	0x58, 0xb0, 0x58, 0xd5, 0xe1, 0xe8, 0x7d, 0x58, 0x73, 0xf3, 0x5c, 0x56, 0x4f, 0xfb, 0xe5, 0xa7,
+	0xb7, 0xf7, 0x32, 0x37, 0x5d, 0xd7, 0x8d, 0x09, 0xe7, 0xa6, 0x88, 0x69, 0xe8, 0x19, 0x0b, 0x2a,
+	0x7a, 0x0f, 0xde, 0xe2, 0xaa, 0x84, 0x56, 0x6e, 0x57, 0x8e, 0xea, 0xc7, 0xfb, 0x9d, 0xc2, 0x70,
+	0x1d, 0xd5, 0xa0, 0x57, 0x7d, 0x71, 0x75, 0x58, 0x32, 0x72, 0x6e, 0xe6, 0x84, 0xc2, 0xea, 0x29,
+	0x21, 0x2e, 0x7a, 0x0b, 0xd6, 0x14, 0x60, 0xcd, 0x87, 0xd9, 0x9e, 0x5d, 0x1d, 0x6e, 0x29, 0xed,
+	0xb0, 0x6f, 0x6c, 0x29, 0x78, 0x78, 0xc3, 0x60, 0xa8, 0x09, 0xb7, 0x68, 0x28, 0x48, 0x9c, 0xe0,
+	0x40, 0xab, 0x48, 0x60, 0x1e, 0x67, 0xad, 0x7e, 0x00, 0xf0, 0x4e, 0xda, 0xeb, 0x13, 0x2a, 0xfc,
+	0x3e, 0x49, 0x28, 0x16, 0x94, 0x85, 0xff, 0x69, 0x63, 0x74, 0x0c, 0xf7, 0xdd, 0xbc, 0x93, 0x65,
+	0x63, 0x4e, 0xb9, 0x15, 0x31, 0x1a, 0x0a, 0xad, 0x2a, 0x89, 0xbb, 0x73, 0xb0, 0x97, 0x62, 0xa3,
+	0x14, 0xca, 0xcc, 0x7e, 0x0f, 0xe0, 0x8e, 0x39, 0x8d, 0x22, 0x16, 0x0b, 0xe2, 0xa6, 0xae, 0x39,
+	0xd2, 0xe1, 0x86, 0xdc, 0xab, 0x06, 0xe4, 0x96, 0x77, 0x57, 0xb6, 0x9c, 0x92, 0xb2, 0x1d, 0x2b,
+	0x5e, 0xda, 0x3d, 0xc0, 0x5c, 0x58, 0xd3, 0xc8, 0xc5, 0x82, 0x58, 0x82, 0x5e, 0x12, 0x2e, 0xf0,
+	0x65, 0x94, 0xf9, 0xdf, 0x4d, 0xc1, 0xb1, 0xc4, 0x2e, 0x72, 0x08, 0x3d, 0x80, 0x77, 0x96, 0x35,
+	0x76, 0xc0, 0x9c, 0xcf, 0xb2, 0xb1, 0x6e, 0x2f, 0xf8, 0xbd, 0x34, 0x9d, 0x39, 0xfd, 0x19, 0xc0,
+	0xd7, 0x0b, 0x4e, 0x0b, 0xfb, 0xe5, 0xe8, 0x51, 0xd1, 0x76, 0x7b, 0x8d, 0xed, 0x82, 0xe2, 0xff,
+	0x98, 0xe1, 0x47, 0x00, 0x37, 0x46, 0x31, 0x75, 0x08, 0xfa, 0x08, 0x6e, 0x47, 0xe9, 0xc1, 0xe2,
+	0x02, 0x8b, 0x29, 0x97, 0x37, 0x62, 0xe7, 0xb8, 0xb9, 0x62, 0x5a, 0x72, 0x4d, 0xc9, 0x30, 0xea,
+	0xd1, 0x22, 0x28, 0xde, 0xa6, 0xf2, 0xdf, 0xde, 0xa6, 0x54, 0x29, 0x9d, 0x55, 0x0d, 0x15, 0xa0,
+	0x7b, 0xb0, 0xb6, 0x98, 0x51, 0xdd, 0x92, 0x45, 0x22, 0x73, 0xfb, 0x0d, 0x80, 0x75, 0x55, 0xf0,
+	0x95, 0xf0, 0x9c, 0xb9, 0xfa, 0x03, 0xc0, 0x9d, 0x27, 0x38, 0xa0, 0x6e, 0xfa, 0x28, 0xfc, 0x2b,
+	0xc6, 0xee, 0xc1, 0x5a, 0x92, 0x17, 0x54, 0xc6, 0x8c, 0x45, 0xa2, 0x68, 0xbb, 0xf2, 0xcf, 0x6c,
+	0x57, 0x6f, 0x5c, 0xf5, 0xc6, 0xca, 0xaa, 0xd1, 0x9b, 0x70, 0x5b, 0x5e, 0x1c, 0xcb, 0x27, 0xd4,
+	0xf3, 0x85, 0xb6, 0x29, 0x09, 0x75, 0x99, 0x3b, 0x93, 0xa9, 0x6c, 0xee, 0xa7, 0x00, 0xa2, 0xe2,
+	0xdc, 0xe7, 0x94, 0x8b, 0xa2, 0x79, 0xb0, 0x6a, 0xfe, 0x31, 0x6c, 0xcc, 0x03, 0x4b, 0xda, 0xc9,
+	0x1f, 0xcf, 0x37, 0x56, 0xb6, 0x53, 0x2c, 0x9d, 0xfd, 0x39, 0x6e, 0x27, 0x85, 0x6c, 0xfe, 0x98,
+	0xda, 0x70, 0xdf, 0x20, 0x13, 0x12, 0x93, 0xd0, 0x21, 0x26, 0x9b, 0xc6, 0x0e, 0x39, 0x61, 0xe1,
+	0x84, 0x7a, 0xe9, 0xae, 0x68, 0x34, 0xe1, 0x96, 0x8f, 0xb9, 0xbf, 0xfc, 0xc8, 0x0d, 0x47, 0xa7,
+	0xe6, 0x19, 0xe6, 0xbe, 0xb1, 0x95, 0xc2, 0xe9, 0x09, 0x69, 0xf0, 0x56, 0x42, 0x62, 0x4e, 0x59,
+	0x98, 0xad, 0x3c, 0x0f, 0x55, 0x8f, 0x07, 0x7f, 0x02, 0x58, 0x5f, 0xfa, 0xc5, 0xd0, 0x07, 0x50,
+	0x1b, 0x19, 0xc3, 0x93, 0x81, 0x65, 0x5e, 0x74, 0x2f, 0xc6, 0xa6, 0x35, 0x7e, 0x6c, 0x8e, 0x06,
+	0x27, 0xc3, 0xd3, 0xe1, 0xa0, 0xdf, 0x28, 0x35, 0x9b, 0xcf, 0x9e, 0xb7, 0x0f, 0x96, 0xe8, 0xe3,
+	0x90, 0x47, 0xc4, 0xa1, 0x13, 0x4a, 0xdc, 0x75, 0xca, 0xf1, 0x68, 0xf4, 0xb1, 0x71, 0x31, 0xe8,
+	0x37, 0xc0, 0x3a, 0x65, 0xfe, 0xc8, 0xac, 0x51, 0x76, 0x9f, 0x74, 0x87, 0xe7, 0xdd, 0xde, 0xf9,
+	0xa0, 0x51, 0x5e, 0xa3, 0xc4, 0x09, 0xa6, 0x01, 0xb6, 0x03, 0x82, 0xde, 0x85, 0x07, 0x05, 0xe5,
+	0x42, 0x57, 0x69, 0x6a, 0xcf, 0x9e, 0xb7, 0xf7, 0x96, 0x74, 0xdd, 0x5c, 0xd5, 0xac, 0x3e, 0xfd,
+	0xae, 0x55, 0xea, 0x9d, 0xbd, 0x98, 0xb5, 0xc0, 0xcb, 0x59, 0x0b, 0xfc, 0x36, 0x6b, 0x81, 0xaf,
+	0xaf, 0x5b, 0xa5, 0x97, 0xd7, 0xad, 0xd2, 0xaf, 0xd7, 0xad, 0xd2, 0xa7, 0x1d, 0x8f, 0x0a, 0x7f,
+	0x6a, 0x77, 0x1c, 0x76, 0xa9, 0xdb, 0x38, 0x74, 0xe5, 0x27, 0xda, 0x61, 0x81, 0xee, 0xf8, 0x98,
+	0x86, 0x7a, 0x72, 0xac, 0x7f, 0xa1, 0x3e, 0xfe, 0xba, 0xf8, 0x32, 0x22, 0xdc, 0xde, 0x94, 0x84,
+	0x77, 0xfe, 0x0a, 0x00, 0x00, 0xff, 0xff, 0x4c, 0x76, 0x1f, 0x90, 0x20, 0x08, 0x00, 0x00,
 }
 
 func (this *Signal) Equal(that interface{}) bool {
@@ -737,10 +930,43 @@ func (this *Feed) Equal(that interface{}) bool {
 	if this.SignalID != that1.SignalID {
 		return false
 	}
+	if this.Power != that1.Power {
+		return false
+	}
 	if this.Interval != that1.Interval {
 		return false
 	}
-	if this.DeviationInThousandth != that1.DeviationInThousandth {
+	return true
+}
+func (this *FeedWithDeviation) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*FeedWithDeviation)
+	if !ok {
+		that2, ok := that.(FeedWithDeviation)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.SignalID != that1.SignalID {
+		return false
+	}
+	if this.Power != that1.Power {
+		return false
+	}
+	if this.Interval != that1.Interval {
+		return false
+	}
+	if this.DeviationBasisPoint != that1.DeviationBasisPoint {
 		return false
 	}
 	return true
@@ -753,6 +979,41 @@ func (this *SupportedFeeds) Equal(that interface{}) bool {
 	that1, ok := that.(*SupportedFeeds)
 	if !ok {
 		that2, ok := that.(SupportedFeeds)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if len(this.Feeds) != len(that1.Feeds) {
+		return false
+	}
+	for i := range this.Feeds {
+		if !this.Feeds[i].Equal(&that1.Feeds[i]) {
+			return false
+		}
+	}
+	if this.LastUpdateTimestamp != that1.LastUpdateTimestamp {
+		return false
+	}
+	if this.LastUpdateBlock != that1.LastUpdateBlock {
+		return false
+	}
+	return true
+}
+func (this *SupportedFeedWithDeviations) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*SupportedFeedWithDeviations)
+	if !ok {
+		that2, ok := that.(SupportedFeedWithDeviations)
 		if ok {
 			that1 = &that2
 		} else {
@@ -813,14 +1074,14 @@ func (this *Price) Equal(that interface{}) bool {
 	}
 	return true
 }
-func (this *SubmitPrice) Equal(that interface{}) bool {
+func (this *SignalPrice) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
 	}
 
-	that1, ok := that.(*SubmitPrice)
+	that1, ok := that.(*SignalPrice)
 	if !ok {
-		that2, ok := that.(SubmitPrice)
+		that2, ok := that.(SignalPrice)
 		if ok {
 			that1 = &that2
 		} else {
@@ -882,14 +1143,14 @@ func (this *ValidatorPrice) Equal(that interface{}) bool {
 	}
 	return true
 }
-func (this *PriceService) Equal(that interface{}) bool {
+func (this *ValidatorPriceList) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
 	}
 
-	that1, ok := that.(*PriceService)
+	that1, ok := that.(*ValidatorPriceList)
 	if !ok {
-		that2, ok := that.(PriceService)
+		that2, ok := that.(ValidatorPriceList)
 		if ok {
 			that1 = &that2
 		} else {
@@ -901,13 +1162,42 @@ func (this *PriceService) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
-	if this.Hash != that1.Hash {
+	if this.Validator != that1.Validator {
+		return false
+	}
+	if len(this.ValidatorPrices) != len(that1.ValidatorPrices) {
+		return false
+	}
+	for i := range this.ValidatorPrices {
+		if !this.ValidatorPrices[i].Equal(&that1.ValidatorPrices[i]) {
+			return false
+		}
+	}
+	return true
+}
+func (this *ReferenceSourceConfig) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*ReferenceSourceConfig)
+	if !ok {
+		that2, ok := that.(ReferenceSourceConfig)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.IPFSHash != that1.IPFSHash {
 		return false
 	}
 	if this.Version != that1.Version {
-		return false
-	}
-	if this.Url != that1.Url {
 		return false
 	}
 	return true
@@ -1011,13 +1301,58 @@ func (m *Feed) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.DeviationInThousandth != 0 {
-		i = encodeVarintFeeds(dAtA, i, uint64(m.DeviationInThousandth))
+	if m.Interval != 0 {
+		i = encodeVarintFeeds(dAtA, i, uint64(m.Interval))
 		i--
 		dAtA[i] = 0x18
 	}
+	if m.Power != 0 {
+		i = encodeVarintFeeds(dAtA, i, uint64(m.Power))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.SignalID) > 0 {
+		i -= len(m.SignalID)
+		copy(dAtA[i:], m.SignalID)
+		i = encodeVarintFeeds(dAtA, i, uint64(len(m.SignalID)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *FeedWithDeviation) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *FeedWithDeviation) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *FeedWithDeviation) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.DeviationBasisPoint != 0 {
+		i = encodeVarintFeeds(dAtA, i, uint64(m.DeviationBasisPoint))
+		i--
+		dAtA[i] = 0x20
+	}
 	if m.Interval != 0 {
 		i = encodeVarintFeeds(dAtA, i, uint64(m.Interval))
+		i--
+		dAtA[i] = 0x18
+	}
+	if m.Power != 0 {
+		i = encodeVarintFeeds(dAtA, i, uint64(m.Power))
 		i--
 		dAtA[i] = 0x10
 	}
@@ -1047,6 +1382,53 @@ func (m *SupportedFeeds) MarshalTo(dAtA []byte) (int, error) {
 }
 
 func (m *SupportedFeeds) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.LastUpdateBlock != 0 {
+		i = encodeVarintFeeds(dAtA, i, uint64(m.LastUpdateBlock))
+		i--
+		dAtA[i] = 0x18
+	}
+	if m.LastUpdateTimestamp != 0 {
+		i = encodeVarintFeeds(dAtA, i, uint64(m.LastUpdateTimestamp))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.Feeds) > 0 {
+		for iNdEx := len(m.Feeds) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Feeds[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintFeeds(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *SupportedFeedWithDeviations) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *SupportedFeedWithDeviations) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *SupportedFeedWithDeviations) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1123,7 +1505,7 @@ func (m *Price) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *SubmitPrice) Marshal() (dAtA []byte, err error) {
+func (m *SignalPrice) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1133,12 +1515,12 @@ func (m *SubmitPrice) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *SubmitPrice) MarshalTo(dAtA []byte) (int, error) {
+func (m *SignalPrice) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *SubmitPrice) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *SignalPrice) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1220,7 +1602,7 @@ func (m *ValidatorPrice) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *PriceService) Marshal() (dAtA []byte, err error) {
+func (m *ValidatorPriceList) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1230,23 +1612,60 @@ func (m *PriceService) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *PriceService) MarshalTo(dAtA []byte) (int, error) {
+func (m *ValidatorPriceList) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *PriceService) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *ValidatorPriceList) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Url) > 0 {
-		i -= len(m.Url)
-		copy(dAtA[i:], m.Url)
-		i = encodeVarintFeeds(dAtA, i, uint64(len(m.Url)))
-		i--
-		dAtA[i] = 0x1a
+	if len(m.ValidatorPrices) > 0 {
+		for iNdEx := len(m.ValidatorPrices) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.ValidatorPrices[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintFeeds(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
 	}
+	if len(m.Validator) > 0 {
+		i -= len(m.Validator)
+		copy(dAtA[i:], m.Validator)
+		i = encodeVarintFeeds(dAtA, i, uint64(len(m.Validator)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *ReferenceSourceConfig) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ReferenceSourceConfig) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ReferenceSourceConfig) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
 	if len(m.Version) > 0 {
 		i -= len(m.Version)
 		copy(dAtA[i:], m.Version)
@@ -1254,10 +1673,10 @@ func (m *PriceService) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.Hash) > 0 {
-		i -= len(m.Hash)
-		copy(dAtA[i:], m.Hash)
-		i = encodeVarintFeeds(dAtA, i, uint64(len(m.Hash)))
+	if len(m.IPFSHash) > 0 {
+		i -= len(m.IPFSHash)
+		copy(dAtA[i:], m.IPFSHash)
+		i = encodeVarintFeeds(dAtA, i, uint64(len(m.IPFSHash)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -1320,16 +1739,59 @@ func (m *Feed) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovFeeds(uint64(l))
 	}
+	if m.Power != 0 {
+		n += 1 + sovFeeds(uint64(m.Power))
+	}
 	if m.Interval != 0 {
 		n += 1 + sovFeeds(uint64(m.Interval))
 	}
-	if m.DeviationInThousandth != 0 {
-		n += 1 + sovFeeds(uint64(m.DeviationInThousandth))
+	return n
+}
+
+func (m *FeedWithDeviation) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.SignalID)
+	if l > 0 {
+		n += 1 + l + sovFeeds(uint64(l))
+	}
+	if m.Power != 0 {
+		n += 1 + sovFeeds(uint64(m.Power))
+	}
+	if m.Interval != 0 {
+		n += 1 + sovFeeds(uint64(m.Interval))
+	}
+	if m.DeviationBasisPoint != 0 {
+		n += 1 + sovFeeds(uint64(m.DeviationBasisPoint))
 	}
 	return n
 }
 
 func (m *SupportedFeeds) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Feeds) > 0 {
+		for _, e := range m.Feeds {
+			l = e.Size()
+			n += 1 + l + sovFeeds(uint64(l))
+		}
+	}
+	if m.LastUpdateTimestamp != 0 {
+		n += 1 + sovFeeds(uint64(m.LastUpdateTimestamp))
+	}
+	if m.LastUpdateBlock != 0 {
+		n += 1 + sovFeeds(uint64(m.LastUpdateBlock))
+	}
+	return n
+}
+
+func (m *SupportedFeedWithDeviations) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1372,7 +1834,7 @@ func (m *Price) Size() (n int) {
 	return n
 }
 
-func (m *SubmitPrice) Size() (n int) {
+func (m *SignalPrice) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1420,21 +1882,36 @@ func (m *ValidatorPrice) Size() (n int) {
 	return n
 }
 
-func (m *PriceService) Size() (n int) {
+func (m *ValidatorPriceList) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.Hash)
+	l = len(m.Validator)
+	if l > 0 {
+		n += 1 + l + sovFeeds(uint64(l))
+	}
+	if len(m.ValidatorPrices) > 0 {
+		for _, e := range m.ValidatorPrices {
+			l = e.Size()
+			n += 1 + l + sovFeeds(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *ReferenceSourceConfig) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.IPFSHash)
 	if l > 0 {
 		n += 1 + l + sovFeeds(uint64(l))
 	}
 	l = len(m.Version)
-	if l > 0 {
-		n += 1 + l + sovFeeds(uint64(l))
-	}
-	l = len(m.Url)
 	if l > 0 {
 		n += 1 + l + sovFeeds(uint64(l))
 	}
@@ -1727,6 +2204,25 @@ func (m *Feed) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Power", wireType)
+			}
+			m.Power = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFeeds
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Power |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Interval", wireType)
 			}
 			m.Interval = 0
@@ -1744,11 +2240,61 @@ func (m *Feed) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DeviationInThousandth", wireType)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipFeeds(dAtA[iNdEx:])
+			if err != nil {
+				return err
 			}
-			m.DeviationInThousandth = 0
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *FeedWithDeviation) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowFeeds
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: FeedWithDeviation: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: FeedWithDeviation: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SignalID", wireType)
+			}
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowFeeds
@@ -1758,7 +2304,77 @@ func (m *Feed) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.DeviationInThousandth |= int64(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SignalID = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Power", wireType)
+			}
+			m.Power = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFeeds
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Power |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Interval", wireType)
+			}
+			m.Interval = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFeeds
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Interval |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DeviationBasisPoint", wireType)
+			}
+			m.DeviationBasisPoint = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFeeds
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.DeviationBasisPoint |= int64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1843,6 +2459,128 @@ func (m *SupportedFeeds) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Feeds = append(m.Feeds, Feed{})
+			if err := m.Feeds[len(m.Feeds)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field LastUpdateTimestamp", wireType)
+			}
+			m.LastUpdateTimestamp = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFeeds
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.LastUpdateTimestamp |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field LastUpdateBlock", wireType)
+			}
+			m.LastUpdateBlock = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFeeds
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.LastUpdateBlock |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipFeeds(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *SupportedFeedWithDeviations) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowFeeds
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: SupportedFeedWithDeviations: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: SupportedFeedWithDeviations: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Feeds", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFeeds
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Feeds = append(m.Feeds, FeedWithDeviation{})
 			if err := m.Feeds[len(m.Feeds)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -2045,7 +2783,7 @@ func (m *Price) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *SubmitPrice) Unmarshal(dAtA []byte) error {
+func (m *SignalPrice) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2068,10 +2806,10 @@ func (m *SubmitPrice) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: SubmitPrice: wiretype end group for non-group")
+			return fmt.Errorf("proto: SignalPrice: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: SubmitPrice: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: SignalPrice: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -2355,7 +3093,7 @@ func (m *ValidatorPrice) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *PriceService) Unmarshal(dAtA []byte) error {
+func (m *ValidatorPriceList) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2378,15 +3116,15 @@ func (m *PriceService) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: PriceService: wiretype end group for non-group")
+			return fmt.Errorf("proto: ValidatorPriceList: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: PriceService: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: ValidatorPriceList: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Hash", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Validator", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -2414,7 +3152,123 @@ func (m *PriceService) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Hash = string(dAtA[iNdEx:postIndex])
+			m.Validator = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValidatorPrices", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFeeds
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ValidatorPrices = append(m.ValidatorPrices, ValidatorPrice{})
+			if err := m.ValidatorPrices[len(m.ValidatorPrices)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipFeeds(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ReferenceSourceConfig) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowFeeds
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ReferenceSourceConfig: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ReferenceSourceConfig: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field IPFSHash", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowFeeds
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthFeeds
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.IPFSHash = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
@@ -2447,38 +3301,6 @@ func (m *PriceService) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.Version = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Url", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowFeeds
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthFeeds
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthFeeds
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Url = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

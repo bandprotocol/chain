@@ -17,32 +17,32 @@ func TestCalculateMedianPriceFeedInfo(t *testing.T) {
 		{
 			name: "case 1",
 			priceFeedInfos: []types.PriceFeedInfo{
-				{Price: 100, Deviation: 10, Power: 100, Timestamp: 100, Index: 0},
-				{Price: 103, Deviation: 10, Power: 100, Timestamp: 101, Index: 1},
-				{Price: 105, Deviation: 10, Power: 100, Timestamp: 102, Index: 2},
-				{Price: 107, Deviation: 10, Power: 100, Timestamp: 103, Index: 3},
-				{Price: 109, Deviation: 10, Power: 100, Timestamp: 104, Index: 4},
+				{Price: 100, Power: 100, Timestamp: 100, Index: 0},
+				{Price: 103, Power: 100, Timestamp: 101, Index: 1},
+				{Price: 105, Power: 100, Timestamp: 102, Index: 2},
+				{Price: 107, Power: 100, Timestamp: 103, Index: 3},
+				{Price: 109, Power: 100, Timestamp: 104, Index: 4},
 			},
 			expRes: 107,
 		},
 		{
 			name: "case 2",
 			priceFeedInfos: []types.PriceFeedInfo{
-				{Price: 100, Deviation: 10, Power: 100, Timestamp: 100, Index: 0},
-				{Price: 103, Deviation: 10, Power: 200, Timestamp: 101, Index: 1},
-				{Price: 105, Deviation: 10, Power: 300, Timestamp: 102, Index: 2},
-				{Price: 107, Deviation: 10, Power: 400, Timestamp: 103, Index: 3},
-				{Price: 109, Deviation: 10, Power: 500, Timestamp: 104, Index: 4},
+				{Price: 100, Power: 100, Timestamp: 100, Index: 0},
+				{Price: 103, Power: 200, Timestamp: 101, Index: 1},
+				{Price: 105, Power: 300, Timestamp: 102, Index: 2},
+				{Price: 107, Power: 400, Timestamp: 103, Index: 3},
+				{Price: 109, Power: 500, Timestamp: 104, Index: 4},
 			},
 			expRes: 109,
 		},
 		{
 			name: "case 3",
 			priceFeedInfos: []types.PriceFeedInfo{
-				{Price: 1000, Deviation: 0, Power: 5000, Timestamp: 1716448424, Index: 0},
-				{Price: 2000, Deviation: 0, Power: 4000, Timestamp: 1716448424, Index: 1},
-				{Price: 2000, Deviation: 0, Power: 4000, Timestamp: 1716448424, Index: 2},
-				{Price: 2000, Deviation: 0, Power: 4000, Timestamp: 1716448424, Index: 3},
+				{Price: 1000, Power: 5000, Timestamp: 1716448424, Index: 0},
+				{Price: 2000, Power: 4000, Timestamp: 1716448424, Index: 1},
+				{Price: 2000, Power: 4000, Timestamp: 1716448424, Index: 2},
+				{Price: 2000, Power: 4000, Timestamp: 1716448424, Index: 3},
 			},
 			expRes: 1000,
 		},
@@ -56,24 +56,6 @@ func TestCalculateMedianPriceFeedInfo(t *testing.T) {
 			require.Equal(tt, tc.expRes, price)
 		})
 	}
-}
-
-func TestGetDeviationWeightedPrices(t *testing.T) {
-	dwp := types.GetDeviationWeightedPrices(100, 5, 1000)
-	require.Equal(t, []types.WeightedPrice{
-		{
-			Power: 1000,
-			Price: 100,
-		},
-		{
-			Power: 1000,
-			Price: 95,
-		},
-		{
-			Power: 1000,
-			Price: 105,
-		},
-	}, dwp)
 }
 
 func TestCalculateMedianWeightedPrice(t *testing.T) {

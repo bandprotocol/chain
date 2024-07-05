@@ -23,7 +23,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 	feeds := k.CalculateNewSupportedFeeds(ctx)
 	k.SetSupportedFeeds(ctx, feeds)
 
-	if err := k.SetPriceService(ctx, genState.PriceService); err != nil {
+	if err := k.SetReferenceSourceConfig(ctx, genState.ReferenceSourceConfig); err != nil {
 		panic(err)
 	}
 }
@@ -31,8 +31,8 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 // ExportGenesis returns the module's exported genesis
 func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	return &types.GenesisState{
-		Params:           k.GetParams(ctx),
-		DelegatorSignals: k.GetAllDelegatorSignals(ctx),
-		PriceService:     k.GetPriceService(ctx),
+		Params:                k.GetParams(ctx),
+		DelegatorSignals:      k.GetAllDelegatorSignals(ctx),
+		ReferenceSourceConfig: k.GetReferenceSourceConfig(ctx),
 	}
 }

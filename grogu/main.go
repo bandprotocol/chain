@@ -15,37 +15,26 @@ import (
 
 	band "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/grogu/cmd"
-	grogucontext "github.com/bandprotocol/chain/v2/grogu/context"
+	"github.com/bandprotocol/chain/v2/grogu/context"
 )
-
-var DefaultGroguHome string
-
-func initConfig(c *grogucontext.Context, _ *cobra.Command) error {
-	viper.SetConfigFile(path.Join(c.Home, "config.yaml"))
-	_ = viper.ReadInConfig() // If we fail to read config file, we'll just rely on cmd flags.
-	if err := viper.Unmarshal(&c.Config); err != nil {
-		return err
-	}
-	return nil
-}
-
-func init() {
-	userHomeDir, err := os.UserHomeDir()
-	if err != nil {
-		panic(err)
-	}
-
-	DefaultGroguHome = filepath.Join(userHomeDir, ".grogu")
-}
 
 func Main() {
 	appConfig := sdk.GetConfig()
 	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(appConfig)
 
-	ctx := &grogucontext.Context{}
+	ctx := &context.Context{}
+	rootCmd := createRootCmd(ctx)
+
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+}
+
+func createRootCmd(ctx *context.Context) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "grogu",
-		Short: "BandChain daemon to submit prices for feeds module",
+		Short: "BandChain daemon to submit signal prices for feeds module",
 	}
 
 	rootCmd.AddCommand(
@@ -54,25 +43,53 @@ func Main() {
 		cmd.RunCmd(ctx),
 		version.NewVersionCommand(),
 	)
-	rootCmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
+
+	rootCmd.PersistentPreRunE = createPersistentPreRunE(rootCmd, ctx)
+	rootCmd.PersistentFlags().String(flags.FlagHome, getDefaultHome(), "home directory")
+	return rootCmd
+}
+
+func createPersistentPreRunE(rootCmd *cobra.Command, ctx *context.Context) func(
+	cmd *cobra.Command,
+	args []string,
+) error {
+	return func(_ *cobra.Command, _ []string) error {
 		home, err := rootCmd.PersistentFlags().GetString(flags.FlagHome)
 		if err != nil {
 			return err
 		}
 		ctx.Home = home
-		if err := os.MkdirAll(home, os.ModePerm); err != nil {
+
+		if err = os.MkdirAll(home, os.ModePerm); err != nil {
 			return err
 		}
+
 		cdc := band.MakeEncodingConfig().Marshaler
 		ctx.Keyring, err = keyring.New("band", keyring.BackendTest, home, nil, cdc)
 		if err != nil {
 			return err
 		}
+
 		return initConfig(ctx, rootCmd)
 	}
-	rootCmd.PersistentFlags().String(flags.FlagHome, DefaultGroguHome, "home directory")
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+}
+
+func initConfig(c *context.Context, _ *cobra.Command) error {
+	viper.SetConfigFile(path.Join(c.Home, "config.yaml"))
+
+	// If the config file cannot be read, only cmd flags will be used.
+	_ = viper.ReadInConfig()
+	if err := viper.Unmarshal(&c.Config); err != nil {
+		return err
 	}
+	return nil
+}
+
+func getDefaultHome() string {
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+
+	return filepath.Join(userHomeDir, ".grogu")
 }

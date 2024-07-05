@@ -15,6 +15,6 @@ message GenesisState {
   // DelegatorSignals is a list of delegator signals submitted by delegators.
   repeated DelegatorSignals delegator_signals = 2 [(gogoproto.nullable) = false];
 
-  // PriceService is the information about price service.
-  PriceService price_service = 3 [(gogoproto.nullable) = false];
+  // ReferenceSourceConfig is the information about reference price config.
+  ReferenceSourceConfig reference_source_config = 3 [(gogoproto.nullable) = false];
 }
