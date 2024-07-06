@@ -286,6 +286,14 @@ func (h *Signaller) shouldUpdatePrice(
 	newPrice uint64,
 	now time.Time,
 ) bool {
+	// thresholdTime is the time when the price can be updated.
+	// add TimeBuffer to make sure the thresholdTime is not too early.
+	thresholdTime := time.Unix(valPrice.Timestamp+h.params.CooldownTime+TimeBuffer, 0)
+
+	if thresholdTime.After(now) {
+		return false
+	}
+
 	// Check if the price is past the assigned time, if it is, add it to the list of prices to update
 	assignedTime := calculateAssignedTime(
 		h.valAddress,
@@ -295,11 +303,7 @@ func (h *Signaller) shouldUpdatePrice(
 		h.distributionStartPercentage,
 	)
 
-	// thresholdTime is the time when the price can be updated.
-	// add TimeBuffer to make sure the thresholdTime is not too early.
-	thresholdTime := time.Unix(valPrice.Timestamp+h.params.CooldownTime+TimeBuffer, 0)
-
-	if thresholdTime.Before(now) && assignedTime.Before(now) {
+	if assignedTime.Before(now) {
 		return true
 	}
 
