@@ -290,7 +290,7 @@ func (h *Signaller) shouldUpdatePrice(
 	// add TimeBuffer to make sure the thresholdTime is not too early.
 	thresholdTime := time.Unix(valPrice.Timestamp+h.params.CooldownTime+TimeBuffer, 0)
 
-	if thresholdTime.After(now) {
+	if now.Before(thresholdTime) {
 		return false
 	}
 
