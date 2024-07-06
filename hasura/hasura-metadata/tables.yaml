@@ -592,7 +592,7 @@
       using:
         foreign_key_constraint_on: tx_id
 - table:
-    name: price_services
+    name: reference_source_configs
     schema: public
 - table:
     name: prices
