@@ -54,7 +54,7 @@ func RewardStoreKey(addr sdk.AccAddress, keyName string) []byte {
 }
 
 func StakesByAmountIndexKey(addr sdk.AccAddress) []byte {
-	return append(StakesByAmountIndexKeyPrefix, addr...)
+	return append(StakesByAmountIndexKeyPrefix, address.MustLengthPrefix(addr)...)
 }
 
 func StakeByAmountIndexKey(stake Stake) []byte {
@@ -63,7 +63,7 @@ func StakeByAmountIndexKey(stake Stake) []byte {
 	amountBytes := make([]byte, 8)
 	binary.BigEndian.PutUint64(amountBytes, stake.Amount.Uint64())
 
-	// key is of format prefix || address || amountBytes || keyBytes
+	// key is of format prefix || addrLen || address || amountBytes || keyBytes
 	bz := append(StakesByAmountIndexKey(address), amountBytes...)
 	return append(bz, []byte(stake.Key)...)
 }

@@ -103,12 +103,11 @@ func (k Keeper) DeactivateKey(ctx sdk.Context, keyName string) error {
 
 func (k Keeper) ProcessKey(ctx sdk.Context, key types.Key) types.Key {
 	if key.TotalLock.IsZero() {
-		k.addRemainderAmount(ctx, key.CurrentRewards)
-	} else {
-		key.RewardPerShares = key.RewardPerShares.Add(
-			key.CurrentRewards.QuoDecTruncate(sdk.NewDecFromInt(key.TotalLock))...)
+		return key
 	}
 
+	key.RewardPerShares = key.RewardPerShares.Add(
+		key.CurrentRewards.QuoDecTruncate(sdk.NewDecFromInt(key.TotalLock))...)
 	key.CurrentRewards = sdk.NewDecCoins()
 	k.SetKey(ctx, key)
 

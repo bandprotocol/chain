@@ -127,6 +127,10 @@ func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName strin
 		return types.ErrKeyNotActive
 	}
 
+	if key.TotalLock.IsZero() {
+		return types.ErrTotalLockZero
+	}
+
 	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, rewards)
 	if err != nil {
 		return err

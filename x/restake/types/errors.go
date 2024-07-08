@@ -15,4 +15,5 @@ var (
 	ErrDelegationNotEnough   = errorsmod.Register(ModuleName, 8, "delegation not enough")
 	ErrInvalidAmount         = errorsmod.Register(ModuleName, 9, "invalid amount")
 	ErrRewardNotFound        = errorsmod.Register(ModuleName, 10, "reward not found")
+	ErrTotalLockZero         = errorsmod.Register(ModuleName, 11, "total lock is zero")
 )
