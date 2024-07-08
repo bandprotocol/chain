@@ -644,6 +644,8 @@ func NewBandApp(
 		keys[tunneltypes.StoreKey],
 		app.AccountKeeper,
 		app.BankKeeper,
+		app.FeedsKeeper,
+		app.BandtssKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 

@@ -31,6 +31,10 @@ func (k Keeper) SetTSSPacket(ctx sdk.Context, packet types.TSSPacket) {
 // AddTSSPacket adds a TSS packet to the store and returns the new packet ID
 func (k Keeper) AddTSSPacket(ctx sdk.Context, packet types.TSSPacket) uint64 {
 	packet.ID = k.GetNextTSSPacketID(ctx)
+
+	// Set the creation time
+	packet.CreatedAt = ctx.BlockTime()
+
 	k.SetTSSPacket(ctx, packet)
 	return packet.ID
 }
@@ -47,4 +51,20 @@ func (k Keeper) GetTSSPacket(ctx sdk.Context, id uint64) (types.TSSPacket, error
 	return packet, nil
 }
 
-func (k Keeper) TSSPacketHandler(ctx sdk.Context, packet types.TSSPacket) {}
+// MustGetTSSPacket retrieves a TSS packet by its ID and panics if the packet does not exist
+func (k Keeper) MustGetTSSPacket(ctx sdk.Context, id uint64) types.TSSPacket {
+	packet, err := k.GetTSSPacket(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return packet
+}
+
+func (k Keeper) TSSPacketHandler(ctx sdk.Context, packet types.TSSPacket) uint64 {
+	// TODO: Implement TSS packet handler logic
+	// Sign TSS packet
+	packet.SigningID = 1
+
+	// Save the signed TSS packet
+	return k.AddTSSPacket(ctx, packet)
+}

@@ -65,7 +65,7 @@ func NewMsgCreateTunnel(
 ) (*MsgCreateTunnel, error) {
 	msg, ok := route.(proto.Message)
 	if !ok {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrPackAny, "cannot proto marshal %T", msg)
+		return nil, sdkerrors.ErrPackAny.Wrapf("cannot proto marshal %T", msg)
 	}
 	any, err := types.NewAnyWithValue(msg)
 	if err != nil {
@@ -153,6 +153,22 @@ func (m *MsgCreateTunnel) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgCreateTunnel) ValidateBasic() error {
+	switch r := m.Route.GetCachedValue().(type) {
+	case *TSSRoute:
+		// Validate TSSRoute
+		err := r.ValidateBasic()
+		if err != nil {
+			return err
+		}
+	case *AxelarRoute:
+		// Validate AxelarRoute
+		err := r.ValidateBasic()
+		if err != nil {
+			return err
+		}
+	default:
+		return sdkerrors.ErrUnknownRequest.Wrapf("unknown route type")
+	}
 	return nil
 }
 
@@ -186,4 +202,33 @@ func (m MsgCreateTunnel) GetTunnelRoute() Route {
 		return nil
 	}
 	return route
+}
+
+// NewMsgActivateTunnel creates a new MsgActivateTunnel instance.
+func NewMsgActivateTunnel(
+	id uint64,
+	creator string,
+) *MsgActivateTunnel {
+	return &MsgActivateTunnel{
+		TunnelID: id,
+		Creator:  creator,
+	}
+}
+
+// Route Implements Msg.
+func (m MsgActivateTunnel) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes implements the LegacyMsg interface.
+func (m MsgActivateTunnel) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for the message.
+func (m *MsgActivateTunnel) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Creator)}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgActivateTunnel) ValidateBasic() error {
+	return nil
 }

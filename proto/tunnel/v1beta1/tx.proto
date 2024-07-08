@@ -19,6 +19,9 @@ service Msg {
   // CreateTunnel is a RPC method to create a new tunnel.
   rpc CreateTunnel(MsgCreateTunnel) returns (MsgCreateTunnelResponse);
 
+  // ActivateTunnel is a RPC method to activate a tunnel.
+  rpc ActivateTunnel(MsgActivateTunnel) returns (MsgActivateTunnelResponse);
+
   // UpdateParams is a RPC method to update parameters
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
@@ -38,8 +41,20 @@ message MsgCreateTunnel {
 
 // MsgCreateTunnelResponse is the response type for the Msg/CreateTunnel RPC method.
 message MsgCreateTunnelResponse {
-  string tunnel_id = 1;
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
 }
+
+// MsgActivateTunnel is the transaction message to activate a tunnel.
+message MsgActivateTunnel {
+  option (cosmos.msg.v1.signer) = "creator";
+  option (amino.name)           = "tunnel/MsgActivateTunnel";
+
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
+  string creator   = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgActivateTunnelResponse is the response type for the Msg/ActivateTunnel RPC method.
+message MsgActivateTunnelResponse {}
 
 // MsgUpdateParams is the transaction message to update parameters.
 message MsgUpdateParams {

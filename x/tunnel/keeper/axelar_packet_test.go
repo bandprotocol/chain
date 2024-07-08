@@ -1,13 +1,17 @@
 package keeper_test
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/require"
 
+	"github.com/bandprotocol/chain/v2/x/tunnel/testutil"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
-func (s *KeeperTestSuite) TestGetSetAxelarPacket() {
-	ctx, k := s.ctx, s.keeper
+func TestGetSetAxelarPacket(t *testing.T) {
+	s := testutil.NewTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
 
 	packet := types.AxelarPacket{
 		ID: 1,
@@ -19,8 +23,9 @@ func (s *KeeperTestSuite) TestGetSetAxelarPacket() {
 	require.Equal(s.T(), packet, storedPacket)
 }
 
-func (s *KeeperTestSuite) TestGetNextAxelarPacketID() {
-	ctx, k := s.ctx, s.keeper
+func TestGetNextAxelarPacketID(t *testing.T) {
+	s := testutil.NewTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
 
 	firstID := k.GetNextAxelarPacketID(ctx)
 	require.Equal(s.T(), uint64(1), firstID, "expected first axelar packet ID to be 1")

@@ -2,10 +2,12 @@ package keeper
 
 import (
 	"fmt"
+	"math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
+	feedsTypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
@@ -66,17 +68,113 @@ func (k Keeper) GetTunnel(ctx sdk.Context, id uint64) (types.Tunnel, error) {
 	return tunnel, nil
 }
 
-func (k Keeper) GeneratePackets(ctx sdk.Context, tunnel types.Tunnel) error {
-	var route types.Route
-	route, ok := tunnel.Route.GetCachedValue().(*types.TSSRoute)
-	if ok {
-		fmt.Printf("TSSRoute: %v\n", route)
-		return nil
+// GetTunnels returns all tunnels
+func (k Keeper) GetTunnels(ctx sdk.Context) []types.Tunnel {
+	var tunnels []types.Tunnel
+	iterator := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.TunnelStoreKeyPrefix)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var tunnel types.Tunnel
+		k.cdc.MustUnmarshal(iterator.Value(), &tunnel)
+		tunnels = append(tunnels, tunnel)
 	}
-	route, ok = tunnel.Route.GetCachedValue().(*types.AxelarRoute)
-	if ok {
-		fmt.Printf("AxelarRoute: %v\n", route)
-		return nil
+	return tunnels
+}
+
+// GetActiveTunnels returns all active tunnels
+func (k Keeper) GetActiveTunnels(ctx sdk.Context) []types.Tunnel {
+	var tunnels []types.Tunnel
+	iterator := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.TunnelStoreKeyPrefix)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var tunnel types.Tunnel
+		k.cdc.MustUnmarshal(iterator.Value(), &tunnel)
+
+		if tunnel.IsActive {
+			tunnels = append(tunnels, tunnel)
+		}
 	}
-	return fmt.Errorf("unknown route type: %s", tunnel.Route.String())
+	return tunnels
+}
+
+// GetRequiredProcessTunnels returns all tunnels that require processing
+func (k Keeper) GetRequiredProcessTunnels(
+	ctx sdk.Context,
+) []types.Tunnel {
+	var tunnels []types.Tunnel
+	activeTunnels := k.GetActiveTunnels(ctx)
+	latestPrices := k.feedsKeeper.GetPrices(ctx)
+	latestPricesMap := make(map[string]feedsTypes.Price, len(latestPrices))
+
+	// Populate the map with the latest prices
+	for _, price := range latestPrices {
+		latestPricesMap[price.SignalID] = price
+	}
+
+	now := ctx.BlockTime()
+	unixNow := ctx.BlockTime().Unix()
+
+	// Evaluate which tunnels require processing based on the price signals
+	for i, at := range activeTunnels {
+		var trigger bool
+		for j, sp := range at.SignalPriceInfos {
+			latestPrice, exists := latestPricesMap[sp.SignalID]
+			if exists {
+				difference := math.Abs(float64(latestPrice.Price)-float64(sp.Price)) / float64(sp.Price)
+				differenceInBPS := uint64(difference * 10000)
+
+				if differenceInBPS > sp.DeviationBPS || unixNow >= sp.LastTimestamp.Unix()+int64(sp.Interval) {
+					// Update the price directly
+					activeTunnels[i].SignalPriceInfos[j].Price = latestPrice.Price
+					activeTunnels[i].SignalPriceInfos[j].LastTimestamp = &now
+					trigger = true
+				}
+			}
+		}
+
+		if trigger {
+			tunnels = append(tunnels, at)
+		}
+	}
+	return tunnels
+}
+
+// ActivateTunnel activates a tunnel
+func (k Keeper) ActivateTunnel(ctx sdk.Context, id uint64, creator string) error {
+	tunnel, err := k.GetTunnel(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if tunnel.Creator != creator {
+		return fmt.Errorf("creator %s is not the creator of tunnel %d", creator, id)
+	}
+	tunnel.IsActive = true
+
+	k.SetTunnel(ctx, tunnel)
+	return nil
+}
+
+// SetParams sets the tunnel module parameters
+func (k Keeper) ProcessTunnel(ctx sdk.Context, tunnel types.Tunnel) {
+	switch r := tunnel.Route.GetCachedValue().(type) {
+	case *types.TSSRoute:
+		fmt.Printf("Generating TSS packets for tunnel %d, route %s\n", tunnel.ID, r.String())
+		packetID := k.TSSPacketHandler(ctx, types.TSSPacket{
+			TunnelID:                   tunnel.ID,
+			SignalPriceInfos:           tunnel.SignalPriceInfos,
+			DestinationChainID:         r.DestinationChainID,
+			DestinationContractAddress: r.DestinationContractAddress,
+		})
+
+		packet := k.MustGetTSSPacket(ctx, packetID)
+		// TODO: Emit event
+		fmt.Printf("Emitting event for TSS packet %d\n", packet.ID)
+
+	case *types.AxelarRoute:
+		fmt.Printf("Generating Axelar packets for tunnel %d, route %s\n", tunnel.ID, r.String())
+		k.AxelarPacketHandler(ctx, types.AxelarPacket{})
+	}
 }

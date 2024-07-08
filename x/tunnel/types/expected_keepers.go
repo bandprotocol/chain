@@ -3,6 +3,10 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 // AccountKeeper defines the expected account keeper (noalias)
@@ -36,4 +40,17 @@ type BankKeeper interface {
 		amt sdk.Coins,
 	) error
 	SendCoinsFromModuleToModule(ctx sdk.Context, senderModule, recipientModule string, amt sdk.Coins) error
+}
+
+type FeedsKeeper interface {
+	GetPrices(ctx sdk.Context) (prices []feedstypes.Price)
+}
+
+type BandtssKeeper interface {
+	HandleCreateSigning(
+		ctx sdk.Context,
+		content tsstypes.Content,
+		sender sdk.AccAddress,
+		feeLimit sdk.Coins,
+	) (bandtsstypes.SigningID, error)
 }

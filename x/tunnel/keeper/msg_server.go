@@ -21,33 +21,75 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 	return &msgServer{Keeper: keeper}
 }
 
+// CreateTunnel creates a new tunnel.
 func (ms msgServer) CreateTunnel(
 	goCtx context.Context,
 	req *types.MsgCreateTunnel,
 ) (*types.MsgCreateTunnelResponse, error) {
-	// ctx := sdk.UnwrapSDKContext(goCtx)
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// ms.Keeper.AddTunnel(ctx, types.Tunnel{
-	// 	Route:    req.Route,
-	// 	FeedType: req.FeedType,
-	// })
+	signalPriceInfos := make([]types.SignalPriceInfo, len(req.SignalInfos))
+	for _, signalInfo := range req.SignalInfos {
+		signalPriceInfos = append(signalPriceInfos, types.SignalPriceInfo{
+			SignalID:     signalInfo.SignalID,
+			DeviationBPS: signalInfo.DeviationBPS,
+			Interval:     signalInfo.Interval,
+		})
+	}
 
-	fmt.Printf("Msg Create Tunnel: %+v\n", req.Route.TypeUrl)
-	fmt.Printf("Msg ROute: %+v\n", req.Route.GetCachedValue())
-	fmt.Printf("Msg ROute: %+v\n", req.GetTunnelRoute())
-	fmt.Printf("Msg ROute: %+v\n", req.Route.GetCachedValue().(types.Route))
-	// switch req.Route.GetCachedValue().(type) {
-	// case *types.TSSRoute:
-	// 	// Validate TSSRoute
-	// 	fmt.Printf("TSSRoute\n")
-	// case *types.AxelarRoute:
-	// 	// Validate AxelarRoute
-	// 	fmt.Printf("AxelarRoute\n")
-	// default:
-	// 	return &types.MsgCreateTunnelResponse{}, sdkerrors.ErrUnknownRequest.Wrapf("unknown route type")
-	// }
+	tunnelID := ms.Keeper.AddTunnel(ctx, types.Tunnel{
+		Route:            req.Route,
+		FeedType:         req.FeedType,
+		SignalPriceInfos: signalPriceInfos,
+		IsActive:         true, // TODO: set to false by default
+	})
 
-	return &types.MsgCreateTunnelResponse{}, nil
+	tunnel, err := ms.Keeper.GetTunnel(ctx, tunnelID)
+	if err != nil {
+		return nil, err
+	}
+
+	event := sdk.NewEvent(
+		types.EventTypeCreateTunnel,
+		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
+		sdk.NewAttribute(types.AttributeRoute, tunnel.Route.String()),
+		sdk.NewAttribute(types.AttributeFeedType, tunnel.FeedType.String()),
+		sdk.NewAttribute(types.AttributeFeePayer, tunnel.FeePayer),
+		sdk.NewAttribute(types.AttributeIsActive, fmt.Sprintf("%t", tunnel.IsActive)),
+		sdk.NewAttribute(types.AttributeKeyCreatedAt, tunnel.CreatedAt.String()),
+		sdk.NewAttribute(types.AttributeCreator, req.Creator),
+	)
+	for _, signalInfo := range req.SignalInfos {
+		event = event.AppendAttributes(
+			sdk.NewAttribute(types.AttributeSignalPriceInfos, signalInfo.String()),
+		)
+	}
+	ctx.EventManager().EmitEvent(event)
+
+	return &types.MsgCreateTunnelResponse{
+		TunnelID: tunnel.ID,
+	}, nil
+}
+
+// ActivateTunnel activates a tunnel.
+func (ms msgServer) ActivateTunnel(
+	goCtx context.Context,
+	req *types.MsgActivateTunnel,
+) (*types.MsgActivateTunnelResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	err := ms.Keeper.ActivateTunnel(ctx, req.TunnelID, req.Creator)
+	if err != nil {
+		return nil, err
+	}
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeActivateTunnel,
+		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", req.TunnelID)),
+		sdk.NewAttribute(types.AttributeIsActive, fmt.Sprintf("%t", true)),
+	))
+
+	return &types.MsgActivateTunnelResponse{}, nil
 }
 
 // UpdateParams updates the module params.

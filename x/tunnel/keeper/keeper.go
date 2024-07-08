@@ -17,8 +17,10 @@ type Keeper struct {
 	cdc      codec.BinaryCodec
 	storeKey storetypes.StoreKey
 
-	authKeeper types.AccountKeeper
-	bankKeeper types.BankKeeper
+	authKeeper    types.AccountKeeper
+	bankKeeper    types.BankKeeper
+	feedsKeeper   types.FeedsKeeper
+	bandtssKeeper types.BandtssKeeper
 
 	authority string
 }
@@ -29,6 +31,8 @@ func NewKeeper(
 	key storetypes.StoreKey,
 	authKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
+	feedsKeeper types.FeedsKeeper,
+	bandtssKeeper types.BandtssKeeper,
 	authority string,
 ) Keeper {
 	// ensure tunnel module account is set
@@ -42,11 +46,13 @@ func NewKeeper(
 	}
 
 	return Keeper{
-		cdc:        cdc,
-		storeKey:   key,
-		authKeeper: authKeeper,
-		bankKeeper: bankKeeper,
-		authority:  authority,
+		cdc:           cdc,
+		storeKey:      key,
+		authKeeper:    authKeeper,
+		bankKeeper:    bankKeeper,
+		feedsKeeper:   feedsKeeper,
+		bandtssKeeper: bandtssKeeper,
+		authority:     authority,
 	}
 }
 
