@@ -124,8 +124,10 @@ func (ms msgServer) SubmitSignalPrices(
 	prevValPrices, err := ms.GetValidatorPriceList(ctx, val)
 	if err == nil {
 		for _, valPrice := range prevValPrices.ValidatorPrices {
-			idx := supportedFeedsMap[valPrice.SignalID]
-			valPrices[idx] = valPrice
+			idx, ok := supportedFeedsMap[valPrice.SignalID]
+			if ok {
+				valPrices[idx] = valPrice
+			}
 		}
 	}
 

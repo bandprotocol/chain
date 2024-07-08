@@ -1,6 +1,7 @@
 package types_test
 
 import (
+	fmt "fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -15,6 +16,16 @@ func TestReferenceSourceConfig_Validate(t *testing.T) {
 		wantErr               error
 	}{
 		{"default reference source config", types.DefaultReferenceSourceConfig(), nil},
+		{
+			"empty IPFS hash",
+			types.ReferenceSourceConfig{IPFSHash: "", Version: "1.0.0"},
+			fmt.Errorf("ipfs hash cannot be empty"),
+		},
+		{
+			"empty version",
+			types.ReferenceSourceConfig{IPFSHash: "hash", Version: ""},
+			fmt.Errorf("version cannot be empty"),
+		},
 	}
 
 	for _, tt := range tests {

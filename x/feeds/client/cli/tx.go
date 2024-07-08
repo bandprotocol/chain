@@ -38,8 +38,8 @@ func GetTxCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 	txCmd.AddCommand(
-		GetTxCmdAddGrantees(),
-		GetTxCmdRemoveGrantees(),
+		GetTxCmdAddFeeders(),
+		GetTxCmdRemoveFeeders(),
 		GetTxCmdSubmitSignals(),
 		GetTxCmdUpdateReferenceSourceConfig(),
 	)
@@ -100,17 +100,17 @@ $ %s tx feeds signal BTC:1000000 --from mykey
 	return cmd
 }
 
-// GetTxCmdAddGrantees creates a CLI command for adding new grantees
-func GetTxCmdAddGrantees() *cobra.Command {
+// GetTxCmdAddFeeders creates a CLI command for adding new feeders
+func GetTxCmdAddFeeders() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add-grantees [grantee1] [grantee2] ...",
+		Use:   "add-feeders [feeder1] [feeder2] ...",
 		Short: "Add agents authorized to submit signal prices transactions.",
 		Args:  cobra.MinimumNArgs(1),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(
 				`Add agents authorized to submit feeds transactions.
 Example:
-$ %s tx feeds add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs --from mykey
+$ %s tx feeds add-feeders band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs --from mykey
 `,
 				version.AppName,
 			),
@@ -129,17 +129,17 @@ $ %s tx feeds add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq
 	return cmd
 }
 
-// GetTxCmdRemoveGrantees creates a CLI command for removing grantees from granter
-func GetTxCmdRemoveGrantees() *cobra.Command {
+// GetTxCmdRemoveFeeders creates a CLI command for removing feeders from granter
+func GetTxCmdRemoveFeeders() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "remove-grantees [grantee1] [grantee2] ...",
-		Short: "Remove agents from the list of authorized grantees.",
+		Use:   "remove-feeders [feeder1] [feeder2] ...",
+		Short: "Remove agents from the list of authorized feeders.",
 		Args:  cobra.MinimumNArgs(1),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(
-				`Remove agents from the list of authorized grantees.
+				`Remove agents from the list of authorized feeders.
 Example:
-$ %s tx feeds remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs --from mykey
+$ %s tx feeds remove-feeders band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs --from mykey
 `,
 				version.AppName,
 			),
@@ -156,11 +156,11 @@ $ %s tx feeds remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m
 func GetTxCmdUpdateReferenceSourceConfig() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-reference-source-config [ipfs-hash] [version]",
-		Short: "Update reference reference source config",
+		Short: "Update reference source config",
 		Args:  cobra.ExactArgs(2),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(
-				`Update reference reference source configuration that will be use as the default service for price querying.
+				`Update reference source configuration that will be use as the default service for price querying.
 Example:
 $ %s tx feeds update-reference-source-config <YOUR_IPFS_HASH> 1.0.0 --from mykey
 `,

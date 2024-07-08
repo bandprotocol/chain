@@ -269,7 +269,7 @@ func (q queryServer) Params(c context.Context, _ *types.QueryParamsRequest) (*ty
 	}, nil
 }
 
-// IsFeeder queries if the given address is a feeder grantee of the validator
+// IsFeeder queries if the given address is a feeder feeder of the validator
 func (q queryServer) IsFeeder(
 	c context.Context,
 	req *types.QueryIsFeederRequest,

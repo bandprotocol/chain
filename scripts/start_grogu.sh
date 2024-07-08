@@ -31,14 +31,18 @@ do
   grogu keys add feeder$i
 done
 
-# send band tokens to feeders
-echo "y" | bandd tx bank send validator $(grogu keys list -a) 1000000uband --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain
+addresses=$(grogu keys list -a)
 
-# wait for sending band tokens transaction success
-sleep 2
+for address in $(echo $addresses | tr " " "\n")
+do
+  # send band tokens to feeders
+  echo "y" | bandd tx bank send validator $address 1000000uband --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain
+  # wait for sending band tokens transaction success
+  sleep 2
+done
 
 # add feeder to bandchain
-echo "y" | bandd tx feeds add-grantees $(grogu keys list -a) --from validator --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain
+echo "y" | bandd tx feeds add-feeders $addresses --from validator --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain
 
 # wait for addding feeder transaction success
 sleep 2

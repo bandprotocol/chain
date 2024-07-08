@@ -9,22 +9,22 @@ func (suite *KeeperTestSuite) TestGetSetDeletePrice() {
 
 	// set
 	expPrice := types.Price{
-		SignalID:  "crypto_price.bandusd",
+		SignalID:  "CS:BAND-USD",
 		Price:     1e10,
 		Timestamp: ctx.BlockTime().Unix(),
 	}
 	suite.feedsKeeper.SetPrice(ctx, expPrice)
 
 	// get
-	price, err := suite.feedsKeeper.GetPrice(ctx, "crypto_price.bandusd")
+	price, err := suite.feedsKeeper.GetPrice(ctx, "CS:BAND-USD")
 	suite.Require().NoError(err)
 	suite.Require().Equal(expPrice, price)
 
 	// delete
-	suite.feedsKeeper.DeletePrice(ctx, "crypto_price.bandusd")
+	suite.feedsKeeper.DeletePrice(ctx, "CS:BAND-USD")
 
 	// get
-	_, err = suite.feedsKeeper.GetPrice(ctx, "crypto_price.bandusd")
+	_, err = suite.feedsKeeper.GetPrice(ctx, "CS:BAND-USD")
 	suite.Require().ErrorContains(err, "price not found")
 }
 
@@ -34,12 +34,12 @@ func (suite *KeeperTestSuite) TestGetSetPrices() {
 	// set
 	expPrices := []types.Price{
 		{
-			SignalID:  "crypto_price.atomusd",
+			SignalID:  "CS:ATOM-USD",
 			Price:     1e10,
 			Timestamp: ctx.BlockTime().Unix(),
 		},
 		{
-			SignalID:  "crypto_price.bandusd",
+			SignalID:  "CS:BAND-USD",
 			Price:     1e10,
 			Timestamp: ctx.BlockTime().Unix(),
 		},
@@ -58,13 +58,13 @@ func (suite *KeeperTestSuite) TestGetSetValidatorPriceList() {
 	expValPrices := []types.ValidatorPrice{
 		{
 			Validator: ValidValidator.String(),
-			SignalID:  "crypto_price.bandusd",
+			SignalID:  "CS:BAND-USD",
 			Price:     1e10,
 			Timestamp: ctx.BlockTime().Unix(),
 		},
 		{
 			Validator: ValidValidator.String(),
-			SignalID:  "crypto_price.ethusd",
+			SignalID:  "CS:ETH-USD",
 			Price:     1e10 + 5,
 			Timestamp: ctx.BlockTime().Unix(),
 		},
@@ -83,7 +83,7 @@ func (suite *KeeperTestSuite) TestCalculatePrice() {
 
 	// set
 	feed := types.Feed{
-		SignalID: "crypto_price.bandusd",
+		SignalID: "CS:BAND-USD",
 		Interval: 60,
 	}
 	priceFeedInfos := []types.PriceFeedInfo{
@@ -117,7 +117,7 @@ func (suite *KeeperTestSuite) TestCalculatePrice() {
 	suite.Require().NoError(err)
 	suite.Require().Equal(types.Price{
 		PriceStatus: types.PriceStatusAvailable,
-		SignalID:    "crypto_price.bandusd",
+		SignalID:    "CS:BAND-USD",
 		Price:       1000,
 		Timestamp:   ctx.BlockTime().Unix(),
 	}, price)

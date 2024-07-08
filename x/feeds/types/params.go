@@ -67,7 +67,7 @@ func DefaultParams() Params {
 
 // Validate validates the set of params
 func (p Params) Validate() error {
-	if err := validateString("admin", true, p.Admin); err != nil {
+	if err := validateString("admin", false, p.Admin); err != nil {
 		return err
 	}
 	if err := validateInt64("allowable block time discrepancy", true, p.AllowableBlockTimeDiscrepancy); err != nil {

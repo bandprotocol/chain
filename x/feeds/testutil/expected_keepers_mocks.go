@@ -173,16 +173,16 @@ func (m *MockAuthzKeeper) EXPECT() *MockAuthzKeeperMockRecorder {
 }
 
 // GetAuthorization mocks base method.
-func (m *MockAuthzKeeper) GetAuthorization(ctx types0.Context, grantee, granter types0.AccAddress, msgType string) (authz.Authorization, *time.Time) {
+func (m *MockAuthzKeeper) GetAuthorization(ctx types0.Context, feeder, granter types0.AccAddress, msgType string) (authz.Authorization, *time.Time) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAuthorization", ctx, grantee, granter, msgType)
+	ret := m.ctrl.Call(m, "GetAuthorization", ctx, feeder, granter, msgType)
 	ret0, _ := ret[0].(authz.Authorization)
 	ret1, _ := ret[1].(*time.Time)
 	return ret0, ret1
 }
 
 // GetAuthorization indicates an expected call of GetAuthorization.
-func (mr *MockAuthzKeeperMockRecorder) GetAuthorization(ctx, grantee, granter, msgType any) *gomock.Call {
+func (mr *MockAuthzKeeperMockRecorder) GetAuthorization(ctx, feeder, granter, msgType any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAuthorization", reflect.TypeOf((*MockAuthzKeeper)(nil).GetAuthorization), ctx, grantee, granter, msgType)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAuthorization", reflect.TypeOf((*MockAuthzKeeper)(nil).GetAuthorization), ctx, feeder, granter, msgType)
 }

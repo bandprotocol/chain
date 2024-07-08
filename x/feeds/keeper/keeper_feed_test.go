@@ -8,11 +8,11 @@ func (suite *KeeperTestSuite) TestGetSetSupportedFeeds() {
 	// set
 	expFeed := []types.Feed{
 		{
-			SignalID: "crypto_price.bandusd",
+			SignalID: "CS:BAND-USD",
 			Interval: 60,
 		},
 		{
-			SignalID: "crypto_price.atomusd",
+			SignalID: "CS:ATOM-USD",
 			Interval: 60,
 		},
 	}
@@ -27,23 +27,23 @@ func (suite *KeeperTestSuite) TestCalculateNewSupportedFeeds() {
 	ctx := suite.ctx
 
 	suite.feedsKeeper.SetSignalTotalPower(ctx, types.Signal{
-		ID:    "crypto_price.bandusd",
+		ID:    "CS:BAND-USD",
 		Power: 60000000000,
 	})
 	suite.feedsKeeper.SetSignalTotalPower(ctx, types.Signal{
-		ID:    "crypto_price.atomusd",
+		ID:    "CS:ATOM-USD",
 		Power: 30000000000,
 	})
 
 	feeds := suite.feedsKeeper.CalculateNewSupportedFeeds(ctx)
 	suite.Require().Equal([]types.Feed{
 		{
-			SignalID: "crypto_price.bandusd",
+			SignalID: "CS:BAND-USD",
 			Power:    60000000000,
 			Interval: 60,
 		},
 		{
-			SignalID: "crypto_price.atomusd",
+			SignalID: "CS:ATOM-USD",
 			Power:    30000000000,
 			Interval: 120,
 		},
