@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -75,8 +74,6 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 			if err != nil {
 				return err
 			}
-
-			fmt.Printf("msg: %+v\n", msg.GetTunnelRoute())
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
