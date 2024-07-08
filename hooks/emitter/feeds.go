@@ -90,13 +90,20 @@ func (h *Hook) handleMsgSubmitSignals(
 ) {
 	h.emitRemoveDelegatorSignals(msg.Delegator)
 
-	signalIDs := evMap[types.EventTypeUpdateSignalTotalPower+"."+types.AttributeKeySignalID]
+	updatedSignalIDs := evMap[types.EventTypeUpdateSignalTotalPower+"."+types.AttributeKeySignalID]
+	deletedSignalIDs := evMap[types.EventTypeDeleteSignalTotalPower+"."+types.AttributeKeySignalID]
 
-	for _, signalID := range signalIDs {
+	for _, signalID := range updatedSignalIDs {
 		stp, err := h.feedsKeeper.GetSignalTotalPower(ctx, signalID)
-		if err == nil {
+		if err != nil {
+			h.emitRemoveSignalTotalPower(signalID)
+		} else {
 			h.emitSetSignalTotalPower(stp)
 		}
+	}
+
+	for _, signalID := range deletedSignalIDs {
+		h.emitRemoveSignalTotalPower(signalID)
 	}
 
 	for _, signal := range msg.Signals {

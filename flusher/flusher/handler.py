@@ -647,7 +647,7 @@ class Handler(object):
             insert(signal_total_powers).values(**msg).on_conflict_do_update(constraint="signal_total_powers_pkey", set_=msg)
         )
 
-    def handle_remove_signal_total_powers(self, msg):
+    def handle_remove_signal_total_power(self, msg):
         self.conn.execute(
             signal_total_powers.delete().where(signal_total_powers.c.signal_id == msg["signal_id"])
         )
