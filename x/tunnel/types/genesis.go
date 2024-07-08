@@ -5,13 +5,13 @@ func NewGenesisState(
 	params Params,
 	tunnelCount uint64,
 	tssPacketCount uint64,
-	AxelarPacketCount uint64,
+	axelarPacketCount uint64,
 ) *GenesisState {
 	return &GenesisState{
 		Params:            params,
 		TunnelCount:       tunnelCount,
 		TssPacketCount:    tssPacketCount,
-		AxelarPacketCount: AxelarPacketCount,
+		AxelarPacketCount: axelarPacketCount,
 	}
 }
 
