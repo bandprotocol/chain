@@ -132,7 +132,7 @@ message QuerySignalTotalPowersRequest {
 
 // QuerySignalTotalPowersResponse is the response type for the Query/SignalTotalPowers RPC method.
 message QuerySignalTotalPowersResponse {
-  // SingalTotalPowers is a list of signal-total-powers.
+  // SignalTotalPowers is a list of signal-total-powers.
   repeated Signal signal_total_powers = 1;
 
   // Pagination is the pagination information in the response.
@@ -165,6 +165,7 @@ message QueryDelegatorSignalsRequest {
 
 // QueryDelegatorSignalsResponse is the response type for the Query/DelegatorSignals RPC method
 message QueryDelegatorSignalsResponse {
+  // Signals is a list of signals submitted by the delegator.
   repeated Signal signals = 1 [(gogoproto.nullable) = false];
 }
 

@@ -483,7 +483,7 @@ func (m *QuerySignalTotalPowersRequest) GetPagination() *query.PageRequest {
 
 // QuerySignalTotalPowersResponse is the response type for the Query/SignalTotalPowers RPC method.
 type QuerySignalTotalPowersResponse struct {
-	// SingalTotalPowers is a list of signal-total-powers.
+	// SignalTotalPowers is a list of signal-total-powers.
 	SignalTotalPowers []*Signal `protobuf:"bytes,1,rep,name=signal_total_powers,json=signalTotalPowers,proto3" json:"signal_total_powers,omitempty"`
 	// Pagination is the pagination information in the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
