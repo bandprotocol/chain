@@ -140,7 +140,7 @@ func setupFeeds(ba *BenchmarkApp) error {
 	ba.CallBeginBlock()
 
 	feeds := []types.Feed{}
-	for i := int64(0); i < numFeeds; i++ {
+	for i := uint64(0); i < numFeeds; i++ {
 		feeds = append(feeds, types.Feed{
 			SignalID: fmt.Sprintf("signal.%d", i),
 			Interval: 60,

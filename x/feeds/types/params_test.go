@@ -55,11 +55,6 @@ func TestParams_Validate(t *testing.T) {
 			params.PowerStepThreshold = -10 // Invalid value
 			return params
 		}(), fmt.Errorf("power threshold must be positive: -10")},
-		{"invalid MaxSupportedFeeds", func() types.Params {
-			params := types.DefaultParams()
-			params.MaxSupportedFeeds = 0 // Invalid value
-			return params
-		}(), fmt.Errorf("max supported feeds must be positive: 0")},
 		{"invalid CooldownTime", func() types.Params {
 			params := types.DefaultParams()
 			params.CooldownTime = -5 // Invalid value
@@ -90,6 +85,7 @@ func TestParams_Validate(t *testing.T) {
 				require.NoError(t, got)
 				return
 			}
+			require.Error(t, got)
 			require.Equal(t, tt.wantErr.Error(), got.Error())
 		})
 	}

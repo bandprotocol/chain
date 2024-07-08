@@ -11,12 +11,12 @@ const (
 	DefaultMinInterval                   = int64(60)
 	DefaultMaxInterval                   = int64(3600)
 	DefaultPowerStepThreshold            = int64(1_000_000_000)
-	DefaultMaxSupportedFeeds             = int64(300)
+	DefaultMaxSupportedFeeds             = uint64(300)
 	DefaultCooldownTime                  = int64(30)
 	DefaultMinDeviationBasisPoint        = int64(50)
 	DefaultMaxDeviationBasisPoint        = int64(3000)
 	// estimated from block time of 3 seconds, aims for 1 day update
-	DefaultSupportedFeedsUpdateInterval = uint64(28800)
+	DefaultSupportedFeedsUpdateInterval = int64(28800)
 )
 
 // NewParams creates a new Params instance
@@ -27,11 +27,11 @@ func NewParams(
 	minInterval int64,
 	maxInterval int64,
 	powerStepThreshold int64,
-	maxSupportedFeeds int64,
+	maxSupportedFeeds uint64,
 	cooldownTime int64,
 	minDeviationBasisPoint int64,
 	maxDeviationBasisPoint int64,
-	supportedFeedsUpdateInterval uint64,
+	supportedFeedsUpdateInterval int64,
 ) Params {
 	return Params{
 		Admin:                         admin,
@@ -85,7 +85,7 @@ func (p Params) Validate() error {
 	if err := validateInt64("power threshold", true, p.PowerStepThreshold); err != nil {
 		return err
 	}
-	if err := validateInt64("max supported feeds", true, p.MaxSupportedFeeds); err != nil {
+	if err := validateUint64("max supported feeds", false, p.MaxSupportedFeeds); err != nil {
 		return err
 	}
 	if err := validateInt64("cooldown time", true, p.CooldownTime); err != nil {
@@ -97,7 +97,7 @@ func (p Params) Validate() error {
 	if err := validateInt64("max deviation basis point", true, p.MaxDeviationBasisPoint); err != nil {
 		return err
 	}
-	if err := validateUint64("supported feeds update interval", true, p.SupportedFeedsUpdateInterval); err != nil {
+	if err := validateInt64("supported feeds update interval", true, p.SupportedFeedsUpdateInterval); err != nil {
 		return err
 	}
 

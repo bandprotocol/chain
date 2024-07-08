@@ -118,7 +118,7 @@ func (k Keeper) deleteSignalTotalPowerByPowerIndex(ctx sdk.Context, signalTotalP
 }
 
 // GetSignalTotalPowersByPower gets the current signal-total-power sorted by power-rank.
-func (k Keeper) GetSignalTotalPowersByPower(ctx sdk.Context, limit int64) []types.Signal {
+func (k Keeper) GetSignalTotalPowersByPower(ctx sdk.Context, limit uint64) []types.Signal {
 	signalTotalPowers := make([]types.Signal, limit)
 
 	iterator := k.SignalTotalPowersByPowerStoreIterator(ctx)

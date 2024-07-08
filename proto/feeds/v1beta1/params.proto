@@ -33,7 +33,7 @@ message Params {
   int64 power_step_threshold = 6;
 
   // MaxSupportedFeeds is the maximum number of feeds supported at a time.
-  int64 max_supported_feeds = 7;
+  uint64 max_supported_feeds = 7;
 
   // CooldownTime represents the duration (in seconds) during which validators are prohibited from sending new prices.
   int64 cooldown_time = 8;
@@ -45,5 +45,5 @@ message Params {
   int64 max_deviation_basis_point = 10;
 
   // SupportedFeedsUpdateInterval is the number of blocks after which the supported feeds will be re-calculated.
-  uint64 supported_feeds_update_interval = 11;
+  int64 supported_feeds_update_interval = 11;
 }

@@ -750,6 +750,7 @@ func (m *QueryDelegatorSignalsRequest) GetDelegator() string {
 
 // QueryDelegatorSignalsResponse is the response type for the Query/DelegatorSignals RPC method
 type QueryDelegatorSignalsResponse struct {
+	// Signals is a list of signals submitted by the delegator.
 	Signals []Signal `protobuf:"bytes,1,rep,name=signals,proto3" json:"signals"`
 }
 
