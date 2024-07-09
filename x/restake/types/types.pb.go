@@ -29,15 +29,15 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Key message represents a key definition.
 type Key struct {
-	// Name of the key.
+	// Name is the name of the key.
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// Indicates if the key is active.
+	// IsActive is the status of the key
 	IsActive bool `protobuf:"varint,2,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
-	// Reward per shares in different denominations.
+	// RewardPerShares is a list of reward per share of each reward.
 	RewardPerShares github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,3,rep,name=reward_per_shares,json=rewardPerShares,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"reward_per_shares"`
-	// Total locked amount.
+	// TotalLock is the total of locked power of the key.
 	TotalLock github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,4,opt,name=total_lock,json=totalLock,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"total_lock"`
-	// Current rewards in different denominations.
+	// CurrentRewards is a list of current rewards of the key.
 	CurrentRewards github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,5,rep,name=current_rewards,json=currentRewards,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"current_rewards"`
 }
 
@@ -102,15 +102,15 @@ func (m *Key) GetCurrentRewards() github_com_cosmos_cosmos_sdk_types.DecCoins {
 	return nil
 }
 
-// Stake message represents a staker's details.
+// Stake message represents a stake detail.
 type Stake struct {
-	// Staker's address.
+	// Address is the owner address of the stake.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-	// Associated key for staking.
+	// Key is the key that this stake is locked to.
 	Key string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
-	// Amount staked.
+	// Amount is the locked power amount.
 	Amount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,3,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"amount"`
-	// Reward debts in different denominations.
+	// RewardDebts is a list of reward debt for each reward.
 	RewardDebts github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,4,rep,name=reward_debts,json=rewardDebts,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"reward_debts"`
 }
 
@@ -168,11 +168,11 @@ func (m *Stake) GetRewardDebts() github_com_cosmos_cosmos_sdk_types.DecCoins {
 	return nil
 }
 
-// Reward message represents a reward structure.
+// Reward message represents a reward detail.
 type Reward struct {
-	// Unique identifier for the reward.
+	// Key is the key that this reward belongs to.
 	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	// Reward amounts in different denominations.
+	// Amount is a list of rewards.
 	Amounts github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,2,rep,name=amounts,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"amounts"`
 }
 
@@ -223,9 +223,9 @@ func (m *Reward) GetAmounts() github_com_cosmos_cosmos_sdk_types.DecCoins {
 	return nil
 }
 
-// Remainder message represents the remaining state data.
+// Remainder message represents the remainder state data.
 type Remainder struct {
-	// Remaining amounts in different denominations.
+	// Amount is a list of remainder amounts in the module.
 	Amounts github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,1,rep,name=amounts,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"amounts"`
 }
 
@@ -271,9 +271,9 @@ func (m *Remainder) GetAmounts() github_com_cosmos_cosmos_sdk_types.DecCoins {
 
 // Lock message represents a lock definition.
 type Lock struct {
-	// Associated key for locking.
+	// Key is the key that this lock belongs to.
 	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	// Amount locked.
+	// Amount is a the number of locked power.
 	Amount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,2,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"amount"`
 }
 

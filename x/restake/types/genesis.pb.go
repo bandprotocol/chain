@@ -29,13 +29,13 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // GenesisState represents the initial state of the blockchain.
 type GenesisState struct {
-	// keys contains a list of keys.
+	// Keys is a list of keys in the module.
 	Keys []Key `protobuf:"bytes,1,rep,name=keys,proto3" json:"keys"`
-	// stakes contains a list of stakes.
+	// Stake is a list of stakes in the module.
 	Stakes []Stake `protobuf:"bytes,2,rep,name=stakes,proto3" json:"stakes"`
-	// rewards contains a list of rewards.
+	// Rewards is a list of rewards in the module.
 	Rewards []RewardGenesis `protobuf:"bytes,3,rep,name=rewards,proto3" json:"rewards"`
-	// remainder represents the remaining state data.
+	// Remainder is a remainder amount in the module.
 	Remainder Remainder `protobuf:"bytes,4,opt,name=remainder,proto3" json:"remainder"`
 }
 
@@ -102,11 +102,11 @@ func (m *GenesisState) GetRemainder() Remainder {
 
 // RewardGenesis message represents reward details for genesis state.
 type RewardGenesis struct {
-	// Address associated with the reward.
+	// Address is the owner address of this reward.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-	// Unique identifier for the reward.
+	// Key is the key that this rewards belongs to.
 	Key string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
-	// Reward amounts in different denominations.
+	// Amounts is a list of reward amounts for this address and key.
 	Amounts github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,3,rep,name=amounts,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"amounts"`
 }
 

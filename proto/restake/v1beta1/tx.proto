@@ -33,24 +33,26 @@ message MsgClaimRewards {
   option (cosmos.msg.v1.signer) = "address";
   option (amino.name)           = "restake/MsgClaimRewards";
 
-  // Address of the account to claim rewards for.
+  // Address is the address that will claim the rewards.
   string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // MsgClaimRewardsResponse is the response message type for claiming rewards.
-message MsgClaimRewardsResponse {
-  // Placeholder for any response fields related to claiming rewards.
-}
+message MsgClaimRewardsResponse {}
 
 // MsgLockPower is the request message type for locking tokens.
 message MsgLockPower {
   option (cosmos.msg.v1.signer) = "address";
   option (amino.name)           = "restake/MsgLockPower";
 
-  // Address of the account to lock tokens for.
+  // Address is the address will be locked power.
   string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  string key     = 2;
-  string amount  = 3 [
+
+  // Key is the key of the lock.
+  string key = 2;
+
+  // Amount is the locked amount.
+  string amount = 3 [
     (cosmos_proto.scalar)  = "cosmos.Int",
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.nullable)   = false
@@ -58,18 +60,20 @@ message MsgLockPower {
 }
 
 // MsgLockPowerResponse is the response message type for locking power.
-message MsgLockPowerResponse {
-  // Placeholder for any response fields related to locking power.
-}
+message MsgLockPowerResponse {}
 
 // MsgAddRewards is the request message type for adding rewards.
 message MsgAddRewards {
   option (cosmos.msg.v1.signer) = "sender";
   option (amino.name)           = "restake/MsgAddRewards";
 
-  // Address of the account to add rewards to.
-  string   sender                           = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  string   key                              = 2;
+  // Sender is the address that want to send rewards.
+  string sender = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // Key is the key of pool that reward will be sent to.
+  string key = 2;
+
+  // Rewards is a list of rewards that will send to module.
   repeated cosmos.base.v1beta1.Coin rewards = 3 [
     (gogoproto.nullable)     = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
@@ -78,21 +82,19 @@ message MsgAddRewards {
 }
 
 // MsgAddRewardsResponse is the response message type for adding rewards.
-message MsgAddRewardsResponse {
-  // Placeholder for any response fields related to adding rewards.
-}
+message MsgAddRewardsResponse {}
 
 // MsgDeactivateKey is the request message type for deactivating a key.
 message MsgDeactivateKey {
   option (cosmos.msg.v1.signer) = "sender";
   option (amino.name)           = "restake/MsgDeactivateKey";
 
-  // Address of the account to deactivate the key for.
-  string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  string key     = 2;
+  // Sender is the sender of the message.
+  string sender = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // Key is the key that will be deactivated.
+  string key = 2;
 }
 
 // MsgDeactivateKeyResponse is the response message type for deactivating a key.
-message MsgDeactivateKeyResponse {
-  // Placeholder for any response fields related to deactivating a key.
-}
+message MsgDeactivateKeyResponse {}

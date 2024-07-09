@@ -32,7 +32,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // QueryKeysRequest represents the request type for the Query/Keys RPC method.
 type QueryKeysRequest struct {
-	// pagination defines optional pagination parameters.
+	// Pagination defines optional pagination parameters.
 	Pagination *query.PageRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -78,9 +78,9 @@ func (m *QueryKeysRequest) GetPagination() *query.PageRequest {
 
 // QueryKeysResponse represents the response type for the Query/Keys RPC method.
 type QueryKeysResponse struct {
-	// keys contains a list of keys.
+	// Keys contains a list of keys.
 	Keys []*Key `protobuf:"bytes,1,rep,name=keys,proto3" json:"keys,omitempty"`
-	// pagination defines pagination parameters in the response.
+	// Pagination defines pagination parameters in the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -133,7 +133,7 @@ func (m *QueryKeysResponse) GetPagination() *query.PageResponse {
 
 // QueryRewardsRequest represents the request type for the Query/Rewards RPC method.
 type QueryRewardsRequest struct {
-	// address is the target address to query rewards.
+	// Address is the target address to query rewards.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
 
@@ -179,7 +179,7 @@ func (m *QueryRewardsRequest) GetAddress() string {
 
 // QueryRewardsResponse represents the response type for the Query/Rewards RPC method.
 type QueryRewardsResponse struct {
-	// rewards contains a list of rewards.
+	// Rewards is a list of rewards for the address.
 	Rewards []Reward `protobuf:"bytes,1,rep,name=rewards,proto3" json:"rewards"`
 }
 
@@ -225,7 +225,7 @@ func (m *QueryRewardsResponse) GetRewards() []Reward {
 
 // QueryLocksRequest represents the request type for the Query/Locks RPC method.
 type QueryLocksRequest struct {
-	// address is the target address to query locks.
+	// Address is the target address to query locks.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 }
 
@@ -271,7 +271,7 @@ func (m *QueryLocksRequest) GetAddress() string {
 
 // QueryLocksResponse represents the response type for the Query/Locks RPC method.
 type QueryLocksResponse struct {
-	// locks contains a list of locks.
+	// Locks is a list of locks of the address.
 	Locks []Lock `protobuf:"bytes,1,rep,name=locks,proto3" json:"locks"`
 }
 
@@ -354,7 +354,7 @@ var xxx_messageInfo_QueryRemainderRequest proto.InternalMessageInfo
 
 // QueryRemainderResponse represents the response type for the Query/Remainder RPC method.
 type QueryRemainderResponse struct {
-	// remainder contains the remaining state data.
+	// Remainder is the remaining state data of the module.
 	Remainder Remainder `protobuf:"bytes,1,opt,name=remainder,proto3" json:"remainder"`
 }
 
@@ -467,7 +467,7 @@ type QueryClient interface {
 	Keys(ctx context.Context, in *QueryKeysRequest, opts ...grpc.CallOption) (*QueryKeysResponse, error)
 	// Rewards returns rewards for a specific address.
 	Rewards(ctx context.Context, in *QueryRewardsRequest, opts ...grpc.CallOption) (*QueryRewardsResponse, error)
-	// Locks returns locks for a specific address.
+	// Locks returns all lock information for a specific address.
 	Locks(ctx context.Context, in *QueryLocksRequest, opts ...grpc.CallOption) (*QueryLocksResponse, error)
 	// Remainder returns the remainder state data.
 	Remainder(ctx context.Context, in *QueryRemainderRequest, opts ...grpc.CallOption) (*QueryRemainderResponse, error)
@@ -523,7 +523,7 @@ type QueryServer interface {
 	Keys(context.Context, *QueryKeysRequest) (*QueryKeysResponse, error)
 	// Rewards returns rewards for a specific address.
 	Rewards(context.Context, *QueryRewardsRequest) (*QueryRewardsResponse, error)
-	// Locks returns locks for a specific address.
+	// Locks returns all lock information for a specific address.
 	Locks(context.Context, *QueryLocksRequest) (*QueryLocksResponse, error)
 	// Remainder returns the remainder state data.
 	Remainder(context.Context, *QueryRemainderRequest) (*QueryRemainderResponse, error)

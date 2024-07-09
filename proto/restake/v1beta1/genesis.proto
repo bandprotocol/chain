@@ -11,29 +11,30 @@ import "restake/v1beta1/types.proto";
 
 // GenesisState represents the initial state of the blockchain.
 message GenesisState {
-  // keys contains a list of keys.
+  // Keys is a list of keys in the module.
   repeated Key keys = 1 [(gogoproto.nullable) = false];
 
-  // stakes contains a list of stakes.
+  // Stake is a list of stakes in the module.
   repeated Stake stakes = 2 [(gogoproto.nullable) = false];
 
-  // rewards contains a list of rewards.
+  // Rewards is a list of rewards in the module.
   repeated RewardGenesis rewards = 3 [(gogoproto.nullable) = false];
 
-  // remainder represents the remaining state data.
+  // Remainder is a remainder amount in the module.
   Remainder remainder = 4 [(gogoproto.nullable) = false];
 }
 
 // RewardGenesis message represents reward details for genesis state.
 message RewardGenesis {
-  // Enables equality check for the message.
   option (gogoproto.equal) = true;
 
-  // Address associated with the reward.
+  // Address is the owner address of this reward.
   string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  // Unique identifier for the reward.
+
+  // Key is the key that this rewards belongs to.
   string key = 2;
-  // Reward amounts in different denominations.
+
+  // Amounts is a list of reward amounts for this address and key.
   repeated cosmos.base.v1beta1.DecCoin amounts = 3 [
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
     (gogoproto.nullable)     = false,
