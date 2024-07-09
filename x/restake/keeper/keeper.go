@@ -73,7 +73,11 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, addr sdk.AccAddress, keyName str
 		return types.ErrDelegationNotEnough
 	}
 
-	key := k.GetOrCreateKey(ctx, keyName)
+	key, err := k.GetOrCreateKey(ctx, keyName)
+	if err != nil {
+		return err
+	}
+
 	if !key.IsActive {
 		return types.ErrKeyNotActive
 	}
@@ -122,7 +126,11 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, addr sdk.AccAddress, keyName str
 }
 
 func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName string, rewards sdk.Coins) error {
-	key := k.GetOrCreateKey(ctx, keyName)
+	key, err := k.GetKey(ctx, keyName)
+	if err != nil {
+		return err
+	}
+
 	if !key.IsActive {
 		return types.ErrKeyNotActive
 	}
@@ -131,7 +139,7 @@ func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName strin
 		return types.ErrTotalLockZero
 	}
 
-	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, rewards)
+	err = k.bankKeeper.SendCoins(ctx, sender, sdk.MustAccAddressFromBech32(key.Address), rewards)
 	if err != nil {
 		return err
 	}

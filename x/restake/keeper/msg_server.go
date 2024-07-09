@@ -38,34 +38,40 @@ func (k msgServer) ClaimRewards(
 		k.ProcessStake(ctx, stake)
 	}
 
-	// calculate claim rewards
-	claimRewards := sdk.NewDecCoins()
+	// claim each rewards
 	rewards := k.GetRewards(ctx, address)
 	for _, reward := range rewards {
-		claimRewards = claimRewards.Add(reward.Amounts...)
+		finalReward, remainder := reward.Amounts.TruncateDecimal()
+
+		if finalReward.IsZero() {
+			continue
+		}
+
 		k.DeleteReward(ctx, address, reward.Key)
-	}
-
-	// truncate reward dec coins, return remainder to community pool
-	finalRewards, remainder := claimRewards.TruncateDecimal()
-
-	// add coins to user account
-	if !finalRewards.IsZero() {
-		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, finalRewards)
+		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, finalReward)
 		if err != nil {
 			return nil, err
 		}
+
+		if !remainder.IsZero() {
+			key, err := k.GetKey(ctx, reward.Key)
+			if err != nil {
+				return nil, err
+			}
+
+			key.Remainder = key.Remainder.Add(remainder...)
+			k.SetKey(ctx, key)
+		}
+
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeClaimRewards,
+				sdk.NewAttribute(types.AttributeKeyAddress, msg.Address),
+				sdk.NewAttribute(types.AttributeKeyKey, reward.Key),
+				sdk.NewAttribute(sdk.AttributeKeyAmount, finalReward.String()),
+			),
+		)
 	}
-
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeClaimRewards,
-			sdk.NewAttribute(types.AttributeKeyAddress, msg.Address),
-			sdk.NewAttribute(sdk.AttributeKeyAmount, finalRewards.String()),
-		),
-	)
-
-	k.addRemainderAmount(ctx, remainder)
 
 	return &types.MsgClaimRewardsResponse{}, nil
 }

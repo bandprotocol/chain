@@ -35,16 +35,13 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
 			Amounts: reward.Amounts,
 		})
 	}
-
-	k.SetRemainder(ctx, data.Remainder)
 }
 
 // ExportGenesis returns the module's exported genesis
 func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	return &types.GenesisState{
-		Keys:      k.GetKeys(ctx),
-		Stakes:    k.GetAllStakes(ctx),
-		Rewards:   k.GetRewardsGenesis(ctx),
-		Remainder: k.GetRemainder(ctx),
+		Keys:    k.GetKeys(ctx),
+		Stakes:  k.GetAllStakes(ctx),
+		Rewards: k.GetRewardsGenesis(ctx),
 	}
 }

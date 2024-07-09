@@ -24,11 +24,6 @@ service Query {
   rpc Locks(QueryLocksRequest) returns (QueryLocksResponse) {
     option (google.api.http).get = "/restake/v1beta1/addresses/{address}/locks";
   }
-
-  // Remainder returns the remainder state data.
-  rpc Remainder(QueryRemainderRequest) returns (QueryRemainderResponse) {
-    option (google.api.http).get = "/restake/v1beta1/remainder";
-  }
 }
 
 // QueryKeysRequest represents the request type for the Query/Keys RPC method.
@@ -68,13 +63,4 @@ message QueryLocksRequest {
 message QueryLocksResponse {
   // Locks is a list of locks of the address.
   repeated Lock locks = 1 [(gogoproto.nullable) = false];
-}
-
-// QueryRemainderRequest represents the request type for the Query/Remainder RPC method.
-message QueryRemainderRequest {}
-
-// QueryRemainderResponse represents the response type for the Query/Remainder RPC method.
-message QueryRemainderResponse {
-  // Remainder is the remaining state data of the module.
-  Remainder remainder = 1 [(gogoproto.nullable) = false];
 }

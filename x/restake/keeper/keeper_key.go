@@ -2,15 +2,23 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkaddress "github.com/cosmos/cosmos-sdk/types/address"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/bandprotocol/chain/v2/x/restake/types"
 )
 
-func (k Keeper) GetOrCreateKey(ctx sdk.Context, keyName string) types.Key {
+func (k Keeper) GetOrCreateKey(ctx sdk.Context, keyName string) (types.Key, error) {
 	key, err := k.GetKey(ctx, keyName)
 	if err != nil {
+		keyAccAddr, err := k.CreateKeyAccount(ctx, keyName)
+		if err != nil {
+			return types.Key{}, err
+		}
+
 		key = types.Key{
 			Name:            keyName,
+			Address:         keyAccAddr.String(),
 			IsActive:        true,
 			TotalLock:       sdk.NewInt(0),
 			RewardPerShares: sdk.NewDecCoins(),
@@ -20,7 +28,31 @@ func (k Keeper) GetOrCreateKey(ctx sdk.Context, keyName string) types.Key {
 		k.SetKey(ctx, key)
 	}
 
-	return key
+	return key, nil
+}
+
+func (k Keeper) CreateKeyAccount(ctx sdk.Context, key string) (sdk.AccAddress, error) {
+	header := ctx.BlockHeader()
+
+	buf := []byte(key)
+	buf = append(buf, header.AppHash...)
+	buf = append(buf, header.DataHash...)
+
+	keyAccAddr := sdkaddress.Module(types.ModuleName, []byte(types.KeyAccountsKey), buf)
+
+	// This should not happen
+	if acc := k.authKeeper.GetAccount(ctx, keyAccAddr); acc != nil {
+		return nil, types.ErrAccountAlreadyExist.Wrapf(
+			"existing account for newly generated key account address %s",
+			keyAccAddr,
+		)
+	}
+
+	keyAcc := authtypes.NewBaseAccountWithAddress(keyAccAddr)
+	k.authKeeper.NewAccount(ctx, keyAcc)
+	k.authKeeper.SetAccount(ctx, keyAcc)
+
+	return keyAccAddr, nil
 }
 
 func (k Keeper) GetKeysIterator(ctx sdk.Context) sdk.Iterator {

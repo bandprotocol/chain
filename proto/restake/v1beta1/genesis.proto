@@ -19,9 +19,6 @@ message GenesisState {
 
   // Rewards is a list of rewards in the module.
   repeated RewardGenesis rewards = 3 [(gogoproto.nullable) = false];
-
-  // Remainder is a remainder amount in the module.
-  Remainder remainder = 4 [(gogoproto.nullable) = false];
 }
 
 // RewardGenesis message represents reward details for genesis state.

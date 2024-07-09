@@ -9,8 +9,11 @@ import (
 
 // AccountKeeper defines the expected account keeper (noalias)
 type AccountKeeper interface {
-	GetModuleAddress(name string) sdk.AccAddress
+	NewAccount(ctx sdk.Context, acc authtypes.AccountI) authtypes.AccountI
+	GetAccount(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
+	SetAccount(ctx sdk.Context, acc authtypes.AccountI)
 
+	GetModuleAddress(name string) sdk.AccAddress
 	GetModuleAccount(ctx sdk.Context, name string) authtypes.ModuleAccountI
 	SetModuleAccount(sdk.Context, authtypes.ModuleAccountI)
 }
@@ -24,12 +27,7 @@ type BankKeeper interface {
 		recipientAddr sdk.AccAddress,
 		amt sdk.Coins,
 	) error
-	SendCoinsFromAccountToModule(
-		ctx sdk.Context,
-		senderAddr sdk.AccAddress,
-		recipientModule string,
-		amt sdk.Coins,
-	) error
+	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 }
 
 // StakingKeeper defines the expected staking keeper.

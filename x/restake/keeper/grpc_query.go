@@ -87,11 +87,3 @@ func (k Querier) Locks(
 
 	return &types.QueryLocksResponse{Locks: locks}, nil
 }
-
-func (k Querier) Remainder(
-	c context.Context,
-	req *types.QueryRemainderRequest,
-) (*types.QueryRemainderResponse, error) {
-	ctx := sdk.UnwrapSDKContext(c)
-	return &types.QueryRemainderResponse{Remainder: k.GetRemainder(ctx)}, nil
-}

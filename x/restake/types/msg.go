@@ -125,12 +125,12 @@ func (m MsgAddRewards) ValidateBasic() error {
 
 // NewMsgDeactivateKey creates a new MsgDeactivateKey instance
 func NewMsgDeactivateKey(
-	address sdk.AccAddress,
+	sender sdk.AccAddress,
 	key string,
 ) *MsgDeactivateKey {
 	return &MsgDeactivateKey{
-		Address: address.String(),
-		Key:     key,
+		Sender: sender.String(),
+		Key:    key,
 	}
 }
 
@@ -142,7 +142,7 @@ func (m MsgDeactivateKey) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSigners implements the sdk.Msg interface.
 func (m MsgDeactivateKey) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
 }
 
 // GetSignBytes implements the sdk.Msg interface.
@@ -153,7 +153,7 @@ func (m MsgDeactivateKey) GetSignBytes() []byte {
 
 // ValidateBasic implements the sdk.Msg interface.
 func (m MsgDeactivateKey) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(m.Address)
+	_, err := sdk.AccAddressFromBech32(m.Sender)
 	if err != nil {
 		return err
 	}

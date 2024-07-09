@@ -24,7 +24,6 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdKeys(),
 		GetQueryCmdLocks(),
 		GetQueryCmdRewards(),
-		GetQueryCmdRemainder(),
 	)
 
 	return queryCmd
@@ -96,29 +95,6 @@ func GetQueryCmdRewards() *cobra.Command {
 			res, err := queryClient.Rewards(context.Background(), &types.QueryRewardsRequest{
 				Address: args[0],
 			})
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintProto(res)
-		},
-	}
-
-	flags.AddQueryFlagsToCmd(cmd)
-
-	return cmd
-}
-
-func GetQueryCmdRemainder() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "remainder",
-		Short: "shows remainder",
-		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			queryClient := types.NewQueryClient(clientCtx)
-
-			res, err := queryClient.Remainder(context.Background(), &types.QueryRemainderRequest{})
 			if err != nil {
 				return err
 			}

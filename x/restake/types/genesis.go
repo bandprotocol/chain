@@ -1,16 +1,11 @@
 package types
 
-import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-)
-
 // NewGenesisState creates a new GenesisState instanc e
-func NewGenesisState(keys []Key, stakes []Stake, rewards []RewardGenesis, remainder Remainder) *GenesisState {
+func NewGenesisState(keys []Key, stakes []Stake, rewards []RewardGenesis) *GenesisState {
 	return &GenesisState{
-		Keys:      keys,
-		Stakes:    stakes,
-		Rewards:   rewards,
-		Remainder: remainder,
+		Keys:    keys,
+		Stakes:  stakes,
+		Rewards: rewards,
 	}
 }
 
@@ -20,8 +15,5 @@ func DefaultGenesisState() *GenesisState {
 		Keys:    []Key{},
 		Stakes:  []Stake{},
 		Rewards: []RewardGenesis{},
-		Remainder: Remainder{
-			Amounts: sdk.NewDecCoins(),
-		},
 	}
 }

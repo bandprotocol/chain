@@ -19,12 +19,13 @@ const (
 
 	// QuerierRoute is the querier route for the restake module
 	QuerierRoute = ModuleName
+
+	// KeyAccountKey is the key used when generating a module address for the key
+	KeyAccountsKey = "key-accounts"
 )
 
 var (
 	GlobalStoreKeyPrefix = []byte{0x00}
-
-	RemainderStoreKey = append(GlobalStoreKeyPrefix, []byte("Remainder")...)
 
 	KeyStoreKeyPrefix    = []byte{0x01}
 	StakeStoreKeyPrefix  = []byte{0x02}
