@@ -125,10 +125,10 @@ func (k Keeper) GetRequiredProcessTunnels(
 				difference := math.Abs(float64(latestPrice.Price)-float64(sp.Price)) / float64(sp.Price)
 				differenceInBPS := uint64(difference * 10000)
 
+				activeTunnels[i].SignalPriceInfos[j].Price = latestPrice.Price
+				activeTunnels[i].SignalPriceInfos[j].LastTimestamp = &now
+
 				if differenceInBPS > sp.DeviationBPS || unixNow >= sp.LastTimestamp.Unix()+int64(sp.Interval) {
-					// Update the price directly
-					activeTunnels[i].SignalPriceInfos[j].Price = latestPrice.Price
-					activeTunnels[i].SignalPriceInfos[j].LastTimestamp = &now
 					trigger = true
 				}
 			}
@@ -177,4 +177,6 @@ func (k Keeper) ProcessTunnel(ctx sdk.Context, tunnel types.Tunnel) {
 		fmt.Printf("Generating Axelar packets for tunnel %d, route %s\n", tunnel.ID, r.String())
 		k.AxelarPacketHandler(ctx, types.AxelarPacket{})
 	}
+	// Set the last SignalPriceInfos
+	k.SetTunnel(ctx, tunnel)
 }
