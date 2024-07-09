@@ -34,7 +34,7 @@ message QueryKeysRequest {
 
 // QueryKeysResponse represents the response type for the Query/Keys RPC method.
 message QueryKeysResponse {
-  // Keys contains a list of keys.
+  // Keys is a list of keys.
   repeated Key keys = 1;
 
   // Pagination defines pagination parameters in the response.
@@ -45,22 +45,34 @@ message QueryKeysResponse {
 message QueryRewardsRequest {
   // Address is the target address to query rewards.
   string address = 1;
+
+  // Pagination defines optional pagination parameters.
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 // QueryRewardsResponse represents the response type for the Query/Rewards RPC method.
 message QueryRewardsResponse {
   // Rewards is a list of rewards for the address.
-  repeated Reward rewards = 1 [(gogoproto.nullable) = false];
+  repeated Reward rewards = 1;
+
+  // Pagination defines pagination parameters in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // QueryLocksRequest represents the request type for the Query/Locks RPC method.
 message QueryLocksRequest {
   // Address is the target address to query locks.
   string address = 1;
+
+  // Pagination defines optional pagination parameters.
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 // QueryLocksResponse represents the response type for the Query/Locks RPC method.
 message QueryLocksResponse {
   // Locks is a list of locks of the address.
-  repeated Lock locks = 1 [(gogoproto.nullable) = false];
+  repeated Lock locks = 1;
+
+  // Pagination defines pagination parameters in the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }

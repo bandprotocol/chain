@@ -59,9 +59,22 @@ func (k Querier) Rewards(
 		k.ProcessStake(ctx, stake)
 	}
 
-	return &types.QueryRewardsResponse{
-		Rewards: k.GetRewards(ctx, address),
-	}, nil
+	keyStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.RewardsStoreKey(address))
+
+	filteredRewards, pageRes, err := query.GenericFilteredPaginate(
+		k.cdc,
+		keyStore,
+		req.Pagination,
+		func(key []byte, r *types.Reward) (*types.Reward, error) {
+			return r, nil
+		}, func() *types.Reward {
+			return &types.Reward{}
+		})
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &types.QueryRewardsResponse{Rewards: filteredRewards, Pagination: pageRes}, nil
 }
 
 func (k Querier) Locks(
@@ -75,15 +88,27 @@ func (k Querier) Locks(
 		return nil, err
 	}
 
-	var locks []types.Lock
+	keyStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.StakesStoreKey(address))
 
-	stakes := k.GetActiveStakes(ctx, address)
-	for _, stake := range stakes {
-		locks = append(locks, types.Lock{
-			Key:    stake.Key,
-			Amount: stake.Amount,
+	filteredLocks, pageRes, err := query.GenericFilteredPaginate(
+		k.cdc,
+		keyStore,
+		req.Pagination,
+		func(key []byte, s *types.Stake) (*types.Lock, error) {
+			if !k.IsActiveKey(ctx, s.Key) {
+				return nil, nil
+			}
+
+			return &types.Lock{
+				Key:    s.Key,
+				Amount: s.Amount,
+			}, nil
+		}, func() *types.Stake {
+			return &types.Stake{}
 		})
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryLocksResponse{Locks: locks}, nil
+	return &types.QueryLocksResponse{Locks: filteredLocks, Pagination: pageRes}, nil
 }
