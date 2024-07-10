@@ -42,6 +42,7 @@ func (ms msgServer) CreateTunnel(
 		FeedType:         req.FeedType,
 		SignalPriceInfos: signalPriceInfos,
 		IsActive:         true, // TODO: set to false by default
+		Creator:          req.Creator,
 	})
 	if err != nil {
 		return nil, err
