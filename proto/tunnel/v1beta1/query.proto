@@ -27,10 +27,22 @@ service Query {
   }
 }
 
+// TunnelStatusFilter defines a filter for tunnel status.
+enum TunnelStatusFilter {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // TUNNEL_STATUS_UNSPECIFIED defines an unspecified status.
+  TUNNEL_STATUS_UNSPECIFIED = 0;
+  // TUNNEL_STATUS_ACTIVE defines an active tunnel.
+  TUNNEL_STATUS_ACTIVE = 1;
+  // TUNNEL_STATUS_INACTIVE defines an inactive tunnel.
+  TUNNEL_STATUS_INACTIVE = 2;
+}
+
 // QueryTunnelRequest is the request type for the Query/Tunnel RPC method.
 message QueryTunnelsRequest {
   // is_active is a flag to filter active tunnels.
-  bool is_active = 1;
+  TunnelStatusFilter is_active = 1;
   // pagination defines an optional pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }

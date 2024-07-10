@@ -10,4 +10,5 @@ var (
 	ErrTunnelNotFound       = errorsmod.Register(ModuleName, 3, "tunnel not found")
 	ErrTSSPacketNotFound    = errorsmod.Register(ModuleName, 4, "tss packet not found")
 	ErrAxelarPacketNotFound = errorsmod.Register(ModuleName, 5, "axelar packet not found")
+	ErrAccountAlreadyExist  = errorsmod.Register(ModuleName, 6, "account already exist")
 )

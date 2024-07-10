@@ -9,6 +9,9 @@ const (
 	// Version defines the current version the IBC module supports
 	Version = "bandchain-1"
 
+	// KeyAccountsKey is used to store the key for the account
+	KeyAccountsKey = "tunnel"
+
 	// StoreKey defines the primary module store key
 	StoreKey = ModuleName
 

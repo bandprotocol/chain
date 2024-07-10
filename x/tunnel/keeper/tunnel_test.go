@@ -1,11 +1,9 @@
 package keeper_test
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
@@ -13,26 +11,6 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tunnel/testutil"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
-
-func TestGenerateTunnelAccount(t *testing.T) {
-	s := testutil.NewTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
-
-	tunnelID := uint64(1)
-	s.MockAccountKeeper.EXPECT().
-		NewAccount(ctx, gomock.Any()).
-		Return(authtypes.NewEmptyModuleAccount(fmt.Sprintf("%s-%d", types.ModuleName, tunnelID))).Times(1)
-	s.MockAccountKeeper.EXPECT().SetAccount(ctx, gomock.Any()).Times(1)
-
-	addr := k.GenerateTunnelAccount(ctx, tunnelID)
-	require.NotNil(s.T(), addr, "expected generated address to be non-nil")
-	require.Equal(
-		s.T(),
-		"cosmos1mfkys3fdex2pvylxdutwk3ng26ys8pxtzasfsf",
-		addr.String(),
-		"expected generated address to match",
-	)
-}
 
 func TestAddTunnel(t *testing.T) {
 	s := testutil.NewTestSuite(t)
@@ -43,12 +21,14 @@ func TestAddTunnel(t *testing.T) {
 
 	// Mock the account keeper to generate a new account
 	s.MockAccountKeeper.EXPECT().
-		NewAccount(ctx, gomock.Any()).
-		Return(authtypes.NewEmptyModuleAccount(fmt.Sprintf("%s-%d", types.ModuleName, tunnel.ID))).Times(1)
+		GetAccount(ctx, gomock.Any()).
+		Return(nil).Times(1)
+	s.MockAccountKeeper.EXPECT().NewAccount(ctx, gomock.Any()).Times(1)
 	s.MockAccountKeeper.EXPECT().SetAccount(ctx, gomock.Any()).Times(1)
 
 	// Add the tunnel to the keeper
-	k.AddTunnel(ctx, tunnel)
+	_, err := k.AddTunnel(ctx, tunnel)
+	require.NoError(s.T(), err, "adding tunnel should not produce an error")
 
 	// Attempt to retrieve the tunnel by its ID
 	retrievedTunnel, err := k.GetTunnel(ctx, tunnel.ID)
@@ -58,7 +38,7 @@ func TestAddTunnel(t *testing.T) {
 		ID:                       1,
 		Route:                    nil,
 		FeedType:                 feedstypes.FEED_TYPE_UNSPECIFIED,
-		FeePayer:                 "cosmos1mfkys3fdex2pvylxdutwk3ng26ys8pxtzasfsf",
+		FeePayer:                 "cosmos1w66ct9dvwauhu68t7vt2y7gz3z73qc5kap98mzg5t0y06r3txc8spuqw0g",
 		SignalPriceInfos:         nil,
 		LastTriggeredBlockHeight: 0,
 		IsActive:                 false,

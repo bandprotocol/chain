@@ -22,6 +22,7 @@ import (
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	rollingseedtypes "github.com/bandprotocol/chain/v2/x/rollingseed/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	tunneltypes "github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
 const UpgradeName = "v2_6"
@@ -39,6 +40,7 @@ var Upgrade = upgrades.Upgrade{
 			rollingseedtypes.StoreKey,
 			tsstypes.StoreKey,
 			bandtsstype.StoreKey,
+			tunneltypes.StoreKey,
 		},
 	},
 }

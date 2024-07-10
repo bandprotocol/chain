@@ -37,12 +37,15 @@ func (ms msgServer) CreateTunnel(
 		})
 	}
 
-	tunnelID := ms.Keeper.AddTunnel(ctx, types.Tunnel{
+	tunnelID, err := ms.Keeper.AddTunnel(ctx, types.Tunnel{
 		Route:            req.Route,
 		FeedType:         req.FeedType,
 		SignalPriceInfos: signalPriceInfos,
 		IsActive:         true, // TODO: set to false by default
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	tunnel, err := ms.Keeper.GetTunnel(ctx, tunnelID)
 	if err != nil {

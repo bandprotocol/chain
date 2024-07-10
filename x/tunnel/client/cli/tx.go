@@ -13,9 +13,6 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
-// default values
-var ()
-
 // GetTxCmd returns a root CLI command handler for all x/tunnel transaction commands.
 func GetTxCmd() *cobra.Command {
 	txCmd := &cobra.Command{

@@ -140,7 +140,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tss"
 	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
-	tunnel "github.com/bandprotocol/chain/v2/x/tunnel"
+	"github.com/bandprotocol/chain/v2/x/tunnel"
 	tunnelkeeper "github.com/bandprotocol/chain/v2/x/tunnel/keeper"
 	tunneltypes "github.com/bandprotocol/chain/v2/x/tunnel/types"
 )

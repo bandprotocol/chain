@@ -49,7 +49,7 @@ import (
 	rollingseedtypes "github.com/bandprotocol/chain/v2/x/rollingseed/types"
 	"github.com/bandprotocol/chain/v2/x/tss"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
-	tunnel "github.com/bandprotocol/chain/v2/x/tunnel"
+	"github.com/bandprotocol/chain/v2/x/tunnel"
 	tunneltypes "github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 

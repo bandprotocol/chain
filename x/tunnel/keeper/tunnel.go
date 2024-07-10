@@ -5,19 +5,10 @@ import (
 	"math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	feedsTypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
-
-// GenerateTunnelAccount generates a new tunnel account
-func (k Keeper) GenerateTunnelAccount(ctx sdk.Context, tunnelID uint64) sdk.AccAddress {
-	tacc := authtypes.NewEmptyModuleAccount(fmt.Sprintf("%s-%d", types.ModuleName, tunnelID))
-	taccI := k.authKeeper.NewAccount(ctx, tacc)
-	k.authKeeper.SetAccount(ctx, taccI)
-	return taccI.GetAddress()
-}
 
 // SetTunnelCount sets the tunnel count in the store
 func (k Keeper) SetTunnelCount(ctx sdk.Context, count uint64) {
@@ -42,18 +33,22 @@ func (k Keeper) SetTunnel(ctx sdk.Context, tunnel types.Tunnel) {
 }
 
 // AddTunnel adds a tunnel to the store and returns the new tunnel ID
-func (k Keeper) AddTunnel(ctx sdk.Context, tunnel types.Tunnel) uint64 {
+func (k Keeper) AddTunnel(ctx sdk.Context, tunnel types.Tunnel) (uint64, error) {
 	tunnel.ID = k.GetNextTunnelID(ctx)
 
 	// Generate a new tunnel account
-	acc := k.GenerateTunnelAccount(ctx, tunnel.ID)
+	acc, err := k.GenerateAccount(ctx, fmt.Sprintf("%d", tunnel.ID))
+	if err != nil {
+		return 0, err
+	}
+
 	tunnel.FeePayer = acc.String()
 
 	// Set the creation time
 	tunnel.CreatedAt = ctx.BlockTime()
 
 	k.SetTunnel(ctx, tunnel)
-	return tunnel.ID
+	return tunnel.ID, nil
 }
 
 // GetTunnel retrieves a tunnel by its ID

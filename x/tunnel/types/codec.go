@@ -14,6 +14,7 @@ import (
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "tunnel/MsgUpdateParams")
 	legacy.RegisterAminoMsg(cdc, &MsgCreateTunnel{}, "tunnel/MsgCreateTunnel")
+	legacy.RegisterAminoMsg(cdc, &MsgActivateTunnel{}, "tunnel/MsgActivateTunnel")
 
 	cdc.RegisterInterface((*Route)(nil), nil)
 	cdc.RegisterConcrete(&TSSRoute{}, "tunnel/TSSRoute", nil)
@@ -26,6 +27,7 @@ func RegisterInterfaces(registry types.InterfaceRegistry) {
 		(*sdk.Msg)(nil),
 		&MsgUpdateParams{},
 		&MsgCreateTunnel{},
+		&MsgActivateTunnel{},
 	)
 
 	registry.RegisterInterface(

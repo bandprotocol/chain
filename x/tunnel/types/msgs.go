@@ -184,8 +184,6 @@ func (m *MsgCreateTunnel) SetTunnelRoute(route Route) error {
 	}
 	m.Route = any
 
-	fmt.Printf("set route: %+v\n", m.Route.GetCachedValue())
-
 	return nil
 }
 
@@ -230,5 +228,9 @@ func (m *MsgActivateTunnel) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgActivateTunnel) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+	}
+
 	return nil
 }
