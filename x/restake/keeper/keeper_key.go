@@ -2,7 +2,6 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkaddress "github.com/cosmos/cosmos-sdk/types/address"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/bandprotocol/chain/v2/x/restake/types"
@@ -38,17 +37,26 @@ func (k Keeper) CreateKeyAccount(ctx sdk.Context, key string) (sdk.AccAddress, e
 	buf = append(buf, header.AppHash...)
 	buf = append(buf, header.DataHash...)
 
-	keyAccAddr := sdkaddress.Module(types.ModuleName, []byte(types.KeyAccountsKey), buf)
+	moduleCred, err := authtypes.NewModuleCredential(types.ModuleName, []byte(types.KeyAccountsKey), buf)
+	if err != nil {
+		return nil, err
+	}
+
+	keyAccAddr := sdk.AccAddress(moduleCred.Address())
 
 	// This should not happen
 	if acc := k.authKeeper.GetAccount(ctx, keyAccAddr); acc != nil {
 		return nil, types.ErrAccountAlreadyExist.Wrapf(
 			"existing account for newly generated key account address %s",
-			keyAccAddr,
+			keyAccAddr.String(),
 		)
 	}
 
-	keyAcc := authtypes.NewBaseAccountWithAddress(keyAccAddr)
+	keyAcc, err := authtypes.NewBaseAccountWithPubKey(moduleCred)
+	if err != nil {
+		return nil, err
+	}
+
 	k.authKeeper.NewAccount(ctx, keyAcc)
 	k.authKeeper.SetAccount(ctx, keyAcc)
 

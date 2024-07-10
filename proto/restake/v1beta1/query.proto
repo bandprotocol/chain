@@ -3,7 +3,6 @@ package restake.v1beta1;
 
 option go_package = "github.com/bandprotocol/chain/v2/x/restake/types";
 
-import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "restake/v1beta1/types.proto";

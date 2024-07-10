@@ -41,24 +41,23 @@ func (k msgServer) ClaimRewards(
 	// claim each rewards
 	rewards := k.GetRewards(ctx, address)
 	for _, reward := range rewards {
-		finalReward, remainder := reward.Amounts.TruncateDecimal()
+		key, err := k.GetKey(ctx, reward.Key)
+		if err != nil {
+			return nil, err
+		}
 
+		finalReward, remainder := reward.Amounts.TruncateDecimal()
 		if finalReward.IsZero() {
 			continue
 		}
 
 		k.DeleteReward(ctx, address, reward.Key)
-		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, address, finalReward)
+		err = k.bankKeeper.SendCoins(ctx, sdk.MustAccAddressFromBech32(key.Address), address, finalReward)
 		if err != nil {
 			return nil, err
 		}
 
 		if !remainder.IsZero() {
-			key, err := k.GetKey(ctx, reward.Key)
-			if err != nil {
-				return nil, err
-			}
-
 			key.Remainder = key.Remainder.Add(remainder...)
 			k.SetKey(ctx, key)
 		}
