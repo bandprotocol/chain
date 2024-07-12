@@ -35,15 +35,8 @@ message Key {
     (gogoproto.nullable)   = false
   ];
 
-  // CurrentRewards is a list of current rewards of the key.
-  repeated cosmos.base.v1beta1.DecCoin current_rewards = 6 [
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
-    (gogoproto.nullable)     = false,
-    (amino.dont_omitempty)   = true
-  ];
-
-  // Remainder is a list of the remainder amount in the key.
-  repeated cosmos.base.v1beta1.DecCoin remainder = 7 [
+  // Remainders is a list of the remainder amounts in the key.
+  repeated cosmos.base.v1beta1.DecCoin remainders = 6 [
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
     (gogoproto.nullable)     = false,
     (amino.dont_omitempty)   = true
@@ -68,8 +61,8 @@ message Stake {
   ];
 
   // RewardDebts is a list of reward debt for each reward.
-  repeated cosmos.base.v1beta1.DecCoin reward_debts = 4 [
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
+  repeated cosmos.base.v1beta1.Coin reward_debts = 4 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
     (gogoproto.nullable)     = false,
     (amino.dont_omitempty)   = true
   ];
@@ -82,8 +75,8 @@ message Reward {
   // Key is the key that this reward belongs to.
   string key = 1;
 
-  // Amount is a list of rewards.
-  repeated cosmos.base.v1beta1.DecCoin amounts = 2 [
+  // Rewards is a list of rewards.
+  repeated cosmos.base.v1beta1.DecCoin rewards = 2 [
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
     (gogoproto.nullable)     = false,
     (amino.dont_omitempty)   = true

@@ -46,14 +46,6 @@ func StakeStoreKey(addr sdk.AccAddress, keyName string) []byte {
 	return append(StakesStoreKey(addr), []byte(keyName)...)
 }
 
-func RewardsStoreKey(addr sdk.AccAddress) []byte {
-	return append(RewardStoreKeyPrefix, address.MustLengthPrefix(addr)...)
-}
-
-func RewardStoreKey(addr sdk.AccAddress, keyName string) []byte {
-	return append(RewardsStoreKey(addr), []byte(keyName)...)
-}
-
 func StakesByAmountIndexKey(addr sdk.AccAddress) []byte {
 	return append(StakesByAmountIndexKeyPrefix, address.MustLengthPrefix(addr)...)
 }

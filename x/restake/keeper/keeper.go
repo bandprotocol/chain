@@ -81,37 +81,28 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, addr sdk.AccAddress, keyName str
 	if !key.IsActive {
 		return types.ErrKeyNotActive
 	}
-	key = k.ProcessKey(ctx, key)
 
 	// check if there is a lock before
-	// if yes, update reward
 	stake, err := k.GetStake(ctx, addr, keyName)
-	if err == nil {
-		k.ProcessStake(ctx, stake)
-		key.TotalLock = key.TotalLock.Sub(stake.Amount)
-
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeUnlockPower,
-				sdk.NewAttribute(types.AttributeKeyAddress, addr.String()),
-				sdk.NewAttribute(types.AttributeKeyKey, addr.String()),
-				sdk.NewAttribute(sdk.AttributeKeyAmount, stake.Amount.String()),
-			),
-		)
+	if err != nil {
+		stake = types.Stake{
+			Address:     addr.String(),
+			Key:         keyName,
+			Amount:      sdk.NewInt(0),
+			RewardDebts: sdk.NewCoins(),
+		}
 	}
 
-	// update stake to new point
-	stake = types.Stake{
-		Address:     addr.String(),
-		Key:         keyName,
-		Amount:      amount,
-		RewardDebts: key.RewardPerShares,
-	}
-	k.SetStake(ctx, stake)
-
-	// add total lock from new amount
-	key.TotalLock = key.TotalLock.Add(stake.Amount)
+	key.TotalLock = key.TotalLock.Sub(stake.Amount).Add(amount)
 	k.SetKey(ctx, key)
+
+	diffLock := amount.Sub(stake.Amount)
+	addtionalDebts := key.RewardPerShares.MulDecTruncate(sdk.NewDecFromInt(diffLock))
+	truncatedAdditionalDebts, _ := addtionalDebts.TruncateDecimal()
+
+	stake.RewardDebts = stake.RewardDebts.Add(truncatedAdditionalDebts.Sort()...)
+	stake.Amount = amount
+	k.SetStake(ctx, stake)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -144,7 +135,9 @@ func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName strin
 		return err
 	}
 
-	key.CurrentRewards = key.CurrentRewards.Add(sdk.NewDecCoinsFromCoins(rewards...)...)
+	key.RewardPerShares = key.RewardPerShares.Add(
+		sdk.NewDecCoinsFromCoins(rewards.Sort()...).QuoDecTruncate(sdk.NewDecFromInt(key.TotalLock))...,
+	)
 	k.SetKey(ctx, key)
 
 	ctx.EventManager().EmitEvent(

@@ -10,9 +10,11 @@ var _, _, _, _ sdk.Msg = &MsgClaimRewards{}, &MsgLockPower{}, &MsgAddRewards{}, 
 // NewMsgClaimRewards creates a new MsgClaimRewards instance
 func NewMsgClaimRewards(
 	address sdk.AccAddress,
+	key string,
 ) *MsgClaimRewards {
 	return &MsgClaimRewards{
 		Address: address.String(),
+		Key:     key,
 	}
 }
 

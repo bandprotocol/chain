@@ -43,6 +43,20 @@ func (k Querier) Keys(
 	return &types.QueryKeysResponse{Keys: filteredKeys, Pagination: pageRes}, nil
 }
 
+func (k Querier) Key(
+	c context.Context,
+	req *types.QueryKeyRequest,
+) (*types.QueryKeyResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	key, err := k.GetKey(ctx, req.Key)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.QueryKeyResponse{Key: key}, nil
+}
+
 func (k Querier) Rewards(
 	c context.Context,
 	req *types.QueryRewardsRequest,
@@ -54,21 +68,17 @@ func (k Querier) Rewards(
 		return nil, err
 	}
 
-	stakes := k.GetStakes(ctx, address)
-	for _, stake := range stakes {
-		k.ProcessStake(ctx, stake)
-	}
-
-	keyStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.RewardsStoreKey(address))
+	keyStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.StakesStoreKey(address))
 
 	filteredRewards, pageRes, err := query.GenericFilteredPaginate(
 		k.cdc,
 		keyStore,
 		req.Pagination,
-		func(key []byte, r *types.Reward) (*types.Reward, error) {
-			return r, nil
-		}, func() *types.Reward {
-			return &types.Reward{}
+		func(key []byte, s *types.Stake) (*types.Reward, error) {
+			reward := k.getReward(ctx, *s)
+			return &reward, nil
+		}, func() *types.Stake {
+			return &types.Stake{}
 		})
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())

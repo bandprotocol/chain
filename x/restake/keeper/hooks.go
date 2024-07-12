@@ -101,9 +101,9 @@ func (h Hooks) isAbleToUnbond(ctx sdk.Context, address sdk.AccAddress, delegated
 			}
 
 			return nil
+		} else {
+			h.k.DeleteStake(ctx, address, keyName)
 		}
-
-		h.k.ProcessStake(ctx, stake)
 	}
 
 	return nil

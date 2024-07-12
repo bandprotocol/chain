@@ -1,12 +1,14 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/spf13/cobra"
 
 	"github.com/bandprotocol/chain/v2/x/restake/types"
@@ -35,20 +37,55 @@ func GetTxCmd() *cobra.Command {
 // GetTxCmdClaimRewards creates a CLI command for claming rewards
 func GetTxCmdClaimRewards() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "claim-rewards",
+		Use:   "claim-rewards [key1] [key2] ...",
 		Short: "Claim rewards",
-		Args:  cobra.NoArgs,
+		Args:  cobra.MinimumNArgs(0),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			msg := types.NewMsgClaimRewards(
-				clientCtx.GetFromAddress(),
-			)
+			var msgs []sdk.Msg
 
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+			if len(args) == 0 {
+				queryClient := types.NewQueryClient(clientCtx)
+				respRewards, err := queryClient.Rewards(context.Background(), &types.QueryRewardsRequest{
+					Address: clientCtx.GetFromAddress().String(),
+					Pagination: &query.PageRequest{
+						Limit: 10000,
+					},
+				})
+				if err != nil {
+					return err
+				}
+
+				// claim all possible reward pools (>= 1 unit or key is deactivated)
+				for _, reward := range respRewards.Rewards {
+					respKey, err := queryClient.Key(context.Background(), &types.QueryKeyRequest{
+						Key: reward.Key,
+					})
+					if err != nil {
+						continue
+					}
+
+					finalReward, _ := reward.Rewards.TruncateDecimal()
+					if !finalReward.IsZero() || !respKey.Key.IsActive {
+						args = append(args, reward.Key)
+					}
+				}
+			}
+
+			for _, arg := range args {
+				msg := types.NewMsgClaimRewards(
+					clientCtx.GetFromAddress(),
+					arg,
+				)
+
+				msgs = append(msgs, msg)
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
 		},
 	}
 

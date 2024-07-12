@@ -27,21 +27,12 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
 	for _, stake := range data.Stakes {
 		k.SetStake(ctx, stake)
 	}
-
-	for _, reward := range data.Rewards {
-		address := sdk.MustAccAddressFromBech32(reward.Address)
-		k.SetReward(ctx, address, types.Reward{
-			Key:     reward.Key,
-			Amounts: reward.Amounts,
-		})
-	}
 }
 
 // ExportGenesis returns the module's exported genesis
 func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	return &types.GenesisState{
-		Keys:    k.GetKeys(ctx),
-		Stakes:  k.GetAllStakes(ctx),
-		Rewards: k.GetRewardsGenesis(ctx),
+		Keys:   k.GetKeys(ctx),
+		Stakes: k.GetAllStakes(ctx),
 	}
 }

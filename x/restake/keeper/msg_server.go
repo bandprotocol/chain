@@ -32,44 +32,44 @@ func (k msgServer) ClaimRewards(
 		return nil, err
 	}
 
-	// update rewards from all stakes of an address
-	stakes := k.GetStakes(ctx, address)
-	for _, stake := range stakes {
-		k.ProcessStake(ctx, stake)
+	key, err := k.GetKey(ctx, msg.Key)
+	if err != nil {
+		return nil, err
 	}
 
-	// claim each rewards
-	rewards := k.GetRewards(ctx, address)
-	for _, reward := range rewards {
-		key, err := k.GetKey(ctx, reward.Key)
+	stake, err := k.GetStake(ctx, address, msg.Key)
+	if err != nil {
+		return nil, err
+	}
+
+	totalRewards := k.getTotalRewards(ctx, stake)
+	truncatedTotalRewards, remainders := totalRewards.TruncateDecimal()
+	finalRewards := truncatedTotalRewards.Sub(stake.RewardDebts...)
+
+	if !finalRewards.IsZero() {
+		stake.RewardDebts = truncatedTotalRewards
+		k.SetStake(ctx, stake)
+
+		err = k.bankKeeper.SendCoins(ctx, sdk.MustAccAddressFromBech32(key.Address), address, finalRewards)
 		if err != nil {
 			return nil, err
-		}
-
-		finalReward, remainder := reward.Amounts.TruncateDecimal()
-		if finalReward.IsZero() {
-			continue
-		}
-
-		k.DeleteReward(ctx, address, reward.Key)
-		err = k.bankKeeper.SendCoins(ctx, sdk.MustAccAddressFromBech32(key.Address), address, finalReward)
-		if err != nil {
-			return nil, err
-		}
-
-		if !remainder.IsZero() {
-			key.Remainder = key.Remainder.Add(remainder...)
-			k.SetKey(ctx, key)
 		}
 
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeClaimRewards,
 				sdk.NewAttribute(types.AttributeKeyAddress, msg.Address),
-				sdk.NewAttribute(types.AttributeKeyKey, reward.Key),
-				sdk.NewAttribute(sdk.AttributeKeyAmount, finalReward.String()),
+				sdk.NewAttribute(types.AttributeKeyKey, stake.Key),
+				sdk.NewAttribute(sdk.AttributeKeyAmount, finalRewards.String()),
 			),
 		)
+	}
+
+	if !key.IsActive {
+		k.DeleteStake(ctx, address, key.Name)
+
+		key.Remainders = key.Remainders.Add(remainders...)
+		k.SetKey(ctx, key)
 	}
 
 	return &types.MsgClaimRewardsResponse{}, nil

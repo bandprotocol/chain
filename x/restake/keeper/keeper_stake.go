@@ -103,25 +103,17 @@ func (k Keeper) deleteStakeByAmount(ctx sdk.Context, stake types.Stake) {
 	ctx.KVStore(k.storeKey).Delete(types.StakeByAmountIndexKey(stake))
 }
 
-func (k Keeper) ProcessStake(ctx sdk.Context, stake types.Stake) {
+func (k Keeper) getTotalRewards(ctx sdk.Context, stake types.Stake) sdk.DecCoins {
 	key := k.MustGetKey(ctx, stake.Key)
-	key = k.ProcessKey(ctx, key)
 
-	address := sdk.MustAccAddressFromBech32(stake.Address)
-	diff := key.RewardPerShares.Sub(stake.RewardDebts)
+	return key.RewardPerShares.MulDecTruncate(sdk.NewDecFromInt(stake.Amount))
+}
 
-	// update reward
-	if !diff.IsZero() {
-		reward := k.GetOrCreateReward(ctx, address, stake.Key)
-		reward.Amounts = reward.Amounts.Add(diff.MulDecTruncate(sdk.NewDecFromInt(stake.Amount))...)
-		k.SetReward(ctx, address, reward)
+func (k Keeper) getReward(ctx sdk.Context, stake types.Stake) types.Reward {
+	totalRewards := k.getTotalRewards(ctx, stake)
 
-		// update debt
-		stake.RewardDebts = key.RewardPerShares
-		k.SetStake(ctx, stake)
-	}
-
-	if !key.IsActive {
-		k.DeleteStake(ctx, address, stake.Key)
+	return types.Reward{
+		Key:     stake.Key,
+		Rewards: totalRewards.Sub(sdk.NewDecCoinsFromCoins(stake.RewardDebts...)),
 	}
 }

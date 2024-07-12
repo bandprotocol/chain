@@ -3,6 +3,7 @@ package restake.v1beta1;
 
 option go_package = "github.com/bandprotocol/chain/v2/x/restake/types";
 
+import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "restake/v1beta1/types.proto";
@@ -12,6 +13,11 @@ service Query {
   // Keys returns a list of keys.
   rpc Keys(QueryKeysRequest) returns (QueryKeysResponse) {
     option (google.api.http).get = "/restake/v1beta1/keys";
+  }
+
+  // Key returns a key information
+  rpc Key(QueryKeyRequest) returns (QueryKeyResponse) {
+    option (google.api.http).get = "/restake/v1beta1/keys/{key}";
   }
 
   // Rewards returns rewards for a specific address.
@@ -38,6 +44,17 @@ message QueryKeysResponse {
 
   // Pagination defines pagination parameters in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryKeyRequest represents the request type for the Query/Key RPC method.
+message QueryKeyRequest {
+  string key = 1;
+}
+
+// QueryKeyResponse represents the response type for the Query/Key RPC method.
+message QueryKeyResponse {
+  // Key is a key information.
+  Key key = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryRewardsRequest represents the request type for the Query/Rewards RPC method.

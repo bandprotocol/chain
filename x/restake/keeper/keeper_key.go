@@ -21,7 +21,6 @@ func (k Keeper) GetOrCreateKey(ctx sdk.Context, keyName string) (types.Key, erro
 			IsActive:        true,
 			TotalLock:       sdk.NewInt(0),
 			RewardPerShares: sdk.NewDecCoins(),
-			CurrentRewards:  sdk.NewDecCoins(),
 		}
 
 		k.SetKey(ctx, key)
@@ -139,17 +138,4 @@ func (k Keeper) DeactivateKey(ctx sdk.Context, keyName string) error {
 	)
 
 	return nil
-}
-
-func (k Keeper) ProcessKey(ctx sdk.Context, key types.Key) types.Key {
-	if key.TotalLock.IsZero() {
-		return key
-	}
-
-	key.RewardPerShares = key.RewardPerShares.Add(
-		key.CurrentRewards.QuoDecTruncate(sdk.NewDecFromInt(key.TotalLock))...)
-	key.CurrentRewards = sdk.NewDecCoins()
-	k.SetKey(ctx, key)
-
-	return key
 }
