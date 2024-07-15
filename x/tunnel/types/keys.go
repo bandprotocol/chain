@@ -10,7 +10,7 @@ const (
 	Version = "bandchain-1"
 
 	// KeyAccountsKey is used to store the key for the account
-	KeyAccountsKey = "tunnel"
+	KeyAccountsKey = "TunnelAccountsKey"
 
 	// StoreKey defines the primary module store key
 	StoreKey = ModuleName

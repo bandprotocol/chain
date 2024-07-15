@@ -10,7 +10,7 @@ var (
 	DefaultMinDeviationBPS       = uint64(100)
 	DefaultTSSRouteFee           = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 	DefaultAxelarRouteFee        = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
-	DefaultTssSupportedChains    = []string{"ethereum", "cosmos", "terra", "band"}
+	DefaultTSSSupportedChains    = []string{"ethereum", "cosmos", "terra", "band"}
 	DefaultAxelarSupportedChains = []string{"ethereum", "cosmos", "terra", "band"}
 )
 
@@ -40,7 +40,7 @@ func DefaultParams() Params {
 		DefaultMinDeviationBPS,
 		DefaultTSSRouteFee,
 		DefaultAxelarRouteFee,
-		DefaultTssSupportedChains,
+		DefaultTSSSupportedChains,
 		DefaultAxelarSupportedChains,
 	)
 }
