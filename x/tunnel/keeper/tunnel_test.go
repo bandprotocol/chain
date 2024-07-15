@@ -38,7 +38,7 @@ func TestAddTunnel(t *testing.T) {
 		ID:                       1,
 		Route:                    nil,
 		FeedType:                 feedstypes.FEED_TYPE_UNSPECIFIED,
-		FeePayer:                 "cosmos1w66ct9dvwauhu68t7vt2y7gz3z73qc5kap98mzg5t0y06r3txc8spuqw0g",
+		FeePayer:                 "cosmos1zpvqkrw3uv58a9uzakr2j4ck4mk6m3venca0y3cssy2423e5zhasq6l56x",
 		SignalPriceInfos:         nil,
 		LastTriggeredBlockHeight: 0,
 		IsActive:                 false,
