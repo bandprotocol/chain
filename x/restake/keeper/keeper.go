@@ -19,7 +19,6 @@ type Keeper struct {
 	feeCollectorName string
 	authKeeper       types.AccountKeeper
 	bankKeeper       types.BankKeeper
-	distrKeeper      types.DistrKeeper
 	stakingKeeper    types.StakingKeeper
 	authority        string
 }
@@ -31,7 +30,6 @@ func NewKeeper(
 	feeCollectorName string,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
-	dk types.DistrKeeper,
 	sk types.StakingKeeper,
 	authority string,
 ) Keeper {
@@ -51,7 +49,6 @@ func NewKeeper(
 		feeCollectorName: feeCollectorName,
 		authKeeper:       ak,
 		bankKeeper:       bk,
-		distrKeeper:      dk,
 		stakingKeeper:    sk,
 		authority:        authority,
 	}

@@ -35,9 +35,9 @@ type Key struct {
 	Address string `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
 	// IsActive is the status of the key
 	IsActive bool `protobuf:"varint,3,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
-	// RewardPerShares is a list of reward per share of each reward.
+	// RewardPerShares is a list of reward_per_share of rewards.
 	RewardPerShares github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,4,rep,name=reward_per_shares,json=rewardPerShares,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"reward_per_shares"`
-	// TotalLock is the total of locked power of the key.
+	// TotalLock is the total locked power of the key.
 	TotalLock github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,5,opt,name=total_lock,json=totalLock,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"total_lock"`
 	// Remainders is a list of the remainder amounts in the key.
 	Remainders github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,6,rep,name=remainders,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"remainders"`
@@ -113,14 +113,14 @@ func (m *Key) GetRemainders() github_com_cosmos_cosmos_sdk_types.DecCoins {
 
 // Stake message represents a stake detail.
 type Stake struct {
-	// Address is the owner address of the stake.
+	// Address is the owner's address of the stake.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
 	// Key is the key that this stake is locked to.
 	Key string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
 	// Amount is the locked power amount.
 	Amount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,3,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"amount"`
-	// PosRewardDebts is a list of reward debt for each reward (only positive side).
-	// Note: as Coin and DecCoin can't have negative amount. so, we split it to two numbers.
+	// PosRewardDebts is a list of reward debt for each reward (only the positive side).
+	// Note: Coin and DecCoin can't have negative amounts. so, we split it into two numbers.
 	PosRewardDebts github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,4,rep,name=pos_reward_debts,json=posRewardDebts,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"pos_reward_debts"`
 	// NegRewardDebts is a list of reward debt for each reward (only negative side).
 	NegRewardDebts github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,5,rep,name=neg_reward_debts,json=negRewardDebts,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"neg_reward_debts"`

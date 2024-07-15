@@ -21,12 +21,6 @@ type AccountKeeper interface {
 // BankKeeper defines the expected interface needed to retrieve account balances.
 type BankKeeper interface {
 	GetAllBalances(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
-	SendCoinsFromModuleToAccount(
-		ctx sdk.Context,
-		senderModule string,
-		recipientAddr sdk.AccAddress,
-		amt sdk.Coins,
-	) error
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 }
 
@@ -39,10 +33,4 @@ type StakingKeeper interface {
 		valAddr sdk.ValAddress,
 	) (delegation stakingtypes.Delegation, found bool)
 	GetValidator(ctx sdk.Context, addr sdk.ValAddress) (validator stakingtypes.Validator, found bool)
-	TokensToConsensusPower(ctx sdk.Context, tokens math.Int) int64
-}
-
-// DistrKeeper defines the expected distribution keeper.
-type DistrKeeper interface {
-	FundCommunityPool(ctx sdk.Context, amount sdk.Coins, sender sdk.AccAddress) error
 }

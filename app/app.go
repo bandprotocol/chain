@@ -426,7 +426,6 @@ func NewBandApp(
 		authtypes.FeeCollectorName,
 		app.AccountKeeper,
 		app.BankKeeper,
-		app.DistrKeeper,
 		app.StakingKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)

@@ -27,9 +27,8 @@ const (
 var (
 	GlobalStoreKeyPrefix = []byte{0x00}
 
-	KeyStoreKeyPrefix    = []byte{0x01}
-	StakeStoreKeyPrefix  = []byte{0x02}
-	RewardStoreKeyPrefix = []byte{0x03}
+	KeyStoreKeyPrefix   = []byte{0x01}
+	StakeStoreKeyPrefix = []byte{0x02}
 
 	StakesByAmountIndexKeyPrefix = []byte{0x10}
 )
@@ -59,9 +58,4 @@ func StakeByAmountIndexKey(stake Stake) []byte {
 	// key is of format prefix || addrLen || address || amountBytes || keyBytes
 	bz := append(StakesByAmountIndexKey(address), amountBytes...)
 	return append(bz, []byte(stake.Key)...)
-}
-
-func SplitRewardStoreKey(key []byte) ([]byte, sdk.AccAddress, string) {
-	// <prefix (1 Byte)><addrLen (1 Byte)><addr_Bytes><key_Bytes>
-	return key[0:1], sdk.AccAddress(key[2 : 2+key[1]]), string(key[2+key[1]:])
 }
