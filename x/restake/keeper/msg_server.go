@@ -44,10 +44,11 @@ func (k msgServer) ClaimRewards(
 
 	totalRewards := k.getTotalRewards(ctx, stake)
 	truncatedTotalRewards, remainders := totalRewards.TruncateDecimal()
-	finalRewards := truncatedTotalRewards.Sub(stake.RewardDebts...)
+	finalRewards := truncatedTotalRewards.Add(stake.NegRewardDebts...).Sub(stake.PosRewardDebts...)
 
 	if !finalRewards.IsZero() {
-		stake.RewardDebts = truncatedTotalRewards
+		stake.PosRewardDebts = truncatedTotalRewards
+		stake.NegRewardDebts = sdk.NewCoins()
 		k.SetStake(ctx, stake)
 
 		err = k.bankKeeper.SendCoins(ctx, sdk.MustAccAddressFromBech32(key.Address), address, finalRewards)

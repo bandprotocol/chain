@@ -113,7 +113,8 @@ func (k Keeper) getReward(ctx sdk.Context, stake types.Stake) types.Reward {
 	totalRewards := k.getTotalRewards(ctx, stake)
 
 	return types.Reward{
-		Key:     stake.Key,
-		Rewards: totalRewards.Sub(sdk.NewDecCoinsFromCoins(stake.RewardDebts...)),
+		Key: stake.Key,
+		Rewards: totalRewards.Add(sdk.NewDecCoinsFromCoins(stake.NegRewardDebts...)...).
+			Sub(sdk.NewDecCoinsFromCoins(stake.PosRewardDebts...)),
 	}
 }

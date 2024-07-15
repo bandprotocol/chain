@@ -1,7 +1,7 @@
 
 # delegate
 bandd tx staking delegate bandvaloper1p40yh3zkmhcv0ecqp3mcazy83sa57rgjde6wec 100uband --from requester --keyring-backend test --gas-prices 0.0025uband -y
-
+sleep 4
 # lock
 bandd tx restake lock-power test 80 --from validator --keyring-backend test --gas-prices 0.0025uband -y 
 sleep 4

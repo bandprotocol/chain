@@ -86,10 +86,11 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, addr sdk.AccAddress, keyName str
 	stake, err := k.GetStake(ctx, addr, keyName)
 	if err != nil {
 		stake = types.Stake{
-			Address:     addr.String(),
-			Key:         keyName,
-			Amount:      sdk.NewInt(0),
-			RewardDebts: sdk.NewCoins(),
+			Address:        addr.String(),
+			Key:            keyName,
+			Amount:         sdk.NewInt(0),
+			PosRewardDebts: sdk.NewCoins(),
+			NegRewardDebts: sdk.NewCoins(),
 		}
 	}
 
@@ -97,10 +98,14 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, addr sdk.AccAddress, keyName str
 	k.SetKey(ctx, key)
 
 	diffLock := amount.Sub(stake.Amount)
-	addtionalDebts := key.RewardPerShares.MulDecTruncate(sdk.NewDecFromInt(diffLock))
+	addtionalDebts := key.RewardPerShares.MulDecTruncate(sdk.NewDecFromInt(diffLock.Abs()))
 	truncatedAdditionalDebts, _ := addtionalDebts.TruncateDecimal()
-
-	stake.RewardDebts = stake.RewardDebts.Add(truncatedAdditionalDebts.Sort()...)
+	truncatedAdditionalDebts = truncatedAdditionalDebts.Sort()
+	if diffLock.IsPositive() {
+		stake.PosRewardDebts = stake.PosRewardDebts.Add(truncatedAdditionalDebts...)
+	} else {
+		stake.NegRewardDebts = stake.NegRewardDebts.Add(truncatedAdditionalDebts...)
+	}
 	stake.Amount = amount
 	k.SetStake(ctx, stake)
 

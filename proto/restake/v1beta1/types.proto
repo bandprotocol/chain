@@ -60,8 +60,16 @@ message Stake {
     (gogoproto.nullable)   = false
   ];
 
-  // RewardDebts is a list of reward debt for each reward.
-  repeated cosmos.base.v1beta1.Coin reward_debts = 4 [
+  // PosRewardDebts is a list of reward debt for each reward (only positive side).
+  // Note: as Coin and DecCoin can't have negative amount. so, we split it to two numbers.
+  repeated cosmos.base.v1beta1.Coin pos_reward_debts = 4 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true
+  ];
+
+  // NegRewardDebts is a list of reward debt for each reward (only negative side).
+  repeated cosmos.base.v1beta1.Coin neg_reward_debts = 5 [
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
     (gogoproto.nullable)     = false,
     (amino.dont_omitempty)   = true
