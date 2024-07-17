@@ -21,6 +21,6 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
 func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	return &types.GenesisState{
 		Keys:   k.GetKeys(ctx),
-		Stakes: k.GetAllStakes(ctx),
+		Stakes: k.GetStakes(ctx),
 	}
 }

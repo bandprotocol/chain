@@ -84,13 +84,13 @@ func (h Hooks) AfterUnbondingInitiated(_ sdk.Context, _ uint64) error {
 	return nil
 }
 
-func (h Hooks) isAbleToUnbond(ctx sdk.Context, address sdk.AccAddress, delegated math.Int) error {
-	iterator := sdk.KVStoreReversePrefixIterator(ctx.KVStore(h.k.storeKey), types.StakesByAmountIndexKey(address))
+func (h Hooks) isAbleToUnbond(ctx sdk.Context, addr sdk.AccAddress, delegated math.Int) error {
+	iterator := sdk.KVStoreReversePrefixIterator(ctx.KVStore(h.k.storeKey), types.StakesByAmountIndexKey(addr))
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
 		keyName := string(iterator.Value())
-		stake, err := h.k.GetStake(ctx, address, keyName)
+		stake, err := h.k.GetStake(ctx, addr, keyName)
 		if err != nil {
 			panic(err)
 		}
@@ -102,7 +102,7 @@ func (h Hooks) isAbleToUnbond(ctx sdk.Context, address sdk.AccAddress, delegated
 
 			return nil
 		} else {
-			h.k.DeleteStake(ctx, address, keyName)
+			h.k.DeleteStake(ctx, addr, keyName)
 		}
 	}
 

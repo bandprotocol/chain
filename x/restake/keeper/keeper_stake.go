@@ -6,16 +6,16 @@ import (
 	"github.com/bandprotocol/chain/v2/x/restake/types"
 )
 
-func (k Keeper) GetStakesIterator(ctx sdk.Context, address sdk.AccAddress) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.StakesStoreKey(address))
-}
-
-func (k Keeper) GetAllStakesIterator(ctx sdk.Context) sdk.Iterator {
+func (k Keeper) GetStakesIterator(ctx sdk.Context) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.StakeStoreKeyPrefix)
 }
 
-func (k Keeper) GetActiveStakes(ctx sdk.Context, address sdk.AccAddress) (stakes []types.Stake) {
-	iterator := k.GetStakesIterator(ctx, address)
+func (k Keeper) GetStakesByAddressIterator(ctx sdk.Context, addr sdk.AccAddress) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.StakesStoreKey(addr))
+}
+
+func (k Keeper) GetActiveStakes(ctx sdk.Context, addr sdk.AccAddress) (stakes []types.Stake) {
+	iterator := k.GetStakesByAddressIterator(ctx, addr)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -32,8 +32,8 @@ func (k Keeper) GetActiveStakes(ctx sdk.Context, address sdk.AccAddress) (stakes
 	return stakes
 }
 
-func (k Keeper) GetStakes(ctx sdk.Context, address sdk.AccAddress) (stakes []types.Stake) {
-	iterator := k.GetStakesIterator(ctx, address)
+func (k Keeper) GetStakesByAddress(ctx sdk.Context, addr sdk.AccAddress) (stakes []types.Stake) {
+	iterator := k.GetStakesByAddressIterator(ctx, addr)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -45,8 +45,8 @@ func (k Keeper) GetStakes(ctx sdk.Context, address sdk.AccAddress) (stakes []typ
 	return stakes
 }
 
-func (k Keeper) GetAllStakes(ctx sdk.Context) (stakes []types.Stake) {
-	iterator := k.GetAllStakesIterator(ctx)
+func (k Keeper) GetStakes(ctx sdk.Context) (stakes []types.Stake) {
+	iterator := k.GetStakesIterator(ctx)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -58,16 +58,16 @@ func (k Keeper) GetAllStakes(ctx sdk.Context) (stakes []types.Stake) {
 	return stakes
 }
 
-func (k Keeper) HasStake(ctx sdk.Context, address sdk.AccAddress, keyName string) bool {
-	return ctx.KVStore(k.storeKey).Has(types.StakeStoreKey(address, keyName))
+func (k Keeper) HasStake(ctx sdk.Context, addr sdk.AccAddress, keyName string) bool {
+	return ctx.KVStore(k.storeKey).Has(types.StakeStoreKey(addr, keyName))
 }
 
-func (k Keeper) GetStake(ctx sdk.Context, address sdk.AccAddress, keyName string) (types.Stake, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.StakeStoreKey(address, keyName))
+func (k Keeper) GetStake(ctx sdk.Context, addr sdk.AccAddress, keyName string) (types.Stake, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.StakeStoreKey(addr, keyName))
 	if bz == nil {
 		return types.Stake{}, types.ErrStakeNotFound.Wrapf(
 			"failed to get stake of %s with key name: %s",
-			address.String(),
+			addr.String(),
 			keyName,
 		)
 	}
@@ -79,24 +79,24 @@ func (k Keeper) GetStake(ctx sdk.Context, address sdk.AccAddress, keyName string
 }
 
 func (k Keeper) SetStake(ctx sdk.Context, stake types.Stake) {
-	address := sdk.MustAccAddressFromBech32(stake.StakerAddress)
-	k.DeleteStake(ctx, address, stake.Key)
+	addr := sdk.MustAccAddressFromBech32(stake.StakerAddress)
+	k.DeleteStake(ctx, addr, stake.Key)
 
-	ctx.KVStore(k.storeKey).Set(types.StakeStoreKey(address, stake.Key), k.cdc.MustMarshal(&stake))
+	ctx.KVStore(k.storeKey).Set(types.StakeStoreKey(addr, stake.Key), k.cdc.MustMarshal(&stake))
 	k.setStakeByAmount(ctx, stake)
+}
+
+func (k Keeper) DeleteStake(ctx sdk.Context, addr sdk.AccAddress, keyName string) {
+	stake, err := k.GetStake(ctx, addr, keyName)
+	if err != nil {
+		return
+	}
+	ctx.KVStore(k.storeKey).Delete(types.StakeStoreKey(addr, keyName))
+	k.deleteStakeByAmount(ctx, stake)
 }
 
 func (k Keeper) setStakeByAmount(ctx sdk.Context, stake types.Stake) {
 	ctx.KVStore(k.storeKey).Set(types.StakeByAmountIndexKey(stake), []byte(stake.Key))
-}
-
-func (k Keeper) DeleteStake(ctx sdk.Context, address sdk.AccAddress, keyName string) {
-	stake, err := k.GetStake(ctx, address, keyName)
-	if err != nil {
-		return
-	}
-	ctx.KVStore(k.storeKey).Delete(types.StakeStoreKey(address, keyName))
-	k.deleteStakeByAmount(ctx, stake)
 }
 
 func (k Keeper) deleteStakeByAmount(ctx sdk.Context, stake types.Stake) {
