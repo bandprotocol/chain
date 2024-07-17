@@ -50,7 +50,7 @@ func StakesByAmountIndexKey(addr sdk.AccAddress) []byte {
 }
 
 func StakeByAmountIndexKey(stake Stake) []byte {
-	address := sdk.MustAccAddressFromBech32(stake.Address)
+	address := sdk.MustAccAddressFromBech32(stake.StakerAddress)
 
 	amountBytes := make([]byte, 8)
 	binary.BigEndian.PutUint64(amountBytes, stake.Amount.Uint64())

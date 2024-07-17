@@ -56,7 +56,6 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.restakeKeeper = keeper.NewKeeper(
 		encCfg.Codec,
 		key,
-		authtypes.FeeCollectorName,
 		accountKeeper,
 		bankKeeper,
 		stakingKeeper,

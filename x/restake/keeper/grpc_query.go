@@ -63,7 +63,7 @@ func (k Querier) Rewards(
 ) (*types.QueryRewardsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	address, err := sdk.AccAddressFromBech32(req.Address)
+	address, err := sdk.AccAddressFromBech32(req.StakerAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (k Querier) Locks(
 ) (*types.QueryLocksResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	address, err := sdk.AccAddressFromBech32(req.Address)
+	address, err := sdk.AccAddressFromBech32(req.StakerAddress)
 	if err != nil {
 		return nil, err
 	}

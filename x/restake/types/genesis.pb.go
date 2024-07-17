@@ -31,7 +31,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type GenesisState struct {
 	// Keys is a list of keys in the module.
 	Keys []Key `protobuf:"bytes,1,rep,name=keys,proto3" json:"keys"`
-	// Stake is a list of stakes in the module.
+	// Stakes is a list of stakes in the module.
 	Stakes []Stake `protobuf:"bytes,2,rep,name=stakes,proto3" json:"stakes"`
 	// Rewards is a list of rewards in the module.
 	Rewards []RewardGenesis `protobuf:"bytes,3,rep,name=rewards,proto3" json:"rewards"`

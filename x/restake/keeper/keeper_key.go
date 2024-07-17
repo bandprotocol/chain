@@ -17,7 +17,7 @@ func (k Keeper) GetOrCreateKey(ctx sdk.Context, keyName string) (types.Key, erro
 
 		key = types.Key{
 			Name:            keyName,
-			Address:         keyAccAddr.String(),
+			PoolAddress:     keyAccAddr.String(),
 			IsActive:        true,
 			TotalLock:       sdk.NewInt(0),
 			RewardPerShares: sdk.NewDecCoins(),

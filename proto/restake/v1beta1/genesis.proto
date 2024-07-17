@@ -14,7 +14,7 @@ message GenesisState {
   // Keys is a list of keys in the module.
   repeated Key keys = 1 [(gogoproto.nullable) = false];
 
-  // Stake is a list of stakes in the module.
+  // Stakes is a list of stakes in the module.
   repeated Stake stakes = 2 [(gogoproto.nullable) = false];
 
   // Rewards is a list of rewards in the module.

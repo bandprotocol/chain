@@ -79,7 +79,7 @@ func (k Keeper) GetStake(ctx sdk.Context, address sdk.AccAddress, keyName string
 }
 
 func (k Keeper) SetStake(ctx sdk.Context, stake types.Stake) {
-	address := sdk.MustAccAddressFromBech32(stake.Address)
+	address := sdk.MustAccAddressFromBech32(stake.StakerAddress)
 	k.DeleteStake(ctx, address, stake.Key)
 
 	ctx.KVStore(k.storeKey).Set(types.StakeStoreKey(address, stake.Key), k.cdc.MustMarshal(&stake))

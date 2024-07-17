@@ -27,7 +27,7 @@ func (k msgServer) ClaimRewards(
 ) (*types.MsgClaimRewardsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	address, err := sdk.AccAddressFromBech32(msg.Address)
+	address, err := sdk.AccAddressFromBech32(msg.StakerAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (k msgServer) ClaimRewards(
 		stake.NegRewardDebts = sdk.NewCoins()
 		k.SetStake(ctx, stake)
 
-		err = k.bankKeeper.SendCoins(ctx, sdk.MustAccAddressFromBech32(key.Address), address, finalRewards)
+		err = k.bankKeeper.SendCoins(ctx, sdk.MustAccAddressFromBech32(key.PoolAddress), address, finalRewards)
 		if err != nil {
 			return nil, err
 		}
@@ -59,7 +59,7 @@ func (k msgServer) ClaimRewards(
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeClaimRewards,
-				sdk.NewAttribute(types.AttributeKeyAddress, msg.Address),
+				sdk.NewAttribute(types.AttributeKeyStaker, msg.StakerAddress),
 				sdk.NewAttribute(types.AttributeKeyKey, stake.Key),
 				sdk.NewAttribute(sdk.AttributeKeyAmount, finalRewards.String()),
 			),
@@ -82,7 +82,7 @@ func (k msgServer) LockPower(
 ) (*types.MsgLockPowerResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	address, err := sdk.AccAddressFromBech32(msg.Address)
+	address, err := sdk.AccAddressFromBech32(msg.StakerAddress)
 	if err != nil {
 		return nil, err
 	}

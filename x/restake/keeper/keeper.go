@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	"cosmossdk.io/math"
 	"github.com/cometbft/cometbft/libs/log"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -14,43 +12,35 @@ import (
 
 // Keeper of the x/restake store
 type Keeper struct {
-	storeKey         storetypes.StoreKey
-	cdc              codec.BinaryCodec
-	feeCollectorName string
-	authKeeper       types.AccountKeeper
-	bankKeeper       types.BankKeeper
-	stakingKeeper    types.StakingKeeper
-	authority        string
+	storeKey      storetypes.StoreKey
+	cdc           codec.BinaryCodec
+	authKeeper    types.AccountKeeper
+	bankKeeper    types.BankKeeper
+	stakingKeeper types.StakingKeeper
+	authority     string
 }
 
 // NewKeeper creates a new restake Keeper instance
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	key storetypes.StoreKey,
-	feeCollectorName string,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	sk types.StakingKeeper,
 	authority string,
 ) Keeper {
-	// ensure module account is set
-	if addr := ak.GetModuleAddress(types.ModuleName); addr == nil {
-		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
-	}
-
 	// ensure that authority is a valid AccAddress
 	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
 		panic("authority is not a valid acc address")
 	}
 
 	return Keeper{
-		storeKey:         key,
-		cdc:              cdc,
-		feeCollectorName: feeCollectorName,
-		authKeeper:       ak,
-		bankKeeper:       bk,
-		stakingKeeper:    sk,
-		authority:        authority,
+		storeKey:      key,
+		cdc:           cdc,
+		authKeeper:    ak,
+		bankKeeper:    bk,
+		stakingKeeper: sk,
+		authority:     authority,
 	}
 }
 
@@ -59,13 +49,15 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
-func (k Keeper) SetLockedPower(ctx sdk.Context, addr sdk.AccAddress, keyName string, amount math.Int) error {
+// SetLockedPower sets the new locked power amount of the address to the key
+// This function will override the previous locked amount.
+func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, keyName string, amount math.Int) error {
 	if !amount.IsUint64() {
 		return types.ErrInvalidAmount
 	}
 
 	// check if delegation is not less than amount
-	delegation := k.stakingKeeper.GetDelegatorBonded(ctx, addr)
+	delegation := k.stakingKeeper.GetDelegatorBonded(ctx, stakerAddr)
 	if delegation.LT(amount) {
 		return types.ErrDelegationNotEnough
 	}
@@ -80,10 +72,10 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, addr sdk.AccAddress, keyName str
 	}
 
 	// check if there is a lock before
-	stake, err := k.GetStake(ctx, addr, keyName)
+	stake, err := k.GetStake(ctx, stakerAddr, keyName)
 	if err != nil {
 		stake = types.Stake{
-			Address:        addr.String(),
+			StakerAddress:  stakerAddr.String(),
 			Key:            keyName,
 			Amount:         sdk.NewInt(0),
 			PosRewardDebts: sdk.NewCoins(),
@@ -109,8 +101,8 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, addr sdk.AccAddress, keyName str
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeLockPower,
-			sdk.NewAttribute(types.AttributeKeyAddress, addr.String()),
-			sdk.NewAttribute(types.AttributeKeyKey, addr.String()),
+			sdk.NewAttribute(types.AttributeKeyStaker, stakerAddr.String()),
+			sdk.NewAttribute(types.AttributeKeyKey, keyName),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()),
 		),
 	)
@@ -118,6 +110,7 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, addr sdk.AccAddress, keyName str
 	return nil
 }
 
+// AddRewards adds rewards to the pool address and re-calculate reward_per_share of the key
 func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName string, rewards sdk.Coins) error {
 	key, err := k.GetKey(ctx, keyName)
 	if err != nil {
@@ -132,7 +125,7 @@ func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName strin
 		return types.ErrTotalLockZero
 	}
 
-	err = k.bankKeeper.SendCoins(ctx, sender, sdk.MustAccAddressFromBech32(key.Address), rewards)
+	err = k.bankKeeper.SendCoins(ctx, sender, sdk.MustAccAddressFromBech32(key.PoolAddress), rewards)
 	if err != nil {
 		return err
 	}
@@ -153,7 +146,8 @@ func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName strin
 	return nil
 }
 
-func (k Keeper) GetLockedPower(ctx sdk.Context, addr sdk.AccAddress, keyName string) (math.Int, error) {
+// GetLockedPower return locked power of the address to the key.
+func (k Keeper) GetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, keyName string) (math.Int, error) {
 	key, err := k.GetKey(ctx, keyName)
 	if err != nil {
 		return math.Int{}, types.ErrKeyNotFound
@@ -163,7 +157,7 @@ func (k Keeper) GetLockedPower(ctx sdk.Context, addr sdk.AccAddress, keyName str
 		return math.Int{}, types.ErrKeyNotActive
 	}
 
-	stake, err := k.GetStake(ctx, addr, keyName)
+	stake, err := k.GetStake(ctx, stakerAddr, keyName)
 	if err != nil {
 		return math.Int{}, types.ErrStakeNotFound
 	}

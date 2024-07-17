@@ -189,7 +189,6 @@ var (
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
-		restaketypes.ModuleName:        nil,
 	}
 
 	Upgrades = []upgrades.Upgrade{v2_6.Upgrade}
@@ -423,7 +422,6 @@ func NewBandApp(
 	app.RestakeKeeper = restakekeeper.NewKeeper(
 		appCodec,
 		keys[restaketypes.StoreKey],
-		authtypes.FeeCollectorName,
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.StakingKeeper,

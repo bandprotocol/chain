@@ -124,7 +124,7 @@ func local_request_Query_Key_0(ctx context.Context, marshaler runtime.Marshaler,
 }
 
 var (
-	filter_Query_Rewards_0 = &utilities.DoubleArray{Encoding: map[string]int{"address": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+	filter_Query_Rewards_0 = &utilities.DoubleArray{Encoding: map[string]int{"staker_address": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 )
 
 func request_Query_Rewards_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -138,15 +138,15 @@ func request_Query_Rewards_0(ctx context.Context, marshaler runtime.Marshaler, c
 		_   = err
 	)
 
-	val, ok = pathParams["address"]
+	val, ok = pathParams["staker_address"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "address")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "staker_address")
 	}
 
-	protoReq.Address, err = runtime.String(val)
+	protoReq.StakerAddress, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "address", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "staker_address", err)
 	}
 
 	if err := req.ParseForm(); err != nil {
@@ -172,15 +172,15 @@ func local_request_Query_Rewards_0(ctx context.Context, marshaler runtime.Marsha
 		_   = err
 	)
 
-	val, ok = pathParams["address"]
+	val, ok = pathParams["staker_address"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "address")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "staker_address")
 	}
 
-	protoReq.Address, err = runtime.String(val)
+	protoReq.StakerAddress, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "address", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "staker_address", err)
 	}
 
 	if err := req.ParseForm(); err != nil {
@@ -196,7 +196,7 @@ func local_request_Query_Rewards_0(ctx context.Context, marshaler runtime.Marsha
 }
 
 var (
-	filter_Query_Locks_0 = &utilities.DoubleArray{Encoding: map[string]int{"address": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+	filter_Query_Locks_0 = &utilities.DoubleArray{Encoding: map[string]int{"staker_address": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 )
 
 func request_Query_Locks_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -210,15 +210,15 @@ func request_Query_Locks_0(ctx context.Context, marshaler runtime.Marshaler, cli
 		_   = err
 	)
 
-	val, ok = pathParams["address"]
+	val, ok = pathParams["staker_address"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "address")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "staker_address")
 	}
 
-	protoReq.Address, err = runtime.String(val)
+	protoReq.StakerAddress, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "address", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "staker_address", err)
 	}
 
 	if err := req.ParseForm(); err != nil {
@@ -244,15 +244,15 @@ func local_request_Query_Locks_0(ctx context.Context, marshaler runtime.Marshale
 		_   = err
 	)
 
-	val, ok = pathParams["address"]
+	val, ok = pathParams["staker_address"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "address")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "staker_address")
 	}
 
-	protoReq.Address, err = runtime.String(val)
+	protoReq.StakerAddress, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "address", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "staker_address", err)
 	}
 
 	if err := req.ParseForm(); err != nil {
@@ -494,9 +494,9 @@ var (
 
 	pattern_Query_Key_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"restake", "v1beta1", "keys", "key"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_Rewards_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"restake", "v1beta1", "addresses", "address", "rewards"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Rewards_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"restake", "v1beta1", "stakers", "staker_address", "rewards"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_Locks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"restake", "v1beta1", "addresses", "address", "locks"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Locks_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"restake", "v1beta1", "stakers", "staker_address", "locks"}, "", runtime.AssumeColonVerbOpt(false)))
 )
 
 var (

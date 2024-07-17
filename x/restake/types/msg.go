@@ -9,12 +9,12 @@ var _, _, _, _ sdk.Msg = &MsgClaimRewards{}, &MsgLockPower{}, &MsgAddRewards{}, 
 
 // NewMsgClaimRewards creates a new MsgClaimRewards instance
 func NewMsgClaimRewards(
-	address sdk.AccAddress,
+	stakerAddr sdk.AccAddress,
 	key string,
 ) *MsgClaimRewards {
 	return &MsgClaimRewards{
-		Address: address.String(),
-		Key:     key,
+		StakerAddress: stakerAddr.String(),
+		Key:           key,
 	}
 }
 
@@ -26,7 +26,7 @@ func (m MsgClaimRewards) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSigners implements the sdk.Msg interface.
 func (m MsgClaimRewards) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.StakerAddress)}
 }
 
 // GetSignBytes implements the sdk.Msg interface.
@@ -37,7 +37,7 @@ func (m MsgClaimRewards) GetSignBytes() []byte {
 
 // ValidateBasic implements the sdk.Msg interface.
 func (m MsgClaimRewards) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(m.Address)
+	_, err := sdk.AccAddressFromBech32(m.StakerAddress)
 	if err != nil {
 		return err
 	}
@@ -47,14 +47,14 @@ func (m MsgClaimRewards) ValidateBasic() error {
 
 // NewMsgLockPower creates a new MsgLockPower instance
 func NewMsgLockPower(
-	address sdk.AccAddress,
+	stakerAddr sdk.AccAddress,
 	key string,
 	amount math.Int,
 ) *MsgLockPower {
 	return &MsgLockPower{
-		Address: address.String(),
-		Key:     key,
-		Amount:  amount,
+		StakerAddress: stakerAddr.String(),
+		Key:           key,
+		Amount:        amount,
 	}
 }
 
@@ -66,7 +66,7 @@ func (m MsgLockPower) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSigners implements the sdk.Msg interface.
 func (m MsgLockPower) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.StakerAddress)}
 }
 
 // GetSignBytes implements the sdk.Msg interface.
@@ -77,7 +77,7 @@ func (m MsgLockPower) GetSignBytes() []byte {
 
 // ValidateBasic implements the sdk.Msg interface.
 func (m MsgLockPower) ValidateBasic() error {
-	_, err := sdk.AccAddressFromBech32(m.Address)
+	_, err := sdk.AccAddressFromBech32(m.StakerAddress)
 	if err != nil {
 		return err
 	}
