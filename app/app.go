@@ -425,7 +425,6 @@ func NewBandApp(
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.StakingKeeper,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
 	app.StakingKeeper.SetHooks(
