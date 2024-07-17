@@ -83,9 +83,7 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 // AppModule implements an application module for the restake module.
 type AppModule struct {
 	AppModuleBasic
-
-	keeper        *keeper.Keeper
-	accountKeeper types.AccountKeeper
+	keeper *keeper.Keeper
 }
 
 // NewAppModule creates a new AppModule object
