@@ -22,7 +22,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 				},
 			},
 			expErr:    true,
-			expErrMsg: "not enough delegation",
+			expErrMsg: "delegation not enough",
 			postCheck: func() {},
 		},
 		{
@@ -37,7 +37,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 				},
 			},
 			expErr:    true,
-			expErrMsg: "not enough delegation",
+			expErrMsg: "delegation not enough",
 			postCheck: func() {},
 		},
 		{
@@ -56,7 +56,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 				},
 			},
 			expErr:    true,
-			expErrMsg: "not enough delegation",
+			expErrMsg: "delegation not enough",
 			postCheck: func() {},
 		},
 		{

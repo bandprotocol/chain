@@ -129,6 +129,9 @@ import (
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/restake"
+	restakekeeper "github.com/bandprotocol/chain/v2/x/restake/keeper"
+	restaketypes "github.com/bandprotocol/chain/v2/x/restake/types"
 )
 
 const (
@@ -178,6 +181,7 @@ var (
 		oracle.AppModuleBasic{},
 		feeds.AppModuleBasic{},
 		globalfee.AppModule{},
+		restake.AppModuleBasic{},
 	)
 	// module account permissions
 	maccPerms = map[string][]string{
@@ -189,6 +193,7 @@ var (
 		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
+		restaketypes.ModuleName:        nil,
 	}
 
 	Upgrades = []upgrades.Upgrade{v2_6.Upgrade}
@@ -291,6 +296,7 @@ func NewBandApp(
 		oracletypes.StoreKey,
 		feedstypes.StoreKey,
 		globalfeetypes.StoreKey,
+		restaketypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -419,6 +425,16 @@ func NewBandApp(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
+	app.RestakeKeeper = restakekeeper.NewKeeper(
+		appCodec,
+		keys[restaketypes.StoreKey],
+		authtypes.FeeCollectorName,
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.StakingKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
 	// create IBC Keeper
 	app.IBCKeeper = ibckeeper.NewKeeper(
 		appCodec,
@@ -531,6 +547,7 @@ func NewBandApp(
 		keys[feedstypes.StoreKey],
 		app.OracleKeeper,
 		app.StakingKeeper,
+		app.RestakeKeeper,
 		app.AuthzKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
@@ -539,7 +556,7 @@ func NewBandApp(
 		stakingtypes.NewMultiStakingHooks(
 			app.DistrKeeper.Hooks(),
 			app.SlashingKeeper.Hooks(),
-			app.FeedsKeeper.Hooks(),
+			app.RestakeKeeper.Hooks(),
 		),
 	)
 
@@ -634,6 +651,7 @@ func NewBandApp(
 		oracleModule,
 		feeds.NewAppModule(appCodec, app.FeedsKeeper),
 		globalfee.NewAppModule(app.GlobalfeeKeeper),
+		restake.NewAppModule(appCodec, &app.RestakeKeeper),
 	)
 
 	// NOTE: Oracle module must occur before distr as it takes some fee to distribute to active oracle validators.
@@ -646,6 +664,7 @@ func NewBandApp(
 		minttypes.ModuleName,
 		oracletypes.ModuleName,
 		feedstypes.ModuleName,
+		restaketypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -673,6 +692,7 @@ func NewBandApp(
 		stakingtypes.ModuleName,
 		oracletypes.ModuleName,
 		feedstypes.ModuleName,
+		restaketypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
@@ -725,6 +745,7 @@ func NewBandApp(
 		oracletypes.ModuleName,
 		feedstypes.ModuleName,
 		globalfeetypes.ModuleName,
+		restaketypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(app.CrisisKeeper)
