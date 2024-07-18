@@ -70,11 +70,11 @@ func TestParams_Validate(t *testing.T) {
 			params.MaxDeviationBasisPoint = 0 // Invalid value
 			return params
 		}(), fmt.Errorf("max deviation basis point must be positive: 0")},
-		{"invalid SupportedFeedsUpdateInterval", func() types.Params {
+		{"invalid CurrentFeedsUpdateInterval", func() types.Params {
 			params := types.DefaultParams()
-			params.SupportedFeedsUpdateInterval = 0 // Invalid value
+			params.CurrentFeedsUpdateInterval = 0 // Invalid value
 			return params
-		}(), fmt.Errorf("supported feeds update interval must be positive: 0")},
+		}(), fmt.Errorf("current feeds update interval must be positive: 0")},
 	}
 
 	for _, tt := range tests {

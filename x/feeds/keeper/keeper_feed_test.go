@@ -2,7 +2,7 @@ package keeper_test
 
 import "github.com/bandprotocol/chain/v2/x/feeds/types"
 
-func (suite *KeeperTestSuite) TestGetSetSupportedFeeds() {
+func (suite *KeeperTestSuite) TestGetSetCurrentFeeds() {
 	ctx := suite.ctx
 
 	// set
@@ -16,14 +16,14 @@ func (suite *KeeperTestSuite) TestGetSetSupportedFeeds() {
 			Interval: 60,
 		},
 	}
-	suite.feedsKeeper.SetSupportedFeeds(ctx, expFeed)
+	suite.feedsKeeper.SetCurrentFeeds(ctx, expFeed)
 
 	// get
-	feeds := suite.feedsKeeper.GetSupportedFeeds(ctx)
+	feeds := suite.feedsKeeper.GetCurrentFeeds(ctx)
 	suite.Require().Equal(expFeed, feeds.Feeds)
 }
 
-func (suite *KeeperTestSuite) TestCalculateNewSupportedFeeds() {
+func (suite *KeeperTestSuite) TestCalculateNewCurrentFeeds() {
 	ctx := suite.ctx
 
 	suite.feedsKeeper.SetSignalTotalPower(ctx, types.Signal{
@@ -35,7 +35,7 @@ func (suite *KeeperTestSuite) TestCalculateNewSupportedFeeds() {
 		Power: 30000000000,
 	})
 
-	feeds := suite.feedsKeeper.CalculateNewSupportedFeeds(ctx)
+	feeds := suite.feedsKeeper.CalculateNewCurrentFeeds(ctx)
 	suite.Require().Equal([]types.Feed{
 		{
 			SignalID: "CS:BAND-USD",

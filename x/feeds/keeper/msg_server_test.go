@@ -158,7 +158,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 }
 
 func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
-	suite.feedsKeeper.SetSupportedFeeds(suite.ctx, []types.Feed{{
+	suite.feedsKeeper.SetCurrentFeeds(suite.ctx, []types.Feed{{
 		SignalID: "CS:BAND-USD",
 		Interval: 100,
 	}})

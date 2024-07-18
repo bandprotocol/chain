@@ -167,7 +167,7 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 		},
 	}
 
-	suite.feedsKeeper.SetSupportedFeeds(ctx, feeds)
+	suite.feedsKeeper.SetCurrentFeeds(ctx, feeds)
 
 	valPrices := []types.ValidatorPrice{
 		{
@@ -330,13 +330,13 @@ func (suite *KeeperTestSuite) TestQuerySignalTotalPowers() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestQuerySupportedFeeds() {
+func (suite *KeeperTestSuite) TestQueryCurrentFeeds() {
 	ctx, queryClient := suite.ctx, suite.queryClient
 
 	// query and check
 	var (
-		req    *types.QuerySupportedFeedsRequest
-		expRes *types.QuerySupportedFeedsResponse
+		req    *types.QueryCurrentFeedsRequest
+		expRes *types.QueryCurrentFeedsResponse
 	)
 
 	testCases := []struct {
@@ -345,11 +345,11 @@ func (suite *KeeperTestSuite) TestQuerySupportedFeeds() {
 		expPass  bool
 	}{
 		{
-			"no supported feeds",
+			"no current feeds",
 			func() {
-				req = &types.QuerySupportedFeedsRequest{}
-				expRes = &types.QuerySupportedFeedsResponse{
-					SupportedFeeds: types.SupportedFeedWithDeviations{
+				req = &types.QueryCurrentFeedsRequest{}
+				expRes = &types.QueryCurrentFeedsResponse{
+					CurrentFeeds: types.CurrentFeedWithDeviations{
 						Feeds:               nil,
 						LastUpdateTimestamp: ctx.BlockTime().Unix(),
 						LastUpdateBlock:     ctx.BlockHeight(),
@@ -359,7 +359,7 @@ func (suite *KeeperTestSuite) TestQuerySupportedFeeds() {
 			true,
 		},
 		{
-			"1 supported symbol",
+			"1 current symbol",
 			func() {
 				feeds := []types.Feed{
 					{
@@ -369,7 +369,7 @@ func (suite *KeeperTestSuite) TestQuerySupportedFeeds() {
 					},
 				}
 
-				suite.feedsKeeper.SetSupportedFeeds(ctx, feeds)
+				suite.feedsKeeper.SetCurrentFeeds(ctx, feeds)
 
 				feedWithDeviations := []types.FeedWithDeviation{
 					{
@@ -380,9 +380,9 @@ func (suite *KeeperTestSuite) TestQuerySupportedFeeds() {
 					},
 				}
 
-				req = &types.QuerySupportedFeedsRequest{}
-				expRes = &types.QuerySupportedFeedsResponse{
-					SupportedFeeds: types.SupportedFeedWithDeviations{
+				req = &types.QueryCurrentFeedsRequest{}
+				expRes = &types.QueryCurrentFeedsResponse{
+					CurrentFeeds: types.CurrentFeedWithDeviations{
 						Feeds:               feedWithDeviations,
 						LastUpdateTimestamp: ctx.BlockTime().Unix(),
 						LastUpdateBlock:     ctx.BlockHeight(),
@@ -397,7 +397,7 @@ func (suite *KeeperTestSuite) TestQuerySupportedFeeds() {
 		suite.Run(fmt.Sprintf("Case %s", testCase.msg), func() {
 			testCase.malleate()
 
-			res, err := queryClient.SupportedFeeds(context.Background(), req)
+			res, err := queryClient.CurrentFeeds(context.Background(), req)
 
 			if testCase.expPass {
 				suite.Require().NoError(err)

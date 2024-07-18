@@ -112,7 +112,7 @@ func (suite *KeeperTestSuite) TestInitGenesis() {
 		Power: 60000 * 1e6,
 	}, stpBtc)
 
-	suite.Require().Equal(types.SupportedFeeds{
+	suite.Require().Equal(types.CurrentFeeds{
 		Feeds: []types.Feed{
 			{
 				SignalID: "CS:BTC-USD",
@@ -127,5 +127,5 @@ func (suite *KeeperTestSuite) TestInitGenesis() {
 		},
 		LastUpdateTimestamp: ctx.BlockTime().Unix(),
 		LastUpdateBlock:     ctx.BlockHeight(),
-	}, suite.feedsKeeper.GetSupportedFeeds(ctx))
+	}, suite.feedsKeeper.GetCurrentFeeds(ctx))
 }

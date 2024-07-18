@@ -129,13 +129,13 @@ func (h *Signaller) updateParams() bool {
 }
 
 func (h *Signaller) updateFeedMap() bool {
-	resp, err := h.feedQuerier.QuerySupportedFeeds()
+	resp, err := h.feedQuerier.QueryCurrentFeeds()
 	if err != nil {
 		h.logger.Error("[Signaller] failed to query supported feeds: %v", err)
 		return false
 	}
 
-	h.signalIDToFeed = sliceToMap(resp.SupportedFeeds.Feeds, func(feed types.FeedWithDeviation) string {
+	h.signalIDToFeed = sliceToMap(resp.CurrentFeeds.Feeds, func(feed types.FeedWithDeviation) string {
 		return feed.SignalID
 	})
 

@@ -79,16 +79,16 @@ func (q *FeedQuerier) QueryParams() (*feeds.QueryParamsResponse, error) {
 	return getMaxBlockHeightResponse(fs, &in)
 }
 
-func (q *FeedQuerier) QuerySupportedFeeds() (*feeds.QuerySupportedFeedsResponse, error) {
+func (q *FeedQuerier) QueryCurrentFeeds() (*feeds.QueryCurrentFeedsResponse, error) {
 	fs := make(
-		[]QueryFunction[feeds.QuerySupportedFeedsRequest, feeds.QuerySupportedFeedsResponse],
+		[]QueryFunction[feeds.QueryCurrentFeedsRequest, feeds.QueryCurrentFeedsResponse],
 		0,
 		len(q.queryClients),
 	)
 	for _, queryClient := range q.queryClients {
-		fs = append(fs, queryClient.SupportedFeeds)
+		fs = append(fs, queryClient.CurrentFeeds)
 	}
 
-	in := feeds.QuerySupportedFeedsRequest{}
+	in := feeds.QueryCurrentFeedsRequest{}
 	return getMaxBlockHeightResponse(fs, &in)
 }

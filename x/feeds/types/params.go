@@ -11,12 +11,12 @@ const (
 	DefaultMinInterval                   = int64(60)
 	DefaultMaxInterval                   = int64(3600)
 	DefaultPowerStepThreshold            = int64(1_000_000_000)
-	DefaultMaxSupportedFeeds             = uint64(300)
+	DefaultMaxCurrentFeeds               = uint64(300)
 	DefaultCooldownTime                  = int64(30)
 	DefaultMinDeviationBasisPoint        = int64(50)
 	DefaultMaxDeviationBasisPoint        = int64(3000)
 	// estimated from block time of 3 seconds, aims for 1 day update
-	DefaultSupportedFeedsUpdateInterval = int64(28800)
+	DefaultCurrentFeedsUpdateInterval = int64(28800)
 )
 
 // NewParams creates a new Params instance
@@ -27,11 +27,11 @@ func NewParams(
 	minInterval int64,
 	maxInterval int64,
 	powerStepThreshold int64,
-	maxSupportedFeeds uint64,
+	maxCurrentFeeds uint64,
 	cooldownTime int64,
 	minDeviationBasisPoint int64,
 	maxDeviationBasisPoint int64,
-	supportedFeedsUpdateInterval int64,
+	currentFeedsUpdateInterval int64,
 ) Params {
 	return Params{
 		Admin:                         admin,
@@ -40,11 +40,11 @@ func NewParams(
 		MinInterval:                   minInterval,
 		MaxInterval:                   maxInterval,
 		PowerStepThreshold:            powerStepThreshold,
-		MaxSupportedFeeds:             maxSupportedFeeds,
+		MaxCurrentFeeds:               maxCurrentFeeds,
 		CooldownTime:                  cooldownTime,
 		MinDeviationBasisPoint:        minDeviationBasisPoint,
 		MaxDeviationBasisPoint:        maxDeviationBasisPoint,
-		SupportedFeedsUpdateInterval:  supportedFeedsUpdateInterval,
+		CurrentFeedsUpdateInterval:    currentFeedsUpdateInterval,
 	}
 }
 
@@ -57,11 +57,11 @@ func DefaultParams() Params {
 		DefaultMinInterval,
 		DefaultMaxInterval,
 		DefaultPowerStepThreshold,
-		DefaultMaxSupportedFeeds,
+		DefaultMaxCurrentFeeds,
 		DefaultCooldownTime,
 		DefaultMinDeviationBasisPoint,
 		DefaultMaxDeviationBasisPoint,
-		DefaultSupportedFeedsUpdateInterval,
+		DefaultCurrentFeedsUpdateInterval,
 	)
 }
 
@@ -85,7 +85,7 @@ func (p Params) Validate() error {
 	if err := validateInt64("power threshold", true, p.PowerStepThreshold); err != nil {
 		return err
 	}
-	if err := validateUint64("max supported feeds", false, p.MaxSupportedFeeds); err != nil {
+	if err := validateUint64("max current feeds", false, p.MaxCurrentFeeds); err != nil {
 		return err
 	}
 	if err := validateInt64("cooldown time", true, p.CooldownTime); err != nil {
@@ -97,7 +97,7 @@ func (p Params) Validate() error {
 	if err := validateInt64("max deviation basis point", true, p.MaxDeviationBasisPoint); err != nil {
 		return err
 	}
-	if err := validateInt64("supported feeds update interval", true, p.SupportedFeedsUpdateInterval); err != nil {
+	if err := validateInt64("current feeds update interval", true, p.CurrentFeedsUpdateInterval); err != nil {
 		return err
 	}
 
