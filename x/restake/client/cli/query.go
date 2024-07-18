@@ -57,6 +57,7 @@ func GetQueryCmdKey() *cobra.Command {
 
 	return cmd
 }
+
 func GetQueryCmdKeys() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "keys",
