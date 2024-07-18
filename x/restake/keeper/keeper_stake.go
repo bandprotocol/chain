@@ -106,7 +106,7 @@ func (k Keeper) deleteStakeByAmount(ctx sdk.Context, stake types.Stake) {
 func (k Keeper) getTotalRewards(ctx sdk.Context, stake types.Stake) sdk.DecCoins {
 	key := k.MustGetKey(ctx, stake.Key)
 
-	return key.RewardPerShares.MulDecTruncate(sdk.NewDecFromInt(stake.Amount))
+	return key.RewardPerPowers.MulDecTruncate(sdk.NewDecFromInt(stake.Amount))
 }
 
 func (k Keeper) getReward(ctx sdk.Context, stake types.Stake) types.Reward {

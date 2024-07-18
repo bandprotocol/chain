@@ -30,7 +30,7 @@ service Msg {
 
 // MsgClaimRewards is the request message type for claiming rewards.
 message MsgClaimRewards {
-  option (cosmos.msg.v1.signer) = "address";
+  option (cosmos.msg.v1.signer) = "staker_address";
   option (amino.name)           = "restake/MsgClaimRewards";
 
   // StakerAddress is the address that will claim the rewards.
@@ -45,7 +45,7 @@ message MsgClaimRewardsResponse {}
 
 // MsgLockPower is the request message type for locking tokens.
 message MsgLockPower {
-  option (cosmos.msg.v1.signer) = "address";
+  option (cosmos.msg.v1.signer) = "staker_address";
   option (amino.name)           = "restake/MsgLockPower";
 
   // StakerAddress is the address will be locked power.

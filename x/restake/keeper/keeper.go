@@ -75,11 +75,11 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, keyNa
 		}
 	}
 
-	key.TotalLock = key.TotalLock.Sub(stake.Amount).Add(amount)
+	key.TotalPower = key.TotalPower.Sub(stake.Amount).Add(amount)
 	k.SetKey(ctx, key)
 
 	diffLock := amount.Sub(stake.Amount)
-	addtionalDebts := key.RewardPerShares.MulDecTruncate(sdk.NewDecFromInt(diffLock.Abs()))
+	addtionalDebts := key.RewardPerPowers.MulDecTruncate(sdk.NewDecFromInt(diffLock.Abs()))
 	truncatedAdditionalDebts, _ := addtionalDebts.TruncateDecimal()
 	truncatedAdditionalDebts = truncatedAdditionalDebts.Sort()
 	if diffLock.IsPositive() {
@@ -113,7 +113,7 @@ func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName strin
 		return types.ErrKeyNotActive
 	}
 
-	if key.TotalLock.IsZero() {
+	if key.TotalPower.IsZero() {
 		return types.ErrTotalLockZero
 	}
 
@@ -122,8 +122,8 @@ func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName strin
 		return err
 	}
 
-	key.RewardPerShares = key.RewardPerShares.Add(
-		sdk.NewDecCoinsFromCoins(rewards.Sort()...).QuoDecTruncate(sdk.NewDecFromInt(key.TotalLock))...,
+	key.RewardPerPowers = key.RewardPerPowers.Add(
+		sdk.NewDecCoinsFromCoins(rewards.Sort()...).QuoDecTruncate(sdk.NewDecFromInt(key.TotalPower))...,
 	)
 	k.SetKey(ctx, key)
 
