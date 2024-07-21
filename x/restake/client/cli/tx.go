@@ -50,18 +50,32 @@ func GetTxCmdClaimRewards() *cobra.Command {
 
 			if len(args) == 0 {
 				queryClient := types.NewQueryClient(clientCtx)
-				respRewards, err := queryClient.Rewards(context.Background(), &types.QueryRewardsRequest{
-					LockerAddress: clientCtx.GetFromAddress().String(),
-					Pagination: &query.PageRequest{
-						Limit: 10000,
-					},
-				})
-				if err != nil {
-					return err
+				var rewards []*types.Reward
+
+				offset := uint64(0)
+				pageSize := uint64(1000)
+				for {
+					respRewards, err := queryClient.Rewards(context.Background(), &types.QueryRewardsRequest{
+						LockerAddress: clientCtx.GetFromAddress().String(),
+						Pagination: &query.PageRequest{
+							Offset: offset,
+							Limit:  pageSize,
+						},
+					})
+					if err != nil {
+						return err
+					}
+
+					rewards = append(rewards, respRewards.Rewards...)
+					offset += pageSize
+
+					if respRewards.Pagination.NextKey == nil {
+						break
+					}
 				}
 
 				// claim all possible reward pools (>= 1 unit or key is deactivated)
-				for _, reward := range respRewards.Rewards {
+				for _, reward := range rewards {
 					respKey, err := queryClient.Key(context.Background(), &types.QueryKeyRequest{
 						Key: reward.Key,
 					})
