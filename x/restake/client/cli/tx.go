@@ -51,7 +51,7 @@ func GetTxCmdClaimRewards() *cobra.Command {
 			if len(args) == 0 {
 				queryClient := types.NewQueryClient(clientCtx)
 				respRewards, err := queryClient.Rewards(context.Background(), &types.QueryRewardsRequest{
-					StakerAddress: clientCtx.GetFromAddress().String(),
+					LockerAddress: clientCtx.GetFromAddress().String(),
 					Pagination: &query.PageRequest{
 						Limit: 10000,
 					},

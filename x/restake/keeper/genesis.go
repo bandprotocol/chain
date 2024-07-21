@@ -12,15 +12,15 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
 		k.SetKey(ctx, key)
 	}
 
-	for _, stake := range data.Stakes {
-		k.SetStake(ctx, stake)
+	for _, lock := range data.Locks {
+		k.SetLock(ctx, lock)
 	}
 }
 
 // ExportGenesis returns the module's exported genesis
 func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	return &types.GenesisState{
-		Keys:   k.GetKeys(ctx),
-		Stakes: k.GetStakes(ctx),
+		Keys:  k.GetKeys(ctx),
+		Locks: k.GetLocks(ctx),
 	}
 }

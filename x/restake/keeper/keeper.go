@@ -43,13 +43,13 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 
 // SetLockedPower sets the new locked power amount of the address to the key
 // This function will override the previous locked amount.
-func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, keyName string, amount math.Int) error {
+func (k Keeper) SetLockedPower(ctx sdk.Context, lockerAddr sdk.AccAddress, keyName string, amount math.Int) error {
 	if !amount.IsUint64() {
 		return types.ErrInvalidAmount
 	}
 
 	// check if delegation is not less than amount
-	delegation := k.stakingKeeper.GetDelegatorBonded(ctx, stakerAddr)
+	delegation := k.stakingKeeper.GetDelegatorBonded(ctx, lockerAddr)
 	if delegation.LT(amount) {
 		return types.ErrDelegationNotEnough
 	}
@@ -64,10 +64,10 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, keyNa
 	}
 
 	// check if there is a lock before
-	stake, err := k.GetStake(ctx, stakerAddr, keyName)
+	lock, err := k.GetLock(ctx, lockerAddr, keyName)
 	if err != nil {
-		stake = types.Stake{
-			StakerAddress:  stakerAddr.String(),
+		lock = types.Lock{
+			LockerAddress:  lockerAddr.String(),
 			Key:            keyName,
 			Amount:         sdk.NewInt(0),
 			PosRewardDebts: sdk.NewCoins(),
@@ -75,25 +75,25 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, keyNa
 		}
 	}
 
-	key.TotalPower = key.TotalPower.Sub(stake.Amount).Add(amount)
+	key.TotalPower = key.TotalPower.Sub(lock.Amount).Add(amount)
 	k.SetKey(ctx, key)
 
-	diffLock := amount.Sub(stake.Amount)
-	addtionalDebts := key.RewardPerPowers.MulDecTruncate(sdk.NewDecFromInt(diffLock.Abs()))
+	diffAmount := amount.Sub(lock.Amount)
+	addtionalDebts := key.RewardPerPowers.MulDecTruncate(sdk.NewDecFromInt(diffAmount.Abs()))
 	truncatedAdditionalDebts, _ := addtionalDebts.TruncateDecimal()
 	truncatedAdditionalDebts = truncatedAdditionalDebts.Sort()
-	if diffLock.IsPositive() {
-		stake.PosRewardDebts = stake.PosRewardDebts.Add(truncatedAdditionalDebts...)
+	if diffAmount.IsPositive() {
+		lock.PosRewardDebts = lock.PosRewardDebts.Add(truncatedAdditionalDebts...)
 	} else {
-		stake.NegRewardDebts = stake.NegRewardDebts.Add(truncatedAdditionalDebts...)
+		lock.NegRewardDebts = lock.NegRewardDebts.Add(truncatedAdditionalDebts...)
 	}
-	stake.Amount = amount
-	k.SetStake(ctx, stake)
+	lock.Amount = amount
+	k.SetLock(ctx, lock)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeLockPower,
-			sdk.NewAttribute(types.AttributeKeyStaker, stakerAddr.String()),
+			sdk.NewAttribute(types.AttributeKeyLocker, lockerAddr.String()),
 			sdk.NewAttribute(types.AttributeKeyKey, keyName),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()),
 		),
@@ -122,9 +122,16 @@ func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName strin
 		return err
 	}
 
-	key.RewardPerPowers = key.RewardPerPowers.Add(
-		sdk.NewDecCoinsFromCoins(rewards.Sort()...).QuoDecTruncate(sdk.NewDecFromInt(key.TotalPower))...,
-	)
+	decRewards := sdk.NewDecCoinsFromCoins(rewards.Sort()...)
+	totalPower := sdk.NewDecFromInt(key.TotalPower)
+	rewardPerPowers := decRewards.QuoDecTruncate(totalPower)
+	truncatedRewards := decRewards.Sub(rewardPerPowers.MulDecTruncate(totalPower))
+
+	// add truncate part to remainder
+	// e.g. rewards = 1, totalPower = 3 -> rewardPerPower = 0.333333333333333
+	// remainder = 1 - (0.333333333333333 * 3)
+	key.Remainders = key.Remainders.Add(truncatedRewards...)
+	key.RewardPerPowers = key.RewardPerPowers.Add(rewardPerPowers...)
 	k.SetKey(ctx, key)
 
 	ctx.EventManager().EmitEvent(
@@ -138,8 +145,8 @@ func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName strin
 	return nil
 }
 
-// GetLockedPower return locked power of the address to the key.
-func (k Keeper) GetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, keyName string) (math.Int, error) {
+// GetLockedPower returns locked power of the address to the key.
+func (k Keeper) GetLockedPower(ctx sdk.Context, lockerAddr sdk.AccAddress, keyName string) (math.Int, error) {
 	key, err := k.GetKey(ctx, keyName)
 	if err != nil {
 		return math.Int{}, types.ErrKeyNotFound
@@ -149,10 +156,10 @@ func (k Keeper) GetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, keyNa
 		return math.Int{}, types.ErrKeyNotActive
 	}
 
-	stake, err := k.GetStake(ctx, stakerAddr, keyName)
+	lock, err := k.GetLock(ctx, lockerAddr, keyName)
 	if err != nil {
-		return math.Int{}, types.ErrStakeNotFound
+		return math.Int{}, types.ErrLockNotFound
 	}
 
-	return stake.Amount, nil
+	return lock.Amount, nil
 }

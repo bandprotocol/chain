@@ -30,11 +30,11 @@ service Msg {
 
 // MsgClaimRewards is the request message type for claiming rewards.
 message MsgClaimRewards {
-  option (cosmos.msg.v1.signer) = "staker_address";
+  option (cosmos.msg.v1.signer) = "locker_address";
   option (amino.name)           = "restake/MsgClaimRewards";
 
-  // StakerAddress is the address that will claim the rewards.
-  string staker_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // LockerAddress is the address that will claim the rewards.
+  string locker_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
   // Key is the key that want to claim rewards from.
   string key = 2;
@@ -45,11 +45,11 @@ message MsgClaimRewardsResponse {}
 
 // MsgLockPower is the request message type for locking tokens.
 message MsgLockPower {
-  option (cosmos.msg.v1.signer) = "staker_address";
+  option (cosmos.msg.v1.signer) = "locker_address";
   option (amino.name)           = "restake/MsgLockPower";
 
-  // StakerAddress is the address will be locked power.
-  string staker_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // LockerAddress is the address will be locked power.
+  string locker_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
   // Key is the key that power will be locked to.
   string key = 2;

@@ -27,7 +27,7 @@ func (k msgServer) ClaimRewards(
 ) (*types.MsgClaimRewardsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	address, err := sdk.AccAddressFromBech32(msg.StakerAddress)
+	address, err := sdk.AccAddressFromBech32(msg.LockerAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -37,19 +37,19 @@ func (k msgServer) ClaimRewards(
 		return nil, err
 	}
 
-	stake, err := k.GetStake(ctx, address, msg.Key)
+	lock, err := k.GetLock(ctx, address, msg.Key)
 	if err != nil {
 		return nil, err
 	}
 
-	totalRewards := k.getTotalRewards(ctx, stake)
+	totalRewards := k.getTotalRewards(ctx, lock)
 	truncatedTotalRewards, remainders := totalRewards.TruncateDecimal()
-	finalRewards := truncatedTotalRewards.Add(stake.NegRewardDebts...).Sub(stake.PosRewardDebts...)
+	finalRewards := truncatedTotalRewards.Add(lock.NegRewardDebts...).Sub(lock.PosRewardDebts...)
 
 	if !finalRewards.IsZero() {
-		stake.PosRewardDebts = truncatedTotalRewards
-		stake.NegRewardDebts = sdk.NewCoins()
-		k.SetStake(ctx, stake)
+		lock.PosRewardDebts = truncatedTotalRewards
+		lock.NegRewardDebts = sdk.NewCoins()
+		k.SetLock(ctx, lock)
 
 		err = k.bankKeeper.SendCoins(ctx, sdk.MustAccAddressFromBech32(key.PoolAddress), address, finalRewards)
 		if err != nil {
@@ -59,15 +59,15 @@ func (k msgServer) ClaimRewards(
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeClaimRewards,
-				sdk.NewAttribute(types.AttributeKeyStaker, msg.StakerAddress),
-				sdk.NewAttribute(types.AttributeKeyKey, stake.Key),
+				sdk.NewAttribute(types.AttributeKeyLocker, msg.LockerAddress),
+				sdk.NewAttribute(types.AttributeKeyKey, lock.Key),
 				sdk.NewAttribute(sdk.AttributeKeyAmount, finalRewards.String()),
 			),
 		)
 	}
 
 	if !key.IsActive {
-		k.DeleteStake(ctx, address, key.Name)
+		k.DeleteLock(ctx, address, key.Name)
 
 		key.Remainders = key.Remainders.Add(remainders...)
 		k.SetKey(ctx, key)
@@ -82,7 +82,7 @@ func (k msgServer) LockPower(
 ) (*types.MsgLockPowerResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	address, err := sdk.AccAddressFromBech32(msg.StakerAddress)
+	address, err := sdk.AccAddressFromBech32(msg.LockerAddress)
 	if err != nil {
 		return nil, err
 	}

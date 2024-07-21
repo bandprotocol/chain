@@ -1,0 +1,120 @@
+package keeper
+
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v2/x/restake/types"
+)
+
+func (k Keeper) GetLocksIterator(ctx sdk.Context) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.LockStoreKeyPrefix)
+}
+
+func (k Keeper) GetLocksByAddressIterator(ctx sdk.Context, addr sdk.AccAddress) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.LocksStoreKey(addr))
+}
+
+func (k Keeper) GetActiveLocks(ctx sdk.Context, addr sdk.AccAddress) (locks []types.Lock) {
+	iterator := k.GetLocksByAddressIterator(ctx, addr)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var lock types.Lock
+		k.cdc.MustUnmarshal(iterator.Value(), &lock)
+
+		if !k.IsActiveKey(ctx, lock.Key) {
+			continue
+		}
+
+		locks = append(locks, lock)
+	}
+
+	return locks
+}
+
+func (k Keeper) GetLocksByAddress(ctx sdk.Context, addr sdk.AccAddress) (locks []types.Lock) {
+	iterator := k.GetLocksByAddressIterator(ctx, addr)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var lock types.Lock
+		k.cdc.MustUnmarshal(iterator.Value(), &lock)
+		locks = append(locks, lock)
+	}
+
+	return locks
+}
+
+func (k Keeper) GetLocks(ctx sdk.Context) (locks []types.Lock) {
+	iterator := k.GetLocksIterator(ctx)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var lock types.Lock
+		k.cdc.MustUnmarshal(iterator.Value(), &lock)
+		locks = append(locks, lock)
+	}
+
+	return locks
+}
+
+func (k Keeper) HasLock(ctx sdk.Context, addr sdk.AccAddress, keyName string) bool {
+	return ctx.KVStore(k.storeKey).Has(types.LockStoreKey(addr, keyName))
+}
+
+func (k Keeper) GetLock(ctx sdk.Context, addr sdk.AccAddress, keyName string) (types.Lock, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.LockStoreKey(addr, keyName))
+	if bz == nil {
+		return types.Lock{}, types.ErrLockNotFound.Wrapf(
+			"failed to get lock of %s with key name: %s",
+			addr.String(),
+			keyName,
+		)
+	}
+
+	var lock types.Lock
+	k.cdc.MustUnmarshal(bz, &lock)
+
+	return lock, nil
+}
+
+func (k Keeper) SetLock(ctx sdk.Context, lock types.Lock) {
+	addr := sdk.MustAccAddressFromBech32(lock.LockerAddress)
+	k.DeleteLock(ctx, addr, lock.Key)
+
+	ctx.KVStore(k.storeKey).Set(types.LockStoreKey(addr, lock.Key), k.cdc.MustMarshal(&lock))
+	k.setLockByAmount(ctx, lock)
+}
+
+func (k Keeper) DeleteLock(ctx sdk.Context, addr sdk.AccAddress, keyName string) {
+	lock, err := k.GetLock(ctx, addr, keyName)
+	if err != nil {
+		return
+	}
+	ctx.KVStore(k.storeKey).Delete(types.LockStoreKey(addr, keyName))
+	k.deleteLockByAmount(ctx, lock)
+}
+
+func (k Keeper) setLockByAmount(ctx sdk.Context, lock types.Lock) {
+	ctx.KVStore(k.storeKey).Set(types.LockByAmountIndexKey(lock), []byte(lock.Key))
+}
+
+func (k Keeper) deleteLockByAmount(ctx sdk.Context, lock types.Lock) {
+	ctx.KVStore(k.storeKey).Delete(types.LockByAmountIndexKey(lock))
+}
+
+func (k Keeper) getTotalRewards(ctx sdk.Context, lock types.Lock) sdk.DecCoins {
+	key := k.MustGetKey(ctx, lock.Key)
+
+	return key.RewardPerPowers.MulDecTruncate(sdk.NewDecFromInt(lock.Amount))
+}
+
+func (k Keeper) getReward(ctx sdk.Context, lock types.Lock) types.Reward {
+	totalRewards := k.getTotalRewards(ctx, lock)
+
+	return types.Reward{
+		Key: lock.Key,
+		Rewards: totalRewards.Add(sdk.NewDecCoinsFromCoins(lock.NegRewardDebts...)...).
+			Sub(sdk.NewDecCoinsFromCoins(lock.PosRewardDebts...)),
+	}
+}

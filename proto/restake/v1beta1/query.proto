@@ -22,12 +22,12 @@ service Query {
 
   // Rewards returns rewards for a specific address.
   rpc Rewards(QueryRewardsRequest) returns (QueryRewardsResponse) {
-    option (google.api.http).get = "/restake/v1beta1/stakers/{staker_address}/rewards";
+    option (google.api.http).get = "/restake/v1beta1/lockers/{locker_address}/rewards";
   }
 
   // Locks returns all lock information for a specific address.
   rpc Locks(QueryLocksRequest) returns (QueryLocksResponse) {
-    option (google.api.http).get = "/restake/v1beta1/stakers/{staker_address}/locks";
+    option (google.api.http).get = "/restake/v1beta1/lockers/{locker_address}/locks";
   }
 }
 
@@ -59,8 +59,8 @@ message QueryKeyResponse {
 
 // QueryRewardsRequest represents the request type for the Query/Rewards RPC method.
 message QueryRewardsRequest {
-  // StakerAddress is the target address to query rewards.
-  string staker_address = 1;
+  // LockerAddress is the target address to query rewards.
+  string locker_address = 1;
 
   // Pagination defines optional pagination parameters.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
@@ -68,7 +68,7 @@ message QueryRewardsRequest {
 
 // QueryRewardsResponse represents the response type for the Query/Rewards RPC method.
 message QueryRewardsResponse {
-  // Rewards is a list of rewards for the staker.
+  // Rewards is a list of rewards for the locker.
   repeated Reward rewards = 1;
 
   // Pagination defines pagination parameters in the response.
@@ -77,8 +77,8 @@ message QueryRewardsResponse {
 
 // QueryLocksRequest represents the request type for the Query/Locks RPC method.
 message QueryLocksRequest {
-  // StakerAddress is the target address to query locks.
-  string staker_address = 1;
+  // LockerAddres is the target address to query locks.
+  string locker_address = 1;
 
   // Pagination defines optional pagination parameters.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
@@ -86,8 +86,8 @@ message QueryLocksRequest {
 
 // QueryLocksResponse represents the response type for the Query/Locks RPC method.
 message QueryLocksResponse {
-  // Locks is a list of locks of the staker.
-  repeated Lock locks = 1;
+  // Locks is a list of locks of the locker.
+  repeated LockResponse locks = 1;
 
   // Pagination defines pagination parameters in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;

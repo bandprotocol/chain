@@ -97,7 +97,7 @@ func GetQueryCmdLocks() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.Locks(context.Background(), &types.QueryLocksRequest{
-				StakerAddress: args[0],
+				LockerAddress: args[0],
 			})
 			if err != nil {
 				return err
@@ -122,7 +122,7 @@ func GetQueryCmdRewards() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.Rewards(context.Background(), &types.QueryRewardsRequest{
-				StakerAddress: args[0],
+				LockerAddress: args[0],
 			})
 			if err != nil {
 				return err

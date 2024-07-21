@@ -10,7 +10,7 @@ var (
 	ErrKeyNotFound           = errorsmod.Register(ModuleName, 3, "key not found")
 	ErrKeyNotActive          = errorsmod.Register(ModuleName, 4, "key not active")
 	ErrKeyAlreadyDeactivated = errorsmod.Register(ModuleName, 5, "key already deactivated")
-	ErrStakeNotFound         = errorsmod.Register(ModuleName, 6, "stake not found")
+	ErrLockNotFound          = errorsmod.Register(ModuleName, 6, "lock not found")
 	ErrDelegationNotEnough   = errorsmod.Register(ModuleName, 7, "delegation not enough")
 	ErrInvalidAmount         = errorsmod.Register(ModuleName, 8, "invalid amount")
 	ErrTotalLockZero         = errorsmod.Register(ModuleName, 9, "total lock is zero")
