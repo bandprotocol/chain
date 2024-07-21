@@ -15,4 +15,5 @@ var (
 	ErrInvalidAmount         = errorsmod.Register(ModuleName, 8, "invalid amount")
 	ErrTotalLockZero         = errorsmod.Register(ModuleName, 9, "total lock is zero")
 	ErrAccountAlreadyExist   = errorsmod.Register(ModuleName, 10, "account already exist")
+	ErrInvalidLength         = errorsmod.Register(ModuleName, 11, "invalid length")
 )

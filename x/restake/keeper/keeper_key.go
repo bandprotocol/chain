@@ -7,6 +7,49 @@ import (
 	"github.com/bandprotocol/chain/v2/x/restake/types"
 )
 
+// AddRewards adds rewards to the pool address and re-calculate reward_per_share of the key
+func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName string, rewards sdk.Coins) error {
+	key, err := k.GetKey(ctx, keyName)
+	if err != nil {
+		return err
+	}
+
+	if !key.IsActive {
+		return types.ErrKeyNotActive
+	}
+
+	if key.TotalPower.IsZero() {
+		return types.ErrTotalLockZero
+	}
+
+	err = k.bankKeeper.SendCoins(ctx, sender, sdk.MustAccAddressFromBech32(key.PoolAddress), rewards)
+	if err != nil {
+		return err
+	}
+
+	decRewards := sdk.NewDecCoinsFromCoins(rewards.Sort()...)
+	totalPower := sdk.NewDecFromInt(key.TotalPower)
+	rewardPerPowers := decRewards.QuoDecTruncate(totalPower)
+	truncatedRewards := decRewards.Sub(rewardPerPowers.MulDecTruncate(totalPower))
+
+	// add truncate part to remainder
+	// e.g. rewards = 1, totalPower = 3 -> rewardPerPower = 0.333333333333333
+	// remainder = 1 - (0.333333333333333 * 3)
+	key.Remainders = key.Remainders.Add(truncatedRewards...)
+	key.RewardPerPowers = key.RewardPerPowers.Add(rewardPerPowers...)
+	k.SetKey(ctx, key)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeAddRewards,
+			sdk.NewAttribute(types.AttributeKeyKey, keyName),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, rewards.String()),
+		),
+	)
+
+	return nil
+}
+
 func (k Keeper) GetOrCreateKey(ctx sdk.Context, keyName string) (types.Key, error) {
 	key, err := k.GetKey(ctx, keyName)
 	if err != nil {
@@ -62,6 +105,42 @@ func (k Keeper) CreateKeyAccount(ctx sdk.Context, key string) (sdk.AccAddress, e
 	return keyAccAddr, nil
 }
 
+func (k Keeper) IsActiveKey(ctx sdk.Context, keyName string) bool {
+	key, err := k.GetKey(ctx, keyName)
+	if err != nil {
+		return false
+	}
+
+	return key.IsActive
+}
+
+func (k Keeper) DeactivateKey(ctx sdk.Context, keyName string) error {
+	key, err := k.GetKey(ctx, keyName)
+	if err != nil {
+		return err
+	}
+
+	if !key.IsActive {
+		return types.ErrKeyAlreadyDeactivated
+	}
+
+	key.IsActive = false
+	k.SetKey(ctx, key)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeDeactivateKey,
+			sdk.NewAttribute(types.AttributeKeyKey, keyName),
+		),
+	)
+
+	return nil
+}
+
+// -------------------------------
+// store part
+// -------------------------------
+
 func (k Keeper) GetKeysIterator(ctx sdk.Context) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.KeyStoreKeyPrefix)
 }
@@ -92,15 +171,6 @@ func (k Keeper) MustGetKey(ctx sdk.Context, keyName string) types.Key {
 	return key
 }
 
-func (k Keeper) IsActiveKey(ctx sdk.Context, keyName string) bool {
-	key, err := k.GetKey(ctx, keyName)
-	if err != nil {
-		return false
-	}
-
-	return key.IsActive
-}
-
 func (k Keeper) GetKey(ctx sdk.Context, keyName string) (types.Key, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.KeyStoreKey(keyName))
 	if bz == nil {
@@ -115,27 +185,4 @@ func (k Keeper) GetKey(ctx sdk.Context, keyName string) (types.Key, error) {
 
 func (k Keeper) SetKey(ctx sdk.Context, key types.Key) {
 	ctx.KVStore(k.storeKey).Set(types.KeyStoreKey(key.Name), k.cdc.MustMarshal(&key))
-}
-
-func (k Keeper) DeactivateKey(ctx sdk.Context, keyName string) error {
-	key, err := k.GetKey(ctx, keyName)
-	if err != nil {
-		return err
-	}
-
-	if !key.IsActive {
-		return types.ErrKeyAlreadyDeactivated
-	}
-
-	key.IsActive = false
-	k.SetKey(ctx, key)
-
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeDeactivateKey,
-			sdk.NewAttribute(types.AttributeKeyKey, keyName),
-		),
-	)
-
-	return nil
 }

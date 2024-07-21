@@ -1,17 +1,90 @@
 package keeper
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/restake/types"
 )
 
-func (k Keeper) GetLocksIterator(ctx sdk.Context) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.LockStoreKeyPrefix)
+// SetLockedPower sets the new locked power amount of the address to the key
+// This function will override the previous locked amount.
+func (k Keeper) SetLockedPower(ctx sdk.Context, lockerAddr sdk.AccAddress, keyName string, amount math.Int) error {
+	if !amount.IsUint64() {
+		return types.ErrInvalidAmount
+	}
+
+	// check if delegation is not less than amount
+	delegation := k.stakingKeeper.GetDelegatorBonded(ctx, lockerAddr)
+	if delegation.LT(amount) {
+		return types.ErrDelegationNotEnough
+	}
+
+	key, err := k.GetOrCreateKey(ctx, keyName)
+	if err != nil {
+		return err
+	}
+
+	if !key.IsActive {
+		return types.ErrKeyNotActive
+	}
+
+	// check if there is a lock before
+	lock, err := k.GetLock(ctx, lockerAddr, keyName)
+	if err != nil {
+		lock = types.Lock{
+			LockerAddress:  lockerAddr.String(),
+			Key:            keyName,
+			Amount:         sdk.NewInt(0),
+			PosRewardDebts: sdk.NewCoins(),
+			NegRewardDebts: sdk.NewCoins(),
+		}
+	}
+
+	key.TotalPower = key.TotalPower.Sub(lock.Amount).Add(amount)
+	k.SetKey(ctx, key)
+
+	diffAmount := amount.Sub(lock.Amount)
+	addtionalDebts := key.RewardPerPowers.MulDecTruncate(sdk.NewDecFromInt(diffAmount.Abs()))
+	truncatedAdditionalDebts, _ := addtionalDebts.TruncateDecimal()
+	truncatedAdditionalDebts = truncatedAdditionalDebts.Sort()
+	if diffAmount.IsPositive() {
+		lock.PosRewardDebts = lock.PosRewardDebts.Add(truncatedAdditionalDebts...)
+	} else {
+		lock.NegRewardDebts = lock.NegRewardDebts.Add(truncatedAdditionalDebts...)
+	}
+	lock.Amount = amount
+	k.SetLock(ctx, lock)
+
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeLockPower,
+			sdk.NewAttribute(types.AttributeKeyLocker, lockerAddr.String()),
+			sdk.NewAttribute(types.AttributeKeyKey, keyName),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()),
+		),
+	)
+
+	return nil
 }
 
-func (k Keeper) GetLocksByAddressIterator(ctx sdk.Context, addr sdk.AccAddress) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.LocksStoreKey(addr))
+// GetLockedPower returns locked power of the address to the key.
+func (k Keeper) GetLockedPower(ctx sdk.Context, lockerAddr sdk.AccAddress, keyName string) (math.Int, error) {
+	key, err := k.GetKey(ctx, keyName)
+	if err != nil {
+		return math.Int{}, types.ErrKeyNotFound
+	}
+
+	if !key.IsActive {
+		return math.Int{}, types.ErrKeyNotActive
+	}
+
+	lock, err := k.GetLock(ctx, lockerAddr, keyName)
+	if err != nil {
+		return math.Int{}, types.ErrLockNotFound
+	}
+
+	return lock.Amount, nil
 }
 
 func (k Keeper) GetActiveLocks(ctx sdk.Context, addr sdk.AccAddress) (locks []types.Lock) {
@@ -30,6 +103,34 @@ func (k Keeper) GetActiveLocks(ctx sdk.Context, addr sdk.AccAddress) (locks []ty
 	}
 
 	return locks
+}
+
+func (k Keeper) getTotalRewards(ctx sdk.Context, lock types.Lock) sdk.DecCoins {
+	key := k.MustGetKey(ctx, lock.Key)
+
+	return key.RewardPerPowers.MulDecTruncate(sdk.NewDecFromInt(lock.Amount))
+}
+
+func (k Keeper) getReward(ctx sdk.Context, lock types.Lock) types.Reward {
+	totalRewards := k.getTotalRewards(ctx, lock)
+
+	return types.Reward{
+		Key: lock.Key,
+		Rewards: totalRewards.Add(sdk.NewDecCoinsFromCoins(lock.NegRewardDebts...)...).
+			Sub(sdk.NewDecCoinsFromCoins(lock.PosRewardDebts...)),
+	}
+}
+
+// -------------------------------
+// store part
+// -------------------------------
+
+func (k Keeper) GetLocksIterator(ctx sdk.Context) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.LockStoreKeyPrefix)
+}
+
+func (k Keeper) GetLocksByAddressIterator(ctx sdk.Context, addr sdk.AccAddress) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.LocksStoreKey(addr))
 }
 
 func (k Keeper) GetLocksByAddress(ctx sdk.Context, addr sdk.AccAddress) (locks []types.Lock) {
@@ -101,20 +202,4 @@ func (k Keeper) setLockByAmount(ctx sdk.Context, lock types.Lock) {
 
 func (k Keeper) deleteLockByAmount(ctx sdk.Context, lock types.Lock) {
 	ctx.KVStore(k.storeKey).Delete(types.LockByAmountIndexKey(lock))
-}
-
-func (k Keeper) getTotalRewards(ctx sdk.Context, lock types.Lock) sdk.DecCoins {
-	key := k.MustGetKey(ctx, lock.Key)
-
-	return key.RewardPerPowers.MulDecTruncate(sdk.NewDecFromInt(lock.Amount))
-}
-
-func (k Keeper) getReward(ctx sdk.Context, lock types.Lock) types.Reward {
-	totalRewards := k.getTotalRewards(ctx, lock)
-
-	return types.Reward{
-		Key: lock.Key,
-		Rewards: totalRewards.Add(sdk.NewDecCoinsFromCoins(lock.NegRewardDebts...)...).
-			Sub(sdk.NewDecCoinsFromCoins(lock.PosRewardDebts...)),
-	}
 }

@@ -42,6 +42,10 @@ func (m MsgClaimRewards) ValidateBasic() error {
 		return err
 	}
 
+	if len(m.Key) == 0 {
+		return ErrInvalidLength.Wrap("length of key is not correct")
+	}
+
 	return nil
 }
 
