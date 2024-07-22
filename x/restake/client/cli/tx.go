@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -27,9 +26,6 @@ func GetTxCmd() *cobra.Command {
 
 	txCmd.AddCommand(
 		GetTxCmdClaimRewards(),
-		GetTxCmdAddRewards(),
-		GetTxCmdLockPower(),
-		GetTxCmdDeactivateKey(),
 	)
 
 	return txCmd
@@ -105,100 +101,6 @@ func GetTxCmdClaimRewards() *cobra.Command {
 			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
-		},
-	}
-
-	flags.AddTxFlagsToCmd(cmd)
-
-	return cmd
-}
-
-// GetTxCmdLockPower creates a CLI command for locking power
-func GetTxCmdLockPower() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "lock-power [key] [amount]",
-		Short: "lock power to the key",
-		Args:  cobra.ExactArgs(2),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			key := args[0]
-			amount, ok := sdkmath.NewIntFromString(args[1])
-			if !ok {
-				return fmt.Errorf("invalid amount")
-			}
-
-			msg := types.NewMsgLockPower(
-				clientCtx.GetFromAddress(),
-				key,
-				amount,
-			)
-
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
-		},
-	}
-
-	flags.AddTxFlagsToCmd(cmd)
-
-	return cmd
-}
-
-// GetTxCmdAddRewards creates a CLI command for adding rewards
-func GetTxCmdAddRewards() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "add-rewards [key] [coins]",
-		Short: "Add rewards to the key",
-		Args:  cobra.ExactArgs(2),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			key := args[0]
-			coins, err := sdk.ParseCoinsNormalized(args[1])
-			if err != nil {
-				return err
-			}
-
-			msg := types.NewMsgAddRewards(
-				clientCtx.GetFromAddress(),
-				key,
-				coins,
-			)
-
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
-		},
-	}
-
-	flags.AddTxFlagsToCmd(cmd)
-
-	return cmd
-}
-
-// GetTxCmdDeactivateKey creates a CLI command for deactivating key
-func GetTxCmdDeactivateKey() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "deactivate [key]",
-		Short: "Deactivate key",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			key := args[0]
-
-			msg := types.NewMsgDeactivateKey(
-				clientCtx.GetFromAddress(),
-				key,
-			)
-
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 
