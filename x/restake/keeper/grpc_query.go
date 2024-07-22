@@ -105,7 +105,7 @@ func (k Querier) Locks(
 		keyStore,
 		req.Pagination,
 		func(key []byte, s *types.Lock) (*types.LockResponse, error) {
-			if !k.IsActiveKey(ctx, s.Key) {
+			if !k.IsActiveKey(ctx, s.Key) || s.Amount.IsZero() {
 				return nil, nil
 			}
 

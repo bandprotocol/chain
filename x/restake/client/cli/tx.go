@@ -100,6 +100,10 @@ func GetTxCmdClaimRewards() *cobra.Command {
 				msgs = append(msgs, msg)
 			}
 
+			if len(msgs) == 0 {
+				return fmt.Errorf("no rewards to claim")
+			}
+
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
 		},
 	}

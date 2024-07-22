@@ -117,9 +117,9 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 				LockerAddress: ValidAddress1.String(),
 				Key:           ValidKey1,
 				Amount:        sdkmath.NewInt(100),
-				PosRewardDebts: sdk.NewCoins(
-					sdk.NewCoin("aaaa", sdkmath.NewInt(0)),
-					sdk.NewCoin("bbbb", sdkmath.NewInt(1)),
+				PosRewardDebts: sdk.NewDecCoins(
+					sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(1, 1)),
+					sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyNewDecWithPrec(1, 0)),
 				),
 				NegRewardDebts: nil,
 			},
@@ -154,9 +154,9 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 				LockerAddress: ValidAddress1.String(),
 				Key:           ValidKey1,
 				Amount:        sdkmath.NewInt(1000),
-				PosRewardDebts: sdk.NewCoins(
-					sdk.NewCoin("aaaa", sdkmath.NewInt(0)),
-					sdk.NewCoin("bbbb", sdkmath.NewInt(9)),
+				PosRewardDebts: sdk.NewDecCoins(
+					sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(9, 1)),
+					sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyNewDecWithPrec(9, 0)),
 				),
 				NegRewardDebts: nil,
 			},
@@ -192,9 +192,9 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 				Key:            ValidKey1,
 				Amount:         sdkmath.NewInt(100),
 				PosRewardDebts: nil,
-				NegRewardDebts: sdk.NewCoins(
-					sdk.NewCoin("aaaa", sdkmath.NewInt(0)),
-					sdk.NewCoin("bbbb", sdkmath.NewInt(9)),
+				NegRewardDebts: sdk.NewDecCoins(
+					sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(9, 1)),
+					sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyNewDecWithPrec(9, 0)),
 				),
 			},
 		},

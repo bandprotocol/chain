@@ -37,8 +37,8 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, lockerAddr sdk.AccAddress, keyNa
 			LockerAddress:  lockerAddr.String(),
 			Key:            keyName,
 			Amount:         sdkmath.NewInt(0),
-			PosRewardDebts: sdk.NewCoins(),
-			NegRewardDebts: sdk.NewCoins(),
+			PosRewardDebts: sdk.NewDecCoins(),
+			NegRewardDebts: sdk.NewDecCoins(),
 		}
 	}
 
@@ -48,12 +48,10 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, lockerAddr sdk.AccAddress, keyNa
 	k.SetKey(ctx, key)
 
 	addtionalDebts := key.RewardPerPowers.MulDecTruncate(sdkmath.LegacyNewDecFromInt(diffAmount.Abs()))
-	truncatedAdditionalDebts, _ := addtionalDebts.TruncateDecimal()
-	truncatedAdditionalDebts = truncatedAdditionalDebts.Sort()
 	if diffAmount.IsPositive() {
-		lock.PosRewardDebts = lock.PosRewardDebts.Add(truncatedAdditionalDebts...)
+		lock.PosRewardDebts = lock.PosRewardDebts.Add(addtionalDebts...)
 	} else {
-		lock.NegRewardDebts = lock.NegRewardDebts.Add(truncatedAdditionalDebts...)
+		lock.NegRewardDebts = lock.NegRewardDebts.Add(addtionalDebts...)
 	}
 	lock.Amount = amount
 	k.SetLock(ctx, lock)
@@ -99,9 +97,8 @@ func (k Keeper) getReward(ctx sdk.Context, lock types.Lock) types.Reward {
 	totalRewards := k.getTotalRewards(ctx, lock)
 
 	return types.Reward{
-		Key: lock.Key,
-		Rewards: totalRewards.Add(sdk.NewDecCoinsFromCoins(lock.NegRewardDebts...)...).
-			Sub(sdk.NewDecCoinsFromCoins(lock.PosRewardDebts...)),
+		Key:     lock.Key,
+		Rewards: totalRewards.Add(lock.NegRewardDebts...).Sub(lock.PosRewardDebts),
 	}
 }
 

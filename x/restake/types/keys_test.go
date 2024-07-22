@@ -59,8 +59,8 @@ func TestLockByAmountIndexKey(t *testing.T) {
 		LockerAddress:  acc.String(),
 		Key:            keyName,
 		Amount:         sdkmath.NewInt(100),
-		PosRewardDebts: sdk.NewCoins(),
-		NegRewardDebts: sdk.NewCoins(),
+		PosRewardDebts: sdk.NewDecCoins(),
+		NegRewardDebts: sdk.NewDecCoins(),
 	}
 
 	expect, err := hex.DecodeString(

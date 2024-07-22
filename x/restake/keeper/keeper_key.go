@@ -43,7 +43,7 @@ func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName strin
 	}
 
 	if key.TotalPower.IsZero() {
-		return types.ErrTotalLockZero
+		return types.ErrTotalPowerZero
 	}
 
 	err = k.bankKeeper.SendCoins(ctx, sender, sdk.MustAccAddressFromBech32(key.PoolAddress), rewards)

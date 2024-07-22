@@ -64,15 +64,15 @@ message Lock {
 
   // PosRewardDebts is a list of reward debt for each reward (only the positive side).
   // Note: Coin and DecCoin can't have negative amounts. so, we split it into two numbers.
-  repeated cosmos.base.v1beta1.Coin pos_reward_debts = 4 [
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+  repeated cosmos.base.v1beta1.DecCoin pos_reward_debts = 4 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
     (gogoproto.nullable)     = false,
     (amino.dont_omitempty)   = true
   ];
 
   // NegRewardDebts is a list of reward debt for each reward (only negative side).
-  repeated cosmos.base.v1beta1.Coin neg_reward_debts = 5 [
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+  repeated cosmos.base.v1beta1.DecCoin neg_reward_debts = 5 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
     (gogoproto.nullable)     = false,
     (amino.dont_omitempty)   = true
   ];
