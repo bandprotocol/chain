@@ -20,14 +20,29 @@ import (
 )
 
 var (
-	ValidAddress1     = sdk.AccAddress("1000000001")
-	ValidAddress2     = sdk.AccAddress("1000000002")
-	ValidAddress3     = sdk.AccAddress("1000000003")
-	ValidKey1         = "key1"
-	ValidKey2         = "key2"
-	InvalidKey        = "nonKey"
+	// delegate power
+	// - 1e18 -> address 1,2
+	// - 10   -> address 3
+	ValidAddress1 = sdk.AccAddress("1000000001")
+	ValidAddress2 = sdk.AccAddress("1000000002")
+	ValidAddress3 = sdk.AccAddress("1000000003")
+
+	// status
+	// - active   -> key 1,2,4
+	// - inactive -> key 3
+	// key 4 has total power as zero
+	ValidKey1  = "key1"
+	ValidKey2  = "key2"
+	ValidKey3  = "key3"
+	ValidKey4  = "key4"
+	InvalidKey = "nonKey"
+
 	ValidPoolAddress1 = sdk.AccAddress("2000000001")
 	ValidPoolAddress2 = sdk.AccAddress("2000000002")
+	ValidPoolAddress3 = sdk.AccAddress("2000000003")
+	ValidPoolAddress4 = sdk.AccAddress("2000000004")
+
+	RewarderAddress = sdk.AccAddress("3000000001")
 )
 
 type KeeperTestSuite struct {
@@ -57,7 +72,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 			Name:            ValidKey1,
 			PoolAddress:     ValidPoolAddress1.String(),
 			IsActive:        true,
-			TotalPower:      sdk.NewInt(20),
+			TotalPower:      sdkmath.NewInt(20),
 			RewardPerPowers: sdk.NewDecCoins(sdk.NewDecCoinFromDec("uband", sdkmath.LegacyNewDecWithPrec(1, 1))),
 			Remainders:      nil,
 		},
@@ -65,7 +80,23 @@ func (suite *KeeperTestSuite) SetupTest() {
 			Name:            ValidKey2,
 			PoolAddress:     ValidPoolAddress2.String(),
 			IsActive:        true,
-			TotalPower:      sdk.NewInt(100),
+			TotalPower:      sdkmath.NewInt(100),
+			RewardPerPowers: nil,
+			Remainders:      nil,
+		},
+		{
+			Name:            ValidKey3,
+			PoolAddress:     ValidPoolAddress3.String(),
+			IsActive:        false,
+			TotalPower:      sdkmath.NewInt(100),
+			RewardPerPowers: nil,
+			Remainders:      nil,
+		},
+		{
+			Name:            ValidKey4,
+			PoolAddress:     ValidPoolAddress4.String(),
+			IsActive:        true,
+			TotalPower:      sdkmath.NewInt(0),
 			RewardPerPowers: nil,
 			Remainders:      nil,
 		},
@@ -75,26 +106,37 @@ func (suite *KeeperTestSuite) SetupTest() {
 		{
 			LockerAddress:  ValidAddress1.String(),
 			Key:            ValidKey1,
-			Amount:         sdk.NewInt(10),
+			Amount:         sdkmath.NewInt(10),
 			PosRewardDebts: nil,
 			NegRewardDebts: nil,
 		},
 		{
 			LockerAddress:  ValidAddress1.String(),
 			Key:            ValidKey2,
-			Amount:         sdk.NewInt(100),
+			Amount:         sdkmath.NewInt(100),
+			PosRewardDebts: nil,
+			NegRewardDebts: nil,
+		},
+		{
+			LockerAddress:  ValidAddress1.String(),
+			Key:            ValidKey3,
+			Amount:         sdkmath.NewInt(50),
 			PosRewardDebts: nil,
 			NegRewardDebts: nil,
 		},
 		{
 			LockerAddress:  ValidAddress2.String(),
 			Key:            ValidKey1,
-			Amount:         sdk.NewInt(10),
+			Amount:         sdkmath.NewInt(10),
 			PosRewardDebts: nil,
 			NegRewardDebts: nil,
 		},
 	}
 
+	suite.resetState()
+}
+
+func (suite *KeeperTestSuite) resetState() {
 	key := sdk.NewKVStoreKey(types.StoreKey)
 	suite.storeKey = key
 	testCtx := testutil.DefaultContextWithDB(suite.T(), key, sdk.NewTransientStoreKey("transient_test"))
@@ -104,6 +146,18 @@ func (suite *KeeperTestSuite) SetupTest() {
 	// gomock initializations
 	ctrl := gomock.NewController(suite.T())
 	accountKeeper := restaketestutil.NewMockAccountKeeper(ctrl)
+	accountKeeper.EXPECT().
+		GetAccount(gomock.Any(), gomock.Any()).
+		Return(nil).
+		AnyTimes()
+	accountKeeper.EXPECT().
+		NewAccount(gomock.Any(), gomock.Any()).
+		Return(nil).
+		AnyTimes()
+	accountKeeper.EXPECT().
+		SetAccount(gomock.Any(), gomock.Any()).
+		Return().
+		AnyTimes()
 	suite.accountKeeper = accountKeeper
 
 	bankKeeper := restaketestutil.NewMockBankKeeper(ctrl)
@@ -114,6 +168,18 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.bankKeeper = bankKeeper
 
 	stakingKeeper := restaketestutil.NewMockStakingKeeper(ctrl)
+	stakingKeeper.EXPECT().
+		GetDelegatorBonded(gomock.Any(), ValidAddress1).
+		Return(sdkmath.NewInt(1e18)).
+		AnyTimes()
+	stakingKeeper.EXPECT().
+		GetDelegatorBonded(gomock.Any(), ValidAddress2).
+		Return(sdkmath.NewInt(1e18)).
+		AnyTimes()
+	stakingKeeper.EXPECT().
+		GetDelegatorBonded(gomock.Any(), ValidAddress3).
+		Return(sdkmath.NewInt(10)).
+		AnyTimes()
 	suite.stakingKeeper = stakingKeeper
 
 	suite.restakeKeeper = keeper.NewKeeper(

@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/restake/types"
@@ -35,17 +36,18 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, lockerAddr sdk.AccAddress, keyNa
 		lock = types.Lock{
 			LockerAddress:  lockerAddr.String(),
 			Key:            keyName,
-			Amount:         sdk.NewInt(0),
+			Amount:         sdkmath.NewInt(0),
 			PosRewardDebts: sdk.NewCoins(),
 			NegRewardDebts: sdk.NewCoins(),
 		}
 	}
 
-	key.TotalPower = key.TotalPower.Sub(lock.Amount).Add(amount)
+	diffAmount := amount.Sub(lock.Amount)
+
+	key.TotalPower = key.TotalPower.Add(diffAmount)
 	k.SetKey(ctx, key)
 
-	diffAmount := amount.Sub(lock.Amount)
-	addtionalDebts := key.RewardPerPowers.MulDecTruncate(sdk.NewDecFromInt(diffAmount.Abs()))
+	addtionalDebts := key.RewardPerPowers.MulDecTruncate(sdkmath.LegacyNewDecFromInt(diffAmount.Abs()))
 	truncatedAdditionalDebts, _ := addtionalDebts.TruncateDecimal()
 	truncatedAdditionalDebts = truncatedAdditionalDebts.Sort()
 	if diffAmount.IsPositive() {
@@ -87,28 +89,10 @@ func (k Keeper) GetLockedPower(ctx sdk.Context, lockerAddr sdk.AccAddress, keyNa
 	return lock.Amount, nil
 }
 
-func (k Keeper) GetActiveLocks(ctx sdk.Context, addr sdk.AccAddress) (locks []types.Lock) {
-	iterator := k.GetLocksByAddressIterator(ctx, addr)
-	defer iterator.Close()
-
-	for ; iterator.Valid(); iterator.Next() {
-		var lock types.Lock
-		k.cdc.MustUnmarshal(iterator.Value(), &lock)
-
-		if !k.IsActiveKey(ctx, lock.Key) {
-			continue
-		}
-
-		locks = append(locks, lock)
-	}
-
-	return locks
-}
-
 func (k Keeper) getTotalRewards(ctx sdk.Context, lock types.Lock) sdk.DecCoins {
 	key := k.MustGetKey(ctx, lock.Key)
 
-	return key.RewardPerPowers.MulDecTruncate(sdk.NewDecFromInt(lock.Amount))
+	return key.RewardPerPowers.MulDecTruncate(sdkmath.LegacyNewDecFromInt(lock.Amount))
 }
 
 func (k Keeper) getReward(ctx sdk.Context, lock types.Lock) types.Reward {

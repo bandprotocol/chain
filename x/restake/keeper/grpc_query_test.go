@@ -123,6 +123,10 @@ func (suite *KeeperTestSuite) TestQueryRewards() {
 							Key:     ValidKey2,
 							Rewards: nil,
 						},
+						{
+							Key:     ValidKey3,
+							Rewards: nil,
+						},
 					},
 				}
 			},

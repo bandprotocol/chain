@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -121,7 +122,7 @@ func GetTxCmdLockPower() *cobra.Command {
 			}
 
 			key := args[0]
-			amount, ok := sdk.NewIntFromString(args[1])
+			amount, ok := sdkmath.NewIntFromString(args[1])
 			if !ok {
 				return fmt.Errorf("invalid amount")
 			}

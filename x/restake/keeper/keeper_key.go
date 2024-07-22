@@ -1,11 +1,35 @@
 package keeper
 
 import (
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/bandprotocol/chain/v2/x/restake/types"
 )
+
+func (k Keeper) GetOrCreateKey(ctx sdk.Context, keyName string) (types.Key, error) {
+	key, err := k.GetKey(ctx, keyName)
+	if err != nil {
+		keyAccAddr, err := k.createKeyAccount(ctx, keyName)
+		if err != nil {
+			return types.Key{}, err
+		}
+
+		key = types.Key{
+			Name:            keyName,
+			PoolAddress:     keyAccAddr.String(),
+			IsActive:        true,
+			TotalPower:      sdkmath.NewInt(0),
+			RewardPerPowers: sdk.NewDecCoins(),
+			Remainders:      sdk.NewDecCoins(),
+		}
+
+		k.SetKey(ctx, key)
+	}
+
+	return key, nil
+}
 
 // AddRewards adds rewards to the pool address and re-calculate reward_per_share of the key
 func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName string, rewards sdk.Coins) error {
@@ -28,7 +52,7 @@ func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName strin
 	}
 
 	decRewards := sdk.NewDecCoinsFromCoins(rewards.Sort()...)
-	totalPower := sdk.NewDecFromInt(key.TotalPower)
+	totalPower := sdkmath.LegacyNewDecFromInt(key.TotalPower)
 	rewardPerPowers := decRewards.QuoDecTruncate(totalPower)
 	truncatedRewards := decRewards.Sub(rewardPerPowers.MulDecTruncate(totalPower))
 
@@ -48,61 +72,6 @@ func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName strin
 	)
 
 	return nil
-}
-
-func (k Keeper) GetOrCreateKey(ctx sdk.Context, keyName string) (types.Key, error) {
-	key, err := k.GetKey(ctx, keyName)
-	if err != nil {
-		keyAccAddr, err := k.CreateKeyAccount(ctx, keyName)
-		if err != nil {
-			return types.Key{}, err
-		}
-
-		key = types.Key{
-			Name:            keyName,
-			PoolAddress:     keyAccAddr.String(),
-			IsActive:        true,
-			TotalPower:      sdk.NewInt(0),
-			RewardPerPowers: sdk.NewDecCoins(),
-		}
-
-		k.SetKey(ctx, key)
-	}
-
-	return key, nil
-}
-
-func (k Keeper) CreateKeyAccount(ctx sdk.Context, key string) (sdk.AccAddress, error) {
-	header := ctx.BlockHeader()
-
-	buf := []byte(key)
-	buf = append(buf, header.AppHash...)
-	buf = append(buf, header.DataHash...)
-
-	moduleCred, err := authtypes.NewModuleCredential(types.ModuleName, []byte(types.KeyAccountsKey), buf)
-	if err != nil {
-		return nil, err
-	}
-
-	keyAccAddr := sdk.AccAddress(moduleCred.Address())
-
-	// This should not happen
-	if acc := k.authKeeper.GetAccount(ctx, keyAccAddr); acc != nil {
-		return nil, types.ErrAccountAlreadyExist.Wrapf(
-			"existing account for newly generated key account address %s",
-			keyAccAddr.String(),
-		)
-	}
-
-	keyAcc, err := authtypes.NewBaseAccountWithPubKey(moduleCred)
-	if err != nil {
-		return nil, err
-	}
-
-	k.authKeeper.NewAccount(ctx, keyAcc)
-	k.authKeeper.SetAccount(ctx, keyAcc)
-
-	return keyAccAddr, nil
 }
 
 func (k Keeper) IsActiveKey(ctx sdk.Context, keyName string) bool {
@@ -135,6 +104,39 @@ func (k Keeper) DeactivateKey(ctx sdk.Context, keyName string) error {
 	)
 
 	return nil
+}
+
+func (k Keeper) createKeyAccount(ctx sdk.Context, key string) (sdk.AccAddress, error) {
+	header := ctx.BlockHeader()
+
+	buf := []byte(key)
+	buf = append(buf, header.AppHash...)
+	buf = append(buf, header.DataHash...)
+
+	moduleCred, err := authtypes.NewModuleCredential(types.ModuleName, []byte(types.KeyAccountsKey), buf)
+	if err != nil {
+		return nil, err
+	}
+
+	keyAccAddr := sdk.AccAddress(moduleCred.Address())
+
+	// This should not happen
+	if acc := k.authKeeper.GetAccount(ctx, keyAccAddr); acc != nil {
+		return nil, types.ErrAccountAlreadyExist.Wrapf(
+			"existing account for newly generated key account address %s",
+			keyAccAddr.String(),
+		)
+	}
+
+	keyAcc, err := authtypes.NewBaseAccountWithPubKey(moduleCred)
+	if err != nil {
+		return nil, err
+	}
+
+	k.authKeeper.NewAccount(ctx, keyAcc)
+	k.authKeeper.SetAccount(ctx, keyAcc)
+
+	return keyAccAddr, nil
 }
 
 // -------------------------------
