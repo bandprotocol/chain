@@ -6,14 +6,7 @@ import (
 
 func (suite *KeeperTestSuite) TestExportGenesis() {
 	ctx := suite.ctx
-
-	for _, key := range suite.validKeys {
-		suite.restakeKeeper.SetKey(ctx, key)
-	}
-
-	for _, lock := range suite.validLocks {
-		suite.restakeKeeper.SetLock(ctx, lock)
-	}
+	suite.setupState()
 
 	exportGenesis := suite.restakeKeeper.ExportGenesis(ctx)
 

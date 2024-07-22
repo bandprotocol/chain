@@ -9,14 +9,7 @@ import (
 
 func (suite *KeeperTestSuite) TestMsgClaimRewards() {
 	ctx := suite.ctx
-
-	// setup
-	for _, key := range suite.validKeys {
-		suite.restakeKeeper.SetKey(ctx, key)
-	}
-	for _, lock := range suite.validLocks {
-		suite.restakeKeeper.SetLock(ctx, lock)
-	}
+	suite.setupState()
 
 	testCases := []struct {
 		name      string
@@ -29,7 +22,7 @@ func (suite *KeeperTestSuite) TestMsgClaimRewards() {
 			name: "no key",
 			input: &types.MsgClaimRewards{
 				LockerAddress: ValidAddress1.String(),
-				Key:           "nonKey",
+				Key:           InvalidKey,
 			},
 			expErr:    true,
 			expErrMsg: "key not found",
@@ -39,7 +32,7 @@ func (suite *KeeperTestSuite) TestMsgClaimRewards() {
 			name: "no lock",
 			input: &types.MsgClaimRewards{
 				LockerAddress: ValidAddress2.String(),
-				Key:           "Key1",
+				Key:           ValidKey2,
 			},
 			expErr:    true,
 			expErrMsg: "lock not found",
@@ -49,12 +42,12 @@ func (suite *KeeperTestSuite) TestMsgClaimRewards() {
 			name: "valid request",
 			input: &types.MsgClaimRewards{
 				LockerAddress: ValidAddress1.String(),
-				Key:           "Key0",
+				Key:           ValidKey1,
 			},
 			expErr:    false,
 			expErrMsg: "",
 			postCheck: func() {
-				lock, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, "Key0")
+				lock, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey1)
 				suite.Require().NoError(err)
 				suite.Require().Equal(sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(1))), lock.PosRewardDebts)
 			},

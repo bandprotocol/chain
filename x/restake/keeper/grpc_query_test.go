@@ -73,16 +73,12 @@ func (suite *KeeperTestSuite) TestQueryKeys() {
 }
 
 func (suite *KeeperTestSuite) TestQueryKey() {
-	ctx, queryClient := suite.ctx, suite.queryClient
-
-	// setup
-	for _, key := range suite.validKeys {
-		suite.restakeKeeper.SetKey(ctx, key)
-	}
+	queryClient := suite.queryClient
+	suite.setupState()
 
 	// query and check
 	res, err := queryClient.Key(context.Background(), &types.QueryKeyRequest{
-		Key: "Key0",
+		Key: ValidKey1,
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryKeyResponse{
@@ -90,22 +86,15 @@ func (suite *KeeperTestSuite) TestQueryKey() {
 	}, res)
 
 	res, err = queryClient.Key(context.Background(), &types.QueryKeyRequest{
-		Key: "nonKey",
+		Key: InvalidKey,
 	})
 	suite.Require().ErrorContains(err, "key not found")
 	suite.Require().Nil(res)
 }
 
 func (suite *KeeperTestSuite) TestQueryRewards() {
-	ctx, queryClient := suite.ctx, suite.queryClient
-
-	// setup
-	for _, key := range suite.validKeys {
-		suite.restakeKeeper.SetKey(ctx, key)
-	}
-	for _, lock := range suite.validLocks {
-		suite.restakeKeeper.SetLock(ctx, lock)
-	}
+	queryClient := suite.queryClient
+	suite.setupState()
 
 	// query and check
 	var (
@@ -127,11 +116,11 @@ func (suite *KeeperTestSuite) TestQueryRewards() {
 				expRes = &types.QueryRewardsResponse{
 					Rewards: []*types.Reward{
 						{
-							Key:     "Key0",
+							Key:     ValidKey1,
 							Rewards: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))),
 						},
 						{
-							Key:     "Key1",
+							Key:     ValidKey2,
 							Rewards: nil,
 						},
 					},
@@ -148,7 +137,7 @@ func (suite *KeeperTestSuite) TestQueryRewards() {
 				expRes = &types.QueryRewardsResponse{
 					Rewards: []*types.Reward{
 						{
-							Key:     "Key0",
+							Key:     ValidKey1,
 							Rewards: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))),
 						},
 					},
@@ -188,15 +177,8 @@ func (suite *KeeperTestSuite) TestQueryRewards() {
 }
 
 func (suite *KeeperTestSuite) TestQueryLocks() {
-	ctx, queryClient := suite.ctx, suite.queryClient
-
-	// setup
-	for _, key := range suite.validKeys {
-		suite.restakeKeeper.SetKey(ctx, key)
-	}
-	for _, lock := range suite.validLocks {
-		suite.restakeKeeper.SetLock(ctx, lock)
-	}
+	queryClient := suite.queryClient
+	suite.setupState()
 
 	// query and check
 	var (
@@ -218,11 +200,11 @@ func (suite *KeeperTestSuite) TestQueryLocks() {
 				expRes = &types.QueryLocksResponse{
 					Locks: []*types.LockResponse{
 						{
-							Key:    "Key0",
+							Key:    ValidKey1,
 							Amount: sdkmath.NewInt(10),
 						},
 						{
-							Key:    "Key1",
+							Key:    ValidKey2,
 							Amount: sdkmath.NewInt(100),
 						},
 					},
@@ -239,7 +221,7 @@ func (suite *KeeperTestSuite) TestQueryLocks() {
 				expRes = &types.QueryLocksResponse{
 					Locks: []*types.LockResponse{
 						{
-							Key:    "Key0",
+							Key:    ValidKey1,
 							Amount: sdkmath.NewInt(10),
 						},
 					},

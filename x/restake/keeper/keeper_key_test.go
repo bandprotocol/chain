@@ -1,40 +1,10 @@
 package keeper_test
 
-import (
-	"github.com/bandprotocol/chain/v2/x/restake/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-)
-
 func (suite *KeeperTestSuite) TestGetSetKey() {
 	ctx := suite.ctx
 
 	// set
-	expectedKeys := []types.Key{
-		{
-			Name:            "Key0",
-			PoolAddress:     "address0",
-			IsActive:        true,
-			TotalPower:      sdk.NewInt(0),
-			RewardPerPowers: nil,
-			Remainders:      nil,
-		},
-		{
-			Name:            "Key1",
-			PoolAddress:     "address1",
-			IsActive:        false,
-			TotalPower:      sdk.NewInt(100),
-			RewardPerPowers: nil,
-			Remainders:      nil,
-		},
-		{
-			Name:            "Key2",
-			PoolAddress:     "address2",
-			IsActive:        true,
-			TotalPower:      sdk.NewInt(1000),
-			RewardPerPowers: nil,
-			Remainders:      nil,
-		},
-	}
+	expectedKeys := suite.validKeys
 	for _, expKey := range expectedKeys {
 		suite.restakeKeeper.SetKey(ctx, expKey)
 

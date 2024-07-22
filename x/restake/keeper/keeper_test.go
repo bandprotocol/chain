@@ -14,7 +14,6 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/mock/gomock"
 
-	app "github.com/bandprotocol/chain/v2/app"
 	"github.com/bandprotocol/chain/v2/x/restake/keeper"
 	restaketestutil "github.com/bandprotocol/chain/v2/x/restake/testutil"
 	"github.com/bandprotocol/chain/v2/x/restake/types"
@@ -24,6 +23,9 @@ var (
 	ValidAddress1     = sdk.AccAddress("1000000001")
 	ValidAddress2     = sdk.AccAddress("1000000002")
 	ValidAddress3     = sdk.AccAddress("1000000003")
+	ValidKey1         = "key1"
+	ValidKey2         = "key2"
+	InvalidKey        = "nonKey"
 	ValidPoolAddress1 = sdk.AccAddress("2000000001")
 	ValidPoolAddress2 = sdk.AccAddress("2000000002")
 )
@@ -50,19 +52,17 @@ func TestKeeperTestSuite(t *testing.T) {
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
-	app.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
-
 	suite.validKeys = []types.Key{
 		{
-			Name:            "Key0",
+			Name:            ValidKey1,
 			PoolAddress:     ValidPoolAddress1.String(),
 			IsActive:        true,
 			TotalPower:      sdk.NewInt(20),
 			RewardPerPowers: sdk.NewDecCoins(sdk.NewDecCoinFromDec("uband", sdkmath.LegacyNewDecWithPrec(1, 1))),
-			Remainders:      sdk.NewDecCoins(),
+			Remainders:      nil,
 		},
 		{
-			Name:            "Key1",
+			Name:            ValidKey2,
 			PoolAddress:     ValidPoolAddress2.String(),
 			IsActive:        true,
 			TotalPower:      sdk.NewInt(100),
@@ -74,21 +74,21 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.validLocks = []types.Lock{
 		{
 			LockerAddress:  ValidAddress1.String(),
-			Key:            "Key0",
+			Key:            ValidKey1,
 			Amount:         sdk.NewInt(10),
 			PosRewardDebts: nil,
 			NegRewardDebts: nil,
 		},
 		{
 			LockerAddress:  ValidAddress1.String(),
-			Key:            "Key1",
+			Key:            ValidKey2,
 			Amount:         sdk.NewInt(100),
 			PosRewardDebts: nil,
 			NegRewardDebts: nil,
 		},
 		{
 			LockerAddress:  ValidAddress2.String(),
-			Key:            "Key0",
+			Key:            ValidKey1,
 			Amount:         sdk.NewInt(10),
 			PosRewardDebts: nil,
 			NegRewardDebts: nil,
@@ -135,4 +135,14 @@ func (suite *KeeperTestSuite) SetupTest() {
 	queryClient := types.NewQueryClient(queryHelper)
 	suite.queryClient = queryClient
 	suite.msgServer = keeper.NewMsgServerImpl(&suite.restakeKeeper)
+}
+
+func (suite *KeeperTestSuite) setupState() {
+	for _, key := range suite.validKeys {
+		suite.restakeKeeper.SetKey(suite.ctx, key)
+	}
+
+	for _, lock := range suite.validLocks {
+		suite.restakeKeeper.SetLock(suite.ctx, lock)
+	}
 }

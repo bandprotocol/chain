@@ -1,37 +1,16 @@
 package keeper_test
 
 import (
-	"github.com/bandprotocol/chain/v2/x/restake/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v2/x/restake/types"
 )
 
 func (suite *KeeperTestSuite) TestGetSetLock() {
 	ctx := suite.ctx
 
 	// set
-	expectedLocks := []types.Lock{
-		{
-			LockerAddress:  ValidAddress1.String(),
-			Key:            "key0",
-			Amount:         sdk.NewInt(10),
-			PosRewardDebts: nil,
-			NegRewardDebts: nil,
-		},
-		{
-			LockerAddress:  ValidAddress1.String(),
-			Key:            "key1",
-			Amount:         sdk.NewInt(20),
-			PosRewardDebts: nil,
-			NegRewardDebts: nil,
-		},
-		{
-			LockerAddress:  ValidAddress2.String(),
-			Key:            "key0",
-			Amount:         sdk.NewInt(20),
-			PosRewardDebts: nil,
-			NegRewardDebts: nil,
-		},
-	}
+	expectedLocks := suite.validLocks
 	for _, expLock := range expectedLocks {
 		acc := sdk.MustAccAddressFromBech32(expLock.LockerAddress)
 		suite.restakeKeeper.SetLock(ctx, expLock)
