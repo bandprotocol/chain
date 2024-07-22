@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -84,7 +84,7 @@ func (h Hooks) AfterUnbondingInitiated(_ sdk.Context, _ uint64) error {
 	return nil
 }
 
-func (h Hooks) isAbleToUnbond(ctx sdk.Context, addr sdk.AccAddress, delegated math.Int) error {
+func (h Hooks) isAbleToUnbond(ctx sdk.Context, addr sdk.AccAddress, delegated sdkmath.Int) error {
 	iterator := sdk.KVStoreReversePrefixIterator(ctx.KVStore(h.k.storeKey), types.LocksByAmountIndexKey(addr))
 	defer iterator.Close()
 

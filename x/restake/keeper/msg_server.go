@@ -46,7 +46,7 @@ func (k msgServer) ClaimRewards(
 	finalRewards, remainders := reward.Rewards.TruncateDecimal()
 
 	if !finalRewards.IsZero() {
-		lock.PosRewardDebts = sdk.NewDecCoins()
+		lock.PosRewardDebts = k.getTotalRewards(ctx, lock)
 		lock.NegRewardDebts = remainders
 		k.SetLock(ctx, lock)
 

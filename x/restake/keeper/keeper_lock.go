@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -10,7 +9,7 @@ import (
 
 // SetLockedPower sets the new locked power amount of the address to the key
 // This function will override the previous locked amount.
-func (k Keeper) SetLockedPower(ctx sdk.Context, lockerAddr sdk.AccAddress, keyName string, amount math.Int) error {
+func (k Keeper) SetLockedPower(ctx sdk.Context, lockerAddr sdk.AccAddress, keyName string, amount sdkmath.Int) error {
 	if !amount.IsUint64() {
 		return types.ErrInvalidAmount
 	}
@@ -69,19 +68,19 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, lockerAddr sdk.AccAddress, keyNa
 }
 
 // GetLockedPower returns locked power of the address to the key.
-func (k Keeper) GetLockedPower(ctx sdk.Context, lockerAddr sdk.AccAddress, keyName string) (math.Int, error) {
+func (k Keeper) GetLockedPower(ctx sdk.Context, lockerAddr sdk.AccAddress, keyName string) (sdkmath.Int, error) {
 	key, err := k.GetKey(ctx, keyName)
 	if err != nil {
-		return math.Int{}, types.ErrKeyNotFound
+		return sdkmath.Int{}, types.ErrKeyNotFound
 	}
 
 	if !key.IsActive {
-		return math.Int{}, types.ErrKeyNotActive
+		return sdkmath.Int{}, types.ErrKeyNotActive
 	}
 
 	lock, err := k.GetLock(ctx, lockerAddr, keyName)
 	if err != nil {
-		return math.Int{}, types.ErrLockNotFound
+		return sdkmath.Int{}, types.ErrLockNotFound
 	}
 
 	return lock.Amount, nil

@@ -50,6 +50,7 @@ func (suite *KeeperTestSuite) TestMsgClaimRewards() {
 				lock, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey1)
 				suite.Require().NoError(err)
 				suite.Require().Equal(sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))), lock.PosRewardDebts)
+				suite.Require().Equal(sdk.DecCoins(nil), lock.NegRewardDebts)
 			},
 		},
 	}
