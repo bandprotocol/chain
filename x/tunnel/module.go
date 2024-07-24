@@ -28,6 +28,7 @@ var (
 	_ module.BeginBlockAppModule = AppModule{}
 	_ module.EndBlockAppModule   = AppModule{}
 	_ module.AppModuleBasic      = AppModuleBasic{}
+	// _ porttypes.IBCModule        = IBCModule{}
 )
 
 // AppModuleBasic defines the basic application module used by the tunnel module.

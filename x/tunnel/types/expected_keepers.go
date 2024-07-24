@@ -3,6 +3,8 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 
 	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
@@ -40,6 +42,24 @@ type BankKeeper interface {
 		amt sdk.Coins,
 	) error
 	SendCoinsFromModuleToModule(ctx sdk.Context, senderModule, recipientModule string, amt sdk.Coins) error
+}
+
+type ChannelKeeper interface {
+	SendPacket(
+		ctx sdk.Context,
+		chanCap *capabilitytypes.Capability,
+		sourcePort string,
+		sourceChannel string,
+		timeoutHeight ibcclienttypes.Height,
+		timeoutTimestamp uint64,
+		data []byte,
+	) (sequence uint64, err error)
+}
+
+type ScopedKeeper interface {
+	GetCapability(ctx sdk.Context, name string) (*capabilitytypes.Capability, bool)
+	AuthenticateCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) bool
+	ClaimCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) error
 }
 
 type FeedsKeeper interface {

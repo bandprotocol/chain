@@ -28,6 +28,8 @@ type TestSuite struct {
 	MockBankKeeper    *MockBankKeeper
 	MockFeedsKeeper   *MockFeedsKeeper
 	MockBandtssKeeper *MockBandtssKeeper
+	MockChannelKeeper *MockChannelKeeper
+	MockScopedKeeper  *MockScopedKeeper
 
 	Ctx       sdk.Context
 	Authority sdk.AccAddress
@@ -45,6 +47,8 @@ func NewTestSuite(t *testing.T) TestSuite {
 	bankKeeper := NewMockBankKeeper(ctrl)
 	feedsKeeper := NewMockFeedsKeeper(ctrl)
 	bandtssKeeper := NewMockBandtssKeeper(ctrl)
+	channelKeeper := NewMockChannelKeeper(ctrl)
+	scopedKeeper := NewMockScopedKeeper(ctrl)
 
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
 	accountKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(authority).AnyTimes()
@@ -55,6 +59,8 @@ func NewTestSuite(t *testing.T) TestSuite {
 		bankKeeper,
 		feedsKeeper,
 		bandtssKeeper,
+		channelKeeper,
+		scopedKeeper,
 		authority.String(),
 	)
 	queryServer := keeper.NewQueryServer(tunnelKeeper)

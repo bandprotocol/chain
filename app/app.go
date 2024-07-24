@@ -362,6 +362,7 @@ func NewBandApp(
 	scopedTransferKeeper := app.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	scopedOracleKeeper := app.CapabilityKeeper.ScopeToModule(oracletypes.ModuleName)
 	scopedICAHostKeeper := app.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
+	scopedTunnelKeeper := app.CapabilityKeeper.ScopeToModule(tunneltypes.ModuleName)
 	app.CapabilityKeeper.Seal()
 
 	// Add keepers.
@@ -646,6 +647,8 @@ func NewBandApp(
 		app.BankKeeper,
 		app.FeedsKeeper,
 		app.BandtssKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		scopedTunnelKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 

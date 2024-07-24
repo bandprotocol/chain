@@ -17,6 +17,8 @@ import (
 	types1 "github.com/bandprotocol/chain/v2/x/tss/types"
 	types2 "github.com/cosmos/cosmos-sdk/types"
 	types3 "github.com/cosmos/cosmos-sdk/x/auth/types"
+	types4 "github.com/cosmos/cosmos-sdk/x/capability/types"
+	types5 "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -212,6 +214,110 @@ func (m *MockBankKeeper) SendCoinsFromModuleToModule(ctx types2.Context, senderM
 func (mr *MockBankKeeperMockRecorder) SendCoinsFromModuleToModule(ctx, senderModule, recipientModule, amt any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendCoinsFromModuleToModule", reflect.TypeOf((*MockBankKeeper)(nil).SendCoinsFromModuleToModule), ctx, senderModule, recipientModule, amt)
+}
+
+// MockChannelKeeper is a mock of ChannelKeeper interface.
+type MockChannelKeeper struct {
+	ctrl     *gomock.Controller
+	recorder *MockChannelKeeperMockRecorder
+}
+
+// MockChannelKeeperMockRecorder is the mock recorder for MockChannelKeeper.
+type MockChannelKeeperMockRecorder struct {
+	mock *MockChannelKeeper
+}
+
+// NewMockChannelKeeper creates a new mock instance.
+func NewMockChannelKeeper(ctrl *gomock.Controller) *MockChannelKeeper {
+	mock := &MockChannelKeeper{ctrl: ctrl}
+	mock.recorder = &MockChannelKeeperMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockChannelKeeper) EXPECT() *MockChannelKeeperMockRecorder {
+	return m.recorder
+}
+
+// SendPacket mocks base method.
+func (m *MockChannelKeeper) SendPacket(ctx types2.Context, chanCap *types4.Capability, sourcePort, sourceChannel string, timeoutHeight types5.Height, timeoutTimestamp uint64, data []byte) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SendPacket", ctx, chanCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, data)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SendPacket indicates an expected call of SendPacket.
+func (mr *MockChannelKeeperMockRecorder) SendPacket(ctx, chanCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, data any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendPacket", reflect.TypeOf((*MockChannelKeeper)(nil).SendPacket), ctx, chanCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, data)
+}
+
+// MockScopedKeeper is a mock of ScopedKeeper interface.
+type MockScopedKeeper struct {
+	ctrl     *gomock.Controller
+	recorder *MockScopedKeeperMockRecorder
+}
+
+// MockScopedKeeperMockRecorder is the mock recorder for MockScopedKeeper.
+type MockScopedKeeperMockRecorder struct {
+	mock *MockScopedKeeper
+}
+
+// NewMockScopedKeeper creates a new mock instance.
+func NewMockScopedKeeper(ctrl *gomock.Controller) *MockScopedKeeper {
+	mock := &MockScopedKeeper{ctrl: ctrl}
+	mock.recorder = &MockScopedKeeperMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockScopedKeeper) EXPECT() *MockScopedKeeperMockRecorder {
+	return m.recorder
+}
+
+// AuthenticateCapability mocks base method.
+func (m *MockScopedKeeper) AuthenticateCapability(ctx types2.Context, cap *types4.Capability, name string) bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AuthenticateCapability", ctx, cap, name)
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// AuthenticateCapability indicates an expected call of AuthenticateCapability.
+func (mr *MockScopedKeeperMockRecorder) AuthenticateCapability(ctx, cap, name any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AuthenticateCapability", reflect.TypeOf((*MockScopedKeeper)(nil).AuthenticateCapability), ctx, cap, name)
+}
+
+// ClaimCapability mocks base method.
+func (m *MockScopedKeeper) ClaimCapability(ctx types2.Context, cap *types4.Capability, name string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ClaimCapability", ctx, cap, name)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ClaimCapability indicates an expected call of ClaimCapability.
+func (mr *MockScopedKeeperMockRecorder) ClaimCapability(ctx, cap, name any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ClaimCapability", reflect.TypeOf((*MockScopedKeeper)(nil).ClaimCapability), ctx, cap, name)
+}
+
+// GetCapability mocks base method.
+func (m *MockScopedKeeper) GetCapability(ctx types2.Context, name string) (*types4.Capability, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCapability", ctx, name)
+	ret0, _ := ret[0].(*types4.Capability)
+	ret1, _ := ret[1].(bool)
+	return ret0, ret1
+}
+
+// GetCapability indicates an expected call of GetCapability.
+func (mr *MockScopedKeeperMockRecorder) GetCapability(ctx, name any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCapability", reflect.TypeOf((*MockScopedKeeper)(nil).GetCapability), ctx, name)
 }
 
 // MockFeedsKeeper is a mock of FeedsKeeper interface.

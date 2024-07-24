@@ -154,6 +154,9 @@ func (k Keeper) ActivateTunnel(ctx sdk.Context, id uint64, creator string) error
 
 // SetParams sets the tunnel module parameters
 func (k Keeper) ProcessTunnel(ctx sdk.Context, tunnel types.Tunnel) {
+	// Increment the nonce
+	tunnel.Nonce += 1
+
 	switch r := tunnel.Route.GetCachedValue().(type) {
 	case *types.TSSRoute:
 		fmt.Printf("Generating TSS packets for tunnel %d, route %s\n", tunnel.ID, r.String())
@@ -171,6 +174,9 @@ func (k Keeper) ProcessTunnel(ctx sdk.Context, tunnel types.Tunnel) {
 	case *types.AxelarRoute:
 		fmt.Printf("Generating Axelar packets for tunnel %d, route %s\n", tunnel.ID, r.String())
 		k.AxelarPacketHandler(ctx, types.AxelarPacket{})
+	case *types.IBCRoute:
+		fmt.Printf("Generating IBC packets for tunnel %d, route %s\n", tunnel.ID, r.String())
+		k.IBCPacketHandler(ctx, types.IBCPacket{})
 	}
 	// Set the last SignalPriceInfos
 	k.SetTunnel(ctx, tunnel)
