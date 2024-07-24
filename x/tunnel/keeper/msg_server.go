@@ -56,16 +56,16 @@ func (ms msgServer) CreateTunnel(
 	event := sdk.NewEvent(
 		types.EventTypeCreateTunnel,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
-		sdk.NewAttribute(types.AttributeRoute, tunnel.Route.String()),
-		sdk.NewAttribute(types.AttributeFeedType, tunnel.FeedType.String()),
-		sdk.NewAttribute(types.AttributeFeePayer, tunnel.FeePayer),
-		sdk.NewAttribute(types.AttributeIsActive, fmt.Sprintf("%t", tunnel.IsActive)),
+		sdk.NewAttribute(types.AttributeKeyRoute, tunnel.Route.String()),
+		sdk.NewAttribute(types.AttributeKeyFeedType, tunnel.FeedType.String()),
+		sdk.NewAttribute(types.AttributeKeyFeePayer, tunnel.FeePayer),
+		sdk.NewAttribute(types.AttributeKeyIsActive, fmt.Sprintf("%t", tunnel.IsActive)),
 		sdk.NewAttribute(types.AttributeKeyCreatedAt, tunnel.CreatedAt.String()),
-		sdk.NewAttribute(types.AttributeCreator, req.Creator),
+		sdk.NewAttribute(types.AttributeKeyCreator, req.Creator),
 	)
 	for _, signalInfo := range req.SignalInfos {
 		event = event.AppendAttributes(
-			sdk.NewAttribute(types.AttributeSignalPriceInfos, signalInfo.String()),
+			sdk.NewAttribute(types.AttributeKeySignalPriceInfos, signalInfo.String()),
 		)
 	}
 	ctx.EventManager().EmitEvent(event)
@@ -90,7 +90,7 @@ func (ms msgServer) ActivateTunnel(
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeActivateTunnel,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", req.TunnelID)),
-		sdk.NewAttribute(types.AttributeIsActive, fmt.Sprintf("%t", true)),
+		sdk.NewAttribute(types.AttributeKeyIsActive, fmt.Sprintf("%t", true)),
 	))
 
 	return &types.MsgActivateTunnelResponse{}, nil
