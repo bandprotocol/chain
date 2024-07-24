@@ -25,7 +25,7 @@ var (
 	GlobalStoreKeyPrefix = []byte{0x00}
 
 	ReferenceSourceConfigStoreKey = append(GlobalStoreKeyPrefix, []byte("ReferenceSourceConfig")...)
-	SupportedFeedsStoreKey        = append(GlobalStoreKeyPrefix, []byte("SupportedFeeds")...)
+	CurrentFeedsStoreKey          = append(GlobalStoreKeyPrefix, []byte("CurrentFeeds")...)
 
 	ValidatorPriceListStoreKeyPrefix = []byte{0x01}
 	PriceStoreKeyPrefix              = []byte{0x02}

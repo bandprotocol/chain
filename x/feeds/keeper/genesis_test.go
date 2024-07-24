@@ -20,11 +20,11 @@ func (suite *KeeperTestSuite) TestExportGenesis() {
 			Delegator: ValidDelegator.String(),
 			Signals: []types.Signal{
 				{
-					ID:    "crypto_price.bandusd",
+					ID:    "CS:BAND-USD",
 					Power: 10000 * 1e6,
 				},
 				{
-					ID:    "crypto_price.btcusd",
+					ID:    "CS:BTC-USD",
 					Power: 20000 * 1e9,
 				},
 			},
@@ -33,11 +33,11 @@ func (suite *KeeperTestSuite) TestExportGenesis() {
 			Delegator: ValidDelegator2.String(),
 			Signals: []types.Signal{
 				{
-					ID:    "crypto_price.bandusd",
+					ID:    "CS:BAND-USD",
 					Power: 20000 * 1e6,
 				},
 				{
-					ID:    "crypto_price.btcusd",
+					ID:    "CS:BTC-USD",
 					Power: 40000 * 1e9,
 				},
 			},
@@ -61,11 +61,11 @@ func (suite *KeeperTestSuite) TestInitGenesis() {
 			Delegator: ValidDelegator.String(),
 			Signals: []types.Signal{
 				{
-					ID:    "crypto_price.bandusd",
+					ID:    "CS:BAND-USD",
 					Power: 10000 * 1e6,
 				},
 				{
-					ID:    "crypto_price.btcusd",
+					ID:    "CS:BTC-USD",
 					Power: 20000 * 1e6,
 				},
 			},
@@ -74,11 +74,11 @@ func (suite *KeeperTestSuite) TestInitGenesis() {
 			Delegator: ValidDelegator2.String(),
 			Signals: []types.Signal{
 				{
-					ID:    "crypto_price.bandusd",
+					ID:    "CS:BAND-USD",
 					Power: 20000 * 1e6,
 				},
 				{
-					ID:    "crypto_price.btcusd",
+					ID:    "CS:BTC-USD",
 					Power: 40000 * 1e6,
 				},
 			},
@@ -98,34 +98,34 @@ func (suite *KeeperTestSuite) TestInitGenesis() {
 			Equal(ds.Signals, suite.feedsKeeper.GetDelegatorSignals(ctx, sdk.MustAccAddressFromBech32(ds.Delegator)))
 	}
 
-	stpBand, err := suite.feedsKeeper.GetSignalTotalPower(ctx, "crypto_price.bandusd")
+	stpBand, err := suite.feedsKeeper.GetSignalTotalPower(ctx, "CS:BAND-USD")
 	suite.Require().NoError(err)
 	suite.Require().Equal(types.Signal{
-		ID:    "crypto_price.bandusd",
+		ID:    "CS:BAND-USD",
 		Power: 30000 * 1e6,
 	}, stpBand)
 
-	stpBtc, err := suite.feedsKeeper.GetSignalTotalPower(ctx, "crypto_price.btcusd")
+	stpBtc, err := suite.feedsKeeper.GetSignalTotalPower(ctx, "CS:BTC-USD")
 	suite.Require().NoError(err)
 	suite.Require().Equal(types.Signal{
-		ID:    "crypto_price.btcusd",
+		ID:    "CS:BTC-USD",
 		Power: 60000 * 1e6,
 	}, stpBtc)
 
-	suite.Require().Equal(types.SupportedFeeds{
+	suite.Require().Equal(types.CurrentFeeds{
 		Feeds: []types.Feed{
 			{
-				SignalID: "crypto_price.btcusd",
+				SignalID: "CS:BTC-USD",
 				Power:    60000000000,
 				Interval: 60,
 			},
 			{
-				SignalID: "crypto_price.bandusd",
+				SignalID: "CS:BAND-USD",
 				Power:    30000000000,
 				Interval: 120,
 			},
 		},
 		LastUpdateTimestamp: ctx.BlockTime().Unix(),
 		LastUpdateBlock:     ctx.BlockHeight(),
-	}, suite.feedsKeeper.GetSupportedFeeds(ctx))
+	}, suite.feedsKeeper.GetCurrentFeeds(ctx))
 }

@@ -2,48 +2,48 @@ package keeper_test
 
 import "github.com/bandprotocol/chain/v2/x/feeds/types"
 
-func (suite *KeeperTestSuite) TestGetSetSupportedFeeds() {
+func (suite *KeeperTestSuite) TestGetSetCurrentFeeds() {
 	ctx := suite.ctx
 
 	// set
 	expFeed := []types.Feed{
 		{
-			SignalID: "crypto_price.bandusd",
+			SignalID: "CS:BAND-USD",
 			Interval: 60,
 		},
 		{
-			SignalID: "crypto_price.atomusd",
+			SignalID: "CS:ATOM-USD",
 			Interval: 60,
 		},
 	}
-	suite.feedsKeeper.SetSupportedFeeds(ctx, expFeed)
+	suite.feedsKeeper.SetCurrentFeeds(ctx, expFeed)
 
 	// get
-	feeds := suite.feedsKeeper.GetSupportedFeeds(ctx)
+	feeds := suite.feedsKeeper.GetCurrentFeeds(ctx)
 	suite.Require().Equal(expFeed, feeds.Feeds)
 }
 
-func (suite *KeeperTestSuite) TestCalculateNewSupportedFeeds() {
+func (suite *KeeperTestSuite) TestCalculateNewCurrentFeeds() {
 	ctx := suite.ctx
 
 	suite.feedsKeeper.SetSignalTotalPower(ctx, types.Signal{
-		ID:    "crypto_price.bandusd",
+		ID:    "CS:BAND-USD",
 		Power: 60000000000,
 	})
 	suite.feedsKeeper.SetSignalTotalPower(ctx, types.Signal{
-		ID:    "crypto_price.atomusd",
+		ID:    "CS:ATOM-USD",
 		Power: 30000000000,
 	})
 
-	feeds := suite.feedsKeeper.CalculateNewSupportedFeeds(ctx)
+	feeds := suite.feedsKeeper.CalculateNewCurrentFeeds(ctx)
 	suite.Require().Equal([]types.Feed{
 		{
-			SignalID: "crypto_price.bandusd",
+			SignalID: "CS:BAND-USD",
 			Power:    60000000000,
 			Interval: 60,
 		},
 		{
-			SignalID: "crypto_price.atomusd",
+			SignalID: "CS:ATOM-USD",
 			Power:    30000000000,
 			Interval: 120,
 		},

@@ -1,6 +1,9 @@
 package querier
 
 import (
+	"sync/atomic"
+
+	"github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -8,16 +11,17 @@ import (
 )
 
 type FeedQuerier struct {
-	queryClients []feeds.QueryClient
+	queryClients   []feeds.QueryClient
+	maxBlockHeight *atomic.Int64
 }
 
-func NewFeedQuerier(clients []client.Context) *FeedQuerier {
+func NewFeedQuerier(clientContext client.Context, clients []*http.HTTP, maxBlockHeight *atomic.Int64) *FeedQuerier {
 	queryClients := make([]feeds.QueryClient, 0, len(clients))
 	for _, cl := range clients {
-		queryClients = append(queryClients, feeds.NewQueryClient(cl))
+		queryClients = append(queryClients, feeds.NewQueryClient(clientContext.WithClient(cl)))
 	}
 
-	return &FeedQuerier{queryClients}
+	return &FeedQuerier{queryClients, maxBlockHeight}
 }
 
 func (q *FeedQuerier) QueryValidValidator(valAddress sdk.ValAddress) (*feeds.QueryValidValidatorResponse, error) {
@@ -34,7 +38,7 @@ func (q *FeedQuerier) QueryValidValidator(valAddress sdk.ValAddress) (*feeds.Que
 		Validator: valAddress.String(),
 	}
 
-	return getMaxBlockHeightResponse(fs, &in)
+	return getMaxBlockHeightResponse(fs, &in, q.maxBlockHeight)
 }
 
 func (q *FeedQuerier) QueryIsFeeder(
@@ -50,7 +54,7 @@ func (q *FeedQuerier) QueryIsFeeder(
 		FeederAddress:    feeder.String(),
 		ValidatorAddress: validator.String(),
 	}
-	return getMaxBlockHeightResponse(fs, &in)
+	return getMaxBlockHeightResponse(fs, &in, q.maxBlockHeight)
 }
 
 func (q *FeedQuerier) QueryValidatorPrices(valAddress sdk.ValAddress) (*feeds.QueryValidatorPricesResponse, error) {
@@ -66,7 +70,7 @@ func (q *FeedQuerier) QueryValidatorPrices(valAddress sdk.ValAddress) (*feeds.Qu
 	in := feeds.QueryValidatorPricesRequest{
 		Validator: valAddress.String(),
 	}
-	return getMaxBlockHeightResponse(fs, &in)
+	return getMaxBlockHeightResponse(fs, &in, q.maxBlockHeight)
 }
 
 func (q *FeedQuerier) QueryParams() (*feeds.QueryParamsResponse, error) {
@@ -76,19 +80,33 @@ func (q *FeedQuerier) QueryParams() (*feeds.QueryParamsResponse, error) {
 	}
 
 	in := feeds.QueryParamsRequest{}
-	return getMaxBlockHeightResponse(fs, &in)
+	return getMaxBlockHeightResponse(fs, &in, q.maxBlockHeight)
 }
 
-func (q *FeedQuerier) QuerySupportedFeeds() (*feeds.QuerySupportedFeedsResponse, error) {
+func (q *FeedQuerier) QueryCurrentFeeds() (*feeds.QueryCurrentFeedsResponse, error) {
 	fs := make(
-		[]QueryFunction[feeds.QuerySupportedFeedsRequest, feeds.QuerySupportedFeedsResponse],
+		[]QueryFunction[feeds.QueryCurrentFeedsRequest, feeds.QueryCurrentFeedsResponse],
 		0,
 		len(q.queryClients),
 	)
 	for _, queryClient := range q.queryClients {
-		fs = append(fs, queryClient.SupportedFeeds)
+		fs = append(fs, queryClient.CurrentFeeds)
 	}
 
-	in := feeds.QuerySupportedFeedsRequest{}
-	return getMaxBlockHeightResponse(fs, &in)
+	in := feeds.QueryCurrentFeedsRequest{}
+	return getMaxBlockHeightResponse(fs, &in, q.maxBlockHeight)
+}
+
+func (q *FeedQuerier) QueryReferenceSourceConfig() (*feeds.QueryReferenceSourceConfigResponse, error) {
+	fs := make(
+		[]QueryFunction[feeds.QueryReferenceSourceConfigRequest, feeds.QueryReferenceSourceConfigResponse],
+		0,
+		len(q.queryClients),
+	)
+	for _, queryClient := range q.queryClients {
+		fs = append(fs, queryClient.ReferenceSourceConfig)
+	}
+
+	in := feeds.QueryReferenceSourceConfigRequest{}
+	return getMaxBlockHeightResponse(fs, &in, q.maxBlockHeight)
 }

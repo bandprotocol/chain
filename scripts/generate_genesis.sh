@@ -43,4 +43,4 @@ sed -i -e \
 cat <<< $(jq '.app_state.gov.params.voting_period = "60s"' ~/.band/config/genesis.json) > ~/.band/config/genesis.json
 
 # update blocks per feeds update to 10 blocks for testing
-cat <<< $(jq '.app_state.feeds.params.supported_feeds_update_interval = "10"' ~/.band/config/genesis.json) > ~/.band/config/genesis.json
+cat <<< $(jq '.app_state.feeds.params.current_feeds_update_interval = "10"' ~/.band/config/genesis.json) > ~/.band/config/genesis.json

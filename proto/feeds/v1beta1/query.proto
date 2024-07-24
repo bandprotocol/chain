@@ -53,8 +53,8 @@ service Query {
     option (google.api.http).get = "/feeds/v1beta1/delegators/{delegator}/signals";
   }
 
-  // SupportedFeeds is an RPC method that returns a list of current supported feeds
-  rpc SupportedFeeds(QuerySupportedFeedsRequest) returns (QuerySupportedFeedsResponse) {
+  // CurrentFeeds is an RPC method that returns a list of current supported feeds
+  rpc CurrentFeeds(QueryCurrentFeedsRequest) returns (QueryCurrentFeedsResponse) {
     option (google.api.http).get = "/feeds/v1beta1/supported-feeds";
   }
 
@@ -132,7 +132,7 @@ message QuerySignalTotalPowersRequest {
 
 // QuerySignalTotalPowersResponse is the response type for the Query/SignalTotalPowers RPC method.
 message QuerySignalTotalPowersResponse {
-  // SingalTotalPowers is a list of signal-total-powers.
+  // SignalTotalPowers is a list of signal-total-powers.
   repeated Signal signal_total_powers = 1;
 
   // Pagination is the pagination information in the response.
@@ -165,17 +165,18 @@ message QueryDelegatorSignalsRequest {
 
 // QueryDelegatorSignalsResponse is the response type for the Query/DelegatorSignals RPC method
 message QueryDelegatorSignalsResponse {
+  // Signals is a list of signals submitted by the delegator.
   repeated Signal signals = 1 [(gogoproto.nullable) = false];
 }
 
-// QuerySupportedFeedsRequest is the request type for the Query/SupportedFeeds RPC method
-message QuerySupportedFeedsRequest {}
+// QueryCurrentFeedsRequest is the request type for the Query/CurrentFeeds RPC method
+message QueryCurrentFeedsRequest {}
 
-// QuerySupportedFeedsResponse is the response type for the Query/SupportedFeeds RPC method
-message QuerySupportedFeedsResponse {
-  // SupportedFeeds is a list of currently supported feed-with-deviations, and its last update time and
+// QueryCurrentFeedsResponse is the response type for the Query/CurrentFeeds RPC method
+message QueryCurrentFeedsResponse {
+  // CurrentFeeds is a list of currently supported feed-with-deviations, and its last update time and
   // block.
-  SupportedFeedWithDeviations supported_feeds = 1 [(gogoproto.nullable) = false];
+  CurrentFeedWithDeviations current_feeds = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryIsFeederRequest is request type for the Query/IsFeeder RPC method.

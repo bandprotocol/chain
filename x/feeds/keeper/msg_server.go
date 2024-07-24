@@ -35,10 +35,10 @@ func (ms msgServer) SubmitSignals(
 		return nil, err
 	}
 
-	if len(req.Signals) > int(ms.GetParams(ctx).MaxSupportedFeeds) {
+	if len(req.Signals) > int(ms.GetParams(ctx).MaxCurrentFeeds) {
 		return nil, types.ErrSubmittedSignalsTooLarge.Wrapf(
 			"maximum number of signals is %d but received %d",
-			ms.GetParams(ctx).MaxSupportedFeeds, len(req.Signals),
+			ms.GetParams(ctx).MaxCurrentFeeds, len(req.Signals),
 		)
 	}
 
@@ -98,7 +98,7 @@ func (ms msgServer) SubmitSignalPrices(
 	blockTime := ctx.BlockTime().Unix()
 	blockHeight := ctx.BlockHeight()
 
-	if len(req.Prices) > int(ms.Keeper.GetParams(ctx).MaxSupportedFeeds) {
+	if len(req.Prices) > int(ms.Keeper.GetParams(ctx).MaxCurrentFeeds) {
 		return nil, types.ErrSignalPricesTooLarge
 	}
 
@@ -114,7 +114,7 @@ func (ms msgServer) SubmitSignalPrices(
 	}
 
 	cooldownTime := ms.GetParams(ctx).CooldownTime
-	supportedFeeds := ms.GetSupportedFeeds(ctx)
+	supportedFeeds := ms.GetCurrentFeeds(ctx)
 	supportedFeedsMap := make(map[string]int)
 	for idx, feed := range supportedFeeds.Feeds {
 		supportedFeedsMap[feed.SignalID] = idx
@@ -124,8 +124,10 @@ func (ms msgServer) SubmitSignalPrices(
 	prevValPrices, err := ms.GetValidatorPriceList(ctx, val)
 	if err == nil {
 		for _, valPrice := range prevValPrices.ValidatorPrices {
-			idx := supportedFeedsMap[valPrice.SignalID]
-			valPrices[idx] = valPrice
+			idx, ok := supportedFeedsMap[valPrice.SignalID]
+			if ok {
+				valPrices[idx] = valPrice
+			}
 		}
 	}
 

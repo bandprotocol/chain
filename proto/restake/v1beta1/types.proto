@@ -1,0 +1,107 @@
+syntax = "proto3";
+package restake.v1beta1;
+
+option go_package = "github.com/bandprotocol/chain/v2/x/restake/types";
+
+import "gogoproto/gogo.proto";
+import "amino/amino.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+// Key message represents a key definition.
+message Key {
+  option (gogoproto.equal) = true;
+
+  // Name is the name of the key.
+  string name = 1;
+
+  // Address is the address that holds rewards for this key.
+  string address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // IsActive is the status of the key
+  bool is_active = 3;
+
+  // RewardPerShares is a list of reward_per_share of rewards.
+  repeated cosmos.base.v1beta1.DecCoin reward_per_shares = 4 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true
+  ];
+
+  // TotalLock is the total locked power of the key.
+  string total_lock = 5 [
+    (cosmos_proto.scalar)  = "cosmos.Int",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable)   = false
+  ];
+
+  // Remainders is a list of the remainder amounts in the key.
+  repeated cosmos.base.v1beta1.DecCoin remainders = 6 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true
+  ];
+}
+
+// Stake message represents a stake detail.
+message Stake {
+  option (gogoproto.equal) = true;
+
+  // Address is the owner's address of the stake.
+  string address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // Key is the key that this stake is locked to.
+  string key = 2;
+
+  // Amount is the locked power amount.
+  string amount = 3 [
+    (cosmos_proto.scalar)  = "cosmos.Int",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable)   = false
+  ];
+
+  // PosRewardDebts is a list of reward debt for each reward (only the positive side).
+  // Note: Coin and DecCoin can't have negative amounts. so, we split it into two numbers.
+  repeated cosmos.base.v1beta1.Coin pos_reward_debts = 4 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true
+  ];
+
+  // NegRewardDebts is a list of reward debt for each reward (only negative side).
+  repeated cosmos.base.v1beta1.Coin neg_reward_debts = 5 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true
+  ];
+}
+
+// Reward message represents a reward detail.
+message Reward {
+  option (gogoproto.equal) = true;
+
+  // Key is the key that this reward belongs to.
+  string key = 1;
+
+  // Rewards is a list of rewards.
+  repeated cosmos.base.v1beta1.DecCoin rewards = 2 [
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
+    (gogoproto.nullable)     = false,
+    (amino.dont_omitempty)   = true
+  ];
+}
+
+// Lock message represents a lock definition.
+message Lock {
+  option (gogoproto.equal) = true;
+
+  // Key is the key that this lock belongs to.
+  string key = 1;
+
+  // Amount is a the number of locked power.
+  string amount = 2 [
+    (cosmos_proto.scalar)  = "cosmos.Int",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable)   = false
+  ];
+}

@@ -20,8 +20,8 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 	}
 	k.SetSignalTotalPowers(ctx, signalTotalPowers)
 
-	feeds := k.CalculateNewSupportedFeeds(ctx)
-	k.SetSupportedFeeds(ctx, feeds)
+	feeds := k.CalculateNewCurrentFeeds(ctx)
+	k.SetCurrentFeeds(ctx, feeds)
 
 	if err := k.SetReferenceSourceConfig(ctx, genState.ReferenceSourceConfig); err != nil {
 		panic(err)

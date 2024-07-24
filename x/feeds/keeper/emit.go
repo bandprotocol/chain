@@ -27,15 +27,15 @@ func emitEventDeleteSignalTotalPower(ctx sdk.Context, signal types.Signal) {
 	)
 }
 
-func emitEventUpdateSupportedFeeds(ctx sdk.Context, supportedFeeds types.SupportedFeeds) {
+func emitEventUpdateCurrentFeeds(ctx sdk.Context, currentFeeds types.CurrentFeeds) {
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeUpdateSupportedFeeds,
+			types.EventTypeUpdateCurrentFeeds,
 			sdk.NewAttribute(
 				types.AttributeKeyLastUpdateTimestamp,
-				fmt.Sprintf("%d", supportedFeeds.LastUpdateTimestamp),
+				fmt.Sprintf("%d", currentFeeds.LastUpdateTimestamp),
 			),
-			sdk.NewAttribute(types.AttributeKeyLastUpdateBlock, fmt.Sprintf("%d", supportedFeeds.LastUpdateBlock))),
+			sdk.NewAttribute(types.AttributeKeyLastUpdateBlock, fmt.Sprintf("%d", currentFeeds.LastUpdateBlock))),
 	)
 }
 

@@ -5,11 +5,14 @@ import (
 	"sync"
 	"time"
 
+	"github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/version"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 
 	"github.com/bandprotocol/chain/v2/grogu/querier"
 	"github.com/bandprotocol/chain/v2/pkg/logger"
@@ -17,9 +20,9 @@ import (
 )
 
 type Submitter struct {
-	contexts            []client.Context
+	clientCtx           client.Context
+	clients             []*http.HTTP
 	logger              *logger.Logger
-	keyring             keyring.Keyring
 	submitSignalPriceCh <-chan []types.SignalPrice
 	authQuerier         *querier.AuthQuerier
 	txQuerier           *querier.TxQuerier
@@ -35,9 +38,9 @@ type Submitter struct {
 }
 
 func New(
-	contexts []client.Context,
+	clientCtx client.Context,
+	clients []*http.HTTP,
 	logger *logger.Logger,
-	keyring keyring.Keyring,
 	submitSignalPriceCh <-chan []types.SignalPrice,
 	authQuerier *querier.AuthQuerier,
 	txQuerier *querier.TxQuerier,
@@ -48,14 +51,15 @@ func New(
 	pollingInterval time.Duration,
 	gasPrices string,
 ) (*Submitter, error) {
-	if len(contexts) == 0 {
-		return nil, fmt.Errorf("contexts cannot be nil")
+	if len(clients) == 0 {
+		return nil, fmt.Errorf("clients cannot be empty")
 	}
 
-	records, err := keyring.List()
+	records, err := clientCtx.Keyring.List()
 	if err != nil {
 		return nil, err
 	}
+
 	if len(records) == 0 {
 		return nil, fmt.Errorf("keyring is empty")
 	}
@@ -66,9 +70,9 @@ func New(
 	}
 
 	return &Submitter{
-		contexts:            contexts,
+		clientCtx:           clientCtx,
+		clients:             clients,
 		logger:              logger,
-		keyring:             keyring,
 		submitSignalPriceCh: submitSignalPriceCh,
 		authQuerier:         authQuerier,
 		txQuerier:           txQuerier,
@@ -94,8 +98,8 @@ func (s *Submitter) Start() {
 }
 
 func (s *Submitter) submitPrice(prices []types.SignalPrice, keyID string) {
-	defer s.removePending(prices)
 	defer func() {
+		s.removePending(prices)
 		s.idleKeyIDChannel <- keyID
 	}()
 
@@ -106,29 +110,23 @@ func (s *Submitter) submitPrice(prices []types.SignalPrice, keyID string) {
 	}
 	msgs := []sdk.Msg{&msg}
 	memo := fmt.Sprintf("grogu:%s", version.Version)
-	key, err := s.keyring.Key(keyID)
+
+	key, err := s.clientCtx.Keyring.Key(keyID)
 	if err != nil {
 		s.logger.Error("[Submitter] failed to get key: %v", err)
 		return
 	}
 
-	addr, err := key.GetAddress()
-	if err != nil {
-		s.logger.Error("[Submitter] failed to get key address: %v", err)
-		return
-	}
-
 	gasAdjustment := 1.3
 	for i := uint64(0); i < s.broadcastMaxTry; i++ {
-		acc, err := s.getAccount(addr)
+		txResp, err := s.broadcastMsg(
+			key,
+			msgs,
+			gasAdjustment,
+			memo,
+		)
 		if err != nil {
-			s.logger.Error("[Submitter] failed to get account address: %s, with error: %v", addr.String(), err)
-			return
-		}
-
-		txResp, err := broadcastMsgWithMultipleContext(s.contexts, acc, key, msgs, s.gasPrices, gasAdjustment, memo)
-		if err != nil {
-			s.logger.Error("[Submitter] failed to broadcast %v", err)
+			s.logger.Error("[Submitter] failed to broadcast: %v", err)
 			continue
 		}
 
@@ -163,7 +161,12 @@ func (s *Submitter) submitPrice(prices []types.SignalPrice, keyID string) {
 	s.logger.Error("[Submitter] failed to submit price")
 }
 
-func (s *Submitter) getAccount(addr sdk.AccAddress) (client.Account, error) {
+func (s *Submitter) getAccountFromKey(key *keyring.Record) (client.Account, error) {
+	addr, err := key.GetAddress()
+	if err != nil {
+		return nil, err
+	}
+
 	accResp, err := s.authQuerier.QueryAccount(addr)
 	if err != nil {
 		return nil, err
@@ -177,8 +180,141 @@ func (s *Submitter) getAccount(addr sdk.AccAddress) (client.Account, error) {
 	return acc, nil
 }
 
-func (s *Submitter) removePending(toSubmitPrices []types.SignalPrice) {
-	for _, price := range toSubmitPrices {
-		s.pendingSignalIDs.Delete(price.SignalID)
+func (s *Submitter) removePending(prices []types.SignalPrice) {
+	for _, p := range prices {
+		_, loaded := s.pendingSignalIDs.LoadAndDelete(p.SignalID)
+		if !loaded {
+			s.logger.Debug("[Submitter] Attempted to delete Signal ID %s which was not pending", p.SignalID)
+		}
 	}
+}
+
+func (s *Submitter) broadcastMsg(
+	key *keyring.Record,
+	msgs []sdk.Msg,
+	gasAdjustment float64,
+	memo string,
+) (*sdk.TxResponse, error) {
+	if len(s.clients) == 0 {
+		return nil, fmt.Errorf("no client provided")
+	}
+
+	txBytes, err := s.buildSignedTx(key, msgs, gasAdjustment, memo)
+	if err != nil {
+		return nil, err
+	}
+
+	resultsCh := make(chan *sdk.TxResponse, len(s.clients))
+	failureCh := make(chan error, len(s.clients))
+	for _, client := range s.clients {
+		go func(client *http.HTTP) {
+			res, err := s.clientCtx.WithClient(client).BroadcastTx(txBytes)
+			if err != nil {
+				failureCh <- err
+				return
+			}
+			resultsCh <- res
+		}(client)
+	}
+
+	var res *sdk.TxResponse
+	for range s.clients {
+		select {
+		case currentResult := <-resultsCh:
+			if currentResult.Code == 0 {
+				return currentResult, nil
+			}
+
+			res = currentResult
+		case err = <-failureCh:
+			continue
+		}
+	}
+
+	if res != nil {
+		return res, nil
+	}
+
+	return nil, err
+}
+
+func (s *Submitter) buildSignedTx(
+	key *keyring.Record,
+	msgs []sdk.Msg,
+	gasAdjustment float64,
+	memo string,
+) ([]byte, error) {
+	account, err := s.getAccountFromKey(key)
+	if err != nil {
+		return nil, err
+	}
+
+	addr, err := key.GetAddress()
+	if err != nil {
+		return nil, err
+	}
+
+	execMsg := authz.NewMsgExec(addr, msgs)
+	gasCh := make(chan uint64, len(s.clients))
+	errCh := make(chan error, len(s.clients))
+
+	txf := tx.Factory{}.
+		WithAccountNumber(account.GetAccountNumber()).
+		WithSequence(account.GetSequence()).
+		WithTxConfig(s.clientCtx.TxConfig).
+		WithSimulateAndExecute(true).
+		WithGasAdjustment(gasAdjustment).
+		WithChainID(s.clientCtx.ChainID).
+		WithMemo(memo).
+		WithGasPrices(s.gasPrices).
+		WithKeybase(s.clientCtx.Keyring).
+		WithFromName(key.Name).
+		WithAccountRetriever(s.clientCtx.AccountRetriever)
+
+	for _, client := range s.clients {
+		go func(client *http.HTTP) {
+			_, adjusted, err := tx.CalculateGas(s.clientCtx.WithClient(client), txf, &execMsg)
+			if err != nil {
+				errCh <- err
+				return
+			}
+
+			gasCh <- adjusted
+		}(client)
+	}
+
+	maxGas := uint64(0)
+	for range s.clients {
+		select {
+		case gas := <-gasCh:
+			if gas > maxGas {
+				maxGas = gas
+			}
+		case err = <-errCh:
+			continue
+		}
+	}
+
+	if maxGas == 0 {
+		return nil, fmt.Errorf("failed to calculate gas with error: %v", err)
+	}
+
+	txf = txf.WithGas(maxGas)
+
+	txb, err := txf.BuildUnsignedTx(&execMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	err = tx.Sign(txf, key.Name, txb, true)
+	if err != nil {
+		return nil, err
+	}
+
+	txBytes, err := s.clientCtx.TxConfig.TxEncoder()(txb.GetTx())
+	if err != nil {
+		return nil, err
+	}
+
+	return txBytes, nil
 }

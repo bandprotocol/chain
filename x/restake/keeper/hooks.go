@@ -1,10 +1,11 @@
 package keeper
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	"github.com/bandprotocol/chain/v2/x/restake/types"
 )
 
 type Hooks struct {
@@ -63,22 +64,16 @@ func (h Hooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, 
 		}
 	}
 
-	power := sumPower(h.k.GetDelegatorSignals(ctx, delAddr))
-	if power > delegated.Int64() {
-		return types.ErrUnableToUndelegate
-	}
-
-	return nil
+	// check if it's able to unbond
+	return h.isAbleToUnbond(ctx, delAddr, delegated)
 }
 
 func (h Hooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, _ sdk.ValAddress) error {
-	delegated := h.k.stakingKeeper.GetDelegatorBonded(ctx, delAddr).Int64()
-	power := sumPower(h.k.GetDelegatorSignals(ctx, delAddr))
-	if power > delegated {
-		return types.ErrUnableToUndelegate
-	}
+	// get total delegation
+	delegated := h.k.stakingKeeper.GetDelegatorBonded(ctx, delAddr)
 
-	return nil
+	// check if it's able to unbond
+	return h.isAbleToUnbond(ctx, delAddr, delegated)
 }
 
 func (h Hooks) BeforeValidatorSlashed(_ sdk.Context, _ sdk.ValAddress, _ sdk.Dec) error {
@@ -86,5 +81,30 @@ func (h Hooks) BeforeValidatorSlashed(_ sdk.Context, _ sdk.ValAddress, _ sdk.Dec
 }
 
 func (h Hooks) AfterUnbondingInitiated(_ sdk.Context, _ uint64) error {
+	return nil
+}
+
+func (h Hooks) isAbleToUnbond(ctx sdk.Context, address sdk.AccAddress, delegated math.Int) error {
+	iterator := sdk.KVStoreReversePrefixIterator(ctx.KVStore(h.k.storeKey), types.StakesByAmountIndexKey(address))
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		keyName := string(iterator.Value())
+		stake, err := h.k.GetStake(ctx, address, keyName)
+		if err != nil {
+			panic(err)
+		}
+
+		if h.k.IsActiveKey(ctx, keyName) {
+			if delegated.LT(stake.Amount) {
+				return types.ErrUnableToUndelegate
+			}
+
+			return nil
+		} else {
+			h.k.DeleteStake(ctx, address, keyName)
+		}
+	}
+
 	return nil
 }

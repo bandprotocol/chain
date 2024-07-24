@@ -14,7 +14,7 @@ var (
 	ValidDelegator = "cosmos13jt28pf6s8rgjddv8wwj8v3ngrfsccpgsdhjhw"
 	ValidSignals   = []Signal{
 		{
-			ID:    "crypto_price.bandusd",
+			ID:    "CS:BAND-USD",
 			Power: 10000000000,
 		},
 	}
@@ -24,7 +24,7 @@ var (
 	ValidSignalPrices          = []SignalPrice{
 		{
 			PriceStatus: PriceStatusAvailable,
-			SignalID:    "crypto_price.btcusd",
+			SignalID:    "CS:BTC-USD",
 			Price:       100000 * 10e9,
 		},
 	}
@@ -58,7 +58,7 @@ func TestMsgSubmitSignalPrices_Type(t *testing.T) {
 
 func TestMsgSubmitSignalPrices_GetSignBytes(t *testing.T) {
 	msg := NewMsgSubmitSignalPrices(ValidValidator, ValidTimestamp, ValidSignalPrices)
-	expected := `{"type":"feeds/MsgSubmitSignalPrices","value":{"prices":[{"price":"1000000000000000","price_status":3,"signal_id":"crypto_price.btcusd"}],"timestamp":"1234567890","validator":"cosmosvaloper1vdhhxmt0wdmxzmr0wpjhyzzdttz"}}`
+	expected := `{"type":"feeds/MsgSubmitSignalPrices","value":{"prices":[{"price":"1000000000000000","price_status":3,"signal_id":"CS:BTC-USD"}],"timestamp":"1234567890","validator":"cosmosvaloper1vdhhxmt0wdmxzmr0wpjhyzzdttz"}}`
 	require.Equal(t, expected, string(msg.GetSignBytes()))
 }
 
@@ -105,7 +105,7 @@ func TestMsgUpdateParams_Type(t *testing.T) {
 
 func TestMsgUpdateParams_GetSignBytes(t *testing.T) {
 	msg := NewMsgUpdateParams(ValidAuthority, ValidParams)
-	expected := "{\"type\":\"feeds/MsgUpdateParams\",\"value\":{\"authority\":\"cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8\",\"params\":{\"admin\":\"[NOT_SET]\",\"allowable_block_time_discrepancy\":\"60\",\"cooldown_time\":\"30\",\"grace_period\":\"30\",\"max_deviation_basis_point\":\"3000\",\"max_interval\":\"3600\",\"max_supported_feeds\":\"300\",\"min_deviation_basis_point\":\"50\",\"min_interval\":\"60\",\"power_step_threshold\":\"1000000000\",\"supported_feeds_update_interval\":\"28800\"}}}"
+	expected := "{\"type\":\"feeds/MsgUpdateParams\",\"value\":{\"authority\":\"cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8\",\"params\":{\"admin\":\"[NOT_SET]\",\"allowable_block_time_discrepancy\":\"60\",\"cooldown_time\":\"30\",\"current_feeds_update_interval\":\"28800\",\"grace_period\":\"30\",\"max_current_feeds\":\"300\",\"max_deviation_basis_point\":\"3000\",\"max_interval\":\"3600\",\"min_deviation_basis_point\":\"50\",\"min_interval\":\"60\",\"power_step_threshold\":\"1000000000\"}}}"
 	require.Equal(t, expected, string(msg.GetSignBytes()))
 }
 
@@ -195,7 +195,7 @@ func TestMsgSubmitSignals_Type(t *testing.T) {
 
 func TestMsgSubmitSignals_GetSignBytes(t *testing.T) {
 	msg := NewMsgSubmitSignals(ValidDelegator, ValidSignals)
-	expected := `{"type":"feeds/MsgSubmitSignals","value":{"delegator":"cosmos13jt28pf6s8rgjddv8wwj8v3ngrfsccpgsdhjhw","signals":[{"id":"crypto_price.bandusd","power":"10000000000"}]}}`
+	expected := `{"type":"feeds/MsgSubmitSignals","value":{"delegator":"cosmos13jt28pf6s8rgjddv8wwj8v3ngrfsccpgsdhjhw","signals":[{"id":"CS:BAND-USD","power":"10000000000"}]}}`
 	require.Equal(t, expected, string(msg.GetSignBytes()))
 }
 

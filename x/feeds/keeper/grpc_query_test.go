@@ -15,11 +15,11 @@ func (suite *KeeperTestSuite) TestQueryDelegatorSignals() {
 	// setup
 	signals := []types.Signal{
 		{
-			ID:    "crypto_price.bandusd",
+			ID:    "CS:BAND-USD",
 			Power: 1e9,
 		},
 		{
-			ID:    "crypto_price.btcusd",
+			ID:    "CS:BTC-USD",
 			Power: 1e9,
 		},
 	}
@@ -45,12 +45,12 @@ func (suite *KeeperTestSuite) TestQueryPrices() {
 	// setup
 	prices := []*types.Price{
 		{
-			SignalID:  "crypto_price.atomusd",
+			SignalID:  "CS:ATOM-USD",
 			Price:     100000000,
 			Timestamp: 1234567890,
 		},
 		{
-			SignalID:  "crypto_price.bandusd",
+			SignalID:  "CS:BAND-USD",
 			Price:     200000000,
 			Timestamp: 1234567890,
 		},
@@ -97,7 +97,7 @@ func (suite *KeeperTestSuite) TestQueryPrices() {
 			"filter",
 			func() {
 				req = &types.QueryPricesRequest{
-					SignalIds: []string{"crypto_price.bandusd"},
+					SignalIds: []string{"CS:BAND-USD"},
 				}
 				expRes = &types.QueryPricesResponse{
 					Prices: prices[1:],
@@ -130,7 +130,7 @@ func (suite *KeeperTestSuite) TestQueryPrice() {
 	// setup
 
 	price := types.Price{
-		SignalID:  "crypto_price.bandusd",
+		SignalID:  "CS:BAND-USD",
 		Price:     100000000,
 		Timestamp: 1234567890,
 	}
@@ -138,7 +138,7 @@ func (suite *KeeperTestSuite) TestQueryPrice() {
 
 	// query and check
 	res, err := queryClient.Price(context.Background(), &types.QueryPriceRequest{
-		SignalId: "crypto_price.bandusd",
+		SignalId: "CS:BAND-USD",
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryPriceResponse{
@@ -146,7 +146,7 @@ func (suite *KeeperTestSuite) TestQueryPrice() {
 	}, res)
 
 	res, err = queryClient.Price(context.Background(), &types.QueryPriceRequest{
-		SignalId: "crypto_price.atomusd",
+		SignalId: "CS:ATOM-USD",
 	})
 	suite.Require().ErrorContains(err, "price not found")
 	suite.Require().Nil(res)
@@ -158,27 +158,27 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 	// setup
 	feeds := []types.Feed{
 		{
-			SignalID: "crypto_price.atomusd",
+			SignalID: "CS:ATOM-USD",
 			Interval: 100,
 		},
 		{
-			SignalID: "crypto_price.bandusd",
+			SignalID: "CS:BAND-USD",
 			Interval: 100,
 		},
 	}
 
-	suite.feedsKeeper.SetSupportedFeeds(ctx, feeds)
+	suite.feedsKeeper.SetCurrentFeeds(ctx, feeds)
 
 	valPrices := []types.ValidatorPrice{
 		{
 			Validator: ValidValidator.String(),
-			SignalID:  "crypto_price.atomusd",
+			SignalID:  "CS:ATOM-USD",
 			Price:     1e9,
 			Timestamp: ctx.BlockTime().Unix(),
 		},
 		{
 			Validator: ValidValidator.String(),
-			SignalID:  "crypto_price.bandusd",
+			SignalID:  "CS:BAND-USD",
 			Price:     1e9,
 			Timestamp: ctx.BlockTime().Unix(),
 		},
@@ -199,7 +199,7 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 	// query with specific SignalIds
 	res, err = queryClient.ValidatorPrices(context.Background(), &types.QueryValidatorPricesRequest{
 		Validator: ValidValidator.String(),
-		SignalIds: []string{"crypto_price.atomusd"},
+		SignalIds: []string{"CS:ATOM-USD"},
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryValidatorPricesResponse{
@@ -218,7 +218,7 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 	// query with specific SignalIds for invalid validator
 	res, err = queryClient.ValidatorPrices(context.Background(), &types.QueryValidatorPricesRequest{
 		Validator: InvalidValidator.String(),
-		SignalIds: []string{"crypto_price.atomusd"},
+		SignalIds: []string{"CS:ATOM-USD"},
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryValidatorPricesResponse{
@@ -253,11 +253,11 @@ func (suite *KeeperTestSuite) TestQuerySignalTotalPowers() {
 	// setup
 	signals := []*types.Signal{
 		{
-			ID:    "crypto_price.atomusd",
+			ID:    "CS:ATOM-USD",
 			Power: 100000000,
 		},
 		{
-			ID:    "crypto_price.bandusd",
+			ID:    "CS:BAND-USD",
 			Power: 100000000,
 		},
 	}
@@ -303,7 +303,7 @@ func (suite *KeeperTestSuite) TestQuerySignalTotalPowers() {
 			"filter",
 			func() {
 				req = &types.QuerySignalTotalPowersRequest{
-					SignalIds: []string{"crypto_price.bandusd"},
+					SignalIds: []string{"CS:BAND-USD"},
 				}
 				expRes = &types.QuerySignalTotalPowersResponse{
 					SignalTotalPowers: signals[1:],
@@ -330,13 +330,13 @@ func (suite *KeeperTestSuite) TestQuerySignalTotalPowers() {
 	}
 }
 
-func (suite *KeeperTestSuite) TestQuerySupportedFeeds() {
+func (suite *KeeperTestSuite) TestQueryCurrentFeeds() {
 	ctx, queryClient := suite.ctx, suite.queryClient
 
 	// query and check
 	var (
-		req    *types.QuerySupportedFeedsRequest
-		expRes *types.QuerySupportedFeedsResponse
+		req    *types.QueryCurrentFeedsRequest
+		expRes *types.QueryCurrentFeedsResponse
 	)
 
 	testCases := []struct {
@@ -345,11 +345,11 @@ func (suite *KeeperTestSuite) TestQuerySupportedFeeds() {
 		expPass  bool
 	}{
 		{
-			"no supported feeds",
+			"no current feeds",
 			func() {
-				req = &types.QuerySupportedFeedsRequest{}
-				expRes = &types.QuerySupportedFeedsResponse{
-					SupportedFeeds: types.SupportedFeedWithDeviations{
+				req = &types.QueryCurrentFeedsRequest{}
+				expRes = &types.QueryCurrentFeedsResponse{
+					CurrentFeeds: types.CurrentFeedWithDeviations{
 						Feeds:               nil,
 						LastUpdateTimestamp: ctx.BlockTime().Unix(),
 						LastUpdateBlock:     ctx.BlockHeight(),
@@ -359,30 +359,30 @@ func (suite *KeeperTestSuite) TestQuerySupportedFeeds() {
 			true,
 		},
 		{
-			"1 supported symbol",
+			"1 current symbol",
 			func() {
 				feeds := []types.Feed{
 					{
-						SignalID: "crypto_price.bandusd",
+						SignalID: "CS:BAND-USD",
 						Power:    36000000000,
 						Interval: 100,
 					},
 				}
 
-				suite.feedsKeeper.SetSupportedFeeds(ctx, feeds)
+				suite.feedsKeeper.SetCurrentFeeds(ctx, feeds)
 
 				feedWithDeviations := []types.FeedWithDeviation{
 					{
-						SignalID:            "crypto_price.bandusd",
+						SignalID:            "CS:BAND-USD",
 						Power:               36000000000,
 						Interval:            100,
 						DeviationBasisPoint: 83,
 					},
 				}
 
-				req = &types.QuerySupportedFeedsRequest{}
-				expRes = &types.QuerySupportedFeedsResponse{
-					SupportedFeeds: types.SupportedFeedWithDeviations{
+				req = &types.QueryCurrentFeedsRequest{}
+				expRes = &types.QueryCurrentFeedsResponse{
+					CurrentFeeds: types.CurrentFeedWithDeviations{
 						Feeds:               feedWithDeviations,
 						LastUpdateTimestamp: ctx.BlockTime().Unix(),
 						LastUpdateBlock:     ctx.BlockHeight(),
@@ -397,7 +397,7 @@ func (suite *KeeperTestSuite) TestQuerySupportedFeeds() {
 		suite.Run(fmt.Sprintf("Case %s", testCase.msg), func() {
 			testCase.malleate()
 
-			res, err := queryClient.SupportedFeeds(context.Background(), req)
+			res, err := queryClient.CurrentFeeds(context.Background(), req)
 
 			if testCase.expPass {
 				suite.Require().NoError(err)

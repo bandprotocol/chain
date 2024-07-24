@@ -16,13 +16,13 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 				Delegator: InvalidDelegator.String(),
 				Signals: []types.Signal{
 					{
-						ID:    "crypto_price.bandusd",
+						ID:    "CS:BAND-USD",
 						Power: 10,
 					},
 				},
 			},
 			expErr:    true,
-			expErrMsg: "not enough delegation",
+			expErrMsg: "delegation not enough",
 			postCheck: func() {},
 		},
 		{
@@ -31,13 +31,13 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 				Delegator: ValidDelegator.String(),
 				Signals: []types.Signal{
 					{
-						ID:    "crypto_price.bandusd",
+						ID:    "CS:BAND-USD",
 						Power: 1e10 + 1,
 					},
 				},
 			},
 			expErr:    true,
-			expErrMsg: "not enough delegation",
+			expErrMsg: "delegation not enough",
 			postCheck: func() {},
 		},
 		{
@@ -46,17 +46,17 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 				Delegator: ValidDelegator.String(),
 				Signals: []types.Signal{
 					{
-						ID:    "crypto_price.bandusd",
+						ID:    "CS:BAND-USD",
 						Power: 1e10,
 					},
 					{
-						ID:    "crypto_price.atomusd",
+						ID:    "CS:ATOM-USD",
 						Power: 1,
 					},
 				},
 			},
 			expErr:    true,
-			expErrMsg: "not enough delegation",
+			expErrMsg: "delegation not enough",
 			postCheck: func() {},
 		},
 		{
@@ -65,7 +65,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 				Delegator: ValidDelegator.String(),
 				Signals: []types.Signal{
 					{
-						ID:    "crypto_price.bandusd",
+						ID:    "CS:BAND-USD",
 						Power: 1e10,
 					},
 				},
@@ -76,7 +76,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 				suite.Require().Equal(
 					[]types.Signal{
 						{
-							ID:    "crypto_price.bandusd",
+							ID:    "CS:BAND-USD",
 							Power: 1e10,
 						},
 					},
@@ -85,7 +85,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 				suite.Require().Equal(
 					[]types.Signal{
 						{
-							ID:    "crypto_price.bandusd",
+							ID:    "CS:BAND-USD",
 							Power: 1e10,
 						},
 					},
@@ -99,11 +99,11 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 				Delegator: ValidDelegator.String(),
 				Signals: []types.Signal{
 					{
-						ID:    "crypto_price.bandusd",
+						ID:    "CS:BAND-USD",
 						Power: 1e9,
 					},
 					{
-						ID:    "crypto_price.btcusd",
+						ID:    "CS:BTC-USD",
 						Power: 1e9,
 					},
 				},
@@ -114,11 +114,11 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 				suite.Require().Equal(
 					[]types.Signal{
 						{
-							ID:    "crypto_price.bandusd",
+							ID:    "CS:BAND-USD",
 							Power: 1e9,
 						},
 						{
-							ID:    "crypto_price.btcusd",
+							ID:    "CS:BTC-USD",
 							Power: 1e9,
 						},
 					},
@@ -127,11 +127,11 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 				suite.Require().Equal(
 					[]types.Signal{
 						{
-							ID:    "crypto_price.bandusd",
+							ID:    "CS:BAND-USD",
 							Power: 1e9,
 						},
 						{
-							ID:    "crypto_price.btcusd",
+							ID:    "CS:BTC-USD",
 							Power: 1e9,
 						},
 					},
@@ -158,8 +158,8 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 }
 
 func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
-	suite.feedsKeeper.SetSupportedFeeds(suite.ctx, []types.Feed{{
-		SignalID: "crypto_price.bandusd",
+	suite.feedsKeeper.SetCurrentFeeds(suite.ctx, []types.Feed{{
+		SignalID: "CS:BAND-USD",
 		Interval: 100,
 	}})
 
@@ -177,7 +177,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
 				Prices: []types.SignalPrice{
 					{
 						PriceStatus: types.PriceStatusAvailable,
-						SignalID:    "crypto_price.bandusd",
+						SignalID:    "CS:BAND-USD",
 						Price:       10e12,
 					},
 				},
@@ -193,7 +193,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
 				Prices: []types.SignalPrice{
 					{
 						PriceStatus: types.PriceStatusAvailable,
-						SignalID:    "crypto_price.btcusd",
+						SignalID:    "CS:BTC-USD",
 						Price:       10e12,
 					},
 				},
@@ -209,7 +209,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
 				Prices: []types.SignalPrice{
 					{
 						PriceStatus: types.PriceStatusAvailable,
-						SignalID:    "crypto_price.bandusd",
+						SignalID:    "CS:BAND-USD",
 						Price:       10e12,
 					},
 				},
@@ -225,7 +225,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
 				Prices: []types.SignalPrice{
 					{
 						PriceStatus: types.PriceStatusAvailable,
-						SignalID:    "crypto_price.bandusd",
+						SignalID:    "CS:BAND-USD",
 						Price:       10e12,
 					},
 				},
@@ -241,7 +241,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
 				Prices: []types.SignalPrice{
 					{
 						PriceStatus: types.PriceStatusAvailable,
-						SignalID:    "crypto_price.bandusd",
+						SignalID:    "CS:BAND-USD",
 						Price:       10e12,
 					},
 				},
