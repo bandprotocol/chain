@@ -962,7 +962,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgUpdateParams() {
 			MinInterval:                   60,
 			MaxInterval:                   3600,
 			PowerStepThreshold:            1_000_000_000,
-			MaxSupportedFeeds:             100,
+			MaxCurrentFeeds:               100,
 			CooldownTime:                  30,
 			MinDeviationBasisPoint:        50,
 			MaxDeviationBasisPoint:        3000,
@@ -972,7 +972,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgUpdateParams() {
 	emitter.DecodeMsgUpdateParams(&msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"admin\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"allowable_block_time_discrepancy\":30,\"authority\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"cooldown_time\":30,\"grace_period\":30,\"max_deviation_basis_point\":3000,\"max_interval\":3600,\"max_supported_feeds\":100,\"min_deviation_basis_point\":50,\"min_interval\":60,\"power_step_threshold\":1000000000,\"supported_feeds_update_interval\":0}",
+		"{\"admin\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"allowable_block_time_discrepancy\":30,\"authority\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"cooldown_time\":30,\"current_feeds_update_interval\":0,\"grace_period\":30,\"max_current_feeds\":100,\"max_deviation_basis_point\":3000,\"max_interval\":3600,\"min_deviation_basis_point\":50,\"min_interval\":60,\"power_step_threshold\":1000000000}",
 	)
 }
 

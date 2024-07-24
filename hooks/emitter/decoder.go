@@ -683,11 +683,11 @@ func DecodeMsgUpdateParams(msg *feedstypes.MsgUpdateParams, detail common.JsDict
 	detail["min_interval"] = params.GetMinInterval()
 	detail["max_interval"] = params.GetMaxInterval()
 	detail["power_step_threshold"] = params.GetPowerStepThreshold()
-	detail["max_supported_feeds"] = params.GetMaxSupportedFeeds()
+	detail["max_current_feeds"] = params.GetMaxCurrentFeeds()
 	detail["cooldown_time"] = params.GetCooldownTime()
 	detail["min_deviation_basis_point"] = params.GetMinDeviationBasisPoint()
 	detail["max_deviation_basis_point"] = params.GetMaxDeviationBasisPoint()
-	detail["supported_feeds_update_interval"] = params.GetSupportedFeedsUpdateInterval()
+	detail["current_feeds_update_interval"] = params.GetCurrentFeedsUpdateInterval()
 }
 
 func DecodeGroupMsgCreateGroup(msg *group.MsgCreateGroup, detail common.JsDict) {
