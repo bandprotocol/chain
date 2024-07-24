@@ -212,3 +212,170 @@ func (suite *KeeperTestSuite) setupState() {
 		suite.restakeKeeper.SetLock(suite.ctx, lock)
 	}
 }
+
+func (suite *KeeperTestSuite) TestScenarios() {
+	ctx := suite.ctx
+	suite.setupState()
+
+	testCases := []struct {
+		name  string
+		check func()
+	}{
+		{
+			name: "1 locker",
+			check: func() {
+				// pre check
+				_, err := suite.restakeKeeper.GetKey(ctx, ValidKey1)
+				suite.Require().Error(err)
+
+				_, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey1)
+				suite.Require().Error(err)
+
+				// address1 locks on key1 1000 powers
+				err = suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, ValidKey1, sdkmath.NewInt(1000))
+				suite.Require().NoError(err)
+
+				// post check
+				power, err := suite.restakeKeeper.GetLockedPower(ctx, ValidAddress1, ValidKey1)
+				suite.Require().NoError(err)
+				suite.Require().Equal(sdkmath.NewInt(1000), power)
+
+				key, err := suite.restakeKeeper.GetKey(ctx, ValidKey1)
+				suite.Require().NoError(err)
+				suite.Require().Equal(types.Key{
+					Name:            ValidKey1,
+					PoolAddress:     "cosmos15p5q4vgsn4lxk7zefu86fep6htydvr3pfhkv5h0lt49tw8pjsekqtp8tpj",
+					IsActive:        true,
+					RewardPerPowers: nil,
+					TotalPower:      sdk.NewInt(1000),
+					Remainders:      nil,
+				}, key)
+
+				lock, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey1)
+				suite.Require().NoError(err)
+				suite.Require().Equal(types.Lock{
+					LockerAddress:  ValidAddress1.String(),
+					Key:            ValidKey1,
+					Amount:         sdk.NewInt(1000),
+					PosRewardDebts: nil,
+					NegRewardDebts: nil,
+				}, lock)
+
+				// rewards in 1 aaaa, 1000 bbbb
+				err = suite.restakeKeeper.AddRewards(ctx, RewarderAddress, ValidKey1, sdk.NewCoins(
+					sdk.NewCoin("aaaa", sdkmath.NewInt(1)),
+					sdk.NewCoin("bbbb", sdkmath.NewInt(1000)),
+				))
+				suite.Require().NoError(err)
+
+				// post check
+				key, err = suite.restakeKeeper.GetKey(ctx, ValidKey1)
+				suite.Require().NoError(err)
+				suite.Require().Equal(types.Key{
+					Name:        ValidKey1,
+					PoolAddress: "cosmos15p5q4vgsn4lxk7zefu86fep6htydvr3pfhkv5h0lt49tw8pjsekqtp8tpj",
+					IsActive:    true,
+					RewardPerPowers: sdk.NewDecCoins(
+						sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(1, 3)),
+						sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyNewDecWithPrec(1, 0)),
+					),
+					TotalPower: sdk.NewInt(1000),
+					Remainders: nil,
+				}, key)
+
+				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey1)
+				suite.Require().NoError(err)
+				suite.Require().Equal(types.Lock{
+					LockerAddress:  ValidAddress1.String(),
+					Key:            ValidKey1,
+					Amount:         sdk.NewInt(1000),
+					PosRewardDebts: nil,
+					NegRewardDebts: nil,
+				}, lock)
+
+				// address1 locks on key1 100 powers (override)
+				err = suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, ValidKey1, sdkmath.NewInt(100))
+				suite.Require().NoError(err)
+
+				// post check
+				power, err = suite.restakeKeeper.GetLockedPower(ctx, ValidAddress1, ValidKey1)
+				suite.Require().NoError(err)
+				suite.Require().Equal(sdkmath.NewInt(100), power)
+
+				key, err = suite.restakeKeeper.GetKey(ctx, ValidKey1)
+				suite.Require().NoError(err)
+				suite.Require().Equal(types.Key{
+					Name:        ValidKey1,
+					PoolAddress: "cosmos15p5q4vgsn4lxk7zefu86fep6htydvr3pfhkv5h0lt49tw8pjsekqtp8tpj",
+					IsActive:    true,
+					RewardPerPowers: sdk.NewDecCoins(
+						sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(1, 3)),
+						sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyNewDecWithPrec(1, 0)),
+					),
+					TotalPower: sdk.NewInt(100),
+					Remainders: nil,
+				}, key)
+
+				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey1)
+				suite.Require().NoError(err)
+				suite.Require().Equal(types.Lock{
+					LockerAddress:  ValidAddress1.String(),
+					Key:            ValidKey1,
+					Amount:         sdk.NewInt(100),
+					PosRewardDebts: nil,
+					NegRewardDebts: sdk.NewDecCoins(
+						sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(9, 1)),
+						sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyNewDecWithPrec(900, 0)),
+					),
+				}, lock)
+
+				// address1 locks on key1 2000 powers (override)
+				err = suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, ValidKey1, sdkmath.NewInt(2000))
+				suite.Require().NoError(err)
+
+				// post check
+				power, err = suite.restakeKeeper.GetLockedPower(ctx, ValidAddress1, ValidKey1)
+				suite.Require().NoError(err)
+				suite.Require().Equal(sdkmath.NewInt(2000), power)
+
+				key, err = suite.restakeKeeper.GetKey(ctx, ValidKey1)
+				suite.Require().NoError(err)
+				suite.Require().Equal(types.Key{
+					Name:        ValidKey1,
+					PoolAddress: "cosmos15p5q4vgsn4lxk7zefu86fep6htydvr3pfhkv5h0lt49tw8pjsekqtp8tpj",
+					IsActive:    true,
+					RewardPerPowers: sdk.NewDecCoins(
+						sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(1, 3)),
+						sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyNewDecWithPrec(1, 0)),
+					),
+					TotalPower: sdk.NewInt(2000),
+					Remainders: nil,
+				}, key)
+
+				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey1)
+				suite.Require().NoError(err)
+				suite.Require().Equal(types.Lock{
+					LockerAddress: ValidAddress1.String(),
+					Key:           ValidKey1,
+					Amount:        sdk.NewInt(2000),
+					PosRewardDebts: sdk.NewDecCoins(
+						sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(19, 1)),
+						sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyNewDecWithPrec(1900, 0)),
+					),
+					NegRewardDebts: sdk.NewDecCoins(
+						sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(9, 1)),
+						sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyNewDecWithPrec(900, 0)),
+					),
+				}, lock)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			suite.resetState()
+			ctx = suite.ctx
+			tc.check()
+		})
+	}
+}
