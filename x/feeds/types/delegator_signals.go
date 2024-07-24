@@ -11,7 +11,7 @@ func (ds *DelegatorSignals) Validate(maxSignalIDCharacters uint64) error {
 		return errorsmod.Wrap(err, "invalid delegator address")
 	}
 	for _, signal := range ds.Signals {
-		if err := validateString("", false, signal.ID); err != nil {
+		if err := validateString("signal ID", false, signal.ID); err != nil {
 			return err
 		}
 

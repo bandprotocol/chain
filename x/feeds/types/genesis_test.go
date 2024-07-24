@@ -15,9 +15,9 @@ func TestGenesisStateValidate(t *testing.T) {
 		{
 			"valid genesisState",
 			GenesisState{
-				Params:           DefaultParams(),
-				DelegatorSignals: []DelegatorSignals{},
-				PriceService:     DefaultPriceService(),
+				Params:                DefaultParams(),
+				DelegatorSignals:      []DelegatorSignals{},
+				ReferenceSourceConfig: DefaultReferenceSourceConfig(),
 			},
 			false,
 		},
@@ -29,18 +29,18 @@ func TestGenesisStateValidate(t *testing.T) {
 		{
 			"invalid params",
 			GenesisState{
-				Params:           Params{},
-				DelegatorSignals: []DelegatorSignals{},
-				PriceService:     DefaultPriceService(),
+				Params:                Params{},
+				DelegatorSignals:      []DelegatorSignals{},
+				ReferenceSourceConfig: DefaultReferenceSourceConfig(),
 			},
 			true,
 		},
 		{
-			"invalid price service",
+			"invalid reference source config",
 			GenesisState{
-				Params:           DefaultParams(),
-				DelegatorSignals: []DelegatorSignals{},
-				PriceService:     PriceService{},
+				Params:                DefaultParams(),
+				DelegatorSignals:      []DelegatorSignals{},
+				ReferenceSourceConfig: ReferenceSourceConfig{},
 			},
 			true,
 		},

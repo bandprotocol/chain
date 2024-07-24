@@ -9,22 +9,22 @@ func (suite *KeeperTestSuite) TestGetSetDeletePrice() {
 
 	// set
 	expPrice := types.Price{
-		SignalID:  "crypto_price.bandusd",
+		SignalID:  "CS:BAND-USD",
 		Price:     1e10,
 		Timestamp: ctx.BlockTime().Unix(),
 	}
 	suite.feedsKeeper.SetPrice(ctx, expPrice)
 
 	// get
-	price, err := suite.feedsKeeper.GetPrice(ctx, "crypto_price.bandusd")
+	price, err := suite.feedsKeeper.GetPrice(ctx, "CS:BAND-USD")
 	suite.Require().NoError(err)
 	suite.Require().Equal(expPrice, price)
 
 	// delete
-	suite.feedsKeeper.DeletePrice(ctx, "crypto_price.bandusd")
+	suite.feedsKeeper.DeletePrice(ctx, "CS:BAND-USD")
 
 	// get
-	_, err = suite.feedsKeeper.GetPrice(ctx, "crypto_price.bandusd")
+	_, err = suite.feedsKeeper.GetPrice(ctx, "CS:BAND-USD")
 	suite.Require().ErrorContains(err, "price not found")
 }
 
@@ -34,12 +34,12 @@ func (suite *KeeperTestSuite) TestGetSetPrices() {
 	// set
 	expPrices := []types.Price{
 		{
-			SignalID:  "crypto_price.atomusd",
+			SignalID:  "CS:ATOM-USD",
 			Price:     1e10,
 			Timestamp: ctx.BlockTime().Unix(),
 		},
 		{
-			SignalID:  "crypto_price.bandusd",
+			SignalID:  "CS:BAND-USD",
 			Price:     1e10,
 			Timestamp: ctx.BlockTime().Unix(),
 		},
@@ -51,56 +51,31 @@ func (suite *KeeperTestSuite) TestGetSetPrices() {
 	suite.Require().Equal(expPrices, prices)
 }
 
-func (suite *KeeperTestSuite) TestGetSetDeleteValidatorPrice() {
-	ctx := suite.ctx
-
-	// set
-	expValPrice := types.ValidatorPrice{
-		Validator: ValidValidator.String(),
-		SignalID:  "crypto_price.bandusd",
-		Price:     1e10,
-		Timestamp: ctx.BlockTime().Unix(),
-	}
-	err := suite.feedsKeeper.SetValidatorPrice(ctx, expValPrice)
-	suite.Require().NoError(err)
-
-	// get
-	valPrice, err := suite.feedsKeeper.GetValidatorPrice(ctx, "crypto_price.bandusd", ValidValidator)
-	suite.Require().NoError(err)
-	suite.Require().Equal(expValPrice, valPrice)
-
-	// delete
-	suite.feedsKeeper.DeleteValidatorPrice(ctx, "crypto_price.bandusd", ValidValidator)
-
-	// get
-	_, err = suite.feedsKeeper.GetValidatorPrice(ctx, "crypto_price.bandusd", ValidValidator)
-	suite.Require().ErrorContains(err, "validator price not found")
-}
-
-func (suite *KeeperTestSuite) TestGetSetValidatorPrices() {
+func (suite *KeeperTestSuite) TestGetSetValidatorPriceList() {
 	ctx := suite.ctx
 
 	// set
 	expValPrices := []types.ValidatorPrice{
 		{
 			Validator: ValidValidator.String(),
-			SignalID:  "crypto_price.bandusd",
+			SignalID:  "CS:BAND-USD",
 			Price:     1e10,
 			Timestamp: ctx.BlockTime().Unix(),
 		},
 		{
-			Validator: ValidValidator2.String(),
-			SignalID:  "crypto_price.bandusd",
+			Validator: ValidValidator.String(),
+			SignalID:  "CS:ETH-USD",
 			Price:     1e10 + 5,
 			Timestamp: ctx.BlockTime().Unix(),
 		},
 	}
-	err := suite.feedsKeeper.SetValidatorPrices(ctx, expValPrices)
+	err := suite.feedsKeeper.SetValidatorPriceList(ctx, ValidValidator, expValPrices)
 	suite.Require().NoError(err)
 
 	// get
-	valPrices := suite.feedsKeeper.GetValidatorPrices(ctx, "crypto_price.bandusd")
-	suite.Require().Equal(expValPrices, valPrices)
+	valPrices, err := suite.feedsKeeper.GetValidatorPriceList(ctx, ValidValidator)
+	suite.Require().NoError(err)
+	suite.Require().Equal(expValPrices, valPrices.ValidatorPrices)
 }
 
 func (suite *KeeperTestSuite) TestCalculatePrice() {
@@ -108,43 +83,41 @@ func (suite *KeeperTestSuite) TestCalculatePrice() {
 
 	// set
 	feed := types.Feed{
-		SignalID:              "crypto_price.bandusd",
-		Interval:              60,
-		DeviationInThousandth: 5,
+		SignalID: "CS:BAND-USD",
+		Interval: 60,
 	}
-	suite.feedsKeeper.SetSupportedFeeds(ctx, []types.Feed{feed})
-
-	err := suite.feedsKeeper.SetValidatorPrices(ctx, []types.ValidatorPrice{
+	priceFeedInfos := []types.PriceFeedInfo{
 		{
 			PriceStatus: types.PriceStatusAvailable,
-			Validator:   ValidValidator.String(),
-			SignalID:    "crypto_price.bandusd",
+			Power:       5000,
 			Price:       1000,
-			Timestamp:   ctx.BlockTime().Unix(),
+			Timestamp:   1719914474,
+			Index:       0,
 		},
 		{
 			PriceStatus: types.PriceStatusAvailable,
-			Validator:   ValidValidator2.String(),
-			SignalID:    "crypto_price.bandusd",
+			Power:       3000,
 			Price:       2000,
-			Timestamp:   ctx.BlockTime().Unix(),
+			Timestamp:   1719914474,
+			Index:       1,
 		},
 		{
 			PriceStatus: types.PriceStatusAvailable,
-			Validator:   ValidValidator3.String(),
-			SignalID:    "crypto_price.bandusd",
+			Power:       3000,
 			Price:       2000,
-			Timestamp:   ctx.BlockTime().Unix(),
+			Timestamp:   1719914474,
+			Index:       2,
 		},
-	})
-	suite.Require().NoError(err)
-
-	// cal
-	price, err := suite.feedsKeeper.CalculatePrice(ctx, feed, ctx.BlockTime().Unix(), ctx.BlockHeight())
+	}
+	price, err := suite.feedsKeeper.CalculatePrice(
+		ctx,
+		feed,
+		priceFeedInfos,
+	)
 	suite.Require().NoError(err)
 	suite.Require().Equal(types.Price{
 		PriceStatus: types.PriceStatusAvailable,
-		SignalID:    "crypto_price.bandusd",
+		SignalID:    "CS:BAND-USD",
 		Price:       1000,
 		Timestamp:   ctx.BlockTime().Unix(),
 	}, price)
