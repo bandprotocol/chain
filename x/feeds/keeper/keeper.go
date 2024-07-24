@@ -16,6 +16,7 @@ type Keeper struct {
 	cdc           codec.BinaryCodec
 	oracleKeeper  types.OracleKeeper
 	stakingKeeper types.StakingKeeper
+	restakeKeeper types.RestakeKeeper
 	authzKeeper   types.AuthzKeeper
 
 	authority string
@@ -27,6 +28,7 @@ func NewKeeper(
 	storeKey storetypes.StoreKey,
 	oracleKeeper types.OracleKeeper,
 	stakingKeeper types.StakingKeeper,
+	restakeKeeper types.RestakeKeeper,
 	authzKeeper types.AuthzKeeper,
 	authority string,
 ) Keeper {
@@ -35,6 +37,7 @@ func NewKeeper(
 		storeKey:      storeKey,
 		oracleKeeper:  oracleKeeper,
 		stakingKeeper: stakingKeeper,
+		restakeKeeper: restakeKeeper,
 		authzKeeper:   authzKeeper,
 		authority:     authority,
 	}

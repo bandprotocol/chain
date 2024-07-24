@@ -76,7 +76,7 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 				ba.TxConfig,
 				GenMsgSubmitSignalPrices(
 					val,
-					ba.FeedsKeeper.GetSupportedFeeds(ba.Ctx).Feeds,
+					ba.FeedsKeeper.GetCurrentFeeds(ba.Ctx).Feeds,
 					ba.Ctx.BlockTime().Unix(),
 				),
 				val,
@@ -135,18 +135,18 @@ func BenchmarkFeedsEndBlock(b *testing.B) {
 }
 
 func setupFeeds(ba *BenchmarkApp) error {
-	numFeeds := ba.FeedsKeeper.GetParams(ba.Ctx).MaxSupportedFeeds
+	numFeeds := ba.FeedsKeeper.GetParams(ba.Ctx).MaxCurrentFeeds
 
 	ba.CallBeginBlock()
 
 	feeds := []types.Feed{}
-	for i := int64(0); i < numFeeds; i++ {
+	for i := uint64(0); i < numFeeds; i++ {
 		feeds = append(feeds, types.Feed{
 			SignalID: fmt.Sprintf("signal.%d", i),
 			Interval: 60,
 		})
 	}
-	ba.FeedsKeeper.SetSupportedFeeds(ba.Ctx, feeds)
+	ba.FeedsKeeper.SetCurrentFeeds(ba.Ctx, feeds)
 
 	ba.CallEndBlock()
 	ba.Commit()
@@ -155,7 +155,7 @@ func setupFeeds(ba *BenchmarkApp) error {
 }
 
 func setupValidatorPriceList(ba *BenchmarkApp, vals []*Account) error {
-	sfs := ba.FeedsKeeper.GetSupportedFeeds(ba.Ctx)
+	sfs := ba.FeedsKeeper.GetCurrentFeeds(ba.Ctx)
 
 	ba.CallBeginBlock()
 	for valIdx, val := range vals {
@@ -181,7 +181,7 @@ func setupValidatorPriceList(ba *BenchmarkApp, vals []*Account) error {
 }
 
 func setupValidatorPrices(ba *BenchmarkApp, vals []*Account) error {
-	sfs := ba.FeedsKeeper.GetSupportedFeeds(ba.Ctx)
+	sfs := ba.FeedsKeeper.GetCurrentFeeds(ba.Ctx)
 
 	ba.CallBeginBlock()
 	for valIdx, val := range vals {

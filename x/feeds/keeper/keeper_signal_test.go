@@ -12,11 +12,11 @@ func (suite *KeeperTestSuite) TestGetSetDelegatorSignals() {
 		Delegator: ValidDelegator.String(),
 		Signals: []types.Signal{
 			{
-				ID:    "crypto_price.bandusd",
+				ID:    "CS:BAND-USD",
 				Power: 1e9,
 			},
 			{
-				ID:    "crypto_price.btcusd",
+				ID:    "CS:BTC-USD",
 				Power: 1e9,
 			},
 		},
@@ -33,7 +33,7 @@ func (suite *KeeperTestSuite) TestGetSetDeleteSignalTotalPower() {
 
 	// set
 	expSignalTotalPower := types.Signal{
-		ID:    "crypto_price.bandusd",
+		ID:    "CS:BAND-USD",
 		Power: 1e9,
 	}
 	suite.feedsKeeper.SetSignalTotalPower(ctx, expSignalTotalPower)
@@ -45,7 +45,7 @@ func (suite *KeeperTestSuite) TestGetSetDeleteSignalTotalPower() {
 
 	// set with power 0
 	SignalTotalPowerZero := types.Signal{
-		ID:    "crypto_price.bandusd",
+		ID:    "CS:BAND-USD",
 		Power: 0,
 	}
 	suite.feedsKeeper.SetSignalTotalPower(ctx, SignalTotalPowerZero)

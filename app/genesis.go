@@ -43,6 +43,8 @@ import (
 	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/restake"
+	restaketypes "github.com/bandprotocol/chain/v2/x/restake/types"
 )
 
 // GenesisState defines a type alias for the Band genesis application state.
@@ -110,5 +112,6 @@ func NewDefaultGenesisState() GenesisState {
 		oracletypes.ModuleName:       oracle.AppModuleBasic{}.DefaultGenesis(cdc),
 		feedstypes.ModuleName:        feeds.AppModuleBasic{}.DefaultGenesis(cdc),
 		globalfeetypes.ModuleName:    cdc.MustMarshalJSON(globalfeeGenesis),
+		restaketypes.ModuleName:      restake.AppModuleBasic{}.DefaultGenesis(cdc),
 	}
 }

@@ -89,15 +89,15 @@ func TestCalculateDeviation(t *testing.T) {
 func TestSumPower(t *testing.T) {
 	require.Equal(t, int64(1250009), sumPower([]types.Signal{
 		{
-			ID:    "crypto_price.bandusd",
+			ID:    "CS:BAND-USD",
 			Power: 100000,
 		},
 		{
-			ID:    "crypto_price.atomusd",
+			ID:    "CS:ATOM-USD",
 			Power: 150000,
 		},
 		{
-			ID:    "crypto_price.osmousd",
+			ID:    "CS:OSMO-USD",
 			Power: 1000009,
 		},
 	}))

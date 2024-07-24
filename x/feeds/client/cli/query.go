@@ -28,7 +28,7 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdSignalTotalPowers(),
 		GetQueryCmdParams(),
 		GetQueryCmdDelegatorSignal(),
-		GetQueryCmdSupportedFeeds(),
+		GetQueryCmdCurrentFeeds(),
 		GetQueryCmdIsFeeder(),
 	)
 
@@ -118,17 +118,17 @@ func GetQueryCmdPrice() *cobra.Command {
 	return cmd
 }
 
-// GetQueryCmdSupportedFeeds implements the query supported feeds command.
-func GetQueryCmdSupportedFeeds() *cobra.Command {
+// GetQueryCmdCurrentFeeds implements the query current feeds command.
+func GetQueryCmdCurrentFeeds() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "supported-feeds",
+		Use:   "current-feeds",
 		Short: "Shows all currently supported feeds",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.SupportedFeeds(context.Background(), &types.QuerySupportedFeedsRequest{})
+			res, err := queryClient.CurrentFeeds(context.Background(), &types.QueryCurrentFeedsRequest{})
 			if err != nil {
 				return err
 			}

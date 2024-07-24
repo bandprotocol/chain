@@ -118,7 +118,7 @@ func (k Keeper) deleteSignalTotalPowerByPowerIndex(ctx sdk.Context, signalTotalP
 }
 
 // GetSignalTotalPowersByPower gets the current signal-total-power sorted by power-rank.
-func (k Keeper) GetSignalTotalPowersByPower(ctx sdk.Context, limit int64) []types.Signal {
+func (k Keeper) GetSignalTotalPowersByPower(ctx sdk.Context, limit uint64) []types.Signal {
 	signalTotalPowers := make([]types.Signal, limit)
 
 	iterator := k.SignalTotalPowersByPowerStoreIterator(ctx)
@@ -147,6 +147,7 @@ func (k Keeper) SignalTotalPowersByPowerStoreIterator(ctx sdk.Context) sdk.Itera
 	return sdk.KVStoreReversePrefixIterator(ctx.KVStore(k.storeKey), types.SignalTotalPowerByPowerIndexKeyPrefix)
 }
 
+// CalculateNewSignalTotalPowers calculates the new signal-total-powers from all delegator-signals.
 func (k Keeper) CalculateNewSignalTotalPowers(ctx sdk.Context) ([]types.Signal, error) {
 	delegatorSignals := k.GetAllDelegatorSignals(ctx)
 	signalIDToPower := make(map[string]int64)

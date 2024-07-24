@@ -15,7 +15,7 @@ func DefaultReferenceSourceConfig() ReferenceSourceConfig {
 
 // Validate validates the reference source config
 func (ps *ReferenceSourceConfig) Validate() error {
-	if err := validateString("hash", false, ps.IPFSHash); err != nil {
+	if err := validateString("ipfs hash", false, ps.IPFSHash); err != nil {
 		return err
 	}
 

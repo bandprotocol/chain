@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"strings"
+	"sync/atomic"
 
-	"github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/input"
@@ -168,7 +168,7 @@ func keysListCmd(ctx *grogu.Context) *cobra.Command {
 		Use:     "list",
 		Aliases: []string{"l"},
 		Short:   "List all the keys in the keychain",
-		Args:    cobra.ExactArgs(0),
+		Args:    cobra.NoArgs,
 		RunE:    createKeysListRunE(ctx),
 	}
 
@@ -184,26 +184,26 @@ func createKeysListRunE(ctx *grogu.Context) func(cmd *cobra.Command, args []stri
 	return func(cmd *cobra.Command, args []string) error {
 		bandConfig := band.MakeEncodingConfig()
 
-		nodesURIs := strings.Split(viper.GetString(flagNodes), ",")
-		clients := make([]client.Context, 0, len(nodesURIs))
-		for _, URI := range nodesURIs {
-			httpClient, err := http.New(URI, "/websocket")
-			if err != nil {
-				continue
-			}
-			cl := client.Context{
-				Client:            httpClient,
-				ChainID:           ctx.Config.ChainID,
-				Codec:             bandConfig.Marshaler,
-				InterfaceRegistry: bandConfig.InterfaceRegistry,
-				Keyring:           ctx.Keyring,
-				TxConfig:          bandConfig.TxConfig,
-				BroadcastMode:     flags.BroadcastSync,
-			}
-			clients = append(clients, cl)
+		clientCtx := client.Context{
+			ChainID:           ctx.Config.ChainID,
+			Codec:             bandConfig.Marshaler,
+			InterfaceRegistry: bandConfig.InterfaceRegistry,
+			Keyring:           ctx.Keyring,
+			TxConfig:          bandConfig.TxConfig,
+			BroadcastMode:     flags.BroadcastSync,
 		}
 
-		feedQuerier := querier.NewFeedQuerier(clients)
+		nodeURIs := strings.Split(viper.GetString(flagNodes), ",")
+		clients, stopClients, err := createClients(nodeURIs)
+		if err != nil {
+			return err
+		}
+		defer stopClients()
+
+		maxBlockHeight := new(atomic.Int64)
+		maxBlockHeight.Store(0)
+
+		feedQuerier := querier.NewFeedQuerier(clientCtx, clients, maxBlockHeight)
 
 		keys, err := ctx.Keyring.List()
 		if err != nil {
@@ -237,6 +237,7 @@ func createKeysListRunE(ctx *grogu.Context) func(cmd *cobra.Command, args []stri
 					s = ":x:"
 				}
 			}
+
 			_, err = emoji.Printf("%s%s => %s\n", s, key.Name, address.String())
 			if err != nil {
 				return err

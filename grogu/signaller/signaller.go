@@ -129,13 +129,13 @@ func (h *Signaller) updateParams() bool {
 }
 
 func (h *Signaller) updateFeedMap() bool {
-	resp, err := h.feedQuerier.QuerySupportedFeeds()
+	resp, err := h.feedQuerier.QueryCurrentFeeds()
 	if err != nil {
 		h.logger.Error("[Signaller] failed to query supported feeds: %v", err)
 		return false
 	}
 
-	h.signalIDToFeed = sliceToMap(resp.SupportedFeeds.Feeds, func(feed types.FeedWithDeviation) string {
+	h.signalIDToFeed = sliceToMap(resp.CurrentFeeds.Feeds, func(feed types.FeedWithDeviation) string {
 		return feed.SignalID
 	})
 
@@ -157,62 +157,58 @@ func (h *Signaller) updateValidatorPriceMap() bool {
 }
 
 func (h *Signaller) execute() {
-	now := time.Now().Unix()
+	now := time.Now()
 
 	h.logger.Debug("[Signaller] starting signal process")
-	signalIDs := make([]string, 0, len(h.signalIDToFeed))
-	for signalID := range h.signalIDToFeed {
-		signalIDs = append(signalIDs, signalID)
-	}
 
-	h.logger.Debug("[Signaller] filtering signal ids")
-	nonPendingSignalIDs := h.filterPendingSignalIDs(signalIDs)
+	h.logger.Debug("[Signaller] getting non-pending signal ids")
+	nonPendingSignalIDs := h.getNonPendingSignalIDs()
 	if len(nonPendingSignalIDs) == 0 {
 		h.logger.Debug("[Signaller] no signal ids to process")
 		return
 	}
 
-	h.setPendingSignalIDs(nonPendingSignalIDs)
-
-	h.logger.Debug("[Signaller] querying prices from bothan")
+	h.logger.Debug("[Signaller] querying prices from bothan: %v", nonPendingSignalIDs)
 	prices, err := h.bothanClient.QueryPrices(nonPendingSignalIDs)
 	if err != nil {
 		h.logger.Error("[Signaller] failed to query prices from bothan: %v", err)
-		h.removePendingSignalIDs(nonPendingSignalIDs)
 		return
 	}
 
 	h.logger.Debug("[Signaller] filtering prices")
-	pricesMap := sliceToMap(prices, func(price *proto.PriceData) string {
-		return price.SignalId
-	})
-	filteredPrices := h.filterPrices(pricesMap, nonPendingSignalIDs)
-	submitPrices, unusedSignalIDs := h.prepareSubmitPrices(filteredPrices, now)
-
-	h.removePendingSignalIDs(unusedSignalIDs)
-
+	submitPrices := h.filterAndPrepareSubmitPrices(prices, nonPendingSignalIDs, now)
 	if len(submitPrices) == 0 {
 		h.logger.Debug("[Signaller] no prices to submit")
 		return
 	}
+
 	h.logger.Debug("[Signaller] submitting prices: %v", submitPrices)
-
-	h.submitCh <- submitPrices
+	h.submitPrices(submitPrices)
 }
 
-func (h *Signaller) setPendingSignalIDs(signalIDs []string) {
-	for _, signalID := range signalIDs {
-		h.pendingSignalIDs.Store(signalID, struct{}{})
+func (h *Signaller) submitPrices(prices []types.SignalPrice) {
+	for _, p := range prices {
+		_, loaded := h.pendingSignalIDs.LoadOrStore(p.SignalID, struct{}{})
+		if loaded {
+			h.logger.Debug("[Signaller] Attempted to store Signal ID %s which was already pending", p.SignalID)
+		}
 	}
+
+	h.submitCh <- prices
 }
 
-func (h *Signaller) removePendingSignalIDs(signalIDs []string) {
-	for _, signalID := range signalIDs {
-		h.pendingSignalIDs.Delete(signalID)
+func (h *Signaller) getAllSignalIDs() []string {
+	signalIDs := make([]string, 0, len(h.signalIDToFeed))
+	for signalID := range h.signalIDToFeed {
+		signalIDs = append(signalIDs, signalID)
 	}
+
+	return signalIDs
 }
 
-func (h *Signaller) filterPendingSignalIDs(signalIDs []string) []string {
+func (h *Signaller) getNonPendingSignalIDs() []string {
+	signalIDs := h.getAllSignalIDs()
+
 	filtered := make([]string, 0, len(signalIDs))
 	for _, signalID := range signalIDs {
 		if _, ok := h.pendingSignalIDs.Load(signalID); !ok {
@@ -222,31 +218,59 @@ func (h *Signaller) filterPendingSignalIDs(signalIDs []string) []string {
 	return filtered
 }
 
-func (h *Signaller) filterPrices(
-	pricesMap map[string]*proto.PriceData,
+func (h *Signaller) filterAndPrepareSubmitPrices(
+	prices []*proto.PriceData,
 	signalIDs []string,
-) []*proto.PriceData {
-	now := time.Now()
-	toUpdatePrices := make([]*proto.PriceData, 0, len(signalIDs))
+	currentTime time.Time,
+) []types.SignalPrice {
+	pricesMap := sliceToMap(prices, func(price *proto.PriceData) string {
+		return price.SignalId
+	})
+
+	submitPrices := make([]types.SignalPrice, 0, len(signalIDs))
 
 	for _, signalID := range signalIDs {
 		price, ok := pricesMap[signalID]
 		if !ok {
-			// If the price is not found, remove it from the pending signal IDs
 			h.logger.Debug("[Signaller] price not found for signal ID: %s", signalID)
-			h.pendingSignalIDs.Delete(signalID)
 			continue
 		}
 
-		if h.isPriceValid(price, now) {
-			toUpdatePrices = append(toUpdatePrices, price)
-		} else {
-			// If the price is not valid, remove it from the pending signal IDs
-			h.pendingSignalIDs.Delete(price.SignalId)
+		if !h.isPriceValid(price, currentTime) {
+			continue
 		}
+
+		submitPrice, err := convertPriceData(price)
+		if err != nil {
+			h.logger.Debug("[Signaller] failed to parse price data: %v", err)
+			continue
+		}
+
+		if h.isNonUrgentUnavailablePrices(submitPrice, currentTime.Unix()) {
+			h.logger.Debug("[Signaller] non-urgent unavailable price: %v", submitPrice)
+			continue
+		}
+
+		submitPrices = append(submitPrices, submitPrice)
 	}
 
-	return toUpdatePrices
+	return submitPrices
+}
+
+func (h *Signaller) isNonUrgentUnavailablePrices(
+	submitPrice types.SignalPrice,
+	now int64,
+) bool {
+	switch submitPrice.PriceStatus {
+	case types.PriceStatusUnavailable:
+		deadline := h.signalIDToValidatorPrice[submitPrice.SignalID].Timestamp + h.signalIDToFeed[submitPrice.SignalID].Interval
+		if now > deadline-FixedIntervalOffset {
+			return false
+		}
+		return true
+	default:
+		return false
+	}
 }
 
 func (h *Signaller) isPriceValid(
@@ -313,32 +337,4 @@ func (h *Signaller) shouldUpdatePrice(
 	}
 
 	return false
-}
-
-func (h *Signaller) prepareSubmitPrices(filteredPrices []*proto.PriceData, now int64) ([]types.SignalPrice, []string) {
-	submitPrices := make([]types.SignalPrice, 0, len(filteredPrices))
-	unusedSignalIDs := make([]string, 0, len(filteredPrices))
-
-	for _, price := range filteredPrices {
-		submitPrice, err := convertPriceData(price)
-		if err != nil {
-			h.logger.Debug("[Signaller] failed to parse price data: %v", err)
-			unusedSignalIDs = append(unusedSignalIDs, price.SignalId)
-			continue
-		}
-
-		switch submitPrice.PriceStatus {
-		case types.PriceStatusUnavailable:
-			deadline := h.signalIDToValidatorPrice[price.SignalId].Timestamp + h.signalIDToFeed[price.SignalId].Interval
-			if now > deadline-FixedIntervalOffset {
-				submitPrices = append(submitPrices, submitPrice)
-			} else {
-				unusedSignalIDs = append(unusedSignalIDs, price.SignalId)
-			}
-		default:
-			submitPrices = append(submitPrices, submitPrice)
-		}
-	}
-
-	return submitPrices, unusedSignalIDs
 }

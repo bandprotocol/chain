@@ -19,13 +19,13 @@ This module is used in the BandChain.
       - [Feed Interval](#feed-interval)
       - [Feed Deviation](#feed-deviation)
       - [How Feed Interval and Deviation are calculated](#how-feed-interval-and-deviation-are-calculated)
-      - [Supported Feeds](#supported-feeds)
+      - [Current Feeds](#current-feeds)
     - [Validator Price](#validator-price)
     - [Price](#price)
     - [Reference Source Config](#reference-source-config)
   - [State](#state)
     - [ReferenceSourceConfig](#referencesourceconfig)
-    - [SupportedFeeds](#supportedfeeds)
+    - [CurrentFeeds](#currentfeeds)
     - [ValidatorPriceList](#validatorpricelist)
     - [Price](#price-1)
     - [DelegatorSignal](#delegatorsignal)
@@ -43,7 +43,7 @@ This module is used in the BandChain.
       - [Objective](#objective)
       - [Assumption](#assumption)
       - [Procedure](#procedure)
-    - [Update supported feeds](#update-supported-feeds)
+    - [Update current feeds](#update-current-feeds)
   - [Events](#events)
     - [EndBlocker](#endblocker)
     - [Handlers](#handlers)
@@ -84,9 +84,9 @@ It should be noted that while feed deviation is calculated, it is only used as a
 
 You can visualize the interval/deviation as resembling the harmonic series times MaxInterval/MaxDeviationBasisPoint, with the step of PowerStepThreshold.
 
-#### Supported Feeds
+#### Current Feeds
 
-The list of currently supported feeds includes those with power exceeding the PowerStepThreshold parameter and ranking within the top `MaxSupportedFeeds`. The supported feeds will be re-calculated on every `SupportedFeedsUpdateInterval` block(s). Validators are only required to submit their prices for the supported feeds.
+The list of currently supported feeds includes those with power exceeding the PowerStepThreshold parameter and ranking within the top `MaxCurrentFeeds`. The current feeds will be re-calculated on every `CurrentFeedsUpdateInterval` block(s). Validators are only required to submit their prices for the current feeds.
 
 ### Validator Price
 
@@ -114,11 +114,11 @@ ReferenceSourceConfig is stored in the global store `0x00` to hold Reference Sou
 
 * ReferenceSourceConfig: `0x00 | []byte("ReferenceSourceConfig") -> ProtocolBuffer(ReferenceSourceConfig)`
 
-### SupportedFeeds
+### CurrentFeeds
 
-SupportedFeeds is stored in the global store `0x00` to hold the list of supported feeds.
+CurrentFeeds is stored in the global store `0x00` to hold the list of currently supported feeds.
 
-* SupportedFeeds: `0x00 | []byte("SupportedFeeds") -> ProtocolBuffer(SupportedFeeds)`
+* CurrentFeeds: `0x00 | []byte("CurrentFeeds") -> ProtocolBuffer(CurrentFeeds)`
 
 ### ValidatorPriceList
 
@@ -177,14 +177,14 @@ message Params {
   int64 min_interval = 4;
 
   // MaxInterval is the maximum limit of every feeds' interval (in seconds).
-  // If the calculated interval of a feed is higher than this, it will not be recognized as a supported feed.
+  // If the calculated interval of a feed is higher than this, it will not be capped at this value.
   int64 max_interval = 5;
 
-  // PowerStepThreshold is the amount of minimum power required to put feed in the supported list.
+  // PowerStepThreshold is the amount of minimum power required to put feed in the current feeds list.
   int64 power_step_threshold = 6;
 
-  // MaxSupportedFeeds is the maximum number of feeds supported at a time.
-  int64 max_supported_feeds = 7;
+  // MaxCurrentFeeds is the maximum number of feeds supported at a time.
+  uint64 max_current_feeds = 7;
 
   // CooldownTime represents the duration (in seconds) during which validators are prohibited from sending new prices.
   int64 cooldown_time = 8;
@@ -195,8 +195,8 @@ message Params {
   // MaxDeviationBasisPoint is the maximum limit of every feeds' deviation (in basis point).
   int64 max_deviation_basis_point = 10;
 
-  // SupportedFeedsUpdateInterval is the number of blocks after which the supported feeds will be re-calculated.
-  uint64 supported_feeds_update_interval = 11;
+  // CurrentFeedsUpdateInterval is the number of blocks after which the current feeds will be re-calculated.
+  int64 current_feeds_update_interval = 11;
 }
 ```
 
@@ -233,7 +233,7 @@ This message is expected to fail if:
 * validator's oracle status is not active.
 * timestamp is too different from block time.
 * the price is submitted in the `CooldownTime` param.
-* the signals of the prices are not in the supported feeds.
+* the signals of the prices are not in the current feeds.
   
 ### MsgUpdateReferenceSourceConfig
 
@@ -315,8 +315,8 @@ Each abci end block call, the operations to update prices.
 
 ### Update Prices
 
-At every end block, the Validator Price of all supported feeds will be obtained and checked if it is within the acceptance period (1 interval).
-Any validator that does not submit a price within this period is considered to have miss-reported and will be deactivated unless the Supported feeds are in a grace period.
+At every end block, the Validator Price of all current feeds will be obtained and checked if it is within the acceptance period (1 interval).
+Any validator that does not submit a price within this period is considered to have miss-reported and will be deactivated unless the current feeds are in a grace period.
 Accepted Validator Prices of the same SignalID will be weighted and median based on the recency of the price and the power of the validator who submitted the price.
 The median price is then set as the Price. Here is the price aggregation logic:
 
@@ -366,9 +366,9 @@ A list of PriceFeedInfo objects, each containing:
 - Compute the weighted median of the generated points to determine the final aggregated price.
 - The weighted median price is the price at which the cumulative power (sorted by increasing price) crosses half of the total weighted power.
 
-### Update supported feeds
+### Update current feeds
 
-At every `BlocksPerFeedsUpdate` block(s), the supported feeds will be re-calculated based on the parameters of the module (e.g. `MinInterval`, `MaxSupportedFeeds`). 
+At every `BlocksPerFeedsUpdate` block(s), the current feeds will be re-calculated based on the parameters of the module (e.g. `MinInterval`, `MaxCurrentFeeds`). 
 
 ## Events
 
@@ -376,15 +376,15 @@ The feeds module emits the following events:
 
 ### EndBlocker
 
-| Type                    | Attribute Key         | Attribute Value |
-| ----------------------- | --------------------- | --------------- |
-| calculate_price_failed  | signal_id             | {signalID}      |
-| calculate_price_failed  | error_message         | {error}         |
-| update_price            | signal_id             | {signalID}      |
-| update_price            | price                 | {price}         |
-| update_price            | timestamp             | {timestamp}     |
-| updated_supported_feeds | last_update_timestamp | {timestamp}     |
-| updated_supported_feeds | last_update_block     | {block_height}  |
+| Type                   | Attribute Key         | Attribute Value |
+| ---------------------- | --------------------- | --------------- |
+| calculate_price_failed | signal_id             | {signalID}      |
+| calculate_price_failed | error_message         | {error}         |
+| update_price           | signal_id             | {signalID}      |
+| update_price           | price                 | {price}         |
+| update_price           | timestamp             | {timestamp}     |
+| updated_current_feeds  | last_update_timestamp | {timestamp}     |
+| updated_current_feeds  | last_update_block     | {block_height}  |
 
 ### Handlers
 

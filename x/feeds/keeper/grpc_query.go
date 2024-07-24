@@ -220,15 +220,15 @@ func (q queryServer) SignalTotalPowers(
 	}, nil
 }
 
-// SupportedFeeds queries all current supported feed-with-deviations.
-func (q queryServer) SupportedFeeds(
-	goCtx context.Context, _ *types.QuerySupportedFeedsRequest,
-) (*types.QuerySupportedFeedsResponse, error) {
+// CurrentFeeds queries all current supported feed-with-deviations.
+func (q queryServer) CurrentFeeds(
+	goCtx context.Context, _ *types.QueryCurrentFeedsRequest,
+) (*types.QueryCurrentFeedsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	supportedFeeds := q.keeper.GetSupportedFeeds(ctx)
-	feedWithDeviations := make([]types.FeedWithDeviation, 0, len(supportedFeeds.Feeds))
-	for _, feed := range supportedFeeds.Feeds {
+	currentFeeds := q.keeper.GetCurrentFeeds(ctx)
+	feedWithDeviations := make([]types.FeedWithDeviation, 0, len(currentFeeds.Feeds))
+	for _, feed := range currentFeeds.Feeds {
 		deviation := CalculateDeviation(feed.Power, q.keeper.GetParams(ctx))
 		feedWithDeviations = append(
 			feedWithDeviations,
@@ -240,11 +240,11 @@ func (q queryServer) SupportedFeeds(
 			})
 	}
 
-	return &types.QuerySupportedFeedsResponse{
-		SupportedFeeds: types.SupportedFeedWithDeviations{
+	return &types.QueryCurrentFeedsResponse{
+		CurrentFeeds: types.CurrentFeedWithDeviations{
 			Feeds:               feedWithDeviations,
-			LastUpdateTimestamp: supportedFeeds.LastUpdateTimestamp,
-			LastUpdateBlock:     supportedFeeds.LastUpdateBlock,
+			LastUpdateTimestamp: currentFeeds.LastUpdateTimestamp,
+			LastUpdateBlock:     currentFeeds.LastUpdateBlock,
 		},
 	}, nil
 }
@@ -269,7 +269,7 @@ func (q queryServer) Params(c context.Context, _ *types.QueryParamsRequest) (*ty
 	}, nil
 }
 
-// IsFeeder queries if the given address is a feeder grantee of the validator
+// IsFeeder queries if the given address is a feeder feeder of the validator
 func (q queryServer) IsFeeder(
 	c context.Context,
 	req *types.QueryIsFeederRequest,

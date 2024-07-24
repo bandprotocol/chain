@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"sync/atomic"
 
 	sdk "github.com/cosmos/cosmos-sdk/types/grpc"
 	"google.golang.org/grpc"
@@ -62,6 +63,7 @@ func getResponseWithBlockHeightToChannel[I, O any](
 func getMaxBlockHeightResponse[I, O any](
 	fs []QueryFunction[I, O],
 	in *I,
+	maxBlockHeight *atomic.Int64,
 	opts ...grpc.CallOption,
 ) (*O, error) {
 	resultCh := make(chan *responseWithBlockHeight[O], len(fs))
@@ -72,24 +74,33 @@ func getMaxBlockHeightResponse[I, O any](
 	}
 
 	var resp *O
-	var maxBlockHeight int64
+	var localMaxBlockHeight int64
 	var err error
 	for range fs {
 		select {
 		case r := <-resultCh:
-			if r.blockHeight <= maxBlockHeight {
+			if r.blockHeight <= localMaxBlockHeight {
 				continue
 			}
 
 			resp = r.response
-			maxBlockHeight = r.blockHeight
+			localMaxBlockHeight = r.blockHeight
 		case err = <-errorCh:
 			continue
 		}
 	}
 
+	if localMaxBlockHeight < maxBlockHeight.Load() {
+		return nil, fmt.Errorf("block height is less than latest max block height")
+	}
+
 	if resp != nil {
+		maxBlockHeight.Store(localMaxBlockHeight)
 		return resp, nil
+	}
+
+	if err == nil {
+		return nil, fmt.Errorf("no response received")
 	}
 
 	return nil, err

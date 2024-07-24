@@ -67,7 +67,7 @@ func (k Keeper) DeletePrice(ctx sdk.Context, signalID string) {
 
 // CalculatePrices calculates final prices for all supported feeds.
 func (k Keeper) CalculatePrices(ctx sdk.Context) {
-	supportedFeeds := k.GetSupportedFeeds(ctx)
+	currentFeeds := k.GetCurrentFeeds(ctx)
 	var validatorByPower []types.ValidatorInfo
 	allValidatorPrices := make(map[string]map[string]types.ValidatorPrice)
 	k.stakingKeeper.IterateBondedValidatorsByPower(
@@ -102,14 +102,14 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) {
 		allValidatorPrices[val.Address.String()] = valPricesMap
 	}
 
-	for _, feed := range supportedFeeds.Feeds {
+	for _, feed := range currentFeeds.Feeds {
 		var priceFeedInfos []types.PriceFeedInfo
 		for _, valInfo := range validatorByPower {
 			valPrice := allValidatorPrices[valInfo.Address.String()][feed.SignalID]
 			missReport, havePrice := CheckMissReport(
 				feed,
-				supportedFeeds.LastUpdateTimestamp,
-				supportedFeeds.LastUpdateBlock,
+				currentFeeds.LastUpdateTimestamp,
+				currentFeeds.LastUpdateBlock,
 				valPrice,
 				valInfo,
 				ctx.BlockTime(),

@@ -13,9 +13,8 @@ func (k Keeper) CheckDelegatorDelegation(
 	signals []types.Signal,
 ) error {
 	sumPower := sumPower(signals)
-	sumDelegation := k.stakingKeeper.GetDelegatorBonded(ctx, delegator).Int64()
-	if sumPower > sumDelegation {
-		return types.ErrNotEnoughDelegation
+	if err := k.restakeKeeper.SetLockedPower(ctx, delegator, types.ModuleName, sdk.NewInt(sumPower)); err != nil {
+		return err
 	}
 
 	return nil

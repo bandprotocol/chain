@@ -59,8 +59,8 @@ message FeedWithDeviation {
   int64 deviation_basis_point = 4;
 }
 
-// SupportedFeeds is a structure that holds a list of currently supported feeds, and its last update time and block.
-message SupportedFeeds {
+// CurrentFeeds is a structure that holds a list of currently supported feeds, and its last update time and block.
+message CurrentFeeds {
   option (gogoproto.equal) = true;
 
   // Feeds is a list of currently suppored feeds.
@@ -73,9 +73,9 @@ message SupportedFeeds {
   int64 last_update_block = 3;
 }
 
-// SupportedFeedWithDeviations is a structure that holds a list of currently supported feed-with-deviations, and its
+// CurrentFeedWithDeviations is a structure that holds a list of currently supported feed-with-deviations, and its
 // last update time and block.
-message SupportedFeedWithDeviations {
+message CurrentFeedWithDeviations {
   option (gogoproto.equal) = true;
 
   // FeedWithDeviations is a list of currently suppored feed-with-deviations.

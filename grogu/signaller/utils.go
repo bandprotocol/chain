@@ -84,7 +84,7 @@ func safeConvert(price string) (uint64, error) {
 	}
 
 	if parsedPrice < 0 {
-		return 0, fmt.Errorf("price is negative")
+		return 0, fmt.Errorf("price is negative: %f", parsedPrice)
 	}
 
 	if parsedPrice > UpperBound {
@@ -113,8 +113,8 @@ func calculateAssignedTime(
 		hashed[:],
 	)%dpOffset + dpStart
 	timeOffset := interval * int64(offset) / 100
-	// add time buffer to ensure the assigned time is not too early
-	return time.Unix(timestamp, 0).Add(time.Duration(timeOffset) * time.Second)
+
+	return time.Unix(timestamp+timeOffset, 0)
 }
 
 func sliceToMap[T any, K comparable](slice []T, keyFunc func(T) K) map[K]T {

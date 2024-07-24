@@ -5,12 +5,12 @@ import (
 	"os/signal"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"syscall"
 	"time"
 
 	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client"
 	"github.com/cometbft/cometbft/libs/log"
-	"github.com/cometbft/cometbft/rpc/client/http"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -22,6 +22,7 @@ import (
 	"github.com/bandprotocol/chain/v2/grogu/querier"
 	"github.com/bandprotocol/chain/v2/grogu/signaller"
 	"github.com/bandprotocol/chain/v2/grogu/submitter"
+	"github.com/bandprotocol/chain/v2/grogu/updater"
 	"github.com/bandprotocol/chain/v2/pkg/logger"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
@@ -83,38 +84,37 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 		bandConfig := band.MakeEncodingConfig()
 		chainID := viper.GetString(flags.FlagChainID)
 
-		// Split Node URIs and create RPC clients
-		nodesURIs := strings.Split(viper.GetString(flagNodes), ",")
-		clients := make([]client.Context, 0, len(nodesURIs))
-
-		for _, URI := range nodesURIs {
-			httpClient, err := http.New(URI, "/websocket")
-			if err != nil {
-				return err
-			}
-			cl := client.Context{
-				Client:            httpClient,
-				ChainID:           chainID,
-				Codec:             bandConfig.Marshaler,
-				InterfaceRegistry: bandConfig.InterfaceRegistry,
-				Keyring:           ctx.Keyring,
-				TxConfig:          bandConfig.TxConfig,
-				BroadcastMode:     flags.BroadcastSync,
-			}
-			clients = append(clients, cl)
-		}
-
-		// set up Queriers
-		authQuerier := querier.NewAuthQuerier(clients)
-		feedQuerier := querier.NewFeedQuerier(clients)
-		txQuerier := querier.NewTxQuerier(clients)
-
 		// Initialize logger
 		allowLevel, err := log.AllowLevel(ctx.Config.LogLevel)
 		if err != nil {
 			return err
 		}
 		l := logger.New(allowLevel)
+
+		// Split Node URIs and create RPC clients
+		clientCtx := client.Context{
+			ChainID:           chainID,
+			Codec:             bandConfig.Marshaler,
+			InterfaceRegistry: bandConfig.InterfaceRegistry,
+			Keyring:           ctx.Keyring,
+			TxConfig:          bandConfig.TxConfig,
+			BroadcastMode:     flags.BroadcastSync,
+		}
+
+		nodeURIs := strings.Split(viper.GetString(flagNodes), ",")
+		clients, stopClients, err := createClients(nodeURIs)
+		if err != nil {
+			return err
+		}
+		defer stopClients()
+
+		// Set up Queriers
+		maxBlockHeight := new(atomic.Int64)
+		maxBlockHeight.Store(0)
+
+		authQuerier := querier.NewAuthQuerier(clientCtx, clients, maxBlockHeight)
+		feedQuerier := querier.NewFeedQuerier(clientCtx, clients, maxBlockHeight)
+		txQuerier := querier.NewTxQuerier(clientCtx, clients)
 
 		// Setup Bothan service
 		timeout, err := time.ParseDuration(ctx.Config.BothanTimeout)
@@ -165,9 +165,9 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 
 		// Setup Submitter
 		submitterService, err := submitter.New(
+			clientCtx,
 			clients,
 			l,
-			ctx.Keyring,
 			submitSignalPriceCh,
 			authQuerier,
 			txQuerier,
@@ -182,19 +182,36 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 			return err
 		}
 
-		// Start all
-		go signallerService.Start()
-		go submitterService.Start()
+		// Setup Updater
+		maxCurrentFeedEventHeight := new(atomic.Int64)
+		maxCurrentFeedEventHeight.Store(0)
 
-		l.Info("Grogu has started")
+		maxUpdateRefSourceEventHeight := new(atomic.Int64)
+		maxUpdateRefSourceEventHeight.Store(0)
+
+		updaterService := updater.New(
+			feedQuerier,
+			clients,
+			l,
+			maxCurrentFeedEventHeight,
+			maxUpdateRefSourceEventHeight,
+		)
 
 		// Listen for termination signals for graceful shutdown
 		sigChan := make(chan os.Signal, 1)
 		signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
+		// Start all services
+		go updaterService.Start(sigChan)
+		go signallerService.Start()
+		go submitterService.Start()
+
+		l.Info("Grogu has started")
+
 		<-sigChan
 		l.Info("Received stop signal, shutting down")
 		l.Info("Grogu has stopped")
+
 		return nil
 	}
 }

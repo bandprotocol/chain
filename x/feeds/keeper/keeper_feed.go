@@ -6,9 +6,9 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-// GetSupportedFeeds gets the current supported feeds.
-func (k Keeper) GetSupportedFeeds(ctx sdk.Context) (sp types.SupportedFeeds) {
-	bz := ctx.KVStore(k.storeKey).Get(types.SupportedFeedsStoreKey)
+// GetCurrentFeeds gets the current supported feeds.
+func (k Keeper) GetCurrentFeeds(ctx sdk.Context) (sp types.CurrentFeeds) {
+	bz := ctx.KVStore(k.storeKey).Get(types.CurrentFeedsStoreKey)
 	if bz == nil {
 		return sp
 	}
@@ -18,21 +18,21 @@ func (k Keeper) GetSupportedFeeds(ctx sdk.Context) (sp types.SupportedFeeds) {
 	return sp
 }
 
-// SetSupportedFeeds sets new supported feeds to the store.
-func (k Keeper) SetSupportedFeeds(ctx sdk.Context, feeds []types.Feed) {
-	sf := types.SupportedFeeds{
+// SetCurrentFeeds sets new supported feeds to the store.
+func (k Keeper) SetCurrentFeeds(ctx sdk.Context, feeds []types.Feed) {
+	sf := types.CurrentFeeds{
 		Feeds:               feeds,
 		LastUpdateTimestamp: ctx.BlockTime().Unix(),
 		LastUpdateBlock:     ctx.BlockHeight(),
 	}
 
-	ctx.KVStore(k.storeKey).Set(types.SupportedFeedsStoreKey, k.cdc.MustMarshal(&sf))
-	emitEventUpdateSupportedFeeds(ctx, sf)
+	ctx.KVStore(k.storeKey).Set(types.CurrentFeedsStoreKey, k.cdc.MustMarshal(&sf))
+	emitEventUpdateCurrentFeeds(ctx, sf)
 }
 
-// CalculateNewSupportedFeeds calculates new supported feeds from current signal-total-powers.
-func (k Keeper) CalculateNewSupportedFeeds(ctx sdk.Context) []types.Feed {
-	signalTotalPowers := k.GetSignalTotalPowersByPower(ctx, k.GetParams(ctx).MaxSupportedFeeds)
+// CalculateNewCurrentFeeds calculates new supported feeds from current signal-total-powers.
+func (k Keeper) CalculateNewCurrentFeeds(ctx sdk.Context) []types.Feed {
+	signalTotalPowers := k.GetSignalTotalPowersByPower(ctx, k.GetParams(ctx).MaxCurrentFeeds)
 	feeds := make([]types.Feed, 0, len(signalTotalPowers))
 	for _, signalTotalPower := range signalTotalPowers {
 		interval := CalculateInterval(
