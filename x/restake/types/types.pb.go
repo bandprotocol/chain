@@ -27,19 +27,21 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// Key message represents a key definition.
+// Key message is used for tracking the status and rewards of the keys.
 type Key struct {
 	// Name is the name of the key.
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// Address is the address that holds rewards for this key.
-	Address string `protobuf:"bytes,2,opt,name=address,proto3" json:"address,omitempty"`
+	// PoolAddress is the address that holds rewards for this key.
+	PoolAddress string `protobuf:"bytes,2,opt,name=pool_address,json=poolAddress,proto3" json:"pool_address,omitempty"`
 	// IsActive is the status of the key
 	IsActive bool `protobuf:"varint,3,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
-	// RewardPerShares is a list of reward_per_share of rewards.
-	RewardPerShares github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,4,rep,name=reward_per_shares,json=rewardPerShares,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"reward_per_shares"`
-	// TotalLock is the total locked power of the key.
-	TotalLock github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,5,opt,name=total_lock,json=totalLock,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"total_lock"`
+	// RewardPerPowers is a list of reward_per_power.
+	// new_reward_per_power = current_reward_per_power + (rewards / total_power)
+	RewardPerPowers github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,4,rep,name=reward_per_powers,json=rewardPerPowers,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"reward_per_powers"`
+	// TotalPower is the total locked power of the key.
+	TotalPower github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,5,opt,name=total_power,json=totalPower,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"total_power"`
 	// Remainders is a list of the remainder amounts in the key.
+	// this field is used to track remainder amount from claimings in the key pool.
 	Remainders github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,6,rep,name=remainders,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"remainders"`
 }
 
@@ -83,9 +85,9 @@ func (m *Key) GetName() string {
 	return ""
 }
 
-func (m *Key) GetAddress() string {
+func (m *Key) GetPoolAddress() string {
 	if m != nil {
-		return m.Address
+		return m.PoolAddress
 	}
 	return ""
 }
@@ -97,9 +99,9 @@ func (m *Key) GetIsActive() bool {
 	return false
 }
 
-func (m *Key) GetRewardPerShares() github_com_cosmos_cosmos_sdk_types.DecCoins {
+func (m *Key) GetRewardPerPowers() github_com_cosmos_cosmos_sdk_types.DecCoins {
 	if m != nil {
-		return m.RewardPerShares
+		return m.RewardPerPowers
 	}
 	return nil
 }
@@ -111,33 +113,33 @@ func (m *Key) GetRemainders() github_com_cosmos_cosmos_sdk_types.DecCoins {
 	return nil
 }
 
-// Stake message represents a stake detail.
-type Stake struct {
-	// Address is the owner's address of the stake.
-	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-	// Key is the key that this stake is locked to.
+// Lock message is used to store lock information of each user on each key along with their reward information.
+type Lock struct {
+	// LockerAddress is the owner's address of the locker.
+	LockerAddress string `protobuf:"bytes,1,opt,name=locker_address,json=lockerAddress,proto3" json:"locker_address,omitempty"`
+	// Key is the key that this lock is locked to.
 	Key string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
 	// Amount is the locked power amount.
 	Amount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,3,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"amount"`
 	// PosRewardDebts is a list of reward debt for each reward (only the positive side).
 	// Note: Coin and DecCoin can't have negative amounts. so, we split it into two numbers.
-	PosRewardDebts github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,4,rep,name=pos_reward_debts,json=posRewardDebts,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"pos_reward_debts"`
+	PosRewardDebts github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,4,rep,name=pos_reward_debts,json=posRewardDebts,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"pos_reward_debts"`
 	// NegRewardDebts is a list of reward debt for each reward (only negative side).
-	NegRewardDebts github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,5,rep,name=neg_reward_debts,json=negRewardDebts,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"neg_reward_debts"`
+	NegRewardDebts github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,5,rep,name=neg_reward_debts,json=negRewardDebts,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"neg_reward_debts"`
 }
 
-func (m *Stake) Reset()         { *m = Stake{} }
-func (m *Stake) String() string { return proto.CompactTextString(m) }
-func (*Stake) ProtoMessage()    {}
-func (*Stake) Descriptor() ([]byte, []int) {
+func (m *Lock) Reset()         { *m = Lock{} }
+func (m *Lock) String() string { return proto.CompactTextString(m) }
+func (*Lock) ProtoMessage()    {}
+func (*Lock) Descriptor() ([]byte, []int) {
 	return fileDescriptor_be4ee20adc0c7118, []int{1}
 }
-func (m *Stake) XXX_Unmarshal(b []byte) error {
+func (m *Lock) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *Stake) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *Lock) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_Stake.Marshal(b, m, deterministic)
+		return xxx_messageInfo_Lock.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -147,51 +149,51 @@ func (m *Stake) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *Stake) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Stake.Merge(m, src)
+func (m *Lock) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Lock.Merge(m, src)
 }
-func (m *Stake) XXX_Size() int {
+func (m *Lock) XXX_Size() int {
 	return m.Size()
 }
-func (m *Stake) XXX_DiscardUnknown() {
-	xxx_messageInfo_Stake.DiscardUnknown(m)
+func (m *Lock) XXX_DiscardUnknown() {
+	xxx_messageInfo_Lock.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_Stake proto.InternalMessageInfo
+var xxx_messageInfo_Lock proto.InternalMessageInfo
 
-func (m *Stake) GetAddress() string {
+func (m *Lock) GetLockerAddress() string {
 	if m != nil {
-		return m.Address
+		return m.LockerAddress
 	}
 	return ""
 }
 
-func (m *Stake) GetKey() string {
+func (m *Lock) GetKey() string {
 	if m != nil {
 		return m.Key
 	}
 	return ""
 }
 
-func (m *Stake) GetPosRewardDebts() github_com_cosmos_cosmos_sdk_types.Coins {
+func (m *Lock) GetPosRewardDebts() github_com_cosmos_cosmos_sdk_types.DecCoins {
 	if m != nil {
 		return m.PosRewardDebts
 	}
 	return nil
 }
 
-func (m *Stake) GetNegRewardDebts() github_com_cosmos_cosmos_sdk_types.Coins {
+func (m *Lock) GetNegRewardDebts() github_com_cosmos_cosmos_sdk_types.DecCoins {
 	if m != nil {
 		return m.NegRewardDebts
 	}
 	return nil
 }
 
-// Reward message represents a reward detail.
+// Reward message is used as response of the query to show final rewards of the key for the user.
 type Reward struct {
 	// Key is the key that this reward belongs to.
 	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	// Rewards is a list of rewards.
+	// Rewards is a list of reward.
 	Rewards github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,2,rep,name=rewards,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"rewards"`
 }
 
@@ -242,26 +244,27 @@ func (m *Reward) GetRewards() github_com_cosmos_cosmos_sdk_types.DecCoins {
 	return nil
 }
 
-// Lock message represents a lock definition.
-type Lock struct {
+// LockResponse message is used as response of the query to show the power amount
+// that is locked by the key for the user.
+type LockResponse struct {
 	// Key is the key that this lock belongs to.
 	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
 	// Amount is a the number of locked power.
 	Amount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,2,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"amount"`
 }
 
-func (m *Lock) Reset()         { *m = Lock{} }
-func (m *Lock) String() string { return proto.CompactTextString(m) }
-func (*Lock) ProtoMessage()    {}
-func (*Lock) Descriptor() ([]byte, []int) {
+func (m *LockResponse) Reset()         { *m = LockResponse{} }
+func (m *LockResponse) String() string { return proto.CompactTextString(m) }
+func (*LockResponse) ProtoMessage()    {}
+func (*LockResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_be4ee20adc0c7118, []int{3}
 }
-func (m *Lock) XXX_Unmarshal(b []byte) error {
+func (m *LockResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *Lock) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *LockResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_Lock.Marshal(b, m, deterministic)
+		return xxx_messageInfo_LockResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -271,19 +274,19 @@ func (m *Lock) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *Lock) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Lock.Merge(m, src)
+func (m *LockResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LockResponse.Merge(m, src)
 }
-func (m *Lock) XXX_Size() int {
+func (m *LockResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *Lock) XXX_DiscardUnknown() {
-	xxx_messageInfo_Lock.DiscardUnknown(m)
+func (m *LockResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_LockResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_Lock proto.InternalMessageInfo
+var xxx_messageInfo_LockResponse proto.InternalMessageInfo
 
-func (m *Lock) GetKey() string {
+func (m *LockResponse) GetKey() string {
 	if m != nil {
 		return m.Key
 	}
@@ -292,50 +295,51 @@ func (m *Lock) GetKey() string {
 
 func init() {
 	proto.RegisterType((*Key)(nil), "restake.v1beta1.Key")
-	proto.RegisterType((*Stake)(nil), "restake.v1beta1.Stake")
-	proto.RegisterType((*Reward)(nil), "restake.v1beta1.Reward")
 	proto.RegisterType((*Lock)(nil), "restake.v1beta1.Lock")
+	proto.RegisterType((*Reward)(nil), "restake.v1beta1.Reward")
+	proto.RegisterType((*LockResponse)(nil), "restake.v1beta1.LockResponse")
 }
 
 func init() { proto.RegisterFile("restake/v1beta1/types.proto", fileDescriptor_be4ee20adc0c7118) }
 
 var fileDescriptor_be4ee20adc0c7118 = []byte{
-	// 560 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x94, 0x31, 0x6f, 0x13, 0x31,
-	0x14, 0xc7, 0xe3, 0x5e, 0x9a, 0x36, 0x46, 0xa2, 0xed, 0xa9, 0xc3, 0xb5, 0x45, 0x97, 0xa8, 0x03,
-	0x8a, 0x40, 0xc9, 0xd1, 0x20, 0x24, 0x84, 0x58, 0x1a, 0xba, 0x14, 0x18, 0xd0, 0x85, 0x09, 0x86,
-	0x93, 0xef, 0xce, 0xba, 0x58, 0xc9, 0xd9, 0x27, 0xdb, 0x0d, 0x84, 0x91, 0x4f, 0x80, 0xf8, 0x04,
-	0xb0, 0x21, 0x26, 0x86, 0x7e, 0x88, 0x8a, 0xa9, 0xea, 0x84, 0x18, 0x0a, 0x4a, 0x06, 0xf8, 0x18,
-	0xe8, 0x6c, 0x9f, 0x72, 0x08, 0x86, 0x48, 0x90, 0x25, 0xb1, 0xfd, 0x5e, 0xde, 0xef, 0xf9, 0xff,
-	0xfe, 0x31, 0xdc, 0xe3, 0x58, 0x48, 0x34, 0xc4, 0xde, 0xf8, 0x20, 0xc4, 0x12, 0x1d, 0x78, 0x72,
-	0x92, 0x61, 0xd1, 0xc9, 0x38, 0x93, 0xcc, 0xde, 0x30, 0xc1, 0x8e, 0x09, 0xee, 0x6e, 0x27, 0x2c,
-	0x61, 0x2a, 0xe6, 0xe5, 0x2b, 0x9d, 0xb6, 0xbb, 0x85, 0x52, 0x42, 0x99, 0xa7, 0x3e, 0xcd, 0xd1,
-	0x4e, 0xc4, 0x44, 0xca, 0x44, 0xa0, 0x73, 0xf5, 0xc6, 0x84, 0x5c, 0xbd, 0xf3, 0x42, 0x24, 0xe6,
-	0xd4, 0x88, 0x11, 0xaa, 0xe3, 0xfb, 0x9f, 0x2d, 0x68, 0x3d, 0xc2, 0x13, 0xdb, 0x86, 0x55, 0x8a,
-	0x52, 0xec, 0x80, 0x26, 0x68, 0xd5, 0x7d, 0xb5, 0xb6, 0xbb, 0x70, 0x0d, 0xc5, 0x31, 0xc7, 0x42,
-	0x38, 0x2b, 0xf9, 0x71, 0xcf, 0xb9, 0x38, 0x6d, 0x6f, 0x9b, 0xf2, 0x87, 0x3a, 0xd2, 0x97, 0x9c,
-	0xd0, 0xc4, 0x2f, 0x12, 0xed, 0x3d, 0x58, 0x27, 0x22, 0x40, 0x91, 0x24, 0x63, 0xec, 0x58, 0x4d,
-	0xd0, 0x5a, 0xf7, 0xd7, 0x89, 0x38, 0x54, 0x7b, 0xfb, 0x35, 0x80, 0x5b, 0x1c, 0xbf, 0x40, 0x3c,
-	0x0e, 0x32, 0xcc, 0x03, 0x31, 0x40, 0x1c, 0x0b, 0xa7, 0xda, 0xb4, 0x5a, 0x57, 0xba, 0xd7, 0x3a,
-	0xa6, 0x70, 0xde, 0x69, 0x21, 0x41, 0xe7, 0x08, 0x47, 0x0f, 0x18, 0xa1, 0xbd, 0xbb, 0x67, 0x97,
-	0x8d, 0xca, 0xc7, 0x6f, 0x8d, 0x9b, 0x09, 0x91, 0x83, 0x93, 0xb0, 0x13, 0xb1, 0xd4, 0xdc, 0xd3,
-	0x7c, 0xb5, 0x45, 0x3c, 0x34, 0x6a, 0x9a, 0xdf, 0x88, 0x0f, 0x3f, 0x3e, 0xdd, 0x00, 0xfe, 0x86,
-	0x06, 0x3e, 0xc1, 0xbc, 0xaf, 0x70, 0xf6, 0x73, 0x08, 0x25, 0x93, 0x68, 0x14, 0x8c, 0x58, 0x34,
-	0x74, 0x56, 0xd5, 0xc5, 0xee, 0xe7, 0xe5, 0xbf, 0x5e, 0x36, 0xae, 0x2f, 0x50, 0xfe, 0x98, 0xca,
-	0x8b, 0xd3, 0x36, 0x34, 0xdd, 0x1e, 0x53, 0xe9, 0xd7, 0x55, 0xbd, 0xc7, 0x2c, 0x1a, 0xda, 0x63,
-	0x08, 0x39, 0x4e, 0x11, 0xa1, 0x31, 0xe6, 0xc2, 0xa9, 0x2d, 0xf5, 0x66, 0x25, 0xd2, 0xbd, 0xea,
-	0xcf, 0x77, 0x0d, 0xb0, 0xff, 0xde, 0x82, 0xab, 0xfd, 0xdc, 0x42, 0xe5, 0xd1, 0x81, 0x45, 0x47,
-	0xb7, 0x09, 0xad, 0x21, 0x9e, 0xe8, 0x51, 0xfb, 0xf9, 0xd2, 0x7e, 0x0a, 0x6b, 0x28, 0x65, 0x27,
-	0x54, 0xaa, 0x49, 0xfe, 0xab, 0x4c, 0xa6, 0x96, 0xfd, 0x0a, 0x6e, 0x66, 0x4c, 0x04, 0xc6, 0x08,
-	0x31, 0x0e, 0x65, 0xe1, 0x81, 0x9d, 0xbf, 0x2a, 0xa5, 0x64, 0xba, 0x63, 0x64, 0x6a, 0x2d, 0x80,
-	0x2e, 0x69, 0x74, 0x35, 0x63, 0xc2, 0x57, 0xa0, 0xa3, 0x9c, 0x93, 0xb3, 0x29, 0x4e, 0x7e, 0x67,
-	0xaf, 0x2e, 0x8b, 0x4d, 0x71, 0x52, 0x62, 0x9b, 0x19, 0xbd, 0x05, 0xb0, 0xa6, 0x4f, 0x0b, 0xc1,
-	0xc1, 0x5c, 0xf0, 0x0c, 0xae, 0xe9, 0xd6, 0xf2, 0x7f, 0xdc, 0x32, 0xbd, 0x53, 0x60, 0x4c, 0x53,
-	0x12, 0x56, 0x95, 0x7d, 0xff, 0xec, 0x68, 0x6e, 0x81, 0x95, 0xff, 0x67, 0x01, 0x4d, 0xed, 0x3d,
-	0x3c, 0x9b, 0xba, 0xe0, 0x7c, 0xea, 0x82, 0xef, 0x53, 0x17, 0xbc, 0x99, 0xb9, 0x95, 0xf3, 0x99,
-	0x5b, 0xf9, 0x32, 0x73, 0x2b, 0xcf, 0x6e, 0x95, 0xaa, 0x87, 0x88, 0xc6, 0xea, 0xad, 0x8a, 0xd8,
-	0xc8, 0x8b, 0x06, 0x88, 0x50, 0x6f, 0xdc, 0xf5, 0x5e, 0x7a, 0xc5, 0x53, 0xaa, 0x58, 0x61, 0x4d,
-	0xa5, 0xdc, 0xfe, 0x15, 0x00, 0x00, 0xff, 0xff, 0xa7, 0xf5, 0xfc, 0xba, 0x62, 0x05, 0x00, 0x00,
+	// 571 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x54, 0x4d, 0x6b, 0xd4, 0x40,
+	0x18, 0xde, 0x69, 0xb6, 0x6b, 0x3b, 0xad, 0xfd, 0x18, 0x7a, 0x88, 0xad, 0x64, 0x4b, 0x0f, 0x52,
+	0x94, 0xdd, 0xd8, 0x7a, 0x11, 0x15, 0xa4, 0x6b, 0x2f, 0x55, 0x0f, 0x25, 0x7a, 0x12, 0x24, 0x4c,
+	0x92, 0x21, 0x0d, 0xbb, 0x99, 0x37, 0xcc, 0x4c, 0xb7, 0x2e, 0x78, 0x10, 0x7f, 0x81, 0xf8, 0x0b,
+	0x3c, 0x8a, 0x27, 0x0f, 0xbd, 0xf9, 0x07, 0x7a, 0x2c, 0x05, 0x41, 0x3c, 0x54, 0xd9, 0x3d, 0xe8,
+	0xcf, 0x90, 0xcc, 0xcc, 0xba, 0x2b, 0x08, 0x0a, 0xba, 0x97, 0x64, 0x66, 0x9e, 0x37, 0xcf, 0xf3,
+	0xbc, 0x1f, 0x19, 0xbc, 0x26, 0x98, 0x54, 0xb4, 0xcd, 0xfc, 0xee, 0x56, 0xc4, 0x14, 0xdd, 0xf2,
+	0x55, 0xaf, 0x60, 0xb2, 0x59, 0x08, 0x50, 0x40, 0x16, 0x2d, 0xd8, 0xb4, 0xe0, 0xea, 0x4a, 0x0a,
+	0x29, 0x68, 0xcc, 0x2f, 0x57, 0x26, 0x6c, 0x75, 0x99, 0xe6, 0x19, 0x07, 0x5f, 0x3f, 0xed, 0xd1,
+	0xa5, 0x18, 0x64, 0x0e, 0x32, 0x34, 0xb1, 0x66, 0x63, 0x21, 0xcf, 0xec, 0xfc, 0x88, 0xca, 0x91,
+	0x6a, 0x0c, 0x19, 0x37, 0xf8, 0xc6, 0x47, 0x07, 0x3b, 0x0f, 0x58, 0x8f, 0x10, 0x5c, 0xe5, 0x34,
+	0x67, 0x2e, 0x5a, 0x47, 0x9b, 0xb3, 0x81, 0x5e, 0x93, 0xdb, 0x78, 0xbe, 0x00, 0xe8, 0x84, 0x34,
+	0x49, 0x04, 0x93, 0xd2, 0x9d, 0x2a, 0xb1, 0x96, 0x7b, 0x76, 0xdc, 0x58, 0xb1, 0x1a, 0x3b, 0x06,
+	0x79, 0xa4, 0x44, 0xc6, 0xd3, 0x60, 0xae, 0x8c, 0xb6, 0x47, 0x64, 0x0d, 0xcf, 0x66, 0x32, 0xa4,
+	0xb1, 0xca, 0xba, 0xcc, 0x75, 0xd6, 0xd1, 0xe6, 0x4c, 0x30, 0x93, 0xc9, 0x1d, 0xbd, 0x27, 0x2f,
+	0x11, 0x5e, 0x16, 0xec, 0x88, 0x8a, 0x24, 0x2c, 0x98, 0x08, 0x0b, 0x38, 0x62, 0x42, 0xba, 0xd5,
+	0x75, 0x67, 0x73, 0x6e, 0xfb, 0x72, 0xd3, 0x92, 0x97, 0x96, 0x87, 0xb5, 0x68, 0xee, 0xb2, 0xf8,
+	0x1e, 0x64, 0xbc, 0x75, 0xf3, 0xe4, 0xbc, 0x5e, 0x79, 0xf7, 0xa5, 0x7e, 0x2d, 0xcd, 0xd4, 0xc1,
+	0x61, 0xd4, 0x8c, 0x21, 0xb7, 0x09, 0xdb, 0x57, 0x43, 0x26, 0x6d, 0x5b, 0x56, 0xfb, 0x8d, 0x7c,
+	0xfb, 0xed, 0xfd, 0x55, 0x14, 0x2c, 0x1a, 0xc1, 0x7d, 0x26, 0xf6, 0xb5, 0x1c, 0x79, 0x8a, 0xe7,
+	0x14, 0x28, 0xda, 0x31, 0xf2, 0xee, 0xb4, 0xce, 0xee, 0x4e, 0xc9, 0xff, 0xf9, 0xbc, 0x7e, 0xe5,
+	0x2f, 0xf8, 0xf7, 0xb8, 0x3a, 0x3b, 0x6e, 0x60, 0x6b, 0x77, 0x8f, 0xab, 0x00, 0x6b, 0x42, 0xcd,
+	0x4f, 0xba, 0x18, 0x0b, 0x96, 0xd3, 0x8c, 0x27, 0x65, 0x6e, 0xb5, 0x89, 0xe6, 0x36, 0xa6, 0x74,
+	0xab, 0xfa, 0xfd, 0x4d, 0x1d, 0x6d, 0x7c, 0x70, 0x70, 0xf5, 0x21, 0xc4, 0x6d, 0x72, 0x17, 0x2f,
+	0x74, 0x20, 0x6e, 0x33, 0xf1, 0xb3, 0x8d, 0xe8, 0x0f, 0x6d, 0xbc, 0x68, 0xe2, 0x87, 0x8d, 0x5c,
+	0xc2, 0x4e, 0x9b, 0xf5, 0x4c, 0xf3, 0x83, 0x72, 0x49, 0x1e, 0xe3, 0x1a, 0xcd, 0xe1, 0x90, 0x2b,
+	0xdd, 0xd7, 0x7f, 0xad, 0x99, 0xe5, 0x22, 0x2f, 0x10, 0x5e, 0x2a, 0x40, 0x86, 0x76, 0x2e, 0x12,
+	0x16, 0xa9, 0x49, 0x8f, 0xc4, 0x42, 0x01, 0x32, 0xd0, 0x72, 0xbb, 0xa5, 0x9a, 0xb6, 0xc0, 0x59,
+	0xfa, 0xab, 0x85, 0xe9, 0xc9, 0x5a, 0xe0, 0x2c, 0x1d, 0xb3, 0x60, 0xbb, 0xf7, 0x1a, 0xe1, 0x9a,
+	0x39, 0x1d, 0x96, 0x1f, 0x8d, 0xca, 0x5f, 0xe0, 0x0b, 0xc6, 0x60, 0xf9, 0x47, 0x4e, 0xd2, 0xdb,
+	0x50, 0xc6, 0x9a, 0x7a, 0x8e, 0xe7, 0xcb, 0x89, 0x0a, 0x98, 0x2c, 0x80, 0x4b, 0xf6, 0x1b, 0x67,
+	0xa3, 0xc1, 0x98, 0xfa, 0x7f, 0x83, 0x61, 0xd4, 0x5b, 0xf7, 0x4f, 0xfa, 0x1e, 0x3a, 0xed, 0x7b,
+	0xe8, 0x6b, 0xdf, 0x43, 0xaf, 0x06, 0x5e, 0xe5, 0x74, 0xe0, 0x55, 0x3e, 0x0d, 0xbc, 0xca, 0x93,
+	0xeb, 0x63, 0xec, 0x11, 0xe5, 0x89, 0xbe, 0xd8, 0x62, 0xe8, 0xf8, 0xf1, 0x01, 0xcd, 0xb8, 0xdf,
+	0xdd, 0xf6, 0x9f, 0xf9, 0xc3, 0x7b, 0x57, 0x6b, 0x45, 0x35, 0x1d, 0x72, 0xe3, 0x47, 0x00, 0x00,
+	0x00, 0xff, 0xff, 0x49, 0xe8, 0xda, 0x42, 0x8f, 0x05, 0x00, 0x00,
 }
 
 func (this *Key) Equal(that interface{}) bool {
@@ -360,21 +364,21 @@ func (this *Key) Equal(that interface{}) bool {
 	if this.Name != that1.Name {
 		return false
 	}
-	if this.Address != that1.Address {
+	if this.PoolAddress != that1.PoolAddress {
 		return false
 	}
 	if this.IsActive != that1.IsActive {
 		return false
 	}
-	if len(this.RewardPerShares) != len(that1.RewardPerShares) {
+	if len(this.RewardPerPowers) != len(that1.RewardPerPowers) {
 		return false
 	}
-	for i := range this.RewardPerShares {
-		if !this.RewardPerShares[i].Equal(&that1.RewardPerShares[i]) {
+	for i := range this.RewardPerPowers {
+		if !this.RewardPerPowers[i].Equal(&that1.RewardPerPowers[i]) {
 			return false
 		}
 	}
-	if !this.TotalLock.Equal(that1.TotalLock) {
+	if !this.TotalPower.Equal(that1.TotalPower) {
 		return false
 	}
 	if len(this.Remainders) != len(that1.Remainders) {
@@ -387,14 +391,14 @@ func (this *Key) Equal(that interface{}) bool {
 	}
 	return true
 }
-func (this *Stake) Equal(that interface{}) bool {
+func (this *Lock) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
 	}
 
-	that1, ok := that.(*Stake)
+	that1, ok := that.(*Lock)
 	if !ok {
-		that2, ok := that.(Stake)
+		that2, ok := that.(Lock)
 		if ok {
 			that1 = &that2
 		} else {
@@ -406,7 +410,7 @@ func (this *Stake) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
-	if this.Address != that1.Address {
+	if this.LockerAddress != that1.LockerAddress {
 		return false
 	}
 	if this.Key != that1.Key {
@@ -465,14 +469,14 @@ func (this *Reward) Equal(that interface{}) bool {
 	}
 	return true
 }
-func (this *Lock) Equal(that interface{}) bool {
+func (this *LockResponse) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
 	}
 
-	that1, ok := that.(*Lock)
+	that1, ok := that.(*LockResponse)
 	if !ok {
-		that2, ok := that.(Lock)
+		that2, ok := that.(LockResponse)
 		if ok {
 			that1 = &that2
 		} else {
@@ -527,19 +531,19 @@ func (m *Key) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		}
 	}
 	{
-		size := m.TotalLock.Size()
+		size := m.TotalPower.Size()
 		i -= size
-		if _, err := m.TotalLock.MarshalTo(dAtA[i:]); err != nil {
+		if _, err := m.TotalPower.MarshalTo(dAtA[i:]); err != nil {
 			return 0, err
 		}
 		i = encodeVarintTypes(dAtA, i, uint64(size))
 	}
 	i--
 	dAtA[i] = 0x2a
-	if len(m.RewardPerShares) > 0 {
-		for iNdEx := len(m.RewardPerShares) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.RewardPerPowers) > 0 {
+		for iNdEx := len(m.RewardPerPowers) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.RewardPerShares[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.RewardPerPowers[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -560,10 +564,10 @@ func (m *Key) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x18
 	}
-	if len(m.Address) > 0 {
-		i -= len(m.Address)
-		copy(dAtA[i:], m.Address)
-		i = encodeVarintTypes(dAtA, i, uint64(len(m.Address)))
+	if len(m.PoolAddress) > 0 {
+		i -= len(m.PoolAddress)
+		copy(dAtA[i:], m.PoolAddress)
+		i = encodeVarintTypes(dAtA, i, uint64(len(m.PoolAddress)))
 		i--
 		dAtA[i] = 0x12
 	}
@@ -577,7 +581,7 @@ func (m *Key) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *Stake) Marshal() (dAtA []byte, err error) {
+func (m *Lock) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -587,12 +591,12 @@ func (m *Stake) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *Stake) MarshalTo(dAtA []byte) (int, error) {
+func (m *Lock) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *Stake) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *Lock) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -642,10 +646,10 @@ func (m *Stake) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.Address) > 0 {
-		i -= len(m.Address)
-		copy(dAtA[i:], m.Address)
-		i = encodeVarintTypes(dAtA, i, uint64(len(m.Address)))
+	if len(m.LockerAddress) > 0 {
+		i -= len(m.LockerAddress)
+		copy(dAtA[i:], m.LockerAddress)
+		i = encodeVarintTypes(dAtA, i, uint64(len(m.LockerAddress)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -696,7 +700,7 @@ func (m *Reward) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *Lock) Marshal() (dAtA []byte, err error) {
+func (m *LockResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -706,12 +710,12 @@ func (m *Lock) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *Lock) MarshalTo(dAtA []byte) (int, error) {
+func (m *LockResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *Lock) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *LockResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -757,20 +761,20 @@ func (m *Key) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTypes(uint64(l))
 	}
-	l = len(m.Address)
+	l = len(m.PoolAddress)
 	if l > 0 {
 		n += 1 + l + sovTypes(uint64(l))
 	}
 	if m.IsActive {
 		n += 2
 	}
-	if len(m.RewardPerShares) > 0 {
-		for _, e := range m.RewardPerShares {
+	if len(m.RewardPerPowers) > 0 {
+		for _, e := range m.RewardPerPowers {
 			l = e.Size()
 			n += 1 + l + sovTypes(uint64(l))
 		}
 	}
-	l = m.TotalLock.Size()
+	l = m.TotalPower.Size()
 	n += 1 + l + sovTypes(uint64(l))
 	if len(m.Remainders) > 0 {
 		for _, e := range m.Remainders {
@@ -781,13 +785,13 @@ func (m *Key) Size() (n int) {
 	return n
 }
 
-func (m *Stake) Size() (n int) {
+func (m *Lock) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.Address)
+	l = len(m.LockerAddress)
 	if l > 0 {
 		n += 1 + l + sovTypes(uint64(l))
 	}
@@ -831,7 +835,7 @@ func (m *Reward) Size() (n int) {
 	return n
 }
 
-func (m *Lock) Size() (n int) {
+func (m *LockResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -915,7 +919,7 @@ func (m *Key) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field PoolAddress", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -943,7 +947,7 @@ func (m *Key) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Address = string(dAtA[iNdEx:postIndex])
+			m.PoolAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
 			if wireType != 0 {
@@ -967,7 +971,7 @@ func (m *Key) Unmarshal(dAtA []byte) error {
 			m.IsActive = bool(v != 0)
 		case 4:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field RewardPerShares", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field RewardPerPowers", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -994,14 +998,14 @@ func (m *Key) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.RewardPerShares = append(m.RewardPerShares, types.DecCoin{})
-			if err := m.RewardPerShares[len(m.RewardPerShares)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.RewardPerPowers = append(m.RewardPerPowers, types.DecCoin{})
+			if err := m.RewardPerPowers[len(m.RewardPerPowers)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		case 5:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field TotalLock", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field TotalPower", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1029,7 +1033,7 @@ func (m *Key) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.TotalLock.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.TotalPower.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -1088,7 +1092,7 @@ func (m *Key) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *Stake) Unmarshal(dAtA []byte) error {
+func (m *Lock) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1111,15 +1115,15 @@ func (m *Stake) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: Stake: wiretype end group for non-group")
+			return fmt.Errorf("proto: Lock: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Stake: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: Lock: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field LockerAddress", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1147,7 +1151,7 @@ func (m *Stake) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Address = string(dAtA[iNdEx:postIndex])
+			m.LockerAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
@@ -1244,7 +1248,7 @@ func (m *Stake) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.PosRewardDebts = append(m.PosRewardDebts, types.Coin{})
+			m.PosRewardDebts = append(m.PosRewardDebts, types.DecCoin{})
 			if err := m.PosRewardDebts[len(m.PosRewardDebts)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -1278,7 +1282,7 @@ func (m *Stake) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.NegRewardDebts = append(m.NegRewardDebts, types.Coin{})
+			m.NegRewardDebts = append(m.NegRewardDebts, types.DecCoin{})
 			if err := m.NegRewardDebts[len(m.NegRewardDebts)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -1420,7 +1424,7 @@ func (m *Reward) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *Lock) Unmarshal(dAtA []byte) error {
+func (m *LockResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1443,10 +1447,10 @@ func (m *Lock) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: Lock: wiretype end group for non-group")
+			return fmt.Errorf("proto: LockResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Lock: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: LockResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

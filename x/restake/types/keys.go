@@ -27,35 +27,35 @@ const (
 var (
 	GlobalStoreKeyPrefix = []byte{0x00}
 
-	KeyStoreKeyPrefix   = []byte{0x01}
-	StakeStoreKeyPrefix = []byte{0x02}
+	KeyStoreKeyPrefix  = []byte{0x01}
+	LockStoreKeyPrefix = []byte{0x02}
 
-	StakesByAmountIndexKeyPrefix = []byte{0x10}
+	LocksByAmountIndexKeyPrefix = []byte{0x10}
 )
 
 func KeyStoreKey(keyName string) []byte {
 	return append(KeyStoreKeyPrefix, []byte(keyName)...)
 }
 
-func StakesStoreKey(addr sdk.AccAddress) []byte {
-	return append(StakeStoreKeyPrefix, address.MustLengthPrefix(addr)...)
+func LocksStoreKey(addr sdk.AccAddress) []byte {
+	return append(LockStoreKeyPrefix, address.MustLengthPrefix(addr)...)
 }
 
-func StakeStoreKey(addr sdk.AccAddress, keyName string) []byte {
-	return append(StakesStoreKey(addr), []byte(keyName)...)
+func LockStoreKey(addr sdk.AccAddress, keyName string) []byte {
+	return append(LocksStoreKey(addr), []byte(keyName)...)
 }
 
-func StakesByAmountIndexKey(addr sdk.AccAddress) []byte {
-	return append(StakesByAmountIndexKeyPrefix, address.MustLengthPrefix(addr)...)
+func LocksByAmountIndexKey(addr sdk.AccAddress) []byte {
+	return append(LocksByAmountIndexKeyPrefix, address.MustLengthPrefix(addr)...)
 }
 
-func StakeByAmountIndexKey(stake Stake) []byte {
-	address := sdk.MustAccAddressFromBech32(stake.Address)
+func LockByAmountIndexKey(lock Lock) []byte {
+	address := sdk.MustAccAddressFromBech32(lock.LockerAddress)
 
 	amountBytes := make([]byte, 8)
-	binary.BigEndian.PutUint64(amountBytes, stake.Amount.Uint64())
+	binary.BigEndian.PutUint64(amountBytes, lock.Amount.Uint64())
 
 	// key is of format prefix || addrLen || address || amountBytes || keyBytes
-	bz := append(StakesByAmountIndexKey(address), amountBytes...)
-	return append(bz, []byte(stake.Key)...)
+	bz := append(LocksByAmountIndexKey(address), amountBytes...)
+	return append(bz, []byte(lock.Key)...)
 }
