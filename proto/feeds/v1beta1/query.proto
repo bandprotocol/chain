@@ -55,7 +55,7 @@ service Query {
 
   // CurrentFeeds is an RPC method that returns a list of current supported feeds
   rpc CurrentFeeds(QueryCurrentFeedsRequest) returns (QueryCurrentFeedsResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/supported-feeds";
+    option (google.api.http).get = "/feeds/v1beta1/current-feeds";
   }
 
   // IsFeeder is an RPC method that returns whether an account is a feeder for specified validator.

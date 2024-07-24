@@ -966,7 +966,7 @@ var (
 
 	pattern_Query_DelegatorSignals_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"feeds", "v1beta1", "delegators", "delegator", "signals"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_CurrentFeeds_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"feeds", "v1beta1", "supported-feeds"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_CurrentFeeds_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"feeds", "v1beta1", "current-feeds"}, "", runtime.AssumeColonVerbOpt(false)))
 
 	pattern_Query_IsFeeder_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 4}, []string{"feeds", "v1beta1", "feeder", "validator_address", "feeder_address"}, "", runtime.AssumeColonVerbOpt(false)))
 )
