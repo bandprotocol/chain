@@ -7,7 +7,7 @@ const (
 	ModuleName = "tunnel"
 
 	// Version defines the current version the IBC module supports
-	Version = "bandchain-1"
+	Version = "tunnel-1"
 
 	// KeyAccountsKey is used to store the key for the account
 	KeyAccountsKey = "tunnel-accounts"
