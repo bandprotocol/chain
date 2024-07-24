@@ -154,23 +154,19 @@ func (k Keeper) ActivateTunnel(ctx sdk.Context, id uint64, creator string) error
 
 // SetParams sets the tunnel module parameters
 func (k Keeper) ProcessTunnel(ctx sdk.Context, tunnel types.Tunnel) {
-	// Increment the nonce
-	tunnel.Nonce += 1
+	// Increment the packet count
+	tunnel.PacketCount += 1
 
 	switch r := tunnel.Route.GetCachedValue().(type) {
 	case *types.TSSRoute:
 		fmt.Printf("Generating TSS packets for tunnel %d, route %s\n", tunnel.ID, r.String())
-		packetID := k.TSSPacketHandler(ctx, types.TSSPacket{
+		k.TSSPacketHandler(ctx, types.TSSPacket{
 			TunnelID:                   tunnel.ID,
+			PacketID:                   tunnel.PacketCount,
 			SignalPriceInfos:           tunnel.SignalPriceInfos,
 			DestinationChainID:         r.DestinationChainID,
 			DestinationContractAddress: r.DestinationContractAddress,
 		})
-
-		packet := k.MustGetTSSPacket(ctx, packetID)
-		// TODO: Emit event
-		fmt.Printf("Emitting event for TSS packet %d\n", packet.ID)
-
 	case *types.AxelarRoute:
 		fmt.Printf("Generating Axelar packets for tunnel %d, route %s\n", tunnel.ID, r.String())
 		k.AxelarPacketHandler(ctx, types.AxelarPacket{})
