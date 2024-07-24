@@ -1,4 +1,4 @@
-package grogu
+package main
 
 import (
 	"fmt"
