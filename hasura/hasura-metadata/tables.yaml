@@ -347,9 +347,6 @@
     - name: account
       using:
         foreign_key_constraint_on: account_id
-    - name: signal_total_power
-      using:
-        foreign_key_constraint_on: signal_id
 - table:
     name: deposits
     schema: public
@@ -592,15 +589,8 @@
       using:
         foreign_key_constraint_on: tx_id
 - table:
-    name: reference_source_configs
-    schema: public
-- table:
     name: prices
     schema: public
-  object_relationships:
-    - name: signal_total_power
-      using:
-        foreign_key_constraint_on: signal_id
 - table:
     name: proposal_total_votes
     schema: public
@@ -684,6 +674,9 @@
     - name: validatorByValidatorSrcId
       using:
         foreign_key_constraint_on: validator_src_id
+- table:
+    name: reference_source_configs
+    schema: public
 - table:
     name: related_data_source_oracle_scripts
     schema: public
@@ -783,28 +776,6 @@
 - table:
     name: signal_total_powers
     schema: public
-  array_relationships:
-    - name: delegator_signals
-      using:
-        foreign_key_constraint_on:
-          column: signal_id
-          table:
-            name: delegator_signals
-            schema: public
-    - name: prices
-      using:
-        foreign_key_constraint_on:
-          column: signal_id
-          table:
-            name: prices
-            schema: public
-    - name: validator_prices
-      using:
-        foreign_key_constraint_on:
-          column: signal_id
-          table:
-            name: validator_prices
-            schema: public
 - table:
     name: tracking
     schema: public
@@ -918,9 +889,6 @@
     name: validator_prices
     schema: public
   object_relationships:
-    - name: signal_total_power
-      using:
-        foreign_key_constraint_on: signal_id
     - name: validator
       using:
         foreign_key_constraint_on: validator_id
