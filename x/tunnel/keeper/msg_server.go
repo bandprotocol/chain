@@ -28,7 +28,7 @@ func (ms msgServer) CreateTunnel(
 ) (*types.MsgCreateTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	signalPriceInfos := make([]types.SignalPriceInfo, len(req.SignalInfos))
+	var signalPriceInfos []types.SignalPriceInfo
 	for _, signalInfo := range req.SignalInfos {
 		signalPriceInfos = append(signalPriceInfos, types.SignalPriceInfo{
 			SignalID:     signalInfo.SignalID,
