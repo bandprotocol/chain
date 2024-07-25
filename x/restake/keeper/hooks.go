@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -84,25 +84,25 @@ func (h Hooks) AfterUnbondingInitiated(_ sdk.Context, _ uint64) error {
 	return nil
 }
 
-func (h Hooks) isAbleToUnbond(ctx sdk.Context, address sdk.AccAddress, delegated math.Int) error {
-	iterator := sdk.KVStoreReversePrefixIterator(ctx.KVStore(h.k.storeKey), types.StakesByAmountIndexKey(address))
+func (h Hooks) isAbleToUnbond(ctx sdk.Context, addr sdk.AccAddress, delegated sdkmath.Int) error {
+	iterator := sdk.KVStoreReversePrefixIterator(ctx.KVStore(h.k.storeKey), types.LocksByAmountIndexKey(addr))
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
 		keyName := string(iterator.Value())
-		stake, err := h.k.GetStake(ctx, address, keyName)
+		lock, err := h.k.GetLock(ctx, addr, keyName)
 		if err != nil {
 			panic(err)
 		}
 
 		if h.k.IsActiveKey(ctx, keyName) {
-			if delegated.LT(stake.Amount) {
+			if delegated.LT(lock.Amount) {
 				return types.ErrUnableToUndelegate
 			}
 
 			return nil
 		} else {
-			h.k.DeleteStake(ctx, address, keyName)
+			h.k.DeleteLock(ctx, addr, keyName)
 		}
 	}
 

@@ -444,11 +444,9 @@ func NewBandApp(
 	app.RestakeKeeper = restakekeeper.NewKeeper(
 		appCodec,
 		keys[restaketypes.StoreKey],
-		authtypes.FeeCollectorName,
 		app.AccountKeeper,
 		app.BankKeeper,
 		app.StakingKeeper,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
 	// create IBC Keeper
