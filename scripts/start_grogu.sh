@@ -17,6 +17,12 @@ grogu config broadcast-timeout "1m"
 # setup rpc-poll-interval to grogu config
 grogu config rpc-poll-interval "1s"
 
+# setup nodes to grogu config
+grogu config nodes "tcp://localhost:26657"
+
+# setup log-level to grogu config
+grogu config log-level "info"
+
 # setup max-try to grogu config
 grogu config max-try 5
 
