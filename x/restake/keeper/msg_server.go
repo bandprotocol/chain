@@ -27,7 +27,7 @@ func (k msgServer) ClaimRewards(
 ) (*types.MsgClaimRewardsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	address, err := sdk.AccAddressFromBech32(msg.Address)
+	address, err := sdk.AccAddressFromBech32(msg.LockerAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -37,21 +37,20 @@ func (k msgServer) ClaimRewards(
 		return nil, err
 	}
 
-	stake, err := k.GetStake(ctx, address, msg.Key)
+	lock, err := k.GetLock(ctx, address, msg.Key)
 	if err != nil {
 		return nil, err
 	}
 
-	totalRewards := k.getTotalRewards(ctx, stake)
-	truncatedTotalRewards, remainders := totalRewards.TruncateDecimal()
-	finalRewards := truncatedTotalRewards.Add(stake.NegRewardDebts...).Sub(stake.PosRewardDebts...)
+	reward := k.getReward(ctx, lock)
+	finalRewards, remainders := reward.Rewards.TruncateDecimal()
 
 	if !finalRewards.IsZero() {
-		stake.PosRewardDebts = truncatedTotalRewards
-		stake.NegRewardDebts = sdk.NewCoins()
-		k.SetStake(ctx, stake)
+		lock.PosRewardDebts = k.getTotalRewards(ctx, lock)
+		lock.NegRewardDebts = remainders
+		k.SetLock(ctx, lock)
 
-		err = k.bankKeeper.SendCoins(ctx, sdk.MustAccAddressFromBech32(key.Address), address, finalRewards)
+		err = k.bankKeeper.SendCoins(ctx, sdk.MustAccAddressFromBech32(key.PoolAddress), address, finalRewards)
 		if err != nil {
 			return nil, err
 		}
@@ -59,71 +58,19 @@ func (k msgServer) ClaimRewards(
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeClaimRewards,
-				sdk.NewAttribute(types.AttributeKeyAddress, msg.Address),
-				sdk.NewAttribute(types.AttributeKeyKey, stake.Key),
+				sdk.NewAttribute(types.AttributeKeyLocker, msg.LockerAddress),
+				sdk.NewAttribute(types.AttributeKeyKey, lock.Key),
 				sdk.NewAttribute(sdk.AttributeKeyAmount, finalRewards.String()),
 			),
 		)
 	}
 
 	if !key.IsActive {
-		k.DeleteStake(ctx, address, key.Name)
+		k.DeleteLock(ctx, address, key.Name)
 
 		key.Remainders = key.Remainders.Add(remainders...)
 		k.SetKey(ctx, key)
 	}
 
 	return &types.MsgClaimRewardsResponse{}, nil
-}
-
-func (k msgServer) LockPower(
-	goCtx context.Context,
-	msg *types.MsgLockPower,
-) (*types.MsgLockPowerResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	address, err := sdk.AccAddressFromBech32(msg.Address)
-	if err != nil {
-		return nil, err
-	}
-
-	err = k.SetLockedPower(ctx, address, msg.Key, msg.Amount)
-	if err != nil {
-		return nil, err
-	}
-
-	return &types.MsgLockPowerResponse{}, nil
-}
-
-func (k msgServer) AddRewards(
-	goCtx context.Context,
-	msg *types.MsgAddRewards,
-) (*types.MsgAddRewardsResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return nil, err
-	}
-
-	err = k.Keeper.AddRewards(ctx, sender, msg.Key, msg.Rewards)
-	if err != nil {
-		return nil, err
-	}
-
-	return &types.MsgAddRewardsResponse{}, nil
-}
-
-func (k msgServer) DeactivateKey(
-	goCtx context.Context,
-	msg *types.MsgDeactivateKey,
-) (*types.MsgDeactivateKeyResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	err := k.Keeper.DeactivateKey(ctx, msg.Key)
-	if err != nil {
-		return nil, err
-	}
-
-	return &types.MsgDeactivateKeyResponse{}, nil
 }
