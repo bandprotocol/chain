@@ -102,6 +102,8 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 		h.handleMsgChannelCloseConfirm(ctx, msg)
 	case *channeltypes.MsgAcknowledgement:
 		h.handleMsgAcknowledgement(ctx, msg, evMap)
+	case *channeltypes.MsgTimeout:
+		h.handleMsgTimeout(ctx, msg)
 	case *authz.MsgGrant:
 		h.handleMsgGrant(msg, detail)
 	case *authz.MsgRevoke:

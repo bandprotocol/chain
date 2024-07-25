@@ -92,11 +92,34 @@ func (h *Hook) handleMsgAcknowledgement(ctx sdk.Context, msg *types.MsgAcknowled
 				"status": "failure",
 				"reason": events[0],
 			}
+			// Update balance of sender (refund)
+			h.AddAccountsInTx(data.Sender)
 		} else {
 			packet["acknowledgement"] = common.JsDict{
 				"status": "success",
 			}
 		}
+		h.Write("UPDATE_OUTGOING_PACKET", packet)
+	}
+}
+
+func (h *Hook) handleMsgTimeout(ctx sdk.Context, msg *types.MsgTimeout) {
+	packet := common.JsDict{
+		"src_channel": msg.Packet.SourceChannel,
+		"src_port":    msg.Packet.SourcePort,
+		"sequence":    msg.Packet.Sequence,
+		"block_time":  ctx.BlockTime().UnixNano(),
+	}
+	// TODO: Handle other packet type
+	var data ibcxfertypes.FungibleTokenPacketData
+	err := ibcxfertypes.ModuleCdc.UnmarshalJSON(msg.Packet.GetData(), &data)
+	if err == nil {
+		// We use acknowledgement column to track packet status
+		packet["acknowledgement"] = common.JsDict{
+			"status": "timeout",
+		}
+		// Update balance of sender (refund)
+		h.AddAccountsInTx(data.Sender)
 		h.Write("UPDATE_OUTGOING_PACKET", packet)
 	}
 }
