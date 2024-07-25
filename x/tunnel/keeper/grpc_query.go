@@ -2,7 +2,9 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -64,6 +66,97 @@ func (q queryServer) Tunnel(c context.Context, req *types.QueryTunnelRequest) (*
 	}
 
 	return &types.QueryTunnelResponse{Tunnel: tunnel}, nil
+}
+
+// Packets queries all packets of the module.
+func (q queryServer) Packets(c context.Context, req *types.QueryPacketsRequest) (*types.QueryPacketsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	tunnel, err := q.k.GetTunnel(ctx, req.TunnelId)
+	if err != nil {
+		return nil, err
+	}
+
+	store := prefix.NewStore(ctx.KVStore(q.k.storeKey), types.TunnelPacketsStoreKey(req.TunnelId))
+
+	var pageRes *query.PageResponse
+	var packets []codectypes.Any
+	switch tunnel.Route.GetCachedValue().(type) {
+	case *types.TSSRoute:
+		pageRes, err = query.Paginate(store, req.Pagination, func(key []byte, value []byte) error {
+			var packet types.TSSPacket
+			q.k.cdc.MustUnmarshal(value, &packet)
+
+			any, err := codectypes.NewAnyWithValue(&packet)
+			if err != nil {
+				panic(err)
+			}
+
+			packets = append(packets, *any)
+			return nil
+		})
+		if err != nil {
+			return nil, err
+		}
+	case *types.AxelarRoute:
+		pageRes, err = query.Paginate(store, req.Pagination, func(key []byte, value []byte) error {
+			var packet types.AxelarPacket
+			q.k.cdc.MustUnmarshal(value, &packet)
+
+			any, err := codectypes.NewAnyWithValue(&packet)
+			if err != nil {
+				panic(err)
+			}
+
+			packets = append(packets, *any)
+			return nil
+		})
+		if err != nil {
+			return nil, err
+		}
+	default:
+		return nil, fmt.Errorf("unknown route type")
+	}
+	return &types.QueryPacketsResponse{Packets: packets, Pagination: pageRes}, nil
+}
+
+// Packet queries a packet by its ID.
+func (q queryServer) Packet(c context.Context, req *types.QueryPacketRequest) (*types.QueryPacketResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	tunnel, err := q.k.GetTunnel(ctx, req.TunnelId)
+	if err != nil {
+		return nil, err
+	}
+
+	switch tunnel.Route.GetCachedValue().(type) {
+	case *types.TSSRoute:
+		packet, err := q.k.GetTSSPacket(ctx, req.TunnelId, req.Nonce)
+		if err != nil {
+			return nil, err
+		}
+
+		any, err := codectypes.NewAnyWithValue(&packet)
+		if err != nil {
+			return nil, err
+		}
+
+		return &types.QueryPacketResponse{Packet: *any}, nil
+	case *types.AxelarRoute:
+		packet, err := q.k.GetAxelarPacket(ctx, req.TunnelId, req.Nonce)
+		if err != nil {
+			return nil, err
+		}
+
+		any, err := codectypes.NewAnyWithValue(&packet)
+		if err != nil {
+			return nil, err
+		}
+
+		return &types.QueryPacketResponse{Packet: *any}, nil
+	default:
+		return nil, fmt.Errorf("unknown route type")
+	}
 }
 
 // Params queries all params of the module.

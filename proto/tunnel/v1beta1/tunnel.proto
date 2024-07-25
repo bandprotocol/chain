@@ -47,7 +47,7 @@ message Tunnel {
   option (gogoproto.equal) = true;
 
   uint64                    id                          = 1 [(gogoproto.customname) = "ID"];
-  uint64                    packet_count                = 2;
+  uint64                    nonce_count                 = 2;
   google.protobuf.Any       route                       = 3 [(cosmos_proto.accepts_interface) = "Route"];
   feeds.v1beta1.FeedType    feed_type                   = 4;
   string                    fee_payer                   = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
@@ -62,7 +62,7 @@ message TSSPacket {
   option (gogoproto.equal) = true;
 
   uint64                   tunnel_id          = 1 [(gogoproto.customname) = "TunnelID"];
-  uint64                   packet_id          = 2 [(gogoproto.customname) = "PacketID"];
+  uint64                   nonce              = 2;
   feeds.v1beta1.FeedType   feed_type          = 3;
   repeated SignalPriceInfo signal_price_infos = 4 [(gogoproto.nullable) = false];
   uint64                   signing_id         = 5 [
@@ -78,7 +78,7 @@ message AxelarPacket {
   option (gogoproto.equal) = true;
 
   uint64                    tunnel_id                    = 1 [(gogoproto.customname) = "TunnelID"];
-  uint64                    packet_id                    = 2 [(gogoproto.customname) = "PacketID"];
+  uint64                    nonce                        = 2;
   feeds.v1beta1.FeedType    feed_type                    = 3;
   repeated SignalPriceInfo  signal_price_infos           = 4 [(gogoproto.nullable) = false];
   uint64                    ibc_queue_id                 = 5 [(gogoproto.customname) = "IBCQueueID"];

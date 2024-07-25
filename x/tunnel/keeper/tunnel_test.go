@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -172,6 +173,29 @@ func TestGetRequiredProcessTunnels(t *testing.T) {
 		resultTunnels[1].SignalPriceInfos[0].Price,
 		"The price should be updated to the latest price",
 	)
+}
+
+func TestProcessTunnel(t *testing.T) {
+	s := testutil.NewTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
+
+	// Create a new tunnel instance
+	tunnel := types.Tunnel{
+		ID: 1,
+	}
+	err := tunnel.SetRoute(&types.TSSRoute{
+		DestinationChainID:         "1",
+		DestinationContractAddress: "0x123",
+	})
+	require.NoError(t, err)
+
+	k.SetTunnel(ctx, tunnel)
+
+	tu, err := k.GetTunnel(ctx, tunnel.ID)
+	require.NoError(t, err)
+
+	k.ProcessTunnel(ctx, tu)
+	fmt.Printf("route: %+v\n", tunnel.Route.GetCachedValue())
 }
 
 func TestGetNextTunnelID(t *testing.T) {

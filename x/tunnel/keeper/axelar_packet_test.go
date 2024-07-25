@@ -15,7 +15,7 @@ func TestGetSetAxelarPacket(t *testing.T) {
 
 	packet := types.AxelarPacket{
 		TunnelID: 1,
-		PacketID: 1,
+		Nonce:    1,
 	}
 	k.SetAxelarPacket(ctx, packet)
 

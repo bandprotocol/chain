@@ -9,7 +9,7 @@ import (
 // SetTSSPacket sets a TSS packet in the store
 func (k Keeper) SetTSSPacket(ctx sdk.Context, packet types.TSSPacket) {
 	ctx.KVStore(k.storeKey).
-		Set(types.TunnelPacketStoreKey(packet.TunnelID, packet.PacketID), k.cdc.MustMarshal(&packet))
+		Set(types.TunnelPacketStoreKey(packet.TunnelID, packet.Nonce), k.cdc.MustMarshal(&packet))
 }
 
 // AddTSSPacket adds a TSS packet to the store
@@ -20,10 +20,10 @@ func (k Keeper) AddTSSPacket(ctx sdk.Context, packet types.TSSPacket) {
 }
 
 // GetTSSPacket retrieves a TSS packet by its tunnel ID and packet ID
-func (k Keeper) GetTSSPacket(ctx sdk.Context, tunnelID uint64, packetID uint64) (types.TSSPacket, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.TunnelPacketStoreKey(tunnelID, packetID))
+func (k Keeper) GetTSSPacket(ctx sdk.Context, tunnelID uint64, nonce uint64) (types.TSSPacket, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.TunnelPacketStoreKey(tunnelID, nonce))
 	if bz == nil {
-		return types.TSSPacket{}, types.ErrPacketNotFound.Wrapf("tunnelID: %d, packetID: %d", tunnelID, packetID)
+		return types.TSSPacket{}, types.ErrPacketNotFound.Wrapf("tunnelID: %d, nonce: %d", tunnelID, nonce)
 	}
 
 	var packet types.TSSPacket

@@ -98,7 +98,11 @@ func (k Keeper) GetActiveTunnels(ctx sdk.Context) []types.Tunnel {
 func (k Keeper) GetRequiredProcessTunnels(
 	ctx sdk.Context,
 ) []types.Tunnel {
+	// TODO: Remove mock test
+	return k.GetTunnels(ctx)
+
 	var tunnels []types.Tunnel
+
 	activeTunnels := k.GetActiveTunnels(ctx)
 	latestPrices := k.feedsKeeper.GetPrices(ctx)
 	latestPricesMap := make(map[string]feedsTypes.Price, len(latestPrices))
@@ -152,17 +156,47 @@ func (k Keeper) ActivateTunnel(ctx sdk.Context, id uint64, creator string) error
 	return nil
 }
 
+func (k Keeper) GetPackets(ctx sdk.Context, tunnelID uint64) ([]any, error) {
+	var packets []any
+	iterator := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.TunnelPacketsStoreKey(tunnelID))
+	defer iterator.Close()
+
+	tunnel, err := k.GetTunnel(ctx, tunnelID)
+	if err != nil {
+		return nil, err
+	}
+
+	switch tunnel.Route.GetCachedValue().(type) {
+	case *types.TSSRoute:
+		for ; iterator.Valid(); iterator.Next() {
+			var packet types.TSSPacket
+			k.cdc.MustUnmarshal(iterator.Value(), &packet)
+			packets = append(packets, packet)
+		}
+	case *types.AxelarRoute:
+		for ; iterator.Valid(); iterator.Next() {
+			var packet types.AxelarPacket
+			k.cdc.MustUnmarshal(iterator.Value(), &packet)
+			packets = append(packets, packet)
+		}
+	default:
+		return nil, fmt.Errorf("unknown route type")
+	}
+
+	return packets, nil
+}
+
 // SetParams sets the tunnel module parameters
 func (k Keeper) ProcessTunnel(ctx sdk.Context, tunnel types.Tunnel) {
 	// Increment the packet count
-	tunnel.PacketCount += 1
+	tunnel.NonceCount += 1
 
 	switch r := tunnel.Route.GetCachedValue().(type) {
 	case *types.TSSRoute:
 		fmt.Printf("Generating TSS packets for tunnel %d, route %s\n", tunnel.ID, r.String())
 		k.TSSPacketHandler(ctx, types.TSSPacket{
 			TunnelID:                   tunnel.ID,
-			PacketID:                   tunnel.PacketCount,
+			Nonce:                      tunnel.NonceCount,
 			SignalPriceInfos:           tunnel.SignalPriceInfos,
 			DestinationChainID:         r.DestinationChainID,
 			DestinationContractAddress: r.DestinationContractAddress,
@@ -170,7 +204,10 @@ func (k Keeper) ProcessTunnel(ctx sdk.Context, tunnel types.Tunnel) {
 	case *types.AxelarRoute:
 		fmt.Printf("Generating Axelar packets for tunnel %d, route %s\n", tunnel.ID, r.String())
 		k.AxelarPacketHandler(ctx, types.AxelarPacket{})
+	default:
+		panic("unknown route type")
 	}
+
 	// Set the last SignalPriceInfos
 	k.SetTunnel(ctx, tunnel)
 }

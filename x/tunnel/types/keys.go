@@ -41,6 +41,10 @@ func TunnelStoreKey(id uint64) []byte {
 	return append(TunnelStoreKeyPrefix, sdk.Uint64ToBigEndian(id)...)
 }
 
+func TunnelPacketsStoreKey(tunnelID uint64) []byte {
+	return append(PacketStoreKeyPrefix, sdk.Uint64ToBigEndian(tunnelID)...)
+}
+
 func TunnelPacketStoreKey(tunnelID uint64, packetID uint64) []byte {
-	return append(TunnelStoreKey(tunnelID), sdk.Uint64ToBigEndian(packetID)...)
+	return append(TunnelPacketsStoreKey(tunnelID), sdk.Uint64ToBigEndian(packetID)...)
 }

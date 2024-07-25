@@ -14,7 +14,7 @@ func TestGetSetTSSPacket(t *testing.T) {
 	ctx, k := s.Ctx, s.Keeper
 	packet := types.TSSPacket{
 		TunnelID: 1,
-		PacketID: 1,
+		Nonce:    1,
 	}
 	k.SetTSSPacket(ctx, packet)
 
