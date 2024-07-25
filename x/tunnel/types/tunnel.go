@@ -26,6 +26,7 @@ func (t Tunnel) UnpackRoute() (TSSRoute, error) {
 	var route TSSRoute
 	fmt.Printf("route: %+v\n", t.Route)
 	fmt.Printf("route: %+v\n", t.Route.GetValue())
+	t.Route.GetCachedValue()
 	err := json.Unmarshal(t.Route.GetValue(), &route)
 	if err != nil {
 		return TSSRoute{}, err
