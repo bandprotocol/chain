@@ -132,7 +132,7 @@ func TestGetReportCount(t *testing.T) {
 	app, ctx := bandtesting.CreateTestApp(t, true)
 	k := app.OracleKeeper
 
-	// We start by setting some aribrary reports.
+	// We start by setting some arbitrary reports.
 	k.SetReport(ctx, types.RequestID(1), types.NewReport(bandtesting.Alice.ValAddress, true, []types.RawReport{}))
 	k.SetReport(ctx, types.RequestID(1), types.NewReport(bandtesting.Bob.ValAddress, true, []types.RawReport{}))
 	k.SetReport(ctx, types.RequestID(2), types.NewReport(bandtesting.Alice.ValAddress, true, []types.RawReport{}))
