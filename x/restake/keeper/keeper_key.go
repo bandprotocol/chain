@@ -31,7 +31,7 @@ func (k Keeper) GetOrCreateKey(ctx sdk.Context, keyName string) (types.Key, erro
 	return key, nil
 }
 
-// AddRewards adds rewards to the pool address and re-calculate reward_per_share of the key
+// AddRewards adds rewards to the pool address and re-calculate `rewardPerPowers` and `remainders` of the key
 func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName string, rewards sdk.Coins) error {
 	key, err := k.GetKey(ctx, keyName)
 	if err != nil {

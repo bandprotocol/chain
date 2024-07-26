@@ -46,11 +46,11 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, lockerAddr sdk.AccAddress, keyNa
 	key.TotalPower = key.TotalPower.Add(diffAmount)
 	k.SetKey(ctx, key)
 
-	addtionalDebts := key.RewardPerPowers.MulDecTruncate(sdkmath.LegacyNewDecFromInt(diffAmount.Abs()))
+	additionalDebts := key.RewardPerPowers.MulDecTruncate(sdkmath.LegacyNewDecFromInt(diffAmount.Abs()))
 	if diffAmount.IsPositive() {
-		lock.PosRewardDebts = lock.PosRewardDebts.Add(addtionalDebts...)
+		lock.PosRewardDebts = lock.PosRewardDebts.Add(additionalDebts...)
 	} else {
-		lock.NegRewardDebts = lock.NegRewardDebts.Add(addtionalDebts...)
+		lock.NegRewardDebts = lock.NegRewardDebts.Add(additionalDebts...)
 	}
 	lock.Amount = amount
 	k.SetLock(ctx, lock)
@@ -86,14 +86,14 @@ func (k Keeper) GetLockedPower(ctx sdk.Context, lockerAddr sdk.AccAddress, keyNa
 	return lock.Amount, nil
 }
 
-func (k Keeper) getTotalRewards(ctx sdk.Context, lock types.Lock) sdk.DecCoins {
+func (k Keeper) getAccumulatedRewards(ctx sdk.Context, lock types.Lock) sdk.DecCoins {
 	key := k.MustGetKey(ctx, lock.Key)
 
 	return key.RewardPerPowers.MulDecTruncate(sdkmath.LegacyNewDecFromInt(lock.Amount))
 }
 
 func (k Keeper) getReward(ctx sdk.Context, lock types.Lock) types.Reward {
-	totalRewards := k.getTotalRewards(ctx, lock)
+	totalRewards := k.getAccumulatedRewards(ctx, lock)
 
 	return types.Reward{
 		Key:     lock.Key,

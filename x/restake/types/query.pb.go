@@ -32,7 +32,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // QueryKeysRequest represents the request type for the Query/Keys RPC method.
 type QueryKeysRequest struct {
-	// Pagination defines optional pagination parameters.
+	// pagination defines optional pagination parameters.
 	Pagination *query.PageRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -78,9 +78,9 @@ func (m *QueryKeysRequest) GetPagination() *query.PageRequest {
 
 // QueryKeysResponse represents the response type for the Query/Keys RPC method.
 type QueryKeysResponse struct {
-	// Keys is a list of keys.
+	// keys is a list of keys.
 	Keys []*Key `protobuf:"bytes,1,rep,name=keys,proto3" json:"keys,omitempty"`
-	// Pagination defines pagination parameters in the response.
+	// pagination defines pagination parameters in the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -133,6 +133,7 @@ func (m *QueryKeysResponse) GetPagination() *query.PageResponse {
 
 // QueryKeyRequest represents the request type for the Query/Key RPC method.
 type QueryKeyRequest struct {
+	// key is the name of the key that want to query.
 	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
 }
 
@@ -178,7 +179,7 @@ func (m *QueryKeyRequest) GetKey() string {
 
 // QueryKeyResponse represents the response type for the Query/Key RPC method.
 type QueryKeyResponse struct {
-	// Key is a key information.
+	// key is a key information.
 	Key Key `protobuf:"bytes,1,opt,name=key,proto3" json:"key"`
 }
 
@@ -224,9 +225,9 @@ func (m *QueryKeyResponse) GetKey() Key {
 
 // QueryRewardsRequest represents the request type for the Query/Rewards RPC method.
 type QueryRewardsRequest struct {
-	// LockerAddress is the target address to query rewards.
+	// lockerAddress is the target address to query rewards.
 	LockerAddress string `protobuf:"bytes,1,opt,name=locker_address,json=lockerAddress,proto3" json:"locker_address,omitempty"`
-	// Pagination defines optional pagination parameters.
+	// pagination defines optional pagination parameters.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -279,9 +280,9 @@ func (m *QueryRewardsRequest) GetPagination() *query.PageRequest {
 
 // QueryRewardsResponse represents the response type for the Query/Rewards RPC method.
 type QueryRewardsResponse struct {
-	// Rewards is a list of rewards for the locker.
+	// rewards is a list of rewards for the locker.
 	Rewards []*Reward `protobuf:"bytes,1,rep,name=rewards,proto3" json:"rewards,omitempty"`
-	// Pagination defines pagination parameters in the response.
+	// pagination defines pagination parameters in the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -334,9 +335,9 @@ func (m *QueryRewardsResponse) GetPagination() *query.PageResponse {
 
 // QueryLocksRequest represents the request type for the Query/Locks RPC method.
 type QueryLocksRequest struct {
-	// LockerAddres is the target address to query locks.
+	// locker_address is the target address to query locks.
 	LockerAddress string `protobuf:"bytes,1,opt,name=locker_address,json=lockerAddress,proto3" json:"locker_address,omitempty"`
-	// Pagination defines optional pagination parameters.
+	// pagination defines optional pagination parameters.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -389,9 +390,9 @@ func (m *QueryLocksRequest) GetPagination() *query.PageRequest {
 
 // QueryLocksResponse represents the response type for the Query/Locks RPC method.
 type QueryLocksResponse struct {
-	// Locks is a list of locks of the locker.
+	// locks is a list of locks of the locker.
 	Locks []*LockResponse `protobuf:"bytes,1,rep,name=locks,proto3" json:"locks,omitempty"`
-	// Pagination defines pagination parameters in the response.
+	// pagination defines pagination parameters in the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 

@@ -25,9 +25,9 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // GenesisState represents the initial state of the blockchain.
 type GenesisState struct {
-	// Keys is a list of keys in the module.
+	// keys is a list of keys in the module.
 	Keys []Key `protobuf:"bytes,1,rep,name=keys,proto3" json:"keys"`
-	// Locks is a list of locks in the module.
+	// locks is a list of locks in the module.
 	Locks []Lock `protobuf:"bytes,2,rep,name=locks,proto3" json:"locks"`
 }
 

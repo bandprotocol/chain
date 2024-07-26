@@ -27,20 +27,19 @@ var (
 	ValidAddress2 = sdk.AccAddress("1000000002")
 	ValidAddress3 = sdk.AccAddress("1000000003")
 
-	// status
-	// - active   -> key 1,2,4
-	// - inactive -> key 3
-	// key 4 has total power as zero
-	ValidKey1  = "key1"
-	ValidKey2  = "key2"
-	ValidKey3  = "key3"
-	ValidKey4  = "key4"
-	InvalidKey = "nonKey"
+	KeyWithRewards    = "0_key_with_rewards"
+	KeyWithoutRewards = "1_key_without_rewards"
+	KeyWithoutLocks   = "2_key_without_locks"
+	InactiveKey       = "3_inactive_key"
+	InvalidKey        = "invalid_key"
+	ValidKey          = "valid_key"
 
-	ValidPoolAddress1 = sdk.AccAddress("2000000001")
-	ValidPoolAddress2 = sdk.AccAddress("2000000002")
-	ValidPoolAddress3 = sdk.AccAddress("2000000003")
-	ValidPoolAddress4 = sdk.AccAddress("2000000004")
+	KeyWithRewardsPoolAddress    = sdk.AccAddress("2000000001")
+	KeyWithoutRewardsPoolAddress = sdk.AccAddress("2000000002")
+	KeyWithoutLocksPoolAddress   = sdk.AccAddress("2000000003")
+	InactiveKeyPoolAddress       = sdk.AccAddress("2000000004")
+
+	ValidKeyPoolAddress = "cosmos1jyea6nm7dhrfr8j4v2ethyfv4vvv2rcaz6a0sptfun7797g59vjsm53vhf"
 
 	RewarderAddress = sdk.AccAddress("3000000001")
 )
@@ -69,34 +68,34 @@ func TestKeeperTestSuite(t *testing.T) {
 func (suite *KeeperTestSuite) SetupTest() {
 	suite.validKeys = []types.Key{
 		{
-			Name:            ValidKey1,
-			PoolAddress:     ValidPoolAddress1.String(),
+			Name:            KeyWithRewards,
+			PoolAddress:     KeyWithRewardsPoolAddress.String(),
 			IsActive:        true,
 			TotalPower:      sdkmath.NewInt(20),
 			RewardPerPowers: sdk.NewDecCoins(sdk.NewDecCoinFromDec("uband", sdkmath.LegacyNewDecWithPrec(1, 1))),
 			Remainders:      nil,
 		},
 		{
-			Name:            ValidKey2,
-			PoolAddress:     ValidPoolAddress2.String(),
+			Name:            KeyWithoutRewards,
+			PoolAddress:     KeyWithoutRewardsPoolAddress.String(),
 			IsActive:        true,
 			TotalPower:      sdkmath.NewInt(100),
 			RewardPerPowers: nil,
 			Remainders:      nil,
 		},
 		{
-			Name:            ValidKey3,
-			PoolAddress:     ValidPoolAddress3.String(),
-			IsActive:        false,
-			TotalPower:      sdkmath.NewInt(100),
-			RewardPerPowers: nil,
-			Remainders:      nil,
-		},
-		{
-			Name:            ValidKey4,
-			PoolAddress:     ValidPoolAddress4.String(),
+			Name:            KeyWithoutLocks,
+			PoolAddress:     KeyWithoutLocksPoolAddress.String(),
 			IsActive:        true,
 			TotalPower:      sdkmath.NewInt(0),
+			RewardPerPowers: nil,
+			Remainders:      nil,
+		},
+		{
+			Name:            InactiveKey,
+			PoolAddress:     InactiveKeyPoolAddress.String(),
+			IsActive:        false,
+			TotalPower:      sdkmath.NewInt(100),
 			RewardPerPowers: nil,
 			Remainders:      nil,
 		},
@@ -105,28 +104,28 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.validLocks = []types.Lock{
 		{
 			LockerAddress:  ValidAddress1.String(),
-			Key:            ValidKey1,
+			Key:            KeyWithRewards,
 			Amount:         sdkmath.NewInt(10),
 			PosRewardDebts: nil,
 			NegRewardDebts: nil,
 		},
 		{
 			LockerAddress:  ValidAddress1.String(),
-			Key:            ValidKey2,
+			Key:            KeyWithoutRewards,
 			Amount:         sdkmath.NewInt(100),
 			PosRewardDebts: nil,
 			NegRewardDebts: nil,
 		},
 		{
 			LockerAddress:  ValidAddress1.String(),
-			Key:            ValidKey3,
+			Key:            InactiveKey,
 			Amount:         sdkmath.NewInt(50),
 			PosRewardDebts: nil,
 			NegRewardDebts: nil,
 		},
 		{
 			LockerAddress:  ValidAddress2.String(),
-			Key:            ValidKey1,
+			Key:            KeyWithRewards,
 			Amount:         sdkmath.NewInt(10),
 			PosRewardDebts: nil,
 			NegRewardDebts: nil,
@@ -225,41 +224,41 @@ func (suite *KeeperTestSuite) TestScenarios() {
 			name: "1 account",
 			check: func() {
 				// pre check
-				_, err := suite.restakeKeeper.GetKey(ctx, ValidKey1)
+				_, err := suite.restakeKeeper.GetKey(ctx, ValidKey)
 				suite.Require().Error(err)
 
-				_, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey1)
+				_, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey)
 				suite.Require().Error(err)
 
 				// --------------------------
 				// address1 locks on key1 333 powers
 				// --------------------------
-				err = suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, ValidKey1, sdkmath.NewInt(333))
+				err = suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, ValidKey, sdkmath.NewInt(333))
 				suite.Require().NoError(err)
 
 				// post check
 				// - total of key must be changed.
 				// - lock of the user must be created.
-				power, err := suite.restakeKeeper.GetLockedPower(ctx, ValidAddress1, ValidKey1)
+				power, err := suite.restakeKeeper.GetLockedPower(ctx, ValidAddress1, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(sdkmath.NewInt(333), power)
 
-				key, err := suite.restakeKeeper.GetKey(ctx, ValidKey1)
+				key, err := suite.restakeKeeper.GetKey(ctx, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Key{
-					Name:            ValidKey1,
-					PoolAddress:     "cosmos15p5q4vgsn4lxk7zefu86fep6htydvr3pfhkv5h0lt49tw8pjsekqtp8tpj",
+					Name:            ValidKey,
+					PoolAddress:     ValidKeyPoolAddress,
 					IsActive:        true,
 					RewardPerPowers: nil,
 					TotalPower:      sdk.NewInt(333),
 					Remainders:      nil,
 				}, key)
 
-				lock, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey1)
+				lock, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Lock{
 					LockerAddress:  ValidAddress1.String(),
-					Key:            ValidKey1,
+					Key:            ValidKey,
 					Amount:         sdk.NewInt(333),
 					PosRewardDebts: nil,
 					NegRewardDebts: nil,
@@ -268,7 +267,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				// --------------------------
 				// rewards in 1 aaaa, 1000 bbbb
 				// --------------------------
-				err = suite.restakeKeeper.AddRewards(ctx, RewarderAddress, ValidKey1, sdk.NewCoins(
+				err = suite.restakeKeeper.AddRewards(ctx, RewarderAddress, ValidKey, sdk.NewCoins(
 					sdk.NewCoin("aaaa", sdkmath.NewInt(1)),
 					sdk.NewCoin("bbbb", sdkmath.NewInt(1000)),
 				))
@@ -277,11 +276,11 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				// post check
 				// - reward per powers must be changed.
 				// - remainders must be calculated.
-				key, err = suite.restakeKeeper.GetKey(ctx, ValidKey1)
+				key, err = suite.restakeKeeper.GetKey(ctx, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Key{
-					Name:        ValidKey1,
-					PoolAddress: "cosmos15p5q4vgsn4lxk7zefu86fep6htydvr3pfhkv5h0lt49tw8pjsekqtp8tpj",
+					Name:        ValidKey,
+					PoolAddress: ValidKeyPoolAddress,
 					IsActive:    true,
 					RewardPerPowers: sdk.NewDecCoins(
 						sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyMustNewDecFromStr("0.003003003003003003")),
@@ -297,22 +296,22 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				// --------------------------
 				// address1 locks on key1 100 powers (override)
 				// --------------------------
-				err = suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, ValidKey1, sdkmath.NewInt(100))
+				err = suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, ValidKey, sdkmath.NewInt(100))
 				suite.Require().NoError(err)
 
 				// post check
 				// - locked power must be changed.
 				// - total power of key must be changed.
 				// - neg reward debts must be changed.
-				power, err = suite.restakeKeeper.GetLockedPower(ctx, ValidAddress1, ValidKey1)
+				power, err = suite.restakeKeeper.GetLockedPower(ctx, ValidAddress1, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(sdkmath.NewInt(100), power)
 
-				key, err = suite.restakeKeeper.GetKey(ctx, ValidKey1)
+				key, err = suite.restakeKeeper.GetKey(ctx, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Key{
-					Name:        ValidKey1,
-					PoolAddress: "cosmos15p5q4vgsn4lxk7zefu86fep6htydvr3pfhkv5h0lt49tw8pjsekqtp8tpj",
+					Name:        ValidKey,
+					PoolAddress: ValidKeyPoolAddress,
 					IsActive:    true,
 					RewardPerPowers: sdk.NewDecCoins(
 						sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyMustNewDecFromStr("0.003003003003003003")),
@@ -325,11 +324,11 @@ func (suite *KeeperTestSuite) TestScenarios() {
 					),
 				}, key)
 
-				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey1)
+				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Lock{
 					LockerAddress:  ValidAddress1.String(),
-					Key:            ValidKey1,
+					Key:            ValidKey,
 					Amount:         sdk.NewInt(100),
 					PosRewardDebts: nil,
 					NegRewardDebts: sdk.NewDecCoins(
@@ -341,22 +340,22 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				// --------------------------
 				// address1 locks on key1 2000 powers (override)
 				// --------------------------
-				err = suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, ValidKey1, sdkmath.NewInt(2000))
+				err = suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, ValidKey, sdkmath.NewInt(2000))
 				suite.Require().NoError(err)
 
 				// post check
 				// - locked power must be changed.
 				// - total power of key must be changed.
 				// - pos reward debts must be changed.
-				power, err = suite.restakeKeeper.GetLockedPower(ctx, ValidAddress1, ValidKey1)
+				power, err = suite.restakeKeeper.GetLockedPower(ctx, ValidAddress1, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(sdkmath.NewInt(2000), power)
 
-				key, err = suite.restakeKeeper.GetKey(ctx, ValidKey1)
+				key, err = suite.restakeKeeper.GetKey(ctx, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Key{
-					Name:        ValidKey1,
-					PoolAddress: "cosmos15p5q4vgsn4lxk7zefu86fep6htydvr3pfhkv5h0lt49tw8pjsekqtp8tpj",
+					Name:        ValidKey,
+					PoolAddress: ValidKeyPoolAddress,
 					IsActive:    true,
 					RewardPerPowers: sdk.NewDecCoins(
 						sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyMustNewDecFromStr("0.003003003003003003")),
@@ -369,11 +368,11 @@ func (suite *KeeperTestSuite) TestScenarios() {
 					),
 				}, key)
 
-				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey1)
+				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Lock{
 					LockerAddress: ValidAddress1.String(),
-					Key:           ValidKey1,
+					Key:           ValidKey,
 					Amount:        sdk.NewInt(2000),
 					PosRewardDebts: sdk.NewDecCoins(
 						sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyMustNewDecFromStr("5.705705705705705700")),
@@ -391,21 +390,21 @@ func (suite *KeeperTestSuite) TestScenarios() {
 
 				// rewards needs to be transfer from pool address to user
 				suite.bankKeeper.EXPECT().
-					SendCoins(gomock.Any(), sdk.MustAccAddressFromBech32("cosmos15p5q4vgsn4lxk7zefu86fep6htydvr3pfhkv5h0lt49tw8pjsekqtp8tpj"), ValidAddress1, sdk.NewCoins(
+					SendCoins(gomock.Any(), sdk.MustAccAddressFromBech32(ValidKeyPoolAddress), ValidAddress1, sdk.NewCoins(
 						sdk.NewCoin("bbbb", sdkmath.NewInt(999)),
 					)).
 					Times(1)
 
-				_, err = suite.msgServer.ClaimRewards(ctx, types.NewMsgClaimRewards(ValidAddress1, ValidKey1))
+				_, err = suite.msgServer.ClaimRewards(ctx, types.NewMsgClaimRewards(ValidAddress1, ValidKey))
 				suite.Require().NoError(err)
 
 				// post check
 				// - reward debts need to be updated.
-				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey1)
+				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Lock{
 					LockerAddress: ValidAddress1.String(),
-					Key:           ValidKey1,
+					Key:           ValidKey,
 					Amount:        sdk.NewInt(2000),
 					PosRewardDebts: sdk.NewDecCoins(
 						sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyMustNewDecFromStr("6.006006006006006000")),
@@ -420,16 +419,16 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				// --------------------------
 				// deactivate keys
 				// --------------------------
-				err = suite.restakeKeeper.DeactivateKey(ctx, ValidKey1)
+				err = suite.restakeKeeper.DeactivateKey(ctx, ValidKey)
 				suite.Require().NoError(err)
 
 				// post check
 				// - status of key must be inactive
-				key, err = suite.restakeKeeper.GetKey(ctx, ValidKey1)
+				key, err = suite.restakeKeeper.GetKey(ctx, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Key{
-					Name:        ValidKey1,
-					PoolAddress: "cosmos15p5q4vgsn4lxk7zefu86fep6htydvr3pfhkv5h0lt49tw8pjsekqtp8tpj",
+					Name:        ValidKey,
+					PoolAddress: ValidKeyPoolAddress,
 					IsActive:    false,
 					RewardPerPowers: sdk.NewDecCoins(
 						sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyMustNewDecFromStr("0.003003003003003003")),
@@ -445,20 +444,20 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				// --------------------------
 				// claim rewards after key is inactive
 				// --------------------------
-				_, err = suite.msgServer.ClaimRewards(ctx, types.NewMsgClaimRewards(ValidAddress1, ValidKey1))
+				_, err = suite.msgServer.ClaimRewards(ctx, types.NewMsgClaimRewards(ValidAddress1, ValidKey))
 				suite.Require().NoError(err)
 
 				// post check
 				// - lock must be deleted
 				// - remainders must be 1
-				_, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey1)
+				_, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey)
 				suite.Require().Error(err)
 
-				key, err = suite.restakeKeeper.GetKey(ctx, ValidKey1)
+				key, err = suite.restakeKeeper.GetKey(ctx, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Key{
-					Name:        ValidKey1,
-					PoolAddress: "cosmos15p5q4vgsn4lxk7zefu86fep6htydvr3pfhkv5h0lt49tw8pjsekqtp8tpj",
+					Name:        ValidKey,
+					PoolAddress: ValidKeyPoolAddress,
 					IsActive:    false,
 					RewardPerPowers: sdk.NewDecCoins(
 						sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyMustNewDecFromStr("0.003003003003003003")),
@@ -476,13 +475,13 @@ func (suite *KeeperTestSuite) TestScenarios() {
 			name: "2 accounts",
 			check: func() {
 				// pre check
-				_, err := suite.restakeKeeper.GetKey(ctx, ValidKey1)
+				_, err := suite.restakeKeeper.GetKey(ctx, ValidKey)
 				suite.Require().Error(err)
 
-				_, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey1)
+				_, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey)
 				suite.Require().Error(err)
 
-				_, err = suite.restakeKeeper.GetLock(ctx, ValidAddress2, ValidKey1)
+				_, err = suite.restakeKeeper.GetLock(ctx, ValidAddress2, ValidKey)
 				suite.Require().Error(err)
 
 				// --------------------------
@@ -494,7 +493,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				err = suite.restakeKeeper.SetLockedPower(
 					ctx,
 					ValidAddress1,
-					ValidKey1,
+					ValidKey,
 					val18,
 				)
 				suite.Require().NoError(err)
@@ -502,26 +501,26 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				// post check
 				// - total of key must be changed.
 				// - lock of the user1 must be created.
-				power, err := suite.restakeKeeper.GetLockedPower(ctx, ValidAddress1, ValidKey1)
+				power, err := suite.restakeKeeper.GetLockedPower(ctx, ValidAddress1, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(val18, power)
 
-				key, err := suite.restakeKeeper.GetKey(ctx, ValidKey1)
+				key, err := suite.restakeKeeper.GetKey(ctx, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Key{
-					Name:            ValidKey1,
-					PoolAddress:     "cosmos15p5q4vgsn4lxk7zefu86fep6htydvr3pfhkv5h0lt49tw8pjsekqtp8tpj",
+					Name:            ValidKey,
+					PoolAddress:     "cosmos1jyea6nm7dhrfr8j4v2ethyfv4vvv2rcaz6a0sptfun7797g59vjsm53vhf",
 					IsActive:        true,
 					RewardPerPowers: nil,
 					TotalPower:      val18,
 					Remainders:      nil,
 				}, key)
 
-				lock, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey1)
+				lock, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Lock{
 					LockerAddress:  ValidAddress1.String(),
-					Key:            ValidKey1,
+					Key:            ValidKey,
 					Amount:         val18,
 					PosRewardDebts: nil,
 					NegRewardDebts: nil,
@@ -536,7 +535,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				err = suite.restakeKeeper.SetLockedPower(
 					ctx,
 					ValidAddress2,
-					ValidKey1,
+					ValidKey,
 					sdk.NewInt(1),
 				)
 				suite.Require().NoError(err)
@@ -544,26 +543,26 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				// post check
 				// - total of key must be changed.
 				// - lock of the user1 must be created.
-				power, err = suite.restakeKeeper.GetLockedPower(ctx, ValidAddress2, ValidKey1)
+				power, err = suite.restakeKeeper.GetLockedPower(ctx, ValidAddress2, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(sdk.NewInt(1), power)
 
-				key, err = suite.restakeKeeper.GetKey(ctx, ValidKey1)
+				key, err = suite.restakeKeeper.GetKey(ctx, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Key{
-					Name:            ValidKey1,
-					PoolAddress:     "cosmos15p5q4vgsn4lxk7zefu86fep6htydvr3pfhkv5h0lt49tw8pjsekqtp8tpj",
+					Name:            ValidKey,
+					PoolAddress:     ValidKeyPoolAddress,
 					IsActive:        true,
 					RewardPerPowers: nil,
 					TotalPower:      val18Plus1,
 					Remainders:      nil,
 				}, key)
 
-				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress2, ValidKey1)
+				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress2, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Lock{
 					LockerAddress:  ValidAddress2.String(),
-					Key:            ValidKey1,
+					Key:            ValidKey,
 					Amount:         sdk.NewInt(1),
 					PosRewardDebts: nil,
 					NegRewardDebts: nil,
@@ -572,7 +571,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				// --------------------------
 				// rewards in 1 aaaa, 1e18 bbbb
 				// --------------------------
-				err = suite.restakeKeeper.AddRewards(ctx, RewarderAddress, ValidKey1, sdk.NewCoins(
+				err = suite.restakeKeeper.AddRewards(ctx, RewarderAddress, ValidKey, sdk.NewCoins(
 					sdk.NewCoin("aaaa", sdkmath.NewInt(1)),
 					sdk.NewCoin("bbbb", val18),
 				))
@@ -581,11 +580,11 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				// post check
 				// - reward per powers must be changed.
 				// - remainders must have "aaaa" as too much power for 1aaaa
-				key, err = suite.restakeKeeper.GetKey(ctx, ValidKey1)
+				key, err = suite.restakeKeeper.GetKey(ctx, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Key{
-					Name:        ValidKey1,
-					PoolAddress: "cosmos15p5q4vgsn4lxk7zefu86fep6htydvr3pfhkv5h0lt49tw8pjsekqtp8tpj",
+					Name:        ValidKey,
+					PoolAddress: ValidKeyPoolAddress,
 					IsActive:    true,
 					RewardPerPowers: sdk.NewDecCoins(
 						sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyMustNewDecFromStr("0.999999999999999999")),
@@ -600,22 +599,22 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				// --------------------------
 				// address1 locks on key1 0 powers (override, remove all locked power)
 				// --------------------------
-				err = suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, ValidKey1, sdkmath.NewInt(0))
+				err = suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, ValidKey, sdkmath.NewInt(0))
 				suite.Require().NoError(err)
 
 				// post check
 				// - total power of key must be changed.
 				// - locked power must be changed.
 				// - neg reward debts must be changed.
-				power, err = suite.restakeKeeper.GetLockedPower(ctx, ValidAddress1, ValidKey1)
+				power, err = suite.restakeKeeper.GetLockedPower(ctx, ValidAddress1, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(sdkmath.NewInt(0), power)
 
-				key, err = suite.restakeKeeper.GetKey(ctx, ValidKey1)
+				key, err = suite.restakeKeeper.GetKey(ctx, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Key{
-					Name:        ValidKey1,
-					PoolAddress: "cosmos15p5q4vgsn4lxk7zefu86fep6htydvr3pfhkv5h0lt49tw8pjsekqtp8tpj",
+					Name:        ValidKey,
+					PoolAddress: ValidKeyPoolAddress,
 					IsActive:    true,
 					RewardPerPowers: sdk.NewDecCoins(
 						sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyMustNewDecFromStr("0.999999999999999999")),
@@ -627,11 +626,11 @@ func (suite *KeeperTestSuite) TestScenarios() {
 					),
 				}, key)
 
-				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey1)
+				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Lock{
 					LockerAddress:  ValidAddress1.String(),
-					Key:            ValidKey1,
+					Key:            ValidKey,
 					Amount:         sdk.NewInt(0),
 					PosRewardDebts: nil,
 					NegRewardDebts: sdk.NewDecCoins(
@@ -645,21 +644,21 @@ func (suite *KeeperTestSuite) TestScenarios() {
 
 				// rewards needs to be transfer from pool address to address1
 				suite.bankKeeper.EXPECT().
-					SendCoins(gomock.Any(), sdk.MustAccAddressFromBech32("cosmos15p5q4vgsn4lxk7zefu86fep6htydvr3pfhkv5h0lt49tw8pjsekqtp8tpj"), ValidAddress1, sdk.NewCoins(
+					SendCoins(gomock.Any(), sdk.MustAccAddressFromBech32(ValidKeyPoolAddress), ValidAddress1, sdk.NewCoins(
 						sdk.NewCoin("bbbb", sdk.NewInt(999999999999999999)),
 					)).
 					Times(1)
 
-				_, err = suite.msgServer.ClaimRewards(ctx, types.NewMsgClaimRewards(ValidAddress1, ValidKey1))
+				_, err = suite.msgServer.ClaimRewards(ctx, types.NewMsgClaimRewards(ValidAddress1, ValidKey))
 				suite.Require().NoError(err)
 
 				// post check
 				// - reward debts need to be updated.
-				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey1)
+				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Lock{
 					LockerAddress:  ValidAddress1.String(),
-					Key:            ValidKey1,
+					Key:            ValidKey,
 					Amount:         sdk.NewInt(0),
 					PosRewardDebts: nil,
 					NegRewardDebts: nil,
@@ -668,16 +667,16 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				// --------------------------
 				// address2 claim rewards
 				// --------------------------
-				_, err = suite.msgServer.ClaimRewards(ctx, types.NewMsgClaimRewards(ValidAddress2, ValidKey1))
+				_, err = suite.msgServer.ClaimRewards(ctx, types.NewMsgClaimRewards(ValidAddress2, ValidKey))
 				suite.Require().NoError(err)
 
 				// post check
 				// - nothing change as reward isn't enough
-				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress2, ValidKey1)
+				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress2, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Lock{
 					LockerAddress:  ValidAddress2.String(),
-					Key:            ValidKey1,
+					Key:            ValidKey,
 					Amount:         sdk.NewInt(1),
 					PosRewardDebts: nil,
 					NegRewardDebts: nil,

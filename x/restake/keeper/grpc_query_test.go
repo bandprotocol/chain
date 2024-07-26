@@ -78,7 +78,7 @@ func (suite *KeeperTestSuite) TestQueryKey() {
 
 	// query and check
 	res, err := queryClient.Key(context.Background(), &types.QueryKeyRequest{
-		Key: ValidKey1,
+		Key: KeyWithRewards,
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryKeyResponse{
@@ -108,7 +108,7 @@ func (suite *KeeperTestSuite) TestQueryRewards() {
 		expPass  bool
 	}{
 		{
-			"address 1",
+			"rewards of address1 - lock on multiple keys",
 			func() {
 				req = &types.QueryRewardsRequest{
 					LockerAddress: ValidAddress1.String(),
@@ -116,15 +116,15 @@ func (suite *KeeperTestSuite) TestQueryRewards() {
 				expRes = &types.QueryRewardsResponse{
 					Rewards: []*types.Reward{
 						{
-							Key:     ValidKey1,
+							Key:     KeyWithRewards,
 							Rewards: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))),
 						},
 						{
-							Key:     ValidKey2,
+							Key:     KeyWithoutRewards,
 							Rewards: nil,
 						},
 						{
-							Key:     ValidKey3,
+							Key:     InactiveKey,
 							Rewards: nil,
 						},
 					},
@@ -133,7 +133,7 @@ func (suite *KeeperTestSuite) TestQueryRewards() {
 			true,
 		},
 		{
-			"address 2",
+			"rewards of address2 - lock on one key",
 			func() {
 				req = &types.QueryRewardsRequest{
 					LockerAddress: ValidAddress2.String(),
@@ -141,7 +141,7 @@ func (suite *KeeperTestSuite) TestQueryRewards() {
 				expRes = &types.QueryRewardsResponse{
 					Rewards: []*types.Reward{
 						{
-							Key:     ValidKey1,
+							Key:     KeyWithRewards,
 							Rewards: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))),
 						},
 					},
@@ -150,7 +150,7 @@ func (suite *KeeperTestSuite) TestQueryRewards() {
 			true,
 		},
 		{
-			"address 3",
+			"rewards of address3 - no lock",
 			func() {
 				req = &types.QueryRewardsRequest{
 					LockerAddress: ValidAddress3.String(),
@@ -196,7 +196,7 @@ func (suite *KeeperTestSuite) TestQueryLocks() {
 		expPass  bool
 	}{
 		{
-			"address 1",
+			"locks of address1 - lock on multiple keys",
 			func() {
 				req = &types.QueryLocksRequest{
 					LockerAddress: ValidAddress1.String(),
@@ -204,11 +204,11 @@ func (suite *KeeperTestSuite) TestQueryLocks() {
 				expRes = &types.QueryLocksResponse{
 					Locks: []*types.LockResponse{
 						{
-							Key:    ValidKey1,
+							Key:    KeyWithRewards,
 							Amount: sdkmath.NewInt(10),
 						},
 						{
-							Key:    ValidKey2,
+							Key:    KeyWithoutRewards,
 							Amount: sdkmath.NewInt(100),
 						},
 					},
@@ -217,7 +217,7 @@ func (suite *KeeperTestSuite) TestQueryLocks() {
 			true,
 		},
 		{
-			"address 2",
+			"locks of address2 - lock on one key",
 			func() {
 				req = &types.QueryLocksRequest{
 					LockerAddress: ValidAddress2.String(),
@@ -225,7 +225,7 @@ func (suite *KeeperTestSuite) TestQueryLocks() {
 				expRes = &types.QueryLocksResponse{
 					Locks: []*types.LockResponse{
 						{
-							Key:    ValidKey1,
+							Key:    KeyWithRewards,
 							Amount: sdkmath.NewInt(10),
 						},
 					},
@@ -234,7 +234,7 @@ func (suite *KeeperTestSuite) TestQueryLocks() {
 			true,
 		},
 		{
-			"address 3",
+			"locks of address3 - no lock",
 			func() {
 				req = &types.QueryLocksRequest{
 					LockerAddress: ValidAddress3.String(),
