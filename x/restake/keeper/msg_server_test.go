@@ -35,7 +35,7 @@ func (suite *KeeperTestSuite) TestMsgClaimRewards() {
 			name: "no lock",
 			input: &types.MsgClaimRewards{
 				LockerAddress: ValidAddress2.String(),
-				Key:           ValidKey2,
+				Key:           KeyWithoutRewards,
 			},
 			expErr:    true,
 			expErrMsg: "lock not found",
@@ -46,19 +46,19 @@ func (suite *KeeperTestSuite) TestMsgClaimRewards() {
 			name: "success - active key",
 			input: &types.MsgClaimRewards{
 				LockerAddress: ValidAddress1.String(),
-				Key:           ValidKey1,
+				Key:           KeyWithRewards,
 			},
 			expErr:    false,
 			expErrMsg: "",
 			preCheck: func() {
 				suite.bankKeeper.EXPECT().
-					SendCoins(gomock.Any(), ValidPoolAddress1, ValidAddress1, sdk.NewCoins(
+					SendCoins(gomock.Any(), KeyWithRewardsPoolAddress, ValidAddress1, sdk.NewCoins(
 						sdk.NewCoin("uband", sdk.NewInt(1)),
 					)).
 					Times(1)
 			},
 			postCheck: func() {
-				lock, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey1)
+				lock, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, KeyWithRewards)
 				suite.Require().NoError(err)
 				suite.Require().Equal(sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))), lock.PosRewardDebts)
 				suite.Require().Equal(sdk.DecCoins(nil), lock.NegRewardDebts)
@@ -68,13 +68,13 @@ func (suite *KeeperTestSuite) TestMsgClaimRewards() {
 			name: "success - inactive key",
 			input: &types.MsgClaimRewards{
 				LockerAddress: ValidAddress1.String(),
-				Key:           ValidKey3,
+				Key:           InactiveKey,
 			},
 			expErr:    false,
 			expErrMsg: "",
 			preCheck:  func() {},
 			postCheck: func() {
-				_, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey3)
+				_, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, InactiveKey)
 				suite.Require().Error(err)
 			},
 		},

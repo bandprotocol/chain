@@ -32,9 +32,9 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // MsgClaimRewards is the request message type for claiming rewards.
 type MsgClaimRewards struct {
-	// LockerAddress is the address that will claim the rewards.
+	// lockerAddress is the address that will claim the rewards.
 	LockerAddress string `protobuf:"bytes,1,opt,name=locker_address,json=lockerAddress,proto3" json:"locker_address,omitempty"`
-	// Key is the key that want to claim rewards from.
+	// key is the key that want to claim rewards from.
 	Key string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
 }
 
@@ -165,7 +165,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	// RPC method for claiming rewards.
+	// ClaimRewards defines a method for claiming rewards for the user.
 	ClaimRewards(ctx context.Context, in *MsgClaimRewards, opts ...grpc.CallOption) (*MsgClaimRewardsResponse, error)
 }
 
@@ -188,7 +188,7 @@ func (c *msgClient) ClaimRewards(ctx context.Context, in *MsgClaimRewards, opts 
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// RPC method for claiming rewards.
+	// ClaimRewards defines a method for claiming rewards for the user.
 	ClaimRewards(context.Context, *MsgClaimRewards) (*MsgClaimRewardsResponse, error)
 }
 

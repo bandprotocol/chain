@@ -89,8 +89,8 @@ func GetQueryCmdKeys() *cobra.Command {
 
 func GetQueryCmdLocks() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "locks [address]",
-		Short: "shows all locks of an address",
+		Use:   "locks [locker_address]",
+		Short: "shows all locks of an locker address",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)

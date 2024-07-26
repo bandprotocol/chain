@@ -8,7 +8,7 @@ import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "restake/v1beta1/types.proto";
 
-// Query service defines the gRPC querier service for restake.
+// Query defines the gRPC querier service.
 service Query {
   // Keys returns a list of keys.
   rpc Keys(QueryKeysRequest) returns (QueryKeysResponse) {
@@ -33,62 +33,63 @@ service Query {
 
 // QueryKeysRequest represents the request type for the Query/Keys RPC method.
 message QueryKeysRequest {
-  // Pagination defines optional pagination parameters.
+  // pagination defines optional pagination parameters.
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
 // QueryKeysResponse represents the response type for the Query/Keys RPC method.
 message QueryKeysResponse {
-  // Keys is a list of keys.
+  // keys is a list of keys.
   repeated Key keys = 1;
 
-  // Pagination defines pagination parameters in the response.
+  // pagination defines pagination parameters in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // QueryKeyRequest represents the request type for the Query/Key RPC method.
 message QueryKeyRequest {
+  // key is the name of the key that want to query.
   string key = 1;
 }
 
 // QueryKeyResponse represents the response type for the Query/Key RPC method.
 message QueryKeyResponse {
-  // Key is a key information.
+  // key is a key information.
   Key key = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryRewardsRequest represents the request type for the Query/Rewards RPC method.
 message QueryRewardsRequest {
-  // LockerAddress is the target address to query rewards.
+  // lockerAddress is the target address to query rewards.
   string locker_address = 1;
 
-  // Pagination defines optional pagination parameters.
+  // pagination defines optional pagination parameters.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 // QueryRewardsResponse represents the response type for the Query/Rewards RPC method.
 message QueryRewardsResponse {
-  // Rewards is a list of rewards for the locker.
+  // rewards is a list of rewards for the locker.
   repeated Reward rewards = 1;
 
-  // Pagination defines pagination parameters in the response.
+  // pagination defines pagination parameters in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // QueryLocksRequest represents the request type for the Query/Locks RPC method.
 message QueryLocksRequest {
-  // LockerAddres is the target address to query locks.
+  // locker_address is the target address to query locks.
   string locker_address = 1;
 
-  // Pagination defines optional pagination parameters.
+  // pagination defines optional pagination parameters.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 // QueryLocksResponse represents the response type for the Query/Locks RPC method.
 message QueryLocksResponse {
-  // Locks is a list of locks of the locker.
+  // locks is a list of locks of the locker.
   repeated LockResponse locks = 1;
 
-  // Pagination defines pagination parameters in the response.
+  // pagination defines pagination parameters in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
