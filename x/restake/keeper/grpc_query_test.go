@@ -180,6 +180,88 @@ func (suite *KeeperTestSuite) TestQueryRewards() {
 	}
 }
 
+func (suite *KeeperTestSuite) TestQueryReward() {
+	queryClient := suite.queryClient
+	suite.setupState()
+
+	// query and check
+	var (
+		req    *types.QueryRewardRequest
+		expRes *types.QueryRewardResponse
+	)
+
+	testCases := []struct {
+		msg      string
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"reward of address1 on KeyWithRewards",
+			func() {
+				req = &types.QueryRewardRequest{
+					LockerAddress: ValidAddress1.String(),
+					Key:           KeyWithRewards,
+				}
+				expRes = &types.QueryRewardResponse{
+					Reward: types.Reward{
+						Key:     KeyWithRewards,
+						Rewards: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))),
+					},
+				}
+			},
+			true,
+		},
+		{
+			"reward of address1 on InactiveKey",
+			func() {
+				req = &types.QueryRewardRequest{
+					LockerAddress: ValidAddress1.String(),
+					Key:           InactiveKey,
+				}
+				expRes = &types.QueryRewardResponse{
+					Reward: types.Reward{
+						Key:     InactiveKey,
+						Rewards: nil,
+					},
+				}
+			},
+			true,
+		},
+		{
+			"reward of address2 on KeyWithRewards",
+			func() {
+				req = &types.QueryRewardRequest{
+					LockerAddress: ValidAddress2.String(),
+					Key:           KeyWithRewards,
+				}
+				expRes = &types.QueryRewardResponse{
+					Reward: types.Reward{
+						Key:     KeyWithRewards,
+						Rewards: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))),
+					},
+				}
+			},
+			true,
+		},
+	}
+
+	for _, testCase := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", testCase.msg), func() {
+			testCase.malleate()
+
+			res, err := queryClient.Reward(context.Background(), req)
+
+			if testCase.expPass {
+				suite.Require().NoError(err)
+				suite.Require().Equal(expRes.GetReward(), res.GetReward())
+			} else {
+				suite.Require().Error(err)
+				suite.Require().Nil(expRes)
+			}
+		})
+	}
+}
+
 func (suite *KeeperTestSuite) TestQueryLocks() {
 	queryClient := suite.queryClient
 	suite.setupState()
@@ -256,6 +338,83 @@ func (suite *KeeperTestSuite) TestQueryLocks() {
 			if testCase.expPass {
 				suite.Require().NoError(err)
 				suite.Require().Equal(expRes.GetLocks(), res.GetLocks())
+			} else {
+				suite.Require().Error(err)
+				suite.Require().Nil(expRes)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestQueryLock() {
+	queryClient := suite.queryClient
+	suite.setupState()
+
+	// query and check
+	var (
+		req    *types.QueryLockRequest
+		expRes *types.QueryLockResponse
+	)
+
+	testCases := []struct {
+		msg      string
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"lock of address1 on KeyWithRewards",
+			func() {
+				req = &types.QueryLockRequest{
+					LockerAddress: ValidAddress1.String(),
+					Key:           KeyWithRewards,
+				}
+				expRes = &types.QueryLockResponse{
+					Lock: types.LockResponse{
+						Key:    KeyWithRewards,
+						Amount: sdk.NewInt(10),
+					},
+				}
+			},
+			true,
+		},
+		{
+			"lock of address1 on InactiveKey",
+			func() {
+				req = &types.QueryLockRequest{
+					LockerAddress: ValidAddress1.String(),
+					Key:           InactiveKey,
+				}
+				expRes = nil
+			},
+			false,
+		},
+		{
+			"lock of address2 on KeyWithRewards",
+			func() {
+				req = &types.QueryLockRequest{
+					LockerAddress: ValidAddress2.String(),
+					Key:           KeyWithRewards,
+				}
+				expRes = &types.QueryLockResponse{
+					Lock: types.LockResponse{
+						Key:    KeyWithRewards,
+						Amount: sdk.NewInt(10),
+					},
+				}
+			},
+			true,
+		},
+	}
+
+	for _, testCase := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", testCase.msg), func() {
+			testCase.malleate()
+
+			res, err := queryClient.Lock(context.Background(), req)
+
+			if testCase.expPass {
+				suite.Require().NoError(err)
+				suite.Require().Equal(expRes.GetLock(), res.GetLock())
 			} else {
 				suite.Require().Error(err)
 				suite.Require().Nil(expRes)

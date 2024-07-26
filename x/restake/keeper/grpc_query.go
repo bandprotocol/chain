@@ -63,12 +63,12 @@ func (k Querier) Rewards(
 ) (*types.QueryRewardsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	address, err := sdk.AccAddressFromBech32(req.LockerAddress)
+	addr, err := sdk.AccAddressFromBech32(req.LockerAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	keyStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.LocksStoreKey(address))
+	keyStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.LocksStoreKey(addr))
 
 	filteredRewards, pageRes, err := query.GenericFilteredPaginate(
 		k.cdc,
@@ -87,18 +87,39 @@ func (k Querier) Rewards(
 	return &types.QueryRewardsResponse{Rewards: filteredRewards, Pagination: pageRes}, nil
 }
 
+func (k Querier) Reward(
+	c context.Context,
+	req *types.QueryRewardRequest,
+) (*types.QueryRewardResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	addr, err := sdk.AccAddressFromBech32(req.LockerAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	lock, err := k.GetLock(ctx, addr, req.Key)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.QueryRewardResponse{
+		Reward: k.getReward(ctx, lock),
+	}, nil
+}
+
 func (k Querier) Locks(
 	c context.Context,
 	req *types.QueryLocksRequest,
 ) (*types.QueryLocksResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	address, err := sdk.AccAddressFromBech32(req.LockerAddress)
+	addr, err := sdk.AccAddressFromBech32(req.LockerAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	keyStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.LocksStoreKey(address))
+	keyStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.LocksStoreKey(addr))
 
 	filteredLocks, pageRes, err := query.GenericFilteredPaginate(
 		k.cdc,
@@ -121,4 +142,33 @@ func (k Querier) Locks(
 	}
 
 	return &types.QueryLocksResponse{Locks: filteredLocks, Pagination: pageRes}, nil
+}
+
+func (k Querier) Lock(
+	c context.Context,
+	req *types.QueryLockRequest,
+) (*types.QueryLockResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	addr, err := sdk.AccAddressFromBech32(req.LockerAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	isActive := k.IsActiveKey(ctx, req.Key)
+	if !isActive {
+		return nil, types.ErrKeyNotActive
+	}
+
+	lock, err := k.GetLock(ctx, addr, req.Key)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.QueryLockResponse{
+		Lock: types.LockResponse{
+			Key:    lock.Key,
+			Amount: lock.Amount,
+		},
+	}, nil
 }
