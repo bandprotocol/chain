@@ -107,6 +107,7 @@ func GetQueryCmdLocks() *cobra.Command {
 		},
 	}
 
+	flags.AddPaginationFlagsToCmd(cmd, "locks")
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
@@ -132,6 +133,7 @@ func GetQueryCmdRewards() *cobra.Command {
 		},
 	}
 
+	flags.AddPaginationFlagsToCmd(cmd, "rewards")
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
