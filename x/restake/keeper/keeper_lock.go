@@ -86,12 +86,14 @@ func (k Keeper) GetLockedPower(ctx sdk.Context, lockerAddr sdk.AccAddress, keyNa
 	return lock.Amount, nil
 }
 
+// getAccumulatedRewards gets the accumulatedRewards of a lock if they lock since beginning.
 func (k Keeper) getAccumulatedRewards(ctx sdk.Context, lock types.Lock) sdk.DecCoins {
 	key := k.MustGetKey(ctx, lock.Key)
 
 	return key.RewardPerPowers.MulDecTruncate(sdkmath.LegacyNewDecFromInt(lock.Amount))
 }
 
+// getReward gets the reward of a lock by using accumulated rewards and reward debts.
 func (k Keeper) getReward(ctx sdk.Context, lock types.Lock) types.Reward {
 	totalRewards := k.getAccumulatedRewards(ctx, lock)
 
@@ -105,14 +107,17 @@ func (k Keeper) getReward(ctx sdk.Context, lock types.Lock) types.Reward {
 // store part
 // -------------------------------
 
+// GetLocksIterator gets iterator of lock store.
 func (k Keeper) GetLocksIterator(ctx sdk.Context) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.LockStoreKeyPrefix)
 }
 
+// GetLocksByAddressIterator gets iterator of locks of the speicfic address.
 func (k Keeper) GetLocksByAddressIterator(ctx sdk.Context, addr sdk.AccAddress) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.LocksStoreKey(addr))
 }
 
+// GetLocksByAddress gets all locks of the address.
 func (k Keeper) GetLocksByAddress(ctx sdk.Context, addr sdk.AccAddress) (locks []types.Lock) {
 	iterator := k.GetLocksByAddressIterator(ctx, addr)
 	defer iterator.Close()
@@ -126,6 +131,7 @@ func (k Keeper) GetLocksByAddress(ctx sdk.Context, addr sdk.AccAddress) (locks [
 	return locks
 }
 
+// GetLocks gets all locks in the store.
 func (k Keeper) GetLocks(ctx sdk.Context) (locks []types.Lock) {
 	iterator := k.GetLocksIterator(ctx)
 	defer iterator.Close()
@@ -139,10 +145,12 @@ func (k Keeper) GetLocks(ctx sdk.Context) (locks []types.Lock) {
 	return locks
 }
 
+// HasLock checks if lock exists in the store.
 func (k Keeper) HasLock(ctx sdk.Context, addr sdk.AccAddress, keyName string) bool {
 	return ctx.KVStore(k.storeKey).Has(types.LockStoreKey(addr, keyName))
 }
 
+// GetLock gets a lock from store by address and key name.
 func (k Keeper) GetLock(ctx sdk.Context, addr sdk.AccAddress, keyName string) (types.Lock, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.LockStoreKey(addr, keyName))
 	if bz == nil {
@@ -159,6 +167,7 @@ func (k Keeper) GetLock(ctx sdk.Context, addr sdk.AccAddress, keyName string) (t
 	return lock, nil
 }
 
+// SetLock sets a lock to the store.
 func (k Keeper) SetLock(ctx sdk.Context, lock types.Lock) {
 	addr := sdk.MustAccAddressFromBech32(lock.LockerAddress)
 	k.DeleteLock(ctx, addr, lock.Key)
@@ -167,6 +176,7 @@ func (k Keeper) SetLock(ctx sdk.Context, lock types.Lock) {
 	k.setLockByAmount(ctx, lock)
 }
 
+// DeleteLock deletes a lock from the store.
 func (k Keeper) DeleteLock(ctx sdk.Context, addr sdk.AccAddress, keyName string) {
 	lock, err := k.GetLock(ctx, addr, keyName)
 	if err != nil {
@@ -176,10 +186,12 @@ func (k Keeper) DeleteLock(ctx sdk.Context, addr sdk.AccAddress, keyName string)
 	k.deleteLockByAmount(ctx, lock)
 }
 
+// setLockByAmount sets a lock by amount to the store.
 func (k Keeper) setLockByAmount(ctx sdk.Context, lock types.Lock) {
 	ctx.KVStore(k.storeKey).Set(types.LockByAmountIndexKey(lock), []byte(lock.Key))
 }
 
+// deleteLockByAmount deletes a lock by amount from the store.
 func (k Keeper) deleteLockByAmount(ctx sdk.Context, lock types.Lock) {
 	ctx.KVStore(k.storeKey).Delete(types.LockByAmountIndexKey(lock))
 }

@@ -12,13 +12,14 @@ import (
 	"github.com/bandprotocol/chain/v2/x/restake/types"
 )
 
-// Querier is used as Keeper will have duplicate methods if used directly, and gRPC names take precedence over keeper
+// Querier is used as Keeper will have duplicate methods if used directly, and gRPC names take precedence over keeper.
 type Querier struct {
 	*Keeper
 }
 
 var _ types.QueryServer = Querier{}
 
+// Keys queries all keys with pagination.
 func (k Querier) Keys(
 	c context.Context,
 	req *types.QueryKeysRequest,
@@ -43,6 +44,7 @@ func (k Querier) Keys(
 	return &types.QueryKeysResponse{Keys: filteredKeys, Pagination: pageRes}, nil
 }
 
+// Key queries info about a key.
 func (k Querier) Key(
 	c context.Context,
 	req *types.QueryKeyRequest,
@@ -57,6 +59,7 @@ func (k Querier) Key(
 	return &types.QueryKeyResponse{Key: key}, nil
 }
 
+// Rewards queries all rewards with pagination.
 func (k Querier) Rewards(
 	c context.Context,
 	req *types.QueryRewardsRequest,
@@ -87,6 +90,7 @@ func (k Querier) Rewards(
 	return &types.QueryRewardsResponse{Rewards: filteredRewards, Pagination: pageRes}, nil
 }
 
+// Reward queries info about a reward by using address and key
 func (k Querier) Reward(
 	c context.Context,
 	req *types.QueryRewardRequest,
@@ -108,6 +112,7 @@ func (k Querier) Reward(
 	}, nil
 }
 
+// Locks queries all locks with pagination.
 func (k Querier) Locks(
 	c context.Context,
 	req *types.QueryLocksRequest,
@@ -144,6 +149,7 @@ func (k Querier) Locks(
 	return &types.QueryLocksResponse{Locks: filteredLocks, Pagination: pageRes}, nil
 }
 
+// Lock queries info about a lock by using address and key
 func (k Querier) Lock(
 	c context.Context,
 	req *types.QueryLockRequest,

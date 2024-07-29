@@ -32,6 +32,7 @@ func GetQueryCmd() *cobra.Command {
 	return queryCmd
 }
 
+// GetQueryCmdKey implements the key query command.
 func GetQueryCmdKey() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "key [name]",
@@ -60,6 +61,7 @@ func GetQueryCmdKey() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdKeys implements the keys query command.
 func GetQueryCmdKeys() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "keys",
@@ -89,6 +91,7 @@ func GetQueryCmdKeys() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdRewards implements the rewards query command.
 func GetQueryCmdRewards() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "rewards [locker_address]",
@@ -115,6 +118,7 @@ func GetQueryCmdRewards() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdReward implements the reward query command.
 func GetQueryCmdReward() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "reward [locker_address] [key_name]",
@@ -141,6 +145,7 @@ func GetQueryCmdReward() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdLocks implements the locks query command.
 func GetQueryCmdLocks() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "locks [locker_address]",
@@ -167,6 +172,7 @@ func GetQueryCmdLocks() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdLock implements the lock query command.
 func GetQueryCmdLock() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "lock [locker_address] [key_name]",
