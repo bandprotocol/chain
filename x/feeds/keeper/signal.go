@@ -20,8 +20,9 @@ func (k Keeper) CheckDelegatorDelegation(
 	return nil
 }
 
-// CalculateDelegatorSignalsPowerDiff calculates feed power differences from delegator's previous signals and new signals.
-func (k Keeper) CalculateDelegatorSignalsPowerDiff(
+// RegisterNewSignals delete previous signals and register new signals.
+// It also calculates feed power differences from delegator's previous signals and new signals.
+func (k Keeper) RegisterNewSignals(
 	ctx sdk.Context,
 	delegator sdk.AccAddress,
 	signals []types.Signal,
@@ -38,11 +39,6 @@ func (k Keeper) CalculateDelegatorSignalsPowerDiff(
 	k.SetDelegatorSignals(ctx, types.DelegatorSignals{Delegator: delegator.String(), Signals: signals})
 
 	for _, signal := range signals {
-		if signal.ID == "" || signal.Power <= 0 {
-			return nil, types.ErrInvalidSignal.Wrap(
-				"signal id cannot be empty and its power must be positive",
-			)
-		}
 		signalIDToPowerDiff[signal.ID] += signal.Power
 	}
 

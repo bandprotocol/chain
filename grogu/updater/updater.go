@@ -111,10 +111,14 @@ func (u *Updater) subscribeToClient(
 ) {
 	defer wg.Done()
 
-	u.logger.Info("[Updater] Subscribing to events with query: %s...", query)
+	u.logger.Info("[Updater] Subscribing to events of client with URI: %s, with query: %s ", client.Remote(), query)
 	eventChan, err := client.Subscribe(ctx, "", query, EventChannelCapacity)
 	if err != nil {
-		u.logger.Error("[Updater] Error subscribing to events: %s", err)
+		u.logger.Error(
+			"[Updater] Error subscribing to events of client with URI: %s, with error: %v",
+			client.Remote(),
+			err,
+		)
 		return
 	}
 

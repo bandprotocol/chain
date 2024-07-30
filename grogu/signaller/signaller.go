@@ -82,7 +82,7 @@ func (h *Signaller) Start() {
 		}
 
 		if !h.updateInternalVariables() {
-			h.logger.Error("[Signaller] failed to update internal variables: %v", err)
+			h.logger.Error("[Signaller] failed to update internal variables")
 			continue
 		}
 

@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/address"
 )
 
 const (
@@ -39,7 +40,7 @@ var (
 
 // DelegatorSignalStoreKey creates a key for storing delegator signals
 func DelegatorSignalStoreKey(delegator sdk.AccAddress) []byte {
-	return append(DelegatorSignalStoreKeyPrefix, delegator...)
+	return append(DelegatorSignalStoreKeyPrefix, address.MustLengthPrefix(delegator.Bytes())...)
 }
 
 // SignalTotalPowerStoreKey creates a key for storing signal-total-powers
@@ -49,7 +50,7 @@ func SignalTotalPowerStoreKey(signalID string) []byte {
 
 // ValidatorPriceListStoreKey creates a key for storing a validator prices list
 func ValidatorPriceListStoreKey(validator sdk.ValAddress) []byte {
-	return append(ValidatorPriceListStoreKeyPrefix, validator...)
+	return append(ValidatorPriceListStoreKeyPrefix, address.MustLengthPrefix(validator.Bytes())...)
 }
 
 // PriceStoreKey creates a key for storing price data

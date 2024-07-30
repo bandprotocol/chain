@@ -10,7 +10,7 @@ import (
 
 func TestDelegatorSignalStoreKey(t *testing.T) {
 	acc, _ := sdk.AccAddressFromHexUnsafe("b80f2a5df7d5710b15622d1a9f1e3830ded5bda8")
-	expect, _ := hex.DecodeString("03b80f2a5df7d5710b15622d1a9f1e3830ded5bda8")
+	expect, _ := hex.DecodeString("0314b80f2a5df7d5710b15622d1a9f1e3830ded5bda8")
 	require.Equal(t, expect, DelegatorSignalStoreKey(acc))
 }
 
@@ -20,7 +20,7 @@ func TestSignalTotalPowerStoreKey(t *testing.T) {
 }
 
 func TestValidatorPriceListStoreKey(t *testing.T) {
-	expect, _ := hex.DecodeString("0131303030303030303031")
+	expect, _ := hex.DecodeString("010a31303030303030303031")
 	require.Equal(t, expect, ValidatorPriceListStoreKey(sdk.ValAddress("1000000001")))
 }
 

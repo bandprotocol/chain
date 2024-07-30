@@ -48,12 +48,12 @@ service Query {
     option (google.api.http).get = "/feeds/v1beta1/reference-source-config";
   }
 
-  // DelegatorSignals is an RPC method that returns signals of a delegator
+  // DelegatorSignals is an RPC method that returns signals of a delegator.
   rpc DelegatorSignals(QueryDelegatorSignalsRequest) returns (QueryDelegatorSignalsResponse) {
     option (google.api.http).get = "/feeds/v1beta1/delegators/{delegator}/signals";
   }
 
-  // CurrentFeeds is an RPC method that returns a list of current supported feeds
+  // CurrentFeeds is an RPC method that returns a list of current supported feeds.
   rpc CurrentFeeds(QueryCurrentFeedsRequest) returns (QueryCurrentFeedsResponse) {
     option (google.api.http).get = "/feeds/v1beta1/current-feeds";
   }
@@ -66,76 +66,76 @@ service Query {
 
 // QueryPricesRequest is the request type for the Query/Prices RPC method.
 message QueryPricesRequest {
-  // SignalIDs is a List of signal ids to query prices for.
+  // signal_ids is a list of signal ids to query prices for.
   repeated string signal_ids = 1;
 
-  // Pagination is the pagination for the request.
+  // pagination is the pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 // QueryPricesResponse is the response type for the Query/Prices RPC method.
 message QueryPricesResponse {
-  // Prices is a list of prices.
+  // prices is a list of prices.
   repeated Price prices = 1;
 
-  // Pagination is the pagination information in the response.
+  // pagination is the pagination information in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // QueryPriceRequest is the request type for the Query/Price RPC method.
 message QueryPriceRequest {
-  // SignalID is the signal id to query the price for.
+  // signal_id is the signal id to query the price for.
   string signal_id = 1;
 }
 
 // QueryPriceResponse is the response type for the Query/Price RPC method.
 message QueryPriceResponse {
-  // Price is the aggregated price of the signal id.
+  // price is the aggregated price of the signal id.
   Price price = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryValidatorPricesRequest is the request type for the Query/ValidatorPrices RPC method.
 message QueryValidatorPricesRequest {
-  // Validator is the validator address to query prices for.
+  // validator is the validator address to query prices for.
   string validator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
-  // SignalIds is the list of signal ids to query the price for.
+  // signal_ids is the list of signal ids to query the price for.
   repeated string signal_ids = 2;
 }
 
 // QueryValidatorPricesResponse is the response type for the Query/ValidatorPrices RPC method.
 message QueryValidatorPricesResponse {
-  // ValidatorPrices is a list of prices submitted by the validator.
+  // validator_prices is a list of prices submitted by the validator.
   repeated ValidatorPrice validator_prices = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryValidValidatorRequest is the request type for the Query/ValidValidator RPC method.
 message QueryValidValidatorRequest {
-  // Validator is the validator address to query the flag.
+  // validator is the validator address to query the flag.
   string validator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // QueryValidValidatorResponse is the response type for the Query/ValidValidator RPC method.
 message QueryValidValidatorResponse {
-  // Valid is a valid flag.
+  // valid is a valid flag.
   bool valid = 1;
 }
 
 // QuerySignalTotalPowersRequest is the request type for the Query/SignalTotalPowers RPC method.
 message QuerySignalTotalPowersRequest {
-  // SignalIDs is a list of signal ids to query.
+  // signal_ids is a list of signal ids to query.
   repeated string signal_ids = 1;
 
-  // Pagination is the pagination for the request.
+  // pagination is the pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 // QuerySignalTotalPowersResponse is the response type for the Query/SignalTotalPowers RPC method.
 message QuerySignalTotalPowersResponse {
-  // SignalTotalPowers is a list of signal-total-powers.
+  // signal_total_powers is a list of signal-total-powers.
   repeated Signal signal_total_powers = 1;
 
-  // Pagination is the pagination information in the response.
+  // pagination is the pagination information in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
@@ -144,7 +144,7 @@ message QueryParamsRequest {}
 
 // QueryParamsResponse is the response type for the Query/Params RPC method.
 message QueryParamsResponse {
-  // Params is the parameters of the module.
+  // params is the parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
 }
 
@@ -153,42 +153,42 @@ message QueryReferenceSourceConfigRequest {}
 
 // QueryReferenceSourceConfigResponse is the response type for the Query/ReferenceSourceConfig RPC method.
 message QueryReferenceSourceConfigResponse {
-  // ReferenceSourceConfig is the information about reference price source.
+  // reference_source_config is the information about reference price source.
   ReferenceSourceConfig reference_source_config = 1 [(gogoproto.nullable) = false];
 }
 
-// QueryDelegatorSignalsRequest is the request type for the Query/DelegatorSignals RPC method
+// QueryDelegatorSignalsRequest is the request type for the Query/DelegatorSignals RPC method.
 message QueryDelegatorSignalsRequest {
-  // Delegator is the delegator address to query signal for.
+  // delegator is the delegator address to query signal for.
   string delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// QueryDelegatorSignalsResponse is the response type for the Query/DelegatorSignals RPC method
+// QueryDelegatorSignalsResponse is the response type for the Query/DelegatorSignals RPC method.
 message QueryDelegatorSignalsResponse {
-  // Signals is a list of signals submitted by the delegator.
+  // signals is a list of signals submitted by the delegator.
   repeated Signal signals = 1 [(gogoproto.nullable) = false];
 }
 
-// QueryCurrentFeedsRequest is the request type for the Query/CurrentFeeds RPC method
+// QueryCurrentFeedsRequest is the request type for the Query/CurrentFeeds RPC method.
 message QueryCurrentFeedsRequest {}
 
-// QueryCurrentFeedsResponse is the response type for the Query/CurrentFeeds RPC method
+// QueryCurrentFeedsResponse is the response type for the Query/CurrentFeeds RPC method.
 message QueryCurrentFeedsResponse {
-  // CurrentFeeds is a list of currently supported feed-with-deviations, and its last update time and
+  // current_feeds is a list of currently supported feed-with-deviations, and its last update time and
   // block.
   CurrentFeedWithDeviations current_feeds = 1 [(gogoproto.nullable) = false];
 }
 
-// QueryIsFeederRequest is request type for the Query/IsFeeder RPC method.
+// QueryIsFeederRequest is the request type for the Query/IsFeeder RPC method.
 message QueryIsFeederRequest {
-  // ValidatorAddress is a validator address
+  // validator_address is a validator address.
   string validator_address = 1;
-  // FeederAddress is a candidate account
+  // feeder_address is a candidate account.
   string feeder_address = 2;
 }
 
-// QueryIsFeederResponse is response type for the Query/IsFeeder RPC method.
+// QueryIsFeederResponse is the response type for the Query/IsFeeder RPC method.
 message QueryIsFeederResponse {
-  // IsFeeder is true if this account has been granted by validator
+  // is_feeder is true if this account has been granted by validator.
   bool is_feeder = 1;
 }

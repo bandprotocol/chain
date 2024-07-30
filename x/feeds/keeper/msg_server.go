@@ -23,18 +23,20 @@ func NewMsgServerImpl(k Keeper) types.MsgServer {
 	}
 }
 
-// SubmitSignals register new signals and update feeds.
+// SubmitSignals registers new signals and updates feeds.
 func (ms msgServer) SubmitSignals(
 	goCtx context.Context,
 	req *types.MsgSubmitSignals,
 ) (*types.MsgSubmitSignalsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	// Convert the delegator address from Bech32 format to sdk.AccAddress
 	delegator, err := sdk.AccAddressFromBech32(req.Delegator)
 	if err != nil {
 		return nil, err
 	}
 
+	// Check if the number of submitted signals exceeds the maximum allowed feeds
 	if len(req.Signals) > int(ms.GetParams(ctx).MaxCurrentFeeds) {
 		return nil, types.ErrSubmittedSignalsTooLarge.Wrapf(
 			"maximum number of signals is %d but received %d",
@@ -42,50 +44,53 @@ func (ms msgServer) SubmitSignals(
 		)
 	}
 
-	// check whether delegator has enough delegation for signals
+	// Check whether the delegator has enough delegation for the submitted signals
 	err = ms.CheckDelegatorDelegation(ctx, delegator, req.Signals)
 	if err != nil {
 		return nil, err
 	}
 
-	// calculate power different of each signal by decresing signal power with previous signal
-	signalIDToPowerDiff, err := ms.CalculateDelegatorSignalsPowerDiff(ctx, delegator, req.Signals)
+	// RegisterNewSignals delete previous signals and register new signals then returns feed power differences
+	signalIDToPowerDiff, err := ms.RegisterNewSignals(ctx, delegator, req.Signals)
 	if err != nil {
 		return nil, err
 	}
 
-	// sort keys to guarantee order of signalIDToPowerDiff iteration
+	// Sort keys to guarantee order of signalIDToPowerDiff iteration
 	keys := make([]string, 0, len(signalIDToPowerDiff))
 	for k := range signalIDToPowerDiff {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
 
+	// Iterate over each signal ID, updating the total power and ensuring no negative power values
 	for _, signalID := range keys {
-		signalIDLength := len(signalID)
-		if uint64(signalIDLength) > types.MaxSignalIDCharacters {
-			return nil, types.ErrSignalIDTooLarge.Wrapf(
-				"maximum number of characters is %d but received %d characters",
-				types.MaxSignalIDCharacters, signalIDLength,
-			)
-		}
+		// Get the power difference for the current signal ID
 		powerDiff := signalIDToPowerDiff[signalID]
+
+		// Retrieve the total power of the current signal ID from the store
 		signalTotalPower, err := ms.GetSignalTotalPower(ctx, signalID)
 		if err != nil {
+			// Initialize a new signal with zero power if the signal ID does not exist
 			signalTotalPower = types.Signal{
 				ID:    signalID,
 				Power: 0,
 			}
 		}
+
+		// Update the total power of the signal by adding the power difference
 		signalTotalPower.Power += powerDiff
 
+		// Ensure the total power of the signal is not negative
 		if signalTotalPower.Power < 0 {
 			return nil, types.ErrPowerNegative
 		}
 
+		// Save the updated signal total power back to the store
 		ms.SetSignalTotalPower(ctx, signalTotalPower)
 	}
 
+	// Return an empty response indicating success
 	return &types.MsgSubmitSignalsResponse{}, nil
 }
 

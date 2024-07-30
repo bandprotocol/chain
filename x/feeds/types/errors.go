@@ -23,4 +23,5 @@ var (
 	ErrSignalTotalPowerNotFound  = errorsmod.Register(ModuleName, 16, "signal-total-power not found")
 	ErrInvalidSignal             = errorsmod.Register(ModuleName, 17, "invalid signal")
 	ErrSubmittedSignalsTooLarge  = errorsmod.Register(ModuleName, 18, "submitted signals list is too large")
+	ErrDuplicateSignalID         = errorsmod.Register(ModuleName, 19, "duplicate signal id")
 )

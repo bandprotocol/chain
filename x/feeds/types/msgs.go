@@ -185,15 +185,45 @@ func (m *MsgSubmitSignals) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a check on the provided data.
 func (m *MsgSubmitSignals) ValidateBasic() error {
+	// Check if the delegator address is valid
 	if _, err := sdk.AccAddressFromBech32(m.Delegator); err != nil {
 		return errorsmod.Wrap(err, "invalid delegator address")
 	}
+
+	// Map to track signal IDs for duplicate check
+	signalIDSet := make(map[string]struct{})
+
 	for _, signal := range m.Signals {
-		if signal.ID == "" || signal.Power <= 0 {
+		// Check if the signal ID is empty
+		if signal.ID == "" {
 			return ErrInvalidSignal.Wrap(
-				"signal id cannot be empty and its power must be positive",
+				"signal id cannot be empty",
 			)
 		}
+
+		// Check if the signal power is positive
+		if signal.Power <= 0 {
+			return ErrInvalidSignal.Wrap(
+				"signal power must be positive",
+			)
+		}
+
+		// Check if the signal ID length exceeds the maximum allowed characters
+		signalIDLength := len(signal.ID)
+		if uint64(signalIDLength) > MaxSignalIDCharacters {
+			return ErrSignalIDTooLarge.Wrapf(
+				"maximum number of characters is %d but received %d characters",
+				MaxSignalIDCharacters, signalIDLength,
+			)
+		}
+
+		// Check for duplicate signal IDs
+		if _, exists := signalIDSet[signal.ID]; exists {
+			return ErrDuplicateSignalID.Wrapf(
+				"duplicate signal ID found: %s", signal.ID,
+			)
+		}
+		signalIDSet[signal.ID] = struct{}{}
 	}
 
 	return nil

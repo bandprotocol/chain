@@ -68,7 +68,7 @@ func (k Keeper) DeletePrice(ctx sdk.Context, signalID string) {
 // CalculatePrices calculates final prices for all supported feeds.
 func (k Keeper) CalculatePrices(ctx sdk.Context) {
 	currentFeeds := k.GetCurrentFeeds(ctx)
-	var validatorByPower []types.ValidatorInfo
+	var validatorsByPower []types.ValidatorInfo
 	allValidatorPrices := make(map[string]map[string]types.ValidatorPrice)
 	k.stakingKeeper.IterateBondedValidatorsByPower(
 		ctx,
@@ -83,11 +83,11 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) {
 				Power:   val.GetTokens().Uint64(),
 				Status:  status,
 			}
-			validatorByPower = append(validatorByPower, validatorInfo)
+			validatorsByPower = append(validatorsByPower, validatorInfo)
 			return false
 		})
 
-	for _, val := range validatorByPower {
+	for _, val := range validatorsByPower {
 		valPricesList, err := k.GetValidatorPriceList(ctx, val.Address)
 		if err != nil {
 			continue
@@ -104,7 +104,7 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) {
 
 	for _, feed := range currentFeeds.Feeds {
 		var priceFeedInfos []types.PriceFeedInfo
-		for _, valInfo := range validatorByPower {
+		for _, valInfo := range validatorsByPower {
 			valPrice := allValidatorPrices[valInfo.Address.String()][feed.SignalID]
 			missReport, havePrice := CheckMissReport(
 				feed,
@@ -210,6 +210,8 @@ func (k Keeper) CalculatePrice(
 	}, nil
 }
 
+// CheckMissReport checks if a validator has missed a report based on the given parameters.
+// And returns a boolean indication whether the validator has price feed.
 func CheckMissReport(
 	feed types.Feed,
 	lastUpdateTimestamp int64,
