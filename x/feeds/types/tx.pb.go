@@ -31,11 +31,11 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// MsgSubmitSignals is the transaction message to submit signals
+// MsgSubmitSignals is the transaction message to submit signals.
 type MsgSubmitSignals struct {
-	// Delegator is the address of the delegator that want to submit signals
+	// delegator is the address of the delegator that wants to submit signals.
 	Delegator string `protobuf:"bytes,1,opt,name=delegator,proto3" json:"delegator,omitempty"`
-	// Signals is a list of submitted signal
+	// signals is a list of submitted signals.
 	Signals []Signal `protobuf:"bytes,2,rep,name=signals,proto3" json:"signals"`
 }
 
@@ -125,11 +125,11 @@ var xxx_messageInfo_MsgSubmitSignalsResponse proto.InternalMessageInfo
 
 // MsgSubmitSignalPrices is the transaction message to submit multiple signal prices.
 type MsgSubmitSignalPrices struct {
-	// Validator is the address of the validator that is performing the operation.
+	// validator is the address of the validator that is performing the operation.
 	Validator string `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator,omitempty"`
-	// Timestamp is the timestamp use as reference of the data.
+	// timestamp is the timestamp used as reference for the data.
 	Timestamp int64 `protobuf:"varint,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	// Prices is a list of signal prices to submit.
+	// prices is a list of signal prices to submit.
 	Prices []SignalPrice `protobuf:"bytes,3,rep,name=prices,proto3" json:"prices"`
 }
 
@@ -224,11 +224,11 @@ func (m *MsgSubmitSignalPricesResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgSubmitSignalPricesResponse proto.InternalMessageInfo
 
-// MsgUpdateReferenceSourceConfig is the transaction message to update reference price soruce's configuration.
+// MsgUpdateReferenceSourceConfig is the transaction message to update reference price source's configuration.
 type MsgUpdateReferenceSourceConfig struct {
-	// Admin is the address of the admin that is performing the operation.
+	// admin is the address of the admin that is performing the operation.
 	Admin string `protobuf:"bytes,1,opt,name=admin,proto3" json:"admin,omitempty"`
-	// ReferenceSourceConfig is the information of reference price soruce.
+	// reference_source_config is the information of reference price source.
 	ReferenceSourceConfig ReferenceSourceConfig `protobuf:"bytes,2,opt,name=reference_source_config,json=referenceSourceConfig,proto3" json:"reference_source_config"`
 }
 
@@ -320,9 +320,9 @@ var xxx_messageInfo_MsgUpdateReferenceSourceConfigResponse proto.InternalMessage
 
 // MsgUpdateParams is the transaction message to update parameters.
 type MsgUpdateParams struct {
-	// Authority is the address of the governance account.
+	// authority is the address of the governance account.
 	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
-	// Params is the x/feeds parameters to update.
+	// params is the x/feeds parameters to update.
 	Params Params `protobuf:"bytes,2,opt,name=params,proto3" json:"params"`
 }
 
@@ -479,13 +479,13 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	// SubmitSignalPrices is an RPC method to submit signal prices
+	// SubmitSignalPrices is an RPC method to submit signal prices.
 	SubmitSignalPrices(ctx context.Context, in *MsgSubmitSignalPrices, opts ...grpc.CallOption) (*MsgSubmitSignalPricesResponse, error)
-	// UpdateReferenceSourceConfig is an RPC method to update reference price soruce configuration
+	// UpdateReferenceSourceConfig is an RPC method to update reference price source configuration.
 	UpdateReferenceSourceConfig(ctx context.Context, in *MsgUpdateReferenceSourceConfig, opts ...grpc.CallOption) (*MsgUpdateReferenceSourceConfigResponse, error)
-	// UpdateParams is an RPC method to update parameters
+	// UpdateParams is an RPC method to update parameters.
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
-	// SubmitSignals is an RPC method to signal ids and their powers
+	// SubmitSignals is an RPC method to submit signal ids and their powers.
 	SubmitSignals(ctx context.Context, in *MsgSubmitSignals, opts ...grpc.CallOption) (*MsgSubmitSignalsResponse, error)
 }
 
@@ -535,13 +535,13 @@ func (c *msgClient) SubmitSignals(ctx context.Context, in *MsgSubmitSignals, opt
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// SubmitSignalPrices is an RPC method to submit signal prices
+	// SubmitSignalPrices is an RPC method to submit signal prices.
 	SubmitSignalPrices(context.Context, *MsgSubmitSignalPrices) (*MsgSubmitSignalPricesResponse, error)
-	// UpdateReferenceSourceConfig is an RPC method to update reference price soruce configuration
+	// UpdateReferenceSourceConfig is an RPC method to update reference price source configuration.
 	UpdateReferenceSourceConfig(context.Context, *MsgUpdateReferenceSourceConfig) (*MsgUpdateReferenceSourceConfigResponse, error)
-	// UpdateParams is an RPC method to update parameters
+	// UpdateParams is an RPC method to update parameters.
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
-	// SubmitSignals is an RPC method to signal ids and their powers
+	// SubmitSignals is an RPC method to submit signal ids and their powers.
 	SubmitSignals(context.Context, *MsgSubmitSignals) (*MsgSubmitSignalsResponse, error)
 }
 

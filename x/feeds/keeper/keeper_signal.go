@@ -23,8 +23,7 @@ func (k Keeper) GetDelegatorSignals(ctx sdk.Context, delegator sdk.AccAddress) [
 
 // DeleteDelegatorSignals deletes all signals of a delegator.
 func (k Keeper) DeleteDelegatorSignals(ctx sdk.Context, delegator sdk.AccAddress) {
-	ctx.KVStore(k.storeKey).
-		Delete(types.DelegatorSignalStoreKey(delegator))
+	ctx.KVStore(k.storeKey).Delete(types.DelegatorSignalStoreKey(delegator))
 }
 
 // SetDelegatorSignals sets multiple signals of a delegator.

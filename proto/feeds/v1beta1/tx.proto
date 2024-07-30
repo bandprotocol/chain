@@ -12,27 +12,27 @@ import "amino/amino.proto";
 
 // Msg defines the feeds Msg service.
 service Msg {
-  // SubmitSignalPrices is an RPC method to submit signal prices
+  // SubmitSignalPrices is an RPC method to submit signal prices.
   rpc SubmitSignalPrices(MsgSubmitSignalPrices) returns (MsgSubmitSignalPricesResponse);
 
-  // UpdateReferenceSourceConfig is an RPC method to update reference price soruce configuration
+  // UpdateReferenceSourceConfig is an RPC method to update reference price source configuration.
   rpc UpdateReferenceSourceConfig(MsgUpdateReferenceSourceConfig) returns (MsgUpdateReferenceSourceConfigResponse);
 
-  // UpdateParams is an RPC method to update parameters
+  // UpdateParams is an RPC method to update parameters.
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 
-  // SubmitSignals is an RPC method to signal ids and their powers
+  // SubmitSignals is an RPC method to submit signal ids and their powers.
   rpc SubmitSignals(MsgSubmitSignals) returns (MsgSubmitSignalsResponse);
 }
 
-// MsgSubmitSignals is the transaction message to submit signals
+// MsgSubmitSignals is the transaction message to submit signals.
 message MsgSubmitSignals {
   option (cosmos.msg.v1.signer) = "delegator";
   option (amino.name)           = "feeds/MsgSubmitSignals";
 
-  // Delegator is the address of the delegator that want to submit signals
+  // delegator is the address of the delegator that wants to submit signals.
   string delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  // Signals is a list of submitted signal
+  // signals is a list of submitted signals.
   repeated Signal signals = 2 [(gogoproto.nullable) = false];
 }
 
@@ -44,28 +44,28 @@ message MsgSubmitSignalPrices {
   option (cosmos.msg.v1.signer) = "validator";
   option (amino.name)           = "feeds/MsgSubmitSignalPrices";
 
-  // Validator is the address of the validator that is performing the operation.
+  // validator is the address of the validator that is performing the operation.
   string validator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
-  // Timestamp is the timestamp use as reference of the data.
+  // timestamp is the timestamp used as reference for the data.
   int64 timestamp = 2;
 
-  // Prices is a list of signal prices to submit.
+  // prices is a list of signal prices to submit.
   repeated SignalPrice prices = 3 [(gogoproto.nullable) = false];
 }
 
 // MsgSubmitSignalPricesResponse is the response type for the Msg/SubmitSignalPrices RPC method.
 message MsgSubmitSignalPricesResponse {}
 
-// MsgUpdateReferenceSourceConfig is the transaction message to update reference price soruce's configuration.
+// MsgUpdateReferenceSourceConfig is the transaction message to update reference price source's configuration.
 message MsgUpdateReferenceSourceConfig {
   option (cosmos.msg.v1.signer) = "authority";
   option (amino.name)           = "feeds/MsgUpdateReferenceSourceConfig";
 
-  // Admin is the address of the admin that is performing the operation.
+  // admin is the address of the admin that is performing the operation.
   string admin = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
-  // ReferenceSourceConfig is the information of reference price soruce.
+  // reference_source_config is the information of reference price source.
   ReferenceSourceConfig reference_source_config = 2 [(gogoproto.nullable) = false];
 }
 
@@ -77,10 +77,10 @@ message MsgUpdateParams {
   option (cosmos.msg.v1.signer) = "authority";
   option (amino.name)           = "feeds/MsgUpdateParams";
 
-  // Authority is the address of the governance account.
+  // authority is the address of the governance account.
   string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
-  // Params is the x/feeds parameters to update.
+  // params is the x/feeds parameters to update.
   Params params = 2 [(gogoproto.nullable) = false];
 }
 

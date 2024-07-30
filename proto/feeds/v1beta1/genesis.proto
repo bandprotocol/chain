@@ -9,12 +9,12 @@ import "feeds/v1beta1/feeds.proto";
 
 // GenesisState is a structure that defines the feeds module's genesis state.
 message GenesisState {
-  // Params is all parameters of the module.
+  // params is all parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
 
-  // DelegatorSignals is a list of delegator signals submitted by delegators.
+  // delegator_signals is a list of delegator signals submitted by delegators.
   repeated DelegatorSignals delegator_signals = 2 [(gogoproto.nullable) = false];
 
-  // ReferenceSourceConfig is the information about reference price config.
+  // reference_source_config is the information about reference price config.
   ReferenceSourceConfig reference_source_config = 3 [(gogoproto.nullable) = false];
 }
