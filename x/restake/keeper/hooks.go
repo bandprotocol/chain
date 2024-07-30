@@ -104,8 +104,6 @@ func (h Hooks) isAbleToUnbond(ctx sdk.Context, addr sdk.AccAddress, delegated sd
 			}
 
 			return nil
-		} else {
-			h.k.DeleteLock(ctx, addr, keyName)
 		}
 	}
 
