@@ -27,20 +27,20 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// Key message is used for tracking the status and rewards of the keys.
+// Key is used for tracking the status and rewards of the keys.
 type Key struct {
-	// Name is the name of the key.
+	// name is the name of the key.
 	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// PoolAddress is the address that holds rewards for this key.
+	// pool_address is the address that holds rewards for this key.
 	PoolAddress string `protobuf:"bytes,2,opt,name=pool_address,json=poolAddress,proto3" json:"pool_address,omitempty"`
-	// IsActive is the status of the key
+	// is_active is the status of the key
 	IsActive bool `protobuf:"varint,3,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
-	// RewardPerPowers is a list of reward_per_power.
+	// reward_per_powers is a list of reward_per_power.
 	// new_reward_per_power = current_reward_per_power + (rewards / total_power)
 	RewardPerPowers github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,4,rep,name=reward_per_powers,json=rewardPerPowers,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"reward_per_powers"`
-	// TotalPower is the total locked power of the key.
+	// total_power is the total locked power of the key.
 	TotalPower github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,5,opt,name=total_power,json=totalPower,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"total_power"`
-	// Remainders is a list of the remainder amounts in the key.
+	// remainders is a list of the remainder amounts in the key.
 	// this field is used to track remainder amount from claimings in the key pool.
 	Remainders github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,6,rep,name=remainders,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"remainders"`
 }
@@ -113,18 +113,18 @@ func (m *Key) GetRemainders() github_com_cosmos_cosmos_sdk_types.DecCoins {
 	return nil
 }
 
-// Lock message is used to store lock information of each user on each key along with their reward information.
+// Lock is used to store lock information of each user on each key along with their reward information.
 type Lock struct {
-	// LockerAddress is the owner's address of the locker.
+	// locker_address is the owner's address of the locker.
 	LockerAddress string `protobuf:"bytes,1,opt,name=locker_address,json=lockerAddress,proto3" json:"locker_address,omitempty"`
-	// Key is the key that this lock is locked to.
+	// key is the key that this lock is locked to.
 	Key string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
-	// Amount is the locked power amount.
+	// amount is the locked power amount.
 	Amount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,3,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"amount"`
-	// PosRewardDebts is a list of reward debt for each reward (only the positive side).
+	// pos_reward_debts is a list of reward debt for each reward (only the positive side).
 	// Note: Coin and DecCoin can't have negative amounts. so, we split it into two numbers.
 	PosRewardDebts github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,4,rep,name=pos_reward_debts,json=posRewardDebts,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"pos_reward_debts"`
-	// NegRewardDebts is a list of reward debt for each reward (only negative side).
+	// neg_reward_debts is a list of reward debt for each reward (only negative side).
 	NegRewardDebts github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,5,rep,name=neg_reward_debts,json=negRewardDebts,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"neg_reward_debts"`
 }
 
@@ -189,11 +189,11 @@ func (m *Lock) GetNegRewardDebts() github_com_cosmos_cosmos_sdk_types.DecCoins {
 	return nil
 }
 
-// Reward message is used as response of the query to show final rewards of the key for the user.
+// Reward is used as response of the query to show final rewards of the key for the user.
 type Reward struct {
-	// Key is the key that this reward belongs to.
+	// key is the key that this reward belongs to.
 	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	// Rewards is a list of reward.
+	// rewards is a list of reward.
 	Rewards github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,2,rep,name=rewards,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"rewards"`
 }
 
@@ -244,12 +244,12 @@ func (m *Reward) GetRewards() github_com_cosmos_cosmos_sdk_types.DecCoins {
 	return nil
 }
 
-// LockResponse message is used as response of the query to show the power amount
+// LockResponse is used as response of the query to show the power amount
 // that is locked by the key for the user.
 type LockResponse struct {
-	// Key is the key that this lock belongs to.
+	// key is the key that this lock belongs to.
 	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	// Amount is a the number of locked power.
+	// amount is a the number of locked power.
 	Amount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,2,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"amount"`
 }
 

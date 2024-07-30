@@ -46,6 +46,7 @@ func (h Hooks) BeforeDelegationSharesModified(_ sdk.Context, _ sdk.AccAddress, _
 	return nil
 }
 
+// check if after delegation is removed, the locked power is still less than total delegation
 func (h Hooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
 	delegated := h.k.stakingKeeper.GetDelegatorBonded(ctx, delAddr)
 
@@ -68,6 +69,7 @@ func (h Hooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, 
 	return h.isAbleToUnbond(ctx, delAddr, delegated)
 }
 
+// check if after delegation is modified, the locked power is still less than total delegation
 func (h Hooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, _ sdk.ValAddress) error {
 	// get total delegation
 	delegated := h.k.stakingKeeper.GetDelegatorBonded(ctx, delAddr)
@@ -84,6 +86,7 @@ func (h Hooks) AfterUnbondingInitiated(_ sdk.Context, _ uint64) error {
 	return nil
 }
 
+// isAbleToUnbond checks if the new total delegation is still more than locked power in the module.
 func (h Hooks) isAbleToUnbond(ctx sdk.Context, addr sdk.AccAddress, delegated sdkmath.Int) error {
 	iterator := sdk.KVStoreReversePrefixIterator(ctx.KVStore(h.k.storeKey), types.LocksByAmountIndexKey(addr))
 	defer iterator.Close()

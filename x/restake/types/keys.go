@@ -33,22 +33,27 @@ var (
 	LocksByAmountIndexKeyPrefix = []byte{0x10}
 )
 
+// KeyStoreKey returns the key to retrieve a specific key from the store.
 func KeyStoreKey(keyName string) []byte {
 	return append(KeyStoreKeyPrefix, []byte(keyName)...)
 }
 
+// LocksStoreKey returns the key to retrieve all locks of an address from the store.
 func LocksStoreKey(addr sdk.AccAddress) []byte {
 	return append(LockStoreKeyPrefix, address.MustLengthPrefix(addr)...)
 }
 
+// LockStoreKey returns the key to retrieve a lock of an address and the key from the store.
 func LockStoreKey(addr sdk.AccAddress, keyName string) []byte {
 	return append(LocksStoreKey(addr), []byte(keyName)...)
 }
 
+// LocksByAmountIndexKey returns the key to retrieve all locks of an address ordering by locked amount from the store.
 func LocksByAmountIndexKey(addr sdk.AccAddress) []byte {
 	return append(LocksByAmountIndexKeyPrefix, address.MustLengthPrefix(addr)...)
 }
 
+// LockByAmountIndexKey returns the key to retrieve a lock by amount from the store.
 func LockByAmountIndexKey(lock Lock) []byte {
 	address := sdk.MustAccAddressFromBech32(lock.LockerAddress)
 
