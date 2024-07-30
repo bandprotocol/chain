@@ -22,6 +22,7 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 }
 
 // CreateTunnel creates a new tunnel.
+// CreateTunnel creates a new tunnel.
 func (ms msgServer) CreateTunnel(
 	goCtx context.Context,
 	req *types.MsgCreateTunnel,
@@ -47,6 +48,16 @@ func (ms msgServer) CreateTunnel(
 	if err != nil {
 		return nil, err
 	}
+
+	// mock
+	ms.Keeper.AddTSSPacket(ctx, types.TSSPacket{
+		TunnelID: tunnelID,
+		Nonce:    1,
+	})
+	ms.Keeper.AddTSSPacket(ctx, types.TSSPacket{
+		TunnelID: tunnelID,
+		Nonce:    2,
+	})
 
 	tunnel, err := ms.Keeper.GetTunnel(ctx, tunnelID)
 	if err != nil {

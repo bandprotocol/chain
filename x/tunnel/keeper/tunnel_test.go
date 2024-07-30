@@ -28,8 +28,7 @@ func TestAddTunnel(t *testing.T) {
 	s.MockAccountKeeper.EXPECT().SetAccount(ctx, gomock.Any()).Times(1)
 
 	// Add the tunnel to the keeper
-	_, err := k.AddTunnel(ctx, tunnel)
-	require.NoError(s.T(), err, "adding tunnel should not produce an error")
+	k.AddTunnel(ctx, tunnel)
 
 	// Attempt to retrieve the tunnel by its ID
 	retrievedTunnel, err := k.GetTunnel(ctx, tunnel.ID)

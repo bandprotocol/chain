@@ -1,13 +1,21 @@
 package types
 
 import (
-	"encoding/json"
 	fmt "fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	proto "github.com/cosmos/gogoproto/proto"
 )
 
+var _ types.UnpackInterfacesMessage = Tunnel{}
+
+// UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
+func (t Tunnel) UnpackInterfaces(unpacker types.AnyUnpacker) error {
+	var route Route
+	return unpacker.UnpackAny(t.Route, &route)
+}
+
+// SetRoute sets the route of the tunnel.
 func (t *Tunnel) SetRoute(route Route) error {
 	msg, ok := route.(proto.Message)
 	if !ok {
@@ -20,17 +28,4 @@ func (t *Tunnel) SetRoute(route Route) error {
 	t.Route = any
 
 	return nil
-}
-
-func (t Tunnel) UnpackRoute() (TSSRoute, error) {
-	var route TSSRoute
-	fmt.Printf("route: %+v\n", t.Route)
-	fmt.Printf("route: %+v\n", t.Route.GetValue())
-	t.Route.GetCachedValue()
-	err := json.Unmarshal(t.Route.GetValue(), &route)
-	if err != nil {
-		return TSSRoute{}, err
-	}
-	fmt.Printf("route: %+v\n", route)
-	return route, nil
 }

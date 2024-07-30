@@ -89,7 +89,7 @@ func (q queryServer) Packets(c context.Context, req *types.QueryPacketsRequest) 
 
 			any, err := codectypes.NewAnyWithValue(&packet)
 			if err != nil {
-				panic(err)
+				return err
 			}
 
 			packets = append(packets, *any)
@@ -105,7 +105,7 @@ func (q queryServer) Packets(c context.Context, req *types.QueryPacketsRequest) 
 
 			any, err := codectypes.NewAnyWithValue(&packet)
 			if err != nil {
-				panic(err)
+				return err
 			}
 
 			packets = append(packets, *any)
@@ -117,6 +117,7 @@ func (q queryServer) Packets(c context.Context, req *types.QueryPacketsRequest) 
 	default:
 		return nil, fmt.Errorf("unknown route type")
 	}
+
 	return &types.QueryPacketsResponse{Packets: packets, Pagination: pageRes}, nil
 }
 
