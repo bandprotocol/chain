@@ -71,7 +71,7 @@ func (k Querier) Rewards(
 		return nil, err
 	}
 
-	keyStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.LocksStoreKey(addr))
+	keyStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.LocksByAddressStoreKey(addr))
 
 	filteredRewards, pageRes, err := query.GenericFilteredPaginate(
 		k.cdc,
@@ -124,7 +124,7 @@ func (k Querier) Locks(
 		return nil, err
 	}
 
-	keyStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.LocksStoreKey(addr))
+	keyStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.LocksByAddressStoreKey(addr))
 
 	filteredLocks, pageRes, err := query.GenericFilteredPaginate(
 		k.cdc,
