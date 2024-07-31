@@ -5,7 +5,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
@@ -47,21 +46,6 @@ func NewKeeper(
 		bandtssKeeper: bandtssKeeper,
 		authority:     authority,
 	}
-}
-
-// GetTunnelAccount returns the tunnel ModuleAccount
-func (k Keeper) GetTunnelAccount(ctx sdk.Context) authtypes.ModuleAccountI {
-	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
-}
-
-// GetModuleBalance returns the balance of the tunnel ModuleAccount
-func (k Keeper) GetModuleBalance(ctx sdk.Context) sdk.Coins {
-	return k.bankKeeper.GetAllBalances(ctx, k.GetTunnelAccount(ctx).GetAddress())
-}
-
-// SetModuleAccount sets a module account in the account keeper.
-func (k Keeper) SetModuleAccount(ctx sdk.Context, acc authtypes.ModuleAccountI) {
-	k.authKeeper.SetModuleAccount(ctx, acc)
 }
 
 // Logger returns a module-specific logger.
