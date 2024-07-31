@@ -14,17 +14,17 @@ var (
 	ValidDelegator = "cosmos13jt28pf6s8rgjddv8wwj8v3ngrfsccpgsdhjhw"
 	ValidSignals   = []Signal{
 		{
-			ID:    "crypto_price.bandusd",
+			ID:    "CS:BAND-USD",
 			Power: 10000000000,
 		},
 	}
-	ValidParams       = DefaultParams()
-	ValidPriceService = DefaultPriceService()
-	ValidTimestamp    = int64(1234567890)
-	ValidSubmitPrices = []SubmitPrice{
+	ValidParams                = DefaultParams()
+	ValidReferenceSourceConfig = DefaultReferenceSourceConfig()
+	ValidTimestamp             = int64(1234567890)
+	ValidSignalPrices          = []SignalPrice{
 		{
 			PriceStatus: PriceStatusAvailable,
-			SignalID:    "crypto_price.btcusd",
+			SignalID:    "CS:BTC-USD",
 			Price:       100000 * 10e9,
 		},
 	}
@@ -36,34 +36,34 @@ var (
 )
 
 // ====================================
-// MsgSubmitPrices
+// MsgSubmitSignalPrices
 // ====================================
 
-func TestNewMsgSubmitPrices(t *testing.T) {
-	msg := NewMsgSubmitPrices(ValidValidator, ValidTimestamp, ValidSubmitPrices)
+func TestNewMsgSubmitSignalPrices(t *testing.T) {
+	msg := NewMsgSubmitSignalPrices(ValidValidator, ValidTimestamp, ValidSignalPrices)
 	require.Equal(t, ValidValidator, msg.Validator)
 	require.Equal(t, ValidTimestamp, msg.Timestamp)
-	require.Equal(t, ValidSubmitPrices, msg.Prices)
+	require.Equal(t, ValidSignalPrices, msg.Prices)
 }
 
-func TestMsgSubmitPrices_Route(t *testing.T) {
-	msg := NewMsgSubmitPrices(ValidValidator, ValidTimestamp, ValidSubmitPrices)
-	require.Equal(t, "/feeds.v1beta1.MsgSubmitPrices", msg.Route())
+func TestMsgSubmitSignalPrices_Route(t *testing.T) {
+	msg := NewMsgSubmitSignalPrices(ValidValidator, ValidTimestamp, ValidSignalPrices)
+	require.Equal(t, "/feeds.v1beta1.MsgSubmitSignalPrices", msg.Route())
 }
 
-func TestMsgSubmitPrices_Type(t *testing.T) {
-	msg := NewMsgSubmitPrices(ValidValidator, ValidTimestamp, ValidSubmitPrices)
-	require.Equal(t, "/feeds.v1beta1.MsgSubmitPrices", msg.Type())
+func TestMsgSubmitSignalPrices_Type(t *testing.T) {
+	msg := NewMsgSubmitSignalPrices(ValidValidator, ValidTimestamp, ValidSignalPrices)
+	require.Equal(t, "/feeds.v1beta1.MsgSubmitSignalPrices", msg.Type())
 }
 
-func TestMsgSubmitPrices_GetSignBytes(t *testing.T) {
-	msg := NewMsgSubmitPrices(ValidValidator, ValidTimestamp, ValidSubmitPrices)
-	expected := `{"type":"feeds/MsgSubmitPrices","value":{"prices":[{"price":"1000000000000000","price_status":3,"signal_id":"crypto_price.btcusd"}],"timestamp":"1234567890","validator":"cosmosvaloper1vdhhxmt0wdmxzmr0wpjhyzzdttz"}}`
+func TestMsgSubmitSignalPrices_GetSignBytes(t *testing.T) {
+	msg := NewMsgSubmitSignalPrices(ValidValidator, ValidTimestamp, ValidSignalPrices)
+	expected := `{"type":"feeds/MsgSubmitSignalPrices","value":{"prices":[{"price":"1000000000000000","price_status":3,"signal_id":"CS:BTC-USD"}],"timestamp":"1234567890","validator":"cosmosvaloper1vdhhxmt0wdmxzmr0wpjhyzzdttz"}}`
 	require.Equal(t, expected, string(msg.GetSignBytes()))
 }
 
-func TestMsgSubmitPrices_GetSigners(t *testing.T) {
-	msg := NewMsgSubmitPrices(ValidValidator, ValidTimestamp, ValidSubmitPrices)
+func TestMsgSubmitSignalPrices_GetSigners(t *testing.T) {
+	msg := NewMsgSubmitSignalPrices(ValidValidator, ValidTimestamp, ValidSignalPrices)
 	signers := msg.GetSigners()
 	require.Equal(t, 1, len(signers))
 
@@ -71,14 +71,14 @@ func TestMsgSubmitPrices_GetSigners(t *testing.T) {
 	require.Equal(t, sdk.AccAddress(val), signers[0])
 }
 
-func TestMsgSubmitPrices_ValidateBasic(t *testing.T) {
+func TestMsgSubmitSignalPrices_ValidateBasic(t *testing.T) {
 	// Valid validator
-	msg := NewMsgSubmitPrices(ValidValidator, ValidTimestamp, ValidSubmitPrices)
+	msg := NewMsgSubmitSignalPrices(ValidValidator, ValidTimestamp, ValidSignalPrices)
 	err := msg.ValidateBasic()
 	require.NoError(t, err)
 
 	// Invalid validator
-	msg = NewMsgSubmitPrices(InvalidValidator, ValidTimestamp, ValidSubmitPrices)
+	msg = NewMsgSubmitSignalPrices(InvalidValidator, ValidTimestamp, ValidSignalPrices)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 }
@@ -105,7 +105,7 @@ func TestMsgUpdateParams_Type(t *testing.T) {
 
 func TestMsgUpdateParams_GetSignBytes(t *testing.T) {
 	msg := NewMsgUpdateParams(ValidAuthority, ValidParams)
-	expected := "{\"type\":\"feeds/MsgUpdateParams\",\"value\":{\"authority\":\"cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8\",\"params\":{\"admin\":\"[NOT_SET]\",\"allowable_block_time_discrepancy\":\"60\",\"blocks_per_feeds_update\":\"28800\",\"cooldown_time\":\"30\",\"max_deviation_in_thousandth\":\"300\",\"max_interval\":\"3600\",\"max_signal_id_characters\":\"256\",\"max_supported_feeds\":\"300\",\"min_deviation_in_thousandth\":\"5\",\"min_interval\":\"60\",\"power_threshold\":\"1000000000\",\"transition_time\":\"30\"}}}"
+	expected := "{\"type\":\"feeds/MsgUpdateParams\",\"value\":{\"authority\":\"cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8\",\"params\":{\"admin\":\"[NOT_SET]\",\"allowable_block_time_discrepancy\":\"60\",\"cooldown_time\":\"30\",\"current_feeds_update_interval\":\"28800\",\"grace_period\":\"30\",\"max_current_feeds\":\"300\",\"max_deviation_basis_point\":\"3000\",\"max_interval\":\"3600\",\"min_deviation_basis_point\":\"50\",\"min_interval\":\"60\",\"power_step_threshold\":\"1000000000\"}}}"
 	require.Equal(t, expected, string(msg.GetSignBytes()))
 }
 
@@ -129,46 +129,46 @@ func TestMsgUpdateParams_ValidateBasic(t *testing.T) {
 }
 
 // ====================================
-// MsgUpdatePriceService
+// MsgUpdateReferenceSourceConfig
 // ====================================
 
-func TestNewMsgUpdatePriceService(t *testing.T) {
-	msg := NewMsgUpdatePriceService(ValidAdmin, ValidPriceService)
+func TestNewMsgUpdateReferenceSourceConfig(t *testing.T) {
+	msg := NewMsgUpdateReferenceSourceConfig(ValidAdmin, ValidReferenceSourceConfig)
 	require.Equal(t, ValidAdmin, msg.Admin)
-	require.Equal(t, ValidPriceService, msg.PriceService)
+	require.Equal(t, ValidReferenceSourceConfig, msg.ReferenceSourceConfig)
 }
 
-func TestMsgUpdatePriceService_Route(t *testing.T) {
-	msg := NewMsgUpdatePriceService(ValidAdmin, ValidPriceService)
-	require.Equal(t, "/feeds.v1beta1.MsgUpdatePriceService", msg.Route())
+func TestMsgUpdateReferenceSourceConfig_Route(t *testing.T) {
+	msg := NewMsgUpdateReferenceSourceConfig(ValidAdmin, ValidReferenceSourceConfig)
+	require.Equal(t, "/feeds.v1beta1.MsgUpdateReferenceSourceConfig", msg.Route())
 }
 
-func TestMsgUpdatePriceService_Type(t *testing.T) {
-	msg := NewMsgUpdatePriceService(ValidAdmin, ValidPriceService)
-	require.Equal(t, "/feeds.v1beta1.MsgUpdatePriceService", msg.Type())
+func TestMsgUpdateReferenceSourceConfig_Type(t *testing.T) {
+	msg := NewMsgUpdateReferenceSourceConfig(ValidAdmin, ValidReferenceSourceConfig)
+	require.Equal(t, "/feeds.v1beta1.MsgUpdateReferenceSourceConfig", msg.Type())
 }
 
-func TestMsgUpdatePriceService_GetSignBytes(t *testing.T) {
-	msg := NewMsgUpdatePriceService(ValidAdmin, ValidPriceService)
-	expected := `{"type":"feeds/MsgUpdatePriceService","value":{"admin":"cosmos1quh7acmun7tx6ywkvqr53m3fe39gxu9k00t4ds","price_service":{"hash":"hash","url":"https://","version":"0.0.1"}}}`
+func TestMsgUpdateReferenceSourceConfig_GetSignBytes(t *testing.T) {
+	msg := NewMsgUpdateReferenceSourceConfig(ValidAdmin, ValidReferenceSourceConfig)
+	expected := `{"type":"feeds/MsgUpdateReferenceSourceConfig","value":{"admin":"cosmos1quh7acmun7tx6ywkvqr53m3fe39gxu9k00t4ds","reference_source_config":{"ipfs_hash":"hash","version":"0.0.1"}}}`
 	require.Equal(t, expected, string(msg.GetSignBytes()))
 }
 
-func TestMsgUpdatePriceService_GetSigners(t *testing.T) {
-	msg := NewMsgUpdatePriceService(ValidAdmin, ValidPriceService)
+func TestMsgUpdateReferenceSourceConfig_GetSigners(t *testing.T) {
+	msg := NewMsgUpdateReferenceSourceConfig(ValidAdmin, ValidReferenceSourceConfig)
 	signers := msg.GetSigners()
 	require.Equal(t, 1, len(signers))
 	require.Equal(t, sdk.MustAccAddressFromBech32(ValidAdmin), signers[0])
 }
 
-func TestMsgUpdatePriceService_ValidateBasic(t *testing.T) {
+func TestMsgUpdateReferenceSourceConfig_ValidateBasic(t *testing.T) {
 	// Valid admin
-	msg := NewMsgUpdatePriceService(ValidAdmin, ValidPriceService)
+	msg := NewMsgUpdateReferenceSourceConfig(ValidAdmin, ValidReferenceSourceConfig)
 	err := msg.ValidateBasic()
 	require.NoError(t, err)
 
 	// Invalid admin
-	msg = NewMsgUpdatePriceService(InvalidAdmin, ValidPriceService)
+	msg = NewMsgUpdateReferenceSourceConfig(InvalidAdmin, ValidReferenceSourceConfig)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 }
@@ -195,7 +195,7 @@ func TestMsgSubmitSignals_Type(t *testing.T) {
 
 func TestMsgSubmitSignals_GetSignBytes(t *testing.T) {
 	msg := NewMsgSubmitSignals(ValidDelegator, ValidSignals)
-	expected := `{"type":"feeds/MsgSubmitSignals","value":{"delegator":"cosmos13jt28pf6s8rgjddv8wwj8v3ngrfsccpgsdhjhw","signals":[{"id":"crypto_price.bandusd","power":"10000000000"}]}}`
+	expected := `{"type":"feeds/MsgSubmitSignals","value":{"delegator":"cosmos13jt28pf6s8rgjddv8wwj8v3ngrfsccpgsdhjhw","signals":[{"id":"CS:BAND-USD","power":"10000000000"}]}}`
 	require.Equal(t, expected, string(msg.GetSignBytes()))
 }
 

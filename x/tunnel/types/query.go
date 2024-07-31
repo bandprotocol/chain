@@ -19,7 +19,7 @@ type Packet interface {
 func (m *QueryPacketsResponse) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
 	for _, p := range m.Packets {
 		var packet Packet
-		if err := unpacker.UnpackAny(&p, &packet); err != nil {
+		if err := unpacker.UnpackAny(p, &packet); err != nil {
 			return err
 		}
 	}
@@ -29,5 +29,5 @@ func (m *QueryPacketsResponse) UnpackInterfaces(unpacker codectypes.AnyUnpacker)
 // UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
 func (m *QueryPacketResponse) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
 	var packet Packet
-	return unpacker.UnpackAny(&m.Packet, &packet)
+	return unpacker.UnpackAny(m.Packet, &packet)
 }

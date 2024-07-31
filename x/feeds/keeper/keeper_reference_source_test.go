@@ -1,0 +1,21 @@
+package keeper_test
+
+import (
+	"github.com/bandprotocol/chain/v2/x/feeds/types"
+)
+
+func (suite *KeeperTestSuite) TestGetSetReferenceSourceConfig() {
+	ctx := suite.ctx
+
+	// set
+	expReferenceSourceConfig := types.ReferenceSourceConfig{
+		IPFSHash: "hash",
+		Version:  "1.0.0",
+	}
+	err := suite.feedsKeeper.SetReferenceSourceConfig(ctx, expReferenceSourceConfig)
+	suite.Require().NoError(err)
+
+	// get
+	referenceSourceConfig := suite.feedsKeeper.GetReferenceSourceConfig(ctx)
+	suite.Require().Equal(expReferenceSourceConfig, referenceSourceConfig)
+}

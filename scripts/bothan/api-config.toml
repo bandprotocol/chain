@@ -1,0 +1,33 @@
+[grpc]
+addr = "0.0.0.0:50051"
+
+[manager]
+stale_threshold = 300
+
+[logging]
+level = "debug"
+
+[source.binance]
+
+[source.bybit]
+
+[source.coinbase]
+
+[source.coingecko]
+api_key = ""
+
+[source.coinmarketcap]
+api_key = ""
+
+[source.cryptocompare]
+api_key = ""
+
+[source.htx]
+
+[source.kraken]
+
+[source.okx]
+
+[registry.crypto_price]
+source = "registry/crypto_price.json"
+version = "1.0"

@@ -25,6 +25,7 @@ import (
 	feedskeeper "github.com/bandprotocol/chain/v2/x/feeds/keeper"
 	globalfeekeeper "github.com/bandprotocol/chain/v2/x/globalfee/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	restakekeeper "github.com/bandprotocol/chain/v2/x/restake/keeper"
 	rollingseedKeeper "github.com/bandprotocol/chain/v2/x/rollingseed/keeper"
 	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
 	tunnelkeeper "github.com/bandprotocol/chain/v2/x/tunnel/keeper"
@@ -59,6 +60,7 @@ type AppKeepers struct {
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	GlobalfeeKeeper       globalfeekeeper.Keeper
 	TunnelKeeper          tunnelkeeper.Keeper
+	RestakeKeeper         restakekeeper.Keeper
 
 	// make scoped keepers public for test purposes
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper

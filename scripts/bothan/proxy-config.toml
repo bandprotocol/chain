@@ -1,0 +1,5 @@
+[grpc]
+addr = "bothan-api:50051"
+
+[go-proxy]
+addr = "0.0.0.0:8081"
