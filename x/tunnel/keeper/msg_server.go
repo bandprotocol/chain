@@ -49,16 +49,6 @@ func (ms msgServer) CreateTunnel(
 		return nil, err
 	}
 
-	// mock
-	ms.Keeper.AddTSSPacket(ctx, types.TSSPacket{
-		TunnelID: tunnelID,
-		Nonce:    1,
-	})
-	ms.Keeper.AddTSSPacket(ctx, types.TSSPacket{
-		TunnelID: tunnelID,
-		Nonce:    2,
-	})
-
 	tunnel, err := ms.Keeper.GetTunnel(ctx, tunnelID)
 	if err != nil {
 		return nil, err
