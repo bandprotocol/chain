@@ -171,4 +171,7 @@ func (k Keeper) ProcessTunnel(ctx sdk.Context, tunnel types.Tunnel) {
 		fmt.Printf("Generating IBC packets for tunnel %d, route %s\n", tunnel.ID, r.String())
 		k.IBCPacketHandler(ctx, types.IBCPacket{})
 	}
+
+	// Update the tunnel
+	k.SetTunnel(ctx, tunnel)
 }
