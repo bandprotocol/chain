@@ -93,3 +93,15 @@ message AxelarPacket {
   string                    destination_contract_address = 7;
   google.protobuf.Timestamp created_at                   = 8 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
 }
+
+message IBCPacket {
+  option (gogoproto.equal) = true;
+
+  uint64                    tunnel_id          = 1 [(gogoproto.customname) = "TunnelID"];
+  uint64                    nonce              = 2;
+  feeds.v1beta1.FeedType    feed_type          = 3;
+  repeated SignalPriceInfo  signal_price_infos = 4 [(gogoproto.nullable) = false];
+  string                    port_id            = 5 [(gogoproto.customname) = "PortID"];
+  string                    channel_id         = 6 [(gogoproto.customname) = "ChannelID"];
+  google.protobuf.Timestamp created_at         = 7 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
+}
