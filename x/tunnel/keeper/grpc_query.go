@@ -80,7 +80,7 @@ func (q queryServer) Packets(c context.Context, req *types.QueryPacketsRequest) 
 	store := prefix.NewStore(ctx.KVStore(q.k.storeKey), types.TunnelPacketsStoreKey(req.TunnelId))
 
 	var pageRes *query.PageResponse
-	var packets []codectypes.Any
+	var packets []*codectypes.Any
 	switch tunnel.Route.GetCachedValue().(type) {
 	case *types.TSSRoute:
 		pageRes, err = query.Paginate(store, req.Pagination, func(key []byte, value []byte) error {
@@ -92,7 +92,7 @@ func (q queryServer) Packets(c context.Context, req *types.QueryPacketsRequest) 
 				return err
 			}
 
-			packets = append(packets, *any)
+			packets = append(packets, any)
 			return nil
 		})
 		if err != nil {
@@ -108,7 +108,7 @@ func (q queryServer) Packets(c context.Context, req *types.QueryPacketsRequest) 
 				return err
 			}
 
-			packets = append(packets, *any)
+			packets = append(packets, any)
 			return nil
 		})
 		if err != nil {
@@ -142,7 +142,7 @@ func (q queryServer) Packet(c context.Context, req *types.QueryPacketRequest) (*
 			return nil, err
 		}
 
-		return &types.QueryPacketResponse{Packet: *any}, nil
+		return &types.QueryPacketResponse{Packet: any}, nil
 	case *types.AxelarRoute:
 		packet, err := q.k.GetAxelarPacket(ctx, req.TunnelId, req.Nonce)
 		if err != nil {
@@ -154,7 +154,7 @@ func (q queryServer) Packet(c context.Context, req *types.QueryPacketRequest) (*
 			return nil, err
 		}
 
-		return &types.QueryPacketResponse{Packet: *any}, nil
+		return &types.QueryPacketResponse{Packet: any}, nil
 	default:
 		return nil, fmt.Errorf("unknown route type")
 	}

@@ -89,7 +89,7 @@ message QueryPacketsRequest {
 // QueryPacketsResponse is the response type for the Query/Packets RPC method.
 message QueryPacketsResponse {
   // Packets is a list of packets.
-  repeated google.protobuf.Any packets = 1 [(gogoproto.nullable) = false];
+  repeated google.protobuf.Any packets = 1;
   // pagination defines an optional pagination for the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -105,7 +105,7 @@ message QueryPacketRequest {
 // QueryPacketResponse is the response type for the Query/Packet RPC method.
 message QueryPacketResponse {
   // Packet is the packet with the given tunnel ID and nonce.
-  google.protobuf.Any packet = 1 [(gogoproto.nullable) = false];
+  google.protobuf.Any packet = 1;
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
