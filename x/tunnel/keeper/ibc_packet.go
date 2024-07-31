@@ -7,6 +7,4 @@ import (
 )
 
 // IBCPacketHandler func
-func (k Keeper) IBCPacketHandler(ctx sdk.Context, packet types.IBCPacket) {
-
-}
+func (k Keeper) IBCPacketHandler(ctx sdk.Context, packet types.IBCPacket) {}
