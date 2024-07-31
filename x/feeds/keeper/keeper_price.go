@@ -130,11 +130,7 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) {
 			}
 		}
 
-		price, err := k.CalculatePrice(
-			ctx,
-			feed,
-			priceFeedInfos,
-		)
+		price, err := k.CalculatePrice(ctx, feed, priceFeedInfos)
 		if err != nil {
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
