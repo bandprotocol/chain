@@ -16,9 +16,48 @@ import (
 	math "cosmossdk.io/math"
 	types "github.com/bandprotocol/chain/v2/x/oracle/types"
 	types0 "github.com/cosmos/cosmos-sdk/types"
+	authz "github.com/cosmos/cosmos-sdk/x/authz"
 	types1 "github.com/cosmos/cosmos-sdk/x/staking/types"
 	gomock "go.uber.org/mock/gomock"
 )
+
+// MockAuthzKeeper is a mock of AuthzKeeper interface.
+type MockAuthzKeeper struct {
+	ctrl     *gomock.Controller
+	recorder *MockAuthzKeeperMockRecorder
+}
+
+// MockAuthzKeeperMockRecorder is the mock recorder for MockAuthzKeeper.
+type MockAuthzKeeperMockRecorder struct {
+	mock *MockAuthzKeeper
+}
+
+// NewMockAuthzKeeper creates a new mock instance.
+func NewMockAuthzKeeper(ctrl *gomock.Controller) *MockAuthzKeeper {
+	mock := &MockAuthzKeeper{ctrl: ctrl}
+	mock.recorder = &MockAuthzKeeperMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockAuthzKeeper) EXPECT() *MockAuthzKeeperMockRecorder {
+	return m.recorder
+}
+
+// GetAuthorization mocks base method.
+func (m *MockAuthzKeeper) GetAuthorization(ctx types0.Context, feeder, granter types0.AccAddress, msgType string) (authz.Authorization, *time.Time) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAuthorization", ctx, feeder, granter, msgType)
+	ret0, _ := ret[0].(authz.Authorization)
+	ret1, _ := ret[1].(*time.Time)
+	return ret0, ret1
+}
+
+// GetAuthorization indicates an expected call of GetAuthorization.
+func (mr *MockAuthzKeeperMockRecorder) GetAuthorization(ctx, feeder, granter, msgType any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAuthorization", reflect.TypeOf((*MockAuthzKeeper)(nil).GetAuthorization), ctx, feeder, granter, msgType)
+}
 
 // MockOracleKeeper is a mock of OracleKeeper interface.
 type MockOracleKeeper struct {
@@ -92,35 +131,6 @@ func (m *MockStakingKeeper) EXPECT() *MockStakingKeeperMockRecorder {
 	return m.recorder
 }
 
-// GetDelegation mocks base method.
-func (m *MockStakingKeeper) GetDelegation(ctx types0.Context, delAddr types0.AccAddress, valAddr types0.ValAddress) (types1.Delegation, bool) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDelegation", ctx, delAddr, valAddr)
-	ret0, _ := ret[0].(types1.Delegation)
-	ret1, _ := ret[1].(bool)
-	return ret0, ret1
-}
-
-// GetDelegation indicates an expected call of GetDelegation.
-func (mr *MockStakingKeeperMockRecorder) GetDelegation(ctx, delAddr, valAddr any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDelegation", reflect.TypeOf((*MockStakingKeeper)(nil).GetDelegation), ctx, delAddr, valAddr)
-}
-
-// GetDelegatorBonded mocks base method.
-func (m *MockStakingKeeper) GetDelegatorBonded(ctx types0.Context, delegator types0.AccAddress) math.Int {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDelegatorBonded", ctx, delegator)
-	ret0, _ := ret[0].(math.Int)
-	return ret0
-}
-
-// GetDelegatorBonded indicates an expected call of GetDelegatorBonded.
-func (mr *MockStakingKeeperMockRecorder) GetDelegatorBonded(ctx, delegator any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDelegatorBonded", reflect.TypeOf((*MockStakingKeeper)(nil).GetDelegatorBonded), ctx, delegator)
-}
-
 // GetValidator mocks base method.
 func (m *MockStakingKeeper) GetValidator(ctx types0.Context, addr types0.ValAddress) (types1.Validator, bool) {
 	m.ctrl.T.Helper()
@@ -146,4 +156,41 @@ func (m *MockStakingKeeper) IterateBondedValidatorsByPower(ctx types0.Context, f
 func (mr *MockStakingKeeperMockRecorder) IterateBondedValidatorsByPower(ctx, fn any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IterateBondedValidatorsByPower", reflect.TypeOf((*MockStakingKeeper)(nil).IterateBondedValidatorsByPower), ctx, fn)
+}
+
+// MockRestakeKeeper is a mock of RestakeKeeper interface.
+type MockRestakeKeeper struct {
+	ctrl     *gomock.Controller
+	recorder *MockRestakeKeeperMockRecorder
+}
+
+// MockRestakeKeeperMockRecorder is the mock recorder for MockRestakeKeeper.
+type MockRestakeKeeperMockRecorder struct {
+	mock *MockRestakeKeeper
+}
+
+// NewMockRestakeKeeper creates a new mock instance.
+func NewMockRestakeKeeper(ctrl *gomock.Controller) *MockRestakeKeeper {
+	mock := &MockRestakeKeeper{ctrl: ctrl}
+	mock.recorder = &MockRestakeKeeperMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockRestakeKeeper) EXPECT() *MockRestakeKeeperMockRecorder {
+	return m.recorder
+}
+
+// SetLockedPower mocks base method.
+func (m *MockRestakeKeeper) SetLockedPower(ctx types0.Context, addr types0.AccAddress, key string, amount math.Int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetLockedPower", ctx, addr, key, amount)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetLockedPower indicates an expected call of SetLockedPower.
+func (mr *MockRestakeKeeperMockRecorder) SetLockedPower(ctx, addr, key, amount any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetLockedPower", reflect.TypeOf((*MockRestakeKeeper)(nil).SetLockedPower), ctx, addr, key, amount)
 }

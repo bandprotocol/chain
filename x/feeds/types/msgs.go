@@ -6,19 +6,19 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-var _, _, _, _ sdk.Msg = &MsgSubmitPrices{}, &MsgUpdateParams{}, &MsgUpdatePriceService{}, &MsgSubmitSignals{}
+var _, _, _, _ sdk.Msg = &MsgSubmitSignalPrices{}, &MsgUpdateParams{}, &MsgUpdateReferenceSourceConfig{}, &MsgSubmitSignals{}
 
 // ====================================
-// MsgSubmitPrices
+// MsgSubmitSignalPrices
 // ====================================
 
-// NewMsgSubmitPrices creates a new MsgSubmitPrices instance.
-func NewMsgSubmitPrices(
+// NewMsgSubmitSignalPrices creates a new MsgSubmitSignalPrices instance.
+func NewMsgSubmitSignalPrices(
 	validator string,
 	timestamp int64,
-	prices []SubmitPrice,
-) *MsgSubmitPrices {
-	return &MsgSubmitPrices{
+	prices []SignalPrice,
+) *MsgSubmitSignalPrices {
+	return &MsgSubmitSignalPrices{
 		Validator: validator,
 		Timestamp: timestamp,
 		Prices:    prices,
@@ -26,24 +26,24 @@ func NewMsgSubmitPrices(
 }
 
 // Route Implements Msg.
-func (m MsgSubmitPrices) Route() string { return sdk.MsgTypeURL(&m) }
+func (m MsgSubmitSignalPrices) Route() string { return sdk.MsgTypeURL(&m) }
 
 // Type Implements Msg.
-func (m MsgSubmitPrices) Type() string { return sdk.MsgTypeURL(&m) }
+func (m MsgSubmitSignalPrices) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes implements the LegacyMsg interface.
-func (m MsgSubmitPrices) GetSignBytes() []byte {
+func (m MsgSubmitSignalPrices) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
 // GetSigners returns the expected signers for the message.
-func (m *MsgSubmitPrices) GetSigners() []sdk.AccAddress {
+func (m *MsgSubmitSignalPrices) GetSigners() []sdk.AccAddress {
 	validator, _ := sdk.ValAddressFromBech32(m.Validator)
 	return []sdk.AccAddress{sdk.AccAddress(validator)}
 }
 
 // ValidateBasic does a check on the provided data.
-func (m *MsgSubmitPrices) ValidateBasic() error {
+func (m *MsgSubmitSignalPrices) ValidateBasic() error {
 	valAddr, err := sdk.ValAddressFromBech32(m.Validator)
 	if err != nil {
 		return err
@@ -109,43 +109,43 @@ func (m *MsgUpdateParams) ValidateBasic() error {
 }
 
 // ====================================
-// MsgUpdatePriceService
+// MsgUpdateReferenceSourceConfig
 // ====================================
 
-// NewMsgUpdatePriceService creates a new MsgUpdatePriceService instance.
-func NewMsgUpdatePriceService(
+// NewMsgUpdateReferenceSourceConfig creates a new MsgUpdateReferenceSourceConfig instance.
+func NewMsgUpdateReferenceSourceConfig(
 	admin string,
-	priceService PriceService,
-) *MsgUpdatePriceService {
-	return &MsgUpdatePriceService{
-		Admin:        admin,
-		PriceService: priceService,
+	referenceSourceConfig ReferenceSourceConfig,
+) *MsgUpdateReferenceSourceConfig {
+	return &MsgUpdateReferenceSourceConfig{
+		Admin:                 admin,
+		ReferenceSourceConfig: referenceSourceConfig,
 	}
 }
 
 // Route Implements Msg.
-func (m MsgUpdatePriceService) Route() string { return sdk.MsgTypeURL(&m) }
+func (m MsgUpdateReferenceSourceConfig) Route() string { return sdk.MsgTypeURL(&m) }
 
 // Type Implements Msg.
-func (m MsgUpdatePriceService) Type() string { return sdk.MsgTypeURL(&m) }
+func (m MsgUpdateReferenceSourceConfig) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes implements the LegacyMsg interface.
-func (m MsgUpdatePriceService) GetSignBytes() []byte {
+func (m MsgUpdateReferenceSourceConfig) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
 // GetSigners returns the expected signers for the message.
-func (m *MsgUpdatePriceService) GetSigners() []sdk.AccAddress {
+func (m *MsgUpdateReferenceSourceConfig) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Admin)}
 }
 
 // ValidateBasic does a check on the provided data.
-func (m *MsgUpdatePriceService) ValidateBasic() error {
+func (m *MsgUpdateReferenceSourceConfig) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Admin); err != nil {
 		return errorsmod.Wrap(err, "invalid admin address")
 	}
 
-	if err := m.PriceService.Validate(); err != nil {
+	if err := m.ReferenceSourceConfig.Validate(); err != nil {
 		return err
 	}
 

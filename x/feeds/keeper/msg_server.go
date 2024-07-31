@@ -35,6 +35,13 @@ func (ms msgServer) SubmitSignals(
 		return nil, err
 	}
 
+	if len(req.Signals) > int(ms.GetParams(ctx).MaxCurrentFeeds) {
+		return nil, types.ErrSubmittedSignalsTooLarge.Wrapf(
+			"maximum number of signals is %d but received %d",
+			ms.GetParams(ctx).MaxCurrentFeeds, len(req.Signals),
+		)
+	}
+
 	// check whether delegator has enough delegation for signals
 	err = ms.CheckDelegatorDelegation(ctx, delegator, req.Signals)
 	if err != nil {
@@ -54,14 +61,12 @@ func (ms msgServer) SubmitSignals(
 	}
 	sort.Strings(keys)
 
-	maxSignalIDCharacters := ms.Keeper.GetParams(ctx).MaxSignalIDCharacters
-
 	for _, signalID := range keys {
 		signalIDLength := len(signalID)
-		if uint64(signalIDLength) > maxSignalIDCharacters {
+		if uint64(signalIDLength) > types.MaxSignalIDCharacters {
 			return nil, types.ErrSignalIDTooLarge.Wrapf(
 				"maximum number of characters is %d but received %d characters",
-				maxSignalIDCharacters, signalIDLength,
+				types.MaxSignalIDCharacters, signalIDLength,
 			)
 		}
 		powerDiff := signalIDToPowerDiff[signalID]
@@ -84,17 +89,17 @@ func (ms msgServer) SubmitSignals(
 	return &types.MsgSubmitSignalsResponse{}, nil
 }
 
-// SubmitPrices register new validator-prices.
-func (ms msgServer) SubmitPrices(
+// SubmitSignalPrices register new validator prices.
+func (ms msgServer) SubmitSignalPrices(
 	goCtx context.Context,
-	req *types.MsgSubmitPrices,
-) (*types.MsgSubmitPricesResponse, error) {
+	req *types.MsgSubmitSignalPrices,
+) (*types.MsgSubmitSignalPricesResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	blockTime := ctx.BlockTime().Unix()
 	blockHeight := ctx.BlockHeight()
 
-	if len(req.Prices) > int(ms.Keeper.GetParams(ctx).MaxSupportedFeeds) {
-		return nil, types.ErrSubmitPricesTooLarge
+	if len(req.Prices) > int(ms.Keeper.GetParams(ctx).MaxCurrentFeeds) {
+		return nil, types.ErrSignalPricesTooLarge
 	}
 
 	val, err := sdk.ValAddressFromBech32(req.Validator)
@@ -103,22 +108,32 @@ func (ms msgServer) SubmitPrices(
 	}
 
 	// check if it's in top bonded validators.
-	err = ms.ValidateSubmitPricesRequest(ctx, blockTime, req, val)
+	err = ms.ValidateSubmitSignalPricesRequest(ctx, blockTime, req, val)
 	if err != nil {
 		return nil, err
 	}
 
 	cooldownTime := ms.GetParams(ctx).CooldownTime
-	supportedFeeds := ms.GetSupportedFeeds(ctx)
-	supportedFeedsMap := make(map[string]bool)
-	for _, feed := range supportedFeeds.Feeds {
-		supportedFeedsMap[feed.SignalID] = true
+	supportedFeeds := ms.GetCurrentFeeds(ctx)
+	supportedFeedsMap := make(map[string]int)
+	for idx, feed := range supportedFeeds.Feeds {
+		supportedFeedsMap[feed.SignalID] = idx
 	}
 
-	tooEarlyPriceSubmission := 0
+	valPrices := make([]types.ValidatorPrice, len(supportedFeedsMap))
+	prevValPrices, err := ms.GetValidatorPriceList(ctx, val)
+	if err == nil {
+		for _, valPrice := range prevValPrices.ValidatorPrices {
+			idx, ok := supportedFeedsMap[valPrice.SignalID]
+			if ok {
+				valPrices[idx] = valPrice
+			}
+		}
+	}
 
 	for _, price := range req.Prices {
-		if _, ok := supportedFeedsMap[price.SignalID]; !ok {
+		idx, ok := supportedFeedsMap[price.SignalID]
+		if !ok {
 			return nil, types.ErrSignalIDNotSupported.Wrapf(
 				"signal_id: %s",
 				price.SignalID,
@@ -126,32 +141,28 @@ func (ms msgServer) SubmitPrices(
 		}
 
 		// check if price is not too fast
-		valPrice, err := ms.GetValidatorPrice(ctx, price.SignalID, val)
-		if err == nil && blockTime < valPrice.Timestamp+cooldownTime {
-			tooEarlyPriceSubmission++
+		valPrice := valPrices[idx]
+		if valPrice.SignalID != "" && blockTime < valPrice.Timestamp+cooldownTime {
+			return nil, types.ErrPriceSubmitTooEarly
 		}
 
 		valPrice = ms.NewValidatorPrice(val, price, blockTime, blockHeight)
-
-		if err = ms.SetValidatorPrice(ctx, valPrice); err != nil {
-			return nil, err
-		}
-
-		emitEventSubmitPrice(ctx, valPrice)
+		valPrices[idx] = valPrice
+		emitEventSubmitSignalPrice(ctx, valPrice)
 	}
 
-	if tooEarlyPriceSubmission > len(req.Prices)/2 {
-		return nil, types.ErrPriceSubmitTooEarly
+	if err := ms.SetValidatorPriceList(ctx, val, valPrices); err != nil {
+		return nil, err
 	}
 
-	return &types.MsgSubmitPricesResponse{}, nil
+	return &types.MsgSubmitSignalPricesResponse{}, nil
 }
 
-// UpdatePriceService updates price service.
-func (ms msgServer) UpdatePriceService(
+// UpdateReferenceSourceConfig updates reference source configuration.
+func (ms msgServer) UpdateReferenceSourceConfig(
 	goCtx context.Context,
-	req *types.MsgUpdatePriceService,
-) (*types.MsgUpdatePriceServiceResponse, error) {
+	req *types.MsgUpdateReferenceSourceConfig,
+) (*types.MsgUpdateReferenceSourceConfigResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	admin := ms.GetParams(ctx).Admin
@@ -163,13 +174,13 @@ func (ms msgServer) UpdatePriceService(
 		)
 	}
 
-	if err := ms.SetPriceService(ctx, req.PriceService); err != nil {
+	if err := ms.SetReferenceSourceConfig(ctx, req.ReferenceSourceConfig); err != nil {
 		return nil, err
 	}
 
-	emitEventUpdatePriceService(ctx, req.PriceService)
+	emitEventUpdateReferenceSourceConfig(ctx, req.ReferenceSourceConfig)
 
-	return &types.MsgUpdatePriceServiceResponse{}, nil
+	return &types.MsgUpdateReferenceSourceConfigResponse{}, nil
 }
 
 // UpdateParams updates the feeds module params.

@@ -26,7 +26,7 @@ const (
 // getGrantMsgTypes returns types for GrantMsg.
 func getGrantMsgTypes() []string {
 	return []string{
-		sdk.MsgTypeURL(&types.MsgSubmitPrices{}),
+		sdk.MsgTypeURL(&types.MsgSubmitSignalPrices{}),
 	}
 }
 
@@ -40,10 +40,10 @@ func GetTxCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 	txCmd.AddCommand(
-		GetTxCmdAddGrantees(),
-		GetTxCmdRemoveGrantees(),
+		GetTxCmdAddFeeders(),
+		GetTxCmdRemoveFeeders(),
 		GetTxCmdSubmitSignals(),
-		GetTxCmdUpdatePriceService(),
+		GetTxCmdUpdateReferenceSourceConfig(),
 	)
 
 	return txCmd
@@ -102,17 +102,17 @@ $ %s tx feeds signal BTC:1000000 --from mykey
 	return cmd
 }
 
-// GetTxCmdAddGrantees creates a CLI command for adding new grantees
-func GetTxCmdAddGrantees() *cobra.Command {
+// GetTxCmdAddFeeders creates a CLI command for adding new feeders
+func GetTxCmdAddFeeders() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add-grantees [grantee1] [grantee2] ...",
-		Short: "Add agents authorized to submit prices transactions.",
+		Use:   "add-feeders [feeder1] [feeder2] ...",
+		Short: "Add agents authorized to submit signal prices transactions.",
 		Args:  cobra.MinimumNArgs(1),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(
 				`Add agents authorized to submit feeds transactions.
 Example:
-$ %s tx feeds add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs --from mykey
+$ %s tx feeds add-feeders band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs --from mykey
 `,
 				version.AppName,
 			),
@@ -131,17 +131,17 @@ $ %s tx feeds add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq
 	return cmd
 }
 
-// GetTxCmdRemoveGrantees creates a CLI command for removing grantees from granter
-func GetTxCmdRemoveGrantees() *cobra.Command {
+// GetTxCmdRemoveFeeders creates a CLI command for removing feeders from granter
+func GetTxCmdRemoveFeeders() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "remove-grantees [grantee1] [grantee2] ...",
-		Short: "Remove agents from the list of authorized grantees.",
+		Use:   "remove-feeders [feeder1] [feeder2] ...",
+		Short: "Remove agents from the list of authorized feeders.",
 		Args:  cobra.MinimumNArgs(1),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(
-				`Remove agents from the list of authorized grantees.
+				`Remove agents from the list of authorized feeders.
 Example:
-$ %s tx feeds remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs --from mykey
+$ %s tx feeds remove-feeders band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs --from mykey
 `,
 				version.AppName,
 			),
@@ -154,17 +154,17 @@ $ %s tx feeds remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m
 	return cmd
 }
 
-// GetTxCmdUpdatePriceService creates a CLI command for updating price service
-func GetTxCmdUpdatePriceService() *cobra.Command {
+// GetTxCmdUpdateReferenceSourceConfig creates a CLI command for updating reference source config
+func GetTxCmdUpdateReferenceSourceConfig() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-price-service [hash] [version] [url]",
-		Short: "Update reference price service",
-		Args:  cobra.ExactArgs(3),
+		Use:   "update-reference-source-config [ipfs-hash] [version]",
+		Short: "Update reference source config",
+		Args:  cobra.ExactArgs(2),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(
-				`Update reference price service that will be use as the default service for price querying.
+				`Update reference source configuration that will be use as the default service for price querying.
 Example:
-$ %s tx feeds update-price-service 1234abcedf 1.0.0 http://www.example.com --from mykey
+$ %s tx feeds update-reference-source-config <YOUR_IPFS_HASH> 1.0.0 --from mykey
 `,
 				version.AppName,
 			),
@@ -176,15 +176,14 @@ $ %s tx feeds update-price-service 1234abcedf 1.0.0 http://www.example.com --fro
 			}
 
 			admin := clientCtx.GetFromAddress()
-			priceService := types.PriceService{
-				Hash:    args[0],
-				Version: args[1],
-				Url:     args[2],
+			referenceSourceConfig := types.ReferenceSourceConfig{
+				IPFSHash: args[0],
+				Version:  args[1],
 			}
 
-			msg := types.MsgUpdatePriceService{
-				Admin:        admin.String(),
-				PriceService: priceService,
+			msg := types.MsgUpdateReferenceSourceConfig{
+				Admin:                 admin.String(),
+				ReferenceSourceConfig: referenceSourceConfig,
 			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &msg)
