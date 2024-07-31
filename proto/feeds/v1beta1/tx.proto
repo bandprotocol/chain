@@ -12,6 +12,9 @@ import "amino/amino.proto";
 
 // Msg defines the feeds Msg service.
 service Msg {
+  // SubmitSignals is an RPC method to submit signal ids and their powers.
+  rpc SubmitSignals(MsgSubmitSignals) returns (MsgSubmitSignalsResponse);
+
   // SubmitSignalPrices is an RPC method to submit signal prices.
   rpc SubmitSignalPrices(MsgSubmitSignalPrices) returns (MsgSubmitSignalPricesResponse);
 
@@ -20,9 +23,6 @@ service Msg {
 
   // UpdateParams is an RPC method to update parameters.
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
-
-  // SubmitSignals is an RPC method to submit signal ids and their powers.
-  rpc SubmitSignals(MsgSubmitSignals) returns (MsgSubmitSignalsResponse);
 }
 
 // MsgSubmitSignals is the transaction message to submit signals.
@@ -32,6 +32,7 @@ message MsgSubmitSignals {
 
   // delegator is the address of the delegator that wants to submit signals.
   string delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
   // signals is a list of submitted signals.
   repeated Signal signals = 2 [(gogoproto.nullable) = false];
 }
@@ -59,7 +60,7 @@ message MsgSubmitSignalPricesResponse {}
 
 // MsgUpdateReferenceSourceConfig is the transaction message to update reference price source's configuration.
 message MsgUpdateReferenceSourceConfig {
-  option (cosmos.msg.v1.signer) = "authority";
+  option (cosmos.msg.v1.signer) = "admin";
   option (amino.name)           = "feeds/MsgUpdateReferenceSourceConfig";
 
   // admin is the address of the admin that is performing the operation.

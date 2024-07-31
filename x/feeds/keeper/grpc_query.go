@@ -29,6 +29,7 @@ func (q queryServer) DelegatorSignals(
 	goCtx context.Context, req *types.QueryDelegatorSignalsRequest,
 ) (*types.QueryDelegatorSignalsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+
 	delegator, err := sdk.AccAddressFromBech32(req.Delegator)
 	if err != nil {
 		return nil, err
@@ -38,6 +39,7 @@ func (q queryServer) DelegatorSignals(
 	if signals == nil {
 		return nil, status.Error(codes.NotFound, "no signal")
 	}
+
 	return &types.QueryDelegatorSignalsResponse{Signals: signals}, nil
 }
 
@@ -275,13 +277,18 @@ func (q queryServer) IsFeeder(
 	req *types.QueryIsFeederRequest,
 ) (*types.QueryIsFeederResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
+
 	val, err := sdk.ValAddressFromBech32(req.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
+
 	feeder, err := sdk.AccAddressFromBech32(req.FeederAddress)
 	if err != nil {
 		return nil, err
 	}
-	return &types.QueryIsFeederResponse{IsFeeder: q.keeper.IsFeeder(ctx, val, feeder)}, nil
+
+	return &types.QueryIsFeederResponse{
+		IsFeeder: q.keeper.IsFeeder(ctx, val, feeder),
+	}, nil
 }

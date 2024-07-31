@@ -40,9 +40,7 @@ func (k Keeper) GetDelegatorSignalsIterator(ctx sdk.Context) sdk.Iterator {
 // GetAllDelegatorSignals returns a list of all delegator-signals.
 func (k Keeper) GetAllDelegatorSignals(ctx sdk.Context) (delegatorSignalsList []types.DelegatorSignals) {
 	iterator := k.GetDelegatorSignalsIterator(ctx)
-	defer func(iterator sdk.Iterator) {
-		_ = iterator.Close()
-	}(iterator)
+	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
 		var ds types.DelegatorSignals
@@ -121,9 +119,7 @@ func (k Keeper) GetSignalTotalPowersByPower(ctx sdk.Context, limit uint64) []typ
 	signalTotalPowers := make([]types.Signal, limit)
 
 	iterator := k.SignalTotalPowersByPowerStoreIterator(ctx)
-	defer func(iterator sdk.Iterator) {
-		_ = iterator.Close()
-	}(iterator)
+	defer iterator.Close()
 
 	i := 0
 	for ; iterator.Valid() && i < int(limit); iterator.Next() {

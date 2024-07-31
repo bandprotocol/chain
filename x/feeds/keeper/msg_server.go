@@ -118,7 +118,6 @@ func (ms msgServer) SubmitSignalPrices(
 		return nil, err
 	}
 
-	cooldownTime := ms.GetParams(ctx).CooldownTime
 	supportedFeeds := ms.GetCurrentFeeds(ctx)
 	supportedFeedsMap := make(map[string]int)
 	for idx, feed := range supportedFeeds.Feeds {
@@ -136,6 +135,7 @@ func (ms msgServer) SubmitSignalPrices(
 		}
 	}
 
+	cooldownTime := ms.GetParams(ctx).CooldownTime
 	for _, price := range req.Prices {
 		idx, ok := supportedFeedsMap[price.SignalID]
 		if !ok {
