@@ -154,6 +154,9 @@ func (k Keeper) ActivateTunnel(ctx sdk.Context, id uint64, creator string) error
 
 // SetParams sets the tunnel module parameters
 func (k Keeper) ProcessTunnel(ctx sdk.Context, tunnel types.Tunnel) {
+	// Increment the nonce
+	tunnel.NonceCount += 1
+
 	switch r := tunnel.Route.GetCachedValue().(type) {
 	case *types.TSSRoute:
 		k.TSSPacketHandler(ctx, types.TSSPacket{
@@ -165,4 +168,7 @@ func (k Keeper) ProcessTunnel(ctx sdk.Context, tunnel types.Tunnel) {
 	case *types.AxelarRoute:
 		k.AxelarPacketHandler(ctx, types.AxelarPacket{})
 	}
+
+	// Update the tunnel
+	k.SetTunnel(ctx, tunnel)
 }
