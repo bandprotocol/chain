@@ -2,8 +2,7 @@ package types
 
 import "github.com/cosmos/gogoproto/proto"
 
-// Route represents the interface of various Route types implemented
-// by other modules.
+// Route defines a routing path to deliver data to the destination.
 type Route interface {
 	proto.Message
 

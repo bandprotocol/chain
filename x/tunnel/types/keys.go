@@ -7,10 +7,10 @@ const (
 	ModuleName = "tunnel"
 
 	// Version defines the current version the IBC module supports
-	Version = "bandchain-1"
+	Version = "tunnel-1"
 
 	// KeyAccountsKey is used to store the key for the account
-	KeyAccountsKey = "TunnelAccountsKey"
+	KeyAccountsKey = "tunnel-accounts"
 
 	// StoreKey defines the primary module store key
 	StoreKey = ModuleName
@@ -30,15 +30,9 @@ var (
 
 	TunnelCountStoreKey = append(GlobalStoreKeyPrefix, []byte("TunnelCount")...)
 
-	TSSPacketCountStoreKey = append(GlobalStoreKeyPrefix, []byte("TSSPacketCount")...)
-
-	AxelarPacketCountStoreKey = append(GlobalStoreKeyPrefix, []byte("AxelarPacketCount")...)
-
 	TunnelStoreKeyPrefix = []byte{0x01}
 
-	TSSPacketStoreKeyPrefix = []byte{0x02}
-
-	AxelarPacketStoreKeyPrefix = []byte{0x03}
+	PacketStoreKeyPrefix = []byte{0x02}
 
 	ParamsKey = []byte{0x10}
 )
@@ -47,10 +41,10 @@ func TunnelStoreKey(id uint64) []byte {
 	return append(TunnelStoreKeyPrefix, sdk.Uint64ToBigEndian(id)...)
 }
 
-func TSSPacketStoreKey(id uint64) []byte {
-	return append(TSSPacketStoreKeyPrefix, sdk.Uint64ToBigEndian(id)...)
+func TunnelPacketsStoreKey(tunnelID uint64) []byte {
+	return append(PacketStoreKeyPrefix, sdk.Uint64ToBigEndian(tunnelID)...)
 }
 
-func AxelarPacketStoreKey(id uint64) []byte {
-	return append(AxelarPacketStoreKeyPrefix, sdk.Uint64ToBigEndian(id)...)
+func TunnelPacketStoreKey(tunnelID uint64, packetID uint64) []byte {
+	return append(TunnelPacketsStoreKey(tunnelID), sdk.Uint64ToBigEndian(packetID)...)
 }

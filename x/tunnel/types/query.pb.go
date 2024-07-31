@@ -6,6 +6,7 @@ package types
 import (
 	context "context"
 	fmt "fmt"
+	types "github.com/cosmos/cosmos-sdk/codec/types"
 	query "github.com/cosmos/cosmos-sdk/types/query"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/cosmos/gogoproto/grpc"
@@ -264,6 +265,217 @@ func (m *QueryTunnelResponse) GetTunnel() Tunnel {
 	return Tunnel{}
 }
 
+// QueryPacketsRequest is the request type for the Query/Packets RPC method.
+type QueryPacketsRequest struct {
+	// TunnelID is the ID of the tunnel to query packets.
+	TunnelId uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
+	// pagination defines an optional pagination for the request.
+	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *QueryPacketsRequest) Reset()         { *m = QueryPacketsRequest{} }
+func (m *QueryPacketsRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryPacketsRequest) ProtoMessage()    {}
+func (*QueryPacketsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_220124e1821d297e, []int{4}
+}
+func (m *QueryPacketsRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryPacketsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryPacketsRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryPacketsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryPacketsRequest.Merge(m, src)
+}
+func (m *QueryPacketsRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryPacketsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryPacketsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryPacketsRequest proto.InternalMessageInfo
+
+func (m *QueryPacketsRequest) GetTunnelId() uint64 {
+	if m != nil {
+		return m.TunnelId
+	}
+	return 0
+}
+
+func (m *QueryPacketsRequest) GetPagination() *query.PageRequest {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
+// QueryPacketsResponse is the response type for the Query/Packets RPC method.
+type QueryPacketsResponse struct {
+	// Packets is a list of packets.
+	Packets []types.Any `protobuf:"bytes,1,rep,name=packets,proto3" json:"packets"`
+	// pagination defines an optional pagination for the response.
+	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+}
+
+func (m *QueryPacketsResponse) Reset()         { *m = QueryPacketsResponse{} }
+func (m *QueryPacketsResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryPacketsResponse) ProtoMessage()    {}
+func (*QueryPacketsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_220124e1821d297e, []int{5}
+}
+func (m *QueryPacketsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryPacketsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryPacketsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryPacketsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryPacketsResponse.Merge(m, src)
+}
+func (m *QueryPacketsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryPacketsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryPacketsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryPacketsResponse proto.InternalMessageInfo
+
+func (m *QueryPacketsResponse) GetPackets() []types.Any {
+	if m != nil {
+		return m.Packets
+	}
+	return nil
+}
+
+func (m *QueryPacketsResponse) GetPagination() *query.PageResponse {
+	if m != nil {
+		return m.Pagination
+	}
+	return nil
+}
+
+// QueryPacketRequest is the request type for the Query/Packet RPC method.
+type QueryPacketRequest struct {
+	// TunnelID is the ID of the tunnel to query packets.
+	TunnelId uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
+	// Nonce is the nonce of the packet to query.
+	Nonce uint64 `protobuf:"varint,2,opt,name=nonce,proto3" json:"nonce,omitempty"`
+}
+
+func (m *QueryPacketRequest) Reset()         { *m = QueryPacketRequest{} }
+func (m *QueryPacketRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryPacketRequest) ProtoMessage()    {}
+func (*QueryPacketRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_220124e1821d297e, []int{6}
+}
+func (m *QueryPacketRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryPacketRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryPacketRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryPacketRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryPacketRequest.Merge(m, src)
+}
+func (m *QueryPacketRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryPacketRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryPacketRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryPacketRequest proto.InternalMessageInfo
+
+func (m *QueryPacketRequest) GetTunnelId() uint64 {
+	if m != nil {
+		return m.TunnelId
+	}
+	return 0
+}
+
+func (m *QueryPacketRequest) GetNonce() uint64 {
+	if m != nil {
+		return m.Nonce
+	}
+	return 0
+}
+
+// QueryPacketResponse is the response type for the Query/Packet RPC method.
+type QueryPacketResponse struct {
+	// Packet is the packet with the given tunnel ID and nonce.
+	Packet types.Any `protobuf:"bytes,1,opt,name=packet,proto3" json:"packet"`
+}
+
+func (m *QueryPacketResponse) Reset()         { *m = QueryPacketResponse{} }
+func (m *QueryPacketResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryPacketResponse) ProtoMessage()    {}
+func (*QueryPacketResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_220124e1821d297e, []int{7}
+}
+func (m *QueryPacketResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryPacketResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryPacketResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryPacketResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryPacketResponse.Merge(m, src)
+}
+func (m *QueryPacketResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryPacketResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryPacketResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryPacketResponse proto.InternalMessageInfo
+
+func (m *QueryPacketResponse) GetPacket() types.Any {
+	if m != nil {
+		return m.Packet
+	}
+	return types.Any{}
+}
+
 // QueryParamsRequest is the request type for the Query/Params RPC method.
 type QueryParamsRequest struct {
 }
@@ -272,7 +484,7 @@ func (m *QueryParamsRequest) Reset()         { *m = QueryParamsRequest{} }
 func (m *QueryParamsRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryParamsRequest) ProtoMessage()    {}
 func (*QueryParamsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_220124e1821d297e, []int{4}
+	return fileDescriptor_220124e1821d297e, []int{8}
 }
 func (m *QueryParamsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -311,7 +523,7 @@ func (m *QueryParamsResponse) Reset()         { *m = QueryParamsResponse{} }
 func (m *QueryParamsResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryParamsResponse) ProtoMessage()    {}
 func (*QueryParamsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_220124e1821d297e, []int{5}
+	return fileDescriptor_220124e1821d297e, []int{9}
 }
 func (m *QueryParamsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -353,6 +565,10 @@ func init() {
 	proto.RegisterType((*QueryTunnelsResponse)(nil), "tunnel.v1beta1.QueryTunnelsResponse")
 	proto.RegisterType((*QueryTunnelRequest)(nil), "tunnel.v1beta1.QueryTunnelRequest")
 	proto.RegisterType((*QueryTunnelResponse)(nil), "tunnel.v1beta1.QueryTunnelResponse")
+	proto.RegisterType((*QueryPacketsRequest)(nil), "tunnel.v1beta1.QueryPacketsRequest")
+	proto.RegisterType((*QueryPacketsResponse)(nil), "tunnel.v1beta1.QueryPacketsResponse")
+	proto.RegisterType((*QueryPacketRequest)(nil), "tunnel.v1beta1.QueryPacketRequest")
+	proto.RegisterType((*QueryPacketResponse)(nil), "tunnel.v1beta1.QueryPacketResponse")
 	proto.RegisterType((*QueryParamsRequest)(nil), "tunnel.v1beta1.QueryParamsRequest")
 	proto.RegisterType((*QueryParamsResponse)(nil), "tunnel.v1beta1.QueryParamsResponse")
 }
@@ -360,44 +576,54 @@ func init() {
 func init() { proto.RegisterFile("tunnel/v1beta1/query.proto", fileDescriptor_220124e1821d297e) }
 
 var fileDescriptor_220124e1821d297e = []byte{
-	// 583 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x54, 0xc1, 0x6f, 0xd3, 0x3e,
-	0x18, 0x4d, 0xfa, 0xdb, 0xaf, 0xdb, 0x3c, 0x69, 0x9a, 0x4c, 0x35, 0xba, 0x0c, 0xb2, 0x29, 0x9b,
-	0x60, 0xea, 0x21, 0xa6, 0x85, 0x3b, 0xea, 0x46, 0x8b, 0x22, 0x50, 0x55, 0xd2, 0x96, 0x03, 0x97,
-	0xca, 0x6d, 0xad, 0x2c, 0x52, 0x1b, 0xa7, 0xb5, 0x53, 0x31, 0xa1, 0x5d, 0x38, 0x71, 0x04, 0x71,
-	0xe7, 0xc2, 0x3f, 0xb3, 0xe3, 0x24, 0x2e, 0x9c, 0x10, 0x6a, 0xf9, 0x03, 0xf8, 0x13, 0x50, 0x6d,
-	0xa7, 0x5b, 0x68, 0x5a, 0x6e, 0x91, 0xdf, 0xfb, 0xbe, 0xf7, 0xde, 0xe7, 0xcf, 0x01, 0x06, 0x8f,
-	0x82, 0x80, 0xf4, 0xd1, 0xb8, 0xd8, 0x21, 0x1c, 0x17, 0xd1, 0x30, 0x22, 0xa3, 0x0b, 0x3b, 0x1c,
-	0x51, 0x4e, 0xe1, 0xb6, 0xc4, 0x6c, 0x85, 0x19, 0x39, 0x8f, 0x7a, 0x54, 0x40, 0x68, 0xf6, 0x25,
-	0x59, 0x46, 0xa1, 0x4b, 0xd9, 0x80, 0x32, 0xd4, 0xc1, 0x8c, 0xc8, 0xf2, 0x79, 0xb3, 0x10, 0x7b,
-	0x7e, 0x80, 0xb9, 0x4f, 0x03, 0xc5, 0xbd, 0xe7, 0x51, 0xea, 0xf5, 0x09, 0xc2, 0xa1, 0x8f, 0x70,
-	0x10, 0x50, 0x2e, 0x40, 0xa6, 0xd0, 0xfd, 0xbf, 0xbc, 0x84, 0x78, 0x84, 0x07, 0xcb, 0x40, 0xe5,
-	0x4d, 0x80, 0xd6, 0x17, 0x1d, 0xdc, 0x79, 0x35, 0x93, 0x6e, 0x8a, 0x53, 0xe6, 0x92, 0x61, 0x44,
-	0x18, 0x87, 0x4f, 0xc1, 0xa6, 0xcf, 0xda, 0xb8, 0xcb, 0xfd, 0x31, 0xc9, 0xeb, 0x87, 0xfa, 0xc9,
-	0x76, 0xc9, 0xb2, 0x93, 0xa9, 0x6c, 0x59, 0xd2, 0xe0, 0x98, 0x47, 0xac, 0xea, 0xf7, 0x39, 0x19,
-	0xb9, 0x1b, 0x3e, 0x2b, 0x8b, 0x1a, 0x58, 0x05, 0xe0, 0x26, 0x44, 0x3e, 0x73, 0xa8, 0x9f, 0x6c,
-	0x95, 0x1e, 0xd8, 0x32, 0xb1, 0x3d, 0x4b, 0x6c, 0xcb, 0x81, 0xc5, 0xcd, 0xea, 0xd8, 0x23, 0x4a,
-	0xdc, 0xbd, 0x55, 0x69, 0x7d, 0xd2, 0x41, 0x2e, 0x69, 0x90, 0x85, 0x34, 0x60, 0x04, 0x3e, 0x02,
-	0xeb, 0xd2, 0x0f, 0xcb, 0xeb, 0x87, 0xff, 0x9d, 0x6c, 0x95, 0x76, 0xd3, 0xfd, 0xb9, 0x31, 0x0d,
-	0x3e, 0x4f, 0xb1, 0xf4, 0xf0, 0x9f, 0x96, 0xa4, 0x5c, 0xc2, 0x53, 0x11, 0xc0, 0x5b, 0x96, 0xe2,
-	0x91, 0xed, 0x83, 0x4d, 0xa9, 0xd4, 0xf6, 0x7b, 0x62, 0x64, 0x6b, 0xee, 0x86, 0x3c, 0x70, 0x7a,
-	0xd6, 0x8b, 0xc4, 0x98, 0xe7, 0x21, 0x9e, 0x80, 0xac, 0xa4, 0x88, 0x82, 0xa5, 0x19, 0x4e, 0xd7,
-	0xae, 0x7e, 0x1c, 0x68, 0xae, 0xe2, 0x5a, 0x39, 0xa5, 0x5f, 0x17, 0xd7, 0xac, 0xf4, 0xe7, 0x12,
-	0xf1, 0xe9, 0x8d, 0x84, 0x5c, 0x87, 0x65, 0x12, 0x92, 0x1f, 0x4b, 0x48, 0x6e, 0x81, 0x02, 0xb8,
-	0x78, 0xbd, 0xf0, 0x3e, 0xd8, 0x6b, 0xb6, 0x6a, 0xb5, 0xca, 0xcb, 0x76, 0xa3, 0x59, 0x6e, 0xb6,
-	0x1a, 0xed, 0x56, 0xad, 0x51, 0xaf, 0x9c, 0x39, 0x55, 0xa7, 0xf2, 0x6c, 0x47, 0x83, 0x79, 0x90,
-	0x4b, 0xc2, 0xe5, 0xb3, 0xa6, 0xf3, 0xba, 0xb2, 0xa3, 0x43, 0x03, 0xec, 0x26, 0x11, 0xa7, 0xa6,
-	0xb0, 0x8c, 0xb1, 0xf6, 0xe1, 0xab, 0xa9, 0x95, 0x7e, 0x67, 0xc0, 0xff, 0xc2, 0x3e, 0x1c, 0x82,
-	0xac, 0xb4, 0x04, 0x17, 0x36, 0x6e, 0x31, 0xb5, 0x71, 0xb4, 0x92, 0x23, 0x67, 0x60, 0x99, 0xef,
-	0xbf, 0xfd, 0xfa, 0x9c, 0xc9, 0xc3, 0x5d, 0x94, 0xfa, 0x50, 0x60, 0x04, 0xd6, 0xd5, 0x7a, 0xc1,
-	0xf4, 0x7e, 0xc9, 0xd7, 0x61, 0x1c, 0xaf, 0x26, 0x29, 0xd5, 0x03, 0xa1, 0xba, 0x07, 0xef, 0xa2,
-	0xd4, 0x17, 0xc8, 0xe0, 0x25, 0xc8, 0xca, 0x9a, 0x25, 0x49, 0x13, 0xfb, 0x65, 0x1c, 0xad, 0xe4,
-	0x28, 0xcd, 0x82, 0xd0, 0x3c, 0x86, 0x56, 0xba, 0x26, 0x7a, 0x37, 0x5f, 0xd1, 0xcb, 0x53, 0xe7,
-	0x6a, 0x62, 0xea, 0xd7, 0x13, 0x53, 0xff, 0x39, 0x31, 0xf5, 0x8f, 0x53, 0x53, 0xbb, 0x9e, 0x9a,
-	0xda, 0xf7, 0xa9, 0xa9, 0xbd, 0x41, 0x9e, 0xcf, 0xcf, 0xa3, 0x8e, 0xdd, 0xa5, 0x03, 0xd4, 0xc1,
-	0x41, 0x4f, 0xfc, 0x2b, 0xba, 0xb4, 0x8f, 0xba, 0xe7, 0xd8, 0x0f, 0xd0, 0xb8, 0x84, 0xde, 0xc6,
-	0x0d, 0xf9, 0x45, 0x48, 0x58, 0x27, 0x2b, 0x18, 0x8f, 0xff, 0x04, 0x00, 0x00, 0xff, 0xff, 0xbb,
-	0x9c, 0x56, 0x0e, 0x15, 0x05, 0x00, 0x00,
+	// 740 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x54, 0xcf, 0x4f, 0x13, 0x41,
+	0x18, 0xed, 0x62, 0x69, 0x61, 0x48, 0x08, 0x19, 0x1b, 0x2c, 0x8b, 0x2e, 0x64, 0x8b, 0x4a, 0xaa,
+	0xd9, 0x91, 0xea, 0xdd, 0x14, 0x2c, 0xa4, 0xd1, 0x34, 0xd8, 0x16, 0x0f, 0x5e, 0x9a, 0xe9, 0x32,
+	0x2e, 0x1b, 0xcb, 0xce, 0xd2, 0xd9, 0x25, 0x22, 0xe1, 0xa0, 0x89, 0x89, 0x47, 0x8d, 0xf1, 0xea,
+	0xc5, 0x7f, 0x86, 0x23, 0x89, 0x17, 0x4f, 0xc6, 0x80, 0x7f, 0x86, 0x07, 0xb3, 0x33, 0xb3, 0x4b,
+	0x97, 0xee, 0x56, 0x0e, 0xdc, 0x76, 0xe7, 0x7b, 0x33, 0xef, 0x7d, 0xef, 0xfb, 0x01, 0x54, 0xcf,
+	0x77, 0x1c, 0xd2, 0x43, 0xfb, 0x2b, 0x5d, 0xe2, 0xe1, 0x15, 0xb4, 0xe7, 0x93, 0xfe, 0x81, 0xe1,
+	0xf6, 0xa9, 0x47, 0xe1, 0xb4, 0x88, 0x19, 0x32, 0xa6, 0x16, 0x2c, 0x6a, 0x51, 0x1e, 0x42, 0xc1,
+	0x97, 0x40, 0xa9, 0x65, 0x93, 0xb2, 0x5d, 0xca, 0x50, 0x17, 0x33, 0x22, 0xae, 0x47, 0x8f, 0xb9,
+	0xd8, 0xb2, 0x1d, 0xec, 0xd9, 0xd4, 0x91, 0xd8, 0x9b, 0x16, 0xa5, 0x56, 0x8f, 0x20, 0xec, 0xda,
+	0x08, 0x3b, 0x0e, 0xf5, 0x78, 0x90, 0xc9, 0xe8, 0x9c, 0x8c, 0xf2, 0xbf, 0xae, 0xff, 0x0a, 0x61,
+	0x47, 0x4a, 0x51, 0xe7, 0x2f, 0xc8, 0x74, 0x71, 0x1f, 0xef, 0xb2, 0x94, 0xa0, 0x94, 0xcd, 0x83,
+	0xfa, 0x37, 0x05, 0x5c, 0x7f, 0x1e, 0xa8, 0x6a, 0xf3, 0x53, 0xd6, 0x24, 0x7b, 0x3e, 0x61, 0x1e,
+	0x7c, 0x0c, 0x26, 0x6d, 0xd6, 0xc1, 0xa6, 0x67, 0xef, 0x93, 0xa2, 0xb2, 0xa8, 0x2c, 0x4f, 0x57,
+	0x74, 0x23, 0x9e, 0xb0, 0x21, 0xae, 0xb4, 0x3c, 0xec, 0xf9, 0x6c, 0xdd, 0xee, 0x79, 0xa4, 0xdf,
+	0x9c, 0xb0, 0x59, 0x95, 0xdf, 0x81, 0xeb, 0x00, 0x9c, 0xe7, 0x57, 0x1c, 0x5b, 0x54, 0x96, 0xa7,
+	0x2a, 0x77, 0x0c, 0x61, 0x86, 0x11, 0x98, 0x61, 0x08, 0x2f, 0xc3, 0xc7, 0x36, 0xb1, 0x45, 0x24,
+	0x79, 0x73, 0xe0, 0xa6, 0xfe, 0x59, 0x01, 0x85, 0xb8, 0x40, 0xe6, 0x52, 0x87, 0x11, 0xf8, 0x00,
+	0xe4, 0x85, 0x1e, 0x56, 0x54, 0x16, 0xaf, 0x2d, 0x4f, 0x55, 0x66, 0x93, 0xf5, 0x35, 0x43, 0x18,
+	0xdc, 0x48, 0x90, 0x74, 0xf7, 0xbf, 0x92, 0x04, 0x5d, 0x4c, 0xd3, 0x0a, 0x80, 0x03, 0x92, 0x42,
+	0xcb, 0xe6, 0xc1, 0xa4, 0x60, 0xea, 0xd8, 0xdb, 0xdc, 0xb2, 0x6c, 0x73, 0x42, 0x1c, 0xd4, 0xb7,
+	0xf5, 0xa7, 0x31, 0x9b, 0xa3, 0x24, 0x1e, 0x81, 0x9c, 0x80, 0xf0, 0x0b, 0xa9, 0x39, 0xac, 0x66,
+	0x8f, 0x7f, 0x2d, 0x64, 0x9a, 0x12, 0xab, 0xbf, 0x95, 0x8f, 0x6d, 0x62, 0xf3, 0x35, 0xf1, 0xd8,
+	0x65, 0x04, 0x5c, 0x59, 0x3d, 0xbe, 0x86, 0xf5, 0x88, 0xc8, 0xa3, 0x54, 0xf2, 0xae, 0x38, 0x92,
+	0xf5, 0x28, 0x18, 0xa2, 0x61, 0x8d, 0xb0, 0x61, 0x8d, 0xaa, 0x73, 0x20, 0x33, 0x09, 0xa1, 0x57,
+	0x57, 0x93, 0x0d, 0x59, 0x13, 0x21, 0xeb, 0x52, 0x96, 0x14, 0xc0, 0xb8, 0x43, 0x1d, 0x93, 0x70,
+	0xda, 0x6c, 0x53, 0xfc, 0xe8, 0xf5, 0x98, 0xb9, 0x51, 0x7a, 0x15, 0x90, 0x13, 0x9a, 0x65, 0xa5,
+	0x46, 0x65, 0x27, 0x91, 0x7a, 0x21, 0xd2, 0x14, 0x8c, 0xa3, 0xd4, 0x14, 0xb5, 0x42, 0x78, 0x7a,
+	0xde, 0x0a, 0x62, 0x6c, 0xd3, 0x5a, 0x41, 0xe0, 0xcf, 0x29, 0x82, 0xbf, 0x32, 0x05, 0x70, 0x78,
+	0x0c, 0xe1, 0x2d, 0x30, 0xd7, 0xde, 0x6a, 0x34, 0x6a, 0xcf, 0x3a, 0xad, 0x76, 0xb5, 0xbd, 0xd5,
+	0xea, 0x6c, 0x35, 0x5a, 0x9b, 0xb5, 0xb5, 0xfa, 0x7a, 0xbd, 0xf6, 0x64, 0x26, 0x03, 0x8b, 0xa0,
+	0x10, 0x0f, 0x57, 0xd7, 0xda, 0xf5, 0x17, 0xb5, 0x19, 0x05, 0xaa, 0x60, 0x36, 0x1e, 0xa9, 0x37,
+	0x64, 0x6c, 0x4c, 0xcd, 0x7e, 0xfc, 0xae, 0x65, 0x2a, 0x7f, 0xb3, 0x60, 0x9c, 0xcb, 0x87, 0x7b,
+	0x20, 0x27, 0x24, 0xc1, 0xa1, 0xcd, 0x30, 0x9c, 0xb5, 0x5a, 0x1a, 0x89, 0x11, 0x1e, 0xe8, 0xda,
+	0xfb, 0x1f, 0x7f, 0xbe, 0x8c, 0x15, 0xe1, 0x2c, 0x4a, 0x5c, 0x68, 0xd0, 0x07, 0x79, 0xb9, 0x06,
+	0x60, 0xf2, 0x7b, 0xf1, 0x2d, 0xa6, 0x2e, 0x8d, 0x06, 0x49, 0xd6, 0x05, 0xce, 0x3a, 0x07, 0x6f,
+	0xa0, 0xc4, 0x4d, 0xc9, 0xe0, 0x11, 0xc8, 0x89, 0x3b, 0x29, 0x99, 0xc6, 0xf6, 0x80, 0x5a, 0x1a,
+	0x89, 0x91, 0x9c, 0x65, 0xce, 0xb9, 0x04, 0xf5, 0x64, 0x4e, 0x74, 0x18, 0xb5, 0xed, 0x11, 0x7c,
+	0xa7, 0x80, 0xbc, 0x9c, 0x36, 0x98, 0x66, 0xe3, 0xe0, 0x22, 0x48, 0x49, 0xfb, 0xc2, 0xc0, 0xea,
+	0xf7, 0xb8, 0x84, 0xdb, 0xb0, 0x34, 0x6c, 0x36, 0x07, 0xc6, 0x34, 0x7c, 0x50, 0x82, 0x6a, 0x07,
+	0xe7, 0xa9, 0xd5, 0x1e, 0x98, 0x3b, 0xb5, 0x34, 0x12, 0x23, 0x05, 0x54, 0xb8, 0x80, 0xfb, 0xb0,
+	0x9c, 0x2c, 0x60, 0x90, 0x1f, 0x1d, 0xf2, 0xe1, 0x3c, 0x5a, 0xad, 0x1f, 0x9f, 0x6a, 0xca, 0xc9,
+	0xa9, 0xa6, 0xfc, 0x3e, 0xd5, 0x94, 0x4f, 0x67, 0x5a, 0xe6, 0xe4, 0x4c, 0xcb, 0xfc, 0x3c, 0xd3,
+	0x32, 0x2f, 0x91, 0x65, 0x7b, 0x3b, 0x7e, 0xd7, 0x30, 0xe9, 0x2e, 0xea, 0x62, 0x67, 0x9b, 0xcf,
+	0xa5, 0x49, 0x7b, 0xc8, 0xdc, 0xc1, 0xb6, 0x83, 0xf6, 0x2b, 0xe8, 0x4d, 0xc8, 0xe3, 0x1d, 0xb8,
+	0x84, 0x75, 0x73, 0x1c, 0xf1, 0xf0, 0x5f, 0x00, 0x00, 0x00, 0xff, 0xff, 0xd2, 0xff, 0xf2, 0x34,
+	0xe4, 0x07, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -418,6 +644,10 @@ type QueryClient interface {
 	Tunnels(ctx context.Context, in *QueryTunnelsRequest, opts ...grpc.CallOption) (*QueryTunnelsResponse, error)
 	// Tunnel is a RPC method that returns a tunnel by its ID.
 	Tunnel(ctx context.Context, in *QueryTunnelRequest, opts ...grpc.CallOption) (*QueryTunnelResponse, error)
+	// Packets is a RPC method that returns all packets of a tunnel.
+	Packets(ctx context.Context, in *QueryPacketsRequest, opts ...grpc.CallOption) (*QueryPacketsResponse, error)
+	// Packet is a RPC method that returns a packet by its tunnel ID and nonce.
+	Packet(ctx context.Context, in *QueryPacketRequest, opts ...grpc.CallOption) (*QueryPacketResponse, error)
 }
 
 type queryClient struct {
@@ -455,6 +685,24 @@ func (c *queryClient) Tunnel(ctx context.Context, in *QueryTunnelRequest, opts .
 	return out, nil
 }
 
+func (c *queryClient) Packets(ctx context.Context, in *QueryPacketsRequest, opts ...grpc.CallOption) (*QueryPacketsResponse, error) {
+	out := new(QueryPacketsResponse)
+	err := c.cc.Invoke(ctx, "/tunnel.v1beta1.Query/Packets", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) Packet(ctx context.Context, in *QueryPacketRequest, opts ...grpc.CallOption) (*QueryPacketResponse, error) {
+	out := new(QueryPacketResponse)
+	err := c.cc.Invoke(ctx, "/tunnel.v1beta1.Query/Packet", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 type QueryServer interface {
 	// Params is a RPC method that returns all parameters of the module.
@@ -463,6 +711,10 @@ type QueryServer interface {
 	Tunnels(context.Context, *QueryTunnelsRequest) (*QueryTunnelsResponse, error)
 	// Tunnel is a RPC method that returns a tunnel by its ID.
 	Tunnel(context.Context, *QueryTunnelRequest) (*QueryTunnelResponse, error)
+	// Packets is a RPC method that returns all packets of a tunnel.
+	Packets(context.Context, *QueryPacketsRequest) (*QueryPacketsResponse, error)
+	// Packet is a RPC method that returns a packet by its tunnel ID and nonce.
+	Packet(context.Context, *QueryPacketRequest) (*QueryPacketResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
@@ -477,6 +729,12 @@ func (*UnimplementedQueryServer) Tunnels(ctx context.Context, req *QueryTunnelsR
 }
 func (*UnimplementedQueryServer) Tunnel(ctx context.Context, req *QueryTunnelRequest) (*QueryTunnelResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Tunnel not implemented")
+}
+func (*UnimplementedQueryServer) Packets(ctx context.Context, req *QueryPacketsRequest) (*QueryPacketsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Packets not implemented")
+}
+func (*UnimplementedQueryServer) Packet(ctx context.Context, req *QueryPacketRequest) (*QueryPacketResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Packet not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
@@ -537,6 +795,42 @@ func _Query_Tunnel_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_Packets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryPacketsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Packets(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/tunnel.v1beta1.Query/Packets",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Packets(ctx, req.(*QueryPacketsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_Packet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryPacketRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Packet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/tunnel.v1beta1.Query/Packet",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Packet(ctx, req.(*QueryPacketRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Query_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "tunnel.v1beta1.Query",
 	HandlerType: (*QueryServer)(nil),
@@ -552,6 +846,14 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Tunnel",
 			Handler:    _Query_Tunnel_Handler,
+		},
+		{
+			MethodName: "Packets",
+			Handler:    _Query_Packets_Handler,
+		},
+		{
+			MethodName: "Packet",
+			Handler:    _Query_Packet_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -708,6 +1010,161 @@ func (m *QueryTunnelResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *QueryPacketsRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryPacketsRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryPacketsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.TunnelId != 0 {
+		i = encodeVarintQuery(dAtA, i, uint64(m.TunnelId))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryPacketsResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryPacketsResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryPacketsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Pagination != nil {
+		{
+			size, err := m.Pagination.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Packets) > 0 {
+		for iNdEx := len(m.Packets) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Packets[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryPacketRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryPacketRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryPacketRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Nonce != 0 {
+		i = encodeVarintQuery(dAtA, i, uint64(m.Nonce))
+		i--
+		dAtA[i] = 0x10
+	}
+	if m.TunnelId != 0 {
+		i = encodeVarintQuery(dAtA, i, uint64(m.TunnelId))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryPacketResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryPacketResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryPacketResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.Packet.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
 func (m *QueryParamsRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -829,6 +1286,67 @@ func (m *QueryTunnelResponse) Size() (n int) {
 	var l int
 	_ = l
 	l = m.Tunnel.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	return n
+}
+
+func (m *QueryPacketsRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.TunnelId != 0 {
+		n += 1 + sovQuery(uint64(m.TunnelId))
+	}
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryPacketsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Packets) > 0 {
+		for _, e := range m.Packets {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	if m.Pagination != nil {
+		l = m.Pagination.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryPacketRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.TunnelId != 0 {
+		n += 1 + sovQuery(uint64(m.TunnelId))
+	}
+	if m.Nonce != 0 {
+		n += 1 + sovQuery(uint64(m.Nonce))
+	}
+	return n
+}
+
+func (m *QueryPacketResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Packet.Size()
 	n += 1 + l + sovQuery(uint64(l))
 	return n
 }
@@ -1212,6 +1730,402 @@ func (m *QueryTunnelResponse) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if err := m.Tunnel.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryPacketsRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryPacketsRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryPacketsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TunnelId", wireType)
+			}
+			m.TunnelId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.TunnelId |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageRequest{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryPacketsResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryPacketsResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryPacketsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Packets", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Packets = append(m.Packets, types.Any{})
+			if err := m.Packets[len(m.Packets)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pagination == nil {
+				m.Pagination = &query.PageResponse{}
+			}
+			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryPacketRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryPacketRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryPacketRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TunnelId", wireType)
+			}
+			m.TunnelId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.TunnelId |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Nonce", wireType)
+			}
+			m.Nonce = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Nonce |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryPacketResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryPacketResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryPacketResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Packet", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Packet.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

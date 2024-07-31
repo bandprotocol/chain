@@ -120,10 +120,10 @@ func (k Keeper) GetRequiredProcessTunnels(
 				difference := math.Abs(float64(latestPrice.Price)-float64(sp.Price)) / float64(sp.Price)
 				differenceInBPS := uint64(difference * 10000)
 
-				activeTunnels[i].SignalPriceInfos[j].Price = latestPrice.Price
-				activeTunnels[i].SignalPriceInfos[j].LastTimestamp = &now
-
 				if differenceInBPS > sp.DeviationBPS || unixNow >= sp.LastTimestamp.Unix()+int64(sp.Interval) {
+					// Update the price directly
+					activeTunnels[i].SignalPriceInfos[j].Price = latestPrice.Price
+					activeTunnels[i].SignalPriceInfos[j].LastTimestamp = &now
 					trigger = true
 				}
 			}
@@ -159,25 +159,16 @@ func (k Keeper) ProcessTunnel(ctx sdk.Context, tunnel types.Tunnel) {
 
 	switch r := tunnel.Route.GetCachedValue().(type) {
 	case *types.TSSRoute:
-		fmt.Printf("Generating TSS packets for tunnel %d, route %s\n", tunnel.ID, r.String())
-		packetID := k.TSSPacketHandler(ctx, types.TSSPacket{
+		k.TSSPacketHandler(ctx, types.TSSPacket{
 			TunnelID:                   tunnel.ID,
 			SignalPriceInfos:           tunnel.SignalPriceInfos,
 			DestinationChainID:         r.DestinationChainID,
 			DestinationContractAddress: r.DestinationContractAddress,
 		})
-
-		packet := k.MustGetTSSPacket(ctx, packetID)
-		// TODO: Emit event
-		fmt.Printf("Emitting event for TSS packet %d\n", packet.ID)
-
 	case *types.AxelarRoute:
-		fmt.Printf("Generating Axelar packets for tunnel %d, route %s\n", tunnel.ID, r.String())
 		k.AxelarPacketHandler(ctx, types.AxelarPacket{})
 	case *types.IBCRoute:
 		fmt.Printf("Generating IBC packets for tunnel %d, route %s\n", tunnel.ID, r.String())
 		k.IBCPacketHandler(ctx, types.IBCPacket{})
 	}
-	// Set the last SignalPriceInfos
-	k.SetTunnel(ctx, tunnel)
 }

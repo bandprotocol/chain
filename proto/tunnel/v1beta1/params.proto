@@ -22,6 +22,4 @@ message Params {
   ];
   repeated cosmos.base.v1beta1.Coin axelar_route_fee = 4
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
-  repeated string tss_supported_chains    = 5;
-  repeated string axelar_supported_chains = 6;
 }

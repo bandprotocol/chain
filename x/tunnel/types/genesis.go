@@ -4,20 +4,16 @@ package types
 func NewGenesisState(
 	params Params,
 	tunnelCount uint64,
-	tssPacketCount uint64,
-	axelarPacketCount uint64,
 	tunnels []Tunnel,
 ) *GenesisState {
 	return &GenesisState{
-		Params:            params,
-		TunnelCount:       tunnelCount,
-		TssPacketCount:    tssPacketCount,
-		AxelarPacketCount: axelarPacketCount,
-		Tunnels:           tunnels,
+		Params:      params,
+		TunnelCount: tunnelCount,
+		Tunnels:     tunnels,
 	}
 }
 
 // DefaultGenesisState gets the raw genesis raw message for testing
 func DefaultGenesisState() *GenesisState {
-	return NewGenesisState(DefaultParams(), 0, 0, 0, []Tunnel{})
+	return NewGenesisState(DefaultParams(), 0, []Tunnel{})
 }

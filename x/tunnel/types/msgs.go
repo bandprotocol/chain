@@ -102,8 +102,6 @@ func NewMsgCreateTSSTunnel(
 		DestinationContractAddress: destinationContractAddress,
 	}
 
-	fmt.Printf("tssroute: %+v\n", r)
-
 	err := m.SetTunnelRoute(r)
 	if err != nil {
 		return nil, err

@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -27,8 +28,7 @@ func TestAddTunnel(t *testing.T) {
 	s.MockAccountKeeper.EXPECT().SetAccount(ctx, gomock.Any()).Times(1)
 
 	// Add the tunnel to the keeper
-	_, err := k.AddTunnel(ctx, tunnel)
-	require.NoError(s.T(), err, "adding tunnel should not produce an error")
+	k.AddTunnel(ctx, tunnel)
 
 	// Attempt to retrieve the tunnel by its ID
 	retrievedTunnel, err := k.GetTunnel(ctx, tunnel.ID)
@@ -38,7 +38,7 @@ func TestAddTunnel(t *testing.T) {
 		ID:                       1,
 		Route:                    nil,
 		FeedType:                 feedstypes.FEED_TYPE_UNSPECIFIED,
-		FeePayer:                 "cosmos1zpvqkrw3uv58a9uzakr2j4ck4mk6m3venca0y3cssy2423e5zhasq6l56x",
+		FeePayer:                 "cosmos1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62qh49enj",
 		SignalPriceInfos:         nil,
 		LastTriggeredBlockHeight: 0,
 		IsActive:                 false,
@@ -172,6 +172,29 @@ func TestGetRequiredProcessTunnels(t *testing.T) {
 		resultTunnels[1].SignalPriceInfos[0].Price,
 		"The price should be updated to the latest price",
 	)
+}
+
+func TestProcessTunnel(t *testing.T) {
+	s := testutil.NewTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
+
+	// Create a new tunnel instance
+	tunnel := types.Tunnel{
+		ID: 1,
+	}
+	err := tunnel.SetRoute(&types.TSSRoute{
+		DestinationChainID:         "1",
+		DestinationContractAddress: "0x123",
+	})
+	require.NoError(t, err)
+
+	k.SetTunnel(ctx, tunnel)
+
+	tu, err := k.GetTunnel(ctx, tunnel.ID)
+	require.NoError(t, err)
+
+	k.ProcessTunnel(ctx, tu)
+	fmt.Printf("route: %+v\n", tunnel.Route.GetCachedValue())
 }
 
 func TestGetNextTunnelID(t *testing.T) {
