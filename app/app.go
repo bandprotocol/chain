@@ -625,6 +625,19 @@ func NewBandApp(
 	// could create invalid or non-deterministic behavior.
 	tssRouter.Seal()
 
+	app.TunnelKeeper = tunnelkeeper.NewKeeper(
+		appCodec,
+		keys[tunneltypes.StoreKey],
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.FeedsKeeper,
+		app.BandtssKeeper,
+		app.IBCKeeper.ChannelKeeper,
+		scopedTunnelKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+	tunnelIBCModule := tunnel.NewIBCModule(app.TunnelKeeper)
+
 	app.StakingKeeper.SetHooks(
 		stakingtypes.NewMultiStakingHooks(
 			app.DistrKeeper.Hooks(),
@@ -638,7 +651,8 @@ func NewBandApp(
 	ibcRouter.
 		AddRoute(icahosttypes.SubModuleName, icaHostIBCModule).
 		AddRoute(ibctransfertypes.ModuleName, transferIBCModule).
-		AddRoute(oracletypes.ModuleName, oracleIBCModule)
+		AddRoute(oracletypes.ModuleName, oracleIBCModule).
+		AddRoute(tunneltypes.ModuleName, tunnelIBCModule)
 
 	app.IBCKeeper.SetRouter(ibcRouter)
 
@@ -652,18 +666,6 @@ func NewBandApp(
 	app.GlobalfeeKeeper = globalfeekeeper.NewKeeper(
 		appCodec,
 		keys[globalfeetypes.StoreKey],
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-	)
-
-	app.TunnelKeeper = tunnelkeeper.NewKeeper(
-		appCodec,
-		keys[tunneltypes.StoreKey],
-		app.AccountKeeper,
-		app.BankKeeper,
-		app.FeedsKeeper,
-		app.BandtssKeeper,
-		app.IBCKeeper.ChannelKeeper,
-		scopedTunnelKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 

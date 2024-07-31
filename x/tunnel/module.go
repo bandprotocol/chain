@@ -12,6 +12,7 @@ import (
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
+	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
@@ -28,7 +29,8 @@ var (
 	_ module.BeginBlockAppModule = AppModule{}
 	_ module.EndBlockAppModule   = AppModule{}
 	_ module.AppModuleBasic      = AppModuleBasic{}
-	// _ porttypes.IBCModule        = IBCModule{}
+
+	_ porttypes.IBCModule = IBCModule{}
 )
 
 // AppModuleBasic defines the basic application module used by the tunnel module.

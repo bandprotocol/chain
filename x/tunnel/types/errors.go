@@ -10,4 +10,5 @@ var (
 	ErrTunnelNotFound      = errorsmod.Register(ModuleName, 3, "tunnel not found")
 	ErrPacketNotFound      = errorsmod.Register(ModuleName, 4, "packet not found")
 	ErrAccountAlreadyExist = errorsmod.Register(ModuleName, 6, "account already exist")
+	ErrInvalidVersion      = errorsmod.Register(ModuleName, 7, "invalid ICS20 version")
 )
