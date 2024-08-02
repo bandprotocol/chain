@@ -5,6 +5,7 @@ const (
 	EventTypeUpdateParams   = "update_params"
 	EventTypeCreateTunnel   = "create_tunnel"
 	EventTypeActivateTunnel = "activate_tunnel"
+	EventTypeSendPacketFail = "send_packet_fail"
 
 	AttributeKeyParams           = "params"
 	AttributeKeyTunnelID         = "tunnel_id"
@@ -15,4 +16,5 @@ const (
 	AttributeKeyIsActive         = "is_active"
 	AttributeKeyCreatedAt        = "created_at"
 	AttributeKeyCreator          = "creator"
+	AttributeKeyReason           = "reason"
 )

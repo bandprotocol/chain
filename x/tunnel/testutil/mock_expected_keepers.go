@@ -254,6 +254,43 @@ func (mr *MockChannelKeeperMockRecorder) SendPacket(ctx, chanCap, sourcePort, so
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendPacket", reflect.TypeOf((*MockChannelKeeper)(nil).SendPacket), ctx, chanCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, data)
 }
 
+// MockPortKeeper is a mock of PortKeeper interface.
+type MockPortKeeper struct {
+	ctrl     *gomock.Controller
+	recorder *MockPortKeeperMockRecorder
+}
+
+// MockPortKeeperMockRecorder is the mock recorder for MockPortKeeper.
+type MockPortKeeperMockRecorder struct {
+	mock *MockPortKeeper
+}
+
+// NewMockPortKeeper creates a new mock instance.
+func NewMockPortKeeper(ctrl *gomock.Controller) *MockPortKeeper {
+	mock := &MockPortKeeper{ctrl: ctrl}
+	mock.recorder = &MockPortKeeperMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockPortKeeper) EXPECT() *MockPortKeeperMockRecorder {
+	return m.recorder
+}
+
+// BindPort mocks base method.
+func (m *MockPortKeeper) BindPort(ctx types2.Context, portID string) *types4.Capability {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BindPort", ctx, portID)
+	ret0, _ := ret[0].(*types4.Capability)
+	return ret0
+}
+
+// BindPort indicates an expected call of BindPort.
+func (mr *MockPortKeeperMockRecorder) BindPort(ctx, portID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BindPort", reflect.TypeOf((*MockPortKeeper)(nil).BindPort), ctx, portID)
+}
+
 // MockScopedKeeper is a mock of ScopedKeeper interface.
 type MockScopedKeeper struct {
 	ctrl     *gomock.Controller

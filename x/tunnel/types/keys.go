@@ -35,6 +35,8 @@ var (
 	PacketStoreKeyPrefix = []byte{0x02}
 
 	ParamsKey = []byte{0x10}
+
+	PortKey = []byte{0xff}
 )
 
 func TunnelStoreKey(id uint64) []byte {

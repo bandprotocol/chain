@@ -29,6 +29,7 @@ type TestSuite struct {
 	MockFeedsKeeper   *MockFeedsKeeper
 	MockBandtssKeeper *MockBandtssKeeper
 	MockChannelKeeper *MockChannelKeeper
+	MockPortKeeper    *MockPortKeeper
 	MockScopedKeeper  *MockScopedKeeper
 
 	Ctx       sdk.Context
@@ -48,6 +49,7 @@ func NewTestSuite(t *testing.T) TestSuite {
 	feedsKeeper := NewMockFeedsKeeper(ctrl)
 	bandtssKeeper := NewMockBandtssKeeper(ctrl)
 	channelKeeper := NewMockChannelKeeper(ctrl)
+	portKeeper := NewMockPortKeeper(ctrl)
 	scopedKeeper := NewMockScopedKeeper(ctrl)
 
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
@@ -60,6 +62,7 @@ func NewTestSuite(t *testing.T) TestSuite {
 		feedsKeeper,
 		bandtssKeeper,
 		channelKeeper,
+		portKeeper,
 		scopedKeeper,
 		authority.String(),
 	)
@@ -73,6 +76,9 @@ func NewTestSuite(t *testing.T) TestSuite {
 		MockBankKeeper:    bankKeeper,
 		MockFeedsKeeper:   feedsKeeper,
 		MockBandtssKeeper: bandtssKeeper,
+		MockChannelKeeper: channelKeeper,
+		MockPortKeeper:    portKeeper,
+		MockScopedKeeper:  scopedKeeper,
 		Ctx:               ctx,
 		Authority:         authority,
 	}
