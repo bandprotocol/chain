@@ -2,6 +2,7 @@ package types
 
 import (
 	fmt "fmt"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -9,8 +10,10 @@ import (
 )
 
 var (
+	DefaultMinInterval     = uint64((1 * time.Second).Seconds())
 	DefaultMinDeposit      = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
 	DefaultMinDeviationBPS = uint64(100)
+	DefaultBaseFee         = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 	DefaultTSSRouteFee     = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 	DefaultAxelarRouteFee  = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 )
@@ -19,12 +22,16 @@ var (
 func NewParams(
 	minDeposit sdk.Coins,
 	minDeviationBPS uint64,
+	minInterval uint64,
+	baseFee sdk.Coins,
 	tssRouteFee sdk.Coins,
 	axelarRouteFee sdk.Coins,
 ) Params {
 	return Params{
 		MinDeposit:      minDeposit,
 		MinDeviationBPS: minDeviationBPS,
+		MinInterval:     minInterval,
+		BaseFee:         baseFee,
 		TSSRouteFee:     tssRouteFee,
 		AxelarRouteFee:  axelarRouteFee,
 	}
@@ -35,6 +42,8 @@ func DefaultParams() Params {
 	return NewParams(
 		DefaultMinDeposit,
 		DefaultMinDeviationBPS,
+		DefaultMinInterval,
+		DefaultBaseFee,
 		DefaultTSSRouteFee,
 		DefaultAxelarRouteFee,
 	)

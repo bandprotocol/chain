@@ -37,11 +37,16 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // MsgCreateTunnel is the transaction message to create a new tunnel.
 type MsgCreateTunnel struct {
-	SignalInfos []SignalInfo                             `protobuf:"bytes,1,rep,name=signal_infos,json=signalInfos,proto3" json:"signal_infos"`
-	Route       *types.Any                               `protobuf:"bytes,2,opt,name=route,proto3" json:"route,omitempty"`
-	FeedType    types1.FeedType                          `protobuf:"varint,3,opt,name=feed_type,json=feedType,proto3,enum=feeds.v1beta1.FeedType" json:"feed_type,omitempty"`
-	Deposit     github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,4,rep,name=deposit,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"deposit"`
-	Creator     string                                   `protobuf:"bytes,5,opt,name=creator,proto3" json:"creator,omitempty"`
+	// signal_infos is the list of signal infos.
+	SignalInfos []SignalInfo `protobuf:"bytes,1,rep,name=signal_infos,json=signalInfos,proto3" json:"signal_infos"`
+	// route is the route for delivering the signal prices
+	Route *types.Any `protobuf:"bytes,2,opt,name=route,proto3" json:"route,omitempty"`
+	// feed_type is the type of feed data.
+	FeedType types1.FeedType `protobuf:"varint,3,opt,name=feed_type,json=feedType,proto3,enum=feeds.v1beta1.FeedType" json:"feed_type,omitempty"`
+	// deposit is the deposit required to create a tunnel.
+	Deposit github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,4,rep,name=deposit,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"deposit"`
+	// creator is the address of the creator.
+	Creator string `protobuf:"bytes,5,opt,name=creator,proto3" json:"creator,omitempty"`
 }
 
 func (m *MsgCreateTunnel) Reset()         { *m = MsgCreateTunnel{} }
@@ -159,8 +164,10 @@ func (m *MsgCreateTunnelResponse) GetTunnelID() uint64 {
 
 // MsgActivateTunnel is the transaction message to activate a tunnel.
 type MsgActivateTunnel struct {
+	// tunnel_id is the ID of the tunnel to activate.
 	TunnelID uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
-	Creator  string `protobuf:"bytes,2,opt,name=creator,proto3" json:"creator,omitempty"`
+	// creator is the address of the creator.
+	Creator string `protobuf:"bytes,2,opt,name=creator,proto3" json:"creator,omitempty"`
 }
 
 func (m *MsgActivateTunnel) Reset()         { *m = MsgActivateTunnel{} }
@@ -249,9 +256,9 @@ var xxx_messageInfo_MsgActivateTunnelResponse proto.InternalMessageInfo
 
 // MsgUpdateParams is the transaction message to update parameters.
 type MsgUpdateParams struct {
-	// Authority is the address of the governance account.
+	// authority is the address of the governance account.
 	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
-	// Params is the x/tunnel parameters to update.
+	// params is the x/tunnel parameters to update.
 	Params Params `protobuf:"bytes,2,opt,name=params,proto3" json:"params"`
 }
 

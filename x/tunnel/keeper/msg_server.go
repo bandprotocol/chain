@@ -22,7 +22,6 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 }
 
 // CreateTunnel creates a new tunnel.
-// CreateTunnel creates a new tunnel.
 func (ms msgServer) CreateTunnel(
 	goCtx context.Context,
 	req *types.MsgCreateTunnel,
@@ -42,7 +41,7 @@ func (ms msgServer) CreateTunnel(
 		Route:            req.Route,
 		FeedType:         req.FeedType,
 		SignalPriceInfos: signalPriceInfos,
-		IsActive:         true, // TODO: set to false by default
+		IsActive:         false,
 		Creator:          req.Creator,
 	})
 	if err != nil {

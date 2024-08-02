@@ -117,10 +117,10 @@ func (k Keeper) GetRequiredProcessTunnels(
 		for j, sp := range at.SignalPriceInfos {
 			latestPrice, exists := latestPricesMap[sp.SignalID]
 			if exists {
-				difference := math.Abs(float64(latestPrice.Price)-float64(sp.Price)) / float64(sp.Price)
-				differenceInBPS := uint64(difference * 10000)
+				deviation := math.Abs(float64(latestPrice.Price)-float64(sp.Price)) / float64(sp.Price)
+				deviationInBPS := uint64(deviation * 10000)
 
-				if differenceInBPS > sp.DeviationBPS || unixNow >= sp.LastTimestamp.Unix()+int64(sp.Interval) {
+				if deviationInBPS > sp.DeviationBPS || unixNow >= sp.LastTimestamp.Unix()+int64(sp.Interval) {
 					// Update the price directly
 					activeTunnels[i].SignalPriceInfos[j].Price = latestPrice.Price
 					activeTunnels[i].SignalPriceInfos[j].LastTimestamp = &now

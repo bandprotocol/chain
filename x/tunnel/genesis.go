@@ -13,6 +13,29 @@ func ValidateGenesis(data *types.GenesisState) error {
 	if err := data.Params.Validate(); err != nil {
 		return errorsmod.Wrap(err, "tunnel params")
 	}
+
+	// Validate the tunnel count
+	if uint64(len(data.Tunnels)) != data.TunnelCount {
+		return errorsmod.Wrapf(
+			types.ErrInvalidGenesis,
+			"TunnelCount: %d, actual tunnels: %d",
+			data.TunnelCount,
+			len(data.Tunnels),
+		)
+	}
+
+	// Validate the tunnel IDs
+	for _, tunnel := range data.Tunnels {
+		if tunnel.ID > data.TunnelCount {
+			return errorsmod.Wrapf(
+				types.ErrInvalidGenesis,
+				"TunnelID %d is greater than the TunnelCount %d",
+				tunnel.ID,
+				data.TunnelCount,
+			)
+		}
+	}
+
 	return nil
 }
 

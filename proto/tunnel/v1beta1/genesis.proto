@@ -14,5 +14,5 @@ message GenesisState {
   // tunnel_count is the number of tunnels.
   uint64 tunnel_count = 2;
   // tunnels is the list of tunnels.
-  repeated Tunnel tunnels = 5 [(gogoproto.nullable) = false];
+  repeated Tunnel tunnels = 3 [(gogoproto.nullable) = false];
 }

@@ -67,7 +67,7 @@ message TSSPacket {
   repeated SignalPriceInfo signal_price_infos = 4 [(gogoproto.nullable) = false];
   uint64                   signing_id         = 5 [
     (gogoproto.customname) = "SigningID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/x/bandtss/types.SigningID"
   ];
   string                    destination_chain_id         = 6 [(gogoproto.customname) = "DestinationChainID"];
   string                    destination_contract_address = 7;

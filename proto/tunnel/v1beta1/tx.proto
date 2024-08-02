@@ -31,11 +31,16 @@ message MsgCreateTunnel {
   option (cosmos.msg.v1.signer) = "creator";
   option (amino.name)           = "tunnel/MsgCreateTunnel";
 
-  repeated SignalInfo    signal_infos       = 1 [(gogoproto.nullable) = false];
-  google.protobuf.Any    route              = 2 [(cosmos_proto.accepts_interface) = "Route"];
-  feeds.v1beta1.FeedType feed_type          = 3;
+  // signal_infos is the list of signal infos.
+  repeated SignalInfo signal_infos = 1 [(gogoproto.nullable) = false];
+  // route is the route for delivering the signal prices
+  google.protobuf.Any route = 2 [(cosmos_proto.accepts_interface) = "Route"];
+  // feed_type is the type of feed data.
+  feeds.v1beta1.FeedType feed_type = 3;
+  // deposit is the deposit required to create a tunnel.
   repeated cosmos.base.v1beta1.Coin deposit = 4
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  // creator is the address of the creator.
   string creator = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
@@ -49,8 +54,10 @@ message MsgActivateTunnel {
   option (cosmos.msg.v1.signer) = "creator";
   option (amino.name)           = "tunnel/MsgActivateTunnel";
 
+  // tunnel_id is the ID of the tunnel to activate.
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
-  string creator   = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // creator is the address of the creator.
+  string creator = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // MsgActivateTunnelResponse is the response type for the Msg/ActivateTunnel RPC method.
@@ -61,10 +68,10 @@ message MsgUpdateParams {
   option (cosmos.msg.v1.signer) = "authority";
   option (amino.name)           = "tunnel/MsgUpdateParams";
 
-  // Authority is the address of the governance account.
+  // authority is the address of the governance account.
   string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
-  // Params is the x/tunnel parameters to update.
+  // params is the x/tunnel parameters to update.
   Params params = 2 [(gogoproto.nullable) = false];
 }
 

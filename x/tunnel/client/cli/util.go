@@ -7,11 +7,14 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
+// SignalInfos represents the signal infos in the file
+type SignalInfos struct {
+	SignalInfos []types.SignalInfo `json:"signal_infos"`
+}
+
 // parseSignalInfos parses the signal infos from the given file
 func parseSignalInfos(signalInfosFile string) ([]types.SignalInfo, error) {
-	signalInfos := struct {
-		SignalInfos []types.SignalInfo `json:"signal_infos"`
-	}{}
+	var signalInfos SignalInfos
 
 	if signalInfosFile == "" {
 		return signalInfos.SignalInfos, nil
