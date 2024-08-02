@@ -633,6 +633,7 @@ func NewBandApp(
 		app.FeedsKeeper,
 		app.BandtssKeeper,
 		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
 		scopedTunnelKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
