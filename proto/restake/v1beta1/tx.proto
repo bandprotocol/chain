@@ -18,7 +18,7 @@ message MsgClaimRewards {
   option (cosmos.msg.v1.signer) = "locker_address";
   option (amino.name)           = "restake/MsgClaimRewards";
 
-  // lockerAddress is the address that will claim the rewards.
+  // locker_address is the address that will claim the rewards.
   string locker_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
   // key is the key that want to claim rewards from.

@@ -21,44 +21,15 @@ func GetQueryCmd() *cobra.Command {
 	}
 
 	queryCmd.AddCommand(
-		GetQueryCmdKey(),
 		GetQueryCmdKeys(),
+		GetQueryCmdKey(),
 		GetQueryCmdRewards(),
 		GetQueryCmdReward(),
-		GetQueryCmdLocks(),
 		GetQueryCmdLock(),
+		GetQueryCmdLocks(),
 	)
 
 	return queryCmd
-}
-
-// GetQueryCmdKey implements the key query command.
-func GetQueryCmdKey() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "key [name]",
-		Short: "shows information of the key",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
-			queryClient := types.NewQueryClient(clientCtx)
-
-			res, err := queryClient.Key(
-				context.Background(),
-				&types.QueryKeyRequest{
-					Key: args[0],
-				},
-			)
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintProto(res)
-		},
-	}
-
-	flags.AddQueryFlagsToCmd(cmd)
-
-	return cmd
 }
 
 // GetQueryCmdKeys implements the keys query command.
@@ -68,7 +39,11 @@ func GetQueryCmdKeys() *cobra.Command {
 		Short: "shows all keys",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
 			queryClient := types.NewQueryClient(clientCtx)
 
 			pageReq, err := client.ReadPageRequest(cmd.Flags())
@@ -91,6 +66,39 @@ func GetQueryCmdKeys() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdKey implements the key query command.
+func GetQueryCmdKey() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "key [name]",
+		Short: "shows information of the key",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.Key(
+				context.Background(),
+				&types.QueryKeyRequest{
+					Key: args[0],
+				},
+			)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
 // GetQueryCmdRewards implements the rewards query command.
 func GetQueryCmdRewards() *cobra.Command {
 	cmd := &cobra.Command{
@@ -98,11 +106,21 @@ func GetQueryCmdRewards() *cobra.Command {
 		Short: "shows all rewards of an address",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
 			queryClient := types.NewQueryClient(clientCtx)
+
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
 
 			res, err := queryClient.Rewards(context.Background(), &types.QueryRewardsRequest{
 				LockerAddress: args[0],
+				Pagination:    pageReq,
 			})
 			if err != nil {
 				return err
@@ -125,7 +143,11 @@ func GetQueryCmdReward() *cobra.Command {
 		Short: "shows the reward of an locker address for the key",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.Reward(context.Background(), &types.QueryRewardRequest{
@@ -152,11 +174,21 @@ func GetQueryCmdLocks() *cobra.Command {
 		Short: "shows all locks of an locker address",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
 			queryClient := types.NewQueryClient(clientCtx)
+
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
 
 			res, err := queryClient.Locks(context.Background(), &types.QueryLocksRequest{
 				LockerAddress: args[0],
+				Pagination:    pageReq,
 			})
 			if err != nil {
 				return err
@@ -179,7 +211,11 @@ func GetQueryCmdLock() *cobra.Command {
 		Short: "shows the lock of an locker address for the key",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.Lock(context.Background(), &types.QueryLockRequest{

@@ -32,7 +32,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // MsgClaimRewards is the request message type for claiming rewards.
 type MsgClaimRewards struct {
-	// lockerAddress is the address that will claim the rewards.
+	// locker_address is the address that will claim the rewards.
 	LockerAddress string `protobuf:"bytes,1,opt,name=locker_address,json=lockerAddress,proto3" json:"locker_address,omitempty"`
 	// key is the key that want to claim rewards from.
 	Key string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
