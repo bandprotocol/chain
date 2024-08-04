@@ -1,8 +1,6 @@
 package cli
 
 import (
-	"context"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
@@ -51,7 +49,7 @@ func GetQueryCmdKeys() *cobra.Command {
 				return err
 			}
 
-			res, err := queryClient.Keys(context.Background(), &types.QueryKeysRequest{Pagination: pageReq})
+			res, err := queryClient.Keys(cmd.Context(), &types.QueryKeysRequest{Pagination: pageReq})
 			if err != nil {
 				return err
 			}
@@ -81,7 +79,7 @@ func GetQueryCmdKey() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.Key(
-				context.Background(),
+				cmd.Context(),
 				&types.QueryKeyRequest{
 					Key: args[0],
 				},
@@ -118,7 +116,7 @@ func GetQueryCmdRewards() *cobra.Command {
 				return err
 			}
 
-			res, err := queryClient.Rewards(context.Background(), &types.QueryRewardsRequest{
+			res, err := queryClient.Rewards(cmd.Context(), &types.QueryRewardsRequest{
 				LockerAddress: args[0],
 				Pagination:    pageReq,
 			})
@@ -150,7 +148,7 @@ func GetQueryCmdReward() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.Reward(context.Background(), &types.QueryRewardRequest{
+			res, err := queryClient.Reward(cmd.Context(), &types.QueryRewardRequest{
 				LockerAddress: args[0],
 				Key:           args[1],
 			})
@@ -186,7 +184,7 @@ func GetQueryCmdLocks() *cobra.Command {
 				return err
 			}
 
-			res, err := queryClient.Locks(context.Background(), &types.QueryLocksRequest{
+			res, err := queryClient.Locks(cmd.Context(), &types.QueryLocksRequest{
 				LockerAddress: args[0],
 				Pagination:    pageReq,
 			})
@@ -218,7 +216,7 @@ func GetQueryCmdLock() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.Lock(context.Background(), &types.QueryLockRequest{
+			res, err := queryClient.Lock(cmd.Context(), &types.QueryLockRequest{
 				LockerAddress: args[0],
 				Key:           args[1],
 			})
