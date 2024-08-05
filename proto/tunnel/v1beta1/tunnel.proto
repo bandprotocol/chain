@@ -40,11 +40,11 @@ message SignalInfo {
 message SignalPriceInfo {
   option (gogoproto.equal) = true;
 
-  string                    signal_id     = 1 [(gogoproto.customname) = "SignalID"];
-  uint64                    deviation_bps = 2 [(gogoproto.customname) = "DeviationBPS"];
-  uint64                    interval      = 3;
-  uint64                    price         = 4;
-  google.protobuf.Timestamp LastTimestamp = 5 [(gogoproto.stdtime) = true];
+  string                    signal_id      = 1 [(gogoproto.customname) = "SignalID"];
+  uint64                    deviation_bps  = 2 [(gogoproto.customname) = "DeviationBPS"];
+  uint64                    interval       = 3;
+  uint64                    price          = 4;
+  google.protobuf.Timestamp last_timestamp = 5 [(gogoproto.stdtime) = true];
 }
 
 // Tunnel is the type for a tunnel
