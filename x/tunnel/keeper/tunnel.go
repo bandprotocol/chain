@@ -63,6 +63,15 @@ func (k Keeper) GetTunnel(ctx sdk.Context, id uint64) (types.Tunnel, error) {
 	return tunnel, nil
 }
 
+// MustGetTunnel retrieves a tunnel by its ID. Panics if the tunnel does not exist.
+func (k Keeper) MustGetTunnel(ctx sdk.Context, id uint64) types.Tunnel {
+	tunnel, err := k.GetTunnel(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return tunnel
+}
+
 // GetTunnels returns all tunnels
 func (k Keeper) GetTunnels(ctx sdk.Context) []types.Tunnel {
 	var tunnels []types.Tunnel
@@ -94,6 +103,33 @@ func (k Keeper) GetActiveTunnels(ctx sdk.Context) []types.Tunnel {
 	return tunnels
 }
 
+// AddPendingTriggerTunnel adds the tunnel ID to the list of pending trigger tunnels
+func (k Keeper) AddPendingTriggerTunnel(ctx sdk.Context, id uint64) {
+	pendingList := k.GetPendingTriggerTunnels(ctx)
+	pendingList = append(pendingList, id)
+	k.SetPendingTriggerTunnels(ctx, pendingList)
+}
+
+// SetPendingTriggerTunnels saves the list of pending trigger tunnels that will be executed at the end of the block.
+func (k Keeper) SetPendingTriggerTunnels(ctx sdk.Context, ids []uint64) {
+	bz := k.cdc.MustMarshal(&types.PendingTriggerTunnels{IDs: ids})
+	if bz == nil {
+		bz = []byte{}
+	}
+	ctx.KVStore(k.storeKey).Set(types.PendingTriggerTunnelsStoreKey, bz)
+}
+
+// GetPendingTriggerTunnels returns the list of pending trigger tunnels to be executed during EndBlock.
+func (k Keeper) GetPendingTriggerTunnels(ctx sdk.Context) (ids []uint64) {
+	bz := ctx.KVStore(k.storeKey).Get(types.PendingTriggerTunnelsStoreKey)
+	if len(bz) == 0 { // Return an empty list if the key does not exist in the store.
+		return []uint64{}
+	}
+	pendingTriggerTunnels := types.PendingTriggerTunnels{}
+	k.cdc.MustUnmarshal(bz, &pendingTriggerTunnels)
+	return pendingTriggerTunnels.IDs
+}
+
 // GetRequiredProcessTunnels returns all tunnels that require processing
 func (k Keeper) GetRequiredProcessTunnels(
 	ctx sdk.Context,
@@ -117,10 +153,10 @@ func (k Keeper) GetRequiredProcessTunnels(
 		for j, sp := range at.SignalPriceInfos {
 			latestPrice, exists := latestPricesMap[sp.SignalID]
 			if exists {
-				difference := math.Abs(float64(latestPrice.Price)-float64(sp.Price)) / float64(sp.Price)
-				differenceInBPS := uint64(difference * 10000)
+				deviation := math.Abs(float64(latestPrice.Price)-float64(sp.Price)) / float64(sp.Price)
+				deviationInBPS := uint64(deviation * 10000)
 
-				if differenceInBPS > sp.DeviationBPS || unixNow >= sp.LastTimestamp.Unix()+int64(sp.Interval) {
+				if deviationInBPS > sp.DeviationBPS || unixNow >= sp.LastTimestamp.Unix()+int64(sp.Interval) {
 					// Update the price directly
 					activeTunnels[i].SignalPriceInfos[j].Price = latestPrice.Price
 					activeTunnels[i].SignalPriceInfos[j].LastTimestamp = &now
@@ -131,6 +167,22 @@ func (k Keeper) GetRequiredProcessTunnels(
 
 		if trigger {
 			tunnels = append(tunnels, at)
+		}
+	}
+
+	// add pending trigger tunnels
+	pendingTriggerTunnels := k.GetPendingTriggerTunnels(ctx)
+	for _, id := range pendingTriggerTunnels {
+		if !types.IsTunnelInList(id, tunnels) {
+			tunnel := k.MustGetTunnel(ctx, id)
+			for i, sp := range tunnel.SignalPriceInfos {
+				latestPrice, exists := latestPricesMap[sp.SignalID]
+				if exists {
+					tunnel.SignalPriceInfos[i].Price = latestPrice.Price
+					tunnel.SignalPriceInfos[i].LastTimestamp = &now
+					tunnels = append(tunnels, tunnel)
+				}
+			}
 		}
 	}
 	return tunnels

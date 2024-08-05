@@ -3,6 +3,7 @@ package tunnel
 import (
 	"fmt"
 
+	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 
@@ -14,6 +15,28 @@ import (
 func ValidateGenesis(data *types.GenesisState) error {
 	if err := host.PortIdentifierValidator(data.PortID); err != nil {
 		return err
+	}
+
+	// Validate the tunnel count
+	if uint64(len(data.Tunnels)) != data.TunnelCount {
+		return errorsmod.Wrapf(
+			types.ErrInvalidGenesis,
+			"TunnelCount: %d, actual tunnels: %d",
+			data.TunnelCount,
+			len(data.Tunnels),
+		)
+	}
+
+	// Validate the tunnel IDs
+	for _, tunnel := range data.Tunnels {
+		if tunnel.ID > data.TunnelCount {
+			return errorsmod.Wrapf(
+				types.ErrInvalidGenesis,
+				"TunnelID %d is greater than the TunnelCount %d",
+				tunnel.ID,
+				data.TunnelCount,
+			)
+		}
 	}
 
 	return data.Params.Validate()

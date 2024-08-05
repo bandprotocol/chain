@@ -14,12 +14,15 @@ message Params {
 
   repeated cosmos.base.v1beta1.Coin min_deposit = 1
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
-  uint64   min_diviation_bps                      = 2 [(gogoproto.customname) = "MinDeviationBPS"];
-  repeated cosmos.base.v1beta1.Coin tss_route_fee = 3 [
+  uint64   min_deviation_bps                 = 2 [(gogoproto.customname) = "MinDeviationBPS"];
+  uint64   min_interval                      = 3;
+  repeated cosmos.base.v1beta1.Coin base_fee = 4
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  repeated cosmos.base.v1beta1.Coin tss_route_fee = 5 [
     (gogoproto.nullable)     = false,
     (gogoproto.customname)   = "TSSRouteFee",
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
-  repeated cosmos.base.v1beta1.Coin axelar_route_fee = 4
+  repeated cosmos.base.v1beta1.Coin axelar_route_fee = 6
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }

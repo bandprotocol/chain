@@ -25,6 +25,7 @@ func GetTxCmd() *cobra.Command {
 
 	txCmd.AddCommand(GetTxCmdCreateTSSTunnel())
 	txCmd.AddCommand(GetTxCmdActivateTunnel())
+	txCmd.AddCommand(GetTxCmdManualTriggerTunnel())
 
 	return txCmd
 }
@@ -99,6 +100,32 @@ func GetTxCmdActivateTunnel() *cobra.Command {
 			}
 
 			msg := types.NewMsgActivateTunnel(id, clientCtx.GetFromAddress().String())
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetTxCmdManualTriggerTunnel() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "manual-trigger-tunnel [id]",
+		Short: "Manual trigger a tunnel",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			id, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgManualTriggerTunnel(id, clientCtx.GetFromAddress().String())
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

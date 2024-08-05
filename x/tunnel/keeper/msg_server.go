@@ -22,7 +22,6 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 }
 
 // CreateTunnel creates a new tunnel.
-// CreateTunnel creates a new tunnel.
 func (ms msgServer) CreateTunnel(
 	goCtx context.Context,
 	req *types.MsgCreateTunnel,
@@ -42,7 +41,7 @@ func (ms msgServer) CreateTunnel(
 		Route:            req.Route,
 		FeedType:         req.FeedType,
 		SignalPriceInfos: signalPriceInfos,
-		IsActive:         true, // TODO: set to false by default
+		IsActive:         false,
 		Creator:          req.Creator,
 	})
 	if err != nil {
@@ -95,6 +94,31 @@ func (ms msgServer) ActivateTunnel(
 	))
 
 	return &types.MsgActivateTunnelResponse{}, nil
+}
+
+// ManualTriggerTunnel manually triggers a tunnel.
+func (ms msgServer) ManualTriggerTunnel(
+	goCtx context.Context,
+	req *types.MsgManualTriggerTunnel,
+) (*types.MsgManualTriggerTunnelResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	tunnel, err := ms.Keeper.GetTunnel(ctx, req.ID)
+	if err != nil {
+		return nil, err
+	}
+	if req.Creator != tunnel.Creator {
+		return nil, fmt.Errorf("creator %s is not the creator of tunnel %d", req.Creator, req.ID)
+	}
+
+	ms.Keeper.AddPendingTriggerTunnel(ctx, req.ID)
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeManualTriggerTunnel,
+		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", req.ID)),
+	))
+
+	return &types.MsgManualTriggerTunnelResponse{}, nil
 }
 
 // UpdateParams updates the module params.
