@@ -10,10 +10,6 @@ import (
 
 // ValidateGenesis validates the provided genesis state.
 func ValidateGenesis(data *types.GenesisState) error {
-	if err := data.Params.Validate(); err != nil {
-		return errorsmod.Wrap(err, "tunnel params")
-	}
-
 	// Validate the tunnel count
 	if uint64(len(data.Tunnels)) != data.TunnelCount {
 		return errorsmod.Wrapf(
@@ -36,7 +32,7 @@ func ValidateGenesis(data *types.GenesisState) error {
 		}
 	}
 
-	return nil
+	return data.Params.Validate()
 }
 
 // InitGenesis initializes the module's state from a provided genesis state.
