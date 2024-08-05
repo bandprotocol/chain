@@ -41,7 +41,10 @@ func GetQueryCmdTunnel() *cobra.Command {
 		Short: "Query the tunnel by tunnel id",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
 
 			queryClient := types.NewQueryClient(clientCtx)
 
@@ -73,7 +76,10 @@ func GetQueryCmdTunnels() *cobra.Command {
 		Short: "Query all tunnels",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
 
 			queryClient := types.NewQueryClient(clientCtx)
 
@@ -122,7 +128,10 @@ func GetQueryCmdPackets() *cobra.Command {
 		Short: "Query the packets of a tunnel",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
 
 			queryClient := types.NewQueryClient(clientCtx)
 
@@ -136,7 +145,7 @@ func GetQueryCmdPackets() *cobra.Command {
 				return err
 			}
 
-			res, err := queryClient.Packets(context.Background(), &types.QueryPacketsRequest{
+			res, err := queryClient.Packets(cmd.Context(), &types.QueryPacketsRequest{
 				TunnelId:   tunnelID,
 				Pagination: pageReq,
 			})
@@ -161,7 +170,10 @@ func GetQueryCmdPacket() *cobra.Command {
 		Short: "Query a packet by tunnel id and nonce",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
 
 			queryClient := types.NewQueryClient(clientCtx)
 
@@ -175,7 +187,7 @@ func GetQueryCmdPacket() *cobra.Command {
 				return err
 			}
 
-			res, err := queryClient.Packet(context.Background(), &types.QueryPacketRequest{
+			res, err := queryClient.Packet(cmd.Context(), &types.QueryPacketRequest{
 				TunnelId: tunnelID,
 				Nonce:    nonce,
 			})
@@ -199,11 +211,14 @@ func GetQueryCmdParams() *cobra.Command {
 		Short: "Shows the parameters of the module",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.Params(context.Background(), &types.QueryParamsRequest{})
+			res, err := queryClient.Params(cmd.Context(), &types.QueryParamsRequest{})
 			if err != nil {
 				return err
 			}
