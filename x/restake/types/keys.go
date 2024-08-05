@@ -55,7 +55,7 @@ func LocksByAmountIndexKey(addr sdk.AccAddress) []byte {
 
 // LockByAmountIndexKey returns the key to retrieve a lock by amount from the store.
 func LockByAmountIndexKey(lock Lock) []byte {
-	address := sdk.MustAccAddressFromBech32(lock.LockerAddress)
+	address := sdk.MustAccAddressFromBech32(lock.StakerAddress)
 
 	amountBytes := make([]byte, 8)
 	binary.BigEndian.PutUint64(amountBytes, lock.Amount.Uint64())

@@ -9,11 +9,11 @@ var _ sdk.Msg = &MsgClaimRewards{}
 
 // NewMsgClaimRewards creates a new MsgClaimRewards instance
 func NewMsgClaimRewards(
-	lockerAddr sdk.AccAddress,
+	stakerAddr sdk.AccAddress,
 	key string,
 ) *MsgClaimRewards {
 	return &MsgClaimRewards{
-		LockerAddress: lockerAddr.String(),
+		StakerAddress: stakerAddr.String(),
 		Key:           key,
 	}
 }
@@ -26,7 +26,7 @@ func (m MsgClaimRewards) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSigners implements the sdk.Msg interface.
 func (m MsgClaimRewards) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.LockerAddress)}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.StakerAddress)}
 }
 
 // GetSignBytes implements the sdk.Msg interface.
@@ -37,8 +37,8 @@ func (m MsgClaimRewards) GetSignBytes() []byte {
 
 // ValidateBasic implements the sdk.Msg interface.
 func (m MsgClaimRewards) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(m.LockerAddress); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("invalid locker address: %s", err)
+	if _, err := sdk.AccAddressFromBech32(m.StakerAddress); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid staker address: %s", err)
 	}
 
 	if len(m.Key) == 0 {

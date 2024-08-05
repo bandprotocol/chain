@@ -66,7 +66,7 @@ func (k Querier) Rewards(
 ) (*types.QueryRewardsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	addr, err := sdk.AccAddressFromBech32(req.LockerAddress)
+	addr, err := sdk.AccAddressFromBech32(req.StakerAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (k Querier) Reward(
 ) (*types.QueryRewardResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	addr, err := sdk.AccAddressFromBech32(req.LockerAddress)
+	addr, err := sdk.AccAddressFromBech32(req.StakerAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func (k Querier) Locks(
 ) (*types.QueryLocksResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	addr, err := sdk.AccAddressFromBech32(req.LockerAddress)
+	addr, err := sdk.AccAddressFromBech32(req.StakerAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -156,7 +156,7 @@ func (k Querier) Lock(
 ) (*types.QueryLockResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	addr, err := sdk.AccAddressFromBech32(req.LockerAddress)
+	addr, err := sdk.AccAddressFromBech32(req.StakerAddress)
 	if err != nil {
 		return nil, err
 	}

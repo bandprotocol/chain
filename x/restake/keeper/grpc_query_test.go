@@ -111,7 +111,7 @@ func (suite *KeeperTestSuite) TestQueryRewards() {
 			"rewards of address1 - lock on multiple keys",
 			func() {
 				req = &types.QueryRewardsRequest{
-					LockerAddress: ValidAddress1.String(),
+					StakerAddress: ValidAddress1.String(),
 				}
 				expRes = &types.QueryRewardsResponse{
 					Rewards: []*types.Reward{
@@ -136,7 +136,7 @@ func (suite *KeeperTestSuite) TestQueryRewards() {
 			"rewards of address2 - lock on one key",
 			func() {
 				req = &types.QueryRewardsRequest{
-					LockerAddress: ValidAddress2.String(),
+					StakerAddress: ValidAddress2.String(),
 				}
 				expRes = &types.QueryRewardsResponse{
 					Rewards: []*types.Reward{
@@ -153,7 +153,7 @@ func (suite *KeeperTestSuite) TestQueryRewards() {
 			"rewards of address3 - no lock",
 			func() {
 				req = &types.QueryRewardsRequest{
-					LockerAddress: ValidAddress3.String(),
+					StakerAddress: ValidAddress3.String(),
 				}
 				expRes = &types.QueryRewardsResponse{
 					Rewards: []*types.Reward(nil),
@@ -199,7 +199,7 @@ func (suite *KeeperTestSuite) TestQueryReward() {
 			"reward of address1 on KeyWithRewards",
 			func() {
 				req = &types.QueryRewardRequest{
-					LockerAddress: ValidAddress1.String(),
+					StakerAddress: ValidAddress1.String(),
 					Key:           KeyWithRewards,
 				}
 				expRes = &types.QueryRewardResponse{
@@ -215,7 +215,7 @@ func (suite *KeeperTestSuite) TestQueryReward() {
 			"reward of address1 on InactiveKey",
 			func() {
 				req = &types.QueryRewardRequest{
-					LockerAddress: ValidAddress1.String(),
+					StakerAddress: ValidAddress1.String(),
 					Key:           InactiveKey,
 				}
 				expRes = &types.QueryRewardResponse{
@@ -231,7 +231,7 @@ func (suite *KeeperTestSuite) TestQueryReward() {
 			"reward of address2 on KeyWithRewards",
 			func() {
 				req = &types.QueryRewardRequest{
-					LockerAddress: ValidAddress2.String(),
+					StakerAddress: ValidAddress2.String(),
 					Key:           KeyWithRewards,
 				}
 				expRes = &types.QueryRewardResponse{
@@ -281,7 +281,7 @@ func (suite *KeeperTestSuite) TestQueryLocks() {
 			"locks of address1 - lock on multiple keys",
 			func() {
 				req = &types.QueryLocksRequest{
-					LockerAddress: ValidAddress1.String(),
+					StakerAddress: ValidAddress1.String(),
 				}
 				expRes = &types.QueryLocksResponse{
 					Locks: []*types.LockResponse{
@@ -302,7 +302,7 @@ func (suite *KeeperTestSuite) TestQueryLocks() {
 			"locks of address2 - lock on one key",
 			func() {
 				req = &types.QueryLocksRequest{
-					LockerAddress: ValidAddress2.String(),
+					StakerAddress: ValidAddress2.String(),
 				}
 				expRes = &types.QueryLocksResponse{
 					Locks: []*types.LockResponse{
@@ -319,7 +319,7 @@ func (suite *KeeperTestSuite) TestQueryLocks() {
 			"locks of address3 - no lock",
 			func() {
 				req = &types.QueryLocksRequest{
-					LockerAddress: ValidAddress3.String(),
+					StakerAddress: ValidAddress3.String(),
 				}
 				expRes = &types.QueryLocksResponse{
 					Locks: []*types.LockResponse(nil),
@@ -365,7 +365,7 @@ func (suite *KeeperTestSuite) TestQueryLock() {
 			"lock of address1 on KeyWithRewards",
 			func() {
 				req = &types.QueryLockRequest{
-					LockerAddress: ValidAddress1.String(),
+					StakerAddress: ValidAddress1.String(),
 					Key:           KeyWithRewards,
 				}
 				expRes = &types.QueryLockResponse{
@@ -381,7 +381,7 @@ func (suite *KeeperTestSuite) TestQueryLock() {
 			"lock of address1 on InactiveKey",
 			func() {
 				req = &types.QueryLockRequest{
-					LockerAddress: ValidAddress1.String(),
+					StakerAddress: ValidAddress1.String(),
 					Key:           InactiveKey,
 				}
 				expRes = nil
@@ -392,7 +392,7 @@ func (suite *KeeperTestSuite) TestQueryLock() {
 			"lock of address2 on KeyWithRewards",
 			func() {
 				req = &types.QueryLockRequest{
-					LockerAddress: ValidAddress2.String(),
+					StakerAddress: ValidAddress2.String(),
 					Key:           KeyWithRewards,
 				}
 				expRes = &types.QueryLockResponse{

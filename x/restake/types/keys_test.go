@@ -56,7 +56,7 @@ func TestLockByAmountIndexKey(t *testing.T) {
 	require.NoError(t, err)
 
 	lock := Lock{
-		LockerAddress:  acc.String(),
+		StakerAddress:  acc.String(),
 		Key:            keyName,
 		Amount:         sdkmath.NewInt(100),
 		PosRewardDebts: sdk.NewDecCoins(),
