@@ -12,8 +12,8 @@ import (
 )
 
 var (
-	_, _ sdk.Msg                       = &MsgUpdateParams{}, &MsgCreateTunnel{}
-	_    types.UnpackInterfacesMessage = &MsgCreateTunnel{}
+	_, _, _, _ sdk.Msg                       = &MsgUpdateParams{}, &MsgCreateTunnel{}, &MsgActivateTunnel{}, &MsgManualTriggerTunnel{}
+	_          types.UnpackInterfacesMessage = &MsgCreateTunnel{}
 )
 
 // NewMsgUpdateParams creates a new MsgUpdateParams instance.
@@ -226,6 +226,38 @@ func (m *MsgActivateTunnel) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgActivateTunnel) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+	}
+
+	return nil
+}
+
+func NewMsgManualTriggerTunnel(
+	id uint64,
+	creator string,
+) *MsgActivateTunnel {
+	return &MsgActivateTunnel{
+		TunnelID: id,
+		Creator:  creator,
+	}
+}
+
+// Route Implements Msg.
+func (m MsgManualTriggerTunnel) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes implements the LegacyMsg interface.
+func (m MsgManualTriggerTunnel) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for the message.
+func (m *MsgManualTriggerTunnel) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Creator)}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgManualTriggerTunnel) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}

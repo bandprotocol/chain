@@ -30,6 +30,8 @@ var (
 
 	TunnelCountStoreKey = append(GlobalStoreKeyPrefix, []byte("TunnelCount")...)
 
+	PendingTriggerTunnelsStoreKey = append(GlobalStoreKeyPrefix, []byte("PendingTriggerTunnels")...)
+
 	TunnelStoreKeyPrefix = []byte{0x01}
 
 	PacketStoreKeyPrefix = []byte{0x02}

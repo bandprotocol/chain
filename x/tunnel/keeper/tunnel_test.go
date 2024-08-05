@@ -105,6 +105,40 @@ func TestGetActiveTunnels(t *testing.T) {
 	require.Len(s.T(), tunnels, 1, "expected 1 active tunnel to be retrieved")
 }
 
+func TestAddPendingTriggerTunnel(t *testing.T) {
+	s := testutil.NewTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
+
+	// Create a new tunnel instance
+	tunnel := types.Tunnel{ID: 1}
+
+	// Add the tunnel to the keeper
+	k.AddPendingTriggerTunnel(ctx, tunnel.ID)
+
+	// Attempt to retrieve the pending trigger tunnels
+	pendingTriggerTunnels := k.GetPendingTriggerTunnels(ctx)
+
+	// Assert the number of pending trigger tunnels is 1
+	require.Len(s.T(), pendingTriggerTunnels, 1, "expected 1 pending trigger tunnel to be retrieved")
+}
+
+func TestGetSetPendingTriggerTunnels(t *testing.T) {
+	s := testutil.NewTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
+
+	// Create a new tunnel instance
+	tunnel := types.Tunnel{ID: 1}
+
+	// Set the pending trigger tunnels in the keeper
+	k.SetPendingTriggerTunnels(ctx, []uint64{tunnel.ID})
+
+	// Attempt to retrieve the pending trigger tunnels
+	pendingTriggerTunnels := k.GetPendingTriggerTunnels(ctx)
+
+	// Assert the number of pending trigger tunnels is 1
+	require.Len(s.T(), pendingTriggerTunnels, 1, "expected 1 pending trigger tunnel to be retrieved")
+}
+
 func TestGetRequiredProcessTunnels(t *testing.T) {
 	s := testutil.NewTestSuite(t)
 	ctx, k := s.Ctx, s.Keeper
