@@ -156,7 +156,7 @@ func TestGetRequiredProcessTunnels(t *testing.T) {
 					Price:         100,
 					DeviationBPS:  1000,
 					Interval:      30,
-					LastTimestamp: &now,
+					LastTimestamp: uint64(now.Unix()),
 				},
 			},
 			IsActive: true,
@@ -164,14 +164,20 @@ func TestGetRequiredProcessTunnels(t *testing.T) {
 		{
 			ID: 2,
 			SignalPriceInfos: []types.SignalPriceInfo{
-				{SignalID: "signal2", Price: 100, DeviationBPS: 1000, Interval: 30, LastTimestamp: &now},
+				{SignalID: "signal2", Price: 100, DeviationBPS: 1000, Interval: 30, LastTimestamp: uint64(now.Unix())},
 			},
 			IsActive: true,
 		},
 		{
 			ID: 3,
 			SignalPriceInfos: []types.SignalPriceInfo{
-				{SignalID: "signal3", Price: 100, DeviationBPS: 1000, Interval: 30, LastTimestamp: &before},
+				{
+					SignalID:      "signal3",
+					Price:         100,
+					DeviationBPS:  1000,
+					Interval:      30,
+					LastTimestamp: uint64(before.Unix()),
+				},
 			},
 			IsActive: true,
 		},

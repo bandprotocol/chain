@@ -43,7 +43,3 @@ func (k Keeper) IBCPacketHandler(ctx sdk.Context, packet types.IBCPacket) {
 		))
 	}
 }
-
-func (k Keeper) sendIBCPacket(ctx sdk.Context, packet types.IBCPacket) {
-
-}

@@ -1,8 +1,6 @@
 package types
 
 import (
-	"time"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
@@ -15,7 +13,7 @@ func NewIBCPacket(
 	signalPriceInfos []SignalPriceInfo,
 	portID string,
 	channelID string,
-	createdAt time.Time,
+	createdAt uint64,
 ) IBCPacket {
 	return IBCPacket{
 		TunnelID:         tunnelID,
