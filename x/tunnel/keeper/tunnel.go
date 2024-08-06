@@ -152,16 +152,18 @@ func (k Keeper) GetRequiredProcessTunnels(
 		var trigger bool
 		for j, sp := range at.SignalPriceInfos {
 			latestPrice, exists := latestPricesMap[sp.SignalID]
-			if exists {
-				deviation := math.Abs(float64(latestPrice.Price)-float64(sp.Price)) / float64(sp.Price)
-				deviationInBPS := uint64(deviation * 10000)
+			if !exists {
+				continue
+			}
 
-				if deviationInBPS > sp.DeviationBPS || unixNow >= int64(sp.LastTimestamp+sp.Interval) {
-					// Update the price directly
-					activeTunnels[i].SignalPriceInfos[j].Price = latestPrice.Price
-					activeTunnels[i].SignalPriceInfos[j].LastTimestamp = uint64(now.Unix())
-					trigger = true
-				}
+			deviation := math.Abs(float64(latestPrice.Price)-float64(sp.Price)) / float64(sp.Price)
+			deviationInBPS := uint64(deviation * 10000)
+
+			if deviationInBPS > sp.DeviationBPS || unixNow >= int64(sp.LastTimestamp+sp.Interval) {
+				// Update the price directly
+				activeTunnels[i].SignalPriceInfos[j].Price = latestPrice.Price
+				activeTunnels[i].SignalPriceInfos[j].LastTimestamp = uint64(now.Unix())
+				trigger = true
 			}
 		}
 
