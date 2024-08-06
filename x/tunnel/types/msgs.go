@@ -35,7 +35,7 @@ func (m MsgUpdateParams) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes implements the LegacyMsg interface.
 func (m MsgUpdateParams) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
 }
 
 // GetSigners returns the expected signers for the message.
@@ -141,7 +141,7 @@ func (m MsgCreateTunnel) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes implements the LegacyMsg interface.
 func (m MsgCreateTunnel) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
 }
 
 // GetSigners returns the expected signers for the message.
@@ -216,7 +216,7 @@ func (m MsgActivateTunnel) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes implements the LegacyMsg interface.
 func (m MsgActivateTunnel) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
 }
 
 // GetSigners returns the expected signers for the message.
@@ -248,7 +248,7 @@ func (m MsgManualTriggerTunnel) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes implements the LegacyMsg interface.
 func (m MsgManualTriggerTunnel) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
 }
 
 // GetSigners returns the expected signers for the message.
