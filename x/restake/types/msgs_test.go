@@ -57,17 +57,17 @@ func TestMsgClaimRewards_GetSigners(t *testing.T) {
 func TestMsgClaimRewards_ValidateBasic(t *testing.T) {
 	acc := sdk.MustAccAddressFromBech32(ValidAddress)
 
-	// Valid address
+	// valid address
 	msg := NewMsgClaimRewards(acc, ValidKey)
 	err := msg.ValidateBasic()
 	require.NoError(t, err)
 
-	// Invalid address
+	// invalid address
 	msg = NewMsgClaimRewards([]byte(InvalidAddress), ValidKey)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 
-	// Invalid key
+	// invalid key
 	msg = NewMsgClaimRewards(acc, InvalidKey)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
