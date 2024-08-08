@@ -103,28 +103,28 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 	suite.validLocks = []types.Lock{
 		{
-			LockerAddress:  ValidAddress1.String(),
+			StakerAddress:  ValidAddress1.String(),
 			Key:            KeyWithRewards,
 			Amount:         sdkmath.NewInt(10),
 			PosRewardDebts: nil,
 			NegRewardDebts: nil,
 		},
 		{
-			LockerAddress:  ValidAddress1.String(),
+			StakerAddress:  ValidAddress1.String(),
 			Key:            KeyWithoutRewards,
 			Amount:         sdkmath.NewInt(100),
 			PosRewardDebts: nil,
 			NegRewardDebts: nil,
 		},
 		{
-			LockerAddress:  ValidAddress1.String(),
+			StakerAddress:  ValidAddress1.String(),
 			Key:            InactiveKey,
 			Amount:         sdkmath.NewInt(50),
 			PosRewardDebts: nil,
 			NegRewardDebts: nil,
 		},
 		{
-			LockerAddress:  ValidAddress2.String(),
+			StakerAddress:  ValidAddress2.String(),
 			Key:            KeyWithRewards,
 			Amount:         sdkmath.NewInt(10),
 			PosRewardDebts: nil,
@@ -257,7 +257,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				lock, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Lock{
-					LockerAddress:  ValidAddress1.String(),
+					StakerAddress:  ValidAddress1.String(),
 					Key:            ValidKey,
 					Amount:         sdk.NewInt(333),
 					PosRewardDebts: nil,
@@ -327,7 +327,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Lock{
-					LockerAddress:  ValidAddress1.String(),
+					StakerAddress:  ValidAddress1.String(),
 					Key:            ValidKey,
 					Amount:         sdk.NewInt(100),
 					PosRewardDebts: nil,
@@ -371,7 +371,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Lock{
-					LockerAddress: ValidAddress1.String(),
+					StakerAddress: ValidAddress1.String(),
 					Key:           ValidKey,
 					Amount:        sdk.NewInt(2000),
 					PosRewardDebts: sdk.NewDecCoins(
@@ -403,7 +403,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Lock{
-					LockerAddress: ValidAddress1.String(),
+					StakerAddress: ValidAddress1.String(),
 					Key:           ValidKey,
 					Amount:        sdk.NewInt(2000),
 					PosRewardDebts: sdk.NewDecCoins(
@@ -519,7 +519,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				lock, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Lock{
-					LockerAddress:  ValidAddress1.String(),
+					StakerAddress:  ValidAddress1.String(),
 					Key:            ValidKey,
 					Amount:         val18,
 					PosRewardDebts: nil,
@@ -561,7 +561,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress2, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Lock{
-					LockerAddress:  ValidAddress2.String(),
+					StakerAddress:  ValidAddress2.String(),
 					Key:            ValidKey,
 					Amount:         sdk.NewInt(1),
 					PosRewardDebts: nil,
@@ -629,7 +629,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Lock{
-					LockerAddress:  ValidAddress1.String(),
+					StakerAddress:  ValidAddress1.String(),
 					Key:            ValidKey,
 					Amount:         sdk.NewInt(0),
 					PosRewardDebts: nil,
@@ -657,7 +657,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Lock{
-					LockerAddress:  ValidAddress1.String(),
+					StakerAddress:  ValidAddress1.String(),
 					Key:            ValidKey,
 					Amount:         sdk.NewInt(0),
 					PosRewardDebts: nil,
@@ -675,7 +675,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress2, ValidKey)
 				suite.Require().NoError(err)
 				suite.Require().Equal(types.Lock{
-					LockerAddress:  ValidAddress2.String(),
+					StakerAddress:  ValidAddress2.String(),
 					Key:            ValidKey,
 					Amount:         sdk.NewInt(1),
 					PosRewardDebts: nil,

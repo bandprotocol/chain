@@ -11,6 +11,7 @@ import (
 
 func (suite *KeeperTestSuite) TestSetLockedPower() {
 	ctx := suite.ctx
+	suite.setupState()
 
 	// error case -  amount is not uint64
 	err := suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, KeyWithRewards, sdkmath.NewInt(-5))
@@ -21,7 +22,7 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 	suite.Require().Error(err)
 
 	// error case - key is deactivated
-	_, err = suite.restakeKeeper.GetLockedPower(ctx, ValidAddress2, InactiveKey)
+	err = suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, InactiveKey, sdkmath.NewInt(10))
 	suite.Require().Error(err)
 
 	// success cases
@@ -41,8 +42,8 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 			"success case - no previous lock with empty rewards",
 			func() {
 				preKey = types.Key{
-					Name:            KeyWithRewards,
-					PoolAddress:     KeyWithRewardsPoolAddress.String(),
+					Name:            KeyWithoutRewards,
+					PoolAddress:     KeyWithoutRewardsPoolAddress.String(),
 					IsActive:        true,
 					RewardPerPowers: nil,
 					TotalPower:      sdkmath.NewInt(100),
@@ -55,8 +56,8 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 			},
 			sdkmath.NewInt(200),
 			types.Lock{
-				LockerAddress:  ValidAddress1.String(),
-				Key:            KeyWithRewards,
+				StakerAddress:  ValidAddress1.String(),
+				Key:            KeyWithoutRewards,
 				Amount:         sdkmath.NewInt(100),
 				PosRewardDebts: nil,
 				NegRewardDebts: nil,
@@ -66,8 +67,8 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 			"success case - have previous lock with empty rewards",
 			func() {
 				preKey = types.Key{
-					Name:            KeyWithRewards,
-					PoolAddress:     KeyWithRewardsPoolAddress.String(),
+					Name:            KeyWithoutRewards,
+					PoolAddress:     KeyWithoutRewardsPoolAddress.String(),
 					IsActive:        true,
 					RewardPerPowers: nil,
 					TotalPower:      sdkmath.NewInt(100),
@@ -75,8 +76,8 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 				}
 
 				preLock = &types.Lock{
-					LockerAddress:  ValidAddress1.String(),
-					Key:            KeyWithRewards,
+					StakerAddress:  ValidAddress1.String(),
+					Key:            KeyWithoutRewards,
 					Amount:         sdkmath.NewInt(10),
 					PosRewardDebts: nil,
 					NegRewardDebts: nil,
@@ -86,8 +87,8 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 			},
 			sdkmath.NewInt(190),
 			types.Lock{
-				LockerAddress:  ValidAddress1.String(),
-				Key:            KeyWithRewards,
+				StakerAddress:  ValidAddress1.String(),
+				Key:            KeyWithoutRewards,
 				Amount:         sdkmath.NewInt(100),
 				PosRewardDebts: nil,
 				NegRewardDebts: nil,
@@ -114,7 +115,7 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 			},
 			sdkmath.NewInt(200),
 			types.Lock{
-				LockerAddress: ValidAddress1.String(),
+				StakerAddress: ValidAddress1.String(),
 				Key:           KeyWithRewards,
 				Amount:        sdkmath.NewInt(100),
 				PosRewardDebts: sdk.NewDecCoins(
@@ -140,7 +141,7 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 				}
 
 				preLock = &types.Lock{
-					LockerAddress:  ValidAddress1.String(),
+					StakerAddress:  ValidAddress1.String(),
 					Key:            KeyWithRewards,
 					Amount:         sdkmath.NewInt(100),
 					PosRewardDebts: nil,
@@ -151,7 +152,7 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 			},
 			sdkmath.NewInt(1000),
 			types.Lock{
-				LockerAddress: ValidAddress1.String(),
+				StakerAddress: ValidAddress1.String(),
 				Key:           KeyWithRewards,
 				Amount:        sdkmath.NewInt(1000),
 				PosRewardDebts: sdk.NewDecCoins(
@@ -177,7 +178,7 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 				}
 
 				preLock = &types.Lock{
-					LockerAddress:  ValidAddress1.String(),
+					StakerAddress:  ValidAddress1.String(),
 					Key:            KeyWithRewards,
 					Amount:         sdkmath.NewInt(1000),
 					PosRewardDebts: nil,
@@ -188,7 +189,7 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 			},
 			sdkmath.NewInt(100),
 			types.Lock{
-				LockerAddress:  ValidAddress1.String(),
+				StakerAddress:  ValidAddress1.String(),
 				Key:            KeyWithRewards,
 				Amount:         sdkmath.NewInt(100),
 				PosRewardDebts: nil,
@@ -259,7 +260,7 @@ func (suite *KeeperTestSuite) TestGetSetLock() {
 	// set
 	expectedLocks := suite.validLocks
 	for _, expLock := range expectedLocks {
-		acc := sdk.MustAccAddressFromBech32(expLock.LockerAddress)
+		acc := sdk.MustAccAddressFromBech32(expLock.StakerAddress)
 		suite.restakeKeeper.SetLock(ctx, expLock)
 
 		// has
@@ -295,7 +296,7 @@ func (suite *KeeperTestSuite) TestGetSetLock() {
 
 	// delete
 	for _, expLock := range expectedLocks {
-		acc := sdk.MustAccAddressFromBech32(expLock.LockerAddress)
+		acc := sdk.MustAccAddressFromBech32(expLock.StakerAddress)
 		suite.restakeKeeper.DeleteLock(ctx, acc, expLock.Key)
 
 		// has

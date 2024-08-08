@@ -49,8 +49,8 @@ message Key {
 message Lock {
   option (gogoproto.equal) = true;
 
-  // locker_address is the owner's address of the locker.
-  string locker_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // staker_address is the owner's address of the staker.
+  string staker_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
   // key is the key that this lock is locked to.
   string key = 2;

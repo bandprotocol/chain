@@ -66,16 +66,16 @@ func (k Querier) Rewards(
 ) (*types.QueryRewardsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	addr, err := sdk.AccAddressFromBech32(req.LockerAddress)
+	addr, err := sdk.AccAddressFromBech32(req.StakerAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	keyStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.LocksByAddressStoreKey(addr))
+	lockStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.LocksByAddressStoreKey(addr))
 
 	filteredRewards, pageRes, err := query.GenericFilteredPaginate(
 		k.cdc,
-		keyStore,
+		lockStore,
 		req.Pagination,
 		func(key []byte, s *types.Lock) (*types.Reward, error) {
 			reward := k.getReward(ctx, *s)
@@ -97,7 +97,7 @@ func (k Querier) Reward(
 ) (*types.QueryRewardResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	addr, err := sdk.AccAddressFromBech32(req.LockerAddress)
+	addr, err := sdk.AccAddressFromBech32(req.StakerAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -119,16 +119,16 @@ func (k Querier) Locks(
 ) (*types.QueryLocksResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	addr, err := sdk.AccAddressFromBech32(req.LockerAddress)
+	addr, err := sdk.AccAddressFromBech32(req.StakerAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	keyStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.LocksByAddressStoreKey(addr))
+	lockStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.LocksByAddressStoreKey(addr))
 
 	filteredLocks, pageRes, err := query.GenericFilteredPaginate(
 		k.cdc,
-		keyStore,
+		lockStore,
 		req.Pagination,
 		func(key []byte, s *types.Lock) (*types.LockResponse, error) {
 			if !k.IsActiveKey(ctx, s.Key) || s.Amount.IsZero() {
@@ -156,7 +156,7 @@ func (k Querier) Lock(
 ) (*types.QueryLockResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	addr, err := sdk.AccAddressFromBech32(req.LockerAddress)
+	addr, err := sdk.AccAddressFromBech32(req.StakerAddress)
 	if err != nil {
 		return nil, err
 	}

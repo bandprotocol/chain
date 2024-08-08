@@ -27,7 +27,7 @@ func (k msgServer) ClaimRewards(
 ) (*types.MsgClaimRewardsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	addr, err := sdk.AccAddressFromBech32(msg.LockerAddress)
+	addr, err := sdk.AccAddressFromBech32(msg.StakerAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (k msgServer) ClaimRewards(
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeClaimRewards,
-				sdk.NewAttribute(types.AttributeKeyLocker, msg.LockerAddress),
+				sdk.NewAttribute(types.AttributeKeyStaker, msg.StakerAddress),
 				sdk.NewAttribute(types.AttributeKeyKey, lock.Key),
 				sdk.NewAttribute(sdk.AttributeKeyAmount, finalRewards.String()),
 			),

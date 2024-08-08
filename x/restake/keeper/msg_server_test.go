@@ -23,7 +23,7 @@ func (suite *KeeperTestSuite) TestMsgClaimRewards() {
 		{
 			name: "no key",
 			input: &types.MsgClaimRewards{
-				LockerAddress: ValidAddress1.String(),
+				StakerAddress: ValidAddress1.String(),
 				Key:           InvalidKey,
 			},
 			expErr:    true,
@@ -34,7 +34,7 @@ func (suite *KeeperTestSuite) TestMsgClaimRewards() {
 		{
 			name: "no lock",
 			input: &types.MsgClaimRewards{
-				LockerAddress: ValidAddress2.String(),
+				StakerAddress: ValidAddress2.String(),
 				Key:           KeyWithoutRewards,
 			},
 			expErr:    true,
@@ -45,7 +45,7 @@ func (suite *KeeperTestSuite) TestMsgClaimRewards() {
 		{
 			name: "success - active key",
 			input: &types.MsgClaimRewards{
-				LockerAddress: ValidAddress1.String(),
+				StakerAddress: ValidAddress1.String(),
 				Key:           KeyWithRewards,
 			},
 			expErr:    false,
@@ -67,7 +67,7 @@ func (suite *KeeperTestSuite) TestMsgClaimRewards() {
 		{
 			name: "success - inactive key",
 			input: &types.MsgClaimRewards{
-				LockerAddress: ValidAddress1.String(),
+				StakerAddress: ValidAddress1.String(),
 				Key:           InactiveKey,
 			},
 			expErr:    false,

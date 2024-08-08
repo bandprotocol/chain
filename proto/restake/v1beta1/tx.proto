@@ -15,11 +15,11 @@ service Msg {
 
 // MsgClaimRewards is the request message type for claiming rewards.
 message MsgClaimRewards {
-  option (cosmos.msg.v1.signer) = "locker_address";
+  option (cosmos.msg.v1.signer) = "staker_address";
   option (amino.name)           = "restake/MsgClaimRewards";
 
-  // lockerAddress is the address that will claim the rewards.
-  string locker_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // staker_address is the address that will claim the rewards.
+  string staker_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
   // key is the key that want to claim rewards from.
   string key = 2;
