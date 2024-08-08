@@ -155,6 +155,18 @@ func (q queryServer) Packet(c context.Context, req *types.QueryPacketRequest) (*
 		}
 
 		return &types.QueryPacketResponse{Packet: any}, nil
+	case *types.IBCRoute:
+		packet, err := q.k.GetIBCPacket(ctx, req.TunnelId, req.Nonce)
+		if err != nil {
+			return nil, err
+		}
+
+		any, err := codectypes.NewAnyWithValue(&packet)
+		if err != nil {
+			return nil, err
+		}
+
+		return &types.QueryPacketResponse{Packet: any}, nil
 	default:
 		return nil, fmt.Errorf("unknown route type")
 	}

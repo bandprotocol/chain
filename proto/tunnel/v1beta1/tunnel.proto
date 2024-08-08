@@ -30,7 +30,6 @@ message AxelarRoute {
 message IBCRoute {
   option (cosmos_proto.implements_interface) = "Route";
 
-  string port_id    = 1 [(gogoproto.customname) = "PortID"];
   string channel_id = 2 [(gogoproto.customname) = "ChannelID"];
 }
 
@@ -112,7 +111,6 @@ message IBCPacket {
   uint64                   nonce              = 2;
   feeds.v1beta1.FeedType   feed_type          = 3;
   repeated SignalPriceInfo signal_price_infos = 4 [(gogoproto.nullable) = false];
-  string                   port_id            = 5 [(gogoproto.customname) = "PortID"];
   string                   channel_id         = 6 [(gogoproto.customname) = "ChannelID"];
   uint64                   created_at         = 7;
 }

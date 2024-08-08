@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
@@ -102,6 +103,22 @@ func (ms msgServer) ManualTriggerTunnel(
 	req *types.MsgManualTriggerTunnel,
 ) (*types.MsgManualTriggerTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// TODO: remove mock for IBC testing
+	ms.Keeper.feedsKeeper.SetPrices(ctx, []feedstypes.Price{
+		{
+			PriceStatus: feedstypes.PriceStatusAvailable,
+			SignalID:    "BTC",
+			Price:       57177000000000,
+			Timestamp:   ctx.BlockTime().Unix(),
+		},
+		{
+			PriceStatus: feedstypes.PriceStatusAvailable,
+			SignalID:    "ETH",
+			Price:       2512000000000,
+			Timestamp:   ctx.BlockTime().Unix(),
+		},
+	})
 
 	tunnel, err := ms.Keeper.GetTunnel(ctx, req.ID)
 	if err != nil {

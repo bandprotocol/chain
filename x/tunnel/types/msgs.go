@@ -164,6 +164,12 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 		if err != nil {
 			return err
 		}
+	case *IBCRoute:
+		// Validate IBCRoute
+		err := r.ValidateBasic()
+		if err != nil {
+			return err
+		}
 	default:
 		return sdkerrors.ErrUnknownRequest.Wrapf("unknown route type")
 	}
@@ -236,10 +242,10 @@ func (m MsgActivateTunnel) ValidateBasic() error {
 func NewMsgManualTriggerTunnel(
 	id uint64,
 	creator string,
-) *MsgActivateTunnel {
-	return &MsgActivateTunnel{
-		TunnelID: id,
-		Creator:  creator,
+) *MsgManualTriggerTunnel {
+	return &MsgManualTriggerTunnel{
+		ID:      id,
+		Creator: creator,
 	}
 }
 

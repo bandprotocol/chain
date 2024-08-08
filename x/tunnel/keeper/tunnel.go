@@ -136,6 +136,7 @@ func (k Keeper) GetRequiredProcessTunnels(
 ) []types.Tunnel {
 	var tunnels []types.Tunnel
 	activeTunnels := k.GetActiveTunnels(ctx)
+	// TODO: TBD Get price may got some unavailable price
 	latestPrices := k.feedsKeeper.GetPrices(ctx)
 	latestPricesMap := make(map[string]feedsTypes.Price, len(latestPrices))
 
@@ -179,6 +180,13 @@ func (k Keeper) GetRequiredProcessTunnels(
 			tunnel := k.MustGetTunnel(ctx, id)
 			for i, sp := range tunnel.SignalPriceInfos {
 				latestPrice, exists := latestPricesMap[sp.SignalID]
+				// TODO: remove it after debug
+				if !exists {
+					fmt.Printf("-------------\n")
+					fmt.Printf("Signal %s not found in the latest prices\n", sp.SignalID)
+					fmt.Printf("-------------\n")
+				}
+
 				if exists {
 					tunnel.SignalPriceInfos[i].Price = latestPrice.Price
 					tunnel.SignalPriceInfos[i].LastTimestamp = uint64(now.Unix())
@@ -228,7 +236,6 @@ func (k Keeper) ProcessTunnel(ctx sdk.Context, tunnel types.Tunnel) {
 			Nonce:            tunnel.NonceCount,
 			FeedType:         tunnel.FeedType,
 			SignalPriceInfos: tunnel.SignalPriceInfos,
-			PortID:           r.PortID,
 			ChannelID:        r.ChannelID,
 		})
 	}

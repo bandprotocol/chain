@@ -6,12 +6,17 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
+var _ Route = &IBCRoute{}
+
+func (r *IBCRoute) ValidateBasic() error {
+	return nil
+}
+
 func NewIBCPacket(
 	tunnelID uint64,
 	nonce uint64,
 	feedType types.FeedType,
 	signalPriceInfos []SignalPriceInfo,
-	portID string,
 	channelID string,
 	createdAt uint64,
 ) IBCPacket {
@@ -20,7 +25,6 @@ func NewIBCPacket(
 		Nonce:            nonce,
 		FeedType:         feedType,
 		SignalPriceInfos: signalPriceInfos,
-		PortID:           portID,
 		ChannelID:        channelID,
 		CreatedAt:        createdAt,
 	}

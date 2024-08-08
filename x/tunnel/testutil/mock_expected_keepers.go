@@ -394,6 +394,18 @@ func (mr *MockFeedsKeeperMockRecorder) GetPrices(ctx any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPrices", reflect.TypeOf((*MockFeedsKeeper)(nil).GetPrices), ctx)
 }
 
+// SetPrices mocks base method.
+func (m *MockFeedsKeeper) SetPrices(ctx types2.Context, prices []types0.Price) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetPrices", ctx, prices)
+}
+
+// SetPrices indicates an expected call of SetPrices.
+func (mr *MockFeedsKeeperMockRecorder) SetPrices(ctx, prices any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetPrices", reflect.TypeOf((*MockFeedsKeeper)(nil).SetPrices), ctx, prices)
+}
+
 // MockBandtssKeeper is a mock of BandtssKeeper interface.
 type MockBandtssKeeper struct {
 	ctrl     *gomock.Controller

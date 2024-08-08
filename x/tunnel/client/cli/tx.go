@@ -24,6 +24,7 @@ func GetTxCmd() *cobra.Command {
 	}
 
 	txCmd.AddCommand(GetTxCmdCreateTSSTunnel())
+	txCmd.AddCommand(GetTxCmdCreateIBCTunnel())
 	txCmd.AddCommand(GetTxCmdActivateTunnel())
 	txCmd.AddCommand(GetTxCmdManualTriggerTunnel())
 
@@ -80,6 +81,57 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 
 	flags.AddTxFlagsToCmd(cmd)
 
+	return cmd
+}
+
+func GetTxCmdCreateIBCTunnel() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "create-ibc-tunnel [feed-type] [channel-id] [deposit] [signalInfos-json-file]",
+		Short: "Create a new IBC tunnel",
+		Args:  cobra.ExactArgs(4),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			feedType, err := strconv.ParseInt(args[0], 10, 32)
+			if err != nil {
+				return err
+			}
+
+			deposit, err := sdk.ParseCoinsNormalized(args[2])
+			if err != nil {
+				return err
+			}
+
+			signalInfos, err := parseSignalInfos(args[3])
+			if err != nil {
+				return err
+			}
+
+			var route types.Route
+			ibcRoute := types.IBCRoute{
+				ChannelID: args[1],
+			}
+			route = &ibcRoute
+
+			msg, err := types.NewMsgCreateTunnel(
+				signalInfos,
+				feedstypes.FeedType(feedType),
+				route,
+				deposit,
+				clientCtx.GetFromAddress(),
+			)
+			if err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }
 
