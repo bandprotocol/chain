@@ -30,7 +30,7 @@ var (
 
 	ValidatorPriceListStoreKeyPrefix = []byte{0x01}
 	PriceStoreKeyPrefix              = []byte{0x02}
-	DelegatorSignalStoreKeyPrefix    = []byte{0x03}
+	DelegatorSignalsStoreKeyPrefix   = []byte{0x03}
 	SignalTotalPowerStoreKeyPrefix   = []byte{0x04}
 
 	ParamsKey = []byte{0x10}
@@ -38,9 +38,9 @@ var (
 	SignalTotalPowerByPowerIndexKeyPrefix = []byte{0x20}
 )
 
-// DelegatorSignalStoreKey creates a key for storing delegator signals
-func DelegatorSignalStoreKey(delegator sdk.AccAddress) []byte {
-	return append(DelegatorSignalStoreKeyPrefix, address.MustLengthPrefix(delegator.Bytes())...)
+// DelegatorSignalsStoreKey creates a key for storing delegator signals
+func DelegatorSignalsStoreKey(delegator sdk.AccAddress) []byte {
+	return append(DelegatorSignalsStoreKeyPrefix, address.MustLengthPrefix(delegator.Bytes())...)
 }
 
 // SignalTotalPowerStoreKey creates a key for storing signal-total-powers

@@ -203,7 +203,7 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryValidatorPricesResponse{
-		ValidatorPrices: []types.ValidatorPrice{valPrices[0]},
+		ValidatorPrices: []types.ValidatorPrice(nil),
 	}, res)
 
 	// query with invalid validator

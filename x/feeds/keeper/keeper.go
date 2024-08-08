@@ -32,6 +32,9 @@ func NewKeeper(
 	authzKeeper types.AuthzKeeper,
 	authority string,
 ) Keeper {
+	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
+		panic(fmt.Errorf("invalid authority address: %w", err))
+	}
 	return Keeper{
 		cdc:           cdc,
 		storeKey:      storeKey,

@@ -25,9 +25,11 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdPrices(),
 		GetQueryCmdPrice(),
 		GetQueryCmdValidatorPrices(),
+		GetQueryCmdValidValidator(),
 		GetQueryCmdSignalTotalPowers(),
 		GetQueryCmdParams(),
-		GetQueryCmdDelegatorSignal(),
+		GetQueryCmdReferenceSourceConfig(),
+		GetQueryCmdDelegatorSignals(),
 		GetQueryCmdCurrentFeeds(),
 		GetQueryCmdIsFeeder(),
 	)
@@ -35,11 +37,11 @@ func GetQueryCmd() *cobra.Command {
 	return queryCmd
 }
 
-// GetQueryCmdDelegatorSignal implements the query delegator signal command.
-func GetQueryCmdDelegatorSignal() *cobra.Command {
+// GetQueryCmdDelegatorSignals implements the query delegator signal command.
+func GetQueryCmdDelegatorSignals() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "delegator-signal [delegator-addr]",
-		Short: "Shows delegator's currently active signal",
+		Use:   "delegator-signals [delegator-addr]",
+		Short: "Shows delegator's currently active signals",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -171,6 +173,33 @@ func GetQueryCmdValidatorPrices() *cobra.Command {
 
 	flags.AddQueryFlagsToCmd(cmd)
 	cmd.Flags().StringSlice("signal-ids", nil, "Comma-separated list of signal IDs to filter by")
+
+	return cmd
+}
+
+// GetQueryCmdValidValidator implements the query valid validator command.
+func GetQueryCmdValidValidator() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "valid-validator [validator-address]",
+		Short: "Shows if the given address is a valid validator",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.ValidValidator(
+				context.Background(),
+				&types.QueryValidValidatorRequest{Validator: args[0]},
+			)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
 }

@@ -137,7 +137,8 @@ func (q queryServer) ValidatorPrices(
 	}
 
 	for _, valPrice := range valPricesList.ValidatorPrices {
-		if _, exists := signalIDSet[valPrice.SignalID]; exists {
+		if _, exists := signalIDSet[valPrice.SignalID]; exists &&
+			valPrice.PriceStatus != types.PriceStatusUnspecified {
 			filteredPrices = append(filteredPrices, valPrice)
 		}
 	}
@@ -161,13 +162,8 @@ func (q queryServer) ValidValidator(
 	isValid := true
 
 	// check if it's bonded validators.
-	isBonded := q.keeper.IsBondedValidator(ctx, val)
-	if !isBonded {
-		isValid = false
-	}
-
-	validatorStatus := q.keeper.oracleKeeper.GetValidatorStatus(ctx, val)
-	if !validatorStatus.IsActive {
+	err = q.keeper.ValidateValidatorRequiredToSend(ctx, val)
+	if err != nil {
 		isValid = false
 	}
 
@@ -230,8 +226,14 @@ func (q queryServer) CurrentFeeds(
 
 	currentFeeds := q.keeper.GetCurrentFeeds(ctx)
 	feedWithDeviations := make([]types.FeedWithDeviation, 0, len(currentFeeds.Feeds))
+	params := q.keeper.GetParams(ctx)
 	for _, feed := range currentFeeds.Feeds {
-		deviation := CalculateDeviation(feed.Power, q.keeper.GetParams(ctx))
+		deviation := types.CalculateDeviation(
+			feed.Power,
+			params.PowerStepThreshold,
+			params.MinDeviationBasisPoint,
+			params.MaxDeviationBasisPoint,
+		)
 		feedWithDeviations = append(
 			feedWithDeviations,
 			types.FeedWithDeviation{

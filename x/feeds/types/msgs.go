@@ -53,12 +53,23 @@ func (m *MsgSubmitSignalPrices) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("validator: %s", m.Validator)
 	}
 
+	// Map to track signal IDs for duplicate check
+	signalIDSet := make(map[string]struct{})
+
 	for _, price := range m.Prices {
 		if price.PriceStatus != PriceStatusAvailable && price.Price != 0 {
 			return sdkerrors.ErrInvalidRequest.Wrap(
 				"price must be initial value if price status is unsupported or unavailable",
 			)
 		}
+
+		// Check for duplicate signal IDs
+		if _, exists := signalIDSet[price.SignalID]; exists {
+			return ErrDuplicateSignalID.Wrapf(
+				"duplicate signal ID found: %s", price.SignalID,
+			)
+		}
+		signalIDSet[price.SignalID] = struct{}{}
 	}
 
 	return nil
@@ -194,27 +205,9 @@ func (m *MsgSubmitSignals) ValidateBasic() error {
 	signalIDSet := make(map[string]struct{})
 
 	for _, signal := range m.Signals {
-		// Check if the signal ID is empty
-		if signal.ID == "" {
-			return ErrInvalidSignal.Wrap(
-				"signal id cannot be empty",
-			)
-		}
-
-		// Check if the signal power is positive
-		if signal.Power <= 0 {
-			return ErrInvalidSignal.Wrap(
-				"signal power must be positive",
-			)
-		}
-
-		// Check if the signal ID length exceeds the maximum allowed characters
-		signalIDLength := len(signal.ID)
-		if uint64(signalIDLength) > MaxSignalIDCharacters {
-			return ErrSignalIDTooLarge.Wrapf(
-				"maximum number of characters is %d but received %d characters",
-				MaxSignalIDCharacters, signalIDLength,
-			)
+		// Validate Signal
+		if err := signal.Validate(); err != nil {
+			return err
 		}
 
 		// Check for duplicate signal IDs

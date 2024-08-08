@@ -10,7 +10,7 @@ import (
 
 // GetDelegatorSignals returns a list of all signals of a delegator.
 func (k Keeper) GetDelegatorSignals(ctx sdk.Context, delegator sdk.AccAddress) []types.Signal {
-	bz := ctx.KVStore(k.storeKey).Get(types.DelegatorSignalStoreKey(delegator))
+	bz := ctx.KVStore(k.storeKey).Get(types.DelegatorSignalsStoreKey(delegator))
 	if bz == nil {
 		return nil
 	}
@@ -23,18 +23,18 @@ func (k Keeper) GetDelegatorSignals(ctx sdk.Context, delegator sdk.AccAddress) [
 
 // DeleteDelegatorSignals deletes all signals of a delegator.
 func (k Keeper) DeleteDelegatorSignals(ctx sdk.Context, delegator sdk.AccAddress) {
-	ctx.KVStore(k.storeKey).Delete(types.DelegatorSignalStoreKey(delegator))
+	ctx.KVStore(k.storeKey).Delete(types.DelegatorSignalsStoreKey(delegator))
 }
 
 // SetDelegatorSignals sets multiple signals of a delegator.
 func (k Keeper) SetDelegatorSignals(ctx sdk.Context, signals types.DelegatorSignals) {
 	ctx.KVStore(k.storeKey).
-		Set(types.DelegatorSignalStoreKey(sdk.MustAccAddressFromBech32(signals.Delegator)), k.cdc.MustMarshal(&signals))
+		Set(types.DelegatorSignalsStoreKey(sdk.MustAccAddressFromBech32(signals.Delegator)), k.cdc.MustMarshal(&signals))
 }
 
 // GetDelegatorSignalsIterator returns an iterator of the delegator-signals store.
 func (k Keeper) GetDelegatorSignalsIterator(ctx sdk.Context) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.DelegatorSignalStoreKeyPrefix)
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.DelegatorSignalsStoreKeyPrefix)
 }
 
 // GetAllDelegatorSignals returns a list of all delegator-signals.
@@ -143,16 +143,11 @@ func (k Keeper) SignalTotalPowersByPowerStoreIterator(ctx sdk.Context) sdk.Itera
 }
 
 // CalculateNewSignalTotalPowers calculates the new signal-total-powers from all delegator-signals.
-func (k Keeper) CalculateNewSignalTotalPowers(ctx sdk.Context) ([]types.Signal, error) {
+func (k Keeper) CalculateNewSignalTotalPowers(ctx sdk.Context) []types.Signal {
 	delegatorSignals := k.GetAllDelegatorSignals(ctx)
 	signalIDToPower := make(map[string]int64)
 	for _, ds := range delegatorSignals {
 		for _, signal := range ds.Signals {
-			if signal.ID == "" || signal.Power <= 0 {
-				return []types.Signal{}, types.ErrInvalidSignal.Wrap(
-					"signal id cannot be empty and its power must be positive",
-				)
-			}
 			signalIDToPower[signal.ID] += signal.Power
 		}
 	}
@@ -171,5 +166,45 @@ func (k Keeper) CalculateNewSignalTotalPowers(ctx sdk.Context) ([]types.Signal, 
 		})
 	}
 
-	return signalTotalPowers, nil
+	return signalTotalPowers
+}
+
+// LockDelegatorDelegation locks the delegator's power equal to the sum of the signal powers.
+// It returns an error if the delegator does not have enough power to lock.
+func (k Keeper) LockDelegatorDelegation(
+	ctx sdk.Context,
+	delegator sdk.AccAddress,
+	signals []types.Signal,
+) error {
+	sumPower := types.SumPower(signals)
+	if err := k.restakeKeeper.SetLockedPower(ctx, delegator, types.ModuleName, sdk.NewInt(sumPower)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// RegisterNewSignals delete previous signals and register new signals.
+// It also calculates feed power differences from delegator's previous signals and new signals.
+func (k Keeper) RegisterNewSignals(
+	ctx sdk.Context,
+	delegator sdk.AccAddress,
+	signals []types.Signal,
+) map[string]int64 {
+	signalIDToPowerDiff := make(map[string]int64)
+
+	prevSignals := k.GetDelegatorSignals(ctx, delegator)
+	k.DeleteDelegatorSignals(ctx, delegator)
+
+	for _, prevSignal := range prevSignals {
+		signalIDToPowerDiff[prevSignal.ID] -= prevSignal.Power
+	}
+
+	k.SetDelegatorSignals(ctx, types.DelegatorSignals{Delegator: delegator.String(), Signals: signals})
+
+	for _, signal := range signals {
+		signalIDToPowerDiff[signal.ID] += signal.Power
+	}
+
+	return signalIDToPowerDiff
 }
