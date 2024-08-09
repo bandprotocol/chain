@@ -59,34 +59,6 @@ func (mr *MockAccountKeeperMockRecorder) GetAccount(ctx, addr any) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAccount", reflect.TypeOf((*MockAccountKeeper)(nil).GetAccount), ctx, addr)
 }
 
-// GetModuleAccount mocks base method.
-func (m *MockAccountKeeper) GetModuleAccount(ctx types2.Context, moduleName string) types3.ModuleAccountI {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetModuleAccount", ctx, moduleName)
-	ret0, _ := ret[0].(types3.ModuleAccountI)
-	return ret0
-}
-
-// GetModuleAccount indicates an expected call of GetModuleAccount.
-func (mr *MockAccountKeeperMockRecorder) GetModuleAccount(ctx, moduleName any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetModuleAccount", reflect.TypeOf((*MockAccountKeeper)(nil).GetModuleAccount), ctx, moduleName)
-}
-
-// GetModuleAddress mocks base method.
-func (m *MockAccountKeeper) GetModuleAddress(name string) types2.AccAddress {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetModuleAddress", name)
-	ret0, _ := ret[0].(types2.AccAddress)
-	return ret0
-}
-
-// GetModuleAddress indicates an expected call of GetModuleAddress.
-func (mr *MockAccountKeeperMockRecorder) GetModuleAddress(name any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetModuleAddress", reflect.TypeOf((*MockAccountKeeper)(nil).GetModuleAddress), name)
-}
-
 // IterateAccounts mocks base method.
 func (m *MockAccountKeeper) IterateAccounts(ctx types2.Context, process func(types3.AccountI) bool) {
 	m.ctrl.T.Helper()
@@ -123,18 +95,6 @@ func (m *MockAccountKeeper) SetAccount(ctx types2.Context, account types3.Accoun
 func (mr *MockAccountKeeperMockRecorder) SetAccount(ctx, account any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetAccount", reflect.TypeOf((*MockAccountKeeper)(nil).SetAccount), ctx, account)
-}
-
-// SetModuleAccount mocks base method.
-func (m *MockAccountKeeper) SetModuleAccount(arg0 types2.Context, arg1 types3.ModuleAccountI) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "SetModuleAccount", arg0, arg1)
-}
-
-// SetModuleAccount indicates an expected call of SetModuleAccount.
-func (mr *MockAccountKeeperMockRecorder) SetModuleAccount(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetModuleAccount", reflect.TypeOf((*MockAccountKeeper)(nil).SetModuleAccount), arg0, arg1)
 }
 
 // MockBankKeeper is a mock of BankKeeper interface.
