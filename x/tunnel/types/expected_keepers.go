@@ -56,7 +56,6 @@ type ChannelKeeper interface {
 	) (sequence uint64, err error)
 }
 
-// PortKeeper defines the expected IBC port keeper
 type PortKeeper interface {
 	BindPort(ctx sdk.Context, portID string) *capabilitytypes.Capability
 }
@@ -69,7 +68,6 @@ type ScopedKeeper interface {
 
 type FeedsKeeper interface {
 	GetPrices(ctx sdk.Context) (prices []feedstypes.Price)
-	SetPrices(ctx sdk.Context, prices []feedstypes.Price)
 }
 
 type BandtssKeeper interface {

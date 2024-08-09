@@ -43,10 +43,12 @@ func TestGetBytesResponsePacket(t *testing.T) {
 		}, "channel-1", 9000000,
 	)
 
+	fmt.Println(string(packet.GetBytes()))
+
 	require.Equal(
 		t,
 		[]byte(
-			`{"channel_id":"channel-1","created_at":"9000000","feed_type":"FEED_TYPE_DEFAULT","nonce":"1","port_id":"tunnel","signal_price_infos":[{"deviation_bps":"1000","interval":"10","last_timestamp":"0","price":"1000","signal_id":"BTC"}],"tunnel_id":"1"}`,
+			`{"channel_id":"channel-1","created_at":"9000000","feed_type":"FEED_TYPE_DEFAULT","nonce":"1","signal_price_infos":[{"deviation_bps":"1000","interval":"10","last_timestamp":"0","price":"1000","signal_id":"BTC"}],"tunnel_id":"1"}`,
 		),
 		packet.GetBytes(),
 	)

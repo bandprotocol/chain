@@ -6,12 +6,15 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
+// IBCRoute defines the IBC route for the tunnel module
 var _ Route = &IBCRoute{}
 
+// Route defines the IBC route for the tunnel module
 func (r *IBCRoute) ValidateBasic() error {
 	return nil
 }
 
+// NewIBCPacket creates a new IBCPacket instance
 func NewIBCPacket(
 	tunnelID uint64,
 	nonce uint64,
@@ -30,6 +33,7 @@ func NewIBCPacket(
 	}
 }
 
+// GetBytes returns the raw bytes of the IBCPacket
 func (p IBCPacket) GetBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&p))
 }

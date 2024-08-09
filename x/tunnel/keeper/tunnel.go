@@ -180,18 +180,18 @@ func (k Keeper) GetRequiredProcessTunnels(
 			tunnel := k.MustGetTunnel(ctx, id)
 			for i, sp := range tunnel.SignalPriceInfos {
 				latestPrice, exists := latestPricesMap[sp.SignalID]
-				// TODO: remove it after debug
 				if !exists {
-					fmt.Printf("-------------\n")
-					fmt.Printf("Signal %s not found in the latest prices\n", sp.SignalID)
-					fmt.Printf("-------------\n")
+					ctx.EventManager().EmitEvent(sdk.NewEvent(
+						types.EventTypeSignalIDNotFound,
+						sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
+						sdk.NewAttribute(types.AttributeSignalID, sp.SignalID),
+					))
+					continue
 				}
 
-				if exists {
-					tunnel.SignalPriceInfos[i].Price = latestPrice.Price
-					tunnel.SignalPriceInfos[i].LastTimestamp = uint64(now.Unix())
-					tunnels = append(tunnels, tunnel)
-				}
+				tunnel.SignalPriceInfos[i].Price = latestPrice.Price
+				tunnel.SignalPriceInfos[i].LastTimestamp = uint64(now.Unix())
+				tunnels = append(tunnels, tunnel)
 			}
 		}
 	}
