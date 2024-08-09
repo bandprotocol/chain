@@ -453,8 +453,7 @@ func (k Querier) RequestVerification(
 	}
 	if isValidatorReported {
 		return nil, status.Error(
-			// TODO: change this back to codes.AlreadyExists in Cosmos-SDK 0.46 version
-			codes.InvalidArgument,
+			codes.AlreadyExists,
 			fmt.Sprintf("validator %s already submitted data report for this request", validator),
 		)
 	}
