@@ -230,7 +230,6 @@ func (k Keeper) ProcessTunnel(ctx sdk.Context, tunnel types.Tunnel) {
 	case *types.AxelarRoute:
 		k.AxelarPacketHandler(ctx, types.AxelarPacket{})
 	case *types.IBCRoute:
-		fmt.Printf("Generating IBC packets for tunnel %d, route %s\n", tunnel.ID, r.String())
 		k.IBCPacketHandler(ctx, types.IBCPacket{
 			TunnelID:         tunnel.ID,
 			Nonce:            tunnel.NonceCount,

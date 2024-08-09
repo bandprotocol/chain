@@ -1,8 +1,6 @@
 package types_test
 
 import (
-	b64 "encoding/base64"
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -10,7 +8,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
-func TestGetIBCPacketBytes(t *testing.T) {
+func TestGetBytesIBCPacket(t *testing.T) {
 	packet := types.NewIBCPacket(
 		1, 1, 1, []types.SignalPriceInfo{
 			{
@@ -22,28 +20,6 @@ func TestGetIBCPacketBytes(t *testing.T) {
 			},
 		}, "channel-1", 9000000,
 	)
-	bytes := packet.GetBytes()
-	sEnc := b64.StdEncoding.EncodeToString(bytes)
-	fmt.Println(sEnc)
-	if len(bytes) == 0 {
-		t.Errorf("expected non-empty bytes, got empty bytes")
-	}
-}
-
-func TestGetBytesResponsePacket(t *testing.T) {
-	packet := types.NewIBCPacket(
-		1, 1, 1, []types.SignalPriceInfo{
-			{
-				SignalID:      "BTC",
-				DeviationBPS:  1000,
-				Interval:      10,
-				Price:         1000,
-				LastTimestamp: 0,
-			},
-		}, "channel-1", 9000000,
-	)
-
-	fmt.Println(string(packet.GetBytes()))
 
 	require.Equal(
 		t,
