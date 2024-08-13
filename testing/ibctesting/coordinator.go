@@ -91,7 +91,7 @@ func (coord *Coordinator) SetupClients(path *Path) {
 	require.NoError(coord.t, err)
 }
 
-// SetupClientConnections is a helper function to create clients and the appropriate
+// SetupConnections is a helper function to create clients and the appropriate
 // connections on both the source and counterparty chain. It assumes the caller does not
 // anticipate any errors.
 func (coord *Coordinator) SetupConnections(path *Path) {
