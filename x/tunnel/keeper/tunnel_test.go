@@ -143,8 +143,8 @@ func TestGetRequiredProcessTunnels(t *testing.T) {
 	s := testutil.NewTestSuite(t)
 	ctx, k := s.Ctx, s.Keeper
 
-	now := ctx.BlockTime()
-	before := now.Add(-30 * time.Second)
+	now := ctx.BlockTime().Unix()
+	before := ctx.BlockTime().Add(-30 * time.Second).Unix()
 
 	// Mock data for the test cases
 	tunnels := []types.Tunnel{
@@ -156,7 +156,7 @@ func TestGetRequiredProcessTunnels(t *testing.T) {
 					Price:         100,
 					DeviationBPS:  1000,
 					Interval:      30,
-					LastTimestamp: &now,
+					LastTimestamp: now,
 				},
 			},
 			IsActive: true,
@@ -164,14 +164,14 @@ func TestGetRequiredProcessTunnels(t *testing.T) {
 		{
 			ID: 2,
 			SignalPriceInfos: []types.SignalPriceInfo{
-				{SignalID: "signal2", Price: 100, DeviationBPS: 1000, Interval: 30, LastTimestamp: &now},
+				{SignalID: "signal2", Price: 100, DeviationBPS: 1000, Interval: 30, LastTimestamp: now},
 			},
 			IsActive: true,
 		},
 		{
 			ID: 3,
 			SignalPriceInfos: []types.SignalPriceInfo{
-				{SignalID: "signal3", Price: 100, DeviationBPS: 1000, Interval: 30, LastTimestamp: &before},
+				{SignalID: "signal3", Price: 100, DeviationBPS: 1000, Interval: 30, LastTimestamp: before},
 			},
 			IsActive: true,
 		},
