@@ -3,7 +3,7 @@ package querier
 import (
 	"sync/atomic"
 
-	"github.com/cometbft/cometbft/rpc/client/http"
+	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -15,10 +15,14 @@ type FeedQuerier struct {
 	maxBlockHeight *atomic.Int64
 }
 
-func NewFeedQuerier(clientContext client.Context, clients []*http.HTTP, maxBlockHeight *atomic.Int64) *FeedQuerier {
+func NewFeedQuerier(
+	clientCtx client.Context,
+	clients []rpcclient.RemoteClient,
+	maxBlockHeight *atomic.Int64,
+) *FeedQuerier {
 	queryClients := make([]feeds.QueryClient, 0, len(clients))
 	for _, cl := range clients {
-		queryClients = append(queryClients, feeds.NewQueryClient(clientContext.WithClient(cl)))
+		queryClients = append(queryClients, feeds.NewQueryClient(clientCtx.WithClient(cl)))
 	}
 
 	return &FeedQuerier{queryClients, maxBlockHeight}

@@ -5,11 +5,9 @@ import (
 	"sync"
 	"time"
 
-	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client"
 	proto "github.com/bandprotocol/bothan/bothan-api/client/go-client/query"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/grogu/querier"
 	"github.com/bandprotocol/chain/v2/pkg/logger"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
@@ -22,8 +20,8 @@ const (
 )
 
 type Signaller struct {
-	feedQuerier  *querier.FeedQuerier
-	bothanClient bothan.Client
+	feedQuerier  FeedQuerier
+	bothanClient BothanClient
 	// How often to check for signal changes
 	interval         time.Duration
 	submitCh         chan<- []types.SignalPrice
@@ -40,8 +38,8 @@ type Signaller struct {
 }
 
 func New(
-	feedQuerier *querier.FeedQuerier,
-	bothanClient bothan.Client,
+	feedQuerier FeedQuerier,
+	bothanClient BothanClient,
 	interval time.Duration,
 	submitCh chan<- []types.SignalPrice,
 	logger *logger.Logger,
@@ -66,31 +64,31 @@ func New(
 	}
 }
 
-func (h *Signaller) Start() {
+func (s *Signaller) Start() {
 	for {
-		time.Sleep(h.interval)
+		time.Sleep(s.interval)
 
-		resp, err := h.feedQuerier.QueryValidValidator(h.valAddress)
+		resp, err := s.feedQuerier.QueryValidValidator(s.valAddress)
 		if err != nil {
-			h.logger.Error("[Signaller] failed to query valid validator: %v", err)
+			s.logger.Error("[Signaller] failed to query valid validator: %v", err)
 			continue
 		}
 
 		if !resp.Valid {
-			h.logger.Info("[Signaller] validator is not required to feed prices")
+			s.logger.Info("[Signaller] validator is not required to feed prices")
 			continue
 		}
 
-		if !h.updateInternalVariables() {
-			h.logger.Error("[Signaller] failed to update internal variables")
+		if !s.updateInternalVariables() {
+			s.logger.Error("[Signaller] failed to update internal variables")
 			continue
 		}
 
-		h.execute()
+		s.execute()
 	}
 }
 
-func (h *Signaller) updateInternalVariables() bool {
+func (s *Signaller) updateInternalVariables() bool {
 	resultCh := make(chan bool, 3)
 	var wg sync.WaitGroup
 
@@ -100,9 +98,9 @@ func (h *Signaller) updateInternalVariables() bool {
 	}
 
 	wg.Add(3)
-	go updater(h.updateParams)
-	go updater(h.updateFeedMap)
-	go updater(h.updateValidatorPriceMap)
+	go updater(s.updateParams)
+	go updater(s.updateFeedMap)
+	go updater(s.updateValidatorPriceMap)
 	wg.Wait()
 	close(resultCh)
 
@@ -117,108 +115,108 @@ func (h *Signaller) updateInternalVariables() bool {
 	return success
 }
 
-func (h *Signaller) updateParams() bool {
-	resp, err := h.feedQuerier.QueryParams()
+func (s *Signaller) updateParams() bool {
+	resp, err := s.feedQuerier.QueryParams()
 	if err != nil {
-		h.logger.Error("[Signaller] failed to query params: %v", err)
+		s.logger.Error("[Signaller] failed to query params: %v", err)
 		return false
 	}
 
-	h.params = &resp.Params
+	s.params = &resp.Params
 	return true
 }
 
-func (h *Signaller) updateFeedMap() bool {
-	resp, err := h.feedQuerier.QueryCurrentFeeds()
+func (s *Signaller) updateFeedMap() bool {
+	resp, err := s.feedQuerier.QueryCurrentFeeds()
 	if err != nil {
-		h.logger.Error("[Signaller] failed to query supported feeds: %v", err)
+		s.logger.Error("[Signaller] failed to query supported feeds: %v", err)
 		return false
 	}
 
-	h.signalIDToFeed = sliceToMap(resp.CurrentFeeds.Feeds, func(feed types.FeedWithDeviation) string {
+	s.signalIDToFeed = sliceToMap(resp.CurrentFeeds.Feeds, func(feed types.FeedWithDeviation) string {
 		return feed.SignalID
 	})
 
 	return true
 }
 
-func (h *Signaller) updateValidatorPriceMap() bool {
-	resp, err := h.feedQuerier.QueryValidatorPrices(h.valAddress)
+func (s *Signaller) updateValidatorPriceMap() bool {
+	resp, err := s.feedQuerier.QueryValidatorPrices(s.valAddress)
 	if err != nil {
-		h.logger.Error("[Signaller] failed to query validator prices: %v", err)
+		s.logger.Error("[Signaller] failed to query validator prices: %v", err)
 		return false
 	}
 
-	h.signalIDToValidatorPrice = sliceToMap(resp.ValidatorPrices, func(valPrice types.ValidatorPrice) string {
+	s.signalIDToValidatorPrice = sliceToMap(resp.ValidatorPrices, func(valPrice types.ValidatorPrice) string {
 		return valPrice.SignalID
 	})
 
 	return true
 }
 
-func (h *Signaller) execute() {
+func (s *Signaller) execute() {
 	now := time.Now()
 
-	h.logger.Debug("[Signaller] starting signal process")
+	s.logger.Debug("[Signaller] starting signal process")
 
-	h.logger.Debug("[Signaller] getting non-pending signal ids")
-	nonPendingSignalIDs := h.getNonPendingSignalIDs()
+	s.logger.Debug("[Signaller] getting non-pending signal ids")
+	nonPendingSignalIDs := s.getNonPendingSignalIDs()
 	if len(nonPendingSignalIDs) == 0 {
-		h.logger.Debug("[Signaller] no signal ids to process")
+		s.logger.Debug("[Signaller] no signal ids to process")
 		return
 	}
 
-	h.logger.Debug("[Signaller] querying prices from bothan: %v", nonPendingSignalIDs)
-	prices, err := h.bothanClient.QueryPrices(nonPendingSignalIDs)
+	s.logger.Debug("[Signaller] querying prices from bothan: %v", nonPendingSignalIDs)
+	prices, err := s.bothanClient.QueryPrices(nonPendingSignalIDs)
 	if err != nil {
-		h.logger.Error("[Signaller] failed to query prices from bothan: %v", err)
+		s.logger.Error("[Signaller] failed to query prices from bothan: %v", err)
 		return
 	}
 
-	h.logger.Debug("[Signaller] filtering prices")
-	submitPrices := h.filterAndPrepareSubmitPrices(prices, nonPendingSignalIDs, now)
+	s.logger.Debug("[Signaller] filtering prices")
+	submitPrices := s.filterAndPrepareSubmitPrices(prices, nonPendingSignalIDs, now)
 	if len(submitPrices) == 0 {
-		h.logger.Debug("[Signaller] no prices to submit")
+		s.logger.Debug("[Signaller] no prices to submit")
 		return
 	}
 
-	h.logger.Debug("[Signaller] submitting prices: %v", submitPrices)
-	h.submitPrices(submitPrices)
+	s.logger.Debug("[Signaller] submitting prices: %v", submitPrices)
+	s.submitPrices(submitPrices)
 }
 
-func (h *Signaller) submitPrices(prices []types.SignalPrice) {
+func (s *Signaller) submitPrices(prices []types.SignalPrice) {
 	for _, p := range prices {
-		_, loaded := h.pendingSignalIDs.LoadOrStore(p.SignalID, struct{}{})
+		_, loaded := s.pendingSignalIDs.LoadOrStore(p.SignalID, struct{}{})
 		if loaded {
-			h.logger.Debug("[Signaller] Attempted to store Signal ID %s which was already pending", p.SignalID)
+			s.logger.Debug("[Signaller] Attempted to store Signal ID %s which was already pending", p.SignalID)
 		}
 	}
 
-	h.submitCh <- prices
+	s.submitCh <- prices
 }
 
-func (h *Signaller) getAllSignalIDs() []string {
-	signalIDs := make([]string, 0, len(h.signalIDToFeed))
-	for signalID := range h.signalIDToFeed {
+func (s *Signaller) getAllSignalIDs() []string {
+	signalIDs := make([]string, 0, len(s.signalIDToFeed))
+	for signalID := range s.signalIDToFeed {
 		signalIDs = append(signalIDs, signalID)
 	}
 
 	return signalIDs
 }
 
-func (h *Signaller) getNonPendingSignalIDs() []string {
-	signalIDs := h.getAllSignalIDs()
+func (s *Signaller) getNonPendingSignalIDs() []string {
+	signalIDs := s.getAllSignalIDs()
 
 	filtered := make([]string, 0, len(signalIDs))
 	for _, signalID := range signalIDs {
-		if _, ok := h.pendingSignalIDs.Load(signalID); !ok {
+		if _, ok := s.pendingSignalIDs.Load(signalID); !ok {
 			filtered = append(filtered, signalID)
 		}
 	}
 	return filtered
 }
 
-func (h *Signaller) filterAndPrepareSubmitPrices(
+func (s *Signaller) filterAndPrepareSubmitPrices(
 	prices []*proto.PriceData,
 	signalIDs []string,
 	currentTime time.Time,
@@ -232,22 +230,22 @@ func (h *Signaller) filterAndPrepareSubmitPrices(
 	for _, signalID := range signalIDs {
 		price, ok := pricesMap[signalID]
 		if !ok {
-			h.logger.Debug("[Signaller] price not found for signal ID: %s", signalID)
+			s.logger.Debug("[Signaller] price not found for signal ID: %s", signalID)
 			continue
 		}
 
-		if !h.isPriceValid(price, currentTime) {
+		if !s.isPriceValid(price, currentTime) {
 			continue
 		}
 
 		submitPrice, err := convertPriceData(price)
 		if err != nil {
-			h.logger.Debug("[Signaller] failed to parse price data: %v", err)
+			s.logger.Debug("[Signaller] failed to parse price data: %v", err)
 			continue
 		}
 
-		if h.isNonUrgentUnavailablePrices(submitPrice, currentTime.Unix()) {
-			h.logger.Debug("[Signaller] non-urgent unavailable price: %v", submitPrice)
+		if s.isNonUrgentUnavailablePrices(submitPrice, currentTime.Unix()) {
+			s.logger.Debug("[Signaller] non-urgent unavailable price: %v", submitPrice)
 			continue
 		}
 
@@ -257,13 +255,13 @@ func (h *Signaller) filterAndPrepareSubmitPrices(
 	return submitPrices
 }
 
-func (h *Signaller) isNonUrgentUnavailablePrices(
+func (s *Signaller) isNonUrgentUnavailablePrices(
 	submitPrice types.SignalPrice,
 	now int64,
 ) bool {
 	switch submitPrice.PriceStatus {
 	case types.PriceStatusUnavailable:
-		deadline := h.signalIDToValidatorPrice[submitPrice.SignalID].Timestamp + h.signalIDToFeed[submitPrice.SignalID].Interval
+		deadline := s.signalIDToValidatorPrice[submitPrice.SignalID].Timestamp + s.signalIDToFeed[submitPrice.SignalID].Interval
 		if now > deadline-FixedIntervalOffset {
 			return false
 		}
@@ -273,12 +271,12 @@ func (h *Signaller) isNonUrgentUnavailablePrices(
 	}
 }
 
-func (h *Signaller) isPriceValid(
+func (s *Signaller) isPriceValid(
 	price *proto.PriceData,
 	now time.Time,
 ) bool {
 	// Check if the price is supported and required to be submitted
-	feed, ok := h.signalIDToFeed[price.SignalId]
+	feed, ok := s.signalIDToFeed[price.SignalId]
 	if !ok {
 		return false
 	}
@@ -286,25 +284,25 @@ func (h *Signaller) isPriceValid(
 	// If unable to convert price, it is considered invalid
 	newPrice, err := safeConvert(price.Price)
 	if err != nil {
-		h.logger.Error("[Signaller] failed to convert price: %v", err)
+		s.logger.Error("[Signaller] failed to convert price: %v", err)
 		return false
 	}
 
 	// Get the last price submitted by the validator, if it doesn't exist, it is valid to be sent
-	valPrice, ok := h.signalIDToValidatorPrice[price.SignalId]
+	valPrice, ok := s.signalIDToValidatorPrice[price.SignalId]
 	if !ok {
 		return true
 	}
 
 	// If the last price exists, check if the price can be updated
-	if h.shouldUpdatePrice(feed, valPrice, newPrice, now) {
+	if s.shouldUpdatePrice(feed, valPrice, newPrice, now) {
 		return true
 	}
 
 	return false
 }
 
-func (h *Signaller) shouldUpdatePrice(
+func (s *Signaller) shouldUpdatePrice(
 	feed types.FeedWithDeviation,
 	valPrice types.ValidatorPrice,
 	newPrice uint64,
@@ -312,7 +310,7 @@ func (h *Signaller) shouldUpdatePrice(
 ) bool {
 	// thresholdTime is the time when the price can be updated.
 	// add TimeBuffer to make sure the thresholdTime is not too early.
-	thresholdTime := time.Unix(valPrice.Timestamp+h.params.CooldownTime+TimeBuffer, 0)
+	thresholdTime := time.Unix(valPrice.Timestamp+s.params.CooldownTime+TimeBuffer, 0)
 
 	if now.Before(thresholdTime) {
 		return false
@@ -320,14 +318,14 @@ func (h *Signaller) shouldUpdatePrice(
 
 	// Check if the price is past the assigned time, if it is, add it to the list of prices to update
 	assignedTime := calculateAssignedTime(
-		h.valAddress,
+		s.valAddress,
 		feed.Interval,
 		valPrice.Timestamp,
-		h.distributionOffsetPercentage,
-		h.distributionStartPercentage,
+		s.distributionOffsetPercentage,
+		s.distributionStartPercentage,
 	)
 
-	if assignedTime.Before(now) {
+	if !now.Before(assignedTime) {
 		return true
 	}
 
