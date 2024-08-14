@@ -45,7 +45,7 @@ func (k Keeper) AddTunnel(ctx sdk.Context, tunnel types.Tunnel) (uint64, error) 
 	tunnel.FeePayer = acc.String()
 
 	// Set the creation time
-	tunnel.CreatedAt = ctx.BlockTime()
+	tunnel.CreatedAt = ctx.BlockTime().Unix()
 
 	k.SetTunnel(ctx, tunnel)
 	return tunnel.ID, nil

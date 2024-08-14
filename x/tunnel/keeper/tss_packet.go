@@ -15,7 +15,7 @@ func (k Keeper) SetTSSPacket(ctx sdk.Context, packet types.TSSPacket) {
 // AddTSSPacket adds a TSS packet to the store
 func (k Keeper) AddTSSPacket(ctx sdk.Context, packet types.TSSPacket) {
 	// Set the creation time
-	packet.CreatedAt = ctx.BlockTime()
+	packet.CreatedAt = ctx.BlockTime().Unix()
 	k.SetTSSPacket(ctx, packet)
 }
 

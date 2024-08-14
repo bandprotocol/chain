@@ -14,7 +14,7 @@ func (k Keeper) SetAxelarPacket(ctx sdk.Context, packet types.AxelarPacket) {
 
 // AddAxelarPacket adds a Axelar packet to the store
 func (k Keeper) AddAxelarPacket(ctx sdk.Context, packet types.AxelarPacket) {
-	packet.CreatedAt = ctx.BlockTime()
+	packet.CreatedAt = ctx.BlockTime().Unix()
 	k.SetAxelarPacket(ctx, packet)
 }
 
