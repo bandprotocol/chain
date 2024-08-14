@@ -15,7 +15,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.47.13
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.4.10
-	github.com/cosmos/ibc-go/v7 v7.6.0
+	github.com/cosmos/ibc-go/v7 v7.7.0
 	github.com/ethereum/go-ethereum v1.14.7
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-sql-driver/mysql v1.7.0
