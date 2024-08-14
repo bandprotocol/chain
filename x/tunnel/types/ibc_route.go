@@ -21,7 +21,7 @@ func NewIBCPacket(
 	feedType types.FeedType,
 	signalPriceInfos []SignalPriceInfo,
 	channelID string,
-	createdAt uint64,
+	createdAt int64,
 ) IBCPacket {
 	return IBCPacket{
 		TunnelID:         tunnelID,

@@ -229,13 +229,14 @@ func (k Keeper) ProcessTunnel(ctx sdk.Context, tunnel types.Tunnel) {
 	case *types.AxelarRoute:
 		k.AxelarPacketHandler(ctx, types.AxelarPacket{})
 	case *types.IBCRoute:
-		k.IBCPacketHandler(ctx, types.IBCPacket{
-			TunnelID:         tunnel.ID,
-			Nonce:            tunnel.NonceCount,
-			FeedType:         tunnel.FeedType,
-			SignalPriceInfos: tunnel.SignalPriceInfos,
-			ChannelID:        r.ChannelID,
-		})
+		k.IBCPacketHandler(ctx, types.NewIBCPacket(
+			tunnel.ID,
+			tunnel.NonceCount,
+			tunnel.FeedType,
+			tunnel.SignalPriceInfos,
+			r.ChannelID,
+			ctx.BlockTime().Unix(),
+		))
 	}
 
 	// Update the tunnel
