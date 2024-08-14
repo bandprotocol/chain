@@ -60,7 +60,7 @@ func (ms msgServer) CreateTunnel(
 		sdk.NewAttribute(types.AttributeKeyFeedType, tunnel.FeedType.String()),
 		sdk.NewAttribute(types.AttributeKeyFeePayer, tunnel.FeePayer),
 		sdk.NewAttribute(types.AttributeKeyIsActive, fmt.Sprintf("%t", tunnel.IsActive)),
-		sdk.NewAttribute(types.AttributeKeyCreatedAt, tunnel.CreatedAt.String()),
+		sdk.NewAttribute(types.AttributeKeyCreatedAt, fmt.Sprintf("%d", tunnel.CreatedAt)),
 		sdk.NewAttribute(types.AttributeKeyCreator, req.Creator),
 	)
 	for _, signalInfo := range req.SignalInfos {

@@ -43,7 +43,7 @@ func TestAddTunnel(t *testing.T) {
 		SignalPriceInfos:         nil,
 		LastTriggeredBlockHeight: 0,
 		IsActive:                 false,
-		CreatedAt:                s.Ctx.BlockTime(),
+		CreatedAt:                s.Ctx.BlockTime().Unix(),
 		Creator:                  "",
 	}
 
