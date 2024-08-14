@@ -178,11 +178,18 @@ func (k Keeper) GetRequiredProcessTunnels(
 			tunnel := k.MustGetTunnel(ctx, id)
 			for i, sp := range tunnel.SignalPriceInfos {
 				latestPrice, exists := latestPricesMap[sp.SignalID]
-				if exists {
-					tunnel.SignalPriceInfos[i].Price = latestPrice.Price
-					tunnel.SignalPriceInfos[i].LastTimestamp = unixNow
-					tunnels = append(tunnels, tunnel)
+				if !exists {
+					ctx.EventManager().EmitEvent(sdk.NewEvent(
+						types.EventTypeSignalIDNotFound,
+						sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
+						sdk.NewAttribute(types.AttributeSignalID, sp.SignalID),
+					))
+					continue
 				}
+
+				tunnel.SignalPriceInfos[i].Price = latestPrice.Price
+				tunnel.SignalPriceInfos[i].LastTimestamp = unixNow
+				tunnels = append(tunnels, tunnel)
 			}
 		}
 	}
