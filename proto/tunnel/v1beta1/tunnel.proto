@@ -38,7 +38,7 @@ message SignalInfo {
 
   string signal_id     = 1 [(gogoproto.customname) = "SignalID"];
   uint64 deviation_bps = 2 [(gogoproto.customname) = "DeviationBPS"];
-  uint64 interval      = 3;
+  int64  interval      = 3;
 }
 
 // SignalPriceInfo is the type for a signal price info
@@ -47,9 +47,9 @@ message SignalPriceInfo {
 
   string signal_id      = 1 [(gogoproto.customname) = "SignalID"];
   uint64 deviation_bps  = 2 [(gogoproto.customname) = "DeviationBPS"];
-  uint64 interval       = 3;
+  int64  interval       = 3;
   uint64 price          = 4;
-  uint64 last_timestamp = 5;
+  int64  last_timestamp = 5;
 }
 
 // Tunnel is the type for a tunnel

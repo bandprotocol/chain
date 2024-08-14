@@ -145,7 +145,6 @@ func (k Keeper) GetRequiredProcessTunnels(
 		latestPricesMap[price.SignalID] = price
 	}
 
-	now := ctx.BlockTime()
 	unixNow := ctx.BlockTime().Unix()
 
 	// Evaluate which tunnels require processing based on the price signals
@@ -160,10 +159,10 @@ func (k Keeper) GetRequiredProcessTunnels(
 			deviation := math.Abs(float64(latestPrice.Price)-float64(sp.Price)) / float64(sp.Price)
 			deviationInBPS := uint64(deviation * 10000)
 
-			if deviationInBPS > sp.DeviationBPS || unixNow >= int64(sp.LastTimestamp+sp.Interval) {
+			if deviationInBPS > sp.DeviationBPS || unixNow >= sp.LastTimestamp+sp.Interval {
 				// Update the price directly
 				activeTunnels[i].SignalPriceInfos[j].Price = latestPrice.Price
-				activeTunnels[i].SignalPriceInfos[j].LastTimestamp = uint64(now.Unix())
+				activeTunnels[i].SignalPriceInfos[j].LastTimestamp = unixNow
 				trigger = true
 			}
 		}
@@ -190,7 +189,7 @@ func (k Keeper) GetRequiredProcessTunnels(
 				}
 
 				tunnel.SignalPriceInfos[i].Price = latestPrice.Price
-				tunnel.SignalPriceInfos[i].LastTimestamp = uint64(now.Unix())
+				tunnel.SignalPriceInfos[i].LastTimestamp = unixNow
 				tunnels = append(tunnels, tunnel)
 			}
 		}
