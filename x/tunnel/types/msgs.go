@@ -151,21 +151,13 @@ func (m *MsgCreateTunnel) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgCreateTunnel) ValidateBasic() error {
-	switch r := m.Route.GetCachedValue().(type) {
-	case *TSSRoute:
-		// Validate TSSRoute
-		err := r.ValidateBasic()
-		if err != nil {
-			return err
-		}
-	case *AxelarRoute:
-		// Validate AxelarRoute
-		err := r.ValidateBasic()
-		if err != nil {
-			return err
-		}
-	default:
-		return sdkerrors.ErrUnknownRequest.Wrapf("unknown route type")
+	r, ok := m.Route.GetCachedValue().(Route)
+	if !ok {
+		return sdkerrors.ErrPackAny.Wrapf("cannot unpack route")
+	}
+	err := r.ValidateBasic()
+	if err != nil {
+		return err
 	}
 	return nil
 }
