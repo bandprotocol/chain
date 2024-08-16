@@ -111,8 +111,7 @@ func (ms msgServer) SubmitSignalPrices(
 	}
 
 	// check if the validator is required to send prices
-	err = ms.ValidateValidatorRequiredToSend(ctx, val)
-	if err != nil {
+	if err := ms.ValidateValidatorRequiredToSend(ctx, val); err != nil {
 		return nil, err
 	}
 
@@ -209,7 +208,7 @@ func (ms msgServer) UpdateParams(
 	if ms.GetAuthority() != req.Authority {
 		return nil, govtypes.ErrInvalidSigner.Wrapf(
 			"invalid authority; expected %s, got %s",
-			ms.authority,
+			ms.GetAuthority(),
 			req.Authority,
 		)
 	}

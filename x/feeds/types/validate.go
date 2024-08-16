@@ -35,8 +35,7 @@ func validateUint64(name string, positiveOnly bool, i interface{}) error {
 
 // validateURL validates URL format.
 func validateURL(name string, u string) error {
-	_, err := url.ParseRequestURI(u)
-	if err != nil {
+	if _, err := url.ParseRequestURI(u); err != nil {
 		return fmt.Errorf("%s has invalid URL format", name)
 	}
 

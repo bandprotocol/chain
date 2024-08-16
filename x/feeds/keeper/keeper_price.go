@@ -105,7 +105,7 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) {
 			valPrice := allValidatorPrices[valInfo.Address.String()][feed.SignalID]
 
 			// check for miss report
-			missReport := CheckMissReport(
+			missReport := checkMissReport(
 				feed,
 				currentFeeds.LastUpdateTimestamp,
 				currentFeeds.LastUpdateBlock,
@@ -120,7 +120,7 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) {
 			}
 
 			// check if the price is available
-			havePrice := CheckHavePrice(feed, valPrice, ctx.BlockTime())
+			havePrice := checkHavePrice(feed, valPrice, ctx.BlockTime())
 			if havePrice {
 				priceFeedInfos = append(
 					priceFeedInfos, types.PriceFeedInfo{
@@ -210,9 +210,9 @@ func (k Keeper) CalculatePrice(
 	}, nil
 }
 
-// CheckMissReport checks if a validator has missed a report based on the given parameters.
+// checkMissReport checks if a validator has missed a report based on the given parameters.
 // And returns a boolean indication whether the validator has price feed.
-func CheckMissReport(
+func checkMissReport(
 	feed types.Feed,
 	lastUpdateTimestamp int64,
 	lastUpdateBlock int64,
@@ -246,8 +246,8 @@ func CheckMissReport(
 	return lastTime < blockTime.Unix() && lastBlock < blockHeight
 }
 
-// CheckHavePrice checks if a validator has a price feed within interval range.
-func CheckHavePrice(
+// checkHavePrice checks if a validator has a price feed within interval range.
+func checkHavePrice(
 	feed types.Feed,
 	valPrice types.ValidatorPrice,
 	blockTime time.Time,

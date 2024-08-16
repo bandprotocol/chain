@@ -39,7 +39,7 @@ func (q *FeedQuerier) QueryValidValidator(valAddress sdk.ValAddress) (*feeds.Que
 	}
 
 	in := feeds.QueryValidValidatorRequest{
-		Validator: valAddress.String(),
+		ValidatorAddress: valAddress.String(),
 	}
 
 	return getMaxBlockHeightResponse(fs, &in, q.maxBlockHeight)
@@ -72,7 +72,7 @@ func (q *FeedQuerier) QueryValidatorPrices(valAddress sdk.ValAddress) (*feeds.Qu
 	}
 
 	in := feeds.QueryValidatorPricesRequest{
-		Validator: valAddress.String(),
+		ValidatorAddress: valAddress.String(),
 	}
 	return getMaxBlockHeightResponse(fs, &in, q.maxBlockHeight)
 }

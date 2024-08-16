@@ -12,9 +12,24 @@ import "feeds/v1beta1/params.proto";
 
 // Query defines the gRPC querier service.
 service Query {
-  // Prices is an RPC method that returns all prices.
-  rpc Prices(QueryPricesRequest) returns (QueryPricesResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/prices";
+  // CurrentFeeds is an RPC method that returns a list of current supported feeds.
+  rpc CurrentFeeds(QueryCurrentFeedsRequest) returns (QueryCurrentFeedsResponse) {
+    option (google.api.http).get = "/feeds/v1beta1/current-feeds";
+  }
+
+  // DelegatorSignals is an RPC method that returns signals of a delegator.
+  rpc DelegatorSignals(QueryDelegatorSignalsRequest) returns (QueryDelegatorSignalsResponse) {
+    option (google.api.http).get = "/feeds/v1beta1/delegators/{delegator_address}/signals";
+  }
+
+  // IsFeeder is an RPC method that returns whether an account is a feeder for a specified validator.
+  rpc IsFeeder(QueryIsFeederRequest) returns (QueryIsFeederResponse) {
+    option (google.api.http).get = "/feeds/v1beta1/feeder/{validator_address}/{feeder_address}";
+  }
+
+  // Params is an RPC method that returns all parameters of the module.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/feeds/v1beta1/params";
   }
 
   // Price is an RPC method that returns price by signal id.
@@ -22,14 +37,14 @@ service Query {
     option (google.api.http).get = "/feeds/v1beta1/prices/{signal_id}";
   }
 
-  // ValidatorPrices is an RPC method that returns prices of a validator.
-  rpc ValidatorPrices(QueryValidatorPricesRequest) returns (QueryValidatorPricesResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/validators/{validator}/prices";
+  // Prices is an RPC method that returns all prices.
+  rpc Prices(QueryPricesRequest) returns (QueryPricesResponse) {
+    option (google.api.http).get = "/feeds/v1beta1/prices";
   }
 
-  // ValidValidator is an RPC method that returns flag to show if the validator is required to send prices.
-  rpc ValidValidator(QueryValidValidatorRequest) returns (QueryValidValidatorResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/validators/{validator}";
+  // ReferenceSourceConfig is an RPC method that returns information on the reference price source.
+  rpc ReferenceSourceConfig(QueryReferenceSourceConfigRequest) returns (QueryReferenceSourceConfigResponse) {
+    option (google.api.http).get = "/feeds/v1beta1/reference-source-config";
   }
 
   // SignalTotalPowers is an RPC method that returns all signal-total-powers or specified signal-total-power by signal
@@ -38,30 +53,71 @@ service Query {
     option (google.api.http).get = "/feeds/v1beta1/signal-total-powers";
   }
 
-  // Params is an RPC method that returns all parameters of the module.
-  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/params";
+  // ValidValidator is an RPC method that returns a flag to show if the validator is required to send prices.
+  rpc ValidValidator(QueryValidValidatorRequest) returns (QueryValidValidatorResponse) {
+    option (google.api.http).get = "/feeds/v1beta1/valid/{validator_address}";
   }
 
-  // ReferenceSourceConfig is an RPC method that returns information of reference price source.
-  rpc ReferenceSourceConfig(QueryReferenceSourceConfigRequest) returns (QueryReferenceSourceConfigResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/reference-source-config";
+  // ValidatorPrices is an RPC method that returns prices of a validator.
+  rpc ValidatorPrices(QueryValidatorPricesRequest) returns (QueryValidatorPricesResponse) {
+    option (google.api.http).get = "/feeds/v1beta1/validators/{validator_address}/prices";
   }
+}
 
-  // DelegatorSignals is an RPC method that returns signals of a delegator.
-  rpc DelegatorSignals(QueryDelegatorSignalsRequest) returns (QueryDelegatorSignalsResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/delegators/{delegator}/signals";
-  }
+// QueryCurrentFeedsRequest is the request type for the Query/CurrentFeeds RPC method.
+message QueryCurrentFeedsRequest {}
 
-  // CurrentFeeds is an RPC method that returns a list of current supported feeds.
-  rpc CurrentFeeds(QueryCurrentFeedsRequest) returns (QueryCurrentFeedsResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/current-feeds";
-  }
+// QueryCurrentFeedsResponse is the response type for the Query/CurrentFeeds RPC method.
+message QueryCurrentFeedsResponse {
+  // current_feeds is a list of currently supported feed-with-deviations, and its last update time and block.
+  CurrentFeedWithDeviations current_feeds = 1 [(gogoproto.nullable) = false];
+}
 
-  // IsFeeder is an RPC method that returns whether an account is a feeder for specified validator.
-  rpc IsFeeder(QueryIsFeederRequest) returns (QueryIsFeederResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/feeder/{validator_address}/{feeder_address}";
-  }
+// QueryDelegatorSignalsRequest is the request type for the Query/DelegatorSignals RPC method.
+message QueryDelegatorSignalsRequest {
+  // delegator_address is the delegator address to query signal for.
+  string delegator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// QueryDelegatorSignalsResponse is the response type for the Query/DelegatorSignals RPC method.
+message QueryDelegatorSignalsResponse {
+  // signals is a list of signals submitted by the delegator.
+  repeated Signal signals = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryIsFeederRequest is the request type for the Query/IsFeeder RPC method.
+message QueryIsFeederRequest {
+  // validator_address is a validator address.
+  string validator_address = 1;
+  // feeder_address is a candidate account.
+  string feeder_address = 2;
+}
+
+// QueryIsFeederResponse is the response type for the Query/IsFeeder RPC method.
+message QueryIsFeederResponse {
+  // is_feeder is true if this account has been granted by validator.
+  bool is_feeder = 1;
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params is the parameters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryPriceRequest is the request type for the Query/Price RPC method.
+message QueryPriceRequest {
+  // signal_id is the signal id to query the price for.
+  string signal_id = 1;
+}
+
+// QueryPriceResponse is the response type for the Query/Price RPC method.
+message QueryPriceResponse {
+  // price is the aggregated price of the signal id.
+  Price price = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryPricesRequest is the request type for the Query/Prices RPC method.
@@ -82,43 +138,13 @@ message QueryPricesResponse {
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
-// QueryPriceRequest is the request type for the Query/Price RPC method.
-message QueryPriceRequest {
-  // signal_id is the signal id to query the price for.
-  string signal_id = 1;
-}
+// QueryReferenceSourceConfigRequest is the request type for the Query/ReferenceSourceConfig RPC method.
+message QueryReferenceSourceConfigRequest {}
 
-// QueryPriceResponse is the response type for the Query/Price RPC method.
-message QueryPriceResponse {
-  // price is the aggregated price of the signal id.
-  Price price = 1 [(gogoproto.nullable) = false];
-}
-
-// QueryValidatorPricesRequest is the request type for the Query/ValidatorPrices RPC method.
-message QueryValidatorPricesRequest {
-  // validator is the validator address to query prices for.
-  string validator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-
-  // signal_ids is the list of signal ids to query the price for.
-  repeated string signal_ids = 2;
-}
-
-// QueryValidatorPricesResponse is the response type for the Query/ValidatorPrices RPC method.
-message QueryValidatorPricesResponse {
-  // validator_prices is a list of prices submitted by the validator.
-  repeated ValidatorPrice validator_prices = 1 [(gogoproto.nullable) = false];
-}
-
-// QueryValidValidatorRequest is the request type for the Query/ValidValidator RPC method.
-message QueryValidValidatorRequest {
-  // validator is the validator address to query the flag.
-  string validator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-}
-
-// QueryValidValidatorResponse is the response type for the Query/ValidValidator RPC method.
-message QueryValidValidatorResponse {
-  // valid is a valid flag.
-  bool valid = 1;
+// QueryReferenceSourceConfigResponse is the response type for the Query/ReferenceSourceConfig RPC method.
+message QueryReferenceSourceConfigResponse {
+  // reference_source_config is the information about the reference price source.
+  ReferenceSourceConfig reference_source_config = 1 [(gogoproto.nullable) = false];
 }
 
 // QuerySignalTotalPowersRequest is the request type for the Query/SignalTotalPowers RPC method.
@@ -139,56 +165,29 @@ message QuerySignalTotalPowersResponse {
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
-// QueryParamsRequest is the request type for the Query/Params RPC method.
-message QueryParamsRequest {}
-
-// QueryParamsResponse is the response type for the Query/Params RPC method.
-message QueryParamsResponse {
-  // params is the parameters of the module.
-  Params params = 1 [(gogoproto.nullable) = false];
+// QueryValidValidatorRequest is the request type for the Query/ValidValidator RPC method.
+message QueryValidValidatorRequest {
+  // validator_address is the validator address to query the flag.
+  string validator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// QueryReferenceSourceConfigRequest is the request type for the Query/ReferenceSourceConfig RPC method.
-message QueryReferenceSourceConfigRequest {}
-
-// QueryReferenceSourceConfigResponse is the response type for the Query/ReferenceSourceConfig RPC method.
-message QueryReferenceSourceConfigResponse {
-  // reference_source_config is the information about reference price source.
-  ReferenceSourceConfig reference_source_config = 1 [(gogoproto.nullable) = false];
+// QueryValidValidatorResponse is the response type for the Query/ValidValidator RPC method.
+message QueryValidValidatorResponse {
+  // valid is a valid flag.
+  bool valid = 1;
 }
 
-// QueryDelegatorSignalsRequest is the request type for the Query/DelegatorSignals RPC method.
-message QueryDelegatorSignalsRequest {
-  // delegator is the delegator address to query signal for.
-  string delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+// QueryValidatorPricesRequest is the request type for the Query/ValidatorPrices RPC method.
+message QueryValidatorPricesRequest {
+  // validator_address is the validator address to query prices for.
+  string validator_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // signal_ids is the list of signal ids to query the price for.
+  repeated string signal_ids = 2;
 }
 
-// QueryDelegatorSignalsResponse is the response type for the Query/DelegatorSignals RPC method.
-message QueryDelegatorSignalsResponse {
-  // signals is a list of signals submitted by the delegator.
-  repeated Signal signals = 1 [(gogoproto.nullable) = false];
-}
-
-// QueryCurrentFeedsRequest is the request type for the Query/CurrentFeeds RPC method.
-message QueryCurrentFeedsRequest {}
-
-// QueryCurrentFeedsResponse is the response type for the Query/CurrentFeeds RPC method.
-message QueryCurrentFeedsResponse {
-  // current_feeds is a list of currently supported feed-with-deviations, and its last update time and
-  // block.
-  CurrentFeedWithDeviations current_feeds = 1 [(gogoproto.nullable) = false];
-}
-
-// QueryIsFeederRequest is the request type for the Query/IsFeeder RPC method.
-message QueryIsFeederRequest {
-  // validator_address is a validator address.
-  string validator_address = 1;
-  // feeder_address is a candidate account.
-  string feeder_address = 2;
-}
-
-// QueryIsFeederResponse is the response type for the Query/IsFeeder RPC method.
-message QueryIsFeederResponse {
-  // is_feeder is true if this account has been granted by validator.
-  bool is_feeder = 1;
+// QueryValidatorPricesResponse is the response type for the Query/ValidatorPrices RPC method.
+message QueryValidatorPricesResponse {
+  // validator_prices is a list of prices submitted by the validator.
+  repeated ValidatorPrice validator_prices = 1 [(gogoproto.nullable) = false];
 }

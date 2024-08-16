@@ -30,7 +30,7 @@ func (q queryServer) DelegatorSignals(
 ) (*types.QueryDelegatorSignalsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	delegator, err := sdk.AccAddressFromBech32(req.Delegator)
+	delegator, err := sdk.AccAddressFromBech32(req.DelegatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -110,7 +110,7 @@ func (q queryServer) ValidatorPrices(
 ) (*types.QueryValidatorPricesResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	val, err := sdk.ValAddressFromBech32(req.Validator)
+	val, err := sdk.ValAddressFromBech32(req.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ func (q queryServer) ValidValidator(
 ) (*types.QueryValidValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	val, err := sdk.ValAddressFromBech32(req.Validator)
+	val, err := sdk.ValAddressFromBech32(req.ValidatorAddress)
 	if err != nil {
 		return nil, err
 	}

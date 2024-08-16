@@ -49,7 +49,7 @@ func GetQueryCmdDelegatorSignals() *cobra.Command {
 
 			res, err := queryClient.DelegatorSignals(
 				context.Background(),
-				&types.QueryDelegatorSignalsRequest{Delegator: args[0]},
+				&types.QueryDelegatorSignalsRequest{DelegatorAddress: args[0]},
 			)
 			if err != nil {
 				return err
@@ -160,8 +160,8 @@ func GetQueryCmdValidatorPrices() *cobra.Command {
 			}
 
 			res, err := queryClient.ValidatorPrices(context.Background(), &types.QueryValidatorPricesRequest{
-				Validator: args[0],
-				SignalIds: signalIds,
+				ValidatorAddress: args[0],
+				SignalIds:        signalIds,
 			})
 			if err != nil {
 				return err
@@ -189,7 +189,7 @@ func GetQueryCmdValidValidator() *cobra.Command {
 
 			res, err := queryClient.ValidValidator(
 				context.Background(),
-				&types.QueryValidValidatorRequest{Validator: args[0]},
+				&types.QueryValidValidatorRequest{ValidatorAddress: args[0]},
 			)
 			if err != nil {
 				return err
