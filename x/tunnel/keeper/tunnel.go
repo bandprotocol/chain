@@ -217,16 +217,14 @@ func (k Keeper) ProcessTunnel(ctx sdk.Context, tunnel types.Tunnel) {
 	// Increment the nonce
 	tunnel.NonceCount += 1
 
+	// Process the tunnel based on the route type
 	switch r := tunnel.Route.GetCachedValue().(type) {
 	case *types.TSSRoute:
-		k.TSSPacketHandler(ctx, types.TSSPacket{
-			TunnelID:                   tunnel.ID,
-			SignalPriceInfos:           tunnel.SignalPriceInfos,
-			DestinationChainID:         r.DestinationChainID,
-			DestinationContractAddress: r.DestinationContractAddress,
-		})
+		k.TSSPacketHandler(ctx, r, tunnel.CreatePacket(ctx.BlockTime().Unix()))
 	case *types.AxelarRoute:
-		k.AxelarPacketHandler(ctx, types.AxelarPacket{})
+		k.AxelarPacketHandler(ctx, r, tunnel.CreatePacket(ctx.BlockTime().Unix()))
+	default:
+		panic(fmt.Sprintf("unknown route type: %T", r))
 	}
 
 	// Update the tunnel

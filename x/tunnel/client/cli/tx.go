@@ -56,7 +56,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 				return err
 			}
 
-			var route types.Route
+			var route types.RouteI
 			tssRoute := types.TSSRoute{
 				DestinationChainID:         args[1],
 				DestinationContractAddress: args[2],

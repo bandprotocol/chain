@@ -16,11 +16,12 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgCreateTunnel{}, "tunnel/MsgCreateTunnel")
 	legacy.RegisterAminoMsg(cdc, &MsgActivateTunnel{}, "tunnel/MsgActivateTunnel")
 
-	cdc.RegisterInterface((*Route)(nil), nil)
+	cdc.RegisterInterface((*RouteI)(nil), nil)
 	cdc.RegisterConcrete(&TSSRoute{}, "tunnel/TSSRoute", nil)
 	cdc.RegisterConcrete(&AxelarRoute{}, "tunnel/AxelarRoute", nil)
-
-	cdc.RegisterInterface((*Packet)(nil), nil)
+	cdc.RegisterInterface((*PacketContentI)(nil), nil)
+	cdc.RegisterConcrete(&TSSPacketContent{}, "tunnel/TSSPacketContent", nil)
+	cdc.RegisterConcrete(&AxelarPacketContent{}, "tunnel/AxelarPacketContent", nil)
 }
 
 // RegisterInterfaces registers the x/tunnel interfaces types with the interface registry
@@ -33,17 +34,17 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	)
 
 	registry.RegisterInterface(
-		"tunnel.v1beta1.Route",
-		(*Route)(nil),
+		"tunnel.v1beta1.RouteI",
+		(*RouteI)(nil),
 		&TSSRoute{},
 		&AxelarRoute{},
 	)
 
 	registry.RegisterInterface(
-		"tunnel.v1beta1.Packet",
-		(*Packet)(nil),
-		&TSSPacket{},
-		&AxelarPacket{},
+		"tunnel.v1beta1.PacketContentI",
+		(*PacketContentI)(nil),
+		&TSSPacketContent{},
+		&AxelarPacketContent{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

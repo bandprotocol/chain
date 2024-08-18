@@ -1,6 +1,6 @@
 package types
 
-var _ Route = &AxelarRoute{}
+var _ RouteI = &AxelarRoute{}
 
 func (r *AxelarRoute) ValidateBasic() error {
 	return nil

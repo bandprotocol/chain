@@ -389,6 +389,7 @@ func (m *Tunnel) GetCreator() string {
 	return ""
 }
 
+// PendingTriggerTunnels is the type for a list of tunnel IDs that are waiting to be triggered
 type PendingTriggerTunnels struct {
 	// IDs is a list of tunnel IDs that are waiting to be triggered
 	IDs []uint64 `protobuf:"varint,1,rep,packed,name=ids,proto3" json:"ids,omitempty"`
@@ -434,30 +435,28 @@ func (m *PendingTriggerTunnels) GetIDs() []uint64 {
 	return nil
 }
 
-// TSSPacket is the packet type for TSS
-type TSSPacket struct {
-	TunnelID                   uint64                                                     `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
-	Nonce                      uint64                                                     `protobuf:"varint,2,opt,name=nonce,proto3" json:"nonce,omitempty"`
-	FeedType                   types1.FeedType                                            `protobuf:"varint,3,opt,name=feed_type,json=feedType,proto3,enum=feeds.v1beta1.FeedType" json:"feed_type,omitempty"`
-	SignalPriceInfos           []SignalPriceInfo                                          `protobuf:"bytes,4,rep,name=signal_price_infos,json=signalPriceInfos,proto3" json:"signal_price_infos"`
-	SigningID                  github_com_bandprotocol_chain_v2_x_bandtss_types.SigningID `protobuf:"varint,5,opt,name=signing_id,json=signingId,proto3,casttype=github.com/bandprotocol/chain/v2/x/bandtss/types.SigningID" json:"signing_id,omitempty"`
-	DestinationChainID         string                                                     `protobuf:"bytes,6,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
-	DestinationContractAddress string                                                     `protobuf:"bytes,7,opt,name=destination_contract_address,json=destinationContractAddress,proto3" json:"destination_contract_address,omitempty"`
-	CreatedAt                  int64                                                      `protobuf:"varint,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+// Packet is the packet that tunnel produces
+type Packet struct {
+	TunnelID         uint64            `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
+	Nonce            uint64            `protobuf:"varint,2,opt,name=nonce,proto3" json:"nonce,omitempty"`
+	FeedType         types1.FeedType   `protobuf:"varint,3,opt,name=feed_type,json=feedType,proto3,enum=feeds.v1beta1.FeedType" json:"feed_type,omitempty"`
+	SignalPriceInfos []SignalPriceInfo `protobuf:"bytes,4,rep,name=signal_price_infos,json=signalPriceInfos,proto3" json:"signal_price_infos"`
+	PacketContent    *types.Any        `protobuf:"bytes,5,opt,name=packet_content,json=packetContent,proto3" json:"packet_content,omitempty"`
+	CreatedAt        int64             `protobuf:"varint,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 }
 
-func (m *TSSPacket) Reset()         { *m = TSSPacket{} }
-func (m *TSSPacket) String() string { return proto.CompactTextString(m) }
-func (*TSSPacket) ProtoMessage()    {}
-func (*TSSPacket) Descriptor() ([]byte, []int) {
+func (m *Packet) Reset()         { *m = Packet{} }
+func (m *Packet) String() string { return proto.CompactTextString(m) }
+func (*Packet) ProtoMessage()    {}
+func (*Packet) Descriptor() ([]byte, []int) {
 	return fileDescriptor_b5270a56045f1d8a, []int{6}
 }
-func (m *TSSPacket) XXX_Unmarshal(b []byte) error {
+func (m *Packet) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *TSSPacket) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *Packet) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_TSSPacket.Marshal(b, m, deterministic)
+		return xxx_messageInfo_Packet.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -467,98 +466,140 @@ func (m *TSSPacket) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *TSSPacket) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_TSSPacket.Merge(m, src)
+func (m *Packet) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Packet.Merge(m, src)
 }
-func (m *TSSPacket) XXX_Size() int {
+func (m *Packet) XXX_Size() int {
 	return m.Size()
 }
-func (m *TSSPacket) XXX_DiscardUnknown() {
-	xxx_messageInfo_TSSPacket.DiscardUnknown(m)
+func (m *Packet) XXX_DiscardUnknown() {
+	xxx_messageInfo_Packet.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_TSSPacket proto.InternalMessageInfo
+var xxx_messageInfo_Packet proto.InternalMessageInfo
 
-func (m *TSSPacket) GetTunnelID() uint64 {
+func (m *Packet) GetTunnelID() uint64 {
 	if m != nil {
 		return m.TunnelID
 	}
 	return 0
 }
 
-func (m *TSSPacket) GetNonce() uint64 {
+func (m *Packet) GetNonce() uint64 {
 	if m != nil {
 		return m.Nonce
 	}
 	return 0
 }
 
-func (m *TSSPacket) GetFeedType() types1.FeedType {
+func (m *Packet) GetFeedType() types1.FeedType {
 	if m != nil {
 		return m.FeedType
 	}
 	return types1.FEED_TYPE_UNSPECIFIED
 }
 
-func (m *TSSPacket) GetSignalPriceInfos() []SignalPriceInfo {
+func (m *Packet) GetSignalPriceInfos() []SignalPriceInfo {
 	if m != nil {
 		return m.SignalPriceInfos
 	}
 	return nil
 }
 
-func (m *TSSPacket) GetSigningID() github_com_bandprotocol_chain_v2_x_bandtss_types.SigningID {
+func (m *Packet) GetPacketContent() *types.Any {
+	if m != nil {
+		return m.PacketContent
+	}
+	return nil
+}
+
+func (m *Packet) GetCreatedAt() int64 {
+	if m != nil {
+		return m.CreatedAt
+	}
+	return 0
+}
+
+// TSSPacketContent is the packet content for TSS
+type TSSPacketContent struct {
+	SigningID                  github_com_bandprotocol_chain_v2_x_bandtss_types.SigningID `protobuf:"varint,1,opt,name=signing_id,json=signingId,proto3,casttype=github.com/bandprotocol/chain/v2/x/bandtss/types.SigningID" json:"signing_id,omitempty"`
+	DestinationChainID         string                                                     `protobuf:"bytes,2,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
+	DestinationContractAddress string                                                     `protobuf:"bytes,3,opt,name=destination_contract_address,json=destinationContractAddress,proto3" json:"destination_contract_address,omitempty"`
+}
+
+func (m *TSSPacketContent) Reset()         { *m = TSSPacketContent{} }
+func (m *TSSPacketContent) String() string { return proto.CompactTextString(m) }
+func (*TSSPacketContent) ProtoMessage()    {}
+func (*TSSPacketContent) Descriptor() ([]byte, []int) {
+	return fileDescriptor_b5270a56045f1d8a, []int{7}
+}
+func (m *TSSPacketContent) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *TSSPacketContent) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_TSSPacketContent.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *TSSPacketContent) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TSSPacketContent.Merge(m, src)
+}
+func (m *TSSPacketContent) XXX_Size() int {
+	return m.Size()
+}
+func (m *TSSPacketContent) XXX_DiscardUnknown() {
+	xxx_messageInfo_TSSPacketContent.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TSSPacketContent proto.InternalMessageInfo
+
+func (m *TSSPacketContent) GetSigningID() github_com_bandprotocol_chain_v2_x_bandtss_types.SigningID {
 	if m != nil {
 		return m.SigningID
 	}
 	return 0
 }
 
-func (m *TSSPacket) GetDestinationChainID() string {
+func (m *TSSPacketContent) GetDestinationChainID() string {
 	if m != nil {
 		return m.DestinationChainID
 	}
 	return ""
 }
 
-func (m *TSSPacket) GetDestinationContractAddress() string {
+func (m *TSSPacketContent) GetDestinationContractAddress() string {
 	if m != nil {
 		return m.DestinationContractAddress
 	}
 	return ""
 }
 
-func (m *TSSPacket) GetCreatedAt() int64 {
-	if m != nil {
-		return m.CreatedAt
-	}
-	return 0
+// AxelarPacketContent is the packet content for Axelar
+type AxelarPacketContent struct {
+	IBCQueueID                 uint64 `protobuf:"varint,1,opt,name=ibc_queue_id,json=ibcQueueId,proto3" json:"ibc_queue_id,omitempty"`
+	DestinationChainID         string `protobuf:"bytes,2,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
+	DestinationContractAddress string `protobuf:"bytes,3,opt,name=destination_contract_address,json=destinationContractAddress,proto3" json:"destination_contract_address,omitempty"`
 }
 
-// AxelarPacket is the packet type for Axelar
-type AxelarPacket struct {
-	TunnelID                   uint64            `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
-	Nonce                      uint64            `protobuf:"varint,2,opt,name=nonce,proto3" json:"nonce,omitempty"`
-	FeedType                   types1.FeedType   `protobuf:"varint,3,opt,name=feed_type,json=feedType,proto3,enum=feeds.v1beta1.FeedType" json:"feed_type,omitempty"`
-	SignalPriceInfos           []SignalPriceInfo `protobuf:"bytes,4,rep,name=signal_price_infos,json=signalPriceInfos,proto3" json:"signal_price_infos"`
-	IBCQueueID                 uint64            `protobuf:"varint,5,opt,name=ibc_queue_id,json=ibcQueueId,proto3" json:"ibc_queue_id,omitempty"`
-	DestinationChainID         string            `protobuf:"bytes,6,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
-	DestinationContractAddress string            `protobuf:"bytes,7,opt,name=destination_contract_address,json=destinationContractAddress,proto3" json:"destination_contract_address,omitempty"`
-	CreatedAt                  int64             `protobuf:"varint,8,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+func (m *AxelarPacketContent) Reset()         { *m = AxelarPacketContent{} }
+func (m *AxelarPacketContent) String() string { return proto.CompactTextString(m) }
+func (*AxelarPacketContent) ProtoMessage()    {}
+func (*AxelarPacketContent) Descriptor() ([]byte, []int) {
+	return fileDescriptor_b5270a56045f1d8a, []int{8}
 }
-
-func (m *AxelarPacket) Reset()         { *m = AxelarPacket{} }
-func (m *AxelarPacket) String() string { return proto.CompactTextString(m) }
-func (*AxelarPacket) ProtoMessage()    {}
-func (*AxelarPacket) Descriptor() ([]byte, []int) {
-	return fileDescriptor_b5270a56045f1d8a, []int{7}
-}
-func (m *AxelarPacket) XXX_Unmarshal(b []byte) error {
+func (m *AxelarPacketContent) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *AxelarPacket) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *AxelarPacketContent) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_AxelarPacket.Marshal(b, m, deterministic)
+		return xxx_messageInfo_AxelarPacketContent.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -568,72 +609,37 @@ func (m *AxelarPacket) XXX_Marshal(b []byte, deterministic bool) ([]byte, error)
 		return b[:n], nil
 	}
 }
-func (m *AxelarPacket) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AxelarPacket.Merge(m, src)
+func (m *AxelarPacketContent) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AxelarPacketContent.Merge(m, src)
 }
-func (m *AxelarPacket) XXX_Size() int {
+func (m *AxelarPacketContent) XXX_Size() int {
 	return m.Size()
 }
-func (m *AxelarPacket) XXX_DiscardUnknown() {
-	xxx_messageInfo_AxelarPacket.DiscardUnknown(m)
+func (m *AxelarPacketContent) XXX_DiscardUnknown() {
+	xxx_messageInfo_AxelarPacketContent.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_AxelarPacket proto.InternalMessageInfo
+var xxx_messageInfo_AxelarPacketContent proto.InternalMessageInfo
 
-func (m *AxelarPacket) GetTunnelID() uint64 {
-	if m != nil {
-		return m.TunnelID
-	}
-	return 0
-}
-
-func (m *AxelarPacket) GetNonce() uint64 {
-	if m != nil {
-		return m.Nonce
-	}
-	return 0
-}
-
-func (m *AxelarPacket) GetFeedType() types1.FeedType {
-	if m != nil {
-		return m.FeedType
-	}
-	return types1.FEED_TYPE_UNSPECIFIED
-}
-
-func (m *AxelarPacket) GetSignalPriceInfos() []SignalPriceInfo {
-	if m != nil {
-		return m.SignalPriceInfos
-	}
-	return nil
-}
-
-func (m *AxelarPacket) GetIBCQueueID() uint64 {
+func (m *AxelarPacketContent) GetIBCQueueID() uint64 {
 	if m != nil {
 		return m.IBCQueueID
 	}
 	return 0
 }
 
-func (m *AxelarPacket) GetDestinationChainID() string {
+func (m *AxelarPacketContent) GetDestinationChainID() string {
 	if m != nil {
 		return m.DestinationChainID
 	}
 	return ""
 }
 
-func (m *AxelarPacket) GetDestinationContractAddress() string {
+func (m *AxelarPacketContent) GetDestinationContractAddress() string {
 	if m != nil {
 		return m.DestinationContractAddress
 	}
 	return ""
-}
-
-func (m *AxelarPacket) GetCreatedAt() int64 {
-	if m != nil {
-		return m.CreatedAt
-	}
-	return 0
 }
 
 func init() {
@@ -643,71 +649,74 @@ func init() {
 	proto.RegisterType((*SignalPriceInfo)(nil), "tunnel.v1beta1.SignalPriceInfo")
 	proto.RegisterType((*Tunnel)(nil), "tunnel.v1beta1.Tunnel")
 	proto.RegisterType((*PendingTriggerTunnels)(nil), "tunnel.v1beta1.PendingTriggerTunnels")
-	proto.RegisterType((*TSSPacket)(nil), "tunnel.v1beta1.TSSPacket")
-	proto.RegisterType((*AxelarPacket)(nil), "tunnel.v1beta1.AxelarPacket")
+	proto.RegisterType((*Packet)(nil), "tunnel.v1beta1.Packet")
+	proto.RegisterType((*TSSPacketContent)(nil), "tunnel.v1beta1.TSSPacketContent")
+	proto.RegisterType((*AxelarPacketContent)(nil), "tunnel.v1beta1.AxelarPacketContent")
 }
 
 func init() { proto.RegisterFile("tunnel/v1beta1/tunnel.proto", fileDescriptor_b5270a56045f1d8a) }
 
 var fileDescriptor_b5270a56045f1d8a = []byte{
-	// 902 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xdc, 0x56, 0x3f, 0x8f, 0xe3, 0xc4,
-	0x1b, 0x5e, 0xaf, 0x93, 0x6c, 0x3c, 0x9b, 0xdb, 0xdf, 0x69, 0x94, 0xdf, 0xe1, 0xdb, 0x85, 0x38,
-	0x5a, 0x09, 0x29, 0x14, 0x67, 0x73, 0x81, 0x6d, 0x56, 0x42, 0x22, 0xde, 0x08, 0x9d, 0x85, 0x90,
-	0x82, 0x93, 0x8a, 0xc6, 0x72, 0x3c, 0x13, 0xef, 0x70, 0xd9, 0x99, 0xe0, 0x99, 0x44, 0x97, 0x6f,
-	0x71, 0x1f, 0x01, 0x24, 0x0a, 0x3e, 0xc0, 0xb5, 0xf4, 0x27, 0xaa, 0xd3, 0x55, 0x54, 0x16, 0xf2,
-	0x36, 0x74, 0x34, 0x54, 0x54, 0x68, 0xfe, 0x24, 0xcb, 0x46, 0xa0, 0x3b, 0x09, 0x24, 0xfe, 0x74,
-	0xf3, 0x3e, 0xef, 0x33, 0xe3, 0xf7, 0x9d, 0xe7, 0x79, 0x27, 0x01, 0x27, 0x62, 0x49, 0x29, 0x9e,
-	0x07, 0xab, 0x87, 0x53, 0x2c, 0xd2, 0x87, 0x81, 0x0e, 0xfd, 0x45, 0xc1, 0x04, 0x83, 0x47, 0x26,
-	0x32, 0xc9, 0xe3, 0x76, 0xce, 0x72, 0xa6, 0x52, 0x81, 0x5c, 0x69, 0xd6, 0xb1, 0x97, 0x33, 0x96,
-	0xcf, 0x71, 0xa0, 0xa2, 0xe9, 0x72, 0x16, 0x08, 0x72, 0x85, 0xb9, 0x48, 0xaf, 0x16, 0x86, 0x70,
-	0x7f, 0x97, 0x90, 0xd2, 0xf5, 0x26, 0x95, 0x31, 0x7e, 0xc5, 0x78, 0xa2, 0x0f, 0xd5, 0xc1, 0x26,
-	0x35, 0xc3, 0x18, 0xf1, 0x6d, 0x61, 0x2a, 0xd2, 0xa9, 0xd3, 0xaf, 0x2c, 0xd0, 0x9c, 0x8c, 0xc7,
-	0x31, 0x5b, 0x0a, 0x0c, 0x1f, 0x81, 0x36, 0xc2, 0x5c, 0x10, 0x9a, 0x0a, 0xc2, 0x68, 0x92, 0x5d,
-	0xa6, 0x84, 0x26, 0x04, 0xb9, 0x56, 0xd7, 0xea, 0x39, 0xe1, 0xbd, 0xaa, 0xf4, 0xe0, 0xf0, 0x26,
-	0x7f, 0x21, 0xd3, 0xd1, 0x30, 0x86, 0x68, 0x17, 0x43, 0xf0, 0x43, 0xf0, 0xe6, 0xad, 0x93, 0x18,
-	0x15, 0x45, 0x9a, 0x89, 0x24, 0x45, 0xa8, 0xc0, 0x9c, 0xbb, 0xfb, 0xf2, 0xc4, 0xf8, 0xf8, 0xb7,
-	0x3b, 0x0d, 0x65, 0xa0, 0x19, 0xe7, 0xce, 0x77, 0xcf, 0x1e, 0xd4, 0x55, 0x59, 0xa7, 0x5f, 0x5b,
-	0xe0, 0x70, 0xf0, 0x04, 0xcf, 0xd3, 0xe2, 0x1f, 0x5d, 0xe6, 0x53, 0x0b, 0x80, 0x31, 0xc9, 0x69,
-	0x3a, 0x8f, 0xe8, 0x8c, 0xc1, 0x77, 0x80, 0xc3, 0x55, 0x74, 0x53, 0x5a, 0xab, 0x2a, 0xbd, 0xa6,
-	0xa1, 0x0c, 0xe3, 0xa6, 0x4e, 0x47, 0x08, 0x9e, 0x81, 0x3b, 0x08, 0xaf, 0x88, 0x2e, 0x62, 0xba,
-	0xd0, 0xdf, 0xad, 0x85, 0x77, 0xab, 0xd2, 0x6b, 0x0d, 0x37, 0x89, 0x70, 0x34, 0x8e, 0x5b, 0x5b,
-	0x5a, 0xb8, 0xe0, 0xf0, 0x18, 0x34, 0x09, 0x15, 0xb8, 0x58, 0xa5, 0x73, 0xd7, 0xee, 0x5a, 0x3d,
-	0x3b, 0xde, 0xc6, 0xe7, 0xb5, 0x1f, 0xbf, 0xf4, 0xac, 0xd3, 0x97, 0x16, 0xf8, 0x9f, 0xfe, 0xde,
-	0xa8, 0x20, 0x19, 0xfe, 0xfb, 0xeb, 0x82, 0x6d, 0x50, 0x5f, 0xc8, 0x52, 0xdc, 0x9a, 0x3c, 0x2a,
-	0xd6, 0x01, 0x7c, 0x1b, 0x1c, 0xcd, 0x53, 0x2e, 0x92, 0xad, 0xdd, 0xdd, 0xba, 0xda, 0x77, 0x47,
-	0xa2, 0x93, 0x0d, 0x68, 0x9a, 0xfa, 0xc9, 0x06, 0x8d, 0x89, 0x9a, 0x26, 0x78, 0x0f, 0xec, 0x9b,
-	0x26, 0x6a, 0x61, 0xa3, 0x2a, 0xbd, 0xfd, 0x68, 0x18, 0xef, 0x13, 0x04, 0x3d, 0x70, 0x48, 0x19,
-	0xcd, 0x70, 0x92, 0xb1, 0x25, 0x15, 0xba, 0xec, 0x18, 0x28, 0xe8, 0x42, 0x22, 0xf0, 0x0c, 0xd4,
-	0x0b, 0x29, 0x9a, 0xaa, 0xef, 0xb0, 0xdf, 0xf6, 0xf5, 0x5c, 0xf9, 0x9b, 0xb9, 0xf2, 0x07, 0x74,
-	0x1d, 0xde, 0x68, 0x1b, 0x6b, 0x36, 0x7c, 0x1f, 0x38, 0x72, 0x78, 0x12, 0xb1, 0x5e, 0xe8, 0x0e,
-	0x8e, 0xfa, 0x6f, 0xf8, 0x7a, 0x9c, 0xcc, 0x70, 0xf9, 0x1f, 0x61, 0x8c, 0x26, 0xeb, 0x05, 0x8e,
-	0x9b, 0x33, 0xb3, 0x82, 0x67, 0x6a, 0x57, 0xb2, 0x48, 0xd7, 0xb8, 0x50, 0x8d, 0x39, 0xa1, 0xfb,
-	0xf2, 0xd9, 0x83, 0xb6, 0x99, 0x51, 0x63, 0xa5, 0xb1, 0x28, 0x08, 0xcd, 0xd5, 0xb6, 0x91, 0x64,
-	0xc2, 0x31, 0x80, 0x46, 0x28, 0x75, 0x49, 0x09, 0xa1, 0x33, 0xc6, 0xdd, 0x46, 0xd7, 0xee, 0x1d,
-	0xf6, 0x3d, 0xff, 0xf6, 0x7b, 0xe2, 0xef, 0xa8, 0x1c, 0xd6, 0x9e, 0x97, 0xde, 0x5e, 0x7c, 0x97,
-	0xdf, 0x86, 0x39, 0xfc, 0x00, 0x9c, 0xe8, 0x9b, 0x2e, 0x48, 0x9e, 0xe3, 0x02, 0xa3, 0x64, 0x3a,
-	0x67, 0xd9, 0xe3, 0xe4, 0x12, 0x93, 0xfc, 0x52, 0xb8, 0x07, 0xea, 0xa6, 0x5c, 0x75, 0xed, 0x1b,
-	0x46, 0x28, 0x09, 0x8f, 0x54, 0x1e, 0x9e, 0x00, 0x87, 0xf0, 0x24, 0xcd, 0x04, 0x59, 0x61, 0xb7,
-	0xd9, 0xb5, 0x7a, 0xcd, 0xb8, 0x49, 0xf8, 0x40, 0xc5, 0xf0, 0x2d, 0x00, 0xb2, 0x02, 0xa7, 0x02,
-	0xa3, 0x24, 0x15, 0xae, 0xa3, 0x14, 0x74, 0x0c, 0x32, 0x10, 0xb0, 0x0f, 0x0e, 0x54, 0xc0, 0x0a,
-	0x17, 0xbc, 0xe2, 0x12, 0x36, 0x44, 0xa3, 0x78, 0x1f, 0xfc, 0x7f, 0x84, 0x29, 0x22, 0x34, 0x37,
-	0x45, 0x69, 0xf9, 0x39, 0xbc, 0x0f, 0x6c, 0x82, 0xb8, 0x6b, 0x75, 0xed, 0x5e, 0x2d, 0x3c, 0xa8,
-	0x4a, 0xcf, 0x8e, 0x86, 0x3c, 0x96, 0xd8, 0xe9, 0xcf, 0x36, 0x70, 0x26, 0xe3, 0xf1, 0x28, 0xcd,
-	0x1e, 0x63, 0x21, 0x4d, 0xaf, 0x2f, 0x2c, 0xd9, 0xfa, 0x45, 0x99, 0x5e, 0x1f, 0x24, 0x4d, 0xaf,
-	0xd3, 0x11, 0x92, 0x0e, 0x55, 0x46, 0x31, 0xae, 0xd1, 0xc1, 0x6d, 0xe5, 0xed, 0xd7, 0x55, 0xfe,
-	0xf7, 0x25, 0xac, 0xfd, 0x39, 0x09, 0x3f, 0x07, 0x40, 0x62, 0x84, 0xe6, 0xb2, 0x99, 0xba, 0x6a,
-	0xe6, 0xe3, 0xaa, 0xf4, 0x9c, 0xb1, 0x46, 0xa3, 0xe1, 0x2f, 0xa5, 0x77, 0x9e, 0x13, 0x71, 0xb9,
-	0x9c, 0xfa, 0x19, 0xbb, 0x0a, 0xa6, 0x29, 0x45, 0xca, 0xd8, 0x19, 0x9b, 0x07, 0xea, 0xb5, 0x0c,
-	0x56, 0xfd, 0xe0, 0x89, 0xc2, 0x05, 0xe7, 0x81, 0xec, 0x89, 0xfb, 0xdb, 0xdd, 0xb1, 0x63, 0x8e,
-	0x8f, 0xd0, 0x1f, 0x3e, 0xb5, 0x8d, 0xbf, 0xfc, 0xa9, 0x3d, 0x78, 0xd5, 0x53, 0xbb, 0x63, 0xaf,
-	0xe6, 0x8e, 0xbd, 0x8c, 0x55, 0xbe, 0xb5, 0x41, 0x4b, 0xff, 0x56, 0xfc, 0x07, 0x95, 0x7f, 0x17,
-	0xb4, 0xc8, 0x34, 0x4b, 0xbe, 0x58, 0xe2, 0x25, 0xbe, 0xd1, 0xfe, 0xa8, 0x2a, 0x3d, 0x10, 0x85,
-	0x17, 0x9f, 0x4a, 0x38, 0x1a, 0xc6, 0x80, 0x4c, 0x33, 0xbd, 0xfe, 0xf7, 0xe9, 0x17, 0x7e, 0xf2,
-	0x4d, 0xd5, 0xb1, 0x9e, 0x57, 0x1d, 0xeb, 0x45, 0xd5, 0xb1, 0x7e, 0xa8, 0x3a, 0xd6, 0xd3, 0xeb,
-	0xce, 0xde, 0x8b, 0xeb, 0xce, 0xde, 0xf7, 0xd7, 0x9d, 0xbd, 0xcf, 0x82, 0xd7, 0x70, 0xb5, 0xf9,
-	0x17, 0xa6, 0x4c, 0x3d, 0x6d, 0x28, 0xc6, 0x7b, 0xbf, 0x06, 0x00, 0x00, 0xff, 0xff, 0xd9, 0xdb,
-	0x35, 0x91, 0x9c, 0x09, 0x00, 0x00,
+	// 937 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x56, 0x41, 0x6f, 0xe3, 0x44,
+	0x14, 0xae, 0x93, 0x34, 0x4d, 0x5e, 0xdb, 0x50, 0x0d, 0x61, 0xf1, 0xb6, 0x10, 0x47, 0x91, 0x90,
+	0xc2, 0xa1, 0x36, 0x1b, 0x58, 0x0e, 0x95, 0x90, 0x88, 0x1b, 0xa1, 0xb5, 0x10, 0x22, 0x38, 0x39,
+	0x71, 0xb1, 0x1c, 0x7b, 0xe2, 0x0e, 0x9b, 0xce, 0x18, 0xcf, 0x24, 0xda, 0xfc, 0x8b, 0xfd, 0x05,
+	0x08, 0x21, 0x21, 0xf1, 0x03, 0xfa, 0x13, 0x38, 0xac, 0xf6, 0xb4, 0xda, 0x13, 0x27, 0x0b, 0xb9,
+	0x07, 0x38, 0x72, 0xe6, 0x84, 0x3c, 0xe3, 0xa4, 0x4d, 0xb4, 0xab, 0x5d, 0x09, 0x24, 0xf6, 0x36,
+	0xef, 0xbd, 0x6f, 0x9e, 0xdf, 0x7c, 0xdf, 0x7b, 0x2f, 0x81, 0x13, 0x31, 0xa7, 0x14, 0xcf, 0xac,
+	0xc5, 0xbd, 0x09, 0x16, 0xfe, 0x3d, 0x4b, 0x99, 0x66, 0x9c, 0x30, 0xc1, 0x50, 0xa3, 0xb0, 0x8a,
+	0xe0, 0x71, 0x33, 0x62, 0x11, 0x93, 0x21, 0x2b, 0x3f, 0x29, 0xd4, 0xb1, 0x11, 0x31, 0x16, 0xcd,
+	0xb0, 0x25, 0xad, 0xc9, 0x7c, 0x6a, 0x09, 0x72, 0x89, 0xb9, 0xf0, 0x2f, 0xe3, 0x02, 0x70, 0x77,
+	0x1b, 0xe0, 0xd3, 0xe5, 0x2a, 0x14, 0x30, 0x7e, 0xc9, 0xb8, 0xa7, 0x92, 0x2a, 0x63, 0x15, 0x9a,
+	0x62, 0x1c, 0xf2, 0x75, 0x61, 0xd2, 0x52, 0xa1, 0xce, 0x4f, 0x1a, 0xd4, 0xc6, 0xa3, 0x91, 0xcb,
+	0xe6, 0x02, 0xa3, 0x07, 0xd0, 0x0c, 0x31, 0x17, 0x84, 0xfa, 0x82, 0x30, 0xea, 0x05, 0x17, 0x3e,
+	0xa1, 0x1e, 0x09, 0x75, 0xad, 0xad, 0x75, 0xeb, 0xf6, 0x9d, 0x2c, 0x35, 0xd0, 0xe0, 0x26, 0x7e,
+	0x9e, 0x87, 0x9d, 0x81, 0x8b, 0xc2, 0x6d, 0x5f, 0x88, 0x3e, 0x87, 0xf7, 0x36, 0x32, 0x31, 0x2a,
+	0x12, 0x3f, 0x10, 0x9e, 0x1f, 0x86, 0x09, 0xe6, 0x5c, 0x2f, 0xe5, 0x19, 0xdd, 0xe3, 0xdb, 0x37,
+	0x0b, 0x48, 0x5f, 0x21, 0xce, 0xe0, 0xe9, 0xd5, 0x69, 0x55, 0x96, 0xe5, 0x74, 0x7e, 0xd6, 0x60,
+	0xbf, 0xff, 0x08, 0xcf, 0xfc, 0xe4, 0xcd, 0xae, 0xf3, 0xb1, 0x06, 0x30, 0x22, 0x11, 0xf5, 0x67,
+	0x0e, 0x9d, 0x32, 0xf4, 0x21, 0xd4, 0xb9, 0xb4, 0x6e, 0x6a, 0x3b, 0xc8, 0x52, 0xa3, 0x56, 0x40,
+	0x06, 0x6e, 0x4d, 0x85, 0x9d, 0x10, 0xdd, 0x87, 0xc3, 0x10, 0x2f, 0x88, 0xaa, 0x62, 0x12, 0xab,
+	0x0f, 0x57, 0xec, 0xa3, 0x2c, 0x35, 0x0e, 0x06, 0xab, 0x80, 0x3d, 0x1c, 0xb9, 0x07, 0x6b, 0x98,
+	0x1d, 0x73, 0x74, 0x0c, 0x35, 0x42, 0x05, 0x4e, 0x16, 0xfe, 0x4c, 0x2f, 0xb7, 0xb5, 0x6e, 0xd9,
+	0x5d, 0xdb, 0x67, 0x95, 0x3f, 0x7f, 0x34, 0xb4, 0xce, 0x73, 0x0d, 0xde, 0x52, 0xdf, 0x1b, 0x26,
+	0x24, 0xc0, 0xff, 0x7f, 0x5d, 0xa8, 0x09, 0xbb, 0x71, 0x5e, 0x8a, 0x5e, 0xc9, 0x53, 0xb9, 0xca,
+	0x40, 0x1f, 0x40, 0x63, 0xe6, 0x73, 0xe1, 0xad, 0x1b, 0x5e, 0xdf, 0x95, 0xf7, 0x0e, 0x73, 0xef,
+	0x78, 0xe5, 0x2c, 0x1e, 0xf5, 0x57, 0x19, 0xaa, 0x63, 0x39, 0x4f, 0xe8, 0x0e, 0x94, 0x8a, 0x47,
+	0x54, 0xec, 0x6a, 0x96, 0x1a, 0x25, 0x67, 0xe0, 0x96, 0x48, 0x88, 0x0c, 0xd8, 0xa7, 0x8c, 0x06,
+	0xd8, 0x0b, 0xd8, 0x9c, 0x0a, 0x55, 0xb6, 0x0b, 0xd2, 0x75, 0x9e, 0x7b, 0xd0, 0xa7, 0xb0, 0x9b,
+	0xe4, 0xaa, 0xc9, 0xfa, 0xf6, 0x7b, 0x4d, 0x53, 0x4d, 0x96, 0xb9, 0x9a, 0x2c, 0xb3, 0x4f, 0x97,
+	0xf6, 0x2d, 0x71, 0x5d, 0x05, 0x47, 0x9f, 0x40, 0x3d, 0x9f, 0x1f, 0x4f, 0x2c, 0x63, 0xf5, 0x84,
+	0x46, 0xef, 0x5d, 0x53, 0x4d, 0x54, 0x31, 0x5f, 0xe6, 0x17, 0x18, 0x87, 0xe3, 0x65, 0x8c, 0xdd,
+	0xda, 0xb4, 0x38, 0xa1, 0xfb, 0xf2, 0x96, 0x17, 0xfb, 0x4b, 0x9c, 0xc8, 0x97, 0xd5, 0x6d, 0xfd,
+	0xf9, 0xd5, 0x69, 0xb3, 0x18, 0xd3, 0xa2, 0x99, 0x46, 0x22, 0x21, 0x34, 0x92, 0xd7, 0x86, 0x39,
+	0x12, 0x8d, 0x00, 0x15, 0x4a, 0x49, 0x96, 0x3c, 0x42, 0xa7, 0x8c, 0xeb, 0xd5, 0x76, 0xb9, 0xbb,
+	0xdf, 0x33, 0xcc, 0xcd, 0x95, 0x62, 0x6e, 0xc9, 0x6c, 0x57, 0x9e, 0xa4, 0xc6, 0x8e, 0x7b, 0xc4,
+	0x37, 0xdd, 0x1c, 0x7d, 0x06, 0x27, 0x8a, 0xea, 0x84, 0x44, 0x11, 0x4e, 0x70, 0xe8, 0x4d, 0x66,
+	0x2c, 0x78, 0xe8, 0x5d, 0x60, 0x12, 0x5d, 0x08, 0x7d, 0x4f, 0x52, 0xa5, 0x4b, 0xde, 0x57, 0x08,
+	0x3b, 0x07, 0x3c, 0x90, 0x71, 0x74, 0x02, 0x75, 0xc2, 0x3d, 0x3f, 0x10, 0x64, 0x81, 0xf5, 0x5a,
+	0x5b, 0xeb, 0xd6, 0xdc, 0x1a, 0xe1, 0x7d, 0x69, 0xa3, 0xf7, 0x01, 0x82, 0x04, 0xfb, 0x02, 0x87,
+	0x9e, 0x2f, 0xf4, 0xba, 0x94, 0xb0, 0x5e, 0x78, 0xfa, 0x02, 0xf5, 0x60, 0x4f, 0x1a, 0x2c, 0xd1,
+	0xe1, 0x15, 0x24, 0xac, 0x80, 0x85, 0xe4, 0x3d, 0x78, 0x67, 0x88, 0x69, 0x48, 0x68, 0x54, 0x14,
+	0xa5, 0xf4, 0xe7, 0xe8, 0x2e, 0x94, 0x49, 0xc8, 0x75, 0xad, 0x5d, 0xee, 0x56, 0xec, 0xbd, 0x2c,
+	0x35, 0xca, 0xce, 0x80, 0xbb, 0xb9, 0xaf, 0xf3, 0x6b, 0x09, 0xaa, 0x43, 0x3f, 0x78, 0x88, 0x45,
+	0xde, 0xf2, 0x8a, 0x2d, 0x6f, 0xdd, 0x2d, 0xb2, 0xe5, 0x55, 0x96, 0xbc, 0xe5, 0x55, 0xd8, 0x09,
+	0xf3, 0xfe, 0x94, 0x6d, 0x52, 0xf4, 0x8c, 0x32, 0x36, 0x65, 0x2f, 0xbf, 0xae, 0xec, 0x2f, 0xd6,
+	0xaf, 0xf2, 0xef, 0xf4, 0xfb, 0x1a, 0x1a, 0xb1, 0x7c, 0x95, 0x5c, 0x57, 0x98, 0x0a, 0xd9, 0x50,
+	0x2f, 0x6b, 0x61, 0xf4, 0xf4, 0xea, 0xb4, 0xa1, 0x58, 0x38, 0x57, 0x70, 0xc7, 0x3d, 0x8c, 0x6f,
+	0xdb, 0x5b, 0xa2, 0x55, 0xb7, 0x44, 0xeb, 0xfc, 0x50, 0x82, 0xa3, 0xf1, 0x68, 0xb4, 0x91, 0x03,
+	0x7d, 0x07, 0x90, 0x17, 0x46, 0x68, 0x74, 0xc3, 0xe8, 0x97, 0x59, 0x6a, 0xd4, 0x47, 0xca, 0xeb,
+	0x0c, 0xfe, 0x4e, 0x8d, 0xb3, 0x88, 0x88, 0x8b, 0xf9, 0xc4, 0x0c, 0xd8, 0xa5, 0x35, 0xf1, 0x69,
+	0x28, 0x0b, 0x0b, 0xd8, 0xcc, 0x92, 0x1b, 0xdb, 0x5a, 0xf4, 0xac, 0x47, 0xd2, 0x2f, 0x38, 0xb7,
+	0x72, 0x62, 0xb9, 0xb9, 0xbe, 0xed, 0xd6, 0x8b, 0xf4, 0x4e, 0xf8, 0xd2, 0x75, 0x5f, 0xfa, 0xcf,
+	0xd7, 0x7d, 0xf9, 0x95, 0xeb, 0xfe, 0x05, 0x74, 0x76, 0xfe, 0xd0, 0xe0, 0x6d, 0xf5, 0xf3, 0xb4,
+	0xc9, 0xd1, 0x47, 0x70, 0x40, 0x26, 0x81, 0xf7, 0xfd, 0x1c, 0xcf, 0xf1, 0x0d, 0x4b, 0x8d, 0x2c,
+	0x35, 0xc0, 0xb1, 0xcf, 0xbf, 0xc9, 0xdd, 0xce, 0xc0, 0x05, 0x32, 0x09, 0xd4, 0xf9, 0x8d, 0x7f,
+	0xa9, 0xfd, 0xd5, 0x2f, 0x59, 0x4b, 0x7b, 0x92, 0xb5, 0xb4, 0x67, 0x59, 0x4b, 0xfb, 0x3d, 0x6b,
+	0x69, 0x8f, 0xaf, 0x5b, 0x3b, 0xcf, 0xae, 0x5b, 0x3b, 0xbf, 0x5d, 0xb7, 0x76, 0xbe, 0xb5, 0x5e,
+	0x43, 0xee, 0xe2, 0x3f, 0x92, 0x54, 0x7b, 0x52, 0x95, 0x88, 0x8f, 0xff, 0x09, 0x00, 0x00, 0xff,
+	0xff, 0xdf, 0x9d, 0x0d, 0xeb, 0x3a, 0x09, 0x00, 0x00,
 }
 
 func (this *TSSRoute) Equal(that interface{}) bool {
@@ -915,14 +924,14 @@ func (this *PendingTriggerTunnels) Equal(that interface{}) bool {
 	}
 	return true
 }
-func (this *TSSPacket) Equal(that interface{}) bool {
+func (this *Packet) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
 	}
 
-	that1, ok := that.(*TSSPacket)
+	that1, ok := that.(*Packet)
 	if !ok {
-		that2, ok := that.(TSSPacket)
+		that2, ok := that.(Packet)
 		if ok {
 			that1 = &that2
 		} else {
@@ -950,6 +959,33 @@ func (this *TSSPacket) Equal(that interface{}) bool {
 		if !this.SignalPriceInfos[i].Equal(&that1.SignalPriceInfos[i]) {
 			return false
 		}
+	}
+	if !this.PacketContent.Equal(that1.PacketContent) {
+		return false
+	}
+	if this.CreatedAt != that1.CreatedAt {
+		return false
+	}
+	return true
+}
+func (this *TSSPacketContent) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*TSSPacketContent)
+	if !ok {
+		that2, ok := that.(TSSPacketContent)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
 	}
 	if this.SigningID != that1.SigningID {
 		return false
@@ -960,19 +996,16 @@ func (this *TSSPacket) Equal(that interface{}) bool {
 	if this.DestinationContractAddress != that1.DestinationContractAddress {
 		return false
 	}
-	if this.CreatedAt != that1.CreatedAt {
-		return false
-	}
 	return true
 }
-func (this *AxelarPacket) Equal(that interface{}) bool {
+func (this *AxelarPacketContent) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
 	}
 
-	that1, ok := that.(*AxelarPacket)
+	that1, ok := that.(*AxelarPacketContent)
 	if !ok {
-		that2, ok := that.(AxelarPacket)
+		that2, ok := that.(AxelarPacketContent)
 		if ok {
 			that1 = &that2
 		} else {
@@ -984,23 +1017,6 @@ func (this *AxelarPacket) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
-	if this.TunnelID != that1.TunnelID {
-		return false
-	}
-	if this.Nonce != that1.Nonce {
-		return false
-	}
-	if this.FeedType != that1.FeedType {
-		return false
-	}
-	if len(this.SignalPriceInfos) != len(that1.SignalPriceInfos) {
-		return false
-	}
-	for i := range this.SignalPriceInfos {
-		if !this.SignalPriceInfos[i].Equal(&that1.SignalPriceInfos[i]) {
-			return false
-		}
-	}
 	if this.IBCQueueID != that1.IBCQueueID {
 		return false
 	}
@@ -1008,9 +1024,6 @@ func (this *AxelarPacket) Equal(that interface{}) bool {
 		return false
 	}
 	if this.DestinationContractAddress != that1.DestinationContractAddress {
-		return false
-	}
-	if this.CreatedAt != that1.CreatedAt {
 		return false
 	}
 	return true
@@ -1318,7 +1331,7 @@ func (m *PendingTriggerTunnels) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *TSSPacket) Marshal() (dAtA []byte, err error) {
+func (m *Packet) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1328,12 +1341,12 @@ func (m *TSSPacket) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *TSSPacket) MarshalTo(dAtA []byte) (int, error) {
+func (m *Packet) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *TSSPacket) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *Packet) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1341,26 +1354,19 @@ func (m *TSSPacket) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	if m.CreatedAt != 0 {
 		i = encodeVarintTunnel(dAtA, i, uint64(m.CreatedAt))
 		i--
-		dAtA[i] = 0x40
+		dAtA[i] = 0x30
 	}
-	if len(m.DestinationContractAddress) > 0 {
-		i -= len(m.DestinationContractAddress)
-		copy(dAtA[i:], m.DestinationContractAddress)
-		i = encodeVarintTunnel(dAtA, i, uint64(len(m.DestinationContractAddress)))
+	if m.PacketContent != nil {
+		{
+			size, err := m.PacketContent.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintTunnel(dAtA, i, uint64(size))
+		}
 		i--
-		dAtA[i] = 0x3a
-	}
-	if len(m.DestinationChainID) > 0 {
-		i -= len(m.DestinationChainID)
-		copy(dAtA[i:], m.DestinationChainID)
-		i = encodeVarintTunnel(dAtA, i, uint64(len(m.DestinationChainID)))
-		i--
-		dAtA[i] = 0x32
-	}
-	if m.SigningID != 0 {
-		i = encodeVarintTunnel(dAtA, i, uint64(m.SigningID))
-		i--
-		dAtA[i] = 0x28
+		dAtA[i] = 0x2a
 	}
 	if len(m.SignalPriceInfos) > 0 {
 		for iNdEx := len(m.SignalPriceInfos) - 1; iNdEx >= 0; iNdEx-- {
@@ -1394,7 +1400,7 @@ func (m *TSSPacket) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *AxelarPacket) Marshal() (dAtA []byte, err error) {
+func (m *TSSPacketContent) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1404,66 +1410,74 @@ func (m *AxelarPacket) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *AxelarPacket) MarshalTo(dAtA []byte) (int, error) {
+func (m *TSSPacketContent) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *AxelarPacket) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *TSSPacketContent) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.CreatedAt != 0 {
-		i = encodeVarintTunnel(dAtA, i, uint64(m.CreatedAt))
-		i--
-		dAtA[i] = 0x40
-	}
 	if len(m.DestinationContractAddress) > 0 {
 		i -= len(m.DestinationContractAddress)
 		copy(dAtA[i:], m.DestinationContractAddress)
 		i = encodeVarintTunnel(dAtA, i, uint64(len(m.DestinationContractAddress)))
 		i--
-		dAtA[i] = 0x3a
+		dAtA[i] = 0x1a
 	}
 	if len(m.DestinationChainID) > 0 {
 		i -= len(m.DestinationChainID)
 		copy(dAtA[i:], m.DestinationChainID)
 		i = encodeVarintTunnel(dAtA, i, uint64(len(m.DestinationChainID)))
 		i--
-		dAtA[i] = 0x32
+		dAtA[i] = 0x12
+	}
+	if m.SigningID != 0 {
+		i = encodeVarintTunnel(dAtA, i, uint64(m.SigningID))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *AxelarPacketContent) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *AxelarPacketContent) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AxelarPacketContent) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.DestinationContractAddress) > 0 {
+		i -= len(m.DestinationContractAddress)
+		copy(dAtA[i:], m.DestinationContractAddress)
+		i = encodeVarintTunnel(dAtA, i, uint64(len(m.DestinationContractAddress)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.DestinationChainID) > 0 {
+		i -= len(m.DestinationChainID)
+		copy(dAtA[i:], m.DestinationChainID)
+		i = encodeVarintTunnel(dAtA, i, uint64(len(m.DestinationChainID)))
+		i--
+		dAtA[i] = 0x12
 	}
 	if m.IBCQueueID != 0 {
 		i = encodeVarintTunnel(dAtA, i, uint64(m.IBCQueueID))
-		i--
-		dAtA[i] = 0x28
-	}
-	if len(m.SignalPriceInfos) > 0 {
-		for iNdEx := len(m.SignalPriceInfos) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.SignalPriceInfos[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintTunnel(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0x22
-		}
-	}
-	if m.FeedType != 0 {
-		i = encodeVarintTunnel(dAtA, i, uint64(m.FeedType))
-		i--
-		dAtA[i] = 0x18
-	}
-	if m.Nonce != 0 {
-		i = encodeVarintTunnel(dAtA, i, uint64(m.Nonce))
-		i--
-		dAtA[i] = 0x10
-	}
-	if m.TunnelID != 0 {
-		i = encodeVarintTunnel(dAtA, i, uint64(m.TunnelID))
 		i--
 		dAtA[i] = 0x8
 	}
@@ -1620,7 +1634,7 @@ func (m *PendingTriggerTunnels) Size() (n int) {
 	return n
 }
 
-func (m *TSSPacket) Size() (n int) {
+func (m *Packet) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1641,6 +1655,22 @@ func (m *TSSPacket) Size() (n int) {
 			n += 1 + l + sovTunnel(uint64(l))
 		}
 	}
+	if m.PacketContent != nil {
+		l = m.PacketContent.Size()
+		n += 1 + l + sovTunnel(uint64(l))
+	}
+	if m.CreatedAt != 0 {
+		n += 1 + sovTunnel(uint64(m.CreatedAt))
+	}
+	return n
+}
+
+func (m *TSSPacketContent) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
 	if m.SigningID != 0 {
 		n += 1 + sovTunnel(uint64(m.SigningID))
 	}
@@ -1652,33 +1682,15 @@ func (m *TSSPacket) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTunnel(uint64(l))
 	}
-	if m.CreatedAt != 0 {
-		n += 1 + sovTunnel(uint64(m.CreatedAt))
-	}
 	return n
 }
 
-func (m *AxelarPacket) Size() (n int) {
+func (m *AxelarPacketContent) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	if m.TunnelID != 0 {
-		n += 1 + sovTunnel(uint64(m.TunnelID))
-	}
-	if m.Nonce != 0 {
-		n += 1 + sovTunnel(uint64(m.Nonce))
-	}
-	if m.FeedType != 0 {
-		n += 1 + sovTunnel(uint64(m.FeedType))
-	}
-	if len(m.SignalPriceInfos) > 0 {
-		for _, e := range m.SignalPriceInfos {
-			l = e.Size()
-			n += 1 + l + sovTunnel(uint64(l))
-		}
-	}
 	if m.IBCQueueID != 0 {
 		n += 1 + sovTunnel(uint64(m.IBCQueueID))
 	}
@@ -1689,9 +1701,6 @@ func (m *AxelarPacket) Size() (n int) {
 	l = len(m.DestinationContractAddress)
 	if l > 0 {
 		n += 1 + l + sovTunnel(uint64(l))
-	}
-	if m.CreatedAt != 0 {
-		n += 1 + sovTunnel(uint64(m.CreatedAt))
 	}
 	return n
 }
@@ -2633,7 +2642,7 @@ func (m *PendingTriggerTunnels) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *TSSPacket) Unmarshal(dAtA []byte) error {
+func (m *Packet) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2656,10 +2665,10 @@ func (m *TSSPacket) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: TSSPacket: wiretype end group for non-group")
+			return fmt.Errorf("proto: Packet: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: TSSPacket: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: Packet: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -2754,10 +2763,10 @@ func (m *TSSPacket) Unmarshal(dAtA []byte) error {
 			}
 			iNdEx = postIndex
 		case 5:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SigningID", wireType)
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PacketContent", wireType)
 			}
-			m.SigningID = 0
+			var msglen int
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTunnel
@@ -2767,76 +2776,29 @@ func (m *TSSPacket) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SigningID |= github_com_bandprotocol_chain_v2_x_bandtss_types.SigningID(b&0x7F) << shift
+				msglen |= int(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+			if msglen < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.PacketContent == nil {
+				m.PacketContent = &types.Any{}
+			}
+			if err := m.PacketContent.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
 		case 6:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DestinationChainID", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.DestinationChainID = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 7:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DestinationContractAddress", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.DestinationContractAddress = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 8:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field CreatedAt", wireType)
 			}
@@ -2876,7 +2838,7 @@ func (m *TSSPacket) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *AxelarPacket) Unmarshal(dAtA []byte) error {
+func (m *TSSPacketContent) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2899,17 +2861,17 @@ func (m *AxelarPacket) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: AxelarPacket: wiretype end group for non-group")
+			return fmt.Errorf("proto: TSSPacketContent: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: AxelarPacket: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: TSSPacketContent: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field TunnelID", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field SigningID", wireType)
 			}
-			m.TunnelID = 0
+			m.SigningID = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTunnel
@@ -2919,103 +2881,12 @@ func (m *AxelarPacket) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.TunnelID |= uint64(b&0x7F) << shift
+				m.SigningID |= github_com_bandprotocol_chain_v2_x_bandtss_types.SigningID(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
 		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Nonce", wireType)
-			}
-			m.Nonce = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Nonce |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field FeedType", wireType)
-			}
-			m.FeedType = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.FeedType |= types1.FeedType(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SignalPriceInfos", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.SignalPriceInfos = append(m.SignalPriceInfos, SignalPriceInfo{})
-			if err := m.SignalPriceInfos[len(m.SignalPriceInfos)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 5:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field IBCQueueID", wireType)
-			}
-			m.IBCQueueID = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.IBCQueueID |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 6:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field DestinationChainID", wireType)
 			}
@@ -3047,7 +2918,7 @@ func (m *AxelarPacket) Unmarshal(dAtA []byte) error {
 			}
 			m.DestinationChainID = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 7:
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field DestinationContractAddress", wireType)
 			}
@@ -3079,11 +2950,61 @@ func (m *AxelarPacket) Unmarshal(dAtA []byte) error {
 			}
 			m.DestinationContractAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 8:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field CreatedAt", wireType)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTunnel(dAtA[iNdEx:])
+			if err != nil {
+				return err
 			}
-			m.CreatedAt = 0
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *AxelarPacketContent) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTunnel
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: AxelarPacketContent: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: AxelarPacketContent: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field IBCQueueID", wireType)
+			}
+			m.IBCQueueID = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTunnel
@@ -3093,11 +3014,75 @@ func (m *AxelarPacket) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.CreatedAt |= int64(b&0x7F) << shift
+				m.IBCQueueID |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DestinationChainID", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTunnel
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.DestinationChainID = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DestinationContractAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTunnel
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.DestinationContractAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTunnel(dAtA[iNdEx:])

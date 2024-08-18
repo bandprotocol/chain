@@ -11,12 +11,12 @@ var _ types.UnpackInterfacesMessage = Tunnel{}
 
 // UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
 func (t Tunnel) UnpackInterfaces(unpacker types.AnyUnpacker) error {
-	var route Route
+	var route RouteI
 	return unpacker.UnpackAny(t.Route, &route)
 }
 
 // SetRoute sets the route of the tunnel.
-func (t *Tunnel) SetRoute(route Route) error {
+func (t *Tunnel) SetRoute(route RouteI) error {
 	msg, ok := route.(proto.Message)
 	if !ok {
 		return fmt.Errorf("can't proto marshal %T", msg)
@@ -28,6 +28,17 @@ func (t *Tunnel) SetRoute(route Route) error {
 	t.Route = any
 
 	return nil
+}
+
+// createPacket creates a new packet for the tunnel
+func (t Tunnel) CreatePacket(createdAt int64) Packet {
+	return NewPacket(
+		t.ID,
+		t.NonceCount,
+		t.FeedType,
+		t.SignalPriceInfos,
+		createdAt,
+	)
 }
 
 // IsTunnelInList checks if a tunnel with the given ID is in the list of tunnels.
