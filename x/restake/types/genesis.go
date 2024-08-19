@@ -34,7 +34,7 @@ func (gs GenesisState) Validate() error {
 			totalPowers[lock.Key] = sdkmath.NewInt(0)
 		}
 
-		totalPowers[lock.Key] = totalPowers[lock.Key].Add(lock.Amount)
+		totalPowers[lock.Key] = totalPowers[lock.Key].Add(lock.Power)
 	}
 
 	for _, key := range gs.Keys {

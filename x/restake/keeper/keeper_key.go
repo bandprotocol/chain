@@ -68,7 +68,7 @@ func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName strin
 		sdk.NewEvent(
 			types.EventTypeAddRewards,
 			sdk.NewAttribute(types.AttributeKeyKey, keyName),
-			sdk.NewAttribute(sdk.AttributeKeyAmount, rewards.String()),
+			sdk.NewAttribute(types.AttributeKeyRewards, rewards.String()),
 		),
 	)
 

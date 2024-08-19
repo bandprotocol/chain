@@ -286,12 +286,12 @@ func (suite *KeeperTestSuite) TestQueryLocks() {
 				expRes = &types.QueryLocksResponse{
 					Locks: []*types.LockResponse{
 						{
-							Key:    KeyWithRewards,
-							Amount: sdkmath.NewInt(10),
+							Key:   KeyWithRewards,
+							Power: sdkmath.NewInt(10),
 						},
 						{
-							Key:    KeyWithoutRewards,
-							Amount: sdkmath.NewInt(100),
+							Key:   KeyWithoutRewards,
+							Power: sdkmath.NewInt(100),
 						},
 					},
 				}
@@ -307,8 +307,8 @@ func (suite *KeeperTestSuite) TestQueryLocks() {
 				expRes = &types.QueryLocksResponse{
 					Locks: []*types.LockResponse{
 						{
-							Key:    KeyWithRewards,
-							Amount: sdkmath.NewInt(10),
+							Key:   KeyWithRewards,
+							Power: sdkmath.NewInt(10),
 						},
 					},
 				}
@@ -370,8 +370,8 @@ func (suite *KeeperTestSuite) TestQueryLock() {
 				}
 				expRes = &types.QueryLockResponse{
 					Lock: types.LockResponse{
-						Key:    KeyWithRewards,
-						Amount: sdk.NewInt(10),
+						Key:   KeyWithRewards,
+						Power: sdk.NewInt(10),
 					},
 				}
 			},
@@ -397,8 +397,8 @@ func (suite *KeeperTestSuite) TestQueryLock() {
 				}
 				expRes = &types.QueryLockResponse{
 					Lock: types.LockResponse{
-						Key:    KeyWithRewards,
-						Amount: sdk.NewInt(10),
+						Key:   KeyWithRewards,
+						Power: sdk.NewInt(10),
 					},
 				}
 			},

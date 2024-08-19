@@ -88,7 +88,7 @@ func (h Hooks) AfterUnbondingInitiated(_ sdk.Context, _ uint64) error {
 
 // isAbleToUnbond checks if the new total delegation is still more than locked power in the module.
 func (h Hooks) isAbleToUnbond(ctx sdk.Context, addr sdk.AccAddress, delegated sdkmath.Int) error {
-	iterator := sdk.KVStoreReversePrefixIterator(ctx.KVStore(h.k.storeKey), types.LocksByAmountIndexKey(addr))
+	iterator := sdk.KVStoreReversePrefixIterator(ctx.KVStore(h.k.storeKey), types.LocksByPowerIndexKey(addr))
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -99,7 +99,7 @@ func (h Hooks) isAbleToUnbond(ctx sdk.Context, addr sdk.AccAddress, delegated sd
 		}
 
 		if h.k.IsActiveKey(ctx, keyName) {
-			if delegated.LT(lock.Amount) {
+			if delegated.LT(lock.Power) {
 				return types.ErrUnableToUndelegate
 			}
 

@@ -55,8 +55,8 @@ message Lock {
   // key is the key that this lock is locked to.
   string key = 2;
 
-  // amount is the locked power amount.
-  string amount = 3 [
+  // power is the number of locked power.
+  string power = 3 [
     (cosmos_proto.scalar)  = "cosmos.Int",
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.nullable)   = false
@@ -93,7 +93,7 @@ message Reward {
   ];
 }
 
-// LockResponse is used as response of the query to show the power amount
+// LockResponse is used as response of the query to show the power
 // that is locked by the key for the user.
 message LockResponse {
   option (gogoproto.equal) = true;
@@ -101,8 +101,8 @@ message LockResponse {
   // key is the key that this lock belongs to.
   string key = 1;
 
-  // amount is a the number of locked power.
-  string amount = 2 [
+  // power is the number of locked power.
+  string power = 2 [
     (cosmos_proto.scalar)  = "cosmos.Int",
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.nullable)   = false

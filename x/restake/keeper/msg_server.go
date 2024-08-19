@@ -60,7 +60,7 @@ func (k msgServer) ClaimRewards(
 				types.EventTypeClaimRewards,
 				sdk.NewAttribute(types.AttributeKeyStaker, msg.StakerAddress),
 				sdk.NewAttribute(types.AttributeKeyKey, lock.Key),
-				sdk.NewAttribute(sdk.AttributeKeyAmount, finalRewards.String()),
+				sdk.NewAttribute(types.AttributeKeyRewards, finalRewards.String()),
 			),
 		)
 	}

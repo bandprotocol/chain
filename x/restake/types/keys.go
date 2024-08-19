@@ -30,7 +30,7 @@ var (
 	KeyStoreKeyPrefix  = []byte{0x01}
 	LockStoreKeyPrefix = []byte{0x02}
 
-	LocksByAmountIndexKeyPrefix = []byte{0x10}
+	LocksByPowerIndexKeyPrefix = []byte{0x10}
 )
 
 // KeyStoreKey returns the key to retrieve a specific key from the store.
@@ -48,19 +48,19 @@ func LockStoreKey(addr sdk.AccAddress, keyName string) []byte {
 	return append(LocksByAddressStoreKey(addr), []byte(keyName)...)
 }
 
-// LocksByAmountIndexKey returns the key to retrieve all locks of an address ordering by locked amount from the store.
-func LocksByAmountIndexKey(addr sdk.AccAddress) []byte {
-	return append(LocksByAmountIndexKeyPrefix, address.MustLengthPrefix(addr)...)
+// LocksByPowerIndexKey returns the key to retrieve all locks of an address ordering by locked power from the store.
+func LocksByPowerIndexKey(addr sdk.AccAddress) []byte {
+	return append(LocksByPowerIndexKeyPrefix, address.MustLengthPrefix(addr)...)
 }
 
-// LockByAmountIndexKey returns the key to retrieve a lock by amount from the store.
-func LockByAmountIndexKey(lock Lock) []byte {
+// LockByPowerIndexKey returns the key to retrieve a lock by power from the store.
+func LockByPowerIndexKey(lock Lock) []byte {
 	address := sdk.MustAccAddressFromBech32(lock.StakerAddress)
 
-	amountBytes := make([]byte, 8)
-	binary.BigEndian.PutUint64(amountBytes, lock.Amount.Uint64())
+	powerBytes := make([]byte, 8)
+	binary.BigEndian.PutUint64(powerBytes, lock.Power.Uint64())
 
-	// key is of format prefix || addrLen || address || amountBytes || keyBytes
-	bz := append(LocksByAmountIndexKey(address), amountBytes...)
+	// key is of format prefix || addrLen || address || powerBytes || keyBytes
+	bz := append(LocksByPowerIndexKey(address), powerBytes...)
 	return append(bz, []byte(lock.Key)...)
 }

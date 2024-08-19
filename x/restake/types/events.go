@@ -8,6 +8,8 @@ const (
 	EventTypeAddRewards    = "add_rewards"
 	EventTypeDeactivateKey = "deactivate_key"
 
-	AttributeKeyStaker = "staker"
-	AttributeKeyKey    = "key"
+	AttributeKeyStaker  = "staker"
+	AttributeKeyKey     = "key"
+	AttributeKeyRewards = "rewards"
+	AttributeKeyPower   = "power"
 )

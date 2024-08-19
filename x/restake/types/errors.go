@@ -12,7 +12,7 @@ var (
 	ErrKeyAlreadyDeactivated = errorsmod.Register(ModuleName, 5, "key already deactivated")
 	ErrLockNotFound          = errorsmod.Register(ModuleName, 6, "lock not found")
 	ErrDelegationNotEnough   = errorsmod.Register(ModuleName, 7, "delegation not enough")
-	ErrInvalidAmount         = errorsmod.Register(ModuleName, 8, "invalid amount")
+	ErrInvalidPower          = errorsmod.Register(ModuleName, 8, "invalid power")
 	ErrTotalPowerZero        = errorsmod.Register(ModuleName, 9, "total power is zero")
 	ErrAccountAlreadyExist   = errorsmod.Register(ModuleName, 10, "account already exist")
 	ErrInvalidLength         = errorsmod.Register(ModuleName, 11, "invalid length")

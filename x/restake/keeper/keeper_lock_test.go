@@ -13,7 +13,7 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 	ctx := suite.ctx
 	suite.setupState()
 
-	// error case -  amount is not uint64
+	// error case -  power is not uint64
 	err := suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, KeyWithRewards, sdkmath.NewInt(-5))
 	suite.Require().Error(err)
 
@@ -29,7 +29,7 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 	var (
 		preKey  types.Key
 		preLock *types.Lock
-		amount  sdkmath.Int
+		power   sdkmath.Int
 	)
 
 	testCases := []struct {
@@ -52,13 +52,13 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 
 				preLock = nil
 
-				amount = sdkmath.NewInt(100)
+				power = sdkmath.NewInt(100)
 			},
 			sdkmath.NewInt(200),
 			types.Lock{
 				StakerAddress:  ValidAddress1.String(),
 				Key:            KeyWithoutRewards,
-				Amount:         sdkmath.NewInt(100),
+				Power:          sdkmath.NewInt(100),
 				PosRewardDebts: nil,
 				NegRewardDebts: nil,
 			},
@@ -78,18 +78,18 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 				preLock = &types.Lock{
 					StakerAddress:  ValidAddress1.String(),
 					Key:            KeyWithoutRewards,
-					Amount:         sdkmath.NewInt(10),
+					Power:          sdkmath.NewInt(10),
 					PosRewardDebts: nil,
 					NegRewardDebts: nil,
 				}
 
-				amount = sdkmath.NewInt(100)
+				power = sdkmath.NewInt(100)
 			},
 			sdkmath.NewInt(190),
 			types.Lock{
 				StakerAddress:  ValidAddress1.String(),
 				Key:            KeyWithoutRewards,
-				Amount:         sdkmath.NewInt(100),
+				Power:          sdkmath.NewInt(100),
 				PosRewardDebts: nil,
 				NegRewardDebts: nil,
 			},
@@ -111,13 +111,13 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 
 				preLock = nil
 
-				amount = sdkmath.NewInt(100)
+				power = sdkmath.NewInt(100)
 			},
 			sdkmath.NewInt(200),
 			types.Lock{
 				StakerAddress: ValidAddress1.String(),
 				Key:           KeyWithRewards,
-				Amount:        sdkmath.NewInt(100),
+				Power:         sdkmath.NewInt(100),
 				PosRewardDebts: sdk.NewDecCoins(
 					sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(1, 1)),
 					sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyNewDecWithPrec(1, 0)),
@@ -143,18 +143,18 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 				preLock = &types.Lock{
 					StakerAddress:  ValidAddress1.String(),
 					Key:            KeyWithRewards,
-					Amount:         sdkmath.NewInt(100),
+					Power:          sdkmath.NewInt(100),
 					PosRewardDebts: nil,
 					NegRewardDebts: nil,
 				}
 
-				amount = sdkmath.NewInt(1000)
+				power = sdkmath.NewInt(1000)
 			},
 			sdkmath.NewInt(1000),
 			types.Lock{
 				StakerAddress: ValidAddress1.String(),
 				Key:           KeyWithRewards,
-				Amount:        sdkmath.NewInt(1000),
+				Power:         sdkmath.NewInt(1000),
 				PosRewardDebts: sdk.NewDecCoins(
 					sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(9, 1)),
 					sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyNewDecWithPrec(9, 0)),
@@ -180,18 +180,18 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 				preLock = &types.Lock{
 					StakerAddress:  ValidAddress1.String(),
 					Key:            KeyWithRewards,
-					Amount:         sdkmath.NewInt(1000),
+					Power:          sdkmath.NewInt(1000),
 					PosRewardDebts: nil,
 					NegRewardDebts: nil,
 				}
 
-				amount = sdkmath.NewInt(100)
+				power = sdkmath.NewInt(100)
 			},
 			sdkmath.NewInt(100),
 			types.Lock{
 				StakerAddress:  ValidAddress1.String(),
 				Key:            KeyWithRewards,
-				Amount:         sdkmath.NewInt(100),
+				Power:          sdkmath.NewInt(100),
 				PosRewardDebts: nil,
 				NegRewardDebts: sdk.NewDecCoins(
 					sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(9, 1)),
@@ -217,7 +217,7 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 				ctx,
 				ValidAddress1,
 				preKey.Name,
-				amount,
+				power,
 			)
 			suite.Require().NoError(err)
 
@@ -272,8 +272,8 @@ func (suite *KeeperTestSuite) TestGetSetLock() {
 		suite.Require().NoError(err)
 		suite.Require().Equal(expLock, lock)
 
-		// get lock by amount
-		keyName := ctx.KVStore(suite.storeKey).Get(types.LockByAmountIndexKey(lock))
+		// get lock by power
+		keyName := ctx.KVStore(suite.storeKey).Get(types.LockByPowerIndexKey(lock))
 		suite.Require().Equal(expLock.Key, string(keyName))
 	}
 
@@ -307,8 +307,8 @@ func (suite *KeeperTestSuite) TestGetSetLock() {
 		_, err := suite.restakeKeeper.GetLock(ctx, acc, expLock.Key)
 		suite.Require().Error(err)
 
-		// get lock by amount
-		has = ctx.KVStore(suite.storeKey).Has(types.LockByAmountIndexKey(expLock))
+		// get lock by Power
+		has = ctx.KVStore(suite.storeKey).Has(types.LockByPowerIndexKey(expLock))
 		suite.Require().False(has)
 	}
 }

@@ -131,13 +131,13 @@ func (k Querier) Locks(
 		lockStore,
 		req.Pagination,
 		func(key []byte, s *types.Lock) (*types.LockResponse, error) {
-			if !k.IsActiveKey(ctx, s.Key) || s.Amount.IsZero() {
+			if !k.IsActiveKey(ctx, s.Key) || s.Power.IsZero() {
 				return nil, nil
 			}
 
 			return &types.LockResponse{
-				Key:    s.Key,
-				Amount: s.Amount,
+				Key:   s.Key,
+				Power: s.Power,
 			}, nil
 		}, func() *types.Lock {
 			return &types.Lock{}
@@ -173,8 +173,8 @@ func (k Querier) Lock(
 
 	return &types.QueryLockResponse{
 		Lock: types.LockResponse{
-			Key:    lock.Key,
-			Amount: lock.Amount,
+			Key:   lock.Key,
+			Power: lock.Power,
 		},
 	}, nil
 }

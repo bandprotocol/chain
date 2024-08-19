@@ -105,28 +105,28 @@ func (suite *KeeperTestSuite) SetupTest() {
 		{
 			StakerAddress:  ValidAddress1.String(),
 			Key:            KeyWithRewards,
-			Amount:         sdkmath.NewInt(10),
+			Power:          sdkmath.NewInt(10),
 			PosRewardDebts: nil,
 			NegRewardDebts: nil,
 		},
 		{
 			StakerAddress:  ValidAddress1.String(),
 			Key:            KeyWithoutRewards,
-			Amount:         sdkmath.NewInt(100),
+			Power:          sdkmath.NewInt(100),
 			PosRewardDebts: nil,
 			NegRewardDebts: nil,
 		},
 		{
 			StakerAddress:  ValidAddress1.String(),
 			Key:            InactiveKey,
-			Amount:         sdkmath.NewInt(50),
+			Power:          sdkmath.NewInt(50),
 			PosRewardDebts: nil,
 			NegRewardDebts: nil,
 		},
 		{
 			StakerAddress:  ValidAddress2.String(),
 			Key:            KeyWithRewards,
-			Amount:         sdkmath.NewInt(10),
+			Power:          sdkmath.NewInt(10),
 			PosRewardDebts: nil,
 			NegRewardDebts: nil,
 		},
@@ -259,7 +259,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				suite.Require().Equal(types.Lock{
 					StakerAddress:  ValidAddress1.String(),
 					Key:            ValidKey,
-					Amount:         sdk.NewInt(333),
+					Power:          sdk.NewInt(333),
 					PosRewardDebts: nil,
 					NegRewardDebts: nil,
 				}, lock)
@@ -329,7 +329,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				suite.Require().Equal(types.Lock{
 					StakerAddress:  ValidAddress1.String(),
 					Key:            ValidKey,
-					Amount:         sdk.NewInt(100),
+					Power:          sdk.NewInt(100),
 					PosRewardDebts: nil,
 					NegRewardDebts: sdk.NewDecCoins(
 						sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyMustNewDecFromStr("0.699699699699699699")),
@@ -373,7 +373,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				suite.Require().Equal(types.Lock{
 					StakerAddress: ValidAddress1.String(),
 					Key:           ValidKey,
-					Amount:        sdk.NewInt(2000),
+					Power:         sdk.NewInt(2000),
 					PosRewardDebts: sdk.NewDecCoins(
 						sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyMustNewDecFromStr("5.705705705705705700")),
 						sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyMustNewDecFromStr("5705.705705705705705700")),
@@ -405,7 +405,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				suite.Require().Equal(types.Lock{
 					StakerAddress: ValidAddress1.String(),
 					Key:           ValidKey,
-					Amount:        sdk.NewInt(2000),
+					Power:         sdk.NewInt(2000),
 					PosRewardDebts: sdk.NewDecCoins(
 						sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyMustNewDecFromStr("6.006006006006006000")),
 						sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyMustNewDecFromStr("6006.006006006006006000")),
@@ -521,7 +521,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				suite.Require().Equal(types.Lock{
 					StakerAddress:  ValidAddress1.String(),
 					Key:            ValidKey,
-					Amount:         val18,
+					Power:          val18,
 					PosRewardDebts: nil,
 					NegRewardDebts: nil,
 				}, lock)
@@ -563,7 +563,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				suite.Require().Equal(types.Lock{
 					StakerAddress:  ValidAddress2.String(),
 					Key:            ValidKey,
-					Amount:         sdk.NewInt(1),
+					Power:          sdk.NewInt(1),
 					PosRewardDebts: nil,
 					NegRewardDebts: nil,
 				}, lock)
@@ -631,7 +631,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				suite.Require().Equal(types.Lock{
 					StakerAddress:  ValidAddress1.String(),
 					Key:            ValidKey,
-					Amount:         sdk.NewInt(0),
+					Power:          sdk.NewInt(0),
 					PosRewardDebts: nil,
 					NegRewardDebts: sdk.NewDecCoins(
 						sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyMustNewDecFromStr("999999999999999999")),
@@ -659,7 +659,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				suite.Require().Equal(types.Lock{
 					StakerAddress:  ValidAddress1.String(),
 					Key:            ValidKey,
-					Amount:         sdk.NewInt(0),
+					Power:          sdk.NewInt(0),
 					PosRewardDebts: nil,
 					NegRewardDebts: nil,
 				}, lock)
@@ -677,7 +677,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				suite.Require().Equal(types.Lock{
 					StakerAddress:  ValidAddress2.String(),
 					Key:            ValidKey,
-					Amount:         sdk.NewInt(1),
+					Power:          sdk.NewInt(1),
 					PosRewardDebts: nil,
 					NegRewardDebts: nil,
 				}, lock)
