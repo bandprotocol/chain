@@ -57,7 +57,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 				return err
 			}
 
-			var route types.Route
+			var route types.RouteI
 			tssRoute := types.TSSRoute{
 				DestinationChainID:         args[1],
 				DestinationContractAddress: args[2],
@@ -110,7 +110,7 @@ func GetTxCmdCreateIBCTunnel() *cobra.Command {
 				return err
 			}
 
-			var route types.Route
+			var route types.RouteI
 			ibcRoute := types.IBCRoute{
 				ChannelID: args[1],
 			}

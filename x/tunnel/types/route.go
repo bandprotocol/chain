@@ -2,8 +2,8 @@ package types
 
 import "github.com/cosmos/gogoproto/proto"
 
-// Route defines a routing path to deliver data to the destination.
-type Route interface {
+// RouteI defines a routing path to deliver data to the destination.
+type RouteI interface {
 	proto.Message
 
 	ValidateBasic() error

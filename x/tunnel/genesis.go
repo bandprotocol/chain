@@ -43,11 +43,22 @@ func ValidateGenesis(data *types.GenesisState) error {
 }
 
 // InitGenesis initializes the module's state from a provided genesis state.
-func InitGenesis(ctx sdk.Context, k keeper.Keeper, data *types.GenesisState) {
+func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 	if err := k.SetParams(ctx, data.Params); err != nil {
 		panic(err)
 	}
 
+	// check if the module account exists
+	moduleAcc := k.GetTunnelAccount(ctx)
+	if moduleAcc == nil {
+		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
+	}
+	// Set module account if its balance is zero
+	if balance := k.GetModuleBalance(ctx); balance.IsZero() {
+		k.SetModuleAccount(ctx, moduleAcc)
+	}
+
+	// Set the tunnel count
 	k.SetTunnelCount(ctx, data.TunnelCount)
 
 	for _, tunnel := range data.Tunnels {
@@ -67,7 +78,7 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data *types.GenesisState) {
 }
 
 // ExportGenesis returns the module's exported genesis
-func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
+func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
 		PortID:      types.PortID,
 		Params:      k.GetParams(ctx),

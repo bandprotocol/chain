@@ -13,7 +13,7 @@ func TestGRPCQueryPackets(t *testing.T) {
 	s := testutil.NewTestSuite(t)
 	q := s.QueryServer
 
-	// set tunnel
+	// Set tunnel
 	tunnel := types.Tunnel{
 		ID:         1,
 		NonceCount: 2,
@@ -26,31 +26,39 @@ func TestGRPCQueryPackets(t *testing.T) {
 	require.NoError(t, err)
 	s.Keeper.SetTunnel(s.Ctx, tunnel)
 
-	// set tss packets
-	tssPackets := []types.TSSPacket{
-		{
-			TunnelID: 1,
-			Nonce:    1,
-		},
-		{
-			TunnelID: 1,
-			Nonce:    2,
-		},
+	// Set packets
+	packet1 := types.Packet{
+		TunnelID: 1,
+		Nonce:    1,
 	}
-	for _, packet := range tssPackets {
-		s.Keeper.SetTSSPacket(s.Ctx, packet)
+	packet2 := types.Packet{
+		TunnelID: 1,
+		Nonce:    2,
 	}
+	err = packet1.SetPacketContent(&types.TSSPacketContent{
+		SigningID:                  1,
+		DestinationChainID:         r.DestinationChainID,
+		DestinationContractAddress: r.DestinationContractAddress,
+	})
+	require.NoError(t, err)
+	err = packet2.SetPacketContent(&types.TSSPacketContent{
+		SigningID:                  2,
+		DestinationChainID:         r.DestinationChainID,
+		DestinationContractAddress: r.DestinationContractAddress,
+	})
+	require.NoError(t, err)
+	s.Keeper.SetPacket(s.Ctx, packet1)
+	s.Keeper.SetPacket(s.Ctx, packet2)
 
-	// query packets
-	res, err := q.Packets(s.Ctx, &types.QueryPacketsRequest{
+	// Query packets
+	resp, err := q.Packets(s.Ctx, &types.QueryPacketsRequest{
 		TunnelId: 1,
 	})
 	require.NoError(t, err)
-	for i, packet := range res.Packets {
-		tssPacket, ok := packet.GetCachedValue().(*types.TSSPacket)
-		require.True(t, ok)
-		require.Equal(t, tssPackets[i], *tssPacket)
-	}
+	require.NotNil(t, resp)
+	require.Len(t, resp.Packets, 2)
+	require.Equal(t, packet1, *resp.Packets[0])
+	require.Equal(t, packet2, *resp.Packets[1])
 }
 
 func TestGRPCQueryPacket(t *testing.T) {
@@ -70,29 +78,23 @@ func TestGRPCQueryPacket(t *testing.T) {
 	require.NoError(t, err)
 	s.Keeper.SetTunnel(s.Ctx, tunnel)
 
-	// set tss packets
-	tssPackets := []types.TSSPacket{
-		{
-			TunnelID: 1,
-			Nonce:    1,
-		},
-		{
-			TunnelID: 1,
-			Nonce:    2,
-		},
+	packet1 := types.Packet{
+		TunnelID: 1,
+		Nonce:    1,
 	}
-	for _, packet := range tssPackets {
-		s.Keeper.SetTSSPacket(s.Ctx, packet)
-	}
-
-	// query packet
-	res, err := q.Packet(s.Ctx, &types.QueryPacketRequest{
-		TunnelId: 1,
-		Nonce:    2,
+	err = packet1.SetPacketContent(&types.TSSPacketContent{
+		SigningID:                  1,
+		DestinationChainID:         r.DestinationChainID,
+		DestinationContractAddress: r.DestinationContractAddress,
 	})
 	require.NoError(t, err)
+	s.Keeper.SetPacket(s.Ctx, packet1)
 
-	tssPacket, ok := res.Packet.GetCachedValue().(*types.TSSPacket)
-	require.True(t, ok)
-	require.Equal(t, tssPackets[1], *tssPacket)
+	res, err := q.Packet(s.Ctx, &types.QueryPacketRequest{
+		TunnelId: 1,
+		Nonce:    1,
+	})
+	require.NoError(t, err)
+	require.NotNil(t, res)
+	require.Equal(t, packet1, *res.Packet)
 }

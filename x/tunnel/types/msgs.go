@@ -59,7 +59,7 @@ func (m *MsgUpdateParams) ValidateBasic() error {
 func NewMsgCreateTunnel(
 	signalInfos []SignalInfo,
 	feedType feedstypes.FeedType,
-	route Route,
+	route RouteI,
 	deposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
@@ -151,33 +151,19 @@ func (m *MsgCreateTunnel) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgCreateTunnel) ValidateBasic() error {
-	switch r := m.Route.GetCachedValue().(type) {
-	case *TSSRoute:
-		// Validate TSSRoute
-		err := r.ValidateBasic()
-		if err != nil {
-			return err
-		}
-	case *AxelarRoute:
-		// Validate AxelarRoute
-		err := r.ValidateBasic()
-		if err != nil {
-			return err
-		}
-	case *IBCRoute:
-		// Validate IBCRoute
-		err := r.ValidateBasic()
-		if err != nil {
-			return err
-		}
-	default:
-		return sdkerrors.ErrUnknownRequest.Wrapf("unknown route type")
+	r, ok := m.Route.GetCachedValue().(RouteI)
+	if !ok {
+		return sdkerrors.ErrPackAny.Wrapf("cannot unpack route")
+	}
+	err := r.ValidateBasic()
+	if err != nil {
+		return err
 	}
 	return nil
 }
 
 // SetRoute sets the route for the message.
-func (m *MsgCreateTunnel) SetTunnelRoute(route Route) error {
+func (m *MsgCreateTunnel) SetTunnelRoute(route RouteI) error {
 	msg, ok := route.(proto.Message)
 	if !ok {
 		return fmt.Errorf("can't proto marshal %T", msg)
@@ -193,13 +179,13 @@ func (m *MsgCreateTunnel) SetTunnelRoute(route Route) error {
 
 // UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
 func (m MsgCreateTunnel) UnpackInterfaces(unpacker types.AnyUnpacker) error {
-	var route Route
+	var route RouteI
 	return unpacker.UnpackAny(m.Route, &route)
 }
 
 // GetRoute returns the route of the message.
-func (m MsgCreateTunnel) GetTunnelRoute() Route {
-	route, ok := m.Route.GetCachedValue().(Route)
+func (m MsgCreateTunnel) GetTunnelRoute() RouteI {
+	route, ok := m.Route.GetCachedValue().(RouteI)
 	if !ok {
 		return nil
 	}

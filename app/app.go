@@ -216,6 +216,7 @@ var (
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		bandtsstypes.ModuleName:        nil,
 		restaketypes.ModuleName:        nil,
+		tunneltypes.ModuleName:         nil,
 	}
 
 	Upgrades = []upgrades.Upgrade{v2_6.Upgrade}

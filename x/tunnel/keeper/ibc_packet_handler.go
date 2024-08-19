@@ -15,22 +15,10 @@ const (
 	packetExpireTime = int64(10 * time.Minute)
 )
 
-// GetIBCPacket retrieves a IBC packet by its tunnel ID and packet ID
-func (k Keeper) GetIBCPacket(ctx sdk.Context, tunnelID uint64, nonce uint64) (types.IBCPacket, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.TunnelPacketStoreKey(tunnelID, nonce))
-	if bz == nil {
-		return types.IBCPacket{}, types.ErrPacketNotFound.Wrapf("tunnelID: %d, nonce: %d", tunnelID, nonce)
-	}
-
-	var packet types.IBCPacket
-	k.cdc.MustUnmarshal(bz, &packet)
-	return packet, nil
-}
-
 // IBCPacketHandler func
-func (k Keeper) IBCPacketHandler(ctx sdk.Context, packet types.IBCPacket) {
+func (k Keeper) IBCPacketHandler(ctx sdk.Context, route *types.IBCRoute, packet types.Packet) {
 	// retrieve the dynamic capability for this channel
-	channelCap, ok := k.scopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(types.PortID, packet.ChannelID))
+	channelCap, ok := k.scopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(types.PortID, route.ChannelID))
 	if !ok {
 		ctx.EventManager().EmitEvent(sdk.NewEvent(
 			types.EventTypeSendPacketFail,
@@ -40,19 +28,42 @@ func (k Keeper) IBCPacketHandler(ctx sdk.Context, packet types.IBCPacket) {
 		return
 	}
 
+	// Create IBC packet bytes
+	ibcPacketBytes := types.NewIBCPacket(
+		packet.TunnelID,
+		packet.Nonce,
+		packet.FeedType,
+		packet.SignalPriceInfos,
+		types.IBCPacketContent{
+			ChannelID: route.ChannelID,
+		},
+		packet.CreatedAt,
+	).GetBytes()
+
 	// Send packet to IBC, authenticating with channelCap
 	if _, err := k.channelKeeper.SendPacket(
 		ctx,
 		channelCap,
 		types.PortID,
-		packet.ChannelID,
+		route.ChannelID,
 		clienttypes.NewHeight(0, 0),
 		uint64(ctx.BlockTime().UnixNano()+packetExpireTime),
-		packet.GetBytes(),
+		ibcPacketBytes,
 	); err != nil {
 		ctx.EventManager().EmitEvent(sdk.NewEvent(
 			types.EventTypeSendPacketFail,
 			sdk.NewAttribute(types.AttributeKeyReason, fmt.Sprintf("Unable to send packet: %s", err)),
 		))
 	}
+
+	// Set the packet content
+	packetContent := types.IBCPacketContent{
+		ChannelID: route.ChannelID,
+	}
+	err := packet.SetPacketContent(&packetContent)
+	if err != nil {
+		panic(fmt.Errorf("failed to set packet content: %w", err))
+	}
+
+	k.AddPacket(ctx, packet)
 }

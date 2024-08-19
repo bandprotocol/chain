@@ -17,11 +17,11 @@ import (
 
 // IBCModule implements the ICS26 interface for tunnel given the tunnel keeper.
 type IBCModule struct {
-	keeper keeper.Keeper
+	keeper *keeper.Keeper
 }
 
 // NewIBCModule creates a new IBCModule given the keeper
-func NewIBCModule(keeper keeper.Keeper) IBCModule {
+func NewIBCModule(keeper *keeper.Keeper) IBCModule {
 	return IBCModule{
 		keeper: keeper,
 	}

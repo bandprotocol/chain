@@ -9,7 +9,7 @@ import (
 func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 }
 
-func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
+func EndBlocker(ctx sdk.Context, k *keeper.Keeper) {
 	tunnels := k.GetRequiredProcessTunnels(ctx)
 
 	for _, tunnel := range tunnels {

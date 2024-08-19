@@ -13,11 +13,11 @@ import (
 var _ types.MsgServer = msgServer{}
 
 type msgServer struct {
-	Keeper
+	*Keeper
 }
 
 // NewMsgServerImpl returns an implementation of the x/tunnel MsgServer interface.
-func NewMsgServerImpl(keeper Keeper) types.MsgServer {
+func NewMsgServerImpl(keeper *Keeper) types.MsgServer {
 	return &msgServer{Keeper: keeper}
 }
 
@@ -108,9 +108,14 @@ func (ms msgServer) ManualTriggerTunnel(
 		return nil, err
 	}
 	if req.Creator != tunnel.Creator {
-		return nil, fmt.Errorf("creator %s is not the creator of tunnel %d", req.Creator, req.ID)
+		return nil, types.ErrInvalidTunnelCreator.Wrapf(
+			"creator %s, tunnelID %d",
+			req.Creator,
+			req.ID,
+		)
 	}
 
+	// Add the tunnel to the pending trigger list
 	ms.Keeper.AddPendingTriggerTunnel(ctx, req.ID)
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(

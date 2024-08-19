@@ -53,6 +53,7 @@ func NewTestSuite(t *testing.T) TestSuite {
 	scopedKeeper := NewMockScopedKeeper(ctrl)
 
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
+	accountKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(authority).AnyTimes()
 	tunnelKeeper := keeper.NewKeeper(
 		encCfg.Codec.(codec.BinaryCodec),
 		key,
@@ -69,7 +70,7 @@ func NewTestSuite(t *testing.T) TestSuite {
 
 	return TestSuite{
 		t:                 t,
-		Keeper:            &tunnelKeeper,
+		Keeper:            tunnelKeeper,
 		QueryServer:       queryServer,
 		MockAccountKeeper: accountKeeper,
 		MockBankKeeper:    bankKeeper,

@@ -130,6 +130,22 @@ func (k Keeper) GetPendingTriggerTunnels(ctx sdk.Context) (ids []uint64) {
 	return pendingTriggerTunnels.IDs
 }
 
+// ActivateTunnel activates a tunnel
+func (k Keeper) ActivateTunnel(ctx sdk.Context, id uint64, creator string) error {
+	tunnel, err := k.GetTunnel(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if tunnel.Creator != creator {
+		return fmt.Errorf("creator %s is not the creator of tunnel %d", creator, id)
+	}
+	tunnel.IsActive = true
+
+	k.SetTunnel(ctx, tunnel)
+	return nil
+}
+
 // GetRequiredProcessTunnels returns all tunnels that require processing
 func (k Keeper) GetRequiredProcessTunnels(
 	ctx sdk.Context,
@@ -197,46 +213,21 @@ func (k Keeper) GetRequiredProcessTunnels(
 	return tunnels
 }
 
-// ActivateTunnel activates a tunnel
-func (k Keeper) ActivateTunnel(ctx sdk.Context, id uint64, creator string) error {
-	tunnel, err := k.GetTunnel(ctx, id)
-	if err != nil {
-		return err
-	}
-
-	if tunnel.Creator != creator {
-		return fmt.Errorf("creator %s is not the creator of tunnel %d", creator, id)
-	}
-	tunnel.IsActive = true
-
-	k.SetTunnel(ctx, tunnel)
-	return nil
-}
-
 // SetParams sets the tunnel module parameters
 func (k Keeper) ProcessTunnel(ctx sdk.Context, tunnel types.Tunnel) {
 	// Increment the nonce
 	tunnel.NonceCount += 1
 
+	// Process the tunnel based on the route type
 	switch r := tunnel.Route.GetCachedValue().(type) {
 	case *types.TSSRoute:
-		k.TSSPacketHandler(ctx, types.TSSPacket{
-			TunnelID:                   tunnel.ID,
-			SignalPriceInfos:           tunnel.SignalPriceInfos,
-			DestinationChainID:         r.DestinationChainID,
-			DestinationContractAddress: r.DestinationContractAddress,
-		})
+		k.TSSPacketHandler(ctx, r, tunnel.CreatePacket(ctx.BlockTime().Unix()))
 	case *types.AxelarRoute:
-		k.AxelarPacketHandler(ctx, types.AxelarPacket{})
+		k.AxelarPacketHandler(ctx, r, tunnel.CreatePacket(ctx.BlockTime().Unix()))
 	case *types.IBCRoute:
-		k.IBCPacketHandler(ctx, types.NewIBCPacket(
-			tunnel.ID,
-			tunnel.NonceCount,
-			tunnel.FeedType,
-			tunnel.SignalPriceInfos,
-			r.ChannelID,
-			ctx.BlockTime().Unix(),
-		))
+		k.IBCPacketHandler(ctx, r, tunnel.CreatePacket(ctx.BlockTime().Unix()))
+	default:
+		panic(fmt.Sprintf("unknown route type: %T", r))
 	}
 
 	// Update the tunnel

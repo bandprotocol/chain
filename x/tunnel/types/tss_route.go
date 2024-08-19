@@ -1,6 +1,6 @@
 package types
 
-var _ Route = &TSSRoute{}
+var _ RouteI = &TSSRoute{}
 
 func (r *TSSRoute) ValidateBasic() error {
 	return nil
