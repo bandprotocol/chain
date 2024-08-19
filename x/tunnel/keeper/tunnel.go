@@ -130,6 +130,22 @@ func (k Keeper) GetPendingTriggerTunnels(ctx sdk.Context) (ids []uint64) {
 	return pendingTriggerTunnels.IDs
 }
 
+// ActivateTunnel activates a tunnel
+func (k Keeper) ActivateTunnel(ctx sdk.Context, id uint64, creator string) error {
+	tunnel, err := k.GetTunnel(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if tunnel.Creator != creator {
+		return fmt.Errorf("creator %s is not the creator of tunnel %d", creator, id)
+	}
+	tunnel.IsActive = true
+
+	k.SetTunnel(ctx, tunnel)
+	return nil
+}
+
 // GetRequiredProcessTunnels returns all tunnels that require processing
 func (k Keeper) GetRequiredProcessTunnels(
 	ctx sdk.Context,
@@ -194,22 +210,6 @@ func (k Keeper) GetRequiredProcessTunnels(
 		}
 	}
 	return tunnels
-}
-
-// ActivateTunnel activates a tunnel
-func (k Keeper) ActivateTunnel(ctx sdk.Context, id uint64, creator string) error {
-	tunnel, err := k.GetTunnel(ctx, id)
-	if err != nil {
-		return err
-	}
-
-	if tunnel.Creator != creator {
-		return fmt.Errorf("creator %s is not the creator of tunnel %d", creator, id)
-	}
-	tunnel.IsActive = true
-
-	k.SetTunnel(ctx, tunnel)
-	return nil
 }
 
 // SetParams sets the tunnel module parameters

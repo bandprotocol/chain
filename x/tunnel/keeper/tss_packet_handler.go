@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
@@ -19,7 +21,7 @@ func (k Keeper) TSSPacketHandler(ctx sdk.Context, route *types.TSSRoute, packet 
 	}
 	err := packet.SetPacketContent(&packetContent)
 	if err != nil {
-		panic(err)
+		panic(fmt.Errorf("failed to set packet content: %w", err))
 	}
 
 	// Save the signed TSS packet
