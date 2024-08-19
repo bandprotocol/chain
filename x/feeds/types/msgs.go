@@ -44,13 +44,9 @@ func (m *MsgSubmitSignalPrices) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a check on the provided data.
 func (m *MsgSubmitSignalPrices) ValidateBasic() error {
-	valAddr, err := sdk.ValAddressFromBech32(m.Validator)
+	_, err := sdk.ValAddressFromBech32(m.Validator)
 	if err != nil {
 		return err
-	}
-
-	if err := sdk.VerifyAddressFormat(valAddr); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("validator: %s", m.Validator)
 	}
 
 	// Map to track signal IDs for duplicate check
