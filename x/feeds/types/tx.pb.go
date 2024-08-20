@@ -32,7 +32,9 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // MsgSubmitSignals is the transaction message to submit signals.
+// MsgSubmitSignals is the transaction message to submit signals.
 type MsgSubmitSignals struct {
+	// delegator is the address of the delegator that wants to submit signals.
 	// delegator is the address of the delegator that wants to submit signals.
 	Delegator string `protobuf:"bytes,1,opt,name=delegator,proto3" json:"delegator,omitempty"`
 	// signals is a list of submitted signals.
@@ -126,9 +128,12 @@ var xxx_messageInfo_MsgSubmitSignalsResponse proto.InternalMessageInfo
 // MsgSubmitSignalPrices is the transaction message to submit multiple signal prices.
 type MsgSubmitSignalPrices struct {
 	// validator is the address of the validator that is performing the operation.
+	// validator is the address of the validator that is performing the operation.
 	Validator string `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator,omitempty"`
 	// timestamp is the timestamp used as reference for the data.
+	// timestamp is the timestamp used as reference for the data.
 	Timestamp int64 `protobuf:"varint,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	// prices is a list of signal prices to submit.
 	// prices is a list of signal prices to submit.
 	Prices []SignalPrice `protobuf:"bytes,3,rep,name=prices,proto3" json:"prices"`
 }
@@ -225,9 +230,12 @@ func (m *MsgSubmitSignalPricesResponse) XXX_DiscardUnknown() {
 var xxx_messageInfo_MsgSubmitSignalPricesResponse proto.InternalMessageInfo
 
 // MsgUpdateReferenceSourceConfig is the transaction message to update reference price source's configuration.
+// MsgUpdateReferenceSourceConfig is the transaction message to update reference price source's configuration.
 type MsgUpdateReferenceSourceConfig struct {
 	// admin is the address of the admin that is performing the operation.
+	// admin is the address of the admin that is performing the operation.
 	Admin string `protobuf:"bytes,1,opt,name=admin,proto3" json:"admin,omitempty"`
+	// reference_source_config is the information of reference price source.
 	// reference_source_config is the information of reference price source.
 	ReferenceSourceConfig ReferenceSourceConfig `protobuf:"bytes,2,opt,name=reference_source_config,json=referenceSourceConfig,proto3" json:"reference_source_config"`
 }
@@ -321,7 +329,9 @@ var xxx_messageInfo_MsgUpdateReferenceSourceConfigResponse proto.InternalMessage
 // MsgUpdateParams is the transaction message to update parameters.
 type MsgUpdateParams struct {
 	// authority is the address of the governance account.
+	// authority is the address of the governance account.
 	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
+	// params is the x/feeds parameters to update.
 	// params is the x/feeds parameters to update.
 	Params Params `protobuf:"bytes,2,opt,name=params,proto3" json:"params"`
 }
@@ -484,7 +494,9 @@ type MsgClient interface {
 	// SubmitSignalPrices is an RPC method to submit signal prices.
 	SubmitSignalPrices(ctx context.Context, in *MsgSubmitSignalPrices, opts ...grpc.CallOption) (*MsgSubmitSignalPricesResponse, error)
 	// UpdateReferenceSourceConfig is an RPC method to update reference price source configuration.
+	// UpdateReferenceSourceConfig is an RPC method to update reference price source configuration.
 	UpdateReferenceSourceConfig(ctx context.Context, in *MsgUpdateReferenceSourceConfig, opts ...grpc.CallOption) (*MsgUpdateReferenceSourceConfigResponse, error)
+	// UpdateParams is an RPC method to update parameters.
 	// UpdateParams is an RPC method to update parameters.
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
 }
@@ -540,7 +552,9 @@ type MsgServer interface {
 	// SubmitSignalPrices is an RPC method to submit signal prices.
 	SubmitSignalPrices(context.Context, *MsgSubmitSignalPrices) (*MsgSubmitSignalPricesResponse, error)
 	// UpdateReferenceSourceConfig is an RPC method to update reference price source configuration.
+	// UpdateReferenceSourceConfig is an RPC method to update reference price source configuration.
 	UpdateReferenceSourceConfig(context.Context, *MsgUpdateReferenceSourceConfig) (*MsgUpdateReferenceSourceConfigResponse, error)
+	// UpdateParams is an RPC method to update parameters.
 	// UpdateParams is an RPC method to update parameters.
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
 }

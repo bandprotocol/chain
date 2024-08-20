@@ -24,6 +24,7 @@ func NewMsgServerImpl(k Keeper) types.MsgServer {
 }
 
 // SubmitSignals registers new signals and updates feeds.
+// SubmitSignals registers new signals and updates feeds.
 func (ms msgServer) SubmitSignals(
 	goCtx context.Context,
 	req *types.MsgSubmitSignals,
@@ -53,7 +54,7 @@ func (ms msgServer) SubmitSignals(
 	// RegisterNewSignals deletes previous signals and registers new signals then returns feed power differences
 	signalIDToPowerDiff := ms.RegisterNewSignals(ctx, delegator, req.Signals)
 
-	// sort keys to guarantee order of signalIDToPowerDiff iteration
+	// Sort keys to guarantee order of signalIDToPowerDiff iteration
 	keys := make([]string, 0, len(signalIDToPowerDiff))
 	for k := range signalIDToPowerDiff {
 		keys = append(keys, k)

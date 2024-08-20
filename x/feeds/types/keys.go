@@ -51,6 +51,7 @@ func SignalTotalPowerStoreKey(signalID string) []byte {
 // ValidatorPriceListStoreKey creates a key for storing a validator prices list
 func ValidatorPriceListStoreKey(validator sdk.ValAddress) []byte {
 	return append(ValidatorPriceListStoreKeyPrefix, address.MustLengthPrefix(validator.Bytes())...)
+	return append(ValidatorPriceListStoreKeyPrefix, address.MustLengthPrefix(validator.Bytes())...)
 }
 
 // PriceStoreKey creates a key for storing price data

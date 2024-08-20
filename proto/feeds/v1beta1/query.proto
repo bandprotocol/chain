@@ -123,8 +123,10 @@ message QueryPriceResponse {
 // QueryPricesRequest is the request type for the Query/Prices RPC method.
 message QueryPricesRequest {
   // signal_ids is a list of signal ids to query prices for.
+  // signal_ids is a list of signal ids to query prices for.
   repeated string signal_ids = 1;
 
+  // pagination is the pagination for the request.
   // pagination is the pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
@@ -132,8 +134,10 @@ message QueryPricesRequest {
 // QueryPricesResponse is the response type for the Query/Prices RPC method.
 message QueryPricesResponse {
   // prices is a list of prices.
+  // prices is a list of prices.
   repeated Price prices = 1;
 
+  // pagination is the pagination information in the response.
   // pagination is the pagination information in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -150,8 +154,10 @@ message QueryReferenceSourceConfigResponse {
 // QuerySignalTotalPowersRequest is the request type for the Query/SignalTotalPowers RPC method.
 message QuerySignalTotalPowersRequest {
   // signal_ids is a list of signal ids to query.
+  // signal_ids is a list of signal ids to query.
   repeated string signal_ids = 1;
 
+  // pagination is the pagination for the request.
   // pagination is the pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
@@ -159,8 +165,10 @@ message QuerySignalTotalPowersRequest {
 // QuerySignalTotalPowersResponse is the response type for the Query/SignalTotalPowers RPC method.
 message QuerySignalTotalPowersResponse {
   // signal_total_powers is a list of signal-total-powers.
+  // signal_total_powers is a list of signal-total-powers.
   repeated Signal signal_total_powers = 1;
 
+  // pagination is the pagination information in the response.
   // pagination is the pagination information in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }

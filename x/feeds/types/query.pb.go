@@ -485,7 +485,9 @@ func (m *QueryPriceResponse) GetPrice() Price {
 // QueryPricesRequest is the request type for the Query/Prices RPC method.
 type QueryPricesRequest struct {
 	// signal_ids is a list of signal ids to query prices for.
+	// signal_ids is a list of signal ids to query prices for.
 	SignalIds []string `protobuf:"bytes,1,rep,name=signal_ids,json=signalIds,proto3" json:"signal_ids,omitempty"`
+	// pagination is the pagination for the request.
 	// pagination is the pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
@@ -540,7 +542,9 @@ func (m *QueryPricesRequest) GetPagination() *query.PageRequest {
 // QueryPricesResponse is the response type for the Query/Prices RPC method.
 type QueryPricesResponse struct {
 	// prices is a list of prices.
+	// prices is a list of prices.
 	Prices []*Price `protobuf:"bytes,1,rep,name=prices,proto3" json:"prices,omitempty"`
+	// pagination is the pagination information in the response.
 	// pagination is the pagination information in the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
@@ -678,7 +682,9 @@ func (m *QueryReferenceSourceConfigResponse) GetReferenceSourceConfig() Referenc
 // QuerySignalTotalPowersRequest is the request type for the Query/SignalTotalPowers RPC method.
 type QuerySignalTotalPowersRequest struct {
 	// signal_ids is a list of signal ids to query.
+	// signal_ids is a list of signal ids to query.
 	SignalIds []string `protobuf:"bytes,1,rep,name=signal_ids,json=signalIds,proto3" json:"signal_ids,omitempty"`
+	// pagination is the pagination for the request.
 	// pagination is the pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
@@ -733,7 +739,9 @@ func (m *QuerySignalTotalPowersRequest) GetPagination() *query.PageRequest {
 // QuerySignalTotalPowersResponse is the response type for the Query/SignalTotalPowers RPC method.
 type QuerySignalTotalPowersResponse struct {
 	// signal_total_powers is a list of signal-total-powers.
+	// signal_total_powers is a list of signal-total-powers.
 	SignalTotalPowers []*Signal `protobuf:"bytes,1,rep,name=signal_total_powers,json=signalTotalPowers,proto3" json:"signal_total_powers,omitempty"`
+	// pagination is the pagination information in the response.
 	// pagination is the pagination information in the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
