@@ -16,14 +16,14 @@ func TestKeyStoreKey(t *testing.T) {
 	require.Equal(t, expect, KeyStoreKey(keyName))
 }
 
-func TestLocksStoreKey(t *testing.T) {
+func TestLocksByAddressStoreKey(t *testing.T) {
 	hexAddress := "b80f2a5df7d5710b15622d1a9f1e3830ded5bda8"
 	acc, err := sdk.AccAddressFromHexUnsafe(hexAddress)
 	require.NoError(t, err)
 
 	expect, err := hex.DecodeString("02" + "14" + hexAddress)
 	require.NoError(t, err)
-	require.Equal(t, expect, LocksStoreKey(acc))
+	require.Equal(t, expect, LocksByAddressStoreKey(acc))
 }
 
 func TestLockStoreKey(t *testing.T) {
@@ -56,7 +56,7 @@ func TestLockByAmountIndexKey(t *testing.T) {
 	require.NoError(t, err)
 
 	lock := Lock{
-		LockerAddress:  acc.String(),
+		StakerAddress:  acc.String(),
 		Key:            keyName,
 		Amount:         sdkmath.NewInt(100),
 		PosRewardDebts: sdk.NewDecCoins(),

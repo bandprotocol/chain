@@ -44,14 +44,13 @@ func (m *MsgSubmitSignalPrices) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a check on the provided data.
 func (m *MsgSubmitSignalPrices) ValidateBasic() error {
-	valAddr, err := sdk.ValAddressFromBech32(m.Validator)
+	_, err := sdk.ValAddressFromBech32(m.Validator)
 	if err != nil {
 		return err
 	}
 
-	if err := sdk.VerifyAddressFormat(valAddr); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("validator: %s", m.Validator)
-	}
+	// Map to track signal IDs for duplicate check
+	signalIDSet := make(map[string]struct{})
 
 	for _, price := range m.Prices {
 		if price.PriceStatus != PriceStatusAvailable && price.Price != 0 {
@@ -59,6 +58,14 @@ func (m *MsgSubmitSignalPrices) ValidateBasic() error {
 				"price must be initial value if price status is unsupported or unavailable",
 			)
 		}
+
+		// Check for duplicate signal IDs
+		if _, exists := signalIDSet[price.SignalID]; exists {
+			return ErrDuplicateSignalID.Wrapf(
+				"duplicate signal ID found: %s", price.SignalID,
+			)
+		}
+		signalIDSet[price.SignalID] = struct{}{}
 	}
 
 	return nil
@@ -185,15 +192,27 @@ func (m *MsgSubmitSignals) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a check on the provided data.
 func (m *MsgSubmitSignals) ValidateBasic() error {
+	// Check if the delegator address is valid
 	if _, err := sdk.AccAddressFromBech32(m.Delegator); err != nil {
 		return errorsmod.Wrap(err, "invalid delegator address")
 	}
+
+	// Map to track signal IDs for duplicate check
+	signalIDSet := make(map[string]struct{})
+
 	for _, signal := range m.Signals {
-		if signal.ID == "" || signal.Power <= 0 {
-			return ErrInvalidSignal.Wrap(
-				"signal id cannot be empty and its power must be positive",
+		// Validate Signal
+		if err := signal.Validate(); err != nil {
+			return err
+		}
+
+		// Check for duplicate signal IDs
+		if _, exists := signalIDSet[signal.ID]; exists {
+			return ErrDuplicateSignalID.Wrapf(
+				"duplicate signal ID found: %s", signal.ID,
 			)
 		}
+		signalIDSet[signal.ID] = struct{}{}
 	}
 
 	return nil

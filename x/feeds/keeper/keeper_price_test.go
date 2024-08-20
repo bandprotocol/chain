@@ -19,13 +19,6 @@ func (suite *KeeperTestSuite) TestGetSetDeletePrice() {
 	price, err := suite.feedsKeeper.GetPrice(ctx, "CS:BAND-USD")
 	suite.Require().NoError(err)
 	suite.Require().Equal(expPrice, price)
-
-	// delete
-	suite.feedsKeeper.DeletePrice(ctx, "CS:BAND-USD")
-
-	// get
-	_, err = suite.feedsKeeper.GetPrice(ctx, "CS:BAND-USD")
-	suite.Require().ErrorContains(err, "price not found")
 }
 
 func (suite *KeeperTestSuite) TestGetSetPrices() {

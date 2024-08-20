@@ -62,9 +62,9 @@ func (PriceStatus) EnumDescriptor() ([]byte, []int) {
 
 // Signal is the data structure that contains signal id and power of that signal.
 type Signal struct {
-	// ID is the id of the signal.
+	// id is the id of the signal.
 	ID string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Power is the power of the corresponding signal id.
+	// power is the power of the corresponding signal id.
 	Power int64 `protobuf:"varint,2,opt,name=power,proto3" json:"power,omitempty"`
 }
 
@@ -117,9 +117,9 @@ func (m *Signal) GetPower() int64 {
 
 // DelegatorSignals is the data structure that contains array of signals of a delegator.
 type DelegatorSignals struct {
-	// Delegator is the address of the delegator of this signals.
+	// delegator is the address of the delegator of this signals.
 	Delegator string `protobuf:"bytes,1,opt,name=delegator,proto3" json:"delegator,omitempty"`
-	// Signals is a list of signals submit by the delegator.
+	// signals is a list of signals submit by the delegator.
 	Signals []Signal `protobuf:"bytes,2,rep,name=signals,proto3" json:"signals"`
 }
 
@@ -172,11 +172,11 @@ func (m *DelegatorSignals) GetSignals() []Signal {
 
 // Feed is a structure that holds a signal id, its total power, and its calculated interval.
 type Feed struct {
-	// SignalID is the unique string that identifies the unit of feed.
+	// signal_id is the unique string that identifies the unit of feed.
 	SignalID string `protobuf:"bytes,1,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
-	// Power is the power of the corresponding signal id.
+	// power is the power of the corresponding signal id.
 	Power int64 `protobuf:"varint,2,opt,name=power,proto3" json:"power,omitempty"`
-	// Interval is the interval of the price feed.
+	// interval is the interval of the price feed.
 	Interval int64 `protobuf:"varint,3,opt,name=interval,proto3" json:"interval,omitempty"`
 }
 
@@ -236,13 +236,13 @@ func (m *Feed) GetInterval() int64 {
 
 // FeedWithDeviation is a structure that holds a signal id, its total power, and its calculated interval and deviation.
 type FeedWithDeviation struct {
-	// SignalID is the unique string that identifies the unit of feed.
+	// signal_id is the unique string that identifies the unit of feed.
 	SignalID string `protobuf:"bytes,1,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
-	// Power is the power of the corresponding signal id.
+	// power is the power of the corresponding signal id.
 	Power int64 `protobuf:"varint,2,opt,name=power,proto3" json:"power,omitempty"`
-	// Interval is the interval of the price feed.
+	// interval is the interval of the price feed.
 	Interval int64 `protobuf:"varint,3,opt,name=interval,proto3" json:"interval,omitempty"`
-	// DeviationBasisPoint is the maximum deviation value the feed can tolerate, expressed in basis points.
+	// deviation_basis_point is the maximum deviation value the feed can tolerate, expressed in basis points.
 	DeviationBasisPoint int64 `protobuf:"varint,4,opt,name=deviation_basis_point,json=deviationBasisPoint,proto3" json:"deviation_basis_point,omitempty"`
 }
 
@@ -309,11 +309,11 @@ func (m *FeedWithDeviation) GetDeviationBasisPoint() int64 {
 
 // CurrentFeeds is a structure that holds a list of currently supported feeds, and its last update time and block.
 type CurrentFeeds struct {
-	// Feeds is a list of currently suppored feeds.
+	// feeds is a list of currently supported feeds.
 	Feeds []Feed `protobuf:"bytes,1,rep,name=feeds,proto3" json:"feeds"`
-	// LastUpdateTimestamp is the timestamp of the last time supported feeds list is updated.
+	// last_update_timestamp is the timestamp of the last time supported feeds list is updated.
 	LastUpdateTimestamp int64 `protobuf:"varint,2,opt,name=last_update_timestamp,json=lastUpdateTimestamp,proto3" json:"last_update_timestamp,omitempty"`
-	// LastUpdateBlock is the number of blocks of the last time supported feeds list is updated.
+	// last_update_block is the number of blocks of the last time supported feeds list is updated.
 	LastUpdateBlock int64 `protobuf:"varint,3,opt,name=last_update_block,json=lastUpdateBlock,proto3" json:"last_update_block,omitempty"`
 }
 
@@ -374,11 +374,11 @@ func (m *CurrentFeeds) GetLastUpdateBlock() int64 {
 // CurrentFeedWithDeviations is a structure that holds a list of currently supported feed-with-deviations, and its
 // last update time and block.
 type CurrentFeedWithDeviations struct {
-	// FeedWithDeviations is a list of currently suppored feed-with-deviations.
+	// feeds is a list of currently supported feed-with-deviations.
 	Feeds []FeedWithDeviation `protobuf:"bytes,1,rep,name=feeds,proto3" json:"feeds"`
-	// LastUpdateTimestamp is the timestamp of the last time supported feeds list is updated.
+	// last_update_timestamp is the timestamp of the last time supported feeds list is updated.
 	LastUpdateTimestamp int64 `protobuf:"varint,2,opt,name=last_update_timestamp,json=lastUpdateTimestamp,proto3" json:"last_update_timestamp,omitempty"`
-	// LastUpdateBlock is the number of blocks of the last time supported feeds list is updated.
+	// last_update_block is the number of blocks of the last time supported feeds list is updated.
 	LastUpdateBlock int64 `protobuf:"varint,3,opt,name=last_update_block,json=lastUpdateBlock,proto3" json:"last_update_block,omitempty"`
 }
 
@@ -438,13 +438,13 @@ func (m *CurrentFeedWithDeviations) GetLastUpdateBlock() int64 {
 
 // Price is a structure that defines the price of a signal id.
 type Price struct {
-	// PriceStatus is the price status of a signal id.
+	// price_status is the price status of a signal id.
 	PriceStatus PriceStatus `protobuf:"varint,1,opt,name=price_status,json=priceStatus,proto3,enum=feeds.v1beta1.PriceStatus" json:"price_status,omitempty"`
-	// SignalID is the signal id of the price.
+	// signal_id is the signal id of the price.
 	SignalID string `protobuf:"bytes,2,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
-	// Price is the price of the signal id.
+	// price is the price of the signal id.
 	Price uint64 `protobuf:"varint,3,opt,name=price,proto3" json:"price,omitempty"`
-	// Timestamp is the timestamp at which the price was aggregated.
+	// timestamp is the timestamp at which the price was aggregated.
 	Timestamp int64 `protobuf:"varint,4,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 }
 
@@ -511,11 +511,11 @@ func (m *Price) GetTimestamp() int64 {
 
 // SignalPrice is a structure that defines the signaled price of a signal id.
 type SignalPrice struct {
-	// PriceStatus is the price status of a signal id.
+	// price_status is the price status of a signal id.
 	PriceStatus PriceStatus `protobuf:"varint,1,opt,name=price_status,json=priceStatus,proto3,enum=feeds.v1beta1.PriceStatus" json:"price_status,omitempty"`
-	// SignalID is the signal id of the price.
+	// signal_id is the signal id of the price.
 	SignalID string `protobuf:"bytes,2,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
-	// Price is the price submitted by the validator.
+	// price is the price submitted by the validator.
 	Price uint64 `protobuf:"varint,3,opt,name=price,proto3" json:"price,omitempty"`
 }
 
@@ -575,17 +575,17 @@ func (m *SignalPrice) GetPrice() uint64 {
 
 // ValidatorPrice is a structure that defines the price submitted by a validator for a signal id.
 type ValidatorPrice struct {
-	// PriceStatus is the price status of a price submitted.
+	// price_status is the price status of a price submitted.
 	PriceStatus PriceStatus `protobuf:"varint,1,opt,name=price_status,json=priceStatus,proto3,enum=feeds.v1beta1.PriceStatus" json:"price_status,omitempty"`
-	// Validator is the validator address.
+	// validator is the validator address.
 	Validator string `protobuf:"bytes,2,opt,name=validator,proto3" json:"validator,omitempty"`
-	// SignalID is the signal id of the price.
+	// signal_id is the signal id of the price.
 	SignalID string `protobuf:"bytes,3,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
-	// Price is the price submitted by the validator.
+	// price is the price submitted by the validator.
 	Price uint64 `protobuf:"varint,4,opt,name=price,proto3" json:"price,omitempty"`
-	// Timestamp is the timestamp at which the price was submitted.
+	// timestamp is the timestamp at which the price was submitted.
 	Timestamp int64 `protobuf:"varint,5,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	// BlockHeight is the block height at which the price was submitted.
+	// block_height is the block height at which the price was submitted.
 	BlockHeight int64 `protobuf:"varint,6,opt,name=block_height,json=blockHeight,proto3" json:"block_height,omitempty"`
 }
 
@@ -667,9 +667,9 @@ func (m *ValidatorPrice) GetBlockHeight() int64 {
 // ValidatorPriceList is a structure that holds a list of validator prices of
 // a validator and its address.
 type ValidatorPriceList struct {
-	// Validator is the validator address.
+	// validator is the validator address.
 	Validator string `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator,omitempty"`
-	// ValidatorsPrices is a list of validator prices.
+	// validators_prices is a list of validator prices.
 	ValidatorPrices []ValidatorPrice `protobuf:"bytes,2,rep,name=validator_prices,json=validatorPrices,proto3" json:"validator_prices"`
 }
 
@@ -722,9 +722,9 @@ func (m *ValidatorPriceList) GetValidatorPrices() []ValidatorPrice {
 
 // ReferenceSourceConfig is a structure that defines the information of reference price source.
 type ReferenceSourceConfig struct {
-	// IPFSHash is the hash of the reference registry.
+	// ipfs_hash is the hash of the reference registry.
 	IPFSHash string `protobuf:"bytes,1,opt,name=ipfs_hash,json=ipfsHash,proto3" json:"ipfs_hash,omitempty"`
-	// Version is the version of the reference price source.
+	// version is the version of the reference price source.
 	Version string `protobuf:"bytes,2,opt,name=version,proto3" json:"version,omitempty"`
 }
 
