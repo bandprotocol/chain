@@ -8,36 +8,36 @@ import "amino/amino.proto";
 import "cosmos_proto/cosmos.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
-// Key is used for tracking the status and rewards of the keys.
-message Key {
+// Vault is used for tracking the status and rewards of the vaults.
+message Vault {
   option (gogoproto.equal) = true;
 
-  // name is the name of the key.
-  string name = 1;
+  // key is the key of the vault.
+  string key = 1;
 
-  // pool_address is the address that holds rewards for this key.
-  string pool_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // vault_address is the address that holds rewards for this vault.
+  string vault_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
-  // is_active is the status of the key
+  // is_active is the status of the vault
   bool is_active = 3;
 
-  // reward_per_powers is a list of reward_per_power.
-  // new_reward_per_power = current_reward_per_power + (rewards / total_power)
-  repeated cosmos.base.v1beta1.DecCoin reward_per_powers = 4 [
+  // rewards_per_power is rewards per power (DecCoins)
+  // new_rewards_per_power = current_rewards_per_power + (rewards / total_power)
+  repeated cosmos.base.v1beta1.DecCoin rewards_per_power = 4 [
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
     (gogoproto.nullable)     = false,
     (amino.dont_omitempty)   = true
   ];
 
-  // total_power is the total locked power of the key.
+  // total_power is the total locked power of the vault.
   string total_power = 5 [
     (cosmos_proto.scalar)  = "cosmos.Int",
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
     (gogoproto.nullable)   = false
   ];
 
-  // remainders is a list of the remainder amounts in the key.
-  // this field is used to track remainder amount from claimings in the key pool.
+  // remainders is a list of the remainder amounts in the vault.
+  // this field is used to track remainder amount from claimings in the vault.
   repeated cosmos.base.v1beta1.DecCoin remainders = 6 [
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
     (gogoproto.nullable)     = false,
@@ -45,14 +45,14 @@ message Key {
   ];
 }
 
-// Lock is used to store lock information of each user on each key along with their reward information.
+// Lock is used to store lock information of each user on each vault along with their reward information.
 message Lock {
   option (gogoproto.equal) = true;
 
   // staker_address is the owner's address of the staker.
   string staker_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
-  // key is the key that this lock is locked to.
+  // key is the key of the vault that this lock is locked to.
   string key = 2;
 
   // power is the number of locked power.
@@ -78,11 +78,11 @@ message Lock {
   ];
 }
 
-// Reward is used as response of the query to show final rewards of the key for the user.
+// Reward is used as response of the query to show final rewards of the vault for the user.
 message Reward {
   option (gogoproto.equal) = true;
 
-  // key is the key that this reward belongs to.
+  // key is the key of the vault that this reward belongs to.
   string key = 1;
 
   // rewards is a list of reward.
@@ -94,11 +94,11 @@ message Reward {
 }
 
 // LockResponse is used as response of the query to show the power
-// that is locked by the key for the user.
+// that is locked by the vault for the user.
 message LockResponse {
   option (gogoproto.equal) = true;
 
-  // key is the key that this lock belongs to.
+  // key is the key of the vault that this lock belongs to.
   string key = 1;
 
   // power is the number of locked power.

@@ -20,22 +20,22 @@ const (
 	// QuerierRoute is the querier route for the restake module
 	QuerierRoute = ModuleName
 
-	// KeyAccountKey is the key used when generating a module address for the key
-	KeyAccountsKey = "key-accounts"
+	// VaultAccountsKey is the key used when generating a module address for the vault
+	VaultAccountsKey = "vault-accounts"
 )
 
 var (
 	GlobalStoreKeyPrefix = []byte{0x00}
 
-	KeyStoreKeyPrefix  = []byte{0x01}
-	LockStoreKeyPrefix = []byte{0x02}
+	VaultStoreKeyPrefix = []byte{0x01}
+	LockStoreKeyPrefix  = []byte{0x02}
 
 	LocksByPowerIndexKeyPrefix = []byte{0x10}
 )
 
-// KeyStoreKey returns the key to retrieve a specific key from the store.
-func KeyStoreKey(keyName string) []byte {
-	return append(KeyStoreKeyPrefix, []byte(keyName)...)
+// VaultStoreKey returns the key to retrieve a specific vault from the store.
+func VaultStoreKey(key string) []byte {
+	return append(VaultStoreKeyPrefix, []byte(key)...)
 }
 
 // LocksByAddressStoreKey returns the key to retrieve all locks of an address from the store.
@@ -44,8 +44,8 @@ func LocksByAddressStoreKey(addr sdk.AccAddress) []byte {
 }
 
 // LockStoreKey returns the key to retrieve a lock of an address and the key from the store.
-func LockStoreKey(addr sdk.AccAddress, keyName string) []byte {
-	return append(LocksByAddressStoreKey(addr), []byte(keyName)...)
+func LockStoreKey(addr sdk.AccAddress, key string) []byte {
+	return append(LocksByAddressStoreKey(addr), []byte(key)...)
 }
 
 // LocksByPowerIndexKey returns the key to retrieve all locks of an address ordering by locked power from the store.

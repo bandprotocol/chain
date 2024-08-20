@@ -92,13 +92,13 @@ func (h Hooks) isAbleToUnbond(ctx sdk.Context, addr sdk.AccAddress, delegated sd
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		keyName := string(iterator.Value())
-		lock, err := h.k.GetLock(ctx, addr, keyName)
+		key := string(iterator.Value())
+		lock, err := h.k.GetLock(ctx, addr, key)
 		if err != nil {
 			panic(err)
 		}
 
-		if h.k.IsActiveKey(ctx, keyName) {
+		if h.k.IsActiveVault(ctx, key) {
 			if delegated.LT(lock.Power) {
 				return types.ErrUnableToUndelegate
 			}

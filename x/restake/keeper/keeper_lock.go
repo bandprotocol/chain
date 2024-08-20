@@ -7,9 +7,9 @@ import (
 	"github.com/bandprotocol/chain/v2/x/restake/types"
 )
 
-// SetLockedPower sets the new locked power of the address to the key
+// SetLockedPower sets the new locked power of the address to the vault
 // This function will override the previous locked power.
-func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, keyName string, power sdkmath.Int) error {
+func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key string, power sdkmath.Int) error {
 	if !power.IsUint64() {
 		return types.ErrInvalidPower
 	}
@@ -20,21 +20,21 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, keyNa
 		return types.ErrDelegationNotEnough
 	}
 
-	key, err := k.GetOrCreateKey(ctx, keyName)
+	vault, err := k.GetOrCreateVault(ctx, key)
 	if err != nil {
 		return err
 	}
 
-	if !key.IsActive {
-		return types.ErrKeyNotActive
+	if !vault.IsActive {
+		return types.ErrVaultNotActive
 	}
 
 	// check if there is a lock before
-	lock, err := k.GetLock(ctx, stakerAddr, keyName)
+	lock, err := k.GetLock(ctx, stakerAddr, key)
 	if err != nil {
 		lock = types.Lock{
 			StakerAddress:  stakerAddr.String(),
-			Key:            keyName,
+			Key:            key,
 			Power:          sdkmath.NewInt(0),
 			PosRewardDebts: sdk.NewDecCoins(),
 			NegRewardDebts: sdk.NewDecCoins(),
@@ -43,10 +43,10 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, keyNa
 
 	diffPower := power.Sub(lock.Power)
 
-	key.TotalPower = key.TotalPower.Add(diffPower)
-	k.SetKey(ctx, key)
+	vault.TotalPower = vault.TotalPower.Add(diffPower)
+	k.SetVault(ctx, vault)
 
-	additionalDebts := key.RewardPerPowers.MulDecTruncate(sdkmath.LegacyNewDecFromInt(diffPower.Abs()))
+	additionalDebts := vault.RewardsPerPower.MulDecTruncate(sdkmath.LegacyNewDecFromInt(diffPower.Abs()))
 	if diffPower.IsPositive() {
 		lock.PosRewardDebts = lock.PosRewardDebts.Add(additionalDebts...)
 	} else {
@@ -59,7 +59,7 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, keyNa
 		sdk.NewEvent(
 			types.EventTypeLockPower,
 			sdk.NewAttribute(types.AttributeKeyStaker, stakerAddr.String()),
-			sdk.NewAttribute(types.AttributeKeyKey, keyName),
+			sdk.NewAttribute(types.AttributeKeyKey, key),
 			sdk.NewAttribute(types.AttributeKeyPower, power.String()),
 		),
 	)
@@ -67,18 +67,18 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, keyNa
 	return nil
 }
 
-// GetLockedPower returns locked power of the address to the key.
-func (k Keeper) GetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, keyName string) (sdkmath.Int, error) {
-	key, err := k.GetKey(ctx, keyName)
+// GetLockedPower returns locked power of the address to the vault.
+func (k Keeper) GetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key string) (sdkmath.Int, error) {
+	vault, err := k.GetVault(ctx, key)
 	if err != nil {
-		return sdkmath.Int{}, types.ErrKeyNotFound
+		return sdkmath.Int{}, types.ErrVaultNotFound
 	}
 
-	if !key.IsActive {
-		return sdkmath.Int{}, types.ErrKeyNotActive
+	if !vault.IsActive {
+		return sdkmath.Int{}, types.ErrVaultNotActive
 	}
 
-	lock, err := k.GetLock(ctx, stakerAddr, keyName)
+	lock, err := k.GetLock(ctx, stakerAddr, key)
 	if err != nil {
 		return sdkmath.Int{}, types.ErrLockNotFound
 	}
@@ -88,9 +88,9 @@ func (k Keeper) GetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, keyNa
 
 // getAccumulatedRewards gets the accumulatedRewards of a lock if they lock since beginning.
 func (k Keeper) getAccumulatedRewards(ctx sdk.Context, lock types.Lock) sdk.DecCoins {
-	key := k.MustGetKey(ctx, lock.Key)
+	vault := k.MustGetVault(ctx, lock.Key)
 
-	return key.RewardPerPowers.MulDecTruncate(sdkmath.LegacyNewDecFromInt(lock.Power))
+	return vault.RewardsPerPower.MulDecTruncate(sdkmath.LegacyNewDecFromInt(lock.Power))
 }
 
 // getReward gets the reward of a lock by using accumulated rewards and reward debts.
@@ -146,18 +146,18 @@ func (k Keeper) GetLocks(ctx sdk.Context) (locks []types.Lock) {
 }
 
 // HasLock checks if lock exists in the store.
-func (k Keeper) HasLock(ctx sdk.Context, addr sdk.AccAddress, keyName string) bool {
-	return ctx.KVStore(k.storeKey).Has(types.LockStoreKey(addr, keyName))
+func (k Keeper) HasLock(ctx sdk.Context, addr sdk.AccAddress, key string) bool {
+	return ctx.KVStore(k.storeKey).Has(types.LockStoreKey(addr, key))
 }
 
-// GetLock gets a lock from store by address and key name.
-func (k Keeper) GetLock(ctx sdk.Context, addr sdk.AccAddress, keyName string) (types.Lock, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.LockStoreKey(addr, keyName))
+// GetLock gets a lock from store by address and key.
+func (k Keeper) GetLock(ctx sdk.Context, addr sdk.AccAddress, key string) (types.Lock, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.LockStoreKey(addr, key))
 	if bz == nil {
 		return types.Lock{}, types.ErrLockNotFound.Wrapf(
-			"failed to get lock of %s with key name: %s",
+			"failed to get lock of %s with key: %s",
 			addr.String(),
-			keyName,
+			key,
 		)
 	}
 
@@ -177,12 +177,12 @@ func (k Keeper) SetLock(ctx sdk.Context, lock types.Lock) {
 }
 
 // DeleteLock deletes a lock from the store.
-func (k Keeper) DeleteLock(ctx sdk.Context, addr sdk.AccAddress, keyName string) {
-	lock, err := k.GetLock(ctx, addr, keyName)
+func (k Keeper) DeleteLock(ctx sdk.Context, addr sdk.AccAddress, key string) {
+	lock, err := k.GetLock(ctx, addr, key)
 	if err != nil {
 		return
 	}
-	ctx.KVStore(k.storeKey).Delete(types.LockStoreKey(addr, keyName))
+	ctx.KVStore(k.storeKey).Delete(types.LockStoreKey(addr, key))
 	k.deleteLockByPower(ctx, lock)
 }
 

@@ -32,7 +32,7 @@ func (k msgServer) ClaimRewards(
 		return nil, err
 	}
 
-	key, err := k.GetKey(ctx, msg.Key)
+	vault, err := k.GetVault(ctx, msg.Key)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (k msgServer) ClaimRewards(
 		lock.NegRewardDebts = remainders
 		k.SetLock(ctx, lock)
 
-		err = k.bankKeeper.SendCoins(ctx, sdk.MustAccAddressFromBech32(key.PoolAddress), addr, finalRewards)
+		err = k.bankKeeper.SendCoins(ctx, sdk.MustAccAddressFromBech32(vault.VaultAddress), addr, finalRewards)
 		if err != nil {
 			return nil, err
 		}
@@ -65,11 +65,11 @@ func (k msgServer) ClaimRewards(
 		)
 	}
 
-	if !key.IsActive {
-		k.DeleteLock(ctx, addr, key.Name)
+	if !vault.IsActive {
+		k.DeleteLock(ctx, addr, vault.Key)
 
-		key.Remainders = key.Remainders.Add(remainders...)
-		k.SetKey(ctx, key)
+		vault.Remainders = vault.Remainders.Add(remainders...)
+		k.SetVault(ctx, vault)
 	}
 
 	return &types.MsgClaimRewardsResponse{}, nil

@@ -7,25 +7,25 @@ import (
 )
 
 // NewGenesisState creates a new GenesisState instanc e
-func NewGenesisState(keys []Key, locks []Lock) *GenesisState {
+func NewGenesisState(vaults []Vault, locks []Lock) *GenesisState {
 	return &GenesisState{
-		Keys:  keys,
-		Locks: locks,
+		Vaults: vaults,
+		Locks:  locks,
 	}
 }
 
 // DefaultGenesisState gets the raw genesis raw message for testing
 func DefaultGenesisState() *GenesisState {
 	return &GenesisState{
-		Keys:  []Key{},
-		Locks: []Lock{},
+		Vaults: []Vault{},
+		Locks:  []Lock{},
 	}
 }
 
 // Validate performs basic validation of genesis data returning an
 // error for any failed validation criteria.
 func (gs GenesisState) Validate() error {
-	seenKeys := make(map[string]bool)
+	seenVaults := make(map[string]bool)
 	totalPowers := make(map[string]sdkmath.Int)
 
 	for _, lock := range gs.Locks {
@@ -37,19 +37,19 @@ func (gs GenesisState) Validate() error {
 		totalPowers[lock.Key] = totalPowers[lock.Key].Add(lock.Power)
 	}
 
-	for _, key := range gs.Keys {
-		if seenKeys[key.Name] {
-			return fmt.Errorf("duplicate key for name %s", key.Name)
+	for _, vault := range gs.Vaults {
+		if seenVaults[vault.Key] {
+			return fmt.Errorf("duplicate vault for name %s", vault.Key)
 		}
 
-		seenKeys[key.Name] = true
+		seenVaults[vault.Key] = true
 
-		// if key is active, total power must be equal.
-		if key.IsActive && !key.TotalPower.Equal(totalPowers[key.Name]) {
+		// if vault is active, total power must be equal.
+		if vault.IsActive && !vault.TotalPower.Equal(totalPowers[vault.Key]) {
 			return fmt.Errorf(
 				"genesis total_power is incorrect, expected %v, got %v",
-				key.TotalPower,
-				totalPowers[key.Name],
+				vault.TotalPower,
+				totalPowers[vault.Key],
 			)
 		}
 	}
