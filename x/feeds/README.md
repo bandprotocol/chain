@@ -28,7 +28,7 @@ This module is used in the BandChain.
     - [CurrentFeeds](#currentfeeds)
     - [ValidatorPriceList](#validatorpricelist)
     - [Price](#price-1)
-    - [DelegatorSignal](#delegatorsignal)
+    - [DelegatorSignals](#delegatorsignals)
     - [SignalTotalPower](#signaltotalpower)
       - [SignalTotalPowerByPowerIndex](#signaltotalpowerbypowerindex)
     - [Params](#params)
@@ -132,11 +132,11 @@ The Price is a space for holding the current price information of signals.
 
 * Price: `0x02 -> ProtocolBuffer(Price)`
 
-### DelegatorSignal
+### DelegatorSignals
 
-The DelegatorSignal is a space for holding current Delegator Signals information of delegators.
+The DelegatorSignals is a space for holding current Delegator Signals information of delegators.
 
-* DelegatorSignal: `0x03 -> ProtocolBuffer(DelegatorSignals)`
+* DelegatorSignals: `0x03 -> ProtocolBuffer(DelegatorSignals)`
 
 ### SignalTotalPower
 

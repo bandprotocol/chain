@@ -50,7 +50,7 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 	err = suite.restakeKeeper.AddRewards(
 		ctx,
 		RewarderAddress,
-		ValidKey3,
+		InactiveKey,
 		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
 	)
 	suite.Require().Error(err)
@@ -59,7 +59,7 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 	err = suite.restakeKeeper.AddRewards(
 		ctx,
 		RewarderAddress,
-		ValidKey4,
+		KeyWithoutLocks,
 		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
 	)
 	suite.Require().Error(err)
@@ -79,8 +79,8 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 			"success case - 1 coin",
 			func() {
 				key = types.Key{
-					Name:            ValidKey1,
-					PoolAddress:     ValidPoolAddress1.String(),
+					Name:            KeyWithRewards,
+					PoolAddress:     KeyWithRewardsPoolAddress.String(),
 					IsActive:        true,
 					RewardPerPowers: sdk.NewDecCoins(),
 					TotalPower:      sdkmath.NewInt(100),
@@ -91,8 +91,8 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 				)
 			},
 			types.Key{
-				Name:        ValidKey1,
-				PoolAddress: ValidPoolAddress1.String(),
+				Name:        KeyWithRewards,
+				PoolAddress: KeyWithRewardsPoolAddress.String(),
 				IsActive:    true,
 				RewardPerPowers: sdk.NewDecCoins(
 					sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(1, 2)),
@@ -105,8 +105,8 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 			"success case - 2 coin same amount",
 			func() {
 				key = types.Key{
-					Name:            ValidKey1,
-					PoolAddress:     ValidPoolAddress1.String(),
+					Name:            KeyWithRewards,
+					PoolAddress:     KeyWithRewardsPoolAddress.String(),
 					IsActive:        true,
 					RewardPerPowers: sdk.NewDecCoins(),
 					TotalPower:      sdkmath.NewInt(100),
@@ -118,8 +118,8 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 				)
 			},
 			types.Key{
-				Name:        ValidKey1,
-				PoolAddress: ValidPoolAddress1.String(),
+				Name:        KeyWithRewards,
+				PoolAddress: KeyWithRewardsPoolAddress.String(),
 				IsActive:    true,
 				RewardPerPowers: sdk.NewDecCoins(
 					sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(1, 2)),
@@ -133,8 +133,8 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 			"success case - 2 coin diff amount",
 			func() {
 				key = types.Key{
-					Name:            ValidKey1,
-					PoolAddress:     ValidPoolAddress1.String(),
+					Name:            KeyWithRewards,
+					PoolAddress:     KeyWithRewardsPoolAddress.String(),
 					IsActive:        true,
 					RewardPerPowers: sdk.NewDecCoins(),
 					TotalPower:      sdkmath.NewInt(100),
@@ -146,8 +146,8 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 				)
 			},
 			types.Key{
-				Name:        ValidKey1,
-				PoolAddress: ValidPoolAddress1.String(),
+				Name:        KeyWithRewards,
+				PoolAddress: KeyWithRewardsPoolAddress.String(),
 				IsActive:    true,
 				RewardPerPowers: sdk.NewDecCoins(
 					sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(5, 2)),
@@ -161,8 +161,8 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 			"success case - small reward, big total power",
 			func() {
 				key = types.Key{
-					Name:            ValidKey1,
-					PoolAddress:     ValidPoolAddress1.String(),
+					Name:            KeyWithRewards,
+					PoolAddress:     KeyWithRewardsPoolAddress.String(),
 					IsActive:        true,
 					RewardPerPowers: sdk.NewDecCoins(),
 					TotalPower:      sdkmath.NewInt(1e18),
@@ -173,8 +173,8 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 				)
 			},
 			types.Key{
-				Name:        ValidKey1,
-				PoolAddress: ValidPoolAddress1.String(),
+				Name:        KeyWithRewards,
+				PoolAddress: KeyWithRewardsPoolAddress.String(),
 				IsActive:    true,
 				RewardPerPowers: sdk.NewDecCoins(
 					sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(1, 18)),
@@ -187,8 +187,8 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 			"success case - big reward, small total power",
 			func() {
 				key = types.Key{
-					Name:            ValidKey1,
-					PoolAddress:     ValidPoolAddress1.String(),
+					Name:            KeyWithRewards,
+					PoolAddress:     KeyWithRewardsPoolAddress.String(),
 					IsActive:        true,
 					RewardPerPowers: sdk.NewDecCoins(),
 					TotalPower:      sdkmath.NewInt(1),
@@ -199,8 +199,8 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 				)
 			},
 			types.Key{
-				Name:        ValidKey1,
-				PoolAddress: ValidPoolAddress1.String(),
+				Name:        KeyWithRewards,
+				PoolAddress: KeyWithRewardsPoolAddress.String(),
 				IsActive:    true,
 				RewardPerPowers: sdk.NewDecCoins(
 					sdk.NewDecCoin("aaaa", sdkmath.NewInt(1e18)),
@@ -213,8 +213,8 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 			"success case - have remainder",
 			func() {
 				key = types.Key{
-					Name:            ValidKey1,
-					PoolAddress:     ValidPoolAddress1.String(),
+					Name:            KeyWithRewards,
+					PoolAddress:     KeyWithRewardsPoolAddress.String(),
 					IsActive:        true,
 					RewardPerPowers: sdk.NewDecCoins(),
 					TotalPower:      sdkmath.NewInt(3),
@@ -225,8 +225,8 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 				)
 			},
 			types.Key{
-				Name:        ValidKey1,
-				PoolAddress: ValidPoolAddress1.String(),
+				Name:        KeyWithRewards,
+				PoolAddress: KeyWithRewardsPoolAddress.String(),
 				IsActive:    true,
 				RewardPerPowers: sdk.NewDecCoins(
 					sdk.NewDecCoinFromDec("aaaa", sdk.MustNewDecFromStr("0.333333333333333333")),
@@ -285,13 +285,13 @@ func (suite *KeeperTestSuite) TestDeactivateKey() {
 	suite.Require().Error(err)
 
 	// error case - key is deactivated
-	err = suite.restakeKeeper.DeactivateKey(ctx, ValidKey3)
+	err = suite.restakeKeeper.DeactivateKey(ctx, InactiveKey)
 	suite.Require().Error(err)
 
 	// success case
-	err = suite.restakeKeeper.DeactivateKey(ctx, ValidKey1)
+	err = suite.restakeKeeper.DeactivateKey(ctx, KeyWithRewards)
 	suite.Require().NoError(err)
-	key, err := suite.restakeKeeper.GetKey(ctx, ValidKey1)
+	key, err := suite.restakeKeeper.GetKey(ctx, KeyWithRewards)
 	suite.Require().NoError(err)
 	suite.Require().Equal(false, key.IsActive)
 }

@@ -159,7 +159,7 @@ func TestAddOracleScriptFile(t *testing.T) {
 	app, _ := bandtesting.CreateTestApp(t, true)
 	k := app.OracleKeeper
 
-	// Code should be perferctly compilable.
+	// Code should be perfectly compilable.
 	compiledCode, err := bandtesting.OwasmVM.Compile(testdata.WasmExtra1, types.MaxCompiledWasmCodeSize)
 	require.NoError(t, err)
 	// We start by adding the Owasm content to the storage.

@@ -53,7 +53,7 @@ func GetTxCmdClaimRewards() *cobra.Command {
 				pageSize := uint64(1000)
 				for {
 					respRewards, err := queryClient.Rewards(context.Background(), &types.QueryRewardsRequest{
-						LockerAddress: clientCtx.GetFromAddress().String(),
+						StakerAddress: clientCtx.GetFromAddress().String(),
 						Pagination: &query.PageRequest{
 							Offset: offset,
 							Limit:  pageSize,

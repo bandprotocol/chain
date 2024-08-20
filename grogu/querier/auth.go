@@ -3,7 +3,7 @@ package querier
 import (
 	"sync/atomic"
 
-	"github.com/cometbft/cometbft/rpc/client/http"
+	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -15,13 +15,13 @@ type AuthQuerier struct {
 }
 
 func NewAuthQuerier(
-	clientContext client.Context,
-	clients []*http.HTTP,
+	clientCtx client.Context,
+	clients []rpcclient.RemoteClient,
 	maxBlockHeight *atomic.Int64,
 ) *AuthQuerier {
 	queryClients := make([]auth.QueryClient, 0, len(clients))
 	for _, cl := range clients {
-		queryClients = append(queryClients, auth.NewQueryClient(clientContext.WithClient(cl)))
+		queryClients = append(queryClients, auth.NewQueryClient(clientCtx.WithClient(cl)))
 	}
 
 	return &AuthQuerier{

@@ -1,7 +1,7 @@
 package querier
 
 import (
-	"github.com/cometbft/cometbft/rpc/client/http"
+	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
@@ -11,12 +11,12 @@ type TxQuerier struct {
 	contexts []client.Context
 }
 
-func NewTxQuerier(clientContext client.Context, clients []*http.HTTP) *TxQuerier {
-	clientContexts := make([]client.Context, 0, len(clients))
+func NewTxQuerier(clientCtx client.Context, clients []rpcclient.RemoteClient) *TxQuerier {
+	clientCtxs := make([]client.Context, 0, len(clients))
 	for _, cl := range clients {
-		clientContexts = append(clientContexts, clientContext.WithClient(cl))
+		clientCtxs = append(clientCtxs, clientCtx.WithClient(cl))
 	}
-	return &TxQuerier{clientContexts}
+	return &TxQuerier{clientCtxs}
 }
 
 func (q *TxQuerier) QueryTx(hash string) (*types.TxResponse, error) {

@@ -20,24 +20,27 @@ func (k Keeper) GetCurrentFeeds(ctx sdk.Context) (sp types.CurrentFeeds) {
 
 // SetCurrentFeeds sets new supported feeds to the store.
 func (k Keeper) SetCurrentFeeds(ctx sdk.Context, feeds []types.Feed) {
-	sf := types.CurrentFeeds{
+	cf := types.CurrentFeeds{
 		Feeds:               feeds,
 		LastUpdateTimestamp: ctx.BlockTime().Unix(),
 		LastUpdateBlock:     ctx.BlockHeight(),
 	}
 
-	ctx.KVStore(k.storeKey).Set(types.CurrentFeedsStoreKey, k.cdc.MustMarshal(&sf))
-	emitEventUpdateCurrentFeeds(ctx, sf)
+	ctx.KVStore(k.storeKey).Set(types.CurrentFeedsStoreKey, k.cdc.MustMarshal(&cf))
+	emitEventUpdateCurrentFeeds(ctx, cf)
 }
 
 // CalculateNewCurrentFeeds calculates new supported feeds from current signal-total-powers.
 func (k Keeper) CalculateNewCurrentFeeds(ctx sdk.Context) []types.Feed {
 	signalTotalPowers := k.GetSignalTotalPowersByPower(ctx, k.GetParams(ctx).MaxCurrentFeeds)
 	feeds := make([]types.Feed, 0, len(signalTotalPowers))
+	params := k.GetParams(ctx)
 	for _, signalTotalPower := range signalTotalPowers {
-		interval := CalculateInterval(
+		interval := types.CalculateInterval(
 			signalTotalPower.Power,
-			k.GetParams(ctx),
+			params.PowerStepThreshold,
+			params.MinInterval,
+			params.MaxInterval,
 		)
 		if interval > 0 {
 			feed := types.Feed{

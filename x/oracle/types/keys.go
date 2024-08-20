@@ -39,7 +39,7 @@ var (
 	PendingResolveListStoreKey = append(GlobalStoreKeyPrefix, []byte("PendingList")...)
 	// DataSourceCountStoreKey is the key that keeps the total data source count.
 	DataSourceCountStoreKey = append(GlobalStoreKeyPrefix, []byte("DataSourceCount")...)
-	// OracleScriptCountStoreKey is the key that keeps the total oracle sciprt count.
+	// OracleScriptCountStoreKey is the key that keeps the total oracle script count.
 	OracleScriptCountStoreKey = append(GlobalStoreKeyPrefix, []byte("OracleScriptCount")...)
 
 	// RequestStoreKeyPrefix is the prefix for request store.

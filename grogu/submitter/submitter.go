@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cometbft/cometbft/rpc/client/http"
+	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -14,18 +14,17 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
-	"github.com/bandprotocol/chain/v2/grogu/querier"
 	"github.com/bandprotocol/chain/v2/pkg/logger"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
 type Submitter struct {
 	clientCtx           client.Context
-	clients             []*http.HTTP
+	clients             []rpcclient.RemoteClient
 	logger              *logger.Logger
 	submitSignalPriceCh <-chan []types.SignalPrice
-	authQuerier         *querier.AuthQuerier
-	txQuerier           *querier.TxQuerier
+	authQuerier         AuthQuerier
+	txQuerier           TxQuerier
 	valAddress          sdk.ValAddress
 	pendingSignalIDs    *sync.Map
 
@@ -39,11 +38,11 @@ type Submitter struct {
 
 func New(
 	clientCtx client.Context,
-	clients []*http.HTTP,
+	clients []rpcclient.RemoteClient,
 	logger *logger.Logger,
 	submitSignalPriceCh <-chan []types.SignalPrice,
-	authQuerier *querier.AuthQuerier,
-	txQuerier *querier.TxQuerier,
+	authQuerier AuthQuerier,
+	txQuerier TxQuerier,
 	valAddress sdk.ValAddress,
 	pendingSignalIDs *sync.Map,
 	broadcastTimeout time.Duration,
@@ -140,7 +139,7 @@ func (s *Submitter) submitPrice(prices []types.SignalPrice, keyID string) {
 			continue
 		}
 
-		finalizedTxResp, err := getTxResponse(s.txQuerier, txResp.TxHash, s.broadcastTimeout, s.pollingInterval)
+		finalizedTxResp, err := s.getTxResponse(txResp.TxHash)
 		if err != nil {
 			s.logger.Error("[Submitter] failed to get tx response: %v", err)
 			continue
@@ -207,7 +206,7 @@ func (s *Submitter) broadcastMsg(
 	resultsCh := make(chan *sdk.TxResponse, len(s.clients))
 	failureCh := make(chan error, len(s.clients))
 	for _, client := range s.clients {
-		go func(client *http.HTTP) {
+		go func(client rpcclient.RemoteClient) {
 			res, err := s.clientCtx.WithClient(client).BroadcastTx(txBytes)
 			if err != nil {
 				failureCh <- err
@@ -272,7 +271,7 @@ func (s *Submitter) buildSignedTx(
 		WithAccountRetriever(s.clientCtx.AccountRetriever)
 
 	for _, client := range s.clients {
-		go func(client *http.HTTP) {
+		go func(client rpcclient.RemoteClient) {
 			_, adjusted, err := tx.CalculateGas(s.clientCtx.WithClient(client), txf, &execMsg)
 			if err != nil {
 				errCh <- err
@@ -317,4 +316,23 @@ func (s *Submitter) buildSignedTx(
 	}
 
 	return txBytes, nil
+}
+
+func (s *Submitter) getTxResponse(
+	txHash string,
+) (*sdk.TxResponse, error) {
+	var resp *sdk.TxResponse
+	var err error
+
+	for start := time.Now(); time.Since(start) < s.broadcastTimeout; {
+		time.Sleep(s.pollingInterval)
+		resp, err = s.txQuerier.QueryTx(txHash)
+		if err != nil {
+			continue
+		}
+
+		return resp, nil
+	}
+
+	return nil, fmt.Errorf("timeout exceeded with error: %v", err)
 }
