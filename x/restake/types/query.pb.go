@@ -33,7 +33,6 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 // QueryKeysRequest represents the request type for the Query/Keys RPC method.
 type QueryKeysRequest struct {
 	// pagination defines optional pagination parameters.
-	// pagination defines optional pagination parameters.
 	Pagination *query.PageRequest `protobuf:"bytes,1,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -80,9 +79,7 @@ func (m *QueryKeysRequest) GetPagination() *query.PageRequest {
 // QueryKeysResponse represents the response type for the Query/Keys RPC method.
 type QueryKeysResponse struct {
 	// keys is a list of keys.
-	// keys is a list of keys.
 	Keys []*Key `protobuf:"bytes,1,rep,name=keys,proto3" json:"keys,omitempty"`
-	// pagination defines pagination parameters in the response.
 	// pagination defines pagination parameters in the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
@@ -137,7 +134,6 @@ func (m *QueryKeysResponse) GetPagination() *query.PageResponse {
 // QueryKeyRequest represents the request type for the Query/Key RPC method.
 type QueryKeyRequest struct {
 	// key is the name of the key that want to query.
-	// key is the name of the key that want to query.
 	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
 }
 
@@ -183,7 +179,6 @@ func (m *QueryKeyRequest) GetKey() string {
 
 // QueryKeyResponse represents the response type for the Query/Key RPC method.
 type QueryKeyResponse struct {
-	// key is a key information.
 	// key is a key information.
 	Key Key `protobuf:"bytes,1,opt,name=key,proto3" json:"key"`
 }
@@ -232,7 +227,6 @@ func (m *QueryKeyResponse) GetKey() Key {
 type QueryRewardsRequest struct {
 	// staker_address is the target address to query rewards.
 	StakerAddress string `protobuf:"bytes,1,opt,name=staker_address,json=stakerAddress,proto3" json:"staker_address,omitempty"`
-	// pagination defines optional pagination parameters.
 	// pagination defines optional pagination parameters.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
@@ -288,7 +282,6 @@ func (m *QueryRewardsRequest) GetPagination() *query.PageRequest {
 type QueryRewardsResponse struct {
 	// rewards is a list of rewards for the staker.
 	Rewards []*Reward `protobuf:"bytes,1,rep,name=rewards,proto3" json:"rewards,omitempty"`
-	// pagination defines pagination parameters in the response.
 	// pagination defines pagination parameters in the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
@@ -446,7 +439,6 @@ type QueryLocksRequest struct {
 	// staker_address is the target address to query locks.
 	StakerAddress string `protobuf:"bytes,1,opt,name=staker_address,json=stakerAddress,proto3" json:"staker_address,omitempty"`
 	// pagination defines optional pagination parameters.
-	// pagination defines optional pagination parameters.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
@@ -501,7 +493,6 @@ func (m *QueryLocksRequest) GetPagination() *query.PageRequest {
 type QueryLocksResponse struct {
 	// locks is a list of locks of the staker.
 	Locks []*LockResponse `protobuf:"bytes,1,rep,name=locks,proto3" json:"locks,omitempty"`
-	// pagination defines pagination parameters in the response.
 	// pagination defines pagination parameters in the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }

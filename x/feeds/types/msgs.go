@@ -193,7 +193,6 @@ func (m *MsgSubmitSignals) GetSigners() []sdk.AccAddress {
 // ValidateBasic does a check on the provided data.
 func (m *MsgSubmitSignals) ValidateBasic() error {
 	// Check if the delegator address is valid
-	// Check if the delegator address is valid
 	if _, err := sdk.AccAddressFromBech32(m.Delegator); err != nil {
 		return errorsmod.Wrap(err, "invalid delegator address")
 	}
@@ -213,7 +212,6 @@ func (m *MsgSubmitSignals) ValidateBasic() error {
 				"duplicate signal ID found: %s", signal.ID,
 			)
 		}
-		signalIDSet[signal.ID] = struct{}{}
 		signalIDSet[signal.ID] = struct{}{}
 	}
 

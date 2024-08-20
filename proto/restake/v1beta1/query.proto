@@ -9,7 +9,6 @@ import "cosmos/base/query/v1beta1/pagination.proto";
 import "restake/v1beta1/types.proto";
 
 // Query defines the gRPC querier service.
-// Query defines the gRPC querier service.
 service Query {
   // Keys returns a list of keys.
   rpc Keys(QueryKeysRequest) returns (QueryKeysResponse) {
@@ -45,17 +44,14 @@ service Query {
 // QueryKeysRequest represents the request type for the Query/Keys RPC method.
 message QueryKeysRequest {
   // pagination defines optional pagination parameters.
-  // pagination defines optional pagination parameters.
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
 // QueryKeysResponse represents the response type for the Query/Keys RPC method.
 message QueryKeysResponse {
   // keys is a list of keys.
-  // keys is a list of keys.
   repeated Key keys = 1;
 
-  // pagination defines pagination parameters in the response.
   // pagination defines pagination parameters in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -63,13 +59,11 @@ message QueryKeysResponse {
 // QueryKeyRequest represents the request type for the Query/Key RPC method.
 message QueryKeyRequest {
   // key is the name of the key that want to query.
-  // key is the name of the key that want to query.
   string key = 1;
 }
 
 // QueryKeyResponse represents the response type for the Query/Key RPC method.
 message QueryKeyResponse {
-  // key is a key information.
   // key is a key information.
   Key key = 1 [(gogoproto.nullable) = false];
 }
@@ -80,7 +74,6 @@ message QueryRewardsRequest {
   string staker_address = 1;
 
   // pagination defines optional pagination parameters.
-  // pagination defines optional pagination parameters.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
@@ -89,7 +82,6 @@ message QueryRewardsResponse {
   // rewards is a list of rewards for the staker.
   repeated Reward rewards = 1;
 
-  // pagination defines pagination parameters in the response.
   // pagination defines pagination parameters in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -115,7 +107,6 @@ message QueryLocksRequest {
   string staker_address = 1;
 
   // pagination defines optional pagination parameters.
-  // pagination defines optional pagination parameters.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
@@ -124,7 +115,6 @@ message QueryLocksResponse {
   // locks is a list of locks of the staker.
   repeated LockResponse locks = 1;
 
-  // pagination defines pagination parameters in the response.
   // pagination defines pagination parameters in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }

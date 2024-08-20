@@ -35,7 +35,6 @@ type MsgClaimRewards struct {
 	// staker_address is the address that will claim the rewards.
 	StakerAddress string `protobuf:"bytes,1,opt,name=staker_address,json=stakerAddress,proto3" json:"staker_address,omitempty"`
 	// key is the key that want to claim rewards from.
-	// key is the key that want to claim rewards from.
 	Key string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
 }
 
@@ -167,7 +166,6 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
 	// ClaimRewards defines a method for claiming rewards for the user.
-	// ClaimRewards defines a method for claiming rewards for the user.
 	ClaimRewards(ctx context.Context, in *MsgClaimRewards, opts ...grpc.CallOption) (*MsgClaimRewardsResponse, error)
 }
 
@@ -190,7 +188,6 @@ func (c *msgClient) ClaimRewards(ctx context.Context, in *MsgClaimRewards, opts 
 
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// ClaimRewards defines a method for claiming rewards for the user.
 	// ClaimRewards defines a method for claiming rewards for the user.
 	ClaimRewards(context.Context, *MsgClaimRewards) (*MsgClaimRewardsResponse, error)
 }
