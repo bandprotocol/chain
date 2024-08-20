@@ -28,16 +28,11 @@ func (k Keeper) IBCPacketHandler(ctx sdk.Context, route *types.IBCRoute, packet 
 		return
 	}
 
-	// Create IBC packet bytes
-	ibcPacketBytes := types.NewIBCPacket(
+	// create the IBC packet result bytes
+	resultBytes := types.NewIBCPacketResult(
 		packet.TunnelID,
 		packet.Nonce,
-		packet.FeedType,
 		packet.SignalPriceInfos,
-		types.IBCPacketContent{
-			ChannelID: route.ChannelID,
-		},
-		packet.CreatedAt,
 	).GetBytes()
 
 	// Send packet to IBC, authenticating with channelCap
@@ -48,7 +43,7 @@ func (k Keeper) IBCPacketHandler(ctx sdk.Context, route *types.IBCRoute, packet 
 		route.ChannelID,
 		clienttypes.NewHeight(0, 0),
 		uint64(ctx.BlockTime().UnixNano()+packetExpireTime),
-		ibcPacketBytes,
+		resultBytes,
 	); err != nil {
 		ctx.EventManager().EmitEvent(sdk.NewEvent(
 			types.EventTypeSendPacketFail,

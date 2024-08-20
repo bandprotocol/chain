@@ -112,14 +112,11 @@ message IBCPacketContent {
   string channel_id = 1 [(gogoproto.customname) = "ChannelID"];
 }
 
-// IBCPacket is use for JSON marshalling to be sent bytes data over IBC channel
-message IBCPacket {
+// IBCPacketResult is use for JSON marshalling to be sent bytes data over IBC channel
+message IBCPacketResult {
   option (gogoproto.equal) = true;
 
   uint64                   tunnel_id          = 1 [(gogoproto.customname) = "TunnelID"];
   uint64                   nonce              = 2;
-  feeds.v1beta1.FeedType   feed_type          = 3;
-  repeated SignalPriceInfo signal_price_infos = 4 [(gogoproto.nullable) = false];
-  IBCPacketContent         IBCPacketContent   = 5 [(gogoproto.nullable) = false];
-  int64                    created_at         = 6;
+  repeated SignalPriceInfo signal_price_infos = 3 [(gogoproto.nullable) = false];
 }
