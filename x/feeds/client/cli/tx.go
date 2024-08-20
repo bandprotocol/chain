@@ -50,14 +50,14 @@ func GetTxCmd() *cobra.Command {
 // GetTxCmdSubmitSignals creates a CLI command for submitting signals
 func GetTxCmdSubmitSignals() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "signal [signal_id1]:[power1] [signal_id2]:[power2] ...",
+		Use:   "signal [signal_id1],[power1] [signal_id2],[power2] ...",
 		Short: "Signal signal ids and their powers",
 		Args:  cobra.MinimumNArgs(0),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(
 				`Signal signal ids and their power.
 Example:
-$ %s tx feeds signal BTC:1000000 --from mykey
+$ %s tx feeds signal BTC,1000000 --from mykey
 `,
 				version.AppName,
 			),
@@ -71,7 +71,7 @@ $ %s tx feeds signal BTC:1000000 --from mykey
 			delegator := clientCtx.GetFromAddress()
 			var signals []types.Signal
 			for i, arg := range args {
-				idAndPower := strings.SplitN(arg, ":", 2)
+				idAndPower := strings.SplitN(arg, ",", 2)
 				if len(idAndPower) != 2 {
 					return fmt.Errorf("argument %d is not valid", i)
 				}
