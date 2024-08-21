@@ -69,7 +69,7 @@ message MsgActivateTunnelResponse {}
 // MsgManualTriggerTunnel is the transaction message to manually trigger a tunnel.
 message MsgManualTriggerTunnel {
   option (cosmos.msg.v1.signer) = "creator";
-  option (amino.name)           = "tunnel/MsgManualTrigger";
+  option (amino.name)           = "tunnel/MsgManualTriggerTunnel";
 
   // tunnel_id is the ID of the tunnel to manually trigger.
   uint64 id = 1 [(gogoproto.customname) = "ID"];
