@@ -36,7 +36,7 @@ message Vault {
     (gogoproto.nullable)   = false
   ];
 
-  // remainders is a list of the remainder amounts in the vault.
+  // remainders is the remainder amounts in the vault.
   // this field is used to track remainder amount from claimings in the vault.
   repeated cosmos.base.v1beta1.DecCoin remainders = 6 [
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
@@ -62,7 +62,7 @@ message Lock {
     (gogoproto.nullable)   = false
   ];
 
-  // pos_reward_debts is a list of reward debt for each reward (only the positive side).
+  // pos_reward_debts is the positive part of reward debts.
   // Note: Coin and DecCoin can't have negative amounts. so, we split it into two numbers.
   repeated cosmos.base.v1beta1.DecCoin pos_reward_debts = 4 [
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
@@ -70,7 +70,7 @@ message Lock {
     (amino.dont_omitempty)   = true
   ];
 
-  // neg_reward_debts is a list of reward debt for each reward (only negative side).
+  // neg_reward_debts is the negative part of reward debts.
   repeated cosmos.base.v1beta1.DecCoin neg_reward_debts = 5 [
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
     (gogoproto.nullable)     = false,
@@ -85,7 +85,7 @@ message Reward {
   // key is the key of the vault that this reward belongs to.
   string key = 1;
 
-  // rewards is a list of reward.
+  // rewards is the total rewards
   repeated cosmos.base.v1beta1.DecCoin rewards = 2 [
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
     (gogoproto.nullable)     = false,

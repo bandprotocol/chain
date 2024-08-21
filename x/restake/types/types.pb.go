@@ -40,7 +40,7 @@ type Vault struct {
 	RewardsPerPower github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,4,rep,name=rewards_per_power,json=rewardsPerPower,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"rewards_per_power"`
 	// total_power is the total locked power of the vault.
 	TotalPower github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,5,opt,name=total_power,json=totalPower,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"total_power"`
-	// remainders is a list of the remainder amounts in the vault.
+	// remainders is the remainder amounts in the vault.
 	// this field is used to track remainder amount from claimings in the vault.
 	Remainders github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,6,rep,name=remainders,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"remainders"`
 }
@@ -121,10 +121,10 @@ type Lock struct {
 	Key string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
 	// power is the number of locked power.
 	Power github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,3,opt,name=power,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"power"`
-	// pos_reward_debts is a list of reward debt for each reward (only the positive side).
+	// pos_reward_debts is the positive part of reward debts.
 	// Note: Coin and DecCoin can't have negative amounts. so, we split it into two numbers.
 	PosRewardDebts github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,4,rep,name=pos_reward_debts,json=posRewardDebts,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"pos_reward_debts"`
-	// neg_reward_debts is a list of reward debt for each reward (only negative side).
+	// neg_reward_debts is the negative part of reward debts.
 	NegRewardDebts github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,5,rep,name=neg_reward_debts,json=negRewardDebts,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"neg_reward_debts"`
 }
 
@@ -193,7 +193,7 @@ func (m *Lock) GetNegRewardDebts() github_com_cosmos_cosmos_sdk_types.DecCoins {
 type Reward struct {
 	// key is the key of the vault that this reward belongs to.
 	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	// rewards is a list of reward.
+	// rewards is the total rewards
 	Rewards github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,2,rep,name=rewards,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"rewards"`
 }
 
