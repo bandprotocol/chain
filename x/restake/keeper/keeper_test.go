@@ -132,10 +132,6 @@ func (suite *KeeperTestSuite) SetupTest() {
 		},
 	}
 
-	suite.resetState()
-}
-
-func (suite *KeeperTestSuite) resetState() {
 	key := sdk.NewKVStoreKey(types.StoreKey)
 	suite.storeKey = key
 	testCtx := testutil.DefaultContextWithDB(suite.T(), key, sdk.NewTransientStoreKey("transient_test"))
@@ -213,16 +209,13 @@ func (suite *KeeperTestSuite) setupState() {
 }
 
 func (suite *KeeperTestSuite) TestScenarios() {
-	ctx := suite.ctx
-	suite.setupState()
-
 	testCases := []struct {
 		name  string
-		check func()
+		check func(sdk.Context)
 	}{
 		{
 			name: "1 account",
-			check: func() {
+			check: func(ctx sdk.Context) {
 				// pre check
 				_, err := suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
 				suite.Require().Error(err)
@@ -473,7 +466,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 		},
 		{
 			name: "2 accounts",
-			check: func() {
+			check: func(ctx sdk.Context) {
 				// pre check
 				_, err := suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
 				suite.Require().Error(err)
@@ -687,9 +680,8 @@ func (suite *KeeperTestSuite) TestScenarios() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			suite.resetState()
-			ctx = suite.ctx
-			tc.check()
+			suite.SetupTest()
+			tc.check(suite.ctx)
 		})
 	}
 }

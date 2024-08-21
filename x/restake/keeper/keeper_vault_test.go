@@ -241,7 +241,7 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 
 	for _, testCase := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", testCase.name), func() {
-			suite.resetState()
+			suite.SetupTest()
 			ctx = suite.ctx
 			testCase.malleate()
 
