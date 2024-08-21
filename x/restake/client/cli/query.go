@@ -23,8 +23,8 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdVault(),
 		GetQueryCmdRewards(),
 		GetQueryCmdReward(),
-		GetQueryCmdLock(),
 		GetQueryCmdLocks(),
+		GetQueryCmdLock(),
 	)
 
 	return queryCmd
