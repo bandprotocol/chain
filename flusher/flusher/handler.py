@@ -654,7 +654,10 @@ class Handler(object):
         
     def handle_set_price(self, msg):
         self.conn.execute(
-            insert(prices).values(**msg).on_conflict_do_update(constraint="prices_pkey", set_=msg)
+            insert(prices).values(**msg)
+        )
+        self.conn.execute(
+            prices.delete().where(prices.c.timestamp < msg["timestamp"] - 60 * 60 * 24 * 7 * 10e8)
         )
 
     def handle_remove_price(self, msg):

@@ -36,7 +36,7 @@ signal_total_powers = sa.Table(
 prices = sa.Table(
     "prices",
     metadata,
-    Column("signal_id", sa.String, primary_key=True),
+    Column("signal_id", sa.String),
     Column("price_status", sa.String),
     Column("price", sa.BigInteger),
     Column("timestamp", CustomDateTime),
