@@ -69,3 +69,21 @@ func TestLockByPowerIndexKey(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expect, LockByPowerIndexKey(lock))
 }
+
+func TestSplitLockByPowerIndexKey(t *testing.T) {
+	key := "key"
+
+	hexAddress := "b80f2a5df7d5710b15622d1a9f1e3830ded5bda8"
+	expAddr, err := sdk.AccAddressFromHexUnsafe(hexAddress)
+	expPower := sdkmath.NewInt(100)
+	require.NoError(t, err)
+
+	indexKey, err := hex.DecodeString(
+		"10" + "14" + hexAddress + "0000000000000064" + hex.EncodeToString([]byte(key)),
+	)
+	require.NoError(t, err)
+
+	addr, power := SplitLockByPowerIndexKey(indexKey)
+	require.Equal(t, expAddr, addr)
+	require.Equal(t, expPower, power)
+}

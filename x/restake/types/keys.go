@@ -3,8 +3,10 @@ package types
 import (
 	"encoding/binary"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/address"
+	"github.com/cosmos/cosmos-sdk/types/kv"
 )
 
 const (
@@ -60,7 +62,22 @@ func LockByPowerIndexKey(lock Lock) []byte {
 	powerBytes := make([]byte, 8)
 	binary.BigEndian.PutUint64(powerBytes, lock.Power.Uint64())
 
-	// key is of format prefix || addrLen || address || powerBytes || keyBytes
+	// the format of key is prefix || addrLen || address || powerBytes || keyBytes
 	bz := append(LocksByPowerIndexKey(address), powerBytes...)
 	return append(bz, []byte(lock.Key)...)
+}
+
+// SplitLockByPowerIndexKey split the LockByPowerIndexKey and returns the address and power
+func SplitLockByPowerIndexKey(key []byte) (addr sdk.AccAddress, power sdkmath.Int) {
+	// the format of key is prefix || addrLen || address || powerBytes || keyBytes
+	kv.AssertKeyAtLeastLength(key, 2)
+	addrLen := int(key[1])
+
+	kv.AssertKeyAtLeastLength(key, 2+addrLen)
+	addr = sdk.AccAddress(key[2 : 2+addrLen])
+
+	kv.AssertKeyAtLeastLength(key, 2+addrLen+8)
+	power = sdkmath.NewIntFromUint64(binary.BigEndian.Uint64(key[2+addrLen : 2+addrLen+8]))
+
+	return
 }

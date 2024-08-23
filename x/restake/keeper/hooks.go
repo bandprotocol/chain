@@ -101,13 +101,10 @@ func (h Hooks) isAbleToUnbond(ctx sdk.Context, addr sdk.AccAddress, delegated sd
 
 	for ; iterator.Valid(); iterator.Next() {
 		key := string(iterator.Value())
-		lock, err := h.k.GetLock(ctx, addr, key)
-		if err != nil {
-			panic(err)
-		}
+		_, power := types.SplitLockByPowerIndexKey(iterator.Key())
 
 		if h.k.IsActiveVault(ctx, key) {
-			return delegated.GTE(lock.Power)
+			return delegated.GTE(power)
 		}
 	}
 
