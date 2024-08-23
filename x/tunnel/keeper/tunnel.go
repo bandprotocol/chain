@@ -284,7 +284,7 @@ func GenerateSignalPriceInfosBasedOnDeviation(
 		deviation := math.Abs(float64(latestPrice.Price)-float64(sp.Price)) / float64(sp.Price)
 		deviationInBPS := uint64(deviation * 10000)
 
-		// if the deviation is greater than the hard deviation, send the signal price info
+		// if the deviation is greater than the hard deviation, add the signal price info to the list
 		// soft deviation is the feature to be implemented in the future
 		if deviationInBPS >= sp.HardDeviationBPS {
 			nsps = append(
