@@ -24,8 +24,8 @@ func GetQueryCmd() *cobra.Command {
 	}
 
 	queryCmd.AddCommand(
-		GetQueryCmdTunnel(),
 		GetQueryCmdTunnels(),
+		GetQueryCmdTunnel(),
 		GetQueryCmdPackets(),
 		GetQueryCmdPacket(),
 		GetQueryCmdParams(),
@@ -95,11 +95,11 @@ func GetQueryCmdTunnels() *cobra.Command {
 
 			var statusFilter types.TunnelStatusFilter
 			if !cmd.Flags().Changed(flagTunnelStatusFilter) {
-				statusFilter = types.TUNNEL_STATUS_UNSPECIFIED
+				statusFilter = types.TUNNEL_STATUS_FILTER_UNSPECIFIED
 			} else if statusFilterFlag {
-				statusFilter = types.TUNNEL_STATUS_ACTIVE
+				statusFilter = types.TUNNEL_STATUS_FILTER_ACTIVE
 			} else {
-				statusFilter = types.TUNNEL_STATUS_INACTIVE
+				statusFilter = types.TUNNEL_STATUS_FILTER_INACTIVE
 			}
 
 			res, err := queryClient.Tunnels(context.Background(), &types.QueryTunnelsRequest{

@@ -11,7 +11,7 @@ const (
 
 	AttributeKeyParams           = "params"
 	AttributeKeyTunnelID         = "tunnel_id"
-	AttributeSignalID            = "signal_id"
+	AttributeKeySignalID         = "signal_id"
 	AttributeKeyRoute            = "route"
 	AttributeKeyFeedType         = "feed_type"
 	AttributeKeyFeePayer         = "fee_payer"

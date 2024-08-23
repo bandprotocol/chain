@@ -9,8 +9,8 @@ const (
 	// Version defines the current version the IBC module supports
 	Version = "tunnel-1"
 
-	// KeyAccountsKey is used to store the key for the account
-	KeyAccountsKey = "tunnel-accounts"
+	// TunnelAccountsKey is used to store the key for the account
+	TunnelAccountsKey = "tunnel-accounts"
 
 	// StoreKey defines the primary module store key
 	StoreKey = ModuleName

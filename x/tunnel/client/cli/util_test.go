@@ -15,8 +15,8 @@ func TestParseSignalInfos(t *testing.T) {
 	t.Run("valid signal info", func(t *testing.T) {
 		// Setup
 		signalInfos := []types.SignalInfo{
-			{SignalID: "BTC", DeviationBPS: 10, Interval: 10},
-			{SignalID: "ETH", DeviationBPS: 10, Interval: 10},
+			{SignalID: "BTC", SoftDeviationBPS: 1000, HardDeviationBPS: 2000},
+			{SignalID: "ETH", SoftDeviationBPS: 3000, HardDeviationBPS: 4000},
 		}
 		file, cleanup := createTempSignalInfoFile(signalInfos)
 		defer cleanup()

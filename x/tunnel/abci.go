@@ -10,9 +10,10 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 }
 
 func EndBlocker(ctx sdk.Context, k *keeper.Keeper) {
-	tunnels := k.GetRequiredProcessTunnels(ctx)
-
-	for _, tunnel := range tunnels {
-		k.ProcessTunnel(ctx, tunnel)
+	// Generate packets to be sent
+	packets := k.GeneratePackets(ctx)
+	for _, packet := range packets {
+		// Send packet to the destination route and store the packet
+		k.HandlePacket(ctx, packet)
 	}
 }

@@ -36,15 +36,17 @@ message MsgCreateTunnel {
 
   // signal_infos is the list of signal infos.
   repeated SignalInfo signal_infos = 1 [(gogoproto.nullable) = false];
+  // interval is the interval for delivering the signal prices.
+  uint64 interval = 2;
   // route is the route for delivering the signal prices
-  google.protobuf.Any route = 2 [(cosmos_proto.accepts_interface) = "Route"];
+  google.protobuf.Any route = 3 [(cosmos_proto.accepts_interface) = "Route"];
   // feed_type is the type of feed data.
-  feeds.v1beta1.FeedType feed_type = 3;
+  feeds.v1beta1.FeedType feed_type = 4;
   // deposit is the deposit required to create a tunnel.
-  repeated cosmos.base.v1beta1.Coin deposit = 4
+  repeated cosmos.base.v1beta1.Coin deposit = 5
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
   // creator is the address of the creator.
-  string creator = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string creator = 6 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // MsgCreateTunnelResponse is the response type for the Msg/CreateTunnel RPC method.
@@ -72,7 +74,7 @@ message MsgManualTriggerTunnel {
   option (amino.name)           = "tunnel/MsgManualTriggerTunnel";
 
   // tunnel_id is the ID of the tunnel to manually trigger.
-  uint64 id = 1 [(gogoproto.customname) = "ID"];
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "ID"];
   // creator is the address of the creator.
   string creator = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }

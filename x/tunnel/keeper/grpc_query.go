@@ -32,13 +32,13 @@ func (q queryServer) Tunnels(c context.Context, req *types.QueryTunnelsRequest) 
 		func(key []byte, t *types.Tunnel) (*types.Tunnel, error) {
 			// Filter by status
 			switch req.IsActive {
-			case types.TUNNEL_STATUS_UNSPECIFIED:
+			case types.TUNNEL_STATUS_FILTER_UNSPECIFIED:
 				return t, nil
-			case types.TUNNEL_STATUS_ACTIVE:
+			case types.TUNNEL_STATUS_FILTER_ACTIVE:
 				if t.IsActive {
 					return t, nil
 				}
-			case types.TUNNEL_STATUS_INACTIVE:
+			case types.TUNNEL_STATUS_FILTER_INACTIVE:
 				if !t.IsActive {
 					return t, nil
 				}

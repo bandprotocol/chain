@@ -31,9 +31,9 @@ func (ms msgServer) CreateTunnel(
 	var signalPriceInfos []types.SignalPriceInfo
 	for _, signalInfo := range req.SignalInfos {
 		signalPriceInfos = append(signalPriceInfos, types.SignalPriceInfo{
-			SignalID:     signalInfo.SignalID,
-			DeviationBPS: signalInfo.DeviationBPS,
-			Interval:     signalInfo.Interval,
+			SignalID:         signalInfo.SignalID,
+			SoftDeviationBPS: signalInfo.SoftDeviationBPS,
+			HardDeviationBPS: signalInfo.HardDeviationBPS,
 		})
 	}
 
@@ -41,6 +41,7 @@ func (ms msgServer) CreateTunnel(
 		Route:            req.Route,
 		FeedType:         req.FeedType,
 		SignalPriceInfos: signalPriceInfos,
+		Interval:         req.Interval,
 		IsActive:         false,
 		Creator:          req.Creator,
 	})

@@ -146,87 +146,164 @@ func (k Keeper) ActivateTunnel(ctx sdk.Context, id uint64, creator string) error
 	return nil
 }
 
-// GetRequiredProcessTunnels returns all tunnels that require processing
-func (k Keeper) GetRequiredProcessTunnels(
-	ctx sdk.Context,
-) []types.Tunnel {
-	var tunnels []types.Tunnel
+// GeneratePackets generates packets for all tunnels that require triggering
+func (k Keeper) GeneratePackets(ctx sdk.Context) []types.Packet {
+	packets := []types.Packet{}
+
 	activeTunnels := k.GetActiveTunnels(ctx)
 	latestPrices := k.feedsKeeper.GetPrices(ctx)
-	latestPricesMap := make(map[string]feedsTypes.Price, len(latestPrices))
-
-	// Populate the map with the latest prices
-	for _, price := range latestPrices {
-		latestPricesMap[price.SignalID] = price
-	}
-
+	latestPricesMap := CreateLatestPricesMap(latestPrices)
 	unixNow := ctx.BlockTime().Unix()
 
-	// Evaluate which tunnels require processing based on the price signals
-	for i, at := range activeTunnels {
-		var trigger bool
-		for j, sp := range at.SignalPriceInfos {
-			latestPrice, exists := latestPricesMap[sp.SignalID]
-			if !exists {
-				continue
+	// check for active tunnels
+	for _, at := range activeTunnels {
+		if unixNow >= int64(at.Interval)+at.Timestamp {
+			sps := GenerateSignalPriceInfos(ctx, at.SignalPriceInfos, latestPricesMap, at.ID)
+			if len(sps) > 0 {
+				packets = append(packets, types.NewPacket(at.ID, at.NonceCount+1, sps, unixNow))
 			}
-
-			deviation := math.Abs(float64(latestPrice.Price)-float64(sp.Price)) / float64(sp.Price)
-			deviationInBPS := uint64(deviation * 10000)
-
-			if deviationInBPS > sp.DeviationBPS || unixNow >= sp.LastTimestamp+sp.Interval {
-				// Update the price directly
-				activeTunnels[i].SignalPriceInfos[j].Price = latestPrice.Price
-				activeTunnels[i].SignalPriceInfos[j].LastTimestamp = unixNow
-				trigger = true
+		} else {
+			sps := GenerateSignalPriceInfosBasedOnDeviation(ctx, at.SignalPriceInfos, latestPricesMap, at.ID)
+			if len(sps) > 0 {
+				packets = append(packets, types.NewPacket(at.ID, at.NonceCount+1, sps, unixNow))
 			}
-		}
-
-		if trigger {
-			tunnels = append(tunnels, at)
 		}
 	}
 
-	// add pending trigger tunnels
+	// check for pending trigger tunnels
 	pendingTriggerTunnels := k.GetPendingTriggerTunnels(ctx)
 	for _, id := range pendingTriggerTunnels {
-		if !types.IsTunnelInList(id, tunnels) {
-			tunnel := k.MustGetTunnel(ctx, id)
-			for i, sp := range tunnel.SignalPriceInfos {
-				latestPrice, exists := latestPricesMap[sp.SignalID]
-				if !exists {
-					ctx.EventManager().EmitEvent(sdk.NewEvent(
-						types.EventTypeSignalIDNotFound,
-						sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
-						sdk.NewAttribute(types.AttributeSignalID, sp.SignalID),
-					))
-					continue
-				}
-
-				tunnel.SignalPriceInfos[i].Price = latestPrice.Price
-				tunnel.SignalPriceInfos[i].LastTimestamp = unixNow
-				tunnels = append(tunnels, tunnel)
-			}
+		tunnel := k.MustGetTunnel(ctx, id)
+		// skip if the tunnel is already in trigger list
+		if unixNow >= int64(tunnel.Interval)+tunnel.Timestamp && tunnel.IsActive {
+			continue
+		}
+		sps := GenerateSignalPriceInfos(ctx, tunnel.SignalPriceInfos, latestPricesMap, tunnel.ID)
+		if len(sps) > 0 {
+			packets = append(packets, types.NewPacket(tunnel.ID, tunnel.NonceCount+1, sps, unixNow))
 		}
 	}
-	return tunnels
+
+	return packets
 }
 
-// SetParams sets the tunnel module parameters
-func (k Keeper) ProcessTunnel(ctx sdk.Context, tunnel types.Tunnel) {
-	// Increment the nonce
-	tunnel.NonceCount += 1
+// HandlePacket sends a packet to destination route, stores the packet in the store, and updates the tunnel data
+func (k Keeper) HandlePacket(ctx sdk.Context, packet types.Packet) {
+	// get tunnel from tunnelID
+	tunnel := k.MustGetTunnel(ctx, packet.TunnelID)
 
 	// Process the tunnel based on the route type
 	switch r := tunnel.Route.GetCachedValue().(type) {
 	case *types.TSSRoute:
-		k.TSSPacketHandler(ctx, r, tunnel.CreatePacket(ctx.BlockTime().Unix()))
+		err := k.TSSPacketHandle(ctx, r, packet)
+		if err != nil {
+			// Emit an event if the packet processing fails
+			emitPacketFailEvent(ctx, packet.TunnelID, r, err)
+			return
+		}
 	case *types.AxelarRoute:
-		k.AxelarPacketHandler(ctx, r, tunnel.CreatePacket(ctx.BlockTime().Unix()))
+		err := k.AxelarPacketHandle(ctx, r, packet)
+		if err != nil {
+			// Emit an event if the packet processing fails
+			emitPacketFailEvent(ctx, packet.TunnelID, r, err)
+			return
+		}
 	default:
 		panic(fmt.Sprintf("unknown route type: %T", r))
 	}
 
-	// Update the tunnel
+	// update tunnel data
+	tunnel.NonceCount = packet.Nonce
+	tunnel.SignalPriceInfos = packet.SignalPriceInfos
+	tunnel.Timestamp = packet.CreatedAt
 	k.SetTunnel(ctx, tunnel)
+}
+
+// emitPacketFailEvent emits an event when a packet fails to be sent
+func emitPacketFailEvent(ctx sdk.Context, tunnelID uint64, route interface{}, err error) {
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeSendPacketFail,
+		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnelID)),
+		sdk.NewAttribute(types.AttributeKeyRoute, fmt.Sprintf("%v", route)),
+		sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
+	))
+}
+
+// GenerateSignalPriceInfos generates signal price infos based on the latest prices
+func GenerateSignalPriceInfos(
+	ctx sdk.Context,
+	signalPriceInfos []types.SignalPriceInfo,
+	latestPricesMap map[string]feedsTypes.Price,
+	tunnelID uint64,
+) []types.SignalPriceInfo {
+	var nsps []types.SignalPriceInfo
+	for _, sp := range signalPriceInfos {
+		latestPrice, exists := latestPricesMap[sp.SignalID]
+		if !exists || latestPrice.PriceStatus != feedsTypes.PriceStatusAvailable {
+			nsps = append(nsps, types.NewSignalPriceInfo(sp.SignalID, sp.SoftDeviationBPS, sp.HardDeviationBPS, 0, 0))
+			ctx.EventManager().EmitEvent(sdk.NewEvent(
+				types.EventTypeSignalIDNotFound,
+				sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnelID)),
+				sdk.NewAttribute(types.AttributeKeySignalID, sp.SignalID),
+			))
+			continue
+		}
+		nsps = append(
+			nsps,
+			types.NewSignalPriceInfo(
+				sp.SignalID,
+				sp.SoftDeviationBPS,
+				sp.HardDeviationBPS,
+				latestPrice.Price,
+				latestPrice.Timestamp,
+			),
+		)
+	}
+	return nsps
+}
+
+// GenerateSignalPriceInfosBasedOnDeviation generates signal price infos based on the deviation of the latest prices
+func GenerateSignalPriceInfosBasedOnDeviation(
+	ctx sdk.Context,
+	signalPriceInfos []types.SignalPriceInfo,
+	latestPricesMap map[string]feedsTypes.Price,
+	tunnelID uint64,
+) []types.SignalPriceInfo {
+	var nsps []types.SignalPriceInfo
+	for _, sp := range signalPriceInfos {
+		latestPrice, exists := latestPricesMap[sp.SignalID]
+		if !exists || latestPrice.PriceStatus != feedsTypes.PriceStatusAvailable {
+			nsps = append(nsps, types.NewSignalPriceInfo(sp.SignalID, sp.SoftDeviationBPS, sp.HardDeviationBPS, 0, 0))
+			ctx.EventManager().EmitEvent(sdk.NewEvent(
+				types.EventTypeSignalIDNotFound,
+				sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnelID)),
+				sdk.NewAttribute(types.AttributeKeySignalID, sp.SignalID),
+			))
+			continue
+		}
+		deviation := math.Abs(float64(latestPrice.Price)-float64(sp.Price)) / float64(sp.Price)
+		deviationInBPS := uint64(deviation * 10000)
+		if deviationInBPS >= sp.HardDeviationBPS {
+			nsps = append(
+				nsps,
+				types.NewSignalPriceInfo(
+					sp.SignalID,
+					sp.SoftDeviationBPS,
+					sp.HardDeviationBPS,
+					latestPrice.Price,
+					latestPrice.Timestamp,
+				),
+			)
+		}
+	}
+	return nsps
+}
+
+// CreateLatestPricesMap creates a map of latest prices with signal ID as the key
+func CreateLatestPricesMap(latestPrices []feedsTypes.Price) map[string]feedsTypes.Price {
+	latestPricesMap := make(map[string]feedsTypes.Price, len(latestPrices))
+	for _, price := range latestPrices {
+		latestPricesMap[price.SignalID] = price
+	}
+	return latestPricesMap
 }

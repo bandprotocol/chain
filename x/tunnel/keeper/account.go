@@ -14,7 +14,7 @@ func (k Keeper) GenerateAccount(ctx sdk.Context, key string) (sdk.AccAddress, er
 	buf = append(buf, header.AppHash...)
 	buf = append(buf, header.DataHash...)
 
-	moduleCred, err := authtypes.NewModuleCredential(types.ModuleName, []byte(types.KeyAccountsKey), buf)
+	moduleCred, err := authtypes.NewModuleCredential(types.ModuleName, []byte(types.TunnelAccountsKey), buf)
 	if err != nil {
 		return nil, err
 	}

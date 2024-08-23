@@ -12,13 +12,6 @@ func (k Keeper) SetPacket(ctx sdk.Context, packet types.Packet) {
 		Set(types.TunnelPacketStoreKey(packet.TunnelID, packet.Nonce), k.cdc.MustMarshal(&packet))
 }
 
-// AddPacket adds a packet to the store
-func (k Keeper) AddPacket(ctx sdk.Context, packet types.Packet) {
-	// Set the creation time
-	packet.CreatedAt = ctx.BlockTime().Unix()
-	k.SetPacket(ctx, packet)
-}
-
 // GetPacket retrieves a packet by its tunnel ID and packet ID
 func (k Keeper) GetPacket(ctx sdk.Context, tunnelID uint64, nonce uint64) (types.Packet, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.TunnelPacketStoreKey(tunnelID, nonce))

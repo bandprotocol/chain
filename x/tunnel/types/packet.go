@@ -1,12 +1,10 @@
 package types
 
 import (
-	fmt "fmt"
+	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	proto "github.com/cosmos/gogoproto/proto"
-
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
 var _ types.UnpackInterfacesMessage = Packet{}
@@ -14,14 +12,12 @@ var _ types.UnpackInterfacesMessage = Packet{}
 func NewPacket(
 	tunnelID uint64,
 	nonce uint64,
-	feedType feedstypes.FeedType,
 	signalPriceInfos []SignalPriceInfo,
 	createdAt int64,
 ) Packet {
 	return Packet{
 		TunnelID:         tunnelID,
 		Nonce:            nonce,
-		FeedType:         feedType,
 		SignalPriceInfos: signalPriceInfos,
 		CreatedAt:        createdAt,
 	}

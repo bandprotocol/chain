@@ -56,6 +56,11 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 				return err
 			}
 
+			interval, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
 			var route types.RouteI
 			tssRoute := types.TSSRoute{
 				DestinationChainID:         args[1],
@@ -65,8 +70,9 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 
 			msg, err := types.NewMsgCreateTunnel(
 				signalInfos,
-				feedstypes.FeedType(feedType),
+				interval,
 				route,
+				feedstypes.FeedType(feedType),
 				deposit,
 				clientCtx.GetFromAddress(),
 			)
@@ -111,7 +117,7 @@ func GetTxCmdActivateTunnel() *cobra.Command {
 
 func GetTxCmdManualTriggerTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "manual-trigger-tunnel [id]",
+		Use:   "manual-trigger-tunnel [tunnel-id]",
 		Short: "Manual trigger a tunnel",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -120,12 +126,12 @@ func GetTxCmdManualTriggerTunnel() *cobra.Command {
 				return err
 			}
 
-			id, err := strconv.ParseUint(args[0], 10, 64)
+			tunnelID, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
 
-			msg := types.NewMsgManualTriggerTunnel(id, clientCtx.GetFromAddress().String())
+			msg := types.NewMsgManualTriggerTunnel(tunnelID, clientCtx.GetFromAddress().String())
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

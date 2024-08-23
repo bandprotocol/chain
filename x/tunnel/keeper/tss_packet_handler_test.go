@@ -7,12 +7,11 @@ import (
 	"github.com/stretchr/testify/require"
 
 	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/tunnel/testutil"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
-func TestTSSPacketHandler(t *testing.T) {
+func TSSPacketHandle(t *testing.T) {
 	s := testutil.NewTestSuite(t)
 	ctx, k := s.Ctx, s.Keeper
 
@@ -24,15 +23,15 @@ func TestTSSPacketHandler(t *testing.T) {
 
 	// Create a sample Packet
 	packet := types.NewPacket(
-		1, // tunnelID
-		1, // nonce
-		feedstypes.FEED_TYPE_DEFAULT,
+		1,   // tunnelID
+		1,   // nonce
 		nil, // SignalPriceInfos
 		time.Now().Unix(),
 	)
 
 	// Call the TSSPacketHandler
-	k.TSSPacketHandler(ctx, &route, packet)
+	err := k.TSSPacketHandle(ctx, &route, packet)
+	require.NoError(t, err)
 
 	// Retrieve the packet from the keeper
 	savedPacket, err := k.GetPacket(ctx, 1, 1)

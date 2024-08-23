@@ -8,9 +8,10 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
-// TSSPacketHandler handles incoming TSS packets
-func (k Keeper) TSSPacketHandler(ctx sdk.Context, route *types.TSSRoute, packet types.Packet) {
+// TSSPacketHandle handles incoming TSS packets
+func (k Keeper) TSSPacketHandle(ctx sdk.Context, route *types.TSSRoute, packet types.Packet) error {
 	// TODO: Implement TSS packet handler logic
+
 	// Sign TSS packet
 
 	// Set the packet content
@@ -21,9 +22,10 @@ func (k Keeper) TSSPacketHandler(ctx sdk.Context, route *types.TSSRoute, packet 
 	}
 	err := packet.SetPacketContent(&packetContent)
 	if err != nil {
-		panic(fmt.Errorf("failed to set packet content: %w", err))
+		panic(fmt.Sprintf("failed to set packet content: %s", err))
 	}
 
 	// Save the signed TSS packet
-	k.AddPacket(ctx, packet)
+	k.SetPacket(ctx, packet)
+	return nil
 }

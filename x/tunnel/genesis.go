@@ -3,7 +3,6 @@ package tunnel
 import (
 	"fmt"
 
-	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/tunnel/keeper"
@@ -14,8 +13,7 @@ import (
 func ValidateGenesis(data *types.GenesisState) error {
 	// Validate the tunnel count
 	if uint64(len(data.Tunnels)) != data.TunnelCount {
-		return errorsmod.Wrapf(
-			types.ErrInvalidGenesis,
+		return types.ErrInvalidGenesis.Wrapf(
 			"TunnelCount: %d, actual tunnels: %d",
 			data.TunnelCount,
 			len(data.Tunnels),
@@ -25,8 +23,7 @@ func ValidateGenesis(data *types.GenesisState) error {
 	// Validate the tunnel IDs
 	for _, tunnel := range data.Tunnels {
 		if tunnel.ID > data.TunnelCount {
-			return errorsmod.Wrapf(
-				types.ErrInvalidGenesis,
+			return types.ErrInvalidGenesis.Wrapf(
 				"TunnelID %d is greater than the TunnelCount %d",
 				tunnel.ID,
 				data.TunnelCount,

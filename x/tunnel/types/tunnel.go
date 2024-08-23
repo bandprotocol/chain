@@ -1,7 +1,7 @@
 package types
 
 import (
-	fmt "fmt"
+	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	proto "github.com/cosmos/gogoproto/proto"
@@ -30,17 +30,6 @@ func (t *Tunnel) SetRoute(route RouteI) error {
 	return nil
 }
 
-// createPacket creates a new packet for the tunnel
-func (t Tunnel) CreatePacket(createdAt int64) Packet {
-	return NewPacket(
-		t.ID,
-		t.NonceCount,
-		t.FeedType,
-		t.SignalPriceInfos,
-		createdAt,
-	)
-}
-
 // IsTunnelInList checks if a tunnel with the given ID is in the list of tunnels.
 func IsTunnelInList(id uint64, tunnels []Tunnel) bool {
 	for _, tunnel := range tunnels {
@@ -49,4 +38,21 @@ func IsTunnelInList(id uint64, tunnels []Tunnel) bool {
 		}
 	}
 	return false
+}
+
+// NewSignalPriceInfo creates a new SignalPriceInfo instance.
+func NewSignalPriceInfo(
+	signalID string,
+	softDeviationBPS uint64,
+	hardDeviationBPS uint64,
+	price uint64,
+	timestamp int64,
+) SignalPriceInfo {
+	return SignalPriceInfo{
+		SignalID:         signalID,
+		SoftDeviationBPS: softDeviationBPS,
+		HardDeviationBPS: hardDeviationBPS,
+		Price:            price,
+		Timestamp:        timestamp,
+	}
 }

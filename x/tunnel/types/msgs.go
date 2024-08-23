@@ -1,7 +1,7 @@
 package types
 
 import (
-	fmt "fmt"
+	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -58,8 +58,9 @@ func (m *MsgUpdateParams) ValidateBasic() error {
 
 func NewMsgCreateTunnel(
 	signalInfos []SignalInfo,
-	feedType feedstypes.FeedType,
+	interval uint64,
 	route RouteI,
+	feedType feedstypes.FeedType,
 	deposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
@@ -74,6 +75,7 @@ func NewMsgCreateTunnel(
 
 	return &MsgCreateTunnel{
 		SignalInfos: signalInfos,
+		Interval:    interval,
 		Route:       any,
 		FeedType:    feedType,
 		Deposit:     deposit,
@@ -226,11 +228,11 @@ func (m MsgActivateTunnel) ValidateBasic() error {
 }
 
 func NewMsgManualTriggerTunnel(
-	id uint64,
+	tunnelID uint64,
 	creator string,
 ) *MsgActivateTunnel {
 	return &MsgActivateTunnel{
-		TunnelID: id,
+		TunnelID: tunnelID,
 		Creator:  creator,
 	}
 }
