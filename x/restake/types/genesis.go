@@ -29,12 +29,12 @@ func (gs GenesisState) Validate() error {
 	totalPowers := make(map[string]sdkmath.Int)
 
 	for _, lock := range gs.Locks {
-		_, ok := totalPowers[lock.Key]
+		total, ok := totalPowers[lock.Key]
 		if !ok {
-			totalPowers[lock.Key] = sdkmath.NewInt(0)
+			total = sdkmath.NewInt(0)
 		}
 
-		totalPowers[lock.Key] = totalPowers[lock.Key].Add(lock.Power)
+		totalPowers[lock.Key] = total.Add(lock.Power)
 	}
 
 	for _, vault := range gs.Vaults {
