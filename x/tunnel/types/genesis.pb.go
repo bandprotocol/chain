@@ -25,7 +25,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // GenesisState represents the initial state of the blockchain.
 type GenesisState struct {
-	// Params is all parameters of the module.
+	// params is all parameters of the module.
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 	// tunnel_count is the number of tunnels.
 	TunnelCount uint64 `protobuf:"varint,2,opt,name=tunnel_count,json=tunnelCount,proto3" json:"tunnel_count,omitempty"`

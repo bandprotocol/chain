@@ -28,6 +28,8 @@ func (ms msgServer) CreateTunnel(
 ) (*types.MsgCreateTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	// TODO: check deposit with params, transfer deposit to module account
+
 	var signalPriceInfos []types.SignalPriceInfo
 	for _, signalInfo := range req.SignalInfos {
 		signalPriceInfos = append(signalPriceInfos, types.SignalPriceInfo{
@@ -104,7 +106,7 @@ func (ms msgServer) ManualTriggerTunnel(
 ) (*types.MsgManualTriggerTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	tunnel, err := ms.Keeper.GetTunnel(ctx, req.ID)
+	tunnel, err := ms.Keeper.GetTunnel(ctx, req.TunnelID)
 	if err != nil {
 		return nil, err
 	}
@@ -112,16 +114,16 @@ func (ms msgServer) ManualTriggerTunnel(
 		return nil, types.ErrInvalidTunnelCreator.Wrapf(
 			"creator %s, tunnelID %d",
 			req.Creator,
-			req.ID,
+			req.TunnelID,
 		)
 	}
 
 	// Add the tunnel to the pending trigger list
-	ms.Keeper.AddPendingTriggerTunnel(ctx, req.ID)
+	ms.Keeper.AddPendingTriggerTunnel(ctx, req.TunnelID)
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeManualTriggerTunnel,
-		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", req.ID)),
+		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", req.TunnelID)),
 	))
 
 	return &types.MsgManualTriggerTunnelResponse{}, nil

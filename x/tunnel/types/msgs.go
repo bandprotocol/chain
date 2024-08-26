@@ -86,25 +86,18 @@ func NewMsgCreateTunnel(
 // NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
 func NewMsgCreateTSSTunnel(
 	signalInfos []SignalInfo,
+	interval uint64,
 	feedType feedstypes.FeedType,
 	destinationChainID string,
 	destinationContractAddress string,
 	deposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
-	m := &MsgCreateTunnel{
-		SignalInfos: signalInfos,
-		FeedType:    feedType,
-		Deposit:     deposit,
-		Creator:     creator.String(),
-	}
-
 	r := &TSSRoute{
 		DestinationChainID:         destinationChainID,
 		DestinationContractAddress: destinationContractAddress,
 	}
-
-	err := m.SetTunnelRoute(r)
+	m, err := NewMsgCreateTunnel(signalInfos, interval, r, feedType, deposit, creator)
 	if err != nil {
 		return nil, err
 	}
@@ -115,26 +108,22 @@ func NewMsgCreateTSSTunnel(
 // NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
 func NewMsgCreateAxelarTunnel(
 	signalInfos []SignalInfo,
+	interval uint64,
 	feedType feedstypes.FeedType,
 	destinationChainID string,
 	destinationContractAddress string,
 	deposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
-	m := &MsgCreateTunnel{
-		SignalInfos: signalInfos,
-		FeedType:    feedType,
-		Deposit:     deposit,
-		Creator:     creator.String(),
-	}
-
-	err := m.SetTunnelRoute(&AxelarRoute{
+	r := &TSSRoute{
 		DestinationChainID:         destinationChainID,
 		DestinationContractAddress: destinationContractAddress,
-	})
+	}
+	m, err := NewMsgCreateTunnel(signalInfos, interval, r, feedType, deposit, creator)
 	if err != nil {
 		return nil, err
 	}
+
 	return m, nil
 }
 
@@ -157,8 +146,7 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 	if !ok {
 		return sdkerrors.ErrPackAny.Wrapf("cannot unpack route")
 	}
-	err := r.ValidateBasic()
-	if err != nil {
+	if err := r.ValidateBasic(); err != nil {
 		return err
 	}
 	return nil
@@ -196,11 +184,11 @@ func (m MsgCreateTunnel) GetTunnelRoute() RouteI {
 
 // NewMsgActivateTunnel creates a new MsgActivateTunnel instance.
 func NewMsgActivateTunnel(
-	id uint64,
+	tunnelID uint64,
 	creator string,
 ) *MsgActivateTunnel {
 	return &MsgActivateTunnel{
-		TunnelID: id,
+		TunnelID: tunnelID,
 		Creator:  creator,
 	}
 }

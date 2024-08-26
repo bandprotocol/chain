@@ -9,7 +9,7 @@ import "tunnel/v1beta1/tunnel.proto";
 
 // GenesisState represents the initial state of the blockchain.
 message GenesisState {
-  // Params is all parameters of the module.
+  // params is all parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
   // tunnel_count is the number of tunnels.
   uint64 tunnel_count = 2;

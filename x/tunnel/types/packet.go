@@ -44,7 +44,7 @@ func (p *Packet) SetPacketContent(packetContent PacketContentI) error {
 	return nil
 }
 
-// GetGrant unpacks allowance
+// GetContent returns the content of the packet.
 func (p Packet) GetContent() (PacketContentI, error) {
 	packetContent, ok := p.PacketContent.GetCachedValue().(PacketContentI)
 	if !ok {

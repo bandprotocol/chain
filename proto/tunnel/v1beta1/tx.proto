@@ -74,7 +74,7 @@ message MsgManualTriggerTunnel {
   option (amino.name)           = "tunnel/MsgManualTriggerTunnel";
 
   // tunnel_id is the ID of the tunnel to manually trigger.
-  uint64 tunnel_id = 1 [(gogoproto.customname) = "ID"];
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
   // creator is the address of the creator.
   string creator = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }

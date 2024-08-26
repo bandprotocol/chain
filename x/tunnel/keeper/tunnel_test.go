@@ -87,18 +87,18 @@ func TestGetTunnels(t *testing.T) {
 	require.Len(s.T(), tunnels, 1, "expected 1 tunnel to be retrieved")
 }
 
-func TestGetActiveTunnels(t *testing.T) {
+func TestGetTunnelsByActiveStatus(t *testing.T) {
 	s := testutil.NewTestSuite(t)
 	ctx, k := s.Ctx, s.Keeper
 
 	// Create a new tunnel instance
-	tunnel := types.Tunnel{ID: 1, IsActive: true}
+	tunnel := types.Tunnel{ID: 1, IsActive: false}
 
 	// Set the tunnel in the keeper
 	k.SetTunnel(ctx, tunnel)
 
-	// Retrieve all active tunnels
-	tunnels := k.GetActiveTunnels(ctx)
+	// Retrieve all tunnels by active status
+	tunnels := k.GetTunnelsByActiveStatus(ctx, false)
 
 	// Assert the number of active tunnels is 1
 	require.Len(s.T(), tunnels, 1, "expected 1 active tunnel to be retrieved")

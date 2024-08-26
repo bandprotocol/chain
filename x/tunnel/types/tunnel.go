@@ -30,16 +30,6 @@ func (t *Tunnel) SetRoute(route RouteI) error {
 	return nil
 }
 
-// IsTunnelInList checks if a tunnel with the given ID is in the list of tunnels.
-func IsTunnelInList(id uint64, tunnels []Tunnel) bool {
-	for _, tunnel := range tunnels {
-		if tunnel.ID == id {
-			return true
-		}
-	}
-	return false
-}
-
 // NewSignalPriceInfo creates a new SignalPriceInfo instance.
 func NewSignalPriceInfo(
 	signalID string,

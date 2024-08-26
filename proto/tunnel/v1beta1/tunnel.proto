@@ -50,17 +50,17 @@ message SignalPriceInfo {
 message Tunnel {
   option (gogoproto.equal) = true;
 
-  uint64                   id                 = 1 [(gogoproto.customname) = "ID"];
-  uint64                   nonce_count        = 2;
-  google.protobuf.Any      route              = 3 [(cosmos_proto.accepts_interface) = "RouteI"];
-  feeds.v1beta1.FeedType   feed_type          = 4;
-  string                   fee_payer          = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  repeated SignalPriceInfo signal_price_infos = 6 [(gogoproto.nullable) = false];
-  uint64                   interval           = 7;
-  int64                    timestamp          = 8;
-  bool                     is_active          = 9;
-  int64                    created_at         = 10;
-  string                   creator            = 11 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  uint64                   id                      = 1 [(gogoproto.customname) = "ID"];
+  uint64                   nonce_count             = 2;
+  google.protobuf.Any      route                   = 3 [(cosmos_proto.accepts_interface) = "RouteI"];
+  feeds.v1beta1.FeedType   feed_type               = 4;
+  string                   fee_payer               = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  repeated SignalPriceInfo signal_price_infos      = 6 [(gogoproto.nullable) = false];
+  uint64                   interval                = 7;
+  int64                    last_interval_timestamp = 8;
+  bool                     is_active               = 9;
+  int64                    created_at              = 10;
+  string                   creator                 = 11 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // PendingTriggerTunnels is the type for a list of tunnel IDs that are waiting to be triggered

@@ -2,7 +2,6 @@ package types
 
 import (
 	"fmt"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -10,7 +9,7 @@ import (
 )
 
 var (
-	DefaultMinInterval     = uint64((1 * time.Second).Seconds())
+	DefaultMinInterval     = uint64(1)
 	DefaultMinDeposit      = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
 	DefaultMinDeviationBPS = uint64(100)
 	DefaultBaseFee         = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
@@ -55,14 +54,12 @@ func (p Params) Validate() error {
 	if !p.MinDeposit.IsValid() {
 		return sdkerrors.ErrInvalidCoins.Wrapf(p.MinDeposit.String())
 	}
-	// Validate MinDeviationBPS uint64
-	if err := validateUint64("min deviation BPS", false)(p.MinDeviationBPS); err != nil {
-		return err
-	}
+
 	// Validate MinDeviationBPS
-	if err := validateBasisPoint(p.MinDeviationBPS); err != nil {
+	if err := validateBasisPoint("min deviation BPS", p.MinDeviationBPS); err != nil {
 		return err
 	}
+
 	// Validate TSSRouteFee
 	if !p.TSSRouteFee.IsValid() {
 		return sdkerrors.ErrInvalidCoins.Wrapf(p.TSSRouteFee.String())
@@ -82,7 +79,11 @@ func (p Params) String() string {
 }
 
 // validateBasisPoint validates if a given number is a valid basis point (0 to 10000).
-func validateBasisPoint(bp uint64) error {
+func validateBasisPoint(name string, bp uint64) error {
+	if err := validateUint64(name, false)(bp); err != nil {
+		return err
+	}
+
 	if bp > 10000 {
 		return fmt.Errorf("invalid basis point: must be between 0 and 10000")
 	}

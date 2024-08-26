@@ -174,7 +174,7 @@ func (m *QueryTunnelsResponse) GetPagination() *query.PageResponse {
 
 // QueryTunnelRequest is the request type for the Query/Tunnel RPC method.
 type QueryTunnelRequest struct {
-	// TunnelID is the ID of the tunnel to query.
+	// tunnel_id is the ID of the tunnel to query.
 	TunnelId uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
 }
 
@@ -220,7 +220,7 @@ func (m *QueryTunnelRequest) GetTunnelId() uint64 {
 
 // QueryTunnelResponse is the response type for the Query/Tunnel RPC method.
 type QueryTunnelResponse struct {
-	// Tunnel is the tunnel with the given ID.
+	// tunnel is the tunnel with the given ID.
 	Tunnel Tunnel `protobuf:"bytes,1,opt,name=tunnel,proto3" json:"tunnel"`
 }
 
@@ -266,7 +266,7 @@ func (m *QueryTunnelResponse) GetTunnel() Tunnel {
 
 // QueryPacketsRequest is the request type for the Query/Packets RPC method.
 type QueryPacketsRequest struct {
-	// TunnelID is the ID of the tunnel to query packets.
+	// tunnel_id is the ID of the tunnel to query packets.
 	TunnelId uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
 	// pagination defines an optional pagination for the request.
 	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
@@ -321,7 +321,7 @@ func (m *QueryPacketsRequest) GetPagination() *query.PageRequest {
 
 // QueryPacketsResponse is the response type for the Query/Packets RPC method.
 type QueryPacketsResponse struct {
-	// Packets is a list of packets.
+	// packets is a list of packets.
 	Packets []*Packet `protobuf:"bytes,1,rep,name=packets,proto3" json:"packets,omitempty"`
 	// pagination defines an optional pagination for the response.
 	Pagination *query.PageResponse `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
@@ -376,9 +376,9 @@ func (m *QueryPacketsResponse) GetPagination() *query.PageResponse {
 
 // QueryPacketRequest is the request type for the Query/Packet RPC method.
 type QueryPacketRequest struct {
-	// TunnelID is the ID of the tunnel to query packets.
+	// tunnel_id is the ID of the tunnel to query packets.
 	TunnelId uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
-	// Nonce is the nonce of the packet to query.
+	// nonce is the nonce of the packet to query.
 	Nonce uint64 `protobuf:"varint,2,opt,name=nonce,proto3" json:"nonce,omitempty"`
 }
 
@@ -514,7 +514,7 @@ var xxx_messageInfo_QueryParamsRequest proto.InternalMessageInfo
 
 // QueryParamsResponse is the response type for the Query/Params RPC method.
 type QueryParamsResponse struct {
-	// Params is the parameters of the module.
+	// params is the parameters of the module.
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 }
 

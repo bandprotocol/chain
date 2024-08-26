@@ -61,18 +61,12 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 				return err
 			}
 
-			var route types.RouteI
-			tssRoute := types.TSSRoute{
-				DestinationChainID:         args[1],
-				DestinationContractAddress: args[2],
-			}
-			route = &tssRoute
-
-			msg, err := types.NewMsgCreateTunnel(
+			msg, err := types.NewMsgCreateTSSTunnel(
 				signalInfos,
 				interval,
-				route,
 				feedstypes.FeedType(feedType),
+				args[1],
+				args[2],
 				deposit,
 				clientCtx.GetFromAddress(),
 			)
@@ -91,7 +85,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 
 func GetTxCmdActivateTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "activate-tunnel [id]",
+		Use:   "activate-tunnel [tunnel-id]",
 		Short: "Activate a tunnel",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {

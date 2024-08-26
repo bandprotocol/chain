@@ -67,19 +67,19 @@ message QueryTunnelsResponse {
 
 // QueryTunnelRequest is the request type for the Query/Tunnel RPC method.
 message QueryTunnelRequest {
-  // TunnelID is the ID of the tunnel to query.
+  // tunnel_id is the ID of the tunnel to query.
   uint64 tunnel_id = 1;
 }
 
 // QueryTunnelResponse is the response type for the Query/Tunnel RPC method.
 message QueryTunnelResponse {
-  // Tunnel is the tunnel with the given ID.
+  // tunnel is the tunnel with the given ID.
   Tunnel tunnel = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryPacketsRequest is the request type for the Query/Packets RPC method.
 message QueryPacketsRequest {
-  // TunnelID is the ID of the tunnel to query packets.
+  // tunnel_id is the ID of the tunnel to query packets.
   uint64 tunnel_id = 1;
   // pagination defines an optional pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
@@ -87,7 +87,7 @@ message QueryPacketsRequest {
 
 // QueryPacketsResponse is the response type for the Query/Packets RPC method.
 message QueryPacketsResponse {
-  // Packets is a list of packets.
+  // packets is a list of packets.
   repeated Packet packets = 1;
   // pagination defines an optional pagination for the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
@@ -95,9 +95,9 @@ message QueryPacketsResponse {
 
 // QueryPacketRequest is the request type for the Query/Packet RPC method.
 message QueryPacketRequest {
-  // TunnelID is the ID of the tunnel to query packets.
+  // tunnel_id is the ID of the tunnel to query packets.
   uint64 tunnel_id = 1;
-  // Nonce is the nonce of the packet to query.
+  // nonce is the nonce of the packet to query.
   uint64 nonce = 2;
 }
 
@@ -112,6 +112,6 @@ message QueryParamsRequest {}
 
 // QueryParamsResponse is the response type for the Query/Params RPC method.
 message QueryParamsResponse {
-  // Params is the parameters of the module.
+  // params is the parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
 }

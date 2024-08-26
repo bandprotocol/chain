@@ -19,23 +19,23 @@ func (k Keeper) GenerateAccount(ctx sdk.Context, key string) (sdk.AccAddress, er
 		return nil, err
 	}
 
-	keyAccAddr := sdk.AccAddress(moduleCred.Address())
+	tunnelAccAddr := sdk.AccAddress(moduleCred.Address())
 
 	// This should not happen
-	if acc := k.authKeeper.GetAccount(ctx, keyAccAddr); acc != nil {
+	if acc := k.authKeeper.GetAccount(ctx, tunnelAccAddr); acc != nil {
 		return nil, types.ErrAccountAlreadyExist.Wrapf(
 			"existing account for newly generated key account address %s",
-			keyAccAddr.String(),
+			tunnelAccAddr.String(),
 		)
 	}
 
-	keyAcc, err := authtypes.NewBaseAccountWithPubKey(moduleCred)
+	tunnelAcc, err := authtypes.NewBaseAccountWithPubKey(moduleCred)
 	if err != nil {
 		return nil, err
 	}
 
-	k.authKeeper.NewAccount(ctx, keyAcc)
-	k.authKeeper.SetAccount(ctx, keyAcc)
+	k.authKeeper.NewAccount(ctx, tunnelAcc)
+	k.authKeeper.SetAccount(ctx, tunnelAcc)
 
-	return keyAccAddr, nil
+	return tunnelAccAddr, nil
 }

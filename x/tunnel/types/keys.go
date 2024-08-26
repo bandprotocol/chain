@@ -39,8 +39,8 @@ var (
 	ParamsKey = []byte{0x10}
 )
 
-func TunnelStoreKey(id uint64) []byte {
-	return append(TunnelStoreKeyPrefix, sdk.Uint64ToBigEndian(id)...)
+func TunnelStoreKey(tunnelID uint64) []byte {
+	return append(TunnelStoreKeyPrefix, sdk.Uint64ToBigEndian(tunnelID)...)
 }
 
 func TunnelPacketsStoreKey(tunnelID uint64) []byte {

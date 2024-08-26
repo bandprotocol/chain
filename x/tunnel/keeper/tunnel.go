@@ -86,8 +86,8 @@ func (k Keeper) GetTunnels(ctx sdk.Context) []types.Tunnel {
 	return tunnels
 }
 
-// GetActiveTunnels returns all active tunnels
-func (k Keeper) GetActiveTunnels(ctx sdk.Context) []types.Tunnel {
+// GetTunnelsByActiveStatus returns all tunnels by their active status
+func (k Keeper) GetTunnelsByActiveStatus(ctx sdk.Context, isActive bool) []types.Tunnel {
 	var tunnels []types.Tunnel
 	iterator := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.TunnelStoreKeyPrefix)
 	defer iterator.Close()
@@ -96,7 +96,7 @@ func (k Keeper) GetActiveTunnels(ctx sdk.Context) []types.Tunnel {
 		var tunnel types.Tunnel
 		k.cdc.MustUnmarshal(iterator.Value(), &tunnel)
 
-		if tunnel.IsActive {
+		if tunnel.IsActive == isActive {
 			tunnels = append(tunnels, tunnel)
 		}
 	}
@@ -150,14 +150,15 @@ func (k Keeper) ActivateTunnel(ctx sdk.Context, id uint64, creator string) error
 func (k Keeper) GeneratePackets(ctx sdk.Context) []types.Packet {
 	packets := []types.Packet{}
 
-	activeTunnels := k.GetActiveTunnels(ctx)
+	activeTunnels := k.GetTunnelsByActiveStatus(ctx, true)
+	// TODO: feeds module needs to be implemented get prices that can use
 	latestPrices := k.feedsKeeper.GetPrices(ctx)
 	latestPricesMap := CreateLatestPricesMap(latestPrices)
 	unixNow := ctx.BlockTime().Unix()
 
 	// check for active tunnels
 	for _, at := range activeTunnels {
-		if unixNow >= int64(at.Interval)+at.Timestamp {
+		if unixNow >= int64(at.Interval)+at.LastIntervalTimestamp {
 			sps := GenerateSignalPriceInfos(ctx, at.SignalPriceInfos, latestPricesMap, at.ID)
 			if len(sps) > 0 {
 				packets = append(packets, types.NewPacket(at.ID, at.NonceCount+1, sps, unixNow))
@@ -175,7 +176,7 @@ func (k Keeper) GeneratePackets(ctx sdk.Context) []types.Packet {
 	for _, id := range pendingTriggerTunnels {
 		tunnel := k.MustGetTunnel(ctx, id)
 		// skip if the tunnel is already in trigger list
-		if unixNow >= int64(tunnel.Interval)+tunnel.Timestamp && tunnel.IsActive {
+		if unixNow >= int64(tunnel.Interval)+tunnel.LastIntervalTimestamp && tunnel.IsActive {
 			continue
 		}
 		sps := GenerateSignalPriceInfos(ctx, tunnel.SignalPriceInfos, latestPricesMap, tunnel.ID)
@@ -215,7 +216,7 @@ func (k Keeper) HandlePacket(ctx sdk.Context, packet types.Packet) {
 	// update tunnel data
 	tunnel.NonceCount = packet.Nonce
 	tunnel.SignalPriceInfos = packet.SignalPriceInfos
-	tunnel.Timestamp = packet.CreatedAt
+	tunnel.LastIntervalTimestamp = packet.CreatedAt
 	k.SetTunnel(ctx, tunnel)
 }
 
