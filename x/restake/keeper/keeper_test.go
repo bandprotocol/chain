@@ -11,6 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/mock/gomock"
 
@@ -20,9 +21,6 @@ import (
 )
 
 var (
-	// delegate power
-	// - 1e18 -> address 1,2
-	// - 10   -> address 3
 	ValidAddress1 = sdk.AccAddress("1000000001")
 	ValidAddress2 = sdk.AccAddress("1000000002")
 	ValidAddress3 = sdk.AccAddress("1000000003")
@@ -42,6 +40,8 @@ var (
 	ValidVaultAddress = "cosmos142hwqg2wwnverkcteaa5pn2lpkwp7e0ya2q84v4wdd7cffvfpeeq0zf2n6"
 
 	RewarderAddress = sdk.AccAddress("3000000001")
+
+	ValAddress = sdk.ValAddress("4000000001")
 )
 
 type KeeperTestSuite struct {
@@ -53,6 +53,8 @@ type KeeperTestSuite struct {
 	accountKeeper *restaketestutil.MockAccountKeeper
 	bankKeeper    *restaketestutil.MockBankKeeper
 	stakingKeeper *restaketestutil.MockStakingKeeper
+
+	stakingHooks stakingtypes.StakingHooks
 
 	queryClient types.QueryClient
 	msgServer   types.MsgServer
@@ -163,18 +165,6 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.bankKeeper = bankKeeper
 
 	stakingKeeper := restaketestutil.NewMockStakingKeeper(ctrl)
-	stakingKeeper.EXPECT().
-		GetDelegatorBonded(gomock.Any(), ValidAddress1).
-		Return(sdkmath.NewInt(1e18)).
-		AnyTimes()
-	stakingKeeper.EXPECT().
-		GetDelegatorBonded(gomock.Any(), ValidAddress2).
-		Return(sdkmath.NewInt(1e18)).
-		AnyTimes()
-	stakingKeeper.EXPECT().
-		GetDelegatorBonded(gomock.Any(), ValidAddress3).
-		Return(sdkmath.NewInt(10)).
-		AnyTimes()
 	suite.stakingKeeper = stakingKeeper
 
 	suite.restakeKeeper = keeper.NewKeeper(
@@ -185,6 +175,8 @@ func (suite *KeeperTestSuite) SetupTest() {
 		stakingKeeper,
 	)
 	suite.restakeKeeper.InitGenesis(suite.ctx, types.DefaultGenesisState())
+
+	suite.stakingHooks = suite.restakeKeeper.Hooks()
 
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, encCfg.InterfaceRegistry)
 	queryServer := keeper.Querier{
@@ -681,6 +673,21 @@ func (suite *KeeperTestSuite) TestScenarios() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
+
+			// setup delegator bond
+			suite.stakingKeeper.EXPECT().
+				GetDelegatorBonded(gomock.Any(), ValidAddress1).
+				Return(sdkmath.NewInt(1e18)).
+				AnyTimes()
+			suite.stakingKeeper.EXPECT().
+				GetDelegatorBonded(gomock.Any(), ValidAddress2).
+				Return(sdkmath.NewInt(1e18)).
+				AnyTimes()
+			suite.stakingKeeper.EXPECT().
+				GetDelegatorBonded(gomock.Any(), ValidAddress3).
+				Return(sdkmath.NewInt(10)).
+				AnyTimes()
+
 			tc.check(suite.ctx)
 		})
 	}

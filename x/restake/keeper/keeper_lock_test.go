@@ -5,6 +5,7 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"go.uber.org/mock/gomock"
 
 	"github.com/bandprotocol/chain/v2/x/restake/types"
 )
@@ -12,6 +13,15 @@ import (
 func (suite *KeeperTestSuite) TestSetLockedPower() {
 	ctx := suite.ctx
 	suite.setupState()
+
+	suite.stakingKeeper.EXPECT().
+		GetDelegatorBonded(gomock.Any(), ValidAddress1).
+		Return(sdkmath.NewInt(1e18)).
+		Times(1)
+	suite.stakingKeeper.EXPECT().
+		GetDelegatorBonded(gomock.Any(), ValidAddress3).
+		Return(sdkmath.NewInt(10)).
+		Times(1)
 
 	// error case -  power is not uint64
 	err := suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, VaultKeyWithRewards, sdkmath.NewInt(-5))
@@ -205,6 +215,12 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 		suite.Run(fmt.Sprintf("Case %s", testCase.name), func() {
 			suite.SetupTest()
 			ctx = suite.ctx
+
+			suite.stakingKeeper.EXPECT().
+				GetDelegatorBonded(gomock.Any(), ValidAddress1).
+				Return(sdkmath.NewInt(1e18)).
+				Times(1)
+
 			testCase.malleate()
 
 			suite.restakeKeeper.SetVault(ctx, preVault)
