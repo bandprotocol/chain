@@ -17,14 +17,14 @@ func (k Keeper) GetOrCreateVault(ctx sdk.Context, key string) (types.Vault, erro
 			return types.Vault{}, err
 		}
 
-		vault = types.Vault{
-			Key:             key,
-			VaultAddress:    vaultAccAddr.String(),
-			IsActive:        true,
-			TotalPower:      sdkmath.NewInt(0),
-			RewardsPerPower: sdk.NewDecCoins(),
-			Remainders:      sdk.NewDecCoins(),
-		}
+		vault = types.NewVault(
+			key,
+			vaultAccAddr.String(),
+			true,
+			sdk.NewDecCoins(),
+			sdkmath.NewInt(0),
+			sdk.NewDecCoins(),
+		)
 
 		k.SetVault(ctx, vault)
 	}

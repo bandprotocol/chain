@@ -32,13 +32,13 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key s
 	// check if there is a lock before
 	lock, err := k.GetLock(ctx, stakerAddr, key)
 	if err != nil {
-		lock = types.Lock{
-			StakerAddress:  stakerAddr.String(),
-			Key:            key,
-			Power:          sdkmath.NewInt(0),
-			PosRewardDebts: sdk.NewDecCoins(),
-			NegRewardDebts: sdk.NewDecCoins(),
-		}
+		lock = types.NewLock(
+			stakerAddr.String(),
+			key,
+			sdkmath.NewInt(0),
+			sdk.NewDecCoins(),
+			sdk.NewDecCoins(),
+		)
 	}
 
 	diffPower := power.Sub(lock.Power)
@@ -97,10 +97,10 @@ func (k Keeper) getAccumulatedRewards(ctx sdk.Context, lock types.Lock) sdk.DecC
 func (k Keeper) getReward(ctx sdk.Context, lock types.Lock) types.Reward {
 	totalRewards := k.getAccumulatedRewards(ctx, lock)
 
-	return types.Reward{
-		Key:     lock.Key,
-		Rewards: totalRewards.Add(lock.NegRewardDebts...).Sub(lock.PosRewardDebts),
-	}
+	return types.NewReward(
+		lock.Key,
+		totalRewards.Add(lock.NegRewardDebts...).Sub(lock.PosRewardDebts),
+	)
 }
 
 // -------------------------------
