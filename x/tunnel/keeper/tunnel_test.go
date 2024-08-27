@@ -5,50 +5,12 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
-	"go.uber.org/mock/gomock"
 
 	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/tunnel/keeper"
 	"github.com/bandprotocol/chain/v2/x/tunnel/testutil"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
-
-func TestAddTunnel(t *testing.T) {
-	s := testutil.NewTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
-
-	// Create a new tunnel instance
-	tunnel := types.Tunnel{ID: 1}
-
-	// Mock the account keeper to generate a new account
-	s.MockAccountKeeper.EXPECT().
-		GetAccount(ctx, gomock.Any()).
-		Return(nil).Times(1)
-	s.MockAccountKeeper.EXPECT().NewAccount(ctx, gomock.Any()).Times(1)
-	s.MockAccountKeeper.EXPECT().SetAccount(ctx, gomock.Any()).Times(1)
-
-	// Add the tunnel to the keeper
-	_, err := k.AddTunnel(ctx, tunnel)
-	require.NoError(t, err, "adding tunnel should not produce an error")
-
-	// Attempt to retrieve the tunnel by its ID
-	retrievedTunnel, err := k.GetTunnel(ctx, tunnel.ID)
-	require.NoError(s.T(), err, "retrieving tunnel should not produce an error")
-
-	expected := types.Tunnel{
-		ID:               1,
-		Route:            nil,
-		FeedType:         feedstypes.FEED_TYPE_UNSPECIFIED,
-		FeePayer:         "cosmos1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62qh49enj",
-		SignalPriceInfos: nil,
-		IsActive:         false,
-		CreatedAt:        s.Ctx.BlockTime().Unix(),
-		Creator:          "",
-	}
-
-	// Assert the retrieved tunnel matches the one we set
-	require.Equal(s.T(), expected, retrievedTunnel, "the retrieved tunnel should match the original")
-}
 
 func TestGetSetTunnel(t *testing.T) {
 	s := testutil.NewTestSuite(t)

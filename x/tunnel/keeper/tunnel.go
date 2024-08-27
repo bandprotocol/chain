@@ -4,11 +4,48 @@ import (
 	"fmt"
 	"math"
 
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	feedsTypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
+
+// CreateTunnel creates a new tunnel
+func (k Keeper) CreateTunnel(
+	ctx sdk.Context,
+	route *codectypes.Any,
+	feedType feedsTypes.FeedType,
+	signalPriceInfos []types.SignalPriceInfo,
+	interval uint64,
+	creator string,
+) (types.Tunnel, error) {
+	id := k.GetTunnelCount(ctx)
+	newID := id + 1
+
+	// Generate a new tunnel account
+	acc, err := k.GenerateAccount(ctx, fmt.Sprintf("%d", newID))
+	if err != nil {
+		return types.Tunnel{}, err
+	}
+
+	// Set the new tunnel count
+	k.SetTunnelCount(ctx, newID)
+
+	return types.NewTunnel(
+		id,
+		0,
+		route,
+		feedType,
+		acc.String(),
+		signalPriceInfos,
+		interval,
+		0,
+		false,
+		ctx.BlockTime().Unix(),
+		creator,
+	), nil
+}
 
 // SetTunnelCount sets the tunnel count in the store
 func (k Keeper) SetTunnelCount(ctx sdk.Context, count uint64) {
@@ -30,25 +67,6 @@ func (k Keeper) GetNextTunnelID(ctx sdk.Context) uint64 {
 // SetTunnel sets a tunnel in the store
 func (k Keeper) SetTunnel(ctx sdk.Context, tunnel types.Tunnel) {
 	ctx.KVStore(k.storeKey).Set(types.TunnelStoreKey(tunnel.ID), k.cdc.MustMarshal(&tunnel))
-}
-
-// AddTunnel adds a tunnel to the store and returns the new tunnel ID
-func (k Keeper) AddTunnel(ctx sdk.Context, tunnel types.Tunnel) (uint64, error) {
-	tunnel.ID = k.GetNextTunnelID(ctx)
-
-	// Generate a new tunnel account
-	acc, err := k.GenerateAccount(ctx, fmt.Sprintf("%d", tunnel.ID))
-	if err != nil {
-		return 0, err
-	}
-
-	tunnel.FeePayer = acc.String()
-
-	// Set the creation time
-	tunnel.CreatedAt = ctx.BlockTime().Unix()
-
-	k.SetTunnel(ctx, tunnel)
-	return tunnel.ID, nil
 }
 
 // GetTunnel retrieves a tunnel by its ID

@@ -39,23 +39,13 @@ func (ms msgServer) CreateTunnel(
 		})
 	}
 
-	tunnelID, err := ms.Keeper.AddTunnel(ctx, types.Tunnel{
-		Route:            req.Route,
-		FeedType:         req.FeedType,
-		SignalPriceInfos: signalPriceInfos,
-		Interval:         req.Interval,
-		IsActive:         false,
-		Creator:          req.Creator,
-	})
+	tunnel, err := ms.Keeper.CreateTunnel(ctx, req.Route, req.FeedType, signalPriceInfos, req.Interval, req.Creator)
 	if err != nil {
 		return nil, err
 	}
+	ms.Keeper.SetTunnel(ctx, tunnel)
 
-	tunnel, err := ms.Keeper.GetTunnel(ctx, tunnelID)
-	if err != nil {
-		return nil, err
-	}
-
+	// Emit an event
 	event := sdk.NewEvent(
 		types.EventTypeCreateTunnel,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),

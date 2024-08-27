@@ -4,10 +4,42 @@ import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec/types"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	proto "github.com/cosmos/gogoproto/proto"
+
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
 var _ types.UnpackInterfacesMessage = Tunnel{}
+
+// NewTunnel creates a new Tunnel instance.
+func NewTunnel(
+	id uint64,
+	nonceCount uint64,
+	route *codectypes.Any,
+	feedType feedstypes.FeedType,
+	feePayer string,
+	signalPriceInfos []SignalPriceInfo,
+	interval uint64,
+	lastIntervalTimestamp int64,
+	isActive bool,
+	createdAt int64,
+	creator string,
+) Tunnel {
+	return Tunnel{
+		ID:                    id,
+		NonceCount:            nonceCount,
+		Route:                 route,
+		FeedType:              feedType,
+		FeePayer:              feePayer,
+		SignalPriceInfos:      signalPriceInfos,
+		Interval:              interval,
+		LastIntervalTimestamp: lastIntervalTimestamp,
+		IsActive:              isActive,
+		CreatedAt:             createdAt,
+		Creator:               creator,
+	}
+}
 
 // UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
 func (t Tunnel) UnpackInterfaces(unpacker types.AnyUnpacker) error {
