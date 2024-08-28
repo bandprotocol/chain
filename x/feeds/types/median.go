@@ -23,6 +23,23 @@ type PriceFeedInfo struct {
 	Index       int64       // Index represents the index of the price feed
 }
 
+// NewPriceFeedInfo returns a new PriceFeedInfo
+func NewPriceFeedInfo(
+	priceStatus PriceStatus,
+	power uint64,
+	price uint64,
+	timestamp int64,
+	index int64,
+) PriceFeedInfo {
+	return PriceFeedInfo{
+		PriceStatus: priceStatus,
+		Power:       power,
+		Price:       price,
+		Timestamp:   timestamp,
+		Index:       index,
+	}
+}
+
 // FilterPriceFeedInfos filters price feed infos based on price status
 func FilterPriceFeedInfos(pfInfos []PriceFeedInfo, opt PriceStatus) []PriceFeedInfo {
 	filtered := []PriceFeedInfo{}
