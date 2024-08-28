@@ -48,3 +48,13 @@ func NewReward(
 		Rewards: rewards,
 	}
 }
+
+func NewStake(
+	stakerAddr string,
+	coins sdk.Coins,
+) Stake {
+	return Stake{
+		StakerAddress: stakerAddr,
+		Coins:         coins,
+	}
+}

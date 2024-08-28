@@ -42,3 +42,6 @@ sed -i -e \
 
 # update voting period to be 60s for testing
 cat <<< $(jq '.app_state.gov.params.voting_period = "60s"' ~/.band/config/genesis.json) > ~/.band/config/genesis.json
+
+# allow "uband" for restake
+cat <<< $(jq '.app_state.restake.params.allowed_denoms = ["uband"]' ~/.band/config/genesis.json) > ~/.band/config/genesis.json

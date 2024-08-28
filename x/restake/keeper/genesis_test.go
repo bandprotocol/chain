@@ -17,7 +17,7 @@ func (suite *KeeperTestSuite) TestExportGenesis() {
 func (suite *KeeperTestSuite) TestInitGenesis() {
 	ctx := suite.ctx
 
-	g := types.NewGenesisState(suite.validVaults, suite.validLocks)
+	g := types.NewGenesisState(suite.validParams, suite.validVaults, suite.validLocks, suite.validStakes)
 	suite.restakeKeeper.InitGenesis(suite.ctx, g)
 
 	suite.Require().Equal(suite.validVaults, suite.restakeKeeper.GetVaults(ctx))

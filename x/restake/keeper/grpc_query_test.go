@@ -422,3 +422,98 @@ func (suite *KeeperTestSuite) TestQueryLock() {
 		})
 	}
 }
+
+func (suite *KeeperTestSuite) TestQueryStake() {
+	queryClient := suite.queryClient
+	suite.setupState()
+
+	// query and check
+	var (
+		req    *types.QueryStakeRequest
+		expRes *types.QueryStakeResponse
+	)
+
+	testCases := []struct {
+		msg      string
+		malleate func()
+		expPass  bool
+	}{
+		{
+			"stake of address1",
+			func() {
+				req = &types.QueryStakeRequest{
+					StakerAddress: ValidAddress1.String(),
+				}
+				expRes = &types.QueryStakeResponse{
+					Stake: types.Stake{
+						StakerAddress: ValidAddress1.String(),
+						Coins:         sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(50))),
+					},
+				}
+			},
+			true,
+		},
+		{
+			"stake of address2",
+			func() {
+				req = &types.QueryStakeRequest{
+					StakerAddress: ValidAddress2.String(),
+				}
+
+				expRes = &types.QueryStakeResponse{
+					Stake: types.Stake{
+						StakerAddress: ValidAddress2.String(),
+						Coins:         nil,
+					},
+				}
+			},
+			true,
+		},
+		{
+			"stake of address3",
+			func() {
+				req = &types.QueryStakeRequest{
+					StakerAddress: ValidAddress3.String(),
+				}
+				expRes = &types.QueryStakeResponse{
+					Stake: types.Stake{
+						StakerAddress: ValidAddress3.String(),
+						Coins:         sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(10))),
+					},
+				}
+			},
+			true,
+		},
+	}
+
+	for _, testCase := range testCases {
+		suite.Run(fmt.Sprintf("Case %s", testCase.msg), func() {
+			testCase.malleate()
+
+			res, err := queryClient.Stake(context.Background(), req)
+
+			if testCase.expPass {
+				suite.Require().NoError(err)
+				suite.Require().Equal(expRes.GetStake(), res.GetStake())
+			} else {
+				suite.Require().Error(err)
+				suite.Require().Nil(expRes)
+			}
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestQueryParams() {
+	queryClient := suite.queryClient
+
+	// default params
+	res, err := queryClient.Params(context.Background(), &types.QueryParamsRequest{})
+	suite.Require().NoError(err)
+	suite.Require().Equal(types.DefaultParams(), res.Params)
+
+	// setup params
+	suite.setupState()
+	res, err = queryClient.Params(context.Background(), &types.QueryParamsRequest{})
+	suite.Require().NoError(err)
+	suite.Require().Equal(suite.validParams, res.Params)
+}

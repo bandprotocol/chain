@@ -13,6 +13,9 @@ import (
 // on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgClaimRewards{}, "restake/MsgClaimRewards")
+	legacy.RegisterAminoMsg(cdc, &MsgStake{}, "restake/MsgStake")
+	legacy.RegisterAminoMsg(cdc, &MsgUnstake{}, "restake/MsgUnstake")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "restake/MsgUpdateParams")
 }
 
 // RegisterInterfaces registers the x/restake interfaces types with the interface registry

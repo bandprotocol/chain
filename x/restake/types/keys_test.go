@@ -16,6 +16,16 @@ func TestVaultStoreKey(t *testing.T) {
 	require.Equal(t, expect, VaultStoreKey(key))
 }
 
+func TestStakeStoreKey(t *testing.T) {
+	hexAddress := "b80f2a5df7d5710b15622d1a9f1e3830ded5bda8"
+	acc, err := sdk.AccAddressFromHexUnsafe(hexAddress)
+	require.NoError(t, err)
+
+	expect, err := hex.DecodeString("02" + "14" + hexAddress)
+	require.NoError(t, err)
+	require.Equal(t, expect, StakeStoreKey(acc))
+}
+
 func TestLocksByAddressStoreKey(t *testing.T) {
 	hexAddress := "b80f2a5df7d5710b15622d1a9f1e3830ded5bda8"
 	acc, err := sdk.AccAddressFromHexUnsafe(hexAddress)

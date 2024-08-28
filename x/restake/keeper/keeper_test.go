@@ -11,6 +11,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/mock/gomock"
@@ -21,6 +23,10 @@ import (
 )
 
 var (
+	// staked power
+	// - 50 -> address 1
+	// - 10 -> address 3
+	// - 0  -> others
 	ValidAddress1 = sdk.AccAddress("1000000001")
 	ValidAddress2 = sdk.AccAddress("1000000002")
 	ValidAddress3 = sdk.AccAddress("1000000003")
@@ -31,6 +37,8 @@ var (
 	InactiveVaultKey       = "3_inactive_key"
 	InvalidVaultKey        = "invalid_key"
 	ValidVaultKey          = "valid_key"
+
+	LiquidStakerAddress = sdk.AccAddress("12345678901234567890123456789012")
 
 	VaultWithRewardsAddress    = sdk.AccAddress("2000000001")
 	VaultWithoutRewardsAddress = sdk.AccAddress("2000000002")
@@ -61,6 +69,8 @@ type KeeperTestSuite struct {
 
 	validVaults []types.Vault
 	validLocks  []types.Lock
+	validParams types.Params
+	validStakes []types.Stake
 }
 
 func TestKeeperTestSuite(t *testing.T) {
@@ -68,6 +78,17 @@ func TestKeeperTestSuite(t *testing.T) {
 }
 
 func (suite *KeeperTestSuite) SetupTest() {
+	suite.validParams = types.NewParams([]string{"uband"})
+	suite.validStakes = []types.Stake{
+		{
+			StakerAddress: ValidAddress1.String(),
+			Coins:         sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(50))),
+		},
+		{
+			StakerAddress: ValidAddress3.String(),
+			Coins:         sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(10))),
+		},
+	}
 	suite.validVaults = []types.Vault{
 		{
 			Key:             VaultKeyWithRewards,
@@ -139,6 +160,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	testCtx := testutil.DefaultContextWithDB(suite.T(), key, sdk.NewTransientStoreKey("transient_test"))
 	suite.ctx = testCtx.Ctx.WithBlockHeader(tmproto.Header{Time: tmtime.Now()})
 	encCfg := moduletestutil.MakeTestEncodingConfig()
+	moduleAccount := authtypes.NewEmptyModuleAccount(types.ModuleName)
 
 	// gomock initializations
 	ctrl := gomock.NewController(suite.T())
@@ -155,11 +177,27 @@ func (suite *KeeperTestSuite) SetupTest() {
 		SetAccount(gomock.Any(), gomock.Any()).
 		Return().
 		AnyTimes()
+	accountKeeper.EXPECT().
+		GetModuleAddress(types.ModuleName).
+		Return(moduleAccount.GetAddress()).
+		AnyTimes()
+	accountKeeper.EXPECT().
+		GetModuleAccount(gomock.Any(), types.ModuleName).
+		Return(moduleAccount).
+		AnyTimes()
+	accountKeeper.EXPECT().
+		SetModuleAccount(gomock.Any(), moduleAccount).
+		Return().
+		AnyTimes()
 	suite.accountKeeper = accountKeeper
 
 	bankKeeper := restaketestutil.NewMockBankKeeper(ctrl)
 	bankKeeper.EXPECT().
 		SendCoins(gomock.Any(), RewarderAddress, gomock.Any(), gomock.Any()).
+		Return(nil).
+		AnyTimes()
+	bankKeeper.EXPECT().
+		GetAllBalances(gomock.Any(), gomock.Any()).
 		Return(nil).
 		AnyTimes()
 	suite.bankKeeper = bankKeeper
@@ -173,6 +211,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 		accountKeeper,
 		bankKeeper,
 		stakingKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	suite.restakeKeeper.InitGenesis(suite.ctx, types.DefaultGenesisState())
 
@@ -191,6 +230,9 @@ func (suite *KeeperTestSuite) SetupTest() {
 }
 
 func (suite *KeeperTestSuite) setupState() {
+	err := suite.restakeKeeper.SetParams(suite.ctx, suite.validParams)
+	suite.Require().NoError(err)
+
 	for _, vault := range suite.validVaults {
 		suite.restakeKeeper.SetVault(suite.ctx, vault)
 	}
@@ -198,6 +240,78 @@ func (suite *KeeperTestSuite) setupState() {
 	for _, lock := range suite.validLocks {
 		suite.restakeKeeper.SetLock(suite.ctx, lock)
 	}
+
+	for _, stake := range suite.validStakes {
+		suite.restakeKeeper.SetStake(suite.ctx, stake)
+	}
+}
+
+func (suite *KeeperTestSuite) TestGetTotalPower() {
+	ctx := suite.ctx
+	suite.setupState()
+
+	suite.stakingKeeper.EXPECT().
+		GetDelegatorBonded(gomock.Any(), ValidAddress1).
+		Return(sdkmath.NewInt(1e18)).
+		Times(1)
+	expPower, _ := sdkmath.NewIntFromString("1000000000000000050")
+	power := suite.restakeKeeper.GetTotalPower(ctx, ValidAddress1)
+	suite.Require().Equal(expPower, power)
+
+	suite.stakingKeeper.EXPECT().
+		GetDelegatorBonded(gomock.Any(), ValidAddress2).
+		Return(sdkmath.NewInt(1e18)).
+		Times(1)
+	expPower, _ = sdkmath.NewIntFromString("1000000000000000000")
+	power = suite.restakeKeeper.GetTotalPower(ctx, ValidAddress2)
+	suite.Require().Equal(expPower, power)
+
+	suite.stakingKeeper.EXPECT().
+		GetDelegatorBonded(gomock.Any(), ValidAddress3).
+		Return(sdkmath.NewInt(10)).
+		Times(1)
+	expPower, _ = sdkmath.NewIntFromString("20")
+	power = suite.restakeKeeper.GetTotalPower(ctx, ValidAddress3)
+	suite.Require().Equal(expPower, power)
+}
+
+func (suite *KeeperTestSuite) TestGetDelegationPower() {
+	ctx := suite.ctx
+	suite.setupState()
+
+	suite.stakingKeeper.EXPECT().
+		GetDelegatorBonded(gomock.Any(), ValidAddress1).
+		Return(sdkmath.NewInt(1e18)).
+		Times(1)
+	expPower, _ := sdkmath.NewIntFromString("1000000000000000000")
+	power := suite.restakeKeeper.GetDelegationPower(ctx, ValidAddress1)
+	suite.Require().Equal(expPower, power)
+
+	suite.stakingKeeper.EXPECT().
+		GetDelegatorBonded(gomock.Any(), ValidAddress2).
+		Return(sdkmath.NewInt(1e18)).
+		Times(1)
+	expPower, _ = sdkmath.NewIntFromString("1000000000000000000")
+	power = suite.restakeKeeper.GetDelegationPower(ctx, ValidAddress2)
+	suite.Require().Equal(expPower, power)
+
+	suite.stakingKeeper.EXPECT().
+		GetDelegatorBonded(gomock.Any(), ValidAddress3).
+		Return(sdkmath.NewInt(10)).
+		Times(1)
+	expPower, _ = sdkmath.NewIntFromString("10")
+	power = suite.restakeKeeper.GetDelegationPower(ctx, ValidAddress3)
+	suite.Require().Equal(expPower, power)
+}
+
+func (suite *KeeperTestSuite) TestIsLiquidStaker() {
+	// not liquid staker
+	isLiquidStaker := suite.restakeKeeper.IsLiquidStaker(ValidAddress1)
+	suite.Require().Equal(false, isLiquidStaker)
+
+	// is liquid staker
+	isLiquidStaker = suite.restakeKeeper.IsLiquidStaker(LiquidStakerAddress)
+	suite.Require().Equal(true, isLiquidStaker)
 }
 
 func (suite *KeeperTestSuite) TestScenarios() {
