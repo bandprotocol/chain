@@ -109,10 +109,10 @@ func CalculateMedianPriceFeedInfo(priceFeedInfos []PriceFeedInfo) (uint64, error
 		}
 		wps = append(
 			wps,
-			WeightedPrice{
-				Price: priceFeedInfo.Price,
-				Power: totalWeight,
-			},
+			NewWeightedPrice(
+				priceFeedInfo.Price,
+				totalWeight,
+			),
 		)
 	}
 
@@ -123,6 +123,14 @@ func CalculateMedianPriceFeedInfo(priceFeedInfos []PriceFeedInfo) (uint64, error
 type WeightedPrice struct {
 	Power uint64 // Power represents the power for the price
 	Price uint64 // Price represents the price
+}
+
+// NewWeightedPrice returns a new WeightedPrice
+func NewWeightedPrice(power uint64, price uint64) WeightedPrice {
+	return WeightedPrice{
+		Power: power,
+		Price: price,
+	}
 }
 
 // CalculateMedianWeightedPrice calculates the median of weighted prices
