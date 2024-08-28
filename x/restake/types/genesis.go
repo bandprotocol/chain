@@ -16,10 +16,10 @@ func NewGenesisState(vaults []Vault, locks []Lock) *GenesisState {
 
 // DefaultGenesisState gets the raw genesis raw message for testing
 func DefaultGenesisState() *GenesisState {
-	return &GenesisState{
-		Vaults: []Vault{},
-		Locks:  []Lock{},
-	}
+	return NewGenesisState(
+		[]Vault{},
+		[]Lock{},
+	)
 }
 
 // Validate performs basic validation of genesis data returning an
