@@ -27,12 +27,10 @@ const (
 )
 
 var (
-	GlobalStoreKeyPrefix = []byte{0x00}
+	VaultStoreKeyPrefix = []byte{0x00}
+	LockStoreKeyPrefix  = []byte{0x01}
 
-	VaultStoreKeyPrefix = []byte{0x01}
-	LockStoreKeyPrefix  = []byte{0x02}
-
-	LocksByPowerIndexKeyPrefix = []byte{0x10}
+	LocksByPowerIndexKeyPrefix = []byte{0x80}
 )
 
 // VaultStoreKey returns the key to retrieve a specific vault from the store.
