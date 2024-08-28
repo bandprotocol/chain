@@ -253,6 +253,16 @@ func (q queryServer) CurrentFeeds(
 	}, nil
 }
 
+// CurrentPrices queries all current prices.
+func (q queryServer) CurrentPrices(
+	goCtx context.Context, _ *types.QueryCurrentPricesRequest,
+) (*types.QueryCurrentPricesResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	currentPrices := q.keeper.GetCurrentPrices(ctx)
+	return &types.QueryCurrentPricesResponse{Prices: currentPrices}, nil
+}
+
 // ReferenceSourceConfig queries current reference source config.
 func (q queryServer) ReferenceSourceConfig(
 	goCtx context.Context, _ *types.QueryReferenceSourceConfigRequest,

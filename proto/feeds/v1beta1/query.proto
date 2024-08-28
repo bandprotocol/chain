@@ -17,6 +17,11 @@ service Query {
     option (google.api.http).get = "/feeds/v1beta1/current-feeds";
   }
 
+  // CurrentPrices is an RPC method that returns a list of current prices.
+  rpc CurrentPrices(QueryCurrentPricesRequest) returns (QueryCurrentPricesResponse) {
+    option (google.api.http).get = "/feeds/v1beta1/current-prices";
+  }
+
   // DelegatorSignals is an RPC method that returns signals of a delegator.
   rpc DelegatorSignals(QueryDelegatorSignalsRequest) returns (QueryDelegatorSignalsResponse) {
     option (google.api.http).get = "/feeds/v1beta1/delegators/{delegator_address}/signals";
@@ -71,6 +76,15 @@ message QueryCurrentFeedsRequest {}
 message QueryCurrentFeedsResponse {
   // current_feeds is a list of currently supported feed-with-deviations, and its last update time and block.
   CurrentFeedWithDeviations current_feeds = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryCurrentPricesRequest is the request type for the Query/CurrentPrices RPC method.
+message QueryCurrentPricesRequest {}
+
+// QueryCurrentPricesResponse is the response type for the Query/CurrentPrices RPC method.
+message QueryCurrentPricesResponse {
+  // prices is a list of current prices.
+  repeated Price prices = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryDelegatorSignalsRequest is the request type for the Query/DelegatorSignals RPC method.

@@ -26,7 +26,22 @@ func (k Keeper) GetPrices(ctx sdk.Context) (prices []types.Price) {
 		prices = append(prices, price)
 	}
 
-	return prices
+	return
+}
+
+// GetCurrentPrices returns a list of all current prices.
+func (k Keeper) GetCurrentPrices(ctx sdk.Context) (prices []types.Price) {
+	currentFeeds := k.GetCurrentFeeds(ctx)
+	for _, feed := range currentFeeds.Feeds {
+		price, err := k.GetPrice(ctx, feed.SignalID)
+		if err != nil {
+			continue
+		}
+
+		prices = append(prices, price)
+	}
+
+	return
 }
 
 // GetPrice returns a price by signal id.
