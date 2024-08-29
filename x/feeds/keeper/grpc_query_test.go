@@ -31,7 +31,7 @@ func (suite *KeeperTestSuite) TestQueryDelegatorSignals() {
 
 	// query and check
 	res, err := queryClient.DelegatorSignals(context.Background(), &types.QueryDelegatorSignalsRequest{
-		Delegator: ValidDelegator.String(),
+		DelegatorAddress: ValidDelegator.String(),
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryDelegatorSignalsResponse{
@@ -189,7 +189,7 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 
 	// query all prices
 	res, err := queryClient.ValidatorPrices(context.Background(), &types.QueryValidatorPricesRequest{
-		Validator: ValidValidator.String(),
+		ValidatorAddress: ValidValidator.String(),
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryValidatorPricesResponse{
@@ -198,17 +198,17 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 
 	// query with specific SignalIds
 	res, err = queryClient.ValidatorPrices(context.Background(), &types.QueryValidatorPricesRequest{
-		Validator: ValidValidator.String(),
-		SignalIds: []string{"CS:ATOM-USD"},
+		ValidatorAddress: ValidValidator.String(),
+		SignalIds:        []string{"CS:ATOM-USD"},
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryValidatorPricesResponse{
-		ValidatorPrices: []types.ValidatorPrice{valPrices[0]},
+		ValidatorPrices: []types.ValidatorPrice(nil),
 	}, res)
 
 	// query with invalid validator
 	res, err = queryClient.ValidatorPrices(context.Background(), &types.QueryValidatorPricesRequest{
-		Validator: InvalidValidator.String(),
+		ValidatorAddress: InvalidValidator.String(),
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryValidatorPricesResponse{
@@ -217,8 +217,8 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 
 	// query with specific SignalIds for invalid validator
 	res, err = queryClient.ValidatorPrices(context.Background(), &types.QueryValidatorPricesRequest{
-		Validator: InvalidValidator.String(),
-		SignalIds: []string{"CS:ATOM-USD"},
+		ValidatorAddress: InvalidValidator.String(),
+		SignalIds:        []string{"CS:ATOM-USD"},
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryValidatorPricesResponse{
@@ -231,7 +231,7 @@ func (suite *KeeperTestSuite) TestQueryValidValidator() {
 
 	// query and check
 	res, err := queryClient.ValidValidator(context.Background(), &types.QueryValidValidatorRequest{
-		Validator: ValidValidator.String(),
+		ValidatorAddress: ValidValidator.String(),
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryValidValidatorResponse{
@@ -239,7 +239,7 @@ func (suite *KeeperTestSuite) TestQueryValidValidator() {
 	}, res)
 
 	res, err = queryClient.ValidValidator(context.Background(), &types.QueryValidValidatorRequest{
-		Validator: InvalidValidator.String(),
+		ValidatorAddress: InvalidValidator.String(),
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryValidValidatorResponse{

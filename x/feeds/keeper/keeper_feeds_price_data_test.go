@@ -114,11 +114,11 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData() {
 		},
 		{
 			name:         "fail case - price not found",
-			signalIDs:    []string{"crypto_price.atomusd"},
+			signalIDs:    []string{"crypto_price.atomusdfake"},
 			setPrices:    []types.Price{},
 			feedType:     types.FEED_TYPE_FIXED_POINT_ABI,
 			expectResult: types.FeedsPriceData{},
-			expectError:  fmt.Errorf("failed to get price for signal id: crypto_price.atomusd: price not found"),
+			expectError:  fmt.Errorf("failed to get price for signal id: crypto_price.atomusdfake: price not found"),
 		},
 	}
 
@@ -147,9 +147,9 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData() {
 			}
 
 			// cleanup
-			for _, price := range tc.setPrices {
-				suite.feedsKeeper.DeletePrice(suite.ctx, price.SignalID)
-			}
+			// for _, price := range tc.setPrices {
+			// 	suite.feedsKeeper.DeletePrice(suite.ctx, price.SignalID)
+			// }
 		})
 	}
 }

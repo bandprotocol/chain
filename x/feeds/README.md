@@ -28,15 +28,15 @@ This module is used in the BandChain.
     - [CurrentFeeds](#currentfeeds)
     - [ValidatorPriceList](#validatorpricelist)
     - [Price](#price-1)
-    - [DelegatorSignal](#delegatorsignal)
+    - [DelegatorSignals](#delegatorsignals)
     - [SignalTotalPower](#signaltotalpower)
       - [SignalTotalPowerByPowerIndex](#signaltotalpowerbypowerindex)
     - [Params](#params)
   - [Messages](#messages)
+    - [MsgSubmitSignals](#msgsubmitsignals)
     - [MsgSubmitSignalPrices](#msgsubmitsignalprices)
     - [MsgUpdateReferenceSourceConfig](#msgupdatereferencesourceconfig)
     - [MsgUpdateParams](#msgupdateparams)
-    - [MsgSubmitSignals](#msgsubmitsignals)
   - [End-Block](#end-block)
     - [Update Prices](#update-prices)
       - [Input](#input)
@@ -110,51 +110,51 @@ The On-chain Reference Source Config is the agreed-upon version of the reference
 
 ### ReferenceSourceConfig
 
-ReferenceSourceConfig is stored in the global store `0x00` to hold Reference Source information.
+ReferenceSourceConfig is a single-value store that hold Reference Source information.
 
-* ReferenceSourceConfig: `0x00 | []byte("ReferenceSourceConfig") -> ProtocolBuffer(ReferenceSourceConfig)`
+* ReferenceSourceConfig: `0x00 -> ProtocolBuffer(ReferenceSourceConfig)`
 
 ### CurrentFeeds
 
-CurrentFeeds is stored in the global store `0x00` to hold the list of currently supported feeds.
+CurrentFeeds is a single-value store that hold currently supported feeds.
 
-* CurrentFeeds: `0x00 | []byte("CurrentFeeds") -> ProtocolBuffer(CurrentFeeds)`
+* CurrentFeeds: `0x01 -> ProtocolBuffer(CurrentFeeds)`
 
 ### ValidatorPriceList
 
 The ValidatorPrice is a space for holding the current lists of validator prices.
 
-* ValidatorPrice: `0x01 -> ProtocolBuffer(ValidatorPriceList)`
+* ValidatorPrice: `0x10 -> ProtocolBuffer(ValidatorPriceList)`
 
 ### Price
 
 The Price is a space for holding the current price information of signals.
 
-* Price: `0x02 -> ProtocolBuffer(Price)`
+* Price: `0x11 -> ProtocolBuffer(Price)`
 
-### DelegatorSignal
+### DelegatorSignals
 
-The DelegatorSignal is a space for holding current Delegator Signals information of delegators.
+The DelegatorSignals is a space for holding current Delegator Signals information of delegators.
 
-* DelegatorSignal: `0x03 -> ProtocolBuffer(DelegatorSignals)`
+* DelegatorSignals: `0x12 -> ProtocolBuffer(DelegatorSignals)`
 
 ### SignalTotalPower
 
 The SignalTotalPower is a space for holding the total power of signals.
 
-* SignalTotalPower: `0x04 -> ProtocolBuffer(Signal)`
+* SignalTotalPower: `0x13 -> ProtocolBuffer(Signal)`
 
 #### SignalTotalPowerByPowerIndex
 
 `SignalTotalPowerByPowerIndex` allow to retrieve SignalTotalPower by power:
-`0x20| BigEndian(Power) | SignalIDLen (1 byte) | SignalID -> SignalID`
+`0x80| BigEndian(Power) | SignalIDLen (1 byte) | SignalID -> SignalID`
 
 ### Params
 
 The feeds module stores its params in state with the prefix of `0x10`,
 it can be updated with governance proposal or the address with authority.
 
-* Params: `0x10 | ProtocolBuffer(Params)`
+* Params: `0x90 | ProtocolBuffer(Params)`
 
 ```protobuf
 // Params is the data structure that keeps the parameters of the feeds module.
@@ -203,6 +203,33 @@ message Params {
 ## Messages
 
 In this section, we describe the processing of the `feeds` messages and the corresponding updates to the state. All created/modified state objects specified by each message are defined within the [state](#state) section.
+
+### MsgSubmitSignals
+
+Delegator Signals are submitted as a batch using the MsgSubmitSignals message.
+
+Batched Signals replace the previous Signals of the same delegator as a batch.
+Signals are registered, and their power is added to the SignalTotalPower of the same SignalID.
+
+```protobuf
+// MsgSubmitSignals is the transaction message to submit signals
+message MsgSubmitSignals {
+  option (cosmos.msg.v1.signer) = "delegator";
+  option (amino.name)           = "feeds/MsgSubmitSignals";
+
+  // Delegator is the address of the delegator that want to submit signals
+  string delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // Signals is a list of submitted signal
+  repeated Signal signals = 2 [(gogoproto.nullable) = false];
+}
+```
+
+The message handling can fail if:
+
+* The delegator's address is not correct.
+* The delegator has less delegation than the sum of the Powers.
+* The signal is not valid. (e.g. too long signal ID, power is a negative value).
+* The size of the list of signal is too large.
 
 ### MsgSubmitSignalPrices
 
@@ -281,33 +308,6 @@ message MsgUpdateParams {
 The message handling can fail if:
 
 * signer is not the authority defined in the feeds keeper (usually the gov module account).
-
-### MsgSubmitSignals
-
-Delegator Signals are submitted as a batch using the MsgSubmitSignals message.
-
-Batched Signals replace the previous Signals of the same delegator as a batch.
-Signals are registered, and their power is added to the SignalTotalPower of the same SignalID.
-
-```protobuf
-// MsgSubmitSignals is the transaction message to submit signals
-message MsgSubmitSignals {
-  option (cosmos.msg.v1.signer) = "delegator";
-  option (amino.name)           = "feeds/MsgSubmitSignals";
-
-  // Delegator is the address of the delegator that want to submit signals
-  string delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  // Signals is a list of submitted signal
-  repeated Signal signals = 2 [(gogoproto.nullable) = false];
-}
-```
-
-The message handling can fail if:
-
-* The delegator's address is not correct.
-* The delegator has less delegation than the sum of the Powers.
-* The signal is not valid. (e.g. too long signal ID, power is a negative value).
-* The size of the list of signal is too large.
 
 ## End-Block
 

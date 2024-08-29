@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/cometbft/cometbft/rpc/client/http"
+	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 
@@ -25,7 +25,7 @@ const (
 
 type Updater struct {
 	feedQuerier *querier.FeedQuerier
-	clients     []*http.HTTP
+	clients     []rpcclient.RemoteClient
 	logger      *logger.Logger
 
 	maxCurrentFeedsEventHeight    *atomic.Int64
@@ -34,7 +34,7 @@ type Updater struct {
 
 func New(
 	feedQuerier *querier.FeedQuerier,
-	clients []*http.HTTP,
+	clients []rpcclient.RemoteClient,
 	logger *logger.Logger,
 	maxCurrentFeedsEventHeight *atomic.Int64,
 	maxUpdateRefSourceEventHeight *atomic.Int64,
@@ -104,17 +104,21 @@ func (u *Updater) Start(sigChan chan<- os.Signal) {
 
 func (u *Updater) subscribeToClient(
 	ctx context.Context,
-	client *http.HTTP,
+	client rpcclient.RemoteClient,
 	query string,
 	outChan chan<- coretypes.ResultEvent,
 	wg *sync.WaitGroup,
 ) {
 	defer wg.Done()
 
-	u.logger.Info("[Updater] Subscribing to events with query: %s...", query)
+	u.logger.Info("[Updater] Subscribing to events of client with URI: %s, with query: %s ", client.Remote(), query)
 	eventChan, err := client.Subscribe(ctx, "", query, EventChannelCapacity)
 	if err != nil {
-		u.logger.Error("[Updater] Error subscribing to events: %s", err)
+		u.logger.Error(
+			"[Updater] Error subscribing to events of client with URI: %s, with error: %v",
+			client.Remote(),
+			err,
+		)
 		return
 	}
 

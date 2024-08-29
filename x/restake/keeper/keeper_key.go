@@ -8,6 +8,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/restake/types"
 )
 
+// GetOrCreateKey get the key object by using key name. If the key doesn't exist, it will initialize the new key.
 func (k Keeper) GetOrCreateKey(ctx sdk.Context, keyName string) (types.Key, error) {
 	key, err := k.GetKey(ctx, keyName)
 	if err != nil {
@@ -31,7 +32,7 @@ func (k Keeper) GetOrCreateKey(ctx sdk.Context, keyName string) (types.Key, erro
 	return key, nil
 }
 
-// AddRewards adds rewards to the pool address and re-calculate reward_per_share of the key
+// AddRewards adds rewards to the pool address and re-calculate `rewardPerPowers` and `remainders` of the key
 func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName string, rewards sdk.Coins) error {
 	key, err := k.GetKey(ctx, keyName)
 	if err != nil {
@@ -74,6 +75,7 @@ func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, keyName strin
 	return nil
 }
 
+// IsActiveKey checks whether the key is active or not.
 func (k Keeper) IsActiveKey(ctx sdk.Context, keyName string) bool {
 	key, err := k.GetKey(ctx, keyName)
 	if err != nil {
@@ -83,6 +85,7 @@ func (k Keeper) IsActiveKey(ctx sdk.Context, keyName string) bool {
 	return key.IsActive
 }
 
+// DeactivateKey deactivates the key.
 func (k Keeper) DeactivateKey(ctx sdk.Context, keyName string) error {
 	key, err := k.GetKey(ctx, keyName)
 	if err != nil {
@@ -106,6 +109,7 @@ func (k Keeper) DeactivateKey(ctx sdk.Context, keyName string) error {
 	return nil
 }
 
+// createKeyAccount creates a key account by using name and block hash.
 func (k Keeper) createKeyAccount(ctx sdk.Context, key string) (sdk.AccAddress, error) {
 	header := ctx.BlockHeader()
 
@@ -143,10 +147,12 @@ func (k Keeper) createKeyAccount(ctx sdk.Context, key string) (sdk.AccAddress, e
 // store part
 // -------------------------------
 
+// GetKeysIterator gets iterator of key store.
 func (k Keeper) GetKeysIterator(ctx sdk.Context) sdk.Iterator {
 	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.KeyStoreKeyPrefix)
 }
 
+// GetKeys gets all keys in the store.
 func (k Keeper) GetKeys(ctx sdk.Context) (keys []types.Key) {
 	iterator := k.GetKeysIterator(ctx)
 	defer iterator.Close()
@@ -160,10 +166,13 @@ func (k Keeper) GetKeys(ctx sdk.Context) (keys []types.Key) {
 	return keys
 }
 
+// HasKey checks if key exists in the store.
 func (k Keeper) HasKey(ctx sdk.Context, keyName string) bool {
 	return ctx.KVStore(k.storeKey).Has(types.KeyStoreKey(keyName))
 }
 
+// MustGetKey gets a key from store by name.
+// Panics if can't get the key.
 func (k Keeper) MustGetKey(ctx sdk.Context, keyName string) types.Key {
 	key, err := k.GetKey(ctx, keyName)
 	if err != nil {
@@ -173,6 +182,7 @@ func (k Keeper) MustGetKey(ctx sdk.Context, keyName string) types.Key {
 	return key
 }
 
+// GetKey gets a key from store by name.
 func (k Keeper) GetKey(ctx sdk.Context, keyName string) (types.Key, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.KeyStoreKey(keyName))
 	if bz == nil {
@@ -185,6 +195,7 @@ func (k Keeper) GetKey(ctx sdk.Context, keyName string) (types.Key, error) {
 	return key, nil
 }
 
+// SetKey sets a key to the store.
 func (k Keeper) SetKey(ctx sdk.Context, key types.Key) {
 	ctx.KVStore(k.storeKey).Set(types.KeyStoreKey(key.Name), k.cdc.MustMarshal(&key))
 }

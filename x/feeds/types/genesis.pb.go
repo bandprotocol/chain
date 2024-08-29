@@ -25,11 +25,11 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // GenesisState is a structure that defines the feeds module's genesis state.
 type GenesisState struct {
-	// Params is all parameters of the module.
+	// params is all parameters of the module.
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
-	// DelegatorSignals is a list of delegator signals submitted by delegators.
+	// delegator_signals is a list of delegator signals submitted by delegators.
 	DelegatorSignals []DelegatorSignals `protobuf:"bytes,2,rep,name=delegator_signals,json=delegatorSignals,proto3" json:"delegator_signals"`
-	// ReferenceSourceConfig is the information about reference price config.
+	// reference_source_config is the information about reference price config.
 	ReferenceSourceConfig ReferenceSourceConfig `protobuf:"bytes,3,opt,name=reference_source_config,json=referenceSourceConfig,proto3" json:"reference_source_config"`
 }
 
