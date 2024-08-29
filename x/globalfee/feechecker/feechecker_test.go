@@ -74,7 +74,7 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 
 	expiration := ctx.BlockTime().Add(1000 * time.Hour)
 
-	msgTypeURLs := []sdk.Msg{&tsstypes.MsgSubmitDEs{}, &feedstypes.MsgSubmitPrices{}}
+	msgTypeURLs := []sdk.Msg{&tsstypes.MsgSubmitDEs{}, &feedstypes.MsgSubmitSignalPrices{}}
 	for _, msg := range msgTypeURLs {
 		err = app.AuthzKeeper.SaveGrant(
 			ctx,
@@ -236,7 +236,11 @@ func (suite *FeeCheckerTestSuite) TestNotReportMsg() {
 }
 
 func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameAuthzMsgs() {
-	reportMsg := oracletypes.NewMsgReportData(suite.requestID, []oracletypes.RawReport{}, bandtesting.Validators[0].ValAddress)
+	reportMsg := oracletypes.NewMsgReportData(
+		suite.requestID,
+		[]oracletypes.RawReport{},
+		bandtesting.Validators[0].ValAddress,
+	)
 	requestMsg := oracletypes.NewMsgRequestData(
 		1,
 		BasicCalldata,
@@ -620,14 +624,14 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFee() {
 			expPriority: 10000,
 		},
 		{
-			name: "valid MsgSubmitPrices",
+			name: "valid MsgSubmitSignalPrices",
 			stubTx: func() *StubTx {
 				return &StubTx{
 					Msgs: []sdk.Msg{
-						feedstypes.NewMsgSubmitPrices(
+						feedstypes.NewMsgSubmitSignalPrices(
 							bandtesting.Validators[0].ValAddress.String(),
 							suite.ctx.BlockTime().Unix(),
-							[]feedstypes.SubmitPrice{},
+							[]feedstypes.SignalPrice{},
 						),
 					},
 				}
@@ -638,13 +642,13 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFee() {
 			expPriority:         math.MaxInt64,
 		},
 		{
-			name: "valid MsgSubmitPrices in valid MsgExec",
+			name: "valid MsgSubmitSignalPrices in valid MsgExec",
 			stubTx: func() *StubTx {
 				msgExec := authz.NewMsgExec(bandtesting.Alice.Address, []sdk.Msg{
-					feedstypes.NewMsgSubmitPrices(
+					feedstypes.NewMsgSubmitSignalPrices(
 						bandtesting.Validators[0].ValAddress.String(),
 						suite.ctx.BlockTime().Unix(),
-						[]feedstypes.SubmitPrice{},
+						[]feedstypes.SignalPrice{},
 					),
 				})
 
@@ -660,14 +664,14 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFee() {
 			expPriority:         math.MaxInt64,
 		},
 		{
-			name: "invalid MsgSubmitPrices with not enough fee",
+			name: "invalid MsgSubmitSignalPrices with not enough fee",
 			stubTx: func() *StubTx {
 				return &StubTx{
 					Msgs: []sdk.Msg{
-						feedstypes.NewMsgSubmitPrices(
+						feedstypes.NewMsgSubmitSignalPrices(
 							bandtesting.Alice.ValAddress.String(),
 							suite.ctx.BlockTime().Unix(),
-							[]feedstypes.SubmitPrice{},
+							[]feedstypes.SignalPrice{},
 						),
 					},
 				}
@@ -678,13 +682,13 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFee() {
 			expPriority:         0,
 		},
 		{
-			name: "invalid MsgSubmitPrices in valid MsgExec with not enough fee",
+			name: "invalid MsgSubmitSignalPrices in valid MsgExec with not enough fee",
 			stubTx: func() *StubTx {
 				msgExec := authz.NewMsgExec(bandtesting.Alice.Address, []sdk.Msg{
-					feedstypes.NewMsgSubmitPrices(
+					feedstypes.NewMsgSubmitSignalPrices(
 						bandtesting.Alice.ValAddress.String(),
 						suite.ctx.BlockTime().Unix(),
-						[]feedstypes.SubmitPrice{},
+						[]feedstypes.SignalPrice{},
 					),
 				})
 
@@ -700,13 +704,13 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFee() {
 			expPriority:         0,
 		},
 		{
-			name: "valid MsgSubmitPrices in invalid MsgExec with enough fee",
+			name: "valid MsgSubmitSignalPrices in invalid MsgExec with enough fee",
 			stubTx: func() *StubTx {
 				msgExec := authz.NewMsgExec(bandtesting.Bob.Address, []sdk.Msg{
-					feedstypes.NewMsgSubmitPrices(
+					feedstypes.NewMsgSubmitSignalPrices(
 						bandtesting.Validators[0].ValAddress.String(),
 						suite.ctx.BlockTime().Unix(),
-						[]feedstypes.SubmitPrice{},
+						[]feedstypes.SignalPrice{},
 					),
 				})
 

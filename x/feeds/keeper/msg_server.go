@@ -23,29 +23,35 @@ func NewMsgServerImpl(k Keeper) types.MsgServer {
 	}
 }
 
-// SubmitSignals register new signals and update feeds.
+// SubmitSignals registers new signals and updates feeds.
 func (ms msgServer) SubmitSignals(
 	goCtx context.Context,
 	req *types.MsgSubmitSignals,
 ) (*types.MsgSubmitSignalsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	// convert the delegator address from Bech32 format to sdk.AccAddress
 	delegator, err := sdk.AccAddressFromBech32(req.Delegator)
 	if err != nil {
 		return nil, err
 	}
 
-	// check whether delegator has enough delegation for signals
-	err = ms.CheckDelegatorDelegation(ctx, delegator, req.Signals)
+	// check if the number of submitted signals exceeds the maximum allowed feeds
+	if len(req.Signals) > int(ms.GetParams(ctx).MaxCurrentFeeds) {
+		return nil, types.ErrSubmittedSignalsTooLarge.Wrapf(
+			"maximum number of signals is %d but received %d",
+			ms.GetParams(ctx).MaxCurrentFeeds, len(req.Signals),
+		)
+	}
+
+	// lock the delegator's power equal to the sum of the signal powers
+	err = ms.LockDelegatorDelegation(ctx, delegator, req.Signals)
 	if err != nil {
 		return nil, err
 	}
 
-	// calculate power different of each signal by decresing signal power with previous signal
-	signalIDToPowerDiff, err := ms.CalculateDelegatorSignalsPowerDiff(ctx, delegator, req.Signals)
-	if err != nil {
-		return nil, err
-	}
+	// RegisterNewSignals deletes previous signals and registers new signals then returns feed power differences
+	signalIDToPowerDiff := ms.RegisterNewSignals(ctx, delegator, req.Signals)
 
 	// sort keys to guarantee order of signalIDToPowerDiff iteration
 	keys := make([]string, 0, len(signalIDToPowerDiff))
@@ -54,47 +60,49 @@ func (ms msgServer) SubmitSignals(
 	}
 	sort.Strings(keys)
 
-	maxSignalIDCharacters := ms.Keeper.GetParams(ctx).MaxSignalIDCharacters
-
+	// iterate over each signal ID, updating the total power and ensuring no negative power values
 	for _, signalID := range keys {
-		signalIDLength := len(signalID)
-		if uint64(signalIDLength) > maxSignalIDCharacters {
-			return nil, types.ErrSignalIDTooLarge.Wrapf(
-				"maximum number of characters is %d but received %d characters",
-				maxSignalIDCharacters, signalIDLength,
-			)
-		}
+		// get the power difference for the current signal ID
 		powerDiff := signalIDToPowerDiff[signalID]
+
+		// retrieve the total power of the current signal ID from the store
 		signalTotalPower, err := ms.GetSignalTotalPower(ctx, signalID)
 		if err != nil {
+			// initialize a new signal with zero power if the signal ID does not exist
 			signalTotalPower = types.Signal{
 				ID:    signalID,
 				Power: 0,
 			}
 		}
+
+		// update the total power of the signal by adding the power difference
 		signalTotalPower.Power += powerDiff
 
+		// ensure the total power of the signal is not negative
 		if signalTotalPower.Power < 0 {
 			return nil, types.ErrPowerNegative
 		}
 
+		// save the updated signal total power back to the store
 		ms.SetSignalTotalPower(ctx, signalTotalPower)
 	}
 
+	// return an empty response indicating success
 	return &types.MsgSubmitSignalsResponse{}, nil
 }
 
-// SubmitPrices register new validator-prices.
-func (ms msgServer) SubmitPrices(
+// SubmitSignalPrices register new validator prices.
+func (ms msgServer) SubmitSignalPrices(
 	goCtx context.Context,
-	req *types.MsgSubmitPrices,
-) (*types.MsgSubmitPricesResponse, error) {
+	req *types.MsgSubmitSignalPrices,
+) (*types.MsgSubmitSignalPricesResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	blockTime := ctx.BlockTime().Unix()
 	blockHeight := ctx.BlockHeight()
 
-	if len(req.Prices) > int(ms.Keeper.GetParams(ctx).MaxSupportedFeeds) {
-		return nil, types.ErrSubmitPricesTooLarge
+	// check if the number of prices exceeds the maximum allowed feeds
+	if len(req.Prices) > int(ms.Keeper.GetParams(ctx).MaxCurrentFeeds) {
+		return nil, types.ErrSignalPricesTooLarge
 	}
 
 	val, err := sdk.ValAddressFromBech32(req.Validator)
@@ -102,23 +110,42 @@ func (ms msgServer) SubmitPrices(
 		return nil, err
 	}
 
-	// check if it's in top bonded validators.
-	err = ms.ValidateSubmitPricesRequest(ctx, blockTime, req, val)
-	if err != nil {
+	// check if the validator is required to send prices
+	if err := ms.ValidateValidatorRequiredToSend(ctx, val); err != nil {
 		return nil, err
 	}
 
-	cooldownTime := ms.GetParams(ctx).CooldownTime
-	supportedFeeds := ms.GetSupportedFeeds(ctx)
-	supportedFeedsMap := make(map[string]bool)
-	for _, feed := range supportedFeeds.Feeds {
-		supportedFeedsMap[feed.SignalID] = true
+	// check if the timestamp is not too far from the block time
+	if types.AbsInt64(req.Timestamp-blockTime) > ms.GetParams(ctx).AllowableBlockTimeDiscrepancy {
+		return nil, types.ErrInvalidTimestamp.Wrapf(
+			"block_time: %d, timestamp: %d",
+			blockTime,
+			req.Timestamp,
+		)
 	}
 
-	tooEarlyPriceSubmission := 0
+	// get supported feeds
+	supportedFeeds := ms.GetCurrentFeeds(ctx)
+	supportedFeedsMap := make(map[string]int)
+	for idx, feed := range supportedFeeds.Feeds {
+		supportedFeedsMap[feed.SignalID] = idx
+	}
 
+	valPrices := make([]types.ValidatorPrice, len(supportedFeedsMap))
+	prevValPrices, err := ms.GetValidatorPriceList(ctx, val)
+	if err == nil {
+		for _, valPrice := range prevValPrices.ValidatorPrices {
+			idx, ok := supportedFeedsMap[valPrice.SignalID]
+			if ok {
+				valPrices[idx] = valPrice
+			}
+		}
+	}
+
+	cooldownTime := ms.GetParams(ctx).CooldownTime
 	for _, price := range req.Prices {
-		if _, ok := supportedFeedsMap[price.SignalID]; !ok {
+		idx, ok := supportedFeedsMap[price.SignalID]
+		if !ok {
 			return nil, types.ErrSignalIDNotSupported.Wrapf(
 				"signal_id: %s",
 				price.SignalID,
@@ -126,34 +153,31 @@ func (ms msgServer) SubmitPrices(
 		}
 
 		// check if price is not too fast
-		valPrice, err := ms.GetValidatorPrice(ctx, price.SignalID, val)
-		if err == nil && blockTime < valPrice.Timestamp+cooldownTime {
-			tooEarlyPriceSubmission++
+		valPrice := valPrices[idx]
+		if valPrice.PriceStatus != types.PriceStatusUnspecified && blockTime < valPrice.Timestamp+cooldownTime {
+			return nil, types.ErrPriceSubmitTooEarly
 		}
 
-		valPrice = ms.NewValidatorPrice(val, price, blockTime, blockHeight)
-
-		if err = ms.SetValidatorPrice(ctx, valPrice); err != nil {
-			return nil, err
-		}
-
-		emitEventSubmitPrice(ctx, valPrice)
+		valPrice = types.NewValidatorPrice(val, price, blockTime, blockHeight)
+		valPrices[idx] = valPrice
+		emitEventSubmitSignalPrice(ctx, valPrice)
 	}
 
-	if tooEarlyPriceSubmission > len(req.Prices)/2 {
-		return nil, types.ErrPriceSubmitTooEarly
+	if err := ms.SetValidatorPriceList(ctx, val, valPrices); err != nil {
+		return nil, err
 	}
 
-	return &types.MsgSubmitPricesResponse{}, nil
+	return &types.MsgSubmitSignalPricesResponse{}, nil
 }
 
-// UpdatePriceService updates price service.
-func (ms msgServer) UpdatePriceService(
+// UpdateReferenceSourceConfig updates reference source configuration.
+func (ms msgServer) UpdateReferenceSourceConfig(
 	goCtx context.Context,
-	req *types.MsgUpdatePriceService,
-) (*types.MsgUpdatePriceServiceResponse, error) {
+	req *types.MsgUpdateReferenceSourceConfig,
+) (*types.MsgUpdateReferenceSourceConfigResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	// check if the request is from the admin
 	admin := ms.GetParams(ctx).Admin
 	if admin != req.Admin {
 		return nil, types.ErrInvalidSigner.Wrapf(
@@ -163,13 +187,14 @@ func (ms msgServer) UpdatePriceService(
 		)
 	}
 
-	if err := ms.SetPriceService(ctx, req.PriceService); err != nil {
+	// update the reference source configuration
+	if err := ms.SetReferenceSourceConfig(ctx, req.ReferenceSourceConfig); err != nil {
 		return nil, err
 	}
 
-	emitEventUpdatePriceService(ctx, req.PriceService)
+	emitEventUpdateReferenceSourceConfig(ctx, req.ReferenceSourceConfig)
 
-	return &types.MsgUpdatePriceServiceResponse{}, nil
+	return &types.MsgUpdateReferenceSourceConfigResponse{}, nil
 }
 
 // UpdateParams updates the feeds module params.
@@ -179,14 +204,16 @@ func (ms msgServer) UpdateParams(
 ) (*types.MsgUpdateParamsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if ms.authority != req.Authority {
+	// check if the request is from the authority
+	if ms.GetAuthority() != req.Authority {
 		return nil, govtypes.ErrInvalidSigner.Wrapf(
 			"invalid authority; expected %s, got %s",
-			ms.authority,
+			ms.GetAuthority(),
 			req.Authority,
 		)
 	}
 
+	// update the parameters
 	if err := ms.SetParams(ctx, req.Params); err != nil {
 		return nil, err
 	}

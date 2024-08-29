@@ -10,10 +10,10 @@ import "gogoproto/gogo.proto";
 message Signal {
   option (gogoproto.equal) = true;
 
-  // ID is the id of the signal.
+  // id is the id of the signal.
   string id = 1 [(gogoproto.customname) = "ID"];
 
-  // Power is the power of the corresponding signal id.
+  // power is the power of the corresponding signal id.
   int64 power = 2;
 }
 
@@ -21,10 +21,10 @@ message Signal {
 message DelegatorSignals {
   option (gogoproto.equal) = true;
 
-  // Delegator is the address of the delegator of this signals.
+  // delegator is the address of the delegator of this signals.
   string delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
-  // Signals is a list of signals submit by the delegator.
+  // signals is a list of signals submit by the delegator.
   repeated Signal signals = 2 [(gogoproto.nullable) = false];
 }
 
@@ -32,27 +32,59 @@ message DelegatorSignals {
 message Feed {
   option (gogoproto.equal) = true;
 
-  // SignalID is the unique string that identifies the unit of feed.
+  // signal_id is the unique string that identifies the unit of feed.
   string signal_id = 1 [(gogoproto.customname) = "SignalID"];
 
-  // Interval is the interval of the price feed.
-  int64 interval = 2;
+  // power is the power of the corresponding signal id.
+  int64 power = 2;
 
-  // DeviationInThousandth is the maximum deviation value the feed can tolerate, expressed in thousandths.
-  int64 deviation_in_thousandth = 3;
+  // interval is the interval of the price feed.
+  int64 interval = 3;
 }
 
-// SupportedFeeds is a structure that holds a list of currently supported feeds, and its last update time and block.
-message SupportedFeeds {
+// FeedWithDeviation is a structure that holds a signal id, its total power, and its calculated interval and deviation.
+message FeedWithDeviation {
   option (gogoproto.equal) = true;
 
-  // Feed is a list of currently suppored feeds.
+  // signal_id is the unique string that identifies the unit of feed.
+  string signal_id = 1 [(gogoproto.customname) = "SignalID"];
+
+  // power is the power of the corresponding signal id.
+  int64 power = 2;
+
+  // interval is the interval of the price feed.
+  int64 interval = 3;
+
+  // deviation_basis_point is the maximum deviation value the feed can tolerate, expressed in basis points.
+  int64 deviation_basis_point = 4;
+}
+
+// CurrentFeeds is a structure that holds a list of currently supported feeds, and its last update time and block.
+message CurrentFeeds {
+  option (gogoproto.equal) = true;
+
+  // feeds is a list of currently supported feeds.
   repeated Feed feeds = 1 [(gogoproto.nullable) = false];
 
-  // LastUpdateTimestamp is the timestamp of the last time supported feeds list is updated.
+  // last_update_timestamp is the timestamp of the last time supported feeds list is updated.
   int64 last_update_timestamp = 2;
 
-  // LastUpdateBlock is the number of blocks of the last time supported feeds list is updated.
+  // last_update_block is the number of blocks of the last time supported feeds list is updated.
+  int64 last_update_block = 3;
+}
+
+// CurrentFeedWithDeviations is a structure that holds a list of currently supported feed-with-deviations, and its
+// last update time and block.
+message CurrentFeedWithDeviations {
+  option (gogoproto.equal) = true;
+
+  // feeds is a list of currently supported feed-with-deviations.
+  repeated FeedWithDeviation feeds = 1 [(gogoproto.nullable) = false];
+
+  // last_update_timestamp is the timestamp of the last time supported feeds list is updated.
+  int64 last_update_timestamp = 2;
+
+  // last_update_block is the number of blocks of the last time supported feeds list is updated.
   int64 last_update_block = 3;
 }
 
@@ -77,30 +109,30 @@ enum PriceStatus {
 message Price {
   option (gogoproto.equal) = true;
 
-  // PriceStatus is the price status of a signal id.
+  // price_status is the price status of a signal id.
   PriceStatus price_status = 1;
 
-  // SignalID is the signal id of the price.
+  // signal_id is the signal id of the price.
   string signal_id = 2 [(gogoproto.customname) = "SignalID"];
 
-  // Price is the price of the signal id.
+  // price is the price of the signal id.
   uint64 price = 3;
 
-  // Timestamp is the timestamp at which the price was aggregated.
+  // timestamp is the timestamp at which the price was aggregated.
   int64 timestamp = 4;
 }
 
-// SubmitPrice is a structure that defines the submit price of a signal id.
-message SubmitPrice {
+// SignalPrice is a structure that defines the signaled price of a signal id.
+message SignalPrice {
   option (gogoproto.equal) = true;
 
-  // PriceStatus is the price status of a signal id.
+  // price_status is the price status of a signal id.
   PriceStatus price_status = 1;
 
-  // SignalID is the signal id of the price.
+  // signal_id is the signal id of the price.
   string signal_id = 2 [(gogoproto.customname) = "SignalID"];
 
-  // Price is the price submitted by the validator.
+  // price is the price submitted by the validator.
   uint64 price = 3;
 }
 
@@ -108,48 +140,46 @@ message SubmitPrice {
 message ValidatorPrice {
   option (gogoproto.equal) = true;
 
-  // PriceStatus is the price status of a price submitted.
+  // price_status is the price status of a price submitted.
   PriceStatus price_status = 1;
 
-  // Validator is the validator address.
+  // validator is the validator address.
   string validator = 2;
 
-  // SignalID is the signal id of the price.
+  // signal_id is the signal id of the price.
   string signal_id = 3 [(gogoproto.customname) = "SignalID"];
 
-  // Price is the price submitted by the validator.
+  // price is the price submitted by the validator.
   uint64 price = 4;
 
-  // Timestamp is the timestamp at which the price was submitted.
+  // timestamp is the timestamp at which the price was submitted.
   int64 timestamp = 5;
 
-  // BlockHeight is the block height at which the price was submitted.
+  // block_height is the block height at which the price was submitted.
   int64 block_height = 6;
 }
 
-// PriceService is a structure that defines the information of price service.
-message PriceService {
+// ValidatorPriceList is a structure that holds a list of validator prices of
+// a validator and its address.
+message ValidatorPriceList {
   option (gogoproto.equal) = true;
 
-  // Hash is the hash of the price service.
-  string hash = 1;
+  // validator is the validator address.
+  string validator = 1;
 
-  // Version is the version of the price service.
-  string version = 2;
-
-  // Url is the URL of the price service.
-  string url = 3;
+  // validators_prices is a list of validator prices.
+  repeated ValidatorPrice validator_prices = 2 [(gogoproto.nullable) = false];
 }
 
-// SignalPrice is a structure that defines the price of a signal id.
-message SignalPrice {
+// ReferenceSourceConfig is a structure that defines the information of reference price source.
+message ReferenceSourceConfig {
   option (gogoproto.equal) = true;
 
-  // SignalID is the signal id of the price.
-  string signal_id = 1 [(gogoproto.customname) = "SignalID"];
+  // ipfs_hash is the hash of the reference registry.
+  string ipfs_hash = 1 [(gogoproto.customname) = "IPFSHash"];
 
-  // Price is the price of the signal id.
-  uint64 price = 2;
+  // version is the version of the reference price source.
+  string version = 2;
 }
 
 //

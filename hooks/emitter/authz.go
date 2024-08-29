@@ -20,7 +20,7 @@ func (h *Hook) handleMsgGrant(msg *authz.MsgGrant, detail common.JsDict) {
 			"validator": val,
 		})
 		detail["validator_moniker"] = val
-	case sdk.MsgTypeURL((&feedstypes.MsgSubmitPrices{})):
+	case sdk.MsgTypeURL((&feedstypes.MsgSubmitSignalPrices{})):
 		acc, _ := sdk.AccAddressFromBech32(msg.Granter)
 		val := sdk.ValAddress(acc).String()
 		h.Write("SET_FEEDER", common.JsDict{
@@ -45,7 +45,7 @@ func (h *Hook) handleMsgRevoke(msg *authz.MsgRevoke, detail common.JsDict) {
 			"validator": val,
 		})
 		detail["validator_moniker"] = val
-	case sdk.MsgTypeURL(&feedstypes.MsgSubmitPrices{}):
+	case sdk.MsgTypeURL(&feedstypes.MsgSubmitSignalPrices{}):
 		acc, _ := sdk.AccAddressFromBech32(msg.Granter)
 		val := sdk.ValAddress(acc).String()
 		h.Write("REMOVE_FEEDER", common.JsDict{

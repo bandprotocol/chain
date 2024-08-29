@@ -19,7 +19,6 @@ type PriceFeedInfo struct {
 	PriceStatus PriceStatus // PriceStatus represents the state of the price feed
 	Power       uint64      // Power represents the power of the price feed
 	Price       uint64      // Price represents the reported price
-	Deviation   uint64      // Deviation represents the deviation from the reported price
 	Timestamp   int64       // Timestamp represents the time at which the price feed was reported
 	Index       int64       // Index represents the index of the price feed
 }
@@ -93,29 +92,14 @@ func CalculateMedianPriceFeedInfo(priceFeedInfos []PriceFeedInfo) (uint64, error
 		}
 		wps = append(
 			wps,
-			GetDeviationWeightedPrices(
-				priceFeedInfo.Price,
-				priceFeedInfo.Deviation,
-				totalWeight,
-			)...,
+			WeightedPrice{
+				Price: priceFeedInfo.Price,
+				Power: totalWeight,
+			},
 		)
 	}
 
 	return CalculateMedianWeightedPrice(wps)
-}
-
-// GetDeviationWeightedPrices returns weighted prices with deviations
-func GetDeviationWeightedPrices(price uint64, deviation uint64, power uint64) []WeightedPrice {
-	return []WeightedPrice{{
-		Price: price,
-		Power: power,
-	}, {
-		Price: price - deviation,
-		Power: power,
-	}, {
-		Price: price + deviation,
-		Power: power,
-	}}
 }
 
 // WeightedPrice represents a weighted price

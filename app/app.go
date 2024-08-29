@@ -140,6 +140,9 @@ import (
 	oracleclient "github.com/bandprotocol/chain/v2/x/oracle/client"
 	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/restake"
+	restakekeeper "github.com/bandprotocol/chain/v2/x/restake/keeper"
+	restaketypes "github.com/bandprotocol/chain/v2/x/restake/types"
 	"github.com/bandprotocol/chain/v2/x/rollingseed"
 	rollingseedkeeper "github.com/bandprotocol/chain/v2/x/rollingseed/keeper"
 	rollingseedtypes "github.com/bandprotocol/chain/v2/x/rollingseed/types"
@@ -201,6 +204,7 @@ var (
 		),
 		feeds.AppModuleBasic{},
 		globalfee.AppModule{},
+		restake.AppModuleBasic{},
 	)
 	// module account permissions
 	maccPerms = map[string][]string{
@@ -213,6 +217,7 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 		bandtsstypes.ModuleName:        nil,
+		restaketypes.ModuleName:        nil,
 	}
 
 	Upgrades = []upgrades.Upgrade{v2_6.Upgrade}
@@ -328,6 +333,7 @@ func NewBandApp(
 		bandtsstypes.StoreKey,
 		feedstypes.StoreKey,
 		globalfeetypes.StoreKey,
+		restaketypes.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -454,6 +460,14 @@ func NewBandApp(
 		homePath,
 		app.BaseApp,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
+	app.RestakeKeeper = restakekeeper.NewKeeper(
+		appCodec,
+		keys[restaketypes.StoreKey],
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.StakingKeeper,
 	)
 
 	// create IBC Keeper
@@ -590,6 +604,16 @@ func NewBandApp(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
+	app.FeedsKeeper = feedskeeper.NewKeeper(
+		appCodec,
+		keys[feedstypes.StoreKey],
+		app.OracleKeeper,
+		app.StakingKeeper,
+		app.RestakeKeeper,
+		app.AuthzKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
 	if emitterFlag != "" {
 		app.hooks = append(app.hooks, emitter.NewHook(
 			appCodec,
@@ -663,14 +687,6 @@ func NewBandApp(
 	)
 	oracleIBCModule := oracle.NewIBCModule(app.OracleKeeper)
 
-	app.FeedsKeeper = feedskeeper.NewKeeper(
-		appCodec,
-		keys[feedstypes.StoreKey],
-		app.OracleKeeper,
-		app.StakingKeeper,
-		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-	)
-
 	// Add TSS route
 	tssRouter.
 		AddRoute(tsstypes.RouterKey, tsstypes.NewSignatureOrderHandler()).
@@ -687,7 +703,7 @@ func NewBandApp(
 		stakingtypes.NewMultiStakingHooks(
 			app.DistrKeeper.Hooks(),
 			app.SlashingKeeper.Hooks(),
-			app.FeedsKeeper.Hooks(),
+			app.RestakeKeeper.Hooks(),
 		),
 	)
 
@@ -785,6 +801,7 @@ func NewBandApp(
 		bandtssModule,
 		feeds.NewAppModule(appCodec, app.FeedsKeeper),
 		globalfee.NewAppModule(app.GlobalfeeKeeper),
+		restake.NewAppModule(appCodec, &app.RestakeKeeper),
 	)
 
 	// NOTE: Oracle module must occur before distr as it takes some fee to distribute to active oracle validators.
@@ -800,6 +817,7 @@ func NewBandApp(
 		tsstypes.ModuleName,
 		bandtsstypes.ModuleName,
 		feedstypes.ModuleName,
+		restaketypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -830,6 +848,7 @@ func NewBandApp(
 		tsstypes.ModuleName,
 		bandtsstypes.ModuleName,
 		feedstypes.ModuleName,
+		restaketypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
 		icatypes.ModuleName,
@@ -885,6 +904,7 @@ func NewBandApp(
 		bandtsstypes.ModuleName,
 		feedstypes.ModuleName,
 		globalfeetypes.ModuleName,
+		restaketypes.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(app.CrisisKeeper)

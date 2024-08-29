@@ -11,42 +11,39 @@ message Params {
   option (gogoproto.equal)            = true;  // Use gogoproto.equal for proto3 message equality checks
   option (gogoproto.goproto_stringer) = false; // Disable stringer generation for better control
 
-  // Admin is the address of the admin that is allowed to perform operations on modules.
+  // admin is the address of the admin that is allowed to perform operations on modules.
   string admin = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
-  // AllowableBlockTimeDiscrepancy is the allowed discrepancy (in seconds) between validator price timestamp and
+  // allowable_block_time_discrepancy is the allowed discrepancy (in seconds) between validator price timestamp and
   // block_time.
   int64 allowable_block_time_discrepancy = 2;
 
-  // TransitionTime is the time (in seconds) given for validators to adapt to changing in feed's interval.
-  int64 transition_time = 3;
+  // grace_period is the time (in seconds) given for validators to adapt to changing in feed's interval.
+  int64 grace_period = 3;
 
-  // MinInterval is the minimum limit of every feeds' interval (in seconds).
+  // min_interval is the minimum limit of every feeds' interval (in seconds).
   // If the calculated interval is lower than this, it will be capped at this value.
   int64 min_interval = 4;
 
-  // MaxInterval is the maximum limit of every feeds' interval (in seconds).
-  // If the calculated interval of a feed is higher than this, it will not be recognized as a supported feed.
+  // max_interval is the maximum limit of every feeds' interval (in seconds).
+  // If the calculated interval of a feed is higher than this, it will not be capped at this value.
   int64 max_interval = 5;
 
-  // PowerThreshold is the amount of minimum power required to put feed in the supported list.
-  int64 power_threshold = 6;
+  // power_step_threshold is the amount of minimum power required to put feed in the current feeds list.
+  int64 power_step_threshold = 6;
 
-  // MaxSupportedFeeds is the maximum number of feeds supported at a time.
-  int64 max_supported_feeds = 7;
+  // max_current_feeds is the maximum number of feeds supported at a time.
+  uint64 max_current_feeds = 7;
 
-  // CooldownTime represents the duration (in seconds) during which validators are prohibited from sending new prices.
+  // cooldown_time represents the duration (in seconds) during which validators are prohibited from sending new prices.
   int64 cooldown_time = 8;
 
-  // MinDeviationInThousandth is the minimum limit of every feeds' deviation (in thousandth).
-  int64 min_deviation_in_thousandth = 9;
+  // min_deviation_basis_point is the minimum limit of every feeds' deviation (in basis point).
+  int64 min_deviation_basis_point = 9;
 
-  // MaxDeviationInThousandth is the maximum limit of every feeds' deviation (in thousandth).
-  int64 max_deviation_in_thousandth = 10;
+  // max_deviation_basis_point is the maximum limit of every feeds' deviation (in basis point).
+  int64 max_deviation_basis_point = 10;
 
-  // MaxSignalIDCharacters is the maximum limit of characters of a signal id.
-  uint64 max_signal_id_characters = 11 [(gogoproto.customname) = "MaxSignalIDCharacters"];
-
-  // BlocksPerFeedsUpdate is the number of blocks after which the feed interval and deviation will be recalculated
-  uint64 blocks_per_feeds_update = 12;
+  // current_feeds_update_interval is the number of blocks after which the current feeds will be re-calculated.
+  int64 current_feeds_update_interval = 11;
 }

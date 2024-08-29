@@ -311,10 +311,8 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 			h.emitSetDelegatorSignal(ctx, delegatorSignal.Delegator, signal)
 		}
 	}
-	signalTotalPowers, err := h.feedsKeeper.CalculateNewSignalTotalPowers(ctx)
-	if err != nil {
-		panic(err)
-	}
+
+	signalTotalPowers := h.feedsKeeper.CalculateNewSignalTotalPowers(ctx)
 	for _, stp := range signalTotalPowers {
 		h.emitSetSignalTotalPower(stp)
 	}

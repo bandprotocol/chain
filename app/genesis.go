@@ -45,6 +45,8 @@ import (
 	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
 	"github.com/bandprotocol/chain/v2/x/oracle"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v2/x/restake"
+	restaketypes "github.com/bandprotocol/chain/v2/x/restake/types"
 	"github.com/bandprotocol/chain/v2/x/rollingseed"
 	rollingseedtypes "github.com/bandprotocol/chain/v2/x/rollingseed/types"
 	"github.com/bandprotocol/chain/v2/x/tss"
@@ -119,5 +121,6 @@ func NewDefaultGenesisState() GenesisState {
 		bandtsstypes.ModuleName:      bandtss.AppModuleBasic{}.DefaultGenesis(cdc),
 		feedstypes.ModuleName:        feeds.AppModuleBasic{}.DefaultGenesis(cdc),
 		globalfeetypes.ModuleName:    cdc.MustMarshalJSON(globalfeeGenesis),
+		restaketypes.ModuleName:      restake.AppModuleBasic{}.DefaultGenesis(cdc),
 	}
 }

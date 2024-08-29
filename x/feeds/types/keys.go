@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/address"
 )
 
 const (
@@ -24,22 +25,22 @@ const (
 var (
 	GlobalStoreKeyPrefix = []byte{0x00}
 
-	PriceServiceStoreKey   = append(GlobalStoreKeyPrefix, []byte("PriceService")...)
-	SupportedFeedsStoreKey = append(GlobalStoreKeyPrefix, []byte("SupportedFeeds")...)
+	ReferenceSourceConfigStoreKey = append(GlobalStoreKeyPrefix, []byte("ReferenceSourceConfig")...)
+	CurrentFeedsStoreKey          = append(GlobalStoreKeyPrefix, []byte("CurrentFeeds")...)
 
-	ValidatorPriceStoreKeyPrefix   = []byte{0x01}
-	PriceStoreKeyPrefix            = []byte{0x02}
-	DelegatorSignalStoreKeyPrefix  = []byte{0x03}
-	SignalTotalPowerStoreKeyPrefix = []byte{0x04}
+	ValidatorPriceListStoreKeyPrefix = []byte{0x01}
+	PriceStoreKeyPrefix              = []byte{0x02}
+	DelegatorSignalsStoreKeyPrefix   = []byte{0x03}
+	SignalTotalPowerStoreKeyPrefix   = []byte{0x04}
 
 	ParamsKey = []byte{0x10}
 
 	SignalTotalPowerByPowerIndexKeyPrefix = []byte{0x20}
 )
 
-// DelegatorSignalStoreKey creates a key for storing delegator signals
-func DelegatorSignalStoreKey(delegator sdk.AccAddress) []byte {
-	return append(DelegatorSignalStoreKeyPrefix, delegator...)
+// DelegatorSignalsStoreKey creates a key for storing delegator signals
+func DelegatorSignalsStoreKey(delegator sdk.AccAddress) []byte {
+	return append(DelegatorSignalsStoreKeyPrefix, address.MustLengthPrefix(delegator.Bytes())...)
 }
 
 // SignalTotalPowerStoreKey creates a key for storing signal-total-powers
@@ -47,14 +48,9 @@ func SignalTotalPowerStoreKey(signalID string) []byte {
 	return append(SignalTotalPowerStoreKeyPrefix, []byte(signalID)...)
 }
 
-// ValidatorPricesStoreKey creates a key for storing validator prices
-func ValidatorPricesStoreKey(signalID string) []byte {
-	return append(ValidatorPriceStoreKeyPrefix, []byte(signalID)...)
-}
-
-// ValidatorPriceStoreKey creates a key for storing a validator price
-func ValidatorPriceStoreKey(signalID string, validator sdk.ValAddress) []byte {
-	return append(ValidatorPricesStoreKey(signalID), validator...)
+// ValidatorPriceListStoreKey creates a key for storing a validator prices list
+func ValidatorPriceListStoreKey(validator sdk.ValAddress) []byte {
+	return append(ValidatorPriceListStoreKeyPrefix, address.MustLengthPrefix(validator.Bytes())...)
 }
 
 // PriceStoreKey creates a key for storing price data

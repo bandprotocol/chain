@@ -278,3 +278,23 @@ FROM
 GROUP BY proposal_id
 """
     )
+
+    engine.execute(
+        """
+CREATE VIEW latest_prices AS
+SELECT
+    p.signal_id,
+    p.price_status,
+    p.price,
+    p.timestamp
+FROM
+    prices p
+WHERE
+    p.timestamp = (
+        SELECT
+            MAX(timestamp)
+        FROM
+            prices
+    );
+    """
+    )

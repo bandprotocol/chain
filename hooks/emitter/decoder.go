@@ -126,12 +126,12 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeMsgGrantAllowance(msg, detail)
 	case *feegranttypes.MsgRevokeAllowance:
 		DecodeMsgRevokeAllowance(msg, detail)
-	case *feedstypes.MsgSubmitPrices:
-		DecodeMsgSubmitPrices(msg, detail)
+	case *feedstypes.MsgSubmitSignalPrices:
+		DecodeMsgSubmitSignalPrices(msg, detail)
 	case *feedstypes.MsgSubmitSignals:
 		DecodeMsgSubmitSignals(msg, detail)
-	case *feedstypes.MsgUpdatePriceService:
-		DecodeMsgUpdatePriceService(msg, detail)
+	case *feedstypes.MsgUpdateReferenceSourceConfig:
+		DecodeMsgUpdateReferenceSourceConfig(msg, detail)
 	case *feedstypes.MsgUpdateParams:
 		DecodeMsgUpdateParams(msg, detail)
 	case *group.MsgCreateGroup:
@@ -657,7 +657,7 @@ func DecodeDescription(des stakingtypes.Description) common.JsDict {
 	}
 }
 
-func DecodeMsgSubmitPrices(msg *feedstypes.MsgSubmitPrices, detail common.JsDict) {
+func DecodeMsgSubmitSignalPrices(msg *feedstypes.MsgSubmitSignalPrices, detail common.JsDict) {
 	detail["validator"] = msg.GetValidator()
 	detail["timestamp"] = msg.GetTimestamp()
 	detail["prices"] = msg.GetPrices()
@@ -668,11 +668,10 @@ func DecodeMsgSubmitSignals(msg *feedstypes.MsgSubmitSignals, detail common.JsDi
 	detail["signals"] = msg.GetSignals()
 }
 
-func DecodeMsgUpdatePriceService(msg *feedstypes.MsgUpdatePriceService, detail common.JsDict) {
-	priceService := msg.GetPriceService()
-	detail["hash"] = priceService.Hash
-	detail["version"] = priceService.Version
-	detail["url"] = priceService.Url
+func DecodeMsgUpdateReferenceSourceConfig(msg *feedstypes.MsgUpdateReferenceSourceConfig, detail common.JsDict) {
+	rsc := msg.GetReferenceSourceConfig()
+	detail["ipfs_hash"] = rsc.IPFSHash
+	detail["version"] = rsc.Version
 }
 
 func DecodeMsgUpdateParams(msg *feedstypes.MsgUpdateParams, detail common.JsDict) {
@@ -680,14 +679,15 @@ func DecodeMsgUpdateParams(msg *feedstypes.MsgUpdateParams, detail common.JsDict
 	detail["authority"] = msg.GetAuthority()
 	detail["admin"] = params.GetAdmin()
 	detail["allowable_block_time_discrepancy"] = params.GetAllowableBlockTimeDiscrepancy()
-	detail["transition_time"] = params.GetTransitionTime()
+	detail["grace_period"] = params.GetGracePeriod()
 	detail["min_interval"] = params.GetMinInterval()
 	detail["max_interval"] = params.GetMaxInterval()
-	detail["power_threshold"] = params.GetPowerThreshold()
-	detail["max_supported_feeds"] = params.GetMaxSupportedFeeds()
+	detail["power_step_threshold"] = params.GetPowerStepThreshold()
+	detail["max_current_feeds"] = params.GetMaxCurrentFeeds()
 	detail["cooldown_time"] = params.GetCooldownTime()
-	detail["min_deviation_in_thousandth"] = params.GetMinDeviationInThousandth()
-	detail["max_deviation_in_thousandth"] = params.GetMaxDeviationInThousandth()
+	detail["min_deviation_basis_point"] = params.GetMinDeviationBasisPoint()
+	detail["max_deviation_basis_point"] = params.GetMaxDeviationBasisPoint()
+	detail["current_feeds_update_interval"] = params.GetCurrentFeedsUpdateInterval()
 }
 
 func DecodeGroupMsgCreateGroup(msg *group.MsgCreateGroup, detail common.JsDict) {

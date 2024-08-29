@@ -41,12 +41,26 @@
           table:
             name: delegations
             schema: public
+    - name: delegator_signals
+      using:
+        foreign_key_constraint_on:
+          column: account_id
+          table:
+            name: delegator_signals
+            schema: public
     - name: deposits
       using:
         foreign_key_constraint_on:
           column: depositor_id
           table:
             name: deposits
+            schema: public
+    - name: feeders
+      using:
+        foreign_key_constraint_on:
+          column: feeder_id
+          table:
+            name: feeders
             schema: public
     - name: group_members
       using:
@@ -75,6 +89,13 @@
           column: admin
           table:
             name: groups
+            schema: public
+    - name: interchain_accounts
+      using:
+        foreign_key_constraint_on:
+          column: account_id
+          table:
+            name: interchain_accounts
             schema: public
     - name: proposals
       using:
@@ -110,6 +131,13 @@
           column: delegator_id
           table:
             name: unbonding_delegations
+            schema: public
+    - name: validators
+      using:
+        foreign_key_constraint_on:
+          column: account_id
+          table:
+            name: validators
             schema: public
     - name: votes
       using:
@@ -271,6 +299,13 @@
       using:
         foreign_key_constraint_on: transaction_id
   array_relationships:
+    - name: data_source_requests
+      using:
+        foreign_key_constraint_on:
+          column: data_source_id
+          table:
+            name: data_source_requests
+            schema: public
     - name: data_source_requests_per_days
       using:
         foreign_key_constraint_on:
@@ -306,6 +341,13 @@
     name: delegations_view
     schema: public
 - table:
+    name: delegator_signals
+    schema: public
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: account_id
+- table:
     name: deposits
     schema: public
   object_relationships:
@@ -318,6 +360,13 @@
     - name: transaction
       using:
         foreign_key_constraint_on: tx_id
+- table:
+    name: feeders
+    schema: public
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: feeder_id
 - table:
     name: group_members
     schema: public
@@ -491,6 +540,13 @@
       using:
         foreign_key_constraint_on: transaction_id
   array_relationships:
+    - name: oracle_script_requests
+      using:
+        foreign_key_constraint_on:
+          column: oracle_script_id
+          table:
+            name: oracle_script_requests
+            schema: public
     - name: oracle_script_requests_per_days
       using:
         foreign_key_constraint_on:
@@ -532,6 +588,9 @@
     - name: transaction
       using:
         foreign_key_constraint_on: tx_id
+- table:
+    name: prices
+    schema: public
 - table:
     name: proposal_total_votes
     schema: public
@@ -615,6 +674,9 @@
     - name: validatorByValidatorSrcId
       using:
         foreign_key_constraint_on: validator_src_id
+- table:
+    name: reference_source_configs
+    schema: public
 - table:
     name: related_data_source_oracle_scripts
     schema: public
@@ -711,6 +773,9 @@
           table:
             name: val_requests
             schema: public
+- table:
+    name: signal_total_powers
+    schema: public
 - table:
     name: tracking
     schema: public
@@ -821,6 +886,13 @@
     name: validator_last_250_votes
     schema: public
 - table:
+    name: validator_prices
+    schema: public
+  object_relationships:
+    - name: validator
+      using:
+        foreign_key_constraint_on: validator_id
+- table:
     name: validator_report_count
     schema: public
 - table:
@@ -908,6 +980,13 @@
           column: validator_id
           table:
             name: val_requests
+            schema: public
+    - name: validator_prices
+      using:
+        foreign_key_constraint_on:
+          column: validator_id
+          table:
+            name: validator_prices
             schema: public
     - name: validator_votes
       using:
