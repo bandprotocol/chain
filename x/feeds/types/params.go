@@ -7,48 +7,47 @@ import (
 const (
 	// Default values for Params
 	DefaultAllowableBlockTimeDiscrepancy = int64(60)
-	DefaultTransitionTime                = int64(30)
+	DefaultGracePeriod                   = int64(30)
 	DefaultMinInterval                   = int64(60)
 	DefaultMaxInterval                   = int64(3600)
-	DefaultPowerThreshold                = int64(1_000_000_000)
-	DefaultMaxSupportedFeeds             = int64(300)
+	DefaultPowerStepThreshold            = int64(1_000_000_000)
+	DefaultMaxCurrentFeeds               = uint64(300)
 	DefaultCooldownTime                  = int64(30)
-	DefaultMinDeviationInThousandth      = int64(5)
-	DefaultMaxDeviationInThousandth      = int64(300)
-	DefaultMaxSignalIDCharacters         = uint64(256)
-	DefaultBlocksPerFeedsUpdate          = uint64(
-		28800,
-	) // estimated from block time of 3 seconds, aims for 1 day update
+	DefaultMinDeviationBasisPoint        = int64(50)
+	DefaultMaxDeviationBasisPoint        = int64(3000)
+	// estimated from block time of 3 seconds, aims for 1 day update
+	DefaultCurrentFeedsUpdateInterval = int64(28800)
+	DefaultMaxSignalIDsPerSigning     = uint64(10)
 )
 
 // NewParams creates a new Params instance
 func NewParams(
 	admin string,
 	allowableBlockTimeDiscrepancy int64,
-	transitionTime int64,
+	gracePeriod int64,
 	minInterval int64,
 	maxInterval int64,
-	powerThreshold int64,
-	maxSupportedFeeds int64,
+	powerStepThreshold int64,
+	maxCurrentFeeds uint64,
 	cooldownTime int64,
-	minDeviationInThousandth int64,
-	maxDeviationInThousandth int64,
-	maxSignalIDCharacters uint64,
-	blocksPerFeedsUpdate uint64,
+	minDeviationBasisPoint int64,
+	maxDeviationBasisPoint int64,
+	currentFeedsUpdateInterval int64,
+	maxSignalIDsPerSigning uint64,
 ) Params {
 	return Params{
 		Admin:                         admin,
 		AllowableBlockTimeDiscrepancy: allowableBlockTimeDiscrepancy,
-		TransitionTime:                transitionTime,
+		GracePeriod:                   gracePeriod,
 		MinInterval:                   minInterval,
 		MaxInterval:                   maxInterval,
-		PowerThreshold:                powerThreshold,
-		MaxSupportedFeeds:             maxSupportedFeeds,
+		PowerStepThreshold:            powerStepThreshold,
+		MaxCurrentFeeds:               maxCurrentFeeds,
 		CooldownTime:                  cooldownTime,
-		MinDeviationInThousandth:      minDeviationInThousandth,
-		MaxDeviationInThousandth:      maxDeviationInThousandth,
-		MaxSignalIDCharacters:         maxSignalIDCharacters,
-		BlocksPerFeedsUpdate:          blocksPerFeedsUpdate,
+		MinDeviationBasisPoint:        minDeviationBasisPoint,
+		MaxDeviationBasisPoint:        maxDeviationBasisPoint,
+		CurrentFeedsUpdateInterval:    currentFeedsUpdateInterval,
+		MaxSignalIDsPerSigning:        maxSignalIDsPerSigning,
 	}
 }
 
@@ -57,56 +56,45 @@ func DefaultParams() Params {
 	return NewParams(
 		"[NOT_SET]",
 		DefaultAllowableBlockTimeDiscrepancy,
-		DefaultTransitionTime,
+		DefaultGracePeriod,
 		DefaultMinInterval,
 		DefaultMaxInterval,
-		DefaultPowerThreshold,
-		DefaultMaxSupportedFeeds,
+		DefaultPowerStepThreshold,
+		DefaultMaxCurrentFeeds,
 		DefaultCooldownTime,
-		DefaultMinDeviationInThousandth,
-		DefaultMaxDeviationInThousandth,
-		DefaultMaxSignalIDCharacters,
-		DefaultBlocksPerFeedsUpdate,
+		DefaultMinDeviationBasisPoint,
+		DefaultMaxDeviationBasisPoint,
+		DefaultCurrentFeedsUpdateInterval,
+		DefaultMaxSignalIDsPerSigning,
 	)
 }
 
 // Validate validates the set of params
 func (p Params) Validate() error {
-	if err := validateString("admin", true, p.Admin); err != nil {
-		return err
+	fields := []struct {
+		validateFn     func(string, bool, interface{}) error
+		name           string
+		val            interface{}
+		isPositiveOnly bool
+	}{
+		{validateString, "admin", p.Admin, false},
+		{validateInt64, "allowable block time discrepancy", p.AllowableBlockTimeDiscrepancy, true},
+		{validateInt64, "grace period", p.GracePeriod, true},
+		{validateInt64, "min interval", p.MinInterval, true},
+		{validateInt64, "max interval", p.MaxInterval, true},
+		{validateInt64, "power threshold", p.PowerStepThreshold, true},
+		{validateUint64, "max current feeds", p.MaxCurrentFeeds, false},
+		{validateInt64, "cooldown time", p.CooldownTime, true},
+		{validateInt64, "min deviation basis point", p.MinDeviationBasisPoint, true},
+		{validateInt64, "max deviation basis point", p.MaxDeviationBasisPoint, true},
+		{validateInt64, "current feeds update interval", p.CurrentFeedsUpdateInterval, true},
+		{validateUint64, "max signalIDs per Signing", p.MaxSignalIDsPerSigning, true},
 	}
-	if err := validateInt64("allowable block time discrepancy", true, p.AllowableBlockTimeDiscrepancy); err != nil {
-		return err
-	}
-	if err := validateInt64("transition time", true, p.TransitionTime); err != nil {
-		return err
-	}
-	if err := validateInt64("min interval", true, p.MinInterval); err != nil {
-		return err
-	}
-	if err := validateInt64("max interval", true, p.MaxInterval); err != nil {
-		return err
-	}
-	if err := validateInt64("power threshold", true, p.PowerThreshold); err != nil {
-		return err
-	}
-	if err := validateInt64("max supported feeds", true, p.MaxSupportedFeeds); err != nil {
-		return err
-	}
-	if err := validateInt64("cooldown time", true, p.CooldownTime); err != nil {
-		return err
-	}
-	if err := validateInt64("min deviation in thousandth", true, p.MinDeviationInThousandth); err != nil {
-		return err
-	}
-	if err := validateInt64("max deviation in thousandth", true, p.MaxDeviationInThousandth); err != nil {
-		return err
-	}
-	if err := validateUint64("max signal id characters", true, p.MaxSignalIDCharacters); err != nil {
-		return err
-	}
-	if err := validateUint64("blocks per feeds update", true, p.BlocksPerFeedsUpdate); err != nil {
-		return err
+
+	for _, f := range fields {
+		if err := f.validateFn(f.name, f.isPositiveOnly, f.val); err != nil {
+			return err
+		}
 	}
 
 	return nil

@@ -26,33 +26,33 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Params is the data structure that keeps the parameters of the feeds module.
 type Params struct {
-	// Admin is the address of the admin that is allowed to perform operations on modules.
+	// admin is the address of the admin that is allowed to perform operations on modules.
 	Admin string `protobuf:"bytes,1,opt,name=admin,proto3" json:"admin,omitempty"`
-	// AllowableBlockTimeDiscrepancy is the allowed discrepancy (in seconds) between validator price timestamp and
+	// allowable_block_time_discrepancy is the allowed discrepancy (in seconds) between validator price timestamp and
 	// block_time.
 	AllowableBlockTimeDiscrepancy int64 `protobuf:"varint,2,opt,name=allowable_block_time_discrepancy,json=allowableBlockTimeDiscrepancy,proto3" json:"allowable_block_time_discrepancy,omitempty"`
-	// TransitionTime is the time (in seconds) given for validators to adapt to changing in feed's interval.
-	TransitionTime int64 `protobuf:"varint,3,opt,name=transition_time,json=transitionTime,proto3" json:"transition_time,omitempty"`
-	// MinInterval is the minimum limit of every feeds' interval (in seconds).
+	// grace_period is the time (in seconds) given for validators to adapt to changing in feed's interval.
+	GracePeriod int64 `protobuf:"varint,3,opt,name=grace_period,json=gracePeriod,proto3" json:"grace_period,omitempty"`
+	// min_interval is the minimum limit of every feeds' interval (in seconds).
 	// If the calculated interval is lower than this, it will be capped at this value.
 	MinInterval int64 `protobuf:"varint,4,opt,name=min_interval,json=minInterval,proto3" json:"min_interval,omitempty"`
-	// MaxInterval is the maximum limit of every feeds' interval (in seconds).
-	// If the calculated interval of a feed is higher than this, it will not be recognized as a supported feed.
+	// max_interval is the maximum limit of every feeds' interval (in seconds).
+	// If the calculated interval of a feed is higher than this, it will not be capped at this value.
 	MaxInterval int64 `protobuf:"varint,5,opt,name=max_interval,json=maxInterval,proto3" json:"max_interval,omitempty"`
-	// PowerThreshold is the amount of minimum power required to put feed in the supported list.
-	PowerThreshold int64 `protobuf:"varint,6,opt,name=power_threshold,json=powerThreshold,proto3" json:"power_threshold,omitempty"`
-	// MaxSupportedFeeds is the maximum number of feeds supported at a time.
-	MaxSupportedFeeds int64 `protobuf:"varint,7,opt,name=max_supported_feeds,json=maxSupportedFeeds,proto3" json:"max_supported_feeds,omitempty"`
-	// CooldownTime represents the duration (in seconds) during which validators are prohibited from sending new prices.
+	// power_step_threshold is the amount of minimum power required to put feed in the current feeds list.
+	PowerStepThreshold int64 `protobuf:"varint,6,opt,name=power_step_threshold,json=powerStepThreshold,proto3" json:"power_step_threshold,omitempty"`
+	// max_current_feeds is the maximum number of feeds supported at a time.
+	MaxCurrentFeeds uint64 `protobuf:"varint,7,opt,name=max_current_feeds,json=maxCurrentFeeds,proto3" json:"max_current_feeds,omitempty"`
+	// cooldown_time represents the duration (in seconds) during which validators are prohibited from sending new prices.
 	CooldownTime int64 `protobuf:"varint,8,opt,name=cooldown_time,json=cooldownTime,proto3" json:"cooldown_time,omitempty"`
-	// MinDeviationInThousandth is the minimum limit of every feeds' deviation (in thousandth).
-	MinDeviationInThousandth int64 `protobuf:"varint,9,opt,name=min_deviation_in_thousandth,json=minDeviationInThousandth,proto3" json:"min_deviation_in_thousandth,omitempty"`
-	// MaxDeviationInThousandth is the maximum limit of every feeds' deviation (in thousandth).
-	MaxDeviationInThousandth int64 `protobuf:"varint,10,opt,name=max_deviation_in_thousandth,json=maxDeviationInThousandth,proto3" json:"max_deviation_in_thousandth,omitempty"`
-	// MaxSignalIDCharacters is the maximum limit of characters of a signal id.
-	MaxSignalIDCharacters uint64 `protobuf:"varint,11,opt,name=max_signal_id_characters,json=maxSignalIdCharacters,proto3" json:"max_signal_id_characters,omitempty"`
-	// BlocksPerFeedsUpdate is the number of blocks after which the feed interval and deviation will be recalculated
-	BlocksPerFeedsUpdate uint64 `protobuf:"varint,12,opt,name=blocks_per_feeds_update,json=blocksPerFeedsUpdate,proto3" json:"blocks_per_feeds_update,omitempty"`
+	// min_deviation_basis_point is the minimum limit of every feeds' deviation (in basis point).
+	MinDeviationBasisPoint int64 `protobuf:"varint,9,opt,name=min_deviation_basis_point,json=minDeviationBasisPoint,proto3" json:"min_deviation_basis_point,omitempty"`
+	// max_deviation_basis_point is the maximum limit of every feeds' deviation (in basis point).
+	MaxDeviationBasisPoint int64 `protobuf:"varint,10,opt,name=max_deviation_basis_point,json=maxDeviationBasisPoint,proto3" json:"max_deviation_basis_point,omitempty"`
+	// current_feeds_update_interval is the number of blocks after which the current feeds will be re-calculated.
+	CurrentFeedsUpdateInterval int64 `protobuf:"varint,11,opt,name=current_feeds_update_interval,json=currentFeedsUpdateInterval,proto3" json:"current_feeds_update_interval,omitempty"`
+	// MaxSignalIDsPerSigning is the maximum number of signals allowed in a single tss signing request.
+	MaxSignalIDsPerSigning uint64 `protobuf:"varint,12,opt,name=max_signal_ids_per_signing,json=maxSignalIdsPerSigning,proto3" json:"max_signal_ids_per_signing,omitempty"`
 }
 
 func (m *Params) Reset()      { *m = Params{} }
@@ -101,9 +101,9 @@ func (m *Params) GetAllowableBlockTimeDiscrepancy() int64 {
 	return 0
 }
 
-func (m *Params) GetTransitionTime() int64 {
+func (m *Params) GetGracePeriod() int64 {
 	if m != nil {
-		return m.TransitionTime
+		return m.GracePeriod
 	}
 	return 0
 }
@@ -122,16 +122,16 @@ func (m *Params) GetMaxInterval() int64 {
 	return 0
 }
 
-func (m *Params) GetPowerThreshold() int64 {
+func (m *Params) GetPowerStepThreshold() int64 {
 	if m != nil {
-		return m.PowerThreshold
+		return m.PowerStepThreshold
 	}
 	return 0
 }
 
-func (m *Params) GetMaxSupportedFeeds() int64 {
+func (m *Params) GetMaxCurrentFeeds() uint64 {
 	if m != nil {
-		return m.MaxSupportedFeeds
+		return m.MaxCurrentFeeds
 	}
 	return 0
 }
@@ -143,30 +143,30 @@ func (m *Params) GetCooldownTime() int64 {
 	return 0
 }
 
-func (m *Params) GetMinDeviationInThousandth() int64 {
+func (m *Params) GetMinDeviationBasisPoint() int64 {
 	if m != nil {
-		return m.MinDeviationInThousandth
+		return m.MinDeviationBasisPoint
 	}
 	return 0
 }
 
-func (m *Params) GetMaxDeviationInThousandth() int64 {
+func (m *Params) GetMaxDeviationBasisPoint() int64 {
 	if m != nil {
-		return m.MaxDeviationInThousandth
+		return m.MaxDeviationBasisPoint
 	}
 	return 0
 }
 
-func (m *Params) GetMaxSignalIDCharacters() uint64 {
+func (m *Params) GetCurrentFeedsUpdateInterval() int64 {
 	if m != nil {
-		return m.MaxSignalIDCharacters
+		return m.CurrentFeedsUpdateInterval
 	}
 	return 0
 }
 
-func (m *Params) GetBlocksPerFeedsUpdate() uint64 {
+func (m *Params) GetMaxSignalIDsPerSigning() uint64 {
 	if m != nil {
-		return m.BlocksPerFeedsUpdate
+		return m.MaxSignalIDsPerSigning
 	}
 	return 0
 }
@@ -178,40 +178,40 @@ func init() {
 func init() { proto.RegisterFile("feeds/v1beta1/params.proto", fileDescriptor_bbfae8ad171874f3) }
 
 var fileDescriptor_bbfae8ad171874f3 = []byte{
-	// 520 bytes of a gzipped FileDescriptorProto
+	// 524 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x93, 0x3f, 0x6f, 0xd3, 0x40,
-	0x18, 0xc6, 0x63, 0xfa, 0x87, 0xf6, 0xda, 0x52, 0x61, 0x52, 0x71, 0x0d, 0xc2, 0x09, 0x30, 0x34,
-	0x0b, 0xb6, 0x0a, 0x62, 0x41, 0x62, 0x20, 0x44, 0x40, 0x06, 0xa4, 0x2a, 0x09, 0x0b, 0xcb, 0xe9,
-	0xb5, 0xef, 0x88, 0x4f, 0xf8, 0xee, 0xac, 0xbb, 0x4b, 0xe2, 0x8e, 0x7c, 0x03, 0x46, 0xc6, 0x7e,
-	0x08, 0x3e, 0x04, 0x63, 0xc5, 0xc4, 0x84, 0x50, 0xb2, 0xf0, 0x31, 0x90, 0xcf, 0x4e, 0xb2, 0xc0,
-	0x66, 0x3f, 0xbf, 0xdf, 0xf3, 0x5a, 0xef, 0xd9, 0x46, 0xad, 0x8f, 0x8c, 0x51, 0x13, 0xcd, 0xce,
-	0x63, 0x66, 0xe1, 0x3c, 0xca, 0x41, 0x83, 0x30, 0x61, 0xae, 0x95, 0x55, 0xfe, 0x91, 0x63, 0x61,
-	0xcd, 0x5a, 0xcd, 0x89, 0x9a, 0x28, 0x47, 0xa2, 0xf2, 0xaa, 0x92, 0x5a, 0xa7, 0x89, 0x32, 0x42,
-	0x19, 0x52, 0x81, 0xea, 0xa6, 0x42, 0x0f, 0x3f, 0xef, 0xa0, 0xdd, 0x0b, 0x37, 0xd0, 0x0f, 0xd1,
-	0x0e, 0x50, 0xc1, 0x25, 0xf6, 0x3a, 0x5e, 0x77, 0xbf, 0x87, 0x7f, 0x7c, 0x7b, 0xdc, 0xac, 0xdd,
-	0x97, 0x94, 0x6a, 0x66, 0xcc, 0xc8, 0x6a, 0x2e, 0x27, 0xc3, 0x4a, 0xf3, 0xdf, 0xa0, 0x0e, 0x64,
-	0x99, 0x9a, 0x43, 0x9c, 0x31, 0x12, 0x67, 0x2a, 0xf9, 0x44, 0x2c, 0x17, 0x8c, 0x50, 0x6e, 0x12,
-	0xcd, 0x72, 0x90, 0xc9, 0x25, 0xbe, 0xd1, 0xf1, 0xba, 0x5b, 0xc3, 0xfb, 0x6b, 0xaf, 0x57, 0x6a,
-	0x63, 0x2e, 0x58, 0x7f, 0x23, 0xf9, 0x67, 0xe8, 0xd8, 0x6a, 0x90, 0x86, 0x5b, 0xae, 0xa4, 0x9b,
-	0x81, 0xb7, 0x5c, 0xef, 0xd6, 0x26, 0x2e, 0x3b, 0xfe, 0x03, 0x74, 0x28, 0xb8, 0x24, 0x5c, 0x5a,
-	0xa6, 0x67, 0x90, 0xe1, 0x6d, 0x67, 0x1d, 0x08, 0x2e, 0x07, 0x75, 0xe4, 0x14, 0x28, 0x36, 0xca,
-	0x4e, 0xad, 0x40, 0xb1, 0x56, 0xce, 0xd0, 0x71, 0xae, 0xe6, 0x4c, 0x13, 0x9b, 0x6a, 0x66, 0x52,
-	0x95, 0x51, 0xbc, 0x5b, 0x3d, 0xce, 0xc5, 0xe3, 0x55, 0xea, 0x87, 0xe8, 0x4e, 0x39, 0xcb, 0x4c,
-	0xf3, 0x5c, 0x69, 0xcb, 0x28, 0x71, 0x67, 0x8d, 0x6f, 0x3a, 0xf9, 0xb6, 0x80, 0x62, 0xb4, 0x22,
-	0xaf, 0x4b, 0xe0, 0x3f, 0x42, 0x47, 0x89, 0x52, 0x19, 0x55, 0xf3, 0x7a, 0x8b, 0x3d, 0x67, 0x1e,
-	0xae, 0x42, 0xb7, 0xc3, 0x0b, 0x74, 0xaf, 0xdc, 0x81, 0xb2, 0x19, 0x07, 0xb7, 0x2f, 0x97, 0xc4,
-	0xa6, 0x6a, 0x6a, 0x40, 0x52, 0x9b, 0xe2, 0x7d, 0x57, 0xc1, 0x82, 0xcb, 0xfe, 0xca, 0x18, 0xc8,
-	0xf1, 0x9a, 0xbb, 0x3a, 0x14, 0xff, 0xad, 0xa3, 0xba, 0x0e, 0xc5, 0xbf, 0xeb, 0x43, 0x84, 0xdd,
-	0x4a, 0x7c, 0x22, 0x21, 0x23, 0x9c, 0x92, 0x24, 0x05, 0x0d, 0x89, 0x65, 0xda, 0xe0, 0x83, 0x8e,
-	0xd7, 0xdd, 0xee, 0x9d, 0x2e, 0x7e, 0xb5, 0x4f, 0xde, 0x41, 0x31, 0x72, 0xca, 0xa0, 0xff, 0x6a,
-	0x2d, 0x0c, 0x4f, 0xc4, 0x3a, 0xa6, 0x9b, 0xd8, 0x7f, 0x86, 0xee, 0xba, 0xb7, 0x6f, 0x48, 0xce,
-	0x74, 0x75, 0x46, 0x64, 0x9a, 0x53, 0xb0, 0x0c, 0x1f, 0x96, 0x23, 0x87, 0xcd, 0x0a, 0x5f, 0x30,
-	0xed, 0xce, 0xe9, 0xbd, 0x63, 0xcf, 0xf7, 0xbe, 0x5e, 0xb5, 0x1b, 0x7f, 0xae, 0xda, 0x5e, 0xef,
-	0xed, 0xf7, 0x45, 0xe0, 0x5d, 0x2f, 0x02, 0xef, 0xf7, 0x22, 0xf0, 0xbe, 0x2c, 0x83, 0xc6, 0xf5,
-	0x32, 0x68, 0xfc, 0x5c, 0x06, 0x8d, 0x0f, 0xe1, 0x84, 0xdb, 0x74, 0x1a, 0x87, 0x89, 0x12, 0x51,
-	0x0c, 0x92, 0xba, 0x6f, 0x36, 0x51, 0x59, 0x94, 0xa4, 0xc0, 0x65, 0x34, 0x7b, 0x12, 0x15, 0x51,
-	0xf5, 0x73, 0xd8, 0xcb, 0x9c, 0x99, 0x78, 0xd7, 0x09, 0x4f, 0xff, 0x06, 0x00, 0x00, 0xff, 0xff,
-	0xfc, 0xfa, 0x84, 0xaf, 0x32, 0x03, 0x00, 0x00,
+	0x18, 0xc6, 0x63, 0xfa, 0x87, 0xf6, 0x9a, 0x0a, 0x61, 0x45, 0x95, 0x6b, 0xa9, 0x4e, 0x80, 0x25,
+	0x42, 0x22, 0xa6, 0x30, 0xc1, 0xd6, 0x10, 0x01, 0x1d, 0x90, 0xa2, 0xa4, 0x30, 0xb0, 0x9c, 0xce,
+	0x77, 0x87, 0x73, 0xc2, 0xbe, 0xb3, 0xee, 0x2e, 0x89, 0xfb, 0x0d, 0x18, 0x19, 0x19, 0xfb, 0x21,
+	0xf8, 0x10, 0x8c, 0x15, 0x13, 0x13, 0x42, 0xc9, 0xc2, 0xc7, 0x40, 0xf7, 0xda, 0x49, 0x8a, 0x04,
+	0x9b, 0xef, 0x79, 0x7e, 0xcf, 0x6b, 0xbf, 0x8f, 0x6d, 0x14, 0x7e, 0xe0, 0x9c, 0x99, 0x78, 0x76,
+	0x9a, 0x70, 0x4b, 0x4e, 0xe3, 0x82, 0x68, 0x92, 0x9b, 0x5e, 0xa1, 0x95, 0x55, 0xfe, 0x21, 0x78,
+	0xbd, 0xda, 0x0b, 0x5b, 0xa9, 0x4a, 0x15, 0x38, 0xb1, 0xbb, 0xaa, 0xa0, 0xf0, 0x98, 0x2a, 0x93,
+	0x2b, 0x83, 0x2b, 0xa3, 0x3a, 0x54, 0xd6, 0xfd, 0x4f, 0x3b, 0x68, 0x77, 0x08, 0x03, 0xfd, 0x1e,
+	0xda, 0x21, 0x2c, 0x17, 0x32, 0xf0, 0x3a, 0x5e, 0x77, 0xbf, 0x1f, 0x7c, 0xff, 0xfa, 0xa8, 0x55,
+	0xb3, 0x67, 0x8c, 0x69, 0x6e, 0xcc, 0xd8, 0x6a, 0x21, 0xd3, 0x51, 0x85, 0xf9, 0xaf, 0x50, 0x87,
+	0x64, 0x99, 0x9a, 0x93, 0x24, 0xe3, 0x38, 0xc9, 0x14, 0xfd, 0x88, 0xad, 0xc8, 0x39, 0x66, 0xc2,
+	0x50, 0xcd, 0x0b, 0x22, 0xe9, 0x65, 0x70, 0xab, 0xe3, 0x75, 0xb7, 0x46, 0x27, 0x6b, 0xae, 0xef,
+	0xb0, 0x0b, 0x91, 0xf3, 0xc1, 0x06, 0xf2, 0xef, 0xa1, 0x66, 0xaa, 0x09, 0xe5, 0xb8, 0xe0, 0x5a,
+	0x28, 0x16, 0x6c, 0x41, 0xe8, 0x00, 0xb4, 0x21, 0x48, 0x0e, 0xc9, 0x85, 0xc4, 0x42, 0x5a, 0xae,
+	0x67, 0x24, 0x0b, 0xb6, 0x2b, 0x24, 0x17, 0xf2, 0xbc, 0x96, 0x00, 0x21, 0xe5, 0x06, 0xd9, 0xa9,
+	0x11, 0x52, 0xae, 0x91, 0xc7, 0xa8, 0x55, 0xa8, 0x39, 0xd7, 0xd8, 0x58, 0x5e, 0x60, 0x3b, 0xd1,
+	0xdc, 0x4c, 0x54, 0xc6, 0x82, 0x5d, 0x40, 0x7d, 0xf0, 0xc6, 0x96, 0x17, 0x17, 0x2b, 0xc7, 0x7f,
+	0x88, 0xee, 0xba, 0xa1, 0x74, 0xaa, 0x35, 0x97, 0x16, 0x43, 0xd9, 0xc1, 0xed, 0x8e, 0xd7, 0xdd,
+	0x1e, 0xdd, 0xc9, 0x49, 0xf9, 0xa2, 0xd2, 0x5f, 0x3a, 0xd9, 0x7f, 0x80, 0x0e, 0xa9, 0x52, 0x19,
+	0x53, 0x73, 0x09, 0x45, 0x04, 0x7b, 0x30, 0xb6, 0xb9, 0x12, 0xdd, 0xda, 0xfe, 0x33, 0x74, 0xec,
+	0x16, 0x61, 0x7c, 0x26, 0x88, 0x15, 0x4a, 0xe2, 0x84, 0x18, 0x61, 0x70, 0xa1, 0x84, 0xb4, 0xc1,
+	0x3e, 0x04, 0x8e, 0x72, 0x21, 0x07, 0x2b, 0xbf, 0xef, 0xec, 0xa1, 0x73, 0x21, 0x4a, 0xca, 0xff,
+	0x44, 0x51, 0x1d, 0x25, 0xe5, 0xbf, 0xa2, 0x67, 0xe8, 0xe4, 0xaf, 0x15, 0xf0, 0xb4, 0x60, 0xc4,
+	0xf2, 0x4d, 0x59, 0x07, 0x10, 0x0f, 0xe9, 0x8d, 0x7d, 0xde, 0x02, 0xb2, 0xee, 0xee, 0x1d, 0x0a,
+	0xdd, 0xdd, 0x8d, 0x48, 0x25, 0xc9, 0xb0, 0x60, 0xc6, 0xbd, 0x2d, 0x38, 0x0a, 0x99, 0x06, 0x4d,
+	0x57, 0x49, 0x3f, 0x5c, 0xfc, 0x6c, 0x1f, 0xbd, 0x21, 0xe5, 0x18, 0xa0, 0xf3, 0x81, 0x19, 0x72,
+	0x3d, 0xae, 0x08, 0x78, 0xb4, 0x5a, 0x67, 0x37, 0xf4, 0xe7, 0x7b, 0x5f, 0xae, 0xda, 0x8d, 0xdf,
+	0x57, 0x6d, 0xaf, 0xff, 0xfa, 0xdb, 0x22, 0xf2, 0xae, 0x17, 0x91, 0xf7, 0x6b, 0x11, 0x79, 0x9f,
+	0x97, 0x51, 0xe3, 0x7a, 0x19, 0x35, 0x7e, 0x2c, 0xa3, 0xc6, 0xfb, 0x5e, 0x2a, 0xec, 0x64, 0x9a,
+	0xf4, 0xa8, 0xca, 0xe3, 0x84, 0x48, 0x06, 0x9f, 0x2e, 0x55, 0x59, 0x4c, 0x27, 0x44, 0xc8, 0x78,
+	0xf6, 0x24, 0x2e, 0xe3, 0xea, 0x1f, 0xb1, 0x97, 0x05, 0x37, 0xc9, 0x2e, 0x00, 0x4f, 0xff, 0x04,
+	0x00, 0x00, 0xff, 0xff, 0x95, 0x63, 0x41, 0x0b, 0x39, 0x03, 0x00, 0x00,
 }
 
 func (this *Params) Equal(that interface{}) bool {
@@ -239,7 +239,7 @@ func (this *Params) Equal(that interface{}) bool {
 	if this.AllowableBlockTimeDiscrepancy != that1.AllowableBlockTimeDiscrepancy {
 		return false
 	}
-	if this.TransitionTime != that1.TransitionTime {
+	if this.GracePeriod != that1.GracePeriod {
 		return false
 	}
 	if this.MinInterval != that1.MinInterval {
@@ -248,25 +248,25 @@ func (this *Params) Equal(that interface{}) bool {
 	if this.MaxInterval != that1.MaxInterval {
 		return false
 	}
-	if this.PowerThreshold != that1.PowerThreshold {
+	if this.PowerStepThreshold != that1.PowerStepThreshold {
 		return false
 	}
-	if this.MaxSupportedFeeds != that1.MaxSupportedFeeds {
+	if this.MaxCurrentFeeds != that1.MaxCurrentFeeds {
 		return false
 	}
 	if this.CooldownTime != that1.CooldownTime {
 		return false
 	}
-	if this.MinDeviationInThousandth != that1.MinDeviationInThousandth {
+	if this.MinDeviationBasisPoint != that1.MinDeviationBasisPoint {
 		return false
 	}
-	if this.MaxDeviationInThousandth != that1.MaxDeviationInThousandth {
+	if this.MaxDeviationBasisPoint != that1.MaxDeviationBasisPoint {
 		return false
 	}
-	if this.MaxSignalIDCharacters != that1.MaxSignalIDCharacters {
+	if this.CurrentFeedsUpdateInterval != that1.CurrentFeedsUpdateInterval {
 		return false
 	}
-	if this.BlocksPerFeedsUpdate != that1.BlocksPerFeedsUpdate {
+	if this.MaxSignalIDsPerSigning != that1.MaxSignalIDsPerSigning {
 		return false
 	}
 	return true
@@ -291,23 +291,23 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.BlocksPerFeedsUpdate != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.BlocksPerFeedsUpdate))
+	if m.MaxSignalIDsPerSigning != 0 {
+		i = encodeVarintParams(dAtA, i, uint64(m.MaxSignalIDsPerSigning))
 		i--
 		dAtA[i] = 0x60
 	}
-	if m.MaxSignalIDCharacters != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.MaxSignalIDCharacters))
+	if m.CurrentFeedsUpdateInterval != 0 {
+		i = encodeVarintParams(dAtA, i, uint64(m.CurrentFeedsUpdateInterval))
 		i--
 		dAtA[i] = 0x58
 	}
-	if m.MaxDeviationInThousandth != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.MaxDeviationInThousandth))
+	if m.MaxDeviationBasisPoint != 0 {
+		i = encodeVarintParams(dAtA, i, uint64(m.MaxDeviationBasisPoint))
 		i--
 		dAtA[i] = 0x50
 	}
-	if m.MinDeviationInThousandth != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.MinDeviationInThousandth))
+	if m.MinDeviationBasisPoint != 0 {
+		i = encodeVarintParams(dAtA, i, uint64(m.MinDeviationBasisPoint))
 		i--
 		dAtA[i] = 0x48
 	}
@@ -316,13 +316,13 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x40
 	}
-	if m.MaxSupportedFeeds != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.MaxSupportedFeeds))
+	if m.MaxCurrentFeeds != 0 {
+		i = encodeVarintParams(dAtA, i, uint64(m.MaxCurrentFeeds))
 		i--
 		dAtA[i] = 0x38
 	}
-	if m.PowerThreshold != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.PowerThreshold))
+	if m.PowerStepThreshold != 0 {
+		i = encodeVarintParams(dAtA, i, uint64(m.PowerStepThreshold))
 		i--
 		dAtA[i] = 0x30
 	}
@@ -336,8 +336,8 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x20
 	}
-	if m.TransitionTime != 0 {
-		i = encodeVarintParams(dAtA, i, uint64(m.TransitionTime))
+	if m.GracePeriod != 0 {
+		i = encodeVarintParams(dAtA, i, uint64(m.GracePeriod))
 		i--
 		dAtA[i] = 0x18
 	}
@@ -380,8 +380,8 @@ func (m *Params) Size() (n int) {
 	if m.AllowableBlockTimeDiscrepancy != 0 {
 		n += 1 + sovParams(uint64(m.AllowableBlockTimeDiscrepancy))
 	}
-	if m.TransitionTime != 0 {
-		n += 1 + sovParams(uint64(m.TransitionTime))
+	if m.GracePeriod != 0 {
+		n += 1 + sovParams(uint64(m.GracePeriod))
 	}
 	if m.MinInterval != 0 {
 		n += 1 + sovParams(uint64(m.MinInterval))
@@ -389,26 +389,26 @@ func (m *Params) Size() (n int) {
 	if m.MaxInterval != 0 {
 		n += 1 + sovParams(uint64(m.MaxInterval))
 	}
-	if m.PowerThreshold != 0 {
-		n += 1 + sovParams(uint64(m.PowerThreshold))
+	if m.PowerStepThreshold != 0 {
+		n += 1 + sovParams(uint64(m.PowerStepThreshold))
 	}
-	if m.MaxSupportedFeeds != 0 {
-		n += 1 + sovParams(uint64(m.MaxSupportedFeeds))
+	if m.MaxCurrentFeeds != 0 {
+		n += 1 + sovParams(uint64(m.MaxCurrentFeeds))
 	}
 	if m.CooldownTime != 0 {
 		n += 1 + sovParams(uint64(m.CooldownTime))
 	}
-	if m.MinDeviationInThousandth != 0 {
-		n += 1 + sovParams(uint64(m.MinDeviationInThousandth))
+	if m.MinDeviationBasisPoint != 0 {
+		n += 1 + sovParams(uint64(m.MinDeviationBasisPoint))
 	}
-	if m.MaxDeviationInThousandth != 0 {
-		n += 1 + sovParams(uint64(m.MaxDeviationInThousandth))
+	if m.MaxDeviationBasisPoint != 0 {
+		n += 1 + sovParams(uint64(m.MaxDeviationBasisPoint))
 	}
-	if m.MaxSignalIDCharacters != 0 {
-		n += 1 + sovParams(uint64(m.MaxSignalIDCharacters))
+	if m.CurrentFeedsUpdateInterval != 0 {
+		n += 1 + sovParams(uint64(m.CurrentFeedsUpdateInterval))
 	}
-	if m.BlocksPerFeedsUpdate != 0 {
-		n += 1 + sovParams(uint64(m.BlocksPerFeedsUpdate))
+	if m.MaxSignalIDsPerSigning != 0 {
+		n += 1 + sovParams(uint64(m.MaxSignalIDsPerSigning))
 	}
 	return n
 }
@@ -501,9 +501,9 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			}
 		case 3:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field TransitionTime", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field GracePeriod", wireType)
 			}
-			m.TransitionTime = 0
+			m.GracePeriod = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowParams
@@ -513,7 +513,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.TransitionTime |= int64(b&0x7F) << shift
+				m.GracePeriod |= int64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -558,9 +558,9 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			}
 		case 6:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field PowerThreshold", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field PowerStepThreshold", wireType)
 			}
-			m.PowerThreshold = 0
+			m.PowerStepThreshold = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowParams
@@ -570,16 +570,16 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.PowerThreshold |= int64(b&0x7F) << shift
+				m.PowerStepThreshold |= int64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
 		case 7:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxSupportedFeeds", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxCurrentFeeds", wireType)
 			}
-			m.MaxSupportedFeeds = 0
+			m.MaxCurrentFeeds = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowParams
@@ -589,7 +589,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxSupportedFeeds |= int64(b&0x7F) << shift
+				m.MaxCurrentFeeds |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -615,9 +615,9 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			}
 		case 9:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MinDeviationInThousandth", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field MinDeviationBasisPoint", wireType)
 			}
-			m.MinDeviationInThousandth = 0
+			m.MinDeviationBasisPoint = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowParams
@@ -627,16 +627,16 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MinDeviationInThousandth |= int64(b&0x7F) << shift
+				m.MinDeviationBasisPoint |= int64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
 		case 10:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxDeviationInThousandth", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxDeviationBasisPoint", wireType)
 			}
-			m.MaxDeviationInThousandth = 0
+			m.MaxDeviationBasisPoint = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowParams
@@ -646,16 +646,16 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxDeviationInThousandth |= int64(b&0x7F) << shift
+				m.MaxDeviationBasisPoint |= int64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
 		case 11:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field MaxSignalIDCharacters", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field CurrentFeedsUpdateInterval", wireType)
 			}
-			m.MaxSignalIDCharacters = 0
+			m.CurrentFeedsUpdateInterval = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowParams
@@ -665,16 +665,16 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.MaxSignalIDCharacters |= uint64(b&0x7F) << shift
+				m.CurrentFeedsUpdateInterval |= int64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
 		case 12:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field BlocksPerFeedsUpdate", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxSignalIDsPerSigning", wireType)
 			}
-			m.BlocksPerFeedsUpdate = 0
+			m.MaxSignalIDsPerSigning = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowParams
@@ -684,7 +684,7 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.BlocksPerFeedsUpdate |= uint64(b&0x7F) << shift
+				m.MaxSignalIDsPerSigning |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}

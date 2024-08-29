@@ -5,27 +5,36 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// NewDelegatorSignals creates a new DelegatorSignals instance.
+func NewDelegatorSignals(delegator string, signals []Signal) DelegatorSignals {
+	return DelegatorSignals{
+		Delegator: delegator,
+		Signals:   signals,
+	}
+}
+
 // Validate validates the delegator signals
 func (ds *DelegatorSignals) Validate(maxSignalIDCharacters uint64) error {
 	if _, err := sdk.AccAddressFromBech32(ds.Delegator); err != nil {
 		return errorsmod.Wrap(err, "invalid delegator address")
 	}
+
+	// Map to track signal IDs for duplicate check
+	signalIDSet := make(map[string]struct{})
+
 	for _, signal := range ds.Signals {
-		if err := validateString("", false, signal.ID); err != nil {
+		// Validate signal ID
+		if err := signal.Validate(); err != nil {
 			return err
 		}
 
-		signalIDLength := len(signal.ID)
-		if uint64(signalIDLength) > maxSignalIDCharacters {
-			return ErrSignalIDTooLarge.Wrapf(
-				"maximum number of characters is %d but received %d characters",
-				maxSignalIDCharacters, signalIDLength,
+		// Check for duplicate signal IDs
+		if _, exists := signalIDSet[signal.ID]; exists {
+			return ErrDuplicateSignalID.Wrapf(
+				"duplicate signal ID found: %s", signal.ID,
 			)
 		}
-
-		if err := validateInt64("signal power", true, signal.Power); err != nil {
-			return err
-		}
+		signalIDSet[signal.ID] = struct{}{}
 	}
 	return nil
 }

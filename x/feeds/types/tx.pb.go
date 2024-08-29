@@ -31,11 +31,11 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// MsgSubmitSignals is the transaction message to submit signals
+// MsgSubmitSignals is the transaction message to submit signals.
 type MsgSubmitSignals struct {
-	// Delegator is the address of the delegator that want to submit signals
+	// delegator is the address of the delegator that wants to submit signals.
 	Delegator string `protobuf:"bytes,1,opt,name=delegator,proto3" json:"delegator,omitempty"`
-	// Signals is a list of submitted signal
+	// signals is a list of submitted signals.
 	Signals []Signal `protobuf:"bytes,2,rep,name=signals,proto3" json:"signals"`
 }
 
@@ -86,7 +86,7 @@ func (m *MsgSubmitSignals) GetSignals() []Signal {
 	return nil
 }
 
-// MsgSubmitPricesResponse is the response type for the Msg/SubmitSignals RPC method.
+// MsgSubmitSignalsResponse is the response type for the Msg/SubmitSignals RPC method.
 type MsgSubmitSignalsResponse struct {
 }
 
@@ -123,28 +123,28 @@ func (m *MsgSubmitSignalsResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgSubmitSignalsResponse proto.InternalMessageInfo
 
-// MsgSubmitPrices is the transaction message to submit multiple prices.
-type MsgSubmitPrices struct {
-	// Validator is the address of the validator that is performing the operation.
+// MsgSubmitSignalPrices is the transaction message to submit multiple signal prices.
+type MsgSubmitSignalPrices struct {
+	// validator is the address of the validator that is performing the operation.
 	Validator string `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator,omitempty"`
-	// Timestamp is the timestamp use as reference of the data.
+	// timestamp is the timestamp used as reference for the data.
 	Timestamp int64 `protobuf:"varint,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	// Prices is a list of prices to submit.
-	Prices []SubmitPrice `protobuf:"bytes,3,rep,name=prices,proto3" json:"prices"`
+	// prices is a list of signal prices to submit.
+	Prices []SignalPrice `protobuf:"bytes,3,rep,name=prices,proto3" json:"prices"`
 }
 
-func (m *MsgSubmitPrices) Reset()         { *m = MsgSubmitPrices{} }
-func (m *MsgSubmitPrices) String() string { return proto.CompactTextString(m) }
-func (*MsgSubmitPrices) ProtoMessage()    {}
-func (*MsgSubmitPrices) Descriptor() ([]byte, []int) {
+func (m *MsgSubmitSignalPrices) Reset()         { *m = MsgSubmitSignalPrices{} }
+func (m *MsgSubmitSignalPrices) String() string { return proto.CompactTextString(m) }
+func (*MsgSubmitSignalPrices) ProtoMessage()    {}
+func (*MsgSubmitSignalPrices) Descriptor() ([]byte, []int) {
 	return fileDescriptor_72c83eeeb8b31e80, []int{2}
 }
-func (m *MsgSubmitPrices) XXX_Unmarshal(b []byte) error {
+func (m *MsgSubmitSignalPrices) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgSubmitPrices) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgSubmitSignalPrices) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgSubmitPrices.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgSubmitSignalPrices.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -154,55 +154,55 @@ func (m *MsgSubmitPrices) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return b[:n], nil
 	}
 }
-func (m *MsgSubmitPrices) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgSubmitPrices.Merge(m, src)
+func (m *MsgSubmitSignalPrices) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgSubmitSignalPrices.Merge(m, src)
 }
-func (m *MsgSubmitPrices) XXX_Size() int {
+func (m *MsgSubmitSignalPrices) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgSubmitPrices) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgSubmitPrices.DiscardUnknown(m)
+func (m *MsgSubmitSignalPrices) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgSubmitSignalPrices.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgSubmitPrices proto.InternalMessageInfo
+var xxx_messageInfo_MsgSubmitSignalPrices proto.InternalMessageInfo
 
-func (m *MsgSubmitPrices) GetValidator() string {
+func (m *MsgSubmitSignalPrices) GetValidator() string {
 	if m != nil {
 		return m.Validator
 	}
 	return ""
 }
 
-func (m *MsgSubmitPrices) GetTimestamp() int64 {
+func (m *MsgSubmitSignalPrices) GetTimestamp() int64 {
 	if m != nil {
 		return m.Timestamp
 	}
 	return 0
 }
 
-func (m *MsgSubmitPrices) GetPrices() []SubmitPrice {
+func (m *MsgSubmitSignalPrices) GetPrices() []SignalPrice {
 	if m != nil {
 		return m.Prices
 	}
 	return nil
 }
 
-// MsgSubmitPricesResponse is the response type for the Msg/SubmitPrices RPC method.
-type MsgSubmitPricesResponse struct {
+// MsgSubmitSignalPricesResponse is the response type for the Msg/SubmitSignalPrices RPC method.
+type MsgSubmitSignalPricesResponse struct {
 }
 
-func (m *MsgSubmitPricesResponse) Reset()         { *m = MsgSubmitPricesResponse{} }
-func (m *MsgSubmitPricesResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgSubmitPricesResponse) ProtoMessage()    {}
-func (*MsgSubmitPricesResponse) Descriptor() ([]byte, []int) {
+func (m *MsgSubmitSignalPricesResponse) Reset()         { *m = MsgSubmitSignalPricesResponse{} }
+func (m *MsgSubmitSignalPricesResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgSubmitSignalPricesResponse) ProtoMessage()    {}
+func (*MsgSubmitSignalPricesResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_72c83eeeb8b31e80, []int{3}
 }
-func (m *MsgSubmitPricesResponse) XXX_Unmarshal(b []byte) error {
+func (m *MsgSubmitSignalPricesResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgSubmitPricesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgSubmitSignalPricesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgSubmitPricesResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgSubmitSignalPricesResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -212,38 +212,38 @@ func (m *MsgSubmitPricesResponse) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
-func (m *MsgSubmitPricesResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgSubmitPricesResponse.Merge(m, src)
+func (m *MsgSubmitSignalPricesResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgSubmitSignalPricesResponse.Merge(m, src)
 }
-func (m *MsgSubmitPricesResponse) XXX_Size() int {
+func (m *MsgSubmitSignalPricesResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgSubmitPricesResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgSubmitPricesResponse.DiscardUnknown(m)
+func (m *MsgSubmitSignalPricesResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgSubmitSignalPricesResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgSubmitPricesResponse proto.InternalMessageInfo
+var xxx_messageInfo_MsgSubmitSignalPricesResponse proto.InternalMessageInfo
 
-// MsgUpdatePriceService is the transaction message to update price service's information.
-type MsgUpdatePriceService struct {
-	// Admin is the address of the admin that is performing the operation.
+// MsgUpdateReferenceSourceConfig is the transaction message to update reference price source's configuration.
+type MsgUpdateReferenceSourceConfig struct {
+	// admin is the address of the admin that is performing the operation.
 	Admin string `protobuf:"bytes,1,opt,name=admin,proto3" json:"admin,omitempty"`
-	// PriceService is the information of price service.
-	PriceService PriceService `protobuf:"bytes,2,opt,name=price_service,json=priceService,proto3" json:"price_service"`
+	// reference_source_config is the information of reference price source.
+	ReferenceSourceConfig ReferenceSourceConfig `protobuf:"bytes,2,opt,name=reference_source_config,json=referenceSourceConfig,proto3" json:"reference_source_config"`
 }
 
-func (m *MsgUpdatePriceService) Reset()         { *m = MsgUpdatePriceService{} }
-func (m *MsgUpdatePriceService) String() string { return proto.CompactTextString(m) }
-func (*MsgUpdatePriceService) ProtoMessage()    {}
-func (*MsgUpdatePriceService) Descriptor() ([]byte, []int) {
+func (m *MsgUpdateReferenceSourceConfig) Reset()         { *m = MsgUpdateReferenceSourceConfig{} }
+func (m *MsgUpdateReferenceSourceConfig) String() string { return proto.CompactTextString(m) }
+func (*MsgUpdateReferenceSourceConfig) ProtoMessage()    {}
+func (*MsgUpdateReferenceSourceConfig) Descriptor() ([]byte, []int) {
 	return fileDescriptor_72c83eeeb8b31e80, []int{4}
 }
-func (m *MsgUpdatePriceService) XXX_Unmarshal(b []byte) error {
+func (m *MsgUpdateReferenceSourceConfig) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgUpdatePriceService) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgUpdateReferenceSourceConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgUpdatePriceService.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgUpdateReferenceSourceConfig.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -253,48 +253,50 @@ func (m *MsgUpdatePriceService) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return b[:n], nil
 	}
 }
-func (m *MsgUpdatePriceService) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgUpdatePriceService.Merge(m, src)
+func (m *MsgUpdateReferenceSourceConfig) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgUpdateReferenceSourceConfig.Merge(m, src)
 }
-func (m *MsgUpdatePriceService) XXX_Size() int {
+func (m *MsgUpdateReferenceSourceConfig) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgUpdatePriceService) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgUpdatePriceService.DiscardUnknown(m)
+func (m *MsgUpdateReferenceSourceConfig) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgUpdateReferenceSourceConfig.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgUpdatePriceService proto.InternalMessageInfo
+var xxx_messageInfo_MsgUpdateReferenceSourceConfig proto.InternalMessageInfo
 
-func (m *MsgUpdatePriceService) GetAdmin() string {
+func (m *MsgUpdateReferenceSourceConfig) GetAdmin() string {
 	if m != nil {
 		return m.Admin
 	}
 	return ""
 }
 
-func (m *MsgUpdatePriceService) GetPriceService() PriceService {
+func (m *MsgUpdateReferenceSourceConfig) GetReferenceSourceConfig() ReferenceSourceConfig {
 	if m != nil {
-		return m.PriceService
+		return m.ReferenceSourceConfig
 	}
-	return PriceService{}
+	return ReferenceSourceConfig{}
 }
 
-// MsgUpdatePriceServiceResponse is the response type for the Msg/UpdatePriceService RPC method.
-type MsgUpdatePriceServiceResponse struct {
+// MsgUpdateReferenceSourceConfigResponse is the response type for the Msg/UpdateReferenceSourceConfig RPC method.
+type MsgUpdateReferenceSourceConfigResponse struct {
 }
 
-func (m *MsgUpdatePriceServiceResponse) Reset()         { *m = MsgUpdatePriceServiceResponse{} }
-func (m *MsgUpdatePriceServiceResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgUpdatePriceServiceResponse) ProtoMessage()    {}
-func (*MsgUpdatePriceServiceResponse) Descriptor() ([]byte, []int) {
+func (m *MsgUpdateReferenceSourceConfigResponse) Reset() {
+	*m = MsgUpdateReferenceSourceConfigResponse{}
+}
+func (m *MsgUpdateReferenceSourceConfigResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgUpdateReferenceSourceConfigResponse) ProtoMessage()    {}
+func (*MsgUpdateReferenceSourceConfigResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_72c83eeeb8b31e80, []int{5}
 }
-func (m *MsgUpdatePriceServiceResponse) XXX_Unmarshal(b []byte) error {
+func (m *MsgUpdateReferenceSourceConfigResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgUpdatePriceServiceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgUpdateReferenceSourceConfigResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgUpdatePriceServiceResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgUpdateReferenceSourceConfigResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -304,23 +306,23 @@ func (m *MsgUpdatePriceServiceResponse) XXX_Marshal(b []byte, deterministic bool
 		return b[:n], nil
 	}
 }
-func (m *MsgUpdatePriceServiceResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgUpdatePriceServiceResponse.Merge(m, src)
+func (m *MsgUpdateReferenceSourceConfigResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgUpdateReferenceSourceConfigResponse.Merge(m, src)
 }
-func (m *MsgUpdatePriceServiceResponse) XXX_Size() int {
+func (m *MsgUpdateReferenceSourceConfigResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgUpdatePriceServiceResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgUpdatePriceServiceResponse.DiscardUnknown(m)
+func (m *MsgUpdateReferenceSourceConfigResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgUpdateReferenceSourceConfigResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgUpdatePriceServiceResponse proto.InternalMessageInfo
+var xxx_messageInfo_MsgUpdateReferenceSourceConfigResponse proto.InternalMessageInfo
 
 // MsgUpdateParams is the transaction message to update parameters.
 type MsgUpdateParams struct {
-	// Authority is the address of the governance account.
+	// authority is the address of the governance account.
 	Authority string `protobuf:"bytes,1,opt,name=authority,proto3" json:"authority,omitempty"`
-	// Params is the x/feeds parameters to update.
+	// params is the x/feeds parameters to update.
 	Params Params `protobuf:"bytes,2,opt,name=params,proto3" json:"params"`
 }
 
@@ -411,10 +413,10 @@ var xxx_messageInfo_MsgUpdateParamsResponse proto.InternalMessageInfo
 func init() {
 	proto.RegisterType((*MsgSubmitSignals)(nil), "feeds.v1beta1.MsgSubmitSignals")
 	proto.RegisterType((*MsgSubmitSignalsResponse)(nil), "feeds.v1beta1.MsgSubmitSignalsResponse")
-	proto.RegisterType((*MsgSubmitPrices)(nil), "feeds.v1beta1.MsgSubmitPrices")
-	proto.RegisterType((*MsgSubmitPricesResponse)(nil), "feeds.v1beta1.MsgSubmitPricesResponse")
-	proto.RegisterType((*MsgUpdatePriceService)(nil), "feeds.v1beta1.MsgUpdatePriceService")
-	proto.RegisterType((*MsgUpdatePriceServiceResponse)(nil), "feeds.v1beta1.MsgUpdatePriceServiceResponse")
+	proto.RegisterType((*MsgSubmitSignalPrices)(nil), "feeds.v1beta1.MsgSubmitSignalPrices")
+	proto.RegisterType((*MsgSubmitSignalPricesResponse)(nil), "feeds.v1beta1.MsgSubmitSignalPricesResponse")
+	proto.RegisterType((*MsgUpdateReferenceSourceConfig)(nil), "feeds.v1beta1.MsgUpdateReferenceSourceConfig")
+	proto.RegisterType((*MsgUpdateReferenceSourceConfigResponse)(nil), "feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse")
 	proto.RegisterType((*MsgUpdateParams)(nil), "feeds.v1beta1.MsgUpdateParams")
 	proto.RegisterType((*MsgUpdateParamsResponse)(nil), "feeds.v1beta1.MsgUpdateParamsResponse")
 }
@@ -422,46 +424,47 @@ func init() {
 func init() { proto.RegisterFile("feeds/v1beta1/tx.proto", fileDescriptor_72c83eeeb8b31e80) }
 
 var fileDescriptor_72c83eeeb8b31e80 = []byte{
-	// 613 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x94, 0xb1, 0x8f, 0x12, 0x4f,
-	0x14, 0xc7, 0x59, 0xf8, 0xfd, 0x30, 0xcc, 0x41, 0xd4, 0xc9, 0xe1, 0x2d, 0x7b, 0xba, 0x10, 0x62,
-	0x14, 0x2f, 0xba, 0x1b, 0xb8, 0x68, 0x0c, 0x9d, 0x14, 0xc6, 0x86, 0xc4, 0x40, 0xbc, 0x44, 0x9b,
-	0xcb, 0xb0, 0x3b, 0x2e, 0x93, 0xb0, 0x3b, 0x9b, 0x9d, 0x81, 0xdc, 0xb5, 0x96, 0x56, 0xfe, 0x19,
-	0x16, 0x16, 0x57, 0xd8, 0xdb, 0x5e, 0x62, 0x73, 0xb1, 0xb2, 0x32, 0x06, 0x8a, 0xfb, 0x1f, 0xac,
-	0x0c, 0x33, 0xc3, 0xc2, 0x2e, 0x9c, 0x5c, 0x03, 0xcc, 0xfb, 0x7e, 0xe7, 0xbd, 0xf7, 0x99, 0x37,
-	0x0c, 0xb8, 0xf3, 0x1e, 0x63, 0x97, 0xd9, 0x93, 0xe6, 0x00, 0x73, 0xd4, 0xb4, 0xf9, 0x89, 0x15,
-	0x46, 0x94, 0x53, 0x58, 0x12, 0x71, 0x4b, 0xc5, 0x8d, 0x5d, 0x8f, 0x7a, 0x54, 0x28, 0xf6, 0xfc,
-	0x97, 0x34, 0x19, 0x95, 0xe4, 0x66, 0xb9, 0x45, 0x4a, 0x46, 0x52, 0x0a, 0x51, 0x84, 0xfc, 0x85,
-	0x56, 0x71, 0x28, 0xf3, 0x29, 0x3b, 0x96, 0xf9, 0xe4, 0x42, 0x49, 0x7b, 0x72, 0x65, 0xfb, 0xcc,
-	0xb3, 0x27, 0xcd, 0xf9, 0x97, 0x12, 0x6e, 0x23, 0x9f, 0x04, 0xd4, 0x16, 0x9f, 0x32, 0x54, 0xff,
-	0xa2, 0x81, 0x5b, 0x5d, 0xe6, 0xf5, 0xc7, 0x03, 0x9f, 0xf0, 0x3e, 0xf1, 0x02, 0x34, 0x62, 0xf0,
-	0x19, 0x28, 0xb8, 0x78, 0x84, 0x3d, 0xc4, 0x69, 0xa4, 0x6b, 0x35, 0xad, 0x51, 0xe8, 0xe8, 0x3f,
-	0xbe, 0x3e, 0xd9, 0x55, 0x55, 0x5e, 0xb8, 0x6e, 0x84, 0x19, 0xeb, 0xf3, 0x88, 0x04, 0x5e, 0x6f,
-	0x69, 0x85, 0x4f, 0xc1, 0x0d, 0x26, 0x53, 0xe8, 0xd9, 0x5a, 0xae, 0xb1, 0xd3, 0x2a, 0x5b, 0x89,
-	0x13, 0xb0, 0x64, 0x81, 0xce, 0x7f, 0xe7, 0xbf, 0xaa, 0x99, 0xde, 0xc2, 0xdb, 0x7e, 0xf4, 0xe1,
-	0xf2, 0xec, 0x60, 0x99, 0xe6, 0xe3, 0xe5, 0xd9, 0x81, 0x3a, 0xd1, 0x74, 0x67, 0x75, 0x03, 0xe8,
-	0xe9, 0x58, 0x0f, 0xb3, 0x90, 0x06, 0x0c, 0xd7, 0xbf, 0x6b, 0xe0, 0x66, 0x2c, 0xbe, 0x8e, 0x88,
-	0x83, 0x05, 0xc9, 0x04, 0x8d, 0x88, 0x7b, 0x3d, 0x92, 0xd8, 0x0a, 0xef, 0x82, 0x02, 0x27, 0x3e,
-	0x66, 0x1c, 0xf9, 0xa1, 0x9e, 0xad, 0x69, 0x8d, 0x5c, 0x6f, 0x19, 0x80, 0xcf, 0x41, 0x3e, 0x14,
-	0xf9, 0xf5, 0x9c, 0xc0, 0x34, 0xd2, 0x98, 0xcb, 0x16, 0x14, 0xab, 0xf2, 0xb7, 0x1b, 0x02, 0x35,
-	0xae, 0x33, 0x47, 0x2d, 0xa7, 0x50, 0x65, 0xe7, 0xf5, 0x0a, 0xd8, 0x4b, 0x85, 0x62, 0xd0, 0x6f,
-	0x1a, 0x28, 0x77, 0x99, 0xf7, 0x26, 0x74, 0x11, 0xc7, 0x42, 0xeb, 0xe3, 0x68, 0x42, 0x1c, 0x0c,
-	0x2d, 0xf0, 0x3f, 0x72, 0x7d, 0x12, 0x6c, 0x45, 0x95, 0x36, 0xf8, 0x12, 0x94, 0x44, 0x63, 0xc7,
-	0x4c, 0x26, 0x10, 0xa8, 0x3b, 0xad, 0xfd, 0x14, 0xcf, 0x6a, 0x0d, 0x05, 0x54, 0x0c, 0x57, 0x62,
-	0x6d, 0x4b, 0x60, 0xa1, 0x31, 0x1f, 0xd2, 0x88, 0xf0, 0xd3, 0x39, 0xd6, 0x7e, 0x8c, 0xb5, 0xde,
-	0x67, 0xbd, 0x0a, 0xee, 0x6d, 0x14, 0x62, 0xc4, 0xcf, 0x72, 0x96, 0xca, 0x21, 0xee, 0xfd, 0x7c,
-	0x96, 0x71, 0x85, 0xed, 0xb3, 0x8c, 0xad, 0xf0, 0x10, 0xe4, 0xe5, 0x3f, 0x47, 0xd1, 0xa5, 0x2f,
-	0xa5, 0x4c, 0x1f, 0x0f, 0x4a, 0xac, 0xd4, 0xa0, 0x12, 0x44, 0xe5, 0x34, 0x91, 0x70, 0xaa, 0x41,
-	0xad, 0x86, 0x16, 0x14, 0xad, 0x3f, 0x59, 0x90, 0xeb, 0x32, 0x0f, 0x1e, 0x81, 0x62, 0xe2, 0x56,
-	0x9a, 0xa9, 0x0e, 0x52, 0x83, 0x36, 0x1e, 0xfc, 0x5b, 0x5f, 0xe4, 0x87, 0x43, 0x00, 0x37, 0x5c,
-	0x82, 0xfb, 0xeb, 0xbb, 0xd7, 0x5d, 0xc6, 0xe3, 0xeb, 0xb8, 0xe2, 0x4a, 0x47, 0xa0, 0x98, 0x98,
-	0x85, 0x79, 0xe5, 0x6e, 0xa1, 0x6f, 0x22, 0xd8, 0x74, 0x42, 0xf0, 0x2d, 0x28, 0x25, 0x9f, 0x9e,
-	0xea, 0x55, 0xe8, 0xca, 0x60, 0x3c, 0xdc, 0x62, 0x58, 0xa4, 0xee, 0xbc, 0x3a, 0x9f, 0x9a, 0xda,
-	0xc5, 0xd4, 0xd4, 0x7e, 0x4f, 0x4d, 0xed, 0xd3, 0xcc, 0xcc, 0x5c, 0xcc, 0xcc, 0xcc, 0xcf, 0x99,
-	0x99, 0x79, 0x67, 0x79, 0x84, 0x0f, 0xc7, 0x03, 0xcb, 0xa1, 0xbe, 0x3d, 0x40, 0x81, 0x2b, 0x5e,
-	0x42, 0x87, 0x8e, 0x6c, 0x67, 0x88, 0x48, 0x60, 0x4f, 0x5a, 0xf6, 0x89, 0x7c, 0x86, 0x6d, 0x7e,
-	0x1a, 0x62, 0x36, 0xc8, 0x0b, 0xc3, 0xe1, 0xdf, 0x00, 0x00, 0x00, 0xff, 0xff, 0x18, 0x52, 0xee,
-	0x28, 0xe7, 0x05, 0x00, 0x00,
+	// 634 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x54, 0x31, 0x6f, 0xd3, 0x40,
+	0x14, 0x8e, 0x1b, 0x28, 0xea, 0x95, 0x0a, 0xb0, 0x1a, 0xea, 0xba, 0xe0, 0x46, 0x56, 0x54, 0x42,
+	0x45, 0x6d, 0x25, 0x51, 0x11, 0xca, 0x46, 0x58, 0x58, 0x22, 0x55, 0x89, 0x40, 0x82, 0x25, 0x3a,
+	0xdb, 0x17, 0xe7, 0xa4, 0xd8, 0x67, 0xf9, 0x2e, 0x51, 0xbb, 0xc2, 0xc6, 0xc4, 0xcf, 0xe8, 0xc0,
+	0xd0, 0x81, 0x1f, 0xd1, 0xb1, 0x62, 0x81, 0x09, 0xa1, 0x64, 0xa8, 0xf8, 0x17, 0xc8, 0x77, 0xb6,
+	0xa3, 0x18, 0xe3, 0x94, 0x25, 0xf1, 0xbd, 0xef, 0xbb, 0xef, 0xbd, 0xef, 0xf9, 0x3d, 0x83, 0x87,
+	0x43, 0x84, 0x1c, 0x6a, 0x4e, 0x1b, 0x16, 0x62, 0xb0, 0x61, 0xb2, 0x53, 0x23, 0x08, 0x09, 0x23,
+	0xf2, 0x16, 0x8f, 0x1b, 0x71, 0x5c, 0xdd, 0x76, 0x89, 0x4b, 0x38, 0x62, 0x46, 0x4f, 0x82, 0xa4,
+	0xee, 0x2e, 0x5f, 0x16, 0x57, 0x04, 0xa4, 0x2e, 0x43, 0x01, 0x0c, 0xa1, 0x97, 0x60, 0xbb, 0x36,
+	0xa1, 0x1e, 0xa1, 0x03, 0xa1, 0x27, 0x0e, 0x31, 0xb4, 0x23, 0x4e, 0xa6, 0x47, 0x5d, 0x73, 0xda,
+	0x88, 0xfe, 0x62, 0xe0, 0x01, 0xf4, 0xb0, 0x4f, 0x4c, 0xfe, 0x2b, 0x42, 0xfa, 0x17, 0x09, 0xdc,
+	0xef, 0x52, 0xb7, 0x3f, 0xb1, 0x3c, 0xcc, 0xfa, 0xd8, 0xf5, 0xe1, 0x98, 0xca, 0xcf, 0xc1, 0x86,
+	0x83, 0xc6, 0xc8, 0x85, 0x8c, 0x84, 0x8a, 0x54, 0x95, 0xea, 0x1b, 0x1d, 0xe5, 0xdb, 0xd7, 0xa3,
+	0xed, 0x38, 0xcb, 0x4b, 0xc7, 0x09, 0x11, 0xa5, 0x7d, 0x16, 0x62, 0xdf, 0xed, 0x2d, 0xa8, 0xf2,
+	0x31, 0xb8, 0x43, 0x85, 0x84, 0xb2, 0x56, 0x2d, 0xd7, 0x37, 0x9b, 0x15, 0x63, 0xa9, 0x03, 0x86,
+	0x48, 0xd0, 0xb9, 0x75, 0xf9, 0x73, 0xbf, 0xd4, 0x4b, 0xb8, 0xed, 0xa7, 0x1f, 0xae, 0x2f, 0x0e,
+	0x17, 0x32, 0x9f, 0xae, 0x2f, 0x0e, 0xe3, 0x8e, 0x66, 0x2b, 0xd3, 0x55, 0xa0, 0x64, 0x63, 0x3d,
+	0x44, 0x03, 0xe2, 0x53, 0xa4, 0x7f, 0x97, 0x40, 0x25, 0x03, 0x9e, 0x84, 0xd8, 0x46, 0xdc, 0xcf,
+	0x14, 0x8e, 0xb1, 0x73, 0x33, 0x3f, 0x29, 0x55, 0x7e, 0x04, 0x36, 0x18, 0xf6, 0x10, 0x65, 0xd0,
+	0x0b, 0x94, 0xb5, 0xaa, 0x54, 0x2f, 0xf7, 0x16, 0x01, 0xf9, 0x05, 0x58, 0x0f, 0xb8, 0xbe, 0x52,
+	0xe6, 0x66, 0xd5, 0x5c, 0xb3, 0xbc, 0x84, 0xd8, 0x71, 0xcc, 0x6f, 0x1b, 0xdc, 0x70, 0x9a, 0x27,
+	0x32, 0xbc, 0x97, 0x6b, 0x58, 0xd4, 0xaf, 0xef, 0x83, 0xc7, 0xb9, 0x40, 0x6a, 0xfd, 0xb7, 0x04,
+	0xb4, 0x2e, 0x75, 0xdf, 0x04, 0x0e, 0x64, 0xa8, 0x87, 0x86, 0x28, 0x44, 0xbe, 0x8d, 0xfa, 0x64,
+	0x12, 0xda, 0xe8, 0x15, 0xf1, 0x87, 0xd8, 0x95, 0x0d, 0x70, 0x1b, 0x3a, 0x1e, 0xf6, 0x57, 0xfa,
+	0x17, 0x34, 0xd9, 0x02, 0x3b, 0x61, 0x22, 0x34, 0xa0, 0x5c, 0x69, 0x60, 0x73, 0x29, 0xde, 0x89,
+	0xcd, 0x66, 0x2d, 0x63, 0x37, 0x37, 0x6d, 0x6c, 0xbc, 0x12, 0xe6, 0x81, 0xed, 0x56, 0xd4, 0x07,
+	0x91, 0x2f, 0xea, 0x41, 0x2d, 0xed, 0x41, 0x81, 0x11, 0xbd, 0x0e, 0x0e, 0x8a, 0x19, 0x69, 0x57,
+	0xce, 0x25, 0x70, 0x2f, 0xa5, 0x9e, 0xf0, 0xe5, 0x89, 0x46, 0x01, 0x4e, 0xd8, 0x88, 0x84, 0x98,
+	0x9d, 0xad, 0x1e, 0x85, 0x94, 0x2a, 0xb7, 0xc0, 0xba, 0x58, 0xbf, 0xd8, 0x7d, 0x76, 0xb2, 0x85,
+	0x7c, 0xfa, 0x9e, 0xf9, 0xa9, 0x5d, 0xe7, 0xef, 0x39, 0x15, 0x89, 0x3c, 0x56, 0x32, 0x1e, 0xc5,
+	0x3d, 0x7d, 0x17, 0xec, 0x64, 0x42, 0x89, 0x8b, 0xe6, 0x79, 0x19, 0x94, 0xbb, 0xd4, 0x95, 0xdf,
+	0x81, 0xad, 0xe5, 0x2d, 0xdd, 0xcf, 0x94, 0x90, 0x5d, 0x0c, 0xf5, 0xc9, 0x0a, 0x42, 0x92, 0x42,
+	0x1e, 0x01, 0x39, 0x67, 0x6b, 0x6a, 0xc5, 0xd7, 0x05, 0x4b, 0x7d, 0x76, 0x13, 0x56, 0x9a, 0xe9,
+	0xa3, 0x04, 0xf6, 0x8a, 0xa6, 0xf4, 0xe8, 0x6f, 0xb5, 0x02, 0xba, 0x7a, 0xfc, 0x5f, 0xf4, 0xb4,
+	0x8a, 0xb7, 0xe0, 0xee, 0xd2, 0x50, 0x68, 0xff, 0x92, 0x11, 0xb8, 0x7a, 0x50, 0x8c, 0x27, 0xba,
+	0x9d, 0xd7, 0x97, 0x33, 0x4d, 0xba, 0x9a, 0x69, 0xd2, 0xaf, 0x99, 0x26, 0x7d, 0x9e, 0x6b, 0xa5,
+	0xab, 0xb9, 0x56, 0xfa, 0x31, 0xd7, 0x4a, 0xef, 0x0d, 0x17, 0xb3, 0xd1, 0xc4, 0x32, 0x6c, 0xe2,
+	0x99, 0x16, 0xf4, 0x1d, 0xfe, 0xf1, 0xb5, 0xc9, 0xd8, 0xb4, 0x47, 0x10, 0xfb, 0xe6, 0xb4, 0x69,
+	0x9e, 0x8a, 0x2f, 0xbf, 0xc9, 0xce, 0x02, 0x44, 0xad, 0x75, 0x4e, 0x68, 0xfd, 0x09, 0x00, 0x00,
+	0xff, 0xff, 0x04, 0x94, 0x15, 0xe2, 0x5a, 0x06, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -476,14 +479,14 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MsgClient interface {
-	// SubmitPrices is a RPC method to submit prices
-	SubmitPrices(ctx context.Context, in *MsgSubmitPrices, opts ...grpc.CallOption) (*MsgSubmitPricesResponse, error)
-	// UpdatePriceService is a RPC method to update price service information
-	UpdatePriceService(ctx context.Context, in *MsgUpdatePriceService, opts ...grpc.CallOption) (*MsgUpdatePriceServiceResponse, error)
-	// UpdateParams is a RPC method to update parameters
-	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
-	// SubmitSignals is a RPC method to signal ids and their powers
+	// SubmitSignals is an RPC method to submit signal ids and their powers.
 	SubmitSignals(ctx context.Context, in *MsgSubmitSignals, opts ...grpc.CallOption) (*MsgSubmitSignalsResponse, error)
+	// SubmitSignalPrices is an RPC method to submit signal prices.
+	SubmitSignalPrices(ctx context.Context, in *MsgSubmitSignalPrices, opts ...grpc.CallOption) (*MsgSubmitSignalPricesResponse, error)
+	// UpdateReferenceSourceConfig is an RPC method to update reference price source configuration.
+	UpdateReferenceSourceConfig(ctx context.Context, in *MsgUpdateReferenceSourceConfig, opts ...grpc.CallOption) (*MsgUpdateReferenceSourceConfigResponse, error)
+	// UpdateParams is an RPC method to update parameters.
+	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
 }
 
 type msgClient struct {
@@ -494,18 +497,27 @@ func NewMsgClient(cc grpc1.ClientConn) MsgClient {
 	return &msgClient{cc}
 }
 
-func (c *msgClient) SubmitPrices(ctx context.Context, in *MsgSubmitPrices, opts ...grpc.CallOption) (*MsgSubmitPricesResponse, error) {
-	out := new(MsgSubmitPricesResponse)
-	err := c.cc.Invoke(ctx, "/feeds.v1beta1.Msg/SubmitPrices", in, out, opts...)
+func (c *msgClient) SubmitSignals(ctx context.Context, in *MsgSubmitSignals, opts ...grpc.CallOption) (*MsgSubmitSignalsResponse, error) {
+	out := new(MsgSubmitSignalsResponse)
+	err := c.cc.Invoke(ctx, "/feeds.v1beta1.Msg/SubmitSignals", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *msgClient) UpdatePriceService(ctx context.Context, in *MsgUpdatePriceService, opts ...grpc.CallOption) (*MsgUpdatePriceServiceResponse, error) {
-	out := new(MsgUpdatePriceServiceResponse)
-	err := c.cc.Invoke(ctx, "/feeds.v1beta1.Msg/UpdatePriceService", in, out, opts...)
+func (c *msgClient) SubmitSignalPrices(ctx context.Context, in *MsgSubmitSignalPrices, opts ...grpc.CallOption) (*MsgSubmitSignalPricesResponse, error) {
+	out := new(MsgSubmitSignalPricesResponse)
+	err := c.cc.Invoke(ctx, "/feeds.v1beta1.Msg/SubmitSignalPrices", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) UpdateReferenceSourceConfig(ctx context.Context, in *MsgUpdateReferenceSourceConfig, opts ...grpc.CallOption) (*MsgUpdateReferenceSourceConfigResponse, error) {
+	out := new(MsgUpdateReferenceSourceConfigResponse)
+	err := c.cc.Invoke(ctx, "/feeds.v1beta1.Msg/UpdateReferenceSourceConfig", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -521,80 +533,89 @@ func (c *msgClient) UpdateParams(ctx context.Context, in *MsgUpdateParams, opts 
 	return out, nil
 }
 
-func (c *msgClient) SubmitSignals(ctx context.Context, in *MsgSubmitSignals, opts ...grpc.CallOption) (*MsgSubmitSignalsResponse, error) {
-	out := new(MsgSubmitSignalsResponse)
-	err := c.cc.Invoke(ctx, "/feeds.v1beta1.Msg/SubmitSignals", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // MsgServer is the server API for Msg service.
 type MsgServer interface {
-	// SubmitPrices is a RPC method to submit prices
-	SubmitPrices(context.Context, *MsgSubmitPrices) (*MsgSubmitPricesResponse, error)
-	// UpdatePriceService is a RPC method to update price service information
-	UpdatePriceService(context.Context, *MsgUpdatePriceService) (*MsgUpdatePriceServiceResponse, error)
-	// UpdateParams is a RPC method to update parameters
-	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
-	// SubmitSignals is a RPC method to signal ids and their powers
+	// SubmitSignals is an RPC method to submit signal ids and their powers.
 	SubmitSignals(context.Context, *MsgSubmitSignals) (*MsgSubmitSignalsResponse, error)
+	// SubmitSignalPrices is an RPC method to submit signal prices.
+	SubmitSignalPrices(context.Context, *MsgSubmitSignalPrices) (*MsgSubmitSignalPricesResponse, error)
+	// UpdateReferenceSourceConfig is an RPC method to update reference price source configuration.
+	UpdateReferenceSourceConfig(context.Context, *MsgUpdateReferenceSourceConfig) (*MsgUpdateReferenceSourceConfigResponse, error)
+	// UpdateParams is an RPC method to update parameters.
+	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
 type UnimplementedMsgServer struct {
 }
 
-func (*UnimplementedMsgServer) SubmitPrices(ctx context.Context, req *MsgSubmitPrices) (*MsgSubmitPricesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SubmitPrices not implemented")
+func (*UnimplementedMsgServer) SubmitSignals(ctx context.Context, req *MsgSubmitSignals) (*MsgSubmitSignalsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SubmitSignals not implemented")
 }
-func (*UnimplementedMsgServer) UpdatePriceService(ctx context.Context, req *MsgUpdatePriceService) (*MsgUpdatePriceServiceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdatePriceService not implemented")
+func (*UnimplementedMsgServer) SubmitSignalPrices(ctx context.Context, req *MsgSubmitSignalPrices) (*MsgSubmitSignalPricesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SubmitSignalPrices not implemented")
+}
+func (*UnimplementedMsgServer) UpdateReferenceSourceConfig(ctx context.Context, req *MsgUpdateReferenceSourceConfig) (*MsgUpdateReferenceSourceConfigResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateReferenceSourceConfig not implemented")
 }
 func (*UnimplementedMsgServer) UpdateParams(ctx context.Context, req *MsgUpdateParams) (*MsgUpdateParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateParams not implemented")
-}
-func (*UnimplementedMsgServer) SubmitSignals(ctx context.Context, req *MsgSubmitSignals) (*MsgSubmitSignalsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SubmitSignals not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
 	s.RegisterService(&_Msg_serviceDesc, srv)
 }
 
-func _Msg_SubmitPrices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgSubmitPrices)
+func _Msg_SubmitSignals_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgSubmitSignals)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).SubmitPrices(ctx, in)
+		return srv.(MsgServer).SubmitSignals(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/feeds.v1beta1.Msg/SubmitPrices",
+		FullMethod: "/feeds.v1beta1.Msg/SubmitSignals",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).SubmitPrices(ctx, req.(*MsgSubmitPrices))
+		return srv.(MsgServer).SubmitSignals(ctx, req.(*MsgSubmitSignals))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_UpdatePriceService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgUpdatePriceService)
+func _Msg_SubmitSignalPrices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgSubmitSignalPrices)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).UpdatePriceService(ctx, in)
+		return srv.(MsgServer).SubmitSignalPrices(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/feeds.v1beta1.Msg/UpdatePriceService",
+		FullMethod: "/feeds.v1beta1.Msg/SubmitSignalPrices",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).UpdatePriceService(ctx, req.(*MsgUpdatePriceService))
+		return srv.(MsgServer).SubmitSignalPrices(ctx, req.(*MsgSubmitSignalPrices))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_UpdateReferenceSourceConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgUpdateReferenceSourceConfig)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).UpdateReferenceSourceConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/feeds.v1beta1.Msg/UpdateReferenceSourceConfig",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).UpdateReferenceSourceConfig(ctx, req.(*MsgUpdateReferenceSourceConfig))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -617,43 +638,25 @@ func _Msg_UpdateParams_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_SubmitSignals_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgSubmitSignals)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MsgServer).SubmitSignals(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/feeds.v1beta1.Msg/SubmitSignals",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).SubmitSignals(ctx, req.(*MsgSubmitSignals))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 var _Msg_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "feeds.v1beta1.Msg",
 	HandlerType: (*MsgServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SubmitPrices",
-			Handler:    _Msg_SubmitPrices_Handler,
+			MethodName: "SubmitSignals",
+			Handler:    _Msg_SubmitSignals_Handler,
 		},
 		{
-			MethodName: "UpdatePriceService",
-			Handler:    _Msg_UpdatePriceService_Handler,
+			MethodName: "SubmitSignalPrices",
+			Handler:    _Msg_SubmitSignalPrices_Handler,
+		},
+		{
+			MethodName: "UpdateReferenceSourceConfig",
+			Handler:    _Msg_UpdateReferenceSourceConfig_Handler,
 		},
 		{
 			MethodName: "UpdateParams",
 			Handler:    _Msg_UpdateParams_Handler,
-		},
-		{
-			MethodName: "SubmitSignals",
-			Handler:    _Msg_SubmitSignals_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -727,7 +730,7 @@ func (m *MsgSubmitSignalsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgSubmitPrices) Marshal() (dAtA []byte, err error) {
+func (m *MsgSubmitSignalPrices) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -737,12 +740,12 @@ func (m *MsgSubmitPrices) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgSubmitPrices) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgSubmitSignalPrices) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgSubmitPrices) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgSubmitSignalPrices) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -776,7 +779,7 @@ func (m *MsgSubmitPrices) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgSubmitPricesResponse) Marshal() (dAtA []byte, err error) {
+func (m *MsgSubmitSignalPricesResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -786,12 +789,12 @@ func (m *MsgSubmitPricesResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgSubmitPricesResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgSubmitSignalPricesResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgSubmitPricesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgSubmitSignalPricesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -799,7 +802,7 @@ func (m *MsgSubmitPricesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgUpdatePriceService) Marshal() (dAtA []byte, err error) {
+func (m *MsgUpdateReferenceSourceConfig) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -809,18 +812,18 @@ func (m *MsgUpdatePriceService) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgUpdatePriceService) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgUpdateReferenceSourceConfig) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgUpdatePriceService) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgUpdateReferenceSourceConfig) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	{
-		size, err := m.PriceService.MarshalToSizedBuffer(dAtA[:i])
+		size, err := m.ReferenceSourceConfig.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
@@ -839,7 +842,7 @@ func (m *MsgUpdatePriceService) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgUpdatePriceServiceResponse) Marshal() (dAtA []byte, err error) {
+func (m *MsgUpdateReferenceSourceConfigResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -849,12 +852,12 @@ func (m *MsgUpdatePriceServiceResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgUpdatePriceServiceResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgUpdateReferenceSourceConfigResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgUpdatePriceServiceResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgUpdateReferenceSourceConfigResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -964,7 +967,7 @@ func (m *MsgSubmitSignalsResponse) Size() (n int) {
 	return n
 }
 
-func (m *MsgSubmitPrices) Size() (n int) {
+func (m *MsgSubmitSignalPrices) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -986,7 +989,7 @@ func (m *MsgSubmitPrices) Size() (n int) {
 	return n
 }
 
-func (m *MsgSubmitPricesResponse) Size() (n int) {
+func (m *MsgSubmitSignalPricesResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -995,7 +998,7 @@ func (m *MsgSubmitPricesResponse) Size() (n int) {
 	return n
 }
 
-func (m *MsgUpdatePriceService) Size() (n int) {
+func (m *MsgUpdateReferenceSourceConfig) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1005,12 +1008,12 @@ func (m *MsgUpdatePriceService) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTx(uint64(l))
 	}
-	l = m.PriceService.Size()
+	l = m.ReferenceSourceConfig.Size()
 	n += 1 + l + sovTx(uint64(l))
 	return n
 }
 
-func (m *MsgUpdatePriceServiceResponse) Size() (n int) {
+func (m *MsgUpdateReferenceSourceConfigResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1215,7 +1218,7 @@ func (m *MsgSubmitSignalsResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgSubmitPrices) Unmarshal(dAtA []byte) error {
+func (m *MsgSubmitSignalPrices) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1238,10 +1241,10 @@ func (m *MsgSubmitPrices) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgSubmitPrices: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgSubmitSignalPrices: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgSubmitPrices: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgSubmitSignalPrices: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1324,7 +1327,7 @@ func (m *MsgSubmitPrices) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Prices = append(m.Prices, SubmitPrice{})
+			m.Prices = append(m.Prices, SignalPrice{})
 			if err := m.Prices[len(m.Prices)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -1350,7 +1353,7 @@ func (m *MsgSubmitPrices) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgSubmitPricesResponse) Unmarshal(dAtA []byte) error {
+func (m *MsgSubmitSignalPricesResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1373,10 +1376,10 @@ func (m *MsgSubmitPricesResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgSubmitPricesResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgSubmitSignalPricesResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgSubmitPricesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgSubmitSignalPricesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -1400,7 +1403,7 @@ func (m *MsgSubmitPricesResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgUpdatePriceService) Unmarshal(dAtA []byte) error {
+func (m *MsgUpdateReferenceSourceConfig) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1423,10 +1426,10 @@ func (m *MsgUpdatePriceService) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgUpdatePriceService: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgUpdateReferenceSourceConfig: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgUpdatePriceService: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgUpdateReferenceSourceConfig: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1463,7 +1466,7 @@ func (m *MsgUpdatePriceService) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field PriceService", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field ReferenceSourceConfig", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -1490,7 +1493,7 @@ func (m *MsgUpdatePriceService) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.PriceService.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.ReferenceSourceConfig.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -1515,7 +1518,7 @@ func (m *MsgUpdatePriceService) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgUpdatePriceServiceResponse) Unmarshal(dAtA []byte) error {
+func (m *MsgUpdateReferenceSourceConfigResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1538,10 +1541,10 @@ func (m *MsgUpdatePriceServiceResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgUpdatePriceServiceResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgUpdateReferenceSourceConfigResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgUpdatePriceServiceResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgUpdateReferenceSourceConfigResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:

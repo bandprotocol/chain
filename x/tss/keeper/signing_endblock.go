@@ -6,12 +6,43 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/bandprotocol/chain/v2/pkg/ctxcache"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
+// HandleSigningEndBlock handles the logic that related to signing process at the end of a block.
+func (k Keeper) HandleSigningEndBlock(ctx sdk.Context) {
+	var retrySigningIDs []tss.SigningID
+
+	// Aggregate signing for all pending process signings and clear pending process list.
+	sids := k.GetPendingProcessSignings(ctx)
+	for _, sid := range sids {
+		if err := k.AggregatePartialSignatures(ctx, sid); err != nil {
+			retrySigningIDs = append(retrySigningIDs, sid)
+		}
+	}
+	k.SetPendingProcessSignings(ctx, types.PendingProcessSignings{})
+
+	// Handle expired signing process and get timeout signing for processing a retry.
+	timeoutSigningIDs := k.HandleExpiredSignings(ctx)
+	retrySigningIDs = append(retrySigningIDs, timeoutSigningIDs...)
+
+	// retry every signingIDs that failed to aggregate the signature and expired.
+	for _, sid := range retrySigningIDs {
+		initiateNewSigningRound := func(ctx sdk.Context) error {
+			return k.InitiateNewSigningRound(ctx, sid)
+		}
+
+		// try initiate new signing round; rollback and handle failed signing if any error occurred.
+		if err := ctxcache.ApplyFuncIfNoError(ctx, initiateNewSigningRound); err != nil {
+			k.HandleFailedSigning(ctx, sid, err.Error())
+		}
+	}
+}
+
 // =====================================
-// Process fully-signed signing
+// Process signing aggregation
 // =====================================
 
 // AddPendingProcessSigning adds a new pending process signing to the store.
@@ -41,20 +72,18 @@ func (k Keeper) GetPendingProcessSignings(ctx sdk.Context) []tss.SigningID {
 	return pss.SigningIDs
 }
 
-// HandleProcessSigning combine and verify group signature. It will be triggered at endblock.
-func (k Keeper) HandleProcessSigning(ctx sdk.Context, signingID tss.SigningID) {
+// AggregatePartialSignatures aggregates partial signatures and update the signing info if success.
+func (k Keeper) AggregatePartialSignatures(ctx sdk.Context, signingID tss.SigningID) error {
 	signing := k.MustGetSigning(ctx, signingID)
-	partialSigs := k.GetPartialSignatures(ctx, signingID)
+	partialSigs := k.GetPartialSignatures(ctx, signingID, signing.CurrentAttempt)
 
 	sig, err := tss.CombineSignatures(partialSigs...)
 	if err != nil {
-		k.handleFailedSigning(ctx, signing, err.Error())
-		return
+		return err
 	}
 
 	if err = tss.VerifyGroupSigningSignature(signing.GroupPubKey, signing.Message, sig); err != nil {
-		k.handleFailedSigning(ctx, signing, err.Error())
-		return
+		return err
 	}
 
 	// Set signing with signature and success status
@@ -62,9 +91,11 @@ func (k Keeper) HandleProcessSigning(ctx sdk.Context, signingID tss.SigningID) {
 	signing.Status = types.SIGNING_STATUS_SUCCESS
 	k.SetSigning(ctx, signing)
 
-	// Handle hooks after signing completed; this shouldn't return any error.
-	if err := k.Hooks().AfterSigningCompleted(ctx, signing); err != nil {
-		panic(err)
+	// Handle callback after signing completed; this shouldn't return any error.
+	group := k.MustGetGroup(ctx, signing.GroupID)
+	if cb, ok := k.cbRouter.GetRoute(group.ModuleOwner); ok {
+		assignedMemberAddrs := k.MustGetCurrentAssignedMembers(ctx, signingID)
+		cb.OnSigningCompleted(ctx, signing.ID, assignedMemberAddrs)
 	}
 
 	ctx.EventManager().EmitEvent(
@@ -75,18 +106,23 @@ func (k Keeper) HandleProcessSigning(ctx sdk.Context, signingID tss.SigningID) {
 			sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(sig)),
 		),
 	)
+
+	return nil
 }
 
-// handleFailedSigning handles the failed signing process by setting the signing status to fallen
+// HandleFailedSigning handles the failed signing process by setting the signing status to fallen
 // and emitting an event.
-func (k Keeper) handleFailedSigning(ctx sdk.Context, signing types.Signing, reason string) {
+func (k Keeper) HandleFailedSigning(ctx sdk.Context, signingID tss.SigningID, reason string) {
+	signing := k.MustGetSigning(ctx, signingID)
+
 	// Set signing status
 	signing.Status = types.SIGNING_STATUS_FALLEN
 	k.SetSigning(ctx, signing)
 
-	// Handle hooks after signing failed; this shouldn't return any error.
-	if err := k.Hooks().AfterSigningFailed(ctx, signing); err != nil {
-		panic(err)
+	// Handle callback after signing failed; this shouldn't return any error.
+	group := k.MustGetGroup(ctx, signing.GroupID)
+	if cb, ok := k.cbRouter.GetRoute(group.ModuleOwner); ok {
+		cb.OnSigningFailed(ctx, signing.ID)
 	}
 
 	ctx.EventManager().EmitEvent(
@@ -103,61 +139,89 @@ func (k Keeper) handleFailedSigning(ctx sdk.Context, signing types.Signing, reas
 // Process expired signature
 // =====================================
 
-// SetLastExpiredSigningID sets the last expired signing ID in the store.
-func (k Keeper) SetLastExpiredSigningID(ctx sdk.Context, signingID tss.SigningID) {
-	ctx.KVStore(k.storeKey).Set(types.LastExpiredSigningIDStoreKey, sdk.Uint64ToBigEndian(uint64(signingID)))
+// SetSigningExpirations sets the expiration of a signing process.
+func (k Keeper) SetSigningExpirations(ctx sdk.Context, signingExpires types.SigningExpirations) {
+	ctx.KVStore(k.storeKey).Set(types.SigningExpirationsStoreKey, k.cdc.MustMarshal(&signingExpires))
 }
 
-// GetLastExpiredSigningID retrieves the last expired signing ID from the store.
-func (k Keeper) GetLastExpiredSigningID(ctx sdk.Context) tss.SigningID {
-	bz := ctx.KVStore(k.storeKey).Get(types.LastExpiredSigningIDStoreKey)
-	return tss.SigningID(sdk.BigEndianToUint64(bz))
+// GetSigningExpirations retrieves the list of signing expiration process.
+// It returns an empty list if the key does not exist in the store.
+func (k Keeper) GetSigningExpirations(ctx sdk.Context) []types.SigningExpiration {
+	bz := ctx.KVStore(k.storeKey).Get(types.SigningExpirationsStoreKey)
+	if len(bz) == 0 {
+		// Return an empty list if the key does not exist in the store.
+		return []types.SigningExpiration{}
+	}
+	ses := types.SigningExpirations{}
+	k.cdc.MustUnmarshal(bz, &ses)
+	return ses.SigningExpirations
 }
 
-// HandleExpiredSignings cleans up expired signings and removes assigned members and their partial
-// signature information from the store. It will be triggered at endblock.
-func (k Keeper) HandleExpiredSignings(ctx sdk.Context) {
-	// Get the current signing ID to start processing from
-	currentSigningID := k.GetLastExpiredSigningID(ctx) + 1
+// AddPendingProcessSigning adds a new pending process signing to the store.
+func (k Keeper) AddSigningExpiration(ctx sdk.Context, signingID tss.SigningID, attempt uint64) {
+	signingExpirations := k.GetSigningExpirations(ctx)
+	se := types.SigningExpiration{
+		SigningID:      signingID,
+		SigningAttempt: attempt,
+	}
 
-	// Get the last signing ID in the store
-	lastSigningID := tss.SigningID(k.GetSigningCount(ctx))
+	signingExpirations = append(signingExpirations, se)
+	k.SetSigningExpirations(ctx, types.SigningExpirations{
+		SigningExpirations: signingExpirations,
+	})
+}
 
-	// Process each signing starting from currentSigningID
-	for ; currentSigningID <= lastSigningID; currentSigningID++ {
-		// Get the signing
-		signing := k.MustGetSigning(ctx, currentSigningID)
+// HandleExpiredSignings dequeues the first signing expiration from the store and returns
+// list of signing IDs that should be retried.
+func (k Keeper) HandleExpiredSignings(ctx sdk.Context) []tss.SigningID {
+	signingExpirations := k.GetSigningExpirations(ctx)
 
-		// Check if the signing is still within the expiration period
-		if signing.CreatedHeight+k.GetParams(ctx).SigningPeriod > uint64(ctx.BlockHeight()) {
+	idx := 0
+	var signingIDs []tss.SigningID
+	for _, se := range signingExpirations {
+		signingID, attempt := se.SigningID, se.SigningAttempt
+		signing := k.MustGetSigning(ctx, signingID)
+
+		sa := k.MustGetSigningAttempt(ctx, signingID, attempt)
+		if sa.ExpiredHeight > uint64(ctx.BlockHeight()) {
 			break
 		}
 
-		// Set the signing status to expired
-		if signing.Status != types.SIGNING_STATUS_FALLEN && signing.Status != types.SIGNING_STATUS_SUCCESS {
-			// Handle hooks before setting signing to be expired; this shouldn't return any error.
-			if err := k.Hooks().BeforeSetSigningExpired(ctx, signing); err != nil {
-				panic(err)
+		idx += 1
+
+		// if there are assigned members in that attempt that don't submit the signature, that signing
+		// is timeout and should be retried; handle timeout hook and appends into a list.
+		partialSigCount := k.GetPartialSignatureCount(ctx, signingID, attempt)
+		if partialSigCount != uint64(len(sa.AssignedMembers)) {
+			group := k.MustGetGroup(ctx, signing.GroupID)
+
+			if cb, ok := k.cbRouter.GetRoute(group.ModuleOwner); ok {
+				idleMembers := k.GetMembersNotSubmitSignature(ctx, signingID, signing.CurrentAttempt)
+				cb.OnSigningTimeout(ctx, signing.ID, idleMembers)
 			}
 
-			signing.Status = types.SIGNING_STATUS_EXPIRED
-			k.SetSigning(ctx, signing)
-
-			ctx.EventManager().EmitEvent(
-				sdk.NewEvent(
-					types.EventTypeExpiredSigning,
-					sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signing.ID)),
-				),
-			)
+			signingIDs = append(signingIDs, signingID)
 		}
 
-		// Remove assigned members from the signing
-		k.DeleteAssignedMembers(ctx, signing.ID)
-
-		// Remove all partial signatures from the store
-		k.DeletePartialSignatures(ctx, signing.ID)
-
-		// Set the last expired signing ID to the current signing ID
-		k.SetLastExpiredSigningID(ctx, currentSigningID)
+		// delete interim signing data.
+		k.DeleteInterimSigningData(ctx, signingID, attempt)
 	}
+
+	// remove processed signing expirations
+	k.SetSigningExpirations(ctx, types.SigningExpirations{
+		SigningExpirations: signingExpirations[idx:],
+	})
+
+	return signingIDs
+}
+
+// =====================================
+// Delete interim signing data
+// =====================================
+
+// DeleteInterimSigningData deletes the interim signing data from the store.
+func (k Keeper) DeleteInterimSigningData(ctx sdk.Context, signingID tss.SigningID, attempt uint64) {
+	k.DeletePartialSignatures(ctx, signingID, attempt)
+	k.DeletePartialSignatureCount(ctx, signingID, attempt)
+	k.DeleteSigningAttempt(ctx, signingID, attempt)
 }

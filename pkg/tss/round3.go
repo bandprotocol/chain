@@ -114,8 +114,8 @@ func DecryptSecretShare(
 	return Decrypt(encSecretShare, keySym)
 }
 
-// SignOwnPubkey signs the own public key using the given DKG context, own public key, and own private key.
-func SignOwnPubkey(
+// SignOwnPubKey signs the own public key using the given DKG context, own public key, and own private key.
+func SignOwnPubKey(
 	mid MemberID,
 	dkgContext []byte,
 	ownPub Point,

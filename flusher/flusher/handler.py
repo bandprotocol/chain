@@ -62,7 +62,7 @@ from .feeds_db import (
     delegator_signals,
     signal_total_powers,
     prices,
-    price_services,
+    reference_source_configs,
     feeders,
 )
 
@@ -898,18 +898,26 @@ class Handler(object):
             .on_conflict_do_update(constraint="signal_total_powers_pkey", set_=msg)
         )
 
-    def handle_set_price(self, msg):
+    def handle_remove_signal_total_power(self, msg):
         self.conn.execute(
-            insert(prices)
-            .values(**msg)
-            .on_conflict_do_update(constraint="prices_pkey", set_=msg)
+            signal_total_powers.delete().where(
+                signal_total_powers.c.signal_id == msg["signal_id"]
+            )
+        )
+
+    def handle_set_price(self, msg):
+        self.conn.execute(insert(prices).values(**msg))
+        self.conn.execute(
+            prices.delete().where(
+                prices.c.timestamp < msg["timestamp"] - 60 * 60 * 24 * 7 * 10e8
+            )
         )
 
     def handle_remove_price(self, msg):
         self.conn.execute(prices.delete().where(prices.c.signal_id == msg["signal_id"]))
 
-    def handle_set_price_service(self, msg):
-        self.conn.execute(insert(price_services).values(**msg))
+    def handle_set_reference_source_config(self, msg):
+        self.conn.execute(insert(reference_source_configs).values(**msg))
 
     def handle_set_feeder(self, msg):
         msg["operator_address"] = msg["validator"]

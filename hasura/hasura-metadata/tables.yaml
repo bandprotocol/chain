@@ -104,6 +104,13 @@
           table:
             name: groups
             schema: public
+    - name: interchain_accounts
+      using:
+        foreign_key_constraint_on:
+          column: account_id
+          table:
+            name: interchain_accounts
+            schema: public
     - name: proposals
       using:
         foreign_key_constraint_on:
@@ -145,6 +152,13 @@
           column: delegator_id
           table:
             name: unbonding_delegations
+            schema: public
+    - name: validators
+      using:
+        foreign_key_constraint_on:
+          column: account_id
+          table:
+            name: validators
             schema: public
     - name: votes
       using:
@@ -364,6 +378,13 @@
       using:
         foreign_key_constraint_on: transaction_id
   array_relationships:
+    - name: data_source_requests
+      using:
+        foreign_key_constraint_on:
+          column: data_source_id
+          table:
+            name: data_source_requests
+            schema: public
     - name: data_source_requests_per_days
       using:
         foreign_key_constraint_on:
@@ -405,9 +426,6 @@
     - name: account
       using:
         foreign_key_constraint_on: account_id
-    - name: signal_total_power
-      using:
-        foreign_key_constraint_on: signal_id
 - table:
     name: deposits
     schema: public
@@ -601,6 +619,13 @@
       using:
         foreign_key_constraint_on: transaction_id
   array_relationships:
+    - name: oracle_script_requests
+      using:
+        foreign_key_constraint_on:
+          column: oracle_script_id
+          table:
+            name: oracle_script_requests
+            schema: public
     - name: oracle_script_requests_per_days
       using:
         foreign_key_constraint_on:
@@ -643,15 +668,8 @@
       using:
         foreign_key_constraint_on: tx_id
 - table:
-    name: price_services
-    schema: public
-- table:
     name: prices
     schema: public
-  object_relationships:
-    - name: signal_total_power
-      using:
-        foreign_key_constraint_on: signal_id
 - table:
     name: proposal_total_votes
     schema: public
@@ -735,6 +753,9 @@
     - name: validatorByValidatorSrcId
       using:
         foreign_key_constraint_on: validator_src_id
+- table:
+    name: reference_source_configs
+    schema: public
 - table:
     name: related_data_source_oracle_scripts
     schema: public
@@ -837,29 +858,6 @@
 - table:
     name: signal_total_powers
     schema: public
-  object_relationships:
-    - name: price
-      using:
-        foreign_key_constraint_on:
-          column: signal_id
-          table:
-            name: prices
-            schema: public
-  array_relationships:
-    - name: delegator_signals
-      using:
-        foreign_key_constraint_on:
-          column: signal_id
-          table:
-            name: delegator_signals
-            schema: public
-    - name: validator_prices
-      using:
-        foreign_key_constraint_on:
-          column: signal_id
-          table:
-            name: validator_prices
-            schema: public
 - table:
     name: tracking
     schema: public
@@ -1106,9 +1104,6 @@
     name: validator_prices
     schema: public
   object_relationships:
-    - name: signal_total_power
-      using:
-        foreign_key_constraint_on: signal_id
     - name: validator
       using:
         foreign_key_constraint_on: validator_id

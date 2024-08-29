@@ -21,12 +21,9 @@ func TestGetMemberIDs(t *testing.T) {
 			name: "One member",
 			querySigningResponse: &types.QuerySigningResponse{
 				SigningResult: types.SigningResult{
-					Signing: types.Signing{
-						AssignedMembers: []types.AssignedMember{
-							{
-								MemberID: 1,
-							},
-						},
+					Signing: types.Signing{},
+					CurrentSigningAttempt: &types.SigningAttempt{
+						AssignedMembers: []types.AssignedMember{{MemberID: 1}},
 					},
 				},
 			},
@@ -36,15 +33,9 @@ func TestGetMemberIDs(t *testing.T) {
 			name: "No data from MemberID",
 			querySigningResponse: &types.QuerySigningResponse{
 				SigningResult: types.SigningResult{
-					Signing: types.Signing{
-						AssignedMembers: []types.AssignedMember{
-							{
-								MemberID: 2,
-							},
-							{
-								MemberID: 3,
-							},
-						},
+					Signing: types.Signing{},
+					CurrentSigningAttempt: &types.SigningAttempt{
+						AssignedMembers: []types.AssignedMember{{MemberID: 2}, {MemberID: 3}},
 					},
 				},
 			},
@@ -73,16 +64,11 @@ func TestGetAssignedMember(t *testing.T) {
 			name: "Existing MemberID",
 			querySigningResponse: &types.QuerySigningResponse{
 				SigningResult: types.SigningResult{
-					Signing: types.Signing{
+					Signing: types.Signing{},
+					CurrentSigningAttempt: &types.SigningAttempt{
 						AssignedMembers: []types.AssignedMember{
-							{
-								MemberID: 1,
-								Address:  "band address 1",
-							},
-							{
-								MemberID: 2,
-								Address:  "band address 2",
-							},
+							{MemberID: 1, Address: "band address 1"},
+							{MemberID: 2, Address: "band address 2"},
 						},
 					},
 				},
@@ -98,16 +84,11 @@ func TestGetAssignedMember(t *testing.T) {
 			name: "No member",
 			querySigningResponse: &types.QuerySigningResponse{
 				SigningResult: types.SigningResult{
-					Signing: types.Signing{
+					Signing: types.Signing{},
+					CurrentSigningAttempt: &types.SigningAttempt{
 						AssignedMembers: []types.AssignedMember{
-							{
-								MemberID: 1,
-								Address:  "band address 1",
-							},
-							{
-								MemberID: 2,
-								Address:  "band address 2",
-							},
+							{MemberID: 1, Address: "band address 1"},
+							{MemberID: 2, Address: "band address 2"},
 						},
 					},
 				},

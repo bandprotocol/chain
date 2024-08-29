@@ -6,16 +6,18 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	bandtsskeeper "github.com/bandprotocol/chain/v2/x/bandtss/keeper"
 	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
+	tsstestutil "github.com/bandprotocol/chain/v2/x/tss/testutil"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-func (s *KeeperTestSuite) TestGRPCQueryCounts() {
+func (s *AppTestSuite) TestGRPCQueryCounts() {
 	ctx, q, k := s.ctx, s.queryClient, s.app.TSSKeeper
 
 	res, err := q.Counts(ctx, &types.QueryCountsRequest{})
@@ -24,7 +26,7 @@ func (s *KeeperTestSuite) TestGRPCQueryCounts() {
 	s.Require().Equal(k.GetSigningCount(ctx), res.SigningCount)
 }
 
-func (s *KeeperTestSuite) TestGRPCQueryGroup() {
+func (s *AppTestSuite) TestGRPCQueryGroup() {
 	ctx, q, k, bandtssKeeper := s.ctx, s.queryClient, s.app.TSSKeeper, s.app.BandtssKeeper
 	bandtssMsgSrvr := bandtsskeeper.NewMsgServerImpl(s.app.BandtssKeeper)
 	groupID, memberID1, memberID2 := tss.GroupID(1), tss.MemberID(1), tss.MemberID(2)
@@ -121,7 +123,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 		OwnPubKeySig: []byte("own_pub_key_sig"),
 	}
 
-	_, err := bandtssMsgSrvr.CreateGroup(ctx, &bandtsstypes.MsgCreateGroup{
+	_, err := bandtssMsgSrvr.TransitionGroup(ctx, &bandtsstypes.MsgTransitionGroup{
 		Members:   members,
 		Threshold: 3,
 		Authority: s.authority.String(),
@@ -147,7 +149,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	bandtssKeeper.SetCurrentGroupID(ctx, groupID)
 	for _, m := range members {
 		address := sdk.MustAccAddressFromBech32(m)
-		err := bandtssKeeper.AddNewMember(ctx, address)
+		err := bandtssKeeper.AddMember(ctx, address, groupID)
 		s.Require().NoError(err)
 	}
 
@@ -177,40 +179,49 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 			},
 			true,
 			func(res *types.QueryGroupResponse) {
-				dkgContextB, _ := hex.DecodeString("6c31fc15422ebad28aaf9089c306702f67540b53c7eea8b7d2941044b027100f")
+				dkgContextB, _ := hex.DecodeString("b1da723010d6fe6199670f31390445b0bdd9a5122eb7b30c7764af112a2a4f78")
 
 				expectedMembers := []bandtsstypes.Member{
 					{
 						Address:  "band18gtd9xgw6z5fma06fxnhet7z2ctrqjm3z4k7ad",
+						GroupID:  tss.GroupID(1),
 						IsActive: true,
 						Since:    ctx.BlockTime(),
 					},
 					{
 						Address:  "band1s743ydr36t6p29jsmrxm064guklgthsn3t90ym",
+						GroupID:  tss.GroupID(1),
 						IsActive: true,
 						Since:    ctx.BlockTime(),
 					},
 					{
 						Address:  "band1p08slm6sv2vqy4j48hddkd6hpj8yp6vlw3pf8p",
+						GroupID:  tss.GroupID(1),
 						IsActive: true,
 						Since:    ctx.BlockTime(),
 					},
 					{
 						Address:  "band1s3k4330ps8gj3dkw8x77ug0qf50ff6vqdmwax9",
+						GroupID:  tss.GroupID(1),
 						IsActive: true,
 						Since:    ctx.BlockTime(),
 					},
 					{
 						Address:  "band12jf07lcaj67mthsnklngv93qkeuphhmxst9mh8",
+						GroupID:  tss.GroupID(1),
 						IsActive: true,
 						Since:    ctx.BlockTime(),
 					},
 				}
 
 				for _, expectedMember := range expectedMembers {
-					member, err := bandtssKeeper.GetMember(ctx, sdk.MustAccAddressFromBech32(expectedMember.Address))
+					member, err := bandtssKeeper.GetMember(
+						ctx,
+						sdk.MustAccAddressFromBech32(expectedMember.Address),
+						tss.GroupID(1),
+					)
 					s.Require().NoError(err)
-					s.Require().Equal(member, expectedMember)
+					s.Require().Equal(expectedMember, member)
 				}
 
 				s.Require().Equal(&types.QueryGroupResponse{
@@ -302,7 +313,7 @@ func (s *KeeperTestSuite) TestGRPCQueryGroup() {
 	}
 }
 
-func (s *KeeperTestSuite) TestGRPCQueryMembers() {
+func (s *AppTestSuite) TestGRPCQueryMembers() {
 	ctx, q, k := s.ctx, s.queryClient, s.app.TSSKeeper
 	members := []types.Member{
 		{
@@ -371,7 +382,7 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 	}
 }
 
-func (s *KeeperTestSuite) TestGRPCQueryIsGrantee() {
+func (s *AppTestSuite) TestGRPCQueryIsGrantee() {
 	ctx, q, authzKeeper := s.ctx, s.queryClient, s.app.AuthzKeeper
 	expTime := time.Unix(0, 0)
 
@@ -458,8 +469,21 @@ func (s *KeeperTestSuite) TestGRPCQueryIsGrantee() {
 	}
 }
 
-func (s *KeeperTestSuite) TestGRPCQueryDE() {
+func (s *AppTestSuite) TestGRPCQueryDE() {
 	ctx, q := s.ctx, s.queryClient
+	acc1 := sdk.MustAccAddressFromBech32("band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun")
+	err := s.app.TSSKeeper.HandleSetDEs(ctx, acc1, []types.DE{
+		{PubD: tss.Point("pubD1"), PubE: tss.Point("pubE1")},
+		{PubD: tss.Point("pubD2"), PubE: tss.Point("pubE2")},
+		{PubD: tss.Point("pubD3"), PubE: tss.Point("pubE3")},
+		{PubD: tss.Point("pubD4"), PubE: tss.Point("pubE4")},
+		{PubD: tss.Point("pubD5"), PubE: tss.Point("pubE5")},
+	})
+	s.Require().NoError(err)
+
+	de, err := s.app.TSSKeeper.PollDE(ctx, acc1)
+	s.Require().NoError(err)
+	s.Require().Equal(types.DE{PubD: tss.Point("pubD1"), PubE: tss.Point("pubE1")}, de)
 
 	var req types.QueryDERequest
 	testCases := []struct {
@@ -482,6 +506,61 @@ func (s *KeeperTestSuite) TestGRPCQueryDE() {
 				s.Require().Len(res.DEs, 0)
 			},
 		},
+		{
+			"success - multiple DEs",
+			func() {
+				req = types.QueryDERequest{Address: acc1.String()}
+			},
+			true,
+			func(res *types.QueryDEResponse, err error) {
+				s.Require().NoError(err)
+				s.Require().NotNil(res)
+				s.Require().Len(res.DEs, 4)
+			},
+		},
+		{
+			"success - multiple DEs query by key",
+			func() {
+				req = types.QueryDERequest{
+					Address: acc1.String(),
+					Pagination: &query.PageRequest{
+						Key: sdk.Uint64ToBigEndian(uint64(2)),
+					},
+				}
+			},
+			true,
+			func(res *types.QueryDEResponse, err error) {
+				s.Require().NoError(err)
+				s.Require().NotNil(res)
+				s.Require().Len(res.DEs, 3)
+			},
+		},
+		{
+			"success - pagination query DEs",
+			func() {
+				req = types.QueryDERequest{
+					Address: acc1.String(),
+					Pagination: &query.PageRequest{
+						Offset: 1,
+						Limit:  2,
+					},
+				}
+			},
+			true,
+			func(res *types.QueryDEResponse, err error) {
+				s.Require().NoError(err)
+				s.Require().NotNil(res)
+				s.Require().Len(res.DEs, 2)
+				s.Require().Equal(
+					types.DE{PubD: tss.Point("pubD3"), PubE: tss.Point("pubE3")},
+					res.DEs[0],
+				)
+				s.Require().Equal(
+					types.DE{PubD: tss.Point("pubD4"), PubE: tss.Point("pubE4")},
+					res.DEs[1],
+				)
+			},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -500,7 +579,7 @@ func (s *KeeperTestSuite) TestGRPCQueryDE() {
 	}
 }
 
-func (s *KeeperTestSuite) TestGRPCQueryPendingGroups() {
+func (s *AppTestSuite) TestGRPCQueryPendingGroups() {
 	ctx, q := s.ctx, s.queryClient
 
 	var req types.QueryPendingGroupsRequest
@@ -542,7 +621,7 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingGroups() {
 	}
 }
 
-func (s *KeeperTestSuite) TestGRPCQueryPendingSignings() {
+func (s *AppTestSuite) TestGRPCQueryPendingSignings() {
 	ctx, q := s.ctx, s.queryClient
 
 	var req types.QueryPendingSigningsRequest
@@ -584,35 +663,28 @@ func (s *KeeperTestSuite) TestGRPCQueryPendingSignings() {
 	}
 }
 
-func (s *KeeperTestSuite) TestGRPCQuerySigning() {
+func (s *AppTestSuite) TestGRPCQuerySigning() {
 	ctx, q, k := s.ctx, s.queryClient, s.app.TSSKeeper
-	signingID, memberID, groupID := tss.SigningID(1), tss.MemberID(1), tss.GroupID(1)
-	signing := types.Signing{
-		ID:      signingID,
-		GroupID: groupID,
-		AssignedMembers: []types.AssignedMember{
-			{
-				MemberID:      memberID,
-				Address:       "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-				PubD:          []byte("D"),
-				PubE:          []byte("E"),
-				BindingFactor: []byte("binding_factor"),
-				PubNonce:      []byte("public_nonce"),
-			},
-		},
-		Message:       []byte("message"),
-		GroupPubNonce: []byte("group_pub_nonce"),
-		Signature: testutil.HexDecode(
-			"02d447778a1a2cd2a55ceb47d6bd3f01587d079d6ddadbfff5d6956ca9b7ca0e317074433c8adbfb338cd69a343fc1155ce60d4f5e276975ba8bdb8ae8f803ea23",
-		),
-	}
-	sig := []byte("signatures")
+	mockSig := []byte("signatures")
+
+	groupCtx, err := tsstestutil.CompleteGroupCreation(ctx, k, 4, 2)
+	s.Require().NoError(err)
+
+	group, err := k.GetGroup(ctx, groupCtx.GroupID)
+	s.Require().NoError(err)
+	s.Require().Equal(types.GROUP_STATUS_ACTIVE, group.Status)
+
+	signingID, err := k.CreateSigning(ctx, groupCtx.GroupID, []byte("originator"), []byte("message"))
+	s.Require().NoError(err)
+	err = k.InitiateNewSigningRound(ctx, signingID)
+	s.Require().NoError(err)
+
+	sa := k.MustGetSigningAttempt(ctx, signingID, 1)
+	signing := k.MustGetSigning(ctx, signingID)
+	memberID := sa.AssignedMembers[0].MemberID
 
 	// Add partial signature
-	k.AddPartialSignature(ctx, signingID, memberID, []byte("signatures"))
-
-	// Add signing
-	k.AddSigning(ctx, signing)
+	k.AddPartialSignature(ctx, signingID, 1, memberID, mockSig)
 
 	var req types.QuerySigningRequest
 	testCases := []struct {
@@ -645,8 +717,29 @@ func (s *KeeperTestSuite) TestGRPCQuerySigning() {
 			func(res *types.QuerySigningResponse, err error) {
 				s.Require().NoError(err)
 				s.Require().Equal(signing, res.SigningResult.Signing)
+				s.Require().Equal(&sa, res.SigningResult.CurrentSigningAttempt)
 				s.Require().
-					Equal([]types.PartialSignature{{MemberID: memberID, Signature: sig}}, res.SigningResult.ReceivedPartialSignatures)
+					Equal([]types.PartialSignature{{MemberID: memberID, Signature: mockSig}}, res.SigningResult.ReceivedPartialSignatures)
+			},
+		},
+		{
+			"success but signing is completed for a while and some data is already removed",
+			func() {
+				k.DeleteInterimSigningData(ctx, 1, 1)
+				req = types.QuerySigningRequest{
+					SigningId: 1,
+				}
+			},
+			true,
+			func(res *types.QuerySigningResponse, err error) {
+				s.Require().NoError(err)
+				s.Require().Equal(signing, res.SigningResult.Signing)
+				s.Require().Nil(res.SigningResult.CurrentSigningAttempt)
+				s.Require().Nil(res.SigningResult.ReceivedPartialSignatures)
+
+				// set it back
+				k.SetSigningAttempt(ctx, sa)
+				k.AddPartialSignature(ctx, signingID, 1, memberID, mockSig)
 			},
 		},
 	}

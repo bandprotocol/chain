@@ -45,17 +45,9 @@ func (k msgServer) SubmitDKGRound1(
 		return nil, types.ErrInvalidStatus.Wrap("group status is not round 1")
 	}
 
-	// Get member and verify if the sender is in the group
-	member, err := k.GetMember(ctx, groupID, memberID)
-	if err != nil {
+	// Validate memberID
+	if err := k.ValidateMemberID(ctx, groupID, memberID, req.Sender); err != nil {
 		return nil, err
-	}
-	if !member.IsAddress(req.Address) {
-		return nil, types.ErrMemberNotAuthorized.Wrapf(
-			"memberID %d address %s is not match in this group",
-			memberID,
-			req.Address,
-		)
 	}
 
 	// Check previous submit
@@ -63,37 +55,8 @@ func (k msgServer) SubmitDKGRound1(
 		return nil, types.ErrMemberAlreadySubmit.Wrap("this member already submit round 1")
 	}
 
-	// Check coefficients commit length
-	if uint64(len(req.Round1Info.CoefficientCommits)) != group.Threshold {
-		return nil, types.ErrInvalidLengthCoefCommits
-	}
-
-	// Get dkg-context
-	dkgContext, err := k.GetDKGContext(ctx, groupID)
-	if err != nil {
-		return nil, types.ErrDKGContextNotFound.Wrap("dkg-context is not found")
-	}
-
-	// Verify one time signature
-	err = tss.VerifyOneTimeSignature(
-		memberID,
-		dkgContext,
-		req.Round1Info.OneTimeSignature,
-		req.Round1Info.OneTimePubKey,
-	)
-	if err != nil {
-		return nil, types.ErrVerifyOneTimeSignatureFailed.Wrap(err.Error())
-	}
-
-	// Verify A0 signature
-	err = tss.VerifyA0Signature(
-		memberID,
-		dkgContext,
-		req.Round1Info.A0Signature,
-		req.Round1Info.CoefficientCommits[0],
-	)
-	if err != nil {
-		return nil, types.ErrVerifyA0SignatureFailed.Wrap(err.Error())
+	if err := k.ValidateRound1Info(ctx, group, req.Round1Info); err != nil {
+		return nil, err
 	}
 
 	// Add commits to calculate accumulated commits for each index
@@ -109,7 +72,7 @@ func (k msgServer) SubmitDKGRound1(
 			types.EventTypeSubmitDKGRound1,
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", memberID)),
-			sdk.NewAttribute(types.AttributeKeyAddress, req.Address),
+			sdk.NewAttribute(types.AttributeKeyAddress, req.Sender),
 			sdk.NewAttribute(
 				types.AttributeKeyRound1Info,
 				hex.EncodeToString(k.cdc.MustMarshal(&req.Round1Info)),
@@ -148,17 +111,9 @@ func (k msgServer) SubmitDKGRound2(
 		return nil, types.ErrInvalidStatus.Wrap("group status is not round 2")
 	}
 
-	// Get member and verify if the sender is in the group
-	member, err := k.GetMember(ctx, groupID, memberID)
-	if err != nil {
+	// Validate memberID
+	if err := k.ValidateMemberID(ctx, groupID, memberID, req.Sender); err != nil {
 		return nil, err
-	}
-	if !member.IsAddress(req.Address) {
-		return nil, types.ErrMemberNotAuthorized.Wrapf(
-			"memberID %d address %s is not match in this group",
-			memberID,
-			req.Address,
-		)
 	}
 
 	// Check previous submit
@@ -171,16 +126,10 @@ func (k msgServer) SubmitDKGRound2(
 		return nil, types.ErrInvalidLengthEncryptedSecretShares
 	}
 
-	// Compute own public key
-	accCommits := k.GetAllAccumulatedCommits(ctx, groupID)
-	ownPubKey, err := tss.ComputeOwnPublicKey(accCommits, memberID)
-	if err != nil {
-		return nil, types.ErrComputeOwnPubKeyFailed.Wrapf("compute own public key failed; %s", err)
+	// Update member public key of the group.
+	if err := k.UpdateMemberPubKey(ctx, groupID, memberID); err != nil {
+		return nil, err
 	}
-
-	// Update public key of the member
-	member.PubKey = ownPubKey
-	k.SetMember(ctx, member)
 
 	// Add round 2 info
 	k.AddRound2Info(ctx, groupID, req.Round2Info)
@@ -190,7 +139,7 @@ func (k msgServer) SubmitDKGRound2(
 			types.EventTypeSubmitDKGRound2,
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", memberID)),
-			sdk.NewAttribute(types.AttributeKeyAddress, req.Address),
+			sdk.NewAttribute(types.AttributeKeyAddress, req.Sender),
 			sdk.NewAttribute(types.AttributeKeyRound2Info, hex.EncodeToString(k.cdc.MustMarshal(&req.Round2Info))),
 		),
 	)
@@ -221,79 +170,23 @@ func (k msgServer) Complain(goCtx context.Context, req *types.MsgComplain) (*typ
 		return nil, types.ErrInvalidStatus.Wrap("group status is not round 3")
 	}
 
-	// Get member and verify if the sender is in the group
-	member, err := k.GetMember(ctx, groupID, memberID)
-	if err != nil {
+	// Validate memberID
+	if err := k.ValidateMemberID(ctx, groupID, memberID, req.Sender); err != nil {
 		return nil, err
-	}
-	if !member.IsAddress(req.Address) {
-		return nil, types.ErrMemberNotAuthorized.Wrapf(
-			"memberID %d address %s is not match in this group",
-			memberID,
-			req.Address,
-		)
 	}
 
 	// Check already confirm or complain
-	if err := k.checkConfirmOrComplain(ctx, groupID, memberID); err != nil {
-		return nil, err
+	if k.HasConfirm(ctx, groupID, memberID) {
+		return nil, types.ErrMemberAlreadySubmit.Wrap("this member already submit confirm")
+	}
+	if k.HasComplaintsWithStatus(ctx, groupID, memberID) {
+		return nil, types.ErrMemberAlreadySubmit.Wrap("this member already submit complaint")
 	}
 
 	// Verify complaint if fail to verify, mark complainant as malicious instead.
-	var complaintsWithStatus []types.ComplaintWithStatus
-	for _, c := range req.Complaints {
-		err := k.HandleVerifyComplaint(ctx, groupID, c)
-		if err != nil {
-			// Mark complainant as malicious
-			err := k.MarkMalicious(ctx, groupID, c.Complainant)
-			if err != nil {
-				return nil, err
-			}
-
-			// Add complaint status
-			complaintsWithStatus = append(complaintsWithStatus, types.ComplaintWithStatus{
-				Complaint:       c,
-				ComplaintStatus: types.COMPLAINT_STATUS_FAILED,
-			})
-
-			// Emit complain failed event
-			ctx.EventManager().EmitEvent(
-				sdk.NewEvent(
-					types.EventTypeComplainFailed,
-					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-					sdk.NewAttribute(types.AttributeKeyComplainantID, fmt.Sprintf("%d", c.Complainant)),
-					sdk.NewAttribute(types.AttributeKeyRespondentID, fmt.Sprintf("%d", c.Respondent)),
-					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
-					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
-					sdk.NewAttribute(types.AttributeKeyAddress, req.Address),
-				),
-			)
-		} else {
-			// Mark respondent as malicious
-			err := k.MarkMalicious(ctx, groupID, c.Respondent)
-			if err != nil {
-				return nil, err
-			}
-
-			// Add complaint status
-			complaintsWithStatus = append(complaintsWithStatus, types.ComplaintWithStatus{
-				Complaint:       c,
-				ComplaintStatus: types.COMPLAINT_STATUS_SUCCESS,
-			})
-
-			// Emit complain success event
-			ctx.EventManager().EmitEvent(
-				sdk.NewEvent(
-					types.EventTypeComplainSuccess,
-					sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-					sdk.NewAttribute(types.AttributeKeyComplainantID, fmt.Sprintf("%d", c.Complainant)),
-					sdk.NewAttribute(types.AttributeKeyRespondentID, fmt.Sprintf("%d", c.Respondent)),
-					sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
-					sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
-					sdk.NewAttribute(types.AttributeKeyAddress, req.Address),
-				),
-			)
-		}
+	complaintsWithStatus, err := k.ProcessComplaint(ctx, req.Complaints, groupID, req.Sender)
+	if err != nil {
+		return nil, err
 	}
 
 	// Add complain with status
@@ -332,22 +225,17 @@ func (k msgServer) Confirm(
 		return nil, types.ErrInvalidStatus.Wrap("group status is not round 3")
 	}
 
-	// Get member and verify if the sender is in the group
-	member, err := k.GetMember(ctx, groupID, memberID)
-	if err != nil {
+	// Validate memberID
+	if err := k.ValidateMemberID(ctx, groupID, memberID, req.Sender); err != nil {
 		return nil, err
-	}
-	if !member.IsAddress(req.Address) {
-		return nil, types.ErrMemberNotAuthorized.Wrapf(
-			"memberID %d address %s is not match in this group",
-			memberID,
-			req.Address,
-		)
 	}
 
 	// Check already confirm or complain
-	if err := k.checkConfirmOrComplain(ctx, groupID, memberID); err != nil {
-		return nil, err
+	if k.HasConfirm(ctx, groupID, memberID) {
+		return nil, types.ErrMemberAlreadySubmit.Wrap("this member already submit confirm")
+	}
+	if k.HasComplaintsWithStatus(ctx, groupID, memberID) {
+		return nil, types.ErrMemberAlreadySubmit.Wrap("this member already submit complaint")
 	}
 
 	// Verify OwnPubKeySig
@@ -368,7 +256,7 @@ func (k msgServer) Confirm(
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", groupID)),
 			sdk.NewAttribute(types.AttributeKeyOwnPubKeySig, hex.EncodeToString(req.OwnPubKeySig)),
-			sdk.NewAttribute(types.AttributeKeyAddress, req.Address),
+			sdk.NewAttribute(types.AttributeKeyAddress, req.Sender),
 		),
 	)
 
@@ -388,7 +276,7 @@ func (k msgServer) SubmitDEs(goCtx context.Context, req *types.MsgSubmitDEs) (*t
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Convert the address from Bech32 format to AccAddress format
-	member, err := sdk.AccAddressFromBech32(req.Address)
+	member, err := sdk.AccAddressFromBech32(req.Sender)
 	if err != nil {
 		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid account address: %s", err)
 	}
@@ -422,24 +310,22 @@ func (k msgServer) SubmitSignature(
 		)
 	}
 
-	// Check if sender not in assigned member
-	am, found := signing.AssignedMembers.FindAssignedMember(req.MemberID, req.Address)
-	if !found {
+	sa, err := k.GetSigningAttempt(ctx, req.SigningID, signing.CurrentAttempt)
+	if err != nil {
+		return nil, err
+	}
+	assignedMembers := types.AssignedMembers(sa.AssignedMembers)
+
+	// validate member address.
+	am, found := assignedMembers.FindAssignedMember(req.MemberID)
+	if !found || am.Address != req.Signer {
 		return nil, types.ErrMemberNotAssigned.Wrapf(
 			"member ID/Address: %d is not in assigned members", req.MemberID,
 		)
 	}
 
-	// Verify signature R
-	if !signing.AssignedMembers.VerifySignatureR(req.MemberID, req.Signature.R()) {
-		return nil, types.ErrPubNonceNotEqualToSigR.Wrapf(
-			"public nonce from member ID: %d is not equal signature r",
-			req.MemberID,
-		)
-	}
-
 	// Check member is already signed
-	if k.HasPartialSignature(ctx, req.SigningID, req.MemberID) {
+	if k.HasPartialSignature(ctx, req.SigningID, sa.Attempt, req.MemberID) {
 		return nil, types.ErrAlreadySigned.Wrapf(
 			"member ID: %d is already signed on signing ID: %d",
 			req.MemberID,
@@ -447,31 +333,38 @@ func (k msgServer) SubmitSignature(
 		)
 	}
 
+	// Verify signature R
+	if !assignedMembers.VerifySignatureR(req.MemberID, req.Signature.R()) {
+		return nil, types.ErrPubNonceNotEqualToSigR.Wrapf(
+			"public nonce from member ID: %d is not equal signature r",
+			req.MemberID,
+		)
+	}
+
 	// Compute lagrange coefficient
-	lagrange, err := tss.ComputeLagrangeCoefficient(req.MemberID, signing.AssignedMembers.MemberIDs())
+	lagrange, err := tss.ComputeLagrangeCoefficient(req.MemberID, assignedMembers.MemberIDs())
 	if err != nil {
 		return nil, types.ErrInvalidArgument.Wrap(err.Error())
 	}
 
 	// Verify signing signature
-	err = tss.VerifySigningSignature(
+	if err = tss.VerifySigningSignature(
 		signing.GroupPubNonce,
 		signing.GroupPubKey,
 		signing.Message,
 		lagrange,
 		req.Signature,
 		am.PubKey,
-	)
-	if err != nil {
+	); err != nil {
 		return nil, types.ErrVerifySigningSigFailed.Wrap(err.Error())
 	}
 
 	// Add partial signature
-	k.AddPartialSignature(ctx, req.SigningID, req.MemberID, req.Signature)
+	k.AddPartialSignature(ctx, req.SigningID, sa.Attempt, req.MemberID, req.Signature)
 
 	// Check if the threshold is met, if so, add to the pending process signing.
-	sigCount := k.GetPartialSignatureCount(ctx, req.SigningID)
-	if sigCount == uint64(len(signing.AssignedMembers)) {
+	sigCount := k.GetPartialSignatureCount(ctx, req.SigningID, sa.Attempt)
+	if sigCount == uint64(len(assignedMembers)) {
 		k.AddPendingProcessSigning(ctx, req.SigningID)
 	}
 
@@ -479,6 +372,7 @@ func (k msgServer) SubmitSignature(
 		sdk.NewEvent(
 			types.EventTypeSubmitSignature,
 			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", req.SigningID)),
+			sdk.NewAttribute(types.AttributeKeyAttempt, fmt.Sprintf("%d", signing.CurrentAttempt)),
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
 			sdk.NewAttribute(types.AttributeKeyMemberID, fmt.Sprintf("%d", req.MemberID)),
 			sdk.NewAttribute(types.AttributeKeyAddress, am.Address),
@@ -510,24 +404,4 @@ func (k Keeper) UpdateParams(
 	}
 
 	return &types.MsgUpdateParamsResponse{}, nil
-}
-
-// checkConfirmOrComplain checks whether a specific member has already sent a "Confirm" or
-// "Complaint" message in a given group. If either a confirm or a complain message from the member
-// is found, an error is returned.
-func (k Keeper) checkConfirmOrComplain(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) error {
-	if k.HasConfirm(ctx, groupID, memberID) {
-		return types.ErrMemberIsAlreadyComplainOrConfirm.Wrapf(
-			"memberID %d already send confirm message",
-			memberID,
-		)
-	}
-
-	if k.HasComplaintsWithStatus(ctx, groupID, memberID) {
-		return types.ErrMemberIsAlreadyComplainOrConfirm.Wrapf(
-			"memberID %d already send complain message",
-			memberID,
-		)
-	}
-	return nil
 }

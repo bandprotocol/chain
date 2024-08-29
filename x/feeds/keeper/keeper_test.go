@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtime "github.com/cometbft/cometbft/types/time"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -19,6 +20,7 @@ import (
 	feedstestutil "github.com/bandprotocol/chain/v2/x/feeds/testutil"
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	restaketypes "github.com/bandprotocol/chain/v2/x/restake/types"
 )
 
 var (
@@ -27,6 +29,7 @@ var (
 	ValidValidator3  = sdk.ValAddress("1000000003")
 	ValidDelegator   = sdk.AccAddress("2000000001")
 	ValidDelegator2  = sdk.AccAddress("2000000002")
+	ValidFeeder      = sdk.AccAddress("3000000001")
 	InvalidValidator = sdk.ValAddress("9000000001")
 	InvalidDelegator = sdk.AccAddress("9000000002")
 )
@@ -38,6 +41,7 @@ type KeeperTestSuite struct {
 	feedsKeeper   keeper.Keeper
 	oracleKeeper  *feedstestutil.MockOracleKeeper
 	stakingKeeper *feedstestutil.MockStakingKeeper
+	restakeKeeper *feedstestutil.MockRestakeKeeper
 
 	queryClient types.QueryClient
 	msgServer   types.MsgServer
@@ -117,21 +121,33 @@ func (suite *KeeperTestSuite) SetupTest() {
 			}
 		}).
 		AnyTimes()
-	stakingKeeper.EXPECT().
-		GetDelegatorBonded(gomock.Any(), ValidDelegator).
-		Return(sdk.NewInt(1e10)).
-		AnyTimes()
-	stakingKeeper.EXPECT().
-		GetDelegatorBonded(gomock.Any(), InvalidDelegator).
-		Return(sdk.NewInt(0)).
-		AnyTimes()
 	suite.stakingKeeper = stakingKeeper
+
+	restakeKeeper := feedstestutil.NewMockRestakeKeeper(ctrl)
+	restakeKeeper.EXPECT().
+		SetLockedPower(gomock.Any(), ValidDelegator, types.ModuleName, gomock.Any()).
+		DoAndReturn(func(_ sdk.Context, _ sdk.AccAddress, _ string, amount math.Int) error {
+			if amount.GT(sdk.NewInt(1e10)) {
+				return restaketypes.ErrDelegationNotEnough
+			}
+			return nil
+		}).
+		AnyTimes()
+	restakeKeeper.EXPECT().
+		SetLockedPower(gomock.Any(), InvalidDelegator, types.ModuleName, gomock.Any()).
+		Return(restaketypes.ErrDelegationNotEnough).
+		AnyTimes()
+	suite.restakeKeeper = restakeKeeper
+
+	authzKeeper := feedstestutil.NewMockAuthzKeeper(ctrl)
 
 	suite.feedsKeeper = keeper.NewKeeper(
 		encCfg.Codec,
 		key,
 		oracleKeeper,
 		stakingKeeper,
+		restakeKeeper,
+		authzKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 	suite.feedsKeeper.InitGenesis(suite.ctx, *types.DefaultGenesisState())

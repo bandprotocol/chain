@@ -26,7 +26,7 @@ type Upgrade struct {
 	StoreUpgrades store.StoreUpgrades
 }
 
-// BaseAppParamManager defines an interrace that BaseApp is expected to fullfil
+// BaseAppParamManager defines an interface that BaseApp is expected to fulfill
 // that allows upgrade handlers to modify BaseApp parameters.
 type AppManager interface {
 	GetConsensusParams(ctx sdk.Context) *tmproto.ConsensusParams

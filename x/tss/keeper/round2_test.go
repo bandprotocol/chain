@@ -5,7 +5,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-func (s *KeeperTestSuite) TestGetSetRound2Info() {
+func (s *AppTestSuite) TestGetSetRound2Info() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	memberID := tss.MemberID(1)
@@ -26,7 +26,7 @@ func (s *KeeperTestSuite) TestGetSetRound2Info() {
 	s.Require().Equal(round2Info, got)
 }
 
-func (s *KeeperTestSuite) TestAddRound2Info() {
+func (s *AppTestSuite) TestAddRound2Info() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	memberID := tss.MemberID(1)
@@ -49,30 +49,7 @@ func (s *KeeperTestSuite) TestAddRound2Info() {
 	s.Require().Equal(uint64(1), gotR2Count)
 }
 
-func (s *KeeperTestSuite) TestDeleteRound2Info() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID := tss.GroupID(1)
-	memberID := tss.MemberID(1)
-	Round2Info := types.Round2Info{
-		MemberID: memberID,
-		EncryptedSecretShares: tss.EncSecretShares{
-			[]byte("e_12"),
-			[]byte("e_13"),
-			[]byte("e_14"),
-		},
-	}
-
-	// Set round 2 info
-	k.SetRound2Info(ctx, groupID, Round2Info)
-
-	// Delete round 2 info
-	k.DeleteRound2Info(ctx, groupID, memberID)
-
-	_, err := k.GetRound2Info(ctx, groupID, memberID)
-	s.Require().Error(err)
-}
-
-func (s *KeeperTestSuite) TestDeleteRound2Infos() {
+func (s *AppTestSuite) TestDeleteRound2Infos() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	memberID := tss.MemberID(1)
@@ -93,9 +70,12 @@ func (s *KeeperTestSuite) TestDeleteRound2Infos() {
 
 	_, err := k.GetRound2Info(ctx, groupID, memberID)
 	s.Require().Error(err)
+
+	cnt := k.GetRound2InfoCount(ctx, groupID)
+	s.Require().Equal(uint64(0), cnt)
 }
 
-func (s *KeeperTestSuite) TestGetRound2Infos() {
+func (s *AppTestSuite) TestGetRound2Infos() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
 	member1 := tss.MemberID(1)
@@ -125,29 +105,14 @@ func (s *KeeperTestSuite) TestGetRound2Infos() {
 	s.Require().Equal([]types.Round2Info{round2InfoMember1, round2InfoMember2}, got)
 }
 
-func (s *KeeperTestSuite) TestGetSetRound2InfoCount() {
+func (s *AppTestSuite) TestGetSetRound2InfoCount() {
 	ctx, k := s.ctx, s.app.TSSKeeper
 	groupID := tss.GroupID(1)
-	count := uint64(5)
 
 	// Set round 2 info count
-	k.SetRound2InfoCount(ctx, groupID, count)
+	k.AddRound2Info(ctx, groupID, types.Round2Info{MemberID: tss.MemberID(1)})
+	k.AddRound2Info(ctx, groupID, types.Round2Info{MemberID: tss.MemberID(2)})
 
 	got := k.GetRound2InfoCount(ctx, groupID)
-	s.Require().Equal(uint64(5), got)
-}
-
-func (s *KeeperTestSuite) TestDeleteRound2InfoCount() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	groupID := tss.GroupID(1)
-	count := uint64(5)
-
-	// Set round 2 info count
-	k.SetRound2InfoCount(ctx, groupID, count)
-
-	// Delete round 2 info count
-	k.DeleteRound2InfoCount(ctx, groupID)
-
-	got := k.GetRound2InfoCount(ctx, groupID)
-	s.Require().Empty(got)
+	s.Require().Equal(uint64(2), got)
 }

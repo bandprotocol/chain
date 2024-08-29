@@ -139,8 +139,8 @@ func (fc FeeChecker) IsBypassMinFeeMsg(ctx sdk.Context, msg sdk.Msg) bool {
 		if err := checkValidMsgReport(ctx, fc.OracleKeeper, msg); err != nil {
 			return false
 		}
-	case *feedstypes.MsgSubmitPrices:
-		if _, err := fc.FeedsMsgServer.SubmitPrices(ctx, msg); err != nil {
+	case *feedstypes.MsgSubmitSignalPrices:
+		if _, err := fc.FeedsMsgServer.SubmitSignalPrices(ctx, msg); err != nil {
 			return false
 		}
 	case *tsstypes.MsgSubmitDKGRound1:
@@ -160,6 +160,18 @@ func (fc FeeChecker) IsBypassMinFeeMsg(ctx sdk.Context, msg sdk.Msg) bool {
 			return false
 		}
 	case *tsstypes.MsgSubmitDEs:
+		acc, err := sdk.AccAddressFromBech32(msg.Sender)
+		if err != nil {
+			return false
+		}
+
+		currentGroupID := fc.BandtssKeeper.GetCurrentGroupID(ctx)
+		incomingGroupID := fc.BandtssKeeper.GetIncomingGroupID(ctx)
+		if !fc.BandtssKeeper.HasMember(ctx, acc, currentGroupID) &&
+			!fc.BandtssKeeper.HasMember(ctx, acc, incomingGroupID) {
+			return false
+		}
+
 		if _, err := fc.TSSMsgServer.SubmitDEs(ctx, msg); err != nil {
 			return false
 		}
@@ -167,8 +179,8 @@ func (fc FeeChecker) IsBypassMinFeeMsg(ctx sdk.Context, msg sdk.Msg) bool {
 		if _, err := fc.TSSMsgServer.SubmitSignature(ctx, msg); err != nil {
 			return false
 		}
-	case *bandtsstypes.MsgHealthCheck:
-		if _, err := fc.BandtssMsgServer.HealthCheck(ctx, msg); err != nil {
+	case *bandtsstypes.MsgHeartbeat:
+		if _, err := fc.BandtssMsgServer.Heartbeat(ctx, msg); err != nil {
 			return false
 		}
 	case *authz.MsgExec:

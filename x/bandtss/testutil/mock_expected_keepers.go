@@ -292,43 +292,6 @@ func (mr *MockDistrKeeperMockRecorder) SetFeePool(ctx, feePool any) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetFeePool", reflect.TypeOf((*MockDistrKeeper)(nil).SetFeePool), ctx, feePool)
 }
 
-// MockRollingseedKeeper is a mock of RollingseedKeeper interface.
-type MockRollingseedKeeper struct {
-	ctrl     *gomock.Controller
-	recorder *MockRollingseedKeeperMockRecorder
-}
-
-// MockRollingseedKeeperMockRecorder is the mock recorder for MockRollingseedKeeper.
-type MockRollingseedKeeperMockRecorder struct {
-	mock *MockRollingseedKeeper
-}
-
-// NewMockRollingseedKeeper creates a new mock instance.
-func NewMockRollingseedKeeper(ctrl *gomock.Controller) *MockRollingseedKeeper {
-	mock := &MockRollingseedKeeper{ctrl: ctrl}
-	mock.recorder = &MockRollingseedKeeperMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockRollingseedKeeper) EXPECT() *MockRollingseedKeeperMockRecorder {
-	return m.recorder
-}
-
-// GetRollingSeed mocks base method.
-func (m *MockRollingseedKeeper) GetRollingSeed(ctx types0.Context) []byte {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetRollingSeed", ctx)
-	ret0, _ := ret[0].([]byte)
-	return ret0
-}
-
-// GetRollingSeed indicates an expected call of GetRollingSeed.
-func (mr *MockRollingseedKeeperMockRecorder) GetRollingSeed(ctx any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRollingSeed", reflect.TypeOf((*MockRollingseedKeeper)(nil).GetRollingSeed), ctx)
-}
-
 // MockStakingKeeper is a mock of StakingKeeper interface.
 type MockStakingKeeper struct {
 	ctrl     *gomock.Controller
@@ -444,21 +407,6 @@ func (mr *MockTSSKeeperMockRecorder) CreateGroup(ctx, members, threshold, module
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateGroup", reflect.TypeOf((*MockTSSKeeper)(nil).CreateGroup), ctx, members, threshold, moduleOwner)
 }
 
-// CreateSigning mocks base method.
-func (m *MockTSSKeeper) CreateSigning(ctx types0.Context, group types.Group, content types.Content) (*types.Signing, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateSigning", ctx, group, content)
-	ret0, _ := ret[0].(*types.Signing)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CreateSigning indicates an expected call of CreateSigning.
-func (mr *MockTSSKeeperMockRecorder) CreateSigning(ctx, group, content any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSigning", reflect.TypeOf((*MockTSSKeeper)(nil).CreateSigning), ctx, group, content)
-}
-
 // DeactivateMember mocks base method.
 func (m *MockTSSKeeper) DeactivateMember(ctx types0.Context, groupID tss.GroupID, address types0.AccAddress) error {
 	m.ctrl.T.Helper()
@@ -473,18 +421,18 @@ func (mr *MockTSSKeeperMockRecorder) DeactivateMember(ctx, groupID, address any)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeactivateMember", reflect.TypeOf((*MockTSSKeeper)(nil).DeactivateMember), ctx, groupID, address)
 }
 
-// GetDECount mocks base method.
-func (m *MockTSSKeeper) GetDECount(ctx types0.Context, address types0.AccAddress) uint64 {
+// GetDEQueue mocks base method.
+func (m *MockTSSKeeper) GetDEQueue(ctx types0.Context, address types0.AccAddress) types.DEQueue {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDECount", ctx, address)
-	ret0, _ := ret[0].(uint64)
+	ret := m.ctrl.Call(m, "GetDEQueue", ctx, address)
+	ret0, _ := ret[0].(types.DEQueue)
 	return ret0
 }
 
-// GetDECount indicates an expected call of GetDECount.
-func (mr *MockTSSKeeperMockRecorder) GetDECount(ctx, address any) *gomock.Call {
+// GetDEQueue indicates an expected call of GetDEQueue.
+func (mr *MockTSSKeeperMockRecorder) GetDEQueue(ctx, address any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDECount", reflect.TypeOf((*MockTSSKeeper)(nil).GetDECount), ctx, address)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDEQueue", reflect.TypeOf((*MockTSSKeeper)(nil).GetDEQueue), ctx, address)
 }
 
 // GetGroup mocks base method.
@@ -517,21 +465,6 @@ func (mr *MockTSSKeeperMockRecorder) GetMemberByAddress(ctx, groupID, address an
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMemberByAddress", reflect.TypeOf((*MockTSSKeeper)(nil).GetMemberByAddress), ctx, groupID, address)
 }
 
-// GetPenalizedMembersExpiredSigning mocks base method.
-func (m *MockTSSKeeper) GetPenalizedMembersExpiredSigning(ctx types0.Context, signing types.Signing) ([]types0.AccAddress, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPenalizedMembersExpiredSigning", ctx, signing)
-	ret0, _ := ret[0].([]types0.AccAddress)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetPenalizedMembersExpiredSigning indicates an expected call of GetPenalizedMembersExpiredSigning.
-func (mr *MockTSSKeeperMockRecorder) GetPenalizedMembersExpiredSigning(ctx, signing any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPenalizedMembersExpiredSigning", reflect.TypeOf((*MockTSSKeeper)(nil).GetPenalizedMembersExpiredSigning), ctx, signing)
-}
-
 // GetSigning mocks base method.
 func (m *MockTSSKeeper) GetSigning(ctx types0.Context, signingID tss.SigningID) (types.Signing, error) {
 	m.ctrl.T.Helper()
@@ -562,6 +495,20 @@ func (mr *MockTSSKeeperMockRecorder) GetSigningResult(ctx, signingID any) *gomoc
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSigningResult", reflect.TypeOf((*MockTSSKeeper)(nil).GetSigningResult), ctx, signingID)
 }
 
+// MustGetGroup mocks base method.
+func (m *MockTSSKeeper) MustGetGroup(ctx types0.Context, groupID tss.GroupID) types.Group {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MustGetGroup", ctx, groupID)
+	ret0, _ := ret[0].(types.Group)
+	return ret0
+}
+
+// MustGetGroup indicates an expected call of MustGetGroup.
+func (mr *MockTSSKeeperMockRecorder) MustGetGroup(ctx, groupID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MustGetGroup", reflect.TypeOf((*MockTSSKeeper)(nil).MustGetGroup), ctx, groupID)
+}
+
 // MustGetMembers mocks base method.
 func (m *MockTSSKeeper) MustGetMembers(ctx types0.Context, groupID tss.GroupID) []types.Member {
 	m.ctrl.T.Helper()
@@ -574,4 +521,33 @@ func (m *MockTSSKeeper) MustGetMembers(ctx types0.Context, groupID tss.GroupID) 
 func (mr *MockTSSKeeperMockRecorder) MustGetMembers(ctx, groupID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MustGetMembers", reflect.TypeOf((*MockTSSKeeper)(nil).MustGetMembers), ctx, groupID)
+}
+
+// MustGetSigning mocks base method.
+func (m *MockTSSKeeper) MustGetSigning(ctx types0.Context, signingID tss.SigningID) types.Signing {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MustGetSigning", ctx, signingID)
+	ret0, _ := ret[0].(types.Signing)
+	return ret0
+}
+
+// MustGetSigning indicates an expected call of MustGetSigning.
+func (mr *MockTSSKeeperMockRecorder) MustGetSigning(ctx, signingID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MustGetSigning", reflect.TypeOf((*MockTSSKeeper)(nil).MustGetSigning), ctx, signingID)
+}
+
+// RequestSigning mocks base method.
+func (m *MockTSSKeeper) RequestSigning(ctx types0.Context, groupID tss.GroupID, originator types.Originator, content types.Content) (tss.SigningID, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RequestSigning", ctx, groupID, originator, content)
+	ret0, _ := ret[0].(tss.SigningID)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// RequestSigning indicates an expected call of RequestSigning.
+func (mr *MockTSSKeeperMockRecorder) RequestSigning(ctx, groupID, originator, content any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RequestSigning", reflect.TypeOf((*MockTSSKeeper)(nil).RequestSigning), ctx, groupID, originator, content)
 }

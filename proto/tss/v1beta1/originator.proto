@@ -1,0 +1,26 @@
+syntax = "proto3";
+package tss.v1beta1;
+
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
+
+// DirectOriginator is a message originator defines an information of the requester
+// on direct TSS request.
+message DirectOriginator {
+  // requester is the address of the requester, it can be the user address or module address.
+  string requester = 1;
+  // memo is the note of the message.
+  string memo = 2;
+}
+
+// TunnelOriginator is a message originator defines an information of the requester
+// on TSS request via tunnel module.
+message TunnelOriginator {
+  // tunnel_id is the tunnel ID that the request is originated from.
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
+  // contract_address is the target address that the data should be relayed to.
+  string contract_address = 2;
+  // chain_id is the target chain ID that the data should be relayed to.
+  string chain_id = 3 [(gogoproto.customname) = "ChainID"];
+}

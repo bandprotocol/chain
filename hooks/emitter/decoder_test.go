@@ -29,7 +29,6 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/testing/ibctesting"
-	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
@@ -895,27 +894,27 @@ func (suite *DecoderTestSuite) TestDecodeMsgTimeoutOnClose() {
 func (suite *DecoderTestSuite) TestDecodeMsgSubmitPrices() {
 	detail := make(common.JsDict)
 
-	msg := feedstypes.MsgSubmitPrices{
+	msg := feedstypes.MsgSubmitSignalPrices{
 		Validator: ValAddress.String(),
 		Timestamp: 12345678,
-		Prices: []feedstypes.SubmitPrice{
+		Prices: []feedstypes.SignalPrice{
 			{
 				PriceStatus: feedstypes.PriceStatusAvailable,
-				SignalID:    "crypto_price.ethusd",
+				SignalID:    "CS:ETH-USD",
 				Price:       3500000000000,
 			},
 			{
 				PriceStatus: feedstypes.PriceStatusUnavailable,
-				SignalID:    "crypto_price.btcusd",
+				SignalID:    "CS:BTC-USD",
 				Price:       0,
 			},
 		},
 	}
 
-	emitter.DecodeMsgSubmitPrices(&msg, detail)
+	emitter.DecodeMsgSubmitSignalPrices(&msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"prices\":[{\"price_status\":3,\"signal_id\":\"crypto_price.ethusd\",\"price\":3500000000000},{\"price_status\":2,\"signal_id\":\"crypto_price.btcusd\"}],\"timestamp\":12345678,\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
+		"{\"prices\":[{\"price_status\":3,\"signal_id\":\"CS:ETH-USD\",\"price\":3500000000000},{\"price_status\":2,\"signal_id\":\"CS:BTC-USD\"}],\"timestamp\":12345678,\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
 	)
 }
 
@@ -946,58 +945,59 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitSignals() {
 func (suite *DecoderTestSuite) TestDecodeMsgUpdatePriceService() {
 	detail := make(common.JsDict)
 
-	msg := feedstypes.MsgUpdatePriceService{
-		PriceService: feedstypes.NewPriceService("testhash", "1.0.0", "http://example.com"),
+	msg := feedstypes.MsgUpdateReferenceSourceConfig{
+		Admin:                 OwnerAddress.String(),
+		ReferenceSourceConfig: feedstypes.NewReferenceSourceConfig("testhash", "1.0.0"),
 	}
 
-	emitter.DecodeMsgUpdatePriceService(&msg, detail)
+	emitter.DecodeMsgUpdateReferenceSourceConfig(&msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"hash\":\"testhash\",\"url\":\"http://example.com\",\"version\":\"1.0.0\"}",
+		"{\"ipfs_hash\":\"testhash\",\"version\":\"1.0.0\"}",
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeGroupMsgCreateGroupBandtss() {
-	detail := make(common.JsDict)
+// func (suite *DecoderTestSuite) TestDecodeGroupMsgCreateGroupBandtss() {
+// 	detail := make(common.JsDict)
 
-	msg := bandtsstypes.MsgCreateGroup{
-		Members:   []string{"member1", "member2"},
-		Threshold: 2,
-		Authority: "some-authority-id",
-	}
+// 	msg := bandtsstypes.MsgCreateGroup{
+// 		Members:   []string{"member1", "member2"},
+// 		Threshold: 2,
+// 		Authority: "some-authority-id",
+// 	}
 
-	emitter.DecodeGroupMsgCreateGroupBandtss(&msg, detail)
+// 	emitter.DecodeGroupMsgCreateGroupBandtss(&msg, detail)
 
-	expectedJSON := `{"authority":"some-authority-id","members":["member1","member2"],"threshold":2}`
-	suite.testCompareJson(detail, expectedJSON)
-}
+// 	expectedJSON := `{"authority":"some-authority-id","members":["member1","member2"],"threshold":2}`
+// 	suite.testCompareJson(detail, expectedJSON)
+// }
 
-func (suite *DecoderTestSuite) TestDecodeGroupMsgReplaceGroup() {
-	detail := make(common.JsDict)
+// func (suite *DecoderTestSuite) TestDecodeGroupMsgReplaceGroup() {
+// 	detail := make(common.JsDict)
 
-	msg := bandtsstypes.MsgReplaceGroup{
-		NewGroupID: 1,
-		ExecTime:   time.Now(),
-		Authority:  "authority123",
-	}
+// 	msg := bandtsstypes.MsgReplaceGroup{
+// 		NewGroupID: 1,
+// 		ExecTime:   time.Now(),
+// 		Authority:  "authority123",
+// 	}
 
-	emitter.DecodeGroupMsgReplaceGroup(&msg, detail)
+// 	emitter.DecodeGroupMsgReplaceGroup(&msg, detail)
 
-	expectedJSON := `{"authority":"authority123","exec_time":"` + msg.ExecTime.GoString() + `","new_group_id":1}`
-	suite.testCompareJson(detail, expectedJSON)
-}
+// 	expectedJSON := `{"authority":"authority123","exec_time":"` + msg.ExecTime.GoString() + `","new_group_id":1}`
+// 	suite.testCompareJson(detail, expectedJSON)
+// }
 
-func (suite *DecoderTestSuite) TestDecodeMsgUpdateParamsBandtss() {
-	detail := make(common.JsDict)
+// func (suite *DecoderTestSuite) TestDecodeMsgUpdateParamsBandtss() {
+// 	detail := make(common.JsDict)
 
-	msg := bandtsstypes.MsgUpdateParams{
-		Params: bandtsstypes.NewParams(100, 10, 50, sdk.Coins{Amount}),
-	}
+// 	msg := bandtsstypes.MsgUpdateParams{
+// 		Params: bandtsstypes.NewParams(100, 10, 50, sdk.Coins{Amount}),
+// 	}
 
-	emitter.DecodeMsgUpdateParamsBandtss(&msg, detail)
-	expectedJSON := "{\"active_duration\":100,\"authority\":\"\",\"fee\":[{\"denom\":\"uband\",\"amount\":\"1\"}],\"inactive_penalty_duration\":50,\"reward_percentage\":10}"
-	suite.testCompareJson(detail, expectedJSON)
-}
+// 	emitter.DecodeMsgUpdateParamsBandtss(&msg, detail)
+// 	expectedJSON := "{\"active_duration\":100,\"authority\":\"\",\"fee\":[{\"denom\":\"uband\",\"amount\":\"1\"}],\"inactive_penalty_duration\":50,\"reward_percentage\":10}"
+// 	suite.testCompareJson(detail, expectedJSON)
+// }
 
 func (suite *DecoderTestSuite) TestDecodeMsgSubmitDKGRound1() {
 	detail := make(common.JsDict)
@@ -1011,11 +1011,11 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitDKGRound1() {
 			A0Signature:        tssSignature,
 			OneTimeSignature:   tssSignature,
 		},
-		Address: "0x123",
+		Sender: "0x123",
 	}
 
 	emitter.DecodeMsgSubmitDKGRound1(&msg, detail)
-	expectedJSON := "{\"address\":\"0x123\",\"group_id\":1,\"round1_info\":{\"member_id\":1,\"coefficient_commits\":[\"706F696E74\",\"706F696E74\"],\"one_time_pub_key\":\"706F696E74\",\"a0_signature\":\"7369676E6174757265\",\"one_time_signature\":\"7369676E6174757265\"}}"
+	expectedJSON := "{\"group_id\":1,\"round1_info\":{\"member_id\":1,\"coefficient_commits\":[\"706F696E74\",\"706F696E74\"],\"one_time_pub_key\":\"706F696E74\",\"a0_signature\":\"7369676E6174757265\",\"one_time_signature\":\"7369676E6174757265\"},\"sender\":\"0x123\"}"
 	suite.testCompareJson(detail, expectedJSON)
 }
 
@@ -1028,11 +1028,11 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitDKGRound2() {
 			MemberID:              1,
 			EncryptedSecretShares: tss.EncSecretShares{tssEncSecretShare},
 		},
-		Address: "0x456",
+		Sender: "0x456",
 	}
 
 	emitter.DecodeMsgSubmitDKGRound2(&msg, detail)
-	expectedJSON := "{\"address\":\"0x456\",\"group_id\":1,\"round2_info\":{\"member_id\":1,\"encrypted_secret_shares\":[\"656E635365637265745368617265\"]}}"
+	expectedJSON := "{\"group_id\":1,\"round2_info\":{\"member_id\":1,\"encrypted_secret_shares\":[\"656E635365637265745368617265\"]},\"sender\":\"0x456\"}"
 	suite.testCompareJson(detail, expectedJSON)
 }
 
@@ -1044,21 +1044,21 @@ func (suite *DecoderTestSuite) TestDecodeMsgUpdateParams() {
 		Params: feedstypes.Params{
 			Admin:                         OwnerAddress.String(),
 			AllowableBlockTimeDiscrepancy: 30,
-			TransitionTime:                30,
+			GracePeriod:                   30,
 			MinInterval:                   60,
 			MaxInterval:                   3600,
-			PowerThreshold:                1_000_000_000,
-			MaxSupportedFeeds:             100,
+			PowerStepThreshold:            1_000_000_000,
+			MaxCurrentFeeds:               100,
 			CooldownTime:                  30,
-			MinDeviationInThousandth:      5,
-			MaxDeviationInThousandth:      300,
+			MinDeviationBasisPoint:        50,
+			MaxDeviationBasisPoint:        3000,
 		},
 	}
 
 	emitter.DecodeMsgUpdateParams(&msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"admin\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"allowable_block_time_discrepancy\":30,\"authority\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"cooldown_time\":30,\"max_deviation_in_thousandth\":300,\"max_interval\":3600,\"max_supported_feeds\":100,\"min_deviation_in_thousandth\":5,\"min_interval\":60,\"power_threshold\":1000000000,\"transition_time\":30}",
+		"{\"admin\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"allowable_block_time_discrepancy\":30,\"authority\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"cooldown_time\":30,\"current_feeds_update_interval\":0,\"grace_period\":30,\"max_current_feeds\":100,\"max_deviation_basis_point\":3000,\"max_interval\":3600,\"min_deviation_basis_point\":50,\"min_interval\":60,\"power_step_threshold\":1000000000}",
 	)
 }
 

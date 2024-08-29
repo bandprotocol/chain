@@ -26,10 +26,10 @@ func TestReplaceGroups(t *testing.T) {
 
 	signingID := tss.SigningID(1)
 	currentGroupID := tss.GroupID(1)
-	newGroupID := tss.GroupID(2)
+	incomingGroupID := tss.GroupID(2)
 
 	// Set up initial state for testing
-	initialCurrentGroup := tsstypes.Group{
+	currentGroup := tsstypes.Group{
 		ID:            currentGroupID,
 		Size_:         5,
 		Threshold:     3,
@@ -37,8 +37,8 @@ func TestReplaceGroups(t *testing.T) {
 		Status:        tsstypes.GROUP_STATUS_ACTIVE,
 		CreatedHeight: 1,
 	}
-	initialNewGroup := tsstypes.Group{
-		ID:            newGroupID,
+	incomingGroup := tsstypes.Group{
+		ID:            incomingGroupID,
 		Size_:         7,
 		Threshold:     4,
 		PubKey:        testutil.HexDecode("02a37461c1621d12f2c436b98ffe95d6ff0fedc102e8b5b35a08c96b889cb448fd"),
@@ -46,13 +46,13 @@ func TestReplaceGroups(t *testing.T) {
 		CreatedHeight: 2,
 	}
 
-	initialSigning := tsstypes.Signing{
+	signing := tsstypes.Signing{
 		ID:     signingID,
 		Status: tsstypes.SIGNING_STATUS_SUCCESS,
 	}
 
-	tssKeeper.SetGroup(ctx, initialCurrentGroup)
-	tssKeeper.SetGroup(ctx, initialNewGroup)
+	tssKeeper.SetGroup(ctx, currentGroup)
+	tssKeeper.SetGroup(ctx, incomingGroup)
 	tssKeeper.SetMember(ctx, tsstypes.Member{
 		ID:      tss.MemberID(1),
 		GroupID: currentGroupID,
@@ -60,25 +60,26 @@ func TestReplaceGroups(t *testing.T) {
 	})
 	tssKeeper.SetMember(ctx, tsstypes.Member{
 		ID:      tss.MemberID(1),
-		GroupID: newGroupID,
+		GroupID: incomingGroupID,
 		Address: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 	})
 
 	bandtssKeeper.SetCurrentGroupID(ctx, currentGroupID)
-	bandtssKeeper.SetReplacement(ctx, types.Replacement{
-		SigningID:      signingID,
-		CurrentGroupID: currentGroupID,
-		CurrentPubKey:  initialCurrentGroup.PubKey,
-		NewGroupID:     newGroupID,
-		NewPubKey:      initialNewGroup.PubKey,
-		ExecTime:       beforenow,
-		Status:         types.REPLACEMENT_STATUS_WAITING_REPLACE,
+	bandtssKeeper.SetGroupTransition(ctx, types.GroupTransition{
+		SigningID:           signingID,
+		CurrentGroupID:      currentGroupID,
+		CurrentGroupPubKey:  currentGroup.PubKey,
+		IncomingGroupID:     incomingGroupID,
+		IncomingGroupPubKey: incomingGroup.PubKey,
+		ExecTime:            beforenow,
+		Status:              types.TRANSITION_STATUS_WAITING_EXECUTION,
 	})
-	tssKeeper.SetSigning(ctx, initialSigning)
+	tssKeeper.SetSigning(ctx, signing)
 
 	// Call end block
 	app.EndBlocker(ctx, abci.RequestEndBlock{Height: app.LastBlockHeight() + 1})
 
-	require.Equal(t, types.REPLACEMENT_STATUS_SUCCESS, bandtssKeeper.GetReplacement(ctx).Status)
-	require.Equal(t, newGroupID, bandtssKeeper.GetCurrentGroupID(ctx))
+	_, found := bandtssKeeper.GetGroupTransition(ctx)
+	require.False(t, found)
+	require.Equal(t, incomingGroupID, bandtssKeeper.GetCurrentGroupID(ctx))
 }

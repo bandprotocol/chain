@@ -66,6 +66,89 @@ func (MemberStatusFilter) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_85d3a287ab772b87, []int{0}
 }
 
+// QueryCountsRequest is request type for the Query/Count RPC method.
+type QueryCountsRequest struct {
+}
+
+func (m *QueryCountsRequest) Reset()         { *m = QueryCountsRequest{} }
+func (m *QueryCountsRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryCountsRequest) ProtoMessage()    {}
+func (*QueryCountsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_85d3a287ab772b87, []int{0}
+}
+func (m *QueryCountsRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryCountsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryCountsRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryCountsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryCountsRequest.Merge(m, src)
+}
+func (m *QueryCountsRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryCountsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryCountsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryCountsRequest proto.InternalMessageInfo
+
+// QueryCountsResponse is response type for the Query/Count RPC method.
+type QueryCountsResponse struct {
+	// signing_count is total number of signing request submitted to bandtss module
+	SigningCount uint64 `protobuf:"varint,1,opt,name=signing_count,json=signingCount,proto3" json:"signing_count,omitempty"`
+}
+
+func (m *QueryCountsResponse) Reset()         { *m = QueryCountsResponse{} }
+func (m *QueryCountsResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryCountsResponse) ProtoMessage()    {}
+func (*QueryCountsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_85d3a287ab772b87, []int{1}
+}
+func (m *QueryCountsResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryCountsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryCountsResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryCountsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryCountsResponse.Merge(m, src)
+}
+func (m *QueryCountsResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryCountsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryCountsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryCountsResponse proto.InternalMessageInfo
+
+func (m *QueryCountsResponse) GetSigningCount() uint64 {
+	if m != nil {
+		return m.SigningCount
+	}
+	return 0
+}
+
 // QueryParamsRequest is request type for the Query/Params RPC method.
 type QueryParamsRequest struct {
 }
@@ -74,7 +157,7 @@ func (m *QueryParamsRequest) Reset()         { *m = QueryParamsRequest{} }
 func (m *QueryParamsRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryParamsRequest) ProtoMessage()    {}
 func (*QueryParamsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{0}
+	return fileDescriptor_85d3a287ab772b87, []int{2}
 }
 func (m *QueryParamsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -105,7 +188,7 @@ var xxx_messageInfo_QueryParamsRequest proto.InternalMessageInfo
 
 // QueryParamsResponse is response type for the Query/Params RPC method.
 type QueryParamsResponse struct {
-	// pagination defines an optional pagination for the request.
+	// Params is the parameters of the module.
 	Params Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params"`
 }
 
@@ -113,7 +196,7 @@ func (m *QueryParamsResponse) Reset()         { *m = QueryParamsResponse{} }
 func (m *QueryParamsResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryParamsResponse) ProtoMessage()    {}
 func (*QueryParamsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{1}
+	return fileDescriptor_85d3a287ab772b87, []int{3}
 }
 func (m *QueryParamsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -161,7 +244,7 @@ func (m *QueryIsGranteeRequest) Reset()         { *m = QueryIsGranteeRequest{} }
 func (m *QueryIsGranteeRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryIsGranteeRequest) ProtoMessage()    {}
 func (*QueryIsGranteeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{2}
+	return fileDescriptor_85d3a287ab772b87, []int{4}
 }
 func (m *QueryIsGranteeRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -214,7 +297,7 @@ func (m *QueryIsGranteeResponse) Reset()         { *m = QueryIsGranteeResponse{}
 func (m *QueryIsGranteeResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryIsGranteeResponse) ProtoMessage()    {}
 func (*QueryIsGranteeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{3}
+	return fileDescriptor_85d3a287ab772b87, []int{5}
 }
 func (m *QueryIsGranteeResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -254,15 +337,18 @@ func (m *QueryIsGranteeResponse) GetIsGrantee() bool {
 type QueryMembersRequest struct {
 	// status define type of filter on member's status.
 	Status MemberStatusFilter `protobuf:"varint,1,opt,name=status,proto3,enum=bandtss.v1beta1.MemberStatusFilter" json:"status,omitempty"`
+	// is_incoming_group is a flag to indicate whether user query members in the incoming group
+	// or the current group.
+	IsIncomingGroup bool `protobuf:"varint,2,opt,name=is_incoming_group,json=isIncomingGroup,proto3" json:"is_incoming_group,omitempty"`
 	// pagination defines pagination settings for the request.
-	Pagination *query.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
+	Pagination *query.PageRequest `protobuf:"bytes,3,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
 
 func (m *QueryMembersRequest) Reset()         { *m = QueryMembersRequest{} }
 func (m *QueryMembersRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryMembersRequest) ProtoMessage()    {}
 func (*QueryMembersRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{4}
+	return fileDescriptor_85d3a287ab772b87, []int{6}
 }
 func (m *QueryMembersRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -298,6 +384,13 @@ func (m *QueryMembersRequest) GetStatus() MemberStatusFilter {
 	return MEMBER_STATUS_FILTER_UNSPECIFIED
 }
 
+func (m *QueryMembersRequest) GetIsIncomingGroup() bool {
+	if m != nil {
+		return m.IsIncomingGroup
+	}
+	return false
+}
+
 func (m *QueryMembersRequest) GetPagination() *query.PageRequest {
 	if m != nil {
 		return m.Pagination
@@ -317,7 +410,7 @@ func (m *QueryMembersResponse) Reset()         { *m = QueryMembersResponse{} }
 func (m *QueryMembersResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryMembersResponse) ProtoMessage()    {}
 func (*QueryMembersResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{5}
+	return fileDescriptor_85d3a287ab772b87, []int{7}
 }
 func (m *QueryMembersResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -370,7 +463,7 @@ func (m *QueryMemberRequest) Reset()         { *m = QueryMemberRequest{} }
 func (m *QueryMemberRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryMemberRequest) ProtoMessage()    {}
 func (*QueryMemberRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{6}
+	return fileDescriptor_85d3a287ab772b87, []int{8}
 }
 func (m *QueryMemberRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -408,15 +501,17 @@ func (m *QueryMemberRequest) GetAddress() string {
 
 // QueryMemberResponse is the response type for the Query/Member RPC method.
 type QueryMemberResponse struct {
-	// member is the member detail.
-	Member Member `protobuf:"bytes,1,opt,name=member,proto3" json:"member"`
+	// current_group_member is the member detail.
+	CurrentGroupMember Member `protobuf:"bytes,1,opt,name=current_group_member,json=currentGroupMember,proto3" json:"current_group_member"`
+	// incoming_group_member is the member detail.
+	IncomingGroupMember Member `protobuf:"bytes,2,opt,name=incoming_group_member,json=incomingGroupMember,proto3" json:"incoming_group_member"`
 }
 
 func (m *QueryMemberResponse) Reset()         { *m = QueryMemberResponse{} }
 func (m *QueryMemberResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryMemberResponse) ProtoMessage()    {}
 func (*QueryMemberResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{7}
+	return fileDescriptor_85d3a287ab772b87, []int{9}
 }
 func (m *QueryMemberResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -445,9 +540,16 @@ func (m *QueryMemberResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QueryMemberResponse proto.InternalMessageInfo
 
-func (m *QueryMemberResponse) GetMember() Member {
+func (m *QueryMemberResponse) GetCurrentGroupMember() Member {
 	if m != nil {
-		return m.Member
+		return m.CurrentGroupMember
+	}
+	return Member{}
+}
+
+func (m *QueryMemberResponse) GetIncomingGroupMember() Member {
+	if m != nil {
+		return m.IncomingGroupMember
 	}
 	return Member{}
 }
@@ -460,7 +562,7 @@ func (m *QueryCurrentGroupRequest) Reset()         { *m = QueryCurrentGroupReque
 func (m *QueryCurrentGroupRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryCurrentGroupRequest) ProtoMessage()    {}
 func (*QueryCurrentGroupRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{8}
+	return fileDescriptor_85d3a287ab772b87, []int{10}
 }
 func (m *QueryCurrentGroupRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -507,7 +609,7 @@ func (m *QueryCurrentGroupResponse) Reset()         { *m = QueryCurrentGroupResp
 func (m *QueryCurrentGroupResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryCurrentGroupResponse) ProtoMessage()    {}
 func (*QueryCurrentGroupResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{9}
+	return fileDescriptor_85d3a287ab772b87, []int{11}
 }
 func (m *QueryCurrentGroupResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -571,6 +673,125 @@ func (m *QueryCurrentGroupResponse) GetStatus() types.GroupStatus {
 	return types.GROUP_STATUS_UNSPECIFIED
 }
 
+// QueryIncomingGroupRequest is the request type for the Query/IncomingGroup RPC method.
+type QueryIncomingGroupRequest struct {
+}
+
+func (m *QueryIncomingGroupRequest) Reset()         { *m = QueryIncomingGroupRequest{} }
+func (m *QueryIncomingGroupRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryIncomingGroupRequest) ProtoMessage()    {}
+func (*QueryIncomingGroupRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_85d3a287ab772b87, []int{12}
+}
+func (m *QueryIncomingGroupRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryIncomingGroupRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryIncomingGroupRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryIncomingGroupRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryIncomingGroupRequest.Merge(m, src)
+}
+func (m *QueryIncomingGroupRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryIncomingGroupRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryIncomingGroupRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryIncomingGroupRequest proto.InternalMessageInfo
+
+// QueryIncomingGroupResponse is the response type for the Query/IncomingGroup RPC method.
+type QueryIncomingGroupResponse struct {
+	// group_id is the ID of the incoming group.
+	GroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.GroupID" json:"group_id,omitempty"`
+	// size is the number of members in the group.
+	Size_ uint64 `protobuf:"varint,2,opt,name=size,proto3" json:"size,omitempty"`
+	// threshold is the minimum number of members needed to generate a valid signature.
+	Threshold uint64 `protobuf:"varint,3,opt,name=threshold,proto3" json:"threshold,omitempty"`
+	// pub_key is the public key generated by the group.
+	PubKey github_com_bandprotocol_chain_v2_pkg_tss.Point `protobuf:"bytes,4,opt,name=pub_key,json=pubKey,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.Point" json:"pub_key,omitempty"`
+	// status is the status of the incoming group.
+	Status types.GroupStatus `protobuf:"varint,5,opt,name=status,proto3,enum=tss.v1beta1.GroupStatus" json:"status,omitempty"`
+}
+
+func (m *QueryIncomingGroupResponse) Reset()         { *m = QueryIncomingGroupResponse{} }
+func (m *QueryIncomingGroupResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryIncomingGroupResponse) ProtoMessage()    {}
+func (*QueryIncomingGroupResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_85d3a287ab772b87, []int{13}
+}
+func (m *QueryIncomingGroupResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryIncomingGroupResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryIncomingGroupResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryIncomingGroupResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryIncomingGroupResponse.Merge(m, src)
+}
+func (m *QueryIncomingGroupResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryIncomingGroupResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryIncomingGroupResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryIncomingGroupResponse proto.InternalMessageInfo
+
+func (m *QueryIncomingGroupResponse) GetGroupID() github_com_bandprotocol_chain_v2_pkg_tss.GroupID {
+	if m != nil {
+		return m.GroupID
+	}
+	return 0
+}
+
+func (m *QueryIncomingGroupResponse) GetSize_() uint64 {
+	if m != nil {
+		return m.Size_
+	}
+	return 0
+}
+
+func (m *QueryIncomingGroupResponse) GetThreshold() uint64 {
+	if m != nil {
+		return m.Threshold
+	}
+	return 0
+}
+
+func (m *QueryIncomingGroupResponse) GetPubKey() github_com_bandprotocol_chain_v2_pkg_tss.Point {
+	if m != nil {
+		return m.PubKey
+	}
+	return nil
+}
+
+func (m *QueryIncomingGroupResponse) GetStatus() types.GroupStatus {
+	if m != nil {
+		return m.Status
+	}
+	return types.GROUP_STATUS_UNSPECIFIED
+}
+
 // QuerySingingRequest is the request type for the Query/Signing RPC method.
 type QuerySigningRequest struct {
 	// signing_id is the ID of the signing request.
@@ -581,7 +802,7 @@ func (m *QuerySigningRequest) Reset()         { *m = QuerySigningRequest{} }
 func (m *QuerySigningRequest) String() string { return proto.CompactTextString(m) }
 func (*QuerySigningRequest) ProtoMessage()    {}
 func (*QuerySigningRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{10}
+	return fileDescriptor_85d3a287ab772b87, []int{14}
 }
 func (m *QuerySigningRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -619,21 +840,21 @@ func (m *QuerySigningRequest) GetSigningId() uint64 {
 
 // QuerySigningResponse is the response type for the Query/Signing RPC method.
 type QuerySigningResponse struct {
-	// fee is the total tokens that will be paid for this bandtss signing.
-	Fee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=fee,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"fee"`
+	// fee_per_signer is the tokens that will be paid per signer for this bandtss signing.
+	FeePerSigner github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=fee_per_signer,json=feePerSigner,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"fee_per_signer"`
 	// requester is the address of requester who paid for bandtss signing.
 	Requester string `protobuf:"bytes,2,opt,name=requester,proto3" json:"requester,omitempty"`
 	// current_group_signing_result is the signing result from the current group.
 	CurrentGroupSigningResult *types.SigningResult `protobuf:"bytes,3,opt,name=current_group_signing_result,json=currentGroupSigningResult,proto3" json:"current_group_signing_result,omitempty"`
-	// replacing_group_signing_result is the signing result from the replacing group.
-	ReplacingGroupSigningResult *types.SigningResult `protobuf:"bytes,4,opt,name=replacing_group_signing_result,json=replacingGroupSigningResult,proto3" json:"replacing_group_signing_result,omitempty"`
+	// incoming_group_signing_result is the signing result from the incoming group.
+	IncomingGroupSigningResult *types.SigningResult `protobuf:"bytes,4,opt,name=incoming_group_signing_result,json=incomingGroupSigningResult,proto3" json:"incoming_group_signing_result,omitempty"`
 }
 
 func (m *QuerySigningResponse) Reset()         { *m = QuerySigningResponse{} }
 func (m *QuerySigningResponse) String() string { return proto.CompactTextString(m) }
 func (*QuerySigningResponse) ProtoMessage()    {}
 func (*QuerySigningResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{11}
+	return fileDescriptor_85d3a287ab772b87, []int{15}
 }
 func (m *QuerySigningResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -662,9 +883,9 @@ func (m *QuerySigningResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_QuerySigningResponse proto.InternalMessageInfo
 
-func (m *QuerySigningResponse) GetFee() github_com_cosmos_cosmos_sdk_types.Coins {
+func (m *QuerySigningResponse) GetFeePerSigner() github_com_cosmos_cosmos_sdk_types.Coins {
 	if m != nil {
-		return m.Fee
+		return m.FeePerSigner
 	}
 	return nil
 }
@@ -683,29 +904,29 @@ func (m *QuerySigningResponse) GetCurrentGroupSigningResult() *types.SigningResu
 	return nil
 }
 
-func (m *QuerySigningResponse) GetReplacingGroupSigningResult() *types.SigningResult {
+func (m *QuerySigningResponse) GetIncomingGroupSigningResult() *types.SigningResult {
 	if m != nil {
-		return m.ReplacingGroupSigningResult
+		return m.IncomingGroupSigningResult
 	}
 	return nil
 }
 
-// QueryReplacementRequest is the request type for the Query/Replacement RPC method.
-type QueryReplacementRequest struct {
+// QueryGroupTransitionRequest is the request type for the Query/GroupTransition RPC method.
+type QueryGroupTransitionRequest struct {
 }
 
-func (m *QueryReplacementRequest) Reset()         { *m = QueryReplacementRequest{} }
-func (m *QueryReplacementRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryReplacementRequest) ProtoMessage()    {}
-func (*QueryReplacementRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{12}
+func (m *QueryGroupTransitionRequest) Reset()         { *m = QueryGroupTransitionRequest{} }
+func (m *QueryGroupTransitionRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryGroupTransitionRequest) ProtoMessage()    {}
+func (*QueryGroupTransitionRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_85d3a287ab772b87, []int{16}
 }
-func (m *QueryReplacementRequest) XXX_Unmarshal(b []byte) error {
+func (m *QueryGroupTransitionRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryReplacementRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryGroupTransitionRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryReplacementRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryGroupTransitionRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -715,36 +936,36 @@ func (m *QueryReplacementRequest) XXX_Marshal(b []byte, deterministic bool) ([]b
 		return b[:n], nil
 	}
 }
-func (m *QueryReplacementRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryReplacementRequest.Merge(m, src)
+func (m *QueryGroupTransitionRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryGroupTransitionRequest.Merge(m, src)
 }
-func (m *QueryReplacementRequest) XXX_Size() int {
+func (m *QueryGroupTransitionRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryReplacementRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryReplacementRequest.DiscardUnknown(m)
+func (m *QueryGroupTransitionRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryGroupTransitionRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryReplacementRequest proto.InternalMessageInfo
+var xxx_messageInfo_QueryGroupTransitionRequest proto.InternalMessageInfo
 
-// QueryReplacementResponse is the response type for the Query/Replacement RPC method.
-type QueryReplacementResponse struct {
-	// replacement is the replacement information.
-	Replacement Replacement `protobuf:"bytes,1,opt,name=replacement,proto3" json:"replacement"`
+// QueryGroupTransitionResponse is the response type for the Query/GroupTransition RPC method.
+type QueryGroupTransitionResponse struct {
+	// group_transition is the group transition information.
+	GroupTransition *GroupTransition `protobuf:"bytes,1,opt,name=group_transition,json=groupTransition,proto3" json:"group_transition,omitempty"`
 }
 
-func (m *QueryReplacementResponse) Reset()         { *m = QueryReplacementResponse{} }
-func (m *QueryReplacementResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryReplacementResponse) ProtoMessage()    {}
-func (*QueryReplacementResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_85d3a287ab772b87, []int{13}
+func (m *QueryGroupTransitionResponse) Reset()         { *m = QueryGroupTransitionResponse{} }
+func (m *QueryGroupTransitionResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryGroupTransitionResponse) ProtoMessage()    {}
+func (*QueryGroupTransitionResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_85d3a287ab772b87, []int{17}
 }
-func (m *QueryReplacementResponse) XXX_Unmarshal(b []byte) error {
+func (m *QueryGroupTransitionResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryReplacementResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *QueryGroupTransitionResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryReplacementResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_QueryGroupTransitionResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -754,27 +975,29 @@ func (m *QueryReplacementResponse) XXX_Marshal(b []byte, deterministic bool) ([]
 		return b[:n], nil
 	}
 }
-func (m *QueryReplacementResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryReplacementResponse.Merge(m, src)
+func (m *QueryGroupTransitionResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryGroupTransitionResponse.Merge(m, src)
 }
-func (m *QueryReplacementResponse) XXX_Size() int {
+func (m *QueryGroupTransitionResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryReplacementResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryReplacementResponse.DiscardUnknown(m)
+func (m *QueryGroupTransitionResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryGroupTransitionResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryReplacementResponse proto.InternalMessageInfo
+var xxx_messageInfo_QueryGroupTransitionResponse proto.InternalMessageInfo
 
-func (m *QueryReplacementResponse) GetReplacement() Replacement {
+func (m *QueryGroupTransitionResponse) GetGroupTransition() *GroupTransition {
 	if m != nil {
-		return m.Replacement
+		return m.GroupTransition
 	}
-	return Replacement{}
+	return nil
 }
 
 func init() {
 	proto.RegisterEnum("bandtss.v1beta1.MemberStatusFilter", MemberStatusFilter_name, MemberStatusFilter_value)
+	proto.RegisterType((*QueryCountsRequest)(nil), "bandtss.v1beta1.QueryCountsRequest")
+	proto.RegisterType((*QueryCountsResponse)(nil), "bandtss.v1beta1.QueryCountsResponse")
 	proto.RegisterType((*QueryParamsRequest)(nil), "bandtss.v1beta1.QueryParamsRequest")
 	proto.RegisterType((*QueryParamsResponse)(nil), "bandtss.v1beta1.QueryParamsResponse")
 	proto.RegisterType((*QueryIsGranteeRequest)(nil), "bandtss.v1beta1.QueryIsGranteeRequest")
@@ -785,86 +1008,98 @@ func init() {
 	proto.RegisterType((*QueryMemberResponse)(nil), "bandtss.v1beta1.QueryMemberResponse")
 	proto.RegisterType((*QueryCurrentGroupRequest)(nil), "bandtss.v1beta1.QueryCurrentGroupRequest")
 	proto.RegisterType((*QueryCurrentGroupResponse)(nil), "bandtss.v1beta1.QueryCurrentGroupResponse")
+	proto.RegisterType((*QueryIncomingGroupRequest)(nil), "bandtss.v1beta1.QueryIncomingGroupRequest")
+	proto.RegisterType((*QueryIncomingGroupResponse)(nil), "bandtss.v1beta1.QueryIncomingGroupResponse")
 	proto.RegisterType((*QuerySigningRequest)(nil), "bandtss.v1beta1.QuerySigningRequest")
 	proto.RegisterType((*QuerySigningResponse)(nil), "bandtss.v1beta1.QuerySigningResponse")
-	proto.RegisterType((*QueryReplacementRequest)(nil), "bandtss.v1beta1.QueryReplacementRequest")
-	proto.RegisterType((*QueryReplacementResponse)(nil), "bandtss.v1beta1.QueryReplacementResponse")
+	proto.RegisterType((*QueryGroupTransitionRequest)(nil), "bandtss.v1beta1.QueryGroupTransitionRequest")
+	proto.RegisterType((*QueryGroupTransitionResponse)(nil), "bandtss.v1beta1.QueryGroupTransitionResponse")
 }
 
 func init() { proto.RegisterFile("bandtss/v1beta1/query.proto", fileDescriptor_85d3a287ab772b87) }
 
 var fileDescriptor_85d3a287ab772b87 = []byte{
-	// 1111 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x55, 0x4f, 0x6f, 0xdb, 0x64,
-	0x18, 0x8f, 0xdb, 0x2c, 0x59, 0xde, 0x4c, 0x30, 0xbd, 0x74, 0x34, 0x71, 0x53, 0x27, 0x98, 0xd0,
-	0x65, 0x95, 0xb0, 0xdb, 0x00, 0xda, 0x81, 0x03, 0x5a, 0xda, 0xb4, 0x0a, 0x5d, 0xa7, 0xe2, 0x74,
-	0x1c, 0x86, 0x50, 0x70, 0x92, 0x17, 0xd7, 0x6a, 0x62, 0x7b, 0x7e, 0xed, 0x69, 0xa5, 0xaa, 0x90,
-	0x10, 0x42, 0xbb, 0x20, 0x21, 0x10, 0x17, 0xae, 0x5c, 0x10, 0x67, 0x3e, 0xc4, 0x8e, 0x43, 0x5c,
-	0x38, 0x15, 0xd4, 0xf2, 0x29, 0x76, 0x42, 0x7e, 0xff, 0xc4, 0x76, 0xec, 0x2c, 0x3d, 0xc5, 0x79,
-	0x9f, 0xdf, 0xf3, 0x3c, 0xbf, 0xe7, 0x3f, 0x58, 0xe9, 0xeb, 0xd6, 0xd0, 0xc3, 0x58, 0x7d, 0xb2,
-	0xd9, 0x47, 0x9e, 0xbe, 0xa9, 0x3e, 0xf6, 0x91, 0x7b, 0xa2, 0x38, 0xae, 0xed, 0xd9, 0xf0, 0x75,
-	0x26, 0x54, 0x98, 0x50, 0x5c, 0x32, 0x6c, 0xc3, 0x26, 0x32, 0x35, 0xf8, 0xa2, 0x30, 0x71, 0x7d,
-	0x60, 0xe3, 0xb1, 0x8d, 0xd5, 0xbe, 0x8e, 0x11, 0xd5, 0x9f, 0x58, 0x73, 0x74, 0xc3, 0xb4, 0x74,
-	0xcf, 0xb4, 0x2d, 0x86, 0x95, 0xa2, 0x58, 0x8e, 0x1a, 0xd8, 0x26, 0x97, 0x57, 0x0c, 0xdb, 0x36,
-	0x46, 0x48, 0xd5, 0x1d, 0x53, 0xd5, 0x2d, 0xcb, 0xf6, 0x88, 0x32, 0x66, 0xd2, 0xd5, 0x69, 0xb6,
-	0x9c, 0xe0, 0x0c, 0xb1, 0x81, 0x2c, 0x84, 0x4d, 0x2e, 0xbe, 0x15, 0x15, 0x4d, 0xb4, 0xe4, 0x25,
-	0x00, 0x3f, 0x09, 0x48, 0x1f, 0xe8, 0xae, 0x3e, 0xc6, 0x1a, 0x7a, 0xec, 0x23, 0xec, 0xc9, 0xf7,
-	0xc1, 0x1b, 0xb1, 0x57, 0xec, 0xd8, 0x16, 0x46, 0xf0, 0x03, 0x90, 0x73, 0xc8, 0x4b, 0x49, 0xa8,
-	0x09, 0x8d, 0x62, 0x73, 0x59, 0x99, 0xca, 0x91, 0x42, 0x15, 0x5a, 0xd9, 0xe7, 0xe7, 0xd5, 0x8c,
-	0xc6, 0xc0, 0xf2, 0x1e, 0xb8, 0x45, 0xac, 0x75, 0xf0, 0xae, 0xab, 0x5b, 0x1e, 0x42, 0xcc, 0x0d,
-	0x2c, 0x81, 0xbc, 0x41, 0x5e, 0x5c, 0x62, 0xb0, 0xa0, 0xf1, 0xbf, 0xa1, 0x04, 0x95, 0x16, 0xa2,
-	0x12, 0x24, 0xdf, 0x05, 0x6f, 0x4e, 0x1b, 0x63, 0xec, 0x56, 0x01, 0x30, 0x71, 0x8f, 0xab, 0x05,
-	0x06, 0xaf, 0x6b, 0x05, 0x93, 0xc3, 0xe4, 0x5f, 0x04, 0x16, 0xd4, 0x3e, 0x1a, 0xf7, 0x91, 0xcb,
-	0x63, 0x85, 0x1f, 0x82, 0x1c, 0xf6, 0x74, 0xcf, 0xa7, 0x41, 0xbd, 0xd6, 0x7c, 0x3b, 0x11, 0x14,
-	0x55, 0xe8, 0x12, 0xd0, 0x8e, 0x39, 0xf2, 0x90, 0xab, 0x31, 0x15, 0xb8, 0x03, 0x40, 0x58, 0x65,
-	0x42, 0xb5, 0xd8, 0x5c, 0x53, 0x68, 0x99, 0x95, 0xa0, 0xcc, 0x0a, 0x6d, 0xa9, 0x30, 0x3f, 0x06,
-	0x8f, 0x5e, 0x8b, 0x68, 0xca, 0x3f, 0x0a, 0x60, 0x29, 0x4e, 0x8e, 0x05, 0xb5, 0x09, 0xf2, 0x63,
-	0xfa, 0x54, 0x12, 0x6a, 0x8b, 0xa9, 0x39, 0xa7, 0x2a, 0x1a, 0xc7, 0xc1, 0xdd, 0x14, 0x4e, 0xb7,
-	0xe7, 0x72, 0xa2, 0xfe, 0x62, 0xa4, 0x14, 0xd6, 0x1b, 0xcc, 0x41, 0x58, 0x34, 0x7d, 0x38, 0x74,
-	0x11, 0xc6, 0xbc, 0x68, 0xec, 0xef, 0xa4, 0x6b, 0x38, 0x3e, 0xec, 0x1a, 0x4a, 0x6d, 0x66, 0xd7,
-	0x50, 0x05, 0xde, 0x35, 0x14, 0x2c, 0x8b, 0xa0, 0x44, 0xac, 0x6d, 0xf9, 0xae, 0x8b, 0x2c, 0x6f,
-	0xd7, 0xb5, 0x7d, 0x87, 0xf7, 0xe7, 0x6f, 0x0b, 0xa0, 0x9c, 0x22, 0x64, 0x0e, 0x1f, 0x81, 0xeb,
-	0x46, 0xf0, 0xd0, 0x33, 0x87, 0xc4, 0x65, 0xb6, 0xf5, 0xd1, 0xc5, 0x79, 0x35, 0x4f, 0x40, 0x9d,
-	0xed, 0x97, 0xe7, 0xd5, 0x0d, 0xc3, 0xf4, 0x8e, 0xfc, 0xbe, 0x32, 0xb0, 0xc7, 0x64, 0x88, 0xc8,
-	0x28, 0x0c, 0xec, 0x91, 0x3a, 0x38, 0xd2, 0x4d, 0x4b, 0x7d, 0xd2, 0x54, 0x9d, 0x63, 0x83, 0x0c,
-	0x09, 0xd3, 0x09, 0xda, 0x2f, 0xf8, 0x18, 0x42, 0x08, 0xb2, 0xd8, 0xfc, 0x8a, 0x76, 0x65, 0x56,
-	0x23, 0xdf, 0xb0, 0x02, 0x0a, 0xde, 0x91, 0x8b, 0xf0, 0x91, 0x3d, 0x1a, 0x96, 0x16, 0x89, 0x20,
-	0x7c, 0x80, 0x7b, 0x20, 0xef, 0xf8, 0xfd, 0xde, 0x31, 0x3a, 0x29, 0x65, 0x6b, 0x42, 0xe3, 0x46,
-	0xab, 0xf9, 0xf2, 0xbc, 0xaa, 0x5c, 0x99, 0xc1, 0x81, 0x6d, 0x5a, 0x9e, 0x96, 0x73, 0xfc, 0xfe,
-	0x1e, 0x3a, 0x81, 0x1b, 0x93, 0x66, 0xbd, 0x46, 0x9a, 0xb5, 0xa4, 0x44, 0xf3, 0x48, 0xd8, 0xd2,
-	0x3e, 0xe5, 0x1d, 0x2a, 0xbf, 0xcf, 0x8a, 0xd2, 0x35, 0x0d, 0xcb, 0xb4, 0x0c, 0x5e, 0xc5, 0x55,
-	0x00, 0x30, 0x7d, 0x99, 0x64, 0x49, 0x2b, 0xb0, 0x97, 0xce, 0x50, 0xfe, 0x73, 0x81, 0xf5, 0xe3,
-	0x44, 0x8d, 0xe5, 0xf6, 0x73, 0xb0, 0xf8, 0x25, 0x99, 0xae, 0xa0, 0x17, 0xcb, 0xb1, 0xae, 0xe2,
-	0x2c, 0xb6, 0x6c, 0xd3, 0x6a, 0x6d, 0x04, 0xb5, 0xfc, 0xfd, 0x9f, 0x6a, 0x23, 0x12, 0x28, 0xdb,
-	0x7e, 0xf4, 0xe7, 0x5d, 0x3c, 0x3c, 0x56, 0xbd, 0x13, 0x07, 0x61, 0xa2, 0x80, 0xb5, 0xc0, 0x6e,
-	0x90, 0x4a, 0x97, 0x32, 0x44, 0x2e, 0x9b, 0xfc, 0xf0, 0x01, 0x7e, 0x06, 0x2a, 0x03, 0x5a, 0xf0,
-	0x1e, 0x2d, 0x30, 0x0f, 0xc1, 0x45, 0xd8, 0x1f, 0x79, 0x24, 0xf7, 0xc5, 0xa6, 0x18, 0xcb, 0x49,
-	0x18, 0x80, 0x3f, 0xf2, 0xb4, 0xf2, 0x20, 0xd2, 0x30, 0x31, 0x11, 0xec, 0x01, 0xc9, 0x45, 0xce,
-	0x48, 0x1f, 0x04, 0x06, 0x53, 0xcd, 0x67, 0xe7, 0x9a, 0x5f, 0x99, 0x58, 0x48, 0x3a, 0x90, 0xcb,
-	0x60, 0x99, 0xa4, 0x54, 0x23, 0x18, 0x34, 0x46, 0x96, 0xc7, 0xfb, 0xf9, 0x0b, 0xd6, 0xeb, 0x31,
-	0x11, 0xcb, 0xf8, 0x36, 0x28, 0xba, 0xe1, 0x33, 0x9b, 0xa1, 0x4a, 0x62, 0x86, 0x22, 0xaa, 0x6c,
-	0x90, 0xa2, 0x6a, 0xeb, 0xdf, 0x0a, 0x00, 0x26, 0xf7, 0x18, 0xac, 0x83, 0xda, 0x7e, 0x7b, 0xbf,
-	0xd5, 0xd6, 0x7a, 0xdd, 0xc3, 0x7b, 0x87, 0x0f, 0xbb, 0xbd, 0x9d, 0xce, 0xfd, 0xc3, 0xb6, 0xd6,
-	0x7b, 0xf8, 0xa0, 0x7b, 0xd0, 0xde, 0xea, 0xec, 0x74, 0xda, 0xdb, 0x37, 0x33, 0xb0, 0x0a, 0x56,
-	0x52, 0x51, 0xf7, 0xb6, 0x0e, 0x3b, 0x9f, 0xb6, 0x6f, 0x0a, 0xf0, 0x2d, 0xb0, 0x9a, 0x0a, 0xe8,
-	0x3c, 0x60, 0x90, 0x05, 0x31, 0xfb, 0xec, 0x57, 0x29, 0xd3, 0xfc, 0x23, 0x0f, 0xae, 0x91, 0x48,
-	0xa1, 0x07, 0x72, 0xf4, 0x58, 0xc0, 0xe4, 0xc2, 0x4d, 0x5e, 0x24, 0xb1, 0xfe, 0x6a, 0x10, 0xcd,
-	0x95, 0x5c, 0xfd, 0xe6, 0xaf, 0xff, 0x7e, 0x5a, 0x28, 0xc3, 0x65, 0x75, 0xfa, 0x18, 0xd2, 0x53,
-	0x04, 0x7f, 0x16, 0x40, 0x61, 0x72, 0x39, 0xe0, 0x5a, 0xba, 0xd1, 0xe9, 0x3b, 0x25, 0xde, 0x9e,
-	0x8b, 0x63, 0xfe, 0xef, 0x12, 0xff, 0x9b, 0x50, 0x4d, 0xf8, 0x0f, 0x2f, 0x93, 0x7a, 0xca, 0x8e,
-	0xdc, 0x19, 0xff, 0x42, 0x67, 0xf0, 0x29, 0xc8, 0xb3, 0xcd, 0x0f, 0x67, 0x44, 0x1a, 0xbf, 0x5a,
-	0xe2, 0x3b, 0x73, 0x50, 0x8c, 0x50, 0x8d, 0x10, 0x12, 0x61, 0x29, 0x41, 0x88, 0x5f, 0x8b, 0xaf,
-	0x41, 0x8e, 0x2a, 0xcd, 0xaa, 0x43, 0x6c, 0xfb, 0x8b, 0xf5, 0x57, 0x83, 0x98, 0xdb, 0x75, 0xe2,
-	0xb6, 0x0e, 0xe5, 0x59, 0x6e, 0xd5, 0x53, 0x76, 0x34, 0xce, 0xe0, 0xf7, 0x02, 0xb8, 0x11, 0x5d,
-	0xe3, 0xf0, 0x4e, 0xba, 0x8b, 0x94, 0x3b, 0x20, 0xae, 0x5f, 0x05, 0xca, 0x38, 0xad, 0x11, 0x4e,
-	0x35, 0x28, 0x25, 0x38, 0xc5, 0x76, 0x0a, 0xfc, 0x4e, 0x00, 0x79, 0x36, 0xb8, 0xb3, 0x6a, 0x11,
-	0xdf, 0xa5, 0xb3, 0x6a, 0x31, 0xb5, 0x3a, 0x65, 0x85, 0x10, 0x68, 0xc0, 0xb5, 0x04, 0x01, 0xb6,
-	0x67, 0xb0, 0x7a, 0x1a, 0xee, 0xe4, 0x33, 0xf8, 0x4c, 0x00, 0xc5, 0xc8, 0x54, 0xc3, 0x46, 0xba,
-	0x9b, 0xe4, 0x3a, 0x11, 0xef, 0x5c, 0x01, 0xc9, 0x48, 0xd5, 0x09, 0x29, 0x09, 0x56, 0x12, 0xa4,
-	0x22, 0xdb, 0xa3, 0xf5, 0xf1, 0xf3, 0x0b, 0x49, 0x78, 0x71, 0x21, 0x09, 0xff, 0x5e, 0x48, 0xc2,
-	0x0f, 0x97, 0x52, 0xe6, 0xc5, 0xa5, 0x94, 0xf9, 0xfb, 0x52, 0xca, 0x3c, 0x9a, 0x7f, 0x4a, 0x9f,
-	0x4e, 0x2c, 0x93, 0x6d, 0xdf, 0xcf, 0x11, 0xc8, 0x7b, 0xff, 0x07, 0x00, 0x00, 0xff, 0xff, 0x64,
-	0x2a, 0xc6, 0x8d, 0x7d, 0x0b, 0x00, 0x00,
+	// 1279 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x56, 0x4b, 0x6f, 0x1b, 0x55,
+	0x14, 0xf6, 0xb8, 0xae, 0x5d, 0x1f, 0xd2, 0xa6, 0xdc, 0x26, 0xd4, 0x99, 0xc4, 0x8f, 0x4c, 0x42,
+	0x92, 0x06, 0x3a, 0x93, 0x04, 0x50, 0x25, 0x58, 0xa0, 0x3a, 0x75, 0x22, 0x93, 0xa6, 0xa4, 0xe3,
+	0x94, 0x45, 0x11, 0xb2, 0xc6, 0xf6, 0xed, 0x64, 0x14, 0x7b, 0xc6, 0x99, 0x3b, 0xae, 0x1a, 0xa2,
+	0x08, 0x09, 0x21, 0xc4, 0x06, 0x89, 0x87, 0x58, 0xb0, 0x66, 0x03, 0xfc, 0x03, 0xfe, 0x00, 0xea,
+	0x8e, 0x4a, 0x6c, 0x58, 0x05, 0x94, 0xf0, 0x2b, 0xba, 0x42, 0x73, 0x1f, 0xb6, 0x67, 0xc6, 0x8e,
+	0xf3, 0x03, 0x58, 0x79, 0x7c, 0x9e, 0xdf, 0x39, 0xf7, 0xbc, 0x60, 0xba, 0x66, 0xd8, 0x0d, 0x8f,
+	0x10, 0xed, 0xe9, 0x6a, 0x0d, 0x7b, 0xc6, 0xaa, 0x76, 0xd0, 0xc1, 0xee, 0xa1, 0xda, 0x76, 0x1d,
+	0xcf, 0x41, 0xe3, 0x9c, 0xa9, 0x72, 0xa6, 0x3c, 0x61, 0x3a, 0xa6, 0x43, 0x79, 0x9a, 0xff, 0xc5,
+	0xc4, 0xe4, 0xe5, 0xba, 0x43, 0x5a, 0x0e, 0xd1, 0x6a, 0x06, 0xc1, 0x4c, 0xbf, 0x6b, 0xad, 0x6d,
+	0x98, 0x96, 0x6d, 0x78, 0x96, 0x63, 0x73, 0xd9, 0x5c, 0xbf, 0xac, 0x90, 0xaa, 0x3b, 0x96, 0xe0,
+	0xcf, 0x98, 0x8e, 0x63, 0x36, 0xb1, 0x66, 0xb4, 0x2d, 0xcd, 0xb0, 0x6d, 0xc7, 0xa3, 0xca, 0x84,
+	0x73, 0xb3, 0x61, 0xb4, 0x02, 0xe0, 0x10, 0xb6, 0x89, 0x6d, 0x4c, 0x2c, 0xc1, 0x9e, 0xec, 0x67,
+	0x75, 0xb5, 0x94, 0x09, 0x40, 0x0f, 0x7d, 0xd0, 0xeb, 0x4e, 0xc7, 0xf6, 0x88, 0x8e, 0x0f, 0x3a,
+	0x98, 0x78, 0xca, 0xbb, 0x70, 0x23, 0x40, 0x25, 0x6d, 0xc7, 0x26, 0x18, 0xcd, 0xc1, 0x55, 0x62,
+	0x99, 0xb6, 0x65, 0x9b, 0xd5, 0xba, 0xcf, 0xc9, 0x48, 0x05, 0x69, 0x29, 0xa1, 0x8f, 0x71, 0x22,
+	0x95, 0xee, 0x5a, 0xdc, 0x31, 0x5c, 0xa3, 0xd5, 0xb5, 0x78, 0x9f, 0x5b, 0x14, 0x54, 0x6e, 0xf1,
+	0x1d, 0x48, 0xb6, 0x29, 0x85, 0x9a, 0x7a, 0x65, 0xed, 0xa6, 0x1a, 0xca, 0xba, 0xca, 0x14, 0x8a,
+	0x89, 0xe7, 0x27, 0xf9, 0x98, 0xce, 0x85, 0x95, 0x2d, 0x98, 0xa4, 0xd6, 0xca, 0x64, 0xd3, 0x35,
+	0x6c, 0x0f, 0x63, 0xee, 0x06, 0x65, 0x20, 0x65, 0x52, 0x8a, 0x4b, 0x0d, 0xa6, 0x75, 0xf1, 0xb7,
+	0xc7, 0xc1, 0x99, 0x78, 0x3f, 0x07, 0x2b, 0x77, 0xe0, 0xb5, 0xb0, 0x31, 0x8e, 0x2e, 0x0b, 0x60,
+	0x91, 0xaa, 0x50, 0xf3, 0x0d, 0x5e, 0xd1, 0xd3, 0x96, 0x10, 0x53, 0x7e, 0x97, 0x78, 0x50, 0xdb,
+	0xb8, 0x55, 0xc3, 0xae, 0x88, 0x15, 0xbd, 0x07, 0x49, 0xe2, 0x19, 0x5e, 0x87, 0x05, 0x75, 0x6d,
+	0x6d, 0x2e, 0x12, 0x14, 0x53, 0xa8, 0x50, 0xa1, 0x0d, 0xab, 0xe9, 0x61, 0x57, 0xe7, 0x2a, 0x68,
+	0x19, 0x5e, 0xb5, 0x48, 0xd5, 0xb2, 0xeb, 0x4e, 0xcb, 0xcf, 0xb3, 0xe9, 0x3a, 0x9d, 0x36, 0x45,
+	0x7c, 0x45, 0x1f, 0xb7, 0x48, 0x99, 0xd3, 0x37, 0x7d, 0x32, 0xda, 0x00, 0xe8, 0xd5, 0x58, 0xe6,
+	0x12, 0xcd, 0xe0, 0x82, 0xca, 0x8a, 0x4c, 0xf5, 0x8b, 0x4c, 0x65, 0x05, 0xdd, 0xcb, 0xa5, 0x29,
+	0x32, 0xa5, 0xf7, 0x69, 0x2a, 0xdf, 0x49, 0x30, 0x11, 0x0c, 0x84, 0x27, 0x60, 0x15, 0x52, 0x2d,
+	0x46, 0xca, 0x48, 0x85, 0x4b, 0x03, 0xdf, 0x87, 0xa9, 0xe8, 0x42, 0x0e, 0x6d, 0x06, 0x30, 0xc5,
+	0x29, 0xa6, 0xc5, 0x91, 0x98, 0x98, 0xbf, 0x00, 0x28, 0x95, 0xd7, 0x11, 0x77, 0xd0, 0x7b, 0x60,
+	0xa3, 0xd1, 0x70, 0x31, 0x21, 0xe2, 0x81, 0xf9, 0x5f, 0xe5, 0xb7, 0xe0, 0x6b, 0x74, 0x63, 0xf8,
+	0x10, 0x26, 0xea, 0x1d, 0xd7, 0xc5, 0xb6, 0xc7, 0x92, 0x59, 0x65, 0x48, 0x87, 0x16, 0x1c, 0x53,
+	0xe7, 0x05, 0x87, 0xb8, 0x2a, 0xcd, 0x37, 0xe3, 0xa0, 0x87, 0x30, 0x19, 0x7c, 0x1e, 0x61, 0x31,
+	0x7e, 0x11, 0x8b, 0x37, 0xac, 0xfe, 0x27, 0x64, 0x2c, 0x45, 0x86, 0x0c, 0xeb, 0xb7, 0x3e, 0x6f,
+	0xa2, 0x73, 0x7e, 0x8e, 0xc3, 0xd4, 0x00, 0x26, 0x8f, 0xee, 0x31, 0x5c, 0x61, 0x18, 0xac, 0x06,
+	0xeb, 0xc6, 0xe2, 0xfb, 0xa7, 0x27, 0xf9, 0x14, 0x15, 0x2a, 0xdf, 0x7b, 0x79, 0x92, 0x5f, 0x31,
+	0x2d, 0x6f, 0xaf, 0x53, 0x53, 0xeb, 0x4e, 0x8b, 0x0e, 0x0c, 0xda, 0xf6, 0x75, 0xa7, 0xa9, 0xd5,
+	0xf7, 0x0c, 0xcb, 0xd6, 0x9e, 0xae, 0x69, 0xed, 0x7d, 0x93, 0x0e, 0x04, 0xae, 0xe3, 0x37, 0x86,
+	0xff, 0xd1, 0x40, 0x08, 0x12, 0xc4, 0xfa, 0x94, 0xf5, 0x4b, 0x42, 0xa7, 0xdf, 0x68, 0x06, 0xd2,
+	0xde, 0x9e, 0x8b, 0xc9, 0x9e, 0xd3, 0x6c, 0xd0, 0x8a, 0x4b, 0xe8, 0x3d, 0x02, 0xda, 0x82, 0x54,
+	0xbb, 0x53, 0xab, 0xee, 0xe3, 0xc3, 0x4c, 0xa2, 0x20, 0x2d, 0x8d, 0x15, 0xd7, 0x5e, 0x9e, 0xe4,
+	0xd5, 0x0b, 0x23, 0xd8, 0x71, 0x2c, 0xdb, 0xd3, 0x93, 0xed, 0x4e, 0x6d, 0x0b, 0x1f, 0xa2, 0x95,
+	0x6e, 0x1b, 0x5d, 0xa6, 0x6d, 0x94, 0x51, 0xfb, 0x93, 0x4a, 0xd1, 0xb2, 0x0e, 0x12, 0xbd, 0xa3,
+	0x4c, 0xf3, 0x4c, 0x05, 0xba, 0x44, 0xe4, 0xf1, 0x97, 0x38, 0xc8, 0x83, 0xb8, 0xff, 0x27, 0x32,
+	0x9a, 0xc8, 0xb7, 0x79, 0x2b, 0x55, 0xd8, 0x60, 0x17, 0xcd, 0x97, 0x05, 0x10, 0xf3, 0x5f, 0x64,
+	0x49, 0x4f, 0x73, 0x4a, 0xb9, 0xa1, 0x9c, 0xc5, 0xf9, 0x18, 0xe9, 0xaa, 0xf1, 0xdc, 0x1e, 0xc0,
+	0xb5, 0x27, 0x18, 0x57, 0xdb, 0xd8, 0xad, 0xfa, 0xd2, 0xb4, 0xf9, 0xfc, 0x69, 0x32, 0x15, 0x98,
+	0x0b, 0x02, 0xd0, 0xba, 0x63, 0xd9, 0xc5, 0x15, 0xbf, 0x59, 0x7e, 0xfd, 0x3b, 0xbf, 0xd4, 0x17,
+	0x33, 0xdf, 0x9e, 0xec, 0xe7, 0x36, 0x69, 0xec, 0x6b, 0xde, 0x61, 0x1b, 0x13, 0xaa, 0x40, 0xf4,
+	0xb1, 0x27, 0x18, 0xef, 0x60, 0xb7, 0x42, 0x1d, 0xf8, 0xe9, 0x75, 0x19, 0x6a, 0xde, 0x98, 0x69,
+	0xbd, 0x47, 0x40, 0x1f, 0xc3, 0x4c, 0x70, 0x26, 0x88, 0xb0, 0x5c, 0x4c, 0x3a, 0x4d, 0x8f, 0x8f,
+	0x52, 0x39, 0x90, 0xa7, 0x5e, 0x50, 0x9d, 0xa6, 0xa7, 0x4f, 0xf5, 0x0f, 0x86, 0x00, 0x0b, 0x7d,
+	0x02, 0xd9, 0xd0, 0x7c, 0x08, 0x59, 0x4f, 0x8c, 0xb4, 0x2e, 0x07, 0x86, 0x44, 0x80, 0xa7, 0x64,
+	0x61, 0x9a, 0x26, 0x99, 0xb2, 0x76, 0x5d, 0xc3, 0x26, 0x96, 0x3f, 0x2f, 0x45, 0x99, 0xef, 0xc3,
+	0xcc, 0x60, 0x36, 0x7f, 0x8b, 0x2d, 0xb8, 0xce, 0x40, 0x79, 0x5d, 0x1e, 0x1f, 0x85, 0x85, 0xc8,
+	0xe0, 0x0a, 0xdb, 0x18, 0x37, 0x83, 0x84, 0xe5, 0x2f, 0x24, 0x40, 0xd1, 0x5d, 0x86, 0xe6, 0xa1,
+	0xb0, 0x5d, 0xda, 0x2e, 0x96, 0xf4, 0x6a, 0x65, 0xf7, 0xee, 0xee, 0xa3, 0x4a, 0x75, 0xa3, 0x7c,
+	0x7f, 0xb7, 0xa4, 0x57, 0x1f, 0x3d, 0xa8, 0xec, 0x94, 0xd6, 0xcb, 0x1b, 0xe5, 0xd2, 0xbd, 0xeb,
+	0x31, 0x94, 0x87, 0xe9, 0x81, 0x52, 0x77, 0xd7, 0x77, 0xcb, 0x1f, 0x95, 0xae, 0x4b, 0x68, 0x16,
+	0xb2, 0x03, 0x05, 0xca, 0x0f, 0xb8, 0x48, 0x5c, 0x4e, 0x7c, 0xf5, 0x53, 0x2e, 0xb6, 0xf6, 0x47,
+	0x1a, 0x2e, 0xd3, 0xa0, 0x91, 0x07, 0x49, 0x76, 0xb3, 0xa0, 0xe8, 0xd2, 0x8d, 0xde, 0x39, 0xf2,
+	0xfc, 0xf9, 0x42, 0x2c, 0x65, 0x4a, 0xfe, 0xf3, 0x3f, 0xff, 0xfd, 0x3e, 0x3e, 0x85, 0x6e, 0x6a,
+	0xe1, 0x13, 0xab, 0xce, 0x7c, 0x79, 0x90, 0x64, 0x67, 0xca, 0x30, 0xaf, 0x81, 0x5b, 0x68, 0x98,
+	0xd7, 0xe0, 0x69, 0x74, 0x8e, 0x57, 0x76, 0x04, 0xa1, 0x1f, 0x24, 0x48, 0x77, 0x6f, 0x16, 0xb4,
+	0x30, 0xd8, 0x68, 0xf8, 0x42, 0x92, 0x17, 0x47, 0xca, 0x71, 0xff, 0x77, 0xa8, 0xff, 0x55, 0xa4,
+	0x45, 0xfc, 0xf7, 0x6e, 0x22, 0xed, 0x88, 0x9f, 0x57, 0xc7, 0xe2, 0x0b, 0x1f, 0xa3, 0x67, 0x90,
+	0xe2, 0x77, 0x04, 0x1a, 0x12, 0x69, 0xf0, 0x5e, 0x92, 0x5f, 0x1f, 0x21, 0xc5, 0x01, 0x15, 0x28,
+	0x20, 0x19, 0x65, 0x22, 0x80, 0xc4, 0xed, 0xf1, 0x19, 0x24, 0xf9, 0x8e, 0x9e, 0x3b, 0xcf, 0xe4,
+	0x88, 0x77, 0x08, 0xde, 0x0f, 0xca, 0x32, 0x75, 0x3b, 0x8f, 0x94, 0x61, 0x6e, 0xb5, 0x23, 0x7e,
+	0x82, 0x1c, 0xa3, 0xaf, 0x25, 0x18, 0xeb, 0x5f, 0xd3, 0xe8, 0xd6, 0x90, 0x02, 0x8b, 0xee, 0x79,
+	0x79, 0xf9, 0x22, 0xa2, 0x1c, 0xd3, 0x02, 0xc5, 0x54, 0x40, 0xb9, 0x68, 0x45, 0xf6, 0x8f, 0x35,
+	0xf4, 0xad, 0x04, 0x57, 0x83, 0x27, 0xe3, 0x10, 0x2f, 0x83, 0x36, 0xa6, 0xfc, 0xc6, 0x85, 0x64,
+	0x39, 0xa4, 0x45, 0x0a, 0x69, 0x16, 0xe5, 0xa3, 0xe5, 0x12, 0x18, 0x86, 0xe8, 0x4b, 0x09, 0x52,
+	0x7c, 0xa2, 0x0d, 0xab, 0x8f, 0xe0, 0xda, 0x19, 0x56, 0x1f, 0xa1, 0x2d, 0xa3, 0xa8, 0x14, 0xc1,
+	0x12, 0x5a, 0x88, 0x20, 0xe0, 0xf3, 0x97, 0x68, 0x47, 0xbd, 0xf5, 0x75, 0x8c, 0x7e, 0x94, 0x60,
+	0x3c, 0x34, 0xe1, 0xd0, 0x9b, 0x83, 0x5d, 0x0d, 0x9e, 0xb5, 0xf2, 0xed, 0x0b, 0x4a, 0x73, 0x80,
+	0xb7, 0x28, 0xc0, 0x39, 0x34, 0x1b, 0x01, 0x18, 0x9e, 0xc8, 0xc5, 0x0f, 0x9e, 0x9f, 0xe6, 0xa4,
+	0x17, 0xa7, 0x39, 0xe9, 0x9f, 0xd3, 0x9c, 0xf4, 0xcd, 0x59, 0x2e, 0xf6, 0xe2, 0x2c, 0x17, 0xfb,
+	0xeb, 0x2c, 0x17, 0x7b, 0x3c, 0xfa, 0x0c, 0x79, 0xd6, 0x35, 0x4f, 0xd7, 0x63, 0x2d, 0x49, 0x45,
+	0xde, 0xfa, 0x2f, 0x00, 0x00, 0xff, 0xff, 0x66, 0x43, 0x80, 0xdb, 0xee, 0x0e, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -879,6 +1114,8 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
+	// Counts queries the number of existing signing.
+	Counts(ctx context.Context, in *QueryCountsRequest, opts ...grpc.CallOption) (*QueryCountsResponse, error)
 	// Params queries parameters of bandtss module
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 	// IsGrantee queries whether granter grants the grantee.
@@ -889,10 +1126,12 @@ type QueryClient interface {
 	Member(ctx context.Context, in *QueryMemberRequest, opts ...grpc.CallOption) (*QueryMemberResponse, error)
 	// CurrentGroup queries the current group information.
 	CurrentGroup(ctx context.Context, in *QueryCurrentGroupRequest, opts ...grpc.CallOption) (*QueryCurrentGroupResponse, error)
+	// IncomingGroup queries the incoming group information.
+	IncomingGroup(ctx context.Context, in *QueryIncomingGroupRequest, opts ...grpc.CallOption) (*QueryIncomingGroupResponse, error)
 	// Signing queries the signing result of the given signing request ID.
 	Signing(ctx context.Context, in *QuerySigningRequest, opts ...grpc.CallOption) (*QuerySigningResponse, error)
-	// Replacement queries the replacement information.
-	Replacement(ctx context.Context, in *QueryReplacementRequest, opts ...grpc.CallOption) (*QueryReplacementResponse, error)
+	// GroupTransition queries the group transition information.
+	GroupTransition(ctx context.Context, in *QueryGroupTransitionRequest, opts ...grpc.CallOption) (*QueryGroupTransitionResponse, error)
 }
 
 type queryClient struct {
@@ -901,6 +1140,15 @@ type queryClient struct {
 
 func NewQueryClient(cc grpc1.ClientConn) QueryClient {
 	return &queryClient{cc}
+}
+
+func (c *queryClient) Counts(ctx context.Context, in *QueryCountsRequest, opts ...grpc.CallOption) (*QueryCountsResponse, error) {
+	out := new(QueryCountsResponse)
+	err := c.cc.Invoke(ctx, "/bandtss.v1beta1.Query/Counts", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error) {
@@ -948,6 +1196,15 @@ func (c *queryClient) CurrentGroup(ctx context.Context, in *QueryCurrentGroupReq
 	return out, nil
 }
 
+func (c *queryClient) IncomingGroup(ctx context.Context, in *QueryIncomingGroupRequest, opts ...grpc.CallOption) (*QueryIncomingGroupResponse, error) {
+	out := new(QueryIncomingGroupResponse)
+	err := c.cc.Invoke(ctx, "/bandtss.v1beta1.Query/IncomingGroup", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *queryClient) Signing(ctx context.Context, in *QuerySigningRequest, opts ...grpc.CallOption) (*QuerySigningResponse, error) {
 	out := new(QuerySigningResponse)
 	err := c.cc.Invoke(ctx, "/bandtss.v1beta1.Query/Signing", in, out, opts...)
@@ -957,9 +1214,9 @@ func (c *queryClient) Signing(ctx context.Context, in *QuerySigningRequest, opts
 	return out, nil
 }
 
-func (c *queryClient) Replacement(ctx context.Context, in *QueryReplacementRequest, opts ...grpc.CallOption) (*QueryReplacementResponse, error) {
-	out := new(QueryReplacementResponse)
-	err := c.cc.Invoke(ctx, "/bandtss.v1beta1.Query/Replacement", in, out, opts...)
+func (c *queryClient) GroupTransition(ctx context.Context, in *QueryGroupTransitionRequest, opts ...grpc.CallOption) (*QueryGroupTransitionResponse, error) {
+	out := new(QueryGroupTransitionResponse)
+	err := c.cc.Invoke(ctx, "/bandtss.v1beta1.Query/GroupTransition", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -968,6 +1225,8 @@ func (c *queryClient) Replacement(ctx context.Context, in *QueryReplacementReque
 
 // QueryServer is the server API for Query service.
 type QueryServer interface {
+	// Counts queries the number of existing signing.
+	Counts(context.Context, *QueryCountsRequest) (*QueryCountsResponse, error)
 	// Params queries parameters of bandtss module
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 	// IsGrantee queries whether granter grants the grantee.
@@ -978,16 +1237,21 @@ type QueryServer interface {
 	Member(context.Context, *QueryMemberRequest) (*QueryMemberResponse, error)
 	// CurrentGroup queries the current group information.
 	CurrentGroup(context.Context, *QueryCurrentGroupRequest) (*QueryCurrentGroupResponse, error)
+	// IncomingGroup queries the incoming group information.
+	IncomingGroup(context.Context, *QueryIncomingGroupRequest) (*QueryIncomingGroupResponse, error)
 	// Signing queries the signing result of the given signing request ID.
 	Signing(context.Context, *QuerySigningRequest) (*QuerySigningResponse, error)
-	// Replacement queries the replacement information.
-	Replacement(context.Context, *QueryReplacementRequest) (*QueryReplacementResponse, error)
+	// GroupTransition queries the group transition information.
+	GroupTransition(context.Context, *QueryGroupTransitionRequest) (*QueryGroupTransitionResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
 type UnimplementedQueryServer struct {
 }
 
+func (*UnimplementedQueryServer) Counts(ctx context.Context, req *QueryCountsRequest) (*QueryCountsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Counts not implemented")
+}
 func (*UnimplementedQueryServer) Params(ctx context.Context, req *QueryParamsRequest) (*QueryParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
 }
@@ -1003,15 +1267,36 @@ func (*UnimplementedQueryServer) Member(ctx context.Context, req *QueryMemberReq
 func (*UnimplementedQueryServer) CurrentGroup(ctx context.Context, req *QueryCurrentGroupRequest) (*QueryCurrentGroupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CurrentGroup not implemented")
 }
+func (*UnimplementedQueryServer) IncomingGroup(ctx context.Context, req *QueryIncomingGroupRequest) (*QueryIncomingGroupResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method IncomingGroup not implemented")
+}
 func (*UnimplementedQueryServer) Signing(ctx context.Context, req *QuerySigningRequest) (*QuerySigningResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Signing not implemented")
 }
-func (*UnimplementedQueryServer) Replacement(ctx context.Context, req *QueryReplacementRequest) (*QueryReplacementResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Replacement not implemented")
+func (*UnimplementedQueryServer) GroupTransition(ctx context.Context, req *QueryGroupTransitionRequest) (*QueryGroupTransitionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GroupTransition not implemented")
 }
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
 	s.RegisterService(&_Query_serviceDesc, srv)
+}
+
+func _Query_Counts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryCountsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Counts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bandtss.v1beta1.Query/Counts",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Counts(ctx, req.(*QueryCountsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -1104,6 +1389,24 @@ func _Query_CurrentGroup_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_IncomingGroup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryIncomingGroupRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).IncomingGroup(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bandtss.v1beta1.Query/IncomingGroup",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).IncomingGroup(ctx, req.(*QueryIncomingGroupRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Query_Signing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(QuerySigningRequest)
 	if err := dec(in); err != nil {
@@ -1122,20 +1425,20 @@ func _Query_Signing_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_Replacement_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryReplacementRequest)
+func _Query_GroupTransition_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryGroupTransitionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).Replacement(ctx, in)
+		return srv.(QueryServer).GroupTransition(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bandtss.v1beta1.Query/Replacement",
+		FullMethod: "/bandtss.v1beta1.Query/GroupTransition",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).Replacement(ctx, req.(*QueryReplacementRequest))
+		return srv.(QueryServer).GroupTransition(ctx, req.(*QueryGroupTransitionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1144,6 +1447,10 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "bandtss.v1beta1.Query",
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Counts",
+			Handler:    _Query_Counts_Handler,
+		},
 		{
 			MethodName: "Params",
 			Handler:    _Query_Params_Handler,
@@ -1165,16 +1472,71 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Query_CurrentGroup_Handler,
 		},
 		{
+			MethodName: "IncomingGroup",
+			Handler:    _Query_IncomingGroup_Handler,
+		},
+		{
 			MethodName: "Signing",
 			Handler:    _Query_Signing_Handler,
 		},
 		{
-			MethodName: "Replacement",
-			Handler:    _Query_Replacement_Handler,
+			MethodName: "GroupTransition",
+			Handler:    _Query_GroupTransition_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "bandtss/v1beta1/query.proto",
+}
+
+func (m *QueryCountsRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryCountsRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryCountsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryCountsResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryCountsResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryCountsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.SigningCount != 0 {
+		i = encodeVarintQuery(dAtA, i, uint64(m.SigningCount))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *QueryParamsRequest) Marshal() (dAtA []byte, err error) {
@@ -1333,7 +1695,17 @@ func (m *QueryMembersRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			i = encodeVarintQuery(dAtA, i, uint64(size))
 		}
 		i--
-		dAtA[i] = 0x12
+		dAtA[i] = 0x1a
+	}
+	if m.IsIncomingGroup {
+		i--
+		if m.IsIncomingGroup {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x10
 	}
 	if m.Status != 0 {
 		i = encodeVarintQuery(dAtA, i, uint64(m.Status))
@@ -1443,7 +1815,17 @@ func (m *QueryMemberResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	var l int
 	_ = l
 	{
-		size, err := m.Member.MarshalToSizedBuffer(dAtA[:i])
+		size, err := m.IncomingGroupMember.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	{
+		size, err := m.CurrentGroupMember.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
@@ -1528,6 +1910,79 @@ func (m *QueryCurrentGroupResponse) MarshalToSizedBuffer(dAtA []byte) (int, erro
 	return len(dAtA) - i, nil
 }
 
+func (m *QueryIncomingGroupRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryIncomingGroupRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryIncomingGroupRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryIncomingGroupResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryIncomingGroupResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryIncomingGroupResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Status != 0 {
+		i = encodeVarintQuery(dAtA, i, uint64(m.Status))
+		i--
+		dAtA[i] = 0x28
+	}
+	if len(m.PubKey) > 0 {
+		i -= len(m.PubKey)
+		copy(dAtA[i:], m.PubKey)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.PubKey)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if m.Threshold != 0 {
+		i = encodeVarintQuery(dAtA, i, uint64(m.Threshold))
+		i--
+		dAtA[i] = 0x18
+	}
+	if m.Size_ != 0 {
+		i = encodeVarintQuery(dAtA, i, uint64(m.Size_))
+		i--
+		dAtA[i] = 0x10
+	}
+	if m.GroupID != 0 {
+		i = encodeVarintQuery(dAtA, i, uint64(m.GroupID))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *QuerySigningRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1576,9 +2031,9 @@ func (m *QuerySigningResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.ReplacingGroupSigningResult != nil {
+	if m.IncomingGroupSigningResult != nil {
 		{
-			size, err := m.ReplacingGroupSigningResult.MarshalToSizedBuffer(dAtA[:i])
+			size, err := m.IncomingGroupSigningResult.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
@@ -1607,10 +2062,10 @@ func (m *QuerySigningResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.Fee) > 0 {
-		for iNdEx := len(m.Fee) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.FeePerSigner) > 0 {
+		for iNdEx := len(m.FeePerSigner) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.Fee[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.FeePerSigner[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -1624,7 +2079,7 @@ func (m *QuerySigningResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryReplacementRequest) Marshal() (dAtA []byte, err error) {
+func (m *QueryGroupTransitionRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1634,12 +2089,12 @@ func (m *QueryReplacementRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryReplacementRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryGroupTransitionRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryReplacementRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryGroupTransitionRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1647,7 +2102,7 @@ func (m *QueryReplacementRequest) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryReplacementResponse) Marshal() (dAtA []byte, err error) {
+func (m *QueryGroupTransitionResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1657,26 +2112,28 @@ func (m *QueryReplacementResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryReplacementResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *QueryGroupTransitionResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryReplacementResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *QueryGroupTransitionResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	{
-		size, err := m.Replacement.MarshalToSizedBuffer(dAtA[:i])
-		if err != nil {
-			return 0, err
+	if m.GroupTransition != nil {
+		{
+			size, err := m.GroupTransition.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintQuery(dAtA, i, uint64(size))
 		}
-		i -= size
-		i = encodeVarintQuery(dAtA, i, uint64(size))
+		i--
+		dAtA[i] = 0xa
 	}
-	i--
-	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
 }
 
@@ -1691,6 +2148,27 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+func (m *QueryCountsRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *QueryCountsResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.SigningCount != 0 {
+		n += 1 + sovQuery(uint64(m.SigningCount))
+	}
+	return n
+}
+
 func (m *QueryParamsRequest) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1749,6 +2227,9 @@ func (m *QueryMembersRequest) Size() (n int) {
 	if m.Status != 0 {
 		n += 1 + sovQuery(uint64(m.Status))
 	}
+	if m.IsIncomingGroup {
+		n += 2
+	}
 	if m.Pagination != nil {
 		l = m.Pagination.Size()
 		n += 1 + l + sovQuery(uint64(l))
@@ -1794,7 +2275,9 @@ func (m *QueryMemberResponse) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = m.Member.Size()
+	l = m.CurrentGroupMember.Size()
+	n += 1 + l + sovQuery(uint64(l))
+	l = m.IncomingGroupMember.Size()
 	n += 1 + l + sovQuery(uint64(l))
 	return n
 }
@@ -1809,6 +2292,40 @@ func (m *QueryCurrentGroupRequest) Size() (n int) {
 }
 
 func (m *QueryCurrentGroupResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.GroupID != 0 {
+		n += 1 + sovQuery(uint64(m.GroupID))
+	}
+	if m.Size_ != 0 {
+		n += 1 + sovQuery(uint64(m.Size_))
+	}
+	if m.Threshold != 0 {
+		n += 1 + sovQuery(uint64(m.Threshold))
+	}
+	l = len(m.PubKey)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	if m.Status != 0 {
+		n += 1 + sovQuery(uint64(m.Status))
+	}
+	return n
+}
+
+func (m *QueryIncomingGroupRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *QueryIncomingGroupResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1851,8 +2368,8 @@ func (m *QuerySigningResponse) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if len(m.Fee) > 0 {
-		for _, e := range m.Fee {
+	if len(m.FeePerSigner) > 0 {
+		for _, e := range m.FeePerSigner {
 			l = e.Size()
 			n += 1 + l + sovQuery(uint64(l))
 		}
@@ -1865,14 +2382,14 @@ func (m *QuerySigningResponse) Size() (n int) {
 		l = m.CurrentGroupSigningResult.Size()
 		n += 1 + l + sovQuery(uint64(l))
 	}
-	if m.ReplacingGroupSigningResult != nil {
-		l = m.ReplacingGroupSigningResult.Size()
+	if m.IncomingGroupSigningResult != nil {
+		l = m.IncomingGroupSigningResult.Size()
 		n += 1 + l + sovQuery(uint64(l))
 	}
 	return n
 }
 
-func (m *QueryReplacementRequest) Size() (n int) {
+func (m *QueryGroupTransitionRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1881,14 +2398,16 @@ func (m *QueryReplacementRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryReplacementResponse) Size() (n int) {
+func (m *QueryGroupTransitionResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = m.Replacement.Size()
-	n += 1 + l + sovQuery(uint64(l))
+	if m.GroupTransition != nil {
+		l = m.GroupTransition.Size()
+		n += 1 + l + sovQuery(uint64(l))
+	}
 	return n
 }
 
@@ -1897,6 +2416,125 @@ func sovQuery(x uint64) (n int) {
 }
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
+}
+func (m *QueryCountsRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryCountsRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryCountsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryCountsResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryCountsResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryCountsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SigningCount", wireType)
+			}
+			m.SigningCount = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.SigningCount |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
 }
 func (m *QueryParamsRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
@@ -2264,6 +2902,26 @@ func (m *QueryMembersRequest) Unmarshal(dAtA []byte) error {
 				}
 			}
 		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field IsIncomingGroup", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.IsIncomingGroup = bool(v != 0)
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Pagination", wireType)
 			}
@@ -2553,7 +3211,7 @@ func (m *QueryMemberResponse) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Member", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field CurrentGroupMember", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -2580,7 +3238,40 @@ func (m *QueryMemberResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Member.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.CurrentGroupMember.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field IncomingGroupMember", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.IncomingGroupMember.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -2815,6 +3506,216 @@ func (m *QueryCurrentGroupResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+func (m *QueryIncomingGroupRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryIncomingGroupRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryIncomingGroupRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryIncomingGroupResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryIncomingGroupResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryIncomingGroupResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GroupID", wireType)
+			}
+			m.GroupID = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.GroupID |= github_com_bandprotocol_chain_v2_pkg_tss.GroupID(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Size_", wireType)
+			}
+			m.Size_ = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Size_ |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Threshold", wireType)
+			}
+			m.Threshold = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Threshold |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PubKey", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.PubKey = append(m.PubKey[:0], dAtA[iNdEx:postIndex]...)
+			if m.PubKey == nil {
+				m.PubKey = []byte{}
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
+			}
+			m.Status = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Status |= types.GroupStatus(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *QuerySigningRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2915,7 +3816,7 @@ func (m *QuerySigningResponse) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Fee", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field FeePerSigner", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -2942,8 +3843,8 @@ func (m *QuerySigningResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Fee = append(m.Fee, types1.Coin{})
-			if err := m.Fee[len(m.Fee)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.FeePerSigner = append(m.FeePerSigner, types1.Coin{})
+			if err := m.FeePerSigner[len(m.FeePerSigner)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -3017,7 +3918,7 @@ func (m *QuerySigningResponse) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ReplacingGroupSigningResult", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field IncomingGroupSigningResult", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -3044,10 +3945,10 @@ func (m *QuerySigningResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.ReplacingGroupSigningResult == nil {
-				m.ReplacingGroupSigningResult = &types.SigningResult{}
+			if m.IncomingGroupSigningResult == nil {
+				m.IncomingGroupSigningResult = &types.SigningResult{}
 			}
-			if err := m.ReplacingGroupSigningResult.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.IncomingGroupSigningResult.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -3072,7 +3973,7 @@ func (m *QuerySigningResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryReplacementRequest) Unmarshal(dAtA []byte) error {
+func (m *QueryGroupTransitionRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3095,10 +3996,10 @@ func (m *QueryReplacementRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryReplacementRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryGroupTransitionRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryReplacementRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryGroupTransitionRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -3122,7 +4023,7 @@ func (m *QueryReplacementRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryReplacementResponse) Unmarshal(dAtA []byte) error {
+func (m *QueryGroupTransitionResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3145,15 +4046,15 @@ func (m *QueryReplacementResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryReplacementResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: QueryGroupTransitionResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryReplacementResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: QueryGroupTransitionResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Replacement", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field GroupTransition", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -3180,7 +4081,10 @@ func (m *QueryReplacementResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Replacement.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if m.GroupTransition == nil {
+				m.GroupTransition = &GroupTransition{}
+			}
+			if err := m.GroupTransition.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

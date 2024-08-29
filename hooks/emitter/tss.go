@@ -80,20 +80,7 @@ func (h *Hook) emitNewTSSAssignedMember(sid tss.SigningID, gid tss.GroupID, am t
 }
 
 // handleInitTSSModule implements emitter handler for initializing tss module.
-func (h *Hook) handleInitTSSModule(ctx sdk.Context) {
-	for _, signing := range h.tssKeeper.GetSignings(ctx) {
-		h.Write("NEW_TSS_SIGNING", common.JsDict{
-			"id":              signing.ID,
-			"tss_group_id":    signing.GroupID,
-			"group_pub_key":   parseBytes(signing.GroupPubKey),
-			"msg":             parseBytes(signing.Message),
-			"group_pub_nonce": parseBytes(signing.GroupPubNonce),
-			"signature":       parseBytes(signing.Signature),
-			"status":          int(signing.Status),
-			"created_height":  signing.CreatedHeight,
-		})
-	}
-}
+func (h *Hook) handleInitTSSModule(ctx sdk.Context) {}
 
 // handleEventRequestSignature implements emitter handler for RequestSignature event.
 func (h *Hook) handleEventRequestSignature(ctx sdk.Context, evMap common.EvMap) {
@@ -101,10 +88,11 @@ func (h *Hook) handleEventRequestSignature(ctx sdk.Context, evMap common.EvMap) 
 	for _, sid := range sids {
 		id := tss.SigningID(common.Atoi(sid))
 		signing := h.tssKeeper.MustGetSigning(ctx, id)
+		signingAttempt := h.tssKeeper.MustGetSigningAttempt(ctx, id, signing.CurrentAttempt)
 
 		h.emitNewTSSSigning(signing)
 
-		for _, am := range signing.AssignedMembers {
+		for _, am := range signingAttempt.AssignedMembers {
 			h.emitNewTSSAssignedMember(signing.ID, signing.GroupID, am)
 		}
 	}
@@ -139,17 +127,6 @@ func (h *Hook) handleEventSigningFailed(ctx sdk.Context, evMap common.EvMap) {
 				signing,
 			)
 		}
-	}
-}
-
-// handleEventExpiredSigning implements emitter handler for ExpiredSigning event.
-func (h *Hook) handleEventExpiredSigning(ctx sdk.Context, evMap common.EvMap) {
-	sids := evMap[types.EventTypeExpiredSigning+"."+types.AttributeKeySigningID]
-	for _, sid := range sids {
-		id := tss.SigningID(common.Atoi(sid))
-		signing := h.tssKeeper.MustGetSigning(ctx, id)
-
-		h.emitUpdateTSSSigningStatus(signing)
 	}
 }
 

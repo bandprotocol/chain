@@ -6,9 +6,9 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
-// GetSupportedFeeds gets the current supported feeds.
-func (k Keeper) GetSupportedFeeds(ctx sdk.Context) (sp types.SupportedFeeds) {
-	bz := ctx.KVStore(k.storeKey).Get(types.SupportedFeedsStoreKey)
+// GetCurrentFeeds gets the current supported feeds.
+func (k Keeper) GetCurrentFeeds(ctx sdk.Context) (sp types.CurrentFeeds) {
+	bz := ctx.KVStore(k.storeKey).Get(types.CurrentFeedsStoreKey)
 	if bz == nil {
 		return sp
 	}
@@ -18,33 +18,37 @@ func (k Keeper) GetSupportedFeeds(ctx sdk.Context) (sp types.SupportedFeeds) {
 	return sp
 }
 
-// SetSupportedFeeds sets new supported feeds to the store.
-func (k Keeper) SetSupportedFeeds(ctx sdk.Context, feeds []types.Feed) {
-	sf := types.SupportedFeeds{
-		Feeds:               feeds,
-		LastUpdateTimestamp: ctx.BlockTime().Unix(),
-		LastUpdateBlock:     ctx.BlockHeight(),
-	}
+// SetCurrentFeeds sets new supported feeds to the store.
+func (k Keeper) SetCurrentFeeds(ctx sdk.Context, feeds []types.Feed) {
+	cf := types.NewCurrentFeeds(feeds, ctx.BlockTime().Unix(), ctx.BlockHeight())
 
-	ctx.KVStore(k.storeKey).Set(types.SupportedFeedsStoreKey, k.cdc.MustMarshal(&sf))
-	emitEventUpdateSupportedFeeds(ctx, sf)
+	ctx.KVStore(k.storeKey).Set(types.CurrentFeedsStoreKey, k.cdc.MustMarshal(&cf))
+	emitEventUpdateCurrentFeeds(ctx, cf)
 }
 
-// CalculateNewSupportedFeeds calculates new supported feeds from current signal-total-powers.
-func (k Keeper) CalculateNewSupportedFeeds(ctx sdk.Context) (feeds []types.Feed) {
-	signalTotalPowers := k.GetSignalTotalPowersByPower(ctx, k.GetParams(ctx).MaxSupportedFeeds)
+// CalculateNewCurrentFeeds calculates new supported feeds from current signal-total-powers.
+func (k Keeper) CalculateNewCurrentFeeds(ctx sdk.Context) []types.Feed {
+	signalTotalPowers := k.GetSignalTotalPowersByPower(ctx, k.GetParams(ctx).MaxCurrentFeeds)
+	feeds := make([]types.Feed, 0, len(signalTotalPowers))
+	params := k.GetParams(ctx)
 	for _, signalTotalPower := range signalTotalPowers {
-		interval, deviationInThousandth := CalculateIntervalAndDeviation(
+		interval := types.CalculateInterval(
 			signalTotalPower.Power,
-			k.GetParams(ctx),
+			params.PowerStepThreshold,
+			params.MinInterval,
+			params.MaxInterval,
 		)
-		feed := types.Feed{
-			SignalID:              signalTotalPower.ID,
-			Interval:              interval,
-			DeviationInThousandth: deviationInThousandth,
+		if interval > 0 {
+			feeds = append(
+				feeds,
+				types.NewFeed(
+					signalTotalPower.ID,
+					signalTotalPower.Power,
+					interval,
+				),
+			)
 		}
-		feeds = append(feeds, feed)
 	}
 
-	return
+	return feeds
 }

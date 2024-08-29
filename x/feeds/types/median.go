@@ -19,9 +19,25 @@ type PriceFeedInfo struct {
 	PriceStatus PriceStatus // PriceStatus represents the state of the price feed
 	Power       uint64      // Power represents the power of the price feed
 	Price       uint64      // Price represents the reported price
-	Deviation   uint64      // Deviation represents the deviation from the reported price
 	Timestamp   int64       // Timestamp represents the time at which the price feed was reported
 	Index       int64       // Index represents the index of the price feed
+}
+
+// NewPriceFeedInfo returns a new PriceFeedInfo
+func NewPriceFeedInfo(
+	priceStatus PriceStatus,
+	power uint64,
+	price uint64,
+	timestamp int64,
+	index int64,
+) PriceFeedInfo {
+	return PriceFeedInfo{
+		PriceStatus: priceStatus,
+		Power:       power,
+		Price:       price,
+		Timestamp:   timestamp,
+		Index:       index,
+	}
 }
 
 // FilterPriceFeedInfos filters price feed infos based on price status
@@ -93,35 +109,28 @@ func CalculateMedianPriceFeedInfo(priceFeedInfos []PriceFeedInfo) (uint64, error
 		}
 		wps = append(
 			wps,
-			GetDeviationWeightedPrices(
-				priceFeedInfo.Price,
-				priceFeedInfo.Deviation,
+			NewWeightedPrice(
 				totalWeight,
-			)...,
+				priceFeedInfo.Price,
+			),
 		)
 	}
 
 	return CalculateMedianWeightedPrice(wps)
 }
 
-// GetDeviationWeightedPrices returns weighted prices with deviations
-func GetDeviationWeightedPrices(price uint64, deviation uint64, power uint64) []WeightedPrice {
-	return []WeightedPrice{{
-		Price: price,
-		Power: power,
-	}, {
-		Price: price - deviation,
-		Power: power,
-	}, {
-		Price: price + deviation,
-		Power: power,
-	}}
-}
-
 // WeightedPrice represents a weighted price
 type WeightedPrice struct {
 	Power uint64 // Power represents the power for the price
 	Price uint64 // Price represents the price
+}
+
+// NewWeightedPrice returns a new WeightedPrice
+func NewWeightedPrice(power uint64, price uint64) WeightedPrice {
+	return WeightedPrice{
+		Power: power,
+		Price: price,
+	}
 }
 
 // CalculateMedianWeightedPrice calculates the median of weighted prices

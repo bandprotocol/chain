@@ -21,7 +21,7 @@ type TestCase struct {
 	ExpectedErr error
 }
 
-func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
+func (s *AppTestSuite) TestFailedSubmitDKGRound1Req() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
 	tc1Group := testutil.TestCases[0].Group
 
@@ -43,7 +43,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 						A0Signature:        tc1Group.Members[0].A0Signature,
 						OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
 					},
-					Address: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Sender: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
 			},
 			func() {},
@@ -61,11 +61,47 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 						A0Signature:        tc1Group.Members[0].A0Signature,
 						OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
 					},
-					Address: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Sender: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
 			},
 			func() {},
 			types.ErrMemberNotFound,
+		},
+		{
+			"wrong one time sign",
+			func() {
+				req = types.MsgSubmitDKGRound1{
+					GroupID: tc1Group.ID,
+					Round1Info: types.Round1Info{
+						MemberID:           tc1Group.Members[0].ID,
+						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
+						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
+						A0Signature:        tc1Group.Members[0].A0Signature,
+						OneTimeSignature:   []byte("wrong one_time_sig"),
+					},
+					Sender: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+				}
+			},
+			func() {},
+			types.ErrVerifyOneTimeSignatureFailed,
+		},
+		{
+			"wrong a0 signature",
+			func() {
+				req = types.MsgSubmitDKGRound1{
+					GroupID: tc1Group.ID,
+					Round1Info: types.Round1Info{
+						MemberID:           tc1Group.Members[0].ID,
+						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
+						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
+						A0Signature:        []byte("wrong a0_sig"),
+						OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
+					},
+					Sender: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+				}
+			},
+			func() {},
+			types.ErrVerifyA0SignatureFailed,
 		},
 		{
 			"round 1 already commit",
@@ -88,49 +124,11 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 						A0Signature:        tc1Group.Members[0].A0Signature,
 						OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
 					},
-					Address: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Sender: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
 			},
-			func() {
-				k.DeleteRound1Info(ctx, tc1Group.ID, tc1Group.Members[0].ID)
-			},
+			func() {},
 			types.ErrMemberAlreadySubmit,
-		},
-		{
-			"wrong one time sign",
-			func() {
-				req = types.MsgSubmitDKGRound1{
-					GroupID: tc1Group.ID,
-					Round1Info: types.Round1Info{
-						MemberID:           tc1Group.Members[0].ID,
-						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
-						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
-						A0Signature:        tc1Group.Members[0].A0Signature,
-						OneTimeSignature:   []byte("wrong one_time_sig"),
-					},
-					Address: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
-				}
-			},
-			func() {},
-			types.ErrVerifyOneTimeSignatureFailed,
-		},
-		{
-			"wrong a0 signature",
-			func() {
-				req = types.MsgSubmitDKGRound1{
-					GroupID: tc1Group.ID,
-					Round1Info: types.Round1Info{
-						MemberID:           tc1Group.Members[0].ID,
-						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
-						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
-						A0Signature:        []byte("wrong a0_sig"),
-						OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
-					},
-					Address: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
-				}
-			},
-			func() {},
-			types.ErrVerifyA0SignatureFailed,
 		},
 	}
 
@@ -147,7 +145,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
 	}
 }
 
-func (s *KeeperTestSuite) TestSuccessSubmitDKGRound1Req() {
+func (s *AppTestSuite) TestSuccessSubmitDKGRound1Req() {
 	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
 
 	s.SetupGroup(types.GROUP_STATUS_ROUND_1)
@@ -166,7 +164,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitDKGRound1Req() {
 						A0Signature:        m.A0Signature,
 						OneTimeSignature:   m.OneTimeSignature,
 					},
-					Address: sdk.AccAddress(m.PubKey()).String(),
+					Sender: sdk.AccAddress(m.PubKey()).String(),
 				})
 				s.Require().NoError(err)
 			}
@@ -186,7 +184,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitDKGRound1Req() {
 	}
 }
 
-func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
+func (s *AppTestSuite) TestFailedSubmitDKGRound2Req() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
 	tc1Group := testutil.TestCases[0].Group
 
@@ -205,7 +203,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
 						MemberID:              tc1Group.Members[0].ID,
 						EncryptedSecretShares: tc1Group.Members[0].EncSecretShares,
 					},
-					Address: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Sender: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
 			},
 			func() {},
@@ -220,11 +218,27 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
 						MemberID:              99,
 						EncryptedSecretShares: tc1Group.Members[0].EncSecretShares,
 					},
-					Address: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Sender: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
 			},
 			func() {},
 			types.ErrMemberNotFound,
+		},
+		{
+			"number of encrypted secret shares is not correct",
+			func() {
+				inValidEncSecretShares := append(tc1Group.Members[0].EncSecretShares, []byte("enc"))
+				req = types.MsgSubmitDKGRound2{
+					GroupID: tc1Group.ID,
+					Round2Info: types.Round2Info{
+						MemberID:              tc1Group.Members[0].ID,
+						EncryptedSecretShares: inValidEncSecretShares,
+					},
+					Sender: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+				}
+			},
+			func() {},
+			types.ErrInvalidLengthEncryptedSecretShares,
 		},
 		{
 			"round 2 already submit",
@@ -241,29 +255,11 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
 						MemberID:              tc1Group.Members[0].ID,
 						EncryptedSecretShares: tc1Group.Members[0].EncSecretShares,
 					},
-					Address: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
-				}
-			},
-			func() {
-				k.DeleteRound2Info(ctx, tc1Group.ID, tc1Group.Members[0].ID)
-			},
-			types.ErrMemberAlreadySubmit,
-		},
-		{
-			"number of encrypted secret shares is not correct",
-			func() {
-				inValidEncSecretShares := append(tc1Group.Members[0].EncSecretShares, []byte("enc"))
-				req = types.MsgSubmitDKGRound2{
-					GroupID: tc1Group.ID,
-					Round2Info: types.Round2Info{
-						MemberID:              tc1Group.Members[0].ID,
-						EncryptedSecretShares: inValidEncSecretShares,
-					},
-					Address: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Sender: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
 				}
 			},
 			func() {},
-			types.ErrInvalidLengthEncryptedSecretShares,
+			types.ErrMemberAlreadySubmit,
 		},
 	}
 
@@ -280,7 +276,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
 	}
 }
 
-func (s *KeeperTestSuite) TestSuccessSubmitDKGRound2Req() {
+func (s *AppTestSuite) TestSuccessSubmitDKGRound2Req() {
 	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
 
 	// Setup group as round 2
@@ -297,7 +293,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitDKGRound2Req() {
 						MemberID:              m.ID,
 						EncryptedSecretShares: m.EncSecretShares,
 					},
-					Address: sdk.AccAddress(m.PubKey()).String(),
+					Sender: sdk.AccAddress(m.PubKey()).String(),
 				})
 				s.Require().NoError(err)
 			}
@@ -317,7 +313,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitDKGRound2Req() {
 	}
 }
 
-func (s *KeeperTestSuite) TestSuccessComplainReq() {
+func (s *AppTestSuite) TestSuccessComplainReq() {
 	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
 	complaintID := tss.MemberID(1)
 
@@ -363,7 +359,7 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 							Signature:   signature,
 						},
 					},
-					Address: sdk.AccAddress(m.PubKey()).String(),
+					Sender: sdk.AccAddress(m.PubKey()).String(),
 				})
 				s.Require().NoError(err)
 			}
@@ -375,7 +371,7 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 				GroupID:      tc.Group.ID,
 				MemberID:     respondent.ID,
 				OwnPubKeySig: respondent.PubKeySignature,
-				Address:      sdk.AccAddress(respondent.PubKey()).String(),
+				Sender:       sdk.AccAddress(respondent.PubKey()).String(),
 			})
 			s.Require().NoError(err)
 
@@ -390,7 +386,7 @@ func (s *KeeperTestSuite) TestSuccessComplainReq() {
 	}
 }
 
-func (s *KeeperTestSuite) TestSuccessConfirmReq() {
+func (s *AppTestSuite) TestSuccessConfirmReq() {
 	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
 
 	s.SetupGroup(types.GROUP_STATUS_ROUND_3)
@@ -404,7 +400,7 @@ func (s *KeeperTestSuite) TestSuccessConfirmReq() {
 					GroupID:      tc.Group.ID,
 					MemberID:     m.ID,
 					OwnPubKeySig: m.PubKeySignature,
-					Address:      sdk.AccAddress(m.PubKey()).String(),
+					Sender:       sdk.AccAddress(m.PubKey()).String(),
 				})
 				s.Require().NoError(err)
 			}
@@ -420,7 +416,7 @@ func (s *KeeperTestSuite) TestSuccessConfirmReq() {
 	}
 }
 
-func (s *KeeperTestSuite) TestFailedSubmitDEsReq() {
+func (s *AppTestSuite) TestFailedSubmitDEsReq() {
 	ctx, msgSrvr := s.ctx, s.msgSrvr
 
 	var req types.MsgSubmitDEs
@@ -438,12 +434,12 @@ func (s *KeeperTestSuite) TestFailedSubmitDEsReq() {
 				}
 
 				req = types.MsgSubmitDEs{
-					DEs:     deList,
-					Address: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+					DEs:    deList,
+					Sender: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 				}
 			},
 			func() {},
-			types.ErrDEReachMaximumLimit,
+			types.ErrDEReachMaxLimit,
 		},
 	}
 
@@ -459,7 +455,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDEsReq() {
 	}
 }
 
-func (s *KeeperTestSuite) TestSuccessSubmitDEsReq() {
+func (s *AppTestSuite) TestSuccessSubmitDEsReq() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
 	de := types.DE{
 		PubD: []byte("D"),
@@ -472,22 +468,22 @@ func (s *KeeperTestSuite) TestSuccessSubmitDEsReq() {
 			for _, m := range tc.Group.Members {
 				// Submit DEs for each member in the group
 				_, err := msgSrvr.SubmitDEs(ctx, &types.MsgSubmitDEs{
-					DEs:     []types.DE{de},
-					Address: sdk.AccAddress(m.PubKey()).String(),
+					DEs:    []types.DE{de},
+					Sender: sdk.AccAddress(m.PubKey()).String(),
 				})
 				s.Require().NoError(err)
 			}
 
 			// Verify that each member has the correct DE
 			for _, m := range tc.Group.Members {
-				hasDE := k.HasDE(ctx, sdk.AccAddress(m.PubKey()), de)
-				s.Require().True(hasDE)
+				deQueue := k.GetDEQueue(ctx, sdk.AccAddress(m.PubKey()))
+				s.Require().True(deQueue.Head < deQueue.Tail)
 			}
 		})
 	}
 }
 
-func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
+func (s *AppTestSuite) TestFailedSubmitSignatureReq() {
 	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
 
 	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
@@ -504,7 +500,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 					SigningID: tss.SigningID(99), // non-existent signingID
 					MemberID:  tc1.Group.Members[0].ID,
 					Signature: tc1.Signings[0].Signature,
-					Address:   sdk.AccAddress(tc1.Group.Members[0].PubKey()).String(),
+					Signer:    sdk.AccAddress(tc1.Group.Members[0].PubKey()).String(),
 				}
 			},
 			func() {},
@@ -514,25 +510,28 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 			"failure with invalid memberID",
 			func() {
 				k.SetSigning(ctx, types.Signing{
-					ID:              tc1.Signings[0].ID,
-					GroupID:         tc1.Group.ID,
+					ID:             tc1.Signings[0].ID,
+					GroupID:        tc1.Group.ID,
+					Message:        tc1.Signings[0].Data,
+					GroupPubNonce:  tc1.Signings[0].PubNonce,
+					Status:         types.SIGNING_STATUS_WAITING,
+					CurrentAttempt: 1,
+					Signature:      nil,
+				})
+				k.SetSigningAttempt(ctx, types.SigningAttempt{
+					SigningID:       tc1.Signings[0].ID,
+					Attempt:         1,
 					AssignedMembers: []types.AssignedMember{},
-					Message:         tc1.Signings[0].Data,
-					GroupPubNonce:   tc1.Signings[0].PubNonce,
-					Status:          types.SIGNING_STATUS_WAITING,
-					Signature:       nil,
 				})
 
 				req = types.MsgSubmitSignature{
 					SigningID: tc1.Signings[0].ID,
 					MemberID:  tss.MemberID(99), // non-existent memberID
 					Signature: tc1.Signings[0].Signature,
-					Address:   sdk.AccAddress(tc1.Group.Members[0].PubKey()).String(),
+					Signer:    sdk.AccAddress(tc1.Group.Members[0].PubKey()).String(),
 				}
 			},
-			func() {
-				k.DeleteSigning(ctx, tc1.Signings[0].ID)
-			},
+			func() {},
 			types.ErrMemberNotAssigned,
 		},
 	}
@@ -549,7 +548,7 @@ func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 	}
 }
 
-func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
+func (s *AppTestSuite) TestSuccessSubmitSignatureReq() {
 	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
 	bandtssMsgSrvr := bandtsskeeper.NewMsgServerImpl(s.app.BandtssKeeper)
 
@@ -582,15 +581,15 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			group, err := k.GetGroup(ctx, tc.Group.ID)
 			s.Require().NoError(err)
 
+			sa, err := k.GetSigningAttempt(ctx, signing.ID, signing.CurrentAttempt)
+			s.Require().NoError(err)
+			assignedMembers := types.AssignedMembers(sa.AssignedMembers)
+
 			// Process signing for each assigned member
-			var balancesBefores []sdk.Coins
-			for _, am := range signing.AssignedMembers {
+			for _, am := range assignedMembers {
 				// Compute Lagrange coefficient
 				var lgc tss.Scalar
-				lgc, err = tss.ComputeLagrangeCoefficient(
-					am.MemberID,
-					signing.AssignedMembers.MemberIDs(),
-				)
+				lgc, err = tss.ComputeLagrangeCoefficient(am.MemberID, assignedMembers.MemberIDs())
 				s.Require().NoError(err)
 
 				// Compute private nonce
@@ -613,30 +612,13 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 					SigningID: tss.SigningID(i + 1),
 					MemberID:  am.MemberID,
 					Signature: signature,
-					Address:   sdk.AccAddress(tc.Group.GetMember(am.MemberID).PubKey()).String(),
+					Signer:    sdk.AccAddress(tc.Group.GetMember(am.MemberID).PubKey()).String(),
 				})
 				s.Require().NoError(err)
-
-				balancesBefores = append(balancesBefores, s.app.BankKeeper.GetAllBalances(
-					ctx,
-					sdk.AccAddress(tc.Group.GetMember(am.MemberID).PubKey()),
-				))
 			}
 
 			// Execute the EndBlocker to process signings
 			app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
-
-			req, err := s.app.BandtssKeeper.GetSigning(ctx, bandtssSigningID)
-			s.Require().NoError(err)
-
-			// Each assigned member should receive fee for the signature
-			for i, am := range signing.AssignedMembers {
-				balancesAfter := s.app.BankKeeper.GetAllBalances(
-					ctx,
-					sdk.AccAddress(tc.Group.GetMember(am.MemberID).PubKey()),
-				)
-				s.Require().Equal(req.Fee, balancesAfter.Sub(balancesBefores[i]...))
-			}
 
 			// Retrieve the signing information after signing
 			signing, err = k.GetSigning(ctx, tss.SigningID(i+1))
@@ -646,7 +628,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 	}
 }
 
-func (s *KeeperTestSuite) TestUpdateParams() {
+func (s *AppTestSuite) TestUpdateParams() {
 	k, msgSrvr := s.app.TSSKeeper, s.msgSrvr
 
 	testCases := []struct {
@@ -668,10 +650,13 @@ func (s *KeeperTestSuite) TestUpdateParams() {
 			request: &types.MsgUpdateParams{
 				Authority: k.GetAuthority(),
 				Params: types.Params{
-					MaxGroupSize:   types.DefaultMaxGroupSize,
-					MaxDESize:      types.DefaultMaxDESize,
-					CreatingPeriod: types.DefaultCreatingPeriod,
-					SigningPeriod:  types.DefaultSigningPeriod,
+					MaxGroupSize:      types.DefaultMaxGroupSize,
+					MaxDESize:         types.DefaultMaxDESize,
+					CreationPeriod:    types.DefaultCreationPeriod,
+					SigningPeriod:     types.DefaultSigningPeriod,
+					MaxSigningAttempt: types.DefaultMaxSigningAttempt,
+					MaxMemoLength:     types.DefaultMaxMemoLength,
+					MaxMessageLength:  types.DefaultMaxMessageLength,
 				},
 			},
 			expectErr: false,

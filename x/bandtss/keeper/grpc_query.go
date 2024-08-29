@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
@@ -20,6 +21,14 @@ type queryServer struct{ k *Keeper }
 
 func NewQueryServer(k *Keeper) types.QueryServer {
 	return queryServer{k: k}
+}
+
+// Counts queries the number signing requests.
+func (q queryServer) Counts(c context.Context, req *types.QueryCountsRequest) (*types.QueryCountsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	return &types.QueryCountsResponse{
+		SigningCount: q.k.GetSigningCount(ctx),
+	}, nil
 }
 
 // IsGrantee queries if a specific address is a grantee of another.
@@ -53,26 +62,38 @@ func (q queryServer) Member(
 
 	address, err := sdk.AccAddressFromBech32(req.Address)
 	if err != nil {
-		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid grantee address: %s", err)
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
-	member, err := q.k.GetMember(ctx, address)
-	if err != nil {
-		return nil, err
-	}
+	currentGroupID := q.k.GetCurrentGroupID(ctx)
+	currentGroupMember, _ := q.k.GetMember(ctx, address, currentGroupID)
+
+	incomingGroupID := q.k.GetIncomingGroupID(ctx)
+	incomingGroupMember, _ := q.k.GetMember(ctx, address, incomingGroupID)
 
 	return &types.QueryMemberResponse{
-		Member: member,
+		CurrentGroupMember:  currentGroupMember,
+		IncomingGroupMember: incomingGroupMember,
 	}, nil
 }
 
-// Members queries filtered members information based on criteria.
+// Members queries filtered members information based on criteria. If queried group
+// is not activated, it will return an empty list.
 func (q queryServer) Members(
 	goCtx context.Context,
 	req *types.QueryMembersRequest,
 ) (*types.QueryMembersResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	memberStore := prefix.NewStore(ctx.KVStore(q.k.storeKey), types.MemberStoreKeyPrefix)
+	var groupID tss.GroupID
+	if req.IsIncomingGroup {
+		groupID = q.k.GetIncomingGroupID(ctx)
+	} else {
+		groupID = q.k.GetCurrentGroupID(ctx)
+	}
+
+	iteratorKey := append(types.MemberStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
+	memberStore := prefix.NewStore(ctx.KVStore(q.k.storeKey), iteratorKey)
+
 	filteredMembers, pageRes, err := query.GenericFilteredPaginate(
 		q.k.cdc,
 		memberStore,
@@ -117,7 +138,7 @@ func (q queryServer) CurrentGroup(
 
 	groupID := q.k.GetCurrentGroupID(ctx)
 	if groupID == 0 {
-		return nil, types.ErrNoActiveGroup
+		return nil, types.ErrNoCurrentGroup
 	}
 
 	group, err := q.k.tssKeeper.GetGroup(ctx, groupID)
@@ -134,17 +155,47 @@ func (q queryServer) CurrentGroup(
 	}, nil
 }
 
-// Replacement queries group replacement information.
-func (q queryServer) Replacement(
+// IncomingGroup queries the incoming group information.
+func (q queryServer) IncomingGroup(
 	goCtx context.Context,
-	req *types.QueryReplacementRequest,
-) (*types.QueryReplacementResponse, error) {
+	req *types.QueryIncomingGroupRequest,
+) (*types.QueryIncomingGroupResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	replacement := q.k.GetReplacement(ctx)
+	groupID := q.k.GetIncomingGroupID(ctx)
+	if groupID == 0 {
+		return nil, types.ErrNoIncomingGroup
+	}
 
-	return &types.QueryReplacementResponse{
-		Replacement: replacement,
+	group, err := q.k.tssKeeper.GetGroup(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.QueryIncomingGroupResponse{
+		GroupID:   groupID,
+		Size_:     group.Size_,
+		Threshold: group.Threshold,
+		PubKey:    group.PubKey,
+		Status:    group.Status,
+	}, nil
+}
+
+// GroupTransition queries group transition information.
+func (q queryServer) GroupTransition(
+	goCtx context.Context,
+	req *types.QueryGroupTransitionRequest,
+) (*types.QueryGroupTransitionResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	gt, found := q.k.GetGroupTransition(ctx)
+	var groupTransition *types.GroupTransition
+	if found {
+		groupTransition = &gt
+	}
+
+	return &types.QueryGroupTransitionResponse{
+		GroupTransition: groupTransition,
 	}, nil
 }
 
@@ -161,24 +212,28 @@ func (q queryServer) Signing(
 		return nil, err
 	}
 
-	currentGroupSigningResult, err := q.k.tssKeeper.GetSigningResult(ctx, signing.CurrentGroupSigningID)
-	if err != nil {
-		return nil, err
+	var currentGroupSigningResult *tsstypes.SigningResult
+	var incomingGroupSigningResult *tsstypes.SigningResult
+
+	if signing.CurrentGroupSigningID != 0 {
+		currentGroupSigningResult, err = q.k.tssKeeper.GetSigningResult(ctx, signing.CurrentGroupSigningID)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	var replacingGroupSigningResult *tsstypes.SigningResult
-	if signing.ReplacingGroupSigningID != 0 {
-		replacingGroupSigningResult, err = q.k.tssKeeper.GetSigningResult(ctx, signing.ReplacingGroupSigningID)
+	if signing.IncomingGroupSigningID != 0 {
+		incomingGroupSigningResult, err = q.k.tssKeeper.GetSigningResult(ctx, signing.IncomingGroupSigningID)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	return &types.QuerySigningResponse{
-		Fee:                         signing.Fee,
-		Requester:                   signing.Requester,
-		CurrentGroupSigningResult:   currentGroupSigningResult,
-		ReplacingGroupSigningResult: replacingGroupSigningResult,
+		FeePerSigner:               signing.FeePerSigner,
+		Requester:                  signing.Requester,
+		CurrentGroupSigningResult:  currentGroupSigningResult,
+		IncomingGroupSigningResult: incomingGroupSigningResult,
 	}, nil
 }
 

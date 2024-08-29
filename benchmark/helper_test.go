@@ -75,21 +75,21 @@ func GenMsgRequestData(
 	return []sdk.Msg{&msg}
 }
 
-func GenMsgSubmitPrices(
+func GenMsgSubmitSignalPrices(
 	sender *Account,
 	feeds []feedstypes.Feed,
 	timestamp int64,
 ) []sdk.Msg {
-	prices := []feedstypes.SubmitPrice{}
+	prices := make([]feedstypes.SignalPrice, 0, len(feeds))
 	for _, feed := range feeds {
-		prices = append(prices, feedstypes.SubmitPrice{
+		prices = append(prices, feedstypes.SignalPrice{
 			PriceStatus: feedstypes.PriceStatusAvailable,
 			SignalID:    feed.SignalID,
 			Price:       60000,
 		})
 	}
 
-	msg := feedstypes.NewMsgSubmitPrices(sender.ValAddress.String(), timestamp, prices)
+	msg := feedstypes.NewMsgSubmitSignalPrices(sender.ValAddress.String(), timestamp, prices)
 
 	return []sdk.Msg{msg}
 }
@@ -168,7 +168,7 @@ func GenMsgSubmitSignature(sid tss.SigningID, mid tss.MemberID, sig tss.Signatur
 		SigningID: sid,
 		MemberID:  mid,
 		Signature: sig,
-		Address:   member.String(),
+		Signer:    member.String(),
 	}
 
 	return []sdk.Msg{&msg}
@@ -177,19 +177,20 @@ func GenMsgSubmitSignature(sid tss.SigningID, mid tss.MemberID, sig tss.Signatur
 func CreateSignature(
 	mid tss.MemberID,
 	signing tsstypes.Signing,
+	assignedMembers tsstypes.AssignedMembers,
 	groupPubKey tss.Point,
 	ownPrivKey tss.Scalar,
 ) (tss.Signature, error) {
 	// Compute Lagrange coefficient
 	lgc, err := tss.ComputeLagrangeCoefficient(
 		mid,
-		signing.AssignedMembers.MemberIDs(),
+		assignedMembers.MemberIDs(),
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, am := range signing.AssignedMembers {
+	for _, am := range assignedMembers {
 		if am.MemberID == mid {
 			// Compute private nonce
 			pn, err := tss.ComputeOwnPrivNonce(PrivD, PrivE, am.BindingFactor)

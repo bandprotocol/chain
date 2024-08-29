@@ -71,7 +71,7 @@ func HashRound3Complain(
 			[]byte("round3Complain"),
 			pubNonce,
 			nonceSym,
-			oneTimePubJ,
+			oneTimePubI,
 			oneTimePubJ,
 			keySym,
 		),
