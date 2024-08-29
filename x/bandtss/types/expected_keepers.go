@@ -64,11 +64,6 @@ type DistrKeeper interface {
 	AllocateTokensToValidator(ctx sdk.Context, val stakingtypes.ValidatorI, tokens sdk.DecCoins)
 }
 
-// RollingseedKeeper defines the expected rollingseed keeper
-type RollingseedKeeper interface {
-	GetRollingSeed(ctx sdk.Context) []byte
-}
-
 // StakingKeeper defines the expected staking keeper.
 type StakingKeeper interface {
 	MaxValidators(ctx sdk.Context) (res uint32)
@@ -88,22 +83,23 @@ type TSSKeeper interface {
 		moduleOwner string,
 	) (tss.GroupID, error)
 
-	CreateSigning(
+	RequestSigning(
 		ctx sdk.Context,
-		group tsstypes.Group,
+		groupID tss.GroupID,
+		originator tsstypes.Originator,
 		content tsstypes.Content,
-	) (*tsstypes.Signing, error)
+	) (tss.SigningID, error)
 
 	MustGetMembers(ctx sdk.Context, groupID tss.GroupID) []tsstypes.Member
 	GetMemberByAddress(ctx sdk.Context, groupID tss.GroupID, address string) (tsstypes.Member, error)
 	ActivateMember(ctx sdk.Context, groupID tss.GroupID, address sdk.AccAddress) error
 	DeactivateMember(ctx sdk.Context, groupID tss.GroupID, address sdk.AccAddress) error
 
-	GetDECount(ctx sdk.Context, address sdk.AccAddress) uint64
+	GetDEQueue(ctx sdk.Context, address sdk.AccAddress) tsstypes.DEQueue
 	GetGroup(ctx sdk.Context, groupID tss.GroupID) (tsstypes.Group, error)
-
-	GetPenalizedMembersExpiredSigning(ctx sdk.Context, signing tsstypes.Signing) ([]sdk.AccAddress, error)
+	MustGetGroup(ctx sdk.Context, groupID tss.GroupID) tsstypes.Group
 
 	GetSigning(ctx sdk.Context, signingID tss.SigningID) (tsstypes.Signing, error)
+	MustGetSigning(ctx sdk.Context, signingID tss.SigningID) tsstypes.Signing
 	GetSigningResult(ctx sdk.Context, signingID tss.SigningID) (*tsstypes.SigningResult, error)
 }

@@ -27,24 +27,3 @@ type AuthzKeeper interface {
 type RollingseedKeeper interface {
 	GetRollingSeed(ctx sdk.Context) []byte
 }
-
-// TSSHooks event hooks for tss validator object (noalias)
-type TSSHooks interface {
-	// Must be called when a group is created successfully.
-	AfterCreatingGroupCompleted(ctx sdk.Context, group Group) error
-
-	// Must be called after members fails to create a group.
-	AfterCreatingGroupFailed(ctx sdk.Context, group Group) error
-
-	// Must be called before setting group status to expired.
-	BeforeSetGroupExpired(ctx sdk.Context, group Group) error
-
-	// Must be called after a signing request is unsuccessfully signed.
-	AfterSigningFailed(ctx sdk.Context, signing Signing) error
-
-	// Must be called after a signing request is successfully signed by selected members.
-	AfterSigningCompleted(ctx sdk.Context, signing Signing) error
-
-	// Must be called before setting signing status to expired.
-	BeforeSetSigningExpired(ctx sdk.Context, signing Signing) error
-}

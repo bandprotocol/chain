@@ -650,7 +650,7 @@ func (e EncSecretShare) Value() []byte {
 	return e[0:32]
 }
 
-// Value return the nonce part of EncSecretShare
+// Nonce return the nonce part of EncSecretShare
 func (e EncSecretShare) Nonce() []byte {
 	return e[32:48]
 }

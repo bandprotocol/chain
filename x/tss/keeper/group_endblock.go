@@ -66,22 +66,6 @@ func (k Keeper) HandleProcessGroup(ctx sdk.Context, groupID tss.GroupID) {
 				sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
 			),
 		)
-	case types.GROUP_STATUS_FALLEN:
-		group.Status = types.GROUP_STATUS_FALLEN
-		k.SetGroup(ctx, group)
-
-		// Handle the hooks when group creation is fallen; this shouldn't return any error.
-		if err := k.Hooks().AfterCreatingGroupFailed(ctx, group); err != nil {
-			panic(err)
-		}
-
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeRound3Failed,
-				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-				sdk.NewAttribute(types.AttributeKeyStatus, group.Status.String()),
-			),
-		)
 	case types.GROUP_STATUS_ROUND_3:
 		// Get members to check malicious
 		members := k.MustGetMembers(ctx, group.ID)
@@ -89,9 +73,9 @@ func (k Keeper) HandleProcessGroup(ctx sdk.Context, groupID tss.GroupID) {
 			group.Status = types.GROUP_STATUS_ACTIVE
 			k.SetGroup(ctx, group)
 
-			// Handle the hooks when group is ready. this shouldn't return any error.
-			if err := k.Hooks().AfterCreatingGroupCompleted(ctx, group); err != nil {
-				panic(err)
+			// Handle the callback when group is ready. this shouldn't return any error.
+			if cb, ok := k.cbRouter.GetRoute(group.ModuleOwner); ok {
+				cb.OnGroupCreationCompleted(ctx, group.ID)
 			}
 
 			ctx.EventManager().EmitEvent(
@@ -105,9 +89,9 @@ func (k Keeper) HandleProcessGroup(ctx sdk.Context, groupID tss.GroupID) {
 			group.Status = types.GROUP_STATUS_FALLEN
 			k.SetGroup(ctx, group)
 
-			// Handle the hooks when group creation is fallen; this shouldn't return any error.
-			if err := k.Hooks().AfterCreatingGroupFailed(ctx, group); err != nil {
-				panic(err)
+			// Handle the callback when group creation is fallen; this shouldn't return any error.
+			if cb, ok := k.cbRouter.GetRoute(group.ModuleOwner); ok {
+				cb.OnGroupCreationFailed(ctx, group.ID)
 			}
 
 			ctx.EventManager().EmitEvent(
@@ -150,17 +134,16 @@ func (k Keeper) HandleExpiredGroups(ctx sdk.Context) {
 		group := k.MustGetGroup(ctx, currentGroupID)
 
 		// Check if the group is still within the expiration period
-		if group.CreatedHeight+k.GetParams(ctx).CreatingPeriod > uint64(ctx.BlockHeight()) {
+		if group.CreatedHeight+k.GetParams(ctx).CreationPeriod > uint64(ctx.BlockHeight()) {
 			break
 		}
 
 		// Check group is not active
 		if group.Status != types.GROUP_STATUS_ACTIVE && group.Status != types.GROUP_STATUS_FALLEN {
-			// Handle the hooks before setting group to be expired; this shouldn't return any error.
-			if err := k.Hooks().BeforeSetGroupExpired(ctx, group); err != nil {
-				panic(err)
+			// Handle the callback before setting group to be expired; this shouldn't return any error.
+			if cb, ok := k.cbRouter.GetRoute(group.ModuleOwner); ok {
+				cb.OnGroupCreationExpired(ctx, group.ID)
 			}
-
 			// Update group status
 			group.Status = types.GROUP_STATUS_EXPIRED
 			k.SetGroup(ctx, group)

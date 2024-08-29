@@ -54,7 +54,7 @@ func (suite *KeeperTestSuite) TestExportGenesis() {
 
 func (suite *KeeperTestSuite) TestInitGenesis() {
 	ctx := suite.ctx
-	params := types.NewParams("[NOT_SET]", 30, 30, 60, 3600, 1000_000_000, 100, 30, 5, 300, 28800)
+	params := types.NewParams("[NOT_SET]", 30, 30, 60, 3600, 1000_000_000, 100, 30, 5, 300, 28800, 10)
 
 	delegatorSignals := []types.DelegatorSignals{
 		{

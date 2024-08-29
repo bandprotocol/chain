@@ -1,9 +1,8 @@
 package types
 
 import (
-	"bytes"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkaddress "github.com/cosmos/cosmos-sdk/types/address"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -30,20 +29,20 @@ var (
 	// GroupCountStoreKey is the key that keeps the total group count.
 	GroupCountStoreKey = append(GlobalStoreKeyPrefix, []byte("GroupCount")...)
 
-	// LastExpiredGroupIDStoreKey is the key for keeps last expired groupID.
+	// LastExpiredGroupIDStoreKey is the key for keeping last expired groupID.
 	LastExpiredGroupIDStoreKey = append(GlobalStoreKeyPrefix, []byte("LastExpiredGroupID")...)
 
 	// SigningCountStoreKey is the key that keeps the total signing count.
 	SigningCountStoreKey = append(GlobalStoreKeyPrefix, []byte("SigningCount")...)
-
-	// LastExpiredSigningIDStoreKey is the key for keeps last expired signingID.
-	LastExpiredSigningIDStoreKey = append(GlobalStoreKeyPrefix, []byte("LastExpiredSigningID")...)
 
 	// PendingProcessGroupsStoreKey is the key for storing pending process groups.
 	PendingProcessGroupsStoreKey = append(GlobalStoreKeyPrefix, []byte("PendingProcessGroups")...)
 
 	// PendingSigningsStoreKey is the key for storing pending process signings.
 	PendingSigningsStoreKey = append(GlobalStoreKeyPrefix, []byte("PendingProcessSignings")...)
+
+	// SigningExpirationsStoreKey is the key for keeping signing expiration.
+	SigningExpirationsStoreKey = append(GlobalStoreKeyPrefix, []byte("SigningExpirations")...)
 
 	// GroupStoreKeyPrefix is the prefix for group store.
 	GroupStoreKeyPrefix = []byte{0x01}
@@ -81,20 +80,24 @@ var (
 	// DEStoreKeyPrefix is the key for keeping pre-commit DEs.
 	DEStoreKeyPrefix = []byte{0x0c}
 
-	// DECountStoreKeyPrefix is the prefix key for keeping the number of DE of the specific address.
-	DECountStoreKeyPrefix = []byte{0x0d}
+	// DEQueueStoreKeyPrefix is the prefix key for keeping the DE's queue information
+	// of the specific address.
+	DEQueueStoreKeyPrefix = []byte{0x0d}
 
-	// SigningStoreKeyPrefix is the key for keeps signing data.
+	// SigningStoreKeyPrefix is the key for keeping signing data.
 	SigningStoreKeyPrefix = []byte{0x0e}
 
-	// PartialSignatureCountStoreKeyPrefix is the key for keeps signature count data.
+	// PartialSignatureCountStoreKeyPrefix is the key for keeping signature count data.
 	PartialSignatureCountStoreKeyPrefix = []byte{0x0f}
 
-	// PartialSignatureStoreKeyPrefix is the key for keeps partial signature.
+	// PartialSignatureStoreKeyPrefix is the key for keeping partial signature.
 	PartialSignatureStoreKeyPrefix = []byte{0x10}
 
+	// SigningAttemptStoreKeyPrefix is the key for keeping signing attempts.
+	SigningAttemptStoreKeyPrefix = []byte{0x11}
+
 	// ParamsKeyPrefix is a prefix for keys that store tss's parameters
-	ParamsKeyPrefix = []byte{0x11}
+	ParamsKeyPrefix = []byte{0x20}
 )
 
 // GroupStoreKey returns the key for storing group information.
@@ -107,13 +110,13 @@ func DKGContextStoreKey(groupID tss.GroupID) []byte {
 	return append(DKGContextStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-// MembersStoreKey returns the prefix for the MemberOfGroupKey.
+// MembersStoreKey returns the prefix of the MemberStoreKey for specific groupID.
 func MembersStoreKey(groupID tss.GroupID) []byte {
 	return append(MemberStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
-// MemberOfGroupKey returns the key for storing member information.
-func MemberOfGroupKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
+// MemberStoreKey returns the key for storing member information.
+func MemberStoreKey(groupID tss.GroupID, memberID tss.MemberID) []byte {
 	return append(MembersStoreKey(groupID), sdk.Uint64ToBigEndian(uint64(memberID))...)
 }
 
@@ -182,46 +185,20 @@ func ConfirmComplainCountStoreKey(groupID tss.GroupID) []byte {
 	return append(ConfirmComplainCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 }
 
+// DEsStoreKey returns the prefix of the key for user's DE.
+func DEsStoreKey(address sdk.AccAddress) []byte {
+	return append(DEStoreKeyPrefix, sdkaddress.MustLengthPrefix(address)...)
+}
+
 // DEStoreKey returns the key for storing whether DE exists or not.
-func DEStoreKey(address sdk.AccAddress, de DE) []byte {
-	return bytes.Join([][]byte{
-		DEStoreKeyPrefix,
-		{byte(len(address))},
-		address,
-		{byte(len(de.PubD))},
-		de.PubD,
-		{byte(len(de.PubE))},
-		de.PubE,
-	}, []byte(""))
+func DEStoreKey(address sdk.AccAddress, index uint64) []byte {
+	return append(DEsStoreKey(address), sdk.Uint64ToBigEndian(index)...)
 }
 
-// ExtractValueFromDEStoreKey returns address and DE information that is retrieved from the key.
-func ExtractValueFromDEStoreKey(key []byte) (sdk.AccAddress, DE) {
-	lenAddr := int(key[1])
-	lenPubD := int(key[2+lenAddr])
-	address := sdk.AccAddress(key[2 : 2+lenAddr])
-	pubD := key[3+lenAddr : 3+lenAddr+lenPubD]
-	pubE := key[4+lenAddr+lenPubD:]
-
-	return address, DE{PubD: pubD, PubE: pubE}
-}
-
-// ExtractValueFromDEPaginationKey returns DE information that is retrieved from the key
-func ExtractValueFromDEPaginationKey(key []byte) DE {
-	lenPubD := int(key[0])
-	pubD := key[1 : 1+lenPubD]
-	pubE := key[2+lenPubD:]
-	return DE{PubD: pubD, PubE: pubE}
-}
-
-// DEStoreKeyPerAddressPrefix returns the prefix of the key for user's DE.
-func DEStoreKeyPerAddressPrefix(address sdk.AccAddress) []byte {
-	return append(append(DEStoreKeyPrefix, byte(len(address))), address...)
-}
-
-// DECountStoreKey returns the key for storing the number of DE of specific address.
-func DECountStoreKey(address sdk.AccAddress) []byte {
-	return append(DECountStoreKeyPrefix, address...)
+// DEQueueStoreKey returns the key for storing the queue information (head and tail index)
+// of DE of specific address.
+func DEQueueStoreKey(address sdk.AccAddress) []byte {
+	return append(DEQueueStoreKeyPrefix, sdkaddress.MustLengthPrefix(address)...)
 }
 
 // SigningStoreKey returns the key for storing signing information.
@@ -229,23 +206,50 @@ func SigningStoreKey(signingID tss.SigningID) []byte {
 	return append(SigningStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 
-// PartialSignatureCountStoreKey returns the key for storing signature count information.
-func PartialSignatureCountStoreKey(signingID tss.SigningID) []byte {
+// PartialSignatureCountsStoreKey returns the prefix key for PartialSignatureCount store key.
+func PartialSignatureCountsStoreKey(signingID tss.SigningID) []byte {
 	return append(PartialSignatureCountStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 
-// PartialSignatureStoreKey returns the prefix for PartialSignatureMemberStoreKey.
-func PartialSignatureStoreKey(signingID tss.SigningID) []byte {
+// PartialSignatureCountStoreKey returns the key for storing signature count information.
+func PartialSignatureCountStoreKey(signingID tss.SigningID, attempt uint64) []byte {
+	return append(PartialSignatureCountsStoreKey(signingID), sdk.Uint64ToBigEndian(attempt)...)
+}
+
+// PartialSignaturesBySigningIDStoreKey returns the prefix for PartialSignaturesStoreKey.
+func PartialSignaturesBySigningIDStoreKey(signingID tss.SigningID) []byte {
 	return append(PartialSignatureStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
 }
 
-// PartialSignatureMemberStoreKey returns the key for storing partial signature information of a given member.
-func PartialSignatureMemberStoreKey(signingID tss.SigningID, memberID tss.MemberID) []byte {
-	return append(PartialSignatureStoreKey(signingID), sdk.Uint64ToBigEndian(uint64(memberID))...)
+// PartialSignaturesStoreKey returns the prefix for PartialSignatureStoreKey.
+func PartialSignaturesStoreKey(signingID tss.SigningID, attempt uint64) []byte {
+	return append(PartialSignaturesBySigningIDStoreKey(signingID), sdk.Uint64ToBigEndian(attempt)...)
 }
 
-// MemberIDFromPartialSignatureMemberStoreKey returns the memberID that is retrieved from the key.
-func MemberIDFromPartialSignatureMemberStoreKey(key []byte) tss.MemberID {
-	kv.AssertKeyLength(key, 1+2*uint64Len)
-	return tss.MemberID(sdk.BigEndianToUint64(key[1+uint64Len:]))
+// PartialSignatureStoreKey returns the key for storing partial signature information of a given member.
+func PartialSignatureStoreKey(signingID tss.SigningID, attempt uint64, memberID tss.MemberID) []byte {
+	return append(PartialSignaturesStoreKey(signingID, attempt), sdk.Uint64ToBigEndian(uint64(memberID))...)
+}
+
+// SigningAttemptsStoreKey returns the prefix key for SigningAttemptStoreKey.
+func SigningAttemptsStoreKey(signingID tss.SigningID) []byte {
+	return append(SigningAttemptStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(signingID))...)
+}
+
+// SigningAttemptStoreKey returns the key for storing signingAttempt information.
+func SigningAttemptStoreKey(signingID tss.SigningID, attempt uint64) []byte {
+	return append(SigningAttemptsStoreKey(signingID), sdk.Uint64ToBigEndian(attempt)...)
+}
+
+// MemberIDFromPartialSignatureStoreKey returns the memberID that is retrieved from the key.
+func MemberIDFromPartialSignatureStoreKey(key []byte) tss.MemberID {
+	kv.AssertKeyLength(key, 1+3*uint64Len)
+	return tss.MemberID(sdk.BigEndianToUint64(key[1+2*uint64Len:]))
+}
+
+// ExtractAddressFromDEQueueStoreKey returns address that is retrieved from the key.
+func ExtractAddressFromDEQueueStoreKey(key []byte) sdk.AccAddress {
+	// key is of format prefix || addrLen (1byte) || addrBytes
+	address := sdk.AccAddress(key[2:])
+	return address
 }

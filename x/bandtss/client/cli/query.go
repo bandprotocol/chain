@@ -25,14 +25,44 @@ func GetQueryCmd() *cobra.Command {
 	}
 
 	cmd.AddCommand(
+		GetQueryCmdCounts(),
 		GetQueryCmdMember(),
 		GetQueryCmdMembers(),
 		GetQueryCmdCurrentGroup(),
+		GetQueryCmdIncomingGroup(),
 		GetQueryCmdParams(),
 		GetQueryCmdSigning(),
-		GetQueryCmdReplacement(),
+		GetQueryCmdGroupTransition(),
 		GetQueryCmdIsGrantee(),
 	)
+
+	return cmd
+}
+
+// GetQueryCmdCounts implements the query counts command.
+func GetQueryCmdCounts() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "counts",
+		Short: "Get current number of signing requests to bandtss module on BandChain",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.Counts(cmd.Context(), &types.QueryCountsRequest{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
 }
@@ -71,7 +101,7 @@ func GetQueryCmdMember() *cobra.Command {
 func GetQueryCmdMembers() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "members",
-		Short: "Query the members information of the active group",
+		Short: "Query the members information",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -80,6 +110,11 @@ func GetQueryCmdMembers() *cobra.Command {
 			}
 
 			statusFilterFlag, err := cmd.Flags().GetBool(flagMemberStatusFilter)
+			if err != nil {
+				return err
+			}
+
+			isIncomingGroup, err := cmd.Flags().GetBool(flagIncomingGroup)
 			if err != nil {
 				return err
 			}
@@ -94,9 +129,9 @@ func GetQueryCmdMembers() *cobra.Command {
 			}
 
 			queryClient := types.NewQueryClient(clientCtx)
-
 			res, err := queryClient.Members(cmd.Context(), &types.QueryMembersRequest{
-				Status: statusFilter,
+				Status:          statusFilter,
+				IsIncomingGroup: isIncomingGroup,
 			})
 			if err != nil {
 				return err
@@ -106,6 +141,8 @@ func GetQueryCmdMembers() *cobra.Command {
 		},
 	}
 
+	cmd.Flags().
+		Bool(flagIncomingGroup, false, "Whether the heartbeat is for the incoming group or current group.")
 	cmd.Flags().Bool(flagMemberStatusFilter, false, "Filter members by status")
 	flags.AddQueryFlagsToCmd(cmd)
 
@@ -116,7 +153,7 @@ func GetQueryCmdMembers() *cobra.Command {
 func GetQueryCmdCurrentGroup() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "current-group",
-		Short: "Query the currentGroup",
+		Short: "Query the current group information",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -126,6 +163,33 @@ func GetQueryCmdCurrentGroup() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.CurrentGroup(cmd.Context(), &types.QueryCurrentGroupRequest{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetQueryCmdIncomingGroup creates a CLI command for querying incoming group.
+func GetQueryCmdIncomingGroup() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "incoming-group",
+		Short: "Query the incoming group information",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.IncomingGroup(cmd.Context(), &types.QueryIncomingGroupRequest{})
 			if err != nil {
 				return err
 			}
@@ -199,11 +263,11 @@ func GetQueryCmdSigning() *cobra.Command {
 	return cmd
 }
 
-// GetQueryCmdReplacement creates a CLI command for querying group replacement information.
-func GetQueryCmdReplacement() *cobra.Command {
+// GetQueryCmdGroupTransition creates a CLI command for querying group transition information.
+func GetQueryCmdGroupTransition() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "replacement",
-		Short: "Query the replacement information",
+		Use:   "group-transition",
+		Short: "Query the group transition information",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -212,7 +276,7 @@ func GetQueryCmdReplacement() *cobra.Command {
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.Replacement(cmd.Context(), &types.QueryReplacementRequest{})
+			res, err := queryClient.GroupTransition(cmd.Context(), &types.QueryGroupTransitionRequest{})
 			if err != nil {
 				return err
 			}

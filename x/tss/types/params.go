@@ -5,10 +5,13 @@ import (
 )
 
 const (
-	DefaultMaxGroupSize   = uint64(20)
-	DefaultMaxDESize      = uint64(100)
-	DefaultCreatingPeriod = uint64(30000)
-	DefaultSigningPeriod  = uint64(100)
+	DefaultMaxGroupSize      = uint64(20)
+	DefaultMaxDESize         = uint64(100)
+	DefaultCreationPeriod    = uint64(30000)
+	DefaultSigningPeriod     = uint64(100)
+	DefaultMaxSigningAttempt = uint64(5)
+	DefaultMaxMemoLength     = uint64(100)
+	DefaultMaxMessageLength  = uint64(300)
 )
 
 // NewParams creates a new Params instance
@@ -17,41 +20,54 @@ func NewParams(
 	maxDESize uint64,
 	creatingPeriod uint64,
 	signingPeriod uint64,
+	maxSigningAttempt uint64,
+	maxMemoLength uint64,
+	maxMessageLength uint64,
 ) Params {
 	return Params{
-		MaxGroupSize:   maxGroupSize,
-		MaxDESize:      maxDESize,
-		CreatingPeriod: creatingPeriod,
-		SigningPeriod:  signingPeriod,
+		MaxGroupSize:      maxGroupSize,
+		MaxDESize:         maxDESize,
+		CreationPeriod:    creatingPeriod,
+		SigningPeriod:     signingPeriod,
+		MaxSigningAttempt: maxSigningAttempt,
+		MaxMemoLength:     maxMemoLength,
+		MaxMessageLength:  maxMessageLength,
 	}
 }
 
 // DefaultParams returns default parameters
 func DefaultParams() Params {
-	return Params{
-		MaxGroupSize:   DefaultMaxGroupSize,
-		MaxDESize:      DefaultMaxDESize,
-		CreatingPeriod: DefaultCreatingPeriod,
-		SigningPeriod:  DefaultSigningPeriod,
-	}
+	return NewParams(
+		DefaultMaxGroupSize,
+		DefaultMaxDESize,
+		DefaultCreationPeriod,
+		DefaultSigningPeriod,
+		DefaultMaxSigningAttempt,
+		DefaultMaxMemoLength,
+		DefaultMaxMessageLength,
+	)
 }
 
 // Validate validates the set of params
 func (p Params) Validate() error {
-	if err := validateUint64("max group size", true)(p.MaxGroupSize); err != nil {
-		return err
+	fields := []struct {
+		name           string
+		val            uint64
+		isPositiveOnly bool
+	}{
+		{"max group size", p.MaxGroupSize, true},
+		{"max DE size", p.MaxDESize, true},
+		{"creation period", p.CreationPeriod, true},
+		{"signing period", p.SigningPeriod, true},
+		{"max signing attempt", p.MaxSigningAttempt, false},
+		{"max memo length", p.MaxMemoLength, true},
+		{"max message length", p.MaxMessageLength, true},
 	}
 
-	if err := validateUint64("max DE size", true)(p.MaxDESize); err != nil {
-		return err
-	}
-
-	if err := validateUint64("creating period", true)(p.CreatingPeriod); err != nil {
-		return err
-	}
-
-	if err := validateUint64("signing period", true)(p.SigningPeriod); err != nil {
-		return err
+	for _, f := range fields {
+		if err := validateUint64(f.name, f.isPositiveOnly)(f.val); err != nil {
+			return err
+		}
 	}
 
 	return nil

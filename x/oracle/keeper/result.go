@@ -81,9 +81,10 @@ func (k Keeper) ResolveSuccess(
 
 	// handle signing content
 	createSigningFunc := func(ctx sdk.Context) error {
-		signingID, err := k.bandtssKeeper.HandleCreateSigning(
+		signingID, err := k.bandtssKeeper.CreateDirectSigningRequest(
 			ctx,
 			types.NewOracleResultSignatureOrder(id, encodeType),
+			"",
 			sdk.MustAccAddressFromBech32(requester),
 			feeLimit,
 		)

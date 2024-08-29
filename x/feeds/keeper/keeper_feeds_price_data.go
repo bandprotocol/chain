@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"fmt"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -15,6 +14,12 @@ func (k Keeper) GetFeedsPriceData(
 	signalIDs []string,
 	ft types.FeedType,
 ) (*types.FeedsPriceData, error) {
+	feeds := make(map[string]types.Feed)
+	sp := k.GetCurrentFeeds(ctx)
+	for _, feed := range sp.Feeds {
+		feeds[feed.SignalID] = feed
+	}
+
 	var prices []types.SignalPrice
 	for _, signalID := range signalIDs {
 		// Get the price of the signal
@@ -24,7 +29,7 @@ func (k Keeper) GetFeedsPriceData(
 		}
 
 		// Check if the feed type is tick
-		if ft == types.FEED_TYPE_TICK {
+		if ft == types.FEED_TYPE_TICK_ABI {
 			err := p.ToTick()
 			if err != nil {
 				return nil, err
@@ -36,8 +41,13 @@ func (k Keeper) GetFeedsPriceData(
 			return nil, fmt.Errorf("%s: price not available", signalID)
 		}
 
+		f, ok := feeds[signalID]
+		if !ok {
+			return nil, fmt.Errorf("%s: feed not supported", signalID)
+		}
+
 		// Check if the price is too old
-		if ctx.BlockTime().Sub(time.Unix(p.Timestamp, 0)) > types.MAX_PRICE_TIME_DIFF {
+		if ctx.BlockTime().Unix() > p.Timestamp+f.Interval {
 			return nil, fmt.Errorf("%s: price too old", signalID)
 		}
 
@@ -47,5 +57,5 @@ func (k Keeper) GetFeedsPriceData(
 			Price:    p.Price,
 		})
 	}
-	return types.NewFeedsPriceData(prices, ctx.BlockTime().Unix()), nil
+	return types.NewFeedsPriceData(prices, uint64(ctx.BlockTime().Unix())), nil
 }
