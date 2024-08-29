@@ -236,21 +236,27 @@ func (q queryServer) CurrentFeeds(
 		)
 		feedWithDeviations = append(
 			feedWithDeviations,
-			types.FeedWithDeviation{
-				SignalID:            feed.SignalID,
-				Power:               feed.Power,
-				Interval:            feed.Interval,
-				DeviationBasisPoint: deviation,
-			})
+			types.NewFeedWithDeviation(feed.SignalID, feed.Power, feed.Interval, deviation),
+		)
 	}
 
 	return &types.QueryCurrentFeedsResponse{
-		CurrentFeeds: types.CurrentFeedWithDeviations{
-			Feeds:               feedWithDeviations,
-			LastUpdateTimestamp: currentFeeds.LastUpdateTimestamp,
-			LastUpdateBlock:     currentFeeds.LastUpdateBlock,
-		},
+		CurrentFeeds: types.NewCurrentFeedWithDeviations(
+			feedWithDeviations,
+			currentFeeds.LastUpdateTimestamp,
+			currentFeeds.LastUpdateBlock,
+		),
 	}, nil
+}
+
+// CurrentPrices queries all current prices.
+func (q queryServer) CurrentPrices(
+	goCtx context.Context, _ *types.QueryCurrentPricesRequest,
+) (*types.QueryCurrentPricesResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	currentPrices := q.keeper.GetCurrentPrices(ctx)
+	return &types.QueryCurrentPricesResponse{Prices: currentPrices}, nil
 }
 
 // ReferenceSourceConfig queries current reference source config.

@@ -82,19 +82,16 @@ $ %s tx feeds signal BTC,1000000 --from mykey
 					return err
 				}
 				signals = append(
-					signals, types.Signal{
-						ID:    idAndPower[0],
-						Power: power,
-					},
+					signals, types.NewSignal(
+						idAndPower[0],
+						power,
+					),
 				)
 			}
 
-			msg := types.MsgSubmitSignals{
-				Delegator: delegator.String(),
-				Signals:   signals,
-			}
+			msg := types.NewMsgSubmitSignals(delegator.String(), signals)
 
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &msg)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 	flags.AddTxFlagsToCmd(cmd)
@@ -176,17 +173,11 @@ $ %s tx feeds update-reference-source-config <YOUR_IPFS_HASH> 1.0.0 --from mykey
 			}
 
 			admin := clientCtx.GetFromAddress()
-			referenceSourceConfig := types.ReferenceSourceConfig{
-				IPFSHash: args[0],
-				Version:  args[1],
-			}
+			referenceSourceConfig := types.NewReferenceSourceConfig(args[0], args[1])
 
-			msg := types.MsgUpdateReferenceSourceConfig{
-				Admin:                 admin.String(),
-				ReferenceSourceConfig: referenceSourceConfig,
-			}
+			msg := types.NewMsgUpdateReferenceSourceConfig(admin.String(), referenceSourceConfig)
 
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &msg)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 	flags.AddTxFlagsToCmd(cmd)

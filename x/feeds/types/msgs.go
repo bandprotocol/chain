@@ -44,8 +44,7 @@ func (m *MsgSubmitSignalPrices) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a check on the provided data.
 func (m *MsgSubmitSignalPrices) ValidateBasic() error {
-	_, err := sdk.ValAddressFromBech32(m.Validator)
-	if err != nil {
+	if _, err := sdk.ValAddressFromBech32(m.Validator); err != nil {
 		return err
 	}
 

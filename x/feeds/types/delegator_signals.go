@@ -5,6 +5,14 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// NewDelegatorSignals creates a new DelegatorSignals instance.
+func NewDelegatorSignals(delegator string, signals []Signal) DelegatorSignals {
+	return DelegatorSignals{
+		Delegator: delegator,
+		Signals:   signals,
+	}
+}
+
 // Validate validates the delegator signals
 func (ds *DelegatorSignals) Validate(maxSignalIDCharacters uint64) error {
 	if _, err := sdk.AccAddressFromBech32(ds.Delegator); err != nil {

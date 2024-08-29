@@ -23,19 +23,21 @@ const (
 
 // Constants for keys
 var (
-	GlobalStoreKeyPrefix = []byte{0x00}
+	// global store keys
+	ReferenceSourceConfigStoreKey = []byte{0x00}
+	CurrentFeedsStoreKey          = []byte{0x01}
 
-	ReferenceSourceConfigStoreKey = append(GlobalStoreKeyPrefix, []byte("ReferenceSourceConfig")...)
-	CurrentFeedsStoreKey          = append(GlobalStoreKeyPrefix, []byte("CurrentFeeds")...)
+	// store prefixes
+	ValidatorPriceListStoreKeyPrefix = []byte{0x10}
+	PriceStoreKeyPrefix              = []byte{0x11}
+	DelegatorSignalsStoreKeyPrefix   = []byte{0x12}
+	SignalTotalPowerStoreKeyPrefix   = []byte{0x13}
 
-	ValidatorPriceListStoreKeyPrefix = []byte{0x01}
-	PriceStoreKeyPrefix              = []byte{0x02}
-	DelegatorSignalsStoreKeyPrefix   = []byte{0x03}
-	SignalTotalPowerStoreKeyPrefix   = []byte{0x04}
+	// index prefixes
+	SignalTotalPowerByPowerIndexKeyPrefix = []byte{0x80}
 
-	ParamsKey = []byte{0x10}
-
-	SignalTotalPowerByPowerIndexKeyPrefix = []byte{0x20}
+	// params store keys
+	ParamsKey = []byte{0x90}
 )
 
 // DelegatorSignalsStoreKey creates a key for storing delegator signals

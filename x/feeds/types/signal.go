@@ -1,5 +1,13 @@
 package types
 
+// NewSignal creates a new signal
+func NewSignal(id string, power int64) Signal {
+	return Signal{
+		ID:    id,
+		Power: power,
+	}
+}
+
 func (s *Signal) Validate() error {
 	// Check if the signal ID is empty
 	if s.ID == "" {

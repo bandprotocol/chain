@@ -23,6 +23,23 @@ type PriceFeedInfo struct {
 	Index       int64       // Index represents the index of the price feed
 }
 
+// NewPriceFeedInfo returns a new PriceFeedInfo
+func NewPriceFeedInfo(
+	priceStatus PriceStatus,
+	power uint64,
+	price uint64,
+	timestamp int64,
+	index int64,
+) PriceFeedInfo {
+	return PriceFeedInfo{
+		PriceStatus: priceStatus,
+		Power:       power,
+		Price:       price,
+		Timestamp:   timestamp,
+		Index:       index,
+	}
+}
+
 // FilterPriceFeedInfos filters price feed infos based on price status
 func FilterPriceFeedInfos(pfInfos []PriceFeedInfo, opt PriceStatus) []PriceFeedInfo {
 	filtered := []PriceFeedInfo{}
@@ -92,10 +109,10 @@ func CalculateMedianPriceFeedInfo(priceFeedInfos []PriceFeedInfo) (uint64, error
 		}
 		wps = append(
 			wps,
-			WeightedPrice{
-				Price: priceFeedInfo.Price,
-				Power: totalWeight,
-			},
+			NewWeightedPrice(
+				totalWeight,
+				priceFeedInfo.Price,
+			),
 		)
 	}
 
@@ -106,6 +123,14 @@ func CalculateMedianPriceFeedInfo(priceFeedInfos []PriceFeedInfo) (uint64, error
 type WeightedPrice struct {
 	Power uint64 // Power represents the power for the price
 	Price uint64 // Price represents the price
+}
+
+// NewWeightedPrice returns a new WeightedPrice
+func NewWeightedPrice(power uint64, price uint64) WeightedPrice {
+	return WeightedPrice{
+		Power: power,
+		Price: price,
+	}
 }
 
 // CalculateMedianWeightedPrice calculates the median of weighted prices
