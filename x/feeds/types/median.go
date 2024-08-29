@@ -110,8 +110,8 @@ func CalculateMedianPriceFeedInfo(priceFeedInfos []PriceFeedInfo) (uint64, error
 		wps = append(
 			wps,
 			NewWeightedPrice(
-				priceFeedInfo.Price,
 				totalWeight,
+				priceFeedInfo.Price,
 			),
 		)
 	}
