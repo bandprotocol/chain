@@ -13,8 +13,6 @@ var (
 	DefaultMinDeposit      = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
 	DefaultMinDeviationBPS = uint64(100)
 	DefaultBaseFee         = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
-	DefaultTSSRouteFee     = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
-	DefaultAxelarRouteFee  = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 )
 
 // NewParams creates a new Params instance
@@ -23,16 +21,12 @@ func NewParams(
 	minDeviationBPS uint64,
 	minInterval uint64,
 	baseFee sdk.Coins,
-	tssRouteFee sdk.Coins,
-	axelarRouteFee sdk.Coins,
 ) Params {
 	return Params{
 		MinDeposit:      minDeposit,
 		MinDeviationBPS: minDeviationBPS,
 		MinInterval:     minInterval,
 		BaseFee:         baseFee,
-		TSSRouteFee:     tssRouteFee,
-		AxelarRouteFee:  axelarRouteFee,
 	}
 }
 
@@ -43,8 +37,6 @@ func DefaultParams() Params {
 		DefaultMinDeviationBPS,
 		DefaultMinInterval,
 		DefaultBaseFee,
-		DefaultTSSRouteFee,
-		DefaultAxelarRouteFee,
 	)
 }
 
@@ -58,15 +50,6 @@ func (p Params) Validate() error {
 	// Validate MinDeviationBPS
 	if err := validateBasisPoint("min deviation BPS", p.MinDeviationBPS); err != nil {
 		return err
-	}
-
-	// Validate TSSRouteFee
-	if !p.TSSRouteFee.IsValid() {
-		return sdkerrors.ErrInvalidCoins.Wrapf(p.TSSRouteFee.String())
-	}
-	// Validate AxelarRouteFee
-	if !p.AxelarRouteFee.IsValid() {
-		return sdkerrors.ErrInvalidCoins.Wrapf(p.AxelarRouteFee.String())
 	}
 
 	return nil
