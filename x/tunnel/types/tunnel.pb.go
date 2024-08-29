@@ -29,7 +29,9 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Route is the type for a route
 type TSSRoute struct {
-	DestinationChainID         string `protobuf:"bytes,1,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
+	// destination_chain_id is the destination chain ID
+	DestinationChainID string `protobuf:"bytes,1,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
+	// destination_contract_address is the destination contract address
 	DestinationContractAddress string `protobuf:"bytes,2,opt,name=destination_contract_address,json=destinationContractAddress,proto3" json:"destination_contract_address,omitempty"`
 }
 
@@ -82,7 +84,9 @@ func (m *TSSRoute) GetDestinationContractAddress() string {
 
 // AxelarRoute is the type for an Axelar route
 type AxelarRoute struct {
-	DestinationChainID         string `protobuf:"bytes,1,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
+	// destination_chain_id is the destination chain ID
+	DestinationChainID string `protobuf:"bytes,1,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
+	// destination_contract_address is the destination contract address
 	DestinationContractAddress string `protobuf:"bytes,2,opt,name=destination_contract_address,json=destinationContractAddress,proto3" json:"destination_contract_address,omitempty"`
 }
 
@@ -135,8 +139,11 @@ func (m *AxelarRoute) GetDestinationContractAddress() string {
 
 // SignalInfo is the type for a signal info
 type SignalInfo struct {
-	SignalID         string `protobuf:"bytes,1,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
+	// signal_id is the signal ID
+	SignalID string `protobuf:"bytes,1,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
+	// soft_deviation_bps is the soft deviation in basis points
 	SoftDeviationBPS uint64 `protobuf:"varint,2,opt,name=soft_deviation_bps,json=softDeviationBps,proto3" json:"soft_deviation_bps,omitempty"`
+	// hard_deviation_bps is the hard deviation in basis points
 	HardDeviationBPS uint64 `protobuf:"varint,3,opt,name=hard_deviation_bps,json=hardDeviationBps,proto3" json:"hard_deviation_bps,omitempty"`
 }
 
@@ -196,16 +203,26 @@ func (m *SignalInfo) GetHardDeviationBPS() uint64 {
 
 // Tunnel is the type for a tunnel
 type Tunnel struct {
-	ID          uint64          `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	NonceCount  uint64          `protobuf:"varint,2,opt,name=nonce_count,json=nonceCount,proto3" json:"nonce_count,omitempty"`
-	Route       *types.Any      `protobuf:"bytes,3,opt,name=route,proto3" json:"route,omitempty"`
-	FeedType    types1.FeedType `protobuf:"varint,4,opt,name=feed_type,json=feedType,proto3,enum=feeds.v1beta1.FeedType" json:"feed_type,omitempty"`
-	FeePayer    string          `protobuf:"bytes,5,opt,name=fee_payer,json=feePayer,proto3" json:"fee_payer,omitempty"`
-	SignalInfos []SignalInfo    `protobuf:"bytes,6,rep,name=signal_infos,json=signalInfos,proto3" json:"signal_infos"`
-	Interval    uint64          `protobuf:"varint,7,opt,name=interval,proto3" json:"interval,omitempty"`
-	IsActive    bool            `protobuf:"varint,8,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
-	CreatedAt   int64           `protobuf:"varint,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	Creator     string          `protobuf:"bytes,10,opt,name=creator,proto3" json:"creator,omitempty"`
+	// id is the tunnel ID
+	ID uint64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	// nonce_count is representing the number of packets sent
+	NonceCount uint64 `protobuf:"varint,2,opt,name=nonce_count,json=nonceCount,proto3" json:"nonce_count,omitempty"`
+	// route is the route for delivering the signal prices
+	Route *types.Any `protobuf:"bytes,3,opt,name=route,proto3" json:"route,omitempty"`
+	// feed_type is the type of feed data
+	FeedType types1.FeedType `protobuf:"varint,4,opt,name=feed_type,json=feedType,proto3,enum=feeds.v1beta1.FeedType" json:"feed_type,omitempty"`
+	// fee_payer is the address of the fee payer
+	FeePayer string `protobuf:"bytes,5,opt,name=fee_payer,json=feePayer,proto3" json:"fee_payer,omitempty"`
+	// signal_infos is the list of signal infos
+	SignalInfos []SignalInfo `protobuf:"bytes,6,rep,name=signal_infos,json=signalInfos,proto3" json:"signal_infos"`
+	// interval is the interval for delivering the signal prices
+	Interval uint64 `protobuf:"varint,7,opt,name=interval,proto3" json:"interval,omitempty"`
+	// is_active is the flag to indicate if the tunnel is active
+	IsActive bool `protobuf:"varint,8,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
+	// created_at is the timestamp when the tunnel is created
+	CreatedAt int64 `protobuf:"varint,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// creator is the address of the creator
+	Creator string `protobuf:"bytes,10,opt,name=creator,proto3" json:"creator,omitempty"`
 }
 
 func (m *Tunnel) Reset()         { *m = Tunnel{} }
@@ -313,9 +330,12 @@ func (m *Tunnel) GetCreator() string {
 
 // SignalPrices is the type for a list of signal prices with the last interval timestamp
 type SignalPricesInfo struct {
-	TunnelID              uint64        `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
-	SignalPrices          []SignalPrice `protobuf:"bytes,2,rep,name=signal_prices,json=signalPrices,proto3" json:"signal_prices"`
-	LastIntervalTimestamp int64         `protobuf:"varint,3,opt,name=last_interval_timestamp,json=lastIntervalTimestamp,proto3" json:"last_interval_timestamp,omitempty"`
+	// tunnel_id is the tunnel ID
+	TunnelID uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
+	// signal_prices is the list of signal prices
+	SignalPrices []SignalPrice `protobuf:"bytes,2,rep,name=signal_prices,json=signalPrices,proto3" json:"signal_prices"`
+	// last_interval_timestamp is the timestamp of the last time that the packet is sent
+	LastIntervalTimestamp int64 `protobuf:"varint,3,opt,name=last_interval_timestamp,json=lastIntervalTimestamp,proto3" json:"last_interval_timestamp,omitempty"`
 }
 
 func (m *SignalPricesInfo) Reset()         { *m = SignalPricesInfo{} }
@@ -374,9 +394,12 @@ func (m *SignalPricesInfo) GetLastIntervalTimestamp() int64 {
 
 // SignalPrice is the type for a signal price
 type SignalPrice struct {
-	SignalID  string `protobuf:"bytes,1,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
-	Price     uint64 `protobuf:"varint,2,opt,name=price,proto3" json:"price,omitempty"`
-	Timestamp int64  `protobuf:"varint,3,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	// signal_id is the signal ID
+	SignalID string `protobuf:"bytes,1,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
+	// price is the price of the signal
+	Price uint64 `protobuf:"varint,2,opt,name=price,proto3" json:"price,omitempty"`
+	// timestamp is the timestamp of the signal
+	Timestamp int64 `protobuf:"varint,3,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 }
 
 func (m *SignalPrice) Reset()         { *m = SignalPrice{} }
@@ -481,11 +504,16 @@ func (m *PendingTriggerTunnels) GetIDs() []uint64 {
 
 // Packet is the packet that tunnel produces
 type Packet struct {
-	TunnelID      uint64        `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
-	Nonce         uint64        `protobuf:"varint,2,opt,name=nonce,proto3" json:"nonce,omitempty"`
-	SignalPrices  []SignalPrice `protobuf:"bytes,3,rep,name=signal_prices,json=signalPrices,proto3" json:"signal_prices"`
-	PacketContent *types.Any    `protobuf:"bytes,4,opt,name=packet_content,json=packetContent,proto3" json:"packet_content,omitempty"`
-	CreatedAt     int64         `protobuf:"varint,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	// tunnel_id is the tunnel ID
+	TunnelID uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
+	// nonce is the nonce of the packet
+	Nonce uint64 `protobuf:"varint,2,opt,name=nonce,proto3" json:"nonce,omitempty"`
+	// signal_prices is the list of signal prices
+	SignalPrices []SignalPrice `protobuf:"bytes,3,rep,name=signal_prices,json=signalPrices,proto3" json:"signal_prices"`
+	// packet_content is the content of the packet that implements PacketContentI
+	PacketContent *types.Any `protobuf:"bytes,4,opt,name=packet_content,json=packetContent,proto3" json:"packet_content,omitempty"`
+	// created_at is the timestamp when the packet is created
+	CreatedAt int64 `protobuf:"varint,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 }
 
 func (m *Packet) Reset()         { *m = Packet{} }
@@ -558,9 +586,12 @@ func (m *Packet) GetCreatedAt() int64 {
 
 // TSSPacketContent is the packet content for TSS
 type TSSPacketContent struct {
-	SigningID                  github_com_bandprotocol_chain_v2_x_bandtss_types.SigningID `protobuf:"varint,1,opt,name=signing_id,json=signingId,proto3,casttype=github.com/bandprotocol/chain/v2/x/bandtss/types.SigningID" json:"signing_id,omitempty"`
-	DestinationChainID         string                                                     `protobuf:"bytes,2,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
-	DestinationContractAddress string                                                     `protobuf:"bytes,3,opt,name=destination_contract_address,json=destinationContractAddress,proto3" json:"destination_contract_address,omitempty"`
+	// signing_id is the signing ID
+	SigningID github_com_bandprotocol_chain_v2_x_bandtss_types.SigningID `protobuf:"varint,1,opt,name=signing_id,json=signingId,proto3,casttype=github.com/bandprotocol/chain/v2/x/bandtss/types.SigningID" json:"signing_id,omitempty"`
+	// destination_chain_id is the destination chain ID
+	DestinationChainID string `protobuf:"bytes,2,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
+	// destination_contract_address is the destination contract address
+	DestinationContractAddress string `protobuf:"bytes,3,opt,name=destination_contract_address,json=destinationContractAddress,proto3" json:"destination_contract_address,omitempty"`
 }
 
 func (m *TSSPacketContent) Reset()         { *m = TSSPacketContent{} }
@@ -619,8 +650,11 @@ func (m *TSSPacketContent) GetDestinationContractAddress() string {
 
 // AxelarPacketContent is the packet content for Axelar
 type AxelarPacketContent struct {
-	IBCQueueID                 uint64 `protobuf:"varint,1,opt,name=ibc_queue_id,json=ibcQueueId,proto3" json:"ibc_queue_id,omitempty"`
-	DestinationChainID         string `protobuf:"bytes,2,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
+	// ibc_queue_id is the IBC queue ID
+	IBCQueueID uint64 `protobuf:"varint,1,opt,name=ibc_queue_id,json=ibcQueueId,proto3" json:"ibc_queue_id,omitempty"`
+	// destination_chain_id is the destination chain ID
+	DestinationChainID string `protobuf:"bytes,2,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
+	// destination_contract_address is the destination contract address
 	DestinationContractAddress string `protobuf:"bytes,3,opt,name=destination_contract_address,json=destinationContractAddress,proto3" json:"destination_contract_address,omitempty"`
 }
 

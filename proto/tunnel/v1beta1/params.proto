@@ -11,10 +11,14 @@ message Params {
   option (gogoproto.equal)            = true;  // Use gogoproto.equal for proto3 message equality checks
   option (gogoproto.goproto_stringer) = false; // Disable stringer generation for better control
 
+  // min_deposit is the minimum deposit required to create a tunnel
   repeated cosmos.base.v1beta1.Coin min_deposit = 1
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
-  uint64   min_deviation_bps                 = 2 [(gogoproto.customname) = "MinDeviationBPS"];
-  uint64   min_interval                      = 3;
+  // min_deviation_bps is the minimum deviation in basis points
+  uint64 min_deviation_bps = 2 [(gogoproto.customname) = "MinDeviationBPS"];
+  // min_interval is the minimum interval in seconds
+  uint64 min_interval = 3;
+  // base_fee is the base fee for each tunnel
   repeated cosmos.base.v1beta1.Coin base_fee = 4
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }
