@@ -1,27 +1,27 @@
 package types
 
 import (
-	"time"
-
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 
 var signalPrices, _ = abi.NewType("tuple[]", "struct SignalPrices[]", []abi.ArgumentMarshaling{
-	{Name: "SignalID", Type: "string"},
+	{Name: "SignalID", Type: "bytes32"},
 	{Name: "Price", Type: "uint64"},
 })
 
-var _int64, _ = abi.NewType("int64", "", nil)
+var _uint64, _ = abi.NewType("uint64", "", nil)
 
 var feedsPriceDataArgs = abi.Arguments{
 	abi.Argument{Type: signalPrices, Name: "signalPrices"},
-	abi.Argument{Type: _int64, Name: "timestamp"},
+	abi.Argument{Type: _uint64, Name: "timestamp"},
 }
 
-// MAX_PRICE_TIME_DIFF is the maximum time difference between the current block time
-const MAX_PRICE_TIME_DIFF = time.Second * 10
+type SignalPriceABI struct {
+	SignalID [32]byte
+	Price    uint64
+}
 
-func NewFeedsPriceData(signalPrices []SignalPrice, timestamp int64) *FeedsPriceData {
+func NewFeedsPriceData(signalPrices []SignalPrice, timestamp uint64) *FeedsPriceData {
 	return &FeedsPriceData{
 		SignalPrices: signalPrices,
 		Timestamp:    timestamp,
@@ -29,5 +29,21 @@ func NewFeedsPriceData(signalPrices []SignalPrice, timestamp int64) *FeedsPriceD
 }
 
 func (f FeedsPriceData) ABIEncode() ([]byte, error) {
-	return feedsPriceDataArgs.Pack(f.SignalPrices, f.Timestamp)
+	signalPriceABIs := make([]SignalPriceABI, len(f.SignalPrices))
+
+	for i, signalPrice := range f.SignalPrices {
+		signalID, err := stringToBytes32(signalPrice.SignalID)
+		if err != nil {
+			return nil, ErrInvalidSignal.Wrapf(
+				"invalid signal id %s: %s", signalPrice.SignalID, err,
+			)
+		}
+
+		signalPriceABIs[i] = SignalPriceABI{
+			SignalID: signalID,
+			Price:    signalPrice.Price,
+		}
+	}
+
+	return feedsPriceDataArgs.Pack(signalPriceABIs, f.Timestamp)
 }

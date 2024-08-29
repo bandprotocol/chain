@@ -246,8 +246,8 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 		IsActive:    true,
 	})
 	_, err := msgSrvr.SubmitDEs(ctx, &tsstypes.MsgSubmitDEs{
-		DEs:     GetDEs(),
-		Address: ba.Sender.Address.String(),
+		DEs:    GetDEs(),
+		Sender: ba.Sender.Address.String(),
 	})
 	require.NoError(ba.TB, err)
 
@@ -262,9 +262,9 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 	})
 	tssKeeper.SetDKGContext(ctx, gid, dkg)
 
-	// Set active group in bandtss module
+	// Set current group in bandtss module
 	bandtssKeeper.SetCurrentGroupID(ctx, gid)
-	err = bandtssKeeper.AddNewMember(ctx, ba.Sender.Address)
+	err = bandtssKeeper.AddMember(ctx, ba.Sender.Address, gid)
 	require.NoError(ba.TB, err)
 
 	// Set privKey Store
@@ -287,14 +287,16 @@ func (ba *BenchmarkApp) GetPendingSignTxs(gid tss.GroupID) []sdk.Tx {
 		require.NotNil(ba.TB, privKey)
 
 		for _, sid := range sids {
-			signing := k.MustGetSigning(ctx, tss.SigningID(sid))
+			signing := k.MustGetSigning(ctx, sid)
+			signingAttempt := k.MustGetSigningAttempt(ctx, sid, signing.CurrentAttempt)
+			assignedMembers := tsstypes.AssignedMembers(signingAttempt.AssignedMembers)
 
-			sig, err := CreateSignature(m.ID, signing, group.PubKey, privKey)
+			sig, err := CreateSignature(m.ID, signing, assignedMembers, group.PubKey, privKey)
 			require.NoError(ba.TB, err)
 
 			tx, err := bandtesting.GenTx(
 				ba.TxConfig,
-				GenMsgSubmitSignature(tss.SigningID(sid), m.ID, sig, ba.Sender.Address),
+				GenMsgSubmitSignature(sid, m.ID, sig, ba.Sender.Address),
 				sdk.Coins{sdk.NewInt64Coin("uband", 1)},
 				math.MaxInt64,
 				bandtesting.ChainID,
@@ -345,11 +347,12 @@ func (ba *BenchmarkApp) RequestSignature(
 func (ba *BenchmarkApp) AddDEs(addr sdk.AccAddress) {
 	ctx, msgSrvr, k := ba.Ctx, ba.TSSMsgSrvr, ba.TSSKeeper
 
-	count := k.GetDECount(ctx, addr)
+	deQueue := k.GetDEQueue(ctx, addr)
+	count := deQueue.Tail - deQueue.Head
 	if count < uint64(DELen) {
 		_, err := msgSrvr.SubmitDEs(ctx, &tsstypes.MsgSubmitDEs{
-			DEs:     GetDEs(),
-			Address: addr.String(),
+			DEs:    GetDEs(),
+			Sender: addr.String(),
 		})
 		require.NoError(ba.TB, err)
 	}

@@ -9,8 +9,10 @@ import (
 
 // AddRound1Info adds the round1Info of a member in the store and increments the count of round1Info.
 func (k Keeper) AddRound1Info(ctx sdk.Context, groupID tss.GroupID, round1Info types.Round1Info) {
-	k.AddRound1InfoCount(ctx, groupID)
 	k.SetRound1Info(ctx, groupID, round1Info)
+
+	count := k.GetRound1InfoCount(ctx, groupID)
+	k.SetRound1InfoCount(ctx, groupID, count+1)
 }
 
 // SetRound1Info sets round1Info for a member of a group.
@@ -57,11 +59,6 @@ func (k Keeper) GetRound1Infos(ctx sdk.Context, groupID tss.GroupID) []types.Rou
 	return round1Infos
 }
 
-// DeleteRound1Info removes the round1Info of a group member from the store.
-func (k Keeper) DeleteRound1Info(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
-	ctx.KVStore(k.storeKey).Delete(types.Round1InfoMemberStoreKey(groupID, memberID))
-}
-
 // DeleteRound1Infos removes all round1Info associated with a specific group ID from the store.
 func (k Keeper) DeleteRound1Infos(ctx sdk.Context, groupID tss.GroupID) {
 	iterator := k.GetRound1InfoIterator(ctx, groupID)
@@ -71,6 +68,8 @@ func (k Keeper) DeleteRound1Infos(ctx sdk.Context, groupID tss.GroupID) {
 		key := iterator.Key()
 		ctx.KVStore(k.storeKey).Delete(key)
 	}
+
+	k.DeleteRound1InfoCount(ctx, groupID)
 }
 
 // SetRound1InfoCount sets the count of round1Info for a group in the store.
@@ -82,12 +81,6 @@ func (k Keeper) SetRound1InfoCount(ctx sdk.Context, groupID tss.GroupID, count u
 func (k Keeper) GetRound1InfoCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
 	bz := ctx.KVStore(k.storeKey).Get(types.Round1InfoCountStoreKey(groupID))
 	return sdk.BigEndianToUint64(bz)
-}
-
-// AddRound1InfoCount increments the count of round1Info for a group in the store.
-func (k Keeper) AddRound1InfoCount(ctx sdk.Context, groupID tss.GroupID) {
-	count := k.GetRound1InfoCount(ctx, groupID)
-	k.SetRound1InfoCount(ctx, groupID, count+1)
 }
 
 // DeleteRound1InfoCount remove the round1Info count data of a group from the store.
@@ -153,6 +146,48 @@ func (k Keeper) AddCommits(ctx sdk.Context, groupID tss.GroupID, commits tss.Poi
 			return err
 		}
 		k.SetAccumulatedCommit(ctx, groupID, uint64(i), total)
+	}
+
+	return nil
+}
+
+// ValidateRound1Info validates the round1Info of a group member.
+func (k Keeper) ValidateRound1Info(
+	ctx sdk.Context,
+	group types.Group,
+	round1Info types.Round1Info,
+) error {
+	// Check coefficients commit length
+	if uint64(len(round1Info.CoefficientCommits)) != group.Threshold {
+		return types.ErrInvalidLengthCoeffCommits
+	}
+
+	// Get dkg-context
+	dkgContext, err := k.GetDKGContext(ctx, group.ID)
+	if err != nil {
+		return types.ErrDKGContextNotFound.Wrap("dkg-context is not found")
+	}
+
+	// Verify one time signature
+	err = tss.VerifyOneTimeSignature(
+		round1Info.MemberID,
+		dkgContext,
+		round1Info.OneTimeSignature,
+		round1Info.OneTimePubKey,
+	)
+	if err != nil {
+		return types.ErrVerifyOneTimeSignatureFailed.Wrap(err.Error())
+	}
+
+	// Verify A0 signature
+	err = tss.VerifyA0Signature(
+		round1Info.MemberID,
+		dkgContext,
+		round1Info.A0Signature,
+		round1Info.CoefficientCommits[0],
+	)
+	if err != nil {
+		return types.ErrVerifyA0SignatureFailed.Wrap(err.Error())
 	}
 
 	return nil

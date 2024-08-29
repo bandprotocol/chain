@@ -3,7 +3,6 @@ package keeper
 import (
 	"context"
 
-	tmbytes "github.com/cometbft/cometbft/libs/bytes"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -119,11 +118,13 @@ func (q queryServer) DE(goCtx context.Context, req *types.QueryDERequest) (*type
 		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
-	// Get DEs and paginate the result
 	var des []types.DE
-	deStore := prefix.NewStore(ctx.KVStore(q.k.storeKey), types.DEStoreKeyPerAddressPrefix(accAddress))
+	deStore := prefix.NewStore(ctx.KVStore(q.k.storeKey), types.DEsStoreKey(accAddress))
 	pageRes, err := query.Paginate(deStore, req.Pagination, func(key []byte, value []byte) error {
-		de := types.ExtractValueFromDEPaginationKey(key)
+		var de types.DE
+		if err := q.k.cdc.Unmarshal(value, &de); err != nil {
+			return err
+		}
 		des = append(des, de)
 		return nil
 	})
@@ -232,34 +233,12 @@ func (q queryServer) Signing(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	signingID := tss.SigningID(req.SigningId)
 
-	// Get signing and partial sigs using signingID
-	signing, err := q.k.GetSigning(ctx, signingID)
+	signingResult, err := q.k.GetSigningResult(ctx, signingID)
 	if err != nil {
 		return nil, err
 	}
 
-	pzs := q.k.GetPartialSignaturesWithKey(ctx, signingID)
-
-	var evmSignature *types.EVMSignature
-	if signing.Signature != nil {
-		rAddress, err := signing.Signature.R().Address()
-		if err != nil {
-			return nil, err
-		}
-
-		evmSignature = &types.EVMSignature{
-			RAddress:  rAddress,
-			Signature: tmbytes.HexBytes(signing.Signature.S()),
-		}
-	}
-
-	signingResult := types.SigningResult{
-		Signing:                   signing,
-		EVMSignature:              evmSignature,
-		ReceivedPartialSignatures: pzs,
-	}
-
 	return &types.QuerySigningResponse{
-		SigningResult: signingResult,
+		SigningResult: *signingResult,
 	}, nil
 }

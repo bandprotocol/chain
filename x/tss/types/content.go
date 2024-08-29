@@ -8,30 +8,30 @@ import (
 	tsslib "github.com/bandprotocol/chain/v2/pkg/tss"
 )
 
-type Router struct {
+type ContentRouter struct {
 	handlers map[string]Handler
 	sealed   bool
 }
 
-// NewRouter creates a new Router interface instance
-func NewRouter() *Router {
-	return &Router{
+// NewContentRouter creates a new Router interface instance
+func NewContentRouter() *ContentRouter {
+	return &ContentRouter{
 		handlers: make(map[string]Handler),
 	}
 }
 
-// Seal seals the router which prohibits any subsequent route handlers to be
+// Seal seals the content router which prohibits any subsequent route handlers to be
 // added. Seal will panic if called more than once.
-func (r *Router) Seal() {
+func (r *ContentRouter) Seal() {
 	if r.sealed {
 		panic("router already sealed")
 	}
 	r.sealed = true
 }
 
-// AddRoute adds request signature handler for a given path and prefix. It returns the Router
+// AddRoute adds request signature handler for a given path and prefix. It returns the ContentRouter
 // so AddRoute calls can be linked. It will panic if the router is sealed.
-func (r *Router) AddRoute(path string, h Handler) *Router {
+func (r *ContentRouter) AddRoute(path string, h Handler) *ContentRouter {
 	if r.sealed {
 		panic("router sealed; cannot add route handler")
 	}
@@ -48,14 +48,14 @@ func (r *Router) AddRoute(path string, h Handler) *Router {
 	return r
 }
 
-// HasRoute returns true if the router has a path registered or false otherwise.
-func (r *Router) HasRoute(path string) bool {
+// HasRoute returns true if the content router has a path registered or false otherwise.
+func (r *ContentRouter) HasRoute(path string) bool {
 	_, ok := r.handlers[path]
 	return ok
 }
 
 // GetRoute returns a Handler for a given path.
-func (r *Router) GetRoute(path string) Handler {
+func (r *ContentRouter) GetRoute(path string) Handler {
 	if !r.HasRoute(path) {
 		panic(fmt.Sprintf("route \"%s\" does not exist", path))
 	}
@@ -76,3 +76,17 @@ func wrapHandler(path string, handler Handler) Handler {
 		return append(selector, msg...), nil
 	}
 }
+
+// Content defines an interface that a signature order must implement. It contains information
+// such as the type and routing information for the appropriate handler to process the order.
+// Content can have additional fields, which is handled by an order's Handler.
+type Content interface {
+	OrderRoute() string
+	OrderType() string
+
+	ValidateBasic() error
+	String() string
+}
+
+// Handler defines a function that receive signature order and return message that should to be signed.
+type Handler func(ctx sdk.Context, content Content) ([]byte, error)

@@ -157,7 +157,7 @@ func GetTxCmdSubmitDKGRound1() *cobra.Command {
 					A0Signature:        a0Signature,
 					OneTimeSignature:   oneTimeSignature,
 				},
-				Address: clientCtx.GetFromAddress().String(),
+				Sender: clientCtx.GetFromAddress().String(),
 			}
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
@@ -212,7 +212,7 @@ func GetTxCmdSubmitDKGRound2() *cobra.Command {
 					MemberID:              tss.MemberID(memberID),
 					EncryptedSecretShares: encryptedSecretShares,
 				},
-				Address: clientCtx.GetFromAddress().String(),
+				Sender: clientCtx.GetFromAddress().String(),
 			}
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
@@ -266,7 +266,7 @@ Where complaints.json contains:
 			msg := &types.MsgComplain{
 				GroupID:    tss.GroupID(groupID),
 				Complaints: complaints,
-				Address:    clientCtx.GetFromAddress().String(),
+				Sender:     clientCtx.GetFromAddress().String(),
 			}
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
@@ -312,7 +312,7 @@ func GetTxCmdConfirm() *cobra.Command {
 				GroupID:      tss.GroupID(groupID),
 				MemberID:     tss.MemberID(memberID),
 				OwnPubKeySig: ownPubKeySig,
-				Address:      clientCtx.GetFromAddress().String(),
+				Sender:       clientCtx.GetFromAddress().String(),
 			}
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
@@ -360,8 +360,8 @@ func GetTxCmdSubmitDEs() *cobra.Command {
 			}
 
 			msg := &types.MsgSubmitDEs{
-				DEs:     des,
-				Address: clientCtx.GetFromAddress().String(),
+				DEs:    des,
+				Sender: clientCtx.GetFromAddress().String(),
 			}
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
@@ -407,7 +407,7 @@ func GetTxCmdSubmitSignature() *cobra.Command {
 				SigningID: tss.SigningID(signingID),
 				MemberID:  tss.MemberID(memberID),
 				Signature: sig,
-				Address:   clientCtx.GetFromAddress().String(),
+				Signer:    clientCtx.GetFromAddress().String(),
 			}
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},

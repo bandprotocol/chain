@@ -8,7 +8,7 @@ import (
 	querytypes "github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/x/bandtss/testutil"
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 )
 
@@ -23,18 +23,21 @@ func TestGRPCQueryMembers(t *testing.T) {
 	members := []*types.Member{
 		{
 			Address:    "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+			GroupID:    tss.GroupID(1),
 			IsActive:   false,
 			Since:      since,
 			LastActive: lastActive,
 		},
 		{
 			Address:    "band1t5x8hrmht463eq4m0xhfgz95h62dyvkq049eek",
+			GroupID:    tss.GroupID(1),
 			IsActive:   true,
 			Since:      since,
 			LastActive: lastActive,
 		},
 		{
 			Address:    "band1a22hgwm4tz8gj82y6zad3de2dcg5dpymtj20m5",
+			GroupID:    tss.GroupID(1),
 			IsActive:   true,
 			Since:      since,
 			LastActive: lastActive,
@@ -43,7 +46,7 @@ func TestGRPCQueryMembers(t *testing.T) {
 
 	testCases := []struct {
 		name       string
-		preProcess func(s *testutil.TestSuite)
+		preProcess func(s *KeeperTestSuite)
 		input      *types.QueryMembersRequest
 		expectOut  expectOut
 	}{
@@ -79,18 +82,27 @@ func TestGRPCQueryMembers(t *testing.T) {
 			expectOut: expectOut{members: []*types.Member{}},
 		},
 		{
-			name: "get no inactive members",
+			name: "get inactive members",
 			input: &types.QueryMembersRequest{
 				Status: types.MEMBER_STATUS_FILTER_INACTIVE,
 			},
 			expectOut: expectOut{members: members[0:1]},
 		},
+		{
+			name: "get incoming members; error",
+			input: &types.QueryMembersRequest{
+				Status:          types.MEMBER_STATUS_FILTER_INACTIVE,
+				IsIncomingGroup: true,
+			},
+			expectOut: expectOut{members: []*types.Member{}},
+		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
-			s := testutil.NewTestSuite(t)
+			s := NewKeeperTestSuite(t)
 			q := s.QueryServer
+			s.Keeper.SetCurrentGroupID(s.Ctx, 1)
 
 			for _, member := range members {
 				s.Keeper.SetMember(s.Ctx, *member)

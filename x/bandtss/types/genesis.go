@@ -7,19 +7,11 @@ func NewGenesisState(
 	params Params,
 	members []Member,
 	currentGroupID tss.GroupID,
-	signingCount uint64,
-	signings []Signing,
-	signingIDMappings []SigningIDMappingGenesis,
-	replacement Replacement,
 ) *GenesisState {
 	return &GenesisState{
-		Params:            params,
-		Members:           members,
-		CurrentGroupID:    currentGroupID,
-		SigningCount:      signingCount,
-		Signings:          signings,
-		SigningIDMappings: signingIDMappings,
-		Replacement:       replacement,
+		Params:         params,
+		Members:        members,
+		CurrentGroupID: currentGroupID,
 	}
 }
 
@@ -29,9 +21,5 @@ func DefaultGenesisState() *GenesisState {
 		DefaultParams(),
 		[]Member{},
 		0,
-		0,
-		[]Signing{},
-		[]SigningIDMappingGenesis{},
-		Replacement{},
 	)
 }

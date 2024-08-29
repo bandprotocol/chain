@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	EncodeTypeProtoPrefix      = tsslib.Hash([]byte("Proto"))[:4]
-	EncodeTypeFullABIPrefix    = tsslib.Hash([]byte("FullABI"))[:4]
-	EncodeTypePartialABIPrefix = tsslib.Hash([]byte("PartialABI"))[:4]
+	EncodeTypeProtoPrefix      = tsslib.Hash([]byte("proto"))[:4]
+	EncodeTypeFullABIPrefix    = tsslib.Hash([]byte("fullABI"))[:4]
+	EncodeTypePartialABIPrefix = tsslib.Hash([]byte("partialABI"))[:4]
 )
 
 // NewSignatureOrderHandler creates a tss handler to handle oracle result signature order

@@ -17,6 +17,7 @@ const (
 	DefaultMaxDeviationBasisPoint        = int64(3000)
 	// estimated from block time of 3 seconds, aims for 1 day update
 	DefaultCurrentFeedsUpdateInterval = int64(28800)
+	DefaultMaxSignalIDsPerSigning     = uint64(10)
 )
 
 // NewParams creates a new Params instance
@@ -32,6 +33,7 @@ func NewParams(
 	minDeviationBasisPoint int64,
 	maxDeviationBasisPoint int64,
 	currentFeedsUpdateInterval int64,
+	maxSignalIDsPerSigning uint64,
 ) Params {
 	return Params{
 		Admin:                         admin,
@@ -45,6 +47,7 @@ func NewParams(
 		MinDeviationBasisPoint:        minDeviationBasisPoint,
 		MaxDeviationBasisPoint:        maxDeviationBasisPoint,
 		CurrentFeedsUpdateInterval:    currentFeedsUpdateInterval,
+		MaxSignalIDsPerSigning:        maxSignalIDsPerSigning,
 	}
 }
 
@@ -62,43 +65,36 @@ func DefaultParams() Params {
 		DefaultMinDeviationBasisPoint,
 		DefaultMaxDeviationBasisPoint,
 		DefaultCurrentFeedsUpdateInterval,
+		DefaultMaxSignalIDsPerSigning,
 	)
 }
 
 // Validate validates the set of params
 func (p Params) Validate() error {
-	if err := validateString("admin", false, p.Admin); err != nil {
-		return err
+	fields := []struct {
+		validateFn     func(string, bool, interface{}) error
+		name           string
+		val            interface{}
+		isPositiveOnly bool
+	}{
+		{validateString, "admin", p.Admin, false},
+		{validateInt64, "allowable block time discrepancy", p.AllowableBlockTimeDiscrepancy, true},
+		{validateInt64, "grace period", p.GracePeriod, true},
+		{validateInt64, "min interval", p.MinInterval, true},
+		{validateInt64, "max interval", p.MaxInterval, true},
+		{validateInt64, "power threshold", p.PowerStepThreshold, true},
+		{validateUint64, "max current feeds", p.MaxCurrentFeeds, false},
+		{validateInt64, "cooldown time", p.CooldownTime, true},
+		{validateInt64, "min deviation basis point", p.MinDeviationBasisPoint, true},
+		{validateInt64, "max deviation basis point", p.MaxDeviationBasisPoint, true},
+		{validateInt64, "current feeds update interval", p.CurrentFeedsUpdateInterval, true},
+		{validateUint64, "max signalIDs per Signing", p.MaxSignalIDsPerSigning, true},
 	}
-	if err := validateInt64("allowable block time discrepancy", true, p.AllowableBlockTimeDiscrepancy); err != nil {
-		return err
-	}
-	if err := validateInt64("grace period", true, p.GracePeriod); err != nil {
-		return err
-	}
-	if err := validateInt64("min interval", true, p.MinInterval); err != nil {
-		return err
-	}
-	if err := validateInt64("max interval", true, p.MaxInterval); err != nil {
-		return err
-	}
-	if err := validateInt64("power threshold", true, p.PowerStepThreshold); err != nil {
-		return err
-	}
-	if err := validateUint64("max current feeds", false, p.MaxCurrentFeeds); err != nil {
-		return err
-	}
-	if err := validateInt64("cooldown time", true, p.CooldownTime); err != nil {
-		return err
-	}
-	if err := validateInt64("min deviation basis point", true, p.MinDeviationBasisPoint); err != nil {
-		return err
-	}
-	if err := validateInt64("max deviation basis point", true, p.MaxDeviationBasisPoint); err != nil {
-		return err
-	}
-	if err := validateInt64("current feeds update interval", true, p.CurrentFeedsUpdateInterval); err != nil {
-		return err
+
+	for _, f := range fields {
+		if err := f.validateFn(f.name, f.isPositiveOnly, f.val); err != nil {
+			return err
+		}
 	}
 
 	return nil

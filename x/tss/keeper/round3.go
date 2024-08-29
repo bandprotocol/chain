@@ -1,6 +1,9 @@
 package keeper
 
 import (
+	"encoding/hex"
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
@@ -103,8 +106,10 @@ func (k Keeper) AddComplaintsWithStatus(
 	groupID tss.GroupID,
 	complaintsWithStatus types.ComplaintsWithStatus,
 ) {
-	k.AddConfirmComplaintCount(ctx, groupID)
 	k.SetComplaintsWithStatus(ctx, groupID, complaintsWithStatus)
+
+	count := k.GetConfirmComplainCount(ctx, groupID)
+	k.SetConfirmComplainCount(ctx, groupID, count+1)
 }
 
 // SetComplaintsWithStatus sets the complaints with status for a specific groupID and memberID in the store.
@@ -161,11 +166,6 @@ func (k Keeper) GetAllComplainsWithStatus(ctx sdk.Context, groupID tss.GroupID) 
 	return cs
 }
 
-// DeleteComplainsWithStatus deletes the complaint with status of a member from the store.
-func (k Keeper) DeleteComplainsWithStatus(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
-	ctx.KVStore(k.storeKey).Delete(types.ComplainsWithStatusMemberStoreKey(groupID, memberID))
-}
-
 // DeleteAllComplainsWithStatus removes all complains with status associated with a specific group ID from the store.
 func (k Keeper) DeleteAllComplainsWithStatus(ctx sdk.Context, groupID tss.GroupID) {
 	iterator := k.GetComplainsWithStatusIterator(ctx, groupID)
@@ -183,8 +183,10 @@ func (k Keeper) AddConfirm(
 	groupID tss.GroupID,
 	confirm types.Confirm,
 ) {
-	k.AddConfirmComplaintCount(ctx, groupID)
 	k.SetConfirm(ctx, groupID, confirm)
+
+	count := k.GetConfirmComplainCount(ctx, groupID)
+	k.SetConfirmComplainCount(ctx, groupID, count+1)
 }
 
 // SetConfirm sets the confirm for a specific groupID and memberID in the store.
@@ -239,11 +241,6 @@ func (k Keeper) GetConfirms(ctx sdk.Context, groupID tss.GroupID) []types.Confir
 	return cs
 }
 
-// DeleteConfirm deletes the confirm of a member from the store.
-func (k Keeper) DeleteConfirm(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) {
-	ctx.KVStore(k.storeKey).Delete(types.ConfirmMemberStoreKey(groupID, memberID))
-}
-
 // DeleteConfirms removes all confirm with a specific group ID from the store.
 func (k Keeper) DeleteConfirms(ctx sdk.Context, groupID tss.GroupID) {
 	iterator := k.GetConfirmIterator(ctx, groupID)
@@ -255,9 +252,11 @@ func (k Keeper) DeleteConfirms(ctx sdk.Context, groupID tss.GroupID) {
 	}
 }
 
-// SetConfirmComplainCount sets the confirm complaint count for a specific groupID in the store.
-func (k Keeper) SetConfirmComplainCount(ctx sdk.Context, groupID tss.GroupID, count uint64) {
-	ctx.KVStore(k.storeKey).Set(types.ConfirmComplainCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))
+func (k Keeper) DeleteConfirmComplains(ctx sdk.Context, groupID tss.GroupID) {
+	k.DeleteConfirms(ctx, groupID)
+	k.DeleteAllComplainsWithStatus(ctx, groupID)
+
+	k.DeleteConfirmComplainCount(ctx, groupID)
 }
 
 // GetConfirmComplainCount retrieves the confirm complaint count for a specific groupID from the store.
@@ -266,10 +265,9 @@ func (k Keeper) GetConfirmComplainCount(ctx sdk.Context, groupID tss.GroupID) ui
 	return sdk.BigEndianToUint64(bz)
 }
 
-// AddConfirmComplaintCount increments the count of confirm and complaint in the store.
-func (k Keeper) AddConfirmComplaintCount(ctx sdk.Context, groupID tss.GroupID) {
-	count := k.GetConfirmComplainCount(ctx, groupID)
-	k.SetConfirmComplainCount(ctx, groupID, count+1)
+// SetConfirmComplainCount sets the confirm complaint count for a specific groupID in the store.
+func (k Keeper) SetConfirmComplainCount(ctx sdk.Context, groupID tss.GroupID, count uint64) {
+	ctx.KVStore(k.storeKey).Set(types.ConfirmComplainCountStoreKey(groupID), sdk.Uint64ToBigEndian(count))
 }
 
 // DeleteConfirmComplainCount remove the confirm complaint count data of a group from the store.
@@ -293,6 +291,61 @@ func (k Keeper) MarkMalicious(ctx sdk.Context, groupID tss.GroupID, memberID tss
 	return nil
 }
 
+// ProcessComplaint processes the complaints of a group and mark the malicious member.
+func (k Keeper) ProcessComplaint(
+	ctx sdk.Context,
+	complaints []types.Complaint,
+	groupID tss.GroupID,
+	sender string,
+) ([]types.ComplaintWithStatus, error) {
+	var complaintsWithStatus []types.ComplaintWithStatus
+
+	// Verify complaint if fail to verify, mark complainant as malicious instead.
+	for _, c := range complaints {
+		var complaintStatus types.ComplaintStatus
+		var eventComplainStatus string
+		var maliciousMemberID tss.MemberID
+
+		err := k.HandleVerifyComplaint(ctx, groupID, c)
+		if err != nil {
+			maliciousMemberID = c.Complainant
+			complaintStatus = types.COMPLAINT_STATUS_FAILED
+			eventComplainStatus = types.EventTypeComplainFailed
+		} else {
+			maliciousMemberID = c.Respondent
+			complaintStatus = types.COMPLAINT_STATUS_SUCCESS
+			eventComplainStatus = types.EventTypeComplainSuccess
+		}
+
+		// mark user as malicious
+		err = k.MarkMalicious(ctx, groupID, maliciousMemberID)
+		if err != nil {
+			return nil, err
+		}
+
+		// Add complaint status
+		complaintsWithStatus = append(complaintsWithStatus, types.ComplaintWithStatus{
+			Complaint:       c,
+			ComplaintStatus: complaintStatus,
+		})
+
+		// Emit complain failed event
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				eventComplainStatus,
+				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+				sdk.NewAttribute(types.AttributeKeyComplainantID, fmt.Sprintf("%d", c.Complainant)),
+				sdk.NewAttribute(types.AttributeKeyRespondentID, fmt.Sprintf("%d", c.Respondent)),
+				sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
+				sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
+				sdk.NewAttribute(types.AttributeKeyAddress, sender),
+			),
+		)
+	}
+
+	return complaintsWithStatus, nil
+}
+
 // DeleteAllDKGInterimData deletes all DKG interim data for a given groupID.
 func (k Keeper) DeleteAllDKGInterimData(
 	ctx sdk.Context,
@@ -302,18 +355,10 @@ func (k Keeper) DeleteAllDKGInterimData(
 	k.DeleteDKGContext(ctx, groupID)
 	// Delete round1Infos
 	k.DeleteRound1Infos(ctx, groupID)
-	// Delete round1InfoCount
-	k.DeleteRound1InfoCount(ctx, groupID)
 	// Delete round2Infos
 	k.DeleteRound2Infos(ctx, groupID)
-	// Delete round2InfoCount
-	k.DeleteRound2InfoCount(ctx, groupID)
-	// Delete all complaint with status
-	k.DeleteAllComplainsWithStatus(ctx, groupID)
-	// Delete confirms
-	k.DeleteConfirms(ctx, groupID)
+	// Delete all confirm and complaint with status
+	k.DeleteConfirmComplains(ctx, groupID)
 	// Delete accumulated commits
 	k.DeleteAccumulatedCommits(ctx, groupID)
-	// Delete confirm complaint count
-	k.DeleteConfirmComplainCount(ctx, groupID)
 }

@@ -1,65 +1,49 @@
 package keeper_test
 
 import (
+	"testing"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-func (s *KeeperTestSuite) TestGetSetDECount() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func TestGetSetDEQueue(t *testing.T) {
+	s := NewKeeperTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
+
 	address := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
 	accAddress := sdk.MustAccAddressFromBech32(address)
 
-	// Set DECount
-	k.SetDECount(ctx, accAddress, 1)
+	k.SetDEQueue(ctx, accAddress, types.DEQueue{
+		Head: 1, Tail: 10,
+	})
 
-	// Get DECount
-	s.Require().Equal(uint64(1), k.GetDECount(ctx, accAddress))
+	got := k.GetDEQueue(ctx, accAddress)
+	require.Equal(t, types.DEQueue{Head: 1, Tail: 10}, got)
 }
 
-func (s *KeeperTestSuite) TestGetSetDE() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func TestGetSetDE(t *testing.T) {
+	s := NewKeeperTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
+
 	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	de := types.DE{
 		PubD: []byte("D"),
 		PubE: []byte("E"),
 	}
+	k.SetDE(ctx, address, 1, de)
 
-	// Set DE
-	k.SetDE(ctx, address, de)
-
-	s.Require().True(k.HasDE(ctx, address, de))
-
-	got, err := k.GetFirstDE(ctx, address)
-	s.Require().NoError(err)
-	s.Require().Equal(de, got)
+	got, err := k.GetDE(ctx, address, 1)
+	require.NoError(t, err)
+	require.Equal(t, de, got)
 }
 
-func (s *KeeperTestSuite) TestDeleteDE() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-	de := types.DE{
-		PubD: []byte("D"),
-		PubE: []byte("E"),
-	}
+func TestGetDEsGenesis(t *testing.T) {
+	s := NewKeeperTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
 
-	// Set DE
-	k.SetDE(ctx, address, de)
-
-	// Get DE
-	k.DeleteDE(ctx, address, de)
-
-	// Try to get the deleted DE
-	s.Require().False(k.HasDE(ctx, address, de))
-
-	got, err := k.GetFirstDE(ctx, address)
-	s.Require().ErrorIs(types.ErrDENotFound, err)
-	s.Require().Equal(types.DE{}, got)
-}
-
-func (s *KeeperTestSuite) TestGetDEsGenesis() {
-	ctx, k := s.ctx, s.app.TSSKeeper
 	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	before := k.GetDEsGenesis(ctx)
 	de := types.DE{
@@ -68,24 +52,24 @@ func (s *KeeperTestSuite) TestGetDEsGenesis() {
 	}
 
 	// Set DE
-	k.SetDE(ctx, address, de)
+	err := k.HandleSetDEs(ctx, address, []types.DE{de})
+	require.NoError(t, err)
 
 	// Get des with address and index
 	after := k.GetDEsGenesis(ctx)
-
-	s.Require().Equal(len(before)+1, len(after))
+	require.Equal(t, len(before)+1, len(after))
 	for _, q := range after {
 		if q.Address == string(address) {
-			s.Require().Equal(types.DEGenesis{
-				Address: address.String(),
-				DE:      de,
-			}, q)
+			expected := types.DEGenesis{Address: address.String(), DE: de}
+			require.Equal(t, expected, q)
 		}
 	}
 }
 
-func (s *KeeperTestSuite) TestHandleSetDEs() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func TestHandleSetDEs(t *testing.T) {
+	s := NewKeeperTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
+
 	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	des := []types.DE{
 		{
@@ -100,20 +84,27 @@ func (s *KeeperTestSuite) TestHandleSetDEs() {
 
 	// Handle setting DEs
 	err := k.HandleSetDEs(ctx, address, des)
-	s.Require().NoError(err)
+	require.NoError(t, err)
 
-	// Get DECount
-	cnt := k.GetDECount(ctx, address)
-	s.Require().Equal(uint64(len(des)), cnt)
+	// Get DEQueue
+	cnt := k.GetDEQueue(ctx, address)
+	require.Equal(t, types.DEQueue{Head: 0, Tail: 2}, cnt)
 
 	// Check that all DEs have been stored correctly
-	for _, de := range des {
-		s.Require().True(k.HasDE(ctx, address, de))
+	existingDEs := []types.DE{}
+	for i := 0; i < len(des); i++ {
+		de, err := k.GetDE(ctx, address, uint64(i))
+		require.NoError(t, err)
+		existingDEs = append(existingDEs, de)
 	}
+
+	require.Equal(t, des, existingDEs)
 }
 
-func (s *KeeperTestSuite) TestPollDE() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func TestPollDE(t *testing.T) {
+	s := NewKeeperTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
+
 	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	des := []types.DE{
 		{
@@ -124,26 +115,27 @@ func (s *KeeperTestSuite) TestPollDE() {
 
 	// Set DE
 	err := k.HandleSetDEs(ctx, address, des)
-	s.Require().NoError(err)
+	require.NoError(t, err)
 
 	// Poll DE
 	polledDE, err := k.PollDE(ctx, address)
-	s.Require().NoError(err)
+	require.NoError(t, err)
 
 	// Ensure polled DE is equal to original DE
-	s.Require().Equal(des[0], polledDE)
+	require.Equal(t, des[0], polledDE)
 
 	// Attempt to get deleted DE
-	s.Require().False(k.HasDE(ctx, address, des[0]))
-	got, err := k.GetFirstDE(ctx, address)
+	got, err := k.PollDE(ctx, address)
 
 	// Should return error
-	s.Require().ErrorIs(types.ErrDENotFound, err)
-	s.Require().Equal(types.DE{}, got)
+	require.ErrorIs(t, types.ErrDENotFound, err)
+	require.Equal(t, types.DE{}, got)
 }
 
-func (s *KeeperTestSuite) TestHandlePollDEForAssignedMembers() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func TestHandlePollDEForAssignedMembers(t *testing.T) {
+	s := NewKeeperTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
+
 	members := []types.Member{
 		{
 			ID:          1,
@@ -172,12 +164,12 @@ func (s *KeeperTestSuite) TestHandlePollDEForAssignedMembers() {
 	for _, m := range members {
 		accM := sdk.MustAccAddressFromBech32(m.Address)
 		err := k.HandleSetDEs(ctx, accM, des)
-		s.Require().NoError(err)
+		require.NoError(t, err)
 	}
 
 	des, err := k.PollDEs(ctx, members)
-	s.Require().NoError(err)
-	s.Require().Equal([]types.DE{
+	require.NoError(t, err)
+	require.Equal(t, []types.DE{
 		{
 			PubD: des[0].PubD,
 			PubE: des[0].PubE,

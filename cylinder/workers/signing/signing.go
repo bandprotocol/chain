@@ -172,7 +172,7 @@ func (s *Signing) handlePendingSignings() {
 	}
 
 	for _, sid := range res.PendingSignings {
-		go s.handleSigning(tss.SigningID(sid))
+		go s.handleSigning(sid)
 	}
 }
 

@@ -152,7 +152,8 @@ message QueryPendingSigningsRequest {
 // QueryPendingSigningsResponse is the response type for the Query/PendingSignings RPC method.
 message QueryPendingSigningsResponse {
   // pending_signings is a list of pending signings.
-  repeated uint64 pending_signings = 1;
+  repeated uint64 pending_signings = 1
+      [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"];
 }
 
 // QuerySigningRequest is the request type for the Query/Signing RPC method.

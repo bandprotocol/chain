@@ -8,37 +8,37 @@ import (
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-// ReplaceGroupPath is the reserved path for replace group msg
-const ReplaceGroupPath = "replace"
+// GroupTransitionPath is the reserved path for transition group msg
+const GroupTransitionPath = "transition"
 
-// ReplaceGroupMsgPrefix is the prefix for replace group msg.
-var ReplaceGroupMsgPrefix = tss.Hash([]byte(ReplaceGroupPath))[:4]
+// GroupTransitionMsgPrefix is the prefix for replace group msg.
+var GroupTransitionMsgPrefix = tss.Hash([]byte(GroupTransitionPath))[:4]
 
 // Implements SignatureRequest Interface
-var _ tsstypes.Content = &ReplaceGroupSignatureOrder{}
+var _ tsstypes.Content = &GroupTransitionSignatureOrder{}
 
-func NewReplaceGroupSignatureOrder(pubKey []byte) *ReplaceGroupSignatureOrder {
-	return &ReplaceGroupSignatureOrder{PubKey: pubKey}
+func NewGroupTransitionSignatureOrder(pubKey []byte) *GroupTransitionSignatureOrder {
+	return &GroupTransitionSignatureOrder{PubKey: pubKey}
 }
 
 // OrderRoute returns the order router key
-func (rs *ReplaceGroupSignatureOrder) OrderRoute() string { return RouterKey }
+func (rs *GroupTransitionSignatureOrder) OrderRoute() string { return RouterKey }
 
-// OrderType of ReplaceGroupSignatureOrder is "replace"
-func (rs *ReplaceGroupSignatureOrder) OrderType() string {
-	return ReplaceGroupPath
+// OrderType of ReplaceGroupSignatureOrder is "transition"
+func (rs *GroupTransitionSignatureOrder) OrderType() string {
+	return GroupTransitionPath
 }
 
 // ValidateBasic performs no-op for this type
-func (rs *ReplaceGroupSignatureOrder) ValidateBasic() error { return nil }
+func (rs *GroupTransitionSignatureOrder) ValidateBasic() error { return nil }
 
 // NewSignatureOrderHandler implements the Handler interface for tss module-based
 // request signatures (ie. TextSignatureOrder)
 func NewSignatureOrderHandler() tsstypes.Handler {
 	return func(ctx sdk.Context, content tsstypes.Content) ([]byte, error) {
 		switch c := content.(type) {
-		case *ReplaceGroupSignatureOrder:
-			return append(ReplaceGroupMsgPrefix, c.PubKey...), nil
+		case *GroupTransitionSignatureOrder:
+			return append(GroupTransitionMsgPrefix, c.PubKey...), nil
 
 		default:
 			return nil, sdkerrors.ErrUnknownRequest.Wrapf(

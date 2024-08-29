@@ -1,27 +1,37 @@
 package keeper_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/codec"
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/mock/gomock"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
 	bandtesting "github.com/bandprotocol/chain/v2/testing"
+	"github.com/bandprotocol/chain/v2/x/bandtss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/keeper"
+	bandtsstestutil "github.com/bandprotocol/chain/v2/x/bandtss/testutil"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
+	tsstestutils "github.com/bandprotocol/chain/v2/x/tss/testutil"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-type KeeperTestSuite struct {
+type AppTestSuite struct {
 	suite.Suite
 
 	app         *bandtesting.TestingApp
@@ -39,10 +49,10 @@ var (
 	PubE  = tss.Scalar(PrivE).Point()
 )
 
-func (s *KeeperTestSuite) SetupTest() {
+func (s *AppTestSuite) SetupTest() {
 	app, ctx := bandtesting.CreateTestApp(s.T(), true)
 	s.app = app
-	s.ctx = ctx
+	s.ctx = ctx.WithBlockTime(time.Now().UTC())
 
 	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, keeper.NewQueryServer(app.BandtssKeeper))
@@ -54,142 +64,129 @@ func (s *KeeperTestSuite) SetupTest() {
 	s.authority = authtypes.NewModuleAddress(govtypes.ModuleName)
 }
 
-func (s *KeeperTestSuite) setupCreateGroup() {
-	ctx, bandtssMsgSrvr, tssKeeper := s.ctx, s.msgSrvr, s.app.TSSKeeper
+func (s *AppTestSuite) CreateNewGroup(
+	n uint64,
+	threshold uint64,
+	execTime time.Time,
+) (*tsstestutils.GroupContext, error) {
+	accounts := tsstestutils.GenerateAccounts(n)
+	members := make([]sdk.AccAddress, n)
+	memberStrs := make([]string, n)
+	for i := 0; i < len(accounts); i++ {
+		members[i] = accounts[i].Address
+		memberStrs[i] = members[i].String()
+	}
 
-	// Create group from testutil
-	for _, tc := range testutil.TestCases {
-		// Initialize members
-		var members []string
-		for _, m := range tc.Group.Members {
-			address := sdk.AccAddress(m.PubKey())
-			members = append(members, address.String())
+	des := make([][]tsstestutils.DEWithPrivateNonce, n)
+	for i := 0; i < len(des); i++ {
+		des[i] = make([]tsstestutils.DEWithPrivateNonce, 0, 10)
+	}
+
+	secrets := make([]tss.Scalar, n)
+	for i := 0; i < len(secrets); i++ {
+		secret, err := tss.RandomScalar()
+		if err != nil {
+			return nil, err
 		}
+		secrets[i] = secret
+	}
 
-		// Create group
-		_, err := bandtssMsgSrvr.CreateGroup(ctx, &types.MsgCreateGroup{
-			Members:   members,
-			Threshold: tc.Group.Threshold,
-			Authority: s.authority.String(),
-		})
+	if _, err := s.msgSrvr.TransitionGroup(s.ctx, types.NewMsgTransitionGroup(
+		memberStrs, threshold, execTime, s.authority.String(),
+	)); err != nil {
+		return nil, err
+	}
+
+	groupID := tss.GroupID(s.app.TSSKeeper.GetGroupCount(s.ctx))
+	groupCtx := &tsstestutils.GroupContext{
+		GroupID:  groupID,
+		Accounts: accounts,
+		DEs:      des,
+		Secrets:  secrets,
+	}
+
+	if err := groupCtx.SubmitRound1(s.ctx, s.app.TSSKeeper); err != nil {
+		return nil, err
+	}
+
+	if err := groupCtx.SubmitRound2(s.ctx, s.app.TSSKeeper); err != nil {
+		return nil, err
+	}
+
+	if err := groupCtx.SubmitRound3(s.ctx, s.app.TSSKeeper); err != nil {
+		return nil, err
+	}
+
+	if err := groupCtx.GenerateDE(s.ctx, s.app.TSSKeeper); err != nil {
+		return nil, err
+	}
+
+	return groupCtx, nil
+}
+
+func (s *AppTestSuite) ExecuteReplaceGroup() error {
+	transition, found := s.app.BandtssKeeper.GetGroupTransition(s.ctx)
+	if !found {
+		return fmt.Errorf("group transition not found")
+	}
+
+	if transition.Status != types.TRANSITION_STATUS_WAITING_EXECUTION {
+		return fmt.Errorf("unexpected transition status: %s", transition.Status.String())
+	}
+
+	s.ctx = s.ctx.WithBlockTime(transition.ExecTime)
+	s.app.EndBlocker(s.ctx, abci.RequestEndBlock{Height: s.ctx.BlockHeight() + 1})
+
+	if transition.IncomingGroupID != s.app.BandtssKeeper.GetCurrentGroupID(s.ctx) {
+		return fmt.Errorf("unexpected current group id: %d", transition.IncomingGroupID)
+	}
+	return nil
+}
+
+func (s *AppTestSuite) SignTransition(groupCtx *tsstestutils.GroupContext) error {
+	transition, found := s.app.BandtssKeeper.GetGroupTransition(s.ctx)
+	if !found {
+		return fmt.Errorf("group transition not found")
+	}
+	if transition.Status != types.TRANSITION_STATUS_WAITING_SIGN {
+		return fmt.Errorf("unexpected transition status: %s", transition.Status.String())
+	}
+
+	err := groupCtx.SubmitSignature(s.ctx, s.app.TSSKeeper, s.tssMsgSrvr, transition.SigningID)
+	if err != nil {
+		return err
+	}
+
+	// Execute the EndBlocker to process signings
+	s.app.TSSKeeper.HandleSigningEndBlock(s.ctx)
+	transition, found = s.app.BandtssKeeper.GetGroupTransition(s.ctx)
+	if !found {
+		return fmt.Errorf("group transition not found")
+	}
+	if transition.Status != types.TRANSITION_STATUS_WAITING_EXECUTION {
+		return fmt.Errorf("unexpected transition status: %s", transition.Status.String())
+	}
+	return nil
+}
+
+func (s *AppTestSuite) SetupNewGroup(n uint64, threshold uint64) *tsstestutils.GroupContext {
+	execTime := s.ctx.BlockTime().Add(10 * time.Minute)
+	groupCtx, err := s.CreateNewGroup(n, threshold, execTime)
+	s.Require().NoError(err)
+
+	transition, found := s.app.BandtssKeeper.GetGroupTransition(s.ctx)
+	if found && transition.Status == types.TRANSITION_STATUS_WAITING_SIGN {
+		err := s.SignTransition(groupCtx)
 		s.Require().NoError(err)
-
-		// Set DKG context
-		tssKeeper.SetDKGContext(ctx, tc.Group.ID, tc.Group.DKGContext)
-	}
-}
-
-func (s *KeeperTestSuite) setupRound1() {
-	s.setupCreateGroup()
-
-	ctx, app, tssMsgSrvr := s.ctx, s.app, s.tssMsgSrvr
-	for _, tc := range testutil.TestCases {
-		for _, m := range tc.Group.Members {
-			// Submit Round 1 information for each member
-			_, err := tssMsgSrvr.SubmitDKGRound1(ctx, &tsstypes.MsgSubmitDKGRound1{
-				GroupID: tc.Group.ID,
-				Round1Info: tsstypes.Round1Info{
-					MemberID:           m.ID,
-					CoefficientCommits: m.CoefficientCommits,
-					OneTimePubKey:      m.OneTimePubKey(),
-					A0Signature:        m.A0Signature,
-					OneTimeSignature:   m.OneTimeSignature,
-				},
-				Address: sdk.AccAddress(m.PubKey()).String(),
-			})
-			s.Require().NoError(err)
-		}
 	}
 
-	// Execute the EndBlocker to process groups
-	app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
+	err = s.ExecuteReplaceGroup()
+	s.Require().NoError(err)
+
+	return groupCtx
 }
 
-func (s *KeeperTestSuite) setupRound2() {
-	s.setupRound1()
-
-	ctx, app, tssMsgSrvr := s.ctx, s.app, s.tssMsgSrvr
-	for _, tc := range testutil.TestCases {
-		for _, m := range tc.Group.Members {
-			// Submit Round 2 information for each member
-			_, err := tssMsgSrvr.SubmitDKGRound2(ctx, &tsstypes.MsgSubmitDKGRound2{
-				GroupID: tc.Group.ID,
-				Round2Info: tsstypes.Round2Info{
-					MemberID:              m.ID,
-					EncryptedSecretShares: m.EncSecretShares,
-				},
-				Address: sdk.AccAddress(m.PubKey()).String(),
-			})
-			s.Require().NoError(err)
-		}
-	}
-
-	// Execute the EndBlocker to process groups
-	app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
-}
-
-func (s *KeeperTestSuite) setupConfirm() {
-	s.setupRound2()
-
-	ctx, app, tssMsgSrvr := s.ctx, s.app, s.tssMsgSrvr
-	for _, tc := range testutil.TestCases {
-		for _, m := range tc.Group.Members {
-			// Confirm the group participation for each member
-			_, err := tssMsgSrvr.Confirm(ctx, &tsstypes.MsgConfirm{
-				GroupID:      tc.Group.ID,
-				MemberID:     m.ID,
-				OwnPubKeySig: m.PubKeySignature,
-				Address:      sdk.AccAddress(m.PubKey()).String(),
-			})
-			s.Require().NoError(err)
-		}
-	}
-
-	// Execute the EndBlocker to process groups
-	app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
-}
-
-func (s *KeeperTestSuite) setupDE() {
-	ctx, tssMsgSrvr := s.ctx, s.tssMsgSrvr
-
-	for _, tc := range testutil.TestCases {
-		for _, m := range tc.Group.Members {
-			// Submit DEs for each member
-			des := make([]tsstypes.DE, 0, 5)
-			for i := 0; i < 5; i++ {
-				privD, err := tss.GenerateSigningNonce(m.PrivKey)
-				s.Require().NoError(err)
-
-				privE, err := tss.GenerateSigningNonce(m.PrivKey)
-				s.Require().NoError(err)
-
-				des = append(des, tsstypes.DE{PubD: privD.Point(), PubE: privE.Point()})
-			}
-
-			_, err := tssMsgSrvr.SubmitDEs(ctx, &tsstypes.MsgSubmitDEs{
-				DEs:     des,
-				Address: sdk.AccAddress(m.PubKey()).String(),
-			})
-			s.Require().NoError(err)
-		}
-	}
-}
-
-func (s *KeeperTestSuite) SetupGroup(groupStatus tsstypes.GroupStatus) {
-	switch groupStatus {
-	case tsstypes.GROUP_STATUS_ROUND_1:
-		s.setupCreateGroup()
-	case tsstypes.GROUP_STATUS_ROUND_2:
-		s.setupRound1()
-	case tsstypes.GROUP_STATUS_ROUND_3:
-		s.setupRound2()
-	case tsstypes.GROUP_STATUS_ACTIVE:
-		s.setupConfirm()
-		s.setupDE()
-	}
-}
-
-func (s *KeeperTestSuite) TestParams() {
+func (s *AppTestSuite) TestParams() {
 	k := s.app.BandtssKeeper
 
 	testCases := []struct {
@@ -215,6 +212,7 @@ func (s *KeeperTestSuite) TestParams() {
 				ActiveDuration:          types.DefaultActiveDuration,
 				RewardPercentage:        types.DefaultRewardPercentage,
 				InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
+				MaxTransitionDuration:   types.DefaultMaxTransitionDuration,
 				Fee:                     types.DefaultFee,
 			},
 			expectErr: false,
@@ -239,9 +237,9 @@ func (s *KeeperTestSuite) TestParams() {
 	}
 }
 
-func (s *KeeperTestSuite) TestIsGrantee() {
+func (s *AppTestSuite) TestIsGrantee() {
 	ctx, k := s.ctx, s.app.BandtssKeeper
-	expTime := time.Unix(0, 0)
+	expTime := s.ctx.BlockTime().Add(time.Hour)
 
 	// Init grantee address
 	grantee, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
@@ -259,6 +257,81 @@ func (s *KeeperTestSuite) TestIsGrantee() {
 	s.Require().True(isGrantee)
 }
 
-func TestKeeperTestSuite(t *testing.T) {
-	suite.Run(t, new(KeeperTestSuite))
+func TestAppTestSuite(t *testing.T) {
+	suite.Run(t, new(AppTestSuite))
+}
+
+// KeeperTestSuite is a struct that embeds a *testing.T and provides a setup for a mock keeper
+type KeeperTestSuite struct {
+	t           *testing.T
+	Keeper      *keeper.Keeper
+	QueryServer types.QueryServer
+	TssCallback *keeper.TSSCallback
+
+	MockAccountKeeper *bandtsstestutil.MockAccountKeeper
+	MockBankKeeper    *bandtsstestutil.MockBankKeeper
+	MockDistrKeeper   *bandtsstestutil.MockDistrKeeper
+	MockStakingKeeper *bandtsstestutil.MockStakingKeeper
+	MockTSSKeeper     *bandtsstestutil.MockTSSKeeper
+
+	ModuleAcc authtypes.ModuleAccountI
+	Ctx       sdk.Context
+	Authority sdk.AccAddress
+}
+
+// NewKeeperTestSuite returns a new KeeperTestSuite object
+func NewKeeperTestSuite(t *testing.T) KeeperTestSuite {
+	ctrl := gomock.NewController(t)
+	key := sdk.NewKVStoreKey(types.StoreKey)
+	testCtx := sdktestutil.DefaultContextWithDB(t, key, sdk.NewTransientStoreKey("transient_test"))
+	encCfg := moduletestutil.MakeTestEncodingConfig(bandtss.AppModuleBasic{})
+	ctx := testCtx.Ctx.WithBlockHeader(tmproto.Header{Time: time.Now().UTC()})
+
+	authzKeeper := bandtsstestutil.NewMockAuthzKeeper(ctrl)
+	accountKeeper := bandtsstestutil.NewMockAccountKeeper(ctrl)
+	bankKeeper := bandtsstestutil.NewMockBankKeeper(ctrl)
+	distrKeeper := bandtsstestutil.NewMockDistrKeeper(ctrl)
+	stakingKeeper := bandtsstestutil.NewMockStakingKeeper(ctrl)
+	tssKeeper := bandtsstestutil.NewMockTSSKeeper(ctrl)
+
+	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
+	accountKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(authority).AnyTimes()
+	bandtssKeeper := keeper.NewKeeper(
+		encCfg.Codec.(codec.BinaryCodec),
+		key,
+		authzKeeper,
+		accountKeeper,
+		bankKeeper,
+		distrKeeper,
+		stakingKeeper,
+		tssKeeper,
+		authority.String(),
+		authtypes.FeeCollectorName,
+	)
+	err := bandtssKeeper.SetParams(ctx, types.DefaultParams())
+	require.NoError(t, err)
+
+	tssCallback := keeper.NewTSSCallback(bandtssKeeper)
+	queryServer := keeper.NewQueryServer(bandtssKeeper)
+
+	mAcc := authtypes.NewModuleAccount(&authtypes.BaseAccount{}, types.ModuleName, "auth")
+
+	return KeeperTestSuite{
+		Keeper:            bandtssKeeper,
+		MockAccountKeeper: accountKeeper,
+		MockBankKeeper:    bankKeeper,
+		MockDistrKeeper:   distrKeeper,
+		MockStakingKeeper: stakingKeeper,
+		MockTSSKeeper:     tssKeeper,
+		Ctx:               ctx,
+		Authority:         authority,
+		QueryServer:       queryServer,
+		TssCallback:       &tssCallback,
+		t:                 t,
+		ModuleAcc:         mAcc,
+	}
+}
+
+func (s *KeeperTestSuite) T() *testing.T {
+	return s.t
 }

@@ -33,45 +33,43 @@ var _ = time.Kitchen
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// ReplacementStatus is an enumeration of the possible statuses of a group replacement process.
-type ReplacementStatus int32
+// TransitionStatus is an enumeration of the possible statuses of a group transition process.
+type TransitionStatus int32
 
 const (
-	// REPLACEMENT_STATUS_UNSPECIFIED is the status of a group replacement that has not been specified.
-	REPLACEMENT_STATUS_UNSPECIFIED ReplacementStatus = 0
-	// REPLACEMENT_STATUS_WAITING_SIGN is the status of a group replacement that waits members in
-	// a current group to sign the replacement message.
-	REPLACEMENT_STATUS_WAITING_SIGN ReplacementStatus = 1
-	// REPLACEMENT_STATUS_WAITING_REPLACE is the status of a group replacement that a current group
-	// approved to be replaced but waits for the replacement to be executed.
-	REPLACEMENT_STATUS_WAITING_REPLACE ReplacementStatus = 2
-	// REPLACEMENT_STATUS_SUCCESS is the status of a group replacement that has success in the protocol.
-	REPLACEMENT_STATUS_SUCCESS ReplacementStatus = 3
-	// REPLACEMENT_STATUS_FALLEN is the status of a group replacement that has fallen out of the protocol.
-	REPLACEMENT_STATUS_FALLEN ReplacementStatus = 4
+	// TRANSITION_STATUS_UNSPECIFIED is the status of a group transition that has not been specified.
+	TRANSITION_STATUS_UNSPECIFIED TransitionStatus = 0
+	// TRANSITION_STATUS_CREATING_GROUP is the status of a group transition that a new group
+	// is being created.
+	TRANSITION_STATUS_CREATING_GROUP TransitionStatus = 1
+	// TRANSITION_STATUS_WAITING_SIGN is the status of a group transition that waits members in
+	// a current group to sign the transition message.
+	TRANSITION_STATUS_WAITING_SIGN TransitionStatus = 2
+	// TRANSITION_STATUS_WAITING_EXECUTION is the status of a group transition that
+	// a transition process is completed, either from a forceReplace or having a current-group
+	// signature on a transition message, but waits for the execution time.
+	TRANSITION_STATUS_WAITING_EXECUTION TransitionStatus = 3
 )
 
-var ReplacementStatus_name = map[int32]string{
-	0: "REPLACEMENT_STATUS_UNSPECIFIED",
-	1: "REPLACEMENT_STATUS_WAITING_SIGN",
-	2: "REPLACEMENT_STATUS_WAITING_REPLACE",
-	3: "REPLACEMENT_STATUS_SUCCESS",
-	4: "REPLACEMENT_STATUS_FALLEN",
+var TransitionStatus_name = map[int32]string{
+	0: "TRANSITION_STATUS_UNSPECIFIED",
+	1: "TRANSITION_STATUS_CREATING_GROUP",
+	2: "TRANSITION_STATUS_WAITING_SIGN",
+	3: "TRANSITION_STATUS_WAITING_EXECUTION",
 }
 
-var ReplacementStatus_value = map[string]int32{
-	"REPLACEMENT_STATUS_UNSPECIFIED":     0,
-	"REPLACEMENT_STATUS_WAITING_SIGN":    1,
-	"REPLACEMENT_STATUS_WAITING_REPLACE": 2,
-	"REPLACEMENT_STATUS_SUCCESS":         3,
-	"REPLACEMENT_STATUS_FALLEN":          4,
+var TransitionStatus_value = map[string]int32{
+	"TRANSITION_STATUS_UNSPECIFIED":       0,
+	"TRANSITION_STATUS_CREATING_GROUP":    1,
+	"TRANSITION_STATUS_WAITING_SIGN":      2,
+	"TRANSITION_STATUS_WAITING_EXECUTION": 3,
 }
 
-func (x ReplacementStatus) String() string {
-	return proto.EnumName(ReplacementStatus_name, int32(x))
+func (x TransitionStatus) String() string {
+	return proto.EnumName(TransitionStatus_name, int32(x))
 }
 
-func (ReplacementStatus) EnumDescriptor() ([]byte, []int) {
+func (TransitionStatus) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_2effaef066b71284, []int{0}
 }
 
@@ -79,12 +77,14 @@ func (ReplacementStatus) EnumDescriptor() ([]byte, []int) {
 type Member struct {
 	// address is the address of the member.
 	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	// group_id is the group ID that the member belongs to.
+	GroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID `protobuf:"varint,2,opt,name=group_id,json=groupId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.GroupID" json:"group_id,omitempty"`
 	// is_active is a flag to indicate whether a member is active or not.
-	IsActive bool `protobuf:"varint,2,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
+	IsActive bool `protobuf:"varint,3,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
 	// since is a block timestamp when a member is deactivated
-	Since time.Time `protobuf:"bytes,3,opt,name=since,proto3,stdtime" json:"since"`
+	Since time.Time `protobuf:"bytes,4,opt,name=since,proto3,stdtime" json:"since"`
 	// last_active is a latest block timestamp when a member is active
-	LastActive time.Time `protobuf:"bytes,4,opt,name=last_active,json=lastActive,proto3,stdtime" json:"last_active"`
+	LastActive time.Time `protobuf:"bytes,5,opt,name=last_active,json=lastActive,proto3,stdtime" json:"last_active"`
 }
 
 func (m *Member) Reset()         { *m = Member{} }
@@ -127,6 +127,13 @@ func (m *Member) GetAddress() string {
 	return ""
 }
 
+func (m *Member) GetGroupID() github_com_bandprotocol_chain_v2_pkg_tss.GroupID {
+	if m != nil {
+		return m.GroupID
+	}
+	return 0
+}
+
 func (m *Member) GetIsActive() bool {
 	if m != nil {
 		return m.IsActive
@@ -152,14 +159,14 @@ func (m *Member) GetLastActive() time.Time {
 type Signing struct {
 	// id is the unique identifier of the bandtss signing.
 	ID SigningID `protobuf:"varint,1,opt,name=id,proto3,casttype=SigningID" json:"id,omitempty"`
-	// fee is the tokens that will be paid per signer for this bandtss signing.
-	Fee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,2,rep,name=fee,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"fee"`
+	// fee_per_signer is the tokens that will be paid per signer for this bandtss signing.
+	FeePerSigner github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,2,rep,name=fee_per_signer,json=feePerSigner,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"fee_per_signer"`
 	// requester is the address who pays the Bandtss signing.
 	Requester string `protobuf:"bytes,3,opt,name=requester,proto3" json:"requester,omitempty"`
 	// current_group_signing_id is a tss signing ID of a current group.
 	CurrentGroupSigningID github_com_bandprotocol_chain_v2_pkg_tss.SigningID `protobuf:"varint,4,opt,name=current_group_signing_id,json=currentGroupSigningId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.SigningID" json:"current_group_signing_id,omitempty"`
-	// replacing_group_signing_id is a tss signing ID of a replacing group, if any.
-	ReplacingGroupSigningID github_com_bandprotocol_chain_v2_pkg_tss.SigningID `protobuf:"varint,5,opt,name=replacing_group_signing_id,json=replacingGroupSigningId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.SigningID" json:"replacing_group_signing_id,omitempty"`
+	// incoming_group_signing_id is a tss signing ID of an incoming group, if any.
+	IncomingGroupSigningID github_com_bandprotocol_chain_v2_pkg_tss.SigningID `protobuf:"varint,5,opt,name=incoming_group_signing_id,json=incomingGroupSigningId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.SigningID" json:"incoming_group_signing_id,omitempty"`
 }
 
 func (m *Signing) Reset()         { *m = Signing{} }
@@ -202,9 +209,9 @@ func (m *Signing) GetID() SigningID {
 	return 0
 }
 
-func (m *Signing) GetFee() github_com_cosmos_cosmos_sdk_types.Coins {
+func (m *Signing) GetFeePerSigner() github_com_cosmos_cosmos_sdk_types.Coins {
 	if m != nil {
-		return m.Fee
+		return m.FeePerSigner
 	}
 	return nil
 }
@@ -223,42 +230,43 @@ func (m *Signing) GetCurrentGroupSigningID() github_com_bandprotocol_chain_v2_pk
 	return 0
 }
 
-func (m *Signing) GetReplacingGroupSigningID() github_com_bandprotocol_chain_v2_pkg_tss.SigningID {
+func (m *Signing) GetIncomingGroupSigningID() github_com_bandprotocol_chain_v2_pkg_tss.SigningID {
 	if m != nil {
-		return m.ReplacingGroupSigningID
+		return m.IncomingGroupSigningID
 	}
 	return 0
 }
 
-type Replacement struct {
+// GroupTransition defines the group transition information of the current group and incoming group.
+type GroupTransition struct {
 	// signing_id is a tss signing ID of the replacing group signing request.
 	SigningID github_com_bandprotocol_chain_v2_pkg_tss.SigningID `protobuf:"varint,1,opt,name=signing_id,json=signingId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.SigningID" json:"signing_id,omitempty"`
 	// current_group_id is the ID of the group that will be replaced.
 	CurrentGroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID `protobuf:"varint,2,opt,name=current_group_id,json=currentGroupId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.GroupID" json:"current_group_id,omitempty"`
-	// current_pub_key is the public key pair that used for sign & verify replace group msg.
-	CurrentPubKey github_com_bandprotocol_chain_v2_pkg_tss.Point `protobuf:"bytes,3,opt,name=current_pub_key,json=currentPubKey,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.Point" json:"current_pub_key,omitempty"`
+	// current_group_pub_key is the public key pair that used for sign & verify replace group msg.
+	CurrentGroupPubKey github_com_bandprotocol_chain_v2_pkg_tss.Point `protobuf:"bytes,3,opt,name=current_group_pub_key,json=currentGroupPubKey,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.Point" json:"current_group_pub_key,omitempty"`
 	// new_group_id is the ID of the new group that be a new key candidate.
-	NewGroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID `protobuf:"varint,4,opt,name=new_group_id,json=newGroupId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.GroupID" json:"new_group_id,omitempty"`
-	// new_pub_key is the public key of the group that will be the next key of this group
-	NewPubKey github_com_bandprotocol_chain_v2_pkg_tss.Point `protobuf:"bytes,5,opt,name=new_pub_key,json=newPubKey,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.Point" json:"new_pub_key,omitempty"`
-	// status is an enumeration of the possible statuses of a group replacement process.
-	Status ReplacementStatus `protobuf:"varint,6,opt,name=status,proto3,enum=bandtss.v1beta1.ReplacementStatus" json:"status,omitempty"`
-	// exec_time is the time when the replacement will be executed.
+	IncomingGroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID `protobuf:"varint,4,opt,name=incoming_group_id,json=incomingGroupId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.GroupID" json:"incoming_group_id,omitempty"`
+	// incoming_group_pub_key is the public key of the group that will be the next key of this group
+	IncomingGroupPubKey github_com_bandprotocol_chain_v2_pkg_tss.Point `protobuf:"bytes,5,opt,name=incoming_group_pub_key,json=incomingGroupPubKey,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.Point" json:"incoming_group_pub_key,omitempty"`
+	// status is an enumeration of the possible statuses of a group transition process.
+	Status TransitionStatus `protobuf:"varint,6,opt,name=status,proto3,enum=bandtss.v1beta1.TransitionStatus" json:"status,omitempty"`
+	// exec_time is the time when the transition will be executed.
 	ExecTime time.Time `protobuf:"bytes,7,opt,name=exec_time,json=execTime,proto3,stdtime" json:"exec_time"`
 }
 
-func (m *Replacement) Reset()         { *m = Replacement{} }
-func (m *Replacement) String() string { return proto.CompactTextString(m) }
-func (*Replacement) ProtoMessage()    {}
-func (*Replacement) Descriptor() ([]byte, []int) {
+func (m *GroupTransition) Reset()         { *m = GroupTransition{} }
+func (m *GroupTransition) String() string { return proto.CompactTextString(m) }
+func (*GroupTransition) ProtoMessage()    {}
+func (*GroupTransition) Descriptor() ([]byte, []int) {
 	return fileDescriptor_2effaef066b71284, []int{2}
 }
-func (m *Replacement) XXX_Unmarshal(b []byte) error {
+func (m *GroupTransition) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *Replacement) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *GroupTransition) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_Replacement.Marshal(b, m, deterministic)
+		return xxx_messageInfo_GroupTransition.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -268,85 +276,85 @@ func (m *Replacement) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) 
 		return b[:n], nil
 	}
 }
-func (m *Replacement) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Replacement.Merge(m, src)
+func (m *GroupTransition) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GroupTransition.Merge(m, src)
 }
-func (m *Replacement) XXX_Size() int {
+func (m *GroupTransition) XXX_Size() int {
 	return m.Size()
 }
-func (m *Replacement) XXX_DiscardUnknown() {
-	xxx_messageInfo_Replacement.DiscardUnknown(m)
+func (m *GroupTransition) XXX_DiscardUnknown() {
+	xxx_messageInfo_GroupTransition.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_Replacement proto.InternalMessageInfo
+var xxx_messageInfo_GroupTransition proto.InternalMessageInfo
 
-func (m *Replacement) GetSigningID() github_com_bandprotocol_chain_v2_pkg_tss.SigningID {
+func (m *GroupTransition) GetSigningID() github_com_bandprotocol_chain_v2_pkg_tss.SigningID {
 	if m != nil {
 		return m.SigningID
 	}
 	return 0
 }
 
-func (m *Replacement) GetCurrentGroupID() github_com_bandprotocol_chain_v2_pkg_tss.GroupID {
+func (m *GroupTransition) GetCurrentGroupID() github_com_bandprotocol_chain_v2_pkg_tss.GroupID {
 	if m != nil {
 		return m.CurrentGroupID
 	}
 	return 0
 }
 
-func (m *Replacement) GetCurrentPubKey() github_com_bandprotocol_chain_v2_pkg_tss.Point {
+func (m *GroupTransition) GetCurrentGroupPubKey() github_com_bandprotocol_chain_v2_pkg_tss.Point {
 	if m != nil {
-		return m.CurrentPubKey
+		return m.CurrentGroupPubKey
 	}
 	return nil
 }
 
-func (m *Replacement) GetNewGroupID() github_com_bandprotocol_chain_v2_pkg_tss.GroupID {
+func (m *GroupTransition) GetIncomingGroupID() github_com_bandprotocol_chain_v2_pkg_tss.GroupID {
 	if m != nil {
-		return m.NewGroupID
+		return m.IncomingGroupID
 	}
 	return 0
 }
 
-func (m *Replacement) GetNewPubKey() github_com_bandprotocol_chain_v2_pkg_tss.Point {
+func (m *GroupTransition) GetIncomingGroupPubKey() github_com_bandprotocol_chain_v2_pkg_tss.Point {
 	if m != nil {
-		return m.NewPubKey
+		return m.IncomingGroupPubKey
 	}
 	return nil
 }
 
-func (m *Replacement) GetStatus() ReplacementStatus {
+func (m *GroupTransition) GetStatus() TransitionStatus {
 	if m != nil {
 		return m.Status
 	}
-	return REPLACEMENT_STATUS_UNSPECIFIED
+	return TRANSITION_STATUS_UNSPECIFIED
 }
 
-func (m *Replacement) GetExecTime() time.Time {
+func (m *GroupTransition) GetExecTime() time.Time {
 	if m != nil {
 		return m.ExecTime
 	}
 	return time.Time{}
 }
 
-// ReplaceGroupSignatureOrder defines a general signature order for group replacement.
-type ReplaceGroupSignatureOrder struct {
+// GroupTransitionSignatureOrder defines a general signature order for group transition.
+type GroupTransitionSignatureOrder struct {
 	// pub_key is the public key of new group that the current group needs to be signed.
 	PubKey github_com_cometbft_cometbft_libs_bytes.HexBytes `protobuf:"bytes,1,opt,name=pub_key,json=pubKey,proto3,casttype=github.com/cometbft/cometbft/libs/bytes.HexBytes" json:"pub_key,omitempty"`
 }
 
-func (m *ReplaceGroupSignatureOrder) Reset()         { *m = ReplaceGroupSignatureOrder{} }
-func (m *ReplaceGroupSignatureOrder) String() string { return proto.CompactTextString(m) }
-func (*ReplaceGroupSignatureOrder) ProtoMessage()    {}
-func (*ReplaceGroupSignatureOrder) Descriptor() ([]byte, []int) {
+func (m *GroupTransitionSignatureOrder) Reset()         { *m = GroupTransitionSignatureOrder{} }
+func (m *GroupTransitionSignatureOrder) String() string { return proto.CompactTextString(m) }
+func (*GroupTransitionSignatureOrder) ProtoMessage()    {}
+func (*GroupTransitionSignatureOrder) Descriptor() ([]byte, []int) {
 	return fileDescriptor_2effaef066b71284, []int{3}
 }
-func (m *ReplaceGroupSignatureOrder) XXX_Unmarshal(b []byte) error {
+func (m *GroupTransitionSignatureOrder) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *ReplaceGroupSignatureOrder) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *GroupTransitionSignatureOrder) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_ReplaceGroupSignatureOrder.Marshal(b, m, deterministic)
+		return xxx_messageInfo_GroupTransitionSignatureOrder.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -356,19 +364,19 @@ func (m *ReplaceGroupSignatureOrder) XXX_Marshal(b []byte, deterministic bool) (
 		return b[:n], nil
 	}
 }
-func (m *ReplaceGroupSignatureOrder) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ReplaceGroupSignatureOrder.Merge(m, src)
+func (m *GroupTransitionSignatureOrder) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GroupTransitionSignatureOrder.Merge(m, src)
 }
-func (m *ReplaceGroupSignatureOrder) XXX_Size() int {
+func (m *GroupTransitionSignatureOrder) XXX_Size() int {
 	return m.Size()
 }
-func (m *ReplaceGroupSignatureOrder) XXX_DiscardUnknown() {
-	xxx_messageInfo_ReplaceGroupSignatureOrder.DiscardUnknown(m)
+func (m *GroupTransitionSignatureOrder) XXX_DiscardUnknown() {
+	xxx_messageInfo_GroupTransitionSignatureOrder.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ReplaceGroupSignatureOrder proto.InternalMessageInfo
+var xxx_messageInfo_GroupTransitionSignatureOrder proto.InternalMessageInfo
 
-func (m *ReplaceGroupSignatureOrder) GetPubKey() github_com_cometbft_cometbft_libs_bytes.HexBytes {
+func (m *GroupTransitionSignatureOrder) GetPubKey() github_com_cometbft_cometbft_libs_bytes.HexBytes {
 	if m != nil {
 		return m.PubKey
 	}
@@ -376,72 +384,74 @@ func (m *ReplaceGroupSignatureOrder) GetPubKey() github_com_cometbft_cometbft_li
 }
 
 func init() {
-	proto.RegisterEnum("bandtss.v1beta1.ReplacementStatus", ReplacementStatus_name, ReplacementStatus_value)
+	proto.RegisterEnum("bandtss.v1beta1.TransitionStatus", TransitionStatus_name, TransitionStatus_value)
 	proto.RegisterType((*Member)(nil), "bandtss.v1beta1.Member")
 	proto.RegisterType((*Signing)(nil), "bandtss.v1beta1.Signing")
-	proto.RegisterType((*Replacement)(nil), "bandtss.v1beta1.Replacement")
-	proto.RegisterType((*ReplaceGroupSignatureOrder)(nil), "bandtss.v1beta1.ReplaceGroupSignatureOrder")
+	proto.RegisterType((*GroupTransition)(nil), "bandtss.v1beta1.GroupTransition")
+	proto.RegisterType((*GroupTransitionSignatureOrder)(nil), "bandtss.v1beta1.GroupTransitionSignatureOrder")
 }
 
 func init() { proto.RegisterFile("bandtss/v1beta1/bandtss.proto", fileDescriptor_2effaef066b71284) }
 
 var fileDescriptor_2effaef066b71284 = []byte{
-	// 867 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x55, 0xcd, 0x6e, 0xdb, 0x46,
-	0x10, 0xd6, 0x4a, 0xb2, 0x64, 0x8d, 0x52, 0x47, 0xdd, 0x36, 0x88, 0xac, 0x36, 0xa4, 0xa1, 0x00,
-	0x85, 0x50, 0x20, 0x64, 0xa2, 0xf6, 0xe4, 0x9b, 0x28, 0xcb, 0xae, 0x50, 0x5b, 0x71, 0x49, 0x19,
-	0x05, 0x02, 0x14, 0x04, 0x7f, 0xd6, 0xcc, 0xc2, 0x12, 0xc9, 0x72, 0x97, 0xfe, 0x79, 0x83, 0x9c,
-	0x8a, 0x3c, 0x42, 0x81, 0x5e, 0x8a, 0x9e, 0xfb, 0x10, 0x6e, 0x81, 0x02, 0x39, 0xf6, 0xc4, 0x14,
-	0xf4, 0xa5, 0x8f, 0x50, 0xf8, 0x54, 0xf0, 0xcf, 0x56, 0x13, 0xa1, 0x4d, 0xdc, 0x9c, 0xb4, 0xa3,
-	0xf9, 0x66, 0xe6, 0xfb, 0x66, 0x06, 0x43, 0xb8, 0x67, 0x1a, 0xae, 0xcd, 0x19, 0x93, 0x8f, 0x1f,
-	0x99, 0x84, 0x1b, 0x8f, 0xe4, 0xdc, 0x96, 0xfc, 0xc0, 0xe3, 0x1e, 0xbe, 0x5d, 0x98, 0xb9, 0xbb,
-	0xf3, 0xa1, 0xe3, 0x39, 0x5e, 0xea, 0x93, 0x93, 0x57, 0x06, 0xeb, 0x88, 0x8e, 0xe7, 0x39, 0x33,
-	0x22, 0xa7, 0x96, 0x19, 0x1e, 0xca, 0x9c, 0xce, 0x09, 0xe3, 0xc6, 0xdc, 0xcf, 0x01, 0x82, 0xe5,
-	0xb1, 0xb9, 0xc7, 0x64, 0xd3, 0x60, 0xe4, 0xaa, 0x94, 0xe5, 0x51, 0x37, 0xf7, 0xaf, 0x67, 0x7e,
-	0x3d, 0xcb, 0x9c, 0x19, 0x99, 0xab, 0x7b, 0x8e, 0xa0, 0xb6, 0x47, 0xe6, 0x26, 0x09, 0x70, 0x1b,
-	0xea, 0x86, 0x6d, 0x07, 0x84, 0xb1, 0x36, 0xda, 0x40, 0xbd, 0x86, 0x5a, 0x98, 0xf8, 0x23, 0x68,
-	0x50, 0xa6, 0x1b, 0x16, 0xa7, 0xc7, 0xa4, 0x5d, 0xde, 0x40, 0xbd, 0x55, 0x75, 0x95, 0xb2, 0x41,
-	0x6a, 0xe3, 0x4d, 0x58, 0x61, 0xd4, 0xb5, 0x48, 0xbb, 0xb2, 0x81, 0x7a, 0xcd, 0x7e, 0x47, 0xca,
-	0xd8, 0x4a, 0x05, 0x5b, 0x69, 0x5a, 0xb0, 0x55, 0x56, 0xcf, 0x23, 0xb1, 0xf4, 0xfc, 0xa5, 0x88,
-	0xd4, 0x2c, 0x04, 0x8f, 0xa0, 0x39, 0x33, 0x18, 0x2f, 0x52, 0x57, 0xdf, 0x22, 0x03, 0x24, 0x81,
-	0x19, 0x85, 0xcd, 0xea, 0x9f, 0xdf, 0x8b, 0xa8, 0xfb, 0x5b, 0x05, 0xea, 0x1a, 0x75, 0x5c, 0xea,
-	0x3a, 0xf8, 0x3e, 0x94, 0xa9, 0x9d, 0xca, 0xa8, 0x2a, 0x1f, 0xc4, 0x91, 0x58, 0x1e, 0x6f, 0x5d,
-	0x46, 0x62, 0x23, 0x77, 0x8f, 0xb7, 0xd4, 0x32, 0xb5, 0xf1, 0x37, 0x50, 0x39, 0x24, 0x89, 0xa0,
-	0x4a, 0xaf, 0xd9, 0x5f, 0x97, 0xf2, 0xbe, 0x24, 0x4d, 0x2c, 0x06, 0x22, 0x0d, 0x3d, 0xea, 0x2a,
-	0x0f, 0x93, 0xa2, 0x3f, 0xbd, 0x14, 0x7b, 0x0e, 0xe5, 0x4f, 0x43, 0x53, 0xb2, 0xbc, 0x79, 0xde,
-	0xc4, 0xfc, 0xe7, 0x01, 0xb3, 0x8f, 0x64, 0x7e, 0xe6, 0x13, 0x96, 0x06, 0x30, 0x35, 0xc9, 0x8b,
-	0x3f, 0x86, 0x46, 0x40, 0xbe, 0x0d, 0x09, 0xe3, 0x24, 0x48, 0x9b, 0xd3, 0x50, 0xaf, 0xff, 0xc0,
-	0xcf, 0x10, 0xb4, 0xad, 0x30, 0x08, 0x88, 0xcb, 0x75, 0x27, 0xf0, 0x42, 0x5f, 0x67, 0x19, 0x39,
-	0x9d, 0xda, 0x69, 0x23, 0xaa, 0xca, 0xe3, 0x38, 0x12, 0xef, 0x0c, 0x33, 0xcc, 0x4e, 0x02, 0xb9,
-	0xa2, 0x7f, 0x19, 0x89, 0xfd, 0x05, 0x32, 0xc9, 0x1a, 0xa5, 0xcd, 0xb2, 0xbc, 0x99, 0x6c, 0x3d,
-	0x35, 0xa8, 0x2b, 0x1f, 0xf7, 0x65, 0xff, 0xc8, 0x91, 0x93, 0xe5, 0xba, 0x16, 0x7d, 0xc7, 0x5a,
-	0x92, 0xcc, 0xc6, 0xdf, 0x21, 0xe8, 0x04, 0xc4, 0x9f, 0x19, 0x56, 0x52, 0xfe, 0x35, 0x32, 0x2b,
-	0x29, 0x99, 0xaf, 0xe2, 0x48, 0xbc, 0xab, 0x16, 0xa8, 0x77, 0x42, 0xe7, 0x6e, 0xb0, 0x34, 0x9d,
-	0x9d, 0xcf, 0xf3, 0xaf, 0x2a, 0x34, 0xb3, 0x82, 0x64, 0x4e, 0x5c, 0x8e, 0x4d, 0x80, 0x05, 0x56,
-	0xd9, 0x6c, 0x87, 0xf1, 0xe2, 0x54, 0x6f, 0xc8, 0xa3, 0xc1, 0xae, 0x5a, 0xe1, 0x43, 0xeb, 0x9f,
-	0x43, 0xa1, 0x76, 0xba, 0xf0, 0x55, 0x65, 0x3b, 0x8e, 0xc4, 0xb5, 0xc5, 0x61, 0xa4, 0xe5, 0x1e,
-	0xbe, 0x71, 0xb9, 0x3c, 0x46, 0x5d, 0x5b, 0x9c, 0xc1, 0xd8, 0xc6, 0x4f, 0xe0, 0x76, 0x51, 0xd1,
-	0x0f, 0x4d, 0xfd, 0x88, 0x9c, 0xa5, 0xbb, 0x72, 0x4b, 0xe9, 0x5f, 0x46, 0xa2, 0xf4, 0xc6, 0xe9,
-	0xf7, 0x3d, 0xea, 0x72, 0xf5, 0xbd, 0x3c, 0xd5, 0x7e, 0x68, 0x7e, 0x49, 0xce, 0xb0, 0x0d, 0xb7,
-	0x5c, 0x72, 0x72, 0xad, 0x24, 0x5b, 0x2b, 0x25, 0x8e, 0x44, 0x98, 0x90, 0x93, 0xff, 0xa3, 0x02,
-	0xdc, 0x22, 0xde, 0xc6, 0x2a, 0x34, 0x93, 0x2a, 0x05, 0xfb, 0x95, 0x1b, 0xb3, 0x6f, 0xb8, 0xe4,
-	0x24, 0x67, 0xbe, 0x09, 0x35, 0xc6, 0x0d, 0x1e, 0xb2, 0x76, 0x6d, 0x03, 0xf5, 0xd6, 0xfa, 0x5d,
-	0xe9, 0x95, 0x53, 0x29, 0x2d, 0x6c, 0x86, 0x96, 0x22, 0xd5, 0x3c, 0x02, 0x0f, 0xa0, 0x41, 0x4e,
-	0x89, 0xa5, 0x27, 0x57, 0xb2, 0x5d, 0x7f, 0x8b, 0x93, 0xb2, 0x9a, 0x84, 0x25, 0x8e, 0xee, 0x29,
-	0x74, 0xf2, 0xfc, 0x57, 0x9b, 0x69, 0xf0, 0x30, 0x20, 0x8f, 0x03, 0x9b, 0x04, 0x78, 0x0f, 0xea,
-	0x85, 0x58, 0x94, 0x8a, 0xfd, 0xfc, 0x95, 0x1e, 0x5a, 0xde, 0x9c, 0x70, 0xf3, 0x90, 0x5f, 0x3f,
-	0x66, 0xd4, 0x64, 0xb2, 0x79, 0xc6, 0x09, 0x93, 0xbe, 0x20, 0xa7, 0x4a, 0xf2, 0x50, 0x6b, 0x7e,
-	0xaa, 0x75, 0xb3, 0xf9, 0xeb, 0xcf, 0x0f, 0xea, 0x43, 0xcf, 0xe5, 0xc4, 0xe5, 0x9f, 0xfe, 0x82,
-	0xe0, 0xfd, 0xd7, 0xa4, 0xe1, 0x2e, 0x08, 0xea, 0x68, 0x7f, 0x77, 0x30, 0x1c, 0xed, 0x8d, 0x26,
-	0x53, 0x5d, 0x9b, 0x0e, 0xa6, 0x07, 0x9a, 0x7e, 0x30, 0xd1, 0xf6, 0x47, 0xc3, 0xf1, 0xf6, 0x78,
-	0xb4, 0xd5, 0x2a, 0xe1, 0xfb, 0x20, 0x2e, 0xc1, 0x7c, 0x3d, 0x18, 0x4f, 0xc7, 0x93, 0x1d, 0x5d,
-	0x1b, 0xef, 0x4c, 0x5a, 0x08, 0x7f, 0x02, 0xdd, 0x7f, 0x01, 0xe5, 0xae, 0x56, 0x19, 0x0b, 0xd0,
-	0x59, 0x82, 0xd3, 0x0e, 0x86, 0xc3, 0x91, 0xa6, 0xb5, 0x2a, 0xf8, 0x1e, 0xac, 0x2f, 0xf1, 0x6f,
-	0x0f, 0x76, 0x77, 0x47, 0x93, 0x56, 0xb5, 0x53, 0x7d, 0xf6, 0x83, 0x50, 0x52, 0x26, 0x3f, 0xc6,
-	0x02, 0x3a, 0x8f, 0x05, 0xf4, 0x22, 0x16, 0xd0, 0x1f, 0xb1, 0x80, 0x9e, 0x5f, 0x08, 0xa5, 0x17,
-	0x17, 0x42, 0xe9, 0xf7, 0x0b, 0xa1, 0xf4, 0xe4, 0xbf, 0x97, 0xee, 0xb4, 0xf8, 0x5c, 0x66, 0xb7,
-	0xd5, 0xac, 0xa5, 0x90, 0xcf, 0xfe, 0x0e, 0x00, 0x00, 0xff, 0xff, 0x78, 0x52, 0xab, 0x92, 0x56,
-	0x07, 0x00, 0x00,
+	// 902 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x55, 0x3d, 0x6f, 0xdb, 0x46,
+	0x18, 0x16, 0x65, 0x7d, 0x9e, 0x03, 0x5b, 0xbd, 0xd4, 0x06, 0xed, 0xd6, 0xa4, 0xe2, 0x14, 0xa8,
+	0x50, 0x20, 0x64, 0xa2, 0x76, 0xa9, 0x97, 0x42, 0x92, 0x15, 0x95, 0x28, 0x22, 0x0b, 0x94, 0x8c,
+	0x16, 0x59, 0x08, 0x7e, 0x9c, 0x99, 0x83, 0x2d, 0x1e, 0xc3, 0x3b, 0x1a, 0x36, 0xfa, 0x07, 0x02,
+	0x74, 0xc9, 0x4f, 0x28, 0xd0, 0x0e, 0x45, 0x86, 0x4e, 0xfd, 0x11, 0x41, 0xa7, 0x8c, 0x9d, 0x98,
+	0x82, 0x5e, 0xfa, 0x1b, 0x3c, 0x15, 0x3c, 0x92, 0xb2, 0x24, 0xa7, 0x68, 0x6c, 0x64, 0xd2, 0xbd,
+	0x7c, 0x3f, 0x9f, 0xe7, 0x79, 0xef, 0x04, 0x76, 0x2c, 0xd3, 0x73, 0x18, 0xa5, 0xea, 0xe9, 0x23,
+	0x0b, 0x31, 0xf3, 0x91, 0x9a, 0xd9, 0x8a, 0x1f, 0x10, 0x46, 0xe0, 0x7a, 0x6e, 0x66, 0xee, 0xed,
+	0x8f, 0x5d, 0xe2, 0x12, 0xee, 0x53, 0x93, 0x53, 0x1a, 0xb6, 0x2d, 0xbb, 0x84, 0xb8, 0x27, 0x48,
+	0xe5, 0x96, 0x15, 0x1e, 0xa9, 0x0c, 0x4f, 0x11, 0x65, 0xe6, 0xd4, 0xcf, 0x02, 0x24, 0x9b, 0xd0,
+	0x29, 0xa1, 0xaa, 0x65, 0x52, 0x34, 0x6b, 0x65, 0x13, 0xec, 0x65, 0xfe, 0xad, 0xd4, 0x6f, 0xa4,
+	0x95, 0x53, 0x23, 0x75, 0xed, 0xfe, 0x5a, 0x04, 0x95, 0x27, 0x68, 0x6a, 0xa1, 0x00, 0x8a, 0xa0,
+	0x6a, 0x3a, 0x4e, 0x80, 0x28, 0x15, 0x85, 0xa6, 0xd0, 0xaa, 0xeb, 0xb9, 0x09, 0x9f, 0x82, 0x9a,
+	0x1b, 0x90, 0xd0, 0x37, 0xb0, 0x23, 0x16, 0x9b, 0x42, 0xab, 0xd4, 0xfd, 0x26, 0x8e, 0xe4, 0xea,
+	0x20, 0xf9, 0xa6, 0xed, 0x5f, 0x46, 0xf2, 0x43, 0x17, 0xb3, 0x67, 0xa1, 0xa5, 0xd8, 0x64, 0xca,
+	0x21, 0xf2, 0xda, 0x36, 0x39, 0x51, 0xed, 0x67, 0x26, 0xf6, 0xd4, 0xd3, 0xb6, 0xea, 0x1f, 0xbb,
+	0x6a, 0x82, 0x34, 0xcb, 0xd1, 0xab, 0xbc, 0xa0, 0xe6, 0xc0, 0x4f, 0x40, 0x1d, 0x53, 0xc3, 0xb4,
+	0x19, 0x3e, 0x45, 0xe2, 0x4a, 0x53, 0x68, 0xd5, 0xf4, 0x1a, 0xa6, 0x1d, 0x6e, 0xc3, 0x3d, 0x50,
+	0xa6, 0xd8, 0xb3, 0x91, 0x58, 0x6a, 0x0a, 0xad, 0xd5, 0xf6, 0xb6, 0x92, 0x32, 0xa1, 0xe4, 0x4c,
+	0x28, 0x93, 0x9c, 0x89, 0x6e, 0xed, 0x75, 0x24, 0x17, 0x5e, 0xbe, 0x95, 0x05, 0x3d, 0x4d, 0x81,
+	0x7d, 0xb0, 0x7a, 0x62, 0x52, 0x96, 0x97, 0x2e, 0xdf, 0xa0, 0x02, 0x48, 0x12, 0xd3, 0x11, 0xf6,
+	0x4a, 0xff, 0xfc, 0x2c, 0x0b, 0xbb, 0xd1, 0x0a, 0xa8, 0x8e, 0xb1, 0xeb, 0x61, 0xcf, 0x85, 0xf7,
+	0x41, 0x11, 0x3b, 0x9c, 0xa2, 0x52, 0xf7, 0x6e, 0x1c, 0xc9, 0x45, 0x4e, 0x41, 0x3d, 0x73, 0x6b,
+	0xfb, 0x7a, 0x11, 0x3b, 0xf0, 0x39, 0x58, 0x3b, 0x42, 0xc8, 0xf0, 0x51, 0x60, 0x50, 0xec, 0x7a,
+	0x28, 0x10, 0x8b, 0xcd, 0x95, 0xd6, 0x6a, 0x7b, 0x4b, 0xc9, 0xe8, 0x4f, 0xb4, 0xca, 0x75, 0x57,
+	0x7a, 0x04, 0x7b, 0xdd, 0x87, 0x49, 0xff, 0x57, 0x6f, 0xe5, 0xd6, 0x1c, 0x99, 0x99, 0xb0, 0xe9,
+	0xcf, 0x03, 0xea, 0x1c, 0xab, 0xec, 0xdc, 0x47, 0x94, 0x27, 0x50, 0xfd, 0xce, 0x11, 0x42, 0x23,
+	0x14, 0x8c, 0x79, 0x03, 0xf8, 0x29, 0xa8, 0x07, 0xe8, 0x79, 0x88, 0x28, 0x43, 0x01, 0x67, 0xb2,
+	0xae, 0x5f, 0x7d, 0x80, 0x2f, 0x04, 0x20, 0xda, 0x61, 0x10, 0x20, 0x8f, 0x19, 0xa9, 0x98, 0x34,
+	0x1d, 0x38, 0x11, 0xb5, 0xc4, 0xc1, 0x1c, 0xc4, 0x91, 0xbc, 0xd1, 0x4b, 0x63, 0xb8, 0x4e, 0x33,
+	0x48, 0x97, 0x91, 0xdc, 0x7e, 0x6f, 0x89, 0xaf, 0x88, 0xd8, 0xb0, 0xdf, 0x51, 0xcc, 0x81, 0x3f,
+	0x09, 0x60, 0x0b, 0x7b, 0x36, 0x99, 0x26, 0xdd, 0xaf, 0xcd, 0x52, 0xe6, 0xb3, 0x8c, 0xe2, 0x48,
+	0xde, 0xd4, 0xb2, 0xa0, 0x0f, 0x32, 0xcc, 0x26, 0x7e, 0x57, 0x35, 0x27, 0x13, 0xf8, 0x55, 0x19,
+	0xac, 0x73, 0xc7, 0x24, 0x30, 0x3d, 0x8a, 0x19, 0x26, 0x1e, 0xb4, 0x00, 0x98, 0x9b, 0x2b, 0x15,
+	0xbc, 0x17, 0xcf, 0x4b, 0x7d, 0xcb, 0x51, 0xea, 0x74, 0xc6, 0x85, 0x0f, 0x1a, 0x8b, 0xaa, 0xcc,
+	0xae, 0xd8, 0xe3, 0x38, 0x92, 0xd7, 0xe6, 0xd5, 0xb8, 0xe5, 0x4d, 0x5b, 0x9b, 0x17, 0x41, 0x73,
+	0x20, 0x02, 0x1b, 0x8b, 0x1d, 0xfd, 0xd0, 0x32, 0x8e, 0xd1, 0x39, 0x5f, 0x99, 0x3b, 0xdd, 0xf6,
+	0x65, 0x24, 0x2b, 0xef, 0xdd, 0x64, 0x44, 0xb0, 0xc7, 0x74, 0x38, 0xdf, 0x62, 0x14, 0x5a, 0xdf,
+	0xa1, 0x73, 0x48, 0xc1, 0x47, 0x4b, 0x1a, 0xcf, 0xf6, 0x6c, 0x10, 0x47, 0xf2, 0xfa, 0x82, 0xb6,
+	0xb7, 0x84, 0xb6, 0xbe, 0x20, 0xa9, 0xe6, 0x40, 0x17, 0x6c, 0x2e, 0x35, 0xcd, 0xc1, 0x95, 0x6f,
+	0x0d, 0xee, 0xee, 0x42, 0x93, 0x0c, 0xdd, 0xd7, 0xa0, 0x42, 0x99, 0xc9, 0x42, 0x2a, 0x56, 0x9a,
+	0x42, 0x6b, 0xad, 0x7d, 0x4f, 0x59, 0x7a, 0xca, 0x95, 0xab, 0x3d, 0x1a, 0xf3, 0x40, 0x3d, 0x4b,
+	0x80, 0x1d, 0x50, 0x47, 0x67, 0xc8, 0x36, 0x92, 0x47, 0x5c, 0xac, 0xde, 0xe0, 0x55, 0xaa, 0x25,
+	0x69, 0x89, 0x63, 0xf7, 0x47, 0xb0, 0xb3, 0xb4, 0xab, 0xc9, 0x6e, 0x99, 0x2c, 0x0c, 0xd0, 0x41,
+	0xe0, 0xa0, 0x00, 0x3e, 0x01, 0xd5, 0x1c, 0xb8, 0xc0, 0x81, 0x7f, 0xb5, 0xc4, 0xaf, 0x4d, 0xa6,
+	0x88, 0x59, 0x47, 0xec, 0xea, 0x70, 0x82, 0x2d, 0xaa, 0x5a, 0xe7, 0x0c, 0x51, 0xe5, 0x5b, 0x74,
+	0xd6, 0x4d, 0x0e, 0x7a, 0xc5, 0xe7, 0x68, 0xf7, 0x56, 0xff, 0xfc, 0xe3, 0x41, 0xb5, 0x47, 0x3c,
+	0x86, 0x3c, 0xf6, 0xc5, 0xef, 0x02, 0x68, 0x2c, 0x83, 0x83, 0xf7, 0xc0, 0xce, 0x44, 0xef, 0x0c,
+	0xc7, 0xda, 0x44, 0x3b, 0x18, 0x1a, 0xe3, 0x49, 0x67, 0x72, 0x38, 0x36, 0x0e, 0x87, 0xe3, 0x51,
+	0xbf, 0xa7, 0x3d, 0xd6, 0xfa, 0xfb, 0x8d, 0x02, 0xfc, 0x0c, 0x34, 0xaf, 0x87, 0xf4, 0xf4, 0x7e,
+	0x67, 0xa2, 0x0d, 0x07, 0xc6, 0x40, 0x3f, 0x38, 0x1c, 0x35, 0x04, 0xb8, 0x0b, 0xa4, 0xeb, 0x51,
+	0xdf, 0x77, 0x34, 0x1e, 0x34, 0xd6, 0x06, 0xc3, 0x46, 0x11, 0x7e, 0x0e, 0xee, 0xff, 0x77, 0x4c,
+	0xff, 0x87, 0x7e, 0xef, 0x30, 0x71, 0x34, 0x56, 0xb6, 0x4b, 0x2f, 0x7e, 0x91, 0x0a, 0xdd, 0xe1,
+	0x6f, 0xb1, 0x24, 0xbc, 0x8e, 0x25, 0xe1, 0x4d, 0x2c, 0x09, 0x7f, 0xc7, 0x92, 0xf0, 0xf2, 0x42,
+	0x2a, 0xbc, 0xb9, 0x90, 0x0a, 0x7f, 0x5d, 0x48, 0x85, 0xa7, 0xff, 0xbf, 0x75, 0x67, 0xf9, 0xbf,
+	0x76, 0xfa, 0xf6, 0x5a, 0x15, 0x1e, 0xf2, 0xe5, 0xbf, 0x01, 0x00, 0x00, 0xff, 0xff, 0xe4, 0x95,
+	0x03, 0x52, 0xdd, 0x07, 0x00, 0x00,
 }
 
 func (this *Member) Equal(that interface{}) bool {
@@ -464,6 +474,9 @@ func (this *Member) Equal(that interface{}) bool {
 		return false
 	}
 	if this.Address != that1.Address {
+		return false
+	}
+	if this.GroupID != that1.GroupID {
 		return false
 	}
 	if this.IsActive != that1.IsActive {
@@ -499,11 +512,11 @@ func (this *Signing) Equal(that interface{}) bool {
 	if this.ID != that1.ID {
 		return false
 	}
-	if len(this.Fee) != len(that1.Fee) {
+	if len(this.FeePerSigner) != len(that1.FeePerSigner) {
 		return false
 	}
-	for i := range this.Fee {
-		if !this.Fee[i].Equal(&that1.Fee[i]) {
+	for i := range this.FeePerSigner {
+		if !this.FeePerSigner[i].Equal(&that1.FeePerSigner[i]) {
 			return false
 		}
 	}
@@ -513,19 +526,19 @@ func (this *Signing) Equal(that interface{}) bool {
 	if this.CurrentGroupSigningID != that1.CurrentGroupSigningID {
 		return false
 	}
-	if this.ReplacingGroupSigningID != that1.ReplacingGroupSigningID {
+	if this.IncomingGroupSigningID != that1.IncomingGroupSigningID {
 		return false
 	}
 	return true
 }
-func (this *Replacement) Equal(that interface{}) bool {
+func (this *GroupTransition) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
 	}
 
-	that1, ok := that.(*Replacement)
+	that1, ok := that.(*GroupTransition)
 	if !ok {
-		that2, ok := that.(Replacement)
+		that2, ok := that.(GroupTransition)
 		if ok {
 			that1 = &that2
 		} else {
@@ -543,13 +556,13 @@ func (this *Replacement) Equal(that interface{}) bool {
 	if this.CurrentGroupID != that1.CurrentGroupID {
 		return false
 	}
-	if !bytes.Equal(this.CurrentPubKey, that1.CurrentPubKey) {
+	if !bytes.Equal(this.CurrentGroupPubKey, that1.CurrentGroupPubKey) {
 		return false
 	}
-	if this.NewGroupID != that1.NewGroupID {
+	if this.IncomingGroupID != that1.IncomingGroupID {
 		return false
 	}
-	if !bytes.Equal(this.NewPubKey, that1.NewPubKey) {
+	if !bytes.Equal(this.IncomingGroupPubKey, that1.IncomingGroupPubKey) {
 		return false
 	}
 	if this.Status != that1.Status {
@@ -560,14 +573,14 @@ func (this *Replacement) Equal(that interface{}) bool {
 	}
 	return true
 }
-func (this *ReplaceGroupSignatureOrder) Equal(that interface{}) bool {
+func (this *GroupTransitionSignatureOrder) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
 	}
 
-	that1, ok := that.(*ReplaceGroupSignatureOrder)
+	that1, ok := that.(*GroupTransitionSignatureOrder)
 	if !ok {
-		that2, ok := that.(ReplaceGroupSignatureOrder)
+		that2, ok := that.(GroupTransitionSignatureOrder)
 		if ok {
 			that1 = &that2
 		} else {
@@ -611,7 +624,7 @@ func (m *Member) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i -= n1
 	i = encodeVarintBandtss(dAtA, i, uint64(n1))
 	i--
-	dAtA[i] = 0x22
+	dAtA[i] = 0x2a
 	n2, err2 := github_com_cosmos_gogoproto_types.StdTimeMarshalTo(m.Since, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdTime(m.Since):])
 	if err2 != nil {
 		return 0, err2
@@ -619,7 +632,7 @@ func (m *Member) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i -= n2
 	i = encodeVarintBandtss(dAtA, i, uint64(n2))
 	i--
-	dAtA[i] = 0x1a
+	dAtA[i] = 0x22
 	if m.IsActive {
 		i--
 		if m.IsActive {
@@ -627,6 +640,11 @@ func (m *Member) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		} else {
 			dAtA[i] = 0
 		}
+		i--
+		dAtA[i] = 0x18
+	}
+	if m.GroupID != 0 {
+		i = encodeVarintBandtss(dAtA, i, uint64(m.GroupID))
 		i--
 		dAtA[i] = 0x10
 	}
@@ -660,8 +678,8 @@ func (m *Signing) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.ReplacingGroupSigningID != 0 {
-		i = encodeVarintBandtss(dAtA, i, uint64(m.ReplacingGroupSigningID))
+	if m.IncomingGroupSigningID != 0 {
+		i = encodeVarintBandtss(dAtA, i, uint64(m.IncomingGroupSigningID))
 		i--
 		dAtA[i] = 0x28
 	}
@@ -677,10 +695,10 @@ func (m *Signing) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x1a
 	}
-	if len(m.Fee) > 0 {
-		for iNdEx := len(m.Fee) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.FeePerSigner) > 0 {
+		for iNdEx := len(m.FeePerSigner) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.Fee[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.FeePerSigner[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -699,7 +717,7 @@ func (m *Signing) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *Replacement) Marshal() (dAtA []byte, err error) {
+func (m *GroupTransition) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -709,12 +727,12 @@ func (m *Replacement) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *Replacement) MarshalTo(dAtA []byte) (int, error) {
+func (m *GroupTransition) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *Replacement) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *GroupTransition) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -732,22 +750,22 @@ func (m *Replacement) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x30
 	}
-	if len(m.NewPubKey) > 0 {
-		i -= len(m.NewPubKey)
-		copy(dAtA[i:], m.NewPubKey)
-		i = encodeVarintBandtss(dAtA, i, uint64(len(m.NewPubKey)))
+	if len(m.IncomingGroupPubKey) > 0 {
+		i -= len(m.IncomingGroupPubKey)
+		copy(dAtA[i:], m.IncomingGroupPubKey)
+		i = encodeVarintBandtss(dAtA, i, uint64(len(m.IncomingGroupPubKey)))
 		i--
 		dAtA[i] = 0x2a
 	}
-	if m.NewGroupID != 0 {
-		i = encodeVarintBandtss(dAtA, i, uint64(m.NewGroupID))
+	if m.IncomingGroupID != 0 {
+		i = encodeVarintBandtss(dAtA, i, uint64(m.IncomingGroupID))
 		i--
 		dAtA[i] = 0x20
 	}
-	if len(m.CurrentPubKey) > 0 {
-		i -= len(m.CurrentPubKey)
-		copy(dAtA[i:], m.CurrentPubKey)
-		i = encodeVarintBandtss(dAtA, i, uint64(len(m.CurrentPubKey)))
+	if len(m.CurrentGroupPubKey) > 0 {
+		i -= len(m.CurrentGroupPubKey)
+		copy(dAtA[i:], m.CurrentGroupPubKey)
+		i = encodeVarintBandtss(dAtA, i, uint64(len(m.CurrentGroupPubKey)))
 		i--
 		dAtA[i] = 0x1a
 	}
@@ -764,7 +782,7 @@ func (m *Replacement) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *ReplaceGroupSignatureOrder) Marshal() (dAtA []byte, err error) {
+func (m *GroupTransitionSignatureOrder) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -774,12 +792,12 @@ func (m *ReplaceGroupSignatureOrder) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *ReplaceGroupSignatureOrder) MarshalTo(dAtA []byte) (int, error) {
+func (m *GroupTransitionSignatureOrder) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *ReplaceGroupSignatureOrder) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *GroupTransitionSignatureOrder) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -815,6 +833,9 @@ func (m *Member) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovBandtss(uint64(l))
 	}
+	if m.GroupID != 0 {
+		n += 1 + sovBandtss(uint64(m.GroupID))
+	}
 	if m.IsActive {
 		n += 2
 	}
@@ -834,8 +855,8 @@ func (m *Signing) Size() (n int) {
 	if m.ID != 0 {
 		n += 1 + sovBandtss(uint64(m.ID))
 	}
-	if len(m.Fee) > 0 {
-		for _, e := range m.Fee {
+	if len(m.FeePerSigner) > 0 {
+		for _, e := range m.FeePerSigner {
 			l = e.Size()
 			n += 1 + l + sovBandtss(uint64(l))
 		}
@@ -847,13 +868,13 @@ func (m *Signing) Size() (n int) {
 	if m.CurrentGroupSigningID != 0 {
 		n += 1 + sovBandtss(uint64(m.CurrentGroupSigningID))
 	}
-	if m.ReplacingGroupSigningID != 0 {
-		n += 1 + sovBandtss(uint64(m.ReplacingGroupSigningID))
+	if m.IncomingGroupSigningID != 0 {
+		n += 1 + sovBandtss(uint64(m.IncomingGroupSigningID))
 	}
 	return n
 }
 
-func (m *Replacement) Size() (n int) {
+func (m *GroupTransition) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -865,14 +886,14 @@ func (m *Replacement) Size() (n int) {
 	if m.CurrentGroupID != 0 {
 		n += 1 + sovBandtss(uint64(m.CurrentGroupID))
 	}
-	l = len(m.CurrentPubKey)
+	l = len(m.CurrentGroupPubKey)
 	if l > 0 {
 		n += 1 + l + sovBandtss(uint64(l))
 	}
-	if m.NewGroupID != 0 {
-		n += 1 + sovBandtss(uint64(m.NewGroupID))
+	if m.IncomingGroupID != 0 {
+		n += 1 + sovBandtss(uint64(m.IncomingGroupID))
 	}
-	l = len(m.NewPubKey)
+	l = len(m.IncomingGroupPubKey)
 	if l > 0 {
 		n += 1 + l + sovBandtss(uint64(l))
 	}
@@ -884,7 +905,7 @@ func (m *Replacement) Size() (n int) {
 	return n
 }
 
-func (m *ReplaceGroupSignatureOrder) Size() (n int) {
+func (m *GroupTransitionSignatureOrder) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -966,6 +987,25 @@ func (m *Member) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GroupID", wireType)
+			}
+			m.GroupID = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowBandtss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.GroupID |= github_com_bandprotocol_chain_v2_pkg_tss.GroupID(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field IsActive", wireType)
 			}
 			var v int
@@ -984,7 +1024,7 @@ func (m *Member) Unmarshal(dAtA []byte) error {
 				}
 			}
 			m.IsActive = bool(v != 0)
-		case 3:
+		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Since", wireType)
 			}
@@ -1017,7 +1057,7 @@ func (m *Member) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 4:
+		case 5:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field LastActive", wireType)
 			}
@@ -1121,7 +1161,7 @@ func (m *Signing) Unmarshal(dAtA []byte) error {
 			}
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Fee", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field FeePerSigner", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -1148,8 +1188,8 @@ func (m *Signing) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Fee = append(m.Fee, types.Coin{})
-			if err := m.Fee[len(m.Fee)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.FeePerSigner = append(m.FeePerSigner, types.Coin{})
+			if err := m.FeePerSigner[len(m.FeePerSigner)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -1206,9 +1246,9 @@ func (m *Signing) Unmarshal(dAtA []byte) error {
 			}
 		case 5:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ReplacingGroupSigningID", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field IncomingGroupSigningID", wireType)
 			}
-			m.ReplacingGroupSigningID = 0
+			m.IncomingGroupSigningID = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowBandtss
@@ -1218,7 +1258,7 @@ func (m *Signing) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.ReplacingGroupSigningID |= github_com_bandprotocol_chain_v2_pkg_tss.SigningID(b&0x7F) << shift
+				m.IncomingGroupSigningID |= github_com_bandprotocol_chain_v2_pkg_tss.SigningID(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1244,7 +1284,7 @@ func (m *Signing) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *Replacement) Unmarshal(dAtA []byte) error {
+func (m *GroupTransition) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1267,10 +1307,10 @@ func (m *Replacement) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: Replacement: wiretype end group for non-group")
+			return fmt.Errorf("proto: GroupTransition: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Replacement: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: GroupTransition: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -1313,7 +1353,7 @@ func (m *Replacement) Unmarshal(dAtA []byte) error {
 			}
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field CurrentPubKey", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field CurrentGroupPubKey", wireType)
 			}
 			var byteLen int
 			for shift := uint(0); ; shift += 7 {
@@ -1340,16 +1380,16 @@ func (m *Replacement) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.CurrentPubKey = append(m.CurrentPubKey[:0], dAtA[iNdEx:postIndex]...)
-			if m.CurrentPubKey == nil {
-				m.CurrentPubKey = []byte{}
+			m.CurrentGroupPubKey = append(m.CurrentGroupPubKey[:0], dAtA[iNdEx:postIndex]...)
+			if m.CurrentGroupPubKey == nil {
+				m.CurrentGroupPubKey = []byte{}
 			}
 			iNdEx = postIndex
 		case 4:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field NewGroupID", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field IncomingGroupID", wireType)
 			}
-			m.NewGroupID = 0
+			m.IncomingGroupID = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowBandtss
@@ -1359,14 +1399,14 @@ func (m *Replacement) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.NewGroupID |= github_com_bandprotocol_chain_v2_pkg_tss.GroupID(b&0x7F) << shift
+				m.IncomingGroupID |= github_com_bandprotocol_chain_v2_pkg_tss.GroupID(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
 		case 5:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field NewPubKey", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field IncomingGroupPubKey", wireType)
 			}
 			var byteLen int
 			for shift := uint(0); ; shift += 7 {
@@ -1393,9 +1433,9 @@ func (m *Replacement) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.NewPubKey = append(m.NewPubKey[:0], dAtA[iNdEx:postIndex]...)
-			if m.NewPubKey == nil {
-				m.NewPubKey = []byte{}
+			m.IncomingGroupPubKey = append(m.IncomingGroupPubKey[:0], dAtA[iNdEx:postIndex]...)
+			if m.IncomingGroupPubKey == nil {
+				m.IncomingGroupPubKey = []byte{}
 			}
 			iNdEx = postIndex
 		case 6:
@@ -1412,7 +1452,7 @@ func (m *Replacement) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Status |= ReplacementStatus(b&0x7F) << shift
+				m.Status |= TransitionStatus(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -1471,7 +1511,7 @@ func (m *Replacement) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *ReplaceGroupSignatureOrder) Unmarshal(dAtA []byte) error {
+func (m *GroupTransitionSignatureOrder) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1494,10 +1534,10 @@ func (m *ReplaceGroupSignatureOrder) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: ReplaceGroupSignatureOrder: wiretype end group for non-group")
+			return fmt.Errorf("proto: GroupTransitionSignatureOrder: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: ReplaceGroupSignatureOrder: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: GroupTransitionSignatureOrder: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

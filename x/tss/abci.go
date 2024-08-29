@@ -23,19 +23,9 @@ func handleEndBlock(ctx sdk.Context, k *keeper.Keeper) {
 	// This effectively clears the list, as the processing for all groups has been completed in this block.
 	k.SetPendingProcessGroups(ctx, types.PendingProcessGroups{})
 
-	// Get the list of pending process signings.
-	sids := k.GetPendingProcessSignings(ctx)
-	for _, sid := range sids {
-		// Handle the processing for the current pending process signing.
-		k.HandleProcessSigning(ctx, sid)
-	}
-	// After processing all pending process signings, set the list of pending process signings to an empty list.
-	// This effectively clears the list, as the processing for all signings has been completed in this block.
-	k.SetPendingProcessSignings(ctx, types.PendingProcessSignings{})
-
 	// Handles cleanup and actions that are required for groups that have expired.
 	k.HandleExpiredGroups(ctx)
 
-	// Handles cleanup and actions that are required for signings that have expired.
-	k.HandleExpiredSignings(ctx)
+	// Handle the signings that should be processed.
+	k.HandleSigningEndBlock(ctx)
 }
