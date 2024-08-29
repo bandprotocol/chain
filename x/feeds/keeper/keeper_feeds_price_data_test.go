@@ -33,7 +33,7 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData() {
 					PriceStatus: types.PriceStatusAvailable,
 				},
 			},
-			feedType: types.FEED_TYPE_DEFAULT,
+			feedType: types.FEED_TYPE_FIXED_POINT_ABI,
 			expectResult: types.FeedsPriceData{
 				SignalPrices: []types.SignalPrice{
 					{
@@ -45,7 +45,7 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData() {
 						Price:    1e10,
 					},
 				},
-				Timestamp: suite.ctx.BlockTime().Unix(),
+				Timestamp: uint64(suite.ctx.BlockTime().Unix()),
 			},
 			expectError: nil,
 		},
@@ -66,7 +66,7 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData() {
 					PriceStatus: types.PriceStatusAvailable,
 				},
 			},
-			feedType: types.FEED_TYPE_TICK,
+			feedType: types.FEED_TYPE_TICK_ABI,
 			expectResult: types.FeedsPriceData{
 				SignalPrices: []types.SignalPrice{
 					{
@@ -78,7 +78,7 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData() {
 						Price:    285171,
 					},
 				},
-				Timestamp: suite.ctx.BlockTime().Unix(),
+				Timestamp: uint64(suite.ctx.BlockTime().Unix()),
 			},
 			expectError: nil,
 		},
@@ -93,7 +93,7 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData() {
 					PriceStatus: types.PriceStatusUnavailable,
 				},
 			},
-			feedType:     types.FEED_TYPE_DEFAULT,
+			feedType:     types.FEED_TYPE_FIXED_POINT_ABI,
 			expectResult: types.FeedsPriceData{},
 			expectError:  fmt.Errorf("crypto_price.atomusd: price not available"),
 		},
@@ -104,11 +104,11 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData() {
 				{
 					SignalID:    "crypto_price.atomusd",
 					Price:       1e10,
-					Timestamp:   suite.ctx.BlockTime().Unix() - int64(types.MAX_PRICE_TIME_DIFF.Seconds()) - 1,
+					Timestamp:   suite.ctx.BlockTime().Unix() - 1000,
 					PriceStatus: types.PriceStatusAvailable,
 				},
 			},
-			feedType:     types.FEED_TYPE_DEFAULT,
+			feedType:     types.FEED_TYPE_FIXED_POINT_ABI,
 			expectResult: types.FeedsPriceData{},
 			expectError:  fmt.Errorf("crypto_price.atomusd: price too old"),
 		},
@@ -116,7 +116,7 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData() {
 			name:         "fail case - price not found",
 			signalIDs:    []string{"crypto_price.atomusd"},
 			setPrices:    []types.Price{},
-			feedType:     types.FEED_TYPE_DEFAULT,
+			feedType:     types.FEED_TYPE_FIXED_POINT_ABI,
 			expectResult: types.FeedsPriceData{},
 			expectError:  fmt.Errorf("failed to get price for signal id: crypto_price.atomusd: price not found"),
 		},
@@ -126,6 +126,14 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData() {
 		suite.Run(tc.name, func() {
 			// Set up the prices
 			suite.feedsKeeper.SetPrices(suite.ctx, tc.setPrices)
+			feeds := make([]types.Feed, 0)
+			for _, signalID := range tc.signalIDs {
+				feeds = append(feeds, types.Feed{
+					SignalID: signalID,
+					Interval: 100,
+				})
+			}
+			suite.feedsKeeper.SetCurrentFeeds(suite.ctx, feeds)
 
 			// Call the function under test
 			feedsPriceData, err := suite.feedsKeeper.GetFeedsPriceData(suite.ctx, tc.signalIDs, tc.feedType)
@@ -199,7 +207,7 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData2() {
 				{
 					SignalID:    "crypto_price.atomusd",
 					Price:       1e10,
-					Timestamp:   suite.ctx.BlockTime().Unix() - int64(types.MAX_PRICE_TIME_DIFF.Seconds()) - 1,
+					Timestamp:   suite.ctx.BlockTime().Unix() - 1000,
 					PriceStatus: types.PriceStatusAvailable,
 				},
 			},
@@ -211,9 +219,21 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData2() {
 		suite.Run(tc.name, func() {
 			// Set up the prices
 			suite.feedsKeeper.SetPrices(suite.ctx, tc.setPrices)
+			feeds := make([]types.Feed, 0)
+			for _, signalID := range tc.signalIDs {
+				feeds = append(feeds, types.Feed{
+					SignalID: signalID,
+					Interval: 100,
+				})
+			}
+			suite.feedsKeeper.SetCurrentFeeds(suite.ctx, feeds)
 
 			// Call the function under test
-			_, err := suite.feedsKeeper.GetFeedsPriceData(suite.ctx, tc.signalIDs, types.FEED_TYPE_DEFAULT)
+			_, err := suite.feedsKeeper.GetFeedsPriceData(
+				suite.ctx,
+				tc.signalIDs,
+				types.FEED_TYPE_FIXED_POINT_ABI,
+			)
 
 			// Check the result
 			if tc.expectError {

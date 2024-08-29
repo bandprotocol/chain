@@ -96,7 +96,7 @@ func (suite *TSSTestSuite) TestDecryptSecretShare() {
 
 func (suite *TSSTestSuite) TestSignOwnPubKey() {
 	suite.RunOnMember(suite.testCases, func(tc testutil.TestCase, member testutil.Member) {
-		signature, err := tss.SignOwnPubkey(
+		signature, err := tss.SignOwnPubKey(
 			member.ID,
 			tc.Group.DKGContext,
 			member.PubKey(),

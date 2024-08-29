@@ -12,6 +12,7 @@ import (
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	bandtesting "github.com/bandprotocol/chain/v2/testing"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/globalfee/feechecker"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
@@ -85,6 +86,14 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 		)
 		suite.Require().NoError(err)
 	}
+
+	// mock setup bandtss module
+	app.BandtssKeeper.SetCurrentGroupID(ctx, 1)
+	app.BandtssKeeper.SetMember(ctx, bandtsstypes.Member{
+		Address:  bandtesting.Validators[0].Address.String(),
+		IsActive: true,
+		GroupID:  1,
+	})
 
 	req := oracletypes.NewRequest(
 		1,
@@ -344,7 +353,7 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFee() {
 									PubE: privE.Point(),
 								},
 							},
-							Address: bandtesting.Validators[0].Address.String(),
+							Sender: bandtesting.Validators[0].Address.String(),
 						},
 					},
 				}
@@ -366,7 +375,7 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFee() {
 									PubE: nil,
 								},
 							},
-							Address: "wrong address",
+							Sender: "wrong address",
 						},
 					},
 				}
@@ -390,7 +399,7 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFee() {
 								PubE: privE.Point(),
 							},
 						},
-						Address: bandtesting.Validators[0].Address.String(),
+						Sender: bandtesting.Validators[0].Address.String(),
 					},
 				})
 
@@ -419,7 +428,7 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFee() {
 								PubE: privE.Point(),
 							},
 						},
-						Address: bandtesting.Validators[0].Address.String(),
+						Sender: bandtesting.Validators[0].Address.String(),
 					},
 				})
 

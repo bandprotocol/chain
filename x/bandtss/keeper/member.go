@@ -1,15 +1,64 @@
 package keeper
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 )
 
+// SetMember sets a member information in the store.
+func (k Keeper) SetMember(ctx sdk.Context, member types.Member) {
+	address := sdk.MustAccAddressFromBech32(member.Address)
+	ctx.KVStore(k.storeKey).Set(types.MemberStoreKey(address, member.GroupID), k.cdc.MustMarshal(&member))
+}
+
+// GetMembersIterator gets an iterator all statuses of address.
+func (k Keeper) GetMembersIterator(ctx sdk.Context) sdk.Iterator {
+	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.MemberStoreKeyPrefix)
+}
+
+// HasMember checks that address is in the store or not.
+func (k Keeper) HasMember(ctx sdk.Context, address sdk.AccAddress, groupID tss.GroupID) bool {
+	return ctx.KVStore(k.storeKey).Has(types.MemberStoreKey(address, groupID))
+}
+
+// GetMember retrieves a member by address.
+func (k Keeper) GetMember(ctx sdk.Context, address sdk.AccAddress, groupID tss.GroupID) (types.Member, error) {
+	if !k.HasMember(ctx, address, groupID) {
+		return types.Member{}, types.ErrMemberNotFound.Wrapf("address: %s", address)
+	}
+	bz := ctx.KVStore(k.storeKey).Get(types.MemberStoreKey(address, groupID))
+
+	var member types.Member
+	k.cdc.MustUnmarshal(bz, &member)
+	return member, nil
+}
+
+// GetMembers retrieves all statuses of the store.
+func (k Keeper) GetMembers(ctx sdk.Context) []types.Member {
+	var members []types.Member
+	iterator := k.GetMembersIterator(ctx)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var status types.Member
+		k.cdc.MustUnmarshal(iterator.Value(), &status)
+		members = append(members, status)
+	}
+	return members
+}
+
+// DeleteMember removes the status of the address of the group
+func (k Keeper) DeleteMember(ctx sdk.Context, address sdk.AccAddress, groupID tss.GroupID) {
+	ctx.KVStore(k.storeKey).Delete(types.MemberStoreKey(address, groupID))
+}
+
 // ActivateMember activates the member. This function returns an error if the given member is too
-// soon to activate or the member is not in the current group.
-func (k Keeper) ActivateMember(ctx sdk.Context, address sdk.AccAddress) error {
-	member, err := k.GetMember(ctx, address)
+// soon to activate or the member is not in the given group.
+func (k Keeper) ActivateMember(ctx sdk.Context, address sdk.AccAddress, groupID tss.GroupID) error {
+	member, err := k.GetMember(ctx, address, groupID)
 	if err != nil {
 		return err
 	}
@@ -26,18 +75,28 @@ func (k Keeper) ActivateMember(ctx sdk.Context, address sdk.AccAddress) error {
 	member.LastActive = ctx.BlockTime()
 	k.SetMember(ctx, member)
 
-	groupID := k.GetCurrentGroupID(ctx)
-	return k.tssKeeper.ActivateMember(ctx, groupID, address)
+	if err := k.tssKeeper.ActivateMember(ctx, groupID, address); err != nil {
+		return err
+	}
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeActivate,
+		sdk.NewAttribute(types.AttributeKeyAddress, address.String()),
+		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", member.GroupID)),
+	))
+
+	return nil
 }
 
-// AddNewMember adds a new member to the group and return error if already exists
-func (k Keeper) AddNewMember(ctx sdk.Context, address sdk.AccAddress) error {
-	if k.HasMember(ctx, address) {
+// AddMember adds a new member to the group and return error if already exists
+func (k Keeper) AddMember(ctx sdk.Context, address sdk.AccAddress, groupID tss.GroupID) error {
+	if k.HasMember(ctx, address, groupID) {
 		return types.ErrMemberAlreadyExists.Wrapf("address : %v", address)
 	}
 
 	member := types.Member{
 		Address:    address.String(),
+		GroupID:    groupID,
 		IsActive:   true,
 		Since:      ctx.BlockTime(),
 		LastActive: ctx.BlockTime(),
@@ -47,9 +106,9 @@ func (k Keeper) AddNewMember(ctx sdk.Context, address sdk.AccAddress) error {
 	return nil
 }
 
-// SetLastActive sets last active of the member
-func (k Keeper) SetLastActive(ctx sdk.Context, address sdk.AccAddress) error {
-	member, err := k.GetMember(ctx, address)
+// SetLastActive sets last active of the member.
+func (k Keeper) SetLastActive(ctx sdk.Context, address sdk.AccAddress, groupID tss.GroupID) error {
+	member, err := k.GetMember(ctx, address, groupID)
 	if err != nil {
 		return err
 	}
@@ -65,9 +124,9 @@ func (k Keeper) SetLastActive(ctx sdk.Context, address sdk.AccAddress) error {
 }
 
 // DeactivateMember flags is_active to false. This function will return error if the given address
-// isn't the member of the current group.
-func (k Keeper) DeactivateMember(ctx sdk.Context, address sdk.AccAddress) error {
-	member, err := k.GetMember(ctx, address)
+// isn't the member of the given group.
+func (k Keeper) DeactivateMember(ctx sdk.Context, address sdk.AccAddress, groupID tss.GroupID) error {
+	member, err := k.GetMember(ctx, address, groupID)
 	if err != nil {
 		return err
 	}
@@ -80,14 +139,52 @@ func (k Keeper) DeactivateMember(ctx sdk.Context, address sdk.AccAddress) error 
 	member.Since = ctx.BlockTime()
 	k.SetMember(ctx, member)
 
-	if err := k.tssKeeper.DeactivateMember(ctx, k.GetCurrentGroupID(ctx), address); err != nil {
+	if err := k.tssKeeper.DeactivateMember(ctx, groupID, address); err != nil {
 		return err
 	}
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeInactiveStatus,
 		sdk.NewAttribute(types.AttributeKeyAddress, address.String()),
+		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", member.GroupID)),
 	))
 
 	return nil
+}
+
+// DeleteMembers removes all members of the group.
+func (k Keeper) DeleteMembers(ctx sdk.Context, groupID tss.GroupID) {
+	members := k.tssKeeper.MustGetMembers(ctx, groupID)
+	for _, m := range members {
+		k.DeleteMember(ctx, sdk.MustAccAddressFromBech32(m.Address), groupID)
+	}
+}
+
+// AddMembers adds all members of the group.
+func (k Keeper) AddMembers(ctx sdk.Context, groupID tss.GroupID) error {
+	members := k.tssKeeper.MustGetMembers(ctx, groupID)
+	for _, m := range members {
+		addr := sdk.MustAccAddressFromBech32(m.Address)
+		if err := k.AddMember(ctx, addr, groupID); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// HandleInactiveMembers handle inactive members, who haven't activated for a while.
+func (k Keeper) HandleInactiveMembers(ctx sdk.Context) {
+	members := k.GetMembers(ctx)
+
+	for _, member := range members {
+		if member.IsActive && ctx.BlockTime().After(member.LastActive.Add(k.GetParams(ctx).ActiveDuration)) {
+			addr := sdk.MustAccAddressFromBech32(member.Address)
+
+			// this shouldn't return any error.
+			if err := k.DeactivateMember(ctx, addr, member.GroupID); err != nil {
+				panic(err)
+			}
+		}
+	}
 }

@@ -46,4 +46,7 @@ message Params {
 
   // CurrentFeedsUpdateInterval is the number of blocks after which the current feeds will be re-calculated.
   int64 current_feeds_update_interval = 11;
+
+  // MaxSignalIDsPerSigning is the maximum number of signals allowed in a single tss signing request.
+  uint64 max_signal_ids_per_signing = 12 [(gogoproto.customname) = "MaxSignalIDsPerSigning"];
 }

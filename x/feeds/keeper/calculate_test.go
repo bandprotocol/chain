@@ -9,7 +9,7 @@ import (
 )
 
 func TestCalculateInterval(t *testing.T) {
-	params := types.NewParams("[NOT_SET]", 30, 30, 60, 3600, 1000_000_000, 100, 30, 50, 3000, 28800)
+	params := types.NewParams("[NOT_SET]", 30, 30, 60, 3600, 1000_000_000, 100, 30, 50, 3000, 28800, 10)
 
 	testCases := []struct {
 		name        string
@@ -48,7 +48,7 @@ func TestCalculateInterval(t *testing.T) {
 }
 
 func TestCalculateDeviation(t *testing.T) {
-	params := types.NewParams("[NOT_SET]", 30, 30, 60, 3600, 1000_000_000, 100, 30, 50, 3000, 28800)
+	params := types.NewParams("[NOT_SET]", 30, 30, 60, 3600, 1000_000_000, 100, 30, 50, 3000, 28800, 10)
 
 	testCases := []struct {
 		name         string

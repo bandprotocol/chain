@@ -7,5 +7,5 @@ import (
 // GetGrantMsgTypes get message types that can be granted.
 // NOTE: have to be a function, or else sdk cannot find msgTypeURL for granting.
 func GetGrantMsgTypes() []string {
-	return []string{sdk.MsgTypeURL(&MsgHealthCheck{})}
+	return []string{sdk.MsgTypeURL(&MsgHeartbeat{})}
 }

@@ -10,8 +10,8 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-// SetGroupCount sets the number of group count to the given value.
-func (k Keeper) SetGroupCount(ctx sdk.Context, count uint64) {
+// setGroupCount sets the number of group count to the given value.
+func (k Keeper) setGroupCount(ctx sdk.Context, count uint64) {
 	ctx.KVStore(k.storeKey).Set(types.GroupCountStoreKey, sdk.Uint64ToBigEndian(count))
 }
 
@@ -20,18 +20,24 @@ func (k Keeper) GetGroupCount(ctx sdk.Context) uint64 {
 	return sdk.BigEndianToUint64(ctx.KVStore(k.storeKey).Get(types.GroupCountStoreKey))
 }
 
-// GetNextGroupID increments the group count and returns the current number of groups.
-func (k Keeper) GetNextGroupID(ctx sdk.Context) tss.GroupID {
-	groupNumber := k.GetGroupCount(ctx)
-	k.SetGroupCount(ctx, groupNumber+1)
-	return tss.GroupID(groupNumber + 1)
+// SetGroupGenesis sets the group genesis state.
+func (k Keeper) SetGroupGenesis(ctx sdk.Context, groups []types.Group) {
+	maxGroupID := tss.GroupID(0)
+	for _, g := range groups {
+		if g.ID > maxGroupID {
+			maxGroupID = g.ID
+		}
+		k.SetGroup(ctx, g)
+	}
+	k.setGroupCount(ctx, uint64(maxGroupID))
 }
 
 // CreateNewGroup creates a new group in the store and returns the id of the group.
 func (k Keeper) CreateNewGroup(ctx sdk.Context, group types.Group) tss.GroupID {
-	group.ID = k.GetNextGroupID(ctx)
+	group.ID = tss.GroupID(k.GetGroupCount(ctx) + 1)
 	group.CreatedHeight = uint64(ctx.BlockHeight())
 	k.SetGroup(ctx, group)
+	k.setGroupCount(ctx, uint64(group.ID))
 
 	return group.ID
 }
@@ -43,7 +49,7 @@ func (k Keeper) GetGroup(ctx sdk.Context, groupID tss.GroupID) (types.Group, err
 		return types.Group{}, types.ErrGroupNotFound.Wrapf("failed to get group with groupID: %d", groupID)
 	}
 
-	group := types.Group{}
+	var group types.Group
 	k.cdc.MustUnmarshal(bz, &group)
 	return group, nil
 }
@@ -78,11 +84,6 @@ func (k Keeper) GetGroups(ctx sdk.Context) []types.Group {
 		groups = append(groups, group)
 	}
 	return groups
-}
-
-// DeleteGroup removes the group from the store.
-func (k Keeper) DeleteGroup(ctx sdk.Context, groupID tss.GroupID) {
-	ctx.KVStore(k.storeKey).Delete(types.GroupStoreKey(groupID))
 }
 
 // SetDKGContext sets DKG context for a group in the store.
@@ -140,7 +141,12 @@ func (k Keeper) CreateGroup(
 	}
 
 	// Use LastCommitHash and groupID to hash to dkgContext
-	dkgContext := tss.Hash(sdk.Uint64ToBigEndian(uint64(groupID)), ctx.BlockHeader().LastCommitHash)
+	dkgContext := tss.Hash(sdk.Uint64ToBigEndian(
+		uint64(groupID)),
+		tss.Hash([]byte(ctx.ChainID())),
+		ctx.BlockHeader().LastCommitHash,
+	)
+
 	k.SetDKGContext(ctx, groupID, dkgContext)
 
 	event := sdk.NewEvent(
@@ -159,39 +165,4 @@ func (k Keeper) CreateGroup(
 	ctx.EventManager().EmitEvent(event)
 
 	return groupID, nil
-}
-
-// GetPenalizedMembersExpiredGroup gets the list of members who should be penalized due to not
-// participating in group creation.
-func (k Keeper) GetPenalizedMembersExpiredGroup(ctx sdk.Context, group types.Group) ([]sdk.AccAddress, error) {
-	members, err := k.GetGroupMembers(ctx, group.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	var penalizedMembers []sdk.AccAddress
-	for _, m := range members {
-		address := sdk.MustAccAddressFromBech32(m.Address)
-
-		// query if the member send a message, if not then penalize.
-		switch group.Status {
-		case types.GROUP_STATUS_ROUND_1:
-			_, err := k.GetRound1Info(ctx, group.ID, m.ID)
-			if err != nil {
-				penalizedMembers = append(penalizedMembers, address)
-			}
-		case types.GROUP_STATUS_ROUND_2:
-			_, err := k.GetRound2Info(ctx, group.ID, m.ID)
-			if err != nil {
-				penalizedMembers = append(penalizedMembers, address)
-			}
-		case types.GROUP_STATUS_ROUND_3:
-			err := k.checkConfirmOrComplain(ctx, group.ID, m.ID)
-			if err != nil {
-				penalizedMembers = append(penalizedMembers, address)
-			}
-		default:
-		}
-	}
-	return penalizedMembers, nil
 }

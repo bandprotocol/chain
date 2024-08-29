@@ -1,32 +1,27 @@
 package keeper_test
 
 import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-func (s *KeeperTestSuite) TestGetSetGroupCount() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-	k.SetGroupCount(ctx, 1)
+func TestGetSetGroupCount(t *testing.T) {
+	s := NewKeeperTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
+	k.CreateNewGroup(ctx, types.Group{})
+	k.CreateNewGroup(ctx, types.Group{})
 
 	groupCount := k.GetGroupCount(ctx)
-	s.Require().Equal(uint64(1), groupCount)
+	require.Equal(t, uint64(2), groupCount)
 }
 
-func (s *KeeperTestSuite) TestGetNextGroupID() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-
-	// Initial group count
-	k.SetGroupCount(ctx, 0)
-
-	groupID1 := k.GetNextGroupID(ctx)
-	s.Require().Equal(tss.GroupID(1), groupID1)
-	groupID2 := k.GetNextGroupID(ctx)
-	s.Require().Equal(tss.GroupID(2), groupID2)
-}
-
-func (s *KeeperTestSuite) TestGetGroups() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func TestGetGroups(t *testing.T) {
+	s := NewKeeperTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
 	group := types.Group{
 		ID:        1,
 		Size_:     5,
@@ -40,43 +35,24 @@ func (s *KeeperTestSuite) TestGetGroups() {
 
 	// Get group from chain state
 	got := k.GetGroups(ctx)
-	s.Require().Equal([]types.Group{group}, got)
+	require.Equal(t, []types.Group{group}, got)
 }
 
-func (s *KeeperTestSuite) TestDeleteGroup() {
-	ctx, k := s.ctx, s.app.TSSKeeper
-
-	// Create a sample group ID
-	groupID := tss.GroupID(123)
-
-	// Set up a sample group in the store
-	group := types.Group{
-		ID: groupID,
-		// Set other fields as needed
-	}
-	k.SetGroup(ctx, group)
-
-	// Delete the group
-	k.DeleteGroup(ctx, groupID)
-
-	// Verify that the group is deleted
-	_, err := k.GetGroup(ctx, groupID)
-	s.Require().Error(err)
-}
-
-func (s *KeeperTestSuite) TestGetSetDKGContext() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func TestGetSetDKGContext(t *testing.T) {
+	s := NewKeeperTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
 
 	dkgContext := []byte("dkg-context sample")
 	k.SetDKGContext(ctx, 1, dkgContext)
 
 	got, err := k.GetDKGContext(ctx, 1)
-	s.Require().NoError(err)
-	s.Require().Equal(dkgContext, got)
+	require.NoError(t, err)
+	require.Equal(t, dkgContext, got)
 }
 
-func (s *KeeperTestSuite) TestCreateNewGroup() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func TestCreateNewGroup(t *testing.T) {
+	s := NewKeeperTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
 
 	group := types.Group{
 		Size_:     5,
@@ -93,12 +69,13 @@ func (s *KeeperTestSuite) TestCreateNewGroup() {
 
 	// Get group by id
 	got, err := k.GetGroup(ctx, groupID)
-	s.Require().NoError(err)
-	s.Require().Equal(group, got)
+	require.NoError(t, err)
+	require.Equal(t, group, got)
 }
 
-func (s *KeeperTestSuite) TestSetGroup() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func TestSetGroup(t *testing.T) {
+	s := NewKeeperTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
 	group := types.Group{
 		Size_:     5,
 		Threshold: 3,
@@ -121,21 +98,23 @@ func (s *KeeperTestSuite) TestSetGroup() {
 	got, err := k.GetGroup(ctx, groupID)
 
 	// Validate group size value
-	s.Require().NoError(err)
-	s.Require().Equal(group.Size_, got.Size_)
+	require.NoError(t, err)
+	require.Equal(t, group.Size_, got.Size_)
 }
 
-func (s *KeeperTestSuite) TestSetLastExpiredGroupID() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func TestSetLastExpiredGroupID(t *testing.T) {
+	s := NewKeeperTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
 	groupID := tss.GroupID(1)
 	k.SetLastExpiredGroupID(ctx, groupID)
 
 	got := k.GetLastExpiredGroupID(ctx)
-	s.Require().Equal(groupID, got)
+	require.Equal(t, groupID, got)
 }
 
-func (s *KeeperTestSuite) TestGetSetLastExpiredGroupID() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func TestGetSetLastExpiredGroupID(t *testing.T) {
+	s := NewKeeperTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
 
 	// Set the last expired group ID
 	groupID := tss.GroupID(98765)
@@ -145,11 +124,12 @@ func (s *KeeperTestSuite) TestGetSetLastExpiredGroupID() {
 	got := k.GetLastExpiredGroupID(ctx)
 
 	// Assert equality
-	s.Require().Equal(groupID, got)
+	require.Equal(t, groupID, got)
 }
 
-func (s *KeeperTestSuite) TestProcessExpiredGroups() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func TestProcessExpiredGroups(t *testing.T) {
+	s := NewKeeperTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
 
 	// Create group
 	groupID := k.CreateNewGroup(ctx, types.Group{})
@@ -170,11 +150,12 @@ func (s *KeeperTestSuite) TestProcessExpiredGroups() {
 
 	// Assert that the last expired group ID is updated correctly
 	lastExpiredGroupID := k.GetLastExpiredGroupID(ctx)
-	s.Require().Equal(groupID, lastExpiredGroupID)
+	require.Equal(t, groupID, lastExpiredGroupID)
 }
 
-func (s *KeeperTestSuite) TestGetSetPendingProcessGroups() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func TestGetSetPendingProcessGroups(t *testing.T) {
+	s := NewKeeperTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
 	groupID := tss.GroupID(1)
 
 	// Set the pending process group in the store
@@ -185,12 +166,13 @@ func (s *KeeperTestSuite) TestGetSetPendingProcessGroups() {
 	got := k.GetPendingProcessGroups(ctx)
 
 	// Check if the retrieved pending process groups match the original sample
-	s.Require().Len(got, 1)
-	s.Require().Equal(groupID, got[0])
+	require.Len(t, got, 1)
+	require.Equal(t, groupID, got[0])
 }
 
-func (s *KeeperTestSuite) TestHandleProcessGroup() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func TestHandleProcessGroup(t *testing.T) {
+	s := NewKeeperTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
 	member := types.Member{
 		ID:          memberID,
@@ -206,7 +188,7 @@ func (s *KeeperTestSuite) TestHandleProcessGroup() {
 	})
 	k.HandleProcessGroup(ctx, groupID)
 	group := k.MustGetGroup(ctx, groupID)
-	s.Require().Equal(types.GROUP_STATUS_ROUND_2, group.Status)
+	require.Equal(t, types.GROUP_STATUS_ROUND_2, group.Status)
 
 	k.SetGroup(ctx, types.Group{
 		ID:     groupID,
@@ -214,7 +196,7 @@ func (s *KeeperTestSuite) TestHandleProcessGroup() {
 	})
 	k.HandleProcessGroup(ctx, groupID)
 	group = k.MustGetGroup(ctx, groupID)
-	s.Require().Equal(types.GROUP_STATUS_ROUND_3, group.Status)
+	require.Equal(t, types.GROUP_STATUS_ROUND_3, group.Status)
 
 	k.SetGroup(ctx, types.Group{
 		ID:     groupID,
@@ -222,7 +204,7 @@ func (s *KeeperTestSuite) TestHandleProcessGroup() {
 	})
 	k.HandleProcessGroup(ctx, groupID)
 	group = k.MustGetGroup(ctx, groupID)
-	s.Require().Equal(types.GROUP_STATUS_FALLEN, group.Status)
+	require.Equal(t, types.GROUP_STATUS_FALLEN, group.Status)
 
 	k.SetGroup(ctx, types.Group{
 		ID:     groupID,
@@ -230,7 +212,7 @@ func (s *KeeperTestSuite) TestHandleProcessGroup() {
 	})
 	k.HandleProcessGroup(ctx, groupID)
 	group = k.MustGetGroup(ctx, groupID)
-	s.Require().Equal(types.GROUP_STATUS_ACTIVE, group.Status)
+	require.Equal(t, types.GROUP_STATUS_ACTIVE, group.Status)
 
 	// if member is malicious
 	k.SetGroup(ctx, types.Group{
@@ -241,5 +223,5 @@ func (s *KeeperTestSuite) TestHandleProcessGroup() {
 	k.SetMember(ctx, member)
 	k.HandleProcessGroup(ctx, groupID)
 	group = k.MustGetGroup(ctx, groupID)
-	s.Require().Equal(types.GROUP_STATUS_FALLEN, group.Status)
+	require.Equal(t, types.GROUP_STATUS_FALLEN, group.Status)
 }

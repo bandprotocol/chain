@@ -24,7 +24,7 @@ func GetMsgDetail(msg sdk.Msg) (detail string) {
 		detail = fmt.Sprintf("Type: %s", t.Type())
 	case *types.MsgSubmitSignature:
 		detail = fmt.Sprintf("Type: %s, SigningID: %d", t.Type(), t.SigningID)
-	case *bandtsstypes.MsgHealthCheck:
+	case *bandtsstypes.MsgHeartbeat:
 		detail = fmt.Sprintf("Type: %s", t.Type())
 	default:
 		detail = "Type: Unknown"

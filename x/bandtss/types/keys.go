@@ -1,7 +1,10 @@
 package types
 
 import (
+	"bytes"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkaddress "github.com/cosmos/cosmos-sdk/types/address"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 )
@@ -27,25 +30,28 @@ var (
 	ParamsKeyPrefix = []byte{0x01}
 	// MemberStoreKeyPrefix is the prefix for member store.
 	MemberStoreKeyPrefix = []byte{0x02}
-	// SigningStoreKeyPrefix is the prefix for bandtss Signing store.
-	SigningStoreKeyPrefix = []byte{0x03}
+	// SigningInfoStoreKeyPrefix is the prefix for SigningInfoStoreKey.
+	SigningInfoStoreKeyPrefix = []byte{0x03}
+	// SigningIDMappingStoreKeyPrefix is the prefix for SigningIDMappingStoreKey.
+	SigningIDMappingStoreKeyPrefix = []byte{0x04}
 
 	// SigningCountStoreKey is the key that keeps the total number of Signing.
 	SigningCountStoreKey = append(GlobalStoreKeyPrefix, []byte("SigningCount")...)
-	// CurrentGroupIDKey is the key for storing the current group ID under GroupIDStoreKeyPrefix.
+	// CurrentGroupIDStoreKey is the key for storing the current group ID.
 	CurrentGroupIDStoreKey = append(GlobalStoreKeyPrefix, []byte("CurrentGroupID")...)
-	// ReplacementStoreKey is the key for storing the group replacement information.
-	ReplacementStoreKey = append(GlobalStoreKeyPrefix, []byte("Replacement")...)
-
-	// SigningInfoStoreKeyPrefix is the prefix for SigningInfoStoreKey.
-	SigningInfoStoreKeyPrefix = append(SigningStoreKeyPrefix, []byte{0x00}...)
-	// SigningIDMappingStoreKeyPrefix is the prefix for SigningIDMappingStoreKey.
-	SigningIDMappingStoreKeyPrefix = append(SigningStoreKeyPrefix, []byte{0x01}...)
+	// GroupTransitionStoreKey is the key for storing the group transition information.
+	GroupTransitionStoreKey = append(GlobalStoreKeyPrefix, []byte("GroupTransition")...)
 )
 
 // MemberStoreKey returns the key for storing the member information.
-func MemberStoreKey(address sdk.AccAddress) []byte {
-	return append(MemberStoreKeyPrefix, address...)
+func MemberStoreKey(address sdk.AccAddress, groupID tss.GroupID) []byte {
+	return bytes.Join(
+		[][]byte{
+			MemberStoreKeyPrefix,
+			sdk.Uint64ToBigEndian(uint64(groupID)),
+			sdkaddress.MustLengthPrefix(address),
+		}, []byte(""),
+	)
 }
 
 // SigningInfoStoreKey returns the key for storing the bandtss signing info.

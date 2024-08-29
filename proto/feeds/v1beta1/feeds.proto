@@ -190,7 +190,7 @@ message FeedsPriceData {
   repeated SignalPrice signalPrices = 1 [(gogoproto.nullable) = false];
 
   // Timestamp is the timestamp at which the price was submitted.
-  int64 timestamp = 2;
+  uint64 timestamp = 2;
 }
 
 // FeedType is a structure that defines the type of feed.
@@ -200,11 +200,11 @@ enum FeedType {
   // FEED_TYPE_UNSPECIFIED is an unspecified feed type.
   FEED_TYPE_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "FEED_TYPE_UNSPECIFIED"];
 
-  // FEED_TYPE_DEFAULT is a default feed type.
-  FEED_TYPE_DEFAULT = 1 [(gogoproto.enumvalue_customname) = "FEED_TYPE_DEFAULT"];
+  // FEED_TYPE_FIXED_POINT_ABI is a fixed-point price feed type (price * 10^9).
+  FEED_TYPE_FIXED_POINT_ABI = 1 [(gogoproto.enumvalue_customname) = "FEED_TYPE_FIXED_POINT_ABI"];
 
-  // FEED_TYPE_TICK is a tick feed type.
-  FEED_TYPE_TICK = 2 [(gogoproto.enumvalue_customname) = "FEED_TYPE_TICK"];
+  // FEED_TYPE_TICK_ABI is a tick feed type.
+  FEED_TYPE_TICK_ABI = 2 [(gogoproto.enumvalue_customname) = "FEED_TYPE_TICK_ABI"];
 }
 
 // FeedSignatureOrder defines a general signature order for feed data.

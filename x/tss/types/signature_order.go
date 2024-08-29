@@ -1,13 +1,8 @@
 package types
 
-import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-)
-
 // Signature order types
 const (
-	SignatureOrderTypeText string = "Text"
+	SignatureOrderTypeText string = "text"
 )
 
 // Implements SignatureRequest Interface
@@ -27,20 +22,3 @@ func (rs *TextSignatureOrder) OrderType() string {
 
 // ValidateBasic performs no-op for this type
 func (rs *TextSignatureOrder) ValidateBasic() error { return nil }
-
-// NewSignatureOrderHandler implements the Handler interface for tss module-based
-// request signatures (ie. TextSignatureOrder)
-func NewSignatureOrderHandler() Handler {
-	return func(ctx sdk.Context, content Content) ([]byte, error) {
-		switch c := content.(type) {
-		case *TextSignatureOrder:
-			return c.Message, nil
-
-		default:
-			return nil, sdkerrors.ErrUnknownRequest.Wrapf(
-				"unrecognized tss request signature message type: %s",
-				c.OrderType(),
-			)
-		}
-	}
-}
