@@ -23,9 +23,10 @@ func TSSPacketHandle(t *testing.T) {
 
 	// Create a sample Packet
 	packet := types.NewPacket(
-		1,   // tunnelID
-		1,   // nonce
-		nil, // SignalPriceInfos
+		1,                     // tunnelID
+		1,                     // nonce
+		[]types.SignalPrice{}, // SignalPriceInfos
+		nil,
 		time.Now().Unix(),
 	)
 

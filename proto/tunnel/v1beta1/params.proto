@@ -17,11 +17,4 @@ message Params {
   uint64   min_interval                      = 3;
   repeated cosmos.base.v1beta1.Coin base_fee = 4
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
-  repeated cosmos.base.v1beta1.Coin tss_route_fee = 5 [
-    (gogoproto.nullable)     = false,
-    (gogoproto.customname)   = "TSSRouteFee",
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
-  repeated cosmos.base.v1beta1.Coin axelar_route_fee = 6
-      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }

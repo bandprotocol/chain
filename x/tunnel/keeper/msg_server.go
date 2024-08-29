@@ -30,16 +30,16 @@ func (ms msgServer) CreateTunnel(
 
 	// TODO: check deposit with params, transfer deposit to module account
 
-	var signalPriceInfos []types.SignalPriceInfo
+	var signalInfos []types.SignalInfo
 	for _, signalInfo := range req.SignalInfos {
-		signalPriceInfos = append(signalPriceInfos, types.SignalPriceInfo{
+		signalInfos = append(signalInfos, types.SignalInfo{
 			SignalID:         signalInfo.SignalID,
 			SoftDeviationBPS: signalInfo.SoftDeviationBPS,
 			HardDeviationBPS: signalInfo.HardDeviationBPS,
 		})
 	}
 
-	tunnel, err := ms.Keeper.CreateTunnel(ctx, req.Route, req.FeedType, signalPriceInfos, req.Interval, req.Creator)
+	tunnel, err := ms.Keeper.CreateTunnel(ctx, req.Route, req.FeedType, signalInfos, req.Interval, req.Creator)
 	if err != nil {
 		return nil, err
 	}
@@ -80,6 +80,7 @@ func (ms msgServer) ActivateTunnel(
 		return nil, err
 	}
 
+	// Emit an event
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeActivateTunnel,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", req.TunnelID)),
@@ -108,9 +109,19 @@ func (ms msgServer) ManualTriggerTunnel(
 		)
 	}
 
-	// Add the tunnel to the pending trigger list
-	ms.Keeper.AddPendingTriggerTunnel(ctx, req.TunnelID)
+	// Get signal prices info
+	signalPricesInfo, err := ms.Keeper.GetSignalPricesInfo(ctx, tunnel.ID)
+	if err != nil {
+		return nil, err
+	}
 
+	// Produce packet with trigger all signals
+	err = ms.Keeper.ProducePacket(ctx, tunnel, signalPricesInfo, true)
+	if err != nil {
+		return nil, err
+	}
+
+	// Emit an event
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeManualTriggerTunnel,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", req.TunnelID)),
@@ -138,6 +149,7 @@ func (ms msgServer) UpdateParams(
 		return nil, err
 	}
 
+	// Emit an event
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeUpdateParams,
 		sdk.NewAttribute(types.AttributeKeyParams, req.Params.String()),

@@ -26,17 +26,15 @@ const (
 )
 
 var (
-	GlobalStoreKeyPrefix = []byte{0x00}
+	TunnelCountStoreKey = []byte{0x00}
 
-	TunnelCountStoreKey = append(GlobalStoreKeyPrefix, []byte("TunnelCount")...)
+	TunnelStoreKeyPrefix = []byte{0x11}
 
-	PendingTriggerTunnelsStoreKey = append(GlobalStoreKeyPrefix, []byte("PendingTriggerTunnels")...)
+	PacketStoreKeyPrefix = []byte{0x12}
 
-	TunnelStoreKeyPrefix = []byte{0x01}
+	SignalPricesInfoStoreKeyPrefix = []byte{0x13}
 
-	PacketStoreKeyPrefix = []byte{0x02}
-
-	ParamsKey = []byte{0x10}
+	ParamsKey = []byte{0x90}
 )
 
 func TunnelStoreKey(tunnelID uint64) []byte {
@@ -49,4 +47,8 @@ func TunnelPacketsStoreKey(tunnelID uint64) []byte {
 
 func TunnelPacketStoreKey(tunnelID uint64, packetID uint64) []byte {
 	return append(TunnelPacketsStoreKey(tunnelID), sdk.Uint64ToBigEndian(packetID)...)
+}
+
+func SignalPricesInfoStoreKey(tunnelID uint64) []byte {
+	return append(SignalPricesInfoStoreKeyPrefix, sdk.Uint64ToBigEndian(tunnelID)...)
 }

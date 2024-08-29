@@ -2,13 +2,11 @@
     "signal_infos": [
         {
             "signal_id": "BTC",
-            "soft_deviation_bps": 0,
-            "hard_deviation_bps": 2000
+            "deviation_bps": 2000
         },
         {
             "signal_id": "ETH",
-            "soft_deviation_bps": 0,
-            "hard_deviation_bps": 4000
+            "deviation_bps": 4000
         }
     ]
 }

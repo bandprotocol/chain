@@ -62,7 +62,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 			}
 
 			msg, err := types.NewMsgCreateTSSTunnel(
-				signalInfos,
+				signalInfos.ToSignalInfos(),
 				interval,
 				feedstypes.FeedType(feedType),
 				args[1],

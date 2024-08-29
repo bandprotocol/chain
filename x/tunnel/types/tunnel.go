@@ -18,25 +18,23 @@ func NewTunnel(
 	route *types.Any,
 	feedType feedstypes.FeedType,
 	feePayer string,
-	signalPriceInfos []SignalPriceInfo,
+	signalInfos []SignalInfo,
 	interval uint64,
-	lastIntervalTimestamp int64,
 	isActive bool,
 	createdAt int64,
 	creator string,
 ) Tunnel {
 	return Tunnel{
-		ID:                    id,
-		NonceCount:            nonceCount,
-		Route:                 route,
-		FeedType:              feedType,
-		FeePayer:              feePayer,
-		SignalPriceInfos:      signalPriceInfos,
-		Interval:              interval,
-		LastIntervalTimestamp: lastIntervalTimestamp,
-		IsActive:              isActive,
-		CreatedAt:             createdAt,
-		Creator:               creator,
+		ID:          id,
+		NonceCount:  nonceCount,
+		Route:       route,
+		FeedType:    feedType,
+		FeePayer:    feePayer,
+		SignalInfos: signalInfos,
+		Interval:    interval,
+		IsActive:    isActive,
+		CreatedAt:   createdAt,
+		Creator:     creator,
 	}
 }
 
@@ -61,19 +59,11 @@ func (t *Tunnel) SetRoute(route RouteI) error {
 	return nil
 }
 
-// NewSignalPriceInfo creates a new SignalPriceInfo instance.
-func NewSignalPriceInfo(
-	signalID string,
-	softDeviationBPS uint64,
-	hardDeviationBPS uint64,
-	price uint64,
-	timestamp int64,
-) SignalPriceInfo {
-	return SignalPriceInfo{
-		SignalID:         signalID,
-		SoftDeviationBPS: softDeviationBPS,
-		HardDeviationBPS: hardDeviationBPS,
-		Price:            price,
-		Timestamp:        timestamp,
+// GetSignalInfoMap returns the signal info map by signal ID from the tunnel.
+func (t Tunnel) GetSignalInfoMap() map[string]SignalInfo {
+	signalInfoMap := make(map[string]SignalInfo, len(t.SignalInfos))
+	for _, si := range t.SignalInfos {
+		signalInfoMap[si.SignalID] = si
 	}
+	return signalInfoMap
 }

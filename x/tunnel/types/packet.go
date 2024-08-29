@@ -12,14 +12,16 @@ var _ types.UnpackInterfacesMessage = Packet{}
 func NewPacket(
 	tunnelID uint64,
 	nonce uint64,
-	signalPriceInfos []SignalPriceInfo,
+	signalPrices []SignalPrice,
+	packetContent *types.Any,
 	createdAt int64,
 ) Packet {
 	return Packet{
-		TunnelID:         tunnelID,
-		Nonce:            nonce,
-		SignalPriceInfos: signalPriceInfos,
-		CreatedAt:        createdAt,
+		TunnelID:      tunnelID,
+		Nonce:         nonce,
+		SignalPrices:  signalPrices,
+		PacketContent: packetContent,
+		CreatedAt:     createdAt,
 	}
 }
 

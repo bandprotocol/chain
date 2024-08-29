@@ -194,103 +194,25 @@ func (m *SignalInfo) GetHardDeviationBPS() uint64 {
 	return 0
 }
 
-// SignalPriceInfo is the type for a signal price info
-type SignalPriceInfo struct {
-	SignalID         string `protobuf:"bytes,1,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
-	SoftDeviationBPS uint64 `protobuf:"varint,2,opt,name=soft_deviation_bps,json=softDeviationBps,proto3" json:"soft_deviation_bps,omitempty"`
-	HardDeviationBPS uint64 `protobuf:"varint,3,opt,name=hard_deviation_bps,json=hardDeviationBps,proto3" json:"hard_deviation_bps,omitempty"`
-	Price            uint64 `protobuf:"varint,4,opt,name=price,proto3" json:"price,omitempty"`
-	Timestamp        int64  `protobuf:"varint,5,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-}
-
-func (m *SignalPriceInfo) Reset()         { *m = SignalPriceInfo{} }
-func (m *SignalPriceInfo) String() string { return proto.CompactTextString(m) }
-func (*SignalPriceInfo) ProtoMessage()    {}
-func (*SignalPriceInfo) Descriptor() ([]byte, []int) {
-	return fileDescriptor_b5270a56045f1d8a, []int{3}
-}
-func (m *SignalPriceInfo) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *SignalPriceInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_SignalPriceInfo.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *SignalPriceInfo) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SignalPriceInfo.Merge(m, src)
-}
-func (m *SignalPriceInfo) XXX_Size() int {
-	return m.Size()
-}
-func (m *SignalPriceInfo) XXX_DiscardUnknown() {
-	xxx_messageInfo_SignalPriceInfo.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_SignalPriceInfo proto.InternalMessageInfo
-
-func (m *SignalPriceInfo) GetSignalID() string {
-	if m != nil {
-		return m.SignalID
-	}
-	return ""
-}
-
-func (m *SignalPriceInfo) GetSoftDeviationBPS() uint64 {
-	if m != nil {
-		return m.SoftDeviationBPS
-	}
-	return 0
-}
-
-func (m *SignalPriceInfo) GetHardDeviationBPS() uint64 {
-	if m != nil {
-		return m.HardDeviationBPS
-	}
-	return 0
-}
-
-func (m *SignalPriceInfo) GetPrice() uint64 {
-	if m != nil {
-		return m.Price
-	}
-	return 0
-}
-
-func (m *SignalPriceInfo) GetTimestamp() int64 {
-	if m != nil {
-		return m.Timestamp
-	}
-	return 0
-}
-
 // Tunnel is the type for a tunnel
 type Tunnel struct {
-	ID                    uint64            `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	NonceCount            uint64            `protobuf:"varint,2,opt,name=nonce_count,json=nonceCount,proto3" json:"nonce_count,omitempty"`
-	Route                 *types.Any        `protobuf:"bytes,3,opt,name=route,proto3" json:"route,omitempty"`
-	FeedType              types1.FeedType   `protobuf:"varint,4,opt,name=feed_type,json=feedType,proto3,enum=feeds.v1beta1.FeedType" json:"feed_type,omitempty"`
-	FeePayer              string            `protobuf:"bytes,5,opt,name=fee_payer,json=feePayer,proto3" json:"fee_payer,omitempty"`
-	SignalPriceInfos      []SignalPriceInfo `protobuf:"bytes,6,rep,name=signal_price_infos,json=signalPriceInfos,proto3" json:"signal_price_infos"`
-	Interval              uint64            `protobuf:"varint,7,opt,name=interval,proto3" json:"interval,omitempty"`
-	LastIntervalTimestamp int64             `protobuf:"varint,8,opt,name=last_interval_timestamp,json=lastIntervalTimestamp,proto3" json:"last_interval_timestamp,omitempty"`
-	IsActive              bool              `protobuf:"varint,9,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
-	CreatedAt             int64             `protobuf:"varint,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	Creator               string            `protobuf:"bytes,11,opt,name=creator,proto3" json:"creator,omitempty"`
+	ID          uint64          `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	NonceCount  uint64          `protobuf:"varint,2,opt,name=nonce_count,json=nonceCount,proto3" json:"nonce_count,omitempty"`
+	Route       *types.Any      `protobuf:"bytes,3,opt,name=route,proto3" json:"route,omitempty"`
+	FeedType    types1.FeedType `protobuf:"varint,4,opt,name=feed_type,json=feedType,proto3,enum=feeds.v1beta1.FeedType" json:"feed_type,omitempty"`
+	FeePayer    string          `protobuf:"bytes,5,opt,name=fee_payer,json=feePayer,proto3" json:"fee_payer,omitempty"`
+	SignalInfos []SignalInfo    `protobuf:"bytes,6,rep,name=signal_infos,json=signalInfos,proto3" json:"signal_infos"`
+	Interval    uint64          `protobuf:"varint,7,opt,name=interval,proto3" json:"interval,omitempty"`
+	IsActive    bool            `protobuf:"varint,8,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
+	CreatedAt   int64           `protobuf:"varint,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	Creator     string          `protobuf:"bytes,10,opt,name=creator,proto3" json:"creator,omitempty"`
 }
 
 func (m *Tunnel) Reset()         { *m = Tunnel{} }
 func (m *Tunnel) String() string { return proto.CompactTextString(m) }
 func (*Tunnel) ProtoMessage()    {}
 func (*Tunnel) Descriptor() ([]byte, []int) {
-	return fileDescriptor_b5270a56045f1d8a, []int{4}
+	return fileDescriptor_b5270a56045f1d8a, []int{3}
 }
 func (m *Tunnel) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -354,9 +276,9 @@ func (m *Tunnel) GetFeePayer() string {
 	return ""
 }
 
-func (m *Tunnel) GetSignalPriceInfos() []SignalPriceInfo {
+func (m *Tunnel) GetSignalInfos() []SignalInfo {
 	if m != nil {
-		return m.SignalPriceInfos
+		return m.SignalInfos
 	}
 	return nil
 }
@@ -364,13 +286,6 @@ func (m *Tunnel) GetSignalPriceInfos() []SignalPriceInfo {
 func (m *Tunnel) GetInterval() uint64 {
 	if m != nil {
 		return m.Interval
-	}
-	return 0
-}
-
-func (m *Tunnel) GetLastIntervalTimestamp() int64 {
-	if m != nil {
-		return m.LastIntervalTimestamp
 	}
 	return 0
 }
@@ -396,6 +311,128 @@ func (m *Tunnel) GetCreator() string {
 	return ""
 }
 
+// SignalPrices is the type for a list of signal prices with the last interval timestamp
+type SignalPricesInfo struct {
+	TunnelID              uint64        `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
+	SignalPrices          []SignalPrice `protobuf:"bytes,2,rep,name=signal_prices,json=signalPrices,proto3" json:"signal_prices"`
+	LastIntervalTimestamp int64         `protobuf:"varint,3,opt,name=last_interval_timestamp,json=lastIntervalTimestamp,proto3" json:"last_interval_timestamp,omitempty"`
+}
+
+func (m *SignalPricesInfo) Reset()         { *m = SignalPricesInfo{} }
+func (m *SignalPricesInfo) String() string { return proto.CompactTextString(m) }
+func (*SignalPricesInfo) ProtoMessage()    {}
+func (*SignalPricesInfo) Descriptor() ([]byte, []int) {
+	return fileDescriptor_b5270a56045f1d8a, []int{4}
+}
+func (m *SignalPricesInfo) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *SignalPricesInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_SignalPricesInfo.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *SignalPricesInfo) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SignalPricesInfo.Merge(m, src)
+}
+func (m *SignalPricesInfo) XXX_Size() int {
+	return m.Size()
+}
+func (m *SignalPricesInfo) XXX_DiscardUnknown() {
+	xxx_messageInfo_SignalPricesInfo.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SignalPricesInfo proto.InternalMessageInfo
+
+func (m *SignalPricesInfo) GetTunnelID() uint64 {
+	if m != nil {
+		return m.TunnelID
+	}
+	return 0
+}
+
+func (m *SignalPricesInfo) GetSignalPrices() []SignalPrice {
+	if m != nil {
+		return m.SignalPrices
+	}
+	return nil
+}
+
+func (m *SignalPricesInfo) GetLastIntervalTimestamp() int64 {
+	if m != nil {
+		return m.LastIntervalTimestamp
+	}
+	return 0
+}
+
+// SignalPrice is the type for a signal price
+type SignalPrice struct {
+	SignalID  string `protobuf:"bytes,1,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
+	Price     uint64 `protobuf:"varint,2,opt,name=price,proto3" json:"price,omitempty"`
+	Timestamp int64  `protobuf:"varint,3,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+}
+
+func (m *SignalPrice) Reset()         { *m = SignalPrice{} }
+func (m *SignalPrice) String() string { return proto.CompactTextString(m) }
+func (*SignalPrice) ProtoMessage()    {}
+func (*SignalPrice) Descriptor() ([]byte, []int) {
+	return fileDescriptor_b5270a56045f1d8a, []int{5}
+}
+func (m *SignalPrice) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *SignalPrice) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_SignalPrice.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *SignalPrice) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SignalPrice.Merge(m, src)
+}
+func (m *SignalPrice) XXX_Size() int {
+	return m.Size()
+}
+func (m *SignalPrice) XXX_DiscardUnknown() {
+	xxx_messageInfo_SignalPrice.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SignalPrice proto.InternalMessageInfo
+
+func (m *SignalPrice) GetSignalID() string {
+	if m != nil {
+		return m.SignalID
+	}
+	return ""
+}
+
+func (m *SignalPrice) GetPrice() uint64 {
+	if m != nil {
+		return m.Price
+	}
+	return 0
+}
+
+func (m *SignalPrice) GetTimestamp() int64 {
+	if m != nil {
+		return m.Timestamp
+	}
+	return 0
+}
+
 // PendingTriggerTunnels is the type for a list of tunnel IDs that are waiting to be triggered
 type PendingTriggerTunnels struct {
 	// IDs is a list of tunnel IDs that are waiting to be triggered
@@ -406,7 +443,7 @@ func (m *PendingTriggerTunnels) Reset()         { *m = PendingTriggerTunnels{} }
 func (m *PendingTriggerTunnels) String() string { return proto.CompactTextString(m) }
 func (*PendingTriggerTunnels) ProtoMessage()    {}
 func (*PendingTriggerTunnels) Descriptor() ([]byte, []int) {
-	return fileDescriptor_b5270a56045f1d8a, []int{5}
+	return fileDescriptor_b5270a56045f1d8a, []int{6}
 }
 func (m *PendingTriggerTunnels) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -444,18 +481,18 @@ func (m *PendingTriggerTunnels) GetIDs() []uint64 {
 
 // Packet is the packet that tunnel produces
 type Packet struct {
-	TunnelID         uint64            `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
-	Nonce            uint64            `protobuf:"varint,2,opt,name=nonce,proto3" json:"nonce,omitempty"`
-	SignalPriceInfos []SignalPriceInfo `protobuf:"bytes,3,rep,name=signal_price_infos,json=signalPriceInfos,proto3" json:"signal_price_infos"`
-	PacketContent    *types.Any        `protobuf:"bytes,4,opt,name=packet_content,json=packetContent,proto3" json:"packet_content,omitempty"`
-	CreatedAt        int64             `protobuf:"varint,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	TunnelID      uint64        `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
+	Nonce         uint64        `protobuf:"varint,2,opt,name=nonce,proto3" json:"nonce,omitempty"`
+	SignalPrices  []SignalPrice `protobuf:"bytes,3,rep,name=signal_prices,json=signalPrices,proto3" json:"signal_prices"`
+	PacketContent *types.Any    `protobuf:"bytes,4,opt,name=packet_content,json=packetContent,proto3" json:"packet_content,omitempty"`
+	CreatedAt     int64         `protobuf:"varint,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 }
 
 func (m *Packet) Reset()         { *m = Packet{} }
 func (m *Packet) String() string { return proto.CompactTextString(m) }
 func (*Packet) ProtoMessage()    {}
 func (*Packet) Descriptor() ([]byte, []int) {
-	return fileDescriptor_b5270a56045f1d8a, []int{6}
+	return fileDescriptor_b5270a56045f1d8a, []int{7}
 }
 func (m *Packet) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -498,9 +535,9 @@ func (m *Packet) GetNonce() uint64 {
 	return 0
 }
 
-func (m *Packet) GetSignalPriceInfos() []SignalPriceInfo {
+func (m *Packet) GetSignalPrices() []SignalPrice {
 	if m != nil {
-		return m.SignalPriceInfos
+		return m.SignalPrices
 	}
 	return nil
 }
@@ -530,7 +567,7 @@ func (m *TSSPacketContent) Reset()         { *m = TSSPacketContent{} }
 func (m *TSSPacketContent) String() string { return proto.CompactTextString(m) }
 func (*TSSPacketContent) ProtoMessage()    {}
 func (*TSSPacketContent) Descriptor() ([]byte, []int) {
-	return fileDescriptor_b5270a56045f1d8a, []int{7}
+	return fileDescriptor_b5270a56045f1d8a, []int{8}
 }
 func (m *TSSPacketContent) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -591,7 +628,7 @@ func (m *AxelarPacketContent) Reset()         { *m = AxelarPacketContent{} }
 func (m *AxelarPacketContent) String() string { return proto.CompactTextString(m) }
 func (*AxelarPacketContent) ProtoMessage()    {}
 func (*AxelarPacketContent) Descriptor() ([]byte, []int) {
-	return fileDescriptor_b5270a56045f1d8a, []int{8}
+	return fileDescriptor_b5270a56045f1d8a, []int{9}
 }
 func (m *AxelarPacketContent) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -645,8 +682,9 @@ func init() {
 	proto.RegisterType((*TSSRoute)(nil), "tunnel.v1beta1.TSSRoute")
 	proto.RegisterType((*AxelarRoute)(nil), "tunnel.v1beta1.AxelarRoute")
 	proto.RegisterType((*SignalInfo)(nil), "tunnel.v1beta1.SignalInfo")
-	proto.RegisterType((*SignalPriceInfo)(nil), "tunnel.v1beta1.SignalPriceInfo")
 	proto.RegisterType((*Tunnel)(nil), "tunnel.v1beta1.Tunnel")
+	proto.RegisterType((*SignalPricesInfo)(nil), "tunnel.v1beta1.SignalPricesInfo")
+	proto.RegisterType((*SignalPrice)(nil), "tunnel.v1beta1.SignalPrice")
 	proto.RegisterType((*PendingTriggerTunnels)(nil), "tunnel.v1beta1.PendingTriggerTunnels")
 	proto.RegisterType((*Packet)(nil), "tunnel.v1beta1.Packet")
 	proto.RegisterType((*TSSPacketContent)(nil), "tunnel.v1beta1.TSSPacketContent")
@@ -656,66 +694,68 @@ func init() {
 func init() { proto.RegisterFile("tunnel/v1beta1/tunnel.proto", fileDescriptor_b5270a56045f1d8a) }
 
 var fileDescriptor_b5270a56045f1d8a = []byte{
-	// 934 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xd4, 0x56, 0x4f, 0x8f, 0xdb, 0x44,
-	0x14, 0x5f, 0x27, 0xd9, 0x6c, 0xf2, 0x52, 0xc2, 0x6a, 0x48, 0x5b, 0x77, 0x5b, 0xe2, 0x28, 0xa7,
-	0x70, 0x58, 0x9b, 0x06, 0xe8, 0x61, 0x4f, 0xc4, 0x1b, 0xa1, 0x5a, 0x08, 0x11, 0xec, 0x9c, 0xb8,
-	0x58, 0x8e, 0x3d, 0xf1, 0x0e, 0x64, 0x67, 0x8c, 0x67, 0x12, 0x35, 0x1f, 0x80, 0x2b, 0xe2, 0x13,
-	0x20, 0x84, 0x84, 0xc4, 0x07, 0xd8, 0xaf, 0x80, 0x54, 0xf5, 0x54, 0x71, 0xe2, 0x14, 0x21, 0xef,
-	0x01, 0x3e, 0x03, 0x07, 0x84, 0x3c, 0xe3, 0x6c, 0x36, 0x11, 0xab, 0x22, 0xc1, 0x61, 0x7b, 0xf3,
-	0xfb, 0xfd, 0xde, 0xbc, 0xbc, 0x3f, 0xbf, 0x37, 0x13, 0x78, 0x28, 0xe6, 0x94, 0xe2, 0x99, 0xb5,
-	0x78, 0x3c, 0xc1, 0x22, 0x78, 0x6c, 0x29, 0xd3, 0x4c, 0x52, 0x26, 0x18, 0x6a, 0x16, 0x56, 0x41,
-	0x1e, 0xb5, 0x62, 0x16, 0x33, 0x49, 0x59, 0xf9, 0x97, 0xf2, 0x3a, 0x7a, 0x10, 0x33, 0x16, 0xcf,
-	0xb0, 0x25, 0xad, 0xc9, 0x7c, 0x6a, 0x05, 0x74, 0xb9, 0xa6, 0x42, 0xc6, 0xcf, 0x19, 0xf7, 0xd5,
-	0x19, 0x65, 0xac, 0xa9, 0x29, 0xc6, 0x11, 0xbf, 0xfa, 0x5d, 0x69, 0x29, 0xaa, 0xfb, 0x83, 0x06,
-	0xb5, 0xb1, 0xe7, 0xb9, 0x6c, 0x2e, 0x30, 0x7a, 0x0a, 0xad, 0x08, 0x73, 0x41, 0x68, 0x20, 0x08,
-	0xa3, 0x7e, 0x78, 0x16, 0x10, 0xea, 0x93, 0x48, 0xd7, 0x3a, 0x5a, 0xaf, 0x6e, 0xdf, 0xcb, 0x56,
-	0x06, 0x1a, 0x6e, 0xf8, 0xd3, 0x9c, 0x76, 0x86, 0x2e, 0x8a, 0x76, 0xb1, 0x08, 0x7d, 0x08, 0x8f,
-	0xb6, 0x22, 0x31, 0x2a, 0xd2, 0x20, 0x14, 0x7e, 0x10, 0x45, 0x29, 0xe6, 0x5c, 0x2f, 0xe5, 0x11,
-	0xdd, 0xa3, 0xeb, 0x27, 0x0b, 0x97, 0x81, 0xf2, 0x38, 0x81, 0x17, 0x17, 0xc7, 0x55, 0x99, 0x96,
-	0xd3, 0xfd, 0x51, 0x83, 0xc6, 0xe0, 0x19, 0x9e, 0x05, 0xe9, 0xed, 0xce, 0xf3, 0x67, 0x0d, 0xc0,
-	0x23, 0x31, 0x0d, 0x66, 0x0e, 0x9d, 0x32, 0xf4, 0x0e, 0xd4, 0xb9, 0xb4, 0x36, 0xb9, 0xdd, 0xc9,
-	0x56, 0x46, 0xad, 0x70, 0x19, 0xba, 0x35, 0x45, 0x3b, 0x11, 0xb2, 0x01, 0x71, 0x36, 0x15, 0x7e,
-	0x84, 0x17, 0x44, 0xa5, 0x32, 0x49, 0xd4, 0xaf, 0x57, 0xec, 0x56, 0xb6, 0x32, 0x0e, 0x3d, 0x36,
-	0x15, 0xc3, 0x35, 0x69, 0x8f, 0x3c, 0xf7, 0x90, 0x6f, 0x21, 0x09, 0xcf, 0x63, 0x9c, 0x05, 0x69,
-	0xb4, 0x13, 0xa3, 0xbc, 0x89, 0xf1, 0x34, 0x48, 0xa3, 0xed, 0x18, 0x67, 0x5b, 0x48, 0xc2, 0x4f,
-	0x2a, 0x7f, 0x7c, 0x6f, 0x68, 0xdd, 0xbf, 0x34, 0x78, 0x53, 0x25, 0x39, 0x4a, 0x49, 0x88, 0x5f,
-	0xd3, 0x62, 0x50, 0x0b, 0xf6, 0x93, 0x3c, 0x7f, 0xbd, 0x92, 0x1f, 0x73, 0x95, 0x81, 0x1e, 0x41,
-	0x5d, 0x90, 0x73, 0xcc, 0x45, 0x70, 0x9e, 0xe8, 0xfb, 0x1d, 0xad, 0x57, 0x76, 0x37, 0x40, 0xd1,
-	0x80, 0xaf, 0x2b, 0x50, 0x1d, 0xcb, 0x7d, 0x44, 0xf7, 0xa0, 0x54, 0x14, 0x5c, 0xb1, 0xab, 0xd9,
-	0xca, 0x28, 0x39, 0x43, 0xb7, 0x44, 0x22, 0x64, 0x40, 0x83, 0x32, 0x1a, 0x62, 0x3f, 0x64, 0x73,
-	0x2a, 0x54, 0x75, 0x2e, 0x48, 0xe8, 0x34, 0x47, 0xd0, 0x13, 0xd8, 0x4f, 0x73, 0x59, 0xc8, 0xa4,
-	0x1b, 0xfd, 0x96, 0xa9, 0x56, 0xd7, 0x5c, 0xaf, 0xae, 0x39, 0xa0, 0x4b, 0xfb, 0x9a, 0x7a, 0x5c,
-	0xe5, 0x8e, 0xde, 0x87, 0x7a, 0xbe, 0xa0, 0xbe, 0x58, 0x26, 0x2a, 0xf3, 0x66, 0xff, 0xbe, 0xa9,
-	0x56, 0xb6, 0x58, 0x60, 0xf3, 0x23, 0x8c, 0xa3, 0xf1, 0x32, 0xc1, 0x6e, 0x6d, 0x5a, 0x7c, 0xa1,
-	0x0f, 0xe4, 0x29, 0x3f, 0x09, 0x96, 0x38, 0x95, 0x55, 0xd5, 0x6d, 0xfd, 0x97, 0x8b, 0xe3, 0x56,
-	0x71, 0x0f, 0x14, 0x6a, 0xf5, 0x44, 0x4a, 0x68, 0x2c, 0x8f, 0x8d, 0x72, 0x4f, 0xe4, 0x01, 0x2a,
-	0xa6, 0x2a, 0x9b, 0xe3, 0x13, 0x3a, 0x65, 0x5c, 0xaf, 0x76, 0xca, 0xbd, 0x46, 0xdf, 0x30, 0xb7,
-	0xaf, 0x24, 0x73, 0x47, 0x12, 0x76, 0xe5, 0xf9, 0xca, 0xd8, 0x73, 0x0f, 0xf9, 0x36, 0xcc, 0xd1,
-	0x11, 0xd4, 0x08, 0x15, 0x38, 0x5d, 0x04, 0x33, 0xfd, 0x40, 0xf6, 0xe5, 0xca, 0x46, 0x4f, 0xe0,
-	0xfe, 0x2c, 0xe0, 0xc2, 0x5f, 0x03, 0xfe, 0x66, 0x16, 0x35, 0x39, 0x8b, 0xbb, 0x39, 0xed, 0x14,
-	0xec, 0x78, 0x4d, 0xa2, 0x87, 0x50, 0x27, 0xdc, 0x0f, 0x42, 0x41, 0x16, 0x58, 0xaf, 0x77, 0xb4,
-	0x5e, 0xcd, 0xad, 0x11, 0x3e, 0x90, 0x36, 0x7a, 0x1b, 0x20, 0x4c, 0x71, 0x20, 0x70, 0xe4, 0x07,
-	0x42, 0x07, 0x35, 0xd3, 0x02, 0x19, 0x08, 0xd4, 0x87, 0x03, 0x69, 0xb0, 0x54, 0x6f, 0xbc, 0xa2,
-	0x33, 0x6b, 0xc7, 0x42, 0x07, 0x7d, 0xb8, 0x3b, 0xc2, 0x34, 0x22, 0x34, 0x1e, 0xa7, 0x24, 0x8e,
-	0x71, 0xaa, 0x44, 0xc1, 0xd1, 0x03, 0x28, 0x93, 0x88, 0xeb, 0x5a, 0xa7, 0xdc, 0xab, 0xd8, 0x07,
-	0xd9, 0xca, 0x28, 0x3b, 0x43, 0xee, 0xe6, 0x58, 0xf7, 0x9b, 0x12, 0x54, 0x47, 0x41, 0xf8, 0x25,
-	0x16, 0xf9, 0xce, 0xa8, 0x16, 0xfa, 0x57, 0x12, 0x92, 0x3b, 0xa3, 0xa2, 0xe4, 0x3b, 0xa3, 0x68,
-	0x27, 0xca, 0xb5, 0x2a, 0xb5, 0x53, 0x08, 0x49, 0x19, 0x37, 0x8c, 0xa7, 0xfc, 0xdf, 0xc6, 0xf3,
-	0x29, 0x34, 0x13, 0x99, 0x9f, 0xbc, 0xee, 0x30, 0x15, 0x52, 0x65, 0x37, 0x29, 0x14, 0xbd, 0xb8,
-	0x38, 0x6e, 0xaa, 0x7a, 0x4e, 0x95, 0xbb, 0xe3, 0xbe, 0x91, 0x5c, 0xb7, 0x77, 0xda, 0xbf, 0xbf,
-	0xd3, 0xfe, 0xee, 0x77, 0x25, 0x38, 0x1c, 0x7b, 0xde, 0x56, 0x0c, 0xf4, 0x05, 0x40, 0x9e, 0x18,
-	0xa1, 0xf1, 0xa6, 0x37, 0x1f, 0x67, 0x2b, 0xa3, 0xee, 0x29, 0xd4, 0x19, 0xfe, 0xb9, 0x32, 0x4e,
-	0x62, 0x22, 0xce, 0xe6, 0x13, 0x33, 0x64, 0xe7, 0xd6, 0x24, 0xa0, 0x91, 0x4c, 0x2c, 0x64, 0x33,
-	0x4b, 0xde, 0xf8, 0xd6, 0xa2, 0x6f, 0x3d, 0x93, 0xb8, 0xe0, 0xdc, 0xca, 0xd7, 0x85, 0x9b, 0x57,
-	0xa7, 0xdd, 0x7a, 0x11, 0xde, 0x89, 0x6e, 0x7c, 0x2e, 0x4a, 0xff, 0xfb, 0x73, 0x51, 0x7e, 0xe5,
-	0x73, 0xf1, 0x0f, 0xed, 0xec, 0xfe, 0xae, 0xc1, 0x5b, 0xea, 0x79, 0xdb, 0xee, 0xd1, 0xbb, 0x70,
-	0x87, 0x4c, 0x42, 0xff, 0xab, 0x39, 0x9e, 0xe3, 0x4d, 0x97, 0x9a, 0xd9, 0xca, 0x00, 0xc7, 0x3e,
-	0xfd, 0x2c, 0x87, 0x9d, 0xa1, 0x0b, 0x64, 0x12, 0xaa, 0xef, 0x5b, 0x5f, 0xa9, 0xfd, 0xc9, 0x4f,
-	0x59, 0x5b, 0x7b, 0x9e, 0xb5, 0xb5, 0x97, 0x59, 0x5b, 0xfb, 0x2d, 0x6b, 0x6b, 0xdf, 0x5e, 0xb6,
-	0xf7, 0x5e, 0x5e, 0xb6, 0xf7, 0x7e, 0xbd, 0x6c, 0xef, 0x7d, 0x6e, 0xfd, 0x8b, 0x71, 0x17, 0x7f,
-	0xa1, 0xe4, 0xb4, 0x27, 0x55, 0xe9, 0xf1, 0xde, 0xdf, 0x01, 0x00, 0x00, 0xff, 0xff, 0x8b, 0x3d,
-	0xbd, 0xc0, 0x59, 0x09, 0x00, 0x00,
+	// 961 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x56, 0x4f, 0x6f, 0x1b, 0x45,
+	0x14, 0xcf, 0xda, 0x8e, 0x63, 0x3f, 0xa7, 0x51, 0x34, 0xb8, 0xed, 0x36, 0x29, 0x5e, 0xcb, 0x27,
+	0x73, 0xc8, 0x2e, 0x35, 0xd0, 0x43, 0x4e, 0x64, 0x63, 0x55, 0x5d, 0x21, 0x44, 0x58, 0xfb, 0xc4,
+	0x65, 0xb5, 0xde, 0x1d, 0x6f, 0x06, 0x9c, 0x99, 0x65, 0x67, 0x1c, 0x35, 0x47, 0xbe, 0x01, 0x9f,
+	0x00, 0x21, 0x24, 0x24, 0x3e, 0x40, 0xae, 0x9c, 0x10, 0x52, 0xd5, 0x53, 0xc5, 0x89, 0x93, 0x85,
+	0x36, 0x07, 0xf8, 0x0c, 0x9c, 0xd0, 0xce, 0xcc, 0xc6, 0xb1, 0x69, 0x55, 0x8a, 0x7a, 0xe8, 0x6d,
+	0xdf, 0x9f, 0x79, 0xef, 0x37, 0xbf, 0xf7, 0x9b, 0x99, 0x85, 0x7d, 0x31, 0xa7, 0x14, 0xcf, 0x9c,
+	0xf3, 0x07, 0x13, 0x2c, 0xc2, 0x07, 0x8e, 0x32, 0xed, 0x34, 0x63, 0x82, 0xa1, 0x1d, 0x6d, 0xe9,
+	0xe0, 0x5e, 0x3b, 0x61, 0x09, 0x93, 0x21, 0xa7, 0xf8, 0x52, 0x59, 0x7b, 0xf7, 0x12, 0xc6, 0x92,
+	0x19, 0x76, 0xa4, 0x35, 0x99, 0x4f, 0x9d, 0x90, 0x5e, 0x94, 0xa1, 0x88, 0xf1, 0x33, 0xc6, 0x03,
+	0xb5, 0x46, 0x19, 0x65, 0x68, 0x8a, 0x71, 0xcc, 0xaf, 0xfb, 0x4a, 0x4b, 0x85, 0x7a, 0x3f, 0x18,
+	0xd0, 0x18, 0x8f, 0x46, 0x3e, 0x9b, 0x0b, 0x8c, 0x1e, 0x43, 0x3b, 0xc6, 0x5c, 0x10, 0x1a, 0x0a,
+	0xc2, 0x68, 0x10, 0x9d, 0x86, 0x84, 0x06, 0x24, 0x36, 0x8d, 0xae, 0xd1, 0x6f, 0xba, 0x77, 0xf2,
+	0x85, 0x85, 0x86, 0xcb, 0xf8, 0x71, 0x11, 0xf6, 0x86, 0x3e, 0x8a, 0xd7, 0x7d, 0x31, 0xfa, 0x18,
+	0xee, 0xaf, 0x54, 0x62, 0x54, 0x64, 0x61, 0x24, 0x82, 0x30, 0x8e, 0x33, 0xcc, 0xb9, 0x59, 0x29,
+	0x2a, 0xfa, 0x7b, 0x37, 0x57, 0xea, 0x94, 0x23, 0x95, 0x71, 0x08, 0xcf, 0x2e, 0x0f, 0xea, 0x12,
+	0x96, 0xd7, 0xfb, 0xd1, 0x80, 0xd6, 0xd1, 0x13, 0x3c, 0x0b, 0xb3, 0xb7, 0x1b, 0xe7, 0xaf, 0x06,
+	0xc0, 0x88, 0x24, 0x34, 0x9c, 0x79, 0x74, 0xca, 0xd0, 0x7b, 0xd0, 0xe4, 0xd2, 0x5a, 0x62, 0xdb,
+	0xce, 0x17, 0x56, 0x43, 0xa7, 0x0c, 0xfd, 0x86, 0x0a, 0x7b, 0x31, 0x72, 0x01, 0x71, 0x36, 0x15,
+	0x41, 0x8c, 0xcf, 0x89, 0x82, 0x32, 0x49, 0x55, 0xf7, 0x9a, 0xdb, 0xce, 0x17, 0xd6, 0xee, 0x88,
+	0x4d, 0xc5, 0xb0, 0x0c, 0xba, 0x27, 0x23, 0x7f, 0x97, 0xaf, 0x78, 0x52, 0x5e, 0xd4, 0x38, 0x0d,
+	0xb3, 0x78, 0xad, 0x46, 0x75, 0x59, 0xe3, 0x71, 0x98, 0xc5, 0xab, 0x35, 0x4e, 0x57, 0x3c, 0x29,
+	0x3f, 0xac, 0xfd, 0xf5, 0xbd, 0x65, 0xf4, 0x7e, 0xae, 0x42, 0x7d, 0x2c, 0xe5, 0x88, 0xee, 0x40,
+	0x45, 0x83, 0xaf, 0xb9, 0xf5, 0x7c, 0x61, 0x55, 0xbc, 0xa1, 0x5f, 0x21, 0x31, 0xb2, 0xa0, 0x45,
+	0x19, 0x8d, 0x70, 0x10, 0xb1, 0x39, 0x15, 0x0a, 0xa9, 0x0f, 0xd2, 0x75, 0x5c, 0x78, 0xd0, 0x43,
+	0xd8, 0xcc, 0x0a, 0x56, 0x24, 0x80, 0xd6, 0xa0, 0x6d, 0x2b, 0xe5, 0xda, 0xa5, 0x72, 0xed, 0x23,
+	0x7a, 0xe1, 0xde, 0x20, 0xcf, 0x57, 0xe9, 0xe8, 0x43, 0x68, 0x16, 0xfa, 0x0c, 0xc4, 0x45, 0x8a,
+	0xcd, 0x5a, 0xd7, 0xe8, 0xef, 0x0c, 0xee, 0xda, 0x4a, 0xb1, 0x5a, 0xbf, 0xf6, 0x23, 0x8c, 0xe3,
+	0xf1, 0x45, 0x8a, 0xfd, 0xc6, 0x54, 0x7f, 0xa1, 0x8f, 0xe4, 0xaa, 0x20, 0x0d, 0x2f, 0x70, 0x66,
+	0x6e, 0x4a, 0xaa, 0xcd, 0xdf, 0x2e, 0x0f, 0xda, 0xfa, 0x18, 0xe8, 0x61, 0x8d, 0x44, 0x46, 0x68,
+	0x22, 0x97, 0x9d, 0x14, 0x99, 0xe8, 0x18, 0xb6, 0xcb, 0x09, 0xd1, 0x29, 0xe3, 0x66, 0xbd, 0x5b,
+	0xed, 0xb7, 0x06, 0x7b, 0xf6, 0xea, 0x59, 0xb4, 0x97, 0x33, 0x75, 0x6b, 0x4f, 0x17, 0xd6, 0x86,
+	0xdf, 0xe2, 0xd7, 0x1e, 0x8e, 0xf6, 0xa0, 0x41, 0xa8, 0xc0, 0xd9, 0x79, 0x38, 0x33, 0xb7, 0x24,
+	0x0f, 0xd7, 0x36, 0xda, 0x87, 0x26, 0xe1, 0x41, 0x18, 0x09, 0x72, 0x8e, 0xcd, 0x46, 0xd7, 0xe8,
+	0x37, 0xfc, 0x06, 0xe1, 0x47, 0xd2, 0x46, 0xef, 0x02, 0x44, 0x19, 0x0e, 0x05, 0x8e, 0x83, 0x50,
+	0x98, 0xcd, 0xae, 0xd1, 0xaf, 0xfa, 0x4d, 0xed, 0x39, 0x12, 0x68, 0x00, 0x5b, 0xd2, 0x60, 0x99,
+	0x09, 0xaf, 0xd8, 0x51, 0x99, 0xa8, 0xe7, 0xf7, 0x8b, 0x01, 0xbb, 0x0a, 0xf3, 0x49, 0x46, 0x22,
+	0xcc, 0x4b, 0x35, 0xaa, 0x6d, 0x05, 0xd7, 0x03, 0x95, 0x6a, 0x54, 0x83, 0x2e, 0xd4, 0xa8, 0xc2,
+	0x5e, 0x8c, 0x1e, 0xc1, 0x2d, 0x4d, 0x4b, 0x2a, 0xd7, 0x9b, 0x15, 0xc9, 0xcb, 0xfe, 0x8b, 0x79,
+	0x91, 0x3d, 0x34, 0x31, 0x9a, 0x4e, 0xd5, 0x16, 0x3d, 0x84, 0xbb, 0xb3, 0x90, 0x8b, 0xa0, 0xa4,
+	0x23, 0x10, 0xe4, 0x0c, 0x73, 0x11, 0x9e, 0xa5, 0x52, 0x15, 0x55, 0xff, 0x76, 0x11, 0xf6, 0x74,
+	0x74, 0x5c, 0x06, 0xf5, 0x2e, 0x32, 0x68, 0xdd, 0x68, 0xf0, 0x3a, 0xa7, 0xa9, 0x0d, 0x9b, 0x12,
+	0xb8, 0x96, 0xa5, 0x32, 0xd0, 0x7d, 0x68, 0xae, 0xf7, 0x5f, 0x3a, 0x74, 0xcf, 0x01, 0xdc, 0x3e,
+	0xc1, 0x34, 0x26, 0x34, 0x19, 0x67, 0x24, 0x49, 0x70, 0xa6, 0xd8, 0xe1, 0xe8, 0x1e, 0x54, 0x49,
+	0xcc, 0x4d, 0xa3, 0x5b, 0xed, 0xd7, 0xdc, 0xad, 0x7c, 0x61, 0x55, 0xbd, 0x21, 0xf7, 0x0b, 0x5f,
+	0xef, 0x9b, 0x0a, 0xd4, 0x4f, 0xc2, 0xe8, 0x2b, 0x2c, 0x5e, 0x87, 0xe3, 0x36, 0x6c, 0xca, 0xd3,
+	0x52, 0x62, 0x94, 0xc6, 0xbf, 0x99, 0xaf, 0xfe, 0x3f, 0xe6, 0x3f, 0x83, 0x9d, 0x54, 0x42, 0x92,
+	0x57, 0x1a, 0xa6, 0x42, 0x1e, 0xa5, 0x97, 0x1d, 0x43, 0xf4, 0xec, 0xf2, 0x60, 0x47, 0x6d, 0xe1,
+	0x58, 0xa5, 0x7b, 0xfe, 0xad, 0xf4, 0xa6, 0xbd, 0xa6, 0xd5, 0xcd, 0x35, 0xad, 0xf6, 0xbe, 0xab,
+	0xc0, 0xee, 0x78, 0x34, 0x5a, 0xa9, 0x81, 0xbe, 0x04, 0x28, 0x40, 0x11, 0x9a, 0x2c, 0xe9, 0xf8,
+	0x24, 0x5f, 0x58, 0xcd, 0x91, 0xf2, 0x7a, 0xc3, 0xbf, 0x17, 0xd6, 0x61, 0x42, 0xc4, 0xe9, 0x7c,
+	0x62, 0x47, 0xec, 0xcc, 0x99, 0x84, 0x34, 0x96, 0xc0, 0x22, 0x36, 0x73, 0xe4, 0xad, 0xee, 0x9c,
+	0x0f, 0x9c, 0x27, 0xd2, 0x2f, 0x38, 0x77, 0x8a, 0x3b, 0x81, 0xdb, 0xd7, 0xab, 0xfd, 0xa6, 0x2e,
+	0xef, 0xc5, 0x2f, 0x7d, 0x12, 0x2a, 0x6f, 0xfc, 0x49, 0xa8, 0xbe, 0xf2, 0x49, 0x78, 0x01, 0x9d,
+	0xbd, 0x3f, 0x0d, 0x78, 0x47, 0x3d, 0x61, 0xab, 0x1c, 0xbd, 0x0f, 0xdb, 0x64, 0x12, 0x05, 0x5f,
+	0xcf, 0xf1, 0x1c, 0x2f, 0x59, 0xda, 0xc9, 0x17, 0x16, 0x78, 0xee, 0xf1, 0xe7, 0x85, 0xdb, 0x1b,
+	0xfa, 0x40, 0x26, 0x91, 0xfa, 0x7e, 0xeb, 0x77, 0xea, 0x7e, 0xfa, 0x53, 0xde, 0x31, 0x9e, 0xe6,
+	0x1d, 0xe3, 0x79, 0xde, 0x31, 0xfe, 0xc8, 0x3b, 0xc6, 0xb7, 0x57, 0x9d, 0x8d, 0xe7, 0x57, 0x9d,
+	0x8d, 0xdf, 0xaf, 0x3a, 0x1b, 0x5f, 0x38, 0xff, 0x61, 0xdc, 0xfa, 0x37, 0x49, 0x4e, 0x7b, 0x52,
+	0x97, 0x19, 0x1f, 0xfc, 0x13, 0x00, 0x00, 0xff, 0xff, 0xf0, 0xb5, 0xed, 0x5c, 0x3d, 0x09, 0x00,
+	0x00,
 }
 
 func (this *TSSRoute) Equal(that interface{}) bool {
@@ -802,42 +842,6 @@ func (this *SignalInfo) Equal(that interface{}) bool {
 	}
 	return true
 }
-func (this *SignalPriceInfo) Equal(that interface{}) bool {
-	if that == nil {
-		return this == nil
-	}
-
-	that1, ok := that.(*SignalPriceInfo)
-	if !ok {
-		that2, ok := that.(SignalPriceInfo)
-		if ok {
-			that1 = &that2
-		} else {
-			return false
-		}
-	}
-	if that1 == nil {
-		return this == nil
-	} else if this == nil {
-		return false
-	}
-	if this.SignalID != that1.SignalID {
-		return false
-	}
-	if this.SoftDeviationBPS != that1.SoftDeviationBPS {
-		return false
-	}
-	if this.HardDeviationBPS != that1.HardDeviationBPS {
-		return false
-	}
-	if this.Price != that1.Price {
-		return false
-	}
-	if this.Timestamp != that1.Timestamp {
-		return false
-	}
-	return true
-}
 func (this *Tunnel) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
@@ -872,18 +876,15 @@ func (this *Tunnel) Equal(that interface{}) bool {
 	if this.FeePayer != that1.FeePayer {
 		return false
 	}
-	if len(this.SignalPriceInfos) != len(that1.SignalPriceInfos) {
+	if len(this.SignalInfos) != len(that1.SignalInfos) {
 		return false
 	}
-	for i := range this.SignalPriceInfos {
-		if !this.SignalPriceInfos[i].Equal(&that1.SignalPriceInfos[i]) {
+	for i := range this.SignalInfos {
+		if !this.SignalInfos[i].Equal(&that1.SignalInfos[i]) {
 			return false
 		}
 	}
 	if this.Interval != that1.Interval {
-		return false
-	}
-	if this.LastIntervalTimestamp != that1.LastIntervalTimestamp {
 		return false
 	}
 	if this.IsActive != that1.IsActive {
@@ -893,6 +894,71 @@ func (this *Tunnel) Equal(that interface{}) bool {
 		return false
 	}
 	if this.Creator != that1.Creator {
+		return false
+	}
+	return true
+}
+func (this *SignalPricesInfo) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*SignalPricesInfo)
+	if !ok {
+		that2, ok := that.(SignalPricesInfo)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.TunnelID != that1.TunnelID {
+		return false
+	}
+	if len(this.SignalPrices) != len(that1.SignalPrices) {
+		return false
+	}
+	for i := range this.SignalPrices {
+		if !this.SignalPrices[i].Equal(&that1.SignalPrices[i]) {
+			return false
+		}
+	}
+	if this.LastIntervalTimestamp != that1.LastIntervalTimestamp {
+		return false
+	}
+	return true
+}
+func (this *SignalPrice) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*SignalPrice)
+	if !ok {
+		that2, ok := that.(SignalPrice)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.SignalID != that1.SignalID {
+		return false
+	}
+	if this.Price != that1.Price {
+		return false
+	}
+	if this.Timestamp != that1.Timestamp {
 		return false
 	}
 	return true
@@ -951,11 +1017,11 @@ func (this *Packet) Equal(that interface{}) bool {
 	if this.Nonce != that1.Nonce {
 		return false
 	}
-	if len(this.SignalPriceInfos) != len(that1.SignalPriceInfos) {
+	if len(this.SignalPrices) != len(that1.SignalPrices) {
 		return false
 	}
-	for i := range this.SignalPriceInfos {
-		if !this.SignalPriceInfos[i].Equal(&that1.SignalPriceInfos[i]) {
+	for i := range this.SignalPrices {
+		if !this.SignalPrices[i].Equal(&that1.SignalPrices[i]) {
 			return false
 		}
 	}
@@ -1141,56 +1207,6 @@ func (m *SignalInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *SignalPriceInfo) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *SignalPriceInfo) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *SignalPriceInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.Timestamp != 0 {
-		i = encodeVarintTunnel(dAtA, i, uint64(m.Timestamp))
-		i--
-		dAtA[i] = 0x28
-	}
-	if m.Price != 0 {
-		i = encodeVarintTunnel(dAtA, i, uint64(m.Price))
-		i--
-		dAtA[i] = 0x20
-	}
-	if m.HardDeviationBPS != 0 {
-		i = encodeVarintTunnel(dAtA, i, uint64(m.HardDeviationBPS))
-		i--
-		dAtA[i] = 0x18
-	}
-	if m.SoftDeviationBPS != 0 {
-		i = encodeVarintTunnel(dAtA, i, uint64(m.SoftDeviationBPS))
-		i--
-		dAtA[i] = 0x10
-	}
-	if len(m.SignalID) > 0 {
-		i -= len(m.SignalID)
-		copy(dAtA[i:], m.SignalID)
-		i = encodeVarintTunnel(dAtA, i, uint64(len(m.SignalID)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
 func (m *Tunnel) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1216,12 +1232,12 @@ func (m *Tunnel) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		copy(dAtA[i:], m.Creator)
 		i = encodeVarintTunnel(dAtA, i, uint64(len(m.Creator)))
 		i--
-		dAtA[i] = 0x5a
+		dAtA[i] = 0x52
 	}
 	if m.CreatedAt != 0 {
 		i = encodeVarintTunnel(dAtA, i, uint64(m.CreatedAt))
 		i--
-		dAtA[i] = 0x50
+		dAtA[i] = 0x48
 	}
 	if m.IsActive {
 		i--
@@ -1231,11 +1247,6 @@ func (m *Tunnel) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			dAtA[i] = 0
 		}
 		i--
-		dAtA[i] = 0x48
-	}
-	if m.LastIntervalTimestamp != 0 {
-		i = encodeVarintTunnel(dAtA, i, uint64(m.LastIntervalTimestamp))
-		i--
 		dAtA[i] = 0x40
 	}
 	if m.Interval != 0 {
@@ -1243,10 +1254,10 @@ func (m *Tunnel) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x38
 	}
-	if len(m.SignalPriceInfos) > 0 {
-		for iNdEx := len(m.SignalPriceInfos) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.SignalInfos) > 0 {
+		for iNdEx := len(m.SignalInfos) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.SignalPriceInfos[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.SignalInfos[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -1290,6 +1301,93 @@ func (m *Tunnel) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintTunnel(dAtA, i, uint64(m.ID))
 		i--
 		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *SignalPricesInfo) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *SignalPricesInfo) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *SignalPricesInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.LastIntervalTimestamp != 0 {
+		i = encodeVarintTunnel(dAtA, i, uint64(m.LastIntervalTimestamp))
+		i--
+		dAtA[i] = 0x18
+	}
+	if len(m.SignalPrices) > 0 {
+		for iNdEx := len(m.SignalPrices) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.SignalPrices[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTunnel(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x12
+		}
+	}
+	if m.TunnelID != 0 {
+		i = encodeVarintTunnel(dAtA, i, uint64(m.TunnelID))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *SignalPrice) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *SignalPrice) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *SignalPrice) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Timestamp != 0 {
+		i = encodeVarintTunnel(dAtA, i, uint64(m.Timestamp))
+		i--
+		dAtA[i] = 0x18
+	}
+	if m.Price != 0 {
+		i = encodeVarintTunnel(dAtA, i, uint64(m.Price))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.SignalID) > 0 {
+		i -= len(m.SignalID)
+		copy(dAtA[i:], m.SignalID)
+		i = encodeVarintTunnel(dAtA, i, uint64(len(m.SignalID)))
+		i--
+		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -1372,10 +1470,10 @@ func (m *Packet) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x22
 	}
-	if len(m.SignalPriceInfos) > 0 {
-		for iNdEx := len(m.SignalPriceInfos) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.SignalPrices) > 0 {
+		for iNdEx := len(m.SignalPrices) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.SignalPriceInfos[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.SignalPrices[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -1547,31 +1645,6 @@ func (m *SignalInfo) Size() (n int) {
 	return n
 }
 
-func (m *SignalPriceInfo) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.SignalID)
-	if l > 0 {
-		n += 1 + l + sovTunnel(uint64(l))
-	}
-	if m.SoftDeviationBPS != 0 {
-		n += 1 + sovTunnel(uint64(m.SoftDeviationBPS))
-	}
-	if m.HardDeviationBPS != 0 {
-		n += 1 + sovTunnel(uint64(m.HardDeviationBPS))
-	}
-	if m.Price != 0 {
-		n += 1 + sovTunnel(uint64(m.Price))
-	}
-	if m.Timestamp != 0 {
-		n += 1 + sovTunnel(uint64(m.Timestamp))
-	}
-	return n
-}
-
 func (m *Tunnel) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1595,17 +1668,14 @@ func (m *Tunnel) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTunnel(uint64(l))
 	}
-	if len(m.SignalPriceInfos) > 0 {
-		for _, e := range m.SignalPriceInfos {
+	if len(m.SignalInfos) > 0 {
+		for _, e := range m.SignalInfos {
 			l = e.Size()
 			n += 1 + l + sovTunnel(uint64(l))
 		}
 	}
 	if m.Interval != 0 {
 		n += 1 + sovTunnel(uint64(m.Interval))
-	}
-	if m.LastIntervalTimestamp != 0 {
-		n += 1 + sovTunnel(uint64(m.LastIntervalTimestamp))
 	}
 	if m.IsActive {
 		n += 2
@@ -1616,6 +1686,46 @@ func (m *Tunnel) Size() (n int) {
 	l = len(m.Creator)
 	if l > 0 {
 		n += 1 + l + sovTunnel(uint64(l))
+	}
+	return n
+}
+
+func (m *SignalPricesInfo) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.TunnelID != 0 {
+		n += 1 + sovTunnel(uint64(m.TunnelID))
+	}
+	if len(m.SignalPrices) > 0 {
+		for _, e := range m.SignalPrices {
+			l = e.Size()
+			n += 1 + l + sovTunnel(uint64(l))
+		}
+	}
+	if m.LastIntervalTimestamp != 0 {
+		n += 1 + sovTunnel(uint64(m.LastIntervalTimestamp))
+	}
+	return n
+}
+
+func (m *SignalPrice) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.SignalID)
+	if l > 0 {
+		n += 1 + l + sovTunnel(uint64(l))
+	}
+	if m.Price != 0 {
+		n += 1 + sovTunnel(uint64(m.Price))
+	}
+	if m.Timestamp != 0 {
+		n += 1 + sovTunnel(uint64(m.Timestamp))
 	}
 	return n
 }
@@ -1648,8 +1758,8 @@ func (m *Packet) Size() (n int) {
 	if m.Nonce != 0 {
 		n += 1 + sovTunnel(uint64(m.Nonce))
 	}
-	if len(m.SignalPriceInfos) > 0 {
-		for _, e := range m.SignalPriceInfos {
+	if len(m.SignalPrices) > 0 {
+		for _, e := range m.SignalPrices {
 			l = e.Size()
 			n += 1 + l + sovTunnel(uint64(l))
 		}
@@ -2058,164 +2168,6 @@ func (m *SignalInfo) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *SignalPriceInfo) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTunnel
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: SignalPriceInfo: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: SignalPriceInfo: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SignalID", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.SignalID = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SoftDeviationBPS", wireType)
-			}
-			m.SoftDeviationBPS = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.SoftDeviationBPS |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field HardDeviationBPS", wireType)
-			}
-			m.HardDeviationBPS = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.HardDeviationBPS |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 4:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Price", wireType)
-			}
-			m.Price = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Price |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 5:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Timestamp", wireType)
-			}
-			m.Timestamp = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Timestamp |= int64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTunnel(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
 func (m *Tunnel) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2372,7 +2324,7 @@ func (m *Tunnel) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 6:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SignalPriceInfos", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field SignalInfos", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -2399,8 +2351,8 @@ func (m *Tunnel) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.SignalPriceInfos = append(m.SignalPriceInfos, SignalPriceInfo{})
-			if err := m.SignalPriceInfos[len(m.SignalPriceInfos)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.SignalInfos = append(m.SignalInfos, SignalInfo{})
+			if err := m.SignalInfos[len(m.SignalInfos)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -2425,25 +2377,6 @@ func (m *Tunnel) Unmarshal(dAtA []byte) error {
 			}
 		case 8:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field LastIntervalTimestamp", wireType)
-			}
-			m.LastIntervalTimestamp = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.LastIntervalTimestamp |= int64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 9:
-			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field IsActive", wireType)
 			}
 			var v int
@@ -2462,7 +2395,7 @@ func (m *Tunnel) Unmarshal(dAtA []byte) error {
 				}
 			}
 			m.IsActive = bool(v != 0)
-		case 10:
+		case 9:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field CreatedAt", wireType)
 			}
@@ -2481,7 +2414,7 @@ func (m *Tunnel) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 11:
+		case 10:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Creator", wireType)
 			}
@@ -2513,6 +2446,248 @@ func (m *Tunnel) Unmarshal(dAtA []byte) error {
 			}
 			m.Creator = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTunnel(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *SignalPricesInfo) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTunnel
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: SignalPricesInfo: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: SignalPricesInfo: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TunnelID", wireType)
+			}
+			m.TunnelID = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTunnel
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.TunnelID |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SignalPrices", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTunnel
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SignalPrices = append(m.SignalPrices, SignalPrice{})
+			if err := m.SignalPrices[len(m.SignalPrices)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field LastIntervalTimestamp", wireType)
+			}
+			m.LastIntervalTimestamp = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTunnel
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.LastIntervalTimestamp |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTunnel(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *SignalPrice) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTunnel
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: SignalPrice: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: SignalPrice: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SignalID", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTunnel
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SignalID = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Price", wireType)
+			}
+			m.Price = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTunnel
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Price |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Timestamp", wireType)
+			}
+			m.Timestamp = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTunnel
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Timestamp |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTunnel(dAtA[iNdEx:])
@@ -2729,7 +2904,7 @@ func (m *Packet) Unmarshal(dAtA []byte) error {
 			}
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SignalPriceInfos", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field SignalPrices", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -2756,8 +2931,8 @@ func (m *Packet) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.SignalPriceInfos = append(m.SignalPriceInfos, SignalPriceInfo{})
-			if err := m.SignalPriceInfos[len(m.SignalPriceInfos)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.SignalPrices = append(m.SignalPrices, SignalPrice{})
+			if err := m.SignalPrices[len(m.SignalPrices)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
