@@ -50,16 +50,16 @@ func (h Hooks) BeforeDelegationSharesModified(_ sdk.Context, _ sdk.AccAddress, _
 func (h Hooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
 	delegated := h.k.stakingKeeper.GetDelegatorBonded(ctx, delAddr)
 
-	// remove power of removed delegation from total delegation
-	removedDelegation, found := h.k.stakingKeeper.GetDelegation(ctx, delAddr, valAddr)
+	// reduce power of removing delegation from total delegation
+	removingDelegation, found := h.k.stakingKeeper.GetDelegation(ctx, delAddr, valAddr)
 	if found {
-		validatorAddr, err := sdk.ValAddressFromBech32(removedDelegation.ValidatorAddress)
+		validatorAddr, err := sdk.ValAddressFromBech32(removingDelegation.ValidatorAddress)
 		if err != nil {
 			panic(err) // shouldn't happen
 		}
 		validator, found := h.k.stakingKeeper.GetValidator(ctx, validatorAddr)
 		if found {
-			shares := removedDelegation.Shares
+			shares := removingDelegation.Shares
 			tokens := validator.TokensFromSharesTruncated(shares)
 			delegated = delegated.Sub(tokens.RoundInt())
 		}
