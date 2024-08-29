@@ -44,9 +44,10 @@ type FeedsKeeper interface {
 }
 
 type BandtssKeeper interface {
-	HandleCreateSigning(
+	CreateDirectSigningRequest(
 		ctx sdk.Context,
 		content tsstypes.Content,
+		memo string,
 		sender sdk.AccAddress,
 		feeLimit sdk.Coins,
 	) (bandtsstypes.SigningID, error)
