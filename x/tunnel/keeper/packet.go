@@ -155,23 +155,14 @@ func GenerateSignalPrices(
 		// TODO: remove check PriceStatusAvailable when feeds module is implemented
 		if !exists || latestPrice.PriceStatus != feedstypes.PriceStatusAvailable {
 			sps = append(sps, types.NewSignalPrice(sp.SignalID, 0, 0))
-			ctx.EventManager().EmitEvent(sdk.NewEvent(
-				types.EventTypeSignalIDNotFound,
-				sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnelID)),
-				sdk.NewAttribute(types.AttributeKeySignalID, sp.SignalID),
-			))
 			continue
 		}
 
 		// get signal info from signalInfoMap
 		signalInfo, exists := signalInfoMap[sp.SignalID]
 		if !exists {
-			ctx.EventManager().EmitEvent(sdk.NewEvent(
-				types.EventTypeSignalInfoNotFound,
-				sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnelID)),
-				sdk.NewAttribute(types.AttributeKeySignalID, sp.SignalID),
-			))
-			continue
+			// panic if signal info not found for signal ID in the tunnel that should not happen
+			panic(fmt.Sprintf("signal info not found for signal ID: %s", sp.SignalID))
 		}
 
 		// if triggerAll is true or the deviation exceeds the threshold, add the signal price info to the list

@@ -12,14 +12,14 @@ type SignalInfos struct {
 	SignalInfos []SignalInfo `json:"signal_infos"`
 }
 
-// SignalInfo represents the signal info without soft deviation that will implement in the future
+// SignalInfo represents the signal information without soft deviation, which may be implemented in the future.
 type SignalInfo struct {
 	SignalID     string `json:"signal_id"`
 	DeviationBPS uint64 `json:"deviation_bps"`
 }
 
-// ToSignalInfos converts the signal infos to the types.SignalInfo without soft deviation
-// Note: soft deviation can be use in the future to adjust the deviation
+// ToSignalInfos converts signal information to types.SignalInfo, excluding soft deviation.
+// Note: Soft deviation may be utilized in the future for deviation adjustments.
 func (sis SignalInfos) ToSignalInfos() []types.SignalInfo {
 	var signalInfos []types.SignalInfo
 	for _, si := range sis.SignalInfos {

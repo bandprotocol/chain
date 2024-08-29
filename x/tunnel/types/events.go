@@ -6,7 +6,6 @@ const (
 	EventTypeCreateTunnel            = "create_tunnel"
 	EventTypeActivateTunnel          = "activate_tunnel"
 	EventTypeManualTriggerTunnel     = "manual_trigger_tunnel"
-	EventTypeSignalIDNotFound        = "signal_id_not_found"
 	EventTypeSignalInfoNotFound      = "signal_info_not_found"
 	EventTypeProducePacketFail       = "produce_packet_fail"
 	EventTypeGetSignalPricesInfoFail = "get_signal_prices_info_fail"
