@@ -9,24 +9,24 @@ import (
 )
 
 var (
-	DefaultMinInterval     = uint64(1)
-	DefaultMinDeposit      = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
-	DefaultMinDeviationBPS = uint64(100)
-	DefaultBaseFee         = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
+	DefaultMinInterval = uint64(1)
+	DefaultMinDeposit  = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
+	DefaultMaxSignals  = uint64(100)
+	DefaultBaseFee     = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 )
 
 // NewParams creates a new Params instance
 func NewParams(
 	minDeposit sdk.Coins,
-	minDeviationBPS uint64,
 	minInterval uint64,
+	maxSignals uint64,
 	baseFee sdk.Coins,
 ) Params {
 	return Params{
-		MinDeposit:      minDeposit,
-		MinDeviationBPS: minDeviationBPS,
-		MinInterval:     minInterval,
-		BaseFee:         baseFee,
+		MinDeposit:  minDeposit,
+		MinInterval: minInterval,
+		MaxSignals:  maxSignals,
+		BaseFee:     baseFee,
 	}
 }
 
@@ -34,8 +34,8 @@ func NewParams(
 func DefaultParams() Params {
 	return NewParams(
 		DefaultMinDeposit,
-		DefaultMinDeviationBPS,
 		DefaultMinInterval,
+		DefaultMaxSignals,
 		DefaultBaseFee,
 	)
 }
@@ -47,9 +47,19 @@ func (p Params) Validate() error {
 		return sdkerrors.ErrInvalidCoins.Wrapf(p.MinDeposit.String())
 	}
 
-	// Validate MinDeviationBPS
-	if err := validateBasisPoint("min deviation BPS", p.MinDeviationBPS); err != nil {
+	// Validate MinInterval
+	if err := validateUint64("min interval", true)(p.MinInterval); err != nil {
 		return err
+	}
+
+	// Validate MaxSignals
+	if err := validateUint64("max signals", true)(p.MaxSignals); err != nil {
+		return err
+	}
+
+	// Validate BaseFee
+	if !p.BaseFee.IsValid() {
+		return sdkerrors.ErrInvalidCoins.Wrapf(p.BaseFee.String())
 	}
 
 	return nil

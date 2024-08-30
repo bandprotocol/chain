@@ -10,8 +10,8 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
-// CreateTunnel creates a new tunnel
-func (k Keeper) CreateTunnel(
+// AddTunnel adds a new tunnel
+func (k Keeper) AddTunnel(
 	ctx sdk.Context,
 	route *codectypes.Any,
 	feedType feedsTypes.FeedType,
@@ -28,17 +28,15 @@ func (k Keeper) CreateTunnel(
 		return types.Tunnel{}, err
 	}
 
-	// Set the new tunnel count
-	k.SetTunnelCount(ctx, newID)
-
 	// Set the signal prices info
 	var signalPrices []types.SignalPrice
-	for _, sp := range signalInfos {
-		signalPrices = append(signalPrices, types.NewSignalPrice(sp.SignalID, 0, 0))
+	for _, si := range signalInfos {
+		signalPrices = append(signalPrices, types.NewSignalPrice(si.SignalID, 0, 0))
 	}
 	k.SetSignalPricesInfo(ctx, types.NewSignalPricesInfo(newID, signalPrices, 0))
 
-	return types.NewTunnel(
+	// Create a new tunnel
+	tunnel := types.NewTunnel(
 		id,
 		0,
 		route,
@@ -49,7 +47,38 @@ func (k Keeper) CreateTunnel(
 		false,
 		ctx.BlockTime().Unix(),
 		creator,
-	), nil
+	)
+	k.SetTunnel(ctx, tunnel)
+	k.SetTunnelCount(ctx, tunnel.ID)
+
+	return tunnel, nil
+}
+
+// EditTunnel edits a tunnel
+func (k Keeper) EditTunnel(
+	ctx sdk.Context,
+	tunnelID uint64,
+	signalInfos []types.SignalInfo,
+	interval uint64,
+) error {
+	tunnel, err := k.GetTunnel(ctx, tunnelID)
+	if err != nil {
+		return err
+	}
+
+	// Edit the signal infos and interval
+	tunnel.SignalInfos = signalInfos
+	tunnel.Interval = interval
+	k.SetTunnel(ctx, tunnel)
+
+	// Edit the signal prices info
+	var signalPrices []types.SignalPrice
+	for _, sp := range signalInfos {
+		signalPrices = append(signalPrices, types.NewSignalPrice(sp.SignalID, 0, 0))
+	}
+	k.SetSignalPricesInfo(ctx, types.NewSignalPricesInfo(tunnelID, signalPrices, 0))
+
+	return nil
 }
 
 // SetTunnelCount sets the tunnel count in the store
@@ -119,18 +148,74 @@ func (k Keeper) GetTunnelsByActiveStatus(ctx sdk.Context, isActive bool) []types
 	return tunnels
 }
 
+// SetActiveTunnelIDs sets the active tunnel IDs in the store
+func (k Keeper) SetActiveTunnelIDs(ctx sdk.Context, ids []uint64) {
+	ctx.KVStore(k.storeKey).Set(types.ActiveTunnelIDsStoreKey, k.cdc.MustMarshal(&types.ActiveTunnelIDs{IDs: ids}))
+}
+
+// GetActiveTunnelIDs retrieves the active tunnel IDs from the store
+func (k Keeper) GetActiveTunnelIDs(ctx sdk.Context) ([]uint64, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.ActiveTunnelIDsStoreKey)
+	if bz == nil {
+		return []uint64{}, types.ErrActiveTunnelIDsNotFound
+	}
+	var activeTunnelIDs types.ActiveTunnelIDs
+	k.cdc.MustUnmarshal(bz, &activeTunnelIDs)
+	return activeTunnelIDs.IDs, nil
+}
+
+// MustGetActiveTunnelIDs retrieves the active tunnel IDs from the store and panics if the IDs do not exist
+func (k Keeper) MustGetActiveTunnelIDs(ctx sdk.Context) []uint64 {
+	ids, err := k.GetActiveTunnelIDs(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return ids
+}
+
 // ActivateTunnel activates a tunnel
-func (k Keeper) ActivateTunnel(ctx sdk.Context, id uint64, creator string) error {
+func (k Keeper) ActivateTunnel(ctx sdk.Context, id uint64) error {
 	tunnel, err := k.GetTunnel(ctx, id)
 	if err != nil {
 		return err
 	}
-
-	if tunnel.Creator != creator {
-		return fmt.Errorf("creator %s is not the creator of tunnel %d", creator, id)
-	}
 	tunnel.IsActive = true
 
+	// Add the tunnel ID to the active tunnel IDs
+	activeTunnelIDs, err := k.GetActiveTunnelIDs(ctx)
+	if err != nil {
+		return err
+	}
+	activeTunnelIDs = append(activeTunnelIDs, id)
+	k.SetActiveTunnelIDs(ctx, activeTunnelIDs)
+
+	// Set the last interval timestamp to the current block time
+	k.SetTunnel(ctx, tunnel)
+	return nil
+}
+
+// DeactivateTunnel deactivates a tunnel
+func (k Keeper) DeactivateTunnel(ctx sdk.Context, id uint64) error {
+	tunnel, err := k.GetTunnel(ctx, id)
+	if err != nil {
+		return err
+	}
+	tunnel.IsActive = false
+
+	// Remove the tunnel ID from the active tunnel IDs
+	activeTunnelIDs, err := k.GetActiveTunnelIDs(ctx)
+	if err != nil {
+		return err
+	}
+	for i, activeID := range activeTunnelIDs {
+		if activeID == id {
+			activeTunnelIDs = append(activeTunnelIDs[:i], activeTunnelIDs[i+1:]...)
+			break
+		}
+	}
+	k.SetActiveTunnelIDs(ctx, activeTunnelIDs)
+
+	// Set the last interval timestamp to the current block time
 	k.SetTunnel(ctx, tunnel)
 	return nil
 }

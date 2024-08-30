@@ -30,25 +30,26 @@ func (ms msgServer) CreateTunnel(
 
 	// TODO: check deposit with params, transfer deposit to module account
 
-	var signalInfos []types.SignalInfo
-	for _, signalInfo := range req.SignalInfos {
-		signalInfos = append(signalInfos, types.SignalInfo{
-			SignalID:         signalInfo.SignalID,
-			SoftDeviationBPS: signalInfo.SoftDeviationBPS,
-			HardDeviationBPS: signalInfo.HardDeviationBPS,
-		})
+	// validate signal infos and interval
+	params := ms.Keeper.GetParams(ctx)
+	if len(req.SignalInfos) > int(params.MaxSignals) {
+		return nil, types.ErrMaxSignalsExceeded
+	}
+	if req.Interval < params.MinInterval {
+		return nil, types.ErrMinIntervalExceeded
 	}
 
-	tunnel, err := ms.Keeper.CreateTunnel(ctx, req.Route, req.FeedType, signalInfos, req.Interval, req.Creator)
+	// Add a new tunnel
+	tunnel, err := ms.Keeper.AddTunnel(ctx, req.Route, req.FeedType, req.SignalInfos, req.Interval, req.Creator)
 	if err != nil {
 		return nil, err
 	}
-	ms.Keeper.SetTunnel(ctx, tunnel)
 
 	// Emit an event
 	event := sdk.NewEvent(
 		types.EventTypeCreateTunnel,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
+		sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", tunnel.Interval)),
 		sdk.NewAttribute(types.AttributeKeyRoute, tunnel.Route.String()),
 		sdk.NewAttribute(types.AttributeKeyFeedType, tunnel.FeedType.String()),
 		sdk.NewAttribute(types.AttributeKeyFeePayer, tunnel.FeePayer),
@@ -68,6 +69,53 @@ func (ms msgServer) CreateTunnel(
 	}, nil
 }
 
+// EditTunnel edits a tunnel.
+func (ms msgServer) EditTunnel(
+	goCtx context.Context,
+	req *types.MsgEditTunnel,
+) (*types.MsgEditTunnelResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// validate signal infos and interval
+	params := ms.Keeper.GetParams(ctx)
+	if len(req.SignalInfos) > int(params.MaxSignals) {
+		return nil, types.ErrMaxSignalsExceeded
+	}
+	if req.Interval < params.MinInterval {
+		return nil, types.ErrMinIntervalExceeded
+	}
+
+	tunnel, err := ms.Keeper.GetTunnel(ctx, req.TunnelID)
+	if err != nil {
+		return nil, err
+	}
+
+	if req.Creator != tunnel.Creator {
+		return nil, fmt.Errorf("creator %s is not the creator of tunnel %d", req.Creator, req.TunnelID)
+	}
+
+	err = ms.Keeper.EditTunnel(ctx, req.TunnelID, req.SignalInfos, req.Interval)
+	if err != nil {
+		return nil, err
+	}
+
+	// Emit an event
+	event := sdk.NewEvent(
+		types.EventTypeEditTunnel,
+		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
+		sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", tunnel.Interval)),
+		sdk.NewAttribute(types.AttributeKeyCreator, req.Creator),
+	)
+	for _, signalInfo := range req.SignalInfos {
+		event = event.AppendAttributes(
+			sdk.NewAttribute(types.AttributeKeySignalPriceInfos, signalInfo.String()),
+		)
+	}
+	ctx.EventManager().EmitEvent(event)
+
+	return &types.MsgEditTunnelResponse{}, nil
+}
+
 // ActivateTunnel activates a tunnel.
 func (ms msgServer) ActivateTunnel(
 	goCtx context.Context,
@@ -75,7 +123,16 @@ func (ms msgServer) ActivateTunnel(
 ) (*types.MsgActivateTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	err := ms.Keeper.ActivateTunnel(ctx, req.TunnelID, req.Creator)
+	tunnel, err := ms.Keeper.GetTunnel(ctx, req.TunnelID)
+	if err != nil {
+		return nil, err
+	}
+
+	if req.Creator != tunnel.Creator {
+		return nil, fmt.Errorf("creator %s is not the creator of tunnel %d", req.Creator, req.TunnelID)
+	}
+
+	err = ms.Keeper.ActivateTunnel(ctx, req.TunnelID)
 	if err != nil {
 		return nil, err
 	}
@@ -88,6 +145,37 @@ func (ms msgServer) ActivateTunnel(
 	))
 
 	return &types.MsgActivateTunnelResponse{}, nil
+}
+
+// DeactivateTunnel deactivates a tunnel.
+func (ms msgServer) DeactivateTunnel(
+	goCtx context.Context,
+	req *types.MsgDeactivateTunnel,
+) (*types.MsgDeactivateTunnelResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	tunnel, err := ms.Keeper.GetTunnel(ctx, req.TunnelID)
+	if err != nil {
+		return nil, err
+	}
+
+	if req.Creator != tunnel.Creator {
+		return nil, fmt.Errorf("creator %s is not the creator of tunnel %d", req.Creator, req.TunnelID)
+	}
+
+	err = ms.Keeper.DeactivateTunnel(ctx, req.TunnelID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Emit an event
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeDeactivateTunnel,
+		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", req.TunnelID)),
+		sdk.NewAttribute(types.AttributeKeyIsActive, fmt.Sprintf("%t", false)),
+	))
+
+	return &types.MsgDeactivateTunnelResponse{}, nil
 }
 
 // ManualTriggerTunnel manually triggers a tunnel.

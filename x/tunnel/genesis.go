@@ -11,7 +11,7 @@ import (
 
 // ValidateGenesis validates the provided genesis state.
 func ValidateGenesis(data *types.GenesisState) error {
-	// Validate the tunnel count
+	// validate the tunnel count
 	if uint64(len(data.Tunnels)) != data.TunnelCount {
 		return types.ErrInvalidGenesis.Wrapf(
 			"TunnelCount: %d, actual tunnels: %d",
@@ -20,7 +20,7 @@ func ValidateGenesis(data *types.GenesisState) error {
 		)
 	}
 
-	// Validate the tunnel IDs
+	// validate the tunnel IDs
 	for _, tunnel := range data.Tunnels {
 		if tunnel.ID > data.TunnelCount {
 			return types.ErrInvalidGenesis.Wrapf(
@@ -45,24 +45,35 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 	if moduleAcc == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
-	// Set module account if its balance is zero
+	// set module account if its balance is zero
 	if balance := k.GetModuleBalance(ctx); balance.IsZero() {
 		k.SetModuleAccount(ctx, moduleAcc)
 	}
 
-	// Set the tunnel count
+	// set the tunnel count
 	k.SetTunnelCount(ctx, data.TunnelCount)
 
+	// set the tunnels
 	for _, tunnel := range data.Tunnels {
 		k.SetTunnel(ctx, tunnel)
+	}
+
+	// set the active tunnel IDs
+	k.SetActiveTunnelIDs(ctx, data.ActiveTunnelIDs)
+
+	// set the signal prices infos
+	for _, signalPricesInfo := range data.SignalPricesInfos {
+		k.SetSignalPricesInfo(ctx, signalPricesInfo)
 	}
 }
 
 // ExportGenesis returns the module's exported genesis
 func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
-		Params:      k.GetParams(ctx),
-		TunnelCount: k.GetTunnelCount(ctx),
-		Tunnels:     k.GetTunnels(ctx),
+		Params:            k.GetParams(ctx),
+		TunnelCount:       k.GetTunnelCount(ctx),
+		Tunnels:           k.GetTunnels(ctx),
+		ActiveTunnelIDs:   k.MustGetActiveTunnelIDs(ctx),
+		SignalPricesInfos: k.GetSignalPricesInfos(ctx),
 	}
 }

@@ -142,6 +142,17 @@ func (m *MsgCreateTunnel) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgCreateTunnel) ValidateBasic() error {
+	// creator address must be valid
+	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+	}
+
+	// signalInfos must not be empty
+	if len(m.SignalInfos) == 0 {
+		return sdkerrors.ErrInvalidRequest.Wrapf("signal infos cannot be empty")
+	}
+
+	// route must be valid
 	r, ok := m.Route.GetCachedValue().(RouteI)
 	if !ok {
 		return sdkerrors.ErrPackAny.Wrapf("cannot unpack route")
@@ -149,6 +160,21 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 	if err := r.ValidateBasic(); err != nil {
 		return err
 	}
+
+	// minimum deposit must be positive
+	if !m.Deposit.IsValid() {
+		return sdkerrors.ErrInvalidCoins.Wrapf("invalid deposit: %s", m.Deposit)
+	}
+
+	// signalIDs must be unique
+	signalIDMap := make(map[string]bool)
+	for _, signalInfo := range m.SignalInfos {
+		if _, ok := signalIDMap[signalInfo.SignalID]; ok {
+			return sdkerrors.ErrInvalidRequest.Wrapf("duplicate signal ID: %s", signalInfo.SignalID)
+		}
+		signalIDMap[signalInfo.SignalID] = true
+	}
+
 	return nil
 }
 
@@ -179,7 +205,55 @@ func (m MsgCreateTunnel) GetTunnelRoute() RouteI {
 	if !ok {
 		return nil
 	}
+
 	return route
+}
+
+// NewMsgEditTunnel creates a new MsgEditTunnel instance.
+func NewMsgEditTunnel(
+	tunnelID uint64,
+	signalInfos []SignalInfo,
+	interval uint64,
+	creator string,
+) *MsgEditTunnel {
+	return &MsgEditTunnel{
+		TunnelID:    tunnelID,
+		SignalInfos: signalInfos,
+		Interval:    interval,
+		Creator:     creator,
+	}
+}
+
+// Route Implements Msg.
+func (m MsgEditTunnel) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes implements the LegacyMsg interface.
+func (m MsgEditTunnel) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for the message.
+func (m *MsgEditTunnel) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Creator)}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgEditTunnel) ValidateBasic() error {
+	// creator address must be valid
+	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+	}
+
+	// signalIDs must be unique
+	signalIDMap := make(map[string]bool)
+	for _, signalInfo := range m.SignalInfos {
+		if _, ok := signalIDMap[signalInfo.SignalID]; ok {
+			return sdkerrors.ErrInvalidRequest.Wrapf("duplicate signal ID: %s", signalInfo.SignalID)
+		}
+		signalIDMap[signalInfo.SignalID] = true
+	}
+
+	return nil
 }
 
 // NewMsgActivateTunnel creates a new MsgActivateTunnel instance.
@@ -215,6 +289,40 @@ func (m MsgActivateTunnel) ValidateBasic() error {
 	return nil
 }
 
+// NewMsgDeactivateTunnel creates a new MsgDeactivateTunnel instance.
+func NewMsgDeactivateTunnel(
+	tunnelID uint64,
+	creator string,
+) *MsgDeactivateTunnel {
+	return &MsgDeactivateTunnel{
+		TunnelID: tunnelID,
+		Creator:  creator,
+	}
+}
+
+// Route Implements Msg.
+func (m MsgDeactivateTunnel) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes implements the LegacyMsg interface.
+func (m MsgDeactivateTunnel) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for the message.
+func (m *MsgDeactivateTunnel) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Creator)}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgDeactivateTunnel) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+	}
+
+	return nil
+}
+
+// NewMsgManualTriggerTunnel creates a new MsgManualTriggerTunnel instance.
 func NewMsgManualTriggerTunnel(
 	tunnelID uint64,
 	creator string,

@@ -19,8 +19,14 @@ service Msg {
   // CreateTunnel is a RPC method to create a new tunnel.
   rpc CreateTunnel(MsgCreateTunnel) returns (MsgCreateTunnelResponse);
 
+  // EditTunnel is a RPC method to edit a tunnel.
+  rpc EditTunnel(MsgEditTunnel) returns (MsgEditTunnelResponse);
+
   // ActivateTunnel is a RPC method to activate a tunnel.
   rpc ActivateTunnel(MsgActivateTunnel) returns (MsgActivateTunnelResponse);
+
+  // DeactivateTunnel is a RPC method to deactivate a tunnel.
+  rpc DeactivateTunnel(MsgDeactivateTunnel) returns (MsgDeactivateTunnelResponse);
 
   // ManualTriggerTunnel is a RPC method to manually trigger a tunnel.
   rpc ManualTriggerTunnel(MsgManualTriggerTunnel) returns (MsgManualTriggerTunnelResponse);
@@ -49,6 +55,24 @@ message MsgCreateTunnel {
   string creator = 6 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
+// MsgEditTunnel is the transaction message to edit a tunnel.
+message MsgEditTunnel {
+  option (cosmos.msg.v1.signer) = "creator";
+  option (amino.name)           = "tunnel/MsgEditTunnel";
+
+  // tunnel_id is the ID of the tunnel to edit.
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
+  // signal_infos is the list of signal infos.
+  repeated SignalInfo signal_infos = 2 [(gogoproto.nullable) = false];
+  // interval is the interval for delivering the signal prices.
+  uint64 interval = 3;
+  // creator is the address of the creator.
+  string creator = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgEditTunnelResponse is the response type for the Msg/EditTunnel RPC method.
+message MsgEditTunnelResponse {}
+
 // MsgCreateTunnelResponse is the response type for the Msg/CreateTunnel RPC method.
 message MsgCreateTunnelResponse {
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
@@ -67,6 +91,20 @@ message MsgActivateTunnel {
 
 // MsgActivateTunnelResponse is the response type for the Msg/ActivateTunnel RPC method.
 message MsgActivateTunnelResponse {}
+
+// MsgDeactivateTunnel is the transaction message to deactivate a tunnel.
+message MsgDeactivateTunnel {
+  option (cosmos.msg.v1.signer) = "creator";
+  option (amino.name)           = "tunnel/MsgDeactivateTunnel";
+
+  // tunnel_id is the ID of the tunnel to deactivate.
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
+  // creator is the address of the creator.
+  string creator = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgDeactivateTunnelResponse is the response type for the Msg/DeactivateTunnel RPC method.
+message MsgDeactivateTunnelResponse {}
 
 // MsgManualTriggerTunnel is the transaction message to manually trigger a tunnel.
 message MsgManualTriggerTunnel {

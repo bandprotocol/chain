@@ -23,3 +23,16 @@ func (k Keeper) GetSignalPricesInfo(ctx sdk.Context, tunnelID uint64) (types.Sig
 	k.cdc.MustUnmarshal(bz, &signalPricesInfo)
 	return signalPricesInfo, nil
 }
+
+// GetSignalPricesInfos gets all signal prices infos from the store
+func (k Keeper) GetSignalPricesInfos(ctx sdk.Context) []types.SignalPricesInfo {
+	var signalPricesInfos []types.SignalPricesInfo
+	iterator := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.SignalPricesInfoStoreKeyPrefix)
+	defer iterator.Close()
+	for ; iterator.Valid(); iterator.Next() {
+		var signalPricesInfo types.SignalPricesInfo
+		k.cdc.MustUnmarshal(iterator.Value(), &signalPricesInfo)
+		signalPricesInfos = append(signalPricesInfos, signalPricesInfo)
+	}
+	return signalPricesInfos
+}
