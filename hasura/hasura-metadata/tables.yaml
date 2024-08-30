@@ -34,19 +34,19 @@
           table:
             name: account_transactions
             schema: public
-    - name: band_tss_members
+    - name: bandtss_members
       using:
         foreign_key_constraint_on:
           column: account_id
           table:
-            name: band_tss_members
+            name: bandtss_members
             schema: public
-    - name: band_tss_signings
+    - name: bandtss_signings
       using:
         foreign_key_constraint_on:
-          column: requester_id
+          column: requester_account_id
           table:
-            name: band_tss_signings
+            name: bandtss_signings
             schema: public
     - name: delegations
       using:
@@ -104,13 +104,6 @@
           table:
             name: groups
             schema: public
-    - name: interchain_accounts
-      using:
-        foreign_key_constraint_on:
-          column: account_id
-          table:
-            name: interchain_accounts
-            schema: public
     - name: proposals
       using:
         foreign_key_constraint_on:
@@ -153,13 +146,6 @@
           table:
             name: unbonding_delegations
             schema: public
-    - name: validators
-      using:
-        foreign_key_constraint_on:
-          column: account_id
-          table:
-            name: validators
-            schema: public
     - name: votes
       using:
         foreign_key_constraint_on:
@@ -168,56 +154,60 @@
             name: votes
             schema: public
 - table:
-    name: band_tss_groups
+    name: bandtss_current_groups
     schema: public
   object_relationships:
+    - name: block
+      using:
+        foreign_key_constraint_on: transition_height
+    - name: proposal
+      using:
+        foreign_key_constraint_on: proposal_id
     - name: tss_group
       using:
-        foreign_key_constraint_on: current_group_id
-  array_relationships:
-    - name: band_tss_members
-      using:
-        foreign_key_constraint_on:
-          column: band_tss_groups_id
-          table:
-            name: band_tss_members
-            schema: public
+        foreign_key_constraint_on: current_tss_group_id
 - table:
-    name: band_tss_members
+    name: bandtss_group_transitions
+    schema: public
+  object_relationships:
+    - name: block
+      using:
+        foreign_key_constraint_on: created_height
+    - name: proposal
+      using:
+        foreign_key_constraint_on: proposal_id
+    - name: tssGroupByIncomingTssGroupId
+      using:
+        foreign_key_constraint_on: incoming_tss_group_id
+    - name: tss_group
+      using:
+        foreign_key_constraint_on: current_tss_group_id
+    - name: tss_signing
+      using:
+        foreign_key_constraint_on: tss_signing_id
+- table:
+    name: bandtss_members
     schema: public
   object_relationships:
     - name: account
       using:
         foreign_key_constraint_on: account_id
-    - name: band_tss_group
-      using:
-        foreign_key_constraint_on: band_tss_groups_id
-- table:
-    name: band_tss_replacements
-    schema: public
-  object_relationships:
-    - name: tssGroupByNewGroupId
-      using:
-        foreign_key_constraint_on: new_group_id
     - name: tss_group
       using:
-        foreign_key_constraint_on: current_group_id
-    - name: tss_signing
-      using:
-        foreign_key_constraint_on: tss_signing_id
+        foreign_key_constraint_on: tss_group_id
 - table:
-    name: band_tss_signings
+    name: bandtss_signings
     schema: public
   object_relationships:
     - name: account
       using:
-        foreign_key_constraint_on: requester_id
-    - name: tssSigningByReplacingGroupSigningId
+        foreign_key_constraint_on: requester_account_id
+    - name: tssSigningByIncomingGroupTssSigningId
       using:
-        foreign_key_constraint_on: replacing_group_signing_id
+        foreign_key_constraint_on: incoming_group_tss_signing_id
     - name: tss_signing
       using:
-        foreign_key_constraint_on: current_group_signing_id
+        foreign_key_constraint_on: current_group_tss_signing_id
 - table:
     name: blocks
     schema: public
@@ -226,6 +216,20 @@
       using:
         foreign_key_constraint_on: proposer
   array_relationships:
+    - name: bandtss_current_groups
+      using:
+        foreign_key_constraint_on:
+          column: transition_height
+          table:
+            name: bandtss_current_groups
+            schema: public
+    - name: bandtss_group_transitions
+      using:
+        foreign_key_constraint_on:
+          column: created_height
+          table:
+            name: bandtss_group_transitions
+            schema: public
     - name: incoming_packets
       using:
         foreign_key_constraint_on:
@@ -253,6 +257,13 @@
           column: block_height
           table:
             name: transactions
+            schema: public
+    - name: tss_assigned_members
+      using:
+        foreign_key_constraint_on:
+          column: submitted_height
+          table:
+            name: tss_assigned_members
             schema: public
     - name: tss_signings
       using:
@@ -367,7 +378,7 @@
     name: data_sources
     schema: public
   object_relationships:
-    - name: request_stat
+    - name: data_source_request
       using:
         foreign_key_constraint_on:
           column: data_source_id
@@ -378,13 +389,6 @@
       using:
         foreign_key_constraint_on: transaction_id
   array_relationships:
-    - name: data_source_requests
-      using:
-        foreign_key_constraint_on:
-          column: data_source_id
-          table:
-            name: data_source_requests
-            schema: public
     - name: data_source_requests_per_days
       using:
         foreign_key_constraint_on:
@@ -484,13 +488,6 @@
     - name: group_policy
       using:
         foreign_key_constraint_on: group_policy_address
-    - name: group_vote
-      using:
-        foreign_key_constraint_on:
-          column: group_proposal_id
-          table:
-            name: group_votes
-            schema: public
   array_relationships:
     - name: group_votes
       using:
@@ -579,6 +576,9 @@
       using:
         foreign_key_constraint_on: connection_id
 - table:
+    name: latest_prices
+    schema: public
+- table:
     name: non_validator_vote_proposals_view
     schema: public
 - table:
@@ -608,7 +608,7 @@
     name: oracle_scripts
     schema: public
   object_relationships:
-    - name: request_stat
+    - name: oracle_script_request
       using:
         foreign_key_constraint_on:
           column: oracle_script_id
@@ -619,13 +619,6 @@
       using:
         foreign_key_constraint_on: transaction_id
   array_relationships:
-    - name: oracle_script_requests
-      using:
-        foreign_key_constraint_on:
-          column: oracle_script_id
-          table:
-            name: oracle_script_requests
-            schema: public
     - name: oracle_script_requests_per_days
       using:
         foreign_key_constraint_on:
@@ -680,6 +673,20 @@
     - name: account
       using:
         foreign_key_constraint_on: proposer_id
+    - name: bandtss_current_group
+      using:
+        foreign_key_constraint_on:
+          column: proposal_id
+          table:
+            name: bandtss_current_groups
+            schema: public
+    - name: bandtss_group_transition
+      using:
+        foreign_key_constraint_on:
+          column: proposal_id
+          table:
+            name: bandtss_group_transitions
+            schema: public
   array_relationships:
     - name: deposits
       using:
@@ -747,7 +754,7 @@
     - name: account
       using:
         foreign_key_constraint_on: delegator_id
-    - name: validatorByValidatorDstId
+    - name: validator
       using:
         foreign_key_constraint_on: validator_dst_id
     - name: validatorByValidatorSrcId
@@ -770,7 +777,7 @@
     name: relayer_tx_stat_days
     schema: public
   object_relationships:
-    - name: channel_by_channel_port
+    - name: channelByChannelPort
       using:
         manual_configuration:
           column_mapping:
@@ -936,6 +943,9 @@
     name: tss_assigned_members
     schema: public
   object_relationships:
+    - name: block
+      using:
+        foreign_key_constraint_on: submitted_height
     - name: tss_group
       using:
         foreign_key_constraint_on: tss_group_id
@@ -955,27 +965,35 @@
 - table:
     name: tss_groups
     schema: public
+  object_relationships:
+    - name: bandtss_member
+      using:
+        foreign_key_constraint_on:
+          column: tss_group_id
+          table:
+            name: bandtss_members
+            schema: public
   array_relationships:
-    - name: bandTssReplacementsByNewGroupId
+    - name: bandtssGroupTransitionsByIncomingTssGroupId
       using:
         foreign_key_constraint_on:
-          column: new_group_id
+          column: incoming_tss_group_id
           table:
-            name: band_tss_replacements
+            name: bandtss_group_transitions
             schema: public
-    - name: band_tss_groups
+    - name: bandtss_current_groups
       using:
         foreign_key_constraint_on:
-          column: current_group_id
+          column: current_tss_group_id
           table:
-            name: band_tss_groups
+            name: bandtss_current_groups
             schema: public
-    - name: band_tss_replacements
+    - name: bandtss_group_transitions
       using:
         foreign_key_constraint_on:
-          column: current_group_id
+          column: current_tss_group_id
           table:
-            name: band_tss_replacements
+            name: bandtss_group_transitions
             schema: public
     - name: tss_assigned_members
       using:
@@ -1023,13 +1041,6 @@
     name: tss_signings
     schema: public
   object_relationships:
-    - name: band_tss_replacement
-      using:
-        foreign_key_constraint_on:
-          column: tss_signing_id
-          table:
-            name: band_tss_replacements
-            schema: public
     - name: block
       using:
         foreign_key_constraint_on: created_height
@@ -1037,19 +1048,26 @@
       using:
         foreign_key_constraint_on: tss_group_id
   array_relationships:
-    - name: bandTssSigningsByReplacingGroupSigningId
+    - name: bandtssSigningsByIncomingGroupTssSigningId
       using:
         foreign_key_constraint_on:
-          column: replacing_group_signing_id
+          column: incoming_group_tss_signing_id
           table:
-            name: band_tss_signings
+            name: bandtss_signings
             schema: public
-    - name: band_tss_signings
+    - name: bandtss_group_transitions
       using:
         foreign_key_constraint_on:
-          column: current_group_signing_id
+          column: tss_signing_id
           table:
-            name: band_tss_signings
+            name: bandtss_group_transitions
+            schema: public
+    - name: bandtss_signings
+      using:
+        foreign_key_constraint_on:
+          column: current_group_tss_signing_id
+          table:
+            name: bandtss_signings
             schema: public
     - name: requests
       using:
@@ -1130,15 +1148,6 @@
     - name: account
       using:
         foreign_key_constraint_on: account_id
-    - name: validator_report_count
-      using:
-        manual_configuration:
-          column_mapping:
-            id: validator_id
-          insertion_order: null
-          remote_table:
-            name: validator_report_count
-            schema: public
   array_relationships:
     - name: blocks
       using:
@@ -1164,14 +1173,14 @@
     - name: redelegations
       using:
         foreign_key_constraint_on:
-          column: validator_src_id
+          column: validator_dst_id
           table:
             name: redelegations
             schema: public
-    - name: redelegationsByValidatorDstId
+    - name: redelegationsByValidatorSrcId
       using:
         foreign_key_constraint_on:
-          column: validator_dst_id
+          column: validator_src_id
           table:
             name: redelegations
             schema: public

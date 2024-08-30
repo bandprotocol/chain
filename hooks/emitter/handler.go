@@ -23,6 +23,7 @@ import (
 
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
@@ -126,14 +127,10 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 		h.handleMsgRevoke(msg, detail)
 	case *authz.MsgExec:
 		h.handleMsgExec(ctx, txHash, msg, log, detail)
-	// case *bandtsstypes.MsgActivate:
-	// 	h.handleBandtssMsgActivate(ctx, msg)
-	// case *bandtsstypes.MsgHealthCheck:
-	// 	h.handleBandtssMsgHealthCheck(ctx, msg)
-	// case *bandtsstypes.MsgRequestSignature:
-	// 	h.handleEventRequestSignature(ctx, evMap)
-	// 	sid := bandtsstypes.SigningID(common.Atoi(evMap[bandtsstypes.EventTypeSigningRequestCreated+"."+bandtsstypes.AttributeKeySigningID][0]))
-	// 	h.handleEventSigningRequestCreated(ctx, sid)
+	case *bandtsstypes.MsgActivate:
+		h.handleBandtssMsgActivate(ctx, msg)
+	case *bandtsstypes.MsgHeartbeat:
+		h.handleBandtssMsgHeartbeat(ctx, msg)
 	case *feedstypes.MsgSubmitSignals:
 		h.handleMsgSubmitSignals(ctx, msg, evMap)
 	case *feedstypes.MsgSubmitSignalPrices:
@@ -174,10 +171,25 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 	}
 }
 
-func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) {
+func (h *Hook) handleBeginBlockEndBlockEvent(
+	ctx sdk.Context,
+	event abci.Event,
+	eventIdx int,
+	eventQuerier *EventQuerier,
+) {
 	events := sdk.StringifyEvents([]abci.Event{event})
 	evMap := parseEvents(events)
 	switch event.Type {
+	case bandtsstypes.EventTypeInactiveStatus:
+		h.handleEventInactiveStatuses(ctx, evMap)
+	case bandtsstypes.EventTypeGroupTransition:
+		h.handleEventGroupTransition(ctx, eventIdx, eventQuerier)
+	case bandtsstypes.EventTypeGroupTransitionSuccess:
+		h.handleEventGroupTransitionSuccess(ctx, evMap)
+	case bandtsstypes.EventTypeGroupTransitionFailed:
+		h.handleEventGroupTransitionFailed(ctx, evMap)
+	case bandtsstypes.EventTypeSigningRequestCreated:
+		h.handleEventSigningRequestCreated(ctx, evMap)
 	case oracletypes.EventTypeResolve:
 		h.handleEventRequestExecute(ctx, evMap)
 	case slashingtypes.EventTypeSlash:
@@ -202,29 +214,18 @@ func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) 
 		h.handleEventSigningSuccess(ctx, evMap)
 	case tsstypes.EventTypeSigningFailed:
 		h.handleEventSigningFailed(ctx, evMap)
-	// case tsstypes.EventTypeExpiredSigning:
-	// 	h.handleEventExpiredSigning(ctx, evMap)
-	// case bandtsstypes.EventTypeInactiveStatus:
-	// 	address := sdk.MustAccAddressFromBech32(
-	// 		evMap[bandtsstypes.EventTypeInactiveStatus+"."+tsstypes.AttributeKeyAddress][0],
-	// 	)
-	// 	h.handleUpdateBandtssMember(ctx, address)
 	case tsstypes.EventTypeCreateGroup,
 		tsstypes.EventTypeRound2Success,
 		tsstypes.EventTypeRound3Success,
 		tsstypes.EventTypeExpiredGroup,
 		tsstypes.EventTypeComplainSuccess,
 		tsstypes.EventTypeRound3Failed:
-		gid := tss.GroupID(common.Atoi(evMap[event.Type+"."+tsstypes.AttributeKeyGroupID][0]))
-		h.handleSetTSSGroup(ctx, gid)
-	// case bandtsstypes.EventTypeNewGroupActivate:
-	// 	gid := tss.GroupID(common.Atoi(evMap[event.Type+"."+bandtsstypes.AttributeKeyGroupID][0]))
-	// 	h.handleNewBandtssGroupActive(ctx, gid)
-	// case bandtsstypes.EventTypeSigningRequestCreated:
-	// 	sid := bandtsstypes.SigningID(common.Atoi(evMap[event.Type+"."+bandtsstypes.AttributeKeySigningID][0]))
-	// 	h.handleEventSigningRequestCreated(ctx, sid)
-	// case bandtsstypes.EventTypeReplacement:
-	// 	h.handleSetBandtssReplacement(ctx)
+		groupIDs := evMap[event.Type+"."+tsstypes.AttributeKeyGroupID]
+		for _, gid := range groupIDs {
+			h.handleSetTssGroup(ctx, tss.GroupID(common.Atoi(gid)))
+		}
+	case tsstypes.EventTypeSubmitSignature:
+		h.handleEventSubmitSignature(ctx, evMap)
 	case feedstypes.EventTypeUpdatePrice:
 		h.handleEventUpdatePrice(ctx, evMap)
 	case proto.MessageName(&group.EventProposalPruned{}):

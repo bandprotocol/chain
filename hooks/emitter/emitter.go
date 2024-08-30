@@ -293,10 +293,10 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	}
 
 	// TSS module
-	h.handleInitTSSModule(ctx)
+	h.handleInitTssModule(ctx)
 
 	// Bandtss module
-	// h.handleInitBandtssModule(ctx)
+	h.handleInitBandtssModule(ctx)
 
 	// Oracle module
 	var oracleState oracletypes.GenesisState
@@ -384,8 +384,10 @@ func (h *Hook) AfterBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, res 
 		"inflation": h.mintKeeper.GetMinter(ctx).Inflation.String(),
 		"supply":    totalSupply,
 	})
-	for _, event := range res.Events {
-		h.handleBeginBlockEndBlockEvent(ctx, event)
+
+	eventQuerier := NewEventQuerier(res.Events)
+	for i, event := range res.Events {
+		h.handleBeginBlockEndBlockEvent(ctx, event, i, eventQuerier)
 	}
 }
 
@@ -476,9 +478,11 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 		h.doUpdateGroupProposal(ctx, proposalID)
 	}
 
-	for _, event := range res.Events {
-		h.handleBeginBlockEndBlockEvent(ctx, event)
+	eventQuerier := NewEventQuerier(res.Events)
+	for i, event := range res.Events {
+		h.handleBeginBlockEndBlockEvent(ctx, event, i, eventQuerier)
 	}
+
 	// Update balances of all affected accounts on this block.
 	// Index 0 is message NEW_BLOCK, we insert SET_ACCOUNT messages right after it.
 	modifiedMsgs := []common.Message{h.msgs[0]}

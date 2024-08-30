@@ -1,0 +1,91 @@
+import sqlalchemy as sa
+import enum
+
+from .db import (
+    metadata,
+    Column,
+    CustomBase64,
+    CustomDateTime,
+)
+
+
+class GroupTransitionStatus(enum.Enum):
+    nil = 0
+    creating_group = 1
+    waiting_sign = 2
+    waiting_execution = 3
+    success = 4
+    expired = 5
+
+
+class CustomGroupTransitionStatus(sa.types.TypeDecorator):
+    impl = sa.Enum(GroupTransitionStatus)
+
+    def process_bind_param(self, value, dialect):
+        return GroupTransitionStatus(value)
+
+
+bandtss_group_transitions = sa.Table(
+    "bandtss_group_transitions",
+    metadata,
+    Column("proposal_id", sa.Integer, sa.ForeignKey("proposals.id"), primary_key=True),
+    Column("tss_signing_id", sa.Integer, sa.ForeignKey("tss_signings.id")),
+    Column("current_tss_group_id", sa.Integer, sa.ForeignKey("tss_groups.id")),
+    Column("incoming_tss_group_id", sa.Integer, sa.ForeignKey("tss_groups.id")),
+    Column("current_group_pub_key", CustomBase64),
+    Column("incoming_group_pub_key", CustomBase64),
+    Column("status", CustomGroupTransitionStatus),
+    Column(
+        "created_height",
+        sa.Integer,
+        sa.ForeignKey("blocks.height"),
+        nullable=True,
+        index=True,
+    ),
+    sa.Index(
+        "ix_tss_signing_id_current_tss_group_id_incoming_tss_group_id",
+        "tss_signing_id",
+        "current_tss_group_id",
+        "incoming_tss_group_id",
+    ),
+)
+
+bandtss_current_groups = sa.Table(
+    "bandtss_current_groups",
+    metadata,
+    Column("proposal_id", sa.Integer, sa.ForeignKey("proposals.id"), primary_key=True),
+    Column("current_tss_group_id", sa.Integer, sa.ForeignKey("tss_groups.id")),
+    Column(
+        "transition_height",
+        sa.Integer,
+        sa.ForeignKey("blocks.height"),
+        nullable=True,
+        index=True,
+    ),
+)
+
+bandtss_members = sa.Table(
+    "bandtss_members",
+    metadata,
+    Column(
+        "tss_group_id", sa.Integer, sa.ForeignKey("tss_groups.id"), primary_key=True
+    ),
+    Column("account_id", sa.Integer, sa.ForeignKey("accounts.id")),
+    Column("is_active", sa.Boolean),
+    Column("penalty_since", CustomDateTime, nullable=True),
+    Column("last_active", CustomDateTime, nullable=True),
+)
+
+bandtss_signings = sa.Table(
+    "bandtss_signings",
+    metadata,
+    Column("id", sa.Integer, primary_key=True),
+    Column("requester_account_id", sa.Integer, sa.ForeignKey("accounts.id")),
+    Column("fee_per_signer", sa.String),
+    Column(
+        "current_group_tss_signing_id", sa.Integer, sa.ForeignKey("tss_signings.id")
+    ),
+    Column(
+        "incoming_group_tss_signing_id", sa.Integer, sa.ForeignKey("tss_signings.id")
+    ),
+)

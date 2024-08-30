@@ -1,6 +1,6 @@
 import base64 as b64
 from datetime import datetime
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.dialects.postgresql import insert
 
 from .db import (
@@ -46,15 +46,20 @@ from .db import (
     relayer_tx_stat_days,
 )
 
+from .bandtss_db import (
+    bandtss_current_groups,
+    bandtss_members,
+    bandtss_signings,
+    bandtss_group_transitions,
+    GroupTransitionStatus,
+)
+
+
 from .tss_db import (
     tss_signings,
     tss_groups,
-    band_tss_groups,
     tss_members,
     tss_assigned_members,
-    band_tss_members,
-    band_tss_signings,
-    band_tss_replacements,
 )
 
 from .feeds_db import (
@@ -792,6 +797,10 @@ class Handler(object):
                 )
             )
 
+    ##################################
+    # TSS_HANDLER
+    ##################################
+
     def handle_new_tss_signing(self, msg):
         self.conn.execute(tss_signings.insert(), msg)
 
@@ -801,34 +810,11 @@ class Handler(object):
             condition = (col == msg[col.name]) & condition
         self.conn.execute(tss_signings.update().where(condition).values(**msg))
 
-    def handle_set_band_tss_signing(self, msg):
-        msg["requester_id"] = self.get_account_id(msg["requester"])
-        del msg["requester"]
-
-        if msg["replacing_group_signing_id"] == 0:
-            del msg["replacing_group_signing_id"]
-
-        self.conn.execute(
-            insert(band_tss_signings)
-            .values(**msg)
-            .on_conflict_do_update(constraint="band_tss_signings_pkey", set_=msg)
-        )
-
     def handle_set_tss_group(self, msg):
         self.conn.execute(
             insert(tss_groups)
             .values(**msg)
             .on_conflict_do_update(constraint="tss_groups_pkey", set_=msg)
-        )
-
-    def handle_set_band_tss_group(self, msg):
-        self.conn.execute(band_tss_groups.insert(), msg)
-
-    def handle_set_band_tss_replacement(self, msg):
-        self.conn.execute(
-            insert(band_tss_replacements)
-            .values(**msg)
-            .on_conflict_do_update(constraint="band_tss_replacements_pkey", set_=msg)
         )
 
     def handle_set_tss_member(self, msg):
@@ -841,23 +827,65 @@ class Handler(object):
             .on_conflict_do_update(constraint="tss_members_pkey", set_=msg)
         )
 
-    def handle_set_band_tss_member(self, msg):
-        msg["band_tss_groups_id"] = self.get_latest_band_tss_group_id()
-
-        msg["account_id"] = self.get_account_id(msg["address"])
-        del msg["address"]
-
-        self.conn.execute(
-            insert(band_tss_members)
-            .values(**msg)
-            .on_conflict_do_update(constraint="band_tss_members_pkey", set_=msg)
-        )
-
-    def handle_remove_band_tss_members(self, msg):
-        self.conn.execute(band_tss_members.delete())
-
     def handle_new_tss_assigned_member(self, msg):
         self.conn.execute(tss_assigned_members.insert(), msg)
+
+    def handle_update_tss_assigned_member(self, msg):
+        condition = True
+        for col in tss_assigned_members.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+        self.conn.execute(tss_assigned_members.update().where(condition).values(**msg))
+
+    ##################################
+    # BANDTSS_HANDLER
+    ##################################
+
+    def handle_set_bandtss_group_transition(self, msg):
+        self.conn.execute(bandtss_group_transitions.insert(), msg)
+
+    def update_bandtss_group_transition(self, status):
+        proposal_column = bandtss_group_transitions.c.proposal_id
+        proposal_id = self.conn.execute(select(func.max(proposal_column))).scalar()
+        if proposal_id is None:
+            proposal_id = 0
+
+        self.conn.execute(
+            bandtss_group_transitions.update()
+            .where(proposal_column == proposal_id)
+            .values(status=status)
+        )
+
+    def handle_update_bandtss_group_transition(self, msg):
+        self.update_bandtss_group_transition(msg["status"])
+
+    def handle_update_bandtss_group_transition_success(self, msg):
+        self.update_bandtss_group_transition(GroupTransitionStatus.success)
+
+    def handle_update_bandtss_group_transition_failed(self, msg):
+        self.update_bandtss_group_transition(GroupTransitionStatus.expired)
+
+    def handle_set_bandtss_current_group(self, msg):
+        proposal_column = bandtss_group_transitions.c.proposal_id
+        proposal_id = self.conn.execute(select(func.max(proposal_column))).scalar()
+        if proposal_id is None:
+            proposal_id = 0
+
+        msg["proposal_id"] = proposal_id
+        self.conn.execute(bandtss_current_groups.insert(), msg)
+
+    def handle_set_bandtss_member(self, msg):
+        self.conn.execute(
+            insert(bandtss_members)
+            .values(**msg)
+            .on_conflict_do_update(constraint="bandtss_member_pkey", set_=msg)
+        )
+
+    def handle_set_bandtss_signing(self, msg):
+        self.conn.execute(bandtss_signings.insert(), msg)
+
+    ##################################
+    # FEEDS_HANDLER
+    ##################################
 
     def handle_set_validator_price(self, msg):
         msg["validator_id"] = self.get_validator_id(msg["validator"])
