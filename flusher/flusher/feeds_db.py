@@ -63,7 +63,7 @@ reference_source_configs = sa.Table(
     metadata,
     Column("ipfs_hash", sa.String),
     Column("version", sa.String),
-    Column("timestamp", CustomDateTime),
+    Column("timestamp", CustomDateTime, primary_key=True),
 )
 
 feeders = sa.Table(

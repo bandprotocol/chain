@@ -281,7 +281,7 @@ GROUP BY proposal_id
 
     engine.execute(
         """
-CREATE VIEW latest_prices AS
+CREATE VIEW current_prices AS
 SELECT
     p.signal_id,
     p.price_status,

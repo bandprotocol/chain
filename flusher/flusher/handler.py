@@ -668,7 +668,7 @@ class Handler(object):
     
     def handle_set_reference_source_config(self, msg):
         self.conn.execute(
-            insert(reference_source_configs).values(**msg)
+            insert(reference_source_configs).values(**msg).on_conflict_do_update(constraint="reference_source_configs_pkey", set_=msg)
         )
     
     def handle_set_feeder(self, msg):
