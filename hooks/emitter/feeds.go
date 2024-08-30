@@ -22,13 +22,6 @@ func (h *Hook) emitRemovePrice(signalID string) {
 	})
 }
 
-func (h *Hook) emitRemoveFeed(signalID string) {
-	h.emitRemovePrice(signalID)
-	h.Write("REMOVE_FEED", common.JsDict{
-		"signal_id": signalID,
-	})
-}
-
 func (h *Hook) emitSetSignalTotalPower(stp types.Signal) {
 	h.Write("SET_SIGNAL_TOTAL_POWER", common.JsDict{
 		"signal_id": stp.ID,
