@@ -162,40 +162,40 @@ message Params {
   option (gogoproto.equal)            = true;  // Use gogoproto.equal for proto3 message equality checks
   option (gogoproto.goproto_stringer) = false; // Disable stringer generation for better control
 
-  // Admin is the address of the admin that is allowed to perform operations on modules.
+  // admin is the address of the admin that is allowed to perform operations on modules.
   string admin = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
-  // AllowableBlockTimeDiscrepancy is the allowed discrepancy (in seconds) between validator price timestamp and
+  // allowable_block_time_discrepancy is the allowed discrepancy (in seconds) between validator price timestamp and
   // block_time.
   int64 allowable_block_time_discrepancy = 2;
 
-  // GracePeriod is the time (in seconds) given for validators to adapt to changing in feed's interval.
+  // grace_period is the time (in seconds) given for validators to adapt to changing in feed's interval.
   int64 grace_period = 3;
 
-  // MinInterval is the minimum limit of every feeds' interval (in seconds).
+  // min_interval is the minimum limit of every feeds' interval (in seconds).
   // If the calculated interval is lower than this, it will be capped at this value.
   int64 min_interval = 4;
 
-  // MaxInterval is the maximum limit of every feeds' interval (in seconds).
+  // max_interval is the maximum limit of every feeds' interval (in seconds).
   // If the calculated interval of a feed is higher than this, it will not be capped at this value.
   int64 max_interval = 5;
 
-  // PowerStepThreshold is the amount of minimum power required to put feed in the current feeds list.
+  // power_step_threshold is the amount of minimum power required to put feed in the current feeds list.
   int64 power_step_threshold = 6;
 
-  // MaxCurrentFeeds is the maximum number of feeds supported at a time.
+  // max_current_feeds is the maximum number of feeds supported at a time.
   uint64 max_current_feeds = 7;
 
-  // CooldownTime represents the duration (in seconds) during which validators are prohibited from sending new prices.
+  // cooldown_time represents the duration (in seconds) during which validators are prohibited from sending new prices.
   int64 cooldown_time = 8;
 
-  // MinDeviationBasisPoint is the minimum limit of every feeds' deviation (in basis point).
+  // min_deviation_basis_point is the minimum limit of every feeds' deviation (in basis point).
   int64 min_deviation_basis_point = 9;
 
-  // MaxDeviationBasisPoint is the maximum limit of every feeds' deviation (in basis point).
+  // max_deviation_basis_point is the maximum limit of every feeds' deviation (in basis point).
   int64 max_deviation_basis_point = 10;
 
-  // CurrentFeedsUpdateInterval is the number of blocks after which the current feeds will be re-calculated.
+  // current_feeds_update_interval is the number of blocks after which the current feeds will be re-calculated.
   int64 current_feeds_update_interval = 11;
 }
 ```
@@ -212,14 +212,15 @@ Batched Signals replace the previous Signals of the same delegator as a batch.
 Signals are registered, and their power is added to the SignalTotalPower of the same SignalID.
 
 ```protobuf
-// MsgSubmitSignals is the transaction message to submit signals
+// MsgSubmitSignals is the transaction message to submit signals.
 message MsgSubmitSignals {
   option (cosmos.msg.v1.signer) = "delegator";
   option (amino.name)           = "feeds/MsgSubmitSignals";
 
-  // Delegator is the address of the delegator that want to submit signals
+  // delegator is the address of the delegator that wants to submit signals.
   string delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  // Signals is a list of submitted signal
+
+  // signals is a list of submitted signals.
   repeated Signal signals = 2 [(gogoproto.nullable) = false];
 }
 ```
@@ -242,13 +243,13 @@ message MsgSubmitSignalPrices {
   option (cosmos.msg.v1.signer) = "validator";
   option (amino.name)           = "feeds/MsgSubmitSignalPrices";
 
-  // Validator is the address of the validator that is performing the operation.
+  // validator is the address of the validator that is performing the operation.
   string validator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
-  // Timestamp is the timestamp use as reference of the data.
+  // timestamp is the timestamp used as reference for the data.
   int64 timestamp = 2;
 
-  // Prices is a list of signal prices to submit.
+  // prices is a list of signal prices to submit.
   repeated SignalPrice prices = 3 [(gogoproto.nullable) = false];
 }
 ```
@@ -268,15 +269,15 @@ Reference Source can be updated with the `MsgUpdateReferenceSourceConfig` messag
 Only the assigned admin can update the Reference Source.
 
 ```protobuf
-// MsgUpdateReferenceSourceConfig is the transaction message to update reference source config's configuration.
+// MsgUpdateReferenceSourceConfig is the transaction message to update reference price source's configuration.
 message MsgUpdateReferenceSourceConfig {
-  option (cosmos.msg.v1.signer) = "authority";
+  option (cosmos.msg.v1.signer) = "admin";
   option (amino.name)           = "feeds/MsgUpdateReferenceSourceConfig";
 
-  // Admin is the address of the admin that is performing the operation.
+  // admin is the address of the admin that is performing the operation.
   string admin = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
-  // ReferenceSourceConfig is the information of reference source config.
+  // reference_source_config is the information of reference price source.
   ReferenceSourceConfig reference_source_config = 2 [(gogoproto.nullable) = false];
 }
 ```
@@ -297,10 +298,10 @@ message MsgUpdateParams {
   option (cosmos.msg.v1.signer) = "authority";
   option (amino.name)           = "feeds/MsgUpdateParams";
 
-  // Authority is the address of the governance account.
+  // authority is the address of the governance account.
   string authority = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
-  // Params is the x/feeds parameters to update.
+  // params is the x/feeds parameters to update.
   Params params = 2 [(gogoproto.nullable) = false];
 }
 ```
