@@ -53,7 +53,7 @@ func (h *Hook) emitSetDelegatorSignal(ctx sdk.Context, delegator string, signal 
 func (h *Hook) emitSetValidatorPrice(ctx sdk.Context, validator string, price types.SignalPrice) {
 	h.Write("SET_VALIDATOR_PRICE", common.JsDict{
 		"validator":    validator,
-		"price_status": price.PriceStatus.String(),
+		"price_status": price.PriceStatus,
 		"signal_id":    price.SignalID,
 		"price":        price.Price,
 		"timestamp":    ctx.BlockTime().UnixNano(),
@@ -63,7 +63,7 @@ func (h *Hook) emitSetValidatorPrice(ctx sdk.Context, validator string, price ty
 func (h *Hook) emitSetPrice(price types.Price) {
 	h.Write("SET_PRICE", common.JsDict{
 		"signal_id":    price.SignalID,
-		"price_status": price.PriceStatus.String(),
+		"price_status": price.PriceStatus,
 		"price":        price.Price,
 		"timestamp":    price.Timestamp * int64(math.Pow10(9)),
 	})
