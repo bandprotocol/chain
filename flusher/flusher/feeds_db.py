@@ -6,6 +6,7 @@ from .db import (
     CustomDateTime,
 )
 
+PRICE_HISTORY_PERIOD = 60 * 60 * 24 * 7 * 10e8  # 1 week
 
 validator_prices = sa.Table(
     "validator_prices",
@@ -36,10 +37,10 @@ signal_total_powers = sa.Table(
 prices = sa.Table(
     "prices",
     metadata,
-    Column("signal_id", sa.String),
+    Column("signal_id", sa.String, primary_key=True),
     Column("price_status", sa.String),
     Column("price", sa.BigInteger),
-    Column("timestamp", CustomDateTime),
+    Column("timestamp", CustomDateTime, primary_key=True),
 )
 
 reference_source_configs = sa.Table(

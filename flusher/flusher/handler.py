@@ -47,6 +47,7 @@ from .db import (
 )
 
 from .feeds_db import (
+    PRICE_HISTORY_PERIOD,
     validator_prices,
     delegator_signals,
     signal_total_powers,
@@ -657,7 +658,7 @@ class Handler(object):
             insert(prices).values(**msg)
         )
         self.conn.execute(
-            prices.delete().where(prices.c.timestamp < msg["timestamp"] - 60 * 60 * 24 * 7 * 10e8)
+            prices.delete().where(prices.c.timestamp < msg["timestamp"] - PRICE_HISTORY_PERIOD)
         )
 
     def handle_remove_price(self, msg):
