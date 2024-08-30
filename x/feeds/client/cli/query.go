@@ -31,6 +31,7 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdReferenceSourceConfig(),
 		GetQueryCmdDelegatorSignals(),
 		GetQueryCmdCurrentFeeds(),
+		GetQueryCmdCurrentPrices(),
 		GetQueryCmdIsFeeder(),
 	)
 
@@ -131,6 +132,30 @@ func GetQueryCmdCurrentFeeds() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.CurrentFeeds(context.Background(), &types.QueryCurrentFeedsRequest{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetQueryCmdCurrentPrices implements the query current prices command.
+func GetQueryCmdCurrentPrices() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "current-prices",
+		Short: "Shows all current prices of all supported feeds",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.CurrentPrices(context.Background(), &types.QueryCurrentPricesRequest{})
 			if err != nil {
 				return err
 			}

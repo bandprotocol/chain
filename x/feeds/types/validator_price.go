@@ -20,3 +20,14 @@ func NewValidatorPrice(
 		BlockHeight: blockHeight,
 	}
 }
+
+// NewValidatorPriceList creates new ValidatorPriceList.
+func NewValidatorPriceList(
+	val sdk.ValAddress,
+	prices []ValidatorPrice,
+) ValidatorPriceList {
+	return ValidatorPriceList{
+		Validator:       val.String(),
+		ValidatorPrices: prices,
+	}
+}

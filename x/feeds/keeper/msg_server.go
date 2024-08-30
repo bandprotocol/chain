@@ -69,10 +69,10 @@ func (ms msgServer) SubmitSignals(
 		signalTotalPower, err := ms.GetSignalTotalPower(ctx, signalID)
 		if err != nil {
 			// initialize a new signal with zero power if the signal ID does not exist
-			signalTotalPower = types.Signal{
-				ID:    signalID,
-				Power: 0,
-			}
+			signalTotalPower = types.NewSignal(
+				signalID,
+				0,
+			)
 		}
 
 		// update the total power of the signal by adding the power difference

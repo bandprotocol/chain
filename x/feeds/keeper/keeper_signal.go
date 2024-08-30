@@ -160,10 +160,10 @@ func (k Keeper) CalculateNewSignalTotalPowers(ctx sdk.Context) []types.Signal {
 
 	signalTotalPowers := []types.Signal{}
 	for _, signalID := range keys {
-		signalTotalPowers = append(signalTotalPowers, types.Signal{
-			ID:    signalID,
-			Power: signalIDToPower[signalID],
-		})
+		signalTotalPowers = append(signalTotalPowers, types.NewSignal(
+			signalID,
+			signalIDToPower[signalID],
+		))
 	}
 
 	return signalTotalPowers
@@ -200,7 +200,7 @@ func (k Keeper) RegisterNewSignals(
 		signalIDToPowerDiff[prevSignal.ID] -= prevSignal.Power
 	}
 
-	k.SetDelegatorSignals(ctx, types.DelegatorSignals{Delegator: delegator.String(), Signals: signals})
+	k.SetDelegatorSignals(ctx, types.NewDelegatorSignals(delegator.String(), signals))
 
 	for _, signal := range signals {
 		signalIDToPowerDiff[signal.ID] += signal.Power
