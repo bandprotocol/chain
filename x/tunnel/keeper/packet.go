@@ -119,14 +119,14 @@ func (k Keeper) SendPacket(
 
 	switch r := tunnel.Route.GetCachedValue().(type) {
 	case *types.TSSRoute:
-		content, err = k.HandleTSSPacket(ctx, r, packet)
+		content, err = k.SendTSSPacket(ctx, r, packet)
 	case *types.AxelarRoute:
-		content, err = k.HandleAxelarPacket(ctx, r, packet)
+		content, err = k.SendAxelarPacket(ctx, r, packet)
 	default:
 		panic(fmt.Sprintf("unknown route type: %T", r))
 	}
 
-	// return error if failed to handle packet
+	// return error if failed to send packet
 	if err != nil {
 		return err
 	}

@@ -11,7 +11,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
-func TestHandleTSSPacket(t *testing.T) {
+func TestSendTSSPacket(t *testing.T) {
 	s := testutil.NewTestSuite(t)
 	ctx, k := s.Ctx, s.Keeper
 
@@ -30,8 +30,8 @@ func TestHandleTSSPacket(t *testing.T) {
 		time.Now().Unix(),
 	)
 
-	// Handle the TSS packet
-	content, err := k.HandleTSSPacket(ctx, &route, packet)
+	// Send the TSS packet
+	content, err := k.SendTSSPacket(ctx, &route, packet)
 	require.NoError(t, err)
 
 	// Assert the packet content

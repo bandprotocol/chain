@@ -4,4 +4,4 @@ import (
 	"testing"
 )
 
-func TestHandleAxelarPacket(t *testing.T) {}
+func TestSendAxelarPacket(t *testing.T) {}
