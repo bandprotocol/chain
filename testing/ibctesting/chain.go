@@ -281,7 +281,7 @@ func (chain *TestChain) SendMsgs(msgs ...sdk.Msg) (*sdk.Result, error) {
 	return r, nil
 }
 
-// SendMsgs delivers a transaction through the application. It updates the senders sequence
+// SendReport delivers a transaction through the application. It updates the senders sequence
 // number and updates the TestChain's headers. It returns the result and error if one
 // occurred.
 func (chain *TestChain) SendReport(
