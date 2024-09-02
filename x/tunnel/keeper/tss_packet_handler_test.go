@@ -11,7 +11,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
-func TSSPacketHandle(t *testing.T) {
+func TestHandleTSSPacket(t *testing.T) {
 	s := testutil.NewTestSuite(t)
 	ctx, k := s.Ctx, s.Keeper
 
@@ -30,8 +30,8 @@ func TSSPacketHandle(t *testing.T) {
 		time.Now().Unix(),
 	)
 
-	// Call the TSSPacketHandler
-	err := k.TSSPacketHandle(ctx, &route, packet)
+	// Handle the TSS packet
+	err := k.HandleTSSPacket(ctx, &route, packet)
 	require.NoError(t, err)
 
 	// Retrieve the packet from the keeper

@@ -8,8 +8,8 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
-// TSSPacketHandle handles incoming TSS packets
-func (k Keeper) TSSPacketHandle(ctx sdk.Context, route *types.TSSRoute, packet types.Packet) error {
+// HandleTSSPacket handles TSS packet
+func (k Keeper) HandleTSSPacket(ctx sdk.Context, route *types.TSSRoute, packet types.Packet) error {
 	// TODO: Implement TSS packet handler logic
 
 	// Sign TSS packet

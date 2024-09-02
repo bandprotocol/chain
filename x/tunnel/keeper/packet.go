@@ -117,12 +117,12 @@ func (k Keeper) SendPacket(
 	// Process the tunnel based on the route type
 	switch r := tunnel.Route.GetCachedValue().(type) {
 	case *types.TSSRoute:
-		err := k.TSSPacketHandle(ctx, r, packet)
+		err := k.HandleTSSPacket(ctx, r, packet)
 		if err != nil {
 			return err
 		}
 	case *types.AxelarRoute:
-		err := k.AxelarPacketHandle(ctx, r, packet)
+		err := k.HandleAxelarPacket(ctx, r, packet)
 		if err != nil {
 			return err
 		}
