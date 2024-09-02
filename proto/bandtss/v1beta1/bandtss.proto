@@ -51,7 +51,7 @@ message Signing {
 
 // GroupTransition defines the group transition information of the current group and incoming group.
 message GroupTransition {
-  // signing_id is a tss signing ID of the replacing group signing request.
+  // signing_id is a tss signing ID of group transition signing request.
   uint64 signing_id = 1 [
     (gogoproto.customname) = "SigningID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
@@ -61,7 +61,7 @@ message GroupTransition {
     (gogoproto.customname) = "CurrentGroupID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
   ];
-  // current_group_pub_key is the public key pair that used for sign & verify replace group msg.
+  // current_group_pub_key is the public key pair that used for sign & verify transition group msg.
   bytes current_group_pub_key = 3 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
   // new_group_id is the ID of the new group that be a new key candidate.
   uint64 incoming_group_id = 4 [
@@ -74,6 +74,9 @@ message GroupTransition {
   TransitionStatus status = 6;
   // exec_time is the time when the transition will be executed.
   google.protobuf.Timestamp exec_time = 7 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
+  // is_force_transition is a flag to indicate whether the current group signs the transition message 
+  // before the transition is executed or not.
+  bool is_force_transition = 8;
 }
 
 // TransitionStatus is an enumeration of the possible statuses of a group transition process.
@@ -89,7 +92,7 @@ enum TransitionStatus {
   // a current group to sign the transition message.
   TRANSITION_STATUS_WAITING_SIGN = 2;
   // TRANSITION_STATUS_WAITING_EXECUTION is the status of a group transition that
-  // a transition process is completed, either from a forceReplace or having a current-group
+  // a transition process is completed, either from a forceTransition or having a current-group
   // signature on a transition message, but waits for the execution time.
   TRANSITION_STATUS_WAITING_EXECUTION = 3;
 }

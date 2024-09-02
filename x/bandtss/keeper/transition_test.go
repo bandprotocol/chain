@@ -34,7 +34,7 @@ func TestHandleGroupTransition(t *testing.T) {
 			},
 		},
 		{
-			name: "transition with status ForcedWaitingReplace but no current group",
+			name: "transition with status WaitingExecution but no current group",
 			preProcess: func(s *KeeperTestSuite) {
 				s.Keeper.SetGroupTransition(s.Ctx, types.GroupTransition{
 					SigningID:       tss.SigningID(1),
@@ -50,7 +50,7 @@ func TestHandleGroupTransition(t *testing.T) {
 			},
 		},
 		{
-			name: "transition with status ForcedWaitingReplace; has a current group",
+			name: "transition with status WaitingExecution; has a current group",
 			preProcess: func(s *KeeperTestSuite) {
 				s.Keeper.SetGroupTransition(s.Ctx, types.GroupTransition{
 					SigningID:       tss.SigningID(0),
@@ -82,7 +82,7 @@ func TestHandleGroupTransition(t *testing.T) {
 			},
 		},
 		{
-			name: "transition with status ApprovedWaitingReplace; has a current group",
+			name: "transition with status WaitingExecution; has a current group",
 			preProcess: func(s *KeeperTestSuite) {
 				s.Keeper.SetGroupTransition(s.Ctx, types.GroupTransition{
 					SigningID:       tss.SigningID(1),
