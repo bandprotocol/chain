@@ -11,7 +11,7 @@ import (
 // GroupTransitionPath is the reserved path for transition group msg
 const GroupTransitionPath = "transition"
 
-// GroupTransitionMsgPrefix is the prefix for replace group msg.
+// GroupTransitionMsgPrefix is the prefix for transition group msg.
 var GroupTransitionMsgPrefix = tss.Hash([]byte(GroupTransitionPath))[:4]
 
 // Implements SignatureRequest Interface
@@ -24,7 +24,7 @@ func NewGroupTransitionSignatureOrder(pubKey []byte) *GroupTransitionSignatureOr
 // OrderRoute returns the order router key
 func (rs *GroupTransitionSignatureOrder) OrderRoute() string { return RouterKey }
 
-// OrderType of ReplaceGroupSignatureOrder is "transition"
+// OrderType of GroupTransitionSignatureOrder is "transition"
 func (rs *GroupTransitionSignatureOrder) OrderType() string {
 	return GroupTransitionPath
 }

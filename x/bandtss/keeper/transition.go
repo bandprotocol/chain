@@ -37,10 +37,10 @@ func (k Keeper) SetNewGroupTransition(
 	ctx sdk.Context,
 	incomingGroupID tss.GroupID,
 	execTime time.Time,
-	isForceReplace bool,
+	isForceTransition bool,
 ) (types.GroupTransition, error) {
 	status := types.TRANSITION_STATUS_CREATING_GROUP
-	if isForceReplace {
+	if isForceTransition {
 		status = types.TRANSITION_STATUS_WAITING_EXECUTION
 	}
 
@@ -57,7 +57,7 @@ func (k Keeper) SetNewGroupTransition(
 
 	// get incoming group and its public key.
 	var incomingGroupPubKey tss.Point
-	if isForceReplace {
+	if isForceTransition {
 		incomingGroup, err := k.tssKeeper.GetGroup(ctx, incomingGroupID)
 		if err != nil {
 			return types.GroupTransition{}, err
@@ -65,14 +65,16 @@ func (k Keeper) SetNewGroupTransition(
 		incomingGroupPubKey = incomingGroup.PubKey
 	}
 
-	transition := types.GroupTransition{
-		CurrentGroupID:      currentGroupID,
-		CurrentGroupPubKey:  currentGroupPubKey,
-		IncomingGroupID:     incomingGroupID,
-		IncomingGroupPubKey: incomingGroupPubKey,
-		Status:              status,
-		ExecTime:            execTime,
-	}
+	transition := types.NewGroupTransition(
+		tss.SigningID(0),
+		currentGroupID,
+		incomingGroupID,
+		currentGroupPubKey,
+		incomingGroupPubKey,
+		status,
+		execTime,
+		isForceTransition,
+	)
 	k.SetGroupTransition(ctx, transition)
 
 	return transition, nil
@@ -145,7 +147,7 @@ func (k Keeper) ValidateTransitionInProgress(ctx sdk.Context) error {
 }
 
 // GetIncomingGroupID returns the incoming group ID from transition state. If the status is not
-// either ApprovedWaitingReplace or ForcedWaitingReplace, it returns 0.
+// WaitingExecution, it returns 0.
 func (k Keeper) GetIncomingGroupID(ctx sdk.Context) tss.GroupID {
 	transition, found := k.GetGroupTransition(ctx)
 	if !found || transition.Status != types.TRANSITION_STATUS_WAITING_EXECUTION {

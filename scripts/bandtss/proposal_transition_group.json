@@ -8,12 +8,12 @@
         "band1nx0xkpnytk35wvflsg7gszf9smw3vaeauk248q"
       ],
       "threshold": "2",
-      "exec_time": "2024-07-15T10:10:00+00:00",
+      "exec_time": "2024-09-02T07:30:00+00:00",
       "authority": "band10d07y265gmmuvt4z0w9aw880jnsr700jrdn8wm"
     }
   ],
   "metadata": "ipfs://",
   "deposit": "1000000000uband",
-  "title": "Create group",
-  "summary": "This proposal is to create a group"
+  "title": "Transition group",
+  "summary": "This proposal is to transition a group"
 }
