@@ -97,10 +97,10 @@ func (k Keeper) SetTunnel(ctx sdk.Context, tunnel types.Tunnel) {
 }
 
 // GetTunnel retrieves a tunnel by its ID
-func (k Keeper) GetTunnel(ctx sdk.Context, id uint64) (types.Tunnel, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.TunnelStoreKey(id))
+func (k Keeper) GetTunnel(ctx sdk.Context, tunnelID uint64) (types.Tunnel, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.TunnelStoreKey(tunnelID))
 	if bz == nil {
-		return types.Tunnel{}, types.ErrTunnelNotFound.Wrapf("tunnelID: %d", id)
+		return types.Tunnel{}, types.ErrTunnelNotFound.Wrapf("tunnelID: %d", tunnelID)
 	}
 
 	var tunnel types.Tunnel
@@ -109,8 +109,8 @@ func (k Keeper) GetTunnel(ctx sdk.Context, id uint64) (types.Tunnel, error) {
 }
 
 // MustGetTunnel retrieves a tunnel by its ID. Panics if the tunnel does not exist.
-func (k Keeper) MustGetTunnel(ctx sdk.Context, id uint64) types.Tunnel {
-	tunnel, err := k.GetTunnel(ctx, id)
+func (k Keeper) MustGetTunnel(ctx sdk.Context, tunnelID uint64) types.Tunnel {
+	tunnel, err := k.GetTunnel(ctx, tunnelID)
 	if err != nil {
 		panic(err)
 	}
@@ -157,11 +157,18 @@ func (k Keeper) MustGetActiveTunnelIDs(ctx sdk.Context) []uint64 {
 }
 
 // ActivateTunnel activates a tunnel
-func (k Keeper) ActivateTunnel(ctx sdk.Context, id uint64) error {
-	tunnel, err := k.GetTunnel(ctx, id)
+func (k Keeper) ActivateTunnel(ctx sdk.Context, tunnelID uint64) error {
+	tunnel, err := k.GetTunnel(ctx, tunnelID)
 	if err != nil {
 		return err
 	}
+
+	// Check if the tunnel is already active
+	if tunnel.IsActive {
+		return types.ErrTunnelAlreadyActive
+	}
+
+	// Activate the tunnel
 	tunnel.IsActive = true
 
 	// Add the tunnel ID to the active tunnel IDs
@@ -169,7 +176,8 @@ func (k Keeper) ActivateTunnel(ctx sdk.Context, id uint64) error {
 	if err != nil {
 		return err
 	}
-	activeTunnelIDs = append(activeTunnelIDs, id)
+
+	activeTunnelIDs = append(activeTunnelIDs, tunnelID)
 	k.SetActiveTunnelIDs(ctx, activeTunnelIDs)
 
 	// Set the last interval timestamp to the current block time
@@ -178,11 +186,17 @@ func (k Keeper) ActivateTunnel(ctx sdk.Context, id uint64) error {
 }
 
 // DeactivateTunnel deactivates a tunnel
-func (k Keeper) DeactivateTunnel(ctx sdk.Context, id uint64) error {
-	tunnel, err := k.GetTunnel(ctx, id)
+func (k Keeper) DeactivateTunnel(ctx sdk.Context, tunnelID uint64) error {
+	tunnel, err := k.GetTunnel(ctx, tunnelID)
 	if err != nil {
 		return err
 	}
+
+	// Check if the tunnel is already inactive
+	if !tunnel.IsActive {
+		return types.ErrTunnelNotActive
+	}
+
 	tunnel.IsActive = false
 
 	// Remove the tunnel ID from the active tunnel IDs
@@ -190,8 +204,10 @@ func (k Keeper) DeactivateTunnel(ctx sdk.Context, id uint64) error {
 	if err != nil {
 		return err
 	}
+
+	// Remove the tunnel ID from the active tunnel IDs
 	for i, activeID := range activeTunnelIDs {
-		if activeID == id {
+		if activeID == tunnelID {
 			activeTunnelIDs = append(activeTunnelIDs[:i], activeTunnelIDs[i+1:]...)
 			break
 		}

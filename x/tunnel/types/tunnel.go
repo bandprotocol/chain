@@ -67,3 +67,13 @@ func (t Tunnel) GetSignalInfoMap() map[string]SignalInfo {
 	}
 	return signalInfoMap
 }
+
+// FindIndex returns the index of the given tunnel ID in the active tunnel IDs.
+func (a ActiveTunnelIDs) FindIndex(tunnelID uint64) int {
+	for i, v := range a.IDs {
+		if v == tunnelID {
+			return i
+		}
+	}
+	return -1
+}
