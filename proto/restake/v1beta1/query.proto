@@ -20,22 +20,22 @@ service Query {
     option (google.api.http).get = "/restake/v1beta1/vaults/{key}";
   }
 
-  // Rewards returns rewards for a specific address.
+  // Rewards returns rewards for a specified address.
   rpc Rewards(QueryRewardsRequest) returns (QueryRewardsResponse) {
     option (google.api.http).get = "/restake/v1beta1/stakers/{staker_address}/rewards";
   }
 
-  // Reward returns a reward for a specific address and a vault.
+  // Reward returns a reward for a specified address and a vault.
   rpc Reward(QueryRewardRequest) returns (QueryRewardResponse) {
     option (google.api.http).get = "/restake/v1beta1/stakers/{staker_address}/rewards/{key}";
   }
 
-  // Locks returns all lock information for a specific address.
+  // Locks returns all lock information for a specified address.
   rpc Locks(QueryLocksRequest) returns (QueryLocksResponse) {
     option (google.api.http).get = "/restake/v1beta1/stakers/{staker_address}/locks";
   }
 
-  // Lock returns a lock information for a specific address and a vault.
+  // Lock returns a lock information for a specified address and a vault.
   rpc Lock(QueryLockRequest) returns (QueryLockResponse) {
     option (google.api.http).get = "/restake/v1beta1/stakers/{staker_address}/locks/{key}";
   }

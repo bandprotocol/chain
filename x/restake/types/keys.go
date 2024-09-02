@@ -33,7 +33,7 @@ var (
 	LocksByPowerIndexKeyPrefix = []byte{0x80}
 )
 
-// VaultStoreKey returns the key to retrieve a specific vault from the store.
+// VaultStoreKey returns the key to retrieve a specified vault from the store.
 func VaultStoreKey(key string) []byte {
 	return append(VaultStoreKeyPrefix, []byte(key)...)
 }

@@ -726,13 +726,13 @@ type QueryClient interface {
 	Vaults(ctx context.Context, in *QueryVaultsRequest, opts ...grpc.CallOption) (*QueryVaultsResponse, error)
 	// Vault returns a vault information.
 	Vault(ctx context.Context, in *QueryVaultRequest, opts ...grpc.CallOption) (*QueryVaultResponse, error)
-	// Rewards returns rewards for a specific address.
+	// Rewards returns rewards for a specified address.
 	Rewards(ctx context.Context, in *QueryRewardsRequest, opts ...grpc.CallOption) (*QueryRewardsResponse, error)
-	// Reward returns a reward for a specific address and a vault.
+	// Reward returns a reward for a specified address and a vault.
 	Reward(ctx context.Context, in *QueryRewardRequest, opts ...grpc.CallOption) (*QueryRewardResponse, error)
-	// Locks returns all lock information for a specific address.
+	// Locks returns all lock information for a specified address.
 	Locks(ctx context.Context, in *QueryLocksRequest, opts ...grpc.CallOption) (*QueryLocksResponse, error)
-	// Lock returns a lock information for a specific address and a vault.
+	// Lock returns a lock information for a specified address and a vault.
 	Lock(ctx context.Context, in *QueryLockRequest, opts ...grpc.CallOption) (*QueryLockResponse, error)
 }
 
@@ -804,13 +804,13 @@ type QueryServer interface {
 	Vaults(context.Context, *QueryVaultsRequest) (*QueryVaultsResponse, error)
 	// Vault returns a vault information.
 	Vault(context.Context, *QueryVaultRequest) (*QueryVaultResponse, error)
-	// Rewards returns rewards for a specific address.
+	// Rewards returns rewards for a specified address.
 	Rewards(context.Context, *QueryRewardsRequest) (*QueryRewardsResponse, error)
-	// Reward returns a reward for a specific address and a vault.
+	// Reward returns a reward for a specified address and a vault.
 	Reward(context.Context, *QueryRewardRequest) (*QueryRewardResponse, error)
-	// Locks returns all lock information for a specific address.
+	// Locks returns all lock information for a specified address.
 	Locks(context.Context, *QueryLocksRequest) (*QueryLocksResponse, error)
-	// Lock returns a lock information for a specific address and a vault.
+	// Lock returns a lock information for a specified address and a vault.
 	Lock(context.Context, *QueryLockRequest) (*QueryLockResponse, error)
 }
 
