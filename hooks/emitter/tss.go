@@ -94,7 +94,7 @@ func (h *Hook) emitUpdateTssAssignedMember(
 		"tss_signing_attempt": attempt,
 		"tss_member_id":       memberID,
 		"signature":           parseBytes(sig),
-		"block_height":        blockHeight,
+		"submitted_height":    blockHeight,
 	})
 }
 
@@ -106,8 +106,8 @@ func (h *Hook) handleInitTssModule(ctx sdk.Context) {
 	}
 }
 
-// handleEventRequestSignature implements emitter handler for RequestSignature event.
-func (h *Hook) handleEventRequestSignature(ctx sdk.Context, evMap common.EvMap) {
+// handleTssEventRequestSignature implements emitter handler for RequestSignature event.
+func (h *Hook) handleTssEventRequestSignature(ctx sdk.Context, evMap common.EvMap) {
 	sids := evMap[types.EventTypeRequestSignature+"."+types.AttributeKeySigningID]
 
 	for _, sid := range sids {
@@ -125,8 +125,8 @@ func (h *Hook) handleEventRequestSignature(ctx sdk.Context, evMap common.EvMap) 
 	}
 }
 
-// handleEventSigningSuccess implements emitter handler for SigningSuccess event.
-func (h *Hook) handleEventSigningSuccess(ctx sdk.Context, evMap common.EvMap) {
+// handleTssEventSigningSuccess implements emitter handler for SigningSuccess event.
+func (h *Hook) handleTssEventSigningSuccess(ctx sdk.Context, evMap common.EvMap) {
 	sids := evMap[types.EventTypeSigningSuccess+"."+types.AttributeKeySigningID]
 	for _, sid := range sids {
 		id := tss.SigningID(common.Atoi(sid))
@@ -136,8 +136,8 @@ func (h *Hook) handleEventSigningSuccess(ctx sdk.Context, evMap common.EvMap) {
 	}
 }
 
-// handleEventSigningFailed implements emitter handler for SigningSuccess event.
-func (h *Hook) handleEventSigningFailed(ctx sdk.Context, evMap common.EvMap) {
+// handleTssEventSigningFailed implements emitter handler for SigningSuccess event.
+func (h *Hook) handleTssEventSigningFailed(ctx sdk.Context, evMap common.EvMap) {
 	sids := evMap[types.EventTypeSigningFailed+"."+types.AttributeKeySigningID]
 	errReasons := evMap[types.EventTypeSigningFailed+"."+types.AttributeKeyReason]
 	for i, sid := range sids {
@@ -153,8 +153,8 @@ func (h *Hook) handleEventSigningFailed(ctx sdk.Context, evMap common.EvMap) {
 	}
 }
 
-// handleSetTSSGroup implements emitter handler events related to group.
-func (h *Hook) handleSetTssGroup(ctx sdk.Context, gid tss.GroupID) {
+// handleTssSetGroup implements emitter handler events related to group.
+func (h *Hook) handleTssSetGroup(ctx sdk.Context, gid tss.GroupID) {
 	group := h.tssKeeper.MustGetGroup(ctx, gid)
 	dkgContext, err := h.tssKeeper.GetDKGContext(ctx, gid)
 	if err != nil {
@@ -169,7 +169,8 @@ func (h *Hook) handleSetTssGroup(ctx sdk.Context, gid tss.GroupID) {
 	}
 }
 
-func (h *Hook) handleEventSubmitSignature(ctx sdk.Context, evMap common.EvMap) {
+// handleTssEventSubmitSignature implements emitter handler for SubmitSignature event.
+func (h *Hook) handleTssEventSubmitSignature(ctx sdk.Context, evMap common.EvMap) {
 	sids := evMap[types.EventTypeSubmitSignature+"."+types.AttributeKeySigningID]
 	attempts := evMap[types.EventTypeSubmitSignature+"."+types.AttributeKeyAttempt]
 	memberIDs := evMap[types.EventTypeSubmitSignature+"."+types.AttributeKeyMemberID]

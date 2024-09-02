@@ -29,12 +29,25 @@ bandtss_group_transitions = sa.Table(
     "bandtss_group_transitions",
     metadata,
     Column("proposal_id", sa.Integer, sa.ForeignKey("proposals.id"), primary_key=True),
-    Column("tss_signing_id", sa.Integer, sa.ForeignKey("tss_signings.id")),
-    Column("current_tss_group_id", sa.Integer, sa.ForeignKey("tss_groups.id")),
-    Column("incoming_tss_group_id", sa.Integer, sa.ForeignKey("tss_groups.id")),
-    Column("current_group_pub_key", CustomBase64),
-    Column("incoming_group_pub_key", CustomBase64),
+    Column(
+        "tss_signing_id", sa.Integer, sa.ForeignKey("tss_signings.id"), nullable=True
+    ),
+    Column(
+        "current_tss_group_id",
+        sa.Integer,
+        sa.ForeignKey("tss_groups.id"),
+        nullable=True,
+    ),
+    Column(
+        "incoming_tss_group_id",
+        sa.Integer,
+        sa.ForeignKey("tss_groups.id"),
+        nullable=True,
+    ),
+    Column("current_group_pub_key", CustomBase64, nullable=True),
+    Column("incoming_group_pub_key", CustomBase64, nullable=True),
     Column("status", CustomGroupTransitionStatus),
+    Column("exec_time", CustomDateTime),
     Column(
         "created_height",
         sa.Integer,
@@ -53,7 +66,13 @@ bandtss_group_transitions = sa.Table(
 bandtss_current_groups = sa.Table(
     "bandtss_current_groups",
     metadata,
-    Column("proposal_id", sa.Integer, sa.ForeignKey("proposals.id"), primary_key=True),
+    Column(
+        "proposal_id",
+        sa.Integer,
+        sa.ForeignKey("proposals.id"),
+        nullable=True,
+        index=True,
+    ),
     Column("current_tss_group_id", sa.Integer, sa.ForeignKey("tss_groups.id")),
     Column(
         "transition_height",
@@ -83,9 +102,15 @@ bandtss_signings = sa.Table(
     Column("requester_account_id", sa.Integer, sa.ForeignKey("accounts.id")),
     Column("fee_per_signer", sa.String),
     Column(
-        "current_group_tss_signing_id", sa.Integer, sa.ForeignKey("tss_signings.id")
+        "current_group_tss_signing_id",
+        sa.Integer,
+        sa.ForeignKey("tss_signings.id"),
+        nullable=True,
     ),
     Column(
-        "incoming_group_tss_signing_id", sa.Integer, sa.ForeignKey("tss_signings.id")
+        "incoming_group_tss_signing_id",
+        sa.Integer,
+        sa.ForeignKey("tss_signings.id"),
+        nullable=True,
     ),
 )

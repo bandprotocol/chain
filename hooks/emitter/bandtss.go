@@ -7,6 +7,7 @@ import (
 	"github.com/bandprotocol/chain/v2/hooks/common"
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 func (h *Hook) emitSetBandtssGroupTransition(
@@ -71,11 +72,11 @@ func (h *Hook) emitSetBandtssMember(member types.Member) {
 
 func (h *Hook) emitSetBandtssSigning(signing types.Signing) {
 	h.Write("SET_BANDTSS_SIGNING", common.JsDict{
-		"id":                             signing.ID,
-		"fee_per_signer":                 signing.FeePerSigner.String(),
-		"requester":                      signing.Requester,
-		"current_group_tss_signing_id":   signing.CurrentGroupSigningID,
-		"replacing_group_tss_signing_id": signing.IncomingGroupSigningID,
+		"id":                            signing.ID,
+		"fee_per_signer":                signing.FeePerSigner.String(),
+		"requester":                     signing.Requester,
+		"current_group_tss_signing_id":  signing.CurrentGroupSigningID,
+		"incoming_group_tss_signing_id": signing.IncomingGroupSigningID,
 	})
 }
 
@@ -92,8 +93,8 @@ func (h *Hook) handleInitBandtssModule(ctx sdk.Context) {
 	}
 }
 
-// handleUpdateBandtssMember implements emitter handler for update bandtss status.
-func (h *Hook) handleUpdateBandtssMember(ctx sdk.Context, address sdk.AccAddress, groupID tss.GroupID) {
+// handleBandtssUpdateMember implements emitter handler for update bandtss status.
+func (h *Hook) handleBandtssUpdateMember(ctx sdk.Context, address sdk.AccAddress, groupID tss.GroupID) {
 	member, err := h.bandtssKeeper.GetMember(ctx, address, groupID)
 	if err != nil {
 		panic(err)
@@ -108,7 +109,7 @@ func (h *Hook) handleBandtssMsgActivate(ctx sdk.Context, msg *types.MsgActivate)
 		panic(err)
 	}
 
-	h.handleUpdateBandtssMember(ctx, acc, msg.GroupID)
+	h.handleBandtssUpdateMember(ctx, acc, msg.GroupID)
 }
 
 // handleBandtssMsgHeartbeat implements emitter handler for MsgHeartbeat of bandtss.
@@ -118,11 +119,11 @@ func (h *Hook) handleBandtssMsgHeartbeat(ctx sdk.Context, msg *types.MsgHeartbea
 		panic(err)
 	}
 
-	h.handleUpdateBandtssMember(ctx, acc, msg.GroupID)
+	h.handleBandtssUpdateMember(ctx, acc, msg.GroupID)
 }
 
-// handleEventInactiveStatuses implements emitter handler for inactive status event.
-func (h *Hook) handleEventInactiveStatuses(ctx sdk.Context, evMap common.EvMap) {
+// handleBandtssEventInactiveStatuses implements emitter handler for inactive status event.
+func (h *Hook) handleBandtssEventInactiveStatuses(ctx sdk.Context, evMap common.EvMap) {
 	addresses := evMap[types.EventTypeInactiveStatus+"."+types.AttributeKeyAddress]
 	groupIDs := evMap[types.EventTypeInactiveStatus+"."+types.AttributeKeyGroupID]
 	if len(addresses) != len(groupIDs) {
@@ -136,12 +137,12 @@ func (h *Hook) handleEventInactiveStatuses(ctx sdk.Context, evMap common.EvMap) 
 		}
 
 		groupID := tss.GroupID(common.Atoi(groupIDs[i]))
-		h.handleUpdateBandtssMember(ctx, acc, groupID)
+		h.handleBandtssUpdateMember(ctx, acc, groupID)
 	}
 }
 
-// handleEventGroupTransition implements emitter handler for group transition event.
-func (h *Hook) handleEventGroupTransition(ctx sdk.Context, eventIdx int, querier *EventQuerier) {
+// handleBandtssEventGroupTransition implements emitter handler for group transition event.
+func (h *Hook) handleBandtssEventGroupTransition(ctx sdk.Context, eventIdx int, querier *EventQuerier) {
 	// if transition not found, skip the process. There is a case that the transition message is signed
 	// at the same block as the transition can be executed. The transition status will be updated via
 	// another event (group_transition_success, group_transition_failed).
@@ -150,21 +151,27 @@ func (h *Hook) handleEventGroupTransition(ctx sdk.Context, eventIdx int, querier
 		return
 	}
 
-	isNewTransition := transition.Status == types.TRANSITION_STATUS_CREATING_GROUP ||
-		(transition.Status == types.TRANSITION_STATUS_WAITING_SIGN && transition.SigningID == 0)
+	// TODO: change logic for handling force update transition
+	// isNewTransition := transition.Status == types.TRANSITION_STATUS_CREATING_GROUP ||
+	// 	(transition.Status == types.TRANSITION_STATUS_WAITING_EXECUTION && transition.SigningID == 0)
+	isNewTransition := transition.Status == types.TRANSITION_STATUS_CREATING_GROUP
 
 	if isNewTransition {
-		proposalID, _ := getCurrentProposalID(eventIdx, querier)
+		proposalID, found := getCurrentProposalID(eventIdx, querier)
+		if !found {
+			panic("proposal ID not found")
+		}
+
 		h.emitSetBandtssGroupTransition(proposalID, transition, ctx.BlockHeight())
 	} else {
 		h.emitUpdateBandtssGroupTransitionStatus(transition)
 	}
 }
 
-// handleEventGroupTransitionSuccess implements emitter handler for group transition success event.
-func (h *Hook) handleEventGroupTransitionSuccess(ctx sdk.Context, evMap common.EvMap) {
+// handleBandtssEventGroupTransitionSuccess implements emitter handler for group transition success event.
+func (h *Hook) handleBandtssEventGroupTransitionSuccess(ctx sdk.Context, evMap common.EvMap) {
 	// use value from emitted event due to the transition info is removed from the store.
-	signingIDs := evMap[types.EventTypeGroupTransitionSuccess+"."+types.AttributeKeySigningID]
+	signingIDs := evMap[types.EventTypeGroupTransitionSuccess+"."+tsstypes.AttributeKeySigningID]
 	incomingGroupIDs := evMap[types.EventTypeGroupTransitionSuccess+"."+types.AttributeKeyIncomingGroupID]
 	currentGroupIDs := evMap[types.EventTypeGroupTransitionSuccess+"."+types.AttributeKeyCurrentGroupID]
 
@@ -178,13 +185,13 @@ func (h *Hook) handleEventGroupTransitionSuccess(ctx sdk.Context, evMap common.E
 		IncomingGroupID: incomingGroupID,
 	})
 
-	h.emitSetBandtssCurrentGroup(currentGroupID, ctx.BlockHeight())
+	h.emitSetBandtssCurrentGroup(incomingGroupID, ctx.BlockHeight())
 }
 
-// handleEventGroupTransitionFailed implements emitter handler for group transition failed event.
-func (h *Hook) handleEventGroupTransitionFailed(_ sdk.Context, evMap common.EvMap) {
+// handleBandtssEventGroupTransitionFailed implements emitter handler for group transition failed event.
+func (h *Hook) handleBandtssEventGroupTransitionFailed(_ sdk.Context, evMap common.EvMap) {
 	// use value from emitted event due to the transition info is removed from the store.
-	signingIDs := evMap[types.EventTypeGroupTransitionSuccess+"."+types.AttributeKeySigningID]
+	signingIDs := evMap[types.EventTypeGroupTransitionSuccess+"."+tsstypes.AttributeKeySigningID]
 	incomingGroupIDs := evMap[types.EventTypeGroupTransitionSuccess+"."+types.AttributeKeyIncomingGroupID]
 	currentGroupIDs := evMap[types.EventTypeGroupTransitionSuccess+"."+types.AttributeKeyCurrentGroupID]
 
@@ -195,8 +202,8 @@ func (h *Hook) handleEventGroupTransitionFailed(_ sdk.Context, evMap common.EvMa
 	})
 }
 
-// handleBandtssMsgRequestSignature implements emitter handler for MsgRequestSignature of bandtss.
-func (h *Hook) handleEventSigningRequestCreated(ctx sdk.Context, evMap common.EvMap) {
+// handleBandtssEventSigningRequestCreated implements emitter handler for MsgRequestSignature of bandtss.
+func (h *Hook) handleBandtssEventSigningRequestCreated(ctx sdk.Context, evMap common.EvMap) {
 	signingIDs := evMap[types.EventTypeSigningRequestCreated+"."+types.AttributeKeySigningID]
 
 	for _, sid := range signingIDs {

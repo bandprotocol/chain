@@ -131,6 +131,9 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 		h.handleBandtssMsgActivate(ctx, msg)
 	case *bandtsstypes.MsgHeartbeat:
 		h.handleBandtssMsgHeartbeat(ctx, msg)
+	case *bandtsstypes.MsgRequestSignature:
+		h.handleTssEventRequestSignature(ctx, evMap)
+		h.handleBandtssEventSigningRequestCreated(ctx, evMap)
 	case *feedstypes.MsgSubmitSignals:
 		h.handleMsgSubmitSignals(ctx, msg, evMap)
 	case *feedstypes.MsgSubmitSignalPrices:
@@ -166,6 +169,8 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 		h.handleGroupEventExec(ctx, evMap)
 	case *group.MsgWithdrawProposal:
 		h.handleGroupMsgWithdrawProposal(ctx, evMap)
+	case *tsstypes.MsgSubmitSignature:
+		h.handleTssEventSubmitSignature(ctx, evMap)
 	default:
 		break
 	}
@@ -181,15 +186,15 @@ func (h *Hook) handleBeginBlockEndBlockEvent(
 	evMap := parseEvents(events)
 	switch event.Type {
 	case bandtsstypes.EventTypeInactiveStatus:
-		h.handleEventInactiveStatuses(ctx, evMap)
+		h.handleBandtssEventInactiveStatuses(ctx, evMap)
 	case bandtsstypes.EventTypeGroupTransition:
-		h.handleEventGroupTransition(ctx, eventIdx, eventQuerier)
+		h.handleBandtssEventGroupTransition(ctx, eventIdx, eventQuerier)
 	case bandtsstypes.EventTypeGroupTransitionSuccess:
-		h.handleEventGroupTransitionSuccess(ctx, evMap)
+		h.handleBandtssEventGroupTransitionSuccess(ctx, evMap)
 	case bandtsstypes.EventTypeGroupTransitionFailed:
-		h.handleEventGroupTransitionFailed(ctx, evMap)
+		h.handleBandtssEventGroupTransitionFailed(ctx, evMap)
 	case bandtsstypes.EventTypeSigningRequestCreated:
-		h.handleEventSigningRequestCreated(ctx, evMap)
+		h.handleBandtssEventSigningRequestCreated(ctx, evMap)
 	case oracletypes.EventTypeResolve:
 		h.handleEventRequestExecute(ctx, evMap)
 	case slashingtypes.EventTypeSlash:
@@ -209,11 +214,11 @@ func (h *Hook) handleBeginBlockEndBlockEvent(
 	case channeltypes.EventTypeSendPacket:
 		h.handleEventSendPacket(ctx, evMap)
 	case tsstypes.EventTypeRequestSignature:
-		h.handleEventRequestSignature(ctx, evMap)
+		h.handleTssEventRequestSignature(ctx, evMap)
 	case tsstypes.EventTypeSigningSuccess:
-		h.handleEventSigningSuccess(ctx, evMap)
+		h.handleTssEventSigningSuccess(ctx, evMap)
 	case tsstypes.EventTypeSigningFailed:
-		h.handleEventSigningFailed(ctx, evMap)
+		h.handleTssEventSigningFailed(ctx, evMap)
 	case tsstypes.EventTypeCreateGroup,
 		tsstypes.EventTypeRound2Success,
 		tsstypes.EventTypeRound3Success,
@@ -222,10 +227,8 @@ func (h *Hook) handleBeginBlockEndBlockEvent(
 		tsstypes.EventTypeRound3Failed:
 		groupIDs := evMap[event.Type+"."+tsstypes.AttributeKeyGroupID]
 		for _, gid := range groupIDs {
-			h.handleSetTssGroup(ctx, tss.GroupID(common.Atoi(gid)))
+			h.handleTssSetGroup(ctx, tss.GroupID(common.Atoi(gid)))
 		}
-	case tsstypes.EventTypeSubmitSignature:
-		h.handleEventSubmitSignature(ctx, evMap)
 	case feedstypes.EventTypeUpdatePrice:
 		h.handleEventUpdatePrice(ctx, evMap)
 	case proto.MessageName(&group.EventProposalPruned{}):

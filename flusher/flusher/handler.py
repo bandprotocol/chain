@@ -841,6 +841,12 @@ class Handler(object):
     ##################################
 
     def handle_set_bandtss_group_transition(self, msg):
+        if msg["tss_signing_id"] == 0:
+            del msg["tss_signing_id"]
+        if msg["current_tss_group_id"] == 0:
+            del msg["current_tss_group_id"]
+        if msg["incoming_tss_group_id"] == 0:
+            del msg["incoming_tss_group_id"]
         self.conn.execute(bandtss_group_transitions.insert(), msg)
 
     def update_bandtss_group_transition(self, status):
@@ -867,10 +873,9 @@ class Handler(object):
     def handle_set_bandtss_current_group(self, msg):
         proposal_column = bandtss_group_transitions.c.proposal_id
         proposal_id = self.conn.execute(select(func.max(proposal_column))).scalar()
-        if proposal_id is None:
-            proposal_id = 0
+        if proposal_id is not None:
+            msg["proposal_id"] = proposal_id
 
-        msg["proposal_id"] = proposal_id
         self.conn.execute(bandtss_current_groups.insert(), msg)
 
     def handle_set_bandtss_member(self, msg):
@@ -881,6 +886,13 @@ class Handler(object):
         )
 
     def handle_set_bandtss_signing(self, msg):
+        if msg["current_group_tss_signing_id"] == 0:
+            del msg["current_group_tss_signing_id"]
+        if msg["incoming_group_tss_signing_id"] == 0:
+            del msg["incoming_group_tss_signing_id"]
+        msg["requester_account_id"] = self.get_account_id(msg["requester"])
+        del msg["requester"]
+
         self.conn.execute(bandtss_signings.insert(), msg)
 
     ##################################
