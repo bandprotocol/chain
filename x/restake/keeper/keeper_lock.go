@@ -30,8 +30,8 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key s
 	}
 
 	// check if there is a lock before
-	lock, err := k.GetLock(ctx, stakerAddr, key)
-	if err != nil {
+	lock, found := k.GetLock(ctx, stakerAddr, key)
+	if !found {
 		lock = types.NewLock(
 			stakerAddr.String(),
 			key,
@@ -69,18 +69,18 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key s
 
 // GetLockedPower returns locked power of the address to the vault.
 func (k Keeper) GetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key string) (sdkmath.Int, error) {
-	vault, err := k.GetVault(ctx, key)
-	if err != nil {
-		return sdkmath.Int{}, types.ErrVaultNotFound
+	vault, found := k.GetVault(ctx, key)
+	if !found {
+		return sdkmath.Int{}, types.ErrVaultNotFound.Wrapf("key: %s", key)
 	}
 
 	if !vault.IsActive {
 		return sdkmath.Int{}, types.ErrVaultNotActive
 	}
 
-	lock, err := k.GetLock(ctx, stakerAddr, key)
-	if err != nil {
-		return sdkmath.Int{}, types.ErrLockNotFound
+	lock, found := k.GetLock(ctx, stakerAddr, key)
+	if !found {
+		return sdkmath.Int{}, types.ErrLockNotFound.Wrapf("address: %s, key: %s", stakerAddr.String(), key)
 	}
 
 	return lock.Power, nil
@@ -145,26 +145,17 @@ func (k Keeper) GetLocks(ctx sdk.Context) (locks []types.Lock) {
 	return locks
 }
 
-// HasLock checks if lock exists in the store.
-func (k Keeper) HasLock(ctx sdk.Context, addr sdk.AccAddress, key string) bool {
-	return ctx.KVStore(k.storeKey).Has(types.LockStoreKey(addr, key))
-}
-
 // GetLock gets a lock from store by address and key.
-func (k Keeper) GetLock(ctx sdk.Context, addr sdk.AccAddress, key string) (types.Lock, error) {
+func (k Keeper) GetLock(ctx sdk.Context, addr sdk.AccAddress, key string) (types.Lock, bool) {
 	bz := ctx.KVStore(k.storeKey).Get(types.LockStoreKey(addr, key))
 	if bz == nil {
-		return types.Lock{}, types.ErrLockNotFound.Wrapf(
-			"failed to get lock of %s with key: %s",
-			addr.String(),
-			key,
-		)
+		return types.Lock{}, false
 	}
 
 	var lock types.Lock
 	k.cdc.MustUnmarshal(bz, &lock)
 
-	return lock, nil
+	return lock, true
 }
 
 // SetLock sets a lock to the store.
@@ -178,10 +169,11 @@ func (k Keeper) SetLock(ctx sdk.Context, lock types.Lock) {
 
 // DeleteLock deletes a lock from the store.
 func (k Keeper) DeleteLock(ctx sdk.Context, addr sdk.AccAddress, key string) {
-	lock, err := k.GetLock(ctx, addr, key)
-	if err != nil {
+	lock, found := k.GetLock(ctx, addr, key)
+	if !found {
 		return
 	}
+
 	ctx.KVStore(k.storeKey).Delete(types.LockStoreKey(addr, key))
 	k.deleteLockByPower(ctx, lock)
 }

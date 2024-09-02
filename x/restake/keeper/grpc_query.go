@@ -51,9 +51,9 @@ func (k Querier) Vault(
 ) (*types.QueryVaultResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	vault, err := k.GetVault(ctx, req.Key)
-	if err != nil {
-		return nil, err
+	vault, found := k.GetVault(ctx, req.Key)
+	if !found {
+		return nil, types.ErrVaultNotFound.Wrapf("key: %s", req.Key)
 	}
 
 	return &types.QueryVaultResponse{Vault: vault}, nil
@@ -102,9 +102,9 @@ func (k Querier) Reward(
 		return nil, err
 	}
 
-	lock, err := k.GetLock(ctx, addr, req.Key)
-	if err != nil {
-		return nil, err
+	lock, found := k.GetLock(ctx, addr, req.Key)
+	if !found {
+		return nil, types.ErrLockNotFound.Wrapf("address: %s, key: %s", addr.String(), req.Key)
 	}
 
 	return &types.QueryRewardResponse{
@@ -166,9 +166,9 @@ func (k Querier) Lock(
 		return nil, types.ErrVaultNotActive
 	}
 
-	lock, err := k.GetLock(ctx, addr, req.Key)
-	if err != nil {
-		return nil, err
+	lock, found := k.GetLock(ctx, addr, req.Key)
+	if !found {
+		return nil, types.ErrLockNotFound.Wrapf("address: %s, key: %s", addr.String(), req.Key)
 	}
 
 	return &types.QueryLockResponse{

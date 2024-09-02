@@ -32,14 +32,14 @@ func (k msgServer) ClaimRewards(
 		return nil, err
 	}
 
-	vault, err := k.GetVault(ctx, msg.Key)
-	if err != nil {
-		return nil, err
+	vault, found := k.GetVault(ctx, msg.Key)
+	if !found {
+		return nil, types.ErrVaultNotFound.Wrapf("key: %s", msg.Key)
 	}
 
-	lock, err := k.GetLock(ctx, addr, msg.Key)
-	if err != nil {
-		return nil, err
+	lock, found := k.GetLock(ctx, addr, msg.Key)
+	if !found {
+		return nil, types.ErrLockNotFound.Wrapf("address: %s, key: %s", addr.String(), msg.Key)
 	}
 
 	reward := k.getReward(ctx, lock)

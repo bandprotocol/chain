@@ -209,16 +209,16 @@ func (suite *KeeperTestSuite) TestScenarios() {
 			name: "1 account",
 			check: func(ctx sdk.Context) {
 				// pre check
-				_, err := suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
-				suite.Require().Error(err)
+				_, found := suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
+				suite.Require().False(found)
 
-				_, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidVaultKey)
-				suite.Require().Error(err)
+				_, found = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidVaultKey)
+				suite.Require().False(found)
 
 				// --------------------------
 				// address1 locks on key1 333 powers
 				// --------------------------
-				err = suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, ValidVaultKey, sdkmath.NewInt(333))
+				err := suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, ValidVaultKey, sdkmath.NewInt(333))
 				suite.Require().NoError(err)
 
 				// post check
@@ -228,8 +228,8 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				suite.Require().NoError(err)
 				suite.Require().Equal(sdkmath.NewInt(333), power)
 
-				vault, err := suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
-				suite.Require().NoError(err)
+				vault, found := suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
+				suite.Require().True(found)
 				suite.Require().Equal(types.Vault{
 					Key:             ValidVaultKey,
 					VaultAddress:    ValidVaultAddress,
@@ -239,8 +239,8 @@ func (suite *KeeperTestSuite) TestScenarios() {
 					Remainders:      nil,
 				}, vault)
 
-				lock, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidVaultKey)
-				suite.Require().NoError(err)
+				lock, found := suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidVaultKey)
+				suite.Require().True(found)
 				suite.Require().Equal(types.Lock{
 					StakerAddress:  ValidAddress1.String(),
 					Key:            ValidVaultKey,
@@ -261,8 +261,8 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				// post check
 				// - reward per powers must be changed.
 				// - remainders must be calculated.
-				vault, err = suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
-				suite.Require().NoError(err)
+				vault, found = suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
+				suite.Require().True(found)
 				suite.Require().Equal(types.Vault{
 					Key:          ValidVaultKey,
 					VaultAddress: ValidVaultAddress,
@@ -292,8 +292,8 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				suite.Require().NoError(err)
 				suite.Require().Equal(sdkmath.NewInt(100), power)
 
-				vault, err = suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
-				suite.Require().NoError(err)
+				vault, found = suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
+				suite.Require().True(found)
 				suite.Require().Equal(types.Vault{
 					Key:          ValidVaultKey,
 					VaultAddress: ValidVaultAddress,
@@ -309,8 +309,8 @@ func (suite *KeeperTestSuite) TestScenarios() {
 					),
 				}, vault)
 
-				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidVaultKey)
-				suite.Require().NoError(err)
+				lock, found = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidVaultKey)
+				suite.Require().True(found)
 				suite.Require().Equal(types.Lock{
 					StakerAddress:  ValidAddress1.String(),
 					Key:            ValidVaultKey,
@@ -336,8 +336,8 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				suite.Require().NoError(err)
 				suite.Require().Equal(sdkmath.NewInt(2000), power)
 
-				vault, err = suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
-				suite.Require().NoError(err)
+				vault, found = suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
+				suite.Require().True(found)
 				suite.Require().Equal(types.Vault{
 					Key:          ValidVaultKey,
 					VaultAddress: ValidVaultAddress,
@@ -353,8 +353,8 @@ func (suite *KeeperTestSuite) TestScenarios() {
 					),
 				}, vault)
 
-				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidVaultKey)
-				suite.Require().NoError(err)
+				lock, found = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidVaultKey)
+				suite.Require().True(found)
 				suite.Require().Equal(types.Lock{
 					StakerAddress: ValidAddress1.String(),
 					Key:           ValidVaultKey,
@@ -385,8 +385,8 @@ func (suite *KeeperTestSuite) TestScenarios() {
 
 				// post check
 				// - reward debts need to be updated.
-				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidVaultKey)
-				suite.Require().NoError(err)
+				lock, found = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidVaultKey)
+				suite.Require().True(found)
 				suite.Require().Equal(types.Lock{
 					StakerAddress: ValidAddress1.String(),
 					Key:           ValidVaultKey,
@@ -409,8 +409,8 @@ func (suite *KeeperTestSuite) TestScenarios() {
 
 				// post check
 				// - status of key must be inactive
-				vault, err = suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
-				suite.Require().NoError(err)
+				vault, found = suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
+				suite.Require().True(found)
 				suite.Require().Equal(types.Vault{
 					Key:          ValidVaultKey,
 					VaultAddress: ValidVaultAddress,
@@ -435,11 +435,11 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				// post check
 				// - lock must be deleted
 				// - remainders must be 1
-				_, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidVaultKey)
-				suite.Require().Error(err)
+				_, found = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidVaultKey)
+				suite.Require().False(found)
 
-				vault, err = suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
-				suite.Require().NoError(err)
+				vault, found = suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
+				suite.Require().True(found)
 				suite.Require().Equal(types.Vault{
 					Key:          ValidVaultKey,
 					VaultAddress: ValidVaultAddress,
@@ -460,14 +460,14 @@ func (suite *KeeperTestSuite) TestScenarios() {
 			name: "2 accounts",
 			check: func(ctx sdk.Context) {
 				// pre check
-				_, err := suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
-				suite.Require().Error(err)
+				_, found := suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
+				suite.Require().False(found)
 
-				_, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidVaultKey)
-				suite.Require().Error(err)
+				_, found = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidVaultKey)
+				suite.Require().False(found)
 
-				_, err = suite.restakeKeeper.GetLock(ctx, ValidAddress2, ValidVaultKey)
-				suite.Require().Error(err)
+				_, found = suite.restakeKeeper.GetLock(ctx, ValidAddress2, ValidVaultKey)
+				suite.Require().False(found)
 
 				// --------------------------
 				// address1 locks on key1 10^18 powers
@@ -475,7 +475,7 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				val18, ok := sdkmath.NewIntFromString("1_000_000_000_000_000_000")
 				suite.Require().True(ok)
 
-				err = suite.restakeKeeper.SetLockedPower(
+				err := suite.restakeKeeper.SetLockedPower(
 					ctx,
 					ValidAddress1,
 					ValidVaultKey,
@@ -490,8 +490,8 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				suite.Require().NoError(err)
 				suite.Require().Equal(val18, power)
 
-				vault, err := suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
-				suite.Require().NoError(err)
+				vault, found := suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
+				suite.Require().True(found)
 				suite.Require().Equal(types.Vault{
 					Key:             ValidVaultKey,
 					VaultAddress:    ValidVaultAddress,
@@ -501,8 +501,8 @@ func (suite *KeeperTestSuite) TestScenarios() {
 					Remainders:      nil,
 				}, vault)
 
-				lock, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidVaultKey)
-				suite.Require().NoError(err)
+				lock, found := suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidVaultKey)
+				suite.Require().True(found)
 				suite.Require().Equal(types.Lock{
 					StakerAddress:  ValidAddress1.String(),
 					Key:            ValidVaultKey,
@@ -532,8 +532,8 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				suite.Require().NoError(err)
 				suite.Require().Equal(sdk.NewInt(1), power)
 
-				vault, err = suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
-				suite.Require().NoError(err)
+				vault, found = suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
+				suite.Require().True(found)
 				suite.Require().Equal(types.Vault{
 					Key:             ValidVaultKey,
 					VaultAddress:    ValidVaultAddress,
@@ -543,8 +543,8 @@ func (suite *KeeperTestSuite) TestScenarios() {
 					Remainders:      nil,
 				}, vault)
 
-				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress2, ValidVaultKey)
-				suite.Require().NoError(err)
+				lock, found = suite.restakeKeeper.GetLock(ctx, ValidAddress2, ValidVaultKey)
+				suite.Require().True(found)
 				suite.Require().Equal(types.Lock{
 					StakerAddress:  ValidAddress2.String(),
 					Key:            ValidVaultKey,
@@ -565,8 +565,8 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				// post check
 				// - reward per powers must be changed.
 				// - remainders must have "aaaa" as too much power for 1aaaa
-				vault, err = suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
-				suite.Require().NoError(err)
+				vault, found = suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
+				suite.Require().True(found)
 				suite.Require().Equal(types.Vault{
 					Key:          ValidVaultKey,
 					VaultAddress: ValidVaultAddress,
@@ -595,8 +595,8 @@ func (suite *KeeperTestSuite) TestScenarios() {
 				suite.Require().NoError(err)
 				suite.Require().Equal(sdkmath.NewInt(0), power)
 
-				vault, err = suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
-				suite.Require().NoError(err)
+				vault, found = suite.restakeKeeper.GetVault(ctx, ValidVaultKey)
+				suite.Require().True(found)
 				suite.Require().Equal(types.Vault{
 					Key:          ValidVaultKey,
 					VaultAddress: ValidVaultAddress,
@@ -611,8 +611,8 @@ func (suite *KeeperTestSuite) TestScenarios() {
 					),
 				}, vault)
 
-				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidVaultKey)
-				suite.Require().NoError(err)
+				lock, found = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidVaultKey)
+				suite.Require().True(found)
 				suite.Require().Equal(types.Lock{
 					StakerAddress:  ValidAddress1.String(),
 					Key:            ValidVaultKey,
@@ -639,8 +639,8 @@ func (suite *KeeperTestSuite) TestScenarios() {
 
 				// post check
 				// - reward debts need to be updated.
-				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidVaultKey)
-				suite.Require().NoError(err)
+				lock, found = suite.restakeKeeper.GetLock(ctx, ValidAddress1, ValidVaultKey)
+				suite.Require().True(found)
 				suite.Require().Equal(types.Lock{
 					StakerAddress:  ValidAddress1.String(),
 					Key:            ValidVaultKey,
@@ -657,8 +657,8 @@ func (suite *KeeperTestSuite) TestScenarios() {
 
 				// post check
 				// - nothing change as reward isn't enough
-				lock, err = suite.restakeKeeper.GetLock(ctx, ValidAddress2, ValidVaultKey)
-				suite.Require().NoError(err)
+				lock, found = suite.restakeKeeper.GetLock(ctx, ValidAddress2, ValidVaultKey)
+				suite.Require().True(found)
 				suite.Require().Equal(types.Lock{
 					StakerAddress:  ValidAddress2.String(),
 					Key:            ValidVaultKey,

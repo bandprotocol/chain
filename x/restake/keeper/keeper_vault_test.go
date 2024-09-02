@@ -254,8 +254,8 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 			)
 			suite.Require().NoError(err)
 
-			vault, err := suite.restakeKeeper.GetVault(ctx, vault.Key)
-			suite.Require().NoError(err)
+			vault, found := suite.restakeKeeper.GetVault(ctx, vault.Key)
+			suite.Require().True(found)
 			suite.Require().Equal(testCase.expVault, vault)
 		})
 	}
@@ -291,8 +291,8 @@ func (suite *KeeperTestSuite) TestDeactivateVault() {
 	// success case
 	err = suite.restakeKeeper.DeactivateVault(ctx, VaultKeyWithRewards)
 	suite.Require().NoError(err)
-	vault, err := suite.restakeKeeper.GetVault(ctx, VaultKeyWithRewards)
-	suite.Require().NoError(err)
+	vault, found := suite.restakeKeeper.GetVault(ctx, VaultKeyWithRewards)
+	suite.Require().True(found)
 	suite.Require().Equal(false, vault.IsActive)
 }
 
@@ -304,13 +304,9 @@ func (suite *KeeperTestSuite) TestGetSetVault() {
 	for _, expVault := range expectedVaults {
 		suite.restakeKeeper.SetVault(ctx, expVault)
 
-		// has
-		has := suite.restakeKeeper.HasVault(ctx, expVault.Key)
-		suite.Require().True(has)
-
 		// get
-		vault, err := suite.restakeKeeper.GetVault(ctx, expVault.Key)
-		suite.Require().NoError(err)
+		vault, found := suite.restakeKeeper.GetVault(ctx, expVault.Key)
+		suite.Require().True(found)
 		suite.Require().Equal(expVault, vault)
 
 		// must get
@@ -318,16 +314,12 @@ func (suite *KeeperTestSuite) TestGetSetVault() {
 		suite.Require().Equal(expVault, vault)
 	}
 
-	// has
-	has := suite.restakeKeeper.HasVault(ctx, "nonVault")
-	suite.Require().False(has)
-
 	// get
 	vaults := suite.restakeKeeper.GetVaults(ctx)
 	suite.Require().Equal(expectedVaults, vaults)
 
-	_, err := suite.restakeKeeper.GetVault(ctx, "nonVault")
-	suite.Require().Error(err)
+	_, found := suite.restakeKeeper.GetVault(ctx, "nonVault")
+	suite.Require().False(found)
 
 	// must get
 	suite.Require().Panics(func() {

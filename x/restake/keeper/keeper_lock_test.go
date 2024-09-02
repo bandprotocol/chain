@@ -237,12 +237,12 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 			)
 			suite.Require().NoError(err)
 
-			vault, err := suite.restakeKeeper.GetVault(ctx, preVault.Key)
-			suite.Require().NoError(err)
+			vault, found := suite.restakeKeeper.GetVault(ctx, preVault.Key)
+			suite.Require().True(found)
 			suite.Require().Equal(testCase.expTotalPower, vault.TotalPower)
 
-			lock, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, preVault.Key)
-			suite.Require().NoError(err)
+			lock, found := suite.restakeKeeper.GetLock(ctx, ValidAddress1, preVault.Key)
+			suite.Require().True(found)
 			suite.Require().Equal(testCase.expLock, lock)
 		})
 	}
@@ -279,23 +279,15 @@ func (suite *KeeperTestSuite) TestGetSetLock() {
 		acc := sdk.MustAccAddressFromBech32(expLock.StakerAddress)
 		suite.restakeKeeper.SetLock(ctx, expLock)
 
-		// has
-		has := suite.restakeKeeper.HasLock(ctx, acc, expLock.Key)
-		suite.Require().True(has)
-
 		// get
-		lock, err := suite.restakeKeeper.GetLock(ctx, acc, expLock.Key)
-		suite.Require().NoError(err)
+		lock, found := suite.restakeKeeper.GetLock(ctx, acc, expLock.Key)
+		suite.Require().True(found)
 		suite.Require().Equal(expLock, lock)
 
 		// get lock by power
 		key := ctx.KVStore(suite.storeKey).Get(types.LockByPowerIndexKey(lock))
 		suite.Require().Equal(expLock.Key, string(key))
 	}
-
-	// has
-	has := suite.restakeKeeper.HasLock(ctx, ValidAddress1, "nonVault")
-	suite.Require().False(has)
 
 	// get
 	locks := suite.restakeKeeper.GetLocks(ctx)
@@ -315,16 +307,12 @@ func (suite *KeeperTestSuite) TestGetSetLock() {
 		acc := sdk.MustAccAddressFromBech32(expLock.StakerAddress)
 		suite.restakeKeeper.DeleteLock(ctx, acc, expLock.Key)
 
-		// has
-		has := suite.restakeKeeper.HasLock(ctx, acc, expLock.Key)
-		suite.Require().False(has)
-
 		// get
-		_, err := suite.restakeKeeper.GetLock(ctx, acc, expLock.Key)
-		suite.Require().Error(err)
+		_, found := suite.restakeKeeper.GetLock(ctx, acc, expLock.Key)
+		suite.Require().False(found)
 
 		// get lock by Power
-		has = ctx.KVStore(suite.storeKey).Has(types.LockByPowerIndexKey(expLock))
+		has := ctx.KVStore(suite.storeKey).Has(types.LockByPowerIndexKey(expLock))
 		suite.Require().False(has)
 	}
 }

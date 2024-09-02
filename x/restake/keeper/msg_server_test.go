@@ -58,8 +58,8 @@ func (suite *KeeperTestSuite) TestMsgClaimRewards() {
 					Times(1)
 			},
 			postCheck: func() {
-				lock, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, VaultKeyWithRewards)
-				suite.Require().NoError(err)
+				lock, found := suite.restakeKeeper.GetLock(ctx, ValidAddress1, VaultKeyWithRewards)
+				suite.Require().True(found)
 				suite.Require().Equal(sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))), lock.PosRewardDebts)
 				suite.Require().Equal(sdk.DecCoins(nil), lock.NegRewardDebts)
 			},
@@ -74,8 +74,8 @@ func (suite *KeeperTestSuite) TestMsgClaimRewards() {
 			expErrMsg: "",
 			preCheck:  func() {},
 			postCheck: func() {
-				_, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, InactiveVaultKey)
-				suite.Require().Error(err)
+				_, found := suite.restakeKeeper.GetLock(ctx, ValidAddress1, InactiveVaultKey)
+				suite.Require().False(found)
 			},
 		},
 	}
