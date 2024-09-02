@@ -27,10 +27,10 @@ func NewSignalPricesInfo(
 }
 
 // UpdateSignalPrices updates the signal prices based on signal IDs
-func (spsi *SignalPricesInfo) UpdateSignalPrices(signalPrices []SignalPrice) {
-	for _, sp := range signalPrices {
-		for i, spInfo := range spsi.SignalPrices {
-			if sp.SignalID == spInfo.SignalID {
+func (spsi *SignalPricesInfo) UpdateSignalPrices(newSignalPrices []SignalPrice) {
+	for _, nsp := range newSignalPrices {
+		for i, sp := range spsi.SignalPrices {
+			if nsp.SignalID == sp.SignalID {
 				spsi.SignalPrices[i] = sp
 				break
 			}
