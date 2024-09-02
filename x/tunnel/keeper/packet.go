@@ -126,6 +126,7 @@ func (k Keeper) SendPacket(
 		panic(fmt.Sprintf("unknown route type: %T", r))
 	}
 
+	// return error if failed to handle packet
 	if err != nil {
 		return err
 	}
