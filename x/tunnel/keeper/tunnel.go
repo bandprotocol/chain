@@ -131,23 +131,6 @@ func (k Keeper) GetTunnels(ctx sdk.Context) []types.Tunnel {
 	return tunnels
 }
 
-// GetTunnelsByActiveStatus returns all tunnels by their active status
-func (k Keeper) GetTunnelsByActiveStatus(ctx sdk.Context, isActive bool) []types.Tunnel {
-	var tunnels []types.Tunnel
-	iterator := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.TunnelStoreKeyPrefix)
-	defer iterator.Close()
-
-	for ; iterator.Valid(); iterator.Next() {
-		var tunnel types.Tunnel
-		k.cdc.MustUnmarshal(iterator.Value(), &tunnel)
-
-		if tunnel.IsActive == isActive {
-			tunnels = append(tunnels, tunnel)
-		}
-	}
-	return tunnels
-}
-
 // SetActiveTunnelIDs sets the active tunnel IDs in the store
 func (k Keeper) SetActiveTunnelIDs(ctx sdk.Context, ids []uint64) {
 	ctx.KVStore(k.storeKey).Set(types.ActiveTunnelIDsStoreKey, k.cdc.MustMarshal(&types.ActiveTunnelIDs{IDs: ids}))

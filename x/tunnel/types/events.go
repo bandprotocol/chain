@@ -2,15 +2,14 @@ package types
 
 // events
 const (
-	EventTypeUpdateParams            = "update_params"
-	EventTypeCreateTunnel            = "create_tunnel"
-	EventTypeEditTunnel              = "edit_tunnel"
-	EventTypeActivateTunnel          = "activate_tunnel"
-	EventTypeDeactivateTunnel        = "deactivate_tunnel"
-	EventTypeManualTriggerTunnel     = "manual_trigger_tunnel"
-	EventTypeSignalInfoNotFound      = "signal_info_not_found"
-	EventTypeProducePacketFail       = "produce_packet_fail"
-	EventTypeGetSignalPricesInfoFail = "get_signal_prices_info_fail"
+	EventTypeUpdateParams        = "update_params"
+	EventTypeCreateTunnel        = "create_tunnel"
+	EventTypeEditTunnel          = "edit_tunnel"
+	EventTypeActivateTunnel      = "activate_tunnel"
+	EventTypeDeactivateTunnel    = "deactivate_tunnel"
+	EventTypeManualTriggerTunnel = "manual_trigger_tunnel"
+	EventTypeSignalInfoNotFound  = "signal_info_not_found"
+	EventTypeProducePacketFail   = "produce_packet_fail"
 
 	AttributeKeyParams           = "params"
 	AttributeKeyTunnelID         = "tunnel_id"

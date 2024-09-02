@@ -39,33 +39,25 @@ func (k Keeper) MustGetPacket(ctx sdk.Context, tunnelID uint64, nonce uint64) ty
 
 // ProduceActiveTunnelPackets generates packets and sends packets to the destination route for all active tunnels
 func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
-	// get all active tunnels
-	activeTunnels := k.GetTunnelsByActiveStatus(ctx, true)
+	// get active tunnel IDs
+	ids := k.MustGetActiveTunnelIDs(ctx)
 
 	// check for active tunnels
-	for _, at := range activeTunnels {
-		signalPricesInfo, err := k.GetSignalPricesInfo(ctx, at.ID)
-		if err != nil {
-			// emit get signal prices info fail event
-			ctx.EventManager().EmitEvent(sdk.NewEvent(
-				types.EventTypeGetSignalPricesInfoFail,
-				sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", at.ID)),
-				sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
-			))
-			continue
-		}
+	for _, id := range ids {
+		tunnel := k.MustGetTunnel(ctx, id)
+		signalPricesInfo := k.MustGetSignalPricesInfo(ctx, tunnel.ID)
 
 		// check if the interval has passed
-		intervalTrigger := ctx.BlockTime().Unix() >= int64(at.Interval)+signalPricesInfo.LastIntervalTimestamp
+		intervalTrigger := ctx.BlockTime().Unix() >= int64(tunnel.Interval)+signalPricesInfo.LastIntervalTimestamp
 
 		// produce packet
-		err = k.ProducePacket(ctx, at, signalPricesInfo, intervalTrigger)
+		err := k.ProducePacket(ctx, tunnel, signalPricesInfo, intervalTrigger)
 		if err != nil {
 			// emit send packet fail event
 			ctx.EventManager().EmitEvent(sdk.NewEvent(
 				types.EventTypeProducePacketFail,
-				sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", at.ID)),
-				sdk.NewAttribute(types.AttributeKeyRoute, fmt.Sprintf("%v", at.Route)),
+				sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
+				sdk.NewAttribute(types.AttributeKeyRoute, fmt.Sprintf("%v", tunnel.Route)),
 				sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
 			))
 			continue

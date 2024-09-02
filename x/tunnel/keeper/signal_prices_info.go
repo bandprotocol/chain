@@ -24,6 +24,15 @@ func (k Keeper) GetSignalPricesInfo(ctx sdk.Context, tunnelID uint64) (types.Sig
 	return signalPricesInfo, nil
 }
 
+// MustGetSignalPricesInfo gets the signal prices info from the store and panics if it does not exist
+func (k Keeper) MustGetSignalPricesInfo(ctx sdk.Context, tunnelID uint64) types.SignalPricesInfo {
+	signalPricesInfo, err := k.GetSignalPricesInfo(ctx, tunnelID)
+	if err != nil {
+		panic(err)
+	}
+	return signalPricesInfo
+}
+
 // GetSignalPricesInfos gets all signal prices infos from the store
 func (k Keeper) GetSignalPricesInfos(ctx sdk.Context) []types.SignalPricesInfo {
 	var signalPricesInfos []types.SignalPricesInfo
