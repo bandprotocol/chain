@@ -11,7 +11,7 @@ import (
 // This function will override the previous locked power.
 func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key string, power sdkmath.Int) error {
 	if k.IsLiquidStaker(stakerAddr) {
-		return types.ErrIsLiquidStaker
+		return types.ErrLiquidStakerNotAllowed
 	}
 
 	if !power.IsUint64() {
@@ -74,7 +74,7 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key s
 // GetLockedPower returns locked power of the address to the vault.
 func (k Keeper) GetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key string) (sdkmath.Int, error) {
 	if k.IsLiquidStaker(stakerAddr) {
-		return sdkmath.Int{}, types.ErrIsLiquidStaker
+		return sdkmath.Int{}, types.ErrLiquidStakerNotAllowed
 	}
 
 	vault, found := k.GetVault(ctx, key)

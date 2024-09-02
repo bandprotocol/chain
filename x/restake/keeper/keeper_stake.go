@@ -39,7 +39,7 @@ func (k Keeper) GetStakes(ctx sdk.Context) (stakes []types.Stake) {
 	return stakes
 }
 
-// GetStake gets a stake from store by address and denom.
+// GetStake gets a stake from store by address.
 func (k Keeper) GetStake(ctx sdk.Context, addr sdk.AccAddress) types.Stake {
 	bz := ctx.KVStore(k.storeKey).Get(types.StakeStoreKey(addr))
 	if bz == nil {

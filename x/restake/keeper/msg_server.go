@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"slices"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -92,10 +91,14 @@ func (k msgServer) Stake(
 	coins := msg.Coins.Sort()
 
 	// check if all coins are allowed denom coins.
-	allowedDenoms := k.GetParams(ctx).AllowedDenoms
+	allowedDenom := make(map[string]bool)
+	for _, denom := range k.GetParams(ctx).AllowedDenoms {
+		allowedDenom[denom] = true
+	}
+
 	for _, coin := range coins {
-		if !slices.Contains(allowedDenoms, coin.Denom) {
-			return nil, types.ErrNotAllowedDenom.Wrapf("expect: %s, got: %s", allowedDenoms, coin.Denom)
+		if _, allow := allowedDenom[coin.Denom]; !allow {
+			return nil, types.ErrNotAllowedDenom.Wrapf("denom: %s", coin.Denom)
 		}
 	}
 

@@ -19,5 +19,5 @@ var (
 	ErrStakeNotEnough          = errorsmod.Register(ModuleName, 12, "stake not enough")
 	ErrNotAllowedDenom         = errorsmod.Register(ModuleName, 13, "not allowed denom")
 	ErrUnableToUnstake         = errorsmod.Register(ModuleName, 14, "unable to unstake")
-	ErrIsLiquidStaker          = errorsmod.Register(ModuleName, 15, "liquid staker")
+	ErrLiquidStakerNotAllowed  = errorsmod.Register(ModuleName, 15, "liquid staker not allowed")
 )

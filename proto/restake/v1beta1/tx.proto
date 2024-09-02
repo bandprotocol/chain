@@ -18,7 +18,7 @@ service Msg {
   // Stake defines a method for staking coins into the module.
   rpc Stake(MsgStake) returns (MsgStakeResponse);
 
-  // Unstake defines a method for unstaking coins into the module.
+  // Unstake defines a method for unstaking coins out of the module.
   rpc Unstake(MsgUnstake) returns (MsgUnstakeResponse);
 
   // UpdateParams defines a method for updating parameters.

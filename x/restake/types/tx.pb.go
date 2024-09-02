@@ -471,7 +471,7 @@ type MsgClient interface {
 	ClaimRewards(ctx context.Context, in *MsgClaimRewards, opts ...grpc.CallOption) (*MsgClaimRewardsResponse, error)
 	// Stake defines a method for staking coins into the module.
 	Stake(ctx context.Context, in *MsgStake, opts ...grpc.CallOption) (*MsgStakeResponse, error)
-	// Unstake defines a method for unstaking coins into the module.
+	// Unstake defines a method for unstaking coins out of the module.
 	Unstake(ctx context.Context, in *MsgUnstake, opts ...grpc.CallOption) (*MsgUnstakeResponse, error)
 	// UpdateParams defines a method for updating parameters.
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
@@ -527,7 +527,7 @@ type MsgServer interface {
 	ClaimRewards(context.Context, *MsgClaimRewards) (*MsgClaimRewardsResponse, error)
 	// Stake defines a method for staking coins into the module.
 	Stake(context.Context, *MsgStake) (*MsgStakeResponse, error)
-	// Unstake defines a method for unstaking coins into the module.
+	// Unstake defines a method for unstaking coins out of the module.
 	Unstake(context.Context, *MsgUnstake) (*MsgUnstakeResponse, error)
 	// UpdateParams defines a method for updating parameters.
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)

@@ -45,8 +45,8 @@ This module is used in the BandChain.
 - Modules can lock the power of users by using key of vault.
 - Modules can deposit coins into the vault.
   - The coins will be distributed to users based on the locked power of that key.
-  - Use MasterChefV2 logic from SushiSwap
-- Modules must call a provided function to deactivate a vault once it is no longer used.
+  - Use [MasterChefV2](https://github.com/sushiswap/masterchef/blob/master/contracts/MasterChefV2.sol) logic from SushiSwap.
+- Modules must call a provided function to deactivate a vault once it is no longer in use.
   - Once deactivated, a vault cannot be reactivated.
 
 ## State
@@ -239,7 +239,7 @@ message MsgStake {
 
 **Logic**
 
-- Check if the denom is in `allowed_denom` parameter.
+- Check if the denom is in `allowed_denoms` parameter.
   - If not, return an error.
 - Transfer coins to the global module account.
 
@@ -263,7 +263,7 @@ message MsgUnstake {
 
 **Logic**
 
-- Check if the staked coins are more than the specific coins.
+- Check if the staked coins are greater than or equal to the specified amount of coins.
   - If not, return an error.
 - Check if the locked power is still valid after unstaking coins.
   - If not, return an error.
@@ -271,7 +271,7 @@ message MsgUnstake {
 
 ### MsgUpdateParams
 
-The parameters of the module can be updated by using the `MsUpdateParams` message.
+The parameters of the module can be updated by using the `MsgUpdateParams` message.
 
 ```protobuf
 // MsgUpdateParams is the transaction message to update parameters.
@@ -330,7 +330,7 @@ type RestakeKeeper interface {
 
 `SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key string, power math.Int) error` 
 
-This function is used to lock the power of an account to a specific vault.
+This function is used to lock the power of an account to a specified vault.
 
 **Logic**
 
