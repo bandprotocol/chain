@@ -439,7 +439,7 @@ func (suite *KeeperTestSuite) TestQueryStake() {
 		expPass  bool
 	}{
 		{
-			"stake of address1",
+			"stake of address1 - 50uband",
 			func() {
 				req = &types.QueryStakeRequest{
 					StakerAddress: ValidAddress1.String(),
@@ -454,7 +454,7 @@ func (suite *KeeperTestSuite) TestQueryStake() {
 			true,
 		},
 		{
-			"stake of address2",
+			"stake of address2 - no stake",
 			func() {
 				req = &types.QueryStakeRequest{
 					StakerAddress: ValidAddress2.String(),
@@ -470,7 +470,7 @@ func (suite *KeeperTestSuite) TestQueryStake() {
 			true,
 		},
 		{
-			"stake of address3",
+			"stake of address3 - 10uband",
 			func() {
 				req = &types.QueryStakeRequest{
 					StakerAddress: ValidAddress3.String(),
