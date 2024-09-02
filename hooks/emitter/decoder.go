@@ -136,18 +136,18 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeMsgUpdateReferenceSourceConfig(msg, detail)
 	case *feedstypes.MsgUpdateParams:
 		DecodeMsgUpdateParams(msg, detail)
-	// case *bandtsstypes.MsgCreateGroup:
-	// 	DecodeGroupMsgCreateGroupBandtss(msg, detail)
-	// case *bandtsstypes.MsgReplaceGroup:
-	// 	DecodeGroupMsgReplaceGroup(msg, detail)
-	// case *bandtsstypes.MsgRequestSignature:
-	// 	DecodeMsgRequestSignature(msg, detail)
-	// case *bandtsstypes.MsgActivate:
-	// 	DecodeMsgActivateBandtss(msg, detail)
-	// case *bandtsstypes.MsgHealthCheck:
-	// 	DecodeMsgHealthCheck(msg, detail)
-	// case *bandtsstypes.MsgUpdateParams:
-	// 	DecodeMsgUpdateParamsBandtss(msg, detail)
+	case *bandtsstypes.MsgTransitionGroup:
+		DecodeBandtssMsgTransitionGroup(msg, detail)
+	case *bandtsstypes.MsgForceReplaceGroup:
+		DecodeBandtssMsgForceReplaceGroup(msg, detail)
+	case *bandtsstypes.MsgRequestSignature:
+		DecodeBandtssMsgRequestSignature(msg, detail)
+	case *bandtsstypes.MsgActivate:
+		DecodeBandtssMsgActivate(msg, detail)
+	case *bandtsstypes.MsgHeartbeat:
+		DecodeBandtssMsgHeartbeat(msg, detail)
+	case *bandtsstypes.MsgUpdateParams:
+		DecodeBandtssMsgUpdateParams(msg, detail)
 	case *tsstypes.MsgSubmitDKGRound1:
 		DecodeMsgSubmitDKGRound1(msg, detail)
 	case *tsstypes.MsgSubmitDKGRound2:
@@ -719,26 +719,45 @@ func DecodeMsgUpdateParams(msg *feedstypes.MsgUpdateParams, detail common.JsDict
 	detail["current_feeds_update_interval"] = params.GetCurrentFeedsUpdateInterval()
 }
 
-// func DecodeGroupMsgCreateGroupBandtss(msg *bandtsstypes.MsgCreateGroup, detail common.JsDict) {
-// 	detail["members"] = msg.Members
-// 	detail["threshold"] = msg.Threshold
-// 	detail["authority"] = msg.Authority
-// }
+func DecodeBandtssMsgTransitionGroup(msg *bandtsstypes.MsgTransitionGroup, detail common.JsDict) {
+	detail["members"] = msg.Members
+	detail["threshold"] = msg.Threshold
+	detail["exec_time"] = msg.ExecTime.GoString()
+	detail["authority"] = msg.Authority
+}
 
-// func DecodeGroupMsgReplaceGroup(msg *bandtsstypes.MsgReplaceGroup, detail common.JsDict) {
-// 	detail["new_group_id"] = msg.NewGroupID
-// 	detail["exec_time"] = msg.ExecTime.GoString()
-// 	detail["authority"] = msg.Authority
-// }
+func DecodeBandtssMsgForceReplaceGroup(msg *bandtsstypes.MsgForceReplaceGroup, detail common.JsDict) {
+	detail["incoming_group_id"] = msg.IncomingGroupID
+	detail["exec_time"] = msg.ExecTime.GoString()
+	detail["authority"] = msg.Authority
+}
 
-// func DecodeMsgUpdateParamsBandtss(msg *bandtsstypes.MsgUpdateParams, detail common.JsDict) {
-// 	params := msg.GetParams()
-// 	detail["active_duration"] = params.GetActiveDuration()
-// 	detail["reward_percentage"] = params.GetRewardPercentage()
-// 	detail["inactive_penalty_duration"] = params.GetInactivePenaltyDuration()
-// 	detail["fee"] = params.GetFee()
-// 	detail["authority"] = msg.GetAuthority()
-// }
+func DecodeBandtssMsgRequestSignature(msg *bandtsstypes.MsgRequestSignature, detail common.JsDict) {
+	detail["content"] = msg.Content.GetCachedValue()
+	detail["memo"] = msg.Memo
+	detail["fee_limit"] = msg.FeeLimit
+	detail["sender"] = msg.Sender
+}
+
+func DecodeBandtssMsgActivate(msg *bandtsstypes.MsgActivate, detail common.JsDict) {
+	detail["sender"] = msg.Sender
+	detail["group_id"] = msg.GroupID
+}
+
+func DecodeBandtssMsgHeartbeat(msg *bandtsstypes.MsgHeartbeat, detail common.JsDict) {
+	detail["sender"] = msg.Sender
+	detail["group_id"] = msg.GroupID
+}
+
+func DecodeBandtssMsgUpdateParams(msg *bandtsstypes.MsgUpdateParams, detail common.JsDict) {
+	params := msg.GetParams()
+	detail["active_duration"] = params.GetActiveDuration()
+	detail["reward_percentage"] = params.GetRewardPercentage()
+	detail["inactive_penalty_duration"] = params.GetInactivePenaltyDuration()
+	detail["fee"] = params.GetFee()
+	detail["max_transition_duration"] = params.GetMaxTransitionDuration()
+	detail["authority"] = msg.GetAuthority()
+}
 
 func DecodeMsgSubmitDKGRound1(msg *tsstypes.MsgSubmitDKGRound1, detail common.JsDict) {
 	detail["group_id"] = msg.GroupID
@@ -774,7 +793,7 @@ func DecodeMsgSubmitSignature(msg *tsstypes.MsgSubmitSignature, detail common.Js
 	detail["signing_id"] = msg.SigningID
 	detail["member_id"] = msg.MemberID
 	detail["signature"] = msg.Signature
-	detail["sender"] = msg.Signer
+	detail["signer"] = msg.Signer
 }
 
 func DecodeMsgUpdateParamsTss(msg *tsstypes.MsgUpdateParams, detail common.JsDict) {
@@ -785,21 +804,8 @@ func DecodeMsgUpdateParamsTss(msg *tsstypes.MsgUpdateParams, detail common.JsDic
 	detail["max_d_e_size"] = params.GetMaxDESize()
 	detail["creating_period"] = params.GetCreationPeriod()
 	detail["signing_period"] = params.GetSigningPeriod()
+	detail["max_signing_attempt"] = params.GetMaxSigningAttempt()
 	detail["authority"] = msg.GetAuthority()
-}
-
-// func DecodeMsgActivateBandtss(msg *bandtsstypes.MsgActivate, detail common.JsDict) {
-// 	detail["address"] = msg.Address
-// }
-
-// func DecodeMsgHealthCheck(msg *bandtsstypes.MsgHealthCheck, detail common.JsDict) {
-// 	detail["address"] = msg.Address
-// }
-
-func DecodeMsgRequestSignature(msg *bandtsstypes.MsgRequestSignature, detail common.JsDict) {
-	detail["content"] = msg.Content.GetCachedValue()
-	detail["fee_limit"] = msg.FeeLimit
-	detail["sender"] = msg.Sender
 }
 
 func DecodeGroupMsgCreateGroup(msg *group.MsgCreateGroup, detail common.JsDict) {
