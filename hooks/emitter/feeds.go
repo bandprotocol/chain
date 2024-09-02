@@ -50,6 +50,15 @@ func (h *Hook) emitSetDelegatorSignal(ctx sdk.Context, delegator string, signal 
 	})
 }
 
+func (h *Hook) emitSetPricesSignal(ctx sdk.Context, txHash []byte, validator string, feeder string) {
+	h.Write("SET_PRICE_SIGNAL", common.JsDict{
+		"tx_hash":   txHash,
+		"validator": validator,
+		"feeder":    feeder,
+		"timestamp": ctx.BlockTime().UnixNano(),
+	})
+}
+
 func (h *Hook) emitSetValidatorPrice(ctx sdk.Context, validator string, price types.SignalPrice) {
 	h.Write("SET_VALIDATOR_PRICE", common.JsDict{
 		"validator":    validator,
@@ -106,8 +115,17 @@ func (h *Hook) handleMsgSubmitSignals(
 
 // handleMsgSubmitSignalPrices implements emitter handler for MsgSubmitSignalPrices.
 func (h *Hook) handleMsgSubmitSignalPrices(
-	ctx sdk.Context, msg *types.MsgSubmitSignalPrices,
+	ctx sdk.Context,
+	txHash []byte,
+	msg *types.MsgSubmitSignalPrices,
+	feeder string,
 ) {
+	if feeder == "" {
+		feeder = msg.Validator
+	}
+
+	h.emitSetPricesSignal(ctx, txHash, msg.Validator, feeder)
+
 	for _, price := range msg.Prices {
 		h.emitSetValidatorPrice(ctx, msg.Validator, price)
 	}

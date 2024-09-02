@@ -76,6 +76,8 @@ func (h *Hook) handleMsgExec(
 		switch msg := msg.(type) {
 		case *oracletypes.MsgReportData:
 			h.handleMsgReportData(ctx, txHash, msg, grantee)
+		case *feedstypes.MsgSubmitSignalPrices:
+			h.handleMsgSubmitSignalPrices(ctx, txHash, msg, grantee)
 		default:
 			// add signers for this message into the transaction
 			signers := msg.GetSigners()

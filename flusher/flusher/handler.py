@@ -48,6 +48,7 @@ from .db import (
 
 from .feeds_db import (
     PRICE_HISTORY_PERIOD,
+    price_signals,
     validator_prices,
     delegator_signals,
     signal_total_powers,
@@ -618,6 +619,18 @@ class Handler(object):
                 .where(condition)
                 .values(ibc_received_txs=relayer_tx_stat_days.c.ibc_received_txs + 1, last_update_at=timestamp)
             )
+
+    def handle_set_price_signal(self, msg):
+        if msg["tx_hash"] is not None:
+            msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
+        del msg["tx_hash"]
+        msg["validator_id"] = self.get_validator_id(msg["validator"])
+        del msg["validator"]
+        msg["feeder_id"] = self.get_account_id(msg["feeder"])
+        del msg["feeder"]
+        self.conn.execute(
+            insert(price_signals).values(**msg).on_conflict_do_update(constraint="price_signals_pkey", set_=msg)
+        )
 
     def handle_set_validator_price(self, msg):
         msg["validator_id"] = self.get_validator_id(msg["validator"])

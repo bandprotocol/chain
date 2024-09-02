@@ -127,7 +127,7 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 	case *feedstypes.MsgSubmitSignals:
 		h.handleMsgSubmitSignals(ctx, msg, evMap)
 	case *feedstypes.MsgSubmitSignalPrices:
-		h.handleMsgSubmitSignalPrices(ctx, msg)
+		h.handleMsgSubmitSignalPrices(ctx, txHash, msg, "")
 	case *feedstypes.MsgUpdateReferenceSourceConfig:
 		h.handleMsgUpdateReferenceSourceConfig(ctx, msg)
 	case *group.MsgCreateGroup:
