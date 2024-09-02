@@ -48,6 +48,7 @@ bandtss_group_transitions = sa.Table(
     Column("incoming_group_pub_key", CustomBase64, nullable=True),
     Column("status", CustomGroupTransitionStatus),
     Column("exec_time", CustomDateTime),
+    Column("is_force_transition", sa.Boolean),
     Column(
         "created_height",
         sa.Integer,
@@ -89,7 +90,7 @@ bandtss_members = sa.Table(
     Column(
         "tss_group_id", sa.Integer, sa.ForeignKey("tss_groups.id"), primary_key=True
     ),
-    Column("account_id", sa.Integer, sa.ForeignKey("accounts.id")),
+    Column("account_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
     Column("is_active", sa.Boolean),
     Column("penalty_since", CustomDateTime, nullable=True),
     Column("last_active", CustomDateTime, nullable=True),

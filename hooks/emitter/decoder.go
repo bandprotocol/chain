@@ -138,8 +138,8 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeMsgUpdateParams(msg, detail)
 	case *bandtsstypes.MsgTransitionGroup:
 		DecodeBandtssMsgTransitionGroup(msg, detail)
-	case *bandtsstypes.MsgForceReplaceGroup:
-		DecodeBandtssMsgForceReplaceGroup(msg, detail)
+	case *bandtsstypes.MsgForceTransitionGroup:
+		DecodeBandtssMsgForceTransitionGroup(msg, detail)
 	case *bandtsstypes.MsgRequestSignature:
 		DecodeBandtssMsgRequestSignature(msg, detail)
 	case *bandtsstypes.MsgActivate:
@@ -722,13 +722,13 @@ func DecodeMsgUpdateParams(msg *feedstypes.MsgUpdateParams, detail common.JsDict
 func DecodeBandtssMsgTransitionGroup(msg *bandtsstypes.MsgTransitionGroup, detail common.JsDict) {
 	detail["members"] = msg.Members
 	detail["threshold"] = msg.Threshold
-	detail["exec_time"] = msg.ExecTime.GoString()
+	detail["exec_time"] = msg.ExecTime.UnixNano()
 	detail["authority"] = msg.Authority
 }
 
-func DecodeBandtssMsgForceReplaceGroup(msg *bandtsstypes.MsgForceReplaceGroup, detail common.JsDict) {
+func DecodeBandtssMsgForceTransitionGroup(msg *bandtsstypes.MsgForceTransitionGroup, detail common.JsDict) {
 	detail["incoming_group_id"] = msg.IncomingGroupID
-	detail["exec_time"] = msg.ExecTime.GoString()
+	detail["exec_time"] = msg.ExecTime.UnixNano()
 	detail["authority"] = msg.Authority
 }
 

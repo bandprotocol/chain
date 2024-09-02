@@ -847,6 +847,7 @@ class Handler(object):
             del msg["current_tss_group_id"]
         if msg["incoming_tss_group_id"] == 0:
             del msg["incoming_tss_group_id"]
+
         self.conn.execute(bandtss_group_transitions.insert(), msg)
 
     def update_bandtss_group_transition(self, status):
@@ -879,10 +880,13 @@ class Handler(object):
         self.conn.execute(bandtss_current_groups.insert(), msg)
 
     def handle_set_bandtss_member(self, msg):
+        msg["account_id"] = self.get_account_id(msg["address"])
+        del msg["address"]
+
         self.conn.execute(
             insert(bandtss_members)
             .values(**msg)
-            .on_conflict_do_update(constraint="bandtss_member_pkey", set_=msg)
+            .on_conflict_do_update(constraint="bandtss_members_pkey", set_=msg)
         )
 
     def handle_set_bandtss_signing(self, msg):

@@ -24,6 +24,7 @@ func (h *Hook) emitSetBandtssGroupTransition(
 		"incoming_group_pub_key": parseBytes(transition.IncomingGroupPubKey),
 		"status":                 transition.Status,
 		"exec_time":              transition.ExecTime.UnixNano(),
+		"is_force_transition":    transition.IsForceTransition,
 		"created_height":         createdHeight,
 	})
 }
@@ -151,10 +152,22 @@ func (h *Hook) handleBandtssEventGroupTransition(ctx sdk.Context, eventIdx int, 
 		return
 	}
 
-	// TODO: change logic for handling force update transition
-	// isNewTransition := transition.Status == types.TRANSITION_STATUS_CREATING_GROUP ||
-	// 	(transition.Status == types.TRANSITION_STATUS_WAITING_EXECUTION && transition.SigningID == 0)
-	isNewTransition := transition.Status == types.TRANSITION_STATUS_CREATING_GROUP
+	// set new bandtss members; better approach would be emitting addMember event.
+	if transition.Status == types.TRANSITION_STATUS_WAITING_EXECUTION {
+		tssMembers := h.tssKeeper.MustGetMembers(ctx, transition.IncomingGroupID)
+		for _, tssMember := range tssMembers {
+			addr := sdk.MustAccAddressFromBech32(tssMember.Address)
+			member, err := h.bandtssKeeper.GetMember(ctx, addr, transition.IncomingGroupID)
+			if err != nil {
+				panic(err)
+			}
+			h.emitSetBandtssMember(member)
+		}
+	}
+
+	// check if it is a new transition or update the status of the existing transition.
+	isNewTransition := transition.Status == types.TRANSITION_STATUS_CREATING_GROUP ||
+		(transition.IsForceTransition && transition.Status == types.TRANSITION_STATUS_WAITING_EXECUTION)
 
 	if isNewTransition {
 		proposalID, found := getCurrentProposalID(eventIdx, querier)
