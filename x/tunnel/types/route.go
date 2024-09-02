@@ -7,5 +7,4 @@ type RouteI interface {
 	proto.Message
 
 	ValidateBasic() error
-	String() string
 }
