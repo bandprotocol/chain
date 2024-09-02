@@ -53,7 +53,6 @@ Once the group is established, the group's owner can request specific signatures
     - [EventTypeRound3Failed](#eventtyperound3failed)
     - [EventTypeRequestSignature](#eventtyperequestsignature)
     - [EventTypeSigningSuccess](#eventtypesigningsuccess)
-    - [EventTypeReplaceSuccess](#eventtypereplacesuccess)
     - [EventTypeSubmitSignature](#eventtypesubmitsignature)
     - [EventTypeSigningFailed](#eventtypesigningfailed)
   - [Client](#client)

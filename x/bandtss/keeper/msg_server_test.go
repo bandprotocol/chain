@@ -163,7 +163,7 @@ func (s *AppTestSuite) TestFailTransitionGroup() {
 	}
 }
 
-func (s *AppTestSuite) TestFailForceReplaceGroupInvalidExecTime() {
+func (s *AppTestSuite) TestFailForceTransitionGroupInvalidExecTime() {
 	ctx, msgSrvr, _ := s.ctx, s.msgSrvr, s.app.TSSKeeper
 
 	_ = s.SetupNewGroup(5, 3)
@@ -173,7 +173,7 @@ func (s *AppTestSuite) TestFailForceReplaceGroupInvalidExecTime() {
 	maxTransitionDuration := s.app.BandtssKeeper.GetParams(ctx).MaxTransitionDuration
 	execTime := ctx.BlockTime().Add(10 * time.Minute).Add(maxTransitionDuration)
 
-	_, err = msgSrvr.ForceReplaceGroup(ctx, &types.MsgForceReplaceGroup{
+	_, err = msgSrvr.ForceTransitionGroup(ctx, &types.MsgForceTransitionGroup{
 		IncomingGroupID: group2Ctx.GroupID,
 		ExecTime:        execTime,
 		Authority:       s.authority.String(),
@@ -181,7 +181,7 @@ func (s *AppTestSuite) TestFailForceReplaceGroupInvalidExecTime() {
 	s.Require().ErrorIs(err, types.ErrInvalidExecTime)
 }
 
-func (s *AppTestSuite) TestFailForceReplaceGroupInvalidGroupStatus() {
+func (s *AppTestSuite) TestFailForceTransitionGroupInvalidGroupStatus() {
 	ctx, msgSrvr, _ := s.ctx, s.msgSrvr, s.app.TSSKeeper
 
 	_ = s.SetupNewGroup(5, 3)
@@ -194,7 +194,7 @@ func (s *AppTestSuite) TestFailForceReplaceGroupInvalidGroupStatus() {
 
 	s.app.BandtssKeeper.DeleteGroupTransition(ctx)
 
-	_, err = msgSrvr.ForceReplaceGroup(ctx, &types.MsgForceReplaceGroup{
+	_, err = msgSrvr.ForceTransitionGroup(ctx, &types.MsgForceTransitionGroup{
 		IncomingGroupID: group2Ctx.GroupID,
 		ExecTime:        ctx.BlockTime().Add(10 * time.Minute),
 		Authority:       s.authority.String(),
@@ -202,11 +202,11 @@ func (s *AppTestSuite) TestFailForceReplaceGroupInvalidGroupStatus() {
 	s.Require().ErrorIs(err, types.ErrInvalidIncomingGroup)
 }
 
-func (s *AppTestSuite) TestFailForceReplaceGroupInvalidGroupID() {
+func (s *AppTestSuite) TestFailForceTransitionGroupInvalidGroupID() {
 	ctx, msgSrvr, _ := s.ctx, s.msgSrvr, s.app.TSSKeeper
 
 	group1Ctx := s.SetupNewGroup(5, 3)
-	_, err := msgSrvr.ForceReplaceGroup(ctx, &types.MsgForceReplaceGroup{
+	_, err := msgSrvr.ForceTransitionGroup(ctx, &types.MsgForceTransitionGroup{
 		IncomingGroupID: group1Ctx.GroupID,
 		ExecTime:        ctx.BlockTime().Add(10 * time.Minute),
 		Authority:       s.authority.String(),
@@ -214,7 +214,7 @@ func (s *AppTestSuite) TestFailForceReplaceGroupInvalidGroupID() {
 	s.Require().ErrorIs(err, types.ErrInvalidIncomingGroup)
 }
 
-func (s *AppTestSuite) TestFailForceReplaceGroupFromApprovedWaitingReplaceStatus() {
+func (s *AppTestSuite) TestFailForceTransitionGroupFromWaitingExecutionStatus() {
 	ctx, msgSrvr, _ := s.ctx, s.msgSrvr, s.app.TSSKeeper
 
 	group1Ctx := s.SetupNewGroup(5, 3)
@@ -232,7 +232,7 @@ func (s *AppTestSuite) TestFailForceReplaceGroupFromApprovedWaitingReplaceStatus
 	s.Require().True(found)
 	s.Require().Equal(types.TRANSITION_STATUS_WAITING_EXECUTION, transition.Status)
 
-	_, err = msgSrvr.ForceReplaceGroup(ctx, &types.MsgForceReplaceGroup{
+	_, err = msgSrvr.ForceTransitionGroup(ctx, &types.MsgForceTransitionGroup{
 		IncomingGroupID: group2Ctx.GroupID,
 		ExecTime:        ctx.BlockTime().Add(10 * time.Minute),
 		Authority:       s.authority.String(),
@@ -272,7 +272,7 @@ func (s *AppTestSuite) TestFailForceReplaceGroupFromApprovedWaitingReplaceStatus
 	}
 }
 
-func (s *AppTestSuite) TestSuccessForceReplaceGroupFromFallenStatus() {
+func (s *AppTestSuite) TestSuccessForceTransitionGroupFromFallenStatus() {
 	ctx, msgSrvr, _ := s.ctx, s.msgSrvr, s.app.TSSKeeper
 
 	group1Ctx := s.SetupNewGroup(5, 3)
@@ -286,7 +286,7 @@ func (s *AppTestSuite) TestSuccessForceReplaceGroupFromFallenStatus() {
 
 	s.app.BandtssKeeper.DeleteGroupTransition(ctx)
 
-	_, err = msgSrvr.ForceReplaceGroup(ctx, &types.MsgForceReplaceGroup{
+	_, err = msgSrvr.ForceTransitionGroup(ctx, &types.MsgForceTransitionGroup{
 		IncomingGroupID: group2Ctx.GroupID,
 		ExecTime:        ctx.BlockTime().Add(10 * time.Minute),
 		Authority:       s.authority.String(),
@@ -305,6 +305,7 @@ func (s *AppTestSuite) TestSuccessForceReplaceGroupFromFallenStatus() {
 		IncomingGroupPubKey: g2.PubKey,
 		ExecTime:            ctx.BlockTime().Add(10 * time.Minute),
 		SigningID:           tss.SigningID(0),
+		IsForceTransition:   true,
 	}
 	s.Require().True(found)
 	s.Require().Equal(expectedTransition, transition)

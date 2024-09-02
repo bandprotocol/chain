@@ -5,7 +5,7 @@ export WALLET_NAME=validator
 BASEDIR=$(dirname "$0")
 
 # Submit force_replace_group proposal
-bandd tx gov submit-proposal $BASEDIR/proposal_force_replace_group.json \
+bandd tx gov submit-proposal $BASEDIR/proposal_force_transition_group.json \
   --from $WALLET_NAME \
   -y --keyring-backend test --gas-prices 0.0025uband -b sync
 

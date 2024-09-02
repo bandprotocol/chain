@@ -13,7 +13,7 @@ import (
 // on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgTransitionGroup{}, "bandtss/MsgTransitionGroup")
-	legacy.RegisterAminoMsg(cdc, &MsgForceReplaceGroup{}, "bandtss/MsgForceReplaceGroup")
+	legacy.RegisterAminoMsg(cdc, &MsgForceTransitionGroup{}, "bandtss/MsgForceTransitionGroup")
 	legacy.RegisterAminoMsg(cdc, &MsgRequestSignature{}, "bandtss/MsgRequestSignature")
 	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "bandtss/MsgActivate")
 	legacy.RegisterAminoMsg(cdc, &MsgHeartbeat{}, "bandtss/MsgHeartbeat")
@@ -24,7 +24,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgTransitionGroup{},
-		&MsgForceReplaceGroup{},
+		&MsgForceTransitionGroup{},
 		&MsgRequestSignature{},
 		&MsgActivate{},
 		&MsgHeartbeat{},
