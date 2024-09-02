@@ -29,6 +29,7 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/testing/ibctesting"
+	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
@@ -957,47 +958,74 @@ func (suite *DecoderTestSuite) TestDecodeMsgUpdatePriceService() {
 	)
 }
 
-// func (suite *DecoderTestSuite) TestDecodeGroupMsgCreateGroupBandtss() {
-// 	detail := make(common.JsDict)
+func (suite *DecoderTestSuite) TestDecodeBandtssMsgTransitionGroup() {
+	detail := make(common.JsDict)
 
-// 	msg := bandtsstypes.MsgCreateGroup{
-// 		Members:   []string{"member1", "member2"},
-// 		Threshold: 2,
-// 		Authority: "some-authority-id",
-// 	}
+	msg := bandtsstypes.MsgTransitionGroup{
+		Members:   []string{"member1", "member2"},
+		Threshold: 2,
+		Authority: "some-authority-id",
+		ExecTime:  time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC),
+	}
 
-// 	emitter.DecodeGroupMsgCreateGroupBandtss(&msg, detail)
+	emitter.DecodeBandtssMsgTransitionGroup(&msg, detail)
 
-// 	expectedJSON := `{"authority":"some-authority-id","members":["member1","member2"],"threshold":2}`
-// 	suite.testCompareJson(detail, expectedJSON)
-// }
+	expectedJSON := `{"authority":"some-authority-id","exec_time":1577923200000000000,"members":["member1","member2"],"threshold":2}`
+	suite.testCompareJson(detail, expectedJSON)
+}
 
-// func (suite *DecoderTestSuite) TestDecodeGroupMsgReplaceGroup() {
-// 	detail := make(common.JsDict)
+func (suite *DecoderTestSuite) TestDecodeGroupMsgReplaceGroup() {
+	detail := make(common.JsDict)
 
-// 	msg := bandtsstypes.MsgReplaceGroup{
-// 		NewGroupID: 1,
-// 		ExecTime:   time.Now(),
-// 		Authority:  "authority123",
-// 	}
+	msg := bandtsstypes.MsgForceTransitionGroup{
+		IncomingGroupID: 1,
+		ExecTime:        time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC),
+		Authority:       "authority123",
+	}
 
-// 	emitter.DecodeGroupMsgReplaceGroup(&msg, detail)
+	emitter.DecodeBandtssMsgForceTransitionGroup(&msg, detail)
 
-// 	expectedJSON := `{"authority":"authority123","exec_time":"` + msg.ExecTime.GoString() + `","new_group_id":1}`
-// 	suite.testCompareJson(detail, expectedJSON)
-// }
+	expectedJSON := `{"authority":"authority123","exec_time":1577923200000000000,"incoming_group_id":1}`
+	suite.testCompareJson(detail, expectedJSON)
+}
 
-// func (suite *DecoderTestSuite) TestDecodeMsgUpdateParamsBandtss() {
-// 	detail := make(common.JsDict)
+func (suite *DecoderTestSuite) TestDecodeBandtssMsgUpdateParams() {
+	detail := make(common.JsDict)
 
-// 	msg := bandtsstypes.MsgUpdateParams{
-// 		Params: bandtsstypes.NewParams(100, 10, 50, sdk.Coins{Amount}),
-// 	}
+	msg := bandtsstypes.MsgUpdateParams{
+		Params: bandtsstypes.NewParams(100, 10, 50, sdk.Coins{Amount}),
+	}
 
-// 	emitter.DecodeMsgUpdateParamsBandtss(&msg, detail)
-// 	expectedJSON := "{\"active_duration\":100,\"authority\":\"\",\"fee\":[{\"denom\":\"uband\",\"amount\":\"1\"}],\"inactive_penalty_duration\":50,\"reward_percentage\":10}"
-// 	suite.testCompareJson(detail, expectedJSON)
-// }
+	emitter.DecodeBandtssMsgUpdateParams(&msg, detail)
+	expectedJSON := `{"active_duration":100,"authority":"","fee":[{"denom":"uband","amount":"1"}],"inactive_penalty_duration":50,"max_transition_duration":432000000000000,"reward_percentage":10}`
+	suite.testCompareJson(detail, expectedJSON)
+}
+
+func (suite *DecoderTestSuite) TestDecodeBandtssMsgHeartbeat() {
+	detail := make(common.JsDict)
+
+	msg := bandtsstypes.MsgHeartbeat{
+		Sender:  "0x123",
+		GroupID: 1,
+	}
+
+	emitter.DecodeBandtssMsgHeartbeat(&msg, detail)
+	expectedJSON := `{"group_id":1,"sender":"0x123"}`
+	suite.testCompareJson(detail, expectedJSON)
+}
+
+func (suite *DecoderTestSuite) TestDecodeBandtssMsgActivate() {
+	detail := make(common.JsDict)
+
+	msg := bandtsstypes.MsgActivate{
+		Sender:  "0x123",
+		GroupID: 1,
+	}
+
+	emitter.DecodeBandtssMsgActivate(&msg, detail)
+	expectedJSON := `{"group_id":1,"sender":"0x123"}`
+	suite.testCompareJson(detail, expectedJSON)
+}
 
 func (suite *DecoderTestSuite) TestDecodeMsgSubmitDKGRound1() {
 	detail := make(common.JsDict)
