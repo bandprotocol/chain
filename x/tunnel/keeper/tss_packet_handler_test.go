@@ -31,15 +31,11 @@ func TestHandleTSSPacket(t *testing.T) {
 	)
 
 	// Handle the TSS packet
-	err := k.HandleTSSPacket(ctx, &route, packet)
-	require.NoError(t, err)
-
-	// Retrieve the packet from the keeper
-	savedPacket, err := k.GetPacket(ctx, 1, 1)
+	content, err := k.HandleTSSPacket(ctx, &route, packet)
 	require.NoError(t, err)
 
 	// Assert the packet content
-	packetContent, ok := savedPacket.PacketContent.GetCachedValue().(*types.TSSPacketContent)
+	packetContent, ok := content.(*types.TSSPacketContent)
 	require.True(t, ok)
 	require.Equal(t, "chain-1", packetContent.DestinationChainID)
 	require.Equal(t, "0x1234567890abcdef", packetContent.DestinationContractAddress)

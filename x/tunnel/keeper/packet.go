@@ -114,21 +114,30 @@ func (k Keeper) SendPacket(
 	tunnel types.Tunnel,
 	packet types.Packet,
 ) error {
-	// Process the tunnel based on the route type
+	var content types.PacketContentI
+	var err error
+
 	switch r := tunnel.Route.GetCachedValue().(type) {
 	case *types.TSSRoute:
-		err := k.HandleTSSPacket(ctx, r, packet)
-		if err != nil {
-			return err
-		}
+		content, err = k.HandleTSSPacket(ctx, r, packet)
 	case *types.AxelarRoute:
-		err := k.HandleAxelarPacket(ctx, r, packet)
-		if err != nil {
-			return err
-		}
+		content, err = k.HandleAxelarPacket(ctx, r, packet)
 	default:
 		panic(fmt.Sprintf("unknown route type: %T", r))
 	}
+
+	if err != nil {
+		return err
+	}
+
+	// set the packet content
+	err = packet.SetPacketContent(content)
+	if err != nil {
+		panic(fmt.Sprintf("failed to set packet content: %s", err))
+	}
+
+	// set the packet in the store
+	k.SetPacket(ctx, packet)
 	return nil
 }
 

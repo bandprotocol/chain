@@ -7,6 +7,10 @@ import (
 )
 
 // HandleAxelarPacket handles Axelar packet
-func (k Keeper) HandleAxelarPacket(ctx sdk.Context, route *types.AxelarRoute, packet types.Packet) error {
-	return nil
+func (k Keeper) HandleAxelarPacket(
+	ctx sdk.Context,
+	route *types.AxelarRoute,
+	packet types.Packet,
+) (types.PacketContentI, error) {
+	return nil, nil
 }

@@ -1,15 +1,17 @@
 package keeper
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
 // HandleTSSPacket handles TSS packet
-func (k Keeper) HandleTSSPacket(ctx sdk.Context, route *types.TSSRoute, packet types.Packet) error {
+func (k Keeper) HandleTSSPacket(
+	ctx sdk.Context,
+	route *types.TSSRoute,
+	packet types.Packet,
+) (types.PacketContentI, error) {
 	// TODO: Implement TSS packet handler logic
 
 	// Sign TSS packet
@@ -20,12 +22,6 @@ func (k Keeper) HandleTSSPacket(ctx sdk.Context, route *types.TSSRoute, packet t
 		DestinationChainID:         route.DestinationChainID,
 		DestinationContractAddress: route.DestinationContractAddress,
 	}
-	err := packet.SetPacketContent(&packetContent)
-	if err != nil {
-		panic(fmt.Sprintf("failed to set packet content: %s", err))
-	}
 
-	// Save the signed TSS packet
-	k.SetPacket(ctx, packet)
-	return nil
+	return &packetContent, nil
 }
