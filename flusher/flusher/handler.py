@@ -159,12 +159,6 @@ class Handler(object):
             select([relayer_tx_stat_days.c.ibc_received_txs]).where(condition)
         ).scalar()
 
-    def get_latest_band_tss_group_id(self):
-        result = self.conn.execute(
-            "SELECT id FROM band_tss_groups ORDER BY since DESC LIMIT 1"
-        ).fetchone()
-        return result[0] if result else None
-
     def handle_new_block(self, msg):
         self.conn.execute(blocks.insert(), msg)
 
