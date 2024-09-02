@@ -61,6 +61,7 @@ class CustomDateTime(sa.types.TypeDecorator):
     def process_bind_param(self, value, dialect):
         return datetime.fromtimestamp(value / 1e9) if value != None else None
 
+
 class CustomBase64(sa.types.TypeDecorator):
     """Custom LargeBinary type that accepts base64-encoded string."""
 
@@ -158,7 +159,9 @@ data_sources = sa.Table(
     Column("executable", CustomBase64),
     Column("treasury", sa.String),
     Column("fee", sa.String),
-    Column("transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True),
+    Column(
+        "transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True
+    ),
     Column("accumulated_revenue", sa.BigInteger),
     Column("last_request", CustomDateTime, nullable=True),
 )
@@ -173,7 +176,9 @@ oracle_scripts = sa.Table(
     Column("schema", sa.String),
     Column("codehash", sa.String),
     Column("source_code_url", sa.String),
-    Column("transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True),
+    Column(
+        "transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True
+    ),
     Column("version", sa.Integer, nullable=True),
     Column("last_request", CustomDateTime, nullable=True),
 )
@@ -197,13 +202,35 @@ requests = sa.Table(
     Column("request_time", sa.Integer, nullable=True, index=True),
     Column("resolve_status", CustomResolveStatus),
     Column("resolve_time", sa.Integer, nullable=True),
-    Column("resolve_height", sa.Integer, sa.ForeignKey("blocks.height"), nullable=True, index=True),
+    Column(
+        "resolve_height",
+        sa.Integer,
+        sa.ForeignKey("blocks.height"),
+        nullable=True,
+        index=True,
+    ),
     Column("reason", sa.String, nullable=True),
     Column("result", CustomBase64, nullable=True),
     Column("total_fees", sa.String),
     Column("is_ibc", sa.Boolean),
-    sa.Index("ix_requests_oracle_script_id_id", "oracle_script_id", "id", postgresql_include=['transaction_id', 'min_count', 'ask_count', 'resolve_status', 'request_time']),
-    sa.Index("ix_requests_oracle_script_id_resolve_status_request_time", "oracle_script_id", "resolve_status", "request_time"),
+    sa.Index(
+        "ix_requests_oracle_script_id_id",
+        "oracle_script_id",
+        "id",
+        postgresql_include=[
+            "transaction_id",
+            "min_count",
+            "ask_count",
+            "resolve_status",
+            "request_time",
+        ],
+    ),
+    sa.Index(
+        "ix_requests_oracle_script_id_resolve_status_request_time",
+        "oracle_script_id",
+        "resolve_status",
+        "request_time",
+    ),
 )
 
 raw_requests = sa.Table(
@@ -214,14 +241,18 @@ raw_requests = sa.Table(
     Column("data_source_id", sa.Integer, sa.ForeignKey("data_sources.id"), index=True),
     Column("fee", sa.BigInteger),
     Column("calldata", CustomBase64),
-    sa.Index("ix_raw_requests_data_source_id_request_id", "data_source_id", "request_id"),
+    sa.Index(
+        "ix_raw_requests_data_source_id_request_id", "data_source_id", "request_id"
+    ),
 )
 
 val_requests = sa.Table(
     "val_requests",
     metadata,
     Column("request_id", sa.Integer, sa.ForeignKey("requests.id"), primary_key=True),
-    Column("validator_id", sa.Integer, sa.ForeignKey("validators.id"), primary_key=True),
+    Column(
+        "validator_id", sa.Integer, sa.ForeignKey("validators.id"), primary_key=True
+    ),
 )
 
 reports = sa.Table(
@@ -229,7 +260,9 @@ reports = sa.Table(
     metadata,
     Column("request_id", sa.Integer, sa.ForeignKey("requests.id"), primary_key=True),
     Column("transaction_id", sa.Integer, sa.ForeignKey("transactions.id")),
-    Column("validator_id", sa.Integer, sa.ForeignKey("validators.id"), primary_key=True),
+    Column(
+        "validator_id", sa.Integer, sa.ForeignKey("validators.id"), primary_key=True
+    ),
     Column("reporter_id", sa.Integer, sa.ForeignKey("accounts.id")),
     sa.Index("ix_reports_validator_id_request_id", "validator_id", "request_id"),
 )
@@ -242,8 +275,13 @@ raw_reports = sa.Table(
     Column("external_id", sa.BigInteger, primary_key=True),
     Column("data", CustomBase64),
     Column("exit_code", sa.BigInteger),
-    sa.ForeignKeyConstraint(["request_id", "validator_id"], ["reports.request_id", "reports.validator_id"]),
-    sa.ForeignKeyConstraint(["request_id", "external_id"], ["raw_requests.request_id", "raw_requests.external_id"]),
+    sa.ForeignKeyConstraint(
+        ["request_id", "validator_id"], ["reports.request_id", "reports.validator_id"]
+    ),
+    sa.ForeignKeyConstraint(
+        ["request_id", "external_id"],
+        ["raw_requests.request_id", "raw_requests.external_id"],
+    ),
 )
 
 validators = sa.Table(
@@ -275,7 +313,9 @@ validators = sa.Table(
 delegations = sa.Table(
     "delegations",
     metadata,
-    Column("validator_id", sa.Integer, sa.ForeignKey("validators.id"), primary_key=True),
+    Column(
+        "validator_id", sa.Integer, sa.ForeignKey("validators.id"), primary_key=True
+    ),
     Column("delegator_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
     Column("shares", sa.DECIMAL),
     Column("last_ratio", sa.DECIMAL),
@@ -284,8 +324,15 @@ delegations = sa.Table(
 validator_votes = sa.Table(
     "validator_votes",
     metadata,
-    Column("block_height", sa.Integer, sa.ForeignKey("blocks.height"), primary_key=True),
-    Column("consensus_address", sa.String, sa.ForeignKey("validators.consensus_address"), primary_key=True),
+    Column(
+        "block_height", sa.Integer, sa.ForeignKey("blocks.height"), primary_key=True
+    ),
+    Column(
+        "consensus_address",
+        sa.String,
+        sa.ForeignKey("validators.consensus_address"),
+        primary_key=True,
+    ),
     Column("voted", sa.Boolean),
 )
 
@@ -294,7 +341,9 @@ unbonding_delegations = sa.Table(
     metadata,
     Column("delegator_id", sa.Integer, sa.ForeignKey("accounts.id")),
     Column("validator_id", sa.Integer, sa.ForeignKey("validators.id")),
-    Column("creation_height", sa.Integer, sa.ForeignKey("blocks.height"), nullable=True),
+    Column(
+        "creation_height", sa.Integer, sa.ForeignKey("blocks.height"), nullable=True
+    ),
     Column("completion_time", CustomDateTime),
     Column("amount", sa.DECIMAL),
 )
@@ -312,9 +361,15 @@ redelegations = sa.Table(
 account_transactions = sa.Table(
     "account_transactions",
     metadata,
-    Column("transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), primary_key=True),
+    Column(
+        "transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), primary_key=True
+    ),
     Column("account_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
-    sa.Index("ix_account_transactions_account_id_transaction_id", "account_id", "transaction_id"),
+    sa.Index(
+        "ix_account_transactions_account_id_transaction_id",
+        "account_id",
+        "transaction_id",
+    ),
 )
 
 proposals = sa.Table(
@@ -364,7 +419,9 @@ votes = sa.Table(
 historical_bonded_token_on_validators = sa.Table(
     "historical_bonded_token_on_validators",
     metadata,
-    Column("validator_id", sa.Integer, sa.ForeignKey("validators.id"), primary_key=True),
+    Column(
+        "validator_id", sa.Integer, sa.ForeignKey("validators.id"), primary_key=True
+    ),
     Column("bonded_tokens", sa.DECIMAL),
     Column("timestamp", CustomDateTime, primary_key=True),
 )
@@ -379,8 +436,15 @@ reporters = sa.Table(
 related_data_source_oracle_scripts = sa.Table(
     "related_data_source_oracle_scripts",
     metadata,
-    Column("data_source_id", sa.Integer, sa.ForeignKey("data_sources.id"), primary_key=True),
-    Column("oracle_script_id", sa.Integer, sa.ForeignKey("oracle_scripts.id"), primary_key=True),
+    Column(
+        "data_source_id", sa.Integer, sa.ForeignKey("data_sources.id"), primary_key=True
+    ),
+    Column(
+        "oracle_script_id",
+        sa.Integer,
+        sa.ForeignKey("oracle_scripts.id"),
+        primary_key=True,
+    ),
 )
 
 historical_oracle_statuses = sa.Table(
@@ -394,7 +458,9 @@ historical_oracle_statuses = sa.Table(
 data_source_requests = sa.Table(
     "data_source_requests",
     metadata,
-    Column("data_source_id", sa.Integer, sa.ForeignKey("data_sources.id"), primary_key=True),
+    Column(
+        "data_source_id", sa.Integer, sa.ForeignKey("data_sources.id"), primary_key=True
+    ),
     Column("count", sa.Integer),
 )
 
@@ -402,14 +468,21 @@ data_source_requests_per_days = sa.Table(
     "data_source_requests_per_days",
     metadata,
     Column("date", CustomDate, primary_key=True),
-    Column("data_source_id", sa.Integer, sa.ForeignKey("data_sources.id"), primary_key=True),
+    Column(
+        "data_source_id", sa.Integer, sa.ForeignKey("data_sources.id"), primary_key=True
+    ),
     Column("count", sa.Integer),
 )
 
 oracle_script_requests = sa.Table(
     "oracle_script_requests",
     metadata,
-    Column("oracle_script_id", sa.Integer, sa.ForeignKey("oracle_scripts.id"), primary_key=True),
+    Column(
+        "oracle_script_id",
+        sa.Integer,
+        sa.ForeignKey("oracle_scripts.id"),
+        primary_key=True,
+    ),
     Column("count", sa.Integer),
 )
 
@@ -417,7 +490,12 @@ oracle_script_requests_per_days = sa.Table(
     "oracle_script_requests_per_days",
     metadata,
     Column("date", CustomDate, primary_key=True),
-    Column("oracle_script_id", sa.Integer, sa.ForeignKey("oracle_scripts.id"), primary_key=True),
+    Column(
+        "oracle_script_id",
+        sa.Integer,
+        sa.ForeignKey("oracle_scripts.id"),
+        primary_key=True,
+    ),
     Column("count", sa.Integer),
 )
 
@@ -441,7 +519,9 @@ incoming_packets = sa.Table(
     Column("type", sa.String, nullable=True),
     Column("data", sa.JSON, nullable=True),
     Column("acknowledgement", sa.JSON, nullable=True),
-    sa.ForeignKeyConstraint(["dst_port", "dst_channel"], ["channels.port", "channels.channel"]),
+    sa.ForeignKeyConstraint(
+        ["dst_port", "dst_channel"], ["channels.port", "channels.channel"]
+    ),
 )
 
 outgoing_packets = sa.Table(
@@ -457,15 +537,24 @@ outgoing_packets = sa.Table(
     Column("type", sa.String, nullable=True),
     Column("data", sa.JSON, nullable=True),
     Column("acknowledgement", sa.JSON, nullable=True),
-    sa.ForeignKeyConstraint(["src_port", "src_channel"], ["channels.port", "channels.channel"]),
+    sa.ForeignKeyConstraint(
+        ["src_port", "src_channel"], ["channels.port", "channels.channel"]
+    ),
 )
 
-counterparty_chains = sa.Table("counterparty_chains", metadata, Column("chain_id", sa.String, primary_key=True))
+counterparty_chains = sa.Table(
+    "counterparty_chains", metadata, Column("chain_id", sa.String, primary_key=True)
+)
 
 connections = sa.Table(
     "connections",
     metadata,
-    Column("counterparty_chain_id", sa.String, sa.ForeignKey("counterparty_chains.chain_id"), primary_key=True),
+    Column(
+        "counterparty_chain_id",
+        sa.String,
+        sa.ForeignKey("counterparty_chains.chain_id"),
+        primary_key=True,
+    ),
     Column("counterparty_connection_id", sa.String),
     Column("client_id", sa.String),
     Column("counterparty_client_id", sa.String),
@@ -550,7 +639,12 @@ group_proposals = sa.Table(
 group_votes = sa.Table(
     "group_votes",
     metadata,
-    Column("group_proposal_id", sa.Integer, sa.ForeignKey("group_proposals.id"), primary_key=True),
+    Column(
+        "group_proposal_id",
+        sa.Integer,
+        sa.ForeignKey("group_proposals.id"),
+        primary_key=True,
+    ),
     Column("voter_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
     Column("option", sa.String),
     Column("metadata", sa.String),
