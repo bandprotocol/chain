@@ -44,20 +44,13 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 
 	// check for active tunnels
 	for _, id := range ids {
-		tunnel := k.MustGetTunnel(ctx, id)
-		signalPricesInfo := k.MustGetSignalPricesInfo(ctx, tunnel.ID)
-
-		// check if the interval has passed
-		intervalTrigger := ctx.BlockTime().Unix() >= int64(tunnel.Interval)+signalPricesInfo.LastIntervalTimestamp
-
 		// produce packet
-		err := k.ProducePacket(ctx, id, intervalTrigger)
+		err := k.ProducePacket(ctx, id, false)
 		if err != nil {
 			// emit send packet fail event
 			ctx.EventManager().EmitEvent(sdk.NewEvent(
 				types.EventTypeProducePacketFail,
-				sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
-				sdk.NewAttribute(types.AttributeKeyRoute, fmt.Sprintf("%v", tunnel.Route)),
+				sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", id)),
 				sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
 			))
 			continue
@@ -96,7 +89,7 @@ func (k Keeper) ProducePacket(
 	if len(nsps) > 0 {
 		err := k.SendPacket(ctx, tunnel, types.NewPacket(tunnel.ID, tunnel.NonceCount+1, nsps, nil, unixNow))
 		if err != nil {
-			return err
+			return fmt.Errorf("route %s failed to send packet: %w", tunnel.Route.TypeUrl, err)
 		}
 
 		// update signal prices info
