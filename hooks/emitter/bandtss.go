@@ -31,10 +31,10 @@ func (h *Hook) emitSetBandtssGroupTransition(
 
 func (h *Hook) emitUpdateBandtssGroupTransitionStatus(transition types.GroupTransition) {
 	h.Write("UPDATE_BANDTSS_GROUP_TRANSITION", common.JsDict{
-		"tss_signing_id":        transition.SigningID,
-		"current_tss_group_id":  transition.CurrentGroupID,
-		"incoming_tss_group_id": transition.IncomingGroupID,
-		"status":                transition.Status,
+		"tss_signing_id":         transition.SigningID,
+		"incoming_tss_group_id":  transition.IncomingGroupID,
+		"incoming_group_pub_key": parseBytes(transition.IncomingGroupPubKey),
+		"status":                 transition.Status,
 	})
 }
 

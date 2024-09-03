@@ -688,6 +688,13 @@
             name: bandtss_group_transitions
             schema: public
   array_relationships:
+    - name: bandtss_current_groups
+      using:
+        foreign_key_constraint_on:
+          column: proposal_id
+          table:
+            name: bandtss_current_groups
+            schema: public
     - name: deposits
       using:
         foreign_key_constraint_on:
@@ -994,6 +1001,13 @@
           column: current_tss_group_id
           table:
             name: bandtss_group_transitions
+            schema: public
+    - name: bandtss_members
+      using:
+        foreign_key_constraint_on:
+          column: tss_group_id
+          table:
+            name: bandtss_members
             schema: public
     - name: tss_assigned_members
       using:

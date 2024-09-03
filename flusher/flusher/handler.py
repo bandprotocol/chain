@@ -795,8 +795,12 @@ class Handler(object):
     # TSS_HANDLER
     ##################################
 
-    def handle_new_tss_signing(self, msg):
-        self.conn.execute(tss_signings.insert(), msg)
+    def handle_set_tss_signing(self, msg):
+        self.conn.execute(
+            insert(tss_signings)
+            .values(**msg)
+            .on_conflict_do_update(constraint="tss_signings_pkey", set_=msg)
+        )
 
     def handle_update_tss_signing(self, msg):
         condition = True
@@ -835,16 +839,23 @@ class Handler(object):
     ##################################
 
     def handle_set_bandtss_group_transition(self, msg):
-        if msg["tss_signing_id"] == 0:
+        if "tss_signing_id" in msg and msg["tss_signing_id"] == 0:
             del msg["tss_signing_id"]
-        if msg["current_tss_group_id"] == 0:
+        if "current_tss_group_id" in msg and msg["current_tss_group_id"] == 0:
             del msg["current_tss_group_id"]
-        if msg["incoming_tss_group_id"] == 0:
+        if "incoming_tss_group_id" in msg and msg["incoming_tss_group_id"] == 0:
             del msg["incoming_tss_group_id"]
 
         self.conn.execute(bandtss_group_transitions.insert(), msg)
 
-    def update_bandtss_group_transition(self, status):
+    def update_bandtss_group_transition(self, msg):
+        if "tss_signing_id" in msg and msg["tss_signing_id"] == 0:
+            del msg["tss_signing_id"]
+        if "current_tss_group_id" in msg and msg["current_tss_group_id"] == 0:
+            del msg["current_tss_group_id"]
+        if "incoming_tss_group_id" in msg and msg["incoming_tss_group_id"] == 0:
+            del msg["incoming_tss_group_id"]
+
         proposal_column = bandtss_group_transitions.c.proposal_id
         proposal_id = self.conn.execute(select(func.max(proposal_column))).scalar()
         if proposal_id is None:
@@ -853,17 +864,19 @@ class Handler(object):
         self.conn.execute(
             bandtss_group_transitions.update()
             .where(proposal_column == proposal_id)
-            .values(status=status)
+            .values(**msg)
         )
 
     def handle_update_bandtss_group_transition(self, msg):
-        self.update_bandtss_group_transition(msg["status"])
+        self.update_bandtss_group_transition(msg)
 
     def handle_update_bandtss_group_transition_success(self, msg):
-        self.update_bandtss_group_transition(GroupTransitionStatus.success)
+        msg = {"status": GroupTransitionStatus.success}
+        self.update_bandtss_group_transition(msg)
 
     def handle_update_bandtss_group_transition_failed(self, msg):
-        self.update_bandtss_group_transition(GroupTransitionStatus.expired)
+        msg = {"status": GroupTransitionStatus.expired}
+        self.update_bandtss_group_transition(msg)
 
     def handle_set_bandtss_current_group(self, msg):
         proposal_column = bandtss_group_transitions.c.proposal_id

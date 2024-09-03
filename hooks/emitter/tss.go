@@ -10,8 +10,8 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-func (h *Hook) emitNewTssSigning(signing types.Signing) {
-	h.Write("NEW_TSS_SIGNING", common.JsDict{
+func (h *Hook) emitSetTssSigning(signing types.Signing) {
+	h.Write("SET_TSS_SIGNING", common.JsDict{
 		"id":              signing.ID,
 		"current_attempt": signing.CurrentAttempt,
 		"tss_group_id":    signing.GroupID,
@@ -117,7 +117,7 @@ func (h *Hook) handleTssEventRequestSignature(ctx sdk.Context, evMap common.EvMa
 		attempt := signing.CurrentAttempt
 		attemptInfo := h.tssKeeper.MustGetSigningAttempt(ctx, id, attempt)
 
-		h.emitNewTssSigning(signing)
+		h.emitSetTssSigning(signing)
 
 		for _, am := range attemptInfo.AssignedMembers {
 			h.emitNewTssAssignedMember(signing.ID, attempt, signing.GroupID, am)
