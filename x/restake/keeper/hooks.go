@@ -99,11 +99,14 @@ func (h Hooks) isAbleToUnbond(ctx sdk.Context, addr sdk.AccAddress, delegated sd
 	iterator := sdk.KVStoreReversePrefixIterator(ctx.KVStore(h.k.storeKey), types.LocksByPowerIndexKey(addr))
 	defer iterator.Close()
 
+	// loop lock from high power to low power.
 	for ; iterator.Valid(); iterator.Next() {
 		key := string(iterator.Value())
 		_, power := types.SplitLockByPowerIndexKey(iterator.Key())
 
+		// check if the vault of lock is active.
 		if h.k.IsActiveVault(ctx, key) {
+			// return true if new delegation is more than or equal to locked power.
 			return delegated.GTE(power)
 		}
 	}
