@@ -326,8 +326,8 @@ func (m MsgDeactivateTunnel) ValidateBasic() error {
 func NewMsgManualTriggerTunnel(
 	tunnelID uint64,
 	creator string,
-) *MsgActivateTunnel {
-	return &MsgActivateTunnel{
+) *MsgManualTriggerTunnel {
+	return &MsgManualTriggerTunnel{
 		TunnelID: tunnelID,
 		Creator:  creator,
 	}

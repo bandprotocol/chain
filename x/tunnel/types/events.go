@@ -10,6 +10,7 @@ const (
 	EventTypeManualTriggerTunnel = "manual_trigger_tunnel"
 	EventTypeSignalInfoNotFound  = "signal_info_not_found"
 	EventTypeProducePacketFail   = "produce_packet_fail"
+	EventTypeNoTunnelRoute       = "no_tunnel_route"
 
 	AttributeKeyParams           = "params"
 	AttributeKeyTunnelID         = "tunnel_id"

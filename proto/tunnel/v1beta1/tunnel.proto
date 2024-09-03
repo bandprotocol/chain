@@ -100,12 +100,6 @@ message SignalPrice {
   int64 timestamp = 3;
 }
 
-// PendingTriggerTunnels is the type for a list of tunnel IDs that are waiting to be triggered
-message PendingTriggerTunnels {
-  // IDs is a list of tunnel IDs that are waiting to be triggered
-  repeated uint64 ids = 1 [(gogoproto.customname) = "IDs"];
-}
-
 // Packet is the packet that tunnel produces
 message Packet {
   // tunnel_id is the tunnel ID

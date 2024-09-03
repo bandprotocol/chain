@@ -123,7 +123,7 @@ func (k Keeper) SendPacket(
 	case *types.AxelarRoute:
 		content, err = k.SendAxelarPacket(ctx, r, packet)
 	default:
-		panic(fmt.Sprintf("unknown route type: %T", r))
+		return fmt.Errorf("no route found for tunnel ID: %d", tunnel.ID)
 	}
 
 	// return error if failed to send packet

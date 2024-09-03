@@ -55,6 +55,11 @@ message MsgCreateTunnel {
   string creator = 6 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
+// MsgCreateTunnelResponse is the response type for the Msg/CreateTunnel RPC method.
+message MsgCreateTunnelResponse {
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
+}
+
 // MsgEditTunnel is the transaction message to edit a tunnel.
 message MsgEditTunnel {
   option (cosmos.msg.v1.signer) = "creator";
@@ -72,11 +77,6 @@ message MsgEditTunnel {
 
 // MsgEditTunnelResponse is the response type for the Msg/EditTunnel RPC method.
 message MsgEditTunnelResponse {}
-
-// MsgCreateTunnelResponse is the response type for the Msg/CreateTunnel RPC method.
-message MsgCreateTunnelResponse {
-  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
-}
 
 // MsgActivateTunnel is the transaction message to activate a tunnel.
 message MsgActivateTunnel {

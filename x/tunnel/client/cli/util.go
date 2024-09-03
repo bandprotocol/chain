@@ -25,7 +25,7 @@ func (sis SignalInfos) ToSignalInfos() []types.SignalInfo {
 	for _, si := range sis.SignalInfos {
 		signalInfo := types.SignalInfo{
 			SignalID:         si.SignalID,
-			SoftDeviationBPS: 0,
+			SoftDeviationBPS: si.DeviationBPS,
 			HardDeviationBPS: si.DeviationBPS,
 		}
 		signalInfos = append(signalInfos, signalInfo)
