@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"context"
 	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -53,7 +52,7 @@ func GetQueryCmdTunnel() *cobra.Command {
 				return err
 			}
 
-			res, err := queryClient.Tunnel(context.Background(), &types.QueryTunnelRequest{
+			res, err := queryClient.Tunnel(cmd.Context(), &types.QueryTunnelRequest{
 				TunnelId: tunnelID,
 			})
 			if err != nil {
@@ -102,7 +101,7 @@ func GetQueryCmdTunnels() *cobra.Command {
 				statusFilter = types.TUNNEL_STATUS_FILTER_INACTIVE
 			}
 
-			res, err := queryClient.Tunnels(context.Background(), &types.QueryTunnelsRequest{
+			res, err := queryClient.Tunnels(cmd.Context(), &types.QueryTunnelsRequest{
 				IsActive:   statusFilter,
 				Pagination: pageReq,
 			})

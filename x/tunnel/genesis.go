@@ -31,6 +31,17 @@ func ValidateGenesis(data *types.GenesisState) error {
 		}
 	}
 
+	// validate the signal prices infos
+	for _, signalPricesInfo := range data.SignalPricesInfos {
+		if signalPricesInfo.TunnelID == 0 {
+			return types.ErrInvalidGenesis.Wrapf(
+				"TunnelID %d cannot be 0 or greater than the TunnelCount %d",
+				signalPricesInfo.TunnelID,
+				data.TunnelCount,
+			)
+		}
+	}
+
 	return data.Params.Validate()
 }
 
@@ -53,13 +64,19 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 	// set the tunnel count
 	k.SetTunnelCount(ctx, data.TunnelCount)
 
+	// create the active tunnel IDs
+	activeTunnelIDs := make([]uint64, data.TunnelCount)
+
 	// set the tunnels
-	for _, tunnel := range data.Tunnels {
+	for i, tunnel := range data.Tunnels {
+		if tunnel.IsActive {
+			activeTunnelIDs[i] = tunnel.ID
+		}
 		k.SetTunnel(ctx, tunnel)
 	}
 
 	// set the active tunnel IDs
-	k.SetActiveTunnelIDs(ctx, data.ActiveTunnelIDs)
+	k.SetActiveTunnelIDs(ctx, activeTunnelIDs)
 
 	// set the signal prices infos
 	for _, signalPricesInfo := range data.SignalPricesInfos {
@@ -73,7 +90,6 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 		Params:            k.GetParams(ctx),
 		TunnelCount:       k.GetTunnelCount(ctx),
 		Tunnels:           k.GetTunnels(ctx),
-		ActiveTunnelIDs:   k.MustGetActiveTunnelIDs(ctx),
 		SignalPricesInfos: k.GetSignalPricesInfos(ctx),
 	}
 }

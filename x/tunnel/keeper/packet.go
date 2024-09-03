@@ -2,8 +2,8 @@ package keeper
 
 import (
 	"fmt"
-	"math"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
@@ -51,7 +51,7 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 		intervalTrigger := ctx.BlockTime().Unix() >= int64(tunnel.Interval)+signalPricesInfo.LastIntervalTimestamp
 
 		// produce packet
-		err := k.ProducePacket(ctx, tunnel, signalPricesInfo, intervalTrigger)
+		err := k.ProducePacket(ctx, id, intervalTrigger)
 		if err != nil {
 			// emit send packet fail event
 			ctx.EventManager().EmitEvent(sdk.NewEvent(
@@ -68,15 +68,21 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 // ProducePacket generates a packet and sends it to the destination route
 func (k Keeper) ProducePacket(
 	ctx sdk.Context,
-	tunnel types.Tunnel,
-	signalPricesInfo types.SignalPricesInfo,
+	tunnelID uint64,
 	triggerAll bool,
 ) error {
 	unixNow := ctx.BlockTime().Unix()
 
+	// get tunnel and signal prices info
+	tunnel := k.MustGetTunnel(ctx, tunnelID)
+	signalPricesInfo := k.MustGetSignalPricesInfo(ctx, tunnelID)
+
 	// TODO: feeds module needs to be implemented get prices that can use
 	latestPrices := k.feedsKeeper.GetPrices(ctx)
 	latestPricesMap := createLatestPricesMap(latestPrices)
+
+	// check if the interval has passed
+	intervalTrigger := ctx.BlockTime().Unix() >= int64(tunnel.Interval)+signalPricesInfo.LastIntervalTimestamp
 
 	// generate new signal prices
 	nsps := GenerateSignalPrices(
@@ -85,7 +91,7 @@ func (k Keeper) ProducePacket(
 		latestPricesMap,
 		tunnel.GetSignalInfoMap(),
 		signalPricesInfo.SignalPrices,
-		triggerAll,
+		triggerAll || intervalTrigger,
 	)
 	if len(nsps) > 0 {
 		err := k.SendPacket(ctx, tunnel, types.NewPacket(tunnel.ID, tunnel.NonceCount+1, nsps, nil, unixNow))
@@ -95,7 +101,7 @@ func (k Keeper) ProducePacket(
 
 		// update signal prices info
 		signalPricesInfo.UpdateSignalPrices(nsps)
-		if triggerAll {
+		if triggerAll || intervalTrigger {
 			signalPricesInfo.LastIntervalTimestamp = unixNow
 		}
 		k.SetSignalPricesInfo(ctx, signalPricesInfo)
@@ -168,7 +174,12 @@ func GenerateSignalPrices(
 		}
 
 		// if triggerAll is true or the deviation exceeds the threshold, add the signal price info to the list
-		if triggerAll || deviationExceedsThreshold(sp.Price, latestPrice.Price, signalInfo.HardDeviationBPS) {
+		if triggerAll ||
+			deviationExceedsThreshold(
+				sdk.NewIntFromUint64(sp.Price),
+				sdk.NewIntFromUint64(latestPrice.Price),
+				sdk.NewIntFromUint64(signalInfo.HardDeviationBPS),
+			) {
 			sps = append(
 				sps,
 				types.NewSignalPrice(
@@ -183,12 +194,13 @@ func GenerateSignalPrices(
 }
 
 // deviationExceedsThreshold checks if the deviation between the old price and the new price exceeds the threshold
-func deviationExceedsThreshold(oldPrice, newPrice uint64, thresholdBPS uint64) bool {
+func deviationExceedsThreshold(oldPrice, newPrice, thresholdBPS sdkmath.Int) bool {
 	// if the deviation is greater than the hard deviation, add the signal price info to the list
 	// soft deviation is the feature to be implemented in the future
-	deviation := math.Abs(float64(newPrice-oldPrice)) / float64(oldPrice)
-	deviationInBPS := uint64(deviation * 10000)
-	return deviationInBPS >= thresholdBPS
+	deviation := newPrice.Sub(oldPrice).Abs().Quo(oldPrice)
+
+	deviationInBPS := deviation.MulRaw(10000)
+	return deviationInBPS.GTE(thresholdBPS)
 }
 
 // createLatestPricesMap creates a map of latest prices with signal ID as the key

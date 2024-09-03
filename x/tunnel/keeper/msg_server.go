@@ -197,14 +197,8 @@ func (ms msgServer) ManualTriggerTunnel(
 		)
 	}
 
-	// Get signal prices info
-	signalPricesInfo, err := ms.Keeper.GetSignalPricesInfo(ctx, tunnel.ID)
-	if err != nil {
-		return nil, err
-	}
-
 	// Produce packet with trigger all signals
-	err = ms.Keeper.ProducePacket(ctx, tunnel, signalPricesInfo, true)
+	err = ms.Keeper.ProducePacket(ctx, tunnel.ID, true)
 	if err != nil {
 		return nil, err
 	}
