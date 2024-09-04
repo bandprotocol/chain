@@ -28,7 +28,7 @@ const (
 var (
 	TunnelCountStoreKey = []byte{0x00}
 
-	ActiveTunnelIDsStoreKey = []byte{0x01}
+	ActiveTunnelIDStoreKeyPrefix = []byte{0x01}
 
 	TunnelStoreKeyPrefix = []byte{0x10}
 
@@ -41,6 +41,10 @@ var (
 
 func TunnelStoreKey(tunnelID uint64) []byte {
 	return append(TunnelStoreKeyPrefix, sdk.Uint64ToBigEndian(tunnelID)...)
+}
+
+func ActiveTunnelIDStoreKey(tunnelID uint64) []byte {
+	return append(ActiveTunnelIDStoreKeyPrefix, sdk.Uint64ToBigEndian(tunnelID)...)
 }
 
 func TunnelPacketsStoreKey(tunnelID uint64) []byte {

@@ -64,19 +64,10 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 	// set the tunnel count
 	k.SetTunnelCount(ctx, data.TunnelCount)
 
-	// create the active tunnel IDs
-	activeTunnelIDs := make([]uint64, data.TunnelCount)
-
 	// set the tunnels
-	for i, tunnel := range data.Tunnels {
-		if tunnel.IsActive {
-			activeTunnelIDs[i] = tunnel.ID
-		}
-		k.SetTunnel(ctx, tunnel)
+	for _, tunnel := range data.Tunnels {
+		k.ActiveTunnelID(ctx, tunnel.ID)
 	}
-
-	// set the active tunnel IDs
-	k.SetActiveTunnelIDs(ctx, activeTunnelIDs)
 
 	// set the signal prices infos
 	for _, signalPricesInfo := range data.SignalPricesInfos {

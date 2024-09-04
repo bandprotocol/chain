@@ -131,27 +131,25 @@ func (k Keeper) GetTunnels(ctx sdk.Context) []types.Tunnel {
 	return tunnels
 }
 
-// SetActiveTunnelIDs sets the active tunnel IDs in the store
-func (k Keeper) SetActiveTunnelIDs(ctx sdk.Context, ids []uint64) {
-	ctx.KVStore(k.storeKey).Set(types.ActiveTunnelIDsStoreKey, k.cdc.MustMarshal(&types.ActiveTunnelIDs{IDs: ids}))
+// ActiveTunnelID sets the active tunnel ID in the store
+func (k Keeper) ActiveTunnelID(ctx sdk.Context, tunnelID uint64) {
+	ctx.KVStore(k.storeKey).Set(types.ActiveTunnelIDStoreKey(tunnelID), []byte{0x01})
+}
+
+// DeactivateTunnelID deactivates the tunnel ID in the store
+func (k Keeper) DeactivateTunnelID(ctx sdk.Context, tunnelID uint64) {
+	ctx.KVStore(k.storeKey).Delete(types.ActiveTunnelIDStoreKey(tunnelID))
 }
 
 // GetActiveTunnelIDs retrieves the active tunnel IDs from the store
-func (k Keeper) GetActiveTunnelIDs(ctx sdk.Context) ([]uint64, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.ActiveTunnelIDsStoreKey)
-	if bz == nil {
-		return []uint64{}, types.ErrActiveTunnelIDsNotFound
-	}
-	var activeTunnelIDs types.ActiveTunnelIDs
-	k.cdc.MustUnmarshal(bz, &activeTunnelIDs)
-	return activeTunnelIDs.IDs, nil
-}
+func (k Keeper) GetActiveTunnelIDs(ctx sdk.Context) []uint64 {
+	var ids []uint64
+	iterator := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.ActiveTunnelIDStoreKeyPrefix)
+	defer iterator.Close()
 
-// MustGetActiveTunnelIDs retrieves the active tunnel IDs from the store and panics if the IDs do not exist
-func (k Keeper) MustGetActiveTunnelIDs(ctx sdk.Context) []uint64 {
-	ids, err := k.GetActiveTunnelIDs(ctx)
-	if err != nil {
-		panic(err)
+	for ; iterator.Valid(); iterator.Next() {
+		id := sdk.BigEndianToUint64(iterator.Key()[1:])
+		ids = append(ids, id)
 	}
 	return ids
 }
@@ -172,13 +170,7 @@ func (k Keeper) ActivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 	tunnel.IsActive = true
 
 	// Add the tunnel ID to the active tunnel IDs
-	activeTunnelIDs, err := k.GetActiveTunnelIDs(ctx)
-	if err != nil {
-		return err
-	}
-
-	activeTunnelIDs = append(activeTunnelIDs, tunnelID)
-	k.SetActiveTunnelIDs(ctx, activeTunnelIDs)
+	k.ActiveTunnelID(ctx, tunnelID)
 
 	// Set the last interval timestamp to the current block time
 	k.SetTunnel(ctx, tunnel)
@@ -200,19 +192,7 @@ func (k Keeper) DeactivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 	tunnel.IsActive = false
 
 	// Remove the tunnel ID from the active tunnel IDs
-	activeTunnelIDs, err := k.GetActiveTunnelIDs(ctx)
-	if err != nil {
-		return err
-	}
-
-	// Remove the tunnel ID from the active tunnel IDs
-	for i, activeID := range activeTunnelIDs {
-		if activeID == tunnelID {
-			activeTunnelIDs = append(activeTunnelIDs[:i], activeTunnelIDs[i+1:]...)
-			break
-		}
-	}
-	k.SetActiveTunnelIDs(ctx, activeTunnelIDs)
+	k.DeactivateTunnelID(ctx, tunnelID)
 
 	// Set the last interval timestamp to the current block time
 	k.SetTunnel(ctx, tunnel)

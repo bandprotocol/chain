@@ -28,12 +28,16 @@ func NewSignalPricesInfo(
 
 // UpdateSignalPrices updates the signal prices based on signal IDs
 func (spsi *SignalPricesInfo) UpdateSignalPrices(newSignalPrices []SignalPrice) {
-	for _, nsp := range newSignalPrices {
-		for i, sp := range spsi.SignalPrices {
-			if nsp.SignalID == sp.SignalID {
-				spsi.SignalPrices[i] = sp
-				break
-			}
+	// create a map of new signal prices
+	newSpMap := make(map[string]SignalPrice)
+	for _, sp := range newSignalPrices {
+		newSpMap[sp.SignalID] = sp
+	}
+
+	// update signal prices
+	for i, sp := range spsi.SignalPrices {
+		if newSp, ok := newSpMap[sp.SignalID]; ok {
+			spsi.SignalPrices[i] = newSp
 		}
 	}
 }

@@ -40,12 +40,16 @@ func (k Keeper) MustGetPacket(ctx sdk.Context, tunnelID uint64, nonce uint64) ty
 // ProduceActiveTunnelPackets generates packets and sends packets to the destination route for all active tunnels
 func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 	// get active tunnel IDs
-	ids := k.MustGetActiveTunnelIDs(ctx)
+	ids := k.GetActiveTunnelIDs(ctx)
+
+	// TODO: feeds module needs to be implemented get prices that can use
+	latestPrices := k.feedsKeeper.GetPrices(ctx)
+	latestPricesMap := createLatestPricesMap(latestPrices)
 
 	// check for active tunnels
 	for _, id := range ids {
 		// produce packet
-		err := k.ProducePacket(ctx, id, false)
+		err := k.ProducePacket(ctx, id, latestPricesMap, false)
 		if err != nil {
 			// emit send packet fail event
 			ctx.EventManager().EmitEvent(sdk.NewEvent(
@@ -62,6 +66,7 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 func (k Keeper) ProducePacket(
 	ctx sdk.Context,
 	tunnelID uint64,
+	latestPricesMap map[string]feedstypes.Price,
 	triggerAll bool,
 ) error {
 	unixNow := ctx.BlockTime().Unix()
@@ -69,10 +74,6 @@ func (k Keeper) ProducePacket(
 	// get tunnel and signal prices info
 	tunnel := k.MustGetTunnel(ctx, tunnelID)
 	signalPricesInfo := k.MustGetSignalPricesInfo(ctx, tunnelID)
-
-	// TODO: feeds module needs to be implemented get prices that can use
-	latestPrices := k.feedsKeeper.GetPrices(ctx)
-	latestPricesMap := createLatestPricesMap(latestPrices)
 
 	// check if the interval has passed
 	intervalTrigger := ctx.BlockTime().Unix() >= int64(tunnel.Interval)+signalPricesInfo.LastIntervalTimestamp
