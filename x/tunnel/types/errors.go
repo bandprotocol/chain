@@ -17,6 +17,4 @@ var (
 	ErrNoPacketContent          = errorsmod.Register(ModuleName, 10, "no packet content")
 	ErrInvalidTunnelCreator     = errorsmod.Register(ModuleName, 11, "invalid creator of tunnel")
 	ErrAccountAlreadyExist      = errorsmod.Register(ModuleName, 12, "account already exist")
-	ErrTunnelAlreadyActive      = errorsmod.Register(ModuleName, 13, "tunnel already active")
-	ErrTunnelNotActive          = errorsmod.Register(ModuleName, 14, "tunnel not active")
 )

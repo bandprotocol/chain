@@ -161,11 +161,6 @@ func (k Keeper) ActivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 		return err
 	}
 
-	// Check if the tunnel is already active
-	if tunnel.IsActive {
-		return types.ErrTunnelAlreadyActive
-	}
-
 	// Activate the tunnel
 	tunnel.IsActive = true
 
@@ -184,11 +179,6 @@ func (k Keeper) DeactivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 		return err
 	}
 
-	// Check if the tunnel is already inactive
-	if !tunnel.IsActive {
-		return types.ErrTunnelNotActive
-	}
-
 	tunnel.IsActive = false
 
 	// Remove the tunnel ID from the active tunnel IDs
@@ -197,4 +187,12 @@ func (k Keeper) DeactivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 	// Set the last interval timestamp to the current block time
 	k.SetTunnel(ctx, tunnel)
 	return nil
+}
+
+// MustDeactivateTunnel deactivates a tunnel and panics if the tunnel does not exist
+func (k Keeper) MustDeactivateTunnel(ctx sdk.Context, tunnelID uint64) {
+	err := k.DeactivateTunnel(ctx, tunnelID)
+	if err != nil {
+		panic(err)
+	}
 }

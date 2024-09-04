@@ -75,6 +75,14 @@ func (k Keeper) ProducePacket(
 	tunnel := k.MustGetTunnel(ctx, tunnelID)
 	signalPricesInfo := k.MustGetSignalPricesInfo(ctx, tunnelID)
 
+	// deduct base packet fee from the fee payer
+	err := k.DeductBasePacketFee(ctx, sdk.MustAccAddressFromBech32(tunnel.FeePayer))
+	if err != nil {
+		// deactivate tunnel if failed to deduct base packet fee
+		k.MustDeactivateTunnel(ctx, tunnelID)
+		return fmt.Errorf("failed to deduct base packet fee: %w", err)
+	}
+
 	// check if the interval has passed
 	intervalTrigger := ctx.BlockTime().Unix() >= int64(tunnel.Interval)+signalPricesInfo.LastIntervalTimestamp
 
@@ -90,6 +98,9 @@ func (k Keeper) ProducePacket(
 	if len(nsps) > 0 {
 		err := k.SendPacket(ctx, tunnel, types.NewPacket(tunnel.ID, tunnel.NonceCount+1, nsps, nil, unixNow))
 		if err != nil {
+			// refund base packet fee if failed to send packet
+			k.MustRefundBasePacketFee(ctx, sdk.MustAccAddressFromBech32(tunnel.FeePayer))
+
 			return fmt.Errorf("route %s failed to send packet: %w", tunnel.Route.TypeUrl, err)
 		}
 
