@@ -13,3 +13,18 @@ type ValidatorInfo struct {
 	Power   uint64
 	Status  oracletypes.ValidatorStatus
 }
+
+// NewValidatorInfo returns a new ValidatorInfo.
+func NewValidatorInfo(
+	index int64,
+	address sdk.ValAddress,
+	power uint64,
+	status oracletypes.ValidatorStatus,
+) ValidatorInfo {
+	return ValidatorInfo{
+		Index:   index,
+		Address: address,
+		Power:   power,
+		Status:  status,
+	}
+}

@@ -1,15 +1,13 @@
-package keeper
+package types
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
 func TestCalculateInterval(t *testing.T) {
-	params := types.NewParams("[NOT_SET]", 30, 30, 60, 3600, 1000_000_000, 100, 30, 50, 3000, 28800, 10)
+	params := NewParams("[NOT_SET]", 30, 30, 60, 3600, 1000_000_000, 100, 30, 50, 3000, 28800, 10)
 
 	testCases := []struct {
 		name        string
@@ -41,14 +39,14 @@ func TestCalculateInterval(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
-			interval := CalculateInterval(tc.power, params)
+			interval := CalculateInterval(tc.power, params.PowerStepThreshold, params.MinInterval, params.MaxInterval)
 			require.Equal(tt, tc.expInterval, interval)
 		})
 	}
 }
 
 func TestCalculateDeviation(t *testing.T) {
-	params := types.NewParams("[NOT_SET]", 30, 30, 60, 3600, 1000_000_000, 100, 30, 50, 3000, 28800, 10)
+	params := NewParams("[NOT_SET]", 30, 30, 60, 3600, 1000_000_000, 100, 30, 50, 3000, 28800, 10)
 
 	testCases := []struct {
 		name         string
@@ -80,25 +78,13 @@ func TestCalculateDeviation(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
-			deviation := CalculateDeviation(tc.power, params)
+			deviation := CalculateDeviation(
+				tc.power,
+				params.PowerStepThreshold,
+				params.MinDeviationBasisPoint,
+				params.MaxDeviationBasisPoint,
+			)
 			require.Equal(tt, tc.expDeviation, deviation)
 		})
 	}
-}
-
-func TestSumPower(t *testing.T) {
-	require.Equal(t, int64(1250009), sumPower([]types.Signal{
-		{
-			ID:    "CS:BAND-USD",
-			Power: 100000,
-		},
-		{
-			ID:    "CS:ATOM-USD",
-			Power: 150000,
-		},
-		{
-			ID:    "CS:OSMO-USD",
-			Power: 1000009,
-		},
-	}))
 }

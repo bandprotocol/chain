@@ -22,7 +22,7 @@ var (
 func TestNewMsgClaimRewards(t *testing.T) {
 	acc := sdk.MustAccAddressFromBech32(ValidAddress)
 	msg := NewMsgClaimRewards(acc, ValidKey)
-	require.Equal(t, ValidAddress, msg.LockerAddress)
+	require.Equal(t, ValidAddress, msg.StakerAddress)
 	require.Equal(t, ValidKey, msg.Key)
 }
 
@@ -41,7 +41,7 @@ func TestMsgClaimRewards_Type(t *testing.T) {
 func TestMsgClaimRewards_GetSignBytes(t *testing.T) {
 	acc := sdk.MustAccAddressFromBech32(ValidAddress)
 	msg := NewMsgClaimRewards(acc, ValidKey)
-	expected := `{"type":"restake/MsgClaimRewards","value":{"key":"restake","locker_address":"cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8"}}`
+	expected := `{"type":"restake/MsgClaimRewards","value":{"key":"restake","staker_address":"cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8"}}`
 	require.Equal(t, expected, string(msg.GetSignBytes()))
 }
 
@@ -57,17 +57,17 @@ func TestMsgClaimRewards_GetSigners(t *testing.T) {
 func TestMsgClaimRewards_ValidateBasic(t *testing.T) {
 	acc := sdk.MustAccAddressFromBech32(ValidAddress)
 
-	// Valid address
+	// valid address
 	msg := NewMsgClaimRewards(acc, ValidKey)
 	err := msg.ValidateBasic()
 	require.NoError(t, err)
 
-	// Invalid address
+	// invalid address
 	msg = NewMsgClaimRewards([]byte(InvalidAddress), ValidKey)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 
-	// Invalid key
+	// invalid key
 	msg = NewMsgClaimRewards(acc, InvalidKey)
 	err = msg.ValidateBasic()
 	require.Error(t, err)

@@ -26,30 +26,30 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Params is the data structure that keeps the parameters of the feeds module.
 type Params struct {
-	// Admin is the address of the admin that is allowed to perform operations on modules.
+	// admin is the address of the admin that is allowed to perform operations on modules.
 	Admin string `protobuf:"bytes,1,opt,name=admin,proto3" json:"admin,omitempty"`
-	// AllowableBlockTimeDiscrepancy is the allowed discrepancy (in seconds) between validator price timestamp and
+	// allowable_block_time_discrepancy is the allowed discrepancy (in seconds) between validator price timestamp and
 	// block_time.
 	AllowableBlockTimeDiscrepancy int64 `protobuf:"varint,2,opt,name=allowable_block_time_discrepancy,json=allowableBlockTimeDiscrepancy,proto3" json:"allowable_block_time_discrepancy,omitempty"`
-	// GracePeriod is the time (in seconds) given for validators to adapt to changing in feed's interval.
+	// grace_period is the time (in seconds) given for validators to adapt to changing in feed's interval.
 	GracePeriod int64 `protobuf:"varint,3,opt,name=grace_period,json=gracePeriod,proto3" json:"grace_period,omitempty"`
-	// MinInterval is the minimum limit of every feeds' interval (in seconds).
+	// min_interval is the minimum limit of every feeds' interval (in seconds).
 	// If the calculated interval is lower than this, it will be capped at this value.
 	MinInterval int64 `protobuf:"varint,4,opt,name=min_interval,json=minInterval,proto3" json:"min_interval,omitempty"`
-	// MaxInterval is the maximum limit of every feeds' interval (in seconds).
+	// max_interval is the maximum limit of every feeds' interval (in seconds).
 	// If the calculated interval of a feed is higher than this, it will not be capped at this value.
 	MaxInterval int64 `protobuf:"varint,5,opt,name=max_interval,json=maxInterval,proto3" json:"max_interval,omitempty"`
-	// PowerStepThreshold is the amount of minimum power required to put feed in the current feeds list.
+	// power_step_threshold is the amount of minimum power required to put feed in the current feeds list.
 	PowerStepThreshold int64 `protobuf:"varint,6,opt,name=power_step_threshold,json=powerStepThreshold,proto3" json:"power_step_threshold,omitempty"`
-	// MaxCurrentFeeds is the maximum number of feeds supported at a time.
+	// max_current_feeds is the maximum number of feeds supported at a time.
 	MaxCurrentFeeds uint64 `protobuf:"varint,7,opt,name=max_current_feeds,json=maxCurrentFeeds,proto3" json:"max_current_feeds,omitempty"`
-	// CooldownTime represents the duration (in seconds) during which validators are prohibited from sending new prices.
+	// cooldown_time represents the duration (in seconds) during which validators are prohibited from sending new prices.
 	CooldownTime int64 `protobuf:"varint,8,opt,name=cooldown_time,json=cooldownTime,proto3" json:"cooldown_time,omitempty"`
-	// MinDeviationBasisPoint is the minimum limit of every feeds' deviation (in basis point).
+	// min_deviation_basis_point is the minimum limit of every feeds' deviation (in basis point).
 	MinDeviationBasisPoint int64 `protobuf:"varint,9,opt,name=min_deviation_basis_point,json=minDeviationBasisPoint,proto3" json:"min_deviation_basis_point,omitempty"`
-	// MaxDeviationBasisPoint is the maximum limit of every feeds' deviation (in basis point).
+	// max_deviation_basis_point is the maximum limit of every feeds' deviation (in basis point).
 	MaxDeviationBasisPoint int64 `protobuf:"varint,10,opt,name=max_deviation_basis_point,json=maxDeviationBasisPoint,proto3" json:"max_deviation_basis_point,omitempty"`
-	// CurrentFeedsUpdateInterval is the number of blocks after which the current feeds will be re-calculated.
+	// current_feeds_update_interval is the number of blocks after which the current feeds will be re-calculated.
 	CurrentFeedsUpdateInterval int64 `protobuf:"varint,11,opt,name=current_feeds_update_interval,json=currentFeedsUpdateInterval,proto3" json:"current_feeds_update_interval,omitempty"`
 	// MaxSignalIDsPerSigning is the maximum number of signals allowed in a single tss signing request.
 	MaxSignalIDsPerSigning uint64 `protobuf:"varint,12,opt,name=max_signal_ids_per_signing,json=maxSignalIdsPerSigning,proto3" json:"max_signal_ids_per_signing,omitempty"`

@@ -25,21 +25,24 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdPrices(),
 		GetQueryCmdPrice(),
 		GetQueryCmdValidatorPrices(),
+		GetQueryCmdValidValidator(),
 		GetQueryCmdSignalTotalPowers(),
 		GetQueryCmdParams(),
-		GetQueryCmdDelegatorSignal(),
+		GetQueryCmdReferenceSourceConfig(),
+		GetQueryCmdDelegatorSignals(),
 		GetQueryCmdCurrentFeeds(),
+		GetQueryCmdCurrentPrices(),
 		GetQueryCmdIsFeeder(),
 	)
 
 	return queryCmd
 }
 
-// GetQueryCmdDelegatorSignal implements the query delegator signal command.
-func GetQueryCmdDelegatorSignal() *cobra.Command {
+// GetQueryCmdDelegatorSignals implements the query delegator signal command.
+func GetQueryCmdDelegatorSignals() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "delegator-signal [delegator-addr]",
-		Short: "Shows delegator's currently active signal",
+		Use:   "delegator-signals [delegator-addr]",
+		Short: "Shows delegator's currently active signals",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
@@ -47,7 +50,7 @@ func GetQueryCmdDelegatorSignal() *cobra.Command {
 
 			res, err := queryClient.DelegatorSignals(
 				context.Background(),
-				&types.QueryDelegatorSignalsRequest{Delegator: args[0]},
+				&types.QueryDelegatorSignalsRequest{DelegatorAddress: args[0]},
 			)
 			if err != nil {
 				return err
@@ -142,6 +145,30 @@ func GetQueryCmdCurrentFeeds() *cobra.Command {
 	return cmd
 }
 
+// GetQueryCmdCurrentPrices implements the query current prices command.
+func GetQueryCmdCurrentPrices() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "current-prices",
+		Short: "Shows all current prices of all supported feeds",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.CurrentPrices(context.Background(), &types.QueryCurrentPricesRequest{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
 // GetQueryCmdValidatorPrices implements the query validator prices command.
 func GetQueryCmdValidatorPrices() *cobra.Command {
 	cmd := &cobra.Command{
@@ -158,8 +185,8 @@ func GetQueryCmdValidatorPrices() *cobra.Command {
 			}
 
 			res, err := queryClient.ValidatorPrices(context.Background(), &types.QueryValidatorPricesRequest{
-				Validator: args[0],
-				SignalIds: signalIds,
+				ValidatorAddress: args[0],
+				SignalIds:        signalIds,
 			})
 			if err != nil {
 				return err
@@ -171,6 +198,33 @@ func GetQueryCmdValidatorPrices() *cobra.Command {
 
 	flags.AddQueryFlagsToCmd(cmd)
 	cmd.Flags().StringSlice("signal-ids", nil, "Comma-separated list of signal IDs to filter by")
+
+	return cmd
+}
+
+// GetQueryCmdValidValidator implements the query valid validator command.
+func GetQueryCmdValidValidator() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "valid-validator [validator-address]",
+		Short: "Shows if the given address is a valid validator",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.ValidValidator(
+				context.Background(),
+				&types.QueryValidValidatorRequest{ValidatorAddress: args[0]},
+			)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
 }

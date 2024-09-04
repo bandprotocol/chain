@@ -8,6 +8,6 @@ const (
 	EventTypeAddRewards    = "add_rewards"
 	EventTypeDeactivateKey = "deactivate_key"
 
-	AttributeKeyLocker = "locker"
+	AttributeKeyStaker = "staker"
 	AttributeKeyKey    = "key"
 )

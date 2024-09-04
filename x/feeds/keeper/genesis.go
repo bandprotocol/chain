@@ -14,10 +14,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 
 	k.SetAllDelegatorSignals(ctx, genState.DelegatorSignals)
 
-	signalTotalPowers, err := k.CalculateNewSignalTotalPowers(ctx)
-	if err != nil {
-		panic(err)
-	}
+	signalTotalPowers := k.CalculateNewSignalTotalPowers(ctx)
 	k.SetSignalTotalPowers(ctx, signalTotalPowers)
 
 	feeds := k.CalculateNewCurrentFeeds(ctx)
@@ -30,9 +27,5 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 
 // ExportGenesis returns the module's exported genesis
 func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
-	return &types.GenesisState{
-		Params:                k.GetParams(ctx),
-		DelegatorSignals:      k.GetAllDelegatorSignals(ctx),
-		ReferenceSourceConfig: k.GetReferenceSourceConfig(ctx),
-	}
+	return types.NewGenesisState(k.GetParams(ctx), k.GetAllDelegatorSignals(ctx), k.GetReferenceSourceConfig(ctx))
 }
