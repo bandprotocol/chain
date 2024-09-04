@@ -9,10 +9,10 @@ import (
 )
 
 var (
-	DefaultMinInterval = uint64(1)
-	DefaultMinDeposit  = sdk.NewCoins(sdk.NewInt64Coin("band", 1000000))
-	DefaultMaxSignals  = uint64(100)
-	DefaultBaseFee     = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
+	DefaultMinInterval   = uint64(1)
+	DefaultMinDeposit    = sdk.NewCoins(sdk.NewInt64Coin("band", 1000000))
+	DefaultMaxSignals    = uint64(100)
+	DefaultBasePacketFee = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
 )
 
 // NewParams creates a new Params instance
@@ -20,13 +20,13 @@ func NewParams(
 	minDeposit sdk.Coins,
 	minInterval uint64,
 	maxSignals uint64,
-	baseFee sdk.Coins,
+	basePacketFee sdk.Coins,
 ) Params {
 	return Params{
-		MinDeposit:  minDeposit,
-		MinInterval: minInterval,
-		MaxSignals:  maxSignals,
-		BaseFee:     baseFee,
+		MinDeposit:    minDeposit,
+		MinInterval:   minInterval,
+		MaxSignals:    maxSignals,
+		BasePacketFee: basePacketFee,
 	}
 }
 
@@ -36,7 +36,7 @@ func DefaultParams() Params {
 		DefaultMinDeposit,
 		DefaultMinInterval,
 		DefaultMaxSignals,
-		DefaultBaseFee,
+		DefaultBasePacketFee,
 	)
 }
 
@@ -58,8 +58,8 @@ func (p Params) Validate() error {
 	}
 
 	// Validate BaseFee
-	if !p.BaseFee.IsValid() {
-		return sdkerrors.ErrInvalidCoins.Wrapf(p.BaseFee.String())
+	if !p.BasePacketFee.IsValid() {
+		return sdkerrors.ErrInvalidCoins.Wrapf(p.BasePacketFee.String())
 	}
 
 	return nil

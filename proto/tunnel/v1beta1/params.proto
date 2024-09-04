@@ -19,6 +19,6 @@ message Params {
   // max_signals defines the maximum number of signals allowed per tunnel.
   uint64 max_signals = 3;
   // base_fee is the base fee for each tunnel
-  repeated cosmos.base.v1beta1.Coin base_fee = 4
+  repeated cosmos.base.v1beta1.Coin base_packet_fee = 4
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }
