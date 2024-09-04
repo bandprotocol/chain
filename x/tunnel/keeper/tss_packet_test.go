@@ -4,9 +4,13 @@ import (
 	"testing"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 
+	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/tunnel/testutil"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
@@ -29,6 +33,25 @@ func TestSendTSSPacket(t *testing.T) {
 		nil,
 		time.Now().Unix(),
 	)
+
+	s.MockBandtssKeeper.EXPECT().GetParams(gomock.Any()).Return(bandtsstypes.Params{
+		Fee: sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
+	})
+	s.MockBandtssKeeper.EXPECT().CreateTunnelSigningRequest(
+		gomock.Any(),
+		uint64(1),
+		"0x1234567890abcdef",
+		"chain-1",
+		gomock.Any(),
+		bandtesting.Alice.Address,
+		sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
+	).Return(bandtsstypes.SigningID(1), nil)
+
+	k.SetTunnel(ctx, types.Tunnel{
+		ID:       1,
+		FeedType: feedstypes.FEED_TYPE_FIXED_POINT_ABI,
+		FeePayer: bandtesting.Alice.Address.String(),
+	})
 
 	// Send the TSS packet
 	content, err := k.SendTSSPacket(ctx, &route, packet)

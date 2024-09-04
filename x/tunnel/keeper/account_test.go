@@ -26,7 +26,7 @@ func TestGenerateAccount(t *testing.T) {
 	require.NotNil(s.T(), addr, "expected generated address to be non-nil")
 	require.Equal(
 		s.T(),
-		"cosmos1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62qh49enj",
+		"band1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62q2yggu0",
 		addr.String(),
 		"expected generated address to match",
 	)

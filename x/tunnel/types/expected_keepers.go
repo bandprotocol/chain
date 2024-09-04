@@ -51,4 +51,16 @@ type BandtssKeeper interface {
 		sender sdk.AccAddress,
 		feeLimit sdk.Coins,
 	) (bandtsstypes.SigningID, error)
+
+	CreateTunnelSigningRequest(
+		ctx sdk.Context,
+		tunnelID uint64,
+		destinationContractAddr string,
+		destinationChainID string,
+		content tsstypes.Content,
+		sender sdk.AccAddress,
+		feeLimit sdk.Coins,
+	) (bandtsstypes.SigningID, error)
+
+	GetParams(ctx sdk.Context) (p bandtsstypes.Params)
 }
