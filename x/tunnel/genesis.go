@@ -64,6 +64,11 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 	// set the tunnel count
 	k.SetTunnelCount(ctx, data.TunnelCount)
 
+	// set tunnels
+	for _, tunnel := range data.Tunnels {
+		k.SetTunnel(ctx, tunnel)
+	}
+
 	// set the tunnels
 	for _, tunnel := range data.Tunnels {
 		k.ActiveTunnelID(ctx, tunnel.ID)

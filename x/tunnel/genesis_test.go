@@ -1,6 +1,7 @@
 package tunnel_test
 
 import (
+	"fmt"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -79,6 +80,9 @@ func TestInitExportGenesis(t *testing.T) {
 
 	// Export the genesis state
 	exportedGenesisState := tunnel.ExportGenesis(ctx, k)
+
+	fmt.Printf("genesisState: %v\n", genesisState)
+	fmt.Printf("exportedGenesisState: %v\n", exportedGenesisState)
 
 	// Verify the exported state matches the initialized state
 	require.Equal(t, genesisState, exportedGenesisState)
