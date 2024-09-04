@@ -68,14 +68,6 @@ message Tunnel {
   string creator = 10 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// ActiveTunnelIDs is the type for a list of active tunnel IDs
-message ActiveTunnelIDs {
-  option (gogoproto.equal) = true;
-
-  // IDs is the list of active tunnel IDs
-  repeated uint64 ids = 1 [(gogoproto.customname) = "IDs"];
-}
-
 // SignalPrices is the type for a list of signal prices with the last interval timestamp
 message SignalPricesInfo {
   option (gogoproto.equal) = true;
