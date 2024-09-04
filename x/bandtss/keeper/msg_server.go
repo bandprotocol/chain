@@ -76,12 +76,12 @@ func (k msgServer) TransitionGroup(
 	return &types.MsgTransitionGroupResponse{}, nil
 }
 
-// ForceReplaceGroup handles the group transition without waiting a current group to
+// ForceTransitionGroup handles the group transition without requesting a current group to
 // sign a transition message.
-func (k msgServer) ForceReplaceGroup(
+func (k msgServer) ForceTransitionGroup(
 	goCtx context.Context,
-	req *types.MsgForceReplaceGroup,
-) (*types.MsgForceReplaceGroupResponse, error) {
+	req *types.MsgForceTransitionGroup,
+) (*types.MsgForceTransitionGroupResponse, error) {
 	if k.authority != req.Authority {
 		return nil, govtypes.ErrInvalidSigner.Wrapf("expected %s got %s", k.authority, req.Authority)
 	}
@@ -126,7 +126,7 @@ func (k msgServer) ForceReplaceGroup(
 	attrs := k.ExtractEventAttributesFromTransition(transition)
 	ctx.EventManager().EmitEvent(sdk.NewEvent(types.EventTypeGroupTransition, attrs...))
 
-	return &types.MsgForceReplaceGroupResponse{}, nil
+	return &types.MsgForceTransitionGroupResponse{}, nil
 }
 
 // RequestSignature initiates the signing process by requesting signatures from assigned members.

@@ -90,11 +90,11 @@ func getMaxBlockHeightResponse[I, O any](
 		}
 	}
 
-	if localMaxBlockHeight < maxBlockHeight.Load() {
-		return nil, fmt.Errorf("block height is less than latest max block height")
-	}
-
 	if resp != nil {
+		if localMaxBlockHeight < maxBlockHeight.Load() {
+			return nil, fmt.Errorf("block height is lower than latest max block height")
+		}
+
 		maxBlockHeight.Store(localMaxBlockHeight)
 		return resp, nil
 	}

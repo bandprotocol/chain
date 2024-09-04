@@ -28,7 +28,7 @@ The module is configured to charge a fee for each signing request, a cost that i
     - [Params](#params)
   - [Msg Service](#msg-service)
     - [Msg/TransitionGroup](#msgtransitiongroup)
-    - [Msg/ForceReplaceGroup](#msgforcereplacegroup)
+    - [Msg/ForceTransitionGroup](#msgforcetransitiongroup)
     - [Msg/RequestSignature](#msgrequestsignature)
     - [Msg/Activate](#msgactivate)
     - [Msg/Heartbeat](#msgheartbeat)
@@ -121,6 +121,7 @@ type GroupTransition struct {
 	IncomingGroupPubKey github_com_bandprotocol_chain_v2_pkg_tss.Point
 	Status TransitionStatus
 	ExecTime time.Time
+  IsForceTransition bool
 }
 ```
 
@@ -179,7 +180,7 @@ message MsgTransitionGroup {
 }
 ```
 
-### Msg/ForceReplaceGroup
+### Msg/ForceTransitionGroup
 
 A current group can be replaced by an incoming group without needing a signing request (transition message) from the current group.
 
@@ -190,11 +191,11 @@ It's expected to fail if:
 - The execution time is before the current time or beyond the maximum transition duration.
 
 ```protobuf
-message MsgForceReplaceGroup {
+message MsgForceTransitionGroup {
   option (cosmos.msg.v1.signer) = "authority";
-  option (amino.name)           = "bandtss/ForceReplaceGroup";
+  option (amino.name)           = "bandtss/ForceTransitionGroup";
 
-  // incoming_group_id is the ID of the group that want to replace.
+  // incoming_group_id is the ID of the group that the module want to transition to.
   uint64 incoming_group_id = 1 [
     (gogoproto.customname) = "IncomingGroupID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"

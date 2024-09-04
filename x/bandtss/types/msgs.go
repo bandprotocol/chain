@@ -15,7 +15,7 @@ import (
 
 var (
 	_ sdk.Msg = &MsgTransitionGroup{}
-	_ sdk.Msg = &MsgForceReplaceGroup{}
+	_ sdk.Msg = &MsgForceTransitionGroup{}
 	_ sdk.Msg = &MsgRequestSignature{}
 	_ sdk.Msg = &MsgActivate{}
 	_ sdk.Msg = &MsgHeartbeat{}
@@ -81,13 +81,13 @@ func (m MsgTransitionGroup) ValidateBasic() error {
 	return nil
 }
 
-// NewMsgForceReplaceGroup creates a new NewMsgForceReplaceGroup instance.
-func NewMsgForceReplaceGroup(
+// NewMsgForceTransitionGroup creates a new MsgForceTransitionGroup instance.
+func NewMsgForceTransitionGroup(
 	incomingGroupID tss.GroupID,
 	execTime time.Time,
 	authority string,
-) *MsgForceReplaceGroup {
-	return &MsgForceReplaceGroup{
+) *MsgForceTransitionGroup {
+	return &MsgForceTransitionGroup{
 		IncomingGroupID: incomingGroupID,
 		ExecTime:        execTime,
 		Authority:       authority,
@@ -95,20 +95,20 @@ func NewMsgForceReplaceGroup(
 }
 
 // Type returns message type name.
-func (m MsgForceReplaceGroup) Type() string { return sdk.MsgTypeURL(&m) }
+func (m MsgForceTransitionGroup) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
-func (m MsgForceReplaceGroup) GetSignBytes() []byte {
+func (m MsgForceTransitionGroup) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a NewMsgForceReplaceGroup.
-func (m MsgForceReplaceGroup) GetSigners() []sdk.AccAddress {
+// GetSigners returns the expected signers for a MsgForceTransitionGroup.
+func (m MsgForceTransitionGroup) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
 }
 
 // ValidateBasic does a sanity check on the provided data
-func (m MsgForceReplaceGroup) ValidateBasic() error {
+func (m MsgForceTransitionGroup) ValidateBasic() error {
 	// Validate sender address
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)

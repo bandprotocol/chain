@@ -37,14 +37,14 @@ func TestGenesisStateValidate(t *testing.T) {
 				},
 				Locks: []Lock{
 					{
-						LockerAddress:  "address1",
+						StakerAddress:  "address1",
 						Key:            "key",
 						Amount:         sdkmath.NewInt(4),
 						PosRewardDebts: sdk.NewDecCoins(),
 						NegRewardDebts: sdk.NewDecCoins(),
 					},
 					{
-						LockerAddress:  "address2",
+						StakerAddress:  "address2",
 						Key:            "key",
 						Amount:         sdkmath.NewInt(6),
 						PosRewardDebts: sdk.NewDecCoins(),
@@ -69,14 +69,14 @@ func TestGenesisStateValidate(t *testing.T) {
 				},
 				Locks: []Lock{
 					{
-						LockerAddress:  "address1",
+						StakerAddress:  "address1",
 						Key:            "key",
 						Amount:         sdkmath.NewInt(4),
 						PosRewardDebts: sdk.NewDecCoins(),
 						NegRewardDebts: sdk.NewDecCoins(),
 					},
 					{
-						LockerAddress:  "address2",
+						StakerAddress:  "address2",
 						Key:            "key",
 						Amount:         sdkmath.NewInt(6),
 						PosRewardDebts: sdk.NewDecCoins(),
