@@ -12,11 +12,11 @@ import (
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/pkg/obi"
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/testing/testdata"
-	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/pkg/obi"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	"github.com/bandprotocol/chain/v3/testing/testdata"
+	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 func TestGetRandomValidatorsSuccessActivateAll(t *testing.T) {
@@ -256,7 +256,7 @@ func TestPrepareRequestSuccessBasic(t *testing.T) {
 	require.Equal(t, 1, wrappedGasMeter.CountRecord(bandtesting.TestDefaultPrepareGas, "OWASM_PREPARE_FEE"))
 	require.Equal(t, 1, wrappedGasMeter.CountRecord(bandtesting.TestDefaultExecuteGas, "OWASM_EXECUTE_FEE"))
 
-	paid := sdk.NewCoins(sdk.NewInt64Coin("uband", 3000000))
+	paid := sdk.NewCoins(math.NewInt64Coin("uband", 3000000))
 	feePayerBalances = feePayerBalances.Sub(paid...)
 	bandtesting.CheckBalances(t, ctx, app.BankKeeper, bandtesting.FeePayer.Address, feePayerBalances)
 	bandtesting.CheckBalances(t, ctx, app.BankKeeper, bandtesting.Treasury.Address, paid)
@@ -287,7 +287,7 @@ func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
 		1,
 		1,
 		BasicClientID,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000)),
+		sdk.NewCoins(math.NewInt64Coin("uband", 1000000)),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.FeePayer.Address,
@@ -300,7 +300,7 @@ func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
 		1,
 		1,
 		BasicClientID,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 2000000)),
+		sdk.NewCoins(math.NewInt64Coin("uband", 2000000)),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.FeePayer.Address,
@@ -313,7 +313,7 @@ func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
 		1,
 		1,
 		BasicClientID,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 2999999)),
+		sdk.NewCoins(math.NewInt64Coin("uband", 2999999)),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.FeePayer.Address,
@@ -326,7 +326,7 @@ func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
 		1,
 		1,
 		BasicClientID,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 3000000)),
+		sdk.NewCoins(math.NewInt64Coin("uband", 3000000)),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.FeePayer.Address,
@@ -1070,7 +1070,7 @@ func TestCollectFeeBasicSuccess(t *testing.T) {
 		bandtesting.EmptyCoins,
 		bandtesting.Coins1000000uband,
 		bandtesting.EmptyCoins,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000))),
 		bandtesting.EmptyCoins,
 	})
 
@@ -1080,11 +1080,11 @@ func TestCollectFeeBasicSuccess(t *testing.T) {
 	)
 	require.NoError(t, err)
 	feePayerBalances := balancesRes.Balances
-	feePayerBalances[0].Amount = feePayerBalances[0].Amount.Sub(sdk.NewInt(3000000))
+	feePayerBalances[0].Amount = feePayerBalances[0].Amount.Sub(math.NewInt(3000000))
 
 	coins, err := k.CollectFee(ctx, bandtesting.FeePayer.Address, bandtesting.Coins100000000uband, 1, raws)
 	require.NoError(t, err)
-	require.Equal(t, sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))), coins)
+	require.Equal(t, sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000))), coins)
 
 	bandtesting.CheckBalances(t, ctx, app.BankKeeper, bandtesting.FeePayer.Address, feePayerBalances)
 	bandtesting.CheckBalances(
@@ -1092,7 +1092,7 @@ func TestCollectFeeBasicSuccess(t *testing.T) {
 		ctx,
 		app.BankKeeper,
 		bandtesting.Treasury.Address,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000))),
 	)
 }
 
@@ -1104,7 +1104,7 @@ func TestCollectFeeBasicSuccessWithOtherAskCount(t *testing.T) {
 		bandtesting.EmptyCoins,
 		bandtesting.Coins1000000uband,
 		bandtesting.EmptyCoins,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000))),
 		bandtesting.EmptyCoins,
 	})
 
@@ -1114,11 +1114,11 @@ func TestCollectFeeBasicSuccessWithOtherAskCount(t *testing.T) {
 	)
 	require.NoError(t, err)
 	feePayerBalances := balancesRes.Balances
-	feePayerBalances[0].Amount = feePayerBalances[0].Amount.Sub(sdk.NewInt(12000000))
+	feePayerBalances[0].Amount = feePayerBalances[0].Amount.Sub(math.NewInt(12000000))
 
 	coins, err := k.CollectFee(ctx, bandtesting.FeePayer.Address, bandtesting.Coins100000000uband, 4, raws)
 	require.NoError(t, err)
-	require.Equal(t, sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(12000000))), coins)
+	require.Equal(t, sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(12000000))), coins)
 
 	bandtesting.CheckBalances(t, ctx, app.BankKeeper, bandtesting.FeePayer.Address, feePayerBalances)
 	bandtesting.CheckBalances(
@@ -1126,7 +1126,7 @@ func TestCollectFeeBasicSuccessWithOtherAskCount(t *testing.T) {
 		ctx,
 		app.BankKeeper,
 		bandtesting.Treasury.Address,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(12000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(12000000))),
 	)
 }
 
@@ -1138,7 +1138,7 @@ func TestCollectFeeWithMixedAndFeeNotEnough(t *testing.T) {
 		bandtesting.EmptyCoins,
 		bandtesting.Coins1000000uband,
 		bandtesting.EmptyCoins,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000))),
 		bandtesting.EmptyCoins,
 	})
 
@@ -1159,7 +1159,7 @@ func TestCollectFeeWithEnoughFeeButInsufficientBalance(t *testing.T) {
 		bandtesting.EmptyCoins,
 		bandtesting.Coins1000000uband,
 		bandtesting.EmptyCoins,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000))),
 		bandtesting.EmptyCoins,
 	})
 
@@ -1178,11 +1178,11 @@ func TestCollectFeeWithWithManyUnitSuccess(t *testing.T) {
 		bandtesting.EmptyCoins,
 		bandtesting.Coins1000000uband,
 		bandtesting.EmptyCoins,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000)), sdk.NewCoin("uabc", sdk.NewInt(1000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000)), sdk.NewCoin("uabc", math.NewInt(1000000))),
 		bandtesting.EmptyCoins,
 	})
 
-	err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewCoin("uabc", sdk.NewInt(2000000))))
+	err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewCoin("uabc", math.NewInt(2000000))))
 	require.NoError(t, err)
 
 	// Carol have not enough uband but have enough uabc
@@ -1190,7 +1190,7 @@ func TestCollectFeeWithWithManyUnitSuccess(t *testing.T) {
 		ctx,
 		minttypes.ModuleName,
 		bandtesting.FeePayer.Address,
-		sdk.NewCoins(sdk.NewCoin("uabc", sdk.NewInt(2000000))),
+		sdk.NewCoins(sdk.NewCoin("uabc", math.NewInt(2000000))),
 	)
 	require.NoError(t, err)
 
@@ -1206,7 +1206,7 @@ func TestCollectFeeWithWithManyUnitSuccess(t *testing.T) {
 	// Coins sum is correct
 	require.True(
 		t,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000)), sdk.NewCoin("uabc", sdk.NewInt(1000000))).
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000)), sdk.NewCoin("uabc", math.NewInt(1000000))).
 			IsEqual(coins),
 	)
 
@@ -1219,7 +1219,7 @@ func TestCollectFeeWithWithManyUnitSuccess(t *testing.T) {
 		ctx,
 		app.BankKeeper,
 		bandtesting.FeePayer.Address,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(97000000)), sdk.NewCoin("uabc", sdk.NewInt(1000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(97000000)), sdk.NewCoin("uabc", math.NewInt(1000000))),
 	)
 
 	// Treasury balance
@@ -1230,7 +1230,7 @@ func TestCollectFeeWithWithManyUnitSuccess(t *testing.T) {
 		ctx,
 		app.BankKeeper,
 		bandtesting.Treasury.Address,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000)), sdk.NewCoin("uabc", sdk.NewInt(1000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000)), sdk.NewCoin("uabc", math.NewInt(1000000))),
 	)
 }
 
@@ -1242,14 +1242,14 @@ func TestCollectFeeWithWithManyUnitFail(t *testing.T) {
 		bandtesting.EmptyCoins,
 		bandtesting.Coins1000000uband,
 		bandtesting.EmptyCoins,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000)), sdk.NewCoin("uabc", sdk.NewInt(1000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000)), sdk.NewCoin("uabc", math.NewInt(1000000))),
 		bandtesting.EmptyCoins,
 	})
 
 	err := app.BankKeeper.MintCoins(
 		ctx,
 		minttypes.ModuleName,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10000000)), sdk.NewCoin("uabc", sdk.NewInt(2000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(10000000)), sdk.NewCoin("uabc", math.NewInt(2000000))),
 	)
 	require.NoError(t, err)
 
@@ -1259,7 +1259,7 @@ func TestCollectFeeWithWithManyUnitFail(t *testing.T) {
 		ctx,
 		minttypes.ModuleName,
 		bandtesting.Bob.Address,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000))),
 	)
 	require.NoError(t, err)
 
@@ -1267,7 +1267,7 @@ func TestCollectFeeWithWithManyUnitFail(t *testing.T) {
 		ctx,
 		minttypes.ModuleName,
 		bandtesting.Bob.Address,
-		sdk.NewCoins(sdk.NewCoin("uabc", sdk.NewInt(1))),
+		sdk.NewCoins(sdk.NewCoin("uabc", math.NewInt(1))),
 	)
 	require.NoError(t, err)
 
@@ -1276,7 +1276,7 @@ func TestCollectFeeWithWithManyUnitFail(t *testing.T) {
 		ctx,
 		minttypes.ModuleName,
 		bandtesting.Carol.Address,
-		sdk.NewCoins(sdk.NewCoin("uabc", sdk.NewInt(1000000))),
+		sdk.NewCoins(sdk.NewCoin("uabc", math.NewInt(1000000))),
 	)
 	require.NoError(t, err)
 

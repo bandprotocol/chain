@@ -3,7 +3,7 @@ package yoda
 import (
 	"os"
 
-	"github.com/cometbft/cometbft/libs/log"
+	"cosmossdk.io/log"
 	"github.com/kyokomi/emoji"
 )
 

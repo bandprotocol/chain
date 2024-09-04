@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"math/big"
 
+	storetypes "cosmossdk.io/store/types"
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	ics23 "github.com/confio/ics23/go"
 	"github.com/cosmos/cosmos-sdk/client"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 )
 

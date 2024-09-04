@@ -4,11 +4,12 @@ import (
 	"encoding/hex"
 	"fmt"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/bandrng"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/pkg/bandrng"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 // 1 cosmos gas is equal to 20000000 owasm gas
@@ -211,7 +212,7 @@ func (k Keeper) CollectFee(
 
 		fee := sdk.NewCoins()
 		for _, c := range ds.Fee {
-			c.Amount = c.Amount.Mul(sdk.NewInt(int64(askCount)))
+			c.Amount = c.Amount.Mul(math.NewInt(int64(askCount)))
 			fee = fee.Add(c)
 		}
 

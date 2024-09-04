@@ -10,7 +10,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/require"
 
-	bankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
+	bankkeeper "github.com/bandprotocol/chain/v3/x/bank/keeper"
 )
 
 // ParseTime is a helper function to parse from number to time.Time with UTC locale.

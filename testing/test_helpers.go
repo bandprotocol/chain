@@ -10,11 +10,14 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/log"
+	"cosmossdk.io/math"
 	sdkmath "cosmossdk.io/math"
+	"cosmossdk.io/store/snapshots"
+	snapshottypes "cosmossdk.io/store/snapshots/types"
 	owasm "github.com/bandprotocol/go-owasm/api"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -25,8 +28,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/server"
-	"github.com/cosmos/cosmos-sdk/snapshots"
-	snapshottypes "github.com/cosmos/cosmos-sdk/snapshots/types"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/simulation"
@@ -34,17 +35,17 @@ import (
 	authsign "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
+	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	"github.com/stretchr/testify/require"
 
-	bandapp "github.com/bandprotocol/chain/v2/app"
-	"github.com/bandprotocol/chain/v2/pkg/filecache"
-	"github.com/bandprotocol/chain/v2/testing/testdata"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	bandapp "github.com/bandprotocol/chain/v3/app"
+	"github.com/bandprotocol/chain/v3/pkg/filecache"
+	"github.com/bandprotocol/chain/v3/testing/testdata"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 // Account is a data structure to store key of test account.
@@ -70,13 +71,13 @@ var (
 
 var (
 	EmptyCoins          = sdk.Coins(nil)
-	Coins1uband         = sdk.NewCoins(sdk.NewInt64Coin("uband", 1))
-	Coins10uband        = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
-	Coins11uband        = sdk.NewCoins(sdk.NewInt64Coin("uband", 11))
-	Coins1000000uband   = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
-	Coins99999999uband  = sdk.NewCoins(sdk.NewInt64Coin("uband", 99999999))
-	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
-	BadCoins            = []sdk.Coin{{Denom: "uband", Amount: sdk.NewInt(-1)}}
+	Coins1uband         = sdk.NewCoins(math.NewInt64Coin("uband", 1))
+	Coins10uband        = sdk.NewCoins(math.NewInt64Coin("uband", 10))
+	Coins11uband        = sdk.NewCoins(math.NewInt64Coin("uband", 11))
+	Coins1000000uband   = sdk.NewCoins(math.NewInt64Coin("uband", 1000000))
+	Coins99999999uband  = sdk.NewCoins(math.NewInt64Coin("uband", 99999999))
+	Coins100000000uband = sdk.NewCoins(math.NewInt64Coin("uband", 100000000))
+	BadCoins            = []sdk.Coin{{Denom: "uband", Amount: math.NewInt(-1)}}
 )
 
 const (
@@ -312,7 +313,7 @@ func SetupWithGenesisValSet(
 	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(valSet.Validators))
 
-	bondAmt := sdk.NewInt(1000000)
+	bondAmt := math.NewInt(1000000)
 
 	for _, val := range valSet.Validators {
 		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
@@ -325,12 +326,12 @@ func SetupWithGenesisValSet(
 			Jailed:            false,
 			Status:            stakingtypes.Bonded,
 			Tokens:            bondAmt,
-			DelegatorShares:   sdk.OneDec(),
+			DelegatorShares:   math.LegacyOneDec(),
 			Description:       stakingtypes.Description{},
 			UnbondingHeight:   int64(0),
 			UnbondingTime:     time.Unix(0, 0).UTC(),
-			Commission:        stakingtypes.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
-			MinSelfDelegation: sdk.ZeroInt(),
+			Commission:        stakingtypes.NewCommission(math.LegacyZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
+			MinSelfDelegation: math.ZeroInt(),
 		}
 		validators = append(validators, validator)
 		delegations = append(
@@ -354,7 +355,7 @@ func SetupWithGenesisValSet(
 	// add bonded amount to bonded pool module account
 	balances = append(balances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin("uband", bondAmt.Mul(sdk.NewInt(2)))},
+		Coins:   sdk.Coins{sdk.NewCoin("uband", bondAmt.Mul(math.NewInt(2)))},
 	})
 
 	// update total supply
@@ -455,7 +456,7 @@ func generateGenesisState(
 			UnbondingHeight:   int64(0),
 			UnbondingTime:     time.Unix(0, 0).UTC(),
 			Commission:        stakingtypes.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
-			MinSelfDelegation: sdk.ZeroInt(),
+			MinSelfDelegation: math.ZeroInt(),
 		}
 		consAddr, err := validator.GetConsAddr()
 		validatorSigningInfo := slashingtypes.NewValidatorSigningInfo(consAddr, 0, 0, time.Unix(0, 0), false, 0)
@@ -496,7 +497,7 @@ func generateGenesisState(
 	// add bonded amount to bonded pool module account
 	balances = append(balances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin("uband", sdk.NewInt(200999999))},
+		Coins:   sdk.Coins{sdk.NewCoin("uband", math.NewInt(200999999))},
 	})
 
 	bankGenesis := banktypes.NewGenesisState(
@@ -628,7 +629,7 @@ func SignAndDeliver(
 	tx, err := GenTx(
 		txCfg,
 		msgs,
-		sdk.Coins{sdk.NewInt64Coin("uband", 2500)},
+		sdk.Coins{math.NewInt64Coin("uband", 2500)},
 		DefaultGenTxGas,
 		chainID,
 		accNums,

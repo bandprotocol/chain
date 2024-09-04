@@ -11,9 +11,9 @@ import (
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/x/oracle"
-	"github.com/bandprotocol/chain/v2/x/oracle/simulation"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/x/oracle"
+	"github.com/bandprotocol/chain/v3/x/oracle/simulation"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 var (
@@ -50,7 +50,7 @@ func TestDecodeStore(t *testing.T) {
 		"name",
 		"description",
 		"filename",
-		sdk.NewCoins(sdk.NewInt64Coin("band", 1000)),
+		sdk.NewCoins(math.NewInt64Coin("band", 1000)),
 		treaAddr,
 	)
 

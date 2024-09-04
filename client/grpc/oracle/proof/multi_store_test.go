@@ -3,9 +3,9 @@ package proof
 import (
 	"testing"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	ics23 "github.com/confio/ics23/go"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/stretchr/testify/require"
 )
 

@@ -8,9 +8,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/stretchr/testify/suite"
 
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/x/globalfee/feechecker"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	"github.com/bandprotocol/chain/v3/x/globalfee/feechecker"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 var (
@@ -83,7 +83,7 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 
 	suite.FeeChecker = feechecker.NewFeeChecker(
 		&app.OracleKeeper,
-		&app.GlobalfeeKeeper,
+		&app.GlobalFeeKeeper,
 		app.StakingKeeper,
 	)
 }
@@ -141,7 +141,7 @@ func (suite *FeeCheckerTestSuite) TestNoAuthzReport() {
 		types.NewMsgReportData(suite.requestID, []types.RawReport{}, bandtesting.Validators[0].ValAddress),
 	}
 	authzMsg := authz.NewMsgExec(bandtesting.Bob.Address, reportMsgs)
-	stubTx := &StubTx{Msgs: []sdk.Msg{&authzMsg}, GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdk.NewInt(1)))}
+	stubTx := &StubTx{Msgs: []sdk.Msg{&authzMsg}, GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", math.NewInt(1)))}
 
 	// test - check report tx
 	isReportTx := suite.FeeChecker.CheckReportTx(suite.ctx, stubTx)
@@ -219,7 +219,7 @@ func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameAuthzMsg
 	)
 	msgs := []sdk.Msg{reportMsg, requestMsg}
 	authzMsg := authz.NewMsgExec(bandtesting.Alice.Address, msgs)
-	stubTx := &StubTx{Msgs: []sdk.Msg{&authzMsg}, GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdk.NewInt(1)))}
+	stubTx := &StubTx{Msgs: []sdk.Msg{&authzMsg}, GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", math.NewInt(1)))}
 
 	// test - check report tx
 	isReportTx := suite.FeeChecker.CheckReportTx(suite.ctx, stubTx)
@@ -247,7 +247,7 @@ func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameTx() {
 	)
 	stubTx := &StubTx{
 		Msgs:      []sdk.Msg{reportMsg, requestMsg},
-		GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdk.NewInt(1))),
+		GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", math.NewInt(1))),
 	}
 
 	// test - check report tx

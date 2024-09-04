@@ -6,9 +6,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/testing/testdata"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	"github.com/bandprotocol/chain/v3/testing/testdata"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 func TestHasOracleScript(t *testing.T) {

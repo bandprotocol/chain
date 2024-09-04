@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 func TestGetSetRequestCount(t *testing.T) {

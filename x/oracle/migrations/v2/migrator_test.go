@@ -8,10 +8,10 @@ import (
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/x/oracle"
-	"github.com/bandprotocol/chain/v2/x/oracle/exported"
-	v2 "github.com/bandprotocol/chain/v2/x/oracle/migrations/v2"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/x/oracle"
+	"github.com/bandprotocol/chain/v3/x/oracle/exported"
+	v2 "github.com/bandprotocol/chain/v3/x/oracle/migrations/v2"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 type mockSubspace struct {

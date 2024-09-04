@@ -7,12 +7,13 @@ package ibctesting
 import (
 	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	connectiontypes "github.com/cosmos/ibc-go/v7/modules/core/03-connection/types"
-	ibctmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
-	"github.com/cosmos/ibc-go/v7/testing/mock"
+	connectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
+	ibctmtypes "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
+	"github.com/cosmos/ibc-go/v8/testing/mock"
 
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 const (
@@ -43,7 +44,7 @@ var (
 
 	// Default params variables used to create a TM client
 	DefaultTrustLevel ibctmtypes.Fraction = ibctmtypes.DefaultTrustLevel
-	TestCoin                              = sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100))
+	TestCoin                              = sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(100))
 
 	UpgradePath = []string{"upgrade", "upgradedIBCState"}
 

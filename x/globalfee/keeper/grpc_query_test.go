@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
@@ -11,8 +12,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/x/globalfee/keeper"
-	"github.com/bandprotocol/chain/v2/x/globalfee/types"
+	"github.com/bandprotocol/chain/v3/x/globalfee/keeper"
+	"github.com/bandprotocol/chain/v3/x/globalfee/types"
 )
 
 func TestQueryParams(t *testing.T) {
@@ -23,21 +24,21 @@ func TestQueryParams(t *testing.T) {
 		"one coin": {
 			setupStore: func(ctx sdk.Context, k keeper.Keeper) {
 				_ = k.SetParams(ctx, types.Params{
-					MinimumGasPrices: sdk.NewDecCoins(sdk.NewDecCoin("ALX", sdk.OneInt())),
+					MinimumGasPrices: sdk.NewDecCoins(sdk.NewDecCoin("ALX", math.OneInt())),
 				})
 			},
-			expMin: sdk.NewDecCoins(sdk.NewDecCoin("ALX", sdk.OneInt())),
+			expMin: sdk.NewDecCoins(sdk.NewDecCoin("ALX", math.OneInt())),
 		},
 		"multiple coins": {
 			setupStore: func(ctx sdk.Context, k keeper.Keeper) {
 				_ = k.SetParams(ctx, types.Params{
 					MinimumGasPrices: sdk.NewDecCoins(
-						sdk.NewDecCoin("ALX", sdk.OneInt()),
-						sdk.NewDecCoin("BLX", sdk.NewInt(2)),
+						sdk.NewDecCoin("ALX", math.OneInt()),
+						sdk.NewDecCoin("BLX", math.NewInt(2)),
 					),
 				})
 			},
-			expMin: sdk.NewDecCoins(sdk.NewDecCoin("ALX", sdk.OneInt()), sdk.NewDecCoin("BLX", sdk.NewInt(2))),
+			expMin: sdk.NewDecCoins(sdk.NewDecCoin("ALX", math.OneInt()), sdk.NewDecCoin("BLX", math.NewInt(2))),
 		},
 		"no min gas price set": {
 			setupStore: func(ctx sdk.Context, k keeper.Keeper) {

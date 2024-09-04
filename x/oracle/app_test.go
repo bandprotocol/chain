@@ -5,13 +5,14 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/x/oracle"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	"github.com/bandprotocol/chain/v3/x/oracle"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 func TestSuccessRequestOracleData(t *testing.T) {
@@ -26,7 +27,7 @@ func TestSuccessRequestOracleData(t *testing.T) {
 		3,
 		2,
 		"app_test",
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(9000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(9000000))),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Validators[0].Address,
@@ -137,7 +138,7 @@ func TestExpiredRequestOracleData(t *testing.T) {
 		3,
 		2,
 		"app_test",
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(9000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(9000000))),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Validators[0].Address,

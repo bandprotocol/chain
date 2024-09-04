@@ -5,17 +5,18 @@ import (
 	"strings"
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/bandprotocol/chain/v2/pkg/obi"
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/testing/ibctesting"
-	"github.com/bandprotocol/chain/v2/testing/testdata"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/pkg/obi"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	"github.com/bandprotocol/chain/v3/testing/ibctesting"
+	"github.com/bandprotocol/chain/v3/testing/testdata"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 type OracleTestSuite struct {
@@ -85,7 +86,7 @@ func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
 		[]byte("beeb"),
 		2,
 		2,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(6000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(6000000))),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 	)
@@ -94,8 +95,8 @@ func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
 	err := path.RelayPacket(packet)
 	suite.Require().NoError(err) // relay committed
 
-	suite.checkChainBTreasuryBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(6000000))))
-	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3970000))))
+	suite.checkChainBTreasuryBalances(sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(6000000))))
+	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3970000))))
 
 	raws1 := []types.RawReport{
 		types.NewRawReport(1, 0, []byte("data1")),
@@ -146,7 +147,7 @@ func (suite *OracleTestSuite) TestIBCPrepareValidateBasicFail() {
 	path := suite.path
 
 	clientID := path.EndpointA.ClientID
-	coins := sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(6000000)))
+	coins := sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(6000000)))
 
 	oracleRequestPackets := []types.OracleRequestPacketData{
 		types.NewOracleRequestPacketData(
@@ -251,18 +252,18 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughFund() {
 		[]byte("beeb"),
 		1,
 		1,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000))),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 	)
 
 	// Use Carol as a relayer
 	carol := bandtesting.Carol
-	carolExpectedBalance := sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2492500)))
+	carolExpectedBalance := sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2492500)))
 	_, err := suite.chainB.SendMsgs(banktypes.NewMsgSend(
 		suite.chainB.SenderAccount.GetAddress(),
 		carol.Address,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2500000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2500000))),
 	))
 	suite.Require().NoError(err)
 
@@ -283,7 +284,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughFeeLimit() {
 	expectedBalance := suite.chainB.App.BankKeeper.GetAllBalances(
 		suite.chainB.GetContext(),
 		suite.chainB.SenderAccount.GetAddress(),
-	).Sub(sdk.NewCoin("uband", sdk.NewInt(7500)))
+	).Sub(sdk.NewCoin("uband", math.NewInt(7500)))
 
 	// send request from A to B
 	timeoutHeight := clienttypes.NewHeight(0, 110)
@@ -293,7 +294,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughFeeLimit() {
 		[]byte("beeb"),
 		1,
 		1,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(2000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000))),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 	)
@@ -316,7 +317,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidCalldataSize() {
 		[]byte(strings.Repeat("beeb", 2000)),
 		1,
 		1,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000))),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 	)
@@ -336,7 +337,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestNotEnoughPrepareGas() {
 		[]byte("beeb"),
 		1,
 		1,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000))),
 		1,
 		bandtesting.TestDefaultExecuteGas,
 	)
@@ -357,7 +358,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidAskCountFail() {
 		[]byte("beeb"),
 		17,
 		1,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000))),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 	)
@@ -372,7 +373,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidAskCountFail() {
 		[]byte("beeb"),
 		3,
 		1,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000))),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 	)
@@ -399,7 +400,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestBaseOwasmFeePanic() {
 		[]byte("beeb"),
 		1,
 		1,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000))),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 	)
@@ -426,7 +427,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestPerValidatorRequestFeePanic()
 		[]byte("beeb"),
 		1,
 		1,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000))),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 	)
@@ -448,7 +449,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestOracleScriptNotFound() {
 		[]byte("beeb"),
 		1,
 		1,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000))),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 	)
@@ -469,7 +470,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestBadWasmExecutionFail() {
 		[]byte("beeb"),
 		1,
 		1,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000))),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 	)
@@ -490,7 +491,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestWithEmptyRawRequest() {
 		[]byte("beeb"),
 		1,
 		1,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000))),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 	)
@@ -511,7 +512,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestUnknownDataSource() {
 		[]byte("beeb"),
 		1,
 		1,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000))),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 	)
@@ -540,7 +541,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestInvalidDataSourceCount() {
 		}),
 		1,
 		1,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(4000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(4000000))),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 	)
@@ -561,7 +562,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestTooMuchWasmGas() {
 		[]byte("beeb"),
 		1,
 		1,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000))),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 	)
@@ -581,7 +582,7 @@ func (suite *OracleTestSuite) TestIBCPrepareRequestTooLargeCalldata() {
 		[]byte("beeb"),
 		1,
 		1,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000))),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 	)
@@ -602,7 +603,7 @@ func (suite *OracleTestSuite) TestIBCResolveRequestOutOfGas() {
 		[]byte("beeb"),
 		2,
 		1,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(6000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(6000000))),
 		bandtesting.TestDefaultPrepareGas,
 		1,
 	)
@@ -611,8 +612,8 @@ func (suite *OracleTestSuite) TestIBCResolveRequestOutOfGas() {
 	err := path.RelayPacket(packet)
 	suite.Require().NoError(err) // relay committed
 
-	suite.checkChainBTreasuryBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(6000000))))
-	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(3970000))))
+	suite.checkChainBTreasuryBalances(sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(6000000))))
+	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3970000))))
 
 	raws := []types.RawReport{
 		types.NewRawReport(1, 0, []byte("data1")),
@@ -663,7 +664,7 @@ func (suite *OracleTestSuite) TestIBCResolveReadNilExternalData() {
 		obi.MustEncode(testdata.Wasm4Input{IDs: []int64{1, 2}, Calldata: string("beeb")}),
 		2,
 		2,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(4000000))),
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(4000000))),
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 	)
@@ -672,8 +673,8 @@ func (suite *OracleTestSuite) TestIBCResolveReadNilExternalData() {
 	err := path.RelayPacket(packet)
 	suite.Require().NoError(err) // relay committed
 
-	suite.checkChainBTreasuryBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(4000000))))
-	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(5970000))))
+	suite.checkChainBTreasuryBalances(sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(4000000))))
+	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(5970000))))
 
 	raws1 := []types.RawReport{types.NewRawReport(0, 0, nil), types.NewRawReport(1, 0, []byte("beebd2v1"))}
 	_, err = suite.chainB.SendReport(1, raws1, bandtesting.Validators[0])

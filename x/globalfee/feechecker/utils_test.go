@@ -3,10 +3,11 @@ package feechecker_test
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/bandprotocol/chain/v2/x/globalfee/feechecker"
+	"github.com/bandprotocol/chain/v3/x/globalfee/feechecker"
 )
 
 type utilsTestSuite struct {
@@ -18,15 +19,15 @@ func TestUtilsTestSuite(t *testing.T) {
 }
 
 func (s *utilsTestSuite) TestCombinedGasPricesRequirement() {
-	zeroCoin1 := sdk.NewDecCoin("photon", sdk.ZeroInt())
-	zeroCoin2 := sdk.NewDecCoin("stake", sdk.ZeroInt())
-	zeroCoin3 := sdk.NewDecCoin("quark", sdk.ZeroInt())
-	coin1 := sdk.NewDecCoin("photon", sdk.NewInt(1))
-	coin2 := sdk.NewDecCoin("stake", sdk.NewInt(2))
-	coin1High := sdk.NewDecCoin("photon", sdk.NewInt(10))
-	coin2High := sdk.NewDecCoin("stake", sdk.NewInt(20))
-	coinNewDenom1 := sdk.NewDecCoin("Newphoton", sdk.NewInt(1))
-	coinNewDenom2 := sdk.NewDecCoin("Newstake", sdk.NewInt(1))
+	zeroCoin1 := sdk.NewDecCoin("photon", math.ZeroInt())
+	zeroCoin2 := sdk.NewDecCoin("stake", math.ZeroInt())
+	zeroCoin3 := sdk.NewDecCoin("quark", math.ZeroInt())
+	coin1 := sdk.NewDecCoin("photon", math.NewInt(1))
+	coin2 := sdk.NewDecCoin("stake", math.NewInt(2))
+	coin1High := sdk.NewDecCoin("photon", math.NewInt(10))
+	coin2High := sdk.NewDecCoin("stake", math.NewInt(20))
+	coinNewDenom1 := sdk.NewDecCoin("Newphoton", math.NewInt(1))
+	coinNewDenom2 := sdk.NewDecCoin("Newstake", math.NewInt(1))
 	// coins must be valid !!! and sorted!!!
 	coinsEmpty := sdk.DecCoins{}
 	coinsNonEmpty := sdk.DecCoins{coin1, coin2}.Sort()

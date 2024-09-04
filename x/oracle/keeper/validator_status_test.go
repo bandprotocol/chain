@@ -11,10 +11,10 @@ import (
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/stretchr/testify/require"
 
-	bandapp "github.com/bandprotocol/chain/v2/app"
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	bandapp "github.com/bandprotocol/chain/v3/app"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 func defaultVotes() []abci.VoteInfo {
@@ -88,12 +88,12 @@ func TestAllocateTokensOneActive(t *testing.T) {
 	distAccount := app.AccountKeeper.GetModuleAccount(ctx, disttypes.ModuleName)
 	require.Equal(
 		t,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 300000)),
+		sdk.NewCoins(math.NewInt64Coin("uband", 300000)),
 		app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()),
 	)
 	require.Equal(
 		t,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 700000)),
+		sdk.NewCoins(math.NewInt64Coin("uband", 700000)),
 		app.BankKeeper.GetAllBalances(ctx, distAccount.GetAddress()),
 	)
 	require.Equal(
@@ -123,12 +123,12 @@ func TestAllocateTokensAllActive(t *testing.T) {
 	distAccount := app.AccountKeeper.GetModuleAccount(ctx, disttypes.ModuleName)
 	require.Equal(
 		t,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 300000)),
+		sdk.NewCoins(math.NewInt64Coin("uband", 300000)),
 		app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()),
 	)
 	require.Equal(
 		t,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 700000)),
+		sdk.NewCoins(math.NewInt64Coin("uband", 700000)),
 		app.BankKeeper.GetAllBalances(ctx, distAccount.GetAddress()),
 	)
 	require.Equal(

@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/cometbft/cometbft/crypto/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
@@ -20,8 +21,8 @@ var (
 	GoodTestValAddr2 = sdk.ValAddress(MsgPk.Address())
 
 	GoodCoins = sdk.NewCoins()
-	BadCoins  = []sdk.Coin{{Denom: "uband", Amount: sdk.NewInt(-1)}}
-	FeeCoins  = sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(1000)))
+	BadCoins  = []sdk.Coin{{Denom: "uband", Amount: math.NewInt(-1)}}
+	FeeCoins  = sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(1000)))
 )
 
 type validateTestCase struct {

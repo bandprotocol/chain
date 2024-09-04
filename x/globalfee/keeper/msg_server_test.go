@@ -1,9 +1,10 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/globalfee/types"
+	"github.com/bandprotocol/chain/v3/x/globalfee/types"
 )
 
 func (s *IntegrationTestSuite) TestUpdateParams() {
@@ -25,7 +26,7 @@ func (s *IntegrationTestSuite) TestUpdateParams() {
 				Authority: s.globalfeeKeeper.GetAuthority(),
 				Params: types.Params{
 					MinimumGasPrices: sdk.NewDecCoins(
-						sdk.NewDecCoin("ALX", sdk.NewInt(1)),
+						sdk.NewDecCoin("ALX", math.NewInt(1)),
 						sdk.NewDecCoinFromDec("BLX", sdk.NewDecWithPrec(1, 3)),
 					),
 				},
@@ -50,7 +51,7 @@ func (s *IntegrationTestSuite) TestUpdateParams() {
 					MinimumGasPrices: []sdk.DecCoin{
 						{
 							Denom:  "1AAAA",
-							Amount: sdk.NewDecFromInt(sdk.NewInt(1)),
+							Amount: sdk.NewDecFromInt(math.NewInt(1)),
 						},
 					},
 				},
@@ -65,7 +66,7 @@ func (s *IntegrationTestSuite) TestUpdateParams() {
 					MinimumGasPrices: []sdk.DecCoin{
 						{
 							Denom:  "AAAA",
-							Amount: sdk.NewDecFromInt(sdk.NewInt(-1)),
+							Amount: sdk.NewDecFromInt(math.NewInt(-1)),
 						},
 					},
 				},
@@ -80,11 +81,11 @@ func (s *IntegrationTestSuite) TestUpdateParams() {
 					MinimumGasPrices: []sdk.DecCoin{
 						{
 							Denom:  "AAAA",
-							Amount: sdk.NewDecFromInt(sdk.NewInt(1)),
+							Amount: sdk.NewDecFromInt(math.NewInt(1)),
 						},
 						{
 							Denom:  "AAAA",
-							Amount: sdk.NewDecFromInt(sdk.NewInt(2)),
+							Amount: sdk.NewDecFromInt(math.NewInt(2)),
 						},
 					},
 				},
@@ -99,11 +100,11 @@ func (s *IntegrationTestSuite) TestUpdateParams() {
 					MinimumGasPrices: []sdk.DecCoin{
 						{
 							Denom:  "BBBB",
-							Amount: sdk.NewDecFromInt(sdk.NewInt(1)),
+							Amount: sdk.NewDecFromInt(math.NewInt(1)),
 						},
 						{
 							Denom:  "AAAA",
-							Amount: sdk.NewDecFromInt(sdk.NewInt(2)),
+							Amount: sdk.NewDecFromInt(math.NewInt(2)),
 						},
 					},
 				},

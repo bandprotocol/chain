@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"cosmossdk.io/core/appmodule"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -12,25 +14,30 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
-	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
+	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
-	"github.com/bandprotocol/chain/v2/x/oracle/client/cli"
-	"github.com/bandprotocol/chain/v2/x/oracle/exported"
-	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	"github.com/bandprotocol/chain/v2/x/oracle/simulation"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/x/oracle/client/cli"
+	"github.com/bandprotocol/chain/v3/x/oracle/exported"
+	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
+	"github.com/bandprotocol/chain/v3/x/oracle/simulation"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 // ConsensusVersion defines the current x/oracle module consensus version.
 const ConsensusVersion = 2
 
 var (
-	_ module.AppModule           = AppModule{}
 	_ module.AppModuleBasic      = AppModuleBasic{}
 	_ module.AppModuleSimulation = AppModule{}
-	_ porttypes.IBCModule        = IBCModule{}
+	_ module.HasABCIGenesis      = AppModule{}
+	_ module.HasABCIEndBlock     = AppModule{}
+
+	_ appmodule.AppModule       = AppModule{}
+	_ appmodule.HasBeginBlocker = AppModule{}
+
+	_ porttypes.IBCModule = (*IBCModule)(nil)
 )
 
 // AppModuleBasic is Band Oracle's module basic object.
@@ -95,7 +102,7 @@ type AppModule struct {
 
 	// for simulation
 	accountKeeper types.AccountKeeper
-	bankKeeper    simulation.BankKeeper
+	bankKeeper    types.BankKeeper
 	stakingKeeper types.StakingKeeper
 }
 
@@ -104,7 +111,7 @@ func NewAppModule(
 	cdc codec.Codec,
 	k keeper.Keeper,
 	ak types.AccountKeeper,
-	bk simulation.BankKeeper,
+	bk types.BankKeeper,
 	sk types.StakingKeeper,
 	ss exported.Subspace,
 ) AppModule {
@@ -117,9 +124,6 @@ func NewAppModule(
 		legacySubspace: ss,
 	}
 }
-
-// RegisterInvariants is a no-op function to satisfy SDK AppModule interface.
-func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
@@ -150,15 +154,16 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 // ConsensusVersion implements AppModule/ConsensusVersion.
 func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
 
-// BeginBlock processes ABCI begin block message for this oracle module (SDK AppModule interface).
-func (am AppModule) BeginBlock(ctx sdk.Context, req abci.RequestBeginBlock) {
-	handleBeginBlock(ctx, req, am.keeper)
+// BeginBlock returns the begin blocker for the oracle module.
+func (am AppModule) BeginBlock(ctx context.Context) error {
+	c := sdk.UnwrapSDKContext(ctx)
+	return BeginBlocker(c, am.keeper)
 }
 
 // EndBlock processes ABCI end block message for this oracle module (SDK AppModule interface).
-func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+func (am AppModule) EndBlock(ctx context.Context) error {
 	handleEndBlock(ctx, am.keeper)
-	return []abci.ValidatorUpdate{}
+	return nil
 }
 
 // AppModuleSimulation functions
@@ -169,7 +174,7 @@ func (AppModule) GenerateGenesisState(simState *module.SimulationState) {
 }
 
 // RegisterStoreDecoder registers a decoder for feegrant module's types
-func (am AppModule) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {
+func (am AppModule) RegisterStoreDecoder(sdr simtypes.StoreDecoderRegistry) {
 	sdr[types.StoreKey] = simulation.NewDecodeStore(am.cdc)
 }
 

@@ -12,9 +12,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/bandprotocol/chain/v2/testing/testdata"
-	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/testing/testdata"
+	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 // Simulation operation weights constants
@@ -204,7 +204,7 @@ func SimulateMsgRequestData(
 			AskCount:       uint64(askCount),
 			MinCount:       uint64(simtypes.RandIntBetween(r, 1, askCount+1)),
 			ClientID:       simtypes.RandStringOfLength(r, 100),
-			FeeLimit:       sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
+			FeeLimit:       sdk.NewCoins(math.NewInt64Coin("uband", 0)),
 			PrepareGas:     uint64(simtypes.RandIntBetween(r, 100000, 200000)),
 			ExecuteGas:     uint64(simtypes.RandIntBetween(r, 100000, 200000)),
 		}
@@ -297,7 +297,7 @@ func SimulateMsgCreateDataSource(
 			Name:        simtypes.RandStringOfLength(r, 10),
 			Description: simtypes.RandStringOfLength(r, 100),
 			Executable:  []byte(simtypes.RandStringOfLength(r, 100)),
-			Fee:         sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
+			Fee:         sdk.NewCoins(math.NewInt64Coin("uband", 0)),
 			Treasury:    treaAccount.Address.String(),
 			Owner:       ownerAccount.Address.String(),
 		}
@@ -348,7 +348,7 @@ func SimulateMsgEditDataSource(
 			Name:         simtypes.RandStringOfLength(r, 10),
 			Description:  simtypes.RandStringOfLength(r, 100),
 			Executable:   []byte(simtypes.RandStringOfLength(r, 100)),
-			Fee:          sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
+			Fee:          sdk.NewCoins(math.NewInt64Coin("uband", 0)),
 			Treasury:     treaAccount.Address.String(),
 			Owner:        ownerAccount.Address.String(),
 		}

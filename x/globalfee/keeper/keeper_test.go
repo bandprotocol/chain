@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
@@ -10,9 +11,9 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/bandprotocol/chain/v2/x/globalfee"
-	"github.com/bandprotocol/chain/v2/x/globalfee/keeper"
-	"github.com/bandprotocol/chain/v2/x/globalfee/types"
+	"github.com/bandprotocol/chain/v3/x/globalfee"
+	"github.com/bandprotocol/chain/v3/x/globalfee/keeper"
+	"github.com/bandprotocol/chain/v3/x/globalfee/types"
 )
 
 type IntegrationTestSuite struct {
@@ -58,7 +59,7 @@ func (s *IntegrationTestSuite) TestParams() {
 			name: "set full valid params",
 			input: types.Params{
 				MinimumGasPrices: sdk.NewDecCoins(
-					sdk.NewDecCoin("ALX", sdk.NewInt(1)),
+					sdk.NewDecCoin("ALX", math.NewInt(1)),
 					sdk.NewDecCoinFromDec("BLX", sdk.NewDecWithPrec(1, 3)),
 				),
 			},
@@ -77,7 +78,7 @@ func (s *IntegrationTestSuite) TestParams() {
 				MinimumGasPrices: []sdk.DecCoin{
 					{
 						Denom:  "1AAAA",
-						Amount: sdk.NewDecFromInt(sdk.NewInt(1)),
+						Amount: sdk.NewDecFromInt(math.NewInt(1)),
 					},
 				},
 			},
@@ -89,7 +90,7 @@ func (s *IntegrationTestSuite) TestParams() {
 				MinimumGasPrices: []sdk.DecCoin{
 					{
 						Denom:  "AAAA",
-						Amount: sdk.NewDecFromInt(sdk.NewInt(-1)),
+						Amount: sdk.NewDecFromInt(math.NewInt(-1)),
 					},
 				},
 			},
@@ -101,11 +102,11 @@ func (s *IntegrationTestSuite) TestParams() {
 				MinimumGasPrices: []sdk.DecCoin{
 					{
 						Denom:  "AAAA",
-						Amount: sdk.NewDecFromInt(sdk.NewInt(1)),
+						Amount: sdk.NewDecFromInt(math.NewInt(1)),
 					},
 					{
 						Denom:  "AAAA",
-						Amount: sdk.NewDecFromInt(sdk.NewInt(2)),
+						Amount: sdk.NewDecFromInt(math.NewInt(2)),
 					},
 				},
 			},
@@ -117,11 +118,11 @@ func (s *IntegrationTestSuite) TestParams() {
 				MinimumGasPrices: []sdk.DecCoin{
 					{
 						Denom:  "BBBB",
-						Amount: sdk.NewDecFromInt(sdk.NewInt(1)),
+						Amount: sdk.NewDecFromInt(math.NewInt(1)),
 					},
 					{
 						Denom:  "AAAA",
-						Amount: sdk.NewDecFromInt(sdk.NewInt(2)),
+						Amount: sdk.NewDecFromInt(math.NewInt(2)),
 					},
 				},
 			},

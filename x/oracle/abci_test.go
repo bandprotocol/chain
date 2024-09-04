@@ -11,7 +11,7 @@ import (
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/stretchr/testify/require"
 
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
 )
 
 func fromHex(hexStr string) []byte {
@@ -73,13 +73,13 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 	// Set collected fee to 100uband + 70% oracle reward proportion + disable minting inflation.
 	// NOTE: we intentionally keep ctx.BlockHeight = 0, so distr's AllocateTokens doesn't get called.
 	feeCollector := app.AccountKeeper.GetModuleAccount(ctx, authtypes.FeeCollectorName)
-	err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("uband", 100)))
+	err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(math.NewInt64Coin("uband", 100)))
 	require.NoError(t, err)
 	err = app.BankKeeper.SendCoinsFromModuleToModule(
 		ctx,
 		minttypes.ModuleName,
 		authtypes.FeeCollectorName,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
+		sdk.NewCoins(math.NewInt64Coin("uband", 100)),
 	)
 	require.NoError(t, err)
 
@@ -98,7 +98,7 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(
 		t,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
+		sdk.NewCoins(math.NewInt64Coin("uband", 100)),
 		app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()),
 	)
 	// If there are no validators active, Calling begin block should be no-op.
@@ -108,7 +108,7 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 	})
 	require.Equal(
 		t,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
+		sdk.NewCoins(math.NewInt64Coin("uband", 100)),
 		app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()),
 	)
 	// 1 validator active, begin block should take 70% of the fee. 2% of that goes to comm pool.
@@ -120,12 +120,12 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 	})
 	require.Equal(
 		t,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 30)),
+		sdk.NewCoins(math.NewInt64Coin("uband", 30)),
 		app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()),
 	)
 	require.Equal(
 		t,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 70)),
+		sdk.NewCoins(math.NewInt64Coin("uband", 70)),
 		app.BankKeeper.GetAllBalances(ctx, distModule.GetAddress()),
 	)
 	// 100*70%*2% = 1.4uband
@@ -152,12 +152,12 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 	})
 	require.Equal(
 		t,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 9)),
+		sdk.NewCoins(math.NewInt64Coin("uband", 9)),
 		app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()),
 	)
 	require.Equal(
 		t,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 91)),
+		sdk.NewCoins(math.NewInt64Coin("uband", 91)),
 		app.BankKeeper.GetAllBalances(ctx, distModule.GetAddress()),
 	)
 	// 1.4uband + 30*70%*2% = 1.82uband
@@ -186,12 +186,12 @@ func TestAllocateTokensCalledOnBeginBlock(t *testing.T) {
 	})
 	require.Equal(
 		t,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 3)),
+		sdk.NewCoins(math.NewInt64Coin("uband", 3)),
 		app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()),
 	)
 	require.Equal(
 		t,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 97)),
+		sdk.NewCoins(math.NewInt64Coin("uband", 97)),
 		app.BankKeeper.GetAllBalances(ctx, distModule.GetAddress()),
 	)
 	// 1.82uband + 6*2% = 1.82uband
@@ -231,13 +231,13 @@ func TestAllocateTokensWithDistrAllocateTokens(t *testing.T) {
 	distModule := app.AccountKeeper.GetModuleAccount(ctx, distrtypes.ModuleName)
 
 	// Set collected fee to 100uband + 70% oracle reward proportion + disable minting inflation.
-	err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("uband", 50)))
+	err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(math.NewInt64Coin("uband", 50)))
 	require.NoError(t, err)
 	err = app.BankKeeper.SendCoinsFromModuleToModule(
 		ctx,
 		minttypes.ModuleName,
 		authtypes.FeeCollectorName,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 50)),
+		sdk.NewCoins(math.NewInt64Coin("uband", 50)),
 	)
 	require.NoError(t, err)
 	app.AccountKeeper.SetAccount(ctx, feeCollector)
@@ -254,7 +254,7 @@ func TestAllocateTokensWithDistrAllocateTokens(t *testing.T) {
 	app.DistrKeeper.SetPreviousProposerConsAddr(ctx, bandtesting.Validators[1].Address.Bytes())
 	require.Equal(
 		t,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 50)),
+		sdk.NewCoins(math.NewInt64Coin("uband", 50)),
 		app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()),
 	)
 	// Only Validators[0] active. After we call begin block:
@@ -280,7 +280,7 @@ func TestAllocateTokensWithDistrAllocateTokens(t *testing.T) {
 	require.Equal(t, sdk.Coins{}, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
 	require.Equal(
 		t,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 50)),
+		sdk.NewCoins(math.NewInt64Coin("uband", 50)),
 		app.BankKeeper.GetAllBalances(ctx, distModule.GetAddress()),
 	)
 	require.Equal(

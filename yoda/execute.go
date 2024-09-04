@@ -17,8 +17,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
-	band "github.com/bandprotocol/chain/v2/app"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	band "github.com/bandprotocol/chain/v3/app"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 // Proto codec for encoding/decoding proto message

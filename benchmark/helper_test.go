@@ -17,9 +17,9 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/pkg/obi"
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/pkg/obi"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 type Account struct {
@@ -61,7 +61,7 @@ func GenMsgRequestData(
 		AskCount:   1,
 		MinCount:   1,
 		ClientID:   "",
-		FeeLimit:   sdk.Coins{sdk.NewInt64Coin("uband", 1)},
+		FeeLimit:   sdk.Coins{math.NewInt64Coin("uband", 1)},
 		PrepareGas: prepareGas,
 		ExecuteGas: executeGas,
 		Sender:     sender.Address.String(),
@@ -77,7 +77,7 @@ func GenMsgSend(
 	msg := banktypes.MsgSend{
 		FromAddress: sender.Address.String(),
 		ToAddress:   receiver.Address.String(),
-		Amount:      sdk.Coins{sdk.NewInt64Coin("uband", 1)},
+		Amount:      sdk.Coins{math.NewInt64Coin("uband", 1)},
 	}
 
 	return []sdk.Msg{&msg}
@@ -131,7 +131,7 @@ func GenSequenceOfTxs(
 		txs[i], _ = bandtesting.GenTx(
 			txConfig,
 			msgs,
-			sdk.Coins{sdk.NewInt64Coin("uband", 1)},
+			sdk.Coins{math.NewInt64Coin("uband", 1)},
 			math.MaxInt64,
 			bandtesting.ChainID,
 			[]uint64{account.Num},

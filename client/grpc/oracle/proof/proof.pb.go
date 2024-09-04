@@ -6,7 +6,7 @@ package proof
 import (
 	context "context"
 	fmt "fmt"
-	types "github.com/bandprotocol/chain/v2/x/oracle/types"
+	types "github.com/bandprotocol/chain/v3/x/oracle/types"
 	github_com_cometbft_cometbft_libs_bytes "github.com/cometbft/cometbft/libs/bytes"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	grpc1 "github.com/cosmos/gogoproto/grpc"

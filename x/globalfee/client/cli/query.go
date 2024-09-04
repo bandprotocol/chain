@@ -5,7 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
 
-	"github.com/bandprotocol/chain/v2/x/globalfee/types"
+	"github.com/bandprotocol/chain/v3/x/globalfee/types"
 )
 
 func GetQueryCmd() *cobra.Command {
