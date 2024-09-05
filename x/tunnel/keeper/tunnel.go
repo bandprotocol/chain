@@ -37,7 +37,7 @@ func (k Keeper) AddTunnel(
 
 	// Create a new tunnel
 	tunnel := types.NewTunnel(
-		id,
+		newID,
 		0,
 		route,
 		feedType,
