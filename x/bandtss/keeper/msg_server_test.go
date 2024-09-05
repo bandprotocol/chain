@@ -446,6 +446,23 @@ func (s *AppTestSuite) TestSuccessRequestSignatureOnCurrentGroup() {
 	s.Require().Equal(bandtssSigningID, bandtssSigningIDMapping)
 }
 
+func (s *AppTestSuite) TestFailRequestSignatureInternalMessage() {
+	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.BandtssKeeper
+
+	_ = s.SetupNewGroup(5, 3)
+	k.DeleteGroupTransition(ctx)
+
+	msg, err := types.NewMsgRequestSignature(
+		types.NewGroupTransitionSignatureOrder([]byte("msg")),
+		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
+		bandtesting.FeePayer.Address,
+	)
+	s.Require().NoError(err)
+
+	_, err = msgSrvr.RequestSignature(ctx, msg)
+	s.Require().ErrorIs(err, types.ErrContentNotAllowed)
+}
+
 func (s *AppTestSuite) TestSuccessRequestSignatureOnIncomingGroup() {
 	ctx, msgSrvr := s.ctx, s.msgSrvr
 

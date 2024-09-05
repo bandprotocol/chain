@@ -30,6 +30,9 @@ func (o *OracleResultSignatureOrder) OrderType() string {
 	return SignatureOrderTypeOracleResult
 }
 
+// IsInternal returns false for OracleResultSignatureOrder (allow user to submit this content type).
+func (o *OracleResultSignatureOrder) IsInternal() bool { return false }
+
 // ValidateBasic validates the request's title and description of the request signature
 func (o *OracleResultSignatureOrder) ValidateBasic() error {
 	if o.RequestID == 0 {
