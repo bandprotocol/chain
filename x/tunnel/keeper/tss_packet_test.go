@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"math"
 	"testing"
 	"time"
 
@@ -35,7 +36,7 @@ func TestSendTSSPacket(t *testing.T) {
 	)
 
 	s.MockBandtssKeeper.EXPECT().GetParams(gomock.Any()).Return(bandtsstypes.Params{
-		Fee: sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
+		Fee: sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10))),
 	})
 	s.MockBandtssKeeper.EXPECT().CreateTunnelSigningRequest(
 		gomock.Any(),
@@ -44,7 +45,7 @@ func TestSendTSSPacket(t *testing.T) {
 		"chain-1",
 		gomock.Any(),
 		bandtesting.Alice.Address,
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
+		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(math.MaxInt))),
 	).Return(bandtsstypes.SigningID(1), nil)
 
 	k.SetTunnel(ctx, types.Tunnel{

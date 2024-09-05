@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
@@ -21,7 +23,13 @@ func (k Keeper) SendTSSPacket(
 
 	tunnel := k.MustGetTunnel(ctx, packet.TunnelID)
 	content := feedstypes.NewFeedSignatureOrder(signalIDs, tunnel.FeedType)
+
+	// assign feeLimit to infinite
 	feePerSigner := k.bandtssKeeper.GetParams(ctx).Fee
+	feeLimits := sdk.NewCoins()
+	for _, coin := range feePerSigner {
+		feeLimits = append(feeLimits, sdk.NewCoin(coin.Denom, sdk.NewInt(math.MaxInt)))
+	}
 
 	// Sign TSS packet
 	signingID, err := k.bandtssKeeper.CreateTunnelSigningRequest(
@@ -31,7 +39,7 @@ func (k Keeper) SendTSSPacket(
 		route.DestinationChainID,
 		content,
 		sdk.MustAccAddressFromBech32(tunnel.FeePayer),
-		feePerSigner,
+		feeLimits,
 	)
 	if err != nil {
 		return nil, err
