@@ -31,7 +31,7 @@ func (k Keeper) AddTunnel(
 	// Set the signal prices info
 	var signalPrices []types.SignalPrice
 	for _, si := range signalInfos {
-		signalPrices = append(signalPrices, types.NewSignalPrice(si.SignalID, 0, 0))
+		signalPrices = append(signalPrices, types.NewSignalPrice(si.SignalID, 0))
 	}
 	k.SetSignalPricesInfo(ctx, types.NewSignalPricesInfo(newID, signalPrices, 0))
 
@@ -74,7 +74,7 @@ func (k Keeper) EditTunnel(
 	// Edit the signal prices info
 	var signalPrices []types.SignalPrice
 	for _, sp := range signalInfos {
-		signalPrices = append(signalPrices, types.NewSignalPrice(sp.SignalID, 0, 0))
+		signalPrices = append(signalPrices, types.NewSignalPrice(sp.SignalID, 0))
 	}
 	k.SetSignalPricesInfo(ctx, types.NewSignalPricesInfo(tunnelID, signalPrices, 0))
 

@@ -167,7 +167,7 @@ func GenerateSignalPrices(
 		latestPrice, exists := latestPricesMap[sp.SignalID]
 		// TODO: remove check PriceStatusAvailable when feeds module is implemented
 		if !exists || latestPrice.PriceStatus != feedstypes.PriceStatusAvailable {
-			sps = append(sps, types.NewSignalPrice(sp.SignalID, 0, 0))
+			sps = append(sps, types.NewSignalPrice(sp.SignalID, 0))
 			continue
 		}
 
@@ -190,7 +190,6 @@ func GenerateSignalPrices(
 				types.NewSignalPrice(
 					sp.SignalID,
 					latestPrice.Price,
-					latestPrice.Timestamp,
 				),
 			)
 		}

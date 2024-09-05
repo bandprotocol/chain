@@ -88,8 +88,6 @@ message SignalPrice {
   string signal_id = 1 [(gogoproto.customname) = "SignalID"];
   // price is the price of the signal
   uint64 price = 2;
-  // timestamp is the timestamp of the signal
-  int64 timestamp = 3;
 }
 
 // Packet is the packet that tunnel produces

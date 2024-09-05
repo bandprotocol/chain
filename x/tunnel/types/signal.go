@@ -46,11 +46,9 @@ func (spsi *SignalPricesInfo) UpdateSignalPrices(newSignalPrices []SignalPrice) 
 func NewSignalPrice(
 	signalID string,
 	price uint64,
-	timestamp int64,
 ) SignalPrice {
 	return SignalPrice{
-		SignalID:  signalID,
-		Price:     price,
-		Timestamp: timestamp,
+		SignalID: signalID,
+		Price:    price,
 	}
 }
