@@ -30,6 +30,9 @@ func (f *FeedsSignatureOrder) OrderType() string {
 	return SignatureOrderTypeFeeds
 }
 
+// IsInternal returns false for FeedsSignatureOrder (allow user to submit this content type).
+func (f *FeedsSignatureOrder) IsInternal() bool { return false }
+
 // ValidateBasic validates the request's title and description of the request signature
 func (f *FeedsSignatureOrder) ValidateBasic() error {
 	if len(f.SignalIDs) == 0 {

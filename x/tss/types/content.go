@@ -83,6 +83,7 @@ func wrapHandler(path string, handler Handler) Handler {
 type Content interface {
 	OrderRoute() string
 	OrderType() string
+	IsInternal() bool
 
 	ValidateBasic() error
 	String() string

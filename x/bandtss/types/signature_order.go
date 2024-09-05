@@ -29,6 +29,9 @@ func (rs *GroupTransitionSignatureOrder) OrderType() string {
 	return GroupTransitionPath
 }
 
+// IsInternal returns true for GroupTransitionSignatureOrder (internal module-based request signature).
+func (rs *GroupTransitionSignatureOrder) IsInternal() bool { return true }
+
 // ValidateBasic performs no-op for this type
 func (rs *GroupTransitionSignatureOrder) ValidateBasic() error { return nil }
 
