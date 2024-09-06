@@ -5,7 +5,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
@@ -15,14 +14,8 @@ func (k Keeper) SendTSSPacket(
 	route *types.TSSRoute,
 	packet types.Packet,
 ) (types.PacketContentI, error) {
-	// Get SignalIDs from packet
-	signalIDs := make([]string, len(packet.SignalPrices))
-	for _, signalPrice := range packet.SignalPrices {
-		signalIDs = append(signalIDs, signalPrice.SignalID)
-	}
-
 	tunnel := k.MustGetTunnel(ctx, packet.TunnelID)
-	content := feedstypes.NewFeedSignatureOrder(signalIDs, tunnel.FeedType)
+	content := types.NewTunnelSignatureOrder(packet)
 
 	// assign feeLimit to infinite
 	feePerSigner := k.bandtssKeeper.GetParams(ctx).Fee

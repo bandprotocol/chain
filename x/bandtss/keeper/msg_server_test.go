@@ -11,6 +11,7 @@ import (
 	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	tunneltypes "github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
 type TestCase struct {
@@ -452,8 +453,20 @@ func (s *AppTestSuite) TestFailRequestSignatureInternalMessage() {
 	_ = s.SetupNewGroup(5, 3)
 	k.DeleteGroupTransition(ctx)
 
+	// test group transition message
 	msg, err := types.NewMsgRequestSignature(
 		types.NewGroupTransitionSignatureOrder([]byte("msg")),
+		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
+		bandtesting.FeePayer.Address,
+	)
+	s.Require().NoError(err)
+
+	_, err = msgSrvr.RequestSignature(ctx, msg)
+	s.Require().ErrorIs(err, types.ErrContentNotAllowed)
+
+	// test tunnel message.
+	msg, err = types.NewMsgRequestSignature(
+		tunneltypes.NewTunnelSignatureOrder(tunneltypes.Packet{TunnelID: 1, Nonce: 1}),
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 		bandtesting.FeePayer.Address,
 	)

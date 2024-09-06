@@ -130,3 +130,11 @@ message AxelarPacketContent {
   // destination_contract_address is the destination contract address
   string destination_contract_address = 3;
 }
+
+// TunnelSignatureOrder defines a general signature order for sending signature to tss group.
+message TunnelSignatureOrder {
+  option (gogoproto.goproto_getters) = false;
+
+  // Packet is the prices that a tunnel produces from the selected signals.
+  Packet packet = 1 [(gogoproto.nullable) = false];
+}

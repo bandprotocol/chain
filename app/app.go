@@ -611,22 +611,6 @@ func NewBandApp(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
-	// Add TSS route
-	tssContentRouter.
-		AddRoute(tsstypes.RouterKey, tss.NewSignatureOrderHandler(*app.TSSKeeper)).
-		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(app.OracleKeeper)).
-		AddRoute(bandtsstypes.RouterKey, bandtsstypes.NewSignatureOrderHandler()).
-		AddRoute(feedstypes.RouterKey, feeds.NewSignatureOrderHandler(app.FeedsKeeper))
-
-	tssCbRouter.
-		AddRoute(bandtsstypes.RouterKey, bandtsskeeper.NewTSSCallback(app.BandtssKeeper))
-
-	// It is vital to seal the request signature router here as to not allow
-	// further handlers to be registered after the keeper is created since this
-	// could create invalid or non-deterministic behavior.
-	tssContentRouter.Seal()
-	tssCbRouter.Seal()
-
 	app.StakingKeeper.SetHooks(
 		stakingtypes.NewMultiStakingHooks(
 			app.DistrKeeper.Hooks(),
@@ -666,6 +650,23 @@ func NewBandApp(
 		app.BandtssKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
+
+	// Add TSS route
+	tssContentRouter.
+		AddRoute(tsstypes.RouterKey, tss.NewSignatureOrderHandler(*app.TSSKeeper)).
+		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(app.OracleKeeper)).
+		AddRoute(bandtsstypes.RouterKey, bandtsstypes.NewSignatureOrderHandler()).
+		AddRoute(feedstypes.RouterKey, feeds.NewSignatureOrderHandler(app.FeedsKeeper)).
+		AddRoute(tunneltypes.RouterKey, tunnel.NewSignatureOrderHandler(*app.TunnelKeeper))
+
+	tssCbRouter.
+		AddRoute(bandtsstypes.RouterKey, bandtsskeeper.NewTSSCallback(app.BandtssKeeper))
+
+	// It is vital to seal the request signature router here as to not allow
+	// further handlers to be registered after the keeper is created since this
+	// could create invalid or non-deterministic behavior.
+	tssContentRouter.Seal()
+	tssCbRouter.Seal()
 
 	/****  Module Options ****/
 	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
