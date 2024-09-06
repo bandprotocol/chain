@@ -274,21 +274,6 @@ func (m *MockBandtssKeeper) EXPECT() *MockBandtssKeeperMockRecorder {
 	return m.recorder
 }
 
-// CreateDirectSigningRequest mocks base method.
-func (m *MockBandtssKeeper) CreateDirectSigningRequest(ctx types2.Context, content types1.Content, memo string, sender types2.AccAddress, feeLimit types2.Coins) (types.SigningID, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateDirectSigningRequest", ctx, content, memo, sender, feeLimit)
-	ret0, _ := ret[0].(types.SigningID)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CreateDirectSigningRequest indicates an expected call of CreateDirectSigningRequest.
-func (mr *MockBandtssKeeperMockRecorder) CreateDirectSigningRequest(ctx, content, memo, sender, feeLimit any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDirectSigningRequest", reflect.TypeOf((*MockBandtssKeeper)(nil).CreateDirectSigningRequest), ctx, content, memo, sender, feeLimit)
-}
-
 // CreateTunnelSigningRequest mocks base method.
 func (m *MockBandtssKeeper) CreateTunnelSigningRequest(ctx types2.Context, tunnelID uint64, destinationContractAddr, destinationChainID string, content types1.Content, sender types2.AccAddress, feeLimit types2.Coins) (types.SigningID, error) {
 	m.ctrl.T.Helper()
