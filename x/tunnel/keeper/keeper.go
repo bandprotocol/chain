@@ -80,22 +80,6 @@ func (k Keeper) DeductBasePacketFee(ctx sdk.Context, feePayer sdk.AccAddress) er
 	return nil
 }
 
-// RefundBaseFee refunds the base fee to fee payer's account.
-func (k Keeper) RefundBasePacketFee(ctx sdk.Context, feePayer sdk.AccAddress) error {
-	basePacketFee := k.GetParams(ctx).BasePacketFee
-	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, feePayer, basePacketFee); err != nil {
-		return err
-	}
-	return nil
-}
-
-// MustRefundBaseFee refunds the base fee to fee payer's account.
-func (k Keeper) MustRefundBasePacketFee(ctx sdk.Context, feePayer sdk.AccAddress) {
-	if err := k.RefundBasePacketFee(ctx, feePayer); err != nil {
-		panic(fmt.Sprintf("failed to refund base packet fee: %s", err))
-	}
-}
-
 // Logger returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
