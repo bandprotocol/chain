@@ -32,8 +32,8 @@ func TestGenesisTestSuite(t *testing.T) {
 }
 
 func (s *GenesisTestSuite) SetupTest() {
-	key := sdk.NewKVStoreKey(types.StoreKey)
-	testCtx := testutil.DefaultContextWithDB(s.T(), key, sdk.NewTransientStoreKey("transient_test"))
+	key := storetypes.NewKVStoreKey(types.StoreKey)
+	testCtx := testutil.DefaultContextWithDB(s.T(), key, storetypes.NewTransientStoreKey("transient_test"))
 	encCfg := moduletestutil.MakeTestEncodingConfig(globalfee.AppModuleBasic{})
 
 	// gomock initializations
@@ -59,7 +59,7 @@ func (s *GenesisTestSuite) TestImportExportGenesis() {
 			src: `{"params":{"minimum_gas_prices":[{"denom":"ALX", "amount":"1"}, {"denom":"BLX", "amount":"0.001"}]}}`,
 			exp: types.GenesisState{
 				Params: types.Params{MinimumGasPrices: sdk.NewDecCoins(sdk.NewDecCoin("ALX", math.NewInt(1)),
-					sdk.NewDecCoinFromDec("BLX", sdk.NewDecWithPrec(1, 3)))},
+					sdk.NewDecCoinFromDec("BLX", math.LegacyNewDecWithPrec(1, 3)))},
 			},
 		},
 		"no fee set": {

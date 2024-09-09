@@ -27,7 +27,7 @@ func (s *IntegrationTestSuite) TestUpdateParams() {
 				Params: types.Params{
 					MinimumGasPrices: sdk.NewDecCoins(
 						sdk.NewDecCoin("ALX", math.NewInt(1)),
-						sdk.NewDecCoinFromDec("BLX", sdk.NewDecWithPrec(1, 3)),
+						sdk.NewDecCoinFromDec("BLX", math.LegacyNewDecWithPrec(1, 3)),
 					),
 				},
 			},
@@ -51,7 +51,7 @@ func (s *IntegrationTestSuite) TestUpdateParams() {
 					MinimumGasPrices: []sdk.DecCoin{
 						{
 							Denom:  "1AAAA",
-							Amount: sdk.NewDecFromInt(math.NewInt(1)),
+							Amount: math.LegacyNewDecFromInt(math.NewInt(1)),
 						},
 					},
 				},
@@ -66,7 +66,7 @@ func (s *IntegrationTestSuite) TestUpdateParams() {
 					MinimumGasPrices: []sdk.DecCoin{
 						{
 							Denom:  "AAAA",
-							Amount: sdk.NewDecFromInt(math.NewInt(-1)),
+							Amount: math.LegacyNewDecFromInt(math.NewInt(-1)),
 						},
 					},
 				},
@@ -81,11 +81,11 @@ func (s *IntegrationTestSuite) TestUpdateParams() {
 					MinimumGasPrices: []sdk.DecCoin{
 						{
 							Denom:  "AAAA",
-							Amount: sdk.NewDecFromInt(math.NewInt(1)),
+							Amount: math.LegacyNewDecFromInt(math.NewInt(1)),
 						},
 						{
 							Denom:  "AAAA",
-							Amount: sdk.NewDecFromInt(math.NewInt(2)),
+							Amount: math.LegacyNewDecFromInt(math.NewInt(2)),
 						},
 					},
 				},
@@ -100,11 +100,11 @@ func (s *IntegrationTestSuite) TestUpdateParams() {
 					MinimumGasPrices: []sdk.DecCoin{
 						{
 							Denom:  "BBBB",
-							Amount: sdk.NewDecFromInt(math.NewInt(1)),
+							Amount: math.LegacyNewDecFromInt(math.NewInt(1)),
 						},
 						{
 							Denom:  "AAAA",
-							Amount: sdk.NewDecFromInt(math.NewInt(2)),
+							Amount: math.LegacyNewDecFromInt(math.NewInt(2)),
 						},
 					},
 				},

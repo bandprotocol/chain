@@ -11,8 +11,8 @@ type Logger struct {
 	logger log.Logger
 }
 
-func NewLogger(level log.Option) *Logger {
-	return &Logger{logger: log.NewFilter(log.NewTMLogger(os.Stdout), level)}
+func NewLogger(level log.FilterFunc) *Logger {
+	return &Logger{log.NewLogger(os.Stdout, log.FilterOption(level))}
 }
 
 func (l *Logger) Debug(format string, args ...interface{}) {

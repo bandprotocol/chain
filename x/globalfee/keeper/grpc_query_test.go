@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
@@ -53,8 +54,8 @@ func TestQueryParams(t *testing.T) {
 	for name, spec := range specs {
 		t.Run(name, func(t *testing.T) {
 			encCfg := moduletestutil.MakeTestEncodingConfig()
-			key := sdk.NewKVStoreKey(types.StoreKey)
-			ctx := testutil.DefaultContextWithDB(t, key, sdk.NewTransientStoreKey("transient_test")).Ctx
+			key := storetypes.NewKVStoreKey(types.StoreKey)
+			ctx := testutil.DefaultContextWithDB(t, key, storetypes.NewTransientStoreKey("transient_test")).Ctx
 
 			k := keeper.NewKeeper(
 				encCfg.Codec,

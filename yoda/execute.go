@@ -17,22 +17,18 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
-	band "github.com/bandprotocol/chain/v3/app"
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
-
-// Proto codec for encoding/decoding proto message
-var cdc = band.MakeEncodingConfig().Marshaler
 
 func signAndBroadcast(
 	c *Context, key *keyring.Record, msgs []sdk.Msg, gasLimit uint64, memo string,
 ) (string, error) {
 	clientCtx := client.Context{
 		Client:            c.client,
-		Codec:             cdc,
-		TxConfig:          band.MakeEncodingConfig().TxConfig,
+		Codec:             c.bandApp.AppCodec(),
+		TxConfig:          c.bandApp.GetTxConfig(),
 		BroadcastMode:     "sync",
-		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
+		InterfaceRegistry: c.bandApp.InterfaceRegistry(),
 	}
 	acc, err := queryAccount(clientCtx, key)
 	if err != nil {
@@ -42,7 +38,7 @@ func signAndBroadcast(
 	txf := tx.Factory{}.
 		WithAccountNumber(acc.GetAccountNumber()).
 		WithSequence(acc.GetSequence()).
-		WithTxConfig(band.MakeEncodingConfig().TxConfig).
+		WithTxConfig(clientCtx.TxConfig).
 		WithGas(gasLimit).WithGasAdjustment(1).
 		WithChainID(cfg.ChainID).
 		WithMemo(memo).
@@ -62,7 +58,7 @@ func signAndBroadcast(
 		return "", err
 	}
 
-	err = tx.Sign(txf, key.Name, txb, true)
+	err = tx.Sign(context.Background(), txf, key.Name, txb, true)
 	if err != nil {
 		return "", err
 	}
@@ -136,8 +132,8 @@ func SubmitReport(c *Context, l *Logger, keyIndex int64, reports []ReportMsgWith
 
 	clientCtx := client.Context{
 		Client:            c.client,
-		TxConfig:          band.MakeEncodingConfig().TxConfig,
-		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
+		TxConfig:          c.bandApp.GetTxConfig(),
+		InterfaceRegistry: c.bandApp.InterfaceRegistry(),
 	}
 
 	gasLimit := estimateGas(c, l, msgs, feeEstimations)
@@ -206,7 +202,7 @@ func GetExecutable(c *Context, l *Logger, hash string) ([]byte, error) {
 	resValue, err := c.fileCache.GetFile(hash)
 	if err != nil {
 		l.Debug(":magnifying_glass_tilted_left: Fetching data source hash: %s from bandchain querier", hash)
-		bz := cdc.MustMarshal(&types.QueryDataRequest{
+		bz := c.bandApp.AppCodec().MustMarshal(&types.QueryDataRequest{
 			DataHash: hash,
 		})
 		res, err := abciQuery(c, l, "/oracle.v1.Query/Data", bz)
@@ -215,7 +211,7 @@ func GetExecutable(c *Context, l *Logger, hash string) ([]byte, error) {
 			return nil, err
 		}
 		var dr types.QueryDataResponse
-		err = cdc.Unmarshal(res.Response.GetValue(), &dr)
+		err = c.bandApp.AppCodec().Unmarshal(res.Response.GetValue(), &dr)
 		if err != nil {
 			l.Error(":exploding_head: Failed to unmarshal data source with error: %s", c, err.Error())
 			return nil, err
@@ -239,7 +235,7 @@ func GetDataSourceHash(c *Context, l *Logger, id types.DataSourceID) (string, er
 	}
 
 	var d types.DataSource
-	cdc.MustUnmarshal(res.Response.Value, &d)
+	c.bandApp.AppCodec().MustUnmarshal(res.Response.Value, &d)
 
 	return d.Filename, nil
 }
@@ -253,7 +249,7 @@ func GetRequest(c *Context, l *Logger, id types.RequestID) (types.Request, error
 	}
 
 	var r types.Request
-	cdc.MustUnmarshal(res.Response.Value, &r)
+	c.bandApp.AppCodec().MustUnmarshal(res.Response.Value, &r)
 
 	return r, nil
 }

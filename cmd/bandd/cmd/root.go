@@ -69,7 +69,7 @@ func NewRootCmd() *cobra.Command {
 		map[int64]bool{},
 		tempDir,
 		initAppOptions,
-		32,
+		100,
 	)
 	defer func() {
 		if err := tempApplication.Close(); err != nil {

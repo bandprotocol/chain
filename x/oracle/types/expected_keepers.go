@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -21,6 +22,7 @@ type BankKeeper interface {
 	GetAllBalances(ctx context.Context, addr sdk.AccAddress) sdk.Coins
 	SendCoinsFromModuleToModule(ctx context.Context, senderModule, recipientModule string, amt sdk.Coins) error
 	SendCoins(ctx context.Context, from, to sdk.AccAddress, amt sdk.Coins) error
+	SpendableCoins(ctx context.Context, addr sdk.AccAddress) sdk.Coins
 }
 
 // StakingKeeper defines the expected staking keeper.
@@ -33,10 +35,9 @@ type StakingKeeper interface {
 
 // DistrKeeper defines the expected distribution keeper.
 type DistrKeeper interface {
-	// GetCommunityTax(ctx sdk.Context) (percent sdk.Dec)
-	// GetFeePool(ctx sdk.Context) (feePool distrtypes.FeePool)
-	// SetFeePool(ctx sdk.Context, feePool distrtypes.FeePool)
-	AllocateTokensToValidator(ctx sdk.Context, val stakingtypes.ValidatorI, tokens sdk.DecCoins)
+	GetCommunityTax(ctx context.Context) (math.LegacyDec, error)
+	AllocateTokensToValidator(ctx context.Context, val stakingtypes.ValidatorI, tokens sdk.DecCoins) error
+	FundCommunityPool(ctx context.Context, amount sdk.Coins, sender sdk.AccAddress) error
 }
 
 // PortKeeper defines the expected IBC port keeper

@@ -3,9 +3,8 @@ package globalfee
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
-	errorsmod "cosmossdk.io/errors"
-	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -23,12 +22,15 @@ import (
 const ConsensusVersion = 1
 
 var (
-	_ module.AppModuleBasic   = AppModuleBasic{}
-	_ module.AppModuleGenesis = AppModule{}
-	_ module.AppModule        = AppModule{}
+	_ module.AppModuleBasic = AppModuleBasic{}
+	// _ module.AppModuleSimulation = AppModule{}
+	_ module.HasGenesis  = AppModule{}
+	_ module.HasServices = AppModule{}
+
+	_ module.AppModule = AppModule{}
 )
 
-// AppModuleBasic defines the basic application module used by the wasm module.
+// AppModuleBasic defines the basic application module used by the globalfee module.
 type AppModuleBasic struct{}
 
 func (a AppModuleBasic) Name() string {
@@ -49,22 +51,14 @@ func (a AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 	return cdc.MustMarshalJSON(types.DefaultGenesisState())
 }
 
-func (a AppModuleBasic) ValidateGenesis(
-	marshaler codec.JSONCodec,
-	config client.TxEncodingConfig,
-	message json.RawMessage,
-) error {
+// Validation check of the Genesis
+func (a AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, _ client.TxEncodingConfig, bz json.RawMessage) error {
 	var data types.GenesisState
-	err := marshaler.UnmarshalJSON(message, &data)
-	if err != nil {
-		return err
+	if err := cdc.UnmarshalJSON(bz, &data); err != nil {
+		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
 	}
 
-	if err := data.Params.Validate(); err != nil {
-		return errorsmod.Wrap(err, "params")
-	}
-
-	return nil
+	return data.Validate()
 }
 
 func (a AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
@@ -95,16 +89,16 @@ func NewAppModule(keeper keeper.Keeper) *AppModule {
 	}
 }
 
-func (a AppModule) InitGenesis(
-	ctx sdk.Context,
-	marshaler codec.JSONCodec,
-	message json.RawMessage,
-) []abci.ValidatorUpdate {
-	var genesisState types.GenesisState
-	marshaler.MustUnmarshalJSON(message, &genesisState)
+// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
+func (am AppModule) IsOnePerModuleType() {}
 
+// IsAppModule implements the appmodule.AppModule interface.
+func (am AppModule) IsAppModule() {}
+
+func (a AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) {
+	var genesisState types.GenesisState
+	cdc.MustUnmarshalJSON(data, &genesisState)
 	a.keeper.InitGenesis(ctx, &genesisState)
-	return []abci.ValidatorUpdate{}
 }
 
 func (a AppModule) ExportGenesis(ctx sdk.Context, marshaler codec.JSONCodec) json.RawMessage {
@@ -112,19 +106,9 @@ func (a AppModule) ExportGenesis(ctx sdk.Context, marshaler codec.JSONCodec) jso
 	return marshaler.MustMarshalJSON(genState)
 }
 
-func (a AppModule) RegisterInvariants(registry sdk.InvariantRegistry) {
-}
-
 func (a AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(a.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), keeper.Querier{Keeper: a.keeper})
-}
-
-func (a AppModule) BeginBlock(context sdk.Context, block abci.RequestBeginBlock) {
-}
-
-func (a AppModule) EndBlock(context sdk.Context, block abci.RequestEndBlock) []abci.ValidatorUpdate {
-	return nil
 }
 
 // ConsensusVersion is a sequence number for state-breaking change of the

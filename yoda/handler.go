@@ -8,6 +8,7 @@ import (
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
@@ -185,7 +186,7 @@ func handleRawRequest(
 	}
 
 	vmsg := types.NewRequestVerification(cfg.ChainID, c.validator, id, req.externalID, req.dataSourceID)
-	sig, pubkey, err := kb.Sign(key.Name, vmsg.GetSignBytes())
+	sig, pubkey, err := kb.Sign(key.Name, vmsg.GetSignBytes(), signing.SignMode_SIGN_MODE_DIRECT)
 	if err != nil {
 		l.Error(":skull: Failed to sign verify message: %s", c, err.Error())
 		processingResultCh <- processingResult{

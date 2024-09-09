@@ -59,43 +59,43 @@ func WeightedOperations(
 		weightMsgActivate           int
 	)
 
-	appParams.GetOrGenerate(cdc, OpWeightMsgRequestData, &weightMsgRequestData, nil,
+	appParams.GetOrGenerate(OpWeightMsgRequestData, &weightMsgRequestData, nil,
 		func(_ *rand.Rand) {
 			weightMsgRequestData = DefaultWeightMsgRequestData
 		},
 	)
 
-	appParams.GetOrGenerate(cdc, OpWeightMsgReportData, &weightMsgReportData, nil,
+	appParams.GetOrGenerate(OpWeightMsgReportData, &weightMsgReportData, nil,
 		func(_ *rand.Rand) {
 			weightMsgReportData = DefaultWeightMsgReportData
 		},
 	)
 
-	appParams.GetOrGenerate(cdc, OpWeightMsgCreateDataSource, &weightMsgCreateDataSource, nil,
+	appParams.GetOrGenerate(OpWeightMsgCreateDataSource, &weightMsgCreateDataSource, nil,
 		func(_ *rand.Rand) {
 			weightMsgCreateDataSource = DefaultWeightMsgCreateDataSource
 		},
 	)
 
-	appParams.GetOrGenerate(cdc, OpWeightMsgEditDataSource, &weightMsgEditDataSource, nil,
+	appParams.GetOrGenerate(OpWeightMsgEditDataSource, &weightMsgEditDataSource, nil,
 		func(_ *rand.Rand) {
 			weightMsgEditDataSource = DefaultWeightMsgEditDataSource
 		},
 	)
 
-	appParams.GetOrGenerate(cdc, OpWeightMsgCreateOracleScript, &weightMsgCreateOracleScript, nil,
+	appParams.GetOrGenerate(OpWeightMsgCreateOracleScript, &weightMsgCreateOracleScript, nil,
 		func(_ *rand.Rand) {
 			weightMsgCreateOracleScript = DefaultWeightMsgCreateOracleScript
 		},
 	)
 
-	appParams.GetOrGenerate(cdc, OpWeightMsgEditOracleScript, &weightMsgEditOracleScript, nil,
+	appParams.GetOrGenerate(OpWeightMsgEditOracleScript, &weightMsgEditOracleScript, nil,
 		func(_ *rand.Rand) {
 			weightMsgEditOracleScript = DefaultWeightMsgEditOracleScript
 		},
 	)
 
-	appParams.GetOrGenerate(cdc, OpWeightMsgActivate, &weightMsgActivate, nil,
+	appParams.GetOrGenerate(OpWeightMsgActivate, &weightMsgActivate, nil,
 		func(_ *rand.Rand) {
 			weightMsgActivate = DefaultWeightMsgActivate
 		},
@@ -177,7 +177,11 @@ func SimulateMsgRequestData(
 		maxAskCount := 0
 		sk.IterateBondedValidatorsByPower(ctx,
 			func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
-				if keeper.GetValidatorStatus(ctx, val.GetOperator()).IsActive {
+				operator, err := sdk.ValAddressFromBech32(val.GetOperator())
+				if err != nil {
+					return false
+				}
+				if keeper.GetValidatorStatus(ctx, operator).IsActive {
 					maxAskCount++
 				}
 
@@ -204,7 +208,7 @@ func SimulateMsgRequestData(
 			AskCount:       uint64(askCount),
 			MinCount:       uint64(simtypes.RandIntBetween(r, 1, askCount+1)),
 			ClientID:       simtypes.RandStringOfLength(r, 100),
-			FeeLimit:       sdk.NewCoins(math.NewInt64Coin("uband", 0)),
+			FeeLimit:       sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
 			PrepareGas:     uint64(simtypes.RandIntBetween(r, 100000, 200000)),
 			ExecuteGas:     uint64(simtypes.RandIntBetween(r, 100000, 200000)),
 		}
@@ -297,7 +301,7 @@ func SimulateMsgCreateDataSource(
 			Name:        simtypes.RandStringOfLength(r, 10),
 			Description: simtypes.RandStringOfLength(r, 100),
 			Executable:  []byte(simtypes.RandStringOfLength(r, 100)),
-			Fee:         sdk.NewCoins(math.NewInt64Coin("uband", 0)),
+			Fee:         sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
 			Treasury:    treaAccount.Address.String(),
 			Owner:       ownerAccount.Address.String(),
 		}
@@ -348,7 +352,7 @@ func SimulateMsgEditDataSource(
 			Name:         simtypes.RandStringOfLength(r, 10),
 			Description:  simtypes.RandStringOfLength(r, 100),
 			Executable:   []byte(simtypes.RandStringOfLength(r, 100)),
-			Fee:          sdk.NewCoins(math.NewInt64Coin("uband", 0)),
+			Fee:          sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
 			Treasury:     treaAccount.Address.String(),
 			Owner:        ownerAccount.Address.String(),
 		}
@@ -471,10 +475,7 @@ func BuildOperationInput(
 	r *rand.Rand,
 	app *baseapp.BaseApp,
 	ctx sdk.Context,
-	msg interface {
-		sdk.Msg
-		Type() string
-	},
+	msg sdk.Msg,
 	simAccount simtypes.Account,
 	ak types.AccountKeeper,
 	bk simulation.BankKeeper,
@@ -489,7 +490,6 @@ func BuildOperationInput(
 		TxGen:           txConfig,
 		Cdc:             nil,
 		Msg:             msg,
-		MsgType:         msg.Type(),
 		Context:         ctx,
 		SimAccount:      simAccount,
 		AccountKeeper:   ak,

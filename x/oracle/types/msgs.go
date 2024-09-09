@@ -23,14 +23,23 @@ const (
 )
 
 var (
-	_ sdk.Msg = &MsgRequestData{}
-	_ sdk.Msg = &MsgReportData{}
-	_ sdk.Msg = &MsgCreateDataSource{}
-	_ sdk.Msg = &MsgEditDataSource{}
-	_ sdk.Msg = &MsgCreateOracleScript{}
-	_ sdk.Msg = &MsgEditOracleScript{}
-	_ sdk.Msg = &MsgActivate{}
-	_ sdk.Msg = &MsgUpdateParams{}
+	_ sdk.Msg = (*MsgRequestData)(nil)
+	_ sdk.Msg = (*MsgReportData)(nil)
+	_ sdk.Msg = (*MsgCreateDataSource)(nil)
+	_ sdk.Msg = (*MsgEditDataSource)(nil)
+	_ sdk.Msg = (*MsgCreateOracleScript)(nil)
+	_ sdk.Msg = (*MsgEditOracleScript)(nil)
+	_ sdk.Msg = (*MsgActivate)(nil)
+	_ sdk.Msg = (*MsgUpdateParams)(nil)
+
+	_ sdk.HasValidateBasic = (*MsgRequestData)(nil)
+	_ sdk.HasValidateBasic = (*MsgReportData)(nil)
+	_ sdk.HasValidateBasic = (*MsgCreateDataSource)(nil)
+	_ sdk.HasValidateBasic = (*MsgEditDataSource)(nil)
+	_ sdk.HasValidateBasic = (*MsgCreateOracleScript)(nil)
+	_ sdk.HasValidateBasic = (*MsgEditOracleScript)(nil)
+	_ sdk.HasValidateBasic = (*MsgActivate)(nil)
+	_ sdk.HasValidateBasic = (*MsgUpdateParams)(nil)
 )
 
 // NewMsgRequestData creates a new MsgRequestData instance.

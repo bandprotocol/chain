@@ -3,6 +3,8 @@ package keeper
 import (
 	"bytes"
 
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
@@ -61,7 +63,7 @@ func (k Keeper) MustEditOracleScript(ctx sdk.Context, id types.OracleScriptID, n
 // GetAllOracleScripts returns the list of all oracle scripts in the store, or nil if there is none.
 func (k Keeper) GetAllOracleScripts(ctx sdk.Context) (oracleScripts []types.OracleScript) {
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.OracleScriptStoreKeyPrefix)
+	iterator := storetypes.KVStorePrefixIterator(store, types.OracleScriptStoreKeyPrefix)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var oracleScript types.OracleScript

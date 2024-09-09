@@ -267,9 +267,13 @@ func (k Querier) ActiveValidators(
 	result := types.QueryActiveValidatorsResponse{}
 	k.stakingKeeper.IterateBondedValidatorsByPower(ctx,
 		func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
-			if k.GetValidatorStatus(ctx, val.GetOperator()).IsActive {
+			operator, err := sdk.ValAddressFromBech32(val.GetOperator())
+			if err != nil {
+				return false
+			}
+			if k.GetValidatorStatus(ctx, operator).IsActive {
 				result.Validators = append(result.Validators, &types.ActiveValidator{
-					Address: val.GetOperator().String(),
+					Address: val.GetOperator(),
 					Power:   val.GetTokens().Uint64(),
 				})
 			}

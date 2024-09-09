@@ -236,7 +236,6 @@ func simulationModules(
 		ibc.NewAppModule(app.IBCKeeper),
 		app.TransferModule,
 		app.ICAModule,
-		globalfee.NewAppModule(app.GlobalFeeKeeper),
 	}
 }
 

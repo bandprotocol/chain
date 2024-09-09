@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
@@ -30,8 +31,8 @@ func TestKeeperTestSuite(t *testing.T) {
 
 func (s *IntegrationTestSuite) SetupTest() {
 	encCfg := moduletestutil.MakeTestEncodingConfig(globalfee.AppModuleBasic{})
-	key := sdk.NewKVStoreKey(types.StoreKey)
-	testCtx := testutil.DefaultContextWithDB(s.T(), key, sdk.NewTransientStoreKey("transient_test"))
+	key := storetypes.NewKVStoreKey(types.StoreKey)
+	testCtx := testutil.DefaultContextWithDB(s.T(), key, storetypes.NewTransientStoreKey("transient_test"))
 	s.ctx = testCtx.Ctx
 
 	s.globalfeeKeeper = keeper.NewKeeper(
@@ -60,7 +61,7 @@ func (s *IntegrationTestSuite) TestParams() {
 			input: types.Params{
 				MinimumGasPrices: sdk.NewDecCoins(
 					sdk.NewDecCoin("ALX", math.NewInt(1)),
-					sdk.NewDecCoinFromDec("BLX", sdk.NewDecWithPrec(1, 3)),
+					sdk.NewDecCoinFromDec("BLX", math.LegacyNewDecWithPrec(1, 3)),
 				),
 			},
 			expectErr: "",
@@ -78,7 +79,7 @@ func (s *IntegrationTestSuite) TestParams() {
 				MinimumGasPrices: []sdk.DecCoin{
 					{
 						Denom:  "1AAAA",
-						Amount: sdk.NewDecFromInt(math.NewInt(1)),
+						Amount: math.LegacyNewDecFromInt(math.NewInt(1)),
 					},
 				},
 			},
@@ -90,7 +91,7 @@ func (s *IntegrationTestSuite) TestParams() {
 				MinimumGasPrices: []sdk.DecCoin{
 					{
 						Denom:  "AAAA",
-						Amount: sdk.NewDecFromInt(math.NewInt(-1)),
+						Amount: math.LegacyNewDecFromInt(math.NewInt(-1)),
 					},
 				},
 			},
@@ -102,11 +103,11 @@ func (s *IntegrationTestSuite) TestParams() {
 				MinimumGasPrices: []sdk.DecCoin{
 					{
 						Denom:  "AAAA",
-						Amount: sdk.NewDecFromInt(math.NewInt(1)),
+						Amount: math.LegacyNewDecFromInt(math.NewInt(1)),
 					},
 					{
 						Denom:  "AAAA",
-						Amount: sdk.NewDecFromInt(math.NewInt(2)),
+						Amount: math.LegacyNewDecFromInt(math.NewInt(2)),
 					},
 				},
 			},
@@ -118,11 +119,11 @@ func (s *IntegrationTestSuite) TestParams() {
 				MinimumGasPrices: []sdk.DecCoin{
 					{
 						Denom:  "BBBB",
-						Amount: sdk.NewDecFromInt(math.NewInt(1)),
+						Amount: math.LegacyNewDecFromInt(math.NewInt(1)),
 					},
 					{
 						Denom:  "AAAA",
-						Amount: sdk.NewDecFromInt(math.NewInt(2)),
+						Amount: math.LegacyNewDecFromInt(math.NewInt(2)),
 					},
 				},
 			},

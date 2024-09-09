@@ -3,6 +3,7 @@ package yoda
 import (
 	"context"
 	"errors"
+	"fmt"
 	"path/filepath"
 	"time"
 
@@ -54,7 +55,7 @@ func runImpl(c *Context, l *Logger) error {
 		waitingMsgs[i] = []ReportMsgWithKey{}
 	}
 
-	bz := cdc.MustMarshal(&types.QueryPendingRequestsRequest{
+	bz := c.bandApp.AppCodec().MustMarshal(&types.QueryPendingRequestsRequest{
 		ValidatorAddress: c.validator.String(),
 	})
 	resBz, err := c.client.ABCIQuery(context.Background(), "/oracle.v1.Query/PendingRequests", bz)
@@ -62,7 +63,7 @@ func runImpl(c *Context, l *Logger) error {
 		l.Error(":exploding_head: Failed to get pending requests with error: %s", c, err.Error())
 	}
 	pendingRequests := types.QueryPendingRequestsResponse{}
-	cdc.MustUnmarshal(resBz.Response.Value, &pendingRequests)
+	c.bandApp.AppCodec().MustUnmarshal(resBz.Response.Value, &pendingRequests)
 
 	l.Info(":mag: Found %d pending requests", len(pendingRequests.RequestIDs))
 	for _, id := range pendingRequests.RequestIDs {
@@ -127,11 +128,13 @@ func runCmd(c *Context) *cobra.Command {
 
 			c.gasPrices = cfg.GasPrices
 
-			allowLevel, err := log.AllowLevel(cfg.LogLevel)
+			allowLevel, err := log.ParseLogLevel(cfg.LogLevel)
 			if err != nil {
 				return err
 			}
 			l := NewLogger(allowLevel)
+			fmt.Println("YEAHHH")
+			l.Info("HELLO")
 			c.executor, err = executor.NewExecutor(cfg.Executor)
 			if err != nil {
 				return err

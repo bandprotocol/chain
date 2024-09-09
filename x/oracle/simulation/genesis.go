@@ -70,67 +70,67 @@ func GenIBCRequestEnabled(r *rand.Rand) bool {
 func RandomizedGenState(simState *module.SimulationState) {
 	var maxRawRequestCount uint64
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, string(types.KeyMaxRawRequestCount), &maxRawRequestCount, simState.Rand,
+		string(types.KeyMaxRawRequestCount), &maxRawRequestCount, simState.Rand,
 		func(r *rand.Rand) { maxRawRequestCount = GenMaxRawRequestCount(r) },
 	)
 
 	var maxAskCount uint64
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, string(types.KeyMaxAskCount), &maxAskCount, simState.Rand,
+		string(types.KeyMaxAskCount), &maxAskCount, simState.Rand,
 		func(r *rand.Rand) { maxAskCount = GenMaxAskCount(r) },
 	)
 
 	var maxCalldataSize uint64
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, string(types.KeyMaxCalldataSize), &maxCalldataSize, simState.Rand,
+		string(types.KeyMaxCalldataSize), &maxCalldataSize, simState.Rand,
 		func(r *rand.Rand) { maxCalldataSize = GenMaxCalldataSize(r) },
 	)
 
 	var maxReportDataSize uint64
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, string(types.KeyMaxReportDataSize), &maxReportDataSize, simState.Rand,
+		string(types.KeyMaxReportDataSize), &maxReportDataSize, simState.Rand,
 		func(r *rand.Rand) { maxReportDataSize = GenMaxReportDataSize(r) },
 	)
 
 	var expirationBlockCount uint64
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, string(types.KeyExpirationBlockCount), &expirationBlockCount, simState.Rand,
+		string(types.KeyExpirationBlockCount), &expirationBlockCount, simState.Rand,
 		func(r *rand.Rand) { expirationBlockCount = GenExpirationBlockCount(r) },
 	)
 
 	var baseOwasmGas uint64
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, string(types.KeyBaseOwasmGas), &baseOwasmGas, simState.Rand,
+		string(types.KeyBaseOwasmGas), &baseOwasmGas, simState.Rand,
 		func(r *rand.Rand) { baseOwasmGas = GenBaseOwasmGas(r) },
 	)
 
 	var perValidatorRequestGas uint64
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, string(types.KeyPerValidatorRequestGas), &perValidatorRequestGas, simState.Rand,
+		string(types.KeyPerValidatorRequestGas), &perValidatorRequestGas, simState.Rand,
 		func(r *rand.Rand) { perValidatorRequestGas = GenPerValidatorRequestGas(r) },
 	)
 
 	var samplingTryCount uint64
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, string(types.KeySamplingTryCount), &samplingTryCount, simState.Rand,
+		string(types.KeySamplingTryCount), &samplingTryCount, simState.Rand,
 		func(r *rand.Rand) { samplingTryCount = GenSamplingTryCount(r) },
 	)
 
 	var oracleRewardPercentage uint64
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, string(types.KeyOracleRewardPercentage), &oracleRewardPercentage, simState.Rand,
+		string(types.KeyOracleRewardPercentage), &oracleRewardPercentage, simState.Rand,
 		func(r *rand.Rand) { oracleRewardPercentage = GenOracleRewardPercentage(r) },
 	)
 
 	var inactivePenaltyDuration uint64
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, string(types.KeyInactivePenaltyDuration), &inactivePenaltyDuration, simState.Rand,
+		string(types.KeyInactivePenaltyDuration), &inactivePenaltyDuration, simState.Rand,
 		func(r *rand.Rand) { inactivePenaltyDuration = GenInactivePenaltyDuration(r) },
 	)
 
 	var ibcRequestEnabled bool
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, string(types.KeyIBCRequestEnabled), &ibcRequestEnabled, simState.Rand,
+		string(types.KeyIBCRequestEnabled), &ibcRequestEnabled, simState.Rand,
 		func(r *rand.Rand) { ibcRequestEnabled = GenIBCRequestEnabled(r) },
 	)
 

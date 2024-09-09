@@ -12,6 +12,8 @@ import "amino/amino.proto";
 
 // Msg defines the oracle Msg service.
 service Msg {
+  option (cosmos.msg.v1.service) = true;
+
   // RequestData defines a method for submitting a new request.
   rpc RequestData(MsgRequestData) returns (MsgRequestDataResponse);
 
@@ -221,7 +223,7 @@ message MsgActivate {
   option (gogoproto.equal) = true;
   // Validator is the validator address who sign this message and request to be
   // activated.
-  string validator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string validator = 1 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
 }
 
 // MsgActivateResponse is response data for MsgActivate message

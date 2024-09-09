@@ -50,7 +50,7 @@ func TestDecodeStore(t *testing.T) {
 		"name",
 		"description",
 		"filename",
-		sdk.NewCoins(math.NewInt64Coin("band", 1000)),
+		sdk.NewCoins(sdk.NewInt64Coin("band", 1000)),
 		treaAddr,
 	)
 

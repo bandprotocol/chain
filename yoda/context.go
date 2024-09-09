@@ -8,6 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	band "github.com/bandprotocol/chain/v3/app"
 	"github.com/bandprotocol/chain/v3/pkg/filecache"
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
 	"github.com/bandprotocol/chain/v3/yoda/executor"
@@ -29,6 +30,7 @@ type ReportMsgWithKey struct {
 }
 
 type Context struct {
+	bandApp          *band.BandApp
 	client           rpcclient.Client
 	validator        sdk.ValAddress
 	gasPrices        string

@@ -615,10 +615,6 @@ $ %s tx oracle add-reporters band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5
 					return err
 				}
 				msgs[i] = msg
-				err = msgs[i].ValidateBasic()
-				if err != nil {
-					return err
-				}
 			}
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
 		},
@@ -662,10 +658,6 @@ $ %s tx oracle remove-reporters band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band
 					sdk.MsgTypeURL(&types.MsgReportData{}),
 				)
 				msgs[i] = &msg
-				err = msg.ValidateBasic()
-				if err != nil {
-					return err
-				}
 			}
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
 		},

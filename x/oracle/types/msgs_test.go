@@ -32,7 +32,9 @@ type validateTestCase struct {
 
 func performValidateTests(t *testing.T, cases []validateTestCase) {
 	for _, tc := range cases {
-		err := tc.msg.ValidateBasic()
+		m, ok := tc.msg.(sdk.HasValidateBasic)
+		require.True(t, ok)
+		err := m.ValidateBasic()
 		if tc.valid {
 			require.NoError(t, err)
 		} else {
