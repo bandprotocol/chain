@@ -39,7 +39,8 @@ type KeeperTestSuite struct {
 	queryClient types.QueryClient
 	msgServer   types.MsgServer
 
-	encCfg moduletestutil.TestEncodingConfig
+	encCfg  moduletestutil.TestEncodingConfig
+	fileDir string
 }
 
 func TestKeeperTestSuite(t *testing.T) {
@@ -60,17 +61,18 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.distrKeeper = oracletestutil.NewMockDistrKeeper(ctrl)
 	suite.authzKeeper = oracletestutil.NewMockAuthzKeeper(ctrl)
 
-	dir, _ := os.MkdirTemp("", ".band/files")
-	defer os.RemoveAll(dir)
+	var err error
+	suite.fileDir, err = os.MkdirTemp(".", "files-*")
+	suite.Require().NoError(err)
 
 	owasmVM, err := owasm.NewVm(100)
 	suite.Require().NoError(err)
 
-	suite.ctx = ctx.WithChainID(chainID)
+	suite.ctx = ctx
 	suite.oracleKeeper = keeper.NewKeeper(
 		encCfg.Codec,
 		key,
-		dir,
+		suite.fileDir,
 		authtypes.FeeCollectorName,
 		suite.authKeeper,
 		suite.bankKeeper,
@@ -91,6 +93,10 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 	suite.oracleKeeper.SetParams(ctx, types.DefaultParams())
 
+}
+
+func (suite *KeeperTestSuite) TearDownSuite() {
+	os.RemoveAll(suite.fileDir)
 }
 
 func (suite *KeeperTestSuite) TestGetSetRequestCount() {
