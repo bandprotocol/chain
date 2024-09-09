@@ -27,7 +27,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// Route is the type for a route
+// TSSRoute is the type for a TSS route
 type TSSRoute struct {
 	// destination_chain_id is the destination chain ID
 	DestinationChainID string `protobuf:"bytes,1,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
@@ -328,7 +328,7 @@ func (m *Tunnel) GetCreator() string {
 	return ""
 }
 
-// SignalPrices is the type for a list of signal prices with the last interval timestamp
+// SignalPricesInfo is the type for signal prices that tunnel produces
 type SignalPricesInfo struct {
 	// tunnel_id is the tunnel ID
 	TunnelID uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`

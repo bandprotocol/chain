@@ -10,7 +10,7 @@ import "feeds/v1beta1/feeds.proto";
 option go_package            = "github.com/bandprotocol/chain/v2/x/tunnel/types";
 option (gogoproto.equal_all) = true;
 
-// Route is the type for a route
+// TSSRoute is the type for a TSS route
 message TSSRoute {
   option (cosmos_proto.implements_interface) = "RouteI";
 
@@ -68,7 +68,7 @@ message Tunnel {
   string creator = 10 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// SignalPrices is the type for a list of signal prices with the last interval timestamp
+// SignalPricesInfo is the type for signal prices that tunnel produces
 message SignalPricesInfo {
   option (gogoproto.equal) = true;
 

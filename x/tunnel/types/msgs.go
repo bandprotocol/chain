@@ -6,14 +6,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	proto "github.com/cosmos/gogoproto/proto"
+	"github.com/cosmos/gogoproto/proto"
 
 	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
 var (
-	_, _, _, _ sdk.Msg                       = &MsgUpdateParams{}, &MsgCreateTunnel{}, &MsgActivateTunnel{}, &MsgManualTriggerTunnel{}
-	_          types.UnpackInterfacesMessage = &MsgCreateTunnel{}
+	_, _, _, _, _ sdk.Msg                       = &MsgUpdateParams{}, &MsgCreateTunnel{}, &MsgActivateTunnel{}, &MsgDeactivateTunnel{}, &MsgManualTriggerTunnel{}
+	_             types.UnpackInterfacesMessage = &MsgCreateTunnel{}
 )
 
 // NewMsgUpdateParams creates a new MsgUpdateParams instance.

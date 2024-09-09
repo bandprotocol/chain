@@ -18,7 +18,7 @@ message Params {
   uint64 min_interval = 2;
   // max_signals defines the maximum number of signals allowed per tunnel.
   uint64 max_signals = 3;
-  // base_fee is the base fee for each tunnel
+  // base_packet_fee is the base fee for each packet
   repeated cosmos.base.v1beta1.Coin base_packet_fee = 4
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }

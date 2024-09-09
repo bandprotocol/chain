@@ -128,8 +128,6 @@ func (ms msgServer) ActivateTunnel(
 		return nil, err
 	}
 
-	// TODO: check deposit with params, transfer deposit to module account
-
 	if req.Creator != tunnel.Creator {
 		return nil, fmt.Errorf("creator %s is not the creator of tunnel %d", req.Creator, req.TunnelID)
 	}
