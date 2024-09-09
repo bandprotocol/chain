@@ -161,14 +161,20 @@ func (k Keeper) ActivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 		return err
 	}
 
-	// Activate the tunnel
-	tunnel.IsActive = true
-
 	// Add the tunnel ID to the active tunnel IDs
 	k.ActiveTunnelID(ctx, tunnelID)
 
 	// Set the last interval timestamp to the current block time
+	tunnel.IsActive = true
 	k.SetTunnel(ctx, tunnel)
+
+	// Emit an event
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeActivateTunnel,
+		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnelID)),
+		sdk.NewAttribute(types.AttributeKeyIsActive, fmt.Sprintf("%t", true)),
+	))
+
 	return nil
 }
 
@@ -179,13 +185,20 @@ func (k Keeper) DeactivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 		return err
 	}
 
-	tunnel.IsActive = false
-
 	// Remove the tunnel ID from the active tunnel IDs
 	k.DeactivateTunnelID(ctx, tunnelID)
 
 	// Set the last interval timestamp to the current block time
+	tunnel.IsActive = false
 	k.SetTunnel(ctx, tunnel)
+
+	// emit and event.
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeDeactivateTunnel,
+		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnelID)),
+		sdk.NewAttribute(types.AttributeKeyIsActive, fmt.Sprintf("%t", tunnel.IsActive)),
+	))
+
 	return nil
 }
 
