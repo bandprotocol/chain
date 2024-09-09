@@ -50,20 +50,11 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 
 	// check for active tunnels
 	for _, id := range ids {
+		isErrNoPacketCreated := false
 		producePacketFunc := func(ctx sdk.Context) error {
 			tunnel, err := k.GetTunnel(ctx, id)
 			if err != nil {
 				return err
-			}
-
-			isCreated, err := k.ProducePacket(ctx, id, latestPricesMap, false)
-			if err != nil {
-				return err
-			}
-
-			// return if no new packet is created
-			if !isCreated {
-				return nil
 			}
 
 			// deduct base packet fee from the fee payer; deactivate tunnel if failed.
@@ -72,11 +63,22 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 				return k.DeactivateTunnel(ctx, id)
 			}
 
+			// Produce and send a packet, if no packet is created, return error so that
+			// fee is reverted.
+			isCreated, err := k.ProducePacket(ctx, id, latestPricesMap, false)
+			if err != nil {
+				return err
+			}
+			if !isCreated {
+				isErrNoPacketCreated = true
+				return fmt.Errorf("no packet is created for tunnel %d", id)
+			}
+
 			return nil
 		}
 
 		// produce a packet. If error, emits an event.
-		if err := ctxcache.ApplyFuncIfNoError(ctx, producePacketFunc); err != nil {
+		if err := ctxcache.ApplyFuncIfNoError(ctx, producePacketFunc); err != nil && !isErrNoPacketCreated {
 			ctx.EventManager().EmitEvent(sdk.NewEvent(
 				types.EventTypeProducePacketFail,
 				sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", id)),
