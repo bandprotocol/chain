@@ -1,89 +1,112 @@
 package keeper_test
 
-// TODO: Fix tests
-// import (
-// 	"encoding/hex"
-// 	"strings"
-// 	"testing"
-// 	"time"
+import (
+	"cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"go.uber.org/mock/gomock"
+)
 
-// 	"cosmossdk.io/math"
-// 	storetypes "cosmossdk.io/store/types"
+func (suite *KeeperTestSuite) mockIterateBondedValidatorsByPower() {
+	suite.stakingKeeper.EXPECT().
+		IterateBondedValidatorsByPower(gomock.Any(), gomock.Any()).
+		DoAndReturn(func(ctx sdk.Context, fn func(index int64, validator stakingtypes.ValidatorI) bool) {
+			vals := []stakingtypes.Validator{
+				{
+					OperatorAddress: validators[0].Address.String(),
+					Tokens:          math.NewInt(100000000),
+				},
+				{
+					OperatorAddress: validators[1].Address.String(),
+					Tokens:          math.NewInt(1000000),
+				},
+				{
+					OperatorAddress: validators[2].Address.String(),
+					Tokens:          math.NewInt(99999999),
+				},
+			}
 
-// 	sdk "github.com/cosmos/cosmos-sdk/types"
-// 	"github.com/cosmos/cosmos-sdk/types/query"
-// 	authtypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-// 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-// 	"github.com/stretchr/testify/require"
+			for i, val := range vals {
+				stop := fn(int64(i), val)
+				if stop {
+					break
+				}
+			}
+		}).Return(nil).AnyTimes()
+}
 
-// 	"github.com/bandprotocol/chain/v3/pkg/obi"
-// 	bandtesting "github.com/bandprotocol/chain/v3/testing"
-// 	"github.com/bandprotocol/chain/v3/testing/testdata"
-// 	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
-// 	"github.com/bandprotocol/chain/v3/x/oracle/types"
-// )
+func (suite *KeeperTestSuite) activeAllValidators() {
+	ctx := suite.ctx
+	k := suite.oracleKeeper
 
-// func TestGetRandomValidatorsSuccessActivateAll(t *testing.T) {
-// 	app, ctx := bandtesting.CreateTestApp(t, true)
-// 	k := app.OracleKeeper
+	for _, v := range validators {
+		k.Activate(ctx, v.Address)
+	}
 
-// 	// Getting 3 validators using ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY
-// 	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
-// 	vals, err := k.GetRandomValidators(ctx, 3, 1)
-// 	require.NoError(t, err)
-// 	require.Equal(
-// 		t,
-// 		[]sdk.ValAddress{
-// 			bandtesting.Validators[2].ValAddress,
-// 			bandtesting.Validators[0].ValAddress,
-// 			bandtesting.Validators[1].ValAddress,
-// 		},
-// 		vals,
-// 	)
-// 	// Getting 3 validators using ROLLING_SEED_A
-// 	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_A_WITH_LONG_ENOUGH_ENTROPY"))
-// 	vals, err = k.GetRandomValidators(ctx, 3, 1)
-// 	require.NoError(t, err)
-// 	require.Equal(
-// 		t,
-// 		[]sdk.ValAddress{
-// 			bandtesting.Validators[0].ValAddress,
-// 			bandtesting.Validators[2].ValAddress,
-// 			bandtesting.Validators[1].ValAddress,
-// 		},
-// 		vals,
-// 	)
-// 	// Getting 3 validators using ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY again should return the same result as the first one.
-// 	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
-// 	vals, err = k.GetRandomValidators(ctx, 3, 1)
-// 	require.NoError(t, err)
-// 	require.Equal(
-// 		t,
-// 		[]sdk.ValAddress{
-// 			bandtesting.Validators[2].ValAddress,
-// 			bandtesting.Validators[0].ValAddress,
-// 			bandtesting.Validators[1].ValAddress,
-// 		},
-// 		vals,
-// 	)
-// 	// Getting 3 validators using ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY but for a different request ID.
-// 	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
-// 	vals, err = k.GetRandomValidators(ctx, 3, 42)
-// 	require.NoError(t, err)
-// 	require.Equal(
-// 		t,
-// 		[]sdk.ValAddress{
-// 			bandtesting.Validators[0].ValAddress,
-// 			bandtesting.Validators[2].ValAddress,
-// 			bandtesting.Validators[1].ValAddress,
-// 		},
-// 		vals,
-// 	)
-// }
+}
 
-// func TestGetRandomValidatorsTooBigSize(t *testing.T) {
-// 	app, ctx := bandtesting.CreateTestApp(t, true)
-// 	k := app.OracleKeeper
+func (suite *KeeperTestSuite) TestGetRandomValidatorsSuccessActivateAll() {
+	ctx := suite.ctx
+	k := suite.oracleKeeper
+	require := suite.Require()
+
+	suite.activeAllValidators()
+	suite.mockIterateBondedValidatorsByPower()
+
+	// Getting 3 validators using ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY
+	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+	vals, err := k.GetRandomValidators(ctx, 3, 1)
+	require.NoError(err)
+	require.Equal(
+		[]sdk.ValAddress{
+			validators[2].Address,
+			validators[0].Address,
+			validators[1].Address,
+		},
+		vals,
+	)
+	// Getting 3 validators using ROLLING_SEED_A
+	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_A_WITH_LONG_ENOUGH_ENTROPY"))
+	vals, err = k.GetRandomValidators(ctx, 3, 1)
+	require.NoError(err)
+	require.Equal(
+		[]sdk.ValAddress{
+			validators[0].Address,
+			validators[2].Address,
+			validators[1].Address,
+		},
+		vals,
+	)
+	// Getting 3 validators using ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY again should return the same result as the first one.
+	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+	vals, err = k.GetRandomValidators(ctx, 3, 1)
+	require.NoError(err)
+	require.Equal(
+		[]sdk.ValAddress{
+			validators[2].Address,
+			validators[0].Address,
+			validators[1].Address,
+		},
+		vals,
+	)
+	// Getting 3 validators using ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY but for a different request ID.
+	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+	vals, err = k.GetRandomValidators(ctx, 3, 42)
+	require.NoError(err)
+	require.Equal(
+		[]sdk.ValAddress{
+			validators[0].Address,
+			validators[2].Address,
+			validators[1].Address,
+		},
+		vals,
+	)
+}
+
+// func (suite *KeeperTestSuite) TestGetRandomValidatorsTooBigSize() {
+// 	ctx := suite.ctx
+// 	k := suite.oracleKeeper
+// 	require := suite.Require()
 
 // 	_, err := k.GetRandomValidators(ctx, 1, 1)
 // 	require.NoError(t, err)
@@ -97,7 +120,7 @@ package keeper_test
 // 	require.ErrorIs(t, err, types.ErrInsufficientValidators)
 // }
 
-// func TestGetRandomValidatorsWithActivate(t *testing.T) {
+// func (suite *KeeperTestSuite) TestGetRandomValidatorsWithActivate() {
 // 	app, ctx := bandtesting.CreateTestApp(t, false)
 // 	k := app.OracleKeeper
 
@@ -131,7 +154,7 @@ package keeper_test
 // 	require.ErrorIs(t, err, types.ErrInsufficientValidators)
 // }
 
-// func TestPrepareRequestSuccessBasic(t *testing.T) {
+// func (suite *KeeperTestSuite) TestPrepareRequestSuccessBasic() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -266,7 +289,7 @@ package keeper_test
 // 	bandtesting.CheckBalances(t, ctx, app.BankKeeper, bandtesting.Treasury.Address, paid)
 // }
 
-// func TestPrepareRequestNotEnoughMaxFee(t *testing.T) {
+// func (suite *KeeperTestSuite) TestPrepareRequestNotEnoughMaxFee() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -340,7 +363,7 @@ package keeper_test
 // 	require.Equal(t, types.RequestID(1), id)
 // }
 
-// func TestPrepareRequestNotEnoughFund(t *testing.T) {
+// func (suite *KeeperTestSuite) TestPrepareRequestNotEnoughFund() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -361,7 +384,7 @@ package keeper_test
 // 	require.EqualError(t, err, "spendable balance  is smaller than 1000000uband: insufficient funds")
 // }
 
-// func TestPrepareRequestInvalidCalldataSize(t *testing.T) {
+// func (suite *KeeperTestSuite) TestPrepareRequestInvalidCalldataSize() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -380,7 +403,7 @@ package keeper_test
 // 	require.EqualError(t, err, "got: 2000, max: 512: too large calldata")
 // }
 
-// func TestPrepareRequestNotEnoughPrepareGas(t *testing.T) {
+// func (suite *KeeperTestSuite) TestPrepareRequestNotEnoughPrepareGas() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -410,7 +433,7 @@ package keeper_test
 // 	require.Equal(t, 0, wrappedGasMeter.CountDescriptor("OWASM_EXECUTE_FEE"))
 // }
 
-// func TestPrepareRequestInvalidAskCountFail(t *testing.T) {
+// func (suite *KeeperTestSuite) TestPrepareRequestInvalidAskCountFail() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -477,7 +500,7 @@ package keeper_test
 // 	require.Equal(t, 1, wrappedGasMeter.CountDescriptor("OWASM_EXECUTE_FEE"))
 // }
 
-// func TestPrepareRequestBaseOwasmFeePanic(t *testing.T) {
+// func (suite *KeeperTestSuite) TestPrepareRequestBaseOwasmFeePanic() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -509,7 +532,7 @@ package keeper_test
 // 	require.NoError(t, err)
 // }
 
-// func TestPrepareRequestPerValidatorRequestFeePanic(t *testing.T) {
+// func (suite *KeeperTestSuite) TestPrepareRequestPerValidatorRequestFeePanic() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -552,7 +575,7 @@ package keeper_test
 // 	require.NoError(t, err)
 // }
 
-// func TestPrepareRequestEmptyCalldata(t *testing.T) {
+// func (suite *KeeperTestSuite) TestPrepareRequestEmptyCalldata() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 // 	// Send nil while oracle script expects calldata
@@ -571,7 +594,7 @@ package keeper_test
 // 	require.EqualError(t, err, "runtime error while executing the Wasm script: bad wasm execution")
 // }
 
-// func TestPrepareRequestOracleScriptNotFound(t *testing.T) {
+// func (suite *KeeperTestSuite) TestPrepareRequestOracleScriptNotFound() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -590,7 +613,7 @@ package keeper_test
 // 	require.EqualError(t, err, "id: 999: oracle script not found")
 // }
 
-// func TestPrepareRequestBadWasmExecutionFail(t *testing.T) {
+// func (suite *KeeperTestSuite) TestPrepareRequestBadWasmExecutionFail() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -609,7 +632,7 @@ package keeper_test
 // 	require.EqualError(t, err, "OEI action to invoke is not available: bad wasm execution")
 // }
 
-// func TestPrepareRequestWithEmptyRawRequest(t *testing.T) {
+// func (suite *KeeperTestSuite) TestPrepareRequestWithEmptyRawRequest() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -628,7 +651,7 @@ package keeper_test
 // 	require.EqualError(t, err, "empty raw requests")
 // }
 
-// func TestPrepareRequestUnknownDataSource(t *testing.T) {
+// func (suite *KeeperTestSuite) TestPrepareRequestUnknownDataSource() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -640,7 +663,7 @@ package keeper_test
 // 	require.EqualError(t, err, "id: 99: data source not found")
 // }
 
-// func TestPrepareRequestInvalidDataSourceCount(t *testing.T) {
+// func (suite *KeeperTestSuite) TestPrepareRequestInvalidDataSourceCount() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -663,7 +686,7 @@ package keeper_test
 // 	require.NoError(t, err)
 // }
 
-// func TestPrepareRequestTooMuchWasmGas(t *testing.T) {
+// func (suite *KeeperTestSuite) TestPrepareRequestTooMuchWasmGas() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -696,7 +719,7 @@ package keeper_test
 // 	require.EqualError(t, err, "out-of-gas while executing the wasm script: bad wasm execution")
 // }
 
-// func TestPrepareRequestTooLargeCalldata(t *testing.T) {
+// func (suite *KeeperTestSuite) TestPrepareRequestTooLargeCalldata() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -729,7 +752,7 @@ package keeper_test
 // 	require.EqualError(t, err, "span to write is too small: bad wasm execution")
 // }
 
-// func TestResolveRequestSuccess(t *testing.T) {
+// func (suite *KeeperTestSuite) TestResolveRequestSuccess() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -770,7 +793,7 @@ package keeper_test
 // 	)}, ctx.EventManager().Events())
 // }
 
-// func TestResolveRequestSuccessComplex(t *testing.T) {
+// func (suite *KeeperTestSuite) TestResolveRequestSuccessComplex() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -821,7 +844,7 @@ package keeper_test
 // 	)}, ctx.EventManager().Events())
 // }
 
-// func TestResolveRequestOutOfGas(t *testing.T) {
+// func (suite *KeeperTestSuite) TestResolveRequestOutOfGas() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -855,7 +878,7 @@ package keeper_test
 // 	require.Equal(t, result, k.MustGetResult(ctx, 42))
 // }
 
-// func TestResolveReadNilExternalData(t *testing.T) {
+// func (suite *KeeperTestSuite) TestResolveReadNilExternalData() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -903,7 +926,7 @@ package keeper_test
 // 	)}, ctx.EventManager().Events())
 // }
 
-// func TestResolveRequestNoReturnData(t *testing.T) {
+// func (suite *KeeperTestSuite) TestResolveRequestNoReturnData() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -942,7 +965,7 @@ package keeper_test
 // 	)}, ctx.EventManager().Events())
 // }
 
-// func TestResolveRequestWasmFailure(t *testing.T) {
+// func (suite *KeeperTestSuite) TestResolveRequestWasmFailure() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -981,7 +1004,7 @@ package keeper_test
 // 	)}, ctx.EventManager().Events())
 // }
 
-// func TestResolveRequestCallReturnDataSeveralTimes(t *testing.T) {
+// func (suite *KeeperTestSuite) TestResolveRequestCallReturnDataSeveralTimes() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -1037,7 +1060,7 @@ package keeper_test
 // 	return rawRequests
 // }
 
-// func TestCollectFeeEmptyFee(t *testing.T) {
+// func (suite *KeeperTestSuite) TestCollectFeeEmptyFee() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -1066,7 +1089,7 @@ package keeper_test
 // 	require.Empty(t, coins)
 // }
 
-// func TestCollectFeeBasicSuccess(t *testing.T) {
+// func (suite *KeeperTestSuite) TestCollectFeeBasicSuccess() {
 // 	app, ctx := bandtesting.CreateTestApp(t, false)
 // 	k := app.OracleKeeper
 
@@ -1100,7 +1123,7 @@ package keeper_test
 // 	)
 // }
 
-// func TestCollectFeeBasicSuccessWithOtherAskCount(t *testing.T) {
+// func (suite *KeeperTestSuite) TestCollectFeeBasicSuccessWithOtherAskCount() {
 // 	app, ctx := bandtesting.CreateTestApp(t, false)
 // 	k := app.OracleKeeper
 
@@ -1134,7 +1157,7 @@ package keeper_test
 // 	)
 // }
 
-// func TestCollectFeeWithMixedAndFeeNotEnough(t *testing.T) {
+// func (suite *KeeperTestSuite) TestCollectFeeWithMixedAndFeeNotEnough() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -1155,7 +1178,7 @@ package keeper_test
 // 	require.Nil(t, coins)
 // }
 
-// func TestCollectFeeWithEnoughFeeButInsufficientBalance(t *testing.T) {
+// func (suite *KeeperTestSuite) TestCollectFeeWithEnoughFeeButInsufficientBalance() {
 // 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
@@ -1174,7 +1197,7 @@ package keeper_test
 // 	require.EqualError(t, err, "spendable balance  is smaller than 2000000uband: insufficient funds")
 // }
 
-// func TestCollectFeeWithWithManyUnitSuccess(t *testing.T) {
+// func (suite *KeeperTestSuite) TestCollectFeeWithWithManyUnitSuccess() {
 // 	app, ctx := bandtesting.CreateTestApp(t, false)
 // 	k := app.OracleKeeper
 
@@ -1238,7 +1261,7 @@ package keeper_test
 // 	)
 // }
 
-// func TestCollectFeeWithWithManyUnitFail(t *testing.T) {
+// func (suite *KeeperTestSuite) TestCollectFeeWithWithManyUnitFail() {
 // 	app, ctx := bandtesting.CreateTestApp(t, false)
 // 	k := app.OracleKeeper
 

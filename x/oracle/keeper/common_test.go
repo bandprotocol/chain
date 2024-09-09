@@ -10,6 +10,7 @@ import (
 )
 
 const (
+	chainID            = "BANDCHAIN"
 	basicName          = "BASIC_NAME"
 	basicDesc          = "BASIC_DESCRIPTION"
 	basicSchema        = "BASIC_SCHEMA"

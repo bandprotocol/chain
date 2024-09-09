@@ -66,7 +66,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	owasmVM, err := owasm.NewVm(100)
 	suite.Require().NoError(err)
 
-	suite.ctx = ctx
+	suite.ctx = ctx.WithChainID(chainID)
 	suite.oracleKeeper = keeper.NewKeeper(
 		encCfg.Codec,
 		key,
@@ -88,6 +88,8 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.oracleKeeper.SetDataSourceCount(ctx, 0)
 	suite.oracleKeeper.SetOracleScriptCount(ctx, 0)
 	suite.oracleKeeper.SetRequestLastExpired(ctx, 0)
+
+	suite.oracleKeeper.SetParams(ctx, types.DefaultParams())
 
 }
 
