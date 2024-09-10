@@ -121,6 +121,11 @@ func (suite *KeeperTestSuite) SetupTest() {
 			}
 		}).
 		AnyTimes()
+	stakingKeeper.EXPECT().
+		TotalBondedTokens(gomock.Any()).
+		Return(sdk.NewInt(11000)).
+		AnyTimes()
+
 	suite.stakingKeeper = stakingKeeper
 
 	restakeKeeper := feedstestutil.NewMockRestakeKeeper(ctrl)

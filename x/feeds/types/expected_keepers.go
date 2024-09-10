@@ -34,6 +34,7 @@ type StakingKeeper interface {
 		ctx sdk.Context,
 		fn func(index int64, validator stakingtypes.ValidatorI) (stop bool),
 	)
+	TotalBondedTokens(ctx sdk.Context) math.Int
 }
 
 // RestakeKeeper defines the expected restake keeper.

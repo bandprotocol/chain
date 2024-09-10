@@ -9,48 +9,48 @@ import (
 	"github.com/bandprotocol/chain/v2/x/restake/types"
 )
 
-func (suite *KeeperTestSuite) TestGetOrCreateKey() {
+func (suite *KeeperTestSuite) TestGetOrCreateVault() {
 	ctx := suite.ctx
 	suite.setupState()
 
-	// already existed keys
-	for _, expKey := range suite.validKeys {
-		key, err := suite.restakeKeeper.GetOrCreateKey(ctx, expKey.Name)
+	// already existed vaults
+	for _, expVault := range suite.validVaults {
+		vault, err := suite.restakeKeeper.GetOrCreateVault(ctx, expVault.Key)
 		suite.Require().NoError(err)
-		suite.Require().Equal(expKey, key)
+		suite.Require().Equal(expVault, vault)
 	}
 
-	// new key
-	key, err := suite.restakeKeeper.GetOrCreateKey(ctx, "newKey")
+	// new vault
+	vault, err := suite.restakeKeeper.GetOrCreateVault(ctx, "newVault")
 	suite.Require().NoError(err)
-	suite.Require().Equal(types.Key{
-		Name:            "newKey",
-		PoolAddress:     "cosmos1x9lj2q3l80xfljcuuw89grm6jw96txayk9z8m0q4g658xe789dxszl8a6s",
+	suite.Require().Equal(types.Vault{
+		Key:             "newVault",
+		VaultAddress:    "cosmos19p78qeezm3l7pycx3mjrs5dq0p5znwddndsrkvgt7ewq3qg7vf6q3rr6gl",
 		IsActive:        true,
-		RewardPerPowers: sdk.NewDecCoins(),
+		RewardsPerPower: sdk.NewDecCoins(),
 		TotalPower:      sdkmath.NewInt(0),
 		Remainders:      sdk.NewDecCoins(),
-	}, key)
+	}, vault)
 }
 
 func (suite *KeeperTestSuite) TestAddRewards() {
 	ctx := suite.ctx
 	suite.setupState()
 
-	// error case -  no key
+	// error case -  no vault
 	err := suite.restakeKeeper.AddRewards(
 		ctx,
 		RewarderAddress,
-		InvalidKey,
+		InvalidVaultKey,
 		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
 	)
 	suite.Require().Error(err)
 
-	// error case - key is deactivated
+	// error case - vault is deactivated
 	err = suite.restakeKeeper.AddRewards(
 		ctx,
 		RewarderAddress,
-		InactiveKey,
+		InactiveVaultKey,
 		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
 	)
 	suite.Require().Error(err)
@@ -59,30 +59,30 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 	err = suite.restakeKeeper.AddRewards(
 		ctx,
 		RewarderAddress,
-		KeyWithoutLocks,
+		VaultKeyWithoutLocks,
 		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
 	)
 	suite.Require().Error(err)
 
 	// success cases
 	var (
-		key     types.Key
+		vault   types.Vault
 		rewards sdk.Coins
 	)
 
 	testCases := []struct {
 		name     string
 		malleate func()
-		expKey   types.Key
+		expVault types.Vault
 	}{
 		{
 			"success case - 1 coin",
 			func() {
-				key = types.Key{
-					Name:            KeyWithRewards,
-					PoolAddress:     KeyWithRewardsPoolAddress.String(),
+				vault = types.Vault{
+					Key:             VaultKeyWithRewards,
+					VaultAddress:    VaultWithRewardsAddress.String(),
 					IsActive:        true,
-					RewardPerPowers: sdk.NewDecCoins(),
+					RewardsPerPower: sdk.NewDecCoins(),
 					TotalPower:      sdkmath.NewInt(100),
 					Remainders:      sdk.NewDecCoins(),
 				}
@@ -90,11 +90,11 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 					sdk.NewCoin("aaaa", sdkmath.NewInt(1)),
 				)
 			},
-			types.Key{
-				Name:        KeyWithRewards,
-				PoolAddress: KeyWithRewardsPoolAddress.String(),
-				IsActive:    true,
-				RewardPerPowers: sdk.NewDecCoins(
+			types.Vault{
+				Key:          VaultKeyWithRewards,
+				VaultAddress: VaultWithRewardsAddress.String(),
+				IsActive:     true,
+				RewardsPerPower: sdk.NewDecCoins(
 					sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(1, 2)),
 				),
 				TotalPower: sdkmath.NewInt(100),
@@ -104,11 +104,11 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 		{
 			"success case - 2 coin same amount",
 			func() {
-				key = types.Key{
-					Name:            KeyWithRewards,
-					PoolAddress:     KeyWithRewardsPoolAddress.String(),
+				vault = types.Vault{
+					Key:             VaultKeyWithRewards,
+					VaultAddress:    VaultWithRewardsAddress.String(),
 					IsActive:        true,
-					RewardPerPowers: sdk.NewDecCoins(),
+					RewardsPerPower: sdk.NewDecCoins(),
 					TotalPower:      sdkmath.NewInt(100),
 					Remainders:      sdk.NewDecCoins(),
 				}
@@ -117,11 +117,11 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 					sdk.NewCoin("bbbb", sdkmath.NewInt(1)),
 				)
 			},
-			types.Key{
-				Name:        KeyWithRewards,
-				PoolAddress: KeyWithRewardsPoolAddress.String(),
-				IsActive:    true,
-				RewardPerPowers: sdk.NewDecCoins(
+			types.Vault{
+				Key:          VaultKeyWithRewards,
+				VaultAddress: VaultWithRewardsAddress.String(),
+				IsActive:     true,
+				RewardsPerPower: sdk.NewDecCoins(
 					sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(1, 2)),
 					sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyNewDecWithPrec(1, 2)),
 				),
@@ -132,11 +132,11 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 		{
 			"success case - 2 coin diff amount",
 			func() {
-				key = types.Key{
-					Name:            KeyWithRewards,
-					PoolAddress:     KeyWithRewardsPoolAddress.String(),
+				vault = types.Vault{
+					Key:             VaultKeyWithRewards,
+					VaultAddress:    VaultWithRewardsAddress.String(),
 					IsActive:        true,
-					RewardPerPowers: sdk.NewDecCoins(),
+					RewardsPerPower: sdk.NewDecCoins(),
 					TotalPower:      sdkmath.NewInt(100),
 					Remainders:      sdk.NewDecCoins(),
 				}
@@ -145,11 +145,11 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 					sdk.NewCoin("bbbb", sdkmath.NewInt(1)),
 				)
 			},
-			types.Key{
-				Name:        KeyWithRewards,
-				PoolAddress: KeyWithRewardsPoolAddress.String(),
-				IsActive:    true,
-				RewardPerPowers: sdk.NewDecCoins(
+			types.Vault{
+				Key:          VaultKeyWithRewards,
+				VaultAddress: VaultWithRewardsAddress.String(),
+				IsActive:     true,
+				RewardsPerPower: sdk.NewDecCoins(
 					sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(5, 2)),
 					sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyNewDecWithPrec(1, 2)),
 				),
@@ -160,11 +160,11 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 		{
 			"success case - small reward, big total power",
 			func() {
-				key = types.Key{
-					Name:            KeyWithRewards,
-					PoolAddress:     KeyWithRewardsPoolAddress.String(),
+				vault = types.Vault{
+					Key:             VaultKeyWithRewards,
+					VaultAddress:    VaultWithRewardsAddress.String(),
 					IsActive:        true,
-					RewardPerPowers: sdk.NewDecCoins(),
+					RewardsPerPower: sdk.NewDecCoins(),
 					TotalPower:      sdkmath.NewInt(1e18),
 					Remainders:      sdk.NewDecCoins(),
 				}
@@ -172,11 +172,11 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 					sdk.NewCoin("aaaa", sdkmath.NewInt(1)),
 				)
 			},
-			types.Key{
-				Name:        KeyWithRewards,
-				PoolAddress: KeyWithRewardsPoolAddress.String(),
-				IsActive:    true,
-				RewardPerPowers: sdk.NewDecCoins(
+			types.Vault{
+				Key:          VaultKeyWithRewards,
+				VaultAddress: VaultWithRewardsAddress.String(),
+				IsActive:     true,
+				RewardsPerPower: sdk.NewDecCoins(
 					sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(1, 18)),
 				),
 				TotalPower: sdkmath.NewInt(1e18),
@@ -186,11 +186,11 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 		{
 			"success case - big reward, small total power",
 			func() {
-				key = types.Key{
-					Name:            KeyWithRewards,
-					PoolAddress:     KeyWithRewardsPoolAddress.String(),
+				vault = types.Vault{
+					Key:             VaultKeyWithRewards,
+					VaultAddress:    VaultWithRewardsAddress.String(),
 					IsActive:        true,
-					RewardPerPowers: sdk.NewDecCoins(),
+					RewardsPerPower: sdk.NewDecCoins(),
 					TotalPower:      sdkmath.NewInt(1),
 					Remainders:      sdk.NewDecCoins(),
 				}
@@ -198,11 +198,11 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 					sdk.NewCoin("aaaa", sdkmath.NewInt(1e18)),
 				)
 			},
-			types.Key{
-				Name:        KeyWithRewards,
-				PoolAddress: KeyWithRewardsPoolAddress.String(),
-				IsActive:    true,
-				RewardPerPowers: sdk.NewDecCoins(
+			types.Vault{
+				Key:          VaultKeyWithRewards,
+				VaultAddress: VaultWithRewardsAddress.String(),
+				IsActive:     true,
+				RewardsPerPower: sdk.NewDecCoins(
 					sdk.NewDecCoin("aaaa", sdkmath.NewInt(1e18)),
 				),
 				TotalPower: sdkmath.NewInt(1),
@@ -212,11 +212,11 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 		{
 			"success case - have remainder",
 			func() {
-				key = types.Key{
-					Name:            KeyWithRewards,
-					PoolAddress:     KeyWithRewardsPoolAddress.String(),
+				vault = types.Vault{
+					Key:             VaultKeyWithRewards,
+					VaultAddress:    VaultWithRewardsAddress.String(),
 					IsActive:        true,
-					RewardPerPowers: sdk.NewDecCoins(),
+					RewardsPerPower: sdk.NewDecCoins(),
 					TotalPower:      sdkmath.NewInt(3),
 					Remainders:      sdk.NewDecCoins(),
 				}
@@ -224,11 +224,11 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 					sdk.NewCoin("aaaa", sdkmath.NewInt(1)),
 				)
 			},
-			types.Key{
-				Name:        KeyWithRewards,
-				PoolAddress: KeyWithRewardsPoolAddress.String(),
-				IsActive:    true,
-				RewardPerPowers: sdk.NewDecCoins(
+			types.Vault{
+				Key:          VaultKeyWithRewards,
+				VaultAddress: VaultWithRewardsAddress.String(),
+				IsActive:     true,
+				RewardsPerPower: sdk.NewDecCoins(
 					sdk.NewDecCoinFromDec("aaaa", sdk.MustNewDecFromStr("0.333333333333333333")),
 				),
 				TotalPower: sdkmath.NewInt(3),
@@ -241,96 +241,96 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 
 	for _, testCase := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", testCase.name), func() {
-			suite.resetState()
+			suite.SetupTest()
 			ctx = suite.ctx
 			testCase.malleate()
 
-			suite.restakeKeeper.SetKey(ctx, key)
+			suite.restakeKeeper.SetVault(ctx, vault)
 			err = suite.restakeKeeper.AddRewards(
 				ctx,
 				RewarderAddress,
-				key.Name,
+				vault.Key,
 				rewards,
 			)
 			suite.Require().NoError(err)
 
-			key, err := suite.restakeKeeper.GetKey(ctx, key.Name)
+			vault, err := suite.restakeKeeper.GetVault(ctx, vault.Key)
 			suite.Require().NoError(err)
-			suite.Require().Equal(testCase.expKey, key)
+			suite.Require().Equal(testCase.expVault, vault)
 		})
 	}
 }
 
-func (suite *KeeperTestSuite) TestIsActiveKey() {
+func (suite *KeeperTestSuite) TestIsActiveVault() {
 	ctx := suite.ctx
 	suite.setupState()
 
-	// case - valid key
-	for _, expKey := range suite.validKeys {
-		isActive := suite.restakeKeeper.IsActiveKey(ctx, expKey.Name)
-		suite.Require().Equal(expKey.IsActive, isActive)
+	// case - valid vault
+	for _, expVault := range suite.validVaults {
+		isActive := suite.restakeKeeper.IsActiveVault(ctx, expVault.Key)
+		suite.Require().Equal(expVault.IsActive, isActive)
 	}
 
-	// case - no key
-	isActive := suite.restakeKeeper.IsActiveKey(ctx, InvalidKey)
+	// case - no vault
+	isActive := suite.restakeKeeper.IsActiveVault(ctx, InvalidVaultKey)
 	suite.Require().Equal(false, isActive)
 }
 
-func (suite *KeeperTestSuite) TestDeactivateKey() {
+func (suite *KeeperTestSuite) TestDeactivateVault() {
 	ctx := suite.ctx
 	suite.setupState()
 
-	// error case -  no key
-	err := suite.restakeKeeper.DeactivateKey(ctx, InvalidKey)
+	// error case -  no vault
+	err := suite.restakeKeeper.DeactivateVault(ctx, InvalidVaultKey)
 	suite.Require().Error(err)
 
-	// error case - key is deactivated
-	err = suite.restakeKeeper.DeactivateKey(ctx, InactiveKey)
+	// error case - vault is deactivated
+	err = suite.restakeKeeper.DeactivateVault(ctx, InactiveVaultKey)
 	suite.Require().Error(err)
 
 	// success case
-	err = suite.restakeKeeper.DeactivateKey(ctx, KeyWithRewards)
+	err = suite.restakeKeeper.DeactivateVault(ctx, VaultKeyWithRewards)
 	suite.Require().NoError(err)
-	key, err := suite.restakeKeeper.GetKey(ctx, KeyWithRewards)
+	vault, err := suite.restakeKeeper.GetVault(ctx, VaultKeyWithRewards)
 	suite.Require().NoError(err)
-	suite.Require().Equal(false, key.IsActive)
+	suite.Require().Equal(false, vault.IsActive)
 }
 
-func (suite *KeeperTestSuite) TestGetSetKey() {
+func (suite *KeeperTestSuite) TestGetSetVault() {
 	ctx := suite.ctx
 
 	// set
-	expectedKeys := suite.validKeys
-	for _, expKey := range expectedKeys {
-		suite.restakeKeeper.SetKey(ctx, expKey)
+	expectedVaults := suite.validVaults
+	for _, expVault := range expectedVaults {
+		suite.restakeKeeper.SetVault(ctx, expVault)
 
 		// has
-		has := suite.restakeKeeper.HasKey(ctx, expKey.Name)
+		has := suite.restakeKeeper.HasVault(ctx, expVault.Key)
 		suite.Require().True(has)
 
 		// get
-		key, err := suite.restakeKeeper.GetKey(ctx, expKey.Name)
+		vault, err := suite.restakeKeeper.GetVault(ctx, expVault.Key)
 		suite.Require().NoError(err)
-		suite.Require().Equal(expKey, key)
+		suite.Require().Equal(expVault, vault)
 
 		// must get
-		key = suite.restakeKeeper.MustGetKey(ctx, expKey.Name)
-		suite.Require().Equal(expKey, key)
+		vault = suite.restakeKeeper.MustGetVault(ctx, expVault.Key)
+		suite.Require().Equal(expVault, vault)
 	}
 
 	// has
-	has := suite.restakeKeeper.HasKey(ctx, "nonKey")
+	has := suite.restakeKeeper.HasVault(ctx, "nonVault")
 	suite.Require().False(has)
 
 	// get
-	keys := suite.restakeKeeper.GetKeys(ctx)
-	suite.Require().Equal(expectedKeys, keys)
+	vaults := suite.restakeKeeper.GetVaults(ctx)
+	suite.Require().Equal(expectedVaults, vaults)
 
-	_, err := suite.restakeKeeper.GetKey(ctx, "nonKey")
+	_, err := suite.restakeKeeper.GetVault(ctx, "nonVault")
 	suite.Require().Error(err)
 
 	// must get
 	suite.Require().Panics(func() {
-		_ = suite.restakeKeeper.MustGetKey(ctx, "nonKey")
+		_ = suite.restakeKeeper.MustGetVault(ctx, "nonVault")
 	})
 }
