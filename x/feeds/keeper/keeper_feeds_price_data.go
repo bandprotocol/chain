@@ -12,7 +12,7 @@ import (
 func (k Keeper) GetFeedsPriceData(
 	ctx sdk.Context,
 	signalIDs []string,
-	ft types.FeedType,
+	encoder types.Encoder,
 ) (*types.FeedsPriceData, error) {
 	feeds := make(map[string]types.Feed)
 	sp := k.GetCurrentFeeds(ctx)
@@ -28,8 +28,8 @@ func (k Keeper) GetFeedsPriceData(
 			return nil, err
 		}
 
-		// Check if the feed type is tick
-		if ft == types.FEED_TYPE_TICK_ABI {
+		// Check if the encoder mode is tick
+		if encoder == types.ENCODER_TICK_ABI {
 			err := p.ToTick()
 			if err != nil {
 				return nil, err

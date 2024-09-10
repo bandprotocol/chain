@@ -1,4 +1,4 @@
-package types_test
+package tickmath_test
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	"github.com/bandprotocol/chain/v2/pkg/tickmath"
 )
 
 // PriceToTick converts the price to tick
@@ -22,11 +22,11 @@ func PriceToTickUsingLog(priceX1E9 uint64) (uint64, error) {
 	}
 
 	tick := int64(math.Floor(math.Log(price) / math.Log(float64(1.0001))))
-	if tick > types.MaxTick || tick < types.MinTick {
+	if tick > tickmath.MaxTick || tick < tickmath.MinTick {
 		return 0, fmt.Errorf("tick out of range")
 	}
 
-	return uint64(tick + types.Offset), nil
+	return uint64(tick + tickmath.Offset), nil
 }
 
 func TestTickToPrice(t *testing.T) {
@@ -95,7 +95,7 @@ func TestTickToPrice(t *testing.T) {
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
-			result, err := types.TickToPrice(tc.tick)
+			result, err := tickmath.TickToPrice(tc.tick)
 			require.Equal(t, tc.err, err)
 			require.Equal(t, tc.result, result)
 		})
@@ -105,7 +105,7 @@ func TestTickToPrice(t *testing.T) {
 func TestSmallPriceToTick(t *testing.T) {
 	for i := 0; i <= 1000; i++ {
 		price := uint64(i)
-		tick, err := types.PriceToTick(price)
+		tick, err := tickmath.PriceToTick(price)
 		tickLog, errLog := PriceToTickUsingLog(price)
 		if errLog != nil {
 			require.Equal(t, err, errLog, fmt.Sprintf("price: %d", price))
@@ -191,7 +191,7 @@ func TestPriceToTick(t *testing.T) {
 
 	for _, tc := range testcases {
 		t.Run(tc.name, func(t *testing.T) {
-			result, err := types.PriceToTick(tc.price)
+			result, err := tickmath.PriceToTick(tc.price)
 			require.Equal(t, tc.err, err)
 			require.Equal(t, tc.result, result)
 
@@ -216,7 +216,7 @@ func TestPriceToTickRandomly(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		price := rng.Uint64()
 
-		tick, err := types.PriceToTick(price)
+		tick, err := tickmath.PriceToTick(price)
 		tickLog, errLog := PriceToTickUsingLog(price)
 		if errLog != nil {
 			require.Equal(t, errLog, err, fmt.Sprintf("price: %d", price))
@@ -229,7 +229,7 @@ func TestPriceToTickRandomly(t *testing.T) {
 	for i := 0; i < 1000; i++ {
 		price := rng.Uint64() % 1000000
 
-		tick, err := types.PriceToTick(price)
+		tick, err := tickmath.PriceToTick(price)
 		tickLog, errLog := PriceToTickUsingLog(price)
 		if errLog != nil {
 			require.Equal(t, errLog, err, fmt.Sprintf("price: %d", price))

@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	FeedTypeFixedPointABIPrefix = tss.Hash([]byte("fixedPointABI"))[:4]
-	FeedTypeTickABIPrefix       = tss.Hash([]byte("tickABI"))[:4]
+	EncoderFixedPointABIPrefix = tss.Hash([]byte("fixedPointABI"))[:4]
+	EncoderTickABIPrefix       = tss.Hash([]byte("tickABI"))[:4]
 )
 
 // NewSignatureOrderHandler creates a tss handler to handle feeds signature order
@@ -28,7 +28,7 @@ func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 			}
 
 			// Get feeds price data
-			fp, err := k.GetFeedsPriceData(ctx, c.SignalIDs, c.FeedType)
+			fp, err := k.GetFeedsPriceData(ctx, c.SignalIDs, c.Encoder)
 			if err != nil {
 				return nil, err
 			}
@@ -39,16 +39,16 @@ func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 				return nil, err
 			}
 
-			// Append the prefix based on the feed type
-			switch c.FeedType {
-			case types.FEED_TYPE_FIXED_POINT_ABI:
-				return append(FeedTypeFixedPointABIPrefix, bz...), nil
-			case types.FEED_TYPE_TICK_ABI:
-				return append(FeedTypeTickABIPrefix, bz...), nil
+			// Append the prefix based on the encoder mode
+			switch c.Encoder {
+			case types.ENCODER_FIXED_POINT_ABI:
+				return append(EncoderFixedPointABIPrefix, bz...), nil
+			case types.ENCODER_TICK_ABI:
+				return append(EncoderTickABIPrefix, bz...), nil
 			default:
 				return nil, sdkerrors.ErrUnknownRequest.Wrapf(
-					"unrecognized feed type: %d",
-					c.FeedType,
+					"unrecognized encoder: %d",
+					c.Encoder,
 				)
 			}
 		default:
