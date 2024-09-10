@@ -33,7 +33,7 @@ type Params struct {
 	MinInterval uint64 `protobuf:"varint,2,opt,name=min_interval,json=minInterval,proto3" json:"min_interval,omitempty"`
 	// max_signals defines the maximum number of signals allowed per tunnel.
 	MaxSignals uint64 `protobuf:"varint,3,opt,name=max_signals,json=maxSignals,proto3" json:"max_signals,omitempty"`
-	// base_fee is the base fee for each tunnel
+	// base_packet_fee is the base fee for each packet
 	BasePacketFee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,4,rep,name=base_packet_fee,json=basePacketFee,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"base_packet_fee"`
 }
 

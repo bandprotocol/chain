@@ -19,44 +19,44 @@ type Querier struct {
 
 var _ types.QueryServer = Querier{}
 
-// Keys queries all keys with pagination.
-func (k Querier) Keys(
+// Vaults queries all vaults with pagination.
+func (k Querier) Vaults(
 	c context.Context,
-	req *types.QueryKeysRequest,
-) (*types.QueryKeysResponse, error) {
+	req *types.QueryVaultsRequest,
+) (*types.QueryVaultsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	keyStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyStoreKeyPrefix)
+	vaultStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.VaultStoreKeyPrefix)
 
-	filteredKeys, pageRes, err := query.GenericFilteredPaginate(
+	filteredVaults, pageRes, err := query.GenericFilteredPaginate(
 		k.cdc,
-		keyStore,
+		vaultStore,
 		req.Pagination,
-		func(key []byte, v *types.Key) (*types.Key, error) {
+		func(key []byte, v *types.Vault) (*types.Vault, error) {
 			return v, nil
-		}, func() *types.Key {
-			return &types.Key{}
+		}, func() *types.Vault {
+			return &types.Vault{}
 		})
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryKeysResponse{Keys: filteredKeys, Pagination: pageRes}, nil
+	return &types.QueryVaultsResponse{Vaults: filteredVaults, Pagination: pageRes}, nil
 }
 
-// Key queries info about a key.
-func (k Querier) Key(
+// Vault queries info about a vault.
+func (k Querier) Vault(
 	c context.Context,
-	req *types.QueryKeyRequest,
-) (*types.QueryKeyResponse, error) {
+	req *types.QueryVaultRequest,
+) (*types.QueryVaultResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	key, err := k.GetKey(ctx, req.Key)
+	vault, err := k.GetVault(ctx, req.Key)
 	if err != nil {
 		return nil, err
 	}
 
-	return &types.QueryKeyResponse{Key: key}, nil
+	return &types.QueryVaultResponse{Vault: vault}, nil
 }
 
 // Rewards queries all rewards with pagination.
@@ -131,13 +131,13 @@ func (k Querier) Locks(
 		lockStore,
 		req.Pagination,
 		func(key []byte, s *types.Lock) (*types.LockResponse, error) {
-			if !k.IsActiveKey(ctx, s.Key) || s.Amount.IsZero() {
+			if !k.IsActiveVault(ctx, s.Key) || s.Power.IsZero() {
 				return nil, nil
 			}
 
 			return &types.LockResponse{
-				Key:    s.Key,
-				Amount: s.Amount,
+				Key:   s.Key,
+				Power: s.Power,
 			}, nil
 		}, func() *types.Lock {
 			return &types.Lock{}
@@ -161,9 +161,9 @@ func (k Querier) Lock(
 		return nil, err
 	}
 
-	isActive := k.IsActiveKey(ctx, req.Key)
+	isActive := k.IsActiveVault(ctx, req.Key)
 	if !isActive {
-		return nil, types.ErrKeyNotActive
+		return nil, types.ErrVaultNotActive
 	}
 
 	lock, err := k.GetLock(ctx, addr, req.Key)
@@ -173,8 +173,8 @@ func (k Querier) Lock(
 
 	return &types.QueryLockResponse{
 		Lock: types.LockResponse{
-			Key:    lock.Key,
-			Amount: lock.Amount,
+			Key:   lock.Key,
+			Power: lock.Power,
 		},
 	}, nil
 }

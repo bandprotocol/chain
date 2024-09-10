@@ -6,14 +6,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	proto "github.com/cosmos/gogoproto/proto"
-
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
+	"github.com/cosmos/gogoproto/proto"
 )
 
 var (
-	_, _, _, _ sdk.Msg                       = &MsgUpdateParams{}, &MsgCreateTunnel{}, &MsgActivateTunnel{}, &MsgManualTriggerTunnel{}
-	_          types.UnpackInterfacesMessage = &MsgCreateTunnel{}
+	_, _, _, _, _ sdk.Msg                       = &MsgUpdateParams{}, &MsgCreateTunnel{}, &MsgActivateTunnel{}, &MsgDeactivateTunnel{}, &MsgManualTriggerTunnel{}
+	_             types.UnpackInterfacesMessage = &MsgCreateTunnel{}
 )
 
 // NewMsgUpdateParams creates a new MsgUpdateParams instance.
@@ -60,7 +58,7 @@ func NewMsgCreateTunnel(
 	signalInfos []SignalInfo,
 	interval uint64,
 	route RouteI,
-	feedType feedstypes.FeedType,
+	encoder Encoder,
 	deposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
@@ -77,7 +75,7 @@ func NewMsgCreateTunnel(
 		SignalInfos: signalInfos,
 		Interval:    interval,
 		Route:       any,
-		FeedType:    feedType,
+		Encoder:     encoder,
 		Deposit:     deposit,
 		Creator:     creator.String(),
 	}, nil
@@ -87,7 +85,7 @@ func NewMsgCreateTunnel(
 func NewMsgCreateTSSTunnel(
 	signalInfos []SignalInfo,
 	interval uint64,
-	feedType feedstypes.FeedType,
+	encoder Encoder,
 	destinationChainID string,
 	destinationContractAddress string,
 	deposit sdk.Coins,
@@ -97,7 +95,7 @@ func NewMsgCreateTSSTunnel(
 		DestinationChainID:         destinationChainID,
 		DestinationContractAddress: destinationContractAddress,
 	}
-	m, err := NewMsgCreateTunnel(signalInfos, interval, r, feedType, deposit, creator)
+	m, err := NewMsgCreateTunnel(signalInfos, interval, r, encoder, deposit, creator)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +107,7 @@ func NewMsgCreateTSSTunnel(
 func NewMsgCreateAxelarTunnel(
 	signalInfos []SignalInfo,
 	interval uint64,
-	feedType feedstypes.FeedType,
+	encoder Encoder,
 	destinationChainID string,
 	destinationContractAddress string,
 	deposit sdk.Coins,
@@ -119,7 +117,7 @@ func NewMsgCreateAxelarTunnel(
 		DestinationChainID:         destinationChainID,
 		DestinationContractAddress: destinationContractAddress,
 	}
-	m, err := NewMsgCreateTunnel(signalInfos, interval, r, feedType, deposit, creator)
+	m, err := NewMsgCreateTunnel(signalInfos, interval, r, encoder, deposit, creator)
 	if err != nil {
 		return nil, err
 	}

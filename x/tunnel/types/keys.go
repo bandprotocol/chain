@@ -28,13 +28,13 @@ const (
 var (
 	TunnelCountStoreKey = []byte{0x00}
 
-	ActiveTunnelIDStoreKeyPrefix = []byte{0x01}
+	ActiveTunnelIDStoreKeyPrefix = []byte{0x10}
 
-	TunnelStoreKeyPrefix = []byte{0x10}
+	TunnelStoreKeyPrefix = []byte{0x11}
 
-	PacketStoreKeyPrefix = []byte{0x11}
+	PacketStoreKeyPrefix = []byte{0x12}
 
-	SignalPricesInfoStoreKeyPrefix = []byte{0x12}
+	SignalPricesInfoStoreKeyPrefix = []byte{0x13}
 
 	ParamsKey = []byte{0x90}
 )

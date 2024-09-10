@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -10,7 +9,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
@@ -34,7 +32,7 @@ func GetTxCmd() *cobra.Command {
 
 func GetTxCmdCreateTSSTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-tss-tunnel [interval] [feed-type] [destination-chain-id] [destination-contract-address] [deposit] [signalInfos-json-file]",
+		Use:   "create-tss-tunnel [interval] [encoder] [destination-chain-id] [destination-contract-address] [deposit] [signalInfos-json-file]",
 		Short: "Create a new TSS tunnel",
 		Args:  cobra.ExactArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -48,14 +46,11 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 				return err
 			}
 
-			feedTypeCli, err := strconv.ParseInt(args[1], 10, 64)
+			encoderCli, err := strconv.ParseInt(args[1], 10, 64)
 			if err != nil {
 				return err
 			}
-			if feedTypeCli <= 0 || feedTypeCli >= int64(len(feedstypes.FeedType_value)) {
-				return fmt.Errorf("invalid feed type; got %d", feedTypeCli)
-			}
-			feedType := feedstypes.FeedType(feedTypeCli)
+			encoder := types.Encoder(encoderCli)
 
 			destChainID := args[2]
 			destContractAddr := args[3]
@@ -73,7 +68,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 			msg, err := types.NewMsgCreateTSSTunnel(
 				signalInfos.ToSignalInfos(),
 				interval,
-				feedType,
+				encoder,
 				destChainID,
 				destContractAddr,
 				deposit,

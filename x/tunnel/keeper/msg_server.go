@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -40,7 +41,7 @@ func (ms msgServer) CreateTunnel(
 	}
 
 	// Add a new tunnel
-	tunnel, err := ms.Keeper.AddTunnel(ctx, req.Route, req.FeedType, req.SignalInfos, req.Interval, req.Creator)
+	tunnel, err := ms.Keeper.AddTunnel(ctx, req.Route, req.Encoder, req.SignalInfos, req.Interval, req.Creator)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +52,7 @@ func (ms msgServer) CreateTunnel(
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
 		sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", tunnel.Interval)),
 		sdk.NewAttribute(types.AttributeKeyRoute, tunnel.Route.String()),
-		sdk.NewAttribute(types.AttributeKeyFeedType, tunnel.FeedType.String()),
+		sdk.NewAttribute(types.AttributeKeyEncoder, tunnel.Encoder.String()),
 		sdk.NewAttribute(types.AttributeKeyFeePayer, tunnel.FeePayer),
 		sdk.NewAttribute(types.AttributeKeyIsActive, fmt.Sprintf("%t", tunnel.IsActive)),
 		sdk.NewAttribute(types.AttributeKeyCreatedAt, fmt.Sprintf("%d", tunnel.CreatedAt)),
@@ -128,8 +129,6 @@ func (ms msgServer) ActivateTunnel(
 		return nil, err
 	}
 
-	// TODO: check deposit with params, transfer deposit to module account
-
 	if req.Creator != tunnel.Creator {
 		return nil, fmt.Errorf("creator %s is not the creator of tunnel %d", req.Creator, req.TunnelID)
 	}
@@ -138,13 +137,6 @@ func (ms msgServer) ActivateTunnel(
 	if err != nil {
 		return nil, err
 	}
-
-	// Emit an event
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeActivateTunnel,
-		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", req.TunnelID)),
-		sdk.NewAttribute(types.AttributeKeyIsActive, fmt.Sprintf("%t", true)),
-	))
 
 	return &types.MsgActivateTunnelResponse{}, nil
 }
@@ -170,13 +162,6 @@ func (ms msgServer) DeactivateTunnel(
 		return nil, err
 	}
 
-	// Emit an event
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeDeactivateTunnel,
-		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", req.TunnelID)),
-		sdk.NewAttribute(types.AttributeKeyIsActive, fmt.Sprintf("%t", false)),
-	))
-
 	return &types.MsgDeactivateTunnelResponse{}, nil
 }
 
@@ -198,15 +183,30 @@ func (ms msgServer) ManualTriggerTunnel(
 			req.TunnelID,
 		)
 	}
+	if !tunnel.IsActive {
+		return nil, types.ErrInactiveTunnel.Wrapf("tunnelID %d", req.TunnelID)
+	}
 
 	// TODO: feeds module needs to be implemented get prices that can use
 	latestPrices := ms.Keeper.feedsKeeper.GetPrices(ctx)
 	latestPricesMap := createLatestPricesMap(latestPrices)
 
 	// Produce packet with trigger all signals
-	err = ms.Keeper.ProducePacket(ctx, tunnel.ID, latestPricesMap, true)
+	isCreated, err := ms.Keeper.ProducePacket(ctx, tunnel.ID, latestPricesMap, true)
 	if err != nil {
 		return nil, err
+	}
+
+	// if new packet is created, deduct base packet fee from the fee payer,
+	if isCreated {
+		feePayer, err := sdk.AccAddressFromBech32(tunnel.FeePayer)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := ms.Keeper.DeductBasePacketFee(ctx, feePayer); err != nil {
+			return nil, sdkerrors.Wrapf(err, "failed to deduct base packet fee for tunnel %d", req.TunnelID)
+		}
 	}
 
 	// Emit an event

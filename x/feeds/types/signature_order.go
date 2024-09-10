@@ -18,8 +18,8 @@ func init() {
 var _ tsstypes.Content = &FeedsSignatureOrder{}
 
 // NewFeedSignatureOrder returns a new FeedSignatureOrder object
-func NewFeedSignatureOrder(signalIDs []string, feedType FeedType) *FeedsSignatureOrder {
-	return &FeedsSignatureOrder{signalIDs, feedType}
+func NewFeedSignatureOrder(signalIDs []string, encoder Encoder) *FeedsSignatureOrder {
+	return &FeedsSignatureOrder{signalIDs, encoder}
 }
 
 // OrderRoute returns the order router key
@@ -39,8 +39,8 @@ func (f *FeedsSignatureOrder) ValidateBasic() error {
 		return ErrInvalidSignalIDs
 	}
 
-	if f.FeedType == FEED_TYPE_UNSPECIFIED {
-		return ErrInvalidFeedsType
+	if f.Encoder == ENCODER_UNSPECIFIED {
+		return ErrInvalidEncoder
 	}
 
 	return nil

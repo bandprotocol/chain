@@ -3,9 +3,11 @@ package keeper
 import (
 	"fmt"
 
+	sdkerrors "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/bandprotocol/chain/v2/pkg/ctxcache"
 	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
@@ -48,16 +50,40 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 
 	// check for active tunnels
 	for _, id := range ids {
-		// produce packet
-		err := k.ProducePacket(ctx, id, latestPricesMap, false)
-		if err != nil {
-			// emit send packet fail event
+		isErrNoPacketCreated := false
+		producePacketFunc := func(ctx sdk.Context) error {
+			tunnel, err := k.GetTunnel(ctx, id)
+			if err != nil {
+				return err
+			}
+
+			// deduct base packet fee from the fee payer; deactivate tunnel if failed.
+			feePayerAddr := sdk.MustAccAddressFromBech32(tunnel.FeePayer)
+			if err := k.DeductBasePacketFee(ctx, feePayerAddr); err != nil {
+				return k.DeactivateTunnel(ctx, id)
+			}
+
+			// Produce and send a packet, if no packet is created, return error so that
+			// fee is reverted.
+			isCreated, err := k.ProducePacket(ctx, id, latestPricesMap, false)
+			if err != nil {
+				return err
+			}
+			if !isCreated {
+				isErrNoPacketCreated = true
+				return fmt.Errorf("no packet is created for tunnel %d", id)
+			}
+
+			return nil
+		}
+
+		// produce a packet. If error, emits an event.
+		if err := ctxcache.ApplyFuncIfNoError(ctx, producePacketFunc); err != nil && !isErrNoPacketCreated {
 			ctx.EventManager().EmitEvent(sdk.NewEvent(
 				types.EventTypeProducePacketFail,
 				sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", id)),
 				sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
 			))
-			continue
 		}
 	}
 }
@@ -68,20 +94,12 @@ func (k Keeper) ProducePacket(
 	tunnelID uint64,
 	latestPricesMap map[string]feedstypes.Price,
 	triggerAll bool,
-) error {
+) (isCreated bool, err error) {
 	unixNow := ctx.BlockTime().Unix()
 
 	// get tunnel and signal prices info
 	tunnel := k.MustGetTunnel(ctx, tunnelID)
 	signalPricesInfo := k.MustGetSignalPricesInfo(ctx, tunnelID)
-
-	// deduct base packet fee from the fee payer
-	err := k.DeductBasePacketFee(ctx, sdk.MustAccAddressFromBech32(tunnel.FeePayer))
-	if err != nil {
-		// deactivate tunnel if failed to deduct base packet fee
-		k.MustDeactivateTunnel(ctx, tunnelID)
-		return fmt.Errorf("failed to deduct base packet fee: %w", err)
-	}
 
 	// check if the interval has passed
 	intervalTrigger := ctx.BlockTime().Unix() >= int64(tunnel.Interval)+signalPricesInfo.LastIntervalTimestamp
@@ -95,28 +113,29 @@ func (k Keeper) ProducePacket(
 		signalPricesInfo.SignalPrices,
 		triggerAll || intervalTrigger,
 	)
-	if len(nsps) > 0 {
-		err := k.SendPacket(ctx, tunnel, types.NewPacket(tunnel.ID, tunnel.NonceCount+1, nsps, nil, unixNow))
-		if err != nil {
-			// refund base packet fee if failed to send packet
-			k.MustRefundBasePacketFee(ctx, sdk.MustAccAddressFromBech32(tunnel.FeePayer))
 
-			return fmt.Errorf("route %s failed to send packet: %w", tunnel.Route.TypeUrl, err)
-		}
-
-		// update signal prices info
-		signalPricesInfo.UpdateSignalPrices(nsps)
-		if triggerAll || intervalTrigger {
-			signalPricesInfo.LastIntervalTimestamp = unixNow
-		}
-		k.SetSignalPricesInfo(ctx, signalPricesInfo)
-
-		// update tunnel nonce count
-		tunnel.NonceCount++
-		k.SetTunnel(ctx, tunnel)
+	// return if no new signal prices
+	if len(nsps) == 0 {
+		return false, nil
 	}
 
-	return nil
+	newPacket := types.NewPacket(tunnel.ID, tunnel.NonceCount+1, nsps, nil, unixNow)
+	if err := k.SendPacket(ctx, tunnel, newPacket); err != nil {
+		return false, sdkerrors.Wrapf(err, "route %s failed to send packet", tunnel.Route.TypeUrl)
+	}
+
+	// update signal prices info
+	signalPricesInfo.UpdateSignalPrices(nsps)
+	if triggerAll || intervalTrigger {
+		signalPricesInfo.LastIntervalTimestamp = unixNow
+	}
+	k.SetSignalPricesInfo(ctx, signalPricesInfo)
+
+	// update tunnel nonce count
+	tunnel.NonceCount++
+	k.SetTunnel(ctx, tunnel)
+
+	return true, nil
 }
 
 // SendPacket sends a packet to the destination route
@@ -134,7 +153,7 @@ func (k Keeper) SendPacket(
 	case *types.AxelarRoute:
 		content, err = k.SendAxelarPacket(ctx, r, packet)
 	default:
-		return fmt.Errorf("no route found for tunnel ID: %d", tunnel.ID)
+		return types.ErrInvalidRoute.Wrapf("no route found for tunnel ID: %d", tunnel.ID)
 	}
 
 	// return error if failed to send packet

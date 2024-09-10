@@ -10,16 +10,16 @@ func (suite *KeeperTestSuite) TestExportGenesis() {
 
 	exportGenesis := suite.restakeKeeper.ExportGenesis(ctx)
 
-	suite.Require().Equal(suite.validKeys, exportGenesis.Keys)
+	suite.Require().Equal(suite.validVaults, exportGenesis.Vaults)
 	suite.Require().Equal(suite.validLocks, exportGenesis.Locks)
 }
 
 func (suite *KeeperTestSuite) TestInitGenesis() {
 	ctx := suite.ctx
 
-	g := types.NewGenesisState(suite.validKeys, suite.validLocks)
+	g := types.NewGenesisState(suite.validVaults, suite.validLocks)
 	suite.restakeKeeper.InitGenesis(suite.ctx, g)
 
-	suite.Require().Equal(suite.validKeys, suite.restakeKeeper.GetKeys(ctx))
+	suite.Require().Equal(suite.validVaults, suite.restakeKeeper.GetVaults(ctx))
 	suite.Require().Equal(suite.validLocks, suite.restakeKeeper.GetLocks(ctx))
 }
