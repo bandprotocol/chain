@@ -1,10 +1,14 @@
 package types
 
 import (
+	"fmt"
+
+	"cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"gopkg.in/yaml.v2"
 )
 
-const (
+var (
 	// Default values for Params
 	DefaultAllowableBlockTimeDiscrepancy = int64(60)
 	DefaultGracePeriod                   = int64(30)
@@ -17,6 +21,7 @@ const (
 	DefaultMaxDeviationBasisPoint        = int64(3000)
 	// estimated from block time of 3 seconds, aims for 1 day update
 	DefaultCurrentFeedsUpdateInterval = int64(28800)
+	DefaultPriceQuorum                = sdk.NewDecWithPrec(30, 2)
 	DefaultMaxSignalIDsPerSigning     = uint64(10)
 )
 
@@ -33,6 +38,7 @@ func NewParams(
 	minDeviationBasisPoint int64,
 	maxDeviationBasisPoint int64,
 	currentFeedsUpdateInterval int64,
+	priceQuorum string,
 	maxSignalIDsPerSigning uint64,
 ) Params {
 	return Params{
@@ -47,6 +53,7 @@ func NewParams(
 		MinDeviationBasisPoint:        minDeviationBasisPoint,
 		MaxDeviationBasisPoint:        maxDeviationBasisPoint,
 		CurrentFeedsUpdateInterval:    currentFeedsUpdateInterval,
+		PriceQuorum:                   priceQuorum,
 		MaxSignalIDsPerSigning:        maxSignalIDsPerSigning,
 	}
 }
@@ -65,6 +72,7 @@ func DefaultParams() Params {
 		DefaultMinDeviationBasisPoint,
 		DefaultMaxDeviationBasisPoint,
 		DefaultCurrentFeedsUpdateInterval,
+		DefaultPriceQuorum.String(),
 		DefaultMaxSignalIDsPerSigning,
 	)
 }
@@ -95,6 +103,16 @@ func (p Params) Validate() error {
 		if err := f.validateFn(f.name, f.isPositiveOnly, f.val); err != nil {
 			return err
 		}
+	}
+	priceQuorum, err := sdk.NewDecFromStr(p.PriceQuorum)
+	if err != nil {
+		return fmt.Errorf("invalid price quorum string: %w", err)
+	}
+	if priceQuorum.IsNegative() {
+		return fmt.Errorf("price quorom cannot be negative: %s", p.PriceQuorum)
+	}
+	if priceQuorum.GT(math.LegacyOneDec()) {
+		return fmt.Errorf("price quorom too large: %s", p.PriceQuorum)
 	}
 
 	return nil

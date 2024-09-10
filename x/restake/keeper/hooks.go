@@ -50,23 +50,27 @@ func (h Hooks) BeforeDelegationSharesModified(_ sdk.Context, _ sdk.AccAddress, _
 func (h Hooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error {
 	delegated := h.k.stakingKeeper.GetDelegatorBonded(ctx, delAddr)
 
-	// remove power of removed delegation from total delegation
-	removedDelegation, found := h.k.stakingKeeper.GetDelegation(ctx, delAddr, valAddr)
+	// reduce power of removing delegation from total delegation
+	removingDelegation, found := h.k.stakingKeeper.GetDelegation(ctx, delAddr, valAddr)
 	if found {
-		validatorAddr, err := sdk.ValAddressFromBech32(removedDelegation.ValidatorAddress)
+		validatorAddr, err := sdk.ValAddressFromBech32(removingDelegation.ValidatorAddress)
 		if err != nil {
 			panic(err) // shouldn't happen
 		}
 		validator, found := h.k.stakingKeeper.GetValidator(ctx, validatorAddr)
 		if found {
-			shares := removedDelegation.Shares
+			shares := removingDelegation.Shares
 			tokens := validator.TokensFromSharesTruncated(shares)
 			delegated = delegated.Sub(tokens.RoundInt())
 		}
 	}
 
 	// check if it's able to unbond
-	return h.isAbleToUnbond(ctx, delAddr, delegated)
+	if !h.isAbleToUnbond(ctx, delAddr, delegated) {
+		return types.ErrUnableToUndelegate
+	}
+
+	return nil
 }
 
 // check if after delegation is modified, the locked power is still less than total delegation
@@ -75,7 +79,11 @@ func (h Hooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, 
 	delegated := h.k.stakingKeeper.GetDelegatorBonded(ctx, delAddr)
 
 	// check if it's able to unbond
-	return h.isAbleToUnbond(ctx, delAddr, delegated)
+	if !h.isAbleToUnbond(ctx, delAddr, delegated) {
+		return types.ErrUnableToUndelegate
+	}
+
+	return nil
 }
 
 func (h Hooks) BeforeValidatorSlashed(_ sdk.Context, _ sdk.ValAddress, _ sdk.Dec) error {
@@ -87,25 +95,18 @@ func (h Hooks) AfterUnbondingInitiated(_ sdk.Context, _ uint64) error {
 }
 
 // isAbleToUnbond checks if the new total delegation is still more than locked power in the module.
-func (h Hooks) isAbleToUnbond(ctx sdk.Context, addr sdk.AccAddress, delegated sdkmath.Int) error {
-	iterator := sdk.KVStoreReversePrefixIterator(ctx.KVStore(h.k.storeKey), types.LocksByAmountIndexKey(addr))
+func (h Hooks) isAbleToUnbond(ctx sdk.Context, addr sdk.AccAddress, delegated sdkmath.Int) bool {
+	iterator := sdk.KVStoreReversePrefixIterator(ctx.KVStore(h.k.storeKey), types.LocksByPowerIndexKey(addr))
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		keyName := string(iterator.Value())
-		lock, err := h.k.GetLock(ctx, addr, keyName)
-		if err != nil {
-			panic(err)
-		}
+		key := string(iterator.Value())
+		_, power := types.SplitLockByPowerIndexKey(iterator.Key())
 
-		if h.k.IsActiveKey(ctx, keyName) {
-			if delegated.LT(lock.Amount) {
-				return types.ErrUnableToUndelegate
-			}
-
-			return nil
+		if h.k.IsActiveVault(ctx, key) {
+			return delegated.GTE(power)
 		}
 	}
 
-	return nil
+	return true
 }
