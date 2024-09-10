@@ -6,7 +6,6 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
@@ -14,7 +13,7 @@ import (
 func (k Keeper) AddTunnel(
 	ctx sdk.Context,
 	route *codectypes.Any,
-	feedType feedstypes.FeedType,
+	encoder types.Encoder,
 	signalInfos []types.SignalInfo,
 	interval uint64,
 	creator string,
@@ -40,7 +39,7 @@ func (k Keeper) AddTunnel(
 		newID,
 		0,
 		route,
-		feedType,
+		encoder,
 		acc.String(),
 		signalInfos,
 		interval,

@@ -9,7 +9,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
@@ -33,7 +32,7 @@ func GetTxCmd() *cobra.Command {
 
 func GetTxCmdCreateTSSTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-tss-tunnel [feed-type] [destination-chain-id] [destination-contract-address] [deposit] [signalInfos-json-file]",
+		Use:   "create-tss-tunnel [encoder] [destination-chain-id] [destination-contract-address] [deposit] [signalInfos-json-file]",
 		Short: "Create a new TSS tunnel",
 		Args:  cobra.ExactArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -42,7 +41,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 				return err
 			}
 
-			feedType, err := strconv.ParseInt(args[0], 10, 32)
+			encoder, err := strconv.ParseInt(args[0], 10, 32)
 			if err != nil {
 				return err
 			}
@@ -65,7 +64,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 			msg, err := types.NewMsgCreateTSSTunnel(
 				signalInfos.ToSignalInfos(),
 				interval,
-				feedstypes.FeedType(feedType),
+				types.Encoder(encoder),
 				args[1],
 				args[2],
 				deposit,

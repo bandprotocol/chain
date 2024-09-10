@@ -12,7 +12,6 @@ import "cosmos/msg/v1/msg.proto";
 import "amino/amino.proto";
 
 import "tunnel/v1beta1/tunnel.proto";
-import "feeds/v1beta1/feeds.proto";
 
 // Service definition for Msg.
 service Msg {
@@ -46,8 +45,8 @@ message MsgCreateTunnel {
   uint64 interval = 2;
   // route is the route for delivering the signal prices
   google.protobuf.Any route = 3 [(cosmos_proto.accepts_interface) = "Route"];
-  // feed_type is the type of feed data.
-  feeds.v1beta1.FeedType feed_type = 4;
+  // encoder is the mode of encoding price signal data.
+  Encoder encoder = 4;
   // deposit is the deposit required to create a tunnel.
   repeated cosmos.base.v1beta1.Coin deposit = 5
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
