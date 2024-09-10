@@ -1,6 +1,9 @@
 package types
 
-import tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+import (
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+)
 
 // signature order types
 const (
@@ -18,8 +21,8 @@ func init() {
 var _ tsstypes.Content = &TunnelSignatureOrder{}
 
 // NewTunnelSignatureOrder returns a new TunnelSignatureOrder object
-func NewTunnelSignatureOrder(packet Packet) *TunnelSignatureOrder {
-	return &TunnelSignatureOrder{packet}
+func NewTunnelSignatureOrder(packet Packet, feedType feedstypes.FeedType) *TunnelSignatureOrder {
+	return &TunnelSignatureOrder{packet, feedType}
 }
 
 // OrderRoute returns the order router key

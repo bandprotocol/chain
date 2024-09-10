@@ -5,6 +5,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
+	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 	"github.com/bandprotocol/chain/v2/x/tunnel/keeper"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
@@ -17,13 +18,21 @@ func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 	return func(ctx sdk.Context, content tsstypes.Content) ([]byte, error) {
 		switch c := content.(type) {
 		case *types.TunnelSignatureOrder:
-			tssPacket := types.NewTssPacket(c.Packet)
-			bz, err := tssPacket.EncodeAbi()
-			if err != nil {
-				return nil, err
-			}
+			switch c.FeedType {
+			case feedstypes.FEED_TYPE_FIXED_POINT_ABI, feedstypes.FEED_TYPE_TICK_ABI:
+				tssPacket := types.NewTssPacket(c.Packet)
+				bz, err := tssPacket.EncodeAbi()
+				if err != nil {
+					return nil, err
+				}
 
-			return append(EncodeTypePacketABIPrefix, bz...), nil
+				return append(EncodeTypePacketABIPrefix, bz...), nil
+			default:
+				return nil, sdkerrors.ErrUnknownRequest.Wrapf(
+					"unrecognized feed type: %s",
+					c.FeedType.String(),
+				)
+			}
 		default:
 			return nil, sdkerrors.ErrUnknownRequest.Wrapf(
 				"unrecognized tss request signature type: %s",

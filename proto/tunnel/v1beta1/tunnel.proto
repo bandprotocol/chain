@@ -137,4 +137,6 @@ message TunnelSignatureOrder {
 
   // Packet is the prices that a tunnel produces from the selected signals.
   Packet packet = 1 [(gogoproto.nullable) = false];
+  // feed_type is the type of feed data
+  feeds.v1beta1.FeedType feed_type = 2;
 }
