@@ -61,7 +61,7 @@ func NewMsgCreateTunnel(
 	interval uint64,
 	route RouteI,
 	feedType feedstypes.FeedType,
-	deposit sdk.Coins,
+	initialDeposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
 	msg, ok := route.(proto.Message)
@@ -74,12 +74,12 @@ func NewMsgCreateTunnel(
 	}
 
 	return &MsgCreateTunnel{
-		SignalInfos: signalInfos,
-		Interval:    interval,
-		Route:       any,
-		FeedType:    feedType,
-		Deposit:     deposit,
-		Creator:     creator.String(),
+		SignalInfos:    signalInfos,
+		Interval:       interval,
+		Route:          any,
+		FeedType:       feedType,
+		InitialDeposit: initialDeposit,
+		Creator:        creator.String(),
 	}, nil
 }
 
@@ -90,14 +90,14 @@ func NewMsgCreateTSSTunnel(
 	feedType feedstypes.FeedType,
 	destinationChainID string,
 	destinationContractAddress string,
-	deposit sdk.Coins,
+	initialDeposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
 	r := &TSSRoute{
 		DestinationChainID:         destinationChainID,
 		DestinationContractAddress: destinationContractAddress,
 	}
-	m, err := NewMsgCreateTunnel(signalInfos, interval, r, feedType, deposit, creator)
+	m, err := NewMsgCreateTunnel(signalInfos, interval, r, feedType, initialDeposit, creator)
 	if err != nil {
 		return nil, err
 	}
@@ -161,9 +161,9 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 		return err
 	}
 
-	// minimum deposit must be positive
-	if !m.Deposit.IsValid() {
-		return sdkerrors.ErrInvalidCoins.Wrapf("invalid deposit: %s", m.Deposit)
+	// initialDeposit deposit must be positive
+	if !m.InitialDeposit.IsValid() {
+		return sdkerrors.ErrInvalidCoins.Wrapf("invalid deposit: %s", m.InitialDeposit)
 	}
 
 	// signalIDs must be unique

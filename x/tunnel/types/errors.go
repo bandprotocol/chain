@@ -18,4 +18,6 @@ var (
 	ErrAccountAlreadyExist      = errorsmod.Register(ModuleName, 11, "account already exist")
 	ErrInvalidRoute             = errorsmod.Register(ModuleName, 12, "invalid tunnel route")
 	ErrInactiveTunnel           = errorsmod.Register(ModuleName, 13, "inactive tunnel")
+	ErrMinDepositTooSmall       = errorsmod.Register(ModuleName, 14, "min deposit too small")
+	ErrInvalidDepositDenom      = errorsmod.Register(ModuleName, 15, "invalid deposit denom")
 )

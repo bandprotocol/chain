@@ -44,6 +44,7 @@ func (k Keeper) AddTunnel(
 		acc.String(),
 		signalInfos,
 		interval,
+		sdk.NewCoins(),
 		false,
 		ctx.BlockTime().Unix(),
 		creator,

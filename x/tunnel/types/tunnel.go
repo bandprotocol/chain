@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/gogoproto/proto"
 
 	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
@@ -20,21 +21,23 @@ func NewTunnel(
 	feePayer string,
 	signalInfos []SignalInfo,
 	interval uint64,
+	totalDeposit []sdk.Coin,
 	isActive bool,
 	createdAt int64,
 	creator string,
 ) Tunnel {
 	return Tunnel{
-		ID:          id,
-		NonceCount:  nonceCount,
-		Route:       route,
-		FeedType:    feedType,
-		FeePayer:    feePayer,
-		SignalInfos: signalInfos,
-		Interval:    interval,
-		IsActive:    isActive,
-		CreatedAt:   createdAt,
-		Creator:     creator,
+		ID:           id,
+		NonceCount:   nonceCount,
+		Route:        route,
+		FeedType:     feedType,
+		FeePayer:     feePayer,
+		SignalInfos:  signalInfos,
+		Interval:     interval,
+		TotalDeposit: totalDeposit,
+		IsActive:     isActive,
+		CreatedAt:    createdAt,
+		Creator:      creator,
 	}
 }
 
