@@ -187,12 +187,11 @@ func (ms msgServer) ManualTriggerTunnel(
 		return nil, types.ErrInactiveTunnel.Wrapf("tunnelID %d", req.TunnelID)
 	}
 
-	// TODO: feeds module needs to be implemented get prices that can use
-	latestPrices := ms.Keeper.feedsKeeper.GetPrices(ctx)
-	latestPricesMap := createLatestPricesMap(latestPrices)
+	currentPrices := ms.Keeper.feedsKeeper.GetCurrentPrices(ctx)
+	currentPricesMap := createCurrentPricesMap(currentPrices)
 
 	// Produce packet with trigger all signals
-	isCreated, err := ms.Keeper.ProducePacket(ctx, tunnel.ID, latestPricesMap, true)
+	isCreated, err := ms.Keeper.ProducePacket(ctx, tunnel.ID, currentPricesMap, true)
 	if err != nil {
 		return nil, err
 	}

@@ -44,9 +44,8 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 	// get active tunnel IDs
 	ids := k.GetActiveTunnelIDs(ctx)
 
-	// TODO: feeds module needs to be implemented get prices that can use
-	latestPrices := k.feedsKeeper.GetPrices(ctx)
-	latestPricesMap := createLatestPricesMap(latestPrices)
+	currentPrices := k.feedsKeeper.GetCurrentPrices(ctx)
+	currentPricesMap := createCurrentPricesMap(currentPrices)
 
 	// check for active tunnels
 	for _, id := range ids {
@@ -65,7 +64,7 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 
 			// Produce and send a packet, if no packet is created, return error so that
 			// fee is reverted.
-			isCreated, err := k.ProducePacket(ctx, id, latestPricesMap, false)
+			isCreated, err := k.ProducePacket(ctx, id, currentPricesMap, false)
 			if err != nil {
 				return err
 			}
@@ -92,7 +91,7 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 func (k Keeper) ProducePacket(
 	ctx sdk.Context,
 	tunnelID uint64,
-	latestPricesMap map[string]feedstypes.Price,
+	currentPricesMap map[string]feedstypes.Price,
 	triggerAll bool,
 ) (isCreated bool, err error) {
 	unixNow := ctx.BlockTime().Unix()
@@ -108,7 +107,7 @@ func (k Keeper) ProducePacket(
 	nsps := GenerateSignalPrices(
 		ctx,
 		tunnel.ID,
-		latestPricesMap,
+		currentPricesMap,
 		tunnel.GetSignalInfoMap(),
 		signalPricesInfo.SignalPrices,
 		triggerAll || intervalTrigger,
@@ -172,20 +171,19 @@ func (k Keeper) SendPacket(
 	return nil
 }
 
-// GenerateSignalPrices generates signal prices based on the latest prices and signal info
+// GenerateSignalPrices generates signal prices based on the current prices and signal info
 func GenerateSignalPrices(
 	ctx sdk.Context,
 	tunnelID uint64,
-	latestPricesMap map[string]feedstypes.Price,
+	currentPricesMap map[string]feedstypes.Price,
 	signalInfoMap map[string]types.SignalInfo,
 	signalPrices []types.SignalPrice,
 	triggerAll bool,
 ) []types.SignalPrice {
 	var sps []types.SignalPrice
 	for _, sp := range signalPrices {
-		latestPrice, exists := latestPricesMap[sp.SignalID]
-		// TODO: remove check PriceStatusAvailable when feeds module is implemented
-		if !exists || latestPrice.PriceStatus != feedstypes.PriceStatusAvailable {
+		currentPrice, exists := currentPricesMap[sp.SignalID]
+		if !exists || currentPrice.PriceStatus != feedstypes.PriceStatusAvailable {
 			sps = append(sps, types.NewSignalPrice(sp.SignalID, 0))
 			continue
 		}
@@ -201,14 +199,14 @@ func GenerateSignalPrices(
 		if triggerAll ||
 			deviationExceedsThreshold(
 				sdk.NewIntFromUint64(sp.Price),
-				sdk.NewIntFromUint64(latestPrice.Price),
+				sdk.NewIntFromUint64(currentPrice.Price),
 				sdk.NewIntFromUint64(signalInfo.HardDeviationBPS),
 			) {
 			sps = append(
 				sps,
 				types.NewSignalPrice(
 					sp.SignalID,
-					latestPrice.Price,
+					currentPrice.Price,
 				),
 			)
 		}
@@ -226,8 +224,8 @@ func deviationExceedsThreshold(oldPrice, newPrice, thresholdBPS sdkmath.Int) boo
 	return deviationInBPS.GTE(thresholdBPS)
 }
 
-// createLatestPricesMap creates a map of latest prices with signal ID as the key
-func createLatestPricesMap(latestPrices []feedstypes.Price) map[string]feedstypes.Price {
+// createCurrentPricesMap creates a map of current prices with signal ID as the key
+func createCurrentPricesMap(latestPrices []feedstypes.Price) map[string]feedstypes.Price {
 	latestPricesMap := make(map[string]feedstypes.Price, len(latestPrices))
 	for _, price := range latestPrices {
 		latestPricesMap[price.SignalID] = price
