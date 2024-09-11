@@ -209,19 +209,19 @@ func (k Keeper) MustDeactivateTunnel(ctx sdk.Context, tunnelID uint64) {
 	}
 }
 
-// SetTotalFee sets the total fee in the store
-func (k Keeper) SetTotalFee(ctx sdk.Context, totalFee types.TotalFee) {
+// SetTotalFees sets the total fees in the store
+func (k Keeper) SetTotalFees(ctx sdk.Context, totalFee types.TotalFees) {
 	ctx.KVStore(k.storeKey).Set(types.TotalPacketFeeStoreKey, k.cdc.MustMarshal(&totalFee))
 }
 
-// GetTotalFee retrieves the total fee from the store
-func (k Keeper) GetTotalFee(ctx sdk.Context) types.TotalFee {
+// GetTotalFees retrieves the total fees from the store
+func (k Keeper) GetTotalFees(ctx sdk.Context) types.TotalFees {
 	bz := ctx.KVStore(k.storeKey).Get(types.TotalPacketFeeStoreKey)
 	if bz == nil {
-		return types.TotalFee{}
+		return types.TotalFees{}
 	}
 
-	var totalFee types.TotalFee
+	var totalFee types.TotalFees
 	k.cdc.MustUnmarshal(bz, &totalFee)
 	return totalFee
 }

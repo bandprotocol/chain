@@ -32,7 +32,7 @@ func TestValidateGenesis(t *testing.T) {
 					{TunnelID: 1},
 					{TunnelID: 2},
 				},
-				TotalFee: types.TotalFee{
+				TotalFees: types.TotalFees{
 					TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100))),
 				},
 				Params: types.DefaultParams(),
@@ -79,7 +79,7 @@ func TestValidateGenesis(t *testing.T) {
 					{ID: 1},
 				},
 				TunnelCount: 1,
-				TotalFee: types.TotalFee{
+				TotalFees: types.TotalFees{
 					TotalPacketFee: sdk.Coins{}, // Invalid coin
 				},
 			},
@@ -130,7 +130,7 @@ func TestInitExportGenesis(t *testing.T) {
 				LastIntervalTimestamp: 0,
 			},
 		},
-		TotalFee: types.TotalFee{
+		TotalFees: types.TotalFees{
 			TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100))),
 		},
 	}
