@@ -4,6 +4,7 @@ package tunnel.v1beta1;
 import "gogoproto/gogo.proto";
 import "google/protobuf/any.proto";
 import "cosmos_proto/cosmos.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 import "feeds/v1beta1/feeds.proto";
 
@@ -88,6 +89,15 @@ message SignalPrice {
   string signal_id = 1 [(gogoproto.customname) = "SignalID"];
   // price is the price of the signal
   uint64 price = 2;
+}
+
+// TotalFees is the type for the total fees collected by the tunnel
+message TotalFees {
+  option (gogoproto.equal) = true;
+
+  // total_packet_fee is the total packet fee collected
+  repeated cosmos.base.v1beta1.Coin total_packet_fee = 1
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }
 
 // Packet is the packet that tunnel produces

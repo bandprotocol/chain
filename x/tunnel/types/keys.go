@@ -28,6 +28,8 @@ const (
 var (
 	TunnelCountStoreKey = []byte{0x00}
 
+	TotalPacketFeeStoreKey = []byte{0x01}
+
 	ActiveTunnelIDStoreKeyPrefix = []byte{0x10}
 
 	TunnelStoreKeyPrefix = []byte{0x11}

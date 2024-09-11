@@ -71,15 +71,6 @@ func (k Keeper) SetModuleAccount(ctx sdk.Context, acc authtypes.ModuleAccountI) 
 	k.authKeeper.SetModuleAccount(ctx, acc)
 }
 
-// DeductBaseFee deducts the base fee from fee payer's account.
-func (k Keeper) DeductBasePacketFee(ctx sdk.Context, feePayer sdk.AccAddress) error {
-	basePacketFee := k.GetParams(ctx).BasePacketFee
-	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, basePacketFee); err != nil {
-		return err
-	}
-	return nil
-}
-
 // Logger returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
