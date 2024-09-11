@@ -12,6 +12,20 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
+// DeductBaseFee deducts the base fee from fee payer's account.
+func (k Keeper) DeductBasePacketFee(ctx sdk.Context, feePayer sdk.AccAddress) error {
+	basePacketFee := k.GetParams(ctx).BasePacketFee
+	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, basePacketFee); err != nil {
+		return err
+	}
+
+	// update total fee
+	totalFee := k.GetTotalFee(ctx)
+	totalFee.TotalPacketFee.Add(basePacketFee...)
+	k.SetTotalFee(ctx, totalFee)
+	return nil
+}
+
 // SetPacket sets a packet in the store
 func (k Keeper) SetPacket(ctx sdk.Context, packet types.Packet) {
 	ctx.KVStore(k.storeKey).

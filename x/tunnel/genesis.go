@@ -42,6 +42,12 @@ func ValidateGenesis(data *types.GenesisState) error {
 		}
 	}
 
+	// validate the total fee
+	err := data.TotalFee.TotalPacketFee.Validate()
+	if err != nil {
+		return err
+	}
+
 	return data.Params.Validate()
 }
 
@@ -78,6 +84,9 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 	for _, signalPricesInfo := range data.SignalPricesInfos {
 		k.SetSignalPricesInfo(ctx, signalPricesInfo)
 	}
+
+	// set the total fee
+	k.SetTotalFee(ctx, data.TotalFee)
 }
 
 // ExportGenesis returns the module's exported genesis
@@ -87,5 +96,6 @@ func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 		TunnelCount:       k.GetTunnelCount(ctx),
 		Tunnels:           k.GetTunnels(ctx),
 		SignalPricesInfos: k.GetSignalPricesInfos(ctx),
+		TotalFee:          k.GetTotalFee(ctx),
 	}
 }
