@@ -10,7 +10,6 @@ import (
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 	tunneltypes "github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
@@ -469,7 +468,7 @@ func (s *AppTestSuite) TestFailRequestSignatureInternalMessage() {
 	msg, err = types.NewMsgRequestSignature(
 		tunneltypes.NewTunnelSignatureOrder(
 			tunneltypes.Packet{TunnelID: 1, Nonce: 1},
-			feedstypes.FEED_TYPE_FIXED_POINT_ABI,
+			tunneltypes.ENCODER_FIXED_POINT_ABI,
 		),
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 		bandtesting.FeePayer.Address,

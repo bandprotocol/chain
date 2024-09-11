@@ -11,7 +11,6 @@ import (
 
 	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/tunnel/testutil"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
@@ -50,7 +49,7 @@ func TestSendTSSPacket(t *testing.T) {
 
 	k.SetTunnel(ctx, types.Tunnel{
 		ID:       1,
-		FeedType: feedstypes.FEED_TYPE_FIXED_POINT_ABI,
+		Encoder:  types.ENCODER_FIXED_POINT_ABI,
 		FeePayer: bandtesting.Alice.Address.String(),
 	})
 
