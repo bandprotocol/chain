@@ -18,4 +18,5 @@ var (
 	ErrAccountAlreadyExist      = errorsmod.Register(ModuleName, 11, "account already exist")
 	ErrInvalidRoute             = errorsmod.Register(ModuleName, 12, "invalid tunnel route")
 	ErrInactiveTunnel           = errorsmod.Register(ModuleName, 13, "inactive tunnel")
+	ErrInvalidEncoder           = errorsmod.Register(ModuleName, 14, "invalid encoder mode")
 )

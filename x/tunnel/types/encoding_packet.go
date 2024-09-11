@@ -27,21 +27,23 @@ var (
 	}
 )
 
-type TssSignalPrice struct {
+// EncodingSignalPrice represents the SignalPrice that will be used for encoding a message.
+type EncodingSignalPrice struct {
 	SignalID [32]byte
 	Price    uint64
 }
 
-type TssPacket struct {
+// EncodingPacket represents the Packet that will be used for encoding a message.
+type EncodingPacket struct {
 	TunnelID     uint64
 	Nonce        uint64
-	SignalPrices []TssSignalPrice
+	SignalPrices []EncodingSignalPrice
 	CreatedAt    int64
 }
 
-// NewTssPacket returns a new TssPacket object
-func NewTssPacket(p Packet, encoder Encoder) (*TssPacket, error) {
-	var tssSignalPrices []TssSignalPrice
+// NewEncodingPacket returns a new EncodingPacket object
+func NewEncodingPacket(p Packet, encoder Encoder) (*EncodingPacket, error) {
+	var signalPrices []EncodingSignalPrice
 	for _, sp := range p.SignalPrices {
 		price := sp.Price
 		if encoder == ENCODER_TICK_ABI && price != 0 {
@@ -52,22 +54,22 @@ func NewTssPacket(p Packet, encoder Encoder) (*TssPacket, error) {
 			price = tick
 		}
 
-		tssSignalPrices = append(tssSignalPrices, TssSignalPrice{
+		signalPrices = append(signalPrices, EncodingSignalPrice{
 			SignalID: stringToBytes32(sp.SignalID),
 			Price:    price,
 		})
 	}
 
-	return &TssPacket{
+	return &EncodingPacket{
 		TunnelID:     p.TunnelID,
 		Nonce:        p.Nonce,
-		SignalPrices: tssSignalPrices,
+		SignalPrices: signalPrices,
 		CreatedAt:    p.CreatedAt,
 	}, nil
 }
 
-// EncodeAbi encodes the TssPacket into bytes
-func (p TssPacket) EncodeAbi() ([]byte, error) {
+// EncodeABI encodes the encoding packet into bytes via ABI encoding
+func (p EncodingPacket) EncodeABI() ([]byte, error) {
 	return packetArgs.Pack(&p)
 }
 

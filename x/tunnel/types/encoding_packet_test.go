@@ -9,7 +9,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
-func TestEncodeAbi(t *testing.T) {
+func TestEncodeABI(t *testing.T) {
 	packet := types.Packet{
 		TunnelID:     1,
 		Nonce:        3,
@@ -17,10 +17,10 @@ func TestEncodeAbi(t *testing.T) {
 		CreatedAt:    123,
 	}
 
-	tssPacket, err := types.NewTssPacket(packet, types.ENCODER_FIXED_POINT_ABI)
+	encodingPacket, err := types.NewEncodingPacket(packet, types.ENCODER_FIXED_POINT_ABI)
 	require.NoError(t, err)
 
-	msg, err := tssPacket.EncodeAbi()
+	msg, err := encodingPacket.EncodeABI()
 	require.NoError(t, err)
 
 	expectedMsg := ("0000000000000000000000000000000000000000000000000000000000000020" +

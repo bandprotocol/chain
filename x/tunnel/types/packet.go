@@ -55,3 +55,17 @@ func (p Packet) GetContent() (PacketContentI, error) {
 
 	return packetContent, nil
 }
+
+func (p Packet) Encode(encoder Encoder) ([]byte, error) {
+	encodingPacket, err := NewEncodingPacket(p, encoder)
+	if err != nil {
+		return nil, err
+	}
+
+	switch encoder {
+	case ENCODER_FIXED_POINT_ABI, ENCODER_TICK_ABI:
+		return encodingPacket.EncodeABI()
+	default:
+		return nil, ErrInvalidEncoder.Wrapf("invalid encoder mode: %s", encoder.String())
+	}
+}
