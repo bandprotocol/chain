@@ -14,46 +14,6 @@ var (
 	_                   types.UnpackInterfacesMessage = &MsgCreateTunnel{}
 )
 
-// NewMsgUpdateParams creates a new MsgUpdateParams instance.
-func NewMsgUpdateParams(
-	authority string,
-	params Params,
-) *MsgUpdateParams {
-	return &MsgUpdateParams{
-		Authority: authority,
-		Params:    params,
-	}
-}
-
-// Route Implements Msg.
-func (m MsgUpdateParams) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
-func (m MsgUpdateParams) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes implements the LegacyMsg interface.
-func (m MsgUpdateParams) GetSignBytes() []byte {
-	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for the message.
-func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
-}
-
-// ValidateBasic does a check on the provided data.
-func (m *MsgUpdateParams) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
-	}
-
-	if err := m.Params.Validate(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func NewMsgCreateTunnel(
 	signalInfos []SignalInfo,
 	interval uint64,
@@ -387,6 +347,43 @@ func (m MsgDeposit) ValidateBasic() error {
 
 	if !m.Amount.IsValid() {
 		return sdkerrors.ErrInvalidCoins.Wrapf("invalid amount: %s", m.Amount)
+	}
+
+	return nil
+}
+
+// NewMsgUpdateParams creates a new MsgUpdateParams instance.
+func NewMsgUpdateParams(
+	authority string,
+	params Params,
+) *MsgUpdateParams {
+	return &MsgUpdateParams{
+		Authority: authority,
+		Params:    params,
+	}
+}
+
+// Type Implements Msg.
+func (m MsgUpdateParams) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes implements the LegacyMsg interface.
+func (m MsgUpdateParams) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for the message.
+func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
+}
+
+// ValidateBasic does a check on the provided data.
+func (m *MsgUpdateParams) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
+	}
+
+	if err := m.Params.Validate(); err != nil {
+		return err
 	}
 
 	return nil
