@@ -29,8 +29,6 @@ func (ms msgServer) CreateTunnel(
 ) (*types.MsgCreateTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// TODO: check deposit with params, transfer deposit to module account
-
 	// validate signal infos and interval
 	params := ms.Keeper.GetParams(ctx)
 	if len(req.SignalInfos) > int(params.MaxSignals) {
@@ -40,11 +38,32 @@ func (ms msgServer) CreateTunnel(
 		return nil, types.ErrMinIntervalExceeded
 	}
 
-	// Add a new tunnel
-	tunnel, err := ms.Keeper.AddTunnel(ctx, req.Route, req.Encoder, req.SignalInfos, req.Interval, req.Creator)
+	// Get the next tunnel ID
+	id := ms.Keeper.GetTunnelCount(ctx)
+	newID := id + 1
+
+	// Generate a new fee payer account
+	feePayer, err := ms.Keeper.GenerateAccount(ctx, fmt.Sprintf("%d", newID))
 	if err != nil {
 		return nil, err
 	}
+
+	// TODO: check deposit with params, transfer deposit to module account
+
+	// Add a new tunnel
+	tunnel := ms.Keeper.AddTunnel(
+		ctx,
+		newID,
+		req.Route,
+		req.Encoder,
+		feePayer,
+		req.SignalInfos,
+		req.Interval,
+		req.Creator,
+	)
+
+	// Increment the tunnel count
+	ms.Keeper.SetTunnelCount(ctx, newID)
 
 	// Emit an event
 	event := sdk.NewEvent(
