@@ -137,7 +137,11 @@ message MsgDeposit {
   string depositor = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
   // amount to be deposited by depositor.
-  repeated cosmos.base.v1beta1.Coin amount = 3 [(gogoproto.nullable) = false, (amino.dont_omitempty) = true];
+  repeated cosmos.base.v1beta1.Coin amount = 3 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (amino.dont_omitempty)   = true
+  ];
 }
 
 // MsgDepositResponse defines the Msg/Deposit response type.

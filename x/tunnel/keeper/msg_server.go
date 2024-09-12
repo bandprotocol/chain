@@ -217,6 +217,20 @@ func (ms msgServer) ManualTriggerTunnel(
 	return &types.MsgManualTriggerTunnelResponse{}, nil
 }
 
+// Deposit adds deposit to the tunnel.
+func (ms msgServer) Deposit(
+	goCtx context.Context,
+	req *types.MsgDeposit,
+) (*types.MsgDepositResponse, error) {
+	// ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// if err := ms.Keeper.Deposit(ctx, req.Amount, req.Depositor); err != nil {
+	// 	return nil, err
+	// }
+
+	return &types.MsgDepositResponse{}, nil
+}
+
 // UpdateParams updates the module params.
 func (ms msgServer) UpdateParams(
 	goCtx context.Context,

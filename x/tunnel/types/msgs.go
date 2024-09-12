@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	_, _, _, _, _ sdk.Msg                       = &MsgUpdateParams{}, &MsgCreateTunnel{}, &MsgActivateTunnel{}, &MsgDeactivateTunnel{}, &MsgManualTriggerTunnel{}
-	_             types.UnpackInterfacesMessage = &MsgCreateTunnel{}
+	_, _, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgEditTunnel{}, &MsgActivateTunnel{}, &MsgDeactivateTunnel{}, &MsgManualTriggerTunnel{}, &MsgDeposit{}, &MsgUpdateParams{}
+	_                   types.UnpackInterfacesMessage = &MsgCreateTunnel{}
 )
 
 // NewMsgUpdateParams creates a new MsgUpdateParams instance.
@@ -348,6 +348,45 @@ func (m *MsgManualTriggerTunnel) GetSigners() []sdk.AccAddress {
 func (m MsgManualTriggerTunnel) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+	}
+
+	return nil
+}
+
+// NewMsgDeposit creates a new MsgDeposit instance.
+func NewMsgDeposit(
+	tunnelID uint64,
+	amount sdk.Coins,
+	depositor string,
+) *MsgDeposit {
+	return &MsgDeposit{
+		TunnelId:  tunnelID,
+		Amount:    amount,
+		Depositor: depositor,
+	}
+}
+
+// Route Implements Msg.
+func (m MsgDeposit) Type() string { return sdk.MsgTypeURL(&m) }
+
+// GetSignBytes implements the LegacyMsg interface.
+func (m MsgDeposit) GetSignBytes() []byte {
+	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
+}
+
+// GetSigners returns the expected signers for the message.
+func (m *MsgDeposit) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Depositor)}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgDeposit) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(m.Depositor); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+	}
+
+	if !m.Amount.IsValid() {
+		return sdkerrors.ErrInvalidCoins.Wrapf("invalid amount: %s", m.Amount)
 	}
 
 	return nil
