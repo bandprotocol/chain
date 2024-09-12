@@ -12,35 +12,28 @@ import (
 // AddTunnel adds a new tunnel
 func (k Keeper) AddTunnel(
 	ctx sdk.Context,
+	tunnelID uint64,
 	route *codectypes.Any,
 	encoder types.Encoder,
+	feePayer sdk.AccAddress,
 	signalInfos []types.SignalInfo,
 	interval uint64,
 	creator string,
-) (types.Tunnel, error) {
-	id := k.GetTunnelCount(ctx)
-	newID := id + 1
-
-	// Generate a new tunnel account
-	acc, err := k.GenerateAccount(ctx, fmt.Sprintf("%d", newID))
-	if err != nil {
-		return types.Tunnel{}, err
-	}
-
+) types.Tunnel {
 	// Set the signal prices info
 	var signalPrices []types.SignalPrice
 	for _, si := range signalInfos {
 		signalPrices = append(signalPrices, types.NewSignalPrice(si.SignalID, 0))
 	}
-	k.SetSignalPricesInfo(ctx, types.NewSignalPricesInfo(newID, signalPrices, 0))
+	k.SetSignalPricesInfo(ctx, types.NewSignalPricesInfo(tunnelID, signalPrices, 0))
 
 	// Create a new tunnel
 	tunnel := types.NewTunnel(
-		newID,
+		tunnelID,
 		0,
 		route,
 		encoder,
-		acc.String(),
+		feePayer.String(),
 		signalInfos,
 		interval,
 		false,
@@ -48,9 +41,8 @@ func (k Keeper) AddTunnel(
 		creator,
 	)
 	k.SetTunnel(ctx, tunnel)
-	k.SetTunnelCount(ctx, tunnel.ID)
 
-	return tunnel, nil
+	return tunnel
 }
 
 // EditTunnel edits a tunnel
