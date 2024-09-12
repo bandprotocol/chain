@@ -20,4 +20,6 @@ var (
 	ErrInactiveTunnel           = errorsmod.Register(ModuleName, 13, "inactive tunnel")
 	ErrMinDepositTooSmall       = errorsmod.Register(ModuleName, 14, "min deposit too small")
 	ErrInvalidDepositDenom      = errorsmod.Register(ModuleName, 15, "invalid deposit denom")
+	ErrDepositNotFound          = errorsmod.Register(ModuleName, 16, "deposit not found")
+	ErrInsufficientFunds        = errorsmod.Register(ModuleName, 17, "insufficient funds")
 )

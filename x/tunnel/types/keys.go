@@ -38,6 +38,8 @@ var (
 
 	SignalPricesInfoStoreKeyPrefix = []byte{0x13}
 
+	DepositStoreKeyPrefix = []byte{0x14}
+
 	ParamsKey = []byte{0x90}
 )
 
@@ -59,4 +61,12 @@ func TunnelPacketStoreKey(tunnelID uint64, packetID uint64) []byte {
 
 func SignalPricesInfoStoreKey(tunnelID uint64) []byte {
 	return append(SignalPricesInfoStoreKeyPrefix, sdk.Uint64ToBigEndian(tunnelID)...)
+}
+
+func TunnelDepositsStoreKey(tunnelID uint64) []byte {
+	return append(DepositStoreKeyPrefix, sdk.Uint64ToBigEndian(tunnelID)...)
+}
+
+func TunnelDepositStoreKey(tunnelID uint64, depositor sdk.AccAddress) []byte {
+	return append(TunnelDepositsStoreKey(tunnelID), depositor.Bytes()...)
 }

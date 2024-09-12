@@ -48,7 +48,21 @@ func (ms msgServer) CreateTunnel(
 		return nil, err
 	}
 
-	// TODO: check deposit with params, transfer deposit to module account
+	creator, err := sdk.AccAddressFromBech32(req.Creator)
+	if err != nil {
+		return nil, err
+	}
+
+	// Check if the creator has enough funds to deposit
+	balances := ms.bankKeeper.GetAllBalances(ctx, creator)
+	if balances.IsAllLT(req.InitialDeposit) {
+		return nil, sdkerrors.Wrapf(
+			types.ErrInsufficientFunds,
+			"creator %s has insufficient funds to deposit %s",
+			req.Creator,
+			req.InitialDeposit,
+		)
+	}
 
 	// Add a new tunnel
 	tunnel := ms.Keeper.AddTunnel(
@@ -61,6 +75,11 @@ func (ms msgServer) CreateTunnel(
 		req.Interval,
 		req.Creator,
 	)
+
+	// Deposit the initial deposit to the tunnel
+	if err := ms.Keeper.AddDeposit(ctx, newID, creator, req.InitialDeposit); err != nil {
+		return nil, err
+	}
 
 	// Increment the tunnel count
 	ms.Keeper.SetTunnelCount(ctx, newID)
