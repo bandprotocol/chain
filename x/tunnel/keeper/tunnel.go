@@ -16,7 +16,7 @@ func (k Keeper) AddTunnel(
 	encoder types.Encoder,
 	signalInfos []types.SignalInfo,
 	interval uint64,
-	creator string,
+	creator sdk.AccAddress,
 ) (*types.Tunnel, error) {
 	// Get the next tunnel ID
 	id := k.GetTunnelCount(ctx)
@@ -47,7 +47,7 @@ func (k Keeper) AddTunnel(
 		sdk.NewCoins(),
 		false,
 		ctx.BlockTime().Unix(),
-		creator,
+		creator.String(),
 	)
 	k.SetTunnel(ctx, tunnel)
 
