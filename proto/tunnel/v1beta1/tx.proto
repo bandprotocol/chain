@@ -131,7 +131,8 @@ message MsgDeposit {
   option (amino.name)           = "tunnel/MsgDeposit";
 
   // tunnel_id defines the unique id of the tunnel.
-  uint64 tunnel_id = 1 [(gogoproto.jsontag) = "tunnel_id", (amino.dont_omitempty) = true];
+  uint64 tunnel_id = 1
+      [(gogoproto.customname) = "TunnelID", (gogoproto.jsontag) = "tunnel_id", (amino.dont_omitempty) = true];
 
   // depositor defines the deposit addresses from the tunnel.
   string depositor = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];

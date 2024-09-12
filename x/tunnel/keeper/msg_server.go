@@ -248,11 +248,16 @@ func (ms msgServer) Deposit(
 	goCtx context.Context,
 	req *types.MsgDeposit,
 ) (*types.MsgDepositResponse, error) {
-	// ctx := sdk.UnwrapSDKContext(goCtx)
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// if err := ms.Keeper.Deposit(ctx, req.Amount, req.Depositor); err != nil {
-	// 	return nil, err
-	// }
+	depositor, err := sdk.AccAddressFromBech32(req.Depositor)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := ms.Keeper.AddDeposit(ctx, req.TunnelID, depositor, req.Amount); err != nil {
+		return nil, err
+	}
 
 	return &types.MsgDepositResponse{}, nil
 }
