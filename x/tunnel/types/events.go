@@ -17,7 +17,7 @@ const (
 	AttributeKeySignalID         = "signal_id"
 	AttributeKeyInterval         = "interval"
 	AttributeKeyRoute            = "route"
-	AttributeKeyFeedType         = "feed_type"
+	AttributeKeyEncoder          = "encoder"
 	AttributeKeyFeePayer         = "fee_payer"
 	AttributeKeySignalPriceInfos = "signal_price_infos"
 	AttributeKeyIsActive         = "is_active"

@@ -6,7 +6,6 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
@@ -14,7 +13,7 @@ import (
 func (k Keeper) AddTunnel(
 	ctx sdk.Context,
 	route *codectypes.Any,
-	feedType feedstypes.FeedType,
+	encoder types.Encoder,
 	signalInfos []types.SignalInfo,
 	interval uint64,
 	creator string,
@@ -40,7 +39,7 @@ func (k Keeper) AddTunnel(
 		newID,
 		0,
 		route,
-		feedType,
+		encoder,
 		acc.String(),
 		signalInfos,
 		interval,
@@ -209,4 +208,21 @@ func (k Keeper) MustDeactivateTunnel(ctx sdk.Context, tunnelID uint64) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+// SetTotalFees sets the total fees in the store
+func (k Keeper) SetTotalFees(ctx sdk.Context, totalFee types.TotalFees) {
+	ctx.KVStore(k.storeKey).Set(types.TotalPacketFeeStoreKey, k.cdc.MustMarshal(&totalFee))
+}
+
+// GetTotalFees retrieves the total fees from the store
+func (k Keeper) GetTotalFees(ctx sdk.Context) types.TotalFees {
+	bz := ctx.KVStore(k.storeKey).Get(types.TotalPacketFeeStoreKey)
+	if bz == nil {
+		return types.TotalFees{}
+	}
+
+	var totalFee types.TotalFees
+	k.cdc.MustUnmarshal(bz, &totalFee)
+	return totalFee
 }

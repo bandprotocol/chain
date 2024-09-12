@@ -40,7 +40,7 @@ type BankKeeper interface {
 }
 
 type FeedsKeeper interface {
-	GetPrices(ctx sdk.Context) (prices []feedstypes.Price)
+	GetCurrentPrices(ctx sdk.Context) (prices []feedstypes.Price)
 }
 
 type BandtssKeeper interface {

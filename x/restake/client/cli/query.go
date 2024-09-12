@@ -19,22 +19,22 @@ func GetQueryCmd() *cobra.Command {
 	}
 
 	queryCmd.AddCommand(
-		GetQueryCmdKeys(),
-		GetQueryCmdKey(),
+		GetQueryCmdVaults(),
+		GetQueryCmdVault(),
 		GetQueryCmdRewards(),
 		GetQueryCmdReward(),
-		GetQueryCmdLock(),
 		GetQueryCmdLocks(),
+		GetQueryCmdLock(),
 	)
 
 	return queryCmd
 }
 
-// GetQueryCmdKeys implements the keys query command.
-func GetQueryCmdKeys() *cobra.Command {
+// GetQueryCmdVaults implements the vaults query command.
+func GetQueryCmdVaults() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "keys",
-		Short: "shows all keys",
+		Use:   "vaults",
+		Short: "shows all vaults",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -49,7 +49,7 @@ func GetQueryCmdKeys() *cobra.Command {
 				return err
 			}
 
-			res, err := queryClient.Keys(cmd.Context(), &types.QueryKeysRequest{Pagination: pageReq})
+			res, err := queryClient.Vaults(cmd.Context(), &types.QueryVaultsRequest{Pagination: pageReq})
 			if err != nil {
 				return err
 			}
@@ -58,17 +58,17 @@ func GetQueryCmdKeys() *cobra.Command {
 		},
 	}
 
-	flags.AddPaginationFlagsToCmd(cmd, "keys")
+	flags.AddPaginationFlagsToCmd(cmd, "vaults")
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
 }
 
-// GetQueryCmdKey implements the key query command.
-func GetQueryCmdKey() *cobra.Command {
+// GetQueryCmdVault implements the vault query command.
+func GetQueryCmdVault() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "key [name]",
-		Short: "shows information of the key",
+		Use:   "vault [key]",
+		Short: "shows information of the vault",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -78,9 +78,9 @@ func GetQueryCmdKey() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.Key(
+			res, err := queryClient.Vault(
 				cmd.Context(),
-				&types.QueryKeyRequest{
+				&types.QueryVaultRequest{
 					Key: args[0],
 				},
 			)
@@ -137,8 +137,8 @@ func GetQueryCmdRewards() *cobra.Command {
 // GetQueryCmdReward implements the reward query command.
 func GetQueryCmdReward() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "reward [staker_address] [key_name]",
-		Short: "shows the reward of an staker address for the key",
+		Use:   "reward [staker_address] [key]",
+		Short: "shows the reward of an staker address for the vault",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -205,8 +205,8 @@ func GetQueryCmdLocks() *cobra.Command {
 // GetQueryCmdLock implements the lock query command.
 func GetQueryCmdLock() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "lock [staker_address] [key_name]",
-		Short: "shows the lock of an staker address for the key",
+		Use:   "lock [staker_address] [key]",
+		Short: "shows the lock of an staker address for the vault",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)

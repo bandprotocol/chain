@@ -41,7 +41,7 @@ func (ms msgServer) CreateTunnel(
 	}
 
 	// Add a new tunnel
-	tunnel, err := ms.Keeper.AddTunnel(ctx, req.Route, req.FeedType, req.SignalInfos, req.Interval, req.Creator)
+	tunnel, err := ms.Keeper.AddTunnel(ctx, req.Route, req.Encoder, req.SignalInfos, req.Interval, req.Creator)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,7 @@ func (ms msgServer) CreateTunnel(
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
 		sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", tunnel.Interval)),
 		sdk.NewAttribute(types.AttributeKeyRoute, tunnel.Route.String()),
-		sdk.NewAttribute(types.AttributeKeyFeedType, tunnel.FeedType.String()),
+		sdk.NewAttribute(types.AttributeKeyEncoder, tunnel.Encoder.String()),
 		sdk.NewAttribute(types.AttributeKeyFeePayer, tunnel.FeePayer),
 		sdk.NewAttribute(types.AttributeKeyIsActive, fmt.Sprintf("%t", tunnel.IsActive)),
 		sdk.NewAttribute(types.AttributeKeyCreatedAt, fmt.Sprintf("%d", tunnel.CreatedAt)),
@@ -187,12 +187,11 @@ func (ms msgServer) ManualTriggerTunnel(
 		return nil, types.ErrInactiveTunnel.Wrapf("tunnelID %d", req.TunnelID)
 	}
 
-	// TODO: feeds module needs to be implemented get prices that can use
-	latestPrices := ms.Keeper.feedsKeeper.GetPrices(ctx)
-	latestPricesMap := createLatestPricesMap(latestPrices)
+	currentPrices := ms.Keeper.feedsKeeper.GetCurrentPrices(ctx)
+	currentPricesMap := createCurrentPricesMap(currentPrices)
 
 	// Produce packet with trigger all signals
-	isCreated, err := ms.Keeper.ProducePacket(ctx, tunnel.ID, latestPricesMap, true)
+	isCreated, err := ms.Keeper.ProducePacket(ctx, tunnel.ID, currentPricesMap, true)
 	if err != nil {
 		return nil, err
 	}

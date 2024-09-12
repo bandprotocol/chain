@@ -21,13 +21,13 @@ func (suite *KeeperTestSuite) TestMsgClaimRewards() {
 		postCheck func()
 	}{
 		{
-			name: "no key",
+			name: "no vault",
 			input: &types.MsgClaimRewards{
 				StakerAddress: ValidAddress1.String(),
-				Key:           InvalidKey,
+				Key:           InvalidVaultKey,
 			},
 			expErr:    true,
-			expErrMsg: "key not found",
+			expErrMsg: "vault not found",
 			preCheck:  func() {},
 			postCheck: func() {},
 		},
@@ -35,7 +35,7 @@ func (suite *KeeperTestSuite) TestMsgClaimRewards() {
 			name: "no lock",
 			input: &types.MsgClaimRewards{
 				StakerAddress: ValidAddress2.String(),
-				Key:           KeyWithoutRewards,
+				Key:           VaultKeyWithoutRewards,
 			},
 			expErr:    true,
 			expErrMsg: "lock not found",
@@ -43,38 +43,38 @@ func (suite *KeeperTestSuite) TestMsgClaimRewards() {
 			postCheck: func() {},
 		},
 		{
-			name: "success - active key",
+			name: "success - active vault",
 			input: &types.MsgClaimRewards{
 				StakerAddress: ValidAddress1.String(),
-				Key:           KeyWithRewards,
+				Key:           VaultKeyWithRewards,
 			},
 			expErr:    false,
 			expErrMsg: "",
 			preCheck: func() {
 				suite.bankKeeper.EXPECT().
-					SendCoins(gomock.Any(), KeyWithRewardsPoolAddress, ValidAddress1, sdk.NewCoins(
+					SendCoins(gomock.Any(), VaultWithRewardsAddress, ValidAddress1, sdk.NewCoins(
 						sdk.NewCoin("uband", sdk.NewInt(1)),
 					)).
 					Times(1)
 			},
 			postCheck: func() {
-				lock, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, KeyWithRewards)
+				lock, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, VaultKeyWithRewards)
 				suite.Require().NoError(err)
 				suite.Require().Equal(sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))), lock.PosRewardDebts)
 				suite.Require().Equal(sdk.DecCoins(nil), lock.NegRewardDebts)
 			},
 		},
 		{
-			name: "success - inactive key",
+			name: "success - inactive vault",
 			input: &types.MsgClaimRewards{
 				StakerAddress: ValidAddress1.String(),
-				Key:           InactiveKey,
+				Key:           InactiveVaultKey,
 			},
 			expErr:    false,
 			expErrMsg: "",
 			preCheck:  func() {},
 			postCheck: func() {
-				_, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, InactiveKey)
+				_, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, InactiveVaultKey)
 				suite.Require().Error(err)
 			},
 		},

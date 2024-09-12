@@ -7,7 +7,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
-// AccountKeeper defines the expected account keeper (noalias)
+// AccountKeeper defines the expected account keeper
 type AccountKeeper interface {
 	NewAccount(ctx sdk.Context, acc authtypes.AccountI) authtypes.AccountI
 	GetAccount(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI

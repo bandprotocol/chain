@@ -25,5 +25,5 @@ var (
 	ErrSubmittedSignalsTooLarge  = errorsmod.Register(ModuleName, 18, "submitted signals list is too large")
 	ErrDuplicateSignalID         = errorsmod.Register(ModuleName, 19, "duplicate signal id")
 	ErrInvalidSignalIDs          = errorsmod.Register(ModuleName, 20, "invalid signal ids")
-	ErrInvalidFeedsType          = errorsmod.Register(ModuleName, 21, "invalid feeds type")
+	ErrInvalidEncoder            = errorsmod.Register(ModuleName, 21, "invalid encoder")
 )

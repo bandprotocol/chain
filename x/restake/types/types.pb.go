@@ -27,36 +27,36 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// Key is used for tracking the status and rewards of the keys.
-type Key struct {
-	// name is the name of the key.
-	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	// pool_address is the address that holds rewards for this key.
-	PoolAddress string `protobuf:"bytes,2,opt,name=pool_address,json=poolAddress,proto3" json:"pool_address,omitempty"`
-	// is_active is the status of the key
+// Vault is used for tracking the status and rewards of the vaults.
+type Vault struct {
+	// key is the key of the vault.
+	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
+	// vault_address is the address that holds rewards for this vault.
+	VaultAddress string `protobuf:"bytes,2,opt,name=vault_address,json=vaultAddress,proto3" json:"vault_address,omitempty"`
+	// is_active is the status of the vault
 	IsActive bool `protobuf:"varint,3,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
-	// reward_per_powers is a list of reward_per_power.
-	// new_reward_per_power = current_reward_per_power + (rewards / total_power)
-	RewardPerPowers github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,4,rep,name=reward_per_powers,json=rewardPerPowers,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"reward_per_powers"`
-	// total_power is the total locked power of the key.
+	// rewards_per_power is rewards per power (DecCoins)
+	// new_rewards_per_power = current_rewards_per_power + (rewards / total_power)
+	RewardsPerPower github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,4,rep,name=rewards_per_power,json=rewardsPerPower,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"rewards_per_power"`
+	// total_power is the total locked power of the vault.
 	TotalPower github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,5,opt,name=total_power,json=totalPower,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"total_power"`
-	// remainders is a list of the remainder amounts in the key.
-	// this field is used to track remainder amount from claimings in the key pool.
+	// remainders is the remainder amounts in the vault.
+	// this field is used to track remainder amount from claimings in the vault.
 	Remainders github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,6,rep,name=remainders,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"remainders"`
 }
 
-func (m *Key) Reset()         { *m = Key{} }
-func (m *Key) String() string { return proto.CompactTextString(m) }
-func (*Key) ProtoMessage()    {}
-func (*Key) Descriptor() ([]byte, []int) {
+func (m *Vault) Reset()         { *m = Vault{} }
+func (m *Vault) String() string { return proto.CompactTextString(m) }
+func (*Vault) ProtoMessage()    {}
+func (*Vault) Descriptor() ([]byte, []int) {
 	return fileDescriptor_be4ee20adc0c7118, []int{0}
 }
-func (m *Key) XXX_Unmarshal(b []byte) error {
+func (m *Vault) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *Key) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *Vault) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_Key.Marshal(b, m, deterministic)
+		return xxx_messageInfo_Vault.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -66,65 +66,65 @@ func (m *Key) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return b[:n], nil
 	}
 }
-func (m *Key) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Key.Merge(m, src)
+func (m *Vault) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Vault.Merge(m, src)
 }
-func (m *Key) XXX_Size() int {
+func (m *Vault) XXX_Size() int {
 	return m.Size()
 }
-func (m *Key) XXX_DiscardUnknown() {
-	xxx_messageInfo_Key.DiscardUnknown(m)
+func (m *Vault) XXX_DiscardUnknown() {
+	xxx_messageInfo_Vault.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_Key proto.InternalMessageInfo
+var xxx_messageInfo_Vault proto.InternalMessageInfo
 
-func (m *Key) GetName() string {
+func (m *Vault) GetKey() string {
 	if m != nil {
-		return m.Name
+		return m.Key
 	}
 	return ""
 }
 
-func (m *Key) GetPoolAddress() string {
+func (m *Vault) GetVaultAddress() string {
 	if m != nil {
-		return m.PoolAddress
+		return m.VaultAddress
 	}
 	return ""
 }
 
-func (m *Key) GetIsActive() bool {
+func (m *Vault) GetIsActive() bool {
 	if m != nil {
 		return m.IsActive
 	}
 	return false
 }
 
-func (m *Key) GetRewardPerPowers() github_com_cosmos_cosmos_sdk_types.DecCoins {
+func (m *Vault) GetRewardsPerPower() github_com_cosmos_cosmos_sdk_types.DecCoins {
 	if m != nil {
-		return m.RewardPerPowers
+		return m.RewardsPerPower
 	}
 	return nil
 }
 
-func (m *Key) GetRemainders() github_com_cosmos_cosmos_sdk_types.DecCoins {
+func (m *Vault) GetRemainders() github_com_cosmos_cosmos_sdk_types.DecCoins {
 	if m != nil {
 		return m.Remainders
 	}
 	return nil
 }
 
-// Lock is used to store lock information of each user on each key along with their reward information.
+// Lock is used to store lock information of each user on each vault along with their reward information.
 type Lock struct {
 	// staker_address is the owner's address of the staker.
 	StakerAddress string `protobuf:"bytes,1,opt,name=staker_address,json=stakerAddress,proto3" json:"staker_address,omitempty"`
-	// key is the key that this lock is locked to.
+	// key is the key of the vault that this lock is locked to.
 	Key string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
-	// amount is the locked power amount.
-	Amount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,3,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"amount"`
-	// pos_reward_debts is a list of reward debt for each reward (only the positive side).
+	// power is the number of locked power.
+	Power github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,3,opt,name=power,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"power"`
+	// pos_reward_debts is the positive part of reward debts.
 	// Note: Coin and DecCoin can't have negative amounts. so, we split it into two numbers.
 	PosRewardDebts github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,4,rep,name=pos_reward_debts,json=posRewardDebts,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"pos_reward_debts"`
-	// neg_reward_debts is a list of reward debt for each reward (only negative side).
+	// neg_reward_debts is the negative part of reward debts.
 	NegRewardDebts github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,5,rep,name=neg_reward_debts,json=negRewardDebts,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"neg_reward_debts"`
 }
 
@@ -189,11 +189,11 @@ func (m *Lock) GetNegRewardDebts() github_com_cosmos_cosmos_sdk_types.DecCoins {
 	return nil
 }
 
-// Reward is used as response of the query to show final rewards of the key for the user.
+// Reward is used as response of the query to show final rewards of the vault for the user.
 type Reward struct {
-	// key is the key that this reward belongs to.
+	// key is the key of the vault that this reward belongs to.
 	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	// rewards is a list of reward.
+	// rewards is the total rewards
 	Rewards github_com_cosmos_cosmos_sdk_types.DecCoins `protobuf:"bytes,2,rep,name=rewards,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.DecCoins" json:"rewards"`
 }
 
@@ -244,13 +244,13 @@ func (m *Reward) GetRewards() github_com_cosmos_cosmos_sdk_types.DecCoins {
 	return nil
 }
 
-// LockResponse is used as response of the query to show the power amount
-// that is locked by the key for the user.
+// LockResponse is used as response of the query to show the power
+// that is locked by the vault for the user.
 type LockResponse struct {
-	// key is the key that this lock belongs to.
+	// key is the key of the vault that this lock belongs to.
 	Key string `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
-	// amount is a the number of locked power.
-	Amount github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,2,opt,name=amount,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"amount"`
+	// power is the number of locked power.
+	Power github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,2,opt,name=power,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"power"`
 }
 
 func (m *LockResponse) Reset()         { *m = LockResponse{} }
@@ -294,7 +294,7 @@ func (m *LockResponse) GetKey() string {
 }
 
 func init() {
-	proto.RegisterType((*Key)(nil), "restake.v1beta1.Key")
+	proto.RegisterType((*Vault)(nil), "restake.v1beta1.Vault")
 	proto.RegisterType((*Lock)(nil), "restake.v1beta1.Lock")
 	proto.RegisterType((*Reward)(nil), "restake.v1beta1.Reward")
 	proto.RegisterType((*LockResponse)(nil), "restake.v1beta1.LockResponse")
@@ -303,53 +303,52 @@ func init() {
 func init() { proto.RegisterFile("restake/v1beta1/types.proto", fileDescriptor_be4ee20adc0c7118) }
 
 var fileDescriptor_be4ee20adc0c7118 = []byte{
-	// 568 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x54, 0x4d, 0x6b, 0x13, 0x41,
-	0x18, 0xce, 0x74, 0xd3, 0xd8, 0x4e, 0x6b, 0x3f, 0x86, 0x1e, 0xd6, 0x56, 0x36, 0xa1, 0x07, 0x09,
-	0x4a, 0xb2, 0xb6, 0x5e, 0x44, 0x05, 0x69, 0xec, 0xa5, 0xea, 0xa1, 0xac, 0x9e, 0x04, 0x59, 0x66,
-	0x77, 0x87, 0xed, 0x92, 0xec, 0xcc, 0x32, 0x33, 0x4d, 0x0d, 0x78, 0x10, 0x7f, 0x81, 0xf8, 0x0b,
-	0x3c, 0x8a, 0x27, 0x0f, 0xbd, 0xf9, 0x07, 0x7a, 0x2c, 0x05, 0x41, 0x3c, 0x54, 0x49, 0x0e, 0xfa,
-	0x33, 0x64, 0x3e, 0xd6, 0x44, 0x10, 0x14, 0x34, 0x97, 0xdd, 0x99, 0x79, 0xde, 0x7d, 0x9e, 0xe7,
-	0xfd, 0xd8, 0x81, 0x1b, 0x9c, 0x08, 0x89, 0xbb, 0xc4, 0xef, 0x6f, 0x45, 0x44, 0xe2, 0x2d, 0x5f,
-	0x0e, 0x0a, 0x22, 0xda, 0x05, 0x67, 0x92, 0xa1, 0x65, 0x0b, 0xb6, 0x2d, 0xb8, 0xbe, 0x96, 0xb2,
-	0x94, 0x69, 0xcc, 0x57, 0x2b, 0x13, 0xb6, 0xbe, 0x8a, 0xf3, 0x8c, 0x32, 0x5f, 0x3f, 0xed, 0xd1,
-	0xa5, 0x98, 0x89, 0x9c, 0x89, 0xd0, 0xc4, 0x9a, 0x8d, 0x85, 0x3c, 0xb3, 0xf3, 0x23, 0x2c, 0xc6,
-	0xaa, 0x31, 0xcb, 0xa8, 0xc1, 0x37, 0x3f, 0x3a, 0xd0, 0x79, 0x40, 0x06, 0x08, 0xc1, 0x2a, 0xc5,
-	0x39, 0x71, 0x41, 0x03, 0x34, 0xe7, 0x03, 0xbd, 0x46, 0xb7, 0xe1, 0x62, 0xc1, 0x58, 0x2f, 0xc4,
-	0x49, 0xc2, 0x89, 0x10, 0xee, 0x8c, 0xc2, 0x3a, 0xee, 0xd9, 0x71, 0x6b, 0xcd, 0x6a, 0xec, 0x18,
-	0xe4, 0x91, 0xe4, 0x19, 0x4d, 0x83, 0x05, 0x15, 0x6d, 0x8f, 0xd0, 0x06, 0x9c, 0xcf, 0x44, 0x88,
-	0x63, 0x99, 0xf5, 0x89, 0xeb, 0x34, 0x40, 0x73, 0x2e, 0x98, 0xcb, 0xc4, 0x8e, 0xde, 0xa3, 0x97,
-	0x00, 0xae, 0x72, 0x72, 0x84, 0x79, 0x12, 0x16, 0x84, 0x87, 0x05, 0x3b, 0x22, 0x5c, 0xb8, 0xd5,
-	0x86, 0xd3, 0x5c, 0xd8, 0xbe, 0xdc, 0xb6, 0xe4, 0xca, 0x72, 0x59, 0x8b, 0xf6, 0x2e, 0x89, 0xef,
-	0xb1, 0x8c, 0x76, 0x6e, 0x9e, 0x9c, 0xd7, 0x2b, 0xef, 0xbe, 0xd4, 0xaf, 0xa5, 0x99, 0x3c, 0x38,
-	0x8c, 0xda, 0x31, 0xcb, 0x6d, 0xc2, 0xf6, 0xd5, 0x12, 0x49, 0xd7, 0x96, 0xd5, 0x7e, 0x23, 0xde,
-	0x7e, 0x7b, 0x7f, 0x15, 0x04, 0xcb, 0x46, 0x70, 0x9f, 0xf0, 0x7d, 0x2d, 0x87, 0x9e, 0xc2, 0x05,
-	0xc9, 0x24, 0xee, 0x19, 0x79, 0x77, 0x56, 0x67, 0x77, 0x47, 0xf1, 0x7f, 0x3e, 0xaf, 0x5f, 0xf9,
-	0x0b, 0xfe, 0x3d, 0x2a, 0xcf, 0x8e, 0x5b, 0xd0, 0xda, 0xdd, 0xa3, 0x32, 0x80, 0x9a, 0x50, 0xf3,
-	0xa3, 0x3e, 0x84, 0x9c, 0xe4, 0x38, 0xa3, 0x89, 0xca, 0xad, 0x36, 0xd5, 0xdc, 0x26, 0x94, 0x6e,
-	0x55, 0xbf, 0xbf, 0xa9, 0x83, 0xcd, 0x0f, 0x0e, 0xac, 0x3e, 0x64, 0x71, 0x17, 0xdd, 0x85, 0x4b,
-	0x7a, 0xaa, 0xf8, 0xcf, 0x36, 0x82, 0x3f, 0xb4, 0xf1, 0xa2, 0x89, 0x2f, 0x1b, 0xb9, 0x02, 0x9d,
-	0x2e, 0x19, 0x98, 0xe6, 0x07, 0x6a, 0x89, 0x1e, 0xc3, 0x1a, 0xce, 0xd9, 0x21, 0x95, 0xba, 0xaf,
-	0xff, 0x5a, 0x33, 0xcb, 0x85, 0x5e, 0x00, 0xb8, 0x52, 0x30, 0x11, 0xda, 0xb9, 0x48, 0x48, 0x24,
-	0xa7, 0x3d, 0x12, 0x4b, 0x05, 0x13, 0x81, 0x96, 0xdb, 0x55, 0x6a, 0xda, 0x02, 0x25, 0xe9, 0xaf,
-	0x16, 0x66, 0xa7, 0x6b, 0x81, 0x92, 0x74, 0xc2, 0x82, 0xed, 0xde, 0x6b, 0x00, 0x6b, 0xe6, 0xb4,
-	0x2c, 0x3f, 0x18, 0x97, 0xbf, 0x80, 0x17, 0x8c, 0x41, 0xf5, 0x47, 0x4e, 0xd3, 0x5b, 0x29, 0x63,
-	0x4d, 0x3d, 0x87, 0x8b, 0x6a, 0xa2, 0x02, 0x22, 0x0a, 0x46, 0x05, 0xf9, 0x8d, 0xb3, 0xf1, 0x60,
-	0xcc, 0xfc, 0xbf, 0xc1, 0x30, 0xea, 0x9d, 0xfb, 0x27, 0x43, 0x0f, 0x9c, 0x0e, 0x3d, 0xf0, 0x75,
-	0xe8, 0x81, 0x57, 0x23, 0xaf, 0x72, 0x3a, 0xf2, 0x2a, 0x9f, 0x46, 0x5e, 0xe5, 0xc9, 0xf5, 0x09,
-	0xf6, 0x08, 0xd3, 0x44, 0x5f, 0x6c, 0x31, 0xeb, 0xf9, 0xf1, 0x01, 0xce, 0xa8, 0xdf, 0xdf, 0xf6,
-	0x9f, 0xf9, 0xe5, 0xbd, 0xab, 0xb5, 0xa2, 0x9a, 0x0e, 0xb9, 0xf1, 0x23, 0x00, 0x00, 0xff, 0xff,
-	0x0c, 0xa7, 0x96, 0xec, 0x8f, 0x05, 0x00, 0x00,
+	// 559 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x54, 0x3f, 0x6f, 0x13, 0x31,
+	0x1c, 0x8d, 0x73, 0x4d, 0x68, 0xdd, 0xff, 0xa7, 0x0e, 0x47, 0x8b, 0x2e, 0x51, 0x07, 0x14, 0x81,
+	0x92, 0xa3, 0x65, 0x41, 0x08, 0x84, 0x1a, 0xba, 0x14, 0x31, 0x54, 0x87, 0xc4, 0x80, 0x84, 0x4e,
+	0xbe, 0xbb, 0x9f, 0xae, 0x56, 0x12, 0xfb, 0x64, 0xbb, 0x29, 0x65, 0x42, 0x7c, 0x02, 0xc4, 0x27,
+	0x60, 0x44, 0x4c, 0x0c, 0x5d, 0xf8, 0x06, 0x1d, 0xab, 0x2e, 0x20, 0x86, 0x82, 0x92, 0x01, 0x3e,
+	0x06, 0x3a, 0xdb, 0x69, 0x83, 0x54, 0x09, 0x86, 0x66, 0x49, 0x6c, 0xbf, 0x5f, 0xde, 0x7b, 0xfe,
+	0xfd, 0x5e, 0x8c, 0xd7, 0x04, 0x48, 0x45, 0x3a, 0x10, 0xf4, 0x37, 0x62, 0x50, 0x64, 0x23, 0x50,
+	0x87, 0x39, 0xc8, 0x56, 0x2e, 0xb8, 0xe2, 0xee, 0xa2, 0x05, 0x5b, 0x16, 0x5c, 0x5d, 0xc9, 0x78,
+	0xc6, 0x35, 0x16, 0x14, 0x2b, 0x53, 0xb6, 0xba, 0x4c, 0x7a, 0x94, 0xf1, 0x40, 0x7f, 0xda, 0xa3,
+	0xeb, 0x09, 0x97, 0x3d, 0x2e, 0x23, 0x53, 0x6b, 0x36, 0x16, 0xf2, 0xcd, 0x2e, 0x88, 0x89, 0xbc,
+	0x50, 0x4d, 0x38, 0x65, 0x06, 0x5f, 0xff, 0xea, 0xe0, 0xca, 0x73, 0xb2, 0xdf, 0x55, 0xee, 0x12,
+	0x76, 0x3a, 0x70, 0xe8, 0xa1, 0x3a, 0x6a, 0xcc, 0x84, 0xc5, 0xd2, 0x7d, 0x88, 0xe7, 0xfb, 0x05,
+	0x14, 0x91, 0x34, 0x15, 0x20, 0xa5, 0x57, 0x2e, 0xb0, 0xb6, 0x77, 0x7a, 0xd4, 0x5c, 0xb1, 0x22,
+	0x5b, 0x06, 0x79, 0xa6, 0x04, 0x65, 0x59, 0x38, 0xa7, 0xcb, 0xed, 0x99, 0xbb, 0x86, 0x67, 0xa8,
+	0x8c, 0x48, 0xa2, 0x68, 0x1f, 0x3c, 0xa7, 0x8e, 0x1a, 0xd3, 0xe1, 0x34, 0x95, 0x5b, 0x7a, 0xef,
+	0xbe, 0x45, 0x78, 0x59, 0xc0, 0x01, 0x11, 0xa9, 0x8c, 0x72, 0x10, 0x51, 0xce, 0x0f, 0x40, 0x78,
+	0x53, 0x75, 0xa7, 0x31, 0xbb, 0x79, 0xa3, 0x65, 0xd9, 0x0b, 0xd3, 0xa3, 0x6e, 0xb4, 0xb6, 0x21,
+	0x79, 0xcc, 0x29, 0x6b, 0xdf, 0x3b, 0x3e, 0xab, 0x95, 0x3e, 0xfd, 0xa8, 0xdd, 0xce, 0xa8, 0xda,
+	0xdb, 0x8f, 0x5b, 0x09, 0xef, 0xd9, 0x2b, 0xdb, 0xaf, 0xa6, 0x4c, 0x3b, 0xb6, 0xb1, 0xf6, 0x37,
+	0xf2, 0xe3, 0xaf, 0xcf, 0xb7, 0x50, 0xb8, 0x68, 0x05, 0x77, 0x41, 0xec, 0x16, 0x72, 0xee, 0x4b,
+	0x3c, 0xab, 0xb8, 0x22, 0x5d, 0xab, 0x5e, 0xd1, 0xd7, 0x7b, 0x50, 0xf0, 0x7f, 0x3f, 0xab, 0xdd,
+	0xfc, 0x0f, 0xfe, 0x1d, 0xa6, 0x4e, 0x8f, 0x9a, 0xd8, 0xda, 0xdd, 0x61, 0x2a, 0xc4, 0x9a, 0xd0,
+	0xd0, 0xf7, 0x31, 0x16, 0xd0, 0x23, 0x94, 0xa5, 0x20, 0xa4, 0x57, 0x9d, 0xe8, 0xdd, 0xc6, 0x94,
+	0xee, 0x4f, 0xfd, 0xfe, 0x50, 0x43, 0xeb, 0x5f, 0x1c, 0x3c, 0xf5, 0x94, 0x27, 0x1d, 0xf7, 0x11,
+	0x5e, 0xd0, 0xb9, 0x12, 0xe7, 0x73, 0x44, 0xff, 0x98, 0xe3, 0xbc, 0xa9, 0x1f, 0x0d, 0xd2, 0x26,
+	0xa3, 0x7c, 0x91, 0x8c, 0x10, 0x57, 0x4c, 0xcb, 0x9c, 0x2b, 0x68, 0x99, 0xa1, 0x72, 0xdf, 0x20,
+	0xbc, 0x94, 0x73, 0x19, 0x99, 0x21, 0x45, 0x29, 0xc4, 0x4a, 0x4e, 0x38, 0x10, 0x0b, 0x39, 0x97,
+	0xa1, 0x96, 0xdb, 0x2e, 0xd4, 0xb4, 0x05, 0x06, 0xd9, 0xdf, 0x16, 0x2a, 0x93, 0xb5, 0xc0, 0x20,
+	0x1b, 0xb3, 0x60, 0x67, 0xf7, 0x1e, 0xe1, 0xaa, 0x39, 0xbd, 0xe4, 0x6f, 0x99, 0xe3, 0x6b, 0x36,
+	0xc8, 0x5e, 0x79, 0xa2, 0xde, 0x46, 0x32, 0xd6, 0xd4, 0x6b, 0x3c, 0x57, 0xe4, 0x29, 0x04, 0x99,
+	0x73, 0x26, 0xe1, 0x12, 0x67, 0xe7, 0xb1, 0x28, 0x5f, 0x59, 0x2c, 0x8c, 0x76, 0xfb, 0xc9, 0xf1,
+	0xc0, 0x47, 0x27, 0x03, 0x1f, 0xfd, 0x1c, 0xf8, 0xe8, 0xdd, 0xd0, 0x2f, 0x9d, 0x0c, 0xfd, 0xd2,
+	0xb7, 0xa1, 0x5f, 0x7a, 0x71, 0x67, 0x8c, 0x3c, 0x26, 0x2c, 0xd5, 0xcf, 0x5a, 0xc2, 0xbb, 0x41,
+	0xb2, 0x47, 0x28, 0x0b, 0xfa, 0x9b, 0xc1, 0xab, 0x60, 0xf4, 0xea, 0x6a, 0xa9, 0xb8, 0xaa, 0x4b,
+	0xee, 0xfe, 0x09, 0x00, 0x00, 0xff, 0xff, 0xc0, 0xda, 0xe2, 0x38, 0x8d, 0x05, 0x00, 0x00,
 }
 
-func (this *Key) Equal(that interface{}) bool {
+func (this *Vault) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
 	}
 
-	that1, ok := that.(*Key)
+	that1, ok := that.(*Vault)
 	if !ok {
-		that2, ok := that.(Key)
+		that2, ok := that.(Vault)
 		if ok {
 			that1 = &that2
 		} else {
@@ -361,20 +360,20 @@ func (this *Key) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
-	if this.Name != that1.Name {
+	if this.Key != that1.Key {
 		return false
 	}
-	if this.PoolAddress != that1.PoolAddress {
+	if this.VaultAddress != that1.VaultAddress {
 		return false
 	}
 	if this.IsActive != that1.IsActive {
 		return false
 	}
-	if len(this.RewardPerPowers) != len(that1.RewardPerPowers) {
+	if len(this.RewardsPerPower) != len(that1.RewardsPerPower) {
 		return false
 	}
-	for i := range this.RewardPerPowers {
-		if !this.RewardPerPowers[i].Equal(&that1.RewardPerPowers[i]) {
+	for i := range this.RewardsPerPower {
+		if !this.RewardsPerPower[i].Equal(&that1.RewardsPerPower[i]) {
 			return false
 		}
 	}
@@ -416,7 +415,7 @@ func (this *Lock) Equal(that interface{}) bool {
 	if this.Key != that1.Key {
 		return false
 	}
-	if !this.Amount.Equal(that1.Amount) {
+	if !this.Power.Equal(that1.Power) {
 		return false
 	}
 	if len(this.PosRewardDebts) != len(that1.PosRewardDebts) {
@@ -491,12 +490,12 @@ func (this *LockResponse) Equal(that interface{}) bool {
 	if this.Key != that1.Key {
 		return false
 	}
-	if !this.Amount.Equal(that1.Amount) {
+	if !this.Power.Equal(that1.Power) {
 		return false
 	}
 	return true
 }
-func (m *Key) Marshal() (dAtA []byte, err error) {
+func (m *Vault) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -506,12 +505,12 @@ func (m *Key) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *Key) MarshalTo(dAtA []byte) (int, error) {
+func (m *Vault) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *Key) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *Vault) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -540,10 +539,10 @@ func (m *Key) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	}
 	i--
 	dAtA[i] = 0x2a
-	if len(m.RewardPerPowers) > 0 {
-		for iNdEx := len(m.RewardPerPowers) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.RewardsPerPower) > 0 {
+		for iNdEx := len(m.RewardsPerPower) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.RewardPerPowers[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.RewardsPerPower[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -564,17 +563,17 @@ func (m *Key) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x18
 	}
-	if len(m.PoolAddress) > 0 {
-		i -= len(m.PoolAddress)
-		copy(dAtA[i:], m.PoolAddress)
-		i = encodeVarintTypes(dAtA, i, uint64(len(m.PoolAddress)))
+	if len(m.VaultAddress) > 0 {
+		i -= len(m.VaultAddress)
+		copy(dAtA[i:], m.VaultAddress)
+		i = encodeVarintTypes(dAtA, i, uint64(len(m.VaultAddress)))
 		i--
 		dAtA[i] = 0x12
 	}
-	if len(m.Name) > 0 {
-		i -= len(m.Name)
-		copy(dAtA[i:], m.Name)
-		i = encodeVarintTypes(dAtA, i, uint64(len(m.Name)))
+	if len(m.Key) > 0 {
+		i -= len(m.Key)
+		copy(dAtA[i:], m.Key)
+		i = encodeVarintTypes(dAtA, i, uint64(len(m.Key)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -630,9 +629,9 @@ func (m *Lock) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		}
 	}
 	{
-		size := m.Amount.Size()
+		size := m.Power.Size()
 		i -= size
-		if _, err := m.Amount.MarshalTo(dAtA[i:]); err != nil {
+		if _, err := m.Power.MarshalTo(dAtA[i:]); err != nil {
 			return 0, err
 		}
 		i = encodeVarintTypes(dAtA, i, uint64(size))
@@ -721,9 +720,9 @@ func (m *LockResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	var l int
 	_ = l
 	{
-		size := m.Amount.Size()
+		size := m.Power.Size()
 		i -= size
-		if _, err := m.Amount.MarshalTo(dAtA[i:]); err != nil {
+		if _, err := m.Power.MarshalTo(dAtA[i:]); err != nil {
 			return 0, err
 		}
 		i = encodeVarintTypes(dAtA, i, uint64(size))
@@ -751,25 +750,25 @@ func encodeVarintTypes(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *Key) Size() (n int) {
+func (m *Vault) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.Name)
+	l = len(m.Key)
 	if l > 0 {
 		n += 1 + l + sovTypes(uint64(l))
 	}
-	l = len(m.PoolAddress)
+	l = len(m.VaultAddress)
 	if l > 0 {
 		n += 1 + l + sovTypes(uint64(l))
 	}
 	if m.IsActive {
 		n += 2
 	}
-	if len(m.RewardPerPowers) > 0 {
-		for _, e := range m.RewardPerPowers {
+	if len(m.RewardsPerPower) > 0 {
+		for _, e := range m.RewardsPerPower {
 			l = e.Size()
 			n += 1 + l + sovTypes(uint64(l))
 		}
@@ -799,7 +798,7 @@ func (m *Lock) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTypes(uint64(l))
 	}
-	l = m.Amount.Size()
+	l = m.Power.Size()
 	n += 1 + l + sovTypes(uint64(l))
 	if len(m.PosRewardDebts) > 0 {
 		for _, e := range m.PosRewardDebts {
@@ -845,7 +844,7 @@ func (m *LockResponse) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTypes(uint64(l))
 	}
-	l = m.Amount.Size()
+	l = m.Power.Size()
 	n += 1 + l + sovTypes(uint64(l))
 	return n
 }
@@ -856,7 +855,7 @@ func sovTypes(x uint64) (n int) {
 func sozTypes(x uint64) (n int) {
 	return sovTypes(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *Key) Unmarshal(dAtA []byte) error {
+func (m *Vault) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -879,15 +878,15 @@ func (m *Key) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: Key: wiretype end group for non-group")
+			return fmt.Errorf("proto: Vault: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Key: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: Vault: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Key", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -915,11 +914,11 @@ func (m *Key) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Name = string(dAtA[iNdEx:postIndex])
+			m.Key = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field PoolAddress", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field VaultAddress", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -947,7 +946,7 @@ func (m *Key) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.PoolAddress = string(dAtA[iNdEx:postIndex])
+			m.VaultAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
 			if wireType != 0 {
@@ -971,7 +970,7 @@ func (m *Key) Unmarshal(dAtA []byte) error {
 			m.IsActive = bool(v != 0)
 		case 4:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field RewardPerPowers", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field RewardsPerPower", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -998,8 +997,8 @@ func (m *Key) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.RewardPerPowers = append(m.RewardPerPowers, types.DecCoin{})
-			if err := m.RewardPerPowers[len(m.RewardPerPowers)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.RewardsPerPower = append(m.RewardsPerPower, types.DecCoin{})
+			if err := m.RewardsPerPower[len(m.RewardsPerPower)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -1187,7 +1186,7 @@ func (m *Lock) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Power", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1215,7 +1214,7 @@ func (m *Lock) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Amount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.Power.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -1487,7 +1486,7 @@ func (m *LockResponse) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Power", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -1515,7 +1514,7 @@ func (m *LockResponse) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if err := m.Amount.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.Power.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
