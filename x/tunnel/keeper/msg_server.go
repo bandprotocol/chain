@@ -38,32 +38,20 @@ func (ms msgServer) CreateTunnel(
 		return nil, types.ErrMinIntervalExceeded
 	}
 
-	// Get the next tunnel ID
-	id := ms.Keeper.GetTunnelCount(ctx)
-	newID := id + 1
-
-	// Generate a new fee payer account
-	feePayer, err := ms.Keeper.GenerateAccount(ctx, fmt.Sprintf("%d", newID))
-	if err != nil {
-		return nil, err
-	}
-
 	// TODO: check deposit with params, transfer deposit to module account
 
 	// Add a new tunnel
-	tunnel := ms.Keeper.AddTunnel(
+	tunnel, err := ms.Keeper.AddTunnel(
 		ctx,
-		newID,
 		req.Route,
 		req.Encoder,
-		feePayer,
 		req.SignalInfos,
 		req.Interval,
 		req.Creator,
 	)
-
-	// Increment the tunnel count
-	ms.Keeper.SetTunnelCount(ctx, newID)
+	if err != nil {
+		return nil, err
+	}
 
 	// Emit an event
 	event := sdk.NewEvent(
