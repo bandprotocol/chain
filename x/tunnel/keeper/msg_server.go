@@ -38,16 +38,6 @@ func (ms msgServer) CreateTunnel(
 		return nil, types.ErrMinIntervalExceeded
 	}
 
-	// Get the next tunnel ID
-	id := ms.Keeper.GetTunnelCount(ctx)
-	newID := id + 1
-
-	// Generate a new fee payer account
-	feePayer, err := ms.Keeper.GenerateAccount(ctx, fmt.Sprintf("%d", newID))
-	if err != nil {
-		return nil, err
-	}
-
 	creator, err := sdk.AccAddressFromBech32(req.Creator)
 	if err != nil {
 		return nil, err
@@ -65,24 +55,22 @@ func (ms msgServer) CreateTunnel(
 	}
 
 	// Add a new tunnel
-	tunnel := ms.Keeper.AddTunnel(
+	tunnel, err := ms.Keeper.AddTunnel(
 		ctx,
-		newID,
 		req.Route,
 		req.Encoder,
-		feePayer,
 		req.SignalInfos,
 		req.Interval,
-		req.Creator,
+		creator,
 	)
-
-	// Deposit the initial deposit to the tunnel
-	if err := ms.Keeper.AddDeposit(ctx, newID, creator, req.InitialDeposit); err != nil {
+	if err != nil {
 		return nil, err
 	}
 
-	// Increment the tunnel count
-	ms.Keeper.SetTunnelCount(ctx, newID)
+	// Deposit the initial deposit to the tunnel
+	if err := ms.Keeper.AddDeposit(ctx, tunnel.ID, creator, req.InitialDeposit); err != nil {
+		return nil, err
+	}
 
 	// Emit an event
 	event := sdk.NewEvent(
@@ -94,7 +82,7 @@ func (ms msgServer) CreateTunnel(
 		sdk.NewAttribute(types.AttributeKeyFeePayer, tunnel.FeePayer),
 		sdk.NewAttribute(types.AttributeKeyIsActive, fmt.Sprintf("%t", tunnel.IsActive)),
 		sdk.NewAttribute(types.AttributeKeyCreatedAt, fmt.Sprintf("%d", tunnel.CreatedAt)),
-		sdk.NewAttribute(types.AttributeKeyCreator, req.Creator),
+		sdk.NewAttribute(types.AttributeKeyCreator, tunnel.Creator),
 	)
 	for _, signalInfo := range req.SignalInfos {
 		event = event.AppendAttributes(
