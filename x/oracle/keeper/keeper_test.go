@@ -95,7 +95,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 }
 
-func (suite *KeeperTestSuite) TearDownSuite() {
+func (suite *KeeperTestSuite) TearDownTest() {
 	os.RemoveAll(suite.fileDir)
 }
 

@@ -86,7 +86,7 @@ message MsgReportData {
   // identified by external ID
   repeated RawReport raw_reports = 2 [(gogoproto.nullable) = false];
   // Validator is the address of the validator that owns this report.
-  string validator = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string validator = 3 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
 }
 
 // MsgReportDataResponse is response data for MsgReportData message

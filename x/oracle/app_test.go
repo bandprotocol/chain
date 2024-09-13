@@ -1,166 +1,237 @@
 package oracle_test
 
 // TODO: Fix test
-// import (
-// 	"fmt"
-// 	"testing"
-// 	"time"
+import (
+	"fmt"
+	"os"
+	"testing"
+	"time"
 
-// 	"cosmossdk.io/math"
-// 	abci "github.com/cometbft/cometbft/abci/types"
-// 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
-// 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
-// 	sdk "github.com/cosmos/cosmos-sdk/types"
-// 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
-// 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-// 	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 
-// 	bandtesting "github.com/bandprotocol/chain/v3/testing"
-// 	"github.com/bandprotocol/chain/v3/x/oracle"
-// 	"github.com/bandprotocol/chain/v3/x/oracle/types"
-// )
+	abci "github.com/cometbft/cometbft/abci/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
-// func TestSuccessRequestOracleData(t *testing.T) {
-// 	app, ctx := bandtesting.CreateTestApp(t, true)
-// 	k := app.OracleKeeper
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 
-// 	ctx = ctx.WithBlockHeight(4).WithBlockTime(time.Unix(1581589790, 0))
-// 	requestMsg := types.NewMsgRequestData(
-// 		types.OracleScriptID(1),
-// 		[]byte("calldata"),
-// 		3,
-// 		2,
-// 		"app_test",
-// 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(9000000))),
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.Validators[0].Address,
-// 	)
+	bandtest "github.com/bandprotocol/chain/v3/app"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
+)
 
-// 	acc := &authtypes.BaseAccount{
-// 		Address: bandtesting.Validators[0].Address.String(),
-// 	}
+type AppTestSuite struct {
+	suite.Suite
 
-// 	res1 := app.AccountKeeper.GetAccount(ctx, bandtesting.Validators[0].Address)
-// 	require.NotNil(t, res1)
-// 	require.Equal(t, acc, res1.(*authtypes.BaseAccount))
+	app *bandtest.BandApp
 
-// 	origAccNum := res1.GetAccountNumber()
-// 	origSeq := res1.GetSequence()
+	// For test teardown
+	dir string
+}
 
-// 	header := cmtproto.Header{Height: app.BaseApp.LastBlockHeight() + 1}
-// 	txConfig := moduletestutil.MakeTestTxConfig()
-// 	// res, err := handler(ctx, requestMsg)
-// 	_, res, err := simtestutil.SignCheckDeliver(
-// 		t,
-// 		txConfig,
-// 		app.BaseApp,
-// 		header,
-// 		[]sdk.Msg{requestMsg},
-// 		"",
-// 		[]uint64{origAccNum},
-// 		[]uint64{origSeq},
-// 		false,
-// 		false,
-// 		bandtesting.Validators[0].PrivKey,
-// 	)
-// 	require.NotNil(t, res)
-// 	require.NoError(t, err)
+func TestKeeperTestSuite(t *testing.T) {
+	suite.Run(t, new(AppTestSuite))
+}
 
-// 	expectRequest := types.NewRequest(
-// 		types.OracleScriptID(1),
-// 		[]byte("calldata"),
-// 		[]sdk.ValAddress{
-// 			bandtesting.Validators[2].ValAddress,
-// 			bandtesting.Validators[0].ValAddress,
-// 			bandtesting.Validators[1].ValAddress,
-// 		},
-// 		2,
-// 		4,
-// 		bandtesting.ParseTime(1581589790),
-// 		"app_test",
-// 		[]types.RawRequest{
-// 			types.NewRawRequest(1, 1, []byte("beeb")),
-// 			types.NewRawRequest(2, 2, []byte("beeb")),
-// 			types.NewRawRequest(3, 3, []byte("beeb")),
-// 		},
-// 		nil,
-// 		bandtesting.TestDefaultExecuteGas,
-// 	)
-// 	_, err = app.EndBlocker(ctx.WithBlockHeight(4))
-// 	require.NoError(t, err)
-// 	request, err := k.GetRequest(ctx, types.RequestID(1))
-// 	require.NoError(t, err)
-// 	require.Equal(t, expectRequest, request)
+func (s *AppTestSuite) SetupTest() {
+	dir, err := os.MkdirTemp("", "bandd-test-home")
+	if err != nil {
+		panic(fmt.Sprintf("failed creating temporary directory: %v", err))
+	}
+	s.dir = dir
+	s.app = bandtest.SetupWithCustomHome(false, dir)
+	ctx := s.app.BaseApp.NewContext(false)
 
-// 	reportMsg1 := types.NewMsgReportData(
-// 		types.RequestID(1), []types.RawReport{
-// 			types.NewRawReport(1, 0, []byte("answer1")),
-// 			types.NewRawReport(2, 0, []byte("answer2")),
-// 			types.NewRawReport(3, 0, []byte("answer3")),
-// 		},
-// 		bandtesting.Validators[0].ValAddress,
-// 	)
-// 	res, err = handler(ctx, reportMsg1)
-// 	require.NotNil(t, res)
-// 	require.NoError(t, err)
+	// Activate validators
+	for _, v := range bandtest.Validators {
+		s.app.OracleKeeper.Activate(ctx, v.ValAddress)
+	}
 
-// 	ids := k.GetPendingResolveList(ctx)
-// 	require.Equal(t, []types.RequestID{}, ids)
-// 	_, err = k.GetResult(ctx, types.RequestID(1))
-// 	require.Error(t, err)
+	_, err = s.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: s.app.LastBlockHeight() + 1})
+	if err != nil {
+		panic(err)
+	}
+}
 
-// 	result, err := app.EndBlocker(ctx.WithBlockHeight(6))
-// 	require.NoError(t, err)
-// 	expectEvents := []abci.Event{}
+func (suite *AppTestSuite) TearDownTest() {
+	os.RemoveAll(suite.dir)
+}
 
-// 	require.Equal(t, expectEvents, result.Events)
+func (s *AppTestSuite) TestSuccessRequestOracleData() {
+	require := s.Require()
 
-// 	ctx = ctx.WithBlockTime(time.Unix(1581589795, 0))
-// 	reportMsg2 := types.NewMsgReportData(
-// 		types.RequestID(1), []types.RawReport{
-// 			types.NewRawReport(1, 0, []byte("answer1")),
-// 			types.NewRawReport(2, 0, []byte("answer2")),
-// 			types.NewRawReport(3, 0, []byte("answer3")),
-// 		},
-// 		bandtesting.Validators[1].ValAddress,
-// 	)
-// 	res, err = handler(ctx, reportMsg2)
-// 	require.NotNil(t, res)
-// 	require.NoError(t, err)
+	ctx := s.app.BaseApp.NewContext(false)
+	requestMsg := types.NewMsgRequestData(
+		types.OracleScriptID(1),
+		[]byte("calldata"),
+		3,
+		2,
+		"app_test",
+		sdk.NewCoins(sdk.NewInt64Coin("uband", 9000000)),
+		bandtest.TestDefaultPrepareGas,
+		bandtest.TestDefaultExecuteGas,
+		bandtest.Validators[0].Address,
+	)
 
-// 	ids = k.GetPendingResolveList(ctx)
-// 	require.Equal(t, []types.RequestID{1}, ids)
-// 	_, err = k.GetResult(ctx, types.RequestID(1))
-// 	require.Error(t, err)
+	res1 := s.app.AccountKeeper.GetAccount(ctx, bandtest.Validators[0].Address)
+	require.NotNil(res1)
 
-// 	result, err = app.EndBlocker(ctx.WithBlockHeight(8))
-// 	require.NoError(t, err)
-// 	resPacket := types.NewOracleResponsePacketData(
-// 		expectRequest.ClientID, types.RequestID(1), 2, expectRequest.RequestTime, 1581589795,
-// 		types.RESOLVE_STATUS_SUCCESS, []byte("beeb"),
-// 	)
-// 	expectEvents = []abci.Event{{Type: types.EventTypeResolve, Attributes: []abci.EventAttribute{
-// 		{Key: types.AttributeKeyID, Value: fmt.Sprint(resPacket.RequestID)},
-// 		{Key: types.AttributeKeyResolveStatus, Value: fmt.Sprint(uint32(resPacket.ResolveStatus))},
-// 		{Key: types.AttributeKeyResult, Value: "62656562"},
-// 		{Key: types.AttributeKeyGasUsed, Value: "2485000000"},
-// 	}}}
+	acc1Num := res1.GetAccountNumber()
+	acc1Seq := res1.GetSequence()
 
-// 	require.Equal(t, expectEvents, result.Events)
+	txConfig := moduletestutil.MakeTestTxConfig()
+	_, res, _, err := bandtest.SignCheckDeliver(
+		s.T(),
+		txConfig,
+		s.app.BaseApp,
+		tmproto.Header{Height: s.app.LastBlockHeight() + 1, Time: time.Unix(1581589790, 0)},
+		[]sdk.Msg{requestMsg},
+		s.app.ChainID(),
+		[]uint64{acc1Num},
+		[]uint64{acc1Seq},
+		true,
+		true,
+		bandtest.Validators[0].PrivKey,
+	)
+	require.NotNil(res)
+	require.NoError(err)
 
-// 	ids = k.GetPendingResolveList(ctx)
-// 	require.Equal(t, []types.RequestID{}, ids)
+	expectRequest := types.NewRequest(
+		types.OracleScriptID(1),
+		[]byte("calldata"),
+		[]sdk.ValAddress{
+			bandtest.Validators[2].ValAddress,
+			bandtest.Validators[0].ValAddress,
+			bandtest.Validators[1].ValAddress,
+		},
+		2,
+		1,
+		bandtesting.ParseTime(1581589790),
+		"app_test",
+		[]types.RawRequest{
+			types.NewRawRequest(1, 1, []byte("test")),
+			types.NewRawRequest(2, 2, []byte("test")),
+			types.NewRawRequest(3, 3, []byte("test")),
+		},
+		nil,
+		bandtest.TestDefaultExecuteGas,
+	)
 
-// 	req, err := k.GetRequest(ctx, types.RequestID(1))
-// 	require.NotEqual(t, types.Request{}, req)
-// 	require.NoError(t, err)
+	request, err := s.app.OracleKeeper.GetRequest(ctx, types.RequestID(1))
+	require.NoError(err)
+	require.Equal(expectRequest, request)
 
-// 	app.EndBlocker(ctx.WithBlockHeight(32).WithBlockTime(ctx.BlockTime().Add(time.Minute)))
-// }
+	reportMsg1 := types.NewMsgReportData(
+		types.RequestID(1), []types.RawReport{
+			types.NewRawReport(1, 0, []byte("answer1")),
+			types.NewRawReport(2, 0, []byte("answer2")),
+			types.NewRawReport(3, 0, []byte("answer3")),
+		},
+		bandtest.Validators[0].ValAddress,
+	)
+	_, res, _, err = bandtest.SignCheckDeliver(
+		s.T(),
+		txConfig,
+		s.app.BaseApp,
+		tmproto.Header{Height: s.app.LastBlockHeight() + 1, Time: time.Unix(1581589791, 0)},
+		[]sdk.Msg{reportMsg1},
+		s.app.ChainID(),
+		[]uint64{acc1Num},
+		[]uint64{acc1Seq + 1},
+		true,
+		true,
+		bandtest.Validators[0].PrivKey,
+	)
+	require.NotNil(res)
+	require.NoError(err)
+
+	ids := s.app.OracleKeeper.GetPendingResolveList(ctx)
+	require.Equal([]types.RequestID{}, ids)
+	_, err = s.app.OracleKeeper.GetResult(ctx, types.RequestID(1))
+	require.Error(err)
+
+	reportMsg2 := types.NewMsgReportData(
+		types.RequestID(1), []types.RawReport{
+			types.NewRawReport(1, 0, []byte("answer1")),
+			types.NewRawReport(2, 0, []byte("answer2")),
+			types.NewRawReport(3, 0, []byte("answer3")),
+		},
+		bandtest.Validators[1].ValAddress,
+	)
+
+	res2 := s.app.AccountKeeper.GetAccount(ctx, bandtest.Validators[1].Address)
+	require.NotNil(res2)
+
+	acc2Num := res2.GetAccountNumber()
+	acc2Seq := res2.GetSequence()
+
+	// res, err = handler(ctx, reportMsg2)
+	_, res, endBlockEvent, err := bandtest.SignCheckDeliver(
+		s.T(),
+		txConfig,
+		s.app.BaseApp,
+		tmproto.Header{Height: s.app.LastBlockHeight() + 1, Time: time.Unix(1581589795, 0)},
+		[]sdk.Msg{reportMsg2},
+		s.app.ChainID(),
+		[]uint64{acc2Num},
+		[]uint64{acc2Seq},
+		true,
+		true,
+		bandtest.Validators[1].PrivKey,
+	)
+
+	require.NotNil(res)
+	require.NoError(err)
+
+	resPacket := types.NewOracleResponsePacketData(
+		expectRequest.ClientID, types.RequestID(1), 2, expectRequest.RequestTime, 1581589795,
+		types.RESOLVE_STATUS_SUCCESS, []byte("test"),
+	)
+	expRes := types.NewResult(
+		resPacket.ClientID,
+		types.OracleScriptID(1),
+		[]byte("calldata"),
+		3,
+		2,
+		types.RequestID(1),
+		2,
+		time.Unix(1581589790, 0).Unix(),
+		time.Unix(1581589795, 0).Unix(),
+		resPacket.ResolveStatus,
+		resPacket.Result,
+	)
+
+	// Resolve event must contain in block event
+	expectEvent := abci.Event{Type: types.EventTypeResolve, Attributes: []abci.EventAttribute{
+		{Key: types.AttributeKeyID, Value: fmt.Sprint(resPacket.RequestID), Index: true},
+		{Key: types.AttributeKeyResolveStatus, Value: fmt.Sprint(uint32(resPacket.ResolveStatus)), Index: true},
+		{Key: types.AttributeKeyResult, Value: "74657374", Index: true},
+		{Key: types.AttributeKeyGasUsed, Value: "2485000000", Index: true},
+		{Key: "mode", Value: "EndBlock", Index: true},
+	}}
+
+	require.Contains(endBlockEvent, expectEvent)
+
+	ctx2 := s.app.BaseApp.NewContext(true)
+
+	// Endblock should have been called and no pending request after endblock
+	ids = s.app.OracleKeeper.GetPendingResolveList(ctx)
+	require.Equal([]types.RequestID{}, ids)
+
+	// Request 1 still remain until expired
+	req, err := s.app.OracleKeeper.GetRequest(ctx, types.RequestID(1))
+	require.NotEqual(types.Request{}, req)
+	require.NoError(err)
+
+	// Result 1 should be available
+	result, err := s.app.OracleKeeper.GetResult(ctx2, types.RequestID(1))
+	require.NoError(err)
+	require.Equal(expRes, result)
+
+}
 
 // func TestExpiredRequestOracleData(t *testing.T) {
-// 	app, ctx := bandtesting.CreateTestApp(t, true)
+// 	app, ctx := bandtest.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
 // 	ctx = ctx.WithBlockHeight(4).WithBlockTime(time.Unix(1581589790, 0))
@@ -172,9 +243,9 @@ package oracle_test
 // 		2,
 // 		"app_test",
 // 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(9000000))),
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.Validators[0].Address,
+// 		bandtest.TestDefaultPrepareGas,
+// 		bandtest.TestDefaultExecuteGas,
+// 		bandtest.Validators[0].Address,
 // 	)
 // 	res, err := handler(ctx, requestMsg)
 // 	require.NotNil(t, res)
@@ -184,21 +255,21 @@ package oracle_test
 // 		types.OracleScriptID(1),
 // 		[]byte("calldata"),
 // 		[]sdk.ValAddress{
-// 			bandtesting.Validators[2].ValAddress,
-// 			bandtesting.Validators[0].ValAddress,
-// 			bandtesting.Validators[1].ValAddress,
+// 			bandtest.Validators[2].ValAddress,
+// 			bandtest.Validators[0].ValAddress,
+// 			bandtest.Validators[1].ValAddress,
 // 		},
 // 		2,
 // 		4,
-// 		bandtesting.ParseTime(1581589790),
+// 		bandtest.ParseTime(1581589790),
 // 		"app_test",
 // 		[]types.RawRequest{
-// 			types.NewRawRequest(1, 1, []byte("beeb")),
-// 			types.NewRawRequest(2, 2, []byte("beeb")),
-// 			types.NewRawRequest(3, 3, []byte("beeb")),
+// 			types.NewRawRequest(1, 1, []byte("test")),
+// 			types.NewRawRequest(2, 2, []byte("test")),
+// 			types.NewRawRequest(3, 3, []byte("test")),
 // 		},
 // 		nil,
-// 		bandtesting.TestDefaultExecuteGas,
+// 		bandtest.TestDefaultExecuteGas,
 // 	)
 // 	app.EndBlocker(ctx.WithBlockHeight(4))
 // 	request, err := k.GetRequest(ctx, types.RequestID(1))
@@ -225,7 +296,7 @@ package oracle_test
 // 		Attributes: []abci.EventAttribute{
 // 			{
 // 				Key:   types.AttributeKeyValidator,
-// 				Value: fmt.Sprint(bandtesting.Validators[2].ValAddress.String()),
+// 				Value: fmt.Sprint(bandtest.Validators[2].ValAddress.String()),
 // 			},
 // 		},
 // 	}, {
@@ -233,7 +304,7 @@ package oracle_test
 // 		Attributes: []abci.EventAttribute{
 // 			{
 // 				Key:   types.AttributeKeyValidator,
-// 				Value: fmt.Sprint(bandtesting.Validators[0].ValAddress.String()),
+// 				Value: fmt.Sprint(bandtest.Validators[0].ValAddress.String()),
 // 			},
 // 		},
 // 	}, {
@@ -241,7 +312,7 @@ package oracle_test
 // 		Attributes: []abci.EventAttribute{
 // 			{
 // 				Key:   types.AttributeKeyValidator,
-// 				Value: fmt.Sprint(bandtesting.Validators[1].ValAddress.String()),
+// 				Value: fmt.Sprint(bandtest.Validators[1].ValAddress.String()),
 // 			},
 // 		},
 // 	}}
