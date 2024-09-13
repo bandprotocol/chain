@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"gopkg.in/yaml.v2"
 )
 
@@ -43,8 +42,8 @@ func DefaultParams() Params {
 // Validate validates the set of params
 func (p Params) Validate() error {
 	// Validate MinDeposit
-	if minDeposit := sdk.Coins(p.MinDeposit); minDeposit.Empty() || !minDeposit.IsValid() {
-		return fmt.Errorf("invalid minimum deposit: %s", minDeposit)
+	if p.MinDeposit.Empty() || !p.MinDeposit.IsValid() {
+		return fmt.Errorf("invalid minimum deposit: %s", p.MinDeposit)
 	}
 
 	// Validate MinInterval
@@ -59,7 +58,7 @@ func (p Params) Validate() error {
 
 	// Validate BaseFee
 	if !p.BasePacketFee.IsValid() {
-		return sdkerrors.ErrInvalidCoins.Wrapf(p.BasePacketFee.String())
+		return fmt.Errorf("invalid base packet fee: %s", p.BasePacketFee)
 	}
 
 	return nil
