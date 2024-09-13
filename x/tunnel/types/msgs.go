@@ -324,9 +324,6 @@ func NewMsgUpdateParams(
 	}
 }
 
-// Route Implements Msg.
-func (m MsgUpdateParams) Route() string { return sdk.MsgTypeURL(&m) }
-
 // Type Implements Msg.
 func (m MsgUpdateParams) Type() string { return sdk.MsgTypeURL(&m) }
 
