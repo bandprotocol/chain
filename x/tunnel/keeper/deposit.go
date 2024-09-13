@@ -1,35 +1,13 @@
 package keeper
 
 import (
+	"fmt"
+
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
-
-// validateDepositDenom validates if the deposit denom is accepted by the tunnel module.
-func (k Keeper) validateDepositDenom(ctx sdk.Context, depositAmount sdk.Coins) error {
-	params := k.GetParams(ctx)
-	denoms := make([]string, 0, len(params.MinDeposit))
-	acceptedDenoms := make(map[string]bool, len(params.MinDeposit))
-	for _, coin := range params.MinDeposit {
-		acceptedDenoms[coin.Denom] = true
-		denoms = append(denoms, coin.Denom)
-	}
-
-	for _, coin := range depositAmount {
-		if _, ok := acceptedDenoms[coin.Denom]; !ok {
-			return errors.Wrapf(
-				types.ErrInvalidDepositDenom,
-				"deposited %s, but tunnel accepts only the following denom(s): %v",
-				depositAmount,
-				denoms,
-			)
-		}
-	}
-
-	return nil
-}
 
 // AddDeposit adds a deposit to a tunnel
 func (k Keeper) AddDeposit(
@@ -76,13 +54,7 @@ func (k Keeper) AddDeposit(
 // SetDeposit sets a deposit in the store
 func (k Keeper) SetDeposit(ctx sdk.Context, deposit types.Deposit) {
 	ctx.KVStore(k.storeKey).
-		Set(types.TunnelDepositStoreKey(deposit.TunnelID, sdk.MustAccAddressFromBech32(deposit.Depositor)), k.cdc.MustMarshal(&deposit))
-}
-
-// DeleteDeposit deletes a deposit from the store
-func (k Keeper) DeleteDeposit(ctx sdk.Context, deposit types.Deposit) {
-	ctx.KVStore(k.storeKey).
-		Delete(types.TunnelDepositStoreKey(deposit.TunnelID, sdk.MustAccAddressFromBech32(deposit.Depositor)))
+		Set(types.DepositStoreKey(deposit.TunnelID, sdk.MustAccAddressFromBech32(deposit.Depositor)), k.cdc.MustMarshal(&deposit))
 }
 
 // GetDeposit retrieves a deposit by its tunnel ID and depositor address
@@ -91,7 +63,7 @@ func (k Keeper) GetDeposit(
 	tunnelID uint64,
 	depositorAddr sdk.AccAddress,
 ) (deposit types.Deposit, found bool) {
-	bz := ctx.KVStore(k.storeKey).Get(types.TunnelDepositStoreKey(tunnelID, depositorAddr))
+	bz := ctx.KVStore(k.storeKey).Get(types.DepositStoreKey(tunnelID, depositorAddr))
 	if bz == nil {
 		return types.Deposit{}, false
 	}
@@ -103,7 +75,7 @@ func (k Keeper) GetDeposit(
 // GetDeposits retrieves all deposits for a tunnel
 func (k Keeper) GetDeposits(ctx sdk.Context, tunnelID uint64) []types.Deposit {
 	var deposits []types.Deposit
-	iterator := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.TunnelDepositsStoreKey(tunnelID))
+	iterator := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.DepositsStoreKey(tunnelID))
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -113,6 +85,12 @@ func (k Keeper) GetDeposits(ctx sdk.Context, tunnelID uint64) []types.Deposit {
 	}
 
 	return deposits
+}
+
+// DeleteDeposit deletes a deposit from the store
+func (k Keeper) DeleteDeposit(ctx sdk.Context, tunnelID uint64, depositorAddr sdk.AccAddress) {
+	ctx.KVStore(k.storeKey).
+		Delete(types.DepositStoreKey(tunnelID, depositorAddr))
 }
 
 // WithdrawDeposit withdraws a deposit from a tunnel
@@ -145,7 +123,7 @@ func (k Keeper) WithdrawDeposit(ctx sdk.Context, tunnelID uint64, amount sdk.Coi
 	// Update the withdrawer's deposit
 	deposit.Amount = deposit.Amount.Sub(amount...)
 	if deposit.Amount.IsZero() {
-		k.DeleteDeposit(ctx, deposit)
+		k.DeleteDeposit(ctx, tunnelID, withdrawer)
 	} else {
 		k.SetDeposit(ctx, deposit)
 	}
@@ -157,7 +135,33 @@ func (k Keeper) WithdrawDeposit(ctx sdk.Context, tunnelID uint64, amount sdk.Coi
 	// Deactivate the tunnel if the total deposit is less than the min deposit
 	minDeposit := k.GetParams(ctx).MinDeposit
 	if tunnel.TotalDeposit.IsAllLT(minDeposit) {
-		k.DeactivateTunnel(ctx, tunnelID)
+		k.MustDeactivateTunnel(ctx, tunnelID)
+	}
+
+	return nil
+}
+
+// validateDepositDenom validates if the deposit denom is accepted by the tunnel module.
+func (k Keeper) validateDepositDenom(ctx sdk.Context, depositAmount sdk.Coins) error {
+	params := k.GetParams(ctx)
+
+	fmt.Printf("params.MinDeposit: %v\n", params.MinDeposit)
+	denoms := make([]string, 0, len(params.MinDeposit))
+	acceptedDenoms := make(map[string]bool, len(params.MinDeposit))
+	for _, coin := range params.MinDeposit {
+		acceptedDenoms[coin.Denom] = true
+		denoms = append(denoms, coin.Denom)
+	}
+
+	for _, coin := range depositAmount {
+		if _, ok := acceptedDenoms[coin.Denom]; !ok {
+			return errors.Wrapf(
+				types.ErrInvalidDepositDenom,
+				"deposited %s, but tunnel accepts only the following denom(s): %v",
+				depositAmount,
+				denoms,
+			)
+		}
 	}
 
 	return nil

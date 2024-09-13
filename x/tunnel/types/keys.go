@@ -63,10 +63,10 @@ func SignalPricesInfoStoreKey(tunnelID uint64) []byte {
 	return append(SignalPricesInfoStoreKeyPrefix, sdk.Uint64ToBigEndian(tunnelID)...)
 }
 
-func TunnelDepositsStoreKey(tunnelID uint64) []byte {
+func DepositsStoreKey(tunnelID uint64) []byte {
 	return append(DepositStoreKeyPrefix, sdk.Uint64ToBigEndian(tunnelID)...)
 }
 
-func TunnelDepositStoreKey(tunnelID uint64, depositor sdk.AccAddress) []byte {
-	return append(TunnelDepositsStoreKey(tunnelID), depositor.Bytes()...)
+func DepositStoreKey(tunnelID uint64, depositor sdk.AccAddress) []byte {
+	return append(DepositsStoreKey(tunnelID), depositor.Bytes()...)
 }

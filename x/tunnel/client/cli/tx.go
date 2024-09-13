@@ -26,6 +26,8 @@ func GetTxCmd() *cobra.Command {
 	txCmd.AddCommand(GetTxCmdActivateTunnel())
 	txCmd.AddCommand(GetTxCmdDeactivateTunnel())
 	txCmd.AddCommand(GetTxCmdManualTriggerTunnel())
+	txCmd.AddCommand(GetTxCmdDepositTunnel())
+	txCmd.AddCommand(GetTxCmdWithdrawDeposit())
 
 	return txCmd
 }
@@ -126,6 +128,68 @@ func GetTxCmdDeactivateTunnel() *cobra.Command {
 			}
 
 			msg := types.NewMsgDeactivateTunnel(id, clientCtx.GetFromAddress().String())
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetTxCmdDepositTunnel() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "deposit-tunnel [tunnel-id] [amount]",
+		Short: "Deposit to a tunnel",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			id, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			amount, err := sdk.ParseCoinsNormalized(args[1])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgDepositTunnel(id, amount, clientCtx.GetFromAddress().String())
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetTxCmdWithdrawDeposit() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "withdraw-deposit [tunnel-id] [amount]",
+		Short: "Withdraw deposit from a tunnel",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			id, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			amount, err := sdk.ParseCoinsNormalized(args[1])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgWithdrawDepositTunnel(id, amount, clientCtx.GetFromAddress().String())
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

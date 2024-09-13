@@ -10,7 +10,7 @@ import (
 
 var (
 	DefaultMinInterval   = uint64(1)
-	DefaultMinDeposit    = sdk.NewCoins(sdk.NewInt64Coin("band", 1000000))
+	DefaultMinDeposit    = sdk.NewCoins(sdk.NewInt64Coin("band", 1000))
 	DefaultMaxSignals    = uint64(100)
 	DefaultBasePacketFee = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
 )
@@ -43,8 +43,8 @@ func DefaultParams() Params {
 // Validate validates the set of params
 func (p Params) Validate() error {
 	// Validate MinDeposit
-	if !p.MinDeposit.IsValid() {
-		return sdkerrors.ErrInvalidCoins.Wrapf(p.MinDeposit.String())
+	if minDeposit := sdk.Coins(p.MinDeposit); minDeposit.Empty() || !minDeposit.IsValid() {
+		return fmt.Errorf("invalid minimum deposit: %s", minDeposit)
 	}
 
 	// Validate MinInterval

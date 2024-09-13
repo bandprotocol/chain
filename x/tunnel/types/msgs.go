@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	_, _, _, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgEditTunnel{}, &MsgActivateTunnel{}, &MsgDeactivateTunnel{}, &MsgManualTriggerTunnel{}, &MsgDepositTunnel{}, &MsgWithdrawTunnel{}, &MsgUpdateParams{}
+	_, _, _, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgEditTunnel{}, &MsgActivateTunnel{}, &MsgDeactivateTunnel{}, &MsgManualTriggerTunnel{}, &MsgDepositTunnel{}, &MsgWithdrawDepositTunnel{}, &MsgUpdateParams{}
 	_                      types.UnpackInterfacesMessage = &MsgCreateTunnel{}
 )
 
@@ -352,13 +352,13 @@ func (m MsgDepositTunnel) ValidateBasic() error {
 	return nil
 }
 
-// NewMsgWithdrawTunnel creates a new MsgWithdraw instance.
-func NewMsgWithdrawTunnel(
+// NewMsgWithdrawDepositTunnel creates a new MsgWithdraw instance.
+func NewMsgWithdrawDepositTunnel(
 	tunnelID uint64,
 	amount sdk.Coins,
 	withdrawer string,
-) *MsgWithdrawTunnel {
-	return &MsgWithdrawTunnel{
+) *MsgWithdrawDepositTunnel {
+	return &MsgWithdrawDepositTunnel{
 		TunnelID:   tunnelID,
 		Amount:     amount,
 		Withdrawer: withdrawer,
@@ -366,20 +366,20 @@ func NewMsgWithdrawTunnel(
 }
 
 // Route Implements Msg.
-func (m MsgWithdrawTunnel) Type() string { return sdk.MsgTypeURL(&m) }
+func (m MsgWithdrawDepositTunnel) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes implements the LegacyMsg interface.
-func (m MsgWithdrawTunnel) GetSignBytes() []byte {
+func (m MsgWithdrawDepositTunnel) GetSignBytes() []byte {
 	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
 }
 
 // GetSigners returns the expected signers for the message.
-func (m *MsgWithdrawTunnel) GetSigners() []sdk.AccAddress {
+func (m *MsgWithdrawDepositTunnel) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Withdrawer)}
 }
 
 // ValidateBasic does a sanity check on the provided data
-func (m MsgWithdrawTunnel) ValidateBasic() error {
+func (m MsgWithdrawDepositTunnel) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Withdrawer); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}

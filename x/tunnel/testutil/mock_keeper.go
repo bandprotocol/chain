@@ -57,6 +57,11 @@ func NewTestSuite(t *testing.T) TestSuite {
 		bandtssKeeper,
 		authority.String(),
 	)
+	err := tunnelKeeper.SetParams(ctx, types.DefaultParams())
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	queryServer := keeper.NewQueryServer(tunnelKeeper)
 
 	return TestSuite{

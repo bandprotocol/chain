@@ -68,6 +68,49 @@ func (q queryServer) Tunnel(c context.Context, req *types.QueryTunnelRequest) (*
 	return &types.QueryTunnelResponse{Tunnel: tunnel}, nil
 }
 
+// Deposit queries a deposit by its tunnel ID and depositor address.
+func (q queryServer) Deposit(c context.Context, req *types.QueryDepositRequest) (*types.QueryDepositResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	depositor, err := sdk.AccAddressFromBech32(req.Depositor)
+	if err != nil {
+		return nil, err
+	}
+
+	deposit, found := q.k.GetDeposit(ctx, req.TunnelId, depositor)
+	if !found {
+		return nil, types.ErrDepositNotFound
+	}
+
+	return &types.QueryDepositResponse{Deposit: deposit}, nil
+}
+
+// Deposits queries all deposits of the tunnel.
+func (q queryServer) Deposits(
+	c context.Context,
+	req *types.QueryDepositsRequest,
+) (*types.QueryDepositsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	var deposits []*types.Deposit
+	depositStore := prefix.NewStore(ctx.KVStore(q.k.storeKey), types.DepositsStoreKey(req.TunnelId))
+
+	pageRes, err := query.Paginate(depositStore, req.Pagination, func(key []byte, value []byte) error {
+		var deposit types.Deposit
+		if err := q.k.cdc.Unmarshal(value, &deposit); err != nil {
+			return err
+		}
+
+		deposits = append(deposits, &deposit)
+		return nil
+	})
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &types.QueryDepositsResponse{Deposits: deposits, Pagination: pageRes}, nil
+}
+
 // Packets queries all packets of the module.
 func (q queryServer) Packets(c context.Context, req *types.QueryPacketsRequest) (*types.QueryPacketsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
