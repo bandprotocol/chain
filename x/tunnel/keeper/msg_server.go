@@ -159,6 +159,12 @@ func (ms msgServer) ActivateTunnel(
 		return nil, fmt.Errorf("creator %s is not the creator of tunnel %d", req.Creator, req.TunnelID)
 	}
 
+	// verify if the total deposit meets or exceeds the minimum required deposit
+	minDeposit := ms.Keeper.GetParams(ctx).MinDeposit
+	if tunnel.TotalDeposit.IsAllLT(minDeposit) {
+		return nil, types.ErrInsufficientDeposit
+	}
+
 	err = ms.Keeper.ActivateTunnel(ctx, req.TunnelID)
 	if err != nil {
 		return nil, err
@@ -243,11 +249,11 @@ func (ms msgServer) ManualTriggerTunnel(
 	return &types.MsgManualTriggerTunnelResponse{}, nil
 }
 
-// Deposit adds deposit to the tunnel.
-func (ms msgServer) Deposit(
+// DepositTunnel adds deposit to the tunnel.
+func (ms msgServer) DepositTunnel(
 	goCtx context.Context,
-	req *types.MsgDeposit,
-) (*types.MsgDepositResponse, error) {
+	req *types.MsgDepositTunnel,
+) (*types.MsgDepositTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	depositor, err := sdk.AccAddressFromBech32(req.Depositor)
@@ -259,7 +265,27 @@ func (ms msgServer) Deposit(
 		return nil, err
 	}
 
-	return &types.MsgDepositResponse{}, nil
+	return &types.MsgDepositTunnelResponse{}, nil
+}
+
+// WithdrawTunnel withdraws deposit from the tunnel.
+func (ms msgServer) WithdrawTunnel(
+	goCtx context.Context,
+	req *types.MsgWithdrawTunnel,
+) (*types.MsgWithdrawTunnelResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	withdrawer, err := sdk.AccAddressFromBech32(req.Withdrawer)
+	if err != nil {
+		return nil, err
+	}
+
+	// Withdraw the deposit from the tunnel
+	if err := ms.Keeper.WithdrawDeposit(ctx, req.TunnelID, req.Amount, withdrawer); err != nil {
+		return nil, err
+	}
+
+	return &types.MsgWithdrawTunnelResponse{}, nil
 }
 
 // UpdateParams updates the module params.

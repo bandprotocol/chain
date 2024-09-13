@@ -30,8 +30,11 @@ service Msg {
   // ManualTriggerTunnel is a RPC method to manually trigger a tunnel.
   rpc ManualTriggerTunnel(MsgManualTriggerTunnel) returns (MsgManualTriggerTunnelResponse);
 
-  // Deposit is a RPC method to submit a deposit to an existing tunnel.
-  rpc Deposit(MsgDeposit) returns (MsgDepositResponse);
+  // DepositTunnel is a RPC method to submit a deposit to an existing tunnel.
+  rpc DepositTunnel(MsgDepositTunnel) returns (MsgDepositTunnelResponse);
+
+  // WithdrawTunnel is a RPC method to withdraw a deposit from an existing tunnel.
+  rpc WithdrawTunnel(MsgWithdrawTunnel) returns (MsgWithdrawTunnelResponse);
 
   // UpdateParams is a RPC method to update parameters
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
@@ -125,8 +128,8 @@ message MsgManualTriggerTunnel {
 // MsgManualTriggerTunnelResponse is the response type for the Msg/ManualTrigger RPC method.
 message MsgManualTriggerTunnelResponse {}
 
-// MsgDeposit defines a message to submit a deposit to an existing tunnel.
-message MsgDeposit {
+// MsgDepositTunnel defines a message to submit a deposit to an existing tunnel.
+message MsgDepositTunnel {
   option (cosmos.msg.v1.signer) = "depositor";
   option (amino.name)           = "tunnel/MsgDeposit";
 
@@ -145,8 +148,31 @@ message MsgDeposit {
   ];
 }
 
-// MsgDepositResponse defines the Msg/Deposit response type.
-message MsgDepositResponse {}
+// MsgDepositTunnelResponse defines the Msg/Deposit response type.
+message MsgDepositTunnelResponse {}
+
+// MsgWithdrawTunnel is the transaction message to withdraw a deposit from an existing tunnel.
+message MsgWithdrawTunnel {
+  option (cosmos.msg.v1.signer) = "withdrawer";
+  option (amino.name)           = "tunnel/MsgWithdrawTunnel";
+
+  // tunnel_id defines the unique id of the tunnel.
+  uint64 tunnel_id = 1
+      [(gogoproto.customname) = "TunnelID", (gogoproto.jsontag) = "tunnel_id", (amino.dont_omitempty) = true];
+
+  // amount to be withdrawn by withdrawer.
+  repeated cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (amino.dont_omitempty)   = true
+  ];
+
+  // withdrawer defines the withdraw addresses from the tunnel.
+  string withdrawer = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgWithdrawTunnelResponse defines the Msg/Withdraw response type.
+message MsgWithdrawTunnelResponse {}
 
 // MsgUpdateParams is the transaction message to update parameters.
 message MsgUpdateParams {

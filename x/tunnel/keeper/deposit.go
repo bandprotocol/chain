@@ -79,6 +79,12 @@ func (k Keeper) SetDeposit(ctx sdk.Context, deposit types.Deposit) {
 		Set(types.TunnelDepositStoreKey(deposit.TunnelID, sdk.MustAccAddressFromBech32(deposit.Depositor)), k.cdc.MustMarshal(&deposit))
 }
 
+// DeleteDeposit deletes a deposit from the store
+func (k Keeper) DeleteDeposit(ctx sdk.Context, deposit types.Deposit) {
+	ctx.KVStore(k.storeKey).
+		Delete(types.TunnelDepositStoreKey(deposit.TunnelID, sdk.MustAccAddressFromBech32(deposit.Depositor)))
+}
+
 // GetDeposit retrieves a deposit by its tunnel ID and depositor address
 func (k Keeper) GetDeposit(
 	ctx sdk.Context,
@@ -107,4 +113,52 @@ func (k Keeper) GetDeposits(ctx sdk.Context, tunnelID uint64) []types.Deposit {
 	}
 
 	return deposits
+}
+
+// WithdrawDeposit withdraws a deposit from a tunnel
+func (k Keeper) WithdrawDeposit(ctx sdk.Context, tunnelID uint64, amount sdk.Coins, withdrawer sdk.AccAddress) error {
+	tunnel, err := k.GetTunnel(ctx, tunnelID)
+	if err != nil {
+		return err
+	}
+
+	deposit, found := k.GetDeposit(ctx, tunnelID, withdrawer)
+	if !found {
+		return types.ErrDepositNotFound
+	}
+
+	// Check if the withdrawer has enough deposit
+	if deposit.Amount.IsAllLT(amount) {
+		return types.ErrInsufficientDeposit
+	}
+
+	// Transfer the deposit from the tunnel module account to the withdrawer
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(
+		ctx,
+		types.ModuleName,
+		withdrawer,
+		amount,
+	); err != nil {
+		return err
+	}
+
+	// Update the withdrawer's deposit
+	deposit.Amount = deposit.Amount.Sub(amount...)
+	if deposit.Amount.IsZero() {
+		k.DeleteDeposit(ctx, deposit)
+	} else {
+		k.SetDeposit(ctx, deposit)
+	}
+
+	// Update the tunnel's total deposit
+	tunnel.TotalDeposit = tunnel.TotalDeposit.Sub(amount...)
+	k.SetTunnel(ctx, tunnel)
+
+	// Deactivate the tunnel if the total deposit is less than the min deposit
+	minDeposit := k.GetParams(ctx).MinDeposit
+	if tunnel.TotalDeposit.IsAllLT(minDeposit) {
+		k.DeactivateTunnel(ctx, tunnelID)
+	}
+
+	return nil
 }
