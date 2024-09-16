@@ -13,8 +13,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 // Querier is used as Keeper will have duplicate methods if used directly, and gRPC names take precedence over keeper
@@ -202,9 +201,7 @@ func (k Querier) Validator(
 		return nil, err
 	}
 	status := k.GetValidatorStatus(ctx, val)
-	if err != nil {
-		return nil, err
-	}
+
 	return &types.QueryValidatorResponse{Status: &status}, nil
 }
 
@@ -270,9 +267,13 @@ func (k Querier) ActiveValidators(
 	result := types.QueryActiveValidatorsResponse{}
 	k.stakingKeeper.IterateBondedValidatorsByPower(ctx,
 		func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
-			if k.GetValidatorStatus(ctx, val.GetOperator()).IsActive {
+			operator, err := sdk.ValAddressFromBech32(val.GetOperator())
+			if err != nil {
+				return false
+			}
+			if k.GetValidatorStatus(ctx, operator).IsActive {
 				result.Validators = append(result.Validators, &types.ActiveValidator{
-					Address: val.GetOperator().String(),
+					Address: val.GetOperator(),
 					Power:   val.GetTokens().Uint64(),
 				})
 			}

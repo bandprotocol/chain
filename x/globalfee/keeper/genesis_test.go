@@ -3,8 +3,9 @@ package keeper_test
 import (
 	"testing"
 
+	"cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
@@ -12,9 +13,9 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/bandprotocol/chain/v2/x/globalfee"
-	"github.com/bandprotocol/chain/v2/x/globalfee/keeper"
-	"github.com/bandprotocol/chain/v2/x/globalfee/types"
+	"github.com/bandprotocol/chain/v3/x/globalfee"
+	"github.com/bandprotocol/chain/v3/x/globalfee/keeper"
+	"github.com/bandprotocol/chain/v3/x/globalfee/types"
 )
 
 type GenesisTestSuite struct {
@@ -31,8 +32,8 @@ func TestGenesisTestSuite(t *testing.T) {
 }
 
 func (s *GenesisTestSuite) SetupTest() {
-	key := sdk.NewKVStoreKey(types.StoreKey)
-	testCtx := testutil.DefaultContextWithDB(s.T(), key, sdk.NewTransientStoreKey("transient_test"))
+	key := storetypes.NewKVStoreKey(types.StoreKey)
+	testCtx := testutil.DefaultContextWithDB(s.T(), key, storetypes.NewTransientStoreKey("transient_test"))
 	encCfg := moduletestutil.MakeTestEncodingConfig(globalfee.AppModuleBasic{})
 
 	// gomock initializations
@@ -51,14 +52,14 @@ func (s *GenesisTestSuite) TestImportExportGenesis() {
 		"single fee": {
 			src: `{"params":{"minimum_gas_prices":[{"denom":"ALX", "amount":"1"}]}}`,
 			exp: types.GenesisState{
-				Params: types.Params{MinimumGasPrices: sdk.NewDecCoins(sdk.NewDecCoin("ALX", sdk.NewInt(1)))},
+				Params: types.Params{MinimumGasPrices: sdk.NewDecCoins(sdk.NewDecCoin("ALX", math.NewInt(1)))},
 			},
 		},
 		"multiple fee options": {
 			src: `{"params":{"minimum_gas_prices":[{"denom":"ALX", "amount":"1"}, {"denom":"BLX", "amount":"0.001"}]}}`,
 			exp: types.GenesisState{
-				Params: types.Params{MinimumGasPrices: sdk.NewDecCoins(sdk.NewDecCoin("ALX", sdk.NewInt(1)),
-					sdk.NewDecCoinFromDec("BLX", sdk.NewDecWithPrec(1, 3)))},
+				Params: types.Params{MinimumGasPrices: sdk.NewDecCoins(sdk.NewDecCoin("ALX", math.NewInt(1)),
+					sdk.NewDecCoinFromDec("BLX", math.LegacyNewDecWithPrec(1, 3)))},
 			},
 		},
 		"no fee set": {

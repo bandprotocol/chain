@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/pkg/gzip"
+	"github.com/bandprotocol/chain/v3/pkg/gzip"
 )
 
 func TestUncompress(t *testing.T) {

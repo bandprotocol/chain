@@ -4,15 +4,18 @@ import (
 	"fmt"
 	"io"
 
-	errorsmod "cosmossdk.io/errors"
-	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	snapshot "github.com/cosmos/cosmos-sdk/snapshots/types"
+
+	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/log"
+	snapshot "cosmossdk.io/store/snapshots/types"
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/filecache"
-	"github.com/bandprotocol/chain/v2/pkg/gzip"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/pkg/filecache"
+	"github.com/bandprotocol/chain/v3/pkg/gzip"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 var _ snapshot.ExtensionSnapshotter = &OracleSnapshotter{}
@@ -22,10 +25,10 @@ const SnapshotFormat = 1
 
 type OracleSnapshotter struct {
 	keeper *Keeper
-	cms    sdk.MultiStore
+	cms    storetypes.MultiStore
 }
 
-func NewOracleSnapshotter(cms sdk.MultiStore, keeper *Keeper) *OracleSnapshotter {
+func NewOracleSnapshotter(cms storetypes.MultiStore, keeper *Keeper) *OracleSnapshotter {
 	return &OracleSnapshotter{
 		keeper: keeper,
 		cms:    cms,

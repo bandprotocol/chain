@@ -2,9 +2,12 @@ package keeper
 
 import (
 	errorsmod "cosmossdk.io/errors"
+	storetypes "cosmossdk.io/store/types"
+
+	dbm "github.com/cosmos/cosmos-db"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 // HasReport checks if the report of this ID triple exists in the storage.
@@ -86,8 +89,8 @@ func (k Keeper) CheckValidReport(
 }
 
 // GetReportIterator returns the iterator for all reports of the given request ID.
-func (k Keeper) GetReportIterator(ctx sdk.Context, rid types.RequestID) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.ReportStoreKey(rid))
+func (k Keeper) GetReportIterator(ctx sdk.Context, rid types.RequestID) dbm.Iterator {
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.ReportStoreKey(rid))
 }
 
 // GetReportCount returns the number of reports for the given request ID.

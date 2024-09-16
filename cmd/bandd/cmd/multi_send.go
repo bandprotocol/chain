@@ -40,7 +40,7 @@ func MultiSendTxCmd() *cobra.Command {
 				inputCoins = inputCoins.Add(coins...)
 			}
 			msg := banktypes.NewMsgMultiSend(
-				[]banktypes.Input{banktypes.NewInput(sender, inputCoins)},
+				banktypes.NewInput(sender, inputCoins),
 				outputs,
 			)
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)

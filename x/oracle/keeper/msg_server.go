@@ -7,8 +7,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/gzip"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/pkg/gzip"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 type msgServer struct {

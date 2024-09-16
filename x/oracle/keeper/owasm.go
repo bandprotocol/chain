@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"math"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/bandrng"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/pkg/bandrng"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 // 1 cosmos gas is equal to 20000000 owasm gas
@@ -39,8 +40,12 @@ func (k Keeper) GetRandomValidators(ctx sdk.Context, size int, id uint64) ([]sdk
 	valPowers := []uint64{}
 	k.stakingKeeper.IterateBondedValidatorsByPower(ctx,
 		func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
-			if k.GetValidatorStatus(ctx, val.GetOperator()).IsActive {
-				valOperators = append(valOperators, val.GetOperator())
+			operator, err := sdk.ValAddressFromBech32(val.GetOperator())
+			if err != nil {
+				return false
+			}
+			if k.GetValidatorStatus(ctx, operator).IsActive {
+				valOperators = append(valOperators, operator)
 				valPowers = append(valPowers, val.GetTokens().Uint64())
 			}
 			return false
@@ -216,7 +221,7 @@ func (k Keeper) CollectFee(
 
 		fee := sdk.NewCoins()
 		for _, c := range ds.Fee {
-			c.Amount = c.Amount.Mul(sdk.NewInt(int64(askCount)))
+			c.Amount = c.Amount.Mul(math.NewInt(int64(askCount)))
 			fee = fee.Add(c)
 		}
 
