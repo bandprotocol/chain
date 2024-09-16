@@ -1,9 +1,10 @@
 package cli
 
 import (
+	"github.com/spf13/cobra"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/spf13/cobra"
 
 	"github.com/bandprotocol/chain/v3/x/globalfee/types"
 )

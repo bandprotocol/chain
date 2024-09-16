@@ -3,8 +3,9 @@ package yoda
 import (
 	"os"
 
-	"cosmossdk.io/log"
 	"github.com/kyokomi/emoji"
+
+	"cosmossdk.io/log"
 )
 
 type Logger struct {

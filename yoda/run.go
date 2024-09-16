@@ -6,13 +6,16 @@ import (
 	"path/filepath"
 	"time"
 
-	"cosmossdk.io/log"
-	httpclient "github.com/cometbft/cometbft/rpc/client/http"
-	tmtypes "github.com/cometbft/cometbft/types"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	httpclient "github.com/cometbft/cometbft/rpc/client/http"
+	tmtypes "github.com/cometbft/cometbft/types"
+
+	"cosmossdk.io/log"
+
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v3/pkg/filecache"
 	"github.com/bandprotocol/chain/v3/x/oracle/types"

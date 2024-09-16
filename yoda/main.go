@@ -6,14 +6,17 @@ import (
 	"path"
 	"path/filepath"
 
-	"cosmossdk.io/log"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
 	dbm "github.com/cosmos/cosmos-db"
+
+	"cosmossdk.io/log"
+
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	band "github.com/bandprotocol/chain/v3/app"
 )
