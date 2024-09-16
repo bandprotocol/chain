@@ -14,6 +14,33 @@ var (
 	_                types.UnpackInterfacesMessage = &MsgCreateTunnel{}
 )
 
+func NewMsgCreateTunnel(
+	signalInfos []SignalInfo,
+	interval uint64,
+	route RouteI,
+	encoder Encoder,
+	deposit sdk.Coins,
+	creator sdk.AccAddress,
+) (*MsgCreateTunnel, error) {
+	msg, ok := route.(proto.Message)
+	if !ok {
+		return nil, sdkerrors.ErrPackAny.Wrapf("cannot proto marshal %T", msg)
+	}
+	any, err := types.NewAnyWithValue(msg)
+	if err != nil {
+		return nil, err
+	}
+
+	return &MsgCreateTunnel{
+		SignalInfos: signalInfos,
+		Interval:    interval,
+		Route:       any,
+		Encoder:     encoder,
+		Deposit:     deposit,
+		Creator:     creator.String(),
+	}, nil
+}
+
 // NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
 func NewMsgCreateTSSTunnel(
 	signalInfos []SignalInfo,
@@ -76,34 +103,6 @@ func NewMsgCreateIBCTunnel(
 	}
 
 	return m, nil
-}
-
-// NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
-func NewMsgCreateTunnel(
-	signalInfos []SignalInfo,
-	interval uint64,
-	route RouteI,
-	encoder Encoder,
-	deposit sdk.Coins,
-	creator sdk.AccAddress,
-) (*MsgCreateTunnel, error) {
-	msg, ok := route.(proto.Message)
-	if !ok {
-		return nil, sdkerrors.ErrPackAny.Wrapf("cannot proto marshal %T", msg)
-	}
-	any, err := types.NewAnyWithValue(msg)
-	if err != nil {
-		return nil, err
-	}
-
-	return &MsgCreateTunnel{
-		SignalInfos: signalInfos,
-		Interval:    interval,
-		Route:       any,
-		Encoder:     encoder,
-		Deposit:     deposit,
-		Creator:     creator.String(),
-	}, nil
 }
 
 // Type Implements Msg.
