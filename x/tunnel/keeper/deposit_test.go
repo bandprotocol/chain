@@ -16,7 +16,7 @@ func TestAddDeposit(t *testing.T) {
 
 	tunnelID := uint64(1)
 	depositorAddr := sdk.AccAddress([]byte("depositor"))
-	depositAmount := sdk.NewCoins(sdk.NewCoin("band", sdk.NewInt(100)))
+	depositAmount := sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100)))
 
 	s.MockBankKeeper.EXPECT().
 		SendCoinsFromAccountToModule(ctx, depositorAddr, types.ModuleName, depositAmount).
