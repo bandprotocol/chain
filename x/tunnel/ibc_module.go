@@ -54,7 +54,7 @@ func validateChannelParams(
 	}
 
 	if version != types.Version {
-		return types.ErrInvalidVersion.Wrapf("got %s, expected %s", version, types.Version)
+		return types.ErrInvalidIBCVersion.Wrapf("got %s, expected %s", version, types.Version)
 	}
 
 	return nil
@@ -122,7 +122,7 @@ func (im IBCModule) OnChanOpenAck(
 	counterpartyVersion string,
 ) error {
 	if counterpartyVersion != types.Version {
-		return types.ErrInvalidVersion.Wrapf(
+		return types.ErrInvalidIBCVersion.Wrapf(
 			"invalid counterparty version: %s, expected %s",
 			counterpartyVersion,
 			types.Version,
