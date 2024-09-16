@@ -48,7 +48,6 @@ func (suite *KeeperTestSuite) activeAllValidators() {
 		err := k.Activate(ctx, v.Address)
 		suite.Require().NoError(err)
 	}
-
 }
 
 func (suite *KeeperTestSuite) TestGetRandomValidatorsSuccessActivateAll() {

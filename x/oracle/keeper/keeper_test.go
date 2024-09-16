@@ -93,7 +93,6 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 	err = suite.oracleKeeper.SetParams(ctx, types.DefaultParams())
 	suite.Require().NoError(err)
-
 }
 
 func (suite *KeeperTestSuite) TearDownTest() {

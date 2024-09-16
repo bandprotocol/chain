@@ -322,7 +322,6 @@ func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string) *BandApp
 		if err != nil {
 			panic(err)
 		}
-
 	}
 
 	return app

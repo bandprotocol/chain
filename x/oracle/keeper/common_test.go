@@ -108,5 +108,4 @@ func addSimpleDataSourceAndOracleScript(ctx sdk.Context, k keeper.Keeper, dir st
 		types.OracleScriptID(4),
 		types.NewOracleScript(owner, "test os4", "testing oracle script complex", fileName4, "schema", "url"),
 	)
-
 }
