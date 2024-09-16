@@ -96,7 +96,6 @@ var DefaultConsensusParams = &tmproto.ConsensusParams{
 }
 
 func init() {
-	SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
 	r := rand.New(rand.NewSource(uint64(time.Now().Unix())))
 	Owner = createArbitraryAccount(r)
 	Treasury = createArbitraryAccount(r)
@@ -292,6 +291,7 @@ func SetupWithCustomHome(isCheckTx bool, dir string) *BandApp {
 }
 
 func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string) *BandApp {
+	SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
 	db := cosmosdb.NewMemDB()
 	app := NewBandApp(
 		log.NewNopLogger(),

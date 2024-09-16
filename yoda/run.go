@@ -3,7 +3,6 @@ package yoda
 import (
 	"context"
 	"errors"
-	"fmt"
 	"path/filepath"
 	"time"
 
@@ -133,8 +132,6 @@ func runCmd(c *Context) *cobra.Command {
 				return err
 			}
 			l := NewLogger(allowLevel)
-			fmt.Println("YEAHHH")
-			l.Info("HELLO")
 			c.executor, err = executor.NewExecutor(cfg.Executor)
 			if err != nil {
 				return err
