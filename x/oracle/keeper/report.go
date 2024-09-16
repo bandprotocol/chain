@@ -1,9 +1,10 @@
 package keeper
 
 import (
+	dbm "github.com/cosmos/cosmos-db"
+
 	storetypes "cosmossdk.io/store/types"
 
-	dbm "github.com/cosmos/cosmos-db"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v3/x/oracle/types"

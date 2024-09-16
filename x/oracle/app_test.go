@@ -226,7 +226,6 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 	result, err := s.app.OracleKeeper.GetResult(ctx2, types.RequestID(1))
 	require.NoError(err)
 	require.Equal(expRes, result)
-
 }
 
 // func TestExpiredRequestOracleData(t *testing.T) {
