@@ -3,14 +3,17 @@ package keeper_test
 import (
 	"time"
 
-	"cosmossdk.io/math"
-	"github.com/bandprotocol/chain/v3/x/oracle/types"
-	abci "github.com/cometbft/cometbft/abci/types"
 	"go.uber.org/mock/gomock"
+
+	abci "github.com/cometbft/cometbft/abci/types"
+
+	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 var defaultVotes = []abci.VoteInfo{{

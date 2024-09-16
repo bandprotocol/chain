@@ -1,9 +1,10 @@
 package keeper_test
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // TODO: Fix tests

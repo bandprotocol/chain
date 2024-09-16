@@ -1,15 +1,17 @@
 package keeper_test
 
 import (
-	"cosmossdk.io/math"
-	"github.com/bandprotocol/chain/v3/pkg/obi"
-	"github.com/bandprotocol/chain/v3/x/oracle/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"go.uber.org/mock/gomock"
 
+	"cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"github.com/bandprotocol/chain/v3/pkg/obi"
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
 	"github.com/bandprotocol/chain/v3/testing/testdata"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 func (suite *KeeperTestSuite) mockIterateBondedValidatorsByPower() {
