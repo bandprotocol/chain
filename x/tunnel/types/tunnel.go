@@ -1,13 +1,40 @@
 package types
 
 import (
-	fmt "fmt"
+	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec/types"
-	proto "github.com/cosmos/gogoproto/proto"
+	"github.com/cosmos/gogoproto/proto"
 )
 
 var _ types.UnpackInterfacesMessage = Tunnel{}
+
+// NewTunnel creates a new Tunnel instance.
+func NewTunnel(
+	id uint64,
+	nonceCount uint64,
+	route *types.Any,
+	encoder Encoder,
+	feePayer string,
+	signalInfos []SignalInfo,
+	interval uint64,
+	isActive bool,
+	createdAt int64,
+	creator string,
+) Tunnel {
+	return Tunnel{
+		ID:          id,
+		NonceCount:  nonceCount,
+		Route:       route,
+		Encoder:     encoder,
+		FeePayer:    feePayer,
+		SignalInfos: signalInfos,
+		Interval:    interval,
+		IsActive:    isActive,
+		CreatedAt:   createdAt,
+		Creator:     creator,
+	}
+}
 
 // UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
 func (t Tunnel) UnpackInterfaces(unpacker types.AnyUnpacker) error {
@@ -30,23 +57,11 @@ func (t *Tunnel) SetRoute(route RouteI) error {
 	return nil
 }
 
-// createPacket creates a new packet for the tunnel
-func (t Tunnel) CreatePacket(createdAt int64) Packet {
-	return NewPacket(
-		t.ID,
-		t.NonceCount,
-		t.FeedType,
-		t.SignalPriceInfos,
-		createdAt,
-	)
-}
-
-// IsTunnelInList checks if a tunnel with the given ID is in the list of tunnels.
-func IsTunnelInList(id uint64, tunnels []Tunnel) bool {
-	for _, tunnel := range tunnels {
-		if tunnel.ID == id {
-			return true
-		}
+// GetSignalInfoMap returns the signal info map by signal ID from the tunnel.
+func (t Tunnel) GetSignalInfoMap() map[string]SignalInfo {
+	signalInfoMap := make(map[string]SignalInfo, len(t.SignalInfos))
+	for _, si := range t.SignalInfos {
+		signalInfoMap[si.SignalID] = si
 	}
-	return false
+	return signalInfoMap
 }

@@ -53,7 +53,7 @@ func GetTxCmdClaimRewards() *cobra.Command {
 				pageSize := uint64(1000)
 				for {
 					respRewards, err := queryClient.Rewards(context.Background(), &types.QueryRewardsRequest{
-						LockerAddress: clientCtx.GetFromAddress().String(),
+						StakerAddress: clientCtx.GetFromAddress().String(),
 						Pagination: &query.PageRequest{
 							Offset: offset,
 							Limit:  pageSize,
@@ -71,9 +71,9 @@ func GetTxCmdClaimRewards() *cobra.Command {
 					}
 				}
 
-				// claim all possible reward pools (>= 1 unit or key is deactivated)
+				// claim all possible reward pools (>= 1 unit or vault is deactivated)
 				for _, reward := range rewards {
-					respKey, err := queryClient.Key(context.Background(), &types.QueryKeyRequest{
+					respVault, err := queryClient.Vault(context.Background(), &types.QueryVaultRequest{
 						Key: reward.Key,
 					})
 					if err != nil {
@@ -81,7 +81,7 @@ func GetTxCmdClaimRewards() *cobra.Command {
 					}
 
 					finalReward, _ := reward.Rewards.TruncateDecimal()
-					if !finalReward.IsZero() || !respKey.Key.IsActive {
+					if !finalReward.IsZero() || !respVault.Vault.IsActive {
 						args = append(args, reward.Key)
 					}
 				}

@@ -52,14 +52,14 @@ func GetTxCmd() *cobra.Command {
 // GetTxCmdSubmitSignals creates a CLI command for submitting signals
 func GetTxCmdSubmitSignals() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "signal [signal_id1]:[power1] [signal_id2]:[power2] ...",
+		Use:   "signal [signal_id1],[power1] [signal_id2],[power2] ...",
 		Short: "Signal signal ids and their powers",
 		Args:  cobra.MinimumNArgs(0),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(
 				`Signal signal ids and their power.
 Example:
-$ %s tx feeds signal BTC:1000000 --from mykey
+$ %s tx feeds signal BTC,1000000 --from mykey
 `,
 				version.AppName,
 			),
@@ -73,7 +73,7 @@ $ %s tx feeds signal BTC:1000000 --from mykey
 			delegator := clientCtx.GetFromAddress()
 			var signals []types.Signal
 			for i, arg := range args {
-				idAndPower := strings.SplitN(arg, ":", 2)
+				idAndPower := strings.SplitN(arg, ",", 2)
 				if len(idAndPower) != 2 {
 					return fmt.Errorf("argument %d is not valid", i)
 				}
@@ -82,19 +82,16 @@ $ %s tx feeds signal BTC:1000000 --from mykey
 					return err
 				}
 				signals = append(
-					signals, types.Signal{
-						ID:    idAndPower[0],
-						Power: power,
-					},
+					signals, types.NewSignal(
+						idAndPower[0],
+						power,
+					),
 				)
 			}
 
-			msg := types.MsgSubmitSignals{
-				Delegator: delegator.String(),
-				Signals:   signals,
-			}
+			msg := types.NewMsgSubmitSignals(delegator.String(), signals)
 
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &msg)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 	flags.AddTxFlagsToCmd(cmd)
@@ -176,17 +173,11 @@ $ %s tx feeds update-reference-source-config <YOUR_IPFS_HASH> 1.0.0 --from mykey
 			}
 
 			admin := clientCtx.GetFromAddress()
-			referenceSourceConfig := types.ReferenceSourceConfig{
-				IPFSHash: args[0],
-				Version:  args[1],
-			}
+			referenceSourceConfig := types.NewReferenceSourceConfig(args[0], args[1])
 
-			msg := types.MsgUpdateReferenceSourceConfig{
-				Admin:                 admin.String(),
-				ReferenceSourceConfig: referenceSourceConfig,
-			}
+			msg := types.NewMsgUpdateReferenceSourceConfig(admin.String(), referenceSourceConfig)
 
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), &msg)
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 	flags.AddTxFlagsToCmd(cmd)
@@ -197,13 +188,13 @@ $ %s tx feeds update-reference-source-config <YOUR_IPFS_HASH> 1.0.0 --from mykey
 // GetCmdRequestSignature implements the request signature handler.
 func GetCmdRequestSignature() *cobra.Command {
 	return &cobra.Command{
-		Use:   "feeds-prices [signal_id1,signal_id2,...] [feeds-type]",
-		Short: "Request bandtss signature prices from list of signal id and feeds-type (1: default, 2: tick)",
+		Use:   "feeds-prices [signal_id1,signal_id2,...] [encoder]",
+		Short: "Request bandtss signature prices from list of signal id and encoder (1: fixed-point abi, 2: tick abi)",
 		Args:  cobra.ExactArgs(2),
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Request bandtss signature from list of signal id and feeds-type (1: default, 2: tick)
+			fmt.Sprintf(`Request bandtss signature from list of signal id and encoder (1: fixed-point abi, 2: tick abi)
 Example:
-$ %s tx bandtss request-signature feeds-prices crypto_price.ethusd,crypto_price.usdtusd 1 --fee-limit 10uband
+$ %s tx bandtss request-signature feeds-prices CS:ETH-USD,CS:USDT-USD 1 --fee-limit 10uband
 `,
 				version.AppName,
 			),
@@ -226,13 +217,13 @@ $ %s tx bandtss request-signature feeds-prices crypto_price.ethusd,crypto_price.
 
 			signalIDs := strings.Split(args[0], ",")
 
-			feedsType, err := strconv.ParseInt(args[1], 10, 32)
+			encoder, err := strconv.ParseInt(args[1], 10, 32)
 			if err != nil {
 				return err
 			}
 
 			from := clientCtx.GetFromAddress()
-			content := types.NewFeedSignatureOrder(signalIDs, types.FeedType(feedsType))
+			content := types.NewFeedSignatureOrder(signalIDs, types.Encoder(encoder))
 
 			msg, err := bandtsstypes.NewMsgRequestSignature(content, feeLimit, from)
 			if err != nil {

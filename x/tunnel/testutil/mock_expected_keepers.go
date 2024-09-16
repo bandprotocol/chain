@@ -380,18 +380,18 @@ func (m *MockFeedsKeeper) EXPECT() *MockFeedsKeeperMockRecorder {
 	return m.recorder
 }
 
-// GetPrices mocks base method.
-func (m *MockFeedsKeeper) GetPrices(ctx types2.Context) []types0.Price {
+// GetCurrentPrices mocks base method.
+func (m *MockFeedsKeeper) GetCurrentPrices(ctx types2.Context) []types0.Price {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetPrices", ctx)
+	ret := m.ctrl.Call(m, "GetCurrentPrices", ctx)
 	ret0, _ := ret[0].([]types0.Price)
 	return ret0
 }
 
-// GetPrices indicates an expected call of GetPrices.
-func (mr *MockFeedsKeeperMockRecorder) GetPrices(ctx any) *gomock.Call {
+// GetCurrentPrices indicates an expected call of GetCurrentPrices.
+func (mr *MockFeedsKeeperMockRecorder) GetCurrentPrices(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPrices", reflect.TypeOf((*MockFeedsKeeper)(nil).GetPrices), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCurrentPrices", reflect.TypeOf((*MockFeedsKeeper)(nil).GetCurrentPrices), ctx)
 }
 
 // MockBandtssKeeper is a mock of BandtssKeeper interface.
@@ -417,17 +417,17 @@ func (m *MockBandtssKeeper) EXPECT() *MockBandtssKeeperMockRecorder {
 	return m.recorder
 }
 
-// HandleCreateSigning mocks base method.
-func (m *MockBandtssKeeper) HandleCreateSigning(ctx types2.Context, content types1.Content, sender types2.AccAddress, feeLimit types2.Coins) (types.SigningID, error) {
+// CreateDirectSigningRequest mocks base method.
+func (m *MockBandtssKeeper) CreateDirectSigningRequest(ctx types2.Context, content types1.Content, memo string, sender types2.AccAddress, feeLimit types2.Coins) (types.SigningID, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "HandleCreateSigning", ctx, content, sender, feeLimit)
+	ret := m.ctrl.Call(m, "CreateDirectSigningRequest", ctx, content, memo, sender, feeLimit)
 	ret0, _ := ret[0].(types.SigningID)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// HandleCreateSigning indicates an expected call of HandleCreateSigning.
-func (mr *MockBandtssKeeperMockRecorder) HandleCreateSigning(ctx, content, sender, feeLimit any) *gomock.Call {
+// CreateDirectSigningRequest indicates an expected call of CreateDirectSigningRequest.
+func (mr *MockBandtssKeeperMockRecorder) CreateDirectSigningRequest(ctx, content, memo, sender, feeLimit any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleCreateSigning", reflect.TypeOf((*MockBandtssKeeper)(nil).HandleCreateSigning), ctx, content, sender, feeLimit)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDirectSigningRequest", reflect.TypeOf((*MockBandtssKeeper)(nil).CreateDirectSigningRequest), ctx, content, memo, sender, feeLimit)
 }

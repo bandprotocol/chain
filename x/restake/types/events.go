@@ -2,12 +2,14 @@ package types
 
 // restake module event types
 const (
-	EventTypeClaimRewards  = "claim_rewards"
-	EventTypeUnlockPower   = "unlock_power"
-	EventTypeLockPower     = "lock_power"
-	EventTypeAddRewards    = "add_rewards"
-	EventTypeDeactivateKey = "deactivate_key"
+	EventTypeClaimRewards    = "claim_rewards"
+	EventTypeUnlockPower     = "unlock_power"
+	EventTypeLockPower       = "lock_power"
+	EventTypeAddRewards      = "add_rewards"
+	EventTypeDeactivateVault = "deactivate_vault"
 
-	AttributeKeyLocker = "locker"
-	AttributeKeyKey    = "key"
+	AttributeKeyStaker  = "staker"
+	AttributeKeyKey     = "key"
+	AttributeKeyRewards = "rewards"
+	AttributeKeyPower   = "power"
 )

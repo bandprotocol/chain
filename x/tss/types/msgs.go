@@ -18,11 +18,11 @@ var (
 )
 
 // NewMsgSubmitDKGRound1 creates a new MsgSubmitDKGRound1 instance.
-func NewMsgSubmitDKGRound1(groupID tss.GroupID, round1Info Round1Info, address string) *MsgSubmitDKGRound1 {
+func NewMsgSubmitDKGRound1(groupID tss.GroupID, round1Info Round1Info, sender string) *MsgSubmitDKGRound1 {
 	return &MsgSubmitDKGRound1{
 		GroupID:    groupID,
 		Round1Info: round1Info,
-		Address:    address,
+		Sender:     sender,
 	}
 }
 
@@ -36,13 +36,13 @@ func (m MsgSubmitDKGRound1) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgSubmitDKGRound1.
 func (m MsgSubmitDKGRound1) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSubmitDKGRound1) ValidateBasic() error {
 	// Validate member address
-	if _, err := sdk.AccAddressFromBech32(m.Address); err != nil {
+	if _, err := sdk.AccAddressFromBech32(m.Sender); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
 	}
 
@@ -72,11 +72,11 @@ func (m MsgSubmitDKGRound1) ValidateBasic() error {
 }
 
 // NewMsgSubmitDKGRound2 creates a new MsgSubmitDKGRound2 instance.
-func NewMsgSubmitDKGRound2(groupID tss.GroupID, round2Info Round2Info, address string) *MsgSubmitDKGRound2 {
+func NewMsgSubmitDKGRound2(groupID tss.GroupID, round2Info Round2Info, sender string) *MsgSubmitDKGRound2 {
 	return &MsgSubmitDKGRound2{
 		GroupID:    groupID,
 		Round2Info: round2Info,
-		Address:    address,
+		Sender:     sender,
 	}
 }
 
@@ -90,14 +90,14 @@ func (m MsgSubmitDKGRound2) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgSubmitDKGRound2.
 func (m MsgSubmitDKGRound2) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSubmitDKGRound2) ValidateBasic() error {
 	// Validate member address
-	if _, err := sdk.AccAddressFromBech32(m.Address); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+	if _, err := sdk.AccAddressFromBech32(m.Sender); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
 	}
 
 	// Validate encrypted secret shares
@@ -111,11 +111,11 @@ func (m MsgSubmitDKGRound2) ValidateBasic() error {
 }
 
 // NewMsgComplain creates a new MsgComplain instance.
-func NewMsgComplain(groupID tss.GroupID, complaints []Complaint, address string) *MsgComplain {
+func NewMsgComplain(groupID tss.GroupID, complaints []Complaint, sender string) *MsgComplain {
 	return &MsgComplain{
 		GroupID:    groupID,
 		Complaints: complaints,
-		Address:    address,
+		Sender:     sender,
 	}
 }
 
@@ -129,14 +129,14 @@ func (m MsgComplain) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgComplain.
 func (m MsgComplain) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgComplain) ValidateBasic() error {
 	// Validate member address
-	if _, err := sdk.AccAddressFromBech32(m.Address); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+	if _, err := sdk.AccAddressFromBech32(m.Sender); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
 	}
 
 	// Validate complaints size
@@ -176,13 +176,13 @@ func NewMsgConfirm(
 	groupID tss.GroupID,
 	memberID tss.MemberID,
 	ownPubKeySig tss.Signature,
-	address string,
+	sender string,
 ) *MsgConfirm {
 	return &MsgConfirm{
 		GroupID:      groupID,
 		MemberID:     memberID,
 		OwnPubKeySig: ownPubKeySig,
-		Address:      address,
+		Sender:       sender,
 	}
 }
 
@@ -196,14 +196,14 @@ func (m MsgConfirm) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgConfirm.
 func (m MsgConfirm) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgConfirm) ValidateBasic() error {
 	// Validate member address
-	if _, err := sdk.AccAddressFromBech32(m.Address); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+	if _, err := sdk.AccAddressFromBech32(m.Sender); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
 	}
 
 	// Validate own pub key sig
@@ -215,10 +215,10 @@ func (m MsgConfirm) ValidateBasic() error {
 }
 
 // NewMsgSubmitDEs creates a new MsgSubmitDEs instance.
-func NewMsgSubmitDEs(des []DE, address string) *MsgSubmitDEs {
+func NewMsgSubmitDEs(des []DE, sender string) *MsgSubmitDEs {
 	return &MsgSubmitDEs{
-		DEs:     des,
-		Address: address,
+		DEs:    des,
+		Sender: sender,
 	}
 }
 
@@ -232,14 +232,14 @@ func (m MsgSubmitDEs) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgSubmitDEs.
 func (m MsgSubmitDEs) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSubmitDEs) ValidateBasic() error {
 	// Validate member address
-	if _, err := sdk.AccAddressFromBech32(m.Address); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+	if _, err := sdk.AccAddressFromBech32(m.Sender); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
 	}
 
 	// Validate DEs
@@ -263,13 +263,13 @@ func NewMsgSubmitSignature(
 	signingID tss.SigningID,
 	memberID tss.MemberID,
 	signature tss.Signature,
-	address string,
+	signer string,
 ) *MsgSubmitSignature {
 	return &MsgSubmitSignature{
 		SigningID: signingID,
 		MemberID:  memberID,
 		Signature: signature,
-		Address:   address,
+		Signer:    signer,
 	}
 }
 
@@ -283,14 +283,14 @@ func (m MsgSubmitSignature) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgSubmitSignature.
 func (m MsgSubmitSignature) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Signer)}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSubmitSignature) ValidateBasic() error {
 	// Validate member address
-	if _, err := sdk.AccAddressFromBech32(m.Address); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+	if _, err := sdk.AccAddressFromBech32(m.Signer); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid signer address: %s", err)
 	}
 
 	// Validate member signature

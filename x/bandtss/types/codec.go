@@ -5,28 +5,35 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 // RegisterLegacyAminoCodec registers the necessary x/bandtss interfaces and concrete types
 // on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	legacy.RegisterAminoMsg(cdc, &MsgCreateGroup{}, "bandtss/MsgCreateGroup")
-	legacy.RegisterAminoMsg(cdc, &MsgReplaceGroup{}, "bandtss/MsgReplaceGroup")
+	legacy.RegisterAminoMsg(cdc, &MsgTransitionGroup{}, "bandtss/MsgTransitionGroup")
+	legacy.RegisterAminoMsg(cdc, &MsgForceTransitionGroup{}, "bandtss/MsgForceTransitionGroup")
 	legacy.RegisterAminoMsg(cdc, &MsgRequestSignature{}, "bandtss/MsgRequestSignature")
 	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "bandtss/MsgActivate")
-	legacy.RegisterAminoMsg(cdc, &MsgHealthCheck{}, "bandtss/MsgHealthCheck")
+	legacy.RegisterAminoMsg(cdc, &MsgHeartbeat{}, "bandtss/MsgHeartbeat")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "bandtss/MsgUpdateParams")
 }
 
 // RegisterInterfaces register the bandtss module interfaces to protobuf Any.
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
-		&MsgCreateGroup{},
-		&MsgReplaceGroup{},
+		&MsgTransitionGroup{},
+		&MsgForceTransitionGroup{},
 		&MsgRequestSignature{},
 		&MsgActivate{},
-		&MsgHealthCheck{},
+		&MsgHeartbeat{},
 		&MsgUpdateParams{},
+	)
+
+	registry.RegisterImplementations(
+		(*tsstypes.Content)(nil),
+		&GroupTransitionSignatureOrder{},
 	)
 }
 

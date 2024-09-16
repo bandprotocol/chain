@@ -27,17 +27,17 @@ func (k msgServer) ClaimRewards(
 ) (*types.MsgClaimRewardsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	address, err := sdk.AccAddressFromBech32(msg.LockerAddress)
+	addr, err := sdk.AccAddressFromBech32(msg.StakerAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	key, err := k.GetKey(ctx, msg.Key)
+	vault, err := k.GetVault(ctx, msg.Key)
 	if err != nil {
 		return nil, err
 	}
 
-	lock, err := k.GetLock(ctx, address, msg.Key)
+	lock, err := k.GetLock(ctx, addr, msg.Key)
 	if err != nil {
 		return nil, err
 	}
@@ -46,11 +46,11 @@ func (k msgServer) ClaimRewards(
 	finalRewards, remainders := reward.Rewards.TruncateDecimal()
 
 	if !finalRewards.IsZero() {
-		lock.PosRewardDebts = k.getTotalRewards(ctx, lock)
+		lock.PosRewardDebts = k.getAccumulatedRewards(ctx, lock)
 		lock.NegRewardDebts = remainders
 		k.SetLock(ctx, lock)
 
-		err = k.bankKeeper.SendCoins(ctx, sdk.MustAccAddressFromBech32(key.PoolAddress), address, finalRewards)
+		err = k.bankKeeper.SendCoins(ctx, sdk.MustAccAddressFromBech32(vault.VaultAddress), addr, finalRewards)
 		if err != nil {
 			return nil, err
 		}
@@ -58,18 +58,18 @@ func (k msgServer) ClaimRewards(
 		ctx.EventManager().EmitEvent(
 			sdk.NewEvent(
 				types.EventTypeClaimRewards,
-				sdk.NewAttribute(types.AttributeKeyLocker, msg.LockerAddress),
+				sdk.NewAttribute(types.AttributeKeyStaker, msg.StakerAddress),
 				sdk.NewAttribute(types.AttributeKeyKey, lock.Key),
-				sdk.NewAttribute(sdk.AttributeKeyAmount, finalRewards.String()),
+				sdk.NewAttribute(types.AttributeKeyRewards, finalRewards.String()),
 			),
 		)
 	}
 
-	if !key.IsActive {
-		k.DeleteLock(ctx, address, key.Name)
+	if !vault.IsActive {
+		k.DeleteLock(ctx, addr, vault.Key)
 
-		key.Remainders = key.Remainders.Add(remainders...)
-		k.SetKey(ctx, key)
+		vault.Remainders = vault.Remainders.Add(remainders...)
+		k.SetVault(ctx, vault)
 	}
 
 	return &types.MsgClaimRewardsResponse{}, nil

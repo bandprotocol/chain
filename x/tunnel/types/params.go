@@ -1,8 +1,7 @@
 package types
 
 import (
-	fmt "fmt"
-	"time"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -10,30 +9,24 @@ import (
 )
 
 var (
-	DefaultMinInterval     = uint64((1 * time.Second).Seconds())
-	DefaultMinDeposit      = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
-	DefaultMinDeviationBPS = uint64(100)
-	DefaultBaseFee         = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
-	DefaultTSSRouteFee     = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
-	DefaultAxelarRouteFee  = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
+	DefaultMinInterval   = uint64(1)
+	DefaultMinDeposit    = sdk.NewCoins(sdk.NewInt64Coin("band", 1000000))
+	DefaultMaxSignals    = uint64(100)
+	DefaultBasePacketFee = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
 )
 
 // NewParams creates a new Params instance
 func NewParams(
 	minDeposit sdk.Coins,
-	minDeviationBPS uint64,
 	minInterval uint64,
-	baseFee sdk.Coins,
-	tssRouteFee sdk.Coins,
-	axelarRouteFee sdk.Coins,
+	maxSignals uint64,
+	basePacketFee sdk.Coins,
 ) Params {
 	return Params{
-		MinDeposit:      minDeposit,
-		MinDeviationBPS: minDeviationBPS,
-		MinInterval:     minInterval,
-		BaseFee:         baseFee,
-		TSSRouteFee:     tssRouteFee,
-		AxelarRouteFee:  axelarRouteFee,
+		MinDeposit:    minDeposit,
+		MinInterval:   minInterval,
+		MaxSignals:    maxSignals,
+		BasePacketFee: basePacketFee,
 	}
 }
 
@@ -41,11 +34,9 @@ func NewParams(
 func DefaultParams() Params {
 	return NewParams(
 		DefaultMinDeposit,
-		DefaultMinDeviationBPS,
 		DefaultMinInterval,
-		DefaultBaseFee,
-		DefaultTSSRouteFee,
-		DefaultAxelarRouteFee,
+		DefaultMaxSignals,
+		DefaultBasePacketFee,
 	)
 }
 
@@ -55,21 +46,20 @@ func (p Params) Validate() error {
 	if !p.MinDeposit.IsValid() {
 		return sdkerrors.ErrInvalidCoins.Wrapf(p.MinDeposit.String())
 	}
-	// Validate MinDeviationBPS uint64
-	if err := validateUint64("min deviation BPS", false)(p.MinDeviationBPS); err != nil {
+
+	// Validate MinInterval
+	if err := validateUint64("min interval", true)(p.MinInterval); err != nil {
 		return err
 	}
-	// Validate MinDeviationBPS
-	if err := validateBasisPoint(p.MinDeviationBPS); err != nil {
+
+	// Validate MaxSignals
+	if err := validateUint64("max signals", true)(p.MaxSignals); err != nil {
 		return err
 	}
-	// Validate TSSRouteFee
-	if !p.TSSRouteFee.IsValid() {
-		return sdkerrors.ErrInvalidCoins.Wrapf(p.TSSRouteFee.String())
-	}
-	// Validate AxelarRouteFee
-	if !p.AxelarRouteFee.IsValid() {
-		return sdkerrors.ErrInvalidCoins.Wrapf(p.AxelarRouteFee.String())
+
+	// Validate BaseFee
+	if !p.BasePacketFee.IsValid() {
+		return sdkerrors.ErrInvalidCoins.Wrapf(p.BasePacketFee.String())
 	}
 
 	return nil
@@ -82,7 +72,11 @@ func (p Params) String() string {
 }
 
 // validateBasisPoint validates if a given number is a valid basis point (0 to 10000).
-func validateBasisPoint(bp uint64) error {
+func validateBasisPoint(name string, bp uint64) error {
+	if err := validateUint64(name, false)(bp); err != nil {
+		return err
+	}
+
 	if bp > 10000 {
 		return fmt.Errorf("invalid basis point: must be between 0 and 10000")
 	}

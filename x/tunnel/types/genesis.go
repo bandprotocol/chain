@@ -1,21 +1,23 @@
 package types
 
-// NewGenesisState creates a new GenesisState instanc e
+// NewGenesisState creates a new GenesisState instance
 func NewGenesisState(
-	portID string,
 	params Params,
+	portID string,
 	tunnelCount uint64,
 	tunnels []Tunnel,
+	signalPricesInfos []SignalPricesInfo,
 ) *GenesisState {
 	return &GenesisState{
-		PortID:      portID,
-		Params:      params,
-		TunnelCount: tunnelCount,
-		Tunnels:     tunnels,
+		Params:            params,
+		PortID:            portID,
+		TunnelCount:       tunnelCount,
+		Tunnels:           tunnels,
+		SignalPricesInfos: signalPricesInfos,
 	}
 }
 
 // DefaultGenesisState gets the raw genesis raw message for testing
 func DefaultGenesisState() *GenesisState {
-	return NewGenesisState(PortID, DefaultParams(), 0, []Tunnel{})
+	return NewGenesisState(DefaultParams(), PortID, 0, []Tunnel{}, []SignalPricesInfo{})
 }

@@ -14,40 +14,46 @@ import (
 )
 
 var (
-	_ sdk.Msg = &MsgCreateGroup{}
-	_ sdk.Msg = &MsgReplaceGroup{}
+	_ sdk.Msg = &MsgTransitionGroup{}
+	_ sdk.Msg = &MsgForceTransitionGroup{}
 	_ sdk.Msg = &MsgRequestSignature{}
 	_ sdk.Msg = &MsgActivate{}
-	_ sdk.Msg = &MsgHealthCheck{}
+	_ sdk.Msg = &MsgHeartbeat{}
 	_ sdk.Msg = &MsgUpdateParams{}
 
 	_ types.UnpackInterfacesMessage = &MsgRequestSignature{}
 )
 
-// NewMsgCreateGroup creates a new MsgCreateGroup instance.
-func NewMsgCreateGroup(members []string, threshold uint64, fee sdk.Coins, authority string) *MsgCreateGroup {
-	return &MsgCreateGroup{
+// NewMsgTransitionGroup creates a new MsgTransitionGroup instance.
+func NewMsgTransitionGroup(
+	members []string,
+	threshold uint64,
+	execTime time.Time,
+	authority string,
+) *MsgTransitionGroup {
+	return &MsgTransitionGroup{
 		Members:   members,
 		Threshold: threshold,
 		Authority: authority,
+		ExecTime:  execTime,
 	}
 }
 
 // Type returns message type name.
-func (m MsgCreateGroup) Type() string { return sdk.MsgTypeURL(&m) }
+func (m MsgTransitionGroup) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
-func (m MsgCreateGroup) GetSignBytes() []byte {
+func (m MsgTransitionGroup) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a MsgCreateGroup.
-func (m MsgCreateGroup) GetSigners() []sdk.AccAddress {
+// GetSigners returns the expected signers for a MsgTransitionGroup.
+func (m MsgTransitionGroup) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
 }
 
 // ValidateBasic does a sanity check on the provided data
-func (m MsgCreateGroup) ValidateBasic() error {
+func (m MsgTransitionGroup) ValidateBasic() error {
 	// Validate members address
 	for _, member := range m.Members {
 		if _, err := sdk.AccAddressFromBech32(member); err != nil {
@@ -75,37 +81,41 @@ func (m MsgCreateGroup) ValidateBasic() error {
 	return nil
 }
 
-// NewMsgReplaceGroup creates a new MsgReplaceGroup instance.
-func NewMsgReplaceGroup(
-	newGroupID tss.GroupID,
+// NewMsgForceTransitionGroup creates a new MsgForceTransitionGroup instance.
+func NewMsgForceTransitionGroup(
+	incomingGroupID tss.GroupID,
 	execTime time.Time,
 	authority string,
-) *MsgReplaceGroup {
-	return &MsgReplaceGroup{
-		NewGroupID: newGroupID,
-		ExecTime:   execTime,
-		Authority:  authority,
+) *MsgForceTransitionGroup {
+	return &MsgForceTransitionGroup{
+		IncomingGroupID: incomingGroupID,
+		ExecTime:        execTime,
+		Authority:       authority,
 	}
 }
 
 // Type returns message type name.
-func (m MsgReplaceGroup) Type() string { return sdk.MsgTypeURL(&m) }
+func (m MsgForceTransitionGroup) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
-func (m MsgReplaceGroup) GetSignBytes() []byte {
+func (m MsgForceTransitionGroup) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a MsgReplaceGroup.
-func (m MsgReplaceGroup) GetSigners() []sdk.AccAddress {
+// GetSigners returns the expected signers for a MsgForceTransitionGroup.
+func (m MsgForceTransitionGroup) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
 }
 
 // ValidateBasic does a sanity check on the provided data
-func (m MsgReplaceGroup) ValidateBasic() error {
+func (m MsgForceTransitionGroup) ValidateBasic() error {
 	// Validate sender address
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
+	}
+
+	if m.IncomingGroupID == 0 {
+		return ErrInvalidIncomingGroup.Wrap("incoming group ID must not be zero")
 	}
 
 	return nil
@@ -181,9 +191,10 @@ func (m MsgRequestSignature) UnpackInterfaces(unpacker types.AnyUnpacker) error 
 }
 
 // NewMsgActivate creates a new MsgActivate instance.
-func NewMsgActivate(address string) *MsgActivate {
+func NewMsgActivate(sender string, groupID tss.GroupID) *MsgActivate {
 	return &MsgActivate{
-		Address: address,
+		Sender:  sender,
+		GroupID: groupID,
 	}
 }
 
@@ -197,44 +208,45 @@ func (m MsgActivate) GetSignBytes() []byte {
 
 // GetSigners returns the expected signers for a MsgActivate.
 func (m MsgActivate) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
 }
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgActivate) ValidateBasic() error {
 	// Validate member address
-	if _, err := sdk.AccAddressFromBech32(m.Address); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+	if _, err := sdk.AccAddressFromBech32(m.Sender); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
 	}
 
 	return nil
 }
 
-// NewMsgHealthCheck creates a new MsgHealthCheck instance.
-func NewMsgHealthCheck(address string) *MsgHealthCheck {
-	return &MsgHealthCheck{
-		Address: address,
+// NewMsgHeartbeat creates a new MsgHeartbeat instance.
+func NewMsgHeartbeat(sender string, groupID tss.GroupID) *MsgHeartbeat {
+	return &MsgHeartbeat{
+		Sender:  sender,
+		GroupID: groupID,
 	}
 }
 
 // Type returns message type name.
-func (m MsgHealthCheck) Type() string { return sdk.MsgTypeURL(&m) }
+func (m MsgHeartbeat) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes Implements Msg.
-func (m MsgHealthCheck) GetSignBytes() []byte {
+func (m MsgHeartbeat) GetSignBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
 }
 
-// GetSigners returns the expected signers for a MsgHealthCheck.
-func (m MsgHealthCheck) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Address)}
+// GetSigners returns the expected signers for a MsgHeartbeat.
+func (m MsgHeartbeat) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
 }
 
 // ValidateBasic does a sanity check on the provided data
-func (m MsgHealthCheck) ValidateBasic() error {
+func (m MsgHeartbeat) ValidateBasic() error {
 	// Validate member address
-	if _, err := sdk.AccAddressFromBech32(m.Address); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+	if _, err := sdk.AccAddressFromBech32(m.Sender); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
 	}
 
 	return nil

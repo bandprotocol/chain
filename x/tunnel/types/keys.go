@@ -9,8 +9,8 @@ const (
 	// Version defines the current version the IBC module supports
 	Version = "tunnel-1"
 
-	// KeyAccountsKey is used to store the key for the account
-	KeyAccountsKey = "tunnel-accounts"
+	// TunnelAccountsKey is used to store the key for the account
+	TunnelAccountsKey = "tunnel-accounts"
 
 	// StoreKey defines the primary module store key
 	StoreKey = ModuleName
@@ -26,23 +26,29 @@ const (
 )
 
 var (
-	GlobalStoreKeyPrefix = []byte{0x00}
+	TunnelCountStoreKey = []byte{0x00}
 
-	TunnelCountStoreKey = append(GlobalStoreKeyPrefix, []byte("TunnelCount")...)
+	TotalPacketFeeStoreKey = []byte{0x01}
 
-	PendingTriggerTunnelsStoreKey = append(GlobalStoreKeyPrefix, []byte("PendingTriggerTunnels")...)
+	ActiveTunnelIDStoreKeyPrefix = []byte{0x10}
 
-	TunnelStoreKeyPrefix = []byte{0x01}
+	TunnelStoreKeyPrefix = []byte{0x11}
 
-	PacketStoreKeyPrefix = []byte{0x02}
+	PacketStoreKeyPrefix = []byte{0x12}
 
 	ParamsKey = []byte{0x10}
+
+	SignalPricesInfoStoreKeyPrefix = []byte{0x13}
 
 	PortKey = []byte{0xff}
 )
 
-func TunnelStoreKey(id uint64) []byte {
-	return append(TunnelStoreKeyPrefix, sdk.Uint64ToBigEndian(id)...)
+func TunnelStoreKey(tunnelID uint64) []byte {
+	return append(TunnelStoreKeyPrefix, sdk.Uint64ToBigEndian(tunnelID)...)
+}
+
+func ActiveTunnelIDStoreKey(tunnelID uint64) []byte {
+	return append(ActiveTunnelIDStoreKeyPrefix, sdk.Uint64ToBigEndian(tunnelID)...)
 }
 
 func TunnelPacketsStoreKey(tunnelID uint64) []byte {
@@ -51,4 +57,8 @@ func TunnelPacketsStoreKey(tunnelID uint64) []byte {
 
 func TunnelPacketStoreKey(tunnelID uint64, packetID uint64) []byte {
 	return append(TunnelPacketsStoreKey(tunnelID), sdk.Uint64ToBigEndian(packetID)...)
+}
+
+func SignalPricesInfoStoreKey(tunnelID uint64) []byte {
+	return append(SignalPricesInfoStoreKeyPrefix, sdk.Uint64ToBigEndian(tunnelID)...)
 }

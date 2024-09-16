@@ -1,14 +1,18 @@
 package keeper_test
 
 import (
+	"testing"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-func (s *KeeperTestSuite) TestGetSetMember() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func TestGetSetMember(t *testing.T) {
+	s := NewKeeperTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
 	groupID, memberID := tss.GroupID(1), tss.MemberID(1)
 	member := types.Member{
 		ID:          1,
@@ -20,12 +24,13 @@ func (s *KeeperTestSuite) TestGetSetMember() {
 	k.SetMember(ctx, member)
 
 	got, err := k.GetMember(ctx, groupID, memberID)
-	s.Require().NoError(err)
-	s.Require().Equal(member, got)
+	require.NoError(t, err)
+	require.Equal(t, member, got)
 }
 
-func (s *KeeperTestSuite) TestGetGroupMembers() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func TestGetGroupMembers(t *testing.T) {
+	s := NewKeeperTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
 	groupID := tss.GroupID(1)
 	members := []types.Member{
 		{
@@ -47,12 +52,13 @@ func (s *KeeperTestSuite) TestGetGroupMembers() {
 	k.SetMembers(ctx, members)
 
 	got, err := k.GetGroupMembers(ctx, groupID)
-	s.Require().NoError(err)
-	s.Require().Equal(members, got)
+	require.NoError(t, err)
+	require.Equal(t, members, got)
 }
 
-func (s *KeeperTestSuite) TestGetSetMemberIsActive() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func TestGetSetMemberIsActive(t *testing.T) {
+	s := NewKeeperTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
 
 	groupID := tss.GroupID(10)
 	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
@@ -66,21 +72,21 @@ func (s *KeeperTestSuite) TestGetSetMemberIsActive() {
 
 	// check when being set to active
 	members, err := k.GetGroupMembers(ctx, groupID)
-	s.Require().NoError(err)
-	s.Require().Len(members, 1)
+	require.NoError(t, err)
+	require.Len(t, members, 1)
 
 	for _, member := range members {
-		s.Require().True(member.IsActive)
+		require.True(t, member.IsActive)
 	}
 
 	err = k.SetMemberIsActive(ctx, groupID, address, false)
-	s.Require().NoError(err)
+	require.NoError(t, err)
 
 	members, err = k.GetGroupMembers(ctx, groupID)
-	s.Require().NoError(err)
-	s.Require().Len(members, 1)
+	require.NoError(t, err)
+	require.Len(t, members, 1)
 
 	for _, member := range members {
-		s.Require().False(member.IsActive)
+		require.False(t, member.IsActive)
 	}
 }

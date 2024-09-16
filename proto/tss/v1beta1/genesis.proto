@@ -11,18 +11,12 @@ option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
 message GenesisState {
   // params defines all the paramiters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
-  // group_count defines the number of groups.
-  uint64 group_count = 2;
   // groups is an array containing information about each group.
-  repeated Group groups = 3 [(gogoproto.nullable) = false];
+  repeated Group groups = 2 [(gogoproto.nullable) = false];
   // members is an array containing information about each member of groups.
-  repeated Member members = 4 [(gogoproto.nullable) = false];
-  // signing_count defines the number of signers.
-  uint64 signing_count = 5;
-  // signings is an array containing information about each signing.
-  repeated Signing signings = 6 [(gogoproto.nullable) = false];
-  // des_genesis is an array containing the des of all the addressres.
-  repeated DEGenesis des_genesis = 7 [(gogoproto.customname) = "DEsGenesis", (gogoproto.nullable) = false];
+  repeated Member members = 3 [(gogoproto.nullable) = false];
+  // des is an array containing the des of all the addressres.
+  repeated DEGenesis des = 4 [(gogoproto.customname) = "DEs", (gogoproto.nullable) = false];
 }
 
 // Params defines the set of module parameters.
@@ -31,10 +25,16 @@ message Params {
   uint64 max_group_size = 1;
   // max_d_e_size is the maximum of the de capacity of the member.
   uint64 max_d_e_size = 2;
-  // creating_period is the number of blocks allowed to creating group signature.
-  uint64 creating_period = 3;
+  // creation_period is the number of blocks allowed to creating tss group.
+  uint64 creation_period = 3;
   // signing_period is the number of blocks allowed to sign.
   uint64 signing_period = 4;
+  // max_signing_attempt is the maximum number of signing retry process per signingID.
+  uint64 max_signing_attempt = 5;
+  // max_memo_length is the maximum length of the memo in the direct originator.
+  uint64 max_memo_length = 6;
+  // max_message_length is the maximum length of the message in the TextSignatureOrder.
+  uint64 max_message_length = 7;
 }
 
 // DEGenesis defines an account address and de pair used in the tss module's genesis state.

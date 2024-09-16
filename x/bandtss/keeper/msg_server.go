@@ -2,12 +2,14 @@ package keeper
 
 import (
 	"context"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
+	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 type msgServer struct {
@@ -21,15 +23,14 @@ func NewMsgServerImpl(keeper *Keeper) types.MsgServer {
 	return &msgServer{Keeper: keeper}
 }
 
-// CreateGroup initializes a new group. It passes the input to tss module.
-func (k msgServer) CreateGroup(
+// TransitionGroup initializes a new group and setup new transition process.
+func (k msgServer) TransitionGroup(
 	goCtx context.Context,
-	req *types.MsgCreateGroup,
-) (*types.MsgCreateGroupResponse, error) {
+	req *types.MsgTransitionGroup,
+) (*types.MsgTransitionGroupResponse, error) {
 	if k.authority != req.Authority {
 		return nil, govtypes.ErrInvalidSigner.Wrapf("expected %s got %s", k.authority, req.Authority)
 	}
-
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// validate members
@@ -42,28 +43,90 @@ func (k msgServer) CreateGroup(
 		members = append(members, address)
 	}
 
-	if _, err := k.tssKeeper.CreateGroup(ctx, members, req.Threshold, types.ModuleName); err != nil {
+	// validate transition duration
+	if err := k.ValidateTransitionExecTime(ctx, req.ExecTime); err != nil {
 		return nil, err
 	}
 
-	return &types.MsgCreateGroupResponse{}, nil
+	// validate if transition is in progress
+	if err := k.ValidateTransitionInProgress(ctx); err != nil {
+		return nil, err
+	}
+
+	groupID, err := k.tssKeeper.CreateGroup(
+		ctx,
+		members,
+		req.Threshold,
+		types.ModuleName,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	// set new group transition
+	transition, err := k.SetNewGroupTransition(ctx, groupID, req.ExecTime, false)
+	if err != nil {
+		return nil, err
+	}
+
+	// emit an event for the group transition.
+	attrs := k.ExtractEventAttributesFromTransition(transition)
+	ctx.EventManager().EmitEvent(sdk.NewEvent(types.EventTypeGroupTransition, attrs...))
+
+	return &types.MsgTransitionGroupResponse{}, nil
 }
 
-// ReplaceGroup handles the replacement of a group with another group.
-func (k msgServer) ReplaceGroup(
+// ForceTransitionGroup handles the group transition without requesting a current group to
+// sign a transition message.
+func (k msgServer) ForceTransitionGroup(
 	goCtx context.Context,
-	req *types.MsgReplaceGroup,
-) (*types.MsgReplaceGroupResponse, error) {
+	req *types.MsgForceTransitionGroup,
+) (*types.MsgForceTransitionGroupResponse, error) {
 	if k.authority != req.Authority {
 		return nil, govtypes.ErrInvalidSigner.Wrapf("expected %s got %s", k.authority, req.Authority)
 	}
-
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	if _, err := k.CreateGroupReplacement(ctx, req.NewGroupID, req.ExecTime); err != nil {
+
+	// validate transition duration
+	if err := k.ValidateTransitionExecTime(ctx, req.ExecTime); err != nil {
 		return nil, err
 	}
 
-	return &types.MsgReplaceGroupResponse{}, nil
+	// validate if transition is in progress
+	if err := k.ValidateTransitionInProgress(ctx); err != nil {
+		return nil, err
+	}
+
+	// validate incoming group
+	currentGroupID := k.GetCurrentGroupID(ctx)
+	if currentGroupID == req.IncomingGroupID {
+		return nil, types.ErrInvalidIncomingGroup.Wrap("incoming group is the same as the current group")
+	}
+
+	incomingGroup, err := k.tssKeeper.GetGroup(ctx, req.IncomingGroupID)
+	if err != nil {
+		return nil, err
+	}
+	if incomingGroup.Status != tsstypes.GROUP_STATUS_ACTIVE {
+		return nil, types.ErrInvalidIncomingGroup.Wrap("incoming group is not active")
+	}
+
+	// add members from new group.
+	if err := k.AddMembers(ctx, req.IncomingGroupID); err != nil {
+		return nil, err
+	}
+
+	// set new group transition
+	transition, err := k.SetNewGroupTransition(ctx, req.IncomingGroupID, req.ExecTime, true)
+	if err != nil {
+		return nil, err
+	}
+
+	// emit an event for the group transition.
+	attrs := k.ExtractEventAttributesFromTransition(transition)
+	ctx.EventManager().EmitEvent(sdk.NewEvent(types.EventTypeGroupTransition, attrs...))
+
+	return &types.MsgForceTransitionGroupResponse{}, nil
 }
 
 // RequestSignature initiates the signing process by requesting signatures from assigned members.
@@ -76,17 +139,18 @@ func (k msgServer) RequestSignature(
 
 	feePayer, err := sdk.AccAddressFromBech32(req.Sender)
 	if err != nil {
-		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
 	}
 
 	content := req.GetContent()
-	if content.OrderRoute() == types.RouterKey && content.OrderType() == types.ReplaceGroupPath {
-		return nil, types.ErrInvalidRequestSignature.Wrapf(
-			"invalid request order route: %s order type: %s", content.OrderRoute(), content.OrderType())
+	if content.IsInternal() {
+		return nil, types.ErrContentNotAllowed.Wrapf(
+			"order route: %s, type: %s", content.OrderRoute(), content.OrderType(),
+		)
 	}
 
 	// Execute the handler to process the request.
-	_, err = k.HandleCreateSigning(ctx, content, feePayer, req.FeeLimit)
+	_, err = k.CreateDirectSigningRequest(ctx, content, req.Memo, feePayer, req.FeeLimit)
 	if err != nil {
 		return nil, err
 	}
@@ -98,45 +162,41 @@ func (k msgServer) RequestSignature(
 func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*types.MsgActivateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	address, err := sdk.AccAddressFromBech32(msg.Address)
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
 	}
 
-	if err = k.ActivateMember(ctx, address); err != nil {
+	if err = k.ActivateMember(ctx, sender, msg.GroupID); err != nil {
 		return nil, err
 	}
-
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeActivate,
-		sdk.NewAttribute(types.AttributeKeyAddress, msg.Address),
-	))
 
 	return &types.MsgActivateResponse{}, nil
 }
 
-// HealthCheck keeps notice that user is alive.
-func (k msgServer) HealthCheck(
+// Heartbeat keeps notice that user is alive.
+func (k msgServer) Heartbeat(
 	goCtx context.Context,
-	msg *types.MsgHealthCheck,
-) (*types.MsgHealthCheckResponse, error) {
+	msg *types.MsgHeartbeat,
+) (*types.MsgHeartbeatResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	address, err := sdk.AccAddressFromBech32(msg.Address)
+	sender, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
-		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
 	}
 
-	if err = k.SetLastActive(ctx, address); err != nil {
+	if err = k.SetLastActive(ctx, sender, msg.GroupID); err != nil {
 		return nil, err
 	}
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeHealthCheck,
-		sdk.NewAttribute(types.AttributeKeyAddress, msg.Address),
+		types.EventTypeHeartbeat,
+		sdk.NewAttribute(types.AttributeKeyAddress, msg.Sender),
+		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", msg.GroupID)),
 	))
 
-	return &types.MsgHealthCheckResponse{}, nil
+	return &types.MsgHeartbeatResponse{}, nil
 }
 
 // UpdateParams update the parameter of the module.

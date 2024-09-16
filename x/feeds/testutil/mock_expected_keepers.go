@@ -158,6 +158,20 @@ func (mr *MockStakingKeeperMockRecorder) IterateBondedValidatorsByPower(ctx, fn 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IterateBondedValidatorsByPower", reflect.TypeOf((*MockStakingKeeper)(nil).IterateBondedValidatorsByPower), ctx, fn)
 }
 
+// TotalBondedTokens mocks base method.
+func (m *MockStakingKeeper) TotalBondedTokens(ctx types0.Context) math.Int {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "TotalBondedTokens", ctx)
+	ret0, _ := ret[0].(math.Int)
+	return ret0
+}
+
+// TotalBondedTokens indicates an expected call of TotalBondedTokens.
+func (mr *MockStakingKeeperMockRecorder) TotalBondedTokens(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TotalBondedTokens", reflect.TypeOf((*MockStakingKeeper)(nil).TotalBondedTokens), ctx)
+}
+
 // MockRestakeKeeper is a mock of RestakeKeeper interface.
 type MockRestakeKeeper struct {
 	ctrl     *gomock.Controller

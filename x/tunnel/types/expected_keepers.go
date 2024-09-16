@@ -64,13 +64,14 @@ type ScopedKeeper interface {
 }
 
 type FeedsKeeper interface {
-	GetPrices(ctx sdk.Context) (prices []feedstypes.Price)
+	GetCurrentPrices(ctx sdk.Context) (prices []feedstypes.Price)
 }
 
 type BandtssKeeper interface {
-	HandleCreateSigning(
+	CreateDirectSigningRequest(
 		ctx sdk.Context,
 		content tsstypes.Content,
+		memo string,
 		sender sdk.AccAddress,
 		feeLimit sdk.Coins,
 	) (bandtsstypes.SigningID, error)

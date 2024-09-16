@@ -10,9 +10,7 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 }
 
 func EndBlocker(ctx sdk.Context, k *keeper.Keeper) {
-	tunnels := k.GetRequiredProcessTunnels(ctx)
-
-	for _, tunnel := range tunnels {
-		k.ProcessTunnel(ctx, tunnel)
-	}
+	// produce packets for all tunnels that are active and have passed the interval time trigger
+	// or deviated from the last price to destination route
+	k.ProduceActiveTunnelPackets(ctx)
 }

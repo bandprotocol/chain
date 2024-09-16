@@ -1,6 +1,7 @@
 package tunnel_test
 
 import (
+	"fmt"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -14,41 +15,88 @@ import (
 )
 
 func TestValidateGenesis(t *testing.T) {
-	// Create a valid genesis state
-	validGenesisState := &types.GenesisState{
-		PortID:      types.PortID,
-		Params:      types.DefaultParams(),
-		TunnelCount: 1,
-		Tunnels: []types.Tunnel{
-			{ID: 1},
+	tests := []struct {
+		name       string
+		genesis    *types.GenesisState
+		requireErr bool
+	}{
+		{
+			name: "valid genesis state",
+			genesis: &types.GenesisState{
+				Tunnels: []types.Tunnel{
+					{ID: 1},
+					{ID: 2},
+				},
+				TunnelCount: 2,
+				SignalPricesInfos: []types.SignalPricesInfo{
+					{TunnelID: 1},
+					{TunnelID: 2},
+				},
+				TotalFees: types.TotalFees{
+					TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100))),
+				},
+				Params: types.DefaultParams(),
+			},
+			requireErr: false,
+		},
+		{
+			name: "invalid tunnel count",
+			genesis: &types.GenesisState{
+				Tunnels: []types.Tunnel{
+					{ID: 1},
+				},
+				TunnelCount: 2,
+			},
+			requireErr: true,
+		},
+		{
+			name: "invalid tunnel ID",
+			genesis: &types.GenesisState{
+				Tunnels: []types.Tunnel{
+					{ID: 3},
+				},
+				TunnelCount: 2,
+			},
+			requireErr: true,
+		},
+		{
+			name: "invalid signal prices info",
+			genesis: &types.GenesisState{
+				Tunnels: []types.Tunnel{
+					{ID: 1},
+				},
+				TunnelCount: 1,
+				SignalPricesInfos: []types.SignalPricesInfo{
+					{TunnelID: 0},
+				},
+			},
+			requireErr: true,
+		},
+		{
+			name: "invalid total fee",
+			genesis: &types.GenesisState{
+				Tunnels: []types.Tunnel{
+					{ID: 1},
+				},
+				TunnelCount: 1,
+				TotalFees: types.TotalFees{
+					TotalPacketFee: sdk.Coins{}, // Invalid coin
+				},
+			},
+			requireErr: true,
 		},
 	}
 
-	// Test with valid genesis state
-	err := tunnel.ValidateGenesis(validGenesisState)
-	require.NoError(t, err)
-
-	// Test with invalid tunnel count
-	invalidGenesisState := &types.GenesisState{
-		Params:      types.DefaultParams(),
-		TunnelCount: 2,
-		Tunnels: []types.Tunnel{
-			{ID: 1},
-		},
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tunnel.ValidateGenesis(tt.genesis)
+			if tt.requireErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
 	}
-	err = tunnel.ValidateGenesis(invalidGenesisState)
-	require.Error(t, err)
-
-	// Test with invalid tunnel IDs
-	invalidGenesisState = &types.GenesisState{
-		Params:      types.DefaultParams(),
-		TunnelCount: 1,
-		Tunnels: []types.Tunnel{
-			{ID: 2},
-		},
-	}
-	err = tunnel.ValidateGenesis(invalidGenesisState)
-	require.Error(t, err)
 }
 
 func TestInitExportGenesis(t *testing.T) {
@@ -75,6 +123,18 @@ func TestInitExportGenesis(t *testing.T) {
 		Tunnels: []types.Tunnel{
 			{ID: 1},
 		},
+		SignalPricesInfos: []types.SignalPricesInfo{
+			{
+				TunnelID: 1,
+				SignalPrices: []types.SignalPrice{
+					{SignalID: "ETH", Price: 5000},
+				},
+				LastIntervalTimestamp: 0,
+			},
+		},
+		TotalFees: types.TotalFees{
+			TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100))),
+		},
 	}
 
 	// Initialize the genesis state
@@ -82,6 +142,9 @@ func TestInitExportGenesis(t *testing.T) {
 
 	// Export the genesis state
 	exportedGenesisState := tunnel.ExportGenesis(ctx, k)
+
+	fmt.Printf("genesisState: %v\n", genesisState)
+	fmt.Printf("exportedGenesisState: %v\n", exportedGenesisState)
 
 	// Verify the exported state matches the initialized state
 	require.Equal(t, genesisState, exportedGenesisState)

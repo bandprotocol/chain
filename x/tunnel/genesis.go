@@ -3,7 +3,6 @@ package tunnel
 import (
 	"fmt"
 
-	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 
@@ -18,25 +17,41 @@ func ValidateGenesis(data *types.GenesisState) error {
 	}
 
 	// Validate the tunnel count
+	// validate the tunnel count
 	if uint64(len(data.Tunnels)) != data.TunnelCount {
-		return errorsmod.Wrapf(
-			types.ErrInvalidGenesis,
+		return types.ErrInvalidGenesis.Wrapf(
 			"TunnelCount: %d, actual tunnels: %d",
 			data.TunnelCount,
 			len(data.Tunnels),
 		)
 	}
 
-	// Validate the tunnel IDs
+	// validate the tunnel IDs
 	for _, tunnel := range data.Tunnels {
 		if tunnel.ID > data.TunnelCount {
-			return errorsmod.Wrapf(
-				types.ErrInvalidGenesis,
+			return types.ErrInvalidGenesis.Wrapf(
 				"TunnelID %d is greater than the TunnelCount %d",
 				tunnel.ID,
 				data.TunnelCount,
 			)
 		}
+	}
+
+	// validate the signal prices infos
+	for _, signalPricesInfo := range data.SignalPricesInfos {
+		if signalPricesInfo.TunnelID == 0 {
+			return types.ErrInvalidGenesis.Wrapf(
+				"TunnelID %d cannot be 0 or greater than the TunnelCount %d",
+				signalPricesInfo.TunnelID,
+				data.TunnelCount,
+			)
+		}
+	}
+
+	// validate the total fees
+	err := data.TotalFees.TotalPacketFee.Validate()
+	if err != nil {
+		return err
 	}
 
 	return data.Params.Validate()
@@ -53,14 +68,15 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 	if moduleAcc == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
 	}
-	// Set module account if its balance is zero
+	// set module account if its balance is zero
 	if balance := k.GetModuleBalance(ctx); balance.IsZero() {
 		k.SetModuleAccount(ctx, moduleAcc)
 	}
 
-	// Set the tunnel count
+	// set the tunnel count
 	k.SetTunnelCount(ctx, data.TunnelCount)
 
+	// set tunnels
 	for _, tunnel := range data.Tunnels {
 		k.SetTunnel(ctx, tunnel)
 	}
@@ -75,14 +91,29 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 			panic(fmt.Sprintf("could not claim port capability: %v", err))
 		}
 	}
+
+	// set the tunnels
+	for _, tunnel := range data.Tunnels {
+		k.ActiveTunnelID(ctx, tunnel.ID)
+	}
+
+	// set the signal prices infos
+	for _, signalPricesInfo := range data.SignalPricesInfos {
+		k.SetSignalPricesInfo(ctx, signalPricesInfo)
+	}
+
+	// set the total fees
+	k.SetTotalFees(ctx, data.TotalFees)
 }
 
 // ExportGenesis returns the module's exported genesis
 func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
-		PortID:      types.PortID,
-		Params:      k.GetParams(ctx),
-		TunnelCount: k.GetTunnelCount(ctx),
-		Tunnels:     k.GetTunnels(ctx),
+		Params:            k.GetParams(ctx),
+		PortID:            types.PortID,
+		TunnelCount:       k.GetTunnelCount(ctx),
+		Tunnels:           k.GetTunnels(ctx),
+		SignalPricesInfos: k.GetSignalPricesInfos(ctx),
+		TotalFees:         k.GetTotalFees(ctx),
 	}
 }

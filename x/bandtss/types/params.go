@@ -11,9 +11,10 @@ import (
 const (
 	DefaultActiveDuration          time.Duration = time.Hour * 24   // 1 days
 	DefaultInactivePenaltyDuration time.Duration = time.Minute * 10 // 10 minutes
+	DefaultMaxTransitionDuration   time.Duration = time.Hour * 120  // 5 days
 	// compute the bandtss reward following the allocation to Oracle. If the Oracle reward amounts to 40%,
-	// the bandtss reward will be determined from the remaining 60%.
-	DefaultRewardPercentage = uint64(50)
+	// the bandtss reward will be determined from the remaining 60%, which is 8% * 60% = 4.8%.
+	DefaultRewardPercentage = uint64(8)
 )
 
 var DefaultFee = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
@@ -29,6 +30,7 @@ func NewParams(
 		ActiveDuration:          activeDuration,
 		RewardPercentage:        rewardPercentage,
 		InactivePenaltyDuration: inactivePenaltyDuration,
+		MaxTransitionDuration:   DefaultMaxTransitionDuration,
 		Fee:                     fee,
 	}
 }
@@ -39,6 +41,7 @@ func DefaultParams() Params {
 		ActiveDuration:          DefaultActiveDuration,
 		RewardPercentage:        DefaultRewardPercentage,
 		InactivePenaltyDuration: DefaultInactivePenaltyDuration,
+		MaxTransitionDuration:   DefaultMaxTransitionDuration,
 		Fee:                     DefaultFee,
 	}
 }
@@ -50,6 +53,10 @@ func (p Params) Validate() error {
 	}
 
 	if err := validateTimeDuration("inactive penalty duration")(p.InactivePenaltyDuration); err != nil {
+		return err
+	}
+
+	if err := validateTimeDuration("max transition duration")(p.MaxTransitionDuration); err != nil {
 		return err
 	}
 

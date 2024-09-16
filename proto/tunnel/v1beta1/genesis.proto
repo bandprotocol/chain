@@ -9,12 +9,16 @@ import "tunnel/v1beta1/tunnel.proto";
 
 // GenesisState represents the initial state of the blockchain.
 message GenesisState {
-  // port_id is the port id of the module.
-  string port_id = 1 [(gogoproto.customname) = "PortID"];
   // Params is all parameters of the module.
-  Params params = 2 [(gogoproto.nullable) = false];
+  Params params = 1 [(gogoproto.nullable) = false];
+  // port_id is the port id of the module.
+  string port_id = 2 [(gogoproto.customname) = "PortID"];
   // tunnel_count is the number of tunnels.
   uint64 tunnel_count = 3;
   // tunnels is the list of tunnels.
   repeated Tunnel tunnels = 4 [(gogoproto.nullable) = false];
+  // signal_prices_infos is the signal prices info.
+  repeated SignalPricesInfo signal_prices_infos = 5 [(gogoproto.nullable) = false];
+  // TotalFees is the type for the total fees collected by the tunnel
+  TotalFees total_fees = 6 [(gogoproto.nullable) = false];
 }

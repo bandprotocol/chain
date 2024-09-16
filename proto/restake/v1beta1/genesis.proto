@@ -8,9 +8,9 @@ import "restake/v1beta1/types.proto";
 
 // GenesisState represents the initial state of the blockchain.
 message GenesisState {
-  // Keys is a list of keys in the module.
-  repeated Key keys = 1 [(gogoproto.nullable) = false];
+  // vaults is a list of vaults in the module.
+  repeated Vault vaults = 1 [(gogoproto.nullable) = false];
 
-  // Locks is a list of locks in the module.
+  // locks is a list of locks in the module.
   repeated Lock locks = 2 [(gogoproto.nullable) = false];
 }

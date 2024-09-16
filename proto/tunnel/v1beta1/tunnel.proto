@@ -2,20 +2,22 @@ syntax = "proto3";
 package tunnel.v1beta1;
 
 import "gogoproto/gogo.proto";
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/any.proto";
 import "cosmos_proto/cosmos.proto";
+import "cosmos/base/v1beta1/coin.proto";
 
 import "feeds/v1beta1/feeds.proto";
 
 option go_package            = "github.com/bandprotocol/chain/v2/x/tunnel/types";
 option (gogoproto.equal_all) = true;
 
-// Route is the type for a route
+// TSSRoute is the type for a TSS route
 message TSSRoute {
   option (cosmos_proto.implements_interface) = "RouteI";
 
-  string destination_chain_id         = 1 [(gogoproto.customname) = "DestinationChainID"];
+  // destination_chain_id is the destination chain ID
+  string destination_chain_id = 1 [(gogoproto.customname) = "DestinationChainID"];
+  // destination_contract_address is the destination contract address
   string destination_contract_address = 2;
 }
 
@@ -23,7 +25,9 @@ message TSSRoute {
 message AxelarRoute {
   option (cosmos_proto.implements_interface) = "RouteI";
 
-  string destination_chain_id         = 1 [(gogoproto.customname) = "DestinationChainID"];
+  // destination_chain_id is the destination chain ID
+  string destination_chain_id = 1 [(gogoproto.customname) = "DestinationChainID"];
+  // destination_contract_address is the destination contract address
   string destination_contract_address = 2;
 }
 
@@ -36,63 +40,97 @@ message IBCRoute {
 message SignalInfo {
   option (gogoproto.equal) = true;
 
-  string signal_id     = 1 [(gogoproto.customname) = "SignalID"];
-  uint64 deviation_bps = 2 [(gogoproto.customname) = "DeviationBPS"];
-  int64  interval      = 3;
-}
-
-// SignalPriceInfo is the type for a signal price info
-message SignalPriceInfo {
-  option (gogoproto.equal) = true;
-
-  string signal_id      = 1 [(gogoproto.customname) = "SignalID"];
-  uint64 deviation_bps  = 2 [(gogoproto.customname) = "DeviationBPS"];
-  int64  interval       = 3;
-  uint64 price          = 4;
-  int64  last_timestamp = 5;
+  // signal_id is the signal ID
+  string signal_id = 1 [(gogoproto.customname) = "SignalID"];
+  // soft_deviation_bps is the soft deviation in basis points
+  uint64 soft_deviation_bps = 2 [(gogoproto.customname) = "SoftDeviationBPS"];
+  // hard_deviation_bps is the hard deviation in basis points
+  uint64 hard_deviation_bps = 3 [(gogoproto.customname) = "HardDeviationBPS"];
 }
 
 // Tunnel is the type for a tunnel
 message Tunnel {
   option (gogoproto.equal) = true;
 
-  uint64                   id                          = 1 [(gogoproto.customname) = "ID"];
-  uint64                   nonce_count                 = 2;
-  google.protobuf.Any      route                       = 3 [(cosmos_proto.accepts_interface) = "RouteI"];
-  feeds.v1beta1.FeedType   feed_type                   = 4;
-  string                   fee_payer                   = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  repeated SignalPriceInfo signal_price_infos          = 6 [(gogoproto.nullable) = false];
-  uint64                   last_triggered_block_height = 7;
-  bool                     is_active                   = 8;
-  int64                    created_at                  = 9;
-  string                   creator                     = 10 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // id is the tunnel ID
+  uint64 id = 1 [(gogoproto.customname) = "ID"];
+  // nonce_count is representing the number of packets sent
+  uint64 nonce_count = 2;
+  // route is the route for delivering the signal prices
+  google.protobuf.Any route = 3 [(cosmos_proto.accepts_interface) = "RouteI"];
+  // encoder is the mode of encoding price signal data.
+  Encoder encoder = 4;
+  // fee_payer is the address of the fee payer
+  string fee_payer = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // signal_infos is the list of signal infos
+  repeated SignalInfo signal_infos = 6 [(gogoproto.nullable) = false];
+  // interval is the interval for delivering the signal prices
+  uint64 interval = 7;
+  // is_active is the flag to indicate if the tunnel is active
+  bool is_active = 8;
+  // created_at is the timestamp when the tunnel is created
+  int64 created_at = 9;
+  // creator is the address of the creator
+  string creator = 10 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// PendingTriggerTunnels is the type for a list of tunnel IDs that are waiting to be triggered
-message PendingTriggerTunnels {
-  // IDs is a list of tunnel IDs that are waiting to be triggered
-  repeated uint64 ids = 1 [(gogoproto.customname) = "IDs"];
+// SignalPricesInfo is the type for signal prices that tunnel produces
+message SignalPricesInfo {
+  option (gogoproto.equal) = true;
+
+  // tunnel_id is the tunnel ID
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
+  // signal_prices is the list of signal prices
+  repeated SignalPrice signal_prices = 2 [(gogoproto.nullable) = false];
+  // last_interval_timestamp is the timestamp of the last time that the packet is sent
+  int64 last_interval_timestamp = 3;
+}
+
+// SignalPrice is the type for a signal price
+message SignalPrice {
+  option (gogoproto.equal) = true;
+
+  // signal_id is the signal ID
+  string signal_id = 1 [(gogoproto.customname) = "SignalID"];
+  // price is the price of the signal
+  uint64 price = 2;
+}
+
+// TotalFees is the type for the total fees collected by the tunnel
+message TotalFees {
+  option (gogoproto.equal) = true;
+
+  // total_packet_fee is the total packet fee collected
+  repeated cosmos.base.v1beta1.Coin total_packet_fee = 1
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }
 
 // Packet is the packet that tunnel produces
 message Packet {
-  uint64                   tunnel_id          = 1 [(gogoproto.customname) = "TunnelID"];
-  uint64                   nonce              = 2;
-  feeds.v1beta1.FeedType   feed_type          = 3;
-  repeated SignalPriceInfo signal_price_infos = 4 [(gogoproto.nullable) = false];
-  google.protobuf.Any      packet_content     = 5 [(cosmos_proto.accepts_interface) = "PacketContentI"];
-  int64                    created_at         = 6;
+  // tunnel_id is the tunnel ID
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
+  // nonce is the nonce of the packet
+  uint64 nonce = 2;
+  // signal_prices is the list of signal prices
+  repeated SignalPrice signal_prices = 3 [(gogoproto.nullable) = false];
+  // packet_content is the content of the packet that implements PacketContentI
+  google.protobuf.Any packet_content = 4 [(cosmos_proto.accepts_interface) = "PacketContentI"];
+  // created_at is the timestamp when the packet is created
+  int64 created_at = 5;
 }
 
 // TSSPacketContent is the packet content for TSS
 message TSSPacketContent {
   option (cosmos_proto.implements_interface) = "PacketContentI";
 
+  // signing_id is the signing ID
   uint64 signing_id = 1 [
     (gogoproto.customname) = "SigningID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/x/bandtss/types.SigningID"
   ];
-  string destination_chain_id         = 2 [(gogoproto.customname) = "DestinationChainID"];
+  // destination_chain_id is the destination chain ID
+  string destination_chain_id = 2 [(gogoproto.customname) = "DestinationChainID"];
+  // destination_contract_address is the destination contract address
   string destination_contract_address = 3;
 }
 
@@ -100,8 +138,11 @@ message TSSPacketContent {
 message AxelarPacketContent {
   option (cosmos_proto.implements_interface) = "PacketContentI";
 
-  uint64 ibc_queue_id                 = 1 [(gogoproto.customname) = "IBCQueueID"];
-  string destination_chain_id         = 2 [(gogoproto.customname) = "DestinationChainID"];
+  // ibc_queue_id is the IBC queue ID
+  uint64 ibc_queue_id = 1 [(gogoproto.customname) = "IBCQueueID"];
+  // destination_chain_id is the destination chain ID
+  string destination_chain_id = 2 [(gogoproto.customname) = "DestinationChainID"];
+  // destination_contract_address is the destination contract address
   string destination_contract_address = 3;
 }
 
@@ -112,11 +153,16 @@ message IBCPacketContent {
   string channel_id = 1 [(gogoproto.customname) = "ChannelID"];
 }
 
-// IBCPacketResult is use for JSON marshalling to be sent bytes data over IBC channel
-message IBCPacketResult {
-  option (gogoproto.equal) = true;
+// Encoder is an enumerator that defines the mode of encoding message in tunnel module.
+enum Encoder {
+  option (gogoproto.goproto_enum_prefix) = false;
 
-  uint64                   tunnel_id          = 1 [(gogoproto.customname) = "TunnelID"];
-  uint64                   nonce              = 2;
-  repeated SignalPriceInfo signal_price_infos = 3 [(gogoproto.nullable) = false];
+  // ENCODER_UNSPECIFIED is an unspecified encoder mode.
+  ENCODER_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "ENCODER_UNSPECIFIED"];
+
+  // ENCODER_FIXED_POINT_ABI is a fixed-point price abi encoder (price * 10^9).
+  ENCODER_FIXED_POINT_ABI = 1 [(gogoproto.enumvalue_customname) = "ENCODER_FIXED_POINT_ABI"];
+
+  // ENCODER_TICK_ABI is a tick abi encoder.
+  ENCODER_TICK_ABI = 2 [(gogoproto.enumvalue_customname) = "ENCODER_TICK_ABI"];
 }

@@ -1,25 +1,24 @@
 package bandtss
 
 import (
-	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/bandtss/keeper"
 )
 
 // handleBeginBlock handles the logic at the beginning of a block.
-func handleBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, k *keeper.Keeper) {
-	// Reward a portion of block rewards (inflation + tx fee) to active tss validators.
-	k.AllocateTokens(ctx, req.LastCommitInfo.GetVotes())
+func handleBeginBlock(ctx sdk.Context, k *keeper.Keeper) {
+	// Reward a portion of block rewards (inflation + tx fee) to active tss members.
+	k.AllocateTokens(ctx)
 }
 
 // handleEndBlock handles tasks at the end of a block.
 func handleEndBlock(ctx sdk.Context, k *keeper.Keeper) {
-	// Handle replacement of the current group with the new group.
-	if err := k.HandleReplaceGroup(ctx, ctx.BlockHeader().Time); err != nil {
-		panic(err)
+	// execute group transition if the transition execution time is reached.
+	if transition, ok := k.ShouldExecuteGroupTransition(ctx); ok {
+		k.ExecuteGroupTransition(ctx, transition)
 	}
 
-	// Handles marking validator as inactive if the validator is not active recently.
-	k.HandleInactiveValidators(ctx)
+	// Handles marking members as inactive if the member is not active recently.
+	k.HandleInactiveMembers(ctx)
 }

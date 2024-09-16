@@ -18,9 +18,9 @@ type Keeper struct {
 	authzKeeper       types.AuthzKeeper
 	rollingseedKeeper types.RollingseedKeeper
 
-	router    *types.Router
-	hooks     types.TSSHooks
-	authority string
+	contentRouter *types.ContentRouter
+	cbRouter      *types.CallbackRouter
+	authority     string
 }
 
 func NewKeeper(
@@ -28,7 +28,8 @@ func NewKeeper(
 	storeKey storetypes.StoreKey,
 	authzKeeper types.AuthzKeeper,
 	rollingseedKeeper types.RollingseedKeeper,
-	rtr *types.Router,
+	contentRouter *types.ContentRouter,
+	cbRouter *types.CallbackRouter,
 	authority string,
 ) *Keeper {
 	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
@@ -40,7 +41,8 @@ func NewKeeper(
 		storeKey:          storeKey,
 		authzKeeper:       authzKeeper,
 		rollingseedKeeper: rollingseedKeeper,
-		router:            rtr,
+		contentRouter:     contentRouter,
+		cbRouter:          cbRouter,
 		authority:         authority,
 	}
 }
@@ -70,22 +72,4 @@ func (k Keeper) CheckIsGrantee(ctx sdk.Context, granter sdk.AccAddress, grantee 
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
-}
-
-// Hooks gets the hooks for tss *Keeper {
-func (k *Keeper) Hooks() types.TSSHooks {
-	if k.hooks == nil {
-		return types.MultiTSSHooks{}
-	}
-
-	return k.hooks
-}
-
-// SetHooks Set the hooks for the tss keeper.
-func (k *Keeper) SetHooks(sh types.TSSHooks) {
-	if k.hooks != nil {
-		panic("cannot set hooks twice")
-	}
-
-	k.hooks = sh
 }

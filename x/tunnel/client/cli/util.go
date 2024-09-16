@@ -9,25 +9,46 @@ import (
 
 // SignalInfos represents the signal infos in the file
 type SignalInfos struct {
-	SignalInfos []types.SignalInfo `json:"signal_infos"`
+	SignalInfos []SignalInfo `json:"signal_infos"`
+}
+
+// SignalInfo represents the signal information without soft deviation, which may be implemented in the future.
+type SignalInfo struct {
+	SignalID     string `json:"signal_id"`
+	DeviationBPS uint64 `json:"deviation_bps"`
+}
+
+// ToSignalInfos converts signal information to types.SignalInfo, excluding soft deviation.
+// Note: Soft deviation may be utilized in the future for deviation adjustments.
+func (sis SignalInfos) ToSignalInfos() []types.SignalInfo {
+	var signalInfos []types.SignalInfo
+	for _, si := range sis.SignalInfos {
+		signalInfo := types.SignalInfo{
+			SignalID:         si.SignalID,
+			SoftDeviationBPS: si.DeviationBPS,
+			HardDeviationBPS: si.DeviationBPS,
+		}
+		signalInfos = append(signalInfos, signalInfo)
+	}
+	return signalInfos
 }
 
 // parseSignalInfos parses the signal infos from the given file
-func parseSignalInfos(signalInfosFile string) ([]types.SignalInfo, error) {
+func parseSignalInfos(signalInfosFile string) (SignalInfos, error) {
 	var signalInfos SignalInfos
 
 	if signalInfosFile == "" {
-		return signalInfos.SignalInfos, nil
+		return SignalInfos{}, nil
 	}
 
 	contents, err := os.ReadFile(signalInfosFile)
 	if err != nil {
-		return nil, err
+		return SignalInfos{}, err
 	}
 
 	if err := json.Unmarshal(contents, &signalInfos); err != nil {
-		return nil, err
+		return SignalInfos{}, err
 	}
 
-	return signalInfos.SignalInfos, nil
+	return signalInfos, nil
 }

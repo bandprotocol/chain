@@ -5,24 +5,20 @@ option go_package = "github.com/bandprotocol/chain/v2/x/tunnel/types";
 
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
-import "cosmos_proto/cosmos.proto";
 
 // Params is the data structure that keeps the parameters of the module.
 message Params {
   option (gogoproto.equal)            = true;  // Use gogoproto.equal for proto3 message equality checks
   option (gogoproto.goproto_stringer) = false; // Disable stringer generation for better control
 
+  // min_deposit is the minimum deposit required to create a tunnel
   repeated cosmos.base.v1beta1.Coin min_deposit = 1
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
-  uint64   min_deviation_bps                 = 2 [(gogoproto.customname) = "MinDeviationBPS"];
-  uint64   min_interval                      = 3;
-  repeated cosmos.base.v1beta1.Coin base_fee = 4
-      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
-  repeated cosmos.base.v1beta1.Coin tss_route_fee = 5 [
-    (gogoproto.nullable)     = false,
-    (gogoproto.customname)   = "TSSRouteFee",
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
-  repeated cosmos.base.v1beta1.Coin axelar_route_fee = 6
+  // min_interval is the minimum interval in seconds
+  uint64 min_interval = 2;
+  // max_signals defines the maximum number of signals allowed per tunnel.
+  uint64 max_signals = 3;
+  // base_packet_fee is the base fee for each packet
+  repeated cosmos.base.v1beta1.Coin base_packet_fee = 4
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }

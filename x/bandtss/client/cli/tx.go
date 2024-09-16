@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/hex"
 	"fmt"
 	"strings"
@@ -14,13 +15,15 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/bandprotocol/chain/v2/pkg/grant"
+	"github.com/bandprotocol/chain/v2/pkg/tss"
 	"github.com/bandprotocol/chain/v2/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
 const (
-	flagExpiration = "expiration"
-	flagFeeLimit   = "fee-limit"
+	flagExpiration    = "expiration"
+	flagFeeLimit      = "fee-limit"
+	flagIncomingGroup = "incoming-group"
 )
 
 // GetTxCmd returns the transaction commands for this module
@@ -51,7 +54,7 @@ func GetTxCmd(requestSignatureCmds []*cobra.Command) *cobra.Command {
 
 	txCmd.AddCommand(
 		GetTxCmdActivate(),
-		GetTxCmdHealthCheck(),
+		GetTxCmdHeartbeat(),
 		GetTxCmdAddGrantees(),
 		GetTxCmdRemoveGrantees(),
 		cmdRequestSignature,
@@ -124,56 +127,78 @@ func GetTxCmdTextRequestSignature() *cobra.Command {
 // GetTxCmdActivate creates a CLI command for activate the sender.
 func GetTxCmdActivate() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "activate",
-		Args:  cobra.NoArgs,
-		Short: "activate the status of the address",
-		Example: fmt.Sprintf(
-			`%s tx bandtss activate`,
-			version.AppName,
-		),
+		Use:     "activate",
+		Args:    cobra.NoArgs,
+		Short:   "activate the status of the address",
+		Example: fmt.Sprintf(`%s tx bandtss activate`, version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			isIncomingGroup, err := cmd.Flags().GetBool(flagIncomingGroup)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			groupID, err := getGroupID(queryClient, isIncomingGroup)
 			if err != nil {
 				return err
 			}
 
 			msg := &types.MsgActivate{
-				Address: clientCtx.GetFromAddress().String(),
+				Sender:  clientCtx.GetFromAddress().String(),
+				GroupID: groupID,
 			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 
+	cmd.Flags().
+		Bool(flagIncomingGroup, false, "Whether the activation is for the incoming group or current group.")
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
 }
 
-// GetTxCmdHealthCheck creates a CLI command for keep sender's status to be active.
-func GetTxCmdHealthCheck() *cobra.Command {
+// GetTxCmdHeartbeat creates a CLI command for keep sender's status to be active.
+func GetTxCmdHeartbeat() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "health-check",
-		Args:  cobra.NoArgs,
-		Short: "update the active status of the address to ensure that the member in the group is active",
-		Example: fmt.Sprintf(
-			`%s tx bandtss health-check`,
-			version.AppName,
-		),
+		Use:     "heartbeat",
+		Args:    cobra.NoArgs,
+		Short:   "update the active status of the address to ensure that the member in the group is active",
+		Example: fmt.Sprintf(`%s tx bandtss heartbeat`, version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			msg := &types.MsgHealthCheck{
-				Address: clientCtx.GetFromAddress().String(),
+			isIncomingGroup, err := cmd.Flags().GetBool(flagIncomingGroup)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+			groupID, err := getGroupID(queryClient, isIncomingGroup)
+			if err != nil {
+				return err
+			}
+
+			msg := &types.MsgHeartbeat{
+				Sender:  clientCtx.GetFromAddress().String(),
+				GroupID: groupID,
 			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 
+	cmd.Flags().
+		Bool(flagIncomingGroup, false, "Whether the heartbeat is for the incoming group or current group.")
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
@@ -223,4 +248,28 @@ $ %s tx bandtss remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd
+}
+
+func getGroupID(queryClient types.QueryClient, isIncomingGroup bool) (tss.GroupID, error) {
+	if isIncomingGroup {
+		resp, err := queryClient.IncomingGroup(
+			context.Background(),
+			&types.QueryIncomingGroupRequest{},
+		)
+		if err != nil {
+			return 0, err
+		}
+
+		return resp.GroupID, nil
+	} else {
+		resp, err := queryClient.CurrentGroup(
+			context.Background(),
+			&types.QueryCurrentGroupRequest{},
+		)
+		if err != nil {
+			return 0, err
+		}
+
+		return resp.GroupID, nil
+	}
 }

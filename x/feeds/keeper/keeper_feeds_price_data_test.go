@@ -12,113 +12,113 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData() {
 		name         string
 		signalIDs    []string
 		setPrices    []types.Price
-		feedType     types.FeedType
+		encoder      types.Encoder
 		expectResult types.FeedsPriceData
 		expectError  error
 	}{
 		{
-			name:      "success case - default feed type",
-			signalIDs: []string{"crypto_price.atomusd", "crypto_price.bandusd"},
+			name:      "success case - fixed-point abi encoder",
+			signalIDs: []string{"CS:atom-usd", "CS:band-usd"},
 			setPrices: []types.Price{
 				{
-					SignalID:    "crypto_price.atomusd",
+					SignalID:    "CS:atom-usd",
 					Price:       1e10,
 					Timestamp:   suite.ctx.BlockTime().Unix(),
 					PriceStatus: types.PriceStatusAvailable,
 				},
 				{
-					SignalID:    "crypto_price.bandusd",
+					SignalID:    "CS:band-usd",
 					Price:       1e10,
 					Timestamp:   suite.ctx.BlockTime().Unix(),
 					PriceStatus: types.PriceStatusAvailable,
 				},
 			},
-			feedType: types.FEED_TYPE_DEFAULT,
+			encoder: types.ENCODER_FIXED_POINT_ABI,
 			expectResult: types.FeedsPriceData{
 				SignalPrices: []types.SignalPrice{
 					{
-						SignalID: "crypto_price.atomusd",
+						SignalID: "CS:atom-usd",
 						Price:    1e10,
 					},
 					{
-						SignalID: "crypto_price.bandusd",
+						SignalID: "CS:band-usd",
 						Price:    1e10,
 					},
 				},
-				Timestamp: suite.ctx.BlockTime().Unix(),
+				Timestamp: uint64(suite.ctx.BlockTime().Unix()),
 			},
 			expectError: nil,
 		},
 		{
-			name:      "success case - tick feed type",
-			signalIDs: []string{"crypto_price.atomusd", "crypto_price.bandusd"},
+			name:      "success case - tick abi encoder",
+			signalIDs: []string{"CS:atom-usd", "CS:band-usd"},
 			setPrices: []types.Price{
 				{
-					SignalID:    "crypto_price.atomusd",
+					SignalID:    "CS:atom-usd",
 					Price:       1e10,
 					Timestamp:   suite.ctx.BlockTime().Unix(),
 					PriceStatus: types.PriceStatusAvailable,
 				},
 				{
-					SignalID:    "crypto_price.bandusd",
+					SignalID:    "CS:band-usd",
 					Price:       1e10,
 					Timestamp:   suite.ctx.BlockTime().Unix(),
 					PriceStatus: types.PriceStatusAvailable,
 				},
 			},
-			feedType: types.FEED_TYPE_TICK,
+			encoder: types.ENCODER_TICK_ABI,
 			expectResult: types.FeedsPriceData{
 				SignalPrices: []types.SignalPrice{
 					{
-						SignalID: "crypto_price.atomusd",
+						SignalID: "CS:atom-usd",
 						Price:    285171,
 					},
 					{
-						SignalID: "crypto_price.bandusd",
+						SignalID: "CS:band-usd",
 						Price:    285171,
 					},
 				},
-				Timestamp: suite.ctx.BlockTime().Unix(),
+				Timestamp: uint64(suite.ctx.BlockTime().Unix()),
 			},
 			expectError: nil,
 		},
 		{
 			name:      "fail case - price not available",
-			signalIDs: []string{"crypto_price.atomusd", "crypto_price.bandusd"},
+			signalIDs: []string{"CS:atom-usd", "CS:band-usd"},
 			setPrices: []types.Price{
 				{
-					SignalID:    "crypto_price.atomusd",
+					SignalID:    "CS:atom-usd",
 					Price:       1e10,
 					Timestamp:   suite.ctx.BlockTime().Unix(),
 					PriceStatus: types.PriceStatusUnavailable,
 				},
 			},
-			feedType:     types.FEED_TYPE_DEFAULT,
+			encoder:      types.ENCODER_FIXED_POINT_ABI,
 			expectResult: types.FeedsPriceData{},
-			expectError:  fmt.Errorf("crypto_price.atomusd: price not available"),
+			expectError:  fmt.Errorf("CS:atom-usd: price not available"),
 		},
 		{
 			name:      "fail case - price too old",
-			signalIDs: []string{"crypto_price.atomusd"},
+			signalIDs: []string{"CS:atom-usd"},
 			setPrices: []types.Price{
 				{
-					SignalID:    "crypto_price.atomusd",
+					SignalID:    "CS:atom-usd",
 					Price:       1e10,
-					Timestamp:   suite.ctx.BlockTime().Unix() - int64(types.MAX_PRICE_TIME_DIFF.Seconds()) - 1,
+					Timestamp:   suite.ctx.BlockTime().Unix() - 1000,
 					PriceStatus: types.PriceStatusAvailable,
 				},
 			},
-			feedType:     types.FEED_TYPE_DEFAULT,
+			encoder:      types.ENCODER_FIXED_POINT_ABI,
 			expectResult: types.FeedsPriceData{},
-			expectError:  fmt.Errorf("crypto_price.atomusd: price too old"),
+			expectError:  fmt.Errorf("CS:atom-usd: price too old"),
 		},
 		{
 			name:         "fail case - price not found",
-			signalIDs:    []string{"crypto_price.atomusd"},
+			signalIDs:    []string{"CS:atom-usdfake"},
 			setPrices:    []types.Price{},
-			feedType:     types.FEED_TYPE_DEFAULT,
+			encoder:      types.ENCODER_FIXED_POINT_ABI,
 			expectResult: types.FeedsPriceData{},
-			expectError:  fmt.Errorf("failed to get price for signal id: crypto_price.atomusd: price not found"),
+			expectError:  fmt.Errorf("failed to get price for signal id: CS:atom-usdfake: price not found"),
 		},
 	}
 
@@ -126,9 +126,17 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData() {
 		suite.Run(tc.name, func() {
 			// Set up the prices
 			suite.feedsKeeper.SetPrices(suite.ctx, tc.setPrices)
+			feeds := make([]types.Feed, 0)
+			for _, signalID := range tc.signalIDs {
+				feeds = append(feeds, types.Feed{
+					SignalID: signalID,
+					Interval: 100,
+				})
+			}
+			suite.feedsKeeper.SetCurrentFeeds(suite.ctx, feeds)
 
 			// Call the function under test
-			feedsPriceData, err := suite.feedsKeeper.GetFeedsPriceData(suite.ctx, tc.signalIDs, tc.feedType)
+			feedsPriceData, err := suite.feedsKeeper.GetFeedsPriceData(suite.ctx, tc.signalIDs, tc.encoder)
 
 			// Check the result
 			if tc.expectError != nil {
@@ -139,9 +147,9 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData() {
 			}
 
 			// cleanup
-			for _, price := range tc.setPrices {
-				suite.feedsKeeper.DeletePrice(suite.ctx, price.SignalID)
-			}
+			// for _, price := range tc.setPrices {
+			// 	suite.feedsKeeper.DeletePrice(suite.ctx, price.SignalID)
+			// }
 		})
 	}
 }
@@ -156,18 +164,18 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData2() {
 		{
 			name: "valid prices",
 			signalIDs: []string{
-				"crypto_price.atomusd",
-				"crypto_price.bandusd",
+				"CS:atom-usd",
+				"CS:band-usd",
 			},
 			setPrices: []types.Price{
 				{
-					SignalID:    "crypto_price.atomusd",
+					SignalID:    "CS:atom-usd",
 					Price:       1e10,
 					Timestamp:   suite.ctx.BlockTime().Unix(),
 					PriceStatus: types.PriceStatusAvailable,
 				},
 				{
-					SignalID:    "crypto_price.bandusd",
+					SignalID:    "CS:band-usd",
 					Price:       1e10,
 					Timestamp:   suite.ctx.BlockTime().Unix(),
 					PriceStatus: types.PriceStatusAvailable,
@@ -178,11 +186,11 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData2() {
 		{
 			name: "price not available",
 			signalIDs: []string{
-				"crypto_price.atomusd",
+				"CS:atom-usd",
 			},
 			setPrices: []types.Price{
 				{
-					SignalID:    "crypto_price.atomusd",
+					SignalID:    "CS:atom-usd",
 					Price:       1e10,
 					Timestamp:   suite.ctx.BlockTime().Unix(),
 					PriceStatus: types.PriceStatusUnavailable,
@@ -193,13 +201,13 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData2() {
 		{
 			name: "price too old",
 			signalIDs: []string{
-				"crypto_price.atomusd",
+				"CS:atom-usd",
 			},
 			setPrices: []types.Price{
 				{
-					SignalID:    "crypto_price.atomusd",
+					SignalID:    "CS:atom-usd",
 					Price:       1e10,
-					Timestamp:   suite.ctx.BlockTime().Unix() - int64(types.MAX_PRICE_TIME_DIFF.Seconds()) - 1,
+					Timestamp:   suite.ctx.BlockTime().Unix() - 1000,
 					PriceStatus: types.PriceStatusAvailable,
 				},
 			},
@@ -211,9 +219,21 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData2() {
 		suite.Run(tc.name, func() {
 			// Set up the prices
 			suite.feedsKeeper.SetPrices(suite.ctx, tc.setPrices)
+			feeds := make([]types.Feed, 0)
+			for _, signalID := range tc.signalIDs {
+				feeds = append(feeds, types.Feed{
+					SignalID: signalID,
+					Interval: 100,
+				})
+			}
+			suite.feedsKeeper.SetCurrentFeeds(suite.ctx, feeds)
 
 			// Call the function under test
-			_, err := suite.feedsKeeper.GetFeedsPriceData(suite.ctx, tc.signalIDs, types.FEED_TYPE_DEFAULT)
+			_, err := suite.feedsKeeper.GetFeedsPriceData(
+				suite.ctx,
+				tc.signalIDs,
+				types.ENCODER_FIXED_POINT_ABI,
+			)
 
 			// Check the result
 			if tc.expectError {

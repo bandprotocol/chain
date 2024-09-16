@@ -2,13 +2,11 @@
 
 ## Abstract
 
-Bandtss module facilitates secure message signing within a decentralized network.
+The Bandtss module serves as a critical component for ensuring secure message signing within a decentralized network, playing a pivotal role in maintaining the integrity and authenticity of communications across the system.
 
-Users can request the module to sign a message, which is then authenticated by members within the module. This ensures the integrity and authenticity of the message, enhancing trust and reliability within the network.
+When a user requests the module to sign a message, it triggers a process where the message is authenticated by designated members within the module. This rigorous authentication process is designed to guarantee that the message has not been tampered with, thereby reinforcing trust and reliability within the network.
 
-A fee is charged per request, as specified by the module configuration, and upon successful signing, the fee is transferred to the assigned members.
-
-This module is used in the BandChain.
+The module is configured to charge a fee for each signing request, a cost that is predefined in the module's settings. Upon the successful completion of the signing process, this fee is automatically transferred to the assigned members who participated in the authentication, rewarding them for their contribution.
 
 ## Contents
 
@@ -22,58 +20,64 @@ This module is used in the BandChain.
       - [Block rewards](#block-rewards)
       - [Request fee](#request-fee)
     - [Signing](#signing)
-    - [Replacement](#replacement)
+    - [Transition](#transition)
   - [State](#state)
+    - [Group & Member](#group--member)
+    - [Group Transition](#group-transition)
+    - [Signing](#signing-1)
+    - [Params](#params)
   - [Msg Service](#msg-service)
-    - [Msg/CreateGroup](#msgcreategroup)
-    - [Msg/ReplaceGroup](#msgreplacegroup)
+    - [Msg/TransitionGroup](#msgtransitiongroup)
+    - [Msg/ForceTransitionGroup](#msgforcetransitiongroup)
     - [Msg/RequestSignature](#msgrequestsignature)
     - [Msg/Activate](#msgactivate)
-    - [Msg/HealthCheck](#msghealthcheck)
+    - [Msg/Heartbeat](#msgheartbeat)
     - [Msg/UpdateParams](#msgupdateparams)
   - [Events](#events)
-    - [EventTypeFirstGroupCreated](#eventtypefirstgroupcreated)
-    - [EventTypeRequestSignature](#eventtyperequestsignature)
-    - [EventTypeReplacement](#eventtypereplacement)
+    - [EventTypeSigningRequestCreated](#eventtypesigningrequestcreated)
+    - [EventTypeGroupTransition](#eventtypegrouptransition)
+    - [EventTypeGroupTransitionFailed](#eventtypegrouptransitionfailed)
+    - [EventTypeGroupTransitionSuccess](#eventtypegrouptransitionsuccess)
     - [EventTypeActivate](#eventtypeactivate)
-    - [EventTypeHealthCheck](#eventtypehealthcheck)
+    - [EventTypeHeartbeat](#eventtypeheartbeat)
     - [EventTypeInactiveStatus](#eventtypeinactivestatus)
   - [Parameters](#parameters)
   - [Client](#client)
     - [CLI](#cli)
-      - [Query](#query)
-    - [Group](#group-1)
-    - [Signing](#signing-1)
     - [gRPC](#grpc)
-      - [Group](#group-2)
-      - [Signing](#signing-2)
     - [REST](#rest)
-      - [Group](#group-3)
-      - [Signing](#signing-3)
 
 ## Concepts
 
 ### Current Group
 
-The signing process mainly happens in the tss module. To handle the signing in bandtss module, a proposal is made to create a tss group for the module and use it as a main group for a signing process. The proposal and bandtss's groups can be created multiple times, in that case, the first one is considered the main group of the module and being used for signing process until a proposal for group replacement is made and approved.
+The signing process mainly happens in the tss module. To handle the signing in bandtss module, a proposal is made to create a tss group for the module and use it as a main group for a signing process. The proposal and bandtss's groups can be created multiple times, in that case, the first one is considered the main group of the module and being used for signing process until a proposal for group transition is made and approved.
 
 ### Member
 
-The members of the module, which are the members of the current group, are nominated in a proposal. Once assigned, these members are responsible for signing messages within the system. Failure to sign messages within the specified timeframe results in deactivation and forfeiture of some block rewards from the module.
+Members of the module are nominated through a proposal. Once assigned, they are responsible for signing messages within the system. If a member fails to sign messages within the specified timeframe, they face deactivation and forfeit a portion of their block rewards from the module.
 
-Members who have been deactivated can reactivate themselves by calling [Msg/Activate](#msgactivate) once the penalty duration has been met.
+Deactivated members can reactivate themselves after the penalty duration has elapsed. Additionally, members must continuously notify the chain to maintain their active status.
 
-Additionally, members are required to continuously notify the chain for their active status. This is achieved through the [Msg/HealthCheck](#msghealthcheck).
+Changing the members of the module can be done by [group transition process](#transition)
 
-Changing the members of the module can be done by [group replacement process](#replacement)
+```go
+type Member struct {
+	Address string
+	GroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID
+	IsActive bool
+	Since time.Time
+	LastActive time.Time
+}
+```
 
 ### Reward
 
 #### Block rewards
 
-In each block, active validators being served as members on the bandtss system are rewarded with additional block rewards proportional to their validating power, as recognition for their service.
+In each block, active members in the current active group are rewarded with additional block rewards equally as recognition for their service.
 
-The `RewardPercentage` parameter determines the percentage of block rewards allocated to these validators. By default, this parameter is set to 50%. However, please note that this percentage is calculated based on the remaining rewards. For instance, if other modules claim 40% of the rewards, the bandtss module will receive only 30% (50% of the remaining 60%) of the total block rewards.
+The `RewardPercentage` parameter determines the percentage of block rewards allocated to these members in the current group. By default, this parameter is set to 50%. However, please note that this percentage is calculated based on the remaining rewards. For instance, if other modules claim 40% of the rewards, the bandtss module will receive only 30% (50% of the remaining 60%) of the total block rewards.
 
 #### Request fee
 
@@ -81,85 +85,189 @@ Users requesting signatures from the bandtss system are required to pay a fee fo
 
 ### Signing
 
-A signing request can be submitted to the module, and the signing process is then forwarded to the TSS module. Subsequently, the bandtss module charges a fee to the requester, which will be transferred later to the assigned members once the message is successfully signed (as a request fee).
+When a signing request is submitted to the module, the request is forwarded to the TSS module for processing. Following this, the bandtss module imposes a fee on the requester. This fee, referred to as the request fee, will be transferred to the assigned members after the message has been successfully signed.
 
-### Replacement
+If there is an incoming group during the transition process, the assigned members of this group are required to sign a given message without receiving any reward. Signer only are eligible for rewards if they are in the current active group.
 
-The replacement process is utilized when updating the members of the module or modifying the module's shared key. The steps involved in the replacement process are as follows:
+```go
+type Signing struct {
+	ID SigningID
+	FeePerSigner github_com_cosmos_cosmos_sdk_types.Coins
+	Requester string
+	CurrentGroupSigningID github_com_bandprotocol_chain_v2_pkg_tss.SigningID
+	IncomingGroupSigningID github_com_bandprotocol_chain_v2_pkg_tss.SigningID
+}
+```
 
-1. Initiate a proposal to create a new bandtss signing group.
-2. Submit a replacement proposal with a newly created group and the replacement execution time.
-3. After the proposal is approved, the current members are responsible for signing the replacement message.
-4. At the replacement execution time, the new group becomes the current group, existing members are removed, and new members are activated.
+### Transition
 
-This process provides users with ample time to update their key before the replacement takes effect. During this transition period, signing requests are sent to both the current group and the group scheduled for replacement. However, signing fees are allocated exclusively to the assigned members of the current group.
+The transition process is employed when updating the members of a module or modifying the module's shared key. This process ensures a smooth handover between the current and incoming groups, allowing users ample time to update their keys before the transition is finalized.
+
+During the transition period, signing requests are sent to both the current group and the incoming group, although signing fees are allocated exclusively to the members of the current group.
+
+The steps involved in the transition process are as follows:
+
+1. Initiate Proposal: Start by proposing a transition from the current group members to those in the incoming group.
+2. Group Creation in TSS Module: Once the proposal is approved, the TSS module triggers the group creation process, including the members listed in the proposal.
+3. Sign Transition Message: After the group is successfully created, a signing request is sent to the current group to sign a transition message.
+4. Group Transition: If the assigned members of the current group sign the message, the incoming group is prepared to replace the current group. If the execution time elapses, the incoming group automatically becomes the current group, existing members are removed, and new members are activated.
+
+```go
+type GroupTransition struct {
+	SigningID github_com_bandprotocol_chain_v2_pkg_tss.SigningID
+	CurrentGroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID
+	CurrentGroupPubKey github_com_bandprotocol_chain_v2_pkg_tss.Point
+	IncomingGroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID
+	IncomingGroupPubKey github_com_bandprotocol_chain_v2_pkg_tss.Point
+	Status TransitionStatus
+	ExecTime time.Time
+  IsForceTransition bool
+}
+```
 
 ## State
 
-The `x/bandtss` module keeps the state of the following primary objects:
+### Group & Member
 
-1. CurrentGroupID stores main group ID of the module.
-2. Members stores members information and their status.
-3. Signings stores signing ID of the current group and replacing group, if any.
-4. Replacement stores latest replacement information.
+The `x/bandtss` module stores group and member information including their active status on the module.
 
-In addition, the `x/bandtss` module still keeps temporary information such as the mapping between signing ID from tss module to bandtss signing ID for using as a mapping when the hooks are called from the tss module.
+- CurrentGroupID : `0x00 | "CurrentGroupID" -> BigEndian(groupID)`
+- Member: `0x02 | GroupID | MemberAddress -> Member`
 
-Here are the prefixes for each object in the KVStore of the bandtss module.
+### Group Transition
 
-```go
-var (
-	GlobalStoreKeyPrefix = []byte{0x00}
-	ParamsKeyPrefix = []byte{0x01}
-	MemberStoreKeyPrefix = []byte{0x02}
-	SigningStoreKeyPrefix = []byte{0x03}
+- GroupTransition : `0x00 | "GroupTransition" -> GroupTransition`
 
-	SigningCountStoreKey = append(GlobalStoreKeyPrefix, []byte("SigningCount")...)
-	CurrentGroupIDStoreKey = append(GlobalStoreKeyPrefix, []byte("CurrentGroupID")...)
-	ReplacementStoreKey = append(GlobalStoreKeyPrefix, []byte("Replacement")...)
+### Signing
 
-	SigningInfoStoreKeyPrefix = append(SigningStoreKeyPrefix, []byte{0x00}...)
-	SigningIDMappingStoreKeyPrefix = append(SigningStoreKeyPrefix, []byte{0x01}...)
-)
-```
+The `x/bandtss` module stores signing information and mapping between tss SigningID to bandtss SigningID.
+
+- SigningCount : `0x00 | "SigningCount" -> BidEndian(#signing)`
+- Signing : `0x03 | BandtssSigningID -> Signing`
+- SigningMappingID `0x04 | TssSigningID -> BidEndian(BandtssSigningID)`
+
+### Params
+
+The `x/bandtss` module stores its params in state with the prefix of `0x01`, it can be updated with governance proposal or the address with authority.
+
+- Params: `0x01 -> Params`
 
 ## Msg Service
 
-### Msg/CreateGroup
+### Msg/TransitionGroup
 
-A new group can be created with the `MsgCreateGroup` which needs to open through governance proposal.
-This message contains the list of members, the threshold of the group.
+This message is used to initiate the transition process, which subsequently triggers the creation of a new group and the signing of a transition message. Before the process can proceed, the message requires approval through the submission and approval of a proposal.
 
 It's expected to fail if:
 
-- Members are not correct (e.g. wrong address format, duplicates).
-- Threshold is more than the number of the members.
+- The members are incorrect (e.g., wrong address format, duplicates).
+- The threshold exceeds the number of members.
+- The execution time is before the current time or beyond the maximum transition duration.
 
-### Msg/ReplaceGroup
+```protobuf
+message MsgTransitionGroup {
+  option (cosmos.msg.v1.signer) = "authority";
+  option (amino.name)           = "bandtss/MsgTransitionGroup";
 
-A replacement can be created with the `MsgReplaceGrouup` which needs to open through a governance proposal.
-This message contains `new_group_id` , and `exec_time`.
+  // members is a list of members in this group.
+  repeated string members = 1;
+  // threshold is a minimum number of members required to produce a signature.
+  uint64 threshold = 2;
+  // exec_time is the time that will be substituted in place of the group.
+  google.protobuf.Timestamp exec_time = 3 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
+  // authority is the address that controls the module (defaults to x/gov unless overwritten).
+  string authority = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+```
+
+### Msg/ForceTransitionGroup
+
+A current group can be replaced by an incoming group without needing a signing request (transition message) from the current group.
 
 It's expected to fail if:
 
 - The status of groups is not active.
-- Can't request signing `replacement message` from `current_group_id`
+- Can't request signing `transition message` from `current_group_id`.
+- The execution time is before the current time or beyond the maximum transition duration.
+
+```protobuf
+message MsgForceTransitionGroup {
+  option (cosmos.msg.v1.signer) = "authority";
+  option (amino.name)           = "bandtss/ForceTransitionGroup";
+
+  // incoming_group_id is the ID of the group that the module want to transition to.
+  uint64 incoming_group_id = 1 [
+    (gogoproto.customname) = "IncomingGroupID",
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+  ];
+  // exec_time is the time that will be substituted in place of the group.
+  google.protobuf.Timestamp exec_time = 2 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
+  // authority is the address that controls the module (defaults to x/gov unless overwritten).
+  string authority = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+```
 
 ### Msg/RequestSignature
 
-Anyone who wants to have a signature from the group can use `MsgRequestSignature` to send their message to the group to request a signature.
+This message is used to send a signature request to the BandTSS group. It includes parameters such as `fee_limit` and `Content`.
 
-It contains `fee_limit`, and `Content`. `Content` is an interface that any module can implement to have its logic get the specific data from its module so that the module can produce a signature for that data.
+The `Content` is an interface that can be implemented by any module, allowing it to define the logic needed to extract specific data from that module. This enables the module to generate a signature for the provided data, ensuring that the signature request aligns with the module's unique requirements and operations.
+
+The `fee_limit` specifies the maximum amount of fees that can be charged for processing the signature request, ensuring that the costs remain within an acceptable range for the requester.
+
+```protobuf
+message MsgRequestSignature {
+  option (cosmos.msg.v1.signer)      = "sender";
+  option (amino.name)                = "bandtss/MsgRequestSignature";
+  option (gogoproto.goproto_getters) = false;
+
+  // content is the signature order of this request signature message.
+  google.protobuf.Any content = 1 [(cosmos_proto.accepts_interface) = "Content"];
+  // memo is the additional note of the message.
+  string memo = 2;
+  // fee_limit is the maximum tokens that will be paid for this request.
+  repeated cosmos.base.v1beta1.Coin fee_limit = 3
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  // sender is the requester of the signing process.
+  string sender = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+```
 
 ### Msg/Activate
 
 If members are deactivated due to one of the module's mechanisms, such as a health check or missing signature, they must send `MsgActivate` to rejoin the system. However, there is a punishment period for rejoining the process.
 
-### Msg/HealthCheck
+```protobuf
+message MsgActivate {
+  option (cosmos.msg.v1.signer) = "sender";
+  option (amino.name)           = "bandtss/MsgActivate";
 
-This message is used by members in the bandtss system. All active members have to regularly send `MsgHealthCheck` to the chain to show if they are still active.
+  // address is the signer of this message, who must be a member of the group.
+  string sender = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // group_id is the group id of the member.
+  uint64 group_id = 2
+      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+}
+```
+
+### Msg/Heartbeat
+
+This message is used by members in the bandtss system. All active members have to regularly send `MsgHeartbeat` to the chain to show if they are still active.
 
 The frequency of sending is determined by `ActiveDuration` parameters.
+
+```protobuf
+message MsgHeartbeat {
+  option (cosmos.msg.v1.signer) = "sender";
+  option (amino.name)           = "bandtss/MsgHeartbeat";
+
+  // address is the signer of this message, who must be a member of the group.
+  string sender = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // group_id is the group id of the member.
+  uint64 group_id = 2
+      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+}
+```
 
 ### Msg/UpdateParams
 
@@ -169,36 +277,51 @@ When anyone wants to update the parameters of the bandtss module, they will have
 
 The bandtss module emits the following events:
 
-### EventTypeFirstGroupCreated
-
-This event ( `first_group_created` ) is emitted when the first bandtss group is created and is set as a current group.
-
-| Attribute Key    | Attribute Value |
-| ---------------- | --------------- |
-| current_group_id | {groupID}       |
-
-### EventTypeRequestSignature
+### EventTypeSigningRequestCreated
 
 This event ( `bandtss_signing_request_created` ) is emitted when the module is requested to sign the data.
 
-| Attribute Key              | Attribute Value    |
-| -------------------------- | ------------------ |
-| bandtss_signing_id         | {bandtssSigningID} |
-| current_group_id           | {groupID}          |
-| current_group_signing_id   | {signingID}        |
-| replacing_group_id         | {groupID}          |
-| replacing_group_signing_id | {signingID}        |
+| Attribute Key             | Attribute Value    |
+| ------------------------- | ------------------ |
+| bandtss_signing_id        | {bandtssSigningID} |
+| current_group_id          | {groupID}          |
+| current_group_signing_id  | {signingID}        |
+| incoming_group_id         | {groupID}          |
+| incoming_group_signing_id | {signingID}        |
 
-### EventTypeReplacement
+### EventTypeGroupTransition
 
-This event ( `replacement` ) is emitted when replacement is requested via an approved proposal or the replacement changes its status.
+This event ( `group_transition` ) is emitted when transition is requested via an approved proposal or the transition changes its status.
 
-| Attribute Key      | Attribute Value     |
-| ------------------ | ------------------- |
-| signingID          | {signingID}         |
-| current_group_id   | {groupID}           |
-| replacing_group_id | {groupID}           |
-| status             | {replacementStatus} |
+| Attribute Key          | Attribute Value    |
+| ---------------------- | ------------------ |
+| signing_id             | {signingID}        |
+| current_group_id       | {groupID}          |
+| current_group_pub_key  | {groupPubKey}      |
+| incoming_group_id      | {groupID}          |
+| incoming_group_pub_key | {groupPubKey}      |
+| status                 | {transitionStatus} |
+| exec_time              | {execute_time}     |
+
+### EventTypeGroupTransitionFailed
+
+This event ( `group_transition_failed` ) is emitted when fail to execute a transition process.
+
+| Attribute Key     | Attribute Value |
+| ----------------- | --------------- |
+| signing_id        | {signingID}     |
+| current_group_id  | {groupID}       |
+| incoming_group_id | {groupID}       |
+
+### EventTypeGroupTransitionSuccess
+
+This event ( `group_transition_success` ) is emitted when successfully execute a transition process.
+
+| Attribute Key     | Attribute Value |
+| ----------------- | --------------- |
+| signing_id        | {signingID}     |
+| current_group_id  | {groupID}       |
+| incoming_group_id | {groupID}       |
 
 ### EventTypeActivate
 
@@ -207,14 +330,16 @@ This event ( `activate` ) is emitted when an account submitted `MsgActivate` to 
 | Attribute Key | Attribute Value |
 | ------------- | --------------- |
 | address       | {memberAddress} |
+| group_id      | {groupID}       |
 
-### EventTypeHealthCheck
+### EventTypeHeartbeat
 
-This event ( `healthcheck` ) is emitted when an account submitted `MsgHealthCheck` to the chain
+This event ( `heartbeat` ) is emitted when an account submitted `MsgHeartbeat` to the chain
 
 | Attribute Key | Attribute Value |
 | ------------- | --------------- |
 | address       | {memberAddress} |
+| group_id      | {groupID}       |
 
 ### EventTypeInactiveStatus
 
@@ -223,22 +348,27 @@ This event ( `inactive_status` ) is emitted when an account is deactivated
 | Attribute Key | Attribute Value |
 | ------------- | --------------- |
 | address       | {memberAddress} |
+| group_id      | {groupID}       |
 
 ## Parameters
 
 The module contains the following parameters
 
 ```protobuf
-type Params struct {
-	// active_duration is the duration where a member can be active without interaction.
-	ActiveDuration time.Duration
-	// reward_percentage is the percentage of block rewards allocated to active TSS validators after being allocated to
-	// oracle rewards.
-	RewardPercentage uint64
-	// inactive_penalty_duration is the duration where a member cannot activate back after inactive.
-	InactivePenaltyDuration time.Duration
-	// fee is the tokens that will be paid per signing.
-	Fee github_com_cosmos_cosmos_sdk_types.Coins
+message Params {
+  // active_duration is the duration where a member is active without interaction.
+  google.protobuf.Duration active_duration = 1 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  // reward_percentage is the percentage of block rewards allocated to active TSS members.
+  // The reward proportion is calculated after being allocated to oracle rewards.
+  uint64 reward_percentage = 2 [(gogoproto.customname) = "RewardPercentage"];
+  // inactive_penalty_duration is the duration where a member cannot activate back after being set to inactive.
+  google.protobuf.Duration inactive_penalty_duration = 3 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  // max_transition_duration is the maximum duration where the transition process waits
+  // since the start of the process until an incoming group replaces a current group.
+  google.protobuf.Duration max_transition_duration = 4 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  // fee is the tokens that will be paid per signer.
+  repeated cosmos.base.v1beta1.Coin fee = 5
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }
 ```
 
@@ -264,9 +394,25 @@ The `current-group` command allows users to query for current group information.
 bandd query bandtss current-group
 ```
 
+##### IncomingGroup
+
+The `incoming-group` command allows users to query for incoming group information.
+
+```bash
+bandd query bandtss incoming-group
+```
+
+##### Count Signing
+
+The `counts` command allows users to query a number of bandtss signing in the chain.
+
+```bash
+bandd query bandtss counts
+```
+
 ##### Member
 
-The `Member` command allows users to query for member information by giving a member address.
+The `Member` command allows users to query for member information by giving a member address, both information in the current group and incoming group.
 
 ```bash
 bandd query bandtss member [address] [flags]
@@ -278,12 +424,12 @@ Example:
 bandd query bandtss member band1nx0xkpnytk35wvflsg7gszf9smw3vaeauk248q
 ```
 
-##### Replacement
+##### GroupTransition
 
-The `Replacement` command allows users to query for replacement information.
+The `GroupTransition` command allows users to query for group transition information.
 
 ```bash
-bandd query bandtss replacement
+bandd query bandtss group-transition
 ```
 
 ##### Signing
@@ -320,6 +466,14 @@ The `current-group` command allows users to query for current group information.
 bandtss.v1beta1.Query/CurrentGroup
 ```
 
+##### IncomingGroup
+
+The `incoming-group` command allows users to query for incoming group information.
+
+```bash
+bandtss.v1beta1.Query/IncomingGroup
+```
+
 ##### Member
 
 The `Member` command allows users to query for member information by giving a member address.
@@ -335,12 +489,12 @@ grpcurl -plaintext
 -d '{"address":"band1nx0xkpnytk35wvflsg7gszf9smw3vaeauk248q"}' localhost:9090 bandtss.v1beta1.Query/Member
 ```
 
-##### Replacement
+##### GroupTransition
 
-The `Replacement` command allows users to query for replacement information.
+The `GroupTransition` command allows users to query for group transition information.
 
 ```bash
-bandtss.v1beta1.Query/Replacement
+bandtss.v1beta1.Query/GroupTransition
 ```
 
 ##### Signing
@@ -378,26 +532,34 @@ The `current-group` command allows users to query for current group information.
 /bandtss/v1beta1/current_group
 ```
 
+##### IncomingGroup
+
+The `incoming-group` command allows users to query for incoming group information.
+
+```bash
+/bandtss/v1beta1/incoming_group
+```
+
 ##### Member
 
 The `Member` command allows users to query for member information by giving a member address.
 
 ```bash
-/bandtss/v1beta1/current_group
+/bandtss/v1beta1/members/{address}
 ```
 
 Example:
 
 ```bash
-curl localhost:1317/bandtss/v1beta1/groups/band1nx0xkpnytk35wvflsg7gszf9smw3vaeauk248q
+curl localhost:1317/bandtss/v1beta1/members/band1nx0xkpnytk35wvflsg7gszf9smw3vaeauk248q
 ```
 
-##### Replacement
+##### GroupTransition
 
-The `Replacement` command allows users to query for replacement information.
+The `GroupTransition` command allows users to query for group transition information.
 
 ```bash
-/bandtss/v1beta1/replacement
+/bandtss/v1beta1/group_transition
 ```
 
 ##### Signing
@@ -405,7 +567,7 @@ The `Replacement` command allows users to query for replacement information.
 The `Signing` command allows users to query for bandtss signing information by giving a signing id.
 
 ```bash
-/bandtss/v1beta1/signing
+/bandtss/v1beta1/signing/{id}
 ```
 
 Example:

@@ -12,67 +12,70 @@ import (
 	"github.com/bandprotocol/chain/v2/x/restake/types"
 )
 
-// Querier is used as Keeper will have duplicate methods if used directly, and gRPC names take precedence over keeper
+// Querier is used as Keeper will have duplicate methods if used directly, and gRPC names take precedence over keeper.
 type Querier struct {
 	*Keeper
 }
 
 var _ types.QueryServer = Querier{}
 
-func (k Querier) Keys(
+// Vaults queries all vaults with pagination.
+func (k Querier) Vaults(
 	c context.Context,
-	req *types.QueryKeysRequest,
-) (*types.QueryKeysResponse, error) {
+	req *types.QueryVaultsRequest,
+) (*types.QueryVaultsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	keyStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyStoreKeyPrefix)
+	vaultStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.VaultStoreKeyPrefix)
 
-	filteredKeys, pageRes, err := query.GenericFilteredPaginate(
+	filteredVaults, pageRes, err := query.GenericFilteredPaginate(
 		k.cdc,
-		keyStore,
+		vaultStore,
 		req.Pagination,
-		func(key []byte, v *types.Key) (*types.Key, error) {
+		func(key []byte, v *types.Vault) (*types.Vault, error) {
 			return v, nil
-		}, func() *types.Key {
-			return &types.Key{}
+		}, func() *types.Vault {
+			return &types.Vault{}
 		})
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryKeysResponse{Keys: filteredKeys, Pagination: pageRes}, nil
+	return &types.QueryVaultsResponse{Vaults: filteredVaults, Pagination: pageRes}, nil
 }
 
-func (k Querier) Key(
+// Vault queries info about a vault.
+func (k Querier) Vault(
 	c context.Context,
-	req *types.QueryKeyRequest,
-) (*types.QueryKeyResponse, error) {
+	req *types.QueryVaultRequest,
+) (*types.QueryVaultResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	key, err := k.GetKey(ctx, req.Key)
+	vault, err := k.GetVault(ctx, req.Key)
 	if err != nil {
 		return nil, err
 	}
 
-	return &types.QueryKeyResponse{Key: key}, nil
+	return &types.QueryVaultResponse{Vault: vault}, nil
 }
 
+// Rewards queries all rewards with pagination.
 func (k Querier) Rewards(
 	c context.Context,
 	req *types.QueryRewardsRequest,
 ) (*types.QueryRewardsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	address, err := sdk.AccAddressFromBech32(req.LockerAddress)
+	addr, err := sdk.AccAddressFromBech32(req.StakerAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	keyStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.LocksStoreKey(address))
+	lockStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.LocksByAddressStoreKey(addr))
 
 	filteredRewards, pageRes, err := query.GenericFilteredPaginate(
 		k.cdc,
-		keyStore,
+		lockStore,
 		req.Pagination,
 		func(key []byte, s *types.Lock) (*types.Reward, error) {
 			reward := k.getReward(ctx, *s)
@@ -87,31 +90,54 @@ func (k Querier) Rewards(
 	return &types.QueryRewardsResponse{Rewards: filteredRewards, Pagination: pageRes}, nil
 }
 
+// Reward queries info about a reward by using address and key
+func (k Querier) Reward(
+	c context.Context,
+	req *types.QueryRewardRequest,
+) (*types.QueryRewardResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	addr, err := sdk.AccAddressFromBech32(req.StakerAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	lock, err := k.GetLock(ctx, addr, req.Key)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.QueryRewardResponse{
+		Reward: k.getReward(ctx, lock),
+	}, nil
+}
+
+// Locks queries all locks with pagination.
 func (k Querier) Locks(
 	c context.Context,
 	req *types.QueryLocksRequest,
 ) (*types.QueryLocksResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	address, err := sdk.AccAddressFromBech32(req.LockerAddress)
+	addr, err := sdk.AccAddressFromBech32(req.StakerAddress)
 	if err != nil {
 		return nil, err
 	}
 
-	keyStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.LocksStoreKey(address))
+	lockStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.LocksByAddressStoreKey(addr))
 
 	filteredLocks, pageRes, err := query.GenericFilteredPaginate(
 		k.cdc,
-		keyStore,
+		lockStore,
 		req.Pagination,
 		func(key []byte, s *types.Lock) (*types.LockResponse, error) {
-			if !k.IsActiveKey(ctx, s.Key) || s.Amount.IsZero() {
+			if !k.IsActiveVault(ctx, s.Key) || s.Power.IsZero() {
 				return nil, nil
 			}
 
 			return &types.LockResponse{
-				Key:    s.Key,
-				Amount: s.Amount,
+				Key:   s.Key,
+				Power: s.Power,
 			}, nil
 		}, func() *types.Lock {
 			return &types.Lock{}
@@ -121,4 +147,34 @@ func (k Querier) Locks(
 	}
 
 	return &types.QueryLocksResponse{Locks: filteredLocks, Pagination: pageRes}, nil
+}
+
+// Lock queries info about a lock by using address and key
+func (k Querier) Lock(
+	c context.Context,
+	req *types.QueryLockRequest,
+) (*types.QueryLockResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	addr, err := sdk.AccAddressFromBech32(req.StakerAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	isActive := k.IsActiveVault(ctx, req.Key)
+	if !isActive {
+		return nil, types.ErrVaultNotActive
+	}
+
+	lock, err := k.GetLock(ctx, addr, req.Key)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.QueryLockResponse{
+		Lock: types.LockResponse{
+			Key:   lock.Key,
+			Power: lock.Power,
+		},
+	}, nil
 }

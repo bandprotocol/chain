@@ -41,11 +41,10 @@ func (ams AssignedMembers) MemberIDs() (mids []tss.MemberID) {
 	return
 }
 
-// FindAssignedMember searches for an AssignedMember in the AssignedMembers slice
-// with a matching MemberID and address.
-func (ams AssignedMembers) FindAssignedMember(mid tss.MemberID, address string) (AssignedMember, bool) {
+// FindAssignedMember searches for an assigned member in the AssignedMembers slice with a matching MemberID.
+func (ams AssignedMembers) FindAssignedMember(mid tss.MemberID) (AssignedMember, bool) {
 	for _, am := range ams {
-		if mid == am.MemberID && address == am.Address {
+		if mid == am.MemberID {
 			return am, true
 		}
 	}

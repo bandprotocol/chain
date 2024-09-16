@@ -11,15 +11,19 @@ import (
 	_ "github.com/cosmos/cosmos-proto"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
+	github_com_cosmos_gogoproto_types "github.com/cosmos/gogoproto/types"
+	_ "google.golang.org/protobuf/types/known/timestamppb"
 	io "io"
 	math "math"
 	math_bits "math/bits"
+	time "time"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
+var _ = time.Kitchen
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -27,7 +31,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// SigningStatus is an enumeration of the possible statuses of a singing.
+// SigningStatus is an enumeration of the possible statuses of a signing.
 type SigningStatus int32
 
 const (
@@ -37,26 +41,22 @@ const (
 	SIGNING_STATUS_WAITING SigningStatus = 1
 	// SIGNING_STATUS_SUCCESS is the status of a signing that has success in the protocol.
 	SIGNING_STATUS_SUCCESS SigningStatus = 2
-	// SIGNING_STATUS_EXPIRED is the status of a signing that has expired in the protocol.
-	SIGNING_STATUS_EXPIRED SigningStatus = 3
 	// SIGNING_STATUS_FALLEN is the status of a signing that has fallen out of the protocol.
-	SIGNING_STATUS_FALLEN SigningStatus = 4
+	SIGNING_STATUS_FALLEN SigningStatus = 3
 )
 
 var SigningStatus_name = map[int32]string{
 	0: "SIGNING_STATUS_UNSPECIFIED",
 	1: "SIGNING_STATUS_WAITING",
 	2: "SIGNING_STATUS_SUCCESS",
-	3: "SIGNING_STATUS_EXPIRED",
-	4: "SIGNING_STATUS_FALLEN",
+	3: "SIGNING_STATUS_FALLEN",
 }
 
 var SigningStatus_value = map[string]int32{
 	"SIGNING_STATUS_UNSPECIFIED": 0,
 	"SIGNING_STATUS_WAITING":     1,
 	"SIGNING_STATUS_SUCCESS":     2,
-	"SIGNING_STATUS_EXPIRED":     3,
-	"SIGNING_STATUS_FALLEN":      4,
+	"SIGNING_STATUS_FALLEN":      3,
 }
 
 func (x SigningStatus) String() string {
@@ -439,33 +439,92 @@ func (m *DE) GetPubE() github_com_bandprotocol_chain_v2_pkg_tss.Point {
 	return nil
 }
 
+// DEQueue is a simple queue data structure contains index of existing DE objects of each member.
+type DEQueue struct {
+	// head is the current index of the first element in the queue.
+	Head uint64 `protobuf:"varint,1,opt,name=head,proto3" json:"head,omitempty"`
+	// tail is the current index of the last element in the queue.
+	Tail uint64 `protobuf:"varint,2,opt,name=tail,proto3" json:"tail,omitempty"`
+}
+
+func (m *DEQueue) Reset()         { *m = DEQueue{} }
+func (m *DEQueue) String() string { return proto.CompactTextString(m) }
+func (*DEQueue) ProtoMessage()    {}
+func (*DEQueue) Descriptor() ([]byte, []int) {
+	return fileDescriptor_321be6f53cb0491e, []int{4}
+}
+func (m *DEQueue) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *DEQueue) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_DEQueue.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *DEQueue) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DEQueue.Merge(m, src)
+}
+func (m *DEQueue) XXX_Size() int {
+	return m.Size()
+}
+func (m *DEQueue) XXX_DiscardUnknown() {
+	xxx_messageInfo_DEQueue.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DEQueue proto.InternalMessageInfo
+
+func (m *DEQueue) GetHead() uint64 {
+	if m != nil {
+		return m.Head
+	}
+	return 0
+}
+
+func (m *DEQueue) GetTail() uint64 {
+	if m != nil {
+		return m.Tail
+	}
+	return 0
+}
+
 // Signing contains all necessary information for handling a signing request.
 type Signing struct {
 	// id is the unique identifier of the signing.
 	ID github_com_bandprotocol_chain_v2_pkg_tss.SigningID `protobuf:"varint,1,opt,name=id,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.SigningID" json:"id,omitempty"`
+	// current_attempt is the latest round number that signing has been attempted.
+	CurrentAttempt uint64 `protobuf:"varint,2,opt,name=current_attempt,json=currentAttempt,proto3" json:"current_attempt,omitempty"`
 	// group_id is the unique identifier of the group.
-	GroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID `protobuf:"varint,2,opt,name=group_id,json=groupId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.GroupID" json:"group_id,omitempty"`
+	GroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID `protobuf:"varint,3,opt,name=group_id,json=groupId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.GroupID" json:"group_id,omitempty"`
 	// group_pub_key is the public key of the group that sign this message.
-	GroupPubKey github_com_bandprotocol_chain_v2_pkg_tss.Point `protobuf:"bytes,3,opt,name=group_pub_key,json=groupPubKey,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.Point" json:"group_pub_key,omitempty"`
-	// assigned_members is a list of members assigned to the signing process.
-	AssignedMembers AssignedMembers `protobuf:"bytes,4,rep,name=assigned_members,json=assignedMembers,proto3,castrepeated=AssignedMembers" json:"assigned_members"`
+	GroupPubKey github_com_bandprotocol_chain_v2_pkg_tss.Point `protobuf:"bytes,4,opt,name=group_pub_key,json=groupPubKey,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.Point" json:"group_pub_key,omitempty"`
+	// originator is the metadata of the message depending on the .
+	Originator github_com_cometbft_cometbft_libs_bytes.HexBytes `protobuf:"bytes,5,opt,name=originator,proto3,casttype=github.com/cometbft/cometbft/libs/bytes.HexBytes" json:"originator,omitempty"`
 	// message is the message to be signed.
-	Message github_com_cometbft_cometbft_libs_bytes.HexBytes `protobuf:"bytes,5,opt,name=message,proto3,casttype=github.com/cometbft/cometbft/libs/bytes.HexBytes" json:"message,omitempty"`
+	Message github_com_cometbft_cometbft_libs_bytes.HexBytes `protobuf:"bytes,6,opt,name=message,proto3,casttype=github.com/cometbft/cometbft/libs/bytes.HexBytes" json:"message,omitempty"`
 	// group_pub_nonce is the public nonce generated by the group for this signing process.
-	GroupPubNonce github_com_bandprotocol_chain_v2_pkg_tss.Point `protobuf:"bytes,6,opt,name=group_pub_nonce,json=groupPubNonce,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.Point" json:"group_pub_nonce,omitempty"`
+	GroupPubNonce github_com_bandprotocol_chain_v2_pkg_tss.Point `protobuf:"bytes,7,opt,name=group_pub_nonce,json=groupPubNonce,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.Point" json:"group_pub_nonce,omitempty"`
 	// signature is the group's signature on the message.
-	Signature github_com_bandprotocol_chain_v2_pkg_tss.Signature `protobuf:"bytes,7,opt,name=signature,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.Signature" json:"signature,omitempty"`
+	Signature github_com_bandprotocol_chain_v2_pkg_tss.Signature `protobuf:"bytes,8,opt,name=signature,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.Signature" json:"signature,omitempty"`
 	// status represents the current stage of the signing in the signing process.
-	Status SigningStatus `protobuf:"varint,8,opt,name=status,proto3,enum=tss.v1beta1.SigningStatus" json:"status,omitempty"`
+	Status SigningStatus `protobuf:"varint,9,opt,name=status,proto3,enum=tss.v1beta1.SigningStatus" json:"status,omitempty"`
 	// created_height is the block height when the signing was created.
-	CreatedHeight uint64 `protobuf:"varint,9,opt,name=created_height,json=createdHeight,proto3" json:"created_height,omitempty"`
+	CreatedHeight uint64 `protobuf:"varint,10,opt,name=created_height,json=createdHeight,proto3" json:"created_height,omitempty"`
+	// created_timestamp is the block timestamp when the signing was created.
+	CreatedTimestamp time.Time `protobuf:"bytes,11,opt,name=created_timestamp,json=createdTimestamp,proto3,stdtime" json:"created_timestamp"`
 }
 
 func (m *Signing) Reset()         { *m = Signing{} }
 func (m *Signing) String() string { return proto.CompactTextString(m) }
 func (*Signing) ProtoMessage()    {}
 func (*Signing) Descriptor() ([]byte, []int) {
-	return fileDescriptor_321be6f53cb0491e, []int{4}
+	return fileDescriptor_321be6f53cb0491e, []int{5}
 }
 func (m *Signing) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -501,6 +560,13 @@ func (m *Signing) GetID() github_com_bandprotocol_chain_v2_pkg_tss.SigningID {
 	return 0
 }
 
+func (m *Signing) GetCurrentAttempt() uint64 {
+	if m != nil {
+		return m.CurrentAttempt
+	}
+	return 0
+}
+
 func (m *Signing) GetGroupID() github_com_bandprotocol_chain_v2_pkg_tss.GroupID {
 	if m != nil {
 		return m.GroupID
@@ -515,9 +581,9 @@ func (m *Signing) GetGroupPubKey() github_com_bandprotocol_chain_v2_pkg_tss.Poin
 	return nil
 }
 
-func (m *Signing) GetAssignedMembers() AssignedMembers {
+func (m *Signing) GetOriginator() github_com_cometbft_cometbft_libs_bytes.HexBytes {
 	if m != nil {
-		return m.AssignedMembers
+		return m.Originator
 	}
 	return nil
 }
@@ -557,6 +623,87 @@ func (m *Signing) GetCreatedHeight() uint64 {
 	return 0
 }
 
+func (m *Signing) GetCreatedTimestamp() time.Time {
+	if m != nil {
+		return m.CreatedTimestamp
+	}
+	return time.Time{}
+}
+
+// SigningAttempt contains a member that has been assigned to and expiration block height of
+// the specific attempt.
+type SigningAttempt struct {
+	// signing_id is the unique identifier of the signing.
+	SigningID github_com_bandprotocol_chain_v2_pkg_tss.SigningID `protobuf:"varint,1,opt,name=signing_id,json=signingId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.SigningID" json:"signing_id,omitempty"`
+	// attempt is the number of round that this signing has been attempted.
+	Attempt uint64 `protobuf:"varint,2,opt,name=attempt,proto3" json:"attempt,omitempty"`
+	// expired_height is the block height when this signing attempt was expired.
+	ExpiredHeight uint64 `protobuf:"varint,3,opt,name=expired_height,json=expiredHeight,proto3" json:"expired_height,omitempty"`
+	// assigned_members is a list of members assigned to the signing process.
+	AssignedMembers []AssignedMember `protobuf:"bytes,4,rep,name=assigned_members,json=assignedMembers,proto3" json:"assigned_members"`
+}
+
+func (m *SigningAttempt) Reset()         { *m = SigningAttempt{} }
+func (m *SigningAttempt) String() string { return proto.CompactTextString(m) }
+func (*SigningAttempt) ProtoMessage()    {}
+func (*SigningAttempt) Descriptor() ([]byte, []int) {
+	return fileDescriptor_321be6f53cb0491e, []int{6}
+}
+func (m *SigningAttempt) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *SigningAttempt) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_SigningAttempt.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *SigningAttempt) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SigningAttempt.Merge(m, src)
+}
+func (m *SigningAttempt) XXX_Size() int {
+	return m.Size()
+}
+func (m *SigningAttempt) XXX_DiscardUnknown() {
+	xxx_messageInfo_SigningAttempt.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SigningAttempt proto.InternalMessageInfo
+
+func (m *SigningAttempt) GetSigningID() github_com_bandprotocol_chain_v2_pkg_tss.SigningID {
+	if m != nil {
+		return m.SigningID
+	}
+	return 0
+}
+
+func (m *SigningAttempt) GetAttempt() uint64 {
+	if m != nil {
+		return m.Attempt
+	}
+	return 0
+}
+
+func (m *SigningAttempt) GetExpiredHeight() uint64 {
+	if m != nil {
+		return m.ExpiredHeight
+	}
+	return 0
+}
+
+func (m *SigningAttempt) GetAssignedMembers() []AssignedMember {
+	if m != nil {
+		return m.AssignedMembers
+	}
+	return nil
+}
+
 // AssignedMember is a type representing a member that has been assigned to a signing process.
 type AssignedMember struct {
 	// member_id is the unique identifier of the member.
@@ -579,7 +726,7 @@ func (m *AssignedMember) Reset()         { *m = AssignedMember{} }
 func (m *AssignedMember) String() string { return proto.CompactTextString(m) }
 func (*AssignedMember) ProtoMessage()    {}
 func (*AssignedMember) Descriptor() ([]byte, []int) {
-	return fileDescriptor_321be6f53cb0491e, []int{5}
+	return fileDescriptor_321be6f53cb0491e, []int{7}
 }
 func (m *AssignedMember) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -667,7 +814,7 @@ func (m *PendingSignings) Reset()         { *m = PendingSignings{} }
 func (m *PendingSignings) String() string { return proto.CompactTextString(m) }
 func (*PendingSignings) ProtoMessage()    {}
 func (*PendingSignings) Descriptor() ([]byte, []int) {
-	return fileDescriptor_321be6f53cb0491e, []int{6}
+	return fileDescriptor_321be6f53cb0491e, []int{8}
 }
 func (m *PendingSignings) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -723,7 +870,7 @@ func (m *Member) Reset()         { *m = Member{} }
 func (m *Member) String() string { return proto.CompactTextString(m) }
 func (*Member) ProtoMessage()    {}
 func (*Member) Descriptor() ([]byte, []int) {
-	return fileDescriptor_321be6f53cb0491e, []int{7}
+	return fileDescriptor_321be6f53cb0491e, []int{9}
 }
 func (m *Member) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -806,7 +953,7 @@ func (m *Confirm) Reset()         { *m = Confirm{} }
 func (m *Confirm) String() string { return proto.CompactTextString(m) }
 func (*Confirm) ProtoMessage()    {}
 func (*Confirm) Descriptor() ([]byte, []int) {
-	return fileDescriptor_321be6f53cb0491e, []int{8}
+	return fileDescriptor_321be6f53cb0491e, []int{10}
 }
 func (m *Confirm) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -865,7 +1012,7 @@ func (m *Complaint) Reset()         { *m = Complaint{} }
 func (m *Complaint) String() string { return proto.CompactTextString(m) }
 func (*Complaint) ProtoMessage()    {}
 func (*Complaint) Descriptor() ([]byte, []int) {
-	return fileDescriptor_321be6f53cb0491e, []int{9}
+	return fileDescriptor_321be6f53cb0491e, []int{11}
 }
 func (m *Complaint) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -934,7 +1081,7 @@ func (m *ComplaintWithStatus) Reset()         { *m = ComplaintWithStatus{} }
 func (m *ComplaintWithStatus) String() string { return proto.CompactTextString(m) }
 func (*ComplaintWithStatus) ProtoMessage()    {}
 func (*ComplaintWithStatus) Descriptor() ([]byte, []int) {
-	return fileDescriptor_321be6f53cb0491e, []int{10}
+	return fileDescriptor_321be6f53cb0491e, []int{12}
 }
 func (m *ComplaintWithStatus) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -989,7 +1136,7 @@ func (m *ComplaintsWithStatus) Reset()         { *m = ComplaintsWithStatus{} }
 func (m *ComplaintsWithStatus) String() string { return proto.CompactTextString(m) }
 func (*ComplaintsWithStatus) ProtoMessage()    {}
 func (*ComplaintsWithStatus) Descriptor() ([]byte, []int) {
-	return fileDescriptor_321be6f53cb0491e, []int{11}
+	return fileDescriptor_321be6f53cb0491e, []int{13}
 }
 func (m *ComplaintsWithStatus) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1042,7 +1189,7 @@ func (m *PendingProcessGroups) Reset()         { *m = PendingProcessGroups{} }
 func (m *PendingProcessGroups) String() string { return proto.CompactTextString(m) }
 func (*PendingProcessGroups) ProtoMessage()    {}
 func (*PendingProcessGroups) Descriptor() ([]byte, []int) {
-	return fileDescriptor_321be6f53cb0491e, []int{12}
+	return fileDescriptor_321be6f53cb0491e, []int{14}
 }
 func (m *PendingProcessGroups) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1088,7 +1235,7 @@ func (m *PendingProcessSignings) Reset()         { *m = PendingProcessSignings{}
 func (m *PendingProcessSignings) String() string { return proto.CompactTextString(m) }
 func (*PendingProcessSignings) ProtoMessage()    {}
 func (*PendingProcessSignings) Descriptor() ([]byte, []int) {
-	return fileDescriptor_321be6f53cb0491e, []int{13}
+	return fileDescriptor_321be6f53cb0491e, []int{15}
 }
 func (m *PendingProcessSignings) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1126,17 +1273,21 @@ func (m *PendingProcessSignings) GetSigningIDs() []github_com_bandprotocol_chain
 
 // PartialSignature contains information about a member's partial signature.
 type PartialSignature struct {
+	// signing_id is the unique identifier of the signing.
+	SigningID github_com_bandprotocol_chain_v2_pkg_tss.SigningID `protobuf:"varint,1,opt,name=signing_id,json=signingId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.SigningID" json:"signing_id,omitempty"`
+	// signing_attempt is the number of attempts for this signing.
+	SigningAttempt uint64 `protobuf:"varint,2,opt,name=signing_attempt,json=signingAttempt,proto3" json:"signing_attempt,omitempty"`
 	// member_id is the identifier of the member providing the partial signature.
-	MemberID github_com_bandprotocol_chain_v2_pkg_tss.MemberID `protobuf:"varint,1,opt,name=member_id,json=memberId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.MemberID" json:"member_id,omitempty"`
+	MemberID github_com_bandprotocol_chain_v2_pkg_tss.MemberID `protobuf:"varint,3,opt,name=member_id,json=memberId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.MemberID" json:"member_id,omitempty"`
 	// signature is the partial signature provided by this member.
-	Signature github_com_bandprotocol_chain_v2_pkg_tss.Signature `protobuf:"bytes,2,opt,name=signature,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.Signature" json:"signature,omitempty"`
+	Signature github_com_bandprotocol_chain_v2_pkg_tss.Signature `protobuf:"bytes,4,opt,name=signature,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.Signature" json:"signature,omitempty"`
 }
 
 func (m *PartialSignature) Reset()         { *m = PartialSignature{} }
 func (m *PartialSignature) String() string { return proto.CompactTextString(m) }
 func (*PartialSignature) ProtoMessage()    {}
 func (*PartialSignature) Descriptor() ([]byte, []int) {
-	return fileDescriptor_321be6f53cb0491e, []int{14}
+	return fileDescriptor_321be6f53cb0491e, []int{16}
 }
 func (m *PartialSignature) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1165,6 +1316,20 @@ func (m *PartialSignature) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_PartialSignature proto.InternalMessageInfo
 
+func (m *PartialSignature) GetSigningID() github_com_bandprotocol_chain_v2_pkg_tss.SigningID {
+	if m != nil {
+		return m.SigningID
+	}
+	return 0
+}
+
+func (m *PartialSignature) GetSigningAttempt() uint64 {
+	if m != nil {
+		return m.SigningAttempt
+	}
+	return 0
+}
+
 func (m *PartialSignature) GetMemberID() github_com_bandprotocol_chain_v2_pkg_tss.MemberID {
 	if m != nil {
 		return m.MemberID
@@ -1189,7 +1354,7 @@ func (m *TextSignatureOrder) Reset()         { *m = TextSignatureOrder{} }
 func (m *TextSignatureOrder) String() string { return proto.CompactTextString(m) }
 func (*TextSignatureOrder) ProtoMessage()    {}
 func (*TextSignatureOrder) Descriptor() ([]byte, []int) {
-	return fileDescriptor_321be6f53cb0491e, []int{15}
+	return fileDescriptor_321be6f53cb0491e, []int{17}
 }
 func (m *TextSignatureOrder) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1237,7 +1402,7 @@ func (m *EVMSignature) Reset()         { *m = EVMSignature{} }
 func (m *EVMSignature) String() string { return proto.CompactTextString(m) }
 func (*EVMSignature) ProtoMessage()    {}
 func (*EVMSignature) Descriptor() ([]byte, []int) {
-	return fileDescriptor_321be6f53cb0491e, []int{16}
+	return fileDescriptor_321be6f53cb0491e, []int{18}
 }
 func (m *EVMSignature) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1284,17 +1449,19 @@ func (m *EVMSignature) GetSignature() github_com_cometbft_cometbft_libs_bytes.He
 type SigningResult struct {
 	// signing is the tss signing result.
 	Signing Signing `protobuf:"bytes,1,opt,name=signing,proto3" json:"signing"`
+	// current_signing_attempt is the current attempt information of the signing.
+	CurrentSigningAttempt *SigningAttempt `protobuf:"bytes,2,opt,name=current_signing_attempt,json=currentSigningAttempt,proto3" json:"current_signing_attempt,omitempty"`
 	// evm_signature is the signature in the format that can use directly in EVM.
-	EVMSignature *EVMSignature `protobuf:"bytes,2,opt,name=evm_signature,json=evmSignature,proto3" json:"evm_signature,omitempty"`
+	EVMSignature *EVMSignature `protobuf:"bytes,3,opt,name=evm_signature,json=evmSignature,proto3" json:"evm_signature,omitempty"`
 	// received_partial_signatures is a list of received partial signatures.
-	ReceivedPartialSignatures []PartialSignature `protobuf:"bytes,3,rep,name=received_partial_signatures,json=receivedPartialSignatures,proto3" json:"received_partial_signatures"`
+	ReceivedPartialSignatures []PartialSignature `protobuf:"bytes,4,rep,name=received_partial_signatures,json=receivedPartialSignatures,proto3" json:"received_partial_signatures"`
 }
 
 func (m *SigningResult) Reset()         { *m = SigningResult{} }
 func (m *SigningResult) String() string { return proto.CompactTextString(m) }
 func (*SigningResult) ProtoMessage()    {}
 func (*SigningResult) Descriptor() ([]byte, []int) {
-	return fileDescriptor_321be6f53cb0491e, []int{17}
+	return fileDescriptor_321be6f53cb0491e, []int{19}
 }
 func (m *SigningResult) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1330,6 +1497,13 @@ func (m *SigningResult) GetSigning() Signing {
 	return Signing{}
 }
 
+func (m *SigningResult) GetCurrentSigningAttempt() *SigningAttempt {
+	if m != nil {
+		return m.CurrentSigningAttempt
+	}
+	return nil
+}
+
 func (m *SigningResult) GetEVMSignature() *EVMSignature {
 	if m != nil {
 		return m.EVMSignature
@@ -1344,6 +1518,107 @@ func (m *SigningResult) GetReceivedPartialSignatures() []PartialSignature {
 	return nil
 }
 
+// SigningExpiration defines the expiration time of the signing.
+type SigningExpiration struct {
+	// signing_id is the id of the signing.
+	SigningID github_com_bandprotocol_chain_v2_pkg_tss.SigningID `protobuf:"varint,1,opt,name=signing_id,json=signingId,proto3,casttype=github.com/bandprotocol/chain/v2/pkg/tss.SigningID" json:"signing_id,omitempty"`
+	// signing_attempt is the number of attempts of the signing.
+	SigningAttempt uint64 `protobuf:"varint,2,opt,name=signing_attempt,json=signingAttempt,proto3" json:"signing_attempt,omitempty"`
+}
+
+func (m *SigningExpiration) Reset()         { *m = SigningExpiration{} }
+func (m *SigningExpiration) String() string { return proto.CompactTextString(m) }
+func (*SigningExpiration) ProtoMessage()    {}
+func (*SigningExpiration) Descriptor() ([]byte, []int) {
+	return fileDescriptor_321be6f53cb0491e, []int{20}
+}
+func (m *SigningExpiration) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *SigningExpiration) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_SigningExpiration.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *SigningExpiration) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SigningExpiration.Merge(m, src)
+}
+func (m *SigningExpiration) XXX_Size() int {
+	return m.Size()
+}
+func (m *SigningExpiration) XXX_DiscardUnknown() {
+	xxx_messageInfo_SigningExpiration.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SigningExpiration proto.InternalMessageInfo
+
+func (m *SigningExpiration) GetSigningID() github_com_bandprotocol_chain_v2_pkg_tss.SigningID {
+	if m != nil {
+		return m.SigningID
+	}
+	return 0
+}
+
+func (m *SigningExpiration) GetSigningAttempt() uint64 {
+	if m != nil {
+		return m.SigningAttempt
+	}
+	return 0
+}
+
+// SigningExpirations is a list of signing expiration information that are waiting in the queue.
+type SigningExpirations struct {
+	// signing_expirations is a list of SigningExpiration object.
+	SigningExpirations []SigningExpiration `protobuf:"bytes,1,rep,name=signing_expirations,json=signingExpirations,proto3" json:"signing_expirations"`
+}
+
+func (m *SigningExpirations) Reset()         { *m = SigningExpirations{} }
+func (m *SigningExpirations) String() string { return proto.CompactTextString(m) }
+func (*SigningExpirations) ProtoMessage()    {}
+func (*SigningExpirations) Descriptor() ([]byte, []int) {
+	return fileDescriptor_321be6f53cb0491e, []int{21}
+}
+func (m *SigningExpirations) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *SigningExpirations) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_SigningExpirations.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *SigningExpirations) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SigningExpirations.Merge(m, src)
+}
+func (m *SigningExpirations) XXX_Size() int {
+	return m.Size()
+}
+func (m *SigningExpirations) XXX_DiscardUnknown() {
+	xxx_messageInfo_SigningExpirations.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SigningExpirations proto.InternalMessageInfo
+
+func (m *SigningExpirations) GetSigningExpirations() []SigningExpiration {
+	if m != nil {
+		return m.SigningExpirations
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterEnum("tss.v1beta1.SigningStatus", SigningStatus_name, SigningStatus_value)
 	proto.RegisterEnum("tss.v1beta1.GroupStatus", GroupStatus_name, GroupStatus_value)
@@ -1352,7 +1627,9 @@ func init() {
 	proto.RegisterType((*Round1Info)(nil), "tss.v1beta1.Round1Info")
 	proto.RegisterType((*Round2Info)(nil), "tss.v1beta1.Round2Info")
 	proto.RegisterType((*DE)(nil), "tss.v1beta1.DE")
+	proto.RegisterType((*DEQueue)(nil), "tss.v1beta1.DEQueue")
 	proto.RegisterType((*Signing)(nil), "tss.v1beta1.Signing")
+	proto.RegisterType((*SigningAttempt)(nil), "tss.v1beta1.SigningAttempt")
 	proto.RegisterType((*AssignedMember)(nil), "tss.v1beta1.AssignedMember")
 	proto.RegisterType((*PendingSignings)(nil), "tss.v1beta1.PendingSignings")
 	proto.RegisterType((*Member)(nil), "tss.v1beta1.Member")
@@ -1366,114 +1643,132 @@ func init() {
 	proto.RegisterType((*TextSignatureOrder)(nil), "tss.v1beta1.TextSignatureOrder")
 	proto.RegisterType((*EVMSignature)(nil), "tss.v1beta1.EVMSignature")
 	proto.RegisterType((*SigningResult)(nil), "tss.v1beta1.SigningResult")
+	proto.RegisterType((*SigningExpiration)(nil), "tss.v1beta1.SigningExpiration")
+	proto.RegisterType((*SigningExpirations)(nil), "tss.v1beta1.SigningExpirations")
 }
 
 func init() { proto.RegisterFile("tss/v1beta1/tss.proto", fileDescriptor_321be6f53cb0491e) }
 
 var fileDescriptor_321be6f53cb0491e = []byte{
-	// 1631 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x58, 0xcf, 0x6f, 0xdb, 0xc8,
-	0x15, 0x36, 0x25, 0xd9, 0x92, 0x9e, 0xec, 0x98, 0x98, 0x38, 0x89, 0xe2, 0xb8, 0x92, 0x96, 0x40,
-	0x01, 0x63, 0xd1, 0x5a, 0xb1, 0xb2, 0x2d, 0x8a, 0xec, 0x02, 0x5b, 0xc9, 0x52, 0xbc, 0xdc, 0x38,
-	0xb2, 0x4a, 0xd9, 0x49, 0x9b, 0x76, 0x4b, 0x50, 0xe4, 0x58, 0x1a, 0x44, 0x24, 0x55, 0xce, 0xc8,
-	0x89, 0x7a, 0xe9, 0xb5, 0xc7, 0x9e, 0xf6, 0xd0, 0x6b, 0x7b, 0x28, 0x72, 0x6e, 0xff, 0x87, 0xb4,
-	0x05, 0x8a, 0x3d, 0xf4, 0xb0, 0x27, 0xa5, 0x50, 0x0e, 0xbd, 0xf6, 0x6c, 0xf4, 0x50, 0x90, 0x1c,
-	0xfe, 0x90, 0xad, 0x20, 0x8e, 0x14, 0xf7, 0xc6, 0x79, 0x6f, 0xe6, 0x9b, 0x37, 0xef, 0x7d, 0xf3,
-	0xbd, 0x91, 0xe0, 0x06, 0xa3, 0xb4, 0x7c, 0xba, 0xdb, 0xc1, 0x4c, 0xdb, 0x2d, 0x33, 0x4a, 0x77,
-	0x06, 0x8e, 0xcd, 0x6c, 0x94, 0x73, 0x3f, 0xb9, 0x79, 0x73, 0xa3, 0x6b, 0x77, 0x6d, 0xcf, 0x5e,
-	0x76, 0xbf, 0xfc, 0x29, 0x9b, 0xb7, 0x75, 0x9b, 0x9a, 0x36, 0x55, 0x7d, 0x87, 0x3f, 0xf0, 0x5d,
-	0xd2, 0x3f, 0x12, 0xb0, 0xbc, 0xef, 0xd8, 0xc3, 0x01, 0xfa, 0x12, 0x12, 0xc4, 0xc8, 0x0b, 0x25,
-	0x61, 0x3b, 0x55, 0xbb, 0x3f, 0x19, 0x17, 0x13, 0x72, 0xfd, 0x6c, 0x5c, 0xbc, 0xdb, 0x25, 0xac,
-	0x37, 0xec, 0xec, 0xe8, 0xb6, 0x59, 0xee, 0x68, 0x96, 0xe1, 0xad, 0xd2, 0xed, 0x7e, 0x59, 0xef,
-	0x69, 0xc4, 0x2a, 0x9f, 0x56, 0xca, 0x83, 0x67, 0x5d, 0x2f, 0x1a, 0x0f, 0x45, 0xae, 0x2b, 0x09,
-	0x62, 0x20, 0x04, 0x29, 0x4a, 0x7e, 0x8d, 0xf3, 0x09, 0x17, 0x4d, 0xf1, 0xbe, 0xd1, 0x16, 0x64,
-	0x59, 0xcf, 0xc1, 0xb4, 0x67, 0xf7, 0x8d, 0x7c, 0xd2, 0x73, 0x44, 0x06, 0xf4, 0x10, 0xd2, 0x83,
-	0x61, 0x47, 0x7d, 0x86, 0x47, 0xf9, 0x54, 0x49, 0xd8, 0x5e, 0xad, 0x55, 0xce, 0xc6, 0xc5, 0x9d,
-	0x4b, 0x6f, 0xde, 0xb2, 0x89, 0xc5, 0x94, 0x95, 0xc1, 0xb0, 0xf3, 0x10, 0x8f, 0xd0, 0x5d, 0x58,
-	0xa1, 0x4c, 0x63, 0x43, 0x9a, 0x5f, 0x2e, 0x09, 0xdb, 0xd7, 0x2a, 0xf9, 0x9d, 0x58, 0x8e, 0xfc,
-	0x40, 0xdb, 0x9e, 0x5f, 0xe1, 0xf3, 0xd0, 0x77, 0xe1, 0x9a, 0xee, 0x60, 0x8d, 0x61, 0x43, 0xed,
-	0x61, 0xd2, 0xed, 0xb1, 0xfc, 0x8a, 0x17, 0xe1, 0x1a, 0xb7, 0x7e, 0xe1, 0x19, 0xd1, 0x47, 0xb0,
-	0x6a, 0xda, 0xc6, 0xb0, 0x8f, 0x55, 0xfb, 0xb9, 0x85, 0x9d, 0x7c, 0xba, 0x24, 0x6c, 0x67, 0x95,
-	0x9c, 0x6f, 0x3b, 0x74, 0x4d, 0xd2, 0x7f, 0x92, 0x00, 0x8a, 0x3d, 0xb4, 0x8c, 0x5d, 0xd9, 0x3a,
-	0xb1, 0xd1, 0x2f, 0x21, 0x6b, 0x62, 0xb3, 0x83, 0x1d, 0x35, 0x4c, 0x6e, 0x75, 0x32, 0x2e, 0x66,
-	0x1e, 0x79, 0x46, 0x2f, 0xc5, 0xbb, 0x97, 0x3e, 0x65, 0xb0, 0x48, 0xc9, 0xf8, 0x98, 0xb2, 0x81,
-	0x0c, 0xb8, 0xae, 0xdb, 0xf8, 0xe4, 0x84, 0xe8, 0x04, 0x5b, 0x4c, 0xd5, 0x6d, 0xd3, 0x24, 0x8c,
-	0xe6, 0x13, 0xa5, 0xe4, 0xf6, 0x6a, 0xed, 0xde, 0xcb, 0xd7, 0xc5, 0xf2, 0xfb, 0xe5, 0x90, 0x2a,
-	0x28, 0x86, 0xb7, 0xe7, 0xc3, 0xa1, 0x9f, 0x83, 0x68, 0x5b, 0x58, 0x65, 0xc4, 0xc4, 0x6a, 0x50,
-	0xa6, 0xe4, 0xdc, 0x65, 0x5a, 0xb3, 0x2d, 0x7c, 0x44, 0x4c, 0xdc, 0xf2, 0xab, 0xf5, 0x33, 0x58,
-	0xd5, 0xee, 0xaa, 0x94, 0x74, 0x2d, 0x8d, 0x0d, 0x1d, 0xcc, 0xeb, 0xff, 0xc3, 0xb3, 0x71, 0xb1,
-	0x72, 0x69, 0xe0, 0x76, 0xb0, 0x5a, 0xc9, 0x69, 0x77, 0xc3, 0x01, 0x32, 0x00, 0x85, 0x71, 0x47,
-	0x1b, 0x2c, 0x2f, 0xb4, 0x81, 0xc8, 0xa3, 0x0f, 0x2d, 0xd2, 0x44, 0xe0, 0x25, 0xaf, 0xfc, 0x5f,
-	0x4a, 0xce, 0xe0, 0x16, 0xb6, 0x74, 0x67, 0x34, 0x70, 0xd9, 0x4a, 0xb1, 0xee, 0x60, 0xa6, 0xd2,
-	0x9e, 0xe6, 0xe0, 0xa0, 0xec, 0x9f, 0xbd, 0x7c, 0x5d, 0xfc, 0xd1, 0xa5, 0x77, 0x68, 0x58, 0x7a,
-	0xdb, 0x03, 0x69, 0x7b, 0x18, 0xca, 0x8d, 0x10, 0x3c, 0x6e, 0x96, 0xbe, 0x16, 0x20, 0x51, 0x6f,
-	0xa0, 0x7d, 0x58, 0x76, 0x09, 0xe0, 0x1f, 0x6c, 0xbe, 0xf2, 0xa7, 0x06, 0xc3, 0x4e, 0x3d, 0x00,
-	0xf2, 0x35, 0x62, 0x7e, 0xa0, 0x86, 0xf4, 0xd7, 0x65, 0x48, 0xbb, 0xb5, 0x20, 0x56, 0x17, 0x1d,
-	0xc4, 0x34, 0xec, 0xb3, 0x50, 0xc3, 0xde, 0xaf, 0xca, 0xc4, 0xea, 0x72, 0x15, 0x7b, 0x0a, 0x99,
-	0xae, 0xab, 0x15, 0x6e, 0x1d, 0x3d, 0x25, 0xab, 0x7d, 0x3e, 0x19, 0x17, 0xd3, 0x5c, 0xe8, 0xe6,
-	0x12, 0xc7, 0xb4, 0x07, 0x28, 0x1b, 0xe8, 0x31, 0xac, 0xf9, 0xd8, 0x8b, 0x5f, 0xa7, 0x9c, 0x07,
-	0xc4, 0x2f, 0x93, 0x0a, 0xa2, 0x46, 0x5d, 0xaa, 0x63, 0x43, 0xf5, 0x19, 0x43, 0xf3, 0xa9, 0x52,
-	0x72, 0x3b, 0x57, 0xb9, 0x33, 0x25, 0x82, 0x55, 0x3e, 0xc9, 0xe7, 0x57, 0xed, 0xd6, 0xab, 0x71,
-	0x71, 0xe9, 0xe5, 0xeb, 0xe2, 0xfa, 0xb4, 0x9d, 0x2a, 0xeb, 0xda, 0xb4, 0x01, 0x35, 0x21, 0x6d,
-	0x62, 0x4a, 0xb5, 0x6e, 0x70, 0x8f, 0x3e, 0x39, 0x97, 0x08, 0xdd, 0x36, 0x31, 0xeb, 0x9c, 0xb0,
-	0xe8, 0xa3, 0x4f, 0x3a, 0xb4, 0xdc, 0x19, 0x31, 0x4c, 0x77, 0xbe, 0xc0, 0x2f, 0x6a, 0xee, 0x87,
-	0x12, 0x80, 0xa0, 0xa7, 0xb0, 0x1e, 0x25, 0xc2, 0xb2, 0x2d, 0x1d, 0x7b, 0xd2, 0x3b, 0xa7, 0xb2,
-	0x04, 0xa9, 0x68, 0xba, 0x40, 0xe8, 0x08, 0xb2, 0xd1, 0xad, 0x4f, 0x2f, 0x74, 0xeb, 0x23, 0x20,
-	0x54, 0x09, 0xbb, 0x4b, 0xc6, 0xeb, 0x2e, 0x9b, 0x53, 0x89, 0xe5, 0x14, 0x7a, 0x67, 0x7f, 0xc9,
-	0xce, 0xe8, 0x2f, 0xd2, 0xd7, 0x29, 0xb8, 0x36, 0x5d, 0x81, 0x2b, 0x57, 0x93, 0x3c, 0xa4, 0x35,
-	0xc3, 0x70, 0x30, 0xa5, 0x1e, 0xc7, 0xb3, 0x4a, 0x30, 0x8c, 0xb7, 0xe4, 0xe4, 0xc2, 0x2d, 0x39,
-	0xd4, 0x8d, 0xd4, 0x87, 0xd2, 0x8d, 0xe5, 0xc5, 0x74, 0x03, 0x3d, 0x85, 0x6b, 0x1d, 0x62, 0x19,
-	0xc4, 0xea, 0xaa, 0x27, 0x9a, 0xce, 0x6c, 0x87, 0xf3, 0xee, 0xde, 0xd9, 0xf8, 0x3d, 0x9a, 0x66,
-	0x5b, 0xd7, 0xfa, 0x9a, 0xa3, 0xac, 0x71, 0xa8, 0x07, 0x1e, 0x12, 0x3a, 0x84, 0x6c, 0x44, 0xe7,
-	0xf4, 0xdc, 0x81, 0x66, 0x06, 0x9c, 0xc9, 0x52, 0x05, 0xd6, 0x5b, 0xd8, 0xdb, 0x81, 0xf3, 0x8b,
-	0xa2, 0x22, 0xe4, 0xa8, 0xff, 0xad, 0x12, 0x83, 0xe6, 0x85, 0x52, 0x72, 0x3b, 0xa5, 0x00, 0x37,
-	0xc9, 0x06, 0x95, 0xbe, 0x4d, 0xc0, 0x0a, 0x27, 0xd1, 0xc3, 0x98, 0x2e, 0x7e, 0x1a, 0xea, 0xe2,
-	0x1c, 0xbc, 0xb9, 0x6a, 0x59, 0x8c, 0xb1, 0x31, 0xf9, 0x56, 0x36, 0x2e, 0xfe, 0x40, 0xfc, 0x08,
-	0x56, 0x09, 0x55, 0x4d, 0xad, 0x4f, 0x74, 0x62, 0xf3, 0x67, 0x62, 0x46, 0xc9, 0x11, 0xfa, 0x28,
-	0x30, 0xa1, 0x3b, 0x90, 0x25, 0x54, 0xd5, 0x74, 0x46, 0x4e, 0x7d, 0x45, 0xca, 0x28, 0x19, 0x42,
-	0xab, 0xde, 0x58, 0x7a, 0x25, 0x40, 0x7a, 0xcf, 0xb6, 0x4e, 0x88, 0x63, 0x5e, 0xf9, 0x05, 0xfd,
-	0x0a, 0xd6, 0xed, 0xe7, 0x56, 0xd0, 0x27, 0xdc, 0x67, 0x0c, 0x6f, 0x99, 0xf3, 0x4a, 0xd9, 0xaa,
-	0xfd, 0xdc, 0xf2, 0xbb, 0x45, 0x9b, 0x74, 0xa5, 0x7f, 0x27, 0x20, 0xbb, 0x67, 0x9b, 0x83, 0xbe,
-	0x46, 0x2c, 0x86, 0x9e, 0x40, 0x4e, 0xe7, 0x03, 0xcd, 0x62, 0xfc, 0x38, 0x3f, 0x98, 0xef, 0x08,
-	0x71, 0x24, 0x74, 0x0c, 0xe0, 0x60, 0x3a, 0xb0, 0x2d, 0x03, 0x5b, 0x8c, 0xd3, 0x66, 0x4e, 0xdc,
-	0x18, 0x90, 0xcb, 0x0a, 0x2f, 0x29, 0x23, 0x73, 0x11, 0x8d, 0x7a, 0x86, 0x47, 0xed, 0x91, 0x89,
-	0xbe, 0x8a, 0xb7, 0x0b, 0x9f, 0x64, 0x9f, 0x9f, 0x8d, 0x8b, 0x9f, 0x5e, 0x1a, 0x2e, 0xcc, 0xe3,
-	0xac, 0xbe, 0x21, 0xfd, 0x5e, 0x80, 0xeb, 0xe1, 0x8c, 0x27, 0x84, 0xf5, 0xfc, 0x1e, 0x81, 0xee,
-	0x43, 0x36, 0xc8, 0x94, 0x9f, 0xf1, 0x5c, 0xe5, 0xe6, 0x54, 0x4b, 0x09, 0x17, 0xd5, 0x52, 0x6e,
-	0x9b, 0x56, 0xa2, 0xe9, 0x68, 0x1f, 0xc4, 0x70, 0xa0, 0xf2, 0xae, 0x94, 0xf0, 0xba, 0xd2, 0xd6,
-	0x6c, 0x08, 0xde, 0x97, 0xd6, 0xf5, 0x69, 0x83, 0xf4, 0x4f, 0x01, 0x36, 0xc2, 0x49, 0x34, 0x16,
-	0xdd, 0x55, 0xd3, 0xfb, 0x17, 0x70, 0x33, 0x8c, 0x85, 0xaa, 0xcf, 0x09, 0xeb, 0x45, 0xe7, 0x70,
-	0x9f, 0x2d, 0xa5, 0xd9, 0xe7, 0x88, 0x22, 0xe4, 0x49, 0xd9, 0xd0, 0x67, 0x44, 0x2f, 0x0d, 0x61,
-	0x83, 0xeb, 0x66, 0xcb, 0xb1, 0x75, 0x4c, 0xa9, 0xa7, 0x38, 0xd4, 0x2d, 0x75, 0xa0, 0x61, 0x5c,
-	0x3a, 0x6b, 0x3f, 0x76, 0x4f, 0xc5, 0x05, 0x89, 0xce, 0xa5, 0x62, 0x19, 0xae, 0x62, 0x54, 0xfa,
-	0x0d, 0xdc, 0x9c, 0xde, 0x36, 0x54, 0x6d, 0x3c, 0x43, 0xb5, 0x6b, 0xf5, 0xc9, 0xb8, 0x08, 0xe1,
-	0xdb, 0x93, 0xce, 0xf9, 0x64, 0x8d, 0x6b, 0xff, 0x2b, 0x01, 0xc4, 0x96, 0xe6, 0x30, 0xa2, 0xf5,
-	0xa3, 0x5f, 0x43, 0x57, 0x5d, 0xca, 0xa9, 0xe7, 0x56, 0xe2, 0x03, 0x3d, 0xb7, 0xa4, 0x5f, 0x01,
-	0x3a, 0xc2, 0x2f, 0xa2, 0x2b, 0x75, 0xe8, 0x18, 0xd8, 0x89, 0x3f, 0x43, 0x85, 0x0f, 0xf0, 0x0c,
-	0xbd, 0x9f, 0xfb, 0xdb, 0x9f, 0xbf, 0xef, 0x4a, 0x3a, 0xc3, 0x16, 0x93, 0xfe, 0x22, 0xc0, 0x6a,
-	0xe3, 0xf1, 0xa3, 0x28, 0x73, 0x3f, 0x81, 0xac, 0xa3, 0x06, 0x8d, 0x69, 0x91, 0xfd, 0x32, 0x4e,
-	0x95, 0xf7, 0x33, 0xe5, 0x62, 0xb2, 0xe6, 0x83, 0x8c, 0xa5, 0xea, 0xbf, 0x02, 0xac, 0x71, 0x3e,
-	0x28, 0x98, 0x0e, 0xfb, 0x0c, 0x7d, 0x02, 0x69, 0xce, 0x0a, 0xae, 0x2c, 0x1b, 0xb3, 0x1e, 0xab,
-	0xfc, 0x0a, 0x05, 0x53, 0x51, 0x0b, 0xd6, 0xf0, 0xa9, 0xa9, 0x4e, 0xc7, 0x97, 0xab, 0xdc, 0x9e,
-	0x5a, 0x1b, 0x4f, 0x50, 0x4d, 0x9c, 0x8c, 0x8b, 0x53, 0x29, 0x53, 0x56, 0xf1, 0xa9, 0x19, 0x25,
-	0x50, 0x87, 0x3b, 0x0e, 0xd6, 0x31, 0x39, 0xc5, 0x86, 0x3a, 0xf0, 0x79, 0x19, 0xc1, 0xbb, 0xbd,
-	0xde, 0xbd, 0xea, 0xdf, 0x99, 0xc2, 0x3f, 0x4f, 0x5f, 0x1e, 0xe4, 0xed, 0x00, 0xe7, 0xbc, 0x9f,
-	0x7e, 0xfc, 0xc7, 0xe8, 0xf8, 0x5c, 0xbc, 0x0a, 0xb0, 0xd9, 0x96, 0xf7, 0x9b, 0x72, 0x73, 0x5f,
-	0x6d, 0x1f, 0x55, 0x8f, 0x8e, 0xdb, 0xea, 0x71, 0xb3, 0xdd, 0x6a, 0xec, 0xc9, 0x0f, 0xe4, 0x46,
-	0x5d, 0x5c, 0x42, 0x9b, 0x70, 0xf3, 0x9c, 0xff, 0x49, 0x55, 0x3e, 0x92, 0x9b, 0xfb, 0xa2, 0x30,
-	0xc3, 0xd7, 0x3e, 0xde, 0xdb, 0x6b, 0xb4, 0xdb, 0x62, 0x62, 0x86, 0xaf, 0xf1, 0xd3, 0x96, 0xac,
-	0x34, 0xea, 0x62, 0x12, 0xdd, 0x86, 0x1b, 0xe7, 0x7c, 0x0f, 0xaa, 0x07, 0x07, 0x8d, 0xa6, 0x98,
-	0xda, 0x4c, 0xfd, 0xf6, 0x0f, 0x85, 0xa5, 0x8f, 0xff, 0x2e, 0x40, 0x2e, 0xf6, 0x1f, 0x14, 0xda,
-	0x82, 0xfc, 0xbe, 0x72, 0x78, 0xdc, 0x9a, 0x1d, 0x62, 0x1e, 0x36, 0xa6, 0xbc, 0xca, 0xe1, 0x71,
-	0xb3, 0xae, 0xee, 0x8a, 0xc2, 0x5b, 0x3c, 0x15, 0x31, 0xf1, 0x16, 0xcf, 0x3d, 0x31, 0x89, 0x6e,
-	0xc1, 0xf5, 0x29, 0x4f, 0x75, 0xef, 0x48, 0x7e, 0xdc, 0x10, 0x53, 0x17, 0x96, 0x04, 0xe7, 0x59,
-	0xbe, 0xb0, 0x84, 0x9f, 0x66, 0x85, 0x9f, 0x86, 0xc1, 0xfa, 0xb9, 0xe6, 0x82, 0x4a, 0xb0, 0xb5,
-	0x77, 0xf8, 0xa8, 0x75, 0x50, 0x95, 0x9b, 0x47, 0xb3, 0x0f, 0xb5, 0x05, 0xf9, 0x0b, 0x33, 0x82,
-	0xec, 0x0a, 0xe8, 0x0e, 0xdc, 0xba, 0xe0, 0x7d, 0x50, 0x95, 0x0f, 0x1a, 0x75, 0x31, 0xe1, 0xef,
-	0x5a, 0xfb, 0xf2, 0x4f, 0x93, 0x82, 0xf0, 0x6a, 0x52, 0x10, 0xbe, 0x99, 0x14, 0x84, 0x7f, 0x4d,
-	0x0a, 0xc2, 0xef, 0xde, 0x14, 0x96, 0xbe, 0x79, 0x53, 0x58, 0xfa, 0xf6, 0x4d, 0x61, 0xe9, 0xe9,
-	0xf7, 0xde, 0xa9, 0x38, 0x2f, 0x5c, 0xbd, 0x29, 0xb3, 0xd1, 0x00, 0xd3, 0xce, 0x8a, 0xe7, 0xbe,
-	0xf7, 0xbf, 0x00, 0x00, 0x00, 0xff, 0xff, 0xd6, 0xe7, 0x54, 0x36, 0x60, 0x15, 0x00, 0x00,
+	// 1877 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x58, 0xcf, 0x6f, 0x1b, 0xc7,
+	0x15, 0xd6, 0x2e, 0x29, 0x91, 0x7c, 0xd4, 0x0f, 0x66, 0x2c, 0xdb, 0xb4, 0xac, 0x92, 0xcc, 0x02,
+	0x45, 0x84, 0xa0, 0x15, 0x2d, 0x3a, 0x2d, 0x0a, 0x27, 0x40, 0x4a, 0x8a, 0xb4, 0xc2, 0x58, 0x96,
+	0xe8, 0x25, 0x65, 0xb7, 0x6e, 0xd3, 0xc5, 0x72, 0x77, 0x44, 0x0e, 0xcc, 0xdd, 0x65, 0x77, 0x86,
+	0xb2, 0xd5, 0x4b, 0x0f, 0xbd, 0xe4, 0x98, 0x53, 0x0e, 0x3d, 0x15, 0xe8, 0xa5, 0xc8, 0xb9, 0xbd,
+	0xf4, 0x2f, 0x30, 0x5a, 0xa0, 0x48, 0x81, 0x16, 0xc8, 0x89, 0x2e, 0xe8, 0x43, 0xaf, 0x3d, 0xeb,
+	0x54, 0xec, 0xee, 0xec, 0x0f, 0x52, 0x34, 0x22, 0x93, 0xb2, 0x91, 0xdb, 0xce, 0x7b, 0x33, 0xdf,
+	0xcc, 0xbc, 0x79, 0xf3, 0x7d, 0x6f, 0x16, 0xae, 0x32, 0x4a, 0x8b, 0x27, 0x3b, 0x6d, 0xcc, 0xd4,
+	0x9d, 0x22, 0xa3, 0x74, 0xbb, 0x6f, 0x5b, 0xcc, 0x42, 0x69, 0xe7, 0x93, 0x9b, 0x37, 0xd6, 0x3b,
+	0x56, 0xc7, 0x72, 0xed, 0x45, 0xe7, 0xcb, 0xeb, 0xb2, 0x71, 0x43, 0xb3, 0xa8, 0x61, 0x51, 0xc5,
+	0x73, 0x78, 0x0d, 0xee, 0xca, 0x77, 0x2c, 0xab, 0xd3, 0xc3, 0x45, 0xb7, 0xd5, 0x1e, 0x1c, 0x17,
+	0x19, 0x31, 0x30, 0x65, 0xaa, 0xd1, 0xf7, 0x3a, 0x48, 0xff, 0x10, 0x61, 0x71, 0xcf, 0xb6, 0x06,
+	0x7d, 0xf4, 0x29, 0x88, 0x44, 0xcf, 0x0a, 0x05, 0x61, 0x2b, 0x5e, 0xb9, 0x33, 0x1a, 0xe6, 0xc5,
+	0x7a, 0xf5, 0x6c, 0x98, 0xbf, 0xd5, 0x21, 0xac, 0x3b, 0x68, 0x6f, 0x6b, 0x96, 0x51, 0x6c, 0xab,
+	0xa6, 0xee, 0x8e, 0xd2, 0xac, 0x5e, 0x51, 0xeb, 0xaa, 0xc4, 0x2c, 0x9e, 0x94, 0x8a, 0xfd, 0x27,
+	0x1d, 0x77, 0xb9, 0x2e, 0x4a, 0xbd, 0x2a, 0x8b, 0x44, 0x47, 0x08, 0xe2, 0x94, 0xfc, 0x06, 0x67,
+	0x45, 0x07, 0x4d, 0x76, 0xbf, 0xd1, 0x26, 0xa4, 0x58, 0xd7, 0xc6, 0xb4, 0x6b, 0xf5, 0xf4, 0x6c,
+	0xcc, 0x75, 0x84, 0x06, 0x74, 0x0f, 0x12, 0xfd, 0x41, 0x5b, 0x79, 0x82, 0x4f, 0xb3, 0xf1, 0x82,
+	0xb0, 0xb5, 0x5c, 0x29, 0x9d, 0x0d, 0xf3, 0xdb, 0x17, 0x9e, 0xbc, 0x61, 0x11, 0x93, 0xc9, 0x4b,
+	0xfd, 0x41, 0xfb, 0x1e, 0x3e, 0x45, 0xb7, 0x60, 0x89, 0x32, 0x95, 0x0d, 0x68, 0x76, 0xb1, 0x20,
+	0x6c, 0xad, 0x96, 0xb2, 0xdb, 0x91, 0x20, 0x7a, 0x0b, 0x6d, 0xba, 0x7e, 0x99, 0xf7, 0x43, 0xdf,
+	0x87, 0x55, 0xcd, 0xc6, 0x2a, 0xc3, 0xba, 0xd2, 0xc5, 0xa4, 0xd3, 0x65, 0xd9, 0x25, 0x77, 0x85,
+	0x2b, 0xdc, 0xfa, 0x89, 0x6b, 0x44, 0xef, 0xc2, 0xb2, 0x61, 0xe9, 0x83, 0x1e, 0x56, 0xac, 0xa7,
+	0x26, 0xb6, 0xb3, 0x89, 0x82, 0xb0, 0x95, 0x92, 0xd3, 0x9e, 0xed, 0xd0, 0x31, 0x49, 0xff, 0x8b,
+	0x01, 0xc8, 0xd6, 0xc0, 0xd4, 0x77, 0xea, 0xe6, 0xb1, 0x85, 0x7e, 0x05, 0x29, 0x03, 0x1b, 0x6d,
+	0x6c, 0x2b, 0x41, 0x70, 0xcb, 0xa3, 0x61, 0x3e, 0x79, 0xdf, 0x35, 0xba, 0x21, 0xde, 0xb9, 0xf0,
+	0x2e, 0xfd, 0x41, 0x72, 0xd2, 0xc3, 0xac, 0xeb, 0x48, 0x87, 0x2b, 0x9a, 0x85, 0x8f, 0x8f, 0x89,
+	0x46, 0xb0, 0xc9, 0x14, 0xcd, 0x32, 0x0c, 0xc2, 0x68, 0x56, 0x2c, 0xc4, 0xb6, 0x96, 0x2b, 0xb7,
+	0xbf, 0x7a, 0x91, 0x2f, 0xbe, 0x5e, 0x0c, 0xa9, 0x8c, 0x22, 0x78, 0xbb, 0x1e, 0x1c, 0xfa, 0x05,
+	0x64, 0x2c, 0x13, 0x2b, 0x4e, 0xf2, 0x28, 0xfe, 0x31, 0xc5, 0x66, 0x3e, 0xa6, 0x15, 0xcb, 0xc4,
+	0x2d, 0x62, 0xe0, 0x86, 0x77, 0x5a, 0x3f, 0x87, 0x65, 0xf5, 0x96, 0x42, 0x49, 0xc7, 0x54, 0xd9,
+	0xc0, 0xc6, 0xfc, 0xfc, 0x7f, 0x7c, 0x36, 0xcc, 0x97, 0x2e, 0x0c, 0xdc, 0xf4, 0x47, 0xcb, 0x69,
+	0xf5, 0x56, 0xd0, 0x40, 0x3a, 0xa0, 0x60, 0xdd, 0xe1, 0x04, 0x8b, 0x73, 0x4d, 0x90, 0xe1, 0xab,
+	0x0f, 0x2c, 0xd2, 0x48, 0xe0, 0x47, 0x5e, 0x7a, 0x2b, 0x47, 0xce, 0xe0, 0x3a, 0x36, 0x35, 0xfb,
+	0xb4, 0xef, 0x64, 0x2b, 0xc5, 0x9a, 0x8d, 0x99, 0x42, 0xbb, 0xaa, 0x8d, 0xfd, 0x63, 0xff, 0xe8,
+	0xab, 0x17, 0xf9, 0x9f, 0x5c, 0x78, 0x86, 0x9a, 0xa9, 0x35, 0x5d, 0x90, 0xa6, 0x8b, 0x21, 0x5f,
+	0x0d, 0xc0, 0xa3, 0x66, 0xe9, 0x4b, 0x01, 0xc4, 0x6a, 0x0d, 0xed, 0xc1, 0xa2, 0x93, 0x00, 0xde,
+	0xc6, 0x66, 0x3b, 0xfe, 0x78, 0x7f, 0xd0, 0xae, 0xfa, 0x40, 0x1e, 0x47, 0xcc, 0x0e, 0x54, 0x93,
+	0x76, 0x20, 0x51, 0xad, 0x3d, 0x18, 0xe0, 0x01, 0x76, 0x68, 0xa7, 0x8b, 0x55, 0x1e, 0x74, 0xd9,
+	0xfd, 0x76, 0x6c, 0x4c, 0x25, 0x3d, 0x9f, 0x8a, 0x9c, 0x6f, 0xe9, 0xaf, 0x4b, 0x90, 0x70, 0x8e,
+	0x8f, 0x98, 0x1d, 0xb4, 0x1f, 0xa1, 0xbd, 0x8f, 0x02, 0xda, 0x7b, 0xbd, 0xc4, 0x20, 0x66, 0x87,
+	0x13, 0xdf, 0x7b, 0xb0, 0xa6, 0x0d, 0x6c, 0xdb, 0xb9, 0x8a, 0x2a, 0x63, 0xd8, 0xe8, 0x33, 0x3e,
+	0xf1, 0x2a, 0x37, 0x97, 0x3d, 0x2b, 0x7a, 0x0c, 0xc9, 0x8e, 0xc3, 0x43, 0x4e, 0x8e, 0xb8, 0x64,
+	0x58, 0xf9, 0x78, 0x34, 0xcc, 0x27, 0x38, 0x89, 0xce, 0x44, 0xbc, 0x09, 0x17, 0xb0, 0xae, 0xa3,
+	0x87, 0xb0, 0xe2, 0x61, 0xcf, 0xcf, 0xa8, 0x69, 0x17, 0x88, 0x5f, 0xd4, 0x16, 0x80, 0x65, 0x93,
+	0x0e, 0x31, 0x55, 0x66, 0xd9, 0xfc, 0x16, 0x7d, 0x30, 0xb1, 0x54, 0xcd, 0x32, 0x30, 0x6b, 0x1f,
+	0xb3, 0xf0, 0xa3, 0x47, 0xda, 0xb4, 0xd8, 0x3e, 0x65, 0x98, 0x6e, 0x7f, 0x82, 0x9f, 0x55, 0x9c,
+	0x0f, 0x39, 0x82, 0x83, 0x0e, 0x20, 0x61, 0x60, 0x4a, 0xd5, 0x0e, 0x76, 0x39, 0x77, 0x56, 0x48,
+	0x1f, 0x04, 0x3d, 0x86, 0xb5, 0x70, 0xf7, 0xa6, 0x65, 0x6a, 0xd8, 0xa5, 0xe9, 0x19, 0xa9, 0xca,
+	0xdf, 0xff, 0x81, 0x03, 0x84, 0x5a, 0x90, 0x0a, 0x69, 0x24, 0x39, 0x17, 0x8d, 0x84, 0x40, 0xa8,
+	0x14, 0xc8, 0x55, 0xca, 0x95, 0xab, 0x8d, 0x31, 0xb9, 0xe2, 0x09, 0xf6, 0xad, 0x82, 0x05, 0xd3,
+	0x04, 0xeb, 0x01, 0xbc, 0xe3, 0x77, 0x0b, 0x94, 0x3f, 0x9b, 0x2e, 0x08, 0x5b, 0xe9, 0xd2, 0xc6,
+	0xb6, 0x57, 0x1b, 0x6c, 0xfb, 0xb5, 0xc1, 0x76, 0xcb, 0xef, 0x51, 0x49, 0x3e, 0x1f, 0xe6, 0x17,
+	0xbe, 0x78, 0x91, 0x17, 0xe4, 0x0c, 0x1f, 0x1e, 0xf8, 0xa4, 0xdf, 0x89, 0xb0, 0xca, 0xd7, 0xe4,
+	0x27, 0x73, 0x1b, 0x80, 0x7a, 0x96, 0x90, 0xf2, 0x76, 0x47, 0xc3, 0x7c, 0x2a, 0xb8, 0x1c, 0x33,
+	0x5e, 0xa9, 0x14, 0x87, 0xad, 0xeb, 0x28, 0x0b, 0x89, 0xf1, 0x1b, 0xe5, 0x37, 0x9d, 0x50, 0xe0,
+	0x67, 0x7d, 0x62, 0x87, 0xa1, 0xf0, 0xaa, 0x8b, 0x15, 0x6e, 0xe5, 0xa1, 0xd8, 0x87, 0x8c, 0x4a,
+	0x1d, 0x3c, 0xac, 0x2b, 0x1e, 0x97, 0xd2, 0x6c, 0xbc, 0x10, 0xdb, 0x4a, 0x97, 0x6e, 0x8e, 0xc5,
+	0xbb, 0xcc, 0x3b, 0x79, 0xcc, 0x5b, 0x89, 0x3b, 0xa1, 0x90, 0xd7, 0xd4, 0x31, 0x2b, 0x95, 0xbe,
+	0x8c, 0xc3, 0xea, 0x78, 0xcf, 0x37, 0xce, 0xfb, 0x4e, 0x04, 0x74, 0xdd, 0xc6, 0x94, 0xba, 0x11,
+	0x48, 0xc9, 0x7e, 0x33, 0x5a, 0x3c, 0xc5, 0xe6, 0x2e, 0x9e, 0x02, 0x86, 0x8f, 0x5f, 0x16, 0xc3,
+	0x2f, 0xce, 0xc7, 0xf0, 0xe8, 0x31, 0xac, 0xb6, 0x89, 0xa9, 0x3b, 0xe9, 0x75, 0xac, 0x6a, 0x0e,
+	0xf7, 0x78, 0x44, 0x71, 0xfb, 0x6c, 0xf8, 0x1a, 0xe5, 0x4d, 0x53, 0x53, 0x7b, 0xaa, 0x2d, 0xaf,
+	0x70, 0xa8, 0xbb, 0x2e, 0x12, 0x3a, 0x84, 0xd4, 0x65, 0xf0, 0x44, 0xb2, 0xcf, 0x29, 0x42, 0x2a,
+	0xc1, 0x5a, 0x03, 0xbb, 0x33, 0xf0, 0x34, 0xa6, 0x28, 0x0f, 0xe9, 0xf0, 0x7a, 0xd0, 0xac, 0x50,
+	0x88, 0x6d, 0xc5, 0x65, 0x08, 0x52, 0x9b, 0x4a, 0xdf, 0x88, 0xb0, 0xc4, 0x93, 0xe8, 0x5e, 0x44,
+	0x8e, 0x3e, 0x0c, 0xe4, 0x68, 0x86, 0xbc, 0x71, 0xd4, 0x28, 0x2a, 0x32, 0xe2, 0x25, 0x8b, 0x4c,
+	0x24, 0x1b, 0x63, 0xaf, 0xcc, 0xc6, 0xf9, 0x4b, 0xf9, 0x77, 0x61, 0x99, 0x50, 0xc5, 0x50, 0x7b,
+	0x44, 0x23, 0x16, 0x2f, 0xe8, 0x93, 0x72, 0x9a, 0xd0, 0xfb, 0xbe, 0x09, 0xdd, 0x84, 0x14, 0xa1,
+	0x8a, 0xaa, 0x31, 0x72, 0xe2, 0x49, 0x48, 0x52, 0x4e, 0x12, 0x5a, 0x76, 0xdb, 0xd2, 0x73, 0x01,
+	0x12, 0xbb, 0x96, 0x79, 0x4c, 0x6c, 0xe3, 0x8d, 0x5f, 0xd0, 0xcf, 0x60, 0xcd, 0x7a, 0x6a, 0xfa,
+	0xaa, 0xeb, 0x14, 0x9c, 0xbc, 0xb8, 0x99, 0x55, 0x23, 0x96, 0xad, 0xa7, 0xa6, 0xa7, 0xbd, 0x4d,
+	0xd2, 0x91, 0xfe, 0x2b, 0x42, 0x6a, 0xd7, 0x32, 0xfa, 0x3d, 0x95, 0x98, 0x0c, 0x3d, 0x82, 0xb4,
+	0xc6, 0x1b, 0xaa, 0xc9, 0xf8, 0x76, 0x7e, 0x34, 0xdb, 0x16, 0xa2, 0x48, 0xe8, 0x08, 0xc0, 0xc6,
+	0xb4, 0x6f, 0x99, 0x3a, 0x36, 0x39, 0xd7, 0xce, 0x8a, 0x1b, 0x01, 0x72, 0xb2, 0xc2, 0x0d, 0xca,
+	0xa9, 0x31, 0x0f, 0x47, 0x3d, 0xc1, 0xa7, 0xcd, 0x53, 0x03, 0x7d, 0x16, 0xd5, 0x61, 0x2f, 0xc9,
+	0x3e, 0x3e, 0x1b, 0xe6, 0x3f, 0xbc, 0x30, 0x5c, 0x10, 0xc7, 0x69, 0x82, 0x2c, 0xfd, 0x5e, 0x80,
+	0x2b, 0x41, 0x8f, 0x47, 0x84, 0x75, 0x3d, 0xf1, 0x45, 0x77, 0x20, 0xe5, 0x47, 0xca, 0x8b, 0x78,
+	0xba, 0x74, 0x6d, 0x4c, 0x3b, 0x82, 0x41, 0x5c, 0x36, 0xc2, 0xee, 0x68, 0x0f, 0x32, 0x41, 0x43,
+	0xe1, 0x72, 0x2f, 0xba, 0x72, 0xbf, 0x39, 0x1d, 0x82, 0x0b, 0xfe, 0x9a, 0x36, 0x6e, 0x90, 0xfe,
+	0x25, 0xc0, 0x7a, 0xd0, 0x89, 0x46, 0x56, 0xf7, 0xa6, 0xd3, 0xfb, 0x97, 0x70, 0x2d, 0x58, 0x0b,
+	0x55, 0x9e, 0x12, 0xd6, 0x0d, 0xf7, 0xe1, 0xc8, 0x68, 0x61, 0xfa, 0x3e, 0xc2, 0x15, 0xf2, 0xa0,
+	0xac, 0x6b, 0x53, 0x56, 0x2f, 0x0d, 0x60, 0x9d, 0xf3, 0x66, 0xc3, 0xb6, 0x34, 0x4c, 0xa9, 0xcb,
+	0x38, 0xd4, 0x39, 0x6a, 0x9f, 0xc3, 0x38, 0x75, 0x56, 0x7e, 0xea, 0xec, 0x8a, 0x13, 0x12, 0x9d,
+	0x89, 0xc5, 0x92, 0x9c, 0xc5, 0xa8, 0xf4, 0x5b, 0xb8, 0x36, 0x3e, 0x6d, 0xc0, 0xda, 0x78, 0x0a,
+	0x6b, 0x57, 0xaa, 0xa3, 0x61, 0x1e, 0x82, 0xfa, 0x84, 0xce, 0x58, 0xd6, 0x44, 0xb9, 0xff, 0xdf,
+	0x22, 0x64, 0x1a, 0xaa, 0xcd, 0x88, 0xda, 0x0b, 0xdf, 0xad, 0x6f, 0xa3, 0xa0, 0x7a, 0x0f, 0xd6,
+	0xfc, 0x39, 0x26, 0x9e, 0x2a, 0x74, 0xbc, 0xba, 0x1b, 0xcb, 0xab, 0xd8, 0xe5, 0xe7, 0x55, 0xeb,
+	0xfc, 0x65, 0x9e, 0xbf, 0xa8, 0x96, 0x7e, 0x0d, 0xa8, 0x85, 0x9f, 0x85, 0xf7, 0xfb, 0xd0, 0xd6,
+	0xf1, 0xd8, 0x63, 0x43, 0xb8, 0x84, 0xc7, 0xc6, 0x9d, 0xf4, 0xdf, 0xfe, 0xfc, 0x43, 0x47, 0x5f,
+	0x18, 0x36, 0x99, 0xf4, 0x17, 0x01, 0x96, 0x6b, 0x0f, 0xef, 0x87, 0xc7, 0xf8, 0x00, 0x52, 0xb6,
+	0xe2, 0xab, 0xe4, 0x3c, 0xf3, 0x25, 0xed, 0x32, 0x17, 0x57, 0x39, 0x1a, 0x2c, 0x71, 0x0e, 0xc8,
+	0x48, 0xa8, 0xfe, 0x29, 0xc2, 0x0a, 0x4f, 0x11, 0x19, 0xd3, 0x41, 0x8f, 0xa1, 0x0f, 0x20, 0xc1,
+	0x93, 0x80, 0xd3, 0xdc, 0xfa, 0xb4, 0x27, 0x09, 0xbf, 0xcf, 0x7e, 0x57, 0xd4, 0x84, 0xeb, 0xfe,
+	0xe3, 0x77, 0x5a, 0x66, 0x4d, 0x16, 0xda, 0xe3, 0x8f, 0x08, 0xf9, 0x2a, 0x1f, 0x3b, 0xf1, 0xb6,
+	0x68, 0xc0, 0x0a, 0x3e, 0x31, 0x22, 0x7f, 0x6f, 0x62, 0x2e, 0xd4, 0x8d, 0x31, 0xa8, 0x68, 0xd4,
+	0x2b, 0x99, 0xd1, 0x30, 0x3f, 0x76, 0x0e, 0xf2, 0x32, 0x3e, 0x31, 0xc2, 0x53, 0xd1, 0xe0, 0xa6,
+	0x8d, 0x35, 0x4c, 0x4e, 0xb0, 0xae, 0xf4, 0xbd, 0x9b, 0x17, 0xc2, 0xfb, 0x6f, 0x82, 0xef, 0x8d,
+	0xe1, 0x4f, 0x5e, 0x50, 0xbe, 0xf3, 0x1b, 0x3e, 0xce, 0xa4, 0x9f, 0x4a, 0x7f, 0x10, 0xe0, 0x1d,
+	0xbe, 0x93, 0x9a, 0xf3, 0x0c, 0x51, 0x19, 0xb1, 0xcc, 0xef, 0xd4, 0xbd, 0x96, 0x9e, 0x00, 0x3a,
+	0xb7, 0x42, 0x8a, 0x8e, 0xe0, 0x8a, 0x3f, 0x1c, 0x87, 0x66, 0x97, 0xfe, 0xd2, 0xa5, 0xdc, 0xb4,
+	0x03, 0x0c, 0x47, 0xf3, 0xb0, 0x20, 0x7a, 0x0e, 0xf6, 0xfd, 0xcf, 0x85, 0x20, 0xc7, 0xb8, 0x5c,
+	0xe5, 0x60, 0xa3, 0x59, 0xdf, 0x3b, 0xa8, 0x1f, 0xec, 0x29, 0xcd, 0x56, 0xb9, 0x75, 0xd4, 0x54,
+	0x8e, 0x0e, 0x9a, 0x8d, 0xda, 0x6e, 0xfd, 0x6e, 0xbd, 0x56, 0xcd, 0x2c, 0xa0, 0x0d, 0xb8, 0x36,
+	0xe1, 0x7f, 0x54, 0xae, 0xb7, 0xea, 0x07, 0x7b, 0x19, 0x61, 0x8a, 0xaf, 0x79, 0xb4, 0xbb, 0x5b,
+	0x6b, 0x36, 0x33, 0x22, 0xba, 0x01, 0x57, 0x27, 0x7c, 0x77, 0xcb, 0xfb, 0xfb, 0xb5, 0x83, 0x4c,
+	0x6c, 0x23, 0xfe, 0xf9, 0x1f, 0x73, 0x0b, 0xef, 0xff, 0x5d, 0x80, 0x74, 0xe4, 0x1f, 0x30, 0xda,
+	0x84, 0xec, 0x9e, 0x7c, 0x78, 0xd4, 0x98, 0xbe, 0x8c, 0x2c, 0xac, 0x8f, 0x79, 0xe5, 0xc3, 0xa3,
+	0x83, 0xaa, 0xb2, 0x93, 0x11, 0x5e, 0xe1, 0x29, 0x65, 0xc4, 0x57, 0x78, 0x6e, 0x67, 0x62, 0xe8,
+	0x3a, 0x5c, 0x19, 0xf3, 0x94, 0x77, 0x5b, 0xf5, 0x87, 0xb5, 0x4c, 0xfc, 0xdc, 0x90, 0xda, 0xcf,
+	0x1a, 0x75, 0xb9, 0x56, 0xcd, 0x2c, 0x9e, 0x1b, 0xc2, 0x77, 0xb3, 0xc4, 0x77, 0xc3, 0x60, 0x6d,
+	0xa2, 0x64, 0x40, 0x05, 0xd8, 0xdc, 0x3d, 0xbc, 0xdf, 0xd8, 0x2f, 0xd7, 0x0f, 0x5a, 0xd3, 0x37,
+	0xb5, 0x09, 0xd9, 0x73, 0x3d, 0xfc, 0x08, 0x0a, 0xe8, 0x26, 0x5c, 0x3f, 0xe7, 0xbd, 0x5b, 0xae,
+	0xef, 0xd7, 0xaa, 0x19, 0xd1, 0x9b, 0xb5, 0xf2, 0xe9, 0x9f, 0x46, 0x39, 0xe1, 0xf9, 0x28, 0x27,
+	0x7c, 0x3d, 0xca, 0x09, 0xff, 0x19, 0xe5, 0x84, 0x2f, 0x5e, 0xe6, 0x16, 0xbe, 0x7e, 0x99, 0x5b,
+	0xf8, 0xe6, 0x65, 0x6e, 0xe1, 0xf1, 0x0f, 0xbe, 0x35, 0x83, 0x9f, 0x39, 0xf9, 0x5b, 0x64, 0xa7,
+	0x7d, 0x4c, 0xdb, 0x4b, 0xae, 0xfb, 0xf6, 0xff, 0x03, 0x00, 0x00, 0xff, 0xff, 0x84, 0x3d, 0xe4,
+	0xd9, 0x01, 0x19, 0x00, 0x00,
 }
 
 func (this *Group) Equal(that interface{}) bool {
@@ -1618,6 +1913,33 @@ func (this *DE) Equal(that interface{}) bool {
 	}
 	return true
 }
+func (this *DEQueue) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*DEQueue)
+	if !ok {
+		that2, ok := that.(DEQueue)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Head != that1.Head {
+		return false
+	}
+	if this.Tail != that1.Tail {
+		return false
+	}
+	return true
+}
 func (this *Signing) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
@@ -1640,19 +1962,17 @@ func (this *Signing) Equal(that interface{}) bool {
 	if this.ID != that1.ID {
 		return false
 	}
+	if this.CurrentAttempt != that1.CurrentAttempt {
+		return false
+	}
 	if this.GroupID != that1.GroupID {
 		return false
 	}
 	if !bytes.Equal(this.GroupPubKey, that1.GroupPubKey) {
 		return false
 	}
-	if len(this.AssignedMembers) != len(that1.AssignedMembers) {
+	if !bytes.Equal(this.Originator, that1.Originator) {
 		return false
-	}
-	for i := range this.AssignedMembers {
-		if !this.AssignedMembers[i].Equal(&that1.AssignedMembers[i]) {
-			return false
-		}
 	}
 	if !bytes.Equal(this.Message, that1.Message) {
 		return false
@@ -1668,6 +1988,47 @@ func (this *Signing) Equal(that interface{}) bool {
 	}
 	if this.CreatedHeight != that1.CreatedHeight {
 		return false
+	}
+	if !this.CreatedTimestamp.Equal(that1.CreatedTimestamp) {
+		return false
+	}
+	return true
+}
+func (this *SigningAttempt) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*SigningAttempt)
+	if !ok {
+		that2, ok := that.(SigningAttempt)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.SigningID != that1.SigningID {
+		return false
+	}
+	if this.Attempt != that1.Attempt {
+		return false
+	}
+	if this.ExpiredHeight != that1.ExpiredHeight {
+		return false
+	}
+	if len(this.AssignedMembers) != len(that1.AssignedMembers) {
+		return false
+	}
+	for i := range this.AssignedMembers {
+		if !this.AssignedMembers[i].Equal(&that1.AssignedMembers[i]) {
+			return false
+		}
 	}
 	return true
 }
@@ -1977,6 +2338,12 @@ func (this *PartialSignature) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
+	if this.SigningID != that1.SigningID {
+		return false
+	}
+	if this.SigningAttempt != that1.SigningAttempt {
+		return false
+	}
 	if this.MemberID != that1.MemberID {
 		return false
 	}
@@ -2058,6 +2425,9 @@ func (this *SigningResult) Equal(that interface{}) bool {
 	if !this.Signing.Equal(&that1.Signing) {
 		return false
 	}
+	if !this.CurrentSigningAttempt.Equal(that1.CurrentSigningAttempt) {
+		return false
+	}
 	if !this.EVMSignature.Equal(that1.EVMSignature) {
 		return false
 	}
@@ -2066,6 +2436,62 @@ func (this *SigningResult) Equal(that interface{}) bool {
 	}
 	for i := range this.ReceivedPartialSignatures {
 		if !this.ReceivedPartialSignatures[i].Equal(&that1.ReceivedPartialSignatures[i]) {
+			return false
+		}
+	}
+	return true
+}
+func (this *SigningExpiration) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*SigningExpiration)
+	if !ok {
+		that2, ok := that.(SigningExpiration)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.SigningID != that1.SigningID {
+		return false
+	}
+	if this.SigningAttempt != that1.SigningAttempt {
+		return false
+	}
+	return true
+}
+func (this *SigningExpirations) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*SigningExpirations)
+	if !ok {
+		that2, ok := that.(SigningExpirations)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if len(this.SigningExpirations) != len(that1.SigningExpirations) {
+		return false
+	}
+	for i := range this.SigningExpirations {
+		if !this.SigningExpirations[i].Equal(&that1.SigningExpirations[i]) {
 			return false
 		}
 	}
@@ -2265,6 +2691,39 @@ func (m *DE) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *DEQueue) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *DEQueue) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *DEQueue) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Tail != 0 {
+		i = encodeVarintTss(dAtA, i, uint64(m.Tail))
+		i--
+		dAtA[i] = 0x10
+	}
+	if m.Head != 0 {
+		i = encodeVarintTss(dAtA, i, uint64(m.Head))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *Signing) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -2285,37 +2744,97 @@ func (m *Signing) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	n1, err1 := github_com_cosmos_gogoproto_types.StdTimeMarshalTo(m.CreatedTimestamp, dAtA[i-github_com_cosmos_gogoproto_types.SizeOfStdTime(m.CreatedTimestamp):])
+	if err1 != nil {
+		return 0, err1
+	}
+	i -= n1
+	i = encodeVarintTss(dAtA, i, uint64(n1))
+	i--
+	dAtA[i] = 0x5a
 	if m.CreatedHeight != 0 {
 		i = encodeVarintTss(dAtA, i, uint64(m.CreatedHeight))
 		i--
-		dAtA[i] = 0x48
+		dAtA[i] = 0x50
 	}
 	if m.Status != 0 {
 		i = encodeVarintTss(dAtA, i, uint64(m.Status))
 		i--
-		dAtA[i] = 0x40
+		dAtA[i] = 0x48
 	}
 	if len(m.Signature) > 0 {
 		i -= len(m.Signature)
 		copy(dAtA[i:], m.Signature)
 		i = encodeVarintTss(dAtA, i, uint64(len(m.Signature)))
 		i--
-		dAtA[i] = 0x3a
+		dAtA[i] = 0x42
 	}
 	if len(m.GroupPubNonce) > 0 {
 		i -= len(m.GroupPubNonce)
 		copy(dAtA[i:], m.GroupPubNonce)
 		i = encodeVarintTss(dAtA, i, uint64(len(m.GroupPubNonce)))
 		i--
-		dAtA[i] = 0x32
+		dAtA[i] = 0x3a
 	}
 	if len(m.Message) > 0 {
 		i -= len(m.Message)
 		copy(dAtA[i:], m.Message)
 		i = encodeVarintTss(dAtA, i, uint64(len(m.Message)))
 		i--
+		dAtA[i] = 0x32
+	}
+	if len(m.Originator) > 0 {
+		i -= len(m.Originator)
+		copy(dAtA[i:], m.Originator)
+		i = encodeVarintTss(dAtA, i, uint64(len(m.Originator)))
+		i--
 		dAtA[i] = 0x2a
 	}
+	if len(m.GroupPubKey) > 0 {
+		i -= len(m.GroupPubKey)
+		copy(dAtA[i:], m.GroupPubKey)
+		i = encodeVarintTss(dAtA, i, uint64(len(m.GroupPubKey)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if m.GroupID != 0 {
+		i = encodeVarintTss(dAtA, i, uint64(m.GroupID))
+		i--
+		dAtA[i] = 0x18
+	}
+	if m.CurrentAttempt != 0 {
+		i = encodeVarintTss(dAtA, i, uint64(m.CurrentAttempt))
+		i--
+		dAtA[i] = 0x10
+	}
+	if m.ID != 0 {
+		i = encodeVarintTss(dAtA, i, uint64(m.ID))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *SigningAttempt) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *SigningAttempt) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *SigningAttempt) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
 	if len(m.AssignedMembers) > 0 {
 		for iNdEx := len(m.AssignedMembers) - 1; iNdEx >= 0; iNdEx-- {
 			{
@@ -2330,20 +2849,18 @@ func (m *Signing) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			dAtA[i] = 0x22
 		}
 	}
-	if len(m.GroupPubKey) > 0 {
-		i -= len(m.GroupPubKey)
-		copy(dAtA[i:], m.GroupPubKey)
-		i = encodeVarintTss(dAtA, i, uint64(len(m.GroupPubKey)))
+	if m.ExpiredHeight != 0 {
+		i = encodeVarintTss(dAtA, i, uint64(m.ExpiredHeight))
 		i--
-		dAtA[i] = 0x1a
+		dAtA[i] = 0x18
 	}
-	if m.GroupID != 0 {
-		i = encodeVarintTss(dAtA, i, uint64(m.GroupID))
+	if m.Attempt != 0 {
+		i = encodeVarintTss(dAtA, i, uint64(m.Attempt))
 		i--
 		dAtA[i] = 0x10
 	}
-	if m.ID != 0 {
-		i = encodeVarintTss(dAtA, i, uint64(m.ID))
+	if m.SigningID != 0 {
+		i = encodeVarintTss(dAtA, i, uint64(m.SigningID))
 		i--
 		dAtA[i] = 0x8
 	}
@@ -2441,20 +2958,20 @@ func (m *PendingSignings) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	var l int
 	_ = l
 	if len(m.SigningIds) > 0 {
-		dAtA2 := make([]byte, len(m.SigningIds)*10)
-		var j1 int
+		dAtA3 := make([]byte, len(m.SigningIds)*10)
+		var j2 int
 		for _, num := range m.SigningIds {
 			for num >= 1<<7 {
-				dAtA2[j1] = uint8(uint64(num)&0x7f | 0x80)
+				dAtA3[j2] = uint8(uint64(num)&0x7f | 0x80)
 				num >>= 7
-				j1++
+				j2++
 			}
-			dAtA2[j1] = uint8(num)
-			j1++
+			dAtA3[j2] = uint8(num)
+			j2++
 		}
-		i -= j1
-		copy(dAtA[i:], dAtA2[:j1])
-		i = encodeVarintTss(dAtA, i, uint64(j1))
+		i -= j2
+		copy(dAtA[i:], dAtA3[:j2])
+		i = encodeVarintTss(dAtA, i, uint64(j2))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -2711,20 +3228,20 @@ func (m *PendingProcessGroups) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	var l int
 	_ = l
 	if len(m.GroupIDs) > 0 {
-		dAtA5 := make([]byte, len(m.GroupIDs)*10)
-		var j4 int
+		dAtA6 := make([]byte, len(m.GroupIDs)*10)
+		var j5 int
 		for _, num := range m.GroupIDs {
 			for num >= 1<<7 {
-				dAtA5[j4] = uint8(uint64(num)&0x7f | 0x80)
+				dAtA6[j5] = uint8(uint64(num)&0x7f | 0x80)
 				num >>= 7
-				j4++
+				j5++
 			}
-			dAtA5[j4] = uint8(num)
-			j4++
+			dAtA6[j5] = uint8(num)
+			j5++
 		}
-		i -= j4
-		copy(dAtA[i:], dAtA5[:j4])
-		i = encodeVarintTss(dAtA, i, uint64(j4))
+		i -= j5
+		copy(dAtA[i:], dAtA6[:j5])
+		i = encodeVarintTss(dAtA, i, uint64(j5))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -2752,20 +3269,20 @@ func (m *PendingProcessSignings) MarshalToSizedBuffer(dAtA []byte) (int, error) 
 	var l int
 	_ = l
 	if len(m.SigningIDs) > 0 {
-		dAtA7 := make([]byte, len(m.SigningIDs)*10)
-		var j6 int
+		dAtA8 := make([]byte, len(m.SigningIDs)*10)
+		var j7 int
 		for _, num := range m.SigningIDs {
 			for num >= 1<<7 {
-				dAtA7[j6] = uint8(uint64(num)&0x7f | 0x80)
+				dAtA8[j7] = uint8(uint64(num)&0x7f | 0x80)
 				num >>= 7
-				j6++
+				j7++
 			}
-			dAtA7[j6] = uint8(num)
-			j6++
+			dAtA8[j7] = uint8(num)
+			j7++
 		}
-		i -= j6
-		copy(dAtA[i:], dAtA7[:j6])
-		i = encodeVarintTss(dAtA, i, uint64(j6))
+		i -= j7
+		copy(dAtA[i:], dAtA8[:j7])
+		i = encodeVarintTss(dAtA, i, uint64(j7))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -2797,10 +3314,20 @@ func (m *PartialSignature) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		copy(dAtA[i:], m.Signature)
 		i = encodeVarintTss(dAtA, i, uint64(len(m.Signature)))
 		i--
-		dAtA[i] = 0x12
+		dAtA[i] = 0x22
 	}
 	if m.MemberID != 0 {
 		i = encodeVarintTss(dAtA, i, uint64(m.MemberID))
+		i--
+		dAtA[i] = 0x18
+	}
+	if m.SigningAttempt != 0 {
+		i = encodeVarintTss(dAtA, i, uint64(m.SigningAttempt))
+		i--
+		dAtA[i] = 0x10
+	}
+	if m.SigningID != 0 {
+		i = encodeVarintTss(dAtA, i, uint64(m.SigningID))
 		i--
 		dAtA[i] = 0x8
 	}
@@ -2905,12 +3432,24 @@ func (m *SigningResult) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 				i = encodeVarintTss(dAtA, i, uint64(size))
 			}
 			i--
-			dAtA[i] = 0x1a
+			dAtA[i] = 0x22
 		}
 	}
 	if m.EVMSignature != nil {
 		{
 			size, err := m.EVMSignature.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintTss(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1a
+	}
+	if m.CurrentSigningAttempt != nil {
+		{
+			size, err := m.CurrentSigningAttempt.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
@@ -2930,6 +3469,76 @@ func (m *SigningResult) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	}
 	i--
 	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *SigningExpiration) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *SigningExpiration) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *SigningExpiration) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.SigningAttempt != 0 {
+		i = encodeVarintTss(dAtA, i, uint64(m.SigningAttempt))
+		i--
+		dAtA[i] = 0x10
+	}
+	if m.SigningID != 0 {
+		i = encodeVarintTss(dAtA, i, uint64(m.SigningID))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *SigningExpirations) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *SigningExpirations) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *SigningExpirations) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.SigningExpirations) > 0 {
+		for iNdEx := len(m.SigningExpirations) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.SigningExpirations[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTss(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
 	return len(dAtA) - i, nil
 }
 
@@ -3041,6 +3650,21 @@ func (m *DE) Size() (n int) {
 	return n
 }
 
+func (m *DEQueue) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Head != 0 {
+		n += 1 + sovTss(uint64(m.Head))
+	}
+	if m.Tail != 0 {
+		n += 1 + sovTss(uint64(m.Tail))
+	}
+	return n
+}
+
 func (m *Signing) Size() (n int) {
 	if m == nil {
 		return 0
@@ -3050,6 +3674,9 @@ func (m *Signing) Size() (n int) {
 	if m.ID != 0 {
 		n += 1 + sovTss(uint64(m.ID))
 	}
+	if m.CurrentAttempt != 0 {
+		n += 1 + sovTss(uint64(m.CurrentAttempt))
+	}
 	if m.GroupID != 0 {
 		n += 1 + sovTss(uint64(m.GroupID))
 	}
@@ -3057,11 +3684,9 @@ func (m *Signing) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovTss(uint64(l))
 	}
-	if len(m.AssignedMembers) > 0 {
-		for _, e := range m.AssignedMembers {
-			l = e.Size()
-			n += 1 + l + sovTss(uint64(l))
-		}
+	l = len(m.Originator)
+	if l > 0 {
+		n += 1 + l + sovTss(uint64(l))
 	}
 	l = len(m.Message)
 	if l > 0 {
@@ -3080,6 +3705,32 @@ func (m *Signing) Size() (n int) {
 	}
 	if m.CreatedHeight != 0 {
 		n += 1 + sovTss(uint64(m.CreatedHeight))
+	}
+	l = github_com_cosmos_gogoproto_types.SizeOfStdTime(m.CreatedTimestamp)
+	n += 1 + l + sovTss(uint64(l))
+	return n
+}
+
+func (m *SigningAttempt) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.SigningID != 0 {
+		n += 1 + sovTss(uint64(m.SigningID))
+	}
+	if m.Attempt != 0 {
+		n += 1 + sovTss(uint64(m.Attempt))
+	}
+	if m.ExpiredHeight != 0 {
+		n += 1 + sovTss(uint64(m.ExpiredHeight))
+	}
+	if len(m.AssignedMembers) > 0 {
+		for _, e := range m.AssignedMembers {
+			l = e.Size()
+			n += 1 + l + sovTss(uint64(l))
+		}
 	}
 	return n
 }
@@ -3274,6 +3925,12 @@ func (m *PartialSignature) Size() (n int) {
 	}
 	var l int
 	_ = l
+	if m.SigningID != 0 {
+		n += 1 + sovTss(uint64(m.SigningID))
+	}
+	if m.SigningAttempt != 0 {
+		n += 1 + sovTss(uint64(m.SigningAttempt))
+	}
 	if m.MemberID != 0 {
 		n += 1 + sovTss(uint64(m.MemberID))
 	}
@@ -3322,12 +3979,46 @@ func (m *SigningResult) Size() (n int) {
 	_ = l
 	l = m.Signing.Size()
 	n += 1 + l + sovTss(uint64(l))
+	if m.CurrentSigningAttempt != nil {
+		l = m.CurrentSigningAttempt.Size()
+		n += 1 + l + sovTss(uint64(l))
+	}
 	if m.EVMSignature != nil {
 		l = m.EVMSignature.Size()
 		n += 1 + l + sovTss(uint64(l))
 	}
 	if len(m.ReceivedPartialSignatures) > 0 {
 		for _, e := range m.ReceivedPartialSignatures {
+			l = e.Size()
+			n += 1 + l + sovTss(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *SigningExpiration) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.SigningID != 0 {
+		n += 1 + sovTss(uint64(m.SigningID))
+	}
+	if m.SigningAttempt != 0 {
+		n += 1 + sovTss(uint64(m.SigningAttempt))
+	}
+	return n
+}
+
+func (m *SigningExpirations) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.SigningExpirations) > 0 {
+		for _, e := range m.SigningExpirations {
 			l = e.Size()
 			n += 1 + l + sovTss(uint64(l))
 		}
@@ -3974,6 +4665,94 @@ func (m *DE) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+func (m *DEQueue) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTss
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: DEQueue: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: DEQueue: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Head", wireType)
+			}
+			m.Head = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Head |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Tail", wireType)
+			}
+			m.Tail = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Tail |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTss(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTss
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *Signing) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -4024,6 +4803,25 @@ func (m *Signing) Unmarshal(dAtA []byte) error {
 			}
 		case 2:
 			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CurrentAttempt", wireType)
+			}
+			m.CurrentAttempt = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.CurrentAttempt |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field GroupID", wireType)
 			}
 			m.GroupID = 0
@@ -4041,7 +4839,7 @@ func (m *Signing) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 3:
+		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field GroupPubKey", wireType)
 			}
@@ -4075,6 +4873,320 @@ func (m *Signing) Unmarshal(dAtA []byte) error {
 				m.GroupPubKey = []byte{}
 			}
 			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Originator", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTss
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTss
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Originator = append(m.Originator[:0], dAtA[iNdEx:postIndex]...)
+			if m.Originator == nil {
+				m.Originator = []byte{}
+			}
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Message", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTss
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTss
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Message = append(m.Message[:0], dAtA[iNdEx:postIndex]...)
+			if m.Message == nil {
+				m.Message = []byte{}
+			}
+			iNdEx = postIndex
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field GroupPubNonce", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTss
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTss
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.GroupPubNonce = append(m.GroupPubNonce[:0], dAtA[iNdEx:postIndex]...)
+			if m.GroupPubNonce == nil {
+				m.GroupPubNonce = []byte{}
+			}
+			iNdEx = postIndex
+		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Signature", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTss
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTss
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Signature = append(m.Signature[:0], dAtA[iNdEx:postIndex]...)
+			if m.Signature == nil {
+				m.Signature = []byte{}
+			}
+			iNdEx = postIndex
+		case 9:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
+			}
+			m.Status = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Status |= SigningStatus(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 10:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CreatedHeight", wireType)
+			}
+			m.CreatedHeight = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.CreatedHeight |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 11:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CreatedTimestamp", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTss
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTss
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_cosmos_gogoproto_types.StdTimeUnmarshal(&m.CreatedTimestamp, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTss(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTss
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *SigningAttempt) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTss
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: SigningAttempt: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: SigningAttempt: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SigningID", wireType)
+			}
+			m.SigningID = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.SigningID |= github_com_bandprotocol_chain_v2_pkg_tss.SigningID(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Attempt", wireType)
+			}
+			m.Attempt = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Attempt |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ExpiredHeight", wireType)
+			}
+			m.ExpiredHeight = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ExpiredHeight |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field AssignedMembers", wireType)
@@ -4109,146 +5221,6 @@ func (m *Signing) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 5:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Message", wireType)
-			}
-			var byteLen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTss
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				byteLen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if byteLen < 0 {
-				return ErrInvalidLengthTss
-			}
-			postIndex := iNdEx + byteLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTss
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Message = append(m.Message[:0], dAtA[iNdEx:postIndex]...)
-			if m.Message == nil {
-				m.Message = []byte{}
-			}
-			iNdEx = postIndex
-		case 6:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field GroupPubNonce", wireType)
-			}
-			var byteLen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTss
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				byteLen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if byteLen < 0 {
-				return ErrInvalidLengthTss
-			}
-			postIndex := iNdEx + byteLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTss
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.GroupPubNonce = append(m.GroupPubNonce[:0], dAtA[iNdEx:postIndex]...)
-			if m.GroupPubNonce == nil {
-				m.GroupPubNonce = []byte{}
-			}
-			iNdEx = postIndex
-		case 7:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Signature", wireType)
-			}
-			var byteLen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTss
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				byteLen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if byteLen < 0 {
-				return ErrInvalidLengthTss
-			}
-			postIndex := iNdEx + byteLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTss
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Signature = append(m.Signature[:0], dAtA[iNdEx:postIndex]...)
-			if m.Signature == nil {
-				m.Signature = []byte{}
-			}
-			iNdEx = postIndex
-		case 8:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
-			}
-			m.Status = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTss
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Status |= SigningStatus(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 9:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field CreatedHeight", wireType)
-			}
-			m.CreatedHeight = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTss
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.CreatedHeight |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTss(dAtA[iNdEx:])
@@ -5608,6 +6580,44 @@ func (m *PartialSignature) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SigningID", wireType)
+			}
+			m.SigningID = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.SigningID |= github_com_bandprotocol_chain_v2_pkg_tss.SigningID(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SigningAttempt", wireType)
+			}
+			m.SigningAttempt = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.SigningAttempt |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field MemberID", wireType)
 			}
 			m.MemberID = 0
@@ -5625,7 +6635,7 @@ func (m *PartialSignature) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 2:
+		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Signature", wireType)
 			}
@@ -5946,6 +6956,42 @@ func (m *SigningResult) Unmarshal(dAtA []byte) error {
 			iNdEx = postIndex
 		case 2:
 			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CurrentSigningAttempt", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTss
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTss
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.CurrentSigningAttempt == nil {
+				m.CurrentSigningAttempt = &SigningAttempt{}
+			}
+			if err := m.CurrentSigningAttempt.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field EVMSignature", wireType)
 			}
 			var msglen int
@@ -5980,7 +7026,7 @@ func (m *SigningResult) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 3:
+		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ReceivedPartialSignatures", wireType)
 			}
@@ -6011,6 +7057,178 @@ func (m *SigningResult) Unmarshal(dAtA []byte) error {
 			}
 			m.ReceivedPartialSignatures = append(m.ReceivedPartialSignatures, PartialSignature{})
 			if err := m.ReceivedPartialSignatures[len(m.ReceivedPartialSignatures)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTss(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTss
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *SigningExpiration) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTss
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: SigningExpiration: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: SigningExpiration: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SigningID", wireType)
+			}
+			m.SigningID = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.SigningID |= github_com_bandprotocol_chain_v2_pkg_tss.SigningID(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SigningAttempt", wireType)
+			}
+			m.SigningAttempt = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.SigningAttempt |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTss(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTss
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *SigningExpirations) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTss
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: SigningExpirations: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: SigningExpirations: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SigningExpirations", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTss
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTss
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTss
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SigningExpirations = append(m.SigningExpirations, SigningExpiration{})
+			if err := m.SigningExpirations[len(m.SigningExpirations)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

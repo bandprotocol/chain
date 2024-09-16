@@ -6,5 +6,11 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
-// AxelarPacketHandler handles incoming Axelar packets
-func (k Keeper) AxelarPacketHandler(ctx sdk.Context, route *types.AxelarRoute, packet types.Packet) {}
+// SendAxelarPacket sends Axelar packet
+func (k Keeper) SendAxelarPacket(
+	ctx sdk.Context,
+	route *types.AxelarRoute,
+	packet types.Packet,
+) (types.PacketContentI, error) {
+	return nil, nil
+}

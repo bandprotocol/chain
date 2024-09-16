@@ -9,63 +9,81 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestKeyStoreKey(t *testing.T) {
-	keyName := "keyName"
-	expect, err := hex.DecodeString("01" + hex.EncodeToString([]byte(keyName)))
+func TestVaultStoreKey(t *testing.T) {
+	key := "key"
+	expect, err := hex.DecodeString("00" + hex.EncodeToString([]byte(key)))
 	require.NoError(t, err)
-	require.Equal(t, expect, KeyStoreKey(keyName))
+	require.Equal(t, expect, VaultStoreKey(key))
 }
 
-func TestLocksStoreKey(t *testing.T) {
+func TestLocksByAddressStoreKey(t *testing.T) {
 	hexAddress := "b80f2a5df7d5710b15622d1a9f1e3830ded5bda8"
 	acc, err := sdk.AccAddressFromHexUnsafe(hexAddress)
 	require.NoError(t, err)
 
-	expect, err := hex.DecodeString("02" + "14" + hexAddress)
+	expect, err := hex.DecodeString("01" + "14" + hexAddress)
 	require.NoError(t, err)
-	require.Equal(t, expect, LocksStoreKey(acc))
+	require.Equal(t, expect, LocksByAddressStoreKey(acc))
 }
 
 func TestLockStoreKey(t *testing.T) {
-	keyName := "keyName"
+	key := "key"
 
 	hexAddress := "b80f2a5df7d5710b15622d1a9f1e3830ded5bda8"
 	acc, err := sdk.AccAddressFromHexUnsafe(hexAddress)
 	require.NoError(t, err)
 
-	expect, err := hex.DecodeString("02" + "14" + hexAddress + hex.EncodeToString([]byte(keyName)))
+	expect, err := hex.DecodeString("01" + "14" + hexAddress + hex.EncodeToString([]byte(key)))
 	require.NoError(t, err)
-	require.Equal(t, expect, LockStoreKey(acc, keyName))
+	require.Equal(t, expect, LockStoreKey(acc, key))
 }
 
-func TestLocksByAmountIndexKey(t *testing.T) {
+func TestLocksByPowerIndexKey(t *testing.T) {
 	hexAddress := "b80f2a5df7d5710b15622d1a9f1e3830ded5bda8"
 	acc, err := sdk.AccAddressFromHexUnsafe(hexAddress)
 	require.NoError(t, err)
 
-	expect, err := hex.DecodeString("10" + "14" + hexAddress)
+	expect, err := hex.DecodeString("80" + "14" + hexAddress)
 	require.NoError(t, err)
-	require.Equal(t, expect, LocksByAmountIndexKey(acc))
+	require.Equal(t, expect, LocksByPowerIndexKey(acc))
 }
 
-func TestLockByAmountIndexKey(t *testing.T) {
-	keyName := "keyName"
+func TestLockByPowerIndexKey(t *testing.T) {
+	key := "key"
 
 	hexAddress := "b80f2a5df7d5710b15622d1a9f1e3830ded5bda8"
 	acc, err := sdk.AccAddressFromHexUnsafe(hexAddress)
 	require.NoError(t, err)
 
 	lock := Lock{
-		LockerAddress:  acc.String(),
-		Key:            keyName,
-		Amount:         sdkmath.NewInt(100),
+		StakerAddress:  acc.String(),
+		Key:            key,
+		Power:          sdkmath.NewInt(100),
 		PosRewardDebts: sdk.NewDecCoins(),
 		NegRewardDebts: sdk.NewDecCoins(),
 	}
 
 	expect, err := hex.DecodeString(
-		"10" + "14" + hexAddress + "0000000000000064" + hex.EncodeToString([]byte(keyName)),
+		"80" + "14" + hexAddress + "0000000000000064" + hex.EncodeToString([]byte(key)),
 	)
 	require.NoError(t, err)
-	require.Equal(t, expect, LockByAmountIndexKey(lock))
+	require.Equal(t, expect, LockByPowerIndexKey(lock))
+}
+
+func TestSplitLockByPowerIndexKey(t *testing.T) {
+	key := "key"
+
+	hexAddress := "b80f2a5df7d5710b15622d1a9f1e3830ded5bda8"
+	expAddr, err := sdk.AccAddressFromHexUnsafe(hexAddress)
+	expPower := sdkmath.NewInt(100)
+	require.NoError(t, err)
+
+	indexKey, err := hex.DecodeString(
+		"80" + "14" + hexAddress + "0000000000000064" + hex.EncodeToString([]byte(key)),
+	)
+	require.NoError(t, err)
+
+	addr, power := SplitLockByPowerIndexKey(indexKey)
+	require.Equal(t, expAddr, addr)
+	require.Equal(t, expPower, power)
 }
