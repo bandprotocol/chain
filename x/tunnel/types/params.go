@@ -44,7 +44,7 @@ func DefaultParams() Params {
 func (p Params) Validate() error {
 	// Validate MinDeposit
 	if !p.MinDeposit.IsValid() {
-		return sdkerrors.ErrInvalidCoins.Wrapf(p.MinDeposit.String())
+		return sdkerrors.ErrInvalidCoins.Wrapf("%s", p.MinDeposit.String())
 	}
 
 	// Validate MinInterval
@@ -59,7 +59,7 @@ func (p Params) Validate() error {
 
 	// Validate BaseFee
 	if !p.BasePacketFee.IsValid() {
-		return sdkerrors.ErrInvalidCoins.Wrapf(p.BasePacketFee.String())
+		return sdkerrors.ErrInvalidCoins.Wrapf("%s", p.BasePacketFee.String())
 	}
 
 	return nil
