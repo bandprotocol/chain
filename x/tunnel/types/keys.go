@@ -1,6 +1,9 @@
 package types
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/address"
+)
 
 const (
 	// ModuleName defines the module name
@@ -68,5 +71,5 @@ func DepositsStoreKey(tunnelID uint64) []byte {
 }
 
 func DepositStoreKey(tunnelID uint64, depositor sdk.AccAddress) []byte {
-	return append(DepositsStoreKey(tunnelID), depositor.Bytes()...)
+	return append(DepositsStoreKey(tunnelID), address.MustLengthPrefix(depositor)...)
 }

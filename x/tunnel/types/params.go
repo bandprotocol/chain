@@ -9,7 +9,7 @@ import (
 
 var (
 	DefaultMinInterval   = uint64(1)
-	DefaultMinDeposit    = sdk.NewCoins(sdk.NewInt64Coin("band", 1000))
+	DefaultMinDeposit    = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000))
 	DefaultMaxSignals    = uint64(100)
 	DefaultBasePacketFee = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
 )

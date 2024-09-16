@@ -104,7 +104,7 @@ func (k Keeper) WithdrawDeposit(ctx sdk.Context, tunnelID uint64, amount sdk.Coi
 	}
 
 	// Check if the withdrawer has enough deposit
-	if deposit.Amount.IsAllLT(amount) {
+	if deposit.Amount.IsAllGTE(amount) {
 		return types.ErrInsufficientDeposit
 	}
 
