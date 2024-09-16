@@ -175,7 +175,7 @@ func SimulateMsgRequestData(
 
 		// Find the number of active validator to define ask count value
 		maxAskCount := 0
-		sk.IterateBondedValidatorsByPower(ctx,
+		_ = sk.IterateBondedValidatorsByPower(ctx,
 			func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
 				operator, err := sdk.ValAddressFromBech32(val.GetOperator())
 				if err != nil {

@@ -467,26 +467,19 @@ func initParamsKeeper(
 	keyTable.RegisterParamSet(&ibcconnectiontypes.Params{})
 	paramsKeeper.Subspace(authtypes.ModuleName).WithKeyTable(authtypes.ParamKeyTable()) //nolint: staticcheck
 	paramsKeeper.Subspace(stakingtypes.ModuleName).
-		WithKeyTable(stakingtypes.ParamKeyTable())
-		//nolint: staticcheck // SA1019
+		WithKeyTable(stakingtypes.ParamKeyTable()) //nolint: staticcheck // SA1019
 	paramsKeeper.Subspace(banktypes.ModuleName).
-		WithKeyTable(banktypes.ParamKeyTable())
-		//nolint: staticcheck // SA1019
+		WithKeyTable(banktypes.ParamKeyTable()) //nolint: staticcheck // SA1019
 	paramsKeeper.Subspace(minttypes.ModuleName).
-		WithKeyTable(minttypes.ParamKeyTable())
-		//nolint: staticcheck // SA1019
+		WithKeyTable(minttypes.ParamKeyTable()) //nolint: staticcheck // SA1019
 	paramsKeeper.Subspace(distrtypes.ModuleName).
-		WithKeyTable(distrtypes.ParamKeyTable())
-		//nolint: staticcheck // SA1019
+		WithKeyTable(distrtypes.ParamKeyTable()) //nolint: staticcheck // SA1019
 	paramsKeeper.Subspace(slashingtypes.ModuleName).
-		WithKeyTable(slashingtypes.ParamKeyTable())
-		//nolint: staticcheck // SA1019
+		WithKeyTable(slashingtypes.ParamKeyTable()) //nolint: staticcheck // SA1019
 	paramsKeeper.Subspace(govtypes.ModuleName).
-		WithKeyTable(govv1.ParamKeyTable())
-		//nolint: staticcheck // SA1019
+		WithKeyTable(govv1.ParamKeyTable()) //nolint: staticcheck // SA1019
 	paramsKeeper.Subspace(crisistypes.ModuleName).
-		WithKeyTable(crisistypes.ParamKeyTable())
-		//nolint: staticcheck // SA1019
+		WithKeyTable(crisistypes.ParamKeyTable()) //nolint: staticcheck // SA1019
 	paramsKeeper.Subspace(ibcexported.ModuleName)
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)

@@ -33,7 +33,7 @@ func (k Keeper) GetSpanSize(ctx sdk.Context) uint64 {
 func (k Keeper) GetRandomValidators(ctx sdk.Context, size int, id uint64) ([]sdk.ValAddress, error) {
 	valOperators := []sdk.ValAddress{}
 	valPowers := []uint64{}
-	k.stakingKeeper.IterateBondedValidatorsByPower(ctx,
+	err := k.stakingKeeper.IterateBondedValidatorsByPower(ctx,
 		func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
 			operator, err := sdk.ValAddressFromBech32(val.GetOperator())
 			if err != nil {
@@ -45,6 +45,9 @@ func (k Keeper) GetRandomValidators(ctx sdk.Context, size int, id uint64) ([]sdk
 			}
 			return false
 		})
+	if err != nil {
+		return nil, err
+	}
 	if len(valOperators) < size {
 		return nil, types.ErrInsufficientValidators.Wrapf("%d < %d", len(valOperators), size)
 	}

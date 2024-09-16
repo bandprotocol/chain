@@ -44,17 +44,16 @@ func (s *AppTestSuite) SetupTest() {
 
 	// Activate validators
 	for _, v := range bandtest.Validators {
-		s.app.OracleKeeper.Activate(ctx, v.ValAddress)
+		err := s.app.OracleKeeper.Activate(ctx, v.ValAddress)
+		s.Require().NoError(err)
 	}
 
 	_, err = s.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: s.app.LastBlockHeight() + 1})
-	if err != nil {
-		panic(err)
-	}
+	s.Require().NoError(err)
 }
 
-func (suite *AppTestSuite) TearDownTest() {
-	os.RemoveAll(suite.dir)
+func (s *AppTestSuite) TearDownTest() {
+	os.RemoveAll(s.dir)
 }
 
 func (s *AppTestSuite) TestSuccessRequestOracleData() {

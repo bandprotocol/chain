@@ -86,7 +86,9 @@ func (k WrappedBankKeeper) BurnCoins(ctx context.Context, moduleName string, amt
 	// feePool.CommunityPool = feePool.CommunityPool.Add(sdk.NewDecCoinsFromCoins(amt...)...)
 	// k.distrKeeper.SetFeePool(ctx, feePool)
 	// TODO: check this work
-	k.distrKeeper.FundCommunityPool(ctx, amt, acc.GetAddress())
+	if err := k.distrKeeper.FundCommunityPool(ctx, amt, acc.GetAddress()); err != nil {
+		return err
+	}
 
 	k.logger.Info(fmt.Sprintf(
 		"sent %s from %s module account to community pool", amt.String(), moduleName,

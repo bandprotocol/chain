@@ -40,6 +40,11 @@ var (
 	_ porttypes.IBCModule = (*IBCModule)(nil)
 )
 
+// Module init related flags
+const (
+	FlagWithOwasmCacheSize = "oracle-script-cache-size"
+)
+
 // AppModuleBasic is Band Oracle's module basic object.
 type AppModuleBasic struct {
 	cdc codec.Codec
@@ -56,7 +61,7 @@ func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 }
 
 // RegisterInterfaces registers the module's interface types
-func (b AppModuleBasic) RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
+func (AppModuleBasic) RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	types.RegisterInterfaces(registry)
 }
 
@@ -130,6 +135,11 @@ func (am AppModule) IsOnePerModuleType() {}
 
 // IsAppModule implements the appmodule.AppModule interface.
 func (am AppModule) IsAppModule() {}
+
+// AddModuleInitFlags implements servertypes.ModuleInitFlags interface.
+func AddModuleInitFlags(startCmd *cobra.Command) {
+	startCmd.Flags().Uint32(FlagWithOwasmCacheSize, 100, "Number of oracle scripts to cache")
+}
 
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
