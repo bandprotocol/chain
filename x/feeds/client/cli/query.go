@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -49,7 +48,7 @@ func GetQueryCmdDelegatorSignals() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.DelegatorSignals(
-				context.Background(),
+				cmd.Context(),
 				&types.QueryDelegatorSignalsRequest{DelegatorAddress: args[0]},
 			)
 			if err != nil {
@@ -80,7 +79,7 @@ func GetQueryCmdPrices() *cobra.Command {
 				return err
 			}
 
-			res, err := queryClient.Prices(context.Background(), &types.QueryPricesRequest{Pagination: pageReq})
+			res, err := queryClient.Prices(cmd.Context(), &types.QueryPricesRequest{Pagination: pageReq})
 			if err != nil {
 				return err
 			}
@@ -105,7 +104,7 @@ func GetQueryCmdPrice() *cobra.Command {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.Price(context.Background(), &types.QueryPriceRequest{
+			res, err := queryClient.Price(cmd.Context(), &types.QueryPriceRequest{
 				SignalId: args[0],
 			})
 			if err != nil {
@@ -131,7 +130,7 @@ func GetQueryCmdCurrentFeeds() *cobra.Command {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.CurrentFeeds(context.Background(), &types.QueryCurrentFeedsRequest{})
+			res, err := queryClient.CurrentFeeds(cmd.Context(), &types.QueryCurrentFeedsRequest{})
 			if err != nil {
 				return err
 			}
@@ -155,7 +154,7 @@ func GetQueryCmdCurrentPrices() *cobra.Command {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.CurrentPrices(context.Background(), &types.QueryCurrentPricesRequest{})
+			res, err := queryClient.CurrentPrices(cmd.Context(), &types.QueryCurrentPricesRequest{})
 			if err != nil {
 				return err
 			}
@@ -184,7 +183,7 @@ func GetQueryCmdValidatorPrices() *cobra.Command {
 				return err
 			}
 
-			res, err := queryClient.ValidatorPrices(context.Background(), &types.QueryValidatorPricesRequest{
+			res, err := queryClient.ValidatorPrices(cmd.Context(), &types.QueryValidatorPricesRequest{
 				ValidatorAddress: args[0],
 				SignalIds:        signalIds,
 			})
@@ -213,7 +212,7 @@ func GetQueryCmdValidValidator() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.ValidValidator(
-				context.Background(),
+				cmd.Context(),
 				&types.QueryValidValidatorRequest{ValidatorAddress: args[0]},
 			)
 			if err != nil {
@@ -245,7 +244,7 @@ func GetQueryCmdSignalTotalPowers() *cobra.Command {
 			}
 
 			res, err := queryClient.SignalTotalPowers(
-				context.Background(),
+				cmd.Context(),
 				&types.QuerySignalTotalPowersRequest{Pagination: pageReq},
 			)
 			if err != nil {
@@ -273,7 +272,7 @@ func GetQueryCmdReferenceSourceConfig() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			res, err := queryClient.ReferenceSourceConfig(
-				context.Background(),
+				cmd.Context(),
 				&types.QueryReferenceSourceConfigRequest{},
 			)
 			if err != nil {
@@ -300,7 +299,7 @@ func GetQueryCmdParams() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.Params(context.Background(), &types.QueryParamsRequest{})
+			res, err := queryClient.Params(cmd.Context(), &types.QueryParamsRequest{})
 			if err != nil {
 				return err
 			}
@@ -324,7 +323,7 @@ func GetQueryCmdIsFeeder() *cobra.Command {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.IsFeeder(context.Background(), &types.QueryIsFeederRequest{
+			res, err := queryClient.IsFeeder(cmd.Context(), &types.QueryIsFeederRequest{
 				ValidatorAddress: args[0],
 				FeederAddress:    args[1],
 			})
