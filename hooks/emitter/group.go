@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/group"
 	proto "github.com/cosmos/gogoproto/proto"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
+	"github.com/bandprotocol/chain/v3/hooks/common"
 )
 
 func extractStringFromEventMap(evMap common.EvMap, event string, topic string) string {

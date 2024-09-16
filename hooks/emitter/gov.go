@@ -6,7 +6,7 @@ import (
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
+	"github.com/bandprotocol/chain/v3/hooks/common"
 )
 
 var (

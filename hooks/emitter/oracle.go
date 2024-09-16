@@ -3,9 +3,9 @@ package emitter
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
-	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/hooks/common"
+	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 func parseBytes(b []byte) []byte {

@@ -7,7 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
+	"github.com/bandprotocol/chain/v3/hooks/common"
 )
 
 var (

@@ -42,7 +42,7 @@ func runCmd(c *Context) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			c.amount = sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(cfg.Amount)))
+			c.amount = sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(cfg.Amount)))
 			r := gin.Default()
 
 			// add cors

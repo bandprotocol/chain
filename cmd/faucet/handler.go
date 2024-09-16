@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 
-	band "github.com/bandprotocol/chain/v2/app"
+	band "github.com/bandprotocol/chain/v3/app"
 )
 
 type Request struct {
@@ -22,8 +22,6 @@ type Request struct {
 type Response struct {
 	TxHash string `json:"txHash"`
 }
-
-var cdc, _ = band.MakeCodecs()
 
 func handleRequest(gc *gin.Context, c *Context) {
 	key := <-c.keys
@@ -49,10 +47,6 @@ func handleRequest(gc *gin.Context, c *Context) {
 	}
 
 	msg := banktypes.NewMsgSend(address, to, c.amount)
-	if err := msg.ValidateBasic(); err != nil {
-		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
 
 	clientCtx := client.Context{
 		Client:            c.client,

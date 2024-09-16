@@ -6,11 +6,14 @@ import (
 	"strings"
 	"time"
 
+	storetypes "cosmossdk.io/store/types"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmjson "github.com/cometbft/cometbft/libs/json"
+
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -26,23 +29,21 @@ import (
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	icahostkeeper "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/keeper"
-	clientkeeper "github.com/cosmos/ibc-go/v7/modules/core/02-client/keeper"
-	connectionkeeper "github.com/cosmos/ibc-go/v7/modules/core/03-connection/keeper"
-	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
+	icahostkeeper "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/keeper"
+	clientkeeper "github.com/cosmos/ibc-go/v8/modules/core/02-client/keeper"
+	connectionkeeper "github.com/cosmos/ibc-go/v8/modules/core/03-connection/keeper"
+	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
 	"github.com/segmentio/kafka-go"
 
-	"github.com/bandprotocol/chain/v2/app/params"
-	"github.com/bandprotocol/chain/v2/hooks/common"
-	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/hooks/common"
+	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 // Hook uses Kafka functionality to act as an event producer for all events in the blockchains.
 type Hook struct {
-	cdc            codec.Codec
-	legecyAmino    *codec.LegacyAmino
-	encodingConfig params.EncodingConfig
+	cdc      codec.Codec
+	txConfig client.TxConfig
 	// Main Kafka writer instance.
 	writer *kafka.Writer
 	// Temporary variables that are reset on every block.
@@ -56,7 +57,7 @@ type Hook struct {
 	stakingKeeper *stakingkeeper.Keeper
 	mintKeeper    mintkeeper.Keeper
 	distrKeeper   distrkeeper.Keeper
-	govKeeper     govkeeper.Keeper
+	govKeeper     *govkeeper.Keeper
 	groupKeeper   groupkeeper.Keeper
 	oracleKeeper  oraclekeeper.Keeper
 	icahostKeeper icahostkeeper.Keeper
@@ -72,14 +73,13 @@ type Hook struct {
 // NewHook creates an emitter hook instance that will be added in Band App.
 func NewHook(
 	cdc codec.Codec,
-	legecyAmino *codec.LegacyAmino,
-	encodingConfig params.EncodingConfig,
+	txConfig client.TxConfig,
 	accountKeeper authkeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper,
 	stakingKeeper *stakingkeeper.Keeper,
 	mintKeeper mintkeeper.Keeper,
 	distrKeeper distrkeeper.Keeper,
-	govKeeper govkeeper.Keeper,
+	govKeeper *govkeeper.Keeper,
 	groupKeeper groupkeeper.Keeper,
 	oracleKeeper oraclekeeper.Keeper,
 	icahostKeeper icahostkeeper.Keeper,
@@ -92,9 +92,8 @@ func NewHook(
 ) *Hook {
 	paths := strings.SplitN(kafkaURI, "@", 2)
 	return &Hook{
-		cdc:            cdc,
-		legecyAmino:    legecyAmino,
-		encodingConfig: encodingConfig,
+		cdc:      cdc,
+		txConfig: txConfig,
 		writer: kafka.NewWriter(kafka.WriterConfig{
 			Brokers:      paths[1:],
 			Topic:        paths[0],
@@ -172,7 +171,7 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	h.cdc.MustUnmarshalJSON(genesisState[genutiltypes.ModuleName], &genutilState)
 	for _, genTx := range genutilState.GenTxs {
 		var tx sdk.Tx
-		tx, err := h.encodingConfig.TxConfig.TxJSONDecoder()(genTx)
+		tx, err := h.txConfig.TxJSONDecoder()(genTx)
 		if err != nil {
 			panic(err)
 		}
@@ -357,7 +356,7 @@ func (h *Hook) AfterBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, res 
 }
 
 // AfterDeliverTx specify actions need to do after transaction has been processed (app.Hook interface).
-func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res abci.ResponseDeliverTx) {
+func (h *Hook) AfterDeliverTx(ctx sdk.Context, tx sdk.Tx, res *abci.ExecTxResult) {
 	if ctx.BlockHeight() == 0 {
 		return
 	}
@@ -429,7 +428,7 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 }
 
 // AfterEndBlock specify actions need to do after end block period (app.Hook interface).
-func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci.ResponseEndBlock) {
+func (h *Hook) AfterEndBlock(ctx sdk.Context, res sdk.EndBlock) {
 	// update group proposals when voting period is end
 	timeBytes := sdk.FormatTimeBytes(ctx.BlockTime().UTC())
 	lenTimeByte := byte(len(timeBytes))
