@@ -166,7 +166,7 @@ func restoreV1(ctx sdk.Context, k *Keeper, compressedCode []byte, foundCode map[
 		max(types.MaxExecutableSize, types.MaxWasmCodeSize, types.MaxCompiledWasmCodeSize),
 	)
 	if err != nil {
-		return types.ErrUncompressionFailed.Wrapf(err.Error())
+		return types.ErrUncompressionFailed.Wrap(err.Error())
 	}
 
 	// check if we really need this file or not first

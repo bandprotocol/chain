@@ -122,7 +122,7 @@ func init() {
 // createArbitraryAccount generates a random Account using a provided random number generator.
 func createArbitraryAccount(r *rand.Rand) Account {
 	privkeySeed := make([]byte, 12)
-	r.Read(privkeySeed)
+	_, _ = r.Read(privkeySeed)
 	privKey := secp256k1.GenPrivKeyFromSecret(privkeySeed)
 	return Account{
 		PrivKey:    privKey,
@@ -322,7 +322,6 @@ func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string) *BandApp
 		if err != nil {
 			panic(err)
 		}
-
 	}
 
 	return app

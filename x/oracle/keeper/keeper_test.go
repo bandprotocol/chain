@@ -91,8 +91,8 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.oracleKeeper.SetOracleScriptCount(ctx, 0)
 	suite.oracleKeeper.SetRequestLastExpired(ctx, 0)
 
-	suite.oracleKeeper.SetParams(ctx, types.DefaultParams())
-
+	err = suite.oracleKeeper.SetParams(ctx, types.DefaultParams())
+	suite.Require().NoError(err)
 }
 
 func (suite *KeeperTestSuite) TearDownTest() {

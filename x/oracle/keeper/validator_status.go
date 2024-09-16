@@ -6,6 +6,7 @@ import (
 	"cosmossdk.io/math"
 
 	abci "github.com/cometbft/cometbft/abci/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -66,18 +67,24 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) {
 	for _, each := range toReward {
 		powerFraction := math.LegacyNewDec(each.power).QuoTruncate(math.LegacyNewDec(totalPower))
 		reward := oracleReward.MulDecTruncate(rewardMultiplier).MulDecTruncate(powerFraction)
-		k.distrKeeper.AllocateTokensToValidator(ctx, each.val, reward)
+		err := k.distrKeeper.AllocateTokensToValidator(ctx, each.val, reward)
+		if err != nil {
+			// Should never hit
+			panic(err)
+		}
 		remaining = remaining.Sub(reward)
 	}
 
 	// Try to fund community pool with remaining from distributor module account
 	coins, _ := remaining.TruncateDecimal()
-	k.distrKeeper.FundCommunityPool(ctx, coins, k.authKeeper.GetModuleAccount(ctx, distrtypes.ModuleName).GetAddress())
-
-	// // Allocate the remaining coins to the community pool.
-	// feePool := k.distrKeeper.GetFeePool(ctx)
-	// feePool.CommunityPool = feePool.CommunityPool.Add(remaining...)
-	// k.distrKeeper.SetFeePool(ctx, feePool)
+	err = k.distrKeeper.FundCommunityPool(
+		ctx,
+		coins,
+		k.authKeeper.GetModuleAccount(ctx, distrtypes.ModuleName).GetAddress(),
+	)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // GetValidatorStatus returns the validator status for the given validator. Note that validator

@@ -65,7 +65,7 @@ func TestQueryParams(t *testing.T) {
 
 			q := keeper.Querier{Keeper: k}
 			spec.setupStore(ctx, k)
-			gotResp, gotErr := q.Params(sdk.WrapSDKContext(ctx), nil)
+			gotResp, gotErr := q.Params(ctx, nil)
 
 			require.NoError(t, gotErr)
 			require.NotNil(t, gotResp)

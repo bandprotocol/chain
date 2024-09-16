@@ -38,7 +38,7 @@ func (k Keeper) GetSpanSize(ctx sdk.Context) uint64 {
 func (k Keeper) GetRandomValidators(ctx sdk.Context, size int, id uint64) ([]sdk.ValAddress, error) {
 	valOperators := []sdk.ValAddress{}
 	valPowers := []uint64{}
-	k.stakingKeeper.IterateBondedValidatorsByPower(ctx,
+	err := k.stakingKeeper.IterateBondedValidatorsByPower(ctx,
 		func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
 			operator, err := sdk.ValAddressFromBech32(val.GetOperator())
 			if err != nil {
@@ -50,12 +50,15 @@ func (k Keeper) GetRandomValidators(ctx sdk.Context, size int, id uint64) ([]sdk
 			}
 			return false
 		})
+	if err != nil {
+		return nil, err
+	}
 	if len(valOperators) < size {
 		return nil, types.ErrInsufficientValidators.Wrapf("%d < %d", len(valOperators), size)
 	}
 	rng, err := bandrng.NewRng(k.GetRollingSeed(ctx), sdk.Uint64ToBigEndian(id), []byte(ctx.ChainID()))
 	if err != nil {
-		return nil, types.ErrBadDrbgInitialization.Wrapf(err.Error())
+		return nil, types.ErrBadDrbgInitialization.Wrap(err.Error())
 	}
 	tryCount := int(k.GetParams(ctx).SamplingTryCount)
 	chosenValIndexes := bandrng.ChooseSomeMaxWeight(rng, valPowers, size, tryCount)
@@ -126,7 +129,7 @@ func (k Keeper) PrepareRequest(
 	code := k.GetFile(script.Filename)
 	output, err := k.owasmVM.Prepare(code, ConvertToOwasmGas(r.GetPrepareGas()), env)
 	if err != nil {
-		return 0, types.ErrBadWasmExecution.Wrapf(err.Error())
+		return 0, types.ErrBadWasmExecution.Wrap(err.Error())
 	}
 
 	// Preparation complete! It's time to collect raw request ids.

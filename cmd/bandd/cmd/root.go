@@ -48,6 +48,7 @@ import (
 	"github.com/spf13/viper"
 
 	band "github.com/bandprotocol/chain/v3/app"
+	"github.com/bandprotocol/chain/v3/x/oracle"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the
@@ -219,8 +220,7 @@ func initRootCmd(
 
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
-
-	startCmd.Flags().Uint32(band.FlagWithOwasmCacheSize, 100, "[Experimental] Number of oracle scripts to cache")
+	oracle.AddModuleInitFlags(startCmd)
 
 	// Add hooks flag
 	startCmd.Flags().
@@ -230,6 +230,7 @@ func addModuleInitFlags(startCmd *cobra.Command) {
 	startCmd.Flags().String(band.FlagWithEmitter, "", "[Experimental] Enable mode to save request in sql database")
 	startCmd.Flags().
 		String(band.FlagWithPricer, "", "[Experimental] Enable collecting standard price reference provided by given oracle script id and save in level db (Input format: [id-comma-separated]/[defaultAskCount]/[defaultMinCount])")
+
 }
 
 // genesisCommand builds genesis-related `bandd genesis` command. Users may provide application specific commands as a parameter
@@ -374,7 +375,7 @@ func (a appCreator) newApp(
 		skipUpgradeHeights,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		appOpts,
-		cast.ToUint32(appOpts.Get(FlagWithOwasmCacheSize)),
+		cast.ToUint32(appOpts.Get(oracle.FlagWithOwasmCacheSize)),
 		baseappOptions...,
 	)
 
@@ -420,10 +421,7 @@ func (a appCreator) appExport(
 		map[int64]bool{},
 		homePath,
 		appOpts,
-		cast.ToUint32(appOpts.Get(flagWithOwasmCacheSize)),
-		cast.ToString(appOpts.Get(flagWithEmitter)),
-		cast.ToString(appOpts.Get(flagWithRequestSearch)),
-		cast.ToString(appOpts.Get(flagWithPricer)),
+		cast.ToUint32(appOpts.Get(oracle.FlagWithOwasmCacheSize)),
 	)
 
 	if height != -1 {

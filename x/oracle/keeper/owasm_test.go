@@ -45,9 +45,9 @@ func (suite *KeeperTestSuite) activeAllValidators() {
 	k := suite.oracleKeeper
 
 	for _, v := range validators {
-		k.Activate(ctx, v.Address)
+		err := k.Activate(ctx, v.Address)
+		suite.Require().NoError(err)
 	}
-
 }
 
 func (suite *KeeperTestSuite) TestGetRandomValidatorsSuccessActivateAll() {

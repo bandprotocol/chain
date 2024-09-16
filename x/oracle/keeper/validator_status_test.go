@@ -13,24 +13,22 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 )
 
-var (
-	defaultVotes = []abci.VoteInfo{{
-		Validator: abci.Validator{
-			Address: valConsPk0.Address(),
-			Power:   70,
-		},
-	}, {
-		Validator: abci.Validator{
-			Address: valConsPk1.Address(),
-			Power:   20,
-		},
-	}, {
-		Validator: abci.Validator{
-			Address: valConsPk2.Address(),
-			Power:   10,
-		},
-	}}
-)
+var defaultVotes = []abci.VoteInfo{{
+	Validator: abci.Validator{
+		Address: valConsPk0.Address(),
+		Power:   70,
+	},
+}, {
+	Validator: abci.Validator{
+		Address: valConsPk1.Address(),
+		Power:   20,
+	},
+}, {
+	Validator: abci.Validator{
+		Address: valConsPk2.Address(),
+		Power:   10,
+	},
+}}
 
 func (suite *KeeperTestSuite) mockValidators() {
 	suite.stakingKeeper.EXPECT().
