@@ -50,7 +50,7 @@ var (
 	DefaultYodaHome string
 )
 
-func initConfig(c *Context, cmd *cobra.Command) error {
+func initConfig(c *Context) error {
 	viper.SetConfigFile(path.Join(c.home, "config.yaml"))
 	_ = viper.ReadInConfig() // If we fail to read config file, we'll just rely on cmd flags.
 	if err := viper.Unmarshal(&cfg); err != nil {
@@ -80,7 +80,7 @@ func Main() {
 
 	rootCmd.AddCommand(
 		configCmd(),
-		keysCmd(ctx),
+		keysCmd(),
 		runCmd(ctx),
 		version.NewVersionCommand(),
 	)
@@ -113,7 +113,7 @@ func Main() {
 		if err != nil {
 			return err
 		}
-		return initConfig(ctx, rootCmd)
+		return initConfig(ctx)
 	}
 	rootCmd.PersistentFlags().String(flags.FlagHome, DefaultYodaHome, "home directory")
 	if err := rootCmd.Execute(); err != nil {

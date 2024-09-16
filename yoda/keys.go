@@ -26,22 +26,22 @@ const (
 	flagAddress  = "address"
 )
 
-func keysCmd(c *Context) *cobra.Command {
+func keysCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "keys",
 		Aliases: []string{"k"},
 		Short:   "Manage key held by the oracle process",
 	}
 	cmd.AddCommand(
-		keysAddCmd(c),
-		keysDeleteCmd(c),
-		keysListCmd(c),
-		keysShowCmd(c),
+		keysAddCmd(),
+		keysDeleteCmd(),
+		keysListCmd(),
+		keysShowCmd(),
 	)
 	return cmd
 }
 
-func keysAddCmd(c *Context) *cobra.Command {
+func keysAddCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "add [name]",
 		Aliases: []string{"a"},
@@ -72,9 +72,6 @@ func keysAddCmd(c *Context) *cobra.Command {
 				fmt.Printf("Mnemonic: %s\n", mnemonic)
 			}
 
-			if err != nil {
-				return err
-			}
 			account, err := cmd.Flags().GetUint32(flagAccount)
 			if err != nil {
 				return err
@@ -104,7 +101,7 @@ func keysAddCmd(c *Context) *cobra.Command {
 	return cmd
 }
 
-func keysDeleteCmd(c *Context) *cobra.Command {
+func keysDeleteCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "delete [name]",
 		Aliases: []string{"d"},
@@ -140,7 +137,7 @@ func keysDeleteCmd(c *Context) *cobra.Command {
 	return cmd
 }
 
-func keysListCmd(c *Context) *cobra.Command {
+func keysListCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "list",
 		Aliases: []string{"l"},
@@ -193,7 +190,7 @@ func keysListCmd(c *Context) *cobra.Command {
 	return cmd
 }
 
-func keysShowCmd(c *Context) *cobra.Command {
+func keysShowCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "show [name]",
 		Aliases: []string{"s"},
