@@ -23,11 +23,10 @@ func TestIBCPacketHandler(t *testing.T) {
 
 	// Define a mock packet
 	packet := types.Packet{
-		TunnelID:         1,
-		Nonce:            1,
-		FeedType:         1,
-		SignalPriceInfos: []types.SignalPriceInfo{},
-		CreatedAt:        time.Now().Unix(),
+		TunnelID:     1,
+		Nonce:        1,
+		SignalPrices: []types.SignalPrice{},
+		CreatedAt:    time.Now().Unix(),
 	}
 
 	// Mock the scoped keeper and channel keeper

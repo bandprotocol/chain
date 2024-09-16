@@ -86,40 +86,40 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 
 func GetTxCmdCreateIBCTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-ibc-tunnel [feed-type] [channel-id] [deposit] [signalInfos-json-file]",
+		Use:   "create-ibc-tunnel [channel-id] [deposit] [encoder] [interval] [signalInfos-json-file]",
 		Short: "Create a new IBC tunnel",
-		Args:  cobra.ExactArgs(4),
+		Args:  cobra.ExactArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			feedType, err := strconv.ParseInt(args[0], 10, 32)
+			deposit, err := sdk.ParseCoinsNormalized(args[1])
 			if err != nil {
 				return err
 			}
 
-			deposit, err := sdk.ParseCoinsNormalized(args[2])
+			encoder, err := strconv.ParseInt(args[2], 10, 32)
 			if err != nil {
 				return err
 			}
 
-			signalInfos, err := parseSignalInfos(args[3])
+			interval, err := strconv.ParseUint(args[3], 10, 64)
 			if err != nil {
 				return err
 			}
 
-			var route types.RouteI
-			ibcRoute := types.IBCRoute{
-				ChannelID: args[1],
+			signalInfos, err := parseSignalInfos(args[4])
+			if err != nil {
+				return err
 			}
-			route = &ibcRoute
 
-			msg, err := types.NewMsgCreateTunnel(
-				signalInfos,
-				feedstypes.FeedType(feedType),
-				route,
+			msg, err := types.NewMsgCreateIBCTunnel(
+				signalInfos.ToSignalInfos(),
+				interval,
+				args[0],
+				types.Encoder(encoder),
 				deposit,
 				clientCtx.GetFromAddress(),
 			)

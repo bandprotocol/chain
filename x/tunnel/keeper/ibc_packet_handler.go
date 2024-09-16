@@ -21,7 +21,7 @@ func (k Keeper) IBCPacketHandler(ctx sdk.Context, route *types.IBCRoute, packet 
 	channelCap, ok := k.scopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(types.PortID, route.ChannelID))
 	if !ok {
 		ctx.EventManager().EmitEvent(sdk.NewEvent(
-			types.EventTypeSendPacketFail,
+			types.EventTypeSendIBCPacketFail,
 			sdk.NewAttribute(types.AttributeKeyReason, "Module does not own channel capability"),
 		))
 
@@ -32,7 +32,8 @@ func (k Keeper) IBCPacketHandler(ctx sdk.Context, route *types.IBCRoute, packet 
 	resultBytes := types.NewIBCPacketResult(
 		packet.TunnelID,
 		packet.Nonce,
-		packet.SignalPriceInfos,
+		packet.SignalPrices,
+		packet.CreatedAt,
 	).GetBytes()
 
 	// Send packet to IBC, authenticating with channelCap
@@ -46,7 +47,7 @@ func (k Keeper) IBCPacketHandler(ctx sdk.Context, route *types.IBCRoute, packet 
 		resultBytes,
 	); err != nil {
 		ctx.EventManager().EmitEvent(sdk.NewEvent(
-			types.EventTypeSendPacketFail,
+			types.EventTypeSendIBCPacketFail,
 			sdk.NewAttribute(types.AttributeKeyReason, fmt.Sprintf("Unable to send packet: %s", err)),
 		))
 	}
@@ -60,5 +61,5 @@ func (k Keeper) IBCPacketHandler(ctx sdk.Context, route *types.IBCRoute, packet 
 		panic(fmt.Errorf("failed to set packet content: %w", err))
 	}
 
-	k.AddPacket(ctx, packet)
+	k.SetPacket(ctx, packet)
 }

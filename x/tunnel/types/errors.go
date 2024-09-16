@@ -19,4 +19,5 @@ var (
 	ErrAccountAlreadyExist      = errorsmod.Register(ModuleName, 12, "account already exist")
 	ErrInvalidRoute             = errorsmod.Register(ModuleName, 13, "invalid tunnel route")
 	ErrInactiveTunnel           = errorsmod.Register(ModuleName, 14, "inactive tunnel")
+	ErrInvalidVersion           = errorsmod.Register(ModuleName, 15, "invalid version")
 )

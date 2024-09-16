@@ -35,6 +35,7 @@ func TestValidateGenesis(t *testing.T) {
 				TotalFees: types.TotalFees{
 					TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100))),
 				},
+				PortID: types.PortID,
 				Params: types.DefaultParams(),
 			},
 			requireErr: false,
@@ -46,6 +47,7 @@ func TestValidateGenesis(t *testing.T) {
 					{ID: 1},
 				},
 				TunnelCount: 2,
+				PortID:      types.PortID,
 			},
 			requireErr: true,
 		},
@@ -53,9 +55,12 @@ func TestValidateGenesis(t *testing.T) {
 			name: "invalid tunnel ID",
 			genesis: &types.GenesisState{
 				Tunnels: []types.Tunnel{
-					{ID: 3},
+					{ID: 1},
+					{ID: 2},
+					{ID: 4}, // Invalid ID
 				},
-				TunnelCount: 2,
+				TunnelCount: 3,
+				PortID:      types.PortID,
 			},
 			requireErr: true,
 		},
@@ -67,8 +72,9 @@ func TestValidateGenesis(t *testing.T) {
 				},
 				TunnelCount: 1,
 				SignalPricesInfos: []types.SignalPricesInfo{
-					{TunnelID: 0},
+					{TunnelID: 0}, // Invalid tunnel ID
 				},
+				PortID: types.PortID,
 			},
 			requireErr: true,
 		},
@@ -78,10 +84,12 @@ func TestValidateGenesis(t *testing.T) {
 				Tunnels: []types.Tunnel{
 					{ID: 1},
 				},
+
 				TunnelCount: 1,
 				TotalFees: types.TotalFees{
 					TotalPacketFee: sdk.Coins{}, // Invalid coin
 				},
+				PortID: types.PortID,
 			},
 			requireErr: true,
 		},

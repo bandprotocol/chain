@@ -17,7 +17,6 @@ func ValidateGenesis(data *types.GenesisState) error {
 	}
 
 	// Validate the tunnel count
-	// validate the tunnel count
 	if uint64(len(data.Tunnels)) != data.TunnelCount {
 		return types.ErrInvalidGenesis.Wrapf(
 			"TunnelCount: %d, actual tunnels: %d",

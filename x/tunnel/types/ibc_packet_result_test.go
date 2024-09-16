@@ -12,13 +12,14 @@ func TestGetByteIBCPacket(t *testing.T) {
 	packet := types.NewIBCPacketResult(
 		1,
 		1,
-		[]types.SignalPriceInfo{{SignalID: "BTC", DeviationBPS: 1000, Interval: 10, Price: 1000, LastTimestamp: 0}},
+		[]types.SignalPrice{{SignalID: "BTC", Price: 1000}},
+		0,
 	)
 
 	require.Equal(
 		t,
 		[]byte(
-			`{"nonce":"1","signal_price_infos":[{"deviation_bps":"1000","interval":"10","last_timestamp":"0","price":"1000","signal_id":"BTC"}],"tunnel_id":"1"}`,
+			`{"created_at":"0","nonce":"1","signal_prices":[{"price":"1000","signal_id":"BTC"}],"tunnel_id":"1"}`,
 		),
 		packet.GetBytes(),
 	)

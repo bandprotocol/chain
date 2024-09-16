@@ -11,6 +11,7 @@ const (
 	EventTypeSignalInfoNotFound  = "signal_info_not_found"
 	EventTypeProducePacketFail   = "produce_packet_fail"
 	EventTypeNoTunnelRoute       = "no_tunnel_route"
+	EventTypeSendIBCPacketFail   = "send_ibc_packet_fail"
 
 	AttributeKeyParams           = "params"
 	AttributeKeyTunnelID         = "tunnel_id"

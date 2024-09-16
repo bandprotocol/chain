@@ -153,6 +153,18 @@ message IBCPacketContent {
   string channel_id = 1 [(gogoproto.customname) = "ChannelID"];
 }
 
+// IBCPacketResult is the packet result for IBC
+message IBCPacketResult {
+  // tunnel_id is the tunnel ID
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
+  // nonce is the nonce of the packet
+  uint64 nonce = 2;
+  // signal_prices is the list of signal prices
+  repeated SignalPrice signal_prices = 3 [(gogoproto.nullable) = false];
+  // created_at is the timestamp when the packet is created
+  int64 created_at = 4;
+}
+
 // Encoder is an enumerator that defines the mode of encoding message in tunnel module.
 enum Encoder {
   option (gogoproto.goproto_enum_prefix) = false;
