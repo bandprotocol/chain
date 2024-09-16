@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -145,7 +143,6 @@ func (k Keeper) WithdrawDeposit(ctx sdk.Context, tunnelID uint64, amount sdk.Coi
 func (k Keeper) validateDepositDenom(ctx sdk.Context, depositAmount sdk.Coins) error {
 	params := k.GetParams(ctx)
 
-	fmt.Printf("params.MinDeposit: %v\n", params.MinDeposit)
 	denoms := make([]string, 0, len(params.MinDeposit))
 	acceptedDenoms := make(map[string]bool, len(params.MinDeposit))
 	for _, coin := range params.MinDeposit {

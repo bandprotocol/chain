@@ -27,7 +27,7 @@ func GetTxCmd() *cobra.Command {
 	txCmd.AddCommand(GetTxCmdDeactivateTunnel())
 	txCmd.AddCommand(GetTxCmdManualTriggerTunnel())
 	txCmd.AddCommand(GetTxCmdDepositTunnel())
-	txCmd.AddCommand(GetTxCmdWithdrawDeposit())
+	txCmd.AddCommand(WithdrawDepositTunnel())
 
 	return txCmd
 }
@@ -168,7 +168,7 @@ func GetTxCmdDepositTunnel() *cobra.Command {
 	return cmd
 }
 
-func GetTxCmdWithdrawDeposit() *cobra.Command {
+func WithdrawDepositTunnel() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "withdraw-deposit [tunnel-id] [amount]",
 		Short: "Withdraw deposit from a tunnel",

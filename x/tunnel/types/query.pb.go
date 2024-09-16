@@ -264,107 +264,6 @@ func (m *QueryTunnelResponse) GetTunnel() Tunnel {
 	return Tunnel{}
 }
 
-// QueryDepositRequest is the request type for the Query/Deposit RPC method.
-type QueryDepositRequest struct {
-	// tunnel_id is the ID of the tunnel to query.
-	TunnelId uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
-	// depositor is the address of the depositor to query.
-	Depositor string `protobuf:"bytes,2,opt,name=depositor,proto3" json:"depositor,omitempty"`
-}
-
-func (m *QueryDepositRequest) Reset()         { *m = QueryDepositRequest{} }
-func (m *QueryDepositRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryDepositRequest) ProtoMessage()    {}
-func (*QueryDepositRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_220124e1821d297e, []int{4}
-}
-func (m *QueryDepositRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryDepositRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryDepositRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryDepositRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryDepositRequest.Merge(m, src)
-}
-func (m *QueryDepositRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryDepositRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryDepositRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryDepositRequest proto.InternalMessageInfo
-
-func (m *QueryDepositRequest) GetTunnelId() uint64 {
-	if m != nil {
-		return m.TunnelId
-	}
-	return 0
-}
-
-func (m *QueryDepositRequest) GetDepositor() string {
-	if m != nil {
-		return m.Depositor
-	}
-	return ""
-}
-
-// QueryDepositResponse is the response type for the Query/Deposit RPC method.
-type QueryDepositResponse struct {
-	// deposit is the deposit with the given tunnel ID and depositor address.
-	Deposit Deposit `protobuf:"bytes,1,opt,name=deposit,proto3" json:"deposit"`
-}
-
-func (m *QueryDepositResponse) Reset()         { *m = QueryDepositResponse{} }
-func (m *QueryDepositResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryDepositResponse) ProtoMessage()    {}
-func (*QueryDepositResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_220124e1821d297e, []int{5}
-}
-func (m *QueryDepositResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryDepositResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryDepositResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryDepositResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryDepositResponse.Merge(m, src)
-}
-func (m *QueryDepositResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryDepositResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryDepositResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryDepositResponse proto.InternalMessageInfo
-
-func (m *QueryDepositResponse) GetDeposit() Deposit {
-	if m != nil {
-		return m.Deposit
-	}
-	return Deposit{}
-}
-
 // QueryDepositsRequest is the request type for the Query/Deposits RPC method.
 type QueryDepositsRequest struct {
 	// tunnel_id is the ID of the tunnel to query deposits.
@@ -377,7 +276,7 @@ func (m *QueryDepositsRequest) Reset()         { *m = QueryDepositsRequest{} }
 func (m *QueryDepositsRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryDepositsRequest) ProtoMessage()    {}
 func (*QueryDepositsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_220124e1821d297e, []int{6}
+	return fileDescriptor_220124e1821d297e, []int{4}
 }
 func (m *QueryDepositsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -432,7 +331,7 @@ func (m *QueryDepositsResponse) Reset()         { *m = QueryDepositsResponse{} }
 func (m *QueryDepositsResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryDepositsResponse) ProtoMessage()    {}
 func (*QueryDepositsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_220124e1821d297e, []int{7}
+	return fileDescriptor_220124e1821d297e, []int{5}
 }
 func (m *QueryDepositsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -473,6 +372,107 @@ func (m *QueryDepositsResponse) GetPagination() *query.PageResponse {
 		return m.Pagination
 	}
 	return nil
+}
+
+// QueryDepositRequest is the request type for the Query/Deposit RPC method.
+type QueryDepositRequest struct {
+	// tunnel_id is the ID of the tunnel to query.
+	TunnelId uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
+	// depositor is the address of the depositor to query.
+	Depositor string `protobuf:"bytes,2,opt,name=depositor,proto3" json:"depositor,omitempty"`
+}
+
+func (m *QueryDepositRequest) Reset()         { *m = QueryDepositRequest{} }
+func (m *QueryDepositRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryDepositRequest) ProtoMessage()    {}
+func (*QueryDepositRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_220124e1821d297e, []int{6}
+}
+func (m *QueryDepositRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryDepositRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryDepositRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryDepositRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryDepositRequest.Merge(m, src)
+}
+func (m *QueryDepositRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryDepositRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryDepositRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryDepositRequest proto.InternalMessageInfo
+
+func (m *QueryDepositRequest) GetTunnelId() uint64 {
+	if m != nil {
+		return m.TunnelId
+	}
+	return 0
+}
+
+func (m *QueryDepositRequest) GetDepositor() string {
+	if m != nil {
+		return m.Depositor
+	}
+	return ""
+}
+
+// QueryDepositResponse is the response type for the Query/Deposit RPC method.
+type QueryDepositResponse struct {
+	// deposit is the deposit with the given tunnel ID and depositor address.
+	Deposit Deposit `protobuf:"bytes,1,opt,name=deposit,proto3" json:"deposit"`
+}
+
+func (m *QueryDepositResponse) Reset()         { *m = QueryDepositResponse{} }
+func (m *QueryDepositResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryDepositResponse) ProtoMessage()    {}
+func (*QueryDepositResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_220124e1821d297e, []int{7}
+}
+func (m *QueryDepositResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryDepositResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryDepositResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryDepositResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryDepositResponse.Merge(m, src)
+}
+func (m *QueryDepositResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryDepositResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryDepositResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryDepositResponse proto.InternalMessageInfo
+
+func (m *QueryDepositResponse) GetDeposit() Deposit {
+	if m != nil {
+		return m.Deposit
+	}
+	return Deposit{}
 }
 
 // QueryPacketsRequest is the request type for the Query/Packets RPC method.
@@ -775,10 +775,10 @@ func init() {
 	proto.RegisterType((*QueryTunnelsResponse)(nil), "tunnel.v1beta1.QueryTunnelsResponse")
 	proto.RegisterType((*QueryTunnelRequest)(nil), "tunnel.v1beta1.QueryTunnelRequest")
 	proto.RegisterType((*QueryTunnelResponse)(nil), "tunnel.v1beta1.QueryTunnelResponse")
-	proto.RegisterType((*QueryDepositRequest)(nil), "tunnel.v1beta1.QueryDepositRequest")
-	proto.RegisterType((*QueryDepositResponse)(nil), "tunnel.v1beta1.QueryDepositResponse")
 	proto.RegisterType((*QueryDepositsRequest)(nil), "tunnel.v1beta1.QueryDepositsRequest")
 	proto.RegisterType((*QueryDepositsResponse)(nil), "tunnel.v1beta1.QueryDepositsResponse")
+	proto.RegisterType((*QueryDepositRequest)(nil), "tunnel.v1beta1.QueryDepositRequest")
+	proto.RegisterType((*QueryDepositResponse)(nil), "tunnel.v1beta1.QueryDepositResponse")
 	proto.RegisterType((*QueryPacketsRequest)(nil), "tunnel.v1beta1.QueryPacketsRequest")
 	proto.RegisterType((*QueryPacketsResponse)(nil), "tunnel.v1beta1.QueryPacketsResponse")
 	proto.RegisterType((*QueryPacketRequest)(nil), "tunnel.v1beta1.QueryPacketRequest")
@@ -790,62 +790,62 @@ func init() {
 func init() { proto.RegisterFile("tunnel/v1beta1/query.proto", fileDescriptor_220124e1821d297e) }
 
 var fileDescriptor_220124e1821d297e = []byte{
-	// 871 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x96, 0xcf, 0x4f, 0xe3, 0x46,
-	0x14, 0xc7, 0x33, 0x34, 0xe4, 0xc7, 0x20, 0x21, 0x34, 0x4d, 0x21, 0x35, 0xd4, 0xa4, 0x0e, 0xb4,
-	0x08, 0x5a, 0x4f, 0x49, 0xa8, 0x5a, 0xb5, 0x87, 0x96, 0x1f, 0x09, 0x8a, 0x8a, 0xd2, 0xd4, 0x09,
-	0x3d, 0xf4, 0x12, 0x39, 0x89, 0x15, 0xac, 0x06, 0x8f, 0xc9, 0x38, 0xa8, 0x34, 0xa2, 0x87, 0xaa,
-	0x87, 0xf6, 0xd0, 0xd5, 0xae, 0x56, 0xbb, 0xc7, 0xbd, 0xec, 0x1f, 0xb1, 0xff, 0x02, 0x47, 0xa4,
-	0xbd, 0xec, 0x69, 0xb5, 0x82, 0xfd, 0x43, 0x56, 0x99, 0x19, 0x3b, 0x71, 0x88, 0x43, 0x90, 0xd0,
-	0xde, 0x9c, 0x99, 0xef, 0x9b, 0xf7, 0x79, 0xcf, 0xf3, 0xbe, 0x0e, 0x94, 0x9c, 0x8e, 0x65, 0x19,
-	0x2d, 0x7c, 0xba, 0x59, 0x33, 0x1c, 0x7d, 0x13, 0x9f, 0x74, 0x8c, 0xf6, 0x99, 0x6a, 0xb7, 0x89,
-	0x43, 0xd0, 0x2c, 0xdf, 0x53, 0xc5, 0x9e, 0x94, 0x68, 0x92, 0x26, 0x61, 0x5b, 0xb8, 0xf7, 0xc4,
-	0x55, 0xd2, 0x7a, 0x9d, 0xd0, 0x63, 0x42, 0x71, 0x4d, 0xa7, 0x06, 0x0f, 0xf7, 0x0e, 0xb3, 0xf5,
-	0xa6, 0x69, 0xe9, 0x8e, 0x49, 0x2c, 0xa1, 0x5d, 0x6a, 0x12, 0xd2, 0x6c, 0x19, 0x58, 0xb7, 0x4d,
-	0xac, 0x5b, 0x16, 0x71, 0xd8, 0x26, 0x15, 0xbb, 0x8b, 0x43, 0x2c, 0xb6, 0xde, 0xd6, 0x8f, 0x83,
-	0x36, 0x05, 0x1b, 0xdb, 0x54, 0x9e, 0x01, 0xf8, 0xe1, 0x2f, 0xbd, 0xd4, 0x15, 0xb6, 0x4a, 0x35,
-	0xe3, 0xa4, 0x63, 0x50, 0x07, 0xfd, 0x00, 0xe3, 0x26, 0xad, 0xea, 0x75, 0xc7, 0x3c, 0x35, 0x92,
-	0x20, 0x05, 0xd6, 0x66, 0x33, 0x8a, 0xea, 0xaf, 0x4a, 0xe5, 0x21, 0x65, 0x47, 0x77, 0x3a, 0x34,
-	0x6f, 0xb6, 0x1c, 0xa3, 0xad, 0xc5, 0x4c, 0xba, 0xcd, 0x62, 0x50, 0x1e, 0xc2, 0x7e, 0x11, 0xc9,
-	0xa9, 0x14, 0x58, 0x9b, 0xc9, 0x7c, 0xa6, 0xf2, 0x8a, 0xd5, 0x5e, 0xc5, 0x2a, 0x6f, 0x98, 0x7b,
-	0x58, 0x49, 0x6f, 0x1a, 0x22, 0xb9, 0x36, 0x10, 0xa9, 0x3c, 0x02, 0x30, 0xe1, 0x07, 0xa4, 0x36,
-	0xb1, 0xa8, 0x81, 0xbe, 0x82, 0x51, 0xce, 0x43, 0x93, 0x20, 0xf5, 0xc1, 0xda, 0x4c, 0x66, 0x7e,
-	0x34, 0x9f, 0xe6, 0xca, 0xd0, 0xfe, 0x08, 0xa4, 0xcf, 0x6f, 0x45, 0xe2, 0xe9, 0x7c, 0x4c, 0x9b,
-	0x10, 0x0d, 0x20, 0xb9, 0x2d, 0x5b, 0x84, 0x71, 0x9e, 0xa9, 0x6a, 0x36, 0x58, 0xcb, 0xc2, 0x5a,
-	0x8c, 0x2f, 0x14, 0x1a, 0xca, 0x4f, 0xbe, 0x36, 0x7b, 0x45, 0x6c, 0xc1, 0x08, 0x97, 0xb0, 0x80,
-	0xc0, 0x1a, 0x76, 0xc2, 0x17, 0xaf, 0x97, 0x43, 0x9a, 0xd0, 0x2a, 0x25, 0x71, 0xd8, 0x9e, 0x61,
-	0x13, 0x6a, 0x3a, 0x93, 0x00, 0xa0, 0x25, 0x18, 0x6f, 0x70, 0x39, 0x69, 0xb3, 0xda, 0xe3, 0x5a,
-	0x7f, 0x41, 0xf9, 0x59, 0x34, 0xd9, 0x3b, 0x51, 0xf0, 0x7d, 0x03, 0xa3, 0x42, 0x24, 0x00, 0x17,
-	0x86, 0x01, 0x45, 0x84, 0x20, 0x74, 0xd5, 0x4a, 0xd7, 0x7f, 0x20, 0x9d, 0x88, 0xf1, 0xbe, 0xee,
-	0xcc, 0x13, 0x00, 0x3f, 0x1a, 0xca, 0x2e, 0xea, 0xc9, 0xc2, 0x98, 0x20, 0x74, 0x6f, 0x4d, 0x50,
-	0x41, 0x9a, 0x27, 0xbc, 0xbf, 0x7b, 0xf3, 0xa7, 0x78, 0x6f, 0x25, 0xbd, 0xfe, 0xbb, 0xf1, 0x9e,
-	0x7b, 0xe2, 0xcd, 0x91, 0x97, 0xbc, 0x3f, 0x47, 0x36, 0x5f, 0x0a, 0x9a, 0x23, 0x1e, 0xa1, 0xb9,
-	0xb2, 0xfb, 0xeb, 0xc7, 0xbe, 0x98, 0x23, 0x91, 0x60, 0x92, 0x76, 0x24, 0xe0, 0xb4, 0x45, 0xac,
-	0xba, 0xc1, 0xd2, 0x86, 0x35, 0xfe, 0x43, 0xc9, 0xf9, 0x1a, 0xeb, 0x95, 0xa6, 0xc2, 0x08, 0x67,
-	0x0e, 0x9a, 0x2e, 0xa1, 0x17, 0x2a, 0x25, 0xe1, 0xf1, 0xf4, 0xec, 0x53, 0xf0, 0x78, 0xa3, 0xeb,
-	0xae, 0xf6, 0x47, 0x97, 0xdb, 0x6c, 0xf0, 0xe1, 0xbd, 0x5d, 0x77, 0x74, 0xb9, 0x76, 0xfd, 0x1f,
-	0x00, 0xd1, 0x4d, 0xdf, 0x44, 0x2b, 0x30, 0x55, 0x39, 0x2c, 0x16, 0x73, 0x07, 0xd5, 0x72, 0x65,
-	0xbb, 0x72, 0x58, 0xae, 0xe6, 0x0b, 0x07, 0x95, 0x9c, 0x56, 0x3d, 0x2c, 0x96, 0x4b, 0xb9, 0xdd,
-	0x42, 0xbe, 0x90, 0xdb, 0x9b, 0x0b, 0xa1, 0x65, 0xb8, 0x38, 0x52, 0xb5, 0xbd, 0x5b, 0x29, 0xfc,
-	0x9a, 0x9b, 0x03, 0xe8, 0x53, 0xf8, 0xc9, 0x48, 0x41, 0xa1, 0x28, 0x24, 0x53, 0x52, 0xf8, 0xdf,
-	0xe7, 0x72, 0x28, 0xf3, 0x22, 0x0a, 0xa7, 0x59, 0x51, 0xe8, 0x04, 0x46, 0x38, 0x28, 0xba, 0xe1,
-	0xef, 0x37, 0x7b, 0x21, 0xa5, 0xc7, 0x6a, 0x78, 0x67, 0x14, 0xf9, 0xef, 0x97, 0x6f, 0x1f, 0x4f,
-	0x25, 0xd1, 0x3c, 0x1e, 0xf9, 0x59, 0x42, 0x1d, 0x18, 0x15, 0x66, 0x8e, 0x46, 0x9f, 0xe7, 0xff,
-	0x16, 0x49, 0x2b, 0xe3, 0x45, 0x22, 0xeb, 0x32, 0xcb, 0xfa, 0x31, 0x5a, 0xc0, 0x23, 0xbf, 0x77,
-	0x14, 0xfd, 0x05, 0x23, 0x3c, 0x26, 0xa0, 0x52, 0x9f, 0x9b, 0x4b, 0xe9, 0xb1, 0x1a, 0x91, 0x73,
-	0x83, 0xe5, 0x5c, 0x45, 0xe9, 0x80, 0x9c, 0xb8, 0xeb, 0xdd, 0xe4, 0x73, 0xf4, 0x14, 0xc0, 0xa8,
-	0x30, 0x97, 0x80, 0xba, 0xfd, 0x7e, 0x1e, 0x50, 0xf7, 0x90, 0x45, 0x2b, 0x3f, 0x32, 0x86, 0xef,
-	0xd0, 0xb7, 0x13, 0x30, 0x60, 0xd7, 0xd3, 0x70, 0xd7, 0xf3, 0xfe, 0x73, 0xf4, 0x3f, 0x80, 0x31,
-	0xd7, 0x29, 0xd1, 0xd8, 0xa4, 0xde, 0x2b, 0x59, 0xbd, 0x45, 0x25, 0xd8, 0xb6, 0x18, 0x9b, 0x8a,
-	0xbe, 0xb8, 0x0b, 0x1b, 0xfa, 0x0f, 0xc0, 0xa8, 0x70, 0x29, 0x14, 0x74, 0xe1, 0x06, 0x0d, 0x34,
-	0xa0, 0x51, 0x43, 0x46, 0xa7, 0x64, 0x19, 0xcc, 0x97, 0x68, 0x63, 0x12, 0x18, 0xd7, 0xeb, 0x1e,
-	0x80, 0xde, 0x7c, 0xf4, 0x9e, 0x03, 0xe7, 0x63, 0xc0, 0xbb, 0xa4, 0xf4, 0x58, 0x8d, 0x00, 0xf9,
-	0x9e, 0x81, 0x7c, 0x8d, 0xb2, 0x77, 0x00, 0xc1, 0x5d, 0xe6, 0x74, 0xe7, 0x3b, 0x85, 0x8b, 0x2b,
-	0x19, 0x5c, 0x5e, 0xc9, 0xe0, 0xcd, 0x95, 0x0c, 0x1e, 0x5e, 0xcb, 0xa1, 0xcb, 0x6b, 0x39, 0xf4,
-	0xea, 0x5a, 0x0e, 0xfd, 0x86, 0x9b, 0xa6, 0x73, 0xd4, 0xa9, 0xa9, 0x75, 0x72, 0x8c, 0x6b, 0xba,
-	0xd5, 0x60, 0x7f, 0xf0, 0xea, 0xa4, 0x85, 0xeb, 0x47, 0xba, 0x69, 0xe1, 0xd3, 0x0c, 0xfe, 0xc3,
-	0x4d, 0xe8, 0x9c, 0xd9, 0x06, 0xad, 0x45, 0x98, 0x22, 0xfb, 0x2e, 0x00, 0x00, 0xff, 0xff, 0x08,
-	0xac, 0xe3, 0x24, 0xca, 0x0a, 0x00, 0x00,
+	// 869 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x56, 0x4d, 0x6f, 0xeb, 0x44,
+	0x14, 0xcd, 0x94, 0x34, 0x1f, 0x53, 0xa9, 0xaa, 0x86, 0xd0, 0x06, 0xb7, 0xb8, 0xc1, 0x69, 0xa1,
+	0x6a, 0xc1, 0x43, 0x93, 0x22, 0x10, 0x2c, 0xa0, 0x1f, 0x49, 0x15, 0x51, 0x85, 0xe0, 0xa4, 0x2c,
+	0xd8, 0x44, 0x4e, 0x62, 0xa5, 0x16, 0xa9, 0xc7, 0xcd, 0x38, 0x15, 0x25, 0x2a, 0x0b, 0xc4, 0x02,
+	0x16, 0x20, 0x10, 0x82, 0x25, 0x1b, 0x7e, 0xc4, 0xfb, 0x0b, 0x5d, 0x56, 0x7a, 0x9b, 0xb7, 0x7a,
+	0x7a, 0x6a, 0xdf, 0x0f, 0x79, 0xca, 0xcc, 0xd8, 0x89, 0x53, 0x3b, 0x4d, 0xa5, 0xea, 0xed, 0x9c,
+	0xb9, 0xe7, 0xce, 0x39, 0xf7, 0x5e, 0xdf, 0xe3, 0x40, 0xc9, 0xe9, 0x59, 0x96, 0xd1, 0xc1, 0xe7,
+	0xdb, 0x0d, 0xc3, 0xd1, 0xb7, 0xf1, 0x59, 0xcf, 0xe8, 0x5e, 0xa8, 0x76, 0x97, 0x38, 0x04, 0xcd,
+	0xf3, 0x98, 0x2a, 0x62, 0x52, 0xaa, 0x4d, 0xda, 0x84, 0x85, 0xf0, 0xe0, 0x89, 0xa3, 0xa4, 0xcd,
+	0x26, 0xa1, 0xa7, 0x84, 0xe2, 0x86, 0x4e, 0x0d, 0x9e, 0xee, 0x5d, 0x66, 0xeb, 0x6d, 0xd3, 0xd2,
+	0x1d, 0x93, 0x58, 0x02, 0xbb, 0xd2, 0x26, 0xa4, 0xdd, 0x31, 0xb0, 0x6e, 0x9b, 0x58, 0xb7, 0x2c,
+	0xe2, 0xb0, 0x20, 0x15, 0xd1, 0xe5, 0x31, 0x2d, 0xb6, 0xde, 0xd5, 0x4f, 0xc3, 0x82, 0x42, 0x1b,
+	0x0b, 0x2a, 0xff, 0x01, 0xf8, 0xe6, 0x37, 0x03, 0xea, 0x1a, 0x3b, 0xa5, 0x9a, 0x71, 0xd6, 0x33,
+	0xa8, 0x83, 0xbe, 0x80, 0x49, 0x93, 0xd6, 0xf5, 0xa6, 0x63, 0x9e, 0x1b, 0x69, 0x90, 0x01, 0x1b,
+	0xf3, 0x39, 0x45, 0xf5, 0x57, 0xa5, 0xf2, 0x94, 0xaa, 0xa3, 0x3b, 0x3d, 0x5a, 0x34, 0x3b, 0x8e,
+	0xd1, 0xd5, 0x12, 0x26, 0xdd, 0x65, 0x39, 0xa8, 0x08, 0xe1, 0xb0, 0x88, 0xf4, 0x4c, 0x06, 0x6c,
+	0xcc, 0xe5, 0xde, 0x53, 0x79, 0xc5, 0xea, 0xa0, 0x62, 0x95, 0x37, 0xcc, 0xbd, 0xac, 0xa2, 0xb7,
+	0x0d, 0x41, 0xae, 0x8d, 0x64, 0x2a, 0x7f, 0x01, 0x98, 0xf2, 0x0b, 0xa4, 0x36, 0xb1, 0xa8, 0x81,
+	0x3e, 0x82, 0x71, 0xae, 0x87, 0xa6, 0x41, 0xe6, 0x8d, 0x8d, 0xb9, 0xdc, 0x62, 0xb0, 0x3e, 0xcd,
+	0x85, 0xa1, 0xc3, 0x00, 0x49, 0xef, 0xdf, 0x2b, 0x89, 0xd3, 0xf9, 0x34, 0x6d, 0x43, 0x34, 0x22,
+	0xc9, 0x6d, 0xd9, 0x32, 0x4c, 0x72, 0xa6, 0xba, 0xd9, 0x62, 0x2d, 0x8b, 0x6a, 0x09, 0x7e, 0x50,
+	0x6a, 0x29, 0x5f, 0xf9, 0xda, 0xec, 0x15, 0xb1, 0x03, 0x63, 0x1c, 0xc2, 0x12, 0x42, 0x6b, 0xd8,
+	0x8b, 0x5e, 0x3d, 0x5f, 0x8d, 0x68, 0x02, 0xab, 0xf4, 0x45, 0x4b, 0x0e, 0x0c, 0x9b, 0x50, 0xd3,
+	0xa1, 0xd3, 0x28, 0x78, 0xb4, 0x81, 0xfc, 0x03, 0xe0, 0x5b, 0x63, 0xec, 0xa2, 0x98, 0x3c, 0x4c,
+	0xb4, 0xc4, 0x99, 0x18, 0xc9, 0xd2, 0x78, 0x39, 0x22, 0x47, 0xf3, 0x80, 0x8f, 0x37, 0x94, 0x8a,
+	0xe8, 0xb0, 0x4b, 0x31, 0x4d, 0x4f, 0x56, 0x60, 0x52, 0x08, 0x21, 0x5d, 0xc6, 0x9d, 0xd4, 0x86,
+	0x07, 0xca, 0xd7, 0xfe, 0x36, 0x7b, 0x75, 0x7e, 0x02, 0xe3, 0x02, 0x24, 0xa6, 0x16, 0x56, 0xa6,
+	0x18, 0x9b, 0x8b, 0x56, 0x7e, 0x14, 0x12, 0x2b, 0x7a, 0xf3, 0x7b, 0xe3, 0x35, 0x8f, 0xcd, 0xdb,
+	0x23, 0x8f, 0x7c, 0xb8, 0x47, 0x36, 0x3f, 0x0a, 0xdb, 0x23, 0x9e, 0xa1, 0xb9, 0xb0, 0xc7, 0x1b,
+	0xd9, 0xa1, 0xd8, 0x23, 0x41, 0x30, 0x4d, 0x3b, 0x52, 0x70, 0xd6, 0x22, 0x56, 0xd3, 0x60, 0xb4,
+	0x51, 0x8d, 0xff, 0x50, 0x0a, 0xbe, 0xc6, 0x7a, 0xa5, 0xa9, 0x30, 0xc6, 0x35, 0x87, 0x6d, 0x97,
+	0xc0, 0x0b, 0x94, 0x92, 0xf2, 0xf4, 0x0c, 0xec, 0x53, 0xe8, 0xf1, 0x56, 0xd7, 0x3d, 0x1d, 0xae,
+	0x2e, 0xb7, 0xd9, 0xf0, 0xcb, 0x07, 0x51, 0x77, 0x75, 0x39, 0x76, 0xf3, 0x17, 0x00, 0xd1, 0x5d,
+	0xdf, 0x44, 0x6b, 0x30, 0x53, 0x3b, 0x2e, 0x97, 0x0b, 0x47, 0xf5, 0x6a, 0x6d, 0xb7, 0x76, 0x5c,
+	0xad, 0x17, 0x4b, 0x47, 0xb5, 0x82, 0x56, 0x3f, 0x2e, 0x57, 0x2b, 0x85, 0xfd, 0x52, 0xb1, 0x54,
+	0x38, 0x58, 0x88, 0xa0, 0x55, 0xb8, 0x1c, 0x88, 0xda, 0xdd, 0xaf, 0x95, 0xbe, 0x2d, 0x2c, 0x00,
+	0xf4, 0x2e, 0x7c, 0x27, 0x10, 0x50, 0x2a, 0x0b, 0xc8, 0x8c, 0x14, 0xfd, 0xf5, 0x7f, 0x39, 0x92,
+	0x7b, 0x12, 0x87, 0xb3, 0xac, 0x28, 0x74, 0x06, 0x63, 0x5c, 0x28, 0xba, 0xe3, 0xef, 0x77, 0x7b,
+	0x21, 0x65, 0x27, 0x62, 0x78, 0x67, 0x14, 0xf9, 0xe7, 0xa7, 0x2f, 0xff, 0x9e, 0x49, 0xa3, 0x45,
+	0x1c, 0xf8, 0x59, 0x42, 0x3d, 0x18, 0x17, 0x66, 0x8e, 0x82, 0xef, 0xf3, 0x7f, 0x8b, 0xa4, 0xb5,
+	0xc9, 0x20, 0xc1, 0xba, 0xca, 0x58, 0xdf, 0x46, 0x4b, 0x38, 0xf0, 0x7b, 0x47, 0xd1, 0x4f, 0x30,
+	0xc6, 0x73, 0x42, 0x2a, 0xf5, 0xb9, 0xb9, 0x94, 0x9d, 0x88, 0x11, 0x9c, 0x5b, 0x8c, 0x73, 0x1d,
+	0x65, 0x43, 0x38, 0x71, 0xdf, 0x7b, 0x93, 0x2f, 0xd1, 0xef, 0x00, 0x26, 0x5c, 0xcf, 0x44, 0xc1,
+	0x35, 0x8d, 0x19, 0xba, 0xb4, 0x7e, 0x0f, 0x4a, 0xc8, 0xd8, 0x61, 0x32, 0x54, 0xf4, 0xc1, 0x14,
+	0x32, 0xb0, 0xe7, 0xbc, 0xff, 0x02, 0x18, 0x17, 0x57, 0x85, 0xcc, 0xc1, 0x6f, 0xa5, 0xd2, 0xda,
+	0x64, 0x90, 0x10, 0xf3, 0x25, 0x13, 0xf3, 0x19, 0xfa, 0xf4, 0x21, 0x62, 0x70, 0xdf, 0xb3, 0xdd,
+	0x4b, 0xf4, 0x1b, 0x80, 0x71, 0xe1, 0x52, 0x28, 0xec, 0x85, 0x1b, 0x35, 0xd0, 0x10, 0x61, 0x63,
+	0x46, 0xa7, 0xe4, 0x99, 0xb0, 0x0f, 0xd1, 0xd6, 0x34, 0xc2, 0x5c, 0xaf, 0xfb, 0x03, 0x0c, 0xf6,
+	0x63, 0xf0, 0x1c, 0xba, 0x1f, 0x23, 0xde, 0x25, 0x65, 0x27, 0x62, 0x84, 0x90, 0xcf, 0x99, 0x90,
+	0x8f, 0x51, 0xfe, 0x01, 0x42, 0x70, 0x9f, 0x39, 0xdd, 0xe5, 0x5e, 0xe9, 0xea, 0x46, 0x06, 0xd7,
+	0x37, 0x32, 0x78, 0x71, 0x23, 0x83, 0x3f, 0x6f, 0xe5, 0xc8, 0xf5, 0xad, 0x1c, 0x79, 0x76, 0x2b,
+	0x47, 0xbe, 0xc3, 0x6d, 0xd3, 0x39, 0xe9, 0x35, 0xd4, 0x26, 0x39, 0xc5, 0x0d, 0xdd, 0x6a, 0xb1,
+	0x3f, 0x78, 0x4d, 0xd2, 0xc1, 0xcd, 0x13, 0xdd, 0xb4, 0xf0, 0x79, 0x0e, 0xff, 0xe0, 0x12, 0x3a,
+	0x17, 0xb6, 0x41, 0x1b, 0x31, 0x86, 0xc8, 0xbf, 0x0a, 0x00, 0x00, 0xff, 0xff, 0xde, 0x8b, 0x4a,
+	0xe7, 0xca, 0x0a, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -866,10 +866,10 @@ type QueryClient interface {
 	Tunnels(ctx context.Context, in *QueryTunnelsRequest, opts ...grpc.CallOption) (*QueryTunnelsResponse, error)
 	// Tunnel is a RPC method that returns a tunnel by its ID.
 	Tunnel(ctx context.Context, in *QueryTunnelRequest, opts ...grpc.CallOption) (*QueryTunnelResponse, error)
-	// Deposit queries single deposit information based tunnelID, depositAddr.
-	Deposit(ctx context.Context, in *QueryDepositRequest, opts ...grpc.CallOption) (*QueryDepositResponse, error)
 	// Deposits queries all deposits of a single tunnel.
 	Deposits(ctx context.Context, in *QueryDepositsRequest, opts ...grpc.CallOption) (*QueryDepositsResponse, error)
+	// Deposit queries single deposit information based tunnelID, depositAddr.
+	Deposit(ctx context.Context, in *QueryDepositRequest, opts ...grpc.CallOption) (*QueryDepositResponse, error)
 	// Packets is a RPC method that returns all packets of a tunnel.
 	Packets(ctx context.Context, in *QueryPacketsRequest, opts ...grpc.CallOption) (*QueryPacketsResponse, error)
 	// Packet is a RPC method that returns a packet by its tunnel ID and nonce.
@@ -911,18 +911,18 @@ func (c *queryClient) Tunnel(ctx context.Context, in *QueryTunnelRequest, opts .
 	return out, nil
 }
 
-func (c *queryClient) Deposit(ctx context.Context, in *QueryDepositRequest, opts ...grpc.CallOption) (*QueryDepositResponse, error) {
-	out := new(QueryDepositResponse)
-	err := c.cc.Invoke(ctx, "/tunnel.v1beta1.Query/Deposit", in, out, opts...)
+func (c *queryClient) Deposits(ctx context.Context, in *QueryDepositsRequest, opts ...grpc.CallOption) (*QueryDepositsResponse, error) {
+	out := new(QueryDepositsResponse)
+	err := c.cc.Invoke(ctx, "/tunnel.v1beta1.Query/Deposits", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *queryClient) Deposits(ctx context.Context, in *QueryDepositsRequest, opts ...grpc.CallOption) (*QueryDepositsResponse, error) {
-	out := new(QueryDepositsResponse)
-	err := c.cc.Invoke(ctx, "/tunnel.v1beta1.Query/Deposits", in, out, opts...)
+func (c *queryClient) Deposit(ctx context.Context, in *QueryDepositRequest, opts ...grpc.CallOption) (*QueryDepositResponse, error) {
+	out := new(QueryDepositResponse)
+	err := c.cc.Invoke(ctx, "/tunnel.v1beta1.Query/Deposit", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -955,10 +955,10 @@ type QueryServer interface {
 	Tunnels(context.Context, *QueryTunnelsRequest) (*QueryTunnelsResponse, error)
 	// Tunnel is a RPC method that returns a tunnel by its ID.
 	Tunnel(context.Context, *QueryTunnelRequest) (*QueryTunnelResponse, error)
-	// Deposit queries single deposit information based tunnelID, depositAddr.
-	Deposit(context.Context, *QueryDepositRequest) (*QueryDepositResponse, error)
 	// Deposits queries all deposits of a single tunnel.
 	Deposits(context.Context, *QueryDepositsRequest) (*QueryDepositsResponse, error)
+	// Deposit queries single deposit information based tunnelID, depositAddr.
+	Deposit(context.Context, *QueryDepositRequest) (*QueryDepositResponse, error)
 	// Packets is a RPC method that returns all packets of a tunnel.
 	Packets(context.Context, *QueryPacketsRequest) (*QueryPacketsResponse, error)
 	// Packet is a RPC method that returns a packet by its tunnel ID and nonce.
@@ -978,11 +978,11 @@ func (*UnimplementedQueryServer) Tunnels(ctx context.Context, req *QueryTunnelsR
 func (*UnimplementedQueryServer) Tunnel(ctx context.Context, req *QueryTunnelRequest) (*QueryTunnelResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Tunnel not implemented")
 }
-func (*UnimplementedQueryServer) Deposit(ctx context.Context, req *QueryDepositRequest) (*QueryDepositResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Deposit not implemented")
-}
 func (*UnimplementedQueryServer) Deposits(ctx context.Context, req *QueryDepositsRequest) (*QueryDepositsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Deposits not implemented")
+}
+func (*UnimplementedQueryServer) Deposit(ctx context.Context, req *QueryDepositRequest) (*QueryDepositResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Deposit not implemented")
 }
 func (*UnimplementedQueryServer) Packets(ctx context.Context, req *QueryPacketsRequest) (*QueryPacketsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Packets not implemented")
@@ -1049,24 +1049,6 @@ func _Query_Tunnel_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_Deposit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryDepositRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).Deposit(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/tunnel.v1beta1.Query/Deposit",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).Deposit(ctx, req.(*QueryDepositRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Query_Deposits_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(QueryDepositsRequest)
 	if err := dec(in); err != nil {
@@ -1081,6 +1063,24 @@ func _Query_Deposits_Handler(srv interface{}, ctx context.Context, dec func(inte
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(QueryServer).Deposits(ctx, req.(*QueryDepositsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_Deposit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryDepositRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Deposit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/tunnel.v1beta1.Query/Deposit",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Deposit(ctx, req.(*QueryDepositRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1138,12 +1138,12 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Query_Tunnel_Handler,
 		},
 		{
-			MethodName: "Deposit",
-			Handler:    _Query_Deposit_Handler,
-		},
-		{
 			MethodName: "Deposits",
 			Handler:    _Query_Deposits_Handler,
+		},
+		{
+			MethodName: "Deposit",
+			Handler:    _Query_Deposit_Handler,
 		},
 		{
 			MethodName: "Packets",
@@ -1308,74 +1308,6 @@ func (m *QueryTunnelResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryDepositRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryDepositRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryDepositRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Depositor) > 0 {
-		i -= len(m.Depositor)
-		copy(dAtA[i:], m.Depositor)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Depositor)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if m.TunnelId != 0 {
-		i = encodeVarintQuery(dAtA, i, uint64(m.TunnelId))
-		i--
-		dAtA[i] = 0x8
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *QueryDepositResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryDepositResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryDepositResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	{
-		size, err := m.Deposit.MarshalToSizedBuffer(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = encodeVarintQuery(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0xa
-	return len(dAtA) - i, nil
-}
-
 func (m *QueryDepositsRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1462,6 +1394,74 @@ func (m *QueryDepositsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			dAtA[i] = 0xa
 		}
 	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryDepositRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryDepositRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryDepositRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Depositor) > 0 {
+		i -= len(m.Depositor)
+		copy(dAtA[i:], m.Depositor)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Depositor)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.TunnelId != 0 {
+		i = encodeVarintQuery(dAtA, i, uint64(m.TunnelId))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryDepositResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryDepositResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryDepositResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	{
+		size, err := m.Deposit.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintQuery(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
 	return len(dAtA) - i, nil
 }
 
@@ -1747,33 +1747,6 @@ func (m *QueryTunnelResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryDepositRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.TunnelId != 0 {
-		n += 1 + sovQuery(uint64(m.TunnelId))
-	}
-	l = len(m.Depositor)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	return n
-}
-
-func (m *QueryDepositResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = m.Deposit.Size()
-	n += 1 + l + sovQuery(uint64(l))
-	return n
-}
-
 func (m *QueryDepositsRequest) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1806,6 +1779,33 @@ func (m *QueryDepositsResponse) Size() (n int) {
 		l = m.Pagination.Size()
 		n += 1 + l + sovQuery(uint64(l))
 	}
+	return n
+}
+
+func (m *QueryDepositRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.TunnelId != 0 {
+		n += 1 + sovQuery(uint64(m.TunnelId))
+	}
+	l = len(m.Depositor)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryDepositResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Deposit.Size()
+	n += 1 + l + sovQuery(uint64(l))
 	return n
 }
 
@@ -2275,190 +2275,6 @@ func (m *QueryTunnelResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryDepositRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryDepositRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryDepositRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field TunnelId", wireType)
-			}
-			m.TunnelId = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.TunnelId |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Depositor", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Depositor = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryDepositResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryDepositResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryDepositResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Deposit", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := m.Deposit.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
 func (m *QueryDepositsRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2660,6 +2476,190 @@ func (m *QueryDepositsResponse) Unmarshal(dAtA []byte) error {
 				m.Pagination = &query.PageResponse{}
 			}
 			if err := m.Pagination.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryDepositRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryDepositRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryDepositRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TunnelId", wireType)
+			}
+			m.TunnelId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.TunnelId |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Depositor", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Depositor = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryDepositResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryDepositResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryDepositResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Deposit", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Deposit.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
