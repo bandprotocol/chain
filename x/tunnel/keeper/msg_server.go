@@ -43,17 +43,6 @@ func (ms msgServer) CreateTunnel(
 		return nil, err
 	}
 
-	// Check if the creator has enough funds to deposit
-	balances := ms.bankKeeper.GetAllBalances(ctx, creator)
-	if balances.IsAllLT(req.InitialDeposit) {
-		return nil, sdkerrors.Wrapf(
-			types.ErrInsufficientFunds,
-			"creator %s has insufficient funds to deposit %s",
-			req.Creator,
-			req.InitialDeposit,
-		)
-	}
-
 	// Add a new tunnel
 	tunnel, err := ms.Keeper.AddTunnel(
 		ctx,
