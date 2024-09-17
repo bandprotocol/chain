@@ -33,7 +33,7 @@ type GenesisState struct {
 	Tunnels []Tunnel `protobuf:"bytes,3,rep,name=tunnels,proto3" json:"tunnels"`
 	// signal_prices_infos is the signal prices info.
 	SignalPricesInfos []SignalPricesInfo `protobuf:"bytes,4,rep,name=signal_prices_infos,json=signalPricesInfos,proto3" json:"signal_prices_infos"`
-	// TotalFees is the type for the total fees collected by the tunnel
+	// total_fees is the type for the total fees collected by the tunnel
 	TotalFees TotalFees `protobuf:"bytes,5,opt,name=total_fees,json=totalFees,proto3" json:"total_fees"`
 }
 
