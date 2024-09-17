@@ -19,6 +19,6 @@ message GenesisState {
   repeated Tunnel tunnels = 4 [(gogoproto.nullable) = false];
   // signal_prices_infos is the signal prices info.
   repeated SignalPricesInfo signal_prices_infos = 5 [(gogoproto.nullable) = false];
-  // TotalFees is the type for the total fees collected by the tunnel
+  // total_fees is the type for the total fees collected by the tunnel
   TotalFees total_fees = 6 [(gogoproto.nullable) = false];
 }

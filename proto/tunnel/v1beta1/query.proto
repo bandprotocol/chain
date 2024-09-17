@@ -103,7 +103,7 @@ message QueryPacketRequest {
 
 // QueryPacketResponse is the response type for the Query/Packet RPC method.
 message QueryPacketResponse {
-  // Packet is the packet with the given tunnel ID and nonce.
+  // packet is the packet with the given tunnel ID and nonce.
   Packet packet = 1;
 }
 

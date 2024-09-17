@@ -7,6 +7,7 @@ func NewGenesisState(
 	tunnelCount uint64,
 	tunnels []Tunnel,
 	signalPricesInfos []SignalPricesInfo,
+	totalFees TotalFees,
 ) *GenesisState {
 	return &GenesisState{
 		Params:            params,
@@ -14,10 +15,11 @@ func NewGenesisState(
 		TunnelCount:       tunnelCount,
 		Tunnels:           tunnels,
 		SignalPricesInfos: signalPricesInfos,
+		TotalFees:         totalFees,
 	}
 }
 
 // DefaultGenesisState gets the raw genesis raw message for testing
 func DefaultGenesisState() *GenesisState {
-	return NewGenesisState(DefaultParams(), PortID, 0, []Tunnel{}, []SignalPricesInfo{})
+	return NewGenesisState(DefaultParams(), PortID, 0, []Tunnel{}, []SignalPricesInfo{}, TotalFees{})
 }
