@@ -16,7 +16,7 @@ func (k Keeper) SetDEQueue(ctx sdk.Context, address sdk.AccAddress, deQueue type
 func (k Keeper) GetDEQueue(ctx sdk.Context, address sdk.AccAddress) types.DEQueue {
 	bz := ctx.KVStore(k.storeKey).Get(types.DEQueueStoreKey(address))
 	if bz == nil {
-		return types.DEQueue{Head: 0, Tail: 0}
+		return types.NewDEQueue(0, 0)
 	}
 
 	var deQueue types.DEQueue
