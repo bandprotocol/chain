@@ -719,7 +719,14 @@ func (s *AppTestSuite) TestGRPCQuerySigning() {
 				s.Require().Equal(signing, res.SigningResult.Signing)
 				s.Require().Equal(&sa, res.SigningResult.CurrentSigningAttempt)
 				s.Require().
-					Equal([]types.PartialSignature{{MemberID: memberID, Signature: mockSig}}, res.SigningResult.ReceivedPartialSignatures)
+					Equal([]types.PartialSignature{
+						{
+							SigningID:      1,
+							SigningAttempt: 1,
+							MemberID:       memberID,
+							Signature:      mockSig,
+						},
+					}, res.SigningResult.ReceivedPartialSignatures)
 			},
 		},
 		{

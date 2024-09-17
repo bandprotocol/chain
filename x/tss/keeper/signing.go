@@ -247,15 +247,8 @@ func (k Keeper) AssignMembers(
 
 	var assignedMembers types.AssignedMembers
 	for i, member := range selectedMembers {
-		assignedMembers = append(assignedMembers, types.AssignedMember{
-			MemberID:      member.ID,
-			Address:       member.Address,
-			PubKey:        member.PubKey,
-			PubD:          des[i].PubD,
-			PubE:          des[i].PubE,
-			BindingFactor: nil,
-			PubNonce:      nil,
-		})
+		am := types.NewAssignedMember(member, des[i], nil, nil)
+		assignedMembers = append(assignedMembers, am)
 	}
 
 	// Compute commitment from mids, public D, and public E

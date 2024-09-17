@@ -324,10 +324,7 @@ func (k Keeper) ProcessComplaint(
 		}
 
 		// Add complaint status
-		complaintsWithStatus = append(complaintsWithStatus, types.ComplaintWithStatus{
-			Complaint:       c,
-			ComplaintStatus: complaintStatus,
-		})
+		complaintsWithStatus = append(complaintsWithStatus, types.NewComplaintWithStatus(c, complaintStatus))
 
 		// Emit complain failed event
 		ctx.EventManager().EmitEvent(
