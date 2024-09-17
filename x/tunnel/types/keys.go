@@ -36,7 +36,7 @@ var (
 
 	PacketStoreKeyPrefix = []byte{0x12}
 
-	SignalPricesInfoStoreKeyPrefix = []byte{0x13}
+	LatestSignalPricesStoreKeyPrefix = []byte{0x13}
 
 	ParamsKey = []byte{0x90}
 )
@@ -57,6 +57,6 @@ func TunnelPacketStoreKey(tunnelID uint64, packetID uint64) []byte {
 	return append(TunnelPacketsStoreKey(tunnelID), sdk.Uint64ToBigEndian(packetID)...)
 }
 
-func SignalPricesInfoStoreKey(tunnelID uint64) []byte {
-	return append(SignalPricesInfoStoreKeyPrefix, sdk.Uint64ToBigEndian(tunnelID)...)
+func LatestSignalPricesStoreKey(tunnelID uint64) []byte {
+	return append(LatestSignalPricesStoreKeyPrefix, sdk.Uint64ToBigEndian(tunnelID)...)
 }

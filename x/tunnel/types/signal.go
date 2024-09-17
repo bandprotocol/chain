@@ -1,33 +1,33 @@
 package types
 
-// NewSignalInfo creates a new SignalInfo instance.
-func NewSignalInfo(
+// NewSignalDeviation creates a new SignalDeviation instance.
+func NewSignalDeviation(
 	signalID string,
 	softDeviationBPS uint64,
 	hardDeviationBPS uint64,
-) SignalInfo {
-	return SignalInfo{
+) SignalDeviation {
+	return SignalDeviation{
 		SignalID:         signalID,
 		SoftDeviationBPS: softDeviationBPS,
 		HardDeviationBPS: hardDeviationBPS,
 	}
 }
 
-// NewSignalPricesInfo creates a new SignalPricesInfo instance.
-func NewSignalPricesInfo(
+// NewLatestSignalPrices creates a new LatestSignalPrices instance.
+func NewLatestSignalPrices(
 	tunnelID uint64,
 	signalPrices []SignalPrice,
-	lastIntervalTimestamp int64,
-) SignalPricesInfo {
-	return SignalPricesInfo{
-		TunnelID:              tunnelID,
-		SignalPrices:          signalPrices,
-		LastIntervalTimestamp: lastIntervalTimestamp,
+	timestamp int64,
+) LatestSignalPrices {
+	return LatestSignalPrices{
+		TunnelID:     tunnelID,
+		SignalPrices: signalPrices,
+		Timestamp:    timestamp,
 	}
 }
 
-// UpdateSignalPrices updates the signal prices based on signal IDs
-func (spsi *SignalPricesInfo) UpdateSignalPrices(newSignalPrices []SignalPrice) {
+// UpdateSignalPrices updates the signal prices in the latest signal prices.
+func (lsps *LatestSignalPrices) UpdateSignalPrices(newSignalPrices []SignalPrice) {
 	// create a map of new signal prices
 	newSpMap := make(map[string]SignalPrice)
 	for _, sp := range newSignalPrices {
@@ -35,9 +35,9 @@ func (spsi *SignalPricesInfo) UpdateSignalPrices(newSignalPrices []SignalPrice) 
 	}
 
 	// update signal prices
-	for i, sp := range spsi.SignalPrices {
+	for i, sp := range lsps.SignalPrices {
 		if newSp, ok := newSpMap[sp.SignalID]; ok {
-			spsi.SignalPrices[i] = newSp
+			lsps.SignalPrices[i] = newSp
 		}
 	}
 }

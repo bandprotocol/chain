@@ -10,13 +10,13 @@ import (
 )
 
 var (
-	_, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgEditTunnel{}, &MsgActivateTunnel{}, &MsgDeactivateTunnel{}, &MsgManualTriggerTunnel{}, &MsgUpdateParams{}
+	_, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgEditTunnel{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgUpdateParams{}
 	_                types.UnpackInterfacesMessage = &MsgCreateTunnel{}
 )
 
 // NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
 func NewMsgCreateTunnel(
-	signalInfos []SignalInfo,
+	signalDeviations []SignalDeviation,
 	interval uint64,
 	route RouteI,
 	encoder Encoder,
@@ -33,18 +33,18 @@ func NewMsgCreateTunnel(
 	}
 
 	return &MsgCreateTunnel{
-		SignalInfos: signalInfos,
-		Interval:    interval,
-		Route:       any,
-		Encoder:     encoder,
-		Deposit:     deposit,
-		Creator:     creator.String(),
+		SignalDeviations: signalDeviations,
+		Interval:         interval,
+		Route:            any,
+		Encoder:          encoder,
+		Deposit:          deposit,
+		Creator:          creator.String(),
 	}, nil
 }
 
 // NewMsgCreateTSSTunnel creates a new MsgCreateTunnel instance for TSS tunnel.
 func NewMsgCreateTSSTunnel(
-	signalInfos []SignalInfo,
+	signalDeviations []SignalDeviation,
 	interval uint64,
 	encoder Encoder,
 	destinationChainID string,
@@ -56,7 +56,7 @@ func NewMsgCreateTSSTunnel(
 		DestinationChainID:         destinationChainID,
 		DestinationContractAddress: destinationContractAddress,
 	}
-	m, err := NewMsgCreateTunnel(signalInfos, interval, r, encoder, deposit, creator)
+	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, encoder, deposit, creator)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func NewMsgCreateTSSTunnel(
 
 // NewMsgCreateAxelarTunnel creates a new MsgCreateTunnel instance for Axelar tunnel.
 func NewMsgCreateAxelarTunnel(
-	signalInfos []SignalInfo,
+	signalDeviations []SignalDeviation,
 	interval uint64,
 	encoder Encoder,
 	destinationChainID string,
@@ -78,7 +78,7 @@ func NewMsgCreateAxelarTunnel(
 		DestinationChainID:         destinationChainID,
 		DestinationContractAddress: destinationContractAddress,
 	}
-	m, err := NewMsgCreateTunnel(signalInfos, interval, r, encoder, deposit, creator)
+	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, encoder, deposit, creator)
 	if err != nil {
 		return nil, err
 	}
@@ -106,9 +106,9 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
-	// signalInfos must not be empty
-	if len(m.SignalInfos) == 0 {
-		return sdkerrors.ErrInvalidRequest.Wrapf("signal infos cannot be empty")
+	// signal deviations cannot be empty
+	if len(m.SignalDeviations) == 0 {
+		return sdkerrors.ErrInvalidRequest.Wrapf("signal deviations cannot be empty")
 	}
 
 	// route must be valid
@@ -127,11 +127,11 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 
 	// signalIDs must be unique
 	signalIDMap := make(map[string]bool)
-	for _, signalInfo := range m.SignalInfos {
-		if _, ok := signalIDMap[signalInfo.SignalID]; ok {
-			return sdkerrors.ErrInvalidRequest.Wrapf("duplicate signal ID: %s", signalInfo.SignalID)
+	for _, signalDeviation := range m.SignalDeviations {
+		if _, ok := signalIDMap[signalDeviation.SignalID]; ok {
+			return sdkerrors.ErrInvalidRequest.Wrapf("duplicate signal ID: %s", signalDeviation.SignalID)
 		}
-		signalIDMap[signalInfo.SignalID] = true
+		signalIDMap[signalDeviation.SignalID] = true
 	}
 
 	return nil
@@ -171,15 +171,15 @@ func (m MsgCreateTunnel) GetTunnelRoute() RouteI {
 // NewMsgEditTunnel creates a new MsgEditTunnel instance.
 func NewMsgEditTunnel(
 	tunnelID uint64,
-	signalInfos []SignalInfo,
+	signalDeviations []SignalDeviation,
 	interval uint64,
 	creator string,
 ) *MsgEditTunnel {
 	return &MsgEditTunnel{
-		TunnelID:    tunnelID,
-		SignalInfos: signalInfos,
-		Interval:    interval,
-		Creator:     creator,
+		TunnelID:         tunnelID,
+		SignalDeviations: signalDeviations,
+		Interval:         interval,
+		Creator:          creator,
 	}
 }
 
@@ -205,42 +205,42 @@ func (m MsgEditTunnel) ValidateBasic() error {
 
 	// signalIDs must be unique
 	signalIDMap := make(map[string]bool)
-	for _, signalInfo := range m.SignalInfos {
-		if _, ok := signalIDMap[signalInfo.SignalID]; ok {
-			return sdkerrors.ErrInvalidRequest.Wrapf("duplicate signal ID: %s", signalInfo.SignalID)
+	for _, signalDeviation := range m.SignalDeviations {
+		if _, ok := signalIDMap[signalDeviation.SignalID]; ok {
+			return sdkerrors.ErrInvalidRequest.Wrapf("duplicate signal ID: %s", signalDeviation.SignalID)
 		}
-		signalIDMap[signalInfo.SignalID] = true
+		signalIDMap[signalDeviation.SignalID] = true
 	}
 
 	return nil
 }
 
-// NewMsgActivateTunnel creates a new MsgActivateTunnel instance.
-func NewMsgActivateTunnel(
+// NewMsgActivate creates a new MsgActivate instance.
+func NewMsgActivate(
 	tunnelID uint64,
 	creator string,
-) *MsgActivateTunnel {
-	return &MsgActivateTunnel{
+) *MsgActivate {
+	return &MsgActivate{
 		TunnelID: tunnelID,
 		Creator:  creator,
 	}
 }
 
 // Route Implements Msg.
-func (m MsgActivateTunnel) Type() string { return sdk.MsgTypeURL(&m) }
+func (m MsgActivate) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes implements the LegacyMsg interface.
-func (m MsgActivateTunnel) GetSignBytes() []byte {
+func (m MsgActivate) GetSignBytes() []byte {
 	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
 }
 
 // GetSigners returns the expected signers for the message.
-func (m *MsgActivateTunnel) GetSigners() []sdk.AccAddress {
+func (m *MsgActivate) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Creator)}
 }
 
 // ValidateBasic does a sanity check on the provided data
-func (m MsgActivateTunnel) ValidateBasic() error {
+func (m MsgActivate) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
@@ -248,32 +248,32 @@ func (m MsgActivateTunnel) ValidateBasic() error {
 	return nil
 }
 
-// NewMsgDeactivateTunnel creates a new MsgDeactivateTunnel instance.
-func NewMsgDeactivateTunnel(
+// NewMsgDeactivate creates a new MsgDeactivate instance.
+func NewMsgDeactivate(
 	tunnelID uint64,
 	creator string,
-) *MsgDeactivateTunnel {
-	return &MsgDeactivateTunnel{
+) *MsgDeactivate {
+	return &MsgDeactivate{
 		TunnelID: tunnelID,
 		Creator:  creator,
 	}
 }
 
 // Route Implements Msg.
-func (m MsgDeactivateTunnel) Type() string { return sdk.MsgTypeURL(&m) }
+func (m MsgDeactivate) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes implements the LegacyMsg interface.
-func (m MsgDeactivateTunnel) GetSignBytes() []byte {
+func (m MsgDeactivate) GetSignBytes() []byte {
 	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
 }
 
 // GetSigners returns the expected signers for the message.
-func (m *MsgDeactivateTunnel) GetSigners() []sdk.AccAddress {
+func (m *MsgDeactivate) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Creator)}
 }
 
 // ValidateBasic does a sanity check on the provided data
-func (m MsgDeactivateTunnel) ValidateBasic() error {
+func (m MsgDeactivate) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
@@ -281,32 +281,32 @@ func (m MsgDeactivateTunnel) ValidateBasic() error {
 	return nil
 }
 
-// NewMsgManualTriggerTunnel creates a new MsgManualTriggerTunnel instance.
-func NewMsgManualTriggerTunnel(
+// NewMsgTriggerTunnel creates a new MsgTriggerTunnel instance.
+func NewMsgTriggerTunnel(
 	tunnelID uint64,
 	creator string,
-) *MsgManualTriggerTunnel {
-	return &MsgManualTriggerTunnel{
+) *MsgTriggerTunnel {
+	return &MsgTriggerTunnel{
 		TunnelID: tunnelID,
 		Creator:  creator,
 	}
 }
 
 // Route Implements Msg.
-func (m MsgManualTriggerTunnel) Type() string { return sdk.MsgTypeURL(&m) }
+func (m MsgTriggerTunnel) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes implements the LegacyMsg interface.
-func (m MsgManualTriggerTunnel) GetSignBytes() []byte {
+func (m MsgTriggerTunnel) GetSignBytes() []byte {
 	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
 }
 
 // GetSigners returns the expected signers for the message.
-func (m *MsgManualTriggerTunnel) GetSigners() []sdk.AccAddress {
+func (m *MsgTriggerTunnel) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Creator)}
 }
 
 // ValidateBasic does a sanity check on the provided data
-func (m MsgManualTriggerTunnel) ValidateBasic() error {
+func (m MsgTriggerTunnel) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}

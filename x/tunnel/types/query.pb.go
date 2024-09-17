@@ -431,7 +431,7 @@ func (m *QueryPacketRequest) GetNonce() uint64 {
 
 // QueryPacketResponse is the response type for the Query/Packet RPC method.
 type QueryPacketResponse struct {
-	// Packet is the packet with the given tunnel ID and nonce.
+	// packet is the packet with the given tunnel ID and nonce.
 	Packet *Packet `protobuf:"bytes,1,opt,name=packet,proto3" json:"packet,omitempty"`
 }
 

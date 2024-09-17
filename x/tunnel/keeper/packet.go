@@ -112,18 +112,18 @@ func (k Keeper) ProducePacket(
 
 	// get tunnel and signal prices info
 	tunnel := k.MustGetTunnel(ctx, tunnelID)
-	signalPricesInfo := k.MustGetSignalPricesInfo(ctx, tunnelID)
+	latestSignalPrices := k.MustGetLatestSignalPrices(ctx, tunnelID)
 
 	// check if the interval has passed
-	intervalTrigger := ctx.BlockTime().Unix() >= int64(tunnel.Interval)+signalPricesInfo.LastIntervalTimestamp
+	intervalTrigger := ctx.BlockTime().Unix() >= int64(tunnel.Interval)+latestSignalPrices.Timestamp
 
 	// generate new signal prices
 	nsps := GenerateSignalPrices(
 		ctx,
 		tunnel.ID,
 		currentPricesMap,
-		tunnel.GetSignalInfoMap(),
-		signalPricesInfo.SignalPrices,
+		tunnel.GetSignalDeviationMap(),
+		latestSignalPrices.SignalPrices,
 		triggerAll || intervalTrigger,
 	)
 
@@ -138,11 +138,11 @@ func (k Keeper) ProducePacket(
 	}
 
 	// update signal prices info
-	signalPricesInfo.UpdateSignalPrices(nsps)
+	latestSignalPrices.UpdateSignalPrices(nsps)
 	if triggerAll || intervalTrigger {
-		signalPricesInfo.LastIntervalTimestamp = unixNow
+		latestSignalPrices.Timestamp = unixNow
 	}
-	k.SetSignalPricesInfo(ctx, signalPricesInfo)
+	k.SetLatestSignalPrices(ctx, latestSignalPrices)
 
 	// update tunnel nonce count
 	tunnel.NonceCount++
@@ -190,7 +190,7 @@ func GenerateSignalPrices(
 	ctx sdk.Context,
 	tunnelID uint64,
 	currentPricesMap map[string]feedstypes.Price,
-	signalInfoMap map[string]types.SignalInfo,
+	signalDeviationMap map[string]types.SignalDeviation,
 	signalPrices []types.SignalPrice,
 	triggerAll bool,
 ) []types.SignalPrice {
@@ -202,8 +202,8 @@ func GenerateSignalPrices(
 			continue
 		}
 
-		// get signal info from signalInfoMap
-		signalInfo, exists := signalInfoMap[sp.SignalID]
+		// get signal info from signalDeviationMap
+		signalDeviation, exists := signalDeviationMap[sp.SignalID]
 		if !exists {
 			// panic if signal info not found for signal ID in the tunnel that should not happen
 			panic(fmt.Sprintf("signal info not found for signal ID: %s", sp.SignalID))
@@ -214,7 +214,7 @@ func GenerateSignalPrices(
 			deviationExceedsThreshold(
 				sdk.NewIntFromUint64(sp.Price),
 				sdk.NewIntFromUint64(currentPrice.Price),
-				sdk.NewIntFromUint64(signalInfo.HardDeviationBPS),
+				sdk.NewIntFromUint64(signalDeviation.HardDeviationBPS),
 			) {
 			sps = append(
 				sps,

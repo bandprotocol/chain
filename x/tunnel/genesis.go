@@ -31,12 +31,12 @@ func ValidateGenesis(data *types.GenesisState) error {
 		}
 	}
 
-	// validate the signal prices infos
-	for _, signalPricesInfo := range data.SignalPricesInfos {
-		if signalPricesInfo.TunnelID == 0 {
+	// validate latest signal prices
+	for _, latestSignalPrices := range data.LatestSignalPricesList {
+		if latestSignalPrices.TunnelID == 0 {
 			return types.ErrInvalidGenesis.Wrapf(
 				"TunnelID %d cannot be 0 or greater than the TunnelCount %d",
-				signalPricesInfo.TunnelID,
+				latestSignalPrices.TunnelID,
 				data.TunnelCount,
 			)
 		}
@@ -80,9 +80,9 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 		k.ActiveTunnelID(ctx, tunnel.ID)
 	}
 
-	// set the signal prices infos
-	for _, signalPricesInfo := range data.SignalPricesInfos {
-		k.SetSignalPricesInfo(ctx, signalPricesInfo)
+	// set the latest signal prices
+	for _, latestSignalPrices := range data.LatestSignalPricesList {
+		k.SetLatestSignalPrices(ctx, latestSignalPrices)
 	}
 
 	// set the total fees
@@ -92,10 +92,10 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 // ExportGenesis returns the module's exported genesis
 func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
 	return &types.GenesisState{
-		Params:            k.GetParams(ctx),
-		TunnelCount:       k.GetTunnelCount(ctx),
-		Tunnels:           k.GetTunnels(ctx),
-		SignalPricesInfos: k.GetSignalPricesInfos(ctx),
-		TotalFees:         k.GetTotalFees(ctx),
+		Params:                 k.GetParams(ctx),
+		TunnelCount:            k.GetTunnelCount(ctx),
+		Tunnels:                k.GetTunnels(ctx),
+		LatestSignalPricesList: k.GetAllLatestSignalPrices(ctx),
+		TotalFees:              k.GetTotalFees(ctx),
 	}
 }
