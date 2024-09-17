@@ -31,9 +31,10 @@ func NewIBCModule(keeper *keeper.Keeper) IBCModule {
 // channel must be UNORDERED, use the correct port (by default 'tunnel'), and use the current
 // supported version.
 func validateChannelParams(
+	ctx sdk.Context,
+	keeper keeper.Keeper,
 	order channeltypes.Order,
 	portID string,
-	version string,
 ) error {
 	if order != channeltypes.UNORDERED {
 		return errorsmod.Wrapf(
@@ -44,24 +45,18 @@ func validateChannelParams(
 		)
 	}
 
-	if portID != types.PortID {
-		return errorsmod.Wrapf(
-			porttypes.ErrInvalidPort,
-			"expected %s, got %s",
-			types.PortID,
-			portID,
-		)
-	}
-
-	if version != types.Version {
-		return types.ErrInvalidIBCVersion.Wrapf("got %s, expected %s", version, types.Version)
+	// Require portID is the portID tunnel module is bound to
+	boundPort := keeper.GetPort(ctx)
+	if boundPort != portID {
+		return porttypes.ErrInvalidPort.Wrapf("invalid port: %s, expected %s", portID, boundPort)
 	}
 
 	return nil
 }
 
 // OnChanOpenInit implements the IBCModule interface
-func (im IBCModule) OnChanOpenInit(ctx sdk.Context,
+func (im IBCModule) OnChanOpenInit(
+	ctx sdk.Context,
 	order channeltypes.Order,
 	connectionHops []string,
 	portID string,
@@ -70,7 +65,7 @@ func (im IBCModule) OnChanOpenInit(ctx sdk.Context,
 	counterparty channeltypes.Counterparty,
 	version string,
 ) (string, error) {
-	err := validateChannelParams(order, portID, version)
+	err := validateChannelParams(ctx, *im.keeper, order, portID)
 	if err != nil {
 		return "", err
 	}
@@ -94,9 +89,17 @@ func (im IBCModule) OnChanOpenTry(
 	counterparty channeltypes.Counterparty,
 	counterpartyVersion string,
 ) (string, error) {
-	err := validateChannelParams(order, portID, counterpartyVersion)
+	err := validateChannelParams(ctx, *im.keeper, order, portID)
 	if err != nil {
 		return "", err
+	}
+
+	if counterpartyVersion != types.Version {
+		return "", types.ErrInvalidIBCVersion.Wrapf(
+			"invalid counterparty version: got: %s, expected %s",
+			counterpartyVersion,
+			types.Version,
+		)
 	}
 
 	// Module may have already claimed capability in OnChanOpenInit in the case of crossing hellos
