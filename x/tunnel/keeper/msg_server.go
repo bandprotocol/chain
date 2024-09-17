@@ -107,20 +107,6 @@ func (ms msgServer) EditTunnel(
 		return nil, err
 	}
 
-	// Emit an event
-	event := sdk.NewEvent(
-		types.EventTypeEditTunnel,
-		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
-		sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", tunnel.Interval)),
-		sdk.NewAttribute(types.AttributeKeyCreator, req.Creator),
-	)
-	for _, signalInfo := range req.SignalInfos {
-		event = event.AppendAttributes(
-			sdk.NewAttribute(types.AttributeKeySignalPriceInfos, signalInfo.String()),
-		)
-	}
-	ctx.EventManager().EmitEvent(event)
-
 	return &types.MsgEditTunnelResponse{}, nil
 }
 
@@ -136,8 +122,14 @@ func (ms msgServer) ActivateTunnel(
 		return nil, err
 	}
 
+	// Check if the creator is the same
 	if req.Creator != tunnel.Creator {
-		return nil, fmt.Errorf("creator %s is not the creator of tunnel %d", req.Creator, req.TunnelID)
+		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", req.Creator, req.TunnelID)
+	}
+
+	// Check if the tunnel is already active
+	if tunnel.IsActive {
+		return nil, types.ErrAlreadyActive.Wrapf("tunnelID %d", req.TunnelID)
 	}
 
 	err = ms.Keeper.ActivateTunnel(ctx, req.TunnelID)
@@ -161,7 +153,11 @@ func (ms msgServer) DeactivateTunnel(
 	}
 
 	if req.Creator != tunnel.Creator {
-		return nil, fmt.Errorf("creator %s is not the creator of tunnel %d", req.Creator, req.TunnelID)
+		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", req.Creator, req.TunnelID)
+	}
+
+	if !tunnel.IsActive {
+		return nil, types.ErrAlreadyInactive.Wrapf("tunnelID %d", req.TunnelID)
 	}
 
 	err = ms.Keeper.DeactivateTunnel(ctx, req.TunnelID)

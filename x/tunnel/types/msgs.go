@@ -14,6 +14,7 @@ var (
 	_                types.UnpackInterfacesMessage = &MsgCreateTunnel{}
 )
 
+// NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
 func NewMsgCreateTunnel(
 	signalInfos []SignalInfo,
 	interval uint64,
@@ -41,7 +42,7 @@ func NewMsgCreateTunnel(
 	}, nil
 }
 
-// NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
+// NewMsgCreateTSSTunnel creates a new MsgCreateTunnel instance for TSS tunnel.
 func NewMsgCreateTSSTunnel(
 	signalInfos []SignalInfo,
 	interval uint64,
@@ -63,7 +64,7 @@ func NewMsgCreateTSSTunnel(
 	return m, nil
 }
 
-// NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
+// NewMsgCreateAxelarTunnel creates a new MsgCreateTunnel instance for Axelar tunnel.
 func NewMsgCreateAxelarTunnel(
 	signalInfos []SignalInfo,
 	interval uint64,

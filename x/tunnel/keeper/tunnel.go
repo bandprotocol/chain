@@ -80,6 +80,19 @@ func (k Keeper) EditTunnel(
 	}
 	k.SetSignalPricesInfo(ctx, types.NewSignalPricesInfo(tunnelID, signalPrices, 0))
 
+	// Emit an event
+	event := sdk.NewEvent(
+		types.EventTypeEditTunnel,
+		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
+		sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", tunnel.Interval)),
+	)
+	for _, signalInfo := range signalInfos {
+		event = event.AppendAttributes(
+			sdk.NewAttribute(types.AttributeKeySignalPriceInfos, signalInfo.String()),
+		)
+	}
+	ctx.EventManager().EmitEvent(event)
+
 	return nil
 }
 

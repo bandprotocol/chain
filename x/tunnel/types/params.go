@@ -57,7 +57,7 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	// Validate BaseFee
+	// Validate BasePacketFee
 	if !p.BasePacketFee.IsValid() {
 		return sdkerrors.ErrInvalidCoins.Wrapf("%s", p.BasePacketFee.String())
 	}
