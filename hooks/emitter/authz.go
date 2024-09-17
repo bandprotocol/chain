@@ -61,10 +61,13 @@ func (h *Hook) handleMsgExec(
 			h.handleMsgReportData(ctx, txHash, msg, grantee)
 		default:
 			// add signers for this message into the transaction
-			signers := msg.GetSigners()
+			signers, _, err := h.cdc.GetMsgV1Signers(msg)
+			if err != nil {
+				continue
+			}
 			addrs := make([]string, len(signers))
 			for idx, signer := range signers {
-				addrs[idx] = signer.String()
+				addrs[idx] = sdk.AccAddress(signer).String()
 			}
 			h.AddAccountsInTx(addrs...)
 			h.handleMsg(ctx, txHash, msg, log, subMsgs[i]["msg"].(common.JsDict))

@@ -369,7 +369,7 @@ func DecodeMsgSubmitProposal(msg *govv1.MsgSubmitProposal, detail common.JsDict)
 func DecodeV1beta1MsgSubmitProposal(msg *govv1beta1.MsgSubmitProposal, detail common.JsDict) {
 	detail["content"] = msg.GetContent()
 	detail["initial_deposit"] = msg.GetInitialDeposit()
-	detail["proposer"] = msg.GetProposer()
+	detail["proposer"] = msg.Proposer
 }
 
 func DecodeMsgDeposit(msg *govv1.MsgDeposit, detail common.JsDict) {

@@ -11,7 +11,6 @@ import (
 	"github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 
 	"github.com/bandprotocol/chain/v3/hooks/common"
-	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
@@ -211,7 +210,7 @@ func (h *Hook) extractOracleRequestPacket(
 		if events, ok := evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyID]; ok {
 			var prepareGasUsed uint64
 			if eventRequestGasUsed, ok := evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyGasUsed]; ok {
-				prepareGasUsed = oraclekeeper.ConvertToGas(common.Atoui(eventRequestGasUsed[0]))
+				prepareGasUsed = ConvertToGas(common.Atoui(eventRequestGasUsed[0]))
 			}
 
 			id := oracletypes.RequestID(common.Atoi(events[0]))
@@ -326,13 +325,16 @@ func (h *Hook) extractInterchainAccountPacket(
 		var innerMessages []common.JsDict
 		switch data.Type {
 		case icatypes.EXECUTE_TX:
-			msgs, _ = icatypes.DeserializeCosmosTx(h.cdc, data.Data)
+			msgs, _ = icatypes.DeserializeCosmosTx(h.cdc, data.Data, icatypes.EncodingProtobuf)
 			for _, msg := range msgs {
 				// add signers for this message into the transaction
-				signers := msg.GetSigners()
+				signers, _, err := h.cdc.GetMsgV1Signers(msg)
+				if err != nil {
+					continue
+				}
 				addrs := make([]string, len(signers))
 				for idx, signer := range signers {
-					addrs[idx] = signer.String()
+					addrs[idx] = sdk.AccAddress(signer).String()
 				}
 				h.AddAccountsInTx(addrs...)
 

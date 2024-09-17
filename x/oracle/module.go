@@ -17,6 +17,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
+	"github.com/bandprotocol/chain/v3/hooks/common"
 	"github.com/bandprotocol/chain/v3/x/oracle/client/cli"
 	"github.com/bandprotocol/chain/v3/x/oracle/exported"
 	"github.com/bandprotocol/chain/v3/x/oracle/keeper"

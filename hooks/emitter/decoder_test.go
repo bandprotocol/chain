@@ -5,30 +5,44 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/suite"
+
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	connectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	commitmenttypes "github.com/cosmos/ibc-go/v8/modules/core/23-commitment/types"
+	ibctmtypes "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
+	ibctesting "github.com/cosmos/ibc-go/v8/testing"
+
+	"cosmossdk.io/log"
+	"cosmossdk.io/math"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+
+	cosmosdb "github.com/cosmos/cosmos-db"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
-	connectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
-	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
-	commitmenttypes "github.com/cosmos/ibc-go/v8/modules/core/23-commitment/types"
-	ibctmtypes "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
-	"github.com/stretchr/testify/suite"
 
+	band "github.com/bandprotocol/chain/v3/app"
 	"github.com/bandprotocol/chain/v3/hooks/common"
 	"github.com/bandprotocol/chain/v3/hooks/emitter"
-	bandtesting "github.com/bandprotocol/chain/v3/testing"
-	"github.com/bandprotocol/chain/v3/testing/ibctesting"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+)
+
+const (
+	TestDefaultPrepareGas uint64 = 40000
+	TestDefaultExecuteGas uint64 = 300000
 )
 
 var (
@@ -43,20 +57,39 @@ var (
 	GranterAddress   = sdk.AccAddress(genAddresFromString("Granter"))
 	GranteeAddress   = sdk.AccAddress(genAddresFromString("Grantee"))
 
+	Coins1000000uband   = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
+	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
+
 	clientHeight = clienttypes.NewHeight(0, 10)
 
-	Delegation        = stakingtypes.NewDelegation(DelegatorAddress, ValAddress, sdk.NewDec(1))
-	SelfDelegation    = sdk.NewCoin("uband", sdk.NewInt(1))
-	MinSelfDelegation = sdk.NewInt(1)
+	Delegation        stakingtypes.Delegation
+	SelfDelegation    = sdk.NewInt64Coin("uband", 1)
+	MinSelfDelegation = math.NewInt(1)
 	Description       = stakingtypes.NewDescription("moniker", "identity", "website", "securityContact", "details")
-	CommissionRate    = stakingtypes.NewCommissionRates(sdk.NewDec(1), sdk.NewDec(5), sdk.NewDec(5))
-	NewRate           = sdk.NewDec(1)
-	PubKey            = newPubKey("0B485CFC0EECC619440448436F8FC9DF40566F2369E72400281454CB552AFB50")
-	Amount            = sdk.NewCoin("uband", sdk.NewInt(1))
+	CommissionRate    = stakingtypes.NewCommissionRates(
+		math.LegacyNewDec(1),
+		math.LegacyNewDec(5),
+		math.LegacyNewDec(5),
+	)
+	NewRate = math.LegacyNewDec(1)
+	PubKey  = newPubKey("0B485CFC0EECC619440448436F8FC9DF40566F2369E72400281454CB552AFB50")
+	Amount  = sdk.NewCoin("uband", math.NewInt(1))
 
 	content, _  = govv1beta1.ContentFromProposalType("Title", "Desc", "Text")
-	proposalMsg = banktypes.NewMsgSend(SenderAddress, ReceiverAddress, sdk.Coins{Amount})
+	proposalMsg sdk.Msg
 )
+
+func init() {
+	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
+
+	// Build msg / delegation after seal prefix
+	proposalMsg = banktypes.NewMsgSend(SenderAddress, ReceiverAddress, sdk.Coins{Amount})
+	Delegation = stakingtypes.NewDelegation(
+		DelegatorAddress.String(),
+		ValAddress.String(),
+		math.LegacyNewDec(1),
+	)
+}
 
 type DecoderTestSuite struct {
 	suite.Suite
@@ -65,18 +98,46 @@ type DecoderTestSuite struct {
 
 	chainA *ibctesting.TestChain
 	chainB *ibctesting.TestChain
+
+	dirs []string
 }
 
 func (suite *DecoderTestSuite) SetupTest() {
+	ibctesting.DefaultTestingAppInit = func() (ibctesting.TestingApp, map[string]json.RawMessage) {
+		dir, err := os.MkdirTemp("", "bandd-test-home")
+		suite.Require().NoError(err)
+		suite.dirs = append(suite.dirs, dir)
+		app := band.NewBandApp(
+			log.NewNopLogger(),
+			cosmosdb.NewMemDB(),
+			nil,
+			true,
+			map[int64]bool{},
+			dir,
+			sims.EmptyAppOptions{},
+			100,
+		)
+
+		g := band.GenesisStateWithValSet(app, dir)
+		return app, g
+	}
 	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2)
-	suite.chainA = suite.coordinator.GetChain(ibctesting.GetChainID(0))
-	suite.chainB = suite.coordinator.GetChain(ibctesting.GetChainID(1))
+	suite.chainA = suite.coordinator.GetChain(ibctesting.GetChainID(1))
+	suite.chainB = suite.coordinator.GetChain(ibctesting.GetChainID(2))
+}
+
+func (suite *DecoderTestSuite) TearDownTest() {
+	for _, dir := range suite.dirs {
+		os.RemoveAll(dir)
+	}
 }
 
 func NewOraclePath(chainA, chainB *ibctesting.TestChain) *ibctesting.Path {
 	path := ibctesting.NewPath(chainA, chainB)
-	path.EndpointA.ChannelConfig.PortID = ibctesting.OraclePort
-	path.EndpointB.ChannelConfig.PortID = ibctesting.OraclePort
+	path.EndpointA.ChannelConfig.PortID = oracletypes.ModuleName
+	path.EndpointA.ChannelConfig.Version = oracletypes.Version
+	path.EndpointB.ChannelConfig.PortID = oracletypes.ModuleName
+	path.EndpointB.ChannelConfig.Version = oracletypes.Version
 
 	return path
 }
@@ -100,7 +161,7 @@ func newPubKey(pk string) (res cryptotypes.PubKey) {
 
 func (suite *DecoderTestSuite) testCompareJson(msg common.JsDict, expect string) {
 	res, _ := json.Marshal(msg)
-	suite.Require().Equal(string(res), expect)
+	suite.Require().Equal(expect, string(res))
 }
 
 func (suite *DecoderTestSuite) testContains(msg common.JsDict, expect string) {
@@ -190,9 +251,9 @@ func (suite *DecoderTestSuite) TestDecodeMsgRequestData() {
 		1,
 		1,
 		"cleint_id",
-		bandtesting.Coins100000000uband,
-		bandtesting.TestDefaultPrepareGas,
-		bandtesting.TestDefaultExecuteGas,
+		Coins100000000uband,
+		TestDefaultPrepareGas,
+		TestDefaultExecuteGas,
 		SenderAddress,
 	)
 	emitter.DecodeMsgRequestData(msg, detail)
@@ -230,7 +291,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgCreateDataSource() {
 		"name",
 		"desc",
 		[]byte("exec"),
-		bandtesting.Coins1000000uband,
+		Coins1000000uband,
 		TreasuryAddress,
 		OwnerAddress,
 		SenderAddress,
@@ -267,7 +328,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgEditDataSource() {
 		"name",
 		"desc",
 		[]byte("exec"),
-		bandtesting.Coins1000000uband,
+		Coins1000000uband,
 		TreasuryAddress,
 		OwnerAddress,
 		SenderAddress,
@@ -325,18 +386,18 @@ func (suite *DecoderTestSuite) TestDecodeMsgCreateClient() {
 	emitter.DecodeMsgCreateClient(msg, detail)
 	suite.testCompareJson(detail,
 		fmt.Sprintf(
-			"{\"client_state\":{\"chain_id\":\"testchain0\",\"trust_level\":{\"numerator\":1,\"denominator\":3},\"trusting_period\":1209600000000000,\"unbonding_period\":1814400000000000,\"max_clock_drift\":10000000000,\"frozen_height\":{},\"latest_height\":{\"revision_height\":10},\"proof_specs\":[{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":33,\"min_prefix_length\":4,\"max_prefix_length\":12,\"hash\":1}},{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":32,\"min_prefix_length\":1,\"max_prefix_length\":1,\"hash\":1}}],\"upgrade_path\":[\"upgrade\",\"upgradedIBCState\"]},\"consensus_state\":{\"timestamp\":\"2020-01-02T00:00:00Z\",\"root\":{\"hash\":\"%s\"},\"next_validators_hash\":\"%s\"},\"signer\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}",
+			"{\"client_state\":{\"chain_id\":\"testchain1-1\",\"trust_level\":{\"numerator\":1,\"denominator\":3},\"trusting_period\":1209600000000000,\"unbonding_period\":1814400000000000,\"max_clock_drift\":10000000000,\"frozen_height\":{},\"latest_height\":{\"revision_height\":10},\"proof_specs\":[{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":33,\"min_prefix_length\":4,\"max_prefix_length\":12,\"hash\":1}},{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":32,\"min_prefix_length\":1,\"max_prefix_length\":1,\"hash\":1}}],\"upgrade_path\":[\"upgrade\",\"upgradedIBCState\"]},\"consensus_state\":{\"timestamp\":\"2020-01-02T00:00:00Z\",\"root\":{\"hash\":\"%s\"},\"next_validators_hash\":\"%s\"},\"signer\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}",
 			b64RootHash,
 			consensus.NextValidatorsHash,
 		),
 	)
 	// MsgCreateClient example
-	// {"client_state":{"chain_id":"testchain0","trust_level":{"numerator":1,"denominator":3},"trusting_period":1209600000000000,"unbonding_period":1814400000000000,"max_clock_drift":10000000000,"frozen_height":{},"latest_height":{"revision_height":10},"proof_specs":[{"leaf_spec":{"hash":1,"prehash_value":1,"length":1,"prefix":"AA=="},"inner_spec":{"child_order":[0,1],"child_size":33,"min_prefix_length":4,"max_prefix_length":12,"hash":1}},{"leaf_spec":{"hash":1,"prehash_value":1,"length":1,"prefix":"AA=="},"inner_spec":{"child_order":[0,1],"child_size":32,"min_prefix_length":1,"max_prefix_length":1,"hash":1}}],"upgrade_path":["upgrade","upgradedIBCState"]},"consensus_state":{"timestamp":"2020-01-02T00:00:00Z","root":{"hash":"I0ofcG04FYhAyDFzygf8Q/6JEpBactgfhm68fSXwBro="},"next_validators_hash":"C8277795F71B45089E58F0994DCF4F88BECD5770C7E492A9A25B706888D6BF2F"},"signer":"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0"}
+	// {"client_state":{"chain_id":"testchain1-1","trust_level":{"numerator":1,"denominator":3},"trusting_period":1209600000000000,"unbonding_period":1814400000000000,"max_clock_drift":10000000000,"frozen_height":{},"latest_height":{"revision_height":10},"proof_specs":[{"leaf_spec":{"hash":1,"prehash_value":1,"length":1,"prefix":"AA=="},"inner_spec":{"child_order":[0,1],"child_size":33,"min_prefix_length":4,"max_prefix_length":12,"hash":1}},{"leaf_spec":{"hash":1,"prehash_value":1,"length":1,"prefix":"AA=="},"inner_spec":{"child_order":[0,1],"child_size":32,"min_prefix_length":1,"max_prefix_length":1,"hash":1}}],"upgrade_path":["upgrade","upgradedIBCState"]},"consensus_state":{"timestamp":"2020-01-02T00:00:00Z","root":{"hash":"I0ofcG04FYhAyDFzygf8Q/6JEpBactgfhm68fSXwBro="},"next_validators_hash":"C8277795F71B45089E58F0994DCF4F88BECD5770C7E492A9A25B706888D6BF2F"},"signer":"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0"}
 }
 
 func (suite *DecoderTestSuite) TestDecodeV1beta1MsgSubmitProposal() {
 	detail := make(common.JsDict)
-	msg, _ := govv1beta1.NewMsgSubmitProposal(content, bandtesting.Coins1000000uband, SenderAddress)
+	msg, _ := govv1beta1.NewMsgSubmitProposal(content, Coins1000000uband, SenderAddress)
 	emitter.DecodeV1beta1MsgSubmitProposal(msg, detail)
 	suite.testCompareJson(
 		detail,
@@ -345,14 +406,16 @@ func (suite *DecoderTestSuite) TestDecodeV1beta1MsgSubmitProposal() {
 }
 
 func (suite *DecoderTestSuite) TestDecodeMsgSubmitProposal() {
+	fmt.Println(sdk.GetConfig().GetBech32AccountAddrPrefix())
 	detail := make(common.JsDict)
 	msg, _ := govv1.NewMsgSubmitProposal(
 		[]sdk.Msg{proposalMsg},
-		bandtesting.Coins1000000uband,
+		Coins1000000uband,
 		SenderAddress.String(),
 		"metadata",
 		"title",
 		"summary",
+		true,
 	)
 	emitter.DecodeMsgSubmitProposal(msg, detail)
 	suite.testCompareJson(
@@ -363,7 +426,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitProposal() {
 
 func (suite *DecoderTestSuite) TestDecodeV1beta1MsgDeposit() {
 	detail := make(common.JsDict)
-	msg := govv1beta1.NewMsgDeposit(SenderAddress, 1, bandtesting.Coins1000000uband)
+	msg := govv1beta1.NewMsgDeposit(SenderAddress, 1, Coins1000000uband)
 	emitter.DecodeV1beta1MsgDeposit(msg, detail)
 	suite.testCompareJson(
 		detail,
@@ -373,7 +436,7 @@ func (suite *DecoderTestSuite) TestDecodeV1beta1MsgDeposit() {
 
 func (suite *DecoderTestSuite) TestDecodeMsgDeposit() {
 	detail := make(common.JsDict)
-	msg := govv1.NewMsgDeposit(SenderAddress, 1, bandtesting.Coins1000000uband)
+	msg := govv1.NewMsgDeposit(SenderAddress, 1, Coins1000000uband)
 	emitter.DecodeMsgDeposit(msg, detail)
 	suite.testCompareJson(
 		detail,
@@ -402,8 +465,9 @@ func (suite *DecoderTestSuite) TestDecodeMsgVote() {
 
 func (suite *DecoderTestSuite) TestDecodeMsgCreateValidator() {
 	detail := make(common.JsDict)
+	fmt.Println(ValAddress.String())
 	msg, _ := stakingtypes.NewMsgCreateValidator(
-		ValAddress,
+		ValAddress.String(),
 		PubKey,
 		SelfDelegation,
 		Description,
@@ -414,13 +478,13 @@ func (suite *DecoderTestSuite) TestDecodeMsgCreateValidator() {
 	emitter.DecodeMsgCreateValidator(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"commission\":{\"rate\":\"1.000000000000000000\",\"max_rate\":\"5.000000000000000000\",\"max_change_rate\":\"5.000000000000000000\"},\"delegator_address\":\"band12eskc6tyv96x7usqqqqqqqqqqqqqqqqqzep99r\",\"description\":{\"details\":\"details\",\"identity\":\"identity\",\"moniker\":\"moniker\",\"security_contact\":\"securityContact\",\"website\":\"website\"},\"min_self_delegation\":\"1\",\"pubkey\":\"0b485cfc0eecc619440448436f8fc9df40566f2369e72400281454cb552afb50\",\"validator_address\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\",\"value\":{\"denom\":\"uband\",\"amount\":\"1\"}}",
+		"{\"commission\":{\"rate\":\"1.000000000000000000\",\"max_rate\":\"5.000000000000000000\",\"max_change_rate\":\"5.000000000000000000\"},\"delegator_address\":\"\",\"description\":{\"details\":\"details\",\"identity\":\"identity\",\"moniker\":\"moniker\",\"security_contact\":\"securityContact\",\"website\":\"website\"},\"min_self_delegation\":\"1\",\"pubkey\":\"0b485cfc0eecc619440448436f8fc9df40566f2369e72400281454cb552afb50\",\"validator_address\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\",\"value\":{\"denom\":\"uband\",\"amount\":\"1\"}}",
 	)
 }
 
 func (suite *DecoderTestSuite) TestDecodeMsgEditValidator() {
 	detail := make(common.JsDict)
-	msg := stakingtypes.NewMsgEditValidator(ValAddress, Description, &NewRate, &MinSelfDelegation)
+	msg := stakingtypes.NewMsgEditValidator(ValAddress.String(), Description, &NewRate, &MinSelfDelegation)
 
 	emitter.DecodeMsgEditValidator(msg, detail)
 	suite.testCompareJson(
@@ -431,7 +495,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgEditValidator() {
 
 func (suite *DecoderTestSuite) TestDecodeMsgDelegate() {
 	detail := make(common.JsDict)
-	msg := stakingtypes.NewMsgDelegate(DelegatorAddress, ValAddress, Amount)
+	msg := stakingtypes.NewMsgDelegate(DelegatorAddress.String(), ValAddress.String(), Amount)
 
 	emitter.DecodeMsgDelegate(msg, detail)
 	suite.testCompareJson(
@@ -442,7 +506,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgDelegate() {
 
 func (suite *DecoderTestSuite) TestDecodeMsgUndelegate() {
 	detail := make(common.JsDict)
-	msg := stakingtypes.NewMsgUndelegate(DelegatorAddress, ValAddress, Amount)
+	msg := stakingtypes.NewMsgUndelegate(DelegatorAddress.String(), ValAddress.String(), Amount)
 
 	emitter.DecodeMsgUndelegate(msg, detail)
 	suite.testCompareJson(
@@ -453,7 +517,12 @@ func (suite *DecoderTestSuite) TestDecodeMsgUndelegate() {
 
 func (suite *DecoderTestSuite) TestDecodeMsgBeginRedelegate() {
 	detail := make(common.JsDict)
-	msg := stakingtypes.NewMsgBeginRedelegate(DelegatorAddress, ValAddress, ValAddress, Amount)
+	msg := stakingtypes.NewMsgBeginRedelegate(
+		DelegatorAddress.String(),
+		ValAddress.String(),
+		ValAddress.String(),
+		Amount,
+	)
 
 	emitter.DecodeMsgBeginRedelegate(msg, detail)
 	suite.testCompareJson(
@@ -472,10 +541,8 @@ func (suite *DecoderTestSuite) TestDecodeMsgUpdateClient() {
 	emitter.DecodeMsgUpdateClient(msg, detail)
 	suite.testContains(
 		detail,
-		"{\"client_id\":\"tendermint\",\"header\":{\"signed_header\":{\"header\":{\"version\":{\"block\":11,\"app\":2},\"chain_id\":\"testchain0\",\"height\":3,\"time\":\"2020-01-02T00:00:00Z\",\"last_block_id\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"part_set_header\":{\"total\":10000,\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"}}",
+		"{\"client_id\":\"tendermint\",\"header\":{\"signed_header\":{\"header\":{\"version\":{\"block\":11,\"app\":2},\"chain_id\":\"testchain1-1\",\"height\":2,\"time\":\"2020-01-02T00:00:00Z\",\"last_block_id\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"part_set_header\":{\"total\":10000,\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"}}",
 	)
-	// MsgUpdateClient
-	// "{\"client_id\":\"tendermint\",\"header\":{\"signed_header\":{\"header\":{\"version\":{\"block\":11,\"app\":2},\"chain_id\":\"testchain0\",\"height\":3,\"time\":\"2020-01-02T00:00:00Z\",\"last_block_id\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"part_set_header\":{\"total\":10000,\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"}},\"last_commit_hash\":\"VnnIEw5Rphpyx5BgGrYlqa65CvjT8weLaOs/wbJaknQ=\",\"data_hash\":\"bW4ouLmLUycELqUKV91G5syFHHLlKL3qpu/e7v5moLg=\",\"validators_hash\":\"35jAWHlQWSshlZrerDcsJd5H8LuvI80BB4ezq6fHiJw=\",\"next_validators_hash\":\"35jAWHlQWSshlZrerDcsJd5H8LuvI80BB4ezq6fHiJw=\",\"consensus_hash\":\"5eVmxB7Vfj/4zBDxhBeHiLj6pgKwfPH0JSF72BefHyQ=\",\"app_hash\":\"VnnIEw5Rphpyx5BgGrYlqa65CvjT8weLaOs/wbJaknQ=\",\"last_results_hash\":\"CS4FhjAkftYAmGOhLu4RfSbNnQi1rcqrN/KrNdtHWjc=\",\"evidence_hash\":\"c4ZdsI9J1YQokF04mrTKS5bkWjIGx6adQ6Xcc3LmBxQ=\",\"proposer_address\":\"f/nWW2sIpnlCMZ1XYLa/jtNzVak=\"},\"commit\":{\"height\":3,\"round\":1,\"block_id\":{\"hash\":\"Vo4riCF+F1W/yPgGPEjyunesQNWSSMyp5nE8r12NQV0=\",\"part_set_header\":{\"total\":3,\"hash\":\"hwgKOc/jNqZj6lwNm97vSTq9wYt8Pj4MjmYTVMGDFDI=\"}},\"signatures\":[{\"block_id_flag\":2,\"validator_address\":\"f/nWW2sIpnlCMZ1XYLa/jtNzVak=\",\"timestamp\":\"2020-01-02T00:00:00Z\",\"signature\":\"fvGxOLWnEYK5HxqogNmQ63b037/zi1LT3wC6ES/msdMst6yBsIRg44StmbzNUsZlWMfBWVs39myGcQgTYzgkUg==\"}]}},\"validator_set\":{\"validators\":[{\"address\":\"f/nWW2sIpnlCMZ1XYLa/jtNzVak=\",\"pub_key\":{\"Sum\":{\"secp256k1\":\"Arn/2FLDO4dVHxEGAx6QsWKxjHj1HEpjgtW4asUV8lIy\"}},\"voting_power\":1}],\"proposer\":{\"address\":\"f/nWW2sIpnlCMZ1XYLa/jtNzVak=\",\"pub_key\":{\"Sum\":{\"secp256k1\":\"Arn/2FLDO4dVHxEGAx6QsWKxjHj1HEpjgtW4asUV8lIy\"}},\"voting_power\":1},\"total_voting_power\":1},\"trusted_height\":{}},\"signer\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}"
 }
 
 func (suite *DecoderTestSuite) TestDecodeMsgUpgradeClient() {
@@ -485,7 +552,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgUpgradeClient() {
 	detail := make(common.JsDict)
 	lastHeight := clienttypes.NewHeight(0, uint64(suite.chainB.GetContext().BlockHeight()+1))
 
-	cs, found := suite.chainA.App.IBCKeeper.ClientKeeper.GetClientState(
+	cs, found := suite.chainA.App.GetIBCKeeper().ClientKeeper.GetClientState(
 		suite.chainA.GetContext(),
 		path.EndpointA.ClientID,
 	)
@@ -525,7 +592,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgUpgradeClient() {
 		"{\"client_id\":\"07-tendermint-0\",\"client_state\":{\"chain_id\":\"newChainId\",\"trust_level\":{\"numerator\":1,\"denominator\":3},\"trusting_period\":1209600000000000,\"unbonding_period\":3024000000000000,\"max_clock_drift\":10000000000,\"frozen_height\":{},\"latest_height\":{\"revision_number\":1,\"revision_height\":1},\"proof_specs\":[{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":33,\"min_prefix_length\":4,\"max_prefix_length\":12,\"hash\":1}},{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":32,\"min_prefix_length\":1,\"max_prefix_length\":1,\"hash\":1}}],\"upgrade_path\":[\"upgrade\",\"upgradedIBCState\"]},\"consensus_state\":{\"timestamp\":\"0001-01-01T00:00:00Z\",\"root\":{},\"next_validators_hash\":\"6E65787456616C7348617368\"},",
 	)
 	// MsgUpgradeClient
-	// "{\"client_id\":\"07-tendermint-0\",\"client_state\":{\"chain_id\":\"newChainId\",\"trust_level\":{\"numerator\":1,\"denominator\":3},\"trusting_period\":1209600000000000,\"unbonding_period\":3024000000000000,\"max_clock_drift\":10000000000,\"frozen_height\":{},\"latest_height\":{\"revision_number\":1,\"revision_height\":1},\"proof_specs\":[{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":33,\"min_prefix_length\":4,\"max_prefix_length\":12,\"hash\":1}},{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":32,\"min_prefix_length\":1,\"max_prefix_length\":1,\"hash\":1}}],\"upgrade_path\":[\"upgrade\",\"upgradedIBCState\"]},\"consensus_state\":{\"timestamp\":\"0001-01-01T00:00:00Z\",\"root\":{},\"next_validators_hash\":\"6E65787456616C7348617368\"},\"proof_upgrade_client\":\"CiYSJAoidXBncmFkZWRJQkNTdGF0ZS8xOC91cGdyYWRlZENsaWVudAquAQqrAQoHdXBncmFkZRIg47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFUaCQgBGAEgASoBACIlCAESIQG2RppbdEWeFVF5h90HmJZ/OIvuBr5jbE7mh/4a8ey+lSIlCAESIQHZm7f7BAECvMg69fhmRvif+axXjaVvh7wuDvibWJVoJiIlCAESIQGbHEApyKCI6yWJSWKQnvxTXX67FeS/avKzkttknO4VoA==\",\"proof_upgrade_consensus_state\":\"CikSJwoldXBncmFkZWRJQkNTdGF0ZS8xOC91cGdyYWRlZENvbnNTdGF0ZQquAQqrAQoHdXBncmFkZRIg47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFUaCQgBGAEgASoBACIlCAESIQG2RppbdEWeFVF5h90HmJZ/OIvuBr5jbE7mh/4a8ey+lSIlCAESIQHZm7f7BAECvMg69fhmRvif+axXjaVvh7wuDvibWJVoJiIlCAESIQGbHEApyKCI6yWJSWKQnvxTXX67FeS/avKzkttknO4VoA==\",\"signer\":\"band1ws6lm89d6xenm3cms264ejvxk8rurw55t4vpl9\"}" does not contain "{\"client_id\":\"tendermint\",\"header\":{\"signed_header\":{\"header\":{\"version\":{\"block\":11,\"app\":2},\"chain_id\":\"testchain0\",\"height\":3,\"time\":\"2020-01-02T00:00:00Z\",\"last_block_id\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"part_set_header\":{\"total\":10000,\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"}}"
+	// "{\"client_id\":\"07-tendermint-0\",\"client_state\":{\"chain_id\":\"newChainId\",\"trust_level\":{\"numerator\":1,\"denominator\":3},\"trusting_period\":1209600000000000,\"unbonding_period\":3024000000000000,\"max_clock_drift\":10000000000,\"frozen_height\":{},\"latest_height\":{\"revision_number\":1,\"revision_height\":1},\"proof_specs\":[{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":33,\"min_prefix_length\":4,\"max_prefix_length\":12,\"hash\":1}},{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":32,\"min_prefix_length\":1,\"max_prefix_length\":1,\"hash\":1}}],\"upgrade_path\":[\"upgrade\",\"upgradedIBCState\"]},\"consensus_state\":{\"timestamp\":\"0001-01-01T00:00:00Z\",\"root\":{},\"next_validators_hash\":\"6E65787456616C7348617368\"},\"proof_upgrade_client\":\"CiYSJAoidXBncmFkZWRJQkNTdGF0ZS8xOC91cGdyYWRlZENsaWVudAquAQqrAQoHdXBncmFkZRIg47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFUaCQgBGAEgASoBACIlCAESIQG2RppbdEWeFVF5h90HmJZ/OIvuBr5jbE7mh/4a8ey+lSIlCAESIQHZm7f7BAECvMg69fhmRvif+axXjaVvh7wuDvibWJVoJiIlCAESIQGbHEApyKCI6yWJSWKQnvxTXX67FeS/avKzkttknO4VoA==\",\"proof_upgrade_consensus_state\":\"CikSJwoldXBncmFkZWRJQkNTdGF0ZS8xOC91cGdyYWRlZENvbnNTdGF0ZQquAQqrAQoHdXBncmFkZRIg47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFUaCQgBGAEgASoBACIlCAESIQG2RppbdEWeFVF5h90HmJZ/OIvuBr5jbE7mh/4a8ey+lSIlCAESIQHZm7f7BAECvMg69fhmRvif+axXjaVvh7wuDvibWJVoJiIlCAESIQGbHEApyKCI6yWJSWKQnvxTXX67FeS/avKzkttknO4VoA==\",\"signer\":\"band1ws6lm89d6xenm3cms264ejvxk8rurw55t4vpl9\"}" does not contain "{\"client_id\":\"tendermint\",\"header\":{\"signed_header\":{\"header\":{\"version\":{\"block\":11,\"app\":2},\"chain_id\":\"testchain1-1\",\"height\":3,\"time\":\"2020-01-02T00:00:00Z\",\"last_block_id\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"part_set_header\":{\"total\":10000,\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"}}"
 }
 
 func (suite *DecoderTestSuite) TestDecodeMsgSubmitMisbehaviour() {
@@ -540,6 +607,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitMisbehaviour() {
 		suite.chainA.CurrentHeader.Time,
 		suite.chainA.Vals,
 		suite.chainA.Vals,
+		suite.chainA.Vals,
 		suite.chainA.Signers,
 	)
 	header2 := suite.chainA.CreateTMClientHeader(
@@ -547,6 +615,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitMisbehaviour() {
 		int64(height.RevisionHeight),
 		heightMinus1,
 		suite.chainA.CurrentHeader.Time.Add(time.Minute),
+		suite.chainA.Vals,
 		suite.chainA.Vals,
 		suite.chainA.Vals,
 		suite.chainA.Signers,
@@ -563,10 +632,8 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitMisbehaviour() {
 	emitter.DecodeMsgSubmitMisbehaviour(msg, detail)
 	suite.testContains(
 		detail,
-		"{\"client_id\":\"tendermint\",\"misbehaviour\":{\"client_id\":\"tendermint\",\"header_1\":{\"signed_header\":{\"header\":{\"version\":{\"block\":11,\"app\":2},\"chain_id\":\"testchain0\",\"height\":3,\"time\":\"2020-01-02T00:00:00Z\",\"last_block_id\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"part_set_header\":{\"total\":10000,\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"}},\"last_commit_hash\":",
+		"{\"client_id\":\"tendermint\",\"misbehaviour\":{\"client_id\":\"tendermint\",\"header_1\":{\"signed_header\":{\"header\":{\"version\":{\"block\":11,\"app\":2},\"chain_id\":\"testchain1-1\",\"height\":2,\"time\":\"2020-01-02T00:00:00Z\",\"last_block_id\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"part_set_header\":{\"total\":10000,\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"}},\"last_commit_hash\":",
 	)
-	// MsgSubmitMisbehaviour
-	// "{\"client_id\":\"tendermint\",\"misbehaviour\":{\"client_id\":\"tendermint\",\"header_1\":{\"signed_header\":{\"header\":{\"version\":{\"block\":11,\"app\":2},\"chain_id\":\"testchain0\",\"height\":3,\"time\":\"2020-01-02T00:00:00Z\",\"last_block_id\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"part_set_header\":{\"total\":10000,\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"}},\"last_commit_hash\":\"Gy7QPczOYJhyvkFumSNmNOYFi0beSQP7K1T3U73ZPL0=\",\"data_hash\":\"bW4ouLmLUycELqUKV91G5syFHHLlKL3qpu/e7v5moLg=\",\"validators_hash\":\"UWHAFzvn3gBH0c928WeqdiwEY4ozNcuJsbO7i/ykGlI=\",\"next_validators_hash\":\"UWHAFzvn3gBH0c928WeqdiwEY4ozNcuJsbO7i/ykGlI=\",\"consensus_hash\":\"5eVmxB7Vfj/4zBDxhBeHiLj6pgKwfPH0JSF72BefHyQ=\",\"app_hash\":\"Gy7QPczOYJhyvkFumSNmNOYFi0beSQP7K1T3U73ZPL0=\",\"last_results_hash\":\"CS4FhjAkftYAmGOhLu4RfSbNnQi1rcqrN/KrNdtHWjc=\",\"evidence_hash\":\"c4ZdsI9J1YQokF04mrTKS5bkWjIGx6adQ6Xcc3LmBxQ=\",\"proposer_address\":\"H6sPOQrXCVy4QN7pv0ealpUP1zE=\"},\"commit\":{\"height\":3,\"round\":1,\"block_id\":{\"hash\":\"4BHQI7RdQzVdZjXlV5cFTWUX8FUUyZlRZlcJz57HDzU=\",\"part_set_header\":{\"total\":3,\"hash\":\"hwgKOc/jNqZj6lwNm97vSTq9wYt8Pj4MjmYTVMGDFDI=\"}},\"signatures\":[{\"block_id_flag\":2,\"validator_address\":\"H6sPOQrXCVy4QN7pv0ealpUP1zE=\",\"timestamp\":\"2020-01-02T00:00:00Z\",\"signature\":\"QBI8sEcCn1EQv3uDlWOatFxlyfKSj8Yq9eUdrbL8Y4Yfhr5+oByFD4D91N45Cg9GFPbYpLtlb3CvEsH7oyvSHg==\"}]}},\"validator_set\":{\"validators\":[{\"address\":\"H6sPOQrXCVy4QN7pv0ealpUP1zE=\",\"pub_key\":{\"Sum\":{\"secp256k1\":\"A6/xRIwBfvDbU2TkJs4rgKexroILGVJkTRUDkDMcbUX8\"}},\"voting_power\":1}],\"proposer\":{\"address\":\"H6sPOQrXCVy4QN7pv0ealpUP1zE=\",\"pub_key\":{\"Sum\":{\"secp256k1\":\"A6/xRIwBfvDbU2TkJs4rgKexroILGVJkTRUDkDMcbUX8\"}},\"voting_power\":1},\"total_voting_power\":1},\"trusted_height\":{\"revision_height\":2},\"trusted_validators\":{\"validators\":[{\"address\":\"H6sPOQrXCVy4QN7pv0ealpUP1zE=\",\"pub_key\":{\"Sum\":{\"secp256k1\":\"A6/xRIwBfvDbU2TkJs4rgKexroILGVJkTRUDkDMcbUX8\"}},\"voting_power\":1}],\"proposer\":{\"address\":\"H6sPOQrXCVy4QN7pv0ealpUP1zE=\",\"pub_key\":{\"Sum\":{\"secp256k1\":\"A6/xRIwBfvDbU2TkJs4rgKexroILGVJkTRUDkDMcbUX8\"}},\"voting_power\":1},\"total_voting_power\":1}},\"header_2\":{\"signed_header\":{\"header\":{\"version\":{\"block\":11,\"app\":2},\"chain_id\":\"testchain0\",\"height\":3,\"time\":\"2020-01-02T00:01:00Z\",\"last_block_id\":{\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\",\"part_set_header\":{\"total\":10000,\"hash\":\"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=\"}},\"last_commit_hash\":\"Gy7QPczOYJhyvkFumSNmNOYFi0beSQP7K1T3U73ZPL0=\",\"data_hash\":\"bW4ouLmLUycELqUKV91G5syFHHLlKL3qpu/e7v5moLg=\",\"validators_hash\":\"UWHAFzvn3gBH0c928WeqdiwEY4ozNcuJsbO7i/ykGlI=\",\"next_validators_hash\":\"UWHAFzvn3gBH0c928WeqdiwEY4ozNcuJsbO7i/ykGlI=\",\"consensus_hash\":\"5eVmxB7Vfj/4zBDxhBeHiLj6pgKwfPH0JSF72BefHyQ=\",\"app_hash\":\"Gy7QPczOYJhyvkFumSNmNOYFi0beSQP7K1T3U73ZPL0=\",\"last_results_hash\":\"CS4FhjAkftYAmGOhLu4RfSbNnQi1rcqrN/KrNdtHWjc=\",\"evidence_hash\":\"c4ZdsI9J1YQokF04mrTKS5bkWjIGx6adQ6Xcc3LmBxQ=\",\"proposer_address\":\"H6sPOQrXCVy4QN7pv0ealpUP1zE=\"},\"commit\":{\"height\":3,\"round\":1,\"block_id\":{\"hash\":\"OIlOUMldL7DwSF/CwxhzwvbCkB06ZIMKLn91cGqmye4=\",\"part_set_header\":{\"total\":3,\"hash\":\"hwgKOc/jNqZj6lwNm97vSTq9wYt8Pj4MjmYTVMGDFDI=\"}},\"signatures\":[{\"block_id_flag\":2,\"validator_address\":\"H6sPOQrXCVy4QN7pv0ealpUP1zE=\",\"timestamp\":\"2020-01-02T00:01:00Z\",\"signature\":\"2IrQF/dca6yjumwFw0BK7xbfxa5r3nxV2tpYh1my3IkDYRbTM/vmCyW6BiCRSCivuhM/9eoHKK/YAQAAZh8zcg==\"}]}},\"validator_set\":{\"validators\":[{\"address\":\"H6sPOQrXCVy4QN7pv0ealpUP1zE=\",\"pub_key\":{\"Sum\":{\"secp256k1\":\"A6/xRIwBfvDbU2TkJs4rgKexroILGVJkTRUDkDMcbUX8\"}},\"voting_power\":1}],\"proposer\":{\"address\":\"H6sPOQrXCVy4QN7pv0ealpUP1zE=\",\"pub_key\":{\"Sum\":{\"secp256k1\":\"A6/xRIwBfvDbU2TkJs4rgKexroILGVJkTRUDkDMcbUX8\"}},\"voting_power\":1},\"total_voting_power\":1},\"trusted_height\":{\"revision_height\":2},\"trusted_validators\":{\"validators\":[{\"address\":\"H6sPOQrXCVy4QN7pv0ealpUP1zE=\",\"pub_key\":{\"Sum\":{\"secp256k1\":\"A6/xRIwBfvDbU2TkJs4rgKexroILGVJkTRUDkDMcbUX8\"}},\"voting_power\":1}],\"proposer\":{\"address\":\"H6sPOQrXCVy4QN7pv0ealpUP1zE=\",\"pub_key\":{\"Sum\":{\"secp256k1\":\"A6/xRIwBfvDbU2TkJs4rgKexroILGVJkTRUDkDMcbUX8\"}},\"voting_power\":1},\"total_voting_power\":1}}},\"signer\":\"band1r74s7wg26uy4ewzqmm5m73u6j62sl4e38zpnws\"}"
 }
 
 func (suite *DecoderTestSuite) TestDecodeMsgConnectionOpenInit() {
@@ -621,7 +688,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgConnectionOpenTry() {
 	emitter.DecodeMsgConnectionOpenTry(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"client_id\":\"07-tendermint-0\",\"client_state\":{\"chain_id\":\"testchain0\",\"trust_level\":{\"numerator\":1,\"denominator\":3},\"trusting_period\":1209600000000000,\"unbonding_period\":1814400000000000,\"max_clock_drift\":10000000000,\"frozen_height\":{},\"latest_height\":{\"revision_height\":10},\"proof_specs\":[{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":33,\"min_prefix_length\":4,\"max_prefix_length\":12,\"hash\":1}},{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":32,\"min_prefix_length\":1,\"max_prefix_length\":1,\"hash\":1}}],\"upgrade_path\":[\"upgrade\",\"upgradedIBCState\"]},\"consensus_height\":{\"revision_height\":10,\"revision_number\":0},\"counterparty\":{\"client_id\":\"07-tendermint-0\",\"connection_id\":\"connection-0\",\"prefix\":{\"key_prefix\":\"c3RvcmVQcmVmaXhLZXk=\"}},\"counterparty_versions\":[{\"identifier\":\"1\",\"features\":[\"ORDER_ORDERED\",\"ORDER_UNORDERED\"]}],\"delay_period\":500,\"previous_connection_id\":\"\",\"proof_client\":\"\",\"proof_consensus\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_init\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+		"{\"client_id\":\"07-tendermint-0\",\"client_state\":{\"chain_id\":\"testchain1-1\",\"trust_level\":{\"numerator\":1,\"denominator\":3},\"trusting_period\":1209600000000000,\"unbonding_period\":1814400000000000,\"max_clock_drift\":10000000000,\"frozen_height\":{},\"latest_height\":{\"revision_height\":10},\"proof_specs\":[{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":33,\"min_prefix_length\":4,\"max_prefix_length\":12,\"hash\":1}},{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":32,\"min_prefix_length\":1,\"max_prefix_length\":1,\"hash\":1}}],\"upgrade_path\":[\"upgrade\",\"upgradedIBCState\"]},\"consensus_height\":{\"revision_height\":10,\"revision_number\":0},\"counterparty\":{\"client_id\":\"07-tendermint-0\",\"connection_id\":\"connection-0\",\"prefix\":{\"key_prefix\":\"c3RvcmVQcmVmaXhLZXk=\"}},\"counterparty_versions\":[{\"identifier\":\"1\",\"features\":[\"ORDER_ORDERED\",\"ORDER_UNORDERED\"]}],\"delay_period\":500,\"previous_connection_id\":\"\",\"proof_client\":\"\",\"proof_consensus\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_init\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
 	)
 }
 
@@ -653,7 +720,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgConnectionOpenAck() {
 	emitter.DecodeMsgConnectionOpenAck(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"client_state\":{\"chain_id\":\"testchain0\",\"trust_level\":{\"numerator\":1,\"denominator\":3},\"trusting_period\":1209600000000000,\"unbonding_period\":1814400000000000,\"max_clock_drift\":10000000000,\"frozen_height\":{},\"latest_height\":{\"revision_height\":10},\"proof_specs\":[{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":33,\"min_prefix_length\":4,\"max_prefix_length\":12,\"hash\":1}},{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":32,\"min_prefix_length\":1,\"max_prefix_length\":1,\"hash\":1}}],\"upgrade_path\":[\"upgrade\",\"upgradedIBCState\"]},\"connection_id\":\"\",\"consensus_height\":{\"revision_height\":10,\"revision_number\":0},\"counterparty_connection_id\":\"\",\"proof_client\":\"\",\"proof_consensus\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_try\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\",\"version\":{\"identifier\":\"1\",\"features\":[\"ORDER_ORDERED\",\"ORDER_UNORDERED\"]}}",
+		"{\"client_state\":{\"chain_id\":\"testchain1-1\",\"trust_level\":{\"numerator\":1,\"denominator\":3},\"trusting_period\":1209600000000000,\"unbonding_period\":1814400000000000,\"max_clock_drift\":10000000000,\"frozen_height\":{},\"latest_height\":{\"revision_height\":10},\"proof_specs\":[{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":33,\"min_prefix_length\":4,\"max_prefix_length\":12,\"hash\":1}},{\"leaf_spec\":{\"hash\":1,\"prehash_value\":1,\"length\":1,\"prefix\":\"AA==\"},\"inner_spec\":{\"child_order\":[0,1],\"child_size\":32,\"min_prefix_length\":1,\"max_prefix_length\":1,\"hash\":1}}],\"upgrade_path\":[\"upgrade\",\"upgradedIBCState\"]},\"connection_id\":\"\",\"consensus_height\":{\"revision_height\":10,\"revision_number\":0},\"counterparty_connection_id\":\"\",\"proof_client\":\"\",\"proof_consensus\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_try\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\",\"version\":{\"identifier\":\"1\",\"features\":[\"ORDER_ORDERED\",\"ORDER_UNORDERED\"]}}",
 	)
 }
 

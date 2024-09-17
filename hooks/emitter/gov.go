@@ -1,6 +1,8 @@
 package emitter
 
 import (
+	"cosmossdk.io/collections"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/gov/types"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
@@ -16,7 +18,7 @@ var (
 )
 
 func (h *Hook) emitSetDeposit(ctx sdk.Context, txHash []byte, id uint64, depositor sdk.AccAddress) {
-	deposit, _ := h.govKeeper.GetDeposit(ctx, id, depositor)
+	deposit, _ := h.govKeeper.Deposits.Get(ctx, collections.Join(id, depositor))
 	h.Write("SET_DEPOSIT", common.JsDict{
 		"proposal_id": id,
 		"depositor":   depositor,
@@ -26,7 +28,7 @@ func (h *Hook) emitSetDeposit(ctx sdk.Context, txHash []byte, id uint64, deposit
 }
 
 func (h *Hook) emitUpdateProposalAfterDeposit(ctx sdk.Context, id uint64) {
-	proposal, _ := h.govKeeper.GetProposal(ctx, id)
+	proposal, _ := h.govKeeper.Proposals.Get(ctx, id)
 	h.Write("UPDATE_PROPOSAL", common.JsDict{
 		"id":              id,
 		"status":          int(proposal.Status),
@@ -85,7 +87,7 @@ func (h *Hook) handleMsgSubmitProposal(
 	ctx sdk.Context, txHash []byte, msg *v1.MsgSubmitProposal, evMap common.EvMap, detail common.JsDict,
 ) {
 	proposalId := uint64(common.Atoi(evMap[types.EventTypeSubmitProposal+"."+types.AttributeKeyProposalID][0]))
-	proposal, _ := h.govKeeper.GetProposal(ctx, proposalId)
+	proposal, _ := h.govKeeper.Proposals.Get(ctx, proposalId)
 
 	subMsg := proposal.Messages[0].GetCachedValue()
 	switch subMsg := subMsg.(type) {
@@ -136,7 +138,7 @@ func (h *Hook) handleV1beta1MsgSubmitProposal(
 	ctx sdk.Context, txHash []byte, msg *v1beta1.MsgSubmitProposal, evMap common.EvMap, detail common.JsDict,
 ) {
 	proposalId := uint64(common.Atoi(evMap[types.EventTypeSubmitProposal+"."+types.AttributeKeyProposalID][0]))
-	proposal, _ := h.govKeeper.GetProposal(ctx, proposalId)
+	proposal, _ := h.govKeeper.Proposals.Get(ctx, proposalId)
 	content := msg.GetContent()
 
 	h.Write("NEW_PROPOSAL", common.JsDict{
@@ -166,7 +168,7 @@ func (h *Hook) handleMsgDeposit(
 	depositor, _ := sdk.AccAddressFromBech32(msg.Depositor)
 	h.emitSetDeposit(ctx, txHash, msg.ProposalId, depositor)
 	h.emitUpdateProposalAfterDeposit(ctx, msg.ProposalId)
-	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
+	proposal, _ := h.govKeeper.Proposals.Get(ctx, msg.ProposalId)
 
 	detail["title"] = proposal.Title
 }
@@ -178,7 +180,7 @@ func (h *Hook) handleV1beta1MsgDeposit(
 	depositor, _ := sdk.AccAddressFromBech32(msg.Depositor)
 	h.emitSetDeposit(ctx, txHash, msg.ProposalId, depositor)
 	h.emitUpdateProposalAfterDeposit(ctx, msg.ProposalId)
-	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
+	proposal, _ := h.govKeeper.Proposals.Get(ctx, msg.ProposalId)
 	detail["title"] = proposal.Title
 }
 
@@ -192,7 +194,7 @@ func (h *Hook) handleMsgVote(
 		"tx_hash":     txHash,
 	}
 	h.emitSetVoteWeighted(setVoteWeighted, v1.NewNonSplitVoteOption(msg.Option))
-	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
+	proposal, _ := h.govKeeper.Proposals.Get(ctx, msg.ProposalId)
 	detail["title"] = proposal.Title
 }
 
@@ -206,7 +208,7 @@ func (h *Hook) handleV1beta1MsgVote(
 		"tx_hash":     txHash,
 	}
 	h.emitV1beta1SetVoteWeighted(setVoteWeighted, v1beta1.NewNonSplitVoteOption(msg.Option))
-	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
+	proposal, _ := h.govKeeper.Proposals.Get(ctx, msg.ProposalId)
 	detail["title"] = proposal.Title
 }
 
@@ -220,7 +222,7 @@ func (h *Hook) handleMsgVoteWeighted(
 		"tx_hash":     txHash,
 	}
 	h.emitSetVoteWeighted(setVoteWeighted, msg.Options)
-	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
+	proposal, _ := h.govKeeper.Proposals.Get(ctx, msg.ProposalId)
 	detail["title"] = proposal.Title
 }
 
@@ -234,7 +236,7 @@ func (h *Hook) handleV1beta1MsgVoteWeighted(
 		"tx_hash":     txHash,
 	}
 	h.emitV1beta1SetVoteWeighted(setVoteWeighted, msg.Options)
-	proposal, _ := h.govKeeper.GetProposal(ctx, msg.ProposalId)
+	proposal, _ := h.govKeeper.Proposals.Get(ctx, msg.ProposalId)
 	detail["title"] = proposal.Title
 }
 
@@ -247,11 +249,12 @@ func (h *Hook) handleEventInactiveProposal(evMap common.EvMap) {
 
 func (h *Hook) handleEventTypeActiveProposal(ctx sdk.Context, evMap common.EvMap) {
 	id := uint64(common.Atoi(evMap[types.EventTypeActiveProposal+"."+types.AttributeKeyProposalID][0]))
-	proposal, _ := h.govKeeper.GetProposal(ctx, id)
+	proposal, _ := h.govKeeper.Proposals.Get(ctx, id)
+	totalBond, _ := h.stakingKeeper.TotalBondedTokens(ctx)
 	h.Write("UPDATE_PROPOSAL", common.JsDict{
 		"id":                  id,
 		"status":              int(proposal.Status),
-		"total_bonded_tokens": h.stakingKeeper.TotalBondedTokens(ctx),
+		"total_bonded_tokens": totalBond,
 		"yes_vote":            proposal.FinalTallyResult.YesCount,
 		"no_vote":             proposal.FinalTallyResult.NoCount,
 		"no_with_veto_vote":   proposal.FinalTallyResult.NoWithVetoCount,

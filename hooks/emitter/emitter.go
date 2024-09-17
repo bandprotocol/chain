@@ -11,11 +11,13 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmjson "github.com/cometbft/cometbft/libs/json"
+	types1 "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -151,7 +153,7 @@ func (h *Hook) FlushMessages() {
 }
 
 // AfterInitChain specify actions need to do after chain initialization (app.Hook interface).
-func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res abci.ResponseInitChain) {
+func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *abci.ResponseInitChain) {
 	var genesisState map[string]json.RawMessage
 	if err := tmjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
@@ -186,7 +188,7 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	var stakingState stakingtypes.GenesisState
 	h.cdc.MustUnmarshalJSON(genesisState[stakingtypes.ModuleName], &stakingState)
 	for _, val := range stakingState.Validators {
-		h.emitSetValidator(ctx, val.GetOperator())
+		h.emitSetValidator(ctx, MustParseValAddress(val.GetOperator()))
 	}
 
 	for _, del := range stakingState.Delegations {
@@ -317,7 +319,7 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 }
 
 // AfterBeginBlock specify actions need to do after begin block period (app.Hook interface).
-func (h *Hook) AfterBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, res abci.ResponseBeginBlock) {
+func (h *Hook) AfterBeginBlock(ctx sdk.Context, res sdk.BeginBlock) {
 	h.accsInBlock = make(map[string]bool)
 	h.accsInTx = make(map[string]bool)
 	h.msgs = []common.Message{}
@@ -326,15 +328,15 @@ func (h *Hook) AfterBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, res 
 		// h.emitStartState = false
 		// h.emitNonHistoricalState(ctx)
 	} else {
-		for _, val := range req.GetLastCommitInfo().Votes {
-			validator := h.stakingKeeper.ValidatorByConsAddr(ctx, val.GetValidator().Address)
+		for _, val := range ctx.VoteInfos() {
+			validator, _ := h.stakingKeeper.ValidatorByConsAddr(ctx, val.Validator.Address)
 			conAddr, _ := validator.GetConsAddr()
 			h.Write("NEW_VALIDATOR_VOTE", common.JsDict{
-				"consensus_address": conAddr.String(),
-				"block_height":      req.Header.GetHeight() - 1,
-				"voted":             val.GetSignedLastBlock(),
+				"consensus_address": sdk.ConsAddress(conAddr).String(),
+				"block_height":      ctx.BlockHeight() - 1,
+				"voted":             val.BlockIdFlag == types1.BlockIDFlagCommit,
 			})
-			h.emitUpdateValidatorRewardAndAccumulatedCommission(ctx, validator.GetOperator())
+			h.emitUpdateValidatorRewardAndAccumulatedCommission(ctx, MustParseValAddress(validator.GetOperator()))
 		}
 	}
 	totalSupply := make([]string, 0)
@@ -342,12 +344,14 @@ func (h *Hook) AfterBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, res 
 		totalSupply = append(totalSupply, coin.String())
 		return true
 	})
+	minter, _ := h.mintKeeper.Minter.Get(ctx)
 	h.Write("NEW_BLOCK", common.JsDict{
-		"height":    req.Header.GetHeight(),
+		"height":    ctx.BlockHeight(),
 		"timestamp": ctx.BlockTime().UnixNano(),
-		"proposer":  sdk.ConsAddress(req.Header.GetProposerAddress()).String(),
-		"hash":      req.GetHash(),
-		"inflation": h.mintKeeper.GetMinter(ctx).Inflation.String(),
+		// "proposer":  sdk.ConsAddress(req.Header.GetProposerAddress()).String(),
+		"proposer":  sdk.ConsAddress(ctx.BlockHeader().ProposerAddress).String(),
+		"hash":      ctx.HeaderHash(),
+		"inflation": minter.Inflation.String(),
 		"supply":    totalSupply,
 	})
 	for _, event := range res.Events {
@@ -361,10 +365,6 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, tx sdk.Tx, res *abci.ExecTxResult
 		return
 	}
 	h.accsInTx = make(map[string]bool)
-	tx, err := h.encodingConfig.TxConfig.TxDecoder()(req.Tx)
-	if err != nil {
-		return
-	}
 	feeTx, ok := tx.(sdk.FeeTx)
 	if !ok {
 		return
@@ -374,11 +374,19 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, tx sdk.Tx, res *abci.ExecTxResult
 		return
 	}
 
-	txHash := tmhash.Sum(req.Tx)
+	sigTx, ok := tx.(authsigning.SigVerifiableTx)
+	if !ok {
+		return
+	}
+
+	rawTx, _ := h.txConfig.TxEncoder()(tx)
+	txHash := tmhash.Sum(rawTx)
 	var errMsg *string
 	if !res.IsOK() {
 		errMsg = &res.Log
 	}
+
+	signers, _ := sigTx.GetSigners()
 
 	txDict := common.JsDict{
 		"hash":         txHash,
@@ -387,7 +395,7 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, tx sdk.Tx, res *abci.ExecTxResult
 		"gas_limit":    feeTx.GetGas(),
 		"gas_fee":      feeTx.GetFee().String(),
 		"err_msg":      errMsg,
-		"sender":       tx.GetMsgs()[0].GetSigners()[0].String(),
+		"sender":       sdk.AccAddress(signers[0]).String(),
 		"success":      res.IsOK(),
 		"memo":         memoTx.GetMemo(),
 		"fee_payer":    feeTx.FeeGranter(),
@@ -408,10 +416,9 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, tx sdk.Tx, res *abci.ExecTxResult
 			"type": sdk.MsgTypeURL(msg),
 		})
 	}
-	signers := tx.GetMsgs()[0].GetSigners()
 	addrs := make([]string, len(signers))
 	for idx, signer := range signers {
-		addrs[idx] = signer.String()
+		addrs[idx] = sdk.AccAddress(signer).String()
 	}
 	h.AddAccountsInTx(addrs...)
 	relatedAccounts := make([]string, 0, len(h.accsInBlock))
@@ -435,7 +442,7 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, res sdk.EndBlock) {
 	prefix := []byte{groupkeeper.ProposalsByVotingPeriodEndPrefix}
 
 	iterator := ctx.KVStore(h.groupStoreKey).
-		Iterator(prefix, sdk.PrefixEndBytes(append(append(prefix, lenTimeByte), timeBytes...)))
+		Iterator(prefix, storetypes.PrefixEndBytes(append(append(prefix, lenTimeByte), timeBytes...)))
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		proposalID, _ := splitKeyWithTime(iterator.Key())
@@ -460,7 +467,7 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, res sdk.EndBlock) {
 	}
 
 	h.msgs = append(modifiedMsgs, h.msgs[1:]...)
-	h.Write("COMMIT", common.JsDict{"height": req.Height})
+	h.Write("COMMIT", common.JsDict{"height": ctx.BlockHeight()})
 }
 
 func (h *Hook) RequestSearch(
