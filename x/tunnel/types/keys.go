@@ -36,9 +36,9 @@ var (
 
 	PacketStoreKeyPrefix = []byte{0x12}
 
-	ParamsKey = []byte{0x10}
-
 	SignalPricesInfoStoreKeyPrefix = []byte{0x13}
+
+	ParamsKey = []byte{0x90}
 
 	PortKey = []byte{0xff}
 )
