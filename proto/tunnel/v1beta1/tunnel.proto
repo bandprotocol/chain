@@ -34,6 +34,7 @@ message AxelarRoute {
 message IBCRoute {
   option (cosmos_proto.implements_interface) = "Route";
 
+  // channel_id is the IBC channel ID
   string channel_id = 1 [(gogoproto.customname) = "ChannelID"];
 }
 

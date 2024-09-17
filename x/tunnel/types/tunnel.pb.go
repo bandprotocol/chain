@@ -172,6 +172,7 @@ func (m *AxelarRoute) GetDestinationContractAddress() string {
 }
 
 type IBCRoute struct {
+	// channel_id is the IBC channel ID
 	ChannelID string `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
 }
 
