@@ -131,6 +131,7 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 		if _, ok := signalIDMap[signalDeviation.SignalID]; ok {
 			return sdkerrors.ErrInvalidRequest.Wrapf("duplicate signal ID: %s", signalDeviation.SignalID)
 		}
+
 		signalIDMap[signalDeviation.SignalID] = true
 	}
 
@@ -210,6 +211,11 @@ func (m MsgEditTunnel) ValidateBasic() error {
 			return sdkerrors.ErrInvalidRequest.Wrapf("duplicate signal ID: %s", signalDeviation.SignalID)
 		}
 		signalIDMap[signalDeviation.SignalID] = true
+	}
+
+	err := validateUniqueSignalIDs(m.SignalDeviations)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -348,5 +354,17 @@ func (m *MsgUpdateParams) ValidateBasic() error {
 		return err
 	}
 
+	return nil
+}
+
+// validateUniqueSignalIDs checks if the SignalIDs in the given slice are unique
+func validateUniqueSignalIDs(signalDeviations []SignalDeviation) error {
+	signalIDMap := make(map[string]bool)
+	for _, signalDeviation := range signalDeviations {
+		if _, ok := signalIDMap[signalDeviation.SignalID]; ok {
+			return sdkerrors.ErrInvalidRequest.Wrapf("duplicate signal ID: %s", signalDeviation.SignalID)
+		}
+		signalIDMap[signalDeviation.SignalID] = true
+	}
 	return nil
 }

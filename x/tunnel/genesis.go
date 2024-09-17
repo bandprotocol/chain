@@ -43,8 +43,7 @@ func ValidateGenesis(data *types.GenesisState) error {
 	}
 
 	// validate the total fees
-	err := data.TotalFees.TotalPacketFee.Validate()
-	if err != nil {
+	if err := data.TotalFees.TotalPacketFee.Validate(); err != nil {
 		return err
 	}
 
@@ -73,11 +72,9 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 	// set tunnels
 	for _, tunnel := range data.Tunnels {
 		k.SetTunnel(ctx, tunnel)
-	}
-
-	// set the tunnels
-	for _, tunnel := range data.Tunnels {
-		k.ActiveTunnelID(ctx, tunnel.ID)
+		if tunnel.IsActive {
+			k.ActiveTunnelID(ctx, tunnel.ID)
+		}
 	}
 
 	// set the latest signal prices

@@ -175,8 +175,7 @@ func (k Keeper) SendPacket(
 	}
 
 	// set the packet content
-	err = packet.SetPacketContent(content)
-	if err != nil {
+	if err := packet.SetPacketContent(content); err != nil {
 		panic(fmt.Sprintf("failed to set packet content: %s", err))
 	}
 
