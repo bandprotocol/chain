@@ -63,35 +63,22 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 
 	// check for active tunnels
 	for _, id := range ids {
-		isErrNoPacketCreated := false
+		tunnel := k.MustGetTunnel(ctx, id)
+		balances := k.bankKeeper.GetAllBalances(ctx, sdk.MustAccAddressFromBech32(tunnel.FeePayer))
+		basePacketFee := k.GetParams(ctx).BasePacketFee
+
+		// deactivate tunnel if the fee payer does not have enough balance.
+		if !balances.IsAllGTE(basePacketFee) {
+			k.MustDeactivateTunnel(ctx, id)
+			continue
+		}
+
 		producePacketFunc := func(ctx sdk.Context) error {
-			tunnel, err := k.GetTunnel(ctx, id)
-			if err != nil {
-				return err
-			}
-
-			// deduct base packet fee from the fee payer; deactivate tunnel if failed.
-			feePayerAddr := sdk.MustAccAddressFromBech32(tunnel.FeePayer)
-			if err := k.DeductBasePacketFee(ctx, feePayerAddr); err != nil {
-				return k.DeactivateTunnel(ctx, id)
-			}
-
-			// Produce and send a packet, if no packet is created, return error so that
-			// fee is reverted.
-			isCreated, err := k.ProducePacket(ctx, id, currentPricesMap, false)
-			if err != nil {
-				return err
-			}
-			if !isCreated {
-				isErrNoPacketCreated = true
-				return fmt.Errorf("no packet is created for tunnel %d", id)
-			}
-
-			return nil
+			return k.ProducePacket(ctx, id, currentPricesMap, false)
 		}
 
 		// produce a packet. If error, emits an event.
-		if err := ctxcache.ApplyFuncIfNoError(ctx, producePacketFunc); err != nil && !isErrNoPacketCreated {
+		if err := ctxcache.ApplyFuncIfNoError(ctx, producePacketFunc); err != nil {
 			ctx.EventManager().EmitEvent(sdk.NewEvent(
 				types.EventTypeProducePacketFail,
 				sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", id)),
@@ -107,7 +94,7 @@ func (k Keeper) ProducePacket(
 	tunnelID uint64,
 	currentPricesMap map[string]feedstypes.Price,
 	triggerAll bool,
-) (isCreated bool, err error) {
+) error {
 	unixNow := ctx.BlockTime().Unix()
 
 	// get tunnel and signal prices info
@@ -120,7 +107,6 @@ func (k Keeper) ProducePacket(
 	// generate new signal prices
 	nsps := GenerateSignalPrices(
 		ctx,
-		tunnel.ID,
 		currentPricesMap,
 		tunnel.GetSignalDeviationMap(),
 		latestSignalPrices.SignalPrices,
@@ -129,12 +115,18 @@ func (k Keeper) ProducePacket(
 
 	// return if no new signal prices
 	if len(nsps) == 0 {
-		return false, nil
+		return nil
+	}
+
+	// deduct base packet fee from the fee payer,
+	feePayer := sdk.MustAccAddressFromBech32(tunnel.FeePayer)
+	if err := k.DeductBasePacketFee(ctx, feePayer); err != nil {
+		return sdkerrors.Wrapf(err, "failed to deduct base packet fee for tunnel %d", tunnel.ID)
 	}
 
 	newPacket := types.NewPacket(tunnel.ID, tunnel.NonceCount+1, nsps, nil, unixNow)
 	if err := k.SendPacket(ctx, tunnel, newPacket); err != nil {
-		return false, sdkerrors.Wrapf(err, "route %s failed to send packet", tunnel.Route.TypeUrl)
+		return sdkerrors.Wrapf(err, "route %s failed to send packet", tunnel.Route.TypeUrl)
 	}
 
 	// update signal prices info
@@ -148,7 +140,7 @@ func (k Keeper) ProducePacket(
 	tunnel.NonceCount++
 	k.SetTunnel(ctx, tunnel)
 
-	return true, nil
+	return nil
 }
 
 // SendPacket sends a packet to the destination route
@@ -187,7 +179,6 @@ func (k Keeper) SendPacket(
 // GenerateSignalPrices generates signal prices based on the current prices and signal info
 func GenerateSignalPrices(
 	ctx sdk.Context,
-	tunnelID uint64,
 	currentPricesMap map[string]feedstypes.Price,
 	signalDeviationMap map[string]types.SignalDeviation,
 	signalPrices []types.SignalPrice,

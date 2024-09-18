@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -194,21 +193,8 @@ func (ms msgServer) TriggerTunnel(
 	currentPricesMap := createCurrentPricesMap(currentPrices)
 
 	// Produce packet with trigger all signals
-	isCreated, err := ms.Keeper.ProducePacket(ctx, tunnel.ID, currentPricesMap, true)
-	if err != nil {
+	if err := ms.Keeper.ProducePacket(ctx, tunnel.ID, currentPricesMap, true); err != nil {
 		return nil, err
-	}
-
-	// if new packet is created, deduct base packet fee from the fee payer,
-	if isCreated {
-		feePayer, err := sdk.AccAddressFromBech32(tunnel.FeePayer)
-		if err != nil {
-			return nil, err
-		}
-
-		if err := ms.Keeper.DeductBasePacketFee(ctx, feePayer); err != nil {
-			return nil, sdkerrors.Wrapf(err, "failed to deduct base packet fee for tunnel %d", req.TunnelID)
-		}
 	}
 
 	// Emit an event

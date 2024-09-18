@@ -83,6 +83,11 @@ func TestProduceActiveTunnelPackets(t *testing.T) {
 	err := tunnel.SetRoute(route)
 	require.NoError(t, err)
 
+	// Mock bankKeeper to simulate coin transfer
+	s.MockBankKeeper.EXPECT().
+		SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, nil).
+		Return(nil)
+
 	// Set the tunnel
 	k.SetTunnel(ctx, tunnel)
 	err = k.ActivateTunnel(ctx, tunnelID)
@@ -92,9 +97,8 @@ func TestProduceActiveTunnelPackets(t *testing.T) {
 	}, 0))
 
 	// Call the ProduceActiveTunnelPackets function
-	isCreated, err := k.ProducePacket(ctx, tunnelID, currentPricesMap, false)
+	err = k.ProducePacket(ctx, tunnelID, currentPricesMap, false)
 	require.NoError(t, err)
-	require.True(t, isCreated)
 }
 
 func TestGenerateSignalPrices(t *testing.T) {
@@ -120,7 +124,6 @@ func TestGenerateSignalPrices(t *testing.T) {
 	// Call the GenerateSignalPrices function
 	nsps := keeper.GenerateSignalPrices(
 		ctx,
-		tunnel.ID,
 		currentPricesMap,
 		tunnel.GetSignalDeviationMap(),
 		latestSignalPrices.SignalPrices,
