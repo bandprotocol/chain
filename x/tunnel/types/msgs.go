@@ -88,7 +88,7 @@ func NewMsgCreateAxelarTunnel(
 
 // NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
 func NewMsgCreateIBCTunnel(
-	signalInfos []SignalInfo,
+	signalInfos []SignalDeviation,
 	interval uint64,
 	channelID string,
 	encoder Encoder,
