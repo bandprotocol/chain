@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
@@ -132,7 +131,7 @@ func (k Keeper) WithdrawDeposit(ctx sdk.Context, tunnelID uint64, amount sdk.Coi
 
 	// Deactivate the tunnel if the total deposit is less than the min deposit
 	minDeposit := k.GetParams(ctx).MinDeposit
-	if tunnel.TotalDeposit.IsAllLT(minDeposit) {
+	if !tunnel.TotalDeposit.IsAllGTE(minDeposit) {
 		k.MustDeactivateTunnel(ctx, tunnelID)
 	}
 
@@ -152,8 +151,7 @@ func (k Keeper) validateDepositDenom(ctx sdk.Context, depositAmount sdk.Coins) e
 
 	for _, coin := range depositAmount {
 		if _, ok := acceptedDenoms[coin.Denom]; !ok {
-			return errors.Wrapf(
-				types.ErrInvalidDepositDenom,
+			return types.ErrInvalidDepositDenom.Wrapf(
 				"deposited %s, but tunnel accepts only the following denom(s): %v",
 				depositAmount,
 				denoms,
