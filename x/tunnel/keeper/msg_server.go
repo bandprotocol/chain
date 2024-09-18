@@ -142,7 +142,7 @@ func (ms msgServer) Activate(
 
 	// verify if the total deposit meets or exceeds the minimum required deposit
 	minDeposit := ms.Keeper.GetParams(ctx).MinDeposit
-	if tunnel.TotalDeposit.IsAllLT(minDeposit) {
+	if !tunnel.TotalDeposit.IsAllGTE(minDeposit) {
 		return nil, types.ErrInsufficientDeposit
 	}
 
