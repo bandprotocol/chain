@@ -26,8 +26,8 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdParams(),
 		GetQueryCmdTunnels(),
 		GetQueryCmdTunnel(),
-		GetQueryCmdDeposit(),
 		GetQueryCmdDeposits(),
+		GetQueryCmdDeposit(),
 		GetQueryCmdPackets(),
 		GetQueryCmdPacket(),
 	)

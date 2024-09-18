@@ -23,11 +23,11 @@ func GetTxCmd() *cobra.Command {
 	}
 
 	txCmd.AddCommand(GetTxCmdCreateTSSTunnel())
-	txCmd.AddCommand(GetTxCmdDepositTunnel())
-	txCmd.AddCommand(GetTxCmdWithdrawDepositTunnel())
 	txCmd.AddCommand(GetTxCmdActivate())
 	txCmd.AddCommand(GetTxCmdDeactivate())
 	txCmd.AddCommand(GetTxCmdTriggerTunnel())
+	txCmd.AddCommand(GetTxCmdDepositTunnel())
+	txCmd.AddCommand(GetTxCmdWithdrawTunnel())
 
 	return txCmd
 }
@@ -116,9 +116,9 @@ func GetTxCmdDepositTunnel() *cobra.Command {
 	return cmd
 }
 
-func GetTxCmdWithdrawDepositTunnel() *cobra.Command {
+func GetTxCmdWithdrawTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "withdraw-deposit [tunnel-id] [amount]",
+		Use:   "withdraw [tunnel-id] [amount]",
 		Short: "Withdraw deposit from a tunnel",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -137,7 +137,7 @@ func GetTxCmdWithdrawDepositTunnel() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgWithdrawDepositTunnel(id, amount, clientCtx.GetFromAddress().String())
+			msg := types.NewMsgWithdrawTunnel(id, amount, clientCtx.GetFromAddress().String())
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

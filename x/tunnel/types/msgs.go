@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	_, _, _, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgEditTunnel{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositTunnel{}, &MsgWithdrawDepositTunnel{}, &MsgUpdateParams{}
+	_, _, _, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgEditTunnel{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositTunnel{}, &MsgWithdrawTunnel{}, &MsgUpdateParams{}
 	_                      types.UnpackInterfacesMessage = &MsgCreateTunnel{}
 )
 
@@ -121,7 +121,7 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 	}
 
 	// initialDeposit deposit must be positive
-	if !m.InitialDeposit.IsValid() || m.InitialDeposit.IsAllPositive() {
+	if !m.InitialDeposit.IsValid() {
 		return sdkerrors.ErrInvalidCoins.Wrapf("invalid initial deposit: %s", m.InitialDeposit)
 	}
 
@@ -359,13 +359,13 @@ func (m MsgDepositTunnel) ValidateBasic() error {
 	return nil
 }
 
-// NewMsgWithdrawDepositTunnel creates a new MsgWithdraw instance.
-func NewMsgWithdrawDepositTunnel(
+// NewMsgWithdrawTunnel creates a new MsgWithdrawTunnel instance.
+func NewMsgWithdrawTunnel(
 	tunnelID uint64,
 	amount sdk.Coins,
 	withdrawer string,
-) *MsgWithdrawDepositTunnel {
-	return &MsgWithdrawDepositTunnel{
+) *MsgWithdrawTunnel {
+	return &MsgWithdrawTunnel{
 		TunnelID:   tunnelID,
 		Amount:     amount,
 		Withdrawer: withdrawer,
@@ -373,20 +373,20 @@ func NewMsgWithdrawDepositTunnel(
 }
 
 // Route Implements Msg.
-func (m MsgWithdrawDepositTunnel) Type() string { return sdk.MsgTypeURL(&m) }
+func (m MsgWithdrawTunnel) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes implements the LegacyMsg interface.
-func (m MsgWithdrawDepositTunnel) GetSignBytes() []byte {
+func (m MsgWithdrawTunnel) GetSignBytes() []byte {
 	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
 }
 
 // GetSigners returns the expected signers for the message.
-func (m *MsgWithdrawDepositTunnel) GetSigners() []sdk.AccAddress {
+func (m *MsgWithdrawTunnel) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Withdrawer)}
 }
 
 // ValidateBasic does a sanity check on the provided data
-func (m MsgWithdrawDepositTunnel) ValidateBasic() error {
+func (m MsgWithdrawTunnel) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Withdrawer); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}

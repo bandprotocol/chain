@@ -253,11 +253,11 @@ func (ms msgServer) DepositTunnel(
 	return &types.MsgDepositTunnelResponse{}, nil
 }
 
-// WithdrawDepositTunnel withdraws deposit from the tunnel.
-func (ms msgServer) WithdrawDepositTunnel(
+// WithdrawTunnel withdraws deposit from the tunnel.
+func (ms msgServer) WithdrawTunnel(
 	goCtx context.Context,
-	req *types.MsgWithdrawDepositTunnel,
-) (*types.MsgWithdrawDepositTunnelResponse, error) {
+	req *types.MsgWithdrawTunnel,
+) (*types.MsgWithdrawTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	withdrawer, err := sdk.AccAddressFromBech32(req.Withdrawer)
@@ -270,7 +270,7 @@ func (ms msgServer) WithdrawDepositTunnel(
 		return nil, err
 	}
 
-	return &types.MsgWithdrawDepositTunnelResponse{}, nil
+	return &types.MsgWithdrawTunnelResponse{}, nil
 }
 
 // UpdateParams updates the module params.
