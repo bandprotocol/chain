@@ -10,7 +10,7 @@ import (
 
 var (
 	DefaultMinInterval   = uint64(1)
-	DefaultMinDeposit    = sdk.NewCoins(sdk.NewInt64Coin("band", 1000000))
+	DefaultMinDeposit    = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 	DefaultMaxSignals    = uint64(100)
 	DefaultBasePacketFee = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
 )
@@ -57,7 +57,7 @@ func (p Params) Validate() error {
 		return err
 	}
 
-	// Validate BaseFee
+	// Validate BasePacketFee
 	if !p.BasePacketFee.IsValid() {
 		return sdkerrors.ErrInvalidCoins.Wrapf("%s", p.BasePacketFee.String())
 	}

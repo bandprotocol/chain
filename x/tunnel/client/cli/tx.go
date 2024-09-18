@@ -24,16 +24,16 @@ func GetTxCmd() *cobra.Command {
 
 	txCmd.AddCommand(GetTxCmdCreateTSSTunnel())
 	txCmd.AddCommand(GetTxCmdCreateIBCTunnel())
-	txCmd.AddCommand(GetTxCmdActivateTunnel())
-	txCmd.AddCommand(GetTxCmdDeactivateTunnel())
-	txCmd.AddCommand(GetTxCmdManualTriggerTunnel())
+	txCmd.AddCommand(GetTxCmdActivate())
+	txCmd.AddCommand(GetTxCmdDeactivate())
+	txCmd.AddCommand(GetTxCmdTriggerTunnel())
 
 	return txCmd
 }
 
 func GetTxCmdCreateTSSTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-tss-tunnel [encoder] [destination-chain-id] [destination-contract-address] [deposit] [signalInfos-json-file]",
+		Use:   "create-tss-tunnel [encoder] [destination-chain-id] [destination-contract-address] [deposit] [signalDeviations-json-file]",
 		Short: "Create a new TSS tunnel",
 		Args:  cobra.ExactArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -52,7 +52,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 				return err
 			}
 
-			signalInfos, err := parseSignalInfos(args[4])
+			signalDeviations, err := parseSignalDeviations(args[4])
 			if err != nil {
 				return err
 			}
@@ -63,7 +63,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 			}
 
 			msg, err := types.NewMsgCreateTSSTunnel(
-				signalInfos.ToSignalInfos(),
+				signalDeviations.ToSignalDeviations(),
 				interval,
 				types.Encoder(encoder),
 				args[1],
@@ -110,13 +110,13 @@ func GetTxCmdCreateIBCTunnel() *cobra.Command {
 				return err
 			}
 
-			signalInfos, err := parseSignalInfos(args[4])
+			signalInfos, err := parseSignalDeviations(args[4])
 			if err != nil {
 				return err
 			}
 
 			msg, err := types.NewMsgCreateIBCTunnel(
-				signalInfos.ToSignalInfos(),
+				signalInfos.ToSignalDeviations(),
 				interval,
 				args[0],
 				types.Encoder(encoder),
@@ -135,9 +135,9 @@ func GetTxCmdCreateIBCTunnel() *cobra.Command {
 	return cmd
 }
 
-func GetTxCmdActivateTunnel() *cobra.Command {
+func GetTxCmdActivate() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "activate-tunnel [tunnel-id]",
+		Use:   "activate [tunnel-id]",
 		Short: "Activate a tunnel",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -151,7 +151,7 @@ func GetTxCmdActivateTunnel() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgActivateTunnel(id, clientCtx.GetFromAddress().String())
+			msg := types.NewMsgActivate(id, clientCtx.GetFromAddress().String())
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -161,9 +161,9 @@ func GetTxCmdActivateTunnel() *cobra.Command {
 	return cmd
 }
 
-func GetTxCmdDeactivateTunnel() *cobra.Command {
+func GetTxCmdDeactivate() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "deactivate-tunnel [tunnel-id]",
+		Use:   "deactivate [tunnel-id]",
 		Short: "Deactivate a tunnel",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -177,7 +177,7 @@ func GetTxCmdDeactivateTunnel() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgDeactivateTunnel(id, clientCtx.GetFromAddress().String())
+			msg := types.NewMsgDeactivate(id, clientCtx.GetFromAddress().String())
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -187,9 +187,9 @@ func GetTxCmdDeactivateTunnel() *cobra.Command {
 	return cmd
 }
 
-func GetTxCmdManualTriggerTunnel() *cobra.Command {
+func GetTxCmdTriggerTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "manual-trigger-tunnel [tunnel-id]",
+		Use:   "trigger [tunnel-id]",
 		Short: "Manual trigger a tunnel",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -203,7 +203,7 @@ func GetTxCmdManualTriggerTunnel() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgManualTriggerTunnel(tunnelID, clientCtx.GetFromAddress().String())
+			msg := types.NewMsgTriggerTunnel(tunnelID, clientCtx.GetFromAddress().String())
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

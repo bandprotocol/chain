@@ -24,26 +24,27 @@ func NewParams(
 	activeDuration time.Duration,
 	rewardPercentage uint64,
 	inactivePenaltyDuration time.Duration,
+	maxTransitionDuration time.Duration,
 	fee sdk.Coins,
 ) Params {
 	return Params{
 		ActiveDuration:          activeDuration,
 		RewardPercentage:        rewardPercentage,
 		InactivePenaltyDuration: inactivePenaltyDuration,
-		MaxTransitionDuration:   DefaultMaxTransitionDuration,
+		MaxTransitionDuration:   maxTransitionDuration,
 		Fee:                     fee,
 	}
 }
 
 // DefaultParams returns default parameters
 func DefaultParams() Params {
-	return Params{
-		ActiveDuration:          DefaultActiveDuration,
-		RewardPercentage:        DefaultRewardPercentage,
-		InactivePenaltyDuration: DefaultInactivePenaltyDuration,
-		MaxTransitionDuration:   DefaultMaxTransitionDuration,
-		Fee:                     DefaultFee,
-	}
+	return NewParams(
+		DefaultActiveDuration,
+		DefaultRewardPercentage,
+		DefaultInactivePenaltyDuration,
+		DefaultMaxTransitionDuration,
+		DefaultFee,
+	)
 }
 
 // Validate validates the set of params

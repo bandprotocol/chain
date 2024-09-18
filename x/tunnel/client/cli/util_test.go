@@ -8,45 +8,45 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestParseSignalInfos(t *testing.T) {
-	// Test case for valid signal info
-	t.Run("valid signal info", func(t *testing.T) {
+func TestParseSignalDeviations(t *testing.T) {
+	// Test case for valid signal deviation
+	t.Run("valid signal deviations", func(t *testing.T) {
 		// Setup
-		signalInfos := []SignalInfo{
+		signalDeviations := []SignalDeviation{
 			{SignalID: "BTC", DeviationBPS: 2000},
 			{SignalID: "ETH", DeviationBPS: 4000},
 		}
-		file, cleanup := createTempSignalInfoFile(signalInfos)
+		file, cleanup := createTempSignalDeviationFile(signalDeviations)
 		defer cleanup()
 
 		// Execute
-		result, err := parseSignalInfos(file)
+		result, err := parseSignalDeviations(file)
 
 		// Verify
 		require.NoError(t, err)
-		require.Equal(t, signalInfos, result.SignalInfos)
+		require.Equal(t, signalDeviations, result.SignalDeviations)
 	})
 
 	// Test case for empty file path
 	t.Run("empty file path", func(t *testing.T) {
-		result, err := parseSignalInfos("")
+		result, err := parseSignalDeviations("")
 
 		require.NoError(t, err)
-		require.Equal(t, SignalInfos{}, result)
+		require.Equal(t, SignalDeviations{}, result)
 	})
 }
 
 // Helper function to create a temporary file with signal info JSON content
-func createTempSignalInfoFile(signalInfos []SignalInfo) (string, func()) {
-	file, err := os.CreateTemp("", "signalInfos*.json")
+func createTempSignalDeviationFile(signalDeviations []SignalDeviation) (string, func()) {
+	file, err := os.CreateTemp("", "signalDeviations*.json")
 	if err != nil {
 		panic(err)
 	}
 	filePath := file.Name()
 
 	data := struct {
-		SignalInfos []SignalInfo `json:"signal_infos"`
-	}{SignalInfos: signalInfos}
+		SignalDeviations []SignalDeviation `json:"signal_deviations"`
+	}{SignalDeviations: signalDeviations}
 
 	content, err := json.Marshal(data)
 	if err != nil {

@@ -16,23 +16,23 @@ func NewTunnel(
 	route *types.Any,
 	encoder Encoder,
 	feePayer string,
-	signalInfos []SignalInfo,
+	signalDeviations []SignalDeviation,
 	interval uint64,
 	isActive bool,
 	createdAt int64,
 	creator string,
 ) Tunnel {
 	return Tunnel{
-		ID:          id,
-		NonceCount:  nonceCount,
-		Route:       route,
-		Encoder:     encoder,
-		FeePayer:    feePayer,
-		SignalInfos: signalInfos,
-		Interval:    interval,
-		IsActive:    isActive,
-		CreatedAt:   createdAt,
-		Creator:     creator,
+		ID:               id,
+		NonceCount:       nonceCount,
+		Route:            route,
+		Encoder:          encoder,
+		FeePayer:         feePayer,
+		SignalDeviations: signalDeviations,
+		Interval:         interval,
+		IsActive:         isActive,
+		CreatedAt:        createdAt,
+		Creator:          creator,
 	}
 }
 
@@ -57,11 +57,11 @@ func (t *Tunnel) SetRoute(route RouteI) error {
 	return nil
 }
 
-// GetSignalInfoMap returns the signal info map by signal ID from the tunnel.
-func (t Tunnel) GetSignalInfoMap() map[string]SignalInfo {
-	signalInfoMap := make(map[string]SignalInfo, len(t.SignalInfos))
-	for _, si := range t.SignalInfos {
-		signalInfoMap[si.SignalID] = si
+// GetSignalDeviationMap returns the signal deviation map of the tunnel.
+func (t Tunnel) GetSignalDeviationMap() map[string]SignalDeviation {
+	signalDeviationMap := make(map[string]SignalDeviation, len(t.SignalDeviations))
+	for _, si := range t.SignalDeviations {
+		signalDeviationMap[si.SignalID] = si
 	}
-	return signalInfoMap
+	return signalDeviationMap
 }

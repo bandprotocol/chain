@@ -28,7 +28,7 @@ func TestValidateGenesis(t *testing.T) {
 					{ID: 2},
 				},
 				TunnelCount: 2,
-				SignalPricesInfos: []types.SignalPricesInfo{
+				LatestSignalPricesList: []types.LatestSignalPrices{
 					{TunnelID: 1},
 					{TunnelID: 2},
 				},
@@ -71,8 +71,8 @@ func TestValidateGenesis(t *testing.T) {
 					{ID: 1},
 				},
 				TunnelCount: 1,
-				SignalPricesInfos: []types.SignalPricesInfo{
-					{TunnelID: 0}, // Invalid tunnel ID
+				LatestSignalPricesList: []types.LatestSignalPrices{
+					{TunnelID: 0},
 				},
 				PortID: types.PortID,
 			},
@@ -131,13 +131,13 @@ func TestInitExportGenesis(t *testing.T) {
 		Tunnels: []types.Tunnel{
 			{ID: 1},
 		},
-		SignalPricesInfos: []types.SignalPricesInfo{
+		LatestSignalPricesList: []types.LatestSignalPrices{
 			{
 				TunnelID: 1,
 				SignalPrices: []types.SignalPrice{
 					{SignalID: "ETH", Price: 5000},
 				},
-				LastIntervalTimestamp: 0,
+				Timestamp: 0,
 			},
 		},
 		TotalFees: types.TotalFees{

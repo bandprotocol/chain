@@ -244,10 +244,7 @@ func (k msgServer) Confirm(
 	}
 
 	// Add confirm
-	k.AddConfirm(ctx, groupID, types.Confirm{
-		MemberID:     memberID,
-		OwnPubKeySig: req.OwnPubKeySig,
-	})
+	k.AddConfirm(ctx, groupID, types.NewConfirm(memberID, req.OwnPubKeySig))
 
 	// Emit event confirm success
 	ctx.EventManager().EmitEvent(

@@ -252,7 +252,7 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 	require.NoError(ba.TB, err)
 
 	// CreateGroup
-	tssKeeper.CreateNewGroup(ctx, tsstypes.Group{
+	tssKeeper.SetGroup(ctx, tsstypes.Group{
 		ID:            gid,
 		Size_:         1,
 		Threshold:     1,
@@ -260,6 +260,7 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 		Status:        tsstypes.GROUP_STATUS_ACTIVE,
 		CreatedHeight: 1,
 	})
+	tssKeeper.SetGroupCount(ctx, 1)
 	tssKeeper.SetDKGContext(ctx, gid, dkg)
 
 	// Set current group in bandtss module

@@ -24,23 +24,18 @@ const (
 )
 
 var (
-	// GlobalStoreKeyPrefix is the prefix for global primitive state variables.
-	GlobalStoreKeyPrefix = []byte{0x00}
-	// ParamsKeyPrefix is a prefix for keys that store bandtss's parameters
-	ParamsKeyPrefix = []byte{0x01}
-	// MemberStoreKeyPrefix is the prefix for member store.
-	MemberStoreKeyPrefix = []byte{0x02}
-	// SigningInfoStoreKeyPrefix is the prefix for SigningInfoStoreKey.
-	SigningInfoStoreKeyPrefix = []byte{0x03}
-	// SigningIDMappingStoreKeyPrefix is the prefix for SigningIDMappingStoreKey.
-	SigningIDMappingStoreKeyPrefix = []byte{0x04}
+	// global store keys
+	SigningCountStoreKey    = []byte{0x00}
+	CurrentGroupIDStoreKey  = []byte{0x01}
+	GroupTransitionStoreKey = []byte{0x02}
 
-	// SigningCountStoreKey is the key that keeps the total number of Signing.
-	SigningCountStoreKey = append(GlobalStoreKeyPrefix, []byte("SigningCount")...)
-	// CurrentGroupIDStoreKey is the key for storing the current group ID.
-	CurrentGroupIDStoreKey = append(GlobalStoreKeyPrefix, []byte("CurrentGroupID")...)
-	// GroupTransitionStoreKey is the key for storing the group transition information.
-	GroupTransitionStoreKey = append(GlobalStoreKeyPrefix, []byte("GroupTransition")...)
+	// store prefixes
+	MemberStoreKeyPrefix           = []byte{0x10}
+	SigningInfoStoreKeyPrefix      = []byte{0x11}
+	SigningIDMappingStoreKeyPrefix = []byte{0x12}
+
+	// param store key
+	ParamsKey = []byte{0x90}
 )
 
 // MemberStoreKey returns the key for storing the member information.

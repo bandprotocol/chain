@@ -20,4 +20,6 @@ var (
 	ErrInvalidRoute             = errorsmod.Register(ModuleName, 13, "invalid tunnel route")
 	ErrInactiveTunnel           = errorsmod.Register(ModuleName, 14, "inactive tunnel")
 	ErrInvalidIBCVersion        = errorsmod.Register(ModuleName, 15, "invalid IBC version")
+	ErrAlreadyActive            = errorsmod.Register(ModuleName, 16, "already active")
+	ErrAlreadyInactive          = errorsmod.Register(ModuleName, 17, "already inactive")
 )

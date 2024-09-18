@@ -94,13 +94,7 @@ func (k Keeper) AddMember(ctx sdk.Context, address sdk.AccAddress, groupID tss.G
 		return types.ErrMemberAlreadyExists.Wrapf("address : %v", address)
 	}
 
-	member := types.Member{
-		Address:    address.String(),
-		GroupID:    groupID,
-		IsActive:   true,
-		Since:      ctx.BlockTime(),
-		LastActive: ctx.BlockTime(),
-	}
+	member := types.NewMember(address, groupID, true, ctx.BlockTime(), ctx.BlockTime())
 	k.SetMember(ctx, member)
 
 	return nil
