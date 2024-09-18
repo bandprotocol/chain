@@ -352,7 +352,7 @@ func (m MsgDepositTunnel) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
-	if !m.Amount.IsValid() {
+	if !m.Amount.IsValid() || m.Amount.IsAllPositive() {
 		return sdkerrors.ErrInvalidCoins.Wrapf("invalid amount: %s", m.Amount)
 	}
 
@@ -391,7 +391,7 @@ func (m MsgWithdrawDepositTunnel) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
-	if !m.Amount.IsValid() {
+	if !m.Amount.IsValid() || m.Amount.IsAllPositive() {
 		return sdkerrors.ErrInvalidCoins.Wrapf("invalid amount: %s", m.Amount)
 	}
 
