@@ -1,5 +1,7 @@
 package types
 
+import fmt "fmt"
+
 // NewGenesisState creates a new GenesisState instanc e
 func NewGenesisState(
 	params Params,
@@ -20,4 +22,12 @@ func NewGenesisState(
 // DefaultGenesisState gets the raw genesis raw message for testing
 func DefaultGenesisState() *GenesisState {
 	return NewGenesisState(DefaultParams(), 0, []Tunnel{}, []LatestSignalPrices{}, TotalFees{})
+}
+
+// Validate validates the total fees
+func (tf TotalFees) Validate() error {
+	if !tf.TotalPacketFee.IsValid() {
+		return fmt.Errorf("invalid total packet fee: %s", tf.TotalPacketFee)
+	}
+	return nil
 }

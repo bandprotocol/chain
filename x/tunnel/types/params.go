@@ -71,18 +71,6 @@ func (p Params) String() string {
 	return string(out)
 }
 
-// validateBasisPoint validates if a given number is a valid basis point (0 to 10000).
-func validateBasisPoint(name string, bp uint64) error {
-	if err := validateUint64(name, false)(bp); err != nil {
-		return err
-	}
-
-	if bp > 10000 {
-		return fmt.Errorf("invalid basis point: must be between 0 and 10000")
-	}
-	return nil
-}
-
 // validateUint64 validates if a given number is a valid uint64.
 func validateUint64(name string, positiveOnly bool) func(interface{}) error {
 	return func(i interface{}) error {

@@ -8,7 +8,7 @@ import (
 var (
 	ErrInvalidGenesis           = errorsmod.Register(ModuleName, 2, "invalid genesis")
 	ErrMaxSignalsExceeded       = errorsmod.Register(ModuleName, 3, "max signals exceeded")
-	ErrMinIntervalExceeded      = errorsmod.Register(ModuleName, 4, "min interval exceeded")
+	ErrIntervalTooShort         = errorsmod.Register(ModuleName, 4, "interval too short")
 	ErrTunnelNotFound           = errorsmod.Register(ModuleName, 5, "tunnel not found")
 	ErrSignalPricesInfoNotFound = errorsmod.Register(ModuleName, 6, "signal prices info not found")
 	ErrPacketNotFound           = errorsmod.Register(ModuleName, 7, "packet not found")
