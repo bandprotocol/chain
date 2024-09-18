@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -41,8 +40,9 @@ type KeeperTestSuite struct {
 	queryClient types.QueryClient
 	msgServer   types.MsgServer
 
-	encCfg  moduletestutil.TestEncodingConfig
 	fileDir string
+
+	encCfg moduletestutil.TestEncodingConfig
 }
 
 func TestKeeperTestSuite(t *testing.T) {
@@ -63,9 +63,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.distrKeeper = oracletestutil.NewMockDistrKeeper(ctrl)
 	suite.authzKeeper = oracletestutil.NewMockAuthzKeeper(ctrl)
 
-	var err error
-	suite.fileDir, err = os.MkdirTemp(".", "files-*")
-	suite.Require().NoError(err)
+	suite.fileDir = testutil.GetTempDir(suite.T())
 
 	owasmVM, err := owasm.NewVm(100)
 	suite.Require().NoError(err)
@@ -95,10 +93,6 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 	err = suite.oracleKeeper.SetParams(ctx, types.DefaultParams())
 	suite.Require().NoError(err)
-}
-
-func (suite *KeeperTestSuite) TearDownTest() {
-	os.RemoveAll(suite.fileDir)
 }
 
 func (suite *KeeperTestSuite) TestGetSetRequestCount() {

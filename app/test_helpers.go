@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"sort"
+	"testing"
 	"time"
 
 	"cosmossdk.io/log"
@@ -15,11 +16,13 @@ import (
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 	cosmosdb "github.com/cosmos/cosmos-db"
+	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
+	"github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -291,7 +294,6 @@ func SetupWithCustomHome(isCheckTx bool, dir string) *BandApp {
 }
 
 func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string) *BandApp {
-	SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
 	db := cosmosdb.NewMemDB()
 	app := NewBandApp(
 		log.NewNopLogger(),
@@ -325,4 +327,23 @@ func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string) *BandApp
 	}
 
 	return app
+}
+
+func CreateTestingAppFn(t testing.TB) func() (ibctesting.TestingApp, map[string]json.RawMessage) {
+	return func() (ibctesting.TestingApp, map[string]json.RawMessage) {
+		dir := testutil.GetTempDir(t)
+		app := NewBandApp(
+			log.NewNopLogger(),
+			cosmosdb.NewMemDB(),
+			nil,
+			true,
+			map[int64]bool{},
+			dir,
+			sims.EmptyAppOptions{},
+			100,
+		)
+
+		g := GenesisStateWithValSet(app, dir)
+		return app, g
+	}
 }
