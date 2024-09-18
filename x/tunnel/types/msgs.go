@@ -121,7 +121,7 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 	}
 
 	// minimum deposit must be positive
-	if !m.Deposit.IsValid() {
+	if !m.Deposit.IsValid() || m.Deposit.IsAllPositive() {
 		return sdkerrors.ErrInvalidCoins.Wrapf("invalid deposit: %s", m.Deposit)
 	}
 
