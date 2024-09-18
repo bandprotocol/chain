@@ -88,34 +88,32 @@ func (k msgServer) Stake(
 		return nil, err
 	}
 
-	coins := msg.Coins.Sort()
-
 	// check if all coins are allowed denom coins.
 	allowedDenom := make(map[string]bool)
 	for _, denom := range k.GetParams(ctx).AllowedDenoms {
 		allowedDenom[denom] = true
 	}
 
-	for _, coin := range coins {
+	for _, coin := range msg.Coins {
 		if _, allow := allowedDenom[coin.Denom]; !allow {
 			return nil, types.ErrNotAllowedDenom.Wrapf("denom: %s", coin.Denom)
 		}
 	}
 
 	// transfer coins to module account
-	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, addr, types.ModuleName, coins); err != nil {
+	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, addr, types.ModuleName, msg.Coins); err != nil {
 		return nil, err
 	}
 
 	stake := k.GetStake(ctx, addr)
-	stake.Coins = stake.Coins.Add(coins...)
+	stake.Coins = stake.Coins.Add(msg.Coins...)
 	k.SetStake(ctx, stake)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeStake,
 			sdk.NewAttribute(types.AttributeKeyStaker, addr.String()),
-			sdk.NewAttribute(types.AttributeKeyCoins, coins.String()),
+			sdk.NewAttribute(types.AttributeKeyCoins, msg.Coins.String()),
 		),
 	)
 
@@ -134,12 +132,10 @@ func (k msgServer) Unstake(
 		return nil, err
 	}
 
-	coins := msg.Coins.Sort()
-
 	// reduce staked coins. return error if unstake more than staked coins
 	var isNeg bool
 	stake := k.GetStake(ctx, addr)
-	stake.Coins, isNeg = stake.Coins.SafeSub(coins...)
+	stake.Coins, isNeg = stake.Coins.SafeSub(msg.Coins...)
 	if isNeg {
 		return nil, types.ErrStakeNotEnough
 	}
@@ -152,7 +148,7 @@ func (k msgServer) Unstake(
 	}
 
 	// transfer coins from module account to the account
-	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, addr, coins); err != nil {
+	if err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, addr, msg.Coins); err != nil {
 		return nil, err
 	}
 
@@ -160,7 +156,7 @@ func (k msgServer) Unstake(
 		sdk.NewEvent(
 			types.EventTypeUnstake,
 			sdk.NewAttribute(types.AttributeKeyStaker, addr.String()),
-			sdk.NewAttribute(types.AttributeKeyCoins, coins.String()),
+			sdk.NewAttribute(types.AttributeKeyCoins, msg.Coins.String()),
 		),
 	)
 

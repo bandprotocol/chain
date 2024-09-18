@@ -82,8 +82,12 @@ func (m MsgStake) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid staker address: %s", err)
 	}
 
-	if err := m.Coins.Sort().Validate(); err != nil {
-		return err
+	if !m.Coins.IsValid() {
+		return sdkerrors.ErrInvalidCoins.Wrap(m.Coins.String())
+	}
+
+	if !m.Coins.IsAllPositive() {
+		return sdkerrors.ErrInvalidCoins.Wrap(m.Coins.String())
 	}
 
 	return nil
@@ -123,8 +127,12 @@ func (m MsgUnstake) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid staker address: %s", err)
 	}
 
-	if err := m.Coins.Sort().Validate(); err != nil {
-		return err
+	if !m.Coins.IsValid() {
+		return sdkerrors.ErrInvalidCoins.Wrap(m.Coins.String())
+	}
+
+	if !m.Coins.IsAllPositive() {
+		return sdkerrors.ErrInvalidCoins.Wrap(m.Coins.String())
 	}
 
 	return nil
