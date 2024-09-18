@@ -14,7 +14,7 @@ func (k Keeper) AddTunnel(
 	ctx sdk.Context,
 	route *codectypes.Any,
 	encoder types.Encoder,
-	signalInfos []types.SignalInfo,
+	signalDeviations []types.SignalDeviation,
 	interval uint64,
 	creator sdk.AccAddress,
 ) (*types.Tunnel, error) {
@@ -30,10 +30,10 @@ func (k Keeper) AddTunnel(
 
 	// Set the signal prices info
 	var signalPrices []types.SignalPrice
-	for _, si := range signalInfos {
-		signalPrices = append(signalPrices, types.NewSignalPrice(si.SignalID, 0))
+	for _, sd := range signalDeviations {
+		signalPrices = append(signalPrices, types.NewSignalPrice(sd.SignalID, 0))
 	}
-	k.SetSignalPricesInfo(ctx, types.NewSignalPricesInfo(newID, signalPrices, 0))
+	k.SetLatestSignalPrices(ctx, types.NewLatestSignalPrices(newID, signalPrices, 0))
 
 	// Create a new tunnel
 	tunnel := types.NewTunnel(
@@ -42,7 +42,7 @@ func (k Keeper) AddTunnel(
 		route,
 		encoder,
 		feePayer.String(),
-		signalInfos,
+		signalDeviations,
 		interval,
 		sdk.NewCoins(),
 		false,
@@ -61,7 +61,7 @@ func (k Keeper) AddTunnel(
 func (k Keeper) EditTunnel(
 	ctx sdk.Context,
 	tunnelID uint64,
-	signalInfos []types.SignalInfo,
+	signalDeviations []types.SignalDeviation,
 	interval uint64,
 ) error {
 	tunnel, err := k.GetTunnel(ctx, tunnelID)
@@ -69,17 +69,30 @@ func (k Keeper) EditTunnel(
 		return err
 	}
 
-	// Edit the signal infos and interval
-	tunnel.SignalInfos = signalInfos
+	// Edit the tunnel
+	tunnel.SignalDeviations = signalDeviations
 	tunnel.Interval = interval
 	k.SetTunnel(ctx, tunnel)
 
 	// Edit the signal prices info
 	var signalPrices []types.SignalPrice
-	for _, sp := range signalInfos {
+	for _, sp := range signalDeviations {
 		signalPrices = append(signalPrices, types.NewSignalPrice(sp.SignalID, 0))
 	}
-	k.SetSignalPricesInfo(ctx, types.NewSignalPricesInfo(tunnelID, signalPrices, 0))
+	k.SetLatestSignalPrices(ctx, types.NewLatestSignalPrices(tunnelID, signalPrices, 0))
+
+	// Emit an event
+	event := sdk.NewEvent(
+		types.EventTypeEditTunnel,
+		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
+		sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", tunnel.Interval)),
+	)
+	for _, signalDeviation := range signalDeviations {
+		event = event.AppendAttributes(
+			sdk.NewAttribute(types.AttributeKeySignalPriceInfos, signalDeviation.String()),
+		)
+	}
+	ctx.EventManager().EmitEvent(event)
 
 	return nil
 }

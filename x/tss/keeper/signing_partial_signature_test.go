@@ -141,8 +141,8 @@ func TestGetPartialSignaturesWithKey(t *testing.T) {
 
 	got := k.GetPartialSignaturesWithKey(ctx, 1, 1)
 	require.Equal(t, []types.PartialSignature{
-		{MemberID: 1, Signature: sig},
-		{MemberID: 2, Signature: sig2},
+		{SigningID: 1, SigningAttempt: 1, MemberID: 1, Signature: sig},
+		{SigningID: 1, SigningAttempt: 1, MemberID: 2, Signature: sig2},
 	}, got)
 
 	// get empty list

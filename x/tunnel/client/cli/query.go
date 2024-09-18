@@ -23,24 +23,24 @@ func GetQueryCmd() *cobra.Command {
 	}
 
 	queryCmd.AddCommand(
+		GetQueryCmdParams(),
 		GetQueryCmdTunnels(),
 		GetQueryCmdTunnel(),
 		GetQueryCmdDeposit(),
 		GetQueryCmdDeposits(),
 		GetQueryCmdPackets(),
 		GetQueryCmdPacket(),
-		GetQueryCmdParams(),
 	)
 
 	return queryCmd
 }
 
-// GetQueryCmdTunnel implements the query tunnel command.
-func GetQueryCmdTunnel() *cobra.Command {
+// GetQueryCmdParams implements the query params command.
+func GetQueryCmdParams() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "tunnel [tunnel-id]",
-		Short: "Query the tunnel by tunnel id",
-		Args:  cobra.ExactArgs(1),
+		Use:   "params",
+		Short: "Shows the parameters of the module",
+		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -49,14 +49,7 @@ func GetQueryCmdTunnel() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			tunnelID, err := strconv.ParseUint(args[0], 10, 64)
-			if err != nil {
-				return err
-			}
-
-			res, err := queryClient.Tunnel(cmd.Context(), &types.QueryTunnelRequest{
-				TunnelId: tunnelID,
-			})
+			res, err := queryClient.Params(cmd.Context(), &types.QueryParamsRequest{})
 			if err != nil {
 				return err
 			}
@@ -122,12 +115,12 @@ func GetQueryCmdTunnels() *cobra.Command {
 	return cmd
 }
 
-// GetQueryCmdDeposit implements the query deposit command.
-func GetQueryCmdDeposit() *cobra.Command {
+// GetQueryCmdTunnel implements the query tunnel command.
+func GetQueryCmdTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "deposit [tunnel-id] [depositor]",
-		Short: "Query the deposit of a tunnel by tunnel id and depositor address",
-		Args:  cobra.ExactArgs(2),
+		Use:   "tunnel [tunnel-id]",
+		Short: "Query the tunnel by tunnel id",
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
@@ -141,9 +134,8 @@ func GetQueryCmdDeposit() *cobra.Command {
 				return err
 			}
 
-			res, err := queryClient.Deposit(cmd.Context(), &types.QueryDepositRequest{
-				TunnelId:  tunnelID,
-				Depositor: args[1],
+			res, err := queryClient.Tunnel(cmd.Context(), &types.QueryTunnelRequest{
+				TunnelId: tunnelID,
 			})
 			if err != nil {
 				return err
@@ -194,7 +186,43 @@ func GetQueryCmdDeposits() *cobra.Command {
 		},
 	}
 
-	flags.AddPaginationFlagsToCmd(cmd, "packets")
+	flags.AddPaginationFlagsToCmd(cmd, "deposits")
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetQueryCmdDeposit implements the query deposit command.
+func GetQueryCmdDeposit() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "deposit [tunnel-id] [depositor]",
+		Short: "Query the deposit of a tunnel by tunnel id and depositor address",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			tunnelID, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			res, err := queryClient.Deposit(cmd.Context(), &types.QueryDepositRequest{
+				TunnelId:  tunnelID,
+				Depositor: args[1],
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd
@@ -270,34 +298,6 @@ func GetQueryCmdPacket() *cobra.Command {
 				TunnelId: tunnelID,
 				Nonce:    nonce,
 			})
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintProto(res)
-		},
-	}
-
-	flags.AddQueryFlagsToCmd(cmd)
-
-	return cmd
-}
-
-// GetQueryCmdParams implements the query params command.
-func GetQueryCmdParams() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "params",
-		Short: "Shows the parameters of the module",
-		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientQueryContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			queryClient := types.NewQueryClient(clientCtx)
-
-			res, err := queryClient.Params(cmd.Context(), &types.QueryParamsRequest{})
 			if err != nil {
 				return err
 			}

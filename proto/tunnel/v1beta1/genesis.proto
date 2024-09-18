@@ -15,8 +15,8 @@ message GenesisState {
   uint64 tunnel_count = 2;
   // tunnels is the list of tunnels.
   repeated Tunnel tunnels = 3 [(gogoproto.nullable) = false];
-  // signal_prices_infos is the signal prices info.
-  repeated SignalPricesInfo signal_prices_infos = 4 [(gogoproto.nullable) = false];
+  // latest_signal_prices_list is the list of latest signal prices.
+  repeated LatestSignalPrices latest_signal_prices_list = 4 [(gogoproto.nullable) = false];
   // total_fees is the type for the total fees collected by the tunnel
   TotalFees total_fees = 5 [(gogoproto.nullable) = false];
 }

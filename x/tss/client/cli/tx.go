@@ -148,17 +148,15 @@ func GetTxCmdSubmitDKGRound1() *cobra.Command {
 				coefficientCommits = append(coefficientCommits, point)
 			}
 
-			msg := &types.MsgSubmitDKGRound1{
-				GroupID: tss.GroupID(groupID),
-				Round1Info: types.Round1Info{
-					MemberID:           tss.MemberID(memberID),
-					CoefficientCommits: coefficientCommits,
-					OneTimePubKey:      oneTimePubKey,
-					A0Signature:        a0Signature,
-					OneTimeSignature:   oneTimeSignature,
-				},
-				Sender: clientCtx.GetFromAddress().String(),
-			}
+			r1Info := types.NewRound1Info(
+				tss.MemberID(memberID),
+				coefficientCommits,
+				oneTimePubKey,
+				a0Signature,
+				oneTimeSignature,
+			)
+			sender := clientCtx.GetFromAddress().String()
+			msg := types.NewMsgSubmitDKGRound1(tss.GroupID(groupID), r1Info, sender)
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -206,14 +204,9 @@ func GetTxCmdSubmitDKGRound2() *cobra.Command {
 				}
 			}
 
-			msg := &types.MsgSubmitDKGRound2{
-				GroupID: tss.GroupID(groupID),
-				Round2Info: types.Round2Info{
-					MemberID:              tss.MemberID(memberID),
-					EncryptedSecretShares: encryptedSecretShares,
-				},
-				Sender: clientCtx.GetFromAddress().String(),
-			}
+			r2Info := types.NewRound2Info(tss.MemberID(memberID), encryptedSecretShares)
+			sender := clientCtx.GetFromAddress().String()
+			msg := types.NewMsgSubmitDKGRound2(tss.GroupID(groupID), r2Info, sender)
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -263,11 +256,8 @@ Where complaints.json contains:
 				return err
 			}
 
-			msg := &types.MsgComplain{
-				GroupID:    tss.GroupID(groupID),
-				Complaints: complaints,
-				Sender:     clientCtx.GetFromAddress().String(),
-			}
+			sender := clientCtx.GetFromAddress().String()
+			msg := types.NewMsgComplain(tss.GroupID(groupID), complaints, sender)
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -308,12 +298,12 @@ func GetTxCmdConfirm() *cobra.Command {
 				return err
 			}
 
-			msg := &types.MsgConfirm{
-				GroupID:      tss.GroupID(groupID),
-				MemberID:     tss.MemberID(memberID),
-				OwnPubKeySig: ownPubKeySig,
-				Sender:       clientCtx.GetFromAddress().String(),
-			}
+			msg := types.NewMsgConfirm(
+				tss.GroupID(groupID),
+				tss.MemberID(memberID),
+				ownPubKeySig,
+				clientCtx.GetFromAddress().String(),
+			)
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -356,13 +346,10 @@ func GetTxCmdSubmitDEs() *cobra.Command {
 					return err
 				}
 
-				des = append(des, types.DE{PubD: d, PubE: e})
+				des = append(des, types.NewDE(d, e))
 			}
 
-			msg := &types.MsgSubmitDEs{
-				DEs:    des,
-				Sender: clientCtx.GetFromAddress().String(),
-			}
+			msg := types.NewMsgSubmitDEs(des, clientCtx.GetFromAddress().String())
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -403,12 +390,12 @@ func GetTxCmdSubmitSignature() *cobra.Command {
 				return err
 			}
 
-			msg := &types.MsgSubmitSignature{
-				SigningID: tss.SigningID(signingID),
-				MemberID:  tss.MemberID(memberID),
-				Signature: sig,
-				Signer:    clientCtx.GetFromAddress().String(),
-			}
+			msg := types.NewMsgSubmitSignature(
+				tss.SigningID(signingID),
+				tss.MemberID(memberID),
+				sig,
+				clientCtx.GetFromAddress().String(),
+			)
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

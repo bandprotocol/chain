@@ -132,16 +132,19 @@ func (k Keeper) GetPartialSignaturesWithKey(
 	signingID tss.SigningID,
 	attempt uint64,
 ) []types.PartialSignature {
-	var pzs []types.PartialSignature
+	var partialSigs []types.PartialSignature
 	iterator := k.GetPartialSignatureBySigningAttemptIterator(ctx, signingID, attempt)
+
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
-		pzs = append(pzs, types.PartialSignature{
-			MemberID:  types.MemberIDFromPartialSignatureStoreKey(iterator.Key()),
-			Signature: iterator.Value(),
-		})
+		memberID := types.MemberIDFromPartialSignatureStoreKey(iterator.Key())
+		sig := iterator.Value()
+
+		partialSig := types.NewPartialSignature(signingID, attempt, memberID, sig)
+		partialSigs = append(partialSigs, partialSig)
 	}
-	return pzs
+
+	return partialSigs
 }
 
 // GetMembersNotSubmitSignature get assigned members that haven't signed a requested message.

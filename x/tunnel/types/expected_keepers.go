@@ -36,7 +36,6 @@ type BankKeeper interface {
 		recipientModule string,
 		amt sdk.Coins,
 	) error
-	SendCoinsFromModuleToModule(ctx sdk.Context, senderModule, recipientModule string, amt sdk.Coins) error
 }
 
 type FeedsKeeper interface {
