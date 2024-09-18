@@ -229,6 +229,11 @@ func GenerateSignalPrices(
 
 // deviationExceedsThreshold checks if the deviation between the old price and the new price exceeds the threshold
 func deviationExceedsThreshold(oldPrice, newPrice, thresholdBPS sdkmath.Int) bool {
+	// if the old price is zero, always add the signal price info to the list
+	if oldPrice.IsZero() {
+		return true
+	}
+
 	// if the deviation is greater than the hard deviation, add the signal price info to the list
 	// soft deviation is the feature to be implemented in the future
 	deviation := newPrice.Sub(oldPrice).Abs().Quo(oldPrice)

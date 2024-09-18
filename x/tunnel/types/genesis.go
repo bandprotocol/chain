@@ -1,6 +1,6 @@
 package types
 
-import fmt "fmt"
+import "fmt"
 
 // NewGenesisState creates a new GenesisState instanc e
 func NewGenesisState(
