@@ -33,7 +33,7 @@ func ValidateGenesis(data *types.GenesisState) error {
 
 	// validate latest signal prices
 	for _, latestSignalPrices := range data.LatestSignalPricesList {
-		if latestSignalPrices.TunnelID == 0 {
+		if latestSignalPrices.TunnelID == 0 || latestSignalPrices.TunnelID > data.TunnelCount {
 			return types.ErrInvalidGenesis.Wrapf(
 				"TunnelID %d cannot be 0 or greater than the TunnelCount %d",
 				latestSignalPrices.TunnelID,
@@ -44,7 +44,7 @@ func ValidateGenesis(data *types.GenesisState) error {
 
 	// validate the total fees
 	if err := data.TotalFees.Validate(); err != nil {
-		return err
+		return types.ErrInvalidGenesis.Wrapf("total fees: %s", err.Error())
 	}
 
 	return data.Params.Validate()

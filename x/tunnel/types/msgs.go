@@ -125,14 +125,9 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 		return sdkerrors.ErrInvalidCoins.Wrapf("invalid initial deposit: %s", m.InitialDeposit)
 	}
 
-	// signalIDs must be unique
-	signalIDMap := make(map[string]bool)
-	for _, signalDeviation := range m.SignalDeviations {
-		if _, ok := signalIDMap[signalDeviation.SignalID]; ok {
-			return sdkerrors.ErrInvalidRequest.Wrapf("duplicate signal ID: %s", signalDeviation.SignalID)
-		}
-
-		signalIDMap[signalDeviation.SignalID] = true
+	err := validateUniqueSignalIDs(m.SignalDeviations)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -202,15 +197,6 @@ func (m MsgEditTunnel) ValidateBasic() error {
 	// creator address must be valid
 	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
-	}
-
-	// signalIDs must be unique
-	signalIDMap := make(map[string]bool)
-	for _, signalDeviation := range m.SignalDeviations {
-		if _, ok := signalIDMap[signalDeviation.SignalID]; ok {
-			return sdkerrors.ErrInvalidRequest.Wrapf("duplicate signal ID: %s", signalDeviation.SignalID)
-		}
-		signalIDMap[signalDeviation.SignalID] = true
 	}
 
 	err := validateUniqueSignalIDs(m.SignalDeviations)
