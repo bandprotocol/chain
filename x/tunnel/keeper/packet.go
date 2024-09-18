@@ -20,9 +20,9 @@ func (k Keeper) DeductBasePacketFee(ctx sdk.Context, feePayer sdk.AccAddress) er
 	}
 
 	// update total fees
-	totalFee := k.GetTotalFees(ctx)
-	totalFee.TotalPacketFee.Add(basePacketFee...)
-	k.SetTotalFees(ctx, totalFee)
+	totalFees := k.GetTotalFees(ctx)
+	totalFees.TotalPacketFee = totalFees.TotalPacketFee.Add(basePacketFee...)
+	k.SetTotalFees(ctx, totalFees)
 	return nil
 }
 
