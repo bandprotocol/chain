@@ -4,10 +4,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bandprotocol/go-owasm/api"
-	"github.com/cometbft/cometbft/crypto/secp256k1"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cometbft/cometbft/crypto/secp256k1"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/go-owasm/api"
 )
 
 var (
