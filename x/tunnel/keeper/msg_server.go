@@ -35,7 +35,7 @@ func (ms msgServer) CreateTunnel(
 		return nil, types.ErrMaxSignalsExceeded
 	}
 	if req.Interval < params.MinInterval {
-		return nil, types.ErrMinIntervalExceeded
+		return nil, types.ErrIntervalTooShort
 	}
 
 	creator, err := sdk.AccAddressFromBech32(req.Creator)
@@ -98,7 +98,7 @@ func (ms msgServer) EditTunnel(
 		return nil, types.ErrMaxSignalsExceeded
 	}
 	if req.Interval < params.MinInterval {
-		return nil, types.ErrMinIntervalExceeded
+		return nil, types.ErrIntervalTooShort
 	}
 
 	tunnel, err := ms.Keeper.GetTunnel(ctx, req.TunnelID)

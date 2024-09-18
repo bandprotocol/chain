@@ -43,7 +43,7 @@ func ValidateGenesis(data *types.GenesisState) error {
 	}
 
 	// validate the total fees
-	if err := data.TotalFees.TotalPacketFee.Validate(); err != nil {
+	if err := data.TotalFees.Validate(); err != nil {
 		return err
 	}
 
