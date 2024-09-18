@@ -3,7 +3,6 @@ package oracle_test
 // TODO: Fix test
 import (
 	"fmt"
-	"os"
 	"testing"
 	"time"
 
@@ -12,6 +11,7 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
+	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 
@@ -34,11 +34,7 @@ func TestKeeperTestSuite(t *testing.T) {
 }
 
 func (s *AppTestSuite) SetupTest() {
-	dir, err := os.MkdirTemp("", "bandd-test-home")
-	if err != nil {
-		panic(fmt.Sprintf("failed creating temporary directory: %v", err))
-	}
-	s.dir = dir
+	dir := testutil.GetTempDir(s.T())
 	s.app = bandtest.SetupWithCustomHome(false, dir)
 	ctx := s.app.BaseApp.NewContext(false)
 
@@ -48,12 +44,8 @@ func (s *AppTestSuite) SetupTest() {
 		s.Require().NoError(err)
 	}
 
-	_, err = s.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: s.app.LastBlockHeight() + 1})
+	_, err := s.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: s.app.LastBlockHeight() + 1})
 	s.Require().NoError(err)
-}
-
-func (s *AppTestSuite) TearDownTest() {
-	os.RemoveAll(s.dir)
 }
 
 func (s *AppTestSuite) TestSuccessRequestOracleData() {

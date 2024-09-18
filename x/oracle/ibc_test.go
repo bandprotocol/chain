@@ -1,148 +1,192 @@
-// TODO: write this test file by importing testing directly from ibc
 package oracle_test
 
-// TODO: Fix tests
-// import (
-// 	"strings"
-// 	"testing"
+import (
+	"testing"
+	"time"
 
-// 	"cosmossdk.io/math"
-// 	sdk "github.com/cosmos/cosmos-sdk/types"
-// 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-// 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
-// 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
-// 	"github.com/stretchr/testify/suite"
+	"github.com/stretchr/testify/suite"
 
-// 	"github.com/bandprotocol/chain/v3/pkg/obi"
-// 	bandtesting "github.com/bandprotocol/chain/v3/testing"
-// 	"github.com/bandprotocol/chain/v3/testing/ibctesting"
-// 	"github.com/bandprotocol/chain/v3/testing/testdata"
-// 	"github.com/bandprotocol/chain/v3/x/oracle/types"
-// )
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 
-// type OracleTestSuite struct {
-// 	suite.Suite
+	"cosmossdk.io/math"
 
-// 	coordinator *ibctesting.Coordinator
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
-// 	// testing chains used for convenience and readability
-// 	chainA *ibctesting.TestChain
-// 	chainB *ibctesting.TestChain
+	bandtest "github.com/bandprotocol/chain/v3/app"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+)
 
-// 	path *ibctesting.Path
-// }
+func init() {
+	bandtest.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
+	sdk.DefaultBondDenom = "uband"
+}
 
-// func (suite *OracleTestSuite) SetupTest() {
-// 	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 3)
-// 	suite.chainA = suite.coordinator.GetChain(ibctesting.GetChainID(0))
-// 	suite.chainB = suite.coordinator.GetChain(ibctesting.GetChainID(1))
+type IBCTestSuite struct {
+	suite.Suite
 
-// 	suite.path = ibctesting.NewPath(suite.chainA, suite.chainB)
-// 	suite.path.EndpointA.ChannelConfig.PortID = ibctesting.OraclePort
-// 	suite.path.EndpointB.ChannelConfig.PortID = ibctesting.OraclePort
+	coordinator *ibctesting.Coordinator
 
-// 	suite.coordinator.Setup(suite.path)
-// }
+	// testing chains used for convenience and readability
+	chainA *ibctesting.TestChain
+	chainB *ibctesting.TestChain
 
-// func (suite *OracleTestSuite) sendOracleRequestPacket(
-// 	path *ibctesting.Path,
-// 	seq uint64,
-// 	oracleRequestPacket types.OracleRequestPacketData,
-// 	timeoutHeight clienttypes.Height,
-// ) channeltypes.Packet {
-// 	packet := channeltypes.NewPacket(
-// 		oracleRequestPacket.GetBytes(),
-// 		seq,
-// 		path.EndpointA.ChannelConfig.PortID,
-// 		path.EndpointA.ChannelID,
-// 		path.EndpointB.ChannelConfig.PortID,
-// 		path.EndpointB.ChannelID,
-// 		timeoutHeight,
-// 		0,
-// 	)
-// 	_, err := path.EndpointA.SendPacket(timeoutHeight, 0, oracleRequestPacket.GetBytes())
-// 	suite.Require().NoError(err)
-// 	return packet
-// }
+	path *ibctesting.Path
 
-// func (suite *OracleTestSuite) checkChainBTreasuryBalances(expect sdk.Coins) {
-// 	treasuryBalances := suite.chainB.App.BankKeeper.GetAllBalances(suite.chainB.GetContext(), suite.chainB.Treasury)
-// 	suite.Require().Equal(expect, treasuryBalances)
-// }
+	// shortcut to chainB (bandchain)
+	bandApp *bandtest.BandApp
+}
 
-// func (suite *OracleTestSuite) checkChainBSenderBalances(expect sdk.Coins) {
-// 	b := suite.chainB.App.BankKeeper.GetAllBalances(suite.chainB.GetContext(), suite.chainB.SenderAccount.GetAddress())
-// 	suite.Require().Equal(expect, b)
-// }
+func (suite *IBCTestSuite) SetupTest() {
+	ibctesting.DefaultTestingAppInit = bandtest.CreateTestingAppFn(suite.T())
 
-// // constructs a send from chainA to chainB on the established channel/connection
-// // and sends the same coin back from chainB to chainA.
-// func (suite *OracleTestSuite) TestHandleIBCRequestSuccess() {
-// 	path := suite.path
-// 	// send request from A to B
-// 	timeoutHeight := clienttypes.NewHeight(0, 110)
-// 	oracleRequestPacket := types.NewOracleRequestPacketData(
-// 		path.EndpointA.ClientID,
-// 		1,
-// 		[]byte("beeb"),
-// 		2,
-// 		2,
-// 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(6000000))),
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 	)
-// 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
+	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2)
+	suite.chainA = suite.coordinator.GetChain(ibctesting.GetChainID(1))
+	suite.chainB = suite.coordinator.GetChain(ibctesting.GetChainID(2))
 
-// 	err := path.RelayPacket(packet)
-// 	suite.Require().NoError(err) // relay committed
+	suite.path = ibctesting.NewPath(suite.chainA, suite.chainB)
+	suite.path.EndpointA.ChannelConfig.PortID = oracletypes.ModuleName
+	suite.path.EndpointA.ChannelConfig.Version = oracletypes.Version
+	suite.path.EndpointB.ChannelConfig.PortID = oracletypes.ModuleName
+	suite.path.EndpointB.ChannelConfig.Version = oracletypes.Version
 
-// 	suite.checkChainBTreasuryBalances(sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(6000000))))
-// 	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3970000))))
+	suite.bandApp = suite.chainB.App.(*bandtest.BandApp)
 
-// 	raws1 := []types.RawReport{
-// 		types.NewRawReport(1, 0, []byte("data1")),
-// 		types.NewRawReport(2, 0, []byte("data2")),
-// 		types.NewRawReport(3, 0, []byte("data3")),
-// 	}
-// 	_, err = suite.chainB.SendReport(1, raws1, bandtesting.Validators[0])
-// 	suite.Require().NoError(err)
+	suite.coordinator.Setup(suite.path)
 
-// 	raws2 := []types.RawReport{
-// 		types.NewRawReport(1, 0, []byte("data1")),
-// 		types.NewRawReport(2, 0, []byte("data2")),
-// 		types.NewRawReport(3, 0, []byte("data3")),
-// 	}
-// 	_, err = suite.chainB.SendReport(1, raws2, bandtesting.Validators[1])
-// 	suite.Require().NoError(err)
+	// Activate oracle validator on chain B (bandchain)
+	for _, v := range suite.chainB.Vals.Validators {
+		err := suite.bandApp.OracleKeeper.Activate(
+			suite.chainB.GetContext(),
+			sdk.ValAddress(v.Address),
+		)
+		suite.Require().NoError(err)
+	}
 
-// 	oracleResponsePacket := types.NewOracleResponsePacketData(
-// 		path.EndpointA.ClientID,
-// 		1,
-// 		2,
-// 		1577923380,
-// 		1577923405,
-// 		types.RESOLVE_STATUS_SUCCESS,
-// 		[]byte("beeb"),
-// 	)
-// 	responsePacket := channeltypes.NewPacket(
-// 		oracleResponsePacket.GetBytes(),
-// 		1,
-// 		path.EndpointB.ChannelConfig.PortID,
-// 		path.EndpointB.ChannelID,
-// 		path.EndpointA.ChannelConfig.PortID,
-// 		path.EndpointA.ChannelID,
-// 		clienttypes.ZeroHeight(),
-// 		1577924005000000000,
-// 	)
-// 	expectCommitment := channeltypes.CommitPacket(suite.chainB.Codec, responsePacket)
-// 	commitment := suite.chainB.App.IBCKeeper.ChannelKeeper.GetPacketCommitment(
-// 		suite.chainB.GetContext(),
-// 		path.EndpointB.ChannelConfig.PortID,
-// 		path.EndpointB.ChannelID,
-// 		1,
-// 	)
-// 	suite.Equal(expectCommitment, commitment)
-// }
+	suite.coordinator.CommitBlock(suite.chainB)
+}
+
+func (suite *IBCTestSuite) sendReport(requestID oracletypes.RequestID, report oracletypes.Report, needToResolve bool) {
+	suite.bandApp.OracleKeeper.SetReport(suite.chainB.GetContext(), requestID, report)
+	if needToResolve {
+		suite.bandApp.OracleKeeper.AddPendingRequest(suite.chainB.GetContext(), requestID)
+	}
+
+	suite.coordinator.CommitBlock(suite.chainB)
+}
+
+func (suite *IBCTestSuite) sendOracleRequestPacket(
+	path *ibctesting.Path,
+	seq uint64,
+	oracleRequestPacket oracletypes.OracleRequestPacketData,
+	timeoutHeight clienttypes.Height,
+) channeltypes.Packet {
+	packet := channeltypes.NewPacket(
+		oracleRequestPacket.GetBytes(),
+		seq,
+		path.EndpointA.ChannelConfig.PortID,
+		path.EndpointA.ChannelID,
+		path.EndpointB.ChannelConfig.PortID,
+		path.EndpointB.ChannelID,
+		timeoutHeight,
+		0,
+	)
+	_, err := path.EndpointA.SendPacket(timeoutHeight, 0, oracleRequestPacket.GetBytes())
+	suite.Require().NoError(err)
+	return packet
+}
+
+func (suite *IBCTestSuite) checkChainBTreasuryBalances(expect sdk.Coins) {
+	treasuryBalances := suite.bandApp.BankKeeper.GetAllBalances(
+		suite.chainB.GetContext(),
+		bandtest.Treasury.Address,
+	)
+	suite.Require().Equal(expect, treasuryBalances)
+}
+
+func (suite *IBCTestSuite) checkChainBSenderBalances(expect sdk.Coins) {
+	b := suite.bandApp.BankKeeper.GetAllBalances(
+		suite.chainB.GetContext(),
+		suite.chainB.SenderAccount.GetAddress(),
+	)
+	suite.Require().Equal(expect, b)
+}
+
+// constructs a send from chainA to chainB on the established channel/connection
+// and sends the same coin back from chainB to chainA.
+func (suite *IBCTestSuite) TestHandleIBCRequestSuccess() {
+	path := suite.path
+	// send request from A to B
+	timeoutHeight := clienttypes.NewHeight(10, 110)
+	oracleRequestPacket := oracletypes.NewOracleRequestPacketData(
+		path.EndpointA.ClientID,
+		1,
+		[]byte("test"),
+		4,
+		2,
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(12000000))),
+		bandtest.TestDefaultPrepareGas,
+		bandtest.TestDefaultExecuteGas,
+	)
+	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
+
+	err := path.RelayPacket(packet)
+	suite.Require().NoError(err) // relay committed
+
+	// Treasury get fees from relayer
+	suite.checkChainBTreasuryBalances(sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(12000000))))
+
+	raws1 := []oracletypes.RawReport{
+		oracletypes.NewRawReport(1, 0, []byte("data1")),
+		oracletypes.NewRawReport(2, 0, []byte("data2")),
+		oracletypes.NewRawReport(3, 0, []byte("data3")),
+	}
+	suite.sendReport(
+		oracletypes.RequestID(1),
+		oracletypes.NewReport(sdk.ValAddress(suite.chainB.Vals.Validators[0].Address), true, raws1),
+		false,
+	)
+
+	raws2 := []oracletypes.RawReport{
+		oracletypes.NewRawReport(1, 0, []byte("data1")),
+		oracletypes.NewRawReport(2, 0, []byte("data2")),
+		oracletypes.NewRawReport(3, 0, []byte("data3")),
+	}
+	suite.sendReport(
+		oracletypes.RequestID(1),
+		oracletypes.NewReport(sdk.ValAddress(suite.chainB.Vals.Validators[2].Address), true, raws2),
+		true,
+	)
+
+	oracleResponsePacket := oracletypes.NewOracleResponsePacketData(
+		path.EndpointA.ClientID,
+		1,
+		2,
+		1577923360,
+		1577923385,
+		oracletypes.RESOLVE_STATUS_SUCCESS,
+		[]byte("test"),
+	)
+	responsePacket := channeltypes.NewPacket(
+		oracleResponsePacket.GetBytes(),
+		1,
+		path.EndpointB.ChannelConfig.PortID,
+		path.EndpointB.ChannelID,
+		path.EndpointA.ChannelConfig.PortID,
+		path.EndpointA.ChannelID,
+		clienttypes.ZeroHeight(),
+		uint64(time.Unix(1577923385, 0).Add(10*time.Minute).UnixNano()),
+	)
+	expectCommitment := channeltypes.CommitPacket(suite.chainB.Codec, responsePacket)
+	commitment := suite.chainB.App.GetIBCKeeper().ChannelKeeper.GetPacketCommitment(
+		suite.chainB.GetContext(),
+		path.EndpointB.ChannelConfig.PortID,
+		path.EndpointB.ChannelID,
+		1,
+	)
+	suite.Equal(expectCommitment, commitment)
+}
 
 // func (suite *OracleTestSuite) TestIBCPrepareValidateBasicFail() {
 // 	path := suite.path
@@ -150,8 +194,8 @@ package oracle_test
 // 	clientID := path.EndpointA.ClientID
 // 	coins := sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(6000000)))
 
-// 	oracleRequestPackets := []types.OracleRequestPacketData{
-// 		types.NewOracleRequestPacketData(
+// 	oracleRequestPackets := []oracletypes.OracleRequestPacketData{
+// 		oracletypes.NewOracleRequestPacketData(
 // 			clientID,
 // 			1,
 // 			[]byte(strings.Repeat("beeb", 130)),
@@ -161,7 +205,7 @@ package oracle_test
 // 			bandtesting.TestDefaultPrepareGas,
 // 			bandtesting.TestDefaultExecuteGas,
 // 		),
-// 		types.NewOracleRequestPacketData(
+// 		oracletypes.NewOracleRequestPacketData(
 // 			clientID,
 // 			1,
 // 			[]byte("beeb"),
@@ -171,7 +215,7 @@ package oracle_test
 // 			bandtesting.TestDefaultPrepareGas,
 // 			bandtesting.TestDefaultExecuteGas,
 // 		),
-// 		types.NewOracleRequestPacketData(
+// 		oracletypes.NewOracleRequestPacketData(
 // 			clientID,
 // 			1,
 // 			[]byte("beeb"),
@@ -181,7 +225,7 @@ package oracle_test
 // 			bandtesting.TestDefaultPrepareGas,
 // 			bandtesting.TestDefaultExecuteGas,
 // 		),
-// 		types.NewOracleRequestPacketData(
+// 		oracletypes.NewOracleRequestPacketData(
 // 			strings.Repeat(clientID, 9),
 // 			1,
 // 			[]byte("beeb"),
@@ -191,7 +235,7 @@ package oracle_test
 // 			bandtesting.TestDefaultPrepareGas,
 // 			bandtesting.TestDefaultExecuteGas,
 // 		),
-// 		types.NewOracleRequestPacketData(
+// 		oracletypes.NewOracleRequestPacketData(
 // 			clientID,
 // 			1,
 // 			[]byte("beeb"),
@@ -201,7 +245,7 @@ package oracle_test
 // 			0,
 // 			bandtesting.TestDefaultExecuteGas,
 // 		),
-// 		types.NewOracleRequestPacketData(
+// 		oracletypes.NewOracleRequestPacketData(
 // 			clientID,
 // 			1,
 // 			[]byte("beeb"),
@@ -211,17 +255,17 @@ package oracle_test
 // 			bandtesting.TestDefaultPrepareGas,
 // 			0,
 // 		),
-// 		types.NewOracleRequestPacketData(
+// 		oracletypes.NewOracleRequestPacketData(
 // 			clientID,
 // 			1,
 // 			[]byte("beeb"),
 // 			1,
 // 			1,
 // 			coins,
-// 			types.MaximumOwasmGas,
-// 			types.MaximumOwasmGas,
+// 			oracletypes.MaximumOwasmGas,
+// 			oracletypes.MaximumOwasmGas,
 // 		),
-// 		types.NewOracleRequestPacketData(
+// 		oracletypes.NewOracleRequestPacketData(
 // 			clientID,
 // 			1,
 // 			[]byte("beeb"),
@@ -247,7 +291,7 @@ package oracle_test
 
 // 	// send request from A to B
 // 	timeoutHeight := clienttypes.NewHeight(0, 110)
-// 	oracleRequestPacket := types.NewOracleRequestPacketData(
+// 	oracleRequestPacket := oracletypes.NewOracleRequestPacketData(
 // 		path.EndpointA.ClientID,
 // 		1,
 // 		[]byte("beeb"),
@@ -289,7 +333,7 @@ package oracle_test
 
 // 	// send request from A to B
 // 	timeoutHeight := clienttypes.NewHeight(0, 110)
-// 	oracleRequestPacket := types.NewOracleRequestPacketData(
+// 	oracleRequestPacket := oracletypes.NewOracleRequestPacketData(
 // 		path.EndpointA.ClientID,
 // 		1,
 // 		[]byte("beeb"),
@@ -312,7 +356,7 @@ package oracle_test
 
 // 	// send request from A to B
 // 	timeoutHeight := clienttypes.NewHeight(0, 110)
-// 	oracleRequestPacket := types.NewOracleRequestPacketData(
+// 	oracleRequestPacket := oracletypes.NewOracleRequestPacketData(
 // 		path.EndpointA.ClientID,
 // 		1,
 // 		[]byte(strings.Repeat("beeb", 2000)),
@@ -332,7 +376,7 @@ package oracle_test
 // 	path := suite.path
 // 	// send request from A to B
 // 	timeoutHeight := clienttypes.NewHeight(0, 110)
-// 	oracleRequestPacket := types.NewOracleRequestPacketData(
+// 	oracleRequestPacket := oracletypes.NewOracleRequestPacketData(
 // 		path.EndpointA.ClientID,
 // 		1,
 // 		[]byte("beeb"),
@@ -353,7 +397,7 @@ package oracle_test
 
 // 	// send request from A to B
 // 	timeoutHeight := clienttypes.NewHeight(0, 110)
-// 	oracleRequestPacket := types.NewOracleRequestPacketData(
+// 	oracleRequestPacket := oracletypes.NewOracleRequestPacketData(
 // 		path.EndpointA.ClientID,
 // 		1,
 // 		[]byte("beeb"),
@@ -368,7 +412,7 @@ package oracle_test
 // 	err := path.RelayPacket(packet)
 // 	suite.Require().NoError(err) // relay committed
 
-// 	oracleRequestPacket = types.NewOracleRequestPacketData(
+// 	oracleRequestPacket = oracletypes.NewOracleRequestPacketData(
 // 		path.EndpointA.ClientID,
 // 		1,
 // 		[]byte("beeb"),
@@ -395,7 +439,7 @@ package oracle_test
 
 // 	// send request from A to B
 // 	timeoutHeight := clienttypes.NewHeight(0, 110)
-// 	oracleRequestPacket := types.NewOracleRequestPacketData(
+// 	oracleRequestPacket := oracletypes.NewOracleRequestPacketData(
 // 		path.EndpointA.ClientID,
 // 		1,
 // 		[]byte("beeb"),
@@ -422,7 +466,7 @@ package oracle_test
 
 // 	// send request from A to B
 // 	timeoutHeight := clienttypes.NewHeight(0, 110)
-// 	oracleRequestPacket := types.NewOracleRequestPacketData(
+// 	oracleRequestPacket := oracletypes.NewOracleRequestPacketData(
 // 		path.EndpointA.ClientID,
 // 		1,
 // 		[]byte("beeb"),
@@ -444,7 +488,7 @@ package oracle_test
 
 // 	// send request from A to B
 // 	timeoutHeight := clienttypes.NewHeight(0, 110)
-// 	oracleRequestPacket := types.NewOracleRequestPacketData(
+// 	oracleRequestPacket := oracletypes.NewOracleRequestPacketData(
 // 		path.EndpointA.ClientID,
 // 		100,
 // 		[]byte("beeb"),
@@ -465,7 +509,7 @@ package oracle_test
 
 // 	// send request from A to B
 // 	timeoutHeight := clienttypes.NewHeight(0, 110)
-// 	oracleRequestPacket := types.NewOracleRequestPacketData(
+// 	oracleRequestPacket := oracletypes.NewOracleRequestPacketData(
 // 		path.EndpointA.ClientID,
 // 		2,
 // 		[]byte("beeb"),
@@ -486,7 +530,7 @@ package oracle_test
 
 // 	// send request from A to B
 // 	timeoutHeight := clienttypes.NewHeight(0, 110)
-// 	oracleRequestPacket := types.NewOracleRequestPacketData(
+// 	oracleRequestPacket := oracletypes.NewOracleRequestPacketData(
 // 		path.EndpointA.ClientID,
 // 		3,
 // 		[]byte("beeb"),
@@ -507,7 +551,7 @@ package oracle_test
 
 // 	// send request from A to B
 // 	timeoutHeight := clienttypes.NewHeight(0, 110)
-// 	oracleRequestPacket := types.NewOracleRequestPacketData(
+// 	oracleRequestPacket := oracletypes.NewOracleRequestPacketData(
 // 		path.EndpointA.ClientID,
 // 		4,
 // 		[]byte("beeb"),
@@ -533,7 +577,7 @@ package oracle_test
 
 // 	// send request from A to B
 // 	timeoutHeight := clienttypes.NewHeight(0, 110)
-// 	oracleRequestPacket := types.NewOracleRequestPacketData(
+// 	oracleRequestPacket := oracletypes.NewOracleRequestPacketData(
 // 		path.EndpointA.ClientID,
 // 		4,
 // 		obi.MustEncode(testdata.Wasm4Input{
@@ -557,7 +601,7 @@ package oracle_test
 
 // 	// send request from A to B
 // 	timeoutHeight := clienttypes.NewHeight(0, 110)
-// 	oracleRequestPacket := types.NewOracleRequestPacketData(
+// 	oracleRequestPacket := oracletypes.NewOracleRequestPacketData(
 // 		path.EndpointA.ClientID,
 // 		6,
 // 		[]byte("beeb"),
@@ -577,7 +621,7 @@ package oracle_test
 // 	path := suite.path
 // 	// send request from A to B
 // 	timeoutHeight := clienttypes.NewHeight(0, 110)
-// 	oracleRequestPacket := types.NewOracleRequestPacketData(
+// 	oracleRequestPacket := oracletypes.NewOracleRequestPacketData(
 // 		path.EndpointA.ClientID,
 // 		8,
 // 		[]byte("beeb"),
@@ -598,7 +642,7 @@ package oracle_test
 
 // 	// send request from A to B
 // 	timeoutHeight := clienttypes.NewHeight(0, 110)
-// 	oracleRequestPacket := types.NewOracleRequestPacketData(
+// 	oracleRequestPacket := oracletypes.NewOracleRequestPacketData(
 // 		path.EndpointA.ClientID,
 // 		1,
 // 		[]byte("beeb"),
@@ -616,10 +660,10 @@ package oracle_test
 // 	suite.checkChainBTreasuryBalances(sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(6000000))))
 // 	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3970000))))
 
-// 	raws := []types.RawReport{
-// 		types.NewRawReport(1, 0, []byte("data1")),
-// 		types.NewRawReport(2, 0, []byte("data2")),
-// 		types.NewRawReport(3, 0, []byte("data3")),
+// 	raws := []oracletypes.RawReport{
+// 		oracletypes.NewRawReport(1, 0, []byte("data1")),
+// 		oracletypes.NewRawReport(2, 0, []byte("data2")),
+// 		oracletypes.NewRawReport(3, 0, []byte("data3")),
 // 	}
 // 	_, err = suite.chainB.SendReport(1, raws, bandtesting.Validators[0])
 // 	suite.Require().NoError(err)
@@ -631,13 +675,13 @@ package oracle_test
 // 		1,
 // 	)
 
-// 	oracleResponsePacket := types.NewOracleResponsePacketData(
+// 	oracleResponsePacket := oracletypes.NewOracleResponsePacketData(
 // 		path.EndpointA.ClientID,
 // 		1,
 // 		1,
 // 		1577923380,
 // 		1577923400,
-// 		types.RESOLVE_STATUS_FAILURE,
+// 		oracletypes.RESOLVE_STATUS_FAILURE,
 // 		[]byte{},
 // 	)
 // 	responsePacket := channeltypes.NewPacket(
@@ -659,7 +703,7 @@ package oracle_test
 
 // 	// send request from A to B
 // 	timeoutHeight := clienttypes.NewHeight(0, 110)
-// 	oracleRequestPacket := types.NewOracleRequestPacketData(
+// 	oracleRequestPacket := oracletypes.NewOracleRequestPacketData(
 // 		path.EndpointA.ClientID,
 // 		4,
 // 		obi.MustEncode(testdata.Wasm4Input{IDs: []int64{1, 2}, Calldata: string("beeb")}),
@@ -677,11 +721,11 @@ package oracle_test
 // 	suite.checkChainBTreasuryBalances(sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(4000000))))
 // 	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(5970000))))
 
-// 	raws1 := []types.RawReport{types.NewRawReport(0, 0, nil), types.NewRawReport(1, 0, []byte("beebd2v1"))}
+// 	raws1 := []oracletypes.RawReport{oracletypes.NewRawReport(0, 0, nil), oracletypes.NewRawReport(1, 0, []byte("beebd2v1"))}
 // 	_, err = suite.chainB.SendReport(1, raws1, bandtesting.Validators[0])
 // 	suite.Require().NoError(err)
 
-// 	raws2 := []types.RawReport{types.NewRawReport(0, 0, []byte("beebd1v2")), types.NewRawReport(1, 0, nil)}
+// 	raws2 := []oracletypes.RawReport{oracletypes.NewRawReport(0, 0, []byte("beebd1v2")), oracletypes.NewRawReport(1, 0, nil)}
 // 	_, err = suite.chainB.SendReport(1, raws2, bandtesting.Validators[1])
 // 	suite.Require().NoError(err)
 
@@ -692,13 +736,13 @@ package oracle_test
 // 		1,
 // 	)
 
-// 	oracleResponsePacket := types.NewOracleResponsePacketData(
+// 	oracleResponsePacket := oracletypes.NewOracleResponsePacketData(
 // 		path.EndpointA.ClientID,
 // 		1,
 // 		2,
 // 		1577923380,
 // 		1577923405,
-// 		types.RESOLVE_STATUS_SUCCESS,
+// 		oracletypes.RESOLVE_STATUS_SUCCESS,
 // 		obi.MustEncode(testdata.Wasm4Output{Ret: "beebd1v2beebd2v1"}),
 // 	)
 // 	responsePacket := channeltypes.NewPacket(
@@ -718,7 +762,7 @@ package oracle_test
 // func (suite *OracleTestSuite) TestIBCResolveRequestNoReturnData() {
 // 	path := suite.path
 
-// 	suite.chainB.App.OracleKeeper.SetRequest(suite.chainB.GetContext(), 1, types.NewRequest(
+// 	suite.chainB.App.OracleKeeper.SetRequest(suite.chainB.GetContext(), 1, oracletypes.NewRequest(
 // 		// 3rd Wasm - do nothing
 // 		3,
 // 		[]byte("beeb"),
@@ -729,14 +773,14 @@ package oracle_test
 // 			1,
 // 		bandtesting.ParseTime(1577923380),
 // 		path.EndpointA.ClientID,
-// 		[]types.RawRequest{
-// 			types.NewRawRequest(1, 1, []byte("beeb")),
+// 		[]oracletypes.RawRequest{
+// 			oracletypes.NewRawRequest(1, 1, []byte("beeb")),
 // 		},
-// 		&types.IBCChannel{PortId: path.EndpointB.ChannelConfig.PortID, ChannelId: path.EndpointB.ChannelID},
+// 		&oracletypes.IBCChannel{PortId: path.EndpointB.ChannelConfig.PortID, ChannelId: path.EndpointB.ChannelID},
 // 		0,
 // 	))
 
-// 	raws := []types.RawReport{types.NewRawReport(1, 0, []byte("beeb"))}
+// 	raws := []oracletypes.RawReport{oracletypes.NewRawReport(1, 0, []byte("beeb"))}
 // 	_, err := suite.chainB.SendReport(1, raws, bandtesting.Validators[0])
 // 	suite.Require().NoError(err)
 
@@ -747,13 +791,13 @@ package oracle_test
 // 		1,
 // 	)
 
-// 	oracleResponsePacket := types.NewOracleResponsePacketData(
+// 	oracleResponsePacket := oracletypes.NewOracleResponsePacketData(
 // 		path.EndpointA.ClientID,
 // 		1,
 // 		1,
 // 		1577923380,
 // 		1577923355,
-// 		types.RESOLVE_STATUS_FAILURE,
+// 		oracletypes.RESOLVE_STATUS_FAILURE,
 // 		[]byte{},
 // 	)
 // 	responsePacket := channeltypes.NewPacket(
@@ -773,7 +817,7 @@ package oracle_test
 // func (suite *OracleTestSuite) TestIBCResolveRequestWasmFailure() {
 // 	path := suite.path
 
-// 	suite.chainB.App.OracleKeeper.SetRequest(suite.chainB.GetContext(), 1, types.NewRequest(
+// 	suite.chainB.App.OracleKeeper.SetRequest(suite.chainB.GetContext(), 1, oracletypes.NewRequest(
 // 		// 6th Wasm - out-of-gas
 // 		6,
 // 		[]byte("beeb"),
@@ -784,14 +828,14 @@ package oracle_test
 // 			1,
 // 		bandtesting.ParseTime(1577923380),
 // 		path.EndpointA.ClientID,
-// 		[]types.RawRequest{
-// 			types.NewRawRequest(1, 1, []byte("beeb")),
+// 		[]oracletypes.RawRequest{
+// 			oracletypes.NewRawRequest(1, 1, []byte("beeb")),
 // 		},
-// 		&types.IBCChannel{PortId: path.EndpointB.ChannelConfig.PortID, ChannelId: path.EndpointB.ChannelID},
+// 		&oracletypes.IBCChannel{PortId: path.EndpointB.ChannelConfig.PortID, ChannelId: path.EndpointB.ChannelID},
 // 		bandtesting.TestDefaultExecuteGas,
 // 	))
 
-// 	raws := []types.RawReport{types.NewRawReport(1, 0, []byte("beeb"))}
+// 	raws := []oracletypes.RawReport{oracletypes.NewRawReport(1, 0, []byte("beeb"))}
 // 	_, err := suite.chainB.SendReport(1, raws, bandtesting.Validators[0])
 // 	suite.Require().NoError(err)
 
@@ -802,13 +846,13 @@ package oracle_test
 // 		1,
 // 	)
 
-// 	oracleResponsePacket := types.NewOracleResponsePacketData(
+// 	oracleResponsePacket := oracletypes.NewOracleResponsePacketData(
 // 		path.EndpointA.ClientID,
 // 		1,
 // 		1,
 // 		1577923380,
 // 		1577923355,
-// 		types.RESOLVE_STATUS_FAILURE,
+// 		oracletypes.RESOLVE_STATUS_FAILURE,
 // 		[]byte{},
 // 	)
 // 	responsePacket := channeltypes.NewPacket(
@@ -828,7 +872,7 @@ package oracle_test
 // func (suite *OracleTestSuite) TestIBCResolveRequestCallReturnDataSeveralTimes() {
 // 	path := suite.path
 
-// 	suite.chainB.App.OracleKeeper.SetRequest(suite.chainB.GetContext(), 1, types.NewRequest(
+// 	suite.chainB.App.OracleKeeper.SetRequest(suite.chainB.GetContext(), 1, oracletypes.NewRequest(
 // 		// 9th Wasm - set return data several times
 // 		9,
 // 		[]byte("beeb"),
@@ -839,14 +883,14 @@ package oracle_test
 // 			1,
 // 		bandtesting.ParseTime(1577923380),
 // 		path.EndpointA.ClientID,
-// 		[]types.RawRequest{
-// 			types.NewRawRequest(1, 1, []byte("beeb")),
+// 		[]oracletypes.RawRequest{
+// 			oracletypes.NewRawRequest(1, 1, []byte("beeb")),
 // 		},
-// 		&types.IBCChannel{PortId: path.EndpointB.ChannelConfig.PortID, ChannelId: path.EndpointB.ChannelID},
+// 		&oracletypes.IBCChannel{PortId: path.EndpointB.ChannelConfig.PortID, ChannelId: path.EndpointB.ChannelID},
 // 		bandtesting.TestDefaultExecuteGas,
 // 	))
 
-// 	raws := []types.RawReport{types.NewRawReport(1, 0, []byte("beeb"))}
+// 	raws := []oracletypes.RawReport{oracletypes.NewRawReport(1, 0, []byte("beeb"))}
 // 	_, err := suite.chainB.SendReport(1, raws, bandtesting.Validators[0])
 // 	suite.Require().NoError(err)
 
@@ -857,13 +901,13 @@ package oracle_test
 // 		1,
 // 	)
 
-// 	oracleResponsePacket := types.NewOracleResponsePacketData(
+// 	oracleResponsePacket := oracletypes.NewOracleResponsePacketData(
 // 		path.EndpointA.ClientID,
 // 		1,
 // 		1,
 // 		1577923380,
 // 		1577923355,
-// 		types.RESOLVE_STATUS_FAILURE,
+// 		oracletypes.RESOLVE_STATUS_FAILURE,
 // 		[]byte{},
 // 	)
 // 	responsePacket := channeltypes.NewPacket(
@@ -880,6 +924,6 @@ package oracle_test
 // 	suite.Equal(expectCommitment, commitment)
 // }
 
-// func TestOracleTestSuite(t *testing.T) {
-// 	suite.Run(t, new(OracleTestSuite))
-// }
+func TestIBCTestSuite(t *testing.T) {
+	suite.Run(t, new(IBCTestSuite))
+}
