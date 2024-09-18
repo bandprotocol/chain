@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"os"
 	"testing"
 	"time"
 
@@ -18,15 +17,11 @@ import (
 	ibctmtypes "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 
-	"cosmossdk.io/log"
 	"cosmossdk.io/math"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
-	cosmosdb "github.com/cosmos/cosmos-db"
-
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
-	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -34,7 +29,7 @@ import (
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	band "github.com/bandprotocol/chain/v3/app"
+	bandtest "github.com/bandprotocol/chain/v3/app"
 	"github.com/bandprotocol/chain/v3/hooks/common"
 	"github.com/bandprotocol/chain/v3/hooks/emitter"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
@@ -62,7 +57,6 @@ var (
 
 	clientHeight = clienttypes.NewHeight(0, 10)
 
-	Delegation        stakingtypes.Delegation
 	SelfDelegation    = sdk.NewInt64Coin("uband", 1)
 	MinSelfDelegation = math.NewInt(1)
 	Description       = stakingtypes.NewDescription("moniker", "identity", "website", "securityContact", "details")
@@ -75,20 +69,12 @@ var (
 	PubKey  = newPubKey("0B485CFC0EECC619440448436F8FC9DF40566F2369E72400281454CB552AFB50")
 	Amount  = sdk.NewCoin("uband", math.NewInt(1))
 
-	content, _  = govv1beta1.ContentFromProposalType("Title", "Desc", "Text")
-	proposalMsg sdk.Msg
+	content, _ = govv1beta1.ContentFromProposalType("Title", "Desc", "Text")
 )
 
 func init() {
-	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
-
-	// Build msg / delegation after seal prefix
-	proposalMsg = banktypes.NewMsgSend(SenderAddress, ReceiverAddress, sdk.Coins{Amount})
-	Delegation = stakingtypes.NewDelegation(
-		DelegatorAddress.String(),
-		ValAddress.String(),
-		math.LegacyNewDec(1),
-	)
+	bandtest.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
+	sdk.DefaultBondDenom = "uband"
 }
 
 type DecoderTestSuite struct {
@@ -98,38 +84,14 @@ type DecoderTestSuite struct {
 
 	chainA *ibctesting.TestChain
 	chainB *ibctesting.TestChain
-
-	dirs []string
 }
 
 func (suite *DecoderTestSuite) SetupTest() {
-	ibctesting.DefaultTestingAppInit = func() (ibctesting.TestingApp, map[string]json.RawMessage) {
-		dir, err := os.MkdirTemp("", "bandd-test-home")
-		suite.Require().NoError(err)
-		suite.dirs = append(suite.dirs, dir)
-		app := band.NewBandApp(
-			log.NewNopLogger(),
-			cosmosdb.NewMemDB(),
-			nil,
-			true,
-			map[int64]bool{},
-			dir,
-			sims.EmptyAppOptions{},
-			100,
-		)
+	ibctesting.DefaultTestingAppInit = bandtest.CreateTestingAppFn(suite.T())
 
-		g := band.GenesisStateWithValSet(app, dir)
-		return app, g
-	}
 	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2)
 	suite.chainA = suite.coordinator.GetChain(ibctesting.GetChainID(1))
 	suite.chainB = suite.coordinator.GetChain(ibctesting.GetChainID(2))
-}
-
-func (suite *DecoderTestSuite) TearDownTest() {
-	for _, dir := range suite.dirs {
-		os.RemoveAll(dir)
-	}
 }
 
 func NewOraclePath(chainA, chainB *ibctesting.TestChain) *ibctesting.Path {
@@ -391,8 +353,6 @@ func (suite *DecoderTestSuite) TestDecodeMsgCreateClient() {
 			consensus.NextValidatorsHash,
 		),
 	)
-	// MsgCreateClient example
-	// {"client_state":{"chain_id":"testchain1-1","trust_level":{"numerator":1,"denominator":3},"trusting_period":1209600000000000,"unbonding_period":1814400000000000,"max_clock_drift":10000000000,"frozen_height":{},"latest_height":{"revision_height":10},"proof_specs":[{"leaf_spec":{"hash":1,"prehash_value":1,"length":1,"prefix":"AA=="},"inner_spec":{"child_order":[0,1],"child_size":33,"min_prefix_length":4,"max_prefix_length":12,"hash":1}},{"leaf_spec":{"hash":1,"prehash_value":1,"length":1,"prefix":"AA=="},"inner_spec":{"child_order":[0,1],"child_size":32,"min_prefix_length":1,"max_prefix_length":1,"hash":1}}],"upgrade_path":["upgrade","upgradedIBCState"]},"consensus_state":{"timestamp":"2020-01-02T00:00:00Z","root":{"hash":"I0ofcG04FYhAyDFzygf8Q/6JEpBactgfhm68fSXwBro="},"next_validators_hash":"C8277795F71B45089E58F0994DCF4F88BECD5770C7E492A9A25B706888D6BF2F"},"signer":"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0"}
 }
 
 func (suite *DecoderTestSuite) TestDecodeV1beta1MsgSubmitProposal() {
@@ -409,7 +369,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitProposal() {
 	fmt.Println(sdk.GetConfig().GetBech32AccountAddrPrefix())
 	detail := make(common.JsDict)
 	msg, _ := govv1.NewMsgSubmitProposal(
-		[]sdk.Msg{proposalMsg},
+		[]sdk.Msg{banktypes.NewMsgSend(SenderAddress, ReceiverAddress, sdk.Coins{Amount})},
 		Coins1000000uband,
 		SenderAddress.String(),
 		"metadata",

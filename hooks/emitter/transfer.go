@@ -21,8 +21,8 @@ func (h *Hook) handleMsgTransfer(
 	if events, ok := evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeyDataHex]; ok {
 		packet := newPacket(
 			ctx,
-			evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeySrcPort][0],
-			evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeySrcChannel][0],
+			msg.SourcePort,
+			msg.SourceChannel,
 			common.Atoui(evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeySequence][0]),
 			evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeyDstPort][0],
 			evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeyDstChannel][0],

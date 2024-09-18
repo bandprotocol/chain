@@ -45,8 +45,6 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeMsgUpdateClient(msg, detail)
 	case *clienttypes.MsgUpgradeClient:
 		DecodeMsgUpgradeClient(msg, detail)
-	case *clienttypes.MsgSubmitMisbehaviour:
-		DecodeMsgSubmitMisbehaviour(msg, detail)
 	case *connectiontypes.MsgConnectionOpenInit:
 		DecodeMsgConnectionOpenInit(msg, detail)
 	case *connectiontypes.MsgConnectionOpenTry:
