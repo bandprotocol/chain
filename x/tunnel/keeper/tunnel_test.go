@@ -46,6 +46,7 @@ func TestAddTunnel(t *testing.T) {
 		SignalDeviations: signalDeviations,
 		IsActive:         false,
 		CreatedAt:        ctx.BlockTime().Unix(),
+		TotalDeposit:     sdk.NewCoins(),
 	}
 
 	// Define the expected latest signal prices
