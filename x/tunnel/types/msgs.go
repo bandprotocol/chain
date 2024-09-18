@@ -121,8 +121,8 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 	}
 
 	// initialDeposit deposit must be positive
-	if !m.InitialDeposit.IsValid() {
-		return sdkerrors.ErrInvalidCoins.Wrapf("invalid deposit: %s", m.InitialDeposit)
+	if !m.InitialDeposit.IsValid() || m.InitialDeposit.IsAllPositive() {
+		return sdkerrors.ErrInvalidCoins.Wrapf("invalid initial deposit: %s", m.InitialDeposit)
 	}
 
 	// signalIDs must be unique
