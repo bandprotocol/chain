@@ -32,7 +32,7 @@ func GetTxCmd() *cobra.Command {
 
 func GetTxCmdCreateTSSTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-tss-tunnel [encoder] [destination-chain-id] [destination-contract-address] [deposit] [signalDeviations-json-file]",
+		Use:   "create-tss-tunnel [encoder] [destination-chain-id] [destination-contract-address] [deposit] [interval] [signalDeviations-json-file]",
 		Short: "Create a new TSS tunnel",
 		Args:  cobra.ExactArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -51,12 +51,12 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 				return err
 			}
 
-			signalDeviations, err := parseSignalDeviations(args[4])
+			interval, err := strconv.ParseUint(args[4], 10, 64)
 			if err != nil {
 				return err
 			}
 
-			interval, err := strconv.ParseUint(args[0], 10, 64)
+			signalDeviations, err := parseSignalDeviations(args[5])
 			if err != nil {
 				return err
 			}
@@ -74,6 +74,47 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 				return err
 			}
 
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetTxCmdEditTunnel() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "edit-tunnel [tunnel-id] [interval] [signalDeviations-json-file] ",
+		Short: "Edit an existing tunnel",
+		Args:  cobra.ExactArgs(4),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			id, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			interval, err := strconv.ParseUint(args[1], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			signalDeviations, err := parseSignalDeviations(args[2])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgEditTunnel(
+				id,
+				signalDeviations.ToSignalDeviations(),
+				interval,
+				clientCtx.GetFromAddress().String(),
+			)
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
