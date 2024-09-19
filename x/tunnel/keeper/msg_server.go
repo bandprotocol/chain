@@ -34,7 +34,7 @@ func (ms msgServer) CreateTunnel(
 		return nil, types.ErrMaxSignalsExceeded
 	}
 	if req.Interval < params.MinInterval {
-		return nil, types.ErrIntervalTooShort
+		return nil, types.ErrIntervalTooLow
 	}
 
 	// TODO: check deposit with params, transfer deposit to module account
@@ -89,7 +89,7 @@ func (ms msgServer) EditTunnel(
 		return nil, types.ErrMaxSignalsExceeded
 	}
 	if req.Interval < params.MinInterval {
-		return nil, types.ErrIntervalTooShort
+		return nil, types.ErrIntervalTooLow
 	}
 
 	tunnel, err := ms.Keeper.GetTunnel(ctx, req.TunnelID)
@@ -98,7 +98,7 @@ func (ms msgServer) EditTunnel(
 	}
 
 	if req.Creator != tunnel.Creator {
-		return nil, fmt.Errorf("creator %s is not the creator of tunnel %d", req.Creator, req.TunnelID)
+		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", req.Creator, req.TunnelID)
 	}
 
 	err = ms.Keeper.EditTunnel(ctx, req.TunnelID, req.SignalDeviations, req.Interval)
