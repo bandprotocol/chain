@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 
 	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
 	"github.com/bandprotocol/chain/v2/x/tunnel/keeper"
@@ -57,7 +58,7 @@ func TestGetSetPacket(t *testing.T) {
 	require.Equal(t, packet, storedPacket)
 }
 
-func TestProduceActiveTunnelPackets(t *testing.T) {
+func TestProducePacket(t *testing.T) {
 	s := testutil.NewTestSuite(t)
 	ctx, k := s.Ctx, s.Keeper
 
@@ -99,6 +100,120 @@ func TestProduceActiveTunnelPackets(t *testing.T) {
 	// Call the ProduceActiveTunnelPackets function
 	err = k.ProducePacket(ctx, tunnelID, currentPricesMap, false)
 	require.NoError(t, err)
+}
+
+func TestProduceActiveTunnelPackets(t *testing.T) {
+	s := testutil.NewTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
+
+	// Define test data
+	tunnelID := uint64(1)
+	feePayer := sdk.AccAddress([]byte("fee_payer_address"))
+	tunnel := types.Tunnel{
+		ID:       1,
+		FeePayer: feePayer.String(),
+		IsActive: true,
+		SignalDeviations: []types.SignalDeviation{
+			{SignalID: "BTC/USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
+		},
+		CreatedAt: ctx.BlockTime().Unix(),
+	}
+	route := &types.TSSRoute{
+		DestinationChainID:         "0x",
+		DestinationContractAddress: "0x",
+	}
+	err := tunnel.SetRoute(route)
+	require.NoError(t, err)
+
+	// set params
+	defaultParams := types.DefaultParams()
+	err = k.SetParams(ctx, defaultParams)
+	require.NoError(t, err)
+
+	// Set the tunnel
+	k.SetTunnel(ctx, tunnel)
+	err = k.ActivateTunnel(ctx, tunnelID)
+	require.NoError(t, err)
+	k.SetLatestSignalPrices(ctx, types.NewLatestSignalPrices(tunnelID, []types.SignalPrice{
+		{SignalID: "BTC/USD", Price: 0},
+	}, 0))
+
+	// Mock bankKeeper & FeedsKeeper
+	s.MockFeedsKeeper.EXPECT().GetCurrentPrices(gomock.Any()).Return([]feedstypes.Price{
+		{PriceStatus: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
+	})
+	s.MockBankKeeper.EXPECT().GetAllBalances(gomock.Any(), feePayer).Return(types.DefaultBasePacketFee)
+	s.MockBankKeeper.EXPECT().
+		SendCoinsFromAccountToModule(gomock.Any(), feePayer, types.ModuleName, types.DefaultBasePacketFee).
+		Return(nil)
+
+	// Call the ProduceActiveTunnelPackets function
+	k.ProduceActiveTunnelPackets(ctx)
+
+	// Validate the tunnel is Inactive & no packet is Created
+	newTunnelInfo, err := k.GetTunnel(ctx, tunnelID)
+	require.NoError(t, err)
+	require.True(t, newTunnelInfo.IsActive)
+	require.Equal(t, newTunnelInfo.NonceCount, uint64(1))
+
+	activeTunnels := k.GetActiveTunnelIDs(ctx)
+	require.Equal(t, []uint64{1}, activeTunnels)
+}
+
+func TestProduceActiveTunnelPacketsNotEnoughMoney(t *testing.T) {
+	s := testutil.NewTestSuite(t)
+	ctx, k := s.Ctx, s.Keeper
+
+	// Define test data
+	tunnelID := uint64(1)
+	feePayer := sdk.AccAddress([]byte("fee_payer_address"))
+	tunnel := types.Tunnel{
+		ID:       1,
+		FeePayer: feePayer.String(),
+		IsActive: true,
+		SignalDeviations: []types.SignalDeviation{
+			{SignalID: "BTC/USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
+		},
+		CreatedAt: ctx.BlockTime().Unix(),
+	}
+	route := &types.TSSRoute{
+		DestinationChainID:         "0x",
+		DestinationContractAddress: "0x",
+	}
+	err := tunnel.SetRoute(route)
+	require.NoError(t, err)
+
+	// set params
+	defaultParams := types.DefaultParams()
+	err = k.SetParams(ctx, defaultParams)
+	require.NoError(t, err)
+
+	// Set the tunnel
+	k.SetTunnel(ctx, tunnel)
+	err = k.ActivateTunnel(ctx, tunnelID)
+	require.NoError(t, err)
+	k.SetLatestSignalPrices(ctx, types.NewLatestSignalPrices(tunnelID, []types.SignalPrice{
+		{SignalID: "BTC/USD", Price: 0},
+	}, 0))
+
+	// Mock bankKeeper & FeedsKeeper
+	s.MockFeedsKeeper.EXPECT().GetCurrentPrices(gomock.Any()).Return([]feedstypes.Price{
+		{PriceStatus: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
+	})
+	s.MockBankKeeper.EXPECT().GetAllBalances(gomock.Any(), feePayer).
+		Return(sdk.Coins{sdk.NewInt64Coin("uband", 1)})
+
+	// Call the ProduceActiveTunnelPackets function
+	k.ProduceActiveTunnelPackets(ctx)
+
+	// Validate the tunnel is Inactive & no packet is Created
+	newTunnelInfo, err := k.GetTunnel(ctx, tunnelID)
+	require.NoError(t, err)
+	require.False(t, newTunnelInfo.IsActive)
+	require.Equal(t, newTunnelInfo.NonceCount, uint64(0))
+
+	activeTunnels := k.GetActiveTunnelIDs(ctx)
+	require.Len(t, activeTunnels, 0)
 }
 
 func TestGenerateSignalPrices(t *testing.T) {
