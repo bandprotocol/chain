@@ -142,7 +142,7 @@ func TestProduceActiveTunnelPackets(t *testing.T) {
 	s.MockFeedsKeeper.EXPECT().GetCurrentPrices(gomock.Any()).Return([]feedstypes.Price{
 		{PriceStatus: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
 	})
-	s.MockBankKeeper.EXPECT().GetAllBalances(gomock.Any(), feePayer).Return(types.DefaultBasePacketFee)
+	s.MockBankKeeper.EXPECT().SpendableCoins(gomock.Any(), feePayer).Return(types.DefaultBasePacketFee)
 	s.MockBankKeeper.EXPECT().
 		SendCoinsFromAccountToModule(gomock.Any(), feePayer, types.ModuleName, types.DefaultBasePacketFee).
 		Return(nil)
@@ -200,7 +200,7 @@ func TestProduceActiveTunnelPacketsNotEnoughMoney(t *testing.T) {
 	s.MockFeedsKeeper.EXPECT().GetCurrentPrices(gomock.Any()).Return([]feedstypes.Price{
 		{PriceStatus: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
 	})
-	s.MockBankKeeper.EXPECT().GetAllBalances(gomock.Any(), feePayer).
+	s.MockBankKeeper.EXPECT().SpendableCoins(gomock.Any(), feePayer).
 		Return(sdk.Coins{sdk.NewInt64Coin("uband", 1)})
 
 	// Call the ProduceActiveTunnelPackets function

@@ -64,7 +64,7 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 	// check for active tunnels
 	for _, id := range ids {
 		tunnel := k.MustGetTunnel(ctx, id)
-		balances := k.bankKeeper.GetAllBalances(ctx, sdk.MustAccAddressFromBech32(tunnel.FeePayer))
+		balances := k.bankKeeper.SpendableCoins(ctx, sdk.MustAccAddressFromBech32(tunnel.FeePayer))
 		basePacketFee := k.GetParams(ctx).BasePacketFee
 
 		// deactivate tunnel if the fee payer does not have enough balance.

@@ -23,6 +23,7 @@ type AccountKeeper interface {
 
 type BankKeeper interface {
 	GetAllBalances(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
+	SpendableCoins(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
 
 	SendCoinsFromModuleToAccount(
 		ctx sdk.Context,
