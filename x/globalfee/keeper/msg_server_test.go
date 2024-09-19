@@ -114,8 +114,8 @@ func (s *IntegrationTestSuite) TestUpdateParams() {
 		},
 	}
 
-	for _, tc := range testCases {
-		tc := tc
+	for _, testcase := range testCases {
+		tc := testcase
 		s.Run(tc.name, func() {
 			_, err := s.msgServer.UpdateParams(s.ctx, tc.request)
 			if tc.expectErr != "" {

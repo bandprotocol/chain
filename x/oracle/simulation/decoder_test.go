@@ -105,8 +105,8 @@ func TestDecodeStore(t *testing.T) {
 		{"other", ""},
 	}
 
-	for i, tt := range tests {
-		i, tt := i, tt
+	for idx, test := range tests {
+		i, tt := idx, test
 		t.Run(tt.name, func(t *testing.T) {
 			switch i {
 			case len(tests) - 1:
