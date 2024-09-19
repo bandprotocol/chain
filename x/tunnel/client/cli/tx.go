@@ -34,7 +34,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create-tss-tunnel [encoder] [destination-chain-id] [destination-contract-address] [deposit] [interval] [signalDeviations-json-file]",
 		Short: "Create a new TSS tunnel",
-		Args:  cobra.ExactArgs(5),
+		Args:  cobra.ExactArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -87,7 +87,7 @@ func GetTxCmdEditTunnel() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "edit-tunnel [tunnel-id] [interval] [signalDeviations-json-file] ",
 		Short: "Edit an existing tunnel",
-		Args:  cobra.ExactArgs(4),
+		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
