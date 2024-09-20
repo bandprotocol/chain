@@ -11,7 +11,6 @@ import (
 func (s *KeeperTestSuite) TestAddTunnel() {
 	ctx, k := s.ctx, s.keeper
 
-	// Define test data
 	route := &codectypes.Any{}
 	signalDeviations := []types.SignalDeviation{
 		{SignalID: "BTC"},
@@ -20,17 +19,6 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 	interval := uint64(10)
 	creator := sdk.AccAddress([]byte("creator_address")).String()
 
-	s.accountKeeper.EXPECT().
-		GetAccount(ctx, gomock.Any()).
-		Return(nil).Times(1)
-	s.accountKeeper.EXPECT().NewAccount(ctx, gomock.Any()).Times(1)
-	s.accountKeeper.EXPECT().SetAccount(ctx, gomock.Any()).Times(1)
-
-	// Call the AddTunnel function
-	tunnel, err := k.AddTunnel(ctx, route, types.ENCODER_FIXED_POINT_ABI, signalDeviations, interval, creator)
-	s.Require().NoError(err)
-
-	// Define the expected tunnel
 	expectedTunnel := types.Tunnel{
 		ID:               1,
 		Route:            route,
@@ -43,7 +31,6 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 		CreatedAt:        ctx.BlockTime().Unix(),
 	}
 
-	// Define the expected latest signal prices
 	expectedSignalPrices := types.LatestSignalPrices{
 		TunnelID: 1,
 		SignalPrices: []types.SignalPrice{
@@ -53,14 +40,21 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 		Timestamp: 0,
 	}
 
-	// Validate the results
+	s.accountKeeper.EXPECT().
+		GetAccount(ctx, gomock.Any()).
+		Return(nil).Times(1)
+	s.accountKeeper.EXPECT().NewAccount(ctx, gomock.Any()).Times(1)
+	s.accountKeeper.EXPECT().SetAccount(ctx, gomock.Any()).Times(1)
+
+	tunnel, err := k.AddTunnel(ctx, route, types.ENCODER_FIXED_POINT_ABI, signalDeviations, interval, creator)
+	s.Require().NoError(err)
 	s.Require().Equal(expectedTunnel, *tunnel)
 
-	// Check the tunnel count
+	// check the tunnel count
 	tunnelCount := k.GetTunnelCount(ctx)
 	s.Require().Equal(uint64(1), tunnelCount)
 
-	// Check the latest signal prices
+	// check the latest signal prices
 	latestSignalPrices, err := k.GetLatestSignalPrices(ctx, tunnel.ID)
 	s.Require().NoError(err)
 	s.Require().Equal(expectedSignalPrices, latestSignalPrices)
@@ -69,12 +63,11 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 func (s *KeeperTestSuite) TestEditTunnel() {
 	ctx, k := s.ctx, s.keeper
 
-	// Define initial test data
 	initialRoute := &codectypes.Any{}
 	initialEncoder := types.ENCODER_FIXED_POINT_ABI
 	initialSignalDeviations := []types.SignalDeviation{
-		{SignalID: "BTC"},
-		{SignalID: "ETH"},
+		{SignalID: "BTC", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
+		{SignalID: "ETH", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
 	}
 	initialInterval := uint64(10)
 	creator := sdk.AccAddress([]byte("creator_address")).String()
@@ -85,7 +78,6 @@ func (s *KeeperTestSuite) TestEditTunnel() {
 	s.accountKeeper.EXPECT().NewAccount(ctx, gomock.Any()).Times(1)
 	s.accountKeeper.EXPECT().SetAccount(ctx, gomock.Any()).Times(1)
 
-	// Add an initial tunnel
 	initialTunnel, err := k.AddTunnel(
 		ctx,
 		initialRoute,
@@ -96,24 +88,24 @@ func (s *KeeperTestSuite) TestEditTunnel() {
 	)
 	s.Require().NoError(err)
 
-	// Define new test data for editing the tunnel
+	// define new test data for editing the tunnel
 	newSignalDeviations := []types.SignalDeviation{
-		{SignalID: "BTC"},
-		{SignalID: "ETH"},
+		{SignalID: "BTC", SoftDeviationBPS: 1100, HardDeviationBPS: 1100},
+		{SignalID: "ETH", SoftDeviationBPS: 1100, HardDeviationBPS: 1100},
 	}
 	newInterval := uint64(20)
 
-	// Call the EditTunnel function
+	// call the EditTunnel function
 	err = k.EditTunnel(ctx, initialTunnel.ID, newSignalDeviations, newInterval)
 	s.Require().NoError(err)
 
-	// Validate the edited tunnel
+	// validate the edited tunnel
 	editedTunnel, err := k.GetTunnel(ctx, initialTunnel.ID)
 	s.Require().NoError(err)
 	s.Require().Equal(newSignalDeviations, editedTunnel.SignalDeviations)
 	s.Require().Equal(newInterval, editedTunnel.Interval)
 
-	// Check the latest signal prices
+	// check the latest signal prices
 	latestSignalPrices, err := k.GetLatestSignalPrices(ctx, editedTunnel.ID)
 	s.Require().NoError(err)
 	s.Require().Equal(editedTunnel.ID, latestSignalPrices.TunnelID)
@@ -127,75 +119,54 @@ func (s *KeeperTestSuite) TestEditTunnel() {
 func (s *KeeperTestSuite) TestGetSetTunnel() {
 	ctx, k := s.ctx, s.keeper
 
-	// Create a new tunnel instance
 	tunnel := types.Tunnel{ID: 1}
 
-	// Set the tunnel in the keeper
 	k.SetTunnel(ctx, tunnel)
 
-	// Attempt to retrieve the tunnel by its ID
 	retrievedTunnel, err := k.GetTunnel(ctx, tunnel.ID)
-
-	// Assert no error occurred during retrieval
-	s.Require().NoError(err, "retrieving tunnel should not produce an error")
-
-	// Assert the retrieved tunnel matches the one we set
-	s.Require().Equal(tunnel, retrievedTunnel, "the retrieved tunnel should match the original")
+	s.Require().NoError(err)
+	s.Require().Equal(tunnel, retrievedTunnel)
 }
 
 func (s *KeeperTestSuite) TestGetTunnels() {
 	ctx, k := s.ctx, s.keeper
 
-	// Create a new tunnel instance
 	tunnel := types.Tunnel{ID: 1}
 
-	// Set the tunnel in the keeper
 	k.SetTunnel(ctx, tunnel)
 
-	// Retrieve all tunnels
 	tunnels := k.GetTunnels(ctx)
-
-	// Assert the number of tunnels is 1
-	s.Require().Len(tunnels, 1, "expected 1 tunnel to be retrieved")
+	s.Require().Len(tunnels, 1)
 }
 
 func (s *KeeperTestSuite) TestGetSetTunnelCount() {
 	ctx, k := s.ctx, s.keeper
 
-	// Set a new tunnel count
 	newCount := uint64(5)
 	k.SetTunnelCount(ctx, newCount)
 
-	// Get the tunnel count and verify it
 	retrievedCount := k.GetTunnelCount(ctx)
-	s.Require().Equal(newCount, retrievedCount, "retrieved tunnel count should match the set value")
+	s.Require().Equal(newCount, retrievedCount)
 }
 
 func (s *KeeperTestSuite) TestGetActiveTunnelIDs() {
 	ctx, k := s.ctx, s.keeper
 
-	// Define active tunnel IDs
 	activeTunnelIDs := []uint64{1, 2, 3}
-
-	// Add active tunnel IDs to the store
 	for _, id := range activeTunnelIDs {
 		k.ActiveTunnelID(ctx, id)
 	}
 
-	// Call the GetActiveTunnelIDs function
 	retrievedIDs := k.GetActiveTunnelIDs(ctx)
-
-	// Validate the results
-	s.Require().Equal(activeTunnelIDs, retrievedIDs, "retrieved active tunnel IDs should match the expected values")
+	s.Require().Equal(activeTunnelIDs, retrievedIDs)
 }
 
 func (s *KeeperTestSuite) TestActivateTunnel() {
 	ctx, k := s.ctx, s.keeper
 
-	// Define test data
 	tunnelID := uint64(1)
-	route := &codectypes.Any{}               // Replace with actual route data
-	encoder := types.ENCODER_FIXED_POINT_ABI // Replace with actual encoder data
+	route := &codectypes.Any{}
+	encoder := types.ENCODER_FIXED_POINT_ABI
 	signalDeviations := []types.SignalDeviation{
 		{SignalID: "BTC"},
 		{SignalID: "ETH"},
@@ -203,7 +174,6 @@ func (s *KeeperTestSuite) TestActivateTunnel() {
 	interval := uint64(10)
 	creator := sdk.AccAddress([]byte("creator_address")).String()
 
-	// Add a tunnel to the store
 	tunnel := types.Tunnel{
 		ID:               tunnelID,
 		Route:            route,
@@ -216,27 +186,25 @@ func (s *KeeperTestSuite) TestActivateTunnel() {
 	}
 	k.SetTunnel(ctx, tunnel)
 
-	// Call the ActivateTunnel function
 	err := k.ActivateTunnel(ctx, tunnelID)
 	s.Require().NoError(err)
 
-	// Validate the tunnel is activated
+	// validate the tunnel is activated
 	activatedTunnel, err := k.GetTunnel(ctx, tunnelID)
 	s.Require().NoError(err)
-	s.Require().True(activatedTunnel.IsActive, "tunnel should be active")
+	s.Require().True(activatedTunnel.IsActive)
 
-	// Validate the active tunnel ID is stored
+	// validate the active tunnel ID is stored
 	activeTunnelIDs := k.GetActiveTunnelIDs(ctx)
-	s.Require().Contains(activeTunnelIDs, tunnelID, "active tunnel IDs should contain the activated tunnel ID")
+	s.Require().Contains(activeTunnelIDs, tunnelID)
 }
 
 func (s *KeeperTestSuite) TestDeactivateTunnel() {
 	ctx, k := s.ctx, s.keeper
 
-	// Define test data
 	tunnelID := uint64(1)
-	route := &codectypes.Any{}               // Replace with actual route data
-	encoder := types.ENCODER_FIXED_POINT_ABI // Replace with actual encoder data
+	route := &codectypes.Any{}
+	encoder := types.ENCODER_FIXED_POINT_ABI
 	signalDeviations := []types.SignalDeviation{
 		{SignalID: "BTC"},
 		{SignalID: "ETH"},
@@ -244,7 +212,7 @@ func (s *KeeperTestSuite) TestDeactivateTunnel() {
 	interval := uint64(10)
 	creator := sdk.AccAddress([]byte("creator_address")).String()
 
-	// Add a tunnel to the store
+	// add a tunnel to the store
 	tunnel := types.Tunnel{
 		ID:               tunnelID,
 		Route:            route,
@@ -257,30 +225,26 @@ func (s *KeeperTestSuite) TestDeactivateTunnel() {
 	}
 	k.SetTunnel(ctx, tunnel)
 
-	// Call the DeactivateTunnel function
+	// call the DeactivateTunnel function
 	err := k.DeactivateTunnel(ctx, tunnelID)
 	s.Require().NoError(err)
 
-	// Validate the tunnel is deactivated
+	// validate the tunnel is deactivated
 	deactivatedTunnel, err := k.GetTunnel(ctx, tunnelID)
 	s.Require().NoError(err)
-	s.Require().False(deactivatedTunnel.IsActive, "tunnel should be inactive")
+	s.Require().False(deactivatedTunnel.IsActive)
 
-	// Validate the active tunnel ID is removed
+	// validate the active tunnel ID is removed
 	activeTunnelIDs := k.GetActiveTunnelIDs(ctx)
-	s.Require().
-		NotContains(activeTunnelIDs, tunnelID, "active tunnel IDs should not contain the deactivated tunnel ID")
+	s.Require().NotContains(activeTunnelIDs, tunnelID)
 }
 
 func (s *KeeperTestSuite) TestGetSetTotalFees() {
 	ctx, k := s.ctx, s.keeper
 
 	totalFees := types.TotalFees{TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100)))}
-
-	// Set the total fees in the keeper
 	k.SetTotalFees(ctx, totalFees)
 
-	// Get the total fees and verify it
 	retrievedFees := k.GetTotalFees(ctx)
-	s.Require().Equal(totalFees, retrievedFees, "retrieved total fees should match the set value")
+	s.Require().Equal(totalFees, retrievedFees)
 }

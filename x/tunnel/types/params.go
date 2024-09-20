@@ -42,22 +42,22 @@ func DefaultParams() Params {
 
 // Validate validates the set of params
 func (p Params) Validate() error {
-	// Validate MinDeposit
+	// validate MinDeposit
 	if !p.MinDeposit.IsValid() {
 		return sdkerrors.ErrInvalidCoins.Wrapf("%s", p.MinDeposit.String())
 	}
 
-	// Validate MinInterval
+	// validate MinInterval
 	if err := validateUint64("min interval", true)(p.MinInterval); err != nil {
 		return err
 	}
 
-	// Validate MaxSignals
+	// validate MaxSignals
 	if err := validateUint64("max signals", true)(p.MaxSignals); err != nil {
 		return err
 	}
 
-	// Validate BasePacketFee
+	// validate BasePacketFee
 	if !p.BasePacketFee.IsValid() {
 		return sdkerrors.ErrInvalidCoins.Wrapf("%s", p.BasePacketFee.String())
 	}

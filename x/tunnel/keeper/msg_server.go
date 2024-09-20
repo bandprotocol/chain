@@ -192,12 +192,11 @@ func (ms msgServer) TriggerTunnel(
 	currentPrices := ms.Keeper.feedsKeeper.GetCurrentPrices(ctx)
 	currentPricesMap := createCurrentPricesMap(currentPrices)
 
-	// Produce packet with trigger all signals
+	// produce packet with trigger all signals
 	if err := ms.Keeper.ProducePacket(ctx, tunnel.ID, currentPricesMap, true); err != nil {
 		return nil, err
 	}
 
-	// Emit an event
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeManualTriggerTunnel,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", req.TunnelID)),
@@ -225,7 +224,6 @@ func (ms msgServer) UpdateParams(
 		return nil, err
 	}
 
-	// Emit an event
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeUpdateParams,
 		sdk.NewAttribute(types.AttributeKeyParams, req.Params.String()),
