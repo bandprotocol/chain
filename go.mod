@@ -6,7 +6,6 @@ require (
 	cosmossdk.io/api v0.7.5
 	cosmossdk.io/client/v2 v2.0.0-beta.3
 	cosmossdk.io/core v0.11.1
-	cosmossdk.io/depinject v1.0.0
 	cosmossdk.io/errors v1.0.1
 	cosmossdk.io/log v1.4.0
 	cosmossdk.io/math v1.3.0
@@ -57,6 +56,7 @@ require (
 	cloud.google.com/go/iam v1.1.9 // indirect
 	cloud.google.com/go/storage v1.41.0 // indirect
 	cosmossdk.io/collections v0.4.0 // indirect
+	cosmossdk.io/depinject v1.0.0 // indirect
 	cosmossdk.io/x/circuit v0.1.1 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
@@ -219,12 +219,6 @@ require (
 replace (
 	// cosmos keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
-	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
-	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
-	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2
-	// Fix upstream GHSA-h395-qcrw-5vmq and GHSA-3vp4-m3rf-835h vulnerabilities.
-	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
-	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.0
 	// replace broken goleveldb
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )

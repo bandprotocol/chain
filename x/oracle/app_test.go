@@ -29,14 +29,14 @@ type AppTestSuite struct {
 	dir string
 }
 
-func TestKeeperTestSuite(t *testing.T) {
+func TestAppTestSuite(t *testing.T) {
 	suite.Run(t, new(AppTestSuite))
 }
 
 func (s *AppTestSuite) SetupTest() {
 	dir := testutil.GetTempDir(s.T())
 	s.app = bandtest.SetupWithCustomHome(false, dir)
-	ctx := s.app.BaseApp.NewContext(false)
+	ctx := s.app.BaseApp.NewUncachedContext(false, tmproto.Header{})
 
 	// Activate validators
 	for _, v := range bandtest.Validators {

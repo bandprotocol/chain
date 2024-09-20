@@ -48,16 +48,17 @@ type Account struct {
 }
 
 var (
-	Owner         Account
-	Treasury      Account
-	FeePayer      Account
-	Alice         Account
-	Bob           Account
-	Carol         Account
-	Validators    []Account
-	DataSources   []oracletypes.DataSource
-	OracleScripts []oracletypes.OracleScript
-	OwasmVM       *owasm.Vm
+	Owner           Account
+	Treasury        Account
+	FeePayer        Account
+	Alice           Account
+	Bob             Account
+	Carol           Account
+	MissedValidator Account
+	Validators      []Account
+	DataSources     []oracletypes.DataSource
+	OracleScripts   []oracletypes.OracleScript
+	OwasmVM         *owasm.Vm
 )
 
 var (
@@ -108,6 +109,7 @@ func init() {
 	Alice = createArbitraryAccount(r)
 	Bob = createArbitraryAccount(r)
 	Carol = createArbitraryAccount(r)
+	MissedValidator = createArbitraryAccount(r)
 	for i := 0; i < 3; i++ {
 		Validators = append(Validators, createArbitraryAccount(r))
 	}
@@ -144,6 +146,7 @@ func GenesisStateWithValSet(app *BandApp, dir string) GenesisState {
 		&authtypes.BaseAccount{Address: Alice.Address.String()},
 		&authtypes.BaseAccount{Address: Bob.Address.String()},
 		&authtypes.BaseAccount{Address: Carol.Address.String()},
+		&authtypes.BaseAccount{Address: MissedValidator.Address.String()},
 		&authtypes.BaseAccount{Address: Validators[0].Address.String()},
 		&authtypes.BaseAccount{Address: Validators[1].Address.String()},
 		&authtypes.BaseAccount{Address: Validators[2].Address.String()},
@@ -158,6 +161,7 @@ func GenesisStateWithValSet(app *BandApp, dir string) GenesisState {
 		{Address: Alice.Address.String(), Coins: Coins1000000uband},
 		{Address: Bob.Address.String(), Coins: Coins1000000uband},
 		{Address: Carol.Address.String(), Coins: Coins1000000uband},
+		{Address: MissedValidator.Address.String(), Coins: Coins100000000uband},
 		{Address: Validators[0].Address.String(), Coins: Coins100000000uband},
 		{Address: Validators[1].Address.String(), Coins: Coins100000000uband},
 		{Address: Validators[2].Address.String(), Coins: Coins100000000uband},
@@ -318,7 +322,7 @@ func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string) *BandApp
 		_, err = app.InitChain(
 			&abci.RequestInitChain{
 				Validators:      []abci.ValidatorUpdate{},
-				ConsensusParams: sims.DefaultConsensusParams,
+				ConsensusParams: DefaultConsensusParams,
 				AppStateBytes:   defaultGenesisStatebytes,
 				ChainId:         chainId,
 			},

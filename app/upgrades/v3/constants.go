@@ -1,4 +1,4 @@
-package v2_6
+package v3
 
 import (
 	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
@@ -23,7 +23,7 @@ import (
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
-const UpgradeName = "v2_6"
+const UpgradeName = "v3"
 
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,

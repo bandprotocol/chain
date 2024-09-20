@@ -43,7 +43,7 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/bandprotocol/chain/v3/app/upgrades/v2_6"
+	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
 	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
 	"github.com/bandprotocol/chain/v3/x/oracle"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
@@ -84,7 +84,7 @@ func NewDefaultGenesisState(cdc codec.Codec) GenesisState {
 	icaGenesis.HostGenesisState.Params = icahosttypes.Params{
 		HostEnabled: true,
 		// TODO: Update ICA Allow messages
-		AllowMessages: v2_6.ICAAllowMessages,
+		AllowMessages: v3.ICAAllowMessages,
 	}
 
 	globalfeeGenesis.Params.MinimumGasPrices = sdk.NewDecCoins(

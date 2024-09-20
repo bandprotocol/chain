@@ -55,7 +55,7 @@ import (
 
 	"github.com/bandprotocol/chain/v3/app/keepers"
 	"github.com/bandprotocol/chain/v3/app/upgrades"
-	"github.com/bandprotocol/chain/v3/app/upgrades/v2_6"
+	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
 )
 
@@ -63,7 +63,7 @@ var (
 	// DefaultNodeHome default home directories for the application daemon
 	DefaultNodeHome string
 
-	Upgrades = []upgrades.Upgrade{v2_6.Upgrade}
+	Upgrades = []upgrades.Upgrade{v3.Upgrade}
 )
 
 var (
