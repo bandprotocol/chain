@@ -23,6 +23,7 @@ func GetTxCmd() *cobra.Command {
 	}
 
 	txCmd.AddCommand(GetTxCmdCreateTSSTunnel())
+	txCmd.AddCommand(GetTxCmdEditTunnel())
 	txCmd.AddCommand(GetTxCmdActivate())
 	txCmd.AddCommand(GetTxCmdDeactivate())
 	txCmd.AddCommand(GetTxCmdTriggerTunnel())
