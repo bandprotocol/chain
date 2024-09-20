@@ -19,7 +19,7 @@ func (k Keeper) DeductBasePacketFee(ctx sdk.Context, feePayer sdk.AccAddress) er
 		return err
 	}
 
-	// update total fees
+	// Update total fees
 	totalFees := k.GetTotalFees(ctx)
 	totalFees.TotalPacketFee = totalFees.TotalPacketFee.Add(basePacketFee...)
 	k.SetTotalFees(ctx, totalFees)
@@ -55,19 +55,19 @@ func (k Keeper) MustGetPacket(ctx sdk.Context, tunnelID uint64, nonce uint64) ty
 
 // ProduceActiveTunnelPackets generates packets and sends packets to the destination route for all active tunnels
 func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
-	// get active tunnel IDs
+	// Get active tunnel IDs
 	ids := k.GetActiveTunnelIDs(ctx)
 
 	currentPrices := k.feedsKeeper.GetCurrentPrices(ctx)
 	currentPricesMap := createCurrentPricesMap(currentPrices)
 
-	// check for active tunnels
+	// Check for active tunnels
 	for _, id := range ids {
 		tunnel := k.MustGetTunnel(ctx, id)
 		balances := k.bankKeeper.SpendableCoins(ctx, sdk.MustAccAddressFromBech32(tunnel.FeePayer))
 		basePacketFee := k.GetParams(ctx).BasePacketFee
 
-		// deactivate tunnel if the fee payer does not have enough balance.
+		// Deactivate tunnel if the fee payer does not have enough balance.
 		if !balances.IsAllGTE(basePacketFee) {
 			k.MustDeactivateTunnel(ctx, id)
 			continue
@@ -77,7 +77,7 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 			return k.ProducePacket(ctx, id, currentPricesMap, false)
 		}
 
-		// produce a packet. If error, emits an event.
+		// Produce a packet. If error, emits an event.
 		if err := ctxcache.ApplyFuncIfNoError(ctx, producePacketFunc); err != nil {
 			ctx.EventManager().EmitEvent(sdk.NewEvent(
 				types.EventTypeProducePacketFail,
@@ -97,14 +97,14 @@ func (k Keeper) ProducePacket(
 ) error {
 	unixNow := ctx.BlockTime().Unix()
 
-	// get tunnel and signal prices info
+	// Get tunnel and signal prices info
 	tunnel := k.MustGetTunnel(ctx, tunnelID)
 	latestSignalPrices := k.MustGetLatestSignalPrices(ctx, tunnelID)
 
-	// check if the interval has passed
+	// Check if the interval has passed
 	intervalTrigger := ctx.BlockTime().Unix() >= int64(tunnel.Interval)+latestSignalPrices.Timestamp
 
-	// generate new signal prices
+	// Generate new signal prices
 	nsps := GenerateSignalPrices(
 		ctx,
 		currentPricesMap,
@@ -113,12 +113,12 @@ func (k Keeper) ProducePacket(
 		triggerAll || intervalTrigger,
 	)
 
-	// return if no new signal prices
+	// Return if no new signal prices
 	if len(nsps) == 0 {
 		return nil
 	}
 
-	// deduct base packet fee from the fee payer,
+	// Deduct base packet fee from the fee payer,
 	feePayer := sdk.MustAccAddressFromBech32(tunnel.FeePayer)
 	if err := k.DeductBasePacketFee(ctx, feePayer); err != nil {
 		return sdkerrors.Wrapf(err, "failed to deduct base packet fee for tunnel %d", tunnel.ID)
@@ -129,14 +129,14 @@ func (k Keeper) ProducePacket(
 		return sdkerrors.Wrapf(err, "route %s failed to send packet", tunnel.Route.TypeUrl)
 	}
 
-	// update signal prices info
+	// Update signal prices info
 	latestSignalPrices.UpdateSignalPrices(nsps)
 	if triggerAll || intervalTrigger {
 		latestSignalPrices.Timestamp = unixNow
 	}
 	k.SetLatestSignalPrices(ctx, latestSignalPrices)
 
-	// update tunnel nonce count
+	// Update tunnel nonce count
 	tunnel.NonceCount++
 	k.SetTunnel(ctx, tunnel)
 
@@ -161,17 +161,17 @@ func (k Keeper) SendPacket(
 		return types.ErrInvalidRoute.Wrapf("no route found for tunnel ID: %d", tunnel.ID)
 	}
 
-	// return error if failed to send packet
+	// Return error if failed to send packet
 	if err != nil {
 		return err
 	}
 
-	// set the packet content
+	// Set the packet content
 	if err := packet.SetPacketContent(content); err != nil {
 		panic(fmt.Sprintf("failed to set packet content: %s", err))
 	}
 
-	// set the packet in the store
+	// Set the packet in the store
 	k.SetPacket(ctx, packet)
 	return nil
 }
@@ -192,14 +192,14 @@ func GenerateSignalPrices(
 			continue
 		}
 
-		// get signal info from signalDeviationMap
+		// Get signal info from signalDeviationMap
 		signalDeviation, exists := signalDeviationMap[sp.SignalID]
 		if !exists {
-			// panic if signal info not found for signal ID in the tunnel that should not happen
+			// Panic if signal info not found for signal ID in the tunnel that should not happen
 			panic(fmt.Sprintf("signal info not found for signal ID: %s", sp.SignalID))
 		}
 
-		// if triggerAll is true or the deviation exceeds the threshold, add the signal price info to the list
+		// If triggerAll is true or the deviation exceeds the threshold, add the signal price info to the list
 		if triggerAll ||
 			deviationExceedsThreshold(
 				sdk.NewIntFromUint64(sp.Price),
@@ -220,7 +220,7 @@ func GenerateSignalPrices(
 
 // deviationExceedsThreshold checks if the deviation between the old price and the new price exceeds the threshold
 func deviationExceedsThreshold(oldPrice, newPrice, thresholdBPS sdkmath.Int) bool {
-	// if the old price is zero, always add the signal price info to the list
+	// If the old price is zero, always add the signal price info to the list
 	if oldPrice.IsZero() {
 		return true
 	}

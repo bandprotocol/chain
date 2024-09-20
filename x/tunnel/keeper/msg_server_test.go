@@ -18,9 +18,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 			preRun: func() (*types.MsgCreateTunnel, error) {
 				params := types.DefaultParams()
 				params.MaxSignals = 1
-				if err := s.keeper.SetParams(s.ctx, params); err != nil {
-					return nil, err
-				}
+				s.Require().NoError(s.keeper.SetParams(s.ctx, params))
 
 				signalDeviations := []types.SignalDeviation{
 					{
@@ -55,9 +53,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 			preRun: func() (*types.MsgCreateTunnel, error) {
 				params := types.DefaultParams()
 				params.MinInterval = 5
-				if err := s.keeper.SetParams(s.ctx, params); err != nil {
-					return nil, err
-				}
+				s.Require().NoError(s.keeper.SetParams(s.ctx, params))
 
 				signalDeviations := []types.SignalDeviation{
 					{
@@ -121,6 +117,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 		s.Run(name, func() {
 			msg, err := tc.preRun()
 			s.Require().NoError(err)
+
 			res, err := s.msgServer.CreateTunnel(s.ctx, msg)
 			if tc.expErr {
 				s.Require().Error(err)
