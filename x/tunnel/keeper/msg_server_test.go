@@ -101,18 +101,6 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 					SendCoinsFromAccountToModule(s.ctx, depositor, types.ModuleName, depositAmount).
 					Return(nil).Times(1)
 
-				signalDeviations := []types.SignalDeviation{
-					{
-						SignalID:         "BTC",
-						SoftDeviationBPS: 100,
-						HardDeviationBPS: 100,
-					},
-				}
-				route := &types.TSSRoute{
-					DestinationChainID:         "chain-1",
-					DestinationContractAddress: "0x1234567890abcdef",
-				}
-
 				return types.NewMsgCreateTunnel(
 					signalDeviations,
 					10,
