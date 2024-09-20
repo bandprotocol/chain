@@ -70,7 +70,7 @@ func (im IBCModule) OnChanOpenInit(
 		return "", err
 	}
 
-	// OpenInit must claim the channelCapability that IBC passes into the callback
+	// openInit must claim the channelCapability that IBC passes into the callback
 	if err := im.keeper.ClaimCapability(ctx, channelCap, host.ChannelCapabilityPath(portID, channelID)); err != nil {
 		return "", err
 	}
@@ -102,7 +102,7 @@ func (im IBCModule) OnChanOpenTry(
 		)
 	}
 
-	// Module may have already claimed capability in OnChanOpenInit in the case of crossing hellos
+	// module may have already claimed capability in OnChanOpenInit in the case of crossing hellos
 	// (ie chainA and chainB both call ChanOpenInit before one of them calls ChanOpenTry)
 	// If module can already authenticate the capability then module already owns it so we don't need to claim
 	// Otherwise, module does not have channel capability and we must claim it from IBC
@@ -180,7 +180,7 @@ func (im IBCModule) OnAcknowledgementPacket(
 	acknowledgement []byte,
 	relayer sdk.AccAddress,
 ) error {
-	// Do nothing for out-going packet
+	// do nothing for out-going packet
 	return nil
 }
 
@@ -190,6 +190,6 @@ func (im IBCModule) OnTimeoutPacket(
 	packet channeltypes.Packet,
 	relayer sdk.AccAddress,
 ) error {
-	// Do nothing for out-going packet
+	// do nothing for out-going packet
 	return nil
 }

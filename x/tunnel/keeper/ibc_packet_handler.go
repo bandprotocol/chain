@@ -36,7 +36,7 @@ func (k Keeper) IBCPacketHandler(ctx sdk.Context, route *types.IBCRoute, packet 
 		packet.CreatedAt,
 	).GetBytes()
 
-	// Send packet to IBC, authenticating with channelCap
+	// send packet to IBC, authenticating with channelCap
 	if _, err := k.channelKeeper.SendPacket(
 		ctx,
 		channelCap,
@@ -52,7 +52,7 @@ func (k Keeper) IBCPacketHandler(ctx sdk.Context, route *types.IBCRoute, packet 
 		))
 	}
 
-	// Set the packet content
+	// set the packet content
 	packetContent := types.IBCPacketContent{
 		ChannelID: route.ChannelID,
 	}

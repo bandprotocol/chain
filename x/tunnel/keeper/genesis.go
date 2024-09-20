@@ -11,11 +11,12 @@ import (
 
 // ValidateGenesis validates the provided genesis state.
 func ValidateGenesis(data *types.GenesisState) error {
+	// validate the port ID
 	if err := host.PortIdentifierValidator(data.PortID); err != nil {
 		return err
 	}
 
-	// Validate the tunnel count
+	// validate the tunnel count
 	if uint64(len(data.Tunnels)) != data.TunnelCount {
 		return types.ErrInvalidGenesis.Wrapf("length of tunnels does not match tunnel count")
 	}
@@ -74,7 +75,7 @@ func InitGenesis(ctx sdk.Context, k *Keeper, data *types.GenesisState) {
 		}
 	}
 
-	// Only try to bind to port if it is not already bound, since we may already own
+	// only try to bind to port if it is not already bound, since we may already own
 	// port capability from capability InitGenesis
 	if !k.HasCapability(ctx, types.PortID) {
 		// tunnel module binds to the tunnel port on InitChain
