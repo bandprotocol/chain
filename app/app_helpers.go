@@ -7,16 +7,16 @@ import (
 )
 
 // GetStakingKeeper implements the TestingApp interface. Needed for ICS.
-func (app *BandApp) GetStakingKeeper() ibctestingtypes.StakingKeeper { //nolint:nolintlint
+func (app *BandApp) GetStakingKeeper() ibctestingtypes.StakingKeeper {
 	return app.StakingKeeper
 }
 
 // GetIBCKeeper implements the TestingApp interface.
-func (app *BandApp) GetIBCKeeper() *ibckeeper.Keeper { //nolint:nolintlint
+func (app *BandApp) GetIBCKeeper() *ibckeeper.Keeper {
 	return app.IBCKeeper
 }
 
 // GetScopedIBCKeeper implements the TestingApp interface.
-func (app *BandApp) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper { //nolint:nolintlint
+func (app *BandApp) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
 	return app.ScopedIBCKeeper
 }
