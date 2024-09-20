@@ -22,7 +22,7 @@ func GetTxCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	txCmd.AddCommand(GetTxCmdCreateTSSTunnel())
+	txCmd.AddCommand(GetTxCmdCreateTunnels())
 	txCmd.AddCommand(GetTxCmdEditTunnel())
 	txCmd.AddCommand(GetTxCmdActivate())
 	txCmd.AddCommand(GetTxCmdDeactivate())
@@ -31,9 +31,24 @@ func GetTxCmd() *cobra.Command {
 	return txCmd
 }
 
+func GetTxCmdCreateTunnels() *cobra.Command {
+	txCmd := &cobra.Command{
+		Use:                "create",
+		Short:              "Create a new tunnel",
+		DisableFlagParsing: true,
+		RunE:               client.ValidateCmd,
+	}
+
+	txCmd.AddCommand(GetTxCmdCreateTSSTunnel())
+
+	flags.AddTxFlagsToCmd(txCmd)
+
+	return txCmd
+}
+
 func GetTxCmdCreateTSSTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-tss-tunnel [encoder] [destination-chain-id] [destination-contract-address] [deposit] [interval] [signalDeviations-json-file]",
+		Use:   "tss [destination-chain-id] [destination-contract-address] [encoder] [deposit] [interval] [signalDeviations-json-file]",
 		Short: "Create a new TSS tunnel",
 		Args:  cobra.ExactArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -42,7 +57,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 				return err
 			}
 
-			encoder, err := strconv.ParseInt(args[0], 10, 32)
+			encoder, err := strconv.ParseInt(args[2], 10, 32)
 			if err != nil {
 				return err
 			}
@@ -65,9 +80,9 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 			msg, err := types.NewMsgCreateTSSTunnel(
 				signalDeviations.ToSignalDeviations(),
 				interval,
-				types.Encoder(encoder),
+				args[0],
 				args[1],
-				args[2],
+				types.Encoder(encoder),
 				deposit,
 				clientCtx.GetFromAddress(),
 			)
@@ -86,7 +101,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 
 func GetTxCmdEditTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "edit-tunnel [tunnel-id] [interval] [signalDeviations-json-file] ",
+		Use:   "edit [tunnel-id] [interval] [signalDeviations-json-file] ",
 		Short: "Edit an existing tunnel",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {

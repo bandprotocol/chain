@@ -46,9 +46,9 @@ func NewMsgCreateTunnel(
 func NewMsgCreateTSSTunnel(
 	signalDeviations []SignalDeviation,
 	interval uint64,
-	encoder Encoder,
 	destinationChainID string,
 	destinationContractAddress string,
+	encoder Encoder,
 	deposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
@@ -68,9 +68,9 @@ func NewMsgCreateTSSTunnel(
 func NewMsgCreateAxelarTunnel(
 	signalDeviations []SignalDeviation,
 	interval uint64,
-	encoder Encoder,
 	destinationChainID string,
 	destinationContractAddress string,
+	encoder Encoder,
 	deposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
