@@ -48,8 +48,11 @@ message MsgCreateTunnel {
   // encoder is the mode of encoding price signal data.
   Encoder encoder = 4;
   // initial_deposit is the deposit value that must be paid at tunnel creation.
-  repeated cosmos.base.v1beta1.Coin initial_deposit = 5
-      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  repeated cosmos.base.v1beta1.Coin initial_deposit = 5 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (amino.dont_omitempty)   = true
+  ];
   // creator is the address of the creator.
   string creator = 6 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
