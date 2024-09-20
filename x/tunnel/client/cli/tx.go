@@ -40,6 +40,7 @@ func GetTxCmdCreateTunnels() *cobra.Command {
 	}
 
 	txCmd.AddCommand(GetTxCmdCreateTSSTunnel())
+	txCmd.AddCommand(GetTxCmdCreateIBCTunnel())
 
 	flags.AddTxFlagsToCmd(txCmd)
 
@@ -187,6 +188,7 @@ func GetTxCmdEditTunnel() *cobra.Command {
 	}
 
 	flags.AddTxFlagsToCmd(cmd)
+
 	return cmd
 }
 
