@@ -131,7 +131,6 @@ func (s *KeeperTestSuite) TestGRPCQueryPacket() {
 func (s *KeeperTestSuite) TestGRPCQueryDeposit() {
 	ctx, k, q := s.ctx, s.keeper, s.queryServer
 
-	// Set tunnel
 	tunnel := types.Tunnel{
 		ID:         1,
 		NonceCount: 2,
@@ -144,7 +143,6 @@ func (s *KeeperTestSuite) TestGRPCQueryDeposit() {
 	s.Require().NoError(err)
 	k.SetTunnel(ctx, tunnel)
 
-	// Set deposit
 	deposit := types.Deposit{
 		TunnelID:  1,
 		Depositor: sdk.AccAddress([]byte("depositor")).String(),
@@ -152,7 +150,6 @@ func (s *KeeperTestSuite) TestGRPCQueryDeposit() {
 	}
 	k.SetDeposit(ctx, deposit)
 
-	// Query deposit
 	resp, err := q.Deposit(ctx, &types.QueryDepositRequest{
 		TunnelId:  1,
 		Depositor: deposit.Depositor,
@@ -165,7 +162,6 @@ func (s *KeeperTestSuite) TestGRPCQueryDeposit() {
 func (s *KeeperTestSuite) TestGRPCQueryDeposits() {
 	ctx, k, q := s.ctx, s.keeper, s.queryServer
 
-	// Set tunnel
 	tunnel := types.Tunnel{
 		ID:         1,
 		NonceCount: 2,
@@ -178,7 +174,6 @@ func (s *KeeperTestSuite) TestGRPCQueryDeposits() {
 	s.Require().NoError(err)
 	k.SetTunnel(ctx, tunnel)
 
-	// Set deposits
 	deposit1 := types.Deposit{
 		TunnelID:  1,
 		Depositor: sdk.AccAddress([]byte("depositor1")).String(),
@@ -192,7 +187,6 @@ func (s *KeeperTestSuite) TestGRPCQueryDeposits() {
 	k.SetDeposit(ctx, deposit1)
 	k.SetDeposit(ctx, deposit2)
 
-	// Query deposits
 	resp, err := q.Deposits(ctx, &types.QueryDepositsRequest{
 		TunnelId: 1,
 	})

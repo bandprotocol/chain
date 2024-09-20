@@ -22,7 +22,7 @@ func (k Keeper) AddDeposit(
 		return err
 	}
 
-	// Transfer the deposit from the depositor to the tunnel module account
+	// transfer the deposit from the depositor to the tunnel module account
 	if err := k.bankKeeper.SendCoinsFromAccountToModule(
 		ctx,
 		depositorAddr,
@@ -32,7 +32,7 @@ func (k Keeper) AddDeposit(
 		return err
 	}
 
-	// Update the depositor's deposit
+	// update the depositor's deposit
 	deposit, found := k.GetDeposit(ctx, tunnelID, depositorAddr)
 	if !found {
 		deposit = types.NewDeposit(tunnelID, depositorAddr, depositAmount)
@@ -41,7 +41,7 @@ func (k Keeper) AddDeposit(
 	}
 	k.SetDeposit(ctx, deposit)
 
-	// Update the tunnel's total deposit
+	// update the tunnel's total deposit
 	tunnel.TotalDeposit = tunnel.TotalDeposit.Add(depositAmount...)
 	k.SetTunnel(ctx, tunnel)
 
@@ -102,12 +102,12 @@ func (k Keeper) WithdrawDeposit(ctx sdk.Context, tunnelID uint64, amount sdk.Coi
 		return types.ErrDepositNotFound
 	}
 
-	// Check if the withdrawer has enough deposit
+	// check if the withdrawer has enough deposit
 	if !deposit.Amount.IsAllGTE(amount) {
 		return types.ErrInsufficientDeposit
 	}
 
-	// Transfer the deposit from the tunnel module account to the withdrawer
+	// transfer the deposit from the tunnel module account to the withdrawer
 	if err := k.bankKeeper.SendCoinsFromModuleToAccount(
 		ctx,
 		types.ModuleName,
@@ -117,7 +117,7 @@ func (k Keeper) WithdrawDeposit(ctx sdk.Context, tunnelID uint64, amount sdk.Coi
 		return err
 	}
 
-	// Update the withdrawer's deposit
+	// update the withdrawer's deposit
 	deposit.Amount = deposit.Amount.Sub(amount...)
 	if deposit.Amount.IsZero() {
 		k.DeleteDeposit(ctx, tunnelID, withdrawer)
@@ -125,11 +125,11 @@ func (k Keeper) WithdrawDeposit(ctx sdk.Context, tunnelID uint64, amount sdk.Coi
 		k.SetDeposit(ctx, deposit)
 	}
 
-	// Update the tunnel's total deposit
+	// update the tunnel's total deposit
 	tunnel.TotalDeposit = tunnel.TotalDeposit.Sub(amount...)
 	k.SetTunnel(ctx, tunnel)
 
-	// Deactivate the tunnel if the total deposit is less than the min deposit
+	// deactivate the tunnel if the total deposit is less than the min deposit
 	minDeposit := k.GetParams(ctx).MinDeposit
 	if !tunnel.TotalDeposit.IsAllGTE(minDeposit) {
 		k.MustDeactivateTunnel(ctx, tunnelID)
