@@ -85,18 +85,6 @@ func (mr *MockAccountKeeperMockRecorder) GetModuleAddress(name any) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetModuleAddress", reflect.TypeOf((*MockAccountKeeper)(nil).GetModuleAddress), name)
 }
 
-// IterateAccounts mocks base method.
-func (m *MockAccountKeeper) IterateAccounts(ctx types2.Context, process func(types3.AccountI) bool) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "IterateAccounts", ctx, process)
-}
-
-// IterateAccounts indicates an expected call of IterateAccounts.
-func (mr *MockAccountKeeperMockRecorder) IterateAccounts(ctx, process any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IterateAccounts", reflect.TypeOf((*MockAccountKeeper)(nil).IterateAccounts), ctx, process)
-}
-
 // NewAccount mocks base method.
 func (m *MockAccountKeeper) NewAccount(ctx types2.Context, account types3.AccountI) types3.AccountI {
 	m.ctrl.T.Helper()

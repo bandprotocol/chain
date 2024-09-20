@@ -9,6 +9,23 @@ import (
 )
 
 func (s *KeeperTestSuite) TestMsgCreateTunnel() {
+	signalDeviations := []types.SignalDeviation{
+		{
+			SignalID:         "BTC",
+			SoftDeviationBPS: 100,
+			HardDeviationBPS: 100,
+		},
+		{
+			SignalID:         "ETH",
+			SoftDeviationBPS: 100,
+			HardDeviationBPS: 100,
+		},
+	}
+	route := &types.TSSRoute{
+		DestinationChainID:         "chain-1",
+		DestinationContractAddress: "0x1234567890abcdef",
+	}
+
 	cases := map[string]struct {
 		preRun    func() (*types.MsgCreateTunnel, error)
 		expErr    bool
@@ -19,23 +36,6 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 				params := types.DefaultParams()
 				params.MaxSignals = 1
 				s.Require().NoError(s.keeper.SetParams(s.ctx, params))
-
-				signalDeviations := []types.SignalDeviation{
-					{
-						SignalID:         "BTC",
-						SoftDeviationBPS: 100,
-						HardDeviationBPS: 100,
-					},
-					{
-						SignalID:         "ETH",
-						SoftDeviationBPS: 100,
-						HardDeviationBPS: 100,
-					},
-				}
-				route := &types.TSSRoute{
-					DestinationChainID:         "chain-1",
-					DestinationContractAddress: "0x1234567890abcdef",
-				}
 
 				return types.NewMsgCreateTunnel(
 					signalDeviations,
@@ -54,18 +54,6 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 				params := types.DefaultParams()
 				params.MinInterval = 5
 				s.Require().NoError(s.keeper.SetParams(s.ctx, params))
-
-				signalDeviations := []types.SignalDeviation{
-					{
-						SignalID:         "BTC",
-						SoftDeviationBPS: 100,
-						HardDeviationBPS: 100,
-					},
-				}
-				route := &types.TSSRoute{
-					DestinationChainID:         "chain-1",
-					DestinationContractAddress: "0x1234567890abcdef",
-				}
 
 				return types.NewMsgCreateTunnel(
 					signalDeviations,
@@ -86,18 +74,6 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 					Return(nil).Times(1)
 				s.accountKeeper.EXPECT().NewAccount(s.ctx, gomock.Any()).Times(1)
 				s.accountKeeper.EXPECT().SetAccount(s.ctx, gomock.Any()).Times(1)
-
-				signalDeviations := []types.SignalDeviation{
-					{
-						SignalID:         "BTC",
-						SoftDeviationBPS: 100,
-						HardDeviationBPS: 100,
-					},
-				}
-				route := &types.TSSRoute{
-					DestinationChainID:         "chain-1",
-					DestinationContractAddress: "0x1234567890abcdef",
-				}
 
 				return types.NewMsgCreateTunnel(
 					signalDeviations,
