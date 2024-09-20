@@ -79,6 +79,38 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 			expErr:    true,
 			expErrMsg: "interval too low",
 		},
+		"all good without initial deposit": {
+			preRun: func() (*types.MsgCreateTunnel, error) {
+				s.accountKeeper.EXPECT().
+					GetAccount(s.ctx, gomock.Any()).
+					Return(nil).Times(1)
+				s.accountKeeper.EXPECT().NewAccount(s.ctx, gomock.Any()).Times(1)
+				s.accountKeeper.EXPECT().SetAccount(s.ctx, gomock.Any()).Times(1)
+
+				signalDeviations := []types.SignalDeviation{
+					{
+						SignalID:         "BTC",
+						SoftDeviationBPS: 100,
+						HardDeviationBPS: 100,
+					},
+				}
+				route := &types.TSSRoute{
+					DestinationChainID:         "chain-1",
+					DestinationContractAddress: "0x1234567890abcdef",
+				}
+
+				return types.NewMsgCreateTunnel(
+					signalDeviations,
+					10,
+					route,
+					types.ENCODER_FIXED_POINT_ABI,
+					sdk.NewCoins(),
+					sdk.AccAddress([]byte("creator_address")),
+				)
+			},
+			expErr:    false,
+			expErrMsg: "",
+		},
 		"all good": {
 			preRun: func() (*types.MsgCreateTunnel, error) {
 				depositor := sdk.AccAddress([]byte("creator_address"))

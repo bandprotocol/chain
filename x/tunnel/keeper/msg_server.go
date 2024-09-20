@@ -56,8 +56,10 @@ func (ms msgServer) CreateTunnel(
 	}
 
 	// Deposit the initial deposit to the tunnel
-	if err := ms.Keeper.AddDeposit(ctx, tunnel.ID, creator, req.InitialDeposit); err != nil {
-		return nil, err
+	if req.InitialDeposit.IsAllPositive() {
+		if err := ms.Keeper.AddDeposit(ctx, tunnel.ID, creator, req.InitialDeposit); err != nil {
+			return nil, err
+		}
 	}
 
 	// Emit an event
@@ -67,6 +69,7 @@ func (ms msgServer) CreateTunnel(
 		sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", tunnel.Interval)),
 		sdk.NewAttribute(types.AttributeKeyRoute, tunnel.Route.String()),
 		sdk.NewAttribute(types.AttributeKeyEncoder, tunnel.Encoder.String()),
+		sdk.NewAttribute(types.AttributeKeyInitialDeposit, req.InitialDeposit.String()),
 		sdk.NewAttribute(types.AttributeKeyFeePayer, tunnel.FeePayer),
 		sdk.NewAttribute(types.AttributeKeyIsActive, fmt.Sprintf("%t", tunnel.IsActive)),
 		sdk.NewAttribute(types.AttributeKeyCreatedAt, fmt.Sprintf("%d", tunnel.CreatedAt)),
