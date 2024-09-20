@@ -20,7 +20,7 @@ func NewMsgCreateTunnel(
 	interval uint64,
 	route RouteI,
 	encoder Encoder,
-	deposit sdk.Coins,
+	initialDeposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
 	msg, ok := route.(proto.Message)
@@ -37,7 +37,7 @@ func NewMsgCreateTunnel(
 		Interval:         interval,
 		Route:            any,
 		Encoder:          encoder,
-		Deposit:          deposit,
+		InitialDeposit:   initialDeposit,
 		Creator:          creator.String(),
 	}, nil
 }
@@ -46,17 +46,17 @@ func NewMsgCreateTunnel(
 func NewMsgCreateTSSTunnel(
 	signalDeviations []SignalDeviation,
 	interval uint64,
-	encoder Encoder,
 	destinationChainID string,
 	destinationContractAddress string,
-	deposit sdk.Coins,
+	encoder Encoder,
+	initialDeposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
 	r := &TSSRoute{
 		DestinationChainID:         destinationChainID,
 		DestinationContractAddress: destinationContractAddress,
 	}
-	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, encoder, deposit, creator)
+	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, encoder, initialDeposit, creator)
 	if err != nil {
 		return nil, err
 	}
@@ -68,17 +68,17 @@ func NewMsgCreateTSSTunnel(
 func NewMsgCreateAxelarTunnel(
 	signalDeviations []SignalDeviation,
 	interval uint64,
-	encoder Encoder,
 	destinationChainID string,
 	destinationContractAddress string,
-	deposit sdk.Coins,
+	encoder Encoder,
+	initialDeposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
 	r := &TSSRoute{
 		DestinationChainID:         destinationChainID,
 		DestinationContractAddress: destinationContractAddress,
 	}
-	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, encoder, deposit, creator)
+	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, encoder, initialDeposit, creator)
 	if err != nil {
 		return nil, err
 	}
@@ -88,9 +88,9 @@ func NewMsgCreateAxelarTunnel(
 
 // NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
 func NewMsgCreateIBCTunnel(
-	channelID string,
-	signalInfos []SignalDeviation,
+	signalDeviations []SignalDeviation,
 	interval uint64,
+	channelID string,
 	encoder Encoder,
 	deposit sdk.Coins,
 	creator sdk.AccAddress,
@@ -98,7 +98,7 @@ func NewMsgCreateIBCTunnel(
 	r := &IBCRoute{
 		ChannelID: channelID,
 	}
-	m, err := NewMsgCreateTunnel(signalInfos, interval, r, encoder, deposit, creator)
+	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, encoder, deposit, creator)
 	if err != nil {
 		return nil, err
 	}
@@ -121,17 +121,17 @@ func (m *MsgCreateTunnel) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgCreateTunnel) ValidateBasic() error {
-	// creator address must be valid
+	// Creator address must be valid
 	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
-	// signal deviations cannot be empty
+	// Signal deviations cannot be empty
 	if len(m.SignalDeviations) == 0 {
 		return sdkerrors.ErrInvalidRequest.Wrapf("signal deviations cannot be empty")
 	}
 
-	// route must be valid
+	// Route must be valid
 	r, ok := m.Route.GetCachedValue().(RouteI)
 	if !ok {
 		return sdkerrors.ErrPackAny.Wrapf("cannot unpack route")
@@ -140,9 +140,9 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 		return err
 	}
 
-	// deposit must be valid
-	if !m.Deposit.IsValid() {
-		return sdkerrors.ErrInvalidCoins.Wrapf("invalid deposit: %s", m.Deposit)
+	// InitialDeposit deposit must be positive
+	if !m.InitialDeposit.IsValid() {
+		return sdkerrors.ErrInvalidCoins.Wrapf("invalid initial deposit: %s", m.InitialDeposit)
 	}
 
 	err := validateUniqueSignalIDs(m.SignalDeviations)

@@ -22,8 +22,7 @@ func GetTxCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	txCmd.AddCommand(GetTxCmdCreateTSSTunnel())
-	txCmd.AddCommand(GetTxCmdCreateIBCTunnel())
+	txCmd.AddCommand(GetTxCmdCreateTunnels())
 	txCmd.AddCommand(GetTxCmdEditTunnel())
 	txCmd.AddCommand(GetTxCmdActivate())
 	txCmd.AddCommand(GetTxCmdDeactivate())
@@ -32,9 +31,24 @@ func GetTxCmd() *cobra.Command {
 	return txCmd
 }
 
+func GetTxCmdCreateTunnels() *cobra.Command {
+	txCmd := &cobra.Command{
+		Use:                "create",
+		Short:              "Create a new tunnel",
+		DisableFlagParsing: true,
+		RunE:               client.ValidateCmd,
+	}
+
+	txCmd.AddCommand(GetTxCmdCreateTSSTunnel())
+
+	flags.AddTxFlagsToCmd(txCmd)
+
+	return txCmd
+}
+
 func GetTxCmdCreateTSSTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-tss-tunnel [encoder] [destination-chain-id] [destination-contract-address] [deposit] [interval] [signalDeviations-json-file]",
+		Use:   "tss [destination-chain-id] [destination-contract-address] [encoder] [initial-deposit] [interval] [signalDeviations-json-file]",
 		Short: "Create a new TSS tunnel",
 		Args:  cobra.ExactArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -43,12 +57,12 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 				return err
 			}
 
-			encoder, err := strconv.ParseInt(args[0], 10, 32)
+			encoder, err := strconv.ParseInt(args[2], 10, 32)
 			if err != nil {
 				return err
 			}
 
-			deposit, err := sdk.ParseCoinsNormalized(args[3])
+			initialDeposit, err := sdk.ParseCoinsNormalized(args[3])
 			if err != nil {
 				return err
 			}
@@ -66,10 +80,10 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 			msg, err := types.NewMsgCreateTSSTunnel(
 				signalDeviations.ToSignalDeviations(),
 				interval,
-				types.Encoder(encoder),
+				args[0],
 				args[1],
-				args[2],
-				deposit,
+				types.Encoder(encoder),
+				initialDeposit,
 				clientCtx.GetFromAddress(),
 			)
 			if err != nil {
@@ -87,7 +101,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 
 func GetTxCmdCreateIBCTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-ibc-tunnel [channel-id] [encoder] [initial-deposit] [interval] [signalInfos-json-file]",
+		Use:   "ibc [channel-id] [encoder] [initial-deposit] [interval] [signalInfos-json-file]",
 		Short: "Create a new IBC tunnel",
 		Args:  cobra.ExactArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -96,12 +110,12 @@ func GetTxCmdCreateIBCTunnel() *cobra.Command {
 				return err
 			}
 
-			initialDeposit, err := sdk.ParseCoinsNormalized(args[2])
+			encoder, err := strconv.ParseInt(args[1], 10, 32)
 			if err != nil {
 				return err
 			}
 
-			encoder, err := strconv.ParseInt(args[1], 10, 32)
+			initialDeposit, err := sdk.ParseCoinsNormalized(args[2])
 			if err != nil {
 				return err
 			}
@@ -117,9 +131,9 @@ func GetTxCmdCreateIBCTunnel() *cobra.Command {
 			}
 
 			msg, err := types.NewMsgCreateIBCTunnel(
-				args[0],
 				signalInfos.ToSignalDeviations(),
 				interval,
+				args[0],
 				types.Encoder(encoder),
 				initialDeposit,
 				clientCtx.GetFromAddress(),
@@ -138,7 +152,7 @@ func GetTxCmdCreateIBCTunnel() *cobra.Command {
 
 func GetTxCmdEditTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "edit-tunnel [tunnel-id] [interval] [signalDeviations-json-file] ",
+		Use:   "edit [tunnel-id] [interval] [signalDeviations-json-file] ",
 		Short: "Edit an existing tunnel",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
