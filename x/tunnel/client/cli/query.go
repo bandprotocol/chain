@@ -95,8 +95,8 @@ func GetQueryCmdTunnels() *cobra.Command {
 			}
 
 			res, err := queryClient.Tunnels(cmd.Context(), &types.QueryTunnelsRequest{
-				IsActive:   statusFilter,
-				Pagination: pageReq,
+				StatusFilter: statusFilter,
+				Pagination:   pageReq,
 			})
 			if err != nil {
 				return err

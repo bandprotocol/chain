@@ -87,18 +87,6 @@ func (mr *MockAccountKeeperMockRecorder) GetModuleAddress(name any) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetModuleAddress", reflect.TypeOf((*MockAccountKeeper)(nil).GetModuleAddress), name)
 }
 
-// IterateAccounts mocks base method.
-func (m *MockAccountKeeper) IterateAccounts(ctx types2.Context, process func(types3.AccountI) bool) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "IterateAccounts", ctx, process)
-}
-
-// IterateAccounts indicates an expected call of IterateAccounts.
-func (mr *MockAccountKeeperMockRecorder) IterateAccounts(ctx, process any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IterateAccounts", reflect.TypeOf((*MockAccountKeeper)(nil).IterateAccounts), ctx, process)
-}
-
 // NewAccount mocks base method.
 func (m *MockAccountKeeper) NewAccount(ctx types2.Context, account types3.AccountI) types3.AccountI {
 	m.ctrl.T.Helper()
@@ -200,6 +188,20 @@ func (m *MockBankKeeper) SendCoinsFromModuleToAccount(ctx types2.Context, sender
 func (mr *MockBankKeeperMockRecorder) SendCoinsFromModuleToAccount(ctx, senderModule, recipientAddr, amt any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendCoinsFromModuleToAccount", reflect.TypeOf((*MockBankKeeper)(nil).SendCoinsFromModuleToAccount), ctx, senderModule, recipientAddr, amt)
+}
+
+// SpendableCoins mocks base method.
+func (m *MockBankKeeper) SpendableCoins(ctx types2.Context, addr types2.AccAddress) types2.Coins {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SpendableCoins", ctx, addr)
+	ret0, _ := ret[0].(types2.Coins)
+	return ret0
+}
+
+// SpendableCoins indicates an expected call of SpendableCoins.
+func (mr *MockBankKeeperMockRecorder) SpendableCoins(ctx, addr any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SpendableCoins", reflect.TypeOf((*MockBankKeeper)(nil).SpendableCoins), ctx, addr)
 }
 
 // MockChannelKeeper is a mock of ChannelKeeper interface.

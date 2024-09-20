@@ -51,8 +51,8 @@ enum TunnelStatusFilter {
 
 // QueryTunnelsRequest is the request type for the Query/Tunnel RPC method.
 message QueryTunnelsRequest {
-  // is_active is a flag to filter active tunnels.
-  TunnelStatusFilter is_active = 1;
+  // status_filter is a flag to filter tunnels by status.
+  TunnelStatusFilter status_filter = 1;
   // pagination defines an optional pagination for the request.
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }

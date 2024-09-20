@@ -67,7 +67,7 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
 	}
 
-	return ValidateGenesis(&genState)
+	return keeper.ValidateGenesis(&genState)
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the tunnel module.
@@ -133,7 +133,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
 	var genesisState types.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
-	InitGenesis(ctx, am.keeper, &genesisState)
+	keeper.InitGenesis(ctx, am.keeper, &genesisState)
 
 	return []abci.ValidatorUpdate{}
 }
@@ -141,7 +141,7 @@ func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.
 // ExportGenesis returns the exported genesis state as raw bytes for the tunnel
 // module.
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
-	return cdc.MustMarshalJSON(ExportGenesis(ctx, am.keeper))
+	return cdc.MustMarshalJSON(keeper.ExportGenesis(ctx, am.keeper))
 }
 
 // ConsensusVersion implements AppModule/ConsensusVersion.
