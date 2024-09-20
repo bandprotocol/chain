@@ -1,17 +1,11 @@
 package keeper_test
 
 import (
-	"testing"
-
-	"github.com/stretchr/testify/require"
-
-	"github.com/bandprotocol/chain/v2/x/tunnel/testutil"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
-func TestGetSetLatestSignalPrices(t *testing.T) {
-	s := testutil.NewTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestGetSetLatestSignalPrices() {
+	ctx, k := s.ctx, s.keeper
 
 	// Define test data
 	tunnelID := uint64(1)
@@ -27,13 +21,12 @@ func TestGetSetLatestSignalPrices(t *testing.T) {
 
 	// Get the latest signal prices
 	retrievedSignalPrices, err := k.GetLatestSignalPrices(ctx, tunnelID)
-	require.NoError(t, err)
-	require.Equal(t, latestSignalPrices, retrievedSignalPrices)
+	s.Require().NoError(err)
+	s.Require().Equal(latestSignalPrices, retrievedSignalPrices)
 }
 
-func TestGetAllLatestSignalPrices(t *testing.T) {
-	s := testutil.NewTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestGetAllLatestSignalPrices() {
+	ctx, k := s.ctx, s.keeper
 
 	// Define test data
 	latestSignalPrices1 := types.LatestSignalPrices{
@@ -55,7 +48,7 @@ func TestGetAllLatestSignalPrices(t *testing.T) {
 
 	// Get all latest signal prices
 	allLatestSignalPrices := k.GetAllLatestSignalPrices(ctx)
-	require.Len(t, allLatestSignalPrices, 2)
-	require.Contains(t, allLatestSignalPrices, latestSignalPrices1)
-	require.Contains(t, allLatestSignalPrices, latestSignalPrices2)
+	s.Require().Len(allLatestSignalPrices, 2)
+	s.Require().Contains(allLatestSignalPrices, latestSignalPrices1)
+	s.Require().Contains(allLatestSignalPrices, latestSignalPrices2)
 }

@@ -1,18 +1,53 @@
 package keeper_test
 
 import (
-	"testing"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/x/tunnel/testutil"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
-func TestGRPCQueryPackets(t *testing.T) {
-	s := testutil.NewTestSuite(t)
-	q := s.QueryServer
+func (s *KeeperTestSuite) TestGRPCQueryTunnels() {
+	ctx, k, q := s.ctx, s.keeper, s.queryServer
+
+	// Set tunnels
+	tunnel1 := types.Tunnel{
+		ID: 1,
+	}
+	tunnel2 := types.Tunnel{
+		ID: 2,
+	}
+	k.SetTunnel(ctx, tunnel1)
+	k.SetTunnel(ctx, tunnel2)
+
+	// Query tunnels
+	resp, err := q.Tunnels(ctx, &types.QueryTunnelsRequest{})
+	s.Require().NoError(err)
+	s.Require().NotNil(resp)
+	s.Require().Len(resp.Tunnels, 2)
+	s.Require().Equal(tunnel1, *resp.Tunnels[0])
+	s.Require().Equal(tunnel2, *resp.Tunnels[1])
+}
+
+func (s *KeeperTestSuite) TestGRPCQueryTunnel() {
+	ctx, k, q := s.ctx, s.keeper, s.queryServer
+
+	// Set tunnel
+	tunnel := types.Tunnel{
+		ID: 1,
+	}
+	k.SetTunnel(ctx, tunnel)
+
+	// Query tunnel
+	resp, err := q.Tunnel(ctx, &types.QueryTunnelRequest{
+		TunnelId: 1,
+	})
+	s.Require().NoError(err)
+	s.Require().NotNil(resp)
+	s.Require().Equal(tunnel, resp.Tunnel)
+}
+
+func (s *KeeperTestSuite) TestGRPCQueryPackets() {
+	ctx, k, q := s.ctx, s.keeper, s.queryServer
 
 	// Set tunnel
 	tunnel := types.Tunnel{
@@ -24,8 +59,9 @@ func TestGRPCQueryPackets(t *testing.T) {
 		DestinationContractAddress: "0x123",
 	}
 	err := tunnel.SetRoute(&r)
-	require.NoError(t, err)
-	s.Keeper.SetTunnel(s.Ctx, tunnel)
+	s.Require().NoError(err)
+
+	k.SetTunnel(ctx, tunnel)
 
 	// Set packets
 	packet1 := types.Packet{
@@ -41,30 +77,29 @@ func TestGRPCQueryPackets(t *testing.T) {
 		DestinationChainID:         r.DestinationChainID,
 		DestinationContractAddress: r.DestinationContractAddress,
 	})
-	require.NoError(t, err)
+	s.Require().NoError(err)
 	err = packet2.SetPacketContent(&types.TSSPacketContent{
 		SigningID:                  2,
 		DestinationChainID:         r.DestinationChainID,
 		DestinationContractAddress: r.DestinationContractAddress,
 	})
-	require.NoError(t, err)
-	s.Keeper.SetPacket(s.Ctx, packet1)
-	s.Keeper.SetPacket(s.Ctx, packet2)
+	s.Require().NoError(err)
+	k.SetPacket(ctx, packet1)
+	k.SetPacket(ctx, packet2)
 
 	// Query packets
-	resp, err := q.Packets(s.Ctx, &types.QueryPacketsRequest{
+	resp, err := q.Packets(ctx, &types.QueryPacketsRequest{
 		TunnelId: 1,
 	})
-	require.NoError(t, err)
-	require.NotNil(t, resp)
-	require.Len(t, resp.Packets, 2)
-	require.Equal(t, packet1, *resp.Packets[0])
-	require.Equal(t, packet2, *resp.Packets[1])
+	s.Require().NoError(err)
+	s.Require().NotNil(resp)
+	s.Require().Len(resp.Packets, 2)
+	s.Require().Equal(packet1, *resp.Packets[0])
+	s.Require().Equal(packet2, *resp.Packets[1])
 }
 
-func TestGRPCQueryPacket(t *testing.T) {
-	s := testutil.NewTestSuite(t)
-	q := s.QueryServer
+func (s *KeeperTestSuite) TestGRPCQueryPacket() {
+	ctx, k, q := s.ctx, s.keeper, s.queryServer
 
 	// set tunnel
 	tunnel := types.Tunnel{
@@ -76,8 +111,8 @@ func TestGRPCQueryPacket(t *testing.T) {
 		DestinationContractAddress: "0x123",
 	}
 	err := tunnel.SetRoute(&r)
-	require.NoError(t, err)
-	s.Keeper.SetTunnel(s.Ctx, tunnel)
+	s.Require().NoError(err)
+	k.SetTunnel(ctx, tunnel)
 
 	packet1 := types.Packet{
 		TunnelID: 1,
@@ -88,21 +123,20 @@ func TestGRPCQueryPacket(t *testing.T) {
 		DestinationChainID:         r.DestinationChainID,
 		DestinationContractAddress: r.DestinationContractAddress,
 	})
-	require.NoError(t, err)
-	s.Keeper.SetPacket(s.Ctx, packet1)
+	s.Require().NoError(err)
+	k.SetPacket(ctx, packet1)
 
-	res, err := q.Packet(s.Ctx, &types.QueryPacketRequest{
+	res, err := q.Packet(ctx, &types.QueryPacketRequest{
 		TunnelId: 1,
 		Nonce:    1,
 	})
-	require.NoError(t, err)
-	require.NotNil(t, res)
-	require.Equal(t, packet1, *res.Packet)
+	s.Require().NoError(err)
+	s.Require().NotNil(res)
+	s.Require().Equal(packet1, *res.Packet)
 }
 
-func TestGRPCQueryDeposit(t *testing.T) {
-	s := testutil.NewTestSuite(t)
-	q := s.QueryServer
+func (s *KeeperTestSuite) TestGRPCQueryDeposit() {
+	ctx, k, q := s.ctx, s.keeper, s.queryServer
 
 	// Set tunnel
 	tunnel := types.Tunnel{
@@ -114,8 +148,8 @@ func TestGRPCQueryDeposit(t *testing.T) {
 		DestinationContractAddress: "0x123",
 	}
 	err := tunnel.SetRoute(&r)
-	require.NoError(t, err)
-	s.Keeper.SetTunnel(s.Ctx, tunnel)
+	s.Require().NoError(err)
+	k.SetTunnel(ctx, tunnel)
 
 	// Set deposit
 	deposit := types.Deposit{
@@ -123,21 +157,20 @@ func TestGRPCQueryDeposit(t *testing.T) {
 		Depositor: sdk.AccAddress([]byte("depositor")).String(),
 		Amount:    sdk.NewCoins(sdk.NewCoin("band", sdk.NewInt(100))),
 	}
-	s.Keeper.SetDeposit(s.Ctx, deposit)
+	k.SetDeposit(ctx, deposit)
 
 	// Query deposit
-	resp, err := q.Deposit(s.Ctx, &types.QueryDepositRequest{
+	resp, err := q.Deposit(ctx, &types.QueryDepositRequest{
 		TunnelId:  1,
 		Depositor: deposit.Depositor,
 	})
-	require.NoError(t, err)
-	require.NotNil(t, resp)
-	require.Equal(t, deposit, resp.Deposit)
+	s.Require().NoError(err)
+	s.Require().NotNil(resp)
+	s.Require().Equal(deposit, resp.Deposit)
 }
 
-func TestGRPCQueryDeposits(t *testing.T) {
-	s := testutil.NewTestSuite(t)
-	q := s.QueryServer
+func (s *KeeperTestSuite) TestGRPCQueryDeposits() {
+	ctx, k, q := s.ctx, s.keeper, s.queryServer
 
 	// Set tunnel
 	tunnel := types.Tunnel{
@@ -149,8 +182,8 @@ func TestGRPCQueryDeposits(t *testing.T) {
 		DestinationContractAddress: "0x123",
 	}
 	err := tunnel.SetRoute(&r)
-	require.NoError(t, err)
-	s.Keeper.SetTunnel(s.Ctx, tunnel)
+	s.Require().NoError(err)
+	k.SetTunnel(ctx, tunnel)
 
 	// Set deposits
 	deposit1 := types.Deposit{
@@ -163,16 +196,16 @@ func TestGRPCQueryDeposits(t *testing.T) {
 		Depositor: sdk.AccAddress([]byte("depositor2")).String(),
 		Amount:    sdk.NewCoins(sdk.NewCoin("band", sdk.NewInt(110))),
 	}
-	s.Keeper.SetDeposit(s.Ctx, deposit1)
-	s.Keeper.SetDeposit(s.Ctx, deposit2)
+	k.SetDeposit(ctx, deposit1)
+	k.SetDeposit(ctx, deposit2)
 
 	// Query deposits
-	resp, err := q.Deposits(s.Ctx, &types.QueryDepositsRequest{
+	resp, err := q.Deposits(ctx, &types.QueryDepositsRequest{
 		TunnelId: 1,
 	})
-	require.NoError(t, err)
-	require.NotNil(t, resp)
-	require.Len(t, resp.Deposits, 2)
-	require.Equal(t, deposit1, *resp.Deposits[0])
-	require.Equal(t, deposit2, *resp.Deposits[1])
+	s.Require().NoError(err)
+	s.Require().NotNil(resp)
+	s.Require().Len(resp.Deposits, 2)
+	s.Require().Equal(deposit1, *resp.Deposits[0])
+	s.Require().Equal(deposit2, *resp.Deposits[1])
 }

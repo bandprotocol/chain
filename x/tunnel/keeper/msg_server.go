@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -35,7 +34,7 @@ func (ms msgServer) CreateTunnel(
 		return nil, types.ErrMaxSignalsExceeded
 	}
 	if req.Interval < params.MinInterval {
-		return nil, types.ErrIntervalTooShort
+		return nil, types.ErrIntervalTooLow
 	}
 
 	creator, err := sdk.AccAddressFromBech32(req.Creator)
@@ -98,7 +97,7 @@ func (ms msgServer) EditTunnel(
 		return nil, types.ErrMaxSignalsExceeded
 	}
 	if req.Interval < params.MinInterval {
-		return nil, types.ErrIntervalTooShort
+		return nil, types.ErrIntervalTooLow
 	}
 
 	tunnel, err := ms.Keeper.GetTunnel(ctx, req.TunnelID)
@@ -107,7 +106,7 @@ func (ms msgServer) EditTunnel(
 	}
 
 	if req.Creator != tunnel.Creator {
-		return nil, fmt.Errorf("creator %s is not the creator of tunnel %d", req.Creator, req.TunnelID)
+		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", req.Creator, req.TunnelID)
 	}
 
 	err = ms.Keeper.EditTunnel(ctx, req.TunnelID, req.SignalDeviations, req.Interval)
@@ -208,21 +207,8 @@ func (ms msgServer) TriggerTunnel(
 	currentPricesMap := createCurrentPricesMap(currentPrices)
 
 	// Produce packet with trigger all signals
-	isCreated, err := ms.Keeper.ProducePacket(ctx, tunnel.ID, currentPricesMap, true)
-	if err != nil {
+	if err := ms.Keeper.ProducePacket(ctx, tunnel.ID, currentPricesMap, true); err != nil {
 		return nil, err
-	}
-
-	// if new packet is created, deduct base packet fee from the fee payer,
-	if isCreated {
-		feePayer, err := sdk.AccAddressFromBech32(tunnel.FeePayer)
-		if err != nil {
-			return nil, err
-		}
-
-		if err := ms.Keeper.DeductBasePacketFee(ctx, feePayer); err != nil {
-			return nil, sdkerrors.Wrapf(err, "failed to deduct base packet fee for tunnel %d", req.TunnelID)
-		}
 	}
 
 	// Emit an event

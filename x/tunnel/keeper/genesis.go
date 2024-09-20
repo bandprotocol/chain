@@ -1,11 +1,10 @@
-package tunnel
+package keeper
 
 import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/tunnel/keeper"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
@@ -13,45 +12,38 @@ import (
 func ValidateGenesis(data *types.GenesisState) error {
 	// validate the tunnel count
 	if uint64(len(data.Tunnels)) != data.TunnelCount {
-		return types.ErrInvalidGenesis.Wrapf(
-			"TunnelCount: %d, actual tunnels: %d",
-			data.TunnelCount,
-			len(data.Tunnels),
-		)
+		return types.ErrInvalidGenesis.Wrapf("length of tunnels does not match tunnel count")
 	}
 
 	// validate the tunnel IDs
 	for _, tunnel := range data.Tunnels {
 		if tunnel.ID > data.TunnelCount {
-			return types.ErrInvalidGenesis.Wrapf(
-				"TunnelID %d is greater than the TunnelCount %d",
-				tunnel.ID,
-				data.TunnelCount,
-			)
+			return types.ErrInvalidGenesis.Wrapf("tunnel count mismatch in tunnels")
 		}
+	}
+
+	// validate the latest signal prices count
+	if len(data.LatestSignalPricesList) != int(data.TunnelCount) {
+		return types.ErrInvalidGenesis.Wrapf("length of latest signal prices does not match tunnel count")
 	}
 
 	// validate latest signal prices
 	for _, latestSignalPrices := range data.LatestSignalPricesList {
 		if latestSignalPrices.TunnelID == 0 || latestSignalPrices.TunnelID > data.TunnelCount {
-			return types.ErrInvalidGenesis.Wrapf(
-				"TunnelID %d cannot be 0 or greater than the TunnelCount %d",
-				latestSignalPrices.TunnelID,
-				data.TunnelCount,
-			)
+			return types.ErrInvalidGenesis.Wrapf("tunnel count mismatch in latest signal prices")
 		}
 	}
 
 	// validate the total fees
 	if err := data.TotalFees.Validate(); err != nil {
-		return types.ErrInvalidGenesis.Wrapf("total fees: %s", err.Error())
+		return types.ErrInvalidGenesis.Wrapf("invalid total fees: %s", err.Error())
 	}
 
 	return data.Params.Validate()
 }
 
 // InitGenesis initializes the module's state from a provided genesis state.
-func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
+func InitGenesis(ctx sdk.Context, k *Keeper, data *types.GenesisState) {
 	if err := k.SetParams(ctx, data.Params); err != nil {
 		panic(err)
 	}
@@ -87,7 +79,7 @@ func InitGenesis(ctx sdk.Context, k *keeper.Keeper, data *types.GenesisState) {
 }
 
 // ExportGenesis returns the module's exported genesis
-func ExportGenesis(ctx sdk.Context, k *keeper.Keeper) *types.GenesisState {
+func ExportGenesis(ctx sdk.Context, k *Keeper) *types.GenesisState {
 	return &types.GenesisState{
 		Params:                 k.GetParams(ctx),
 		TunnelCount:            k.GetTunnelCount(ctx),

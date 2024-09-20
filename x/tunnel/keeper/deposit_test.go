@@ -1,24 +1,19 @@
 package keeper_test
 
 import (
-	"testing"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/x/tunnel/testutil"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
-func TestAddDeposit(t *testing.T) {
-	s := testutil.NewTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestAddDeposit() {
+	ctx, k := s.ctx, s.keeper
 
 	tunnelID := uint64(1)
 	depositorAddr := sdk.AccAddress([]byte("depositor"))
 	depositAmount := sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100)))
 
-	s.MockBankKeeper.EXPECT().
+	s.bankKeeper.EXPECT().
 		SendCoinsFromAccountToModule(ctx, depositorAddr, types.ModuleName, depositAmount).
 		Return(nil).Times(1)
 
@@ -28,22 +23,21 @@ func TestAddDeposit(t *testing.T) {
 
 	// Add deposit
 	err := k.AddDeposit(ctx, tunnelID, depositorAddr, depositAmount)
-	require.NoError(t, err)
+	s.Require().NoError(err)
 
 	// Check deposit
 	deposit, found := k.GetDeposit(ctx, tunnelID, depositorAddr)
-	require.True(t, found)
-	require.Equal(t, depositAmount, deposit.Amount)
+	s.Require().True(found)
+	s.Require().Equal(depositAmount, deposit.Amount)
 
 	// Check tunnel's total deposit
 	tunnel, err = k.GetTunnel(ctx, tunnelID)
-	require.NoError(t, err)
-	require.Equal(t, depositAmount, tunnel.TotalDeposit)
+	s.Require().NoError(err)
+	s.Require().Equal(depositAmount, tunnel.TotalDeposit)
 }
 
-func TestGetSetDeposit(t *testing.T) {
-	s := testutil.NewTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestGetSetDeposit() {
+	ctx, k := s.ctx, s.keeper
 
 	tunnelID := uint64(1)
 	depositorAddr := sdk.AccAddress([]byte("depositor"))
@@ -55,13 +49,12 @@ func TestGetSetDeposit(t *testing.T) {
 
 	// Get deposit
 	retrievedDeposit, found := k.GetDeposit(ctx, tunnelID, depositorAddr)
-	require.True(t, found)
-	require.Equal(t, deposit, retrievedDeposit)
+	s.Require().True(found)
+	s.Require().Equal(deposit, retrievedDeposit)
 }
 
-func TestGetDeposits(t *testing.T) {
-	s := testutil.NewTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestGetDeposits() {
+	ctx, k := s.ctx, s.keeper
 
 	tunnelID := uint64(1)
 	depositorAddr := sdk.AccAddress([]byte("depositor"))
@@ -73,13 +66,12 @@ func TestGetDeposits(t *testing.T) {
 
 	// Get deposits
 	deposits := k.GetDeposits(ctx, tunnelID)
-	require.Len(t, deposits, 1)
-	require.Equal(t, deposit, deposits[0])
+	s.Require().Len(deposits, 1)
+	s.Require().Equal(deposit, deposits[0])
 }
 
-func TestDeleteDeposit(t *testing.T) {
-	s := testutil.NewTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestDeleteDeposit() {
+	ctx, k := s.ctx, s.keeper
 
 	tunnelID := uint64(1)
 	depositorAddr := sdk.AccAddress([]byte("depositor"))
@@ -94,18 +86,17 @@ func TestDeleteDeposit(t *testing.T) {
 
 	// Check deposit
 	_, found := k.GetDeposit(ctx, tunnelID, depositorAddr)
-	require.False(t, found)
+	s.Require().False(found)
 }
 
-func TestWithdrawDeposit(t *testing.T) {
-	s := testutil.NewTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestWithdrawDeposit() {
+	ctx, k := s.ctx, s.keeper
 
 	tunnelID := uint64(1)
 	depositorAddr := sdk.AccAddress([]byte("depositor"))
 	depositAmount := sdk.NewCoins(sdk.NewCoin("band", sdk.NewInt(1000)))
 
-	s.MockBankKeeper.EXPECT().
+	s.bankKeeper.EXPECT().
 		SendCoinsFromModuleToAccount(ctx, types.ModuleName, depositorAddr, depositAmount).
 		Return(nil).Times(1)
 
@@ -119,13 +110,13 @@ func TestWithdrawDeposit(t *testing.T) {
 
 	// Withdraw deposit
 	err := k.WithdrawDeposit(ctx, tunnelID, depositAmount, depositorAddr)
-	require.NoError(t, err)
+	s.Require().NoError(err)
 
 	// Check tunnel's total deposit
 	tunnel, err = k.GetTunnel(ctx, tunnelID)
-	require.NoError(t, err)
-	require.Equal(t, sdk.Coins(nil), tunnel.TotalDeposit)
+	s.Require().NoError(err)
+	s.Require().Equal(sdk.Coins(nil), tunnel.TotalDeposit)
 
 	// Check is active
-	require.False(t, tunnel.IsActive)
+	s.Require().False(tunnel.IsActive)
 }

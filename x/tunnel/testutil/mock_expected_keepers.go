@@ -200,6 +200,20 @@ func (mr *MockBankKeeperMockRecorder) SendCoinsFromModuleToAccount(ctx, senderMo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendCoinsFromModuleToAccount", reflect.TypeOf((*MockBankKeeper)(nil).SendCoinsFromModuleToAccount), ctx, senderModule, recipientAddr, amt)
 }
 
+// SpendableCoins mocks base method.
+func (m *MockBankKeeper) SpendableCoins(ctx types2.Context, addr types2.AccAddress) types2.Coins {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SpendableCoins", ctx, addr)
+	ret0, _ := ret[0].(types2.Coins)
+	return ret0
+}
+
+// SpendableCoins indicates an expected call of SpendableCoins.
+func (mr *MockBankKeeperMockRecorder) SpendableCoins(ctx, addr any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SpendableCoins", reflect.TypeOf((*MockBankKeeper)(nil).SpendableCoins), ctx, addr)
+}
+
 // MockFeedsKeeper is a mock of FeedsKeeper interface.
 type MockFeedsKeeper struct {
 	ctrl     *gomock.Controller

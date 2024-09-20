@@ -42,7 +42,7 @@ func DefaultParams() Params {
 // Validate validates the set of params
 func (p Params) Validate() error {
 	// Validate MinDeposit
-	if p.MinDeposit.Empty() || !p.MinDeposit.IsValid() {
+	if !p.MinDeposit.IsValid() {
 		return fmt.Errorf("invalid minimum deposit: %s", p.MinDeposit)
 	}
 
