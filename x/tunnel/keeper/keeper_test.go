@@ -117,7 +117,7 @@ func (s *KeeperTestSuite) AddSampleTunnel(isActive bool) {
 		types.ENCODER_FIXED_POINT_ABI,
 		signalDeviations,
 		10,
-		sdk.AccAddress([]byte("creator_address")).String(),
+		sdk.AccAddress([]byte("creator_address")),
 	)
 	s.Require().NoError(err)
 

@@ -121,17 +121,17 @@ func (m *MsgCreateTunnel) GetSigners() []sdk.AccAddress {
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgCreateTunnel) ValidateBasic() error {
-	// Creator address must be valid
+	// creator address must be valid
 	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
-	// Signal deviations cannot be empty
+	// signal deviations cannot be empty
 	if len(m.SignalDeviations) == 0 {
 		return sdkerrors.ErrInvalidRequest.Wrapf("signal deviations cannot be empty")
 	}
 
-	// Route must be valid
+	// route must be valid
 	r, ok := m.Route.GetCachedValue().(RouteI)
 	if !ok {
 		return sdkerrors.ErrPackAny.Wrapf("cannot unpack route")
@@ -140,7 +140,7 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 		return err
 	}
 
-	// InitialDeposit deposit must be positive
+	// initialDeposit deposit must be positive
 	if !m.InitialDeposit.IsValid() {
 		return sdkerrors.ErrInvalidCoins.Wrapf("invalid initial deposit: %s", m.InitialDeposit)
 	}

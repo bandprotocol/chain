@@ -9,9 +9,8 @@ import (
 )
 
 func TestParseSignalDeviations(t *testing.T) {
-	// Test case for valid signal deviation
+	// test case for valid signal deviations
 	t.Run("valid signal deviations", func(t *testing.T) {
-		// Setup
 		signalDeviations := []SignalDeviation{
 			{SignalID: "BTC", DeviationBPS: 2000},
 			{SignalID: "ETH", DeviationBPS: 4000},
@@ -19,15 +18,13 @@ func TestParseSignalDeviations(t *testing.T) {
 		file, cleanup := createTempSignalDeviationFile(signalDeviations)
 		defer cleanup()
 
-		// Execute
 		result, err := parseSignalDeviations(file)
 
-		// Verify
 		require.NoError(t, err)
 		require.Equal(t, signalDeviations, result.SignalDeviations)
 	})
 
-	// Test case for empty file path
+	// test case for empty file path
 	t.Run("empty file path", func(t *testing.T) {
 		result, err := parseSignalDeviations("")
 

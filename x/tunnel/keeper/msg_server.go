@@ -37,16 +37,21 @@ func (ms msgServer) CreateTunnel(
 		return nil, types.ErrIntervalTooLow
 	}
 
+	creator, err := sdk.AccAddressFromBech32(req.Creator)
+	if err != nil {
+		return nil, err
+	}
+
 	// TODO: check deposit with params, transfer deposit to module account
 
-	// Add a new tunnel
+	// add a new tunnel
 	tunnel, err := ms.Keeper.AddTunnel(
 		ctx,
 		req.Route,
 		req.Encoder,
 		req.SignalDeviations,
 		req.Interval,
-		req.Creator,
+		creator,
 	)
 	if err != nil {
 		return nil, err
@@ -121,12 +126,12 @@ func (ms msgServer) Activate(
 		return nil, err
 	}
 
-	// Check if the creator is the same
+	// check if the creator is the same
 	if req.Creator != tunnel.Creator {
 		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", req.Creator, req.TunnelID)
 	}
 
-	// Check if the tunnel is already active
+	// check if the tunnel is already active
 	if tunnel.IsActive {
 		return nil, types.ErrAlreadyActive.Wrapf("tunnelID %d", req.TunnelID)
 	}
@@ -192,12 +197,11 @@ func (ms msgServer) TriggerTunnel(
 	currentPrices := ms.Keeper.feedsKeeper.GetCurrentPrices(ctx)
 	currentPricesMap := createCurrentPricesMap(currentPrices)
 
-	// Produce packet with trigger all signals
+	// produce packet with trigger all signals
 	if err := ms.Keeper.ProducePacket(ctx, tunnel.ID, currentPricesMap, true); err != nil {
 		return nil, err
 	}
 
-	// Emit an event
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeManualTriggerTunnel,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", req.TunnelID)),
@@ -225,7 +229,6 @@ func (ms msgServer) UpdateParams(
 		return nil, err
 	}
 
-	// Emit an event
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeUpdateParams,
 		sdk.NewAttribute(types.AttributeKeyParams, req.Params.String()),
