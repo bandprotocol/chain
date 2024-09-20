@@ -42,7 +42,7 @@ func (ms msgServer) CreateTunnel(
 		return nil, err
 	}
 
-	// Add a new tunnel
+	// add a new tunnel
 	tunnel, err := ms.Keeper.AddTunnel(
 		ctx,
 		req.Route,
@@ -132,12 +132,12 @@ func (ms msgServer) Activate(
 		return nil, err
 	}
 
-	// Check if the creator is the same
+	// check if the creator is the same
 	if req.Creator != tunnel.Creator {
 		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", req.Creator, req.TunnelID)
 	}
 
-	// Check if the tunnel is already active
+	// check if the tunnel is already active
 	if tunnel.IsActive {
 		return nil, types.ErrAlreadyActive.Wrapf("tunnelID %d", req.TunnelID)
 	}
