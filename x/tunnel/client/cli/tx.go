@@ -48,7 +48,7 @@ func GetTxCmdCreateTunnels() *cobra.Command {
 
 func GetTxCmdCreateTSSTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "tss [destination-chain-id] [destination-contract-address] [encoder] [deposit] [interval] [signalDeviations-json-file]",
+		Use:   "tss [destination-chain-id] [destination-contract-address] [encoder] [initial-deposit] [interval] [signalDeviations-json-file]",
 		Short: "Create a new TSS tunnel",
 		Args:  cobra.ExactArgs(6),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -62,7 +62,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 				return err
 			}
 
-			deposit, err := sdk.ParseCoinsNormalized(args[3])
+			initialDeposit, err := sdk.ParseCoinsNormalized(args[3])
 			if err != nil {
 				return err
 			}
@@ -83,7 +83,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 				args[0],
 				args[1],
 				types.Encoder(encoder),
-				deposit,
+				initialDeposit,
 				clientCtx.GetFromAddress(),
 			)
 			if err != nil {
