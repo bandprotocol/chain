@@ -17,14 +17,14 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 		{SignalID: "ETH"},
 	}
 	interval := uint64(10)
-	creator := sdk.AccAddress([]byte("creator_address")).String()
+	creator := sdk.AccAddress([]byte("creator_address"))
 
 	expectedTunnel := types.Tunnel{
 		ID:               1,
 		Route:            route,
 		Encoder:          types.ENCODER_FIXED_POINT_ABI,
 		FeePayer:         "cosmos1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62qh49enj",
-		Creator:          creator,
+		Creator:          creator.String(),
 		Interval:         interval,
 		SignalDeviations: signalDeviations,
 		IsActive:         false,
@@ -70,7 +70,7 @@ func (s *KeeperTestSuite) TestEditTunnel() {
 		{SignalID: "ETH", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
 	}
 	initialInterval := uint64(10)
-	creator := sdk.AccAddress([]byte("creator_address")).String()
+	creator := sdk.AccAddress([]byte("creator_address"))
 
 	s.accountKeeper.EXPECT().
 		GetAccount(ctx, gomock.Any()).
