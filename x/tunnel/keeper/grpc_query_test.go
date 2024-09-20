@@ -9,7 +9,6 @@ import (
 func (s *KeeperTestSuite) TestGRPCQueryTunnels() {
 	ctx, k, q := s.ctx, s.keeper, s.queryServer
 
-	// Set tunnels
 	tunnel1 := types.Tunnel{
 		ID: 1,
 	}
@@ -19,7 +18,6 @@ func (s *KeeperTestSuite) TestGRPCQueryTunnels() {
 	k.SetTunnel(ctx, tunnel1)
 	k.SetTunnel(ctx, tunnel2)
 
-	// Query tunnels
 	resp, err := q.Tunnels(ctx, &types.QueryTunnelsRequest{})
 	s.Require().NoError(err)
 	s.Require().NotNil(resp)
@@ -31,13 +29,11 @@ func (s *KeeperTestSuite) TestGRPCQueryTunnels() {
 func (s *KeeperTestSuite) TestGRPCQueryTunnel() {
 	ctx, k, q := s.ctx, s.keeper, s.queryServer
 
-	// Set tunnel
 	tunnel := types.Tunnel{
 		ID: 1,
 	}
 	k.SetTunnel(ctx, tunnel)
 
-	// Query tunnel
 	resp, err := q.Tunnel(ctx, &types.QueryTunnelRequest{
 		TunnelId: 1,
 	})
@@ -49,7 +45,6 @@ func (s *KeeperTestSuite) TestGRPCQueryTunnel() {
 func (s *KeeperTestSuite) TestGRPCQueryPackets() {
 	ctx, k, q := s.ctx, s.keeper, s.queryServer
 
-	// Set tunnel
 	tunnel := types.Tunnel{
 		ID:         1,
 		NonceCount: 2,
@@ -63,7 +58,6 @@ func (s *KeeperTestSuite) TestGRPCQueryPackets() {
 
 	k.SetTunnel(ctx, tunnel)
 
-	// Set packets
 	packet1 := types.Packet{
 		TunnelID: 1,
 		Nonce:    1,
@@ -87,7 +81,6 @@ func (s *KeeperTestSuite) TestGRPCQueryPackets() {
 	k.SetPacket(ctx, packet1)
 	k.SetPacket(ctx, packet2)
 
-	// Query packets
 	resp, err := q.Packets(ctx, &types.QueryPacketsRequest{
 		TunnelId: 1,
 	})

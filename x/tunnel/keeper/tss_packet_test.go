@@ -10,13 +10,10 @@ import (
 func (s *KeeperTestSuite) TestSendTSSPacket() {
 	ctx, k := s.ctx, s.keeper
 
-	// Create a sample TSSRoute
 	route := types.TSSRoute{
 		DestinationChainID:         "chain-1",
 		DestinationContractAddress: "0x1234567890abcdef",
 	}
-
-	// Create a sample Packet
 	packet := types.NewPacket(
 		1,                     // tunnelID
 		1,                     // nonce
@@ -25,11 +22,9 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 		time.Now().Unix(),
 	)
 
-	// Send the TSS packet
 	content, err := k.SendTSSPacket(ctx, &route, packet)
 	s.Require().NoError(err)
 
-	// Assert the packet content
 	packetContent, ok := content.(*types.TSSPacketContent)
 	s.Require().True(ok)
 	s.Require().Equal("chain-1", packetContent.DestinationChainID)

@@ -41,22 +41,22 @@ func DefaultParams() Params {
 
 // Validate validates the set of params
 func (p Params) Validate() error {
-	// Validate MinDeposit
+	// validate MinDeposit
 	if !p.MinDeposit.IsValid() {
 		return fmt.Errorf("invalid minimum deposit: %s", p.MinDeposit)
 	}
 
-	// Validate MinInterval
+	// validate MinInterval
 	if err := validateUint64("min interval", true)(p.MinInterval); err != nil {
 		return err
 	}
 
-	// Validate MaxSignals
+	// validate MaxSignals
 	if err := validateUint64("max signals", true)(p.MaxSignals); err != nil {
 		return err
 	}
 
-	// Validate BasePacketFee
+	// validate BasePacketFee
 	if !p.BasePacketFee.IsValid() {
 		return fmt.Errorf("invalid base packet fee: %s", p.BasePacketFee)
 	}

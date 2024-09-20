@@ -18,24 +18,23 @@ func (k Keeper) AddTunnel(
 	interval uint64,
 	creator sdk.AccAddress,
 ) (*types.Tunnel, error) {
-	// Get the next tunnel ID
 	id := k.GetTunnelCount(ctx)
 	newID := id + 1
 
-	// Generate a new fee payer account
+	// generate a new fee payer account
 	feePayer, err := k.GenerateAccount(ctx, fmt.Sprintf("%d", newID))
 	if err != nil {
 		return nil, err
 	}
 
-	// Set the signal prices info
+	// set the signal prices info
 	var signalPrices []types.SignalPrice
 	for _, sd := range signalDeviations {
 		signalPrices = append(signalPrices, types.NewSignalPrice(sd.SignalID, 0))
 	}
 	k.SetLatestSignalPrices(ctx, types.NewLatestSignalPrices(newID, signalPrices, 0))
 
-	// Create a new tunnel
+	// create a new tunnel
 	tunnel := types.NewTunnel(
 		newID,
 		0,
@@ -51,7 +50,7 @@ func (k Keeper) AddTunnel(
 	)
 	k.SetTunnel(ctx, tunnel)
 
-	// Increment the tunnel count
+	// increment the tunnel count
 	k.SetTunnelCount(ctx, newID)
 
 	return &tunnel, nil
@@ -69,19 +68,18 @@ func (k Keeper) EditTunnel(
 		return err
 	}
 
-	// Edit the tunnel
+	// edit the tunnel
 	tunnel.SignalDeviations = signalDeviations
 	tunnel.Interval = interval
 	k.SetTunnel(ctx, tunnel)
 
-	// Edit the signal prices info
+	// edit the signal prices info
 	var signalPrices []types.SignalPrice
 	for _, sp := range signalDeviations {
 		signalPrices = append(signalPrices, types.NewSignalPrice(sp.SignalID, 0))
 	}
 	k.SetLatestSignalPrices(ctx, types.NewLatestSignalPrices(tunnelID, signalPrices, 0))
 
-	// Emit an event
 	event := sdk.NewEvent(
 		types.EventTypeEditTunnel,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
@@ -177,14 +175,13 @@ func (k Keeper) ActivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 		return err
 	}
 
-	// Add the tunnel ID to the active tunnel IDs
+	// add the tunnel ID to the active tunnel IDs
 	k.ActiveTunnelID(ctx, tunnelID)
 
-	// Set the last interval timestamp to the current block time
+	// set the last interval timestamp to the current block time
 	tunnel.IsActive = true
 	k.SetTunnel(ctx, tunnel)
 
-	// Emit an event
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeActivateTunnel,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnelID)),
@@ -201,14 +198,13 @@ func (k Keeper) DeactivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 		return err
 	}
 
-	// Remove the tunnel ID from the active tunnel IDs
+	// remove the tunnel ID from the active tunnel IDs
 	k.DeactivateTunnelID(ctx, tunnelID)
 
-	// Set the last interval timestamp to the current block time
+	// set the last interval timestamp to the current block time
 	tunnel.IsActive = false
 	k.SetTunnel(ctx, tunnel)
 
-	// emit and event.
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeDeactivateTunnel,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnelID)),

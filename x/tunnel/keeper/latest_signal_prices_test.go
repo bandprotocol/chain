@@ -7,7 +7,6 @@ import (
 func (s *KeeperTestSuite) TestGetSetLatestSignalPrices() {
 	ctx, k := s.ctx, s.keeper
 
-	// Define test data
 	tunnelID := uint64(1)
 	latestSignalPrices := types.LatestSignalPrices{
 		TunnelID: tunnelID,
@@ -16,10 +15,8 @@ func (s *KeeperTestSuite) TestGetSetLatestSignalPrices() {
 		},
 	}
 
-	// Set the latest signal prices
 	k.SetLatestSignalPrices(ctx, latestSignalPrices)
 
-	// Get the latest signal prices
 	retrievedSignalPrices, err := k.GetLatestSignalPrices(ctx, tunnelID)
 	s.Require().NoError(err)
 	s.Require().Equal(latestSignalPrices, retrievedSignalPrices)
@@ -28,7 +25,6 @@ func (s *KeeperTestSuite) TestGetSetLatestSignalPrices() {
 func (s *KeeperTestSuite) TestGetAllLatestSignalPrices() {
 	ctx, k := s.ctx, s.keeper
 
-	// Define test data
 	latestSignalPrices1 := types.LatestSignalPrices{
 		TunnelID: 1,
 		SignalPrices: []types.SignalPrice{
@@ -42,11 +38,9 @@ func (s *KeeperTestSuite) TestGetAllLatestSignalPrices() {
 		},
 	}
 
-	// Set the latest signal prices
 	k.SetLatestSignalPrices(ctx, latestSignalPrices1)
 	k.SetLatestSignalPrices(ctx, latestSignalPrices2)
 
-	// Get all latest signal prices
 	allLatestSignalPrices := k.GetAllLatestSignalPrices(ctx)
 	s.Require().Len(allLatestSignalPrices, 2)
 	s.Require().Contains(allLatestSignalPrices, latestSignalPrices1)
