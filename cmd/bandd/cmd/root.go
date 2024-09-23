@@ -173,7 +173,7 @@ func initCometConfig() *tmcfg.Config {
 func initAppConfig() (string, interface{}) {
 	// Can optionally overwrite the SDK's default server config.
 	srvCfg := serverconfig.DefaultConfig()
-	srvCfg.StateSync.SnapshotInterval = 1000
+	srvCfg.StateSync.SnapshotInterval = 20000
 	srvCfg.StateSync.SnapshotKeepRecent = 10
 
 	return serverconfig.DefaultConfigTemplate, srvCfg

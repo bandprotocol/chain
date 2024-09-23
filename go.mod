@@ -7,21 +7,21 @@ require (
 	cosmossdk.io/client/v2 v2.0.0-beta.3
 	cosmossdk.io/core v0.11.1
 	cosmossdk.io/errors v1.0.1
-	cosmossdk.io/log v1.4.0
+	cosmossdk.io/log v1.4.1
 	cosmossdk.io/math v1.3.0
-	cosmossdk.io/store v1.1.0
+	cosmossdk.io/store v1.1.1
 	cosmossdk.io/tools/confix v0.1.2
 	cosmossdk.io/tools/rosetta v0.2.1-0.20230613133644-0a778132a60f
 	cosmossdk.io/x/evidence v0.1.1
 	cosmossdk.io/x/feegrant v0.1.1
-	cosmossdk.io/x/tx v0.13.4
+	cosmossdk.io/x/tx v0.13.5
 	cosmossdk.io/x/upgrade v0.1.4
 	github.com/bandprotocol/go-owasm v0.3.1
 	github.com/bytecodealliance/wasmtime-go/v20 v20.0.0
 	github.com/cometbft/cometbft v0.38.12
 	github.com/cosmos/cosmos-db v1.0.2
 	github.com/cosmos/cosmos-proto v1.0.0-beta.5
-	github.com/cosmos/cosmos-sdk v0.50.9
+	github.com/cosmos/cosmos-sdk v0.50.10
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/gogoproto v1.7.0
 	github.com/cosmos/ibc-go/modules/capability v1.0.1
@@ -84,7 +84,7 @@ require (
 	github.com/cometbft/cometbft-db v0.11.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
-	github.com/cosmos/iavl v1.1.2 // indirect
+	github.com/cosmos/iavl v1.2.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.13.3 // indirect
 	github.com/cosmos/rosetta-sdk-go v0.10.0 // indirect
 	github.com/creachadair/atomicfile v0.3.1 // indirect
@@ -217,8 +217,14 @@ require (
 )
 
 replace (
-	// cosmos keyring
+	// use cosmos fork of keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
+	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
+	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
+	github.com/dgrijalva/jwt-go => github.com/golang-jwt/jwt/v4 v4.4.2
+	// Fix upstream GHSA-h395-qcrw-5vmq and GHSA-3vp4-m3rf-835h vulnerabilities.
+	// TODO Remove it: https://github.com/cosmos/cosmos-sdk/issues/10409
+	github.com/gin-gonic/gin => github.com/gin-gonic/gin v1.9.1
 	// replace broken goleveldb
 	github.com/syndtr/goleveldb => github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 )
