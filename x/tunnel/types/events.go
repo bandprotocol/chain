@@ -8,13 +8,10 @@ const (
 	EventTypeActivateTunnel      = "activate_tunnel"
 	EventTypeDeactivateTunnel    = "deactivate_tunnel"
 	EventTypeManualTriggerTunnel = "manual_trigger_tunnel"
-	EventTypeSignalInfoNotFound  = "signal_info_not_found"
 	EventTypeProducePacketFail   = "produce_packet_fail"
-	EventTypeNoTunnelRoute       = "no_tunnel_route"
 
 	AttributeKeyParams           = "params"
 	AttributeKeyTunnelID         = "tunnel_id"
-	AttributeKeySignalID         = "signal_id"
 	AttributeKeyInterval         = "interval"
 	AttributeKeyRoute            = "route"
 	AttributeKeyEncoder          = "encoder"

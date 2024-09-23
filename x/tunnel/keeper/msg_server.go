@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
@@ -29,19 +28,31 @@ func (ms msgServer) CreateTunnel(
 ) (*types.MsgCreateTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// TODO: check deposit with params, transfer deposit to module account
-
 	// validate signal infos and interval
 	params := ms.Keeper.GetParams(ctx)
-	if len(req.SignalInfos) > int(params.MaxSignals) {
+	if len(req.SignalDeviations) > int(params.MaxSignals) {
 		return nil, types.ErrMaxSignalsExceeded
 	}
 	if req.Interval < params.MinInterval {
-		return nil, types.ErrMinIntervalExceeded
+		return nil, types.ErrIntervalTooLow
 	}
 
-	// Add a new tunnel
-	tunnel, err := ms.Keeper.AddTunnel(ctx, req.Route, req.Encoder, req.SignalInfos, req.Interval, req.Creator)
+	creator, err := sdk.AccAddressFromBech32(req.Creator)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: check deposit with params, transfer deposit to module account
+
+	// add a new tunnel
+	tunnel, err := ms.Keeper.AddTunnel(
+		ctx,
+		req.Route,
+		req.Encoder,
+		req.SignalDeviations,
+		req.Interval,
+		creator,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -58,9 +69,9 @@ func (ms msgServer) CreateTunnel(
 		sdk.NewAttribute(types.AttributeKeyCreatedAt, fmt.Sprintf("%d", tunnel.CreatedAt)),
 		sdk.NewAttribute(types.AttributeKeyCreator, req.Creator),
 	)
-	for _, signalInfo := range req.SignalInfos {
+	for _, sd := range req.SignalDeviations {
 		event = event.AppendAttributes(
-			sdk.NewAttribute(types.AttributeKeySignalPriceInfos, signalInfo.String()),
+			sdk.NewAttribute(types.AttributeKeySignalPriceInfos, sd.String()),
 		)
 	}
 	ctx.EventManager().EmitEvent(event)
@@ -79,11 +90,11 @@ func (ms msgServer) EditTunnel(
 
 	// validate signal infos and interval
 	params := ms.Keeper.GetParams(ctx)
-	if len(req.SignalInfos) > int(params.MaxSignals) {
+	if len(req.SignalDeviations) > int(params.MaxSignals) {
 		return nil, types.ErrMaxSignalsExceeded
 	}
 	if req.Interval < params.MinInterval {
-		return nil, types.ErrMinIntervalExceeded
+		return nil, types.ErrIntervalTooLow
 	}
 
 	tunnel, err := ms.Keeper.GetTunnel(ctx, req.TunnelID)
@@ -92,36 +103,22 @@ func (ms msgServer) EditTunnel(
 	}
 
 	if req.Creator != tunnel.Creator {
-		return nil, fmt.Errorf("creator %s is not the creator of tunnel %d", req.Creator, req.TunnelID)
+		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", req.Creator, req.TunnelID)
 	}
 
-	err = ms.Keeper.EditTunnel(ctx, req.TunnelID, req.SignalInfos, req.Interval)
+	err = ms.Keeper.EditTunnel(ctx, req.TunnelID, req.SignalDeviations, req.Interval)
 	if err != nil {
 		return nil, err
 	}
 
-	// Emit an event
-	event := sdk.NewEvent(
-		types.EventTypeEditTunnel,
-		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
-		sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", tunnel.Interval)),
-		sdk.NewAttribute(types.AttributeKeyCreator, req.Creator),
-	)
-	for _, signalInfo := range req.SignalInfos {
-		event = event.AppendAttributes(
-			sdk.NewAttribute(types.AttributeKeySignalPriceInfos, signalInfo.String()),
-		)
-	}
-	ctx.EventManager().EmitEvent(event)
-
 	return &types.MsgEditTunnelResponse{}, nil
 }
 
-// ActivateTunnel activates a tunnel.
-func (ms msgServer) ActivateTunnel(
+// Activate activates a tunnel.
+func (ms msgServer) Activate(
 	goCtx context.Context,
-	req *types.MsgActivateTunnel,
-) (*types.MsgActivateTunnelResponse, error) {
+	req *types.MsgActivate,
+) (*types.MsgActivateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	tunnel, err := ms.Keeper.GetTunnel(ctx, req.TunnelID)
@@ -129,8 +126,14 @@ func (ms msgServer) ActivateTunnel(
 		return nil, err
 	}
 
+	// check if the creator is the same
 	if req.Creator != tunnel.Creator {
-		return nil, fmt.Errorf("creator %s is not the creator of tunnel %d", req.Creator, req.TunnelID)
+		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", req.Creator, req.TunnelID)
+	}
+
+	// check if the tunnel is already active
+	if tunnel.IsActive {
+		return nil, types.ErrAlreadyActive.Wrapf("tunnelID %d", req.TunnelID)
 	}
 
 	err = ms.Keeper.ActivateTunnel(ctx, req.TunnelID)
@@ -138,14 +141,14 @@ func (ms msgServer) ActivateTunnel(
 		return nil, err
 	}
 
-	return &types.MsgActivateTunnelResponse{}, nil
+	return &types.MsgActivateResponse{}, nil
 }
 
-// DeactivateTunnel deactivates a tunnel.
-func (ms msgServer) DeactivateTunnel(
+// Deactivate deactivates a tunnel.
+func (ms msgServer) Deactivate(
 	goCtx context.Context,
-	req *types.MsgDeactivateTunnel,
-) (*types.MsgDeactivateTunnelResponse, error) {
+	req *types.MsgDeactivate,
+) (*types.MsgDeactivateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	tunnel, err := ms.Keeper.GetTunnel(ctx, req.TunnelID)
@@ -154,7 +157,11 @@ func (ms msgServer) DeactivateTunnel(
 	}
 
 	if req.Creator != tunnel.Creator {
-		return nil, fmt.Errorf("creator %s is not the creator of tunnel %d", req.Creator, req.TunnelID)
+		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", req.Creator, req.TunnelID)
+	}
+
+	if !tunnel.IsActive {
+		return nil, types.ErrAlreadyInactive.Wrapf("tunnelID %d", req.TunnelID)
 	}
 
 	err = ms.Keeper.DeactivateTunnel(ctx, req.TunnelID)
@@ -162,14 +169,14 @@ func (ms msgServer) DeactivateTunnel(
 		return nil, err
 	}
 
-	return &types.MsgDeactivateTunnelResponse{}, nil
+	return &types.MsgDeactivateResponse{}, nil
 }
 
-// ManualTriggerTunnel manually triggers a tunnel.
-func (ms msgServer) ManualTriggerTunnel(
+// TriggerTunnel manually triggers a tunnel.
+func (ms msgServer) TriggerTunnel(
 	goCtx context.Context,
-	req *types.MsgManualTriggerTunnel,
-) (*types.MsgManualTriggerTunnelResponse, error) {
+	req *types.MsgTriggerTunnel,
+) (*types.MsgTriggerTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	tunnel, err := ms.Keeper.GetTunnel(ctx, req.TunnelID)
@@ -190,31 +197,17 @@ func (ms msgServer) ManualTriggerTunnel(
 	currentPrices := ms.Keeper.feedsKeeper.GetCurrentPrices(ctx)
 	currentPricesMap := createCurrentPricesMap(currentPrices)
 
-	// Produce packet with trigger all signals
-	isCreated, err := ms.Keeper.ProducePacket(ctx, tunnel.ID, currentPricesMap, true)
-	if err != nil {
+	// produce packet with trigger all signals
+	if err := ms.Keeper.ProducePacket(ctx, tunnel.ID, currentPricesMap, true); err != nil {
 		return nil, err
 	}
 
-	// if new packet is created, deduct base packet fee from the fee payer,
-	if isCreated {
-		feePayer, err := sdk.AccAddressFromBech32(tunnel.FeePayer)
-		if err != nil {
-			return nil, err
-		}
-
-		if err := ms.Keeper.DeductBasePacketFee(ctx, feePayer); err != nil {
-			return nil, sdkerrors.Wrapf(err, "failed to deduct base packet fee for tunnel %d", req.TunnelID)
-		}
-	}
-
-	// Emit an event
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeManualTriggerTunnel,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", req.TunnelID)),
 	))
 
-	return &types.MsgManualTriggerTunnelResponse{}, nil
+	return &types.MsgTriggerTunnelResponse{}, nil
 }
 
 // UpdateParams updates the module params.
@@ -236,7 +229,6 @@ func (ms msgServer) UpdateParams(
 		return nil, err
 	}
 
-	// Emit an event
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeUpdateParams,
 		sdk.NewAttribute(types.AttributeKeyParams, req.Params.String()),

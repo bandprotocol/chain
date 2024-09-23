@@ -12,9 +12,12 @@ import (
 // RegisterLegacyAminoCodec registers the necessary x/tunnel interfaces and concrete types
 // on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "tunnel/MsgUpdateParams")
 	legacy.RegisterAminoMsg(cdc, &MsgCreateTunnel{}, "tunnel/MsgCreateTunnel")
-	legacy.RegisterAminoMsg(cdc, &MsgActivateTunnel{}, "tunnel/MsgActivateTunnel")
+	legacy.RegisterAminoMsg(cdc, &MsgEditTunnel{}, "tunnel/MsgEditTunnel")
+	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "tunnel/MsgActivate")
+	legacy.RegisterAminoMsg(cdc, &MsgDeactivate{}, "tunnel/MsgDeactivate")
+	legacy.RegisterAminoMsg(cdc, &MsgTriggerTunnel{}, "tunnel/MsgTriggerTunnel")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "tunnel/MsgUpdateParams")
 
 	cdc.RegisterInterface((*RouteI)(nil), nil)
 	cdc.RegisterConcrete(&TSSRoute{}, "tunnel/TSSRoute", nil)
@@ -28,9 +31,12 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
-		&MsgUpdateParams{},
 		&MsgCreateTunnel{},
-		&MsgActivateTunnel{},
+		&MsgEditTunnel{},
+		&MsgActivate{},
+		&MsgDeactivate{},
+		&MsgTriggerTunnel{},
+		&MsgUpdateParams{},
 	)
 
 	registry.RegisterInterface(

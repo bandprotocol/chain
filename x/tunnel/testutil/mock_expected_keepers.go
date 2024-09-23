@@ -85,18 +85,6 @@ func (mr *MockAccountKeeperMockRecorder) GetModuleAddress(name any) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetModuleAddress", reflect.TypeOf((*MockAccountKeeper)(nil).GetModuleAddress), name)
 }
 
-// IterateAccounts mocks base method.
-func (m *MockAccountKeeper) IterateAccounts(ctx types2.Context, process func(types3.AccountI) bool) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "IterateAccounts", ctx, process)
-}
-
-// IterateAccounts indicates an expected call of IterateAccounts.
-func (mr *MockAccountKeeperMockRecorder) IterateAccounts(ctx, process any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IterateAccounts", reflect.TypeOf((*MockAccountKeeper)(nil).IterateAccounts), ctx, process)
-}
-
 // NewAccount mocks base method.
 func (m *MockAccountKeeper) NewAccount(ctx types2.Context, account types3.AccountI) types3.AccountI {
 	m.ctrl.T.Helper()
@@ -200,18 +188,18 @@ func (mr *MockBankKeeperMockRecorder) SendCoinsFromModuleToAccount(ctx, senderMo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendCoinsFromModuleToAccount", reflect.TypeOf((*MockBankKeeper)(nil).SendCoinsFromModuleToAccount), ctx, senderModule, recipientAddr, amt)
 }
 
-// SendCoinsFromModuleToModule mocks base method.
-func (m *MockBankKeeper) SendCoinsFromModuleToModule(ctx types2.Context, senderModule, recipientModule string, amt types2.Coins) error {
+// SpendableCoins mocks base method.
+func (m *MockBankKeeper) SpendableCoins(ctx types2.Context, addr types2.AccAddress) types2.Coins {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SendCoinsFromModuleToModule", ctx, senderModule, recipientModule, amt)
-	ret0, _ := ret[0].(error)
+	ret := m.ctrl.Call(m, "SpendableCoins", ctx, addr)
+	ret0, _ := ret[0].(types2.Coins)
 	return ret0
 }
 
-// SendCoinsFromModuleToModule indicates an expected call of SendCoinsFromModuleToModule.
-func (mr *MockBankKeeperMockRecorder) SendCoinsFromModuleToModule(ctx, senderModule, recipientModule, amt any) *gomock.Call {
+// SpendableCoins indicates an expected call of SpendableCoins.
+func (mr *MockBankKeeperMockRecorder) SpendableCoins(ctx, addr any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendCoinsFromModuleToModule", reflect.TypeOf((*MockBankKeeper)(nil).SendCoinsFromModuleToModule), ctx, senderModule, recipientModule, amt)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SpendableCoins", reflect.TypeOf((*MockBankKeeper)(nil).SpendableCoins), ctx, addr)
 }
 
 // MockFeedsKeeper is a mock of FeedsKeeper interface.

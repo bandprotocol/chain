@@ -30,8 +30,7 @@ func (q queryServer) Tunnels(c context.Context, req *types.QueryTunnelsRequest) 
 		store,
 		req.Pagination,
 		func(key []byte, t *types.Tunnel) (*types.Tunnel, error) {
-			// Filter by status
-			switch req.IsActive {
+			switch req.StatusFilter {
 			case types.TUNNEL_STATUS_FILTER_UNSPECIFIED:
 				return t, nil
 			case types.TUNNEL_STATUS_FILTER_ACTIVE:

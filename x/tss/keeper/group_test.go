@@ -12,8 +12,8 @@ import (
 func TestGetSetGroupCount(t *testing.T) {
 	s := NewKeeperTestSuite(t)
 	ctx, k := s.Ctx, s.Keeper
-	k.CreateNewGroup(ctx, types.Group{})
-	k.CreateNewGroup(ctx, types.Group{})
+	k.CreateNewGroup(ctx, 3, 2, "test")
+	k.CreateNewGroup(ctx, 4, 3, "test")
 
 	groupCount := k.GetGroupCount(ctx)
 	require.Equal(t, uint64(2), groupCount)
@@ -55,14 +55,15 @@ func TestCreateNewGroup(t *testing.T) {
 	ctx, k := s.Ctx, s.Keeper
 
 	group := types.Group{
-		Size_:     5,
-		Threshold: 3,
-		PubKey:    nil,
-		Status:    types.GROUP_STATUS_ROUND_1,
+		Size_:       5,
+		Threshold:   3,
+		PubKey:      nil,
+		Status:      types.GROUP_STATUS_ROUND_1,
+		ModuleOwner: "test",
 	}
 
 	// Create new group
-	groupID := k.CreateNewGroup(ctx, group)
+	groupID := k.CreateNewGroup(ctx, group.Size_, group.Threshold, group.ModuleOwner)
 
 	// init group ID
 	group.ID = groupID
@@ -77,14 +78,15 @@ func TestSetGroup(t *testing.T) {
 	s := NewKeeperTestSuite(t)
 	ctx, k := s.Ctx, s.Keeper
 	group := types.Group{
-		Size_:     5,
-		Threshold: 3,
-		PubKey:    nil,
-		Status:    types.GROUP_STATUS_ROUND_1,
+		Size_:       5,
+		Threshold:   3,
+		PubKey:      nil,
+		Status:      types.GROUP_STATUS_ROUND_1,
+		ModuleOwner: "test",
 	}
 
 	// Set new group
-	groupID := k.CreateNewGroup(ctx, group)
+	groupID := k.CreateNewGroup(ctx, group.Size_, group.Threshold, group.ModuleOwner)
 
 	// Update group size value
 	group.Size_ = 6
@@ -132,7 +134,7 @@ func TestProcessExpiredGroups(t *testing.T) {
 	ctx, k := s.Ctx, s.Keeper
 
 	// Create group
-	groupID := k.CreateNewGroup(ctx, types.Group{})
+	groupID := k.CreateNewGroup(ctx, 3, 2, "test")
 	k.SetMember(ctx, types.Member{
 		ID:          1,
 		GroupID:     groupID,

@@ -15,7 +15,6 @@ type AccountKeeper interface {
 	GetModuleAccount(ctx sdk.Context, name string) authtypes.ModuleAccountI
 	SetModuleAccount(sdk.Context, authtypes.ModuleAccountI)
 
-	IterateAccounts(ctx sdk.Context, process func(authtypes.AccountI) (stop bool))
 	GetAccount(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
 	NewAccount(ctx sdk.Context, account authtypes.AccountI) authtypes.AccountI
 	SetAccount(ctx sdk.Context, account authtypes.AccountI)
@@ -23,6 +22,7 @@ type AccountKeeper interface {
 
 type BankKeeper interface {
 	GetAllBalances(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
+	SpendableCoins(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
 
 	SendCoinsFromModuleToAccount(
 		ctx sdk.Context,
@@ -36,7 +36,6 @@ type BankKeeper interface {
 		recipientModule string,
 		amt sdk.Coins,
 	) error
-	SendCoinsFromModuleToModule(ctx sdk.Context, senderModule, recipientModule string, amt sdk.Coins) error
 }
 
 type FeedsKeeper interface {

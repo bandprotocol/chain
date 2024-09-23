@@ -49,9 +49,7 @@ func (k Keeper) HandleSigningEndBlock(ctx sdk.Context) {
 func (k Keeper) AddPendingProcessSigning(ctx sdk.Context, signingID tss.SigningID) {
 	pss := k.GetPendingProcessSignings(ctx)
 	pss = append(pss, signingID)
-	k.SetPendingProcessSignings(ctx, types.PendingProcessSignings{
-		SigningIDs: pss,
-	})
+	k.SetPendingProcessSignings(ctx, types.NewPendingProcessSignings(pss))
 }
 
 // SetPendingProcessSignings sets the given pending process signings in the store.
@@ -67,7 +65,7 @@ func (k Keeper) GetPendingProcessSignings(ctx sdk.Context) []tss.SigningID {
 		// Return an empty list if the key does not exist in the store.
 		return []tss.SigningID{}
 	}
-	pss := types.PendingProcessSignings{}
+	var pss types.PendingProcessSignings
 	k.cdc.MustUnmarshal(bz, &pss)
 	return pss.SigningIDs
 }
@@ -160,15 +158,11 @@ func (k Keeper) GetSigningExpirations(ctx sdk.Context) []types.SigningExpiration
 // AddPendingProcessSigning adds a new pending process signing to the store.
 func (k Keeper) AddSigningExpiration(ctx sdk.Context, signingID tss.SigningID, attempt uint64) {
 	signingExpirations := k.GetSigningExpirations(ctx)
-	se := types.SigningExpiration{
-		SigningID:      signingID,
-		SigningAttempt: attempt,
-	}
 
+	se := types.NewSigningExpiration(signingID, attempt)
 	signingExpirations = append(signingExpirations, se)
-	k.SetSigningExpirations(ctx, types.SigningExpirations{
-		SigningExpirations: signingExpirations,
-	})
+
+	k.SetSigningExpirations(ctx, types.NewSigningExpirations(signingExpirations))
 }
 
 // HandleExpiredSignings dequeues the first signing expiration from the store and returns
@@ -208,9 +202,7 @@ func (k Keeper) HandleExpiredSignings(ctx sdk.Context) []tss.SigningID {
 	}
 
 	// remove processed signing expirations
-	k.SetSigningExpirations(ctx, types.SigningExpirations{
-		SigningExpirations: signingExpirations[idx:],
-	})
+	k.SetSigningExpirations(ctx, types.NewSigningExpirations(signingExpirations[idx:]))
 
 	return signingIDs
 }

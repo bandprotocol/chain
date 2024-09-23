@@ -1,7 +1,6 @@
-package tunnel_test
+package keeper_test
 
 import (
-	"fmt"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -9,8 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
-	"github.com/bandprotocol/chain/v2/x/tunnel"
-	"github.com/bandprotocol/chain/v2/x/tunnel/testutil"
+	"github.com/bandprotocol/chain/v2/x/tunnel/keeper"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
@@ -19,6 +17,7 @@ func TestValidateGenesis(t *testing.T) {
 		name       string
 		genesis    *types.GenesisState
 		requireErr bool
+		errMsg     string
 	}{
 		{
 			name: "valid genesis state",
@@ -28,7 +27,7 @@ func TestValidateGenesis(t *testing.T) {
 					{ID: 2},
 				},
 				TunnelCount: 2,
-				SignalPricesInfos: []types.SignalPricesInfo{
+				LatestSignalPricesList: []types.LatestSignalPrices{
 					{TunnelID: 1},
 					{TunnelID: 2},
 				},
@@ -40,7 +39,7 @@ func TestValidateGenesis(t *testing.T) {
 			requireErr: false,
 		},
 		{
-			name: "invalid tunnel count",
+			name: "length of tunnels does not match tunnel count",
 			genesis: &types.GenesisState{
 				Tunnels: []types.Tunnel{
 					{ID: 1},
@@ -48,29 +47,61 @@ func TestValidateGenesis(t *testing.T) {
 				TunnelCount: 2,
 			},
 			requireErr: true,
+			errMsg:     "length of tunnels does not match tunnel count",
 		},
 		{
-			name: "invalid tunnel ID",
+			name: "tunnel ID greater than tunnel count",
 			genesis: &types.GenesisState{
 				Tunnels: []types.Tunnel{
 					{ID: 3},
 				},
-				TunnelCount: 2,
+				TunnelCount: 1,
 			},
 			requireErr: true,
+			errMsg:     "tunnel count mismatch",
 		},
 		{
-			name: "invalid signal prices info",
+			name: "latest signal prices does not match tunnel count",
 			genesis: &types.GenesisState{
 				Tunnels: []types.Tunnel{
 					{ID: 1},
 				},
 				TunnelCount: 1,
-				SignalPricesInfos: []types.SignalPricesInfo{
+				LatestSignalPricesList: []types.LatestSignalPrices{
+					{TunnelID: 1},
+					{TunnelID: 2},
+				},
+			},
+			requireErr: true,
+			errMsg:     "latest signal prices does not match tunnel count",
+		},
+		{
+			name: "tunnel count mismatch in latest signal prices",
+			genesis: &types.GenesisState{
+				Tunnels: []types.Tunnel{
+					{ID: 1},
+				},
+				TunnelCount: 1,
+				LatestSignalPricesList: []types.LatestSignalPrices{
 					{TunnelID: 0},
 				},
 			},
 			requireErr: true,
+			errMsg:     "tunnel count mismatch",
+		},
+		{
+			name: "tunnel id is zero in latest signal prices",
+			genesis: &types.GenesisState{
+				Tunnels: []types.Tunnel{
+					{ID: 1},
+				},
+				TunnelCount: 1,
+				LatestSignalPricesList: []types.LatestSignalPrices{
+					{TunnelID: 0},
+				},
+			},
+			requireErr: true,
+			errMsg:     "tunnel count mismatch",
 		},
 		{
 			name: "invalid total fee",
@@ -79,19 +110,26 @@ func TestValidateGenesis(t *testing.T) {
 					{ID: 1},
 				},
 				TunnelCount: 1,
+				LatestSignalPricesList: []types.LatestSignalPrices{
+					{TunnelID: 1},
+				},
 				TotalFees: types.TotalFees{
-					TotalPacketFee: sdk.Coins{}, // Invalid coin
+					TotalPacketFee: sdk.Coins{
+						{Denom: "uband", Amount: sdk.NewInt(-100)},
+					}, // Invalid coin
 				},
 			},
 			requireErr: true,
+			errMsg:     "invalid total fees",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := tunnel.ValidateGenesis(tt.genesis)
+			err := keeper.ValidateGenesis(tt.genesis)
 			if tt.requireErr {
 				require.Error(t, err)
+				require.Contains(t, err.Error(), tt.errMsg)
 			} else {
 				require.NoError(t, err)
 			}
@@ -99,20 +137,18 @@ func TestValidateGenesis(t *testing.T) {
 	}
 }
 
-func TestInitExportGenesis(t *testing.T) {
-	s := testutil.NewTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestInitExportGenesis() {
+	ctx, k := s.ctx, s.keeper
 
-	// Mock the account keeper
-	s.MockAccountKeeper.EXPECT().
+	s.accountKeeper.EXPECT().
 		GetModuleAccount(ctx, gomock.Any()).
 		Return(authtypes.AccountI(&authtypes.ModuleAccount{
 			BaseAccount: &authtypes.BaseAccount{Address: "test"},
 		})).
 		AnyTimes()
-	s.MockAccountKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(sdk.AccAddress{}).AnyTimes()
-	s.MockAccountKeeper.EXPECT().SetModuleAccount(ctx, gomock.Any()).AnyTimes()
-	s.MockBankKeeper.EXPECT().GetAllBalances(ctx, gomock.Any()).Return(sdk.Coins{}).AnyTimes()
+	s.accountKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(sdk.AccAddress{}).AnyTimes()
+	s.accountKeeper.EXPECT().SetModuleAccount(ctx, gomock.Any()).AnyTimes()
+	s.bankKeeper.EXPECT().GetAllBalances(ctx, gomock.Any()).Return(sdk.Coins{}).AnyTimes()
 
 	// Create a valid genesis state
 	genesisState := &types.GenesisState{
@@ -121,13 +157,13 @@ func TestInitExportGenesis(t *testing.T) {
 		Tunnels: []types.Tunnel{
 			{ID: 1},
 		},
-		SignalPricesInfos: []types.SignalPricesInfo{
+		LatestSignalPricesList: []types.LatestSignalPrices{
 			{
 				TunnelID: 1,
 				SignalPrices: []types.SignalPrice{
 					{SignalID: "ETH", Price: 5000},
 				},
-				LastIntervalTimestamp: 0,
+				Timestamp: 0,
 			},
 		},
 		TotalFees: types.TotalFees{
@@ -136,14 +172,11 @@ func TestInitExportGenesis(t *testing.T) {
 	}
 
 	// Initialize the genesis state
-	tunnel.InitGenesis(ctx, k, genesisState)
+	keeper.InitGenesis(ctx, k, genesisState)
 
 	// Export the genesis state
-	exportedGenesisState := tunnel.ExportGenesis(ctx, k)
-
-	fmt.Printf("genesisState: %v\n", genesisState)
-	fmt.Printf("exportedGenesisState: %v\n", exportedGenesisState)
+	exportedGenesisState := keeper.ExportGenesis(ctx, k)
 
 	// Verify the exported state matches the initialized state
-	require.Equal(t, genesisState, exportedGenesisState)
+	s.Require().Equal(genesisState, exportedGenesisState)
 }

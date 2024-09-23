@@ -10,8 +10,8 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tss/types"
 )
 
-// setGroupCount sets the number of group count to the given value.
-func (k Keeper) setGroupCount(ctx sdk.Context, count uint64) {
+// SetGroupCount sets the number of group count to the given value.
+func (k Keeper) SetGroupCount(ctx sdk.Context, count uint64) {
 	ctx.KVStore(k.storeKey).Set(types.GroupCountStoreKey, sdk.Uint64ToBigEndian(count))
 }
 
@@ -29,15 +29,28 @@ func (k Keeper) SetGroupGenesis(ctx sdk.Context, groups []types.Group) {
 		}
 		k.SetGroup(ctx, g)
 	}
-	k.setGroupCount(ctx, uint64(maxGroupID))
+	k.SetGroupCount(ctx, uint64(maxGroupID))
 }
 
 // CreateNewGroup creates a new group in the store and returns the id of the group.
-func (k Keeper) CreateNewGroup(ctx sdk.Context, group types.Group) tss.GroupID {
-	group.ID = tss.GroupID(k.GetGroupCount(ctx) + 1)
-	group.CreatedHeight = uint64(ctx.BlockHeight())
+func (k Keeper) CreateNewGroup(
+	ctx sdk.Context,
+	size uint64,
+	threshold uint64,
+	moduleOwner string,
+) tss.GroupID {
+	group := types.NewGroup(
+		tss.GroupID(k.GetGroupCount(ctx)+1),
+		size,
+		threshold,
+		nil,
+		types.GROUP_STATUS_ROUND_1,
+		uint64(ctx.BlockHeight()),
+		moduleOwner,
+	)
+
 	k.SetGroup(ctx, group)
-	k.setGroupCount(ctx, uint64(group.ID))
+	k.SetGroupCount(ctx, uint64(group.ID))
 
 	return group.ID
 }
@@ -120,24 +133,12 @@ func (k Keeper) CreateGroup(
 	}
 
 	// Create new group
-	groupID := k.CreateNewGroup(ctx, types.Group{
-		Size_:       groupSize,
-		Threshold:   threshold,
-		PubKey:      nil,
-		Status:      types.GROUP_STATUS_ROUND_1,
-		ModuleOwner: moduleOwner,
-	})
+	groupID := k.CreateNewGroup(ctx, groupSize, threshold, moduleOwner)
 
-	// Set members
-	for i, m := range members {
-		k.SetMember(ctx, types.Member{
-			ID:          tss.MemberID(i + 1), // ID starts from 1
-			GroupID:     groupID,
-			Address:     m.String(),
-			PubKey:      nil,
-			IsMalicious: false,
-			IsActive:    true,
-		})
+	// Set members; ID starts from 1
+	for i, addr := range members {
+		m := types.NewMember(tss.MemberID(i+1), groupID, addr, nil, false, true)
+		k.SetMember(ctx, m)
 	}
 
 	// Use LastCommitHash and groupID to hash to dkgContext

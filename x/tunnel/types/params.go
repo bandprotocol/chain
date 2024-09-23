@@ -10,7 +10,7 @@ import (
 
 var (
 	DefaultMinInterval   = uint64(1)
-	DefaultMinDeposit    = sdk.NewCoins(sdk.NewInt64Coin("band", 1000000))
+	DefaultMinDeposit    = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 	DefaultMaxSignals    = uint64(100)
 	DefaultBasePacketFee = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
 )
@@ -42,24 +42,24 @@ func DefaultParams() Params {
 
 // Validate validates the set of params
 func (p Params) Validate() error {
-	// Validate MinDeposit
+	// validate MinDeposit
 	if !p.MinDeposit.IsValid() {
-		return sdkerrors.ErrInvalidCoins.Wrapf(p.MinDeposit.String())
+		return sdkerrors.ErrInvalidCoins.Wrapf("%s", p.MinDeposit.String())
 	}
 
-	// Validate MinInterval
+	// validate MinInterval
 	if err := validateUint64("min interval", true)(p.MinInterval); err != nil {
 		return err
 	}
 
-	// Validate MaxSignals
+	// validate MaxSignals
 	if err := validateUint64("max signals", true)(p.MaxSignals); err != nil {
 		return err
 	}
 
-	// Validate BaseFee
+	// validate BasePacketFee
 	if !p.BasePacketFee.IsValid() {
-		return sdkerrors.ErrInvalidCoins.Wrapf(p.BasePacketFee.String())
+		return sdkerrors.ErrInvalidCoins.Wrapf("%s", p.BasePacketFee.String())
 	}
 
 	return nil
@@ -69,18 +69,6 @@ func (p Params) Validate() error {
 func (p Params) String() string {
 	out, _ := yaml.Marshal(p)
 	return string(out)
-}
-
-// validateBasisPoint validates if a given number is a valid basis point (0 to 10000).
-func validateBasisPoint(name string, bp uint64) error {
-	if err := validateUint64(name, false)(bp); err != nil {
-		return err
-	}
-
-	if bp > 10000 {
-		return fmt.Errorf("invalid basis point: must be between 0 and 10000")
-	}
-	return nil
 }
 
 // validateUint64 validates if a given number is a valid uint64.

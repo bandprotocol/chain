@@ -21,14 +21,14 @@ service Msg {
   // EditTunnel is a RPC method to edit a tunnel.
   rpc EditTunnel(MsgEditTunnel) returns (MsgEditTunnelResponse);
 
-  // ActivateTunnel is a RPC method to activate a tunnel.
-  rpc ActivateTunnel(MsgActivateTunnel) returns (MsgActivateTunnelResponse);
+  // Activate is a RPC method to activate a tunnel.
+  rpc Activate(MsgActivate) returns (MsgActivateResponse);
 
-  // DeactivateTunnel is a RPC method to deactivate a tunnel.
-  rpc DeactivateTunnel(MsgDeactivateTunnel) returns (MsgDeactivateTunnelResponse);
+  // Deactivate is a RPC method to deactivate a tunnel.
+  rpc Deactivate(MsgDeactivate) returns (MsgDeactivateResponse);
 
-  // ManualTriggerTunnel is a RPC method to manually trigger a tunnel.
-  rpc ManualTriggerTunnel(MsgManualTriggerTunnel) returns (MsgManualTriggerTunnelResponse);
+  // TriggerTunnel is a RPC method to manually trigger a tunnel.
+  rpc TriggerTunnel(MsgTriggerTunnel) returns (MsgTriggerTunnelResponse);
 
   // UpdateParams is a RPC method to update parameters
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
@@ -39,17 +39,20 @@ message MsgCreateTunnel {
   option (cosmos.msg.v1.signer) = "creator";
   option (amino.name)           = "tunnel/MsgCreateTunnel";
 
-  // signal_infos is the list of signal infos.
-  repeated SignalInfo signal_infos = 1 [(gogoproto.nullable) = false];
+  // signal_deviations is the list of signal deviations.
+  repeated SignalDeviation signal_deviations = 1 [(gogoproto.nullable) = false];
   // interval is the interval for delivering the signal prices.
   uint64 interval = 2;
   // route is the route for delivering the signal prices
   google.protobuf.Any route = 3 [(cosmos_proto.accepts_interface) = "Route"];
   // encoder is the mode of encoding price signal data.
   Encoder encoder = 4;
-  // deposit is the deposit required to create a tunnel.
-  repeated cosmos.base.v1beta1.Coin deposit = 5
-      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  // initial_deposit is the deposit value that must be paid at tunnel creation.
+  repeated cosmos.base.v1beta1.Coin initial_deposit = 5 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (amino.dont_omitempty)   = true
+  ];
   // creator is the address of the creator.
   string creator = 6 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
@@ -66,8 +69,8 @@ message MsgEditTunnel {
 
   // tunnel_id is the ID of the tunnel to edit.
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
-  // signal_infos is the list of signal infos.
-  repeated SignalInfo signal_infos = 2 [(gogoproto.nullable) = false];
+  // signal_deviations is the list of signal deviations.
+  repeated SignalDeviation signal_deviations = 2 [(gogoproto.nullable) = false];
   // interval is the interval for delivering the signal prices.
   uint64 interval = 3;
   // creator is the address of the creator.
@@ -77,10 +80,10 @@ message MsgEditTunnel {
 // MsgEditTunnelResponse is the response type for the Msg/EditTunnel RPC method.
 message MsgEditTunnelResponse {}
 
-// MsgActivateTunnel is the transaction message to activate a tunnel.
-message MsgActivateTunnel {
+// Activate is the transaction message to activate a tunnel.
+message MsgActivate {
   option (cosmos.msg.v1.signer) = "creator";
-  option (amino.name)           = "tunnel/MsgActivateTunnel";
+  option (amino.name)           = "tunnel/MsgActivate";
 
   // tunnel_id is the ID of the tunnel to activate.
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
@@ -88,13 +91,13 @@ message MsgActivateTunnel {
   string creator = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// MsgActivateTunnelResponse is the response type for the Msg/ActivateTunnel RPC method.
-message MsgActivateTunnelResponse {}
+// MsgActivateResponse is the response type for the Msg/Activate RPC method.
+message MsgActivateResponse {}
 
-// MsgDeactivateTunnel is the transaction message to deactivate a tunnel.
-message MsgDeactivateTunnel {
+// MsgDeactivate is the transaction message to deactivate a tunnel.
+message MsgDeactivate {
   option (cosmos.msg.v1.signer) = "creator";
-  option (amino.name)           = "tunnel/MsgDeactivateTunnel";
+  option (amino.name)           = "tunnel/MsgDeactivate";
 
   // tunnel_id is the ID of the tunnel to deactivate.
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
@@ -102,13 +105,13 @@ message MsgDeactivateTunnel {
   string creator = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// MsgDeactivateTunnelResponse is the response type for the Msg/DeactivateTunnel RPC method.
-message MsgDeactivateTunnelResponse {}
+// MsgDeactivateTunnelResponse is the response type for the Msg/Deactivate RPC method.
+message MsgDeactivateResponse {}
 
-// MsgManualTriggerTunnel is the transaction message to manually trigger a tunnel.
-message MsgManualTriggerTunnel {
+// MsgTriggerTunnel is the transaction message to manually trigger a tunnel.
+message MsgTriggerTunnel {
   option (cosmos.msg.v1.signer) = "creator";
-  option (amino.name)           = "tunnel/MsgManualTriggerTunnel";
+  option (amino.name)           = "tunnel/MsgTriggerTunnel";
 
   // tunnel_id is the ID of the tunnel to manually trigger.
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
@@ -116,8 +119,8 @@ message MsgManualTriggerTunnel {
   string creator = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// MsgManualTriggerTunnelResponse is the response type for the Msg/ManualTrigger RPC method.
-message MsgManualTriggerTunnelResponse {}
+// MsgTriggerTunnelResponse is the response type for the Msg/TriggerTunnel RPC method.
+message MsgTriggerTunnelResponse {}
 
 // MsgUpdateParams is the transaction message to update parameters.
 message MsgUpdateParams {

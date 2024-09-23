@@ -20,9 +20,9 @@ func (k Keeper) DeductBasePacketFee(ctx sdk.Context, feePayer sdk.AccAddress) er
 	}
 
 	// update total fees
-	totalFee := k.GetTotalFees(ctx)
-	totalFee.TotalPacketFee.Add(basePacketFee...)
-	k.SetTotalFees(ctx, totalFee)
+	totalFees := k.GetTotalFees(ctx)
+	totalFees.TotalPacketFee = totalFees.TotalPacketFee.Add(basePacketFee...)
+	k.SetTotalFees(ctx, totalFees)
 	return nil
 }
 
@@ -63,35 +63,22 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 
 	// check for active tunnels
 	for _, id := range ids {
-		isErrNoPacketCreated := false
-		producePacketFunc := func(ctx sdk.Context) error {
-			tunnel, err := k.GetTunnel(ctx, id)
-			if err != nil {
-				return err
-			}
+		tunnel := k.MustGetTunnel(ctx, id)
+		balances := k.bankKeeper.SpendableCoins(ctx, sdk.MustAccAddressFromBech32(tunnel.FeePayer))
+		basePacketFee := k.GetParams(ctx).BasePacketFee
 
-			// deduct base packet fee from the fee payer; deactivate tunnel if failed.
-			feePayerAddr := sdk.MustAccAddressFromBech32(tunnel.FeePayer)
-			if err := k.DeductBasePacketFee(ctx, feePayerAddr); err != nil {
-				return k.DeactivateTunnel(ctx, id)
-			}
-
-			// Produce and send a packet, if no packet is created, return error so that
-			// fee is reverted.
-			isCreated, err := k.ProducePacket(ctx, id, currentPricesMap, false)
-			if err != nil {
-				return err
-			}
-			if !isCreated {
-				isErrNoPacketCreated = true
-				return fmt.Errorf("no packet is created for tunnel %d", id)
-			}
-
-			return nil
+		// deactivate tunnel if the fee payer does not have enough balance.
+		if !balances.IsAllGTE(basePacketFee) {
+			k.MustDeactivateTunnel(ctx, id)
+			continue
 		}
 
-		// produce a packet. If error, emits an event.
-		if err := ctxcache.ApplyFuncIfNoError(ctx, producePacketFunc); err != nil && !isErrNoPacketCreated {
+		producePacketFunc := func(ctx sdk.Context) error {
+			return k.ProducePacket(ctx, id, currentPricesMap, false)
+		}
+
+		// Produce a packet. If error, emits an event.
+		if err := ctxcache.ApplyFuncIfNoError(ctx, producePacketFunc); err != nil {
 			ctx.EventManager().EmitEvent(sdk.NewEvent(
 				types.EventTypeProducePacketFail,
 				sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", id)),
@@ -107,48 +94,53 @@ func (k Keeper) ProducePacket(
 	tunnelID uint64,
 	currentPricesMap map[string]feedstypes.Price,
 	triggerAll bool,
-) (isCreated bool, err error) {
+) error {
 	unixNow := ctx.BlockTime().Unix()
 
 	// get tunnel and signal prices info
 	tunnel := k.MustGetTunnel(ctx, tunnelID)
-	signalPricesInfo := k.MustGetSignalPricesInfo(ctx, tunnelID)
+	latestSignalPrices := k.MustGetLatestSignalPrices(ctx, tunnelID)
 
 	// check if the interval has passed
-	intervalTrigger := ctx.BlockTime().Unix() >= int64(tunnel.Interval)+signalPricesInfo.LastIntervalTimestamp
+	intervalTrigger := ctx.BlockTime().Unix() >= int64(tunnel.Interval)+latestSignalPrices.Timestamp
 
 	// generate new signal prices
 	nsps := GenerateSignalPrices(
 		ctx,
-		tunnel.ID,
 		currentPricesMap,
-		tunnel.GetSignalInfoMap(),
-		signalPricesInfo.SignalPrices,
+		tunnel.GetSignalDeviationMap(),
+		latestSignalPrices.SignalPrices,
 		triggerAll || intervalTrigger,
 	)
 
 	// return if no new signal prices
 	if len(nsps) == 0 {
-		return false, nil
+		return nil
+	}
+
+	// deduct base packet fee from the fee payer,
+	feePayer := sdk.MustAccAddressFromBech32(tunnel.FeePayer)
+	if err := k.DeductBasePacketFee(ctx, feePayer); err != nil {
+		return sdkerrors.Wrapf(err, "failed to deduct base packet fee for tunnel %d", tunnel.ID)
 	}
 
 	newPacket := types.NewPacket(tunnel.ID, tunnel.NonceCount+1, nsps, nil, unixNow)
 	if err := k.SendPacket(ctx, tunnel, newPacket); err != nil {
-		return false, sdkerrors.Wrapf(err, "route %s failed to send packet", tunnel.Route.TypeUrl)
+		return sdkerrors.Wrapf(err, "route %s failed to send packet", tunnel.Route.TypeUrl)
 	}
 
 	// update signal prices info
-	signalPricesInfo.UpdateSignalPrices(nsps)
+	latestSignalPrices.UpdateSignalPrices(nsps)
 	if triggerAll || intervalTrigger {
-		signalPricesInfo.LastIntervalTimestamp = unixNow
+		latestSignalPrices.Timestamp = unixNow
 	}
-	k.SetSignalPricesInfo(ctx, signalPricesInfo)
+	k.SetLatestSignalPrices(ctx, latestSignalPrices)
 
 	// update tunnel nonce count
 	tunnel.NonceCount++
 	k.SetTunnel(ctx, tunnel)
 
-	return true, nil
+	return nil
 }
 
 // SendPacket sends a packet to the destination route
@@ -175,8 +167,7 @@ func (k Keeper) SendPacket(
 	}
 
 	// set the packet content
-	err = packet.SetPacketContent(content)
-	if err != nil {
+	if err := packet.SetPacketContent(content); err != nil {
 		panic(fmt.Sprintf("failed to set packet content: %s", err))
 	}
 
@@ -188,9 +179,8 @@ func (k Keeper) SendPacket(
 // GenerateSignalPrices generates signal prices based on the current prices and signal info
 func GenerateSignalPrices(
 	ctx sdk.Context,
-	tunnelID uint64,
 	currentPricesMap map[string]feedstypes.Price,
-	signalInfoMap map[string]types.SignalInfo,
+	signalDeviationMap map[string]types.SignalDeviation,
 	signalPrices []types.SignalPrice,
 	triggerAll bool,
 ) []types.SignalPrice {
@@ -202,8 +192,8 @@ func GenerateSignalPrices(
 			continue
 		}
 
-		// get signal info from signalInfoMap
-		signalInfo, exists := signalInfoMap[sp.SignalID]
+		// get signal info from signalDeviationMap
+		signalDeviation, exists := signalDeviationMap[sp.SignalID]
 		if !exists {
 			// panic if signal info not found for signal ID in the tunnel that should not happen
 			panic(fmt.Sprintf("signal info not found for signal ID: %s", sp.SignalID))
@@ -214,7 +204,7 @@ func GenerateSignalPrices(
 			deviationExceedsThreshold(
 				sdk.NewIntFromUint64(sp.Price),
 				sdk.NewIntFromUint64(currentPrice.Price),
-				sdk.NewIntFromUint64(signalInfo.HardDeviationBPS),
+				sdk.NewIntFromUint64(signalDeviation.HardDeviationBPS),
 			) {
 			sps = append(
 				sps,
@@ -230,6 +220,11 @@ func GenerateSignalPrices(
 
 // deviationExceedsThreshold checks if the deviation between the old price and the new price exceeds the threshold
 func deviationExceedsThreshold(oldPrice, newPrice, thresholdBPS sdkmath.Int) bool {
+	// if the old price is zero, always add the signal price info to the list
+	if oldPrice.IsZero() {
+		return true
+	}
+
 	// if the deviation is greater than the hard deviation, add the signal price info to the list
 	// soft deviation is the feature to be implemented in the future
 	deviation := newPrice.Sub(oldPrice).Abs().Quo(oldPrice)

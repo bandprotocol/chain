@@ -37,7 +37,7 @@ func GenerateDE(secret tss.Scalar) DEWithPrivateNonce {
 	if err != nil {
 		panic(err)
 	}
-	pubDE := types.DE{PubD: privD.Point(), PubE: privE.Point()}
+	pubDE := types.NewDE(privD.Point(), privE.Point())
 
 	return DEWithPrivateNonce{PrivD: privD, PrivE: privE, PubDE: pubDE}
 }
