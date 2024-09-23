@@ -27,7 +27,7 @@ func NewLatestSignalPrices(
 }
 
 // UpdateSignalPrices updates the signal prices in the latest signal prices.
-func (lsps *LatestSignalPrices) UpdateSignalPrices(newSignalPrices []SignalPrice) {
+func (latestSignalPrices *LatestSignalPrices) UpdateSignalPrices(newSignalPrices []SignalPrice) {
 	// create a map of new signal prices
 	newSpMap := make(map[string]SignalPrice)
 	for _, sp := range newSignalPrices {
@@ -35,9 +35,9 @@ func (lsps *LatestSignalPrices) UpdateSignalPrices(newSignalPrices []SignalPrice
 	}
 
 	// update signal prices
-	for i, sp := range lsps.SignalPrices {
+	for i, sp := range latestSignalPrices.SignalPrices {
 		if newSp, ok := newSpMap[sp.SignalID]; ok {
-			lsps.SignalPrices[i] = newSp
+			latestSignalPrices.SignalPrices[i] = newSp
 		}
 	}
 }
