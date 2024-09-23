@@ -60,8 +60,22 @@ func (t *Tunnel) SetRoute(route RouteI) error {
 // GetSignalDeviationMap returns the signal deviation map of the tunnel.
 func (t Tunnel) GetSignalDeviationMap() map[string]SignalDeviation {
 	signalDeviationMap := make(map[string]SignalDeviation, len(t.SignalDeviations))
-	for _, si := range t.SignalDeviations {
-		signalDeviationMap[si.SignalID] = si
+	for _, sd := range t.SignalDeviations {
+		signalDeviationMap[sd.SignalID] = sd
 	}
 	return signalDeviationMap
+}
+
+// ValidateBasic performs basic validation of the LatestSignalPrices.
+func (l LatestSignalPrices) ValidateBasic() error {
+	if l.TunnelID == 0 {
+		return fmt.Errorf("tunnel ID cannot be 0")
+	}
+	if len(l.SignalPrices) == 0 {
+		return fmt.Errorf("signal prices cannot be empty")
+	}
+	if l.Timestamp < 0 {
+		return fmt.Errorf("timestamp cannot be negative")
+	}
+	return nil
 }

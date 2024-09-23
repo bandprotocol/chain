@@ -74,7 +74,7 @@ func NewMsgCreateAxelarTunnel(
 	initialDeposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
-	r := &TSSRoute{
+	r := &AxelarRoute{
 		DestinationChainID:         destinationChainID,
 		DestinationContractAddress: destinationContractAddress,
 	}
@@ -110,6 +110,10 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 	if len(m.SignalDeviations) == 0 {
 		return sdkerrors.ErrInvalidRequest.Wrapf("signal deviations cannot be empty")
 	}
+	// signal deviations cannot duplicate
+	if err := validateUniqueSignalIDs(m.SignalDeviations); err != nil {
+		return err
+	}
 
 	// route must be valid
 	r, ok := m.Route.GetCachedValue().(RouteI)
@@ -125,15 +129,10 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 		return sdkerrors.ErrInvalidCoins.Wrapf("invalid initial deposit: %s", m.InitialDeposit)
 	}
 
-	err := validateUniqueSignalIDs(m.SignalDeviations)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
-// SetRoute sets the route for the message.
+// SetTunnelRoute sets the route of the tunnel.
 func (m *MsgCreateTunnel) SetTunnelRoute(route RouteI) error {
 	msg, ok := route.(proto.Message)
 	if !ok {
@@ -154,7 +153,7 @@ func (m MsgCreateTunnel) UnpackInterfaces(unpacker types.AnyUnpacker) error {
 	return unpacker.UnpackAny(m.Route, &route)
 }
 
-// GetRoute returns the route of the message.
+// GetTunnelRoute returns the route of the tunnel.
 func (m MsgCreateTunnel) GetTunnelRoute() RouteI {
 	route, ok := m.Route.GetCachedValue().(RouteI)
 	if !ok {
@@ -199,8 +198,12 @@ func (m MsgEditTunnel) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
-	err := validateUniqueSignalIDs(m.SignalDeviations)
-	if err != nil {
+	// signal deviations cannot be empty
+	if len(m.SignalDeviations) == 0 {
+		return sdkerrors.ErrInvalidRequest.Wrapf("signal deviations cannot be empty")
+	}
+	// signal deviations cannot duplicate
+	if err := validateUniqueSignalIDs(m.SignalDeviations); err != nil {
 		return err
 	}
 
@@ -346,11 +349,11 @@ func (m *MsgUpdateParams) ValidateBasic() error {
 // validateUniqueSignalIDs checks if the SignalIDs in the given slice are unique
 func validateUniqueSignalIDs(signalDeviations []SignalDeviation) error {
 	signalIDMap := make(map[string]bool)
-	for _, signalDeviation := range signalDeviations {
-		if _, ok := signalIDMap[signalDeviation.SignalID]; ok {
-			return sdkerrors.ErrInvalidRequest.Wrapf("duplicate signal ID: %s", signalDeviation.SignalID)
+	for _, sd := range signalDeviations {
+		if _, found := signalIDMap[sd.SignalID]; found {
+			return sdkerrors.ErrInvalidRequest.Wrapf("duplicate signal ID: %s", sd.SignalID)
 		}
-		signalIDMap[signalDeviation.SignalID] = true
+		signalIDMap[sd.SignalID] = true
 	}
 	return nil
 }

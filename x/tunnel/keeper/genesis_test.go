@@ -20,25 +20,6 @@ func TestValidateGenesis(t *testing.T) {
 		errMsg     string
 	}{
 		{
-			name: "valid genesis state",
-			genesis: &types.GenesisState{
-				Tunnels: []types.Tunnel{
-					{ID: 1},
-					{ID: 2},
-				},
-				TunnelCount: 2,
-				LatestSignalPricesList: []types.LatestSignalPrices{
-					{TunnelID: 1},
-					{TunnelID: 2},
-				},
-				TotalFees: types.TotalFees{
-					TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100))),
-				},
-				Params: types.DefaultParams(),
-			},
-			requireErr: false,
-		},
-		{
 			name: "length of tunnels does not match tunnel count",
 			genesis: &types.GenesisState{
 				Tunnels: []types.Tunnel{
@@ -104,6 +85,24 @@ func TestValidateGenesis(t *testing.T) {
 			errMsg:     "tunnel count mismatch",
 		},
 		{
+			name: "invalid latest signal prices",
+			genesis: &types.GenesisState{
+				Tunnels: []types.Tunnel{
+					{ID: 1},
+				},
+				TunnelCount: 1,
+				LatestSignalPricesList: []types.LatestSignalPrices{
+					{
+						TunnelID:     1,
+						SignalPrices: []types.SignalPrice{},
+					},
+				},
+				TotalFees: types.TotalFees{},
+			},
+			requireErr: true,
+			errMsg:     "invalid latest signal prices",
+		},
+		{
 			name: "invalid total fee",
 			genesis: &types.GenesisState{
 				Tunnels: []types.Tunnel{
@@ -111,7 +110,12 @@ func TestValidateGenesis(t *testing.T) {
 				},
 				TunnelCount: 1,
 				LatestSignalPricesList: []types.LatestSignalPrices{
-					{TunnelID: 1},
+					{
+						TunnelID: 1,
+						SignalPrices: []types.SignalPrice{
+							{SignalID: "ETH", Price: 5000},
+						},
+					},
 				},
 				TotalFees: types.TotalFees{
 					TotalPacketFee: sdk.Coins{
@@ -121,6 +125,35 @@ func TestValidateGenesis(t *testing.T) {
 			},
 			requireErr: true,
 			errMsg:     "invalid total fees",
+		},
+		{
+			name: "all good",
+			genesis: &types.GenesisState{
+				Tunnels: []types.Tunnel{
+					{ID: 1},
+					{ID: 2},
+				},
+				TunnelCount: 2,
+				LatestSignalPricesList: []types.LatestSignalPrices{
+					{
+						TunnelID: 1,
+						SignalPrices: []types.SignalPrice{
+							{SignalID: "ETH", Price: 5000},
+						},
+					},
+					{
+						TunnelID: 2,
+						SignalPrices: []types.SignalPrice{
+							{SignalID: "ETH", Price: 5000},
+						},
+					},
+				},
+				TotalFees: types.TotalFees{
+					TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100))),
+				},
+				Params: types.DefaultParams(),
+			},
+			requireErr: false,
 		},
 	}
 
