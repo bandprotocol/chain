@@ -24,9 +24,6 @@ type AppTestSuite struct {
 	suite.Suite
 
 	app *bandtest.BandApp
-
-	// For test teardown
-	dir string
 }
 
 func TestAppTestSuite(t *testing.T) {
