@@ -79,11 +79,13 @@ func (s *KeeperTestSuite) reset() {
 }
 
 func (s *KeeperTestSuite) AddSampleTunnel(isActive bool) {
+	ctx, k := s.ctx, s.keeper
+
 	s.accountKeeper.EXPECT().
-		GetAccount(s.ctx, gomock.Any()).
+		GetAccount(ctx, gomock.Any()).
 		Return(nil).Times(1)
-	s.accountKeeper.EXPECT().NewAccount(s.ctx, gomock.Any()).Times(1)
-	s.accountKeeper.EXPECT().SetAccount(s.ctx, gomock.Any()).Times(1)
+	s.accountKeeper.EXPECT().NewAccount(ctx, gomock.Any()).Times(1)
+	s.accountKeeper.EXPECT().SetAccount(ctx, gomock.Any()).Times(1)
 
 	signalDeviations := []types.SignalDeviation{
 		{
@@ -99,8 +101,8 @@ func (s *KeeperTestSuite) AddSampleTunnel(isActive bool) {
 	routeAny, err := codectypes.NewAnyWithValue(route)
 	s.Require().NoError(err)
 
-	tunnel, err := s.keeper.AddTunnel(
-		s.ctx,
+	tunnel, err := k.AddTunnel(
+		ctx,
 		routeAny,
 		types.ENCODER_FIXED_POINT_ABI,
 		signalDeviations,
@@ -110,7 +112,14 @@ func (s *KeeperTestSuite) AddSampleTunnel(isActive bool) {
 	s.Require().NoError(err)
 
 	if isActive {
-		err := s.keeper.ActivateTunnel(s.ctx, tunnel.ID)
+		tunnel, err := k.GetTunnel(ctx, tunnel.ID)
+		s.Require().NoError(err)
+
+		// set deposit to the tunnel to be able to activate
+		tunnel.TotalDeposit = append(tunnel.TotalDeposit, k.GetParams(ctx).MinDeposit...)
+		k.SetTunnel(ctx, tunnel)
+
+		err = k.ActivateTunnel(ctx, tunnel.ID)
 		s.Require().NoError(err)
 	}
 }

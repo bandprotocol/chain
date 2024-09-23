@@ -56,7 +56,7 @@ func (ms msgServer) CreateTunnel(
 	}
 
 	// Deposit the initial deposit to the tunnel
-	if req.InitialDeposit.IsAllPositive() {
+	if !req.InitialDeposit.IsZero() {
 		if err := ms.Keeper.AddDeposit(ctx, tunnel.ID, creator, req.InitialDeposit); err != nil {
 			return nil, err
 		}

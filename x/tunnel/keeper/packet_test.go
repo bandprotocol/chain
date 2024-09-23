@@ -77,9 +77,14 @@ func (s *KeeperTestSuite) TestProducePacket() {
 	err := tunnel.SetRoute(route)
 	s.Require().NoError(err)
 
+	// set deposit to the tunnel to be able to activate
+	tunnel.TotalDeposit = append(tunnel.TotalDeposit, k.GetParams(ctx).MinDeposit...)
+
 	k.SetTunnel(ctx, tunnel)
+
 	err = k.ActivateTunnel(ctx, tunnelID)
 	s.Require().NoError(err)
+
 	k.SetLatestSignalPrices(ctx, types.NewLatestSignalPrices(tunnelID, []types.SignalPrice{
 		{SignalID: "BTC/USD", Price: 0},
 	}, 0))
@@ -122,9 +127,13 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 	err = k.SetParams(ctx, defaultParams)
 	s.Require().NoError(err)
 
+	// set deposit to the tunnel to be able to activate
+	tunnel.TotalDeposit = append(tunnel.TotalDeposit, k.GetParams(ctx).MinDeposit...)
 	k.SetTunnel(ctx, tunnel)
+
 	err = k.ActivateTunnel(ctx, tunnelID)
 	s.Require().NoError(err)
+
 	k.SetLatestSignalPrices(ctx, types.NewLatestSignalPrices(tunnelID, []types.SignalPrice{
 		{SignalID: "BTC/USD", Price: 0},
 	}, 0))
@@ -172,9 +181,13 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPacketsNotEnoughMoney() {
 	err = k.SetParams(ctx, defaultParams)
 	s.Require().NoError(err)
 
+	// set deposit to the tunnel to be able to activate
+	tunnel.TotalDeposit = append(tunnel.TotalDeposit, k.GetParams(ctx).MinDeposit...)
 	k.SetTunnel(ctx, tunnel)
+
 	err = k.ActivateTunnel(ctx, tunnelID)
 	s.Require().NoError(err)
+
 	k.SetLatestSignalPrices(ctx, types.NewLatestSignalPrices(tunnelID, []types.SignalPrice{
 		{SignalID: "BTC/USD", Price: 0},
 	}, 0))

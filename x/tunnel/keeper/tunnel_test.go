@@ -181,10 +181,12 @@ func (s *KeeperTestSuite) TestActivateTunnel() {
 		Encoder:          encoder,
 		SignalDeviations: signalDeviations,
 		Interval:         interval,
+		TotalDeposit:     k.GetParams(ctx).MinDeposit,
 		Creator:          creator,
 		IsActive:         false,
 		CreatedAt:        ctx.BlockTime().Unix(),
 	}
+
 	k.SetTunnel(ctx, tunnel)
 
 	err := k.ActivateTunnel(ctx, tunnelID)
