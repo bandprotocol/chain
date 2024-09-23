@@ -20,13 +20,13 @@ type SignalDeviation struct {
 
 // ToSignalDeviations converts signal information to types.SignalDeviation, excluding soft deviation.
 // Note: Soft deviation may be utilized in the future for deviation adjustments.
-func (sis SignalDeviations) ToSignalDeviations() []types.SignalDeviation {
+func (ss SignalDeviations) ToSignalDeviations() []types.SignalDeviation {
 	var signalDeviations []types.SignalDeviation
-	for _, si := range sis.SignalDeviations {
+	for _, sd := range ss.SignalDeviations {
 		signalDeviation := types.SignalDeviation{
-			SignalID:         si.SignalID,
-			SoftDeviationBPS: si.DeviationBPS,
-			HardDeviationBPS: si.DeviationBPS,
+			SignalID:         sd.SignalID,
+			SoftDeviationBPS: sd.DeviationBPS,
+			HardDeviationBPS: sd.DeviationBPS,
 		}
 		signalDeviations = append(signalDeviations, signalDeviation)
 	}

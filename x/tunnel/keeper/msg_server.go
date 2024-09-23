@@ -148,8 +148,7 @@ func (ms msgServer) Activate(
 		return nil, types.ErrInsufficientDeposit
 	}
 
-	err = ms.Keeper.ActivateTunnel(ctx, req.TunnelID)
-	if err != nil {
+	if err := ms.Keeper.ActivateTunnel(ctx, req.TunnelID); err != nil {
 		return nil, err
 	}
 
@@ -176,8 +175,7 @@ func (ms msgServer) Deactivate(
 		return nil, types.ErrAlreadyInactive.Wrapf("tunnelID %d", req.TunnelID)
 	}
 
-	err = ms.Keeper.DeactivateTunnel(ctx, req.TunnelID)
-	if err != nil {
+	if err := ms.Keeper.DeactivateTunnel(ctx, req.TunnelID); err != nil {
 		return nil, err
 	}
 
@@ -207,7 +205,7 @@ func (ms msgServer) TriggerTunnel(
 	}
 
 	currentPrices := ms.Keeper.feedsKeeper.GetCurrentPrices(ctx)
-	currentPricesMap := createCurrentPricesMap(currentPrices)
+	currentPricesMap := createPricesMap(currentPrices)
 
 	// produce packet with trigger all signals
 	if err := ms.Keeper.ProducePacket(ctx, tunnel.ID, currentPricesMap, true); err != nil {
@@ -215,7 +213,7 @@ func (ms msgServer) TriggerTunnel(
 	}
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeManualTriggerTunnel,
+		types.EventTypeTriggerTunnel,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", req.TunnelID)),
 	))
 

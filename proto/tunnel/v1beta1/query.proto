@@ -11,11 +11,6 @@ import "tunnel/v1beta1/tunnel.proto";
 
 // Query service defines the gRPC querier service.
 service Query {
-  // Params is a RPC method that returns all parameters of the module.
-  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/tunnel/v1beta1/params";
-  }
-
   // Tunnels is a RPC method that returns all tunnels.
   rpc Tunnels(QueryTunnelsRequest) returns (QueryTunnelsResponse) {
     option (google.api.http).get = "/tunnel/v1beta1/tunnels";
@@ -45,6 +40,11 @@ service Query {
   rpc Packet(QueryPacketRequest) returns (QueryPacketResponse) {
     option (google.api.http).get = "/tunnel/v1beta1/tunnels/{tunnel_id}/packets/{nonce}";
   }
+
+  // Params is a RPC method that returns all parameters of the module.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/tunnel/v1beta1/params";
+  }
 }
 
 // TunnelStatusFilter defines a filter for tunnel status.
@@ -59,7 +59,7 @@ enum TunnelStatusFilter {
   TUNNEL_STATUS_FILTER_INACTIVE = 2;
 }
 
-// QueryTunnelsRequest is the request type for the Query/Tunnel RPC method.
+// QueryTunnelsRequest is the request type for the Query/Tunnels RPC method.
 message QueryTunnelsRequest {
   // status_filter is a flag to filter tunnels by status.
   TunnelStatusFilter status_filter = 1;
@@ -67,7 +67,7 @@ message QueryTunnelsRequest {
   cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
-// QueryTunnelsResponse is the response type for the Query/Tunnel RPC method.
+// QueryTunnelsResponse is the response type for the Query/Tunnels RPC method.
 message QueryTunnelsResponse {
   // Tunnels is a list of tunnels.
   repeated Tunnel tunnels = 1;
