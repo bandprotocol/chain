@@ -59,7 +59,7 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 	ids := k.GetActiveTunnelIDs(ctx)
 
 	currentPrices := k.feedsKeeper.GetCurrentPrices(ctx)
-	currentPricesMap := createCurrentPricesMap(currentPrices)
+	currentPricesMap := createPricesMap(currentPrices)
 
 	// check for active tunnels
 	for _, id := range ids {
@@ -102,7 +102,8 @@ func (k Keeper) ProducePacket(
 	latestSignalPrices := k.MustGetLatestSignalPrices(ctx, tunnelID)
 
 	// check if the interval has passed
-	intervalTrigger := ctx.BlockTime().Unix() >= int64(tunnel.Interval)+latestSignalPrices.Timestamp
+	intervalTrigger := unixNow >= int64(tunnel.Interval)+latestSignalPrices.Timestamp
+	triggerAll = triggerAll || intervalTrigger
 
 	// generate new signal prices
 	nsps := GenerateSignalPrices(
@@ -110,7 +111,7 @@ func (k Keeper) ProducePacket(
 		currentPricesMap,
 		tunnel.GetSignalDeviationMap(),
 		latestSignalPrices.SignalPrices,
-		triggerAll || intervalTrigger,
+		triggerAll,
 	)
 
 	// return if no new signal prices
@@ -124,20 +125,22 @@ func (k Keeper) ProducePacket(
 		return sdkerrors.Wrapf(err, "failed to deduct base packet fee for tunnel %d", tunnel.ID)
 	}
 
-	newPacket := types.NewPacket(tunnel.ID, tunnel.NonceCount+1, nsps, nil, unixNow)
+	// increment nonce count
+	tunnel.NonceCount++
+
+	newPacket := types.NewPacket(tunnel.ID, tunnel.NonceCount, nsps, nil, unixNow)
 	if err := k.SendPacket(ctx, tunnel, newPacket); err != nil {
 		return sdkerrors.Wrapf(err, "route %s failed to send packet", tunnel.Route.TypeUrl)
 	}
 
 	// update signal prices info
 	latestSignalPrices.UpdateSignalPrices(nsps)
-	if triggerAll || intervalTrigger {
+	if triggerAll {
 		latestSignalPrices.Timestamp = unixNow
 	}
 	k.SetLatestSignalPrices(ctx, latestSignalPrices)
 
-	// update tunnel nonce count
-	tunnel.NonceCount++
+	// update nonce count
 	k.SetTunnel(ctx, tunnel)
 
 	return nil
@@ -168,7 +171,7 @@ func (k Keeper) SendPacket(
 
 	// set the packet content
 	if err := packet.SetPacketContent(content); err != nil {
-		panic(fmt.Sprintf("failed to set packet content: %s", err))
+		return sdkerrors.Wrapf(err, "failed to set packet content for tunnel ID: %d", tunnel.ID)
 	}
 
 	// set the packet in the store
@@ -227,17 +230,17 @@ func deviationExceedsThreshold(oldPrice, newPrice, thresholdBPS sdkmath.Int) boo
 
 	// if the deviation is greater than the hard deviation, add the signal price info to the list
 	// soft deviation is the feature to be implemented in the future
-	deviation := newPrice.Sub(oldPrice).Abs().Quo(oldPrice)
+	// deviationInBPS = |(newPrice - oldPrice)| * 10000 / oldPrice
+	deviationInBPS := newPrice.Sub(oldPrice).Abs().MulRaw(10000).Quo(oldPrice)
 
-	deviationInBPS := deviation.MulRaw(10000)
 	return deviationInBPS.GTE(thresholdBPS)
 }
 
-// createCurrentPricesMap creates a map of current prices with signal ID as the key
-func createCurrentPricesMap(latestPrices []feedstypes.Price) map[string]feedstypes.Price {
-	latestPricesMap := make(map[string]feedstypes.Price, len(latestPrices))
-	for _, price := range latestPrices {
-		latestPricesMap[price.SignalID] = price
+// createPricesMap creates a map of prices with signal ID as the key
+func createPricesMap(prices []feedstypes.Price) map[string]feedstypes.Price {
+	pricesMap := make(map[string]feedstypes.Price, len(prices))
+	for _, p := range prices {
+		pricesMap[p.SignalID] = p
 	}
-	return latestPricesMap
+	return pricesMap
 }

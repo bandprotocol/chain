@@ -22,8 +22,8 @@ func ValidateGenesis(data *types.GenesisState) error {
 	}
 
 	// validate the tunnel IDs
-	for _, tunnel := range data.Tunnels {
-		if tunnel.ID > data.TunnelCount {
+	for _, t := range data.Tunnels {
+		if t.ID > data.TunnelCount {
 			return types.ErrInvalidGenesis.Wrapf("tunnel count mismatch in tunnels")
 		}
 	}
@@ -34,9 +34,12 @@ func ValidateGenesis(data *types.GenesisState) error {
 	}
 
 	// validate latest signal prices
-	for _, latestSignalPrices := range data.LatestSignalPricesList {
-		if latestSignalPrices.TunnelID == 0 || latestSignalPrices.TunnelID > data.TunnelCount {
+	for _, lsp := range data.LatestSignalPricesList {
+		if lsp.TunnelID == 0 || lsp.TunnelID > data.TunnelCount {
 			return types.ErrInvalidGenesis.Wrapf("tunnel count mismatch in latest signal prices")
+		}
+		if err := lsp.ValidateBasic(); err != nil {
+			return types.ErrInvalidGenesis.Wrapf("invalid latest signal prices: %s", err.Error())
 		}
 	}
 
@@ -68,10 +71,10 @@ func InitGenesis(ctx sdk.Context, k *Keeper, data *types.GenesisState) {
 	k.SetTunnelCount(ctx, data.TunnelCount)
 
 	// set tunnels
-	for _, tunnel := range data.Tunnels {
-		k.SetTunnel(ctx, tunnel)
-		if tunnel.IsActive {
-			k.ActiveTunnelID(ctx, tunnel.ID)
+	for _, t := range data.Tunnels {
+		k.SetTunnel(ctx, t)
+		if t.IsActive {
+			k.ActiveTunnelID(ctx, t.ID)
 		}
 	}
 

@@ -16,7 +16,7 @@ func (k Keeper) SetLatestSignalPrices(ctx sdk.Context, latestSignalPrices types.
 func (k Keeper) GetLatestSignalPrices(ctx sdk.Context, tunnelID uint64) (types.LatestSignalPrices, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.LatestSignalPricesStoreKey(tunnelID))
 	if bz == nil {
-		return types.LatestSignalPrices{}, types.ErrSignalPricesInfoNotFound.Wrapf("tunnelID: %d", tunnelID)
+		return types.LatestSignalPrices{}, types.ErrLatestSignalPricesNotFound.Wrapf("tunnelID: %d", tunnelID)
 	}
 
 	var latestSignalPrices types.LatestSignalPrices

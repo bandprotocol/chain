@@ -10,7 +10,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
-const flagTunnelStatusFilter = "status"
+const flagTunnelActiveStatusFilter = "active"
 
 // GetQueryCmd returns the cli query commands for this module
 func GetQueryCmd() *cobra.Command {
@@ -75,7 +75,7 @@ func GetQueryCmdTunnels() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			statusFilterFlag, err := cmd.Flags().GetBool(flagTunnelStatusFilter)
+			statusFilterFlag, err := cmd.Flags().GetBool(flagTunnelActiveStatusFilter)
 			if err != nil {
 				return err
 			}
@@ -86,7 +86,7 @@ func GetQueryCmdTunnels() *cobra.Command {
 			}
 
 			var statusFilter types.TunnelStatusFilter
-			if !cmd.Flags().Changed(flagTunnelStatusFilter) {
+			if !cmd.Flags().Changed(flagTunnelActiveStatusFilter) {
 				statusFilter = types.TUNNEL_STATUS_FILTER_UNSPECIFIED
 			} else if statusFilterFlag {
 				statusFilter = types.TUNNEL_STATUS_FILTER_ACTIVE
@@ -106,7 +106,7 @@ func GetQueryCmdTunnels() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().Bool(flagTunnelStatusFilter, false, "Filter tunnels by active status")
+	cmd.Flags().Bool(flagTunnelActiveStatusFilter, false, "Filter tunnels by active status")
 	flags.AddPaginationFlagsToCmd(cmd, "tunnels")
 	flags.AddQueryFlagsToCmd(cmd)
 
