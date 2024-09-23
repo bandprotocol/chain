@@ -70,14 +70,14 @@ func (t Tunnel) GetSignalDeviationMap() map[string]SignalDeviation {
 }
 
 // ValidateBasic performs basic validation of the LatestSignalPrices.
-func (l LatestSignalPrices) ValidateBasic() error {
-	if l.TunnelID == 0 {
+func (latestSignalPrices LatestSignalPrices) ValidateBasic() error {
+	if latestSignalPrices.TunnelID == 0 {
 		return fmt.Errorf("tunnel ID cannot be 0")
 	}
-	if len(l.SignalPrices) == 0 {
+	if len(latestSignalPrices.SignalPrices) == 0 {
 		return fmt.Errorf("signal prices cannot be empty")
 	}
-	if l.Timestamp < 0 {
+	if latestSignalPrices.Timestamp < 0 {
 		return fmt.Errorf("timestamp cannot be negative")
 	}
 	return nil
