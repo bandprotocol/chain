@@ -175,6 +175,12 @@ func (k Keeper) ActivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 		return err
 	}
 
+	// verify if the total deposit meets or exceeds the minimum required deposit
+	minDeposit := k.GetParams(ctx).MinDeposit
+	if !tunnel.TotalDeposit.IsAllGTE(minDeposit) {
+		return types.ErrInsufficientDeposit
+	}
+
 	// add the tunnel ID to the active tunnel IDs
 	k.ActiveTunnelID(ctx, tunnelID)
 
