@@ -55,7 +55,7 @@ func ValidateGenesis(data *types.GenesisState) error {
 
 	// validate the latest signal prices count
 	if len(data.LatestSignalPricesList) != int(data.TunnelCount) {
-		return types.ErrInvalidGenesis.Wrapf("length of latest signal prices does not match tunnel count")
+		return types.ErrInvalidGenesis.Wrapf("tunnel count mismatch in latest signal prices")
 	}
 
 	// validate latest signal prices
