@@ -1,6 +1,9 @@
 package types
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/address"
+)
 
 const (
 	// ModuleName defines the module name
@@ -35,6 +38,7 @@ var (
 	TunnelStoreKeyPrefix             = []byte{0x11}
 	PacketStoreKeyPrefix             = []byte{0x12}
 	LatestSignalPricesStoreKeyPrefix = []byte{0x13}
+	DepositStoreKeyPrefix            = []byte{0x14}
 
 	// params store keys
 	ParamsKey = []byte{0x90}
@@ -65,4 +69,12 @@ func TunnelPacketStoreKey(tunnelID uint64, packetID uint64) []byte {
 // LatestSignalPricesStoreKey returns the key to retrieve the latest signal prices from the store.
 func LatestSignalPricesStoreKey(tunnelID uint64) []byte {
 	return append(LatestSignalPricesStoreKeyPrefix, sdk.Uint64ToBigEndian(tunnelID)...)
+}
+
+func DepositsStoreKey(tunnelID uint64) []byte {
+	return append(DepositStoreKeyPrefix, sdk.Uint64ToBigEndian(tunnelID)...)
+}
+
+func DepositStoreKey(tunnelID uint64, depositor sdk.AccAddress) []byte {
+	return append(DepositsStoreKey(tunnelID), address.MustLengthPrefix(depositor)...)
 }

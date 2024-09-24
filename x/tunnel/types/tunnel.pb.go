@@ -8,9 +8,10 @@ import (
 	github_com_bandprotocol_chain_v2_x_bandtss_types "github.com/bandprotocol/chain/v2/x/bandtss/types"
 	_ "github.com/bandprotocol/chain/v2/x/feeds/types"
 	_ "github.com/cosmos/cosmos-proto"
-	types "github.com/cosmos/cosmos-sdk/codec/types"
+	types1 "github.com/cosmos/cosmos-sdk/codec/types"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
-	types1 "github.com/cosmos/cosmos-sdk/types"
+	types "github.com/cosmos/cosmos-sdk/types"
+	_ "github.com/cosmos/cosmos-sdk/types/tx/amino"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
 	io "io"
@@ -281,6 +282,70 @@ func (m *SignalDeviation) GetHardDeviationBPS() uint64 {
 	return 0
 }
 
+// Deposit defines an amount deposited by an account address to the tunnel.
+type Deposit struct {
+	// tunnel_id defines the unique id of the tunnel.
+	TunnelID uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
+	// depositor defines the deposit addresses from the proposals.
+	Depositor string `protobuf:"bytes,2,opt,name=depositor,proto3" json:"depositor,omitempty"`
+	// amount to be deposited by depositor.
+	Amount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,3,rep,name=amount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"amount"`
+}
+
+func (m *Deposit) Reset()         { *m = Deposit{} }
+func (m *Deposit) String() string { return proto.CompactTextString(m) }
+func (*Deposit) ProtoMessage()    {}
+func (*Deposit) Descriptor() ([]byte, []int) {
+	return fileDescriptor_b5270a56045f1d8a, []int{3}
+}
+func (m *Deposit) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Deposit) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Deposit.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Deposit) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Deposit.Merge(m, src)
+}
+func (m *Deposit) XXX_Size() int {
+	return m.Size()
+}
+func (m *Deposit) XXX_DiscardUnknown() {
+	xxx_messageInfo_Deposit.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Deposit proto.InternalMessageInfo
+
+func (m *Deposit) GetTunnelID() uint64 {
+	if m != nil {
+		return m.TunnelID
+	}
+	return 0
+}
+
+func (m *Deposit) GetDepositor() string {
+	if m != nil {
+		return m.Depositor
+	}
+	return ""
+}
+
+func (m *Deposit) GetAmount() github_com_cosmos_cosmos_sdk_types.Coins {
+	if m != nil {
+		return m.Amount
+	}
+	return nil
+}
+
 // Tunnel is the type for a tunnel
 type Tunnel struct {
 	// id is the tunnel ID
@@ -288,7 +353,7 @@ type Tunnel struct {
 	// nonce_count is representing the number of packets sent
 	NonceCount uint64 `protobuf:"varint,2,opt,name=nonce_count,json=nonceCount,proto3" json:"nonce_count,omitempty"`
 	// route is the route for delivering the signal prices
-	Route *types.Any `protobuf:"bytes,3,opt,name=route,proto3" json:"route,omitempty"`
+	Route *types1.Any `protobuf:"bytes,3,opt,name=route,proto3" json:"route,omitempty"`
 	// encoder is the mode of encoding price signal data.
 	Encoder Encoder `protobuf:"varint,4,opt,name=encoder,proto3,enum=tunnel.v1beta1.Encoder" json:"encoder,omitempty"`
 	// fee_payer is the address of the fee payer
@@ -297,12 +362,14 @@ type Tunnel struct {
 	SignalDeviations []SignalDeviation `protobuf:"bytes,6,rep,name=signal_deviations,json=signalDeviations,proto3" json:"signal_deviations"`
 	// interval is the interval for delivering the signal prices
 	Interval uint64 `protobuf:"varint,7,opt,name=interval,proto3" json:"interval,omitempty"`
+	// total_deposit is the total deposit on the tunnel.
+	TotalDeposit github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,8,rep,name=total_deposit,json=totalDeposit,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"total_deposit"`
 	// is_active is the flag to indicate if the tunnel is active
-	IsActive bool `protobuf:"varint,8,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
+	IsActive bool `protobuf:"varint,9,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
 	// created_at is the timestamp when the tunnel is created
-	CreatedAt int64 `protobuf:"varint,9,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	CreatedAt int64 `protobuf:"varint,10,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	// creator is the address of the creator
-	Creator string `protobuf:"bytes,10,opt,name=creator,proto3" json:"creator,omitempty"`
+	Creator string `protobuf:"bytes,11,opt,name=creator,proto3" json:"creator,omitempty"`
 }
 
 func (m *Tunnel) Reset()         { *m = Tunnel{} }
@@ -352,7 +419,7 @@ func (m *Tunnel) GetNonceCount() uint64 {
 	return 0
 }
 
-func (m *Tunnel) GetRoute() *types.Any {
+func (m *Tunnel) GetRoute() *types1.Any {
 	if m != nil {
 		return m.Route
 	}
@@ -385,6 +452,13 @@ func (m *Tunnel) GetInterval() uint64 {
 		return m.Interval
 	}
 	return 0
+}
+
+func (m *Tunnel) GetTotalDeposit() github_com_cosmos_cosmos_sdk_types.Coins {
+	if m != nil {
+		return m.TotalDeposit
+	}
+	return nil
 }
 
 func (m *Tunnel) GetIsActive() bool {
@@ -582,7 +656,7 @@ type Packet struct {
 	// signal_prices is the list of signal prices
 	SignalPrices []SignalPrice `protobuf:"bytes,3,rep,name=signal_prices,json=signalPrices,proto3" json:"signal_prices"`
 	// packet_content is the content of the packet that implements PacketContentI
-	PacketContent *types.Any `protobuf:"bytes,4,opt,name=packet_content,json=packetContent,proto3" json:"packet_content,omitempty"`
+	PacketContent *types1.Any `protobuf:"bytes,4,opt,name=packet_content,json=packetContent,proto3" json:"packet_content,omitempty"`
 	// created_at is the timestamp when the packet is created
 	CreatedAt int64 `protobuf:"varint,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 }
@@ -641,7 +715,7 @@ func (m *Packet) GetSignalPrices() []SignalPrice {
 	return nil
 }
 
-func (m *Packet) GetPacketContent() *types.Any {
+func (m *Packet) GetPacketContent() *types1.Any {
 	if m != nil {
 		return m.PacketContent
 	}
@@ -907,6 +981,7 @@ func init() {
 	proto.RegisterType((*AxelarRoute)(nil), "tunnel.v1beta1.AxelarRoute")
 	proto.RegisterType((*IBCRoute)(nil), "tunnel.v1beta1.IBCRoute")
 	proto.RegisterType((*SignalDeviation)(nil), "tunnel.v1beta1.SignalDeviation")
+	proto.RegisterType((*Deposit)(nil), "tunnel.v1beta1.Deposit")
 	proto.RegisterType((*Tunnel)(nil), "tunnel.v1beta1.Tunnel")
 	proto.RegisterType((*LatestSignalPrices)(nil), "tunnel.v1beta1.LatestSignalPrices")
 	proto.RegisterType((*SignalPrice)(nil), "tunnel.v1beta1.SignalPrice")
@@ -1104,6 +1179,41 @@ func (this *SignalDeviation) Equal(that interface{}) bool {
 	}
 	return true
 }
+func (this *Deposit) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Deposit)
+	if !ok {
+		that2, ok := that.(Deposit)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.TunnelID != that1.TunnelID {
+		return false
+	}
+	if this.Depositor != that1.Depositor {
+		return false
+	}
+	if len(this.Amount) != len(that1.Amount) {
+		return false
+	}
+	for i := range this.Amount {
+		if !this.Amount[i].Equal(&that1.Amount[i]) {
+			return false
+		}
+	}
+	return true
+}
 func (this *Tunnel) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
@@ -1148,6 +1258,14 @@ func (this *Tunnel) Equal(that interface{}) bool {
 	}
 	if this.Interval != that1.Interval {
 		return false
+	}
+	if len(this.TotalDeposit) != len(that1.TotalDeposit) {
+		return false
+	}
+	for i := range this.TotalDeposit {
+		if !this.TotalDeposit[i].Equal(&that1.TotalDeposit[i]) {
+			return false
+		}
 	}
 	if this.IsActive != that1.IsActive {
 		return false
@@ -1558,6 +1676,55 @@ func (m *SignalDeviation) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *Deposit) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Deposit) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Deposit) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Amount) > 0 {
+		for iNdEx := len(m.Amount) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Amount[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTunnel(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.Depositor) > 0 {
+		i -= len(m.Depositor)
+		copy(dAtA[i:], m.Depositor)
+		i = encodeVarintTunnel(dAtA, i, uint64(len(m.Depositor)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.TunnelID != 0 {
+		i = encodeVarintTunnel(dAtA, i, uint64(m.TunnelID))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *Tunnel) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1583,12 +1750,12 @@ func (m *Tunnel) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		copy(dAtA[i:], m.Creator)
 		i = encodeVarintTunnel(dAtA, i, uint64(len(m.Creator)))
 		i--
-		dAtA[i] = 0x52
+		dAtA[i] = 0x5a
 	}
 	if m.CreatedAt != 0 {
 		i = encodeVarintTunnel(dAtA, i, uint64(m.CreatedAt))
 		i--
-		dAtA[i] = 0x48
+		dAtA[i] = 0x50
 	}
 	if m.IsActive {
 		i--
@@ -1598,7 +1765,21 @@ func (m *Tunnel) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			dAtA[i] = 0
 		}
 		i--
-		dAtA[i] = 0x40
+		dAtA[i] = 0x48
+	}
+	if len(m.TotalDeposit) > 0 {
+		for iNdEx := len(m.TotalDeposit) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.TotalDeposit[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTunnel(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x42
+		}
 	}
 	if m.Interval != 0 {
 		i = encodeVarintTunnel(dAtA, i, uint64(m.Interval))
@@ -2082,6 +2263,28 @@ func (m *SignalDeviation) Size() (n int) {
 	return n
 }
 
+func (m *Deposit) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.TunnelID != 0 {
+		n += 1 + sovTunnel(uint64(m.TunnelID))
+	}
+	l = len(m.Depositor)
+	if l > 0 {
+		n += 1 + l + sovTunnel(uint64(l))
+	}
+	if len(m.Amount) > 0 {
+		for _, e := range m.Amount {
+			l = e.Size()
+			n += 1 + l + sovTunnel(uint64(l))
+		}
+	}
+	return n
+}
+
 func (m *Tunnel) Size() (n int) {
 	if m == nil {
 		return 0
@@ -2113,6 +2316,12 @@ func (m *Tunnel) Size() (n int) {
 	}
 	if m.Interval != 0 {
 		n += 1 + sovTunnel(uint64(m.Interval))
+	}
+	if len(m.TotalDeposit) > 0 {
+		for _, e := range m.TotalDeposit {
+			l = e.Size()
+			n += 1 + l + sovTunnel(uint64(l))
+		}
 	}
 	if m.IsActive {
 		n += 2
@@ -2720,6 +2929,141 @@ func (m *SignalDeviation) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+func (m *Deposit) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTunnel
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Deposit: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Deposit: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TunnelID", wireType)
+			}
+			m.TunnelID = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTunnel
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.TunnelID |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Depositor", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTunnel
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Depositor = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTunnel
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Amount = append(m.Amount, types.Coin{})
+			if err := m.Amount[len(m.Amount)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTunnel(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *Tunnel) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -2817,7 +3161,7 @@ func (m *Tunnel) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if m.Route == nil {
-				m.Route = &types.Any{}
+				m.Route = &types1.Any{}
 			}
 			if err := m.Route.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -2928,6 +3272,40 @@ func (m *Tunnel) Unmarshal(dAtA []byte) error {
 				}
 			}
 		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TotalDeposit", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTunnel
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.TotalDeposit = append(m.TotalDeposit, types.Coin{})
+			if err := m.TotalDeposit[len(m.TotalDeposit)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 9:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field IsActive", wireType)
 			}
@@ -2947,7 +3325,7 @@ func (m *Tunnel) Unmarshal(dAtA []byte) error {
 				}
 			}
 			m.IsActive = bool(v != 0)
-		case 9:
+		case 10:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field CreatedAt", wireType)
 			}
@@ -2966,7 +3344,7 @@ func (m *Tunnel) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 10:
+		case 11:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Creator", wireType)
 			}
@@ -3300,7 +3678,7 @@ func (m *TotalFees) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.TotalPacketFee = append(m.TotalPacketFee, types1.Coin{})
+			m.TotalPacketFee = append(m.TotalPacketFee, types.Coin{})
 			if err := m.TotalPacketFee[len(m.TotalPacketFee)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -3457,7 +3835,7 @@ func (m *Packet) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if m.PacketContent == nil {
-				m.PacketContent = &types.Any{}
+				m.PacketContent = &types1.Any{}
 			}
 			if err := m.PacketContent.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err

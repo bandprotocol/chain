@@ -27,6 +27,8 @@ func GetTxCmd() *cobra.Command {
 	txCmd.AddCommand(GetTxCmdActivate())
 	txCmd.AddCommand(GetTxCmdDeactivate())
 	txCmd.AddCommand(GetTxCmdTriggerTunnel())
+	txCmd.AddCommand(GetTxCmdDepositTunnel())
+	txCmd.AddCommand(GetTxCmdWithdrawTunnel())
 
 	return txCmd
 }
@@ -260,6 +262,68 @@ func GetTxCmdTriggerTunnel() *cobra.Command {
 			}
 
 			msg := types.NewMsgTriggerTunnel(tunnelID, clientCtx.GetFromAddress().String())
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetTxCmdDepositTunnel() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "deposit-tunnel [tunnel-id] [amount]",
+		Short: "Deposit to a tunnel",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			id, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			amount, err := sdk.ParseCoinsNormalized(args[1])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgDepositTunnel(id, amount, clientCtx.GetFromAddress().String())
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetTxCmdWithdrawTunnel() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "withdraw [tunnel-id] [amount]",
+		Short: "Withdraw deposit from a tunnel",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			id, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			amount, err := sdk.ParseCoinsNormalized(args[1])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgWithdrawTunnel(id, amount, clientCtx.GetFromAddress().String())
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

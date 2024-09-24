@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/gogoproto/proto"
 )
 
@@ -18,6 +19,7 @@ func NewTunnel(
 	feePayer string,
 	signalDeviations []SignalDeviation,
 	interval uint64,
+	totalDeposit []sdk.Coin,
 	isActive bool,
 	createdAt int64,
 	creator string,
@@ -30,6 +32,7 @@ func NewTunnel(
 		FeePayer:         feePayer,
 		SignalDeviations: signalDeviations,
 		Interval:         interval,
+		TotalDeposit:     totalDeposit,
 		IsActive:         isActive,
 		CreatedAt:        createdAt,
 		Creator:          creator,
