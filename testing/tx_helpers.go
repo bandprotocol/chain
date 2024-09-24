@@ -1,4 +1,4 @@
-package band
+package testing
 
 // Copy from https://github.com/cosmos/cosmos-sdk/blob/v0.50.9/testutil/sims/tx_helpers.go to add time in block header and block events
 import (
