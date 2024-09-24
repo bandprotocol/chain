@@ -46,12 +46,14 @@ func (s *AppTestSuite) SetupTest() {
 
 	_, err := s.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: s.app.LastBlockHeight() + 1})
 	s.Require().NoError(err)
+	_, err = s.app.Commit()
+	s.Require().NoError(err)
 }
 
 func (s *AppTestSuite) TestSuccessRequestOracleData() {
 	require := s.Require()
 
-	ctx := s.app.BaseApp.NewContext(false)
+	ctx := s.app.BaseApp.NewUncachedContext(false, tmproto.Header{})
 	requestMsg := types.NewMsgRequestData(
 		types.OracleScriptID(1),
 		[]byte("calldata"),
@@ -96,7 +98,7 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 			bandtest.Validators[1].ValAddress,
 		},
 		2,
-		1,
+		2,
 		bandtesting.ParseTime(1581589790),
 		"app_test",
 		[]types.RawRequest{
