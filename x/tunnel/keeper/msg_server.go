@@ -142,12 +142,6 @@ func (ms msgServer) Activate(
 		return nil, types.ErrAlreadyActive.Wrapf("tunnelID %d", req.TunnelID)
 	}
 
-	// verify if the total deposit meets or exceeds the minimum required deposit
-	minDeposit := ms.Keeper.GetParams(ctx).MinDeposit
-	if !tunnel.TotalDeposit.IsAllGTE(minDeposit) {
-		return nil, types.ErrInsufficientDeposit
-	}
-
 	if err := ms.Keeper.ActivateTunnel(ctx, req.TunnelID); err != nil {
 		return nil, err
 	}
