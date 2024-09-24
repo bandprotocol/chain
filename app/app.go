@@ -319,7 +319,7 @@ func NewBandApp(
 	app.setupUpgradeHandlers()
 	app.setupUpgradeStoreLoaders()
 
-	// At startup, after all modules have been registered, check that all prot
+	// At startup, after all modules have been registered, check that all proto
 	// annotations are correct.
 	protoFiles, err := proto.MergedRegistry()
 	if err != nil {

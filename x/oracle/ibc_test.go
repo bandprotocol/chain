@@ -14,12 +14,13 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	bandtest "github.com/bandprotocol/chain/v3/app"
+	band "github.com/bandprotocol/chain/v3/app"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 func init() {
-	bandtest.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
+	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
 	sdk.DefaultBondDenom = "uband"
 }
 
@@ -35,11 +36,11 @@ type IBCTestSuite struct {
 	path *ibctesting.Path
 
 	// shortcut to chainB (bandchain)
-	bandApp *bandtest.BandApp
+	bandApp *band.BandApp
 }
 
 func (suite *IBCTestSuite) SetupTest() {
-	ibctesting.DefaultTestingAppInit = bandtest.CreateTestingAppFn(suite.T())
+	ibctesting.DefaultTestingAppInit = bandtesting.CreateTestingAppFn(suite.T())
 
 	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2)
 	suite.chainA = suite.coordinator.GetChain(ibctesting.GetChainID(1))
@@ -51,7 +52,7 @@ func (suite *IBCTestSuite) SetupTest() {
 	suite.path.EndpointB.ChannelConfig.PortID = oracletypes.ModuleName
 	suite.path.EndpointB.ChannelConfig.Version = oracletypes.Version
 
-	suite.bandApp = suite.chainB.App.(*bandtest.BandApp)
+	suite.bandApp = suite.chainB.App.(*band.BandApp)
 
 	suite.coordinator.Setup(suite.path)
 
@@ -100,7 +101,7 @@ func (suite *IBCTestSuite) sendOracleRequestPacket(
 func (suite *IBCTestSuite) checkChainBTreasuryBalances(expect sdk.Coins) {
 	treasuryBalances := suite.bandApp.BankKeeper.GetAllBalances(
 		suite.chainB.GetContext(),
-		bandtest.Treasury.Address,
+		bandtesting.Treasury.Address,
 	)
 	suite.Require().Equal(expect, treasuryBalances)
 }
@@ -126,8 +127,8 @@ func (suite *IBCTestSuite) TestHandleIBCRequestSuccess() {
 		4,
 		2,
 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(12000000))),
-		bandtest.TestDefaultPrepareGas,
-		bandtest.TestDefaultExecuteGas,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 

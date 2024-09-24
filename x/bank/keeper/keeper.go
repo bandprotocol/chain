@@ -54,7 +54,6 @@ func (k *WrappedBankKeeper) SetDistrKeeper(dk types.DistributionKeeper) {
 // BurnCoins moves the specified amount of coins from the given module name to
 // the community pool. The total bank of the coins will not change.
 func (k WrappedBankKeeper) BurnCoins(ctx context.Context, moduleName string, amt sdk.Coins) error {
-	fmt.Println("Burn!")
 	// If distrKeeper is not set OR we want to burn coins in distr itself, we will
 	// just use the original BurnCoins function.
 

@@ -15,36 +15,37 @@ import (
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	bandtest "github.com/bandprotocol/chain/v3/app"
+	band "github.com/bandprotocol/chain/v3/app"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
 )
 
 func init() {
-	bandtest.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
+	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
 }
 
 type AppTestSuite struct {
 	suite.Suite
 
-	app *bandtest.BandApp
+	app *band.BandApp
 }
 
 var (
 	NoAbsentVotes = abci.CommitInfo{
 		Votes: []abci.VoteInfo{
 			{
-				Validator:   abci.Validator{Address: bandtest.Validators[0].PubKey.Address().Bytes(), Power: 100},
+				Validator:   abci.Validator{Address: bandtesting.Validators[0].PubKey.Address().Bytes(), Power: 100},
 				BlockIdFlag: tmproto.BlockIDFlagCommit,
 			},
 			{
-				Validator:   abci.Validator{Address: bandtest.Validators[1].PubKey.Address().Bytes(), Power: 100},
+				Validator:   abci.Validator{Address: bandtesting.Validators[1].PubKey.Address().Bytes(), Power: 100},
 				BlockIdFlag: tmproto.BlockIDFlagCommit,
 			},
 			{
-				Validator:   abci.Validator{Address: bandtest.Validators[2].PubKey.Address().Bytes(), Power: 100},
+				Validator:   abci.Validator{Address: bandtesting.Validators[2].PubKey.Address().Bytes(), Power: 100},
 				BlockIdFlag: tmproto.BlockIDFlagCommit,
 			},
 			{
-				Validator:   abci.Validator{Address: bandtest.MissedValidator.PubKey.Address().Bytes(), Power: 100},
+				Validator:   abci.Validator{Address: bandtesting.MissedValidator.PubKey.Address().Bytes(), Power: 100},
 				BlockIdFlag: tmproto.BlockIDFlagCommit,
 			},
 		},
@@ -52,19 +53,19 @@ var (
 	AbsentVotes = abci.CommitInfo{
 		Votes: []abci.VoteInfo{
 			{
-				Validator:   abci.Validator{Address: bandtest.Validators[0].PubKey.Address().Bytes(), Power: 100},
+				Validator:   abci.Validator{Address: bandtesting.Validators[0].PubKey.Address().Bytes(), Power: 100},
 				BlockIdFlag: tmproto.BlockIDFlagCommit,
 			},
 			{
-				Validator:   abci.Validator{Address: bandtest.Validators[1].PubKey.Address().Bytes(), Power: 100},
+				Validator:   abci.Validator{Address: bandtesting.Validators[1].PubKey.Address().Bytes(), Power: 100},
 				BlockIdFlag: tmproto.BlockIDFlagCommit,
 			},
 			{
-				Validator:   abci.Validator{Address: bandtest.Validators[2].PubKey.Address().Bytes(), Power: 100},
+				Validator:   abci.Validator{Address: bandtesting.Validators[2].PubKey.Address().Bytes(), Power: 100},
 				BlockIdFlag: tmproto.BlockIDFlagCommit,
 			},
 			{
-				Validator:   abci.Validator{Address: bandtest.MissedValidator.PubKey.Address().Bytes(), Power: 100},
+				Validator:   abci.Validator{Address: bandtesting.MissedValidator.PubKey.Address().Bytes(), Power: 100},
 				BlockIdFlag: tmproto.BlockIDFlagAbsent,
 			},
 		},
@@ -77,7 +78,7 @@ func TestAppTestSuite(t *testing.T) {
 
 func (s *AppTestSuite) SetupTest() {
 	dir := testutil.GetTempDir(s.T())
-	s.app = bandtest.SetupWithCustomHome(false, dir)
+	s.app = bandtesting.SetupWithCustomHome(false, dir)
 	ctx := s.app.BaseApp.NewUncachedContext(false, tmproto.Header{})
 
 	_, err := s.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: s.app.LastBlockHeight() + 1})
@@ -93,7 +94,7 @@ func (s *AppTestSuite) SetupTest() {
 	params.MinSignedPerWindow = math.LegacyNewDecWithPrec(5, 1)
 
 	// Add Missed validator
-	res1 := s.app.AccountKeeper.GetAccount(ctx, bandtest.MissedValidator.Address)
+	res1 := s.app.AccountKeeper.GetAccount(ctx, bandtesting.MissedValidator.Address)
 	s.Require().NotNil(res1)
 
 	acc1Num := res1.GetAccountNumber()
@@ -105,8 +106,8 @@ func (s *AppTestSuite) SetupTest() {
 	s.Require().NoError(err)
 
 	msg, err := stakingtypes.NewMsgCreateValidator(
-		sdk.ValAddress(bandtest.MissedValidator.Address).String(),
-		bandtest.MissedValidator.PubKey,
+		sdk.ValAddress(bandtesting.MissedValidator.Address).String(),
+		bandtesting.MissedValidator.PubKey,
 		sdk.NewInt64Coin("uband", 100000000),
 		stakingtypes.Description{
 			Moniker: "test",
@@ -120,7 +121,7 @@ func (s *AppTestSuite) SetupTest() {
 	)
 	s.Require().NoError(err)
 
-	_, res, _, err := bandtest.SignCheckDeliver(
+	_, res, _, err := bandtesting.SignCheckDeliver(
 		s.T(),
 		txConfig,
 		s.app.BaseApp,
@@ -131,7 +132,7 @@ func (s *AppTestSuite) SetupTest() {
 		[]uint64{acc1Seq},
 		true,
 		true,
-		bandtest.MissedValidator.PrivKey,
+		bandtesting.MissedValidator.PrivKey,
 	)
 	s.Require().NotNil(res)
 	s.Require().NoError(err)
@@ -201,7 +202,7 @@ func (s *AppTestSuite) TestMissedValidatorAbsent() {
 	s.Require().NoError(err)
 
 	ctx := s.app.NewUncachedContext(false, tmproto.Header{})
-	missVal, err := s.app.StakingKeeper.GetValidator(ctx, bandtest.MissedValidator.ValAddress)
+	missVal, err := s.app.StakingKeeper.GetValidator(ctx, bandtesting.MissedValidator.ValAddress)
 	s.Require().NoError(err)
 	s.Require().False(missVal.IsJailed())
 
@@ -216,7 +217,7 @@ func (s *AppTestSuite) TestMissedValidatorAbsent() {
 	s.Require().NoError(err)
 
 	ctx = s.app.NewUncachedContext(false, tmproto.Header{})
-	missVal, err = s.app.StakingKeeper.GetValidator(ctx, bandtest.MissedValidator.ValAddress)
+	missVal, err = s.app.StakingKeeper.GetValidator(ctx, bandtesting.MissedValidator.ValAddress)
 	s.Require().NoError(err)
 	s.Require().True(missVal.IsJailed())
 

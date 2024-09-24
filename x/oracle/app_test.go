@@ -15,7 +15,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 
-	bandtest "github.com/bandprotocol/chain/v3/app"
+	band "github.com/bandprotocol/chain/v3/app"
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
@@ -23,10 +23,7 @@ import (
 type AppTestSuite struct {
 	suite.Suite
 
-	app *bandtest.BandApp
-
-	// For test teardown
-	dir string
+	app *band.BandApp
 }
 
 func TestAppTestSuite(t *testing.T) {
@@ -35,11 +32,11 @@ func TestAppTestSuite(t *testing.T) {
 
 func (s *AppTestSuite) SetupTest() {
 	dir := testutil.GetTempDir(s.T())
-	s.app = bandtest.SetupWithCustomHome(false, dir)
+	s.app = bandtesting.SetupWithCustomHome(false, dir)
 	ctx := s.app.BaseApp.NewUncachedContext(false, tmproto.Header{})
 
 	// Activate validators
-	for _, v := range bandtest.Validators {
+	for _, v := range bandtesting.Validators {
 		err := s.app.OracleKeeper.Activate(ctx, v.ValAddress)
 		s.Require().NoError(err)
 	}
@@ -61,19 +58,19 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 		2,
 		"app_test",
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 9000000)),
-		bandtest.TestDefaultPrepareGas,
-		bandtest.TestDefaultExecuteGas,
-		bandtest.Validators[0].Address,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
+		bandtesting.Validators[0].Address,
 	)
 
-	res1 := s.app.AccountKeeper.GetAccount(ctx, bandtest.Validators[0].Address)
+	res1 := s.app.AccountKeeper.GetAccount(ctx, bandtesting.Validators[0].Address)
 	require.NotNil(res1)
 
 	acc1Num := res1.GetAccountNumber()
 	acc1Seq := res1.GetSequence()
 
 	txConfig := moduletestutil.MakeTestTxConfig()
-	_, res, _, err := bandtest.SignCheckDeliver(
+	_, res, _, err := bandtesting.SignCheckDeliver(
 		s.T(),
 		txConfig,
 		s.app.BaseApp,
@@ -84,7 +81,7 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 		[]uint64{acc1Seq},
 		true,
 		true,
-		bandtest.Validators[0].PrivKey,
+		bandtesting.Validators[0].PrivKey,
 	)
 	require.NotNil(res)
 	require.NoError(err)
@@ -93,9 +90,9 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 		types.OracleScriptID(1),
 		[]byte("calldata"),
 		[]sdk.ValAddress{
-			bandtest.Validators[2].ValAddress,
-			bandtest.Validators[0].ValAddress,
-			bandtest.Validators[1].ValAddress,
+			bandtesting.Validators[2].ValAddress,
+			bandtesting.Validators[0].ValAddress,
+			bandtesting.Validators[1].ValAddress,
 		},
 		2,
 		2,
@@ -107,7 +104,7 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 			types.NewRawRequest(3, 3, []byte("test")),
 		},
 		nil,
-		bandtest.TestDefaultExecuteGas,
+		bandtesting.TestDefaultExecuteGas,
 	)
 
 	request, err := s.app.OracleKeeper.GetRequest(ctx, types.RequestID(1))
@@ -120,9 +117,9 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 			types.NewRawReport(2, 0, []byte("answer2")),
 			types.NewRawReport(3, 0, []byte("answer3")),
 		},
-		bandtest.Validators[0].ValAddress,
+		bandtesting.Validators[0].ValAddress,
 	)
-	_, res, _, err = bandtest.SignCheckDeliver(
+	_, res, _, err = bandtesting.SignCheckDeliver(
 		s.T(),
 		txConfig,
 		s.app.BaseApp,
@@ -133,7 +130,7 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 		[]uint64{acc1Seq + 1},
 		true,
 		true,
-		bandtest.Validators[0].PrivKey,
+		bandtesting.Validators[0].PrivKey,
 	)
 	require.NotNil(res)
 	require.NoError(err)
@@ -149,17 +146,17 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 			types.NewRawReport(2, 0, []byte("answer2")),
 			types.NewRawReport(3, 0, []byte("answer3")),
 		},
-		bandtest.Validators[1].ValAddress,
+		bandtesting.Validators[1].ValAddress,
 	)
 
-	res2 := s.app.AccountKeeper.GetAccount(ctx, bandtest.Validators[1].Address)
+	res2 := s.app.AccountKeeper.GetAccount(ctx, bandtesting.Validators[1].Address)
 	require.NotNil(res2)
 
 	acc2Num := res2.GetAccountNumber()
 	acc2Seq := res2.GetSequence()
 
 	// res, err = handler(ctx, reportMsg2)
-	_, res, endBlockEvent, err := bandtest.SignCheckDeliver(
+	_, res, endBlockEvent, err := bandtesting.SignCheckDeliver(
 		s.T(),
 		txConfig,
 		s.app.BaseApp,
@@ -170,7 +167,7 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 		[]uint64{acc2Seq},
 		true,
 		true,
-		bandtest.Validators[1].PrivKey,
+		bandtesting.Validators[1].PrivKey,
 	)
 
 	require.NotNil(res)
@@ -223,7 +220,7 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 }
 
 // func TestExpiredRequestOracleData(t *testing.T) {
-// 	app, ctx := bandtest.CreateTestApp(t, true)
+// 	app, ctx := bandtesting.CreateTestApp(t, true)
 // 	k := app.OracleKeeper
 
 // 	ctx = ctx.WithBlockHeight(4).WithBlockTime(time.Unix(1581589790, 0))
@@ -235,9 +232,9 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 // 		2,
 // 		"app_test",
 // 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(9000000))),
-// 		bandtest.TestDefaultPrepareGas,
-// 		bandtest.TestDefaultExecuteGas,
-// 		bandtest.Validators[0].Address,
+// 		bandtesting.TestDefaultPrepareGas,
+// 		bandtesting.TestDefaultExecuteGas,
+// 		bandtesting.Validators[0].Address,
 // 	)
 // 	res, err := handler(ctx, requestMsg)
 // 	require.NotNil(t, res)
@@ -247,13 +244,13 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 // 		types.OracleScriptID(1),
 // 		[]byte("calldata"),
 // 		[]sdk.ValAddress{
-// 			bandtest.Validators[2].ValAddress,
-// 			bandtest.Validators[0].ValAddress,
-// 			bandtest.Validators[1].ValAddress,
+// 			bandtesting.Validators[2].ValAddress,
+// 			bandtesting.Validators[0].ValAddress,
+// 			bandtesting.Validators[1].ValAddress,
 // 		},
 // 		2,
 // 		4,
-// 		bandtest.ParseTime(1581589790),
+// 		bandtesting.ParseTime(1581589790),
 // 		"app_test",
 // 		[]types.RawRequest{
 // 			types.NewRawRequest(1, 1, []byte("test")),
@@ -261,7 +258,7 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 // 			types.NewRawRequest(3, 3, []byte("test")),
 // 		},
 // 		nil,
-// 		bandtest.TestDefaultExecuteGas,
+// 		bandtesting.TestDefaultExecuteGas,
 // 	)
 // 	app.EndBlocker(ctx.WithBlockHeight(4))
 // 	request, err := k.GetRequest(ctx, types.RequestID(1))
@@ -288,7 +285,7 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 // 		Attributes: []abci.EventAttribute{
 // 			{
 // 				Key:   types.AttributeKeyValidator,
-// 				Value: fmt.Sprint(bandtest.Validators[2].ValAddress.String()),
+// 				Value: fmt.Sprint(bandtesting.Validators[2].ValAddress.String()),
 // 			},
 // 		},
 // 	}, {
@@ -296,7 +293,7 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 // 		Attributes: []abci.EventAttribute{
 // 			{
 // 				Key:   types.AttributeKeyValidator,
-// 				Value: fmt.Sprint(bandtest.Validators[0].ValAddress.String()),
+// 				Value: fmt.Sprint(bandtesting.Validators[0].ValAddress.String()),
 // 			},
 // 		},
 // 	}, {
@@ -304,7 +301,7 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 // 		Attributes: []abci.EventAttribute{
 // 			{
 // 				Key:   types.AttributeKeyValidator,
-// 				Value: fmt.Sprint(bandtest.Validators[1].ValAddress.String()),
+// 				Value: fmt.Sprint(bandtesting.Validators[1].ValAddress.String()),
 // 			},
 // 		},
 // 	}}
