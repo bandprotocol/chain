@@ -32,7 +32,7 @@ func ValidateGenesis(data *types.GenesisState) error {
 		if lsp.TunnelID == 0 || lsp.TunnelID > data.TunnelCount {
 			return types.ErrInvalidGenesis.Wrapf("tunnel count mismatch in latest signal prices")
 		}
-		if err := lsp.ValidateBasic(); err != nil {
+		if err := lsp.Validate(); err != nil {
 			return types.ErrInvalidGenesis.Wrapf("invalid latest signal prices: %s", err.Error())
 		}
 	}
