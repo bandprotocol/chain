@@ -5,10 +5,10 @@ import (
 	"encoding/hex"
 	"testing"
 
+	"github.com/stretchr/testify/suite"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	types1 "github.com/cometbft/cometbft/proto/tendermint/types"
-	"github.com/stretchr/testify/suite"
 
 	"cosmossdk.io/core/header"
 	"cosmossdk.io/math"
@@ -19,14 +19,14 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 
-	bandtest "github.com/bandprotocol/chain/v3/app"
+	band "github.com/bandprotocol/chain/v3/app"
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
 )
 
 type ABCITestSuite struct {
 	suite.Suite
 
-	app *bandtest.BandApp
+	app *band.BandApp
 
 	// For test teardown
 	dir string
@@ -38,7 +38,7 @@ func TestABCITestSuite(t *testing.T) {
 
 func (s *ABCITestSuite) SetupTest() {
 	dir := testutil.GetTempDir(s.T())
-	s.app = bandtest.SetupWithCustomHome(false, dir)
+	s.app = bandtesting.SetupWithCustomHome(false, dir)
 
 	_, err := s.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: s.app.LastBlockHeight() + 1})
 	s.Require().NoError(err)
@@ -57,7 +57,7 @@ func (s *ABCITestSuite) SetupTest() {
 	err = s.app.BankKeeper.SendCoinsFromModuleToAccount(
 		ctx,
 		distrtypes.ModuleName,
-		bandtest.Treasury.Address,
+		bandtesting.Treasury.Address,
 		s.app.BankKeeper.GetAllBalances(ctx, distModule.GetAddress()),
 	)
 	s.Require().NoError(err)
@@ -118,11 +118,11 @@ func (s *ABCITestSuite) TestAllocateTokensCalledOnBeginBlock() {
 	require := s.Require()
 
 	votes := []abci.VoteInfo{{
-		Validator:   abci.Validator{Address: bandtest.Validators[0].PubKey.Address(), Power: 70},
-		BlockIdFlag: types1.BlockIDFlagCommit,
+		Validator:   abci.Validator{Address: bandtesting.Validators[0].PubKey.Address(), Power: 70},
+		BlockIdFlag: tmproto.BlockIDFlagCommit,
 	}, {
-		Validator:   abci.Validator{Address: bandtest.Validators[1].PubKey.Address(), Power: 30},
-		BlockIdFlag: types1.BlockIDFlagCommit,
+		Validator:   abci.Validator{Address: bandtesting.Validators[1].PubKey.Address(), Power: 30},
+		BlockIdFlag: tmproto.BlockIDFlagCommit,
 	}}
 
 	// Set collected fee to 100uband + 70% oracle reward proportion + disable minting inflation.
@@ -159,7 +159,7 @@ func (s *ABCITestSuite) TestAllocateTokensCalledOnBeginBlock() {
 	_, err = s.app.BeginBlocker(
 		ctx.WithHeaderInfo(header.Info{Hash: fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")}).
 			WithVoteInfos(votes).
-			WithProposer(bandtest.Validators[0].ValAddress.Bytes()),
+			WithProposer(bandtesting.Validators[0].ValAddress.Bytes()),
 	)
 	require.NoError(err)
 	require.Equal(
@@ -168,12 +168,12 @@ func (s *ABCITestSuite) TestAllocateTokensCalledOnBeginBlock() {
 	)
 
 	// 1 validator active, begin block should take 70% of the fee. 2% of that goes to comm pool.
-	err = k.Activate(ctx, bandtest.Validators[1].ValAddress)
+	err = k.Activate(ctx, bandtesting.Validators[1].ValAddress)
 	require.NoError(err)
 	_, err = s.app.BeginBlocker(
 		ctx.WithHeaderInfo(header.Info{Hash: fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")}).
 			WithVoteInfos(votes).
-			WithProposer(bandtest.Validators[0].ValAddress.Bytes()),
+			WithProposer(bandtesting.Validators[0].ValAddress.Bytes()),
 	)
 	require.NoError(err)
 	require.Equal(
@@ -192,9 +192,9 @@ func (s *ABCITestSuite) TestAllocateTokensCalledOnBeginBlock() {
 		feePool.CommunityPool,
 	)
 	// 0uband
-	require.Empty(s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtest.Validators[0].ValAddress))
+	require.Empty(s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtesting.Validators[0].ValAddress))
 	// 10000*70%*98% = 6860uband
-	valOutReward, err := s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtest.Validators[1].ValAddress)
+	valOutReward, err := s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtesting.Validators[1].ValAddress)
 	require.NoError(err)
 	require.Equal(
 		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(6860, 0)}},
@@ -202,13 +202,13 @@ func (s *ABCITestSuite) TestAllocateTokensCalledOnBeginBlock() {
 	)
 
 	// 2 validators active now. 70% of the remaining fee pool will be split 3 ways (comm pool + val1 + val2).
-	err = k.Activate(ctx, bandtest.Validators[0].ValAddress)
+	err = k.Activate(ctx, bandtesting.Validators[0].ValAddress)
 	require.NoError(err)
 
 	_, err = s.app.BeginBlocker(
 		ctx.WithHeaderInfo(header.Info{Hash: fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")}).
 			WithVoteInfos(votes).
-			WithProposer(bandtest.Validators[0].ValAddress.Bytes()),
+			WithProposer(bandtesting.Validators[0].ValAddress.Bytes()),
 	)
 	require.NoError(err)
 	require.Equal(
@@ -227,14 +227,14 @@ func (s *ABCITestSuite) TestAllocateTokensCalledOnBeginBlock() {
 		feePool.CommunityPool,
 	)
 	// 3000*70%*98%*70% = 1440.6uband
-	valOutReward, err = s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtest.Validators[0].ValAddress)
+	valOutReward, err = s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtesting.Validators[0].ValAddress)
 	require.NoError(err)
 	require.Equal(
 		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(14406, 1)}},
 		valOutReward.Rewards,
 	)
 	// 68.6uband + 3000*70%*98%*30% = 7477.4uband
-	valOutReward, err = s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtest.Validators[1].ValAddress)
+	valOutReward, err = s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtesting.Validators[1].ValAddress)
 	require.NoError(err)
 	require.Equal(
 		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(74774, 1)}},
@@ -242,11 +242,11 @@ func (s *ABCITestSuite) TestAllocateTokensCalledOnBeginBlock() {
 	)
 
 	// 1 validator becomes inactive, and will not get reward this time.
-	k.MissReport(ctx, bandtest.Validators[1].ValAddress, bandtesting.ParseTime(100))
+	k.MissReport(ctx, bandtesting.Validators[1].ValAddress, bandtesting.ParseTime(100))
 	_, err = s.app.BeginBlocker(
 		ctx.WithHeaderInfo(header.Info{Hash: fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")}).
 			WithVoteInfos(votes).
-			WithProposer(bandtest.Validators[0].ValAddress.Bytes()),
+			WithProposer(bandtesting.Validators[0].ValAddress.Bytes()),
 	)
 	require.NoError(err)
 	require.Equal(
@@ -267,14 +267,14 @@ func (s *ABCITestSuite) TestAllocateTokensCalledOnBeginBlock() {
 	)
 	// Since the validator is the only one active, it will get all the remaining fee pool.
 	// 1440.6uband + 618 = 2058.6uband
-	valOutReward, err = s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtest.Validators[0].ValAddress)
+	valOutReward, err = s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtesting.Validators[0].ValAddress)
 	require.NoError(err)
 	require.Equal(
 		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(20586, 1)}},
 		valOutReward.Rewards,
 	)
 	// 7477.4uband
-	valOutReward, err = s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtest.Validators[1].ValAddress)
+	valOutReward, err = s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtesting.Validators[1].ValAddress)
 	require.NoError(err)
 	require.Equal(
 		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(74774, 1)}},
@@ -289,11 +289,11 @@ func (s *ABCITestSuite) TestAllocateTokensWithDistrAllocateTokens() {
 
 	ctx = ctx.WithBlockHeight(10) // Set block height to ensure distr's AllocateTokens gets called.
 	votes := []abci.VoteInfo{{
-		Validator:   abci.Validator{Address: bandtest.Validators[0].PubKey.Address(), Power: 70},
-		BlockIdFlag: types1.BlockIDFlagCommit,
+		Validator:   abci.Validator{Address: bandtesting.Validators[0].PubKey.Address(), Power: 70},
+		BlockIdFlag: tmproto.BlockIDFlagCommit,
 	}, {
-		Validator:   abci.Validator{Address: bandtest.Validators[1].PubKey.Address(), Power: 30},
-		BlockIdFlag: types1.BlockIDFlagCommit,
+		Validator:   abci.Validator{Address: bandtesting.Validators[1].PubKey.Address(), Power: 30},
+		BlockIdFlag: tmproto.BlockIDFlagCommit,
 	}}
 
 	feeCollector := s.app.AccountKeeper.GetModuleAccount(ctx, authtypes.FeeCollectorName)
@@ -337,13 +337,13 @@ func (s *ABCITestSuite) TestAllocateTokensWithDistrAllocateTokens() {
 	//     so it will be 0.3uband.
 	//   Validators[0]: 35 + 10.29 = 45.29
 	//   Validators[1]: 4.41
-	err = k.Activate(ctx, bandtest.Validators[0].ValAddress)
+	err = k.Activate(ctx, bandtesting.Validators[0].ValAddress)
 	require.NoError(err)
 	// begin block with Validators[1] as proposer
 	_, err = s.app.BeginBlocker(
 		ctx.WithHeaderInfo(header.Info{Hash: fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")}).
 			WithVoteInfos(votes).
-			WithProposer(bandtest.Validators[1].ValAddress.Bytes()),
+			WithProposer(bandtesting.Validators[1].ValAddress.Bytes()),
 	)
 	require.NoError(err)
 	require.Equal(sdk.Coins{}, s.app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
@@ -357,13 +357,13 @@ func (s *ABCITestSuite) TestAllocateTokensWithDistrAllocateTokens() {
 		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(3, 1)}},
 		feePool.CommunityPool,
 	)
-	valOutReward, err := s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtest.Validators[0].ValAddress)
+	valOutReward, err := s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtesting.Validators[0].ValAddress)
 	require.NoError(err)
 	require.Equal(
 		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(4529, 2)}},
 		valOutReward.Rewards,
 	)
-	valOutReward, err = s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtest.Validators[1].ValAddress)
+	valOutReward, err = s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtesting.Validators[1].ValAddress)
 	require.NoError(err)
 	require.Equal(
 		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(441, 2)}},
