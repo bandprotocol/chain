@@ -290,10 +290,16 @@ func NewBandApp(
 		panic(fmt.Errorf("failed to create ante handler: %s", err))
 	}
 
+	postHandler, err := NewPostHandler(
+		PostHandlerOptions{},
+	)
+	if err != nil {
+		panic(fmt.Errorf("failed to create post handler: %s", err))
+	}
+
 	// set ante and post handlers
 	app.SetAnteHandler(anteHandler)
-	// TODO: Check post hadler
-	// app.SetPostHandler(postHandler)
+	app.SetPostHandler(postHandler)
 
 	app.SetInitChainer(app.InitChainer)
 	app.SetPreBlocker(app.PreBlocker)
