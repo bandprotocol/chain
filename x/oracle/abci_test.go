@@ -157,9 +157,9 @@ func (s *ABCITestSuite) TestAllocateTokensCalledOnBeginBlock() {
 	)
 	// If there are no validators active, Calling begin block should be no-op.
 	_, err = s.app.BeginBlocker(
-		ctx.WithHeaderInfo(header.Info{
-			Hash: fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
-		}).WithVoteInfos(votes),
+		ctx.WithHeaderInfo(header.Info{Hash: fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")}).
+			WithVoteInfos(votes).
+			WithProposer(bandtest.Validators[0].ValAddress.Bytes()),
 	)
 	require.NoError(err)
 	require.Equal(
@@ -171,9 +171,9 @@ func (s *ABCITestSuite) TestAllocateTokensCalledOnBeginBlock() {
 	err = k.Activate(ctx, bandtest.Validators[1].ValAddress)
 	require.NoError(err)
 	_, err = s.app.BeginBlocker(
-		ctx.WithHeaderInfo(header.Info{
-			Hash: fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
-		}).WithVoteInfos(votes),
+		ctx.WithHeaderInfo(header.Info{Hash: fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")}).
+			WithVoteInfos(votes).
+			WithProposer(bandtest.Validators[0].ValAddress.Bytes()),
 	)
 	require.NoError(err)
 	require.Equal(
@@ -206,9 +206,9 @@ func (s *ABCITestSuite) TestAllocateTokensCalledOnBeginBlock() {
 	require.NoError(err)
 
 	_, err = s.app.BeginBlocker(
-		ctx.WithHeaderInfo(header.Info{
-			Hash: fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
-		}).WithVoteInfos(votes),
+		ctx.WithHeaderInfo(header.Info{Hash: fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")}).
+			WithVoteInfos(votes).
+			WithProposer(bandtest.Validators[0].ValAddress.Bytes()),
 	)
 	require.NoError(err)
 	require.Equal(
@@ -244,9 +244,9 @@ func (s *ABCITestSuite) TestAllocateTokensCalledOnBeginBlock() {
 	// 1 validator becomes inactive, and will not get reward this time.
 	k.MissReport(ctx, bandtest.Validators[1].ValAddress, bandtesting.ParseTime(100))
 	_, err = s.app.BeginBlocker(
-		ctx.WithHeaderInfo(header.Info{
-			Hash: fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
-		}).WithVoteInfos(votes),
+		ctx.WithHeaderInfo(header.Info{Hash: fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")}).
+			WithVoteInfos(votes).
+			WithProposer(bandtest.Validators[0].ValAddress.Bytes()),
 	)
 	require.NoError(err)
 	require.Equal(
@@ -265,49 +265,12 @@ func (s *ABCITestSuite) TestAllocateTokensCalledOnBeginBlock() {
 		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(194, 0)}},
 		feePool.CommunityPool,
 	)
-	// 1440.6uband + 630*98% = 2058uband
+	// Since the validator is the only one active, it will get all the remaining fee pool.
+	// 1440.6uband + 618 = 2058.6uband
 	valOutReward, err = s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtest.Validators[0].ValAddress)
 	require.NoError(err)
 	require.Equal(
-		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(2058, 0)}},
-		valOutReward.Rewards,
-	)
-	// 7477.4uband
-	valOutReward, err = s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtest.Validators[1].ValAddress)
-	require.NoError(err)
-	require.Equal(
-		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(74774, 1)}},
-		valOutReward.Rewards,
-	)
-
-	// 1 validator active, this time the fee pool will receive remaining band from last block.
-	_, err = s.app.BeginBlocker(
-		ctx.WithHeaderInfo(header.Info{
-			Hash: fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
-		}).WithVoteInfos(votes),
-	)
-	require.NoError(err)
-	require.Equal(
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 81)),
-		s.app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()),
-	)
-	require.Equal(
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 9919)),
-		s.app.BankKeeper.GetAllBalances(ctx, distModule.GetAddress()),
-	)
-	// 194.6uband + 189*2% = 198.38 but fund community pool function only distribute
-	// to fee pool in integer amount so it will be 198uband.
-	feePool, err = s.app.DistrKeeper.FeePool.Get(ctx)
-	require.NoError(err)
-	require.Equal(
-		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(198, 0)}},
-		feePool.CommunityPool,
-	)
-	// 2058uband + 189*98% = 2243.22uband
-	valOutReward, err = s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtest.Validators[0].ValAddress)
-	require.NoError(err)
-	require.Equal(
-		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(224322, 2)}},
+		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(20586, 1)}},
 		valOutReward.Rewards,
 	)
 	// 7477.4uband
@@ -360,33 +323,27 @@ func (s *ABCITestSuite) TestAllocateTokensWithDistrAllocateTokens() {
 	err = k.SetParams(ctx, params)
 	require.NoError(err)
 
-	// Set block proposer to Validators[1].
-	err = s.app.DistrKeeper.SetPreviousProposerConsAddr(ctx, bandtest.Validators[1].Address.Bytes())
-	require.NoError(err)
-	require.Equal(
-		sdk.NewCoins(sdk.NewInt64Coin("uband", 50)),
-		s.app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()),
-	)
 	// Only Validators[0] active. After we call begin block:
 	//   35uband = 70% go to oracle pool
-	//     0.7uband (2%) go to community pool
-	//     34.3uband go to Validators[0] (active)
+	//     0.7uband (2%) -> 0uband go to community pool because oracle pool only distribute to fee pool in integer amount
+	//     35uband go to Validators[0] (active)
 	//   15uband = 30% go to distr pool
 	//     0.3uband (2%) go to community pool
 	//     14.7uband split among voters
 	//        10.29uband (70%) go to Validators[0]
 	//        4.41uband (30%) go to Validators[1]
 	// In summary
-	//   Community pool: 0.7 + 0.3 = 1 but oracle pool only distribute to fee pool in integer amount
+	//   Community pool: 0.3 = 1 but oracle pool only distribute to fee pool in integer amount
 	//     so it will be 0.3uband.
-	//   Validators[0]: 34.3 + 10.29 = 44.59
+	//   Validators[0]: 35 + 10.29 = 45.29
 	//   Validators[1]: 4.41
 	err = k.Activate(ctx, bandtest.Validators[0].ValAddress)
 	require.NoError(err)
+	// begin block with Validators[1] as proposer
 	_, err = s.app.BeginBlocker(
-		ctx.WithHeaderInfo(header.Info{
-			Hash: fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
-		}).WithVoteInfos(votes),
+		ctx.WithHeaderInfo(header.Info{Hash: fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")}).
+			WithVoteInfos(votes).
+			WithProposer(bandtest.Validators[1].ValAddress.Bytes()),
 	)
 	require.NoError(err)
 	require.Equal(sdk.Coins{}, s.app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
@@ -403,13 +360,13 @@ func (s *ABCITestSuite) TestAllocateTokensWithDistrAllocateTokens() {
 	valOutReward, err := s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtest.Validators[0].ValAddress)
 	require.NoError(err)
 	require.Equal(
-		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(44590, 3)}},
+		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(4529, 2)}},
 		valOutReward.Rewards,
 	)
 	valOutReward, err = s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtest.Validators[1].ValAddress)
 	require.NoError(err)
 	require.Equal(
-		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(4410, 3)}},
+		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(441, 2)}},
 		valOutReward.Rewards,
 	)
 }
