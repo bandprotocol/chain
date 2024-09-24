@@ -196,7 +196,6 @@ func NewBandApp(
 	app.mm = module.NewManager(appModules(app, appCodec, txConfig, skipGenesisInvariants)...)
 	app.ModuleBasics = newBasicManagerFromManager(app)
 
-	// TODO: Check new sign mode
 	enabledSignModes := append([]sigtypes.SignMode(nil), authtx.DefaultSignModes...)
 	enabledSignModes = append(enabledSignModes, sigtypes.SignMode_SIGN_MODE_TEXTUAL)
 
