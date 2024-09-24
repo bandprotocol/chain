@@ -97,7 +97,6 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) {
 		// Should never hit
 		panic(err)
 	}
-
 }
 
 // GetValidatorStatus returns the validator status for the given validator. Note that validator
