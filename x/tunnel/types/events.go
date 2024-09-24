@@ -15,6 +15,7 @@ const (
 	AttributeKeyInterval         = "interval"
 	AttributeKeyRoute            = "route"
 	AttributeKeyEncoder          = "encoder"
+	AttributeKeyInitialDeposit   = "initial_deposit"
 	AttributeKeyFeePayer         = "fee_payer"
 	AttributeKeySignalPriceInfos = "signal_price_infos"
 	AttributeKeyIsActive         = "is_active"
