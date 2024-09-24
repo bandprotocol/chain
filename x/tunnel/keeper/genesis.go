@@ -13,6 +13,10 @@ func validateLastSignalPricesList(
 	tunnels []types.Tunnel,
 	lsps []types.LatestSignalPrices,
 ) error {
+	if len(tunnels) != len(lsps) {
+		return fmt.Errorf("tunnels and latest signal prices list length mismatch")
+	}
+
 	tunnelMap := make(map[uint64]bool)
 	for _, t := range tunnels {
 		tunnelMap[t.ID] = true
