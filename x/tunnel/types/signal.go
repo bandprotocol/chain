@@ -1,5 +1,7 @@
 package types
 
+import "fmt"
+
 // NewSignalDeviation creates a new SignalDeviation instance.
 func NewSignalDeviation(
 	signalID string,
@@ -24,6 +26,20 @@ func NewLatestSignalPrices(
 		SignalPrices: signalPrices,
 		Timestamp:    timestamp,
 	}
+}
+
+// Validate validates the latest signal prices.
+func (latestSignalPrices LatestSignalPrices) Validate() error {
+	if latestSignalPrices.TunnelID == 0 {
+		return fmt.Errorf("tunnel ID cannot be 0")
+	}
+	if len(latestSignalPrices.SignalPrices) == 0 {
+		return fmt.Errorf("signal prices cannot be empty")
+	}
+	if latestSignalPrices.Timestamp < 0 {
+		return fmt.Errorf("timestamp cannot be negative")
+	}
+	return nil
 }
 
 // UpdateSignalPrices updates the signal prices in the latest signal prices.

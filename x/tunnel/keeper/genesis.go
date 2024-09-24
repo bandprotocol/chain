@@ -8,6 +8,31 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
+// validateLastSignalPricesList validates the latest signal prices list.
+func validateLastSignalPricesList(
+	tunnels []types.Tunnel,
+	lsps []types.LatestSignalPrices,
+) error {
+	if len(tunnels) != len(lsps) {
+		return fmt.Errorf("tunnels and latest signal prices list length mismatch")
+	}
+
+	tunnelMap := make(map[uint64]bool)
+	for _, t := range tunnels {
+		tunnelMap[t.ID] = true
+	}
+
+	for _, lsp := range lsps {
+		if _, ok := tunnelMap[lsp.TunnelID]; !ok {
+			return fmt.Errorf("tunnel ID %d not found in tunnels", lsp.TunnelID)
+		}
+		if err := lsp.Validate(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // ValidateGenesis validates the provided genesis state.
 func ValidateGenesis(data *types.GenesisState) error {
 	// validate the tunnel count
@@ -28,13 +53,8 @@ func ValidateGenesis(data *types.GenesisState) error {
 	}
 
 	// validate latest signal prices
-	for _, lsp := range data.LatestSignalPricesList {
-		if lsp.TunnelID == 0 || lsp.TunnelID > data.TunnelCount {
-			return types.ErrInvalidGenesis.Wrapf("tunnel count mismatch in latest signal prices")
-		}
-		if err := lsp.ValidateBasic(); err != nil {
-			return types.ErrInvalidGenesis.Wrapf("invalid latest signal prices: %s", err.Error())
-		}
+	if err := validateLastSignalPricesList(data.Tunnels, data.LatestSignalPricesList); err != nil {
+		return types.ErrInvalidGenesis.Wrapf("invalid latest signal prices: %s", err.Error())
 	}
 
 	// validate the total fees
