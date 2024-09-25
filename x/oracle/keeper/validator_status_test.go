@@ -89,9 +89,15 @@ func (suite *KeeperTestSuite) TestAllocateTokensOneActive() {
 	suite.distrKeeper.EXPECT().GetCommunityTax(gomock.Any()).Return(math.LegacyNewDecWithPrec(2, 2), nil)
 	suite.distrKeeper.EXPECT().
 		AllocateTokensToValidator(gomock.Any(), validators[1].Validator, sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDec(686000)}})
+	suite.distrKeeper.EXPECT().
+		AllocateTokensToValidator(gomock.Any(), validators[1].Validator, (sdk.DecCoins)(nil))
 	distAcc := authtypes.NewEmptyModuleAccount(distrtypes.ModuleName)
 	suite.mockFundCommunityPool(sdk.NewCoins(sdk.NewInt64Coin("uband", 14000)), distAcc.GetAddress())
 	suite.authKeeper.EXPECT().GetModuleAccount(gomock.Any(), distrtypes.ModuleName).Return(distAcc)
+	suite.stakingKeeper.EXPECT().Validator(gomock.Any(), validators[1].Address).Return(validators[1].Validator, nil)
+
+	// Set validator 1 as the proposer
+	ctx = ctx.WithProposer(validators[1].Address.Bytes())
 
 	k.AllocateTokens(ctx, defaultVotes)
 }

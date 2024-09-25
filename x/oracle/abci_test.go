@@ -27,9 +27,6 @@ type ABCITestSuite struct {
 	suite.Suite
 
 	app *band.BandApp
-
-	// For test teardown
-	dir string
 }
 
 func TestABCITestSuite(t *testing.T) {
@@ -125,7 +122,7 @@ func (s *ABCITestSuite) TestAllocateTokensCalledOnBeginBlock() {
 		BlockIdFlag: tmproto.BlockIDFlagCommit,
 	}}
 
-	// Set collected fee to 100uband + 70% oracle reward proportion + disable minting inflation.
+	// Set collected fee to 10000uband + 70% oracle reward proportion + disable minting inflation.
 	feeCollector := s.app.AccountKeeper.GetModuleAccount(ctx, authtypes.FeeCollectorName)
 	err := s.app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("uband", 10000)))
 	require.NoError(err)
@@ -188,7 +185,7 @@ func (s *ABCITestSuite) TestAllocateTokensCalledOnBeginBlock() {
 	feePool, err := s.app.DistrKeeper.FeePool.Get(ctx)
 	require.NoError(err)
 	require.Equal(
-		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(140, 0)}},
+		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDec(140)}},
 		feePool.CommunityPool,
 	)
 	// 0uband
@@ -197,11 +194,11 @@ func (s *ABCITestSuite) TestAllocateTokensCalledOnBeginBlock() {
 	valOutReward, err := s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtesting.Validators[1].ValAddress)
 	require.NoError(err)
 	require.Equal(
-		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(6860, 0)}},
+		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDec(6860)}},
 		valOutReward.Rewards,
 	)
 
-	// 2 validators active now. 70% of the remaining fee pool will be split 3 ways (comm pool + val1 + val2).
+	// 2 validators active now. 70% of the remaining fee pool will be split 3 ways (comm pool + val0 + val1).
 	err = k.Activate(ctx, bandtesting.Validators[0].ValAddress)
 	require.NoError(err)
 
@@ -223,7 +220,7 @@ func (s *ABCITestSuite) TestAllocateTokensCalledOnBeginBlock() {
 	feePool, err = s.app.DistrKeeper.FeePool.Get(ctx)
 	require.NoError(err)
 	require.Equal(
-		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(182, 0)}},
+		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDec(182)}},
 		feePool.CommunityPool,
 	)
 	// 3000*70%*98%*70% = 1440.6uband
@@ -262,7 +259,7 @@ func (s *ABCITestSuite) TestAllocateTokensCalledOnBeginBlock() {
 	feePool, err = s.app.DistrKeeper.FeePool.Get(ctx)
 	require.NoError(err)
 	require.Equal(
-		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(194, 0)}},
+		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDec(194)}},
 		feePool.CommunityPool,
 	)
 	// Since the validator is the only one active, it will get all the remaining fee pool.
@@ -278,6 +275,112 @@ func (s *ABCITestSuite) TestAllocateTokensCalledOnBeginBlock() {
 	require.NoError(err)
 	require.Equal(
 		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(74774, 1)}},
+		valOutReward.Rewards,
+	)
+}
+
+func (s *ABCITestSuite) TestAllocateTokensToProposer() {
+	k := s.app.OracleKeeper
+	ctx := s.app.BaseApp.NewUncachedContext(false, tmproto.Header{})
+	require := s.Require()
+
+	votes := []abci.VoteInfo{
+		{
+			Validator:   abci.Validator{Address: bandtesting.Validators[0].PubKey.Address(), Power: 1},
+			BlockIdFlag: tmproto.BlockIDFlagCommit,
+		},
+		{
+			Validator:   abci.Validator{Address: bandtesting.Validators[1].PubKey.Address(), Power: 1},
+			BlockIdFlag: tmproto.BlockIDFlagCommit,
+		},
+		{
+			Validator:   abci.Validator{Address: bandtesting.Validators[2].PubKey.Address(), Power: 1},
+			BlockIdFlag: tmproto.BlockIDFlagCommit,
+		},
+	}
+
+	// Set collected fee to 100uband + 70% oracle reward proportion + disable minting inflation.
+	feeCollector := s.app.AccountKeeper.GetModuleAccount(ctx, authtypes.FeeCollectorName)
+	err := s.app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewInt64Coin("uband", 102)))
+	require.NoError(err)
+	err = s.app.BankKeeper.SendCoinsFromModuleToModule(
+		ctx,
+		minttypes.ModuleName,
+		authtypes.FeeCollectorName,
+		sdk.NewCoins(sdk.NewInt64Coin("uband", 102)),
+	)
+	require.NoError(err)
+	s.app.AccountKeeper.SetAccount(ctx, feeCollector)
+
+	distModule := s.app.AccountKeeper.GetModuleAccount(ctx, distrtypes.ModuleName)
+
+	mintParams, err := s.app.MintKeeper.Params.Get(ctx)
+	require.NoError(err)
+	mintParams.InflationMin = math.LegacyZeroDec()
+	mintParams.InflationMax = math.LegacyZeroDec()
+	err = s.app.MintKeeper.Params.Set(ctx, mintParams)
+	require.NoError(err)
+
+	params := k.GetParams(ctx)
+	params.OracleRewardPercentage = 100
+	err = k.SetParams(ctx, params)
+	require.NoError(err)
+	require.Equal(
+		sdk.NewCoins(sdk.NewInt64Coin("uband", 102)),
+		s.app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()),
+	)
+
+	// 3 validators active now. 70% of the remaining fee pool will be split 4 ways (comm pool + val0 + val1 + val2).
+	err = k.Activate(ctx, bandtesting.Validators[0].ValAddress)
+	require.NoError(err)
+	err = k.Activate(ctx, bandtesting.Validators[1].ValAddress)
+	require.NoError(err)
+	err = k.Activate(ctx, bandtesting.Validators[2].ValAddress)
+	require.NoError(err)
+
+	_, err = s.app.BeginBlocker(
+		ctx.WithHeaderInfo(header.Info{Hash: fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff")}).
+			WithVoteInfos(votes).
+			WithProposer(bandtesting.Validators[2].ValAddress.Bytes()),
+	)
+	require.NoError(err)
+	require.Equal(
+		sdk.NewCoins(sdk.NewInt64Coin("uband", 0)),
+		s.app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()),
+	)
+	require.Equal(
+		sdk.NewCoins(sdk.NewInt64Coin("uband", 102)),
+		s.app.BankKeeper.GetAllBalances(ctx, distModule.GetAddress()),
+	)
+	// 102*2% = 2.04uband but fund community pool function only distribute
+	// to fee pool in integer amount so it will be 2uband.
+	feePool, err := s.app.DistrKeeper.FeePool.Get(ctx)
+	require.NoError(err)
+	require.Equal(
+		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDec(2)}},
+		feePool.CommunityPool,
+	)
+	// 100/3 = 33.3333333333333333uband
+	valOutReward, err := s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtesting.Validators[0].ValAddress)
+	require.NoError(err)
+	require.Equal(
+		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(333333333333333333, 16)}},
+		valOutReward.Rewards,
+	)
+	// 100/3 = 33.3333333333333333uband
+	valOutReward, err = s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtesting.Validators[1].ValAddress)
+	require.NoError(err)
+	require.Equal(
+		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(333333333333333333, 16)}},
+		valOutReward.Rewards,
+	)
+	// 100/3 = 33.3333333333333333uband
+	// but the proposer get the remaining 0.0000000000000001uband
+	// so the proposer will get 33.3333333333333334uband
+	valOutReward, err = s.app.DistrKeeper.GetValidatorOutstandingRewards(ctx, bandtesting.Validators[2].ValAddress)
+	require.NoError(err)
+	require.Equal(
+		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDecWithPrec(333333333333333334, 16)}},
 		valOutReward.Rewards,
 	)
 }
