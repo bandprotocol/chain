@@ -302,7 +302,7 @@ func generateOracleScripts(homePath string) []oracletypes.OracleScript {
 
 // SetupWithCustomHome initializes a new BandApp with a custom home directory
 func SetupWithCustomHome(isCheckTx bool, dir string) *band.BandApp {
-	return SetupWithCustomHomeAndChainId(isCheckTx, dir, "bandchain")
+	return SetupWithCustomHomeAndChainId(isCheckTx, dir, ChainID)
 }
 
 func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string) *band.BandApp {
