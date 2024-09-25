@@ -421,10 +421,10 @@ func GenTx(
 		}
 
 		sigs[i] = sig
-		err = txBuilder.SetSignatures(sigs...)
-		if err != nil {
-			panic(err)
-		}
+	}
+
+	if err = txBuilder.SetSignatures(sigs...); err != nil {
+		panic(err)
 	}
 
 	return txBuilder.GetTx(), nil
