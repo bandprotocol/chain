@@ -69,10 +69,12 @@ func LatestSignalPricesStoreKey(tunnelID uint64) []byte {
 	return append(LatestSignalPricesStoreKeyPrefix, sdk.Uint64ToBigEndian(tunnelID)...)
 }
 
+// DepositsStoreKey returns the key to retrieve all deposits of a tunnel from the store.
 func DepositsStoreKey(tunnelID uint64) []byte {
 	return append(DepositStoreKeyPrefix, sdk.Uint64ToBigEndian(tunnelID)...)
 }
 
+// DepositStoreKey returns the key to retrieve a deposit of a tunnel from the store.
 func DepositStoreKey(tunnelID uint64, depositor sdk.AccAddress) []byte {
 	return append(DepositsStoreKey(tunnelID), address.MustLengthPrefix(depositor)...)
 }
