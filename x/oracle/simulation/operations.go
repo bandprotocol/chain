@@ -143,6 +143,15 @@ func SimulateMsgRequestData(
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		simAccount, _ := simtypes.RandomAcc(r, accs)
 
+		params := keeper.GetParams(ctx)
+		if params.MaxRawRequestCount < 3 {
+			return simtypes.NoOpMsg(
+				types.ModuleName,
+				types.MsgRequestData{}.Type(),
+				"max raw request count less than provided oracle script",
+			), nil, nil
+		}
+
 		// Get deployed oracle script from one of random accounts for sending request to.
 		oCount := keeper.GetOracleScriptCount(ctx)
 		oid := types.OracleScriptID(0)
