@@ -192,7 +192,7 @@ func initRootCmd(
 	ac := appCreator{}
 
 	rootCmd.AddCommand(
-		genutilcli.InitCmd(basicManager, band.DefaultNodeHome),
+		InitCmd(band.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		confixcmd.ConfigCommand(),
 		pruning.Cmd(ac.newApp, band.DefaultNodeHome),
