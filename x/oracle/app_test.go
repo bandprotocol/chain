@@ -90,8 +90,8 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 		types.OracleScriptID(1),
 		[]byte("calldata"),
 		[]sdk.ValAddress{
-			bandtesting.Validators[2].ValAddress,
 			bandtesting.Validators[0].ValAddress,
+			bandtesting.Validators[2].ValAddress,
 			bandtesting.Validators[1].ValAddress,
 		},
 		2,
