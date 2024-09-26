@@ -87,7 +87,7 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) {
 	}
 
 	// Remaining tokens are sent to proposer.
-	proposer, err := k.stakingKeeper.Validator(ctx, ctx.BlockHeader().ProposerAddress)
+	proposer, err := k.stakingKeeper.ValidatorByConsAddr(ctx, ctx.BlockHeader().ProposerAddress)
 	if err != nil {
 		// Should never hit
 		panic(err)
