@@ -9,7 +9,6 @@ const (
 	EventTypeDeactivate        = "deactivate"
 	EventTypeTriggerTunnel     = "trigger_tunnel"
 	EventTypeProducePacketFail = "produce_packet_fail"
-	EventTypeSendIBCPacketFail = "send_ibc_packet_fail"
 
 	AttributeKeyParams           = "params"
 	AttributeKeyTunnelID         = "tunnel_id"

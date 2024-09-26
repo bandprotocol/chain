@@ -23,4 +23,5 @@ var (
 	ErrDepositNotFound            = errorsmod.Register(ModuleName, 16, "deposit not found")
 	ErrInsufficientDeposit        = errorsmod.Register(ModuleName, 17, "insufficient deposit")
 	ErrInvalidIBCVersion          = errorsmod.Register(ModuleName, 18, "invalid IBC version")
+	ErrChannelCapabilityNotFound  = errorsmod.Register(ModuleName, 19, "channel capability not found")
 )

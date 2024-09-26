@@ -160,6 +160,8 @@ func (k Keeper) SendPacket(
 		content, err = k.SendTSSPacket(ctx, r, packet)
 	case *types.AxelarRoute:
 		content, err = k.SendAxelarPacket(ctx, r, packet)
+	case *types.IBCRoute:
+		content, err = k.SendIBCPacket(ctx, r, packet)
 	default:
 		return types.ErrInvalidRoute.Wrapf("no route found for tunnel ID: %d", tunnel.ID)
 	}

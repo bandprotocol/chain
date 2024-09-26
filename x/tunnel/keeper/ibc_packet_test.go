@@ -9,7 +9,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
-func (s *KeeperTestSuite) TestIBCPacketHandler() {
+func (s *KeeperTestSuite) TestSendIBCPacket() {
 	ctx, k := s.ctx, s.keeper
 
 	route := &types.IBCRoute{
@@ -27,9 +27,10 @@ func (s *KeeperTestSuite) TestIBCPacketHandler() {
 		SendPacket(ctx, gomock.Any(), types.PortID, route.ChannelID, gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(uint64(0), nil)
 
-	k.IBCPacketHandler(ctx, route, packet)
-
-	packet, err := k.GetPacket(ctx, packet.TunnelID, packet.Nonce)
+	content, err := k.SendIBCPacket(ctx, route, packet)
 	s.Require().NoError(err)
-	s.Require().NotNil(packet)
+
+	packetContent, ok := content.(*types.IBCPacketContent)
+	s.Require().True(ok)
+	s.Require().Equal("channel-0", packetContent.ChannelID)
 }

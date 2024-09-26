@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"fmt"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,17 +14,16 @@ const (
 	packetExpireTime = int64(10 * time.Minute)
 )
 
-// IBCPacketHandler func
-func (k Keeper) IBCPacketHandler(ctx sdk.Context, route *types.IBCRoute, packet types.Packet) {
+// SendIBCPacket sends IBC packet
+func (k Keeper) SendIBCPacket(
+	ctx sdk.Context,
+	route *types.IBCRoute,
+	packet types.Packet,
+) (types.PacketContentI, error) {
 	// retrieve the dynamic capability for this channel
 	channelCap, ok := k.scopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(types.PortID, route.ChannelID))
 	if !ok {
-		ctx.EventManager().EmitEvent(sdk.NewEvent(
-			types.EventTypeSendIBCPacketFail,
-			sdk.NewAttribute(types.AttributeKeyReason, "Module does not own channel capability"),
-		))
-
-		return
+		return nil, types.ErrChannelCapabilityNotFound
 	}
 
 	// create the IBC packet result bytes
@@ -46,20 +44,12 @@ func (k Keeper) IBCPacketHandler(ctx sdk.Context, route *types.IBCRoute, packet 
 		uint64(ctx.BlockTime().UnixNano()+packetExpireTime),
 		resultBytes,
 	); err != nil {
-		ctx.EventManager().EmitEvent(sdk.NewEvent(
-			types.EventTypeSendIBCPacketFail,
-			sdk.NewAttribute(types.AttributeKeyReason, fmt.Sprintf("Unable to send packet: %s", err)),
-		))
+		return nil, err
 	}
 
-	// set the packet content
 	packetContent := types.IBCPacketContent{
 		ChannelID: route.ChannelID,
 	}
-	err := packet.SetPacketContent(&packetContent)
-	if err != nil {
-		panic(fmt.Errorf("failed to set packet content: %w", err))
-	}
 
-	k.SetPacket(ctx, packet)
+	return &packetContent, nil
 }
