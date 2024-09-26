@@ -475,6 +475,7 @@ func (app *BandApp) setupUpgradeStoreLoaders() {
 	}
 }
 
+// set all upgrade handlers
 func (app *BandApp) setupUpgradeHandlers() {
 	for _, upgrade := range Upgrades {
 		app.UpgradeKeeper.SetUpgradeHandler(
