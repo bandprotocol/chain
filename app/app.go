@@ -50,7 +50,6 @@ import (
 	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
-	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/bandprotocol/chain/v3/app/keepers"
@@ -100,20 +99,6 @@ func init() {
 	}
 
 	DefaultNodeHome = filepath.Join(userHomeDir, ".band")
-}
-
-// TODO: Relocate this function to somewhere
-// SetBech32AddressPrefixesAndBip44CoinTypeAndSeal sets the global Bech32 prefixes and HD wallet coin type and seal config.
-func SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(config *sdk.Config) {
-	accountPrefix := Bech32MainPrefix
-	validatorPrefix := Bech32MainPrefix + sdk.PrefixValidator + sdk.PrefixOperator
-	consensusPrefix := Bech32MainPrefix + sdk.PrefixValidator + sdk.PrefixConsensus
-	config.SetCoinType(Bip44CoinType)
-	config.SetBech32PrefixForAccount(accountPrefix, accountPrefix+sdk.PrefixPublic)
-	config.SetBech32PrefixForValidator(validatorPrefix, validatorPrefix+sdk.PrefixPublic)
-	config.SetBech32PrefixForConsensusNode(consensusPrefix, consensusPrefix+sdk.PrefixPublic)
-
-	config.Seal()
 }
 
 // NewBandApp returns a reference to an initialized BandApp.
@@ -480,6 +465,7 @@ func (app *BandApp) setupUpgradeStoreLoaders() {
 	}
 }
 
+// set all upgrade handlers
 func (app *BandApp) setupUpgradeHandlers() {
 	for _, upgrade := range Upgrades {
 		app.UpgradeKeeper.SetUpgradeHandler(
@@ -511,21 +497,4 @@ func (app *BandApp) AutoCliOpts() autocli.AppOptions {
 		ValidatorAddressCodec: authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
 		ConsensusAddressCodec: authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
 	}
-}
-
-// TestingApp functions
-
-// GetBaseApp implements the TestingApp interface.
-func (app *BandApp) GetBaseApp() *baseapp.BaseApp {
-	return app.BaseApp
-}
-
-// GetTxConfig implements the TestingApp interface.
-func (app *BandApp) GetTxConfig() client.TxConfig {
-	return app.txConfig
-}
-
-// GetTestGovKeeper implements the TestingApp interface.
-func (app *BandApp) GetTestGovKeeper() *govkeeper.Keeper {
-	return app.AppKeepers.GovKeeper
 }
