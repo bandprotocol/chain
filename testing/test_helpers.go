@@ -19,6 +19,8 @@ import (
 
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
+	"cosmossdk.io/store/snapshots"
+	snapshottypes "cosmossdk.io/store/snapshots/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -307,6 +309,17 @@ func SetupWithCustomHome(isCheckTx bool, dir string) *band.BandApp {
 
 func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string) *band.BandApp {
 	db := cosmosdb.NewMemDB()
+
+	snapshotDir := filepath.Join(dir, "data", "snapshots")
+	snapshotDB, err := cosmosdb.NewDB("metadata", cosmosdb.GoLevelDBBackend, snapshotDir)
+	if err != nil {
+		panic(err)
+	}
+	snapshotStore, err := snapshots.NewStore(snapshotDB, snapshotDir)
+	if err != nil {
+		panic(err)
+	}
+
 	app := band.NewBandApp(
 		log.NewNopLogger(),
 		db,
@@ -317,6 +330,7 @@ func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string) *band.Ba
 		sims.EmptyAppOptions{},
 		100,
 		baseapp.SetChainID(chainId),
+		baseapp.SetSnapshot(snapshotStore, snapshottypes.SnapshotOptions{KeepRecent: 2}),
 	)
 	if !isCheckTx {
 		genesisState := GenesisStateWithValSet(app, dir)
