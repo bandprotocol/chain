@@ -27,7 +27,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/grpc/cmtservice"
-	nodeservice "github.com/cosmos/cosmos-sdk/client/grpc/node"
+	cosmosnodeservice "github.com/cosmos/cosmos-sdk/client/grpc/node"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/codec/types"
@@ -55,6 +55,8 @@ import (
 	"github.com/bandprotocol/chain/v3/app/keepers"
 	"github.com/bandprotocol/chain/v3/app/upgrades"
 	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
+	nodeservice "github.com/bandprotocol/chain/v3/client/grpc/node"
+	proofservice "github.com/bandprotocol/chain/v3/client/grpc/oracle/proof"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
 )
 
@@ -143,7 +145,8 @@ func NewBandApp(
 		logger,
 		db,
 		txConfig.TxDecoder(),
-		baseAppOptions...)
+		baseAppOptions...,
+	)
 
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetVersion(version.Version)
@@ -425,6 +428,8 @@ func (app *BandApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICo
 
 	// Register grpc-gateway routes for additional services
 	nodeservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+	proofservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
+	cosmosnodeservice.RegisterGRPCGatewayRoutes(clientCtx, apiSvr.GRPCGatewayRouter)
 
 	// register swagger API from root so that other applications can override easily
 	if err := server.RegisterSwaggerAPI(apiSvr.ClientCtx, apiSvr.Router, apiConfig.Swagger); err != nil {
@@ -435,6 +440,8 @@ func (app *BandApp) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APICo
 // RegisterNodeService allows query minimum-gas-prices in app.toml
 func (app *BandApp) RegisterNodeService(clientCtx client.Context, cfg config.Config) {
 	nodeservice.RegisterNodeService(clientCtx, app.GRPCQueryRouter(), cfg)
+	proofservice.RegisterProofService(clientCtx, app.GRPCQueryRouter(), cfg)
+	cosmosnodeservice.RegisterNodeService(clientCtx, app.GRPCQueryRouter(), cfg)
 }
 
 // RegisterTxService implements the Application.RegisterTxService method.
