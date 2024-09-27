@@ -4,7 +4,7 @@ package keeper_test
 // import (
 // 	"testing"
 
-// 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+// 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 // 	sdk "github.com/cosmos/cosmos-sdk/types"
 // 	"github.com/stretchr/testify/assert"
 // 	"github.com/stretchr/testify/require"
@@ -28,7 +28,7 @@ package keeper_test
 
 // 	// restore snapshot
 // 	destApp := bandtesting.SetupWithEmptyStore(t, "testing")
-// 	destCtx := destApp.NewUncachedContext(false, tmproto.Header{})
+// 	destCtx := destApp.NewUncachedContext(false, cmtproto.Header{})
 // 	destKeeper := destApp.OracleKeeper
 // 	require.NoError(t, destApp.SnapshotManager().Restore(*snapshot))
 // 	for i := uint32(0); i < snapshot.Chunks; i++ {

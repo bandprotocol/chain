@@ -8,7 +8,7 @@ package proof
 // 	"github.com/cometbft/cometbft/crypto/secp256k1"
 // 	"github.com/cometbft/cometbft/crypto/tmhash"
 // 	"github.com/cometbft/cometbft/libs/protoio"
-// 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+// 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 // 	"github.com/cometbft/cometbft/types"
 // 	"github.com/ethereum/go-ethereum/common"
 // 	"github.com/ethereum/go-ethereum/crypto"
@@ -48,10 +48,10 @@ package proof
 // 	return nil, 0, fmt.Errorf("no match address found")
 // }
 
-// func GetPrefix(t tmproto.SignedMsgType, height int64, round int64) ([]byte, error) {
+// func GetPrefix(t cmtproto.SignedMsgType, height int64, round int64) ([]byte, error) {
 // 	fmt.Println(t, height, round)
 // 	prefix, err := protoio.MarshalDelimited(
-// 		&tmproto.CanonicalVote{
+// 		&cmtproto.CanonicalVote{
 // 			Type:   t,
 // 			Height: height,
 // 			Round:  round,
@@ -70,7 +70,7 @@ package proof
 // 	addrs := []string{}
 // 	mapAddrs := map[string]TMSignature{}
 
-// 	prefix, err := GetPrefix(tmproto.SignedMsgType(info.Commit.Type()), info.Commit.Height, int64(info.Commit.Round))
+// 	prefix, err := GetPrefix(cmtproto.SignedMsgType(info.Commit.Type()), info.Commit.Height, int64(info.Commit.Round))
 // 	if err != nil {
 // 		return nil, CommonEncodedVotePart{}, err
 // 	}
@@ -82,7 +82,7 @@ package proof
 // 	prefix = append(prefix, []byte{34, 72, 10, 32}...)
 
 // 	suffix, err := protoio.MarshalDelimited(
-// 		&tmproto.CanonicalPartSetHeader{
+// 		&cmtproto.CanonicalPartSetHeader{
 // 			Total: info.Commit.BlockID.PartSetHeader.Total,
 // 			Hash:  info.Commit.BlockID.PartSetHeader.Hash,
 // 		},

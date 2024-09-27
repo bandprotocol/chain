@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	abci "github.com/cometbft/cometbft/abci/types"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"cosmossdk.io/math"
 
@@ -34,19 +34,19 @@ var (
 		Votes: []abci.VoteInfo{
 			{
 				Validator:   abci.Validator{Address: bandtesting.Validators[0].PubKey.Address().Bytes(), Power: 100},
-				BlockIdFlag: tmproto.BlockIDFlagCommit,
+				BlockIdFlag: cmtproto.BlockIDFlagCommit,
 			},
 			{
 				Validator:   abci.Validator{Address: bandtesting.Validators[1].PubKey.Address().Bytes(), Power: 100},
-				BlockIdFlag: tmproto.BlockIDFlagCommit,
+				BlockIdFlag: cmtproto.BlockIDFlagCommit,
 			},
 			{
 				Validator:   abci.Validator{Address: bandtesting.Validators[2].PubKey.Address().Bytes(), Power: 100},
-				BlockIdFlag: tmproto.BlockIDFlagCommit,
+				BlockIdFlag: cmtproto.BlockIDFlagCommit,
 			},
 			{
 				Validator:   abci.Validator{Address: bandtesting.MissedValidator.PubKey.Address().Bytes(), Power: 100},
-				BlockIdFlag: tmproto.BlockIDFlagCommit,
+				BlockIdFlag: cmtproto.BlockIDFlagCommit,
 			},
 		},
 	}
@@ -54,19 +54,19 @@ var (
 		Votes: []abci.VoteInfo{
 			{
 				Validator:   abci.Validator{Address: bandtesting.Validators[0].PubKey.Address().Bytes(), Power: 100},
-				BlockIdFlag: tmproto.BlockIDFlagCommit,
+				BlockIdFlag: cmtproto.BlockIDFlagCommit,
 			},
 			{
 				Validator:   abci.Validator{Address: bandtesting.Validators[1].PubKey.Address().Bytes(), Power: 100},
-				BlockIdFlag: tmproto.BlockIDFlagCommit,
+				BlockIdFlag: cmtproto.BlockIDFlagCommit,
 			},
 			{
 				Validator:   abci.Validator{Address: bandtesting.Validators[2].PubKey.Address().Bytes(), Power: 100},
-				BlockIdFlag: tmproto.BlockIDFlagCommit,
+				BlockIdFlag: cmtproto.BlockIDFlagCommit,
 			},
 			{
 				Validator:   abci.Validator{Address: bandtesting.MissedValidator.PubKey.Address().Bytes(), Power: 100},
-				BlockIdFlag: tmproto.BlockIDFlagAbsent,
+				BlockIdFlag: cmtproto.BlockIDFlagAbsent,
 			},
 		},
 	}
@@ -79,7 +79,7 @@ func TestAppTestSuite(t *testing.T) {
 func (s *AppTestSuite) SetupTest() {
 	dir := testutil.GetTempDir(s.T())
 	s.app = bandtesting.SetupWithCustomHome(false, dir)
-	ctx := s.app.BaseApp.NewUncachedContext(false, tmproto.Header{})
+	ctx := s.app.BaseApp.NewUncachedContext(false, cmtproto.Header{})
 
 	_, err := s.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: s.app.LastBlockHeight() + 1})
 	s.Require().NoError(err)
@@ -125,7 +125,7 @@ func (s *AppTestSuite) SetupTest() {
 		s.T(),
 		txConfig,
 		s.app.BaseApp,
-		tmproto.Header{Height: s.app.LastBlockHeight() + 1},
+		cmtproto.Header{Height: s.app.LastBlockHeight() + 1},
 		[]sdk.Msg{msg},
 		s.app.ChainID(),
 		[]uint64{acc1Num},
@@ -139,7 +139,7 @@ func (s *AppTestSuite) SetupTest() {
 }
 
 func (s *AppTestSuite) checkCommunityPool(expected string) {
-	ctx := s.app.NewUncachedContext(false, tmproto.Header{})
+	ctx := s.app.NewUncachedContext(false, cmtproto.Header{})
 	// Check community pool
 	feePool, err := s.app.DistrKeeper.FeePool.Get(ctx)
 	s.Require().NoError(err)
@@ -201,7 +201,7 @@ func (s *AppTestSuite) TestMissedValidatorAbsent() {
 	_, err = s.app.Commit()
 	s.Require().NoError(err)
 
-	ctx := s.app.NewUncachedContext(false, tmproto.Header{})
+	ctx := s.app.NewUncachedContext(false, cmtproto.Header{})
 	missVal, err := s.app.StakingKeeper.GetValidator(ctx, bandtesting.MissedValidator.ValAddress)
 	s.Require().NoError(err)
 	s.Require().False(missVal.IsJailed())
@@ -216,7 +216,7 @@ func (s *AppTestSuite) TestMissedValidatorAbsent() {
 	_, err = s.app.Commit()
 	s.Require().NoError(err)
 
-	ctx = s.app.NewUncachedContext(false, tmproto.Header{})
+	ctx = s.app.NewUncachedContext(false, cmtproto.Header{})
 	missVal, err = s.app.StakingKeeper.GetValidator(ctx, bandtesting.MissedValidator.ValAddress)
 	s.Require().NoError(err)
 	s.Require().True(missVal.IsJailed())

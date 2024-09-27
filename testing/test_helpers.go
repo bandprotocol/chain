@@ -11,8 +11,8 @@ import (
 	"golang.org/x/exp/rand"
 
 	abci "github.com/cometbft/cometbft/abci/types"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 
 	cosmosdb "github.com/cosmos/cosmos-db"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
@@ -85,19 +85,19 @@ const (
 )
 
 // DefaultConsensusParams defines the default Tendermint consensus params used in TestingApp.
-var DefaultConsensusParams = &tmproto.ConsensusParams{
-	Block: &tmproto.BlockParams{
+var DefaultConsensusParams = &cmtproto.ConsensusParams{
+	Block: &cmtproto.BlockParams{
 		MaxBytes: 200000,
 		MaxGas:   -1,
 	},
-	Evidence: &tmproto.EvidenceParams{
+	Evidence: &cmtproto.EvidenceParams{
 		MaxAgeNumBlocks: 302400,
 		MaxAgeDuration:  504 * time.Hour, // 3 weeks is the max duration
 		// MaxBytes:        10000,
 	},
-	Validator: &tmproto.ValidatorParams{
+	Validator: &cmtproto.ValidatorParams{
 		PubKeyTypes: []string{
-			tmtypes.ABCIPubKeyTypeSecp256k1,
+			cmttypes.ABCIPubKeyTypeSecp256k1,
 		},
 	},
 }
