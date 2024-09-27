@@ -11,7 +11,9 @@ import (
 	"github.com/spf13/cobra"
 
 	cfg "github.com/cometbft/cometbft/config"
+	"github.com/cometbft/cometbft/crypto/secp256k1"
 	tmsecp256k1 "github.com/cometbft/cometbft/crypto/secp256k1"
+	cmtos "github.com/cometbft/cometbft/libs/os"
 	"github.com/cometbft/cometbft/p2p"
 	"github.com/cometbft/cometbft/privval"
 	tmtypes "github.com/cometbft/cometbft/types"
@@ -232,7 +234,7 @@ func InitializeNodeValidatorFilesFromMnemonic(
 
 	var filePV *privval.FilePV
 	if len(mnemonic) == 0 {
-		filePV = privval.LoadOrGenFilePV(pvKeyFile, pvStateFile)
+		filePV = LoadOrGenFilePV(pvKeyFile, pvStateFile)
 	} else {
 		privKey := tmsecp256k1.GenPrivKeySecp256k1([]byte(mnemonic))
 		filePV = privval.NewFilePV(privKey, pvKeyFile, pvStateFile)
@@ -250,4 +252,23 @@ func InitializeNodeValidatorFilesFromMnemonic(
 	}
 
 	return nodeID, valPubKey, nil
+}
+
+// LoadOrGenFilePV loads a FilePV from the given filePaths
+// or else generates a new one and saves it to the filePaths.
+func LoadOrGenFilePV(keyFilePath, stateFilePath string) *privval.FilePV {
+	var pv *privval.FilePV
+	if cmtos.FileExists(keyFilePath) {
+		pv = privval.LoadFilePV(keyFilePath, stateFilePath)
+	} else {
+		pv = GenFilePV(keyFilePath, stateFilePath)
+		pv.Save()
+	}
+	return pv
+}
+
+// GenFilePV generates a new validator with randomly generated private key
+// and sets the filePaths, but does not call Save().
+func GenFilePV(keyFilePath, stateFilePath string) *privval.FilePV {
+	return privval.NewFilePV(secp256k1.GenPrivKey(), keyFilePath, stateFilePath)
 }
