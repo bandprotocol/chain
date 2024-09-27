@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -19,7 +19,7 @@ func TestSnapshotter(t *testing.T) {
 	// setup source app
 	srcDir := testutil.GetTempDir(t)
 	srcApp := bandtesting.SetupWithCustomHome(false, srcDir)
-	srcCtx := srcApp.BaseApp.NewUncachedContext(false, tmproto.Header{})
+	srcCtx := srcApp.BaseApp.NewUncachedContext(false, cmtproto.Header{})
 	srcKeeper := srcApp.OracleKeeper
 
 	// create snapshot
@@ -34,7 +34,7 @@ func TestSnapshotter(t *testing.T) {
 	// restore snapshot
 	destDir := testutil.GetTempDir(t)
 	destApp := bandtesting.SetupWithCustomHome(false, destDir)
-	destCtx := destApp.BaseApp.NewUncachedContext(false, tmproto.Header{})
+	destCtx := destApp.BaseApp.NewUncachedContext(false, cmtproto.Header{})
 	destKeeper := destApp.OracleKeeper
 	require.NoError(t, destApp.SnapshotManager().Restore(*snapshot))
 	for i := uint32(0); i < snapshot.Chunks; i++ {

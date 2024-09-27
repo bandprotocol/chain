@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	tmcfg "github.com/cometbft/cometbft/config"
+	cmtcfg "github.com/cometbft/cometbft/config"
 	tmcli "github.com/cometbft/cometbft/libs/cli"
 
 	dbm "github.com/cosmos/cosmos-db"
@@ -159,9 +159,9 @@ func enrichAutoCliOpts(autoCliOpts autocli.AppOptions, clientCtx client.Context)
 }
 
 // initCometConfig helps to override default CometBFT Config values.
-// return tmcfg.DefaultConfig if no custom configuration is required for the application.
-func initCometConfig() *tmcfg.Config {
-	cfg := tmcfg.DefaultConfig()
+// return cmtcfg.DefaultConfig if no custom configuration is required for the application.
+func initCometConfig() *cmtcfg.Config {
+	cfg := cmtcfg.DefaultConfig()
 
 	// these values put a higher strain on node memory
 	// cfg.P2P.MaxNumInboundPeers = 100

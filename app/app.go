@@ -9,8 +9,8 @@ import (
 	"github.com/spf13/cast"
 
 	abci "github.com/cometbft/cometbft/abci/types"
-	tmjson "github.com/cometbft/cometbft/libs/json"
-	tmos "github.com/cometbft/cometbft/libs/os"
+	cmtjson "github.com/cometbft/cometbft/libs/json"
+	cmtos "github.com/cometbft/cometbft/libs/os"
 
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/gogoproto/proto"
@@ -321,7 +321,7 @@ func NewBandApp(
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
-			tmos.Exit(fmt.Sprintf("failed to load latest version: %s", err))
+			cmtos.Exit(fmt.Sprintf("failed to load latest version: %s", err))
 		}
 	}
 
@@ -349,7 +349,7 @@ func (app *BandApp) EndBlocker(ctx sdk.Context) (sdk.EndBlock, error) {
 // InitChainer application update at chain initialization
 func (app *BandApp) InitChainer(ctx sdk.Context, req *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
 	var genesisState GenesisState
-	if err := tmjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
+	if err := cmtjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
 	}
 	if err := app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap()); err != nil {

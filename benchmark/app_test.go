@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/testutil"
@@ -48,7 +48,7 @@ func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 		},
 		TB: tb,
 	}
-	ba.Ctx = ba.NewUncachedContext(false, tmproto.Header{ChainID: bandtesting.ChainID})
+	ba.Ctx = ba.NewUncachedContext(false, cmtproto.Header{ChainID: bandtesting.ChainID})
 	ba.Querier = keeper.Querier{
 		Keeper: ba.OracleKeeper,
 	}

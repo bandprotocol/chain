@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	abci "github.com/cometbft/cometbft/abci/types"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -33,7 +33,7 @@ func TestAppTestSuite(t *testing.T) {
 func (s *AppTestSuite) SetupTest() {
 	dir := testutil.GetTempDir(s.T())
 	s.app = bandtesting.SetupWithCustomHome(false, dir)
-	ctx := s.app.BaseApp.NewUncachedContext(false, tmproto.Header{})
+	ctx := s.app.BaseApp.NewUncachedContext(false, cmtproto.Header{})
 
 	// Activate validators
 	for _, v := range bandtesting.Validators {
@@ -74,7 +74,7 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 		s.T(),
 		txConfig,
 		s.app.BaseApp,
-		tmproto.Header{Height: s.app.LastBlockHeight() + 1, Time: time.Unix(1581589790, 0)},
+		cmtproto.Header{Height: s.app.LastBlockHeight() + 1, Time: time.Unix(1581589790, 0)},
 		[]sdk.Msg{requestMsg},
 		s.app.ChainID(),
 		[]uint64{acc1Num},
@@ -123,7 +123,7 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 		s.T(),
 		txConfig,
 		s.app.BaseApp,
-		tmproto.Header{Height: s.app.LastBlockHeight() + 1, Time: time.Unix(1581589791, 0)},
+		cmtproto.Header{Height: s.app.LastBlockHeight() + 1, Time: time.Unix(1581589791, 0)},
 		[]sdk.Msg{reportMsg1},
 		s.app.ChainID(),
 		[]uint64{acc1Num},
@@ -160,7 +160,7 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 		s.T(),
 		txConfig,
 		s.app.BaseApp,
-		tmproto.Header{Height: s.app.LastBlockHeight() + 1, Time: time.Unix(1581589795, 0)},
+		cmtproto.Header{Height: s.app.LastBlockHeight() + 1, Time: time.Unix(1581589795, 0)},
 		[]sdk.Msg{reportMsg2},
 		s.app.ChainID(),
 		[]uint64{acc2Num},

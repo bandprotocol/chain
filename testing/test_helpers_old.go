@@ -19,8 +19,8 @@ package testing
 // 	snapshottypes "cosmossdk.io/store/snapshots/types"
 // 	owasm "github.com/bandprotocol/go-owasm/api"
 // 	abci "github.com/cometbft/cometbft/abci/types"
-// 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-// 	tmtypes "github.com/cometbft/cometbft/types"
+// 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+// 	cmttypes "github.com/cometbft/cometbft/types"
 // 	dbm "github.com/cosmos/cosmos-db"
 // 	"github.com/cosmos/cosmos-sdk/baseapp"
 // 	"github.com/cosmos/cosmos-sdk/client"
@@ -96,19 +96,19 @@ package testing
 // )
 
 // // DefaultConsensusParams defines the default Tendermint consensus params used in TestingApp.
-// var DefaultConsensusParams = &tmproto.ConsensusParams{
-// 	Block: &tmproto.BlockParams{
+// var DefaultConsensusParams = &cmtproto.ConsensusParams{
+// 	Block: &cmtproto.BlockParams{
 // 		MaxBytes: 200000,
 // 		MaxGas:   -1,
 // 	},
-// 	Evidence: &tmproto.EvidenceParams{
+// 	Evidence: &cmtproto.EvidenceParams{
 // 		MaxAgeNumBlocks: 302400,
 // 		MaxAgeDuration:  504 * time.Hour, // 3 weeks is the max duration
 // 		// MaxBytes:        10000,
 // 	},
-// 	Validator: &tmproto.ValidatorParams{
+// 	Validator: &cmtproto.ValidatorParams{
 // 		PubKeyTypes: []string{
-// 			tmtypes.ABCIPubKeyTypeSecp256k1,
+// 			cmttypes.ABCIPubKeyTypeSecp256k1,
 // 		},
 // 	},
 // }
@@ -198,7 +198,7 @@ package testing
 
 // 	isCheckTx := false
 // 	app := setupWithGenesis(t, Validators, acc, ChainID, balances...)
-// 	ctx := app.NewContextLegacy(isCheckTx, tmproto.Header{Height: app.LastBlockHeight()})
+// 	ctx := app.NewContextLegacy(isCheckTx, cmtproto.Header{Height: app.LastBlockHeight()})
 // 	if autoActivate {
 // 		err := app.OracleKeeper.Activate(ctx, Validators[0].ValAddress)
 // 		require.NoError(t, err)
@@ -302,7 +302,7 @@ package testing
 // // account. A Nop logger is set in TestingApp.
 // func SetupWithGenesisValSet(
 // 	t *testing.T,
-// 	valSet *tmtypes.ValidatorSet,
+// 	valSet *cmttypes.ValidatorSet,
 // 	genAccs []authtypes.GenesisAccount,
 // 	chainID string,
 // 	balances ...banktypes.Balance,
@@ -398,7 +398,7 @@ package testing
 
 // 	// commit genesis changes
 // 	app.Commit()
-// 	ctx := app.NewContextLegacy(false, tmproto.Header{
+// 	ctx := app.NewContextLegacy(false, cmtproto.Header{
 // 		ChainID:            chainID,
 // 		Height:             app.LastBlockHeight() + 1,
 // 		AppHash:            app.LastCommitID().Hash,
@@ -647,7 +647,7 @@ package testing
 // // SignAndDeliver signs and delivers a transaction. No simulation occurs as the
 // // ibc testing package causes checkState and deliverState to diverge in block time.
 // func SignAndDeliver(
-// 	t *testing.T, txCfg client.TxConfig, app *baseapp.BaseApp, header tmproto.Header, msgs []sdk.Msg,
+// 	t *testing.T, txCfg client.TxConfig, app *baseapp.BaseApp, header cmtproto.Header, msgs []sdk.Msg,
 // 	chainID string, accNums, accSeqs []uint64, priv ...cryptotypes.PrivKey,
 // ) (sdk.GasInfo, *sdk.Result, error) {
 // 	tx, err := GenTx(

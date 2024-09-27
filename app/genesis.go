@@ -74,6 +74,12 @@ func NewDefaultGenesisState(cdc codec.Codec) GenesisState {
 	govGenesis.Params.MinDeposit = sdk.NewCoins(
 		sdk.NewCoin(denom, sdk.TokensFromConsensusPower(1000, sdk.DefaultPowerReduction)),
 	)
+	govGenesis.Params.ExpeditedMinDeposit = sdk.NewCoins(
+		sdk.NewCoin(
+			denom,
+			sdk.TokensFromConsensusPower(2000, sdk.DefaultPowerReduction)),
+	)
+
 	crisisGenesis.ConstantFee = sdk.NewCoin(denom, sdk.TokensFromConsensusPower(10000, sdk.DefaultPowerReduction))
 	slashingGenesis.Params.SignedBlocksWindow = 86400                                // approximately 1 day
 	slashingGenesis.Params.MinSignedPerWindow = math.LegacyNewDecWithPrec(5, 2)      // 5%

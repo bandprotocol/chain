@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/log"
@@ -53,7 +53,7 @@ func (os *OracleSnapshotter) SnapshotExtension(height uint64, payloadWriter snap
 		return err
 	}
 
-	ctx := sdk.NewContext(cacheMS, tmproto.Header{}, false, log.NewNopLogger())
+	ctx := sdk.NewContext(cacheMS, cmtproto.Header{}, false, log.NewNopLogger())
 	seenBefore := make(map[string]bool)
 
 	// write all oracle scripts to snapshot
@@ -98,7 +98,7 @@ func (os *OracleSnapshotter) processAllItems(
 	restore func(sdk.Context, *Keeper, []byte, map[string]bool) error,
 	finalize func(sdk.Context, *Keeper, map[string]bool) error,
 ) error {
-	ctx := sdk.NewContext(os.cms, tmproto.Header{Height: int64(height)}, false, log.NewNopLogger())
+	ctx := sdk.NewContext(os.cms, cmtproto.Header{Height: int64(height)}, false, log.NewNopLogger())
 
 	// get all filename that we need to find and construct a map to store found status
 	foundCode := make(map[string]bool)
