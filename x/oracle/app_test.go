@@ -50,7 +50,7 @@ func (s *AppTestSuite) SetupTest() {
 func (s *AppTestSuite) TestSuccessRequestOracleData() {
 	require := s.Require()
 
-	ctx := s.app.BaseApp.NewUncachedContext(false, tmproto.Header{})
+	ctx := s.app.BaseApp.NewUncachedContext(false, cmtproto.Header{})
 	requestMsg := types.NewMsgRequestData(
 		types.OracleScriptID(1),
 		[]byte("calldata"),

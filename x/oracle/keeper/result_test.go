@@ -42,7 +42,7 @@ func (suite *KeeperTestSuite) TestSaveResultOK() {
 	k.SetReport(ctx, 42, types.NewReport(validators[0].Address, true, nil))
 	k.SaveResult(ctx, 42, types.RESOLVE_STATUS_SUCCESS, basicResult)
 	expect := types.NewResult(
-		basicClientID, 1, basicCalldata, 2, 2, 42, 1, bandtesting.ParseTime(0).Unix(),
+		basicClientID, 1, basicCalldata, 1, 1, 42, 1, bandtesting.ParseTime(0).Unix(),
 		bandtesting.ParseTime(200).Unix(), types.RESOLVE_STATUS_SUCCESS, basicResult,
 	)
 	result, err := k.GetResult(ctx, 42)
