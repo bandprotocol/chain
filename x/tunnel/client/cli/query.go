@@ -10,7 +10,7 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
-const flagTunnelStatusFilter = "status"
+const flagTunnelActiveStatusFilter = "active"
 
 // GetQueryCmd returns the cli query commands for this module
 func GetQueryCmd() *cobra.Command {
@@ -26,6 +26,8 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdParams(),
 		GetQueryCmdTunnels(),
 		GetQueryCmdTunnel(),
+		GetQueryCmdDeposits(),
+		GetQueryCmdDeposit(),
 		GetQueryCmdPackets(),
 		GetQueryCmdPacket(),
 	)
@@ -75,7 +77,7 @@ func GetQueryCmdTunnels() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			statusFilterFlag, err := cmd.Flags().GetBool(flagTunnelStatusFilter)
+			statusFilterFlag, err := cmd.Flags().GetBool(flagTunnelActiveStatusFilter)
 			if err != nil {
 				return err
 			}
@@ -86,7 +88,7 @@ func GetQueryCmdTunnels() *cobra.Command {
 			}
 
 			var statusFilter types.TunnelStatusFilter
-			if !cmd.Flags().Changed(flagTunnelStatusFilter) {
+			if !cmd.Flags().Changed(flagTunnelActiveStatusFilter) {
 				statusFilter = types.TUNNEL_STATUS_FILTER_UNSPECIFIED
 			} else if statusFilterFlag {
 				statusFilter = types.TUNNEL_STATUS_FILTER_ACTIVE
@@ -106,7 +108,7 @@ func GetQueryCmdTunnels() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().Bool(flagTunnelStatusFilter, false, "Filter tunnels by active status")
+	cmd.Flags().Bool(flagTunnelActiveStatusFilter, false, "Filter tunnels by active status")
 	flags.AddPaginationFlagsToCmd(cmd, "tunnels")
 	flags.AddQueryFlagsToCmd(cmd)
 
@@ -134,6 +136,84 @@ func GetQueryCmdTunnel() *cobra.Command {
 
 			res, err := queryClient.Tunnel(cmd.Context(), &types.QueryTunnelRequest{
 				TunnelId: tunnelID,
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetQueryCmdDeposits implements the query deposits command.
+func GetQueryCmdDeposits() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "deposits [tunnel-id]",
+		Short: "Query all deposits of a tunnel",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			tunnelID, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			res, err := queryClient.Deposits(cmd.Context(), &types.QueryDepositsRequest{
+				TunnelId:   tunnelID,
+				Pagination: pageReq,
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddPaginationFlagsToCmd(cmd, "deposits")
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetQueryCmdDeposit implements the query deposit command.
+func GetQueryCmdDeposit() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "deposit [tunnel-id] [depositor]",
+		Short: "Query the deposit of a tunnel by tunnel id and depositor address",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			tunnelID, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			res, err := queryClient.Deposit(cmd.Context(), &types.QueryDepositRequest{
+				TunnelId:  tunnelID,
+				Depositor: args[1],
 			})
 			if err != nil {
 				return err

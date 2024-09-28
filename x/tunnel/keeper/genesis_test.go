@@ -13,33 +13,12 @@ import (
 )
 
 func TestValidateGenesis(t *testing.T) {
-	tests := []struct {
-		name       string
+	cases := map[string]struct {
 		genesis    *types.GenesisState
 		requireErr bool
 		errMsg     string
 	}{
-		{
-			name: "valid genesis state",
-			genesis: &types.GenesisState{
-				Tunnels: []types.Tunnel{
-					{ID: 1},
-					{ID: 2},
-				},
-				TunnelCount: 2,
-				LatestSignalPricesList: []types.LatestSignalPrices{
-					{TunnelID: 1},
-					{TunnelID: 2},
-				},
-				TotalFees: types.TotalFees{
-					TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100))),
-				},
-				Params: types.DefaultParams(),
-			},
-			requireErr: false,
-		},
-		{
-			name: "length of tunnels does not match tunnel count",
+		"length of tunnels does not match tunnel count": {
 			genesis: &types.GenesisState{
 				Tunnels: []types.Tunnel{
 					{ID: 1},
@@ -49,8 +28,7 @@ func TestValidateGenesis(t *testing.T) {
 			requireErr: true,
 			errMsg:     "length of tunnels does not match tunnel count",
 		},
-		{
-			name: "tunnel ID greater than tunnel count",
+		"tunnel count mismatch in tunnels": {
 			genesis: &types.GenesisState{
 				Tunnels: []types.Tunnel{
 					{ID: 3},
@@ -58,10 +36,9 @@ func TestValidateGenesis(t *testing.T) {
 				TunnelCount: 1,
 			},
 			requireErr: true,
-			errMsg:     "tunnel count mismatch",
+			errMsg:     "tunnel count mismatch in tunnels",
 		},
-		{
-			name: "latest signal prices does not match tunnel count",
+		"tunnel count mismatch in latest signal prices": {
 			genesis: &types.GenesisState{
 				Tunnels: []types.Tunnel{
 					{ID: 1},
@@ -73,10 +50,9 @@ func TestValidateGenesis(t *testing.T) {
 				},
 			},
 			requireErr: true,
-			errMsg:     "latest signal prices does not match tunnel count",
+			errMsg:     "tunnel count mismatch in latest signal prices",
 		},
-		{
-			name: "tunnel count mismatch in latest signal prices",
+		"invalid latest signal prices": {
 			genesis: &types.GenesisState{
 				Tunnels: []types.Tunnel{
 					{ID: 1},
@@ -87,31 +63,21 @@ func TestValidateGenesis(t *testing.T) {
 				},
 			},
 			requireErr: true,
-			errMsg:     "tunnel count mismatch",
+			errMsg:     "invalid latest signal prices",
 		},
-		{
-			name: "tunnel id is zero in latest signal prices",
+		"invalid total fees": {
 			genesis: &types.GenesisState{
 				Tunnels: []types.Tunnel{
 					{ID: 1},
 				},
 				TunnelCount: 1,
 				LatestSignalPricesList: []types.LatestSignalPrices{
-					{TunnelID: 0},
-				},
-			},
-			requireErr: true,
-			errMsg:     "tunnel count mismatch",
-		},
-		{
-			name: "invalid total fee",
-			genesis: &types.GenesisState{
-				Tunnels: []types.Tunnel{
-					{ID: 1},
-				},
-				TunnelCount: 1,
-				LatestSignalPricesList: []types.LatestSignalPrices{
-					{TunnelID: 1},
+					{
+						TunnelID: 1,
+						SignalPrices: []types.SignalPrice{
+							{SignalID: "ETH", Price: 5000},
+						},
+					},
 				},
 				TotalFees: types.TotalFees{
 					TotalPacketFee: sdk.Coins{
@@ -122,14 +88,42 @@ func TestValidateGenesis(t *testing.T) {
 			requireErr: true,
 			errMsg:     "invalid total fees",
 		},
+		"all good": {
+			genesis: &types.GenesisState{
+				Tunnels: []types.Tunnel{
+					{ID: 1},
+					{ID: 2},
+				},
+				TunnelCount: 2,
+				LatestSignalPricesList: []types.LatestSignalPrices{
+					{
+						TunnelID: 1,
+						SignalPrices: []types.SignalPrice{
+							{SignalID: "ETH", Price: 5000},
+						},
+					},
+					{
+						TunnelID: 2,
+						SignalPrices: []types.SignalPrice{
+							{SignalID: "ETH", Price: 5000},
+						},
+					},
+				},
+				TotalFees: types.TotalFees{
+					TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100))),
+				},
+				Params: types.DefaultParams(),
+			},
+			requireErr: false,
+		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			err := keeper.ValidateGenesis(tt.genesis)
-			if tt.requireErr {
+	for name, tc := range cases {
+		t.Run(name, func(t *testing.T) {
+			err := keeper.ValidateGenesis(tc.genesis)
+			if tc.requireErr {
 				require.Error(t, err)
-				require.Contains(t, err.Error(), tt.errMsg)
+				require.Contains(t, err.Error(), tc.errMsg)
 			} else {
 				require.NoError(t, err)
 			}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/gogoproto/proto"
 )
 
@@ -18,6 +19,7 @@ func NewTunnel(
 	feePayer string,
 	signalDeviations []SignalDeviation,
 	interval uint64,
+	totalDeposit []sdk.Coin,
 	isActive bool,
 	createdAt int64,
 	creator string,
@@ -30,6 +32,7 @@ func NewTunnel(
 		FeePayer:         feePayer,
 		SignalDeviations: signalDeviations,
 		Interval:         interval,
+		TotalDeposit:     totalDeposit,
 		IsActive:         isActive,
 		CreatedAt:        createdAt,
 		Creator:          creator,
@@ -60,8 +63,8 @@ func (t *Tunnel) SetRoute(route RouteI) error {
 // GetSignalDeviationMap returns the signal deviation map of the tunnel.
 func (t Tunnel) GetSignalDeviationMap() map[string]SignalDeviation {
 	signalDeviationMap := make(map[string]SignalDeviation, len(t.SignalDeviations))
-	for _, si := range t.SignalDeviations {
-		signalDeviationMap[si.SignalID] = si
+	for _, sd := range t.SignalDeviations {
+		signalDeviationMap[sd.SignalID] = sd
 	}
 	return signalDeviationMap
 }

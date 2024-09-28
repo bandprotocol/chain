@@ -22,26 +22,27 @@ func GetTxCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	txCmd.AddCommand(GetTxCmdCreateTunnels())
+	txCmd.AddCommand(GetTxCmdCreateTunnel())
 	txCmd.AddCommand(GetTxCmdEditTunnel())
 	txCmd.AddCommand(GetTxCmdActivate())
 	txCmd.AddCommand(GetTxCmdDeactivate())
 	txCmd.AddCommand(GetTxCmdTriggerTunnel())
+	txCmd.AddCommand(GetTxCmdDepositTunnel())
+	txCmd.AddCommand(GetTxCmdWithdrawTunnel())
 
 	return txCmd
 }
 
-func GetTxCmdCreateTunnels() *cobra.Command {
+func GetTxCmdCreateTunnel() *cobra.Command {
 	txCmd := &cobra.Command{
-		Use:                "create",
+		Use:                "create-tunnel",
 		Short:              "Create a new tunnel",
 		DisableFlagParsing: true,
 		RunE:               client.ValidateCmd,
 	}
 
+	// add create tunnel subcommands
 	txCmd.AddCommand(GetTxCmdCreateTSSTunnel())
-
-	flags.AddTxFlagsToCmd(txCmd)
 
 	return txCmd
 }
@@ -104,7 +105,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 
 func GetTxCmdEditTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "edit [tunnel-id] [interval] [signalDeviations-json-file] ",
+		Use:   "edit-tunnel [tunnel-id] [interval] [signalDeviations-json-file] ",
 		Short: "Edit an existing tunnel",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -198,7 +199,7 @@ func GetTxCmdDeactivate() *cobra.Command {
 func GetTxCmdTriggerTunnel() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "trigger [tunnel-id]",
-		Short: "Manual trigger a tunnel",
+		Short: "Trigger a tunnel to generate a new packet",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -212,6 +213,68 @@ func GetTxCmdTriggerTunnel() *cobra.Command {
 			}
 
 			msg := types.NewMsgTriggerTunnel(tunnelID, clientCtx.GetFromAddress().String())
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetTxCmdDepositTunnel() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "deposit-tunnel [tunnel-id] [amount]",
+		Short: "Deposit to a tunnel",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			id, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			amount, err := sdk.ParseCoinsNormalized(args[1])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgDepositTunnel(id, amount, clientCtx.GetFromAddress().String())
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func GetTxCmdWithdrawTunnel() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "withdraw [tunnel-id] [amount]",
+		Short: "Withdraw deposit from a tunnel",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			id, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			amount, err := sdk.ParseCoinsNormalized(args[1])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgWithdrawTunnel(id, amount, clientCtx.GetFromAddress().String())
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

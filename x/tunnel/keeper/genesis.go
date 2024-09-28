@@ -8,6 +8,31 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
+// validateLastSignalPricesList validates the latest signal prices list.
+func validateLastSignalPricesList(
+	tunnels []types.Tunnel,
+	lsps []types.LatestSignalPrices,
+) error {
+	if len(tunnels) != len(lsps) {
+		return fmt.Errorf("tunnels and latest signal prices list length mismatch")
+	}
+
+	tunnelMap := make(map[uint64]bool)
+	for _, t := range tunnels {
+		tunnelMap[t.ID] = true
+	}
+
+	for _, lsp := range lsps {
+		if _, ok := tunnelMap[lsp.TunnelID]; !ok {
+			return fmt.Errorf("tunnel ID %d not found in tunnels", lsp.TunnelID)
+		}
+		if err := lsp.Validate(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // ValidateGenesis validates the provided genesis state.
 func ValidateGenesis(data *types.GenesisState) error {
 	// validate the tunnel count
@@ -16,22 +41,20 @@ func ValidateGenesis(data *types.GenesisState) error {
 	}
 
 	// validate the tunnel IDs
-	for _, tunnel := range data.Tunnels {
-		if tunnel.ID > data.TunnelCount {
+	for _, t := range data.Tunnels {
+		if t.ID > data.TunnelCount {
 			return types.ErrInvalidGenesis.Wrapf("tunnel count mismatch in tunnels")
 		}
 	}
 
 	// validate the latest signal prices count
 	if len(data.LatestSignalPricesList) != int(data.TunnelCount) {
-		return types.ErrInvalidGenesis.Wrapf("length of latest signal prices does not match tunnel count")
+		return types.ErrInvalidGenesis.Wrapf("tunnel count mismatch in latest signal prices")
 	}
 
 	// validate latest signal prices
-	for _, latestSignalPrices := range data.LatestSignalPricesList {
-		if latestSignalPrices.TunnelID == 0 || latestSignalPrices.TunnelID > data.TunnelCount {
-			return types.ErrInvalidGenesis.Wrapf("tunnel count mismatch in latest signal prices")
-		}
+	if err := validateLastSignalPricesList(data.Tunnels, data.LatestSignalPricesList); err != nil {
+		return types.ErrInvalidGenesis.Wrapf("invalid latest signal prices: %s", err.Error())
 	}
 
 	// validate the total fees
@@ -62,10 +85,10 @@ func InitGenesis(ctx sdk.Context, k *Keeper, data *types.GenesisState) {
 	k.SetTunnelCount(ctx, data.TunnelCount)
 
 	// set tunnels
-	for _, tunnel := range data.Tunnels {
-		k.SetTunnel(ctx, tunnel)
-		if tunnel.IsActive {
-			k.ActiveTunnelID(ctx, tunnel.ID)
+	for _, t := range data.Tunnels {
+		k.SetTunnel(ctx, t)
+		if t.IsActive {
+			k.ActiveTunnelID(ctx, t.ID)
 		}
 	}
 

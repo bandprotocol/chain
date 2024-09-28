@@ -70,7 +70,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 			expErr:    true,
 			expErrMsg: "interval too low",
 		},
-		"all good": {
+		"all good without initial deposit": {
 			preRun: func() (*types.MsgCreateTunnel, error) {
 				s.accountKeeper.EXPECT().
 					GetAccount(s.ctx, gomock.Any()).
@@ -83,8 +83,34 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 					10,
 					route,
 					types.ENCODER_FIXED_POINT_ABI,
-					sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100))),
+					sdk.NewCoins(),
 					sdk.AccAddress([]byte("creator_address")),
+				)
+			},
+			expErr:    false,
+			expErrMsg: "",
+		},
+		"all good": {
+			preRun: func() (*types.MsgCreateTunnel, error) {
+				depositor := sdk.AccAddress([]byte("creator_address"))
+				depositAmount := sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100)))
+
+				s.accountKeeper.EXPECT().
+					GetAccount(s.ctx, gomock.Any()).
+					Return(nil).Times(1)
+				s.accountKeeper.EXPECT().NewAccount(s.ctx, gomock.Any()).Times(1)
+				s.accountKeeper.EXPECT().SetAccount(s.ctx, gomock.Any()).Times(1)
+				s.bankKeeper.EXPECT().
+					SendCoinsFromAccountToModule(s.ctx, depositor, types.ModuleName, depositAmount).
+					Return(nil).Times(1)
+
+				return types.NewMsgCreateTunnel(
+					signalDeviations,
+					10,
+					route,
+					types.ENCODER_FIXED_POINT_ABI,
+					depositAmount,
+					depositor,
 				)
 			},
 			expErr:    false,
@@ -274,8 +300,25 @@ func (s *KeeperTestSuite) TestMsgActivate() {
 			expErr:    true,
 			expErrMsg: "already active",
 		},
+		"insufficient deposit": {
+			preRun: func() *types.MsgActivate {
+				params := types.DefaultParams()
+				params.MinDeposit = sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(1000)))
+				s.Require().NoError(s.keeper.SetParams(s.ctx, params))
+
+				s.AddSampleTunnel(false)
+
+				return types.NewMsgActivate(1, sdk.AccAddress([]byte("creator_address")).String())
+			},
+			expErr:    true,
+			expErrMsg: "insufficient deposit",
+		},
 		"all good": {
 			preRun: func() *types.MsgActivate {
+				params := types.DefaultParams()
+				params.MinDeposit = sdk.NewCoins()
+				s.Require().NoError(s.keeper.SetParams(s.ctx, params))
+
 				s.AddSampleTunnel(false)
 
 				return types.NewMsgActivate(1, sdk.AccAddress([]byte("creator_address")).String())
@@ -415,7 +458,6 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 				s.feedsKeeper.EXPECT().GetCurrentPrices(gomock.Any()).Return([]feedstypes.Price{
 					{PriceStatus: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
 				})
-				s.bankKeeper.EXPECT().SpendableCoins(gomock.Any(), feePayer).Return(types.DefaultBasePacketFee)
 				s.bankKeeper.EXPECT().
 					SendCoinsFromAccountToModule(gomock.Any(), feePayer, types.ModuleName, types.DefaultBasePacketFee).
 					Return(nil)

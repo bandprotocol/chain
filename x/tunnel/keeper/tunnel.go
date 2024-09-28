@@ -43,6 +43,7 @@ func (k Keeper) AddTunnel(
 		feePayer.String(),
 		signalDeviations,
 		interval,
+		sdk.NewCoins(),
 		false,
 		ctx.BlockTime().Unix(),
 		creator.String(),
@@ -74,8 +75,8 @@ func (k Keeper) EditTunnel(
 
 	// edit the signal prices info
 	var signalPrices []types.SignalPrice
-	for _, sp := range signalDeviations {
-		signalPrices = append(signalPrices, types.NewSignalPrice(sp.SignalID, 0))
+	for _, sd := range signalDeviations {
+		signalPrices = append(signalPrices, types.NewSignalPrice(sd.SignalID, 0))
 	}
 	k.SetLatestSignalPrices(ctx, types.NewLatestSignalPrices(tunnelID, signalPrices, 0))
 
@@ -84,9 +85,9 @@ func (k Keeper) EditTunnel(
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
 		sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", tunnel.Interval)),
 	)
-	for _, signalDeviation := range signalDeviations {
+	for _, sd := range signalDeviations {
 		event = event.AppendAttributes(
-			sdk.NewAttribute(types.AttributeKeySignalPriceInfos, signalDeviation.String()),
+			sdk.NewAttribute(types.AttributeKeySignalPriceInfos, sd.String()),
 		)
 	}
 	ctx.EventManager().EmitEvent(event)
@@ -174,6 +175,12 @@ func (k Keeper) ActivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 		return err
 	}
 
+	// verify if the total deposit meets or exceeds the minimum required deposit
+	minDeposit := k.GetParams(ctx).MinDeposit
+	if !tunnel.TotalDeposit.IsAllGTE(minDeposit) {
+		return types.ErrInsufficientDeposit
+	}
+
 	// add the tunnel ID to the active tunnel IDs
 	k.ActiveTunnelID(ctx, tunnelID)
 
@@ -182,7 +189,7 @@ func (k Keeper) ActivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 	k.SetTunnel(ctx, tunnel)
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeActivateTunnel,
+		types.EventTypeActivate,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnelID)),
 		sdk.NewAttribute(types.AttributeKeyIsActive, fmt.Sprintf("%t", true)),
 	))
@@ -205,7 +212,7 @@ func (k Keeper) DeactivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 	k.SetTunnel(ctx, tunnel)
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeDeactivateTunnel,
+		types.EventTypeDeactivate,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnelID)),
 		sdk.NewAttribute(types.AttributeKeyIsActive, fmt.Sprintf("%t", tunnel.IsActive)),
 	))
@@ -215,8 +222,7 @@ func (k Keeper) DeactivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 
 // MustDeactivateTunnel deactivates a tunnel and panics if the tunnel does not exist
 func (k Keeper) MustDeactivateTunnel(ctx sdk.Context, tunnelID uint64) {
-	err := k.DeactivateTunnel(ctx, tunnelID)
-	if err != nil {
+	if err := k.DeactivateTunnel(ctx, tunnelID); err != nil {
 		panic(err)
 	}
 }
