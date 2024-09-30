@@ -2,6 +2,7 @@ package common
 
 import (
 	abci "github.com/cometbft/cometbft/abci/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v3/x/oracle/types"

@@ -29,9 +29,10 @@ import (
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	bandtest "github.com/bandprotocol/chain/v3/app"
+	band "github.com/bandprotocol/chain/v3/app"
 	"github.com/bandprotocol/chain/v3/hooks/common"
 	"github.com/bandprotocol/chain/v3/hooks/emitter"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
@@ -73,7 +74,7 @@ var (
 )
 
 func init() {
-	bandtest.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
+	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
 	sdk.DefaultBondDenom = "uband"
 }
 
@@ -87,7 +88,7 @@ type DecoderTestSuite struct {
 }
 
 func (suite *DecoderTestSuite) SetupTest() {
-	ibctesting.DefaultTestingAppInit = bandtest.CreateTestingAppFn(suite.T())
+	ibctesting.DefaultTestingAppInit = bandtesting.CreateTestingAppFn(suite.T())
 
 	suite.coordinator = ibctesting.NewCoordinator(suite.T(), 2)
 	suite.chainA = suite.coordinator.GetChain(ibctesting.GetChainID(1))

@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/viper"
 
 	httpclient "github.com/cometbft/cometbft/rpc/client/http"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 
 	"cosmossdk.io/log"
 
@@ -76,7 +76,7 @@ func runImpl(c *Context, l *Logger) error {
 	for {
 		select {
 		case ev := <-eventChan:
-			go handleTransaction(c, l, ev.Data.(tmtypes.EventDataTx).TxResult)
+			go handleTransaction(c, l, ev.Data.(cmttypes.EventDataTx).TxResult)
 		case keyIndex := <-c.freeKeys:
 			if len(waitingMsgs[keyIndex]) != 0 {
 				if uint64(len(waitingMsgs[keyIndex])) > c.maxReport {

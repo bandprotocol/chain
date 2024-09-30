@@ -1,4 +1,4 @@
-package band
+package testing
 
 // Copy from https://github.com/cosmos/cosmos-sdk/blob/v0.50.9/testutil/sims/tx_helpers.go to add time in block header and block events
 import (
@@ -7,9 +7,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
 	types2 "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/proto/tendermint/types"
-	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/errors"
 

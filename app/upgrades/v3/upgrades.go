@@ -1,11 +1,14 @@
-package v2_6
+package v3
 
 import (
 	"context"
 
-	"cosmossdk.io/math"
+	icahosttypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 
+	"cosmossdk.io/math"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -18,8 +21,6 @@ import (
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	icahosttypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 
 	"github.com/bandprotocol/chain/v3/app/keepers"
 	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
@@ -35,10 +36,10 @@ func CreateUpgradeHandler(
 		// Set param key table for params module migration
 		ctx := sdk.UnwrapSDKContext(c)
 		for _, subspace := range keepers.ParamsKeeper.GetSubspaces() {
-			subspace := subspace
+			ss := subspace
 
 			var keyTable paramstypes.KeyTable
-			switch subspace.Name() {
+			switch ss.Name() {
 			case authtypes.ModuleName:
 				keyTable = authtypes.ParamKeyTable() //nolint:staticcheck
 			case banktypes.ModuleName:
@@ -66,8 +67,8 @@ func CreateUpgradeHandler(
 				continue
 			}
 
-			if !subspace.HasKeyTable() {
-				subspace.WithKeyTable(keyTable)
+			if !ss.HasKeyTable() {
+				ss.WithKeyTable(keyTable)
 			}
 		}
 

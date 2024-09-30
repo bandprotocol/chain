@@ -9,8 +9,8 @@ import (
 	"github.com/spf13/cast"
 
 	abci "github.com/cometbft/cometbft/abci/types"
-	tmjson "github.com/cometbft/cometbft/libs/json"
-	tmos "github.com/cometbft/cometbft/libs/os"
+	cmtjson "github.com/cometbft/cometbft/libs/json"
+	cmtos "github.com/cometbft/cometbft/libs/os"
 
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/gogoproto/proto"
@@ -50,12 +50,11 @@ import (
 	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
-	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	"github.com/bandprotocol/chain/v3/app/keepers"
 	"github.com/bandprotocol/chain/v3/app/upgrades"
-	"github.com/bandprotocol/chain/v3/app/upgrades/v2_6"
+	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
 	"github.com/bandprotocol/chain/v3/hooks/common"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
 )
@@ -64,7 +63,7 @@ var (
 	// DefaultNodeHome default home directories for the application daemon
 	DefaultNodeHome string
 
-	Upgrades = []upgrades.Upgrade{v2_6.Upgrade}
+	Upgrades = []upgrades.Upgrade{v3.Upgrade}
 )
 
 var (
@@ -104,20 +103,6 @@ func init() {
 	}
 
 	DefaultNodeHome = filepath.Join(userHomeDir, ".band")
-}
-
-// TODO: Relocate this function to somewhere
-// SetBech32AddressPrefixesAndBip44CoinTypeAndSeal sets the global Bech32 prefixes and HD wallet coin type and seal config.
-func SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(config *sdk.Config) {
-	accountPrefix := Bech32MainPrefix
-	validatorPrefix := Bech32MainPrefix + sdk.PrefixValidator + sdk.PrefixOperator
-	consensusPrefix := Bech32MainPrefix + sdk.PrefixValidator + sdk.PrefixConsensus
-	config.SetCoinType(Bip44CoinType)
-	config.SetBech32PrefixForAccount(accountPrefix, accountPrefix+sdk.PrefixPublic)
-	config.SetBech32PrefixForValidator(validatorPrefix, validatorPrefix+sdk.PrefixPublic)
-	config.SetBech32PrefixForConsensusNode(consensusPrefix, consensusPrefix+sdk.PrefixPublic)
-
-	config.Seal()
 }
 
 // NewBandApp returns a reference to an initialized BandApp.
@@ -319,7 +304,7 @@ func NewBandApp(
 	app.setupUpgradeHandlers()
 	app.setupUpgradeStoreLoaders()
 
-	// At startup, after all modules have been registered, check that all prot
+	// At startup, after all modules have been registered, check that all proto
 	// annotations are correct.
 	protoFiles, err := proto.MergedRegistry()
 	if err != nil {
@@ -334,7 +319,7 @@ func NewBandApp(
 
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
-			tmos.Exit(fmt.Sprintf("failed to load latest version: %s", err))
+			cmtos.Exit(fmt.Sprintf("failed to load latest version: %s", err))
 		}
 	}
 
@@ -362,7 +347,7 @@ func (app *BandApp) EndBlocker(ctx sdk.Context) (sdk.EndBlock, error) {
 // InitChainer application update at chain initialization
 func (app *BandApp) InitChainer(ctx sdk.Context, req *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
 	var genesisState GenesisState
-	if err := tmjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
+	if err := cmtjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
 	}
 	if err := app.UpgradeKeeper.SetModuleVersionMap(ctx, app.mm.GetVersionMap()); err != nil {
@@ -483,6 +468,7 @@ func (app *BandApp) setupUpgradeStoreLoaders() {
 	}
 }
 
+// set all upgrade handlers
 func (app *BandApp) setupUpgradeHandlers() {
 	for _, upgrade := range Upgrades {
 		app.UpgradeKeeper.SetUpgradeHandler(
@@ -514,21 +500,4 @@ func (app *BandApp) AutoCliOpts() autocli.AppOptions {
 		ValidatorAddressCodec: authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
 		ConsensusAddressCodec: authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
 	}
-}
-
-// TestingApp functions
-
-// GetBaseApp implements the TestingApp interface.
-func (app *BandApp) GetBaseApp() *baseapp.BaseApp {
-	return app.BaseApp
-}
-
-// GetTxConfig implements the TestingApp interface.
-func (app *BandApp) GetTxConfig() client.TxConfig {
-	return app.txConfig
-}
-
-// GetTestGovKeeper implements the TestingApp interface.
-func (app *BandApp) GetTestGovKeeper() *govkeeper.Keeper {
-	return app.AppKeepers.GovKeeper
 }

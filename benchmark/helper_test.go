@@ -11,8 +11,8 @@ package benchmark
 
 // 	owasm "github.com/bandprotocol/go-owasm/api"
 // 	types "github.com/cometbft/cometbft/abci/types"
-// 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-// 	tmtypes "github.com/cometbft/cometbft/types"
+// 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+// 	cmttypes "github.com/cometbft/cometbft/types"
 // 	"github.com/cosmos/cosmos-sdk/client"
 // 	sdk "github.com/cosmos/cosmos-sdk/types"
 // 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -205,19 +205,19 @@ package benchmark
 // 	return owasmVM, compiledCode, req
 // }
 
-// func GetConsensusParams(maxGas int64) tmproto.ConsensusParams {
-// 	return tmproto.ConsensusParams{
-// 		Block: &tmproto.BlockParams{
+// func GetConsensusParams(maxGas int64) cmtproto.ConsensusParams {
+// 	return cmtproto.ConsensusParams{
+// 		Block: &cmtproto.BlockParams{
 // 			MaxBytes: 200000,
 // 			MaxGas:   maxGas,
 // 		},
-// 		Evidence: &tmproto.EvidenceParams{
+// 		Evidence: &cmtproto.EvidenceParams{
 // 			MaxAgeNumBlocks: 302400,
 // 			MaxAgeDuration:  504 * time.Hour,
 // 		},
-// 		Validator: &tmproto.ValidatorParams{
+// 		Validator: &cmtproto.ValidatorParams{
 // 			PubKeyTypes: []string{
-// 				tmtypes.ABCIPubKeyTypeSecp256k1,
+// 				cmttypes.ABCIPubKeyTypeSecp256k1,
 // 			},
 // 		},
 // 	}

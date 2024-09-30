@@ -3,9 +3,10 @@ package emitter
 import (
 	"encoding/hex"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v3/hooks/common"
 )

@@ -2,6 +2,7 @@ package main
 
 import (
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )

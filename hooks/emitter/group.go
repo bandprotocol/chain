@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"strings"
 
+	proto "github.com/cosmos/gogoproto/proto"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/cosmos/cosmos-sdk/x/group"
-	proto "github.com/cosmos/gogoproto/proto"
 
 	"github.com/bandprotocol/chain/v3/hooks/common"
 )
@@ -24,7 +25,7 @@ func (h *Hook) handleGroupMsgCreateGroup(
 		common.Atoi(extractStringFromEventMap(evMap, proto.MessageName(&group.EventCreateGroup{}), "group_id")),
 	)
 	groupInfoResponse, _ := h.groupKeeper.GroupInfo(
-		sdk.WrapSDKContext(ctx),
+		ctx,
 		&group.QueryGroupInfoRequest{GroupId: groupId},
 	)
 	groupInfo := groupInfoResponse.Info
@@ -45,7 +46,7 @@ func (h *Hook) handleGroupMsgCreateGroupPolicy(
 ) {
 	policyAddress := extractStringFromEventMap(evMap, proto.MessageName(&group.EventCreateGroupPolicy{}), "address")
 	groupPolicyResponse, _ := h.groupKeeper.GroupPolicyInfo(
-		sdk.WrapSDKContext(ctx),
+		ctx,
 		&group.QueryGroupPolicyInfoRequest{
 			Address: policyAddress,
 		},
@@ -80,7 +81,7 @@ func (h *Hook) handleGroupMsgSubmitProposal(
 		common.Atoi(extractStringFromEventMap(evMap, proto.MessageName(&group.EventSubmitProposal{}), "proposal_id")),
 	)
 	proposalResponse, _ := h.groupKeeper.Proposal(
-		sdk.WrapSDKContext(ctx),
+		ctx,
 		&group.QueryProposalRequest{ProposalId: proposalId},
 	)
 	proposal := proposalResponse.Proposal

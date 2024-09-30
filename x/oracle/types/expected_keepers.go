@@ -4,11 +4,13 @@ import (
 	"context"
 	"time"
 
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+
 	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 )
 
 // AccountKeeper defines the expected account keeper.

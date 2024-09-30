@@ -5,6 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
+
+	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
+
 	"cosmossdk.io/core/appmodule"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -13,9 +18,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
-	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/spf13/cobra"
 
 	"github.com/bandprotocol/chain/v3/hooks/common"
 	"github.com/bandprotocol/chain/v3/x/oracle/client/cli"

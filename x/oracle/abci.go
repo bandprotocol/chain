@@ -21,7 +21,7 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	return nil
 }
 
-// handleEndBlock cleans up the state during end block. See comment in the implementation!
+// EndBlocker cleans up the state during end block. See comment in the implementation!
 func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	// Loops through all requests in the resolvable list to resolve all of them!
 	for _, reqID := range k.GetPendingResolveList(ctx) {

@@ -37,8 +37,8 @@ func NewWrappedBankKeeperBurnToCommunityPool(
 	bk bankkeeper.Keeper,
 	ak types.AccountKeeper,
 	logger log.Logger,
-) WrappedBankKeeper {
-	return WrappedBankKeeper{
+) *WrappedBankKeeper {
+	return &WrappedBankKeeper{
 		Keeper:        bk,
 		distrKeeper:   nil,
 		accountKeeper: ak,
@@ -76,16 +76,7 @@ func (k WrappedBankKeeper) BurnCoins(ctx context.Context, moduleName string, amt
 		))
 	}
 
-	// // Instead of burning coins, we send them to the community pool.
-	// err := k.SendCoinsFromModuleToModule(ctx, moduleName, distrtypes.ModuleName, amt)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// feePool := k.distrKeeper.GetFeePool(ctx)
-	// feePool.CommunityPool = feePool.CommunityPool.Add(sdk.NewDecCoinsFromCoins(amt...)...)
-	// k.distrKeeper.SetFeePool(ctx, feePool)
-	// TODO: check this work
+	// Instead of burning coins, we send them to the community pool.
 	if err := k.distrKeeper.FundCommunityPool(ctx, amt, acc.GetAddress()); err != nil {
 		return err
 	}

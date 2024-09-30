@@ -15,7 +15,7 @@ package band
 // 	storetypes "cosmossdk.io/store/types"
 // 	evidencetypes "cosmossdk.io/x/evidence/types"
 // 	abci "github.com/cometbft/cometbft/abci/types"
-// 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+// 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 // 	dbm "github.com/cosmos/cosmos-db"
 // 	"github.com/cosmos/cosmos-sdk/baseapp"
 // 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -236,8 +236,8 @@ package band
 // 		}
 // 	}()
 
-// 	ctxA := app.NewContext(true, tmproto.Header{Height: app.LastBlockHeight()})
-// 	ctxB := newApp.NewContext(true, tmproto.Header{Height: app.LastBlockHeight()})
+// 	ctxA := app.NewContext(true, cmtproto.Header{Height: app.LastBlockHeight()})
+// 	ctxB := newApp.NewContext(true, cmtproto.Header{Height: app.LastBlockHeight()})
 // 	newApp.mm.InitGenesis(ctxB, app.AppCodec(), genesisState)
 // 	newApp.StoreConsensusParams(ctxB, exported.ConsensusParams)
 

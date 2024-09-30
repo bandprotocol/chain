@@ -84,7 +84,7 @@ type AppKeepers struct {
 
 	// keepers
 	AccountKeeper         authkeeper.AccountKeeper
-	BankKeeper            bandbankkeeper.WrappedBankKeeper
+	BankKeeper            bankkeeper.Keeper
 	CapabilityKeeper      *capabilitykeeper.Keeper
 	StakingKeeper         *stakingkeeper.Keeper
 	SlashingKeeper        slashingkeeper.Keeper
@@ -193,15 +193,17 @@ func NewAppKeeper(
 	)
 
 	// wrappedBankerKeeper overrides burn token behavior to instead transfer to community pool.
-	appKeepers.BankKeeper = bandbankkeeper.NewWrappedBankKeeperBurnToCommunityPool(
-		bankkeeper.NewBaseKeeper(
-			appCodec,
-			runtime.NewKVStoreService(appKeepers.keys[banktypes.StoreKey]),
-			appKeepers.AccountKeeper,
-			blockedAddress,
-			authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-			logger,
-		),
+	appKeepers.BankKeeper = bankkeeper.NewBaseKeeper(
+		appCodec,
+		runtime.NewKVStoreService(appKeepers.keys[banktypes.StoreKey]),
+		appKeepers.AccountKeeper,
+		blockedAddress,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		logger,
+	)
+
+	wrapBank := bandbankkeeper.NewWrappedBankKeeperBurnToCommunityPool(
+		appKeepers.BankKeeper,
 		appKeepers.AccountKeeper,
 		logger,
 	)
@@ -229,11 +231,12 @@ func NewAppKeeper(
 		appKeepers.AccountKeeper,
 	)
 
+	// Using pointer of WrapBankKeeper in staking module
 	appKeepers.StakingKeeper = stakingkeeper.NewKeeper(
 		appCodec,
 		runtime.NewKVStoreService(appKeepers.keys[stakingtypes.StoreKey]),
 		appKeepers.AccountKeeper,
-		appKeepers.BankKeeper,
+		wrapBank,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
 		authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
@@ -259,7 +262,7 @@ func NewAppKeeper(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
-	appKeepers.BankKeeper.SetDistrKeeper(&appKeepers.DistrKeeper)
+	wrapBank.SetDistrKeeper(&appKeepers.DistrKeeper)
 
 	appKeepers.SlashingKeeper = slashingkeeper.NewKeeper(
 		appCodec,

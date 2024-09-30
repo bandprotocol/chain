@@ -6,6 +6,15 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/spf13/cast"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
+	cmtcfg "github.com/cometbft/cometbft/config"
+	tmcli "github.com/cometbft/cometbft/libs/cli"
+
+	dbm "github.com/cosmos/cosmos-db"
+
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/log"
 	"cosmossdk.io/store"
@@ -15,10 +24,6 @@ import (
 	confixcmd "cosmossdk.io/tools/confix/cmd"
 	rosettaCmd "cosmossdk.io/tools/rosetta/cmd"
 
-	tmcfg "github.com/cometbft/cometbft/config"
-	tmcli "github.com/cometbft/cometbft/libs/cli"
-
-	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
@@ -43,9 +48,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
-	"github.com/spf13/cast"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
 	band "github.com/bandprotocol/chain/v3/app"
 	"github.com/bandprotocol/chain/v3/x/oracle"
@@ -157,9 +159,9 @@ func enrichAutoCliOpts(autoCliOpts autocli.AppOptions, clientCtx client.Context)
 }
 
 // initCometConfig helps to override default CometBFT Config values.
-// return tmcfg.DefaultConfig if no custom configuration is required for the application.
-func initCometConfig() *tmcfg.Config {
-	cfg := tmcfg.DefaultConfig()
+// return cmtcfg.DefaultConfig if no custom configuration is required for the application.
+func initCometConfig() *cmtcfg.Config {
+	cfg := cmtcfg.DefaultConfig()
 
 	// these values put a higher strain on node memory
 	// cfg.P2P.MaxNumInboundPeers = 100
@@ -171,7 +173,7 @@ func initCometConfig() *tmcfg.Config {
 func initAppConfig() (string, interface{}) {
 	// Can optionally overwrite the SDK's default server config.
 	srvCfg := serverconfig.DefaultConfig()
-	srvCfg.StateSync.SnapshotInterval = 1000
+	srvCfg.StateSync.SnapshotInterval = 20000
 	srvCfg.StateSync.SnapshotKeepRecent = 10
 
 	return serverconfig.DefaultConfigTemplate, srvCfg
@@ -190,7 +192,7 @@ func initRootCmd(
 	ac := appCreator{}
 
 	rootCmd.AddCommand(
-		genutilcli.InitCmd(basicManager, band.DefaultNodeHome),
+		InitCmd(band.DefaultNodeHome),
 		tmcli.NewCompletionCmd(rootCmd, true),
 		confixcmd.ConfigCommand(),
 		pruning.Cmd(ac.newApp, band.DefaultNodeHome),
@@ -230,7 +232,6 @@ func addModuleInitFlags(startCmd *cobra.Command) {
 	startCmd.Flags().String(band.FlagWithEmitter, "", "[Experimental] Enable mode to save request in sql database")
 	startCmd.Flags().
 		String(band.FlagWithPricer, "", "[Experimental] Enable collecting standard price reference provided by given oracle script id and save in level db (Input format: [id-comma-separated]/[defaultAskCount]/[defaultMinCount])")
-
 }
 
 // genesisCommand builds genesis-related `bandd genesis` command. Users may provide application specific commands as a parameter

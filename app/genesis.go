@@ -4,6 +4,18 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/cosmos/ibc-go/modules/capability"
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	icagenesistypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/genesis/types"
+	icahosttypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
+	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
+	ibcfee "github.com/cosmos/ibc-go/v8/modules/apps/29-fee"
+	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
+	ibctransfer "github.com/cosmos/ibc-go/v8/modules/apps/transfer"
+	ibctransafertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	ibc "github.com/cosmos/ibc-go/v8/modules/core"
+	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
+
 	"cosmossdk.io/math"
 	"cosmossdk.io/x/evidence"
 	evidencetypes "cosmossdk.io/x/evidence/types"
@@ -11,6 +23,7 @@ import (
 	feegrantmodule "cosmossdk.io/x/feegrant/module"
 	"cosmossdk.io/x/upgrade"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -29,19 +42,8 @@ import (
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/cosmos/ibc-go/modules/capability"
-	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
-	icagenesistypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/genesis/types"
-	icahosttypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
-	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
-	ibcfee "github.com/cosmos/ibc-go/v8/modules/apps/29-fee"
-	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
-	ibctransfer "github.com/cosmos/ibc-go/v8/modules/apps/transfer"
-	ibctransafertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v8/modules/core"
-	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
 
-	"github.com/bandprotocol/chain/v3/app/upgrades/v2_6"
+	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
 	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
 	"github.com/bandprotocol/chain/v3/x/oracle"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
@@ -72,6 +74,12 @@ func NewDefaultGenesisState(cdc codec.Codec) GenesisState {
 	govGenesis.Params.MinDeposit = sdk.NewCoins(
 		sdk.NewCoin(denom, sdk.TokensFromConsensusPower(1000, sdk.DefaultPowerReduction)),
 	)
+	govGenesis.Params.ExpeditedMinDeposit = sdk.NewCoins(
+		sdk.NewCoin(
+			denom,
+			sdk.TokensFromConsensusPower(2000, sdk.DefaultPowerReduction)),
+	)
+
 	crisisGenesis.ConstantFee = sdk.NewCoin(denom, sdk.TokensFromConsensusPower(10000, sdk.DefaultPowerReduction))
 	slashingGenesis.Params.SignedBlocksWindow = 86400                                // approximately 1 day
 	slashingGenesis.Params.MinSignedPerWindow = math.LegacyNewDecWithPrec(5, 2)      // 5%
@@ -82,7 +90,7 @@ func NewDefaultGenesisState(cdc codec.Codec) GenesisState {
 	icaGenesis.HostGenesisState.Params = icahosttypes.Params{
 		HostEnabled: true,
 		// TODO: Update ICA Allow messages
-		AllowMessages: v2_6.ICAAllowMessages,
+		AllowMessages: v3.ICAAllowMessages,
 	}
 
 	globalfeeGenesis.Params.MinimumGasPrices = sdk.NewDecCoins(

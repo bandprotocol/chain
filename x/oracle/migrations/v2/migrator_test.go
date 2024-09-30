@@ -3,12 +3,13 @@ package v2_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
-	"github.com/stretchr/testify/require"
 
 	"github.com/bandprotocol/chain/v3/x/oracle"
 	"github.com/bandprotocol/chain/v3/x/oracle/exported"

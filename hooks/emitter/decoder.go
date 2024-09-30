@@ -3,7 +3,13 @@ package emitter
 import (
 	"encoding/hex"
 
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	connectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+
 	feegranttypes "cosmossdk.io/x/feegrant"
+
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -14,10 +20,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/group"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
-	connectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
-	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 
 	"github.com/bandprotocol/chain/v3/hooks/common"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"

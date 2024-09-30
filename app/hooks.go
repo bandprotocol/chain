@@ -35,7 +35,8 @@ func NewAppHooks(appCodec codec.Codec,
 	txConfig client.TxConfig,
 	keepers *keepers.AppKeepers,
 	homePath string,
-	appOpts servertypes.AppOptions) common.Hooks {
+	appOpts servertypes.AppOptions,
+) common.Hooks {
 	hooks := make(common.Hooks, 0)
 
 	if emitterURI := cast.ToString(appOpts.Get(FlagWithEmitter)); emitterURI != "" {
@@ -98,7 +99,6 @@ func NewAppHooks(appCodec codec.Codec,
 	}
 
 	return hooks
-
 }
 
 // ABCI app to call hook

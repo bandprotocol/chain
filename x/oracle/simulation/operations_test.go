@@ -8,7 +8,7 @@ package simulation_test
 // 	"time"
 
 // 	abci "github.com/cometbft/cometbft/abci/types"
-// 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+// 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 // 	sdk "github.com/cosmos/cosmos-sdk/types"
 // 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 // 	"github.com/cosmos/cosmos-sdk/x/bank/testutil"
@@ -31,7 +31,7 @@ package simulation_test
 // func (suite *SimTestSuite) SetupTest() {
 // 	app, _ := bandtesting.CreateTestApp(suite.T(), true)
 // 	suite.app = app
-// 	suite.ctx = app.BaseApp.NewContextLegacy(false, tmproto.Header{ChainID: bandtesting.ChainID})
+// 	suite.ctx = app.BaseApp.NewContextLegacy(false, cmtproto.Header{ChainID: bandtesting.ChainID})
 // 	s := rand.NewSource(1)
 // 	suite.r = rand.New(s)
 // 	suite.accs = suite.getTestingAccounts(suite.r, 10)
@@ -39,7 +39,7 @@ package simulation_test
 // 	// begin a new block
 // 	suite.app.BeginBlock(
 // 		abci.RequestBeginBlock{
-// 			Header: tmproto.Header{
+// 			Header: cmtproto.Header{
 // 				ChainID: bandtesting.ChainID,
 // 				Height:  suite.app.LastBlockHeight() + 1,
 // 				AppHash: suite.app.LastCommitID().Hash,

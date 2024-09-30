@@ -5,14 +5,16 @@ import (
 	"errors"
 	"strings"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 	"gorm.io/gorm"
+
+	abci "github.com/cometbft/cometbft/abci/types"
+
+	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bandprotocol/chain/v3/hooks/common"
 	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
