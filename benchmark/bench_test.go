@@ -19,8 +19,38 @@ var PrepareCases = map[string]struct {
 	parameters   []uint64
 	stringLength []int
 }{
+	"ask_external_data": {
+		scenario:     1,
+		parameters:   []uint64{1, 4, 8, 16},
+		stringLength: []int{1, 200, 400, 600},
+	},
+	"infinite_loop": {
+		scenario:     2,
+		parameters:   []uint64{0},
+		stringLength: []int{1},
+	},
+	"arithmetic_ops": {
+		scenario:     3,
+		parameters:   []uint64{1, 100, 10000, 1000000, math.MaxUint64},
+		stringLength: []int{1},
+	},
+	"allocate_mem": {
+		scenario:     4,
+		parameters:   []uint64{1, 100, 10000, 1000000, math.MaxUint64},
+		stringLength: []int{1},
+	},
+	"find_median": {
+		scenario:     5,
+		parameters:   []uint64{1, 100, 10000, 1000000, math.MaxUint64},
+		stringLength: []int{1},
+	},
 	"finite_loop": {
 		scenario:     6,
+		parameters:   []uint64{1, 100, 10000, 1000000, math.MaxUint64},
+		stringLength: []int{1},
+	},
+	"set_local_var": {
+		scenario:     7,
 		parameters:   []uint64{1, 100, 10000, 1000000, math.MaxUint64},
 		stringLength: []int{1},
 	},
