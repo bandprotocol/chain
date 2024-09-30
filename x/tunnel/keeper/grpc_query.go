@@ -14,9 +14,9 @@ import (
 
 var _ types.QueryServer = queryServer{}
 
-type queryServer struct{ k *Keeper }
+type queryServer struct{ k Keeper }
 
-func NewQueryServer(k *Keeper) types.QueryServer {
+func NewQueryServer(k Keeper) types.QueryServer {
 	return queryServer{k: k}
 }
 

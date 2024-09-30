@@ -59,7 +59,7 @@ type AppKeepers struct {
 	FeedsKeeper           feedskeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	GlobalfeeKeeper       globalfeekeeper.Keeper
-	TunnelKeeper          *tunnelkeeper.Keeper
+	TunnelKeeper          tunnelkeeper.Keeper
 	RestakeKeeper         restakekeeper.Keeper
 
 	// make scoped keepers public for test purposes

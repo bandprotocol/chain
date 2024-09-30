@@ -13,16 +13,25 @@ func NewPacket(
 	tunnelID uint64,
 	nonce uint64,
 	signalPrices []SignalPrice,
-	packetContent *types.Any,
+	packetContent PacketContentI,
 	createdAt int64,
-) Packet {
+) (Packet, error) {
+	msg, ok := packetContent.(proto.Message)
+	if !ok {
+		return Packet{}, fmt.Errorf("can't proto marshal %T", msg)
+	}
+	any, err := types.NewAnyWithValue(msg)
+	if err != nil {
+		return Packet{}, err
+	}
+
 	return Packet{
 		TunnelID:      tunnelID,
 		Nonce:         nonce,
 		SignalPrices:  signalPrices,
-		PacketContent: packetContent,
+		PacketContent: any,
 		CreatedAt:     createdAt,
-	}
+	}, nil
 }
 
 // UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces

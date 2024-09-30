@@ -128,7 +128,10 @@ func (k Keeper) ProducePacket(
 	// increment nonce count
 	tunnel.NonceCount++
 
-	newPacket := types.NewPacket(tunnel.ID, tunnel.NonceCount, nsps, nil, unixNow)
+	newPacket, err := types.NewPacket(tunnel.ID, tunnel.NonceCount, nsps, nil, unixNow)
+	if err != nil {
+		return sdkerrors.Wrapf(err, "failed to create packet for tunnel %d", tunnel.ID)
+	}
 	if err := k.SendPacket(ctx, tunnel, newPacket); err != nil {
 		return sdkerrors.Wrapf(err, "route %s failed to send packet", tunnel.Route.TypeUrl)
 	}

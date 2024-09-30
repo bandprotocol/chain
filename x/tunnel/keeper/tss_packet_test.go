@@ -14,13 +14,14 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 		DestinationChainID:         "chain-1",
 		DestinationContractAddress: "0x1234567890abcdef",
 	}
-	packet := types.NewPacket(
+	packet, err := types.NewPacket(
 		1,                     // tunnelID
 		1,                     // nonce
 		[]types.SignalPrice{}, // SignalPriceInfos
-		nil,
+		&route,
 		time.Now().Unix(),
 	)
+	s.Require().NoError(err)
 
 	content, err := k.SendTSSPacket(ctx, &route, packet)
 	s.Require().NoError(err)

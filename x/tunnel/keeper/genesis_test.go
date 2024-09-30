@@ -120,7 +120,7 @@ func TestValidateGenesis(t *testing.T) {
 
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
-			err := keeper.ValidateGenesis(tc.genesis)
+			err := types.ValidateGenesis(*tc.genesis)
 			if tc.requireErr {
 				require.Error(t, err)
 				require.Contains(t, err.Error(), tc.errMsg)
