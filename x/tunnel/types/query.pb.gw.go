@@ -365,15 +365,15 @@ func request_Query_Packet_0(ctx context.Context, marshaler runtime.Marshaler, cl
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tunnel_id", err)
 	}
 
-	val, ok = pathParams["nonce"]
+	val, ok = pathParams["sequence"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "nonce")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "sequence")
 	}
 
-	protoReq.Nonce, err = runtime.Uint64(val)
+	protoReq.Sequence, err = runtime.Uint64(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "nonce", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "sequence", err)
 	}
 
 	msg, err := client.Packet(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -403,15 +403,15 @@ func local_request_Query_Packet_0(ctx context.Context, marshaler runtime.Marshal
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "tunnel_id", err)
 	}
 
-	val, ok = pathParams["nonce"]
+	val, ok = pathParams["sequence"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "nonce")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "sequence")
 	}
 
-	protoReq.Nonce, err = runtime.Uint64(val)
+	protoReq.Sequence, err = runtime.Uint64(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "nonce", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "sequence", err)
 	}
 
 	msg, err := server.Packet(ctx, &protoReq)
@@ -799,7 +799,7 @@ var (
 
 	pattern_Query_Packets_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"tunnel", "v1beta1", "tunnels", "tunnel_id", "packets"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_Packet_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"tunnel", "v1beta1", "tunnels", "tunnel_id", "packets", "nonce"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Packet_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"tunnel", "v1beta1", "tunnels", "tunnel_id", "packets", "sequence"}, "", runtime.AssumeColonVerbOpt(false)))
 
 	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"tunnel", "v1beta1", "params"}, "", runtime.AssumeColonVerbOpt(false)))
 )

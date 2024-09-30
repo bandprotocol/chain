@@ -16,8 +16,8 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 	}
 	packet, err := types.NewPacket(
 		1,                     // tunnelID
-		1,                     // nonce
-		[]types.SignalPrice{}, // SignalPriceInfos
+		1,                     // sequence
+		[]types.SignalPrice{}, // signalPriceInfos[]
 		time.Now().Unix(),
 	)
 	s.Require().NoError(err)

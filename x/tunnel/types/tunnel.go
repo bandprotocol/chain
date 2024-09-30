@@ -13,7 +13,7 @@ var _ types.UnpackInterfacesMessage = Tunnel{}
 // NewTunnel creates a new Tunnel instance.
 func NewTunnel(
 	id uint64,
-	nonceCount uint64,
+	Sequence uint64,
 	route RouteI,
 	encoder Encoder,
 	feePayer string,
@@ -35,7 +35,7 @@ func NewTunnel(
 
 	return Tunnel{
 		ID:               id,
-		NonceCount:       nonceCount,
+		Sequence:         Sequence,
 		Route:            any,
 		Encoder:          encoder,
 		FeePayer:         feePayer,

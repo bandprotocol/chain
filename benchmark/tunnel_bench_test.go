@@ -99,7 +99,7 @@ func testBenchmarkTunnel(numTunnels, numSignals, maxSignals int, encoder types.E
 			// check result
 			for j := 1; j <= numTunnels; j++ {
 				newTunnel := ba.TunnelKeeper.MustGetTunnel(ba.Ctx, uint64(j))
-				require.Equal(b, tunnels[j-1].NonceCount+1, newTunnel.NonceCount)
+				require.Equal(b, tunnels[j-1].Sequence+1, newTunnel.Sequence)
 				require.True(b, newTunnel.IsActive)
 			}
 		}

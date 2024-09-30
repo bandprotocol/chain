@@ -11,13 +11,13 @@ var _ types.UnpackInterfacesMessage = Packet{}
 
 func NewPacket(
 	tunnelID uint64,
-	nonce uint64,
+	sequence uint64,
 	signalPrices []SignalPrice,
 	createdAt int64,
 ) (Packet, error) {
 	return Packet{
 		TunnelID:      tunnelID,
-		Nonce:         nonce,
+		Sequence:      sequence,
 		SignalPrices:  signalPrices,
 		PacketContent: nil,
 		CreatedAt:     createdAt,
@@ -49,7 +49,7 @@ func (p *Packet) SetPacketContent(packetContent PacketContentI) error {
 func (p Packet) GetContent() (PacketContentI, error) {
 	packetContent, ok := p.PacketContent.GetCachedValue().(PacketContentI)
 	if !ok {
-		return nil, ErrNoPacketContent.Wrapf("tunnelID: %d, nonce: %d", p.TunnelID, p.Nonce)
+		return nil, ErrNoPacketContent.Wrapf("tunnelID: %d, sequence: %d", p.TunnelID, p.Sequence)
 	}
 
 	return packetContent, nil

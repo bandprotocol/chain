@@ -66,8 +66,8 @@ message Tunnel {
 
   // id is the tunnel ID
   uint64 id = 1 [(gogoproto.customname) = "ID"];
-  // nonce_count is representing the number of packets sent
-  uint64 nonce_count = 2;
+  // sequence is representing the sequence of the tunnel packet.
+  uint64 sequence = 2;
   // route is the route for delivering the signal prices
   google.protobuf.Any route = 3 [(cosmos_proto.accepts_interface) = "RouteI"];
   // encoder is the mode of encoding price signal data.
@@ -127,8 +127,8 @@ message TotalFees {
 message Packet {
   // tunnel_id is the tunnel ID
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
-  // nonce is the nonce of the packet
-  uint64 nonce = 2;
+  // sequence is representing the sequence of the tunnel packet.
+  uint64 sequence = 2;
   // signal_prices is the list of signal prices
   repeated SignalPrice signal_prices = 3 [(gogoproto.nullable) = false];
   // packet_content is the content of the packet that implements PacketContentI
