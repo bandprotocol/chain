@@ -321,7 +321,7 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *
 }
 
 // AfterBeginBlock specify actions need to do after begin block period (app.Hook interface).
-func (h *Hook) AfterBeginBlock(ctx sdk.Context, res sdk.BeginBlock) {
+func (h *Hook) AfterBeginBlock(ctx sdk.Context, req *abci.RequestFinalizeBlock, events []abci.Event) {
 	h.accsInBlock = make(map[string]bool)
 	h.accsInTx = make(map[string]bool)
 	h.msgs = []common.Message{}
@@ -330,12 +330,12 @@ func (h *Hook) AfterBeginBlock(ctx sdk.Context, res sdk.BeginBlock) {
 		// h.emitStartState = false
 		// h.emitNonHistoricalState(ctx)
 	} else {
-		for _, val := range ctx.VoteInfos() {
+		for _, val := range req.DecidedLastCommit.Votes {
 			validator, _ := h.stakingKeeper.ValidatorByConsAddr(ctx, val.Validator.Address)
 			conAddr, _ := validator.GetConsAddr()
 			h.Write("NEW_VALIDATOR_VOTE", common.JsDict{
 				"consensus_address": sdk.ConsAddress(conAddr).String(),
-				"block_height":      ctx.BlockHeight() - 1,
+				"block_height":      req.Height,
 				"voted":             val.BlockIdFlag == types1.BlockIDFlagCommit,
 			})
 			h.emitUpdateValidatorRewardAndAccumulatedCommission(ctx, MustParseValAddress(validator.GetOperator()))
@@ -356,7 +356,7 @@ func (h *Hook) AfterBeginBlock(ctx sdk.Context, res sdk.BeginBlock) {
 		"inflation": minter.Inflation.String(),
 		"supply":    totalSupply,
 	})
-	for _, event := range res.Events {
+	for _, event := range events {
 		h.handleBeginBlockEndBlockEvent(ctx, event)
 	}
 }
@@ -437,7 +437,7 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, tx sdk.Tx, res *abci.ExecTxResult
 }
 
 // AfterEndBlock specify actions need to do after end block period (app.Hook interface).
-func (h *Hook) AfterEndBlock(ctx sdk.Context, res sdk.EndBlock) {
+func (h *Hook) AfterEndBlock(ctx sdk.Context, events []abci.Event) {
 	// update group proposals when voting period is end
 	timeBytes := sdk.FormatTimeBytes(ctx.BlockTime().UTC())
 	lenTimeByte := byte(len(timeBytes))
@@ -451,7 +451,7 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, res sdk.EndBlock) {
 		h.doUpdateGroupProposal(ctx, proposalID)
 	}
 
-	for _, event := range res.Events {
+	for _, event := range events {
 		h.handleBeginBlockEndBlockEvent(ctx, event)
 	}
 	// Update balances of all affected accounts on this block.

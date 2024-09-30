@@ -107,14 +107,17 @@ func (app *BandApp) FinalizeBlock(req *abci.RequestFinalizeBlock) (*abci.Respons
 	// Finalize on base app first
 	res, err := app.BaseApp.FinalizeBlock(req)
 
-	// TODO: Process beginblock here?
-	// Should not error ??
-	ctx := app.BaseApp.NewContext(false)
+	beginBlockEvents, endBlockEvents := splitEvents(res.Events)
+	ctx := app.BaseApp.GetContextForFinalizeBlock(nil)
+	app.hooks.AfterBeginBlock(ctx, req, beginBlockEvents)
+
 	for i := range len(req.Txs) {
 		tx, _ := app.txConfig.TxDecoder()(req.Txs[i])
 		resTx := res.TxResults[i]
 		app.hooks.AfterDeliverTx(ctx, tx, resTx)
 	}
+
+	app.hooks.AfterEndBlock(ctx, endBlockEvents)
 
 	return res, err
 }
@@ -124,4 +127,22 @@ func (app *BandApp) Commit() (res *abci.ResponseCommit, err error) {
 	app.hooks.BeforeCommit()
 
 	return app.BaseApp.Commit()
+}
+
+func splitEvents(events []abci.Event) (begins []abci.Event, ends []abci.Event) {
+	for _, event := range events {
+		n := len(event.Attributes)
+		attrType := event.Attributes[n-1]
+		if attrType.Key != "mode" {
+			panic("The last attribute of begin/end block event should be mode")
+		}
+		if attrType.Value == "BeginBlock" {
+			begins = append(begins, event)
+		} else if attrType.Value == "EndBlock" {
+			ends = append(ends, event)
+		} else {
+			panic(fmt.Sprintf("Mode of event should be BeginBlock/EndBlock got %s", attrType.Value))
+		}
+	}
+	return begins, ends
 }

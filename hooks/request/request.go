@@ -52,7 +52,7 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *
 }
 
 // AfterBeginBlock specify actions need to do after begin block period (app.Hook interface).
-func (h *Hook) AfterBeginBlock(ctx sdk.Context, res sdk.BeginBlock) {
+func (h *Hook) AfterBeginBlock(_ sdk.Context, _ *abci.RequestFinalizeBlock, _ []abci.Event) {
 	trans := h.db.Begin()
 	h.trans = trans
 }
@@ -96,9 +96,9 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, tx sdk.Tx, res *abci.ExecTxResult
 }
 
 // AfterEndBlock specify actions need to do after end block period (app.Hook interface).
-func (h *Hook) AfterEndBlock(ctx sdk.Context, res sdk.EndBlock) {
+func (h *Hook) AfterEndBlock(ctx sdk.Context, events []abci.Event) {
 	var requests []types.QueryRequestResponse
-	for _, event := range res.Events {
+	for _, event := range events {
 		events := sdk.StringifyEvents([]abci.Event{event})
 		evMap := common.ParseEvents(events)
 		switch event.Type {
