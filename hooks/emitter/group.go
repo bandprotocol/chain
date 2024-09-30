@@ -123,7 +123,7 @@ func (h *Hook) handleGroupMsgVote(
 		common.Atoi(extractStringFromEventMap(evMap, proto.MessageName(&group.EventVote{}), "proposal_id")),
 	)
 	voteResponse, err := h.groupKeeper.VoteByProposalVoter(
-		sdk.WrapSDKContext(ctx),
+		ctx,
 		&group.QueryVoteByProposalVoterRequest{
 			ProposalId: proposalId,
 			Voter:      msg.Voter,
@@ -280,7 +280,7 @@ func (h *Hook) handleGroupEventProposalPruned(
 
 func (h *Hook) doUpdateGroup(ctx sdk.Context, groupId uint64) {
 	groupInfoResponse, _ := h.groupKeeper.GroupInfo(
-		sdk.WrapSDKContext(ctx),
+		ctx,
 		&group.QueryGroupInfoRequest{GroupId: groupId},
 	)
 	groupInfo := groupInfoResponse.Info
@@ -296,7 +296,7 @@ func (h *Hook) doUpdateGroup(ctx sdk.Context, groupId uint64) {
 
 func (h *Hook) doUpdateGroupPolicy(ctx sdk.Context, policyAddress string) {
 	groupPolicyResponse, _ := h.groupKeeper.GroupPolicyInfo(
-		sdk.WrapSDKContext(ctx),
+		ctx,
 		&group.QueryGroupPolicyInfoRequest{
 			Address: policyAddress,
 		},
@@ -318,7 +318,7 @@ func (h *Hook) doUpdateGroupPolicy(ctx sdk.Context, policyAddress string) {
 
 func (h *Hook) doAbortProposals(ctx sdk.Context, policyAddress string) {
 	groupProposalsResponse, _ := h.groupKeeper.ProposalsByGroupPolicy(
-		sdk.WrapSDKContext(ctx),
+		ctx,
 		&group.QueryProposalsByGroupPolicyRequest{
 			Address: policyAddress,
 		},
@@ -334,7 +334,7 @@ func (h *Hook) doAbortProposals(ctx sdk.Context, policyAddress string) {
 			break
 		}
 		groupProposalsResponse, _ = h.groupKeeper.ProposalsByGroupPolicy(
-			sdk.WrapSDKContext(ctx),
+			ctx,
 			&group.QueryProposalsByGroupPolicyRequest{
 				Address: policyAddress,
 				Pagination: &query.PageRequest{
@@ -347,7 +347,7 @@ func (h *Hook) doAbortProposals(ctx sdk.Context, policyAddress string) {
 
 func (h *Hook) doUpdateGroupProposal(ctx sdk.Context, proposalId uint64) {
 	proposalResponse, _ := h.groupKeeper.Proposal(
-		sdk.WrapSDKContext(ctx),
+		ctx,
 		&group.QueryProposalRequest{ProposalId: proposalId},
 	)
 	proposal := proposalResponse.Proposal
@@ -383,7 +383,7 @@ func (h *Hook) doUpdateGroupProposal(ctx sdk.Context, proposalId uint64) {
 
 func (h *Hook) doAddGroupMembers(ctx sdk.Context, groupId uint64) {
 	groupMembersResponse, _ := h.groupKeeper.GroupMembers(
-		sdk.WrapSDKContext(ctx),
+		ctx,
 		&group.QueryGroupMembersRequest{GroupId: groupId},
 	)
 	for {
@@ -401,7 +401,7 @@ func (h *Hook) doAddGroupMembers(ctx sdk.Context, groupId uint64) {
 			break
 		}
 		groupMembersResponse, _ = h.groupKeeper.GroupMembers(
-			sdk.WrapSDKContext(ctx),
+			ctx,
 			&group.QueryGroupMembersRequest{
 				GroupId: groupId,
 				Pagination: &query.PageRequest{
