@@ -18,7 +18,6 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 		1,                     // tunnelID
 		1,                     // nonce
 		[]types.SignalPrice{}, // SignalPriceInfos
-		&route,
 		time.Now().Unix(),
 	)
 	s.Require().NoError(err)
