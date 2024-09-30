@@ -121,8 +121,8 @@ func defaultRequest() types.Request {
 	return types.NewRequest(
 		1,
 		basicCalldata,
-		[]sdk.ValAddress{bandtesting.Validators[0].ValAddress},
-		1,
+		[]sdk.ValAddress{validators[0].Address, validators[1].Address},
+		2,
 		1,
 		bandtesting.ParseTime(0),
 		basicClientID,

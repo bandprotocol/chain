@@ -28,7 +28,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationValid() {
 
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:      suite.ctx.ChainID(),
-		Validator:    bandtesting.Validators[0].ValAddress.String(),
+		Validator:    validators[0].Address.String(),
 		RequestId:    1,
 		ExternalId:   1,
 		DataSourceId: 1,
@@ -37,7 +37,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationValid() {
 
 	requestVerification := types.NewRequestVerification(
 		req.ChainId,
-		bandtesting.Validators[0].ValAddress,
+		validators[0].Address,
 		types.RequestID(req.RequestId),
 		types.ExternalID(req.ExternalId),
 		types.DataSourceID(req.DataSourceId),
@@ -50,7 +50,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationValid() {
 
 	expectedResult := &types.QueryRequestVerificationResponse{
 		ChainId:      ctx.ChainID(),
-		Validator:    bandtesting.Validators[0].ValAddress.String(),
+		Validator:    validators[0].Address.String(),
 		RequestId:    1,
 		ExternalId:   1,
 		DataSourceId: 1,
@@ -66,7 +66,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedRequestIDNotExist() {
 
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:      suite.ctx.ChainID(),
-		Validator:    bandtesting.Validators[0].ValAddress.String(),
+		Validator:    validators[0].Address.String(),
 		RequestId:    2,
 		ExternalId:   1,
 		DataSourceId: 1,
@@ -75,7 +75,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedRequestIDNotExist() {
 
 	requestVerification := types.NewRequestVerification(
 		req.ChainId,
-		bandtesting.Validators[0].ValAddress,
+		validators[0].Address,
 		types.RequestID(req.RequestId),
 		types.ExternalID(req.ExternalId),
 		types.DataSourceID(req.DataSourceId),
@@ -97,7 +97,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationInDelayRange() {
 
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:      suite.ctx.ChainID(),
-		Validator:    bandtesting.Validators[0].ValAddress.String(),
+		Validator:    validators[0].Address.String(),
 		RequestId:    5,
 		ExternalId:   1,
 		DataSourceId: 1,
@@ -107,7 +107,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationInDelayRange() {
 
 	requestVerification := types.NewRequestVerification(
 		req.ChainId,
-		bandtesting.Validators[0].ValAddress,
+		validators[0].Address,
 		types.RequestID(req.RequestId),
 		types.ExternalID(req.ExternalId),
 		types.DataSourceID(req.DataSourceId),
@@ -120,7 +120,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationInDelayRange() {
 
 	expectedResult := &types.QueryRequestVerificationResponse{
 		ChainId:      ctx.ChainID(),
-		Validator:    bandtesting.Validators[0].ValAddress.String(),
+		Validator:    validators[0].Address.String(),
 		RequestId:    5,
 		ExternalId:   1,
 		DataSourceId: 1,
@@ -137,7 +137,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedExceedDelayRange() {
 
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:      ctx.ChainID(),
-		Validator:    bandtesting.Validators[0].ValAddress.String(),
+		Validator:    validators[0].Address.String(),
 		RequestId:    6,
 		ExternalId:   1,
 		DataSourceId: 1,
@@ -147,7 +147,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedExceedDelayRange() {
 
 	requestVerification := types.NewRequestVerification(
 		req.ChainId,
-		bandtesting.Validators[0].ValAddress,
+		validators[0].Address,
 		types.RequestID(req.RequestId),
 		types.ExternalID(req.ExternalId),
 		types.DataSourceID(req.DataSourceId),
@@ -172,7 +172,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedDataSourceIDNotMatch(
 
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:      ctx.ChainID(),
-		Validator:    bandtesting.Validators[0].ValAddress.String(),
+		Validator:    validators[0].Address.String(),
 		RequestId:    1,
 		ExternalId:   1,
 		DataSourceId: 2,
@@ -181,7 +181,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedDataSourceIDNotMatch(
 
 	requestVerification := types.NewRequestVerification(
 		req.ChainId,
-		bandtesting.Validators[0].ValAddress,
+		validators[0].Address,
 		types.RequestID(req.RequestId),
 		types.ExternalID(req.ExternalId),
 		types.DataSourceID(req.DataSourceId),
@@ -206,7 +206,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedChainIDNotMatch() {
 
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:      "other-chain-id",
-		Validator:    bandtesting.Validators[0].ValAddress.String(),
+		Validator:    validators[0].Address.String(),
 		RequestId:    1,
 		ExternalId:   1,
 		DataSourceId: 1,
@@ -215,7 +215,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedChainIDNotMatch() {
 
 	requestVerification := types.NewRequestVerification(
 		req.ChainId,
-		bandtesting.Validators[0].ValAddress,
+		validators[0].Address,
 		types.RequestID(req.RequestId),
 		types.ExternalID(req.ExternalId),
 		types.DataSourceID(req.DataSourceId),
@@ -250,7 +250,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedInvalidValidatorAddr(
 
 	requestVerification := types.NewRequestVerification(
 		req.ChainId,
-		bandtesting.Validators[0].ValAddress,
+		validators[0].Address,
 		types.RequestID(req.RequestId),
 		types.ExternalID(req.ExternalId),
 		types.DataSourceID(req.DataSourceId),
@@ -272,7 +272,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedInvalidReporterPubKey
 
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:      ctx.ChainID(),
-		Validator:    bandtesting.Validators[0].ValAddress.String(),
+		Validator:    validators[0].Address.String(),
 		RequestId:    1,
 		ExternalId:   1,
 		DataSourceId: 1,
@@ -281,7 +281,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedInvalidReporterPubKey
 
 	requestVerification := types.NewRequestVerification(
 		req.ChainId,
-		bandtesting.Validators[0].ValAddress,
+		validators[0].Address,
 		types.RequestID(req.RequestId),
 		types.ExternalID(req.ExternalId),
 		types.DataSourceID(req.DataSourceId),
@@ -303,7 +303,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedEmptySignature() {
 
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:    ctx.ChainID(),
-		Validator:  bandtesting.Validators[0].ValAddress.String(),
+		Validator:  validators[0].Address.String(),
 		RequestId:  1,
 		ExternalId: 1,
 		Reporter:   hex.EncodeToString(reporterPrivKey.PubKey().Bytes()),
@@ -322,7 +322,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedReporterUnauthorized(
 
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:      ctx.ChainID(),
-		Validator:    bandtesting.Validators[1].ValAddress.String(),
+		Validator:    validators[1].Address.String(),
 		RequestId:    1,
 		ExternalId:   1,
 		DataSourceId: 1,
@@ -331,7 +331,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedReporterUnauthorized(
 
 	requestVerification := types.NewRequestVerification(
 		req.ChainId,
-		bandtesting.Validators[1].ValAddress,
+		validators[1].Address,
 		types.RequestID(req.RequestId),
 		types.ExternalID(req.ExternalId),
 		types.DataSourceID(req.DataSourceId),
@@ -353,14 +353,14 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedUnselectedValidator()
 	k := suite.oracleKeeper
 
 	request := defaultRequest()
-	request.RequestedValidators = []string{bandtesting.Validators[1].ValAddress.String()}
+	request.RequestedValidators = []string{validators[1].Address.String()}
 
 	k.SetRequest(ctx, types.RequestID(1), request)
 	k.SetRequestCount(ctx, 1)
 
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:      ctx.ChainID(),
-		Validator:    bandtesting.Validators[0].ValAddress.String(),
+		Validator:    validators[0].Address.String(),
 		RequestId:    1,
 		ExternalId:   1,
 		DataSourceId: 1,
@@ -369,7 +369,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedUnselectedValidator()
 
 	requestVerification := types.NewRequestVerification(
 		req.ChainId,
-		bandtesting.Validators[0].ValAddress,
+		validators[0].Address,
 		types.RequestID(req.RequestId),
 		types.ExternalID(req.ExternalId),
 		types.DataSourceID(req.DataSourceId),
@@ -396,7 +396,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedNoDataSourceFound() {
 
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:      ctx.ChainID(),
-		Validator:    bandtesting.Validators[0].ValAddress.String(),
+		Validator:    validators[0].Address.String(),
 		RequestId:    1,
 		ExternalId:   1,
 		DataSourceId: 1,
@@ -405,7 +405,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedNoDataSourceFound() {
 
 	requestVerification := types.NewRequestVerification(
 		req.ChainId,
-		bandtesting.Validators[0].ValAddress,
+		validators[0].Address,
 		types.RequestID(req.RequestId),
 		types.ExternalID(req.ExternalId),
 		types.DataSourceID(req.DataSourceId),
@@ -431,7 +431,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedValidatorAlreadyRepor
 	err := k.AddReport(
 		ctx,
 		types.RequestID(1),
-		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
+		validators[0].Address, true, []types.RawReport{
 			types.NewRawReport(1, 0, []byte("testdata")),
 			types.NewRawReport(2, 0, []byte("testdata")),
 			types.NewRawReport(3, 0, []byte("testdata")),
@@ -441,7 +441,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedValidatorAlreadyRepor
 
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:      ctx.ChainID(),
-		Validator:    bandtesting.Validators[0].ValAddress.String(),
+		Validator:    validators[0].Address.String(),
 		RequestId:    1,
 		ExternalId:   1,
 		DataSourceId: 1,
@@ -450,7 +450,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedValidatorAlreadyRepor
 
 	requestVerification := types.NewRequestVerification(
 		req.ChainId,
-		bandtesting.Validators[0].ValAddress,
+		validators[0].Address,
 		types.RequestID(req.RequestId),
 		types.ExternalID(req.ExternalId),
 		types.DataSourceID(req.DataSourceId),
@@ -482,7 +482,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedRequestAlreadyExpired
 
 	req := &types.QueryRequestVerificationRequest{
 		ChainId:      ctx.ChainID(),
-		Validator:    bandtesting.Validators[0].ValAddress.String(),
+		Validator:    validators[0].Address.String(),
 		RequestId:    1,
 		ExternalId:   1,
 		DataSourceId: 1,
@@ -491,7 +491,7 @@ func (suite *KeeperTestSuite) TestRequestVerificationFailedRequestAlreadyExpired
 
 	requestVerification := types.NewRequestVerification(
 		req.ChainId,
-		bandtesting.Validators[0].ValAddress,
+		validators[0].Address,
 		types.RequestID(req.RequestId),
 		types.ExternalID(req.ExternalId),
 		types.DataSourceID(req.DataSourceId),
@@ -515,7 +515,7 @@ func (suite *KeeperTestSuite) TestGetReporters() {
 	require := suite.Require()
 
 	req := &types.QueryReportersRequest{
-		ValidatorAddress: bandtesting.Validators[0].ValAddress.String(),
+		ValidatorAddress: validators[0].Address.String(),
 	}
 	res, err := querier.Reporters(context.Background(), req)
 
@@ -539,7 +539,7 @@ func (suite *KeeperTestSuite) TestGetExpiredReporters() {
 	querier := types.NewQueryClient(queryHelper)
 
 	req := &types.QueryReportersRequest{
-		ValidatorAddress: bandtesting.Validators[0].ValAddress.String(),
+		ValidatorAddress: validators[0].Address.String(),
 	}
 	res, err := querier.Reporters(ctx, req)
 
@@ -559,7 +559,7 @@ func (suite *KeeperTestSuite) TestIsReporter() {
 	require := suite.Require()
 
 	req := &types.QueryIsReporterRequest{
-		ValidatorAddress: bandtesting.Validators[0].ValAddress.String(),
+		ValidatorAddress: validators[0].Address.String(),
 		ReporterAddress:  reporterAddr.String(),
 	}
 	res, err := querier.IsReporter(context.Background(), req)
@@ -576,7 +576,7 @@ func (suite *KeeperTestSuite) TestIsNotReporter() {
 	require := suite.Require()
 
 	req := &types.QueryIsReporterRequest{
-		ValidatorAddress: bandtesting.Validators[1].ValAddress.String(),
+		ValidatorAddress: validators[1].Address.String(),
 		ReporterAddress:  reporterAddr.String(),
 	}
 	res, err := querier.IsReporter(context.Background(), req)
@@ -601,7 +601,7 @@ func (suite *KeeperTestSuite) TestPendingRequestsSuccess() {
 	assignedButPendingReq := types.NewRequest(
 		1,
 		basicCalldata,
-		[]sdk.ValAddress{bandtesting.Validators[0].ValAddress},
+		[]sdk.ValAddress{validators[0].Address},
 		1,
 		1,
 		bandtesting.ParseTime(0),
@@ -617,7 +617,7 @@ func (suite *KeeperTestSuite) TestPendingRequestsSuccess() {
 	notBeAssignedReq := types.NewRequest(
 		1,
 		basicCalldata,
-		[]sdk.ValAddress{bandtesting.Validators[1].ValAddress},
+		[]sdk.ValAddress{validators[1].Address},
 		1,
 		1,
 		bandtesting.ParseTime(0),
@@ -634,8 +634,8 @@ func (suite *KeeperTestSuite) TestPendingRequestsSuccess() {
 		1,
 		basicCalldata,
 		[]sdk.ValAddress{
-			bandtesting.Validators[0].ValAddress,
-			bandtesting.Validators[1].ValAddress,
+			validators[0].Address,
+			validators[1].Address,
 		},
 		1,
 		1,
@@ -653,8 +653,8 @@ func (suite *KeeperTestSuite) TestPendingRequestsSuccess() {
 		1,
 		basicCalldata,
 		[]sdk.ValAddress{
-			bandtesting.Validators[0].ValAddress,
-			bandtesting.Validators[1].ValAddress,
+			validators[0].Address,
+			validators[1].Address,
 		},
 		1,
 		1,
@@ -678,7 +678,7 @@ func (suite *KeeperTestSuite) TestPendingRequestsSuccess() {
 	k.SetReport(
 		ctx,
 		5,
-		types.NewReport(bandtesting.Validators[0].ValAddress, true, []types.RawReport{
+		types.NewReport(validators[0].Address, true, []types.RawReport{
 			types.NewRawReport(1, 0, []byte("testdata")),
 			types.NewRawReport(2, 0, []byte("testdata")),
 			types.NewRawReport(3, 0, []byte("testdata")),
@@ -687,7 +687,7 @@ func (suite *KeeperTestSuite) TestPendingRequestsSuccess() {
 	k.SetReport(
 		ctx,
 		5,
-		types.NewReport(bandtesting.Validators[1].ValAddress, true, []types.RawReport{
+		types.NewReport(validators[1].Address, true, []types.RawReport{
 			types.NewRawReport(1, 0, []byte("testdata")),
 			types.NewRawReport(2, 0, []byte("testdata")),
 			types.NewRawReport(3, 0, []byte("testdata")),
@@ -696,7 +696,7 @@ func (suite *KeeperTestSuite) TestPendingRequestsSuccess() {
 	k.SetReport(
 		ctx,
 		6,
-		types.NewReport(bandtesting.Validators[0].ValAddress, true, []types.RawReport{
+		types.NewReport(validators[0].Address, true, []types.RawReport{
 			types.NewRawReport(1, 0, []byte("testdata")),
 			types.NewRawReport(2, 0, []byte("testdata")),
 			types.NewRawReport(3, 0, []byte("testdata")),
@@ -704,7 +704,7 @@ func (suite *KeeperTestSuite) TestPendingRequestsSuccess() {
 	)
 
 	r, err := querier.PendingRequests(context.Background(), &types.QueryPendingRequestsRequest{
-		ValidatorAddress: sdk.ValAddress(bandtesting.Validators[0].Address).String(),
+		ValidatorAddress: sdk.ValAddress(sdk.AccAddress(validators[0].Address)).String(),
 	})
 
 	require.Equal(&types.QueryPendingRequestsResponse{RequestIDs: []uint64{3}}, r)

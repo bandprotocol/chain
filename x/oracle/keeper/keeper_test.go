@@ -25,7 +25,6 @@ import (
 
 	owasm "github.com/bandprotocol/go-owasm/api"
 
-	bandtesting "github.com/bandprotocol/chain/v3/testing"
 	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
 	oracletestutil "github.com/bandprotocol/chain/v3/x/oracle/testutil"
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
@@ -106,11 +105,11 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.queryClient = types.NewQueryClient(queryHelper)
 
 	suite.authzKeeper.EXPECT().
-		GetAuthorization(gomock.Any(), reporterAddr, bandtesting.Validators[0].Address, sdk.MsgTypeURL(&types.MsgReportData{})).
+		GetAuthorization(gomock.Any(), reporterAddr, sdk.AccAddress(validators[0].Address), sdk.MsgTypeURL(&types.MsgReportData{})).
 		Return(authz.NewGenericAuthorization(sdk.MsgTypeURL(&types.MsgReportData{})), nil).
 		AnyTimes()
 	suite.authzKeeper.EXPECT().
-		GetAuthorization(gomock.Any(), reporterAddr, bandtesting.Validators[1].Address, sdk.MsgTypeURL(&types.MsgReportData{})).
+		GetAuthorization(gomock.Any(), reporterAddr, sdk.AccAddress(validators[1].Address), sdk.MsgTypeURL(&types.MsgReportData{})).
 		Return(nil, nil).
 		AnyTimes()
 
@@ -123,12 +122,12 @@ func (suite *KeeperTestSuite) SetupTest() {
 	expiration := ctx.BlockTime().Add(time.Minute)
 	suite.authzKeeper.EXPECT().
 		GranterGrants(gomock.Any(), &authz.QueryGranterGrantsRequest{
-			Granter: bandtesting.Validators[0].Address.String(),
+			Granter: sdk.AccAddress(validators[0].Address).String(),
 		}).
 		Return(&authz.QueryGranterGrantsResponse{
 			Grants: []*authz.GrantAuthorization{
 				{
-					Granter:       bandtesting.Validators[0].Address.String(),
+					Granter:       sdk.AccAddress(validators[0].Address).String(),
 					Grantee:       reporterAddr.String(),
 					Authorization: authorization,
 					Expiration:    &expiration,
@@ -136,6 +135,16 @@ func (suite *KeeperTestSuite) SetupTest() {
 			},
 		}, nil).
 		AnyTimes()
+}
+
+func (suite *KeeperTestSuite) activeAllValidators() {
+	ctx := suite.ctx
+	k := suite.oracleKeeper
+
+	for _, v := range validators {
+		err := k.Activate(ctx, v.Address)
+		suite.Require().NoError(err)
+	}
 }
 
 func (suite *KeeperTestSuite) TestGetSetRequestCount() {

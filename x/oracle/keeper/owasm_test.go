@@ -42,16 +42,6 @@ func (suite *KeeperTestSuite) mockIterateBondedValidatorsByPower() {
 		}).Return(nil).AnyTimes()
 }
 
-func (suite *KeeperTestSuite) activeAllValidators() {
-	ctx := suite.ctx
-	k := suite.oracleKeeper
-
-	for _, v := range validators {
-		err := k.Activate(ctx, v.Address)
-		suite.Require().NoError(err)
-	}
-}
-
 func (suite *KeeperTestSuite) TestGetRandomValidatorsSuccessActivateAll() {
 	ctx := suite.ctx
 	k := suite.oracleKeeper
