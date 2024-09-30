@@ -2,9 +2,11 @@ package benchmark
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -16,6 +18,11 @@ import (
 	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
+
+func init() {
+	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
+	sdk.DefaultBondDenom = "uband"
+}
 
 type BenchmarkApp struct {
 	*band.BandApp
@@ -43,11 +50,11 @@ func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 		},
 		Validator: &Account{
 			Account: bandtesting.Validators[0],
-			Num:     5,
+			Num:     6,
 			Seq:     0,
 		},
-		TB: tb,
 	}
+	ba.TB = tb
 	ba.Ctx = ba.NewUncachedContext(false, cmtproto.Header{ChainID: bandtesting.ChainID})
 	ba.Querier = keeper.Querier{
 		Keeper: ba.OracleKeeper,
@@ -55,92 +62,49 @@ func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 	ba.TxConfig = ba.GetTxConfig()
 	ba.TxEncoder = ba.TxConfig.TxEncoder()
 
-	_, err := ba.Commit()
+	err := ba.StoreConsensusParams(ba.Ctx, GetConsensusParams(maxGasPerBlock))
 	require.NoError(tb, err)
 
-	_, err = ba.CallBeginBlock()
-	require.NoError(tb, err)
-
-	err = ba.StoreConsensusParams(ba.Ctx, GetConsensusParams(maxGasPerBlock))
-	require.NoError(tb, err)
+	var txs [][]byte
 
 	// create oracle script
 	oCode, err := GetBenchmarkWasm()
 	require.NoError(tb, err)
-	_, res, err := ba.DeliverMsg(ba.Sender, GenMsgCreateOracleScript(ba.Sender, oCode))
-	require.NoError(tb, err)
-	oid, err := GetFirstAttributeOfLastEventValue(res.Events)
-	require.NoError(tb, err)
-	ba.Oid = uint64(oid)
+	txs = append(
+		txs,
+		GenSequenceOfTxs(ba.TxEncoder, ba.TxConfig, GenMsgCreateOracleScript(ba.Sender, oCode), ba.Sender, 1)[0],
+	)
 
 	// create data source
 	dCode := []byte("hello")
-	_, res, err = ba.DeliverMsg(ba.Sender, GenMsgCreateDataSource(ba.Sender, dCode))
-	require.NoError(tb, err)
-	did, err := GetFirstAttributeOfLastEventValue(res.Events)
-	require.NoError(tb, err)
-	ba.Did = uint64(did)
+	txs = append(
+		txs,
+		GenSequenceOfTxs(ba.TxEncoder, ba.TxConfig, GenMsgCreateDataSource(ba.Sender, dCode), ba.Sender, 1)[0],
+	)
 
 	// activate oracle
-	_, _, err = ba.DeliverMsg(ba.Validator, GenMsgActivate(ba.Validator))
-	require.NoError(tb, err)
+	txs = append(
+		txs,
+		GenSequenceOfTxs(ba.TxEncoder, ba.TxConfig, GenMsgActivate(ba.Validator), ba.Validator, 1)[0],
+	)
 
-	_, err = ba.CallEndBlock()
+	res, err := ba.FinalizeBlock(
+		&abci.RequestFinalizeBlock{Txs: txs, Height: ba.LastBlockHeight() + 1, Time: time.Now()},
+	)
 	require.NoError(tb, err)
 
 	_, err = ba.Commit()
 	require.NoError(tb, err)
 
+	oid, err := GetFirstAttributeOfLastEventValue(res.TxResults[0].Events)
+	require.NoError(tb, err)
+	ba.Oid = uint64(oid)
+
+	did, err := GetFirstAttributeOfLastEventValue(res.TxResults[1].Events)
+	require.NoError(tb, err)
+	ba.Did = uint64(did)
+
 	return ba
-}
-
-func (ba *BenchmarkApp) DeliverMsg(account *Account, msgs []sdk.Msg) (sdk.GasInfo, *sdk.Result, error) {
-	tx := GenSequenceOfTxs(ba.TxConfig, msgs, account, 1)[0]
-	gas, res, err := ba.CallDeliver(tx)
-	return gas, res, err
-}
-
-func (ba *BenchmarkApp) CallBeginBlock() (sdk.BeginBlock, error) {
-	return ba.BeginBlocker(ba.Ctx)
-}
-
-func (ba *BenchmarkApp) CallEndBlock() (sdk.EndBlock, error) {
-	return ba.EndBlocker(ba.Ctx)
-}
-
-func (ba *BenchmarkApp) CallDeliver(tx sdk.Tx) (sdk.GasInfo, *sdk.Result, error) {
-	return ba.SimDeliver(ba.TxEncoder, tx)
-}
-
-func (ba *BenchmarkApp) AddMaxMsgRequests(msg []sdk.Msg) {
-	// maximum of request blocks is only 20 because after that it will become report only block because of ante
-	for block := 0; block < 10; block++ {
-		_, err := ba.CallBeginBlock()
-		require.NoError(ba.TB, err)
-
-		totalGas := uint64(0)
-		for {
-			tx := GenSequenceOfTxs(
-				ba.TxConfig,
-				msg,
-				ba.Sender,
-				1,
-			)[0]
-
-			gas, _, _ := ba.CallDeliver(tx)
-
-			totalGas += gas.GasUsed
-			if totalGas+gas.GasUsed >= uint64(BlockMaxGas) {
-				break
-			}
-		}
-
-		_, err = ba.CallEndBlock()
-		require.NoError(ba.TB, err)
-
-		_, err = ba.Commit()
-		require.NoError(ba.TB, err)
-	}
 }
 
 func (ba *BenchmarkApp) GetAllPendingRequests(account *Account) *oracletypes.QueryPendingRequestsResponse {
@@ -153,16 +117,6 @@ func (ba *BenchmarkApp) GetAllPendingRequests(account *Account) *oracletypes.Que
 	require.NoError(ba.TB, err)
 
 	return res
-}
-
-func (ba *BenchmarkApp) SendAllPendingReports(account *Account) {
-	// query all pending requests
-	res := ba.GetAllPendingRequests(account)
-
-	for _, rid := range res.RequestIDs {
-		_, _, err := ba.DeliverMsg(account, ba.GenMsgReportData(account, []uint64{rid}))
-		require.NoError(ba.TB, err)
-	}
 }
 
 func (ba *BenchmarkApp) GenMsgReportData(account *Account, rids []uint64) []sdk.Msg {

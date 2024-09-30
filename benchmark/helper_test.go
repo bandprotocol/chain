@@ -2,6 +2,7 @@ package benchmark
 
 import (
 	"math"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
@@ -123,15 +124,17 @@ func GenMsgActivate(account *Account) []sdk.Msg {
 }
 
 func GenSequenceOfTxs(
+	txEncoder sdk.TxEncoder,
 	txConfig client.TxConfig,
 	msgs []sdk.Msg,
 	account *Account,
 	numTxs int,
-) []sdk.Tx {
-	txs := make([]sdk.Tx, numTxs)
+) [][]byte {
+	txs := make([][]byte, numTxs)
 
 	for i := 0; i < numTxs; i++ {
-		txs[i], _ = bandtesting.GenTx(
+		tx, _ := bandtesting.GenSignedMockTx(
+			rand.New(rand.NewSource(time.Now().UnixNano())),
 			txConfig,
 			msgs,
 			sdk.Coins{sdk.NewInt64Coin("uband", 1)},
@@ -141,6 +144,8 @@ func GenSequenceOfTxs(
 			[]uint64{account.Seq},
 			account.PrivKey,
 		)
+
+		txs[i], _ = txEncoder(tx)
 		account.Seq++
 	}
 

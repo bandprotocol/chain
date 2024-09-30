@@ -1,7 +1,6 @@
 package testing
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"math/rand"
@@ -23,17 +22,12 @@ import (
 	snapshottypes "cosmossdk.io/store/snapshots/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/tx"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	"github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/simulation"
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
-	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
@@ -372,74 +366,4 @@ func CreateTestingAppFn(t testing.TB) func() (ibctesting.TestingApp, map[string]
 		g := GenesisStateWithValSet(app, dir)
 		return app, g
 	}
-}
-
-// GenTx generates a signed mock transaction.
-func GenTx(
-	gen client.TxConfig,
-	msgs []sdk.Msg,
-	feeAmt sdk.Coins,
-	gas uint64,
-	chainID string,
-	accNums, accSeqs []uint64,
-	priv ...cryptotypes.PrivKey,
-) (sdk.Tx, error) {
-	sigs := make([]signing.SignatureV2, len(priv))
-
-	// create a random length memo
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	memo := simulation.RandStringOfLength(r, simulation.RandIntBetween(r, 0, 100))
-
-	signMode, err := authsigning.APISignModeToInternal(gen.SignModeHandler().DefaultMode())
-	if err != nil {
-		return nil, err
-	}
-
-	// 1st round: set SignatureV2 with empty signatures, to set correct
-	// signer infos.
-	for i, p := range priv {
-		sigs[i] = signing.SignatureV2{
-			PubKey: p.PubKey(),
-			Data: &signing.SingleSignatureData{
-				SignMode: signMode,
-			},
-			Sequence: accSeqs[i],
-		}
-	}
-
-	txBuilder := gen.NewTxBuilder()
-
-	if err = txBuilder.SetMsgs(msgs...); err != nil {
-		return nil, err
-	}
-
-	if err = txBuilder.SetSignatures(sigs...); err != nil {
-		return nil, err
-	}
-
-	txBuilder.SetMemo(memo)
-	txBuilder.SetFeeAmount(feeAmt)
-	txBuilder.SetGasLimit(gas)
-
-	// 2nd round: once all signer infos are set, every signer can sign.
-	for i, p := range priv {
-		signerData := authsigning.SignerData{
-			ChainID:       chainID,
-			AccountNumber: accNums[i],
-			Sequence:      accSeqs[i],
-		}
-
-		sig, err := tx.SignWithPrivKey(context.Background(), signMode, signerData, txBuilder, p, gen, accSeqs[i])
-		if err != nil {
-			panic(err)
-		}
-
-		sigs[i] = sig
-	}
-
-	if err = txBuilder.SetSignatures(sigs...); err != nil {
-		panic(err)
-	}
-
-	return txBuilder.GetTx(), nil
 }
