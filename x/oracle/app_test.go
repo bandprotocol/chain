@@ -1,6 +1,5 @@
 package oracle_test
 
-// TODO: Fix test
 import (
 	"fmt"
 	"testing"
