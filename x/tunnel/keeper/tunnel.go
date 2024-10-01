@@ -245,3 +245,30 @@ func (k Keeper) GetTotalFees(ctx sdk.Context) types.TotalFees {
 	k.cdc.MustUnmarshal(bz, &totalFee)
 	return totalFee
 }
+
+// HasEnoughFundToCreatePacket checks if the fee payer has enough balance to create a packet
+func (k Keeper) HasEnoughFundToCreatePacket(ctx sdk.Context, tunnelID uint64) (bool, error) {
+	tunnel, err := k.GetTunnel(ctx, tunnelID)
+	if err != nil {
+		return false, err
+	}
+
+	// get the route fee from the tunnel
+	route, ok := tunnel.Route.GetCachedValue().(types.RouteI)
+	if !ok {
+		return false, types.ErrInvalidRoute
+	}
+	routeFee := route.Fee()
+
+	// get the base packet fee and calculate total fee
+	basePacketFee := k.GetParams(ctx).BasePacketFee
+	totalFee := basePacketFee.Add(routeFee...)
+
+	// compare the fee payer's balance with the total fee
+	feePayer, err := sdk.AccAddressFromBech32(tunnel.FeePayer)
+	if err != nil {
+		return false, err
+	}
+	balances := k.bankKeeper.SpendableCoins(ctx, feePayer)
+	return balances.IsAllGTE(totalFee), nil
+}
