@@ -118,9 +118,8 @@ func (h *Hook) handleMsgCreateValidator(
 	ctx sdk.Context, msg *types.MsgCreateValidator, detail common.JsDict,
 ) {
 	valAddr, _ := sdk.ValAddressFromBech32(msg.ValidatorAddress)
-	delAddr, _ := sdk.AccAddressFromBech32(msg.DelegatorAddress)
 	val := h.emitSetValidator(ctx, valAddr)
-	h.emitDelegation(ctx, valAddr, delAddr)
+	h.emitDelegation(ctx, valAddr, sdk.AccAddress(valAddr))
 	detail["moniker"] = val.Description.Moniker
 	detail["identity"] = val.Description.Identity
 }

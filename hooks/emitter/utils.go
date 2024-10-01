@@ -2,6 +2,9 @@ package emitter
 
 import (
 	"math"
+	"strconv"
+
+	abci "github.com/cometbft/cometbft/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -17,4 +20,21 @@ func MustParseValAddress(addr string) sdk.ValAddress {
 		panic(err)
 	}
 	return val
+}
+
+func splitTxEvents(msgSize int, events []abci.Event) [][]abci.Event {
+	eventGroups := make([][]abci.Event, msgSize)
+	for _, event := range events {
+		n := len(event.Attributes)
+		attrType := event.Attributes[n-1]
+		if attrType.Key != "msg_index" {
+			panic("The last attribute of tx event should be msg_index")
+		}
+		idx, err := strconv.ParseInt(attrType.Value, 10, 0)
+		if err != nil {
+			panic(err)
+		}
+		eventGroups[idx] = append(eventGroups[idx], event)
+	}
+	return eventGroups
 }

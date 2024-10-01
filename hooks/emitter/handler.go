@@ -27,7 +27,7 @@ import (
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
-func parseEvents(events sdk.StringEvents) common.EvMap {
+func parseEvents(events []abci.Event) common.EvMap {
 	evMap := make(common.EvMap)
 	for _, event := range events {
 		for _, kv := range event.Attributes {
@@ -40,8 +40,8 @@ func parseEvents(events sdk.StringEvents) common.EvMap {
 
 // handleMsg handles the given message by publishing relevant events and populates accounts
 // that need balance update in 'h.accs'. Also fills in extra info for this message.
-func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.ABCIMessageLog, detail common.JsDict) {
-	evMap := parseEvents(log.Events)
+func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []abci.Event, detail common.JsDict) {
+	evMap := parseEvents(events)
 	switch msg := msg.(type) {
 	case *oracletypes.MsgRequestData:
 		h.handleMsgRequestData(ctx, txHash, msg, evMap, detail)
@@ -96,7 +96,7 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 	case *govv1.MsgDeposit:
 		h.handleMsgDeposit(ctx, txHash, msg, detail)
 	case *channeltypes.MsgRecvPacket:
-		h.handleMsgRecvPacket(ctx, txHash, msg, evMap, log, detail)
+		h.handleMsgRecvPacket(ctx, txHash, msg, events, evMap, detail)
 	case *transfertypes.MsgTransfer:
 		h.handleMsgTransfer(ctx, txHash, msg, evMap, detail)
 	case *clienttypes.MsgCreateClient:
@@ -126,7 +126,7 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 	case *authz.MsgRevoke:
 		h.handleMsgRevoke(msg, detail)
 	case *authz.MsgExec:
-		h.handleMsgExec(ctx, txHash, msg, log, detail)
+		h.handleMsgExec(ctx, txHash, msg, events, detail)
 	case *group.MsgCreateGroup:
 		h.handleGroupMsgCreateGroup(ctx, evMap)
 	case *group.MsgCreateGroupPolicy:
@@ -162,8 +162,7 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 }
 
 func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) {
-	events := sdk.StringifyEvents([]abci.Event{event})
-	evMap := parseEvents(events)
+	evMap := parseEvents([]abci.Event{event})
 	switch event.Type {
 	case oracletypes.EventTypeResolve:
 		h.handleEventRequestExecute(ctx, evMap)

@@ -1,6 +1,8 @@
 package emitter
 
 import (
+	abci "github.com/cometbft/cometbft/abci/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
@@ -47,7 +49,7 @@ func (h *Hook) handleMsgExec(
 	ctx sdk.Context,
 	txHash []byte,
 	emsg *authz.MsgExec,
-	log sdk.ABCIMessageLog,
+	events []abci.Event,
 	detail common.JsDict,
 ) {
 	msgs, _ := emsg.GetMessages()
@@ -70,7 +72,7 @@ func (h *Hook) handleMsgExec(
 				addrs[idx] = sdk.AccAddress(signer).String()
 			}
 			h.AddAccountsInTx(addrs...)
-			h.handleMsg(ctx, txHash, msg, log, subMsgs[i]["msg"].(common.JsDict))
+			h.handleMsg(ctx, txHash, msg, events, subMsgs[i]["msg"].(common.JsDict))
 		}
 	}
 }

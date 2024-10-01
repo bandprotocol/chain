@@ -3,6 +3,7 @@ package emitter
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -383,10 +384,6 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, tx sdk.Tx, res *abci.ExecTxResult
 
 	rawTx, _ := h.txConfig.TxEncoder()(tx)
 	txHash := tmhash.Sum(rawTx)
-	var errMsg *string
-	if !res.IsOK() {
-		errMsg = &res.Log
-	}
 
 	signers, _ := sigTx.GetSigners()
 
@@ -396,22 +393,26 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, tx sdk.Tx, res *abci.ExecTxResult
 		"gas_used":     res.GasUsed,
 		"gas_limit":    feeTx.GetGas(),
 		"gas_fee":      feeTx.GetFee().String(),
-		"err_msg":      errMsg,
 		"sender":       sdk.AccAddress(signers[0]).String(),
 		"success":      res.IsOK(),
 		"memo":         memoTx.GetMemo(),
 		"fee_payer":    feeTx.FeeGranter(),
 	}
+	if !res.IsOK() {
+		txDict["err_msg"] = fmt.Sprintf("Error on codespace %s: with code %d", res.Codespace, res.Code)
+	}
+
 	// NOTE: We add txDict to the list of pending Kafka messages here, but it will still be
 	// mutated in the loop below as we know the messages won't get flushed until ABCI Commit.
 	h.Write("NEW_TRANSACTION", txDict)
-	logs, _ := sdk.ParseABCILogs(res.Log) // Error must always be nil if res.IsOK is true.
 	messages := []map[string]interface{}{}
-	for idx, msg := range tx.GetMsgs() {
+	txMsgs := tx.GetMsgs()
+	events := splitTxEvents(len(txMsgs), res.Events)
+	for i, msg := range txMsgs {
 		detail := make(common.JsDict)
 		DecodeMsg(msg, detail)
 		if res.IsOK() {
-			h.handleMsg(ctx, txHash, msg, logs[idx], detail)
+			h.handleMsg(ctx, txHash, msg, events[i], detail)
 		}
 		messages = append(messages, common.JsDict{
 			"msg":  detail,

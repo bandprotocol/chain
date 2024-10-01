@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	abci "github.com/cometbft/cometbft/abci/types"
+
 	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
 	ibcxfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	"github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
@@ -295,8 +297,8 @@ func (h *Hook) extractInterchainAccountPacket(
 	ctx sdk.Context,
 	txHash []byte,
 	dataOfPacket []byte,
+	events []abci.Event,
 	evMap common.EvMap,
-	log sdk.ABCIMessageLog,
 	detail common.JsDict,
 	packet common.JsDict,
 ) bool {
@@ -349,7 +351,7 @@ func (h *Hook) extractInterchainAccountPacket(
 
 				// call handler for this message if ack is success
 				if status == "success" {
-					h.handleMsg(ctx, txHash, msg, log, msgDetail)
+					h.handleMsg(ctx, txHash, msg, events, msgDetail)
 				}
 			}
 		default:
@@ -380,8 +382,8 @@ func (h *Hook) handleMsgRecvPacket(
 	ctx sdk.Context,
 	txHash []byte,
 	msg *types.MsgRecvPacket,
+	events []abci.Event,
 	evMap common.EvMap,
-	log sdk.ABCIMessageLog,
 	detail common.JsDict,
 ) {
 	packet := newPacket(
@@ -402,7 +404,7 @@ func (h *Hook) handleMsgRecvPacket(
 			h.Write("NEW_INCOMING_PACKET", packet)
 			return
 		}
-		if ok := h.extractInterchainAccountPacket(ctx, txHash, msg.Packet.Data, evMap, log, detail, packet); ok {
+		if ok := h.extractInterchainAccountPacket(ctx, txHash, msg.Packet.Data, events, evMap, detail, packet); ok {
 			h.Write("NEW_INCOMING_PACKET", packet)
 			return
 		}
