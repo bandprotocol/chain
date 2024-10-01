@@ -204,11 +204,19 @@ func (ms msgServer) TriggerTunnel(
 		return nil, types.ErrInactiveTunnel.Wrapf("tunnelID %d", req.TunnelID)
 	}
 
+	ok, err := ms.Keeper.HasEnoughFundToCreatePacket(ctx, tunnel.ID)
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return nil, types.ErrInsufficientFund.Wrapf("tunnelID %d", req.TunnelID)
+	}
+
+	// TODO: get current prices from the given signal IDs
 	currentPrices := ms.Keeper.feedsKeeper.GetCurrentPrices(ctx)
 	currentPricesMap := createPricesMap(currentPrices)
 
-	// produce packet with trigger all signals
-	if err := ms.Keeper.ProducePacket(ctx, tunnel.ID, currentPricesMap, true); err != nil {
+	if err := ms.Keeper.ProducePacket(ctx, req.TunnelID, currentPricesMap, true); err != nil {
 		return nil, err
 	}
 

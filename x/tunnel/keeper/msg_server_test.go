@@ -402,6 +402,10 @@ func (s *KeeperTestSuite) TestMsgDeactivate() {
 }
 
 func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
+	feePayer := sdk.MustAccAddressFromBech32(
+		"cosmos1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62qh49enj",
+	)
+
 	cases := map[string]struct {
 		preRun    func() *types.MsgTriggerTunnel
 		expErr    bool
@@ -436,16 +440,13 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 			preRun: func() *types.MsgTriggerTunnel {
 				s.AddSampleTunnel(true)
 
-				feePayer := sdk.MustAccAddressFromBech32(
-					"cosmos1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62qh49enj",
-				)
-
 				s.feedsKeeper.EXPECT().GetCurrentPrices(gomock.Any()).Return([]feedstypes.Price{
 					{PriceStatus: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
 				})
 				s.bankKeeper.EXPECT().
 					SendCoinsFromAccountToModule(gomock.Any(), feePayer, types.ModuleName, types.DefaultBasePacketFee).
 					Return(nil)
+				s.bankKeeper.EXPECT().SpendableCoins(gomock.Any(), feePayer).Return(types.DefaultBasePacketFee)
 
 				return types.NewMsgTriggerTunnel(1, sdk.AccAddress([]byte("creator_address")).String())
 			},

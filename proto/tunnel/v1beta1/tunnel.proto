@@ -100,8 +100,9 @@ message LatestSignalPrices {
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
   // signal_prices is the list of signal prices
   repeated SignalPrice signal_prices = 2 [(gogoproto.nullable) = false];
-  // timestamp is the timestamp when the signal prices are produced
-  int64 timestamp = 3;
+  // last_interval_timestamp is the timestamp when the signal prices were updated
+  // because the specified interval has been reached.
+  int64 last_interval_timestamp = 3;
 }
 
 // SignalPrice is the type for a signal price

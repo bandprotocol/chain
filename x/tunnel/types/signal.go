@@ -19,12 +19,12 @@ func NewSignalDeviation(
 func NewLatestSignalPrices(
 	tunnelID uint64,
 	signalPrices []SignalPrice,
-	timestamp int64,
+	lastIntervalTimestamp int64,
 ) LatestSignalPrices {
 	return LatestSignalPrices{
-		TunnelID:     tunnelID,
-		SignalPrices: signalPrices,
-		Timestamp:    timestamp,
+		TunnelID:              tunnelID,
+		SignalPrices:          signalPrices,
+		LastIntervalTimestamp: lastIntervalTimestamp,
 	}
 }
 
@@ -36,8 +36,8 @@ func (lsps LatestSignalPrices) Validate() error {
 	if len(lsps.SignalPrices) == 0 {
 		return fmt.Errorf("signal prices cannot be empty")
 	}
-	if lsps.Timestamp < 0 {
-		return fmt.Errorf("timestamp cannot be negative")
+	if lsps.LastIntervalTimestamp < 0 {
+		return fmt.Errorf("last interval timestamp cannot be negative")
 	}
 	return nil
 }

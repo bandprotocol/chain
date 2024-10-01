@@ -5,7 +5,6 @@ import (
 	"go.uber.org/mock/gomock"
 
 	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
-	"github.com/bandprotocol/chain/v2/x/tunnel/keeper"
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
@@ -210,9 +209,9 @@ func (s *KeeperTestSuite) TestGenerateSignalPrices() {
 	currentPricesMap := map[string]feedstypes.Price{
 		"BTC/USD": {PriceStatus: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
 	}
-	triggerAll := true
+	sendAll := true
 	tunnel := types.Tunnel{
-		ID: 1,
+		ID: tunnelID,
 		SignalDeviations: []types.SignalDeviation{
 			{SignalID: "BTC/USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
 		},
@@ -221,12 +220,10 @@ func (s *KeeperTestSuite) TestGenerateSignalPrices() {
 		{SignalID: "BTC/USD", Price: 0},
 	}, 0)
 
-	nsps := keeper.GenerateSignalPrices(
-		ctx,
-		currentPricesMap,
-		tunnel.GetSignalDeviationMap(),
-		latestSignalPrices.SignalPrices,
-		triggerAll,
-	)
+	s.keeper.SetTunnel(ctx, tunnel)
+	s.keeper.SetLatestSignalPrices(ctx, latestSignalPrices)
+
+	nsps, err := s.keeper.GenerateNewSignalPrices(ctx, tunnelID, currentPricesMap, sendAll)
+	s.Require().NoError(err)
 	s.Require().Len(nsps, 1)
 }
