@@ -336,7 +336,7 @@ func (h *Hook) AfterBeginBlock(ctx sdk.Context, req *abci.RequestFinalizeBlock, 
 			conAddr, _ := validator.GetConsAddr()
 			h.Write("NEW_VALIDATOR_VOTE", common.JsDict{
 				"consensus_address": sdk.ConsAddress(conAddr).String(),
-				"block_height":      req.Height,
+				"block_height":      req.Height - 1,
 				"voted":             val.BlockIdFlag == types1.BlockIDFlagCommit,
 			})
 			h.emitUpdateValidatorRewardAndAccumulatedCommission(ctx, MustParseValAddress(validator.GetOperator()))
@@ -348,6 +348,7 @@ func (h *Hook) AfterBeginBlock(ctx sdk.Context, req *abci.RequestFinalizeBlock, 
 		return true
 	})
 	minter, _ := h.mintKeeper.Minter.Get(ctx)
+
 	h.Write("NEW_BLOCK", common.JsDict{
 		"height":    ctx.BlockHeight(),
 		"timestamp": ctx.BlockTime().UnixNano(),
@@ -396,7 +397,7 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, tx sdk.Tx, res *abci.ExecTxResult
 		"sender":       sdk.AccAddress(signers[0]).String(),
 		"success":      res.IsOK(),
 		"memo":         memoTx.GetMemo(),
-		"fee_payer":    feeTx.FeeGranter(),
+		"fee_payer":    sdk.AccAddress(feeTx.FeeGranter()).String(),
 	}
 	if !res.IsOK() {
 		txDict["err_msg"] = fmt.Sprintf("Error on codespace %s: with code %d", res.Codespace, res.Code)
