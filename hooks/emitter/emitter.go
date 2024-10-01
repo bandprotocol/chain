@@ -407,7 +407,8 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, tx sdk.Tx, res *abci.ExecTxResult
 	h.Write("NEW_TRANSACTION", txDict)
 	messages := []map[string]interface{}{}
 	txMsgs := tx.GetMsgs()
-	events := splitTxEvents(len(txMsgs), res.Events)
+	// Tx events not used yet
+	_, events := splitTxEvents(len(txMsgs), res.Events)
 	for i, msg := range txMsgs {
 		detail := make(common.JsDict)
 		DecodeMsg(msg, detail)
