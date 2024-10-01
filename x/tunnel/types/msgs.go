@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	_, _, _, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgEditTunnel{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositTunnel{}, &MsgWithdrawTunnel{}, &MsgUpdateParams{}
+	_, _, _, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgUpdateAndResetTunnel{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositTunnel{}, &MsgWithdrawTunnel{}, &MsgUpdateParams{}
 	_                      types.UnpackInterfacesMessage = &MsgCreateTunnel{}
 )
 
@@ -163,14 +163,14 @@ func (m MsgCreateTunnel) GetTunnelRoute() RouteI {
 	return route
 }
 
-// NewMsgEditTunnel creates a new MsgEditTunnel instance.
-func NewMsgEditTunnel(
+// NewMsgUpdateAndResetTunnel creates a new MsgUpdateAndResetTunnel instance.
+func NewMsgUpdateAndResetTunnel(
 	tunnelID uint64,
 	signalDeviations []SignalDeviation,
 	interval uint64,
 	creator string,
-) *MsgEditTunnel {
-	return &MsgEditTunnel{
+) *MsgUpdateAndResetTunnel {
+	return &MsgUpdateAndResetTunnel{
 		TunnelID:         tunnelID,
 		SignalDeviations: signalDeviations,
 		Interval:         interval,
@@ -179,20 +179,20 @@ func NewMsgEditTunnel(
 }
 
 // Route Implements Msg.
-func (m MsgEditTunnel) Type() string { return sdk.MsgTypeURL(&m) }
+func (m MsgUpdateAndResetTunnel) Type() string { return sdk.MsgTypeURL(&m) }
 
 // GetSignBytes implements the LegacyMsg interface.
-func (m MsgEditTunnel) GetSignBytes() []byte {
+func (m MsgUpdateAndResetTunnel) GetSignBytes() []byte {
 	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
 }
 
 // GetSigners returns the expected signers for the message.
-func (m *MsgEditTunnel) GetSigners() []sdk.AccAddress {
+func (m *MsgUpdateAndResetTunnel) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Creator)}
 }
 
 // ValidateBasic does a sanity check on the provided data
-func (m MsgEditTunnel) ValidateBasic() error {
+func (m MsgUpdateAndResetTunnel) ValidateBasic() error {
 	// creator address must be valid
 	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)

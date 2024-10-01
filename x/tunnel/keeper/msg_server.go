@@ -93,11 +93,11 @@ func (ms msgServer) CreateTunnel(
 	}, nil
 }
 
-// EditTunnel edits a tunnel.
-func (ms msgServer) EditTunnel(
+// UpdateAndResetTunnel edits a tunnel and reset latest signal price interval.
+func (ms msgServer) UpdateAndResetTunnel(
 	goCtx context.Context,
-	req *types.MsgEditTunnel,
-) (*types.MsgEditTunnelResponse, error) {
+	req *types.MsgUpdateAndResetTunnel,
+) (*types.MsgUpdateAndResetTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// validate signal infos and interval
@@ -118,12 +118,12 @@ func (ms msgServer) EditTunnel(
 		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", req.Creator, req.TunnelID)
 	}
 
-	err = ms.Keeper.EditTunnel(ctx, req.TunnelID, req.SignalDeviations, req.Interval)
+	err = ms.Keeper.UpdateAndResetTunnel(ctx, req.TunnelID, req.SignalDeviations, req.Interval)
 	if err != nil {
 		return nil, err
 	}
 
-	return &types.MsgEditTunnelResponse{}, nil
+	return &types.MsgUpdateAndResetTunnelResponse{}, nil
 }
 
 // Activate activates a tunnel.
