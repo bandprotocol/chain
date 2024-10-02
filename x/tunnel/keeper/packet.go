@@ -269,12 +269,12 @@ func (k Keeper) GenerateNewSignalPrices(
 // calculateDeviationBPS calculates the deviation between the old price and
 // the new price in basis points, i.e., |(newPrice - oldPrice)| * 10000 / oldPrice
 func calculateDeviationBPS(oldPrice, newPrice sdkmath.Int) sdkmath.Int {
+	if newPrice.Equal(oldPrice) {
+		return sdkmath.ZeroInt()
+	}
+
 	if oldPrice.IsZero() {
-		if newPrice.IsZero() {
-			return sdkmath.ZeroInt()
-		} else {
-			return sdkmath.NewInt(math.MaxInt64)
-		}
+		return sdkmath.NewInt(math.MaxInt64)
 	}
 
 	return newPrice.Sub(oldPrice).Abs().MulRaw(10000).Quo(oldPrice)
