@@ -8,6 +8,7 @@ import (
 	"time"
 
 	tmbytes "github.com/cometbft/cometbft/libs/bytes"
+
 	gogotypes "github.com/cosmos/gogoproto/types"
 )
 

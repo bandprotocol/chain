@@ -76,7 +76,7 @@ test:
 ###                                Protobuf                                 ###
 ###############################################################################
 
-protoVer=0.13.0
+protoVer=0.14.0
 protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
 protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
 
@@ -99,6 +99,11 @@ proto-lint:
 
 proto-check-breaking:
 	@$(protoImage) buf breaking --against $(HTTPS_GIT)#branch=main
+
+proto-update-deps:
+	@echo "Updating Protobuf dependencies"
+
+	$(DOCKER) run --rm -v $(CURDIR)/proto:/workspace --workdir /workspace $(protoImageName) buf mod update
 
 ###############################################################################
 ###                               Simulation                                ###
