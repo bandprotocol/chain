@@ -89,7 +89,7 @@ func (k Keeper) EditTunnel(
 	)
 	for _, sd := range signalDeviations {
 		event = event.AppendAttributes(
-			sdk.NewAttribute(types.AttributeKeySignalPriceInfos, sd.String()),
+			sdk.NewAttribute(types.AttributeKeySignalDeviation, sd.String()),
 		)
 	}
 	ctx.EventManager().EmitEvent(event)
