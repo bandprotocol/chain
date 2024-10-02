@@ -170,7 +170,8 @@ func (m *MsgCreateTunnelResponse) GetTunnelID() uint64 {
 	return 0
 }
 
-// MsgUpdateAndResetTunnel is the transaction message to edit a tunnel.
+// MsgUpdateAndResetTunnel is the transaction message to update a tunnel information
+// and reset the interval.
 type MsgUpdateAndResetTunnel struct {
 	// tunnel_id is the ID of the tunnel to edit.
 	TunnelID uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
@@ -953,7 +954,7 @@ const _ = grpc.SupportPackageIsVersion4
 type MsgClient interface {
 	// CreateTunnel is a RPC method to create a new tunnel.
 	CreateTunnel(ctx context.Context, in *MsgCreateTunnel, opts ...grpc.CallOption) (*MsgCreateTunnelResponse, error)
-	// UpdateAndResetTunnel is a RPC method to edit a tunnel.
+	// UpdateAndResetTunnel is a RPC method to update a tunnel information and reset the interval.
 	UpdateAndResetTunnel(ctx context.Context, in *MsgUpdateAndResetTunnel, opts ...grpc.CallOption) (*MsgUpdateAndResetTunnelResponse, error)
 	// Activate is a RPC method to activate a tunnel.
 	Activate(ctx context.Context, in *MsgActivate, opts ...grpc.CallOption) (*MsgActivateResponse, error)
@@ -1053,7 +1054,7 @@ func (c *msgClient) UpdateParams(ctx context.Context, in *MsgUpdateParams, opts 
 type MsgServer interface {
 	// CreateTunnel is a RPC method to create a new tunnel.
 	CreateTunnel(context.Context, *MsgCreateTunnel) (*MsgCreateTunnelResponse, error)
-	// UpdateAndResetTunnel is a RPC method to edit a tunnel.
+	// UpdateAndResetTunnel is a RPC method to update a tunnel information and reset the interval.
 	UpdateAndResetTunnel(context.Context, *MsgUpdateAndResetTunnel) (*MsgUpdateAndResetTunnelResponse, error)
 	// Activate is a RPC method to activate a tunnel.
 	Activate(context.Context, *MsgActivate) (*MsgActivateResponse, error)

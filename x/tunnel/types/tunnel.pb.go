@@ -443,7 +443,7 @@ type LatestSignalPrices struct {
 	// signal_prices is the list of signal prices
 	SignalPrices []SignalPrice `protobuf:"bytes,2,rep,name=signal_prices,json=signalPrices,proto3" json:"signal_prices"`
 	// last_interval_timestamp is the timestamp when the signal prices were updated
-	// because the specified interval has been reached.
+	// because the specified interval was reached.
 	LastIntervalTimestamp int64 `protobuf:"varint,3,opt,name=last_interval_timestamp,json=lastIntervalTimestamp,proto3" json:"last_interval_timestamp,omitempty"`
 }
 

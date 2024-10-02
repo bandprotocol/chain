@@ -101,7 +101,7 @@ message LatestSignalPrices {
   // signal_prices is the list of signal prices
   repeated SignalPrice signal_prices = 2 [(gogoproto.nullable) = false];
   // last_interval_timestamp is the timestamp when the signal prices were updated
-  // because the specified interval has been reached.
+  // because the specified interval was reached.
   int64 last_interval_timestamp = 3;
 }
 

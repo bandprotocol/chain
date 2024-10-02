@@ -18,7 +18,7 @@ service Msg {
   // CreateTunnel is a RPC method to create a new tunnel.
   rpc CreateTunnel(MsgCreateTunnel) returns (MsgCreateTunnelResponse);
 
-  // UpdateAndResetTunnel is a RPC method to edit a tunnel.
+  // UpdateAndResetTunnel is a RPC method to update a tunnel information and reset the interval.
   rpc UpdateAndResetTunnel(MsgUpdateAndResetTunnel) returns (MsgUpdateAndResetTunnelResponse);
 
   // Activate is a RPC method to activate a tunnel.
@@ -68,7 +68,8 @@ message MsgCreateTunnelResponse {
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
 }
 
-// MsgUpdateAndResetTunnel is the transaction message to edit a tunnel.
+// MsgUpdateAndResetTunnel is the transaction message to update a tunnel information 
+// and reset the interval.
 message MsgUpdateAndResetTunnel {
   option (cosmos.msg.v1.signer) = "creator";
   option (amino.name)           = "tunnel/MsgUpdateAndResetTunnel";
