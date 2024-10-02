@@ -1,16 +1,22 @@
 package keeper_test
 
 import (
+	"strings"
+
 	"go.uber.org/mock/gomock"
 
+	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bandprotocol/chain/v3/pkg/obi"
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
 	"github.com/bandprotocol/chain/v3/testing/testdata"
+	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
+	oracletestutil "github.com/bandprotocol/chain/v3/x/oracle/testutil"
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
@@ -134,11 +140,11 @@ func (suite *KeeperTestSuite) TestGetRandomValidatorsNotEnoughEntropy() {
 }
 
 func (suite *KeeperTestSuite) TestPrepareRequestSuccessBasic() {
+	suite.activeAllValidators()
+	suite.mockIterateBondedValidatorsByPower()
 	ctx := suite.ctx
 	k := suite.oracleKeeper
 	require := suite.Require()
-	suite.activeAllValidators()
-	suite.mockIterateBondedValidatorsByPower()
 
 	addSimpleDataSourceAndOracleScript(ctx, k, suite.fileDir)
 
@@ -184,511 +190,49 @@ func (suite *KeeperTestSuite) TestPrepareRequestSuccessBasic() {
 	require.Equal(1, wrappedGasMeter.CountRecord(testDefaultExecuteGas, "OWASM_EXECUTE_FEE"))
 }
 
-// func (suite *KeeperTestSuite) TestPrepareRequestNotEnoughMaxFee() {
-// 	ctx := suite.ctx
-// 	k := suite.oracleKeeper
-// 	require := suite.Require()
-// 	suite.activeAllValidators()
-// 	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+func (suite *KeeperTestSuite) TestPrepareRequestInvalidCalldataSize() {
+	ctx := suite.ctx
+	k := suite.oracleKeeper
+	require := suite.Require()
+	suite.activeAllValidators()
 
-// 	ctx = ctx.WithBlockTime(bandtesting.ParseTime(1581589790)).WithBlockHeight(42)
-// 	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "beeb"
-// 	m := types.NewMsgRequestData(
-// 		1,
-// 		basicCalldata,
-// 		1,
-// 		1,
-// 		basicClientID,
-// 		bandtesting.EmptyCoins,
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.FeePayer.Address,
-// 	)
-// 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.EqualError(err, "require: 1000000uband, max: 0uband: not enough fee")
-// 	m = types.NewMsgRequestData(
-// 		1,
-// 		basicCalldata,
-// 		1,
-// 		1,
-// 		basicClientID,
-// 		sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000)),
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.FeePayer.Address,
-// 	)
-// 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.EqualError(err, "require: 2000000uband, max: 1000000uband: not enough fee")
-// 	m = types.NewMsgRequestData(
-// 		1,
-// 		basicCalldata,
-// 		1,
-// 		1,
-// 		basicClientID,
-// 		sdk.NewCoins(sdk.NewInt64Coin("uband", 2000000)),
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.FeePayer.Address,
-// 	)
-// 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.EqualError(err, "require: 3000000uband, max: 2000000uband: not enough fee")
-// 	m = types.NewMsgRequestData(
-// 		1,
-// 		basicCalldata,
-// 		1,
-// 		1,
-// 		basicClientID,
-// 		sdk.NewCoins(sdk.NewInt64Coin("uband", 2999999)),
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.FeePayer.Address,
-// 	)
-// 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.EqualError(err, "require: 3000000uband, max: 2999999uband: not enough fee")
-// 	m = types.NewMsgRequestData(
-// 		1,
-// 		basicCalldata,
-// 		1,
-// 		1,
-// 		basicClientID,
-// 		sdk.NewCoins(sdk.NewInt64Coin("uband", 3000000)),
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.FeePayer.Address,
-// 	)
-// 	id, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.NoError(err)
-// 	require.Equal(types.RequestID(1), id)
-// }
+	m := types.NewMsgRequestData(
+		1,
+		[]byte(strings.Repeat("x", 2000)),
+		1,
+		1,
+		basicClientID,
+		bandtesting.Coins100000000uband,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
+		bandtesting.Alice.Address,
+	)
+	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
+	require.EqualError(err, "got: 2000, max: 512: too large calldata")
+}
 
-// func (suite *KeeperTestSuite) TestPrepareRequestNotEnoughFund() {
-// 	ctx := suite.ctx
-// 	k := suite.oracleKeeper
-// 	require := suite.Require()
-// 	suite.activeAllValidators()
-// 	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+func (suite *KeeperTestSuite) TestPrepareRequestOracleScriptNotFound() {
+	suite.activeAllValidators()
+	suite.mockIterateBondedValidatorsByPower()
+	ctx := suite.ctx
+	k := suite.oracleKeeper
+	require := suite.Require()
+	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
 
-// 	ctx = ctx.WithBlockTime(bandtesting.ParseTime(1581589790)).WithBlockHeight(42)
-// 	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "beeb"
-// 	m := types.NewMsgRequestData(
-// 		1,
-// 		basicCalldata,
-// 		1,
-// 		1,
-// 		basicClientID,
-// 		bandtesting.Coins100000000uband,
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.Alice.Address,
-// 	)
-// 	_, err := k.PrepareRequest(ctx, m, bandtesting.Alice.Address, nil)
-// 	require.EqualError(err, "spendable balance  is smaller than 1000000uband: insufficient funds")
-// }
-
-// func (suite *KeeperTestSuite) TestPrepareRequestInvalidCalldataSize() {
-// 	ctx := suite.ctx
-// 	k := suite.oracleKeeper
-// 	require := suite.Require()
-// 	suite.activeAllValidators()
-
-// 	m := types.NewMsgRequestData(
-// 		1,
-// 		[]byte(strings.Repeat("x", 2000)),
-// 		1,
-// 		1,
-// 		basicClientID,
-// 		bandtesting.Coins100000000uband,
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.Alice.Address,
-// 	)
-// 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.EqualError(err, "got: 2000, max: 512: too large calldata")
-// }
-
-// func (suite *KeeperTestSuite) TestPrepareRequestNotEnoughPrepareGas() {
-// 	ctx := suite.ctx
-// 	k := suite.oracleKeeper
-// 	require := suite.Require()
-// 	suite.activeAllValidators()
-// 	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
-
-// 	ctx = ctx.WithBlockTime(bandtesting.ParseTime(1581589790)).WithBlockHeight(42)
-
-// 	wrappedGasMeter := bandtesting.NewGasMeterWrapper(ctx.GasMeter())
-// 	ctx = ctx.WithGasMeter(wrappedGasMeter)
-
-// 	m := types.NewMsgRequestData(
-// 		1,
-// 		basicCalldata,
-// 		1,
-// 		1,
-// 		basicClientID,
-// 		bandtesting.EmptyCoins,
-// 		1,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.Alice.Address,
-// 	)
-// 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.ErrorIs(err, types.ErrBadWasmExecution)
-// 	require.Contains(err.Error(), "out-of-gas")
-
-// 	params := k.GetParams(ctx)
-// 	require.Equal(1, wrappedGasMeter.CountRecord(params.BaseOwasmGas, "BASE_OWASM_FEE"))
-// 	require.Equal(0, wrappedGasMeter.CountRecord(100, "OWASM_PREPARE_FEE"))
-// 	require.Equal(0, wrappedGasMeter.CountDescriptor("OWASM_EXECUTE_FEE"))
-// }
-
-// TODO: move wasm execution test to app level
-// func (suite *KeeperTestSuite) TestPrepareRequestInvalidAskCountFail() {
-// 	ctx := suite.ctx
-// 	k := suite.oracleKeeper
-// 	require := suite.Require()
-// 	suite.activeAllValidators()
-
-// 	params := k.GetParams(ctx)
-// 	params.MaxAskCount = 5
-// 	err := k.SetParams(ctx, params)
-// 	require.NoError(err)
-
-// 	wrappedGasMeter := bandtesting.NewGasMeterWrapper(ctx.GasMeter())
-// 	ctx = ctx.WithGasMeter(wrappedGasMeter)
-
-// 	m := types.NewMsgRequestData(
-// 		1,
-// 		basicCalldata,
-// 		10,
-// 		1,
-// 		basicClientID,
-// 		bandtesting.Coins100000000uband,
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.Alice.Address,
-// 	)
-// 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.ErrorIs(err, types.ErrInvalidAskCount)
-
-// 	require.Equal(0, wrappedGasMeter.CountDescriptor("BASE_OWASM_FEE"))
-// 	require.Equal(0, wrappedGasMeter.CountDescriptor("OWASM_PREPARE_FEE"))
-// 	require.Equal(0, wrappedGasMeter.CountDescriptor("OWASM_EXECUTE_FEE"))
-
-// 	m = types.NewMsgRequestData(
-// 		1,
-// 		basicCalldata,
-// 		4,
-// 		1,
-// 		basicClientID,
-// 		bandtesting.Coins100000000uband,
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.Alice.Address,
-// 	)
-// 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.ErrorIs(err, types.ErrInsufficientValidators)
-
-// 	require.Equal(0, wrappedGasMeter.CountDescriptor("BASE_OWASM_FEE"))
-// 	require.Equal(0, wrappedGasMeter.CountDescriptor("OWASM_PREPARE_FEE"))
-// 	require.Equal(0, wrappedGasMeter.CountDescriptor("OWASM_EXECUTE_FEE"))
-
-// 	m = types.NewMsgRequestData(
-// 		1,
-// 		basicCalldata,
-// 		1,
-// 		1,
-// 		basicClientID,
-// 		bandtesting.Coins100000000uband,
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.Alice.Address,
-// 	)
-// 	id, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.Equal(types.RequestID(1), id)
-// 	require.NoError(err)
-// 	require.Equal(2, wrappedGasMeter.CountDescriptor("BASE_OWASM_FEE"))
-// 	require.Equal(1, wrappedGasMeter.CountDescriptor("OWASM_PREPARE_FEE"))
-// 	require.Equal(1, wrappedGasMeter.CountDescriptor("OWASM_EXECUTE_FEE"))
-// }
-
-// TODO: move wasm execution test to app level
-// func (suite *KeeperTestSuite) TestPrepareRequestBaseOwasmFeePanic() {
-// 	ctx := suite.ctx
-// 	k := suite.oracleKeeper
-// 	require := suite.Require()
-// 	suite.activeAllValidators()
-
-// 	params := k.GetParams(ctx)
-// 	params.BaseOwasmGas = 100000
-// 	params.PerValidatorRequestGas = 0
-// 	err := k.SetParams(ctx, params)
-// 	require.NoError(err)
-// 	m := types.NewMsgRequestData(
-// 		1,
-// 		basicCalldata,
-// 		1,
-// 		1,
-// 		basicClientID,
-// 		bandtesting.Coins100000000uband,
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.Alice.Address,
-// 	)
-// 	ctx = ctx.WithGasMeter(storetypes.NewGasMeter(90000))
-// 	require.PanicsWithValue(
-// 		storetypes.ErrorOutOfGas{Descriptor: "BASE_OWASM_FEE"},
-// 		func() { _, _ = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil) },
-// 	)
-// 	ctx = ctx.WithGasMeter(storetypes.NewGasMeter(1000000))
-// 	id, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.Equal(types.RequestID(1), id)
-// 	require.NoError(err)
-// }
-
-// func (suite *KeeperTestSuite) TestPrepareRequestPerValidatorRequestFeePanic() {
-// 	ctx := suite.ctx
-// 	k := suite.oracleKeeper
-// 	require := suite.Require()
-// 	suite.activeAllValidators()
-
-// 	params := k.GetParams(ctx)
-// 	params.BaseOwasmGas = 100000
-// 	params.PerValidatorRequestGas = 50000
-// 	err := k.SetParams(ctx, params)
-// 	require.NoError(err)
-// 	m := types.NewMsgRequestData(
-// 		1,
-// 		basicCalldata,
-// 		2,
-// 		1,
-// 		basicClientID,
-// 		bandtesting.Coins100000000uband,
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.Alice.Address,
-// 	)
-// 	ctx = ctx.WithGasMeter(storetypes.NewGasMeter(90000))
-// 	require.PanicsWithValue(
-// 		storetypes.ErrorOutOfGas{Descriptor: "PER_VALIDATOR_REQUEST_FEE"},
-// 		func() { _, _ = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil) },
-// 	)
-// 	m = types.NewMsgRequestData(
-// 		1,
-// 		basicCalldata,
-// 		1,
-// 		1,
-// 		basicClientID,
-// 		bandtesting.Coins100000000uband,
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.Alice.Address,
-// 	)
-// 	ctx = ctx.WithGasMeter(storetypes.NewGasMeter(1000000))
-// 	id, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.Equal(types.RequestID(1), id)
-// 	require.NoError(err)
-// }
-
-// TODO: move wasm execution test to app level
-// func (suite *KeeperTestSuite) TestPrepareRequestEmptyCalldata() {
-// 	ctx := suite.ctx
-// 	k := suite.oracleKeeper
-// 	require := suite.Require()
-// 	suite.activeAllValidators()
-// 	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
-
-// 	// Send nil while oracle script expects calldata
-// 	m := types.NewMsgRequestData(
-// 		4,
-// 		nil,
-// 		1,
-// 		1,
-// 		basicClientID,
-// 		bandtesting.Coins100000000uband,
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.Alice.Address,
-// 	)
-// 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.EqualError(err, "runtime error while executing the Wasm script: bad wasm execution")
-// }
-
-// func (suite *KeeperTestSuite) TestPrepareRequestOracleScriptNotFound() {
-// 	ctx := suite.ctx
-// 	k := suite.oracleKeeper
-// 	require := suite.Require()
-// 	suite.activeAllValidators()
-// 	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
-
-// 	m := types.NewMsgRequestData(
-// 		999,
-// 		basicCalldata,
-// 		1,
-// 		1,
-// 		basicClientID,
-// 		bandtesting.Coins100000000uband,
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.Alice.Address,
-// 	)
-// 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.EqualError(err, "id: 999: oracle script not found")
-// }
-
-// TODO: move wasm execution test to app level
-// func (suite *KeeperTestSuite) TestPrepareRequestBadWasmExecutionFail() {
-// 	ctx := suite.ctx
-// 	k := suite.oracleKeeper
-// 	require := suite.Require()
-// 	suite.activeAllValidators()
-// 	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
-
-// 	m := types.NewMsgRequestData(
-// 		1,
-// 		basicCalldata,
-// 		1,
-// 		1,
-// 		basicClientID,
-// 		bandtesting.Coins100000000uband,
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.Alice.Address,
-// 	)
-// 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.EqualError(err, "OEI action to invoke is not available: bad wasm execution")
-// }
-
-// func (suite *KeeperTestSuite) TestPrepareRequestWithEmptyRawRequest() {
-// 	ctx := suite.ctx
-// 	k := suite.oracleKeeper
-// 	require := suite.Require()
-// 	suite.activeAllValidators()
-// 	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
-
-// 	m := types.NewMsgRequestData(
-// 		3,
-// 		basicCalldata,
-// 		1,
-// 		1,
-// 		basicClientID,
-// 		bandtesting.Coins100000000uband,
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.Alice.Address,
-// 	)
-// 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.EqualError(err, "empty raw requests")
-// }
-
-// func (suite *KeeperTestSuite) TestPrepareRequestUnknownDataSource() {
-// 	ctx := suite.ctx
-// 	k := suite.oracleKeeper
-// 	require := suite.Require()
-// 	suite.activeAllValidators()
-// 	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
-
-// 	m := types.NewMsgRequestData(4, obi.MustEncode(testdata.Wasm4Input{
-// 		IDs:      []int64{1, 2, 99},
-// 		Calldata: "beeb",
-// 	}), 1, 1, basicClientID, bandtesting.Coins100000000uband, bandtesting.TestDefaultPrepareGas, bandtesting.TestDefaultExecuteGas, bandtesting.Alice.Address)
-// 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.EqualError(err, "id: 99: data source not found")
-// }
-
-// TODO: move wasm execution test to app level
-// func (suite *KeeperTestSuite) TestPrepareRequestInvalidDataSourceCount() {
-// 	ctx := suite.ctx
-// 	k := suite.oracleKeeper
-// 	require := suite.Require()
-// 	suite.activeAllValidators()
-// 	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
-
-// 	params := k.GetParams(ctx)
-// 	params.MaxRawRequestCount = 3
-// 	err := k.SetParams(ctx, params)
-// 	require.NoError(err)
-// 	m := types.NewMsgRequestData(4, obi.MustEncode(testdata.Wasm4Input{
-// 		IDs:      []int64{1, 2, 3, 4},
-// 		Calldata: "beeb",
-// 	}), 1, 1, basicClientID, bandtesting.Coins100000000uband, bandtesting.TestDefaultPrepareGas, bandtesting.TestDefaultExecuteGas, bandtesting.Alice.Address)
-// 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.ErrorIs(err, types.ErrBadWasmExecution)
-// 	m = types.NewMsgRequestData(4, obi.MustEncode(testdata.Wasm4Input{
-// 		IDs:      []int64{1, 2, 3},
-// 		Calldata: "beeb",
-// 	}), 1, 1, basicClientID, bandtesting.Coins100000000uband, bandtesting.TestDefaultPrepareGas, bandtesting.TestDefaultExecuteGas, bandtesting.Alice.Address)
-// 	id, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.Equal(types.RequestID(1), id)
-// 	require.NoError(err)
-// }
-
-// func (suite *KeeperTestSuite) TestPrepareRequestTooMuchWasmGas() {
-// 	ctx := suite.ctx
-// 	k := suite.oracleKeeper
-// 	require := suite.Require()
-// 	suite.activeAllValidators()
-
-// 	m := types.NewMsgRequestData(
-// 		5,
-// 		basicCalldata,
-// 		1,
-// 		1,
-// 		basicClientID,
-// 		bandtesting.Coins100000000uband,
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.Alice.Address,
-// 	)
-// 	id, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.Equal(types.RequestID(1), id)
-// 	require.NoError(err)
-// 	m = types.NewMsgRequestData(
-// 		6,
-// 		basicCalldata,
-// 		1,
-// 		1,
-// 		basicClientID,
-// 		bandtesting.Coins100000000uband,
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.Alice.Address,
-// 	)
-// 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.EqualError(err, "out-of-gas while executing the wasm script: bad wasm execution")
-// }
-
-// func (suite *KeeperTestSuite) TestPrepareRequestTooLargeCalldata() {
-// 	ctx := suite.ctx
-// 	k := suite.oracleKeeper
-// 	require := suite.Require()
-// 	suite.activeAllValidators()
-
-// 	m := types.NewMsgRequestData(
-// 		7,
-// 		basicCalldata,
-// 		1,
-// 		1,
-// 		basicClientID,
-// 		bandtesting.Coins100000000uband,
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.Alice.Address,
-// 	)
-// 	id, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.Equal(types.RequestID(1), id)
-// 	require.NoError(err)
-// 	m = types.NewMsgRequestData(
-// 		8,
-// 		basicCalldata,
-// 		1,
-// 		1,
-// 		basicClientID,
-// 		bandtesting.Coins100000000uband,
-// 		bandtesting.TestDefaultPrepareGas,
-// 		bandtesting.TestDefaultExecuteGas,
-// 		bandtesting.Alice.Address,
-// 	)
-// 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
-// 	require.EqualError(err, "span to write is too small: bad wasm execution")
-// }
+	m := types.NewMsgRequestData(
+		999,
+		basicCalldata,
+		1,
+		1,
+		basicClientID,
+		bandtesting.Coins100000000uband,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
+		bandtesting.Alice.Address,
+	)
+	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
+	require.EqualError(err, "id: 999: oracle script not found")
+}
 
 func (suite *KeeperTestSuite) TestResolveRequestSuccess() {
 	ctx := suite.ctx
@@ -771,496 +315,203 @@ func (suite *KeeperTestSuite) TestResolveRequestSuccessComplex() {
 	require.Equal(result, k.MustGetResult(ctx, 42))
 }
 
-// func (suite *KeeperTestSuite) TestResolveRequestOutOfGas() {
-// 	app, ctx := bandtesting.CreateTestApp(true)
-// 	k := app.OracleKeeper
+func rawRequestsFromFees(ctx sdk.Context, k keeper.Keeper, fees []sdk.Coins) []types.RawRequest {
+	var rawRequests []types.RawRequest
+	for _, f := range fees {
+		id := k.AddDataSource(ctx, types.NewDataSource(
+			bandtesting.Owner.Address,
+			"mock ds",
+			"there is no real code",
+			"no file",
+			f,
+			bandtesting.Treasury.Address,
+		))
 
-// 	ctx = ctx.WithBlockTime(bandtesting.ParseTime(1581589890))
-// 	k.SetRequest(ctx, 42, types.NewRequest(
-// 		// 1st Wasm - return "beeb"
-// 		1,
-// 		basicCalldata,
-// 		[]sdk.ValAddress{bandtesting.Validators[0].ValAddress, bandtesting.Validators[1].ValAddress},
-// 		1,
-// 		42,
-// 		bandtesting.ParseTime(1581589790),
-// 		basicClientID,
-// 		[]types.RawRequest{
-// 			types.NewRawRequest(1, 1, []byte("beeb")),
-// 		},
-// 		nil,
-// 		0,
-// 	))
-// 	k.SetReport(ctx, 42, types.NewReport(
-// 		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
-// 			types.NewRawReport(1, 0, []byte("beeb")),
-// 		},
-// 	))
-// 	k.ResolveRequest(ctx, 42)
-// 	result := types.NewResult(
-// 		basicClientID, 1, basicCalldata, 2, 1,
-// 		42, 1, bandtesting.ParseTime(1581589790).Unix(),
-// 		bandtesting.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,
-// 	)
-// 	require.Equal(result, k.MustGetResult(ctx, 42))
-// }
+		rawRequests = append(rawRequests, types.NewRawRequest(
+			0, id, nil,
+		))
+	}
 
-// func (suite *KeeperTestSuite) TestResolveReadNilExternalData() {
-// 	app, ctx := bandtesting.CreateTestApp(true)
-// 	k := app.OracleKeeper
+	return rawRequests
+}
 
-// 	ctx = ctx.WithBlockTime(bandtesting.ParseTime(1581589890))
-// 	k.SetRequest(ctx, 42, types.NewRequest(
-// 		// 4th Wasm. Append all reports from all validators.
-// 		4, obi.MustEncode(testdata.Wasm4Input{
-// 			IDs:      []int64{1, 2},
-// 			Calldata: string(basicCalldata),
-// 		}), []sdk.ValAddress{bandtesting.Validators[0].ValAddress, bandtesting.Validators[1].ValAddress}, 1,
-// 		42, bandtesting.ParseTime(1581589790), basicClientID, []types.RawRequest{
-// 			types.NewRawRequest(0, 1, basicCalldata),
-// 			types.NewRawRequest(1, 2, basicCalldata),
-// 		}, nil, bandtesting.TestDefaultExecuteGas,
-// 	))
-// 	k.SetReport(ctx, 42, types.NewReport(
-// 		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
-// 			types.NewRawReport(0, 0, nil),
-// 			types.NewRawReport(1, 0, []byte("beebd2v1")),
-// 		},
-// 	))
-// 	k.SetReport(ctx, 42, types.NewReport(
-// 		bandtesting.Validators[1].ValAddress, true, []types.RawReport{
-// 			types.NewRawReport(0, 0, []byte("beebd1v2")),
-// 			types.NewRawReport(1, 0, nil),
-// 		},
-// 	))
-// 	k.ResolveRequest(ctx, 42)
-// 	result := types.NewResult(
-// 		basicClientID, 4, obi.MustEncode(testdata.Wasm4Input{
-// 			IDs:      []int64{1, 2},
-// 			Calldata: string(basicCalldata),
-// 		}), 2, 1,
-// 		42, 2, bandtesting.ParseTime(1581589790).Unix(),
-// 		bandtesting.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_SUCCESS,
-// 		obi.MustEncode(testdata.Wasm4Output{Ret: "beebd1v2beebd2v1"}),
-// 	)
-// 	require.Equal(result, k.MustGetResult(ctx, 42))
-// 	require.Equal(sdk.Events{sdk.NewEvent(
-// 		types.EventTypeResolve,
-// 		sdk.NewAttribute(types.AttributeKeyID, "42"),
-// 		sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
-// 		sdk.NewAttribute(types.AttributeKeyResult, "0000001062656562643176326265656264327631"),
-// 		sdk.NewAttribute(types.AttributeKeyGasUsed, "31168050000"),
-// 	)}, ctx.EventManager().Events())
-// }
+func (suite *KeeperTestSuite) TestCollectFeeEmptyFee() {
+	ctx := suite.ctx
+	k := suite.oracleKeeper
+	require := suite.Require()
 
-// func (suite *KeeperTestSuite) TestResolveRequestNoReturnData() {
-// 	app, ctx := bandtesting.CreateTestApp(true)
-// 	k := app.OracleKeeper
+	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
+		bandtesting.EmptyCoins,
+		bandtesting.EmptyCoins,
+		bandtesting.EmptyCoins,
+		bandtesting.EmptyCoins,
+		bandtesting.EmptyCoins,
+	})
 
-// 	ctx = ctx.WithBlockTime(bandtesting.ParseTime(1581589890))
-// 	k.SetRequest(ctx, 42, types.NewRequest(
-// 		// 3rd Wasm - do nothing
-// 		3,
-// 		basicCalldata,
-// 		[]sdk.ValAddress{bandtesting.Validators[0].ValAddress, bandtesting.Validators[1].ValAddress},
-// 		1,
-// 		42,
-// 		bandtesting.ParseTime(1581589790),
-// 		basicClientID,
-// 		[]types.RawRequest{
-// 			types.NewRawRequest(1, 1, []byte("beeb")),
-// 		},
-// 		nil,
-// 		1,
-// 	))
-// 	k.SetReport(ctx, 42, types.NewReport(
-// 		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
-// 			types.NewRawReport(1, 0, []byte("beeb")),
-// 		},
-// 	))
-// 	k.ResolveRequest(ctx, 42)
-// 	result := types.NewResult(
-// 		basicClientID, 3, basicCalldata, 2, 1, 42, 1, bandtesting.ParseTime(1581589790).Unix(),
-// 		bandtesting.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,
-// 	)
-// 	require.Equal(result, k.MustGetResult(ctx, 42))
-// 	require.Equal(sdk.Events{sdk.NewEvent(
-// 		types.EventTypeResolve,
-// 		sdk.NewAttribute(types.AttributeKeyID, "42"),
-// 		sdk.NewAttribute(types.AttributeKeyResolveStatus, "2"),
-// 		sdk.NewAttribute(types.AttributeKeyReason, "no return data"),
-// 	)}, ctx.EventManager().Events())
-// }
+	coins, err := k.CollectFee(ctx, bandtesting.Alice.Address, bandtesting.EmptyCoins, 1, raws)
+	require.NoError(err)
+	require.Empty(coins)
 
-// func (suite *KeeperTestSuite) TestResolveRequestWasmFailure() {
-// 	app, ctx := bandtesting.CreateTestApp(true)
-// 	k := app.OracleKeeper
+	coins, err = k.CollectFee(ctx, bandtesting.Alice.Address, bandtesting.Coins100000000uband, 1, raws)
+	require.NoError(err)
+	require.Empty(coins)
 
-// 	ctx = ctx.WithBlockTime(bandtesting.ParseTime(1581589890))
-// 	k.SetRequest(ctx, 42, types.NewRequest(
-// 		// 6th Wasm - out-of-gas
-// 		6,
-// 		basicCalldata,
-// 		[]sdk.ValAddress{bandtesting.Validators[0].ValAddress, bandtesting.Validators[1].ValAddress},
-// 		1,
-// 		42,
-// 		bandtesting.ParseTime(1581589790),
-// 		basicClientID,
-// 		[]types.RawRequest{
-// 			types.NewRawRequest(1, 1, []byte("beeb")),
-// 		},
-// 		nil,
-// 		0,
-// 	))
-// 	k.SetReport(ctx, 42, types.NewReport(
-// 		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
-// 			types.NewRawReport(1, 0, []byte("beeb")),
-// 		},
-// 	))
-// 	k.ResolveRequest(ctx, 42)
-// 	result := types.NewResult(
-// 		basicClientID, 6, basicCalldata, 2, 1, 42, 1, bandtesting.ParseTime(1581589790).Unix(),
-// 		bandtesting.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,
-// 	)
-// 	require.Equal(result, k.MustGetResult(ctx, 42))
-// 	require.Equal(sdk.Events{sdk.NewEvent(
-// 		types.EventTypeResolve,
-// 		sdk.NewAttribute(types.AttributeKeyID, "42"),
-// 		sdk.NewAttribute(types.AttributeKeyResolveStatus, "2"),
-// 		sdk.NewAttribute(types.AttributeKeyReason, "out-of-gas while executing the wasm script"),
-// 	)}, ctx.EventManager().Events())
-// }
+	coins, err = k.CollectFee(ctx, bandtesting.Alice.Address, bandtesting.EmptyCoins, 2, raws)
+	require.NoError(err)
+	require.Empty(coins)
 
-// func (suite *KeeperTestSuite) TestResolveRequestCallReturnDataSeveralTimes() {
-// 	app, ctx := bandtesting.CreateTestApp(true)
-// 	k := app.OracleKeeper
+	coins, err = k.CollectFee(ctx, bandtesting.Alice.Address, bandtesting.Coins100000000uband, 2, raws)
+	require.NoError(err)
+	require.Empty(coins)
+}
 
-// 	ctx = ctx.WithBlockTime(bandtesting.ParseTime(1581589890))
-// 	k.SetRequest(ctx, 42, types.NewRequest(
-// 		// 9th Wasm - set return data several times
-// 		9,
-// 		basicCalldata,
-// 		[]sdk.ValAddress{bandtesting.Validators[0].ValAddress, bandtesting.Validators[1].ValAddress},
-// 		1,
-// 		42,
-// 		bandtesting.ParseTime(1581589790),
-// 		basicClientID,
-// 		[]types.RawRequest{
-// 			types.NewRawRequest(1, 1, []byte("beeb")),
-// 		},
-// 		nil,
-// 		bandtesting.TestDefaultExecuteGas,
-// 	))
-// 	k.ResolveRequest(ctx, 42)
+func (suite *KeeperTestSuite) TestCollectFeeBasicSuccess() {
+	ctx := suite.ctx
+	k := suite.oracleKeeper
+	require := suite.Require()
 
-// 	result := types.NewResult(
-// 		basicClientID, 9, basicCalldata, 2, 1, 42, 0, bandtesting.ParseTime(1581589790).Unix(),
-// 		bandtesting.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_FAILURE, nil,
-// 	)
-// 	require.Equal(result, k.MustGetResult(ctx, 42))
+	oracletestutil.ChainGoMockCalls(
+		suite.bankKeeper.EXPECT().
+			SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
+			Return(nil),
+		suite.bankKeeper.EXPECT().
+			SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000)))).
+			Return(nil),
+	)
 
-// 	require.Equal(sdk.Events{sdk.NewEvent(
-// 		types.EventTypeResolve,
-// 		sdk.NewAttribute(types.AttributeKeyID, "42"),
-// 		sdk.NewAttribute(types.AttributeKeyResolveStatus, "2"),
-// 		sdk.NewAttribute(types.AttributeKeyReason, "set return data is called more than once"),
-// 	)}, ctx.EventManager().Events())
-// }
+	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
+		bandtesting.EmptyCoins,
+		bandtesting.Coins1000000uband,
+		bandtesting.EmptyCoins,
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000))),
+		bandtesting.EmptyCoins,
+	})
 
-// func rawRequestsFromFees(ctx sdk.Context, k keeper.Keeper, fees []sdk.Coins) []types.RawRequest {
-// 	var rawRequests []types.RawRequest
-// 	for _, f := range fees {
-// 		id := k.AddDataSource(ctx, types.NewDataSource(
-// 			bandtesting.Owner.Address,
-// 			"mock ds",
-// 			"there is no real code",
-// 			"no file",
-// 			f,
-// 			bandtesting.Treasury.Address,
-// 		))
+	coins, err := k.CollectFee(ctx, bandtesting.FeePayer.Address, bandtesting.Coins100000000uband, 1, raws)
+	require.NoError(err)
+	require.Equal(sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000))), coins)
+}
 
-// 		rawRequests = append(rawRequests, types.NewRawRequest(
-// 			0, id, nil,
-// 		))
-// 	}
+func (suite *KeeperTestSuite) TestCollectFeeBasicSuccessWithOtherAskCount() {
+	ctx := suite.ctx
+	k := suite.oracleKeeper
+	require := suite.Require()
 
-// 	return rawRequests
-// }
+	oracletestutil.ChainGoMockCalls(
+		suite.bankKeeper.EXPECT().
+			SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(4000000)))).
+			Return(nil),
+		suite.bankKeeper.EXPECT().
+			SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(8000000)))).
+			Return(nil),
+	)
 
-// func (suite *KeeperTestSuite) TestCollectFeeEmptyFee() {
-// 	app, ctx := bandtesting.CreateTestApp(true)
-// 	k := app.OracleKeeper
+	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
+		bandtesting.EmptyCoins,
+		bandtesting.Coins1000000uband,
+		bandtesting.EmptyCoins,
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000))),
+		bandtesting.EmptyCoins,
+	})
 
-// 	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
-// 		bandtesting.EmptyCoins,
-// 		bandtesting.EmptyCoins,
-// 		bandtesting.EmptyCoins,
-// 		bandtesting.EmptyCoins,
-// 		bandtesting.EmptyCoins,
-// 	})
+	coins, err := k.CollectFee(ctx, bandtesting.FeePayer.Address, bandtesting.Coins100000000uband, 4, raws)
+	require.NoError(err)
+	require.Equal(sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(12000000))), coins)
+}
 
-// 	coins, err := k.CollectFee(ctx, bandtesting.Alice.Address, bandtesting.EmptyCoins, 1, raws)
-// 	require.NoError(err)
-// 	require.Empty(coins)
+func (suite *KeeperTestSuite) TestCollectFeeWithMixedAndFeeNotEnough() {
+	ctx := suite.ctx
+	k := suite.oracleKeeper
+	require := suite.Require()
 
-// 	coins, err = k.CollectFee(ctx, bandtesting.Alice.Address, bandtesting.Coins100000000uband, 1, raws)
-// 	require.NoError(err)
-// 	require.Empty(coins)
+	suite.bankKeeper.EXPECT().
+		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
+		Return(nil)
 
-// 	coins, err = k.CollectFee(ctx, bandtesting.Alice.Address, bandtesting.EmptyCoins, 2, raws)
-// 	require.NoError(err)
-// 	require.Empty(coins)
+	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
+		bandtesting.EmptyCoins,
+		bandtesting.Coins1000000uband,
+		bandtesting.EmptyCoins,
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000))),
+		bandtesting.EmptyCoins,
+	})
 
-// 	coins, err = k.CollectFee(ctx, bandtesting.Alice.Address, bandtesting.Coins100000000uband, 2, raws)
-// 	require.NoError(err)
-// 	require.Empty(coins)
-// }
+	coins, err := k.CollectFee(ctx, bandtesting.FeePayer.Address, bandtesting.EmptyCoins, 1, raws)
+	require.ErrorIs(err, types.ErrNotEnoughFee)
+	require.Nil(coins)
 
-// func (suite *KeeperTestSuite) TestCollectFeeBasicSuccess() {
-// 	app, ctx := bandtesting.CreateTestApp(false)
-// 	k := app.OracleKeeper
+	coins, err = k.CollectFee(ctx, bandtesting.FeePayer.Address, bandtesting.Coins1000000uband, 1, raws)
+	require.ErrorIs(err, types.ErrNotEnoughFee)
+	require.Nil(coins)
+}
 
-// 	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
-// 		bandtesting.EmptyCoins,
-// 		bandtesting.Coins1000000uband,
-// 		bandtesting.EmptyCoins,
-// 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000))),
-// 		bandtesting.EmptyCoins,
-// 	})
+func (suite *KeeperTestSuite) TestCollectFeeWithEnoughFeeButInsufficientBalance() {
+	ctx := suite.ctx
+	k := suite.oracleKeeper
+	require := suite.Require()
 
-// 	balancesRes, err := app.BankKeeper.AllBalances(
-// 		ctx,
-// 		authtypes.NewQueryAllBalancesRequest(bandtesting.FeePayer.Address, &query.PageRequest{}, false),
-// 	)
-// 	require.NoError(err)
-// 	feePayerBalances := balancesRes.Balances
-// 	feePayerBalances[0].Amount = feePayerBalances[0].Amount.Sub(math.NewInt(3000000))
+	oracletestutil.ChainGoMockCalls(
+		suite.bankKeeper.EXPECT().
+			SendCoins(gomock.Any(), bandtesting.Alice.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
+			Return(nil),
+		suite.bankKeeper.EXPECT().
+			SendCoins(gomock.Any(), bandtesting.Alice.Address, bandtesting.Treasury.Address, sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000)))).
+			Return(errorsmod.Wrapf(
+				sdkerrors.ErrInsufficientFunds,
+				"spendable balance %s is smaller than %s",
+				"0uband", "2000000uband",
+			)),
+	)
 
-// 	coins, err := k.CollectFee(ctx, bandtesting.FeePayer.Address, bandtesting.Coins100000000uband, 1, raws)
-// 	require.NoError(err)
-// 	require.Equal(sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000))), coins)
+	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
+		bandtesting.EmptyCoins,
+		bandtesting.Coins1000000uband,
+		bandtesting.EmptyCoins,
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000))),
+		bandtesting.EmptyCoins,
+	})
 
-// 	bandtesting.CheckBalances(ctx, app.BankKeeper, bandtesting.FeePayer.Address, feePayerBalances)
-// 	bandtesting.CheckBalances(
-// 		t,
-// 		ctx,
-// 		app.BankKeeper,
-// 		bandtesting.Treasury.Address,
-// 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000))),
-// 	)
-// }
+	coins, err := k.CollectFee(ctx, bandtesting.Alice.Address, bandtesting.Coins100000000uband, 1, raws)
+	require.Nil(coins)
+	// MAX is 100m but have only 1m in account
+	// First ds collect 1m so there no balance enough for next ds but it doesn't touch limit
+	require.EqualError(err, "spendable balance 0uband is smaller than 2000000uband: insufficient funds")
+}
 
-// func (suite *KeeperTestSuite) TestCollectFeeBasicSuccessWithOtherAskCount() {
-// 	app, ctx := bandtesting.CreateTestApp(false)
-// 	k := app.OracleKeeper
+func (suite *KeeperTestSuite) TestCollectFeeWithWithManyUnitSuccess() {
+	ctx := suite.ctx
+	k := suite.oracleKeeper
+	require := suite.Require()
 
-// 	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
-// 		bandtesting.EmptyCoins,
-// 		bandtesting.Coins1000000uband,
-// 		bandtesting.EmptyCoins,
-// 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000))),
-// 		bandtesting.EmptyCoins,
-// 	})
+	oracletestutil.ChainGoMockCalls(
+		suite.bankKeeper.EXPECT().
+			SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
+			Return(nil),
+		suite.bankKeeper.EXPECT().
+			SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000)), sdk.NewCoin("uabc", math.NewInt(1000000)))).
+			Return(nil),
+	)
 
-// 	balancesRes, err := app.BankKeeper.AllBalances(
-// 		ctx,
-// 		authtypes.NewQueryAllBalancesRequest(bandtesting.FeePayer.Address, &query.PageRequest{}, false),
-// 	)
-// 	require.NoError(err)
-// 	feePayerBalances := balancesRes.Balances
-// 	feePayerBalances[0].Amount = feePayerBalances[0].Amount.Sub(math.NewInt(12000000))
+	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
+		bandtesting.EmptyCoins,
+		bandtesting.Coins1000000uband,
+		bandtesting.EmptyCoins,
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000)), sdk.NewCoin("uabc", math.NewInt(1000000))),
+		bandtesting.EmptyCoins,
+	})
 
-// 	coins, err := k.CollectFee(ctx, bandtesting.FeePayer.Address, bandtesting.Coins100000000uband, 4, raws)
-// 	require.NoError(err)
-// 	require.Equal(sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(12000000))), coins)
+	coins, err := k.CollectFee(
+		ctx,
+		bandtesting.FeePayer.Address,
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(1000000000)), sdk.NewCoin("uabc", math.NewInt(1000000))),
+		1,
+		raws,
+	)
+	require.NoError(err)
 
-// 	bandtesting.CheckBalances(ctx, app.BankKeeper, bandtesting.FeePayer.Address, feePayerBalances)
-// 	bandtesting.CheckBalances(
-// 		t,
-// 		ctx,
-// 		app.BankKeeper,
-// 		bandtesting.Treasury.Address,
-// 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(12000000))),
-// 	)
-// }
-
-// func (suite *KeeperTestSuite) TestCollectFeeWithMixedAndFeeNotEnough() {
-// 	app, ctx := bandtesting.CreateTestApp(true)
-// 	k := app.OracleKeeper
-
-// 	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
-// 		bandtesting.EmptyCoins,
-// 		bandtesting.Coins1000000uband,
-// 		bandtesting.EmptyCoins,
-// 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000))),
-// 		bandtesting.EmptyCoins,
-// 	})
-
-// 	coins, err := k.CollectFee(ctx, bandtesting.FeePayer.Address, bandtesting.EmptyCoins, 1, raws)
-// 	require.ErrorIs(err, types.ErrNotEnoughFee)
-// 	require.Nil(coins)
-
-// 	coins, err = k.CollectFee(ctx, bandtesting.FeePayer.Address, bandtesting.Coins1000000uband, 1, raws)
-// 	require.ErrorIs(err, types.ErrNotEnoughFee)
-// 	require.Nil(coins)
-// }
-
-// func (suite *KeeperTestSuite) TestCollectFeeWithEnoughFeeButInsufficientBalance() {
-// 	app, ctx := bandtesting.CreateTestApp(true)
-// 	k := app.OracleKeeper
-
-// 	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
-// 		bandtesting.EmptyCoins,
-// 		bandtesting.Coins1000000uband,
-// 		bandtesting.EmptyCoins,
-// 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000))),
-// 		bandtesting.EmptyCoins,
-// 	})
-
-// 	coins, err := k.CollectFee(ctx, bandtesting.Alice.Address, bandtesting.Coins100000000uband, 1, raws)
-// 	require.Nil(coins)
-// 	// MAX is 100m but have only 1m in account
-// 	// First ds collect 1m so there no balance enough for next ds but it doesn't touch limit
-// 	require.EqualError(err, "spendable balance  is smaller than 2000000uband: insufficient funds")
-// }
-
-// func (suite *KeeperTestSuite) TestCollectFeeWithWithManyUnitSuccess() {
-// 	app, ctx := bandtesting.CreateTestApp(false)
-// 	k := app.OracleKeeper
-
-// 	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
-// 		bandtesting.EmptyCoins,
-// 		bandtesting.Coins1000000uband,
-// 		bandtesting.EmptyCoins,
-// 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000)), sdk.NewCoin("uabc", math.NewInt(1000000))),
-// 		bandtesting.EmptyCoins,
-// 	})
-
-// 	err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, sdk.NewCoins(sdk.NewCoin("uabc", math.NewInt(2000000))))
-// 	require.NoError(err)
-
-// 	// Carol have not enough uband but have enough uabc
-// 	err = app.BankKeeper.SendCoinsFromModuleToAccount(
-// 		ctx,
-// 		minttypes.ModuleName,
-// 		bandtesting.FeePayer.Address,
-// 		sdk.NewCoins(sdk.NewCoin("uabc", math.NewInt(2000000))),
-// 	)
-// 	require.NoError(err)
-
-// 	coins, err := k.CollectFee(
-// 		ctx,
-// 		bandtesting.FeePayer.Address,
-// 		bandtesting.MustGetBalances(ctx, app.BankKeeper, bandtesting.FeePayer.Address),
-// 		1,
-// 		raws,
-// 	)
-// 	require.NoError(err)
-
-// 	// Coins sum is correct
-// 	require.True(
-// 		t,
-// 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000)), sdk.NewCoin("uabc", math.NewInt(1000000))).
-// 			Equal(coins),
-// 	)
-
-// 	// FeePayer balance
-// 	// start: 100band, 0abc
-// 	// top-up: 100band, 2abc
-// 	// collect 3 band and 1 abc => 97band, 1abc
-// 	bandtesting.CheckBalances(
-// 		t,
-// 		ctx,
-// 		app.BankKeeper,
-// 		bandtesting.FeePayer.Address,
-// 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(97000000)), sdk.NewCoin("uabc", math.NewInt(1000000))),
-// 	)
-
-// 	// Treasury balance
-// 	// start: 0band, 0abc
-// 	// collect 3 band and 1 abc => 3band, 1abc
-// 	bandtesting.CheckBalances(
-// 		t,
-// 		ctx,
-// 		app.BankKeeper,
-// 		bandtesting.Treasury.Address,
-// 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000)), sdk.NewCoin("uabc", math.NewInt(1000000))),
-// 	)
-// }
-
-// func (suite *KeeperTestSuite) TestCollectFeeWithWithManyUnitFail() {
-// 	app, ctx := bandtesting.CreateTestApp(false)
-// 	k := app.OracleKeeper
-
-// 	raws := rawRequestsFromFees(ctx, k, []sdk.Coins{
-// 		bandtesting.EmptyCoins,
-// 		bandtesting.Coins1000000uband,
-// 		bandtesting.EmptyCoins,
-// 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(2000000)), sdk.NewCoin("uabc", math.NewInt(1000000))),
-// 		bandtesting.EmptyCoins,
-// 	})
-
-// 	err := app.BankKeeper.MintCoins(
-// 		ctx,
-// 		minttypes.ModuleName,
-// 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(10000000)), sdk.NewCoin("uabc", math.NewInt(2000000))),
-// 	)
-// 	require.NoError(err)
-
-// 	// Alice have no enough uband and don't have uabc so don't top up
-// 	// Bob have enough uband and have some but not enough uabc so add some
-// 	err = app.BankKeeper.SendCoinsFromModuleToAccount(
-// 		ctx,
-// 		minttypes.ModuleName,
-// 		bandtesting.Bob.Address,
-// 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000))),
-// 	)
-// 	require.NoError(err)
-
-// 	err = app.BankKeeper.SendCoinsFromModuleToAccount(
-// 		ctx,
-// 		minttypes.ModuleName,
-// 		bandtesting.Bob.Address,
-// 		sdk.NewCoins(sdk.NewCoin("uabc", math.NewInt(1))),
-// 	)
-// 	require.NoError(err)
-
-// 	// Carol have not enough uband but have enough uabc
-// 	err = app.BankKeeper.SendCoinsFromModuleToAccount(
-// 		ctx,
-// 		minttypes.ModuleName,
-// 		bandtesting.Carol.Address,
-// 		sdk.NewCoins(sdk.NewCoin("uabc", math.NewInt(1000000))),
-// 	)
-// 	require.NoError(err)
-
-// 	// Alice
-// 	_, err = k.CollectFee(
-// 		ctx,
-// 		bandtesting.Alice.Address,
-// 		bandtesting.MustGetBalances(ctx, app.BankKeeper, bandtesting.Alice.Address),
-// 		1,
-// 		raws,
-// 	)
-// 	require.EqualError(err, "require: 1000000uabc, max: 0uabc: not enough fee")
-
-// 	// Bob
-// 	_, err = k.CollectFee(
-// 		ctx,
-// 		bandtesting.Bob.Address,
-// 		bandtesting.MustGetBalances(ctx, app.BankKeeper, bandtesting.Bob.Address),
-// 		1,
-// 		raws,
-// 	)
-// 	require.EqualError(err, "require: 1000000uabc, max: 1uabc: not enough fee")
-
-// 	// Carol
-// 	_, err = k.CollectFee(
-// 		ctx,
-// 		bandtesting.Carol.Address,
-// 		bandtesting.MustGetBalances(ctx, app.BankKeeper, bandtesting.Carol.Address),
-// 		1,
-// 		raws,
-// 	)
-// 	require.EqualError(err, "require: 3000000uband, max: 1000000uband: not enough fee")
-// }
+	// Coins sum is correct
+	require.True(
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3000000)), sdk.NewCoin("uabc", math.NewInt(1000000))).
+			Equal(coins),
+	)
+}

@@ -5,18 +5,6 @@ import (
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
-// func defaultRequest() types.Request {
-// 	return types.NewRequest(
-// 		1, basicCalldata,
-// 		[]sdk.ValAddress{validators[0].Address, validators[1].Address},
-// 		2, 0, bandtesting.ParseTime(0),
-// 		basicClientID, []types.RawRequest{
-// 			types.NewRawRequest(42, 1, basicCalldata),
-// 			types.NewRawRequest(43, 2, basicCalldata),
-// 		}, nil, 0,
-// 	)
-// }
-
 func (suite *KeeperTestSuite) TestHasReport() {
 	ctx := suite.ctx
 	k := suite.oracleKeeper
