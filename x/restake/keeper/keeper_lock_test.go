@@ -18,11 +18,11 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 
 	suite.stakingKeeper.EXPECT().
 		GetDelegatorBonded(gomock.Any(), ValidAddress1).
-		Return(sdkmath.NewInt(1e18)).
+		Return(sdkmath.NewInt(1e18), nil).
 		Times(1)
 	suite.stakingKeeper.EXPECT().
 		GetDelegatorBonded(gomock.Any(), ValidAddress3).
-		Return(sdkmath.NewInt(10)).
+		Return(sdkmath.NewInt(10), nil).
 		Times(1)
 
 	// error case -  power is not uint64
@@ -220,7 +220,7 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 
 			suite.stakingKeeper.EXPECT().
 				GetDelegatorBonded(gomock.Any(), ValidAddress1).
-				Return(sdkmath.NewInt(1e18)).
+				Return(sdkmath.NewInt(1e18), nil).
 				Times(1)
 
 			testCase.malleate()

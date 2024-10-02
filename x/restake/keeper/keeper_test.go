@@ -680,15 +680,15 @@ func (suite *KeeperTestSuite) TestScenarios() {
 			// setup delegator bond
 			suite.stakingKeeper.EXPECT().
 				GetDelegatorBonded(gomock.Any(), ValidAddress1).
-				Return(sdkmath.NewInt(1e18)).
+				Return(sdkmath.NewInt(1e18), nil).
 				AnyTimes()
 			suite.stakingKeeper.EXPECT().
 				GetDelegatorBonded(gomock.Any(), ValidAddress2).
-				Return(sdkmath.NewInt(1e18)).
+				Return(sdkmath.NewInt(1e18), nil).
 				AnyTimes()
 			suite.stakingKeeper.EXPECT().
 				GetDelegatorBonded(gomock.Any(), ValidAddress3).
-				Return(sdkmath.NewInt(10)).
+				Return(sdkmath.NewInt(10), nil).
 				AnyTimes()
 
 			tc.check(suite.ctx)
