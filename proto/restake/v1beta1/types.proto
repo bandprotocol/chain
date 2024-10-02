@@ -1,7 +1,7 @@
 syntax = "proto3";
 package restake.v1beta1;
 
-option go_package = "github.com/bandprotocol/chain/v2/x/restake/types";
+option go_package = "github.com/bandprotocol/chain/v3/x/restake/types";
 
 import "gogoproto/gogo.proto";
 import "amino/amino.proto";
@@ -32,7 +32,7 @@ message Vault {
   // total_power is the total locked power of the vault.
   string total_power = 5 [
     (cosmos_proto.scalar)  = "cosmos.Int",
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable)   = false
   ];
 
@@ -58,7 +58,7 @@ message Lock {
   // power is the number of locked power.
   string power = 3 [
     (cosmos_proto.scalar)  = "cosmos.Int",
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable)   = false
   ];
 
@@ -104,7 +104,7 @@ message LockResponse {
   // power is the number of locked power.
   string power = 2 [
     (cosmos_proto.scalar)  = "cosmos.Int",
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable)   = false
   ];
 }

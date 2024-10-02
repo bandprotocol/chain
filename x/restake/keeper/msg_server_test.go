@@ -1,11 +1,13 @@
 package keeper_test
 
 import (
-	sdkmath "cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"go.uber.org/mock/gomock"
 
-	"github.com/bandprotocol/chain/v2/x/restake/types"
+	sdkmath "cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 func (suite *KeeperTestSuite) TestMsgClaimRewards() {
@@ -53,7 +55,7 @@ func (suite *KeeperTestSuite) TestMsgClaimRewards() {
 			preCheck: func() {
 				suite.bankKeeper.EXPECT().
 					SendCoins(gomock.Any(), VaultWithRewardsAddress, ValidAddress1, sdk.NewCoins(
-						sdk.NewCoin("uband", sdk.NewInt(1)),
+						sdk.NewCoin("uband", sdkmath.NewInt(1)),
 					)).
 					Times(1)
 			},

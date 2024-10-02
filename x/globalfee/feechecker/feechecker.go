@@ -3,14 +3,16 @@ package feechecker
 import (
 	"math"
 
+	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	"github.com/bandprotocol/chain/v2/x/globalfee/keeper"
-	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/x/globalfee/keeper"
+	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 type FeeChecker struct {
@@ -65,7 +67,7 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 		gas := feeTx.GetGas()
 		var allFees sdk.Coins
 		if !allGasPrices.IsZero() {
-			glDec := sdk.NewDec(int64(gas))
+			glDec := sdkmath.LegacyNewDec(int64(gas))
 			for _, gp := range allGasPrices {
 				if !gp.IsZero() {
 					fee := gp.Amount.Mul(glDec)
@@ -82,8 +84,11 @@ func (fc FeeChecker) CheckTxFeeWithMinGasPrices(
 			)
 		}
 	}
-
-	priority := getTxPriority(feeCoins, int64(gas), fc.GetBondDenom(ctx))
+	denom, err := fc.GetBondDenom(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+	priority := getTxPriority(feeCoins, int64(gas), denom)
 	return feeCoins, priority, nil
 }
 
@@ -121,14 +126,14 @@ func (fc FeeChecker) GetGlobalMinGasPrices(ctx sdk.Context) (sdk.DecCoins, error
 }
 
 func (fc FeeChecker) DefaultZeroGlobalFee(ctx sdk.Context) ([]sdk.DecCoin, error) {
-	bondDenom := fc.GetBondDenom(ctx)
-	if bondDenom == "" {
+	bondDenom, err := fc.GetBondDenom(ctx)
+	if err != nil {
 		return nil, sdkerrors.ErrNotFound.Wrap("empty staking bond denomination")
 	}
 
-	return []sdk.DecCoin{sdk.NewDecCoinFromDec(bondDenom, sdk.NewDec(0))}, nil
+	return []sdk.DecCoin{sdk.NewDecCoinFromDec(bondDenom, sdkmath.LegacyNewDec(0))}, nil
 }
 
-func (fc FeeChecker) GetBondDenom(ctx sdk.Context) string {
+func (fc FeeChecker) GetBondDenom(ctx sdk.Context) (string, error) {
 	return fc.StakingKeeper.BondDenom(ctx)
 }

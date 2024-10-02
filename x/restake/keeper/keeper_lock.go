@@ -2,9 +2,11 @@ package keeper
 
 import (
 	sdkmath "cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/restake/types"
+	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 // SetLockedPower sets the new locked power of the address to the vault
@@ -15,7 +17,11 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key s
 	}
 
 	// check if delegation is not less than power
-	delegation := k.stakingKeeper.GetDelegatorBonded(ctx, stakerAddr)
+	delegation, err := k.stakingKeeper.GetDelegatorBonded(ctx, stakerAddr)
+	if err != nil {
+		return err
+	}
+
 	if delegation.LT(power) {
 		return types.ErrDelegationNotEnough
 	}
@@ -108,13 +114,13 @@ func (k Keeper) getReward(ctx sdk.Context, lock types.Lock) types.Reward {
 // -------------------------------
 
 // GetLocksIterator gets iterator of lock store.
-func (k Keeper) GetLocksIterator(ctx sdk.Context) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.LockStoreKeyPrefix)
+func (k Keeper) GetLocksIterator(ctx sdk.Context) storetypes.Iterator {
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.LockStoreKeyPrefix)
 }
 
 // GetLocksByAddressIterator gets iterator of locks of the speicfic address.
-func (k Keeper) GetLocksByAddressIterator(ctx sdk.Context, addr sdk.AccAddress) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.LocksByAddressStoreKey(addr))
+func (k Keeper) GetLocksByAddressIterator(ctx sdk.Context, addr sdk.AccAddress) storetypes.Iterator {
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.LocksByAddressStoreKey(addr))
 }
 
 // GetLocksByAddress gets all locks of the address.

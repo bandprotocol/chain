@@ -8,11 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 )
 
-var (
-	amino     = codec.NewLegacyAmino()
-	ModuleCdc = codec.NewAminoCodec(amino)
-)
-
 // RegisterLegacyAminoCodec registers concrete types on the LegacyAmino codec
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(Params{}, "globalfee/Params", nil)

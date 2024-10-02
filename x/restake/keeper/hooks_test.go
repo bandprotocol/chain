@@ -1,9 +1,11 @@
 package keeper_test
 
 import (
-	sdkmath "cosmossdk.io/math"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"go.uber.org/mock/gomock"
+
+	sdkmath "cosmossdk.io/math"
+
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 func (suite *KeeperTestSuite) TestHooksAfterDelegationModified() {
