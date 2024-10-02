@@ -440,7 +440,7 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 					"cosmos1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62qh49enj",
 				)
 
-				s.feedsKeeper.EXPECT().GetCurrentPrices(gomock.Any()).Return([]feedstypes.Price{
+				s.feedsKeeper.EXPECT().GetAllCurrentPrices(gomock.Any()).Return([]feedstypes.Price{
 					{PriceStatus: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
 				})
 				s.bankKeeper.EXPECT().

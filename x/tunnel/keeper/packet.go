@@ -58,7 +58,7 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 	// get active tunnel IDs
 	ids := k.GetActiveTunnelIDs(ctx)
 
-	currentPrices := k.feedsKeeper.GetCurrentPrices(ctx)
+	currentPrices := k.feedsKeeper.GetAllCurrentPrices(ctx)
 	currentPricesMap := createPricesMap(currentPrices)
 
 	// check for active tunnels

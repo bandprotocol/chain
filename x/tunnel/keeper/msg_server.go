@@ -204,7 +204,7 @@ func (ms msgServer) TriggerTunnel(
 		return nil, types.ErrInactiveTunnel.Wrapf("tunnelID %d", req.TunnelID)
 	}
 
-	currentPrices := ms.Keeper.feedsKeeper.GetCurrentPrices(ctx)
+	currentPrices := ms.Keeper.feedsKeeper.GetAllCurrentPrices(ctx)
 	currentPricesMap := createPricesMap(currentPrices)
 
 	// produce packet with trigger all signals
