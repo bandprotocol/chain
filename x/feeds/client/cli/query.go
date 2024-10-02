@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -30,6 +31,7 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdReferenceSourceConfig(),
 		GetQueryCmdDelegatorSignals(),
 		GetQueryCmdCurrentFeeds(),
+		GetQueryCmdAllCurrentPrices(),
 		GetQueryCmdCurrentPrices(),
 		GetQueryCmdIsFeeder(),
 	)
@@ -144,17 +146,45 @@ func GetQueryCmdCurrentFeeds() *cobra.Command {
 	return cmd
 }
 
-// GetQueryCmdCurrentPrices implements the query current prices command.
-func GetQueryCmdCurrentPrices() *cobra.Command {
+// GetQueryCmdAllCurrentPrices implements the query all current prices command.
+func GetQueryCmdAllCurrentPrices() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "current-prices",
+		Use:   "all-current-prices",
 		Short: "Shows all current prices of all supported feeds",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx := client.GetClientContextFromCmd(cmd)
 			queryClient := types.NewQueryClient(clientCtx)
 
-			res, err := queryClient.CurrentPrices(cmd.Context(), &types.QueryCurrentPricesRequest{})
+			res, err := queryClient.AllCurrentPrices(cmd.Context(), &types.QueryAllCurrentPricesRequest{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetQueryCmdCurrentPrices implements the query current prices command.
+func GetQueryCmdCurrentPrices() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "current-prices [signal_ids]",
+		Short: "Shows current prices of supported feeds",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx := client.GetClientContextFromCmd(cmd)
+			queryClient := types.NewQueryClient(clientCtx)
+			signalIdsStr := args[0]
+			signalIds := strings.Split(signalIdsStr, ",")
+
+			res, err := queryClient.CurrentPrices(cmd.Context(), &types.QueryCurrentPricesRequest{
+				SignalIds: signalIds,
+			})
 			if err != nil {
 				return err
 			}
