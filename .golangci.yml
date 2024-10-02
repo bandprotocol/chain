@@ -1,6 +1,6 @@
 run:
   timeout: 5m
-  go: '1.22.3'
+  go: "1.22.3"
 
 linters:
   disable-all: true
@@ -8,7 +8,7 @@ linters:
     - bodyclose
     - whitespace
     - errcheck
-    - exportloopref
+    - copyloopvar
     - gci
     - gocritic
     - gofumpt
@@ -30,13 +30,13 @@ issues:
     - ".*\\.pb\\.gw\\.\\.go$"
     - ".*\\.pulsar\\.go$"
   exclude-rules:
-    - text: 'Use of weak random number generator'
+    - text: "Use of weak random number generator"
       linters:
         - gosec
-    - text: 'ST1003:'
+    - text: "ST1003:"
       linters:
         - stylecheck
-        
+
 linters-settings:
   gci:
     custom-order: true

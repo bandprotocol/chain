@@ -83,7 +83,7 @@ func (ms msgServer) CreateTunnel(
 	)
 	for _, sd := range req.SignalDeviations {
 		event = event.AppendAttributes(
-			sdk.NewAttribute(types.AttributeKeySignalPriceInfos, sd.String()),
+			sdk.NewAttribute(types.AttributeKeySignalDeviation, sd.String()),
 		)
 	}
 	ctx.EventManager().EmitEvent(event)
