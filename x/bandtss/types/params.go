@@ -67,7 +67,7 @@ func (p Params) Validate() error {
 
 	// Validate fee
 	if !p.Fee.IsValid() {
-		return sdkerrors.ErrInvalidCoins.Wrapf(p.Fee.String())
+		return sdkerrors.ErrInvalidCoins.Wrap(p.Fee.String())
 	}
 
 	return nil

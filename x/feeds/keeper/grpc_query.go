@@ -249,13 +249,23 @@ func (q queryServer) CurrentFeeds(
 	}, nil
 }
 
-// CurrentPrices queries all current prices.
+// AllCurrentPrices queries all current prices.
+func (q queryServer) AllCurrentPrices(
+	goCtx context.Context, _ *types.QueryAllCurrentPricesRequest,
+) (*types.QueryAllCurrentPricesResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	currentPrices := q.keeper.GetAllCurrentPrices(ctx)
+	return &types.QueryAllCurrentPricesResponse{Prices: currentPrices}, nil
+}
+
+// CurrentPrices queries current prices by signal ids.
 func (q queryServer) CurrentPrices(
-	goCtx context.Context, _ *types.QueryCurrentPricesRequest,
+	goCtx context.Context, req *types.QueryCurrentPricesRequest,
 ) (*types.QueryCurrentPricesResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	currentPrices := q.keeper.GetCurrentPrices(ctx)
+	currentPrices := q.keeper.GetCurrentPrices(ctx, req.SignalIds)
 	return &types.QueryCurrentPricesResponse{Prices: currentPrices}, nil
 }
 

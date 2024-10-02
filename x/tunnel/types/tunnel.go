@@ -77,3 +77,12 @@ func (t Tunnel) GetSignalDeviationMap() map[string]SignalDeviation {
 	}
 	return signalDeviationMap
 }
+
+// GetSignalIDs returns the signal IDs of the tunnel.
+func (t Tunnel) GetSignalIDs() []string {
+	signalIDs := make([]string, 0, len(t.SignalDeviations))
+	for _, sd := range t.SignalDeviations {
+		signalIDs = append(signalIDs, sd.SignalID)
+	}
+	return signalIDs
+}

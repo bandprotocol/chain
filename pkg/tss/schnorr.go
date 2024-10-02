@@ -87,7 +87,7 @@ func Verify(
 	// Verify signature
 	err = schnorr.Verify(signatureR, signatureS, challenge, pubKey, generator)
 	if err != nil {
-		return NewError(ErrInvalidSignature, err.Error())
+		return NewError(ErrInvalidSignature, "%s", err.Error())
 	}
 
 	return nil

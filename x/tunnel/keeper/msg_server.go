@@ -83,7 +83,7 @@ func (ms msgServer) CreateTunnel(
 	)
 	for _, sd := range req.SignalDeviations {
 		event = event.AppendAttributes(
-			sdk.NewAttribute(types.AttributeKeySignalPriceInfos, sd.String()),
+			sdk.NewAttribute(types.AttributeKeySignalDeviation, sd.String()),
 		)
 	}
 	ctx.EventManager().EmitEvent(event)
@@ -212,8 +212,8 @@ func (ms msgServer) TriggerTunnel(
 		return nil, types.ErrInsufficientFund.Wrapf("tunnelID %d", req.TunnelID)
 	}
 
-	// TODO: get current prices from the given signal IDs
-	currentPrices := ms.Keeper.feedsKeeper.GetCurrentPrices(ctx)
+	signalIDs := tunnel.GetSignalIDs()
+	currentPrices := ms.Keeper.feedsKeeper.GetCurrentPrices(ctx, signalIDs)
 	currentPricesMap := createPricesMap(currentPrices)
 
 	if err := ms.Keeper.ProducePacket(ctx, req.TunnelID, currentPricesMap, true); err != nil {
