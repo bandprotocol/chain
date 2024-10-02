@@ -8,7 +8,7 @@ linters:
     - bodyclose
     - whitespace
     - errcheck
-    - copyloopvar
+    - exportloopref
     - gci
     - gocritic
     - gofumpt
