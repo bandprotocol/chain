@@ -37,7 +37,7 @@ func GenerateKeyPairs(n uint64) (KeyPairs, error) {
 func GenerateKeyPair() (KeyPair, error) {
 	key, err := secp256k1.GeneratePrivateKey()
 	if err != nil {
-		return KeyPair{}, NewError(ErrGenerateKeyPairFailed, err.Error())
+		return KeyPair{}, NewError(ErrGenerateKeyPairFailed, "%s", err.Error())
 	}
 
 	return KeyPair{

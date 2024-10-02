@@ -3,7 +3,7 @@ package signaller
 import (
 	"testing"
 
-	proto "github.com/bandprotocol/bothan/bothan-api/client/go-client/query"
+	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 
@@ -35,74 +35,37 @@ func TestIsDeviated(t *testing.T) {
 func TestConvertPriceData(t *testing.T) {
 	tests := []struct {
 		name           string
-		priceData      *proto.PriceData
+		priceData      *bothan.Price
 		expectedResult types.SignalPrice
 		expectingError bool
 	}{
 		{
 			"Unsupported price status",
-			&proto.PriceData{PriceStatus: proto.PriceStatus_PRICE_STATUS_UNSUPPORTED, SignalId: "signal1"},
+			&bothan.Price{Status: bothan.Status_UNSUPPORTED, SignalId: "signal1"},
 			types.SignalPrice{PriceStatus: types.PriceStatusUnsupported, SignalID: "signal1", Price: 0},
 			false,
 		},
 		{
 			"Unavailable price status",
-			&proto.PriceData{PriceStatus: proto.PriceStatus_PRICE_STATUS_UNAVAILABLE, SignalId: "signal2"},
+			&bothan.Price{Status: bothan.Status_UNAVAILABLE, SignalId: "signal2"},
 			types.SignalPrice{PriceStatus: types.PriceStatusUnavailable, SignalID: "signal2", Price: 0},
 			false,
 		},
 		{
 			"Available price status",
-			&proto.PriceData{
-				PriceStatus: proto.PriceStatus_PRICE_STATUS_AVAILABLE,
-				SignalId:    "signal3",
-				Price:       "123.456",
+			&bothan.Price{
+				Status:   bothan.Status_AVAILABLE,
+				SignalId: "signal3",
+				Price:    123456000000,
 			},
 			types.SignalPrice{PriceStatus: types.PriceStatusAvailable, SignalID: "signal3", Price: 123456000000},
 			false,
-		},
-		{
-			"Invalid price value",
-			&proto.PriceData{
-				PriceStatus: proto.PriceStatus_PRICE_STATUS_AVAILABLE,
-				SignalId:    "signal4",
-				Price:       "invalid",
-			},
-			types.SignalPrice{},
-			true,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			result, err := convertPriceData(tt.priceData)
-			if tt.expectingError {
-				assert.Error(t, err)
-			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.expectedResult, result)
-			}
-		})
-	}
-}
-
-func TestSafeConvert(t *testing.T) {
-	tests := []struct {
-		name           string
-		price          string
-		expectedResult uint64
-		expectingError bool
-	}{
-		{"Empty string", "", 0, false},
-		{"Valid price", "123.456", 123456000000, false},
-		{"Negative price", "-123.456", 0, true},
-		{"Above upper bound", "100000000001", 0, true},
-		{"Invalid price format", "abc123", 0, true},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result, err := safeConvert(tt.price)
 			if tt.expectingError {
 				assert.Error(t, err)
 			} else {

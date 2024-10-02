@@ -9,6 +9,103 @@ import (
 	"github.com/bandprotocol/chain/v2/x/feeds/types"
 )
 
+func (suite *KeeperTestSuite) TestQueryAllCurrentPrices() {
+	ctx, queryClient := suite.ctx, suite.queryClient
+
+	// setup
+	prices := []types.Price{
+		{
+			SignalID:  "CS:ATOM-USD",
+			Price:     100000000,
+			Timestamp: 1234567890,
+		},
+		{
+			SignalID:  "CS:BAND-USD",
+			Price:     200000000,
+			Timestamp: 1234567890,
+		},
+	}
+
+	for _, price := range prices {
+		suite.feedsKeeper.SetPrice(ctx, price)
+	}
+
+	// query and check
+	res, err := queryClient.AllCurrentPrices(context.Background(), &types.QueryAllCurrentPricesRequest{})
+	suite.Require().NoError(err)
+	// signal ids are not in the current feeds
+	suite.Require().Equal(&types.QueryAllCurrentPricesResponse{
+		Prices: []types.Price(nil),
+	}, res)
+
+	// set current feeds
+	feeds := []types.Feed{
+		{
+			SignalID: "CS:ATOM-USD",
+			Interval: 100,
+		},
+		{
+			SignalID: "CS:BAND-USD",
+			Interval: 100,
+		},
+	}
+
+	suite.feedsKeeper.SetCurrentFeeds(ctx, feeds)
+
+	// query and check
+	res, err = queryClient.AllCurrentPrices(context.Background(), &types.QueryAllCurrentPricesRequest{})
+	suite.Require().NoError(err)
+	suite.Require().Equal(&types.QueryAllCurrentPricesResponse{
+		Prices: prices,
+	}, res)
+}
+
+func (suite *KeeperTestSuite) TestQueryCurrentPrices() {
+	ctx, queryClient := suite.ctx, suite.queryClient
+
+	// setup
+	prices := []types.Price{
+		{
+			SignalID:  "CS:ATOM-USD",
+			Price:     100000000,
+			Timestamp: 1234567890,
+		},
+		{
+			SignalID:  "CS:BAND-USD",
+			Price:     200000000,
+			Timestamp: 1234567890,
+		},
+	}
+
+	for _, price := range prices {
+		suite.feedsKeeper.SetPrice(ctx, price)
+	}
+
+	// set current feeds with only BAND
+	feeds := []types.Feed{
+		{
+			SignalID: "CS:BAND-USD",
+			Interval: 100,
+		},
+	}
+
+	suite.feedsKeeper.SetCurrentFeeds(ctx, feeds)
+
+	// query and check
+	// ATOM is not in the current feeds so it should return unavailable
+	expectedCurrentPrices := []types.Price{
+		types.NewPrice(types.PriceStatusUnavailable, "CS:ATOM-USD", 0, 0),
+		prices[1],
+	}
+	res, err := queryClient.CurrentPrices(context.Background(), &types.QueryCurrentPricesRequest{
+		SignalIds: []string{"CS:ATOM-USD", "CS:BAND-USD"},
+	})
+	suite.Require().NoError(err)
+	suite.Require().Equal(&types.QueryCurrentPricesResponse{
+		Prices: expectedCurrentPrices,
+	}, res)
+}
+
 func (suite *KeeperTestSuite) TestQueryDelegatorSignals() {
 	ctx, queryClient := suite.ctx, suite.queryClient
 

@@ -30,8 +30,30 @@ func (k Keeper) GetPrices(ctx sdk.Context) (prices []types.Price) {
 	return
 }
 
-// GetCurrentPrices returns a list of all current prices.
-func (k Keeper) GetCurrentPrices(ctx sdk.Context) (prices []types.Price) {
+// GetCurrentPrices returns a list of current prices.
+// NOTE: if the price's signal id is not in the current feeds, it will return an unavailable price.
+func (k Keeper) GetCurrentPrices(ctx sdk.Context, signalIDs []string) (prices []types.Price) {
+	currentFeeds := k.GetCurrentFeeds(ctx)
+	currentFeedsMap := make(map[string]int)
+	for idx, feed := range currentFeeds.Feeds {
+		currentFeedsMap[feed.SignalID] = idx
+	}
+	for _, signalID := range signalIDs {
+		price := types.NewPrice(types.PriceStatusUnavailable, signalID, 0, 0)
+		if _, ok := currentFeedsMap[signalID]; ok {
+			p, err := k.GetPrice(ctx, signalID)
+			if err == nil {
+				price = p
+			}
+		}
+		prices = append(prices, price)
+	}
+
+	return
+}
+
+// GetAllCurrentPrices returns a list of all current prices.
+func (k Keeper) GetAllCurrentPrices(ctx sdk.Context) (prices []types.Price) {
 	currentFeeds := k.GetCurrentFeeds(ctx)
 	for _, feed := range currentFeeds.Feeds {
 		price, err := k.GetPrice(ctx, feed.SignalID)
