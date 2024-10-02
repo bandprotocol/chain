@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 	protov2 "google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/protoadapt"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -37,9 +38,12 @@ func (st *StubTx) GetMsgs() []sdk.Msg {
 	return st.Msgs
 }
 
-// This function is just a mock of Tx interface. it should not be used.
-func (st *StubTx) GetMsgsV2() ([]protov2.Message, error) {
-	return nil, nil
+func (st *StubTx) GetMsgsV2() (ms []protov2.Message, err error) {
+	for _, msg := range st.Msgs {
+		ms = append(ms, protoadapt.MessageV2Of(msg))
+	}
+
+	return
 }
 
 func (st *StubTx) ValidateBasic() error {
