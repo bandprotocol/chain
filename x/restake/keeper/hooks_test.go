@@ -1,9 +1,11 @@
 package keeper_test
 
 import (
-	sdkmath "cosmossdk.io/math"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"go.uber.org/mock/gomock"
+
+	sdkmath "cosmossdk.io/math"
+
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 func (suite *KeeperTestSuite) TestHooksAfterDelegationModified() {
@@ -16,7 +18,7 @@ func (suite *KeeperTestSuite) TestHooksAfterDelegationModified() {
 	// change delegation to 51 -> success (51 + 50 >= 100)
 	suite.stakingKeeper.EXPECT().
 		GetDelegatorBonded(gomock.Any(), ValidAddress1).
-		Return(sdkmath.NewInt(51)).
+		Return(sdkmath.NewInt(51), nil).
 		Times(1)
 	err := suite.stakingHooks.AfterDelegationModified(ctx, ValidAddress1, ValAddress)
 	suite.Require().NoError(err)
@@ -24,7 +26,7 @@ func (suite *KeeperTestSuite) TestHooksAfterDelegationModified() {
 	// change delegation to 50 -> success (50 + 50 >= 100)
 	suite.stakingKeeper.EXPECT().
 		GetDelegatorBonded(gomock.Any(), ValidAddress1).
-		Return(sdkmath.NewInt(50)).
+		Return(sdkmath.NewInt(50), nil).
 		Times(1)
 	err = suite.stakingHooks.AfterDelegationModified(ctx, ValidAddress1, ValAddress)
 	suite.Require().NoError(err)
@@ -32,7 +34,7 @@ func (suite *KeeperTestSuite) TestHooksAfterDelegationModified() {
 	// change delegation to 49 -> failed (50 + 49 < 100)
 	suite.stakingKeeper.EXPECT().
 		GetDelegatorBonded(gomock.Any(), ValidAddress1).
-		Return(sdkmath.NewInt(49)).
+		Return(sdkmath.NewInt(49), nil).
 		Times(1)
 	err = suite.stakingHooks.AfterDelegationModified(ctx, ValidAddress1, ValAddress)
 	suite.Require().Error(err)
@@ -48,7 +50,7 @@ func (suite *KeeperTestSuite) TestHooksBeforeDelegationRemoved() {
 	// set current delegation power as 100
 	suite.stakingKeeper.EXPECT().
 		GetDelegatorBonded(gomock.Any(), ValidAddress1).
-		Return(sdkmath.NewInt(100)).
+		Return(sdkmath.NewInt(100), nil).
 		AnyTimes()
 
 	// remove delegation 50 -> success (150 - 50 >= 100)
@@ -58,14 +60,14 @@ func (suite *KeeperTestSuite) TestHooksBeforeDelegationRemoved() {
 			DelegatorAddress: ValidAddress1.String(),
 			ValidatorAddress: ValAddress.String(),
 			Shares:           sdkmath.LegacyNewDec(50),
-		}, true).
+		}, nil).
 		Times(1)
 	suite.stakingKeeper.EXPECT().
 		GetValidator(gomock.Any(), ValAddress).
 		Return(stakingtypes.Validator{
 			Tokens:          sdkmath.NewInt(1),
 			DelegatorShares: sdkmath.LegacyNewDec(1),
-		}, true).
+		}, nil).
 		Times(1)
 	err := suite.stakingHooks.BeforeDelegationRemoved(ctx, ValidAddress1, ValAddress)
 	suite.Require().NoError(err)
@@ -77,14 +79,14 @@ func (suite *KeeperTestSuite) TestHooksBeforeDelegationRemoved() {
 			DelegatorAddress: ValidAddress1.String(),
 			ValidatorAddress: ValAddress.String(),
 			Shares:           sdkmath.LegacyNewDec(51),
-		}, true).
+		}, nil).
 		Times(1)
 	suite.stakingKeeper.EXPECT().
 		GetValidator(gomock.Any(), ValAddress).
 		Return(stakingtypes.Validator{
 			Tokens:          sdkmath.NewInt(1),
 			DelegatorShares: sdkmath.LegacyNewDec(1),
-		}, true).
+		}, nil).
 		Times(1)
 	err = suite.stakingHooks.BeforeDelegationRemoved(ctx, ValidAddress1, ValAddress)
 	suite.Require().Error(err)

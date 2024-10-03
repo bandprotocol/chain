@@ -6,7 +6,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/bandprotocol/chain/v2/x/restake/types"
+	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 type msgServer struct {
@@ -142,8 +142,13 @@ func (k msgServer) Unstake(
 
 	k.SetStake(ctx, stake)
 
+	totalPower, err := k.GetTotalPower(ctx, addr)
+	if err != nil {
+		return nil, err
+	}
+
 	// check if total power is still more than locked power after unstaking.
-	if !k.isValidPower(ctx, addr, k.GetTotalPower(ctx, addr)) {
+	if !k.isValidPower(ctx, addr, totalPower) {
 		return nil, types.ErrUnableToUnstake.Wrap("power is locked")
 	}
 

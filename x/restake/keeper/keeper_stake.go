@@ -2,9 +2,11 @@ package keeper
 
 import (
 	sdkmath "cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/restake/types"
+	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 // GetStakedPower returns the power from staked coins in the module.
@@ -21,8 +23,8 @@ func (k Keeper) GetStakedPower(ctx sdk.Context, stakerAddr sdk.AccAddress) sdkma
 }
 
 // GetStakesIterator gets iterator of stake store.
-func (k Keeper) GetStakesIterator(ctx sdk.Context) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.StakeStoreKeyPrefix)
+func (k Keeper) GetStakesIterator(ctx sdk.Context) storetypes.Iterator {
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.StakeStoreKeyPrefix)
 }
 
 // GetStakes gets all stakes in the store.

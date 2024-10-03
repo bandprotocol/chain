@@ -3,16 +3,20 @@ package keeper_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/suite"
+
+	"cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
+
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/stretchr/testify/suite"
 
-	"github.com/bandprotocol/chain/v2/x/globalfee"
-	"github.com/bandprotocol/chain/v2/x/globalfee/keeper"
-	"github.com/bandprotocol/chain/v2/x/globalfee/types"
+	"github.com/bandprotocol/chain/v3/x/globalfee"
+	"github.com/bandprotocol/chain/v3/x/globalfee/keeper"
+	"github.com/bandprotocol/chain/v3/x/globalfee/types"
 )
 
 type IntegrationTestSuite struct {
@@ -29,8 +33,8 @@ func TestKeeperTestSuite(t *testing.T) {
 
 func (s *IntegrationTestSuite) SetupTest() {
 	encCfg := moduletestutil.MakeTestEncodingConfig(globalfee.AppModuleBasic{})
-	key := sdk.NewKVStoreKey(types.StoreKey)
-	testCtx := testutil.DefaultContextWithDB(s.T(), key, sdk.NewTransientStoreKey("transient_test"))
+	key := storetypes.NewKVStoreKey(types.StoreKey)
+	testCtx := testutil.DefaultContextWithDB(s.T(), key, storetypes.NewTransientStoreKey("transient_test"))
 	s.ctx = testCtx.Ctx
 
 	s.globalfeeKeeper = keeper.NewKeeper(
@@ -58,8 +62,8 @@ func (s *IntegrationTestSuite) TestParams() {
 			name: "set full valid params",
 			input: types.Params{
 				MinimumGasPrices: sdk.NewDecCoins(
-					sdk.NewDecCoin("ALX", sdk.NewInt(1)),
-					sdk.NewDecCoinFromDec("BLX", sdk.NewDecWithPrec(1, 3)),
+					sdk.NewDecCoin("ALX", math.NewInt(1)),
+					sdk.NewDecCoinFromDec("BLX", math.LegacyNewDecWithPrec(1, 3)),
 				),
 			},
 			expectErr: "",
@@ -77,7 +81,7 @@ func (s *IntegrationTestSuite) TestParams() {
 				MinimumGasPrices: []sdk.DecCoin{
 					{
 						Denom:  "1AAAA",
-						Amount: sdk.NewDecFromInt(sdk.NewInt(1)),
+						Amount: math.LegacyNewDecFromInt(math.NewInt(1)),
 					},
 				},
 			},
@@ -89,7 +93,7 @@ func (s *IntegrationTestSuite) TestParams() {
 				MinimumGasPrices: []sdk.DecCoin{
 					{
 						Denom:  "AAAA",
-						Amount: sdk.NewDecFromInt(sdk.NewInt(-1)),
+						Amount: math.LegacyNewDecFromInt(math.NewInt(-1)),
 					},
 				},
 			},
@@ -101,11 +105,11 @@ func (s *IntegrationTestSuite) TestParams() {
 				MinimumGasPrices: []sdk.DecCoin{
 					{
 						Denom:  "AAAA",
-						Amount: sdk.NewDecFromInt(sdk.NewInt(1)),
+						Amount: math.LegacyNewDecFromInt(math.NewInt(1)),
 					},
 					{
 						Denom:  "AAAA",
-						Amount: sdk.NewDecFromInt(sdk.NewInt(2)),
+						Amount: math.LegacyNewDecFromInt(math.NewInt(2)),
 					},
 				},
 			},
@@ -117,11 +121,11 @@ func (s *IntegrationTestSuite) TestParams() {
 				MinimumGasPrices: []sdk.DecCoin{
 					{
 						Denom:  "BBBB",
-						Amount: sdk.NewDecFromInt(sdk.NewInt(1)),
+						Amount: math.LegacyNewDecFromInt(math.NewInt(1)),
 					},
 					{
 						Denom:  "AAAA",
-						Amount: sdk.NewDecFromInt(sdk.NewInt(2)),
+						Amount: math.LegacyNewDecFromInt(math.NewInt(2)),
 					},
 				},
 			},

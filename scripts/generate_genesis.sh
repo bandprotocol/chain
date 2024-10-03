@@ -3,7 +3,7 @@ DIR=`dirname "$0"`
 rm -rf ~/.band
 
 # initial new node
-bandd init validator --chain-id bandchain
+bandd init validator --chain-id bandchain --default-denom uband
 echo "lock nasty suffer dirt dream fine fall deal curtain plate husband sound tower mom crew crawl guard rack snake before fragile course bacon range" \
     | bandd keys add validator --recover --keyring-backend test
 echo "smile stem oven genius cave resource better lunar nasty moon company ridge brass rather supply used horn three panic put venue analyst leader comic" \

@@ -3,14 +3,14 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/log"
 	sdkmath "cosmossdk.io/math"
-	"github.com/cometbft/cometbft/libs/log"
-	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	storetypes "cosmossdk.io/store/types"
 
-	"github.com/bandprotocol/chain/v2/x/restake/types"
+	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 // Keeper of the x/restake store
@@ -53,12 +53,12 @@ func NewKeeper(
 }
 
 // GetBandtssAccount returns the bandtss ModuleAccount
-func (k Keeper) GetModuleAccount(ctx sdk.Context) authtypes.ModuleAccountI {
+func (k Keeper) GetModuleAccount(ctx sdk.Context) sdk.ModuleAccountI {
 	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 
 // SetModuleAccount sets a module account in the account keeper.
-func (k Keeper) SetModuleAccount(ctx sdk.Context, acc authtypes.ModuleAccountI) {
+func (k Keeper) SetModuleAccount(ctx sdk.Context, acc sdk.ModuleAccountI) {
 	k.authKeeper.SetModuleAccount(ctx, acc)
 }
 
@@ -68,16 +68,19 @@ func (k Keeper) GetAuthority() string {
 }
 
 // GetTotalPower returns the total power of an address.
-func (k Keeper) GetTotalPower(ctx sdk.Context, stakerAddr sdk.AccAddress) sdkmath.Int {
-	delegationPower := k.GetDelegationPower(ctx, stakerAddr)
+func (k Keeper) GetTotalPower(ctx sdk.Context, stakerAddr sdk.AccAddress) (sdkmath.Int, error) {
+	delegationPower, err := k.GetDelegationPower(ctx, stakerAddr)
+	if err != nil {
+		return sdkmath.Int{}, err
+	}
+
 	stakedPower := k.GetStakedPower(ctx, stakerAddr)
-	return delegationPower.Add(stakedPower)
+	return delegationPower.Add(stakedPower), nil
 }
 
 // GetDelegationPower returns the power from delegation
-func (k Keeper) GetDelegationPower(ctx sdk.Context, stakerAddr sdk.AccAddress) sdkmath.Int {
-	delegation := k.stakingKeeper.GetDelegatorBonded(ctx, stakerAddr)
-	return delegation
+func (k Keeper) GetDelegationPower(ctx sdk.Context, stakerAddr sdk.AccAddress) (sdkmath.Int, error) {
+	return k.stakingKeeper.GetDelegatorBonded(ctx, stakerAddr)
 }
 
 // Checks if an account associated with a given delegation is related to liquid staking

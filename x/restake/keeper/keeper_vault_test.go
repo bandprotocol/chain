@@ -4,9 +4,10 @@ import (
 	"fmt"
 
 	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/restake/types"
+	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 func (suite *KeeperTestSuite) TestGetOrCreateVault() {
@@ -229,11 +230,11 @@ func (suite *KeeperTestSuite) TestAddRewards() {
 				VaultAddress: VaultWithRewardsAddress.String(),
 				IsActive:     true,
 				RewardsPerPower: sdk.NewDecCoins(
-					sdk.NewDecCoinFromDec("aaaa", sdk.MustNewDecFromStr("0.333333333333333333")),
+					sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyMustNewDecFromStr("0.333333333333333333")),
 				),
 				TotalPower: sdkmath.NewInt(3),
 				Remainders: sdk.NewDecCoins(
-					sdk.NewDecCoinFromDec("aaaa", sdk.NewDecWithPrec(1, 18)),
+					sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(1, 18)),
 				),
 			},
 		},

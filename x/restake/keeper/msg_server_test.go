@@ -1,13 +1,15 @@
 package keeper_test
 
 import (
+	"go.uber.org/mock/gomock"
+
 	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"go.uber.org/mock/gomock"
 
-	"github.com/bandprotocol/chain/v2/x/restake/types"
+	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 func (suite *KeeperTestSuite) TestMsgClaimRewards() {
@@ -55,7 +57,7 @@ func (suite *KeeperTestSuite) TestMsgClaimRewards() {
 			preCheck: func() {
 				suite.bankKeeper.EXPECT().
 					SendCoins(gomock.Any(), VaultWithRewardsAddress, ValidAddress1, sdk.NewCoins(
-						sdk.NewCoin("uband", sdk.NewInt(1)),
+						sdk.NewCoin("uband", sdkmath.NewInt(1)),
 					)).
 					Times(1)
 			},
@@ -151,7 +153,7 @@ func (suite *KeeperTestSuite) TestMsgStake() {
 			preCheck: func() {
 				suite.bankKeeper.EXPECT().
 					SendCoinsFromAccountToModule(gomock.Any(), ValidAddress1, types.ModuleName, sdk.NewCoins(
-						sdk.NewCoin("uband", sdk.NewInt(10)),
+						sdk.NewCoin("uband", sdkmath.NewInt(10)),
 					)).
 					Return(nil).
 					Times(1)
@@ -179,7 +181,7 @@ func (suite *KeeperTestSuite) TestMsgStake() {
 			preCheck: func() {
 				suite.bankKeeper.EXPECT().
 					SendCoinsFromAccountToModule(gomock.Any(), ValidAddress2, types.ModuleName, sdk.NewCoins(
-						sdk.NewCoin("uband", sdk.NewInt(10)),
+						sdk.NewCoin("uband", sdkmath.NewInt(10)),
 					)).
 					Return(nil).
 					Times(1)
@@ -251,12 +253,12 @@ func (suite *KeeperTestSuite) TestMsgUnstake() {
 			preCheck: func() {
 				suite.stakingKeeper.EXPECT().
 					GetDelegatorBonded(gomock.Any(), ValidAddress1).
-					Return(sdkmath.NewInt(100)).
+					Return(sdkmath.NewInt(100), nil).
 					Times(1)
 
 				suite.bankKeeper.EXPECT().
 					SendCoinsFromModuleToAccount(gomock.Any(), types.ModuleName, ValidAddress1, sdk.NewCoins(
-						sdk.NewCoin("uband", sdk.NewInt(10)),
+						sdk.NewCoin("uband", sdkmath.NewInt(10)),
 					)).
 					Return(nil).
 					Times(1)

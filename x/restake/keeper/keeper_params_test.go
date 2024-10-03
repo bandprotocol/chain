@@ -1,7 +1,7 @@
 package keeper_test
 
 import (
-	"github.com/bandprotocol/chain/v2/x/restake/types"
+	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 func (suite *KeeperTestSuite) TestGetSetParams() {
