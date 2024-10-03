@@ -105,7 +105,7 @@ func TestMsgUpdateParams_Type(t *testing.T) {
 
 func TestMsgUpdateParams_GetSignBytes(t *testing.T) {
 	msg := NewMsgUpdateParams(ValidAuthority, ValidParams)
-	expected := "{\"type\":\"feeds/MsgUpdateParams\",\"value\":{\"authority\":\"cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8\",\"params\":{\"admin\":\"[NOT_SET]\",\"allowable_block_time_discrepancy\":\"60\",\"cooldown_time\":\"30\",\"current_feeds_update_interval\":\"28800\",\"grace_period\":\"30\",\"max_current_feeds\":\"300\",\"max_deviation_basis_point\":\"3000\",\"max_interval\":\"3600\",\"min_deviation_basis_point\":\"50\",\"min_interval\":\"60\",\"power_step_threshold\":\"1000000000\"}}}"
+	expected := "{\"type\":\"feeds/MsgUpdateParams\",\"value\":{\"authority\":\"cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8\",\"params\":{\"admin\":\"[NOT_SET]\",\"allowable_block_time_discrepancy\":\"60\",\"cooldown_time\":\"30\",\"current_feeds_update_interval\":\"28800\",\"grace_period\":\"30\",\"max_current_feeds\":\"300\",\"max_deviation_basis_point\":\"3000\",\"max_interval\":\"3600\",\"min_deviation_basis_point\":\"50\",\"min_interval\":\"60\",\"power_step_threshold\":\"1000000000\",\"price_quorum\":\"0.300000000000000000\"}}}"
 	require.Equal(t, expected, string(msg.GetSignBytes()))
 }
 

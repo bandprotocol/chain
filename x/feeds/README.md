@@ -197,6 +197,9 @@ message Params {
 
   // current_feeds_update_interval is the number of blocks after which the current feeds will be re-calculated.
   int64 current_feeds_update_interval = 11;
+
+  // price_quorum is the minimum percentage of power that needs to be reached for a price to be processed.
+  uint64 price_quorum = 12;
 }
 ```
 

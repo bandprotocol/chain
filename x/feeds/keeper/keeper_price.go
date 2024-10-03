@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -29,8 +30,30 @@ func (k Keeper) GetPrices(ctx sdk.Context) (prices []types.Price) {
 	return
 }
 
-// GetCurrentPrices returns a list of all current prices.
-func (k Keeper) GetCurrentPrices(ctx sdk.Context) (prices []types.Price) {
+// GetCurrentPrices returns a list of current prices.
+// NOTE: if the price's signal id is not in the current feeds, it will return an unavailable price.
+func (k Keeper) GetCurrentPrices(ctx sdk.Context, signalIDs []string) (prices []types.Price) {
+	currentFeeds := k.GetCurrentFeeds(ctx)
+	currentFeedsMap := make(map[string]int)
+	for idx, feed := range currentFeeds.Feeds {
+		currentFeedsMap[feed.SignalID] = idx
+	}
+	for _, signalID := range signalIDs {
+		price := types.NewPrice(types.PriceStatusUnavailable, signalID, 0, 0)
+		if _, ok := currentFeedsMap[signalID]; ok {
+			p, err := k.GetPrice(ctx, signalID)
+			if err == nil {
+				price = p
+			}
+		}
+		prices = append(prices, price)
+	}
+
+	return
+}
+
+// GetAllCurrentPrices returns a list of all current prices.
+func (k Keeper) GetAllCurrentPrices(ctx sdk.Context) (prices []types.Price) {
 	currentFeeds := k.GetCurrentFeeds(ctx)
 	for _, feed := range currentFeeds.Feeds {
 		price, err := k.GetPrice(ctx, feed.SignalID)
@@ -185,6 +208,9 @@ func (k Keeper) CalculatePrice(
 
 	totalPower, availablePower, _, unsupportedPower := types.CalculatePricesPowers(priceFeedInfos)
 
+	totalBondedToken := sdkmath.LegacyNewDecFromInt(k.stakingKeeper.TotalBondedTokens(ctx))
+	priceQuorum, _ := sdk.NewDecFromStr(k.GetParams(ctx).PriceQuorum)
+
 	// If more than half of the total have unsupported price status, it returns an unsupported price status.
 	if unsupportedPower > totalPower/2 {
 		return types.NewPrice(
@@ -195,8 +221,10 @@ func (k Keeper) CalculatePrice(
 		), nil
 	}
 
-	// If less than half of total have available price status, it returns an unavailable price status.
-	if availablePower < totalPower/2 {
+	// If the total power is less than price quorum percentage of the total bonded token
+	// or less than half of total have available price status, it will not be calculated.
+	if totalPower < totalBondedToken.Mul(priceQuorum).TruncateInt().Uint64() || availablePower < totalPower/2 {
+		// else, it returns an unavailable price status.
 		return types.NewPrice(
 			types.PriceStatusUnavailable,
 			feed.SignalID,
