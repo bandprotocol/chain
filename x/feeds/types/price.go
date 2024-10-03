@@ -14,3 +14,16 @@ func NewPrice(
 		Timestamp:   timestamp,
 	}
 }
+
+// NewSignalPrice creates a new signal price instance
+func NewSignalPrice(
+	priceStatus PriceStatus,
+	signalID string,
+	price uint64,
+) SignalPrice {
+	return SignalPrice{
+		PriceStatus: priceStatus,
+		SignalID:    signalID,
+		Price:       price,
+	}
+}

@@ -7,7 +7,7 @@ require (
 	cosmossdk.io/core v0.5.1
 	cosmossdk.io/errors v1.0.1
 	cosmossdk.io/math v1.3.0
-	github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.1-alpha.1
+	github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.1-alpha.3
 	github.com/bandprotocol/go-owasm v0.3.1
 	github.com/bytecodealliance/wasmtime-go/v20 v20.0.0
 	github.com/cometbft/cometbft v0.37.9
