@@ -29,21 +29,21 @@ func NewLatestSignalPrices(
 }
 
 // Validate validates the latest signal prices.
-func (lsps LatestSignalPrices) Validate() error {
-	if lsps.TunnelID == 0 {
+func (l LatestSignalPrices) Validate() error {
+	if l.TunnelID == 0 {
 		return fmt.Errorf("tunnel ID cannot be 0")
 	}
-	if len(lsps.SignalPrices) == 0 {
+	if len(l.SignalPrices) == 0 {
 		return fmt.Errorf("signal prices cannot be empty")
 	}
-	if lsps.LastIntervalTimestamp < 0 {
-		return fmt.Errorf("last interval timestamp cannot be negative")
+	if l.LastIntervalTimestamp < 0 {
+		return fmt.Errorf("timestamp cannot be negative")
 	}
 	return nil
 }
 
 // UpdateSignalPrices updates the signal prices in the latest signal prices.
-func (lsps *LatestSignalPrices) UpdateSignalPrices(newSignalPrices []SignalPrice) {
+func (l *LatestSignalPrices) UpdateSignalPrices(newSignalPrices []SignalPrice) {
 	// create a map of new signal prices
 	newSpMap := make(map[string]SignalPrice)
 	for _, sp := range newSignalPrices {
@@ -51,9 +51,9 @@ func (lsps *LatestSignalPrices) UpdateSignalPrices(newSignalPrices []SignalPrice
 	}
 
 	// update signal prices
-	for i, sp := range lsps.SignalPrices {
+	for i, sp := range l.SignalPrices {
 		if newSp, ok := newSpMap[sp.SignalID]; ok {
-			lsps.SignalPrices[i] = newSp
+			l.SignalPrices[i] = newSp
 		}
 	}
 }
