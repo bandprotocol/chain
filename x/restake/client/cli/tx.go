@@ -4,14 +4,15 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/spf13/cobra"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
-	"github.com/spf13/cobra"
 
-	"github.com/bandprotocol/chain/v2/x/restake/types"
+	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 // GetTxCmd returns a root CLI command handler for all x/restake transaction commands.

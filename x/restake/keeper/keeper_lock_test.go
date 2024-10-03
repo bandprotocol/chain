@@ -3,11 +3,13 @@ package keeper_test
 import (
 	"fmt"
 
-	sdkmath "cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"go.uber.org/mock/gomock"
 
-	"github.com/bandprotocol/chain/v2/x/restake/types"
+	sdkmath "cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 func (suite *KeeperTestSuite) TestSetLockedPower() {
@@ -16,11 +18,11 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 
 	suite.stakingKeeper.EXPECT().
 		GetDelegatorBonded(gomock.Any(), ValidAddress1).
-		Return(sdkmath.NewInt(1e18)).
+		Return(sdkmath.NewInt(1e18), nil).
 		Times(1)
 	suite.stakingKeeper.EXPECT().
 		GetDelegatorBonded(gomock.Any(), ValidAddress3).
-		Return(sdkmath.NewInt(10)).
+		Return(sdkmath.NewInt(10), nil).
 		Times(1)
 
 	// error case -  power is not uint64
@@ -218,7 +220,7 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 
 			suite.stakingKeeper.EXPECT().
 				GetDelegatorBonded(gomock.Any(), ValidAddress1).
-				Return(sdkmath.NewInt(1e18)).
+				Return(sdkmath.NewInt(1e18), nil).
 				Times(1)
 
 			testCase.malleate()

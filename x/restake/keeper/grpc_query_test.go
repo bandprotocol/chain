@@ -5,10 +5,11 @@ import (
 	"fmt"
 
 	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 
-	"github.com/bandprotocol/chain/v2/x/restake/types"
+	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 func (suite *KeeperTestSuite) TestQueryVaults() {
@@ -371,7 +372,7 @@ func (suite *KeeperTestSuite) TestQueryLock() {
 				expRes = &types.QueryLockResponse{
 					Lock: types.LockResponse{
 						Key:   VaultKeyWithRewards,
-						Power: sdk.NewInt(10),
+						Power: sdkmath.NewInt(10),
 					},
 				}
 			},
@@ -398,7 +399,7 @@ func (suite *KeeperTestSuite) TestQueryLock() {
 				expRes = &types.QueryLockResponse{
 					Lock: types.LockResponse{
 						Key:   VaultKeyWithRewards,
-						Power: sdk.NewInt(10),
+						Power: sdkmath.NewInt(10),
 					},
 				}
 			},

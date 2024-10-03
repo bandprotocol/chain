@@ -5,7 +5,10 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-var _ sdk.Msg = &MsgClaimRewards{}
+var (
+	_ sdk.Msg              = &MsgClaimRewards{}
+	_ sdk.HasValidateBasic = &MsgClaimRewards{}
+)
 
 // NewMsgClaimRewards creates a new MsgClaimRewards instance
 func NewMsgClaimRewards(
@@ -16,23 +19,6 @@ func NewMsgClaimRewards(
 		StakerAddress: stakerAddr.String(),
 		Key:           key,
 	}
-}
-
-// Route implements the sdk.Msg interface.
-func (m MsgClaimRewards) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type implements the sdk.Msg interface.
-func (m MsgClaimRewards) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSigners implements the sdk.Msg interface.
-func (m MsgClaimRewards) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.StakerAddress)}
-}
-
-// GetSignBytes implements the sdk.Msg interface.
-func (m MsgClaimRewards) GetSignBytes() []byte {
-	bz := ModuleCdc.MustMarshalJSON(&m)
-	return sdk.MustSortJSON(bz)
 }
 
 // ValidateBasic implements the sdk.Msg interface.

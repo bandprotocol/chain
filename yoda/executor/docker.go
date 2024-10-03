@@ -11,7 +11,7 @@ import (
 
 	"github.com/google/shlex"
 
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 type DockerExec struct {

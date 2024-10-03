@@ -1,7 +1,7 @@
 syntax = "proto3";
 package bandchain.v1.oracle;
 
-option go_package = "github.com/bandprotocol/chain/v2/client/grpc/oracle/proof";
+option go_package = "github.com/bandprotocol/chain/v3/client/grpc/oracle/proof";
 
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";

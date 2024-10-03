@@ -2,10 +2,12 @@ package keeper
 
 import (
 	sdkmath "cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/bandprotocol/chain/v2/x/restake/types"
+	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 // GetOrCreateVault get the vault object by using key. If the vault doesn't exist, it will initialize the new vault.
@@ -148,8 +150,8 @@ func (k Keeper) createVaultAccount(ctx sdk.Context, key string) (sdk.AccAddress,
 // -------------------------------
 
 // GetVaultsIterator gets iterator of vault store.
-func (k Keeper) GetVaultsIterator(ctx sdk.Context) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.VaultStoreKeyPrefix)
+func (k Keeper) GetVaultsIterator(ctx sdk.Context) storetypes.Iterator {
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.VaultStoreKeyPrefix)
 }
 
 // GetVaults gets all vaults in the store.
