@@ -196,7 +196,7 @@ func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) error {
 		return err
 	}
 
-	// update the packet content
+	// set the packet content
 	if err := packet.SetPacketContent(content); err != nil {
 		return sdkerrors.Wrapf(err, "failed to set packet content for tunnel ID: %d", tunnel.ID)
 	}
@@ -249,7 +249,7 @@ func (k Keeper) GenerateNewSignalPrices(
 
 		// calculate deviation between old price and new price and compare with the threshold.
 		// shouldSend is set to true if sendAll is true or there is a signal whose deviation
-		//  is over the hard threshold.
+		// is over the hard threshold.
 		deviation := calculateDeviationBPS(oldPrice, newPrice)
 		if sendAll || deviation.GTE(hardDeviation) {
 			newSignalPrices = append(newSignalPrices, types.NewSignalPrice(sp.SignalID, price))
