@@ -152,7 +152,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestSuccessBasic() {
 	wrappedGasMeter := bandtesting.NewGasMeterWrapper(ctx.GasMeter())
 	ctx = ctx.WithGasMeter(wrappedGasMeter)
 
-	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "beeb"
+	// OracleScript#1: Prepare asks for DS#1,2,3 with ExtID#1,2,3 and calldata "test"
 	msg := types.NewMsgRequestData(
 		1,
 		basicCalldata,

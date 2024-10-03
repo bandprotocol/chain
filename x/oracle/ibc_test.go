@@ -663,13 +663,17 @@ func (suite *IBCTestSuite) TestIBCResolveRequestOutOfGas() {
 		bandtesting.TestDefaultPrepareGas,
 		1,
 	)
+	expectedSenderBalance := suite.bandApp.BankKeeper.GetAllBalances(
+		suite.chainB.GetContext(),
+		suite.chainB.SenderAccount.GetAddress(),
+	).Sub(sdk.NewCoin("uband", math.NewInt(6000000)))
 	packet := suite.sendOracleRequestPacket(path, 1, oracleRequestPacket, timeoutHeight)
 
 	err := path.RelayPacket(packet)
 	suite.Require().NoError(err) // relay committed
 
 	suite.checkChainBTreasuryBalances(sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(6000000))))
-	suite.checkChainBSenderBalances(sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(3970000))))
+	suite.checkChainBSenderBalances(expectedSenderBalance)
 
 	raws := []oracletypes.RawReport{
 		oracletypes.NewRawReport(1, 0, []byte("data1")),
@@ -693,8 +697,8 @@ func (suite *IBCTestSuite) TestIBCResolveRequestOutOfGas() {
 		path.EndpointA.ClientID,
 		1,
 		1,
+		1577923360,
 		1577923380,
-		1577923400,
 		oracletypes.RESOLVE_STATUS_FAILURE,
 		[]byte{},
 	)
@@ -706,7 +710,7 @@ func (suite *IBCTestSuite) TestIBCResolveRequestOutOfGas() {
 		path.EndpointA.ChannelConfig.PortID,
 		path.EndpointA.ChannelID,
 		clienttypes.ZeroHeight(),
-		1577924000000000000,
+		uint64(time.Unix(1577923380, 0).Add(10*time.Minute).UnixNano()),
 	)
 	expectCommitment := channeltypes.CommitPacket(suite.chainB.Codec, responsePacket)
 	suite.Equal(expectCommitment, commitment)
@@ -755,7 +759,7 @@ func (suite *IBCTestSuite) TestIBCResolveReadNilExternalData() {
 	}
 	suite.sendReport(
 		oracletypes.RequestID(1),
-		oracletypes.NewReport(sdk.ValAddress(suite.chainB.Vals.Validators[1].Address), true, raws2),
+		oracletypes.NewReport(sdk.ValAddress(suite.chainB.Vals.Validators[2].Address), true, raws2),
 		true,
 	)
 
@@ -796,7 +800,10 @@ func (suite *IBCTestSuite) TestIBCResolveRequestNoReturnData() {
 		// 3rd Wasm - do nothing
 		3,
 		[]byte("test"),
-		[]sdk.ValAddress{bandtesting.Validators[0].ValAddress, bandtesting.Validators[1].ValAddress},
+		[]sdk.ValAddress{
+			sdk.ValAddress(suite.chainB.Vals.Validators[0].Address),
+			sdk.ValAddress(suite.chainB.Vals.Validators[1].Address),
+		},
 		1,
 		suite.chainB.GetContext().
 			BlockHeight()-
@@ -829,7 +836,7 @@ func (suite *IBCTestSuite) TestIBCResolveRequestNoReturnData() {
 		1,
 		1,
 		1577923380,
-		1577923355,
+		1577923335,
 		oracletypes.RESOLVE_STATUS_FAILURE,
 		[]byte{},
 	)
@@ -841,7 +848,7 @@ func (suite *IBCTestSuite) TestIBCResolveRequestNoReturnData() {
 		path.EndpointA.ChannelConfig.PortID,
 		path.EndpointA.ChannelID,
 		clienttypes.ZeroHeight(),
-		1577923955000000000,
+		uint64(time.Unix(1577923335, 0).Add(10*time.Minute).UnixNano()),
 	)
 	expectCommitment := channeltypes.CommitPacket(suite.chainB.Codec, responsePacket)
 	suite.Equal(expectCommitment, commitment)
@@ -854,7 +861,10 @@ func (suite *IBCTestSuite) TestIBCResolveRequestWasmFailure() {
 		// 6th Wasm - out-of-gas
 		6,
 		[]byte("test"),
-		[]sdk.ValAddress{bandtesting.Validators[0].ValAddress, bandtesting.Validators[1].ValAddress},
+		[]sdk.ValAddress{
+			sdk.ValAddress(suite.chainB.Vals.Validators[0].Address),
+			sdk.ValAddress(suite.chainB.Vals.Validators[1].Address),
+		},
 		1,
 		suite.chainB.GetContext().
 			BlockHeight()-
@@ -887,7 +897,7 @@ func (suite *IBCTestSuite) TestIBCResolveRequestWasmFailure() {
 		1,
 		1,
 		1577923380,
-		1577923355,
+		1577923335,
 		oracletypes.RESOLVE_STATUS_FAILURE,
 		[]byte{},
 	)
@@ -899,7 +909,7 @@ func (suite *IBCTestSuite) TestIBCResolveRequestWasmFailure() {
 		path.EndpointA.ChannelConfig.PortID,
 		path.EndpointA.ChannelID,
 		clienttypes.ZeroHeight(),
-		1577923955000000000,
+		uint64(time.Unix(1577923335, 0).Add(10*time.Minute).UnixNano()),
 	)
 	expectCommitment := channeltypes.CommitPacket(suite.chainB.Codec, responsePacket)
 	suite.Equal(expectCommitment, commitment)
@@ -912,12 +922,15 @@ func (suite *IBCTestSuite) TestIBCResolveRequestCallReturnDataSeveralTimes() {
 		// 9th Wasm - set return data several times
 		9,
 		[]byte("test"),
-		[]sdk.ValAddress{bandtesting.Validators[0].ValAddress, bandtesting.Validators[1].ValAddress},
+		[]sdk.ValAddress{
+			sdk.ValAddress(suite.chainB.Vals.Validators[0].Address),
+			sdk.ValAddress(suite.chainB.Vals.Validators[1].Address),
+		},
 		1,
 		suite.chainB.GetContext().
 			BlockHeight()-
 			1,
-		bandtesting.ParseTime(1577923380),
+		bandtesting.ParseTime(1577923360),
 		path.EndpointA.ClientID,
 		[]oracletypes.RawRequest{
 			oracletypes.NewRawRequest(1, 1, []byte("test")),
@@ -944,8 +957,8 @@ func (suite *IBCTestSuite) TestIBCResolveRequestCallReturnDataSeveralTimes() {
 		path.EndpointA.ClientID,
 		1,
 		1,
-		1577923380,
-		1577923355,
+		1577923360,
+		1577923335,
 		oracletypes.RESOLVE_STATUS_FAILURE,
 		[]byte{},
 	)
@@ -957,7 +970,7 @@ func (suite *IBCTestSuite) TestIBCResolveRequestCallReturnDataSeveralTimes() {
 		path.EndpointA.ChannelConfig.PortID,
 		path.EndpointA.ChannelID,
 		clienttypes.ZeroHeight(),
-		1577923955000000000,
+		uint64(time.Unix(1577923335, 0).Add(10*time.Minute).UnixNano()),
 	)
 	expectCommitment := channeltypes.CommitPacket(suite.chainB.Codec, responsePacket)
 	suite.Equal(expectCommitment, commitment)

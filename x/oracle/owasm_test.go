@@ -531,12 +531,12 @@ func (s *AppTestSuite) TestResolveReadNilExternalData() {
 	k.SetReport(ctx, 42, types.NewReport(
 		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
 			types.NewRawReport(0, 0, nil),
-			types.NewRawReport(1, 0, []byte("beebd2v1")),
+			types.NewRawReport(1, 0, []byte("testd2v1")),
 		},
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		bandtesting.Validators[1].ValAddress, true, []types.RawReport{
-			types.NewRawReport(0, 0, []byte("beebd1v2")),
+			types.NewRawReport(0, 0, []byte("testd1v2")),
 			types.NewRawReport(1, 0, nil),
 		},
 	))
@@ -548,14 +548,14 @@ func (s *AppTestSuite) TestResolveReadNilExternalData() {
 		}), 2, 1,
 		42, 2, bandtesting.ParseTime(1581589790).Unix(),
 		bandtesting.ParseTime(1581589890).Unix(), types.RESOLVE_STATUS_SUCCESS,
-		obi.MustEncode(testdata.Wasm4Output{Ret: "beebd1v2beebd2v1"}),
+		obi.MustEncode(testdata.Wasm4Output{Ret: "testd1v2testd2v1"}),
 	)
 	require.Equal(result, k.MustGetResult(ctx, 42))
 	require.Equal(sdk.Events{sdk.NewEvent(
 		types.EventTypeResolve,
 		sdk.NewAttribute(types.AttributeKeyID, "42"),
 		sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
-		sdk.NewAttribute(types.AttributeKeyResult, "0000001062656562643176326265656264327631"),
+		sdk.NewAttribute(types.AttributeKeyResult, "0000001074657374643176327465737464327631"),
 		sdk.NewAttribute(types.AttributeKeyGasUsed, "31168050000"),
 	)}, ctx.EventManager().Events())
 }
@@ -577,14 +577,14 @@ func (s *AppTestSuite) TestResolveRequestNoReturnData() {
 		bandtesting.ParseTime(1581589790),
 		basicClientID,
 		[]types.RawRequest{
-			types.NewRawRequest(1, 1, []byte("beeb")),
+			types.NewRawRequest(1, 1, []byte("test")),
 		},
 		nil,
 		1,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
-			types.NewRawReport(1, 0, []byte("beeb")),
+			types.NewRawReport(1, 0, []byte("test")),
 		},
 	))
 	k.ResolveRequest(ctx, 42)
@@ -618,14 +618,14 @@ func (s *AppTestSuite) TestResolveRequestWasmFailure() {
 		bandtesting.ParseTime(1581589790),
 		basicClientID,
 		[]types.RawRequest{
-			types.NewRawRequest(1, 1, []byte("beeb")),
+			types.NewRawRequest(1, 1, []byte("test")),
 		},
 		nil,
 		0,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
-			types.NewRawReport(1, 0, []byte("beeb")),
+			types.NewRawReport(1, 0, []byte("test")),
 		},
 	))
 	k.ResolveRequest(ctx, 42)
@@ -659,7 +659,7 @@ func (s *AppTestSuite) TestResolveRequestCallReturnDataSeveralTimes() {
 		bandtesting.ParseTime(1581589790),
 		basicClientID,
 		[]types.RawRequest{
-			types.NewRawRequest(1, 1, []byte("beeb")),
+			types.NewRawRequest(1, 1, []byte("test")),
 		},
 		nil,
 		bandtesting.TestDefaultExecuteGas,
