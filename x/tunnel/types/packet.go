@@ -1,10 +1,7 @@
 package types
 
 import (
-	"fmt"
-
 	"github.com/cosmos/cosmos-sdk/codec/types"
-	proto "github.com/cosmos/gogoproto/proto"
 )
 
 var _ types.UnpackInterfacesMessage = Packet{}
@@ -32,11 +29,7 @@ func (p Packet) UnpackInterfaces(unpacker types.AnyUnpacker) error {
 
 // SetPacketContent sets the packet content of the packet.
 func (p *Packet) SetPacketContent(packetContent PacketContentI) error {
-	msg, ok := packetContent.(proto.Message)
-	if !ok {
-		return fmt.Errorf("can't proto marshal %T", msg)
-	}
-	any, err := types.NewAnyWithValue(msg)
+	any, err := types.NewAnyWithValue(packetContent)
 	if err != nil {
 		return err
 	}

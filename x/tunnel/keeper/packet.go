@@ -102,8 +102,8 @@ func (k Keeper) ProducePacket(
 	latestSignalPrices := k.MustGetLatestSignalPrices(ctx, tunnelID)
 
 	// check if the interval has passed
-	intervalTrigger := unixNow >= int64(tunnel.Interval)+latestSignalPrices.Timestamp
-	triggerAll = triggerAll || intervalTrigger
+	isIntervalReached := unixNow >= int64(tunnel.Interval)+latestSignalPrices.Timestamp
+	triggerAll = triggerAll || isIntervalReached
 
 	// generate new signal prices
 	nsps := GenerateSignalPrices(

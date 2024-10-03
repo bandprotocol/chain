@@ -7,6 +7,8 @@ import (
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
 )
 
+// TODO: patch account generation follow ibc-v8
+// https://github.com/cosmos/ibc-go/blob/v8.5.1/modules/apps/27-interchain-accounts/types/account.go#L46
 func (k Keeper) GenerateAccount(ctx sdk.Context, key string) (sdk.AccAddress, error) {
 	header := ctx.BlockHeader()
 
