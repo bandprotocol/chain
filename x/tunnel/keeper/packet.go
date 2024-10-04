@@ -62,10 +62,13 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 	currentPrices := k.feedsKeeper.GetAllCurrentPrices(ctx)
 	currentPricesMap := createPricesMap(currentPrices)
 
-	// check for active tunnels
+	// create new packet if possible for active tunnels. If not enough fund, deactivate the tunnel.
 	for _, id := range ids {
 		ok, err := k.HasEnoughFundToCreatePacket(ctx, id)
-		if err != nil || !ok {
+		if err != nil {
+			continue
+		}
+		if !ok {
 			k.MustDeactivateTunnel(ctx, id)
 			continue
 		}
@@ -133,7 +136,7 @@ func (k Keeper) ProducePacket(
 		return err
 	}
 	if sendAll {
-		if err := k.UpdateLastInterval(ctx, tunnel.ID, ctx.BlockTime().Unix()); err != nil {
+		if err := k.UpdateLastInterval(ctx, tunnel.ID, unixNow); err != nil {
 			return err
 		}
 	}

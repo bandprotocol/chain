@@ -10,5 +10,5 @@ type RouteI interface {
 	proto.Message
 
 	ValidateBasic() error
-	Fee() sdk.Coins
+	Fee() (sdk.Coins, error)
 }

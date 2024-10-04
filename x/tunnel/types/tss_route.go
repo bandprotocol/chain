@@ -8,6 +8,6 @@ func (r *TSSRoute) ValidateBasic() error {
 	return nil
 }
 
-func (r *TSSRoute) Fee() sdk.Coins {
-	return sdk.NewCoins()
+func (r *TSSRoute) Fee() (sdk.Coins, error) {
+	return sdk.NewCoins(), nil
 }

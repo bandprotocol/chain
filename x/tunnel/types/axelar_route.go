@@ -8,6 +8,6 @@ func (r *AxelarRoute) ValidateBasic() error {
 	return nil
 }
 
-func (r *AxelarRoute) Fee() sdk.Coins {
-	return sdk.NewCoins()
+func (r *AxelarRoute) Fee() (sdk.Coins, error) {
+	return sdk.NewCoins(), nil
 }
