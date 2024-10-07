@@ -417,10 +417,13 @@ func DecodeMsgCreateValidator(msg *stakingtypes.MsgCreateValidator, detail commo
 	detail["description"] = DecodeDescription(msg.Description)
 	detail["commission"] = msg.Commission
 	detail["min_self_delegation"] = msg.MinSelfDelegation
-	detail["delegator_address"] = msg.DelegatorAddress
 	detail["validator_address"] = msg.ValidatorAddress
 	detail["pubkey"] = hexConsPubKey
 	detail["value"] = msg.Value
+
+	// delegatorAddress is deprecated. need to convert from validatorAddress
+	addr, _ := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	detail["delagator_address"] = sdk.AccAddress(addr).String()
 }
 
 func DecodeMsgEditValidator(msg *stakingtypes.MsgEditValidator, detail common.JsDict) {
@@ -467,6 +470,9 @@ func DecodeMsgUpgradeClient(msg *clienttypes.MsgUpgradeClient, detail common.JsD
 	detail["signer"] = msg.Signer
 }
 
+// MsgSubmitMisbehaviour is deprecated but still use able.
+//
+//nolint:staticcheck
 func DecodeMsgSubmitMisbehaviour(msg *clienttypes.MsgSubmitMisbehaviour, detail common.JsDict) {
 	misbehaviour, _ := clienttypes.UnpackClientMessage(msg.Misbehaviour)
 	detail["client_id"] = msg.ClientId
