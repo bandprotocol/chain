@@ -66,12 +66,6 @@ func NewMsgRequestData(
 	}
 }
 
-// Route returns the route of MsgRequestData - "oracle" (sdk.Msg interface).
-func (m MsgRequestData) Route() string { return RouterKey }
-
-// Type returns the message type of MsgRequestData (sdk.Msg interface).
-func (m MsgRequestData) Type() string { return TypeMsgRequestData }
-
 // ValidateBasic checks whether the given MsgRequestData instance (sdk.Msg interface).
 func (m MsgRequestData) ValidateBasic() error {
 	sender, err := sdk.AccAddressFromBech32(m.Sender)
@@ -109,12 +103,6 @@ func (m MsgRequestData) ValidateBasic() error {
 	return nil
 }
 
-// GetSigners returns the required signers for the given MsgRequestData (sdk.Msg interface).
-func (m MsgRequestData) GetSigners() []sdk.AccAddress {
-	sender, _ := sdk.AccAddressFromBech32(m.Sender)
-	return []sdk.AccAddress{sender}
-}
-
 // NewMsgReportData creates a new MsgReportData instance
 func NewMsgReportData(requestID RequestID, rawReports []RawReport, validator sdk.ValAddress) *MsgReportData {
 	return &MsgReportData{
@@ -123,12 +111,6 @@ func NewMsgReportData(requestID RequestID, rawReports []RawReport, validator sdk
 		Validator:  validator.String(),
 	}
 }
-
-// Route returns the route of MsgReportData - "oracle" (sdk.Msg interface).
-func (m MsgReportData) Route() string { return RouterKey }
-
-// Type returns the message type of MsgReportData (sdk.Msg interface).
-func (m MsgReportData) Type() string { return TypeMsgReportData }
 
 // ValidateBasic checks whether the given MsgReportData instance (sdk.Msg interface).
 func (m MsgReportData) ValidateBasic() error {
@@ -152,12 +134,6 @@ func (m MsgReportData) ValidateBasic() error {
 	return nil
 }
 
-// GetSigners returns the required signers for the given MsgReportData (sdk.Msg interface).
-func (m MsgReportData) GetSigners() []sdk.AccAddress {
-	validator, _ := sdk.ValAddressFromBech32(m.Validator)
-	return []sdk.AccAddress{sdk.AccAddress(validator)}
-}
-
 // NewMsgCreateDataSource creates a new MsgCreateDataSource instance
 func NewMsgCreateDataSource(
 	name, description string, executable []byte, fee sdk.Coins, treasury, owner, sender sdk.AccAddress,
@@ -172,12 +148,6 @@ func NewMsgCreateDataSource(
 		Sender:      sender.String(),
 	}
 }
-
-// Route returns the route of MsgCreateDataSource - "oracle" (sdk.Msg interface).
-func (m MsgCreateDataSource) Route() string { return RouterKey }
-
-// Type returns the message type of MsgCreateDataSource (sdk.Msg interface).
-func (m MsgCreateDataSource) Type() string { return TypeMsgCreateDataSource }
 
 // ValidateBasic checks whether the given MsgCreateDataSource instance (sdk.Msg interface).
 func (m MsgCreateDataSource) ValidateBasic() error {
@@ -223,12 +193,6 @@ func (m MsgCreateDataSource) ValidateBasic() error {
 	return nil
 }
 
-// GetSigners returns the required signers for the given MsgCreateDataSource (sdk.Msg interface).
-func (m MsgCreateDataSource) GetSigners() []sdk.AccAddress {
-	sender, _ := sdk.AccAddressFromBech32(m.Sender)
-	return []sdk.AccAddress{sender}
-}
-
 // NewMsgEditDataSource creates a new MsgEditDataSource instance
 func NewMsgEditDataSource(
 	dataSourceID DataSourceID,
@@ -249,12 +213,6 @@ func NewMsgEditDataSource(
 		Sender:       sender.String(),
 	}
 }
-
-// Route returns the route of MsgEditDataSource - "oracle" (sdk.Msg interface).
-func (m MsgEditDataSource) Route() string { return RouterKey }
-
-// Type returns the message type of MsgEditDataSource (sdk.Msg interface).
-func (m MsgEditDataSource) Type() string { return TypeMsgEditDataSource }
 
 // ValidateBasic checks whether the given MsgEditDataSource instance (sdk.Msg interface).
 func (m MsgEditDataSource) ValidateBasic() error {
@@ -297,12 +255,6 @@ func (m MsgEditDataSource) ValidateBasic() error {
 	return nil
 }
 
-// GetSigners returns the required signers for the given MsgEditDataSource (sdk.Msg interface).
-func (m MsgEditDataSource) GetSigners() []sdk.AccAddress {
-	sender, _ := sdk.AccAddressFromBech32(m.Sender)
-	return []sdk.AccAddress{sender}
-}
-
 // NewMsgCreateOracleScript creates a new MsgCreateOracleScript instance
 func NewMsgCreateOracleScript(
 	name, description, schema, sourceCodeURL string, code []byte, owner, sender sdk.AccAddress,
@@ -317,12 +269,6 @@ func NewMsgCreateOracleScript(
 		Sender:        sender.String(),
 	}
 }
-
-// Route returns the route of MsgCreateOracleScript - "oracle" (sdk.Msg interface).
-func (m MsgCreateOracleScript) Route() string { return RouterKey }
-
-// Type returns the message type of MsgCreateOracleScript (sdk.Msg interface).
-func (m MsgCreateOracleScript) Type() string { return TypeMsgCreateOracleScript }
 
 // ValidateBasic checks whether the given MsgCreateOracleScript instance (sdk.Msg interface).
 func (m MsgCreateOracleScript) ValidateBasic() error {
@@ -364,12 +310,6 @@ func (m MsgCreateOracleScript) ValidateBasic() error {
 	return nil
 }
 
-// GetSigners returns the required signers for the given MsgCreateOracleScript (sdk.Msg interface).
-func (m MsgCreateOracleScript) GetSigners() []sdk.AccAddress {
-	sender, _ := sdk.AccAddressFromBech32(m.Sender)
-	return []sdk.AccAddress{sender}
-}
-
 // NewMsgEditOracleScript creates a new MsgEditOracleScript instance
 func NewMsgEditOracleScript(
 	oracleScriptID OracleScriptID,
@@ -388,12 +328,6 @@ func NewMsgEditOracleScript(
 		Sender:         sender.String(),
 	}
 }
-
-// Route returns the route of MsgEditOracleScript - "oracle" (sdk.Msg interface).
-func (m MsgEditOracleScript) Route() string { return RouterKey }
-
-// Type returns the message type of MsgEditOracleScript (sdk.Msg interface).
-func (m MsgEditOracleScript) Type() string { return TypeMsgEditOracleScript }
 
 // ValidateBasic checks whether the given MsgEditOracleScript instance (sdk.Msg interface).
 func (m MsgEditOracleScript) ValidateBasic() error {
@@ -432,24 +366,12 @@ func (m MsgEditOracleScript) ValidateBasic() error {
 	return nil
 }
 
-// GetSigners returns the required signers for the given MsgEditOracleScript (sdk.Msg interface).
-func (m MsgEditOracleScript) GetSigners() []sdk.AccAddress {
-	sender, _ := sdk.AccAddressFromBech32(m.Sender)
-	return []sdk.AccAddress{sender}
-}
-
 // NewMsgActivate creates a new MsgActivate instance
 func NewMsgActivate(validator sdk.ValAddress) *MsgActivate {
 	return &MsgActivate{
 		Validator: validator.String(),
 	}
 }
-
-// Route returns the route of MsgActivate - "oracle" (sdk.Msg interface).
-func (m MsgActivate) Route() string { return RouterKey }
-
-// Type returns the message type of MsgActivate (sdk.Msg interface).
-func (m MsgActivate) Type() string { return TypeMsgActivate }
 
 // ValidateBasic checks whether the given MsgActivate instance (sdk.Msg interface).
 func (m MsgActivate) ValidateBasic() error {
@@ -463,24 +385,12 @@ func (m MsgActivate) ValidateBasic() error {
 	return nil
 }
 
-// GetSigners returns the required signers for the given MsgActivate (sdk.Msg interface).
-func (m MsgActivate) GetSigners() []sdk.AccAddress {
-	val, _ := sdk.ValAddressFromBech32(m.Validator)
-	return []sdk.AccAddress{sdk.AccAddress(val)}
-}
-
 // NewMsgActivate creates a new MsgActivate instance
 func NewMsgUpdateParams(authority string, params Params) *MsgUpdateParams {
 	return &MsgUpdateParams{
 		Authority: authority,
 		Params:    params,
 	}
-}
-
-// GetSigners returns the expected signers for a MsgUpdateParams message.
-func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
-	addr, _ := sdk.AccAddressFromBech32(m.Authority)
-	return []sdk.AccAddress{addr}
 }
 
 // ValidateBasic does a sanity check on the provided data.
@@ -495,9 +405,3 @@ func (m *MsgUpdateParams) ValidateBasic() error {
 
 	return nil
 }
-
-// Route returns the route of MsgUpdateParams - "oracle" (sdk.Msg interface).
-func (m MsgUpdateParams) Route() string { return RouterKey }
-
-// Type returns the message type of MsgUpdateParams (sdk.Msg interface).
-func (m MsgUpdateParams) Type() string { return TypeMsgUpdateParams }
