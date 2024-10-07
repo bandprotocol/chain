@@ -1,85 +1,116 @@
 package main
 
-// import (
-// 	"fmt"
-// 	"os"
-// 	"path"
+import (
+	"fmt"
+	"os"
+	"path"
 
-// 	"github.com/cosmos/cosmos-sdk/client/flags"
-// 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-// 	sdk "github.com/cosmos/cosmos-sdk/types"
-// 	"github.com/spf13/cobra"
-// 	"github.com/spf13/viper"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
-// 	band "github.com/bandprotocol/chain/v3/app"
-// )
+	dbm "github.com/cosmos/cosmos-db"
 
-// const (
-// 	flagPort   = "port"
-// 	flagAmount = "amount"
-// )
+	"cosmossdk.io/log"
 
-// // Config data structure for faucet server.
-// type Config struct {
-// 	ChainID   string `mapstructure:"chain-id"`   // ChainID of the target chain
-// 	NodeURI   string `mapstructure:"node"`       // Remote RPC URI of BandChain node to connect to
-// 	GasPrices string `mapstructure:"gas-prices"` // Gas prices of the transaction
-// 	Port      string `mapstructure:"port"`       // Port of faucet service
-// 	Amount    int64  `mapstructure:"amount"`     // Amount of BAND for each request
-// }
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
-// // Global instances.
-// var (
-// 	cfg     Config
-// 	keybase keyring.Keyring
-// )
+	band "github.com/bandprotocol/chain/v3/app"
+)
 
-// func initConfig(cmd *cobra.Command) error {
-// 	home, err := cmd.PersistentFlags().GetString(flags.FlagHome)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	viper.SetConfigFile(path.Join(home, "config.yaml"))
-// 	_ = viper.ReadInConfig() // If we fail to read config file, we'll just rely on cmd flags.
-// 	if err := viper.Unmarshal(&cfg); err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
+const (
+	flagPort   = "port"
+	flagAmount = "amount"
+)
 
-// func main() {
-// 	appConfig := sdk.GetConfig()
-// 	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(appConfig)
+// Config data structure for faucet server.
+type Config struct {
+	ChainID   string `mapstructure:"chain-id"`   // ChainID of the target chain
+	NodeURI   string `mapstructure:"node"`       // Remote RPC URI of BandChain node to connect to
+	GasPrices string `mapstructure:"gas-prices"` // Gas prices of the transaction
+	Port      string `mapstructure:"port"`       // Port of faucet service
+	Amount    int64  `mapstructure:"amount"`     // Amount of BAND for each request
+}
 
-// 	ctx := &Context{}
-// 	rootCmd := &cobra.Command{
-// 		Use:   "faucet",
-// 		Short: "Faucet server for devnet",
-// 	}
+// Global instances.
+var (
+	cfg     Config
+	keybase keyring.Keyring
+)
 
-// 	rootCmd.AddCommand(
-// 		configCmd(),
-// 		keysCmd(ctx),
-// 		runCmd(ctx),
-// 	)
-// 	rootCmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
-// 		home, err := rootCmd.PersistentFlags().GetString(flags.FlagHome)
-// 		if err != nil {
-// 			return err
-// 		}
-// 		if err := os.MkdirAll(home, os.ModePerm); err != nil {
-// 			return err
-// 		}
+func initConfig(cmd *cobra.Command) error {
+	home, err := cmd.PersistentFlags().GetString(flags.FlagHome)
+	if err != nil {
+		return err
+	}
+	viper.SetConfigFile(path.Join(home, "config.yaml"))
+	_ = viper.ReadInConfig() // If we fail to read config file, we'll just rely on cmd flags.
+	if err := viper.Unmarshal(&cfg); err != nil {
+		return err
+	}
+	return nil
+}
 
-// 		keybase, err = keyring.New("band", keyring.BackendTest, home, nil, cdc)
-// 		if err != nil {
-// 			return err
-// 		}
-// 		return initConfig(rootCmd)
-// 	}
-// 	rootCmd.PersistentFlags().String(flags.FlagHome, os.ExpandEnv("$HOME/.faucet"), "home directory")
-// 	if err := rootCmd.Execute(); err != nil {
-// 		fmt.Println(err)
-// 		os.Exit(1)
-// 	}
-// }
+func main() {
+	appConfig := sdk.GetConfig()
+	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(appConfig)
+
+	ctx := &Context{}
+	rootCmd := &cobra.Command{
+		Use:   "faucet",
+		Short: "Faucet server for devnet",
+	}
+
+	rootCmd.AddCommand(
+		configCmd(),
+		keysCmd(ctx),
+		runCmd(ctx),
+	)
+	rootCmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
+		home, err := rootCmd.PersistentFlags().GetString(flags.FlagHome)
+		if err != nil {
+			return err
+		}
+		if err := os.MkdirAll(home, os.ModePerm); err != nil {
+			return err
+		}
+
+		initAppOptions := viper.New()
+		tempDir := tempDir()
+		initAppOptions.Set(flags.FlagHome, tempDir)
+		tempApplication := band.NewBandApp(
+			log.NewNopLogger(),
+			dbm.NewMemDB(),
+			nil,
+			true,
+			map[int64]bool{},
+			tempDir,
+			initAppOptions,
+			100,
+		)
+		ctx.bandApp = tempApplication
+
+		keybase, err = keyring.New("band", keyring.BackendTest, home, nil, tempApplication.AppCodec())
+		if err != nil {
+			return err
+		}
+
+		return initConfig(rootCmd)
+	}
+	rootCmd.PersistentFlags().String(flags.FlagHome, os.ExpandEnv("$HOME/.faucet"), "home directory")
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+}
+
+var tempDir = func() string {
+	dir, err := os.MkdirTemp("", ".band")
+	if err != nil {
+		dir = band.DefaultNodeHome
+	}
+	defer os.RemoveAll(dir)
+
+	return dir
+}
