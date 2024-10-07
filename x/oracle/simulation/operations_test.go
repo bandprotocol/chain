@@ -145,8 +145,7 @@ func (suite *SimTestSuite) TestSimulateMsgRequestData() {
 	suite.Require().Equal(uint64(169271), msg.PrepareGas)
 	suite.Require().Equal(uint64(115894), msg.ExecuteGas)
 	suite.Require().Equal("band1ghekyjucln7y67ntx7cf27m9dpuxxemnvh82dt", msg.Sender)
-	suite.Require().Equal(types.TypeMsgRequestData, msg.Type())
-	suite.Require().Equal(types.ModuleName, msg.Route())
+	suite.Require().Equal(sdk.MsgTypeURL(&types.MsgRequestData{}), sdk.MsgTypeURL(&msg))
 	suite.Require().Len(futureOperations, 0)
 }
 
@@ -191,8 +190,7 @@ func (suite *SimTestSuite) TestSimulateMsgReportData() {
 	suite.Require().Equal(types.RequestID(1), msg.RequestID)
 	suite.Require().Equal(3, len(msg.RawReports))
 	suite.Require().Equal("bandvaloper1tnh2q55v8wyygtt9srz5safamzdengsn4qqe0j", msg.Validator)
-	suite.Require().Equal(types.TypeMsgReportData, msg.Type())
-	suite.Require().Equal(types.ModuleName, msg.Route())
+	suite.Require().Equal(sdk.MsgTypeURL(&types.MsgReportData{}), sdk.MsgTypeURL(&msg))
 	suite.Require().Len(futureOperations, 0)
 }
 
@@ -223,8 +221,7 @@ func (suite *SimTestSuite) TestSimulateMsgCreateDataSource() {
 	suite.Require().Equal(sdk.Coins(nil), msg.Fee)
 	suite.Require().Equal("band13rmqzzysyz4qh3yg6rvknd6u9rvrd98qvy9azu", msg.Treasury)
 	suite.Require().Equal("band1n5sqxutsmk6eews5z9z673wv7n9wah8hjlxyuf", msg.Owner)
-	suite.Require().Equal(types.TypeMsgCreateDataSource, msg.Type())
-	suite.Require().Equal(types.ModuleName, msg.Route())
+	suite.Require().Equal(sdk.MsgTypeURL(&types.MsgCreateDataSource{}), sdk.MsgTypeURL(&msg))
 	suite.Require().Len(futureOperations, 0)
 }
 
@@ -270,8 +267,7 @@ func (suite *SimTestSuite) TestSimulateMsgEditDataSource() {
 	suite.Require().Equal(sdk.Coins(nil), msg.Fee)
 	suite.Require().Equal("band1n5sqxutsmk6eews5z9z673wv7n9wah8hjlxyuf", msg.Treasury)
 	suite.Require().Equal("band1n5sqxutsmk6eews5z9z673wv7n9wah8hjlxyuf", msg.Owner)
-	suite.Require().Equal(types.TypeMsgEditDataSource, msg.Type())
-	suite.Require().Equal(types.ModuleName, msg.Route())
+	suite.Require().Equal(sdk.MsgTypeURL(&types.MsgEditDataSource{}), sdk.MsgTypeURL(&msg))
 	suite.Require().Len(futureOperations, 0)
 }
 
@@ -304,8 +300,7 @@ func (suite *SimTestSuite) TestSimulateMsgCreateOracleScript() {
 	suite.Require().
 		Equal("0061736d0100000001100360000060047e7e7e7e0060027e7e00022f0203656e761161736b5f65787465726e616c5f64617461000103656e760f7365745f72657475726e5f6461746100020303020000040501700101010503010011071e030770726570617265000207657865637574650003066d656d6f727902000a4e022601017e42014201418008ad22004204100042024202200042041000420342032000420410000b2501017f4100210002400340200041016a2100200041e400490d000b0b418008ad420410010b0b0b01004180080b0474657374006f046e616d65013704001161736b5f65787465726e616c5f64617461010f7365745f72657475726e5f64617461020770726570617265030765786563757465020e02020100026c3003010003696478040d030002743001027431020274320505010002543006090100066d656d6f7279", hex.EncodeToString(msg.Code))
 	suite.Require().Equal("band1n5sqxutsmk6eews5z9z673wv7n9wah8hjlxyuf", msg.Owner)
-	suite.Require().Equal(types.TypeMsgCreateOracleScript, msg.Type())
-	suite.Require().Equal(types.ModuleName, msg.Route())
+	suite.Require().Equal(sdk.MsgTypeURL(&types.MsgCreateOracleScript{}), sdk.MsgTypeURL(&msg))
 	suite.Require().Len(futureOperations, 0)
 }
 
@@ -353,8 +348,7 @@ func (suite *SimTestSuite) TestSimulateMsgEditOracleScript() {
 	suite.Require().
 		Equal("0061736d0100000001100360000060047e7e7e7e0060027e7e00022f0203656e761161736b5f65787465726e616c5f64617461000103656e760f7365745f72657475726e5f6461746100020303020000040501700101010503010011071e030770726570617265000207657865637574650003066d656d6f727902000a4e022601017e42014201418008ad22004204100042024202200042041000420342032000420410000b2501017f4100210002400340200041016a2100200041e400490d000b0b418008ad420410010b0b0b01004180080b0474657374006f046e616d65013704001161736b5f65787465726e616c5f64617461010f7365745f72657475726e5f64617461020770726570617265030765786563757465020e02020100026c3003010003696478040d030002743001027431020274320505010002543006090100066d656d6f7279", hex.EncodeToString(msg.Code))
 	suite.Require().Equal("band1tnh2q55v8wyygtt9srz5safamzdengsneky62e", msg.Owner)
-	suite.Require().Equal(types.TypeMsgEditOracleScript, msg.Type())
-	suite.Require().Equal(types.ModuleName, msg.Route())
+	suite.Require().Equal(sdk.MsgTypeURL(&types.MsgEditOracleScript{}), sdk.MsgTypeURL(&msg))
 	suite.Require().Len(futureOperations, 0)
 }
 
@@ -377,8 +371,7 @@ func (suite *SimTestSuite) TestSimulateMsgActivate() {
 
 	suite.Require().True(operationMsg.OK)
 	suite.Require().Equal("bandvaloper1n5sqxutsmk6eews5z9z673wv7n9wah8h7fz8ez", msg.Validator)
-	suite.Require().Equal(types.TypeMsgActivate, msg.Type())
-	suite.Require().Equal(types.ModuleName, msg.Route())
+	suite.Require().Equal(sdk.MsgTypeURL(&types.MsgActivate{}), sdk.MsgTypeURL(&msg))
 	suite.Require().Len(futureOperations, 0)
 }
 

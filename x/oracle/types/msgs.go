@@ -9,20 +9,6 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// oracle message types
-const (
-	TypeMsgRequestData        = "request"
-	TypeMsgReportData         = "report"
-	TypeMsgCreateDataSource   = "create_data_source"
-	TypeMsgEditDataSource     = "edit_data_source"
-	TypeMsgCreateOracleScript = "create_oracle_script"
-	TypeMsgEditOracleScript   = "edit_oracle_script"
-	TypeMsgActivate           = "activate"
-	TypeMsgAddReporter        = "add_reporter"
-	TypeMsgRemoveReporter     = "remove_reporter"
-	TypeMsgUpdateParams       = "update_params"
-)
-
 var (
 	_ sdk.Msg = (*MsgRequestData)(nil)
 	_ sdk.Msg = (*MsgReportData)(nil)
