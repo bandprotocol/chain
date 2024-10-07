@@ -48,7 +48,6 @@ func (h *Hook) emitSetValidator(ctx sdk.Context, addr sdk.ValAddress) types.Vali
 
 func (h *Hook) emitUpdateValidator(ctx sdk.Context, addr sdk.ValAddress) (types.Validator, bool) {
 	val, err := h.stakingKeeper.GetValidator(ctx, addr)
-	// TODO: Check this correct logic
 	if err != nil {
 		h.Write("UPDATE_VALIDATOR", common.JsDict{
 			"operator_address": addr.String(),

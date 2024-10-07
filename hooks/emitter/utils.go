@@ -7,11 +7,12 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
 )
 
 func ConvertToGas(owasm uint64) uint64 {
-	// TODO: Using `gasConversionFactor` from oracle module
-	return uint64(math.Ceil(float64(owasm) / float64(20_000_000)))
+	return uint64(math.Ceil(float64(owasm) / float64(oraclekeeper.GasConversionFactor)))
 }
 
 func MustParseValAddress(addr string) sdk.ValAddress {
