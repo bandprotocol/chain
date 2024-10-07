@@ -18,6 +18,7 @@
 - (chain) Migrate REST Endpoint to GRPC
 - (chain) update oracle params to support cosmos-sdk 0.47+
 - (chain) Add consensus module to handle managing Tendermint consensus parameters
+- (chain) Change the allocation of remaining tokens from the community pool to the Proposer
 
 ## [v2.5.3](https://github.com/bandprotocol/chain/releases/tag/v2.5.3)
 
