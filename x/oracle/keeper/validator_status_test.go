@@ -61,7 +61,7 @@ func (suite *KeeperTestSuite) TestAllocateTokenNoActiveValidators() {
 
 	// No active oracle validators so nothing should happen.
 	// Expect only try to sum of validator power
-	oracletestutil.ChainGoMockCalls(suite.mockValidators()...)
+	suite.mockValidators()
 	k.AllocateTokens(ctx, defaultVotes)
 }
 
@@ -85,9 +85,9 @@ func (suite *KeeperTestSuite) TestAllocateTokensOneActive() {
 	// Mock all keeper that will be called when allocate token by order
 	feeCollectorAcc := authtypes.NewEmptyModuleAccount("fee_collector")
 	distAcc := authtypes.NewEmptyModuleAccount(distrtypes.ModuleName)
+	suite.mockValidators()
 
 	oracletestutil.ChainGoMockCalls(
-		oracletestutil.ChainGoMockCalls(suite.mockValidators()...),
 		suite.authKeeper.EXPECT().GetModuleAccount(gomock.Any(), "fee_collector").Return(feeCollectorAcc),
 		suite.bankKeeper.EXPECT().GetAllBalances(gomock.Any(), feeCollectorAcc.GetAddress()).Return(coins1000000uband),
 		suite.bankKeeper.EXPECT().
@@ -97,9 +97,6 @@ func (suite *KeeperTestSuite) TestAllocateTokensOneActive() {
 		suite.mockFundCommunityPool(sdk.NewCoins(sdk.NewInt64Coin("uband", 14000)), distAcc.GetAddress()),
 		suite.distrKeeper.EXPECT().
 			AllocateTokensToValidator(gomock.Any(), validators[1].Validator, sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDec(686000)}}),
-		suite.stakingKeeper.EXPECT().
-			ValidatorByConsAddr(gomock.Any(), valConsPk1.Address().Bytes()).
-			Return(validators[1].Validator, nil),
 		suite.distrKeeper.EXPECT().
 			AllocateTokensToValidator(gomock.Any(), validators[1].Validator, (sdk.DecCoins)(nil)),
 	)
@@ -131,8 +128,8 @@ func (suite *KeeperTestSuite) TestAllocateTokensAllActive() {
 	// Mock all keeper that will be called when allocate token by order
 	feeCollectorAcc := authtypes.NewEmptyModuleAccount("fee_collector")
 	distAcc := authtypes.NewEmptyModuleAccount(distrtypes.ModuleName)
+	suite.mockValidators()
 	oracletestutil.ChainGoMockCalls(
-		oracletestutil.ChainGoMockCalls(suite.mockValidators()...),
 		suite.authKeeper.EXPECT().GetModuleAccount(gomock.Any(), "fee_collector").Return(feeCollectorAcc),
 		suite.bankKeeper.EXPECT().GetAllBalances(gomock.Any(), feeCollectorAcc.GetAddress()).Return(coins1000000uband),
 		suite.bankKeeper.EXPECT().
@@ -146,9 +143,6 @@ func (suite *KeeperTestSuite) TestAllocateTokensAllActive() {
 			AllocateTokensToValidator(gomock.Any(), validators[1].Validator, sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDec(137200)}}),
 		suite.distrKeeper.EXPECT().
 			AllocateTokensToValidator(gomock.Any(), validators[2].Validator, sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDec(68600)}}),
-		suite.stakingKeeper.EXPECT().
-			ValidatorByConsAddr(gomock.Any(), valConsPk0.Address().Bytes()).
-			Return(validators[0].Validator, nil),
 		suite.distrKeeper.EXPECT().
 			AllocateTokensToValidator(gomock.Any(), validators[0].Validator, (sdk.DecCoins)(nil)),
 	)
