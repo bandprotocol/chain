@@ -132,7 +132,6 @@ func appModules(
 		),
 		authzmodule.NewAppModule(appCodec, app.AuthzKeeper, app.AccountKeeper, app.BankKeeper, app.interfaceRegistry),
 		ibc.NewAppModule(app.IBCKeeper),
-		// TODO : check this module
 		ibctm.NewAppModule(),
 		sdkparams.NewAppModule(app.ParamsKeeper),
 		consensus.NewAppModule(appCodec, app.ConsensusParamsKeeper),
@@ -242,7 +241,6 @@ func simulationModules(
 		),
 		ibc.NewAppModule(app.IBCKeeper),
 		app.TransferModule,
-		app.ICAModule,
 	}
 }
 

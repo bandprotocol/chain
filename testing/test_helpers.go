@@ -3,12 +3,11 @@ package testing
 import (
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"path/filepath"
 	"sort"
 	"testing"
 	"time"
-
-	"golang.org/x/exp/rand"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -19,6 +18,8 @@ import (
 
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
+	"cosmossdk.io/store/snapshots"
+	snapshottypes "cosmossdk.io/store/snapshots/types"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -103,7 +104,7 @@ var DefaultConsensusParams = &cmtproto.ConsensusParams{
 }
 
 func init() {
-	r := rand.New(rand.NewSource(uint64(time.Now().Unix())))
+	r := rand.New(rand.NewSource(time.Now().Unix()))
 	Owner = createArbitraryAccount(r)
 	Treasury = createArbitraryAccount(r)
 	FeePayer = createArbitraryAccount(r)
@@ -297,11 +298,22 @@ func generateOracleScripts(homePath string) []oracletypes.OracleScript {
 
 // SetupWithCustomHome initializes a new BandApp with a custom home directory
 func SetupWithCustomHome(isCheckTx bool, dir string) *band.BandApp {
-	return SetupWithCustomHomeAndChainId(isCheckTx, dir, "bandchain")
+	return SetupWithCustomHomeAndChainId(isCheckTx, dir, ChainID)
 }
 
 func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string) *band.BandApp {
 	db := cosmosdb.NewMemDB()
+
+	snapshotDir := filepath.Join(dir, "data", "snapshots")
+	snapshotDB, err := cosmosdb.NewDB("metadata", cosmosdb.GoLevelDBBackend, snapshotDir)
+	if err != nil {
+		panic(err)
+	}
+	snapshotStore, err := snapshots.NewStore(snapshotDB, snapshotDir)
+	if err != nil {
+		panic(err)
+	}
+
 	app := band.NewBandApp(
 		log.NewNopLogger(),
 		db,
@@ -312,6 +324,7 @@ func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string) *band.Ba
 		sims.EmptyAppOptions{},
 		100,
 		baseapp.SetChainID(chainId),
+		baseapp.SetSnapshot(snapshotStore, snapshottypes.SnapshotOptions{KeepRecent: 2}),
 	)
 	if !isCheckTx {
 		genesisState := GenesisStateWithValSet(app, dir)

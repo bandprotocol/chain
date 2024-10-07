@@ -225,7 +225,7 @@ func (k Querier) IsReporter(
 	return &types.QueryIsReporterResponse{IsReporter: k.Keeper.IsReporter(ctx, val, rep)}, nil
 }
 
-// Reporters queries 100 gratees of a given validator address and filter for reporter.
+// Reporters queries 100 grantees of a given validator address and filter for reporter.
 func (k Querier) Reporters(
 	c context.Context,
 	req *types.QueryReportersRequest,
