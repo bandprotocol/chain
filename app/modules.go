@@ -236,7 +236,6 @@ func simulationModules(
 		),
 		ibc.NewAppModule(app.IBCKeeper),
 		app.TransferModule,
-		// app.ICAModule, // remove ICA simulation as we don't have ICAController
 	}
 }
 

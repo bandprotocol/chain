@@ -390,7 +390,7 @@ func NewAppKeeper(
 		appCodec,
 		appKeepers.keys[ibctransfertypes.StoreKey],
 		appKeepers.GetSubspace(ibctransfertypes.ModuleName),
-		appKeepers.IBCFeeKeeper, // ICS4 Wrapper: PFM Router middleware
+		appKeepers.IBCFeeKeeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.IBCKeeper.PortKeeper,
 		appKeepers.AccountKeeper,
