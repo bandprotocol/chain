@@ -439,7 +439,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgCreateValidator() {
 	emitter.DecodeMsgCreateValidator(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"commission\":{\"rate\":\"1.000000000000000000\",\"max_rate\":\"5.000000000000000000\",\"max_change_rate\":\"5.000000000000000000\"},\"delegator_address\":\"\",\"description\":{\"details\":\"details\",\"identity\":\"identity\",\"moniker\":\"moniker\",\"security_contact\":\"securityContact\",\"website\":\"website\"},\"min_self_delegation\":\"1\",\"pubkey\":\"0b485cfc0eecc619440448436f8fc9df40566f2369e72400281454cb552afb50\",\"validator_address\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\",\"value\":{\"denom\":\"uband\",\"amount\":\"1\"}}",
+		"{\"commission\":{\"rate\":\"1.000000000000000000\",\"max_rate\":\"5.000000000000000000\",\"max_change_rate\":\"5.000000000000000000\"},\"delegator_address\":\"band12eskc6tyv96x7usqqqqqqqqqqqqqqqqqzep99r\",\"description\":{\"details\":\"details\",\"identity\":\"identity\",\"moniker\":\"moniker\",\"security_contact\":\"securityContact\",\"website\":\"website\"},\"min_self_delegation\":\"1\",\"pubkey\":\"0b485cfc0eecc619440448436f8fc9df40566f2369e72400281454cb552afb50\",\"validator_address\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\",\"value\":{\"denom\":\"uband\",\"amount\":\"1\"}}",
 	)
 }
 

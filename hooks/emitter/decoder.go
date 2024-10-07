@@ -423,7 +423,7 @@ func DecodeMsgCreateValidator(msg *stakingtypes.MsgCreateValidator, detail commo
 
 	// delegatorAddress is deprecated. need to convert from validatorAddress
 	addr, _ := sdk.ValAddressFromBech32(msg.ValidatorAddress)
-	detail["delagator_address"] = sdk.AccAddress(addr).String()
+	detail["delegator_address"] = sdk.AccAddress(addr).String()
 }
 
 func DecodeMsgEditValidator(msg *stakingtypes.MsgEditValidator, detail common.JsDict) {
