@@ -39,6 +39,7 @@ var Upgrade = upgrades.Upgrade{
 	},
 }
 
+// TODO: Update ICA Allow messages
 var ICAAllowMessages = []string{
 	sdk.MsgTypeURL(&authz.MsgExec{}),
 	sdk.MsgTypeURL(&authz.MsgGrant{}),

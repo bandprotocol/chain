@@ -29,22 +29,22 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// QueryChainIDRequest is request type for the Service/ChainID RPC method.
-type QueryChainIDRequest struct {
+// ChainIDRequest is request type for the Service/ChainID RPC method.
+type ChainIDRequest struct {
 }
 
-func (m *QueryChainIDRequest) Reset()         { *m = QueryChainIDRequest{} }
-func (m *QueryChainIDRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryChainIDRequest) ProtoMessage()    {}
-func (*QueryChainIDRequest) Descriptor() ([]byte, []int) {
+func (m *ChainIDRequest) Reset()         { *m = ChainIDRequest{} }
+func (m *ChainIDRequest) String() string { return proto.CompactTextString(m) }
+func (*ChainIDRequest) ProtoMessage()    {}
+func (*ChainIDRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_a25c18d173830f62, []int{0}
 }
-func (m *QueryChainIDRequest) XXX_Unmarshal(b []byte) error {
+func (m *ChainIDRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryChainIDRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *ChainIDRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryChainIDRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_ChainIDRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -54,35 +54,35 @@ func (m *QueryChainIDRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return b[:n], nil
 	}
 }
-func (m *QueryChainIDRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryChainIDRequest.Merge(m, src)
+func (m *ChainIDRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChainIDRequest.Merge(m, src)
 }
-func (m *QueryChainIDRequest) XXX_Size() int {
+func (m *ChainIDRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryChainIDRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryChainIDRequest.DiscardUnknown(m)
+func (m *ChainIDRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChainIDRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryChainIDRequest proto.InternalMessageInfo
+var xxx_messageInfo_ChainIDRequest proto.InternalMessageInfo
 
-// QueryChainIDResponse is response type for the Service/ChainID RPC method.
-type QueryChainIDResponse struct {
+// ChainIDResponse is response type for the Service/ChainID RPC method.
+type ChainIDResponse struct {
 	ChainID string `protobuf:"bytes,1,opt,name=chain_id,json=chainId,proto3" json:"chain_id,omitempty"`
 }
 
-func (m *QueryChainIDResponse) Reset()         { *m = QueryChainIDResponse{} }
-func (m *QueryChainIDResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryChainIDResponse) ProtoMessage()    {}
-func (*QueryChainIDResponse) Descriptor() ([]byte, []int) {
+func (m *ChainIDResponse) Reset()         { *m = ChainIDResponse{} }
+func (m *ChainIDResponse) String() string { return proto.CompactTextString(m) }
+func (*ChainIDResponse) ProtoMessage()    {}
+func (*ChainIDResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_a25c18d173830f62, []int{1}
 }
-func (m *QueryChainIDResponse) XXX_Unmarshal(b []byte) error {
+func (m *ChainIDResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryChainIDResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *ChainIDResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryChainIDResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_ChainIDResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -92,41 +92,41 @@ func (m *QueryChainIDResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return b[:n], nil
 	}
 }
-func (m *QueryChainIDResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryChainIDResponse.Merge(m, src)
+func (m *ChainIDResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChainIDResponse.Merge(m, src)
 }
-func (m *QueryChainIDResponse) XXX_Size() int {
+func (m *ChainIDResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryChainIDResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryChainIDResponse.DiscardUnknown(m)
+func (m *ChainIDResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChainIDResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryChainIDResponse proto.InternalMessageInfo
+var xxx_messageInfo_ChainIDResponse proto.InternalMessageInfo
 
-func (m *QueryChainIDResponse) GetChainID() string {
+func (m *ChainIDResponse) GetChainID() string {
 	if m != nil {
 		return m.ChainID
 	}
 	return ""
 }
 
-// QueryEVMValidatorsRequest is request type for the Service/EVMValidators RPC method.
-type QueryEVMValidatorsRequest struct {
+// EVMValidatorsRequest is request type for the Service/EVMValidators RPC method.
+type EVMValidatorsRequest struct {
 }
 
-func (m *QueryEVMValidatorsRequest) Reset()         { *m = QueryEVMValidatorsRequest{} }
-func (m *QueryEVMValidatorsRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryEVMValidatorsRequest) ProtoMessage()    {}
-func (*QueryEVMValidatorsRequest) Descriptor() ([]byte, []int) {
+func (m *EVMValidatorsRequest) Reset()         { *m = EVMValidatorsRequest{} }
+func (m *EVMValidatorsRequest) String() string { return proto.CompactTextString(m) }
+func (*EVMValidatorsRequest) ProtoMessage()    {}
+func (*EVMValidatorsRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_a25c18d173830f62, []int{2}
 }
-func (m *QueryEVMValidatorsRequest) XXX_Unmarshal(b []byte) error {
+func (m *EVMValidatorsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryEVMValidatorsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *EVMValidatorsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryEVMValidatorsRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_EVMValidatorsRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -136,38 +136,38 @@ func (m *QueryEVMValidatorsRequest) XXX_Marshal(b []byte, deterministic bool) ([
 		return b[:n], nil
 	}
 }
-func (m *QueryEVMValidatorsRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryEVMValidatorsRequest.Merge(m, src)
+func (m *EVMValidatorsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EVMValidatorsRequest.Merge(m, src)
 }
-func (m *QueryEVMValidatorsRequest) XXX_Size() int {
+func (m *EVMValidatorsRequest) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryEVMValidatorsRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryEVMValidatorsRequest.DiscardUnknown(m)
+func (m *EVMValidatorsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_EVMValidatorsRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryEVMValidatorsRequest proto.InternalMessageInfo
+var xxx_messageInfo_EVMValidatorsRequest proto.InternalMessageInfo
 
-// QueryEVMValidatorsResponse is response type for the Service/EVMValidators RPC method.
-type QueryEVMValidatorsResponse struct {
+// EVMValidatorsResponse is response type for the Service/EVMValidators RPC method.
+type EVMValidatorsResponse struct {
 	// BlockHeight is the latest block height
 	BlockHeight int64 `protobuf:"varint,1,opt,name=block_height,json=blockHeight,proto3" json:"block_height,omitempty"`
 	// Validators is list of validator's addresss and voting power
 	Validators []ValidatorMinimal `protobuf:"bytes,2,rep,name=validators,proto3" json:"validators"`
 }
 
-func (m *QueryEVMValidatorsResponse) Reset()         { *m = QueryEVMValidatorsResponse{} }
-func (m *QueryEVMValidatorsResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryEVMValidatorsResponse) ProtoMessage()    {}
-func (*QueryEVMValidatorsResponse) Descriptor() ([]byte, []int) {
+func (m *EVMValidatorsResponse) Reset()         { *m = EVMValidatorsResponse{} }
+func (m *EVMValidatorsResponse) String() string { return proto.CompactTextString(m) }
+func (*EVMValidatorsResponse) ProtoMessage()    {}
+func (*EVMValidatorsResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_a25c18d173830f62, []int{3}
 }
-func (m *QueryEVMValidatorsResponse) XXX_Unmarshal(b []byte) error {
+func (m *EVMValidatorsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *QueryEVMValidatorsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *EVMValidatorsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_QueryEVMValidatorsResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_EVMValidatorsResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -177,26 +177,26 @@ func (m *QueryEVMValidatorsResponse) XXX_Marshal(b []byte, deterministic bool) (
 		return b[:n], nil
 	}
 }
-func (m *QueryEVMValidatorsResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryEVMValidatorsResponse.Merge(m, src)
+func (m *EVMValidatorsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_EVMValidatorsResponse.Merge(m, src)
 }
-func (m *QueryEVMValidatorsResponse) XXX_Size() int {
+func (m *EVMValidatorsResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *QueryEVMValidatorsResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryEVMValidatorsResponse.DiscardUnknown(m)
+func (m *EVMValidatorsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_EVMValidatorsResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_QueryEVMValidatorsResponse proto.InternalMessageInfo
+var xxx_messageInfo_EVMValidatorsResponse proto.InternalMessageInfo
 
-func (m *QueryEVMValidatorsResponse) GetBlockHeight() int64 {
+func (m *EVMValidatorsResponse) GetBlockHeight() int64 {
 	if m != nil {
 		return m.BlockHeight
 	}
 	return 0
 }
 
-func (m *QueryEVMValidatorsResponse) GetValidators() []ValidatorMinimal {
+func (m *EVMValidatorsResponse) GetValidators() []ValidatorMinimal {
 	if m != nil {
 		return m.Validators
 	}
@@ -257,45 +257,45 @@ func (m *ValidatorMinimal) GetVotingPower() int64 {
 }
 
 func init() {
-	proto.RegisterType((*QueryChainIDRequest)(nil), "bandchain.v1.node.QueryChainIDRequest")
-	proto.RegisterType((*QueryChainIDResponse)(nil), "bandchain.v1.node.QueryChainIDResponse")
-	proto.RegisterType((*QueryEVMValidatorsRequest)(nil), "bandchain.v1.node.QueryEVMValidatorsRequest")
-	proto.RegisterType((*QueryEVMValidatorsResponse)(nil), "bandchain.v1.node.QueryEVMValidatorsResponse")
+	proto.RegisterType((*ChainIDRequest)(nil), "bandchain.v1.node.ChainIDRequest")
+	proto.RegisterType((*ChainIDResponse)(nil), "bandchain.v1.node.ChainIDResponse")
+	proto.RegisterType((*EVMValidatorsRequest)(nil), "bandchain.v1.node.EVMValidatorsRequest")
+	proto.RegisterType((*EVMValidatorsResponse)(nil), "bandchain.v1.node.EVMValidatorsResponse")
 	proto.RegisterType((*ValidatorMinimal)(nil), "bandchain.v1.node.ValidatorMinimal")
 }
 
 func init() { proto.RegisterFile("bandchain/v1/node/query.proto", fileDescriptor_a25c18d173830f62) }
 
 var fileDescriptor_a25c18d173830f62 = []byte{
-	// 447 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x53, 0x31, 0x6f, 0xd4, 0x30,
-	0x14, 0xbe, 0x5c, 0x11, 0x07, 0x3e, 0x90, 0xc0, 0x14, 0x14, 0x42, 0x71, 0x4b, 0x40, 0xa5, 0x03,
-	0x8d, 0x75, 0xed, 0xce, 0x70, 0x80, 0xc4, 0x09, 0x55, 0x40, 0x90, 0x3a, 0xb0, 0x9c, 0x9c, 0xc4,
-	0x72, 0x2c, 0x72, 0x7e, 0x69, 0xe2, 0x0b, 0x82, 0x91, 0x91, 0x09, 0xc1, 0xc6, 0x2f, 0xea, 0x58,
-	0x89, 0x85, 0xa9, 0x42, 0x39, 0x7e, 0x08, 0x8a, 0x73, 0x39, 0x08, 0x04, 0xc1, 0xe6, 0x7c, 0xef,
-	0x7b, 0xdf, 0xfb, 0xf2, 0xf9, 0x19, 0xdd, 0x0c, 0x98, 0x8a, 0xc2, 0x98, 0x49, 0x45, 0x8b, 0x11,
-	0x55, 0x10, 0x71, 0x7a, 0x34, 0xe7, 0xd9, 0x1b, 0x2f, 0xcd, 0x40, 0x03, 0xbe, 0xbc, 0x2a, 0x7b,
-	0xc5, 0xc8, 0xab, 0xca, 0xce, 0x86, 0x00, 0x10, 0x09, 0xa7, 0x2c, 0x95, 0x94, 0x29, 0x05, 0x9a,
-	0x69, 0x09, 0x2a, 0xaf, 0x1b, 0x9c, 0x75, 0x01, 0x02, 0xcc, 0x91, 0x56, 0xa7, 0x1a, 0x75, 0xaf,
-	0xa2, 0x2b, 0xcf, 0x2b, 0xd5, 0x07, 0x95, 0xd2, 0xe4, 0xa1, 0xcf, 0x8f, 0xe6, 0x3c, 0xd7, 0xee,
-	0x7d, 0xb4, 0xde, 0x86, 0xf3, 0x14, 0x54, 0xce, 0xf1, 0x36, 0x3a, 0x67, 0x66, 0x4e, 0x65, 0x64,
-	0x5b, 0x5b, 0xd6, 0xce, 0xf9, 0xf1, 0xb0, 0x3c, 0xdd, 0x1c, 0x34, 0xb4, 0x81, 0x29, 0x4e, 0x22,
-	0xf7, 0x06, 0xba, 0x6e, 0xfa, 0x1f, 0x1d, 0x1e, 0x1c, 0xb2, 0x44, 0x46, 0x4c, 0x43, 0x96, 0x37,
-	0xe2, 0xef, 0x2d, 0xe4, 0x74, 0x55, 0x97, 0x33, 0x6e, 0xa1, 0x0b, 0x41, 0x02, 0xe1, 0xab, 0x69,
-	0xcc, 0xa5, 0x88, 0xb5, 0x99, 0xb3, 0xe6, 0x0f, 0x0d, 0xf6, 0xd8, 0x40, 0x78, 0x82, 0x50, 0xb1,
-	0x6a, 0xb4, 0xfb, 0x5b, 0x6b, 0x3b, 0xc3, 0xbd, 0xdb, 0xde, 0x1f, 0x89, 0x78, 0x2b, 0xf5, 0x03,
-	0xa9, 0xe4, 0x8c, 0x25, 0xe3, 0x33, 0xc7, 0xa7, 0x9b, 0x3d, 0xff, 0x97, 0x66, 0xf7, 0x29, 0xba,
-	0xf4, 0x3b, 0x0b, 0xdb, 0x68, 0xc0, 0xa2, 0x28, 0xe3, 0x79, 0x5e, 0xff, 0xa4, 0xdf, 0x7c, 0x56,
-	0xde, 0x0a, 0xd0, 0x52, 0x89, 0x69, 0x0a, 0xaf, 0x79, 0x66, 0xf7, 0x6b, 0x6f, 0x35, 0xf6, 0xac,
-	0x82, 0xf6, 0x3e, 0xf7, 0xd1, 0xe0, 0x05, 0xcf, 0x0a, 0x19, 0x72, 0xfc, 0x16, 0x35, 0xd1, 0xe0,
-	0xed, 0x0e, 0x7b, 0x1d, 0xc9, 0x3b, 0x77, 0xff, 0xc9, 0xab, 0x63, 0x72, 0xc9, 0xbb, 0x2f, 0xdf,
-	0x3f, 0xf5, 0x6d, 0x7c, 0x8d, 0xb6, 0x16, 0xa5, 0xb9, 0x1e, 0xfc, 0xd1, 0x42, 0x17, 0x5b, 0x01,
-	0xe3, 0x7b, 0x7f, 0x93, 0xee, 0xba, 0x25, 0x67, 0xf7, 0x3f, 0xd9, 0x4b, 0x3b, 0x77, 0x8c, 0x1d,
-	0x82, 0x37, 0xda, 0x76, 0x78, 0x31, 0xdb, 0xfd, 0x99, 0xf6, 0xf8, 0xc9, 0x71, 0x49, 0xac, 0x93,
-	0x92, 0x58, 0xdf, 0x4a, 0x62, 0x7d, 0x58, 0x90, 0xde, 0xc9, 0x82, 0xf4, 0xbe, 0x2e, 0x48, 0xef,
-	0xe5, 0x48, 0x48, 0x1d, 0xcf, 0x03, 0x2f, 0x84, 0x99, 0x51, 0x30, 0xeb, 0x19, 0x42, 0x42, 0x97,
-	0x52, 0xfb, 0x34, 0x4c, 0x24, 0x57, 0x9a, 0x8a, 0x2c, 0x0d, 0xcd, 0x73, 0x08, 0xce, 0x1a, 0xce,
-	0xfe, 0x8f, 0x00, 0x00, 0x00, 0xff, 0xff, 0xbf, 0xb5, 0x89, 0x45, 0x2a, 0x03, 0x00, 0x00,
+	// 439 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x52, 0xcf, 0x6b, 0xd4, 0x40,
+	0x18, 0xdd, 0x6c, 0xc5, 0xd5, 0x59, 0x7f, 0xd4, 0xa1, 0x96, 0x10, 0xea, 0xb4, 0x8d, 0xa2, 0x7b,
+	0x31, 0xc3, 0xb6, 0x27, 0xaf, 0xab, 0x82, 0x8b, 0x14, 0x25, 0x42, 0x0f, 0x5e, 0x96, 0x49, 0x32,
+	0x4c, 0x06, 0xb3, 0xf3, 0xa5, 0xc9, 0x6c, 0xc4, 0xab, 0xa0, 0x78, 0x14, 0xfc, 0xa7, 0x7a, 0x2c,
+	0x78, 0xf1, 0x54, 0x24, 0xeb, 0x1f, 0x22, 0x99, 0x6c, 0xa2, 0xa9, 0x8b, 0xbd, 0x4d, 0xde, 0x7b,
+	0xdf, 0xcb, 0x9b, 0x37, 0x1f, 0xba, 0x17, 0x30, 0x15, 0x85, 0x31, 0x93, 0x8a, 0x16, 0x63, 0xaa,
+	0x20, 0xe2, 0xf4, 0x64, 0xc1, 0xb3, 0x0f, 0x5e, 0x9a, 0x81, 0x06, 0x7c, 0xa7, 0xa5, 0xbd, 0x62,
+	0xec, 0x55, 0xb4, 0xb3, 0x23, 0x00, 0x44, 0xc2, 0x29, 0x4b, 0x25, 0x65, 0x4a, 0x81, 0x66, 0x5a,
+	0x82, 0xca, 0xeb, 0x01, 0x67, 0x4b, 0x80, 0x00, 0x73, 0xa4, 0xd5, 0xa9, 0x46, 0xdd, 0x4d, 0x74,
+	0xeb, 0x69, 0x65, 0x32, 0x7d, 0xe6, 0xf3, 0x93, 0x05, 0xcf, 0xb5, 0xfb, 0x04, 0xdd, 0x6e, 0x91,
+	0x3c, 0x05, 0x95, 0x73, 0xfc, 0x10, 0x5d, 0x33, 0x7f, 0x9a, 0xc9, 0xc8, 0xb6, 0xf6, 0xac, 0xd1,
+	0xf5, 0xc9, 0xb0, 0x3c, 0xdf, 0x1d, 0x34, 0xb2, 0x81, 0x21, 0xa7, 0x91, 0xbb, 0x8d, 0xb6, 0x9e,
+	0x1f, 0x1f, 0x1d, 0xb3, 0x44, 0x46, 0x4c, 0x43, 0x96, 0x37, 0x96, 0x9f, 0x2c, 0x74, 0xf7, 0x02,
+	0xb1, 0x72, 0xde, 0x47, 0x37, 0x82, 0x04, 0xc2, 0x77, 0xb3, 0x98, 0x4b, 0x11, 0x6b, 0xe3, 0xbe,
+	0xe1, 0x0f, 0x0d, 0xf6, 0xc2, 0x40, 0x78, 0x8a, 0x50, 0xd1, 0x0e, 0xda, 0xfd, 0xbd, 0x8d, 0xd1,
+	0xf0, 0xe0, 0xbe, 0xf7, 0xcf, 0xed, 0xbd, 0xd6, 0xfd, 0x48, 0x2a, 0x39, 0x67, 0xc9, 0xe4, 0xca,
+	0xe9, 0xf9, 0x6e, 0xcf, 0xff, 0x6b, 0xd8, 0x7d, 0x85, 0x36, 0x2f, 0xaa, 0xb0, 0x8d, 0x06, 0x2c,
+	0x8a, 0x32, 0x9e, 0xe7, 0xf5, 0xd5, 0xfc, 0xe6, 0xb3, 0xca, 0x56, 0x80, 0x96, 0x4a, 0xcc, 0x52,
+	0x78, 0xcf, 0x33, 0xbb, 0x5f, 0x67, 0xab, 0xb1, 0xd7, 0x15, 0x74, 0xf0, 0xb9, 0x8f, 0x06, 0x6f,
+	0x78, 0x56, 0xc8, 0x90, 0xe3, 0x14, 0x35, 0x85, 0xe0, 0xfd, 0x35, 0xf1, 0xba, 0x2d, 0x3b, 0xee,
+	0xff, 0x24, 0x75, 0x39, 0x2e, 0xf9, 0xf8, 0xfd, 0xd7, 0xb7, 0xbe, 0x8d, 0xb7, 0x69, 0x67, 0x15,
+	0x9a, 0xa7, 0xc0, 0x5f, 0x2c, 0x74, 0xb3, 0x53, 0x2b, 0x7e, 0xb4, 0xc6, 0x75, 0xdd, 0x8b, 0x38,
+	0xa3, 0xcb, 0x85, 0xab, 0x10, 0x0f, 0x4c, 0x08, 0x82, 0x77, 0xba, 0x21, 0x78, 0x31, 0x7f, 0xfc,
+	0xa7, 0xd9, 0xc9, 0xcb, 0xd3, 0x92, 0x58, 0x67, 0x25, 0xb1, 0x7e, 0x96, 0xc4, 0xfa, 0xba, 0x24,
+	0xbd, 0xb3, 0x25, 0xe9, 0xfd, 0x58, 0x92, 0xde, 0xdb, 0xb1, 0x90, 0x3a, 0x5e, 0x04, 0x5e, 0x08,
+	0x73, 0xe3, 0x60, 0xd6, 0x2e, 0x84, 0x84, 0xae, 0xac, 0x0e, 0x69, 0x98, 0x48, 0xae, 0x34, 0x15,
+	0x59, 0x1a, 0x9a, 0x35, 0x0f, 0xae, 0x1a, 0xcd, 0xe1, 0xef, 0x00, 0x00, 0x00, 0xff, 0xff, 0xe4,
+	0x8f, 0x6b, 0xe9, 0x02, 0x03, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -311,9 +311,9 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type ServiceClient interface {
 	// ChainID queries the chain ID of this node
-	ChainID(ctx context.Context, in *QueryChainIDRequest, opts ...grpc.CallOption) (*QueryChainIDResponse, error)
+	ChainID(ctx context.Context, in *ChainIDRequest, opts ...grpc.CallOption) (*ChainIDResponse, error)
 	// EVMValidators queries current list of validator's address and power
-	EVMValidators(ctx context.Context, in *QueryEVMValidatorsRequest, opts ...grpc.CallOption) (*QueryEVMValidatorsResponse, error)
+	EVMValidators(ctx context.Context, in *EVMValidatorsRequest, opts ...grpc.CallOption) (*EVMValidatorsResponse, error)
 }
 
 type serviceClient struct {
@@ -324,8 +324,8 @@ func NewServiceClient(cc grpc1.ClientConn) ServiceClient {
 	return &serviceClient{cc}
 }
 
-func (c *serviceClient) ChainID(ctx context.Context, in *QueryChainIDRequest, opts ...grpc.CallOption) (*QueryChainIDResponse, error) {
-	out := new(QueryChainIDResponse)
+func (c *serviceClient) ChainID(ctx context.Context, in *ChainIDRequest, opts ...grpc.CallOption) (*ChainIDResponse, error) {
+	out := new(ChainIDResponse)
 	err := c.cc.Invoke(ctx, "/bandchain.v1.node.Service/ChainID", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -333,8 +333,8 @@ func (c *serviceClient) ChainID(ctx context.Context, in *QueryChainIDRequest, op
 	return out, nil
 }
 
-func (c *serviceClient) EVMValidators(ctx context.Context, in *QueryEVMValidatorsRequest, opts ...grpc.CallOption) (*QueryEVMValidatorsResponse, error) {
-	out := new(QueryEVMValidatorsResponse)
+func (c *serviceClient) EVMValidators(ctx context.Context, in *EVMValidatorsRequest, opts ...grpc.CallOption) (*EVMValidatorsResponse, error) {
+	out := new(EVMValidatorsResponse)
 	err := c.cc.Invoke(ctx, "/bandchain.v1.node.Service/EVMValidators", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -345,19 +345,19 @@ func (c *serviceClient) EVMValidators(ctx context.Context, in *QueryEVMValidator
 // ServiceServer is the server API for Service service.
 type ServiceServer interface {
 	// ChainID queries the chain ID of this node
-	ChainID(context.Context, *QueryChainIDRequest) (*QueryChainIDResponse, error)
+	ChainID(context.Context, *ChainIDRequest) (*ChainIDResponse, error)
 	// EVMValidators queries current list of validator's address and power
-	EVMValidators(context.Context, *QueryEVMValidatorsRequest) (*QueryEVMValidatorsResponse, error)
+	EVMValidators(context.Context, *EVMValidatorsRequest) (*EVMValidatorsResponse, error)
 }
 
 // UnimplementedServiceServer can be embedded to have forward compatible implementations.
 type UnimplementedServiceServer struct {
 }
 
-func (*UnimplementedServiceServer) ChainID(ctx context.Context, req *QueryChainIDRequest) (*QueryChainIDResponse, error) {
+func (*UnimplementedServiceServer) ChainID(ctx context.Context, req *ChainIDRequest) (*ChainIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChainID not implemented")
 }
-func (*UnimplementedServiceServer) EVMValidators(ctx context.Context, req *QueryEVMValidatorsRequest) (*QueryEVMValidatorsResponse, error) {
+func (*UnimplementedServiceServer) EVMValidators(ctx context.Context, req *EVMValidatorsRequest) (*EVMValidatorsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EVMValidators not implemented")
 }
 
@@ -366,7 +366,7 @@ func RegisterServiceServer(s grpc1.Server, srv ServiceServer) {
 }
 
 func _Service_ChainID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryChainIDRequest)
+	in := new(ChainIDRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -378,13 +378,13 @@ func _Service_ChainID_Handler(srv interface{}, ctx context.Context, dec func(int
 		FullMethod: "/bandchain.v1.node.Service/ChainID",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).ChainID(ctx, req.(*QueryChainIDRequest))
+		return srv.(ServiceServer).ChainID(ctx, req.(*ChainIDRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Service_EVMValidators_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryEVMValidatorsRequest)
+	in := new(EVMValidatorsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -396,7 +396,7 @@ func _Service_EVMValidators_Handler(srv interface{}, ctx context.Context, dec fu
 		FullMethod: "/bandchain.v1.node.Service/EVMValidators",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).EVMValidators(ctx, req.(*QueryEVMValidatorsRequest))
+		return srv.(ServiceServer).EVMValidators(ctx, req.(*EVMValidatorsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -418,7 +418,7 @@ var _Service_serviceDesc = grpc.ServiceDesc{
 	Metadata: "bandchain/v1/node/query.proto",
 }
 
-func (m *QueryChainIDRequest) Marshal() (dAtA []byte, err error) {
+func (m *ChainIDRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -428,12 +428,12 @@ func (m *QueryChainIDRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryChainIDRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *ChainIDRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryChainIDRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *ChainIDRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -441,7 +441,7 @@ func (m *QueryChainIDRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryChainIDResponse) Marshal() (dAtA []byte, err error) {
+func (m *ChainIDResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -451,12 +451,12 @@ func (m *QueryChainIDResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryChainIDResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *ChainIDResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryChainIDResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *ChainIDResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -471,7 +471,7 @@ func (m *QueryChainIDResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryEVMValidatorsRequest) Marshal() (dAtA []byte, err error) {
+func (m *EVMValidatorsRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -481,12 +481,12 @@ func (m *QueryEVMValidatorsRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryEVMValidatorsRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *EVMValidatorsRequest) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryEVMValidatorsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *EVMValidatorsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -494,7 +494,7 @@ func (m *QueryEVMValidatorsRequest) MarshalToSizedBuffer(dAtA []byte) (int, erro
 	return len(dAtA) - i, nil
 }
 
-func (m *QueryEVMValidatorsResponse) Marshal() (dAtA []byte, err error) {
+func (m *EVMValidatorsResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -504,12 +504,12 @@ func (m *QueryEVMValidatorsResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *QueryEVMValidatorsResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *EVMValidatorsResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *QueryEVMValidatorsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *EVMValidatorsResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -582,7 +582,7 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *QueryChainIDRequest) Size() (n int) {
+func (m *ChainIDRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -591,7 +591,7 @@ func (m *QueryChainIDRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryChainIDResponse) Size() (n int) {
+func (m *ChainIDResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -604,7 +604,7 @@ func (m *QueryChainIDResponse) Size() (n int) {
 	return n
 }
 
-func (m *QueryEVMValidatorsRequest) Size() (n int) {
+func (m *EVMValidatorsRequest) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -613,7 +613,7 @@ func (m *QueryEVMValidatorsRequest) Size() (n int) {
 	return n
 }
 
-func (m *QueryEVMValidatorsResponse) Size() (n int) {
+func (m *EVMValidatorsResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -653,7 +653,7 @@ func sovQuery(x uint64) (n int) {
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
 }
-func (m *QueryChainIDRequest) Unmarshal(dAtA []byte) error {
+func (m *ChainIDRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -676,10 +676,10 @@ func (m *QueryChainIDRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryChainIDRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: ChainIDRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryChainIDRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: ChainIDRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -703,7 +703,7 @@ func (m *QueryChainIDRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryChainIDResponse) Unmarshal(dAtA []byte) error {
+func (m *ChainIDResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -726,10 +726,10 @@ func (m *QueryChainIDResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryChainIDResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: ChainIDResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryChainIDResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: ChainIDResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -785,7 +785,7 @@ func (m *QueryChainIDResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryEVMValidatorsRequest) Unmarshal(dAtA []byte) error {
+func (m *EVMValidatorsRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -808,10 +808,10 @@ func (m *QueryEVMValidatorsRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryEVMValidatorsRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: EVMValidatorsRequest: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryEVMValidatorsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: EVMValidatorsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -835,7 +835,7 @@ func (m *QueryEVMValidatorsRequest) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *QueryEVMValidatorsResponse) Unmarshal(dAtA []byte) error {
+func (m *EVMValidatorsResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -858,10 +858,10 @@ func (m *QueryEVMValidatorsResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: QueryEVMValidatorsResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: EVMValidatorsResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryEVMValidatorsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: EVMValidatorsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

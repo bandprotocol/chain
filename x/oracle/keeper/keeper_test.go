@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/mock/gomock"
@@ -13,10 +14,13 @@ import (
 
 	storetypes "cosmossdk.io/store/types"
 
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	owasm "github.com/bandprotocol/go-owasm/api"
@@ -93,6 +97,54 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 	err = suite.oracleKeeper.SetParams(ctx, types.DefaultParams())
 	suite.Require().NoError(err)
+
+	queryHelper := baseapp.NewQueryServerTestHelper(ctx, encCfg.InterfaceRegistry)
+	types.RegisterQueryServer(queryHelper, keeper.Querier{
+		Keeper: suite.oracleKeeper,
+	})
+	suite.queryClient = types.NewQueryClient(queryHelper)
+
+	suite.authzKeeper.EXPECT().
+		GetAuthorization(gomock.Any(), reporterAddr, sdk.AccAddress(validators[0].Address), sdk.MsgTypeURL(&types.MsgReportData{})).
+		Return(authz.NewGenericAuthorization(sdk.MsgTypeURL(&types.MsgReportData{})), nil).
+		AnyTimes()
+	suite.authzKeeper.EXPECT().
+		GetAuthorization(gomock.Any(), reporterAddr, sdk.AccAddress(validators[1].Address), sdk.MsgTypeURL(&types.MsgReportData{})).
+		Return(nil, nil).
+		AnyTimes()
+
+	authorization, err := codectypes.NewAnyWithValue(
+		authz.NewGenericAuthorization(sdk.MsgTypeURL(&types.MsgReportData{})),
+	)
+	if err != nil {
+		panic(err)
+	}
+	expiration := ctx.BlockTime().Add(time.Minute)
+	suite.authzKeeper.EXPECT().
+		GranterGrants(gomock.Any(), &authz.QueryGranterGrantsRequest{
+			Granter: sdk.AccAddress(validators[0].Address).String(),
+		}).
+		Return(&authz.QueryGranterGrantsResponse{
+			Grants: []*authz.GrantAuthorization{
+				{
+					Granter:       sdk.AccAddress(validators[0].Address).String(),
+					Grantee:       reporterAddr.String(),
+					Authorization: authorization,
+					Expiration:    &expiration,
+				},
+			},
+		}, nil).
+		AnyTimes()
+}
+
+func (suite *KeeperTestSuite) activeAllValidators() {
+	ctx := suite.ctx
+	k := suite.oracleKeeper
+
+	for _, v := range validators {
+		err := k.Activate(ctx, v.Address)
+		suite.Require().NoError(err)
+	}
 }
 
 func (suite *KeeperTestSuite) TestGetSetRequestCount() {

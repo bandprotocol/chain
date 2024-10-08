@@ -27,7 +27,7 @@ func (app *BandApp) GetTestGovKeeper() *govkeeper.Keeper {
 	return app.AppKeepers.GovKeeper
 }
 
-// GetStakingKeeper implements the TestingApp interface. Needed for ICS.
+// GetStakingKeeper implements the TestingApp interface.
 func (app *BandApp) GetStakingKeeper() ibctestingtypes.StakingKeeper {
 	return app.StakingKeeper
 }

@@ -56,17 +56,28 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) {
 	}
 	// Convert the transferred tokens back to DecCoins for internal distr allocations.
 	oracleReward := sdk.NewDecCoinsFromCoins(oracleRewardInt...)
-	remaining := oracleReward
-
 	communityTax, err := k.distrKeeper.GetCommunityTax(ctx)
 	if err != nil {
 		panic(err)
 	}
-	rewardMultiplier := math.LegacyOneDec().Sub(communityTax)
+
+	// Fund community pool with a portion of the oracle reward.
+	communityFund, _ := oracleReward.MulDecTruncate(communityTax).TruncateDecimal()
+	err = k.distrKeeper.FundCommunityPool(
+		ctx,
+		communityFund,
+		k.authKeeper.GetModuleAccount(ctx, distrtypes.ModuleName).GetAddress(),
+	)
+	if err != nil {
+		panic(err)
+	}
+	oracleReward = oracleReward.Sub(sdk.NewDecCoinsFromCoins(communityFund...))
+	remaining := oracleReward
+
 	// Allocate non-community pool tokens to active validators weighted by voting power.
 	for _, each := range toReward {
 		powerFraction := math.LegacyNewDec(each.power).QuoTruncate(math.LegacyNewDec(totalPower))
-		reward := oracleReward.MulDecTruncate(rewardMultiplier).MulDecTruncate(powerFraction)
+		reward := oracleReward.MulDecTruncate(powerFraction)
 		err := k.distrKeeper.AllocateTokensToValidator(ctx, each.val, reward)
 		if err != nil {
 			// Should never hit
@@ -75,14 +86,15 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) {
 		remaining = remaining.Sub(reward)
 	}
 
-	// Try to fund community pool with remaining from distributor module account
-	coins, _ := remaining.TruncateDecimal()
-	err = k.distrKeeper.FundCommunityPool(
-		ctx,
-		coins,
-		k.authKeeper.GetModuleAccount(ctx, distrtypes.ModuleName).GetAddress(),
-	)
+	// Remaining tokens are sent to proposer.
+	proposer, err := k.stakingKeeper.ValidatorByConsAddr(ctx, ctx.BlockHeader().ProposerAddress)
 	if err != nil {
+		// Should never hit
+		panic(err)
+	}
+	err = k.distrKeeper.AllocateTokensToValidator(ctx, proposer, remaining)
+	if err != nil {
+		// Should never hit
 		panic(err)
 	}
 }
