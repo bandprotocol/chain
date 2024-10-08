@@ -301,7 +301,7 @@ func SetupWithCustomHome(isCheckTx bool, dir string) *band.BandApp {
 	return SetupWithCustomHomeAndChainId(isCheckTx, dir, ChainID)
 }
 
-func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string) *band.BandApp {
+func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainID string) *band.BandApp {
 	db := cosmosdb.NewMemDB()
 
 	snapshotDir := filepath.Join(dir, "data", "snapshots")
@@ -323,7 +323,7 @@ func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string) *band.Ba
 		dir,
 		sims.EmptyAppOptions{},
 		100,
-		baseapp.SetChainID(chainId),
+		baseapp.SetChainID(chainID),
 		baseapp.SetSnapshot(snapshotStore, snapshottypes.SnapshotOptions{KeepRecent: 2}),
 	)
 	if !isCheckTx {
@@ -338,7 +338,7 @@ func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string) *band.Ba
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: DefaultConsensusParams,
 				AppStateBytes:   defaultGenesisStatebytes,
-				ChainId:         chainId,
+				ChainId:         chainID,
 			},
 		)
 		if err != nil {

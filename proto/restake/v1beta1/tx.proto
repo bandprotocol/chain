@@ -1,0 +1,31 @@
+syntax = "proto3";
+package restake.v1beta1;
+
+option go_package = "github.com/bandprotocol/chain/v3/x/restake/types";
+
+import "amino/amino.proto";
+import "cosmos/msg/v1/msg.proto";
+import "cosmos_proto/cosmos.proto";
+
+// Msg defines the restake Msg service.
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+
+  // ClaimRewards defines a method for claiming rewards for the user.
+  rpc ClaimRewards(MsgClaimRewards) returns (MsgClaimRewardsResponse);
+}
+
+// MsgClaimRewards is the request message type for claiming rewards.
+message MsgClaimRewards {
+  option (cosmos.msg.v1.signer) = "staker_address";
+  option (amino.name)           = "restake/MsgClaimRewards";
+
+  // staker_address is the address that will claim the rewards.
+  string staker_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+
+  // key is the key of the vault that want to claim rewards from.
+  string key = 2;
+}
+
+// MsgClaimRewardsResponse is the response message type for claiming rewards.
+message MsgClaimRewardsResponse {}
