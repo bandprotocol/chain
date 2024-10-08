@@ -180,3 +180,28 @@ func (k Querier) Lock(
 		},
 	}, nil
 }
+
+// Stake queries stake information of an address.
+func (k Querier) Stake(
+	c context.Context,
+	req *types.QueryStakeRequest,
+) (*types.QueryStakeResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	addr, err := sdk.AccAddressFromBech32(req.StakerAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	stake := k.GetStake(ctx, addr)
+	return &types.QueryStakeResponse{Stake: stake}, nil
+}
+
+// Params queries all params of the module.
+func (k Querier) Params(c context.Context, _ *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	return &types.QueryParamsResponse{
+		Params: k.GetParams(ctx),
+	}, nil
+}

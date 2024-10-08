@@ -4,7 +4,6 @@ import (
 	"context"
 
 	sdkmath "cosmossdk.io/math"
-	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -109,20 +108,8 @@ func (h Hooks) AfterUnbondingInitiated(_ context.Context, _ uint64) error {
 
 // isAbleToUnbond checks if the new total delegation is still more than locked power in the module.
 func (h Hooks) isAbleToUnbond(ctx sdk.Context, addr sdk.AccAddress, delegated sdkmath.Int) bool {
-	iterator := storetypes.KVStoreReversePrefixIterator(ctx.KVStore(h.k.storeKey), types.LocksByPowerIndexKey(addr))
-	defer iterator.Close()
+	stakedPower := h.k.GetStakedPower(ctx, addr)
+	totalPower := stakedPower.Add(delegated)
 
-	// loop lock from high power to low power.
-	for ; iterator.Valid(); iterator.Next() {
-		key := string(iterator.Value())
-		_, power := types.SplitLockByPowerIndexKey(iterator.Key())
-
-		// check if the vault of lock is active.
-		if h.k.IsActiveVault(ctx, key) {
-			// return true if new delegation is more than or equal to locked power.
-			return delegated.GTE(power)
-		}
-	}
-
-	return true
+	return h.k.isValidPower(ctx, addr, totalPower)
 }

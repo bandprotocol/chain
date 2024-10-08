@@ -12,18 +12,22 @@ import (
 // SetLockedPower sets the new locked power of the address to the vault
 // This function will override the previous locked power.
 func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key string, power sdkmath.Int) error {
+	if k.IsLiquidStaker(stakerAddr) {
+		return types.ErrLiquidStakerNotAllowed
+	}
+
 	if !power.IsUint64() {
 		return types.ErrInvalidPower
 	}
 
-	// check if delegation is not less than power
-	delegation, err := k.stakingKeeper.GetDelegatorBonded(ctx, stakerAddr)
+	// check if total power is not less than power
+	totalPower, err := k.GetTotalPower(ctx, stakerAddr)
 	if err != nil {
 		return err
 	}
 
-	if delegation.LT(power) {
-		return types.ErrDelegationNotEnough
+	if totalPower.LT(power) {
+		return types.ErrPowerNotEnough
 	}
 
 	vault, err := k.GetOrCreateVault(ctx, key)
@@ -75,6 +79,10 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key s
 
 // GetLockedPower returns locked power of the address to the vault.
 func (k Keeper) GetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key string) (sdkmath.Int, error) {
+	if k.IsLiquidStaker(stakerAddr) {
+		return sdkmath.Int{}, types.ErrLiquidStakerNotAllowed
+	}
+
 	vault, found := k.GetVault(ctx, key)
 	if !found {
 		return sdkmath.Int{}, types.ErrVaultNotFound.Wrapf("key: %s", key)
@@ -107,6 +115,26 @@ func (k Keeper) getReward(ctx sdk.Context, lock types.Lock) types.Reward {
 		lock.Key,
 		totalRewards.Add(lock.NegRewardDebts...).Sub(lock.PosRewardDebts),
 	)
+}
+
+// isValidPower checks if the new power matches with current locked power.
+func (k Keeper) isValidPower(ctx sdk.Context, addr sdk.AccAddress, totalPower sdkmath.Int) bool {
+	iterator := storetypes.KVStoreReversePrefixIterator(ctx.KVStore(k.storeKey), types.LocksByPowerIndexKey(addr))
+	defer iterator.Close()
+
+	// loop lock from high power to low power.
+	for ; iterator.Valid(); iterator.Next() {
+		key := string(iterator.Value())
+		_, power := types.SplitLockByPowerIndexKey(iterator.Key())
+
+		// check if the vault of lock is active.
+		if k.IsActiveVault(ctx, key) {
+			// return true if new delegation is more than or equal to locked power.
+			return totalPower.GTE(power)
+		}
+	}
+
+	return true
 }
 
 // -------------------------------

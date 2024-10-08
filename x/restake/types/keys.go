@@ -30,13 +30,21 @@ const (
 var (
 	VaultStoreKeyPrefix = []byte{0x00}
 	LockStoreKeyPrefix  = []byte{0x01}
+	StakeStoreKeyPrefix = []byte{0x02}
 
 	LocksByPowerIndexKeyPrefix = []byte{0x80}
+
+	ParamsKey = []byte{0x90}
 )
 
 // VaultStoreKey returns the key to retrieve a specified vault from the store.
 func VaultStoreKey(key string) []byte {
 	return append(VaultStoreKeyPrefix, []byte(key)...)
+}
+
+// StakeStoreKey returns the key to retrieve the stake of an address from the store.
+func StakeStoreKey(addr sdk.AccAddress) []byte {
+	return append(StakeStoreKeyPrefix, address.MustLengthPrefix(addr)...)
 }
 
 // LocksByAddressStoreKey returns the key to retrieve all locks of an address from the store.
