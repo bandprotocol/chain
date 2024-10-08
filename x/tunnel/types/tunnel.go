@@ -13,8 +13,8 @@ var _ types.UnpackInterfacesMessage = Tunnel{}
 // NewTunnel creates a new Tunnel instance.
 func NewTunnel(
 	id uint64,
-	nonceCount uint64,
-	route *types.Any,
+	sequence uint64,
+	route RouteI,
 	encoder Encoder,
 	feePayer string,
 	signalDeviations []SignalDeviation,
@@ -23,11 +23,20 @@ func NewTunnel(
 	isActive bool,
 	createdAt int64,
 	creator string,
-) Tunnel {
+) (Tunnel, error) {
+	msg, ok := route.(proto.Message)
+	if !ok {
+		return Tunnel{}, fmt.Errorf("can't proto marshal %T", msg)
+	}
+	any, err := types.NewAnyWithValue(msg)
+	if err != nil {
+		return Tunnel{}, err
+	}
+
 	return Tunnel{
 		ID:               id,
-		NonceCount:       nonceCount,
-		Route:            route,
+		Sequence:         sequence,
+		Route:            any,
 		Encoder:          encoder,
 		FeePayer:         feePayer,
 		SignalDeviations: signalDeviations,
@@ -36,7 +45,7 @@ func NewTunnel(
 		IsActive:         isActive,
 		CreatedAt:        createdAt,
 		Creator:          creator,
-	}
+	}, nil
 }
 
 // UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces

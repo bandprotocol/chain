@@ -46,8 +46,8 @@ func (s *KeeperTestSuite) TestGRPCQueryPackets() {
 	ctx, k, q := s.ctx, s.keeper, s.queryServer
 
 	tunnel := types.Tunnel{
-		ID:         1,
-		NonceCount: 2,
+		ID:       1,
+		Sequence: 2,
 	}
 	r := types.TSSRoute{
 		DestinationChainID:         "1",
@@ -60,11 +60,11 @@ func (s *KeeperTestSuite) TestGRPCQueryPackets() {
 
 	packet1 := types.Packet{
 		TunnelID: 1,
-		Nonce:    1,
+		Sequence: 1,
 	}
 	packet2 := types.Packet{
 		TunnelID: 1,
-		Nonce:    2,
+		Sequence: 2,
 	}
 	err = packet1.SetPacketContent(&types.TSSPacketContent{
 		SigningID:                  1,
@@ -96,8 +96,8 @@ func (s *KeeperTestSuite) TestGRPCQueryPacket() {
 
 	// set tunnel
 	tunnel := types.Tunnel{
-		ID:         1,
-		NonceCount: 2,
+		ID:       1,
+		Sequence: 2,
 	}
 	r := types.TSSRoute{
 		DestinationChainID:         "1",
@@ -109,7 +109,7 @@ func (s *KeeperTestSuite) TestGRPCQueryPacket() {
 
 	packet1 := types.Packet{
 		TunnelID: 1,
-		Nonce:    1,
+		Sequence: 1,
 	}
 	err = packet1.SetPacketContent(&types.TSSPacketContent{
 		SigningID:                  1,
@@ -121,7 +121,7 @@ func (s *KeeperTestSuite) TestGRPCQueryPacket() {
 
 	res, err := q.Packet(ctx, &types.QueryPacketRequest{
 		TunnelId: 1,
-		Nonce:    1,
+		Sequence: 1,
 	})
 	s.Require().NoError(err)
 	s.Require().NotNil(res)
@@ -132,8 +132,8 @@ func (s *KeeperTestSuite) TestGRPCQueryDeposit() {
 	ctx, k, q := s.ctx, s.keeper, s.queryServer
 
 	tunnel := types.Tunnel{
-		ID:         1,
-		NonceCount: 2,
+		ID:       1,
+		Sequence: 2,
 	}
 	r := types.TSSRoute{
 		DestinationChainID:         "1",
@@ -163,8 +163,8 @@ func (s *KeeperTestSuite) TestGRPCQueryDeposits() {
 	ctx, k, q := s.ctx, s.keeper, s.queryServer
 
 	tunnel := types.Tunnel{
-		ID:         1,
-		NonceCount: 2,
+		ID:       1,
+		Sequence: 2,
 	}
 	r := types.TSSRoute{
 		DestinationChainID:         "1",

@@ -9,7 +9,7 @@ import (
 var (
 	packetABI, _ = abi.NewType("tuple", "result", []abi.ArgumentMarshaling{
 		{Name: "TunnelID", Type: "uint64"},
-		{Name: "Nonce", Type: "uint64"},
+		{Name: "Sequence", Type: "uint64"},
 		{
 			Name:         "SignalPrices",
 			Type:         "tuple[]",
@@ -36,7 +36,7 @@ type EncodingSignalPrice struct {
 // EncodingPacket represents the Packet that will be used for encoding a message.
 type EncodingPacket struct {
 	TunnelID     uint64
-	Nonce        uint64
+	Sequence     uint64
 	SignalPrices []EncodingSignalPrice
 	CreatedAt    int64
 }
@@ -62,7 +62,7 @@ func NewEncodingPacket(p Packet, encoder Encoder) (*EncodingPacket, error) {
 
 	return &EncodingPacket{
 		TunnelID:     p.TunnelID,
-		Nonce:        p.Nonce,
+		Sequence:     p.Sequence,
 		SignalPrices: signalPrices,
 		CreatedAt:    p.CreatedAt,
 	}, nil

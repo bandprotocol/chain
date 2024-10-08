@@ -3,7 +3,6 @@ package keeper
 import (
 	"fmt"
 
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/x/tunnel/types"
@@ -12,7 +11,7 @@ import (
 // AddTunnel adds a new tunnel
 func (k Keeper) AddTunnel(
 	ctx sdk.Context,
-	route *codectypes.Any,
+	route types.RouteI,
 	encoder types.Encoder,
 	signalDeviations []types.SignalDeviation,
 	interval uint64,
@@ -35,7 +34,7 @@ func (k Keeper) AddTunnel(
 	k.SetLatestSignalPrices(ctx, types.NewLatestSignalPrices(newID, signalPrices, 0))
 
 	// create a new tunnel
-	tunnel := types.NewTunnel(
+	tunnel, err := types.NewTunnel(
 		newID,
 		0,
 		route,
@@ -48,6 +47,9 @@ func (k Keeper) AddTunnel(
 		ctx.BlockTime().Unix(),
 		creator.String(),
 	)
+	if err != nil {
+		return nil, err
+	}
 	k.SetTunnel(ctx, tunnel)
 
 	// increment the tunnel count
@@ -87,7 +89,7 @@ func (k Keeper) EditTunnel(
 	)
 	for _, sd := range signalDeviations {
 		event = event.AppendAttributes(
-			sdk.NewAttribute(types.AttributeKeySignalPriceInfos, sd.String()),
+			sdk.NewAttribute(types.AttributeKeySignalDeviation, sd.String()),
 		)
 	}
 	ctx.EventManager().EmitEvent(event)

@@ -5,9 +5,7 @@ import (
 	"math/rand"
 	"testing"
 
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/gogoproto/proto"
 	"github.com/stretchr/testify/require"
 
 	bandtesting "github.com/bandprotocol/chain/v2/testing"
@@ -101,7 +99,7 @@ func testBenchmarkTunnel(numTunnels, numSignals, maxSignals int, encoder types.E
 			// check result
 			for j := 1; j <= numTunnels; j++ {
 				newTunnel := ba.TunnelKeeper.MustGetTunnel(ba.Ctx, uint64(j))
-				require.Equal(b, tunnels[j-1].NonceCount+1, newTunnel.NonceCount)
+				require.Equal(b, tunnels[j-1].Sequence+1, newTunnel.Sequence)
 				require.True(b, newTunnel.IsActive)
 			}
 		}
@@ -115,18 +113,9 @@ func createNewTunnels(
 	signalDeviations []types.SignalDeviation,
 	encoder types.Encoder,
 ) error {
-	msg, ok := route.(proto.Message)
-	if !ok {
-		return fmt.Errorf("cannot proto marshal %T", msg)
-	}
-	routeAny, err := codectypes.NewAnyWithValue(msg)
-	if err != nil {
-		return err
-	}
-
 	creator := bandtesting.Alice.Address
 	tunnel, err := ba.TunnelKeeper.AddTunnel(
-		ba.Ctx, routeAny, encoder, signalDeviations, 1000, creator,
+		ba.Ctx, route, encoder, signalDeviations, 1000, creator,
 	)
 	if err != nil {
 		return err

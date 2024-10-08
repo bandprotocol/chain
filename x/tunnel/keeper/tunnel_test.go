@@ -11,7 +11,8 @@ import (
 func (s *KeeperTestSuite) TestAddTunnel() {
 	ctx, k := s.ctx, s.keeper
 
-	route := &codectypes.Any{}
+	route := &types.TSSRoute{}
+	any, _ := codectypes.NewAnyWithValue(route)
 	signalDeviations := []types.SignalDeviation{
 		{SignalID: "BTC"},
 		{SignalID: "ETH"},
@@ -21,7 +22,7 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 
 	expectedTunnel := types.Tunnel{
 		ID:               1,
-		Route:            route,
+		Route:            any,
 		Encoder:          types.ENCODER_FIXED_POINT_ABI,
 		FeePayer:         "band1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62q2yggu0",
 		Creator:          creator.String(),
@@ -64,7 +65,7 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 func (s *KeeperTestSuite) TestEditTunnel() {
 	ctx, k := s.ctx, s.keeper
 
-	initialRoute := &codectypes.Any{}
+	initialRoute := &types.TSSRoute{}
 	initialEncoder := types.ENCODER_FIXED_POINT_ABI
 	initialSignalDeviations := []types.SignalDeviation{
 		{SignalID: "BTC", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},

@@ -124,18 +124,18 @@ func (ms msgServer) SubmitSignalPrices(
 		)
 	}
 
-	// get supported feeds
-	supportedFeeds := ms.GetCurrentFeeds(ctx)
-	supportedFeedsMap := make(map[string]int)
-	for idx, feed := range supportedFeeds.Feeds {
-		supportedFeedsMap[feed.SignalID] = idx
+	// get current feeds
+	currentFeeds := ms.GetCurrentFeeds(ctx)
+	currentFeedsMap := make(map[string]int)
+	for idx, feed := range currentFeeds.Feeds {
+		currentFeedsMap[feed.SignalID] = idx
 	}
 
-	valPrices := make([]types.ValidatorPrice, len(supportedFeedsMap))
+	valPrices := make([]types.ValidatorPrice, len(currentFeedsMap))
 	prevValPrices, err := ms.GetValidatorPriceList(ctx, val)
 	if err == nil {
 		for _, valPrice := range prevValPrices.ValidatorPrices {
-			idx, ok := supportedFeedsMap[valPrice.SignalID]
+			idx, ok := currentFeedsMap[valPrice.SignalID]
 			if ok {
 				valPrices[idx] = valPrice
 			}
@@ -144,7 +144,7 @@ func (ms msgServer) SubmitSignalPrices(
 
 	cooldownTime := ms.GetParams(ctx).CooldownTime
 	for _, price := range req.Prices {
-		idx, ok := supportedFeedsMap[price.SignalID]
+		idx, ok := currentFeedsMap[price.SignalID]
 		if !ok {
 			return nil, types.ErrSignalIDNotSupported.Wrapf(
 				"signal_id: %s",

@@ -657,7 +657,7 @@ func NewBandApp(
 		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(app.OracleKeeper)).
 		AddRoute(bandtsstypes.RouterKey, bandtsstypes.NewSignatureOrderHandler()).
 		AddRoute(feedstypes.RouterKey, feeds.NewSignatureOrderHandler(app.FeedsKeeper)).
-		AddRoute(tunneltypes.RouterKey, tunnel.NewSignatureOrderHandler(*app.TunnelKeeper))
+		AddRoute(tunneltypes.RouterKey, tunnel.NewSignatureOrderHandler(app.TunnelKeeper))
 
 	tssCbRouter.
 		AddRoute(bandtsstypes.RouterKey, bandtsskeeper.NewTSSCallback(app.BandtssKeeper))

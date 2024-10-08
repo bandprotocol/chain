@@ -455,7 +455,7 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 					feePayer,
 					sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(math.MaxInt))),
 				).Return(bandtsstypes.SigningID(1), nil)
-				s.feedsKeeper.EXPECT().GetCurrentPrices(gomock.Any()).Return([]feedstypes.Price{
+				s.feedsKeeper.EXPECT().GetAllCurrentPrices(gomock.Any()).Return([]feedstypes.Price{
 					{PriceStatus: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
 				})
 				s.bankKeeper.EXPECT().

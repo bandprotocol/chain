@@ -200,7 +200,7 @@ func (k Keeper) GetRandomMembers(
 		[]byte(ctx.ChainID()),
 	)
 	if err != nil {
-		return nil, types.ErrBadDrbgInitialization.Wrapf(err.Error())
+		return nil, types.ErrBadDrbgInitialization.Wrap(err.Error())
 	}
 
 	var selected []types.Member

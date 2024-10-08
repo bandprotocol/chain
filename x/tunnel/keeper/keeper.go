@@ -34,7 +34,7 @@ func NewKeeper(
 	feedsKeeper types.FeedsKeeper,
 	bandtssKeeper types.BandtssKeeper,
 	authority string,
-) *Keeper {
+) Keeper {
 	// ensure tunnel module account is set
 	if addr := authKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
@@ -45,7 +45,7 @@ func NewKeeper(
 		panic(fmt.Errorf("invalid bandtss authority address: %w", err))
 	}
 
-	return &Keeper{
+	return Keeper{
 		cdc:           cdc,
 		storeKey:      key,
 		authKeeper:    authKeeper,

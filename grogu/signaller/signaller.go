@@ -1,11 +1,10 @@
 package signaller
 
 import (
-	"math"
 	"sync"
 	"time"
 
-	proto "github.com/bandprotocol/bothan/bothan-api/client/go-client/query"
+	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v2/pkg/logger"
@@ -13,8 +12,6 @@ import (
 )
 
 const (
-	Multiplier                = 1_000_000_000
-	UpperBound                = float64(math.MaxUint64) / Multiplier
 	FixedIntervalOffset int64 = 10
 	TimeBuffer          int64 = 3
 )
@@ -167,7 +164,7 @@ func (s *Signaller) execute() {
 	}
 
 	s.logger.Debug("[Signaller] querying prices from bothan: %v", nonPendingSignalIDs)
-	prices, err := s.bothanClient.QueryPrices(nonPendingSignalIDs)
+	prices, err := s.bothanClient.GetPrices(nonPendingSignalIDs)
 	if err != nil {
 		s.logger.Error("[Signaller] failed to query prices from bothan: %v", err)
 		return
@@ -217,11 +214,11 @@ func (s *Signaller) getNonPendingSignalIDs() []string {
 }
 
 func (s *Signaller) filterAndPrepareSubmitPrices(
-	prices []*proto.PriceData,
+	prices []*bothan.Price,
 	signalIDs []string,
 	currentTime time.Time,
 ) []types.SignalPrice {
-	pricesMap := sliceToMap(prices, func(price *proto.PriceData) string {
+	pricesMap := sliceToMap(prices, func(price *bothan.Price) string {
 		return price.SignalId
 	})
 
@@ -272,19 +269,12 @@ func (s *Signaller) isNonUrgentUnavailablePrices(
 }
 
 func (s *Signaller) isPriceValid(
-	price *proto.PriceData,
+	price *bothan.Price,
 	now time.Time,
 ) bool {
 	// Check if the price is supported and required to be submitted
 	feed, ok := s.signalIDToFeed[price.SignalId]
 	if !ok {
-		return false
-	}
-
-	// If unable to convert price, it is considered invalid
-	newPrice, err := safeConvert(price.Price)
-	if err != nil {
-		s.logger.Error("[Signaller] failed to convert price: %v", err)
 		return false
 	}
 
@@ -295,7 +285,7 @@ func (s *Signaller) isPriceValid(
 	}
 
 	// If the last price exists, check if the price can be updated
-	if s.shouldUpdatePrice(feed, valPrice, newPrice, now) {
+	if s.shouldUpdatePrice(feed, valPrice, price.Price, now) {
 		return true
 	}
 

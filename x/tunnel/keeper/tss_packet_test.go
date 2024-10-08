@@ -19,13 +19,13 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 		DestinationChainID:         "chain-1",
 		DestinationContractAddress: "0x1234567890abcdef",
 	}
-	packet := types.NewPacket(
+	packet, err := types.NewPacket(
 		1,                     // tunnelID
-		1,                     // nonce
-		[]types.SignalPrice{}, // SignalPriceInfos
-		nil,
+		1,                     // sequence
+		[]types.SignalPrice{}, // signalPriceInfos[]
 		time.Now().Unix(),
 	)
+	s.Require().NoError(err)
 
 	s.bandtssKeeper.EXPECT().GetParams(gomock.Any()).Return(bandtsstypes.Params{
 		Fee: sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10))),
