@@ -223,9 +223,9 @@ func (s *KeeperTestSuite) TestGenerateSignalPricesSendAll() {
 	s.keeper.SetTunnel(ctx, tunnel)
 	s.keeper.SetLatestSignalPrices(ctx, latestSignalPrices)
 
-	nsps, err := s.keeper.GenerateNewSignalPrices(ctx, tunnelID, currentPricesMap, sendAll)
+	newSignalPrices, err := s.keeper.GenerateNewSignalPrices(ctx, tunnelID, currentPricesMap, sendAll)
 	s.Require().NoError(err)
-	s.Require().Len(nsps, 1)
+	s.Require().Len(newSignalPrices, 1)
 }
 
 func (s *KeeperTestSuite) TestGenerateSignalPricesMeetHardDeviation() {
@@ -252,9 +252,9 @@ func (s *KeeperTestSuite) TestGenerateSignalPricesMeetHardDeviation() {
 	s.keeper.SetTunnel(ctx, tunnel)
 	s.keeper.SetLatestSignalPrices(ctx, latestSignalPrices)
 
-	nsps, err := s.keeper.GenerateNewSignalPrices(ctx, tunnelID, currentPricesMap, sendAll)
+	newSignalPrices, err := s.keeper.GenerateNewSignalPrices(ctx, tunnelID, currentPricesMap, sendAll)
 	s.Require().NoError(err)
-	s.Require().Len(nsps, 2)
+	s.Require().Len(newSignalPrices, 2)
 }
 
 func (s *KeeperTestSuite) TestGenerateSignalPricesNotMeetHardDeviation() {
@@ -281,7 +281,7 @@ func (s *KeeperTestSuite) TestGenerateSignalPricesNotMeetHardDeviation() {
 	s.keeper.SetTunnel(ctx, tunnel)
 	s.keeper.SetLatestSignalPrices(ctx, latestSignalPrices)
 
-	nsps, err := s.keeper.GenerateNewSignalPrices(ctx, tunnelID, currentPricesMap, sendAll)
+	newSignalPrices, err := s.keeper.GenerateNewSignalPrices(ctx, tunnelID, currentPricesMap, sendAll)
 	s.Require().NoError(err)
-	s.Require().Len(nsps, 0)
+	s.Require().Len(newSignalPrices, 0)
 }

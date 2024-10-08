@@ -163,10 +163,7 @@ func (k Keeper) CreatePacket(
 	}
 
 	tunnel.Sequence++
-	packet, err := types.NewPacket(tunnelID, tunnel.Sequence, signalPrices, ctx.BlockTime().Unix())
-	if err != nil {
-		return types.Packet{}, sdkerrors.Wrapf(err, "failed to create packet for tunnel %d", tunnel.ID)
-	}
+	packet := types.NewPacket(tunnelID, tunnel.Sequence, signalPrices, ctx.BlockTime().Unix())
 
 	// update information in the store
 	k.SetTunnel(ctx, tunnel)
