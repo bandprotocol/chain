@@ -215,7 +215,6 @@ func initRootCmd(
 		keys.Commands(),
 	)
 
-	// TODO: Check what is it
 	// add rosetta
 	rootCmd.AddCommand(rosettaCmd.RosettaCommand(interfaceRegistry, cdc))
 }

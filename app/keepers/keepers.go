@@ -401,8 +401,7 @@ func NewAppKeeper(
 		appCodec,
 		appKeepers.keys[ibctransfertypes.StoreKey],
 		appKeepers.GetSubspace(ibctransfertypes.ModuleName),
-		// TODO: Check this field
-		appKeepers.IBCFeeKeeper, // ISC4 Wrapper: PFM Router middleware
+		appKeepers.IBCFeeKeeper,
 		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.IBCKeeper.PortKeeper,
 		appKeepers.AccountKeeper,

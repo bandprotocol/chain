@@ -90,8 +90,7 @@ func NewDefaultGenesisState(cdc codec.Codec) GenesisState {
 	slashingGenesis.Params.SlashFractionDowntime = math.LegacyNewDecWithPrec(1, 4)   // 0.01%
 
 	icaGenesis.HostGenesisState.Params = icahosttypes.Params{
-		HostEnabled: true,
-		// TODO: Update ICA Allow messages
+		HostEnabled:   true,
 		AllowMessages: v3.ICAAllowMessages,
 	}
 

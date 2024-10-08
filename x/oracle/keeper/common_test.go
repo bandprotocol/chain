@@ -3,6 +3,8 @@ package keeper_test
 import (
 	"fmt"
 
+	"github.com/cometbft/cometbft/crypto/secp256k1"
+
 	"cosmossdk.io/math"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
@@ -11,6 +13,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bandprotocol/chain/v3/pkg/filecache"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
 	"github.com/bandprotocol/chain/v3/testing/testdata"
 	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
@@ -43,6 +46,10 @@ var (
 		createValidator(PKS[1], math.NewInt(70)),
 		createValidator(PKS[2], math.NewInt(30)),
 	}
+
+	reporterPrivKey = secp256k1.GenPrivKey()
+	reporterPubKey  = reporterPrivKey.PubKey()
+	reporterAddr    = sdk.AccAddress(reporterPubKey.Address())
 
 	basicCalldata                = []byte("BASIC_CALLDATA")
 	basicReport                  = []byte("BASIC_REPORT")
@@ -107,5 +114,24 @@ func addSimpleDataSourceAndOracleScript(ctx sdk.Context, k keeper.Keeper, dir st
 		ctx,
 		types.OracleScriptID(4),
 		types.NewOracleScript(owner, "test os4", "testing oracle script complex", fileName4, "schema", "url"),
+	)
+}
+
+func defaultRequest() types.Request {
+	return types.NewRequest(
+		1,
+		basicCalldata,
+		[]sdk.ValAddress{validators[0].Address, validators[1].Address},
+		2,
+		1,
+		bandtesting.ParseTime(0),
+		basicClientID,
+		[]types.RawRequest{
+			types.NewRawRequest(1, 1, []byte("testdata")),
+			types.NewRawRequest(2, 2, []byte("testdata")),
+			types.NewRawRequest(3, 3, []byte("testdata")),
+		},
+		nil,
+		0,
 	)
 }
