@@ -23,6 +23,7 @@ import (
 
 	"github.com/bandprotocol/chain/v3/hooks/common"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
@@ -153,6 +154,8 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeGroupMsgVote(msg, detail)
 	case *group.MsgWithdrawProposal:
 		DecodeGroupMsgWithdrawProposal(msg, detail)
+	case *restaketypes.MsgStake:
+		DecodeMsgStake(msg, detail)
 	default:
 		break
 	}
@@ -757,4 +760,9 @@ func DecodeGroupMsgVote(msg *group.MsgVote, detail common.JsDict) {
 func DecodeGroupMsgWithdrawProposal(msg *group.MsgWithdrawProposal, detail common.JsDict) {
 	detail["proposal_id"] = msg.ProposalId
 	detail["address"] = msg.Address
+}
+
+func DecodeMsgStake(msg *restaketypes.MsgStake, detail common.JsDict) {
+	detail["staker_address"] = msg.StakerAddress
+	detail["coins"] = msg.GetCoins()
 }
