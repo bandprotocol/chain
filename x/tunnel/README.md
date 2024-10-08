@@ -1,12 +1,8 @@
----
-sidebar_position: 1
----
-
 # `x/tunnel`
 
 ## Abstract
 
-The Tunnel module's main purpose is to decentralize create packet by enabling the configuration of intervals and deviations for transmitting price data to Ethereum Virtual Machine (EVM)-compatible blockchains, as well as other Cosmos-based blockchains. It integrates with key technologies such as Threshold Signature Schemes (TSS), Inter-Blockchain Communication (IBC), Axelar, and Hyperlane to ensure secure and efficient data transmission.
+The Tunnel module is designed to decentralize the creation of push-based price data packets by enabling users to configure intervals and deviations for transmitting price data. It ensures secure and efficient transmission to Ethereum Virtual Machine (EVM)-compatible blockchains, Cosmos-based blockchains, and other blockchain networks. Users have the flexibility to select their preferred transmission route, such as the Inter-Blockchain Communication (IBC) protocol or bridge technologies that integrate with Band Protocol. This versatility allows for seamless and reliable delivery of price data across diverse blockchain ecosystems.
 
 ## Contents
 
