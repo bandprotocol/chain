@@ -10,6 +10,8 @@ var (
 	packetABI, _ = abi.NewType("tuple", "result", []abi.ArgumentMarshaling{
 		{Name: "TunnelID", Type: "uint64"},
 		{Name: "Sequence", Type: "uint64"},
+		{Name: "DestinationChainID", Type: "string"},
+		{Name: "DestinationContractAddress", Type: "string"},
 		{
 			Name:         "SignalPrices",
 			Type:         "tuple[]",
@@ -27,23 +29,30 @@ var (
 	}
 )
 
-// EncodingSignalPrice represents the SignalPrice that will be used for encoding a message.
-type EncodingSignalPrice struct {
+// TssEncodingSignalPrice represents the SignalPrice that will be used for encoding a message.
+type TssEncodingSignalPrice struct {
 	SignalID [32]byte
 	Price    uint64
 }
 
-// EncodingPacket represents the Packet that will be used for encoding a message.
-type EncodingPacket struct {
-	TunnelID     uint64
-	Sequence     uint64
-	SignalPrices []EncodingSignalPrice
-	CreatedAt    int64
+// TssEncodingPacket represents the Packet that will be used for encoding a message.
+type TssEncodingPacket struct {
+	TunnelID                   uint64
+	Sequence                   uint64
+	DestinationChainID         string
+	DestinationContractAddress string
+	SignalPrices               []TssEncodingSignalPrice
+	CreatedAt                  int64
 }
 
-// NewEncodingPacket returns a new EncodingPacket object
-func NewEncodingPacket(p Packet, encoder Encoder) (*EncodingPacket, error) {
-	var signalPrices []EncodingSignalPrice
+// NewTssEncodingPacket returns a new TssEncodingPacket object
+func NewTssEncodingPacket(
+	p Packet,
+	destinationChainID string,
+	destinationContractAddress string,
+	encoder Encoder,
+) (*TssEncodingPacket, error) {
+	var signalPrices []TssEncodingSignalPrice
 	for _, sp := range p.SignalPrices {
 		price := sp.Price
 		if encoder == ENCODER_TICK_ABI && price != 0 {
@@ -54,22 +63,24 @@ func NewEncodingPacket(p Packet, encoder Encoder) (*EncodingPacket, error) {
 			price = tick
 		}
 
-		signalPrices = append(signalPrices, EncodingSignalPrice{
+		signalPrices = append(signalPrices, TssEncodingSignalPrice{
 			SignalID: stringToBytes32(sp.SignalID),
 			Price:    price,
 		})
 	}
 
-	return &EncodingPacket{
-		TunnelID:     p.TunnelID,
-		Sequence:     p.Sequence,
-		SignalPrices: signalPrices,
-		CreatedAt:    p.CreatedAt,
+	return &TssEncodingPacket{
+		TunnelID:                   p.TunnelID,
+		Sequence:                   p.Sequence,
+		DestinationChainID:         destinationChainID,
+		DestinationContractAddress: destinationContractAddress,
+		SignalPrices:               signalPrices,
+		CreatedAt:                  p.CreatedAt,
 	}, nil
 }
 
 // EncodeABI encodes the encoding packet into bytes via ABI encoding
-func (p EncodingPacket) EncodeABI() ([]byte, error) {
+func (p TssEncodingPacket) EncodeABI() ([]byte, error) {
 	return packetArgs.Pack(&p)
 }
 

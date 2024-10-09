@@ -20,8 +20,13 @@ func init() {
 var _ tsstypes.Content = &TunnelSignatureOrder{}
 
 // NewTunnelSignatureOrder returns a new TunnelSignatureOrder object
-func NewTunnelSignatureOrder(packet Packet, encoder Encoder) *TunnelSignatureOrder {
-	return &TunnelSignatureOrder{packet, encoder}
+func NewTunnelSignatureOrder(
+	packet Packet,
+	destinationChainID string,
+	destinationContractAddress string,
+	encoder Encoder,
+) *TunnelSignatureOrder {
+	return &TunnelSignatureOrder{packet, destinationChainID, destinationContractAddress, encoder}
 }
 
 // OrderRoute returns the order router key

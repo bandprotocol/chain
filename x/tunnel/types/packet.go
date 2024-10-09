@@ -48,8 +48,17 @@ func (p Packet) GetContent() (PacketContentI, error) {
 	return packetContent, nil
 }
 
-func (p Packet) Encode(encoder Encoder) ([]byte, error) {
-	encodingPacket, err := NewEncodingPacket(p, encoder)
+func (p Packet) EncodeTss(
+	destinationChainID string,
+	destinationContractAddress string,
+	encoder Encoder,
+) ([]byte, error) {
+	encodingPacket, err := NewTssEncodingPacket(
+		p,
+		destinationChainID,
+		destinationContractAddress,
+		encoder,
+	)
 	if err != nil {
 		return nil, err
 	}

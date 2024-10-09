@@ -15,7 +15,12 @@ func (k Keeper) SendTSSPacket(
 	packet types.Packet,
 ) (types.PacketContentI, error) {
 	tunnel := k.MustGetTunnel(ctx, packet.TunnelID)
-	content := types.NewTunnelSignatureOrder(packet, tunnel.Encoder)
+	content := types.NewTunnelSignatureOrder(
+		packet,
+		route.DestinationChainID,
+		route.DestinationContractAddress,
+		tunnel.Encoder,
+	)
 
 	// assign feeLimit to infinite
 	feePerSigner := k.bandtssKeeper.GetParams(ctx).Fee

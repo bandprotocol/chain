@@ -30,7 +30,7 @@ func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 				return nil, types.ErrInvalidEncoder.Wrapf("invalid encoder: %s", c.Encoder)
 			}
 
-			bz, err := c.Packet.Encode(c.Encoder)
+			bz, err := c.Packet.EncodeTss(c.DestinationChainID, c.DestinationContractAddress, c.Encoder)
 			if err != nil {
 				return nil, err
 			}

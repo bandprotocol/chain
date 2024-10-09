@@ -468,6 +468,8 @@ func (s *AppTestSuite) TestFailRequestSignatureInternalMessage() {
 	msg, err = types.NewMsgRequestSignature(
 		tunneltypes.NewTunnelSignatureOrder(
 			tunneltypes.Packet{TunnelID: 1, Sequence: 1},
+			"eth",
+			"0xC61d78A92B7DfdF85fAB1c22135977721dd96F4c",
 			tunneltypes.ENCODER_FIXED_POINT_ABI,
 		),
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
