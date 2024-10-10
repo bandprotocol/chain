@@ -13,7 +13,7 @@ import (
 
 func TestVaultStoreKey(t *testing.T) {
 	key := "key"
-	expect, err := hex.DecodeString("00" + hex.EncodeToString([]byte(key)))
+	expect, err := hex.DecodeString("10" + hex.EncodeToString([]byte(key)))
 	require.NoError(t, err)
 	require.Equal(t, expect, VaultStoreKey(key))
 }
@@ -23,7 +23,7 @@ func TestStakeStoreKey(t *testing.T) {
 	acc, err := sdk.AccAddressFromHexUnsafe(hexAddress)
 	require.NoError(t, err)
 
-	expect, err := hex.DecodeString("02" + "14" + hexAddress)
+	expect, err := hex.DecodeString("12" + "14" + hexAddress)
 	require.NoError(t, err)
 	require.Equal(t, expect, StakeStoreKey(acc))
 }
@@ -33,7 +33,7 @@ func TestLocksByAddressStoreKey(t *testing.T) {
 	acc, err := sdk.AccAddressFromHexUnsafe(hexAddress)
 	require.NoError(t, err)
 
-	expect, err := hex.DecodeString("01" + "14" + hexAddress)
+	expect, err := hex.DecodeString("11" + "14" + hexAddress)
 	require.NoError(t, err)
 	require.Equal(t, expect, LocksByAddressStoreKey(acc))
 }
@@ -45,7 +45,7 @@ func TestLockStoreKey(t *testing.T) {
 	acc, err := sdk.AccAddressFromHexUnsafe(hexAddress)
 	require.NoError(t, err)
 
-	expect, err := hex.DecodeString("01" + "14" + hexAddress + hex.EncodeToString([]byte(key)))
+	expect, err := hex.DecodeString("11" + "14" + hexAddress + hex.EncodeToString([]byte(key)))
 	require.NoError(t, err)
 	require.Equal(t, expect, LockStoreKey(acc, key))
 }
