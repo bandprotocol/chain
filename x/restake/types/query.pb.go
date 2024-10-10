@@ -548,7 +548,7 @@ func (m *QueryLocksResponse) GetPagination() *query.PageResponse {
 type QueryLockRequest struct {
 	// staker_address is the target address to query lock.
 	StakerAddress string `protobuf:"bytes,1,opt,name=staker_address,json=stakerAddress,proto3" json:"staker_address,omitempty"`
-	// key is the key of target vault to query reward.
+	// key is the key of target vault to query lock.
 	Key string `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
 }
 

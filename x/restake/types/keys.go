@@ -28,8 +28,8 @@ const (
 )
 
 var (
-	VaultStoreKeyPrefix = []byte{0x00}
-	LockStoreKeyPrefix  = []byte{0x01}
+	VaultStoreKeyPrefix = []byte{0x10}
+	LockStoreKeyPrefix  = []byte{0x11}
 
 	LocksByPowerIndexKeyPrefix = []byte{0x80}
 )
