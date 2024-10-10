@@ -1,8 +1,9 @@
 package common
 
 import (
-	errorsmod "cosmossdk.io/errors"
 	abci "github.com/cometbft/cometbft/abci/types"
+
+	errorsmod "cosmossdk.io/errors"
 )
 
 func QueryResultError(err error) abci.ResponseQuery {

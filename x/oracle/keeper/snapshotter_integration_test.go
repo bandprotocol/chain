@@ -3,22 +3,28 @@ package keeper_test
 import (
 	"testing"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	"github.com/cosmos/cosmos-sdk/testutil"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
 )
 
 func TestSnapshotter(t *testing.T) {
 	// setup source app
-	srcApp, srcCtx := bandtesting.CreateTestApp(t, true)
+	srcDir := testutil.GetTempDir(t)
+	srcApp := bandtesting.SetupWithCustomHome(false, srcDir)
+	srcCtx := srcApp.BaseApp.NewUncachedContext(false, cmtproto.Header{})
 	srcKeeper := srcApp.OracleKeeper
 
 	// create snapshot
-	srcApp.Commit()
+	_, err := srcApp.Commit()
+	require.NoError(t, err)
 	srcHashToCode := getMappingHashToCode(srcCtx, &srcKeeper)
 	snapshotHeight := uint64(srcApp.LastBlockHeight())
 	snapshot, err := srcApp.SnapshotManager().Create(snapshotHeight)
@@ -26,8 +32,9 @@ func TestSnapshotter(t *testing.T) {
 	assert.NotNil(t, snapshot)
 
 	// restore snapshot
-	destApp := bandtesting.SetupWithEmptyStore(t, "testing")
-	destCtx := destApp.NewUncachedContext(false, tmproto.Header{})
+	destDir := testutil.GetTempDir(t)
+	destApp := bandtesting.SetupWithCustomHome(false, destDir)
+	destCtx := destApp.BaseApp.NewUncachedContext(false, cmtproto.Header{})
 	destKeeper := destApp.OracleKeeper
 	require.NoError(t, destApp.SnapshotManager().Restore(*snapshot))
 	for i := uint32(0); i < snapshot.Chunks; i++ {

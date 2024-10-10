@@ -8,7 +8,7 @@ import (
 
 	"github.com/peterbourgon/diskv"
 
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 type Cache struct {

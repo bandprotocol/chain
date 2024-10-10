@@ -155,6 +155,7 @@ rm -rf ~/.faucet
 faucet config chain-id bandchain
 faucet config node tcp://query-node:26657
 faucet config port 5005
+faucet config gas-prices "0.0025uband"
 for i in $(eval echo {1..5})
 do
     # add worker key

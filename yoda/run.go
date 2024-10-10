@@ -6,17 +6,20 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/cometbft/cometbft/libs/log"
-	httpclient "github.com/cometbft/cometbft/rpc/client/http"
-	tmtypes "github.com/cometbft/cometbft/types"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/bandprotocol/chain/v2/pkg/filecache"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
-	"github.com/bandprotocol/chain/v2/yoda/executor"
+	httpclient "github.com/cometbft/cometbft/rpc/client/http"
+	cmttypes "github.com/cometbft/cometbft/types"
+
+	"cosmossdk.io/log"
+
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/pkg/filecache"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/yoda/executor"
 )
 
 const (
@@ -54,7 +57,7 @@ func runImpl(c *Context, l *Logger) error {
 		waitingMsgs[i] = []ReportMsgWithKey{}
 	}
 
-	bz := cdc.MustMarshal(&types.QueryPendingRequestsRequest{
+	bz := c.bandApp.AppCodec().MustMarshal(&types.QueryPendingRequestsRequest{
 		ValidatorAddress: c.validator.String(),
 	})
 	resBz, err := c.client.ABCIQuery(context.Background(), "/oracle.v1.Query/PendingRequests", bz)
@@ -62,7 +65,7 @@ func runImpl(c *Context, l *Logger) error {
 		l.Error(":exploding_head: Failed to get pending requests with error: %s", c, err.Error())
 	}
 	pendingRequests := types.QueryPendingRequestsResponse{}
-	cdc.MustUnmarshal(resBz.Response.Value, &pendingRequests)
+	c.bandApp.AppCodec().MustUnmarshal(resBz.Response.Value, &pendingRequests)
 
 	l.Info(":mag: Found %d pending requests", len(pendingRequests.RequestIDs))
 	for _, id := range pendingRequests.RequestIDs {
@@ -73,7 +76,7 @@ func runImpl(c *Context, l *Logger) error {
 	for {
 		select {
 		case ev := <-eventChan:
-			go handleTransaction(c, l, ev.Data.(tmtypes.EventDataTx).TxResult)
+			go handleTransaction(c, l, ev.Data.(cmttypes.EventDataTx).TxResult)
 		case keyIndex := <-c.freeKeys:
 			if len(waitingMsgs[keyIndex]) != 0 {
 				if uint64(len(waitingMsgs[keyIndex])) > c.maxReport {
@@ -127,7 +130,7 @@ func runCmd(c *Context) *cobra.Command {
 
 			c.gasPrices = cfg.GasPrices
 
-			allowLevel, err := log.AllowLevel(cfg.LogLevel)
+			allowLevel, err := log.ParseLogLevel(cfg.LogLevel)
 			if err != nil {
 				return err
 			}

@@ -5,12 +5,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/stretchr/testify/require"
 
-	bankkeeper "github.com/bandprotocol/chain/v2/x/bank/keeper"
+	bankkeeper "github.com/bandprotocol/chain/v3/x/bank/keeper"
 )
 
 // ParseTime is a helper function to parse from number to time.Time with UTC locale.
@@ -19,22 +22,22 @@ func ParseTime(t int64) time.Time {
 }
 
 type GasRecord struct {
-	Gas        sdk.Gas
+	Gas        storetypes.Gas
 	Descriptor string
 }
 
 // GasMeterWrapper wrap gas meter for testing purpose
 type GasMeterWrapper struct {
-	sdk.GasMeter
+	storetypes.GasMeter
 	GasRecords []GasRecord
 }
 
-func (m *GasMeterWrapper) ConsumeGas(amount sdk.Gas, descriptor string) {
+func (m *GasMeterWrapper) ConsumeGas(amount storetypes.Gas, descriptor string) {
 	m.GasRecords = append(m.GasRecords, GasRecord{amount, descriptor})
 	m.GasMeter.ConsumeGas(amount, descriptor)
 }
 
-func (m *GasMeterWrapper) CountRecord(amount sdk.Gas, descriptor string) int {
+func (m *GasMeterWrapper) CountRecord(amount storetypes.Gas, descriptor string) int {
 	count := 0
 	for _, r := range m.GasRecords {
 		if r.Gas == amount && r.Descriptor == descriptor {
@@ -57,14 +60,14 @@ func (m *GasMeterWrapper) CountDescriptor(descriptor string) int {
 }
 
 // NewGasMeterWrapper to wrap gas meters for testing purposes
-func NewGasMeterWrapper(meter sdk.GasMeter) *GasMeterWrapper {
+func NewGasMeterWrapper(meter storetypes.GasMeter) *GasMeterWrapper {
 	return &GasMeterWrapper{meter, nil}
 }
 
 func MustGetBalances(ctx sdk.Context, bankKeeper bankkeeper.WrappedBankKeeper, address sdk.AccAddress) sdk.Coins {
 	balancesRes, err := bankKeeper.AllBalances(
-		sdk.WrapSDKContext(ctx),
-		banktypes.NewQueryAllBalancesRequest(address, &query.PageRequest{}),
+		ctx,
+		banktypes.NewQueryAllBalancesRequest(address, &query.PageRequest{}, false),
 	)
 	if err != nil {
 		panic(err)
@@ -81,12 +84,12 @@ func CheckBalances(
 	expected sdk.Coins,
 ) {
 	balancesRes, err := bankKeeper.AllBalances(
-		sdk.WrapSDKContext(ctx),
-		banktypes.NewQueryAllBalancesRequest(address, &query.PageRequest{}),
+		ctx,
+		banktypes.NewQueryAllBalancesRequest(address, &query.PageRequest{}, false),
 	)
 	require.NoError(t, err)
 
-	require.True(t, expected.IsEqual(balancesRes.Balances))
+	require.True(t, expected.Equal(balancesRes.Balances))
 }
 
 // CheckErrorf checks whether

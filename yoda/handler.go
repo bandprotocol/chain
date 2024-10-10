@@ -6,10 +6,11 @@ import (
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/cosmos/cosmos-sdk/types/tx/signing"
+
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 type processingResult struct {
@@ -33,20 +34,8 @@ func handleTransaction(c *Context, l *Logger, tx abci.TxResult) {
 		return
 	}
 
-	logs, err := sdk.ParseABCILogs(tx.Result.Log)
-	if err != nil {
-		l.Error(":cold_sweat: Failed to parse transaction logs with error: %s", c, err.Error())
-		return
-	}
-
-	for _, log := range logs {
-		go handleRequestLog(c, l, log)
-	}
-}
-
-func handleRequestLog(c *Context, l *Logger, log sdk.ABCIMessageLog) {
-	idStrs := GetEventValues(log, types.EventTypeRequest, types.AttributeKeyID)
-
+	events := tx.Result.Events
+	idStrs := GetEventValues(events, types.EventTypeRequest, types.AttributeKeyID)
 	for _, idStr := range idStrs {
 		id, err := strconv.Atoi(idStr)
 		if err != nil {
@@ -185,7 +174,7 @@ func handleRawRequest(
 	}
 
 	vmsg := types.NewRequestVerification(cfg.ChainID, c.validator, id, req.externalID, req.dataSourceID)
-	sig, pubkey, err := kb.Sign(key.Name, vmsg.GetSignBytes())
+	sig, pubkey, err := kb.Sign(key.Name, vmsg.GetSignBytes(), signing.SignMode_SIGN_MODE_DIRECT)
 	if err != nil {
 		l.Error(":skull: Failed to sign verify message: %s", c, err.Error())
 		processingResultCh <- processingResult{

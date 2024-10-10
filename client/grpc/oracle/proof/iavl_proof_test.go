@@ -3,10 +3,13 @@ package proof
 import (
 	"testing"
 
-	"github.com/cometbft/cometbft/crypto/tmhash"
-	ics23 "github.com/confio/ics23/go"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cometbft/cometbft/crypto/tmhash"
+
+	ics23 "github.com/cosmos/ics23/go"
+
+	storetypes "cosmossdk.io/store/types"
 )
 
 /*

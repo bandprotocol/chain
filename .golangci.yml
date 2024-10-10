@@ -1,6 +1,6 @@
 run:
   timeout: 5m
-  go: '1.22.3'
+  go: "1.22.3"
 
 linters:
   disable-all: true
@@ -8,7 +8,7 @@ linters:
     - bodyclose
     - whitespace
     - errcheck
-    - exportloopref
+    - copyloopvar
     - gci
     - gocritic
     - gofumpt
@@ -30,19 +30,24 @@ issues:
     - ".*\\.pb\\.gw\\.\\.go$"
     - ".*\\.pulsar\\.go$"
   exclude-rules:
-    - text: 'Use of weak random number generator'
+    - text: "Use of weak random number generator"
       linters:
         - gosec
-    - text: 'ST1003:'
+    - text: "ST1003:"
       linters:
         - stylecheck
-        
+
 linters-settings:
   gci:
     custom-order: true
     sections:
       - standard # Standard section: captures all standard packages.
       - default # Default section: contains all imports that could not be matched to another section type.
+      - prefix(github.com/cometbft/cometbft) # comet
+      - prefix(github.com/cosmos) # cosmos org
+      - prefix(cosmossdk.io) # new modules
+      - prefix(github.com/cosmos/cosmos-sdk) # cosmos sdk
+      - prefix(github.com/bandprotocol) # band org
       - prefix(github.com/bandprotocol/chain)
   gocritic:
     disabled-checks:
@@ -100,4 +105,3 @@ linters-settings:
       - G504 # Import blocklist: net/http/cgi
       - G505 # Import blocklist: crypto/sha1
       - G601 # Implicit memory aliasing of items from a range statement
-

@@ -3,11 +3,12 @@ package emitter
 import (
 	"encoding/hex"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/hooks/common"
 )
 
 // handleMsgTransfer implements emitter handler for msgTransfer.
@@ -21,8 +22,8 @@ func (h *Hook) handleMsgTransfer(
 	if events, ok := evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeyDataHex]; ok {
 		packet := newPacket(
 			ctx,
-			evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeySrcPort][0],
-			evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeySrcChannel][0],
+			msg.SourcePort,
+			msg.SourceChannel,
 			common.Atoui(evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeySequence][0]),
 			evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeyDstPort][0],
 			evMap[channeltypes.EventTypeSendPacket+"."+channeltypes.AttributeKeyDstChannel][0],

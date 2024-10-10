@@ -1,28 +1,28 @@
 package oracle
 
 import (
-	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
-// handleBeginBlock re-calculates and saves the rolling seed value based on block hashes.
-func handleBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, k keeper.Keeper) {
+// BeginBlocker re-calculates and saves the rolling seed value based on block hashes.
+func BeginBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	// Update rolling seed used for pseudorandom oracle provider selection.
-	hash := req.GetHash()
+	hash := ctx.HeaderInfo().Hash
 	// On the first block in the test. it's possible to have empty hash.
 	if len(hash) > 0 {
 		rollingSeed := k.GetRollingSeed(ctx)
 		k.SetRollingSeed(ctx, append(rollingSeed[1:], hash[0]))
 	}
 	// Reward a portion of block rewards (inflation + tx fee) to active oracle validators.
-	k.AllocateTokens(ctx, req.LastCommitInfo.GetVotes())
+	k.AllocateTokens(ctx, ctx.VoteInfos())
+	return nil
 }
 
-// handleEndBlock cleans up the state during end block. See comment in the implementation!
-func handleEndBlock(ctx sdk.Context, k keeper.Keeper) {
+// EndBlocker cleans up the state during end block. See comment in the implementation!
+func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	// Loops through all requests in the resolvable list to resolve all of them!
 	for _, reqID := range k.GetPendingResolveList(ctx) {
 		k.ResolveRequest(ctx, reqID)
@@ -34,4 +34,5 @@ func handleEndBlock(ctx sdk.Context, k keeper.Keeper) {
 	k.ProcessExpiredRequests(ctx)
 	// NOTE: We can remove old requests from state to optimize space, using `k.DeleteRequest`
 	// and `k.DeleteReports`. We don't do that now as it is premature optimization at this state.
+	return nil
 }

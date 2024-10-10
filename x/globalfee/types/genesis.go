@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	errorsmod "cosmossdk.io/errors"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 )
 
@@ -19,7 +20,7 @@ func DefaultGenesisState() *GenesisState {
 	return NewGenesisState(DefaultParams())
 }
 
-// GetGenesisStateFromAppState returns x/auth GenesisState given raw application
+// GetGenesisStateFromAppState returns x/globalfee GenesisState given raw application
 // genesis state.
 func GetGenesisStateFromAppState(cdc codec.Codec, appState map[string]json.RawMessage) *GenesisState {
 	var genesisState GenesisState
@@ -31,8 +32,10 @@ func GetGenesisStateFromAppState(cdc codec.Codec, appState map[string]json.RawMe
 	return &genesisState
 }
 
-func ValidateGenesis(data GenesisState) error {
-	if err := data.Params.Validate(); err != nil {
+// Validate performs basic genesis state validation returning an error upon any
+// failure.
+func (g GenesisState) Validate() error {
+	if err := g.Params.Validate(); err != nil {
 		return errorsmod.Wrap(err, "globalfee params")
 	}
 

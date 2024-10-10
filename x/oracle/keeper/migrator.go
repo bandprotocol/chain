@@ -3,8 +3,8 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/oracle/exported"
-	v2 "github.com/bandprotocol/chain/v2/x/oracle/migrations/v2"
+	"github.com/bandprotocol/chain/v3/x/oracle/exported"
+	v2 "github.com/bandprotocol/chain/v3/x/oracle/migrations/v2"
 )
 
 // Migrator is a struct for handling in-place state migrations.

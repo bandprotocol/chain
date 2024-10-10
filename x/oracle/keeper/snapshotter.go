@@ -4,15 +4,18 @@ import (
 	"fmt"
 	"io"
 
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
 	errorsmod "cosmossdk.io/errors"
-	"github.com/cometbft/cometbft/libs/log"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	snapshot "github.com/cosmos/cosmos-sdk/snapshots/types"
+	"cosmossdk.io/log"
+	snapshot "cosmossdk.io/store/snapshots/types"
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/filecache"
-	"github.com/bandprotocol/chain/v2/pkg/gzip"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/pkg/filecache"
+	"github.com/bandprotocol/chain/v3/pkg/gzip"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 var _ snapshot.ExtensionSnapshotter = &OracleSnapshotter{}
@@ -22,10 +25,10 @@ const SnapshotFormat = 1
 
 type OracleSnapshotter struct {
 	keeper *Keeper
-	cms    sdk.MultiStore
+	cms    storetypes.MultiStore
 }
 
-func NewOracleSnapshotter(cms sdk.MultiStore, keeper *Keeper) *OracleSnapshotter {
+func NewOracleSnapshotter(cms storetypes.MultiStore, keeper *Keeper) *OracleSnapshotter {
 	return &OracleSnapshotter{
 		keeper: keeper,
 		cms:    cms,
@@ -50,7 +53,7 @@ func (os *OracleSnapshotter) SnapshotExtension(height uint64, payloadWriter snap
 		return err
 	}
 
-	ctx := sdk.NewContext(cacheMS, tmproto.Header{}, false, log.NewNopLogger())
+	ctx := sdk.NewContext(cacheMS, cmtproto.Header{}, false, log.NewNopLogger())
 	seenBefore := make(map[string]bool)
 
 	// write all oracle scripts to snapshot
@@ -95,7 +98,7 @@ func (os *OracleSnapshotter) processAllItems(
 	restore func(sdk.Context, *Keeper, []byte, map[string]bool) error,
 	finalize func(sdk.Context, *Keeper, map[string]bool) error,
 ) error {
-	ctx := sdk.NewContext(os.cms, tmproto.Header{Height: int64(height)}, false, log.NewNopLogger())
+	ctx := sdk.NewContext(os.cms, cmtproto.Header{Height: int64(height)}, false, log.NewNopLogger())
 
 	// get all filename that we need to find and construct a map to store found status
 	foundCode := make(map[string]bool)
@@ -163,7 +166,7 @@ func restoreV1(ctx sdk.Context, k *Keeper, compressedCode []byte, foundCode map[
 		max(types.MaxExecutableSize, types.MaxWasmCodeSize, types.MaxCompiledWasmCodeSize),
 	)
 	if err != nil {
-		return types.ErrUncompressionFailed.Wrapf(err.Error())
+		return types.ErrUncompressionFailed.Wrap(err.Error())
 	}
 
 	// check if we really need this file or not first

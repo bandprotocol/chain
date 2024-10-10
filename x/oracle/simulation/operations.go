@@ -12,9 +12,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/bandprotocol/chain/v2/testing/testdata"
-	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/testing/testdata"
+	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 // Simulation operation weights constants
@@ -59,43 +59,43 @@ func WeightedOperations(
 		weightMsgActivate           int
 	)
 
-	appParams.GetOrGenerate(cdc, OpWeightMsgRequestData, &weightMsgRequestData, nil,
+	appParams.GetOrGenerate(OpWeightMsgRequestData, &weightMsgRequestData, nil,
 		func(_ *rand.Rand) {
 			weightMsgRequestData = DefaultWeightMsgRequestData
 		},
 	)
 
-	appParams.GetOrGenerate(cdc, OpWeightMsgReportData, &weightMsgReportData, nil,
+	appParams.GetOrGenerate(OpWeightMsgReportData, &weightMsgReportData, nil,
 		func(_ *rand.Rand) {
 			weightMsgReportData = DefaultWeightMsgReportData
 		},
 	)
 
-	appParams.GetOrGenerate(cdc, OpWeightMsgCreateDataSource, &weightMsgCreateDataSource, nil,
+	appParams.GetOrGenerate(OpWeightMsgCreateDataSource, &weightMsgCreateDataSource, nil,
 		func(_ *rand.Rand) {
 			weightMsgCreateDataSource = DefaultWeightMsgCreateDataSource
 		},
 	)
 
-	appParams.GetOrGenerate(cdc, OpWeightMsgEditDataSource, &weightMsgEditDataSource, nil,
+	appParams.GetOrGenerate(OpWeightMsgEditDataSource, &weightMsgEditDataSource, nil,
 		func(_ *rand.Rand) {
 			weightMsgEditDataSource = DefaultWeightMsgEditDataSource
 		},
 	)
 
-	appParams.GetOrGenerate(cdc, OpWeightMsgCreateOracleScript, &weightMsgCreateOracleScript, nil,
+	appParams.GetOrGenerate(OpWeightMsgCreateOracleScript, &weightMsgCreateOracleScript, nil,
 		func(_ *rand.Rand) {
 			weightMsgCreateOracleScript = DefaultWeightMsgCreateOracleScript
 		},
 	)
 
-	appParams.GetOrGenerate(cdc, OpWeightMsgEditOracleScript, &weightMsgEditOracleScript, nil,
+	appParams.GetOrGenerate(OpWeightMsgEditOracleScript, &weightMsgEditOracleScript, nil,
 		func(_ *rand.Rand) {
 			weightMsgEditOracleScript = DefaultWeightMsgEditOracleScript
 		},
 	)
 
-	appParams.GetOrGenerate(cdc, OpWeightMsgActivate, &weightMsgActivate, nil,
+	appParams.GetOrGenerate(OpWeightMsgActivate, &weightMsgActivate, nil,
 		func(_ *rand.Rand) {
 			weightMsgActivate = DefaultWeightMsgActivate
 		},
@@ -141,7 +141,17 @@ func SimulateMsgRequestData(
 	keeper keeper.Keeper,
 ) simtypes.Operation {
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
+		msgType := sdk.MsgTypeURL(&types.MsgRequestData{})
 		simAccount, _ := simtypes.RandomAcc(r, accs)
+
+		params := keeper.GetParams(ctx)
+		if params.MaxRawRequestCount < 3 {
+			return simtypes.NoOpMsg(
+				types.ModuleName,
+				msgType,
+				"max raw request count less than provided oracle script",
+			), nil, nil
+		}
 
 		// Get deployed oracle script from one of random accounts for sending request to.
 		oCount := keeper.GetOracleScriptCount(ctx)
@@ -157,7 +167,7 @@ func SimulateMsgRequestData(
 		if oid == 0 {
 			return simtypes.NoOpMsg(
 				types.ModuleName,
-				types.MsgRequestData{}.Type(),
+				msgType,
 				"no oracle script available",
 			), nil, nil
 		}
@@ -168,16 +178,20 @@ func SimulateMsgRequestData(
 		if did < 3 {
 			return simtypes.NoOpMsg(
 				types.ModuleName,
-				types.MsgRequestData{}.Type(),
+				msgType,
 				"data sources are not enough",
 			), nil, nil
 		}
 
 		// Find the number of active validator to define ask count value
 		maxAskCount := 0
-		sk.IterateBondedValidatorsByPower(ctx,
+		_ = sk.IterateBondedValidatorsByPower(ctx,
 			func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
-				if keeper.GetValidatorStatus(ctx, val.GetOperator()).IsActive {
+				operator, err := sdk.ValAddressFromBech32(val.GetOperator())
+				if err != nil {
+					return false
+				}
+				if keeper.GetValidatorStatus(ctx, operator).IsActive {
 					maxAskCount++
 				}
 
@@ -187,7 +201,7 @@ func SimulateMsgRequestData(
 		if maxAskCount == 0 {
 			return simtypes.NoOpMsg(
 				types.ModuleName,
-				types.MsgRequestData{}.Type(),
+				msgType,
 				"active validators are not enough",
 			), nil, nil
 		}
@@ -223,6 +237,7 @@ func SimulateMsgReportData(
 	keeper keeper.Keeper,
 ) simtypes.Operation {
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
+		msgType := sdk.MsgTypeURL(&types.MsgReportData{})
 		var simAccount simtypes.Account
 
 		// Get available request that we will send report to
@@ -251,7 +266,7 @@ func SimulateMsgReportData(
 		if rid == 0 {
 			return simtypes.NoOpMsg(
 				types.ModuleName,
-				types.MsgReportData{}.Type(),
+				msgType,
 				"no request available",
 			), nil, nil
 		}
@@ -316,6 +331,7 @@ func SimulateMsgEditDataSource(
 	keeper keeper.Keeper,
 ) simtypes.Operation {
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
+		msgType := sdk.MsgTypeURL(&types.MsgEditDataSource{})
 		var simAccount simtypes.Account
 		ownerAccount, _ := simtypes.RandomAcc(r, accs)
 		treaAccount, _ := simtypes.RandomAcc(r, accs)
@@ -336,7 +352,7 @@ func SimulateMsgEditDataSource(
 		if did == 0 {
 			return simtypes.NoOpMsg(
 				types.ModuleName,
-				types.MsgEditDataSource{}.Type(),
+				msgType,
 				"no data source available",
 			), nil, nil
 		}
@@ -395,6 +411,7 @@ func SimulateMsgEditOracleScript(
 	keeper keeper.Keeper,
 ) simtypes.Operation {
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
+		msgType := sdk.MsgTypeURL(&types.MsgEditOracleScript{})
 		var simAccount simtypes.Account
 
 		// Get available oracle script that we will edit it
@@ -413,7 +430,7 @@ func SimulateMsgEditOracleScript(
 		if oid == 0 {
 			return simtypes.NoOpMsg(
 				types.ModuleName,
-				types.MsgEditOracleScript{}.Type(),
+				msgType,
 				"no oracle script available",
 			), nil, nil
 		}
@@ -444,13 +461,14 @@ func SimulateMsgActivate(
 	keeper keeper.Keeper,
 ) simtypes.Operation {
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
+		msgType := sdk.MsgTypeURL(&types.MsgActivate{})
 		simAccount, _ := simtypes.RandomAcc(r, accs)
 
 		// Send no op message if the status of the account is already active
 		if keeper.GetValidatorStatus(ctx, sdk.ValAddress(simAccount.Address)).IsActive {
 			return simtypes.NoOpMsg(
 				types.ModuleName,
-				types.MsgActivate{}.Type(),
+				msgType,
 				"already activate",
 			), nil, nil
 		}
@@ -471,10 +489,7 @@ func BuildOperationInput(
 	r *rand.Rand,
 	app *baseapp.BaseApp,
 	ctx sdk.Context,
-	msg interface {
-		sdk.Msg
-		Type() string
-	},
+	msg sdk.Msg,
 	simAccount simtypes.Account,
 	ak types.AccountKeeper,
 	bk simulation.BankKeeper,
@@ -489,7 +504,6 @@ func BuildOperationInput(
 		TxGen:           txConfig,
 		Cdc:             nil,
 		Msg:             msg,
-		MsgType:         msg.Type(),
 		Context:         ctx,
 		SimAccount:      simAccount,
 		AccountKeeper:   ak,

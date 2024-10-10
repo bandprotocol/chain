@@ -1,13 +1,14 @@
 package emitter
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-	"github.com/cosmos/ibc-go/v7/modules/core/exported"
-	solomachinetypes "github.com/cosmos/ibc-go/v7/modules/light-clients/06-solomachine"
-	ibctmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
+	"github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	"github.com/cosmos/ibc-go/v8/modules/core/exported"
+	solomachinetypes "github.com/cosmos/ibc-go/v8/modules/light-clients/06-solomachine"
+	ibctmtypes "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/hooks/common"
 )
 
 func getChainId(clientState exported.ClientState) string {
