@@ -43,6 +43,7 @@ import (
 	"github.com/bandprotocol/chain/v3/hooks/common"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+	restakekeeper "github.com/bandprotocol/chain/v3/x/restake/keeper"
 )
 
 // Hook uses Kafka functionality to act as an event producer for all events in the blockchains.
@@ -65,6 +66,7 @@ type Hook struct {
 	govKeeper     *govkeeper.Keeper
 	groupKeeper   groupkeeper.Keeper
 	oracleKeeper  oraclekeeper.Keeper
+	restakeKeeper restakekeeper.Keeper
 	icahostKeeper icahostkeeper.Keeper
 
 	// ibc keeper
@@ -87,6 +89,7 @@ func NewHook(
 	govKeeper *govkeeper.Keeper,
 	groupKeeper groupkeeper.Keeper,
 	oracleKeeper oraclekeeper.Keeper,
+	restakeKeeper restakekeeper.Keeper,
 	icahostKeeper icahostkeeper.Keeper,
 	clientKeeper clientkeeper.Keeper,
 	connectionKeeper connectionkeeper.Keeper,
@@ -114,6 +117,7 @@ func NewHook(
 		govKeeper:        govKeeper,
 		groupKeeper:      groupKeeper,
 		oracleKeeper:     oracleKeeper,
+		restakeKeeper:    restakeKeeper,
 		icahostKeeper:    icahostKeeper,
 		clientKeeper:     clientKeeper,
 		connectionKeeper: connectionKeeper,
