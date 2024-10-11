@@ -150,7 +150,7 @@ func TestMsgUpdateReferenceSourceConfig_Type(t *testing.T) {
 
 func TestMsgUpdateReferenceSourceConfig_GetSignBytes(t *testing.T) {
 	msg := NewMsgUpdateReferenceSourceConfig(ValidAdmin, ValidReferenceSourceConfig)
-	expected := `{"type":"feeds/MsgUpdateReferenceSourceConfig","value":{"admin":"cosmos1quh7acmun7tx6ywkvqr53m3fe39gxu9k00t4ds","reference_source_config":{"ipfs_hash":"hash","version":"0.0.1"}}}`
+	expected := `{"type":"feeds/MsgUpdateReferenceSourceConfig","value":{"admin":"cosmos1quh7acmun7tx6ywkvqr53m3fe39gxu9k00t4ds","reference_source_config":{"ipfs_hash":"[NOT_SET]","version":"[NOT_SET]"}}}`
 	require.Equal(t, expected, string(msg.GetSignBytes()))
 }
 
