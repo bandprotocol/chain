@@ -154,8 +154,14 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeGroupMsgVote(msg, detail)
 	case *group.MsgWithdrawProposal:
 		DecodeGroupMsgWithdrawProposal(msg, detail)
+	case *restaketypes.MsgClaimRewards:
+		DecodeRestakeMsgClaimRewards(msg, detail)
 	case *restaketypes.MsgStake:
-		DecodeMsgStake(msg, detail)
+		DecodeRestakeMsgStake(msg, detail)
+	case *restaketypes.MsgUnstake:
+		DecodeRestakeMsgUnstake(msg, detail)
+	case *restaketypes.MsgUpdateParams:
+		DecodeRestakeMsgUpdateParams(msg, detail)
 	default:
 		break
 	}
@@ -762,7 +768,22 @@ func DecodeGroupMsgWithdrawProposal(msg *group.MsgWithdrawProposal, detail commo
 	detail["address"] = msg.Address
 }
 
-func DecodeMsgStake(msg *restaketypes.MsgStake, detail common.JsDict) {
+func DecodeRestakeMsgClaimRewards(msg *restaketypes.MsgClaimRewards, detail common.JsDict) {
+	detail["staker_address"] = msg.StakerAddress
+	detail["key"] = msg.Key
+}
+
+func DecodeRestakeMsgStake(msg *restaketypes.MsgStake, detail common.JsDict) {
 	detail["staker_address"] = msg.StakerAddress
 	detail["coins"] = msg.GetCoins()
+}
+
+func DecodeRestakeMsgUnstake(msg *restaketypes.MsgUnstake, detail common.JsDict) {
+	detail["staker_address"] = msg.StakerAddress
+	detail["coins"] = msg.GetCoins()
+}
+
+func DecodeRestakeMsgUpdateParams(msg *restaketypes.MsgUpdateParams, detail common.JsDict) {
+	detail["authority"] = msg.Authority
+	detail["params"] = msg.GetParams()
 }
