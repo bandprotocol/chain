@@ -128,8 +128,8 @@ func init() {
 	OwasmVM = owasmVM
 }
 
-// createArbitraryAccount generates a random Account using a provided random number generator.
-func createArbitraryAccount(r *rand.Rand) Account {
+// CreateArbitraryAccount generates a random Account using a provided random number generator.
+func CreateArbitraryAccount(r *rand.Rand) Account {
 	privkeySeed := make([]byte, 12)
 	_, _ = r.Read(privkeySeed)
 	privKey := secp256k1.GenPrivKeyFromSecret(privkeySeed)
