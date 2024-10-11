@@ -10,7 +10,7 @@ func NewReferenceSourceConfig(hash string, version string) ReferenceSourceConfig
 
 // DefaultReferenceSourceConfig returns a default set of reference source config's information
 func DefaultReferenceSourceConfig() ReferenceSourceConfig {
-	return NewReferenceSourceConfig("hash", "0.0.1")
+	return NewReferenceSourceConfig("[NOT_SET]", "[NOT_SET]")
 }
 
 // Validate validates the reference source config
