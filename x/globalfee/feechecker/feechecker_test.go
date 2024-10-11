@@ -5,15 +5,24 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/suite"
+	protov2 "google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/protoadapt"
+
+	abci "github.com/cometbft/cometbft/abci/types"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	sdkmath "cosmossdk.io/math"
+
+	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
-	"github.com/stretchr/testify/suite"
 
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
-	"github.com/bandprotocol/chain/v2/x/globalfee/feechecker"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
+	"github.com/bandprotocol/chain/v3/x/globalfee/feechecker"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 var (
@@ -32,8 +41,12 @@ func (st *StubTx) GetMsgs() []sdk.Msg {
 	return st.Msgs
 }
 
-func (st *StubTx) ValidateBasic() error {
-	return nil
+func (st *StubTx) GetMsgsV2() (ms []protov2.Message, err error) {
+	for _, msg := range st.Msgs {
+		ms = append(ms, protoadapt.MessageV2Of(msg))
+	}
+
+	return
 }
 
 func (st *StubTx) GetGas() uint64 {
@@ -44,7 +57,7 @@ func (st *StubTx) GetFee() sdk.Coins {
 	fees := make(sdk.Coins, len(st.GasPrices))
 
 	// Determine the fees by multiplying each gas prices
-	glDec := sdk.NewDec(int64(st.GetGas()))
+	glDec := sdkmath.LegacyNewDec(int64(st.GetGas()))
 	for i, gp := range st.GasPrices {
 		fee := gp.Amount.Mul(glDec)
 		fees[i] = sdk.NewCoin(gp.Denom, fee.Ceil().RoundInt())
@@ -61,13 +74,26 @@ type FeeCheckerTestSuite struct {
 }
 
 func (suite *FeeCheckerTestSuite) SetupTest() {
-	app, ctx := bandtesting.CreateTestApp(suite.T(), true)
+	dir := testutil.GetTempDir(suite.T())
+	app := bandtesting.SetupWithCustomHome(false, dir)
+	ctx := app.BaseApp.NewUncachedContext(false, cmtproto.Header{})
+
+	// Activate validators
+	for _, v := range bandtesting.Validators {
+		err := app.OracleKeeper.Activate(ctx, v.ValAddress)
+		suite.Require().NoError(err)
+	}
+
+	_, err := app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: app.LastBlockHeight() + 1})
+	suite.Require().NoError(err)
+	_, err = app.Commit()
+	suite.Require().NoError(err)
 
 	suite.ctx = ctx.WithBlockHeight(999).
 		WithIsCheckTx(true).
-		WithMinGasPrices(sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDecWithPrec(1, 4)}})
+		WithMinGasPrices(sdk.DecCoins{{Denom: "uband", Amount: sdkmath.LegacyNewDecWithPrec(1, 4)}})
 
-	err := app.OracleKeeper.GrantReporter(suite.ctx, bandtesting.Validators[0].ValAddress, bandtesting.Alice.Address)
+	err = app.OracleKeeper.GrantReporter(suite.ctx, bandtesting.Validators[0].ValAddress, bandtesting.Alice.Address)
 	suite.Require().NoError(err)
 
 	expiration := ctx.BlockTime().Add(1000 * time.Hour)
@@ -97,9 +123,10 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 	suite.requestID = app.OracleKeeper.AddRequest(suite.ctx, req)
 
 	suite.FeeChecker = feechecker.NewFeeChecker(
+		app.AppCodec(),
 		&app.AuthzKeeper,
 		&app.OracleKeeper,
-		&app.GlobalfeeKeeper,
+		&app.GlobalFeeKeeper,
 		app.StakingKeeper,
 		&app.FeedsKeeper,
 	)
@@ -205,12 +232,12 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 					Msgs: []sdk.Msg{
 						&msgExec,
 					},
-					GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdk.NewInt(1))),
+					GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))),
 				}
 			},
 			expIsBypassMinFeeTx: false,
 			expErr:              nil,
-			expFee:              sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(1000000))),
+			expFee:              sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(1000000))),
 			expPriority:         10000,
 		},
 		{
@@ -231,24 +258,24 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 				return &StubTx{
 					Msgs: []sdk.Msg{msgRequestData},
 					GasPrices: sdk.NewDecCoins(
-						sdk.NewDecCoinFromDec("uaaaa", sdk.NewDecWithPrec(100, 3)),
-						sdk.NewDecCoinFromDec("uaaab", sdk.NewDecWithPrec(1, 3)),
-						sdk.NewDecCoinFromDec("uaaac", sdk.NewDecWithPrec(0, 3)),
-						sdk.NewDecCoinFromDec("uband", sdk.NewDecWithPrec(3, 3)),
-						sdk.NewDecCoinFromDec("uccca", sdk.NewDecWithPrec(0, 3)),
-						sdk.NewDecCoinFromDec("ucccb", sdk.NewDecWithPrec(1, 3)),
-						sdk.NewDecCoinFromDec("ucccc", sdk.NewDecWithPrec(100, 3)),
+						sdk.NewDecCoinFromDec("uaaaa", sdkmath.LegacyNewDecWithPrec(100, 3)),
+						sdk.NewDecCoinFromDec("uaaab", sdkmath.LegacyNewDecWithPrec(1, 3)),
+						sdk.NewDecCoinFromDec("uaaac", sdkmath.LegacyNewDecWithPrec(0, 3)),
+						sdk.NewDecCoinFromDec("uband", sdkmath.LegacyNewDecWithPrec(3, 3)),
+						sdk.NewDecCoinFromDec("uccca", sdkmath.LegacyNewDecWithPrec(0, 3)),
+						sdk.NewDecCoinFromDec("ucccb", sdkmath.LegacyNewDecWithPrec(1, 3)),
+						sdk.NewDecCoinFromDec("ucccc", sdkmath.LegacyNewDecWithPrec(100, 3)),
 					),
 				}
 			},
 			expIsBypassMinFeeTx: false,
 			expErr:              nil,
 			expFee: sdk.NewCoins(
-				sdk.NewCoin("uaaaa", sdk.NewInt(100000)),
-				sdk.NewCoin("uaaab", sdk.NewInt(1000)),
-				sdk.NewCoin("uband", sdk.NewInt(3000)),
-				sdk.NewCoin("ucccb", sdk.NewInt(1000)),
-				sdk.NewCoin("ucccc", sdk.NewInt(100000)),
+				sdk.NewCoin("uaaaa", sdkmath.NewInt(100000)),
+				sdk.NewCoin("uaaab", sdkmath.NewInt(1000)),
+				sdk.NewCoin("uband", sdkmath.NewInt(3000)),
+				sdk.NewCoin("ucccb", sdkmath.NewInt(1000)),
+				sdk.NewCoin("ucccc", sdkmath.NewInt(100000)),
 			),
 			expPriority: 30,
 		},
@@ -276,13 +303,13 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 
 				return &StubTx{
 					Msgs:      []sdk.Msg{&authzMsg},
-					GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdk.NewInt(1))),
+					GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))),
 				}
 			},
 			expIsBypassMinFeeTx: false,
 			expErr:              nil,
 			expFee: sdk.NewCoins(
-				sdk.NewCoin("uband", sdk.NewInt(1000000)),
+				sdk.NewCoin("uband", sdkmath.NewInt(1000000)),
 			),
 			expPriority: 10000,
 		},
@@ -308,13 +335,13 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 
 				return &StubTx{
 					Msgs:      []sdk.Msg{msgReportData, msgRequestData},
-					GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdk.NewInt(1))),
+					GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))),
 				}
 			},
 			expIsBypassMinFeeTx: false,
 			expErr:              nil,
 			expFee: sdk.NewCoins(
-				sdk.NewCoin("uband", sdk.NewInt(1000000)),
+				sdk.NewCoin("uband", sdkmath.NewInt(1000000)),
 			),
 			expPriority: 10000,
 		},
@@ -413,12 +440,12 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 					Msgs: []sdk.Msg{
 						&msgExec,
 					},
-					GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdk.NewInt(1))),
+					GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))),
 				}
 			},
 			expIsBypassMinFeeTx: false,
 			expErr:              nil,
-			expFee:              sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(1000000))),
+			expFee:              sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(1000000))),
 			expPriority:         10000,
 		},
 	}
@@ -440,17 +467,12 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 	}
 }
 
-func (suite *FeeCheckerTestSuite) TestGetBondDenom() {
-	denom := suite.FeeChecker.GetBondDenom(suite.ctx)
-	suite.Require().Equal("uband", denom)
-}
-
 func (suite *FeeCheckerTestSuite) TestDefaultZeroGlobalFee() {
 	coins, err := suite.FeeChecker.DefaultZeroGlobalFee(suite.ctx)
 
 	suite.Require().Equal(1, len(coins))
 	suite.Require().Equal("uband", coins[0].Denom)
-	suite.Require().Equal(sdk.NewDec(0), coins[0].Amount)
+	suite.Require().Equal(sdkmath.LegacyNewDec(0), coins[0].Amount)
 	suite.Require().NoError(err)
 }
 

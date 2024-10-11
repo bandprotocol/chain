@@ -1,7 +1,7 @@
 syntax = "proto3";
 package feeds.v1beta1;
 
-option go_package = "github.com/bandprotocol/chain/v2/x/feeds/types";
+option go_package = "github.com/bandprotocol/chain/v3/x/feeds/types";
 
 import "gogoproto/gogo.proto";
 import "feeds/v1beta1/feeds.proto";
@@ -12,6 +12,7 @@ import "amino/amino.proto";
 
 // Msg defines the feeds Msg service.
 service Msg {
+  option (cosmos.msg.v1.service) = true;
   // SubmitSignals is an RPC method to submit signal ids and their powers.
   rpc SubmitSignals(MsgSubmitSignals) returns (MsgSubmitSignalsResponse);
 
@@ -46,7 +47,7 @@ message MsgSubmitSignalPrices {
   option (amino.name)           = "feeds/MsgSubmitSignalPrices";
 
   // validator is the address of the validator that is performing the operation.
-  string validator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string validator = 1 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
 
   // timestamp is the timestamp used as reference for the data.
   int64 timestamp = 2;

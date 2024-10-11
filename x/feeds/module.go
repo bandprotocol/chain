@@ -5,28 +5,32 @@ import (
 	"encoding/json"
 	"fmt"
 
-	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
+
+	"cosmossdk.io/core/appmodule"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/spf13/cobra"
 
-	"github.com/bandprotocol/chain/v2/x/feeds/client/cli"
-	"github.com/bandprotocol/chain/v2/x/feeds/keeper"
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	"github.com/bandprotocol/chain/v3/x/feeds/client/cli"
+	"github.com/bandprotocol/chain/v3/x/feeds/keeper"
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 // ConsensusVersion defines the current x/feeds module consensus version.
-const ConsensusVersion = 1
+const ConsensusVersion uint64 = 1
 
 var (
-	_ module.AppModule           = AppModule{}
-	_ module.AppModuleBasic      = AppModuleBasic{}
-	_ module.BeginBlockAppModule = AppModule{}
-	_ module.EndBlockAppModule   = AppModule{}
+	_ module.AppModuleBasic = AppModuleBasic{}
+	_ module.HasGenesis     = AppModule{}
+	_ module.HasServices    = AppModule{}
+
+	_ appmodule.AppModule     = AppModule{}
+	_ appmodule.HasEndBlocker = AppModule{}
 )
 
 // ----------------------------------------------------------------------------
@@ -108,6 +112,12 @@ func NewAppModule(
 	}
 }
 
+// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
+func (am AppModule) IsOnePerModuleType() {}
+
+// IsAppModule implements the appmodule.AppModule interface.
+func (am AppModule) IsAppModule() {}
+
 // RegisterServices registers a gRPC query service to respond to the module-specific gRPC queries
 func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
@@ -118,11 +128,10 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
 // InitGenesis performs the module's genesis initialization. It returns no validator updates.
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) []abci.ValidatorUpdate {
+func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) {
 	var genState types.GenesisState
 	cdc.MustUnmarshalJSON(gs, &genState)
 	am.keeper.InitGenesis(ctx, genState)
-	return []abci.ValidatorUpdate{}
 }
 
 // ExportGenesis returns the module's exported genesis state as raw JSON bytes.
@@ -134,12 +143,8 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 // ConsensusVersion is a sequence number for state-breaking change of the module. It should be incremented on each consensus-breaking change introduced by the module. To avoid wrong/empty versions, the initial version should be set to 1
 func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
 
-// BeginBlock contains the logic automatically triggered at the beginning of each block
-func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {
-}
-
 // EndBlock contains the logic automatically triggered at the end of each block
-func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	HandleEndBlock(ctx, am.keeper)
-	return []abci.ValidatorUpdate{}
+func (am AppModule) EndBlock(ctx context.Context) error {
+	c := sdk.UnwrapSDKContext(ctx)
+	return EndBlocker(c, am.keeper)
 }

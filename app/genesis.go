@@ -4,20 +4,35 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/cosmos/ibc-go/modules/capability"
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	icagenesistypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/genesis/types"
+	icahosttypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
+	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
+	ibcfee "github.com/cosmos/ibc-go/v8/modules/apps/29-fee"
+	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
+	ibctransfer "github.com/cosmos/ibc-go/v8/modules/apps/transfer"
+	ibctransafertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	ibc "github.com/cosmos/ibc-go/v8/modules/core"
+	ibcexported "github.com/cosmos/ibc-go/v8/modules/core/exported"
+
+	"cosmossdk.io/math"
+	"cosmossdk.io/x/evidence"
+	evidencetypes "cosmossdk.io/x/evidence/types"
+	"cosmossdk.io/x/feegrant"
+	feegrantmodule "cosmossdk.io/x/feegrant/module"
+	"cosmossdk.io/x/upgrade"
+	upgradetypes "cosmossdk.io/x/upgrade/types"
+
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/cosmos/cosmos-sdk/x/capability"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	"github.com/cosmos/cosmos-sdk/x/evidence"
-	evidencetypes "github.com/cosmos/cosmos-sdk/x/evidence/types"
-	"github.com/cosmos/cosmos-sdk/x/feegrant"
-	feegrantmodule "github.com/cosmos/cosmos-sdk/x/feegrant/module"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -27,33 +42,22 @@ import (
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/cosmos/cosmos-sdk/x/upgrade"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	icagenesistypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/genesis/types"
-	icahosttypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/host/types"
-	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
-	ibctransfer "github.com/cosmos/ibc-go/v7/modules/apps/transfer"
-	ibctransafertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	ibc "github.com/cosmos/ibc-go/v7/modules/core"
-	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 
-	"github.com/bandprotocol/chain/v2/app/upgrades/v2_6"
-	"github.com/bandprotocol/chain/v2/x/feeds"
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
-	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
-	"github.com/bandprotocol/chain/v2/x/oracle"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
-	"github.com/bandprotocol/chain/v2/x/restake"
-	restaketypes "github.com/bandprotocol/chain/v2/x/restake/types"
+	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
+	"github.com/bandprotocol/chain/v3/x/feeds"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
+	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
+	"github.com/bandprotocol/chain/v3/x/oracle"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/x/restake"
+	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 // GenesisState defines a type alias for the Band genesis application state.
 type GenesisState map[string]json.RawMessage
 
 // NewDefaultGenesisState generates the default state for the application.
-func NewDefaultGenesisState() GenesisState {
-	cdc := MakeEncodingConfig().Marshaler
-	ModuleBasics.DefaultGenesis(cdc)
+func NewDefaultGenesisState(cdc codec.Codec) GenesisState {
 	denom := "uband"
 	// Get default genesis states of the modules we are to override.
 	authGenesis := authtypes.DefaultGenesisState()
@@ -69,25 +73,31 @@ func NewDefaultGenesisState() GenesisState {
 	authGenesis.Params.TxSizeCostPerByte = 5
 	stakingGenesis.Params.BondDenom = denom
 	stakingGenesis.Params.HistoricalEntries = 1000
-	mintGenesis.Params.BlocksPerYear = 10519200 // target 3-second block time
+	mintGenesis.Params.BlocksPerYear = 31557600 // target 1-second block time
 	mintGenesis.Params.MintDenom = denom
 	govGenesis.Params.MinDeposit = sdk.NewCoins(
 		sdk.NewCoin(denom, sdk.TokensFromConsensusPower(1000, sdk.DefaultPowerReduction)),
 	)
+	govGenesis.Params.ExpeditedMinDeposit = sdk.NewCoins(
+		sdk.NewCoin(
+			denom,
+			sdk.TokensFromConsensusPower(2000, sdk.DefaultPowerReduction)),
+	)
+
 	crisisGenesis.ConstantFee = sdk.NewCoin(denom, sdk.TokensFromConsensusPower(10000, sdk.DefaultPowerReduction))
-	slashingGenesis.Params.SignedBlocksWindow = 30000                         // approximately 1 day
-	slashingGenesis.Params.MinSignedPerWindow = sdk.NewDecWithPrec(5, 2)      // 5%
-	slashingGenesis.Params.DowntimeJailDuration = 60 * 10 * time.Second       // 10 minutes
-	slashingGenesis.Params.SlashFractionDoubleSign = sdk.NewDecWithPrec(5, 2) // 5%
-	slashingGenesis.Params.SlashFractionDowntime = sdk.NewDecWithPrec(1, 4)   // 0.01%
+	slashingGenesis.Params.SignedBlocksWindow = 86400                                // approximately 1 day
+	slashingGenesis.Params.MinSignedPerWindow = math.LegacyNewDecWithPrec(5, 2)      // 5%
+	slashingGenesis.Params.DowntimeJailDuration = 60 * 10 * time.Second              // 10 minutes
+	slashingGenesis.Params.SlashFractionDoubleSign = math.LegacyNewDecWithPrec(5, 2) // 5%
+	slashingGenesis.Params.SlashFractionDowntime = math.LegacyNewDecWithPrec(1, 4)   // 0.01%
 
 	icaGenesis.HostGenesisState.Params = icahosttypes.Params{
 		HostEnabled:   true,
-		AllowMessages: v2_6.ICAAllowMessages,
+		AllowMessages: v3.ICAAllowMessages,
 	}
 
 	globalfeeGenesis.Params.MinimumGasPrices = sdk.NewDecCoins(
-		sdk.NewDecCoinFromDec(denom, sdk.NewDecWithPrec(25, 4)),
+		sdk.NewDecCoinFromDec(denom, math.LegacyNewDecWithPrec(25, 4)), // 0.0025uband
 	)
 
 	return GenesisState{
@@ -109,6 +119,7 @@ func NewDefaultGenesisState() GenesisState {
 		group.ModuleName:             groupmodule.AppModuleBasic{}.DefaultGenesis(cdc),
 		ibctransafertypes.ModuleName: ibctransfer.AppModuleBasic{}.DefaultGenesis(cdc),
 		icatypes.ModuleName:          cdc.MustMarshalJSON(icaGenesis),
+		ibcfeetypes.ModuleName:       ibcfee.AppModuleBasic{}.DefaultGenesis(cdc),
 		oracletypes.ModuleName:       oracle.AppModuleBasic{}.DefaultGenesis(cdc),
 		feedstypes.ModuleName:        feeds.AppModuleBasic{}.DefaultGenesis(cdc),
 		globalfeetypes.ModuleName:    cdc.MustMarshalJSON(globalfeeGenesis),

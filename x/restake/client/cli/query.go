@@ -1,11 +1,12 @@
 package cli
 
 import (
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
 
-	"github.com/bandprotocol/chain/v2/x/restake/types"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+
+	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 // GetQueryCmd returns the cli query commands for this module
@@ -25,6 +26,8 @@ func GetQueryCmd() *cobra.Command {
 		GetQueryCmdReward(),
 		GetQueryCmdLocks(),
 		GetQueryCmdLock(),
+		GetQueryCmdStake(),
+		GetQueryCmdParams(),
 	)
 
 	return queryCmd
@@ -224,6 +227,64 @@ func GetQueryCmdLock() *cobra.Command {
 				return err
 			}
 
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetQueryCmdStake implements the stake query command.
+func GetQueryCmdStake() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "stakes [staker_address]",
+		Short: "shows all stakes of an staker address",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.Stake(cmd.Context(), &types.QueryStakeRequest{
+				StakerAddress: args[0],
+			})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetQueryCmdParams implements the params query command.
+func GetQueryCmdParams() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "params",
+		Short: "Show params",
+		Long:  "Show parameter of the module",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			res, err := queryClient.Params(cmd.Context(), &types.QueryParamsRequest{})
+			if err != nil {
+				return err
+			}
 			return clientCtx.PrintProto(res)
 		},
 	}

@@ -6,11 +6,12 @@ import (
 	"testing"
 	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	abci "github.com/cometbft/cometbft/abci/types"
+
+	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 var PrepareCases = map[string]struct {
@@ -257,121 +258,64 @@ func BenchmarkOwasmVMExecute(b *testing.B) {
 	}
 }
 
-// benchmark test for delivering MsgRequestData
-func BenchmarkRequestDataDeliver(b *testing.B) {
+// BenchmarkBlockOracleMsgRequestData benchmarks MsgRequestData of oracle module
+func BenchmarkBlockOracleMsgRequestData(b *testing.B) {
 	for name, tc := range PrepareCases {
 		for _, pm := range tc.parameters {
 			for _, strlen := range tc.stringLength {
-				b.Run(
-					fmt.Sprintf(
-						"%s (param: %d, strlen: %d)",
-						name,
-						pm,
-						strlen,
-					),
-					func(b *testing.B) {
-						ba := InitializeBenchmarkApp(b, -1)
-
-						txs := GenSequenceOfTxs(
-							ba.TxConfig,
-							GenMsgRequestData(
-								ba.Sender,
-								ba.Oid,
-								ba.Did,
-								tc.scenario,
-								pm,
-								strlen,
-								PrepareGasLimit,
-								1000,
-							),
-							ba.Sender,
-							b.N,
-						)
-
-						ba.CallBeginBlock()
-						b.ResetTimer()
-						b.StopTimer()
-
-						// deliver MsgRequestData to the block
-						for i := 0; i < b.N; i++ {
-							b.StartTimer()
-							gasInfo, _, err := ba.CallDeliver(txs[i])
-							b.StopTimer()
-							if i == 0 {
-								if err != nil {
-									fmt.Println("\tDeliver Error:", err.Error())
-								} else {
-									fmt.Println("\tCosmos Gas used:", gasInfo.GasUsed)
-								}
-							}
-						}
-					},
-				)
-			}
-		}
-	}
-}
-
-// benchmark test for processing oracle scripts at endblock
-func BenchmarkRequestDataEndBlock(b *testing.B) {
-	for name, tc := range ExecuteCases {
-		for _, pm := range tc.parameters {
-			for _, strlen := range tc.stringLength {
-				for _, nr := range []int{1, 5, 10, 20} {
+				for _, reqPerBlock := range []int{1, 5, 10, 20} {
 					b.Run(
 						fmt.Sprintf(
 							"%s (param: %d, strlen: %d) - %d requests/block",
 							name,
 							pm,
 							strlen,
-							nr,
+							reqPerBlock,
 						),
 						func(b *testing.B) {
-							ba := InitializeBenchmarkApp(b, -1)
-
-							txs := GenSequenceOfTxs(
-								ba.TxConfig,
-								GenMsgRequestData(
-									ba.Sender,
-									ba.Oid,
-									ba.Did,
-									tc.scenario,
-									pm,
-									strlen,
-									10000,
-									ExecuteGasLimit,
-								),
-								ba.Sender,
-								b.N*nr,
-							)
-
 							b.ResetTimer()
 							b.StopTimer()
 
 							for i := 0; i < b.N; i++ {
-								// deliver MsgRequestData to the first block
-								ba.CallBeginBlock()
+								ba := InitializeBenchmarkApp(b, -1)
 
-								for idx := 0; idx < nr; idx++ {
-									_, _, err := ba.CallDeliver(txs[i*nr+idx])
-									if i == 0 && idx == 0 && err != nil {
-										fmt.Println("\tDeliver error:", err.Error())
-									}
-								}
+								txs := GenSequenceOfTxs(
+									ba.TxEncoder,
+									ba.TxConfig,
+									GenMsgRequestData(
+										ba.Sender,
+										ba.Oid,
+										ba.Did,
+										tc.scenario,
+										pm,
+										strlen,
+										PrepareGasLimit,
+										1000,
+									),
+									ba.Sender,
+									reqPerBlock,
+								)
 
-								ba.CallEndBlock()
-								ba.Commit()
-
-								// deliver MsgReportData to the second block
-								ba.CallBeginBlock()
-								ba.SendAllPendingReports(ba.Validator)
-
-								// process endblock
 								b.StartTimer()
-								ba.CallEndBlock()
+
+								res, err := ba.FinalizeBlock(
+									&abci.RequestFinalizeBlock{
+										Txs:    txs,
+										Height: ba.LastBlockHeight() + 1,
+										Time:   time.Now(),
+									},
+								)
+								require.NoError(b, err)
+
 								b.StopTimer()
 
-								ba.Commit()
+								if i == 0 {
+									if res.TxResults[len(res.TxResults)-1].Code != 0 {
+										fmt.Println("\tDeliver Error:", res.TxResults[0].Log)
+									} else {
+										fmt.Println("\tCosmos Gas used:", res.TxResults[0].GasUsed)
+									}
+								}
 							}
 						},
 					)
@@ -381,161 +325,93 @@ func BenchmarkRequestDataEndBlock(b *testing.B) {
 	}
 }
 
-func BenchmarkBlock(b *testing.B) {
-	benchmarkBlockNormalMsg(b)
-	benchmarkBlockReportMsg(b)
-}
-
-func benchmarkBlockNormalMsg(b *testing.B) {
-	tmpApp := InitializeBenchmarkApp(b, BlockMaxGas)
-
-	type caseType struct {
-		name string
-		msg  []sdk.Msg
-	}
-
-	// construct normal msg e.g. MsgSend of bank module
-	cases := make([]caseType, 0)
-	cases = append(cases, caseType{
-		name: "bank_msg_send",
-		msg: GenMsgSend(
-			tmpApp.Sender,
-			tmpApp.Validator,
-		),
-	})
-
-	// add MsgRequestData of oracle for each parameter into test cases
-	for name, tc := range PrepareCases {
-		for _, prepareGas := range GasRanges {
-			cases = append(cases, caseType{
-				name: fmt.Sprintf(
-					"oracle_msg_request_data - %s - %d prepare gas",
-					name,
-					prepareGas),
-				msg: GenMsgRequestData(
-					tmpApp.Sender,
-					tmpApp.Oid,
-					tmpApp.Did,
-					tc.scenario,
-					math.MaxUint64,
-					1,
-					uint64(prepareGas),
-					1000,
-				),
-			})
-		}
-	}
-
-	// use each msg to test full blocks
-	for _, c := range cases {
-		b.Run(c.name,
-			func(b *testing.B) {
-				b.ResetTimer()
-				b.StopTimer()
-
-				for i := 0; i < b.N; i++ {
-					ba := InitializeBenchmarkApp(b, BlockMaxGas)
-
-					b.StartTimer()
-					ba.CallBeginBlock()
-					b.StopTimer()
-
-					totalGas := uint64(0)
-					for {
-						tx := GenSequenceOfTxs(
-							ba.TxConfig,
-							c.msg,
-							ba.Sender,
-							1,
-						)[0]
-
-						b.StartTimer()
-						gas, _, _ := ba.CallDeliver(tx)
-						b.StopTimer()
-
-						totalGas += gas.GasUsed
-						if totalGas+gas.GasUsed >= uint64(BlockMaxGas) {
-							break
-						}
-					}
-
-					b.StartTimer()
-					ba.CallEndBlock()
-					ba.Commit()
-					b.StopTimer()
-				}
-			},
-		)
-	}
-}
-
-func benchmarkBlockReportMsg(b *testing.B) {
+// BenchmarkBlockOracleMsgReportData benchmarks MsgReportData of oracle module
+func BenchmarkBlockOracleMsgReportData(b *testing.B) {
 	for name, tc := range ExecuteCases {
-		for _, executeGas := range GasRanges {
-			// reportSize is the number of MsgReportData in one tx
-			// 1 means send one report per tx
-			// Note: 1000 is the maximum number of MsgReportData in one tx that doesn't exceed MaxGas of block (50M)
-			for _, reportSize := range []int{1, 100, 1000} {
-				b.Run(
-					fmt.Sprintf(
-						"oracle_msg_report_data - %s - %d execute gas - %d report sizes",
-						name,
-						executeGas,
-						reportSize,
-					),
-					func(b *testing.B) {
-						b.ResetTimer()
-						b.StopTimer()
-
-						for i := 0; i < b.N; i++ {
-							ba := InitializeBenchmarkApp(b, BlockMaxGas)
-							ba.AddMaxMsgRequests(GenMsgRequestData(
-								ba.Sender,
-								ba.Oid,
-								ba.Did,
-								tc.scenario,
-								math.MaxUint64,
-								1,
-								1000,
-								uint64(executeGas),
-							))
-
-							b.StartTimer()
-							ba.CallBeginBlock()
+		for _, pm := range tc.parameters {
+			for _, strlen := range tc.stringLength {
+				for _, reqPerBlock := range []int{1, 5, 10, 20} {
+					b.Run(
+						fmt.Sprintf(
+							"%s (param: %d, strlen: %d) - %d requests/block",
+							name,
+							pm,
+							strlen,
+							reqPerBlock,
+						),
+						func(b *testing.B) {
+							b.ResetTimer()
 							b.StopTimer()
 
-							res := ba.GetAllPendingRequests(ba.Validator)
-							totalGas := uint64(0)
+							for i := 0; i < b.N; i++ {
+								ba := InitializeBenchmarkApp(b, BlockMaxGas)
 
-							reqChunks := ChunkSlice(res.RequestIDs, reportSize)
-							for _, reqChunk := range reqChunks {
-								tx := GenSequenceOfTxs(
+								// add request
+								txs := GenSequenceOfTxs(
+									ba.TxEncoder,
 									ba.TxConfig,
-									ba.GenMsgReportData(ba.Validator, reqChunk),
+									GenMsgRequestData(
+										ba.Sender,
+										ba.Oid,
+										ba.Did,
+										tc.scenario,
+										pm,
+										strlen,
+										10000,
+										ExecuteGasLimit,
+									),
+									ba.Sender,
+									reqPerBlock,
+								)
+
+								_, err := ba.FinalizeBlock(
+									&abci.RequestFinalizeBlock{
+										Txs:    txs,
+										Height: ba.LastBlockHeight() + 1,
+										Time:   time.Now(),
+									},
+								)
+								require.NoError(b, err)
+
+								_, err = ba.Commit()
+								require.NoError(b, err)
+
+								// get pending requests
+								pendingRequests := ba.GetAllPendingRequests(ba.Validator)
+
+								// create msg report data
+								tx := GenSequenceOfTxs(
+									ba.TxEncoder,
+									ba.TxConfig,
+									ba.GenMsgReportData(ba.Validator, pendingRequests.RequestIDs),
 									ba.Validator,
 									1,
 								)[0]
 
 								b.StartTimer()
-								gas, _, err := ba.CallDeliver(tx)
-								b.StopTimer()
 
+								res, err := ba.FinalizeBlock(
+									&abci.RequestFinalizeBlock{
+										Txs:    [][]byte{tx},
+										Height: ba.LastBlockHeight() + 1,
+										Time:   time.Now(),
+									},
+								)
 								require.NoError(b, err)
 
-								totalGas += gas.GasUsed
-								// add 10% more because it will use more gas next time
-								if totalGas+(gas.GasUsed*110/100) >= uint64(BlockMaxGas) {
-									break
+								b.StopTimer()
+
+								if i == 0 {
+									if res.TxResults[len(res.TxResults)-1].Code != 0 {
+										fmt.Println("\tDeliver Error:", res.TxResults[0].Log)
+									} else {
+										fmt.Println("\tCosmos Gas used:", res.TxResults[0].GasUsed)
+									}
 								}
 							}
-
-							b.StartTimer()
-							ba.CallEndBlock()
-							ba.Commit()
-							b.StopTimer()
-						}
-					},
-				)
+						},
+					)
+				}
 			}
 		}
 	}

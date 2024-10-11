@@ -37,6 +37,8 @@ do
   grogu keys add feeder$i
 done
 
+sleep 2
+
 # send band tokens to feeders
 echo "y" | bandd tx bank multi-send validator $(grogu keys list -a) 1000000uband --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain
 # wait for sending band tokens transaction success

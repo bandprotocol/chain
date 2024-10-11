@@ -3,11 +3,13 @@ package signaller
 import (
 	"testing"
 
-	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
+
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 func TestIsDeviated(t *testing.T) {

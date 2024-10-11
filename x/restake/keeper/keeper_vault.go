@@ -2,16 +2,18 @@ package keeper
 
 import (
 	sdkmath "cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/bandprotocol/chain/v2/x/restake/types"
+	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 // GetOrCreateVault get the vault object by using key. If the vault doesn't exist, it will initialize the new vault.
 func (k Keeper) GetOrCreateVault(ctx sdk.Context, key string) (types.Vault, error) {
-	vault, err := k.GetVault(ctx, key)
-	if err != nil {
+	vault, found := k.GetVault(ctx, key)
+	if !found {
 		vaultAccAddr, err := k.createVaultAccount(ctx, key)
 		if err != nil {
 			return types.Vault{}, err
@@ -34,9 +36,9 @@ func (k Keeper) GetOrCreateVault(ctx sdk.Context, key string) (types.Vault, erro
 
 // AddRewards adds rewards to the pool address and re-calculate `RewardsPerPower` and `remainders` of the vault
 func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, key string, rewards sdk.Coins) error {
-	vault, err := k.GetVault(ctx, key)
-	if err != nil {
-		return err
+	vault, found := k.GetVault(ctx, key)
+	if !found {
+		return types.ErrVaultNotFound.Wrapf("key: %s", key)
 	}
 
 	if !vault.IsActive {
@@ -47,7 +49,7 @@ func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, key string, r
 		return types.ErrTotalPowerZero
 	}
 
-	err = k.bankKeeper.SendCoins(ctx, sender, sdk.MustAccAddressFromBech32(vault.VaultAddress), rewards)
+	err := k.bankKeeper.SendCoins(ctx, sender, sdk.MustAccAddressFromBech32(vault.VaultAddress), rewards)
 	if err != nil {
 		return err
 	}
@@ -77,8 +79,8 @@ func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, key string, r
 
 // IsActiveVault checks whether the vault is active or not.
 func (k Keeper) IsActiveVault(ctx sdk.Context, key string) bool {
-	vault, err := k.GetVault(ctx, key)
-	if err != nil {
+	vault, found := k.GetVault(ctx, key)
+	if !found {
 		return false
 	}
 
@@ -87,9 +89,9 @@ func (k Keeper) IsActiveVault(ctx sdk.Context, key string) bool {
 
 // DeactivateVault deactivates the vault.
 func (k Keeper) DeactivateVault(ctx sdk.Context, key string) error {
-	vault, err := k.GetVault(ctx, key)
-	if err != nil {
-		return err
+	vault, found := k.GetVault(ctx, key)
+	if !found {
+		return types.ErrVaultNotFound.Wrapf("key: %s", key)
 	}
 
 	if !vault.IsActive {
@@ -148,8 +150,8 @@ func (k Keeper) createVaultAccount(ctx sdk.Context, key string) (sdk.AccAddress,
 // -------------------------------
 
 // GetVaultsIterator gets iterator of vault store.
-func (k Keeper) GetVaultsIterator(ctx sdk.Context) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.VaultStoreKeyPrefix)
+func (k Keeper) GetVaultsIterator(ctx sdk.Context) storetypes.Iterator {
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.VaultStoreKeyPrefix)
 }
 
 // GetVaults gets all vaults in the store.
@@ -174,25 +176,25 @@ func (k Keeper) HasVault(ctx sdk.Context, vaultName string) bool {
 // MustGetVault gets a vault from store by name.
 // Panics if can't get the vault.
 func (k Keeper) MustGetVault(ctx sdk.Context, key string) types.Vault {
-	vault, err := k.GetVault(ctx, key)
-	if err != nil {
-		panic(err)
+	vault, found := k.GetVault(ctx, key)
+	if !found {
+		panic(types.ErrVaultNotFound)
 	}
 
 	return vault
 }
 
 // GetVault gets a vault from store by key.
-func (k Keeper) GetVault(ctx sdk.Context, key string) (types.Vault, error) {
+func (k Keeper) GetVault(ctx sdk.Context, key string) (types.Vault, bool) {
 	bz := ctx.KVStore(k.storeKey).Get(types.VaultStoreKey(key))
 	if bz == nil {
-		return types.Vault{}, types.ErrVaultNotFound.Wrapf("failed to get vault with name: %s", key)
+		return types.Vault{}, false
 	}
 
 	var vault types.Vault
 	k.cdc.MustUnmarshal(bz, &vault)
 
-	return vault, nil
+	return vault, true
 }
 
 // SetVault sets a vault to the store.

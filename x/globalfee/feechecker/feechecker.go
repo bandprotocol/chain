@@ -3,20 +3,25 @@ package feechecker
 import (
 	"math"
 
+	sdkmath "cosmossdk.io/math"
+
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
-	feedskeeper "github.com/bandprotocol/chain/v2/x/feeds/keeper"
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
-	"github.com/bandprotocol/chain/v2/x/globalfee/keeper"
-	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	feedskeeper "github.com/bandprotocol/chain/v3/x/feeds/keeper"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
+	"github.com/bandprotocol/chain/v3/x/globalfee/keeper"
+	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 type FeeChecker struct {
+	cdc codec.Codec
+
 	AuthzKeeper     *authzkeeper.Keeper
 	OracleKeeper    *oraclekeeper.Keeper
 	GlobalfeeKeeper *keeper.Keeper
@@ -27,6 +32,7 @@ type FeeChecker struct {
 }
 
 func NewFeeChecker(
+	cdc codec.Codec,
 	authzKeeper *authzkeeper.Keeper,
 	oracleKeeper *oraclekeeper.Keeper,
 	globalfeeKeeper *keeper.Keeper,
@@ -36,6 +42,7 @@ func NewFeeChecker(
 	feedsMsgServer := feedskeeper.NewMsgServerImpl(*feedsKeeper)
 
 	return FeeChecker{
+		cdc:             cdc,
 		AuthzKeeper:     authzKeeper,
 		OracleKeeper:    oracleKeeper,
 		GlobalfeeKeeper: globalfeeKeeper,
@@ -57,7 +64,11 @@ func (fc FeeChecker) CheckTxFee(
 
 	feeCoins := feeTx.GetFee()
 	gas := feeTx.GetGas()
-	priority := getTxPriority(feeCoins, int64(gas), fc.GetBondDenom(ctx))
+	bondDenom, err := fc.StakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, 0, err
+	}
+	priority := getTxPriority(feeCoins, int64(gas), bondDenom)
 
 	// Ensure that the provided fees meet minimum-gas-prices and globalFees,
 	// if this is a CheckTx. This is only for local mempool purposes, and thus
@@ -82,7 +93,7 @@ func (fc FeeChecker) CheckTxFee(
 	// Calculate all fees from all gas prices
 	var allFees sdk.Coins
 	if !allGasPrices.IsZero() {
-		glDec := sdk.NewDec(int64(gas))
+		glDec := sdkmath.LegacyNewDec(int64(gas))
 		for _, gp := range allGasPrices {
 			if !gp.IsZero() {
 				fee := gp.Amount.Mul(glDec)
@@ -139,11 +150,15 @@ func (fc FeeChecker) IsBypassMinFeeMsg(ctx sdk.Context, msg sdk.Msg) bool {
 		}
 
 		for _, m := range msgs {
+			signers, _, err := fc.cdc.GetMsgV1Signers(m)
+			if err != nil {
+				return false
+			}
 			// Check if this grantee have authorization for the message.
 			cap, _ := fc.AuthzKeeper.GetAuthorization(
 				ctx,
 				grantee,
-				m.GetSigners()[0],
+				sdk.AccAddress(signers[0]),
 				sdk.MsgTypeURL(m),
 			)
 			if cap == nil {
@@ -179,15 +194,10 @@ func (fc FeeChecker) GetGlobalMinGasPrices(ctx sdk.Context) (sdk.DecCoins, error
 
 // DefaultZeroGlobalFee returns a zero coin with the staking module bond denom
 func (fc FeeChecker) DefaultZeroGlobalFee(ctx sdk.Context) ([]sdk.DecCoin, error) {
-	bondDenom := fc.GetBondDenom(ctx)
-	if bondDenom == "" {
-		return nil, sdkerrors.ErrNotFound.Wrap("empty staking bond denomination")
+	bondDenom, err := fc.StakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	return []sdk.DecCoin{sdk.NewDecCoinFromDec(bondDenom, sdk.NewDec(0))}, nil
-}
-
-// GetBondDenom returns Bondable coin denomination
-func (fc FeeChecker) GetBondDenom(ctx sdk.Context) string {
-	return fc.StakingKeeper.BondDenom(ctx)
+	return []sdk.DecCoin{sdk.NewDecCoinFromDec(bondDenom, sdkmath.LegacyNewDec(0))}, nil
 }
