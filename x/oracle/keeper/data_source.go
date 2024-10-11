@@ -3,9 +3,11 @@ package keeper
 import (
 	"bytes"
 
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 // HasDataSource checks if the data source of this ID exists in the storage.
@@ -61,7 +63,7 @@ func (k Keeper) MustEditDataSource(ctx sdk.Context, id types.DataSourceID, new t
 // GetAllDataSources returns the list of all data sources in the store, or nil if there is none.
 func (k Keeper) GetAllDataSources(ctx sdk.Context) (dataSources []types.DataSource) {
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.DataSourceStoreKeyPrefix)
+	iterator := storetypes.KVStorePrefixIterator(store, types.DataSourceStoreKeyPrefix)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var dataSource types.DataSource

@@ -3,9 +3,9 @@ package types
 import (
 	"fmt"
 
-	"cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"gopkg.in/yaml.v2"
+
+	"cosmossdk.io/math"
 )
 
 var (
@@ -21,7 +21,7 @@ var (
 	DefaultMaxDeviationBasisPoint        = int64(3000)
 	// estimated from block time of 3 seconds, aims for 1 day update
 	DefaultCurrentFeedsUpdateInterval = int64(28800)
-	DefaultPriceQuorum                = sdk.NewDecWithPrec(30, 2)
+	DefaultPriceQuorum                = math.LegacyNewDecWithPrec(30, 2)
 )
 
 // NewParams creates a new Params instance
@@ -108,7 +108,7 @@ func (p Params) Validate() error {
 	if err := validateInt64("current feeds update interval", true, p.CurrentFeedsUpdateInterval); err != nil {
 		return err
 	}
-	priceQuorum, err := sdk.NewDecFromStr(p.PriceQuorum)
+	priceQuorum, err := math.LegacyNewDecFromStr(p.PriceQuorum)
 	if err != nil {
 		return fmt.Errorf("invalid price quorum string: %w", err)
 	}

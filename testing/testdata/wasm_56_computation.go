@@ -7,9 +7,9 @@ import (
 // An oracle script to test heavy computation.
 //
 //	PREPARE:
-//	  Loop for `time` times and ask external data with calldata "new beeb".
+//	  Loop for `time` times and ask external data with calldata "new test".
 //	EXECUTE:
-//	  Loop for `time` times and set return data "new beeb".
+//	  Loop for `time` times and set return data "new test".
 func Wasm56(time int) []byte {
 	return wat2wasm(fmt.Sprintf(`(module
 	 (type $t0 (func))
@@ -49,5 +49,5 @@ func Wasm56(time int) []byte {
 	   call $set_return_data)
 	 (table $T0 1 1 funcref)
 	 (memory $memory (export "memory") 17)
-	 (data (i32.const 1024) "new beeb"))`, time, time))
+	 (data (i32.const 1024) "new test"))`, time, time))
 }

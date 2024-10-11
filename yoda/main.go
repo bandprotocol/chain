@@ -6,14 +6,19 @@ import (
 	"path"
 	"path/filepath"
 
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
+	dbm "github.com/cosmos/cosmos-db"
+
+	"cosmossdk.io/log"
+
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
-	band "github.com/bandprotocol/chain/v2/app"
+	band "github.com/bandprotocol/chain/v3/app"
 )
 
 const (
@@ -48,7 +53,7 @@ var (
 	DefaultYodaHome string
 )
 
-func initConfig(c *Context, cmd *cobra.Command) error {
+func initConfig(c *Context) error {
 	viper.SetConfigFile(path.Join(c.home, "config.yaml"))
 	_ = viper.ReadInConfig() // If we fail to read config file, we'll just rely on cmd flags.
 	if err := viper.Unmarshal(&cfg); err != nil {
@@ -78,7 +83,7 @@ func Main() {
 
 	rootCmd.AddCommand(
 		configCmd(),
-		keysCmd(ctx),
+		keysCmd(),
 		runCmd(ctx),
 		version.NewVersionCommand(),
 	)
@@ -91,15 +96,41 @@ func Main() {
 		if err := os.MkdirAll(home, os.ModePerm); err != nil {
 			return err
 		}
-		kb, err = keyring.New("band", keyring.BackendTest, home, nil, cdc)
+
+		initAppOptions := viper.New()
+		tempDir := tempDir()
+		initAppOptions.Set(flags.FlagHome, tempDir)
+		tempApplication := band.NewBandApp(
+			log.NewNopLogger(),
+			dbm.NewMemDB(),
+			nil,
+			true,
+			map[int64]bool{},
+			tempDir,
+			initAppOptions,
+			100,
+		)
+		ctx.bandApp = tempApplication
+
+		kb, err = keyring.New("band", keyring.BackendTest, home, nil, tempApplication.AppCodec())
 		if err != nil {
 			return err
 		}
-		return initConfig(ctx, rootCmd)
+		return initConfig(ctx)
 	}
 	rootCmd.PersistentFlags().String(flags.FlagHome, DefaultYodaHome, "home directory")
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+var tempDir = func() string {
+	dir, err := os.MkdirTemp("", ".band")
+	if err != nil {
+		dir = band.DefaultNodeHome
+	}
+	defer os.RemoveAll(dir)
+
+	return dir
 }

@@ -2,25 +2,29 @@ package benchmark
 
 import (
 	"math"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
 	"testing"
 	"time"
 
-	owasm "github.com/bandprotocol/go-owasm/api"
+	"github.com/stretchr/testify/require"
+
 	types "github.com/cometbft/cometbft/abci/types"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	cmttypes "github.com/cometbft/cometbft/types"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/pkg/obi"
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	owasm "github.com/bandprotocol/go-owasm/api"
+
+	"github.com/bandprotocol/chain/v3/pkg/obi"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 type Account struct {
@@ -140,15 +144,17 @@ func GenMsgActivate(account *Account) []sdk.Msg {
 }
 
 func GenSequenceOfTxs(
+	txEncoder sdk.TxEncoder,
 	txConfig client.TxConfig,
 	msgs []sdk.Msg,
 	account *Account,
 	numTxs int,
-) []sdk.Tx {
-	txs := make([]sdk.Tx, numTxs)
+) [][]byte {
+	txs := make([][]byte, numTxs)
 
 	for i := 0; i < numTxs; i++ {
-		txs[i], _ = bandtesting.GenTx(
+		tx, _ := bandtesting.GenSignedMockTx(
+			rand.New(rand.NewSource(time.Now().UnixNano())),
 			txConfig,
 			msgs,
 			sdk.Coins{sdk.NewInt64Coin("uband", 1)},
@@ -158,6 +164,8 @@ func GenSequenceOfTxs(
 			[]uint64{account.Seq},
 			account.PrivKey,
 		)
+
+		txs[i], _ = txEncoder(tx)
 		account.Seq++
 	}
 
@@ -224,19 +232,19 @@ func InitOwasmTestEnv(
 	return owasmVM, compiledCode, req
 }
 
-func GetConsensusParams(maxGas int64) *tmproto.ConsensusParams {
-	return &tmproto.ConsensusParams{
-		Block: &tmproto.BlockParams{
+func GetConsensusParams(maxGas int64) cmtproto.ConsensusParams {
+	return cmtproto.ConsensusParams{
+		Block: &cmtproto.BlockParams{
 			MaxBytes: 200000,
 			MaxGas:   maxGas,
 		},
-		Evidence: &tmproto.EvidenceParams{
+		Evidence: &cmtproto.EvidenceParams{
 			MaxAgeNumBlocks: 302400,
 			MaxAgeDuration:  504 * time.Hour,
 		},
-		Validator: &tmproto.ValidatorParams{
+		Validator: &cmtproto.ValidatorParams{
 			PubKeyTypes: []string{
-				tmtypes.ABCIPubKeyTypeSecp256k1,
+				cmttypes.ABCIPubKeyTypeSecp256k1,
 			},
 		},
 	}

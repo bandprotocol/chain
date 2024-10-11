@@ -1,16 +1,18 @@
 package keeper
 
 import (
+	"context"
 	"fmt"
 
-	"github.com/cometbft/cometbft/libs/log"
+	"cosmossdk.io/log"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
-	"github.com/bandprotocol/chain/v2/x/bank/types"
+	"github.com/bandprotocol/chain/v3/x/bank/types"
 )
 
 // WrappedBankKeeper encapsulates the underlying bank keeper and overrides
@@ -26,12 +28,22 @@ type WrappedBankKeeper struct {
 
 	distrKeeper   types.DistributionKeeper
 	accountKeeper types.AccountKeeper
+	logger        log.Logger
 }
 
 // NewWrappedBankKeeperBurnToCommunityPool creates a new instance of WrappedBankKeeper
 // with its distrKeeper and accountKeeper members set to nil.
-func NewWrappedBankKeeperBurnToCommunityPool(bk bankkeeper.Keeper, acc types.AccountKeeper) WrappedBankKeeper {
-	return WrappedBankKeeper{bk, nil, acc}
+func NewWrappedBankKeeperBurnToCommunityPool(
+	bk bankkeeper.Keeper,
+	ak types.AccountKeeper,
+	logger log.Logger,
+) *WrappedBankKeeper {
+	return &WrappedBankKeeper{
+		Keeper:        bk,
+		distrKeeper:   nil,
+		accountKeeper: ak,
+		logger:        logger.With(log.ModuleKey, "x/wrappedbank"),
+	}
 }
 
 // SetDistrKeeper sets distr module keeper for this WrappedBankKeeper instance.
@@ -39,14 +51,9 @@ func (k *WrappedBankKeeper) SetDistrKeeper(dk types.DistributionKeeper) {
 	k.distrKeeper = dk
 }
 
-// Logger returns a module-specific logger.
-func (k WrappedBankKeeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", "x/wrappedbank")
-}
-
 // BurnCoins moves the specified amount of coins from the given module name to
 // the community pool. The total bank of the coins will not change.
-func (k WrappedBankKeeper) BurnCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error {
+func (k WrappedBankKeeper) BurnCoins(ctx context.Context, moduleName string, amt sdk.Coins) error {
 	// If distrKeeper is not set OR we want to burn coins in distr itself, we will
 	// just use the original BurnCoins function.
 
@@ -70,17 +77,11 @@ func (k WrappedBankKeeper) BurnCoins(ctx sdk.Context, moduleName string, amt sdk
 	}
 
 	// Instead of burning coins, we send them to the community pool.
-	err := k.SendCoinsFromModuleToModule(ctx, moduleName, distrtypes.ModuleName, amt)
-	if err != nil {
+	if err := k.distrKeeper.FundCommunityPool(ctx, amt, acc.GetAddress()); err != nil {
 		return err
 	}
 
-	feePool := k.distrKeeper.GetFeePool(ctx)
-	feePool.CommunityPool = feePool.CommunityPool.Add(sdk.NewDecCoinsFromCoins(amt...)...)
-	k.distrKeeper.SetFeePool(ctx, feePool)
-
-	logger := k.Logger(ctx)
-	logger.Info(fmt.Sprintf(
+	k.logger.Info(fmt.Sprintf(
 		"sent %s from %s module account to community pool", amt.String(), moduleName,
 	))
 	return nil

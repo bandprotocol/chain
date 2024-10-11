@@ -4,9 +4,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/cometbft/cometbft/crypto/secp256k1"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cometbft/cometbft/crypto/secp256k1"
+
+	"cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var (
@@ -20,8 +24,8 @@ var (
 	GoodTestValAddr2 = sdk.ValAddress(MsgPk.Address())
 
 	GoodCoins = sdk.NewCoins()
-	BadCoins  = []sdk.Coin{{Denom: "uband", Amount: sdk.NewInt(-1)}}
-	FeeCoins  = sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(1000)))
+	BadCoins  = []sdk.Coin{{Denom: "uband", Amount: math.NewInt(-1)}}
+	FeeCoins  = sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(1000)))
 )
 
 type validateTestCase struct {
@@ -31,193 +35,15 @@ type validateTestCase struct {
 
 func performValidateTests(t *testing.T, cases []validateTestCase) {
 	for _, tc := range cases {
-		err := tc.msg.ValidateBasic()
+		m, ok := tc.msg.(sdk.HasValidateBasic)
+		require.True(t, ok)
+		err := m.ValidateBasic()
 		if tc.valid {
 			require.NoError(t, err)
 		} else {
 			require.Error(t, err)
 		}
 	}
-}
-
-func TestMsgRoute(t *testing.T) {
-	require.Equal(t, "oracle", MsgCreateDataSource{}.Route())
-	require.Equal(t, "oracle", MsgEditDataSource{}.Route())
-	require.Equal(t, "oracle", MsgCreateOracleScript{}.Route())
-	require.Equal(t, "oracle", MsgEditOracleScript{}.Route())
-	require.Equal(t, "oracle", MsgRequestData{}.Route())
-	require.Equal(t, "oracle", MsgReportData{}.Route())
-	require.Equal(t, "oracle", MsgActivate{}.Route())
-}
-
-func TestMsgType(t *testing.T) {
-	require.Equal(t, "create_data_source", MsgCreateDataSource{}.Type())
-	require.Equal(t, "edit_data_source", MsgEditDataSource{}.Type())
-	require.Equal(t, "create_oracle_script", MsgCreateOracleScript{}.Type())
-	require.Equal(t, "edit_oracle_script", MsgEditOracleScript{}.Type())
-	require.Equal(t, "request", MsgRequestData{}.Type())
-	require.Equal(t, "report", MsgReportData{}.Type())
-	require.Equal(t, "activate", MsgActivate{}.Type())
-}
-
-func TestMsgGetSigners(t *testing.T) {
-	signerAcc := sdk.AccAddress([]byte("01234567890123456789"))
-	signerVal := sdk.ValAddress([]byte("01234567890123456789"))
-	anotherAcc := sdk.AccAddress([]byte("98765432109876543210"))
-	anotherVal := sdk.ValAddress([]byte("98765432109876543210"))
-	treasuryAcc := sdk.AccAddress([]byte("treasury"))
-	signers := []sdk.AccAddress{signerAcc}
-	emptyCoins := sdk.NewCoins()
-	require.Equal(
-		t,
-		signers,
-		NewMsgCreateDataSource(
-			"name",
-			"desc",
-			[]byte("exec"),
-			emptyCoins,
-			treasuryAcc,
-			anotherAcc,
-			signerAcc,
-		).GetSigners(),
-	)
-	require.Equal(
-		t,
-		signers,
-		NewMsgEditDataSource(
-			1,
-			"name",
-			"desc",
-			[]byte("exec"),
-			emptyCoins,
-			treasuryAcc,
-			anotherAcc,
-			signerAcc,
-		).GetSigners(),
-	)
-	require.Equal(
-		t,
-		signers,
-		NewMsgCreateOracleScript("name", "desc", "schema", "url", []byte("code"), anotherAcc, signerAcc).GetSigners(),
-	)
-	require.Equal(
-		t,
-		signers,
-		NewMsgEditOracleScript(1, "name", "desc", "schema", "url", []byte("code"), anotherAcc, signerAcc).GetSigners(),
-	)
-	require.Equal(
-		t,
-		signers,
-		NewMsgRequestData(1, []byte("calldata"), 10, 5, "client-id", emptyCoins, 1, 1, signerAcc).GetSigners(),
-	)
-	require.Equal(
-		t,
-		[]sdk.AccAddress{anotherAcc},
-		NewMsgReportData(1, []RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}}, anotherVal).GetSigners(),
-	)
-	require.Equal(t, signers, NewMsgActivate(signerVal).GetSigners())
-}
-
-func TestMsgGetSignBytes(t *testing.T) {
-	sdk.GetConfig().SetBech32PrefixForAccount("band", "band"+sdk.PrefixPublic)
-	sdk.GetConfig().
-		SetBech32PrefixForValidator("band"+sdk.PrefixValidator+sdk.PrefixOperator, "band"+sdk.PrefixValidator+sdk.PrefixOperator+sdk.PrefixPublic)
-	sdk.GetConfig().
-		SetBech32PrefixForConsensusNode("band"+sdk.PrefixValidator+sdk.PrefixConsensus, "band"+sdk.PrefixValidator+sdk.PrefixConsensus+sdk.PrefixPublic)
-	require.Equal(
-		t,
-		`{"type":"oracle/CreateDataSource","value":{"description":"desc","executable":"ZXhlYw==","fee":[{"amount":"1000","denom":"uband"}],"name":"name","owner":"band1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq2vqal4","sender":"band1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq2vqal4","treasury":"band1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq2vqal4"}}`,
-		string(
-			NewMsgCreateDataSource(
-				"name",
-				"desc",
-				[]byte("exec"),
-				FeeCoins,
-				GoodTestAddr,
-				GoodTestAddr,
-				GoodTestAddr,
-			).GetSignBytes(),
-		),
-	)
-	require.Equal(
-		t,
-		`{"type":"oracle/EditDataSource","value":{"data_source_id":"1","description":"desc","executable":"ZXhlYw==","fee":[{"amount":"1000","denom":"uband"}],"name":"name","owner":"band1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq2vqal4","sender":"band1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq2vqal4","treasury":"band1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq2vqal4"}}`,
-		string(
-			NewMsgEditDataSource(
-				1,
-				"name",
-				"desc",
-				[]byte("exec"),
-				FeeCoins,
-				GoodTestAddr,
-				GoodTestAddr,
-				GoodTestAddr,
-			).GetSignBytes(),
-		),
-	)
-	require.Equal(
-		t,
-		`{"type":"oracle/CreateOracleScript","value":{"code":"Y29kZQ==","description":"desc","name":"name","owner":"band1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq2vqal4","schema":"schema","sender":"band1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq2vqal4","source_code_url":"url"}}`,
-		string(
-			NewMsgCreateOracleScript(
-				"name",
-				"desc",
-				"schema",
-				"url",
-				[]byte("code"),
-				GoodTestAddr,
-				GoodTestAddr,
-			).GetSignBytes(),
-		),
-	)
-	require.Equal(
-		t,
-		`{"type":"oracle/EditOracleScript","value":{"code":"Y29kZQ==","description":"desc","name":"name","oracle_script_id":"1","owner":"band1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq2vqal4","schema":"schema","sender":"band1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq2vqal4","source_code_url":"url"}}`,
-		string(
-			NewMsgEditOracleScript(
-				1,
-				"name",
-				"desc",
-				"schema",
-				"url",
-				[]byte("code"),
-				GoodTestAddr,
-				GoodTestAddr,
-			).GetSignBytes(),
-		),
-	)
-	require.Equal(
-		t,
-		`{"type":"oracle/Request","value":{"ask_count":"10","calldata":"Y2FsbGRhdGE=","client_id":"client-id","execute_gas":"250000","fee_limit":[{"amount":"1000","denom":"uband"}],"min_count":"5","oracle_script_id":"1","prepare_gas":"50000","sender":"band1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq2vqal4"}}`,
-		string(
-			NewMsgRequestData(
-				1,
-				[]byte("calldata"),
-				10,
-				5,
-				"client-id",
-				FeeCoins,
-				50000,
-				250000,
-				GoodTestAddr,
-			).GetSignBytes(),
-		),
-	)
-	require.Equal(
-		t,
-		`{"type":"oracle/Report","value":{"raw_reports":[{"data":"ZGF0YTE=","exit_code":1,"external_id":"1"},{"data":"ZGF0YTI=","exit_code":2,"external_id":"2"}],"request_id":"1","validator":"bandvaloper1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqx6y767"}}`,
-		string(
-			NewMsgReportData(
-				1,
-				[]RawReport{{1, 1, []byte("data1")}, {2, 2, []byte("data2")}},
-				GoodTestValAddr,
-			).GetSignBytes(),
-		),
-	)
-	require.Equal(t,
-		`{"type":"oracle/Activate","value":{"validator":"bandvaloper1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqx6y767"}}`,
-		string(NewMsgActivate(GoodTestValAddr).GetSignBytes()),
-	)
 }
 
 func TestMsgCreateDataSourceValidation(t *testing.T) {

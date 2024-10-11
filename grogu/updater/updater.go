@@ -12,7 +12,7 @@ import (
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/logger"
+	"github.com/bandprotocol/chain/v3/pkg/logger"
 )
 
 const (

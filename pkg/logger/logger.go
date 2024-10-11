@@ -3,8 +3,9 @@ package logger
 import (
 	"os"
 
-	"github.com/cometbft/cometbft/libs/log"
 	"github.com/kyokomi/emoji"
+
+	"cosmossdk.io/log"
 )
 
 // Logger is a wrapper around the Tendermint logger.
@@ -13,8 +14,8 @@ type Logger struct {
 }
 
 // New creates a new instance of the Logger.
-func New(level log.Option) *Logger {
-	return &Logger{logger: log.NewFilter(log.NewTMLogger(os.Stdout), level)}
+func NewLogger(level log.FilterFunc) *Logger {
+	return &Logger{log.NewLogger(os.Stdout, log.FilterOption(level))}
 }
 
 // Debug logs a debug message.

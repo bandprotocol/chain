@@ -4,11 +4,14 @@ import (
 	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
+
+	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	distr "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 // valWithPower is an internal type to track validator with voting power inside of AllocateTokens.
@@ -23,8 +26,15 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) {
 	toReward := []valWithPower{}
 	totalPower := int64(0)
 	for _, vote := range previousVotes {
-		val := k.stakingKeeper.ValidatorByConsAddr(ctx, vote.Validator.Address)
-		if k.GetValidatorStatus(ctx, val.GetOperator()).IsActive {
+		val, err := k.stakingKeeper.ValidatorByConsAddr(ctx, vote.Validator.Address)
+		if err != nil {
+			continue
+		}
+		operator, err := sdk.ValAddressFromBech32(val.GetOperator())
+		if err != nil {
+			continue
+		}
+		if k.GetValidatorStatus(ctx, operator).IsActive {
 			toReward = append(toReward, valWithPower{val: val, power: vote.Validator.Power})
 			totalPower += vote.Validator.Power
 		}
@@ -36,28 +46,57 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) {
 	feeCollector := k.authKeeper.GetModuleAccount(ctx, k.feeCollectorName)
 	totalFee := sdk.NewDecCoinsFromCoins(k.bankKeeper.GetAllBalances(ctx, feeCollector.GetAddress())...)
 	// Compute the fee allocated for oracle module to distribute to active validators.
-	oracleRewardRatio := sdk.NewDecWithPrec(int64(k.GetParams(ctx).OracleRewardPercentage), 2)
+	oracleRewardRatio := math.LegacyNewDecWithPrec(int64(k.GetParams(ctx).OracleRewardPercentage), 2)
 	oracleRewardInt, _ := totalFee.MulDecTruncate(oracleRewardRatio).TruncateDecimal()
+
 	// Transfer the oracle reward portion from fee collector to distr module.
-	err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, k.feeCollectorName, distr.ModuleName, oracleRewardInt)
+	err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, k.feeCollectorName, distrtypes.ModuleName, oracleRewardInt)
 	if err != nil {
 		panic(err)
 	}
 	// Convert the transferred tokens back to DecCoins for internal distr allocations.
 	oracleReward := sdk.NewDecCoinsFromCoins(oracleRewardInt...)
+	communityTax, err := k.distrKeeper.GetCommunityTax(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	// Fund community pool with a portion of the oracle reward.
+	communityFund, _ := oracleReward.MulDecTruncate(communityTax).TruncateDecimal()
+	err = k.distrKeeper.FundCommunityPool(
+		ctx,
+		communityFund,
+		k.authKeeper.GetModuleAccount(ctx, distrtypes.ModuleName).GetAddress(),
+	)
+	if err != nil {
+		panic(err)
+	}
+	oracleReward = oracleReward.Sub(sdk.NewDecCoinsFromCoins(communityFund...))
 	remaining := oracleReward
-	rewardMultiplier := sdk.OneDec().Sub(k.distrKeeper.GetCommunityTax(ctx))
+
 	// Allocate non-community pool tokens to active validators weighted by voting power.
 	for _, each := range toReward {
-		powerFraction := sdk.NewDec(each.power).QuoTruncate(sdk.NewDec(totalPower))
-		reward := oracleReward.MulDecTruncate(rewardMultiplier).MulDecTruncate(powerFraction)
-		k.distrKeeper.AllocateTokensToValidator(ctx, each.val, reward)
+		powerFraction := math.LegacyNewDec(each.power).QuoTruncate(math.LegacyNewDec(totalPower))
+		reward := oracleReward.MulDecTruncate(powerFraction)
+		err := k.distrKeeper.AllocateTokensToValidator(ctx, each.val, reward)
+		if err != nil {
+			// Should never hit
+			panic(err)
+		}
 		remaining = remaining.Sub(reward)
 	}
-	// Allocate the remaining coins to the community pool.
-	feePool := k.distrKeeper.GetFeePool(ctx)
-	feePool.CommunityPool = feePool.CommunityPool.Add(remaining...)
-	k.distrKeeper.SetFeePool(ctx, feePool)
+
+	// Remaining tokens are sent to proposer.
+	proposer, err := k.stakingKeeper.ValidatorByConsAddr(ctx, ctx.BlockHeader().ProposerAddress)
+	if err != nil {
+		// Should never hit
+		panic(err)
+	}
+	err = k.distrKeeper.AllocateTokensToValidator(ctx, proposer, remaining)
+	if err != nil {
+		// Should never hit
+		panic(err)
+	}
 }
 
 // GetValidatorStatus returns the validator status for the given validator. Note that validator

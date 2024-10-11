@@ -1,16 +1,31 @@
 syntax = "proto3";
 package restake.v1beta1;
 
-option go_package = "github.com/bandprotocol/chain/v2/x/restake/types";
+option go_package = "github.com/bandprotocol/chain/v3/x/restake/types";
 
 import "gogoproto/gogo.proto";
 import "restake/v1beta1/types.proto";
 
 // GenesisState represents the initial state of the blockchain.
 message GenesisState {
+  // params is all parameters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+
   // vaults is a list of vaults in the module.
-  repeated Vault vaults = 1 [(gogoproto.nullable) = false];
+  repeated Vault vaults = 2 [(gogoproto.nullable) = false];
 
   // locks is a list of locks in the module.
-  repeated Lock locks = 2 [(gogoproto.nullable) = false];
+  repeated Lock locks = 3 [(gogoproto.nullable) = false];
+
+  // locks is a list of stakes in the module.
+  repeated Stake stakes = 4 [(gogoproto.nullable) = false];
+}
+
+// Params is the data structure that keeps the parameters.
+message Params {
+  option (gogoproto.equal)            = true;
+  option (gogoproto.goproto_stringer) = false;
+
+  // allowed_denoms is a list of denoms that the module allows to stake to get power.
+  repeated string allowed_denoms = 1;
 }

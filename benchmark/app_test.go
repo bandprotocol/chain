@@ -2,20 +2,30 @@ package benchmark
 
 import (
 	"testing"
+	"time"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	"github.com/cosmos/cosmos-sdk/client"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	abci "github.com/cometbft/cometbft/abci/types"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/testutil"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	band "github.com/bandprotocol/chain/v3/app"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
+func init() {
+	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
+	sdk.DefaultBondDenom = "uband"
+}
+
 type BenchmarkApp struct {
-	*bandtesting.TestingApp
+	*band.BandApp
 	Sender    *Account
 	Validator *Account
 	Oid       uint64
@@ -28,9 +38,11 @@ type BenchmarkApp struct {
 }
 
 func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
-	app, _ := bandtesting.CreateTestApp(&testing.T{}, false)
+	dir := testutil.GetTempDir(tb)
+	app := bandtesting.SetupWithCustomHome(false, dir)
+
 	ba := &BenchmarkApp{
-		TestingApp: app,
+		BandApp: app,
 		Sender: &Account{
 			Account: bandtesting.Owner,
 			Num:     0,
@@ -38,106 +50,66 @@ func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 		},
 		Validator: &Account{
 			Account: bandtesting.Validators[0],
-			Num:     5,
+			Num:     6,
 			Seq:     0,
 		},
-		TB: tb,
 	}
-	ba.Ctx = ba.NewUncachedContext(false, tmproto.Header{ChainID: bandtesting.ChainID})
+	ba.TB = tb
+	ba.Ctx = ba.NewUncachedContext(false, cmtproto.Header{ChainID: bandtesting.ChainID})
 	ba.Querier = keeper.Querier{
 		Keeper: ba.OracleKeeper,
 	}
 	ba.TxConfig = ba.GetTxConfig()
 	ba.TxEncoder = ba.TxConfig.TxEncoder()
 
-	ba.Commit()
-	ba.CallBeginBlock()
+	err := ba.StoreConsensusParams(ba.Ctx, GetConsensusParams(maxGasPerBlock))
+	require.NoError(tb, err)
 
-	ba.StoreConsensusParams(ba.Ctx, GetConsensusParams(maxGasPerBlock))
+	var txs [][]byte
 
 	// create oracle script
 	oCode, err := GetBenchmarkWasm()
 	require.NoError(tb, err)
-	_, res, err := ba.DeliverMsg(ba.Sender, GenMsgCreateOracleScript(ba.Sender, oCode))
-	require.NoError(tb, err)
-	oid, err := GetFirstAttributeOfLastEventValue(res.Events)
-	require.NoError(tb, err)
-	ba.Oid = uint64(oid)
+	txs = append(
+		txs,
+		GenSequenceOfTxs(ba.TxEncoder, ba.TxConfig, GenMsgCreateOracleScript(ba.Sender, oCode), ba.Sender, 1)[0],
+	)
 
 	// create data source
 	dCode := []byte("hello")
-	_, res, err = ba.DeliverMsg(ba.Sender, GenMsgCreateDataSource(ba.Sender, dCode))
-	require.NoError(tb, err)
-	did, err := GetFirstAttributeOfLastEventValue(res.Events)
-	require.NoError(tb, err)
-	ba.Did = uint64(did)
+	txs = append(
+		txs,
+		GenSequenceOfTxs(ba.TxEncoder, ba.TxConfig, GenMsgCreateDataSource(ba.Sender, dCode), ba.Sender, 1)[0],
+	)
 
 	// activate oracle
-	_, _, err = ba.DeliverMsg(ba.Validator, GenMsgActivate(ba.Validator))
+	txs = append(
+		txs,
+		GenSequenceOfTxs(ba.TxEncoder, ba.TxConfig, GenMsgActivate(ba.Validator), ba.Validator, 1)[0],
+	)
+
+	res, err := ba.FinalizeBlock(
+		&abci.RequestFinalizeBlock{Txs: txs, Height: ba.LastBlockHeight() + 1, Time: time.Now()},
+	)
 	require.NoError(tb, err)
 
-	ba.CallEndBlock()
-	ba.Commit()
+	_, err = ba.Commit()
+	require.NoError(tb, err)
+
+	oid, err := GetFirstAttributeOfLastEventValue(res.TxResults[0].Events)
+	require.NoError(tb, err)
+	ba.Oid = uint64(oid)
+
+	did, err := GetFirstAttributeOfLastEventValue(res.TxResults[1].Events)
+	require.NoError(tb, err)
+	ba.Did = uint64(did)
 
 	return ba
 }
 
-func (ba *BenchmarkApp) DeliverMsg(account *Account, msgs []sdk.Msg) (sdk.GasInfo, *sdk.Result, error) {
-	tx := GenSequenceOfTxs(ba.TxConfig, msgs, account, 1)[0]
-	gas, res, err := ba.CallDeliver(tx)
-	return gas, res, err
-}
-
-func (ba *BenchmarkApp) CallBeginBlock() abci.ResponseBeginBlock {
-	return ba.BeginBlock(
-		abci.RequestBeginBlock{
-			Header: tmproto.Header{
-				Height:  ba.LastBlockHeight() + 1,
-				ChainID: bandtesting.ChainID,
-			},
-			Hash: ba.LastCommitID().Hash,
-		},
-	)
-}
-
-func (ba *BenchmarkApp) CallEndBlock() abci.ResponseEndBlock {
-	return ba.EndBlock(abci.RequestEndBlock{Height: ba.LastBlockHeight() + 1})
-}
-
-func (ba *BenchmarkApp) CallDeliver(tx sdk.Tx) (sdk.GasInfo, *sdk.Result, error) {
-	return ba.SimDeliver(ba.TxEncoder, tx)
-}
-
-func (ba *BenchmarkApp) AddMaxMsgRequests(msg []sdk.Msg) {
-	// maximum of request blocks is only 20 because after that it will become report only block because of ante
-	for block := 0; block < 10; block++ {
-		ba.CallBeginBlock()
-
-		totalGas := uint64(0)
-		for {
-			tx := GenSequenceOfTxs(
-				ba.TxConfig,
-				msg,
-				ba.Sender,
-				1,
-			)[0]
-
-			gas, _, _ := ba.CallDeliver(tx)
-
-			totalGas += gas.GasUsed
-			if totalGas+gas.GasUsed >= uint64(BlockMaxGas) {
-				break
-			}
-		}
-
-		ba.CallEndBlock()
-		ba.Commit()
-	}
-}
-
 func (ba *BenchmarkApp) GetAllPendingRequests(account *Account) *oracletypes.QueryPendingRequestsResponse {
 	res, err := ba.Querier.PendingRequests(
-		sdk.WrapSDKContext(ba.Ctx),
+		ba.Ctx,
 		&oracletypes.QueryPendingRequestsRequest{
 			ValidatorAddress: account.ValAddress.String(),
 		},
@@ -145,16 +117,6 @@ func (ba *BenchmarkApp) GetAllPendingRequests(account *Account) *oracletypes.Que
 	require.NoError(ba.TB, err)
 
 	return res
-}
-
-func (ba *BenchmarkApp) SendAllPendingReports(account *Account) {
-	// query all pending requests
-	res := ba.GetAllPendingRequests(account)
-
-	for _, rid := range res.RequestIDs {
-		_, _, err := ba.DeliverMsg(account, ba.GenMsgReportData(account, []uint64{rid}))
-		require.NoError(ba.TB, err)
-	}
 }
 
 func (ba *BenchmarkApp) GenMsgReportData(account *Account, rids []uint64) []sdk.Msg {

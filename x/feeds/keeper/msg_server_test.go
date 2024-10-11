@@ -1,6 +1,6 @@
 package keeper_test
 
-import "github.com/bandprotocol/chain/v2/x/feeds/types"
+import "github.com/bandprotocol/chain/v3/x/feeds/types"
 
 func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 	testCases := []struct {
@@ -11,7 +11,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 		postCheck func()
 	}{
 		{
-			name: "no delegation",
+			name: "no power",
 			input: &types.MsgSubmitSignals{
 				Delegator: InvalidDelegator.String(),
 				Signals: []types.Signal{
@@ -22,11 +22,11 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 				},
 			},
 			expErr:    true,
-			expErrMsg: "delegation not enough",
+			expErrMsg: "power not enough",
 			postCheck: func() {},
 		},
 		{
-			name: "1 signal more than delegations",
+			name: "1 signal more than powers",
 			input: &types.MsgSubmitSignals{
 				Delegator: ValidDelegator.String(),
 				Signals: []types.Signal{
@@ -37,11 +37,11 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 				},
 			},
 			expErr:    true,
-			expErrMsg: "delegation not enough",
+			expErrMsg: "power not enough",
 			postCheck: func() {},
 		},
 		{
-			name: "2 signals more than delegations",
+			name: "2 signals more than powers",
 			input: &types.MsgSubmitSignals{
 				Delegator: ValidDelegator.String(),
 				Signals: []types.Signal{
@@ -56,7 +56,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 				},
 			},
 			expErr:    true,
-			expErrMsg: "delegation not enough",
+			expErrMsg: "power not enough",
 			postCheck: func() {},
 		},
 		{

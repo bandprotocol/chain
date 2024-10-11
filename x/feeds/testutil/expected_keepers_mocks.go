@@ -10,11 +10,12 @@
 package testutil
 
 import (
+	context "context"
 	reflect "reflect"
 	time "time"
 
 	math "cosmossdk.io/math"
-	types "github.com/bandprotocol/chain/v2/x/oracle/types"
+	types "github.com/bandprotocol/chain/v3/x/oracle/types"
 	types0 "github.com/cosmos/cosmos-sdk/types"
 	authz "github.com/cosmos/cosmos-sdk/x/authz"
 	types1 "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -45,7 +46,7 @@ func (m *MockAuthzKeeper) EXPECT() *MockAuthzKeeperMockRecorder {
 }
 
 // GetAuthorization mocks base method.
-func (m *MockAuthzKeeper) GetAuthorization(ctx types0.Context, feeder, granter types0.AccAddress, msgType string) (authz.Authorization, *time.Time) {
+func (m *MockAuthzKeeper) GetAuthorization(ctx context.Context, feeder, granter types0.AccAddress, msgType string) (authz.Authorization, *time.Time) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAuthorization", ctx, feeder, granter, msgType)
 	ret0, _ := ret[0].(authz.Authorization)
@@ -132,11 +133,11 @@ func (m *MockStakingKeeper) EXPECT() *MockStakingKeeperMockRecorder {
 }
 
 // GetValidator mocks base method.
-func (m *MockStakingKeeper) GetValidator(ctx types0.Context, addr types0.ValAddress) (types1.Validator, bool) {
+func (m *MockStakingKeeper) GetValidator(ctx context.Context, addr types0.ValAddress) (types1.Validator, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetValidator", ctx, addr)
 	ret0, _ := ret[0].(types1.Validator)
-	ret1, _ := ret[1].(bool)
+	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
@@ -147,29 +148,32 @@ func (mr *MockStakingKeeperMockRecorder) GetValidator(ctx, addr any) *gomock.Cal
 }
 
 // IterateBondedValidatorsByPower mocks base method.
-func (m *MockStakingKeeper) IterateBondedValidatorsByPower(ctx types0.Context, fn func(int64, types1.ValidatorI) bool) {
+func (m *MockStakingKeeper) IterateBondedValidatorsByPower(arg0 context.Context, arg1 func(int64, types1.ValidatorI) bool) error {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "IterateBondedValidatorsByPower", ctx, fn)
-}
-
-// IterateBondedValidatorsByPower indicates an expected call of IterateBondedValidatorsByPower.
-func (mr *MockStakingKeeperMockRecorder) IterateBondedValidatorsByPower(ctx, fn any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IterateBondedValidatorsByPower", reflect.TypeOf((*MockStakingKeeper)(nil).IterateBondedValidatorsByPower), ctx, fn)
-}
-
-// TotalBondedTokens mocks base method.
-func (m *MockStakingKeeper) TotalBondedTokens(ctx types0.Context) math.Int {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "TotalBondedTokens", ctx)
-	ret0, _ := ret[0].(math.Int)
+	ret := m.ctrl.Call(m, "IterateBondedValidatorsByPower", arg0, arg1)
+	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// TotalBondedTokens indicates an expected call of TotalBondedTokens.
-func (mr *MockStakingKeeperMockRecorder) TotalBondedTokens(ctx any) *gomock.Call {
+// IterateBondedValidatorsByPower indicates an expected call of IterateBondedValidatorsByPower.
+func (mr *MockStakingKeeperMockRecorder) IterateBondedValidatorsByPower(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TotalBondedTokens", reflect.TypeOf((*MockStakingKeeper)(nil).TotalBondedTokens), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IterateBondedValidatorsByPower", reflect.TypeOf((*MockStakingKeeper)(nil).IterateBondedValidatorsByPower), arg0, arg1)
+}
+
+// TotalBondedTokens mocks base method.
+func (m *MockStakingKeeper) TotalBondedTokens(arg0 context.Context) (math.Int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "TotalBondedTokens", arg0)
+	ret0, _ := ret[0].(math.Int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// TotalBondedTokens indicates an expected call of TotalBondedTokens.
+func (mr *MockStakingKeeperMockRecorder) TotalBondedTokens(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TotalBondedTokens", reflect.TypeOf((*MockStakingKeeper)(nil).TotalBondedTokens), arg0)
 }
 
 // MockRestakeKeeper is a mock of RestakeKeeper interface.

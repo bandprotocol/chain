@@ -1,11 +1,13 @@
 package submitter
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"time"
 
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -14,8 +16,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
-	"github.com/bandprotocol/chain/v2/pkg/logger"
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	"github.com/bandprotocol/chain/v3/pkg/logger"
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 type Submitter struct {
@@ -305,7 +307,7 @@ func (s *Submitter) buildSignedTx(
 		return nil, err
 	}
 
-	err = tx.Sign(txf, key.Name, txb, true)
+	err = tx.Sign(context.Background(), txf, key.Name, txb, true)
 	if err != nil {
 		return nil, err
 	}

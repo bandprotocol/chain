@@ -9,22 +9,27 @@ import (
 	"syscall"
 	"time"
 
-	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client"
-	"github.com/cometbft/cometbft/libs/log"
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	band "github.com/bandprotocol/chain/v2/app"
-	"github.com/bandprotocol/chain/v2/grogu/context"
-	"github.com/bandprotocol/chain/v2/grogu/querier"
-	"github.com/bandprotocol/chain/v2/grogu/signaller"
-	"github.com/bandprotocol/chain/v2/grogu/submitter"
-	"github.com/bandprotocol/chain/v2/grogu/updater"
-	"github.com/bandprotocol/chain/v2/pkg/logger"
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	"cosmossdk.io/log"
+
+	dbm "github.com/cosmos/cosmos-db"
+
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client"
+
+	band "github.com/bandprotocol/chain/v3/app"
+	"github.com/bandprotocol/chain/v3/grogu/context"
+	"github.com/bandprotocol/chain/v3/grogu/querier"
+	"github.com/bandprotocol/chain/v3/grogu/signaller"
+	"github.com/bandprotocol/chain/v3/grogu/submitter"
+	"github.com/bandprotocol/chain/v3/grogu/updater"
+	"github.com/bandprotocol/chain/v3/pkg/logger"
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 const (
@@ -80,26 +85,38 @@ func RunCmd(ctx *context.Context) *cobra.Command {
 
 func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
-		// Initialize encoding config
-		bandConfig := band.MakeEncodingConfig()
-		chainID := viper.GetString(flags.FlagChainID)
-
 		// Initialize logger
-		allowLevel, err := log.AllowLevel(ctx.Config.LogLevel)
+		allowLevel, err := log.ParseLogLevel(ctx.Config.LogLevel)
 		if err != nil {
 			return err
 		}
-		l := logger.New(allowLevel)
+		l := logger.NewLogger(allowLevel)
+
+		initAppOptions := viper.New()
+		tempDir := tempDir()
+		initAppOptions.Set(flags.FlagHome, tempDir)
+		tempApp := band.NewBandApp(
+			log.NewNopLogger(),
+			dbm.NewMemDB(),
+			nil,
+			true,
+			map[int64]bool{},
+			tempDir,
+			initAppOptions,
+			100,
+		)
 
 		// Split Node URIs and create RPC clients
-		clientCtx := client.Context{
-			ChainID:           chainID,
-			Codec:             bandConfig.Marshaler,
-			InterfaceRegistry: bandConfig.InterfaceRegistry,
-			Keyring:           ctx.Keyring,
-			TxConfig:          bandConfig.TxConfig,
-			BroadcastMode:     flags.BroadcastSync,
+		clientCtx, err := client.GetClientQueryContext(cmd)
+		if err != nil {
+			return err
 		}
+		clientCtx = clientCtx.WithKeyring(ctx.Keyring).
+			WithChainID(viper.GetString(flags.FlagChainID)).
+			WithCodec(tempApp.AppCodec()).
+			WithInterfaceRegistry(tempApp.InterfaceRegistry()).
+			WithTxConfig(tempApp.GetTxConfig()).
+			WithBroadcastMode(flags.BroadcastSync)
 
 		nodeURIs := strings.Split(viper.GetString(flagNodes), ",")
 		clients, stopClients, err := createClients(nodeURIs)
@@ -215,4 +232,14 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 
 		return nil
 	}
+}
+
+var tempDir = func() string {
+	dir, err := os.MkdirTemp("", ".band")
+	if err != nil {
+		dir = band.DefaultNodeHome
+	}
+	defer os.RemoveAll(dir)
+
+	return dir
 }

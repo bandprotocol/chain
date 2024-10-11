@@ -3,11 +3,11 @@ package feeds
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/feeds/keeper"
+	"github.com/bandprotocol/chain/v3/x/feeds/keeper"
 )
 
-// HandleEndBlock is a handler function for the EndBlock ABCI request.
-func HandleEndBlock(ctx sdk.Context, k keeper.Keeper) {
+// EndBlocker is a handler function for the EndBlock ABCI request.
+func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	// re-calculate prices of all current feeds
 	k.CalculatePrices(ctx)
 
@@ -16,4 +16,5 @@ func HandleEndBlock(ctx sdk.Context, k keeper.Keeper) {
 		feeds := k.CalculateNewCurrentFeeds(ctx)
 		k.SetCurrentFeeds(ctx, feeds)
 	}
+	return nil
 }
