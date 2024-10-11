@@ -110,7 +110,7 @@ cp ~/.band/config/genesis.json $DIR/genesis.json
 cat <<< $(jq '.app_state.gov.params.voting_period = "60s"' $DIR/genesis.json) > $DIR/genesis.json
 
 # Build
-docker-compose up -d --build
+docker-compose up -d --build --force-recreate
 
 sleep 10
 
