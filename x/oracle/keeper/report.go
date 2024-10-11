@@ -3,6 +3,7 @@ package keeper
 import (
 	dbm "github.com/cosmos/cosmos-db"
 
+	errorsmod "cosmossdk.io/errors"
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
