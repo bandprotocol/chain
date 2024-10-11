@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
 
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 // GetQueryCmd returns the cli query commands for this module

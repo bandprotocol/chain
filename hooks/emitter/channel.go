@@ -5,14 +5,16 @@ import (
 	"fmt"
 	"strings"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	icatypes "github.com/cosmos/ibc-go/v7/modules/apps/27-interchain-accounts/types"
-	ibcxfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	"github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	abci "github.com/cometbft/cometbft/abci/types"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
-	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
+	ibcxfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	"github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/hooks/common"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 func (h *Hook) emitSetChannel(ctx sdk.Context, portId string, channelId string) {
@@ -92,11 +94,34 @@ func (h *Hook) handleMsgAcknowledgement(ctx sdk.Context, msg *types.MsgAcknowled
 				"status": "failure",
 				"reason": events[0],
 			}
+			// Update balance of sender (refund)
+			h.AddAccountsInTx(data.Sender)
 		} else {
 			packet["acknowledgement"] = common.JsDict{
 				"status": "success",
 			}
 		}
+		h.Write("UPDATE_OUTGOING_PACKET", packet)
+	}
+}
+
+func (h *Hook) handleMsgTimeout(ctx sdk.Context, msg *types.MsgTimeout) {
+	packet := common.JsDict{
+		"src_channel": msg.Packet.SourceChannel,
+		"src_port":    msg.Packet.SourcePort,
+		"sequence":    msg.Packet.Sequence,
+		"block_time":  ctx.BlockTime().UnixNano(),
+	}
+	// TODO: Handle other packet type
+	var data ibcxfertypes.FungibleTokenPacketData
+	err := ibcxfertypes.ModuleCdc.UnmarshalJSON(msg.Packet.GetData(), &data)
+	if err == nil {
+		// We use acknowledgement column to track packet status
+		packet["acknowledgement"] = common.JsDict{
+			"status": "timeout",
+		}
+		// Update balance of sender (refund)
+		h.AddAccountsInTx(data.Sender)
 		h.Write("UPDATE_OUTGOING_PACKET", packet)
 	}
 }
@@ -188,7 +213,7 @@ func (h *Hook) extractOracleRequestPacket(
 		if events, ok := evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyID]; ok {
 			var prepareGasUsed uint64
 			if eventRequestGasUsed, ok := evMap[oracletypes.EventTypeRequest+"."+oracletypes.AttributeKeyGasUsed]; ok {
-				prepareGasUsed = oraclekeeper.ConvertToGas(common.Atoui(eventRequestGasUsed[0]))
+				prepareGasUsed = ConvertToGas(common.Atoui(eventRequestGasUsed[0]))
 			}
 
 			id := oracletypes.RequestID(common.Atoi(events[0]))
@@ -272,8 +297,8 @@ func (h *Hook) extractInterchainAccountPacket(
 	ctx sdk.Context,
 	txHash []byte,
 	dataOfPacket []byte,
+	events []abci.Event,
 	evMap common.EvMap,
-	log sdk.ABCIMessageLog,
 	detail common.JsDict,
 	packet common.JsDict,
 ) bool {
@@ -303,13 +328,16 @@ func (h *Hook) extractInterchainAccountPacket(
 		var innerMessages []common.JsDict
 		switch data.Type {
 		case icatypes.EXECUTE_TX:
-			msgs, _ = icatypes.DeserializeCosmosTx(h.cdc, data.Data)
+			msgs, _ = icatypes.DeserializeCosmosTx(h.cdc, data.Data, icatypes.EncodingProtobuf)
 			for _, msg := range msgs {
 				// add signers for this message into the transaction
-				signers := msg.GetSigners()
+				signers, _, err := h.cdc.GetMsgV1Signers(msg)
+				if err != nil {
+					continue
+				}
 				addrs := make([]string, len(signers))
 				for idx, signer := range signers {
-					addrs[idx] = signer.String()
+					addrs[idx] = sdk.AccAddress(signer).String()
 				}
 				h.AddAccountsInTx(addrs...)
 
@@ -323,7 +351,7 @@ func (h *Hook) extractInterchainAccountPacket(
 
 				// call handler for this message if ack is success
 				if status == "success" {
-					h.handleMsg(ctx, txHash, msg, log, msgDetail)
+					h.handleMsg(ctx, txHash, msg, events, msgDetail)
 				}
 			}
 		default:
@@ -354,8 +382,8 @@ func (h *Hook) handleMsgRecvPacket(
 	ctx sdk.Context,
 	txHash []byte,
 	msg *types.MsgRecvPacket,
+	events []abci.Event,
 	evMap common.EvMap,
-	log sdk.ABCIMessageLog,
 	detail common.JsDict,
 ) {
 	packet := newPacket(
@@ -376,7 +404,7 @@ func (h *Hook) handleMsgRecvPacket(
 			h.Write("NEW_INCOMING_PACKET", packet)
 			return
 		}
-		if ok := h.extractInterchainAccountPacket(ctx, txHash, msg.Packet.Data, evMap, log, detail, packet); ok {
+		if ok := h.extractInterchainAccountPacket(ctx, txHash, msg.Packet.Data, events, evMap, detail, packet); ok {
 			h.Write("NEW_INCOMING_PACKET", packet)
 			return
 		}

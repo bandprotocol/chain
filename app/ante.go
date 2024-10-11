@@ -1,24 +1,27 @@
 package band
 
 import (
+	ibcante "github.com/cosmos/ibc-go/v8/modules/core/ante"
+	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
+
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	ibcante "github.com/cosmos/ibc-go/v7/modules/core/ante"
-	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 
-	feedskeeper "github.com/bandprotocol/chain/v2/x/feeds/keeper"
-	"github.com/bandprotocol/chain/v2/x/globalfee/feechecker"
-	globalfeekeeper "github.com/bandprotocol/chain/v2/x/globalfee/keeper"
-	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
+	feedskeeper "github.com/bandprotocol/chain/v3/x/feeds/keeper"
+	"github.com/bandprotocol/chain/v3/x/globalfee/feechecker"
+	globalfeekeeper "github.com/bandprotocol/chain/v3/x/globalfee/keeper"
+	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
 )
 
 // HandlerOptions extend the SDK's AnteHandler options by requiring the IBC
 // channel keeper.
 type HandlerOptions struct {
 	ante.HandlerOptions
+	Cdc             codec.Codec
 	AuthzKeeper     *authzkeeper.Keeper
 	OracleKeeper    *oraclekeeper.Keeper
 	IBCKeeper       *ibckeeper.Keeper
@@ -28,6 +31,9 @@ type HandlerOptions struct {
 }
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
+	if options.Cdc == nil {
+		return nil, sdkerrors.ErrLogic.Wrap("codec is required for AnteHandler")
+	}
 	if options.AccountKeeper == nil {
 		return nil, sdkerrors.ErrLogic.Wrap("account keeper is required for AnteHandler")
 	}
@@ -63,6 +69,7 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 
 	if options.TxFeeChecker == nil {
 		feeChecker := feechecker.NewFeeChecker(
+			options.Cdc,
 			options.AuthzKeeper,
 			options.OracleKeeper,
 			options.GlobalfeeKeeper,

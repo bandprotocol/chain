@@ -4,11 +4,12 @@ import (
 	"sync/atomic"
 	"time"
 
-	coretypes "github.com/cometbft/cometbft/rpc/core/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/bandprotocol/chain/v2/pkg/logger"
+	coretypes "github.com/cometbft/cometbft/rpc/core/types"
+
+	"github.com/bandprotocol/chain/v3/pkg/logger"
 )
 
 func processEvent(

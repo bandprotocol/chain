@@ -2,6 +2,7 @@ package types
 
 import (
 	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -46,5 +47,15 @@ func NewReward(
 	return Reward{
 		Key:     key,
 		Rewards: rewards,
+	}
+}
+
+func NewStake(
+	stakerAddr string,
+	coins sdk.Coins,
+) Stake {
+	return Stake{
+		StakerAddress: stakerAddr,
+		Coins:         coins,
 	}
 }

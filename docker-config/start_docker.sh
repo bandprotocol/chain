@@ -119,7 +119,7 @@ cat <<< $(jq '.app_state.gov.params.voting_period = "60s"' $DIR/genesis.json) > 
 cat <<< $(jq '.app_state.feeds.params.blocks_per_feeds_update = "10"' $DIR/genesis.json) > $DIR/genesis.json
 
 # Build
-docker-compose up -d --build
+docker-compose up -d --build --force-recreate
 
 sleep 10
 
@@ -211,6 +211,7 @@ rm -rf ~/.faucet
 faucet config chain-id bandchain
 faucet config node tcp://query-node:26657
 faucet config port 5005
+faucet config gas-prices "0.0025uband"
 for i in $(eval echo {1..5})
 do
     # add worker key

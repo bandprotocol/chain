@@ -1,12 +1,14 @@
 package emitter
 
 import (
+	abci "github.com/cometbft/cometbft/abci/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/hooks/common"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 func (h *Hook) handleMsgGrant(msg *authz.MsgGrant, detail common.JsDict) {
@@ -64,7 +66,7 @@ func (h *Hook) handleMsgExec(
 	ctx sdk.Context,
 	txHash []byte,
 	emsg *authz.MsgExec,
-	log sdk.ABCIMessageLog,
+	events []abci.Event,
 	detail common.JsDict,
 ) {
 	msgs, _ := emsg.GetMessages()
@@ -80,13 +82,16 @@ func (h *Hook) handleMsgExec(
 			h.handleMsgSubmitSignalPrices(ctx, txHash, msg, grantee)
 		default:
 			// add signers for this message into the transaction
-			signers := msg.GetSigners()
+			signers, _, err := h.cdc.GetMsgV1Signers(msg)
+			if err != nil {
+				continue
+			}
 			addrs := make([]string, len(signers))
 			for idx, signer := range signers {
-				addrs[idx] = signer.String()
+				addrs[idx] = sdk.AccAddress(signer).String()
 			}
 			h.AddAccountsInTx(addrs...)
-			h.handleMsg(ctx, txHash, msg, log, subMsgs[i]["msg"].(common.JsDict))
+			h.handleMsg(ctx, txHash, msg, events, subMsgs[i]["msg"].(common.JsDict))
 		}
 	}
 }

@@ -3,13 +3,15 @@ package keeper
 import (
 	"context"
 
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/query"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/bandprotocol/chain/v2/x/restake/types"
+	"cosmossdk.io/store/prefix"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
+
+	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 // Querier is used as Keeper will have duplicate methods if used directly, and gRPC names take precedence over keeper.
@@ -51,9 +53,9 @@ func (k Querier) Vault(
 ) (*types.QueryVaultResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	vault, err := k.GetVault(ctx, req.Key)
-	if err != nil {
-		return nil, err
+	vault, found := k.GetVault(ctx, req.Key)
+	if !found {
+		return nil, types.ErrVaultNotFound.Wrapf("key: %s", req.Key)
 	}
 
 	return &types.QueryVaultResponse{Vault: vault}, nil
@@ -102,9 +104,9 @@ func (k Querier) Reward(
 		return nil, err
 	}
 
-	lock, err := k.GetLock(ctx, addr, req.Key)
-	if err != nil {
-		return nil, err
+	lock, found := k.GetLock(ctx, addr, req.Key)
+	if !found {
+		return nil, types.ErrLockNotFound.Wrapf("address: %s, key: %s", addr.String(), req.Key)
 	}
 
 	return &types.QueryRewardResponse{
@@ -166,9 +168,9 @@ func (k Querier) Lock(
 		return nil, types.ErrVaultNotActive
 	}
 
-	lock, err := k.GetLock(ctx, addr, req.Key)
-	if err != nil {
-		return nil, err
+	lock, found := k.GetLock(ctx, addr, req.Key)
+	if !found {
+		return nil, types.ErrLockNotFound.Wrapf("address: %s, key: %s", addr.String(), req.Key)
 	}
 
 	return &types.QueryLockResponse{
@@ -176,5 +178,30 @@ func (k Querier) Lock(
 			Key:   lock.Key,
 			Power: lock.Power,
 		},
+	}, nil
+}
+
+// Stake queries stake information of an address.
+func (k Querier) Stake(
+	c context.Context,
+	req *types.QueryStakeRequest,
+) (*types.QueryStakeResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	addr, err := sdk.AccAddressFromBech32(req.StakerAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	stake := k.GetStake(ctx, addr)
+	return &types.QueryStakeResponse{Stake: stake}, nil
+}
+
+// Params queries all params of the module.
+func (k Querier) Params(c context.Context, _ *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	return &types.QueryParamsResponse{
+		Params: k.GetParams(ctx),
 	}, nil
 }

@@ -6,19 +6,21 @@ import (
 	"strings"
 	"sync/atomic"
 
+	"github.com/kyokomi/emoji"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
+	"github.com/cosmos/go-bip39"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/input"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/go-bip39"
-	"github.com/kyokomi/emoji"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
-	band "github.com/bandprotocol/chain/v2/app"
-	grogu "github.com/bandprotocol/chain/v2/grogu/context"
-	"github.com/bandprotocol/chain/v2/grogu/querier"
+	band "github.com/bandprotocol/chain/v3/app"
+	grogu "github.com/bandprotocol/chain/v3/grogu/context"
+	"github.com/bandprotocol/chain/v3/grogu/querier"
 )
 
 const (
@@ -182,15 +184,9 @@ func keysListCmd(ctx *grogu.Context) *cobra.Command {
 
 func createKeysListRunE(ctx *grogu.Context) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
-		bandConfig := band.MakeEncodingConfig()
-
-		clientCtx := client.Context{
-			ChainID:           ctx.Config.ChainID,
-			Codec:             bandConfig.Marshaler,
-			InterfaceRegistry: bandConfig.InterfaceRegistry,
-			Keyring:           ctx.Keyring,
-			TxConfig:          bandConfig.TxConfig,
-			BroadcastMode:     flags.BroadcastSync,
+		clientCtx, err := client.GetClientQueryContext(cmd)
+		if err != nil {
+			return err
 		}
 
 		nodeURIs := strings.Split(viper.GetString(flagNodes), ",")

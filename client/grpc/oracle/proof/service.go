@@ -6,18 +6,22 @@ import (
 	"encoding/json"
 	"fmt"
 
-	rpcclient "github.com/cometbft/cometbft/rpc/client"
-	"github.com/cosmos/cosmos-sdk/client"
-	gogogrpc "github.com/cosmos/gogoproto/grpc"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	rpcclient "github.com/cometbft/cometbft/rpc/client"
+
+	gogogrpc "github.com/cosmos/gogoproto/grpc"
+
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/server/config"
+
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 // RegisterProofService registers the node gRPC service on the provided gRPC router.
-func RegisterProofService(clientCtx client.Context, server gogogrpc.Server) {
-	RegisterServiceServer(server, NewProofServer(clientCtx))
+func RegisterProofService(clientCtx client.Context, server gogogrpc.Server, cfg config.Config) {
+	RegisterServiceServer(server, NewProofServer(clientCtx, cfg))
 }
 
 // RegisterGRPCGatewayRoutes mounts the node gRPC service's GRPC-gateway routes
@@ -32,17 +36,19 @@ var _ ServiceServer = proofServer{}
 // proofServer implements ServiceServer
 type proofServer struct {
 	clientCtx client.Context
+	cfg       config.Config
 }
 
 // NewProofServer returns new proofServer from provided client.Context
-func NewProofServer(clientCtx client.Context) ServiceServer {
+func NewProofServer(clientCtx client.Context, cfg config.Config) ServiceServer {
 	return proofServer{
 		clientCtx: clientCtx,
+		cfg:       cfg,
 	}
 }
 
 // Proof returns a proof from provided request ID and block height
-func (s proofServer) Proof(ctx context.Context, req *QueryProofRequest) (*QueryProofResponse, error) {
+func (s proofServer) Proof(ctx context.Context, req *ProofRequest) (*ProofResponse, error) {
 	cliCtx := s.clientCtx
 	// Set the height in the client context to the requested height
 	cliCtx.Height = req.Height
@@ -55,7 +61,6 @@ func (s proofServer) Proof(ctx context.Context, req *QueryProofRequest) (*QueryP
 
 	// Convert the request ID to the appropriate type
 	requestID := types.RequestID(req.RequestId)
-
 	// Get the commit at the specified height from the client
 	commit, err := cliCtx.Client.Commit(context.Background(), height)
 	if err != nil {
@@ -126,10 +131,10 @@ func (s proofServer) Proof(ctx context.Context, req *QueryProofRequest) (*QueryP
 		return nil, fmt.Errorf("negative height in response")
 	}
 
-	// Return a QueryProofResponse object with the relevant information
-	return &QueryProofResponse{
+	// Return a ProofResponse object with the relevant information
+	return &ProofResponse{
 		Height: cliCtx.Height,
-		Result: SingleProofResponse{
+		Result: SingleProofResult{
 			Proof: SingleProof{
 				BlockHeight:     uint64(commit.Height),
 				OracleDataProof: oracleData,
@@ -141,7 +146,7 @@ func (s proofServer) Proof(ctx context.Context, req *QueryProofRequest) (*QueryP
 }
 
 // MultiProof returns a proof for multiple request IDs
-func (s proofServer) MultiProof(ctx context.Context, req *QueryMultiProofRequest) (*QueryMultiProofResponse, error) {
+func (s proofServer) MultiProof(ctx context.Context, req *MultiProofRequest) (*MultiProofResponse, error) {
 	// Get the client context from the server context
 	cliCtx := s.clientCtx
 	height := &cliCtx.Height
@@ -243,10 +248,10 @@ func (s proofServer) MultiProof(ctx context.Context, req *QueryMultiProofRequest
 		return nil, fmt.Errorf("negative height in response")
 	}
 
-	// Return a QueryMultiProofResponse object with the relevant information
-	return &QueryMultiProofResponse{
+	// Return a MultiProofResponse object with the relevant information
+	return &MultiProofResponse{
 		Height: cliCtx.Height,
-		Result: MultiProofResponse{
+		Result: MultiProofResult{
 			Proof: MultiProof{
 				BlockHeight:          uint64(commit.Height),
 				OracleDataMultiProof: oracleDataList,
@@ -260,8 +265,8 @@ func (s proofServer) MultiProof(ctx context.Context, req *QueryMultiProofRequest
 // RequestCountProof returns a count proof
 func (s proofServer) RequestCountProof(
 	ctx context.Context,
-	req *QueryRequestCountProofRequest,
-) (*QueryRequestCountProofResponse, error) {
+	req *RequestCountProofRequest,
+) (*RequestCountProofResponse, error) {
 	// Get the client context from the server context
 	cliCtx := s.clientCtx
 	height := &cliCtx.Height
@@ -339,10 +344,10 @@ func (s proofServer) RequestCountProof(
 		return nil, fmt.Errorf("negative height in response")
 	}
 
-	// Return the QueryRequestCountProofResponse object with the relevant information
-	return &QueryRequestCountProofResponse{
+	// Return the RequestCountProofResponse object with the relevant information
+	return &RequestCountProofResponse{
 		Height: cliCtx.Height,
-		Result: CountProofResponse{
+		Result: CountProofResult{
 			Proof: CountProof{
 				BlockHeight:     uint64(commit.Height),
 				CountProof:      requestsCountProof,

@@ -13,7 +13,7 @@ import (
 	reflect "reflect"
 
 	price "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
-	types "github.com/bandprotocol/chain/v2/x/feeds/types"
+	types "github.com/bandprotocol/chain/v3/x/feeds/types"
 	types0 "github.com/cosmos/cosmos-sdk/types"
 	gomock "go.uber.org/mock/gomock"
 )
