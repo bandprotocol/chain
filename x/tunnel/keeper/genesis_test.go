@@ -24,7 +24,7 @@ func TestValidateGenesis(t *testing.T) {
 				Params: types.DefaultParams(),
 			},
 			requireErr: true,
-			errMsg:     "invalid identifier",
+			errMsg:     "invalid port ID",
 		},
 		"length of tunnels does not match tunnel count": {
 			genesis: &types.GenesisState{

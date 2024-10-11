@@ -1,6 +1,10 @@
 package types
 
-import "fmt"
+import (
+	"fmt"
+
+	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+)
 
 // NewGenesisState creates a new GenesisState instanc e
 func NewGenesisState(
@@ -28,6 +32,11 @@ func DefaultGenesisState() *GenesisState {
 
 // ValidateGenesis validates the provided genesis state.
 func ValidateGenesis(data GenesisState) error {
+	// validate the port ID
+	if err := host.PortIdentifierValidator(data.PortID); err != nil {
+		return ErrInvalidGenesis.Wrapf("invalid port ID: %s", err.Error())
+	}
+
 	// validate the tunnel count
 	if uint64(len(data.Tunnels)) != data.TunnelCount {
 		return ErrInvalidGenesis.Wrapf("length of tunnels does not match tunnel count")
