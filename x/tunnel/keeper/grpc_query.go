@@ -14,9 +14,9 @@ import (
 
 var _ types.QueryServer = queryServer{}
 
-type queryServer struct{ k *Keeper }
+type queryServer struct{ k Keeper }
 
-func NewQueryServer(k *Keeper) types.QueryServer {
+func NewQueryServer(k Keeper) types.QueryServer {
 	return queryServer{k: k}
 }
 
@@ -135,7 +135,7 @@ func (q queryServer) Packets(c context.Context, req *types.QueryPacketsRequest) 
 func (q queryServer) Packet(c context.Context, req *types.QueryPacketRequest) (*types.QueryPacketResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	packet, err := q.k.GetPacket(ctx, req.TunnelId, req.Nonce)
+	packet, err := q.k.GetPacket(ctx, req.TunnelId, req.Sequence)
 	if err != nil {
 		return nil, err
 	}

@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -13,11 +14,11 @@ import (
 var _ types.MsgServer = msgServer{}
 
 type msgServer struct {
-	*Keeper
+	Keeper
 }
 
 // NewMsgServerImpl returns an implementation of the x/tunnel MsgServer interface.
-func NewMsgServerImpl(keeper *Keeper) types.MsgServer {
+func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 	return &msgServer{Keeper: keeper}
 }
 
@@ -42,10 +43,15 @@ func (ms msgServer) CreateTunnel(
 		return nil, err
 	}
 
+	route, ok := req.Route.GetCachedValue().(types.RouteI)
+	if !ok {
+		return nil, errors.New("cannot create tunnel, failed to convert proto Any to routeI")
+	}
+
 	// add a new tunnel
 	tunnel, err := ms.Keeper.AddTunnel(
 		ctx,
-		req.Route,
+		route,
 		req.Encoder,
 		req.SignalDeviations,
 		req.Interval,
@@ -77,7 +83,7 @@ func (ms msgServer) CreateTunnel(
 	)
 	for _, sd := range req.SignalDeviations {
 		event = event.AppendAttributes(
-			sdk.NewAttribute(types.AttributeKeySignalPriceInfos, sd.String()),
+			sdk.NewAttribute(types.AttributeKeySignalDeviation, sd.String()),
 		)
 	}
 	ctx.EventManager().EmitEvent(event)
@@ -198,7 +204,7 @@ func (ms msgServer) TriggerTunnel(
 		return nil, types.ErrInactiveTunnel.Wrapf("tunnelID %d", req.TunnelID)
 	}
 
-	currentPrices := ms.Keeper.feedsKeeper.GetCurrentPrices(ctx)
+	currentPrices := ms.Keeper.feedsKeeper.GetAllCurrentPrices(ctx)
 	currentPricesMap := createPricesMap(currentPrices)
 
 	// produce packet with trigger all signals

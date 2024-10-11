@@ -121,7 +121,7 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 		if err != nil {
 			return err
 		}
-		bothanService, err := bothan.NewGRPC(ctx.Config.Bothan, timeout)
+		bothanService, err := bothan.NewGrpcClient(ctx.Config.Bothan, timeout)
 		if err != nil {
 			return err
 		}
@@ -191,6 +191,7 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 
 		updaterService := updater.New(
 			feedQuerier,
+			bothanService,
 			clients,
 			l,
 			maxCurrentFeedEventHeight,

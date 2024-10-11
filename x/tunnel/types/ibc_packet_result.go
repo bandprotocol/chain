@@ -5,13 +5,13 @@ import sdk "github.com/cosmos/cosmos-sdk/types"
 // IBCPacket defines the packet sent over the IBC channel
 func NewIBCPacketResult(
 	tunnelID uint64,
-	nonce uint64,
+	sequence uint64,
 	signalPrices []SignalPrice,
 	created_at int64,
 ) IBCPacketResult {
 	return IBCPacketResult{
 		TunnelID:     tunnelID,
-		Nonce:        nonce,
+		Sequence:     sequence,
 		SignalPrices: signalPrices,
 		CreatedAt:    created_at,
 	}

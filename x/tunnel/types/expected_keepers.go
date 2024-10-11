@@ -63,7 +63,7 @@ type ScopedKeeper interface {
 }
 
 type FeedsKeeper interface {
-	GetCurrentPrices(ctx sdk.Context) (prices []feedstypes.Price)
+	GetAllCurrentPrices(ctx sdk.Context) (prices []feedstypes.Price)
 }
 
 type BandtssKeeper interface {

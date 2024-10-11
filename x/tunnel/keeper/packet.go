@@ -29,14 +29,14 @@ func (k Keeper) DeductBasePacketFee(ctx sdk.Context, feePayer sdk.AccAddress) er
 // SetPacket sets a packet in the store
 func (k Keeper) SetPacket(ctx sdk.Context, packet types.Packet) {
 	ctx.KVStore(k.storeKey).
-		Set(types.TunnelPacketStoreKey(packet.TunnelID, packet.Nonce), k.cdc.MustMarshal(&packet))
+		Set(types.TunnelPacketStoreKey(packet.TunnelID, packet.Sequence), k.cdc.MustMarshal(&packet))
 }
 
 // GetPacket retrieves a packet by its tunnel ID and packet ID
-func (k Keeper) GetPacket(ctx sdk.Context, tunnelID uint64, nonce uint64) (types.Packet, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.TunnelPacketStoreKey(tunnelID, nonce))
+func (k Keeper) GetPacket(ctx sdk.Context, tunnelID uint64, sequence uint64) (types.Packet, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.TunnelPacketStoreKey(tunnelID, sequence))
 	if bz == nil {
-		return types.Packet{}, types.ErrPacketNotFound.Wrapf("tunnelID: %d, nonce: %d", tunnelID, nonce)
+		return types.Packet{}, types.ErrPacketNotFound.Wrapf("tunnelID: %d, sequence: %d", tunnelID, sequence)
 	}
 
 	var packet types.Packet
@@ -45,8 +45,8 @@ func (k Keeper) GetPacket(ctx sdk.Context, tunnelID uint64, nonce uint64) (types
 }
 
 // MustGetPacket retrieves a packet by its tunnel ID and packet ID and panics if the packet does not exist
-func (k Keeper) MustGetPacket(ctx sdk.Context, tunnelID uint64, nonce uint64) types.Packet {
-	packet, err := k.GetPacket(ctx, tunnelID, nonce)
+func (k Keeper) MustGetPacket(ctx sdk.Context, tunnelID uint64, sequence uint64) types.Packet {
+	packet, err := k.GetPacket(ctx, tunnelID, sequence)
 	if err != nil {
 		panic(err)
 	}
@@ -58,7 +58,7 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 	// get active tunnel IDs
 	ids := k.GetActiveTunnelIDs(ctx)
 
-	currentPrices := k.feedsKeeper.GetCurrentPrices(ctx)
+	currentPrices := k.feedsKeeper.GetAllCurrentPrices(ctx)
 	currentPricesMap := createPricesMap(currentPrices)
 
 	// check for active tunnels
@@ -102,8 +102,8 @@ func (k Keeper) ProducePacket(
 	latestSignalPrices := k.MustGetLatestSignalPrices(ctx, tunnelID)
 
 	// check if the interval has passed
-	intervalTrigger := unixNow >= int64(tunnel.Interval)+latestSignalPrices.Timestamp
-	triggerAll = triggerAll || intervalTrigger
+	isIntervalReached := unixNow >= int64(tunnel.Interval)+latestSignalPrices.Timestamp
+	triggerAll = triggerAll || isIntervalReached
 
 	// generate new signal prices
 	nsps := GenerateSignalPrices(
@@ -125,10 +125,13 @@ func (k Keeper) ProducePacket(
 		return sdkerrors.Wrapf(err, "failed to deduct base packet fee for tunnel %d", tunnel.ID)
 	}
 
-	// increment nonce count
-	tunnel.NonceCount++
+	// increment sequence number
+	tunnel.Sequence++
 
-	newPacket := types.NewPacket(tunnel.ID, tunnel.NonceCount, nsps, nil, unixNow)
+	newPacket, err := types.NewPacket(tunnel.ID, tunnel.Sequence, nsps, unixNow)
+	if err != nil {
+		return sdkerrors.Wrapf(err, "failed to create packet for tunnel %d", tunnel.ID)
+	}
 	if err := k.SendPacket(ctx, tunnel, newPacket); err != nil {
 		return sdkerrors.Wrapf(err, "route %s failed to send packet", tunnel.Route.TypeUrl)
 	}
@@ -140,7 +143,7 @@ func (k Keeper) ProducePacket(
 	}
 	k.SetLatestSignalPrices(ctx, latestSignalPrices)
 
-	// update nonce count
+	// update sequence number
 	k.SetTunnel(ctx, tunnel)
 
 	return nil

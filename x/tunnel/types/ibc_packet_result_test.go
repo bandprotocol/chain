@@ -19,7 +19,7 @@ func TestGetByteIBCPacket(t *testing.T) {
 	require.Equal(
 		t,
 		[]byte(
-			`{"created_at":"0","nonce":"1","signal_prices":[{"price":"1000","signal_id":"BTC"}],"tunnel_id":"1"}`,
+			`{"created_at":"0","sequence":"1","signal_prices":[{"price":"1000","signal_id":"BTC"}],"tunnel_id":"1"}`,
 		),
 		packet.GetBytes(),
 	)

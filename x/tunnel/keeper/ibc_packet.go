@@ -29,7 +29,7 @@ func (k Keeper) SendIBCPacket(
 	// create the IBC packet result bytes
 	resultBytes := types.NewIBCPacketResult(
 		packet.TunnelID,
-		packet.Nonce,
+		packet.Sequence,
 		packet.SignalPrices,
 		packet.CreatedAt,
 	).GetBytes()

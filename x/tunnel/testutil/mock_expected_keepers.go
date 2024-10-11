@@ -368,18 +368,18 @@ func (m *MockFeedsKeeper) EXPECT() *MockFeedsKeeperMockRecorder {
 	return m.recorder
 }
 
-// GetCurrentPrices mocks base method.
-func (m *MockFeedsKeeper) GetCurrentPrices(ctx types2.Context) []types0.Price {
+// GetAllCurrentPrices mocks base method.
+func (m *MockFeedsKeeper) GetAllCurrentPrices(ctx types2.Context) []types0.Price {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCurrentPrices", ctx)
+	ret := m.ctrl.Call(m, "GetAllCurrentPrices", ctx)
 	ret0, _ := ret[0].([]types0.Price)
 	return ret0
 }
 
-// GetCurrentPrices indicates an expected call of GetCurrentPrices.
-func (mr *MockFeedsKeeperMockRecorder) GetCurrentPrices(ctx any) *gomock.Call {
+// GetAllCurrentPrices indicates an expected call of GetAllCurrentPrices.
+func (mr *MockFeedsKeeperMockRecorder) GetAllCurrentPrices(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCurrentPrices", reflect.TypeOf((*MockFeedsKeeper)(nil).GetCurrentPrices), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllCurrentPrices", reflect.TypeOf((*MockFeedsKeeper)(nil).GetAllCurrentPrices), ctx)
 }
 
 // MockBandtssKeeper is a mock of BandtssKeeper interface.

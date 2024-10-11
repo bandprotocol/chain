@@ -95,6 +95,8 @@ func (s *SubmitterTestSuite) SetupTest() {
 		}).
 		AnyTimes()
 
+	mockRPCClients := []rpcclient.RemoteClient{mockClient}
+
 	mockAuthQuerier := testutil.NewMockAuthQuerier(ctrl)
 	mockAuthQuerier.EXPECT().
 		QueryAccount(gomock.Any()).
@@ -113,8 +115,6 @@ func (s *SubmitterTestSuite) SetupTest() {
 		QueryTx(gomock.Any()).
 		Return(&sdk.TxResponse{TxHash: "mock-tx-hash", Code: 0}, nil).
 		AnyTimes()
-
-	mockRPCClients := []rpcclient.RemoteClient{mockClient}
 
 	// Initialize logger
 	allowLevel, _ := log.AllowLevel("info")

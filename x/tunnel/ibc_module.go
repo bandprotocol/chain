@@ -17,11 +17,11 @@ import (
 
 // IBCModule implements the ICS26 interface for tunnel given the tunnel keeper.
 type IBCModule struct {
-	keeper *keeper.Keeper
+	keeper keeper.Keeper
 }
 
 // NewIBCModule creates a new IBCModule given the keeper
-func NewIBCModule(keeper *keeper.Keeper) IBCModule {
+func NewIBCModule(keeper keeper.Keeper) IBCModule {
 	return IBCModule{
 		keeper: keeper,
 	}
@@ -65,7 +65,7 @@ func (im IBCModule) OnChanOpenInit(
 	counterparty channeltypes.Counterparty,
 	version string,
 ) (string, error) {
-	err := validateChannelParams(ctx, *im.keeper, order, portID)
+	err := validateChannelParams(ctx, im.keeper, order, portID)
 	if err != nil {
 		return "", err
 	}
@@ -89,7 +89,7 @@ func (im IBCModule) OnChanOpenTry(
 	counterparty channeltypes.Counterparty,
 	counterpartyVersion string,
 ) (string, error) {
-	err := validateChannelParams(ctx, *im.keeper, order, portID)
+	err := validateChannelParams(ctx, im.keeper, order, portID)
 	if err != nil {
 		return "", err
 	}

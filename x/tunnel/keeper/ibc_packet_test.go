@@ -17,7 +17,7 @@ func (s *KeeperTestSuite) TestSendIBCPacket() {
 	}
 	packet := types.Packet{
 		TunnelID:     1,
-		Nonce:        1,
+		Sequence:     1,
 		SignalPrices: []types.SignalPrice{},
 		CreatedAt:    time.Now().Unix(),
 	}

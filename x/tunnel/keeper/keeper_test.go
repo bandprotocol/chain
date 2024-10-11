@@ -6,7 +6,6 @@ import (
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
@@ -24,7 +23,7 @@ import (
 type KeeperTestSuite struct {
 	suite.Suite
 
-	keeper      *keeper.Keeper
+	keeper      keeper.Keeper
 	queryServer types.QueryServer
 	msgServer   types.MsgServer
 
@@ -110,12 +109,10 @@ func (s *KeeperTestSuite) AddSampleTunnel(isActive bool) {
 		DestinationChainID:         "chain-1",
 		DestinationContractAddress: "0x1234567890abcdef",
 	}
-	routeAny, err := codectypes.NewAnyWithValue(route)
-	s.Require().NoError(err)
 
 	tunnel, err := k.AddTunnel(
 		ctx,
-		routeAny,
+		route,
 		types.ENCODER_FIXED_POINT_ABI,
 		signalDeviations,
 		10,

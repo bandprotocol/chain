@@ -1,28 +1,24 @@
 package types
 
 import (
-	"fmt"
-
 	"github.com/cosmos/cosmos-sdk/codec/types"
-	proto "github.com/cosmos/gogoproto/proto"
 )
 
 var _ types.UnpackInterfacesMessage = Packet{}
 
 func NewPacket(
 	tunnelID uint64,
-	nonce uint64,
+	sequence uint64,
 	signalPrices []SignalPrice,
-	packetContent *types.Any,
 	createdAt int64,
-) Packet {
+) (Packet, error) {
 	return Packet{
 		TunnelID:      tunnelID,
-		Nonce:         nonce,
+		Sequence:      sequence,
 		SignalPrices:  signalPrices,
-		PacketContent: packetContent,
+		PacketContent: nil,
 		CreatedAt:     createdAt,
-	}
+	}, nil
 }
 
 // UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
@@ -33,11 +29,7 @@ func (p Packet) UnpackInterfaces(unpacker types.AnyUnpacker) error {
 
 // SetPacketContent sets the packet content of the packet.
 func (p *Packet) SetPacketContent(packetContent PacketContentI) error {
-	msg, ok := packetContent.(proto.Message)
-	if !ok {
-		return fmt.Errorf("can't proto marshal %T", msg)
-	}
-	any, err := types.NewAnyWithValue(msg)
+	any, err := types.NewAnyWithValue(packetContent)
 	if err != nil {
 		return err
 	}
@@ -50,7 +42,7 @@ func (p *Packet) SetPacketContent(packetContent PacketContentI) error {
 func (p Packet) GetContent() (PacketContentI, error) {
 	packetContent, ok := p.PacketContent.GetCachedValue().(PacketContentI)
 	if !ok {
-		return nil, ErrNoPacketContent.Wrapf("tunnelID: %d, nonce: %d", p.TunnelID, p.Nonce)
+		return nil, ErrNoPacketContent.Wrapf("tunnelID: %d, sequence: %d", p.TunnelID, p.Sequence)
 	}
 
 	return packetContent, nil

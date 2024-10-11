@@ -273,8 +273,8 @@ func GetQueryCmdPackets() *cobra.Command {
 // GetQueryCmdPacket implements the query packet command.
 func GetQueryCmdPacket() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "packet [tunnel-id] [nonce]",
-		Short: "Query a packet by tunnel id and nonce",
+		Use:   "packet [tunnel-id] [sequence]",
+		Short: "Query a packet by tunnel id and sequence",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -289,14 +289,14 @@ func GetQueryCmdPacket() *cobra.Command {
 				return err
 			}
 
-			nonce, err := strconv.ParseUint(args[1], 10, 64)
+			sequence, err := strconv.ParseUint(args[1], 10, 64)
 			if err != nil {
 				return err
 			}
 
 			res, err := queryClient.Packet(cmd.Context(), &types.QueryPacketRequest{
 				TunnelId: tunnelID,
-				Nonce:    nonce,
+				Sequence: sequence,
 			})
 			if err != nil {
 				return err

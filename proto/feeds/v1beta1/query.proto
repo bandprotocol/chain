@@ -12,6 +12,11 @@ import "feeds/v1beta1/params.proto";
 
 // Query defines the gRPC querier service.
 service Query {
+  // AllCurrentPrices is an RPC method that returns a list of current prices.
+  rpc AllCurrentPrices(QueryAllCurrentPricesRequest) returns (QueryAllCurrentPricesResponse) {
+    option (google.api.http).get = "/feeds/v1beta1/all-current-prices";
+  }
+
   // CurrentFeeds is an RPC method that returns a list of current supported feeds.
   rpc CurrentFeeds(QueryCurrentFeedsRequest) returns (QueryCurrentFeedsResponse) {
     option (google.api.http).get = "/feeds/v1beta1/current-feeds";
@@ -19,7 +24,7 @@ service Query {
 
   // CurrentPrices is an RPC method that returns a list of current prices.
   rpc CurrentPrices(QueryCurrentPricesRequest) returns (QueryCurrentPricesResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/current-prices";
+    option (google.api.http).get = "/feeds/v1beta1/current-prices/{signal_ids}";
   }
 
   // DelegatorSignals is an RPC method that returns signals of a delegator.
@@ -69,6 +74,15 @@ service Query {
   }
 }
 
+// QueryAllCurrentPricesRequest is the request type for the Query/AllCurrentPrices RPC method.
+message QueryAllCurrentPricesRequest {}
+
+// QueryAllCurrentPricesResponse is the response type for the Query/AllCurrentPrices RPC method.
+message QueryAllCurrentPricesResponse {
+  // prices is a list of current prices.
+  repeated Price prices = 1 [(gogoproto.nullable) = false];
+}
+
 // QueryCurrentFeedsRequest is the request type for the Query/CurrentFeeds RPC method.
 message QueryCurrentFeedsRequest {}
 
@@ -79,7 +93,10 @@ message QueryCurrentFeedsResponse {
 }
 
 // QueryCurrentPricesRequest is the request type for the Query/CurrentPrices RPC method.
-message QueryCurrentPricesRequest {}
+message QueryCurrentPricesRequest {
+  // signal_ids is a list of signal ids to query prices for.
+  repeated string signal_ids = 1;
+}
 
 // QueryCurrentPricesResponse is the response type for the Query/CurrentPrices RPC method.
 message QueryCurrentPricesResponse {

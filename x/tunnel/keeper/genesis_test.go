@@ -21,6 +21,7 @@ func TestValidateGenesis(t *testing.T) {
 		"invalid port ID": {
 			genesis: &types.GenesisState{
 				PortID: "invalid/id",
+				Params: types.DefaultParams(),
 			},
 			requireErr: true,
 			errMsg:     "invalid identifier",
@@ -139,7 +140,7 @@ func TestValidateGenesis(t *testing.T) {
 
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
-			err := keeper.ValidateGenesis(tc.genesis)
+			err := types.ValidateGenesis(*tc.genesis)
 			if tc.requireErr {
 				require.Error(t, err)
 				require.Contains(t, err.Error(), tc.errMsg)

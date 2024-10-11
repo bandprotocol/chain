@@ -38,12 +38,12 @@ func (s *KeeperTestSuite) TestGetSetPacket() {
 
 	packet := types.Packet{
 		TunnelID: 1,
-		Nonce:    1,
+		Sequence: 1,
 	}
 
 	k.SetPacket(ctx, packet)
 
-	storedPacket, err := k.GetPacket(ctx, packet.TunnelID, packet.Nonce)
+	storedPacket, err := k.GetPacket(ctx, packet.TunnelID, packet.Sequence)
 	s.Require().NoError(err)
 	s.Require().Equal(packet, storedPacket)
 }
@@ -112,7 +112,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 		DestinationContractAddress: "0x",
 	}
 
-	s.feedsKeeper.EXPECT().GetCurrentPrices(gomock.Any()).Return([]feedstypes.Price{
+	s.feedsKeeper.EXPECT().GetAllCurrentPrices(gomock.Any()).Return([]feedstypes.Price{
 		{PriceStatus: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
 	})
 	s.bankKeeper.EXPECT().SpendableCoins(gomock.Any(), feePayer).Return(types.DefaultBasePacketFee)
@@ -143,7 +143,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 	newTunnelInfo, err := k.GetTunnel(ctx, tunnelID)
 	s.Require().NoError(err)
 	s.Require().True(newTunnelInfo.IsActive)
-	s.Require().Equal(newTunnelInfo.NonceCount, uint64(1))
+	s.Require().Equal(newTunnelInfo.Sequence, uint64(1))
 
 	activeTunnels := k.GetActiveTunnelIDs(ctx)
 	s.Require().Equal([]uint64{1}, activeTunnels)
@@ -168,7 +168,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPacketsNotEnoughMoney() {
 		DestinationContractAddress: "0x",
 	}
 
-	s.feedsKeeper.EXPECT().GetCurrentPrices(gomock.Any()).Return([]feedstypes.Price{
+	s.feedsKeeper.EXPECT().GetAllCurrentPrices(gomock.Any()).Return([]feedstypes.Price{
 		{PriceStatus: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
 	})
 	s.bankKeeper.EXPECT().SpendableCoins(gomock.Any(), feePayer).
@@ -197,7 +197,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPacketsNotEnoughMoney() {
 	newTunnelInfo, err := k.GetTunnel(ctx, tunnelID)
 	s.Require().NoError(err)
 	s.Require().False(newTunnelInfo.IsActive)
-	s.Require().Equal(newTunnelInfo.NonceCount, uint64(0))
+	s.Require().Equal(newTunnelInfo.Sequence, uint64(0))
 
 	activeTunnels := k.GetActiveTunnelIDs(ctx)
 	s.Require().Len(activeTunnels, 0)
