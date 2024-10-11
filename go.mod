@@ -30,7 +30,7 @@ require (
 	github.com/cosmos/ics23/go v0.11.0
 	github.com/ethereum/go-ethereum v1.14.8
 	github.com/gin-gonic/gin v1.8.1
-	github.com/go-sql-driver/mysql v1.7.0
+	github.com/go-sql-driver/mysql v1.8.1
 	github.com/golang/protobuf v1.5.4
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
@@ -52,18 +52,14 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20240624140628-dc46fd24d27d
 	google.golang.org/grpc v1.66.2
 	google.golang.org/protobuf v1.34.2
+	gopkg.in/yaml.v2 v2.4.0
 	sigs.k8s.io/yaml v1.4.0
 )
 
 // extra/rest deps
 require (
 	cosmossdk.io/collections v0.4.0
-	github.com/gin-gonic/gin v1.8.1
-	github.com/go-sql-driver/mysql v1.8.1
 	github.com/patrickmn/go-cache v2.1.0+incompatible
-	github.com/segmentio/kafka-go v0.4.47
-	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d
-	golang.org/x/time v0.5.0
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/driver/postgres v1.5.9
 	gorm.io/driver/sqlite v1.5.6
