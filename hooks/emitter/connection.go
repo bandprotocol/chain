@@ -2,9 +2,9 @@ package emitter
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/ibc-go/v7/modules/core/03-connection/types"
+	"github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
+	"github.com/bandprotocol/chain/v3/hooks/common"
 )
 
 func (h *Hook) emitConnection(ctx sdk.Context, connectionId string) {

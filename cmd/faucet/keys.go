@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/go-bip39"
 	"github.com/spf13/cobra"
 
-	band "github.com/bandprotocol/chain/v2/app"
+	band "github.com/bandprotocol/chain/v3/app"
 )
 
 const (

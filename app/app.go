@@ -57,6 +57,7 @@ import (
 	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
 	nodeservice "github.com/bandprotocol/chain/v3/client/grpc/node"
 	proofservice "github.com/bandprotocol/chain/v3/client/grpc/oracle/proof"
+	"github.com/bandprotocol/chain/v3/hooks/common"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
 )
 
@@ -89,10 +90,6 @@ type BandApp struct {
 	mm           *module.Manager
 	ModuleBasics module.BasicManager
 
-	// Deliver context, set during InitGenesis/BeginBlock and cleared during Commit. It allows
-	// anyone with access to BandApp to read/mutate consensus state anytime. USE WITH CARE!
-	DeliverContext sdk.Context
-
 	// List of hooks
 	hooks common.Hooks
 
@@ -120,9 +117,6 @@ func NewBandApp(
 	homePath string,
 	appOpts servertypes.AppOptions,
 	owasmCacheSize uint32,
-	emitterFlag,
-	requestSearchFlag,
-	pricerFlag string,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *BandApp {
 	legacyAmino := codec.NewLegacyAmino()
@@ -189,65 +183,7 @@ func NewBandApp(
 		owasmCacheSize,
 	)
 
-	if emitterFlag != "" {
-		app.hooks = append(app.hooks, emitter.NewHook(
-			appCodec,
-			app.LegacyAmino(),
-			encodingConfig,
-			app.AccountKeeper,
-			app.BankKeeper,
-			app.StakingKeeper,
-			app.MintKeeper,
-			app.DistrKeeper,
-			app.GovKeeper,
-			app.GroupKeeper,
-			app.OracleKeeper,
-			app.ICAHostKeeper,
-			app.IBCKeeper.ClientKeeper,
-			app.IBCKeeper.ConnectionKeeper,
-			app.IBCKeeper.ChannelKeeper,
-			keys[group.StoreKey],
-			emitterFlag,
-			false,
-		))
-	}
-
-	if requestSearchFlag != "" {
-		app.hooks = append(
-			app.hooks,
-			request.NewHook(appCodec, app.OracleKeeper, requestSearchFlag, 10),
-		)
-	}
-
-	if pricerFlag != "" {
-		pricerStrArgs := strings.Split(pricerFlag, "/")
-		var defaultAskCount, defaultMinCount uint64
-		if len(pricerStrArgs) == 3 {
-			defaultAskCount, err = strconv.ParseUint(pricerStrArgs[1], 10, 64)
-			if err != nil {
-				panic(err)
-			}
-			defaultMinCount, err = strconv.ParseUint(pricerStrArgs[2], 10, 64)
-			if err != nil {
-				panic(err)
-			}
-		} else if len(pricerStrArgs) == 2 || len(pricerStrArgs) > 3 {
-			panic(fmt.Errorf("accepts 1 or 3 arg(s), received %d", len(pricerStrArgs)))
-		}
-		rawOracleIDs := strings.Split(pricerStrArgs[0], ",")
-		var oracleIDs []oracletypes.OracleScriptID
-		for _, rawOracleID := range rawOracleIDs {
-			oracleID, err := strconv.ParseInt(rawOracleID, 10, 64)
-			if err != nil {
-				panic(err)
-			}
-			oracleIDs = append(oracleIDs, oracletypes.OracleScriptID(oracleID))
-		}
-		app.hooks = append(app.hooks,
-			price.NewHook(appCodec, app.OracleKeeper, oracleIDs,
-				filepath.Join(homePath, "prices"),
-				defaultAskCount, defaultMinCount))
-	}
+	app.hooks = NewAppHooks(appCodec, txConfig, &app.AppKeepers, homePath, appOpts)
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
@@ -337,10 +273,7 @@ func NewBandApp(
 				FeegrantKeeper:  app.FeeGrantKeeper,
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
-			Cdc:             app.appCodec,
-			AuthzKeeper:     &app.AuthzKeeper,
 			OracleKeeper:    &app.OracleKeeper,
-			FeedsKeeper:     &app.FeedsKeeper,
 			IBCKeeper:       app.IBCKeeper,
 			StakingKeeper:   app.StakingKeeper,
 			GlobalfeeKeeper: &app.GlobalFeeKeeper,
@@ -419,14 +352,6 @@ func (app *BandApp) EndBlocker(ctx sdk.Context) (sdk.EndBlock, error) {
 	return app.mm.EndBlock(ctx)
 }
 
-// Commit overrides the default BaseApp's ABCI commit by adding DeliverContext clearing.
-func (app *BandApp) Commit() (res abci.ResponseCommit) {
-	app.hooks.BeforeCommit()
-	app.DeliverContext = sdk.Context{}
-
-	return app.BaseApp.Commit()
-}
-
 // InitChainer application update at chain initialization
 func (app *BandApp) InitChainer(ctx sdk.Context, req *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
 	var genesisState GenesisState
@@ -441,6 +366,8 @@ func (app *BandApp) InitChainer(ctx sdk.Context, req *abci.RequestInitChain) (*a
 	if err != nil {
 		panic(err)
 	}
+
+	app.hooks.AfterInitChain(ctx, req, response)
 
 	return response, nil
 }
@@ -535,23 +462,21 @@ func (app *BandApp) RegisterTendermintService(clientCtx client.Context) {
 	cmtservice.RegisterTendermintService(clientCtx, app.BaseApp.GRPCQueryRouter(), app.interfaceRegistry, app.Query)
 }
 
-// AutoCliOpts returns the autocli options for the app.
-func (app *BandApp) AutoCliOpts() autocli.AppOptions {
-	modules := make(map[string]appmodule.AppModule, 0)
-	for _, m := range app.mm.Modules {
-		if moduleWithName, ok := m.(module.HasName); ok {
-			moduleName := moduleWithName.Name()
-			if appModule, ok := moduleWithName.(appmodule.AppModule); ok {
-				modules[moduleName] = appModule
-			}
-		}
+// configure store loader that checks if version == upgradeHeight and applies store upgrades
+func (app *BandApp) setupUpgradeStoreLoaders() {
+	upgradeInfo, err := app.UpgradeKeeper.ReadUpgradeInfoFromDisk()
+	if err != nil {
+		panic(fmt.Sprintf("failed to read upgrade info from disk %s", err))
 	}
 
-	return autocli.AppOptions{
-		Modules:               modules,
-		AddressCodec:          authcodec.NewBech32Codec(sdk.GetConfig().GetBech32AccountAddrPrefix()),
-		ValidatorAddressCodec: authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ValidatorAddrPrefix()),
-		ConsensusAddressCodec: authcodec.NewBech32Codec(sdk.GetConfig().GetBech32ConsensusAddrPrefix()),
+	if app.UpgradeKeeper.IsSkipHeight(upgradeInfo.Height) {
+		return
+	}
+
+	for idx, upgrade := range Upgrades {
+		if upgradeInfo.Name == upgrade.UpgradeName {
+			app.SetStoreLoader(upgradetypes.UpgradeStoreLoader(upgradeInfo.Height, &Upgrades[idx].StoreUpgrades))
+		}
 	}
 }
 

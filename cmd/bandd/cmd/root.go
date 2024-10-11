@@ -50,15 +50,7 @@ import (
 	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 
 	band "github.com/bandprotocol/chain/v3/app"
-	"github.com/bandprotocol/chain/v3/app/params"
-)
-
-const (
-	flagWithEmitter            = "with-emitter"
-	flagWithPricer             = "with-pricer"
-	flagWithRequestSearch      = "with-request-search"
-	flagRequestSearchCacheSize = "request-search-cache-size"
-	flagWithOwasmCacheSize     = "oracle-script-cache-size"
+	"github.com/bandprotocol/chain/v3/x/oracle"
 )
 
 // NewRootCmd creates a new root command for simd. It is called once in the
@@ -230,13 +222,15 @@ func initRootCmd(
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
 	oracle.AddModuleInitFlags(startCmd)
-	startCmd.Flags().Uint32(flagWithOwasmCacheSize, 100, "[Experimental] Number of oracle scripts to cache")
-	startCmd.Flags().String(flagWithRequestSearch, "", "[Experimental] Enable mode to save request in sql database")
+
+	// Add hooks flag
 	startCmd.Flags().
-		Int(flagRequestSearchCacheSize, 10, "[Experimental] indicates number of latest oracle requests to be stored in database")
-	startCmd.Flags().String(flagWithEmitter, "", "[Experimental] Enable mode to save request in sql database")
+		String(band.FlagWithRequestSearch, "", "[Experimental] Enable mode to save request in sql database")
 	startCmd.Flags().
-		String(flagWithPricer, "", "[Experimental] Enable collecting standard price reference provided by given oracle script id and save in level db (Input format: [id-comma-separated]/[defaultAskCount]/[defaultMinCount])")
+		Int(band.FlagRequestSearchCacheSize, 10, "[Experimental] indicates number of latest oracle requests to be stored in database")
+	startCmd.Flags().String(band.FlagWithEmitter, "", "[Experimental] Enable mode to save request in sql database")
+	startCmd.Flags().
+		String(band.FlagWithPricer, "", "[Experimental] Enable collecting standard price reference provided by given oracle script id and save in level db (Input format: [id-comma-separated]/[defaultAskCount]/[defaultMinCount])")
 }
 
 // genesisCommand builds genesis-related `bandd genesis` command. Users may provide application specific commands as a parameter
@@ -428,9 +422,6 @@ func (a appCreator) appExport(
 		homePath,
 		appOpts,
 		cast.ToUint32(appOpts.Get(oracle.FlagWithOwasmCacheSize)),
-		cast.ToString(appOpts.Get(oracle.FlagWithEmitter)),
-		cast.ToString(appOpts.Get(oracle.FlagWithRequestSearch)),
-		cast.ToString(appOpts.Get(oracle.FlagWithPricer)),
 	)
 
 	if height != -1 {
