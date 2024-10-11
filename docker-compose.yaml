@@ -122,13 +122,13 @@ services:
   flusher-init:
     build:
       context: flusher
-    image: bandchain_flusher:latest
+    image: band-flusher:latest
     networks:
       bandchain:
     command: sh -c "sleep 30 && python main.py init bandchain test replay --db postgres:postgrespassword@postgres:5432/postgres"
 
   flusher-daemon:
-    image: bandchain_flusher:latest
+    image: band-flusher:latest
     networks:
       - bandchain
     restart: always
