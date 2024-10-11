@@ -107,9 +107,10 @@ bandd genesis collect-gentxs
 
 # copy genesis to the proper location!
 cp ~/.band/config/genesis.json $DIR/genesis.json
+cat <<< $(jq '.app_state.gov.params.voting_period = "60s"' $DIR/genesis.json) > $DIR/genesis.json
 
 # Build
-docker-compose up -d --build
+docker-compose up -d --build --force-recreate
 
 sleep 10
 
@@ -127,14 +128,14 @@ do
     # wait for activation transaction success
     sleep 4
 
-    for i in $(eval echo {1..1})
+    for i in $(eval echo {1..4})
     do
         # add reporter key
         yoda keys add reporter$i
     done
 
     # send band tokens to reporters
-    echo "y" | bandd tx bank send validator$v  $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
+    echo "y" | bandd tx bank multi-send validator$v $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
 
     # wait for sending band tokens transaction success
     sleep 4
@@ -142,12 +143,12 @@ do
     # add reporter to bandchain
     echo "y" | bandd tx oracle add-reporters $(yoda keys list -a) --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
 
-    # wait for addding reporter transaction success
+    # wait for adding reporter transaction success
     sleep 4
 
-    docker create --network chain_bandchain --name bandchain_oracle${v} band-validator:latest yoda r
-    docker cp ~/.yoda bandchain_oracle${v}:/root/.yoda
-    docker start bandchain_oracle${v}
+    docker create --network chain_bandchain --name bandchain-yoda${v} band-validator:latest yoda r
+    docker cp ~/.yoda bandchain-yoda${v}:/root/.yoda
+    docker start bandchain-yoda${v}
 done
 
 # Create faucet container
@@ -164,10 +165,10 @@ do
     # send band tokens to worker
     echo "y" | bandd tx bank send requester $(faucet keys show worker$i) 1000000000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
 
-    # wait for addding reporter transaction success
+    # wait for adding token transaction success
     sleep 4
 done
 
-docker create --network chain_bandchain --name bandchain_faucet -p 5005:5005 band-validator:latest faucet r
-docker cp ~/.faucet bandchain_faucet:/root/.faucet
-docker start bandchain_faucet
+docker create --network chain_bandchain --name bandchain-faucet -p 5005:5005 band-validator:latest faucet r
+docker cp ~/.faucet bandchain-faucet:/root/.faucet
+docker start bandchain-faucet
