@@ -5,10 +5,12 @@ const (
 	EventTypeClaimRewards    = "claim_rewards"
 	EventTypeLockPower       = "lock_power"
 	EventTypeAddRewards      = "add_rewards"
+	EventTypeCreateVault     = "create_vault"
 	EventTypeDeactivateVault = "deactivate_vault"
 
-	AttributeKeyStaker  = "staker"
-	AttributeKeyKey     = "key"
-	AttributeKeyRewards = "rewards"
-	AttributeKeyPower   = "power"
+	AttributeKeyStaker       = "staker"
+	AttributeKeyKey          = "key"
+	AttributeKeyVaultAddress = "vault_address"
+	AttributeKeyRewards      = "rewards"
+	AttributeKeyPower        = "power"
 )
