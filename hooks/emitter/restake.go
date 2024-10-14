@@ -18,39 +18,39 @@ func (h *Hook) updateRestakeStake(ctx sdk.Context, stakerAddr string) {
 
 func (h *Hook) updateRestakeVault(ctx sdk.Context, key string) {
 	vault, _ := h.restakeKeeper.GetVault(ctx, key)
+	h.AddAccountsInTx(vault.VaultAddress)
+
 	h.Write("SET_RESTAKE_VAULT", common.JsDict{
-		"key":               vault.Key,
-		"vault_address":     vault.VaultAddress,
-		"is_active":         vault.IsActive,
-		"rewards_per_power": vault.RewardsPerPower.String(),
-		"total_power":       vault.TotalPower.String(),
-		"remainders":        vault.Remainders.String(),
+		"key":           vault.Key,
+		"vault_address": vault.VaultAddress,
+		"is_active":     vault.IsActive,
+		"total_power":   vault.TotalPower.String(),
 	})
 }
+
 func (h *Hook) updateRestakeLock(ctx sdk.Context, stakerAddr string, key string) {
 	addr := sdk.MustAccAddressFromBech32(stakerAddr)
 	lock, found := h.restakeKeeper.GetLock(ctx, addr, key)
 	if !found {
 		h.Write("REMOVE_RESTAKE_LOCK", common.JsDict{
-			"key": key,
+			"staker_address": addr,
+			"key":            key,
 		})
 
 		return
 	}
 
 	h.Write("SET_RESTAKE_LOCK", common.JsDict{
-		"staker_address":   addr,
-		"key":              key,
-		"power":            lock.Power.String(),
-		"pos_reward_debts": lock.PosRewardDebts.String(),
-		"neg_reward_debts": lock.NegRewardDebts.String(),
+		"staker_address": addr,
+		"key":            key,
+		"power":          lock.Power.String(),
 	})
 }
 
-// handleRestakeEventClaimRewards implements emitter handler for EventClaimRewards.
-func (h *Hook) handleRestakeEventClaimRewards(ctx sdk.Context, evMap common.EvMap) {
-	h.updateRestakeVault(ctx, evMap[types.EventTypeClaimRewards+"."+types.AttributeKeyKey][0])
-
+// handleRestakeMsgClaimRewards implements emitter handler for MsgClaimRewards.
+func (h *Hook) handleRestakeMsgClaimRewards(ctx sdk.Context, msg *types.MsgClaimRewards) {
+	h.updateRestakeVault(ctx, msg.StakerAddress)
+	h.updateRestakeLock(ctx, msg.StakerAddress, msg.Key)
 }
 
 // handleRestakeEventCreateVault implements emitter handler for EventCreateVault.
@@ -69,12 +69,10 @@ func (h *Hook) handleRestakeEventDeactivateVault(ctx sdk.Context, evMap common.E
 }
 
 // handleRestakeEventLockPower implements emitter handler for EventLockPower.
-func (h *Hook) handleRestakeEventLockPower(_ sdk.Context, evMap common.EvMap) {
-	h.Write("SET_RESTAKE_LOCK_POWER", common.JsDict{
-		"staker": evMap[types.EventTypeLockPower+"."+types.AttributeKeyStaker][0],
-		"key":    evMap[types.EventTypeLockPower+"."+types.AttributeKeyKey][0],
-		"power":  evMap[types.EventTypeLockPower+"."+types.AttributeKeyPower][0],
-	})
+func (h *Hook) handleRestakeEventLockPower(ctx sdk.Context, evMap common.EvMap) {
+	stakerAddr := evMap[types.EventTypeLockPower+"."+types.AttributeKeyStaker][0]
+	key := evMap[types.EventTypeLockPower+"."+types.AttributeKeyKey][0]
+	h.updateRestakeLock(ctx, stakerAddr, key)
 }
 
 // handleRestakeEventStake implements emitter handler for EventStake.

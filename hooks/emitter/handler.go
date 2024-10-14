@@ -157,6 +157,8 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 		h.handleGroupEventExec(ctx, evMap)
 	case *group.MsgWithdrawProposal:
 		h.handleGroupMsgWithdrawProposal(ctx, evMap)
+	case *restaketypes.MsgClaimRewards:
+		h.handleRestakeMsgClaimRewards(ctx, msg)
 	default:
 		break
 	}
@@ -169,8 +171,6 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 func (h *Hook) handleMsgEvent(ctx sdk.Context, event abci.Event) {
 	evMap := parseEvents([]abci.Event{event})
 	switch event.Type {
-	case restaketypes.EventTypeClaimRewards:
-		h.handleRestakeEventClaimRewards(ctx, evMap)
 	case restaketypes.EventTypeCreateVault:
 		h.handleRestakeEventCreateVault(ctx, evMap)
 	case restaketypes.EventTypeLockPower:
