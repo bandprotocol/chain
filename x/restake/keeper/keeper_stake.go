@@ -60,12 +60,6 @@ func (k Keeper) GetStake(ctx sdk.Context, addr sdk.AccAddress) types.Stake {
 // SetStake sets a stake to the store.
 func (k Keeper) SetStake(ctx sdk.Context, stake types.Stake) {
 	addr := sdk.MustAccAddressFromBech32(stake.StakerAddress)
-
-	if stake.Coins.IsZero() {
-		k.DeleteStake(ctx, addr)
-		return
-	}
-
 	ctx.KVStore(k.storeKey).Set(types.StakeStoreKey(addr), k.cdc.MustMarshal(&stake))
 }
 
