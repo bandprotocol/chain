@@ -44,6 +44,7 @@ import (
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	restakekeeper "github.com/bandprotocol/chain/v3/x/restake/keeper"
+	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 // Hook uses Kafka functionality to act as an event producer for all events in the blockchains.
@@ -305,6 +306,11 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *
 	for idx, os := range oracleState.OracleScripts {
 		h.emitSetOracleScript(oracletypes.OracleScriptID(idx+1), os, nil)
 	}
+
+	// Restake module
+	var restakeState restaketypes.GenesisState
+	h.cdc.MustUnmarshalJSON(genesisState[restaketypes.ModuleName], &restakeState)
+	// TODO-restake
 
 	var authzState authz.GenesisState
 	h.cdc.MustUnmarshalJSON(genesisState[authz.ModuleName], &authzState)
