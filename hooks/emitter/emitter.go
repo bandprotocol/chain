@@ -310,7 +310,15 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *
 	// Restake module
 	var restakeState restaketypes.GenesisState
 	h.cdc.MustUnmarshalJSON(genesisState[restaketypes.ModuleName], &restakeState)
-	// TODO-restake
+	for _, vault := range restakeState.Vaults {
+		h.updateRestakeVault(ctx, vault.Key)
+	}
+	for _, lock := range restakeState.Locks {
+		h.updateRestakeLock(ctx, lock.StakerAddress, lock.Key)
+	}
+	for _, stake := range restakeState.Stakes {
+		h.updateRestakeStake(ctx, stake.StakerAddress)
+	}
 
 	var authzState authz.GenesisState
 	h.cdc.MustUnmarshalJSON(genesisState[authz.ModuleName], &authzState)
