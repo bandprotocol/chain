@@ -3,6 +3,7 @@ package keeper_test
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
@@ -207,30 +208,9 @@ func (suite *KeeperTestSuite) TestGetAllDataSources() {
 	k := suite.oracleKeeper
 	require := suite.Require()
 
-	dataSource1 := types.NewDataSource(
-		alice,
-		"NAME1",
-		"DESCRIPTION1",
-		"filename1",
-		emptyCoins,
-		treasury,
-	)
-	dataSource2 := types.NewDataSource(
-		bob,
-		"NAME2",
-		"DESCRIPTION2",
-		"filename2",
-		emptyCoins,
-		treasury,
-	)
+	dataSources := bandtesting.GenerateDataSources(suite.homeDir)
 
-	k.AddDataSource(ctx, dataSource1)
-	k.AddDataSource(ctx, dataSource2)
-
-	require.Equal([]types.DataSource{
-		dataSource1,
-		dataSource2,
-	}, k.GetAllDataSources(ctx))
+	require.Equal(dataSources, k.GetAllDataSources(ctx))
 }
 
 func (suite *KeeperTestSuite) TestAddExecutableFile() {
