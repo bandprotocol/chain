@@ -4,27 +4,37 @@ import (
 	"fmt"
 
 	sdkmath "cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// NewGenesisState creates a new GenesisState instanc e
-func NewGenesisState(vaults []Vault, locks []Lock) *GenesisState {
+// NewGenesisState creates a new GenesisState instance
+func NewGenesisState(params Params, vaults []Vault, locks []Lock, stakes []Stake) *GenesisState {
 	return &GenesisState{
+		Params: params,
 		Vaults: vaults,
 		Locks:  locks,
+		Stakes: stakes,
 	}
 }
 
 // DefaultGenesisState gets the raw genesis raw message for testing
 func DefaultGenesisState() *GenesisState {
 	return NewGenesisState(
+		DefaultParams(),
 		[]Vault{},
 		[]Lock{},
+		[]Stake{},
 	)
 }
 
 // Validate performs basic validation of genesis data returning an
 // error for any failed validation criteria.
 func (gs GenesisState) Validate() error {
+	if err := gs.Params.Validate(); err != nil {
+		return err
+	}
+
 	seenVaults := make(map[string]bool)
 	totalPowers := make(map[string]sdkmath.Int)
 
@@ -51,6 +61,16 @@ func (gs GenesisState) Validate() error {
 				vault.TotalPower,
 				totalPowers[vault.Key],
 			)
+		}
+	}
+
+	for _, stake := range gs.Stakes {
+		if _, err := sdk.AccAddressFromBech32(stake.StakerAddress); err != nil {
+			return err
+		}
+
+		if err := stake.Coins.Validate(); err != nil {
+			return err
 		}
 	}
 

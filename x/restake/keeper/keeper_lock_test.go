@@ -37,6 +37,10 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 	err = suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, InactiveVaultKey, sdkmath.NewInt(10))
 	suite.Require().Error(err)
 
+	// error case - staker is liquid staker
+	err = suite.restakeKeeper.SetLockedPower(ctx, LiquidStakerAddress, VaultKeyWithRewards, sdkmath.NewInt(10))
+	suite.Require().Error(err)
+
 	// success cases
 	var (
 		preVault types.Vault
@@ -264,6 +268,10 @@ func (suite *KeeperTestSuite) TestGetLockedPower() {
 
 	// error case - no lock
 	_, err = suite.restakeKeeper.GetLockedPower(ctx, ValidAddress2, VaultKeyWithoutRewards)
+	suite.Require().Error(err)
+
+	// error case - staker is liquid staker
+	_, err = suite.restakeKeeper.GetLockedPower(ctx, LiquidStakerAddress, VaultKeyWithRewards)
 	suite.Require().Error(err)
 
 	// success case

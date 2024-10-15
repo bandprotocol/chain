@@ -27,6 +27,8 @@ func GetTxCmd() *cobra.Command {
 
 	txCmd.AddCommand(
 		GetTxCmdClaimRewards(),
+		GetTxCmdStake(),
+		GetTxCmdUnstake(),
 	)
 
 	return txCmd
@@ -102,6 +104,62 @@ func GetTxCmdClaimRewards() *cobra.Command {
 			}
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msgs...)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetTxCmdStake creates a CLI command for staking coins.
+func GetTxCmdStake() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "stake [coins]",
+		Short: "Stake coins to the module",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			coins, err := sdk.ParseCoinsNormalized(args[0])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgStake(clientCtx.GetFromAddress(), coins)
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetTxCmdUnstake creates a CLI command for unstaking coins.
+func GetTxCmdUnstake() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "unstake [coins]",
+		Short: "Unstake coins from the module",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			coins, err := sdk.ParseCoinsNormalized(args[0])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgUnstake(clientCtx.GetFromAddress(), coins)
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
 

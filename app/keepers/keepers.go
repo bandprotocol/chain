@@ -280,6 +280,7 @@ func NewAppKeeper(
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		appKeepers.StakingKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
 	// register the staking hooks

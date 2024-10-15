@@ -19,14 +19,24 @@ func TestGenesisStateValidate(t *testing.T) {
 		{
 			"valid genesisState - empty",
 			GenesisState{
+				Params: Params{
+					AllowedDenoms: []string{},
+				},
 				Vaults: []Vault{},
 				Locks:  []Lock{},
+				Stakes: []Stake{},
 			},
+			false,
+		},
+		{
+			"valid genesisState - default",
+			*DefaultGenesisState(),
 			false,
 		},
 		{
 			"valid genesisState - normal",
 			GenesisState{
+				Params: DefaultParams(),
 				Vaults: []Vault{
 					{
 						Key:             "key",
@@ -53,12 +63,14 @@ func TestGenesisStateValidate(t *testing.T) {
 						NegRewardDebts: sdk.NewDecCoins(),
 					},
 				},
+				Stakes: []Stake{},
 			},
 			false,
 		},
 		{
 			"valid genesisState - diff total power on inactive vault",
 			GenesisState{
+				Params: DefaultParams(),
 				Vaults: []Vault{
 					{
 						Key:             "key",
@@ -85,12 +97,14 @@ func TestGenesisStateValidate(t *testing.T) {
 						NegRewardDebts: sdk.NewDecCoins(),
 					},
 				},
+				Stakes: []Stake{},
 			},
 			false,
 		},
 		{
 			"invalid genesisState - duplicate vault name",
 			GenesisState{
+				Params: DefaultParams(),
 				Vaults: []Vault{
 					{
 						Key: "test",
@@ -99,13 +113,15 @@ func TestGenesisStateValidate(t *testing.T) {
 						Key: "test",
 					},
 				},
-				Locks: []Lock{},
+				Locks:  []Lock{},
+				Stakes: []Stake{},
 			},
 			true,
 		},
 		{
 			"invalid genesisState - diff total power on active vault",
 			GenesisState{
+				Params: DefaultParams(),
 				Vaults: []Vault{
 					{
 						Key:        "test",
@@ -123,6 +139,49 @@ func TestGenesisStateValidate(t *testing.T) {
 						Power: sdkmath.NewInt(6),
 					},
 				},
+				Stakes: []Stake{},
+			},
+			true,
+		},
+		{
+			"invalid genesisState - wrong params",
+			GenesisState{
+				Params: NewParams([]string{""}),
+				Vaults: []Vault{},
+				Locks:  []Lock{},
+				Stakes: []Stake{},
+			},
+			true,
+		},
+		{
+			"invalid genesisState - invalid staker address",
+			GenesisState{
+				Params: DefaultParams(),
+				Vaults: []Vault{},
+				Locks:  []Lock{},
+				Stakes: []Stake{
+					{
+						StakerAddress: "invalidAddress",
+						Coins:         sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(1))),
+					},
+				},
+			},
+			true,
+		},
+		{
+			"invalid genesisState - invalid staked coins",
+			GenesisState{
+				Params: DefaultParams(),
+				Vaults: []Vault{},
+				Locks:  []Lock{},
+				Stakes: []Stake{
+					{
+						StakerAddress: ValidAddress,
+						Coins: []sdk.Coin{
+							{Denom: "", Amount: sdkmath.NewInt(1)},
+						},
+					},
+				},
 			},
 			true,
 		},
@@ -131,7 +190,6 @@ func TestGenesisStateValidate(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(tt *testing.T) {
 			err := tc.genesisState.Validate()
-
 			if tc.expErr {
 				require.Error(tt, err)
 			} else {

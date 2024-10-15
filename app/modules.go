@@ -71,6 +71,7 @@ var maccPerms = map[string][]string{
 	govtypes.ModuleName:            {authtypes.Burner},
 	ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 	ibcfeetypes.ModuleName:         nil,
+	restaketypes.ModuleName:        nil,
 }
 
 func appModules(
