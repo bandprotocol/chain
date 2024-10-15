@@ -120,9 +120,7 @@ func (suite *KeeperTestSuite) TestAddOracleScriptMustReturnCorrectID() {
 	k := suite.oracleKeeper
 	require := suite.Require()
 
-	// Initially we expect the oracle script count to be what we have on genesis state.
-	genesisCount := uint64(len(bandtesting.OracleScripts))
-	require.Equal(genesisCount, k.GetOracleScriptCount(ctx))
+	genesisCount := k.GetOracleScriptCount(ctx)
 	// Every new oracle script we add should return a new ID.
 	id1 := k.AddOracleScript(ctx, types.NewOracleScript(
 		bandtesting.Owner.Address, basicName, basicDesc, basicFilename, basicSchema, basicSourceCodeURL,
@@ -155,21 +153,11 @@ func (suite *KeeperTestSuite) TestGetAllOracleScripts() {
 	k := suite.oracleKeeper
 	require := suite.Require()
 
-	// Creates some basic oracle scripts.
-	oracleScript1 := types.NewOracleScript(
-		bandtesting.Alice.Address, "NAME1", "DESCRIPTION1", "FILENAME1", basicSchema, basicSourceCodeURL,
-	)
-	oracleScript2 := types.NewOracleScript(
-		bandtesting.Bob.Address, types.DoNotModify, types.DoNotModify, "FILENAME2",
-		types.DoNotModify, types.DoNotModify,
-	)
-
-	k.AddOracleScript(ctx, oracleScript1)
-	k.AddOracleScript(ctx, oracleScript2)
+	oracleScripts := bandtesting.GenerateOracleScripts(suite.homeDir)
 
 	// We should be able to get all genesis oracle scripts.
 	require.Equal(
-		[]types.OracleScript{oracleScript1, oracleScript2},
+		oracleScripts,
 		k.GetAllOracleScripts(ctx),
 	)
 }
