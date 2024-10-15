@@ -21,6 +21,7 @@ import (
 	"github.com/bandprotocol/chain/v3/app/upgrades"
 	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 const UpgradeName = "v3"
@@ -34,7 +35,8 @@ var Upgrade = upgrades.Upgrade{
 			globalfeetypes.StoreKey,
 			consensusparamtypes.StoreKey,
 			crisistypes.StoreKey,
-			ibcfeetypes.ModuleName,
+			ibcfeetypes.StoreKey,
+			restaketypes.StoreKey,
 		},
 	},
 }
