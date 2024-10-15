@@ -19,8 +19,10 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bandprotocol/chain/v3/app/upgrades"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 const UpgradeName = "v3"
@@ -34,7 +36,9 @@ var Upgrade = upgrades.Upgrade{
 			globalfeetypes.StoreKey,
 			consensusparamtypes.StoreKey,
 			crisistypes.StoreKey,
-			ibcfeetypes.ModuleName,
+			ibcfeetypes.StoreKey,
+			restaketypes.StoreKey,
+			feedstypes.StoreKey,
 		},
 	},
 }
