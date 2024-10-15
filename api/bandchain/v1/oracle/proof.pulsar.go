@@ -2,7 +2,7 @@
 package oracle
 
 import (
-	v1 "cosmossdk.io/api/oracle/v1"
+	v1 "github.com/bandprotocol/chain/v3/api/oracle/v1"
 	fmt "fmt"
 	runtime "github.com/cosmos/cosmos-proto/runtime"
 	_ "github.com/cosmos/gogoproto/gogoproto"
