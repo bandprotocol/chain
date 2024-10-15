@@ -140,7 +140,11 @@ func (k msgServer) Unstake(
 		return nil, types.ErrStakeNotEnough
 	}
 
-	k.SetStake(ctx, stake)
+	if !stake.Coins.IsZero() {
+		k.SetStake(ctx, stake)
+	} else {
+		k.DeleteStake(ctx, addr)
+	}
 
 	totalPower, err := k.GetTotalPower(ctx, addr)
 	if err != nil {
