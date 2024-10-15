@@ -17,8 +17,7 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) error {
 		k.SetRollingSeed(ctx, append(rollingSeed[1:], hash[0]))
 	}
 	// Reward a portion of block rewards (inflation + tx fee) to active oracle validators.
-	k.AllocateTokens(ctx, ctx.VoteInfos())
-	return nil
+	return k.AllocateTokens(ctx, ctx.VoteInfos())
 }
 
 // EndBlocker cleans up the state during end block. See comment in the implementation!

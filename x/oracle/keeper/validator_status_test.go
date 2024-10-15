@@ -59,7 +59,7 @@ func (suite *KeeperTestSuite) TestAllocateTokenNoActiveValidators() {
 	// No active oracle validators so nothing should happen.
 	// Expect only try to sum of validator power
 	suite.mockValidators()
-	k.AllocateTokens(ctx, defaultVotes)
+	suite.Require().NoError(k.AllocateTokens(ctx, defaultVotes))
 }
 
 func (suite *KeeperTestSuite) TestAllocateTokensOneActive() {
@@ -93,7 +93,7 @@ func (suite *KeeperTestSuite) TestAllocateTokensOneActive() {
 	suite.mockFundCommunityPool(sdk.NewCoins(sdk.NewInt64Coin("uband", 14000)), distAcc.GetAddress())
 	suite.authKeeper.EXPECT().GetModuleAccount(gomock.Any(), distrtypes.ModuleName).Return(distAcc)
 
-	k.AllocateTokens(ctx, defaultVotes)
+	suite.Require().NoError(k.AllocateTokens(ctx, defaultVotes))
 }
 
 // func (suite *KeeperTestSuite) TestAllocateTokensAllActive() {
