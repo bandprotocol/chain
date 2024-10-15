@@ -34,11 +34,12 @@ var Upgrade = upgrades.Upgrade{
 			globalfeetypes.StoreKey,
 			consensusparamtypes.StoreKey,
 			crisistypes.StoreKey,
-			ibcfeetypes.ModuleName,
+			ibcfeetypes.StoreKey,
 		},
 	},
 }
 
+// TODO: Update ICA Allow messages
 var ICAAllowMessages = []string{
 	sdk.MsgTypeURL(&authz.MsgExec{}),
 	sdk.MsgTypeURL(&authz.MsgGrant{}),
