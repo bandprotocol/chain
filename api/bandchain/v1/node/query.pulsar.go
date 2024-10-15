@@ -15,23 +15,23 @@ import (
 )
 
 var (
-	md_QueryChainIDRequest protoreflect.MessageDescriptor
+	md_ChainIDRequest protoreflect.MessageDescriptor
 )
 
 func init() {
 	file_bandchain_v1_node_query_proto_init()
-	md_QueryChainIDRequest = File_bandchain_v1_node_query_proto.Messages().ByName("QueryChainIDRequest")
+	md_ChainIDRequest = File_bandchain_v1_node_query_proto.Messages().ByName("ChainIDRequest")
 }
 
-var _ protoreflect.Message = (*fastReflection_QueryChainIDRequest)(nil)
+var _ protoreflect.Message = (*fastReflection_ChainIDRequest)(nil)
 
-type fastReflection_QueryChainIDRequest QueryChainIDRequest
+type fastReflection_ChainIDRequest ChainIDRequest
 
-func (x *QueryChainIDRequest) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_QueryChainIDRequest)(x)
+func (x *ChainIDRequest) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_ChainIDRequest)(x)
 }
 
-func (x *QueryChainIDRequest) slowProtoReflect() protoreflect.Message {
+func (x *ChainIDRequest) slowProtoReflect() protoreflect.Message {
 	mi := &file_bandchain_v1_node_query_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -43,43 +43,43 @@ func (x *QueryChainIDRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryChainIDRequest_messageType fastReflection_QueryChainIDRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryChainIDRequest_messageType{}
+var _fastReflection_ChainIDRequest_messageType fastReflection_ChainIDRequest_messageType
+var _ protoreflect.MessageType = fastReflection_ChainIDRequest_messageType{}
 
-type fastReflection_QueryChainIDRequest_messageType struct{}
+type fastReflection_ChainIDRequest_messageType struct{}
 
-func (x fastReflection_QueryChainIDRequest_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_QueryChainIDRequest)(nil)
+func (x fastReflection_ChainIDRequest_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_ChainIDRequest)(nil)
 }
-func (x fastReflection_QueryChainIDRequest_messageType) New() protoreflect.Message {
-	return new(fastReflection_QueryChainIDRequest)
+func (x fastReflection_ChainIDRequest_messageType) New() protoreflect.Message {
+	return new(fastReflection_ChainIDRequest)
 }
-func (x fastReflection_QueryChainIDRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_QueryChainIDRequest
+func (x fastReflection_ChainIDRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_ChainIDRequest
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_QueryChainIDRequest) Descriptor() protoreflect.MessageDescriptor {
-	return md_QueryChainIDRequest
+func (x *fastReflection_ChainIDRequest) Descriptor() protoreflect.MessageDescriptor {
+	return md_ChainIDRequest
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_QueryChainIDRequest) Type() protoreflect.MessageType {
-	return _fastReflection_QueryChainIDRequest_messageType
+func (x *fastReflection_ChainIDRequest) Type() protoreflect.MessageType {
+	return _fastReflection_ChainIDRequest_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_QueryChainIDRequest) New() protoreflect.Message {
-	return new(fastReflection_QueryChainIDRequest)
+func (x *fastReflection_ChainIDRequest) New() protoreflect.Message {
+	return new(fastReflection_ChainIDRequest)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_QueryChainIDRequest) Interface() protoreflect.ProtoMessage {
-	return (*QueryChainIDRequest)(x)
+func (x *fastReflection_ChainIDRequest) Interface() protoreflect.ProtoMessage {
+	return (*ChainIDRequest)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -87,7 +87,7 @@ func (x *fastReflection_QueryChainIDRequest) Interface() protoreflect.ProtoMessa
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_QueryChainIDRequest) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+func (x *fastReflection_ChainIDRequest) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
 }
 
 // Has reports whether a field is populated.
@@ -101,13 +101,13 @@ func (x *fastReflection_QueryChainIDRequest) Range(f func(protoreflect.FieldDesc
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_QueryChainIDRequest) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_ChainIDRequest) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryChainIDRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.ChainIDRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryChainIDRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.ChainIDRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -117,13 +117,13 @@ func (x *fastReflection_QueryChainIDRequest) Has(fd protoreflect.FieldDescriptor
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryChainIDRequest) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_ChainIDRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryChainIDRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.ChainIDRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryChainIDRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.ChainIDRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -133,13 +133,13 @@ func (x *fastReflection_QueryChainIDRequest) Clear(fd protoreflect.FieldDescript
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_QueryChainIDRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_ChainIDRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryChainIDRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.ChainIDRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryChainIDRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.ChainIDRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -153,13 +153,13 @@ func (x *fastReflection_QueryChainIDRequest) Get(descriptor protoreflect.FieldDe
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryChainIDRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_ChainIDRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryChainIDRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.ChainIDRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryChainIDRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.ChainIDRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -173,36 +173,36 @@ func (x *fastReflection_QueryChainIDRequest) Set(fd protoreflect.FieldDescriptor
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryChainIDRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_ChainIDRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryChainIDRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.ChainIDRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryChainIDRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.ChainIDRequest does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_QueryChainIDRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_ChainIDRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryChainIDRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.ChainIDRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryChainIDRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.ChainIDRequest does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_QueryChainIDRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_ChainIDRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.v1.node.QueryChainIDRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in bandchain.v1.node.ChainIDRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -210,7 +210,7 @@ func (x *fastReflection_QueryChainIDRequest) WhichOneof(d protoreflect.OneofDesc
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_QueryChainIDRequest) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_ChainIDRequest) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -221,7 +221,7 @@ func (x *fastReflection_QueryChainIDRequest) GetUnknown() protoreflect.RawFields
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryChainIDRequest) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_ChainIDRequest) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -233,7 +233,7 @@ func (x *fastReflection_QueryChainIDRequest) SetUnknown(fields protoreflect.RawF
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_QueryChainIDRequest) IsValid() bool {
+func (x *fastReflection_ChainIDRequest) IsValid() bool {
 	return x != nil
 }
 
@@ -243,9 +243,9 @@ func (x *fastReflection_QueryChainIDRequest) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_QueryChainIDRequest) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_ChainIDRequest) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*QueryChainIDRequest)
+		x := input.Message.Interface().(*ChainIDRequest)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -267,7 +267,7 @@ func (x *fastReflection_QueryChainIDRequest) ProtoMethods() *protoiface.Methods 
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*QueryChainIDRequest)
+		x := input.Message.Interface().(*ChainIDRequest)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -297,7 +297,7 @@ func (x *fastReflection_QueryChainIDRequest) ProtoMethods() *protoiface.Methods 
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*QueryChainIDRequest)
+		x := input.Message.Interface().(*ChainIDRequest)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -329,10 +329,10 @@ func (x *fastReflection_QueryChainIDRequest) ProtoMethods() *protoiface.Methods 
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryChainIDRequest: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: ChainIDRequest: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryChainIDRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: ChainIDRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			default:
@@ -371,25 +371,25 @@ func (x *fastReflection_QueryChainIDRequest) ProtoMethods() *protoiface.Methods 
 }
 
 var (
-	md_QueryChainIDResponse          protoreflect.MessageDescriptor
-	fd_QueryChainIDResponse_chain_id protoreflect.FieldDescriptor
+	md_ChainIDResponse          protoreflect.MessageDescriptor
+	fd_ChainIDResponse_chain_id protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_bandchain_v1_node_query_proto_init()
-	md_QueryChainIDResponse = File_bandchain_v1_node_query_proto.Messages().ByName("QueryChainIDResponse")
-	fd_QueryChainIDResponse_chain_id = md_QueryChainIDResponse.Fields().ByName("chain_id")
+	md_ChainIDResponse = File_bandchain_v1_node_query_proto.Messages().ByName("ChainIDResponse")
+	fd_ChainIDResponse_chain_id = md_ChainIDResponse.Fields().ByName("chain_id")
 }
 
-var _ protoreflect.Message = (*fastReflection_QueryChainIDResponse)(nil)
+var _ protoreflect.Message = (*fastReflection_ChainIDResponse)(nil)
 
-type fastReflection_QueryChainIDResponse QueryChainIDResponse
+type fastReflection_ChainIDResponse ChainIDResponse
 
-func (x *QueryChainIDResponse) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_QueryChainIDResponse)(x)
+func (x *ChainIDResponse) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_ChainIDResponse)(x)
 }
 
-func (x *QueryChainIDResponse) slowProtoReflect() protoreflect.Message {
+func (x *ChainIDResponse) slowProtoReflect() protoreflect.Message {
 	mi := &file_bandchain_v1_node_query_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -401,43 +401,43 @@ func (x *QueryChainIDResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryChainIDResponse_messageType fastReflection_QueryChainIDResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryChainIDResponse_messageType{}
+var _fastReflection_ChainIDResponse_messageType fastReflection_ChainIDResponse_messageType
+var _ protoreflect.MessageType = fastReflection_ChainIDResponse_messageType{}
 
-type fastReflection_QueryChainIDResponse_messageType struct{}
+type fastReflection_ChainIDResponse_messageType struct{}
 
-func (x fastReflection_QueryChainIDResponse_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_QueryChainIDResponse)(nil)
+func (x fastReflection_ChainIDResponse_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_ChainIDResponse)(nil)
 }
-func (x fastReflection_QueryChainIDResponse_messageType) New() protoreflect.Message {
-	return new(fastReflection_QueryChainIDResponse)
+func (x fastReflection_ChainIDResponse_messageType) New() protoreflect.Message {
+	return new(fastReflection_ChainIDResponse)
 }
-func (x fastReflection_QueryChainIDResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_QueryChainIDResponse
+func (x fastReflection_ChainIDResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_ChainIDResponse
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_QueryChainIDResponse) Descriptor() protoreflect.MessageDescriptor {
-	return md_QueryChainIDResponse
+func (x *fastReflection_ChainIDResponse) Descriptor() protoreflect.MessageDescriptor {
+	return md_ChainIDResponse
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_QueryChainIDResponse) Type() protoreflect.MessageType {
-	return _fastReflection_QueryChainIDResponse_messageType
+func (x *fastReflection_ChainIDResponse) Type() protoreflect.MessageType {
+	return _fastReflection_ChainIDResponse_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_QueryChainIDResponse) New() protoreflect.Message {
-	return new(fastReflection_QueryChainIDResponse)
+func (x *fastReflection_ChainIDResponse) New() protoreflect.Message {
+	return new(fastReflection_ChainIDResponse)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_QueryChainIDResponse) Interface() protoreflect.ProtoMessage {
-	return (*QueryChainIDResponse)(x)
+func (x *fastReflection_ChainIDResponse) Interface() protoreflect.ProtoMessage {
+	return (*ChainIDResponse)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -445,10 +445,10 @@ func (x *fastReflection_QueryChainIDResponse) Interface() protoreflect.ProtoMess
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_QueryChainIDResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+func (x *fastReflection_ChainIDResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
 	if x.ChainId != "" {
 		value := protoreflect.ValueOfString(x.ChainId)
-		if !f(fd_QueryChainIDResponse_chain_id, value) {
+		if !f(fd_ChainIDResponse_chain_id, value) {
 			return
 		}
 	}
@@ -465,15 +465,15 @@ func (x *fastReflection_QueryChainIDResponse) Range(f func(protoreflect.FieldDes
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_QueryChainIDResponse) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_ChainIDResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.v1.node.QueryChainIDResponse.chain_id":
+	case "bandchain.v1.node.ChainIDResponse.chain_id":
 		return x.ChainId != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryChainIDResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.ChainIDResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryChainIDResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.ChainIDResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -483,15 +483,15 @@ func (x *fastReflection_QueryChainIDResponse) Has(fd protoreflect.FieldDescripto
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryChainIDResponse) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_ChainIDResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.v1.node.QueryChainIDResponse.chain_id":
+	case "bandchain.v1.node.ChainIDResponse.chain_id":
 		x.ChainId = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryChainIDResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.ChainIDResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryChainIDResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.ChainIDResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -501,16 +501,16 @@ func (x *fastReflection_QueryChainIDResponse) Clear(fd protoreflect.FieldDescrip
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_QueryChainIDResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_ChainIDResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.v1.node.QueryChainIDResponse.chain_id":
+	case "bandchain.v1.node.ChainIDResponse.chain_id":
 		value := x.ChainId
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryChainIDResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.ChainIDResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryChainIDResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.ChainIDResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -524,15 +524,15 @@ func (x *fastReflection_QueryChainIDResponse) Get(descriptor protoreflect.FieldD
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryChainIDResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_ChainIDResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.v1.node.QueryChainIDResponse.chain_id":
+	case "bandchain.v1.node.ChainIDResponse.chain_id":
 		x.ChainId = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryChainIDResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.ChainIDResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryChainIDResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.ChainIDResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -546,40 +546,40 @@ func (x *fastReflection_QueryChainIDResponse) Set(fd protoreflect.FieldDescripto
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryChainIDResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_ChainIDResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.v1.node.QueryChainIDResponse.chain_id":
-		panic(fmt.Errorf("field chain_id of message bandchain.v1.node.QueryChainIDResponse is not mutable"))
+	case "bandchain.v1.node.ChainIDResponse.chain_id":
+		panic(fmt.Errorf("field chain_id of message bandchain.v1.node.ChainIDResponse is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryChainIDResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.ChainIDResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryChainIDResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.ChainIDResponse does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_QueryChainIDResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_ChainIDResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.v1.node.QueryChainIDResponse.chain_id":
+	case "bandchain.v1.node.ChainIDResponse.chain_id":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryChainIDResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.ChainIDResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryChainIDResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.ChainIDResponse does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_QueryChainIDResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_ChainIDResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.v1.node.QueryChainIDResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in bandchain.v1.node.ChainIDResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -587,7 +587,7 @@ func (x *fastReflection_QueryChainIDResponse) WhichOneof(d protoreflect.OneofDes
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_QueryChainIDResponse) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_ChainIDResponse) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -598,7 +598,7 @@ func (x *fastReflection_QueryChainIDResponse) GetUnknown() protoreflect.RawField
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryChainIDResponse) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_ChainIDResponse) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -610,7 +610,7 @@ func (x *fastReflection_QueryChainIDResponse) SetUnknown(fields protoreflect.Raw
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_QueryChainIDResponse) IsValid() bool {
+func (x *fastReflection_ChainIDResponse) IsValid() bool {
 	return x != nil
 }
 
@@ -620,9 +620,9 @@ func (x *fastReflection_QueryChainIDResponse) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_QueryChainIDResponse) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_ChainIDResponse) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*QueryChainIDResponse)
+		x := input.Message.Interface().(*ChainIDResponse)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -648,7 +648,7 @@ func (x *fastReflection_QueryChainIDResponse) ProtoMethods() *protoiface.Methods
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*QueryChainIDResponse)
+		x := input.Message.Interface().(*ChainIDResponse)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -685,7 +685,7 @@ func (x *fastReflection_QueryChainIDResponse) ProtoMethods() *protoiface.Methods
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*QueryChainIDResponse)
+		x := input.Message.Interface().(*ChainIDResponse)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -717,10 +717,10 @@ func (x *fastReflection_QueryChainIDResponse) ProtoMethods() *protoiface.Methods
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryChainIDResponse: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: ChainIDResponse: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryChainIDResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: ChainIDResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			case 1:
@@ -791,23 +791,23 @@ func (x *fastReflection_QueryChainIDResponse) ProtoMethods() *protoiface.Methods
 }
 
 var (
-	md_QueryEVMValidatorsRequest protoreflect.MessageDescriptor
+	md_EVMValidatorsRequest protoreflect.MessageDescriptor
 )
 
 func init() {
 	file_bandchain_v1_node_query_proto_init()
-	md_QueryEVMValidatorsRequest = File_bandchain_v1_node_query_proto.Messages().ByName("QueryEVMValidatorsRequest")
+	md_EVMValidatorsRequest = File_bandchain_v1_node_query_proto.Messages().ByName("EVMValidatorsRequest")
 }
 
-var _ protoreflect.Message = (*fastReflection_QueryEVMValidatorsRequest)(nil)
+var _ protoreflect.Message = (*fastReflection_EVMValidatorsRequest)(nil)
 
-type fastReflection_QueryEVMValidatorsRequest QueryEVMValidatorsRequest
+type fastReflection_EVMValidatorsRequest EVMValidatorsRequest
 
-func (x *QueryEVMValidatorsRequest) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_QueryEVMValidatorsRequest)(x)
+func (x *EVMValidatorsRequest) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_EVMValidatorsRequest)(x)
 }
 
-func (x *QueryEVMValidatorsRequest) slowProtoReflect() protoreflect.Message {
+func (x *EVMValidatorsRequest) slowProtoReflect() protoreflect.Message {
 	mi := &file_bandchain_v1_node_query_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -819,43 +819,43 @@ func (x *QueryEVMValidatorsRequest) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryEVMValidatorsRequest_messageType fastReflection_QueryEVMValidatorsRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryEVMValidatorsRequest_messageType{}
+var _fastReflection_EVMValidatorsRequest_messageType fastReflection_EVMValidatorsRequest_messageType
+var _ protoreflect.MessageType = fastReflection_EVMValidatorsRequest_messageType{}
 
-type fastReflection_QueryEVMValidatorsRequest_messageType struct{}
+type fastReflection_EVMValidatorsRequest_messageType struct{}
 
-func (x fastReflection_QueryEVMValidatorsRequest_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_QueryEVMValidatorsRequest)(nil)
+func (x fastReflection_EVMValidatorsRequest_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_EVMValidatorsRequest)(nil)
 }
-func (x fastReflection_QueryEVMValidatorsRequest_messageType) New() protoreflect.Message {
-	return new(fastReflection_QueryEVMValidatorsRequest)
+func (x fastReflection_EVMValidatorsRequest_messageType) New() protoreflect.Message {
+	return new(fastReflection_EVMValidatorsRequest)
 }
-func (x fastReflection_QueryEVMValidatorsRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_QueryEVMValidatorsRequest
+func (x fastReflection_EVMValidatorsRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_EVMValidatorsRequest
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_QueryEVMValidatorsRequest) Descriptor() protoreflect.MessageDescriptor {
-	return md_QueryEVMValidatorsRequest
+func (x *fastReflection_EVMValidatorsRequest) Descriptor() protoreflect.MessageDescriptor {
+	return md_EVMValidatorsRequest
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_QueryEVMValidatorsRequest) Type() protoreflect.MessageType {
-	return _fastReflection_QueryEVMValidatorsRequest_messageType
+func (x *fastReflection_EVMValidatorsRequest) Type() protoreflect.MessageType {
+	return _fastReflection_EVMValidatorsRequest_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_QueryEVMValidatorsRequest) New() protoreflect.Message {
-	return new(fastReflection_QueryEVMValidatorsRequest)
+func (x *fastReflection_EVMValidatorsRequest) New() protoreflect.Message {
+	return new(fastReflection_EVMValidatorsRequest)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_QueryEVMValidatorsRequest) Interface() protoreflect.ProtoMessage {
-	return (*QueryEVMValidatorsRequest)(x)
+func (x *fastReflection_EVMValidatorsRequest) Interface() protoreflect.ProtoMessage {
+	return (*EVMValidatorsRequest)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -863,7 +863,7 @@ func (x *fastReflection_QueryEVMValidatorsRequest) Interface() protoreflect.Prot
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_QueryEVMValidatorsRequest) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+func (x *fastReflection_EVMValidatorsRequest) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
 }
 
 // Has reports whether a field is populated.
@@ -877,13 +877,13 @@ func (x *fastReflection_QueryEVMValidatorsRequest) Range(f func(protoreflect.Fie
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_QueryEVMValidatorsRequest) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_EVMValidatorsRequest) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryEVMValidatorsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.EVMValidatorsRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryEVMValidatorsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.EVMValidatorsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -893,13 +893,13 @@ func (x *fastReflection_QueryEVMValidatorsRequest) Has(fd protoreflect.FieldDesc
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryEVMValidatorsRequest) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_EVMValidatorsRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryEVMValidatorsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.EVMValidatorsRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryEVMValidatorsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.EVMValidatorsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -909,13 +909,13 @@ func (x *fastReflection_QueryEVMValidatorsRequest) Clear(fd protoreflect.FieldDe
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_QueryEVMValidatorsRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_EVMValidatorsRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryEVMValidatorsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.EVMValidatorsRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryEVMValidatorsRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.EVMValidatorsRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -929,13 +929,13 @@ func (x *fastReflection_QueryEVMValidatorsRequest) Get(descriptor protoreflect.F
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryEVMValidatorsRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_EVMValidatorsRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryEVMValidatorsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.EVMValidatorsRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryEVMValidatorsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.EVMValidatorsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -949,36 +949,36 @@ func (x *fastReflection_QueryEVMValidatorsRequest) Set(fd protoreflect.FieldDesc
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryEVMValidatorsRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_EVMValidatorsRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryEVMValidatorsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.EVMValidatorsRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryEVMValidatorsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.EVMValidatorsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_QueryEVMValidatorsRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_EVMValidatorsRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryEVMValidatorsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.EVMValidatorsRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryEVMValidatorsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.EVMValidatorsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_QueryEVMValidatorsRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_EVMValidatorsRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.v1.node.QueryEVMValidatorsRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in bandchain.v1.node.EVMValidatorsRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -986,7 +986,7 @@ func (x *fastReflection_QueryEVMValidatorsRequest) WhichOneof(d protoreflect.One
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_QueryEVMValidatorsRequest) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_EVMValidatorsRequest) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -997,7 +997,7 @@ func (x *fastReflection_QueryEVMValidatorsRequest) GetUnknown() protoreflect.Raw
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryEVMValidatorsRequest) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_EVMValidatorsRequest) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -1009,7 +1009,7 @@ func (x *fastReflection_QueryEVMValidatorsRequest) SetUnknown(fields protoreflec
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_QueryEVMValidatorsRequest) IsValid() bool {
+func (x *fastReflection_EVMValidatorsRequest) IsValid() bool {
 	return x != nil
 }
 
@@ -1019,9 +1019,9 @@ func (x *fastReflection_QueryEVMValidatorsRequest) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_QueryEVMValidatorsRequest) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_EVMValidatorsRequest) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*QueryEVMValidatorsRequest)
+		x := input.Message.Interface().(*EVMValidatorsRequest)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -1043,7 +1043,7 @@ func (x *fastReflection_QueryEVMValidatorsRequest) ProtoMethods() *protoiface.Me
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*QueryEVMValidatorsRequest)
+		x := input.Message.Interface().(*EVMValidatorsRequest)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -1073,7 +1073,7 @@ func (x *fastReflection_QueryEVMValidatorsRequest) ProtoMethods() *protoiface.Me
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*QueryEVMValidatorsRequest)
+		x := input.Message.Interface().(*EVMValidatorsRequest)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -1105,10 +1105,10 @@ func (x *fastReflection_QueryEVMValidatorsRequest) ProtoMethods() *protoiface.Me
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryEVMValidatorsRequest: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: EVMValidatorsRequest: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryEVMValidatorsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: EVMValidatorsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			default:
@@ -1146,79 +1146,79 @@ func (x *fastReflection_QueryEVMValidatorsRequest) ProtoMethods() *protoiface.Me
 	}
 }
 
-var _ protoreflect.List = (*_QueryEVMValidatorsResponse_2_list)(nil)
+var _ protoreflect.List = (*_EVMValidatorsResponse_2_list)(nil)
 
-type _QueryEVMValidatorsResponse_2_list struct {
+type _EVMValidatorsResponse_2_list struct {
 	list *[]*ValidatorMinimal
 }
 
-func (x *_QueryEVMValidatorsResponse_2_list) Len() int {
+func (x *_EVMValidatorsResponse_2_list) Len() int {
 	if x.list == nil {
 		return 0
 	}
 	return len(*x.list)
 }
 
-func (x *_QueryEVMValidatorsResponse_2_list) Get(i int) protoreflect.Value {
+func (x *_EVMValidatorsResponse_2_list) Get(i int) protoreflect.Value {
 	return protoreflect.ValueOfMessage((*x.list)[i].ProtoReflect())
 }
 
-func (x *_QueryEVMValidatorsResponse_2_list) Set(i int, value protoreflect.Value) {
+func (x *_EVMValidatorsResponse_2_list) Set(i int, value protoreflect.Value) {
 	valueUnwrapped := value.Message()
 	concreteValue := valueUnwrapped.Interface().(*ValidatorMinimal)
 	(*x.list)[i] = concreteValue
 }
 
-func (x *_QueryEVMValidatorsResponse_2_list) Append(value protoreflect.Value) {
+func (x *_EVMValidatorsResponse_2_list) Append(value protoreflect.Value) {
 	valueUnwrapped := value.Message()
 	concreteValue := valueUnwrapped.Interface().(*ValidatorMinimal)
 	*x.list = append(*x.list, concreteValue)
 }
 
-func (x *_QueryEVMValidatorsResponse_2_list) AppendMutable() protoreflect.Value {
+func (x *_EVMValidatorsResponse_2_list) AppendMutable() protoreflect.Value {
 	v := new(ValidatorMinimal)
 	*x.list = append(*x.list, v)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
-func (x *_QueryEVMValidatorsResponse_2_list) Truncate(n int) {
+func (x *_EVMValidatorsResponse_2_list) Truncate(n int) {
 	for i := n; i < len(*x.list); i++ {
 		(*x.list)[i] = nil
 	}
 	*x.list = (*x.list)[:n]
 }
 
-func (x *_QueryEVMValidatorsResponse_2_list) NewElement() protoreflect.Value {
+func (x *_EVMValidatorsResponse_2_list) NewElement() protoreflect.Value {
 	v := new(ValidatorMinimal)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
-func (x *_QueryEVMValidatorsResponse_2_list) IsValid() bool {
+func (x *_EVMValidatorsResponse_2_list) IsValid() bool {
 	return x.list != nil
 }
 
 var (
-	md_QueryEVMValidatorsResponse              protoreflect.MessageDescriptor
-	fd_QueryEVMValidatorsResponse_block_height protoreflect.FieldDescriptor
-	fd_QueryEVMValidatorsResponse_validators   protoreflect.FieldDescriptor
+	md_EVMValidatorsResponse              protoreflect.MessageDescriptor
+	fd_EVMValidatorsResponse_block_height protoreflect.FieldDescriptor
+	fd_EVMValidatorsResponse_validators   protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_bandchain_v1_node_query_proto_init()
-	md_QueryEVMValidatorsResponse = File_bandchain_v1_node_query_proto.Messages().ByName("QueryEVMValidatorsResponse")
-	fd_QueryEVMValidatorsResponse_block_height = md_QueryEVMValidatorsResponse.Fields().ByName("block_height")
-	fd_QueryEVMValidatorsResponse_validators = md_QueryEVMValidatorsResponse.Fields().ByName("validators")
+	md_EVMValidatorsResponse = File_bandchain_v1_node_query_proto.Messages().ByName("EVMValidatorsResponse")
+	fd_EVMValidatorsResponse_block_height = md_EVMValidatorsResponse.Fields().ByName("block_height")
+	fd_EVMValidatorsResponse_validators = md_EVMValidatorsResponse.Fields().ByName("validators")
 }
 
-var _ protoreflect.Message = (*fastReflection_QueryEVMValidatorsResponse)(nil)
+var _ protoreflect.Message = (*fastReflection_EVMValidatorsResponse)(nil)
 
-type fastReflection_QueryEVMValidatorsResponse QueryEVMValidatorsResponse
+type fastReflection_EVMValidatorsResponse EVMValidatorsResponse
 
-func (x *QueryEVMValidatorsResponse) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_QueryEVMValidatorsResponse)(x)
+func (x *EVMValidatorsResponse) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_EVMValidatorsResponse)(x)
 }
 
-func (x *QueryEVMValidatorsResponse) slowProtoReflect() protoreflect.Message {
+func (x *EVMValidatorsResponse) slowProtoReflect() protoreflect.Message {
 	mi := &file_bandchain_v1_node_query_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1230,43 +1230,43 @@ func (x *QueryEVMValidatorsResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_QueryEVMValidatorsResponse_messageType fastReflection_QueryEVMValidatorsResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryEVMValidatorsResponse_messageType{}
+var _fastReflection_EVMValidatorsResponse_messageType fastReflection_EVMValidatorsResponse_messageType
+var _ protoreflect.MessageType = fastReflection_EVMValidatorsResponse_messageType{}
 
-type fastReflection_QueryEVMValidatorsResponse_messageType struct{}
+type fastReflection_EVMValidatorsResponse_messageType struct{}
 
-func (x fastReflection_QueryEVMValidatorsResponse_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_QueryEVMValidatorsResponse)(nil)
+func (x fastReflection_EVMValidatorsResponse_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_EVMValidatorsResponse)(nil)
 }
-func (x fastReflection_QueryEVMValidatorsResponse_messageType) New() protoreflect.Message {
-	return new(fastReflection_QueryEVMValidatorsResponse)
+func (x fastReflection_EVMValidatorsResponse_messageType) New() protoreflect.Message {
+	return new(fastReflection_EVMValidatorsResponse)
 }
-func (x fastReflection_QueryEVMValidatorsResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_QueryEVMValidatorsResponse
+func (x fastReflection_EVMValidatorsResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_EVMValidatorsResponse
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_QueryEVMValidatorsResponse) Descriptor() protoreflect.MessageDescriptor {
-	return md_QueryEVMValidatorsResponse
+func (x *fastReflection_EVMValidatorsResponse) Descriptor() protoreflect.MessageDescriptor {
+	return md_EVMValidatorsResponse
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_QueryEVMValidatorsResponse) Type() protoreflect.MessageType {
-	return _fastReflection_QueryEVMValidatorsResponse_messageType
+func (x *fastReflection_EVMValidatorsResponse) Type() protoreflect.MessageType {
+	return _fastReflection_EVMValidatorsResponse_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_QueryEVMValidatorsResponse) New() protoreflect.Message {
-	return new(fastReflection_QueryEVMValidatorsResponse)
+func (x *fastReflection_EVMValidatorsResponse) New() protoreflect.Message {
+	return new(fastReflection_EVMValidatorsResponse)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_QueryEVMValidatorsResponse) Interface() protoreflect.ProtoMessage {
-	return (*QueryEVMValidatorsResponse)(x)
+func (x *fastReflection_EVMValidatorsResponse) Interface() protoreflect.ProtoMessage {
+	return (*EVMValidatorsResponse)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -1274,16 +1274,16 @@ func (x *fastReflection_QueryEVMValidatorsResponse) Interface() protoreflect.Pro
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_QueryEVMValidatorsResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+func (x *fastReflection_EVMValidatorsResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
 	if x.BlockHeight != int64(0) {
 		value := protoreflect.ValueOfInt64(x.BlockHeight)
-		if !f(fd_QueryEVMValidatorsResponse_block_height, value) {
+		if !f(fd_EVMValidatorsResponse_block_height, value) {
 			return
 		}
 	}
 	if len(x.Validators) != 0 {
-		value := protoreflect.ValueOfList(&_QueryEVMValidatorsResponse_2_list{list: &x.Validators})
-		if !f(fd_QueryEVMValidatorsResponse_validators, value) {
+		value := protoreflect.ValueOfList(&_EVMValidatorsResponse_2_list{list: &x.Validators})
+		if !f(fd_EVMValidatorsResponse_validators, value) {
 			return
 		}
 	}
@@ -1300,17 +1300,17 @@ func (x *fastReflection_QueryEVMValidatorsResponse) Range(f func(protoreflect.Fi
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_QueryEVMValidatorsResponse) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_EVMValidatorsResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.v1.node.QueryEVMValidatorsResponse.block_height":
+	case "bandchain.v1.node.EVMValidatorsResponse.block_height":
 		return x.BlockHeight != int64(0)
-	case "bandchain.v1.node.QueryEVMValidatorsResponse.validators":
+	case "bandchain.v1.node.EVMValidatorsResponse.validators":
 		return len(x.Validators) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryEVMValidatorsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.EVMValidatorsResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryEVMValidatorsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.EVMValidatorsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1320,17 +1320,17 @@ func (x *fastReflection_QueryEVMValidatorsResponse) Has(fd protoreflect.FieldDes
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryEVMValidatorsResponse) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_EVMValidatorsResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.v1.node.QueryEVMValidatorsResponse.block_height":
+	case "bandchain.v1.node.EVMValidatorsResponse.block_height":
 		x.BlockHeight = int64(0)
-	case "bandchain.v1.node.QueryEVMValidatorsResponse.validators":
+	case "bandchain.v1.node.EVMValidatorsResponse.validators":
 		x.Validators = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryEVMValidatorsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.EVMValidatorsResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryEVMValidatorsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.EVMValidatorsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1340,22 +1340,22 @@ func (x *fastReflection_QueryEVMValidatorsResponse) Clear(fd protoreflect.FieldD
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_QueryEVMValidatorsResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_EVMValidatorsResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.v1.node.QueryEVMValidatorsResponse.block_height":
+	case "bandchain.v1.node.EVMValidatorsResponse.block_height":
 		value := x.BlockHeight
 		return protoreflect.ValueOfInt64(value)
-	case "bandchain.v1.node.QueryEVMValidatorsResponse.validators":
+	case "bandchain.v1.node.EVMValidatorsResponse.validators":
 		if len(x.Validators) == 0 {
-			return protoreflect.ValueOfList(&_QueryEVMValidatorsResponse_2_list{})
+			return protoreflect.ValueOfList(&_EVMValidatorsResponse_2_list{})
 		}
-		listValue := &_QueryEVMValidatorsResponse_2_list{list: &x.Validators}
+		listValue := &_EVMValidatorsResponse_2_list{list: &x.Validators}
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryEVMValidatorsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.EVMValidatorsResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryEVMValidatorsResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.EVMValidatorsResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1369,19 +1369,19 @@ func (x *fastReflection_QueryEVMValidatorsResponse) Get(descriptor protoreflect.
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryEVMValidatorsResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_EVMValidatorsResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.v1.node.QueryEVMValidatorsResponse.block_height":
+	case "bandchain.v1.node.EVMValidatorsResponse.block_height":
 		x.BlockHeight = value.Int()
-	case "bandchain.v1.node.QueryEVMValidatorsResponse.validators":
+	case "bandchain.v1.node.EVMValidatorsResponse.validators":
 		lv := value.List()
-		clv := lv.(*_QueryEVMValidatorsResponse_2_list)
+		clv := lv.(*_EVMValidatorsResponse_2_list)
 		x.Validators = *clv.list
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryEVMValidatorsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.EVMValidatorsResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryEVMValidatorsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.EVMValidatorsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1395,49 +1395,49 @@ func (x *fastReflection_QueryEVMValidatorsResponse) Set(fd protoreflect.FieldDes
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryEVMValidatorsResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_EVMValidatorsResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.v1.node.QueryEVMValidatorsResponse.validators":
+	case "bandchain.v1.node.EVMValidatorsResponse.validators":
 		if x.Validators == nil {
 			x.Validators = []*ValidatorMinimal{}
 		}
-		value := &_QueryEVMValidatorsResponse_2_list{list: &x.Validators}
+		value := &_EVMValidatorsResponse_2_list{list: &x.Validators}
 		return protoreflect.ValueOfList(value)
-	case "bandchain.v1.node.QueryEVMValidatorsResponse.block_height":
-		panic(fmt.Errorf("field block_height of message bandchain.v1.node.QueryEVMValidatorsResponse is not mutable"))
+	case "bandchain.v1.node.EVMValidatorsResponse.block_height":
+		panic(fmt.Errorf("field block_height of message bandchain.v1.node.EVMValidatorsResponse is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryEVMValidatorsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.EVMValidatorsResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryEVMValidatorsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.EVMValidatorsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_QueryEVMValidatorsResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_EVMValidatorsResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.v1.node.QueryEVMValidatorsResponse.block_height":
+	case "bandchain.v1.node.EVMValidatorsResponse.block_height":
 		return protoreflect.ValueOfInt64(int64(0))
-	case "bandchain.v1.node.QueryEVMValidatorsResponse.validators":
+	case "bandchain.v1.node.EVMValidatorsResponse.validators":
 		list := []*ValidatorMinimal{}
-		return protoreflect.ValueOfList(&_QueryEVMValidatorsResponse_2_list{list: &list})
+		return protoreflect.ValueOfList(&_EVMValidatorsResponse_2_list{list: &list})
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.QueryEVMValidatorsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.v1.node.EVMValidatorsResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.v1.node.QueryEVMValidatorsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message bandchain.v1.node.EVMValidatorsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_QueryEVMValidatorsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_EVMValidatorsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.v1.node.QueryEVMValidatorsResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in bandchain.v1.node.EVMValidatorsResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1445,7 +1445,7 @@ func (x *fastReflection_QueryEVMValidatorsResponse) WhichOneof(d protoreflect.On
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_QueryEVMValidatorsResponse) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_EVMValidatorsResponse) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -1456,7 +1456,7 @@ func (x *fastReflection_QueryEVMValidatorsResponse) GetUnknown() protoreflect.Ra
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryEVMValidatorsResponse) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_EVMValidatorsResponse) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -1468,7 +1468,7 @@ func (x *fastReflection_QueryEVMValidatorsResponse) SetUnknown(fields protorefle
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_QueryEVMValidatorsResponse) IsValid() bool {
+func (x *fastReflection_EVMValidatorsResponse) IsValid() bool {
 	return x != nil
 }
 
@@ -1478,9 +1478,9 @@ func (x *fastReflection_QueryEVMValidatorsResponse) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_QueryEVMValidatorsResponse) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_EVMValidatorsResponse) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*QueryEVMValidatorsResponse)
+		x := input.Message.Interface().(*EVMValidatorsResponse)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -1511,7 +1511,7 @@ func (x *fastReflection_QueryEVMValidatorsResponse) ProtoMethods() *protoiface.M
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*QueryEVMValidatorsResponse)
+		x := input.Message.Interface().(*EVMValidatorsResponse)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -1562,7 +1562,7 @@ func (x *fastReflection_QueryEVMValidatorsResponse) ProtoMethods() *protoiface.M
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*QueryEVMValidatorsResponse)
+		x := input.Message.Interface().(*EVMValidatorsResponse)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -1594,10 +1594,10 @@ func (x *fastReflection_QueryEVMValidatorsResponse) ProtoMethods() *protoiface.M
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryEVMValidatorsResponse: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: EVMValidatorsResponse: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryEVMValidatorsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: EVMValidatorsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			case 1:
@@ -2169,15 +2169,15 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// QueryChainIDRequest is request type for the Service/ChainID RPC method.
-type QueryChainIDRequest struct {
+// ChainIDRequest is request type for the Service/ChainID RPC method.
+type ChainIDRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 }
 
-func (x *QueryChainIDRequest) Reset() {
-	*x = QueryChainIDRequest{}
+func (x *ChainIDRequest) Reset() {
+	*x = ChainIDRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_bandchain_v1_node_query_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2185,19 +2185,19 @@ func (x *QueryChainIDRequest) Reset() {
 	}
 }
 
-func (x *QueryChainIDRequest) String() string {
+func (x *ChainIDRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*QueryChainIDRequest) ProtoMessage() {}
+func (*ChainIDRequest) ProtoMessage() {}
 
-// Deprecated: Use QueryChainIDRequest.ProtoReflect.Descriptor instead.
-func (*QueryChainIDRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use ChainIDRequest.ProtoReflect.Descriptor instead.
+func (*ChainIDRequest) Descriptor() ([]byte, []int) {
 	return file_bandchain_v1_node_query_proto_rawDescGZIP(), []int{0}
 }
 
-// QueryChainIDResponse is response type for the Service/ChainID RPC method.
-type QueryChainIDResponse struct {
+// ChainIDResponse is response type for the Service/ChainID RPC method.
+type ChainIDResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -2205,8 +2205,8 @@ type QueryChainIDResponse struct {
 	ChainId string `protobuf:"bytes,1,opt,name=chain_id,json=chainId,proto3" json:"chain_id,omitempty"`
 }
 
-func (x *QueryChainIDResponse) Reset() {
-	*x = QueryChainIDResponse{}
+func (x *ChainIDResponse) Reset() {
+	*x = ChainIDResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_bandchain_v1_node_query_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2214,33 +2214,33 @@ func (x *QueryChainIDResponse) Reset() {
 	}
 }
 
-func (x *QueryChainIDResponse) String() string {
+func (x *ChainIDResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*QueryChainIDResponse) ProtoMessage() {}
+func (*ChainIDResponse) ProtoMessage() {}
 
-// Deprecated: Use QueryChainIDResponse.ProtoReflect.Descriptor instead.
-func (*QueryChainIDResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use ChainIDResponse.ProtoReflect.Descriptor instead.
+func (*ChainIDResponse) Descriptor() ([]byte, []int) {
 	return file_bandchain_v1_node_query_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *QueryChainIDResponse) GetChainId() string {
+func (x *ChainIDResponse) GetChainId() string {
 	if x != nil {
 		return x.ChainId
 	}
 	return ""
 }
 
-// QueryEVMValidatorsRequest is request type for the Service/EVMValidators RPC method.
-type QueryEVMValidatorsRequest struct {
+// EVMValidatorsRequest is request type for the Service/EVMValidators RPC method.
+type EVMValidatorsRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 }
 
-func (x *QueryEVMValidatorsRequest) Reset() {
-	*x = QueryEVMValidatorsRequest{}
+func (x *EVMValidatorsRequest) Reset() {
+	*x = EVMValidatorsRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_bandchain_v1_node_query_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2248,19 +2248,19 @@ func (x *QueryEVMValidatorsRequest) Reset() {
 	}
 }
 
-func (x *QueryEVMValidatorsRequest) String() string {
+func (x *EVMValidatorsRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*QueryEVMValidatorsRequest) ProtoMessage() {}
+func (*EVMValidatorsRequest) ProtoMessage() {}
 
-// Deprecated: Use QueryEVMValidatorsRequest.ProtoReflect.Descriptor instead.
-func (*QueryEVMValidatorsRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use EVMValidatorsRequest.ProtoReflect.Descriptor instead.
+func (*EVMValidatorsRequest) Descriptor() ([]byte, []int) {
 	return file_bandchain_v1_node_query_proto_rawDescGZIP(), []int{2}
 }
 
-// QueryEVMValidatorsResponse is response type for the Service/EVMValidators RPC method.
-type QueryEVMValidatorsResponse struct {
+// EVMValidatorsResponse is response type for the Service/EVMValidators RPC method.
+type EVMValidatorsResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
@@ -2271,8 +2271,8 @@ type QueryEVMValidatorsResponse struct {
 	Validators []*ValidatorMinimal `protobuf:"bytes,2,rep,name=validators,proto3" json:"validators,omitempty"`
 }
 
-func (x *QueryEVMValidatorsResponse) Reset() {
-	*x = QueryEVMValidatorsResponse{}
+func (x *EVMValidatorsResponse) Reset() {
+	*x = EVMValidatorsResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_bandchain_v1_node_query_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -2280,25 +2280,25 @@ func (x *QueryEVMValidatorsResponse) Reset() {
 	}
 }
 
-func (x *QueryEVMValidatorsResponse) String() string {
+func (x *EVMValidatorsResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*QueryEVMValidatorsResponse) ProtoMessage() {}
+func (*EVMValidatorsResponse) ProtoMessage() {}
 
-// Deprecated: Use QueryEVMValidatorsResponse.ProtoReflect.Descriptor instead.
-func (*QueryEVMValidatorsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use EVMValidatorsResponse.ProtoReflect.Descriptor instead.
+func (*EVMValidatorsResponse) Descriptor() ([]byte, []int) {
 	return file_bandchain_v1_node_query_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *QueryEVMValidatorsResponse) GetBlockHeight() int64 {
+func (x *EVMValidatorsResponse) GetBlockHeight() int64 {
 	if x != nil {
 		return x.BlockHeight
 	}
 	return 0
 }
 
-func (x *QueryEVMValidatorsResponse) GetValidators() []*ValidatorMinimal {
+func (x *EVMValidatorsResponse) GetValidators() []*ValidatorMinimal {
 	if x != nil {
 		return x.Validators
 	}
@@ -2358,57 +2358,55 @@ var file_bandchain_v1_node_query_proto_rawDesc = []byte{
 	0x64, 0x65, 0x1a, 0x1c, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x61,
 	0x6e, 0x6e, 0x6f, 0x74, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
 	0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f,
-	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x15, 0x0a, 0x13, 0x51, 0x75, 0x65, 0x72, 0x79, 0x43,
-	0x68, 0x61, 0x69, 0x6e, 0x49, 0x44, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x3e, 0x0a,
-	0x14, 0x51, 0x75, 0x65, 0x72, 0x79, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x44, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x26, 0x0a, 0x08, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x5f, 0x69,
-	0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x0b, 0xe2, 0xde, 0x1f, 0x07, 0x43, 0x68, 0x61,
-	0x69, 0x6e, 0x49, 0x44, 0x52, 0x07, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x64, 0x22, 0x1b, 0x0a,
-	0x19, 0x51, 0x75, 0x65, 0x72, 0x79, 0x45, 0x56, 0x4d, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
-	0x6f, 0x72, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x8a, 0x01, 0x0a, 0x1a, 0x51,
-	0x75, 0x65, 0x72, 0x79, 0x45, 0x56, 0x4d, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72,
-	0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x21, 0x0a, 0x0c, 0x62, 0x6c, 0x6f,
-	0x63, 0x6b, 0x5f, 0x68, 0x65, 0x69, 0x67, 0x68, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52,
-	0x0b, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x48, 0x65, 0x69, 0x67, 0x68, 0x74, 0x12, 0x49, 0x0a, 0x0a,
-	0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b,
-	0x32, 0x23, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x76, 0x31, 0x2e,
-	0x6e, 0x6f, 0x64, 0x65, 0x2e, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x4d, 0x69,
-	0x6e, 0x69, 0x6d, 0x61, 0x6c, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x0a, 0x76, 0x61, 0x6c,
-	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x22, 0x4f, 0x0a, 0x10, 0x56, 0x61, 0x6c, 0x69, 0x64,
-	0x61, 0x74, 0x6f, 0x72, 0x4d, 0x69, 0x6e, 0x69, 0x6d, 0x61, 0x6c, 0x12, 0x18, 0x0a, 0x07, 0x61,
-	0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x61, 0x64,
-	0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x21, 0x0a, 0x0c, 0x76, 0x6f, 0x74, 0x69, 0x6e, 0x67, 0x5f,
-	0x70, 0x6f, 0x77, 0x65, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x0b, 0x76, 0x6f, 0x74,
-	0x69, 0x6e, 0x67, 0x50, 0x6f, 0x77, 0x65, 0x72, 0x32, 0x9a, 0x02, 0x0a, 0x07, 0x53, 0x65, 0x72,
-	0x76, 0x69, 0x63, 0x65, 0x12, 0x7a, 0x0a, 0x07, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x44, 0x12,
-	0x26, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x6e,
-	0x6f, 0x64, 0x65, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x44,
-	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x27, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68,
-	0x61, 0x69, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x6e, 0x6f, 0x64, 0x65, 0x2e, 0x51, 0x75, 0x65, 0x72,
-	0x79, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x44, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
-	0x22, 0x1e, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x18, 0x12, 0x16, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x63,
-	0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x31, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x5f, 0x69, 0x64,
-	0x12, 0x92, 0x01, 0x0a, 0x0d, 0x45, 0x56, 0x4d, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
-	0x72, 0x73, 0x12, 0x2c, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x76,
-	0x31, 0x2e, 0x6e, 0x6f, 0x64, 0x65, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x45, 0x56, 0x4d, 0x56,
-	0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x1a, 0x2d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x76, 0x31, 0x2e,
-	0x6e, 0x6f, 0x64, 0x65, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x45, 0x56, 0x4d, 0x56, 0x61, 0x6c,
-	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
-	0x24, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x1e, 0x12, 0x1c, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68,
-	0x61, 0x69, 0x6e, 0x2f, 0x76, 0x31, 0x2f, 0x65, 0x76, 0x6d, 0x2d, 0x76, 0x61, 0x6c, 0x69, 0x64,
-	0x61, 0x74, 0x6f, 0x72, 0x73, 0x42, 0xad, 0x01, 0x0a, 0x15, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61,
-	0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x6e, 0x6f, 0x64, 0x65, 0x42,
-	0x0a, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x22, 0x63,
-	0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b, 0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f,
-	0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x31, 0x2f, 0x6e, 0x6f, 0x64,
-	0x65, 0xa2, 0x02, 0x03, 0x42, 0x56, 0x4e, 0xaa, 0x02, 0x11, 0x42, 0x61, 0x6e, 0x64, 0x63, 0x68,
-	0x61, 0x69, 0x6e, 0x2e, 0x56, 0x31, 0x2e, 0x4e, 0x6f, 0x64, 0x65, 0xca, 0x02, 0x11, 0x42, 0x61,
-	0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x5c, 0x56, 0x31, 0x5c, 0x4e, 0x6f, 0x64, 0x65, 0xe2,
-	0x02, 0x1d, 0x42, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x5c, 0x56, 0x31, 0x5c, 0x4e,
-	0x6f, 0x64, 0x65, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea,
-	0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x3a, 0x3a, 0x56, 0x31, 0x3a,
-	0x3a, 0x4e, 0x6f, 0x64, 0x65, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x10, 0x0a, 0x0e, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49,
+	0x44, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x39, 0x0a, 0x0f, 0x43, 0x68, 0x61, 0x69,
+	0x6e, 0x49, 0x44, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x26, 0x0a, 0x08, 0x63,
+	0x68, 0x61, 0x69, 0x6e, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x0b, 0xe2,
+	0xde, 0x1f, 0x07, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x44, 0x52, 0x07, 0x63, 0x68, 0x61, 0x69,
+	0x6e, 0x49, 0x64, 0x22, 0x16, 0x0a, 0x14, 0x45, 0x56, 0x4d, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61,
+	0x74, 0x6f, 0x72, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x85, 0x01, 0x0a, 0x15,
+	0x45, 0x56, 0x4d, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x21, 0x0a, 0x0c, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x5f, 0x68,
+	0x65, 0x69, 0x67, 0x68, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x0b, 0x62, 0x6c, 0x6f,
+	0x63, 0x6b, 0x48, 0x65, 0x69, 0x67, 0x68, 0x74, 0x12, 0x49, 0x0a, 0x0a, 0x76, 0x61, 0x6c, 0x69,
+	0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x23, 0x2e, 0x62,
+	0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x6e, 0x6f, 0x64, 0x65,
+	0x2e, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x4d, 0x69, 0x6e, 0x69, 0x6d, 0x61,
+	0x6c, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x0a, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
+	0x6f, 0x72, 0x73, 0x22, 0x4f, 0x0a, 0x10, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72,
+	0x4d, 0x69, 0x6e, 0x69, 0x6d, 0x61, 0x6c, 0x12, 0x18, 0x0a, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65,
+	0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73,
+	0x73, 0x12, 0x21, 0x0a, 0x0c, 0x76, 0x6f, 0x74, 0x69, 0x6e, 0x67, 0x5f, 0x70, 0x6f, 0x77, 0x65,
+	0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x0b, 0x76, 0x6f, 0x74, 0x69, 0x6e, 0x67, 0x50,
+	0x6f, 0x77, 0x65, 0x72, 0x32, 0x86, 0x02, 0x0a, 0x07, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65,
+	0x12, 0x70, 0x0a, 0x07, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x44, 0x12, 0x21, 0x2e, 0x62, 0x61,
+	0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x6e, 0x6f, 0x64, 0x65, 0x2e,
+	0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x44, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x22,
+	0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x6e, 0x6f,
+	0x64, 0x65, 0x2e, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x44, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x22, 0x1e, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x18, 0x12, 0x16, 0x2f, 0x62, 0x61, 0x6e,
+	0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x31, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x5f,
+	0x69, 0x64, 0x12, 0x88, 0x01, 0x0a, 0x0d, 0x45, 0x56, 0x4d, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61,
+	0x74, 0x6f, 0x72, 0x73, 0x12, 0x27, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e,
+	0x2e, 0x76, 0x31, 0x2e, 0x6e, 0x6f, 0x64, 0x65, 0x2e, 0x45, 0x56, 0x4d, 0x56, 0x61, 0x6c, 0x69,
+	0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x28, 0x2e,
+	0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x76, 0x31, 0x2e, 0x6e, 0x6f, 0x64,
+	0x65, 0x2e, 0x45, 0x56, 0x4d, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x24, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x1e, 0x12,
+	0x1c, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x31, 0x2f, 0x65,
+	0x76, 0x6d, 0x2d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x42, 0xad, 0x01,
+	0x0a, 0x15, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e,
+	0x76, 0x31, 0x2e, 0x6e, 0x6f, 0x64, 0x65, 0x42, 0x0a, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x72,
+	0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x22, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x73, 0x64, 0x6b,
+	0x2e, 0x69, 0x6f, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69,
+	0x6e, 0x2f, 0x76, 0x31, 0x2f, 0x6e, 0x6f, 0x64, 0x65, 0xa2, 0x02, 0x03, 0x42, 0x56, 0x4e, 0xaa,
+	0x02, 0x11, 0x42, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x56, 0x31, 0x2e, 0x4e,
+	0x6f, 0x64, 0x65, 0xca, 0x02, 0x11, 0x42, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x5c,
+	0x56, 0x31, 0x5c, 0x4e, 0x6f, 0x64, 0x65, 0xe2, 0x02, 0x1d, 0x42, 0x61, 0x6e, 0x64, 0x63, 0x68,
+	0x61, 0x69, 0x6e, 0x5c, 0x56, 0x31, 0x5c, 0x4e, 0x6f, 0x64, 0x65, 0x5c, 0x47, 0x50, 0x42, 0x4d,
+	0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x63, 0x68,
+	0x61, 0x69, 0x6e, 0x3a, 0x3a, 0x56, 0x31, 0x3a, 0x3a, 0x4e, 0x6f, 0x64, 0x65, 0x62, 0x06, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -2425,18 +2423,18 @@ func file_bandchain_v1_node_query_proto_rawDescGZIP() []byte {
 
 var file_bandchain_v1_node_query_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_bandchain_v1_node_query_proto_goTypes = []interface{}{
-	(*QueryChainIDRequest)(nil),        // 0: bandchain.v1.node.QueryChainIDRequest
-	(*QueryChainIDResponse)(nil),       // 1: bandchain.v1.node.QueryChainIDResponse
-	(*QueryEVMValidatorsRequest)(nil),  // 2: bandchain.v1.node.QueryEVMValidatorsRequest
-	(*QueryEVMValidatorsResponse)(nil), // 3: bandchain.v1.node.QueryEVMValidatorsResponse
-	(*ValidatorMinimal)(nil),           // 4: bandchain.v1.node.ValidatorMinimal
+	(*ChainIDRequest)(nil),        // 0: bandchain.v1.node.ChainIDRequest
+	(*ChainIDResponse)(nil),       // 1: bandchain.v1.node.ChainIDResponse
+	(*EVMValidatorsRequest)(nil),  // 2: bandchain.v1.node.EVMValidatorsRequest
+	(*EVMValidatorsResponse)(nil), // 3: bandchain.v1.node.EVMValidatorsResponse
+	(*ValidatorMinimal)(nil),      // 4: bandchain.v1.node.ValidatorMinimal
 }
 var file_bandchain_v1_node_query_proto_depIdxs = []int32{
-	4, // 0: bandchain.v1.node.QueryEVMValidatorsResponse.validators:type_name -> bandchain.v1.node.ValidatorMinimal
-	0, // 1: bandchain.v1.node.Service.ChainID:input_type -> bandchain.v1.node.QueryChainIDRequest
-	2, // 2: bandchain.v1.node.Service.EVMValidators:input_type -> bandchain.v1.node.QueryEVMValidatorsRequest
-	1, // 3: bandchain.v1.node.Service.ChainID:output_type -> bandchain.v1.node.QueryChainIDResponse
-	3, // 4: bandchain.v1.node.Service.EVMValidators:output_type -> bandchain.v1.node.QueryEVMValidatorsResponse
+	4, // 0: bandchain.v1.node.EVMValidatorsResponse.validators:type_name -> bandchain.v1.node.ValidatorMinimal
+	0, // 1: bandchain.v1.node.Service.ChainID:input_type -> bandchain.v1.node.ChainIDRequest
+	2, // 2: bandchain.v1.node.Service.EVMValidators:input_type -> bandchain.v1.node.EVMValidatorsRequest
+	1, // 3: bandchain.v1.node.Service.ChainID:output_type -> bandchain.v1.node.ChainIDResponse
+	3, // 4: bandchain.v1.node.Service.EVMValidators:output_type -> bandchain.v1.node.EVMValidatorsResponse
 	3, // [3:5] is the sub-list for method output_type
 	1, // [1:3] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -2451,7 +2449,7 @@ func file_bandchain_v1_node_query_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_bandchain_v1_node_query_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*QueryChainIDRequest); i {
+			switch v := v.(*ChainIDRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2463,7 +2461,7 @@ func file_bandchain_v1_node_query_proto_init() {
 			}
 		}
 		file_bandchain_v1_node_query_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*QueryChainIDResponse); i {
+			switch v := v.(*ChainIDResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2475,7 +2473,7 @@ func file_bandchain_v1_node_query_proto_init() {
 			}
 		}
 		file_bandchain_v1_node_query_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*QueryEVMValidatorsRequest); i {
+			switch v := v.(*EVMValidatorsRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2487,7 +2485,7 @@ func file_bandchain_v1_node_query_proto_init() {
 			}
 		}
 		file_bandchain_v1_node_query_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*QueryEVMValidatorsResponse); i {
+			switch v := v.(*EVMValidatorsResponse); i {
 			case 0:
 				return &v.state
 			case 1:

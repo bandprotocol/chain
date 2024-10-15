@@ -28,9 +28,9 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServiceClient interface {
 	// ChainID queries the chain ID of this node
-	ChainID(ctx context.Context, in *QueryChainIDRequest, opts ...grpc.CallOption) (*QueryChainIDResponse, error)
+	ChainID(ctx context.Context, in *ChainIDRequest, opts ...grpc.CallOption) (*ChainIDResponse, error)
 	// EVMValidators queries current list of validator's address and power
-	EVMValidators(ctx context.Context, in *QueryEVMValidatorsRequest, opts ...grpc.CallOption) (*QueryEVMValidatorsResponse, error)
+	EVMValidators(ctx context.Context, in *EVMValidatorsRequest, opts ...grpc.CallOption) (*EVMValidatorsResponse, error)
 }
 
 type serviceClient struct {
@@ -41,8 +41,8 @@ func NewServiceClient(cc grpc.ClientConnInterface) ServiceClient {
 	return &serviceClient{cc}
 }
 
-func (c *serviceClient) ChainID(ctx context.Context, in *QueryChainIDRequest, opts ...grpc.CallOption) (*QueryChainIDResponse, error) {
-	out := new(QueryChainIDResponse)
+func (c *serviceClient) ChainID(ctx context.Context, in *ChainIDRequest, opts ...grpc.CallOption) (*ChainIDResponse, error) {
+	out := new(ChainIDResponse)
 	err := c.cc.Invoke(ctx, Service_ChainID_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -50,8 +50,8 @@ func (c *serviceClient) ChainID(ctx context.Context, in *QueryChainIDRequest, op
 	return out, nil
 }
 
-func (c *serviceClient) EVMValidators(ctx context.Context, in *QueryEVMValidatorsRequest, opts ...grpc.CallOption) (*QueryEVMValidatorsResponse, error) {
-	out := new(QueryEVMValidatorsResponse)
+func (c *serviceClient) EVMValidators(ctx context.Context, in *EVMValidatorsRequest, opts ...grpc.CallOption) (*EVMValidatorsResponse, error) {
+	out := new(EVMValidatorsResponse)
 	err := c.cc.Invoke(ctx, Service_EVMValidators_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -64,9 +64,9 @@ func (c *serviceClient) EVMValidators(ctx context.Context, in *QueryEVMValidator
 // for forward compatibility
 type ServiceServer interface {
 	// ChainID queries the chain ID of this node
-	ChainID(context.Context, *QueryChainIDRequest) (*QueryChainIDResponse, error)
+	ChainID(context.Context, *ChainIDRequest) (*ChainIDResponse, error)
 	// EVMValidators queries current list of validator's address and power
-	EVMValidators(context.Context, *QueryEVMValidatorsRequest) (*QueryEVMValidatorsResponse, error)
+	EVMValidators(context.Context, *EVMValidatorsRequest) (*EVMValidatorsResponse, error)
 	mustEmbedUnimplementedServiceServer()
 }
 
@@ -74,10 +74,10 @@ type ServiceServer interface {
 type UnimplementedServiceServer struct {
 }
 
-func (UnimplementedServiceServer) ChainID(context.Context, *QueryChainIDRequest) (*QueryChainIDResponse, error) {
+func (UnimplementedServiceServer) ChainID(context.Context, *ChainIDRequest) (*ChainIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChainID not implemented")
 }
-func (UnimplementedServiceServer) EVMValidators(context.Context, *QueryEVMValidatorsRequest) (*QueryEVMValidatorsResponse, error) {
+func (UnimplementedServiceServer) EVMValidators(context.Context, *EVMValidatorsRequest) (*EVMValidatorsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EVMValidators not implemented")
 }
 func (UnimplementedServiceServer) mustEmbedUnimplementedServiceServer() {}
@@ -94,7 +94,7 @@ func RegisterServiceServer(s grpc.ServiceRegistrar, srv ServiceServer) {
 }
 
 func _Service_ChainID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryChainIDRequest)
+	in := new(ChainIDRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -106,13 +106,13 @@ func _Service_ChainID_Handler(srv interface{}, ctx context.Context, dec func(int
 		FullMethod: Service_ChainID_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).ChainID(ctx, req.(*QueryChainIDRequest))
+		return srv.(ServiceServer).ChainID(ctx, req.(*ChainIDRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Service_EVMValidators_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryEVMValidatorsRequest)
+	in := new(EVMValidatorsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func _Service_EVMValidators_Handler(srv interface{}, ctx context.Context, dec fu
 		FullMethod: Service_EVMValidators_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).EVMValidators(ctx, req.(*QueryEVMValidatorsRequest))
+		return srv.(ServiceServer).EVMValidators(ctx, req.(*EVMValidatorsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

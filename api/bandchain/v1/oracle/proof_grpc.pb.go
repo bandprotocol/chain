@@ -29,11 +29,11 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ServiceClient interface {
 	// Proof queries the proof for given request ID
-	Proof(ctx context.Context, in *QueryProofRequest, opts ...grpc.CallOption) (*QueryProofResponse, error)
+	Proof(ctx context.Context, in *ProofRequest, opts ...grpc.CallOption) (*ProofResponse, error)
 	// MultiProof queries multiple proofs for given list of request IDs
-	MultiProof(ctx context.Context, in *QueryMultiProofRequest, opts ...grpc.CallOption) (*QueryMultiProofResponse, error)
+	MultiProof(ctx context.Context, in *MultiProofRequest, opts ...grpc.CallOption) (*MultiProofResponse, error)
 	// RequestCountProof queries the count proof
-	RequestCountProof(ctx context.Context, in *QueryRequestCountProofRequest, opts ...grpc.CallOption) (*QueryRequestCountProofResponse, error)
+	RequestCountProof(ctx context.Context, in *RequestCountProofRequest, opts ...grpc.CallOption) (*RequestCountProofResponse, error)
 }
 
 type serviceClient struct {
@@ -44,8 +44,8 @@ func NewServiceClient(cc grpc.ClientConnInterface) ServiceClient {
 	return &serviceClient{cc}
 }
 
-func (c *serviceClient) Proof(ctx context.Context, in *QueryProofRequest, opts ...grpc.CallOption) (*QueryProofResponse, error) {
-	out := new(QueryProofResponse)
+func (c *serviceClient) Proof(ctx context.Context, in *ProofRequest, opts ...grpc.CallOption) (*ProofResponse, error) {
+	out := new(ProofResponse)
 	err := c.cc.Invoke(ctx, Service_Proof_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -53,8 +53,8 @@ func (c *serviceClient) Proof(ctx context.Context, in *QueryProofRequest, opts .
 	return out, nil
 }
 
-func (c *serviceClient) MultiProof(ctx context.Context, in *QueryMultiProofRequest, opts ...grpc.CallOption) (*QueryMultiProofResponse, error) {
-	out := new(QueryMultiProofResponse)
+func (c *serviceClient) MultiProof(ctx context.Context, in *MultiProofRequest, opts ...grpc.CallOption) (*MultiProofResponse, error) {
+	out := new(MultiProofResponse)
 	err := c.cc.Invoke(ctx, Service_MultiProof_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -62,8 +62,8 @@ func (c *serviceClient) MultiProof(ctx context.Context, in *QueryMultiProofReque
 	return out, nil
 }
 
-func (c *serviceClient) RequestCountProof(ctx context.Context, in *QueryRequestCountProofRequest, opts ...grpc.CallOption) (*QueryRequestCountProofResponse, error) {
-	out := new(QueryRequestCountProofResponse)
+func (c *serviceClient) RequestCountProof(ctx context.Context, in *RequestCountProofRequest, opts ...grpc.CallOption) (*RequestCountProofResponse, error) {
+	out := new(RequestCountProofResponse)
 	err := c.cc.Invoke(ctx, Service_RequestCountProof_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -76,11 +76,11 @@ func (c *serviceClient) RequestCountProof(ctx context.Context, in *QueryRequestC
 // for forward compatibility
 type ServiceServer interface {
 	// Proof queries the proof for given request ID
-	Proof(context.Context, *QueryProofRequest) (*QueryProofResponse, error)
+	Proof(context.Context, *ProofRequest) (*ProofResponse, error)
 	// MultiProof queries multiple proofs for given list of request IDs
-	MultiProof(context.Context, *QueryMultiProofRequest) (*QueryMultiProofResponse, error)
+	MultiProof(context.Context, *MultiProofRequest) (*MultiProofResponse, error)
 	// RequestCountProof queries the count proof
-	RequestCountProof(context.Context, *QueryRequestCountProofRequest) (*QueryRequestCountProofResponse, error)
+	RequestCountProof(context.Context, *RequestCountProofRequest) (*RequestCountProofResponse, error)
 	mustEmbedUnimplementedServiceServer()
 }
 
@@ -88,13 +88,13 @@ type ServiceServer interface {
 type UnimplementedServiceServer struct {
 }
 
-func (UnimplementedServiceServer) Proof(context.Context, *QueryProofRequest) (*QueryProofResponse, error) {
+func (UnimplementedServiceServer) Proof(context.Context, *ProofRequest) (*ProofResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Proof not implemented")
 }
-func (UnimplementedServiceServer) MultiProof(context.Context, *QueryMultiProofRequest) (*QueryMultiProofResponse, error) {
+func (UnimplementedServiceServer) MultiProof(context.Context, *MultiProofRequest) (*MultiProofResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MultiProof not implemented")
 }
-func (UnimplementedServiceServer) RequestCountProof(context.Context, *QueryRequestCountProofRequest) (*QueryRequestCountProofResponse, error) {
+func (UnimplementedServiceServer) RequestCountProof(context.Context, *RequestCountProofRequest) (*RequestCountProofResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RequestCountProof not implemented")
 }
 func (UnimplementedServiceServer) mustEmbedUnimplementedServiceServer() {}
@@ -111,7 +111,7 @@ func RegisterServiceServer(s grpc.ServiceRegistrar, srv ServiceServer) {
 }
 
 func _Service_Proof_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryProofRequest)
+	in := new(ProofRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -123,13 +123,13 @@ func _Service_Proof_Handler(srv interface{}, ctx context.Context, dec func(inter
 		FullMethod: Service_Proof_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).Proof(ctx, req.(*QueryProofRequest))
+		return srv.(ServiceServer).Proof(ctx, req.(*ProofRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Service_MultiProof_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryMultiProofRequest)
+	in := new(MultiProofRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -141,13 +141,13 @@ func _Service_MultiProof_Handler(srv interface{}, ctx context.Context, dec func(
 		FullMethod: Service_MultiProof_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).MultiProof(ctx, req.(*QueryMultiProofRequest))
+		return srv.(ServiceServer).MultiProof(ctx, req.(*MultiProofRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
 func _Service_RequestCountProof_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryRequestCountProofRequest)
+	in := new(RequestCountProofRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -159,7 +159,7 @@ func _Service_RequestCountProof_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: Service_RequestCountProof_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServiceServer).RequestCountProof(ctx, req.(*QueryRequestCountProofRequest))
+		return srv.(ServiceServer).RequestCountProof(ctx, req.(*RequestCountProofRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
