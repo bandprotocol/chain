@@ -34,7 +34,7 @@ var Upgrade = upgrades.Upgrade{
 			globalfeetypes.StoreKey,
 			consensusparamtypes.StoreKey,
 			crisistypes.StoreKey,
-			ibcfeetypes.ModuleName,
+			ibcfeetypes.StoreKey,
 		},
 	},
 }
