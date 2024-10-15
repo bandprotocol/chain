@@ -22,8 +22,6 @@ func GetQueryCmd() *cobra.Command {
 	queryCmd.AddCommand(
 		GetQueryCmdVaults(),
 		GetQueryCmdVault(),
-		GetQueryCmdRewards(),
-		GetQueryCmdReward(),
 		GetQueryCmdLocks(),
 		GetQueryCmdLock(),
 		GetQueryCmdStake(),
@@ -87,74 +85,6 @@ func GetQueryCmdVault() *cobra.Command {
 					Key: args[0],
 				},
 			)
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintProto(res)
-		},
-	}
-
-	flags.AddQueryFlagsToCmd(cmd)
-
-	return cmd
-}
-
-// GetQueryCmdRewards implements the rewards query command.
-func GetQueryCmdRewards() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "rewards [staker_address]",
-		Short: "shows all rewards of an address",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientQueryContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			queryClient := types.NewQueryClient(clientCtx)
-
-			pageReq, err := client.ReadPageRequest(cmd.Flags())
-			if err != nil {
-				return err
-			}
-
-			res, err := queryClient.Rewards(cmd.Context(), &types.QueryRewardsRequest{
-				StakerAddress: args[0],
-				Pagination:    pageReq,
-			})
-			if err != nil {
-				return err
-			}
-
-			return clientCtx.PrintProto(res)
-		},
-	}
-
-	flags.AddPaginationFlagsToCmd(cmd, "rewards")
-	flags.AddQueryFlagsToCmd(cmd)
-
-	return cmd
-}
-
-// GetQueryCmdReward implements the reward query command.
-func GetQueryCmdReward() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "reward [staker_address] [key]",
-		Short: "shows the reward of an staker address for the vault",
-		Args:  cobra.ExactArgs(2),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientQueryContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			queryClient := types.NewQueryClient(clientCtx)
-
-			res, err := queryClient.Reward(cmd.Context(), &types.QueryRewardRequest{
-				StakerAddress: args[0],
-				Key:           args[1],
-			})
 			if err != nil {
 				return err
 			}

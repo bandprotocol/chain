@@ -46,8 +46,6 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key s
 			stakerAddr.String(),
 			key,
 			sdkmath.NewInt(0),
-			sdk.NewDecCoins(),
-			sdk.NewDecCoins(),
 		)
 	}
 
@@ -56,12 +54,6 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key s
 	vault.TotalPower = vault.TotalPower.Add(diffPower)
 	k.SetVault(ctx, vault)
 
-	additionalDebts := vault.RewardsPerPower.MulDecTruncate(sdkmath.LegacyNewDecFromInt(diffPower.Abs()))
-	if diffPower.IsPositive() {
-		lock.PosRewardDebts = lock.PosRewardDebts.Add(additionalDebts...)
-	} else {
-		lock.NegRewardDebts = lock.NegRewardDebts.Add(additionalDebts...)
-	}
 	lock.Power = power
 	k.SetLock(ctx, lock)
 
@@ -98,23 +90,6 @@ func (k Keeper) GetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key s
 	}
 
 	return lock.Power, nil
-}
-
-// getAccumulatedRewards gets the accumulatedRewards of a lock if they lock since beginning.
-func (k Keeper) getAccumulatedRewards(ctx sdk.Context, lock types.Lock) sdk.DecCoins {
-	vault := k.MustGetVault(ctx, lock.Key)
-
-	return vault.RewardsPerPower.MulDecTruncate(sdkmath.LegacyNewDecFromInt(lock.Power))
-}
-
-// getReward gets the reward of a lock by using accumulated rewards and reward debts.
-func (k Keeper) getReward(ctx sdk.Context, lock types.Lock) types.Reward {
-	totalRewards := k.getAccumulatedRewards(ctx, lock)
-
-	return types.NewReward(
-		lock.Key,
-		totalRewards.Add(lock.NegRewardDebts...).Sub(lock.PosRewardDebts),
-	)
 }
 
 // isValidPower checks if the new power matches with current locked power.

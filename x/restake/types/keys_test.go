@@ -68,11 +68,9 @@ func TestLockByPowerIndexKey(t *testing.T) {
 	require.NoError(t, err)
 
 	lock := Lock{
-		StakerAddress:  acc.String(),
-		Key:            key,
-		Power:          sdkmath.NewInt(100),
-		PosRewardDebts: sdk.NewDecCoins(),
-		NegRewardDebts: sdk.NewDecCoins(),
+		StakerAddress: acc.String(),
+		Key:           key,
+		Power:         sdkmath.NewInt(100),
 	}
 
 	expect, err := hex.DecodeString(
