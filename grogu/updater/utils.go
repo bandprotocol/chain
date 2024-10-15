@@ -41,7 +41,7 @@ func processEvent(
 
 			// Check if the error is a gRPC error with code Status::not_found
 			st, ok := status.FromError(err)
-			if !ok || st.Code() != codes.NotFound {
+			if !ok || (st.Code() != codes.NotFound && st.Code() != codes.DeadlineExceeded) {
 				logger.Error(
 					"[Updater] Failed to process event for %s at height: %d with error: %v, not retrying",
 					query,
