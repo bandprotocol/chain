@@ -28,9 +28,9 @@ const (
 )
 
 var (
-	VaultStoreKeyPrefix = []byte{0x00}
-	LockStoreKeyPrefix  = []byte{0x01}
-	StakeStoreKeyPrefix = []byte{0x02}
+	VaultStoreKeyPrefix = []byte{0x10}
+	LockStoreKeyPrefix  = []byte{0x11}
+	StakeStoreKeyPrefix = []byte{0x12}
 
 	LocksByPowerIndexKeyPrefix = []byte{0x80}
 
