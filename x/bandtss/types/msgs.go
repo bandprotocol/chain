@@ -47,14 +47,6 @@ func NewMsgTransitionGroup(
 	}
 }
 
-// Type returns message type name.
-func (m MsgTransitionGroup) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSigners returns the expected signers for a MsgTransitionGroup.
-func (m MsgTransitionGroup) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
-}
-
 // ValidateBasic does a sanity check on the provided data
 func (m MsgTransitionGroup) ValidateBasic() error {
 	// Validate members address
@@ -97,14 +89,6 @@ func NewMsgForceTransitionGroup(
 	}
 }
 
-// Type returns message type name.
-func (m MsgForceTransitionGroup) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSigners returns the expected signers for a MsgForceTransitionGroup.
-func (m MsgForceTransitionGroup) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
-}
-
 // ValidateBasic does a sanity check on the provided data
 func (m MsgForceTransitionGroup) ValidateBasic() error {
 	// Validate sender address
@@ -136,9 +120,6 @@ func NewMsgRequestSignature(
 	return m, nil
 }
 
-// Type returns message type name.
-func (m MsgRequestSignature) Type() string { return sdk.MsgTypeURL(&m) }
-
 // GetContent returns the content of MsgRequestSignature.
 func (m *MsgRequestSignature) GetContent() tsstypes.Content {
 	content, ok := m.Content.GetCachedValue().(tsstypes.Content)
@@ -146,11 +127,6 @@ func (m *MsgRequestSignature) GetContent() tsstypes.Content {
 		return nil
 	}
 	return content
-}
-
-// GetSigners returns the expected signers for a MsgRequestSignature.
-func (m MsgRequestSignature) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
 }
 
 // ValidateBasic does a sanity check on the provided data
@@ -191,14 +167,6 @@ func NewMsgActivate(sender string, groupID tss.GroupID) *MsgActivate {
 	}
 }
 
-// Type returns message type name.
-func (m MsgActivate) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSigners returns the expected signers for a MsgActivate.
-func (m MsgActivate) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
-}
-
 // ValidateBasic does a sanity check on the provided data
 func (m MsgActivate) ValidateBasic() error {
 	// Validate member address
@@ -217,14 +185,6 @@ func NewMsgHeartbeat(sender string, groupID tss.GroupID) *MsgHeartbeat {
 	}
 }
 
-// Type returns message type name.
-func (m MsgHeartbeat) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSigners returns the expected signers for a MsgHeartbeat.
-func (m MsgHeartbeat) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
-}
-
 // ValidateBasic does a sanity check on the provided data
 func (m MsgHeartbeat) ValidateBasic() error {
 	// Validate member address
@@ -241,14 +201,6 @@ func NewMsgUpdateParams(authority string, params Params) *MsgUpdateParams {
 		Authority: authority,
 		Params:    params,
 	}
-}
-
-// Type returns message type name.
-func (m MsgUpdateParams) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSigners returns the expected signers for a MsgUpdateParams message.
-func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
 }
 
 // ValidateBasic does a sanity check on the provided data.

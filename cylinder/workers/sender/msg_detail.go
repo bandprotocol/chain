@@ -13,19 +13,19 @@ import (
 func GetMsgDetail(msg sdk.Msg) (detail string) {
 	switch t := msg.(type) {
 	case *types.MsgSubmitDKGRound1:
-		detail = fmt.Sprintf("Type: %s, GroupID: %d", t.Type(), t.GroupID)
+		detail = fmt.Sprintf("Type: %s, GroupID: %d", sdk.MsgTypeURL(t), t.GroupID)
 	case *types.MsgSubmitDKGRound2:
-		detail = fmt.Sprintf("Type: %s, GroupID: %d", t.Type(), t.GroupID)
+		detail = fmt.Sprintf("Type: %s, GroupID: %d", sdk.MsgTypeURL(t), t.GroupID)
 	case *types.MsgConfirm:
-		detail = fmt.Sprintf("Type: %s, GroupID: %d", t.Type(), t.GroupID)
+		detail = fmt.Sprintf("Type: %s, GroupID: %d", sdk.MsgTypeURL(t), t.GroupID)
 	case *types.MsgComplain:
-		detail = fmt.Sprintf("Type: %s, GroupID: %d", t.Type(), t.GroupID)
+		detail = fmt.Sprintf("Type: %s, GroupID: %d", sdk.MsgTypeURL(t), t.GroupID)
 	case *types.MsgSubmitDEs:
-		detail = fmt.Sprintf("Type: %s", t.Type())
+		detail = fmt.Sprintf("Type: %s", sdk.MsgTypeURL(t))
 	case *types.MsgSubmitSignature:
-		detail = fmt.Sprintf("Type: %s, SigningID: %d", t.Type(), t.SigningID)
+		detail = fmt.Sprintf("Type: %s, SigningID: %d", sdk.MsgTypeURL(t), t.SigningID)
 	case *bandtsstypes.MsgHeartbeat:
-		detail = fmt.Sprintf("Type: %s", t.Type())
+		detail = fmt.Sprintf("Type: %s", sdk.MsgTypeURL(t))
 	default:
 		detail = "Type: Unknown"
 	}

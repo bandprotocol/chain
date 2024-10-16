@@ -34,14 +34,6 @@ func NewMsgSubmitDKGRound1(groupID tss.GroupID, round1Info Round1Info, sender st
 	}
 }
 
-// Type returns message type name.
-func (m MsgSubmitDKGRound1) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSigners returns the expected signers for a MsgSubmitDKGRound1.
-func (m MsgSubmitDKGRound1) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
-}
-
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSubmitDKGRound1) ValidateBasic() error {
 	// Validate member address
@@ -83,14 +75,6 @@ func NewMsgSubmitDKGRound2(groupID tss.GroupID, round2Info Round2Info, sender st
 	}
 }
 
-// Type returns message type name.
-func (m MsgSubmitDKGRound2) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSigners returns the expected signers for a MsgSubmitDKGRound2.
-func (m MsgSubmitDKGRound2) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
-}
-
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSubmitDKGRound2) ValidateBasic() error {
 	// Validate member address
@@ -115,14 +99,6 @@ func NewMsgComplain(groupID tss.GroupID, complaints []Complaint, sender string) 
 		Complaints: complaints,
 		Sender:     sender,
 	}
-}
-
-// Type returns message type name.
-func (m MsgComplain) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSigners returns the expected signers for a MsgComplain.
-func (m MsgComplain) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
 }
 
 // ValidateBasic does a sanity check on the provided data
@@ -179,14 +155,6 @@ func NewMsgConfirm(
 	}
 }
 
-// Type returns message type name.
-func (m MsgConfirm) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSigners returns the expected signers for a MsgConfirm.
-func (m MsgConfirm) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
-}
-
 // ValidateBasic does a sanity check on the provided data
 func (m MsgConfirm) ValidateBasic() error {
 	// Validate member address
@@ -208,14 +176,6 @@ func NewMsgSubmitDEs(des []DE, sender string) *MsgSubmitDEs {
 		DEs:    des,
 		Sender: sender,
 	}
-}
-
-// Type returns message type name.
-func (m MsgSubmitDEs) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSigners returns the expected signers for a MsgSubmitDEs.
-func (m MsgSubmitDEs) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
 }
 
 // ValidateBasic does a sanity check on the provided data
@@ -256,14 +216,6 @@ func NewMsgSubmitSignature(
 	}
 }
 
-// Type returns message type name.
-func (m MsgSubmitSignature) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSigners returns the expected signers for a MsgSubmitSignature.
-func (m MsgSubmitSignature) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Signer)}
-}
-
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSubmitSignature) ValidateBasic() error {
 	// Validate member address
@@ -285,14 +237,6 @@ func NewMsgUpdateParams(authority string, params Params) *MsgUpdateParams {
 		Authority: authority,
 		Params:    params,
 	}
-}
-
-// Type returns message type name.
-func (m MsgUpdateParams) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSigners returns the expected signers for a MsgUpdateParams message.
-func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
 }
 
 // ValidateBasic does a sanity check on the provided data.
