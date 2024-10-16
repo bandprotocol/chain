@@ -9,12 +9,10 @@ import (
 func NewVault(
 	key string,
 	isActive bool,
-	totalPower sdkmath.Int,
 ) Vault {
 	return Vault{
-		Key:        key,
-		IsActive:   isActive,
-		TotalPower: totalPower,
+		Key:      key,
+		IsActive: isActive,
 	}
 }
 

@@ -17,13 +17,6 @@ message Vault {
 
   // is_active is the status of the vault
   bool is_active = 3;
-
-  // total_power is the total locked power of the vault.
-  string total_power = 5 [
-    (cosmos_proto.scalar)  = "cosmos.Int",
-    (gogoproto.customtype) = "cosmossdk.io/math.Int",
-    (gogoproto.nullable)   = false
-  ];
 }
 
 // Lock is used to store lock information of each user on each vault.

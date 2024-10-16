@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	sdkmath "cosmossdk.io/math"
-
 	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
@@ -21,9 +19,8 @@ func (suite *KeeperTestSuite) TestGetOrCreateVault() {
 	vault, err := suite.restakeKeeper.GetOrCreateVault(ctx, "newVault")
 	suite.Require().NoError(err)
 	suite.Require().Equal(types.Vault{
-		Key:        "newVault",
-		IsActive:   true,
-		TotalPower: sdkmath.NewInt(0),
+		Key:      "newVault",
+		IsActive: true,
 	}, vault)
 }
 

@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	sdkmath "cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -16,7 +15,6 @@ func (k Keeper) GetOrCreateVault(ctx sdk.Context, key string) (types.Vault, erro
 		vault = types.NewVault(
 			key,
 			true,
-			sdkmath.NewInt(0),
 		)
 
 		k.SetVault(ctx, vault)

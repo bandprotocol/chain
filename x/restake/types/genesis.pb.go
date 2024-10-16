@@ -31,7 +31,7 @@ type GenesisState struct {
 	Vaults []Vault `protobuf:"bytes,2,rep,name=vaults,proto3" json:"vaults"`
 	// locks is a list of locks in the module.
 	Locks []Lock `protobuf:"bytes,3,rep,name=locks,proto3" json:"locks"`
-	// locks is a list of stakes in the module.
+	// stakes is a list of stakes in the module.
 	Stakes []Stake `protobuf:"bytes,4,rep,name=stakes,proto3" json:"stakes"`
 }
 

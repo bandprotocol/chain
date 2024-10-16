@@ -82,14 +82,12 @@ func (suite *KeeperTestSuite) SetupTest() {
 	}
 	suite.validVaults = []types.Vault{
 		{
-			Key:        ActiveVaultKey,
-			IsActive:   true,
-			TotalPower: sdkmath.NewInt(110),
+			Key:      ActiveVaultKey,
+			IsActive: true,
 		},
 		{
-			Key:        InactiveVaultKey,
-			IsActive:   false,
-			TotalPower: sdkmath.NewInt(100),
+			Key:      InactiveVaultKey,
+			IsActive: false,
 		},
 	}
 

@@ -49,11 +49,6 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key s
 		)
 	}
 
-	diffPower := power.Sub(lock.Power)
-
-	vault.TotalPower = vault.TotalPower.Add(diffPower)
-	k.SetVault(ctx, vault)
-
 	lock.Power = power
 	k.SetLock(ctx, lock)
 
