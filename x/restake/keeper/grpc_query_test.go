@@ -109,7 +109,7 @@ func (suite *KeeperTestSuite) TestQueryLocks() {
 		expPass  bool
 	}{
 		{
-			"locks of address1 - lock on one vault",
+			"locks of address1 - lock on both active and inactive vault",
 			func() {
 				req = &types.QueryLocksRequest{
 					StakerAddress: ValidAddress1.String(),
@@ -126,7 +126,7 @@ func (suite *KeeperTestSuite) TestQueryLocks() {
 			true,
 		},
 		{
-			"locks of address2 - lock on one vault",
+			"locks of address2 - lock on one active vault",
 			func() {
 				req = &types.QueryLocksRequest{
 					StakerAddress: ValidAddress2.String(),
