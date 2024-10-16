@@ -29,7 +29,6 @@ import (
 	"github.com/bandprotocol/chain/v3/grogu/submitter"
 	"github.com/bandprotocol/chain/v3/grogu/updater"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
-	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 const (
@@ -144,7 +143,7 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 		}
 
 		// Create submit channel
-		submitSignalPriceCh := make(chan []types.SignalPrice, 300)
+		submitSignalPriceCh := make(chan submitter.SignalPriceSubmission, 300)
 
 		// Parse validator address
 		valAddr, err := sdk.ValAddressFromBech32(ctx.Config.Validator)

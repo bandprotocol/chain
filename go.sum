@@ -264,8 +264,8 @@ github.com/aws/aws-sdk-go v1.44.122/go.mod h1:y4AeaBuwd2Lk+GepC1E9v0qOiTws0MIWAX
 github.com/aws/aws-sdk-go v1.44.224 h1:09CiaaF35nRmxrzWZ2uRq5v6Ghg/d2RiPjZnSgtt+RQ=
 github.com/aws/aws-sdk-go v1.44.224/go.mod h1:aVsgQcEevwlmQ7qHE9I3h+dtQgpqhFB+i8Phjh7fkwI=
 github.com/aws/aws-sdk-go-v2 v0.18.0/go.mod h1:JWVYvqSMppoMJC0x5wdwiImzgXTI9FuZwxzkQq9wy+g=
-github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.1-alpha.3 h1:/+iP7mm8nyT8EOKCBWI7UEpzq7q+ciabU+2rYGr8jZA=
-github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.1-alpha.3/go.mod h1:1rmnpKHjLxJ26zzcG8+v/L8AGXWR/bQm3s0qiB3t4L0=
+github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.1-alpha.4 h1:ahKAZ22pHfuyqFvGPhQG/efeIQ1FotoH2aWrFt15Z3A=
+github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.1-alpha.4/go.mod h1:1rmnpKHjLxJ26zzcG8+v/L8AGXWR/bQm3s0qiB3t4L0=
 github.com/bandprotocol/go-owasm v0.3.1 h1:L38qAEmb0KyTICHBHJaBoo6yy5+BlbOzQeQ+ioUV5Uw=
 github.com/bandprotocol/go-owasm v0.3.1/go.mod h1:SAzGihlBl8eZDXA1dO2aeAZLm8J2QkNd+KvnA2Dw9Kg=
 github.com/benbjohnson/clock v1.1.0/go.mod h1:J11/hYXuz8f4ySSvYwY0FKfm+ezbsZBKZxNJlLklBHA=
