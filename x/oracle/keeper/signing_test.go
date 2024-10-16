@@ -5,13 +5,20 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
+
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 func TestGetSetSigningResult(t *testing.T) {
-	app, ctx := bandtesting.CreateTestApp(t, true)
+	dir := sdktestutil.GetTempDir(t)
+	app := bandtesting.SetupWithCustomHome(false, dir)
+	ctx := app.BaseApp.NewUncachedContext(false, cmtproto.Header{ChainID: bandtesting.ChainID})
+
 	rid := types.RequestID(123)
 	signingResult := types.SigningResult{
 		SigningID:      bandtsstypes.SigningID(456),

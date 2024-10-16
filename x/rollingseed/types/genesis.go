@@ -9,3 +9,7 @@ func NewGenesisState() *GenesisState {
 func DefaultGenesisState() *GenesisState {
 	return NewGenesisState()
 }
+
+func (gs GenesisState) Validate() error {
+	return nil
+}

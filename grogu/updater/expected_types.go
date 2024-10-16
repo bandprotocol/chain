@@ -1,10 +1,11 @@
 package updater
 
 import (
-	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client"
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 
-	feeds "github.com/bandprotocol/chain/v2/x/feeds/types"
+	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client"
+
+	feeds "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 type BothanClient interface {

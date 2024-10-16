@@ -3,26 +3,37 @@ package keeper_test
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	band "github.com/bandprotocol/chain/v3/app"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
 )
 
-type KeeperTestSuite struct {
+func init() {
+	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
+}
+
+type AppTestSuite struct {
 	suite.Suite
 
-	app *bandtesting.TestingApp
+	app *band.BandApp
 	ctx sdk.Context
 }
 
-func (s *KeeperTestSuite) SetupTest() {
-	app, ctx := bandtesting.CreateTestApp(s.T(), false)
+func (s *AppTestSuite) SetupTest() {
+	dir := sdktestutil.GetTempDir(s.T())
+	app := bandtesting.SetupWithCustomHome(false, dir)
+
 	s.app = app
-	s.ctx = ctx
+	s.ctx = s.app.BaseApp.NewUncachedContext(false, cmtproto.Header{ChainID: bandtesting.ChainID})
 }
 
-func (s *KeeperTestSuite) TestGetSetRollingSeed() {
+func (s *AppTestSuite) TestGetSetRollingSeed() {
 	ctx, k := s.ctx, s.app.RollingseedKeeper
 	rollingSeed := []byte("sample-rolling-seed")
 
@@ -34,6 +45,6 @@ func (s *KeeperTestSuite) TestGetSetRollingSeed() {
 	s.Require().Equal(rollingSeed, gotSeed)
 }
 
-func TestKeeperTestSuite(t *testing.T) {
-	suite.Run(t, new(KeeperTestSuite))
+func TestAppTestSuite(t *testing.T) {
+	suite.Run(t, new(AppTestSuite))
 }

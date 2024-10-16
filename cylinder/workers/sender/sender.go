@@ -4,14 +4,15 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/cylinder"
-	"github.com/bandprotocol/chain/v2/cylinder/client"
-	"github.com/bandprotocol/chain/v2/pkg/logger"
+	"github.com/bandprotocol/chain/v3/cylinder"
+	"github.com/bandprotocol/chain/v3/cylinder/client"
+	"github.com/bandprotocol/chain/v3/cylinder/context"
+	"github.com/bandprotocol/chain/v3/pkg/logger"
 )
 
 // Sender is a worker responsible for sending transactions to the node.
 type Sender struct {
-	context  *cylinder.Context
+	context  *context.Context
 	logger   *logger.Logger
 	client   *client.Client
 	freeKeys chan *keyring.Record
@@ -20,7 +21,7 @@ type Sender struct {
 var _ cylinder.Worker = &Sender{}
 
 // New creates a new instance of the Sender worker.
-func New(ctx *cylinder.Context) (*Sender, error) {
+func New(ctx *context.Context) (*Sender, error) {
 	// Add all keys to free keys
 	keys, err := ctx.Keyring.List()
 	if err != nil {
@@ -33,7 +34,7 @@ func New(ctx *cylinder.Context) (*Sender, error) {
 	}
 
 	// Create a client
-	cli, err := client.New(ctx.Config, ctx.Keyring)
+	cli, err := client.New(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -78,14 +79,6 @@ func (s *Sender) sendMsgs(key *keyring.Record, msgs []sdk.Msg) {
 	}()
 
 	logger := s.logger.With("msgs", GetMsgDetails(msgs...))
-
-	// Check message validation
-	for _, msg := range msgs {
-		if err := msg.ValidateBasic(); err != nil {
-			logger.Error(":exploding_head: Failed to validate basic with error: %s", err)
-			return
-		}
-	}
 
 	logger.Info(":e-mail: Sending transaction attempt")
 

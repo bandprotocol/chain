@@ -1,7 +1,12 @@
-package v2_6
+package v3
 
 import (
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
+	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+
+	storetypes "cosmossdk.io/store/types"
+	"cosmossdk.io/x/feegrant"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	vestingtypes "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -9,22 +14,20 @@ import (
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	"github.com/cosmos/cosmos-sdk/x/feegrant"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	"github.com/cosmos/cosmos-sdk/x/group"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ibctransfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 
-	"github.com/bandprotocol/chain/v2/app/upgrades"
-	bandtsstype "github.com/bandprotocol/chain/v2/x/bandtss/types"
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
-	globalfeetypes "github.com/bandprotocol/chain/v2/x/globalfee/types"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
-	rollingseedtypes "github.com/bandprotocol/chain/v2/x/rollingseed/types"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/app/upgrades"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
+	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-const UpgradeName = "v2_6"
+const UpgradeName = "v3"
 
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,
@@ -35,14 +38,16 @@ var Upgrade = upgrades.Upgrade{
 			globalfeetypes.StoreKey,
 			consensusparamtypes.StoreKey,
 			crisistypes.StoreKey,
+			ibcfeetypes.StoreKey,
+			restaketypes.StoreKey,
 			feedstypes.StoreKey,
-			rollingseedtypes.StoreKey,
+			bandtsstypes.StoreKey,
 			tsstypes.StoreKey,
-			bandtsstype.StoreKey,
 		},
 	},
 }
 
+// TODO: Update ICA Allow messages
 var ICAAllowMessages = []string{
 	sdk.MsgTypeURL(&authz.MsgExec{}),
 	sdk.MsgTypeURL(&authz.MsgGrant{}),

@@ -1,7 +1,7 @@
 package keeper_test
 
 import (
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 func (suite *KeeperTestSuite) TestGetSetDeletePrice() {

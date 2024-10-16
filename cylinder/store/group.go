@@ -1,7 +1,7 @@
 package store
 
 import (
-	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
 )
 
 // Group represents a TSS group.

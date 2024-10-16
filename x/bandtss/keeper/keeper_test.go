@@ -5,8 +5,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/suite"
+	"go.uber.org/mock/gomock"
+
 	abci "github.com/cometbft/cometbft/abci/types"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	storetypes "cosmossdk.io/store/types"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
@@ -15,26 +21,28 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
-	"go.uber.org/mock/gomock"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/x/bandtss"
-	"github.com/bandprotocol/chain/v2/x/bandtss/keeper"
-	bandtsstestutil "github.com/bandprotocol/chain/v2/x/bandtss/testutil"
-	"github.com/bandprotocol/chain/v2/x/bandtss/types"
-	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
-	tsstestutils "github.com/bandprotocol/chain/v2/x/tss/testutil"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	band "github.com/bandprotocol/chain/v3/app"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/pkg/tss/testutil"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	"github.com/bandprotocol/chain/v3/x/bandtss"
+	"github.com/bandprotocol/chain/v3/x/bandtss/keeper"
+	bandtsstestutil "github.com/bandprotocol/chain/v3/x/bandtss/testutil"
+	"github.com/bandprotocol/chain/v3/x/bandtss/types"
+	tsskeeper "github.com/bandprotocol/chain/v3/x/tss/keeper"
+	tsstestutils "github.com/bandprotocol/chain/v3/x/tss/testutil"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
+
+func init() {
+	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
+}
 
 type AppTestSuite struct {
 	suite.Suite
 
-	app         *bandtesting.TestingApp
+	app         *band.BandApp
 	ctx         sdk.Context
 	queryClient types.QueryClient
 	msgSrvr     types.MsgServer
@@ -50,17 +58,20 @@ var (
 )
 
 func (s *AppTestSuite) SetupTest() {
-	app, ctx := bandtesting.CreateTestApp(s.T(), true)
-	s.app = app
-	s.ctx = ctx.WithBlockTime(time.Now().UTC())
+	dir := sdktestutil.GetTempDir(s.T())
+	s.app = bandtesting.SetupWithCustomHome(false, dir)
+	s.ctx = s.app.BaseApp.NewUncachedContext(false, cmtproto.Header{ChainID: bandtesting.ChainID})
 
-	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
-	types.RegisterQueryServer(queryHelper, keeper.NewQueryServer(app.BandtssKeeper))
+	_, err := s.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: s.app.LastBlockHeight() + 1})
+	s.Require().NoError(err)
+
+	queryHelper := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
+	types.RegisterQueryServer(queryHelper, keeper.NewQueryServer(s.app.BandtssKeeper))
 	queryClient := types.NewQueryClient(queryHelper)
-
 	s.queryClient = queryClient
-	s.msgSrvr = keeper.NewMsgServerImpl(app.BandtssKeeper)
-	s.tssMsgSrvr = tsskeeper.NewMsgServerImpl(app.TSSKeeper)
+
+	s.msgSrvr = keeper.NewMsgServerImpl(s.app.BandtssKeeper)
+	s.tssMsgSrvr = tsskeeper.NewMsgServerImpl(s.app.TSSKeeper)
 	s.authority = authtypes.NewModuleAddress(govtypes.ModuleName)
 }
 
@@ -135,7 +146,9 @@ func (s *AppTestSuite) ExecuteReplaceGroup() error {
 	}
 
 	s.ctx = s.ctx.WithBlockTime(transition.ExecTime)
-	s.app.EndBlocker(s.ctx, abci.RequestEndBlock{Height: s.ctx.BlockHeight() + 1})
+	if _, err := s.app.EndBlocker(s.ctx.WithBlockHeight(s.ctx.BlockHeight() + 1)); err != nil {
+		return err
+	}
 
 	if transition.IncomingGroupID != s.app.BandtssKeeper.GetCurrentGroupID(s.ctx) {
 		return fmt.Errorf("unexpected current group id: %d", transition.IncomingGroupID)
@@ -263,75 +276,60 @@ func TestAppTestSuite(t *testing.T) {
 
 // KeeperTestSuite is a struct that embeds a *testing.T and provides a setup for a mock keeper
 type KeeperTestSuite struct {
-	t           *testing.T
-	Keeper      *keeper.Keeper
-	QueryServer types.QueryServer
-	TssCallback *keeper.TSSCallback
+	suite.Suite
 
-	MockAccountKeeper *bandtsstestutil.MockAccountKeeper
-	MockBankKeeper    *bandtsstestutil.MockBankKeeper
-	MockDistrKeeper   *bandtsstestutil.MockDistrKeeper
-	MockStakingKeeper *bandtsstestutil.MockStakingKeeper
-	MockTSSKeeper     *bandtsstestutil.MockTSSKeeper
+	keeper      *keeper.Keeper
+	queryServer types.QueryServer
+	tssCallback *keeper.TSSCallback
 
-	ModuleAcc authtypes.ModuleAccountI
-	Ctx       sdk.Context
-	Authority sdk.AccAddress
+	accountKeeper *bandtsstestutil.MockAccountKeeper
+	bankKeeper    *bandtsstestutil.MockBankKeeper
+	distrKeeper   *bandtsstestutil.MockDistrKeeper
+	stakingKeeper *bandtsstestutil.MockStakingKeeper
+	tssKeeper     *bandtsstestutil.MockTSSKeeper
+
+	moduleAcc sdk.ModuleAccountI
+	ctx       sdk.Context
+	authority sdk.AccAddress
 }
 
-// NewKeeperTestSuite returns a new KeeperTestSuite object
-func NewKeeperTestSuite(t *testing.T) KeeperTestSuite {
-	ctrl := gomock.NewController(t)
-	key := sdk.NewKVStoreKey(types.StoreKey)
-	testCtx := sdktestutil.DefaultContextWithDB(t, key, sdk.NewTransientStoreKey("transient_test"))
+// SetupTest initializes the mock keeper and the context
+func (s *KeeperTestSuite) SetupTest() {
+	ctrl := gomock.NewController(s.T())
+	key := storetypes.NewKVStoreKey(types.StoreKey)
+
+	testCtx := sdktestutil.DefaultContextWithDB(s.T(), key, storetypes.NewTransientStoreKey("transient_test"))
 	encCfg := moduletestutil.MakeTestEncodingConfig(bandtss.AppModuleBasic{})
-	ctx := testCtx.Ctx.WithBlockHeader(tmproto.Header{Time: time.Now().UTC()})
+	s.ctx = testCtx.Ctx.WithBlockHeader(cmtproto.Header{Time: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)})
 
 	authzKeeper := bandtsstestutil.NewMockAuthzKeeper(ctrl)
-	accountKeeper := bandtsstestutil.NewMockAccountKeeper(ctrl)
-	bankKeeper := bandtsstestutil.NewMockBankKeeper(ctrl)
-	distrKeeper := bandtsstestutil.NewMockDistrKeeper(ctrl)
-	stakingKeeper := bandtsstestutil.NewMockStakingKeeper(ctrl)
-	tssKeeper := bandtsstestutil.NewMockTSSKeeper(ctrl)
+	s.accountKeeper = bandtsstestutil.NewMockAccountKeeper(ctrl)
+	s.bankKeeper = bandtsstestutil.NewMockBankKeeper(ctrl)
+	s.distrKeeper = bandtsstestutil.NewMockDistrKeeper(ctrl)
+	s.stakingKeeper = bandtsstestutil.NewMockStakingKeeper(ctrl)
+	s.tssKeeper = bandtsstestutil.NewMockTSSKeeper(ctrl)
 
-	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
-	accountKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(authority).AnyTimes()
-	bandtssKeeper := keeper.NewKeeper(
+	s.authority = authtypes.NewModuleAddress(govtypes.ModuleName)
+	s.accountKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(s.authority).AnyTimes()
+	s.keeper = keeper.NewKeeper(
 		encCfg.Codec.(codec.BinaryCodec),
 		key,
 		authzKeeper,
-		accountKeeper,
-		bankKeeper,
-		distrKeeper,
-		stakingKeeper,
-		tssKeeper,
-		authority.String(),
+		s.accountKeeper,
+		s.bankKeeper,
+		s.distrKeeper,
+		s.stakingKeeper,
+		s.tssKeeper,
+		s.authority.String(),
 		authtypes.FeeCollectorName,
 	)
-	err := bandtssKeeper.SetParams(ctx, types.DefaultParams())
-	require.NoError(t, err)
 
-	tssCallback := keeper.NewTSSCallback(bandtssKeeper)
-	queryServer := keeper.NewQueryServer(bandtssKeeper)
+	err := s.keeper.SetParams(s.ctx, types.DefaultParams())
+	s.Require().NoError(err)
 
-	mAcc := authtypes.NewModuleAccount(&authtypes.BaseAccount{}, types.ModuleName, "auth")
+	tssCallback := keeper.NewTSSCallback(s.keeper)
+	s.tssCallback = &tssCallback
+	s.queryServer = keeper.NewQueryServer(s.keeper)
 
-	return KeeperTestSuite{
-		Keeper:            bandtssKeeper,
-		MockAccountKeeper: accountKeeper,
-		MockBankKeeper:    bankKeeper,
-		MockDistrKeeper:   distrKeeper,
-		MockStakingKeeper: stakingKeeper,
-		MockTSSKeeper:     tssKeeper,
-		Ctx:               ctx,
-		Authority:         authority,
-		QueryServer:       queryServer,
-		TssCallback:       &tssCallback,
-		t:                 t,
-		ModuleAcc:         mAcc,
-	}
-}
-
-func (s *KeeperTestSuite) T() *testing.T {
-	return s.t
+	s.moduleAcc = authtypes.NewModuleAccount(&authtypes.BaseAccount{}, types.ModuleName, "auth")
 }

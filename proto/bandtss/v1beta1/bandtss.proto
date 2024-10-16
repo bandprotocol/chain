@@ -6,7 +6,7 @@ import "google/protobuf/timestamp.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "cosmos_proto/cosmos.proto";
 
-option go_package            = "github.com/bandprotocol/chain/v2/x/bandtss/types";
+option go_package            = "github.com/bandprotocol/chain/v3/x/bandtss/types";
 option (gogoproto.equal_all) = true;
 
 // Member maintains member information for monitoring their liveness activity.
@@ -17,7 +17,7 @@ message Member {
   string address = 1;
   // group_id is the group ID that the member belongs to.
   uint64 group_id = 2
-      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.GroupID"];
   // is_active is a flag to indicate whether a member is active or not.
   bool is_active = 3;
   // since is a block timestamp when a member is deactivated
@@ -40,12 +40,12 @@ message Signing {
   // current_group_signing_id is a tss signing ID of a current group.
   uint64 current_group_signing_id = 4 [
     (gogoproto.customname) = "CurrentGroupSigningID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v3/pkg/tss.SigningID"
   ];
   // incoming_group_signing_id is a tss signing ID of an incoming group, if any.
   uint64 incoming_group_signing_id = 5 [
     (gogoproto.customname) = "IncomingGroupSigningID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v3/pkg/tss.SigningID"
   ];
 }
 
@@ -54,22 +54,22 @@ message GroupTransition {
   // signing_id is a tss signing ID of group transition signing request.
   uint64 signing_id = 1 [
     (gogoproto.customname) = "SigningID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v3/pkg/tss.SigningID"
   ];
   // current_group_id is the ID of the group that will be replaced.
   uint64 current_group_id = 2 [
     (gogoproto.customname) = "CurrentGroupID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v3/pkg/tss.GroupID"
   ];
   // current_group_pub_key is the public key pair that used for sign & verify transition group msg.
-  bytes current_group_pub_key = 3 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
+  bytes current_group_pub_key = 3 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.Point"];
   // new_group_id is the ID of the new group that be a new key candidate.
   uint64 incoming_group_id = 4 [
     (gogoproto.customname) = "IncomingGroupID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v3/pkg/tss.GroupID"
   ];
   // incoming_group_pub_key is the public key of the group that will be the next key of this group
-  bytes incoming_group_pub_key = 5 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Point"];
+  bytes incoming_group_pub_key = 5 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.Point"];
   // status is an enumeration of the possible statuses of a group transition process.
   TransitionStatus status = 6;
   // exec_time is the time when the transition will be executed.

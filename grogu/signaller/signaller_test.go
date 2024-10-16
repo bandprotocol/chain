@@ -5,15 +5,18 @@ import (
 	"testing"
 	"time"
 
-	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
-	"github.com/cometbft/cometbft/libs/log"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/mock/gomock"
 
-	"github.com/bandprotocol/chain/v2/grogu/signaller/testutil"
-	"github.com/bandprotocol/chain/v2/pkg/logger"
-	feeds "github.com/bandprotocol/chain/v2/x/feeds/types"
+	"cosmossdk.io/log"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
+
+	"github.com/bandprotocol/chain/v3/grogu/signaller/testutil"
+	"github.com/bandprotocol/chain/v3/pkg/logger"
+	feeds "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 type SignallerTestSuite struct {
@@ -83,8 +86,8 @@ func (s *SignallerTestSuite) SetupTest() {
 	submitCh := make(chan []feeds.SignalPrice, 300)
 
 	// Initialize logger
-	allowLevel, _ := log.AllowLevel("info")
-	l := logger.New(allowLevel)
+	allowLevel, _ := log.ParseLogLevel("info")
+	l := logger.NewLogger(allowLevel)
 
 	// Initialize pending signal IDs map
 	pendingSignalIDs := sync.Map{}

@@ -3,11 +3,13 @@ package keeper_test
 import (
 	"fmt"
 
-	sdkmath "cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"go.uber.org/mock/gomock"
 
-	"github.com/bandprotocol/chain/v2/x/restake/types"
+	sdkmath "cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 func (suite *KeeperTestSuite) TestSetLockedPower() {
@@ -16,11 +18,11 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 
 	suite.stakingKeeper.EXPECT().
 		GetDelegatorBonded(gomock.Any(), ValidAddress1).
-		Return(sdkmath.NewInt(1e18)).
+		Return(sdkmath.NewInt(1e18), nil).
 		Times(1)
 	suite.stakingKeeper.EXPECT().
 		GetDelegatorBonded(gomock.Any(), ValidAddress3).
-		Return(sdkmath.NewInt(10)).
+		Return(sdkmath.NewInt(10), nil).
 		Times(1)
 
 	// error case -  power is not uint64
@@ -33,6 +35,10 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 
 	// error case - vault is deactivated
 	err = suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, InactiveVaultKey, sdkmath.NewInt(10))
+	suite.Require().Error(err)
+
+	// error case - staker is liquid staker
+	err = suite.restakeKeeper.SetLockedPower(ctx, LiquidStakerAddress, VaultKeyWithRewards, sdkmath.NewInt(10))
 	suite.Require().Error(err)
 
 	// success cases
@@ -218,7 +224,7 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 
 			suite.stakingKeeper.EXPECT().
 				GetDelegatorBonded(gomock.Any(), ValidAddress1).
-				Return(sdkmath.NewInt(1e18)).
+				Return(sdkmath.NewInt(1e18), nil).
 				Times(1)
 
 			testCase.malleate()
@@ -237,12 +243,12 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 			)
 			suite.Require().NoError(err)
 
-			vault, err := suite.restakeKeeper.GetVault(ctx, preVault.Key)
-			suite.Require().NoError(err)
+			vault, found := suite.restakeKeeper.GetVault(ctx, preVault.Key)
+			suite.Require().True(found)
 			suite.Require().Equal(testCase.expTotalPower, vault.TotalPower)
 
-			lock, err := suite.restakeKeeper.GetLock(ctx, ValidAddress1, preVault.Key)
-			suite.Require().NoError(err)
+			lock, found := suite.restakeKeeper.GetLock(ctx, ValidAddress1, preVault.Key)
+			suite.Require().True(found)
 			suite.Require().Equal(testCase.expLock, lock)
 		})
 	}
@@ -264,6 +270,10 @@ func (suite *KeeperTestSuite) TestGetLockedPower() {
 	_, err = suite.restakeKeeper.GetLockedPower(ctx, ValidAddress2, VaultKeyWithoutRewards)
 	suite.Require().Error(err)
 
+	// error case - staker is liquid staker
+	_, err = suite.restakeKeeper.GetLockedPower(ctx, LiquidStakerAddress, VaultKeyWithRewards)
+	suite.Require().Error(err)
+
 	// success case
 	power, err := suite.restakeKeeper.GetLockedPower(ctx, ValidAddress1, VaultKeyWithRewards)
 	suite.Require().NoError(err)
@@ -279,23 +289,15 @@ func (suite *KeeperTestSuite) TestGetSetLock() {
 		acc := sdk.MustAccAddressFromBech32(expLock.StakerAddress)
 		suite.restakeKeeper.SetLock(ctx, expLock)
 
-		// has
-		has := suite.restakeKeeper.HasLock(ctx, acc, expLock.Key)
-		suite.Require().True(has)
-
 		// get
-		lock, err := suite.restakeKeeper.GetLock(ctx, acc, expLock.Key)
-		suite.Require().NoError(err)
+		lock, found := suite.restakeKeeper.GetLock(ctx, acc, expLock.Key)
+		suite.Require().True(found)
 		suite.Require().Equal(expLock, lock)
 
 		// get lock by power
 		key := ctx.KVStore(suite.storeKey).Get(types.LockByPowerIndexKey(lock))
 		suite.Require().Equal(expLock.Key, string(key))
 	}
-
-	// has
-	has := suite.restakeKeeper.HasLock(ctx, ValidAddress1, "nonVault")
-	suite.Require().False(has)
 
 	// get
 	locks := suite.restakeKeeper.GetLocks(ctx)
@@ -315,16 +317,12 @@ func (suite *KeeperTestSuite) TestGetSetLock() {
 		acc := sdk.MustAccAddressFromBech32(expLock.StakerAddress)
 		suite.restakeKeeper.DeleteLock(ctx, acc, expLock.Key)
 
-		// has
-		has := suite.restakeKeeper.HasLock(ctx, acc, expLock.Key)
-		suite.Require().False(has)
-
 		// get
-		_, err := suite.restakeKeeper.GetLock(ctx, acc, expLock.Key)
-		suite.Require().Error(err)
+		_, found := suite.restakeKeeper.GetLock(ctx, acc, expLock.Key)
+		suite.Require().False(found)
 
 		// get lock by Power
-		has = ctx.KVStore(suite.storeKey).Has(types.LockByPowerIndexKey(expLock))
+		has := ctx.KVStore(suite.storeKey).Has(types.LockByPowerIndexKey(expLock))
 		suite.Require().False(has)
 	}
 }

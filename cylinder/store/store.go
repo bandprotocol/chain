@@ -5,10 +5,11 @@ import (
 	"fmt"
 
 	dbm "github.com/cometbft/cometbft-db"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	storetypes "cosmossdk.io/store/types"
+
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // Store represents a data store for storing data information for Cylinder process
@@ -35,7 +36,7 @@ func (s *Store) SetDKG(dkg DKG) error {
 
 // GetAllDKGs retrieves all DKGs information
 func (s *Store) GetAllDKGs() ([]DKG, error) {
-	iterator, err := s.DB.Iterator(DKGStoreKeyPrefix, sdk.PrefixEndBytes(DKGStoreKeyPrefix))
+	iterator, err := s.DB.Iterator(DKGStoreKeyPrefix, storetypes.PrefixEndBytes(DKGStoreKeyPrefix))
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +93,7 @@ func (s *Store) SetGroup(group Group) error {
 
 // GetAllGroups retrieves all groups information
 func (s *Store) GetAllGroups() ([]Group, error) {
-	iterator, err := s.DB.Iterator(GroupStoreKeyPrefix, sdk.PrefixEndBytes(GroupStoreKeyPrefix))
+	iterator, err := s.DB.Iterator(GroupStoreKeyPrefix, storetypes.PrefixEndBytes(GroupStoreKeyPrefix))
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +145,7 @@ func (s *Store) SetDE(privDE DE) error {
 
 // GetAllDEs retrieves all DEs information
 func (s *Store) GetAllDEs() ([]DE, error) {
-	iterator, err := s.DB.Iterator(DEStoreKeyPrefix, sdk.PrefixEndBytes(DEStoreKeyPrefix))
+	iterator, err := s.DB.Iterator(DEStoreKeyPrefix, storetypes.PrefixEndBytes(DEStoreKeyPrefix))
 	if err != nil {
 		return nil, err
 	}

@@ -2,6 +2,7 @@ package submitter
 
 import (
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/types"
 )

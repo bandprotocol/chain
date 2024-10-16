@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"time"
 
+	proto "github.com/cosmos/gogoproto/proto"
+
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	proto "github.com/cosmos/gogoproto/proto"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 var (
@@ -20,6 +21,13 @@ var (
 	_ sdk.Msg = &MsgActivate{}
 	_ sdk.Msg = &MsgHeartbeat{}
 	_ sdk.Msg = &MsgUpdateParams{}
+
+	_ sdk.HasValidateBasic = (*MsgTransitionGroup)(nil)
+	_ sdk.HasValidateBasic = (*MsgForceTransitionGroup)(nil)
+	_ sdk.HasValidateBasic = (*MsgRequestSignature)(nil)
+	_ sdk.HasValidateBasic = (*MsgActivate)(nil)
+	_ sdk.HasValidateBasic = (*MsgHeartbeat)(nil)
+	_ sdk.HasValidateBasic = (*MsgUpdateParams)(nil)
 
 	_ types.UnpackInterfacesMessage = &MsgRequestSignature{}
 )
@@ -41,11 +49,6 @@ func NewMsgTransitionGroup(
 
 // Type returns message type name.
 func (m MsgTransitionGroup) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes Implements Msg.
-func (m MsgTransitionGroup) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
-}
 
 // GetSigners returns the expected signers for a MsgTransitionGroup.
 func (m MsgTransitionGroup) GetSigners() []sdk.AccAddress {
@@ -97,11 +100,6 @@ func NewMsgForceTransitionGroup(
 // Type returns message type name.
 func (m MsgForceTransitionGroup) Type() string { return sdk.MsgTypeURL(&m) }
 
-// GetSignBytes Implements Msg.
-func (m MsgForceTransitionGroup) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
-}
-
 // GetSigners returns the expected signers for a MsgForceTransitionGroup.
 func (m MsgForceTransitionGroup) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
@@ -140,11 +138,6 @@ func NewMsgRequestSignature(
 
 // Type returns message type name.
 func (m MsgRequestSignature) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes Implements Msg.
-func (m MsgRequestSignature) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
-}
 
 // GetContent returns the content of MsgRequestSignature.
 func (m *MsgRequestSignature) GetContent() tsstypes.Content {
@@ -201,11 +194,6 @@ func NewMsgActivate(sender string, groupID tss.GroupID) *MsgActivate {
 // Type returns message type name.
 func (m MsgActivate) Type() string { return sdk.MsgTypeURL(&m) }
 
-// GetSignBytes Implements Msg.
-func (m MsgActivate) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
-}
-
 // GetSigners returns the expected signers for a MsgActivate.
 func (m MsgActivate) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
@@ -232,11 +220,6 @@ func NewMsgHeartbeat(sender string, groupID tss.GroupID) *MsgHeartbeat {
 // Type returns message type name.
 func (m MsgHeartbeat) Type() string { return sdk.MsgTypeURL(&m) }
 
-// GetSignBytes Implements Msg.
-func (m MsgHeartbeat) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
-}
-
 // GetSigners returns the expected signers for a MsgHeartbeat.
 func (m MsgHeartbeat) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
@@ -262,11 +245,6 @@ func NewMsgUpdateParams(authority string, params Params) *MsgUpdateParams {
 
 // Type returns message type name.
 func (m MsgUpdateParams) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes implements the LegacyMsg interface.
-func (m MsgUpdateParams) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
-}
 
 // GetSigners returns the expected signers for a MsgUpdateParams message.
 func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {

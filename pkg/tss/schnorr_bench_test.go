@@ -3,8 +3,8 @@ package tss_test
 import (
 	"testing"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/pkg/tss/testutil"
 )
 
 func BenchmarkSign(b *testing.B) {

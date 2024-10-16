@@ -8,9 +8,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/bandprotocol/chain/v2/cylinder"
-	"github.com/bandprotocol/chain/v2/cylinder/store"
-	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v3/cylinder/context"
+	"github.com/bandprotocol/chain/v3/cylinder/store"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
 )
 
 const (
@@ -19,7 +19,7 @@ const (
 )
 
 // exportCmd returns a Cobra command for exporting data from store.
-func exportCmd(ctx *Context) *cobra.Command {
+func exportCmd(ctx *context.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "export",
 		Short: "Export data in cylinder's store",
@@ -35,7 +35,7 @@ func exportCmd(ctx *Context) *cobra.Command {
 }
 
 // exportGroupsCmd returns a Cobra command for exporting groups data
-func exportGroupsCmd(ctx *Context) *cobra.Command {
+func exportGroupsCmd(ctx *context.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "groups [public-key-1] [public-key-2] [public-key-3] [...]",
 		Short: "Export groups data",
@@ -53,16 +53,10 @@ func exportGroupsCmd(ctx *Context) *cobra.Command {
 				return err
 			}
 
-			// create context
-			c, err := cylinder.NewContext(ctx.config, ctx.keyring, ctx.home)
-			if err != nil {
-				return err
-			}
-
 			// get groups information
 			var groups []store.Group
 			if all {
-				groups, err = c.Store.GetAllGroups()
+				groups, err = ctx.Store.GetAllGroups()
 				if err != nil {
 					return err
 				}
@@ -73,7 +67,7 @@ func exportGroupsCmd(ctx *Context) *cobra.Command {
 						return err
 					}
 
-					group, err := c.Store.GetGroup(pubKey)
+					group, err := ctx.Store.GetGroup(pubKey)
 					if err != nil {
 						return err
 					}
@@ -114,7 +108,7 @@ func exportGroupsCmd(ctx *Context) *cobra.Command {
 }
 
 // exportDKGsCmd returns a Cobra command for exporting DKGs data
-func exportDKGsCmd(ctx *Context) *cobra.Command {
+func exportDKGsCmd(ctx *context.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "dkgs [group-id-1] [group-id-2] [group-id-3] [...]",
 		Short: "Export DKGs data",
@@ -132,16 +126,10 @@ func exportDKGsCmd(ctx *Context) *cobra.Command {
 				return err
 			}
 
-			// create context
-			c, err := cylinder.NewContext(ctx.config, ctx.keyring, ctx.home)
-			if err != nil {
-				return err
-			}
-
 			// get DKGs information
 			var dkgs []store.DKG
 			if all {
-				dkgs, err = c.Store.GetAllDKGs()
+				dkgs, err = ctx.Store.GetAllDKGs()
 				if err != nil {
 					return err
 				}
@@ -152,7 +140,7 @@ func exportDKGsCmd(ctx *Context) *cobra.Command {
 						return err
 					}
 
-					dkg, err := c.Store.GetDKG(tss.GroupID(gid))
+					dkg, err := ctx.Store.GetDKG(tss.GroupID(gid))
 					if err != nil {
 						return err
 					}
@@ -193,7 +181,7 @@ func exportDKGsCmd(ctx *Context) *cobra.Command {
 }
 
 // exportDEsCmd returns a Cobra command for exporting DEs data
-func exportDEsCmd(ctx *Context) *cobra.Command {
+func exportDEsCmd(ctx *context.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "des",
 		Short: "Export DEs data",
@@ -205,14 +193,8 @@ func exportDEsCmd(ctx *Context) *cobra.Command {
 				return err
 			}
 
-			// create context
-			c, err := cylinder.NewContext(ctx.config, ctx.keyring, ctx.home)
-			if err != nil {
-				return err
-			}
-
 			// get DEs information
-			des, err := c.Store.GetAllDEs()
+			des, err := ctx.Store.GetAllDEs()
 			if err != nil {
 				return err
 			}

@@ -14,7 +14,7 @@ import (
 	reflect "reflect"
 
 	price "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
-	types "github.com/bandprotocol/chain/v2/x/feeds/types"
+	types "github.com/bandprotocol/chain/v3/x/feeds/types"
 	bytes "github.com/cometbft/cometbft/libs/bytes"
 	log "github.com/cometbft/cometbft/libs/log"
 	client "github.com/cometbft/cometbft/rpc/client"

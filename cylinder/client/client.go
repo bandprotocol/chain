@@ -8,6 +8,7 @@ import (
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	httpclient "github.com/cometbft/cometbft/rpc/client/http"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -19,12 +20,11 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
-	band "github.com/bandprotocol/chain/v2/app"
-	"github.com/bandprotocol/chain/v2/cylinder"
-	"github.com/bandprotocol/chain/v2/pkg/logger"
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	cylinderctx "github.com/bandprotocol/chain/v3/cylinder/context"
+	"github.com/bandprotocol/chain/v3/pkg/logger"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 type Client struct {
@@ -42,7 +42,9 @@ type Client struct {
 
 // New creates a new instance of the Client.
 // It returns the created Client instance and an error if the initialization fails.
-func New(cfg *cylinder.Config, kr keyring.Keyring) (*Client, error) {
+func New(cylinderCtx *cylinderctx.Context) (*Client, error) {
+	cfg := cylinderCtx.Config
+
 	// Create a new HTTP client for the specified node URI
 	c, err := httpclient.New(cfg.NodeURI, "/websocket")
 	if err != nil {
@@ -58,11 +60,11 @@ func New(cfg *cylinder.Config, kr keyring.Keyring) (*Client, error) {
 	ctx := client.Context{}.
 		WithClient(c).
 		WithChainID(cfg.ChainID).
-		WithCodec(band.MakeEncodingConfig().Marshaler).
-		WithTxConfig(band.MakeEncodingConfig().TxConfig).
+		WithCodec(cylinderCtx.Cdc).
+		WithTxConfig(cylinderCtx.TxConfig).
 		WithBroadcastMode(flags.BroadcastSync).
-		WithInterfaceRegistry(band.MakeEncodingConfig().InterfaceRegistry).
-		WithKeyring(kr)
+		WithInterfaceRegistry(cylinderCtx.InterfaceRegistry).
+		WithKeyring(cylinderCtx.Keyring)
 
 	// Create a new transaction factory and configure it with necessary parameters
 	txf := tx.Factory{}.
@@ -298,7 +300,7 @@ func (c *Client) Broadcast(key *keyring.Record, msgs []sdk.Msg, gasAdjust float6
 		return nil, err
 	}
 
-	err = tx.Sign(txf, key.Name, txb, true)
+	err = tx.Sign(context.Background(), txf, key.Name, txb, true)
 	if err != nil {
 		return nil, err
 	}

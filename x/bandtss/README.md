@@ -198,7 +198,7 @@ message MsgForceTransitionGroup {
   // incoming_group_id is the ID of the group that the module want to transition to.
   uint64 incoming_group_id = 1 [
     (gogoproto.customname) = "IncomingGroupID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v3/pkg/tss.GroupID"
   ];
   // exec_time is the time that will be substituted in place of the group.
   google.protobuf.Timestamp exec_time = 2 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
@@ -246,7 +246,7 @@ message MsgActivate {
   string sender = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // group_id is the group id of the member.
   uint64 group_id = 2
-      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.GroupID"];
 }
 ```
 
@@ -265,7 +265,7 @@ message MsgHeartbeat {
   string sender = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // group_id is the group id of the member.
   uint64 group_id = 2
-      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.GroupID"];
 }
 ```
 
