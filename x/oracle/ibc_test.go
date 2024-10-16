@@ -805,9 +805,7 @@ func (suite *IBCTestSuite) TestIBCResolveRequestNoReturnData() {
 			sdk.ValAddress(suite.chainB.Vals.Validators[1].Address),
 		},
 		1,
-		suite.chainB.GetContext().
-			BlockHeight()-
-			1,
+		suite.chainB.GetContext().BlockHeight()-1,
 		bandtesting.ParseTime(1577923380),
 		path.EndpointA.ClientID,
 		[]oracletypes.RawRequest{
@@ -866,9 +864,7 @@ func (suite *IBCTestSuite) TestIBCResolveRequestWasmFailure() {
 			sdk.ValAddress(suite.chainB.Vals.Validators[1].Address),
 		},
 		1,
-		suite.chainB.GetContext().
-			BlockHeight()-
-			1,
+		suite.chainB.GetContext().BlockHeight()-1,
 		bandtesting.ParseTime(1577923380),
 		path.EndpointA.ClientID,
 		[]oracletypes.RawRequest{
@@ -927,9 +923,7 @@ func (suite *IBCTestSuite) TestIBCResolveRequestCallReturnDataSeveralTimes() {
 			sdk.ValAddress(suite.chainB.Vals.Validators[1].Address),
 		},
 		1,
-		suite.chainB.GetContext().
-			BlockHeight()-
-			1,
+		suite.chainB.GetContext().BlockHeight()-1,
 		bandtesting.ParseTime(1577923360),
 		path.EndpointA.ClientID,
 		[]oracletypes.RawRequest{

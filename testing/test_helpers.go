@@ -256,15 +256,15 @@ func GenesisStateWithValSet(app *band.BandApp, dir string) band.GenesisState {
 
 	// Add genesis data sources and oracle scripts
 	oracleGenesis := oracletypes.DefaultGenesisState()
-	oracleGenesis.DataSources = generateDataSources(dir)
-	oracleGenesis.OracleScripts = generateOracleScripts(dir)
+	oracleGenesis.DataSources = GenerateDataSources(dir)
+	oracleGenesis.OracleScripts = GenerateOracleScripts(dir)
 	genesisState[oracletypes.ModuleName] = app.AppCodec().MustMarshalJSON(oracleGenesis)
 
 	return genesisState
 }
 
-// generateDataSources generates a set of data sources for the BandApp.
-func generateDataSources(homePath string) []oracletypes.DataSource {
+// GenerateDataSources generates a set of data sources for the BandApp.
+func GenerateDataSources(homePath string) []oracletypes.DataSource {
 	dir := filepath.Join(homePath, "files")
 	fc := filecache.New(dir)
 	DataSources = []oracletypes.DataSource{{}} // 0th index should be ignored
@@ -278,8 +278,8 @@ func generateDataSources(homePath string) []oracletypes.DataSource {
 	return DataSources[1:]
 }
 
-// generateOracleScripts generates a set of oracle scripts for the BandApp.
-func generateOracleScripts(homePath string) []oracletypes.OracleScript {
+// GenerateOracleScripts generates a set of oracle scripts for the BandApp.
+func GenerateOracleScripts(homePath string) []oracletypes.OracleScript {
 	dir := filepath.Join(homePath, "files")
 	fc := filecache.New(dir)
 	OracleScripts = []oracletypes.OracleScript{{}} // 0th index should be ignored
@@ -301,7 +301,7 @@ func SetupWithCustomHome(isCheckTx bool, dir string) *band.BandApp {
 	return SetupWithCustomHomeAndChainId(isCheckTx, dir, ChainID)
 }
 
-func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string) *band.BandApp {
+func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainID string) *band.BandApp {
 	db := cosmosdb.NewMemDB()
 
 	snapshotDir := filepath.Join(dir, "data", "snapshots")
@@ -323,7 +323,7 @@ func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string) *band.Ba
 		dir,
 		sims.EmptyAppOptions{},
 		100,
-		baseapp.SetChainID(chainId),
+		baseapp.SetChainID(chainID),
 		baseapp.SetSnapshot(snapshotStore, snapshottypes.SnapshotOptions{KeepRecent: 2}),
 	)
 	if !isCheckTx {
@@ -338,7 +338,7 @@ func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainId string) *band.Ba
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: DefaultConsensusParams,
 				AppStateBytes:   defaultGenesisStatebytes,
-				ChainId:         chainId,
+				ChainId:         chainID,
 			},
 		)
 		if err != nil {

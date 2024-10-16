@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -25,6 +26,7 @@ import (
 
 	owasm "github.com/bandprotocol/go-owasm/api"
 
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
 	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
 	oracletestutil "github.com/bandprotocol/chain/v3/x/oracle/testutil"
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
@@ -44,6 +46,7 @@ type KeeperTestSuite struct {
 	queryClient types.QueryClient
 	msgServer   types.MsgServer
 
+	homeDir string
 	fileDir string
 
 	encCfg moduletestutil.TestEncodingConfig
@@ -67,7 +70,8 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.distrKeeper = oracletestutil.NewMockDistrKeeper(ctrl)
 	suite.authzKeeper = oracletestutil.NewMockAuthzKeeper(ctrl)
 
-	suite.fileDir = testutil.GetTempDir(suite.T())
+	suite.homeDir = testutil.GetTempDir(suite.T())
+	suite.fileDir = filepath.Join(suite.homeDir, "files")
 
 	owasmVM, err := owasm.NewVm(100)
 	suite.Require().NoError(err)
@@ -116,9 +120,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	authorization, err := codectypes.NewAnyWithValue(
 		authz.NewGenericAuthorization(sdk.MsgTypeURL(&types.MsgReportData{})),
 	)
-	if err != nil {
-		panic(err)
-	}
+	suite.Require().NoError(err)
 	expiration := ctx.BlockTime().Add(time.Minute)
 	suite.authzKeeper.EXPECT().
 		GranterGrants(gomock.Any(), &authz.QueryGranterGrantsRequest{
@@ -135,6 +137,16 @@ func (suite *KeeperTestSuite) SetupTest() {
 			},
 		}, nil).
 		AnyTimes()
+
+	dataSources := bandtesting.GenerateDataSources(suite.homeDir)
+	for _, dataSource := range dataSources {
+		suite.oracleKeeper.AddDataSource(suite.ctx, dataSource)
+	}
+
+	oracleScripts := bandtesting.GenerateOracleScripts(suite.homeDir)
+	for _, script := range oracleScripts {
+		suite.oracleKeeper.AddOracleScript(suite.ctx, script)
+	}
 }
 
 func (suite *KeeperTestSuite) activeAllValidators() {
