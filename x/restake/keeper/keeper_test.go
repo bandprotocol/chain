@@ -120,18 +120,6 @@ func (suite *KeeperTestSuite) SetupTest() {
 	ctrl := gomock.NewController(suite.T())
 	accountKeeper := restaketestutil.NewMockAccountKeeper(ctrl)
 	accountKeeper.EXPECT().
-		GetAccount(gomock.Any(), gomock.Any()).
-		Return(nil).
-		AnyTimes()
-	accountKeeper.EXPECT().
-		NewAccount(gomock.Any(), gomock.Any()).
-		Return(nil).
-		AnyTimes()
-	accountKeeper.EXPECT().
-		SetAccount(gomock.Any(), gomock.Any()).
-		Return().
-		AnyTimes()
-	accountKeeper.EXPECT().
 		GetModuleAddress(types.ModuleName).
 		Return(moduleAccount.GetAddress()).
 		AnyTimes()
