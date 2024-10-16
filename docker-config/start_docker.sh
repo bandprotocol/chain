@@ -165,16 +165,16 @@ docker pull bandprotocol/bothan-api:latest
 
 for v in {1..4}
 do
-    # run price-service image
-    docker run --log-opt max-size=10m --log-opt max-file=3 --network chain_bandchain -d --name price-service$v -v "$(pwd)/docker-config/bothan-config.toml:/app/config.toml" bandprotocol/bothan-api:latest
+    # run bothan image
+    docker run --log-opt max-size=10m --log-opt max-file=3 --network chain_bandchain -d --name bothan$v -v "$(pwd)/docker-config/bothan-config.toml:/root/.bothan/config.toml" bandprotocol/bothan-api:latest
 
     rm -rf ~/.grogu
     grogu config chain-id bandchain
-    grogu config node tcp://multi-validator$v-node:26657
+    grogu config nodes "tcp://multi-validator$v-node:26657"
     grogu config validator $(bandd keys show validator$v -a --bech val --keyring-backend test)
 
-    # change url to price-service image
-    grogu config price-service "grpc:grpc://price-service$v:50051?timeout=10s"
+    # change url to bothan image
+    grogu config bothan "bothan$v:50051"
 
     # activate validator
     echo "y" | bandd tx oracle activate --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
@@ -195,7 +195,7 @@ do
     sleep 4
 
     # add feeder to bandchain
-    echo "y" | bandd tx feeds add-grantees $(grogu keys list -a) --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
+    echo "y" | bandd tx feeds add-feeders $(grogu keys list -a) --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
 
     # wait for adding feeder transaction success
     sleep 4
