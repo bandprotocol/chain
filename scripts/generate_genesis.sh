@@ -47,6 +47,7 @@ cat <<< $(jq '.app_state.gov.params.voting_period = "60s"' ~/.band/config/genesi
 
 # update blocks per feeds update to 10 blocks for testing
 cat <<< $(jq '.app_state.feeds.params.current_feeds_update_interval = "10"' ~/.band/config/genesis.json) > ~/.band/config/genesis.json
+cat <<< $(jq --arg addr "$(bandd keys show requester -a --keyring-backend test)" '.app_state.feeds.params.admin = $addr' ~/.band/config/genesis.json) > ~/.band/config/genesis.json
 
 # allow "uband" for restake
 cat <<< $(jq '.app_state.restake.params.allowed_denoms = ["uband"]' ~/.band/config/genesis.json) > ~/.band/config/genesis.json

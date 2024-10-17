@@ -191,7 +191,7 @@ func (u *Updater) updateBothanRegistry() error {
 	rfc := queryResp.ReferenceSourceConfig
 
 	if rfc.IPFSHash == "[NOT_SET]" || rfc.Version == "[NOT_SET]" {
-		u.logger.Error("[Updater] reference source config is not set, skipping update")
+		u.logger.Warn("[Updater] reference source config is not set, skipping update")
 		return nil
 	}
 

@@ -64,15 +64,14 @@ var (
 )
 
 var (
-	EmptyCoins              = sdk.Coins(nil)
-	Coins1uband             = sdk.NewCoins(sdk.NewInt64Coin("uband", 1))
-	Coins10uband            = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
-	Coins11uband            = sdk.NewCoins(sdk.NewInt64Coin("uband", 11))
-	Coins1000000uband       = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
-	Coins99999999uband      = sdk.NewCoins(sdk.NewInt64Coin("uband", 99999999))
-	Coins100000000uband     = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
-	Coins1000000000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000000000))
-	BadCoins                = []sdk.Coin{{Denom: "uband", Amount: math.NewInt(-1)}}
+	EmptyCoins          = sdk.Coins(nil)
+	Coins1uband         = sdk.NewCoins(sdk.NewInt64Coin("uband", 1))
+	Coins10uband        = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
+	Coins11uband        = sdk.NewCoins(sdk.NewInt64Coin("uband", 11))
+	Coins1000000uband   = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
+	Coins99999999uband  = sdk.NewCoins(sdk.NewInt64Coin("uband", 99999999))
+	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
+	BadCoins            = []sdk.Coin{{Denom: "uband", Amount: math.NewInt(-1)}}
 )
 
 const (
@@ -257,15 +256,15 @@ func GenesisStateWithValSet(app *band.BandApp, dir string) band.GenesisState {
 
 	// Add genesis data sources and oracle scripts
 	oracleGenesis := oracletypes.DefaultGenesisState()
-	oracleGenesis.DataSources = generateDataSources(dir)
-	oracleGenesis.OracleScripts = generateOracleScripts(dir)
+	oracleGenesis.DataSources = GenerateDataSources(dir)
+	oracleGenesis.OracleScripts = GenerateOracleScripts(dir)
 	genesisState[oracletypes.ModuleName] = app.AppCodec().MustMarshalJSON(oracleGenesis)
 
 	return genesisState
 }
 
 // generateDataSources generates a set of data sources for the BandApp.
-func generateDataSources(homePath string) []oracletypes.DataSource {
+func GenerateDataSources(homePath string) []oracletypes.DataSource {
 	dir := filepath.Join(homePath, "files")
 	fc := filecache.New(dir)
 	DataSources = []oracletypes.DataSource{{}} // 0th index should be ignored
@@ -279,8 +278,8 @@ func generateDataSources(homePath string) []oracletypes.DataSource {
 	return DataSources[1:]
 }
 
-// generateOracleScripts generates a set of oracle scripts for the BandApp.
-func generateOracleScripts(homePath string) []oracletypes.OracleScript {
+// GenerateOracleScripts generates a set of oracle scripts for the BandApp.
+func GenerateOracleScripts(homePath string) []oracletypes.OracleScript {
 	dir := filepath.Join(homePath, "files")
 	fc := filecache.New(dir)
 	OracleScripts = []oracletypes.OracleScript{{}} // 0th index should be ignored

@@ -8,10 +8,10 @@ import (
 )
 
 func TestParseExecutor(t *testing.T) {
-	name, url, timeout, err := parseExecutor("test:www.testprotocol.com?timeout=3s")
+	name, url, timeout, err := parseExecutor("test:www.bandprotocol.com?timeout=3s")
 	require.Equal(t, name, "test")
 	require.Equal(t, timeout, 3*time.Second)
-	require.Equal(t, url, "www.testprotocol.com")
+	require.Equal(t, url, "www.bandprotocol.com")
 	require.NoError(t, err)
 
 	name, url, timeout, err = parseExecutor("test2:www.test.com/anna/kondanna?timeout=300ms")
@@ -28,7 +28,7 @@ func TestParseExecutor(t *testing.T) {
 }
 
 func TestParseExecutorWithoutRawQuery(t *testing.T) {
-	_, _, _, err := parseExecutor("test:www.testprotocol.com")
+	_, _, _, err := parseExecutor("test:www.bandprotocol.com")
 	require.EqualError(t, err, "invalid timeout, executor requires query timeout")
 }
 
@@ -38,6 +38,6 @@ func TestParseExecutorInvalidExecutorError(t *testing.T) {
 }
 
 func TestParseExecutorInvalidTimeoutError(t *testing.T) {
-	_, _, _, err := parseExecutor("test:www.testprotocol.com?timeout=test")
+	_, _, _, err := parseExecutor("test:www.bandprotocol.com?timeout=test")
 	require.EqualError(t, err, "invalid timeout, cannot parse duration with error: time: invalid duration \"test\"")
 }

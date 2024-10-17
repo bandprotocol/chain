@@ -135,7 +135,7 @@ message QueryLockRequest {
   // staker_address is the target address to query lock.
   string staker_address = 1;
 
-  // key is the key of target vault to query reward.
+  // key is the key of target vault to query lock.
   string key = 2;
 }
 

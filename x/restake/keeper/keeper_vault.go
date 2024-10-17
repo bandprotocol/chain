@@ -29,6 +29,14 @@ func (k Keeper) GetOrCreateVault(ctx sdk.Context, key string) (types.Vault, erro
 		)
 
 		k.SetVault(ctx, vault)
+
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeCreateVault,
+				sdk.NewAttribute(types.AttributeKeyKey, key),
+				sdk.NewAttribute(types.AttributeKeyVaultAddress, vaultAccAddr.String()),
+			),
+		)
 	}
 
 	return vault, nil

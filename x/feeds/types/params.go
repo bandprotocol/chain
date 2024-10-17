@@ -104,6 +104,33 @@ func (p Params) Validate() error {
 			return err
 		}
 	}
+	if err := validateInt64("grace period", true, p.GracePeriod); err != nil {
+		return err
+	}
+	if err := validateInt64("min interval", true, p.MinInterval); err != nil {
+		return err
+	}
+	if err := validateInt64("max interval", true, p.MaxInterval); err != nil {
+		return err
+	}
+	if err := validateInt64("power threshold", true, p.PowerStepThreshold); err != nil {
+		return err
+	}
+	if err := validateUint64("max current feeds", false, p.MaxCurrentFeeds); err != nil {
+		return err
+	}
+	if err := validateInt64("cooldown time", true, p.CooldownTime); err != nil {
+		return err
+	}
+	if err := validateInt64("min deviation basis point", true, p.MinDeviationBasisPoint); err != nil {
+		return err
+	}
+	if err := validateInt64("max deviation basis point", true, p.MaxDeviationBasisPoint); err != nil {
+		return err
+	}
+	if err := validateInt64("current feeds update interval", true, p.CurrentFeedsUpdateInterval); err != nil {
+		return err
+	}
 	priceQuorum, err := math.LegacyNewDecFromStr(p.PriceQuorum)
 	if err != nil {
 		return fmt.Errorf("invalid price quorum string: %w", err)

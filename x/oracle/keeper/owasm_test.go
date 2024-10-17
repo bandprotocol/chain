@@ -51,7 +51,6 @@ func (suite *KeeperTestSuite) mockIterateBondedValidatorsByPower() {
 func (suite *KeeperTestSuite) TestGetRandomValidatorsSuccessActivateAll() {
 	ctx := suite.ctx
 	k := suite.oracleKeeper
-
 	require := suite.Require()
 	suite.activeAllValidators()
 	suite.mockIterateBondedValidatorsByPower()
