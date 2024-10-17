@@ -62,7 +62,7 @@ func (suite *KeeperTestSuite) TestAllocateTokenNoActiveValidators() {
 	// No active oracle validators so nothing should happen.
 	// Expect only try to sum of validator power
 	suite.mockValidators()
-	k.AllocateTokens(ctx, defaultVotes)
+	suite.Require().NoError(k.AllocateTokens(ctx, defaultVotes))
 }
 
 func (suite *KeeperTestSuite) TestAllocateTokensOneActive() {
@@ -101,7 +101,7 @@ func (suite *KeeperTestSuite) TestAllocateTokensOneActive() {
 			AllocateTokensToValidator(gomock.Any(), validators[1].Validator, (sdk.DecCoins)(nil)),
 	)
 
-	k.AllocateTokens(ctx, defaultVotes)
+	suite.Require().NoError(k.AllocateTokens(ctx, defaultVotes))
 }
 
 func (suite *KeeperTestSuite) TestAllocateTokensAllActive() {
@@ -147,7 +147,8 @@ func (suite *KeeperTestSuite) TestAllocateTokensAllActive() {
 			AllocateTokensToValidator(gomock.Any(), validators[0].Validator, (sdk.DecCoins)(nil)),
 	)
 
-	k.AllocateTokens(ctx, defaultVotes)
+	err = k.AllocateTokens(ctx, defaultVotes)
+	require.NoError(err)
 }
 
 func (suite *KeeperTestSuite) TestGetDefaultValidatorStatus() {

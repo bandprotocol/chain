@@ -39,62 +39,20 @@ func TestGenesisStateValidate(t *testing.T) {
 				Params: DefaultParams(),
 				Vaults: []Vault{
 					{
-						Key:             "key",
-						VaultAddress:    "vault_address",
-						IsActive:        true,
-						RewardsPerPower: sdk.NewDecCoins(),
-						TotalPower:      sdkmath.NewInt(10),
-						Remainders:      sdk.NewDecCoins(),
+						Key:      "key",
+						IsActive: true,
 					},
 				},
 				Locks: []Lock{
 					{
-						StakerAddress:  "address1",
-						Key:            "key",
-						Power:          sdkmath.NewInt(4),
-						PosRewardDebts: sdk.NewDecCoins(),
-						NegRewardDebts: sdk.NewDecCoins(),
+						StakerAddress: "address1",
+						Key:           "key",
+						Power:         sdkmath.NewInt(4),
 					},
 					{
-						StakerAddress:  "address2",
-						Key:            "key",
-						Power:          sdkmath.NewInt(6),
-						PosRewardDebts: sdk.NewDecCoins(),
-						NegRewardDebts: sdk.NewDecCoins(),
-					},
-				},
-				Stakes: []Stake{},
-			},
-			false,
-		},
-		{
-			"valid genesisState - diff total power on inactive vault",
-			GenesisState{
-				Params: DefaultParams(),
-				Vaults: []Vault{
-					{
-						Key:             "key",
-						VaultAddress:    "vault_address",
-						IsActive:        false,
-						RewardsPerPower: sdk.NewDecCoins(),
-						TotalPower:      sdkmath.NewInt(20),
-						Remainders:      sdk.NewDecCoins(),
-					},
-				},
-				Locks: []Lock{
-					{
-						StakerAddress:  "address1",
-						Key:            "key",
-						Power:          sdkmath.NewInt(4),
-						PosRewardDebts: sdk.NewDecCoins(),
-						NegRewardDebts: sdk.NewDecCoins(),
-					},
-					{
-						StakerAddress:  "address2",
-						Key:            "key",
-						Power:          sdkmath.NewInt(6),
-						PosRewardDebts: sdk.NewDecCoins(),
-						NegRewardDebts: sdk.NewDecCoins(),
+						StakerAddress: "address2",
+						Key:           "key",
+						Power:         sdkmath.NewInt(6),
 					},
 				},
 				Stakes: []Stake{},
@@ -119,24 +77,14 @@ func TestGenesisStateValidate(t *testing.T) {
 			true,
 		},
 		{
-			"invalid genesisState - diff total power on active vault",
+			"invalid genesisState - lock without vault",
 			GenesisState{
 				Params: DefaultParams(),
-				Vaults: []Vault{
-					{
-						Key:        "test",
-						TotalPower: sdkmath.NewInt(5),
-						IsActive:   true,
-					},
-				},
+				Vaults: []Vault{},
 				Locks: []Lock{
 					{
 						Key:   "test",
 						Power: sdkmath.NewInt(4),
-					},
-					{
-						Key:   "test",
-						Power: sdkmath.NewInt(6),
 					},
 				},
 				Stakes: []Stake{},

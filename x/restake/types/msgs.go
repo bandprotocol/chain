@@ -6,33 +6,9 @@ import (
 )
 
 var (
-	_, _, _, _ sdk.Msg              = &MsgClaimRewards{}, &MsgStake{}, &MsgUnstake{}, &MsgUpdateParams{}
-	_, _, _, _ sdk.HasValidateBasic = &MsgClaimRewards{}, &MsgStake{}, &MsgUnstake{}, &MsgUpdateParams{}
+	_, _, _ sdk.Msg              = &MsgStake{}, &MsgUnstake{}, &MsgUpdateParams{}
+	_, _, _ sdk.HasValidateBasic = &MsgStake{}, &MsgUnstake{}, &MsgUpdateParams{}
 )
-
-// NewMsgClaimRewards creates a new MsgClaimRewards instance
-func NewMsgClaimRewards(
-	stakerAddr sdk.AccAddress,
-	key string,
-) *MsgClaimRewards {
-	return &MsgClaimRewards{
-		StakerAddress: stakerAddr.String(),
-		Key:           key,
-	}
-}
-
-// ValidateBasic implements the sdk.Msg interface.
-func (m MsgClaimRewards) ValidateBasic() error {
-	if _, err := sdk.AccAddressFromBech32(m.StakerAddress); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("invalid staker address: %s", err)
-	}
-
-	if len(m.Key) == 0 {
-		return ErrInvalidLength.Wrap("length of key is not correct")
-	}
-
-	return nil
-}
 
 // NewMsgStake creates a new MsgStake instance
 func NewMsgStake(

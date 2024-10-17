@@ -82,6 +82,7 @@ func (s *SignallerTestSuite) SetupTest() {
 					Status:   bothan.Status_AVAILABLE,
 				},
 			},
+			Uuid: "uuid1",
 		}, nil).
 		AnyTimes()
 

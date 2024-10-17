@@ -17,7 +17,7 @@ message GenesisState {
   // locks is a list of locks in the module.
   repeated Lock locks = 3 [(gogoproto.nullable) = false];
 
-  // locks is a list of stakes in the module.
+  // stakes is a list of stakes in the module.
   repeated Stake stakes = 4 [(gogoproto.nullable) = false];
 }
 

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- (chain) Return error on AllocationToken at beginblock instead of panic
+- (chain) Add autocli for oracle module
 - (bump) Use go 1.22.3
 - (bump) Use cosmos-sdk package v0.50.10 / ibc-go v8.5.1
 - (bump) replace github.com/tendermint/tendermint by github.com/cometbft/cometbft v0.38.12

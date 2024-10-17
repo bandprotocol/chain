@@ -2,9 +2,9 @@
 
 ## Abstract
 
-This document specifies the Restake module. The `restake` module provides a mechanism for locking and distributing rewards within a blockchain.  
+This document specifies the Restake module. The `restake` module provides a mechanism for locking power within a blockchain.  
 
-![Untitled](https://github.com/user-attachments/assets/305e449a-713a-46f4-9996-ddc5e00ede92)
+![Untitled](https://github.com/user-attachments/assets/eca67cbd-7b15-4537-a78d-166be2448045)
 
 This module is used in the BandChain.
 
@@ -21,7 +21,6 @@ This module is used in the BandChain.
     - [Stake](#stake)
     - [Params](#params)
   - [Messages](#messages)
-    - [MsgClaimRewards](#msgclaimrewards)
     - [MsgStake](#msgstake)
     - [MsgUnstake](#msgunstake)
     - [MsgUpdateParams](#msgupdateparams)
@@ -29,7 +28,6 @@ This module is used in the BandChain.
   - [Expected keepers](#expected-keepers)
     - [SetLockedPower](#setlockedpower)
     - [GetLockedPower](#getlockedpower)
-    - [AddRewards](#addrewards)
     - [DeactivateVault](#deactivatevault)
 
 ## Concepts
@@ -39,13 +37,7 @@ This module is used in the BandChain.
   - staked power is the total coins that the address has staked to the module
 - Users can stake their coins (such as liquid staking tokens) into the module to get staked power.
 - Users cannot undelegate/unstake coins exceeding the locked power under any vault.
-- Users must send a transaction to claim rewards by themselves.
-  - They need to claim rewards by key of vault.
-  - There is a CLI command that helps to claim all vaults (sending multiple msgs).
 - Modules can lock the power of users by using key of vault.
-- Modules can deposit coins into the vault.
-  - The coins will be distributed to users based on the locked power of that key.
-  - Use [MasterChefV2](https://github.com/sushiswap/masterchef/blob/master/contracts/MasterChefV2.sol) logic from SushiSwap.
 - Modules must call a provided function to deactivate a vault once it is no longer in use.
   - Once deactivated, a vault cannot be reactivated.
 
@@ -54,54 +46,28 @@ This module is used in the BandChain.
 ### Vault
 
 The `Vault` is a space for holding the vault information.
-- `0x00 | Key -> ProtocolBuffer(Vault)`
+- `0x10 | Key -> ProtocolBuffer(Vault)`
 
 ```protobuf
-// Vault is used for tracking the status and rewards of the vaults.
+// Vault is used for tracking the status of the vaults.
 message Vault {
   option (gogoproto.equal) = true;
 
   // key is the key of the vault.
   string key = 1;
 
-  // vault_address is the address that holds rewards for this vault.
-  string vault_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-
   // is_active is the status of the vault
   bool is_active = 3;
-
-  // rewards_per_power is rewards per power (DecCoins)
-  // new_rewards_per_power = current_rewards_per_power + (rewards / total_power)
-  repeated cosmos.base.v1beta1.DecCoin rewards_per_power = 4 [
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
-    (gogoproto.nullable)     = false,
-    (amino.dont_omitempty)   = true
-  ];
-
-  // total_power is the total locked power of the vault.
-  string total_power = 5 [
-    (cosmos_proto.scalar)  = "cosmos.Int",
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
-    (gogoproto.nullable)   = false
-  ];
-
-  // remainders is a list of the remainder amounts in the vault.
-  // this field is used to track remainder amount from claimings in the vault.
-  repeated cosmos.base.v1beta1.DecCoin remainders = 6 [
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
-    (gogoproto.nullable)     = false,
-    (amino.dont_omitempty)   = true
-  ];
 }
 ```
 
 ### Lock
 
 The `Lock` is a space for holding the locking information of each account of each vault.
-- `0x01 | AddrLength | Addr | Key -> ProtocolBuffer(Lock)`
+- `0x11 | AddrLength | Addr | Key -> ProtocolBuffer(Lock)`
 
 ```protobuf
-// Lock is used to store lock information of each user on each vault along with their reward information.
+// Lock is used to store lock information of each user on each vault.
 message Lock {
   option (gogoproto.equal) = true;
 
@@ -114,23 +80,8 @@ message Lock {
   // power is the number of locked power.
   string power = 3 [
     (cosmos_proto.scalar)  = "cosmos.Int",
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable)   = false
-  ];
-
-  // pos_reward_debts is a list of reward debt for each reward (only the positive side).
-  // Note: Coin and DecCoin can't have negative amounts. so, we split it into two numbers.
-  repeated cosmos.base.v1beta1.DecCoin pos_reward_debts = 4 [
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
-    (gogoproto.nullable)     = false,
-    (amino.dont_omitempty)   = true
-  ];
-
-  // neg_reward_debts is a list of reward debt for each reward (only negative side).
-  repeated cosmos.base.v1beta1.DecCoin neg_reward_debts = 5 [
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.DecCoins",
-    (gogoproto.nullable)     = false,
-    (amino.dont_omitempty)   = true
   ];
 }
 ```
@@ -143,7 +94,7 @@ message Lock {
 ### Stake
 
 The `Stake` is a space for holding the staking information of each address.
-- `0x02 | AddrLength | Addr -> ProtocolBuffer(Stake)`
+- `0x12 | AddrLength | Addr -> ProtocolBuffer(Stake)`
 
 ```protobuf
 // Stake is used to store staked coins of an address.
@@ -176,9 +127,6 @@ In this section, we describe the processing of the `restake` messages and the co
 ```protobuf
 // Msg defines the restake Msg service.
 service Msg {
-  // ClaimRewards defines a method for claiming rewards for the user.
-  rpc ClaimRewards(MsgClaimRewards) returns (MsgClaimRewardsResponse);
-
   // Stake defines a method for staking coins into the module.
   rpc Stake(MsgStake) returns (MsgStakeResponse);
 
@@ -189,34 +137,6 @@ service Msg {
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 ```
-
-### MsgClaimRewards
-
-A user can claim rewards by using the `MsgClaimRewards` message.
-
-```protobuf
-
-// MsgClaimRewards is the request message type for claiming rewards.
-message MsgClaimRewards {
-  option (cosmos.msg.v1.signer) = "staker_address";
-  option (amino.name)           = "restake/MsgClaimRewards";
-
-  // staker_address is the address that will claim the rewards.
-  string staker_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-
-  // key is the key that want to claim rewards from.
-  string key = 2;
-}
-```
-
-**Logic**
-
-- Calculate the rewards of the vault for the address and truncate the decimal.
-  - Transfer the truncated amount from the module account to the user.
-  - Re-calculate reward debts of the address.
-- If the vault is inactive.
-  - Delete `lock` state of the address
-  - Add the left rewards of the address for this vault to the remainder amount of the vault.
 
 ### MsgStake
 
@@ -315,13 +235,12 @@ The purpose is to prevent a user to un-delegate more than what is locked for any
 
 ## Expected keepers
 
-Here is the public function of `restake` keeper that other modules can use for locking power, adding rewards, and vault deactivation.
+Here is the public function of `restake` keeper that other modules can use for locking power, and vault deactivation.
 
 ```go
 type RestakeKeeper interface {
   SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key string, power math.Int) error
   GetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key string) (math.Int, error)	
-  AddRewards(ctx sdk.Context, sender sdk.AccAddress, key string, rewards sdk.Coins) error 
   DeactivateVault(ctx sdk.Context, key string) error
 }
 ```
@@ -348,18 +267,6 @@ This function is used to get the locked power of the account on the vault.
 - Return an error if the vault doesn’t exist.
 - Return an error if the vault is inactive.
 - Return an error if there is no lock for this account on this vault.
-
-### AddRewards
-
-`AddRewards(ctx sdk.Context, sender sdk.AccAddress, key string, rewards sdk.Coins) error`
-
-This function is used to add reward coins to the vault.
-
-**Logic**
-
-- Return an error if the vault doesn’t exist.
-- Return an error if the vault is inactive.
-- Return an error if the total locked power to the vault is zero.
 
 ### DeactivateVault
 

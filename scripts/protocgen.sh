@@ -23,3 +23,5 @@ cd ..
 # move proto files to the right places
 cp -r github.com/bandprotocol/chain/v3/* ./
 rm -rf github.com
+
+./scripts/protocgen-pulsar.sh

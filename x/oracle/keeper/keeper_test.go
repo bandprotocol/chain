@@ -126,9 +126,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	authorization, err := codectypes.NewAnyWithValue(
 		authz.NewGenericAuthorization(sdk.MsgTypeURL(&types.MsgReportData{})),
 	)
-	if err != nil {
-		panic(err)
-	}
+	suite.Require().NoError(err)
 	expiration := ctx.BlockTime().Add(time.Minute)
 	suite.authzKeeper.EXPECT().
 		GranterGrants(gomock.Any(), &authz.QueryGranterGrantsRequest{
