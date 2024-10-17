@@ -1,9 +1,10 @@
 package yoda
 
 import (
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 // Constant used to estimate gas price of reports transaction.
@@ -49,7 +50,7 @@ const (
 	writePendingListGas      = (pendingResolveListByteLength+pendingRequestIDByteLength)*writeGasPerByte + writeFlatGas
 )
 
-func getTxByteLength(msgs []sdk.Msg) uint64 {
+func getTxByteLength(cdc codec.Codec, msgs []sdk.Msg) uint64 {
 	// base tx + reports
 	size := baseTransactionSize
 
@@ -79,7 +80,7 @@ func getRequestByteLength(f FeeEstimationData) uint64 {
 	return size
 }
 
-func getReportByteLength(msg *types.MsgReportData) uint64 {
+func getReportByteLength(cdc codec.Codec, msg *types.MsgReportData) uint64 {
 	report := types.NewReport(
 		sdk.ValAddress(msg.Validator),
 		true,
@@ -88,8 +89,8 @@ func getReportByteLength(msg *types.MsgReportData) uint64 {
 	return uint64(len(cdc.MustMarshal(&report)))
 }
 
-func estimateReportHandlerGas(msg *types.MsgReportData, f FeeEstimationData) uint64 {
-	reportByteLength := getReportByteLength(msg)
+func estimateReportHandlerGas(cdc codec.Codec, msg *types.MsgReportData, f FeeEstimationData) uint64 {
+	reportByteLength := getReportByteLength(cdc, msg)
 	requestByteLength := getRequestByteLength(f)
 
 	cost := 2*readGasPerByte*requestByteLength + writeGasPerByte*reportByteLength + baseReportDataHandlerGas
@@ -109,7 +110,7 @@ func estimateReportHandlerGas(msg *types.MsgReportData, f FeeEstimationData) uin
 func estimateAuthAnteHandlerGas(c *Context, msgs []sdk.Msg) uint64 {
 	gas := baseAuthAnteGas
 
-	txByteLength := getTxByteLength(msgs)
+	txByteLength := getTxByteLength(c.bandApp.AppCodec(), msgs)
 	gas += txCostPerByte * txByteLength
 
 	if len(c.gasPrices) > 0 {
@@ -127,7 +128,7 @@ func estimateGas(c *Context, l *Logger, msgs []sdk.Msg, feeEstimations []FeeEsti
 		if !ok {
 			panic("Don't support non-report data message")
 		}
-		gas += estimateReportHandlerGas(msg, feeEstimations[i])
+		gas += estimateReportHandlerGas(c.bandApp.AppCodec(), msg, feeEstimations[i])
 	}
 
 	l.Debug(":fuel_pump: Estimated gas is %d", gas)

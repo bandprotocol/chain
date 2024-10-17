@@ -1,7 +1,7 @@
 package price
 
 import (
-	"github.com/bandprotocol/chain/v2/pkg/obi"
+	"github.com/bandprotocol/chain/v3/pkg/obi"
 )
 
 const DefaultMultiplier = uint64(1000000000)

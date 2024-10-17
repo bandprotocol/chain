@@ -34,7 +34,7 @@ var _ = descriptor.ForMessage
 var _ = metadata.Join
 
 func request_Service_ChainID_0(ctx context.Context, marshaler runtime.Marshaler, client ServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryChainIDRequest
+	var protoReq ChainIDRequest
 	var metadata runtime.ServerMetadata
 
 	msg, err := client.ChainID(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -43,7 +43,7 @@ func request_Service_ChainID_0(ctx context.Context, marshaler runtime.Marshaler,
 }
 
 func local_request_Service_ChainID_0(ctx context.Context, marshaler runtime.Marshaler, server ServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryChainIDRequest
+	var protoReq ChainIDRequest
 	var metadata runtime.ServerMetadata
 
 	msg, err := server.ChainID(ctx, &protoReq)
@@ -52,7 +52,7 @@ func local_request_Service_ChainID_0(ctx context.Context, marshaler runtime.Mars
 }
 
 func request_Service_EVMValidators_0(ctx context.Context, marshaler runtime.Marshaler, client ServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryEVMValidatorsRequest
+	var protoReq EVMValidatorsRequest
 	var metadata runtime.ServerMetadata
 
 	msg, err := client.EVMValidators(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -61,7 +61,7 @@ func request_Service_EVMValidators_0(ctx context.Context, marshaler runtime.Mars
 }
 
 func local_request_Service_EVMValidators_0(ctx context.Context, marshaler runtime.Marshaler, server ServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryEVMValidatorsRequest
+	var protoReq EVMValidatorsRequest
 	var metadata runtime.ServerMetadata
 
 	msg, err := server.EVMValidators(ctx, &protoReq)

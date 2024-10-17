@@ -2,45 +2,47 @@ package common
 
 import (
 	abci "github.com/cometbft/cometbft/abci/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 type Hooks []Hook
 
 // Hook is an interface of hook that can process along with abci application
 type Hook interface {
-	AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res abci.ResponseInitChain)
-	AfterBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, res abci.ResponseBeginBlock)
-	AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res abci.ResponseDeliverTx)
-	AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci.ResponseEndBlock)
+	AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *abci.ResponseInitChain)
+	// Receive context that has been finalized on that block
+	AfterBeginBlock(ctx sdk.Context, req *abci.RequestFinalizeBlock, events []abci.Event)
+	AfterDeliverTx(ctx sdk.Context, tx sdk.Tx, res *abci.ExecTxResult)
+	AfterEndBlock(ctx sdk.Context, events []abci.Event)
 	RequestSearch(req *types.QueryRequestSearchRequest) (*types.QueryRequestSearchResponse, bool, error)
 	RequestPrice(req *types.QueryRequestPriceRequest) (*types.QueryRequestPriceResponse, bool, error)
 	BeforeCommit()
 }
 
-func (h Hooks) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res abci.ResponseInitChain) {
+func (h Hooks) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *abci.ResponseInitChain) {
 	for _, hook := range h {
 		hook.AfterInitChain(ctx, req, res)
 	}
 }
 
-func (h Hooks) AfterBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, res abci.ResponseBeginBlock) {
+func (h Hooks) AfterBeginBlock(ctx sdk.Context, req *abci.RequestFinalizeBlock, events []abci.Event) {
 	for _, hook := range h {
-		hook.AfterBeginBlock(ctx, req, res)
+		hook.AfterBeginBlock(ctx, req, events)
 	}
 }
 
-func (h Hooks) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res abci.ResponseDeliverTx) {
+func (h Hooks) AfterDeliverTx(ctx sdk.Context, tx sdk.Tx, res *abci.ExecTxResult) {
 	for _, hook := range h {
-		hook.AfterDeliverTx(ctx, req, res)
+		hook.AfterDeliverTx(ctx, tx, res)
 	}
 }
 
-func (h Hooks) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci.ResponseEndBlock) {
+func (h Hooks) AfterEndBlock(ctx sdk.Context, events []abci.Event) {
 	for _, hook := range h {
-		hook.AfterEndBlock(ctx, req, res)
+		hook.AfterEndBlock(ctx, events)
 	}
 }
 

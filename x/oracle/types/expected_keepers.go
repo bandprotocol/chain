@@ -4,57 +4,42 @@ import (
 	"context"
 	"time"
 
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+
+	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 )
 
 // AccountKeeper defines the expected account keeper.
 type AccountKeeper interface {
-	GetAccount(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
-	GetModuleAccount(ctx sdk.Context, name string) authtypes.ModuleAccountI
+	GetAccount(ctx context.Context, addr sdk.AccAddress) sdk.AccountI
+	GetModuleAccount(ctx context.Context, moduleName string) sdk.ModuleAccountI
 }
 
 // BankKeeper defines the expected bank keeper.
 type BankKeeper interface {
-	GetAllBalances(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
-	SendCoinsFromModuleToModule(ctx sdk.Context, senderModule, recipientModule string, amt sdk.Coins) error
-	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
+	GetAllBalances(ctx context.Context, addr sdk.AccAddress) sdk.Coins
+	SendCoinsFromModuleToModule(ctx context.Context, senderModule, recipientModule string, amt sdk.Coins) error
+	SendCoins(ctx context.Context, from, to sdk.AccAddress, amt sdk.Coins) error
+	SpendableCoins(ctx context.Context, addr sdk.AccAddress) sdk.Coins
 }
 
 // StakingKeeper defines the expected staking keeper.
 type StakingKeeper interface {
-	ValidatorByConsAddr(sdk.Context, sdk.ConsAddress) stakingtypes.ValidatorI
-	IterateBondedValidatorsByPower(
-		ctx sdk.Context,
-		fn func(index int64, validator stakingtypes.ValidatorI) (stop bool),
-	)
-	Validator(ctx sdk.Context, address sdk.ValAddress) stakingtypes.ValidatorI
+	ValidatorByConsAddr(context.Context, sdk.ConsAddress) (stakingtypes.ValidatorI, error)
+	IterateBondedValidatorsByPower(context.Context,
+		func(index int64, validator stakingtypes.ValidatorI) (stop bool)) error
+	Validator(context.Context, sdk.ValAddress) (stakingtypes.ValidatorI, error)
 }
 
 // DistrKeeper defines the expected distribution keeper.
 type DistrKeeper interface {
-	GetCommunityTax(ctx sdk.Context) (percent sdk.Dec)
-	GetFeePool(ctx sdk.Context) (feePool distrtypes.FeePool)
-	SetFeePool(ctx sdk.Context, feePool distrtypes.FeePool)
-	AllocateTokensToValidator(ctx sdk.Context, val stakingtypes.ValidatorI, tokens sdk.DecCoins)
-}
-
-// ChannelKeeper defines the expected IBC channel keeper
-type ChannelKeeper interface {
-	SendPacket(
-		ctx sdk.Context,
-		chanCap *capabilitytypes.Capability,
-		sourcePort string,
-		sourceChannel string,
-		timeoutHeight ibcclienttypes.Height,
-		timeoutTimestamp uint64,
-		data []byte,
-	) (sequence uint64, err error)
+	GetCommunityTax(ctx context.Context) (math.LegacyDec, error)
+	AllocateTokensToValidator(ctx context.Context, val stakingtypes.ValidatorI, tokens sdk.DecCoins) error
+	FundCommunityPool(ctx context.Context, amount sdk.Coins, sender sdk.AccAddress) error
 }
 
 // PortKeeper defines the expected IBC port keeper
@@ -64,20 +49,19 @@ type PortKeeper interface {
 
 // AuthzKeeper defines the expected authz keeper. for query and testing only don't use to create/remove grant on deliver tx
 type AuthzKeeper interface {
-	DispatchActions(ctx sdk.Context, grantee sdk.AccAddress, msgs []sdk.Msg) ([][]byte, error)
+	DispatchActions(ctx context.Context, grantee sdk.AccAddress, msgs []sdk.Msg) ([][]byte, error)
 	GetAuthorization(
-		ctx sdk.Context,
-		grantee sdk.AccAddress,
-		granter sdk.AccAddress,
+		ctx context.Context,
+		grantee, granter sdk.AccAddress,
 		msgType string,
 	) (authz.Authorization, *time.Time)
-	GetAuthorizations(ctx sdk.Context, grantee sdk.AccAddress, granter sdk.AccAddress) ([]authz.Authorization, error)
+	GetAuthorizations(ctx context.Context, grantee, granter sdk.AccAddress) ([]authz.Authorization, error)
 	SaveGrant(
-		ctx sdk.Context,
+		ctx context.Context,
 		grantee, granter sdk.AccAddress,
 		authorization authz.Authorization,
 		expiration *time.Time,
 	) error
-	DeleteGrant(ctx sdk.Context, grantee sdk.AccAddress, granter sdk.AccAddress, msgType string) error
-	GranterGrants(c context.Context, req *authz.QueryGranterGrantsRequest) (*authz.QueryGranterGrantsResponse, error)
+	DeleteGrant(ctx context.Context, grantee, granter sdk.AccAddress, msgType string) error
+	GranterGrants(ctx context.Context, req *authz.QueryGranterGrantsRequest) (*authz.QueryGranterGrantsResponse, error)
 }

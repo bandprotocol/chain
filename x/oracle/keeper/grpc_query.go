@@ -6,15 +6,17 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/cometbft/cometbft/crypto/secp256k1"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/authz"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/cometbft/cometbft/crypto/secp256k1"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/authz"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"github.com/bandprotocol/chain/v3/hooks/common"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 // Querier is used as Keeper will have duplicate methods if used directly, and gRPC names take precedence over keeper
@@ -202,9 +204,7 @@ func (k Querier) Validator(
 		return nil, err
 	}
 	status := k.GetValidatorStatus(ctx, val)
-	if err != nil {
-		return nil, err
-	}
+
 	return &types.QueryValidatorResponse{Status: &status}, nil
 }
 
@@ -225,7 +225,7 @@ func (k Querier) IsReporter(
 	return &types.QueryIsReporterResponse{IsReporter: k.Keeper.IsReporter(ctx, val, rep)}, nil
 }
 
-// Reporters queries 100 gratees of a given validator address and filter for reporter.
+// Reporters queries 100 grantees of a given validator address and filter for reporter.
 func (k Querier) Reporters(
 	c context.Context,
 	req *types.QueryReportersRequest,
@@ -268,16 +268,23 @@ func (k Querier) ActiveValidators(
 	}
 	ctx := sdk.UnwrapSDKContext(c)
 	result := types.QueryActiveValidatorsResponse{}
-	k.stakingKeeper.IterateBondedValidatorsByPower(ctx,
+	err := k.stakingKeeper.IterateBondedValidatorsByPower(ctx,
 		func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
-			if k.GetValidatorStatus(ctx, val.GetOperator()).IsActive {
+			operator, err := sdk.ValAddressFromBech32(val.GetOperator())
+			if err != nil {
+				return false
+			}
+			if k.GetValidatorStatus(ctx, operator).IsActive {
 				result.Validators = append(result.Validators, &types.ActiveValidator{
-					Address: val.GetOperator().String(),
+					Address: val.GetOperator(),
 					Power:   val.GetTokens().Uint64(),
 				})
 			}
 			return false
 		})
+	if err != nil {
+		return nil, err
+	}
 	return &result, nil
 }
 

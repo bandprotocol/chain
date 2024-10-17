@@ -3,7 +3,7 @@ package testdata
 // Wasm2 is a bad Owasm script with the following specification:
 //
 //	PREPARE:
-//	  CALL set_return_data with RETDATA "beeb" -- Not allowed during prepare
+//	  CALL set_return_data with RETDATA "test" -- Not allowed during prepare
 //	EXECUTE:
 //	  DO NOTHING
 var Wasm2 []byte = wat2wasm(`
@@ -17,5 +17,5 @@ var Wasm2 []byte = wat2wasm(`
 		call $set_return_data)
 	(func $execute (export "execute"))
 	(memory $memory (export "memory") 17)
-	(data (i32.const 1024) "beeb"))
+	(data (i32.const 1024) "test"))
 `)

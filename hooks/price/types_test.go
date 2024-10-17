@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/hooks/price"
+	"github.com/bandprotocol/chain/v3/hooks/price"
 )
 
 func hexToBytes(hexstr string) []byte {

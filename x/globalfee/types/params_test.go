@@ -3,8 +3,11 @@ package types
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	"cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func TestDefaultParams(t *testing.T) {
@@ -22,27 +25,27 @@ func TestValidateParams(t *testing.T) {
 			false,
 		},
 		"DecCoins conversion fails, fail": {
-			sdk.Coins{sdk.NewCoin("photon", sdk.OneInt())},
+			sdk.Coins{sdk.NewCoin("photon", math.OneInt())},
 			true,
 		},
 		"coins amounts are zero, fail": {
 			sdk.DecCoins{
-				sdk.NewDecCoin("atom", sdk.ZeroInt()),
-				sdk.NewDecCoin("photon", sdk.ZeroInt()),
+				sdk.NewDecCoin("atom", math.ZeroInt()),
+				sdk.NewDecCoin("photon", math.ZeroInt()),
 			},
 			true,
 		},
 		"duplicate coins denoms, fail": {
 			sdk.DecCoins{
-				sdk.NewDecCoin("photon", sdk.OneInt()),
-				sdk.NewDecCoin("photon", sdk.OneInt()),
+				sdk.NewDecCoin("photon", math.OneInt()),
+				sdk.NewDecCoin("photon", math.OneInt()),
 			},
 			true,
 		},
 		"coins are not sorted by denom alphabetically, fail": {
 			sdk.DecCoins{
-				sdk.NewDecCoin("photon", sdk.OneInt()),
-				sdk.NewDecCoin("atom", sdk.OneInt()),
+				sdk.NewDecCoin("photon", math.OneInt()),
+				sdk.NewDecCoin("atom", math.OneInt()),
 			},
 			true,
 		},

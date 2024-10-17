@@ -1,18 +1,18 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
-
-	band "github.com/bandprotocol/chain/v2/app"
 )
 
 type Request struct {
@@ -22,8 +22,6 @@ type Request struct {
 type Response struct {
 	TxHash string `json:"txHash"`
 }
-
-var cdc, _ = band.MakeCodecs()
 
 func handleRequest(gc *gin.Context, c *Context) {
 	key := <-c.keys
@@ -49,17 +47,13 @@ func handleRequest(gc *gin.Context, c *Context) {
 	}
 
 	msg := banktypes.NewMsgSend(address, to, c.amount)
-	if err := msg.ValidateBasic(); err != nil {
-		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
 
 	clientCtx := client.Context{
 		Client:            c.client,
-		Codec:             cdc,
-		TxConfig:          band.MakeEncodingConfig().TxConfig,
+		Codec:             c.bandApp.AppCodec(),
+		TxConfig:          c.bandApp.GetTxConfig(),
 		BroadcastMode:     "async",
-		InterfaceRegistry: band.MakeEncodingConfig().InterfaceRegistry,
+		InterfaceRegistry: c.bandApp.InterfaceRegistry(),
 	}
 	accountRetriever := authtypes.AccountRetriever{}
 	acc, err := accountRetriever.GetAccount(clientCtx, address)
@@ -71,7 +65,7 @@ func handleRequest(gc *gin.Context, c *Context) {
 	txf := tx.Factory{}.
 		WithAccountNumber(acc.GetAccountNumber()).
 		WithSequence(acc.GetSequence()).
-		WithTxConfig(band.MakeEncodingConfig().TxConfig).
+		WithTxConfig(c.bandApp.GetTxConfig()).
 		WithGas(200000).WithGasAdjustment(1).
 		WithChainID(cfg.ChainID).
 		WithMemo("").
@@ -85,7 +79,7 @@ func handleRequest(gc *gin.Context, c *Context) {
 		return
 	}
 
-	err = tx.Sign(txf, key.Name, txb, true)
+	err = tx.Sign(context.Background(), txf, key.Name, txb, true)
 	if err != nil {
 		gc.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

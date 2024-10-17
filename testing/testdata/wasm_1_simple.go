@@ -3,11 +3,11 @@ package testdata
 // Wasm1 is a simple Owasm script with the following specification:
 //
 //	PREPARE:
-//	  CALL ask_external_data with EID 1 DID 1 CALLDATA "beeb"
-//	  CALL ask_external_data with EID 2 DID 2 CALLDATA "beeb"
-//	  CALL ask_external_data with EID 3 DID 3 CALLDATA "beeb"
+//	  CALL ask_external_data with EID 1 DID 1 CALLDATA "test"
+//	  CALL ask_external_data with EID 2 DID 2 CALLDATA "test"
+//	  CALL ask_external_data with EID 3 DID 3 CALLDATA "test"
 //	EXECUTE:
-//	  CALL set_return_date with RETDATE "beeb"
+//	  CALL set_return_date with RETDATE "test"
 var Wasm1 = wat2wasm(`
 (module
 	(type $t0 (func))
@@ -49,5 +49,5 @@ var Wasm1 = wat2wasm(`
 	  call $set_return_data)
 	(table $T0 1 1 funcref)
 	(memory $memory (export "memory") 17)
-	(data (i32.const 1024) "beeb"))
+	(data (i32.const 1024) "test"))
 `)

@@ -38,7 +38,7 @@ var (
 )
 
 func request_Service_Proof_0(ctx context.Context, marshaler runtime.Marshaler, client ServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryProofRequest
+	var protoReq ProofRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -72,7 +72,7 @@ func request_Service_Proof_0(ctx context.Context, marshaler runtime.Marshaler, c
 }
 
 func local_request_Service_Proof_0(ctx context.Context, marshaler runtime.Marshaler, server ServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryProofRequest
+	var protoReq ProofRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -110,7 +110,7 @@ var (
 )
 
 func request_Service_MultiProof_0(ctx context.Context, marshaler runtime.Marshaler, client ServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryMultiProofRequest
+	var protoReq MultiProofRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
@@ -126,7 +126,7 @@ func request_Service_MultiProof_0(ctx context.Context, marshaler runtime.Marshal
 }
 
 func local_request_Service_MultiProof_0(ctx context.Context, marshaler runtime.Marshaler, server ServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryMultiProofRequest
+	var protoReq MultiProofRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
@@ -142,7 +142,7 @@ func local_request_Service_MultiProof_0(ctx context.Context, marshaler runtime.M
 }
 
 func request_Service_RequestCountProof_0(ctx context.Context, marshaler runtime.Marshaler, client ServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryRequestCountProofRequest
+	var protoReq RequestCountProofRequest
 	var metadata runtime.ServerMetadata
 
 	msg, err := client.RequestCountProof(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -151,7 +151,7 @@ func request_Service_RequestCountProof_0(ctx context.Context, marshaler runtime.
 }
 
 func local_request_Service_RequestCountProof_0(ctx context.Context, marshaler runtime.Marshaler, server ServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryRequestCountProofRequest
+	var protoReq RequestCountProofRequest
 	var metadata runtime.ServerMetadata
 
 	msg, err := server.RequestCountProof(ctx, &protoReq)

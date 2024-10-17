@@ -1,9 +1,10 @@
 package proof
 
 import (
+	"github.com/ethereum/go-ethereum/common"
+
 	"github.com/cometbft/cometbft/crypto/merkle"
 	"github.com/cometbft/cometbft/types"
-	"github.com/ethereum/go-ethereum/common"
 )
 
 // BlockHeaderMerklePartsEthereum is an Ethereum version of BlockHeaderMerkleParts for solidity ABI-encoding.
