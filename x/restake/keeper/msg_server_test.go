@@ -12,74 +12,99 @@ import (
 	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
-func (suite *KeeperTestSuite) TestMsgClaimRewards() {
+func (suite *KeeperTestSuite) TestMsgStake() {
 	ctx := suite.ctx
 	suite.setupState()
 
 	testCases := []struct {
 		name      string
-		input     *types.MsgClaimRewards
+		input     *types.MsgStake
 		expErr    bool
 		expErrMsg string
 		preCheck  func()
 		postCheck func()
 	}{
 		{
-			name: "no vault",
-			input: &types.MsgClaimRewards{
+			name: "not allowed denoms",
+			input: &types.MsgStake{
 				StakerAddress: ValidAddress1.String(),
-				Key:           InvalidVaultKey,
+				Coins: sdk.NewCoins(
+					sdk.NewCoin("usdt", sdkmath.NewInt(10)),
+				),
 			},
 			expErr:    true,
-			expErrMsg: "vault not found",
+			expErrMsg: "not allowed denom",
 			preCheck:  func() {},
 			postCheck: func() {},
 		},
 		{
-			name: "no lock",
-			input: &types.MsgClaimRewards{
-				StakerAddress: ValidAddress2.String(),
-				Key:           VaultKeyWithoutRewards,
+			name: "mix both allow and unallow denom",
+			input: &types.MsgStake{
+				StakerAddress: ValidAddress1.String(),
+				Coins: sdk.NewCoins(
+					sdk.NewCoin("usdt", sdkmath.NewInt(10)),
+					sdk.NewCoin("uband", sdkmath.NewInt(10)),
+				),
 			},
 			expErr:    true,
-			expErrMsg: "lock not found",
+			expErrMsg: "not allowed denom",
 			preCheck:  func() {},
 			postCheck: func() {},
 		},
 		{
-			name: "success - active vault",
-			input: &types.MsgClaimRewards{
+			name: "success - have previous stake",
+			input: &types.MsgStake{
 				StakerAddress: ValidAddress1.String(),
-				Key:           VaultKeyWithRewards,
+				Coins: sdk.NewCoins(
+					sdk.NewCoin("uband", sdkmath.NewInt(10)),
+				),
 			},
 			expErr:    false,
 			expErrMsg: "",
 			preCheck: func() {
 				suite.bankKeeper.EXPECT().
-					SendCoins(gomock.Any(), VaultWithRewardsAddress, ValidAddress1, sdk.NewCoins(
-						sdk.NewCoin("uband", sdkmath.NewInt(1)),
+					SendCoinsFromAccountToModule(gomock.Any(), ValidAddress1, types.ModuleName, sdk.NewCoins(
+						sdk.NewCoin("uband", sdkmath.NewInt(10)),
 					)).
+					Return(nil).
 					Times(1)
 			},
 			postCheck: func() {
-				lock, found := suite.restakeKeeper.GetLock(ctx, ValidAddress1, VaultKeyWithRewards)
-				suite.Require().True(found)
-				suite.Require().Equal(sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))), lock.PosRewardDebts)
-				suite.Require().Equal(sdk.DecCoins(nil), lock.NegRewardDebts)
+				stake := suite.restakeKeeper.GetStake(ctx, ValidAddress1)
+				suite.Require().Equal(types.Stake{
+					StakerAddress: ValidAddress1.String(),
+					Coins: sdk.NewCoins(
+						sdk.NewCoin("uband", sdkmath.NewInt(60)),
+					),
+				}, stake)
 			},
 		},
 		{
-			name: "success - inactive vault",
-			input: &types.MsgClaimRewards{
-				StakerAddress: ValidAddress1.String(),
-				Key:           InactiveVaultKey,
+			name: "success - no previous stake",
+			input: &types.MsgStake{
+				StakerAddress: ValidAddress2.String(),
+				Coins: sdk.NewCoins(
+					sdk.NewCoin("uband", sdkmath.NewInt(10)),
+				),
 			},
 			expErr:    false,
 			expErrMsg: "",
-			preCheck:  func() {},
+			preCheck: func() {
+				suite.bankKeeper.EXPECT().
+					SendCoinsFromAccountToModule(gomock.Any(), ValidAddress2, types.ModuleName, sdk.NewCoins(
+						sdk.NewCoin("uband", sdkmath.NewInt(10)),
+					)).
+					Return(nil).
+					Times(1)
+			},
 			postCheck: func() {
-				_, found := suite.restakeKeeper.GetLock(ctx, ValidAddress1, InactiveVaultKey)
-				suite.Require().False(found)
+				stake := suite.restakeKeeper.GetStake(ctx, ValidAddress2)
+				suite.Require().Equal(types.Stake{
+					StakerAddress: ValidAddress2.String(),
+					Coins: sdk.NewCoins(
+						sdk.NewCoin("uband", sdkmath.NewInt(10)),
+					),
+				}, stake)
 			},
 		},
 	}
@@ -87,7 +112,159 @@ func (suite *KeeperTestSuite) TestMsgClaimRewards() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			tc.preCheck()
-			_, err := suite.msgServer.ClaimRewards(suite.ctx, tc.input)
+			_, err := suite.msgServer.Stake(suite.ctx, tc.input)
+
+			if tc.expErr {
+				suite.Require().Error(err)
+				suite.Require().Contains(err.Error(), tc.expErrMsg)
+			} else {
+				suite.Require().NoError(err)
+			}
+
+			tc.postCheck()
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestMsgUnstake() {
+	ctx := suite.ctx
+	suite.setupState()
+
+	testCases := []struct {
+		name      string
+		input     *types.MsgUnstake
+		expErr    bool
+		expErrMsg string
+		preCheck  func()
+		postCheck func()
+	}{
+		{
+			name: "unstake more than staked coins",
+			input: &types.MsgUnstake{
+				StakerAddress: ValidAddress1.String(),
+				Coins: sdk.NewCoins(
+					sdk.NewCoin("uband", sdkmath.NewInt(2000)),
+				),
+			},
+			expErr:    true,
+			expErrMsg: "stake not enough",
+			preCheck:  func() {},
+			postCheck: func() {},
+		},
+		{
+			name: "success",
+			input: &types.MsgUnstake{
+				StakerAddress: ValidAddress1.String(),
+				Coins: sdk.NewCoins(
+					sdk.NewCoin("uband", sdkmath.NewInt(10)),
+				),
+			},
+			expErr:    false,
+			expErrMsg: "",
+			preCheck: func() {
+				suite.stakingKeeper.EXPECT().
+					GetDelegatorBonded(gomock.Any(), ValidAddress1).
+					Return(sdkmath.NewInt(100), nil).
+					Times(1)
+
+				suite.bankKeeper.EXPECT().
+					SendCoinsFromModuleToAccount(gomock.Any(), types.ModuleName, ValidAddress1, sdk.NewCoins(
+						sdk.NewCoin("uband", sdkmath.NewInt(10)),
+					)).
+					Return(nil).
+					Times(1)
+			},
+			postCheck: func() {
+				stake := suite.restakeKeeper.GetStake(ctx, ValidAddress1)
+				suite.Require().Equal(types.Stake{
+					StakerAddress: ValidAddress1.String(),
+					Coins: sdk.NewCoins(
+						sdk.NewCoin("uband", sdkmath.NewInt(40)),
+					),
+				}, stake)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			tc.preCheck()
+			_, err := suite.msgServer.Unstake(suite.ctx, tc.input)
+
+			if tc.expErr {
+				suite.Require().Error(err)
+				suite.Require().Contains(err.Error(), tc.expErrMsg)
+			} else {
+				suite.Require().NoError(err)
+			}
+
+			tc.postCheck()
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestMsgUpdateParams() {
+	ctx := suite.ctx
+	suite.setupState()
+
+	testCases := []struct {
+		name      string
+		input     *types.MsgUpdateParams
+		expErr    bool
+		expErrMsg string
+		preCheck  func()
+		postCheck func()
+	}{
+		{
+			name: "invalid authority",
+			input: &types.MsgUpdateParams{
+				Authority: "invalid authority",
+				Params: types.Params{
+					AllowedDenoms: []string{""},
+				},
+			},
+			expErr:    true,
+			expErrMsg: "invalid authority",
+			preCheck:  func() {},
+			postCheck: func() {},
+		},
+		{
+			name: "invalid denom",
+			input: &types.MsgUpdateParams{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				Params: types.Params{
+					AllowedDenoms: []string{""},
+				},
+			},
+			expErr:    true,
+			expErrMsg: "invalid denom",
+			preCheck:  func() {},
+			postCheck: func() {},
+		},
+		{
+			name: "success",
+			input: &types.MsgUpdateParams{
+				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+				Params: types.Params{
+					AllowedDenoms: []string{"ustBand"},
+				},
+			},
+			expErr:    false,
+			expErrMsg: "",
+			preCheck:  func() {},
+			postCheck: func() {
+				params := suite.restakeKeeper.GetParams(ctx)
+				suite.Require().Equal(types.Params{
+					AllowedDenoms: []string{"ustBand"},
+				}, params)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			tc.preCheck()
+			_, err := suite.msgServer.UpdateParams(suite.ctx, tc.input)
 
 			if tc.expErr {
 				suite.Require().Error(err)

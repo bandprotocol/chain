@@ -46,22 +46,9 @@ func (k Keeper) SetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key s
 			stakerAddr.String(),
 			key,
 			sdkmath.NewInt(0),
-			sdk.NewDecCoins(),
-			sdk.NewDecCoins(),
 		)
 	}
 
-	diffPower := power.Sub(lock.Power)
-
-	vault.TotalPower = vault.TotalPower.Add(diffPower)
-	k.SetVault(ctx, vault)
-
-	additionalDebts := vault.RewardsPerPower.MulDecTruncate(sdkmath.LegacyNewDecFromInt(diffPower.Abs()))
-	if diffPower.IsPositive() {
-		lock.PosRewardDebts = lock.PosRewardDebts.Add(additionalDebts...)
-	} else {
-		lock.NegRewardDebts = lock.NegRewardDebts.Add(additionalDebts...)
-	}
 	lock.Power = power
 	k.SetLock(ctx, lock)
 
@@ -100,21 +87,24 @@ func (k Keeper) GetLockedPower(ctx sdk.Context, stakerAddr sdk.AccAddress, key s
 	return lock.Power, nil
 }
 
-// getAccumulatedRewards gets the accumulatedRewards of a lock if they lock since beginning.
-func (k Keeper) getAccumulatedRewards(ctx sdk.Context, lock types.Lock) sdk.DecCoins {
-	vault := k.MustGetVault(ctx, lock.Key)
+// isValidPower checks if the new power matches with current locked power.
+func (k Keeper) isValidPower(ctx sdk.Context, addr sdk.AccAddress, totalPower sdkmath.Int) bool {
+	iterator := storetypes.KVStoreReversePrefixIterator(ctx.KVStore(k.storeKey), types.LocksByPowerIndexKey(addr))
+	defer iterator.Close()
 
-	return vault.RewardsPerPower.MulDecTruncate(sdkmath.LegacyNewDecFromInt(lock.Power))
-}
+	// loop lock from high power to low power.
+	for ; iterator.Valid(); iterator.Next() {
+		key := string(iterator.Value())
+		_, power := types.SplitLockByPowerIndexKey(iterator.Key())
 
-// getReward gets the reward of a lock by using accumulated rewards and reward debts.
-func (k Keeper) getReward(ctx sdk.Context, lock types.Lock) types.Reward {
-	totalRewards := k.getAccumulatedRewards(ctx, lock)
+		// check if the vault of lock is active.
+		if k.IsActiveVault(ctx, key) {
+			// return true if new delegation is more than or equal to locked power.
+			return totalPower.GTE(power)
+		}
+	}
 
-	return types.NewReward(
-		lock.Key,
-		totalRewards.Add(lock.NegRewardDebts...).Sub(lock.PosRewardDebts),
-	)
+	return true
 }
 
 // isValidPower checks if the new power matches with current locked power.
