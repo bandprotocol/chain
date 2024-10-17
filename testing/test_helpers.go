@@ -263,7 +263,7 @@ func GenesisStateWithValSet(app *band.BandApp, dir string) band.GenesisState {
 	return genesisState
 }
 
-// generateDataSources generates a set of data sources for the BandApp.
+// GenerateDataSources generates a set of data sources for the BandApp.
 func GenerateDataSources(homePath string) []oracletypes.DataSource {
 	dir := filepath.Join(homePath, "files")
 	fc := filecache.New(dir)

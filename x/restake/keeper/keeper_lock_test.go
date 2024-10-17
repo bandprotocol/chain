@@ -26,11 +26,11 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 		Times(1)
 
 	// error case -  power is not uint64
-	err := suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, VaultKeyWithRewards, sdkmath.NewInt(-5))
+	err := suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, ActiveVaultKey, sdkmath.NewInt(-5))
 	suite.Require().Error(err)
 
 	// error case - lock more than delegation
-	err = suite.restakeKeeper.SetLockedPower(ctx, ValidAddress3, VaultKeyWithRewards, sdkmath.NewInt(30))
+	err = suite.restakeKeeper.SetLockedPower(ctx, ValidAddress3, ActiveVaultKey, sdkmath.NewInt(30))
 	suite.Require().Error(err)
 
 	// error case - vault is deactivated
@@ -38,7 +38,7 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 	suite.Require().Error(err)
 
 	// error case - staker is liquid staker
-	err = suite.restakeKeeper.SetLockedPower(ctx, LiquidStakerAddress, VaultKeyWithRewards, sdkmath.NewInt(10))
+	err = suite.restakeKeeper.SetLockedPower(ctx, LiquidStakerAddress, ActiveVaultKey, sdkmath.NewInt(10))
 	suite.Require().Error(err)
 
 	// success cases
@@ -49,170 +49,66 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 	)
 
 	testCases := []struct {
-		name          string
-		malleate      func()
-		expTotalPower sdkmath.Int
-		expLock       types.Lock
+		name     string
+		malleate func()
+		expLock  types.Lock
 	}{
 		{
-			"success case - no previous lock with empty rewards",
+			"success case - no previous lock",
 			func() {
 				preVault = types.Vault{
-					Key:             VaultKeyWithoutRewards,
-					VaultAddress:    VaultWithoutRewardsAddress.String(),
-					IsActive:        true,
-					RewardsPerPower: nil,
-					TotalPower:      sdkmath.NewInt(100),
-					Remainders:      nil,
+					Key:      ActiveVaultKey,
+					IsActive: true,
 				}
 
 				preLock = nil
 
 				power = sdkmath.NewInt(100)
 			},
-			sdkmath.NewInt(200),
-			types.Lock{
-				StakerAddress:  ValidAddress1.String(),
-				Key:            VaultKeyWithoutRewards,
-				Power:          sdkmath.NewInt(100),
-				PosRewardDebts: nil,
-				NegRewardDebts: nil,
-			},
-		},
-		{
-			"success case - have previous lock with empty rewards",
-			func() {
-				preVault = types.Vault{
-					Key:             VaultKeyWithoutRewards,
-					VaultAddress:    VaultWithoutRewardsAddress.String(),
-					IsActive:        true,
-					RewardsPerPower: nil,
-					TotalPower:      sdkmath.NewInt(100),
-					Remainders:      nil,
-				}
-
-				preLock = &types.Lock{
-					StakerAddress:  ValidAddress1.String(),
-					Key:            VaultKeyWithoutRewards,
-					Power:          sdkmath.NewInt(10),
-					PosRewardDebts: nil,
-					NegRewardDebts: nil,
-				}
-
-				power = sdkmath.NewInt(100)
-			},
-			sdkmath.NewInt(190),
-			types.Lock{
-				StakerAddress:  ValidAddress1.String(),
-				Key:            VaultKeyWithoutRewards,
-				Power:          sdkmath.NewInt(100),
-				PosRewardDebts: nil,
-				NegRewardDebts: nil,
-			},
-		},
-		{
-			"success case - no previous lock with rewards",
-			func() {
-				preVault = types.Vault{
-					Key:          VaultKeyWithRewards,
-					VaultAddress: VaultWithRewardsAddress.String(),
-					IsActive:     true,
-					RewardsPerPower: sdk.NewDecCoins(
-						sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(1, 3)),
-						sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyNewDecWithPrec(1, 2)),
-					),
-					TotalPower: sdkmath.NewInt(100),
-					Remainders: nil,
-				}
-
-				preLock = nil
-
-				power = sdkmath.NewInt(100)
-			},
-			sdkmath.NewInt(200),
 			types.Lock{
 				StakerAddress: ValidAddress1.String(),
-				Key:           VaultKeyWithRewards,
+				Key:           ActiveVaultKey,
 				Power:         sdkmath.NewInt(100),
-				PosRewardDebts: sdk.NewDecCoins(
-					sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(1, 1)),
-					sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyNewDecWithPrec(1, 0)),
-				),
-				NegRewardDebts: nil,
 			},
 		},
 		{
-			"success case - have previous lock with rewards - lock more",
+			"success case - have previous lock",
 			func() {
 				preVault = types.Vault{
-					Key:          VaultKeyWithRewards,
-					VaultAddress: VaultWithRewardsAddress.String(),
-					IsActive:     true,
-					RewardsPerPower: sdk.NewDecCoins(
-						sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(1, 3)),
-						sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyNewDecWithPrec(1, 2)),
-					),
-					TotalPower: sdkmath.NewInt(100),
-					Remainders: nil,
+					Key:      ActiveVaultKey,
+					IsActive: true,
 				}
 
 				preLock = &types.Lock{
-					StakerAddress:  ValidAddress1.String(),
-					Key:            VaultKeyWithRewards,
-					Power:          sdkmath.NewInt(100),
-					PosRewardDebts: nil,
-					NegRewardDebts: nil,
-				}
-
-				power = sdkmath.NewInt(1000)
-			},
-			sdkmath.NewInt(1000),
-			types.Lock{
-				StakerAddress: ValidAddress1.String(),
-				Key:           VaultKeyWithRewards,
-				Power:         sdkmath.NewInt(1000),
-				PosRewardDebts: sdk.NewDecCoins(
-					sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(9, 1)),
-					sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyNewDecWithPrec(9, 0)),
-				),
-				NegRewardDebts: nil,
-			},
-		},
-		{
-			"success case - have previous lock with rewards - lock less",
-			func() {
-				preVault = types.Vault{
-					Key:          VaultKeyWithRewards,
-					VaultAddress: VaultWithRewardsAddress.String(),
-					IsActive:     true,
-					RewardsPerPower: sdk.NewDecCoins(
-						sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(1, 3)),
-						sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyNewDecWithPrec(1, 2)),
-					),
-					TotalPower: sdkmath.NewInt(1000),
-					Remainders: nil,
-				}
-
-				preLock = &types.Lock{
-					StakerAddress:  ValidAddress1.String(),
-					Key:            VaultKeyWithRewards,
-					Power:          sdkmath.NewInt(1000),
-					PosRewardDebts: nil,
-					NegRewardDebts: nil,
+					StakerAddress: ValidAddress1.String(),
+					Key:           ActiveVaultKey,
+					Power:         sdkmath.NewInt(10),
 				}
 
 				power = sdkmath.NewInt(100)
 			},
-			sdkmath.NewInt(100),
 			types.Lock{
-				StakerAddress:  ValidAddress1.String(),
-				Key:            VaultKeyWithRewards,
-				Power:          sdkmath.NewInt(100),
-				PosRewardDebts: nil,
-				NegRewardDebts: sdk.NewDecCoins(
-					sdk.NewDecCoinFromDec("aaaa", sdkmath.LegacyNewDecWithPrec(9, 1)),
-					sdk.NewDecCoinFromDec("bbbb", sdkmath.LegacyNewDecWithPrec(9, 0)),
-				),
+				StakerAddress: ValidAddress1.String(),
+				Key:           ActiveVaultKey,
+				Power:         sdkmath.NewInt(100),
+			},
+		},
+		{
+			"success case - no vault",
+			func() {
+				preVault = types.Vault{
+					Key:      "newVault",
+					IsActive: true,
+				}
+
+				preLock = nil
+
+				power = sdkmath.NewInt(100)
+			},
+			types.Lock{
+				StakerAddress: ValidAddress1.String(),
+				Key:           "newVault",
+				Power:         sdkmath.NewInt(100),
 			},
 		},
 	}
@@ -243,9 +139,8 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 			)
 			suite.Require().NoError(err)
 
-			vault, found := suite.restakeKeeper.GetVault(ctx, preVault.Key)
+			_, found := suite.restakeKeeper.GetVault(ctx, preVault.Key)
 			suite.Require().True(found)
-			suite.Require().Equal(testCase.expTotalPower, vault.TotalPower)
 
 			lock, found := suite.restakeKeeper.GetLock(ctx, ValidAddress1, preVault.Key)
 			suite.Require().True(found)
@@ -267,17 +162,17 @@ func (suite *KeeperTestSuite) TestGetLockedPower() {
 	suite.Require().Error(err)
 
 	// error case - no lock
-	_, err = suite.restakeKeeper.GetLockedPower(ctx, ValidAddress2, VaultKeyWithoutRewards)
+	_, err = suite.restakeKeeper.GetLockedPower(ctx, ValidAddress3, ActiveVaultKey)
 	suite.Require().Error(err)
 
 	// error case - staker is liquid staker
-	_, err = suite.restakeKeeper.GetLockedPower(ctx, LiquidStakerAddress, VaultKeyWithRewards)
+	_, err = suite.restakeKeeper.GetLockedPower(ctx, LiquidStakerAddress, ActiveVaultKey)
 	suite.Require().Error(err)
 
 	// success case
-	power, err := suite.restakeKeeper.GetLockedPower(ctx, ValidAddress1, VaultKeyWithRewards)
+	power, err := suite.restakeKeeper.GetLockedPower(ctx, ValidAddress1, ActiveVaultKey)
 	suite.Require().NoError(err)
-	suite.Require().Equal(sdkmath.NewInt(10), power)
+	suite.Require().Equal(sdkmath.NewInt(100), power)
 }
 
 func (suite *KeeperTestSuite) TestGetSetLock() {
@@ -304,10 +199,10 @@ func (suite *KeeperTestSuite) TestGetSetLock() {
 	suite.Require().Equal(expectedLocks, locks)
 
 	locks = suite.restakeKeeper.GetLocksByAddress(ctx, ValidAddress1)
-	suite.Require().Equal(expectedLocks[:3], locks)
+	suite.Require().Equal(expectedLocks[:2], locks)
 
 	locks = suite.restakeKeeper.GetLocksByAddress(ctx, ValidAddress2)
-	suite.Require().Equal(expectedLocks[3:4], locks)
+	suite.Require().Equal(expectedLocks[2:3], locks)
 
 	locks = suite.restakeKeeper.GetLocksByAddress(ctx, ValidAddress3)
 	suite.Require().Equal([]types.Lock(nil), locks)

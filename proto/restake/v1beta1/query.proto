@@ -21,16 +21,6 @@ service Query {
     option (google.api.http).get = "/restake/v1beta1/vaults/{key}";
   }
 
-  // Rewards returns rewards for a specified address.
-  rpc Rewards(QueryRewardsRequest) returns (QueryRewardsResponse) {
-    option (google.api.http).get = "/restake/v1beta1/stakers/{staker_address}/rewards";
-  }
-
-  // Reward returns a reward for a specified address and a vault.
-  rpc Reward(QueryRewardRequest) returns (QueryRewardResponse) {
-    option (google.api.http).get = "/restake/v1beta1/stakers/{staker_address}/rewards/{key}";
-  }
-
   // Locks returns all lock information for a specified address.
   rpc Locks(QueryLocksRequest) returns (QueryLocksResponse) {
     option (google.api.http).get = "/restake/v1beta1/stakers/{staker_address}/locks";
@@ -77,39 +67,6 @@ message QueryVaultRequest {
 message QueryVaultResponse {
   // vault is a vault information.
   Vault vault = 1 [(gogoproto.nullable) = false];
-}
-
-// QueryRewardsRequest represents the request type for the Query/Rewards RPC method.
-message QueryRewardsRequest {
-  // staker_address is the target address to query rewards.
-  string staker_address = 1;
-
-  // pagination defines optional pagination parameters.
-  cosmos.base.query.v1beta1.PageRequest pagination = 2;
-}
-
-// QueryRewardsResponse represents the response type for the Query/Rewards RPC method.
-message QueryRewardsResponse {
-  // rewards is a list of rewards for the staker.
-  repeated Reward rewards = 1;
-
-  // pagination defines pagination parameters in the response.
-  cosmos.base.query.v1beta1.PageResponse pagination = 2;
-}
-
-// QueryRewardRequest represents the request type for the Query/Reward RPC method.
-message QueryRewardRequest {
-  // staker_address is the target address to query reward.
-  string staker_address = 1;
-
-  // key is the key of target vault to query reward.
-  string key = 2;
-}
-
-// QueryRewardResponse represents the response type for the Query/Reward RPC method.
-message QueryRewardResponse {
-  // reward is the reward for the staker of the vault.
-  Reward reward = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryLocksRequest represents the request type for the Query/Locks RPC method.
