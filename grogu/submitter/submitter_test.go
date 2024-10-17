@@ -39,7 +39,7 @@ type SubmitterTestSuite struct {
 	suite.Suite
 
 	Submitter           *Submitter
-	SubmitSignalPriceCh chan []types.SignalPrice
+	SubmitSignalPriceCh chan SignalPriceSubmission
 }
 
 func TestSubmitterTestSuite(t *testing.T) {
@@ -134,7 +134,7 @@ func (s *SubmitterTestSuite) SetupTest() {
 	l := logger.NewLogger(allowLevel)
 
 	// Create submit channel
-	submitSignalPriceCh := make(chan []types.SignalPrice, 300)
+	submitSignalPriceCh := make(chan SignalPriceSubmission, 300)
 
 	// Set up validator address
 	validAddress := sdk.ValAddress("1000000001")
@@ -184,7 +184,12 @@ func (s *SubmitterTestSuite) TestSubmitterSubmitPrice() {
 			PriceStatus: types.PriceStatusAvailable,
 		},
 	}
-	s.SubmitSignalPriceCh <- prices
+
+	signalPriceSubmission := SignalPriceSubmission{
+		SignalPrices: prices,
+		UUID:         "uuid1",
+	}
+	s.SubmitSignalPriceCh <- signalPriceSubmission
 	s.Submitter.pendingSignalIDs.Store("signal1", struct{}{})
 
 	// Check length of idleKeyIDChannel
@@ -194,7 +199,7 @@ func (s *SubmitterTestSuite) TestSubmitterSubmitPrice() {
 	keyID := <-s.Submitter.idleKeyIDChannel
 	s.Require().Len(s.Submitter.idleKeyIDChannel, 0)
 
-	s.Submitter.submitPrice(prices, keyID)
+	s.Submitter.submitPrice(signalPriceSubmission, keyID)
 
 	// Check pending signal IDs
 	_, pending := s.Submitter.pendingSignalIDs.Load("signal1")
@@ -226,7 +231,12 @@ func (s *SubmitterTestSuite) TestSubmitterSubmitPrice_OutOfGas() {
 			PriceStatus: types.PriceStatusAvailable,
 		},
 	}
-	s.SubmitSignalPriceCh <- prices
+
+	signalPriceSubmission := SignalPriceSubmission{
+		SignalPrices: prices,
+		UUID:         "uuid1",
+	}
+	s.SubmitSignalPriceCh <- signalPriceSubmission
 	s.Submitter.pendingSignalIDs.Store("signal1", struct{}{})
 
 	// Check length of idleKeyIDChannel
@@ -236,7 +246,7 @@ func (s *SubmitterTestSuite) TestSubmitterSubmitPrice_OutOfGas() {
 	keyID := <-s.Submitter.idleKeyIDChannel
 	s.Require().Len(s.Submitter.idleKeyIDChannel, 0)
 
-	s.Submitter.submitPrice(prices, keyID)
+	s.Submitter.submitPrice(signalPriceSubmission, keyID)
 
 	// Check pending signal IDs
 	_, pending := s.Submitter.pendingSignalIDs.Load("signal1")

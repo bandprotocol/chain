@@ -11970,8 +11970,8 @@ func (x *BlockRelayProof) GetSignatures() []*TMSignature {
 // [I] - slashing    [J] - staking    [K] - transfer   [L] - upgrade
 //
 // Notice that NOT all leaves of the Merkle tree are needed in order to compute the Merkle
-// root hash, since we only want to validate the correctness of [F] In fact, only
-// [E], [N6], [N10], [N15], and [N20] are needed in order to compute [AppHash].
+// root hash, since we only want to validate the correctness of [G] In fact, only
+// [H], [N13], [N17], and [N18] are needed in order to compute [AppHash].
 type MultiStoreProof struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
