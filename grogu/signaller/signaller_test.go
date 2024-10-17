@@ -74,12 +74,15 @@ func (s *SignallerTestSuite) SetupTest() {
 
 	mockBothanClient := testutil.NewMockBothanClient(ctrl)
 	mockBothanClient.EXPECT().GetPrices(gomock.Any()).
-		Return([]*bothan.Price{
-			{
-				SignalId: "signal1",
-				Price:    10000,
-				Status:   bothan.Status_AVAILABLE,
+		Return(&bothan.GetPricesResponse{
+			Prices: []*bothan.Price{
+				{
+					SignalId: "signal1",
+					Price:    10000,
+					Status:   bothan.Status_AVAILABLE,
+				},
 			},
+			Uuid: "uuid1",
 		}, nil).
 		AnyTimes()
 

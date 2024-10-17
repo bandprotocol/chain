@@ -79,7 +79,7 @@ func (suite *KeeperTestSuite) TestQueryVault() {
 
 	// query and check
 	res, err := queryClient.Vault(context.Background(), &types.QueryVaultRequest{
-		Key: VaultKeyWithRewards,
+		Key: ActiveVaultKey,
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryVaultResponse{
@@ -91,176 +91,6 @@ func (suite *KeeperTestSuite) TestQueryVault() {
 	})
 	suite.Require().ErrorContains(err, "vault not found")
 	suite.Require().Nil(res)
-}
-
-func (suite *KeeperTestSuite) TestQueryRewards() {
-	queryClient := suite.queryClient
-	suite.setupState()
-
-	// query and check
-	var (
-		req    *types.QueryRewardsRequest
-		expRes *types.QueryRewardsResponse
-	)
-
-	testCases := []struct {
-		msg      string
-		malleate func()
-		expPass  bool
-	}{
-		{
-			"rewards of address1 - lock on multiple vaults",
-			func() {
-				req = &types.QueryRewardsRequest{
-					StakerAddress: ValidAddress1.String(),
-				}
-				expRes = &types.QueryRewardsResponse{
-					Rewards: []*types.Reward{
-						{
-							Key:     VaultKeyWithRewards,
-							Rewards: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))),
-						},
-						{
-							Key:     VaultKeyWithoutRewards,
-							Rewards: nil,
-						},
-						{
-							Key:     InactiveVaultKey,
-							Rewards: nil,
-						},
-					},
-				}
-			},
-			true,
-		},
-		{
-			"rewards of address2 - lock on one vault",
-			func() {
-				req = &types.QueryRewardsRequest{
-					StakerAddress: ValidAddress2.String(),
-				}
-				expRes = &types.QueryRewardsResponse{
-					Rewards: []*types.Reward{
-						{
-							Key:     VaultKeyWithRewards,
-							Rewards: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))),
-						},
-					},
-				}
-			},
-			true,
-		},
-		{
-			"rewards of address3 - no lock",
-			func() {
-				req = &types.QueryRewardsRequest{
-					StakerAddress: ValidAddress3.String(),
-				}
-				expRes = &types.QueryRewardsResponse{
-					Rewards: []*types.Reward(nil),
-				}
-			},
-			true,
-		},
-	}
-
-	for _, testCase := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", testCase.msg), func() {
-			testCase.malleate()
-
-			res, err := queryClient.Rewards(context.Background(), req)
-
-			if testCase.expPass {
-				suite.Require().NoError(err)
-				suite.Require().Equal(expRes.GetRewards(), res.GetRewards())
-			} else {
-				suite.Require().Error(err)
-				suite.Require().Nil(expRes)
-			}
-		})
-	}
-}
-
-func (suite *KeeperTestSuite) TestQueryReward() {
-	queryClient := suite.queryClient
-	suite.setupState()
-
-	// query and check
-	var (
-		req    *types.QueryRewardRequest
-		expRes *types.QueryRewardResponse
-	)
-
-	testCases := []struct {
-		msg      string
-		malleate func()
-		expPass  bool
-	}{
-		{
-			"reward of address1 on VaultKeyWithRewards",
-			func() {
-				req = &types.QueryRewardRequest{
-					StakerAddress: ValidAddress1.String(),
-					Key:           VaultKeyWithRewards,
-				}
-				expRes = &types.QueryRewardResponse{
-					Reward: types.Reward{
-						Key:     VaultKeyWithRewards,
-						Rewards: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))),
-					},
-				}
-			},
-			true,
-		},
-		{
-			"reward of address1 on InactiveVaultKey",
-			func() {
-				req = &types.QueryRewardRequest{
-					StakerAddress: ValidAddress1.String(),
-					Key:           InactiveVaultKey,
-				}
-				expRes = &types.QueryRewardResponse{
-					Reward: types.Reward{
-						Key:     InactiveVaultKey,
-						Rewards: nil,
-					},
-				}
-			},
-			true,
-		},
-		{
-			"reward of address2 on VaultKeyWithRewards",
-			func() {
-				req = &types.QueryRewardRequest{
-					StakerAddress: ValidAddress2.String(),
-					Key:           VaultKeyWithRewards,
-				}
-				expRes = &types.QueryRewardResponse{
-					Reward: types.Reward{
-						Key:     VaultKeyWithRewards,
-						Rewards: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))),
-					},
-				}
-			},
-			true,
-		},
-	}
-
-	for _, testCase := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", testCase.msg), func() {
-			testCase.malleate()
-
-			res, err := queryClient.Reward(context.Background(), req)
-
-			if testCase.expPass {
-				suite.Require().NoError(err)
-				suite.Require().Equal(expRes.GetReward(), res.GetReward())
-			} else {
-				suite.Require().Error(err)
-				suite.Require().Nil(expRes)
-			}
-		})
-	}
 }
 
 func (suite *KeeperTestSuite) TestQueryLocks() {
@@ -279,7 +109,7 @@ func (suite *KeeperTestSuite) TestQueryLocks() {
 		expPass  bool
 	}{
 		{
-			"locks of address1 - lock on multiple vaults",
+			"locks of address1 - lock on both active and inactive vault",
 			func() {
 				req = &types.QueryLocksRequest{
 					StakerAddress: ValidAddress1.String(),
@@ -287,11 +117,7 @@ func (suite *KeeperTestSuite) TestQueryLocks() {
 				expRes = &types.QueryLocksResponse{
 					Locks: []*types.LockResponse{
 						{
-							Key:   VaultKeyWithRewards,
-							Power: sdkmath.NewInt(10),
-						},
-						{
-							Key:   VaultKeyWithoutRewards,
+							Key:   ActiveVaultKey,
 							Power: sdkmath.NewInt(100),
 						},
 					},
@@ -300,7 +126,7 @@ func (suite *KeeperTestSuite) TestQueryLocks() {
 			true,
 		},
 		{
-			"locks of address2 - lock on one vault",
+			"locks of address2 - lock on one active vault",
 			func() {
 				req = &types.QueryLocksRequest{
 					StakerAddress: ValidAddress2.String(),
@@ -308,7 +134,7 @@ func (suite *KeeperTestSuite) TestQueryLocks() {
 				expRes = &types.QueryLocksResponse{
 					Locks: []*types.LockResponse{
 						{
-							Key:   VaultKeyWithRewards,
+							Key:   ActiveVaultKey,
 							Power: sdkmath.NewInt(10),
 						},
 					},
@@ -363,16 +189,16 @@ func (suite *KeeperTestSuite) TestQueryLock() {
 		expPass  bool
 	}{
 		{
-			"lock of address1 on VaultKeyWithRewards",
+			"lock of address1 on ActiveVaultKey",
 			func() {
 				req = &types.QueryLockRequest{
 					StakerAddress: ValidAddress1.String(),
-					Key:           VaultKeyWithRewards,
+					Key:           ActiveVaultKey,
 				}
 				expRes = &types.QueryLockResponse{
 					Lock: types.LockResponse{
-						Key:   VaultKeyWithRewards,
-						Power: sdkmath.NewInt(10),
+						Key:   ActiveVaultKey,
+						Power: sdkmath.NewInt(100),
 					},
 				}
 			},
@@ -390,15 +216,15 @@ func (suite *KeeperTestSuite) TestQueryLock() {
 			false,
 		},
 		{
-			"lock of address2 on VaultKeyWithRewards",
+			"lock of address2 on ActiveVaultKey",
 			func() {
 				req = &types.QueryLockRequest{
 					StakerAddress: ValidAddress2.String(),
-					Key:           VaultKeyWithRewards,
+					Key:           ActiveVaultKey,
 				}
 				expRes = &types.QueryLockResponse{
 					Lock: types.LockResponse{
-						Key:   VaultKeyWithRewards,
+						Key:   ActiveVaultKey,
 						Power: sdkmath.NewInt(10),
 					},
 				}

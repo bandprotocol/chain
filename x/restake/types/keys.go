@@ -22,9 +22,6 @@ const (
 
 	// QuerierRoute is the querier route for the restake module
 	QuerierRoute = ModuleName
-
-	// VaultAccountsKey is the key used when generating a module address for the vault
-	VaultAccountsKey = "vault-accounts"
 )
 
 var (
