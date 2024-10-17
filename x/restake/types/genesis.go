@@ -59,15 +59,5 @@ func (gs GenesisState) Validate() error {
 		}
 	}
 
-	for _, stake := range gs.Stakes {
-		if _, err := sdk.AccAddressFromBech32(stake.StakerAddress); err != nil {
-			return err
-		}
-
-		if err := stake.Coins.Validate(); err != nil {
-			return err
-		}
-	}
-
 	return nil
 }

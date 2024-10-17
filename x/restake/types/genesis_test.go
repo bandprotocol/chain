@@ -133,48 +133,6 @@ func TestGenesisStateValidate(t *testing.T) {
 			},
 			true,
 		},
-		{
-			"invalid genesisState - wrong params",
-			GenesisState{
-				Params: NewParams([]string{""}),
-				Vaults: []Vault{},
-				Locks:  []Lock{},
-				Stakes: []Stake{},
-			},
-			true,
-		},
-		{
-			"invalid genesisState - invalid staker address",
-			GenesisState{
-				Params: DefaultParams(),
-				Vaults: []Vault{},
-				Locks:  []Lock{},
-				Stakes: []Stake{
-					{
-						StakerAddress: "invalidAddress",
-						Coins:         sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(1))),
-					},
-				},
-			},
-			true,
-		},
-		{
-			"invalid genesisState - invalid staked coins",
-			GenesisState{
-				Params: DefaultParams(),
-				Vaults: []Vault{},
-				Locks:  []Lock{},
-				Stakes: []Stake{
-					{
-						StakerAddress: ValidAddress,
-						Coins: []sdk.Coin{
-							{Denom: "", Amount: sdkmath.NewInt(1)},
-						},
-					},
-				},
-			},
-			true,
-		},
 	}
 
 	for _, tc := range testCases {

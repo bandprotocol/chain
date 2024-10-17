@@ -131,25 +131,9 @@ func (suite *KeeperTestSuite) SetupTest() {
 		SetModuleAccount(gomock.Any(), moduleAccount).
 		Return().
 		AnyTimes()
-	accountKeeper.EXPECT().
-		GetModuleAddress(types.ModuleName).
-		Return(moduleAccount.GetAddress()).
-		AnyTimes()
-	accountKeeper.EXPECT().
-		GetModuleAccount(gomock.Any(), types.ModuleName).
-		Return(moduleAccount).
-		AnyTimes()
-	accountKeeper.EXPECT().
-		SetModuleAccount(gomock.Any(), moduleAccount).
-		Return().
-		AnyTimes()
 	suite.accountKeeper = accountKeeper
 
 	bankKeeper := restaketestutil.NewMockBankKeeper(ctrl)
-	bankKeeper.EXPECT().
-		GetAllBalances(gomock.Any(), gomock.Any()).
-		Return(nil).
-		AnyTimes()
 	bankKeeper.EXPECT().
 		GetAllBalances(gomock.Any(), gomock.Any()).
 		Return(nil).
