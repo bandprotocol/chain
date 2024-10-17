@@ -12,6 +12,8 @@ func (suite *KeeperTestSuite) TestExportGenesis() {
 
 	suite.Require().Equal(suite.validVaults, exportGenesis.Vaults)
 	suite.Require().Equal(suite.validLocks, exportGenesis.Locks)
+	suite.Require().Equal(suite.validStakes, exportGenesis.Stakes)
+	suite.Require().Equal(suite.validParams, exportGenesis.Params)
 }
 
 func (suite *KeeperTestSuite) TestInitGenesis() {
@@ -22,4 +24,6 @@ func (suite *KeeperTestSuite) TestInitGenesis() {
 
 	suite.Require().Equal(suite.validVaults, suite.restakeKeeper.GetVaults(ctx))
 	suite.Require().Equal(suite.validLocks, suite.restakeKeeper.GetLocks(ctx))
+	suite.Require().Equal(suite.validStakes, suite.restakeKeeper.GetStakes(ctx))
+	suite.Require().Equal(suite.validParams, suite.restakeKeeper.GetParams(ctx))
 }

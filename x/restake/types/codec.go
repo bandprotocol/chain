@@ -18,7 +18,6 @@ var ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
 // RegisterLegacyAminoCodec registers the necessary x/restake interfaces and concrete types
 // on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	legacy.RegisterAminoMsg(cdc, &MsgClaimRewards{}, "restake/MsgClaimRewards")
 	legacy.RegisterAminoMsg(cdc, &MsgStake{}, "restake/MsgStake")
 	legacy.RegisterAminoMsg(cdc, &MsgUnstake{}, "restake/MsgUnstake")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "restake/MsgUpdateParams")
@@ -27,7 +26,9 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 // RegisterInterfaces registers the x/restake interfaces types with the interface registry
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
-		&MsgClaimRewards{},
+		&MsgStake{},
+		&MsgUnstake{},
+		&MsgUpdateParams{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

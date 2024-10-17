@@ -46,8 +46,7 @@ require (
 	go.uber.org/mock v0.4.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240624140628-dc46fd24d27d
 	google.golang.org/grpc v1.66.2
-	google.golang.org/protobuf v1.34.2
-	gopkg.in/yaml.v2 v2.4.0
+	google.golang.org/protobuf v1.35.1
 	sigs.k8s.io/yaml v1.4.0
 )
 
