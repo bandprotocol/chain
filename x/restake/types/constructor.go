@@ -37,13 +37,3 @@ func NewStake(
 		Coins:         coins,
 	}
 }
-
-func NewStake(
-	stakerAddr string,
-	coins sdk.Coins,
-) Stake {
-	return Stake{
-		StakerAddress: stakerAddr,
-		Coins:         coins,
-	}
-}

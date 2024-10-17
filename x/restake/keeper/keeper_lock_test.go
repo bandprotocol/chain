@@ -169,10 +169,6 @@ func (suite *KeeperTestSuite) TestGetLockedPower() {
 	_, err = suite.restakeKeeper.GetLockedPower(ctx, LiquidStakerAddress, ActiveVaultKey)
 	suite.Require().Error(err)
 
-	// error case - staker is liquid staker
-	_, err = suite.restakeKeeper.GetLockedPower(ctx, LiquidStakerAddress, VaultKeyWithRewards)
-	suite.Require().Error(err)
-
 	// success case
 	power, err := suite.restakeKeeper.GetLockedPower(ctx, ValidAddress1, ActiveVaultKey)
 	suite.Require().NoError(err)

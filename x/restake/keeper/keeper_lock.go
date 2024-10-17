@@ -107,26 +107,6 @@ func (k Keeper) isValidPower(ctx sdk.Context, addr sdk.AccAddress, totalPower sd
 	return true
 }
 
-// isValidPower checks if the new power matches with current locked power.
-func (k Keeper) isValidPower(ctx sdk.Context, addr sdk.AccAddress, totalPower sdkmath.Int) bool {
-	iterator := storetypes.KVStoreReversePrefixIterator(ctx.KVStore(k.storeKey), types.LocksByPowerIndexKey(addr))
-	defer iterator.Close()
-
-	// loop lock from high power to low power.
-	for ; iterator.Valid(); iterator.Next() {
-		key := string(iterator.Value())
-		_, power := types.SplitLockByPowerIndexKey(iterator.Key())
-
-		// check if the vault of lock is active.
-		if k.IsActiveVault(ctx, key) {
-			// return true if new delegation is more than or equal to locked power.
-			return totalPower.GTE(power)
-		}
-	}
-
-	return true
-}
-
 // -------------------------------
 // store part
 // -------------------------------
