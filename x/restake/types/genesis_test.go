@@ -133,16 +133,6 @@ func TestGenesisStateValidate(t *testing.T) {
 			},
 			true,
 		},
-		{
-			"invalid genesisState - wrong params",
-			GenesisState{
-				Params: NewParams([]string{""}),
-				Vaults: []Vault{},
-				Locks:  []Lock{},
-				Stakes: []Stake{},
-			},
-			true,
-		},
 	}
 
 	for _, tc := range testCases {
