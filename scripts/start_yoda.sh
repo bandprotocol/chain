@@ -9,7 +9,7 @@ yoda config chain-id bandchain
 yoda config validator $(bandd keys show validator -a --bech val --keyring-backend test)
 
 # setup execution endpoint
-yoda config executor "rest:https://asia-southeast2-band-playground.cloudfunctions.net/test-runtime-executor?timeout=10s"
+yoda config executor "rest:$EXECUTOR_URL?timeout=10s"
 
 # setup broadcast-timeout to yoda config
 yoda config broadcast-timeout "5m"
@@ -23,7 +23,7 @@ yoda config max-try 5
 echo "y" | bandd tx oracle activate --from validator --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain
 
 # wait for activation transaction success
-sleep 7
+sleep 2
 
 for i in $(eval echo {1..1})
 do
@@ -35,13 +35,13 @@ done
 echo "y" | bandd tx bank send validator $(yoda keys list -a) 1000000uband --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain
 
 # wait for sending band tokens transaction success
-sleep 10
+sleep 2
 
 # add reporter to bandchain
 echo "y" | bandd tx oracle add-reporters $(yoda keys list -a) --from validator --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain
 
 # wait for addding reporter transaction success
-sleep 10
+sleep 2
 
 # run yoda
 yoda run
