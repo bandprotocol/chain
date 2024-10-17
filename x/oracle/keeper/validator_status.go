@@ -22,7 +22,7 @@ type valWithPower struct {
 
 // AllocateTokens allocates a portion of fee collected in the previous blocks to validators that
 // that are actively performing oracle tasks. Note that this reward is also subjected to comm tax.
-func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) {
+func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) error {
 	toReward := []valWithPower{}
 	totalPower := int64(0)
 	for _, vote := range previousVotes {
@@ -41,7 +41,7 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) {
 	}
 	if totalPower == 0 {
 		// No active validators performing oracle tasks, nothing needs to be done here.
-		return
+		return nil
 	}
 	feeCollector := k.authKeeper.GetModuleAccount(ctx, k.feeCollectorName)
 	totalFee := sdk.NewDecCoinsFromCoins(k.bankKeeper.GetAllBalances(ctx, feeCollector.GetAddress())...)
@@ -52,13 +52,13 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) {
 	// Transfer the oracle reward portion from fee collector to distr module.
 	err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, k.feeCollectorName, distrtypes.ModuleName, oracleRewardInt)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	// Convert the transferred tokens back to DecCoins for internal distr allocations.
 	oracleReward := sdk.NewDecCoinsFromCoins(oracleRewardInt...)
 	communityTax, err := k.distrKeeper.GetCommunityTax(ctx)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// Fund community pool with a portion of the oracle reward.
@@ -81,7 +81,7 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) {
 		err := k.distrKeeper.AllocateTokensToValidator(ctx, each.val, reward)
 		if err != nil {
 			// Should never hit
-			panic(err)
+			return err
 		}
 		remaining = remaining.Sub(reward)
 	}
@@ -90,13 +90,9 @@ func (k Keeper) AllocateTokens(ctx sdk.Context, previousVotes []abci.VoteInfo) {
 	proposer, err := k.stakingKeeper.ValidatorByConsAddr(ctx, ctx.BlockHeader().ProposerAddress)
 	if err != nil {
 		// Should never hit
-		panic(err)
+		return err
 	}
-	err = k.distrKeeper.AllocateTokensToValidator(ctx, proposer, remaining)
-	if err != nil {
-		// Should never hit
-		panic(err)
-	}
+	return k.distrKeeper.AllocateTokensToValidator(ctx, proposer, remaining)
 }
 
 // GetValidatorStatus returns the validator status for the given validator. Note that validator

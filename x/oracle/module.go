@@ -95,11 +95,6 @@ func (AppModuleBasic) GetTxCmd() *cobra.Command {
 	return cli.NewTxCmd()
 }
 
-// GetQueryCmd returns cobra CLI command to query chain state (SDK AppModuleBasic interface).
-func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	return cli.GetQueryCmd()
-}
-
 // AppModule represents the AppModule for this module.
 type AppModule struct {
 	AppModuleBasic
