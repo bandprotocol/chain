@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bandprotocol/chain/v2/cylinder/workers/de"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/cylinder/workers/de"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 type MockDEGetter struct{}

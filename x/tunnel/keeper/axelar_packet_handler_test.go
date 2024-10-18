@@ -4,4 +4,5 @@ import (
 	"testing"
 )
 
+// TODO: TestSendAxelarPacket tests SendAxelarPacket
 func TestSendAxelarPacket(t *testing.T) {}

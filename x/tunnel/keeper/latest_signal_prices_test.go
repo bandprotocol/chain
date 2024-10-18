@@ -1,7 +1,7 @@
 package keeper_test
 
 import (
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 func (s *KeeperTestSuite) TestGetSetLatestSignalPrices() {

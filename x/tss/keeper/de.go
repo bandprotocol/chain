@@ -1,10 +1,14 @@
 package keeper
 
 import (
+	dbm "github.com/cosmos/cosmos-db"
+
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // SetDEQueue sets the DE's queue information of a given address.
@@ -52,8 +56,8 @@ func (k Keeper) DeleteDE(ctx sdk.Context, address sdk.AccAddress, index uint64) 
 }
 
 // GetDEQueueIterator function gets an iterator over all de queue from the context's KVStore
-func (k Keeper) GetDEQueueIterator(ctx sdk.Context) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.DEQueueStoreKeyPrefix)
+func (k Keeper) GetDEQueueIterator(ctx sdk.Context) dbm.Iterator {
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.DEQueueStoreKeyPrefix)
 }
 
 // GetDEsGenesis retrieves all de from the context's KVStore.

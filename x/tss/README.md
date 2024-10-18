@@ -227,7 +227,7 @@ message MsgSubmitDKGRound1 {
 
   // group_id is ID of the group.
   uint64 group_id = 1
-      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.GroupID"];
   // round1_info is all data that require to handle round 1.
   Round1Info round1_info = 2 [(gogoproto.nullable) = false];
   // sender is the user address that submits the group creation information;
@@ -249,7 +249,7 @@ message MsgSubmitDKGRound2 {
 
   // group_id is ID of the group.
   uint64 group_id = 1
-      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.GroupID"];
   // round2_info is all data that is required to handle round 2.
   Round2Info round2_info = 2 [(gogoproto.nullable) = false];
   // sender is the user address that submits the group creation information;
@@ -271,7 +271,7 @@ message MsgComplain {
 
   // group_id is ID of the group.
   uint64 group_id = 1
-      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.GroupID"];
   // complaints is a list of complaints.
   repeated Complaint complaints = 2 [(gogoproto.nullable) = false];
   // sender is the user address that submits the group creation information;
@@ -293,13 +293,13 @@ message MsgConfirm {
 
   // group_id is ID of the group.
   uint64 group_id = 1
-      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"];
+      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.GroupID"];
   // member_id is ID of the sender.
   uint64 member_id = 2
-      [(gogoproto.customname) = "MemberID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"];
+      [(gogoproto.customname) = "MemberID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.MemberID"];
   // own_pub_key_sig is a signature of the member_i on its own PubKey to confirm
   // that the address is able to derive the PubKey.
-  bytes own_pub_key_sig = 3 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"];
+  bytes own_pub_key_sig = 3 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.Signature"];
   // sender is the user address that submits the group creation information;
   // must be a member of this group.
   string sender = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
@@ -340,13 +340,13 @@ message MsgSubmitSignature {
   // signing_id is the unique identifier of the signing process.
   uint64 signing_id = 1 [
     (gogoproto.customname) = "SigningID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v3/pkg/tss.SigningID"
   ];
   // member_id is the unique identifier of the signer in the group.
   uint64 member_id = 2
-      [(gogoproto.customname) = "MemberID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.MemberID"];
+      [(gogoproto.customname) = "MemberID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.MemberID"];
   // signature is the signature produced by the signer.
-  bytes signature = 3 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.Signature"];
+  bytes signature = 3 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.Signature"];
   // signer is the address who signs a message; must be a member of the group.
   string signer = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }

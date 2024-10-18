@@ -6,9 +6,10 @@ import (
 	"strconv"
 	"sync/atomic"
 
-	sdk "github.com/cosmos/cosmos-sdk/types/grpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+
+	sdk "github.com/cosmos/cosmos-sdk/types/grpc"
 )
 
 type QueryFunction[I, O any] func(ctx context.Context, in *I, opts ...grpc.CallOption) (*O, error)

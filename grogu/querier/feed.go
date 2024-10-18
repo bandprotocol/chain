@@ -4,10 +4,11 @@ import (
 	"sync/atomic"
 
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	feeds "github.com/bandprotocol/chain/v2/x/feeds/types"
+	feeds "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 type FeedQuerier struct {

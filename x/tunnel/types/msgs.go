@@ -3,14 +3,16 @@ package types
 import (
 	"fmt"
 
+	"github.com/cosmos/gogoproto/proto"
+
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/gogoproto/proto"
 )
 
 var (
 	_, _, _, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgEditTunnel{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositTunnel{}, &MsgWithdrawTunnel{}, &MsgUpdateParams{}
+	_, _, _, _, _, _, _, _ sdk.HasValidateBasic          = &MsgCreateTunnel{}, &MsgEditTunnel{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositTunnel{}, &MsgWithdrawTunnel{}, &MsgUpdateParams{}
 	_                      types.UnpackInterfacesMessage = &MsgCreateTunnel{}
 )
 
@@ -109,11 +111,6 @@ func NewMsgCreateIBCTunnel(
 // Type Implements Msg.
 func (m MsgCreateTunnel) Type() string { return sdk.MsgTypeURL(&m) }
 
-// GetSignBytes implements the LegacyMsg interface.
-func (m MsgCreateTunnel) GetSignBytes() []byte {
-	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
-}
-
 // GetSigners returns the expected signers for the message.
 func (m *MsgCreateTunnel) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Creator)}
@@ -198,19 +195,6 @@ func NewMsgEditTunnel(
 	}
 }
 
-// Route Implements Msg.
-func (m MsgEditTunnel) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes implements the LegacyMsg interface.
-func (m MsgEditTunnel) GetSignBytes() []byte {
-	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for the message.
-func (m *MsgEditTunnel) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Creator)}
-}
-
 // ValidateBasic does a sanity check on the provided data
 func (m MsgEditTunnel) ValidateBasic() error {
 	// creator address must be valid
@@ -241,19 +225,6 @@ func NewMsgActivate(
 	}
 }
 
-// Route Implements Msg.
-func (m MsgActivate) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes implements the LegacyMsg interface.
-func (m MsgActivate) GetSignBytes() []byte {
-	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for the message.
-func (m *MsgActivate) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Creator)}
-}
-
 // ValidateBasic does a sanity check on the provided data
 func (m MsgActivate) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
@@ -272,19 +243,6 @@ func NewMsgDeactivate(
 		TunnelID: tunnelID,
 		Creator:  creator,
 	}
-}
-
-// Route Implements Msg.
-func (m MsgDeactivate) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes implements the LegacyMsg interface.
-func (m MsgDeactivate) GetSignBytes() []byte {
-	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for the message.
-func (m *MsgDeactivate) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Creator)}
 }
 
 // ValidateBasic does a sanity check on the provided data
@@ -307,19 +265,6 @@ func NewMsgTriggerTunnel(
 	}
 }
 
-// Route Implements Msg.
-func (m MsgTriggerTunnel) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes implements the LegacyMsg interface.
-func (m MsgTriggerTunnel) GetSignBytes() []byte {
-	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for the message.
-func (m *MsgTriggerTunnel) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Creator)}
-}
-
 // ValidateBasic does a sanity check on the provided data
 func (m MsgTriggerTunnel) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
@@ -340,19 +285,6 @@ func NewMsgDepositTunnel(
 		Amount:    amount,
 		Depositor: depositor,
 	}
-}
-
-// Route Implements Msg.
-func (m MsgDepositTunnel) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes implements the LegacyMsg interface.
-func (m MsgDepositTunnel) GetSignBytes() []byte {
-	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for the message.
-func (m *MsgDepositTunnel) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Depositor)}
 }
 
 // ValidateBasic does a sanity check on the provided data
@@ -381,19 +313,6 @@ func NewMsgWithdrawTunnel(
 	}
 }
 
-// Route Implements Msg.
-func (m MsgWithdrawTunnel) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes implements the LegacyMsg interface.
-func (m MsgWithdrawTunnel) GetSignBytes() []byte {
-	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for the message.
-func (m *MsgWithdrawTunnel) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Withdrawer)}
-}
-
 // ValidateBasic does a sanity check on the provided data
 func (m MsgWithdrawTunnel) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Withdrawer); err != nil {
@@ -420,11 +339,6 @@ func NewMsgUpdateParams(
 
 // Type Implements Msg.
 func (m MsgUpdateParams) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes implements the LegacyMsg interface.
-func (m MsgUpdateParams) GetSignBytes() []byte {
-	return sdk.MustSortJSON(AminoCdc.MustMarshalJSON(&m))
-}
 
 // GetSigners returns the expected signers for the message.
 func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {

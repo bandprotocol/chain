@@ -3,12 +3,14 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/bandtss/types"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/bandtss/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // SetSigningCount sets the number of bandtss signing count to the given value.
@@ -144,7 +146,7 @@ func (k Keeper) createSigningRequest(
 		}
 
 		feePerSigner = k.GetParams(ctx).Fee
-		totalFee := feePerSigner.MulInt(sdk.NewInt(int64(currentGroup.Threshold)))
+		totalFee := feePerSigner.MulInt(math.NewInt(int64(currentGroup.Threshold)))
 		for _, fc := range totalFee {
 			limitAmt := feeLimit.AmountOf(fc.Denom)
 			if fc.Amount.GT(limitAmt) {

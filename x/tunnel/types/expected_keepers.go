@@ -1,65 +1,48 @@
 package types
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	context "context"
 
-	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // AccountKeeper defines the expected account keeper (noalias)
 type AccountKeeper interface {
 	GetModuleAddress(name string) sdk.AccAddress
-	GetModuleAccount(ctx sdk.Context, name string) authtypes.ModuleAccountI
-	SetModuleAccount(sdk.Context, authtypes.ModuleAccountI)
+	GetModuleAccount(ctx context.Context, name string) sdk.ModuleAccountI
+	SetModuleAccount(context.Context, sdk.ModuleAccountI)
 
-	GetAccount(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
-	NewAccount(ctx sdk.Context, account authtypes.AccountI) authtypes.AccountI
-	SetAccount(ctx sdk.Context, account authtypes.AccountI)
+	GetAccount(ctx context.Context, addr sdk.AccAddress) sdk.AccountI
+	NewAccount(ctx context.Context, account sdk.AccountI) sdk.AccountI
+	SetAccount(ctx context.Context, account sdk.AccountI)
 }
 
 type BankKeeper interface {
-	GetAllBalances(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
-	SpendableCoins(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
+	GetAllBalances(ctx context.Context, addr sdk.AccAddress) sdk.Coins
+	SpendableCoins(ctx context.Context, addr sdk.AccAddress) sdk.Coins
 
 	SendCoinsFromModuleToAccount(
-		ctx sdk.Context,
+		ctx context.Context,
 		senderModule string,
 		recipientAddr sdk.AccAddress,
 		amt sdk.Coins,
 	) error
 	SendCoinsFromAccountToModule(
-		ctx sdk.Context,
+		ctx context.Context,
 		senderAddr sdk.AccAddress,
 		recipientModule string,
 		amt sdk.Coins,
 	) error
 }
 
-type ChannelKeeper interface {
-	SendPacket(
-		ctx sdk.Context,
-		chanCap *capabilitytypes.Capability,
-		sourcePort string,
-		sourceChannel string,
-		timeoutHeight ibcclienttypes.Height,
-		timeoutTimestamp uint64,
-		data []byte,
-	) (sequence uint64, err error)
-}
-
 type PortKeeper interface {
 	BindPort(ctx sdk.Context, portID string) *capabilitytypes.Capability
-}
-
-type ScopedKeeper interface {
-	GetCapability(ctx sdk.Context, name string) (*capabilitytypes.Capability, bool)
-	AuthenticateCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) bool
-	ClaimCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) error
 }
 
 type FeedsKeeper interface {

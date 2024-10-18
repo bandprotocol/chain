@@ -4,17 +4,19 @@ import (
 	"sync/atomic"
 	"testing"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/libs/log"
-	rpcclient "github.com/cometbft/cometbft/rpc/client"
-	coretypes "github.com/cometbft/cometbft/rpc/core/types"
-	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/mock/gomock"
 
-	"github.com/bandprotocol/chain/v2/grogu/updater/testutil"
-	"github.com/bandprotocol/chain/v2/pkg/logger"
-	feeds "github.com/bandprotocol/chain/v2/x/feeds/types"
+	abci "github.com/cometbft/cometbft/abci/types"
+	rpcclient "github.com/cometbft/cometbft/rpc/client"
+	coretypes "github.com/cometbft/cometbft/rpc/core/types"
+	tmtypes "github.com/cometbft/cometbft/types"
+
+	"cosmossdk.io/log"
+
+	"github.com/bandprotocol/chain/v3/grogu/updater/testutil"
+	"github.com/bandprotocol/chain/v3/pkg/logger"
+	feeds "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 type UpdaterTestSuite struct {
@@ -64,8 +66,8 @@ func (s *UpdaterTestSuite) SetupTest() {
 	mockRPCClients := []rpcclient.RemoteClient{mockClient}
 
 	// Initialize logger
-	allowLevel, _ := log.AllowLevel("info")
-	l := logger.New(allowLevel)
+	allowLevel, _ := log.ParseLogLevel("info")
+	l := logger.NewLogger(allowLevel)
 
 	// Initialize max heights
 	maxCurrentFeedEventHeight := new(atomic.Int64)

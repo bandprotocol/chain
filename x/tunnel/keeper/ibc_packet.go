@@ -4,10 +4,10 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
 
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 const (
@@ -35,7 +35,7 @@ func (k Keeper) SendIBCPacket(
 	).GetBytes()
 
 	// send packet to IBC, authenticating with channelCap
-	if _, err := k.channelKeeper.SendPacket(
+	if _, err := k.ics4Wrapper.SendPacket(
 		ctx,
 		channelCap,
 		types.PortID,

@@ -5,16 +5,19 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/kyokomi/emoji"
+	"github.com/spf13/cobra"
+
+	bip39 "github.com/cosmos/go-bip39"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/input"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
-	bip39 "github.com/cosmos/go-bip39"
-	"github.com/kyokomi/emoji"
-	"github.com/spf13/cobra"
 
-	band "github.com/bandprotocol/chain/v2/app"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	band "github.com/bandprotocol/chain/v3/app"
+	cylinderctx "github.com/bandprotocol/chain/v3/cylinder/context"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 const (
@@ -26,7 +29,7 @@ const (
 )
 
 // keysCmd returns a Cobra command for managing keys.
-func keysCmd(ctx *Context) *cobra.Command {
+func keysCmd(ctx *cylinderctx.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "keys",
 		Aliases: []string{"k"},
@@ -44,7 +47,7 @@ func keysCmd(ctx *Context) *cobra.Command {
 }
 
 // keysAddCmd returns a Cobra command for adding a new key to the keychain.
-func keysAddCmd(ctx *Context) *cobra.Command {
+func keysAddCmd(ctx *cylinderctx.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "add [name]",
 		Aliases: []string{"a"},
@@ -88,7 +91,7 @@ func keysAddCmd(ctx *Context) *cobra.Command {
 			}
 
 			hdPath := hd.CreateHDPath(band.Bip44CoinType, account, index)
-			info, err := ctx.keyring.NewAccount(args[0], mnemonic, "", hdPath.String(), hd.Secp256k1)
+			info, err := ctx.Keyring.NewAccount(args[0], mnemonic, "", hdPath.String(), hd.Secp256k1)
 			if err != nil {
 				return err
 			}
@@ -112,7 +115,7 @@ func keysAddCmd(ctx *Context) *cobra.Command {
 }
 
 // keysDeleteCmd returns a Cobra command for deleting a key from the keychain.
-func keysDeleteCmd(ctx *Context) *cobra.Command {
+func keysDeleteCmd(ctx *cylinderctx.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "delete [name]",
 		Aliases: []string{"d"},
@@ -122,7 +125,7 @@ func keysDeleteCmd(ctx *Context) *cobra.Command {
 			name := args[0]
 
 			// Retrieve the key from the keyring
-			_, err := ctx.keyring.Key(name)
+			_, err := ctx.Keyring.Key(name)
 			if err != nil {
 				return err
 			}
@@ -141,7 +144,7 @@ func keysDeleteCmd(ctx *Context) *cobra.Command {
 			}
 
 			// Delete the key from the keyring
-			if err := ctx.keyring.Delete(name); err != nil {
+			if err := ctx.Keyring.Delete(name); err != nil {
 				return err
 			}
 
@@ -155,7 +158,7 @@ func keysDeleteCmd(ctx *Context) *cobra.Command {
 }
 
 // keysListCmd returns a Cobra command for listing all the keys in the keychain.
-func keysListCmd(ctx *Context) *cobra.Command {
+func keysListCmd(ctx *cylinderctx.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "list",
 		Aliases: []string{"l"},
@@ -168,7 +171,7 @@ func keysListCmd(ctx *Context) *cobra.Command {
 			}
 
 			// Retrieve the list of keys from the keyring
-			keys, err := ctx.keyring.List()
+			keys, err := ctx.Keyring.List()
 			if err != nil {
 				return err
 			}
@@ -193,7 +196,7 @@ func keysListCmd(ctx *Context) *cobra.Command {
 					queryClient := types.NewQueryClient(clientCtx)
 					r, err := queryClient.IsGrantee(
 						context.Background(),
-						&types.QueryIsGranteeRequest{Granter: ctx.config.Granter, Grantee: address.String()},
+						&types.QueryIsGranteeRequest{Granter: ctx.Config.Granter, Grantee: address.String()},
 					)
 
 					s := ":question:"
@@ -221,7 +224,7 @@ func keysListCmd(ctx *Context) *cobra.Command {
 }
 
 // keysShowCmd returns a Cobra command for showing the address associated with a key in the keychain.
-func keysShowCmd(ctx *Context) *cobra.Command {
+func keysShowCmd(ctx *cylinderctx.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "show [name]",
 		Aliases: []string{"s"},
@@ -231,7 +234,7 @@ func keysShowCmd(ctx *Context) *cobra.Command {
 			name := args[0]
 
 			// Retrieve the key from the keyring
-			key, err := ctx.keyring.Key(name)
+			key, err := ctx.Keyring.Key(name)
 			if err != nil {
 				return err
 			}

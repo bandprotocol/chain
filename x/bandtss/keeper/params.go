@@ -3,7 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/bandtss/types"
+	"github.com/bandprotocol/chain/v3/x/bandtss/types"
 )
 
 // GetParams returns the current x/bandtss module parameters.

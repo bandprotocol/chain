@@ -3,7 +3,7 @@ package types
 import (
 	"bytes"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
 )
 
 // AssignedMembers represents a slice of AssignedMember values.

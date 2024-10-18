@@ -3,15 +3,18 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/cometbft/cometbft/libs/log"
-	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
+	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
+	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
 
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
+
+	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 // Keeper of the x/tunnel store
@@ -23,9 +26,9 @@ type Keeper struct {
 	bankKeeper    types.BankKeeper
 	feedsKeeper   types.FeedsKeeper
 	bandtssKeeper types.BandtssKeeper
-	channelKeeper types.ChannelKeeper
+	ics4Wrapper   porttypes.ICS4Wrapper
 	portKeeper    types.PortKeeper
-	scopedKeeper  types.ScopedKeeper
+	scopedKeeper  capabilitykeeper.ScopedKeeper
 
 	authority string
 }
@@ -38,9 +41,9 @@ func NewKeeper(
 	bankKeeper types.BankKeeper,
 	feedsKeeper types.FeedsKeeper,
 	bandtssKeeper types.BandtssKeeper,
-	channelKeeper types.ChannelKeeper,
+	ics4Wrapper porttypes.ICS4Wrapper,
 	portKeeper types.PortKeeper,
-	scopedKeeper types.ScopedKeeper,
+	scopedKeeper capabilitykeeper.ScopedKeeper,
 	authority string,
 ) Keeper {
 	// ensure tunnel module account is set
@@ -60,7 +63,7 @@ func NewKeeper(
 		bankKeeper:    bankKeeper,
 		feedsKeeper:   feedsKeeper,
 		bandtssKeeper: bandtssKeeper,
-		channelKeeper: channelKeeper,
+		ics4Wrapper:   ics4Wrapper,
 		portKeeper:    portKeeper,
 		scopedKeeper:  scopedKeeper,
 		authority:     authority,
@@ -104,7 +107,7 @@ func (k Keeper) ClaimCapability(ctx sdk.Context, cap *capabilitytypes.Capability
 }
 
 // GetTunnelAccount returns the tunnel ModuleAccount
-func (k Keeper) GetTunnelAccount(ctx sdk.Context) authtypes.ModuleAccountI {
+func (k Keeper) GetTunnelAccount(ctx sdk.Context) sdk.ModuleAccountI {
 	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 
@@ -114,7 +117,7 @@ func (k Keeper) GetModuleBalance(ctx sdk.Context) sdk.Coins {
 }
 
 // SetModuleAccount sets a module account in the account keeper.
-func (k Keeper) SetModuleAccount(ctx sdk.Context, acc authtypes.ModuleAccountI) {
+func (k Keeper) SetModuleAccount(ctx sdk.Context, acc sdk.ModuleAccountI) {
 	k.authKeeper.SetModuleAccount(ctx, acc)
 }
 

@@ -5,7 +5,7 @@ import "gogoproto/gogo.proto";
 import "tss/v1beta1/tss.proto";
 import "cosmos_proto/cosmos.proto";
 
-option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
+option go_package = "github.com/bandprotocol/chain/v3/x/tss/types";
 
 // GenesisState defines the tss module's genesis state.
 message GenesisState {

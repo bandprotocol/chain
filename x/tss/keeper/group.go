@@ -4,10 +4,14 @@ import (
 	"encoding/hex"
 	"fmt"
 
+	dbm "github.com/cosmos/cosmos-db"
+
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // SetGroupCount sets the number of group count to the given value.
@@ -82,8 +86,8 @@ func (k Keeper) SetGroup(ctx sdk.Context, group types.Group) {
 }
 
 // GetGroupsIterator gets an iterator all group.
-func (k Keeper) GetGroupsIterator(ctx sdk.Context) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.GroupStoreKeyPrefix)
+func (k Keeper) GetGroupsIterator(ctx sdk.Context) dbm.Iterator {
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.GroupStoreKeyPrefix)
 }
 
 // GetGroups retrieves all group of the store.

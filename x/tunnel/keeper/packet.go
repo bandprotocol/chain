@@ -5,11 +5,12 @@ import (
 
 	sdkerrors "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/ctxcache"
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	"github.com/bandprotocol/chain/v3/pkg/ctxcache"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 // DeductBaseFee deducts the base fee from fee payer's account.
@@ -210,9 +211,9 @@ func GenerateSignalPrices(
 		// if triggerAll is true or the deviation exceeds the threshold, add the signal price info to the list
 		if triggerAll ||
 			deviationExceedsThreshold(
-				sdk.NewIntFromUint64(sp.Price),
-				sdk.NewIntFromUint64(currentPrice.Price),
-				sdk.NewIntFromUint64(signalDeviation.HardDeviationBPS),
+				sdkmath.NewIntFromUint64(sp.Price),
+				sdkmath.NewIntFromUint64(currentPrice.Price),
+				sdkmath.NewIntFromUint64(signalDeviation.HardDeviationBPS),
 			) {
 			sps = append(
 				sps,

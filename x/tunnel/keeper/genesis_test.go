@@ -3,13 +3,16 @@ package keeper_test
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
-	"github.com/bandprotocol/chain/v2/x/tunnel/keeper"
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	sdkmath "cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+
+	"github.com/bandprotocol/chain/v3/x/tunnel/keeper"
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 func TestValidateGenesis(t *testing.T) {
@@ -99,7 +102,7 @@ func TestValidateGenesis(t *testing.T) {
 				},
 				TotalFees: types.TotalFees{
 					TotalPacketFee: sdk.Coins{
-						{Denom: "uband", Amount: sdk.NewInt(-100)},
+						{Denom: "uband", Amount: sdkmath.NewInt(-100)},
 					}, // Invalid coin
 				},
 				PortID: types.PortID,
@@ -129,7 +132,7 @@ func TestValidateGenesis(t *testing.T) {
 					},
 				},
 				TotalFees: types.TotalFees{
-					TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100))),
+					TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
 				},
 				Params: types.DefaultParams(),
 				PortID: types.PortID,
@@ -156,14 +159,14 @@ func (s *KeeperTestSuite) TestInitExportGenesis() {
 
 	s.accountKeeper.EXPECT().
 		GetModuleAccount(ctx, gomock.Any()).
-		Return(authtypes.AccountI(&authtypes.ModuleAccount{
+		Return(sdk.AccountI(&authtypes.ModuleAccount{
 			BaseAccount: &authtypes.BaseAccount{Address: "test"},
 		})).
 		AnyTimes()
 	s.accountKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(sdk.AccAddress{}).AnyTimes()
 	s.accountKeeper.EXPECT().SetModuleAccount(ctx, gomock.Any()).AnyTimes()
 	s.bankKeeper.EXPECT().GetAllBalances(ctx, gomock.Any()).Return(sdk.Coins{}).AnyTimes()
-	s.scopedKeeper.EXPECT().GetCapability(ctx, gomock.Any()).Return(nil, true).AnyTimes()
+	// s.scopedKeeper.EXPECT().GetCapability(ctx, gomock.Any()).Return(nil, true).AnyTimes()
 
 	// Create a valid genesis state
 	genesisState := &types.GenesisState{
@@ -183,7 +186,7 @@ func (s *KeeperTestSuite) TestInitExportGenesis() {
 			},
 		},
 		TotalFees: types.TotalFees{
-			TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100))),
+			TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
 		},
 	}
 

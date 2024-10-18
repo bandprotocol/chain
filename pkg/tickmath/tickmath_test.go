@@ -9,7 +9,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/pkg/tickmath"
+	"github.com/bandprotocol/chain/v3/pkg/tickmath"
 )
 
 // PriceToTick converts the price to tick

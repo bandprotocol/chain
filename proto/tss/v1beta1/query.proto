@@ -6,7 +6,7 @@ import "cosmos/base/query/v1beta1/pagination.proto";
 import "google/api/annotations.proto";
 import "tss/v1beta1/tss.proto";
 
-option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
+option go_package = "github.com/bandprotocol/chain/v3/x/tss/types";
 
 // Query defines the gRPC querier service.
 service Query {
@@ -153,7 +153,7 @@ message QueryPendingSigningsRequest {
 message QueryPendingSigningsResponse {
   // pending_signings is a list of pending signings.
   repeated uint64 pending_signings = 1
-      [(gogoproto.casttype) = "github.com/bandprotocol/chain/v2/pkg/tss.SigningID"];
+      [(gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.SigningID"];
 }
 
 // QuerySigningRequest is the request type for the Query/Signing RPC method.

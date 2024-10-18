@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 // TODO: patch account generation follow ibc-v8
@@ -23,8 +23,8 @@ func (k Keeper) GenerateAccount(ctx sdk.Context, key string) (sdk.AccAddress, er
 
 	tunnelAccAddr := sdk.AccAddress(moduleCred.Address())
 
-	// this should not happen
 	if acc := k.authKeeper.GetAccount(ctx, tunnelAccAddr); acc != nil {
+		// this should not happen
 		return nil, types.ErrAccountAlreadyExist.Wrapf(
 			"existing account for newly generated key account address %s",
 			tunnelAccAddr.String(),

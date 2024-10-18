@@ -1,12 +1,19 @@
 package types
 
 import (
-	"github.com/cosmos/cosmos-sdk/codec"
+	"bytes"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/pkg/tss"
 )
 
 var (
 	_ Originator = &DirectOriginator{}
 	_ Originator = &TunnelOriginator{}
+
+	directOriginatorPrefix = tss.Hash([]byte("directOriginatorPrefix"))[:4]
+	tunnelOriginatorPrefix = tss.Hash([]byte("tunnelOriginatorPrefix"))[:4]
 )
 
 // Originator is the interface for identifying the metadata of the message. The hashed of the
@@ -25,7 +32,15 @@ func (o DirectOriginator) Validate(p Params) error {
 }
 
 func (o DirectOriginator) Encode() ([]byte, error) {
-	return marshal(&o)
+	bz := bytes.Join([][]byte{
+		directOriginatorPrefix,
+		sdk.Uint64ToBigEndian(uint64(len(o.Requester))),
+		[]byte(o.Requester),
+		sdk.Uint64ToBigEndian(uint64(len(o.Memo))),
+		[]byte(o.Memo),
+	}, []byte(""))
+
+	return bz, nil
 }
 
 func (o TunnelOriginator) Validate(p Params) error {
@@ -33,14 +48,14 @@ func (o TunnelOriginator) Validate(p Params) error {
 }
 
 func (o TunnelOriginator) Encode() ([]byte, error) {
-	return marshal(&o)
-}
+	bz := bytes.Join([][]byte{
+		tunnelOriginatorPrefix,
+		sdk.Uint64ToBigEndian(o.TunnelID),
+		sdk.Uint64ToBigEndian(uint64(len(o.ContractAddress))),
+		[]byte(o.ContractAddress),
+		sdk.Uint64ToBigEndian(uint64(len(o.ChainID))),
+		[]byte(o.ChainID),
+	}, []byte(""))
 
-func marshal(pm codec.ProtoMarshaler) ([]byte, error) {
-	// Size() check can catch the typed nil value.
-	if pm == nil || pm.Size() == 0 {
-		// return empty bytes instead of nil, because nil has special meaning in places like store.Set
-		return []byte{}, nil
-	}
-	return pm.Marshal()
+	return bz, nil
 }

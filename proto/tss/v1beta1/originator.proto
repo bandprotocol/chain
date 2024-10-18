@@ -3,7 +3,7 @@ package tss.v1beta1;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/bandprotocol/chain/v2/x/tss/types";
+option go_package = "github.com/bandprotocol/chain/v3/x/tss/types";
 
 // DirectOriginator is a message originator defines an information of the requester
 // on direct TSS request.

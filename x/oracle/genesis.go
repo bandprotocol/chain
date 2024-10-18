@@ -4,10 +4,11 @@ import (
 	"fmt"
 
 	errorsmod "cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 // InitGenesis performs genesis initialization for the oracle module.
