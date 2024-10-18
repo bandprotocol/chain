@@ -87,13 +87,13 @@ func (AppModuleBasic) GetTxCmd() *cobra.Command {
 // AppModule implements an application module for the restake module.
 type AppModule struct {
 	AppModuleBasic
-	keeper *keeper.Keeper
+	keeper keeper.Keeper
 }
 
 // NewAppModule creates a new AppModule object
 func NewAppModule(
 	cdc codec.Codec,
-	keeper *keeper.Keeper,
+	keeper keeper.Keeper,
 ) AppModule {
 	return AppModule{
 		AppModuleBasic: AppModuleBasic{cdc: cdc},
