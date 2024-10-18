@@ -8,9 +8,8 @@ const (
 	EventTypeStake           = "stake"
 	EventTypeUnstake         = "unstake"
 
-	AttributeKeyStaker       = "staker"
-	AttributeKeyKey          = "key"
-	AttributeKeyVaultAddress = "vault_address"
-	AttributeKeyPower        = "power"
-	AttributeKeyCoins        = "coins"
+	AttributeKeyStaker = "staker"
+	AttributeKeyKey    = "key"
+	AttributeKeyPower  = "power"
+	AttributeKeyCoins  = "coins"
 )
