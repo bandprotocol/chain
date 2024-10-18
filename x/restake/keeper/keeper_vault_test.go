@@ -36,7 +36,7 @@ func (suite *KeeperTestSuite) TestIsActiveVault() {
 
 	// case - no vault
 	isActive := suite.restakeKeeper.IsActiveVault(ctx, InvalidVaultKey)
-	suite.Require().Equal(false, isActive)
+	suite.Require().False(isActive)
 }
 
 func (suite *KeeperTestSuite) TestDeactivateVault() {
@@ -56,7 +56,7 @@ func (suite *KeeperTestSuite) TestDeactivateVault() {
 	suite.Require().NoError(err)
 	vault, found := suite.restakeKeeper.GetVault(ctx, ActiveVaultKey)
 	suite.Require().True(found)
-	suite.Require().Equal(false, vault.IsActive)
+	suite.Require().False(vault.IsActive)
 }
 
 func (suite *KeeperTestSuite) TestGetSetVault() {
