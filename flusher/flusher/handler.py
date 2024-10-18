@@ -783,8 +783,6 @@ class Handler(object):
         self.conn.execute(restake_locks.delete().where(condition))
 
     def handle_set_restake_vault(self, msg):
-        msg["vault_id"] = self.get_account_id(msg["vault_address"])
-        del msg["vault_address"]
         self.conn.execute(
             insert(restake_vaults)
             .values(**msg)
