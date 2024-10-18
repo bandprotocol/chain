@@ -30,7 +30,6 @@ var (
 	_ module.AppModule      = AppModule{}
 	_ module.HasGenesis     = AppModule{}
 	_ module.HasServices    = AppModule{}
-	_ module.HasInvariants  = AppModule{}
 
 	_ appmodule.AppModule = AppModule{}
 )
@@ -112,10 +111,6 @@ func (am AppModule) IsAppModule() {}
 // Name returns the restake module's name.
 func (AppModule) Name() string {
 	return types.ModuleName
-}
-
-// RegisterInvariants registers the restake module invariants.
-func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
 }
 
 // RegisterServices registers module services.
