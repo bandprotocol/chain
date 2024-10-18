@@ -27,6 +27,7 @@ import (
 
 	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
@@ -55,6 +56,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		oracletypes.StoreKey,
 		globalfeetypes.StoreKey,
 		ibcfeetypes.StoreKey,
+		restaketypes.StoreKey,
 	)
 
 	// Define transient store keys
