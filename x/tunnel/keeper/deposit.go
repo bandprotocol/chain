@@ -1,9 +1,11 @@
 package keeper
 
 import (
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 // AddDeposit adds a deposit to a tunnel
@@ -72,7 +74,7 @@ func (k Keeper) GetDeposit(
 // GetDeposits retrieves all deposits for a tunnel
 func (k Keeper) GetDeposits(ctx sdk.Context, tunnelID uint64) []types.Deposit {
 	var deposits []types.Deposit
-	iterator := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.DepositsStoreKey(tunnelID))
+	iterator := storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.DepositsStoreKey(tunnelID))
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {

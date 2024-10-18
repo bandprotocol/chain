@@ -1,84 +1,39 @@
 package keeper
 
 import (
-	sdkmath "cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	storetypes "cosmossdk.io/store/types"
 
-	"github.com/bandprotocol/chain/v2/x/restake/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 // GetOrCreateVault get the vault object by using key. If the vault doesn't exist, it will initialize the new vault.
 func (k Keeper) GetOrCreateVault(ctx sdk.Context, key string) (types.Vault, error) {
-	vault, err := k.GetVault(ctx, key)
-	if err != nil {
-		vaultAccAddr, err := k.createVaultAccount(ctx, key)
-		if err != nil {
-			return types.Vault{}, err
-		}
-
+	vault, found := k.GetVault(ctx, key)
+	if !found {
 		vault = types.NewVault(
 			key,
-			vaultAccAddr.String(),
 			true,
-			sdk.NewDecCoins(),
-			sdkmath.NewInt(0),
-			sdk.NewDecCoins(),
 		)
 
 		k.SetVault(ctx, vault)
+
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeCreateVault,
+				sdk.NewAttribute(types.AttributeKeyKey, key),
+			),
+		)
 	}
 
 	return vault, nil
 }
 
-// AddRewards adds rewards to the pool address and re-calculate `RewardsPerPower` and `remainders` of the vault
-func (k Keeper) AddRewards(ctx sdk.Context, sender sdk.AccAddress, key string, rewards sdk.Coins) error {
-	vault, err := k.GetVault(ctx, key)
-	if err != nil {
-		return err
-	}
-
-	if !vault.IsActive {
-		return types.ErrVaultNotActive
-	}
-
-	if vault.TotalPower.IsZero() {
-		return types.ErrTotalPowerZero
-	}
-
-	err = k.bankKeeper.SendCoins(ctx, sender, sdk.MustAccAddressFromBech32(vault.VaultAddress), rewards)
-	if err != nil {
-		return err
-	}
-
-	decRewards := sdk.NewDecCoinsFromCoins(rewards.Sort()...)
-	totalPower := sdkmath.LegacyNewDecFromInt(vault.TotalPower)
-	RewardsPerPower := decRewards.QuoDecTruncate(totalPower)
-	truncatedRewards := decRewards.Sub(RewardsPerPower.MulDecTruncate(totalPower))
-
-	// add truncate part to remainder
-	// e.g. rewards = 1, totalPower = 3 -> rewardsPerPower = 0.333333333333333
-	// remainder = 1 - (0.333333333333333 * 3)
-	vault.Remainders = vault.Remainders.Add(truncatedRewards...)
-	vault.RewardsPerPower = vault.RewardsPerPower.Add(RewardsPerPower...)
-	k.SetVault(ctx, vault)
-
-	ctx.EventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeAddRewards,
-			sdk.NewAttribute(types.AttributeKeyKey, key),
-			sdk.NewAttribute(types.AttributeKeyRewards, rewards.String()),
-		),
-	)
-
-	return nil
-}
-
 // IsActiveVault checks whether the vault is active or not.
 func (k Keeper) IsActiveVault(ctx sdk.Context, key string) bool {
-	vault, err := k.GetVault(ctx, key)
-	if err != nil {
+	vault, found := k.GetVault(ctx, key)
+	if !found {
 		return false
 	}
 
@@ -87,9 +42,9 @@ func (k Keeper) IsActiveVault(ctx sdk.Context, key string) bool {
 
 // DeactivateVault deactivates the vault.
 func (k Keeper) DeactivateVault(ctx sdk.Context, key string) error {
-	vault, err := k.GetVault(ctx, key)
-	if err != nil {
-		return err
+	vault, found := k.GetVault(ctx, key)
+	if !found {
+		return types.ErrVaultNotFound.Wrapf("key: %s", key)
 	}
 
 	if !vault.IsActive {
@@ -109,47 +64,13 @@ func (k Keeper) DeactivateVault(ctx sdk.Context, key string) error {
 	return nil
 }
 
-// createVaultAccount creates a vault account by using name and block hash.
-func (k Keeper) createVaultAccount(ctx sdk.Context, key string) (sdk.AccAddress, error) {
-	header := ctx.BlockHeader()
-
-	buf := []byte(key)
-	buf = append(buf, header.AppHash...)
-	buf = append(buf, header.DataHash...)
-
-	moduleCred, err := authtypes.NewModuleCredential(types.ModuleName, []byte(types.VaultAccountsKey), buf)
-	if err != nil {
-		return nil, err
-	}
-
-	vaultAccAddr := sdk.AccAddress(moduleCred.Address())
-
-	// This should not happen
-	if acc := k.authKeeper.GetAccount(ctx, vaultAccAddr); acc != nil {
-		return nil, types.ErrAccountAlreadyExist.Wrapf(
-			"existing account for newly generated vault account address %s",
-			vaultAccAddr.String(),
-		)
-	}
-
-	vaultAcc, err := authtypes.NewBaseAccountWithPubKey(moduleCred)
-	if err != nil {
-		return nil, err
-	}
-
-	k.authKeeper.NewAccount(ctx, vaultAcc)
-	k.authKeeper.SetAccount(ctx, vaultAcc)
-
-	return vaultAccAddr, nil
-}
-
 // -------------------------------
 // store part
 // -------------------------------
 
 // GetVaultsIterator gets iterator of vault store.
-func (k Keeper) GetVaultsIterator(ctx sdk.Context) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.VaultStoreKeyPrefix)
+func (k Keeper) GetVaultsIterator(ctx sdk.Context) storetypes.Iterator {
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.VaultStoreKeyPrefix)
 }
 
 // GetVaults gets all vaults in the store.
@@ -174,25 +95,25 @@ func (k Keeper) HasVault(ctx sdk.Context, vaultName string) bool {
 // MustGetVault gets a vault from store by name.
 // Panics if can't get the vault.
 func (k Keeper) MustGetVault(ctx sdk.Context, key string) types.Vault {
-	vault, err := k.GetVault(ctx, key)
-	if err != nil {
-		panic(err)
+	vault, found := k.GetVault(ctx, key)
+	if !found {
+		panic(types.ErrVaultNotFound)
 	}
 
 	return vault
 }
 
 // GetVault gets a vault from store by key.
-func (k Keeper) GetVault(ctx sdk.Context, key string) (types.Vault, error) {
+func (k Keeper) GetVault(ctx sdk.Context, key string) (types.Vault, bool) {
 	bz := ctx.KVStore(k.storeKey).Get(types.VaultStoreKey(key))
 	if bz == nil {
-		return types.Vault{}, types.ErrVaultNotFound.Wrapf("failed to get vault with name: %s", key)
+		return types.Vault{}, false
 	}
 
 	var vault types.Vault
 	k.cdc.MustUnmarshal(bz, &vault)
 
-	return vault, nil
+	return vault, true
 }
 
 // SetVault sets a vault to the store.

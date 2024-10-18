@@ -4,10 +4,14 @@ import (
 	"encoding/hex"
 	"fmt"
 
+	dbm "github.com/cosmos/cosmos-db"
+
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // HandleVerifyComplaint verifies the complaint signature for a given groupID and complaint.
@@ -149,8 +153,11 @@ func (k Keeper) GetComplaintsWithStatus(
 }
 
 // GetComplainsWithStatusIterator gets an iterator over all complaints with status data of a group.
-func (k Keeper) GetComplainsWithStatusIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.ComplainsWithStatusStoreKey(groupID))
+func (k Keeper) GetComplainsWithStatusIterator(ctx sdk.Context, groupID tss.GroupID) dbm.Iterator {
+	return storetypes.KVStorePrefixIterator(
+		ctx.KVStore(k.storeKey),
+		types.ComplainsWithStatusStoreKey(groupID),
+	)
 }
 
 // GetAllComplainsWithStatus retrieves all complaints with status for a given group from the store.
@@ -224,8 +231,8 @@ func (k Keeper) GetConfirm(
 }
 
 // GetConfirmIterator gets an iterator over all confirm data of a group.
-func (k Keeper) GetConfirmIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.ConfirmStoreKey(groupID))
+func (k Keeper) GetConfirmIterator(ctx sdk.Context, groupID tss.GroupID) dbm.Iterator {
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.ConfirmStoreKey(groupID))
 }
 
 // GetConfirms retrieves all confirm for a given group from the store.

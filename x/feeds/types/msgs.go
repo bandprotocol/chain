@@ -2,11 +2,22 @@ package types
 
 import (
 	errorsmod "cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-var _, _, _, _ sdk.Msg = &MsgSubmitSignalPrices{}, &MsgUpdateParams{}, &MsgUpdateReferenceSourceConfig{}, &MsgSubmitSignals{}
+var (
+	_ sdk.Msg = (*MsgSubmitSignalPrices)(nil)
+	_ sdk.Msg = (*MsgUpdateParams)(nil)
+	_ sdk.Msg = (*MsgUpdateReferenceSourceConfig)(nil)
+	_ sdk.Msg = (*MsgSubmitSignals)(nil)
+
+	_ sdk.HasValidateBasic = (*MsgSubmitSignalPrices)(nil)
+	_ sdk.HasValidateBasic = (*MsgUpdateParams)(nil)
+	_ sdk.HasValidateBasic = (*MsgUpdateReferenceSourceConfig)(nil)
+	_ sdk.HasValidateBasic = (*MsgSubmitSignals)(nil)
+)
 
 // ====================================
 // MsgSubmitSignalPrices
@@ -23,23 +34,6 @@ func NewMsgSubmitSignalPrices(
 		Timestamp: timestamp,
 		Prices:    prices,
 	}
-}
-
-// Route Implements Msg.
-func (m MsgSubmitSignalPrices) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
-func (m MsgSubmitSignalPrices) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes implements the LegacyMsg interface.
-func (m MsgSubmitSignalPrices) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for the message.
-func (m *MsgSubmitSignalPrices) GetSigners() []sdk.AccAddress {
-	validator, _ := sdk.ValAddressFromBech32(m.Validator)
-	return []sdk.AccAddress{sdk.AccAddress(validator)}
 }
 
 // ValidateBasic does a check on the provided data.
@@ -85,22 +79,6 @@ func NewMsgUpdateParams(
 	}
 }
 
-// Route Implements Msg.
-func (m MsgUpdateParams) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
-func (m MsgUpdateParams) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes implements the LegacyMsg interface.
-func (m MsgUpdateParams) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for the message.
-func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
-}
-
 // ValidateBasic does a check on the provided data.
 func (m *MsgUpdateParams) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {
@@ -129,22 +107,6 @@ func NewMsgUpdateReferenceSourceConfig(
 	}
 }
 
-// Route Implements Msg.
-func (m MsgUpdateReferenceSourceConfig) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
-func (m MsgUpdateReferenceSourceConfig) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes implements the LegacyMsg interface.
-func (m MsgUpdateReferenceSourceConfig) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for the message.
-func (m *MsgUpdateReferenceSourceConfig) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Admin)}
-}
-
 // ValidateBasic does a check on the provided data.
 func (m *MsgUpdateReferenceSourceConfig) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Admin); err != nil {
@@ -171,22 +133,6 @@ func NewMsgSubmitSignals(
 		Delegator: delegator,
 		Signals:   signals,
 	}
-}
-
-// Route Implements Msg.
-func (m MsgSubmitSignals) Route() string { return sdk.MsgTypeURL(&m) }
-
-// Type Implements Msg.
-func (m MsgSubmitSignals) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes implements the LegacyMsg interface.
-func (m MsgSubmitSignals) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for the message.
-func (m *MsgSubmitSignals) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Delegator)}
 }
 
 // ValidateBasic does a check on the provided data.

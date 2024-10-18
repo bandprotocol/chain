@@ -4,20 +4,24 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/suite"
+	"go.uber.org/mock/gomock"
+
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	storetypes "cosmossdk.io/store/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/stretchr/testify/suite"
-	"go.uber.org/mock/gomock"
 
-	"github.com/bandprotocol/chain/v2/x/tunnel"
-	"github.com/bandprotocol/chain/v2/x/tunnel/keeper"
-	"github.com/bandprotocol/chain/v2/x/tunnel/testutil"
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel"
+	"github.com/bandprotocol/chain/v3/x/tunnel/keeper"
+	"github.com/bandprotocol/chain/v3/x/tunnel/testutil"
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 type KeeperTestSuite struct {
@@ -42,8 +46,8 @@ func (s *KeeperTestSuite) SetupTest() {
 
 func (s *KeeperTestSuite) reset() {
 	ctrl := gomock.NewController(s.T())
-	key := sdk.NewKVStoreKey(types.StoreKey)
-	testCtx := sdktestutil.DefaultContextWithDB(s.T(), key, sdk.NewTransientStoreKey("transient_test"))
+	key := storetypes.NewKVStoreKey(types.StoreKey)
+	testCtx := sdktestutil.DefaultContextWithDB(s.T(), key, storetypes.NewTransientStoreKey("transient_test"))
 	encCfg := moduletestutil.MakeTestEncodingConfig(tunnel.AppModuleBasic{})
 
 	accountKeeper := testutil.NewMockAccountKeeper(ctrl)

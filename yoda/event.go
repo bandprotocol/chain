@@ -3,9 +3,9 @@ package yoda
 import (
 	"fmt"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	abci "github.com/cometbft/cometbft/abci/types"
 
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 type rawRequest struct {
@@ -16,8 +16,8 @@ type rawRequest struct {
 }
 
 // GetEventValues returns the list of all values in the given log with the given type and key.
-func GetEventValues(log sdk.ABCIMessageLog, evType string, evKey string) (res []string) {
-	for _, ev := range log.Events {
+func GetEventValues(events []abci.Event, evType string, evKey string) (res []string) {
+	for _, ev := range events {
 		if ev.Type != evType {
 			continue
 		}
@@ -32,8 +32,8 @@ func GetEventValues(log sdk.ABCIMessageLog, evType string, evKey string) (res []
 }
 
 // GetEventValue checks and returns the exact value in the given log with the given type and key.
-func GetEventValue(log sdk.ABCIMessageLog, evType string, evKey string) (string, error) {
-	values := GetEventValues(log, evType, evKey)
+func GetEventValue(events []abci.Event, evType string, evKey string) (string, error) {
+	values := GetEventValues(events, evType, evKey)
 	if len(values) == 0 {
 		return "", fmt.Errorf("cannot find event with type: %s, key: %s", evType, evKey)
 	}

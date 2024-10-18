@@ -4,10 +4,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/bandprotocol/go-owasm/api"
-	"github.com/cometbft/cometbft/crypto/secp256k1"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cometbft/cometbft/crypto/secp256k1"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/go-owasm/api"
 )
 
 var (
@@ -33,7 +36,7 @@ func mockExecEnv() *ExecuteEnv {
 	minCount := uint64(1)
 	requestHeight := int64(999)
 	requestTime := time.Unix(1581589700, 0)
-	clientID := "beeb"
+	clientID := "test"
 	request := NewRequest(
 		oracleScriptID,
 		calldata,
@@ -65,7 +68,7 @@ func mockFreshPrepareEnv() *PrepareEnv {
 	minCount := uint64(1)
 	requestHeight := int64(999)
 	requestTime := time.Unix(1581589700, 0)
-	clientID := "beeb"
+	clientID := "test"
 	request := NewRequest(
 		oracleScriptID,
 		calldata,

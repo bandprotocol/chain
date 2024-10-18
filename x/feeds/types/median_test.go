@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 func TestCalculateMedianPriceFeedInfo(t *testing.T) {
@@ -49,7 +49,6 @@ func TestCalculateMedianPriceFeedInfo(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			price, err := types.CalculateMedianPriceFeedInfo(tc.priceFeedInfos)
 			require.NoError(tt, err)
@@ -89,7 +88,6 @@ func TestCalculateMedianWeightedPrice(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			price, err := types.CalculateMedianWeightedPrice(tc.weightedPrices)
 			require.NoError(tt, err)

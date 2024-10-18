@@ -1,9 +1,11 @@
 package keeper_test
 
 import (
+	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 func (s *KeeperTestSuite) TestGRPCQueryTunnels() {
@@ -146,7 +148,7 @@ func (s *KeeperTestSuite) TestGRPCQueryDeposit() {
 	deposit := types.Deposit{
 		TunnelID:  1,
 		Depositor: sdk.AccAddress([]byte("depositor")).String(),
-		Amount:    sdk.NewCoins(sdk.NewCoin("band", sdk.NewInt(100))),
+		Amount:    sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(100))),
 	}
 	k.SetDeposit(ctx, deposit)
 
@@ -177,12 +179,12 @@ func (s *KeeperTestSuite) TestGRPCQueryDeposits() {
 	deposit1 := types.Deposit{
 		TunnelID:  1,
 		Depositor: sdk.AccAddress([]byte("depositor1")).String(),
-		Amount:    sdk.NewCoins(sdk.NewCoin("band", sdk.NewInt(100))),
+		Amount:    sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(100))),
 	}
 	deposit2 := types.Deposit{
 		TunnelID:  1,
 		Depositor: sdk.AccAddress([]byte("depositor2")).String(),
-		Amount:    sdk.NewCoins(sdk.NewCoin("band", sdk.NewInt(110))),
+		Amount:    sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(110))),
 	}
 	k.SetDeposit(ctx, deposit1)
 	k.SetDeposit(ctx, deposit2)

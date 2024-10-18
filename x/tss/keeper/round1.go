@@ -1,10 +1,14 @@
 package keeper
 
 import (
+	dbm "github.com/cosmos/cosmos-db"
+
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // AddRound1Info adds the round1Info of a member in the store and increments the count of round1Info.
@@ -42,8 +46,8 @@ func (k Keeper) GetRound1Info(ctx sdk.Context, groupID tss.GroupID, memberID tss
 }
 
 // GetRound1InfoIterator gets an iterator over all round1Info of a group.
-func (k Keeper) GetRound1InfoIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round1InfoStoreKey(groupID))
+func (k Keeper) GetRound1InfoIterator(ctx sdk.Context, groupID tss.GroupID) dbm.Iterator {
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round1InfoStoreKey(groupID))
 }
 
 // GetRound1Infos retrieves round1Infos for a group from the store.
@@ -89,8 +93,8 @@ func (k Keeper) DeleteRound1InfoCount(ctx sdk.Context, groupID tss.GroupID) {
 }
 
 // GetAccumulatedCommitIterator gets an iterator over all accumulated commits of a group.
-func (k Keeper) GetAccumulatedCommitIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.AccumulatedCommitStoreKey(groupID))
+func (k Keeper) GetAccumulatedCommitIterator(ctx sdk.Context, groupID tss.GroupID) dbm.Iterator {
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.AccumulatedCommitStoreKey(groupID))
 }
 
 // SetAccumulatedCommit sets accumulated commit for a index of a group.

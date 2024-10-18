@@ -37,7 +37,6 @@ func TestCalculateInterval(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			interval := CalculateInterval(tc.power, params.PowerStepThreshold, params.MinInterval, params.MaxInterval)
 			require.Equal(tt, tc.expInterval, interval)
@@ -76,7 +75,6 @@ func TestCalculateDeviation(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			deviation := CalculateDeviation(
 				tc.power,

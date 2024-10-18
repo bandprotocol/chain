@@ -3,13 +3,13 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/cometbft/cometbft/libs/log"
-	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
 
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 // Keeper of the x/tunnel store
@@ -57,7 +57,7 @@ func NewKeeper(
 }
 
 // GetTunnelAccount returns the tunnel ModuleAccount
-func (k Keeper) GetTunnelAccount(ctx sdk.Context) authtypes.ModuleAccountI {
+func (k Keeper) GetTunnelAccount(ctx sdk.Context) sdk.ModuleAccountI {
 	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 
@@ -67,7 +67,7 @@ func (k Keeper) GetModuleBalance(ctx sdk.Context) sdk.Coins {
 }
 
 // SetModuleAccount sets a module account in the account keeper.
-func (k Keeper) SetModuleAccount(ctx sdk.Context, acc authtypes.ModuleAccountI) {
+func (k Keeper) SetModuleAccount(ctx sdk.Context, acc sdk.ModuleAccountI) {
 	k.authKeeper.SetModuleAccount(ctx, acc)
 }
 

@@ -7,6 +7,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+// ModuleCdc references the global x/tss module codec. Note, the codec
+// should ONLY be used in certain instances of tests and for JSON encoding.
+//
+// The actual codec used for serialization should be provided to x/tss and
+// defined at the application level.
+var ModuleCdc = codec.NewProtoCodec(cdctypes.NewInterfaceRegistry())
+
 // RegisterLegacyAminoCodec registers the necessary x/tss interfaces and concrete types
 // on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
@@ -38,24 +45,4 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		(*Content)(nil),
 		&TextSignatureOrder{},
 	)
-}
-
-// RegisterRequestSignatureTypeCodec registers an external signature request type defined
-// in another module for the internal ModuleCdc. This allows the MsgRequestSignature
-// to be correctly Amino encoded and decoded.
-//
-// NOTE: This should only be used for applications that are still using a concrete
-// Amino codec for serialization.
-func RegisterSignatureOrderTypeCodec(o interface{}, name string) {
-	amino.RegisterConcrete(o, name, nil)
-}
-
-var (
-	amino     = codec.NewLegacyAmino()
-	ModuleCdc = codec.NewAminoCodec(amino)
-)
-
-func init() {
-	RegisterLegacyAminoCodec(amino)
-	sdk.RegisterLegacyAminoCodec(amino)
 }

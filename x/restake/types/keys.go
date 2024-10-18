@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 
 	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/address"
 	"github.com/cosmos/cosmos-sdk/types/kv"
@@ -21,21 +22,26 @@ const (
 
 	// QuerierRoute is the querier route for the restake module
 	QuerierRoute = ModuleName
-
-	// VaultAccountsKey is the key used when generating a module address for the vault
-	VaultAccountsKey = "vault-accounts"
 )
 
 var (
-	VaultStoreKeyPrefix = []byte{0x00}
-	LockStoreKeyPrefix  = []byte{0x01}
+	VaultStoreKeyPrefix = []byte{0x10}
+	LockStoreKeyPrefix  = []byte{0x11}
+	StakeStoreKeyPrefix = []byte{0x12}
 
 	LocksByPowerIndexKeyPrefix = []byte{0x80}
+
+	ParamsKey = []byte{0x90}
 )
 
-// VaultStoreKey returns the key to retrieve a specific vault from the store.
+// VaultStoreKey returns the key to retrieve a specified vault from the store.
 func VaultStoreKey(key string) []byte {
 	return append(VaultStoreKeyPrefix, []byte(key)...)
+}
+
+// StakeStoreKey returns the key to retrieve the stake of an address from the store.
+func StakeStoreKey(addr sdk.AccAddress) []byte {
+	return append(StakeStoreKeyPrefix, address.MustLengthPrefix(addr)...)
 }
 
 // LocksByAddressStoreKey returns the key to retrieve all locks of an address from the store.

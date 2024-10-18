@@ -2,17 +2,14 @@ package keeper_test
 
 import (
 	"fmt"
-	"testing"
 
-	"github.com/stretchr/testify/require"
-
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
-func TestGetSetParams(t *testing.T) {
-	app, ctx := bandtesting.CreateTestApp(t, true)
-	k := app.OracleKeeper
+func (suite *KeeperTestSuite) TestGetSetParams() {
+	ctx := suite.ctx
+	k := suite.oracleKeeper
+	require := suite.Require()
 
 	expectedParams := types.Params{
 		MaxRawRequestCount:      1,
@@ -28,8 +25,8 @@ func TestGetSetParams(t *testing.T) {
 		IBCRequestEnabled:       true,
 	}
 	err := k.SetParams(ctx, expectedParams)
-	require.NoError(t, err)
-	require.Equal(t, expectedParams, k.GetParams(ctx))
+	require.NoError(err)
+	require.Equal(expectedParams, k.GetParams(ctx))
 
 	expectedParams = types.Params{
 		MaxRawRequestCount:      2,
@@ -45,8 +42,8 @@ func TestGetSetParams(t *testing.T) {
 		IBCRequestEnabled:       false,
 	}
 	err = k.SetParams(ctx, expectedParams)
-	require.NoError(t, err)
-	require.Equal(t, expectedParams, k.GetParams(ctx))
+	require.NoError(err)
+	require.Equal(expectedParams, k.GetParams(ctx))
 
 	expectedParams = types.Params{
 		MaxRawRequestCount:      2,
@@ -62,8 +59,8 @@ func TestGetSetParams(t *testing.T) {
 		IBCRequestEnabled:       false,
 	}
 	err = k.SetParams(ctx, expectedParams)
-	require.NoError(t, err)
-	require.Equal(t, expectedParams, k.GetParams(ctx))
+	require.NoError(err)
+	require.Equal(expectedParams, k.GetParams(ctx))
 
 	expectedParams = types.Params{
 		MaxRawRequestCount:      0,
@@ -79,5 +76,5 @@ func TestGetSetParams(t *testing.T) {
 		IBCRequestEnabled:       false,
 	}
 	err = k.SetParams(ctx, expectedParams)
-	require.EqualError(t, fmt.Errorf("max raw request count must be positive: 0"), err.Error())
+	require.EqualError(fmt.Errorf("max raw request count must be positive: 0"), err.Error())
 }

@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"math/rand"
 	"testing"
+	"time"
 
+	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 func BenchmarkTunnelABCI(b *testing.B) {
@@ -80,7 +82,8 @@ func testBenchmarkTunnel(numTunnels, numSignals, maxSignals int, encoder types.E
 		b.ResetTimer()
 		b.StopTimer()
 		for i := 0; i < b.N; i++ {
-			ba.CallBeginBlock()
+			b.StartTimer()
+
 			err := shiftFeedsPrice(ba, globalSignalDeviations, 10500)
 			require.NoError(b, err)
 
@@ -90,11 +93,17 @@ func testBenchmarkTunnel(numTunnels, numSignals, maxSignals int, encoder types.E
 				tunnels = append(tunnels, tunnel)
 			}
 
-			b.StartTimer()
-			ba.CallEndBlock()
+			_, err = ba.FinalizeBlock(
+				&abci.RequestFinalizeBlock{
+					Height: ba.LastBlockHeight() + 1,
+					Time:   time.Now(),
+				},
+			)
+			require.NoError(b, err)
 			b.StopTimer()
 
-			ba.Commit()
+			_, err = ba.Commit()
+			require.NoError(b, err)
 
 			// check result
 			for j := 1; j <= numTunnels; j++ {

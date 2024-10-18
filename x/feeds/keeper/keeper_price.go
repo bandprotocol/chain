@@ -4,16 +4,20 @@ import (
 	"fmt"
 	"time"
 
+	dbm "github.com/cosmos/cosmos-db"
+
 	sdkmath "cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 // GetPricesIterator returns an iterator for prices store.
-func (k Keeper) GetPricesIterator(ctx sdk.Context) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.PriceStoreKeyPrefix)
+func (k Keeper) GetPricesIterator(ctx sdk.Context) dbm.Iterator {
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.PriceStoreKeyPrefix)
 }
 
 // GetPrices returns a list of all prices.
@@ -99,19 +103,33 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) {
 
 	var validatorsByPower []types.ValidatorInfo
 	// iterate over bonded validators sorted by power
-	k.stakingKeeper.IterateBondedValidatorsByPower(
+	err := k.stakingKeeper.IterateBondedValidatorsByPower(
 		ctx,
 		func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
+			operator, err := sdk.ValAddressFromBech32(val.GetOperator())
+			if err != nil {
+				return false
+			}
 			// get the status of the validator
-			status := k.oracleKeeper.GetValidatorStatus(ctx, val.GetOperator())
+			status := k.oracleKeeper.GetValidatorStatus(ctx, operator)
 			if !status.IsActive {
 				return false
 			}
 			// collect validator information
-			validatorInfo := types.NewValidatorInfo(idx, val.GetOperator(), val.GetTokens().Uint64(), status)
+			validatorInfo := types.NewValidatorInfo(idx, operator, val.GetTokens().Uint64(), status)
 			validatorsByPower = append(validatorsByPower, validatorInfo)
 			return false
 		})
+	if err != nil {
+		// emit event for failed price calculation
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				types.EventTypeCalculatePriceFailed,
+				sdk.NewAttribute(types.AttributeKeyErrorMessage, err.Error()),
+			),
+		)
+		return
+	}
 
 	// collect all validator prices
 	allValidatorPrices := make(map[string]map[string]types.ValidatorPrice)
@@ -208,8 +226,12 @@ func (k Keeper) CalculatePrice(
 
 	totalPower, availablePower, _, unsupportedPower := types.CalculatePricesPowers(priceFeedInfos)
 
-	totalBondedToken := sdkmath.LegacyNewDecFromInt(k.stakingKeeper.TotalBondedTokens(ctx))
-	priceQuorum, _ := sdk.NewDecFromStr(k.GetParams(ctx).PriceQuorum)
+	tbt, err := k.stakingKeeper.TotalBondedTokens(ctx)
+	if err != nil {
+		return types.Price{}, err
+	}
+	totalBondedToken := sdkmath.LegacyNewDecFromInt(tbt)
+	priceQuorum, _ := sdkmath.LegacyNewDecFromStr(k.GetParams(ctx).PriceQuorum)
 
 	// If more than half of the total have unsupported price status, it returns an unsupported price status.
 	if unsupportedPower > totalPower/2 {

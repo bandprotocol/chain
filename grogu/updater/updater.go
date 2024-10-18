@@ -12,7 +12,7 @@ import (
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/logger"
+	"github.com/bandprotocol/chain/v3/pkg/logger"
 )
 
 const (
@@ -189,6 +189,11 @@ func (u *Updater) updateBothanRegistry() error {
 	}
 
 	rfc := queryResp.ReferenceSourceConfig
+
+	if rfc.IPFSHash == "[NOT_SET]" || rfc.Version == "[NOT_SET]" {
+		u.logger.Warn("[Updater] reference source config is not set, skipping update")
+		return nil
+	}
 
 	err = u.bothanClient.UpdateRegistry(rfc.IPFSHash, rfc.Version)
 	if err != nil {

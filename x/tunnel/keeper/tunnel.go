@@ -3,9 +3,11 @@ package keeper
 import (
 	"fmt"
 
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 // AddTunnel adds a new tunnel
@@ -136,7 +138,7 @@ func (k Keeper) MustGetTunnel(ctx sdk.Context, tunnelID uint64) types.Tunnel {
 // GetTunnels returns all tunnels
 func (k Keeper) GetTunnels(ctx sdk.Context) []types.Tunnel {
 	var tunnels []types.Tunnel
-	iterator := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.TunnelStoreKeyPrefix)
+	iterator := storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.TunnelStoreKeyPrefix)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -160,7 +162,7 @@ func (k Keeper) DeactivateTunnelID(ctx sdk.Context, tunnelID uint64) {
 // GetActiveTunnelIDs retrieves the active tunnel IDs from the store
 func (k Keeper) GetActiveTunnelIDs(ctx sdk.Context) []uint64 {
 	var ids []uint64
-	iterator := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.ActiveTunnelIDStoreKeyPrefix)
+	iterator := storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.ActiveTunnelIDStoreKeyPrefix)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {

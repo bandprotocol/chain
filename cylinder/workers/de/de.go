@@ -8,16 +8,18 @@ import (
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 
-	"github.com/bandprotocol/chain/v2/cylinder"
-	"github.com/bandprotocol/chain/v2/cylinder/client"
-	"github.com/bandprotocol/chain/v2/pkg/event"
-	"github.com/bandprotocol/chain/v2/pkg/logger"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/cylinder"
+	"github.com/bandprotocol/chain/v3/cylinder/client"
+	"github.com/bandprotocol/chain/v3/cylinder/context"
+	"github.com/bandprotocol/chain/v3/pkg/logger"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // DE is a worker responsible for generating own nonce (DE) of signing process
 type DE struct {
-	context       *cylinder.Context
+	context       *context.Context
 	logger        *logger.Logger
 	client        *client.Client
 	assignEventCh <-chan ctypes.ResultEvent
@@ -28,8 +30,8 @@ var _ cylinder.Worker = &DE{}
 
 // New creates a new instance of the DE worker.
 // It initializes the necessary components and returns the created DE instance or an error if initialization fails.
-func New(ctx *cylinder.Context) (*DE, error) {
-	cli, err := client.New(ctx.Config, ctx.Keyring)
+func New(ctx *context.Context) (*DE, error) {
+	cli, err := client.New(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -66,24 +68,20 @@ func (de *DE) subscribe() (err error) {
 	return
 }
 
-// handleTxResult handles the result of a transaction.
-// It extracts the relevant message logs from the transaction result and processes the events.
-func (de *DE) handleTxResult(txResult abci.TxResult) {
-	msgLogs, err := event.GetMessageLogs(txResult)
-	if err != nil {
-		de.logger.Error("Failed to get message logs: %s", err)
-		return
-	}
+// handleABCIEvents signs the specific signingID if the given events contain a request_signature event.
+func (de *DE) handleABCIEvents(abciEvents []abci.Event) {
+	events := sdk.StringifyEvents(abciEvents)
+	for _, ev := range events {
+		if ev.Type == types.EventTypeSubmitSignature {
+			events, err := ParseSubmitSignEvents(sdk.StringEvents{ev})
+			if err != nil {
+				de.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
+				return
+			}
 
-	for _, log := range msgLogs {
-		events, err := ParseSubmitSignEvents(log.Events)
-		if err != nil {
-			de.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
-			return
-		}
-
-		for _, event := range events {
-			go de.deleteDE(event.PubDE)
+			for _, event := range events {
+				go de.deleteDE(event.PubDE)
+			}
 		}
 	}
 }
@@ -163,7 +161,7 @@ func (de *DE) Start() {
 	// Remove DE if there is used DE event.
 	go func() {
 		for ev := range de.useEventCh {
-			go de.handleTxResult(ev.Data.(tmtypes.EventDataTx).TxResult)
+			go de.handleABCIEvents(ev.Data.(tmtypes.EventDataTx).TxResult.Result.Events)
 		}
 	}()
 

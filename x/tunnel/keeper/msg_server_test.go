@@ -1,11 +1,14 @@
 package keeper_test
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"go.uber.org/mock/gomock"
 
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	sdkmath "cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 func (s *KeeperTestSuite) TestMsgCreateTunnel() {
@@ -42,7 +45,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 					10,
 					route,
 					types.ENCODER_FIXED_POINT_ABI,
-					sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100))),
+					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
 					sdk.AccAddress([]byte("creator_address")),
 				)
 			},
@@ -60,7 +63,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 					1,
 					route,
 					types.ENCODER_FIXED_POINT_ABI,
-					sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100))),
+					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
 					sdk.AccAddress([]byte("creator_address")),
 				)
 			},
@@ -90,7 +93,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 		"all good": {
 			preRun: func() (*types.MsgCreateTunnel, error) {
 				depositor := sdk.AccAddress([]byte("creator_address"))
-				depositAmount := sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100)))
+				depositAmount := sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100)))
 
 				s.accountKeeper.EXPECT().
 					GetAccount(s.ctx, gomock.Any()).
@@ -300,7 +303,7 @@ func (s *KeeperTestSuite) TestMsgActivate() {
 		"insufficient deposit": {
 			preRun: func() *types.MsgActivate {
 				params := types.DefaultParams()
-				params.MinDeposit = sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(1000)))
+				params.MinDeposit = sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(1000)))
 				s.Require().NoError(s.keeper.SetParams(s.ctx, params))
 
 				s.AddSampleTunnel(false)

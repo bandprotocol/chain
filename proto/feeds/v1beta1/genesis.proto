@@ -1,7 +1,7 @@
 syntax = "proto3";
 package feeds.v1beta1;
 
-option go_package = "github.com/bandprotocol/chain/v2/x/feeds/types";
+option go_package = "github.com/bandprotocol/chain/v3/x/feeds/types";
 
 import "gogoproto/gogo.proto";
 import "feeds/v1beta1/params.proto";

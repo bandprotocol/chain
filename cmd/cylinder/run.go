@@ -1,16 +1,18 @@
 package main
 
 import (
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/bandprotocol/chain/v2/cylinder"
-	"github.com/bandprotocol/chain/v2/cylinder/workers/de"
-	"github.com/bandprotocol/chain/v2/cylinder/workers/group"
-	"github.com/bandprotocol/chain/v2/cylinder/workers/heartbeat"
-	"github.com/bandprotocol/chain/v2/cylinder/workers/sender"
-	"github.com/bandprotocol/chain/v2/cylinder/workers/signing"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+
+	"github.com/bandprotocol/chain/v3/cylinder"
+	"github.com/bandprotocol/chain/v3/cylinder/context"
+	"github.com/bandprotocol/chain/v3/cylinder/workers/de"
+	"github.com/bandprotocol/chain/v3/cylinder/workers/group"
+	"github.com/bandprotocol/chain/v3/cylinder/workers/heartbeat"
+	"github.com/bandprotocol/chain/v3/cylinder/workers/sender"
+	"github.com/bandprotocol/chain/v3/cylinder/workers/signing"
 )
 
 const (
@@ -28,46 +30,41 @@ const (
 )
 
 // runCmd returns a Cobra command to run the cylinder process.
-func runCmd(ctx *Context) *cobra.Command {
+func runCmd(ctx *context.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "run",
 		Aliases: []string{"r"},
 		Short:   "Run the cylinder process",
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			c, err := cylinder.NewContext(ctx.config, ctx.keyring, ctx.home)
+			heartbeat, err := heartbeat.New(ctx)
 			if err != nil {
 				return err
 			}
 
-			heartbeat, err := heartbeat.New(c)
+			group, err := group.New(ctx)
 			if err != nil {
 				return err
 			}
 
-			group, err := group.New(c)
+			de, err := de.New(ctx)
 			if err != nil {
 				return err
 			}
 
-			de, err := de.New(c)
+			signing, err := signing.New(ctx)
 			if err != nil {
 				return err
 			}
 
-			signing, err := signing.New(c)
-			if err != nil {
-				return err
-			}
-
-			sender, err := sender.New(c)
+			sender, err := sender.New(ctx)
 			if err != nil {
 				return err
 			}
 
 			workers := cylinder.Workers{heartbeat, group, de, signing, sender}
 
-			return cylinder.Run(c, workers)
+			return cylinder.Run(ctx, workers)
 		},
 	}
 

@@ -6,10 +6,11 @@ import (
 	"sync/atomic"
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types/grpc"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+
+	sdk "github.com/cosmos/cosmos-sdk/types/grpc"
 )
 
 // Mock Request and Response types

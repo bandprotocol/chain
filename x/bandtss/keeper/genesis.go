@@ -5,11 +5,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/bandtss/types"
+	"github.com/bandprotocol/chain/v3/x/bandtss/types"
 )
 
 // InitGenesis performs genesis initialization for this module.
-func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
+func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 	// check if the module account exists
 	moduleAcc := k.GetBandtssAccount(ctx)
 	if moduleAcc == nil {

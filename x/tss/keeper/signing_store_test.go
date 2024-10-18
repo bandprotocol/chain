@@ -2,82 +2,72 @@ package keeper_test
 
 import (
 	"encoding/hex"
-	"testing"
 
-	"github.com/stretchr/testify/require"
-
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-func TestGetSetSigningCount(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestGetSetSigningCount() {
+	ctx, k := s.ctx, s.keeper
 
 	k.SetSigningCount(ctx, 1)
 
 	got := k.GetSigningCount(ctx)
-	require.Equal(t, uint64(1), got)
+	s.Require().Equal(uint64(1), got)
 }
 
-func TestGetSetSigning(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestGetSetSigning() {
+	ctx, k := s.ctx, s.keeper
 
 	signing := GetExampleSigning()
 	k.SetSigning(ctx, signing)
 
 	// Get signing
 	got, err := k.GetSigning(ctx, signing.ID)
-	require.NoError(t, err)
-	require.Equal(t, signing, got)
+	s.Require().NoError(err)
+	s.Require().Equal(signing, got)
 
 	// Get Signing not found error
 	_, err = k.GetSigning(ctx, 2)
-	require.ErrorIs(t, err, types.ErrSigningNotFound)
+	s.Require().ErrorIs(err, types.ErrSigningNotFound)
 }
 
-func TestHasSigning(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestHasSigning() {
+	ctx, k := s.ctx, s.keeper
 
 	signing := GetExampleSigning()
 	k.SetSigning(ctx, signing)
 
-	require.True(t, k.HasSigning(ctx, 1))
-	require.False(t, k.HasSigning(ctx, 2))
+	s.Require().True(k.HasSigning(ctx, 1))
+	s.Require().False(k.HasSigning(ctx, 2))
 }
 
-func TestMustGetSigning(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestMustGetSigning() {
+	ctx, k := s.ctx, s.keeper
 
 	signing := GetExampleSigning()
 	k.SetSigning(ctx, signing)
 
 	// Get signing
 	got := k.MustGetSigning(ctx, signing.ID)
-	require.Equal(t, signing, got)
+	s.Require().Equal(signing, got)
 
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("the code below should panic")
-		}
-	}()
-	_ = k.MustGetSigning(ctx, 2)
+	// Get Signing not found, should panic.
+	s.Require().Panics(func() {
+		_ = k.MustGetSigning(ctx, 2)
+	})
 }
 
-func TestCreateSigningSuccess(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestCreateSigningSuccess() {
+	ctx, k := s.ctx, s.keeper
 
 	group := GetExampleGroup()
 	k.SetGroup(ctx, group)
 
 	// Create a sample signing object
 	signingID, err := k.CreateSigning(ctx, 1, []byte("originator"), []byte("message"))
-	require.NoError(t, err)
-	require.Equal(t, tss.SigningID(1), signingID)
+	s.Require().NoError(err)
+	s.Require().Equal(tss.SigningID(1), signingID)
 
 	signingMsg := k.GetSigningMessage(ctx, 1, []byte("originator"), []byte("message"))
 	expectSigning := types.Signing{
@@ -93,13 +83,12 @@ func TestCreateSigningSuccess(t *testing.T) {
 	}
 
 	got, err := k.GetSigning(ctx, signingID)
-	require.NoError(t, err)
-	require.Equal(t, expectSigning, got)
+	s.Require().NoError(err)
+	s.Require().Equal(expectSigning, got)
 }
 
-func TestCreateSigningFailGroupStatusNotReady(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestCreateSigningFailGroupStatusNotReady() {
+	ctx, k := s.ctx, s.keeper
 
 	group := GetExampleGroup()
 	group.Status = types.GROUP_STATUS_ROUND_2
@@ -107,12 +96,11 @@ func TestCreateSigningFailGroupStatusNotReady(t *testing.T) {
 
 	// Create a sample signing object
 	_, err := k.CreateSigning(ctx, 1, []byte("originator"), []byte("message"))
-	require.ErrorIs(t, err, types.ErrGroupIsNotActive)
+	s.Require().ErrorIs(err, types.ErrGroupIsNotActive)
 }
 
-func TestGetSigningMessage(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestGetSigningMessage() {
+	ctx, k := s.ctx, s.keeper
 
 	got := k.GetSigningMessage(ctx, 1, []byte("originator"), []byte("message"))
 	strHex := hex.EncodeToString(got)
@@ -123,50 +111,57 @@ func TestGetSigningMessage(t *testing.T) {
 		"0000000000000001" +
 		"6d657373616765"
 
-	require.Equal(t, expected, strHex)
+	s.Require().Equal(expected, strHex)
 }
 
-func TestGetSetSigningAttempt(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestGetSetSigningAttempt() {
+	ctx, k := s.ctx, s.keeper
 
 	sa := GetExampleSigningAttempt()
 	k.SetSigningAttempt(ctx, sa)
 
-	// Get SigningAttempt
 	got, err := k.GetSigningAttempt(ctx, sa.SigningID, sa.Attempt)
-	require.NoError(t, err)
-	require.Equal(t, sa, got)
-
-	_, err = k.GetSigningAttempt(ctx, sa.SigningID, 10)
-	require.ErrorIs(t, err, types.ErrSigningAttemptNotFound)
-
-	_, err = k.GetSigningAttempt(ctx, 3, sa.Attempt)
-	require.ErrorIs(t, err, types.ErrSigningAttemptNotFound)
+	s.Require().NoError(err)
+	s.Require().Equal(sa, got)
 }
 
-func TestMustGetSigningAttempt(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestGetSigningAttemptIncorrectAttempt() {
+	ctx, k := s.ctx, s.keeper
+
+	sa := GetExampleSigningAttempt()
+	k.SetSigningAttempt(ctx, sa)
+
+	_, err := k.GetSigningAttempt(ctx, sa.SigningID, 10)
+	s.Require().ErrorIs(err, types.ErrSigningAttemptNotFound)
+}
+
+func (s *KeeperTestSuite) TestGetSigningAttemptIncorrectSigningID() {
+	ctx, k := s.ctx, s.keeper
+
+	sa := GetExampleSigningAttempt()
+	k.SetSigningAttempt(ctx, sa)
+
+	_, err := k.GetSigningAttempt(ctx, 3, sa.Attempt)
+	s.Require().ErrorIs(err, types.ErrSigningAttemptNotFound)
+}
+
+func (s *KeeperTestSuite) TestMustGetSigningAttempt() {
+	ctx, k := s.ctx, s.keeper
 
 	sa := GetExampleSigningAttempt()
 	k.SetSigningAttempt(ctx, sa)
 
 	// Get SigningAttempt
 	got := k.MustGetSigningAttempt(ctx, sa.SigningID, sa.Attempt)
-	require.Equal(t, sa, got)
+	s.Require().Equal(sa, got)
 
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("the code below should panic")
-		}
-	}()
-	_ = k.MustGetSigningAttempt(ctx, 3, sa.Attempt)
+	s.Require().Panics(func() {
+		_ = k.MustGetSigningAttempt(ctx, 3, sa.Attempt)
+	})
 }
 
-func TestDeleteSigningAttempts(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestDeleteSigningAttempts() {
+	ctx, k := s.ctx, s.keeper
 
 	sa1 := GetExampleSigningAttempt()
 	k.SetSigningAttempt(ctx, sa1)
@@ -182,8 +177,8 @@ func TestDeleteSigningAttempts(t *testing.T) {
 	// get signing attempt normally
 	for _, sa := range []types.SigningAttempt{sa1, sa2, sa3} {
 		got, err := k.GetSigningAttempt(ctx, sa.SigningID, sa.Attempt)
-		require.NoError(t, err)
-		require.Equal(t, sa, got)
+		s.Require().NoError(err)
+		s.Require().Equal(sa, got)
 	}
 
 	k.DeleteSigningAttempt(ctx, sa1.SigningID, sa1.Attempt)
@@ -192,10 +187,10 @@ func TestDeleteSigningAttempts(t *testing.T) {
 
 	for _, sa := range []types.SigningAttempt{sa2, sa3} {
 		got, err := k.GetSigningAttempt(ctx, sa.SigningID, sa.Attempt)
-		require.NoError(t, err)
-		require.Equal(t, sa, got)
+		s.Require().NoError(err)
+		s.Require().Equal(sa, got)
 	}
 
 	_, err := k.GetSigningAttempt(ctx, sa1.SigningID, sa1.Attempt)
-	require.ErrorIs(t, err, types.ErrSigningAttemptNotFound)
+	s.Require().ErrorIs(err, types.ErrSigningAttemptNotFound)
 }

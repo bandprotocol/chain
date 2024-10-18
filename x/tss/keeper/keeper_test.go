@@ -4,33 +4,40 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/suite"
+	"go.uber.org/mock/gomock"
+
 	abci "github.com/cometbft/cometbft/abci/types"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	storetypes "cosmossdk.io/store/types"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
-	"go.uber.org/mock/gomock"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	tssapp "github.com/bandprotocol/chain/v2/x/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/keeper"
-	tsstestutil "github.com/bandprotocol/chain/v2/x/tss/testutil"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	band "github.com/bandprotocol/chain/v3/app"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/pkg/tss/testutil"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	tssapp "github.com/bandprotocol/chain/v3/x/tss"
+	"github.com/bandprotocol/chain/v3/x/tss/keeper"
+	tsstestutil "github.com/bandprotocol/chain/v3/x/tss/testutil"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
+
+func init() {
+	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
+}
 
 type AppTestSuite struct {
 	suite.Suite
 
-	app         *bandtesting.TestingApp
+	app         *band.BandApp
 	ctx         sdk.Context
 	queryClient types.QueryClient
 	msgSrvr     types.MsgServer
@@ -45,11 +52,15 @@ var (
 )
 
 func (s *AppTestSuite) SetupTest() {
-	app, ctx := bandtesting.CreateTestApp(s.T(), true)
-	s.app = app
-	s.ctx = ctx
+	dir := sdktestutil.GetTempDir(s.T())
+	app := bandtesting.SetupWithCustomHome(false, dir)
 
-	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())
+	s.app = app
+	s.ctx = s.app.BaseApp.NewUncachedContext(false, cmtproto.Header{ChainID: bandtesting.ChainID})
+	_, err := s.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: s.app.LastBlockHeight() + 1})
+	s.Require().NoError(err)
+
+	queryHelper := baseapp.NewQueryServerTestHelper(s.ctx, app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, keeper.NewQueryServer(app.TSSKeeper))
 	queryClient := types.NewQueryClient(queryHelper)
 
@@ -104,7 +115,8 @@ func (s *AppTestSuite) setupRound1() {
 	}
 
 	// Execute the EndBlocker to process groups
-	app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
+	_, err := app.EndBlocker(ctx.WithBlockHeight(ctx.BlockHeight() + 1))
+	s.Require().NoError(err)
 }
 
 func (s *AppTestSuite) setupRound2() {
@@ -127,7 +139,8 @@ func (s *AppTestSuite) setupRound2() {
 	}
 
 	// Execute the EndBlocker to process groups
-	app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
+	_, err := app.EndBlocker(ctx.WithBlockHeight(ctx.BlockHeight() + 1))
+	s.Require().NoError(err)
 }
 
 func (s *AppTestSuite) setupConfirm() {
@@ -148,7 +161,8 @@ func (s *AppTestSuite) setupConfirm() {
 	}
 
 	// Execute the EndBlocker to process groups
-	app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
+	_, err := app.EndBlocker(ctx.WithBlockHeight(ctx.BlockHeight() + 1))
+	s.Require().NoError(err)
 }
 
 func (s *AppTestSuite) setupDE() {
@@ -268,67 +282,59 @@ func TestAppTestSuite(t *testing.T) {
 
 // KeeperTestSuite is a struct that embeds a *testing.T and provides a setup for a mock keeper
 type KeeperTestSuite struct {
-	t             *testing.T
-	Keeper        *keeper.Keeper
-	MsgServer     types.MsgServer
-	QueryServer   types.QueryServer
-	ContentRouter *types.ContentRouter
-	CbRouter      *types.CallbackRouter
+	suite.Suite
 
-	AuthzKeeper       *tsstestutil.MockAuthzKeeper
-	RollingseedKeeper *tsstestutil.MockRollingseedKeeper
+	ctx           sdk.Context
+	keeper        *keeper.Keeper
+	msgServer     types.MsgServer
+	queryServer   types.QueryServer
+	contentRouter *types.ContentRouter
+	cbRouter      *types.CallbackRouter
 
-	Authority sdk.AccAddress
-	Ctx       sdk.Context
+	authzKeeper       *tsstestutil.MockAuthzKeeper
+	rollingseedKeeper *tsstestutil.MockRollingseedKeeper
+
+	authority sdk.AccAddress
 }
 
-// NewKeeperTestSuite returns a new KeeperTestSuite object
-func NewKeeperTestSuite(t *testing.T) KeeperTestSuite {
-	ctrl := gomock.NewController(t)
-	key := sdk.NewKVStoreKey(types.StoreKey)
-	testCtx := sdktestutil.DefaultContextWithDB(t, key, sdk.NewTransientStoreKey("transient_test"))
-	encCfg := moduletestutil.MakeTestEncodingConfig(tssapp.AppModuleBasic{})
-	ctx := testCtx.Ctx.WithBlockHeader(tmproto.Header{Time: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)})
+// SetupTest initializes the mock keeper and the context
+func (s *KeeperTestSuite) SetupTest() {
+	key := storetypes.NewKVStoreKey(types.StoreKey)
+	testCtx := sdktestutil.DefaultContextWithDB(s.T(), key, storetypes.NewTransientStoreKey("transient_test"))
+	s.ctx = testCtx.Ctx.WithBlockHeader(cmtproto.Header{Time: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)})
+	encCfg := moduletestutil.MakeTestEncodingConfig()
 
-	authzKeeper := tsstestutil.NewMockAuthzKeeper(ctrl)
-	rollingseedKeeper := tsstestutil.NewMockRollingseedKeeper(ctrl)
+	// create a new controller for mocking object
+	ctrl := gomock.NewController(s.T())
+	s.authzKeeper = tsstestutil.NewMockAuthzKeeper(ctrl)
+	s.rollingseedKeeper = tsstestutil.NewMockRollingseedKeeper(ctrl)
 
-	tssContentRouter := types.NewContentRouter()
-	tssCbRouter := types.NewCallbackRouter()
-
-	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
-	tssKeeper := keeper.NewKeeper(
-		encCfg.Codec.(codec.BinaryCodec),
+	// declare tss components
+	s.contentRouter = types.NewContentRouter()
+	s.cbRouter = types.NewCallbackRouter()
+	s.authority = authtypes.NewModuleAddress(govtypes.ModuleName)
+	s.keeper = keeper.NewKeeper(
+		encCfg.Codec,
 		key,
-		authzKeeper,
-		rollingseedKeeper,
-		tssContentRouter,
-		tssCbRouter,
-		authority.String(),
+		s.authzKeeper,
+		s.rollingseedKeeper,
+		s.contentRouter,
+		s.cbRouter,
+		s.authority.String(),
 	)
-	tssContentRouter.AddRoute(types.RouterKey, tssapp.NewSignatureOrderHandler(*tssKeeper))
-	err := tssKeeper.SetParams(ctx, types.DefaultParams())
-	require.NoError(t, err)
+	s.keeper.InitGenesis(s.ctx, *types.DefaultGenesisState())
 
-	msgServer := keeper.NewMsgServerImpl(tssKeeper)
-	queryServer := keeper.NewQueryServer(tssKeeper)
+	s.msgServer = keeper.NewMsgServerImpl(s.keeper)
+	queryHelper := baseapp.NewQueryServerTestHelper(s.ctx, encCfg.InterfaceRegistry)
+	s.queryServer = keeper.NewQueryServer(s.keeper)
 
-	return KeeperTestSuite{
-		Keeper:            tssKeeper,
-		AuthzKeeper:       authzKeeper,
-		RollingseedKeeper: rollingseedKeeper,
-		Ctx:               ctx,
-		Authority:         authority,
-		MsgServer:         msgServer,
-		QueryServer:       queryServer,
-		ContentRouter:     tssContentRouter,
-		CbRouter:          tssCbRouter,
-		t:                 t,
-	}
-}
+	types.RegisterInterfaces(encCfg.InterfaceRegistry)
+	types.RegisterQueryServer(queryHelper, s.queryServer)
 
-func (s *KeeperTestSuite) T() *testing.T {
-	return s.t
+	// add route
+	s.contentRouter.AddRoute(types.RouterKey, tssapp.NewSignatureOrderHandler(*s.keeper))
+	err := s.keeper.SetParams(s.ctx, types.DefaultParams())
+	s.Require().NoError(err)
 }
 
 // GetExampleSigning returns an example of a signing object.
@@ -383,4 +389,8 @@ func GetExampleGroup() types.Group {
 		CreatedHeight: 900,
 		ModuleOwner:   "test",
 	}
+}
+
+func TestKeeperTestSuite(t *testing.T) {
+	suite.Run(t, new(KeeperTestSuite))
 }
