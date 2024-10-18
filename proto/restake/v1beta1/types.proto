@@ -16,7 +16,7 @@ message Vault {
   string key = 1;
 
   // is_active is the status of the vault
-  bool is_active = 3;
+  bool is_active = 2;
 }
 
 // Lock is used to store lock information of each user on each vault.
