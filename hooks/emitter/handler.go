@@ -162,21 +162,21 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 	}
 
 	for _, event := range events {
-		h.handleMsgEvent(ctx, event)
+		h.handleMsgEvent(ctx, txHash, event)
 	}
 }
 
-func (h *Hook) handleMsgEvent(ctx sdk.Context, event abci.Event) {
+func (h *Hook) handleMsgEvent(ctx sdk.Context, txHash []byte, event abci.Event) {
 	evMap := parseEvents([]abci.Event{event})
 	switch event.Type {
 	case restaketypes.EventTypeCreateVault:
 		h.handleRestakeEventCreateVault(ctx, evMap)
 	case restaketypes.EventTypeLockPower:
-		h.handleRestakeEventLockPower(ctx, evMap)
+		h.handleRestakeEventLockPower(ctx, txHash, evMap)
 	case restaketypes.EventTypeStake:
-		h.handleRestakeEventStake(ctx, evMap)
+		h.handleRestakeEventStake(ctx, txHash, evMap)
 	case restaketypes.EventTypeUnstake:
-		h.handleRestakeEventUnstake(ctx, evMap)
+		h.handleRestakeEventUnstake(ctx, txHash, evMap)
 	case restaketypes.EventTypeDeactivateVault:
 		h.handleRestakeEventDeactivateVault(ctx, evMap)
 	}

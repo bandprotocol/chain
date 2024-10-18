@@ -16,6 +16,10 @@ restake_locks = sa.Table(
     Column("account_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
     Column("key", sa.String, sa.ForeignKey("restake_vaults.key"), primary_key=True),
     Column("power", sa.BigInteger),
+    Column(
+        "transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True
+    ),
+    Column("last_update", CustomDateTime, index=True),
 )
 
 restake_historical_stakes = sa.Table(
@@ -24,4 +28,7 @@ restake_historical_stakes = sa.Table(
     Column("account_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
     Column("timestamp", CustomDateTime, primary_key=True),
     Column("coins", sa.String),
+    Column(
+        "transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True
+    ),
 )

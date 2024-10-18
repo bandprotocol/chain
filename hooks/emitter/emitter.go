@@ -314,10 +314,10 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *
 		h.updateRestakeVault(ctx, vault.Key)
 	}
 	for _, lock := range restakeState.Locks {
-		h.updateRestakeLock(ctx, lock.StakerAddress, lock.Key)
+		h.updateRestakeLock(ctx, lock.StakerAddress, lock.Key, nil)
 	}
 	for _, stake := range restakeState.Stakes {
-		h.updateRestakeStake(ctx, stake.StakerAddress)
+		h.updateRestakeStake(ctx, stake.StakerAddress, nil)
 	}
 
 	var authzState authz.GenesisState

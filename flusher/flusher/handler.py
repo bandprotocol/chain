@@ -756,6 +756,12 @@ class Handler(object):
             )
 
     def handle_set_restake_historical_stake(self, msg):
+        if msg["tx_hash"] is not None:
+            msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
+        else:
+            msg["transaction_id"] = None
+        del msg["tx_hash"]
+
         msg["account_id"] = self.get_account_id(msg["staker_address"])
         del msg["staker_address"]
         self.conn.execute(
@@ -765,6 +771,12 @@ class Handler(object):
         )
 
     def handle_set_restake_lock(self, msg):
+        if msg["tx_hash"] is not None:
+            msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
+        else:
+            msg["transaction_id"] = None
+        del msg["tx_hash"]
+
         msg["account_id"] = self.get_account_id(msg["staker_address"])
         del msg["staker_address"]
         self.conn.execute(
