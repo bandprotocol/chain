@@ -914,19 +914,6 @@ func (suite *DecoderTestSuite) TestDecodeMsgTimeoutOnClose() {
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeRestakeMsgClaimRewards() {
-	detail := make(common.JsDict)
-	msg := restaketypes.NewMsgClaimRewards(
-		StakerAddress,
-		"key",
-	)
-	emitter.DecodeRestakeMsgClaimRewards(msg, detail)
-	suite.testCompareJson(
-		detail,
-		"{\"key\":\"key\",\"staker_address\":\"band12d6xz6m9wgqqqqqqqqqqqqqqqqqqqqqqtz8edw\"}",
-	)
-}
-
 func (suite *DecoderTestSuite) TestDecodeRestakeMsgStake() {
 	detail := make(common.JsDict)
 	msg := restaketypes.NewMsgStake(

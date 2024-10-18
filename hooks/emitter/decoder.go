@@ -154,8 +154,6 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeGroupMsgVote(msg, detail)
 	case *group.MsgWithdrawProposal:
 		DecodeGroupMsgWithdrawProposal(msg, detail)
-	case *restaketypes.MsgClaimRewards:
-		DecodeRestakeMsgClaimRewards(msg, detail)
 	case *restaketypes.MsgStake:
 		DecodeRestakeMsgStake(msg, detail)
 	case *restaketypes.MsgUnstake:
@@ -766,11 +764,6 @@ func DecodeGroupMsgVote(msg *group.MsgVote, detail common.JsDict) {
 func DecodeGroupMsgWithdrawProposal(msg *group.MsgWithdrawProposal, detail common.JsDict) {
 	detail["proposal_id"] = msg.ProposalId
 	detail["address"] = msg.Address
-}
-
-func DecodeRestakeMsgClaimRewards(msg *restaketypes.MsgClaimRewards, detail common.JsDict) {
-	detail["staker_address"] = msg.StakerAddress
-	detail["key"] = msg.Key
 }
 
 func DecodeRestakeMsgStake(msg *restaketypes.MsgStake, detail common.JsDict) {
