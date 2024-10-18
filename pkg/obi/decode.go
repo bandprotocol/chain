@@ -109,7 +109,7 @@ func MustDecode(data []byte, v ...interface{}) {
 	}
 }
 
-// DecodeUnsigned16 decodes the input bytes into `uint8` and returns the remaining bytes.
+// DecodeUnsigned8 decodes the input bytes into `uint8` and returns the remaining bytes.
 func DecodeUnsigned8(data []byte) (uint8, []byte, error) {
 	if len(data) < 1 {
 		return 0, nil, errors.New("obi: out of range")

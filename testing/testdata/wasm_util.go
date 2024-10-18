@@ -4,7 +4,7 @@ import (
 	owasm "github.com/bandprotocol/go-owasm/api"
 	"github.com/bytecodealliance/wasmtime-go/v20"
 
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 func Compile(code []byte) []byte {

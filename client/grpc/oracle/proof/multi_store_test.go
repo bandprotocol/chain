@@ -3,50 +3,53 @@ package proof
 import (
 	"testing"
 
-	"github.com/cometbft/cometbft/crypto/tmhash"
-	ics23 "github.com/confio/ics23/go"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cometbft/cometbft/crypto/tmhash"
+
+	ics23 "github.com/cosmos/ics23/go"
+
+	storetypes "cosmossdk.io/store/types"
 )
 
 /*
 query at localhost:26657/abci_query?path="/store/oracle/key"&data=0xc000000000000000&prove=true
 {
-    "jsonrpc": "2.0",
-    "id": -1,
-    "result": {
-        "response": {
-            "code": 0,
-            "log": "",
-            "info": "",
-            "index": "0",
+  "jsonrpc": "2.0",
+  "id": -1,
+  "result": {
+    "response": {
+      "code": 0,
+      "log": "",
+      "info": "",
+      "index": "0",
+      "key": "wAAAAAAAAAA=",
+      "value": null,
+      "proofOps": {
+        "ops": [
+          {
+            "type": "ics23:iavl",
             "key": "wAAAAAAAAAA=",
-            "value": null,
-            "proofOps": {
-                "ops": [
-                    {
-                        "type": "ics23:iavl",
-                        "key": "wAAAAAAAAAA=",
-                        "data": "EtsCCgjAAAAAAAAAABKyAQoBBhIdCBAQEBiAAiCABChkMNCGA0ADSEZQgOCllrsRWAEaCwgBGAEgASoDAAICIisIARIEAgQCIBohIOtzm7IvSLfzBTqQuiuk/gf6smLK34ZkSJVlxQ/1Bbi9IikIARIlBAgEIAXcsCtAWTDFinCgKJK8wl81ZbWfgSdKDpbP2Wf47EO4ICIpCAESJQYQBCCKaIo830SxbCL1Qk0rvRoWDuKiCxVidDRpX7yqJwZ6YCAamQEKAfASBm9yYWNsZRoLCAEYASABKgMAAgIiKQgBEiUCBAIgYBmyUcOTZvAWUCIP0D+9tkdWu05jYdT58XI1aiWJin0gIikIARIlBAgEIAXcsCtAWTDFinCgKJK8wl81ZbWfgSdKDpbP2Wf47EO4ICIpCAESJQYQBCCKaIo830SxbCL1Qk0rvRoWDuKiCxVidDRpX7yqJwZ6YCA="
-                    },
-                    {
-                        "type": "ics23:simple",
-                        "key": "b3JhY2xl",
-                        "data": "CvoBCgZvcmFjbGUSIKPQ574oserr40+EoLhlrRgTGdrpgYViYEujG7W9rVBXGgkIARgBIAEqAQAiJQgBEiEBszziiEyGhp8/QWWNpdXqtweFbE6u087DWf5LXq0L+TIiJQgBEiEB3e3II3T8dhCPmDUxvJ1pJX5rydODMevJMyFcgoCkKOoiJQgBEiEBFpkM5/i+rVeuJ7iT04lRhhji55+3UobQFAvRoy5bAaIiJQgBEiEBTbPwtCi+YzaPpM9Zk+1Z73qE27/GXJESOD/JanvndjYiJwgBEgEBGiD3/25dJyNfa+hHLtAoLdyt2kECqzbUMTuiMuTW8f/kbA=="
-                    }
-                ]
-            },
-            "height": "2813",
-            "codespace": ""
-        }
+            "data": "ErUDCgjAAAAAAAAAABLeAQoBBhIdCBAQEBiAAiCABChkMNCGA0ADSEZQgOCllrsRWAEaCwgBGAEgASoDAAICIikIARIlAgQ6IO7X4GoH3/B39qoS7kwXqpew2/xCytzm0c+1hXCrE18wICIrCAESBAQIOiAaISAqCGxacs/wly0s3f0cm3A5hWPEqt5K3ZkZukgMN8Jh8yIpCAESJQYQOiBq45JAWFuyTlcQl3041dlnafT8p/xriWG6aYZVV2cOXCAiKggBEiYIHIAEIL8475jthvcKtmoUWgCwMuysVcVJ8A0LBt29Ppz6JFA4IBrHAQoB8BIGb3JhY2xlGgsIARgBIAEqAwACAiIrCAESBAIEOiAaISDATq3d36m92dob4c0uJUMWi53SOBVeGZi57Tlv4scCRiIpCAESJQQIOiCobCbU/uzI8AHz+5KI8jmmceLGnVLfV8D67kSpM9sLbSAiKQgBEiUGEDogauOSQFhbsk5XEJd9ONXZZ2n0/Kf8a4lhummGVVdnDlwgIioIARImCByABCC/OO+Y7Yb3CrZqFFoAsDLsrFXFSfANCwbdvT6c+iRQOCA="
+          },
+          {
+            "type": "ics23:simple",
+            "key": "b3JhY2xl",
+            "data": "CtcBCgZvcmFjbGUSIGc/gPOe8DTh4zWomosnmmV1wYko2vDCkkSY2bBCyBqwGgkIARgBIAEqAQAiJwgBEgEBGiAxNQ4L0hzy/N+VrkNUjx9H/v8IJH93ZhhXEPjufSivtyInCAESAQEaIP0NvxoPsBcWmTkGZ2ul74DYHqh4tDZivlB3QV0k8F/TIicIARIBARogtps/fryeI7RxDCD2zsLuFvtPY2nRPc6ZZTBTAVNUyG4iJQgBEiEBPUI4cA6YgD+R99n7HJ85590HWfl1TOQyVGZqghIsTRE="
+          }
+        ]
+      },
+      "height": "256",
+      "codespace": ""
     }
+  }
 }
 */
 
 func TestGetMultiStoreProof(t *testing.T) {
 	key := []byte("oracle")
 	data := base64ToBytes(
-		"CvoBCgZvcmFjbGUSIKPQ574oserr40+EoLhlrRgTGdrpgYViYEujG7W9rVBXGgkIARgBIAEqAQAiJQgBEiEBszziiEyGhp8/QWWNpdXqtweFbE6u087DWf5LXq0L+TIiJQgBEiEB3e3II3T8dhCPmDUxvJ1pJX5rydODMevJMyFcgoCkKOoiJQgBEiEBFpkM5/i+rVeuJ7iT04lRhhji55+3UobQFAvRoy5bAaIiJQgBEiEBTbPwtCi+YzaPpM9Zk+1Z73qE27/GXJESOD/JanvndjYiJwgBEgEBGiD3/25dJyNfa+hHLtAoLdyt2kECqzbUMTuiMuTW8f/kbA==",
+		"CtcBCgZvcmFjbGUSIGc/gPOe8DTh4zWomosnmmV1wYko2vDCkkSY2bBCyBqwGgkIARgBIAEqAQAiJwgBEgEBGiAxNQ4L0hzy/N+VrkNUjx9H/v8IJH93ZhhXEPjufSivtyInCAESAQEaIP0NvxoPsBcWmTkGZ2ul74DYHqh4tDZivlB3QV0k8F/TIicIARIBARogtps/fryeI7RxDCD2zsLuFvtPY2nRPc6ZZTBTAVNUyG4iJQgBEiEBPUI4cA6YgD+R99n7HJ85590HWfl1TOQyVGZqghIsTRE=",
 	)
 
 	var multistoreOps storetypes.CommitmentOp
@@ -71,20 +74,17 @@ func TestGetMultiStoreProof(t *testing.T) {
 	prefix = append(prefix, 32)     // size of result hash must be 32
 
 	apphash := innerHash(
+		m.AuthToMintStoresMerkleHash,
 		innerHash(
-			m.AuthToEvidenceStoresMerkleHash,
 			innerHash(
-				m.FeegrantToGroupStoresMerkleHash,
 				innerHash(
-					m.IbcToIcahostStoresMerkleHash,
-					innerHash(
-						m.MintStoreMerkleHash,
-						leafHash(append(prefix, tmhash.Sum(m.OracleIAVLStateHash)...)),
-					),
+					leafHash(append(prefix, tmhash.Sum(m.OracleIAVLStateHash)...)),
+					m.ParamsStoreMerkleHash,
 				),
+				m.SlashingToStakingStoresMerkleHash,
 			),
+			m.TransferToUpgradeStoresMerkleHash,
 		),
-		m.ParamsToUpgradeStoresMerkleHash,
 	)
 
 	require.Equal(t, expectAppHash, apphash)

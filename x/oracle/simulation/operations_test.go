@@ -6,45 +6,51 @@ import (
 	"testing"
 	"time"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
-	"github.com/cosmos/cosmos-sdk/x/bank/testutil"
 	"github.com/stretchr/testify/suite"
 
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/x/oracle/simulation"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	abci "github.com/cometbft/cometbft/abci/types"
+
+	"github.com/cosmos/gogoproto/proto"
+
+	"github.com/cosmos/cosmos-sdk/testutil"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
+	banktestutil "github.com/cosmos/cosmos-sdk/x/bank/testutil"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	band "github.com/bandprotocol/chain/v3/app"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	"github.com/bandprotocol/chain/v3/x/oracle/simulation"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 type SimTestSuite struct {
 	suite.Suite
 
 	ctx  sdk.Context
-	app  *bandtesting.TestingApp
+	app  *band.BandApp
 	r    *rand.Rand
 	accs []simtypes.Account
 }
 
+func init() {
+	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
+}
+
 func (suite *SimTestSuite) SetupTest() {
-	app, _ := bandtesting.CreateTestApp(suite.T(), true)
-	suite.app = app
-	suite.ctx = app.BaseApp.NewContext(false, tmproto.Header{ChainID: bandtesting.ChainID})
+	dir := testutil.GetTempDir(suite.T())
+	suite.app = bandtesting.SetupWithCustomHome(false, dir)
+	suite.ctx = suite.app.BaseApp.NewContext(false).WithChainID(bandtesting.ChainID)
+
 	s := rand.NewSource(1)
 	suite.r = rand.New(s)
 	suite.accs = suite.getTestingAccounts(suite.r, 10)
 
-	// begin a new block
-	suite.app.BeginBlock(
-		abci.RequestBeginBlock{
-			Header: tmproto.Header{
-				ChainID: bandtesting.ChainID,
-				Height:  suite.app.LastBlockHeight() + 1,
-				AppHash: suite.app.LastCommitID().Hash,
-			},
-		},
-	)
+	_, err := suite.app.FinalizeBlock(&abci.RequestFinalizeBlock{
+		Height: suite.app.LastBlockHeight() + 1,
+		Hash:   suite.app.LastCommitID().Hash,
+	})
+	suite.NoError(err)
 }
 
 // TestWeightedOperations tests the weights of the operations.
@@ -62,17 +68,19 @@ func (suite *SimTestSuite) TestWeightedOperations() {
 	)
 
 	expected := []struct {
-		weight     int
-		opMsgRoute string
-		opMsgName  string
+		weight    int
+		opMsgName string
 	}{
-		{simulation.DefaultWeightMsgRequestData, types.ModuleName, types.TypeMsgRequestData},
-		{simulation.DefaultWeightMsgReportData, types.ModuleName, types.TypeMsgReportData},
-		{simulation.DefaultWeightMsgCreateDataSource, types.ModuleName, types.TypeMsgCreateDataSource},
-		{simulation.DefaultWeightMsgEditDataSource, types.ModuleName, types.TypeMsgEditDataSource},
-		{simulation.DefaultWeightMsgCreateOracleScript, types.ModuleName, types.TypeMsgCreateOracleScript},
-		{simulation.DefaultWeightMsgEditOracleScript, types.ModuleName, types.TypeMsgEditOracleScript},
-		{simulation.DefaultWeightMsgActivate, types.ModuleName, types.TypeMsgActivate},
+		{simulation.DefaultWeightMsgRequestData, sdk.MsgTypeURL(&types.MsgRequestData{})},
+		{simulation.DefaultWeightMsgReportData, sdk.MsgTypeURL(&types.MsgReportData{})},
+		{simulation.DefaultWeightMsgCreateDataSource, sdk.MsgTypeURL(&types.MsgCreateDataSource{})},
+		{simulation.DefaultWeightMsgEditDataSource, sdk.MsgTypeURL(&types.MsgEditDataSource{})},
+		{
+			simulation.DefaultWeightMsgCreateOracleScript,
+			sdk.MsgTypeURL(&types.MsgCreateOracleScript{}),
+		},
+		{simulation.DefaultWeightMsgEditOracleScript, sdk.MsgTypeURL(&types.MsgEditOracleScript{})},
+		{simulation.DefaultWeightMsgActivate, sdk.MsgTypeURL(&types.MsgActivate{})},
 	}
 
 	for i, w := range weightesOps {
@@ -81,7 +89,6 @@ func (suite *SimTestSuite) TestWeightedOperations() {
 		// by WeightedOperations. if the ordering in WeightedOperations changes some tests
 		// will fail
 		suite.Require().Equal(expected[i].weight, w.Weight(), "weight should be the same")
-		suite.Require().Equal(expected[i].opMsgRoute, operationMsg.Route, "route should be the same")
 		suite.Require().Equal(expected[i].opMsgName, operationMsg.Name, "operation Msg name should be the same")
 	}
 }
@@ -96,6 +103,20 @@ func (suite *SimTestSuite) TestSimulateMsgRequestData() {
 		ds.Fee = sdk.NewCoins()
 		suite.app.OracleKeeper.SetDataSource(suite.ctx, types.DataSourceID(i), ds)
 	}
+	// Prepare active validators
+	err := suite.app.StakingKeeper.IterateBondedValidatorsByPower(suite.ctx,
+		func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
+			operator, err := sdk.ValAddressFromBech32(val.GetOperator())
+			if err != nil {
+				return false
+			}
+
+			_ = suite.app.OracleKeeper.Activate(suite.ctx, operator)
+
+			return false
+		},
+	)
+	suite.Require().NoError(err)
 
 	// Simulate MsgRequestData
 	op := simulation.SimulateMsgRequestData(
@@ -109,7 +130,7 @@ func (suite *SimTestSuite) TestSimulateMsgRequestData() {
 
 	// Verify the fields of the message
 	var msg types.MsgRequestData
-	err = types.AminoCdc.UnmarshalJSON(operationMsg.Msg, &msg)
+	err = proto.Unmarshal(operationMsg.Msg, &msg)
 	suite.Require().NoError(err)
 
 	suite.Require().True(operationMsg.OK)
@@ -124,8 +145,7 @@ func (suite *SimTestSuite) TestSimulateMsgRequestData() {
 	suite.Require().Equal(uint64(169271), msg.PrepareGas)
 	suite.Require().Equal(uint64(115894), msg.ExecuteGas)
 	suite.Require().Equal("band1ghekyjucln7y67ntx7cf27m9dpuxxemnvh82dt", msg.Sender)
-	suite.Require().Equal(types.TypeMsgRequestData, msg.Type())
-	suite.Require().Equal(types.ModuleName, msg.Route())
+	suite.Require().Equal(sdk.MsgTypeURL(&types.MsgRequestData{}), sdk.MsgTypeURL(&msg))
 	suite.Require().Len(futureOperations, 0)
 }
 
@@ -163,15 +183,14 @@ func (suite *SimTestSuite) TestSimulateMsgReportData() {
 
 	// Verify the fields of the message
 	var msg types.MsgReportData
-	err = types.AminoCdc.UnmarshalJSON(operationMsg.Msg, &msg)
+	err = proto.Unmarshal(operationMsg.Msg, &msg)
 	suite.Require().NoError(err)
 
 	suite.Require().True(operationMsg.OK)
 	suite.Require().Equal(types.RequestID(1), msg.RequestID)
 	suite.Require().Equal(3, len(msg.RawReports))
 	suite.Require().Equal("bandvaloper1tnh2q55v8wyygtt9srz5safamzdengsn4qqe0j", msg.Validator)
-	suite.Require().Equal(types.TypeMsgReportData, msg.Type())
-	suite.Require().Equal(types.ModuleName, msg.Route())
+	suite.Require().Equal(sdk.MsgTypeURL(&types.MsgReportData{}), sdk.MsgTypeURL(&msg))
 	suite.Require().Len(futureOperations, 0)
 }
 
@@ -189,7 +208,7 @@ func (suite *SimTestSuite) TestSimulateMsgCreateDataSource() {
 
 	// Verify the fields of the message
 	var msg types.MsgCreateDataSource
-	err = types.AminoCdc.UnmarshalJSON(operationMsg.Msg, &msg)
+	err = proto.Unmarshal(operationMsg.Msg, &msg)
 	suite.Require().NoError(err)
 
 	suite.Require().True(operationMsg.OK)
@@ -202,8 +221,7 @@ func (suite *SimTestSuite) TestSimulateMsgCreateDataSource() {
 	suite.Require().Equal(sdk.Coins(nil), msg.Fee)
 	suite.Require().Equal("band13rmqzzysyz4qh3yg6rvknd6u9rvrd98qvy9azu", msg.Treasury)
 	suite.Require().Equal("band1n5sqxutsmk6eews5z9z673wv7n9wah8hjlxyuf", msg.Owner)
-	suite.Require().Equal(types.TypeMsgCreateDataSource, msg.Type())
-	suite.Require().Equal(types.ModuleName, msg.Route())
+	suite.Require().Equal(sdk.MsgTypeURL(&types.MsgCreateDataSource{}), sdk.MsgTypeURL(&msg))
 	suite.Require().Len(futureOperations, 0)
 }
 
@@ -235,7 +253,7 @@ func (suite *SimTestSuite) TestSimulateMsgEditDataSource() {
 
 	// Verify the fields of the message
 	var msg types.MsgEditDataSource
-	err = types.AminoCdc.UnmarshalJSON(operationMsg.Msg, &msg)
+	err = proto.Unmarshal(operationMsg.Msg, &msg)
 	suite.Require().NoError(err)
 
 	suite.Require().True(operationMsg.OK)
@@ -249,8 +267,7 @@ func (suite *SimTestSuite) TestSimulateMsgEditDataSource() {
 	suite.Require().Equal(sdk.Coins(nil), msg.Fee)
 	suite.Require().Equal("band1n5sqxutsmk6eews5z9z673wv7n9wah8hjlxyuf", msg.Treasury)
 	suite.Require().Equal("band1n5sqxutsmk6eews5z9z673wv7n9wah8hjlxyuf", msg.Owner)
-	suite.Require().Equal(types.TypeMsgEditDataSource, msg.Type())
-	suite.Require().Equal(types.ModuleName, msg.Route())
+	suite.Require().Equal(sdk.MsgTypeURL(&types.MsgEditDataSource{}), sdk.MsgTypeURL(&msg))
 	suite.Require().Len(futureOperations, 0)
 }
 
@@ -268,7 +285,7 @@ func (suite *SimTestSuite) TestSimulateMsgCreateOracleScript() {
 
 	// Verify the fields of the message
 	var msg types.MsgCreateOracleScript
-	err = types.AminoCdc.UnmarshalJSON(operationMsg.Msg, &msg)
+	err = proto.Unmarshal(operationMsg.Msg, &msg)
 	suite.Require().NoError(err)
 
 	suite.Require().True(operationMsg.OK)
@@ -281,10 +298,9 @@ func (suite *SimTestSuite) TestSimulateMsgCreateOracleScript() {
 	suite.Require().
 		Equal("nDQfwRLGIWozYaOAilMBcObErwgTDNGWnwQMUgFFSKtPDMEoEQCTKVREqrXZSGLqwTMcxHfWotDllNkIJPMbXzjDVjPOOjCFuIvT", msg.SourceCodeURL)
 	suite.Require().
-		Equal("0061736d0100000001100360000060047e7e7e7e0060027e7e00022f0203656e761161736b5f65787465726e616c5f64617461000103656e760f7365745f72657475726e5f6461746100020303020000040501700101010503010011071e030770726570617265000207657865637574650003066d656d6f727902000a4e022601017e42014201418008ad22004204100042024202200042041000420342032000420410000b2501017f4100210002400340200041016a2100200041e400490d000b0b418008ad420410010b0b0b01004180080b0462656562006f046e616d65013704001161736b5f65787465726e616c5f64617461010f7365745f72657475726e5f64617461020770726570617265030765786563757465020e02020100026c3003010003696478040d030002743001027431020274320505010002543006090100066d656d6f7279", hex.EncodeToString(msg.Code))
+		Equal("0061736d0100000001100360000060047e7e7e7e0060027e7e00022f0203656e761161736b5f65787465726e616c5f64617461000103656e760f7365745f72657475726e5f6461746100020303020000040501700101010503010011071e030770726570617265000207657865637574650003066d656d6f727902000a4e022601017e42014201418008ad22004204100042024202200042041000420342032000420410000b2501017f4100210002400340200041016a2100200041e400490d000b0b418008ad420410010b0b0b01004180080b0474657374006f046e616d65013704001161736b5f65787465726e616c5f64617461010f7365745f72657475726e5f64617461020770726570617265030765786563757465020e02020100026c3003010003696478040d030002743001027431020274320505010002543006090100066d656d6f7279", hex.EncodeToString(msg.Code))
 	suite.Require().Equal("band1n5sqxutsmk6eews5z9z673wv7n9wah8hjlxyuf", msg.Owner)
-	suite.Require().Equal(types.TypeMsgCreateOracleScript, msg.Type())
-	suite.Require().Equal(types.ModuleName, msg.Route())
+	suite.Require().Equal(sdk.MsgTypeURL(&types.MsgCreateOracleScript{}), sdk.MsgTypeURL(&msg))
 	suite.Require().Len(futureOperations, 0)
 }
 
@@ -316,7 +332,7 @@ func (suite *SimTestSuite) TestSimulateMsgEditOracleScript() {
 
 	// Verify the fields of the message
 	var msg types.MsgEditOracleScript
-	err = types.AminoCdc.UnmarshalJSON(operationMsg.Msg, &msg)
+	err = proto.Unmarshal(operationMsg.Msg, &msg)
 	suite.Require().NoError(err)
 
 	suite.Require().True(operationMsg.OK)
@@ -330,10 +346,9 @@ func (suite *SimTestSuite) TestSimulateMsgEditOracleScript() {
 	suite.Require().
 		Equal("WozYaOAilMBcObErwgTDNGWnwQMUgFFSKtPDMEoEQCTKVREqrXZSGLqwTMcxHfWotDllNkIJPMbXzjDVjPOOjCFuIvTyhXKLyhUS", msg.SourceCodeURL)
 	suite.Require().
-		Equal("0061736d0100000001100360000060047e7e7e7e0060027e7e00022f0203656e761161736b5f65787465726e616c5f64617461000103656e760f7365745f72657475726e5f6461746100020303020000040501700101010503010011071e030770726570617265000207657865637574650003066d656d6f727902000a4e022601017e42014201418008ad22004204100042024202200042041000420342032000420410000b2501017f4100210002400340200041016a2100200041e400490d000b0b418008ad420410010b0b0b01004180080b0462656562006f046e616d65013704001161736b5f65787465726e616c5f64617461010f7365745f72657475726e5f64617461020770726570617265030765786563757465020e02020100026c3003010003696478040d030002743001027431020274320505010002543006090100066d656d6f7279", hex.EncodeToString(msg.Code))
+		Equal("0061736d0100000001100360000060047e7e7e7e0060027e7e00022f0203656e761161736b5f65787465726e616c5f64617461000103656e760f7365745f72657475726e5f6461746100020303020000040501700101010503010011071e030770726570617265000207657865637574650003066d656d6f727902000a4e022601017e42014201418008ad22004204100042024202200042041000420342032000420410000b2501017f4100210002400340200041016a2100200041e400490d000b0b418008ad420410010b0b0b01004180080b0474657374006f046e616d65013704001161736b5f65787465726e616c5f64617461010f7365745f72657475726e5f64617461020770726570617265030765786563757465020e02020100026c3003010003696478040d030002743001027431020274320505010002543006090100066d656d6f7279", hex.EncodeToString(msg.Code))
 	suite.Require().Equal("band1tnh2q55v8wyygtt9srz5safamzdengsneky62e", msg.Owner)
-	suite.Require().Equal(types.TypeMsgEditOracleScript, msg.Type())
-	suite.Require().Equal(types.ModuleName, msg.Route())
+	suite.Require().Equal(sdk.MsgTypeURL(&types.MsgEditOracleScript{}), sdk.MsgTypeURL(&msg))
 	suite.Require().Len(futureOperations, 0)
 }
 
@@ -351,27 +366,27 @@ func (suite *SimTestSuite) TestSimulateMsgActivate() {
 
 	// Verify the fields of the message
 	var msg types.MsgActivate
-	err = types.AminoCdc.UnmarshalJSON(operationMsg.Msg, &msg)
+	err = proto.Unmarshal(operationMsg.Msg, &msg)
 	suite.Require().NoError(err)
 
 	suite.Require().True(operationMsg.OK)
 	suite.Require().Equal("bandvaloper1n5sqxutsmk6eews5z9z673wv7n9wah8h7fz8ez", msg.Validator)
-	suite.Require().Equal(types.TypeMsgActivate, msg.Type())
-	suite.Require().Equal(types.ModuleName, msg.Route())
+	suite.Require().Equal(sdk.MsgTypeURL(&types.MsgActivate{}), sdk.MsgTypeURL(&msg))
 	suite.Require().Len(futureOperations, 0)
 }
 
 func (suite *SimTestSuite) getTestingAccounts(r *rand.Rand, n int) []simtypes.Account {
 	accounts := simtypes.RandomAccounts(r, n)
 
-	initAmt := suite.app.StakingKeeper.TokensFromConsensusPower(suite.ctx, 200)
+	initAmt := sdk.TokensFromConsensusPower(200, sdk.DefaultPowerReduction)
 	initCoins := sdk.NewCoins(sdk.NewCoin("uband", initAmt))
 
 	// add coins to the accounts
 	for _, account := range accounts {
 		acc := suite.app.AccountKeeper.NewAccountWithAddress(suite.ctx, account.Address)
 		suite.app.AccountKeeper.SetAccount(suite.ctx, acc)
-		suite.Require().NoError(testutil.FundAccount(suite.app.BankKeeper, suite.ctx, account.Address, initCoins))
+		suite.Require().
+			NoError(banktestutil.FundAccount(suite.ctx, suite.app.BankKeeper, account.Address, initCoins))
 	}
 
 	return accounts
