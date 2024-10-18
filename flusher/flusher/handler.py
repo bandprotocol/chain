@@ -46,7 +46,7 @@ from .db import (
     relayer_tx_stat_days,
 )
 
-from .restake_db import restake_vaults, restake_locks, restake_stakes
+from .restake_db import restake_vaults, restake_locks, restake_historical_stakes
 
 
 class Handler(object):
@@ -755,11 +755,11 @@ class Handler(object):
                 )
             )
 
-    def handle_set_restake_stake(self, msg):
+    def handle_set_restake_historical_stake(self, msg):
         msg["account_id"] = self.get_account_id(msg["staker_address"])
         del msg["staker_address"]
         self.conn.execute(
-            insert(restake_stakes)
+            insert(restake_historical_stakes)
             .values(**msg)
             .on_conflict_do_update(constraint="restake_stakes_pkey", set_=msg)
         )

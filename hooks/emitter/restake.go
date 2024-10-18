@@ -10,17 +10,19 @@ import (
 func (h *Hook) updateRestakeStake(ctx sdk.Context, stakerAddr string) {
 	addr := sdk.MustAccAddressFromBech32(stakerAddr)
 	stake := h.restakeKeeper.GetStake(ctx, addr)
-	h.Write("SET_RESTAKE_STAKE", common.JsDict{
-		"staker": stakerAddr,
-		"coins":  stake.Coins.String(),
+	h.Write("SET_RESTAKE_HISTORICAL_STAKE", common.JsDict{
+		"staker":    stakerAddr,
+		"timestamp": ctx.BlockTime().UnixNano(),
+		"coins":     stake.Coins.String(),
 	})
 }
 
 func (h *Hook) updateRestakeVault(ctx sdk.Context, key string) {
 	vault, _ := h.restakeKeeper.GetVault(ctx, key)
 	h.Write("SET_RESTAKE_VAULT", common.JsDict{
-		"key":       vault.Key,
-		"is_active": vault.IsActive,
+		"key":         vault.Key,
+		"is_active":   vault.IsActive,
+		"last_update": ctx.BlockTime().UnixNano(),
 	})
 }
 
