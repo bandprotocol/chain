@@ -23,7 +23,7 @@ restake_locks = sa.Table(
 )
 
 restake_stakes = sa.Table(
-    "restake_locks",
+    "restake_stakes",
     metadata,
     Column("account_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
     Column("coins", sa.String),
