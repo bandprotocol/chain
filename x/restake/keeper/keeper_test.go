@@ -251,9 +251,9 @@ func (suite *KeeperTestSuite) TestGetDelegationPower() {
 func (suite *KeeperTestSuite) TestIsLiquidStaker() {
 	// not liquid staker
 	isLiquidStaker := suite.restakeKeeper.IsLiquidStaker(ValidAddress1)
-	suite.Require().Equal(false, isLiquidStaker)
+	suite.Require().False(isLiquidStaker)
 
 	// is liquid staker
 	isLiquidStaker = suite.restakeKeeper.IsLiquidStaker(LiquidStakerAddress)
-	suite.Require().Equal(true, isLiquidStaker)
+	suite.Require().True(isLiquidStaker)
 }
