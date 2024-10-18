@@ -52,7 +52,7 @@ func NewKeeper(
 	}
 }
 
-// GetBandtssAccount returns the bandtss ModuleAccount
+// GetModuleAccount returns the restake ModuleAccount
 func (k Keeper) GetModuleAccount(ctx sdk.Context) sdk.ModuleAccountI {
 	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
