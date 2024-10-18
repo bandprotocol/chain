@@ -23,8 +23,8 @@ func (k Keeper) GenerateAccount(ctx sdk.Context, key string) (sdk.AccAddress, er
 
 	tunnelAccAddr := sdk.AccAddress(moduleCred.Address())
 
-	// this should not happen
 	if acc := k.authKeeper.GetAccount(ctx, tunnelAccAddr); acc != nil {
+		// this should not happen
 		return nil, types.ErrAccountAlreadyExist.Wrapf(
 			"existing account for newly generated key account address %s",
 			tunnelAccAddr.String(),

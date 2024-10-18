@@ -69,23 +69,6 @@ func (q queryServer) Tunnel(c context.Context, req *types.QueryTunnelRequest) (*
 	return &types.QueryTunnelResponse{Tunnel: tunnel}, nil
 }
 
-// Deposit queries a deposit by its tunnel ID and depositor address.
-func (q queryServer) Deposit(c context.Context, req *types.QueryDepositRequest) (*types.QueryDepositResponse, error) {
-	ctx := sdk.UnwrapSDKContext(c)
-
-	depositor, err := sdk.AccAddressFromBech32(req.Depositor)
-	if err != nil {
-		return nil, err
-	}
-
-	deposit, found := q.k.GetDeposit(ctx, req.TunnelId, depositor)
-	if !found {
-		return nil, types.ErrDepositNotFound
-	}
-
-	return &types.QueryDepositResponse{Deposit: deposit}, nil
-}
-
 // Deposits queries all deposits of the tunnel.
 func (q queryServer) Deposits(
 	c context.Context,
@@ -112,7 +95,24 @@ func (q queryServer) Deposits(
 	return &types.QueryDepositsResponse{Deposits: deposits, Pagination: pageRes}, nil
 }
 
-// Packets queries all packets of the module.
+// Deposit queries a deposit by its tunnel ID and depositor address.
+func (q queryServer) Deposit(c context.Context, req *types.QueryDepositRequest) (*types.QueryDepositResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	depositor, err := sdk.AccAddressFromBech32(req.Depositor)
+	if err != nil {
+		return nil, err
+	}
+
+	deposit, found := q.k.GetDeposit(ctx, req.TunnelId, depositor)
+	if !found {
+		return nil, types.ErrDepositNotFound
+	}
+
+	return &types.QueryDepositResponse{Deposit: deposit}, nil
+}
+
+// Packets queries all packets of the tunnel.
 func (q queryServer) Packets(c context.Context, req *types.QueryPacketsRequest) (*types.QueryPacketsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
@@ -133,7 +133,7 @@ func (q queryServer) Packets(c context.Context, req *types.QueryPacketsRequest) 
 	return &types.QueryPacketsResponse{Packets: filteredPackets, Pagination: pageRes}, nil
 }
 
-// Packet queries a packet by its ID.
+// Packet queries a packet by tunnel ID and sequence.
 func (q queryServer) Packet(c context.Context, req *types.QueryPacketRequest) (*types.QueryPacketResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 

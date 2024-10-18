@@ -12,7 +12,7 @@ type SignalDeviations struct {
 	SignalDeviations []SignalDeviation `json:"signal_deviations"`
 }
 
-// SignalDeviation represents the signal information without soft deviation, which may be implemented in the future.
+// Note: SignalDeviation represents the signal information without soft deviation, which may be utilized in the future for deviation adjustments
 type SignalDeviation struct {
 	SignalID     string `json:"signal_id"`
 	DeviationBPS uint64 `json:"deviation_bps"`

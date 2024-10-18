@@ -88,9 +88,14 @@ func (s *KeeperTestSuite) TestWithdrawDeposit() {
 	tunnelID := uint64(1)
 	depositorAddr := sdk.AccAddress([]byte("depositor"))
 	depositAmount := sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(1000)))
+	firstWithdraw := sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(500)))
+	secondWithdraw := sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(500)))
 
 	s.bankKeeper.EXPECT().
-		SendCoinsFromModuleToAccount(ctx, types.ModuleName, depositorAddr, depositAmount).
+		SendCoinsFromModuleToAccount(ctx, types.ModuleName, depositorAddr, firstWithdraw).
+		Return(nil).Times(1)
+	s.bankKeeper.EXPECT().
+		SendCoinsFromModuleToAccount(ctx, types.ModuleName, depositorAddr, secondWithdraw).
 		Return(nil).Times(1)
 
 	tunnel := types.Tunnel{ID: tunnelID, TotalDeposit: depositAmount, IsActive: true}
@@ -99,7 +104,17 @@ func (s *KeeperTestSuite) TestWithdrawDeposit() {
 	deposit := types.Deposit{TunnelID: tunnelID, Depositor: depositorAddr.String(), Amount: depositAmount}
 	k.SetDeposit(ctx, deposit)
 
-	err := k.WithdrawDeposit(ctx, tunnelID, depositAmount, depositorAddr)
+	// partial withdraw
+	err := k.WithdrawDeposit(ctx, tunnelID, firstWithdraw, depositorAddr)
+	s.Require().NoError(err)
+
+	// check tunnel's total deposit
+	tunnel, err = k.GetTunnel(ctx, tunnelID)
+	s.Require().NoError(err)
+	s.Require().Equal(deposit.Amount.Sub(firstWithdraw...), tunnel.TotalDeposit)
+
+	// withdraw all
+	err = k.WithdrawDeposit(ctx, tunnelID, secondWithdraw, depositorAddr)
 	s.Require().NoError(err)
 
 	// check tunnel's total deposit

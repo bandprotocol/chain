@@ -6,7 +6,7 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-// SendAxelarPacket sends Axelar packet
+// TODO: SendAxelarPacket sends Axelar packet
 func (k Keeper) SendAxelarPacket(
 	ctx sdk.Context,
 	route *types.AxelarRoute,
