@@ -135,9 +135,9 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 	bankKeeper := restaketestutil.NewMockBankKeeper(ctrl)
 	bankKeeper.EXPECT().
-		GetAllBalances(gomock.Any(), gomock.Any()).
+		GetAllBalances(gomock.Any(), moduleAccount.GetAddress()).
 		Return(nil).
-		AnyTimes()
+		Times(1)
 	suite.bankKeeper = bankKeeper
 
 	stakingKeeper := restaketestutil.NewMockStakingKeeper(ctrl)
