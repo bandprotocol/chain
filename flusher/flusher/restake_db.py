@@ -22,12 +22,9 @@ restake_locks = sa.Table(
 )
 
 restake_historical_stakes = sa.Table(
-    "restake_stakes",
+    "restake_historical_stakes",
     metadata,
     Column("account_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
     Column("timestamp", CustomDateTime, primary_key=True),
     Column("coins", sa.String),
-    Column(
-        "transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True
-    ),
 )

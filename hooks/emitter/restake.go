@@ -7,14 +7,13 @@ import (
 	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
-func (h *Hook) updateRestakeStake(ctx sdk.Context, stakerAddr string, txHash []byte) {
+func (h *Hook) updateRestakeStake(ctx sdk.Context, stakerAddr string) {
 	addr := sdk.MustAccAddressFromBech32(stakerAddr)
 	stake := h.restakeKeeper.GetStake(ctx, addr)
 	h.Write("SET_RESTAKE_HISTORICAL_STAKE", common.JsDict{
 		"staker_address": stakerAddr,
 		"timestamp":      ctx.BlockTime().UnixNano(),
 		"coins":          stake.Coins.String(),
-		"tx_hash":        txHash,
 	})
 }
 
@@ -65,11 +64,11 @@ func (h *Hook) handleRestakeEventLockPower(ctx sdk.Context, txHash []byte, evMap
 }
 
 // handleRestakeEventStake implements emitter handler for EventStake.
-func (h *Hook) handleRestakeEventStake(ctx sdk.Context, txHash []byte, evMap common.EvMap) {
-	h.updateRestakeStake(ctx, evMap[types.EventTypeStake+"."+types.AttributeKeyStaker][0], txHash)
+func (h *Hook) handleRestakeEventStake(ctx sdk.Context, evMap common.EvMap) {
+	h.updateRestakeStake(ctx, evMap[types.EventTypeStake+"."+types.AttributeKeyStaker][0])
 }
 
 // handleRestakeEventUnstake implements emitter handler for EventUnstake.
-func (h *Hook) handleRestakeEventUnstake(ctx sdk.Context, txHash []byte, evMap common.EvMap) {
-	h.updateRestakeStake(ctx, evMap[types.EventTypeUnstake+"."+types.AttributeKeyStaker][0], txHash)
+func (h *Hook) handleRestakeEventUnstake(ctx sdk.Context, evMap common.EvMap) {
+	h.updateRestakeStake(ctx, evMap[types.EventTypeUnstake+"."+types.AttributeKeyStaker][0])
 }

@@ -174,9 +174,9 @@ func (h *Hook) handleMsgEvent(ctx sdk.Context, txHash []byte, event abci.Event) 
 	case restaketypes.EventTypeLockPower:
 		h.handleRestakeEventLockPower(ctx, txHash, evMap)
 	case restaketypes.EventTypeStake:
-		h.handleRestakeEventStake(ctx, txHash, evMap)
+		h.handleRestakeEventStake(ctx, evMap)
 	case restaketypes.EventTypeUnstake:
-		h.handleRestakeEventUnstake(ctx, txHash, evMap)
+		h.handleRestakeEventUnstake(ctx, evMap)
 	case restaketypes.EventTypeDeactivateVault:
 		h.handleRestakeEventDeactivateVault(ctx, evMap)
 	}

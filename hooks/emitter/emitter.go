@@ -317,7 +317,7 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *
 		h.updateRestakeLock(ctx, lock.StakerAddress, lock.Key, nil)
 	}
 	for _, stake := range restakeState.Stakes {
-		h.updateRestakeStake(ctx, stake.StakerAddress, nil)
+		h.updateRestakeStake(ctx, stake.StakerAddress)
 	}
 
 	var authzState authz.GenesisState
