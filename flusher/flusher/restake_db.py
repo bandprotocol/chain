@@ -19,7 +19,6 @@ restake_locks = sa.Table(
     Column(
         "transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), nullable=True
     ),
-    Column("last_update", CustomDateTime, index=True),
 )
 
 restake_historical_stakes = sa.Table(
