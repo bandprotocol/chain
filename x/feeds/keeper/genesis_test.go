@@ -3,7 +3,7 @@ package keeper_test
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 func (suite *KeeperTestSuite) TestExportGenesis() {
@@ -54,7 +54,7 @@ func (suite *KeeperTestSuite) TestExportGenesis() {
 
 func (suite *KeeperTestSuite) TestInitGenesis() {
 	ctx := suite.ctx
-	params := types.NewParams("[NOT_SET]", 30, 30, 60, 3600, 1000_000_000, 100, 30, 5, 300, 28800, 10)
+	params := types.DefaultParams()
 
 	delegatorSignals := []types.DelegatorSignals{
 		{

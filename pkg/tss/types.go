@@ -10,7 +10,7 @@ import (
 
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss/internal/schnorr"
+	"github.com/bandprotocol/chain/v3/pkg/tss/internal/schnorr"
 )
 
 // GroupID represents the ID of a group.
@@ -300,7 +300,7 @@ func (p Point) Address() ([]byte, error) {
 func (p Point) publicKey() (*secp256k1.PublicKey, error) {
 	pubKey, err := secp256k1.ParsePubKey(p)
 	if err != nil {
-		return nil, NewError(ErrParseError, err.Error())
+		return nil, NewError(ErrParseError, "%s", err.Error())
 	}
 
 	return pubKey, nil
@@ -429,7 +429,7 @@ func (s Signature) Validate() error {
 func (s Signature) signature() (*schnorr.Signature, error) {
 	signature, err := schnorr.ParseSignature(s)
 	if err != nil {
-		return nil, NewError(ErrParseError, err.Error())
+		return nil, NewError(ErrParseError, "%s", err.Error())
 	}
 
 	return signature, nil
@@ -549,7 +549,7 @@ func (cs ComplaintSignature) complaintSignature() (*schnorr.ComplaintSignature, 
 	// No need to check error as the caller should validate it first.
 	signature, err := schnorr.ParseComplaintSignature(cs)
 	if err != nil {
-		return nil, NewError(ErrParseError, err.Error())
+		return nil, NewError(ErrParseError, "%s", err.Error())
 	}
 
 	return signature, nil
@@ -740,7 +740,7 @@ func (es EncSecretShares) Validate() error {
 	for i, e := range es {
 		err = e.Validate()
 		if err != nil {
-			return NewError(err, fmt.Sprintf("index %d error", i))
+			return NewError(err, "index %d error", i)
 		}
 	}
 	return err

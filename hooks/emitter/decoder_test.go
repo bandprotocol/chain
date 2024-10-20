@@ -8,6 +8,8 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
+	upgradetypes "cosmossdk.io/x/upgrade/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -16,20 +18,19 @@ import (
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
-	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-	connectiontypes "github.com/cosmos/ibc-go/v7/modules/core/03-connection/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
-	commitmenttypes "github.com/cosmos/ibc-go/v7/modules/core/23-commitment/types"
-	ibctmtypes "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	connectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+	commitmenttypes "github.com/cosmos/ibc-go/v8/modules/core/23-commitment/types"
+	ibctmtypes "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
-	"github.com/bandprotocol/chain/v2/hooks/emitter"
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
 	"github.com/bandprotocol/chain/v2/testing/ibctesting"
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/hooks/common"
+	"github.com/bandprotocol/chain/v3/hooks/emitter"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 var (
@@ -47,13 +48,13 @@ var (
 	clientHeight = clienttypes.NewHeight(0, 10)
 
 	Delegation        = stakingtypes.NewDelegation(DelegatorAddress, ValAddress, sdk.NewDec(1))
-	SelfDelegation    = sdk.NewCoin("uband", sdk.NewInt(1))
-	MinSelfDelegation = sdk.NewInt(1)
+	SelfDelegation    = sdk.NewCoin("uband", math.NewInt(1))
+	MinSelfDelegation = math.NewInt(1)
 	Description       = stakingtypes.NewDescription("moniker", "identity", "website", "securityContact", "details")
 	CommissionRate    = stakingtypes.NewCommissionRates(sdk.NewDec(1), sdk.NewDec(5), sdk.NewDec(5))
 	NewRate           = sdk.NewDec(1)
 	PubKey            = newPubKey("0B485CFC0EECC619440448436F8FC9DF40566F2369E72400281454CB552AFB50")
-	Amount            = sdk.NewCoin("uband", sdk.NewInt(1))
+	Amount            = sdk.NewCoin("uband", math.NewInt(1))
 
 	content, _  = govv1beta1.ContentFromProposalType("Title", "Desc", "Text")
 	proposalMsg = banktypes.NewMsgSend(SenderAddress, ReceiverAddress, sdk.Coins{Amount})

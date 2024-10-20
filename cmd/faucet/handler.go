@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 
-	band "github.com/bandprotocol/chain/v2/app"
+	band "github.com/bandprotocol/chain/v3/app"
 )
 
 type Request struct {

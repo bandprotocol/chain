@@ -14,9 +14,9 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"gorm.io/gorm"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
-	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/hooks/common"
+	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 // Hook inherits from Band app hook to save latest request into SQL database.

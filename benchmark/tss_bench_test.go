@@ -3,11 +3,17 @@ package benchmark
 import (
 	"fmt"
 	"testing"
+	"time"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	abci "github.com/cometbft/cometbft/abci/types"
+
+	"cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 var RequestSignCases = map[string]struct {
@@ -16,7 +22,7 @@ var RequestSignCases = map[string]struct {
 }{
 	"request_signature": {
 		byteLength: []int{1, 200, 400, 600},
-		feeLimit:   sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10000))),
+		feeLimit:   sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(10000))),
 	},
 }
 
@@ -29,6 +35,7 @@ func BenchmarkRequestSignatureDeliver(b *testing.B) {
 
 				msg := MockByte(blen)
 				txs := GenSequenceOfTxs(
+					ba.TxEncoder,
 					ba.TxConfig,
 					GenMsgRequestSignature(
 						ba.Sender,
@@ -39,15 +46,23 @@ func BenchmarkRequestSignatureDeliver(b *testing.B) {
 					b.N,
 				)
 
-				ba.CallBeginBlock()
+				_, err := ba.FinalizeBlock(
+					&abci.RequestFinalizeBlock{Height: ba.LastBlockHeight() + 1, Hash: ba.LastCommitID().Hash},
+				)
+				require.NoError(b, err)
+
 				b.ResetTimer()
 				b.StopTimer()
 
 				// deliver MsgRequestSignature to the block
 				for i := 0; i < b.N; i++ {
+					tx, err := ba.TxDecoder(txs[i])
+					require.NoError(b, err)
+
 					b.StartTimer()
-					gasInfo, _, err := ba.CallDeliver(txs[i])
+					gasInfo, _, err := ba.SimDeliver(ba.TxEncoder, tx)
 					b.StopTimer()
+
 					if i == 0 {
 						if err != nil {
 							fmt.Println("\tDeliver Error:", err.Error())
@@ -68,7 +83,11 @@ func BenchmarkSubmitSignatureDeliver(b *testing.B) {
 				ba := InitializeBenchmarkApp(b, -1)
 				ba.SetupTSSGroup()
 
-				ba.CallBeginBlock()
+				_, err := ba.FinalizeBlock(
+					&abci.RequestFinalizeBlock{Height: ba.LastBlockHeight() + 1, Hash: ba.LastCommitID().Hash},
+				)
+				require.NoError(b, err)
+
 				b.ResetTimer()
 				b.StopTimer()
 
@@ -87,8 +106,9 @@ func BenchmarkSubmitSignatureDeliver(b *testing.B) {
 					)
 
 					b.StartTimer()
-					gasInfo, _, err := ba.CallDeliver(txs[0])
+					gasInfo, _, err := ba.SimDeliver(ba.TxEncoder, txs[0])
 					b.StopTimer()
+
 					if i == 0 {
 						if err != nil {
 							fmt.Println("\tDeliver Error:", err.Error())
@@ -116,7 +136,13 @@ func BenchmarkEndBlockHandleProcessSigning(b *testing.B) {
 
 				// deliver MsgSubmitSignature to the block
 				for i := 0; i < b.N; i++ {
-					ba.CallBeginBlock()
+					_, err := ba.FinalizeBlock(
+						&abci.RequestFinalizeBlock{
+							Height: ba.LastBlockHeight() + 1,
+							Hash:   ba.LastCommitID().Hash,
+						},
+					)
+					require.NoError(b, err)
 
 					gid := ba.BandtssKeeper.GetCurrentGroupID(ba.Ctx)
 					require.NotZero(b, gid)
@@ -127,7 +153,7 @@ func BenchmarkEndBlockHandleProcessSigning(b *testing.B) {
 					// everyone submit signature
 					txs := ba.GetPendingSignTxs(gid)
 					for _, tx := range txs {
-						_, _, err := ba.CallDeliver(tx)
+						_, _, err := ba.SimDeliver(ba.TxEncode, tx)
 						require.NoError(b, err)
 					}
 
@@ -137,9 +163,18 @@ func BenchmarkEndBlockHandleProcessSigning(b *testing.B) {
 					}
 
 					b.StartTimer()
-					ba.CallEndBlock()
-					ba.Commit()
+					_, err = ba.FinalizeBlock(
+						&abci.RequestFinalizeBlock{
+							Height: ba.LastBlockHeight() + 1,
+							Time:   time.Now(),
+						},
+					)
 					b.StopTimer()
+
+					require.NoError(b, err)
+
+					_, err = ba.Commit()
+					require.NoError(b, err)
 				}
 			})
 		}

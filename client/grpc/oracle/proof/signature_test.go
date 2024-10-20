@@ -4,20 +4,21 @@ import (
 	"encoding/hex"
 	"testing"
 
-	"github.com/cometbft/cometbft/crypto/tmhash"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	"github.com/cometbft/cometbft/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/stretchr/testify/require"
+
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	"github.com/cometbft/cometbft/types"
 )
 
 func TestGetPrefix(t *testing.T) {
-	prefix, err := GetPrefix(tmproto.SignedMsgType(2), 25000, 0)
+	prefix, err := GetPrefix(cmtproto.SignedMsgType(2), 25000, 0)
 	require.NoError(t, err)
 	require.Equal(t, "080211a861000000000000", hex.EncodeToString(prefix))
 
-	prefix, err = GetPrefix(tmproto.SignedMsgType(2), 25000, 1)
+	prefix, err = GetPrefix(cmtproto.SignedMsgType(2), 25000, 1)
 	require.NoError(t, err)
 	require.Equal(t, "080211a861000000000000190100000000000000", hex.EncodeToString(prefix))
 }

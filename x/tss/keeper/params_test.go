@@ -1,20 +1,15 @@
 package keeper_test
 
 import (
-	"testing"
-
-	"github.com/stretchr/testify/require"
-
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-func TestGetSetParams(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestGetSetParams() {
+	ctx, k := s.ctx, s.keeper
 	params := types.DefaultParams()
 
 	err := k.SetParams(ctx, params)
-	require.NoError(t, err)
+	s.Require().NoError(err)
 
-	require.Equal(t, params, k.GetParams(ctx))
+	s.Require().Equal(params, k.GetParams(ctx))
 }

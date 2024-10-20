@@ -2,35 +2,47 @@ package benchmark
 
 import (
 	"math"
+	"math/rand"
 	"testing"
+	"time"
+
+	"github.com/stretchr/testify/require"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/testutil"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	bandtsskeeper "github.com/bandprotocol/chain/v2/x/bandtss/keeper"
-	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
-	"github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
-	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	band "github.com/bandprotocol/chain/v3/app"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	tsstestutil "github.com/bandprotocol/chain/v3/pkg/tss/testutil"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	bandtsskeeper "github.com/bandprotocol/chain/v3/x/bandtss/keeper"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
+	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+	tsskeeper "github.com/bandprotocol/chain/v3/x/tss/keeper"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
+func init() {
+	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
+	sdk.DefaultBondDenom = "uband"
+}
+
 type BenchmarkApp struct {
-	*bandtesting.TestingApp
+	*band.BandApp
 	Sender         *Account
 	Validator      *Account
 	Oid            uint64
 	Did            uint64
 	TxConfig       client.TxConfig
 	TxEncoder      sdk.TxEncoder
+	TxDecoder      sdk.TxDecoder
 	TB             testing.TB
 	Ctx            sdk.Context
 	Querier        keeper.Querier
@@ -41,8 +53,8 @@ type BenchmarkApp struct {
 }
 
 var (
-	PrivD = testutil.HexDecode("de6aedbe8ba688dd6d342881eb1e67c3476e825106477360148e2858a5eb565c")
-	PrivE = testutil.HexDecode("3ff4fb2beac0cee0ab230829a5ae0881310046282e79c978ca22f44897ea434a")
+	PrivD = tsstestutil.HexDecode("de6aedbe8ba688dd6d342881eb1e67c3476e825106477360148e2858a5eb565c")
+	PrivE = tsstestutil.HexDecode("3ff4fb2beac0cee0ab230829a5ae0881310046282e79c978ca22f44897ea434a")
 	PubD  = tss.Scalar(PrivD).Point()
 	PubE  = tss.Scalar(PrivE).Point()
 
@@ -58,9 +70,11 @@ func GetDEs() []tsstypes.DE {
 }
 
 func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
-	app, _ := bandtesting.CreateTestApp(&testing.T{}, false)
+	dir := testutil.GetTempDir(tb)
+	app := bandtesting.SetupWithCustomHome(false, dir)
+
 	ba := &BenchmarkApp{
-		TestingApp: app,
+		BandApp: app,
 		Sender: &Account{
 			Account: bandtesting.Owner,
 			Num:     0,
@@ -68,112 +82,79 @@ func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 		},
 		Validator: &Account{
 			Account: bandtesting.Validators[0],
-			Num:     5,
+			Num:     6,
 			Seq:     0,
 		},
-		TB: tb,
 	}
+
+	ba.TB = tb
 	ba.Ctx = ba.NewUncachedContext(false, tmproto.Header{ChainID: bandtesting.ChainID})
-	ba.TSSMsgSrvr = tsskeeper.NewMsgServerImpl(ba.TestingApp.TSSKeeper)
-	ba.BandtssMsgSrvr = bandtsskeeper.NewMsgServerImpl(ba.TestingApp.BandtssKeeper)
+	ba.TSSMsgSrvr = tsskeeper.NewMsgServerImpl(ba.TSSKeeper)
+	ba.BandtssMsgSrvr = bandtsskeeper.NewMsgServerImpl(ba.BandtssKeeper)
 	ba.Querier = keeper.Querier{
 		Keeper: ba.OracleKeeper,
 	}
 	ba.TxConfig = ba.GetTxConfig()
 	ba.TxEncoder = ba.TxConfig.TxEncoder()
+	ba.TxDecoder = ba.TxConfig.TxDecoder()
 
-	ba.Commit()
-	ba.CallBeginBlock()
+	err := ba.StoreConsensusParams(ba.Ctx, GetConsensusParams(maxGasPerBlock))
+	require.NoError(tb, err)
 
-	ba.StoreConsensusParams(ba.Ctx, GetConsensusParams(maxGasPerBlock))
+	var txs [][]byte
 
 	// create oracle script
 	oCode, err := GetBenchmarkWasm()
 	require.NoError(tb, err)
-	_, res, err := ba.DeliverMsg(ba.Sender, GenMsgCreateOracleScript(ba.Sender, oCode))
-	require.NoError(tb, err)
-	oid, err := GetFirstAttributeOfLastEventValue(res.Events)
-	require.NoError(tb, err)
-	ba.Oid = uint64(oid)
+	txs = append(
+		txs,
+		GenSequenceOfTxs(ba.TxEncoder, ba.TxConfig, GenMsgCreateOracleScript(ba.Sender, oCode), ba.Sender, 1)[0],
+	)
 
 	// create data source
 	dCode := []byte("hello")
-	_, res, err = ba.DeliverMsg(ba.Sender, GenMsgCreateDataSource(ba.Sender, dCode))
-	require.NoError(tb, err)
-	did, err := GetFirstAttributeOfLastEventValue(res.Events)
-	require.NoError(tb, err)
-	ba.Did = uint64(did)
+	txs = append(
+		txs,
+		GenSequenceOfTxs(ba.TxEncoder, ba.TxConfig, GenMsgCreateDataSource(ba.Sender, dCode), ba.Sender, 1)[0],
+	)
 
 	// activate oracle
-	_, _, err = ba.DeliverMsg(ba.Validator, GenMsgActivate(ba.Validator))
+	txs = append(
+		txs,
+		GenSequenceOfTxs(ba.TxEncoder, ba.TxConfig, GenMsgActivate(ba.Validator), ba.Validator, 1)[0],
+	)
+
+	res, err := ba.FinalizeBlock(
+		&abci.RequestFinalizeBlock{Txs: txs, Height: ba.LastBlockHeight() + 1, Time: time.Now()},
+	)
 	require.NoError(tb, err)
 
 	// get gov address
 	ba.Authority = authtypes.NewModuleAddress(govtypes.ModuleName)
 	ba.PrivKeyStore = make(map[string]tss.Scalar)
 
-	ba.CallEndBlock()
-	ba.Commit()
+	_, err = ba.FinalizeBlock(
+		&abci.RequestFinalizeBlock{Height: ba.LastBlockHeight() + 1, Time: time.Now()},
+	)
+	require.NoError(tb, err)
+
+	_, err = ba.Commit()
+	require.NoError(tb, err)
+
+	oid, err := GetFirstAttributeOfLastEventValue(res.TxResults[0].Events)
+	require.NoError(tb, err)
+	ba.Oid = uint64(oid)
+
+	did, err := GetFirstAttributeOfLastEventValue(res.TxResults[1].Events)
+	require.NoError(tb, err)
+	ba.Did = uint64(did)
 
 	return ba
 }
 
-func (ba *BenchmarkApp) DeliverMsg(account *Account, msgs []sdk.Msg) (sdk.GasInfo, *sdk.Result, error) {
-	tx := GenSequenceOfTxs(ba.TxConfig, msgs, account, 1)[0]
-	gas, res, err := ba.CallDeliver(tx)
-	return gas, res, err
-}
-
-func (ba *BenchmarkApp) CallBeginBlock() abci.ResponseBeginBlock {
-	return ba.BeginBlock(
-		abci.RequestBeginBlock{
-			Header: tmproto.Header{
-				Height:  ba.LastBlockHeight() + 1,
-				ChainID: bandtesting.ChainID,
-			},
-			Hash: ba.LastCommitID().Hash,
-		},
-	)
-}
-
-func (ba *BenchmarkApp) CallEndBlock() abci.ResponseEndBlock {
-	return ba.EndBlock(abci.RequestEndBlock{Height: ba.LastBlockHeight() + 1})
-}
-
-func (ba *BenchmarkApp) CallDeliver(tx sdk.Tx) (sdk.GasInfo, *sdk.Result, error) {
-	return ba.SimDeliver(ba.TxEncoder, tx)
-}
-
-func (ba *BenchmarkApp) AddMaxMsgRequests(msg []sdk.Msg) {
-	// maximum of request blocks is only 20 because after that it will become report only block because of ante
-	for block := 0; block < 10; block++ {
-		ba.CallBeginBlock()
-
-		totalGas := uint64(0)
-		for {
-			tx := GenSequenceOfTxs(
-				ba.TxConfig,
-				msg,
-				ba.Sender,
-				1,
-			)[0]
-
-			gas, _, _ := ba.CallDeliver(tx)
-
-			totalGas += gas.GasUsed
-			if totalGas+gas.GasUsed >= uint64(BlockMaxGas) {
-				break
-			}
-		}
-
-		ba.CallEndBlock()
-		ba.Commit()
-	}
-}
-
 func (ba *BenchmarkApp) GetAllPendingRequests(account *Account) *oracletypes.QueryPendingRequestsResponse {
 	res, err := ba.Querier.PendingRequests(
-		sdk.WrapSDKContext(ba.Ctx),
+		ba.Ctx,
 		&oracletypes.QueryPendingRequestsRequest{
 			ValidatorAddress: account.ValAddress.String(),
 		},
@@ -181,16 +162,6 @@ func (ba *BenchmarkApp) GetAllPendingRequests(account *Account) *oracletypes.Que
 	require.NoError(ba.TB, err)
 
 	return res
-}
-
-func (ba *BenchmarkApp) SendAllPendingReports(account *Account) {
-	// query all pending requests
-	res := ba.GetAllPendingRequests(account)
-
-	for _, rid := range res.RequestIDs {
-		_, _, err := ba.DeliverMsg(account, ba.GenMsgReportData(account, []uint64{rid}))
-		require.NoError(ba.TB, err)
-	}
 }
 
 func (ba *BenchmarkApp) GenMsgReportData(account *Account, rids []uint64) []sdk.Msg {
@@ -228,13 +199,13 @@ func (ba *BenchmarkApp) GenMsgReportData(account *Account, rids []uint64) []sdk.
 
 func (ba *BenchmarkApp) SetupTSSGroup() {
 	ctx, msgSrvr := ba.Ctx, ba.TSSMsgSrvr
-	tssKeeper, bandtssKeeper := ba.TestingApp.TSSKeeper, ba.TestingApp.BandtssKeeper
+	tssKeeper, bandtssKeeper := ba.TSSKeeper, ba.BandtssKeeper
 
-	memberPubKey := testutil.TestCases[0].Group.Members[0].PubKey()
-	memberPrivKey := testutil.TestCases[0].Group.Members[0].PrivKey
-	groupPubKey := testutil.TestCases[0].Group.PubKey
-	dkg := testutil.TestCases[0].Group.DKGContext
-	gid := testutil.TestCases[0].Group.ID
+	memberPubKey := tsstestutil.TestCases[0].Group.Members[0].PubKey()
+	memberPrivKey := tsstestutil.TestCases[0].Group.Members[0].PrivKey
+	groupPubKey := tsstestutil.TestCases[0].Group.PubKey
+	dkg := tsstestutil.TestCases[0].Group.DKGContext
+	gid := tsstestutil.TestCases[0].Group.ID
 
 	// Set members and submit DEs
 	tssKeeper.SetMember(ctx, tsstypes.Member{
@@ -252,7 +223,7 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 	require.NoError(ba.TB, err)
 
 	// CreateGroup
-	tssKeeper.CreateNewGroup(ctx, tsstypes.Group{
+	tssKeeper.SetGroup(ctx, tsstypes.Group{
 		ID:            gid,
 		Size_:         1,
 		Threshold:     1,
@@ -260,6 +231,7 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 		Status:        tsstypes.GROUP_STATUS_ACTIVE,
 		CreatedHeight: 1,
 	})
+	tssKeeper.SetGroupCount(ctx, 1)
 	tssKeeper.SetDKGContext(ctx, gid, dkg)
 
 	// Set current group in bandtss module
@@ -294,7 +266,8 @@ func (ba *BenchmarkApp) GetPendingSignTxs(gid tss.GroupID) []sdk.Tx {
 			sig, err := CreateSignature(m.ID, signing, assignedMembers, group.PubKey, privKey)
 			require.NoError(ba.TB, err)
 
-			tx, err := bandtesting.GenTx(
+			tx, err := bandtesting.GenSignedMockTx(
+				rand.New(rand.NewSource(time.Now().UnixNano())),
 				ba.TxConfig,
 				GenMsgSubmitSignature(sid, m.ID, sig, ba.Sender.Address),
 				sdk.Coins{sdk.NewInt64Coin("uband", 1)},

@@ -1,10 +1,11 @@
 syntax = "proto3";
 package oracle.v1;
 
-option go_package = "github.com/bandprotocol/chain/v2/x/oracle/types";
+option go_package = "github.com/bandprotocol/chain/v3/x/oracle/types";
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
+import "cosmos_proto/cosmos.proto";
 import "oracle/v1/oracle.proto";
 
 // Query defines the gRPC querier service.
@@ -160,7 +161,7 @@ message QueryRequestResponse {
 // method.
 message QueryPendingRequestsRequest {
   // ValidatorAddress is address of a validator
-  string validator_address = 1;
+  string validator_address = 1 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
 }
 
 // QueryPendingRequestResponse is response type for the Query/PendingRequests
@@ -182,7 +183,7 @@ message QueryParamsResponse {
 // QueryValidatorRequest is request type for the Query/Validator RPC method.
 message QueryValidatorRequest {
   // ValidatorAddress is address of a validator
-  string validator_address = 1;
+  string validator_address = 1 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
 }
 
 // QueryValidatorResponse is response type for the Query/Validator RPC method.
@@ -194,9 +195,9 @@ message QueryValidatorResponse {
 // QueryIsReporterRequest is request type for the Query/Reporter RPC method.
 message QueryIsReporterRequest {
   // ValidatorAddress is a validator address
-  string validator_address = 1;
+  string validator_address = 1 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
   // ReporterAddress is a candidate account
-  string reporter_address = 2;
+  string reporter_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // QueryIsReporterResponse is response type for the Query/Reporter RPC method.
@@ -208,13 +209,13 @@ message QueryIsReporterResponse {
 // QueryReportersRequest is request type for the Query/Reporters RPC method.
 message QueryReportersRequest {
   // ValidatorAddress is a validator address
-  string validator_address = 1;
+  string validator_address = 1 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
 }
 
 // QueryReportersResponse is response type for the Query/Reporters RPC method.
 message QueryReportersResponse {
   // Reporter is a list of account addresses of reporters
-  repeated string reporter = 1;
+  repeated string reporter = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // QueryActiveValidatorsRequest is request type for the Query/ActiveValidators
@@ -274,7 +275,7 @@ message QueryRequestVerificationRequest {
   // verification
   string chain_id = 1;
   // Validator is a validator address
-  string validator = 2;
+  string validator = 2 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
   // RequestID is oracle request ID
   uint64 request_id = 3;
   // ExternalID is an oracle's external ID
@@ -298,7 +299,7 @@ message QueryRequestVerificationResponse {
   // ChainID is the targeted chain ID
   string chain_id = 1;
   // Validator is the targeted validator address
-  string validator = 2;
+  string validator = 2 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
   // RequestID is the ID of targeted request
   uint64 request_id = 3;
   // ExternalID is the ID of targeted oracle's external data source

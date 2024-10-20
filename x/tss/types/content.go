@@ -5,7 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	tsslib "github.com/bandprotocol/chain/v2/pkg/tss"
+	tsslib "github.com/bandprotocol/chain/v3/pkg/tss"
 )
 
 type ContentRouter struct {
@@ -83,6 +83,7 @@ func wrapHandler(path string, handler Handler) Handler {
 type Content interface {
 	OrderRoute() string
 	OrderType() string
+	IsInternal() bool
 
 	ValidateBasic() error
 	String() string

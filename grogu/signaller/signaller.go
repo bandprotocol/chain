@@ -1,20 +1,19 @@
 package signaller
 
 import (
-	"math"
 	"sync"
 	"time"
 
-	proto "github.com/bandprotocol/bothan/bothan-api/client/go-client/query"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/logger"
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
+
+	"github.com/bandprotocol/chain/v3/grogu/submitter"
+	"github.com/bandprotocol/chain/v3/pkg/logger"
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 const (
-	Multiplier                = 1_000_000_000
-	UpperBound                = float64(math.MaxUint64) / Multiplier
 	FixedIntervalOffset int64 = 10
 	TimeBuffer          int64 = 3
 )
@@ -24,7 +23,7 @@ type Signaller struct {
 	bothanClient BothanClient
 	// How often to check for signal changes
 	interval         time.Duration
-	submitCh         chan<- []types.SignalPrice
+	submitCh         chan<- submitter.SignalPriceSubmission
 	logger           *logger.Logger
 	valAddress       sdk.ValAddress
 	pendingSignalIDs *sync.Map
@@ -41,7 +40,7 @@ func New(
 	feedQuerier FeedQuerier,
 	bothanClient BothanClient,
 	interval time.Duration,
-	submitCh chan<- []types.SignalPrice,
+	submitCh chan<- submitter.SignalPriceSubmission,
 	logger *logger.Logger,
 	valAddress sdk.ValAddress,
 	pendingSignalIDs *sync.Map,
@@ -167,11 +166,13 @@ func (s *Signaller) execute() {
 	}
 
 	s.logger.Debug("[Signaller] querying prices from bothan: %v", nonPendingSignalIDs)
-	prices, err := s.bothanClient.QueryPrices(nonPendingSignalIDs)
+	res, err := s.bothanClient.GetPrices(nonPendingSignalIDs)
 	if err != nil {
 		s.logger.Error("[Signaller] failed to query prices from bothan: %v", err)
 		return
 	}
+
+	prices, uuid := res.Prices, res.Uuid
 
 	s.logger.Debug("[Signaller] filtering prices")
 	submitPrices := s.filterAndPrepareSubmitPrices(prices, nonPendingSignalIDs, now)
@@ -181,10 +182,10 @@ func (s *Signaller) execute() {
 	}
 
 	s.logger.Debug("[Signaller] submitting prices: %v", submitPrices)
-	s.submitPrices(submitPrices)
+	s.submitPrices(submitPrices, uuid)
 }
 
-func (s *Signaller) submitPrices(prices []types.SignalPrice) {
+func (s *Signaller) submitPrices(prices []types.SignalPrice, uuid string) {
 	for _, p := range prices {
 		_, loaded := s.pendingSignalIDs.LoadOrStore(p.SignalID, struct{}{})
 		if loaded {
@@ -192,7 +193,12 @@ func (s *Signaller) submitPrices(prices []types.SignalPrice) {
 		}
 	}
 
-	s.submitCh <- prices
+	signalPriceSubmission := submitter.SignalPriceSubmission{
+		SignalPrices: prices,
+		UUID:         uuid,
+	}
+
+	s.submitCh <- signalPriceSubmission
 }
 
 func (s *Signaller) getAllSignalIDs() []string {
@@ -217,11 +223,11 @@ func (s *Signaller) getNonPendingSignalIDs() []string {
 }
 
 func (s *Signaller) filterAndPrepareSubmitPrices(
-	prices []*proto.PriceData,
+	prices []*bothan.Price,
 	signalIDs []string,
 	currentTime time.Time,
 ) []types.SignalPrice {
-	pricesMap := sliceToMap(prices, func(price *proto.PriceData) string {
+	pricesMap := sliceToMap(prices, func(price *bothan.Price) string {
 		return price.SignalId
 	})
 
@@ -272,19 +278,12 @@ func (s *Signaller) isNonUrgentUnavailablePrices(
 }
 
 func (s *Signaller) isPriceValid(
-	price *proto.PriceData,
+	price *bothan.Price,
 	now time.Time,
 ) bool {
 	// Check if the price is supported and required to be submitted
 	feed, ok := s.signalIDToFeed[price.SignalId]
 	if !ok {
-		return false
-	}
-
-	// If unable to convert price, it is considered invalid
-	newPrice, err := safeConvert(price.Price)
-	if err != nil {
-		s.logger.Error("[Signaller] failed to convert price: %v", err)
 		return false
 	}
 
@@ -295,7 +294,7 @@ func (s *Signaller) isPriceValid(
 	}
 
 	// If the last price exists, check if the price can be updated
-	if s.shouldUpdatePrice(feed, valPrice, newPrice, now) {
+	if s.shouldUpdatePrice(feed, valPrice, price.Price, now) {
 		return true
 	}
 

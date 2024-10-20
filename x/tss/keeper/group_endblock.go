@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // =====================================
@@ -17,9 +17,7 @@ import (
 func (k Keeper) AddPendingProcessGroup(ctx sdk.Context, groupID tss.GroupID) {
 	pgs := k.GetPendingProcessGroups(ctx)
 	pgs = append(pgs, groupID)
-	k.SetPendingProcessGroups(ctx, types.PendingProcessGroups{
-		GroupIDs: pgs,
-	})
+	k.SetPendingProcessGroups(ctx, types.NewPendingProcessGroups(pgs))
 }
 
 // SetPendingProcessGroups sets the given pending process groups in the store.
@@ -35,7 +33,7 @@ func (k Keeper) GetPendingProcessGroups(ctx sdk.Context) []tss.GroupID {
 		// Return an empty list if the key does not exist in the store.
 		return []tss.GroupID{}
 	}
-	pgs := types.PendingProcessGroups{}
+	var pgs types.PendingProcessGroups
 	k.cdc.MustUnmarshal(bz, &pgs)
 	return pgs.GroupIDs
 }

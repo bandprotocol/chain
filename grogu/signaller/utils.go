@@ -4,14 +4,13 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"math"
-	"strconv"
-	"strings"
 	"time"
 
-	proto "github.com/bandprotocol/bothan/bothan-api/client/go-client/query"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
+
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 // isDeviated checks if the deviation between the old price and the new price
@@ -40,58 +39,30 @@ func isDeviated(deviationBasisPoint int64, oldPrice uint64, newPrice uint64) boo
 	return deviationBasisPoint <= dev
 }
 
-func convertPriceData(priceData *proto.PriceData) (types.SignalPrice, error) {
-	switch priceData.PriceStatus {
-	case proto.PriceStatus_PRICE_STATUS_UNSPECIFIED:
-		// This should never happen
-		panic("unspecified price status")
-	case proto.PriceStatus_PRICE_STATUS_UNSUPPORTED:
-		return types.SignalPrice{
-			PriceStatus: types.PriceStatusUnsupported,
-			SignalID:    priceData.SignalId,
-			Price:       0,
-		}, nil
-	case proto.PriceStatus_PRICE_STATUS_UNAVAILABLE:
-		return types.SignalPrice{
-			PriceStatus: types.PriceStatusUnavailable,
-			SignalID:    priceData.SignalId,
-			Price:       0,
-		}, nil
-	case proto.PriceStatus_PRICE_STATUS_AVAILABLE:
-		price, err := safeConvert(priceData.Price)
-		if err != nil {
-			return types.SignalPrice{}, err
-		}
-		return types.SignalPrice{
-			PriceStatus: types.PriceStatusAvailable,
-			SignalID:    priceData.SignalId,
-			Price:       price,
-		}, nil
+func convertPriceData(price *bothan.Price) (types.SignalPrice, error) {
+	switch price.Status {
+	case bothan.Status_UNSUPPORTED:
+		return types.NewSignalPrice(
+			types.PriceStatusUnsupported,
+			price.SignalId,
+			0,
+		), nil
+	case bothan.Status_UNAVAILABLE:
+		return types.NewSignalPrice(
+			types.PriceStatusUnavailable,
+			price.SignalId,
+			0,
+		), nil
+	case bothan.Status_AVAILABLE:
+		return types.NewSignalPrice(
+			types.PriceStatusAvailable,
+			price.SignalId,
+			price.Price,
+		), nil
 	default:
 		// Handle unexpected price status
-		return types.SignalPrice{}, fmt.Errorf("unexpected price status: %v", priceData.PriceStatus)
+		return types.SignalPrice{}, fmt.Errorf("unexpected price status: %v", price.Status)
 	}
-}
-
-func safeConvert(price string) (uint64, error) {
-	if price == "" {
-		return 0, nil
-	}
-
-	parsedPrice, err := strconv.ParseFloat(strings.TrimSpace(price), 64)
-	if err != nil {
-		return 0, err
-	}
-
-	if parsedPrice < 0 {
-		return 0, fmt.Errorf("price is negative: %f", parsedPrice)
-	}
-
-	if parsedPrice > UpperBound {
-		return 0, fmt.Errorf("price is above allowable limit")
-	}
-
-	return uint64(parsedPrice * Multiplier), nil
 }
 
 // calculateAssignedTime calculates the assigned time for a validator to send prices

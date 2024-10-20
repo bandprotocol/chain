@@ -3,59 +3,80 @@ package bandtss
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
-	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
+
+	"cosmossdk.io/core/appmodule"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/spf13/cobra"
 
-	bandtssclient "github.com/bandprotocol/chain/v2/x/bandtss/client"
-	"github.com/bandprotocol/chain/v2/x/bandtss/client/cli"
-	"github.com/bandprotocol/chain/v2/x/bandtss/keeper"
-	"github.com/bandprotocol/chain/v2/x/bandtss/types"
+	bandtssclient "github.com/bandprotocol/chain/v3/x/bandtss/client"
+	"github.com/bandprotocol/chain/v3/x/bandtss/client/cli"
+	"github.com/bandprotocol/chain/v3/x/bandtss/keeper"
+	"github.com/bandprotocol/chain/v3/x/bandtss/types"
 )
 
+// ConsensusVersion defines the current x/feeds module consensus version.
+const ConsensusVersion uint64 = 1
+
 var (
-	_ module.AppModule           = AppModule{}
-	_ module.AppModuleBasic      = AppModuleBasic{}
-	_ module.BeginBlockAppModule = AppModule{}
-	_ module.EndBlockAppModule   = AppModule{}
+	_ module.AppModuleBasic = AppModuleBasic{}
+
+	_ module.HasGenesis         = AppModule{}
+	_ module.HasServices        = AppModule{}
+	_ appmodule.AppModule       = AppModule{}
+	_ appmodule.HasEndBlocker   = AppModule{}
+	_ appmodule.HasBeginBlocker = AppModule{}
 )
 
 // AppModuleBasic defines the basic application module used by the bandtss module.
 type AppModuleBasic struct {
+	cdc                    codec.Codec
 	signatureOrderHandlers []bandtssclient.RequestSignatureHandler
 }
 
 // NewAppModuleBasic creates a new AppModuleBasic object
-func NewAppModuleBasic(signatureOrderHandlers ...bandtssclient.RequestSignatureHandler) AppModuleBasic {
+func NewAppModuleBasic(cdc codec.Codec, signatureOrderHandlers ...bandtssclient.RequestSignatureHandler) AppModuleBasic {
 	return AppModuleBasic{
+		cdc:                    cdc,
 		signatureOrderHandlers: signatureOrderHandlers,
 	}
 }
 
-// Name returns the bandtss module's name.
+// Name returns the module's name.
 func (AppModuleBasic) Name() string {
 	return types.ModuleName
 }
 
-// DefaultGenesis is an empty object.
+// RegisterLegacyAminoCodec registers the bandtss module's types for the given codec.
+func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
+	types.RegisterLegacyAminoCodec(cdc)
+}
+
+// RegisterInterfaces registers the bandtss module's interface types
+func (AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
+	types.RegisterInterfaces(reg)
+}
+
+// DefaultGenesis returns default genesis state as raw bytes for the restake module.
 func (AppModuleBasic) DefaultGenesis(cdc codec.JSONCodec) json.RawMessage {
 	return cdc.MustMarshalJSON(types.DefaultGenesisState())
 }
 
-// ValidateGenesis is always successful, as we ignore the value.
-func (AppModuleBasic) ValidateGenesis(_ codec.JSONCodec, config client.TxEncodingConfig, _ json.RawMessage) error {
-	return nil
-}
+// ValidateGenesis performs genesis state validation for the restake module.
+func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncodingConfig, bz json.RawMessage) error {
+	var data types.GenesisState
+	if err := cdc.UnmarshalJSON(bz, &data); err != nil {
+		return fmt.Errorf("failed to unmarshal %s genesis state: %w", types.ModuleName, err)
+	}
 
-// GetQueryCmd returns the cli query commands for the bandtss module.
-func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	return cli.GetQueryCmd()
+	return data.Validate()
 }
 
 // GetTxCmd returns the transaction commands for the bandtss module.
@@ -63,6 +84,11 @@ func (a AppModuleBasic) GetTxCmd() *cobra.Command {
 	signatureOrderHandlers := getSignatureOrderCLIHandlers(a.signatureOrderHandlers)
 
 	return cli.GetTxCmd(signatureOrderHandlers)
+}
+
+// GetQueryCmd returns the cli query commands for the bandtss module.
+func (AppModuleBasic) GetQueryCmd() *cobra.Command {
+	return cli.GetQueryCmd()
 }
 
 func getSignatureOrderCLIHandlers(handlers []bandtssclient.RequestSignatureHandler) []*cobra.Command {
@@ -80,15 +106,9 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 	}
 }
 
-// RegisterInterfaces registers the bandtss module's interface types
-func (AppModuleBasic) RegisterInterfaces(reg cdctypes.InterfaceRegistry) {
-	types.RegisterInterfaces(reg)
-}
-
-// RegisterLegacyAminoCodec registers the bandtss module's types for the given codec.
-func (AppModuleBasic) RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	types.RegisterLegacyAminoCodec(cdc)
-}
+// ----------------------------------------------------------------------------
+// AppModule
+// ----------------------------------------------------------------------------
 
 // AppModule implements the AppModule interface that defines the inter-dependent methods that modules need to implement.
 type AppModule struct {
@@ -98,17 +118,18 @@ type AppModule struct {
 }
 
 // NewAppModule creates a new AppModule object.
-func NewAppModule(k *keeper.Keeper) AppModule {
+func NewAppModule(cdc codec.Codec, k *keeper.Keeper) AppModule {
 	return AppModule{
-		AppModuleBasic: AppModuleBasic{},
+		AppModuleBasic: AppModuleBasic{cdc: cdc},
 		keeper:         k,
 	}
 }
 
-// Name returns the bandtss module's name.
-func (am AppModule) Name() string {
-	return am.AppModuleBasic.Name()
-}
+// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
+func (am AppModule) IsOnePerModuleType() {}
+
+// IsAppModule implements the appmodule.AppModule interface.
+func (am AppModule) IsAppModule() {}
 
 // RegisterServices registers a GRPC query service to respond to the module-specific GRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
@@ -120,30 +141,30 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 // RegisterInvariants registers the bandtss module's invariants.
 func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
-// InitGenesis performs genesis initialization for the bandtss module.
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
-	var genesisState types.GenesisState
-	cdc.MustUnmarshalJSON(data, &genesisState)
-	am.keeper.InitGenesis(ctx, &genesisState)
-	return []abci.ValidatorUpdate{}
+// InitGenesis performs the module's genesis initialization. It returns no validator updates.
+func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, gs json.RawMessage) {
+	var genState types.GenesisState
+	cdc.MustUnmarshalJSON(gs, &genState)
+	am.keeper.InitGenesis(ctx, genState)
 }
 
-// ExportGenesis is always empty, as InitGenesis does nothing either.
+// ExportGenesis returns the module's exported genesis state as raw JSON bytes.
 func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.RawMessage {
 	gs := am.keeper.ExportGenesis(ctx)
 	return cdc.MustMarshalJSON(gs)
 }
 
-// BeginBlock processes ABCI begin block message for this bandtss module (SDK AppModule interface).
-func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
-	handleBeginBlock(ctx, am.keeper)
+// BeginBlock processes ABCI begin block message for this module (SDK AppModule interface).
+func (am AppModule) BeginBlock(ctx context.Context) error {
+	c := sdk.UnwrapSDKContext(ctx)
+	return BeginBlocker(c, am.keeper)
 }
 
-// EndBlock processes ABCI end block message for this bandtss module (SDK AppModule interface).
-func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	handleEndBlock(ctx, am.keeper)
-	return []abci.ValidatorUpdate{}
+// EndBlock processes ABCI end block message for the module (SDK AppModule interface).
+func (am AppModule) EndBlock(ctx context.Context) error {
+	c := sdk.UnwrapSDKContext(ctx)
+	return EndBlocker(c, am.keeper)
 }
 
 // ConsensusVersion implements AppModule/ConsensusVersion.
-func (AppModule) ConsensusVersion() uint64 { return 1 }
+func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }

@@ -1,10 +1,14 @@
 package keeper
 
 import (
+	dbm "github.com/cosmos/cosmos-db"
+
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // ==================================
@@ -92,7 +96,7 @@ func (k Keeper) GetPartialSignature(
 // DeletePartialSignatures delete partial signatures data of a given signing and attempt from the store.
 func (k Keeper) DeletePartialSignatures(ctx sdk.Context, signingID tss.SigningID, attempt uint64) {
 	prefixKey := types.PartialSignaturesStoreKey(signingID, attempt)
-	iterator := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), prefixKey)
+	iterator := storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), prefixKey)
 
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
@@ -106,8 +110,8 @@ func (k Keeper) GetPartialSignatureBySigningAttemptIterator(
 	ctx sdk.Context,
 	signingID tss.SigningID,
 	attempt uint64,
-) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(
+) dbm.Iterator {
+	return storetypes.KVStorePrefixIterator(
 		ctx.KVStore(k.storeKey),
 		types.PartialSignaturesStoreKey(signingID, attempt),
 	)
@@ -132,16 +136,19 @@ func (k Keeper) GetPartialSignaturesWithKey(
 	signingID tss.SigningID,
 	attempt uint64,
 ) []types.PartialSignature {
-	var pzs []types.PartialSignature
+	var partialSigs []types.PartialSignature
 	iterator := k.GetPartialSignatureBySigningAttemptIterator(ctx, signingID, attempt)
+
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
-		pzs = append(pzs, types.PartialSignature{
-			MemberID:  types.MemberIDFromPartialSignatureStoreKey(iterator.Key()),
-			Signature: iterator.Value(),
-		})
+		memberID := types.MemberIDFromPartialSignatureStoreKey(iterator.Key())
+		sig := iterator.Value()
+
+		partialSig := types.NewPartialSignature(signingID, attempt, memberID, sig)
+		partialSigs = append(partialSigs, partialSig)
 	}
-	return pzs
+
+	return partialSigs
 }
 
 // GetMembersNotSubmitSignature get assigned members that haven't signed a requested message.

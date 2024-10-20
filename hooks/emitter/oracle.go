@@ -1,11 +1,12 @@
 package emitter
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
-	oraclekeeper "github.com/bandprotocol/chain/v2/x/oracle/keeper"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/hooks/common"
+	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 func parseBytes(b []byte) []byte {
@@ -60,9 +61,9 @@ func (h *Hook) emitRawRequestAndValRequest(
 	for id, raw := range req.RawRequests {
 		fee, err := sdk.ParseCoinNormalized(evMap[types.EventTypeRawRequest+"."+types.AttributeKeyFee][id])
 		if err != nil {
-			fee = sdk.NewCoin("uband", sdk.NewInt(0))
+			fee = sdk.NewCoin("uband", math.NewInt(0))
 		}
-		fee.Amount = fee.Amount.Mul(sdk.NewInt(int64(len(req.RequestedValidators))))
+		fee.Amount = fee.Amount.Mul(math.NewInt(int64(len(req.RequestedValidators))))
 		h.Write("NEW_RAW_REQUEST", common.JsDict{
 			"request_id":     requestID,
 			"external_id":    raw.ExternalID,

@@ -3,14 +3,14 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/cometbft/cometbft/libs/log"
-	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/bandtss/types"
+	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/bandtss/types"
 )
 
 type Keeper struct {
@@ -64,7 +64,7 @@ func NewKeeper(
 }
 
 // GetBandtssAccount returns the bandtss ModuleAccount
-func (k Keeper) GetBandtssAccount(ctx sdk.Context) authtypes.ModuleAccountI {
+func (k Keeper) GetBandtssAccount(ctx sdk.Context) sdk.ModuleAccountI {
 	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
 }
 
@@ -74,13 +74,13 @@ func (k Keeper) GetModuleBalance(ctx sdk.Context) sdk.Coins {
 }
 
 // SetModuleAccount sets a module account in the account keeper.
-func (k Keeper) SetModuleAccount(ctx sdk.Context, acc authtypes.ModuleAccountI) {
+func (k Keeper) SetModuleAccount(ctx sdk.Context, acc sdk.ModuleAccountI) {
 	k.authKeeper.SetModuleAccount(ctx, acc)
 }
 
 // Logger gets logger object.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
-	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
+	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
 // SetCurrentGroupID sets a current groupID of the bandtss module.

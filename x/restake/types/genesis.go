@@ -1,56 +1,61 @@
 package types
 
 import (
-	fmt "fmt"
+	"fmt"
 
-	sdkmath "cosmossdk.io/math"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// NewGenesisState creates a new GenesisState instanc e
-func NewGenesisState(keys []Key, locks []Lock) *GenesisState {
+// NewGenesisState creates a new GenesisState instance
+func NewGenesisState(params Params, vaults []Vault, locks []Lock, stakes []Stake) *GenesisState {
 	return &GenesisState{
-		Keys:  keys,
-		Locks: locks,
+		Params: params,
+		Vaults: vaults,
+		Locks:  locks,
+		Stakes: stakes,
 	}
 }
 
 // DefaultGenesisState gets the raw genesis raw message for testing
 func DefaultGenesisState() *GenesisState {
-	return &GenesisState{
-		Keys:  []Key{},
-		Locks: []Lock{},
-	}
+	return NewGenesisState(
+		DefaultParams(),
+		[]Vault{},
+		[]Lock{},
+		[]Stake{},
+	)
 }
 
 // Validate performs basic validation of genesis data returning an
 // error for any failed validation criteria.
 func (gs GenesisState) Validate() error {
-	seenKeys := make(map[string]bool)
-	totalPowers := make(map[string]sdkmath.Int)
-
-	for _, lock := range gs.Locks {
-		_, ok := totalPowers[lock.Key]
-		if !ok {
-			totalPowers[lock.Key] = sdkmath.NewInt(0)
-		}
-
-		totalPowers[lock.Key] = totalPowers[lock.Key].Add(lock.Amount)
+	if err := gs.Params.Validate(); err != nil {
+		return err
 	}
 
-	for _, key := range gs.Keys {
-		if seenKeys[key.Name] {
-			return fmt.Errorf("duplicate key for name %s", key.Name)
+	seenVaults := make(map[string]bool)
+
+	for _, vault := range gs.Vaults {
+		if seenVaults[vault.Key] {
+			return fmt.Errorf("duplicate vault for name %s", vault.Key)
 		}
 
-		seenKeys[key.Name] = true
+		seenVaults[vault.Key] = true
+	}
 
-		// if key is active, total power must be equal.
-		if key.IsActive && !key.TotalPower.Equal(totalPowers[key.Name]) {
-			return fmt.Errorf(
-				"genesis total_power is incorrect, expected %v, got %v",
-				key.TotalPower,
-				totalPowers[key.Name],
-			)
+	for _, lock := range gs.Locks {
+		if !seenVaults[lock.Key] {
+			return fmt.Errorf("no vault %s for the lock", lock.Key)
+		}
+	}
+
+	for _, stake := range gs.Stakes {
+		if _, err := sdk.AccAddressFromBech32(stake.StakerAddress); err != nil {
+			return err
+		}
+
+		if err := stake.Coins.Validate(); err != nil {
+			return err
 		}
 	}
 

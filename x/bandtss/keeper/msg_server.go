@@ -8,8 +8,8 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/bandprotocol/chain/v2/x/bandtss/types"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/x/bandtss/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 type msgServer struct {
@@ -143,9 +143,10 @@ func (k msgServer) RequestSignature(
 	}
 
 	content := req.GetContent()
-	if content.OrderRoute() == types.RouterKey && content.OrderType() == types.GroupTransitionPath {
-		return nil, types.ErrInvalidRequestSignature.Wrapf(
-			"invalid request order route: %s order type: %s", content.OrderRoute(), content.OrderType())
+	if content.IsInternal() {
+		return nil, types.ErrContentNotAllowed.Wrapf(
+			"order route: %s, type: %s", content.OrderRoute(), content.OrderType(),
+		)
 	}
 
 	// Execute the handler to process the request.

@@ -1,10 +1,14 @@
 package keeper
 
 import (
+	dbm "github.com/cosmos/cosmos-db"
+
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // AddRound2Info adds the round2Info of a member in the store and increments the count of round2Info.
@@ -70,9 +74,9 @@ func (k Keeper) DeleteRound2InfoCount(ctx sdk.Context, groupID tss.GroupID) {
 	ctx.KVStore(k.storeKey).Delete(types.Round2InfoCountStoreKey(groupID))
 }
 
-// Getround2InfoIterator gets an iterator over all round2Info of a group.
-func (k Keeper) GetRound2InfoIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round2InfoStoreKey(groupID))
+// GetRound2InfoIterator gets an iterator over all round2Info of a group.
+func (k Keeper) GetRound2InfoIterator(ctx sdk.Context, groupID tss.GroupID) dbm.Iterator {
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round2InfoStoreKey(groupID))
 }
 
 // GetRound2Infos retrieves all round2Info for a given group from the store.

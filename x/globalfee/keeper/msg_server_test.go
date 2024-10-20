@@ -1,9 +1,11 @@
 package keeper_test
 
 import (
+	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/globalfee/types"
+	"github.com/bandprotocol/chain/v3/x/globalfee/types"
 )
 
 func (s *IntegrationTestSuite) TestUpdateParams() {
@@ -25,8 +27,8 @@ func (s *IntegrationTestSuite) TestUpdateParams() {
 				Authority: s.globalfeeKeeper.GetAuthority(),
 				Params: types.Params{
 					MinimumGasPrices: sdk.NewDecCoins(
-						sdk.NewDecCoin("ALX", sdk.NewInt(1)),
-						sdk.NewDecCoinFromDec("BLX", sdk.NewDecWithPrec(1, 3)),
+						sdk.NewDecCoin("ALX", math.NewInt(1)),
+						sdk.NewDecCoinFromDec("BLX", math.LegacyNewDecWithPrec(1, 3)),
 					),
 				},
 			},
@@ -50,7 +52,7 @@ func (s *IntegrationTestSuite) TestUpdateParams() {
 					MinimumGasPrices: []sdk.DecCoin{
 						{
 							Denom:  "1AAAA",
-							Amount: sdk.NewDecFromInt(sdk.NewInt(1)),
+							Amount: math.LegacyNewDecFromInt(math.NewInt(1)),
 						},
 					},
 				},
@@ -65,7 +67,7 @@ func (s *IntegrationTestSuite) TestUpdateParams() {
 					MinimumGasPrices: []sdk.DecCoin{
 						{
 							Denom:  "AAAA",
-							Amount: sdk.NewDecFromInt(sdk.NewInt(-1)),
+							Amount: math.LegacyNewDecFromInt(math.NewInt(-1)),
 						},
 					},
 				},
@@ -80,11 +82,11 @@ func (s *IntegrationTestSuite) TestUpdateParams() {
 					MinimumGasPrices: []sdk.DecCoin{
 						{
 							Denom:  "AAAA",
-							Amount: sdk.NewDecFromInt(sdk.NewInt(1)),
+							Amount: math.LegacyNewDecFromInt(math.NewInt(1)),
 						},
 						{
 							Denom:  "AAAA",
-							Amount: sdk.NewDecFromInt(sdk.NewInt(2)),
+							Amount: math.LegacyNewDecFromInt(math.NewInt(2)),
 						},
 					},
 				},
@@ -99,11 +101,11 @@ func (s *IntegrationTestSuite) TestUpdateParams() {
 					MinimumGasPrices: []sdk.DecCoin{
 						{
 							Denom:  "BBBB",
-							Amount: sdk.NewDecFromInt(sdk.NewInt(1)),
+							Amount: math.LegacyNewDecFromInt(math.NewInt(1)),
 						},
 						{
 							Denom:  "AAAA",
-							Amount: sdk.NewDecFromInt(sdk.NewInt(2)),
+							Amount: math.LegacyNewDecFromInt(math.NewInt(2)),
 						},
 					},
 				},
@@ -112,8 +114,8 @@ func (s *IntegrationTestSuite) TestUpdateParams() {
 		},
 	}
 
-	for _, tc := range testCases {
-		tc := tc
+	for _, testcase := range testCases {
+		tc := testcase
 		s.Run(tc.name, func() {
 			_, err := s.msgServer.UpdateParams(s.ctx, tc.request)
 			if tc.expectErr != "" {

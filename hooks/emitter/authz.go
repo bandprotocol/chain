@@ -4,9 +4,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/hooks/common"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 func (h *Hook) handleMsgGrant(msg *authz.MsgGrant, detail common.JsDict) {

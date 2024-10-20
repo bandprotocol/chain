@@ -1,6 +1,6 @@
 package client
 
-import "github.com/bandprotocol/chain/v2/x/tss/types"
+import "github.com/bandprotocol/chain/v3/x/tss/types"
 
 // DEResponse wraps the types.QueryDEResponse to provide additional helper methods.
 type DEResponse struct {

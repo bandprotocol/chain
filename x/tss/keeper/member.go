@@ -1,11 +1,15 @@
 package keeper
 
 import (
+	dbm "github.com/cosmos/cosmos-db"
+
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // SetMember sets a member of a group in the store.
@@ -66,8 +70,8 @@ func (k Keeper) MustGetMember(ctx sdk.Context, groupID tss.GroupID, memberID tss
 }
 
 // GetGroupMembersIterator gets an iterator over all members of a group.
-func (k Keeper) GetGroupMembersIterator(ctx sdk.Context, groupID tss.GroupID) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.MembersStoreKey(groupID))
+func (k Keeper) GetGroupMembersIterator(ctx sdk.Context, groupID tss.GroupID) dbm.Iterator {
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.MembersStoreKey(groupID))
 }
 
 // GetGroupMembers retrieves all members of a group from the store.
@@ -89,7 +93,7 @@ func (k Keeper) GetGroupMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.M
 // GetMembers retrieves all members from store.
 func (k Keeper) GetMembers(ctx sdk.Context) []types.Member {
 	var members []types.Member
-	iterator := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.MemberStoreKeyPrefix)
+	iterator := storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.MemberStoreKeyPrefix)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var member types.Member

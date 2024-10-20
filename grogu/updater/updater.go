@@ -12,8 +12,7 @@ import (
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 
-	"github.com/bandprotocol/chain/v2/grogu/querier"
-	"github.com/bandprotocol/chain/v2/pkg/logger"
+	"github.com/bandprotocol/chain/v3/pkg/logger"
 )
 
 const (
@@ -24,16 +23,18 @@ const (
 )
 
 type Updater struct {
-	feedQuerier *querier.FeedQuerier
-	clients     []rpcclient.RemoteClient
-	logger      *logger.Logger
+	feedQuerier  FeedQuerier
+	bothanClient BothanClient
+	clients      []rpcclient.RemoteClient
+	logger       *logger.Logger
 
 	maxCurrentFeedsEventHeight    *atomic.Int64
 	maxUpdateRefSourceEventHeight *atomic.Int64
 }
 
 func New(
-	feedQuerier *querier.FeedQuerier,
+	feedQuerier FeedQuerier,
+	bothanClient BothanClient,
 	clients []rpcclient.RemoteClient,
 	logger *logger.Logger,
 	maxCurrentFeedsEventHeight *atomic.Int64,
@@ -41,6 +42,7 @@ func New(
 ) *Updater {
 	return &Updater{
 		feedQuerier:                   feedQuerier,
+		bothanClient:                  bothanClient,
 		clients:                       clients,
 		logger:                        logger,
 		maxCurrentFeedsEventHeight:    maxCurrentFeedsEventHeight,
@@ -49,7 +51,13 @@ func New(
 }
 
 func (u *Updater) Start(sigChan chan<- os.Signal) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	// initialize the updater
+	if err := u.Init(); err != nil {
+		u.logger.Error("[Updater] failed to initialize updater: %v", err)
+		sigChan <- syscall.SIGTERM
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	eventCurrentFeedsChan := make(chan coretypes.ResultEvent)
@@ -70,7 +78,7 @@ func (u *Updater) Start(sigChan chan<- os.Signal) {
 	for {
 		select {
 		case ev := <-eventCurrentFeedsChan:
-			processEvent(
+			go processEvent(
 				ev,
 				u.logger,
 				CurrentFeedsQuery,
@@ -81,7 +89,7 @@ func (u *Updater) Start(sigChan chan<- os.Signal) {
 				u.updateBothanActiveFeeds,
 			)
 		case ev := <-eventUpdateRefSourceChan:
-			processEvent(
+			go processEvent(
 				ev,
 				u.logger,
 				UpdateRefSourceQuery,
@@ -100,6 +108,19 @@ func (u *Updater) Start(sigChan chan<- os.Signal) {
 			)
 		}
 	}
+}
+
+// Init initialize the updater
+func (u *Updater) Init() error {
+	if err := u.updateBothanRegistry(); err != nil {
+		return err
+	}
+
+	if err := u.updateBothanActiveFeeds(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (u *Updater) subscribeToClient(
@@ -135,10 +156,51 @@ func (u *Updater) waitForCompletion(
 	sigChan <- syscall.SIGTERM
 }
 
-func (u *Updater) updateBothanActiveFeeds() {
-	// TODO: Implement the updateBothanActiveFeeds function
+func (u *Updater) updateBothanActiveFeeds() error {
+	queryResp, err := u.feedQuerier.QueryCurrentFeeds()
+	if err != nil {
+		u.logger.Error("[Updater] failed to query current feeds: %v", err)
+		return err
+	}
+
+	currentFeeds := queryResp.CurrentFeeds.Feeds
+
+	// create a list of signal IDs
+	signalIDs := make([]string, 0, len(currentFeeds))
+	for _, feed := range currentFeeds {
+		signalIDs = append(signalIDs, feed.SignalID)
+	}
+
+	err = u.bothanClient.SetActiveSignalIDs(signalIDs)
+	if err != nil {
+		u.logger.Error("[Updater] failed to update active feeds: %v", err)
+		return err
+	}
+
+	u.logger.Info("[Updater] successfully updated active feeds with signal IDs: %v", signalIDs)
+	return nil
 }
 
-func (u *Updater) updateBothanRegistry() {
-	// TODO: Implement the updateBothanRegistry function
+func (u *Updater) updateBothanRegistry() error {
+	queryResp, err := u.feedQuerier.QueryReferenceSourceConfig()
+	if err != nil {
+		u.logger.Error("[Updater] failed to query reference source config: %v", err)
+		return err
+	}
+
+	rfc := queryResp.ReferenceSourceConfig
+
+	if rfc.IPFSHash == "[NOT_SET]" || rfc.Version == "[NOT_SET]" {
+		u.logger.Warn("[Updater] reference source config is not set, skipping update")
+		return nil
+	}
+
+	err = u.bothanClient.UpdateRegistry(rfc.IPFSHash, rfc.Version)
+	if err != nil {
+		u.logger.Error("[Updater] failed to update registry: %v", err)
+		return err
+	}
+
+	u.logger.Info("[Updater] successfully updated registry with IPFS hash: %s", rfc.IPFSHash)
+	return nil
 }

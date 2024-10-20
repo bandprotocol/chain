@@ -3,11 +3,12 @@ package tss
 import (
 	"errors"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss/internal/lagrange"
-	"github.com/bandprotocol/chain/v2/pkg/tss/internal/schnorr"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/pkg/tss/internal/lagrange"
+	"github.com/bandprotocol/chain/v3/pkg/tss/internal/schnorr"
 )
 
 // checkLagrangeInput checks if a given MemberID (mid) is present in the provided memberList

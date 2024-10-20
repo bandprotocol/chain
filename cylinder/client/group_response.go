@@ -3,8 +3,8 @@ package client
 import (
 	"fmt"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // GroupResponse wraps the types.QueryGroupResponse to provide additional helper methods.

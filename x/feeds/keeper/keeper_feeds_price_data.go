@@ -5,14 +5,14 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 // GetFeedsPriceData returns the price data of the given signalIDs
 func (k Keeper) GetFeedsPriceData(
 	ctx sdk.Context,
 	signalIDs []string,
-	ft types.FeedType,
+	encoder types.Encoder,
 ) (*types.FeedsPriceData, error) {
 	feeds := make(map[string]types.Feed)
 	sp := k.GetCurrentFeeds(ctx)
@@ -28,8 +28,8 @@ func (k Keeper) GetFeedsPriceData(
 			return nil, err
 		}
 
-		// Check if the feed type is tick
-		if ft == types.FEED_TYPE_TICK_ABI {
+		// Check if the encoder mode is tick
+		if encoder == types.ENCODER_TICK_ABI {
 			err := p.ToTick()
 			if err != nil {
 				return nil, err

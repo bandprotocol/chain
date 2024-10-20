@@ -4,15 +4,16 @@ import (
 	"errors"
 	"time"
 
-	"github.com/bandprotocol/chain/v2/cylinder"
-	"github.com/bandprotocol/chain/v2/cylinder/client"
-	"github.com/bandprotocol/chain/v2/pkg/logger"
-	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
+	"github.com/bandprotocol/chain/v3/cylinder"
+	"github.com/bandprotocol/chain/v3/cylinder/client"
+	"github.com/bandprotocol/chain/v3/cylinder/context"
+	"github.com/bandprotocol/chain/v3/pkg/logger"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 )
 
 // Heartbeat is a worker responsible for updating active status to the chain
 type Heartbeat struct {
-	context *cylinder.Context
+	context *context.Context
 	logger  *logger.Logger
 	client  *client.Client
 }
@@ -21,8 +22,8 @@ var _ cylinder.Worker = &Heartbeat{}
 
 // New creates a new instance of the Heartbeat worker.
 // It initializes the necessary components and returns the created Heartbeat instance or an error if initialization fails.
-func New(ctx *cylinder.Context) (*Heartbeat, error) {
-	cli, err := client.New(ctx.Config, ctx.Keyring)
+func New(ctx *context.Context) (*Heartbeat, error) {
+	cli, err := client.New(ctx)
 	if err != nil {
 		return nil, err
 	}

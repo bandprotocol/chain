@@ -4,10 +4,10 @@ import (
 	"encoding/hex"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
+	"github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
+	"github.com/bandprotocol/chain/v3/hooks/common"
 )
 
 // handleMsgTransfer implements emitter handler for msgTransfer.

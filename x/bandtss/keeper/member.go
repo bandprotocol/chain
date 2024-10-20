@@ -3,10 +3,14 @@ package keeper
 import (
 	"fmt"
 
+	dbm "github.com/cosmos/cosmos-db"
+
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/bandtss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/bandtss/types"
 )
 
 // SetMember sets a member information in the store.
@@ -16,8 +20,8 @@ func (k Keeper) SetMember(ctx sdk.Context, member types.Member) {
 }
 
 // GetMembersIterator gets an iterator all statuses of address.
-func (k Keeper) GetMembersIterator(ctx sdk.Context) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.MemberStoreKeyPrefix)
+func (k Keeper) GetMembersIterator(ctx sdk.Context) dbm.Iterator {
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.MemberStoreKeyPrefix)
 }
 
 // HasMember checks that address is in the store or not.
@@ -94,13 +98,7 @@ func (k Keeper) AddMember(ctx sdk.Context, address sdk.AccAddress, groupID tss.G
 		return types.ErrMemberAlreadyExists.Wrapf("address : %v", address)
 	}
 
-	member := types.Member{
-		Address:    address.String(),
-		GroupID:    groupID,
-		IsActive:   true,
-		Since:      ctx.BlockTime(),
-		LastActive: ctx.BlockTime(),
-	}
+	member := types.NewMember(address, groupID, true, ctx.BlockTime(), ctx.BlockTime())
 	k.SetMember(ctx, member)
 
 	return nil

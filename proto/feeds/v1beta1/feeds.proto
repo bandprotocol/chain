@@ -1,7 +1,7 @@
 syntax = "proto3";
 package feeds.v1beta1;
 
-option go_package = "github.com/bandprotocol/chain/v2/x/feeds/types";
+option go_package = "github.com/bandprotocol/chain/v3/x/feeds/types";
 
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
@@ -193,27 +193,27 @@ message FeedsPriceData {
   uint64 timestamp = 2;
 }
 
-// FeedType is a structure that defines the type of feed.
-enum FeedType {
+// Encoder is an enumerator that defines the mode of encoding message in tss module.
+enum Encoder {
   option (gogoproto.goproto_enum_prefix) = false;
 
-  // FEED_TYPE_UNSPECIFIED is an unspecified feed type.
-  FEED_TYPE_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "FEED_TYPE_UNSPECIFIED"];
+  // ENCODER_UNSPECIFIED is an unspecified encoder mode.
+  ENCODER_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "ENCODER_UNSPECIFIED"];
 
-  // FEED_TYPE_FIXED_POINT_ABI is a fixed-point price feed type (price * 10^9).
-  FEED_TYPE_FIXED_POINT_ABI = 1 [(gogoproto.enumvalue_customname) = "FEED_TYPE_FIXED_POINT_ABI"];
+  // ENCODER_FIXED_POINT_ABI is a fixed-point price abi encoder (price * 10^9).
+  ENCODER_FIXED_POINT_ABI = 1 [(gogoproto.enumvalue_customname) = "ENCODER_FIXED_POINT_ABI"];
 
-  // FEED_TYPE_TICK_ABI is a tick feed type.
-  FEED_TYPE_TICK_ABI = 2 [(gogoproto.enumvalue_customname) = "FEED_TYPE_TICK_ABI"];
+  // ENCODER_TICK_ABI is a tick abi encoder.
+  ENCODER_TICK_ABI = 2 [(gogoproto.enumvalue_customname) = "ENCODER_TICK_ABI"];
 }
 
-// FeedSignatureOrder defines a general signature order for feed data.
+// FeedsSignatureOrder defines a general signature order for feed data.
 message FeedsSignatureOrder {
   option (gogoproto.goproto_getters) = false;
 
-  // SignalIDs is the list of signal ids that require signatures.
+  // signal_ids is the list of signal ids that require signatures.
   repeated string signal_ids = 1 [(gogoproto.customname) = "SignalIDs"];
 
-  // FeedType is the type of feed.
-  FeedType feed_type = 2 [(gogoproto.customname) = "FeedType"];
+  // encoder is the mode of encoding feeds signature order.
+  Encoder encoder = 2;
 }

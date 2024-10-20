@@ -9,12 +9,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
-	bandtsskeeper "github.com/bandprotocol/chain/v2/x/bandtss/keeper"
-	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
-	tsstestutil "github.com/bandprotocol/chain/v2/x/tss/testutil"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/pkg/tss/testutil"
+	bandtsskeeper "github.com/bandprotocol/chain/v3/x/bandtss/keeper"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
+	tsstestutil "github.com/bandprotocol/chain/v3/x/tss/testutil"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 func (s *AppTestSuite) TestGRPCQueryCounts() {
@@ -179,7 +179,7 @@ func (s *AppTestSuite) TestGRPCQueryGroup() {
 			},
 			true,
 			func(res *types.QueryGroupResponse) {
-				dkgContextB, _ := hex.DecodeString("b1da723010d6fe6199670f31390445b0bdd9a5122eb7b30c7764af112a2a4f78")
+				dkgContextB, _ := hex.DecodeString("4C46F109ABC25187430BA6D2726210D3D81933952F6C9B900564F71D44D146A1")
 
 				expectedMembers := []bandtsstypes.Member{
 					{
@@ -719,7 +719,14 @@ func (s *AppTestSuite) TestGRPCQuerySigning() {
 				s.Require().Equal(signing, res.SigningResult.Signing)
 				s.Require().Equal(&sa, res.SigningResult.CurrentSigningAttempt)
 				s.Require().
-					Equal([]types.PartialSignature{{MemberID: memberID, Signature: mockSig}}, res.SigningResult.ReceivedPartialSignatures)
+					Equal([]types.PartialSignature{
+						{
+							SigningID:      1,
+							SigningAttempt: 1,
+							MemberID:       memberID,
+							Signature:      mockSig,
+						},
+					}, res.SigningResult.ReceivedPartialSignatures)
 			},
 		},
 		{

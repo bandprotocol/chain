@@ -3,11 +3,12 @@ package client_test
 import (
 	"testing"
 
-	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bandprotocol/chain/v2/cylinder/client"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
+
+	"github.com/bandprotocol/chain/v3/cylinder/client"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 func TestGetRemaining(t *testing.T) {

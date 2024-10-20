@@ -7,21 +7,21 @@ import (
 	"path/filepath"
 	"reflect"
 
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	band "github.com/bandprotocol/chain/v2/app"
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-)
+	dbm "github.com/cosmos/cosmos-db"
 
-// Global instances.
-var (
-	DefaultHome = filepath.Join(os.Getenv("HOME"), ".cylinder")
-	cdc         = band.MakeEncodingConfig().Marshaler
+	"cosmossdk.io/log"
+
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/cosmos/cosmos-sdk/version"
+
+	band "github.com/bandprotocol/chain/v3/app"
+	"github.com/bandprotocol/chain/v3/cylinder/context"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
 )
 
 func hexByteToScalarHookFunc() mapstructure.DecodeHookFunc {
@@ -45,18 +45,8 @@ func hexByteToScalarHookFunc() mapstructure.DecodeHookFunc {
 }
 
 // initConfig initializes the configuration.
-func initConfig(ctx *Context, _ *cobra.Command) error {
-	var err error
-	if err := os.MkdirAll(ctx.home, os.ModePerm); err != nil {
-		return err
-	}
-
-	ctx.keyring, err = keyring.New("band", keyring.BackendTest, ctx.home, nil, cdc)
-	if err != nil {
-		return err
-	}
-
-	viper.SetConfigFile(path.Join(ctx.home, "config.yaml"))
+func initConfig(ctx *context.Context, _ *cobra.Command) error {
+	viper.SetConfigFile(path.Join(ctx.Home, "config.yaml"))
 	_ = viper.ReadInConfig() // If we fail to read config file, we'll just rely on cmd flags.
 
 	configOption := viper.DecodeHook(mapstructure.ComposeDecodeHookFunc(
@@ -65,16 +55,15 @@ func initConfig(ctx *Context, _ *cobra.Command) error {
 		mapstructure.StringToSliceHookFunc(","),
 	))
 
-	if err := viper.Unmarshal(&ctx.config, configOption); err != nil {
+	if err := viper.Unmarshal(&ctx.Config, configOption); err != nil {
 		return err
 	}
 
-	return nil
+	return ctx.InitLog()
 }
 
 // NewRootCmd returns a new instance of the root command.
-func NewRootCmd() *cobra.Command {
-	ctx := &Context{}
+func NewRootCmd(ctx *context.Context) *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "cylinder",
 		Short: "BandChain oracle daemon to subscribe and response to signature requests",
@@ -89,11 +78,79 @@ func NewRootCmd() *cobra.Command {
 		version.NewVersionCommand(),
 	)
 
-	rootCmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
-		return initConfig(ctx, rootCmd)
-	}
-
-	rootCmd.PersistentFlags().StringVar(&ctx.home, flags.FlagHome, DefaultHome, "home directory")
+	rootCmd.PersistentPreRunE = createPersistentPreRunE(rootCmd, ctx)
+	rootCmd.PersistentFlags().StringVar(&ctx.Home, flags.FlagHome, getDefaultHome(), "home directory")
 
 	return rootCmd
+}
+
+func createPersistentPreRunE(rootCmd *cobra.Command, ctx *context.Context) func(
+	cmd *cobra.Command,
+	args []string,
+) error {
+	return func(_ *cobra.Command, _ []string) error {
+		// create home directory
+		home, err := rootCmd.PersistentFlags().GetString(flags.FlagHome)
+		if err != nil {
+			return err
+		}
+		if err = os.MkdirAll(home, os.ModePerm); err != nil {
+			return err
+		}
+
+		// init temporary application
+		initAppOptions := viper.New()
+		tempDir := tempDir()
+		initAppOptions.Set(flags.FlagHome, tempDir)
+		tempApplication := band.NewBandApp(
+			log.NewNopLogger(),
+			dbm.NewMemDB(),
+			nil,
+			true,
+			map[int64]bool{},
+			tempDir,
+			initAppOptions,
+			100,
+		)
+
+		// set keyring
+		keyring, err := keyring.New("band", keyring.BackendTest, home, nil, tempApplication.AppCodec())
+		if err != nil {
+			return err
+		}
+
+		newCtx, err := context.NewContext(
+			nil,
+			keyring,
+			home,
+			tempApplication.AppCodec(),
+			tempApplication.GetTxConfig(),
+			tempApplication.InterfaceRegistry(),
+		)
+		if err != nil {
+			return err
+		}
+		*ctx = *newCtx
+
+		return initConfig(ctx, rootCmd)
+	}
+}
+
+func getDefaultHome() string {
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+
+	return filepath.Join(userHomeDir, ".cylinder")
+}
+
+var tempDir = func() string {
+	dir, err := os.MkdirTemp("", ".band")
+	if err != nil {
+		dir = band.DefaultNodeHome
+	}
+	defer os.RemoveAll(dir)
+
+	return dir
 }

@@ -1,12 +1,13 @@
 package group
 
 import (
-	"github.com/bandprotocol/chain/v2/cylinder"
+	"github.com/bandprotocol/chain/v3/cylinder"
+	"github.com/bandprotocol/chain/v3/cylinder/context"
 )
 
 // Group is a worker responsible for group creation process of TSS module
 type Group struct {
-	context *cylinder.Context
+	context *context.Context
 	workers []cylinder.Worker
 }
 
@@ -14,7 +15,7 @@ var _ cylinder.Worker = &Group{}
 
 // New creates a new instance of the Group worker.
 // It initializes the necessary components and returns the created Group instance or an error if initialization fails.
-func New(ctx *cylinder.Context) (*Group, error) {
+func New(ctx *context.Context) (*Group, error) {
 	return &Group{
 		context: ctx,
 	}, nil
