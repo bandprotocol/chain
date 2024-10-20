@@ -18,7 +18,8 @@ var (
 func (h *Hook) emitSetValidator(ctx sdk.Context, addr sdk.ValAddress) types.Validator {
 	val, _ := h.stakingKeeper.GetValidator(ctx, addr)
 	currentReward, currentRatio := h.getCurrentRewardAndCurrentRatio(ctx, addr)
-	accCommission, _ := h.distrKeeper.GetValidatorAccumulatedCommission(ctx, addr).Commission.TruncateDecimal()
+	valAccComm, _ := h.distrKeeper.GetValidatorAccumulatedCommission(ctx, addr)
+	accCommission, _ := valAccComm.Commission.TruncateDecimal()
 	pub, _ := val.ConsPubKey()
 
 	h.Write("SET_VALIDATOR", common.JsDict{
@@ -46,8 +47,8 @@ func (h *Hook) emitSetValidator(ctx sdk.Context, addr sdk.ValAddress) types.Vali
 }
 
 func (h *Hook) emitUpdateValidator(ctx sdk.Context, addr sdk.ValAddress) (types.Validator, bool) {
-	val, found := h.stakingKeeper.GetValidator(ctx, addr)
-	if !found {
+	val, err := h.stakingKeeper.GetValidator(ctx, addr)
+	if err != nil {
 		h.Write("UPDATE_VALIDATOR", common.JsDict{
 			"operator_address": addr.String(),
 			"tokens":           0,
@@ -94,19 +95,19 @@ func (h *Hook) emitDelegationAfterWithdrawReward(
 }
 
 func (h *Hook) emitDelegation(ctx sdk.Context, operatorAddress sdk.ValAddress, delegatorAddress sdk.AccAddress) {
-	delegation, found := h.stakingKeeper.GetDelegation(ctx, delegatorAddress, operatorAddress)
-	if found {
+	delegation, err := h.stakingKeeper.GetDelegation(ctx, delegatorAddress, operatorAddress)
+	if err != nil {
+		h.Write("REMOVE_DELEGATION", common.JsDict{
+			"delegator_address": delegatorAddress,
+			"operator_address":  operatorAddress,
+		})
+	} else {
 		_, ratio := h.getCurrentRewardAndCurrentRatio(ctx, operatorAddress)
 		h.Write("SET_DELEGATION", common.JsDict{
 			"delegator_address": delegatorAddress,
 			"operator_address":  operatorAddress,
 			"shares":            delegation.Shares.String(),
 			"last_ratio":        ratio,
-		})
-	} else {
-		h.Write("REMOVE_DELEGATION", common.JsDict{
-			"delegator_address": delegatorAddress,
-			"operator_address":  operatorAddress,
 		})
 	}
 }
@@ -116,9 +117,8 @@ func (h *Hook) handleMsgCreateValidator(
 	ctx sdk.Context, msg *types.MsgCreateValidator, detail common.JsDict,
 ) {
 	valAddr, _ := sdk.ValAddressFromBech32(msg.ValidatorAddress)
-	delAddr, _ := sdk.AccAddressFromBech32(msg.DelegatorAddress)
 	val := h.emitSetValidator(ctx, valAddr)
-	h.emitDelegation(ctx, valAddr, delAddr)
+	h.emitDelegation(ctx, valAddr, sdk.AccAddress(valAddr))
 	detail["moniker"] = val.Description.Moniker
 	detail["identity"] = val.Description.Identity
 }

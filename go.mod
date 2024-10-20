@@ -33,17 +33,16 @@ require (
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0
 	github.com/ethereum/go-ethereum v1.14.8
 	github.com/gin-gonic/gin v1.8.1
-	github.com/go-sql-driver/mysql v1.7.0
+	github.com/go-sql-driver/mysql v1.8.1
 	github.com/golang/protobuf v1.5.4
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/kyokomi/emoji v2.2.4+incompatible
 	github.com/levigross/grequests v0.0.0-20231203190023-9c307ef1f48d
 	github.com/lib/pq v1.10.7
-	github.com/mattn/go-sqlite3 v1.14.17
+	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/oasisprotocol/oasis-core/go v0.2202.7
-	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/peterbourgon/diskv v2.0.1+incompatible
 	github.com/prometheus/client_golang v1.20.1
 	github.com/segmentio/kafka-go v0.4.47
@@ -51,7 +50,6 @@ require (
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
-	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d
 	go.uber.org/mock v0.4.0
 	golang.org/x/crypto v0.26.0
 	golang.org/x/time v0.5.0
@@ -59,14 +57,18 @@ require (
 	google.golang.org/grpc v1.66.2
 	google.golang.org/protobuf v1.35.1
 	gopkg.in/yaml.v2 v2.4.0
-	gorm.io/driver/mysql v1.5.6
-	gorm.io/driver/postgres v1.5.7
-	gorm.io/driver/sqlite v1.5.5
-	gorm.io/gorm v1.25.10
 	sigs.k8s.io/yaml v1.4.0
 )
 
-require github.com/gabriel-vasile/mimetype v1.4.2 // indirect
+// extra/rest deps
+require (
+	github.com/patrickmn/go-cache v2.1.0+incompatible
+	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d
+	gorm.io/driver/mysql v1.5.7
+	gorm.io/driver/postgres v1.5.9
+	gorm.io/driver/sqlite v1.5.6
+	gorm.io/gorm v1.25.11
+)
 
 require (
 	cloud.google.com/go v0.115.0 // indirect
@@ -121,6 +123,7 @@ require (
 	github.com/fatih/color v1.16.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/getsentry/sentry-go v0.27.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-kit/kit v0.12.0 // indirect
@@ -173,7 +176,8 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
-	github.com/jackc/pgx/v5 v5.4.3 // indirect
+	github.com/jackc/pgx/v5 v5.5.5 // indirect
+	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect

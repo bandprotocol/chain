@@ -102,7 +102,6 @@ func TestFullAppSimulation(t *testing.T) {
 		DefaultNodeHome,
 		appOptions,
 		100,
-		"", "", "",
 		fauxMerkleModeOpt,
 		baseapp.SetChainID(BandAppChainID),
 	)
@@ -165,7 +164,6 @@ func TestAppImportExport(t *testing.T) {
 		DefaultNodeHome,
 		appOptions,
 		100,
-		"", "", "",
 		fauxMerkleModeOpt,
 		baseapp.SetChainID(BandAppChainID),
 	)
@@ -223,7 +221,6 @@ func TestAppImportExport(t *testing.T) {
 		DefaultNodeHome,
 		appOptions,
 		100,
-		"", "", "",
 		fauxMerkleModeOpt,
 		baseapp.SetChainID(BandAppChainID),
 	)
@@ -337,7 +334,6 @@ func TestAppSimulationAfterImport(t *testing.T) {
 		DefaultNodeHome,
 		appOptions,
 		100,
-		"", "", "",
 		fauxMerkleModeOpt,
 		baseapp.SetChainID(BandAppChainID),
 	)
@@ -400,7 +396,6 @@ func TestAppSimulationAfterImport(t *testing.T) {
 		DefaultNodeHome,
 		appOptions,
 		100,
-		"", "", "",
 		fauxMerkleModeOpt,
 		baseapp.SetChainID(BandAppChainID),
 	)
@@ -479,7 +474,6 @@ func TestAppStateDeterminism(t *testing.T) {
 				DefaultNodeHome,
 				appOptions,
 				100,
-				"", "", "",
 				interBlockCacheOpt(),
 				baseapp.SetChainID(BandAppChainID),
 			)

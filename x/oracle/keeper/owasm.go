@@ -3,7 +3,6 @@ package keeper
 import (
 	"encoding/hex"
 	"fmt"
-	"math"
 
 	"cosmossdk.io/math"
 
@@ -15,14 +14,10 @@ import (
 )
 
 // 1 cosmos gas is equal to 20000000 owasm gas
-const gasConversionFactor = 20_000_000
+const GasConversionFactor = 20_000_000
 
 func ConvertToOwasmGas(cosmos uint64) uint64 {
-	return cosmos * gasConversionFactor
-}
-
-func ConvertToGas(owasm uint64) uint64 {
-	return uint64(math.Ceil(float64(owasm) / float64(gasConversionFactor)))
+	return cosmos * GasConversionFactor
 }
 
 // GetSpanSize return maximum value between MaxReportDataSize and MaxCallDataSize

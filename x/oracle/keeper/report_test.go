@@ -17,6 +17,29 @@ func (suite *KeeperTestSuite) TestHasReport() {
 	require.True(k.HasReport(ctx, 42, bandtesting.Alice.ValAddress))
 }
 
+func (suite *KeeperTestSuite) TestAddReportSuccess() {
+	ctx := suite.ctx
+	k := suite.oracleKeeper
+	require := suite.Require()
+
+	k.SetRequest(ctx, 1, defaultRequest())
+	err := k.AddReport(ctx, 1,
+		validators[0].Address, true, []types.RawReport{
+			types.NewRawReport(1, 0, []byte("data1/1")),
+			types.NewRawReport(2, 1, []byte("data2/1")),
+			types.NewRawReport(3, 0, []byte("data3/1")),
+		},
+	)
+	require.NoError(err)
+	require.Equal([]types.Report{
+		types.NewReport(validators[0].Address, true, []types.RawReport{
+			types.NewRawReport(1, 0, []byte("data1/1")),
+			types.NewRawReport(2, 1, []byte("data2/1")),
+			types.NewRawReport(3, 0, []byte("data3/1")),
+		}),
+	}, k.GetReports(ctx, 1))
+}
+
 func (suite *KeeperTestSuite) TestGetReportSuccess() {
 	ctx := suite.ctx
 	k := suite.oracleKeeper
@@ -54,29 +77,6 @@ func (suite *KeeperTestSuite) TestGetReportNotFound() {
 	report, err := k.GetReport(ctx, 1, validators[0].Address)
 	require.Empty(report)
 	require.ErrorIs(err, types.ErrReportNotFound)
-}
-
-func (suite *KeeperTestSuite) TestAddReportSuccess() {
-	ctx := suite.ctx
-	k := suite.oracleKeeper
-	require := suite.Require()
-
-	k.SetRequest(ctx, 1, defaultRequest())
-	err := k.AddReport(ctx, 1,
-		validators[0].Address, true, []types.RawReport{
-			types.NewRawReport(1, 0, []byte("data1/1")),
-			types.NewRawReport(2, 1, []byte("data2/1")),
-			types.NewRawReport(3, 0, []byte("data3/1")),
-		},
-	)
-	require.NoError(err)
-	require.Equal([]types.Report{
-		types.NewReport(validators[0].Address, true, []types.RawReport{
-			types.NewRawReport(1, 0, []byte("data1/1")),
-			types.NewRawReport(2, 1, []byte("data2/1")),
-			types.NewRawReport(3, 0, []byte("data3/1")),
-		}),
-	}, k.GetReports(ctx, 1))
 }
 
 func (suite *KeeperTestSuite) TestReportOnNonExistingRequest() {

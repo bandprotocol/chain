@@ -90,10 +90,6 @@ type BandApp struct {
 	mm           *module.Manager
 	ModuleBasics module.BasicManager
 
-	// Deliver context, set during InitGenesis/BeginBlock and cleared during Commit. It allows
-	// anyone with access to BandApp to read/mutate consensus state anytime. USE WITH CARE!
-	DeliverContext sdk.Context
-
 	// List of hooks
 	hooks common.Hooks
 
@@ -121,9 +117,6 @@ func NewBandApp(
 	homePath string,
 	appOpts servertypes.AppOptions,
 	owasmCacheSize uint32,
-	emitterFlag,
-	requestSearchFlag,
-	pricerFlag string,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *BandApp {
 	legacyAmino := codec.NewLegacyAmino()
@@ -190,10 +183,7 @@ func NewBandApp(
 		owasmCacheSize,
 	)
 
-	/****  Module Options ****/
-	// NOTE: we may consider parsing `appOpts` inside module constructors. For the moment
-	// we prefer to be more strict in what arguments the modules expect.
-	skipGenesisInvariants := cast.ToBool(appOpts.Get(crisis.FlagSkipGenesisInvariants))
+	app.hooks = NewAppHooks(appCodec, txConfig, &app.AppKeepers, homePath, appOpts)
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
@@ -367,14 +357,6 @@ func (app *BandApp) EndBlocker(ctx sdk.Context) (sdk.EndBlock, error) {
 	return app.mm.EndBlock(ctx)
 }
 
-// Commit overrides the default BaseApp's ABCI commit by adding DeliverContext clearing.
-func (app *BandApp) Commit() (res abci.ResponseCommit) {
-	app.hooks.BeforeCommit()
-	app.DeliverContext = sdk.Context{}
-
-	return app.BaseApp.Commit()
-}
-
 // InitChainer application update at chain initialization
 func (app *BandApp) InitChainer(ctx sdk.Context, req *abci.RequestInitChain) (*abci.ResponseInitChain, error) {
 	var genesisState GenesisState
@@ -389,6 +371,8 @@ func (app *BandApp) InitChainer(ctx sdk.Context, req *abci.RequestInitChain) (*a
 	if err != nil {
 		panic(err)
 	}
+
+	app.hooks.AfterInitChain(ctx, req, response)
 
 	return response, nil
 }

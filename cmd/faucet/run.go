@@ -3,15 +3,18 @@ package main
 import (
 	"errors"
 
-	"cosmossdk.io/math"
-	httpclient "github.com/cometbft/cometbft/rpc/client/http"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	httpclient "github.com/cometbft/cometbft/rpc/client/http"
+
+	"cosmossdk.io/math"
+
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func runCmd(c *Context) *cobra.Command {

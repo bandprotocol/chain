@@ -2,10 +2,10 @@ package emitter
 
 import (
 	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v3/hooks/common"
-	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
@@ -128,7 +128,7 @@ func (h *Hook) handleMsgRequestData(
 ) {
 	var prepareGasUsed uint64
 	if eventRequestGasUsed, ok := evMap[types.EventTypeRequest+"."+types.AttributeKeyGasUsed]; ok {
-		prepareGasUsed = oraclekeeper.ConvertToGas(common.Atoui(eventRequestGasUsed[0]))
+		prepareGasUsed = ConvertToGas(common.Atoui(eventRequestGasUsed[0]))
 	}
 
 	id := types.RequestID(common.Atoi(evMap[types.EventTypeRequest+"."+types.AttributeKeyID][0]))
@@ -223,7 +223,7 @@ func (h *Hook) handleMsgEditOracleScript(
 func (h *Hook) handleEventRequestExecute(ctx sdk.Context, evMap common.EvMap) {
 	var executeGasUsed uint64
 	if eventResolveGasUsed, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeyGasUsed]; ok {
-		executeGasUsed = oraclekeeper.ConvertToGas(common.Atoui(eventResolveGasUsed[0]))
+		executeGasUsed = ConvertToGas(common.Atoui(eventResolveGasUsed[0]))
 	}
 
 	if reasons, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeyReason]; ok {

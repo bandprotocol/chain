@@ -4,11 +4,13 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/syndtr/goleveldb/leveldb"
+
 	abci "github.com/cometbft/cometbft/abci/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/syndtr/goleveldb/leveldb"
 
 	"github.com/bandprotocol/chain/v3/hooks/common"
 	"github.com/bandprotocol/chain/v3/x/oracle/keeper"
@@ -55,20 +57,20 @@ func NewHook(
 }
 
 // AfterInitChain specify actions need to do after chain initialization (app.Hook interface).
-func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res abci.ResponseInitChain) {
+func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *abci.ResponseInitChain) {
 }
 
 // AfterBeginBlock specify actions need to do after begin block period (app.Hook interface).
-func (h *Hook) AfterBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, res abci.ResponseBeginBlock) {
+func (h *Hook) AfterBeginBlock(ctx sdk.Context, req *abci.RequestFinalizeBlock, events []abci.Event) {
 }
 
 // AfterDeliverTx specify actions need to do after transaction has been processed (app.Hook interface).
-func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res abci.ResponseDeliverTx) {
+func (h *Hook) AfterDeliverTx(ctx sdk.Context, tx sdk.Tx, res *abci.ExecTxResult) {
 }
 
 // AfterEndBlock specify actions need to do after end block period (app.Hook interface).
-func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci.ResponseEndBlock) {
-	for _, event := range res.Events {
+func (h *Hook) AfterEndBlock(ctx sdk.Context, events []abci.Event) {
+	for _, event := range events {
 		events := sdk.StringifyEvents([]abci.Event{event})
 		evMap := common.ParseEvents(events)
 		switch event.Type {

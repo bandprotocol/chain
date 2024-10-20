@@ -3,16 +3,29 @@ package emitter
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
-	storetypes "cosmossdk.io/store/types"
+	"github.com/segmentio/kafka-go"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmjson "github.com/cometbft/cometbft/libs/json"
+	types1 "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	icahostkeeper "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/keeper"
+	clientkeeper "github.com/cosmos/ibc-go/v8/modules/core/02-client/keeper"
+	connectionkeeper "github.com/cosmos/ibc-go/v8/modules/core/03-connection/keeper"
+	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
+
+	storetypes "cosmossdk.io/store/types"
+
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -26,13 +39,7 @@ import (
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	icahostkeeper "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/keeper"
-	clientkeeper "github.com/cosmos/ibc-go/v8/modules/core/02-client/keeper"
-	connectionkeeper "github.com/cosmos/ibc-go/v8/modules/core/03-connection/keeper"
-	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
-	"github.com/segmentio/kafka-go"
 
-	"github.com/bandprotocol/chain/v3/app/params"
 	"github.com/bandprotocol/chain/v3/hooks/common"
 	feedskeeper "github.com/bandprotocol/chain/v3/x/feeds/keeper"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
@@ -42,9 +49,8 @@ import (
 
 // Hook uses Kafka functionality to act as an event producer for all events in the blockchains.
 type Hook struct {
-	cdc            codec.Codec
-	legecyAmino    *codec.LegacyAmino
-	encodingConfig params.EncodingConfig
+	cdc      codec.Codec
+	txConfig client.TxConfig
 	// Main Kafka writer instance.
 	writer *kafka.Writer
 	// Temporary variables that are reset on every block.
@@ -58,7 +64,7 @@ type Hook struct {
 	stakingKeeper *stakingkeeper.Keeper
 	mintKeeper    mintkeeper.Keeper
 	distrKeeper   distrkeeper.Keeper
-	govKeeper     govkeeper.Keeper
+	govKeeper     *govkeeper.Keeper
 	groupKeeper   groupkeeper.Keeper
 	oracleKeeper  oraclekeeper.Keeper
 	feedsKeeper   feedskeeper.Keeper
@@ -75,14 +81,13 @@ type Hook struct {
 // NewHook creates an emitter hook instance that will be added in Band App.
 func NewHook(
 	cdc codec.Codec,
-	legecyAmino *codec.LegacyAmino,
-	encodingConfig params.EncodingConfig,
+	txConfig client.TxConfig,
 	accountKeeper authkeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper,
 	stakingKeeper *stakingkeeper.Keeper,
 	mintKeeper mintkeeper.Keeper,
 	distrKeeper distrkeeper.Keeper,
-	govKeeper govkeeper.Keeper,
+	govKeeper *govkeeper.Keeper,
 	groupKeeper groupkeeper.Keeper,
 	oracleKeeper oraclekeeper.Keeper,
 	feedsKeeper feedskeeper.Keeper,
@@ -96,9 +101,8 @@ func NewHook(
 ) *Hook {
 	paths := strings.SplitN(kafkaURI, "@", 2)
 	return &Hook{
-		cdc:            cdc,
-		legecyAmino:    legecyAmino,
-		encodingConfig: encodingConfig,
+		cdc:      cdc,
+		txConfig: txConfig,
 		writer: kafka.NewWriter(kafka.WriterConfig{
 			Brokers:      paths[1:],
 			Topic:        paths[0],
@@ -157,7 +161,7 @@ func (h *Hook) FlushMessages() {
 }
 
 // AfterInitChain specify actions need to do after chain initialization (app.Hook interface).
-func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res abci.ResponseInitChain) {
+func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *abci.ResponseInitChain) {
 	var genesisState map[string]json.RawMessage
 	if err := tmjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
 		panic(err)
@@ -177,7 +181,7 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	h.cdc.MustUnmarshalJSON(genesisState[genutiltypes.ModuleName], &genutilState)
 	for _, genTx := range genutilState.GenTxs {
 		var tx sdk.Tx
-		tx, err := h.encodingConfig.TxConfig.TxJSONDecoder()(genTx)
+		tx, err := h.txConfig.TxJSONDecoder()(genTx)
 		if err != nil {
 			panic(err)
 		}
@@ -192,7 +196,7 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 	var stakingState stakingtypes.GenesisState
 	h.cdc.MustUnmarshalJSON(genesisState[stakingtypes.ModuleName], &stakingState)
 	for _, val := range stakingState.Validators {
-		h.emitSetValidator(ctx, val.GetOperator())
+		h.emitSetValidator(ctx, MustParseValAddress(val.GetOperator()))
 	}
 
 	for _, del := range stakingState.Delegations {
@@ -337,7 +341,7 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req abci.RequestInitChain, res ab
 }
 
 // AfterBeginBlock specify actions need to do after begin block period (app.Hook interface).
-func (h *Hook) AfterBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, res abci.ResponseBeginBlock) {
+func (h *Hook) AfterBeginBlock(ctx sdk.Context, req *abci.RequestFinalizeBlock, events []abci.Event) {
 	h.accsInBlock = make(map[string]bool)
 	h.accsInTx = make(map[string]bool)
 	h.msgs = []common.Message{}
@@ -346,15 +350,15 @@ func (h *Hook) AfterBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, res 
 		// h.emitStartState = false
 		// h.emitNonHistoricalState(ctx)
 	} else {
-		for _, val := range req.GetLastCommitInfo().Votes {
-			validator := h.stakingKeeper.ValidatorByConsAddr(ctx, val.GetValidator().Address)
+		for _, val := range req.DecidedLastCommit.Votes {
+			validator, _ := h.stakingKeeper.ValidatorByConsAddr(ctx, val.Validator.Address)
 			conAddr, _ := validator.GetConsAddr()
 			h.Write("NEW_VALIDATOR_VOTE", common.JsDict{
-				"consensus_address": conAddr.String(),
-				"block_height":      req.Header.GetHeight() - 1,
-				"voted":             val.GetSignedLastBlock(),
+				"consensus_address": sdk.ConsAddress(conAddr).String(),
+				"block_height":      req.Height - 1,
+				"voted":             val.BlockIdFlag == types1.BlockIDFlagCommit,
 			})
-			h.emitUpdateValidatorRewardAndAccumulatedCommission(ctx, validator.GetOperator())
+			h.emitUpdateValidatorRewardAndAccumulatedCommission(ctx, MustParseValAddress(validator.GetOperator()))
 		}
 	}
 	totalSupply := make([]string, 0)
@@ -362,29 +366,28 @@ func (h *Hook) AfterBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, res 
 		totalSupply = append(totalSupply, coin.String())
 		return true
 	})
+	minter, _ := h.mintKeeper.Minter.Get(ctx)
+
 	h.Write("NEW_BLOCK", common.JsDict{
-		"height":    req.Header.GetHeight(),
+		"height":    ctx.BlockHeight(),
 		"timestamp": ctx.BlockTime().UnixNano(),
-		"proposer":  sdk.ConsAddress(req.Header.GetProposerAddress()).String(),
-		"hash":      req.GetHash(),
-		"inflation": h.mintKeeper.GetMinter(ctx).Inflation.String(),
+		// "proposer":  sdk.ConsAddress(req.Header.GetProposerAddress()).String(),
+		"proposer":  sdk.ConsAddress(ctx.BlockHeader().ProposerAddress).String(),
+		"hash":      ctx.HeaderHash(),
+		"inflation": minter.Inflation.String(),
 		"supply":    totalSupply,
 	})
-	for _, event := range res.Events {
+	for _, event := range events {
 		h.handleBeginBlockEndBlockEvent(ctx, event)
 	}
 }
 
 // AfterDeliverTx specify actions need to do after transaction has been processed (app.Hook interface).
-func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res abci.ResponseDeliverTx) {
+func (h *Hook) AfterDeliverTx(ctx sdk.Context, tx sdk.Tx, res *abci.ExecTxResult) {
 	if ctx.BlockHeight() == 0 {
 		return
 	}
 	h.accsInTx = make(map[string]bool)
-	tx, err := h.encodingConfig.TxConfig.TxDecoder()(req.Tx)
-	if err != nil {
-		return
-	}
 	feeTx, ok := tx.(sdk.FeeTx)
 	if !ok {
 		return
@@ -394,11 +397,15 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 		return
 	}
 
-	txHash := tmhash.Sum(req.Tx)
-	var errMsg *string
-	if !res.IsOK() {
-		errMsg = &res.Log
+	sigTx, ok := tx.(authsigning.SigVerifiableTx)
+	if !ok {
+		return
 	}
+
+	rawTx, _ := h.txConfig.TxEncoder()(tx)
+	txHash := tmhash.Sum(rawTx)
+
+	signers, _ := sigTx.GetSigners()
 
 	txDict := common.JsDict{
 		"hash":         txHash,
@@ -406,32 +413,36 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 		"gas_used":     res.GasUsed,
 		"gas_limit":    feeTx.GetGas(),
 		"gas_fee":      feeTx.GetFee().String(),
-		"err_msg":      errMsg,
-		"sender":       tx.GetMsgs()[0].GetSigners()[0].String(),
+		"sender":       sdk.AccAddress(signers[0]).String(),
 		"success":      res.IsOK(),
 		"memo":         memoTx.GetMemo(),
-		"fee_payer":    feeTx.FeeGranter(),
+		"fee_payer":    sdk.AccAddress(feeTx.FeeGranter()).String(),
 	}
+	if !res.IsOK() {
+		txDict["err_msg"] = fmt.Sprintf("Error on codespace %s: with code %d", res.Codespace, res.Code)
+	}
+
 	// NOTE: We add txDict to the list of pending Kafka messages here, but it will still be
 	// mutated in the loop below as we know the messages won't get flushed until ABCI Commit.
 	h.Write("NEW_TRANSACTION", txDict)
-	logs, _ := sdk.ParseABCILogs(res.Log) // Error must always be nil if res.IsOK is true.
 	messages := []map[string]interface{}{}
-	for idx, msg := range tx.GetMsgs() {
+	txMsgs := tx.GetMsgs()
+	// Tx events not used yet
+	_, events := splitTxEvents(len(txMsgs), res.Events)
+	for i, msg := range txMsgs {
 		detail := make(common.JsDict)
 		DecodeMsg(msg, detail)
 		if res.IsOK() {
-			h.handleMsg(ctx, txHash, msg, logs[idx], detail)
+			h.handleMsg(ctx, txHash, msg, events[i], detail)
 		}
 		messages = append(messages, common.JsDict{
 			"msg":  detail,
 			"type": sdk.MsgTypeURL(msg),
 		})
 	}
-	signers := tx.GetMsgs()[0].GetSigners()
 	addrs := make([]string, len(signers))
 	for idx, signer := range signers {
-		addrs[idx] = signer.String()
+		addrs[idx] = sdk.AccAddress(signer).String()
 	}
 	h.AddAccountsInTx(addrs...)
 	relatedAccounts := make([]string, 0, len(h.accsInBlock))
@@ -448,21 +459,21 @@ func (h *Hook) AfterDeliverTx(ctx sdk.Context, req abci.RequestDeliverTx, res ab
 }
 
 // AfterEndBlock specify actions need to do after end block period (app.Hook interface).
-func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci.ResponseEndBlock) {
+func (h *Hook) AfterEndBlock(ctx sdk.Context, events []abci.Event) {
 	// update group proposals when voting period is end
 	timeBytes := sdk.FormatTimeBytes(ctx.BlockTime().UTC())
 	lenTimeByte := byte(len(timeBytes))
 	prefix := []byte{groupkeeper.ProposalsByVotingPeriodEndPrefix}
 
 	iterator := ctx.KVStore(h.groupStoreKey).
-		Iterator(prefix, sdk.PrefixEndBytes(append(append(prefix, lenTimeByte), timeBytes...)))
+		Iterator(prefix, storetypes.PrefixEndBytes(append(append(prefix, lenTimeByte), timeBytes...)))
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		proposalID, _ := splitKeyWithTime(iterator.Key())
 		h.doUpdateGroupProposal(ctx, proposalID)
 	}
 
-	for _, event := range res.Events {
+	for _, event := range events {
 		h.handleBeginBlockEndBlockEvent(ctx, event)
 	}
 	// Update balances of all affected accounts on this block.
@@ -480,7 +491,7 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, req abci.RequestEndBlock, res abci
 	}
 
 	h.msgs = append(modifiedMsgs, h.msgs[1:]...)
-	h.Write("COMMIT", common.JsDict{"height": req.Height})
+	h.Write("COMMIT", common.JsDict{"height": ctx.BlockHeight()})
 }
 
 func (h *Hook) RequestSearch(

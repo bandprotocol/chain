@@ -222,6 +222,15 @@ func initRootCmd(
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
 	oracle.AddModuleInitFlags(startCmd)
+
+	// Add hooks flag
+	startCmd.Flags().
+		String(band.FlagWithRequestSearch, "", "[Experimental] Enable mode to save request in sql database")
+	startCmd.Flags().
+		Int(band.FlagRequestSearchCacheSize, 10, "[Experimental] indicates number of latest oracle requests to be stored in database")
+	startCmd.Flags().String(band.FlagWithEmitter, "", "[Experimental] Enable mode to save request in sql database")
+	startCmd.Flags().
+		String(band.FlagWithPricer, "", "[Experimental] Enable collecting standard price reference provided by given oracle script id and save in level db (Input format: [id-comma-separated]/[defaultAskCount]/[defaultMinCount])")
 }
 
 // genesisCommand builds genesis-related `bandd genesis` command. Users may provide application specific commands as a parameter

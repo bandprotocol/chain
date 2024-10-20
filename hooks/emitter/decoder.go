@@ -3,7 +3,13 @@ package emitter
 import (
 	"encoding/hex"
 
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	connectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+
 	feegranttypes "cosmossdk.io/x/feegrant"
+
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -14,10 +20,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/group"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
-	connectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
-	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 
 	"github.com/bandprotocol/chain/v3/hooks/common"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
@@ -46,8 +48,6 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeMsgUpdateClient(msg, detail)
 	case *clienttypes.MsgUpgradeClient:
 		DecodeMsgUpgradeClient(msg, detail)
-	case *clienttypes.MsgSubmitMisbehaviour:
-		DecodeMsgSubmitMisbehaviour(msg, detail)
 	case *connectiontypes.MsgConnectionOpenInit:
 		DecodeMsgConnectionOpenInit(msg, detail)
 	case *connectiontypes.MsgConnectionOpenTry:
@@ -378,7 +378,7 @@ func DecodeMsgSubmitProposal(msg *govv1.MsgSubmitProposal, detail common.JsDict)
 func DecodeV1beta1MsgSubmitProposal(msg *govv1beta1.MsgSubmitProposal, detail common.JsDict) {
 	detail["content"] = msg.GetContent()
 	detail["initial_deposit"] = msg.GetInitialDeposit()
-	detail["proposer"] = msg.GetProposer()
+	detail["proposer"] = msg.Proposer
 }
 
 func DecodeMsgDeposit(msg *govv1.MsgDeposit, detail common.JsDict) {
@@ -426,10 +426,13 @@ func DecodeMsgCreateValidator(msg *stakingtypes.MsgCreateValidator, detail commo
 	detail["description"] = DecodeDescription(msg.Description)
 	detail["commission"] = msg.Commission
 	detail["min_self_delegation"] = msg.MinSelfDelegation
-	detail["delegator_address"] = msg.DelegatorAddress
 	detail["validator_address"] = msg.ValidatorAddress
 	detail["pubkey"] = hexConsPubKey
 	detail["value"] = msg.Value
+
+	// delegatorAddress is deprecated. need to convert from validatorAddress
+	addr, _ := sdk.ValAddressFromBech32(msg.ValidatorAddress)
+	detail["delegator_address"] = sdk.AccAddress(addr).String()
 }
 
 func DecodeMsgEditValidator(msg *stakingtypes.MsgEditValidator, detail common.JsDict) {
@@ -476,6 +479,9 @@ func DecodeMsgUpgradeClient(msg *clienttypes.MsgUpgradeClient, detail common.JsD
 	detail["signer"] = msg.Signer
 }
 
+// MsgSubmitMisbehaviour is deprecated but still use able.
+//
+//nolint:staticcheck
 func DecodeMsgSubmitMisbehaviour(msg *clienttypes.MsgSubmitMisbehaviour, detail common.JsDict) {
 	misbehaviour, _ := clienttypes.UnpackClientMessage(msg.Misbehaviour)
 	detail["client_id"] = msg.ClientId
