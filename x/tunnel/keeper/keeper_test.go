@@ -9,6 +9,8 @@ import (
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
+	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
+
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -17,7 +19,6 @@ import (
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 
 	"github.com/bandprotocol/chain/v3/x/tunnel"
 	"github.com/bandprotocol/chain/v3/x/tunnel/keeper"
