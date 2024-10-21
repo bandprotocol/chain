@@ -15,6 +15,7 @@ import (
 	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
 
 	"github.com/bandprotocol/chain/v3/grogu/signaller/testutil"
+	"github.com/bandprotocol/chain/v3/grogu/submitter"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	feeds "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
@@ -23,7 +24,7 @@ type SignallerTestSuite struct {
 	suite.Suite
 
 	Signaller    *Signaller
-	SubmitCh     chan []feeds.SignalPrice
+	SubmitCh     chan submitter.SignalPriceSubmission
 	assignedTime time.Time
 }
 
@@ -73,17 +74,20 @@ func (s *SignallerTestSuite) SetupTest() {
 
 	mockBothanClient := testutil.NewMockBothanClient(ctrl)
 	mockBothanClient.EXPECT().GetPrices(gomock.Any()).
-		Return([]*bothan.Price{
-			{
-				SignalId: "signal1",
-				Price:    10000,
-				Status:   bothan.Status_AVAILABLE,
+		Return(&bothan.GetPricesResponse{
+			Prices: []*bothan.Price{
+				{
+					SignalId: "signal1",
+					Price:    10000,
+					Status:   bothan.Status_AVAILABLE,
+				},
 			},
+			Uuid: "uuid1",
 		}, nil).
 		AnyTimes()
 
 	// Create submit channel
-	submitCh := make(chan []feeds.SignalPrice, 300)
+	submitCh := make(chan submitter.SignalPriceSubmission, 300)
 
 	// Initialize logger
 	allowLevel, _ := log.ParseLogLevel("info")
@@ -204,12 +208,14 @@ func (s *SignallerTestSuite) TestSubmitPrices() {
 		},
 	}
 
-	s.Signaller.submitPrices(prices)
+	uuid := "test-uuid"
+
+	s.Signaller.submitPrices(prices, uuid)
 
 	select {
-	case submittedPrices := <-s.SubmitCh:
-		s.Require().NotEmpty(submittedPrices)
-		s.Require().Equal("signal1", submittedPrices[0].SignalID)
+	case priceSubmission := <-s.SubmitCh:
+		s.Require().NotEmpty(priceSubmission.SignalPrices)
+		s.Require().Equal("signal1", priceSubmission.SignalPrices[0].SignalID)
 	default:
 		s.Fail("Expected prices to be submitted")
 	}

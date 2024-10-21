@@ -16,7 +16,7 @@ import (
 
 // Querier is used as Keeper will have duplicate methods if used directly, and gRPC names take precedence over keeper.
 type Querier struct {
-	*Keeper
+	Keeper
 }
 
 var _ types.QueryServer = Querier{}
@@ -59,59 +59,6 @@ func (k Querier) Vault(
 	}
 
 	return &types.QueryVaultResponse{Vault: vault}, nil
-}
-
-// Rewards queries all rewards with pagination.
-func (k Querier) Rewards(
-	c context.Context,
-	req *types.QueryRewardsRequest,
-) (*types.QueryRewardsResponse, error) {
-	ctx := sdk.UnwrapSDKContext(c)
-
-	addr, err := sdk.AccAddressFromBech32(req.StakerAddress)
-	if err != nil {
-		return nil, err
-	}
-
-	lockStore := prefix.NewStore(ctx.KVStore(k.storeKey), types.LocksByAddressStoreKey(addr))
-
-	filteredRewards, pageRes, err := query.GenericFilteredPaginate(
-		k.cdc,
-		lockStore,
-		req.Pagination,
-		func(key []byte, s *types.Lock) (*types.Reward, error) {
-			reward := k.getReward(ctx, *s)
-			return &reward, nil
-		}, func() *types.Lock {
-			return &types.Lock{}
-		})
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
-	return &types.QueryRewardsResponse{Rewards: filteredRewards, Pagination: pageRes}, nil
-}
-
-// Reward queries info about a reward by using address and key
-func (k Querier) Reward(
-	c context.Context,
-	req *types.QueryRewardRequest,
-) (*types.QueryRewardResponse, error) {
-	ctx := sdk.UnwrapSDKContext(c)
-
-	addr, err := sdk.AccAddressFromBech32(req.StakerAddress)
-	if err != nil {
-		return nil, err
-	}
-
-	lock, found := k.GetLock(ctx, addr, req.Key)
-	if !found {
-		return nil, types.ErrLockNotFound.Wrapf("address: %s, key: %s", addr.String(), req.Key)
-	}
-
-	return &types.QueryRewardResponse{
-		Reward: k.getReward(ctx, lock),
-	}, nil
 }
 
 // Locks queries all locks with pagination.

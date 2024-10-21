@@ -8,6 +8,7 @@ import (
 
 	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
 
+	"github.com/bandprotocol/chain/v3/grogu/submitter"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
@@ -22,7 +23,7 @@ type Signaller struct {
 	bothanClient BothanClient
 	// How often to check for signal changes
 	interval         time.Duration
-	submitCh         chan<- []types.SignalPrice
+	submitCh         chan<- submitter.SignalPriceSubmission
 	logger           *logger.Logger
 	valAddress       sdk.ValAddress
 	pendingSignalIDs *sync.Map
@@ -39,7 +40,7 @@ func New(
 	feedQuerier FeedQuerier,
 	bothanClient BothanClient,
 	interval time.Duration,
-	submitCh chan<- []types.SignalPrice,
+	submitCh chan<- submitter.SignalPriceSubmission,
 	logger *logger.Logger,
 	valAddress sdk.ValAddress,
 	pendingSignalIDs *sync.Map,
@@ -165,11 +166,13 @@ func (s *Signaller) execute() {
 	}
 
 	s.logger.Debug("[Signaller] querying prices from bothan: %v", nonPendingSignalIDs)
-	prices, err := s.bothanClient.GetPrices(nonPendingSignalIDs)
+	res, err := s.bothanClient.GetPrices(nonPendingSignalIDs)
 	if err != nil {
 		s.logger.Error("[Signaller] failed to query prices from bothan: %v", err)
 		return
 	}
+
+	prices, uuid := res.Prices, res.Uuid
 
 	s.logger.Debug("[Signaller] filtering prices")
 	submitPrices := s.filterAndPrepareSubmitPrices(prices, nonPendingSignalIDs, now)
@@ -179,10 +182,10 @@ func (s *Signaller) execute() {
 	}
 
 	s.logger.Debug("[Signaller] submitting prices: %v", submitPrices)
-	s.submitPrices(submitPrices)
+	s.submitPrices(submitPrices, uuid)
 }
 
-func (s *Signaller) submitPrices(prices []types.SignalPrice) {
+func (s *Signaller) submitPrices(prices []types.SignalPrice, uuid string) {
 	for _, p := range prices {
 		_, loaded := s.pendingSignalIDs.LoadOrStore(p.SignalID, struct{}{})
 		if loaded {
@@ -190,7 +193,12 @@ func (s *Signaller) submitPrices(prices []types.SignalPrice) {
 		}
 	}
 
-	s.submitCh <- prices
+	signalPriceSubmission := submitter.SignalPriceSubmission{
+		SignalPrices: prices,
+		UUID:         uuid,
+	}
+
+	s.submitCh <- signalPriceSubmission
 }
 
 func (s *Signaller) getAllSignalIDs() []string {

@@ -77,6 +77,7 @@ import (
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	restakekeeper "github.com/bandprotocol/chain/v3/x/restake/keeper"
+	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 type AppKeepers struct {
@@ -279,7 +280,7 @@ func NewAppKeeper(
 
 	appKeepers.RestakeKeeper = restakekeeper.NewKeeper(
 		appCodec,
-		appKeepers.keys[oracletypes.StoreKey],
+		appKeepers.keys[restaketypes.StoreKey],
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		appKeepers.StakingKeeper,

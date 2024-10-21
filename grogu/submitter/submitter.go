@@ -20,11 +20,16 @@ import (
 	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
+type SignalPriceSubmission struct {
+	SignalPrices []types.SignalPrice
+	UUID         string
+}
+
 type Submitter struct {
 	clientCtx           client.Context
 	clients             []rpcclient.RemoteClient
 	logger              *logger.Logger
-	submitSignalPriceCh <-chan []types.SignalPrice
+	submitSignalPriceCh <-chan SignalPriceSubmission
 	authQuerier         AuthQuerier
 	txQuerier           TxQuerier
 	valAddress          sdk.ValAddress
@@ -42,7 +47,7 @@ func New(
 	clientCtx client.Context,
 	clients []rpcclient.RemoteClient,
 	logger *logger.Logger,
-	submitSignalPriceCh <-chan []types.SignalPrice,
+	submitSignalPriceCh <-chan SignalPriceSubmission,
 	authQuerier AuthQuerier,
 	txQuerier TxQuerier,
 	valAddress sdk.ValAddress,
@@ -89,16 +94,17 @@ func New(
 
 func (s *Submitter) Start() {
 	for {
-		submitPrice := <-s.submitSignalPriceCh
+		priceSubmission := <-s.submitSignalPriceCh
 		keyID := <-s.idleKeyIDChannel
-		go func(sps []types.SignalPrice, kid string) {
+		go func(sps SignalPriceSubmission, kid string) {
 			s.logger.Debug("[Submitter] starting submission")
 			s.submitPrice(sps, kid)
-		}(submitPrice, keyID)
+		}(priceSubmission, keyID)
 	}
 }
 
-func (s *Submitter) submitPrice(prices []types.SignalPrice, keyID string) {
+func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID string) {
+	prices, uuid := pricesSubmission.SignalPrices, pricesSubmission.UUID
 	defer func() {
 		s.removePending(prices)
 		s.idleKeyIDChannel <- keyID
@@ -110,7 +116,7 @@ func (s *Submitter) submitPrice(prices []types.SignalPrice, keyID string) {
 		Prices:    prices,
 	}
 	msgs := []sdk.Msg{&msg}
-	memo := fmt.Sprintf("grogu:%s", version.Version)
+	memo := fmt.Sprintf("grogu: %s, uuid: %s", version.Version, uuid)
 
 	key, err := s.clientCtx.Keyring.Key(keyID)
 	if err != nil {

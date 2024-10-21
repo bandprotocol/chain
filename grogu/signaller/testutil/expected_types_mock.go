@@ -42,10 +42,10 @@ func (m *MockBothanClient) EXPECT() *MockBothanClientMockRecorder {
 }
 
 // GetPrices mocks base method.
-func (m *MockBothanClient) GetPrices(signalIDs []string) ([]*price.Price, error) {
+func (m *MockBothanClient) GetPrices(signalIDs []string) (*price.GetPricesResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPrices", signalIDs)
-	ret0, _ := ret[0].([]*price.Price)
+	ret0, _ := ret[0].(*price.GetPricesResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

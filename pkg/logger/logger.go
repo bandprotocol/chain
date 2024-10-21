@@ -28,6 +28,11 @@ func (l *Logger) Info(format string, args ...interface{}) {
 	l.logger.Info(emoji.Sprintf(format, args...))
 }
 
+// Warn logs a warning message.
+func (l *Logger) Warn(format string, args ...interface{}) {
+	l.logger.Warn(emoji.Sprintf(format, args...))
+}
+
 // Error logs an error message.
 func (l *Logger) Error(format string, args ...interface{}) {
 	l.logger.Error(emoji.Sprintf(format, args...))

@@ -154,7 +154,7 @@ func appModules(
 		app.ICAModule,
 		globalfee.NewAppModule(app.GlobalFeeKeeper),
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
-		restake.NewAppModule(appCodec, &app.RestakeKeeper),
+		restake.NewAppModule(appCodec, app.RestakeKeeper),
 		feeds.NewAppModule(appCodec, app.FeedsKeeper),
 	}
 }
