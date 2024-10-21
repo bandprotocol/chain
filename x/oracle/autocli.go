@@ -65,7 +65,7 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 				{
 					RpcMethod:      "Reporters",
 					Use:            "reporters [validator-address]",
-					Short:          "Get an oracle request details",
+					Short:          "Get list of reporters owned by given validator",
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "validator_address"}},
 				},
 				{
