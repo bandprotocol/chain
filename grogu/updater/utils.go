@@ -23,7 +23,7 @@ func processEvent(
 	height := getHeight(ev)
 	if height > maxHeight.Load() {
 		maxHeight.Store(height)
-		logger.Debug("[Updater] Received event for %s with new max height: %d", query, height)
+		logger.Info("[Updater] Received event for %s with new max height: %d", query, height)
 
 		// Retry logic
 		for {
