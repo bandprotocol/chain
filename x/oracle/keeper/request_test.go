@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	"github.com/stretchr/testify/require"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
@@ -10,8 +8,7 @@ import (
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
-func testRequest(
-	require *require.Assertions,
+func (suite *KeeperTestSuite) testRequest(
 	k keeper.Keeper,
 	ctx sdk.Context,
 	rid types.RequestID,
@@ -19,6 +16,7 @@ func testRequest(
 	reportCount uint64,
 	hasRequest bool,
 ) {
+	require := suite.Require()
 	if resolveStatus == types.RESOLVE_STATUS_OPEN {
 		require.False(k.HasResult(ctx, rid))
 	} else {
@@ -306,10 +304,10 @@ func (suite *KeeperTestSuite) TestProcessExpiredRequests() {
 	require.Equal(types.RequestID(0), k.GetRequestLastExpired(ctx))
 	require.True(k.GetValidatorStatus(ctx, validators[0].Address).IsActive)
 	require.True(k.GetValidatorStatus(ctx, validators[1].Address).IsActive)
-	testRequest(require, k, ctx, types.RequestID(1), types.RESOLVE_STATUS_SUCCESS, 2, true)
-	testRequest(require, k, ctx, types.RequestID(2), types.RESOLVE_STATUS_FAILURE, 2, true)
-	testRequest(require, k, ctx, types.RequestID(3), types.RESOLVE_STATUS_OPEN, 1, true)
-	testRequest(require, k, ctx, types.RequestID(4), types.RESOLVE_STATUS_SUCCESS, 2, true)
+	suite.testRequest(k, ctx, types.RequestID(1), types.RESOLVE_STATUS_SUCCESS, 2, true)
+	suite.testRequest(k, ctx, types.RequestID(2), types.RESOLVE_STATUS_FAILURE, 2, true)
+	suite.testRequest(k, ctx, types.RequestID(3), types.RESOLVE_STATUS_OPEN, 1, true)
+	suite.testRequest(k, ctx, types.RequestID(4), types.RESOLVE_STATUS_SUCCESS, 2, true)
 
 	// At block 8, now last request ID should move to 1. No events should be emitted.
 	ctx = ctx.WithBlockHeight(8).WithBlockTime(bandtesting.ParseTime(8000)).WithEventManager(sdk.NewEventManager())
@@ -318,10 +316,10 @@ func (suite *KeeperTestSuite) TestProcessExpiredRequests() {
 	require.Equal(types.RequestID(1), k.GetRequestLastExpired(ctx))
 	require.True(k.GetValidatorStatus(ctx, validators[0].Address).IsActive)
 	require.True(k.GetValidatorStatus(ctx, validators[1].Address).IsActive)
-	testRequest(require, k, ctx, types.RequestID(1), types.RESOLVE_STATUS_SUCCESS, 0, false)
-	testRequest(require, k, ctx, types.RequestID(2), types.RESOLVE_STATUS_FAILURE, 2, true)
-	testRequest(require, k, ctx, types.RequestID(3), types.RESOLVE_STATUS_OPEN, 1, true)
-	testRequest(require, k, ctx, types.RequestID(4), types.RESOLVE_STATUS_SUCCESS, 2, true)
+	suite.testRequest(k, ctx, types.RequestID(1), types.RESOLVE_STATUS_SUCCESS, 0, false)
+	suite.testRequest(k, ctx, types.RequestID(2), types.RESOLVE_STATUS_FAILURE, 2, true)
+	suite.testRequest(k, ctx, types.RequestID(3), types.RESOLVE_STATUS_OPEN, 1, true)
+	suite.testRequest(k, ctx, types.RequestID(4), types.RESOLVE_STATUS_SUCCESS, 2, true)
 
 	// At block 9, request#3 is expired and validator 2 becomes inactive.
 	ctx = ctx.WithBlockHeight(9).WithBlockTime(bandtesting.ParseTime(9000)).WithEventManager(sdk.NewEventManager())
@@ -342,28 +340,28 @@ func (suite *KeeperTestSuite) TestProcessExpiredRequests() {
 		3, 1, req3.RequestTime, bandtesting.ParseTime(9000).Unix(),
 		types.RESOLVE_STATUS_EXPIRED, nil,
 	), k.MustGetResult(ctx, 3))
-	testRequest(require, k, ctx, types.RequestID(1), types.RESOLVE_STATUS_SUCCESS, 0, false)
-	testRequest(require, k, ctx, types.RequestID(2), types.RESOLVE_STATUS_FAILURE, 0, false)
-	testRequest(require, k, ctx, types.RequestID(3), types.RESOLVE_STATUS_EXPIRED, 0, false)
-	testRequest(require, k, ctx, types.RequestID(4), types.RESOLVE_STATUS_SUCCESS, 2, true)
+	suite.testRequest(k, ctx, types.RequestID(1), types.RESOLVE_STATUS_SUCCESS, 0, false)
+	suite.testRequest(k, ctx, types.RequestID(2), types.RESOLVE_STATUS_FAILURE, 0, false)
+	suite.testRequest(k, ctx, types.RequestID(3), types.RESOLVE_STATUS_EXPIRED, 0, false)
+	suite.testRequest(k, ctx, types.RequestID(4), types.RESOLVE_STATUS_SUCCESS, 2, true)
 
 	// At block 10, nothing should happen
 	ctx = ctx.WithBlockHeight(10).WithBlockTime(bandtesting.ParseTime(10000)).WithEventManager(sdk.NewEventManager())
 	k.ProcessExpiredRequests(ctx)
 	require.Equal(sdk.Events{}, ctx.EventManager().Events())
 	require.Equal(types.RequestID(3), k.GetRequestLastExpired(ctx))
-	testRequest(require, k, ctx, types.RequestID(1), types.RESOLVE_STATUS_SUCCESS, 0, false)
-	testRequest(require, k, ctx, types.RequestID(2), types.RESOLVE_STATUS_FAILURE, 0, false)
-	testRequest(require, k, ctx, types.RequestID(3), types.RESOLVE_STATUS_EXPIRED, 0, false)
-	testRequest(require, k, ctx, types.RequestID(4), types.RESOLVE_STATUS_SUCCESS, 2, true)
+	suite.testRequest(k, ctx, types.RequestID(1), types.RESOLVE_STATUS_SUCCESS, 0, false)
+	suite.testRequest(k, ctx, types.RequestID(2), types.RESOLVE_STATUS_FAILURE, 0, false)
+	suite.testRequest(k, ctx, types.RequestID(3), types.RESOLVE_STATUS_EXPIRED, 0, false)
+	suite.testRequest(k, ctx, types.RequestID(4), types.RESOLVE_STATUS_SUCCESS, 2, true)
 
 	// At block 13, last expired request becomes 4.
 	ctx = ctx.WithBlockHeight(13).WithBlockTime(bandtesting.ParseTime(13000)).WithEventManager(sdk.NewEventManager())
 	k.ProcessExpiredRequests(ctx)
 	require.Equal(sdk.Events{}, ctx.EventManager().Events())
 	require.Equal(types.RequestID(4), k.GetRequestLastExpired(ctx))
-	testRequest(require, k, ctx, types.RequestID(1), types.RESOLVE_STATUS_SUCCESS, 0, false)
-	testRequest(require, k, ctx, types.RequestID(2), types.RESOLVE_STATUS_FAILURE, 0, false)
-	testRequest(require, k, ctx, types.RequestID(3), types.RESOLVE_STATUS_EXPIRED, 0, false)
-	testRequest(require, k, ctx, types.RequestID(4), types.RESOLVE_STATUS_SUCCESS, 0, false)
+	suite.testRequest(k, ctx, types.RequestID(1), types.RESOLVE_STATUS_SUCCESS, 0, false)
+	suite.testRequest(k, ctx, types.RequestID(2), types.RESOLVE_STATUS_FAILURE, 0, false)
+	suite.testRequest(k, ctx, types.RequestID(3), types.RESOLVE_STATUS_EXPIRED, 0, false)
+	suite.testRequest(k, ctx, types.RequestID(4), types.RESOLVE_STATUS_SUCCESS, 0, false)
 }
