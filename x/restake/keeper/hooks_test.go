@@ -5,8 +5,9 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 
-	"github.com/bandprotocol/chain/v3/x/restake/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 func (suite *KeeperTestSuite) TestHooksAfterDelegationModified() {
