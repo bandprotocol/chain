@@ -157,14 +157,14 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, encCfg.InterfaceRegistry)
 	queryServer := keeper.Querier{
-		Keeper: &suite.restakeKeeper,
+		Keeper: suite.restakeKeeper,
 	}
 
 	types.RegisterInterfaces(encCfg.InterfaceRegistry)
 	types.RegisterQueryServer(queryHelper, queryServer)
 	queryClient := types.NewQueryClient(queryHelper)
 	suite.queryClient = queryClient
-	suite.msgServer = keeper.NewMsgServerImpl(&suite.restakeKeeper)
+	suite.msgServer = keeper.NewMsgServerImpl(suite.restakeKeeper)
 }
 
 func (suite *KeeperTestSuite) setupState() {

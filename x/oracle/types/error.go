@@ -50,9 +50,9 @@ var (
 	ErrInvalidOwasmGas          = errorsmod.Register(ModuleName, 44, "invalid owasm gas")
 	ErrIBCRequestDisabled       = errorsmod.Register(ModuleName, 45, "sending oracle request via IBC is disabled")
 	ErrSigningResultNotFound    = errorsmod.Register(ModuleName, 46, "signing result not found")
-	ErrReportNotFound           = errorsmod.Register(ModuleName, 47, "report not found")
-	ErrInvalidRequestID         = errorsmod.Register(ModuleName, 48, "invalid request id")
-	ErrInvalidOracleEncodeType  = errorsmod.Register(ModuleName, 49, "invalid oracle encode type")
+	ErrInvalidRequestID         = errorsmod.Register(ModuleName, 47, "invalid request id")
+	ErrInvalidOracleEncodeType  = errorsmod.Register(ModuleName, 48, "invalid oracle encode type")
+	ErrReportNotFound           = errorsmod.Register(ModuleName, 101, "report not found")
 )
 
 // WrapMaxError wraps an error message with additional info of the current and max values.
