@@ -6,7 +6,7 @@ import "google/protobuf/duration.proto";
 import "bandtss/v1beta1/bandtss.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
-option go_package = "github.com/bandprotocol/chain/v2/x/bandtss/types";
+option go_package = "github.com/bandprotocol/chain/v3/x/bandtss/types";
 
 // GenesisState defines the bandtss module's genesis state.
 message GenesisState {
@@ -17,7 +17,7 @@ message GenesisState {
   // current_group_id is the current group id of the module.
   uint64 current_group_id = 3 [
     (gogoproto.customname) = "CurrentGroupID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/pkg/tss.GroupID"
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v3/pkg/tss.GroupID"
   ];
 }
 

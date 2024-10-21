@@ -3,12 +3,14 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/bandtss/types"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/bandtss/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // SetSigningCount sets the number of bandtss signing count to the given value.
@@ -27,18 +29,25 @@ func (k Keeper) SetSigning(ctx sdk.Context, signing types.Signing) {
 }
 
 // AddSigning adds the signing data to the store and returns the new Signing ID.
-func (k Keeper) AddSigning(ctx sdk.Context, signing types.Signing) types.SigningID {
-	signing.ID = types.SigningID(k.GetSigningCount(ctx) + 1)
+func (k Keeper) AddSigning(
+	ctx sdk.Context,
+	feePerSigner sdk.Coins,
+	sender sdk.AccAddress,
+	currentGroupSigningID tss.SigningID,
+	incomingGroupSigningID tss.SigningID,
+) types.SigningID {
+	id := types.SigningID(k.GetSigningCount(ctx) + 1)
+	signing := types.NewSigning(id, feePerSigner, sender, currentGroupSigningID, incomingGroupSigningID)
 	k.SetSigning(ctx, signing)
 
-	if signing.CurrentGroupSigningID != 0 {
-		k.SetSigningIDMapping(ctx, signing.CurrentGroupSigningID, signing.ID)
+	if currentGroupSigningID != 0 {
+		k.SetSigningIDMapping(ctx, currentGroupSigningID, id)
 	}
-	if signing.IncomingGroupSigningID != 0 {
-		k.SetSigningIDMapping(ctx, signing.IncomingGroupSigningID, signing.ID)
+	if incomingGroupSigningID != 0 {
+		k.SetSigningIDMapping(ctx, incomingGroupSigningID, id)
 	}
 
-	k.SetSigningCount(ctx, uint64(signing.ID))
+	k.SetSigningCount(ctx, uint64(id))
 	return signing.ID
 }
 
@@ -137,7 +146,7 @@ func (k Keeper) createSigningRequest(
 		}
 
 		feePerSigner = k.GetParams(ctx).Fee
-		totalFee := feePerSigner.MulInt(sdk.NewInt(int64(currentGroup.Threshold)))
+		totalFee := feePerSigner.MulInt(math.NewInt(int64(currentGroup.Threshold)))
 		for _, fc := range totalFee {
 			limitAmt := feeLimit.AmountOf(fc.Denom)
 			if fc.Amount.GT(limitAmt) {
@@ -176,12 +185,7 @@ func (k Keeper) createSigningRequest(
 	}
 
 	// save signing info
-	bandtssSigningID := k.AddSigning(ctx, types.Signing{
-		FeePerSigner:           feePerSigner,
-		Requester:              sender.String(),
-		CurrentGroupSigningID:  currentGroupSigningID,
-		IncomingGroupSigningID: incomingGroupSigningID,
-	})
+	bandtssSigningID := k.AddSigning(ctx, feePerSigner, sender, currentGroupSigningID, incomingGroupSigningID)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(

@@ -1,6 +1,7 @@
 package types
 
 import (
+	"context"
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -10,13 +11,13 @@ import (
 // AuthzKeeper defines the expected authz keeper. for query and testing only don't use to create/remove grant on deliver tx
 type AuthzKeeper interface {
 	GetAuthorization(
-		ctx sdk.Context,
+		ctx context.Context,
 		grantee sdk.AccAddress,
 		granter sdk.AccAddress,
 		msgType string,
 	) (authz.Authorization, *time.Time)
 	SaveGrant(
-		ctx sdk.Context,
+		ctx context.Context,
 		grantee, granter sdk.AccAddress,
 		authorization authz.Authorization,
 		expiration *time.Time,

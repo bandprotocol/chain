@@ -5,9 +5,9 @@ import (
 	"math/rand"
 	time "time"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // DEWithPrivateNonce represents private value (D, E) used in TSS signing process.
@@ -37,7 +37,7 @@ func GenerateDE(secret tss.Scalar) DEWithPrivateNonce {
 	if err != nil {
 		panic(err)
 	}
-	pubDE := types.DE{PubD: privD.Point(), PubE: privE.Point()}
+	pubDE := types.NewDE(privD.Point(), privE.Point())
 
 	return DEWithPrivateNonce{PrivD: privD, PrivE: privE, PubDE: pubDE}
 }

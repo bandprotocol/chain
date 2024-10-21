@@ -1,18 +1,14 @@
 package tss
 
 import (
-	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/tss/keeper"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/x/tss/keeper"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-// handleBeginBlock handles the logic at the beginning of a block.
-func handleBeginBlock(ctx sdk.Context, req abci.RequestBeginBlock, k *keeper.Keeper) {}
-
-// handleEndBlock handles tasks at the end of a block.
-func handleEndBlock(ctx sdk.Context, k *keeper.Keeper) {
+// EndBlocker handles tasks at the end of a block.
+func EndBlocker(ctx sdk.Context, k *keeper.Keeper) error {
 	// Get the list of pending process groups.
 	gids := k.GetPendingProcessGroups(ctx)
 	for _, gid := range gids {
@@ -28,4 +24,6 @@ func handleEndBlock(ctx sdk.Context, k *keeper.Keeper) {
 
 	// Handle the signings that should be processed.
 	k.HandleSigningEndBlock(ctx)
+
+	return nil
 }

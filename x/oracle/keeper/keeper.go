@@ -5,18 +5,22 @@ import (
 	"fmt"
 	"time"
 
-	owasm "github.com/bandprotocol/go-owasm/api"
-	"github.com/cometbft/cometbft/libs/log"
+	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
+	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
+
+	"cosmossdk.io/log"
+	storetypes "cosmossdk.io/store/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
-	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	host "github.com/cosmos/ibc-go/v7/modules/core/24-host"
 
-	"github.com/bandprotocol/chain/v2/pkg/filecache"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	owasm "github.com/bandprotocol/go-owasm/api"
+
+	"github.com/bandprotocol/chain/v3/pkg/filecache"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 type Keeper struct {
@@ -31,7 +35,7 @@ type Keeper struct {
 	stakingKeeper     types.StakingKeeper
 	distrKeeper       types.DistrKeeper
 	authzKeeper       types.AuthzKeeper
-	channelKeeper     types.ChannelKeeper
+	ics4Wrapper       porttypes.ICS4Wrapper
 	portKeeper        types.PortKeeper
 	rollingseedKepper types.RollingseedKeeper
 	bandtssKeeper     types.BandtssKeeper
@@ -53,7 +57,7 @@ func NewKeeper(
 	stakingKeeper types.StakingKeeper,
 	distrKeeper types.DistrKeeper,
 	authzKeeper types.AuthzKeeper,
-	channelKeeper types.ChannelKeeper,
+	ics4Wrapper porttypes.ICS4Wrapper,
 	portKeeper types.PortKeeper,
 	rollingseedKepper types.RollingseedKeeper,
 	bandtssKeeper types.BandtssKeeper,
@@ -72,7 +76,7 @@ func NewKeeper(
 		stakingKeeper:     stakingKeeper,
 		distrKeeper:       distrKeeper,
 		authzKeeper:       authzKeeper,
-		channelKeeper:     channelKeeper,
+		ics4Wrapper:       ics4Wrapper,
 		portKeeper:        portKeeper,
 		rollingseedKepper: rollingseedKepper,
 		bandtssKeeper:     bandtssKeeper,

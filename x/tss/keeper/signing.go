@@ -8,9 +8,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/bandrng"
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/bandrng"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // ==================================
@@ -200,7 +200,7 @@ func (k Keeper) GetRandomMembers(
 		[]byte(ctx.ChainID()),
 	)
 	if err != nil {
-		return nil, types.ErrBadDrbgInitialization.Wrapf(err.Error())
+		return nil, types.ErrBadDrbgInitialization.Wrap(err.Error())
 	}
 
 	var selected []types.Member
@@ -247,15 +247,8 @@ func (k Keeper) AssignMembers(
 
 	var assignedMembers types.AssignedMembers
 	for i, member := range selectedMembers {
-		assignedMembers = append(assignedMembers, types.AssignedMember{
-			MemberID:      member.ID,
-			Address:       member.Address,
-			PubKey:        member.PubKey,
-			PubD:          des[i].PubD,
-			PubE:          des[i].PubE,
-			BindingFactor: nil,
-			PubNonce:      nil,
-		})
+		am := types.NewAssignedMember(member, des[i], nil, nil)
+		assignedMembers = append(assignedMembers, am)
 	}
 
 	// Compute commitment from mids, public D, and public E

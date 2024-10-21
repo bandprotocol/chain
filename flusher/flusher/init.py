@@ -281,7 +281,7 @@ GROUP BY proposal_id
 
     engine.execute(
         """
-CREATE VIEW latest_prices AS
+CREATE VIEW current_prices AS
 SELECT
     p.signal_id,
     p.price_status,
@@ -296,5 +296,18 @@ WHERE
         FROM
             prices
     );
+    """
+    )
+
+    engine.execute(
+        """
+CREATE VIEW delegator_power_aggregate AS
+SELECT 
+    account_id,
+    COALESCE(SUM(power), 0) AS total_power
+FROM 
+    delegator_signals
+GROUP BY 
+    account_id;
     """
     )

@@ -1,9 +1,11 @@
 package proof
 
 import (
-	tmbytes "github.com/cometbft/cometbft/libs/bytes"
-	ics23 "github.com/confio/ics23/go"
 	"github.com/ethereum/go-ethereum/common"
+
+	tmbytes "github.com/cometbft/cometbft/libs/bytes"
+
+	ics23 "github.com/cosmos/ics23/go"
 )
 
 // MultiStoreProofEthereum is an Ethereum version of MultiStoreProof for solidity ABI-encoding.

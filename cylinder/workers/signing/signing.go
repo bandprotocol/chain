@@ -6,19 +6,20 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	tmtypes "github.com/cometbft/cometbft/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/cylinder"
-	"github.com/bandprotocol/chain/v2/cylinder/client"
-	"github.com/bandprotocol/chain/v2/pkg/event"
-	"github.com/bandprotocol/chain/v2/pkg/logger"
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/cylinder"
+	"github.com/bandprotocol/chain/v3/cylinder/client"
+	"github.com/bandprotocol/chain/v3/cylinder/context"
+	"github.com/bandprotocol/chain/v3/pkg/logger"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // Signing is a worker responsible for the signing process of the TSS module.
 type Signing struct {
-	context *cylinder.Context
+	context *context.Context
 	logger  *logger.Logger
 	client  *client.Client
 	eventCh <-chan ctypes.ResultEvent
@@ -28,8 +29,8 @@ var _ cylinder.Worker = &Signing{}
 
 // New creates a new instance of the Signing worker.
 // It initializes the necessary components and returns the created Signing instance or an error if initialization fails.
-func New(ctx *cylinder.Context) (*Signing, error) {
-	cli, err := client.New(ctx.Config, ctx.Keyring)
+func New(ctx *context.Context) (*Signing, error) {
+	cli, err := client.New(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -54,29 +55,7 @@ func (s *Signing) subscribe() (err error) {
 	return
 }
 
-// handleTxResult handles the result of a transaction.
-// It extracts the relevant message logs from the transaction result and processes the events.
-func (s *Signing) handleTxResult(txResult abci.TxResult) {
-	msgLogs, err := event.GetMessageLogs(txResult)
-	if err != nil {
-		s.logger.Error("Failed to get message logs: %s", err)
-		return
-	}
-
-	for _, log := range msgLogs {
-		events, err := ParseEvents(log.Events)
-		if err != nil {
-			s.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
-			return
-		}
-
-		for _, event := range events {
-			go s.handleSigning(event.SigningID)
-		}
-	}
-}
-
-// handleABCIEvents handles the end block events.
+// handleABCIEvents signs the specific signingID if the given events contain a request_signature event.
 func (s *Signing) handleABCIEvents(abciEvents []abci.Event) {
 	events := sdk.StringifyEvents(abciEvents)
 	for _, ev := range events {
@@ -192,9 +171,9 @@ func (s *Signing) Start() {
 	for ev := range s.eventCh {
 		switch data := ev.Data.(type) {
 		case tmtypes.EventDataTx:
-			go s.handleTxResult(data.TxResult)
+			go s.handleABCIEvents(data.TxResult.Result.Events)
 		case tmtypes.EventDataNewBlock:
-			go s.handleABCIEvents(data.ResultEndBlock.Events)
+			go s.handleABCIEvents(data.ResultFinalizeBlock.Events)
 		}
 	}
 }

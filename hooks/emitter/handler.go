@@ -4,6 +4,13 @@ import (
 	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
+
+	proto "github.com/cosmos/gogoproto/proto"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	connectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 	"github.com/cosmos/cosmos-sdk/x/authz"
@@ -15,21 +22,16 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/group"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	proto "github.com/cosmos/gogoproto/proto"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-	connectiontypes "github.com/cosmos/ibc-go/v7/modules/core/03-connection/types"
-	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/hooks/common"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-func parseEvents(events sdk.StringEvents) common.EvMap {
+func parseEvents(events []abci.Event) common.EvMap {
 	evMap := make(common.EvMap)
 	for _, event := range events {
 		for _, kv := range event.Attributes {
@@ -42,8 +44,8 @@ func parseEvents(events sdk.StringEvents) common.EvMap {
 
 // handleMsg handles the given message by publishing relevant events and populates accounts
 // that need balance update in 'h.accs'. Also fills in extra info for this message.
-func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.ABCIMessageLog, detail common.JsDict) {
-	evMap := parseEvents(log.Events)
+func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []abci.Event, detail common.JsDict) {
+	evMap := parseEvents(events)
 	switch msg := msg.(type) {
 	case *oracletypes.MsgRequestData:
 		h.handleMsgRequestData(ctx, txHash, msg, evMap, detail)
@@ -98,7 +100,7 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 	case *govv1.MsgDeposit:
 		h.handleMsgDeposit(ctx, txHash, msg, detail)
 	case *channeltypes.MsgRecvPacket:
-		h.handleMsgRecvPacket(ctx, txHash, msg, evMap, log, detail)
+		h.handleMsgRecvPacket(ctx, txHash, msg, events, evMap, detail)
 	case *transfertypes.MsgTransfer:
 		h.handleMsgTransfer(ctx, txHash, msg, evMap, detail)
 	case *clienttypes.MsgCreateClient:
@@ -121,12 +123,14 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 		h.handleMsgChannelCloseConfirm(ctx, msg)
 	case *channeltypes.MsgAcknowledgement:
 		h.handleMsgAcknowledgement(ctx, msg, evMap)
+	case *channeltypes.MsgTimeout:
+		h.handleMsgTimeout(ctx, msg)
 	case *authz.MsgGrant:
 		h.handleMsgGrant(msg, detail)
 	case *authz.MsgRevoke:
 		h.handleMsgRevoke(msg, detail)
 	case *authz.MsgExec:
-		h.handleMsgExec(ctx, txHash, msg, log, detail)
+		h.handleMsgExec(ctx, txHash, msg, events, detail)
 	case *bandtsstypes.MsgActivate:
 		h.handleBandtssMsgActivate(ctx, msg)
 	case *bandtsstypes.MsgHeartbeat:
@@ -137,7 +141,7 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, log sdk.AB
 	case *feedstypes.MsgSubmitSignals:
 		h.handleMsgSubmitSignals(ctx, msg, evMap)
 	case *feedstypes.MsgSubmitSignalPrices:
-		h.handleMsgSubmitSignalPrices(ctx, msg)
+		h.handleMsgSubmitSignalPrices(ctx, txHash, msg, "")
 	case *feedstypes.MsgUpdateReferenceSourceConfig:
 		h.handleMsgUpdateReferenceSourceConfig(ctx, msg)
 	case *group.MsgCreateGroup:
@@ -182,8 +186,7 @@ func (h *Hook) handleBeginBlockEndBlockEvent(
 	eventIdx int,
 	eventQuerier *EventQuerier,
 ) {
-	events := sdk.StringifyEvents([]abci.Event{event})
-	evMap := parseEvents(events)
+	evMap := parseEvents([]abci.Event{event})
 	switch event.Type {
 	case bandtsstypes.EventTypeInactiveStatus:
 		h.handleBandtssEventInactiveStatuses(ctx, evMap)

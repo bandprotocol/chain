@@ -3,9 +3,14 @@ package keeper
 import (
 	"sort"
 
+	dbm "github.com/cosmos/cosmos-db"
+
+	"cosmossdk.io/math"
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 // GetDelegatorSignals returns a list of all signals of a delegator.
@@ -33,8 +38,8 @@ func (k Keeper) SetDelegatorSignals(ctx sdk.Context, signals types.DelegatorSign
 }
 
 // GetDelegatorSignalsIterator returns an iterator of the delegator-signals store.
-func (k Keeper) GetDelegatorSignalsIterator(ctx sdk.Context) sdk.Iterator {
-	return sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.DelegatorSignalsStoreKeyPrefix)
+func (k Keeper) GetDelegatorSignalsIterator(ctx sdk.Context) dbm.Iterator {
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.DelegatorSignalsStoreKeyPrefix)
 }
 
 // GetAllDelegatorSignals returns a list of all delegator-signals.
@@ -138,8 +143,11 @@ func (k Keeper) GetSignalTotalPowersByPower(ctx sdk.Context, limit uint64) []typ
 }
 
 // SignalTotalPowersByPowerStoreIterator returns an iterator for signal-total-powers by power index store.
-func (k Keeper) SignalTotalPowersByPowerStoreIterator(ctx sdk.Context) sdk.Iterator {
-	return sdk.KVStoreReversePrefixIterator(ctx.KVStore(k.storeKey), types.SignalTotalPowerByPowerIndexKeyPrefix)
+func (k Keeper) SignalTotalPowersByPowerStoreIterator(ctx sdk.Context) dbm.Iterator {
+	return storetypes.KVStoreReversePrefixIterator(
+		ctx.KVStore(k.storeKey),
+		types.SignalTotalPowerByPowerIndexKeyPrefix,
+	)
 }
 
 // CalculateNewSignalTotalPowers calculates the new signal-total-powers from all delegator-signals.
@@ -177,7 +185,7 @@ func (k Keeper) LockDelegatorDelegation(
 	signals []types.Signal,
 ) error {
 	sumPower := types.SumPower(signals)
-	if err := k.restakeKeeper.SetLockedPower(ctx, delegator, types.ModuleName, sdk.NewInt(sumPower)); err != nil {
+	if err := k.restakeKeeper.SetLockedPower(ctx, delegator, types.ModuleName, math.NewInt(sumPower)); err != nil {
 		return err
 	}
 

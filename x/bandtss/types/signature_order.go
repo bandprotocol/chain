@@ -4,8 +4,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // GroupTransitionPath is the reserved path for transition group msg
@@ -28,6 +28,9 @@ func (rs *GroupTransitionSignatureOrder) OrderRoute() string { return RouterKey 
 func (rs *GroupTransitionSignatureOrder) OrderType() string {
 	return GroupTransitionPath
 }
+
+// IsInternal returns true for GroupTransitionSignatureOrder (internal module-based request signature).
+func (rs *GroupTransitionSignatureOrder) IsInternal() bool { return true }
 
 // ValidateBasic performs no-op for this type
 func (rs *GroupTransitionSignatureOrder) ValidateBasic() error { return nil }

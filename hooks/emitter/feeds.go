@@ -5,8 +5,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/hooks/common"
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	"github.com/bandprotocol/chain/v3/hooks/common"
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 func (h *Hook) emitRemoveValidatorPrices(signalID string) {
@@ -18,13 +18,6 @@ func (h *Hook) emitRemoveValidatorPrices(signalID string) {
 func (h *Hook) emitRemovePrice(signalID string) {
 	h.emitRemoveValidatorPrices(signalID)
 	h.Write("REMOVE_PRICE", common.JsDict{
-		"signal_id": signalID,
-	})
-}
-
-func (h *Hook) emitRemoveFeed(signalID string) {
-	h.emitRemovePrice(signalID)
-	h.Write("REMOVE_FEED", common.JsDict{
 		"signal_id": signalID,
 	})
 }
@@ -57,10 +50,19 @@ func (h *Hook) emitSetDelegatorSignal(ctx sdk.Context, delegator string, signal 
 	})
 }
 
+func (h *Hook) emitSetPricesSignal(ctx sdk.Context, txHash []byte, validator string, feeder string) {
+	h.Write("SET_PRICE_SIGNAL", common.JsDict{
+		"tx_hash":   txHash,
+		"validator": validator,
+		"feeder":    feeder,
+		"timestamp": ctx.BlockTime().UnixNano(),
+	})
+}
+
 func (h *Hook) emitSetValidatorPrice(ctx sdk.Context, validator string, price types.SignalPrice) {
 	h.Write("SET_VALIDATOR_PRICE", common.JsDict{
 		"validator":    validator,
-		"price_status": price.PriceStatus.String(),
+		"price_status": price.PriceStatus,
 		"signal_id":    price.SignalID,
 		"price":        price.Price,
 		"timestamp":    ctx.BlockTime().UnixNano(),
@@ -70,7 +72,7 @@ func (h *Hook) emitSetValidatorPrice(ctx sdk.Context, validator string, price ty
 func (h *Hook) emitSetPrice(price types.Price) {
 	h.Write("SET_PRICE", common.JsDict{
 		"signal_id":    price.SignalID,
-		"price_status": price.PriceStatus.String(),
+		"price_status": price.PriceStatus,
 		"price":        price.Price,
 		"timestamp":    price.Timestamp * int64(math.Pow10(9)),
 	})
@@ -113,8 +115,17 @@ func (h *Hook) handleMsgSubmitSignals(
 
 // handleMsgSubmitSignalPrices implements emitter handler for MsgSubmitSignalPrices.
 func (h *Hook) handleMsgSubmitSignalPrices(
-	ctx sdk.Context, msg *types.MsgSubmitSignalPrices,
+	ctx sdk.Context,
+	txHash []byte,
+	msg *types.MsgSubmitSignalPrices,
+	feeder string,
 ) {
+	if feeder == "" {
+		feeder = msg.Validator
+	}
+
+	h.emitSetPricesSignal(ctx, txHash, msg.Validator, feeder)
+
 	for _, price := range msg.Prices {
 		h.emitSetValidatorPrice(ctx, msg.Validator, price)
 	}

@@ -12,8 +12,8 @@ package testutil
 import (
 	reflect "reflect"
 
-	query "github.com/bandprotocol/bothan/bothan-api/client/go-client/query"
-	types "github.com/bandprotocol/chain/v2/x/feeds/types"
+	price "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
+	types "github.com/bandprotocol/chain/v3/x/feeds/types"
 	types0 "github.com/cosmos/cosmos-sdk/types"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -41,19 +41,47 @@ func (m *MockBothanClient) EXPECT() *MockBothanClientMockRecorder {
 	return m.recorder
 }
 
-// QueryPrices mocks base method.
-func (m *MockBothanClient) QueryPrices(signalIDs []string) ([]*query.PriceData, error) {
+// GetPrices mocks base method.
+func (m *MockBothanClient) GetPrices(signalIDs []string) (*price.GetPricesResponse, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "QueryPrices", signalIDs)
-	ret0, _ := ret[0].([]*query.PriceData)
+	ret := m.ctrl.Call(m, "GetPrices", signalIDs)
+	ret0, _ := ret[0].(*price.GetPricesResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// QueryPrices indicates an expected call of QueryPrices.
-func (mr *MockBothanClientMockRecorder) QueryPrices(signalIDs any) *gomock.Call {
+// GetPrices indicates an expected call of GetPrices.
+func (mr *MockBothanClientMockRecorder) GetPrices(signalIDs any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueryPrices", reflect.TypeOf((*MockBothanClient)(nil).QueryPrices), signalIDs)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPrices", reflect.TypeOf((*MockBothanClient)(nil).GetPrices), signalIDs)
+}
+
+// SetActiveSignalIDs mocks base method.
+func (m *MockBothanClient) SetActiveSignalIDs(signalIDs []string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetActiveSignalIDs", signalIDs)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetActiveSignalIDs indicates an expected call of SetActiveSignalIDs.
+func (mr *MockBothanClientMockRecorder) SetActiveSignalIDs(signalIDs any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetActiveSignalIDs", reflect.TypeOf((*MockBothanClient)(nil).SetActiveSignalIDs), signalIDs)
+}
+
+// UpdateRegistry mocks base method.
+func (m *MockBothanClient) UpdateRegistry(ipfsHash, version string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateRegistry", ipfsHash, version)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateRegistry indicates an expected call of UpdateRegistry.
+func (mr *MockBothanClientMockRecorder) UpdateRegistry(ipfsHash, version any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRegistry", reflect.TypeOf((*MockBothanClient)(nil).UpdateRegistry), ipfsHash, version)
 }
 
 // MockFeedQuerier is a mock of FeedQuerier interface.

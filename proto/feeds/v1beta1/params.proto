@@ -1,7 +1,7 @@
 syntax = "proto3";
 package feeds.v1beta1;
 
-option go_package = "github.com/bandprotocol/chain/v2/x/feeds/types";
+option go_package = "github.com/bandprotocol/chain/v3/x/feeds/types";
 
 import "gogoproto/gogo.proto";
 import "cosmos_proto/cosmos.proto";
@@ -47,6 +47,9 @@ message Params {
   // current_feeds_update_interval is the number of blocks after which the current feeds will be re-calculated.
   int64 current_feeds_update_interval = 11;
 
+  // price_quorum is the minimum percentage of power that needs to be reached for a price to be processed.
+  string price_quorum = 12;
+
   // MaxSignalIDsPerSigning is the maximum number of signals allowed in a single tss signing request.
-  uint64 max_signal_ids_per_signing = 12 [(gogoproto.customname) = "MaxSignalIDsPerSigning"];
+  uint64 max_signal_ids_per_signing = 13 [(gogoproto.customname) = "MaxSignalIDsPerSigning"];
 }

@@ -7,7 +7,7 @@ import (
 )
 
 func TestCalculateInterval(t *testing.T) {
-	params := NewParams("[NOT_SET]", 30, 30, 60, 3600, 1000_000_000, 100, 30, 50, 3000, 28800, 10)
+	params := DefaultParams()
 
 	testCases := []struct {
 		name        string
@@ -37,7 +37,6 @@ func TestCalculateInterval(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			interval := CalculateInterval(tc.power, params.PowerStepThreshold, params.MinInterval, params.MaxInterval)
 			require.Equal(tt, tc.expInterval, interval)
@@ -46,7 +45,7 @@ func TestCalculateInterval(t *testing.T) {
 }
 
 func TestCalculateDeviation(t *testing.T) {
-	params := NewParams("[NOT_SET]", 30, 30, 60, 3600, 1000_000_000, 100, 30, 50, 3000, 28800, 10)
+	params := DefaultParams()
 
 	testCases := []struct {
 		name         string
@@ -76,7 +75,6 @@ func TestCalculateDeviation(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			deviation := CalculateDeviation(
 				tc.power,

@@ -3,8 +3,8 @@ package keeper_test
 import (
 	"time"
 
-	"github.com/bandprotocol/chain/v2/x/bandtss/types"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/x/bandtss/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 func (s *AppTestSuite) TestSetInactive() {

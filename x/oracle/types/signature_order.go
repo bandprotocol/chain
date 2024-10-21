@@ -1,18 +1,11 @@
 package types
 
-import tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+import tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 
 // signature order types
 const (
 	SignatureOrderTypeOracleResult = "OracleResult"
 )
-
-func init() {
-	tsstypes.RegisterSignatureOrderTypeCodec(
-		&OracleResultSignatureOrder{},
-		"oracle/OracleResultSignatureOrder",
-	)
-}
 
 // Implements Content Interface
 var _ tsstypes.Content = &OracleResultSignatureOrder{}
@@ -29,6 +22,9 @@ func (o *OracleResultSignatureOrder) OrderRoute() string { return RouterKey }
 func (o *OracleResultSignatureOrder) OrderType() string {
 	return SignatureOrderTypeOracleResult
 }
+
+// IsInternal returns false for OracleResultSignatureOrder (allow user to submit this content type).
+func (o *OracleResultSignatureOrder) IsInternal() bool { return false }
 
 // ValidateBasic validates the request's title and description of the request signature
 func (o *OracleResultSignatureOrder) ValidateBasic() error {

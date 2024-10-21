@@ -4,16 +4,21 @@ import (
 	"fmt"
 
 	abci "github.com/cometbft/cometbft/abci/types"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	disttypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/x/bandtss/keeper"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	band "github.com/bandprotocol/chain/v3/app"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/pkg/tss/testutil"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	"github.com/bandprotocol/chain/v3/x/bandtss/keeper"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 var Coins1000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
@@ -24,30 +29,40 @@ func defaultVotes() []abci.VoteInfo {
 			Address: bandtesting.Validators[0].PubKey.Address(),
 			Power:   70,
 		},
-		SignedLastBlock: true,
+		BlockIdFlag: cmtproto.BlockIDFlagCommit,
 	}, {
 		Validator: abci.Validator{
 			Address: bandtesting.Validators[1].PubKey.Address(),
 			Power:   20,
 		},
-		SignedLastBlock: true,
+		BlockIdFlag: cmtproto.BlockIDFlagCommit,
 	}, {
 		Validator: abci.Validator{
 			Address: bandtesting.Validators[2].PubKey.Address(),
 			Power:   10,
 		},
-		SignedLastBlock: true,
+		BlockIdFlag: cmtproto.BlockIDFlagCommit,
 	}}
 }
 
 func SetupFeeCollector(
-	app *bandtesting.TestingApp,
+	app *band.BandApp,
 	ctx sdk.Context,
 	k keeper.Keeper,
-) (authtypes.ModuleAccountI, error) {
+) (sdk.ModuleAccountI, error) {
 	// Set collected fee to 1000000uband and 50% tss reward proportion.
 	feeCollector := app.AccountKeeper.GetModuleAccount(ctx, authtypes.FeeCollectorName)
 	if err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, Coins1000000uband); err != nil {
+		return nil, err
+	}
+
+	// remove all coins from fee collector
+	if err := app.BankKeeper.SendCoinsFromModuleToModule(
+		ctx,
+		authtypes.FeeCollectorName,
+		minttypes.ModuleName,
+		app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()),
+	); err != nil {
 		return nil, err
 	}
 
@@ -70,30 +85,19 @@ func SetupFeeCollector(
 	return feeCollector, nil
 }
 
-func (s *AppTestSuite) TestAllocateTokenNoActiveValidators() {
-	app, ctx := bandtesting.CreateTestApp(s.T(), false)
-	feeCollector, err := SetupFeeCollector(app, ctx, *app.BandtssKeeper)
-	s.Require().NoError(err)
-
-	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
-	// No active tss validators so nothing should happen.
-	app.OracleKeeper.AllocateTokens(ctx, defaultVotes())
-
-	distAccount := app.AccountKeeper.GetModuleAccount(ctx, disttypes.ModuleName)
-	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
-	s.Require().Empty(app.BankKeeper.GetAllBalances(ctx, distAccount.GetAddress()))
-}
-
 func (s *AppTestSuite) TestAllocateTokensOneActive() {
-	app, ctx := bandtesting.CreateTestApp(s.T(), false)
+	app, ctx := s.app, s.ctx
 	tssKeeper, k := app.TSSKeeper, app.BandtssKeeper
+
+	// setup fee collector
 	feeCollector, err := SetupFeeCollector(app, ctx, *k)
 	s.Require().NoError(err)
+	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
 
+	// create a new group
 	groupCtx := s.SetupNewGroup(2, 1)
 	k.SetCurrentGroupID(ctx, groupCtx.GroupID)
 
-	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
 	alice := groupCtx.Accounts[0].Address
 	bob := groupCtx.Accounts[1].Address
 	// From 50% of fee, 1% should go to community pool, the rest goes to the only active validator.
@@ -103,12 +107,6 @@ func (s *AppTestSuite) TestAllocateTokensOneActive() {
 			PubE: testutil.HexDecode("eeee"),
 		},
 	})
-	s.Require().NoError(err)
-
-	err = k.AddMember(ctx, alice, groupCtx.GroupID)
-	s.Require().NoError(err)
-
-	err = k.AddMember(ctx, bob, groupCtx.GroupID)
 	s.Require().NoError(err)
 
 	tssKeeper.SetMember(ctx, tsstypes.Member{
@@ -148,9 +146,12 @@ func (s *AppTestSuite) TestAllocateTokensOneActive() {
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 10000)),
 		app.BankKeeper.GetAllBalances(ctx, distAccount.GetAddress()),
 	)
+	feePool, err := app.DistrKeeper.FeePool.Get(ctx)
+	s.Require().NoError(err)
+
 	s.Require().Equal(
-		sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDec(10000)}},
-		app.DistrKeeper.GetFeePool(ctx).CommunityPool,
+		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDec(10000)}},
+		feePool.CommunityPool,
 	)
 }
 
@@ -191,9 +192,12 @@ func (s *AppTestSuite) TestAllocateTokensAllActive() {
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 10001)),
 		app.BankKeeper.GetAllBalances(ctx, distAccount.GetAddress()),
 	)
+
+	feePool, err := app.DistrKeeper.FeePool.Get(ctx)
+	s.Require().NoError(err)
 	s.Require().Equal(
-		sdk.DecCoins{{Denom: "uband", Amount: sdk.NewDec(10001)}},
-		app.DistrKeeper.GetFeePool(ctx).CommunityPool,
+		sdk.DecCoins{{Denom: "uband", Amount: math.LegacyNewDec(10001)}},
+		feePool.CommunityPool,
 	)
 
 	for i := range bandtesting.Validators {

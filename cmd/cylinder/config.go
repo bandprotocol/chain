@@ -3,10 +3,12 @@ package main
 import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/bandprotocol/chain/v3/cylinder/context"
 )
 
 // configCmd returns a Cobra command for setting a configuration key-value pair for a cylinder application.
-func configCmd(_ *Context) *cobra.Command {
+func configCmd(_ *context.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "config [key] [value]",
 		Aliases: []string{"c"},

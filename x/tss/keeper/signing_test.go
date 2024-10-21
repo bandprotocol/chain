@@ -2,85 +2,79 @@ package keeper_test
 
 import (
 	"slices"
-	"testing"
 
-	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	tsstestutil "github.com/bandprotocol/chain/v2/x/tss/testutil"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	tsstestutil "github.com/bandprotocol/chain/v3/x/tss/testutil"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-func TestGetRandomMembersSuccess(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestGetRandomMembersSuccess() {
+	ctx, k := s.ctx, s.keeper
 
 	// create a group context and mock the result.
 	groupCtx, err := tsstestutil.CompleteGroupCreation(ctx, k, 4, 2)
-	require.NoError(t, err)
-	s.RollingseedKeeper.EXPECT().GetRollingSeed(gomock.Any()).
+	s.Require().NoError(err)
+	s.rollingseedKeeper.EXPECT().GetRollingSeed(gomock.Any()).
 		Return([]byte("RandomStringThatShouldBeLongEnough"))
 
 	// call GetRandomMembers and check results
 	ams, err := k.GetRandomMembers(ctx, groupCtx.GroupID, []byte("test_nonce"))
-	require.NoError(t, err)
+	s.Require().NoError(err)
 
 	memberIDs := []tss.MemberID{}
 	for _, am := range ams {
 		memberIDs = append(memberIDs, am.ID)
 	}
-	require.Equal(t, memberIDs, []tss.MemberID{3, 4})
+	s.Require().Equal(memberIDs, []tss.MemberID{3, 4})
 }
 
-func TestGetRandomMembersInsufficientActiveMembers(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestGetRandomMembersInsufficientActiveMembers() {
+	ctx, k := s.ctx, s.keeper
 
 	// create a group context.
 	groupCtx, err := tsstestutil.CompleteGroupCreation(ctx, k, 4, 2)
-	require.NoError(t, err)
+	s.Require().NoError(err)
 
 	// set every member to inactive.
 	members, err := k.GetGroupMembers(ctx, groupCtx.GroupID)
-	require.NoError(t, err)
+	s.Require().NoError(err)
 	for _, member := range members[:len(members)-1] {
 		member.IsActive = false
 		k.SetMember(ctx, member)
 	}
 
 	_, err = k.GetRandomMembers(ctx, tss.GroupID(1), []byte("test_nonce"))
-	require.ErrorIs(t, err, types.ErrInsufficientActiveMembers)
+	s.Require().ErrorIs(err, types.ErrInsufficientActiveMembers)
 }
 
-func TestGetRandomMembersNoActiveMember(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestGetRandomMembersNoActiveMember() {
+	ctx, k := s.ctx, s.keeper
 
 	// create a group context.
 	groupCtx, err := tsstestutil.CompleteGroupCreation(ctx, k, 4, 2)
-	require.NoError(t, err)
+	s.Require().NoError(err)
 
 	// set every member to inactive.
 	members, err := k.GetGroupMembers(ctx, groupCtx.GroupID)
-	require.NoError(t, err)
+	s.Require().NoError(err)
 	for _, member := range members {
 		member.IsActive = false
 		k.SetMember(ctx, member)
 	}
 
 	_, err = k.GetRandomMembers(ctx, tss.GroupID(1), []byte("test_nonce"))
-	require.ErrorIs(t, err, types.ErrNoActiveMember)
+	s.Require().ErrorIs(err, types.ErrNoActiveMember)
 }
 
-func TestAssignedMembers(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestAssignedMembers() {
+	ctx, k := s.ctx, s.keeper
 
 	// create a group context and mock the result.
 	groupCtx, err := tsstestutil.CompleteGroupCreation(ctx, k, 4, 2)
-	require.NoError(t, err)
-	s.RollingseedKeeper.EXPECT().GetRollingSeed(gomock.Any()).
+	s.Require().NoError(err)
+	s.rollingseedKeeper.EXPECT().GetRollingSeed(gomock.Any()).
 		Return([]byte("RandomStringThatShouldBeLongEnough"))
 
 	DEQueuesBeforePolling := []types.DEQueue{}
@@ -91,9 +85,9 @@ func TestAssignedMembers(t *testing.T) {
 
 	// check result if no error and check selected MemberIDs
 	assignedMembers, err := k.AssignMembers(ctx, groupCtx.GroupID, []byte("message"), []byte("test_nonce"))
-	require.NoError(t, err)
+	s.Require().NoError(err)
 	assignedMemberIDs := assignedMembers.MemberIDs()
-	require.Equal(t, assignedMemberIDs, []tss.MemberID{3, 4})
+	s.Require().Equal(assignedMemberIDs, []tss.MemberID{3, 4})
 
 	// check if DE is correctly polled; check DEQueue Head is shifted by 1.
 	for id, acc := range groupCtx.Accounts {
@@ -102,145 +96,138 @@ func TestAssignedMembers(t *testing.T) {
 		if slices.Contains(assignedMemberIDs, tss.MemberID(id+1)) {
 			expectedHead += 1
 		}
-		require.Equal(t, expectedHead, deQueue.Head)
+		s.Require().Equal(expectedHead, deQueue.Head)
 	}
 }
 
-func TestInitiateNewSigningRoundForFirstRound(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestInitiateNewSigningRoundForFirstRound() {
+	ctx, k := s.ctx, s.keeper
 
 	// create a group context and mock the result.
 	groupCtx, err := tsstestutil.CompleteGroupCreation(ctx, k, 4, 2)
-	require.NoError(t, err)
-	s.RollingseedKeeper.EXPECT().GetRollingSeed(gomock.Any()).
+	s.Require().NoError(err)
+	s.rollingseedKeeper.EXPECT().GetRollingSeed(gomock.Any()).
 		Return([]byte("RandomStringThatShouldBeLongEnough"))
 
 	signingID, err := k.CreateSigning(ctx, groupCtx.GroupID, []byte("originator"), []byte("message"))
-	require.NoError(t, err)
-	require.Equal(t, tss.SigningID(1), signingID)
+	s.Require().NoError(err)
+	s.Require().Equal(tss.SigningID(1), signingID)
 
 	err = k.InitiateNewSigningRound(ctx, signingID)
-	require.NoError(t, err)
+	s.Require().NoError(err)
 
 	// check signing
 	signing, err := k.GetSigning(ctx, signingID)
-	require.NoError(t, err)
-	require.Equal(t, uint64(1), signing.CurrentAttempt)
-	require.NotNil(t, signing.GroupPubNonce)
+	s.Require().NoError(err)
+	s.Require().Equal(uint64(1), signing.CurrentAttempt)
+	s.Require().NotNil(signing.GroupPubNonce)
 
 	// check signing expiration
 	signingExpirations := k.GetSigningExpirations(ctx)
-	require.Len(t, signingExpirations, 1)
-	require.Equal(
-		t,
+	s.Require().Len(signingExpirations, 1)
+	s.Require().Equal(
 		types.SigningExpiration{SigningID: signingID, SigningAttempt: signing.CurrentAttempt},
 		signingExpirations[0],
 	)
 
 	// check signingAttempt
 	sa, err := k.GetSigningAttempt(ctx, signingID, signing.CurrentAttempt)
-	require.NoError(t, err)
-	require.Equal(t, uint64(ctx.BlockHeight()+int64(k.GetParams(ctx).SigningPeriod)), sa.ExpiredHeight)
+	s.Require().NoError(err)
+	s.Require().Equal(uint64(ctx.BlockHeight()+int64(k.GetParams(ctx).SigningPeriod)), sa.ExpiredHeight)
 
 	assignedMembers := types.AssignedMembers(sa.AssignedMembers)
-	require.Equal(t, []tss.MemberID{1, 2}, assignedMembers.MemberIDs())
+	s.Require().Equal([]tss.MemberID{1, 2}, assignedMembers.MemberIDs())
 }
 
-func TestInitiateNewSigningRoundForThirdRound(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestInitiateNewSigningRoundForThirdRound() {
+	ctx, k := s.ctx, s.keeper
 
 	// create a group context and mock the result.
 	groupCtx, err := tsstestutil.CompleteGroupCreation(ctx, k, 4, 2)
-	require.NoError(t, err)
-	s.RollingseedKeeper.EXPECT().GetRollingSeed(gomock.Any()).
+	s.Require().NoError(err)
+	s.rollingseedKeeper.EXPECT().GetRollingSeed(gomock.Any()).
 		Return([]byte("RandomStringThatShouldBeLongEnough"))
 
 	signingID, err := k.CreateSigning(ctx, groupCtx.GroupID, []byte("originator"), []byte("message"))
-	require.NoError(t, err)
-	require.Equal(t, tss.SigningID(1), signingID)
+	s.Require().NoError(err)
+	s.Require().Equal(tss.SigningID(1), signingID)
 
 	// update signing attempt
 	signing, err := k.GetSigning(ctx, signingID)
-	require.NoError(t, err)
+	s.Require().NoError(err)
 	signing.CurrentAttempt = 2
 	k.SetSigning(ctx, signing)
 
 	err = k.InitiateNewSigningRound(ctx, signingID)
-	require.NoError(t, err)
+	s.Require().NoError(err)
 
 	// check signing
 	signing, err = k.GetSigning(ctx, signingID)
-	require.NoError(t, err)
-	require.Equal(t, uint64(3), signing.CurrentAttempt)
-	require.NotNil(t, signing.GroupPubNonce)
+	s.Require().NoError(err)
+	s.Require().Equal(uint64(3), signing.CurrentAttempt)
+	s.Require().NotNil(signing.GroupPubNonce)
 
 	// check signing expiration
 	signingExpirations := k.GetSigningExpirations(ctx)
-	require.Len(t, signingExpirations, 1)
-	require.Equal(
-		t,
+	s.Require().Len(signingExpirations, 1)
+	s.Require().Equal(
 		types.SigningExpiration{SigningID: signingID, SigningAttempt: signing.CurrentAttempt},
 		signingExpirations[0],
 	)
 
 	// check signingAttempt
 	sa, err := k.GetSigningAttempt(ctx, signingID, signing.CurrentAttempt)
-	require.NoError(t, err)
-	require.Equal(t, uint64(ctx.BlockHeight()+int64(k.GetParams(ctx).SigningPeriod)), sa.ExpiredHeight)
+	s.Require().NoError(err)
+	s.Require().Equal(uint64(ctx.BlockHeight()+int64(k.GetParams(ctx).SigningPeriod)), sa.ExpiredHeight)
 
 	assignedMembers := types.AssignedMembers(sa.AssignedMembers)
-	require.Equal(t, []tss.MemberID{2, 4}, assignedMembers.MemberIDs())
+	s.Require().Equal([]tss.MemberID{2, 4}, assignedMembers.MemberIDs())
 }
 
-func TestInitiateNewSigningRoundOverMaxAttempt(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestInitiateNewSigningRoundOverMaxAttempt() {
+	ctx, k := s.ctx, s.keeper
 
 	// create a group context and mock the result.
 	groupCtx, err := tsstestutil.CompleteGroupCreation(ctx, k, 4, 2)
-	require.NoError(t, err)
+	s.Require().NoError(err)
 
 	signingID, err := k.CreateSigning(ctx, groupCtx.GroupID, []byte("originator"), []byte("message"))
-	require.NoError(t, err)
-	require.Equal(t, tss.SigningID(1), signingID)
+	s.Require().NoError(err)
+	s.Require().Equal(tss.SigningID(1), signingID)
 
 	// update signing attempt
 	signing, err := k.GetSigning(ctx, signingID)
-	require.NoError(t, err)
+	s.Require().NoError(err)
 	signing.CurrentAttempt = k.GetParams(ctx).MaxSigningAttempt
 	k.SetSigning(ctx, signing)
 
 	err = k.InitiateNewSigningRound(ctx, signingID)
-	require.ErrorIs(t, err, types.ErrMaxSigningAttemptReached)
+	s.Require().ErrorIs(err, types.ErrMaxSigningAttemptReached)
 }
 
-func TestRequestSigning(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestRequestSigning() {
+	ctx, k := s.ctx, s.keeper
 
 	groupCtx, err := tsstestutil.CompleteGroupCreation(ctx, k, 4, 2)
 	groupID := groupCtx.GroupID
-	require.NoError(t, err)
+	s.Require().NoError(err)
 
-	s.RollingseedKeeper.EXPECT().GetRollingSeed(gomock.Any()).
+	s.rollingseedKeeper.EXPECT().GetRollingSeed(gomock.Any()).
 		Return([]byte("RandomStringThatShouldBeLongEnough"))
 
 	// Create a new request for the request signature
 	content := types.NewTextSignatureOrder([]byte("example"))
 	signingID, err := k.RequestSigning(ctx, groupID, types.DirectOriginator{}, content)
-	require.NoError(t, err)
+	s.Require().NoError(err)
 
 	signing, err := k.GetSigning(ctx, signingID)
-	require.NoError(t, err)
-	require.Equal(t, groupID, signing.GroupID)
-	require.Equal(t, types.SIGNING_STATUS_WAITING, signing.Status)
+	s.Require().NoError(err)
+	s.Require().Equal(groupID, signing.GroupID)
+	s.Require().Equal(types.SIGNING_STATUS_WAITING, signing.Status)
 }
 
-func TestMustGetCurrentAssignedMembers(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestMustGetCurrentAssignedMembers() {
+	ctx, k := s.ctx, s.keeper
 
 	signing := GetExampleSigning()
 	k.SetSigning(ctx, signing)
@@ -249,11 +236,11 @@ func TestMustGetCurrentAssignedMembers(t *testing.T) {
 
 	// Get current assigned members
 	assignedMembers := k.MustGetCurrentAssignedMembers(ctx, signing.ID)
-	require.Len(t, assignedMembers, 2)
-	require.Equal(t, "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs", assignedMembers[0].String())
+	s.Require().Len(assignedMembers, 2)
+	s.Require().Equal("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs", assignedMembers[0].String())
 
 	// Get incorrect signingID
-	require.PanicsWithError(t, "failed to get Signing with ID: 999: signing not found", func() {
+	s.Require().PanicsWithError("failed to get Signing with ID: 999: signing not found", func() {
 		k.MustGetCurrentAssignedMembers(ctx, 999)
 	})
 }

@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/pkg/filecache"
+	"github.com/bandprotocol/chain/v3/pkg/filecache"
 )
 
 func TestAddFile(t *testing.T) {

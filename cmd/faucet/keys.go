@@ -4,12 +4,14 @@ import (
 	"bufio"
 	"fmt"
 
-	"github.com/cosmos/cosmos-sdk/client/input"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
-	"github.com/cosmos/go-bip39"
 	"github.com/spf13/cobra"
 
-	band "github.com/bandprotocol/chain/v2/app"
+	"github.com/cosmos/go-bip39"
+
+	"github.com/cosmos/cosmos-sdk/client/input"
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
+
+	band "github.com/bandprotocol/chain/v3/app"
 )
 
 const (

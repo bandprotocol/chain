@@ -3,11 +3,10 @@ package keeper
 import (
 	"bytes"
 
-	tmbytes "github.com/cometbft/cometbft/libs/bytes"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // =====================================
@@ -31,23 +30,16 @@ func (k Keeper) GetSigningResult(ctx sdk.Context, signingID tss.SigningID) (*typ
 
 	var evmSignature *types.EVMSignature
 	if signing.Signature != nil {
-		rAddress, err := signing.Signature.R().Address()
+		evmSig, err := types.NewEVMSignature(signing.Signature)
 		if err != nil {
 			return nil, err
 		}
 
-		evmSignature = &types.EVMSignature{
-			RAddress:  rAddress,
-			Signature: tmbytes.HexBytes(signing.Signature.S()),
-		}
+		evmSignature = &evmSig
 	}
 
-	return &types.SigningResult{
-		Signing:                   signing,
-		CurrentSigningAttempt:     currentSigningAttempt,
-		EVMSignature:              evmSignature,
-		ReceivedPartialSignatures: partialSigs,
-	}, nil
+	signingResult := types.NewSigningResult(signing, currentSigningAttempt, evmSignature, partialSigs)
+	return &signingResult, nil
 }
 
 // =====================================

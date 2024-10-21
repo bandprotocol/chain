@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
 )
 
 // IsAddress checks if the address of the Member matches the given address

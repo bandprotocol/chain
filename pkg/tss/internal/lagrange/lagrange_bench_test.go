@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss/internal/lagrange"
+	"github.com/bandprotocol/chain/v3/pkg/tss/internal/lagrange"
 )
 
 func BenchmarkComputeCoefficient(b *testing.B) {

@@ -63,6 +63,8 @@ from .tss_db import (
 )
 
 from .feeds_db import (
+    PRICE_HISTORY_PERIOD,
+    price_signals,
     validator_prices,
     delegator_signals,
     signal_total_powers,
@@ -910,6 +912,20 @@ class Handler(object):
     # FEEDS_HANDLER
     ##################################
 
+    def handle_set_price_signal(self, msg):
+        if msg["tx_hash"] is not None:
+            msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
+        del msg["tx_hash"]
+        msg["validator_id"] = self.get_validator_id(msg["validator"])
+        del msg["validator"]
+        msg["feeder_id"] = self.get_account_id(msg["feeder"])
+        del msg["feeder"]
+        self.conn.execute(
+            insert(price_signals)
+            .values(**msg)
+            .on_conflict_do_update(constraint="price_signals_pkey", set_=msg)
+        )
+
     def handle_set_validator_price(self, msg):
         msg["validator_id"] = self.get_validator_id(msg["validator"])
         del msg["validator"]
@@ -957,10 +973,14 @@ class Handler(object):
         )
 
     def handle_set_price(self, msg):
-        self.conn.execute(insert(prices).values(**msg))
+        self.conn.execute(
+            insert(prices)
+            .values(**msg)
+            .on_conflict_do_update(constraint="prices_pkey", set_=msg)
+        )
         self.conn.execute(
             prices.delete().where(
-                prices.c.timestamp < msg["timestamp"] - 60 * 60 * 24 * 7 * 10e8
+                prices.c.timestamp < msg["timestamp"] - PRICE_HISTORY_PERIOD
             )
         )
 
@@ -968,7 +988,11 @@ class Handler(object):
         self.conn.execute(prices.delete().where(prices.c.signal_id == msg["signal_id"]))
 
     def handle_set_reference_source_config(self, msg):
-        self.conn.execute(insert(reference_source_configs).values(**msg))
+        self.conn.execute(
+            insert(reference_source_configs)
+            .values(**msg)
+            .on_conflict_do_update(constraint="reference_source_configs_pkey", set_=msg)
+        )
 
     def handle_set_feeder(self, msg):
         msg["operator_address"] = msg["validator"]

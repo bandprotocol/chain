@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"time"
 
+	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/x/bandtss/types"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	"github.com/bandprotocol/chain/v3/x/bandtss/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 type TestCase struct {
@@ -430,7 +432,7 @@ func (s *AppTestSuite) TestSuccessRequestSignatureOnCurrentGroup() {
 	group, err := s.app.TSSKeeper.GetGroup(ctx, groupCtx.GroupID)
 	s.Require().NoError(err)
 
-	diff := k.GetParams(ctx).Fee.MulInt(sdk.NewInt(int64(group.Threshold)))
+	diff := k.GetParams(ctx).Fee.MulInt(math.NewInt(int64(group.Threshold)))
 	s.Require().Equal(diff, balancesBefore.Sub(balancesAfter...))
 	s.Require().Equal(diff, balancesModuleAfter.Sub(balancesModuleBefore...))
 
@@ -444,6 +446,23 @@ func (s *AppTestSuite) TestSuccessRequestSignatureOnCurrentGroup() {
 
 	bandtssSigningIDMapping := s.app.BandtssKeeper.GetSigningIDMapping(ctx, tssSigningID)
 	s.Require().Equal(bandtssSigningID, bandtssSigningIDMapping)
+}
+
+func (s *AppTestSuite) TestFailRequestSignatureInternalMessage() {
+	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.BandtssKeeper
+
+	_ = s.SetupNewGroup(5, 3)
+	k.DeleteGroupTransition(ctx)
+
+	msg, err := types.NewMsgRequestSignature(
+		types.NewGroupTransitionSignatureOrder([]byte("msg")),
+		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
+		bandtesting.FeePayer.Address,
+	)
+	s.Require().NoError(err)
+
+	_, err = msgSrvr.RequestSignature(ctx, msg)
+	s.Require().ErrorIs(err, types.ErrContentNotAllowed)
 }
 
 func (s *AppTestSuite) TestSuccessRequestSignatureOnIncomingGroup() {
@@ -524,7 +543,7 @@ func (s *AppTestSuite) TestSuccessRequestSignatureOnBothGroups() {
 	)
 
 	group1 := s.app.TSSKeeper.MustGetGroup(ctx, group1Ctx.GroupID)
-	diff := s.app.BandtssKeeper.GetParams(ctx).Fee.MulInt(sdk.NewInt(int64(group1.Threshold)))
+	diff := s.app.BandtssKeeper.GetParams(ctx).Fee.MulInt(math.NewInt(int64(group1.Threshold)))
 	s.Require().Equal(diff, balancesBefore.Sub(balancesAfter...))
 	s.Require().Equal(diff, balancesModuleAfter.Sub(balancesModuleBefore...))
 

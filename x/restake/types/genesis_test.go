@@ -3,9 +3,11 @@ package types
 import (
 	"testing"
 
-	sdkmath "cosmossdk.io/math"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	sdkmath "cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func TestGenesisStateValidate(t *testing.T) {
@@ -17,108 +19,115 @@ func TestGenesisStateValidate(t *testing.T) {
 		{
 			"valid genesisState - empty",
 			GenesisState{
-				Keys:  []Key{},
-				Locks: []Lock{},
+				Params: Params{
+					AllowedDenoms: []string{},
+				},
+				Vaults: []Vault{},
+				Locks:  []Lock{},
+				Stakes: []Stake{},
 			},
+			false,
+		},
+		{
+			"valid genesisState - default",
+			*DefaultGenesisState(),
 			false,
 		},
 		{
 			"valid genesisState - normal",
 			GenesisState{
-				Keys: []Key{
+				Params: DefaultParams(),
+				Vaults: []Vault{
 					{
-						Name:            "key",
-						PoolAddress:     "pool_address",
-						IsActive:        true,
-						RewardPerPowers: sdk.NewDecCoins(),
-						TotalPower:      sdkmath.NewInt(10),
-						Remainders:      sdk.NewDecCoins(),
+						Key:      "key",
+						IsActive: true,
 					},
 				},
 				Locks: []Lock{
 					{
-						StakerAddress:  "address1",
-						Key:            "key",
-						Amount:         sdkmath.NewInt(4),
-						PosRewardDebts: sdk.NewDecCoins(),
-						NegRewardDebts: sdk.NewDecCoins(),
+						StakerAddress: "address1",
+						Key:           "key",
+						Power:         sdkmath.NewInt(4),
 					},
 					{
-						StakerAddress:  "address2",
-						Key:            "key",
-						Amount:         sdkmath.NewInt(6),
-						PosRewardDebts: sdk.NewDecCoins(),
-						NegRewardDebts: sdk.NewDecCoins(),
+						StakerAddress: "address2",
+						Key:           "key",
+						Power:         sdkmath.NewInt(6),
 					},
 				},
+				Stakes: []Stake{},
 			},
 			false,
 		},
 		{
-			"valid genesisState - diff total power on inactive key",
+			"invalid genesisState - duplicate vault name",
 			GenesisState{
-				Keys: []Key{
+				Params: DefaultParams(),
+				Vaults: []Vault{
 					{
-						Name:            "key",
-						PoolAddress:     "pool_address",
-						IsActive:        false,
-						RewardPerPowers: sdk.NewDecCoins(),
-						TotalPower:      sdkmath.NewInt(20),
-						Remainders:      sdk.NewDecCoins(),
+						Key: "test",
+					},
+					{
+						Key: "test",
 					},
 				},
-				Locks: []Lock{
-					{
-						StakerAddress:  "address1",
-						Key:            "key",
-						Amount:         sdkmath.NewInt(4),
-						PosRewardDebts: sdk.NewDecCoins(),
-						NegRewardDebts: sdk.NewDecCoins(),
-					},
-					{
-						StakerAddress:  "address2",
-						Key:            "key",
-						Amount:         sdkmath.NewInt(6),
-						PosRewardDebts: sdk.NewDecCoins(),
-						NegRewardDebts: sdk.NewDecCoins(),
-					},
-				},
-			},
-			false,
-		},
-		{
-			"invalid genesisState - duplicate key name",
-			GenesisState{
-				Keys: []Key{
-					{
-						Name: "test",
-					},
-					{
-						Name: "test",
-					},
-				},
-				Locks: []Lock{},
+				Locks:  []Lock{},
+				Stakes: []Stake{},
 			},
 			true,
 		},
 		{
-			"invalid genesisState - diff total power on active key",
+			"invalid genesisState - lock without vault",
 			GenesisState{
-				Keys: []Key{
-					{
-						Name:       "test",
-						TotalPower: sdkmath.NewInt(5),
-						IsActive:   true,
-					},
-				},
+				Params: DefaultParams(),
+				Vaults: []Vault{},
 				Locks: []Lock{
 					{
-						Key:    "test",
-						Amount: sdkmath.NewInt(4),
+						Key:   "test",
+						Power: sdkmath.NewInt(4),
 					},
+				},
+				Stakes: []Stake{},
+			},
+			true,
+		},
+		{
+			"invalid genesisState - wrong params",
+			GenesisState{
+				Params: NewParams([]string{""}),
+				Vaults: []Vault{},
+				Locks:  []Lock{},
+				Stakes: []Stake{},
+			},
+			true,
+		},
+		{
+			"invalid genesisState - invalid staker address",
+			GenesisState{
+				Params: DefaultParams(),
+				Vaults: []Vault{},
+				Locks:  []Lock{},
+				Stakes: []Stake{
 					{
-						Key:    "test",
-						Amount: sdkmath.NewInt(6),
+						StakerAddress: "invalidAddress",
+						Coins:         sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(1))),
+					},
+				},
+			},
+			true,
+		},
+		{
+			"invalid genesisState - invalid staked coins",
+			GenesisState{
+				Params: DefaultParams(),
+				Vaults: []Vault{},
+				Locks:  []Lock{},
+				Stakes: []Stake{
+					{
+						StakerAddress: ValidAddress,
+						Coins: []sdk.Coin{
+							{Denom: "", Amount: sdkmath.NewInt(1)},
+						},
 					},
 				},
 			},
@@ -127,10 +136,8 @@ func TestGenesisStateValidate(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		t.Run(tc.name, func(tt *testing.T) {
 			err := tc.genesisState.Validate()
-
 			if tc.expErr {
 				require.Error(tt, err)
 			} else {

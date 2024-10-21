@@ -9,8 +9,8 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 type msgServer struct {
@@ -244,10 +244,7 @@ func (k msgServer) Confirm(
 	}
 
 	// Add confirm
-	k.AddConfirm(ctx, groupID, types.Confirm{
-		MemberID:     memberID,
-		OwnPubKeySig: req.OwnPubKeySig,
-	})
+	k.AddConfirm(ctx, groupID, types.NewConfirm(memberID, req.OwnPubKeySig))
 
 	// Emit event confirm success
 	ctx.EventManager().EmitEvent(

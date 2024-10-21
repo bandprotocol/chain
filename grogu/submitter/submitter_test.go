@@ -6,11 +6,19 @@ import (
 	"testing"
 	"time"
 
+	"github.com/spf13/viper"
+	"github.com/stretchr/testify/suite"
+	"go.uber.org/mock/gomock"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/libs/bytes"
-	"github.com/cometbft/cometbft/libs/log"
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	coretypes "github.com/cometbft/cometbft/rpc/core/types"
+
+	dbm "github.com/cosmos/cosmos-db"
+
+	"cosmossdk.io/log"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -20,22 +28,18 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/stretchr/testify/suite"
-	"go.uber.org/mock/gomock"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 
-	band "github.com/bandprotocol/chain/v2/app"
-	"github.com/bandprotocol/chain/v2/grogu/submitter/testutil"
-	"github.com/bandprotocol/chain/v2/pkg/logger"
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	band "github.com/bandprotocol/chain/v3/app"
+	"github.com/bandprotocol/chain/v3/grogu/submitter/testutil"
+	"github.com/bandprotocol/chain/v3/pkg/logger"
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 type SubmitterTestSuite struct {
 	suite.Suite
 
 	Submitter           *Submitter
-	SubmitSignalPriceCh chan []types.SignalPrice
+	SubmitSignalPriceCh chan SignalPriceSubmission
 }
 
 func TestSubmitterTestSuite(t *testing.T) {
@@ -44,10 +48,22 @@ func TestSubmitterTestSuite(t *testing.T) {
 
 func (s *SubmitterTestSuite) SetupTest() {
 	// Initialize encoding config
-	bandConfig := band.MakeEncodingConfig()
+	initAppOptions := viper.New()
+	tempDir := tempDir()
+	initAppOptions.Set(flags.FlagHome, tempDir)
+	tempApplication := band.NewBandApp(
+		log.NewNopLogger(),
+		dbm.NewMemDB(),
+		nil,
+		true,
+		map[int64]bool{},
+		tempDir,
+		initAppOptions,
+		100,
+	)
 
 	// Setup keyring
-	cdc := band.MakeEncodingConfig().Marshaler
+	cdc := tempApplication.AppCodec()
 	kb := keyring.NewInMemory(cdc)
 	_, _, err := kb.NewMnemonic(
 		"test",
@@ -61,10 +77,10 @@ func (s *SubmitterTestSuite) SetupTest() {
 	// Setup Client Context
 	clientCtx := client.Context{
 		ChainID:           "mock-chain",
-		Codec:             bandConfig.Marshaler,
-		InterfaceRegistry: bandConfig.InterfaceRegistry,
+		Codec:             cdc,
+		InterfaceRegistry: tempApplication.InterfaceRegistry(),
 		Keyring:           kb,
-		TxConfig:          bandConfig.TxConfig,
+		TxConfig:          tempApplication.GetTxConfig(),
 		BroadcastMode:     flags.BroadcastSync,
 	}
 
@@ -83,7 +99,7 @@ func (s *SubmitterTestSuite) SetupTest() {
 				Result:  nil,
 			}
 
-			bz, _ := codec.NewProtoCodec(band.MakeEncodingConfig().InterfaceRegistry).GRPCCodec().Marshal(simRes)
+			bz, _ := codec.NewProtoCodec(tempApplication.InterfaceRegistry()).GRPCCodec().Marshal(simRes)
 
 			return &coretypes.ResultABCIQuery{
 				Response: abci.ResponseQuery{
@@ -95,15 +111,14 @@ func (s *SubmitterTestSuite) SetupTest() {
 		}).
 		AnyTimes()
 
+	mockRPCClients := []rpcclient.RemoteClient{mockClient}
+
 	mockAuthQuerier := testutil.NewMockAuthQuerier(ctrl)
 	mockAuthQuerier.EXPECT().
 		QueryAccount(gomock.Any()).
 		DoAndReturn(func(address sdk.Address) (*auth.QueryAccountResponse, error) {
 			account := auth.NewBaseAccountWithAddress(sdk.MustAccAddressFromBech32(address.String()))
-			any, err := codectypes.NewAnyWithValue(account)
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, err.Error())
-			}
+			any, _ := codectypes.NewAnyWithValue(account)
 			return &auth.QueryAccountResponse{Account: any}, nil
 		}).
 		AnyTimes()
@@ -114,14 +129,12 @@ func (s *SubmitterTestSuite) SetupTest() {
 		Return(&sdk.TxResponse{TxHash: "mock-tx-hash", Code: 0}, nil).
 		AnyTimes()
 
-	mockRPCClients := []rpcclient.RemoteClient{mockClient}
-
 	// Initialize logger
-	allowLevel, _ := log.AllowLevel("info")
-	l := logger.New(allowLevel)
+	allowLevel, _ := log.ParseLogLevel("info")
+	l := logger.NewLogger(allowLevel)
 
 	// Create submit channel
-	submitSignalPriceCh := make(chan []types.SignalPrice, 300)
+	submitSignalPriceCh := make(chan SignalPriceSubmission, 300)
 
 	// Set up validator address
 	validAddress := sdk.ValAddress("1000000001")
@@ -171,7 +184,12 @@ func (s *SubmitterTestSuite) TestSubmitterSubmitPrice() {
 			PriceStatus: types.PriceStatusAvailable,
 		},
 	}
-	s.SubmitSignalPriceCh <- prices
+
+	signalPriceSubmission := SignalPriceSubmission{
+		SignalPrices: prices,
+		UUID:         "uuid1",
+	}
+	s.SubmitSignalPriceCh <- signalPriceSubmission
 	s.Submitter.pendingSignalIDs.Store("signal1", struct{}{})
 
 	// Check length of idleKeyIDChannel
@@ -181,7 +199,7 @@ func (s *SubmitterTestSuite) TestSubmitterSubmitPrice() {
 	keyID := <-s.Submitter.idleKeyIDChannel
 	s.Require().Len(s.Submitter.idleKeyIDChannel, 0)
 
-	s.Submitter.submitPrice(prices, keyID)
+	s.Submitter.submitPrice(signalPriceSubmission, keyID)
 
 	// Check pending signal IDs
 	_, pending := s.Submitter.pendingSignalIDs.Load("signal1")
@@ -213,7 +231,12 @@ func (s *SubmitterTestSuite) TestSubmitterSubmitPrice_OutOfGas() {
 			PriceStatus: types.PriceStatusAvailable,
 		},
 	}
-	s.SubmitSignalPriceCh <- prices
+
+	signalPriceSubmission := SignalPriceSubmission{
+		SignalPrices: prices,
+		UUID:         "uuid1",
+	}
+	s.SubmitSignalPriceCh <- signalPriceSubmission
 	s.Submitter.pendingSignalIDs.Store("signal1", struct{}{})
 
 	// Check length of idleKeyIDChannel
@@ -223,7 +246,7 @@ func (s *SubmitterTestSuite) TestSubmitterSubmitPrice_OutOfGas() {
 	keyID := <-s.Submitter.idleKeyIDChannel
 	s.Require().Len(s.Submitter.idleKeyIDChannel, 0)
 
-	s.Submitter.submitPrice(prices, keyID)
+	s.Submitter.submitPrice(signalPriceSubmission, keyID)
 
 	// Check pending signal IDs
 	_, pending := s.Submitter.pendingSignalIDs.Load("signal1")

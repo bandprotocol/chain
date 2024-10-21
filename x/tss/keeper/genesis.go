@@ -5,11 +5,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // InitGenesis performs genesis initialization for the tss module.
-func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
+func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 	if err := k.SetParams(ctx, data.Params); err != nil {
 		panic(err)
 	}
@@ -29,10 +29,8 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
 		}
 
 		acc := sdk.MustAccAddressFromBech32(addr)
-		k.SetDEQueue(ctx, acc, types.DEQueue{
-			Head: 0,
-			Tail: uint64(len(des)),
-		})
+		deQueue := types.NewDEQueue(0, uint64(len(des)))
+		k.SetDEQueue(ctx, acc, deQueue)
 
 		for i, de := range des {
 			k.SetDE(ctx, acc, uint64(i), de)

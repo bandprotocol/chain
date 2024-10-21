@@ -6,16 +6,21 @@ import (
 	"path"
 	"path/filepath"
 
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+
+	dbm "github.com/cosmos/cosmos-db"
+
+	"cosmossdk.io/log"
+
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
-	band "github.com/bandprotocol/chain/v2/app"
-	"github.com/bandprotocol/chain/v2/cmd/grogu/cmd"
-	"github.com/bandprotocol/chain/v2/grogu/context"
+	band "github.com/bandprotocol/chain/v3/app"
+	"github.com/bandprotocol/chain/v3/cmd/grogu/cmd"
+	"github.com/bandprotocol/chain/v3/grogu/context"
 )
 
 func main() {
@@ -64,8 +69,21 @@ func createPersistentPreRunE(rootCmd *cobra.Command, ctx *context.Context) func(
 			return err
 		}
 
-		cdc := band.MakeEncodingConfig().Marshaler
-		ctx.Keyring, err = keyring.New("band", keyring.BackendTest, home, nil, cdc)
+		initAppOptions := viper.New()
+		tempDir := tempDir()
+		initAppOptions.Set(flags.FlagHome, tempDir)
+		tempApplication := band.NewBandApp(
+			log.NewNopLogger(),
+			dbm.NewMemDB(),
+			nil,
+			true,
+			map[int64]bool{},
+			tempDir,
+			initAppOptions,
+			100,
+		)
+
+		ctx.Keyring, err = keyring.New("band", keyring.BackendTest, home, nil, tempApplication.AppCodec())
 		if err != nil {
 			return err
 		}
@@ -92,4 +110,14 @@ func getDefaultHome() string {
 	}
 
 	return filepath.Join(userHomeDir, ".grogu")
+}
+
+var tempDir = func() string {
+	dir, err := os.MkdirTemp("", ".band")
+	if err != nil {
+		dir = band.DefaultNodeHome
+	}
+	defer os.RemoveAll(dir)
+
+	return dir
 }

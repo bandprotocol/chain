@@ -5,22 +5,26 @@ import (
 	"testing"
 	"time"
 
-	proto "github.com/bandprotocol/bothan/bothan-api/client/go-client/query"
-	"github.com/cometbft/cometbft/libs/log"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/mock/gomock"
 
-	"github.com/bandprotocol/chain/v2/grogu/signaller/testutil"
-	"github.com/bandprotocol/chain/v2/pkg/logger"
-	feeds "github.com/bandprotocol/chain/v2/x/feeds/types"
+	"cosmossdk.io/log"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
+
+	"github.com/bandprotocol/chain/v3/grogu/signaller/testutil"
+	"github.com/bandprotocol/chain/v3/grogu/submitter"
+	"github.com/bandprotocol/chain/v3/pkg/logger"
+	feeds "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 type SignallerTestSuite struct {
 	suite.Suite
 
 	Signaller    *Signaller
-	SubmitCh     chan []feeds.SignalPrice
+	SubmitCh     chan submitter.SignalPriceSubmission
 	assignedTime time.Time
 }
 
@@ -45,7 +49,7 @@ func (s *SignallerTestSuite) SetupTest() {
 				PriceStatus: feeds.PriceStatusAvailable,
 				Validator:   validAddress.String(),
 				SignalID:    "signal1",
-				Price:       10000000000000,
+				Price:       10000,
 				Timestamp:   0,
 			},
 		}}, nil).
@@ -69,22 +73,25 @@ func (s *SignallerTestSuite) SetupTest() {
 		AnyTimes()
 
 	mockBothanClient := testutil.NewMockBothanClient(ctrl)
-	mockBothanClient.EXPECT().QueryPrices(gomock.Any()).
-		Return([]*proto.PriceData{
-			{
-				SignalId:    "signal1",
-				Price:       "10000",
-				PriceStatus: proto.PriceStatus_PRICE_STATUS_AVAILABLE,
+	mockBothanClient.EXPECT().GetPrices(gomock.Any()).
+		Return(&bothan.GetPricesResponse{
+			Prices: []*bothan.Price{
+				{
+					SignalId: "signal1",
+					Price:    10000,
+					Status:   bothan.Status_AVAILABLE,
+				},
 			},
+			Uuid: "uuid1",
 		}, nil).
 		AnyTimes()
 
 	// Create submit channel
-	submitCh := make(chan []feeds.SignalPrice, 300)
+	submitCh := make(chan submitter.SignalPriceSubmission, 300)
 
 	// Initialize logger
-	allowLevel, _ := log.AllowLevel("info")
-	l := logger.New(allowLevel)
+	allowLevel, _ := log.ParseLogLevel("info")
+	l := logger.NewLogger(allowLevel)
 
 	// Initialize pending signal IDs map
 	pendingSignalIDs := sync.Map{}
@@ -123,11 +130,11 @@ func (s *SignallerTestSuite) TestFilterAndPrepareSubmitPrices() {
 	s.TestUpdateInternalVariables()
 
 	// Test with available price
-	prices := []*proto.PriceData{
+	prices := []*bothan.Price{
 		{
-			SignalId:    "signal1",
-			Price:       "10000",
-			PriceStatus: proto.PriceStatus_PRICE_STATUS_AVAILABLE,
+			SignalId: "signal1",
+			Price:    10000,
+			Status:   bothan.Status_AVAILABLE,
 		},
 	}
 
@@ -144,14 +151,14 @@ func (s *SignallerTestSuite) TestFilterAndPrepareSubmitPrices() {
 	submitPrices = s.Signaller.filterAndPrepareSubmitPrices(prices, signalIDs, endIntervalTime)
 	s.Require().NotEmpty(submitPrices)
 	s.Require().Equal("signal1", submitPrices[0].SignalID)
-	s.Require().Equal(uint64(10000*Multiplier), submitPrices[0].Price)
+	s.Require().Equal(uint64(10000), submitPrices[0].Price)
 
 	// Test with unavailable price
-	prices = []*proto.PriceData{
+	prices = []*bothan.Price{
 		{
-			SignalId:    "signal1",
-			Price:       "10000",
-			PriceStatus: proto.PriceStatus_PRICE_STATUS_UNAVAILABLE,
+			SignalId: "signal1",
+			Price:    10000,
+			Status:   bothan.Status_UNAVAILABLE,
 		},
 	}
 
@@ -196,17 +203,19 @@ func (s *SignallerTestSuite) TestSubmitPrices() {
 	prices := []feeds.SignalPrice{
 		{
 			SignalID:    "signal1",
-			Price:       10000 * Multiplier,
+			Price:       10000,
 			PriceStatus: feeds.PriceStatusAvailable,
 		},
 	}
 
-	s.Signaller.submitPrices(prices)
+	uuid := "test-uuid"
+
+	s.Signaller.submitPrices(prices, uuid)
 
 	select {
-	case submittedPrices := <-s.SubmitCh:
-		s.Require().NotEmpty(submittedPrices)
-		s.Require().Equal("signal1", submittedPrices[0].SignalID)
+	case priceSubmission := <-s.SubmitCh:
+		s.Require().NotEmpty(priceSubmission.SignalPrices)
+		s.Require().Equal("signal1", priceSubmission.SignalPrices[0].SignalID)
 	default:
 		s.Fail("Expected prices to be submitted")
 	}
@@ -216,10 +225,10 @@ func (s *SignallerTestSuite) TestIsPriceValid() {
 	// Update internal variables
 	s.TestUpdateInternalVariables()
 
-	priceData := &proto.PriceData{
-		SignalId:    "signal1",
-		Price:       "10000",
-		PriceStatus: proto.PriceStatus_PRICE_STATUS_AVAILABLE,
+	priceData := &bothan.Price{
+		SignalId: "signal1",
+		Price:    10000,
+		Status:   bothan.Status_AVAILABLE,
 	}
 
 	// Test with time before the assigned time
@@ -249,44 +258,44 @@ func (s *SignallerTestSuite) TestShouldUpdatePrice() {
 
 	valPrice := feeds.ValidatorPrice{
 		SignalID:  "signal1",
-		Price:     10000 * Multiplier,
+		Price:     10000,
 		Timestamp: 0,
 	}
 
 	// Test with new price positive deviation
 	thresholdTime := time.Unix(valPrice.Timestamp+s.Signaller.params.CooldownTime+TimeBuffer, 0)
-	newPrice := uint64(10050 * Multiplier)
+	newPrice := uint64(10050)
 
 	shouldUpdate := s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, thresholdTime)
 	s.Require().True(shouldUpdate)
 
 	// Test with new price negative deviation
-	newPrice = uint64(9950 * Multiplier)
+	newPrice = uint64(9950)
 
 	shouldUpdate = s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, thresholdTime)
 	s.Require().True(shouldUpdate)
 
 	// Test with new price within deviation
-	newPrice = uint64(10025 * Multiplier)
+	newPrice = uint64(10025)
 
 	shouldUpdate = s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, thresholdTime)
 	s.Require().False(shouldUpdate)
 
 	// Test with new price outside deviation
-	newPrice = uint64(10075 * Multiplier)
+	newPrice = uint64(10075)
 
 	shouldUpdate = s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, thresholdTime)
 	s.Require().True(shouldUpdate)
 
 	// Test with time before threshold time, price outside deviation
-	newPrice = uint64(10075 * Multiplier)
+	newPrice = uint64(10075)
 	beforeThresholdTime := time.Unix(valPrice.Timestamp+s.Signaller.params.CooldownTime, 0)
 
 	shouldUpdate = s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, beforeThresholdTime)
 	s.Require().False(shouldUpdate)
 
 	// Test with time at assigned time, price within deviation
-	newPrice = uint64(10025 * Multiplier)
+	newPrice = uint64(10025)
 
 	shouldUpdate = s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, s.assignedTime)
 	s.Require().True(shouldUpdate)

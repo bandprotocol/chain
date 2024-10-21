@@ -5,10 +5,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	tsskeeper "github.com/bandprotocol/chain/v3/x/tss/keeper"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 const (
@@ -171,15 +171,15 @@ func (g *GroupContext) SubmitRound1(ctx sdk.Context, k *tsskeeper.Keeper) error 
 		}
 
 		round1Infos[i] = *r1
-		r1Msg := types.Round1Info{
-			MemberID:           mid,
-			CoefficientCommits: r1.CoefficientCommits,
-			OneTimePubKey:      r1.OneTimePubKey,
-			A0Signature:        r1.A0Signature,
-			OneTimeSignature:   r1.OneTimeSignature,
-		}
+		r1InfoMsg := types.NewRound1Info(
+			mid,
+			r1.CoefficientCommits,
+			r1.OneTimePubKey,
+			r1.A0Signature,
+			r1.OneTimeSignature,
+		)
 
-		msg := types.NewMsgSubmitDKGRound1(g.GroupID, r1Msg, g.Accounts[i].Address.String())
+		msg := types.NewMsgSubmitDKGRound1(g.GroupID, r1InfoMsg, g.Accounts[i].Address.String())
 		if _, err = msgServer.SubmitDKGRound1(ctx, msg); err != nil {
 			return err
 		}
@@ -228,10 +228,7 @@ func (g *GroupContext) SubmitRound2(ctx sdk.Context, k *tsskeeper.Keeper) error 
 		}
 
 		encSecrets[i] = encSecretShares
-		r2Info := types.Round2Info{
-			MemberID:              mid,
-			EncryptedSecretShares: encSecretShares,
-		}
+		r2Info := types.NewRound2Info(mid, encSecretShares)
 		msg := types.NewMsgSubmitDKGRound2(g.GroupID, r2Info, g.Accounts[i].Address.String())
 
 		if _, err = msgServer.SubmitDKGRound2(ctx, msg); err != nil {

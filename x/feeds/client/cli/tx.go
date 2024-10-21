@@ -6,16 +6,17 @@ import (
 	"strings"
 	"time"
 
+	"github.com/spf13/cobra"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
-	"github.com/spf13/cobra"
 
-	"github.com/bandprotocol/chain/v2/pkg/grant"
-	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	"github.com/bandprotocol/chain/v3/pkg/grant"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 const (
@@ -188,13 +189,13 @@ $ %s tx feeds update-reference-source-config <YOUR_IPFS_HASH> 1.0.0 --from mykey
 // GetCmdRequestSignature implements the request signature handler.
 func GetCmdRequestSignature() *cobra.Command {
 	return &cobra.Command{
-		Use:   "feeds-prices [signal_id1,signal_id2,...] [feeds-type]",
-		Short: "Request bandtss signature prices from list of signal id and feeds-type (1: default, 2: tick)",
+		Use:   "feeds-prices [signal_id1,signal_id2,...] [encoder]",
+		Short: "Request bandtss signature prices from list of signal id and encoder (1: fixed-point abi, 2: tick abi)",
 		Args:  cobra.ExactArgs(2),
 		Long: strings.TrimSpace(
-			fmt.Sprintf(`Request bandtss signature from list of signal id and feeds-type (1: default, 2: tick)
+			fmt.Sprintf(`Request bandtss signature from list of signal id and encoder (1: fixed-point abi, 2: tick abi)
 Example:
-$ %s tx bandtss request-signature feeds-prices crypto_price.ethusd,crypto_price.usdtusd 1 --fee-limit 10uband
+$ %s tx bandtss request-signature feeds-prices CS:ETH-USD,CS:USDT-USD 1 --fee-limit 10uband
 `,
 				version.AppName,
 			),
@@ -217,13 +218,13 @@ $ %s tx bandtss request-signature feeds-prices crypto_price.ethusd,crypto_price.
 
 			signalIDs := strings.Split(args[0], ",")
 
-			feedsType, err := strconv.ParseInt(args[1], 10, 32)
+			encoder, err := strconv.ParseInt(args[1], 10, 32)
 			if err != nil {
 				return err
 			}
 
 			from := clientCtx.GetFromAddress()
-			content := types.NewFeedSignatureOrder(signalIDs, types.FeedType(feedsType))
+			content := types.NewFeedSignatureOrder(signalIDs, types.Encoder(encoder))
 
 			msg, err := bandtsstypes.NewMsgRequestSignature(content, feeLimit, from)
 			if err != nil {

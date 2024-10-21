@@ -3,72 +3,118 @@ package types
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	sdkmath "cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var (
-	ValidAddress = "cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8"
-	ValidKey     = "restake"
+	ValidAddress   = "cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8"
+	ValidAuthority = "cosmos13jt28pf6s8rgjddv8wwj8v3ngrfsccpgsdhjhw"
+	ValidParams    = Params{
+		AllowedDenoms: []string{"uband"},
+	}
+	ValidVault = "restake"
 
-	InvalidAddress = ""
-	InvalidKey     = ""
+	InvalidAddress   = ""
+	InvalidAuthority = ""
+	InvalidVault     = ""
 )
 
 // ====================================
-// MsgClaimRewards
+// MsgStake
 // ====================================
 
-func TestNewMsgClaimRewards(t *testing.T) {
+func TestNewMsgStake(t *testing.T) {
 	acc := sdk.MustAccAddressFromBech32(ValidAddress)
-	msg := NewMsgClaimRewards(acc, ValidKey)
+	coins := sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(1)))
+	msg := NewMsgStake(acc, coins)
 	require.Equal(t, ValidAddress, msg.StakerAddress)
-	require.Equal(t, ValidKey, msg.Key)
+	require.Equal(t, coins, msg.Coins)
 }
 
-func TestMsgClaimRewards_Route(t *testing.T) {
+func TestMsgStake_ValidateBasic(t *testing.T) {
 	acc := sdk.MustAccAddressFromBech32(ValidAddress)
-	msg := NewMsgClaimRewards(acc, ValidKey)
-	require.Equal(t, "/restake.v1beta1.MsgClaimRewards", msg.Route())
-}
-
-func TestMsgClaimRewards_Type(t *testing.T) {
-	acc := sdk.MustAccAddressFromBech32(ValidAddress)
-	msg := NewMsgClaimRewards(acc, ValidKey)
-	require.Equal(t, "/restake.v1beta1.MsgClaimRewards", msg.Type())
-}
-
-func TestMsgClaimRewards_GetSignBytes(t *testing.T) {
-	acc := sdk.MustAccAddressFromBech32(ValidAddress)
-	msg := NewMsgClaimRewards(acc, ValidKey)
-	expected := `{"type":"restake/MsgClaimRewards","value":{"key":"restake","staker_address":"cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8"}}`
-	require.Equal(t, expected, string(msg.GetSignBytes()))
-}
-
-func TestMsgClaimRewards_GetSigners(t *testing.T) {
-	acc := sdk.MustAccAddressFromBech32(ValidAddress)
-	msg := NewMsgClaimRewards(acc, ValidKey)
-
-	signers := msg.GetSigners()
-	require.Equal(t, 1, len(signers))
-	require.Equal(t, acc, signers[0])
-}
-
-func TestMsgClaimRewards_ValidateBasic(t *testing.T) {
-	acc := sdk.MustAccAddressFromBech32(ValidAddress)
+	coins := sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(1)))
 
 	// valid address
-	msg := NewMsgClaimRewards(acc, ValidKey)
+	msg := NewMsgStake(acc, coins)
 	err := msg.ValidateBasic()
 	require.NoError(t, err)
 
 	// invalid address
-	msg = NewMsgClaimRewards([]byte(InvalidAddress), ValidKey)
+	msg = NewMsgStake([]byte(InvalidAddress), coins)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 
-	// invalid key
-	msg = NewMsgClaimRewards(acc, InvalidKey)
+	// invalid coins
+	msg = NewMsgStake(acc, []sdk.Coin{
+		{
+			Denom:  "",
+			Amount: sdkmath.NewInt(1),
+		},
+	})
+	err = msg.ValidateBasic()
+	require.Error(t, err)
+}
+
+// ====================================
+// MsgUnstake
+// ====================================
+
+func TestNewMsgUnstake(t *testing.T) {
+	acc := sdk.MustAccAddressFromBech32(ValidAddress)
+	coins := sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(1)))
+	msg := NewMsgUnstake(acc, coins)
+	require.Equal(t, ValidAddress, msg.StakerAddress)
+	require.Equal(t, coins, msg.Coins)
+}
+
+func TestMsgUnstake_ValidateBasic(t *testing.T) {
+	acc := sdk.MustAccAddressFromBech32(ValidAddress)
+	coins := sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(1)))
+
+	// valid address
+	msg := NewMsgUnstake(acc, coins)
+	err := msg.ValidateBasic()
+	require.NoError(t, err)
+
+	// invalid address
+	msg = NewMsgUnstake([]byte(InvalidAddress), coins)
+	err = msg.ValidateBasic()
+	require.Error(t, err)
+
+	// invalid coins
+	msg = NewMsgUnstake(acc, []sdk.Coin{
+		{
+			Denom:  "",
+			Amount: sdkmath.NewInt(1),
+		},
+	})
+	err = msg.ValidateBasic()
+	require.Error(t, err)
+}
+
+// ====================================
+// MsgUpdateParams
+// ====================================
+
+func TestNewMsgUpdateParams(t *testing.T) {
+	msg := NewMsgUpdateParams(ValidAuthority, ValidParams)
+	require.Equal(t, ValidAuthority, msg.Authority)
+	require.Equal(t, ValidParams, msg.Params)
+}
+
+func TestMsgUpdateParams_ValidateBasic(t *testing.T) {
+	// Valid authority
+	msg := NewMsgUpdateParams(ValidAuthority, ValidParams)
+	err := msg.ValidateBasic()
+	require.NoError(t, err)
+
+	// Invalid authority
+	msg = NewMsgUpdateParams(InvalidAuthority, ValidParams)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 }
