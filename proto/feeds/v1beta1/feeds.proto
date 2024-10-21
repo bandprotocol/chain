@@ -22,7 +22,7 @@ message DelegatorSignals {
   option (gogoproto.equal) = true;
 
   // delegator is the address of the delegator of this signals.
-  string delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string delegator = 1;
 
   // signals is a list of signals submit by the delegator.
   repeated Signal signals = 2 [(gogoproto.nullable) = false];
@@ -144,7 +144,7 @@ message ValidatorPrice {
   PriceStatus price_status = 1;
 
   // validator is the validator address.
-  string validator = 2;
+  string validator = 2 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
 
   // signal_id is the signal id of the price.
   string signal_id = 3 [(gogoproto.customname) = "SignalID"];
