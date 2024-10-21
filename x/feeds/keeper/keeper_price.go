@@ -96,11 +96,6 @@ func (k Keeper) SetPrice(ctx sdk.Context, price types.Price) {
 	ctx.KVStore(k.storeKey).Set(types.PriceStoreKey(price.SignalID), k.cdc.MustMarshal(&price))
 }
 
-// DeletePrice deletes a price by signal id.
-func (k Keeper) DeletePrice(ctx sdk.Context, signalID string) {
-	ctx.KVStore(k.storeKey).Delete(types.PriceStoreKey(signalID))
-}
-
 // CalculatePrices calculates final prices for all supported feeds.
 func (k Keeper) CalculatePrices(ctx sdk.Context) {
 	// get the current feeds
