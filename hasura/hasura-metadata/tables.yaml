@@ -576,9 +576,6 @@
       using:
         foreign_key_constraint_on: connection_id
 - table:
-    name: latest_prices
-    schema: public
-- table:
     name: non_validator_vote_proposals_view
     schema: public
 - table:
