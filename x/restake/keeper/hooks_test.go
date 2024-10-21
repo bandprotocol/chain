@@ -5,6 +5,7 @@ import (
 
 	sdkmath "cosmossdk.io/math"
 
+	"github.com/bandprotocol/chain/v3/x/restake/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -37,7 +38,7 @@ func (suite *KeeperTestSuite) TestHooksAfterDelegationModified() {
 		Return(sdkmath.NewInt(49), nil).
 		Times(1)
 	err = suite.stakingHooks.AfterDelegationModified(ctx, ValidAddress1, ValAddress)
-	suite.Require().Error(err)
+	suite.Require().ErrorIs(err, types.ErrUnableToUndelegate)
 }
 
 func (suite *KeeperTestSuite) TestHooksBeforeDelegationRemoved() {
@@ -89,5 +90,5 @@ func (suite *KeeperTestSuite) TestHooksBeforeDelegationRemoved() {
 		}, nil).
 		Times(1)
 	err = suite.stakingHooks.BeforeDelegationRemoved(ctx, ValidAddress1, ValAddress)
-	suite.Require().Error(err)
+	suite.Require().ErrorIs(err, types.ErrUnableToUndelegate)
 }

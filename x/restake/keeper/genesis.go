@@ -39,7 +39,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
 		totalStakes = totalStakes.Add(stake.Coins...)
 	}
 
-	// check if total stakes equals balances, if it doesn't panic because there were export/import errors
+	// check if total stakes equals balances of the module account.
 	if !balances.Equal(totalStakes) {
 		panic(fmt.Sprintf("expected module account was %s but we got %s", balances.String(), totalStakes.String()))
 	}
