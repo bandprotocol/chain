@@ -57,6 +57,8 @@ import (
 	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
 	"github.com/bandprotocol/chain/v3/x/oracle"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/x/restake"
+	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 var maccPerms = map[string][]string{
@@ -69,6 +71,7 @@ var maccPerms = map[string][]string{
 	govtypes.ModuleName:            {authtypes.Burner},
 	ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 	ibcfeetypes.ModuleName:         nil,
+	restaketypes.ModuleName:        nil,
 }
 
 func appModules(
@@ -149,6 +152,7 @@ func appModules(
 		app.ICAModule,
 		globalfee.NewAppModule(app.GlobalFeeKeeper),
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
+		restake.NewAppModule(appCodec, app.RestakeKeeper),
 	}
 }
 
@@ -249,6 +253,7 @@ func orderBeginBlockers() []string {
 		capabilitytypes.ModuleName,
 		minttypes.ModuleName,
 		oracletypes.ModuleName,
+		restaketypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -286,6 +291,7 @@ func orderEndBlockers() []string {
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
 		oracletypes.ModuleName,
+		restaketypes.ModuleName,
 		ibcexported.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
@@ -343,5 +349,6 @@ func orderInitBlockers() []string {
 		consensusparamtypes.ModuleName,
 		oracletypes.ModuleName,
 		globalfeetypes.ModuleName,
+		restaketypes.ModuleName,
 	}
 }
