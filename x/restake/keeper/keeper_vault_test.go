@@ -45,11 +45,11 @@ func (suite *KeeperTestSuite) TestDeactivateVault() {
 
 	// error case -  no vault
 	err := suite.restakeKeeper.DeactivateVault(ctx, InvalidVaultKey)
-	suite.Require().Error(err)
+	suite.Require().ErrorIs(err, types.ErrVaultNotFound)
 
 	// error case - vault is deactivated
 	err = suite.restakeKeeper.DeactivateVault(ctx, InactiveVaultKey)
-	suite.Require().Error(err)
+	suite.Require().ErrorIs(err, types.ErrVaultNotActive)
 
 	// success case
 	err = suite.restakeKeeper.DeactivateVault(ctx, ActiveVaultKey)
