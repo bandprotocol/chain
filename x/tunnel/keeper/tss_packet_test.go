@@ -4,11 +4,11 @@ import (
 	"math"
 	"time"
 
+	"go.uber.org/mock/gomock"
+
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"go.uber.org/mock/gomock"
 
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
 	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
