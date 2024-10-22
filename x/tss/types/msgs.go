@@ -4,7 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
 )
 
 var (
@@ -15,6 +15,14 @@ var (
 	_ sdk.Msg = &MsgSubmitDEs{}
 	_ sdk.Msg = &MsgSubmitSignature{}
 	_ sdk.Msg = &MsgUpdateParams{}
+
+	_ sdk.HasValidateBasic = (*MsgSubmitDKGRound1)(nil)
+	_ sdk.HasValidateBasic = (*MsgSubmitDKGRound2)(nil)
+	_ sdk.HasValidateBasic = (*MsgComplain)(nil)
+	_ sdk.HasValidateBasic = (*MsgConfirm)(nil)
+	_ sdk.HasValidateBasic = (*MsgSubmitDEs)(nil)
+	_ sdk.HasValidateBasic = (*MsgSubmitSignature)(nil)
+	_ sdk.HasValidateBasic = (*MsgUpdateParams)(nil)
 )
 
 // NewMsgSubmitDKGRound1 creates a new MsgSubmitDKGRound1 instance.
@@ -24,19 +32,6 @@ func NewMsgSubmitDKGRound1(groupID tss.GroupID, round1Info Round1Info, sender st
 		Round1Info: round1Info,
 		Sender:     sender,
 	}
-}
-
-// Type returns message type name.
-func (m MsgSubmitDKGRound1) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes Implements Msg.
-func (m MsgSubmitDKGRound1) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for a MsgSubmitDKGRound1.
-func (m MsgSubmitDKGRound1) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
 }
 
 // ValidateBasic does a sanity check on the provided data
@@ -80,19 +75,6 @@ func NewMsgSubmitDKGRound2(groupID tss.GroupID, round2Info Round2Info, sender st
 	}
 }
 
-// Type returns message type name.
-func (m MsgSubmitDKGRound2) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes Implements Msg.
-func (m MsgSubmitDKGRound2) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for a MsgSubmitDKGRound2.
-func (m MsgSubmitDKGRound2) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
-}
-
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSubmitDKGRound2) ValidateBasic() error {
 	// Validate member address
@@ -117,19 +99,6 @@ func NewMsgComplain(groupID tss.GroupID, complaints []Complaint, sender string) 
 		Complaints: complaints,
 		Sender:     sender,
 	}
-}
-
-// Type returns message type name.
-func (m MsgComplain) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes Implements Msg.
-func (m MsgComplain) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for a MsgComplain.
-func (m MsgComplain) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
 }
 
 // ValidateBasic does a sanity check on the provided data
@@ -186,19 +155,6 @@ func NewMsgConfirm(
 	}
 }
 
-// Type returns message type name.
-func (m MsgConfirm) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes Implements Msg.
-func (m MsgConfirm) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for a MsgConfirm.
-func (m MsgConfirm) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
-}
-
 // ValidateBasic does a sanity check on the provided data
 func (m MsgConfirm) ValidateBasic() error {
 	// Validate member address
@@ -220,19 +176,6 @@ func NewMsgSubmitDEs(des []DE, sender string) *MsgSubmitDEs {
 		DEs:    des,
 		Sender: sender,
 	}
-}
-
-// Type returns message type name.
-func (m MsgSubmitDEs) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes Implements Msg.
-func (m MsgSubmitDEs) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for a MsgSubmitDEs.
-func (m MsgSubmitDEs) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Sender)}
 }
 
 // ValidateBasic does a sanity check on the provided data
@@ -273,19 +216,6 @@ func NewMsgSubmitSignature(
 	}
 }
 
-// Type returns message type name.
-func (m MsgSubmitSignature) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes Implements Msg.
-func (m MsgSubmitSignature) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for a MsgSubmitSignature.
-func (m MsgSubmitSignature) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Signer)}
-}
-
 // ValidateBasic does a sanity check on the provided data
 func (m MsgSubmitSignature) ValidateBasic() error {
 	// Validate member address
@@ -307,19 +237,6 @@ func NewMsgUpdateParams(authority string, params Params) *MsgUpdateParams {
 		Authority: authority,
 		Params:    params,
 	}
-}
-
-// Type returns message type name.
-func (m MsgUpdateParams) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSignBytes implements the LegacyMsg interface.
-func (m MsgUpdateParams) GetSignBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&m))
-}
-
-// GetSigners returns the expected signers for a MsgUpdateParams message.
-func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
 }
 
 // ValidateBasic does a sanity check on the provided data.

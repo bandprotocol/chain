@@ -9,7 +9,7 @@ import "google/protobuf/any.proto";
 
 import "feeds/v1beta1/feeds.proto";
 
-option go_package            = "github.com/bandprotocol/chain/v2/x/tunnel/types";
+option go_package            = "github.com/bandprotocol/chain/v3/x/tunnel/types";
 option (gogoproto.equal_all) = true;
 
 // TSSRoute is the type for a TSS route
@@ -145,7 +145,7 @@ message TSSPacketContent {
   // signing_id is the signing ID
   uint64 signing_id = 1 [
     (gogoproto.customname) = "SigningID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v2/x/bandtss/types.SigningID"
+    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v3/x/bandtss/types.SigningID"
   ];
   // destination_chain_id is the destination chain ID
   string destination_chain_id = 2 [(gogoproto.customname) = "DestinationChainID"];

@@ -1,10 +1,12 @@
 package keeper
 
 import (
+	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
 )
 
 // AllocateTokens allocates a portion of fee collected in the previous blocks to members in the
@@ -36,7 +38,7 @@ func (k Keeper) AllocateTokens(ctx sdk.Context) {
 	totalFee := sdk.NewDecCoinsFromCoins(k.bankKeeper.GetAllBalances(ctx, feeCollector.GetAddress())...)
 
 	// Compute the fee allocated for tss module.
-	tssRewardRatio := sdk.NewDecWithPrec(int64(k.GetParams(ctx).RewardPercentage), 2)
+	tssRewardRatio := math.LegacyNewDecWithPrec(int64(k.GetParams(ctx).RewardPercentage), 2)
 	tssRewardInt, _ := totalFee.MulDecTruncate(tssRewardRatio).TruncateDecimal()
 
 	// Transfer the reward from fee collector to distr module.
@@ -47,11 +49,15 @@ func (k Keeper) AllocateTokens(ctx sdk.Context) {
 
 	// Convert the transferred tokens back to DecCoins for internal distr allocations.
 	tssReward := sdk.NewDecCoinsFromCoins(tssRewardInt...)
-	rewardMultiplier := sdk.OneDec().Sub(k.distrKeeper.GetCommunityTax(ctx))
+	communityTax, err := k.distrKeeper.GetCommunityTax(ctx)
+	if err != nil {
+		panic(err)
+	}
+	rewardMultiplier := math.LegacyOneDec().Sub(communityTax)
 
 	// calculate the reward for each active member.
-	n := sdk.NewDec(int64(len(validMembers)))
-	powerFraction := sdk.NewDec(1).QuoTruncate(n)
+	n := math.LegacyNewDec(int64(len(validMembers)))
+	powerFraction := math.LegacyNewDec(1).QuoTruncate(n)
 	reward := tssReward.MulDecTruncate(rewardMultiplier).MulDecTruncate(powerFraction)
 	rewardInt, _ := reward.TruncateDecimal()
 
@@ -64,8 +70,13 @@ func (k Keeper) AllocateTokens(ctx sdk.Context) {
 	}
 
 	// Allocate the remaining coins to the community pool.
-	remaining := tssReward.Sub(sdk.NewDecCoinsFromCoins(rewardInt...).MulDecTruncate(n))
-	feePool := k.distrKeeper.GetFeePool(ctx)
-	feePool.CommunityPool = feePool.CommunityPool.Add(remaining...)
-	k.distrKeeper.SetFeePool(ctx, feePool)
+	communityFund := tssRewardInt.Sub(rewardInt.MulInt(math.NewInt(int64(len(validMembers))))...)
+	err = k.distrKeeper.FundCommunityPool(
+		ctx,
+		communityFund,
+		k.authKeeper.GetModuleAccount(ctx, distrtypes.ModuleName).GetAddress(),
+	)
+	if err != nil {
+		panic(err)
+	}
 }

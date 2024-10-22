@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/crypto"
+
 	"github.com/cometbft/cometbft/crypto/secp256k1"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	"github.com/cometbft/cometbft/libs/protoio"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	"github.com/cometbft/cometbft/types"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/crypto"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 )
 
 // TMSignatureEthereum is an Ethereum version of TMSignature for solidity ABI-encoding.
@@ -47,9 +48,9 @@ func recoverETHAddress(msg, sig, signer []byte) ([]byte, uint8, error) {
 	return nil, 0, fmt.Errorf("no match address found")
 }
 
-func GetPrefix(t tmproto.SignedMsgType, height int64, round int64) ([]byte, error) {
+func GetPrefix(t cmtproto.SignedMsgType, height int64, round int64) ([]byte, error) {
 	prefix, err := protoio.MarshalDelimited(
-		&tmproto.CanonicalVote{
+		&cmtproto.CanonicalVote{
 			Type:   t,
 			Height: height,
 			Round:  round,
@@ -64,11 +65,15 @@ func GetPrefix(t tmproto.SignedMsgType, height int64, round int64) ([]byte, erro
 }
 
 // GetSignaturesAndPrefix returns a list of TMSignature from Tendermint signed header.
-func GetSignaturesAndPrefix(info *types.SignedHeader) ([]TMSignature, CommonEncodedVotePart, error) {
+func GetSignaturesAndPrefix(info *cmttypes.SignedHeader) ([]TMSignature, CommonEncodedVotePart, error) {
 	addrs := []string{}
 	mapAddrs := map[string]TMSignature{}
 
-	prefix, err := GetPrefix(tmproto.SignedMsgType(info.Commit.Type()), info.Commit.Height, int64(info.Commit.Round))
+	prefix, err := GetPrefix(
+		cmtproto.SignedMsgType(byte(cmtproto.PrecommitType)),
+		info.Commit.Height,
+		int64(info.Commit.Round),
+	)
 	if err != nil {
 		return nil, CommonEncodedVotePart{}, err
 	}
@@ -80,7 +85,7 @@ func GetSignaturesAndPrefix(info *types.SignedHeader) ([]TMSignature, CommonEnco
 	prefix = append(prefix, []byte{34, 72, 10, 32}...)
 
 	suffix, err := protoio.MarshalDelimited(
-		&tmproto.CanonicalPartSetHeader{
+		&cmtproto.CanonicalPartSetHeader{
 			Total: info.Commit.BlockID.PartSetHeader.Total,
 			Hash:  info.Commit.BlockID.PartSetHeader.Hash,
 		},
@@ -101,7 +106,7 @@ func GetSignaturesAndPrefix(info *types.SignedHeader) ([]TMSignature, CommonEnco
 	encodedChainIDConstant := append([]byte{50, uint8(len(chainIDBytes))}, chainIDBytes...)
 
 	for _, vote := range info.Commit.Signatures {
-		if !vote.ForBlock() {
+		if vote.BlockIDFlag != cmttypes.BlockIDFlagCommit {
 			continue
 		}
 

@@ -24,3 +24,13 @@ func DefaultGenesisState() *GenesisState {
 		[]DEGenesis{},
 	)
 }
+
+// Validate performs basic validation of genesis data returning an error for
+// any failed validation criteria.
+func (gs GenesisState) Validate() error {
+	if err := gs.Params.Validate(); err != nil {
+		return err
+	}
+
+	return nil
+}

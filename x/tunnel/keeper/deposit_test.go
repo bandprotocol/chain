@@ -1,9 +1,11 @@
 package keeper_test
 
 import (
+	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 func (s *KeeperTestSuite) TestAddDeposit() {
@@ -11,7 +13,7 @@ func (s *KeeperTestSuite) TestAddDeposit() {
 
 	tunnelID := uint64(1)
 	depositorAddr := sdk.AccAddress([]byte("depositor"))
-	depositAmount := sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100)))
+	depositAmount := sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100)))
 
 	s.bankKeeper.EXPECT().
 		SendCoinsFromAccountToModule(ctx, depositorAddr, types.ModuleName, depositAmount).
@@ -39,7 +41,7 @@ func (s *KeeperTestSuite) TestGetSetDeposit() {
 
 	tunnelID := uint64(1)
 	depositorAddr := sdk.AccAddress([]byte("depositor"))
-	depositAmount := sdk.NewCoins(sdk.NewCoin("band", sdk.NewInt(100)))
+	depositAmount := sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(100)))
 
 	deposit := types.Deposit{TunnelID: tunnelID, Depositor: depositorAddr.String(), Amount: depositAmount}
 	k.SetDeposit(ctx, deposit)
@@ -54,7 +56,7 @@ func (s *KeeperTestSuite) TestGetDeposits() {
 
 	tunnelID := uint64(1)
 	depositorAddr := sdk.AccAddress([]byte("depositor"))
-	depositAmount := sdk.NewCoins(sdk.NewCoin("band", sdk.NewInt(100)))
+	depositAmount := sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(100)))
 
 	deposit := types.Deposit{TunnelID: tunnelID, Depositor: depositorAddr.String(), Amount: depositAmount}
 	k.SetDeposit(ctx, deposit)
@@ -69,7 +71,7 @@ func (s *KeeperTestSuite) TestDeleteDeposit() {
 
 	tunnelID := uint64(1)
 	depositorAddr := sdk.AccAddress([]byte("depositor"))
-	depositAmount := sdk.NewCoins(sdk.NewCoin("band", sdk.NewInt(100)))
+	depositAmount := sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(100)))
 
 	deposit := types.Deposit{TunnelID: tunnelID, Depositor: depositorAddr.String(), Amount: depositAmount}
 	k.SetDeposit(ctx, deposit)
@@ -85,10 +87,15 @@ func (s *KeeperTestSuite) TestWithdrawDeposit() {
 
 	tunnelID := uint64(1)
 	depositorAddr := sdk.AccAddress([]byte("depositor"))
-	depositAmount := sdk.NewCoins(sdk.NewCoin("band", sdk.NewInt(1000)))
+	depositAmount := sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(1000)))
+	firstWithdraw := sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(500)))
+	secondWithdraw := sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(500)))
 
 	s.bankKeeper.EXPECT().
-		SendCoinsFromModuleToAccount(ctx, types.ModuleName, depositorAddr, depositAmount).
+		SendCoinsFromModuleToAccount(ctx, types.ModuleName, depositorAddr, firstWithdraw).
+		Return(nil).Times(1)
+	s.bankKeeper.EXPECT().
+		SendCoinsFromModuleToAccount(ctx, types.ModuleName, depositorAddr, secondWithdraw).
 		Return(nil).Times(1)
 
 	tunnel := types.Tunnel{ID: tunnelID, TotalDeposit: depositAmount, IsActive: true}
@@ -97,7 +104,17 @@ func (s *KeeperTestSuite) TestWithdrawDeposit() {
 	deposit := types.Deposit{TunnelID: tunnelID, Depositor: depositorAddr.String(), Amount: depositAmount}
 	k.SetDeposit(ctx, deposit)
 
-	err := k.WithdrawDeposit(ctx, tunnelID, depositAmount, depositorAddr)
+	// partial withdraw
+	err := k.WithdrawDeposit(ctx, tunnelID, firstWithdraw, depositorAddr)
+	s.Require().NoError(err)
+
+	// check tunnel's total deposit
+	tunnel, err = k.GetTunnel(ctx, tunnelID)
+	s.Require().NoError(err)
+	s.Require().Equal(deposit.Amount.Sub(firstWithdraw...), tunnel.TotalDeposit)
+
+	// withdraw all
+	err = k.WithdrawDeposit(ctx, tunnelID, secondWithdraw, depositorAddr)
 	s.Require().NoError(err)
 
 	// check tunnel's total deposit

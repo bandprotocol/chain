@@ -6,10 +6,11 @@ import (
 	"math"
 	"time"
 
-	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
+
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 // isDeviated checks if the deviation between the old price and the new price

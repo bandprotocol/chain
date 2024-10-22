@@ -6,18 +6,20 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
 	tmtypes "github.com/cometbft/cometbft/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/cylinder"
-	"github.com/bandprotocol/chain/v2/cylinder/client"
-	"github.com/bandprotocol/chain/v2/pkg/logger"
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/cylinder"
+	"github.com/bandprotocol/chain/v3/cylinder/client"
+	"github.com/bandprotocol/chain/v3/cylinder/context"
+	"github.com/bandprotocol/chain/v3/pkg/logger"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // Round2 is a worker responsible for round2 in the DKG process of TSS module
 type Round2 struct {
-	context *cylinder.Context
+	context *context.Context
 	logger  *logger.Logger
 	client  *client.Client
 	eventCh <-chan ctypes.ResultEvent
@@ -27,8 +29,8 @@ var _ cylinder.Worker = &Round2{}
 
 // NewRound2 creates a new instance of the Round2 worker.
 // It initializes the necessary components and returns the created Round2 instance or an error if initialization fails.
-func NewRound2(ctx *cylinder.Context) (*Round2, error) {
-	cli, err := client.New(ctx.Config, ctx.Keyring)
+func NewRound2(ctx *context.Context) (*Round2, error) {
+	cli, err := client.New(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -158,7 +160,7 @@ func (r *Round2) Start() {
 	r.handlePendingGroups()
 
 	for ev := range r.eventCh {
-		go r.handleABCIEvents(ev.Data.(tmtypes.EventDataNewBlock).ResultEndBlock.Events)
+		go r.handleABCIEvents(ev.Data.(tmtypes.EventDataNewBlock).ResultFinalizeBlock.Events)
 	}
 }
 

@@ -1,18 +1,11 @@
 package types
 
-import tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+import tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 
 // signature order types
 const (
 	SignatureOrderTypeOracleResult = "OracleResult"
 )
-
-func init() {
-	tsstypes.RegisterSignatureOrderTypeCodec(
-		&OracleResultSignatureOrder{},
-		"oracle/OracleResultSignatureOrder",
-	)
-}
 
 // Implements Content Interface
 var _ tsstypes.Content = &OracleResultSignatureOrder{}

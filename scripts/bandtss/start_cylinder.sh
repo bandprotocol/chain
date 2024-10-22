@@ -55,19 +55,19 @@ do
 done
 
 # send band tokens to grantees
-bandd tx multi-send 1000000uband $(cylinder keys list -a --home $HOME_PATH) --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain --from $KEY -b sync -y
+bandd tx bank multi-send $KEY $(cylinder keys list -a --home $HOME_PATH) 1000000uband --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain --from $KEY -b sync -y
 
 # wait for sending band tokens transaction success
-sleep 4
+sleep 6
 
 bandd tx tss add-grantees $(cylinder keys list -a --home $HOME_PATH) --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain --gas 350000 --from $KEY -b sync -y 
 
-sleep 4
+sleep 6
 
 bandd tx bandtss add-grantees $(cylinder keys list -a --home $HOME_PATH) --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain --gas 350000 --from $KEY -b sync -y 
 
 # wait for adding gratees transaction success
-sleep 4
+sleep 6
 
 # run cylinder
 cylinder run --home $HOME_PATH

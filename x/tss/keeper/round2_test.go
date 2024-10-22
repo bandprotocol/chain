@@ -1,8 +1,8 @@
 package keeper_test
 
 import (
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 func (s *AppTestSuite) TestGetSetRound2Info() {

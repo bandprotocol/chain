@@ -3,13 +3,14 @@ package cli
 import (
 	"strconv"
 
+	"github.com/spf13/cobra"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/spf13/cobra"
 
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 // GetTxCmd returns a root CLI command handler for all x/tunnel transaction commands.

@@ -6,7 +6,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types/query"
 
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 func (suite *KeeperTestSuite) TestQueryAllCurrentPrices() {

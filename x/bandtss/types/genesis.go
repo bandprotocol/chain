@@ -1,6 +1,6 @@
 package types
 
-import "github.com/bandprotocol/chain/v2/pkg/tss"
+import "github.com/bandprotocol/chain/v3/pkg/tss"
 
 // NewGenesisState - Create a new genesis state
 func NewGenesisState(
@@ -22,4 +22,14 @@ func DefaultGenesisState() *GenesisState {
 		[]Member{},
 		0,
 	)
+}
+
+// Validate performs basic validation of genesis data returning an error for
+// any failed validation criteria.
+func (gs GenesisState) Validate() error {
+	if err := gs.Params.Validate(); err != nil {
+		return err
+	}
+
+	return nil
 }

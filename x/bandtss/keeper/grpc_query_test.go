@@ -2,17 +2,15 @@ package keeper_test
 
 import (
 	"fmt"
-	"testing"
 	"time"
 
 	querytypes "github.com/cosmos/cosmos-sdk/types/query"
-	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/bandtss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/bandtss/types"
 )
 
-func TestGRPCQueryMembers(t *testing.T) {
+func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 	type expectOut struct {
 		members []*types.Member
 	}
@@ -99,22 +97,21 @@ func TestGRPCQueryMembers(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		t.Run(fmt.Sprintf("Case %s", tc.name), func(t *testing.T) {
-			s := NewKeeperTestSuite(t)
-			q := s.QueryServer
-			s.Keeper.SetCurrentGroupID(s.Ctx, 1)
+		s.Run(fmt.Sprintf("Case %s", tc.name), func() {
+			q := s.queryServer
+			s.keeper.SetCurrentGroupID(s.ctx, 1)
 
 			for _, member := range members {
-				s.Keeper.SetMember(s.Ctx, *member)
+				s.keeper.SetMember(s.ctx, *member)
 			}
 
 			if tc.preProcess != nil {
-				tc.preProcess(&s)
+				tc.preProcess(s)
 			}
 
-			res, err := q.Members(s.Ctx, tc.input)
-			require.NoError(t, err)
-			require.Equal(t, tc.expectOut.members, res.Members)
+			res, err := q.Members(s.ctx, tc.input)
+			s.Require().NoError(err)
+			s.Require().Equal(tc.expectOut.members, res.Members)
 		})
 	}
 }

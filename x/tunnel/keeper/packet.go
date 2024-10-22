@@ -6,11 +6,12 @@ import (
 
 	sdkerrors "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/ctxcache"
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	"github.com/bandprotocol/chain/v3/pkg/ctxcache"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 // DeductBaseFee deducts the base fee from fee payer's account.
@@ -229,7 +230,7 @@ func (k Keeper) GenerateNewSignalPrices(
 	shouldSend := false
 	newSignalPrices := make([]types.SignalPrice, 0)
 	for _, sp := range latestSignalPrices.SignalPrices {
-		oldPrice := sdk.NewIntFromUint64(sp.Price)
+		oldPrice := sdkmath.NewIntFromUint64(sp.Price)
 
 		// get current price from the feed, if not found, set price to 0
 		price := uint64(0)
@@ -237,15 +238,15 @@ func (k Keeper) GenerateNewSignalPrices(
 		if ok && feedPrice.PriceStatus == feedstypes.PriceStatusAvailable {
 			price = feedPrice.Price
 		}
-		newPrice := sdk.NewIntFromUint64(price)
+		newPrice := sdkmath.NewIntFromUint64(price)
 
 		// get hard/soft deviation, panic if not found; should not happen.
 		sd, ok := signalDeviations[sp.SignalID]
 		if !ok {
 			panic(fmt.Sprintf("deviation not found for signal ID: %s", sp.SignalID))
 		}
-		hardDeviation := sdk.NewIntFromUint64(sd.HardDeviationBPS)
-		softDeviation := sdk.NewIntFromUint64(sd.SoftDeviationBPS)
+		hardDeviation := sdkmath.NewIntFromUint64(sd.HardDeviationBPS)
+		softDeviation := sdkmath.NewIntFromUint64(sd.SoftDeviationBPS)
 
 		// calculate deviation between old price and new price and compare with the threshold.
 		// shouldSend is set to true if sendAll is true or there is a signal whose deviation

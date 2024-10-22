@@ -1,10 +1,11 @@
 package keeper
 
 import (
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/rollingseed/types"
+	"github.com/bandprotocol/chain/v3/x/rollingseed/types"
 )
 
 type Keeper struct {

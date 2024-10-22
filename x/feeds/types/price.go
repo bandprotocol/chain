@@ -1,6 +1,6 @@
 package types
 
-import "github.com/bandprotocol/chain/v2/pkg/tickmath"
+import "github.com/bandprotocol/chain/v3/pkg/tickmath"
 
 // ToTick converts the price to tick
 func (p *Price) ToTick() error {

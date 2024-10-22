@@ -3,12 +3,13 @@ package sender_test
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bandprotocol/chain/v2/cylinder/workers/sender"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/cylinder/workers/sender"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 func TestGetMsgDetails(t *testing.T) {

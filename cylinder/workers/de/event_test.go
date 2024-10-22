@@ -4,12 +4,14 @@ import (
 	"encoding/hex"
 	"testing"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/bandprotocol/chain/v2/cylinder/workers/de"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	abci "github.com/cometbft/cometbft/abci/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/cylinder/workers/de"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 func TestParseSubmitSignEvents(t *testing.T) {

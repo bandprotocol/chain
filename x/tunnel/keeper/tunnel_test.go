@@ -1,11 +1,14 @@
 package keeper_test
 
 import (
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"go.uber.org/mock/gomock"
 
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	sdkmath "cosmossdk.io/math"
+
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 func (s *KeeperTestSuite) TestAddTunnel() {
@@ -246,7 +249,7 @@ func (s *KeeperTestSuite) TestDeactivateTunnel() {
 func (s *KeeperTestSuite) TestGetSetTotalFees() {
 	ctx, k := s.ctx, s.keeper
 
-	totalFees := types.TotalFees{TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100)))}
+	totalFees := types.TotalFees{TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100)))}
 	k.SetTotalFees(ctx, totalFees)
 
 	retrievedFees := k.GetTotalFees(ctx)

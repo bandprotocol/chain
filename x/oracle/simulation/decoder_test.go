@@ -5,15 +5,16 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
-	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/x/oracle"
-	"github.com/bandprotocol/chain/v2/x/oracle/simulation"
-	"github.com/bandprotocol/chain/v2/x/oracle/types"
+	"github.com/bandprotocol/chain/v3/x/oracle"
+	"github.com/bandprotocol/chain/v3/x/oracle/simulation"
+	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 var (
@@ -107,8 +108,8 @@ func TestDecodeStore(t *testing.T) {
 		{"other", ""},
 	}
 
-	for i, tt := range tests {
-		i, tt := i, tt
+	for idx, test := range tests {
+		i, tt := idx, test
 		t.Run(tt.name, func(t *testing.T) {
 			switch i {
 			case len(tests) - 1:

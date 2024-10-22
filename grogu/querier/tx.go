@@ -2,6 +2,7 @@ package querier
 
 import (
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"

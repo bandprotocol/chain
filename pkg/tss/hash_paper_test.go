@@ -6,7 +6,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
 )
 
 func (suite *TSSTestSuite) TestI2OSP() {

@@ -1,7 +1,7 @@
 syntax = "proto3";
 package bandchain.v1.oracle;
 
-option go_package = "github.com/bandprotocol/chain/v2/client/grpc/oracle/proof";
+option go_package = "github.com/bandprotocol/chain/v3/client/grpc/oracle/proof";
 
 import "google/api/annotations.proto";
 import "gogoproto/gogo.proto";
@@ -10,72 +10,72 @@ import "oracle/v1/oracle.proto";
 // Service defines the gRPC querier service.
 service Service {
   // Proof queries the proof for given request ID
-  rpc Proof(QueryProofRequest) returns (QueryProofResponse) {
+  rpc Proof(ProofRequest) returns (ProofResponse) {
     option (google.api.http).get = "/bandchain/v1/oracle/proof/{request_id}";
   }
 
   // MultiProof queries multiple proofs for given list of request IDs
-  rpc MultiProof(QueryMultiProofRequest) returns (QueryMultiProofResponse) {
+  rpc MultiProof(MultiProofRequest) returns (MultiProofResponse) {
     option (google.api.http).get = "/bandchain/v1/oracle/multi_proof";
   }
 
   // RequestCountProof queries the count proof
-  rpc RequestCountProof(QueryRequestCountProofRequest) returns (QueryRequestCountProofResponse) {
+  rpc RequestCountProof(RequestCountProofRequest) returns (RequestCountProofResponse) {
     option (google.api.http).get = "/bandchain/v1/oracle/requests_count_proof";
   }
 }
 
-// QueryProofRequest is request type for the Service/Proof RPC method.
-message QueryProofRequest {
+// ProofRequest is request type for the Service/Proof RPC method.
+message ProofRequest {
   // RequestID is ID of an oracle request
   uint64 request_id = 1;
   // height is block height
   int64 height = 2;
 }
 
-// QueryChainIDResponse is response type for the Service/Proof RPC method.
-message QueryProofResponse {
+// ProofResponse is response type for the Service/Proof RPC method.
+message ProofResponse {
   // height is block height
   int64 height = 1;
   // result is the proof
-  SingleProofResponse result = 2 [(gogoproto.nullable) = false];
+  SingleProofResult result = 2 [(gogoproto.nullable) = false];
 }
 
-// QueryMultiProofRequest is request type for the Service/MultiProof RPC method.
-message QueryMultiProofRequest {
+// MultiProofRequest is request type for the Service/MultiProof RPC method.
+message MultiProofRequest {
   // request_ids is the list of request IDs
   repeated uint64 request_ids = 1;
 }
 
-// QueryMultiProofResponse is response type for the Service/MultiProof RPC method.
-message QueryMultiProofResponse {
-  int64              height = 1;
-  MultiProofResponse result = 2 [(gogoproto.nullable) = false];
+// MultiProofResponse is response type for the Service/MultiProof RPC method.
+message MultiProofResponse {
+  int64            height = 1;
+  MultiProofResult result = 2 [(gogoproto.nullable) = false];
 }
 
-// QueryRequestCountProofRequest is request type for the Service/RequestCountProof RPC method.
-message QueryRequestCountProofRequest {}
+// RequestCountProofRequest is request type for the Service/RequestCountProof RPC method.
+message RequestCountProofRequest {}
 
-// QueryRequestCountProofResponse is response type for the Service/RequestCountProof RPC method.
-message QueryRequestCountProofResponse {
-  int64              height = 1;
-  CountProofResponse result = 2 [(gogoproto.nullable) = false];
+// RequestCountProofResponse is response type for the Service/RequestCountProof RPC method.
+message RequestCountProofResponse {
+  int64            height = 1;
+  CountProofResult result = 2 [(gogoproto.nullable) = false];
 }
 
 // SingleProofResponse is the data structure for response of single proof
-message SingleProofResponse {
+message SingleProofResult {
   SingleProof proof           = 1 [(gogoproto.nullable) = false];
   bytes       evm_proof_bytes = 2 [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
 }
 
-// MultiProofResponse is the data structure for response of multi proof
-message MultiProofResponse {
+// MultiProofResult is the data structure for response of multi proof
+message MultiProofResult {
   MultiProof proof           = 1 [(gogoproto.nullable) = false];
   bytes      evm_proof_bytes = 2 [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
 }
 
-// CountProofResponse is the data structure for response of count proof
-message CountProofResponse {
+// CountProofResult is the data structure for response of count proof
+message CountProofResult {
   CountProof proof           = 1 [(gogoproto.nullable) = false];
   bytes      evm_proof_bytes = 2 [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
 }
@@ -130,25 +130,25 @@ message BlockRelayProof {
 //
 //                                   __________________________[AppHash]__________________________
 //                                  /                                                             \
-//                    ___________[N21]____________                                    ___________[N22]____________
+//                    ___________[N22]____________                                    ___________[N23]____________
 //                   /                            \                                  /                            \                        
-//            _____[N18]_____                 ____[N19]______                   ____[N20]______                   [O]
-//           /               \               /               \                 /               \
-//       _[N12]_          _[N13]_          _[N14]_          _[N15]_          _[N16]_          _[N17]_
+//            _____[N18]_____                 ____[N19]______                   ____[N20]______                __[N21]__
+//           /               \               /               \                 /               \              /         \
+//       _[N12]_          _[N13]_          _[N14]_          _[N15]_          _[N16]_          _[N17]_        [O]        [P]
 //      /       \        /       \        /       \        /       \        /       \        /       \       
 //    [N0]     [N1]    [N2]     [N3]    [N4]     [N5]    [N6]     [N7]    [N8]     [N9]   [N10]    [N11]
 //   /   \    /   \    /  \    /   \   /   \    /   \   /   \    /   \   /   \    /   \   /   \    /   \
 //  [0] [1]  [2] [3] [4] [5]  [6] [7] [8] [9]  [A] [B] [C] [D]  [E] [F] [G] [H]  [I] [J] [K] [L]  [M] [N]
 //
-// [0] - acc (auth) [1] - authz       [2] - bandtss  [3] - bank       [4] - capability [5] - consensus
-// [6] - crisis     [7] - dist        [8] - evidence [9] - feeds      [A] - feegrant   [B] - globalfee
-// [C] - gov        [D] - group       [E] - ibccore  [F] - icahost    [G] - mint       [H] - oracle
-// [I] - params     [J] - rollingseed [K] - slashing [L] - staking    [M] - transfer   [N] - tss
-// [O] - upgrade
+// [0] - acc (auth) [1] - authz     [2] - bandtss     [3] - bank       [4] - capability [5] - consensus
+// [6] - crisis     [7] - dist      [8] - evidence    [9] - feeds      [A] - feegrant   [B] - feeibc      
+// [C] - globalfee  [D] - gov       [E] - group       [F] - ibccore    [G] - icahost    [H] - mint       
+// [I] - oracle     [J] - params    [K] - rollingseed [L] - slashing   [M] - staking    [N] - transfer
+// [O] - tss        [P] - upgrade
 //
 // Notice that NOT all leaves of the Merkle tree are needed in order to compute the Merkle
 // root hash, since we only want to validate the correctness of [H] In fact, only
-// [G], [N9], [N17], [O], and [N21] are needed in order to compute [AppHash].
+// [G], [N9], [N17], [N21], and [N22] are needed in order to compute [AppHash].
 message MultiStoreProof {
   bytes oracle_iavl_state_hash = 1 [
     (gogoproto.customname) = "OracleIAVLStateHash",

@@ -1,8 +1,9 @@
 package types
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/gogoproto/proto"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // RouteI defines a routing path to deliver data to the destination.

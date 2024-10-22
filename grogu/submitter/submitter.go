@@ -1,11 +1,13 @@
 package submitter
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"time"
 
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
@@ -14,15 +16,20 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
-	"github.com/bandprotocol/chain/v2/pkg/logger"
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
+	"github.com/bandprotocol/chain/v3/pkg/logger"
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
+
+type SignalPriceSubmission struct {
+	SignalPrices []types.SignalPrice
+	UUID         string
+}
 
 type Submitter struct {
 	clientCtx           client.Context
 	clients             []rpcclient.RemoteClient
 	logger              *logger.Logger
-	submitSignalPriceCh <-chan []types.SignalPrice
+	submitSignalPriceCh <-chan SignalPriceSubmission
 	authQuerier         AuthQuerier
 	txQuerier           TxQuerier
 	valAddress          sdk.ValAddress
@@ -40,7 +47,7 @@ func New(
 	clientCtx client.Context,
 	clients []rpcclient.RemoteClient,
 	logger *logger.Logger,
-	submitSignalPriceCh <-chan []types.SignalPrice,
+	submitSignalPriceCh <-chan SignalPriceSubmission,
 	authQuerier AuthQuerier,
 	txQuerier TxQuerier,
 	valAddress sdk.ValAddress,
@@ -87,16 +94,17 @@ func New(
 
 func (s *Submitter) Start() {
 	for {
-		submitPrice := <-s.submitSignalPriceCh
+		priceSubmission := <-s.submitSignalPriceCh
 		keyID := <-s.idleKeyIDChannel
-		go func(sps []types.SignalPrice, kid string) {
+		go func(sps SignalPriceSubmission, kid string) {
 			s.logger.Debug("[Submitter] starting submission")
 			s.submitPrice(sps, kid)
-		}(submitPrice, keyID)
+		}(priceSubmission, keyID)
 	}
 }
 
-func (s *Submitter) submitPrice(prices []types.SignalPrice, keyID string) {
+func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID string) {
+	prices, uuid := pricesSubmission.SignalPrices, pricesSubmission.UUID
 	defer func() {
 		s.removePending(prices)
 		s.idleKeyIDChannel <- keyID
@@ -108,7 +116,7 @@ func (s *Submitter) submitPrice(prices []types.SignalPrice, keyID string) {
 		Prices:    prices,
 	}
 	msgs := []sdk.Msg{&msg}
-	memo := fmt.Sprintf("grogu:%s", version.Version)
+	memo := fmt.Sprintf("grogu: %s, uuid: %s", version.Version, uuid)
 
 	key, err := s.clientCtx.Keyring.Key(keyID)
 	if err != nil {
@@ -305,7 +313,7 @@ func (s *Submitter) buildSignedTx(
 		return nil, err
 	}
 
-	err = tx.Sign(txf, key.Name, txb, true)
+	err = tx.Sign(context.Background(), txf, key.Name, txb, true)
 	if err != nil {
 		return nil, err
 	}

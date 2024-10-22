@@ -5,19 +5,20 @@ import (
 	"encoding/json"
 	"fmt"
 
+	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/spf13/cobra"
+
 	"cosmossdk.io/core/appmodule"
-	abci "github.com/cometbft/cometbft/abci/types"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
-	gwruntime "github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"github.com/spf13/cobra"
 
-	"github.com/bandprotocol/chain/v2/x/tunnel/client/cli"
-	"github.com/bandprotocol/chain/v2/x/tunnel/keeper"
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel/client/cli"
+	"github.com/bandprotocol/chain/v3/x/tunnel/keeper"
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 const (
@@ -25,9 +26,12 @@ const (
 )
 
 var (
-	_ module.BeginBlockAppModule = AppModule{}
-	_ module.EndBlockAppModule   = AppModule{}
-	_ module.AppModuleBasic      = AppModuleBasic{}
+	_ module.AppModuleBasic = AppModuleBasic{}
+
+	_ module.HasGenesis       = AppModule{}
+	_ module.HasServices      = AppModule{}
+	_ appmodule.AppModule     = AppModule{}
+	_ appmodule.HasEndBlocker = AppModule{}
 )
 
 // AppModuleBasic defines the basic application module used by the tunnel module.
@@ -84,6 +88,10 @@ func (AppModuleBasic) GetQueryCmd() *cobra.Command {
 	return cli.GetQueryCmd()
 }
 
+// ----------------------------------------------------------------------------
+// AppModule
+// ----------------------------------------------------------------------------
+
 // AppModule implements an application module for the tunnel module.
 type AppModule struct {
 	AppModuleBasic
@@ -121,18 +129,15 @@ func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
 
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
-	msgServer := keeper.NewMsgServerImpl(am.keeper)
-	types.RegisterMsgServer(cfg.MsgServer(), msgServer)
+	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), keeper.NewQueryServer(am.keeper))
 }
 
 // InitGenesis performs genesis initialization for the tunnel module.
-func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) []abci.ValidatorUpdate {
+func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) {
 	var genesisState types.GenesisState
 	cdc.MustUnmarshalJSON(data, &genesisState)
 	keeper.InitGenesis(ctx, am.keeper, &genesisState)
-
-	return []abci.ValidatorUpdate{}
 }
 
 // ExportGenesis returns the exported genesis state as raw bytes for the tunnel
@@ -141,15 +146,11 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 	return cdc.MustMarshalJSON(keeper.ExportGenesis(ctx, am.keeper))
 }
 
+// EndBlock processes ABCI end block message for the module (SDK AppModule interface).
+func (am AppModule) EndBlock(ctx context.Context) error {
+	c := sdk.UnwrapSDKContext(ctx)
+	return EndBlocker(c, am.keeper)
+}
+
 // ConsensusVersion implements AppModule/ConsensusVersion.
 func (AppModule) ConsensusVersion() uint64 { return consensusVersion }
-
-// BeginBlock returns the begin blocker for the tunnel module.
-func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {}
-
-// EndBlock returns the end blocker for the tunnel module. It returns no validator
-// updates.
-func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
-	EndBlocker(ctx, am.keeper)
-	return []abci.ValidatorUpdate{}
-}

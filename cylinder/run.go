@@ -1,7 +1,9 @@
 package cylinder
 
+import "github.com/bandprotocol/chain/v3/cylinder/context"
+
 // Run starts the Cylinder process with the provided context and workers.
-func Run(c *Context, workers Workers) error {
+func Run(c *context.Context, workers Workers) error {
 	c.Logger.Info(":star: Start each worker:")
 
 	// Start all workers concurrently

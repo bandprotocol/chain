@@ -4,18 +4,33 @@ import (
 	"testing"
 	"time"
 
-	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/x/bandtss/types"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	abci "github.com/cometbft/cometbft/abci/types"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
+
+	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	band "github.com/bandprotocol/chain/v3/app"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/pkg/tss/testutil"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	"github.com/bandprotocol/chain/v3/x/bandtss/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
+func init() {
+	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
+}
+
 func TestReplaceGroups(t *testing.T) {
-	app, ctx := bandtesting.CreateTestApp(t, true)
+	dir := sdktestutil.GetTempDir(t)
+	app := bandtesting.SetupWithCustomHome(false, dir)
+	ctx := app.BaseApp.NewUncachedContext(false, cmtproto.Header{ChainID: bandtesting.ChainID})
+	_, err := app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: app.LastBlockHeight() + 1})
+	require.NoError(t, err)
+
 	tssKeeper, bandtssKeeper := app.TSSKeeper, app.BandtssKeeper
 
 	// Set new block time
@@ -37,6 +52,7 @@ func TestReplaceGroups(t *testing.T) {
 		Status:        tsstypes.GROUP_STATUS_ACTIVE,
 		CreatedHeight: 1,
 	}
+
 	incomingGroup := tsstypes.Group{
 		ID:            incomingGroupID,
 		Size_:         7,
@@ -77,7 +93,8 @@ func TestReplaceGroups(t *testing.T) {
 	tssKeeper.SetSigning(ctx, signing)
 
 	// Call end block
-	app.EndBlocker(ctx, abci.RequestEndBlock{Height: app.LastBlockHeight() + 1})
+	_, err = app.EndBlocker(ctx.WithBlockHeight(ctx.BlockHeight() + 1))
+	require.NoError(t, err)
 
 	_, found := bandtssKeeper.GetGroupTransition(ctx)
 	require.False(t, found)
