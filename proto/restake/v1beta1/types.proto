@@ -42,7 +42,7 @@ message Stake {
   option (gogoproto.equal) = true;
 
   // staker_address is the address that this stake belongs to.
-  string staker_address = 1;
+  string staker_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
   // coins are the coins that the address has staked.
   repeated cosmos.base.v1beta1.Coin coins = 2 [
