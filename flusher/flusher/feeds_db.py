@@ -22,14 +22,14 @@ class CustomPriceStatus(sa.types.TypeDecorator):
     def process_bind_param(self, value, dialect):
         return PriceStatus(value)
     
-price_signals = sa.Table(
-    "price_signals",
+signal_prices_txs = sa.Table(
+    "signal_prices_txs",
     metadata,
     Column("transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), primary_key=True),
     Column("validator_id", sa.Integer, sa.ForeignKey("validators.id"), primary_key=True),
     Column("feeder_id", sa.Integer, sa.ForeignKey("accounts.id")),
     Column("timestamp", CustomDateTime),
-    sa.Index("ix_price_signals_validator_id_transaction_id", "validator_id", "transaction_id"),
+    sa.Index("ix_signal_prices_txs_validator_id_transaction_id", "validator_id", "transaction_id"),
 )
 
 validator_prices = sa.Table(

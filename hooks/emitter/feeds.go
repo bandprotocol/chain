@@ -50,8 +50,8 @@ func (h *Hook) emitSetDelegatorSignal(ctx sdk.Context, delegator string, signal 
 	})
 }
 
-func (h *Hook) emitSetPricesSignal(ctx sdk.Context, txHash []byte, validator string, feeder string) {
-	h.Write("SET_PRICE_SIGNAL", common.JsDict{
+func (h *Hook) emitSetSignalPricesTx(ctx sdk.Context, txHash []byte, validator string, feeder string) {
+	h.Write("SET_SIGNAL_PRICES_TX", common.JsDict{
 		"tx_hash":   txHash,
 		"validator": validator,
 		"feeder":    feeder,
@@ -124,7 +124,7 @@ func (h *Hook) handleMsgSubmitSignalPrices(
 		feeder = msg.Validator
 	}
 
-	h.emitSetPricesSignal(ctx, txHash, msg.Validator, feeder)
+	h.emitSetSignalPricesTx(ctx, txHash, msg.Validator, feeder)
 
 	for _, price := range msg.Prices {
 		h.emitSetValidatorPrice(ctx, msg.Validator, price)

@@ -48,7 +48,7 @@ from .db import (
 
 from .feeds_db import (
     PRICE_HISTORY_PERIOD,
-    price_signals,
+    signal_prices_txs,
     validator_prices,
     delegator_signals,
     signal_total_powers,
@@ -765,7 +765,7 @@ class Handler(object):
                 )
             )
 
-    def handle_set_price_signal(self, msg):
+    def handle_set_signal_prices_tx(self, msg):
         if msg["tx_hash"] is not None:
             msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
         del msg["tx_hash"]
@@ -774,9 +774,9 @@ class Handler(object):
         msg["feeder_id"] = self.get_account_id(msg["feeder"])
         del msg["feeder"]
         self.conn.execute(
-            insert(price_signals)
+            insert(signal_prices_txs)
             .values(**msg)
-            .on_conflict_do_update(constraint="price_signals_pkey", set_=msg)
+            .on_conflict_do_update(constraint="signal_prices_txs_pkey", set_=msg)
         )
 
     def handle_set_validator_price(self, msg):
