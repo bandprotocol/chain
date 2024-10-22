@@ -4,12 +4,15 @@ import (
 	"math"
 	"time"
 
+	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"go.uber.org/mock/gomock"
 
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 func (s *KeeperTestSuite) TestSendTSSPacket() {
@@ -28,7 +31,7 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 	s.Require().NoError(err)
 
 	s.bandtssKeeper.EXPECT().GetParams(gomock.Any()).Return(bandtsstypes.Params{
-		Fee: sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10))),
+		Fee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(10))),
 	})
 	s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
 		gomock.Any(),
@@ -37,7 +40,7 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 		"chain-1",
 		gomock.Any(),
 		bandtesting.Alice.Address,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(math.MaxInt))),
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(math.MaxInt))),
 	).Return(bandtsstypes.SigningID(1), nil)
 
 	k.SetTunnel(ctx, types.Tunnel{

@@ -7,12 +7,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/bandprotocol/chain/v2/cylinder"
-	"github.com/bandprotocol/chain/v2/cylinder/store"
+	"github.com/bandprotocol/chain/v3/cylinder/context"
+	"github.com/bandprotocol/chain/v3/cylinder/store"
 )
 
 // importCmd returns a Cobra command for importing data from store.
-func importCmd(ctx *Context) *cobra.Command {
+func importCmd(ctx *context.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "import",
 		Short: "Import data in cylinder's store",
@@ -28,7 +28,7 @@ func importCmd(ctx *Context) *cobra.Command {
 }
 
 // importGroupsCmd returns a Cobra command for importing groups data
-func importGroupsCmd(ctx *Context) *cobra.Command {
+func importGroupsCmd(ctx *context.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "groups [path_to_json_file]",
 		Short: "Import groups data",
@@ -54,15 +54,9 @@ func importGroupsCmd(ctx *Context) *cobra.Command {
 				return err
 			}
 
-			// create context
-			c, err := cylinder.NewContext(ctx.config, ctx.keyring, ctx.home)
-			if err != nil {
-				return err
-			}
-
 			// loop to set each group to store
 			for _, group := range groups {
-				if err = c.Store.SetGroup(group); err != nil {
+				if err = ctx.Store.SetGroup(group); err != nil {
 					return err
 				}
 			}
@@ -75,7 +69,7 @@ func importGroupsCmd(ctx *Context) *cobra.Command {
 }
 
 // importDKGsCmd returns a Cobra command for importing dkgs data
-func importDKGsCmd(ctx *Context) *cobra.Command {
+func importDKGsCmd(ctx *context.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "dkgs [path_to_json_file]",
 		Short: "Import DKGs data",
@@ -101,15 +95,9 @@ func importDKGsCmd(ctx *Context) *cobra.Command {
 				return err
 			}
 
-			// create context
-			c, err := cylinder.NewContext(ctx.config, ctx.keyring, ctx.home)
-			if err != nil {
-				return err
-			}
-
 			// loop to set each dkg to store
 			for _, dkg := range dkgs {
-				err = c.Store.SetDKG(dkg)
+				err = ctx.Store.SetDKG(dkg)
 				if err != nil {
 					return err
 				}
@@ -123,7 +111,7 @@ func importDKGsCmd(ctx *Context) *cobra.Command {
 }
 
 // importDEsCmd returns a Cobra command for importing des data
-func importDEsCmd(ctx *Context) *cobra.Command {
+func importDEsCmd(ctx *context.Context) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "des [path_to_json_file]",
 		Short: "Import DEs data",
@@ -148,15 +136,9 @@ func importDEsCmd(ctx *Context) *cobra.Command {
 				panic(err)
 			}
 
-			// create context
-			c, err := cylinder.NewContext(ctx.config, ctx.keyring, ctx.home)
-			if err != nil {
-				return err
-			}
-
 			// loop to set each de to store
 			for _, de := range des {
-				err = c.Store.SetDE(de)
+				err = ctx.Store.SetDE(de)
 				if err != nil {
 					return err
 				}

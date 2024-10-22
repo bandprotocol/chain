@@ -4,8 +4,11 @@ import (
 	"encoding/hex"
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	"cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 func mustDecodeString(hexstr string) []byte {
@@ -23,7 +26,7 @@ func TestGetBytesRequestPacket(t *testing.T) {
 		Calldata:       mustDecodeString("030000004254436400000000000000"),
 		AskCount:       1,
 		MinCount:       1,
-		FeeLimit:       sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10000))),
+		FeeLimit:       sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(10000))),
 		TSSEncodeType:  0,
 		PrepareGas:     100,
 		ExecuteGas:     100,

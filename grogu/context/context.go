@@ -3,7 +3,7 @@ package context
 import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 
-	"github.com/bandprotocol/chain/v2/pkg/logger"
+	"github.com/bandprotocol/chain/v3/pkg/logger"
 )
 
 // Config holds the configuration settings for the application.

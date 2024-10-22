@@ -5,10 +5,10 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	tsskeeper "github.com/bandprotocol/chain/v2/x/tss/keeper"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	tsskeeper "github.com/bandprotocol/chain/v3/x/tss/keeper"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 const (

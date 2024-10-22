@@ -3,15 +3,14 @@ package keeper_test
 import (
 	"fmt"
 
-	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/pkg/tss/testutil"
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	bandtsskeeper "github.com/bandprotocol/chain/v2/x/bandtss/keeper"
-	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/pkg/tss/testutil"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	bandtsskeeper "github.com/bandprotocol/chain/v3/x/bandtss/keeper"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 type TestCase struct {
@@ -170,7 +169,8 @@ func (s *AppTestSuite) TestSuccessSubmitDKGRound1Req() {
 			}
 
 			// Execute the EndBlocker to process groups
-			app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
+			_, err := app.EndBlocker(ctx.WithBlockHeight(ctx.BlockHeight() + 1))
+			s.Require().NoError(err)
 
 			// Verify group status, expiration, and public key after submitting Round 1
 			got, err := k.GetGroup(ctx, tc.Group.ID)
@@ -299,7 +299,8 @@ func (s *AppTestSuite) TestSuccessSubmitDKGRound2Req() {
 			}
 
 			// Execute the EndBlocker to process groups
-			app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
+			_, err := app.EndBlocker(ctx.WithBlockHeight(ctx.BlockHeight() + 1))
+			s.Require().NoError(err)
 
 			// Verify group status and expiration after submitting Round 2
 			got, err := k.GetGroup(ctx, tc.Group.ID)
@@ -376,7 +377,8 @@ func (s *AppTestSuite) TestSuccessComplainReq() {
 			s.Require().NoError(err)
 
 			// Execute the EndBlocker to process groups
-			app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
+			_, err = app.EndBlocker(ctx.WithBlockHeight(ctx.BlockHeight() + 1))
+			s.Require().NoError(err)
 
 			// Check the group's status and expiration time after complain
 			got, err := k.GetGroup(ctx, tc.Group.ID)
@@ -406,7 +408,8 @@ func (s *AppTestSuite) TestSuccessConfirmReq() {
 			}
 
 			// Execute the EndBlocker to process groups
-			app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
+			_, err := app.EndBlocker(ctx.WithBlockHeight(ctx.BlockHeight() + 1))
+			s.Require().NoError(err)
 
 			// Check the group's status and expiration time after confirmation
 			got, err := k.GetGroup(ctx, tc.Group.ID)
@@ -617,8 +620,9 @@ func (s *AppTestSuite) TestSuccessSubmitSignatureReq() {
 				s.Require().NoError(err)
 			}
 
-			// Execute the EndBlocker to process signings
-			app.EndBlocker(ctx, abci.RequestEndBlock{Height: ctx.BlockHeight() + 1})
+			// Execute the EndBlocker to process groups
+			_, err = app.EndBlocker(ctx.WithBlockHeight(ctx.BlockHeight() + 1))
+			s.Require().NoError(err)
 
 			// Retrieve the signing information after signing
 			signing, err = k.GetSigning(ctx, tss.SigningID(i+1))

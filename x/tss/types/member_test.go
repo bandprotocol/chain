@@ -5,8 +5,8 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 func TestVerify(t *testing.T) {
@@ -54,9 +54,9 @@ func TestGetIDs(t *testing.T) {
 		{
 			name: "MultipleMembers",
 			members: types.Members{
-				{ID: 1},
-				{ID: 2},
-				{ID: 3},
+				types.Member{ID: 1},
+				types.Member{ID: 2},
+				types.Member{ID: 3},
 			},
 			expectedIDs: []tss.MemberID{1, 2, 3},
 		},
@@ -86,16 +86,16 @@ func TestHaveMalicious(t *testing.T) {
 		{
 			name: "ContainsMalicious",
 			members: types.Members{
-				{IsMalicious: true},
-				{IsMalicious: false},
+				types.Member{ID: 1, IsMalicious: true},
+				types.Member{ID: 2, IsMalicious: false},
 			},
 			expectedValue: true,
 		},
 		{
 			name: "NoMalicious",
 			members: types.Members{
-				{IsMalicious: false},
-				{IsMalicious: false},
+				types.Member{ID: 1, IsMalicious: false},
+				types.Member{ID: 2, IsMalicious: false},
 			},
 			expectedValue: false,
 		},

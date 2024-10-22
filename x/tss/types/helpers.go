@@ -1,6 +1,6 @@
 package types
 
-import "github.com/bandprotocol/chain/v2/pkg/tss"
+import "github.com/bandprotocol/chain/v3/pkg/tss"
 
 // DuplicateInArray checks if there are any duplicates in the given string array.
 func DuplicateInArray(arr []string) bool {

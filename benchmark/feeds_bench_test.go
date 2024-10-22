@@ -5,15 +5,21 @@ import (
 	"math/rand"
 	"sort"
 	"testing"
+	"time"
+
+	"github.com/stretchr/testify/require"
+
+	abci "github.com/cometbft/cometbft/abci/types"
+
+	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/stretchr/testify/require"
 
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
-	oracletypes "github.com/bandprotocol/chain/v2/x/oracle/types"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
+	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
 var (
@@ -57,7 +63,10 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		ba := InitializeBenchmarkApp(b, -1)
 
-		numVals := ba.StakingKeeper.GetParams(ba.Ctx).MaxValidators
+		params, err := ba.StakingKeeper.GetParams(ba.Ctx)
+		require.NoError(b, err)
+
+		numVals := params.MaxValidators
 
 		vals, err := generateValidators(ba, int(numVals))
 		require.NoError(b, err)
@@ -68,11 +77,10 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 		err = setupValidatorPriceList(ba, vals)
 		require.NoError(b, err)
 
-		ba.CallBeginBlock()
-
-		txs := []sdk.Tx{}
+		txs := [][]byte{}
 		for _, val := range vals {
 			tx := GenSequenceOfTxs(
+				ba.TxEncoder,
 				ba.TxConfig,
 				GenMsgSubmitSignalPrices(
 					val,
@@ -86,20 +94,28 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 			txs = append(txs, tx)
 		}
 
-		for txIdx, tx := range txs {
-			b.StartTimer()
-			gasInfo, _, err := ba.CallDeliver(tx)
-			b.StopTimer()
-			if err != nil {
-				require.NoError(b, err)
-			}
-			if i == 0 && txIdx == 0 {
-				fmt.Println("\tCosmos Gas used:", gasInfo.GasUsed)
+		b.StartTimer()
+
+		res, err := ba.FinalizeBlock(
+			&abci.RequestFinalizeBlock{
+				Txs:    txs,
+				Height: ba.LastBlockHeight() + 1,
+				Time:   time.Now(),
+			},
+		)
+		require.NoError(b, err)
+
+		b.StopTimer()
+		_, err = ba.Commit()
+		require.NoError(b, err)
+
+		if i == 0 {
+			if res.TxResults[len(res.TxResults)-1].Code != 0 {
+				fmt.Println("\tDeliver Error:", res.TxResults[0].Log)
+			} else {
+				fmt.Println("\tCosmos Gas used:", res.TxResults[0].GasUsed)
 			}
 		}
-
-		ba.CallEndBlock()
-		ba.Commit()
 	}
 }
 
@@ -107,7 +123,10 @@ func BenchmarkSubmitSignalPricesDeliver(b *testing.B) {
 func BenchmarkFeedsEndBlock(b *testing.B) {
 	ba := InitializeBenchmarkApp(b, -1)
 
-	numVals := ba.StakingKeeper.GetParams(ba.Ctx).MaxValidators
+	params, err := ba.StakingKeeper.GetParams(ba.Ctx)
+	require.NoError(b, err)
+
+	numVals := params.MaxValidators
 
 	vals, err := generateValidators(ba, int(numVals))
 	require.NoError(b, err)
@@ -123,21 +142,24 @@ func BenchmarkFeedsEndBlock(b *testing.B) {
 
 	// benchmark endblock
 	for i := 0; i < b.N; i++ {
-		ba.CallBeginBlock()
-
 		// process endblock
 		b.StartTimer()
-		ba.CallEndBlock()
+		_, err := ba.FinalizeBlock(
+			&abci.RequestFinalizeBlock{
+				Height: ba.LastBlockHeight() + 1,
+				Time:   time.Now(),
+			},
+		)
+		require.NoError(b, err)
 		b.StopTimer()
 
-		ba.Commit()
+		_, err = ba.Commit()
+		require.NoError(b, err)
 	}
 }
 
 func setupFeeds(ba *BenchmarkApp) error {
 	numFeeds := ba.FeedsKeeper.GetParams(ba.Ctx).MaxCurrentFeeds
-
-	ba.CallBeginBlock()
 
 	feeds := []types.Feed{}
 	for i := uint64(0); i < numFeeds; i++ {
@@ -148,16 +170,12 @@ func setupFeeds(ba *BenchmarkApp) error {
 	}
 	ba.FeedsKeeper.SetCurrentFeeds(ba.Ctx, feeds)
 
-	ba.CallEndBlock()
-	ba.Commit()
-
 	return nil
 }
 
 func setupValidatorPriceList(ba *BenchmarkApp, vals []*Account) error {
 	sfs := ba.FeedsKeeper.GetCurrentFeeds(ba.Ctx)
 
-	ba.CallBeginBlock()
 	for valIdx, val := range vals {
 		valPrices := []types.ValidatorPrice{}
 		for _, feed := range sfs.Feeds {
@@ -174,8 +192,6 @@ func setupValidatorPriceList(ba *BenchmarkApp, vals []*Account) error {
 			return err
 		}
 	}
-	ba.CallEndBlock()
-	ba.Commit()
 
 	return nil
 }
@@ -183,7 +199,6 @@ func setupValidatorPriceList(ba *BenchmarkApp, vals []*Account) error {
 func setupValidatorPrices(ba *BenchmarkApp, vals []*Account) error {
 	sfs := ba.FeedsKeeper.GetCurrentFeeds(ba.Ctx)
 
-	ba.CallBeginBlock()
 	for valIdx, val := range vals {
 		valPrices := []types.ValidatorPrice{}
 		for _, feed := range sfs.Feeds {
@@ -201,42 +216,48 @@ func setupValidatorPrices(ba *BenchmarkApp, vals []*Account) error {
 			return err
 		}
 	}
-	ba.CallEndBlock()
-	ba.Commit()
 
 	return nil
 }
 
 func generateValidators(ba *BenchmarkApp, num int) ([]*Account, error) {
 	// transfer money
-	ba.CallBeginBlock()
-
 	vals := []bandtesting.Account{}
+	txs := [][]byte{}
 	for i := 0; i < num; i++ {
 		r := rand.New(rand.NewSource(int64(i)))
 		acc := bandtesting.CreateArbitraryAccount(r)
 		vals = append(vals, acc)
 
 		tx := GenSequenceOfTxs(
+			ba.TxEncoder,
 			ba.TxConfig,
-			[]sdk.Msg{banktypes.NewMsgSend(ba.Sender.Address, acc.Address, sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(200000000))))},
+			[]sdk.Msg{banktypes.NewMsgSend(ba.Sender.Address, acc.Address, sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(1))))},
 			ba.Sender,
 			1,
 		)[0]
 
-		_, _, err := ba.CallDeliver(tx)
-		if err != nil {
-			return nil, err
-		}
+		txs = append(txs, tx)
 	}
 
-	ba.CallEndBlock()
-	ba.Commit()
+	_, err := ba.FinalizeBlock(
+		&abci.RequestFinalizeBlock{
+			Txs:    txs,
+			Height: ba.LastBlockHeight() + 1,
+			Time:   time.Now(),
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	_, err = ba.Commit()
+	if err != nil {
+		return nil, err
+	}
 
 	// apply to be a validator
-	ba.CallBeginBlock()
-
 	accs := []*Account{}
+	txs = [][]byte{}
 	for _, val := range vals {
 		info := ba.AccountKeeper.GetAccount(ba.Ctx, val.Address)
 		acc := &Account{
@@ -247,12 +268,12 @@ func generateValidators(ba *BenchmarkApp, num int) ([]*Account, error) {
 		accs = append(accs, acc)
 
 		msgCreateVal, err := stakingtypes.NewMsgCreateValidator(
-			val.ValAddress,
+			val.ValAddress.String(),
 			val.PubKey,
-			sdk.NewCoin("uband", sdk.NewInt(150000000)),
+			sdk.NewCoin("uband", sdkmath.NewInt(150000000)),
 			stakingtypes.NewDescription(val.Address.String(), val.Address.String(), "", "", ""),
-			stakingtypes.NewCommissionRates(sdk.NewDec(1), sdk.NewDec(1), sdk.NewDec(1)),
-			sdk.NewInt(1),
+			stakingtypes.NewCommissionRates(sdkmath.LegacyNewDec(1), sdkmath.LegacyNewDec(1), sdkmath.LegacyNewDec(1)),
+			sdkmath.NewInt(1),
 		)
 		if err != nil {
 			return nil, err
@@ -261,20 +282,31 @@ func generateValidators(ba *BenchmarkApp, num int) ([]*Account, error) {
 		msgActivate := oracletypes.NewMsgActivate(val.ValAddress)
 
 		tx := GenSequenceOfTxs(
+			ba.TxEncoder,
 			ba.TxConfig,
 			[]sdk.Msg{msgCreateVal, msgActivate},
 			acc,
 			1,
 		)[0]
 
-		_, _, err = ba.CallDeliver(tx)
-		if err != nil {
-			return nil, err
-		}
+		txs = append(txs, tx)
 	}
 
-	ba.CallEndBlock()
-	ba.Commit()
+	_, err = ba.FinalizeBlock(
+		&abci.RequestFinalizeBlock{
+			Txs:    txs,
+			Height: ba.LastBlockHeight() + 1,
+			Time:   time.Now(),
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ba.Commit()
+	if err != nil {
+		return nil, err
+	}
 
 	return accs, nil
 }

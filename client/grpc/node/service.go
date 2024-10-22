@@ -4,17 +4,21 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/cometbft/cometbft/crypto/secp256k1"
-	"github.com/cosmos/cosmos-sdk/client"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	gogogrpc "github.com/cosmos/gogoproto/grpc"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+
+	"github.com/cometbft/cometbft/crypto/secp256k1"
+
+	gogogrpc "github.com/cosmos/gogoproto/grpc"
+
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/server/config"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // RegisterNodeService registers the node gRPC service on the provided gRPC router.
-func RegisterNodeService(clientCtx client.Context, server gogogrpc.Server) {
-	RegisterServiceServer(server, NewQueryServer(clientCtx))
+func RegisterNodeService(clientCtx client.Context, server gogogrpc.Server, cfg config.Config) {
+	RegisterServiceServer(server, NewQueryServer(clientCtx, cfg))
 }
 
 // RegisterGRPCGatewayRoutes mounts the node gRPC service's GRPC-gateway routes
@@ -29,20 +33,22 @@ var _ ServiceServer = queryServer{}
 // queryServer implements ServiceServer
 type queryServer struct {
 	clientCtx client.Context
+	cfg       config.Config
 }
 
 // NewQueryServer returns new queryServer from provided client.Context
-func NewQueryServer(clientCtx client.Context) ServiceServer {
+func NewQueryServer(clientCtx client.Context, cfg config.Config) ServiceServer {
 	return queryServer{
 		clientCtx: clientCtx,
+		cfg:       cfg,
 	}
 }
 
 // ChainID returns QueryChainIDResponse that has chain id from ctx
-func (s queryServer) ChainID(ctx context.Context, _ *QueryChainIDRequest) (*QueryChainIDResponse, error) {
+func (s queryServer) ChainID(ctx context.Context, _ *ChainIDRequest) (*ChainIDResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 
-	return &QueryChainIDResponse{
+	return &ChainIDResponse{
 		ChainID: sdkCtx.ChainID(),
 	}, nil
 }
@@ -50,8 +56,8 @@ func (s queryServer) ChainID(ctx context.Context, _ *QueryChainIDRequest) (*Quer
 // EVMValidators returns top 100 validators' address and voting power order by voting power
 func (s queryServer) EVMValidators(
 	ctx context.Context,
-	_ *QueryEVMValidatorsRequest,
-) (*QueryEVMValidatorsResponse, error) {
+	_ *EVMValidatorsRequest,
+) (*EVMValidatorsResponse, error) {
 	node, err := s.clientCtx.GetNode()
 	if err != nil {
 		return nil, err
@@ -65,7 +71,7 @@ func (s queryServer) EVMValidators(
 		return nil, err
 	}
 
-	evmValidatorsResponse := QueryEVMValidatorsResponse{}
+	evmValidatorsResponse := EVMValidatorsResponse{}
 	evmValidatorsResponse.BlockHeight = validators.BlockHeight
 	evmValidatorsResponse.Validators = []ValidatorMinimal{}
 

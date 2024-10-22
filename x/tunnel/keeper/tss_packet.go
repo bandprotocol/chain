@@ -3,9 +3,11 @@ package keeper
 import (
 	"math"
 
+	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 // SendTSSPacket sends TSS packet
@@ -26,7 +28,7 @@ func (k Keeper) SendTSSPacket(
 	feePerSigner := k.bandtssKeeper.GetParams(ctx).Fee
 	feeLimits := sdk.NewCoins()
 	for _, coin := range feePerSigner {
-		feeLimits = append(feeLimits, sdk.NewCoin(coin.Denom, sdk.NewInt(math.MaxInt)))
+		feeLimits = append(feeLimits, sdk.NewCoin(coin.Denom, sdkmath.NewInt(math.MaxInt)))
 	}
 
 	// Sign TSS packet

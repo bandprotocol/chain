@@ -3,12 +3,15 @@ package keeper_test
 import (
 	"math"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"go.uber.org/mock/gomock"
 
-	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	sdkmath "cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 func (s *KeeperTestSuite) TestMsgCreateTunnel() {
@@ -45,7 +48,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 					10,
 					route,
 					types.ENCODER_FIXED_POINT_ABI,
-					sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100))),
+					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
 					sdk.AccAddress([]byte("creator_address")),
 				)
 			},
@@ -63,7 +66,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 					1,
 					route,
 					types.ENCODER_FIXED_POINT_ABI,
-					sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100))),
+					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
 					sdk.AccAddress([]byte("creator_address")),
 				)
 			},
@@ -93,7 +96,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 		"all good": {
 			preRun: func() (*types.MsgCreateTunnel, error) {
 				depositor := sdk.AccAddress([]byte("creator_address"))
-				depositAmount := sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(100)))
+				depositAmount := sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100)))
 
 				s.accountKeeper.EXPECT().
 					GetAccount(s.ctx, gomock.Any()).
@@ -303,7 +306,7 @@ func (s *KeeperTestSuite) TestMsgActivate() {
 		"insufficient deposit": {
 			preRun: func() *types.MsgActivate {
 				params := types.DefaultParams()
-				params.MinDeposit = sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(1000)))
+				params.MinDeposit = sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(1000)))
 				s.Require().NoError(s.keeper.SetParams(s.ctx, params))
 
 				s.AddSampleTunnel(false)
@@ -444,7 +447,7 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 				)
 
 				s.bandtssKeeper.EXPECT().GetParams(gomock.Any()).Return(bandtsstypes.Params{
-					Fee: sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10))),
+					Fee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(10))),
 				})
 				s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
 					gomock.Any(),
@@ -453,7 +456,7 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 					"chain-1",
 					gomock.Any(),
 					feePayer,
-					sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(math.MaxInt))),
+					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(math.MaxInt))),
 				).Return(bandtsstypes.SigningID(1), nil)
 				s.feedsKeeper.EXPECT().GetAllCurrentPrices(gomock.Any()).Return([]feedstypes.Price{
 					{PriceStatus: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},

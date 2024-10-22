@@ -10,7 +10,7 @@ import (
 
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss/internal/schnorr"
+	"github.com/bandprotocol/chain/v3/pkg/tss/internal/schnorr"
 )
 
 // GroupID represents the ID of a group.

@@ -3,11 +3,12 @@ package grant
 import (
 	"time"
 
+	"github.com/spf13/cobra"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
-	"github.com/spf13/cobra"
 )
 
 // AddGranteeCmd returns a command to add a grantee to a granter.
@@ -92,10 +93,6 @@ func combineGrantMsgs(
 			return nil, err
 		}
 
-		if err = msg.ValidateBasic(); err != nil {
-			return nil, err
-		}
-
 		msgs = append(msgs, msg)
 	}
 
@@ -112,10 +109,6 @@ func combineRevokeMsgs(granter sdk.AccAddress, grantee sdk.AccAddress, msgRevoke
 			grantee,
 			msgRevoke,
 		)
-
-		if err := msg.ValidateBasic(); err != nil {
-			return nil, err
-		}
 
 		msgs = append(msgs, &msg)
 	}

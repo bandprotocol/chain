@@ -5,8 +5,8 @@ package types
 
 import (
 	fmt "fmt"
-	github_com_bandprotocol_chain_v2_x_bandtss_types "github.com/bandprotocol/chain/v2/x/bandtss/types"
-	_ "github.com/bandprotocol/chain/v2/x/feeds/types"
+	github_com_bandprotocol_chain_v2_x_bandtss_types "github.com/bandprotocol/chain/v3/x/bandtss/types"
+	_ "github.com/bandprotocol/chain/v3/x/feeds/types"
 	_ "github.com/cosmos/cosmos-proto"
 	types1 "github.com/cosmos/cosmos-sdk/codec/types"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
@@ -686,7 +686,7 @@ func (m *Packet) GetCreatedAt() int64 {
 // TSSPacketContent is the packet content for TSS
 type TSSPacketContent struct {
 	// signing_id is the signing ID
-	SigningID github_com_bandprotocol_chain_v2_x_bandtss_types.SigningID `protobuf:"varint,1,opt,name=signing_id,json=signingId,proto3,casttype=github.com/bandprotocol/chain/v2/x/bandtss/types.SigningID" json:"signing_id,omitempty"`
+	SigningID github_com_bandprotocol_chain_v2_x_bandtss_types.SigningID `protobuf:"varint,1,opt,name=signing_id,json=signingId,proto3,casttype=github.com/bandprotocol/chain/v3/x/bandtss/types.SigningID" json:"signing_id,omitempty"`
 	// destination_chain_id is the destination chain ID
 	DestinationChainID string `protobuf:"bytes,2,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
 	// destination_contract_address is the destination contract address

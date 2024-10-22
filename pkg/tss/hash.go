@@ -1,8 +1,9 @@
 package tss
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/crypto"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 const (

@@ -4,10 +4,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	"github.com/bandprotocol/chain/v2/x/feeds/keeper"
-	"github.com/bandprotocol/chain/v2/x/feeds/types"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/feeds/keeper"
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 var (

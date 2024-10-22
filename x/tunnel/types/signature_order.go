@@ -1,20 +1,13 @@
 package types
 
 import (
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // signature order types
 const (
 	SignatureOrderTypeTunnel = "Tunnel"
 )
-
-func init() {
-	tsstypes.RegisterSignatureOrderTypeCodec(
-		&TunnelSignatureOrder{},
-		"tunnel/TunnelSignatureOrder",
-	)
-}
 
 // Implements Content Interface
 var _ tsstypes.Content = &TunnelSignatureOrder{}

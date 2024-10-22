@@ -3,13 +3,16 @@ package keeper_test
 import (
 	"math"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"go.uber.org/mock/gomock"
 
-	bandtsstypes "github.com/bandprotocol/chain/v2/x/bandtss/types"
-	feedstypes "github.com/bandprotocol/chain/v2/x/feeds/types"
-	"github.com/bandprotocol/chain/v2/x/tunnel/keeper"
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	sdkmath "cosmossdk.io/math"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel/keeper"
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 func (s *KeeperTestSuite) TestDeductBasePacketFee() {
@@ -74,10 +77,10 @@ func (s *KeeperTestSuite) TestProducePacket() {
 	}
 
 	s.bankKeeper.EXPECT().
-		SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10)))).
+		SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(10)))).
 		Return(nil)
 	s.bandtssKeeper.EXPECT().GetParams(gomock.Any()).Return(bandtsstypes.Params{
-		Fee: sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10))),
+		Fee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(10))),
 	})
 	s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
 		gomock.Any(),
@@ -86,7 +89,7 @@ func (s *KeeperTestSuite) TestProducePacket() {
 		"chain-1",
 		gomock.Any(),
 		feePayer,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(math.MaxInt))),
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(math.MaxInt))),
 	).Return(bandtsstypes.SigningID(1), nil)
 
 	err := tunnel.SetRoute(route)
@@ -136,7 +139,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 		Return(nil)
 
 	s.bandtssKeeper.EXPECT().GetParams(gomock.Any()).Return(bandtsstypes.Params{
-		Fee: sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(10))),
+		Fee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(10))),
 	})
 	s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
 		gomock.Any(),
@@ -145,7 +148,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 		"chain-1",
 		gomock.Any(),
 		feePayer,
-		sdk.NewCoins(sdk.NewCoin("uband", sdk.NewInt(math.MaxInt))),
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(math.MaxInt))),
 	).Return(bandtsstypes.SigningID(1), nil)
 
 	// set tunnel & latest price

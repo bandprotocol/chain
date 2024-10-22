@@ -3,7 +3,7 @@ package tss
 import (
 	"github.com/decred/dcrd/dcrec/secp256k1/v4"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss/internal/schnorr"
+	"github.com/bandprotocol/chain/v3/pkg/tss/internal/schnorr"
 )
 
 // Sign generates a schnorr signature for the given private key, challenge, and nonce.

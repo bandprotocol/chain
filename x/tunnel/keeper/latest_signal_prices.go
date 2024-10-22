@@ -1,9 +1,11 @@
 package keeper
 
 import (
+	storetypes "cosmossdk.io/store/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/x/tunnel/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 // SetLatestSignalPrices sets the latest signal prices in the store
@@ -36,7 +38,7 @@ func (k Keeper) MustGetLatestSignalPrices(ctx sdk.Context, tunnelID uint64) type
 // GetAllLatestSignalPrices gets all the latest signal prices from the store
 func (k Keeper) GetAllLatestSignalPrices(ctx sdk.Context) []types.LatestSignalPrices {
 	var allLatestSignalPrices []types.LatestSignalPrices
-	iterator := sdk.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.LatestSignalPricesStoreKeyPrefix)
+	iterator := storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.LatestSignalPricesStoreKeyPrefix)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		var latestSignalPrices types.LatestSignalPrices

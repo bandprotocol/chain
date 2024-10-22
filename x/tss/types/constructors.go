@@ -4,9 +4,10 @@ import (
 	"time"
 
 	"github.com/cometbft/cometbft/libs/bytes"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
 )
 
 // NewGroup creates a new Group instance.

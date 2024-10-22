@@ -1,19 +1,17 @@
 package keeper_test
 
 import (
-	"testing"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/x/bandtss/types"
-	tsstypes "github.com/bandprotocol/chain/v2/x/tss/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	"github.com/bandprotocol/chain/v3/x/bandtss/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-func TestCreateDirectSigningRequest(t *testing.T) {
+func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 	currentGroupID := tss.GroupID(1)
 	currentGroup := tsstypes.Group{
 		ID:        currentGroupID,
@@ -37,14 +35,14 @@ func TestCreateDirectSigningRequest(t *testing.T) {
 		{
 			name: "test success with only current group",
 			preProcess: func(s *KeeperTestSuite) {
-				s.Keeper.SetCurrentGroupID(s.Ctx, currentGroupID)
+				s.keeper.SetCurrentGroupID(s.ctx, currentGroupID)
 
-				s.MockTSSKeeper.EXPECT().GetGroup(gomock.Any(), currentGroupID).
+				s.tssKeeper.EXPECT().GetGroup(gomock.Any(), currentGroupID).
 					Return(currentGroup, nil).
 					AnyTimes()
-				s.MockTSSKeeper.EXPECT().RequestSigning(gomock.Any(), currentGroupID, gomock.Any(), content).
+				s.tssKeeper.EXPECT().RequestSigning(gomock.Any(), currentGroupID, gomock.Any(), content).
 					Return(tss.SigningID(1), nil)
-				s.MockBankKeeper.EXPECT().SendCoinsFromAccountToModule(
+				s.bankKeeper.EXPECT().SendCoinsFromAccountToModule(
 					gomock.Any(),
 					bandtesting.Alice.Address,
 					types.ModuleName,
@@ -53,13 +51,13 @@ func TestCreateDirectSigningRequest(t *testing.T) {
 			},
 			postCheck: func(s *KeeperTestSuite) {
 				// check mapping of tss signingID -> bandtss signingID
-				actualMappedSigningID := s.Keeper.GetSigningIDMapping(s.Ctx, tss.SigningID(1))
-				require.Equal(t, types.SigningID(1), actualMappedSigningID)
+				actualMappedSigningID := s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(1))
+				s.Require().Equal(types.SigningID(1), actualMappedSigningID)
 
 				// check bandtssSigning
-				bandtssSigning, err := s.Keeper.GetSigning(s.Ctx, types.SigningID(1))
-				require.NoError(t, err)
-				require.Equal(t, types.Signing{
+				bandtssSigning, err := s.keeper.GetSigning(s.ctx, types.SigningID(1))
+				s.Require().NoError(err)
+				s.Require().Equal(types.Signing{
 					ID:                     types.SigningID(1),
 					FeePerSigner:           sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 					Requester:              bandtesting.Alice.Address.String(),
@@ -83,17 +81,17 @@ func TestCreateDirectSigningRequest(t *testing.T) {
 					CurrentGroupID:  currentGroupID,
 					IncomingGroupID: incomingGroupID,
 				}
-				s.Keeper.SetGroupTransition(s.Ctx, transition)
-				s.Keeper.SetCurrentGroupID(s.Ctx, currentGroupID)
+				s.keeper.SetGroupTransition(s.ctx, transition)
+				s.keeper.SetCurrentGroupID(s.ctx, currentGroupID)
 
-				s.MockTSSKeeper.EXPECT().GetGroup(gomock.Any(), currentGroupID).
+				s.tssKeeper.EXPECT().GetGroup(gomock.Any(), currentGroupID).
 					Return(currentGroup, nil).
 					AnyTimes()
-				s.MockTSSKeeper.EXPECT().RequestSigning(gomock.Any(), currentGroupID, gomock.Any(), content).
+				s.tssKeeper.EXPECT().RequestSigning(gomock.Any(), currentGroupID, gomock.Any(), content).
 					Return(tss.SigningID(2), nil)
-				s.MockTSSKeeper.EXPECT().RequestSigning(gomock.Any(), incomingGroupID, gomock.Any(), content).
+				s.tssKeeper.EXPECT().RequestSigning(gomock.Any(), incomingGroupID, gomock.Any(), content).
 					Return(tss.SigningID(3), nil)
-				s.MockBankKeeper.EXPECT().SendCoinsFromAccountToModule(
+				s.bankKeeper.EXPECT().SendCoinsFromAccountToModule(
 					gomock.Any(),
 					bandtesting.Alice.Address,
 					types.ModuleName,
@@ -102,15 +100,15 @@ func TestCreateDirectSigningRequest(t *testing.T) {
 			},
 			postCheck: func(s *KeeperTestSuite) {
 				// check mapping of tss signingID -> bandtss signingID
-				bandtssSignignID := s.Keeper.GetSigningIDMapping(s.Ctx, tss.SigningID(2))
-				require.Equal(t, types.SigningID(1), bandtssSignignID)
-				bandtssSignignID = s.Keeper.GetSigningIDMapping(s.Ctx, tss.SigningID(3))
-				require.Equal(t, types.SigningID(1), bandtssSignignID)
+				bandtssSignignID := s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(2))
+				s.Require().Equal(types.SigningID(1), bandtssSignignID)
+				bandtssSignignID = s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(3))
+				s.Require().Equal(types.SigningID(1), bandtssSignignID)
 
 				// check bandtssSigning
-				bandtssSigning, err := s.Keeper.GetSigning(s.Ctx, types.SigningID(1))
-				require.NoError(t, err)
-				require.Equal(t, types.Signing{
+				bandtssSigning, err := s.keeper.GetSigning(s.ctx, types.SigningID(1))
+				s.Require().NoError(err)
+				s.Require().Equal(types.Signing{
 					ID:                     types.SigningID(1),
 					FeePerSigner:           sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 					Requester:              bandtesting.Alice.Address.String(),
@@ -134,15 +132,15 @@ func TestCreateDirectSigningRequest(t *testing.T) {
 					CurrentGroupID:  currentGroupID,
 					IncomingGroupID: incomingGroupID,
 				}
-				s.Keeper.SetGroupTransition(s.Ctx, transition)
-				s.Keeper.SetCurrentGroupID(s.Ctx, currentGroupID)
+				s.keeper.SetGroupTransition(s.ctx, transition)
+				s.keeper.SetCurrentGroupID(s.ctx, currentGroupID)
 
-				s.MockTSSKeeper.EXPECT().GetGroup(gomock.Any(), currentGroupID).
+				s.tssKeeper.EXPECT().GetGroup(gomock.Any(), currentGroupID).
 					Return(currentGroup, nil).
 					AnyTimes()
-				s.MockTSSKeeper.EXPECT().RequestSigning(gomock.Any(), currentGroupID, gomock.Any(), content).
+				s.tssKeeper.EXPECT().RequestSigning(gomock.Any(), currentGroupID, gomock.Any(), content).
 					Return(tss.SigningID(4), nil)
-				s.MockBankKeeper.EXPECT().SendCoinsFromAccountToModule(
+				s.bankKeeper.EXPECT().SendCoinsFromAccountToModule(
 					gomock.Any(),
 					bandtesting.Alice.Address,
 					types.ModuleName,
@@ -151,13 +149,13 @@ func TestCreateDirectSigningRequest(t *testing.T) {
 			},
 			postCheck: func(s *KeeperTestSuite) {
 				// check mapping of tss signingID -> bandtss signingID
-				bandtssSignignID := s.Keeper.GetSigningIDMapping(s.Ctx, tss.SigningID(4))
-				require.Equal(t, types.SigningID(1), bandtssSignignID)
+				bandtssSignignID := s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(4))
+				s.Require().Equal(types.SigningID(1), bandtssSignignID)
 
 				// check bandtssSigning
-				bandtssSigning, err := s.Keeper.GetSigning(s.Ctx, types.SigningID(1))
-				require.NoError(t, err)
-				require.Equal(t, types.Signing{
+				bandtssSigning, err := s.keeper.GetSigning(s.ctx, types.SigningID(1))
+				s.Require().NoError(err)
+				s.Require().Equal(types.Signing{
 					ID:                     types.SigningID(1),
 					FeePerSigner:           sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
 					Requester:              bandtesting.Alice.Address.String(),
@@ -181,20 +179,20 @@ func TestCreateDirectSigningRequest(t *testing.T) {
 					CurrentGroupID:  tss.GroupID(0),
 					IncomingGroupID: incomingGroupID,
 				}
-				s.Keeper.SetGroupTransition(s.Ctx, transition)
+				s.keeper.SetGroupTransition(s.ctx, transition)
 
-				s.MockTSSKeeper.EXPECT().RequestSigning(gomock.Any(), incomingGroupID, gomock.Any(), content).
+				s.tssKeeper.EXPECT().RequestSigning(gomock.Any(), incomingGroupID, gomock.Any(), content).
 					Return(tss.SigningID(1), nil)
 			},
 			postCheck: func(s *KeeperTestSuite) {
 				// check mapping of tss signingID -> bandtss signingID
-				bandtssSignignID := s.Keeper.GetSigningIDMapping(s.Ctx, tss.SigningID(1))
-				require.Equal(t, types.SigningID(1), bandtssSignignID)
+				bandtssSignignID := s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(1))
+				s.Require().Equal(types.SigningID(1), bandtssSignignID)
 
 				// check bandtssSigning
-				bandtssSigning, err := s.Keeper.GetSigning(s.Ctx, types.SigningID(1))
-				require.NoError(t, err)
-				require.Equal(t, types.Signing{
+				bandtssSigning, err := s.keeper.GetSigning(s.ctx, types.SigningID(1))
+				s.Require().NoError(err)
+				s.Require().Equal(types.Signing{
 					ID:                     types.SigningID(1),
 					FeePerSigner:           nil,
 					Requester:              bandtesting.Alice.Address.String(),
@@ -220,13 +218,13 @@ func TestCreateDirectSigningRequest(t *testing.T) {
 		{
 			name: "error: fee more than limit",
 			preProcess: func(s *KeeperTestSuite) {
-				params := s.Keeper.GetParams(s.Ctx)
+				params := s.keeper.GetParams(s.ctx)
 				params.Fee = sdk.NewCoins(sdk.NewInt64Coin("uband", 100))
-				err := s.Keeper.SetParams(s.Ctx, params)
-				require.NoError(t, err)
-				s.Keeper.SetCurrentGroupID(s.Ctx, currentGroupID)
+				err := s.keeper.SetParams(s.ctx, params)
+				s.Require().NoError(err)
+				s.keeper.SetCurrentGroupID(s.ctx, currentGroupID)
 
-				s.MockTSSKeeper.EXPECT().GetGroup(gomock.Any(), currentGroupID).
+				s.tssKeeper.EXPECT().GetGroup(gomock.Any(), currentGroupID).
 					Return(currentGroup, nil).
 					AnyTimes()
 			},
@@ -239,35 +237,31 @@ func TestCreateDirectSigningRequest(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			s := NewKeeperTestSuite(t)
-
+		s.Run(tc.name, func() {
 			if tc.preProcess != nil {
-				tc.preProcess(&s)
+				tc.preProcess(s)
 			}
 
-			_, err := s.Keeper.CreateDirectSigningRequest(s.Ctx, content, "", tc.input.sender, tc.input.feeLimit)
+			_, err := s.keeper.CreateDirectSigningRequest(s.ctx, content, "", tc.input.sender, tc.input.feeLimit)
 			if tc.expectErr != nil {
-				require.ErrorIs(t, err, tc.expectErr)
+				s.Require().ErrorIs(err, tc.expectErr)
 			} else {
-				require.NoError(t, err)
+				s.Require().NoError(err)
 			}
 
 			if tc.postCheck != nil {
-				tc.postCheck(&s)
+				tc.postCheck(s)
 			}
 		})
 	}
 }
 
-func TestCreateDirectSigningRequestWithAuthority(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-
+func (s *KeeperTestSuite) TestCreateDirectSigningRequestWithAuthority() {
 	currentGID := tss.GroupID(1)
 	content := &tsstypes.TextSignatureOrder{Message: []byte("test")}
 
-	s.Keeper.SetCurrentGroupID(s.Ctx, currentGID)
-	s.MockTSSKeeper.EXPECT().RequestSigning(
+	s.keeper.SetCurrentGroupID(s.ctx, currentGID)
+	s.tssKeeper.EXPECT().RequestSigning(
 		gomock.Any(),
 		currentGID,
 		gomock.Any(),
@@ -275,19 +269,19 @@ func TestCreateDirectSigningRequestWithAuthority(t *testing.T) {
 	).Return(tss.SigningID(1), nil)
 
 	feeLimit := sdk.NewCoins(sdk.NewInt64Coin("uband", 100))
-	_, err := s.Keeper.CreateDirectSigningRequest(s.Ctx, content, "", s.Authority, feeLimit)
-	require.NoError(t, err)
+	_, err := s.keeper.CreateDirectSigningRequest(s.ctx, content, "", s.authority, feeLimit)
+	s.Require().NoError(err)
 
-	actualMappedSigningID := s.Keeper.GetSigningIDMapping(s.Ctx, tss.SigningID(1))
-	require.Equal(t, types.SigningID(1), actualMappedSigningID)
+	actualMappedSigningID := s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(1))
+	s.Require().Equal(types.SigningID(1), actualMappedSigningID)
 
 	// check bandtssSigning
-	bandtssSigning, err := s.Keeper.GetSigning(s.Ctx, types.SigningID(1))
-	require.NoError(t, err)
-	require.Equal(t, types.Signing{
+	bandtssSigning, err := s.keeper.GetSigning(s.ctx, types.SigningID(1))
+	s.Require().NoError(err)
+	s.Require().Equal(types.Signing{
 		ID:                     types.SigningID(1),
 		FeePerSigner:           nil,
-		Requester:              s.Authority.String(),
+		Requester:              s.authority.String(),
 		CurrentGroupSigningID:  tss.SigningID(1),
 		IncomingGroupSigningID: tss.SigningID(0),
 	}, bandtssSigning)

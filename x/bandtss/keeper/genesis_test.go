@@ -1,31 +1,28 @@
 package keeper_test
 
 import (
-	"testing"
+	"go.uber.org/mock/gomock"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/stretchr/testify/require"
-	"go.uber.org/mock/gomock"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/x/bandtss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	"github.com/bandprotocol/chain/v3/x/bandtss/types"
 )
 
-func TestExportGenesis(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestExportGenesis() {
+	ctx, k := s.ctx, s.keeper
 
-	s.MockAccountKeeper.EXPECT().
+	s.accountKeeper.EXPECT().
 		GetModuleAccount(ctx, gomock.Any()).
-		Return(authtypes.AccountI(&authtypes.ModuleAccount{
+		Return(sdk.AccountI(&authtypes.ModuleAccount{
 			BaseAccount: &authtypes.BaseAccount{Address: "test"},
 		})).
 		AnyTimes()
-	s.MockAccountKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(sdk.AccAddress{}).AnyTimes()
-	s.MockAccountKeeper.EXPECT().SetModuleAccount(ctx, gomock.Any()).AnyTimes()
-	s.MockBankKeeper.EXPECT().GetAllBalances(ctx, gomock.Any()).Return(sdk.Coins{}).AnyTimes()
+	s.accountKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(sdk.AccAddress{}).AnyTimes()
+	s.accountKeeper.EXPECT().SetModuleAccount(ctx, gomock.Any()).AnyTimes()
+	s.bankKeeper.EXPECT().GetAllBalances(ctx, gomock.Any()).Return(sdk.Coins{}).AnyTimes()
 
 	data := types.GenesisState{
 		Params: types.DefaultParams(),
@@ -40,31 +37,30 @@ func TestExportGenesis(t *testing.T) {
 		CurrentGroupID: tss.GroupID(1),
 	}
 
-	k.InitGenesis(ctx, &data)
+	k.InitGenesis(ctx, data)
 
 	currentGroupID := k.GetCurrentGroupID(ctx)
-	require.Equal(t, data.CurrentGroupID, currentGroupID)
+	s.Require().Equal(data.CurrentGroupID, currentGroupID)
 
 	members := k.GetMembers(ctx)
-	require.Equal(t, data.Members, members)
+	s.Require().Equal(data.Members, members)
 
 	exported := k.ExportGenesis(ctx)
-	require.Equal(t, data.Params, exported.Params)
+	s.Require().Equal(data.Params, exported.Params)
 }
 
-func TestExportGenesisGroupTransitionNil(t *testing.T) {
-	s := NewKeeperTestSuite(t)
-	ctx, k := s.Ctx, s.Keeper
+func (s *KeeperTestSuite) TestExportGenesisGroupTransitionNil() {
+	ctx, k := s.ctx, s.keeper
 
-	s.MockAccountKeeper.EXPECT().
+	s.accountKeeper.EXPECT().
 		GetModuleAccount(ctx, gomock.Any()).
-		Return(authtypes.AccountI(&authtypes.ModuleAccount{
+		Return(sdk.AccountI(&authtypes.ModuleAccount{
 			BaseAccount: &authtypes.BaseAccount{Address: "test"},
 		})).
 		AnyTimes()
-	s.MockAccountKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(sdk.AccAddress{}).AnyTimes()
-	s.MockAccountKeeper.EXPECT().SetModuleAccount(ctx, gomock.Any()).AnyTimes()
-	s.MockBankKeeper.EXPECT().GetAllBalances(ctx, gomock.Any()).Return(sdk.Coins{}).AnyTimes()
+	s.accountKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(sdk.AccAddress{}).AnyTimes()
+	s.accountKeeper.EXPECT().SetModuleAccount(ctx, gomock.Any()).AnyTimes()
+	s.bankKeeper.EXPECT().GetAllBalances(ctx, gomock.Any()).Return(sdk.Coins{}).AnyTimes()
 
 	data := types.GenesisState{
 		Params: types.DefaultParams(),
@@ -79,7 +75,7 @@ func TestExportGenesisGroupTransitionNil(t *testing.T) {
 		CurrentGroupID: tss.GroupID(1),
 	}
 
-	k.InitGenesis(ctx, &data)
+	k.InitGenesis(ctx, data)
 	exported := k.ExportGenesis(ctx)
-	require.Equal(t, data.Params, exported.Params)
+	s.Require().Equal(data.Params, exported.Params)
 }

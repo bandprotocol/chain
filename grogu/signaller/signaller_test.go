@@ -5,22 +5,26 @@ import (
 	"testing"
 	"time"
 
-	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
-	"github.com/cometbft/cometbft/libs/log"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/mock/gomock"
 
-	"github.com/bandprotocol/chain/v2/grogu/signaller/testutil"
-	"github.com/bandprotocol/chain/v2/pkg/logger"
-	feeds "github.com/bandprotocol/chain/v2/x/feeds/types"
+	"cosmossdk.io/log"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
+
+	"github.com/bandprotocol/chain/v3/grogu/signaller/testutil"
+	"github.com/bandprotocol/chain/v3/grogu/submitter"
+	"github.com/bandprotocol/chain/v3/pkg/logger"
+	feeds "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 type SignallerTestSuite struct {
 	suite.Suite
 
 	Signaller    *Signaller
-	SubmitCh     chan []feeds.SignalPrice
+	SubmitCh     chan submitter.SignalPriceSubmission
 	assignedTime time.Time
 }
 
@@ -70,21 +74,24 @@ func (s *SignallerTestSuite) SetupTest() {
 
 	mockBothanClient := testutil.NewMockBothanClient(ctrl)
 	mockBothanClient.EXPECT().GetPrices(gomock.Any()).
-		Return([]*bothan.Price{
-			{
-				SignalId: "signal1",
-				Price:    10000,
-				Status:   bothan.Status_AVAILABLE,
+		Return(&bothan.GetPricesResponse{
+			Prices: []*bothan.Price{
+				{
+					SignalId: "signal1",
+					Price:    10000,
+					Status:   bothan.Status_AVAILABLE,
+				},
 			},
+			Uuid: "uuid1",
 		}, nil).
 		AnyTimes()
 
 	// Create submit channel
-	submitCh := make(chan []feeds.SignalPrice, 300)
+	submitCh := make(chan submitter.SignalPriceSubmission, 300)
 
 	// Initialize logger
-	allowLevel, _ := log.AllowLevel("info")
-	l := logger.New(allowLevel)
+	allowLevel, _ := log.ParseLogLevel("info")
+	l := logger.NewLogger(allowLevel)
 
 	// Initialize pending signal IDs map
 	pendingSignalIDs := sync.Map{}
@@ -201,12 +208,14 @@ func (s *SignallerTestSuite) TestSubmitPrices() {
 		},
 	}
 
-	s.Signaller.submitPrices(prices)
+	uuid := "test-uuid"
+
+	s.Signaller.submitPrices(prices, uuid)
 
 	select {
-	case submittedPrices := <-s.SubmitCh:
-		s.Require().NotEmpty(submittedPrices)
-		s.Require().Equal("signal1", submittedPrices[0].SignalID)
+	case priceSubmission := <-s.SubmitCh:
+		s.Require().NotEmpty(priceSubmission.SignalPrices)
+		s.Require().Equal("signal1", priceSubmission.SignalPrices[0].SignalID)
 	default:
 		s.Fail("Expected prices to be submitted")
 	}

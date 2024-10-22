@@ -3,7 +3,7 @@ package types
 import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 
-	"github.com/bandprotocol/chain/v2/pkg/tickmath"
+	"github.com/bandprotocol/chain/v3/pkg/tickmath"
 )
 
 var (

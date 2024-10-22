@@ -10,13 +10,13 @@
 package testutil
 
 import (
+	context "context"
 	reflect "reflect"
 
-	types "github.com/bandprotocol/chain/v2/x/bandtss/types"
-	types0 "github.com/bandprotocol/chain/v2/x/feeds/types"
-	types1 "github.com/bandprotocol/chain/v2/x/tss/types"
+	types "github.com/bandprotocol/chain/v3/x/bandtss/types"
+	types0 "github.com/bandprotocol/chain/v3/x/feeds/types"
+	types1 "github.com/bandprotocol/chain/v3/x/tss/types"
 	types2 "github.com/cosmos/cosmos-sdk/types"
-	types3 "github.com/cosmos/cosmos-sdk/x/auth/types"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -44,10 +44,10 @@ func (m *MockAccountKeeper) EXPECT() *MockAccountKeeperMockRecorder {
 }
 
 // GetAccount mocks base method.
-func (m *MockAccountKeeper) GetAccount(ctx types2.Context, addr types2.AccAddress) types3.AccountI {
+func (m *MockAccountKeeper) GetAccount(ctx context.Context, addr types2.AccAddress) types2.AccountI {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAccount", ctx, addr)
-	ret0, _ := ret[0].(types3.AccountI)
+	ret0, _ := ret[0].(types2.AccountI)
 	return ret0
 }
 
@@ -58,10 +58,10 @@ func (mr *MockAccountKeeperMockRecorder) GetAccount(ctx, addr any) *gomock.Call 
 }
 
 // GetModuleAccount mocks base method.
-func (m *MockAccountKeeper) GetModuleAccount(ctx types2.Context, name string) types3.ModuleAccountI {
+func (m *MockAccountKeeper) GetModuleAccount(ctx context.Context, name string) types2.ModuleAccountI {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetModuleAccount", ctx, name)
-	ret0, _ := ret[0].(types3.ModuleAccountI)
+	ret0, _ := ret[0].(types2.ModuleAccountI)
 	return ret0
 }
 
@@ -86,10 +86,10 @@ func (mr *MockAccountKeeperMockRecorder) GetModuleAddress(name any) *gomock.Call
 }
 
 // NewAccount mocks base method.
-func (m *MockAccountKeeper) NewAccount(ctx types2.Context, account types3.AccountI) types3.AccountI {
+func (m *MockAccountKeeper) NewAccount(ctx context.Context, account types2.AccountI) types2.AccountI {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "NewAccount", ctx, account)
-	ret0, _ := ret[0].(types3.AccountI)
+	ret0, _ := ret[0].(types2.AccountI)
 	return ret0
 }
 
@@ -100,7 +100,7 @@ func (mr *MockAccountKeeperMockRecorder) NewAccount(ctx, account any) *gomock.Ca
 }
 
 // SetAccount mocks base method.
-func (m *MockAccountKeeper) SetAccount(ctx types2.Context, account types3.AccountI) {
+func (m *MockAccountKeeper) SetAccount(ctx context.Context, account types2.AccountI) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetAccount", ctx, account)
 }
@@ -112,7 +112,7 @@ func (mr *MockAccountKeeperMockRecorder) SetAccount(ctx, account any) *gomock.Ca
 }
 
 // SetModuleAccount mocks base method.
-func (m *MockAccountKeeper) SetModuleAccount(arg0 types2.Context, arg1 types3.ModuleAccountI) {
+func (m *MockAccountKeeper) SetModuleAccount(arg0 context.Context, arg1 types2.ModuleAccountI) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "SetModuleAccount", arg0, arg1)
 }
@@ -147,7 +147,7 @@ func (m *MockBankKeeper) EXPECT() *MockBankKeeperMockRecorder {
 }
 
 // GetAllBalances mocks base method.
-func (m *MockBankKeeper) GetAllBalances(ctx types2.Context, addr types2.AccAddress) types2.Coins {
+func (m *MockBankKeeper) GetAllBalances(ctx context.Context, addr types2.AccAddress) types2.Coins {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllBalances", ctx, addr)
 	ret0, _ := ret[0].(types2.Coins)
@@ -161,7 +161,7 @@ func (mr *MockBankKeeperMockRecorder) GetAllBalances(ctx, addr any) *gomock.Call
 }
 
 // SendCoinsFromAccountToModule mocks base method.
-func (m *MockBankKeeper) SendCoinsFromAccountToModule(ctx types2.Context, senderAddr types2.AccAddress, recipientModule string, amt types2.Coins) error {
+func (m *MockBankKeeper) SendCoinsFromAccountToModule(ctx context.Context, senderAddr types2.AccAddress, recipientModule string, amt types2.Coins) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SendCoinsFromAccountToModule", ctx, senderAddr, recipientModule, amt)
 	ret0, _ := ret[0].(error)
@@ -175,7 +175,7 @@ func (mr *MockBankKeeperMockRecorder) SendCoinsFromAccountToModule(ctx, senderAd
 }
 
 // SendCoinsFromModuleToAccount mocks base method.
-func (m *MockBankKeeper) SendCoinsFromModuleToAccount(ctx types2.Context, senderModule string, recipientAddr types2.AccAddress, amt types2.Coins) error {
+func (m *MockBankKeeper) SendCoinsFromModuleToAccount(ctx context.Context, senderModule string, recipientAddr types2.AccAddress, amt types2.Coins) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SendCoinsFromModuleToAccount", ctx, senderModule, recipientAddr, amt)
 	ret0, _ := ret[0].(error)
@@ -189,7 +189,7 @@ func (mr *MockBankKeeperMockRecorder) SendCoinsFromModuleToAccount(ctx, senderMo
 }
 
 // SpendableCoins mocks base method.
-func (m *MockBankKeeper) SpendableCoins(ctx types2.Context, addr types2.AccAddress) types2.Coins {
+func (m *MockBankKeeper) SpendableCoins(ctx context.Context, addr types2.AccAddress) types2.Coins {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SpendableCoins", ctx, addr)
 	ret0, _ := ret[0].(types2.Coins)

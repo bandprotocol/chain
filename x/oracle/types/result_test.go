@@ -9,7 +9,7 @@ import (
 // Using for evm test to show how to encode result
 func TestEncodeResult(t *testing.T) {
 	result := NewResult(
-		"beeb",
+		"test",
 		1,
 		mustDecodeString("0000000342544300000000000003e8"),
 		1,
@@ -22,7 +22,7 @@ func TestEncodeResult(t *testing.T) {
 		mustDecodeString("00000000009443ee"),
 	)
 	expectedEncodedResult := mustDecodeString(
-		"0a046265656210011a0f0000000342544300000000000003e8200128013002380140d8f7f8f60548daf7f8f60550015a0800000000009443ee",
+		"0a047465737410011a0f0000000342544300000000000003e8200128013002380140d8f7f8f60548daf7f8f60550015a0800000000009443ee",
 	)
 	require.Equal(t, expectedEncodedResult, ModuleCdc.MustMarshal(&result))
 }

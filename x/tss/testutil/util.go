@@ -5,9 +5,9 @@ import (
 	"math/rand"
 	time "time"
 
-	"github.com/bandprotocol/chain/v2/pkg/tss"
-	bandtesting "github.com/bandprotocol/chain/v2/testing"
-	"github.com/bandprotocol/chain/v2/x/tss/types"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // DEWithPrivateNonce represents private value (D, E) used in TSS signing process.
