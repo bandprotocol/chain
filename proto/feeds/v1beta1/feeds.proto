@@ -144,7 +144,7 @@ message ValidatorPrice {
   PriceStatus price_status = 1;
 
   // validator is the validator address.
-  string validator = 2;
+  string validator = 2 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
 
   // signal_id is the signal id of the price.
   string signal_id = 3 [(gogoproto.customname) = "SignalID"];
@@ -165,7 +165,7 @@ message ValidatorPriceList {
   option (gogoproto.equal) = true;
 
   // validator is the validator address.
-  string validator = 1;
+  string validator = 1 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
 
   // validators_prices is a list of validator prices.
   repeated ValidatorPrice validator_prices = 2 [(gogoproto.nullable) = false];
