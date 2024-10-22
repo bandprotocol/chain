@@ -74,6 +74,8 @@ import (
 	"github.com/bandprotocol/chain/v3/x/oracle"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+	restakekeeper "github.com/bandprotocol/chain/v3/x/restake/keeper"
+	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 type AppKeepers struct {
@@ -101,6 +103,7 @@ type AppKeepers struct {
 	OracleKeeper          oraclekeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	GlobalFeeKeeper       globalfeekeeper.Keeper
+	RestakeKeeper         restakekeeper.Keeper
 	// IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	IBCKeeper      *ibckeeper.Keeper
 	ICAHostKeeper  icahostkeeper.Keeper
@@ -272,12 +275,22 @@ func NewAppKeeper(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
+	appKeepers.RestakeKeeper = restakekeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[restaketypes.StoreKey],
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+		appKeepers.StakingKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
 	// register the staking hooks
 	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
 	appKeepers.StakingKeeper.SetHooks(
 		stakingtypes.NewMultiStakingHooks(
 			appKeepers.DistrKeeper.Hooks(),
 			appKeepers.SlashingKeeper.Hooks(),
+			appKeepers.RestakeKeeper.Hooks(),
 		),
 	)
 
