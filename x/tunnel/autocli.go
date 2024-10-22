@@ -3,14 +3,14 @@ package tunnel
 import (
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 
-	"github.com/bandprotocol/chain/v3/x/tunnel/types"
+	tunnelv1beta1 "github.com/bandprotocol/chain/v3/api/tunnel/v1beta1"
 )
 
 // AutoCLIOptions returns the AutoCLI options for the tunnel module
 func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 	return &autocliv1.ModuleOptions{
 		Query: &autocliv1.ServiceCommandDescriptor{
-			Service: types.ModuleName,
+			Service: tunnelv1beta1.Query_ServiceDesc.ServiceName,
 			RpcCommandOptions: []*autocliv1.RpcCommandOptions{
 				{
 					RpcMethod: "Params",
@@ -22,7 +22,7 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					Use:       "tunnels",
 					Short:     "Query all tunnels",
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{
-						{ProtoField: "status_filter"},
+						{ProtoField: "status_filter", Optional: true},
 					},
 				},
 				{
@@ -70,7 +70,7 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 			},
 		},
 		Tx: &autocliv1.ServiceCommandDescriptor{
-			Service: restakev1beta1.Msg_ServiceDesc.ServiceName,
+			Service: tunnelv1beta1.Msg_ServiceDesc.ServiceName,
 		},
 	}
 }
