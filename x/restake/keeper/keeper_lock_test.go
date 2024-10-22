@@ -27,19 +27,19 @@ func (suite *KeeperTestSuite) TestSetLockedPower() {
 
 	// error case -  power is not uint64
 	err := suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, ActiveVaultKey, sdkmath.NewInt(-5))
-	suite.Require().Error(err)
+	suite.Require().ErrorIs(err, types.ErrInvalidPower)
 
 	// error case - lock more than delegation
 	err = suite.restakeKeeper.SetLockedPower(ctx, ValidAddress3, ActiveVaultKey, sdkmath.NewInt(30))
-	suite.Require().Error(err)
+	suite.Require().ErrorIs(err, types.ErrPowerNotEnough)
 
 	// error case - vault is deactivated
 	err = suite.restakeKeeper.SetLockedPower(ctx, ValidAddress1, InactiveVaultKey, sdkmath.NewInt(10))
-	suite.Require().Error(err)
+	suite.Require().ErrorIs(err, types.ErrVaultNotActive)
 
 	// error case - staker is liquid staker
 	err = suite.restakeKeeper.SetLockedPower(ctx, LiquidStakerAddress, ActiveVaultKey, sdkmath.NewInt(10))
-	suite.Require().Error(err)
+	suite.Require().ErrorIs(err, types.ErrLiquidStakerNotAllowed)
 
 	// success cases
 	var (
