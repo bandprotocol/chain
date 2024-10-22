@@ -34,6 +34,7 @@ import (
 	"github.com/bandprotocol/chain/v3/hooks/emitter"
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 const (
@@ -52,6 +53,8 @@ var (
 	DelegatorAddress = sdk.AccAddress(genAddresFromString("Delegator"))
 	GranterAddress   = sdk.AccAddress(genAddresFromString("Granter"))
 	GranteeAddress   = sdk.AccAddress(genAddresFromString("Grantee"))
+	StakerAddress    = sdk.AccAddress(genAddresFromString("Staker"))
+	AuthorityAddress = sdk.AccAddress(genAddresFromString("Authority"))
 
 	Coins1000000uband   = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
@@ -908,6 +911,46 @@ func (suite *DecoderTestSuite) TestDecodeMsgTimeoutOnClose() {
 	suite.testCompareJson(
 		detail,
 		"{\"next_sequence_recv\":1,\"packet\":{\"data\":\"\",\"destination_channel\":\"channel-0\",\"destination_port\":\"oracle\",\"sequence\":1,\"source_channel\":\"channel-0\",\"source_port\":\"oracle\",\"timeout_height\":{\"revision_height\":10,\"revision_number\":0},\"timeout_timestamp\":0},\"proof_close\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_unreceived\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeRestakeMsgStake() {
+	detail := make(common.JsDict)
+	msg := restaketypes.NewMsgStake(
+		StakerAddress,
+		Coins1000000uband,
+	)
+	emitter.DecodeRestakeMsgStake(msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"coins\":[{\"denom\":\"uband\",\"amount\":\"1000000\"}],\"staker_address\":\"band12d6xz6m9wgqqqqqqqqqqqqqqqqqqqqqqtz8edw\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeRestakeMsgUnstake() {
+	detail := make(common.JsDict)
+	msg := restaketypes.NewMsgUnstake(
+		StakerAddress,
+		Coins1000000uband,
+	)
+	emitter.DecodeRestakeMsgUnstake(msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"coins\":[{\"denom\":\"uband\",\"amount\":\"1000000\"}],\"staker_address\":\"band12d6xz6m9wgqqqqqqqqqqqqqqqqqqqqqqtz8edw\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeRestakeMsgUpdateParams() {
+	detail := make(common.JsDict)
+	params := restaketypes.NewParams([]string{"stBand", "band"})
+	msg := restaketypes.NewMsgUpdateParams(
+		AuthorityAddress.String(),
+		params,
+	)
+	emitter.DecodeRestakeMsgUpdateParams(msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"authority\":\"band1g96hg6r0wf5hg7gqqqqqqqqqqqqqqqqq4rjgsx\",\"params\":{\"allowed_denoms\":[\"stBand\",\"band\"]}}",
 	)
 }
 

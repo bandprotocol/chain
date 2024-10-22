@@ -25,6 +25,7 @@ import (
 
 	"github.com/bandprotocol/chain/v3/hooks/common"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 func parseEvents(events []abci.Event) common.EvMap {
@@ -158,6 +159,26 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 		h.handleGroupMsgWithdrawProposal(ctx, evMap)
 	default:
 		break
+	}
+
+	for _, event := range events {
+		h.handleMsgEvent(ctx, txHash, event)
+	}
+}
+
+func (h *Hook) handleMsgEvent(ctx sdk.Context, txHash []byte, event abci.Event) {
+	evMap := parseEvents([]abci.Event{event})
+	switch event.Type {
+	case restaketypes.EventTypeCreateVault:
+		h.handleRestakeEventCreateVault(ctx, evMap)
+	case restaketypes.EventTypeLockPower:
+		h.handleRestakeEventLockPower(ctx, txHash, evMap)
+	case restaketypes.EventTypeStake:
+		h.handleRestakeEventStake(ctx, evMap)
+	case restaketypes.EventTypeUnstake:
+		h.handleRestakeEventUnstake(ctx, evMap)
+	case restaketypes.EventTypeDeactivateVault:
+		h.handleRestakeEventDeactivateVault(ctx, evMap)
 	}
 }
 
