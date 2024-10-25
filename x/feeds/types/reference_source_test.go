@@ -36,6 +36,16 @@ func TestReferenceSourceConfig_Validate(t *testing.T) {
 			types.ReferenceSourceConfig{RegistryIPFSHash: "hash", RegistryVersion: "0.0.1-alpha.3"},
 			nil,
 		},
+		{
+			"semver-ish version with v",
+			types.ReferenceSourceConfig{RegistryIPFSHash: "hash", RegistryVersion: "v0.0.1"},
+			fmt.Errorf("registry version is not in a valid version format"),
+		},
+		{
+			"semver-ish version with less than 3 parts",
+			types.ReferenceSourceConfig{RegistryIPFSHash: "hash", RegistryVersion: "0.1"},
+			fmt.Errorf("registry version is not in a valid version format"),
+		},
 	}
 
 	for _, tt := range tests {
