@@ -57,7 +57,7 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 				{
 					RpcMethod: "Prices",
 					Use:       "prices",
-					Short:     "Get all current prices",
+					Short:     "Get all prices",
 				},
 				{
 					RpcMethod: "ReferenceSourceConfig",

@@ -1,0 +1,52 @@
+[grpc]
+addr = "0.0.0.0:50051"
+
+[log]
+log_level = "Info"
+core_log_level = "Error"
+source_log_level = "Error"
+
+[ipfs]
+endpoint = "https://gateway.pinata.cloud/ipfs"
+authentication = "None"
+
+[store]
+path = "/Users/ongart/.bothan/data"
+
+[monitoring]
+endpoint = "https://bothan-monitoring.bandchain.org"
+path = "/Users/ongart/.bothan/keyring/broadcaster.info"
+enabled = false
+
+[manager.crypto]
+stale_threshold = 300
+
+[manager.crypto.source.binance]
+url = "wss://stream.binance.com:9443/stream"
+internal_ch_size = 1000
+
+[manager.crypto.source.bybit]
+url = "wss://stream.bybit.com/v5/public/spot"
+internal_ch_size = 1000
+
+[manager.crypto.source.coinbase]
+url = "wss://ws-feed.exchange.coinbase.com"
+internal_ch_size = 1000
+
+[manager.crypto.source.coingecko]
+url = "https://api.coingecko.com/api/v3/"
+api_key = ""
+user_agent = "Bothan"
+update_interval = "1m"
+
+[manager.crypto.source.htx]
+url = "wss://api.huobi.pro/ws"
+internal_ch_size = 1000
+
+[manager.crypto.source.kraken]
+url = "wss://ws.kraken.com/v2"
+internal_ch_size = 1000
+
+[manager.crypto.source.okx]
+url = "wss://ws.okx.com:8443/ws/v5/public"
+internal_ch_size = 1000

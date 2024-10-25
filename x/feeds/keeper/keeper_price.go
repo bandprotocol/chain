@@ -149,6 +149,7 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) {
 		allValidatorPrices[val.Address.String()] = valPricesMap
 	}
 
+	gracePeriod := k.GetParams(ctx).GracePeriod
 	// calculate prices for each feed
 	for _, feed := range currentFeeds.Feeds {
 		var priceFeedInfos []types.PriceFeedInfo
@@ -164,7 +165,7 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) {
 				valInfo,
 				ctx.BlockTime(),
 				ctx.BlockHeight(),
-				k.GetParams(ctx).GracePeriod,
+				gracePeriod,
 			)
 			if missReport {
 				k.oracleKeeper.MissReport(ctx, valInfo.Address, ctx.BlockTime())
@@ -231,10 +232,13 @@ func (k Keeper) CalculatePrice(
 		return types.Price{}, err
 	}
 	totalBondedToken := sdkmath.LegacyNewDecFromInt(tbt)
-	priceQuorum, _ := sdkmath.LegacyNewDecFromStr(k.GetParams(ctx).PriceQuorum)
+	priceQuorum, err := sdkmath.LegacyNewDecFromStr(k.GetParams(ctx).PriceQuorum)
+	if err != nil {
+		return types.Price{}, err
+	}
 
 	// If more than half of the total have unsupported price status, it returns an unsupported price status.
-	if unsupportedPower > totalPower/2 {
+	if unsupportedPower*2 > totalPower {
 		return types.NewPrice(
 			types.PriceStatusUnsupported,
 			feed.SignalID,

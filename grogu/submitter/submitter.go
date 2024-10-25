@@ -180,7 +180,7 @@ func (s *Submitter) getAccountFromKey(key *keyring.Record) (client.Account, erro
 	}
 
 	var acc client.Account
-	err = unpackAccount(&acc, accResp)
+	err = unpackAccount(s.clientCtx.InterfaceRegistry, &acc, accResp)
 	if err != nil {
 		return nil, err
 	}
