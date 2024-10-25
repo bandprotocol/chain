@@ -35,6 +35,7 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 		}
 	}
 
+	k.SetPort(ctx, types.PortID)
 	// only try to bind to port if it is not already bound, since we may already own
 	// port capability from capability InitGenesis
 	if !k.HasCapability(ctx, types.PortID) {
@@ -44,11 +45,6 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 		if err != nil {
 			panic(fmt.Sprintf("could not claim port capability: %v", err))
 		}
-	}
-
-	// set the tunnels
-	for _, tunnel := range data.Tunnels {
-		k.ActiveTunnelID(ctx, tunnel.ID)
 	}
 
 	// set the latest signal prices
@@ -64,7 +60,6 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 func ExportGenesis(ctx sdk.Context, k Keeper) *types.GenesisState {
 	return &types.GenesisState{
 		Params:                 k.GetParams(ctx),
-		PortID:                 types.PortID,
 		TunnelCount:            k.GetTunnelCount(ctx),
 		Tunnels:                k.GetTunnels(ctx),
 		LatestSignalPricesList: k.GetAllLatestSignalPrices(ctx),

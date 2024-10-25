@@ -3,9 +3,7 @@ package keeper
 import (
 	"fmt"
 
-	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
-	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
 
 	"cosmossdk.io/log"
@@ -26,9 +24,9 @@ type Keeper struct {
 	bankKeeper    types.BankKeeper
 	feedsKeeper   types.FeedsKeeper
 	bandtssKeeper types.BandtssKeeper
-	ics4Wrapper   porttypes.ICS4Wrapper
+	ics4Wrapper   types.ICS4Wrapper
 	portKeeper    types.PortKeeper
-	scopedKeeper  capabilitykeeper.ScopedKeeper
+	scopedKeeper  types.ScopedKeeper
 
 	authority string
 }
@@ -41,9 +39,9 @@ func NewKeeper(
 	bankKeeper types.BankKeeper,
 	feedsKeeper types.FeedsKeeper,
 	bandtssKeeper types.BandtssKeeper,
-	ics4Wrapper porttypes.ICS4Wrapper,
+	ics4Wrapper types.ICS4Wrapper,
 	portKeeper types.PortKeeper,
-	scopedKeeper capabilitykeeper.ScopedKeeper,
+	scopedKeeper types.ScopedKeeper,
 	authority string,
 ) Keeper {
 	// ensure tunnel module account is set

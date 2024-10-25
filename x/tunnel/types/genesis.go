@@ -2,14 +2,11 @@ package types
 
 import (
 	"fmt"
-
-	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
 )
 
 // NewGenesisState creates a new GenesisState instanc e
 func NewGenesisState(
 	params Params,
-	portID string,
 	tunnelCount uint64,
 	tunnels []Tunnel,
 	latestSignalPricesList []LatestSignalPrices,
@@ -17,7 +14,6 @@ func NewGenesisState(
 ) *GenesisState {
 	return &GenesisState{
 		Params:                 params,
-		PortID:                 portID,
 		TunnelCount:            tunnelCount,
 		Tunnels:                tunnels,
 		LatestSignalPricesList: latestSignalPricesList,
@@ -27,16 +23,11 @@ func NewGenesisState(
 
 // DefaultGenesisState gets the raw genesis raw message for testing
 func DefaultGenesisState() *GenesisState {
-	return NewGenesisState(DefaultParams(), PortID, 0, []Tunnel{}, []LatestSignalPrices{}, TotalFees{})
+	return NewGenesisState(DefaultParams(), 0, []Tunnel{}, []LatestSignalPrices{}, TotalFees{})
 }
 
 // ValidateGenesis validates the provided genesis state.
 func ValidateGenesis(data GenesisState) error {
-	// validate the port ID
-	if err := host.PortIdentifierValidator(data.PortID); err != nil {
-		return ErrInvalidGenesis.Wrapf("invalid port ID: %s", err.Error())
-	}
-
 	// validate the tunnel count
 	if uint64(len(data.Tunnels)) != data.TunnelCount {
 		return ErrInvalidGenesis.Wrapf("length of tunnels does not match tunnel count")

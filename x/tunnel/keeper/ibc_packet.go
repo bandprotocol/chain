@@ -48,9 +48,5 @@ func (k Keeper) SendIBCPacket(
 		return nil, err
 	}
 
-	packetContent := types.IBCPacketContent{
-		ChannelID: route.ChannelID,
-	}
-
-	return &packetContent, nil
+	return types.NewIBCPacketContent(route.ChannelID), nil
 }

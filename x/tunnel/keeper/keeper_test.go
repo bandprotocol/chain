@@ -9,8 +9,6 @@ import (
 
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
-	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
-
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -37,7 +35,9 @@ type KeeperTestSuite struct {
 	bankKeeper    *testutil.MockBankKeeper
 	feedsKeeper   *testutil.MockFeedsKeeper
 	bandtssKeeper *testutil.MockBandtssKeeper
+	icsWrapper    *testutil.MockICS4Wrapper
 	portKeeper    *testutil.MockPortKeeper
+	scopedKeeper  *testutil.MockScopedKeeper
 
 	ctx       sdk.Context
 	authority sdk.AccAddress
@@ -57,7 +57,9 @@ func (s *KeeperTestSuite) reset() {
 	bankKeeper := testutil.NewMockBankKeeper(ctrl)
 	feedsKeeper := testutil.NewMockFeedsKeeper(ctrl)
 	bandtssKeeper := testutil.NewMockBandtssKeeper(ctrl)
+	icsWrapper := testutil.NewMockICS4Wrapper(ctrl)
 	portKeeper := testutil.NewMockPortKeeper(ctrl)
+	scopedKeeper := testutil.NewMockScopedKeeper(ctrl)
 
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
 
@@ -70,9 +72,9 @@ func (s *KeeperTestSuite) reset() {
 		bankKeeper,
 		feedsKeeper,
 		bandtssKeeper,
-		nil,
+		icsWrapper,
 		portKeeper,
-		capabilitykeeper.ScopedKeeper{},
+		scopedKeeper,
 		authority.String(),
 	)
 	s.queryServer = keeper.NewQueryServer(s.keeper)
@@ -81,7 +83,10 @@ func (s *KeeperTestSuite) reset() {
 	s.bankKeeper = bankKeeper
 	s.feedsKeeper = feedsKeeper
 	s.bandtssKeeper = bandtssKeeper
+	s.icsWrapper = icsWrapper
 	s.portKeeper = portKeeper
+	s.scopedKeeper = scopedKeeper
+
 	s.ctx = testCtx.Ctx.WithBlockHeader(tmproto.Header{Time: time.Now().UTC()})
 	s.authority = authority
 

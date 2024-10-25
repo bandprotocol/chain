@@ -43,8 +43,7 @@ func GetTxCmdCreateTunnel() *cobra.Command {
 	}
 
 	// add create tunnel subcommands
-	txCmd.AddCommand(GetTxCmdCreateTSSTunnel())
-	txCmd.AddCommand(GetTxCmdCreateIBCTunnel())
+	txCmd.AddCommand(GetTxCmdCreateTSSTunnel(), GetTxCmdCreateIBCTunnel())
 
 	return txCmd
 }

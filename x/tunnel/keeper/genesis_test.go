@@ -4,11 +4,16 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"go.uber.org/mock/gomock"
 
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
 
+	"github.com/bandprotocol/chain/v3/x/tunnel/keeper"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
@@ -18,21 +23,12 @@ func TestValidateGenesis(t *testing.T) {
 		requireErr bool
 		errMsg     string
 	}{
-		"invalid port ID": {
-			genesis: &types.GenesisState{
-				PortID: "invalid/id",
-				Params: types.DefaultParams(),
-			},
-			requireErr: true,
-			errMsg:     "invalid port ID",
-		},
 		"length of tunnels does not match tunnel count": {
 			genesis: &types.GenesisState{
 				Tunnels: []types.Tunnel{
 					{ID: 1},
 				},
 				TunnelCount: 2,
-				PortID:      types.PortID,
 			},
 			requireErr: true,
 			errMsg:     "length of tunnels does not match tunnel count",
@@ -44,7 +40,6 @@ func TestValidateGenesis(t *testing.T) {
 					{ID: 3},
 				},
 				TunnelCount: 2,
-				PortID:      types.PortID,
 			},
 			requireErr: true,
 			errMsg:     "tunnel count mismatch in tunnels",
@@ -59,7 +54,6 @@ func TestValidateGenesis(t *testing.T) {
 					{TunnelID: 1},
 					{TunnelID: 2},
 				},
-				PortID: types.PortID,
 			},
 			requireErr: true,
 			errMsg:     "tunnel count mismatch in latest signal prices",
@@ -77,7 +71,6 @@ func TestValidateGenesis(t *testing.T) {
 					},
 				},
 				TotalFees: types.TotalFees{},
-				PortID:    types.PortID,
 			},
 			requireErr: true,
 			errMsg:     "invalid latest signal prices",
@@ -102,7 +95,6 @@ func TestValidateGenesis(t *testing.T) {
 						{Denom: "uband", Amount: sdkmath.NewInt(-100)},
 					}, // Invalid coin
 				},
-				PortID: types.PortID,
 			},
 			requireErr: true,
 			errMsg:     "invalid total fees",
@@ -132,7 +124,6 @@ func TestValidateGenesis(t *testing.T) {
 					TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
 				},
 				Params: types.DefaultParams(),
-				PortID: types.PortID,
 			},
 			requireErr: false,
 		},
@@ -149,4 +140,55 @@ func TestValidateGenesis(t *testing.T) {
 			}
 		})
 	}
+}
+
+func (s *KeeperTestSuite) TestInitExportGenesis() {
+	ctx, k := s.ctx, s.keeper
+
+	s.scopedKeeper.EXPECT().GetCapability(ctx, host.PortPath(types.PortID)).Return(nil, false).AnyTimes()
+	s.scopedKeeper.EXPECT().
+		ClaimCapability(ctx, &capabilitytypes.Capability{Index: 0}, host.PortPath(types.PortID)).
+		Return(nil).
+		AnyTimes()
+	s.portKeeper.EXPECT().BindPort(ctx, types.PortID).Return(&capabilitytypes.Capability{Index: 0}).AnyTimes()
+
+	s.accountKeeper.EXPECT().
+		GetModuleAccount(ctx, gomock.Any()).
+		Return(sdk.AccountI(&authtypes.ModuleAccount{
+			BaseAccount: &authtypes.BaseAccount{Address: "test"},
+		})).
+		AnyTimes()
+	s.accountKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(sdk.AccAddress{}).AnyTimes()
+	s.accountKeeper.EXPECT().SetModuleAccount(ctx, gomock.Any()).AnyTimes()
+	s.bankKeeper.EXPECT().GetAllBalances(ctx, gomock.Any()).Return(sdk.Coins{}).AnyTimes()
+
+	// Create a valid genesis state
+	genesisState := &types.GenesisState{
+		Params:      types.DefaultParams(),
+		TunnelCount: 1,
+		Tunnels: []types.Tunnel{
+			{ID: 1},
+		},
+		LatestSignalPricesList: []types.LatestSignalPrices{
+			{
+				TunnelID: 1,
+				SignalPrices: []types.SignalPrice{
+					{SignalID: "ETH", Price: 5000},
+				},
+				Timestamp: 0,
+			},
+		},
+		TotalFees: types.TotalFees{
+			TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
+		},
+	}
+
+	// Initialize the genesis state
+	keeper.InitGenesis(ctx, k, genesisState)
+
+	// Export the genesis state
+	exportedGenesisState := keeper.ExportGenesis(ctx, k)
+
+	// Verify the exported state matches the initialized state
+	s.Require().Equal(genesisState, exportedGenesisState)
 }

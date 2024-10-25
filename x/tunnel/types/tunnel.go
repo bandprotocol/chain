@@ -78,3 +78,17 @@ func (t Tunnel) GetSignalDeviationMap() map[string]SignalDeviation {
 	}
 	return signalDeviationMap
 }
+
+// NewIBCRoute creates a new IBCRoute instance.
+func NewIBCRoute(channelID string) *IBCRoute {
+	return &IBCRoute{
+		ChannelID: channelID,
+	}
+}
+
+// NewIBCPacketContent creates a new IBCPacketContent instance.
+func NewIBCPacketContent(channelID string) *IBCPacketContent {
+	return &IBCPacketContent{
+		ChannelID: channelID,
+	}
+}

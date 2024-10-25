@@ -4,6 +4,7 @@ import (
 	context "context"
 
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -41,8 +42,26 @@ type BankKeeper interface {
 	) error
 }
 
+type ICS4Wrapper interface {
+	SendPacket(
+		ctx sdk.Context,
+		chanCap *capabilitytypes.Capability,
+		sourcePort string,
+		sourceChannel string,
+		timeoutHeight ibcclienttypes.Height,
+		timeoutTimestamp uint64,
+		data []byte,
+	) (sequence uint64, err error)
+}
+
 type PortKeeper interface {
 	BindPort(ctx sdk.Context, portID string) *capabilitytypes.Capability
+}
+
+type ScopedKeeper interface {
+	GetCapability(ctx sdk.Context, name string) (*capabilitytypes.Capability, bool)
+	AuthenticateCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) bool
+	ClaimCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) error
 }
 
 type FeedsKeeper interface {

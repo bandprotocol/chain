@@ -43,7 +43,8 @@ var (
 	// params store keys
 	ParamsKey = []byte{0x90}
 
-	PortKey = []byte{0xff}
+	// PortKey defines the key to store the port ID in store
+	PortKey = []byte{0xf0}
 )
 
 // TunnelStoreKey returns the key to retrieve a specific tunnel from the store.

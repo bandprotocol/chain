@@ -97,9 +97,7 @@ func NewMsgCreateIBCTunnel(
 	deposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
-	r := &IBCRoute{
-		ChannelID: channelID,
-	}
+	r := NewIBCRoute(channelID)
 	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, encoder, deposit, creator)
 	if err != nil {
 		return nil, err

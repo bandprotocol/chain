@@ -502,7 +502,7 @@ func NewAppKeeper(
 		appKeepers.BandtssKeeper,
 		appKeepers.IBCFeeKeeper,
 		appKeepers.IBCKeeper.PortKeeper,
-		appKeepers.ScopedOracleKeeper,
+		appKeepers.ScopedTunnelKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
