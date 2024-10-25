@@ -12,8 +12,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	dbm "github.com/cosmos/cosmos-db"
-
 	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -91,20 +89,6 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 		}
 		l := logger.NewLogger(allowLevel)
 
-		initAppOptions := viper.New()
-		tempDir := tempDir()
-		initAppOptions.Set(flags.FlagHome, tempDir)
-		tempApp := band.NewBandApp(
-			log.NewNopLogger(),
-			dbm.NewMemDB(),
-			nil,
-			true,
-			map[int64]bool{},
-			tempDir,
-			initAppOptions,
-			100,
-		)
-
 		// Split Node URIs and create RPC clients
 		clientCtx, err := client.GetClientQueryContext(cmd)
 		if err != nil {
@@ -112,9 +96,9 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 		}
 		clientCtx = clientCtx.WithKeyring(ctx.Keyring).
 			WithChainID(viper.GetString(flags.FlagChainID)).
-			WithCodec(tempApp.AppCodec()).
-			WithInterfaceRegistry(tempApp.InterfaceRegistry()).
-			WithTxConfig(tempApp.GetTxConfig()).
+			WithCodec(ctx.BandApp.AppCodec()).
+			WithInterfaceRegistry(ctx.BandApp.InterfaceRegistry()).
+			WithTxConfig(ctx.BandApp.GetTxConfig()).
 			WithBroadcastMode(flags.BroadcastSync)
 
 		nodeURIs := strings.Split(viper.GetString(flagNodes), ",")
