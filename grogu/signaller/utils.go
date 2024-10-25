@@ -33,7 +33,7 @@ import (
 func isDeviated(deviationBasisPoint int64, oldPrice uint64, newPrice uint64) bool {
 	// Calculate the deviation
 	diff := math.Abs(float64(newPrice) - float64(oldPrice))
-	dev := int64((diff / float64(oldPrice)) * 10000)
+	dev := int64((diff * 10000) / float64(oldPrice))
 
 	// Check if the new price deviation is meets or exceeds the bounds
 	return deviationBasisPoint <= dev

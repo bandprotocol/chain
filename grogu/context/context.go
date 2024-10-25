@@ -3,6 +3,7 @@ package context
 import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 
+	band "github.com/bandprotocol/chain/v3/app"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 )
 
@@ -51,4 +52,5 @@ type Context struct {
 	Keyring keyring.Keyring
 	Logger  *logger.Logger
 	Home    string
+	BandApp *band.BandApp
 }

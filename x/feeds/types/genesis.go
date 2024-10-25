@@ -25,7 +25,7 @@ func (gs GenesisState) Validate() error {
 	}
 
 	for _, ds := range gs.DelegatorSignals {
-		if err := ds.Validate(MaxSignalIDCharacters); err != nil {
+		if err := ds.Validate(); err != nil {
 			return err
 		}
 	}
