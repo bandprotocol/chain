@@ -63,7 +63,7 @@ func validateVersion(name string, version string) error {
 	if version == "[NOT_SET]" {
 		return nil
 	}
-	_, err := semver.NewVersion(version)
+	_, err := semver.StrictNewVersion(version)
 	if err != nil {
 		return fmt.Errorf("%s is not in a valid version format", name)
 	}
