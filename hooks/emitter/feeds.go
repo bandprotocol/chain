@@ -1,26 +1,11 @@
 package emitter
 
 import (
-	"math"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v3/hooks/common"
 	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
-
-func (h *Hook) emitRemoveValidatorPrices(signalID string) {
-	h.Write("REMOVE_VALIDATOR_PRICES", common.JsDict{
-		"signal_id": signalID,
-	})
-}
-
-func (h *Hook) emitRemovePrice(signalID string) {
-	h.emitRemoveValidatorPrices(signalID)
-	h.Write("REMOVE_PRICE", common.JsDict{
-		"signal_id": signalID,
-	})
-}
 
 func (h *Hook) emitSetSignalTotalPower(stp types.Signal) {
 	h.Write("SET_SIGNAL_TOTAL_POWER", common.JsDict{
@@ -59,30 +44,26 @@ func (h *Hook) emitSetSignalPricesTx(ctx sdk.Context, txHash []byte, validator s
 	})
 }
 
-func (h *Hook) emitSetValidatorPrice(ctx sdk.Context, validator string, price types.SignalPrice) {
-	h.Write("SET_VALIDATOR_PRICE", common.JsDict{
-		"validator":    validator,
-		"price_status": price.PriceStatus,
-		"signal_id":    price.SignalID,
-		"price":        price.Price,
-		"timestamp":    ctx.BlockTime().UnixNano(),
+func (h *Hook) emitSetValidatorPrices(ctx sdk.Context, validator string, prices []types.SignalPrice) {
+	h.Write("SET_VALIDATOR_PRICES", common.JsDict{
+		"validator": validator,
+		"prices":    prices,
+		"timestamp": ctx.BlockTime().UnixNano(),
 	})
 }
 
-func (h *Hook) emitSetPrice(price types.Price) {
-	h.Write("SET_PRICE", common.JsDict{
-		"signal_id":    price.SignalID,
-		"price_status": price.PriceStatus,
-		"price":        price.Price,
-		"timestamp":    price.Timestamp * int64(math.Pow10(9)),
+func (h *Hook) emitSetPrices(ctx sdk.Context, prices []types.Price) {
+	h.Write("SET_PRICES", common.JsDict{
+		"prices":    prices,
+		"timestamp": ctx.BlockTime().UnixNano(),
 	})
 }
 
 func (h *Hook) emitSetReferenceSourceConfig(ctx sdk.Context, rsc types.ReferenceSourceConfig) {
 	h.Write("SET_REFERENCE_SOURCE_CONFIG", common.JsDict{
-		"ipfs_hash": rsc.IPFSHash,
-		"version":   rsc.Version,
-		"timestamp": ctx.BlockTime().UnixNano(),
+		"registry_ipfs_hash": rsc.RegistryIPFSHash,
+		"registry_version":   rsc.RegistryVersion,
+		"timestamp":          ctx.BlockTime().UnixNano(),
 	})
 }
 
@@ -125,25 +106,15 @@ func (h *Hook) handleMsgSubmitSignalPrices(
 	}
 
 	h.emitSetSignalPricesTx(ctx, txHash, msg.Validator, feeder)
-
-	for _, price := range msg.Prices {
-		h.emitSetValidatorPrice(ctx, msg.Validator, price)
-	}
+	h.emitSetValidatorPrices(ctx, msg.Validator, msg.Prices)
 }
 
 // handleEventUpdatePrice implements emitter handler for event UpdatePrice.
 func (h *Hook) handleEventUpdatePrice(
-	ctx sdk.Context, evMap common.EvMap,
+	ctx sdk.Context,
 ) {
-	if signal_ids, ok := evMap[types.EventTypeUpdatePrice+"."+types.AttributeKeySignalID]; ok {
-		for _, signal_id := range signal_ids {
-			price, err := h.feedsKeeper.GetPrice(ctx, signal_id)
-			if err != nil {
-				continue
-			}
-			h.emitSetPrice(price)
-		}
-	}
+	prices := h.feedsKeeper.GetAllCurrentPrices(ctx)
+	h.emitSetPrices(ctx, prices)
 }
 
 // handleMsgUpdateReferenceSourceConfig implements emitter handler for MsgUpdateReferenceSourceConfig.

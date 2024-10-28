@@ -683,8 +683,8 @@ func DecodeMsgSubmitSignals(msg *feedstypes.MsgSubmitSignals, detail common.JsDi
 
 func DecodeMsgUpdateReferenceSourceConfig(msg *feedstypes.MsgUpdateReferenceSourceConfig, detail common.JsDict) {
 	rsc := msg.GetReferenceSourceConfig()
-	detail["ipfs_hash"] = rsc.IPFSHash
-	detail["version"] = rsc.Version
+	detail["registry_ipfs_hash"] = rsc.RegistryIPFSHash
+	detail["registry_version"] = rsc.RegistryVersion
 }
 
 func DecodeMsgUpdateParams(msg *feedstypes.MsgUpdateParams, detail common.JsDict) {
