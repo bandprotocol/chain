@@ -180,9 +180,10 @@ func (s *Submitter) getAccountFromKey(key *keyring.Record) (client.Account, erro
 	}
 
 	var acc client.Account
-	err = unpackAccount(s.clientCtx.InterfaceRegistry, &acc, accResp)
+	registry := s.clientCtx.InterfaceRegistry
+	err = registry.UnpackAny(accResp.Account, &acc)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to unpack account with error: %v", err)
 	}
 	return acc, nil
 }

@@ -14,9 +14,10 @@
 
 ### How to run Grogu in development mode
 
-1. run bothan follow this instruction [setup_bothan](https://github.com/bandprotocol/bothan/blob/87e12df17d016548b9cf0c928f041615fd432a59/docs/setup_bothan.md)
-2. Export bothan url with `export BOTHAN_URL=<Your Bothan URL>`
-3. Go to chain directory
-4. run `chmod +x ./scripts/start_grogu.sh` to change the access permission of start_grogu.script
-5. run `./scripts/start_grogu.sh` to start Grogu
+1. run `chmod +x ./scripts/bothan/start_bothan.sh` to change the access permission of start_bothan script
+2. run bothan with `./scripts/bothan/start_bothan.sh`
+3. Export bothan url with `export BOTHAN_URL=<Your Bothan URL>`
+4. Go to chain directory
+5. run `chmod +x ./scripts/start_grogu.sh` to change the access permission of start_grogu script
+6. run `./scripts/start_grogu.sh` to start Grogu
 
