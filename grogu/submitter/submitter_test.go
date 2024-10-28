@@ -2,6 +2,7 @@ package submitter
 
 import (
 	"context"
+	"os"
 	"sync"
 	"testing"
 	"time"
@@ -44,6 +45,16 @@ type SubmitterTestSuite struct {
 
 func TestSubmitterTestSuite(t *testing.T) {
 	suite.Run(t, new(SubmitterTestSuite))
+}
+
+var tempDir = func() string {
+	dir, err := os.MkdirTemp("", ".band")
+	if err != nil {
+		dir = band.DefaultNodeHome
+	}
+	defer os.RemoveAll(dir)
+
+	return dir
 }
 
 func (s *SubmitterTestSuite) SetupTest() {
