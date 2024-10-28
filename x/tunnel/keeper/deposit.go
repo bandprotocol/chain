@@ -71,7 +71,7 @@ func (k Keeper) GetDeposit(
 	return deposit, true
 }
 
-// GetDeposits retrieves all deposits for a tunnel
+// GetDeposits retrieves all deposits for the tunnel
 func (k Keeper) GetDeposits(ctx sdk.Context, tunnelID uint64) []types.Deposit {
 	var deposits []types.Deposit
 	iterator := storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.DepositsStoreKey(tunnelID))
@@ -84,6 +84,37 @@ func (k Keeper) GetDeposits(ctx sdk.Context, tunnelID uint64) []types.Deposit {
 	}
 
 	return deposits
+}
+
+// GetAllDeposits returns all deposits in the store
+func (k Keeper) GetAllDeposits(ctx sdk.Context) []types.Deposit {
+	var deposits []types.Deposit
+	iterator := storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.DepositStoreKeyPrefix)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var deposit types.Deposit
+		k.cdc.MustUnmarshal(iterator.Value(), &deposit)
+		deposits = append(deposits, deposit)
+	}
+
+	return deposits
+}
+
+// GetTotalDeposits returns the total deposits in the store
+func (k Keeper) GetTotalDeposits(ctx sdk.Context) sdk.Coins {
+	var amount sdk.Coins
+
+	iterator := storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.DepositStoreKeyPrefix)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var deposit types.Deposit
+		k.cdc.MustUnmarshal(iterator.Value(), &deposit)
+		amount = amount.Add(deposit.Amount...)
+	}
+
+	return amount
 }
 
 // DeleteDeposit deletes a deposit from the store

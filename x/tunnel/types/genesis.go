@@ -32,10 +32,15 @@ func ValidateGenesis(data GenesisState) error {
 	}
 
 	// validate the tunnel IDs
+	tunnelIDMap := make(map[uint64]bool)
 	for _, t := range data.Tunnels {
 		if t.ID > data.TunnelCount {
 			return ErrInvalidGenesis.Wrapf("tunnel count mismatch in tunnels")
 		}
+		if _, exists := tunnelIDMap[t.ID]; exists {
+			return ErrInvalidGenesis.Wrapf("duplicate tunnel ID found: %d", t.ID)
+		}
+		tunnelIDMap[t.ID] = true
 	}
 
 	// validate the latest signal prices count
@@ -67,24 +72,25 @@ func (tf TotalFees) Validate() error {
 // validateLastSignalPricesList validates the latest signal prices list.
 func validateLastSignalPricesList(
 	tunnels []Tunnel,
-	lsps []LatestSignalPrices,
+	latestSignalPricesList []LatestSignalPrices,
 ) error {
-	if len(tunnels) != len(lsps) {
+	if len(tunnels) != len(latestSignalPricesList) {
 		return fmt.Errorf("tunnels and latest signal prices list length mismatch")
 	}
 
-	tunnelMap := make(map[uint64]bool)
+	tunnelIDMap := make(map[uint64]bool)
 	for _, t := range tunnels {
-		tunnelMap[t.ID] = true
+		tunnelIDMap[t.ID] = true
 	}
 
-	for _, lsp := range lsps {
-		if _, ok := tunnelMap[lsp.TunnelID]; !ok {
-			return fmt.Errorf("tunnel ID %d not found in tunnels", lsp.TunnelID)
+	for _, latestSignalPrices := range latestSignalPricesList {
+		if !tunnelIDMap[latestSignalPrices.TunnelID] {
+			return fmt.Errorf("tunnel ID %d not found in tunnels", latestSignalPrices.TunnelID)
 		}
-		if err := lsp.Validate(); err != nil {
+		if err := latestSignalPrices.Validate(); err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
