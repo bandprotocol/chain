@@ -20,7 +20,6 @@ import (
 
 	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client"
 
-	band "github.com/bandprotocol/chain/v3/app"
 	"github.com/bandprotocol/chain/v3/grogu/context"
 	"github.com/bandprotocol/chain/v3/grogu/querier"
 	"github.com/bandprotocol/chain/v3/grogu/signaller"
@@ -215,14 +214,4 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 
 		return nil
 	}
-}
-
-var tempDir = func() string {
-	dir, err := os.MkdirTemp("", ".band")
-	if err != nil {
-		dir = band.DefaultNodeHome
-	}
-	defer os.RemoveAll(dir)
-
-	return dir
 }

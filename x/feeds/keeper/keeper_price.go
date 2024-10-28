@@ -249,7 +249,7 @@ func (k Keeper) CalculatePrice(
 
 	// If the total power is less than price quorum percentage of the total bonded token
 	// or less than half of total have available price status, it will not be calculated.
-	if totalPower < totalBondedToken.Mul(priceQuorum).TruncateInt().Uint64() || availablePower < totalPower/2 {
+	if totalPower < totalBondedToken.Mul(priceQuorum).TruncateInt().Uint64() || availablePower*2 < totalPower {
 		// else, it returns an unavailable price status.
 		return types.NewPrice(
 			types.PriceStatusUnavailable,
