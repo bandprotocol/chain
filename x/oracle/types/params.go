@@ -3,8 +3,6 @@ package types
 import (
 	"fmt"
 	"time"
-
-	"sigs.k8s.io/yaml"
 )
 
 const (
@@ -98,12 +96,6 @@ func (p Params) Validate() error {
 	}
 
 	return nil
-}
-
-// String returns a human readable string representation of the parameters.
-func (p Params) String() string {
-	out, _ := yaml.Marshal(p)
-	return string(out)
 }
 
 func validateUint64(name string, positiveOnly bool) func(interface{}) error {

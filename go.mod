@@ -44,7 +44,6 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20240624140628-dc46fd24d27d
 	google.golang.org/grpc v1.66.2
 	google.golang.org/protobuf v1.35.1
-	sigs.k8s.io/yaml v1.4.0
 )
 
 require (
@@ -214,6 +213,7 @@ require (
 	gotest.tools/v3 v3.5.1 // indirect
 	nhooyr.io/websocket v1.8.6 // indirect
 	pgregory.net/rapid v1.1.0 // indirect
+	sigs.k8s.io/yaml v1.4.0 // indirect
 )
 
 replace (
