@@ -5,8 +5,6 @@ import (
 
 	"go.uber.org/mock/gomock"
 
-	sdkmath "cosmossdk.io/math"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
@@ -77,7 +75,7 @@ func (s *KeeperTestSuite) TestProducePacket() {
 	}
 
 	s.bankKeeper.EXPECT().
-		SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(10)))).
+		SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, k.GetParams(ctx).BasePacketFee).
 		Return(nil)
 	s.bandtssKeeper.EXPECT().GetParams(gomock.Any()).Return(bandtsstypes.Params{
 		Fee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(10))),

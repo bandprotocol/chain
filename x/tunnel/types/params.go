@@ -10,9 +10,9 @@ import (
 
 var (
 	DefaultMinInterval   = uint64(1)
-	DefaultMinDeposit    = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
+	DefaultMinDeposit    = sdk.NewCoins(sdk.NewInt64Coin("uband", 1_000_000_000))
 	DefaultMaxSignals    = uint64(100)
-	DefaultBasePacketFee = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
+	DefaultBasePacketFee = sdk.NewCoins(sdk.NewInt64Coin("uband", 10_000))
 )
 
 // NewParams creates a new Params instance

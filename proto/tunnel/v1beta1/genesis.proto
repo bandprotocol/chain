@@ -17,6 +17,8 @@ message GenesisState {
   repeated Tunnel tunnels = 3 [(gogoproto.nullable) = false];
   // latest_signal_prices_list is the list of latest signal prices.
   repeated LatestSignalPrices latest_signal_prices_list = 4 [(gogoproto.nullable) = false];
+  // deposits is the list of deposits.
+  repeated Deposit deposits = 5 [(gogoproto.nullable) = false];
   // total_fees is the type for the total fees collected by the tunnel
-  TotalFees total_fees = 5 [(gogoproto.nullable) = false];
+  TotalFees total_fees = 6 [(gogoproto.nullable) = false];
 }
