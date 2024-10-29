@@ -42,7 +42,10 @@ type AppModuleBasic struct {
 }
 
 // NewAppModuleBasic creates a new AppModuleBasic object
-func NewAppModuleBasic(cdc codec.Codec, signatureOrderHandlers ...bandtssclient.RequestSignatureHandler) AppModuleBasic {
+func NewAppModuleBasic(
+	cdc codec.Codec,
+	signatureOrderHandlers ...bandtssclient.RequestSignatureHandler,
+) AppModuleBasic {
 	return AppModuleBasic{
 		cdc:                    cdc,
 		signatureOrderHandlers: signatureOrderHandlers,
@@ -79,16 +82,18 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 	return data.Validate()
 }
 
+// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the bandtss module.
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+	if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
+		panic(err)
+	}
+}
+
 // GetTxCmd returns the transaction commands for the bandtss module.
 func (a AppModuleBasic) GetTxCmd() *cobra.Command {
 	signatureOrderHandlers := getSignatureOrderCLIHandlers(a.signatureOrderHandlers)
 
 	return cli.GetTxCmd(signatureOrderHandlers)
-}
-
-// GetQueryCmd returns the cli query commands for the bandtss module.
-func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	return cli.GetQueryCmd()
 }
 
 func getSignatureOrderCLIHandlers(handlers []bandtssclient.RequestSignatureHandler) []*cobra.Command {
@@ -97,13 +102,6 @@ func getSignatureOrderCLIHandlers(handlers []bandtssclient.RequestSignatureHandl
 		signatureOrderHandlers = append(signatureOrderHandlers, handler.CLIHandler())
 	}
 	return signatureOrderHandlers
-}
-
-// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the bandtss module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
-		panic(err)
-	}
 }
 
 // ----------------------------------------------------------------------------

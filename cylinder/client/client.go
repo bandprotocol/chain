@@ -115,7 +115,7 @@ func (c *Client) GetTxFromTxHash(txHash string) (txRes *sdk.TxResponse, err erro
 
 // QueryGroup queries the group information with the given group ID.
 // It returns the group response or an error.
-func (c *Client) QueryGroup(groupID tss.GroupID) (*GroupResponse, error) {
+func (c *Client) QueryGroup(groupID tss.GroupID) (*GroupResult, error) {
 	queryClient := tsstypes.NewQueryClient(c.context)
 
 	gr, err := queryClient.Group(context.Background(), &tsstypes.QueryGroupRequest{
@@ -125,7 +125,7 @@ func (c *Client) QueryGroup(groupID tss.GroupID) (*GroupResponse, error) {
 		return nil, err
 	}
 
-	return NewGroupResponse(gr), nil
+	return NewGroupResult(gr), nil
 }
 
 // QuerySigning queries the signing information with the given signing ID.

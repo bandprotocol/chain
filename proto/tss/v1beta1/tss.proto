@@ -27,6 +27,27 @@ message Group {
   string module_owner = 7;
 }
 
+// GroupResult is a tss group result from querying tss group information.
+message GroupResult {
+  // group defines the group object containing group information.
+  Group group = 1 [(gogoproto.nullable) = false];
+  // dkg_context defines the DKG context data.
+  bytes dkg_context = 2 [
+    (gogoproto.customname) = "DKGContext",
+    (gogoproto.casttype)   = "github.com/cometbft/cometbft/libs/bytes.HexBytes"
+  ];
+  // members is the list of members in the group.
+  repeated Member members = 3 [(gogoproto.nullable) = false];
+  // round1_infos is the list of Round 1 information.
+  repeated Round1Info round1_infos = 4 [(gogoproto.nullable) = false];
+  // round2_infos is the list of Round 2 information.
+  repeated Round2Info round2_infos = 5 [(gogoproto.nullable) = false];
+  // complaints_with_status is the list of complaints with status.
+  repeated ComplaintsWithStatus complaints_with_status = 6 [(gogoproto.nullable) = false];
+  // confirms is the list of confirms.
+  repeated Confirm confirms = 7 [(gogoproto.nullable) = false];
+}
+
 // Round1Info contains all necessary information for handling round 1 of the DKG process.
 message Round1Info {
   // member_id is the unique identifier of a group member.

@@ -20,7 +20,6 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Query_Counts_FullMethodName          = "/bandtss.v1beta1.Query/Counts"
-	Query_Params_FullMethodName          = "/bandtss.v1beta1.Query/Params"
 	Query_IsGrantee_FullMethodName       = "/bandtss.v1beta1.Query/IsGrantee"
 	Query_Members_FullMethodName         = "/bandtss.v1beta1.Query/Members"
 	Query_Member_FullMethodName          = "/bandtss.v1beta1.Query/Member"
@@ -28,6 +27,7 @@ const (
 	Query_IncomingGroup_FullMethodName   = "/bandtss.v1beta1.Query/IncomingGroup"
 	Query_Signing_FullMethodName         = "/bandtss.v1beta1.Query/Signing"
 	Query_GroupTransition_FullMethodName = "/bandtss.v1beta1.Query/GroupTransition"
+	Query_Params_FullMethodName          = "/bandtss.v1beta1.Query/Params"
 )
 
 // QueryClient is the client API for Query service.
@@ -36,8 +36,6 @@ const (
 type QueryClient interface {
 	// Counts queries the number of existing signing.
 	Counts(ctx context.Context, in *QueryCountsRequest, opts ...grpc.CallOption) (*QueryCountsResponse, error)
-	// Params queries parameters of bandtss module
-	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 	// IsGrantee queries whether granter grants the grantee.
 	IsGrantee(ctx context.Context, in *QueryIsGranteeRequest, opts ...grpc.CallOption) (*QueryIsGranteeResponse, error)
 	// Members queries all members.
@@ -52,6 +50,8 @@ type QueryClient interface {
 	Signing(ctx context.Context, in *QuerySigningRequest, opts ...grpc.CallOption) (*QuerySigningResponse, error)
 	// GroupTransition queries the group transition information.
 	GroupTransition(ctx context.Context, in *QueryGroupTransitionRequest, opts ...grpc.CallOption) (*QueryGroupTransitionResponse, error)
+	// Params queries parameters of bandtss module
+	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 }
 
 type queryClient struct {
@@ -65,15 +65,6 @@ func NewQueryClient(cc grpc.ClientConnInterface) QueryClient {
 func (c *queryClient) Counts(ctx context.Context, in *QueryCountsRequest, opts ...grpc.CallOption) (*QueryCountsResponse, error) {
 	out := new(QueryCountsResponse)
 	err := c.cc.Invoke(ctx, Query_Counts_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error) {
-	out := new(QueryParamsResponse)
-	err := c.cc.Invoke(ctx, Query_Params_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -143,14 +134,21 @@ func (c *queryClient) GroupTransition(ctx context.Context, in *QueryGroupTransit
 	return out, nil
 }
 
+func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error) {
+	out := new(QueryParamsResponse)
+	err := c.cc.Invoke(ctx, Query_Params_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 // All implementations must embed UnimplementedQueryServer
 // for forward compatibility
 type QueryServer interface {
 	// Counts queries the number of existing signing.
 	Counts(context.Context, *QueryCountsRequest) (*QueryCountsResponse, error)
-	// Params queries parameters of bandtss module
-	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 	// IsGrantee queries whether granter grants the grantee.
 	IsGrantee(context.Context, *QueryIsGranteeRequest) (*QueryIsGranteeResponse, error)
 	// Members queries all members.
@@ -165,6 +163,8 @@ type QueryServer interface {
 	Signing(context.Context, *QuerySigningRequest) (*QuerySigningResponse, error)
 	// GroupTransition queries the group transition information.
 	GroupTransition(context.Context, *QueryGroupTransitionRequest) (*QueryGroupTransitionResponse, error)
+	// Params queries parameters of bandtss module
+	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 	mustEmbedUnimplementedQueryServer()
 }
 
@@ -174,9 +174,6 @@ type UnimplementedQueryServer struct {
 
 func (UnimplementedQueryServer) Counts(context.Context, *QueryCountsRequest) (*QueryCountsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Counts not implemented")
-}
-func (UnimplementedQueryServer) Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
 }
 func (UnimplementedQueryServer) IsGrantee(context.Context, *QueryIsGranteeRequest) (*QueryIsGranteeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method IsGrantee not implemented")
@@ -198,6 +195,9 @@ func (UnimplementedQueryServer) Signing(context.Context, *QuerySigningRequest) (
 }
 func (UnimplementedQueryServer) GroupTransition(context.Context, *QueryGroupTransitionRequest) (*QueryGroupTransitionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GroupTransition not implemented")
+}
+func (UnimplementedQueryServer) Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
 }
 func (UnimplementedQueryServer) mustEmbedUnimplementedQueryServer() {}
 
@@ -226,24 +226,6 @@ func _Query_Counts_Handler(srv interface{}, ctx context.Context, dec func(interf
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(QueryServer).Counts(ctx, req.(*QueryCountsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryParamsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).Params(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Query_Params_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).Params(ctx, req.(*QueryParamsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -374,6 +356,24 @@ func _Query_GroupTransition_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryParamsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Params(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_Params_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Params(ctx, req.(*QueryParamsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Query_ServiceDesc is the grpc.ServiceDesc for Query service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -384,10 +384,6 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Counts",
 			Handler:    _Query_Counts_Handler,
-		},
-		{
-			MethodName: "Params",
-			Handler:    _Query_Params_Handler,
 		},
 		{
 			MethodName: "IsGrantee",
@@ -416,6 +412,10 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GroupTransition",
 			Handler:    _Query_GroupTransition_Handler,
+		},
+		{
+			MethodName: "Params",
+			Handler:    _Query_Params_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

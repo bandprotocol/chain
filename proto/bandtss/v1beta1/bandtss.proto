@@ -74,7 +74,7 @@ message GroupTransition {
   TransitionStatus status = 6;
   // exec_time is the time when the transition will be executed.
   google.protobuf.Timestamp exec_time = 7 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
-  // is_force_transition is a flag to indicate whether the current group signs the transition message 
+  // is_force_transition is a flag to indicate whether the current group signs the transition message
   // before the transition is executed or not.
   bool is_force_transition = 8;
 }

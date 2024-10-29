@@ -18,11 +18,6 @@ service Query {
     option (google.api.http).get = "/bandtss/v1beta1/counts";
   }
 
-  // Params queries parameters of bandtss module
-  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/bandtss/v1beta1/params";
-  }
-
   // IsGrantee queries whether granter grants the grantee.
   rpc IsGrantee(QueryIsGranteeRequest) returns (QueryIsGranteeResponse) {
     option (google.api.http).get = "/bandtss/v1beta1/is_grantee/{granter}/{grantee}";
@@ -57,6 +52,11 @@ service Query {
   rpc GroupTransition(QueryGroupTransitionRequest) returns (QueryGroupTransitionResponse) {
     option (google.api.http).get = "/bandtss/v1beta1/group_transition";
   }
+
+  // Params queries parameters of bandtss module
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/bandtss/v1beta1/params";
+  }
 }
 
 // QueryCountsRequest is request type for the Query/Count RPC method.
@@ -66,15 +66,6 @@ message QueryCountsRequest {}
 message QueryCountsResponse {
   // signing_count is total number of signing request submitted to bandtss module
   uint64 signing_count = 1;
-}
-
-// QueryParamsRequest is request type for the Query/Params RPC method.
-message QueryParamsRequest {}
-
-// QueryParamsResponse is response type for the Query/Params RPC method.
-message QueryParamsResponse {
-  // Params is the parameters of the module.
-  Params params = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryIsSignerRequest is request type for the Query/IsGrantee RPC method.
@@ -198,4 +189,13 @@ enum MemberStatusFilter {
   MEMBER_STATUS_FILTER_ACTIVE = 1;
   // MEMBER_STATUS_FILTER_INACTIVE defines a filter for inactive status.
   MEMBER_STATUS_FILTER_INACTIVE = 2;
+}
+
+// QueryParamsRequest is request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // Params is the parameters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
 }

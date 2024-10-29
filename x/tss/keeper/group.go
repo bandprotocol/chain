@@ -171,3 +171,40 @@ func (k Keeper) CreateGroup(
 
 	return groupID, nil
 }
+
+// GetGroupResponse queries group information from the given id.
+func (k Keeper) GetGroupResponse(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+) (*types.GroupResult, error) {
+	group, err := k.GetGroup(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get group members
+	members, err := k.GetGroupMembers(ctx, groupID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Ignore error as dkgContext can be deleted
+	dkgContext, _ := k.GetDKGContext(ctx, groupID)
+
+	// Get round infos, complaints, and confirms
+	round1Infos := k.GetRound1Infos(ctx, groupID)
+	round2Infos := k.GetRound2Infos(ctx, groupID)
+	complaints := k.GetAllComplainsWithStatus(ctx, groupID)
+	confirms := k.GetConfirms(ctx, groupID)
+
+	// Return all the group information
+	return &types.GroupResult{
+		Group:                group,
+		DKGContext:           dkgContext,
+		Members:              members,
+		Round1Infos:          round1Infos,
+		Round2Infos:          round2Infos,
+		ComplaintsWithStatus: complaints,
+		Confirms:             confirms,
+	}, nil
+}

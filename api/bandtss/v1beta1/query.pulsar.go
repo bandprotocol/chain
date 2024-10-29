@@ -778,797 +778,6 @@ func (x *fastReflection_QueryCountsResponse) ProtoMethods() *protoiface.Methods 
 }
 
 var (
-	md_QueryParamsRequest protoreflect.MessageDescriptor
-)
-
-func init() {
-	file_bandtss_v1beta1_query_proto_init()
-	md_QueryParamsRequest = File_bandtss_v1beta1_query_proto.Messages().ByName("QueryParamsRequest")
-}
-
-var _ protoreflect.Message = (*fastReflection_QueryParamsRequest)(nil)
-
-type fastReflection_QueryParamsRequest QueryParamsRequest
-
-func (x *QueryParamsRequest) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_QueryParamsRequest)(x)
-}
-
-func (x *QueryParamsRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandtss_v1beta1_query_proto_msgTypes[2]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-var _fastReflection_QueryParamsRequest_messageType fastReflection_QueryParamsRequest_messageType
-var _ protoreflect.MessageType = fastReflection_QueryParamsRequest_messageType{}
-
-type fastReflection_QueryParamsRequest_messageType struct{}
-
-func (x fastReflection_QueryParamsRequest_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_QueryParamsRequest)(nil)
-}
-func (x fastReflection_QueryParamsRequest_messageType) New() protoreflect.Message {
-	return new(fastReflection_QueryParamsRequest)
-}
-func (x fastReflection_QueryParamsRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_QueryParamsRequest
-}
-
-// Descriptor returns message descriptor, which contains only the protobuf
-// type information for the message.
-func (x *fastReflection_QueryParamsRequest) Descriptor() protoreflect.MessageDescriptor {
-	return md_QueryParamsRequest
-}
-
-// Type returns the message type, which encapsulates both Go and protobuf
-// type information. If the Go type information is not needed,
-// it is recommended that the message descriptor be used instead.
-func (x *fastReflection_QueryParamsRequest) Type() protoreflect.MessageType {
-	return _fastReflection_QueryParamsRequest_messageType
-}
-
-// New returns a newly allocated and mutable empty message.
-func (x *fastReflection_QueryParamsRequest) New() protoreflect.Message {
-	return new(fastReflection_QueryParamsRequest)
-}
-
-// Interface unwraps the message reflection interface and
-// returns the underlying ProtoMessage interface.
-func (x *fastReflection_QueryParamsRequest) Interface() protoreflect.ProtoMessage {
-	return (*QueryParamsRequest)(x)
-}
-
-// Range iterates over every populated field in an undefined order,
-// calling f for each field descriptor and value encountered.
-// Range returns immediately if f returns false.
-// While iterating, mutating operations may only be performed
-// on the current field descriptor.
-func (x *fastReflection_QueryParamsRequest) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
-}
-
-// Has reports whether a field is populated.
-//
-// Some fields have the property of nullability where it is possible to
-// distinguish between the default value of a field and whether the field
-// was explicitly populated with the default value. Singular message fields,
-// member fields of a oneof, and proto2 scalar fields are nullable. Such
-// fields are populated only if explicitly set.
-//
-// In other cases (aside from the nullable cases above),
-// a proto3 scalar field is populated if it contains a non-zero value, and
-// a repeated field is populated if it is non-empty.
-func (x *fastReflection_QueryParamsRequest) Has(fd protoreflect.FieldDescriptor) bool {
-	switch fd.FullName() {
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsRequest"))
-		}
-		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsRequest does not contain field %s", fd.FullName()))
-	}
-}
-
-// Clear clears the field such that a subsequent Has call reports false.
-//
-// Clearing an extension field clears both the extension type and value
-// associated with the given field number.
-//
-// Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryParamsRequest) Clear(fd protoreflect.FieldDescriptor) {
-	switch fd.FullName() {
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsRequest"))
-		}
-		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsRequest does not contain field %s", fd.FullName()))
-	}
-}
-
-// Get retrieves the value for a field.
-//
-// For unpopulated scalars, it returns the default value, where
-// the default value of a bytes scalar is guaranteed to be a copy.
-// For unpopulated composite types, it returns an empty, read-only view
-// of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_QueryParamsRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
-	switch descriptor.FullName() {
-	default:
-		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsRequest"))
-		}
-		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsRequest does not contain field %s", descriptor.FullName()))
-	}
-}
-
-// Set stores the value for a field.
-//
-// For a field belonging to a oneof, it implicitly clears any other field
-// that may be currently set within the same oneof.
-// For extension fields, it implicitly stores the provided ExtensionType.
-// When setting a composite type, it is unspecified whether the stored value
-// aliases the source's memory in any way. If the composite value is an
-// empty, read-only value, then it panics.
-//
-// Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryParamsRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
-	switch fd.FullName() {
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsRequest"))
-		}
-		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsRequest does not contain field %s", fd.FullName()))
-	}
-}
-
-// Mutable returns a mutable reference to a composite type.
-//
-// If the field is unpopulated, it may allocate a composite value.
-// For a field belonging to a oneof, it implicitly clears any other field
-// that may be currently set within the same oneof.
-// For extension fields, it implicitly stores the provided ExtensionType
-// if not already stored.
-// It panics if the field does not contain a composite type.
-//
-// Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryParamsRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
-	switch fd.FullName() {
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsRequest"))
-		}
-		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsRequest does not contain field %s", fd.FullName()))
-	}
-}
-
-// NewField returns a new value that is assignable to the field
-// for the given descriptor. For scalars, this returns the default value.
-// For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_QueryParamsRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
-	switch fd.FullName() {
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsRequest"))
-		}
-		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsRequest does not contain field %s", fd.FullName()))
-	}
-}
-
-// WhichOneof reports which field within the oneof is populated,
-// returning nil if none are populated.
-// It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_QueryParamsRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
-	switch d.FullName() {
-	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandtss.v1beta1.QueryParamsRequest", d.FullName()))
-	}
-	panic("unreachable")
-}
-
-// GetUnknown retrieves the entire list of unknown fields.
-// The caller may only mutate the contents of the RawFields
-// if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_QueryParamsRequest) GetUnknown() protoreflect.RawFields {
-	return x.unknownFields
-}
-
-// SetUnknown stores an entire list of unknown fields.
-// The raw fields must be syntactically valid according to the wire format.
-// An implementation may panic if this is not the case.
-// Once stored, the caller must not mutate the content of the RawFields.
-// An empty RawFields may be passed to clear the fields.
-//
-// SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryParamsRequest) SetUnknown(fields protoreflect.RawFields) {
-	x.unknownFields = fields
-}
-
-// IsValid reports whether the message is valid.
-//
-// An invalid message is an empty, read-only value.
-//
-// An invalid message often corresponds to a nil pointer of the concrete
-// message type, but the details are implementation dependent.
-// Validity is not part of the protobuf data model, and may not
-// be preserved in marshaling or other operations.
-func (x *fastReflection_QueryParamsRequest) IsValid() bool {
-	return x != nil
-}
-
-// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
-// This method may return nil.
-//
-// The returned methods type is identical to
-// "google.golang.org/protobuf/runtime/protoiface".Methods.
-// Consult the protoiface package documentation for details.
-func (x *fastReflection_QueryParamsRequest) ProtoMethods() *protoiface.Methods {
-	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*QueryParamsRequest)
-		if x == nil {
-			return protoiface.SizeOutput{
-				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-				Size:              0,
-			}
-		}
-		options := runtime.SizeInputToOptions(input)
-		_ = options
-		var n int
-		var l int
-		_ = l
-		if x.unknownFields != nil {
-			n += len(x.unknownFields)
-		}
-		return protoiface.SizeOutput{
-			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-			Size:              n,
-		}
-	}
-
-	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*QueryParamsRequest)
-		if x == nil {
-			return protoiface.MarshalOutput{
-				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-				Buf:               input.Buf,
-			}, nil
-		}
-		options := runtime.MarshalInputToOptions(input)
-		_ = options
-		size := options.Size(x)
-		dAtA := make([]byte, size)
-		i := len(dAtA)
-		_ = i
-		var l int
-		_ = l
-		if x.unknownFields != nil {
-			i -= len(x.unknownFields)
-			copy(dAtA[i:], x.unknownFields)
-		}
-		if input.Buf != nil {
-			input.Buf = append(input.Buf, dAtA...)
-		} else {
-			input.Buf = dAtA
-		}
-		return protoiface.MarshalOutput{
-			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-			Buf:               input.Buf,
-		}, nil
-	}
-	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*QueryParamsRequest)
-		if x == nil {
-			return protoiface.UnmarshalOutput{
-				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-				Flags:             input.Flags,
-			}, nil
-		}
-		options := runtime.UnmarshalInputToOptions(input)
-		_ = options
-		dAtA := input.Buf
-		l := len(dAtA)
-		iNdEx := 0
-		for iNdEx < l {
-			preIndex := iNdEx
-			var wire uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				wire |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			fieldNum := int32(wire >> 3)
-			wireType := int(wire & 0x7)
-			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryParamsRequest: wiretype end group for non-group")
-			}
-			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryParamsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-			}
-			switch fieldNum {
-			default:
-				iNdEx = preIndex
-				skippy, err := runtime.Skip(dAtA[iNdEx:])
-				if err != nil {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
-				}
-				if (skippy < 0) || (iNdEx+skippy) < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if (iNdEx + skippy) > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				if !options.DiscardUnknown {
-					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
-				}
-				iNdEx += skippy
-			}
-		}
-
-		if iNdEx > l {
-			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-		}
-		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
-	}
-	return &protoiface.Methods{
-		NoUnkeyedLiterals: struct{}{},
-		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
-		Size:              size,
-		Marshal:           marshal,
-		Unmarshal:         unmarshal,
-		Merge:             nil,
-		CheckInitialized:  nil,
-	}
-}
-
-var (
-	md_QueryParamsResponse        protoreflect.MessageDescriptor
-	fd_QueryParamsResponse_params protoreflect.FieldDescriptor
-)
-
-func init() {
-	file_bandtss_v1beta1_query_proto_init()
-	md_QueryParamsResponse = File_bandtss_v1beta1_query_proto.Messages().ByName("QueryParamsResponse")
-	fd_QueryParamsResponse_params = md_QueryParamsResponse.Fields().ByName("params")
-}
-
-var _ protoreflect.Message = (*fastReflection_QueryParamsResponse)(nil)
-
-type fastReflection_QueryParamsResponse QueryParamsResponse
-
-func (x *QueryParamsResponse) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_QueryParamsResponse)(x)
-}
-
-func (x *QueryParamsResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandtss_v1beta1_query_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-var _fastReflection_QueryParamsResponse_messageType fastReflection_QueryParamsResponse_messageType
-var _ protoreflect.MessageType = fastReflection_QueryParamsResponse_messageType{}
-
-type fastReflection_QueryParamsResponse_messageType struct{}
-
-func (x fastReflection_QueryParamsResponse_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_QueryParamsResponse)(nil)
-}
-func (x fastReflection_QueryParamsResponse_messageType) New() protoreflect.Message {
-	return new(fastReflection_QueryParamsResponse)
-}
-func (x fastReflection_QueryParamsResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_QueryParamsResponse
-}
-
-// Descriptor returns message descriptor, which contains only the protobuf
-// type information for the message.
-func (x *fastReflection_QueryParamsResponse) Descriptor() protoreflect.MessageDescriptor {
-	return md_QueryParamsResponse
-}
-
-// Type returns the message type, which encapsulates both Go and protobuf
-// type information. If the Go type information is not needed,
-// it is recommended that the message descriptor be used instead.
-func (x *fastReflection_QueryParamsResponse) Type() protoreflect.MessageType {
-	return _fastReflection_QueryParamsResponse_messageType
-}
-
-// New returns a newly allocated and mutable empty message.
-func (x *fastReflection_QueryParamsResponse) New() protoreflect.Message {
-	return new(fastReflection_QueryParamsResponse)
-}
-
-// Interface unwraps the message reflection interface and
-// returns the underlying ProtoMessage interface.
-func (x *fastReflection_QueryParamsResponse) Interface() protoreflect.ProtoMessage {
-	return (*QueryParamsResponse)(x)
-}
-
-// Range iterates over every populated field in an undefined order,
-// calling f for each field descriptor and value encountered.
-// Range returns immediately if f returns false.
-// While iterating, mutating operations may only be performed
-// on the current field descriptor.
-func (x *fastReflection_QueryParamsResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
-	if x.Params != nil {
-		value := protoreflect.ValueOfMessage(x.Params.ProtoReflect())
-		if !f(fd_QueryParamsResponse_params, value) {
-			return
-		}
-	}
-}
-
-// Has reports whether a field is populated.
-//
-// Some fields have the property of nullability where it is possible to
-// distinguish between the default value of a field and whether the field
-// was explicitly populated with the default value. Singular message fields,
-// member fields of a oneof, and proto2 scalar fields are nullable. Such
-// fields are populated only if explicitly set.
-//
-// In other cases (aside from the nullable cases above),
-// a proto3 scalar field is populated if it contains a non-zero value, and
-// a repeated field is populated if it is non-empty.
-func (x *fastReflection_QueryParamsResponse) Has(fd protoreflect.FieldDescriptor) bool {
-	switch fd.FullName() {
-	case "bandtss.v1beta1.QueryParamsResponse.params":
-		return x.Params != nil
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsResponse"))
-		}
-		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsResponse does not contain field %s", fd.FullName()))
-	}
-}
-
-// Clear clears the field such that a subsequent Has call reports false.
-//
-// Clearing an extension field clears both the extension type and value
-// associated with the given field number.
-//
-// Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryParamsResponse) Clear(fd protoreflect.FieldDescriptor) {
-	switch fd.FullName() {
-	case "bandtss.v1beta1.QueryParamsResponse.params":
-		x.Params = nil
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsResponse"))
-		}
-		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsResponse does not contain field %s", fd.FullName()))
-	}
-}
-
-// Get retrieves the value for a field.
-//
-// For unpopulated scalars, it returns the default value, where
-// the default value of a bytes scalar is guaranteed to be a copy.
-// For unpopulated composite types, it returns an empty, read-only view
-// of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_QueryParamsResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
-	switch descriptor.FullName() {
-	case "bandtss.v1beta1.QueryParamsResponse.params":
-		value := x.Params
-		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	default:
-		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsResponse"))
-		}
-		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsResponse does not contain field %s", descriptor.FullName()))
-	}
-}
-
-// Set stores the value for a field.
-//
-// For a field belonging to a oneof, it implicitly clears any other field
-// that may be currently set within the same oneof.
-// For extension fields, it implicitly stores the provided ExtensionType.
-// When setting a composite type, it is unspecified whether the stored value
-// aliases the source's memory in any way. If the composite value is an
-// empty, read-only value, then it panics.
-//
-// Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryParamsResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
-	switch fd.FullName() {
-	case "bandtss.v1beta1.QueryParamsResponse.params":
-		x.Params = value.Message().Interface().(*Params)
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsResponse"))
-		}
-		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsResponse does not contain field %s", fd.FullName()))
-	}
-}
-
-// Mutable returns a mutable reference to a composite type.
-//
-// If the field is unpopulated, it may allocate a composite value.
-// For a field belonging to a oneof, it implicitly clears any other field
-// that may be currently set within the same oneof.
-// For extension fields, it implicitly stores the provided ExtensionType
-// if not already stored.
-// It panics if the field does not contain a composite type.
-//
-// Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryParamsResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
-	switch fd.FullName() {
-	case "bandtss.v1beta1.QueryParamsResponse.params":
-		if x.Params == nil {
-			x.Params = new(Params)
-		}
-		return protoreflect.ValueOfMessage(x.Params.ProtoReflect())
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsResponse"))
-		}
-		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsResponse does not contain field %s", fd.FullName()))
-	}
-}
-
-// NewField returns a new value that is assignable to the field
-// for the given descriptor. For scalars, this returns the default value.
-// For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_QueryParamsResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
-	switch fd.FullName() {
-	case "bandtss.v1beta1.QueryParamsResponse.params":
-		m := new(Params)
-		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsResponse"))
-		}
-		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsResponse does not contain field %s", fd.FullName()))
-	}
-}
-
-// WhichOneof reports which field within the oneof is populated,
-// returning nil if none are populated.
-// It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_QueryParamsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
-	switch d.FullName() {
-	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandtss.v1beta1.QueryParamsResponse", d.FullName()))
-	}
-	panic("unreachable")
-}
-
-// GetUnknown retrieves the entire list of unknown fields.
-// The caller may only mutate the contents of the RawFields
-// if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_QueryParamsResponse) GetUnknown() protoreflect.RawFields {
-	return x.unknownFields
-}
-
-// SetUnknown stores an entire list of unknown fields.
-// The raw fields must be syntactically valid according to the wire format.
-// An implementation may panic if this is not the case.
-// Once stored, the caller must not mutate the content of the RawFields.
-// An empty RawFields may be passed to clear the fields.
-//
-// SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_QueryParamsResponse) SetUnknown(fields protoreflect.RawFields) {
-	x.unknownFields = fields
-}
-
-// IsValid reports whether the message is valid.
-//
-// An invalid message is an empty, read-only value.
-//
-// An invalid message often corresponds to a nil pointer of the concrete
-// message type, but the details are implementation dependent.
-// Validity is not part of the protobuf data model, and may not
-// be preserved in marshaling or other operations.
-func (x *fastReflection_QueryParamsResponse) IsValid() bool {
-	return x != nil
-}
-
-// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
-// This method may return nil.
-//
-// The returned methods type is identical to
-// "google.golang.org/protobuf/runtime/protoiface".Methods.
-// Consult the protoiface package documentation for details.
-func (x *fastReflection_QueryParamsResponse) ProtoMethods() *protoiface.Methods {
-	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*QueryParamsResponse)
-		if x == nil {
-			return protoiface.SizeOutput{
-				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-				Size:              0,
-			}
-		}
-		options := runtime.SizeInputToOptions(input)
-		_ = options
-		var n int
-		var l int
-		_ = l
-		if x.Params != nil {
-			l = options.Size(x.Params)
-			n += 1 + l + runtime.Sov(uint64(l))
-		}
-		if x.unknownFields != nil {
-			n += len(x.unknownFields)
-		}
-		return protoiface.SizeOutput{
-			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-			Size:              n,
-		}
-	}
-
-	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*QueryParamsResponse)
-		if x == nil {
-			return protoiface.MarshalOutput{
-				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-				Buf:               input.Buf,
-			}, nil
-		}
-		options := runtime.MarshalInputToOptions(input)
-		_ = options
-		size := options.Size(x)
-		dAtA := make([]byte, size)
-		i := len(dAtA)
-		_ = i
-		var l int
-		_ = l
-		if x.unknownFields != nil {
-			i -= len(x.unknownFields)
-			copy(dAtA[i:], x.unknownFields)
-		}
-		if x.Params != nil {
-			encoded, err := options.Marshal(x.Params)
-			if err != nil {
-				return protoiface.MarshalOutput{
-					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-					Buf:               input.Buf,
-				}, err
-			}
-			i -= len(encoded)
-			copy(dAtA[i:], encoded)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
-			i--
-			dAtA[i] = 0xa
-		}
-		if input.Buf != nil {
-			input.Buf = append(input.Buf, dAtA...)
-		} else {
-			input.Buf = dAtA
-		}
-		return protoiface.MarshalOutput{
-			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-			Buf:               input.Buf,
-		}, nil
-	}
-	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*QueryParamsResponse)
-		if x == nil {
-			return protoiface.UnmarshalOutput{
-				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-				Flags:             input.Flags,
-			}, nil
-		}
-		options := runtime.UnmarshalInputToOptions(input)
-		_ = options
-		dAtA := input.Buf
-		l := len(dAtA)
-		iNdEx := 0
-		for iNdEx < l {
-			preIndex := iNdEx
-			var wire uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				wire |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			fieldNum := int32(wire >> 3)
-			wireType := int(wire & 0x7)
-			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryParamsResponse: wiretype end group for non-group")
-			}
-			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryParamsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-			}
-			switch fieldNum {
-			case 1:
-				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Params", wireType)
-				}
-				var msglen int
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					msglen |= int(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				if msglen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + msglen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				if x.Params == nil {
-					x.Params = &Params{}
-				}
-				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.Params); err != nil {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
-				}
-				iNdEx = postIndex
-			default:
-				iNdEx = preIndex
-				skippy, err := runtime.Skip(dAtA[iNdEx:])
-				if err != nil {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
-				}
-				if (skippy < 0) || (iNdEx+skippy) < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if (iNdEx + skippy) > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				if !options.DiscardUnknown {
-					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
-				}
-				iNdEx += skippy
-			}
-		}
-
-		if iNdEx > l {
-			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-		}
-		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
-	}
-	return &protoiface.Methods{
-		NoUnkeyedLiterals: struct{}{},
-		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
-		Size:              size,
-		Marshal:           marshal,
-		Unmarshal:         unmarshal,
-		Merge:             nil,
-		CheckInitialized:  nil,
-	}
-}
-
-var (
 	md_QueryIsGranteeRequest         protoreflect.MessageDescriptor
 	fd_QueryIsGranteeRequest_granter protoreflect.FieldDescriptor
 	fd_QueryIsGranteeRequest_grantee protoreflect.FieldDescriptor
@@ -1590,7 +799,7 @@ func (x *QueryIsGranteeRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryIsGranteeRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandtss_v1beta1_query_proto_msgTypes[4]
+	mi := &file_bandtss_v1beta1_query_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2072,7 +1281,7 @@ func (x *QueryIsGranteeResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryIsGranteeResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandtss_v1beta1_query_proto_msgTypes[5]
+	mi := &file_bandtss_v1beta1_query_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2486,7 +1695,7 @@ func (x *QueryMembersRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryMembersRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandtss_v1beta1_query_proto_msgTypes[6]
+	mi := &file_bandtss_v1beta1_query_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3072,7 +2281,7 @@ func (x *QueryMembersResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryMembersResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandtss_v1beta1_query_proto_msgTypes[7]
+	mi := &file_bandtss_v1beta1_query_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3592,7 +2801,7 @@ func (x *QueryMemberRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryMemberRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandtss_v1beta1_query_proto_msgTypes[8]
+	mi := &file_bandtss_v1beta1_query_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4014,7 +3223,7 @@ func (x *QueryMemberResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryMemberResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandtss_v1beta1_query_proto_msgTypes[9]
+	mi := &file_bandtss_v1beta1_query_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4524,7 +3733,7 @@ func (x *QueryCurrentGroupRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryCurrentGroupRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandtss_v1beta1_query_proto_msgTypes[10]
+	mi := &file_bandtss_v1beta1_query_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4890,7 +4099,7 @@ func (x *QueryCurrentGroupResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryCurrentGroupResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandtss_v1beta1_query_proto_msgTypes[11]
+	mi := &file_bandtss_v1beta1_query_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5494,7 +4703,7 @@ func (x *QueryIncomingGroupRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryIncomingGroupRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandtss_v1beta1_query_proto_msgTypes[12]
+	mi := &file_bandtss_v1beta1_query_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5860,7 +5069,7 @@ func (x *QueryIncomingGroupResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryIncomingGroupResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandtss_v1beta1_query_proto_msgTypes[13]
+	mi := &file_bandtss_v1beta1_query_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6466,7 +5675,7 @@ func (x *QuerySigningRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QuerySigningRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandtss_v1beta1_query_proto_msgTypes[14]
+	mi := &file_bandtss_v1beta1_query_proto_msgTypes[12]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6927,7 +6136,7 @@ func (x *QuerySigningResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QuerySigningResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandtss_v1beta1_query_proto_msgTypes[15]
+	mi := &file_bandtss_v1beta1_query_proto_msgTypes[13]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7584,7 +6793,7 @@ func (x *QueryGroupTransitionRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryGroupTransitionRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandtss_v1beta1_query_proto_msgTypes[16]
+	mi := &file_bandtss_v1beta1_query_proto_msgTypes[14]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7942,7 +7151,7 @@ func (x *QueryGroupTransitionResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryGroupTransitionResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandtss_v1beta1_query_proto_msgTypes[17]
+	mi := &file_bandtss_v1beta1_query_proto_msgTypes[15]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8357,6 +7566,797 @@ func (x *fastReflection_QueryGroupTransitionResponse) ProtoMethods() *protoiface
 	}
 }
 
+var (
+	md_QueryParamsRequest protoreflect.MessageDescriptor
+)
+
+func init() {
+	file_bandtss_v1beta1_query_proto_init()
+	md_QueryParamsRequest = File_bandtss_v1beta1_query_proto.Messages().ByName("QueryParamsRequest")
+}
+
+var _ protoreflect.Message = (*fastReflection_QueryParamsRequest)(nil)
+
+type fastReflection_QueryParamsRequest QueryParamsRequest
+
+func (x *QueryParamsRequest) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_QueryParamsRequest)(x)
+}
+
+func (x *QueryParamsRequest) slowProtoReflect() protoreflect.Message {
+	mi := &file_bandtss_v1beta1_query_proto_msgTypes[16]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_QueryParamsRequest_messageType fastReflection_QueryParamsRequest_messageType
+var _ protoreflect.MessageType = fastReflection_QueryParamsRequest_messageType{}
+
+type fastReflection_QueryParamsRequest_messageType struct{}
+
+func (x fastReflection_QueryParamsRequest_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_QueryParamsRequest)(nil)
+}
+func (x fastReflection_QueryParamsRequest_messageType) New() protoreflect.Message {
+	return new(fastReflection_QueryParamsRequest)
+}
+func (x fastReflection_QueryParamsRequest_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryParamsRequest
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_QueryParamsRequest) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryParamsRequest
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_QueryParamsRequest) Type() protoreflect.MessageType {
+	return _fastReflection_QueryParamsRequest_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_QueryParamsRequest) New() protoreflect.Message {
+	return new(fastReflection_QueryParamsRequest)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_QueryParamsRequest) Interface() protoreflect.ProtoMessage {
+	return (*QueryParamsRequest)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_QueryParamsRequest) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_QueryParamsRequest) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsRequest"))
+		}
+		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryParamsRequest) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsRequest"))
+		}
+		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_QueryParamsRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsRequest"))
+		}
+		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsRequest does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryParamsRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsRequest"))
+		}
+		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryParamsRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsRequest"))
+		}
+		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_QueryParamsRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsRequest"))
+		}
+		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsRequest does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_QueryParamsRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in bandtss.v1beta1.QueryParamsRequest", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_QueryParamsRequest) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryParamsRequest) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_QueryParamsRequest) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_QueryParamsRequest) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*QueryParamsRequest)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*QueryParamsRequest)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*QueryParamsRequest)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryParamsRequest: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryParamsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
+var (
+	md_QueryParamsResponse        protoreflect.MessageDescriptor
+	fd_QueryParamsResponse_params protoreflect.FieldDescriptor
+)
+
+func init() {
+	file_bandtss_v1beta1_query_proto_init()
+	md_QueryParamsResponse = File_bandtss_v1beta1_query_proto.Messages().ByName("QueryParamsResponse")
+	fd_QueryParamsResponse_params = md_QueryParamsResponse.Fields().ByName("params")
+}
+
+var _ protoreflect.Message = (*fastReflection_QueryParamsResponse)(nil)
+
+type fastReflection_QueryParamsResponse QueryParamsResponse
+
+func (x *QueryParamsResponse) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_QueryParamsResponse)(x)
+}
+
+func (x *QueryParamsResponse) slowProtoReflect() protoreflect.Message {
+	mi := &file_bandtss_v1beta1_query_proto_msgTypes[17]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+var _fastReflection_QueryParamsResponse_messageType fastReflection_QueryParamsResponse_messageType
+var _ protoreflect.MessageType = fastReflection_QueryParamsResponse_messageType{}
+
+type fastReflection_QueryParamsResponse_messageType struct{}
+
+func (x fastReflection_QueryParamsResponse_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_QueryParamsResponse)(nil)
+}
+func (x fastReflection_QueryParamsResponse_messageType) New() protoreflect.Message {
+	return new(fastReflection_QueryParamsResponse)
+}
+func (x fastReflection_QueryParamsResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryParamsResponse
+}
+
+// Descriptor returns message descriptor, which contains only the protobuf
+// type information for the message.
+func (x *fastReflection_QueryParamsResponse) Descriptor() protoreflect.MessageDescriptor {
+	return md_QueryParamsResponse
+}
+
+// Type returns the message type, which encapsulates both Go and protobuf
+// type information. If the Go type information is not needed,
+// it is recommended that the message descriptor be used instead.
+func (x *fastReflection_QueryParamsResponse) Type() protoreflect.MessageType {
+	return _fastReflection_QueryParamsResponse_messageType
+}
+
+// New returns a newly allocated and mutable empty message.
+func (x *fastReflection_QueryParamsResponse) New() protoreflect.Message {
+	return new(fastReflection_QueryParamsResponse)
+}
+
+// Interface unwraps the message reflection interface and
+// returns the underlying ProtoMessage interface.
+func (x *fastReflection_QueryParamsResponse) Interface() protoreflect.ProtoMessage {
+	return (*QueryParamsResponse)(x)
+}
+
+// Range iterates over every populated field in an undefined order,
+// calling f for each field descriptor and value encountered.
+// Range returns immediately if f returns false.
+// While iterating, mutating operations may only be performed
+// on the current field descriptor.
+func (x *fastReflection_QueryParamsResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.Params != nil {
+		value := protoreflect.ValueOfMessage(x.Params.ProtoReflect())
+		if !f(fd_QueryParamsResponse_params, value) {
+			return
+		}
+	}
+}
+
+// Has reports whether a field is populated.
+//
+// Some fields have the property of nullability where it is possible to
+// distinguish between the default value of a field and whether the field
+// was explicitly populated with the default value. Singular message fields,
+// member fields of a oneof, and proto2 scalar fields are nullable. Such
+// fields are populated only if explicitly set.
+//
+// In other cases (aside from the nullable cases above),
+// a proto3 scalar field is populated if it contains a non-zero value, and
+// a repeated field is populated if it is non-empty.
+func (x *fastReflection_QueryParamsResponse) Has(fd protoreflect.FieldDescriptor) bool {
+	switch fd.FullName() {
+	case "bandtss.v1beta1.QueryParamsResponse.params":
+		return x.Params != nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsResponse"))
+		}
+		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Clear clears the field such that a subsequent Has call reports false.
+//
+// Clearing an extension field clears both the extension type and value
+// associated with the given field number.
+//
+// Clear is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryParamsResponse) Clear(fd protoreflect.FieldDescriptor) {
+	switch fd.FullName() {
+	case "bandtss.v1beta1.QueryParamsResponse.params":
+		x.Params = nil
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsResponse"))
+		}
+		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Get retrieves the value for a field.
+//
+// For unpopulated scalars, it returns the default value, where
+// the default value of a bytes scalar is guaranteed to be a copy.
+// For unpopulated composite types, it returns an empty, read-only view
+// of the value; to obtain a mutable reference, use Mutable.
+func (x *fastReflection_QueryParamsResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+	switch descriptor.FullName() {
+	case "bandtss.v1beta1.QueryParamsResponse.params":
+		value := x.Params
+		return protoreflect.ValueOfMessage(value.ProtoReflect())
+	default:
+		if descriptor.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsResponse"))
+		}
+		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsResponse does not contain field %s", descriptor.FullName()))
+	}
+}
+
+// Set stores the value for a field.
+//
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType.
+// When setting a composite type, it is unspecified whether the stored value
+// aliases the source's memory in any way. If the composite value is an
+// empty, read-only value, then it panics.
+//
+// Set is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryParamsResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+	switch fd.FullName() {
+	case "bandtss.v1beta1.QueryParamsResponse.params":
+		x.Params = value.Message().Interface().(*Params)
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsResponse"))
+		}
+		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// Mutable returns a mutable reference to a composite type.
+//
+// If the field is unpopulated, it may allocate a composite value.
+// For a field belonging to a oneof, it implicitly clears any other field
+// that may be currently set within the same oneof.
+// For extension fields, it implicitly stores the provided ExtensionType
+// if not already stored.
+// It panics if the field does not contain a composite type.
+//
+// Mutable is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryParamsResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "bandtss.v1beta1.QueryParamsResponse.params":
+		if x.Params == nil {
+			x.Params = new(Params)
+		}
+		return protoreflect.ValueOfMessage(x.Params.ProtoReflect())
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsResponse"))
+		}
+		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// NewField returns a new value that is assignable to the field
+// for the given descriptor. For scalars, this returns the default value.
+// For lists, maps, and messages, this returns a new, empty, mutable value.
+func (x *fastReflection_QueryParamsResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+	switch fd.FullName() {
+	case "bandtss.v1beta1.QueryParamsResponse.params":
+		m := new(Params)
+		return protoreflect.ValueOfMessage(m.ProtoReflect())
+	default:
+		if fd.IsExtension() {
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandtss.v1beta1.QueryParamsResponse"))
+		}
+		panic(fmt.Errorf("message bandtss.v1beta1.QueryParamsResponse does not contain field %s", fd.FullName()))
+	}
+}
+
+// WhichOneof reports which field within the oneof is populated,
+// returning nil if none are populated.
+// It panics if the oneof descriptor does not belong to this message.
+func (x *fastReflection_QueryParamsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+	switch d.FullName() {
+	default:
+		panic(fmt.Errorf("%s is not a oneof field in bandtss.v1beta1.QueryParamsResponse", d.FullName()))
+	}
+	panic("unreachable")
+}
+
+// GetUnknown retrieves the entire list of unknown fields.
+// The caller may only mutate the contents of the RawFields
+// if the mutated bytes are stored back into the message with SetUnknown.
+func (x *fastReflection_QueryParamsResponse) GetUnknown() protoreflect.RawFields {
+	return x.unknownFields
+}
+
+// SetUnknown stores an entire list of unknown fields.
+// The raw fields must be syntactically valid according to the wire format.
+// An implementation may panic if this is not the case.
+// Once stored, the caller must not mutate the content of the RawFields.
+// An empty RawFields may be passed to clear the fields.
+//
+// SetUnknown is a mutating operation and unsafe for concurrent use.
+func (x *fastReflection_QueryParamsResponse) SetUnknown(fields protoreflect.RawFields) {
+	x.unknownFields = fields
+}
+
+// IsValid reports whether the message is valid.
+//
+// An invalid message is an empty, read-only value.
+//
+// An invalid message often corresponds to a nil pointer of the concrete
+// message type, but the details are implementation dependent.
+// Validity is not part of the protobuf data model, and may not
+// be preserved in marshaling or other operations.
+func (x *fastReflection_QueryParamsResponse) IsValid() bool {
+	return x != nil
+}
+
+// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
+// This method may return nil.
+//
+// The returned methods type is identical to
+// "google.golang.org/protobuf/runtime/protoiface".Methods.
+// Consult the protoiface package documentation for details.
+func (x *fastReflection_QueryParamsResponse) ProtoMethods() *protoiface.Methods {
+	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
+		x := input.Message.Interface().(*QueryParamsResponse)
+		if x == nil {
+			return protoiface.SizeOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Size:              0,
+			}
+		}
+		options := runtime.SizeInputToOptions(input)
+		_ = options
+		var n int
+		var l int
+		_ = l
+		if x.Params != nil {
+			l = options.Size(x.Params)
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
+		if x.unknownFields != nil {
+			n += len(x.unknownFields)
+		}
+		return protoiface.SizeOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Size:              n,
+		}
+	}
+
+	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
+		x := input.Message.Interface().(*QueryParamsResponse)
+		if x == nil {
+			return protoiface.MarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Buf:               input.Buf,
+			}, nil
+		}
+		options := runtime.MarshalInputToOptions(input)
+		_ = options
+		size := options.Size(x)
+		dAtA := make([]byte, size)
+		i := len(dAtA)
+		_ = i
+		var l int
+		_ = l
+		if x.unknownFields != nil {
+			i -= len(x.unknownFields)
+			copy(dAtA[i:], x.unknownFields)
+		}
+		if x.Params != nil {
+			encoded, err := options.Marshal(x.Params)
+			if err != nil {
+				return protoiface.MarshalOutput{
+					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+					Buf:               input.Buf,
+				}, err
+			}
+			i -= len(encoded)
+			copy(dAtA[i:], encoded)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+			i--
+			dAtA[i] = 0xa
+		}
+		if input.Buf != nil {
+			input.Buf = append(input.Buf, dAtA...)
+		} else {
+			input.Buf = dAtA
+		}
+		return protoiface.MarshalOutput{
+			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+			Buf:               input.Buf,
+		}, nil
+	}
+	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
+		x := input.Message.Interface().(*QueryParamsResponse)
+		if x == nil {
+			return protoiface.UnmarshalOutput{
+				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+				Flags:             input.Flags,
+			}, nil
+		}
+		options := runtime.UnmarshalInputToOptions(input)
+		_ = options
+		dAtA := input.Buf
+		l := len(dAtA)
+		iNdEx := 0
+		for iNdEx < l {
+			preIndex := iNdEx
+			var wire uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+				}
+				if iNdEx >= l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				wire |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			fieldNum := int32(wire >> 3)
+			wireType := int(wire & 0x7)
+			if wireType == 4 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryParamsResponse: wiretype end group for non-group")
+			}
+			if fieldNum <= 0 {
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: QueryParamsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			}
+			switch fieldNum {
+			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Params", wireType)
+				}
+				var msglen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					msglen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if x.Params == nil {
+					x.Params = &Params{}
+				}
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.Params); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				iNdEx = postIndex
+			default:
+				iNdEx = preIndex
+				skippy, err := runtime.Skip(dAtA[iNdEx:])
+				if err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				if (skippy < 0) || (iNdEx+skippy) < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if (iNdEx + skippy) > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if !options.DiscardUnknown {
+					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
+				}
+				iNdEx += skippy
+			}
+		}
+
+		if iNdEx > l {
+			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+		}
+		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
+	}
+	return &protoiface.Methods{
+		NoUnkeyedLiterals: struct{}{},
+		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
+		Size:              size,
+		Marshal:           marshal,
+		Unmarshal:         unmarshal,
+		Merge:             nil,
+		CheckInitialized:  nil,
+	}
+}
+
 // Code generated by protoc-gen-go. DO NOT EDIT.
 // versions:
 // 	protoc-gen-go v1.27.0
@@ -8487,70 +8487,6 @@ func (x *QueryCountsResponse) GetSigningCount() uint64 {
 	return 0
 }
 
-// QueryParamsRequest is request type for the Query/Params RPC method.
-type QueryParamsRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-}
-
-func (x *QueryParamsRequest) Reset() {
-	*x = QueryParamsRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_bandtss_v1beta1_query_proto_msgTypes[2]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *QueryParamsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*QueryParamsRequest) ProtoMessage() {}
-
-// Deprecated: Use QueryParamsRequest.ProtoReflect.Descriptor instead.
-func (*QueryParamsRequest) Descriptor() ([]byte, []int) {
-	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{2}
-}
-
-// QueryParamsResponse is response type for the Query/Params RPC method.
-type QueryParamsResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	// Params is the parameters of the module.
-	Params *Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params,omitempty"`
-}
-
-func (x *QueryParamsResponse) Reset() {
-	*x = QueryParamsResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_bandtss_v1beta1_query_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *QueryParamsResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*QueryParamsResponse) ProtoMessage() {}
-
-// Deprecated: Use QueryParamsResponse.ProtoReflect.Descriptor instead.
-func (*QueryParamsResponse) Descriptor() ([]byte, []int) {
-	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *QueryParamsResponse) GetParams() *Params {
-	if x != nil {
-		return x.Params
-	}
-	return nil
-}
-
 // QueryIsSignerRequest is request type for the Query/IsGrantee RPC method.
 type QueryIsGranteeRequest struct {
 	state         protoimpl.MessageState
@@ -8566,7 +8502,7 @@ type QueryIsGranteeRequest struct {
 func (x *QueryIsGranteeRequest) Reset() {
 	*x = QueryIsGranteeRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandtss_v1beta1_query_proto_msgTypes[4]
+		mi := &file_bandtss_v1beta1_query_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -8580,7 +8516,7 @@ func (*QueryIsGranteeRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryIsGranteeRequest.ProtoReflect.Descriptor instead.
 func (*QueryIsGranteeRequest) Descriptor() ([]byte, []int) {
-	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{4}
+	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *QueryIsGranteeRequest) GetGranter() string {
@@ -8610,7 +8546,7 @@ type QueryIsGranteeResponse struct {
 func (x *QueryIsGranteeResponse) Reset() {
 	*x = QueryIsGranteeResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandtss_v1beta1_query_proto_msgTypes[5]
+		mi := &file_bandtss_v1beta1_query_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -8624,7 +8560,7 @@ func (*QueryIsGranteeResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryIsGranteeResponse.ProtoReflect.Descriptor instead.
 func (*QueryIsGranteeResponse) Descriptor() ([]byte, []int) {
-	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{5}
+	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *QueryIsGranteeResponse) GetIsGrantee() bool {
@@ -8652,7 +8588,7 @@ type QueryMembersRequest struct {
 func (x *QueryMembersRequest) Reset() {
 	*x = QueryMembersRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandtss_v1beta1_query_proto_msgTypes[6]
+		mi := &file_bandtss_v1beta1_query_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -8666,7 +8602,7 @@ func (*QueryMembersRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryMembersRequest.ProtoReflect.Descriptor instead.
 func (*QueryMembersRequest) Descriptor() ([]byte, []int) {
-	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{6}
+	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *QueryMembersRequest) GetStatus() MemberStatusFilter {
@@ -8705,7 +8641,7 @@ type QueryMembersResponse struct {
 func (x *QueryMembersResponse) Reset() {
 	*x = QueryMembersResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandtss_v1beta1_query_proto_msgTypes[7]
+		mi := &file_bandtss_v1beta1_query_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -8719,7 +8655,7 @@ func (*QueryMembersResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryMembersResponse.ProtoReflect.Descriptor instead.
 func (*QueryMembersResponse) Descriptor() ([]byte, []int) {
-	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{7}
+	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *QueryMembersResponse) GetMembers() []*Member {
@@ -8749,7 +8685,7 @@ type QueryMemberRequest struct {
 func (x *QueryMemberRequest) Reset() {
 	*x = QueryMemberRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandtss_v1beta1_query_proto_msgTypes[8]
+		mi := &file_bandtss_v1beta1_query_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -8763,7 +8699,7 @@ func (*QueryMemberRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryMemberRequest.ProtoReflect.Descriptor instead.
 func (*QueryMemberRequest) Descriptor() ([]byte, []int) {
-	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{8}
+	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *QueryMemberRequest) GetAddress() string {
@@ -8788,7 +8724,7 @@ type QueryMemberResponse struct {
 func (x *QueryMemberResponse) Reset() {
 	*x = QueryMemberResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandtss_v1beta1_query_proto_msgTypes[9]
+		mi := &file_bandtss_v1beta1_query_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -8802,7 +8738,7 @@ func (*QueryMemberResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryMemberResponse.ProtoReflect.Descriptor instead.
 func (*QueryMemberResponse) Descriptor() ([]byte, []int) {
-	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{9}
+	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *QueryMemberResponse) GetCurrentGroupMember() *Member {
@@ -8829,7 +8765,7 @@ type QueryCurrentGroupRequest struct {
 func (x *QueryCurrentGroupRequest) Reset() {
 	*x = QueryCurrentGroupRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandtss_v1beta1_query_proto_msgTypes[10]
+		mi := &file_bandtss_v1beta1_query_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -8843,7 +8779,7 @@ func (*QueryCurrentGroupRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryCurrentGroupRequest.ProtoReflect.Descriptor instead.
 func (*QueryCurrentGroupRequest) Descriptor() ([]byte, []int) {
-	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{10}
+	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{8}
 }
 
 // QueryCurrentGroupResponse is the response type for the Query/CurrentGroup RPC method.
@@ -8867,7 +8803,7 @@ type QueryCurrentGroupResponse struct {
 func (x *QueryCurrentGroupResponse) Reset() {
 	*x = QueryCurrentGroupResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandtss_v1beta1_query_proto_msgTypes[11]
+		mi := &file_bandtss_v1beta1_query_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -8881,7 +8817,7 @@ func (*QueryCurrentGroupResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryCurrentGroupResponse.ProtoReflect.Descriptor instead.
 func (*QueryCurrentGroupResponse) Descriptor() ([]byte, []int) {
-	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{11}
+	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *QueryCurrentGroupResponse) GetGroupId() uint64 {
@@ -8929,7 +8865,7 @@ type QueryIncomingGroupRequest struct {
 func (x *QueryIncomingGroupRequest) Reset() {
 	*x = QueryIncomingGroupRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandtss_v1beta1_query_proto_msgTypes[12]
+		mi := &file_bandtss_v1beta1_query_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -8943,7 +8879,7 @@ func (*QueryIncomingGroupRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryIncomingGroupRequest.ProtoReflect.Descriptor instead.
 func (*QueryIncomingGroupRequest) Descriptor() ([]byte, []int) {
-	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{12}
+	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{10}
 }
 
 // QueryIncomingGroupResponse is the response type for the Query/IncomingGroup RPC method.
@@ -8967,7 +8903,7 @@ type QueryIncomingGroupResponse struct {
 func (x *QueryIncomingGroupResponse) Reset() {
 	*x = QueryIncomingGroupResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandtss_v1beta1_query_proto_msgTypes[13]
+		mi := &file_bandtss_v1beta1_query_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -8981,7 +8917,7 @@ func (*QueryIncomingGroupResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryIncomingGroupResponse.ProtoReflect.Descriptor instead.
 func (*QueryIncomingGroupResponse) Descriptor() ([]byte, []int) {
-	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{13}
+	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *QueryIncomingGroupResponse) GetGroupId() uint64 {
@@ -9032,7 +8968,7 @@ type QuerySigningRequest struct {
 func (x *QuerySigningRequest) Reset() {
 	*x = QuerySigningRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandtss_v1beta1_query_proto_msgTypes[14]
+		mi := &file_bandtss_v1beta1_query_proto_msgTypes[12]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -9046,7 +8982,7 @@ func (*QuerySigningRequest) ProtoMessage() {}
 
 // Deprecated: Use QuerySigningRequest.ProtoReflect.Descriptor instead.
 func (*QuerySigningRequest) Descriptor() ([]byte, []int) {
-	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{14}
+	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *QuerySigningRequest) GetSigningId() uint64 {
@@ -9075,7 +9011,7 @@ type QuerySigningResponse struct {
 func (x *QuerySigningResponse) Reset() {
 	*x = QuerySigningResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandtss_v1beta1_query_proto_msgTypes[15]
+		mi := &file_bandtss_v1beta1_query_proto_msgTypes[13]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -9089,7 +9025,7 @@ func (*QuerySigningResponse) ProtoMessage() {}
 
 // Deprecated: Use QuerySigningResponse.ProtoReflect.Descriptor instead.
 func (*QuerySigningResponse) Descriptor() ([]byte, []int) {
-	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{15}
+	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *QuerySigningResponse) GetFeePerSigner() []*v1beta12.Coin {
@@ -9130,7 +9066,7 @@ type QueryGroupTransitionRequest struct {
 func (x *QueryGroupTransitionRequest) Reset() {
 	*x = QueryGroupTransitionRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandtss_v1beta1_query_proto_msgTypes[16]
+		mi := &file_bandtss_v1beta1_query_proto_msgTypes[14]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -9144,7 +9080,7 @@ func (*QueryGroupTransitionRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryGroupTransitionRequest.ProtoReflect.Descriptor instead.
 func (*QueryGroupTransitionRequest) Descriptor() ([]byte, []int) {
-	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{16}
+	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{14}
 }
 
 // QueryGroupTransitionResponse is the response type for the Query/GroupTransition RPC method.
@@ -9160,7 +9096,7 @@ type QueryGroupTransitionResponse struct {
 func (x *QueryGroupTransitionResponse) Reset() {
 	*x = QueryGroupTransitionResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandtss_v1beta1_query_proto_msgTypes[17]
+		mi := &file_bandtss_v1beta1_query_proto_msgTypes[15]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -9174,12 +9110,76 @@ func (*QueryGroupTransitionResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryGroupTransitionResponse.ProtoReflect.Descriptor instead.
 func (*QueryGroupTransitionResponse) Descriptor() ([]byte, []int) {
-	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{17}
+	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *QueryGroupTransitionResponse) GetGroupTransition() *GroupTransition {
 	if x != nil {
 		return x.GroupTransition
+	}
+	return nil
+}
+
+// QueryParamsRequest is request type for the Query/Params RPC method.
+type QueryParamsRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *QueryParamsRequest) Reset() {
+	*x = QueryParamsRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_bandtss_v1beta1_query_proto_msgTypes[16]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *QueryParamsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryParamsRequest) ProtoMessage() {}
+
+// Deprecated: Use QueryParamsRequest.ProtoReflect.Descriptor instead.
+func (*QueryParamsRequest) Descriptor() ([]byte, []int) {
+	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{16}
+}
+
+// QueryParamsResponse is response type for the Query/Params RPC method.
+type QueryParamsResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Params is the parameters of the module.
+	Params *Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params,omitempty"`
+}
+
+func (x *QueryParamsResponse) Reset() {
+	*x = QueryParamsResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_bandtss_v1beta1_query_proto_msgTypes[17]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *QueryParamsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*QueryParamsResponse) ProtoMessage() {}
+
+// Deprecated: Use QueryParamsResponse.ProtoReflect.Descriptor instead.
+func (*QueryParamsResponse) Descriptor() ([]byte, []int) {
+	return file_bandtss_v1beta1_query_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *QueryParamsResponse) GetParams() *Params {
+	if x != nil {
+		return x.Params
 	}
 	return nil
 }
@@ -9208,134 +9208,134 @@ var file_bandtss_v1beta1_query_proto_rawDesc = []byte{
 	0x72, 0x79, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
 	0x12, 0x23, 0x0a, 0x0d, 0x73, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x5f, 0x63, 0x6f, 0x75, 0x6e,
 	0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x0c, 0x73, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67,
-	0x43, 0x6f, 0x75, 0x6e, 0x74, 0x22, 0x14, 0x0a, 0x12, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61,
-	0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x4c, 0x0a, 0x13, 0x51,
-	0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x12, 0x35, 0x0a, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x0b, 0x32, 0x17, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x42, 0x04, 0xc8, 0xde, 0x1f,
-	0x00, 0x52, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x22, 0x4b, 0x0a, 0x15, 0x51, 0x75, 0x65,
-	0x72, 0x79, 0x49, 0x73, 0x47, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65,
-	0x73, 0x74, 0x12, 0x18, 0x0a, 0x07, 0x67, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x72, 0x18, 0x01, 0x20,
-	0x01, 0x28, 0x09, 0x52, 0x07, 0x67, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x72, 0x12, 0x18, 0x0a, 0x07,
-	0x67, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x67,
-	0x72, 0x61, 0x6e, 0x74, 0x65, 0x65, 0x22, 0x37, 0x0a, 0x16, 0x51, 0x75, 0x65, 0x72, 0x79, 0x49,
-	0x73, 0x47, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
-	0x12, 0x1d, 0x0a, 0x0a, 0x69, 0x73, 0x5f, 0x67, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x65, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x08, 0x52, 0x09, 0x69, 0x73, 0x47, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x65, 0x22,
-	0xc6, 0x01, 0x0a, 0x13, 0x51, 0x75, 0x65, 0x72, 0x79, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73,
-	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x3b, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75,
-	0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x23, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73,
-	0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72,
-	0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x52, 0x06, 0x73, 0x74,
-	0x61, 0x74, 0x75, 0x73, 0x12, 0x2a, 0x0a, 0x11, 0x69, 0x73, 0x5f, 0x69, 0x6e, 0x63, 0x6f, 0x6d,
-	0x69, 0x6e, 0x67, 0x5f, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52,
-	0x0f, 0x69, 0x73, 0x49, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x47, 0x72, 0x6f, 0x75, 0x70,
-	0x12, 0x46, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x03,
-	0x20, 0x01, 0x28, 0x0b, 0x32, 0x26, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61,
-	0x73, 0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0x2e, 0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x52, 0x0a, 0x70, 0x61,
-	0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x92, 0x01, 0x0a, 0x14, 0x51, 0x75, 0x65,
-	0x72, 0x79, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x12, 0x31, 0x0a, 0x07, 0x6d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73, 0x18, 0x01, 0x20, 0x03,
-	0x28, 0x0b, 0x32, 0x17, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x52, 0x07, 0x6d, 0x65, 0x6d,
-	0x62, 0x65, 0x72, 0x73, 0x12, 0x47, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69,
-	0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x27, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f,
-	0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x52, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x2e, 0x0a,
-	0x12, 0x51, 0x75, 0x65, 0x72, 0x79, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x12, 0x18, 0x0a, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x22, 0xb9, 0x01,
-	0x0a, 0x13, 0x51, 0x75, 0x65, 0x72, 0x79, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4f, 0x0a, 0x14, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74,
-	0x5f, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x6d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x18, 0x01, 0x20,
-	0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31,
-	0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x42, 0x04, 0xc8, 0xde,
-	0x1f, 0x00, 0x52, 0x12, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70,
-	0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x12, 0x51, 0x0a, 0x15, 0x69, 0x6e, 0x63, 0x6f, 0x6d, 0x69,
-	0x6e, 0x67, 0x5f, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x6d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x18,
-	0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x42, 0x04,
-	0xc8, 0xde, 0x1f, 0x00, 0x52, 0x13, 0x69, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x47, 0x72,
-	0x6f, 0x75, 0x70, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x22, 0x1a, 0x0a, 0x18, 0x51, 0x75, 0x65,
-	0x72, 0x79, 0x43, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x52, 0x65,
-	0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0xa8, 0x02, 0x0a, 0x19, 0x51, 0x75, 0x65, 0x72, 0x79, 0x43,
-	0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x12, 0x5a, 0x0a, 0x08, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x69, 0x64, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x04, 0x42, 0x3f, 0xe2, 0xde, 0x1f, 0x07, 0x47, 0x72, 0x6f, 0x75, 0x70,
-	0x49, 0x44, 0xfa, 0xde, 0x1f, 0x30, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d,
-	0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68,
-	0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x74, 0x73, 0x73, 0x2e, 0x47,
-	0x72, 0x6f, 0x75, 0x70, 0x49, 0x44, 0x52, 0x07, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x49, 0x64, 0x12,
-	0x12, 0x0a, 0x04, 0x73, 0x69, 0x7a, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x04, 0x52, 0x04, 0x73,
-	0x69, 0x7a, 0x65, 0x12, 0x1c, 0x0a, 0x09, 0x74, 0x68, 0x72, 0x65, 0x73, 0x68, 0x6f, 0x6c, 0x64,
-	0x18, 0x03, 0x20, 0x01, 0x28, 0x04, 0x52, 0x09, 0x74, 0x68, 0x72, 0x65, 0x73, 0x68, 0x6f, 0x6c,
-	0x64, 0x12, 0x4b, 0x0a, 0x07, 0x70, 0x75, 0x62, 0x5f, 0x6b, 0x65, 0x79, 0x18, 0x04, 0x20, 0x01,
-	0x28, 0x0c, 0x42, 0x32, 0xfa, 0xde, 0x1f, 0x2e, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63,
-	0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f,
-	0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x74, 0x73, 0x73,
-	0x2e, 0x50, 0x6f, 0x69, 0x6e, 0x74, 0x52, 0x06, 0x70, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x12, 0x30,
-	0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x18,
-	0x2e, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x47, 0x72, 0x6f,
-	0x75, 0x70, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73,
-	0x22, 0x1b, 0x0a, 0x19, 0x51, 0x75, 0x65, 0x72, 0x79, 0x49, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e,
-	0x67, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0xa9, 0x02,
-	0x0a, 0x1a, 0x51, 0x75, 0x65, 0x72, 0x79, 0x49, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x47,
-	0x72, 0x6f, 0x75, 0x70, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x5a, 0x0a, 0x08,
-	0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x42, 0x3f,
-	0xe2, 0xde, 0x1f, 0x07, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x49, 0x44, 0xfa, 0xde, 0x1f, 0x30, 0x67,
-	0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f,
-	0x70, 0x6b, 0x67, 0x2f, 0x74, 0x73, 0x73, 0x2e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x49, 0x44, 0x52,
-	0x07, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x49, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x73, 0x69, 0x7a, 0x65,
-	0x18, 0x02, 0x20, 0x01, 0x28, 0x04, 0x52, 0x04, 0x73, 0x69, 0x7a, 0x65, 0x12, 0x1c, 0x0a, 0x09,
-	0x74, 0x68, 0x72, 0x65, 0x73, 0x68, 0x6f, 0x6c, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x04, 0x52,
-	0x09, 0x74, 0x68, 0x72, 0x65, 0x73, 0x68, 0x6f, 0x6c, 0x64, 0x12, 0x4b, 0x0a, 0x07, 0x70, 0x75,
-	0x62, 0x5f, 0x6b, 0x65, 0x79, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0c, 0x42, 0x32, 0xfa, 0xde, 0x1f,
-	0x2e, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76,
-	0x33, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x74, 0x73, 0x73, 0x2e, 0x50, 0x6f, 0x69, 0x6e, 0x74, 0x52,
-	0x06, 0x70, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x12, 0x30, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75,
-	0x73, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x18, 0x2e, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31,
-	0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x53, 0x74, 0x61, 0x74, 0x75,
-	0x73, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x22, 0x34, 0x0a, 0x13, 0x51, 0x75, 0x65,
-	0x72, 0x79, 0x53, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x12, 0x1d, 0x0a, 0x0a, 0x73, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x5f, 0x69, 0x64, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x04, 0x52, 0x09, 0x73, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x49, 0x64, 0x22,
-	0xe3, 0x02, 0x0a, 0x14, 0x51, 0x75, 0x65, 0x72, 0x79, 0x53, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x71, 0x0a, 0x0e, 0x66, 0x65, 0x65, 0x5f,
-	0x70, 0x65, 0x72, 0x5f, 0x73, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b,
-	0x32, 0x19, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x76,
-	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x42, 0x30, 0xc8, 0xde, 0x1f,
-	0x00, 0xaa, 0xdf, 0x1f, 0x28, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f,
-	0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2d, 0x73, 0x64,
-	0x6b, 0x2f, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x73, 0x52, 0x0c, 0x66,
-	0x65, 0x65, 0x50, 0x65, 0x72, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x12, 0x1c, 0x0a, 0x09, 0x72,
-	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x65, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09,
-	0x72, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x65, 0x72, 0x12, 0x5b, 0x0a, 0x1c, 0x63, 0x75, 0x72,
-	0x72, 0x65, 0x6e, 0x74, 0x5f, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x73, 0x69, 0x67, 0x6e, 0x69,
-	0x6e, 0x67, 0x5f, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32,
-	0x1a, 0x2e, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x69,
-	0x67, 0x6e, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x52, 0x19, 0x63, 0x75, 0x72,
-	0x72, 0x65, 0x6e, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x53, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67,
-	0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x12, 0x5d, 0x0a, 0x1d, 0x69, 0x6e, 0x63, 0x6f, 0x6d, 0x69,
-	0x6e, 0x67, 0x5f, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x73, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67,
-	0x5f, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e,
-	0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x69, 0x67, 0x6e,
-	0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x52, 0x1a, 0x69, 0x6e, 0x63, 0x6f, 0x6d,
-	0x69, 0x6e, 0x67, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x53, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x52,
-	0x65, 0x73, 0x75, 0x6c, 0x74, 0x22, 0x1d, 0x0a, 0x1b, 0x51, 0x75, 0x65, 0x72, 0x79, 0x47, 0x72,
-	0x6f, 0x75, 0x70, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x22, 0x6b, 0x0a, 0x1c, 0x51, 0x75, 0x65, 0x72, 0x79, 0x47, 0x72, 0x6f,
-	0x75, 0x70, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4b, 0x0a, 0x10, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x74, 0x72,
-	0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x20,
+	0x43, 0x6f, 0x75, 0x6e, 0x74, 0x22, 0x4b, 0x0a, 0x15, 0x51, 0x75, 0x65, 0x72, 0x79, 0x49, 0x73,
+	0x47, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x18,
+	0x0a, 0x07, 0x67, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x07, 0x67, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x72, 0x12, 0x18, 0x0a, 0x07, 0x67, 0x72, 0x61, 0x6e,
+	0x74, 0x65, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x67, 0x72, 0x61, 0x6e, 0x74,
+	0x65, 0x65, 0x22, 0x37, 0x0a, 0x16, 0x51, 0x75, 0x65, 0x72, 0x79, 0x49, 0x73, 0x47, 0x72, 0x61,
+	0x6e, 0x74, 0x65, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x1d, 0x0a, 0x0a,
+	0x69, 0x73, 0x5f, 0x67, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08,
+	0x52, 0x09, 0x69, 0x73, 0x47, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x65, 0x22, 0xc6, 0x01, 0x0a, 0x13,
+	0x51, 0x75, 0x65, 0x72, 0x79, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x12, 0x3b, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x0e, 0x32, 0x23, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31,
+	0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x53, 0x74, 0x61, 0x74,
+	0x75, 0x73, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73,
+	0x12, 0x2a, 0x0a, 0x11, 0x69, 0x73, 0x5f, 0x69, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x5f,
+	0x67, 0x72, 0x6f, 0x75, 0x70, 0x18, 0x02, 0x20, 0x01, 0x28, 0x08, 0x52, 0x0f, 0x69, 0x73, 0x49,
+	0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x12, 0x46, 0x0a, 0x0a,
+	0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x26, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x71,
+	0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x67,
+	0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x52, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61,
+	0x74, 0x69, 0x6f, 0x6e, 0x22, 0x92, 0x01, 0x0a, 0x14, 0x51, 0x75, 0x65, 0x72, 0x79, 0x4d, 0x65,
+	0x6d, 0x62, 0x65, 0x72, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x31, 0x0a,
+	0x07, 0x6d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x17,
 	0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0x2e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e,
-	0x52, 0x0f, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f,
-	0x6e, 0x2a, 0x84, 0x01, 0x0a, 0x12, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x53, 0x74, 0x61, 0x74,
+	0x2e, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x52, 0x07, 0x6d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73,
+	0x12, 0x47, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02,
+	0x20, 0x01, 0x28, 0x0b, 0x32, 0x27, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61,
+	0x73, 0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0x2e, 0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x52, 0x0a, 0x70,
+	0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x2e, 0x0a, 0x12, 0x51, 0x75, 0x65,
+	0x72, 0x79, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
+	0x18, 0x0a, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x22, 0xb9, 0x01, 0x0a, 0x13, 0x51, 0x75,
+	0x65, 0x72, 0x79, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x4f, 0x0a, 0x14, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x5f, 0x67, 0x72, 0x6f,
+	0x75, 0x70, 0x5f, 0x6d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32,
+	0x17, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
+	0x31, 0x2e, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x12,
+	0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x4d, 0x65, 0x6d, 0x62,
+	0x65, 0x72, 0x12, 0x51, 0x0a, 0x15, 0x69, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x5f, 0x67,
+	0x72, 0x6f, 0x75, 0x70, 0x5f, 0x6d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x0b, 0x32, 0x17, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65,
+	0x74, 0x61, 0x31, 0x2e, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00,
+	0x52, 0x13, 0x69, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x4d,
+	0x65, 0x6d, 0x62, 0x65, 0x72, 0x22, 0x1a, 0x0a, 0x18, 0x51, 0x75, 0x65, 0x72, 0x79, 0x43, 0x75,
+	0x72, 0x72, 0x65, 0x6e, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x22, 0xa8, 0x02, 0x0a, 0x19, 0x51, 0x75, 0x65, 0x72, 0x79, 0x43, 0x75, 0x72, 0x72, 0x65,
+	0x6e, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
+	0x5a, 0x0a, 0x08, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x04, 0x42, 0x3f, 0xe2, 0xde, 0x1f, 0x07, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x49, 0x44, 0xfa, 0xde,
+	0x1f, 0x30, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e,
+	0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f,
+	0x76, 0x33, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x74, 0x73, 0x73, 0x2e, 0x47, 0x72, 0x6f, 0x75, 0x70,
+	0x49, 0x44, 0x52, 0x07, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x49, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x73,
+	0x69, 0x7a, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x04, 0x52, 0x04, 0x73, 0x69, 0x7a, 0x65, 0x12,
+	0x1c, 0x0a, 0x09, 0x74, 0x68, 0x72, 0x65, 0x73, 0x68, 0x6f, 0x6c, 0x64, 0x18, 0x03, 0x20, 0x01,
+	0x28, 0x04, 0x52, 0x09, 0x74, 0x68, 0x72, 0x65, 0x73, 0x68, 0x6f, 0x6c, 0x64, 0x12, 0x4b, 0x0a,
+	0x07, 0x70, 0x75, 0x62, 0x5f, 0x6b, 0x65, 0x79, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0c, 0x42, 0x32,
+	0xfa, 0xde, 0x1f, 0x2e, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62,
+	0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69,
+	0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x74, 0x73, 0x73, 0x2e, 0x50, 0x6f, 0x69,
+	0x6e, 0x74, 0x52, 0x06, 0x70, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x12, 0x30, 0x0a, 0x06, 0x73, 0x74,
+	0x61, 0x74, 0x75, 0x73, 0x18, 0x05, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x18, 0x2e, 0x74, 0x73, 0x73,
+	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x53, 0x74,
+	0x61, 0x74, 0x75, 0x73, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x22, 0x1b, 0x0a, 0x19,
+	0x51, 0x75, 0x65, 0x72, 0x79, 0x49, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x47, 0x72, 0x6f,
+	0x75, 0x70, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0xa9, 0x02, 0x0a, 0x1a, 0x51, 0x75,
+	0x65, 0x72, 0x79, 0x49, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x47, 0x72, 0x6f, 0x75, 0x70,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x5a, 0x0a, 0x08, 0x67, 0x72, 0x6f, 0x75,
+	0x70, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x42, 0x3f, 0xe2, 0xde, 0x1f, 0x07,
+	0x47, 0x72, 0x6f, 0x75, 0x70, 0x49, 0x44, 0xfa, 0xde, 0x1f, 0x30, 0x67, 0x69, 0x74, 0x68, 0x75,
+	0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63,
+	0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x70, 0x6b, 0x67, 0x2f,
+	0x74, 0x73, 0x73, 0x2e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x49, 0x44, 0x52, 0x07, 0x67, 0x72, 0x6f,
+	0x75, 0x70, 0x49, 0x64, 0x12, 0x12, 0x0a, 0x04, 0x73, 0x69, 0x7a, 0x65, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x04, 0x52, 0x04, 0x73, 0x69, 0x7a, 0x65, 0x12, 0x1c, 0x0a, 0x09, 0x74, 0x68, 0x72, 0x65,
+	0x73, 0x68, 0x6f, 0x6c, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x04, 0x52, 0x09, 0x74, 0x68, 0x72,
+	0x65, 0x73, 0x68, 0x6f, 0x6c, 0x64, 0x12, 0x4b, 0x0a, 0x07, 0x70, 0x75, 0x62, 0x5f, 0x6b, 0x65,
+	0x79, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0c, 0x42, 0x32, 0xfa, 0xde, 0x1f, 0x2e, 0x67, 0x69, 0x74,
+	0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x70, 0x6b,
+	0x67, 0x2f, 0x74, 0x73, 0x73, 0x2e, 0x50, 0x6f, 0x69, 0x6e, 0x74, 0x52, 0x06, 0x70, 0x75, 0x62,
+	0x4b, 0x65, 0x79, 0x12, 0x30, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x05, 0x20,
+	0x01, 0x28, 0x0e, 0x32, 0x18, 0x2e, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
+	0x31, 0x2e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52, 0x06, 0x73,
+	0x74, 0x61, 0x74, 0x75, 0x73, 0x22, 0x34, 0x0a, 0x13, 0x51, 0x75, 0x65, 0x72, 0x79, 0x53, 0x69,
+	0x67, 0x6e, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1d, 0x0a, 0x0a,
+	0x73, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04,
+	0x52, 0x09, 0x73, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x49, 0x64, 0x22, 0xe3, 0x02, 0x0a, 0x14,
+	0x51, 0x75, 0x65, 0x72, 0x79, 0x53, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x71, 0x0a, 0x0e, 0x66, 0x65, 0x65, 0x5f, 0x70, 0x65, 0x72, 0x5f,
+	0x73, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x63,
+	0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x42, 0x30, 0xc8, 0xde, 0x1f, 0x00, 0xaa, 0xdf, 0x1f,
+	0x28, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x63, 0x6f, 0x73, 0x6d,
+	0x6f, 0x73, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2d, 0x73, 0x64, 0x6b, 0x2f, 0x74, 0x79,
+	0x70, 0x65, 0x73, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x73, 0x52, 0x0c, 0x66, 0x65, 0x65, 0x50, 0x65,
+	0x72, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x12, 0x1c, 0x0a, 0x09, 0x72, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x65, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x72, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x65, 0x72, 0x12, 0x5b, 0x0a, 0x1c, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74,
+	0x5f, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x73, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x5f, 0x72,
+	0x65, 0x73, 0x75, 0x6c, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x74, 0x73,
+	0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x69, 0x6e,
+	0x67, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x52, 0x19, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74,
+	0x47, 0x72, 0x6f, 0x75, 0x70, 0x53, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x75,
+	0x6c, 0x74, 0x12, 0x5d, 0x0a, 0x1d, 0x69, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x5f, 0x67,
+	0x72, 0x6f, 0x75, 0x70, 0x5f, 0x73, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x5f, 0x72, 0x65, 0x73,
+	0x75, 0x6c, 0x74, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x74, 0x73, 0x73, 0x2e,
+	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x52,
+	0x65, 0x73, 0x75, 0x6c, 0x74, 0x52, 0x1a, 0x69, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x47,
+	0x72, 0x6f, 0x75, 0x70, 0x53, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x75, 0x6c,
+	0x74, 0x22, 0x1d, 0x0a, 0x1b, 0x51, 0x75, 0x65, 0x72, 0x79, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x54,
+	0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x22, 0x6b, 0x0a, 0x1c, 0x51, 0x75, 0x65, 0x72, 0x79, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x54, 0x72,
+	0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x12, 0x4b, 0x0a, 0x10, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x69,
+	0x74, 0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x20, 0x2e, 0x62, 0x61, 0x6e,
+	0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x47, 0x72, 0x6f,
+	0x75, 0x70, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x0f, 0x67, 0x72,
+	0x6f, 0x75, 0x70, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x14, 0x0a,
+	0x12, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x22, 0x4c, 0x0a, 0x13, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61,
+	0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x35, 0x0a, 0x06, 0x70, 0x61,
+	0x72, 0x61, 0x6d, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x62, 0x61, 0x6e,
+	0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x72,
+	0x61, 0x6d, 0x73, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d,
+	0x73, 0x2a, 0x84, 0x01, 0x0a, 0x12, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x53, 0x74, 0x61, 0x74,
 	0x75, 0x73, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x12, 0x24, 0x0a, 0x20, 0x4d, 0x45, 0x4d, 0x42,
 	0x45, 0x52, 0x5f, 0x53, 0x54, 0x41, 0x54, 0x55, 0x53, 0x5f, 0x46, 0x49, 0x4c, 0x54, 0x45, 0x52,
 	0x5f, 0x55, 0x4e, 0x53, 0x50, 0x45, 0x43, 0x49, 0x46, 0x49, 0x45, 0x44, 0x10, 0x00, 0x12, 0x1f,
@@ -9351,76 +9351,76 @@ var file_bandtss_v1beta1_query_proto_rawDesc = []byte{
 	0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x73, 0x52,
 	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x1f, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x19, 0x12,
 	0x17, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
-	0x31, 0x2f, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x73, 0x12, 0x74, 0x0a, 0x06, 0x50, 0x61, 0x72, 0x61,
-	0x6d, 0x73, 0x12, 0x23, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73,
-	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x24, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73,
-	0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50,
-	0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x1f, 0x82,
-	0xd3, 0xe4, 0x93, 0x02, 0x19, 0x12, 0x17, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x95,
-	0x01, 0x0a, 0x09, 0x49, 0x73, 0x47, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x65, 0x12, 0x26, 0x2e, 0x62,
-	0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51,
-	0x75, 0x65, 0x72, 0x79, 0x49, 0x73, 0x47, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x65, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x1a, 0x27, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76,
-	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x49, 0x73, 0x47, 0x72,
-	0x61, 0x6e, 0x74, 0x65, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x37, 0x82,
-	0xd3, 0xe4, 0x93, 0x02, 0x31, 0x12, 0x2f, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x69, 0x73, 0x5f, 0x67, 0x72, 0x61, 0x6e, 0x74,
-	0x65, 0x65, 0x2f, 0x7b, 0x67, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x72, 0x7d, 0x2f, 0x7b, 0x67, 0x72,
-	0x61, 0x6e, 0x74, 0x65, 0x65, 0x7d, 0x12, 0x78, 0x0a, 0x07, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72,
-	0x73, 0x12, 0x24, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65,
+	0x31, 0x2f, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x73, 0x12, 0x95, 0x01, 0x0a, 0x09, 0x49, 0x73, 0x47,
+	0x72, 0x61, 0x6e, 0x74, 0x65, 0x65, 0x12, 0x26, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73,
+	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x49, 0x73,
+	0x47, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x27,
+	0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x49, 0x73, 0x47, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x65, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x37, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x31, 0x12,
+	0x2f, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
+	0x31, 0x2f, 0x69, 0x73, 0x5f, 0x67, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x65, 0x2f, 0x7b, 0x67, 0x72,
+	0x61, 0x6e, 0x74, 0x65, 0x72, 0x7d, 0x2f, 0x7b, 0x67, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x65, 0x7d,
+	0x12, 0x78, 0x0a, 0x07, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73, 0x12, 0x24, 0x2e, 0x62, 0x61,
+	0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75,
+	0x65, 0x72, 0x79, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x1a, 0x25, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65,
 	0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73,
-	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x25, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73,
-	0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x4d,
-	0x65, 0x6d, 0x62, 0x65, 0x72, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x20,
-	0x82, 0xd3, 0xe4, 0x93, 0x02, 0x1a, 0x12, 0x18, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73,
-	0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x6d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73,
-	0x12, 0x7f, 0x0a, 0x06, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x12, 0x23, 0x2e, 0x62, 0x61, 0x6e,
-	0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65,
-	0x72, 0x79, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
-	0x24, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
-	0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x2a, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x24, 0x12, 0x22, 0x2f,
-	0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f,
-	0x6d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73, 0x2f, 0x7b, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73,
-	0x7d, 0x12, 0x8d, 0x01, 0x0a, 0x0c, 0x43, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x47, 0x72, 0x6f,
-	0x75, 0x70, 0x12, 0x29, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x43, 0x75, 0x72, 0x72, 0x65, 0x6e,
-	0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2a, 0x2e,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x20, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x1a,
+	0x12, 0x18, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x2f, 0x6d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73, 0x12, 0x7f, 0x0a, 0x06, 0x4d, 0x65,
+	0x6d, 0x62, 0x65, 0x72, 0x12, 0x23, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x4d, 0x65, 0x6d, 0x62,
+	0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x24, 0x2e, 0x62, 0x61, 0x6e, 0x64,
+	0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72,
+	0x79, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
+	0x2a, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x24, 0x12, 0x22, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73,
+	0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x6d, 0x65, 0x6d, 0x62, 0x65, 0x72,
+	0x73, 0x2f, 0x7b, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x7d, 0x12, 0x8d, 0x01, 0x0a, 0x0c,
+	0x43, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x12, 0x29, 0x2e, 0x62,
+	0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51,
+	0x75, 0x65, 0x72, 0x79, 0x43, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2a, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73,
+	0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x43,
+	0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x22, 0x26, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x20, 0x12, 0x1e, 0x2f, 0x62, 0x61,
+	0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x63, 0x75,
+	0x72, 0x72, 0x65, 0x6e, 0x74, 0x5f, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x12, 0x91, 0x01, 0x0a, 0x0d,
+	0x49, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x12, 0x2a, 0x2e,
 	0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e,
-	0x51, 0x75, 0x65, 0x72, 0x79, 0x43, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x47, 0x72, 0x6f, 0x75,
-	0x70, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x26, 0x82, 0xd3, 0xe4, 0x93, 0x02,
-	0x20, 0x12, 0x1e, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65,
-	0x74, 0x61, 0x31, 0x2f, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x5f, 0x67, 0x72, 0x6f, 0x75,
-	0x70, 0x12, 0x91, 0x01, 0x0a, 0x0d, 0x49, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x47, 0x72,
-	0x6f, 0x75, 0x70, 0x12, 0x2a, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31,
-	0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x49, 0x6e, 0x63, 0x6f, 0x6d,
-	0x69, 0x6e, 0x67, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
-	0x2b, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
-	0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x49, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x47,
-	0x72, 0x6f, 0x75, 0x70, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x27, 0x82, 0xd3,
-	0xe4, 0x93, 0x02, 0x21, 0x12, 0x1f, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f, 0x76,
-	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x69, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x5f,
-	0x67, 0x72, 0x6f, 0x75, 0x70, 0x12, 0x86, 0x01, 0x0a, 0x07, 0x53, 0x69, 0x67, 0x6e, 0x69, 0x6e,
-	0x67, 0x12, 0x24, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65,
+	0x51, 0x75, 0x65, 0x72, 0x79, 0x49, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x47, 0x72, 0x6f,
+	0x75, 0x70, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2b, 0x2e, 0x62, 0x61, 0x6e, 0x64,
+	0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72,
+	0x79, 0x49, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x27, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x21, 0x12, 0x1f,
+	0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0x2f, 0x69, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x5f, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x12,
+	0x86, 0x01, 0x0a, 0x07, 0x53, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x12, 0x24, 0x2e, 0x62, 0x61,
+	0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75,
+	0x65, 0x72, 0x79, 0x53, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x1a, 0x25, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65,
 	0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x53, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67,
-	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x25, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73,
-	0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x53,
-	0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x2e,
-	0x82, 0xd3, 0xe4, 0x93, 0x02, 0x28, 0x12, 0x26, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73,
-	0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x73, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67,
-	0x73, 0x2f, 0x7b, 0x73, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x5f, 0x69, 0x64, 0x7d, 0x12, 0x99,
-	0x01, 0x0a, 0x0f, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69,
-	0x6f, 0x6e, 0x12, 0x2c, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x54,
-	0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x1a, 0x2d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x54, 0x72, 0x61,
-	0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
-	0x29, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x23, 0x12, 0x21, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73,
-	0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f,
-	0x74, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x42, 0xc3, 0x01, 0x0a, 0x13, 0x63,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x2e, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x28,
+	0x12, 0x26, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x2f, 0x73, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x73, 0x2f, 0x7b, 0x73, 0x69, 0x67,
+	0x6e, 0x69, 0x6e, 0x67, 0x5f, 0x69, 0x64, 0x7d, 0x12, 0x99, 0x01, 0x0a, 0x0f, 0x47, 0x72, 0x6f,
+	0x75, 0x70, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x2c, 0x2e, 0x62,
+	0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51,
+	0x75, 0x65, 0x72, 0x79, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74,
+	0x69, 0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2d, 0x2e, 0x62, 0x61, 0x6e,
+	0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65,
+	0x72, 0x79, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f,
+	0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x29, 0x82, 0xd3, 0xe4, 0x93, 0x02,
+	0x23, 0x12, 0x21, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65,
+	0x74, 0x61, 0x31, 0x2f, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x69,
+	0x74, 0x69, 0x6f, 0x6e, 0x12, 0x74, 0x0a, 0x06, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x23,
+	0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x1a, 0x24, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31,
+	0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d,
+	0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x1f, 0x82, 0xd3, 0xe4, 0x93, 0x02,
+	0x19, 0x12, 0x17, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65,
+	0x74, 0x61, 0x31, 0x2f, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x42, 0xc3, 0x01, 0x0a, 0x13, 0x63,
 	0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
 	0x61, 0x31, 0x42, 0x0a, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01,
 	0x5a, 0x43, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e,
@@ -9454,63 +9454,63 @@ var file_bandtss_v1beta1_query_proto_goTypes = []interface{}{
 	(MemberStatusFilter)(0),              // 0: bandtss.v1beta1.MemberStatusFilter
 	(*QueryCountsRequest)(nil),           // 1: bandtss.v1beta1.QueryCountsRequest
 	(*QueryCountsResponse)(nil),          // 2: bandtss.v1beta1.QueryCountsResponse
-	(*QueryParamsRequest)(nil),           // 3: bandtss.v1beta1.QueryParamsRequest
-	(*QueryParamsResponse)(nil),          // 4: bandtss.v1beta1.QueryParamsResponse
-	(*QueryIsGranteeRequest)(nil),        // 5: bandtss.v1beta1.QueryIsGranteeRequest
-	(*QueryIsGranteeResponse)(nil),       // 6: bandtss.v1beta1.QueryIsGranteeResponse
-	(*QueryMembersRequest)(nil),          // 7: bandtss.v1beta1.QueryMembersRequest
-	(*QueryMembersResponse)(nil),         // 8: bandtss.v1beta1.QueryMembersResponse
-	(*QueryMemberRequest)(nil),           // 9: bandtss.v1beta1.QueryMemberRequest
-	(*QueryMemberResponse)(nil),          // 10: bandtss.v1beta1.QueryMemberResponse
-	(*QueryCurrentGroupRequest)(nil),     // 11: bandtss.v1beta1.QueryCurrentGroupRequest
-	(*QueryCurrentGroupResponse)(nil),    // 12: bandtss.v1beta1.QueryCurrentGroupResponse
-	(*QueryIncomingGroupRequest)(nil),    // 13: bandtss.v1beta1.QueryIncomingGroupRequest
-	(*QueryIncomingGroupResponse)(nil),   // 14: bandtss.v1beta1.QueryIncomingGroupResponse
-	(*QuerySigningRequest)(nil),          // 15: bandtss.v1beta1.QuerySigningRequest
-	(*QuerySigningResponse)(nil),         // 16: bandtss.v1beta1.QuerySigningResponse
-	(*QueryGroupTransitionRequest)(nil),  // 17: bandtss.v1beta1.QueryGroupTransitionRequest
-	(*QueryGroupTransitionResponse)(nil), // 18: bandtss.v1beta1.QueryGroupTransitionResponse
-	(*Params)(nil),                       // 19: bandtss.v1beta1.Params
-	(*v1beta1.PageRequest)(nil),          // 20: cosmos.base.query.v1beta1.PageRequest
-	(*Member)(nil),                       // 21: bandtss.v1beta1.Member
-	(*v1beta1.PageResponse)(nil),         // 22: cosmos.base.query.v1beta1.PageResponse
-	(v1beta11.GroupStatus)(0),            // 23: tss.v1beta1.GroupStatus
-	(*v1beta12.Coin)(nil),                // 24: cosmos.base.v1beta1.Coin
-	(*v1beta11.SigningResult)(nil),       // 25: tss.v1beta1.SigningResult
-	(*GroupTransition)(nil),              // 26: bandtss.v1beta1.GroupTransition
+	(*QueryIsGranteeRequest)(nil),        // 3: bandtss.v1beta1.QueryIsGranteeRequest
+	(*QueryIsGranteeResponse)(nil),       // 4: bandtss.v1beta1.QueryIsGranteeResponse
+	(*QueryMembersRequest)(nil),          // 5: bandtss.v1beta1.QueryMembersRequest
+	(*QueryMembersResponse)(nil),         // 6: bandtss.v1beta1.QueryMembersResponse
+	(*QueryMemberRequest)(nil),           // 7: bandtss.v1beta1.QueryMemberRequest
+	(*QueryMemberResponse)(nil),          // 8: bandtss.v1beta1.QueryMemberResponse
+	(*QueryCurrentGroupRequest)(nil),     // 9: bandtss.v1beta1.QueryCurrentGroupRequest
+	(*QueryCurrentGroupResponse)(nil),    // 10: bandtss.v1beta1.QueryCurrentGroupResponse
+	(*QueryIncomingGroupRequest)(nil),    // 11: bandtss.v1beta1.QueryIncomingGroupRequest
+	(*QueryIncomingGroupResponse)(nil),   // 12: bandtss.v1beta1.QueryIncomingGroupResponse
+	(*QuerySigningRequest)(nil),          // 13: bandtss.v1beta1.QuerySigningRequest
+	(*QuerySigningResponse)(nil),         // 14: bandtss.v1beta1.QuerySigningResponse
+	(*QueryGroupTransitionRequest)(nil),  // 15: bandtss.v1beta1.QueryGroupTransitionRequest
+	(*QueryGroupTransitionResponse)(nil), // 16: bandtss.v1beta1.QueryGroupTransitionResponse
+	(*QueryParamsRequest)(nil),           // 17: bandtss.v1beta1.QueryParamsRequest
+	(*QueryParamsResponse)(nil),          // 18: bandtss.v1beta1.QueryParamsResponse
+	(*v1beta1.PageRequest)(nil),          // 19: cosmos.base.query.v1beta1.PageRequest
+	(*Member)(nil),                       // 20: bandtss.v1beta1.Member
+	(*v1beta1.PageResponse)(nil),         // 21: cosmos.base.query.v1beta1.PageResponse
+	(v1beta11.GroupStatus)(0),            // 22: tss.v1beta1.GroupStatus
+	(*v1beta12.Coin)(nil),                // 23: cosmos.base.v1beta1.Coin
+	(*v1beta11.SigningResult)(nil),       // 24: tss.v1beta1.SigningResult
+	(*GroupTransition)(nil),              // 25: bandtss.v1beta1.GroupTransition
+	(*Params)(nil),                       // 26: bandtss.v1beta1.Params
 }
 var file_bandtss_v1beta1_query_proto_depIdxs = []int32{
-	19, // 0: bandtss.v1beta1.QueryParamsResponse.params:type_name -> bandtss.v1beta1.Params
-	0,  // 1: bandtss.v1beta1.QueryMembersRequest.status:type_name -> bandtss.v1beta1.MemberStatusFilter
-	20, // 2: bandtss.v1beta1.QueryMembersRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
-	21, // 3: bandtss.v1beta1.QueryMembersResponse.members:type_name -> bandtss.v1beta1.Member
-	22, // 4: bandtss.v1beta1.QueryMembersResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
-	21, // 5: bandtss.v1beta1.QueryMemberResponse.current_group_member:type_name -> bandtss.v1beta1.Member
-	21, // 6: bandtss.v1beta1.QueryMemberResponse.incoming_group_member:type_name -> bandtss.v1beta1.Member
-	23, // 7: bandtss.v1beta1.QueryCurrentGroupResponse.status:type_name -> tss.v1beta1.GroupStatus
-	23, // 8: bandtss.v1beta1.QueryIncomingGroupResponse.status:type_name -> tss.v1beta1.GroupStatus
-	24, // 9: bandtss.v1beta1.QuerySigningResponse.fee_per_signer:type_name -> cosmos.base.v1beta1.Coin
-	25, // 10: bandtss.v1beta1.QuerySigningResponse.current_group_signing_result:type_name -> tss.v1beta1.SigningResult
-	25, // 11: bandtss.v1beta1.QuerySigningResponse.incoming_group_signing_result:type_name -> tss.v1beta1.SigningResult
-	26, // 12: bandtss.v1beta1.QueryGroupTransitionResponse.group_transition:type_name -> bandtss.v1beta1.GroupTransition
+	0,  // 0: bandtss.v1beta1.QueryMembersRequest.status:type_name -> bandtss.v1beta1.MemberStatusFilter
+	19, // 1: bandtss.v1beta1.QueryMembersRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
+	20, // 2: bandtss.v1beta1.QueryMembersResponse.members:type_name -> bandtss.v1beta1.Member
+	21, // 3: bandtss.v1beta1.QueryMembersResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
+	20, // 4: bandtss.v1beta1.QueryMemberResponse.current_group_member:type_name -> bandtss.v1beta1.Member
+	20, // 5: bandtss.v1beta1.QueryMemberResponse.incoming_group_member:type_name -> bandtss.v1beta1.Member
+	22, // 6: bandtss.v1beta1.QueryCurrentGroupResponse.status:type_name -> tss.v1beta1.GroupStatus
+	22, // 7: bandtss.v1beta1.QueryIncomingGroupResponse.status:type_name -> tss.v1beta1.GroupStatus
+	23, // 8: bandtss.v1beta1.QuerySigningResponse.fee_per_signer:type_name -> cosmos.base.v1beta1.Coin
+	24, // 9: bandtss.v1beta1.QuerySigningResponse.current_group_signing_result:type_name -> tss.v1beta1.SigningResult
+	24, // 10: bandtss.v1beta1.QuerySigningResponse.incoming_group_signing_result:type_name -> tss.v1beta1.SigningResult
+	25, // 11: bandtss.v1beta1.QueryGroupTransitionResponse.group_transition:type_name -> bandtss.v1beta1.GroupTransition
+	26, // 12: bandtss.v1beta1.QueryParamsResponse.params:type_name -> bandtss.v1beta1.Params
 	1,  // 13: bandtss.v1beta1.Query.Counts:input_type -> bandtss.v1beta1.QueryCountsRequest
-	3,  // 14: bandtss.v1beta1.Query.Params:input_type -> bandtss.v1beta1.QueryParamsRequest
-	5,  // 15: bandtss.v1beta1.Query.IsGrantee:input_type -> bandtss.v1beta1.QueryIsGranteeRequest
-	7,  // 16: bandtss.v1beta1.Query.Members:input_type -> bandtss.v1beta1.QueryMembersRequest
-	9,  // 17: bandtss.v1beta1.Query.Member:input_type -> bandtss.v1beta1.QueryMemberRequest
-	11, // 18: bandtss.v1beta1.Query.CurrentGroup:input_type -> bandtss.v1beta1.QueryCurrentGroupRequest
-	13, // 19: bandtss.v1beta1.Query.IncomingGroup:input_type -> bandtss.v1beta1.QueryIncomingGroupRequest
-	15, // 20: bandtss.v1beta1.Query.Signing:input_type -> bandtss.v1beta1.QuerySigningRequest
-	17, // 21: bandtss.v1beta1.Query.GroupTransition:input_type -> bandtss.v1beta1.QueryGroupTransitionRequest
+	3,  // 14: bandtss.v1beta1.Query.IsGrantee:input_type -> bandtss.v1beta1.QueryIsGranteeRequest
+	5,  // 15: bandtss.v1beta1.Query.Members:input_type -> bandtss.v1beta1.QueryMembersRequest
+	7,  // 16: bandtss.v1beta1.Query.Member:input_type -> bandtss.v1beta1.QueryMemberRequest
+	9,  // 17: bandtss.v1beta1.Query.CurrentGroup:input_type -> bandtss.v1beta1.QueryCurrentGroupRequest
+	11, // 18: bandtss.v1beta1.Query.IncomingGroup:input_type -> bandtss.v1beta1.QueryIncomingGroupRequest
+	13, // 19: bandtss.v1beta1.Query.Signing:input_type -> bandtss.v1beta1.QuerySigningRequest
+	15, // 20: bandtss.v1beta1.Query.GroupTransition:input_type -> bandtss.v1beta1.QueryGroupTransitionRequest
+	17, // 21: bandtss.v1beta1.Query.Params:input_type -> bandtss.v1beta1.QueryParamsRequest
 	2,  // 22: bandtss.v1beta1.Query.Counts:output_type -> bandtss.v1beta1.QueryCountsResponse
-	4,  // 23: bandtss.v1beta1.Query.Params:output_type -> bandtss.v1beta1.QueryParamsResponse
-	6,  // 24: bandtss.v1beta1.Query.IsGrantee:output_type -> bandtss.v1beta1.QueryIsGranteeResponse
-	8,  // 25: bandtss.v1beta1.Query.Members:output_type -> bandtss.v1beta1.QueryMembersResponse
-	10, // 26: bandtss.v1beta1.Query.Member:output_type -> bandtss.v1beta1.QueryMemberResponse
-	12, // 27: bandtss.v1beta1.Query.CurrentGroup:output_type -> bandtss.v1beta1.QueryCurrentGroupResponse
-	14, // 28: bandtss.v1beta1.Query.IncomingGroup:output_type -> bandtss.v1beta1.QueryIncomingGroupResponse
-	16, // 29: bandtss.v1beta1.Query.Signing:output_type -> bandtss.v1beta1.QuerySigningResponse
-	18, // 30: bandtss.v1beta1.Query.GroupTransition:output_type -> bandtss.v1beta1.QueryGroupTransitionResponse
+	4,  // 23: bandtss.v1beta1.Query.IsGrantee:output_type -> bandtss.v1beta1.QueryIsGranteeResponse
+	6,  // 24: bandtss.v1beta1.Query.Members:output_type -> bandtss.v1beta1.QueryMembersResponse
+	8,  // 25: bandtss.v1beta1.Query.Member:output_type -> bandtss.v1beta1.QueryMemberResponse
+	10, // 26: bandtss.v1beta1.Query.CurrentGroup:output_type -> bandtss.v1beta1.QueryCurrentGroupResponse
+	12, // 27: bandtss.v1beta1.Query.IncomingGroup:output_type -> bandtss.v1beta1.QueryIncomingGroupResponse
+	14, // 28: bandtss.v1beta1.Query.Signing:output_type -> bandtss.v1beta1.QuerySigningResponse
+	16, // 29: bandtss.v1beta1.Query.GroupTransition:output_type -> bandtss.v1beta1.QueryGroupTransitionResponse
+	18, // 30: bandtss.v1beta1.Query.Params:output_type -> bandtss.v1beta1.QueryParamsResponse
 	22, // [22:31] is the sub-list for method output_type
 	13, // [13:22] is the sub-list for method input_type
 	13, // [13:13] is the sub-list for extension type_name
@@ -9551,30 +9551,6 @@ func file_bandtss_v1beta1_query_proto_init() {
 			}
 		}
 		file_bandtss_v1beta1_query_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*QueryParamsRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_bandtss_v1beta1_query_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*QueryParamsResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_bandtss_v1beta1_query_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryIsGranteeRequest); i {
 			case 0:
 				return &v.state
@@ -9586,7 +9562,7 @@ func file_bandtss_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_bandtss_v1beta1_query_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_bandtss_v1beta1_query_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryIsGranteeResponse); i {
 			case 0:
 				return &v.state
@@ -9598,7 +9574,7 @@ func file_bandtss_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_bandtss_v1beta1_query_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_bandtss_v1beta1_query_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryMembersRequest); i {
 			case 0:
 				return &v.state
@@ -9610,7 +9586,7 @@ func file_bandtss_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_bandtss_v1beta1_query_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_bandtss_v1beta1_query_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryMembersResponse); i {
 			case 0:
 				return &v.state
@@ -9622,7 +9598,7 @@ func file_bandtss_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_bandtss_v1beta1_query_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_bandtss_v1beta1_query_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryMemberRequest); i {
 			case 0:
 				return &v.state
@@ -9634,7 +9610,7 @@ func file_bandtss_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_bandtss_v1beta1_query_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+		file_bandtss_v1beta1_query_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryMemberResponse); i {
 			case 0:
 				return &v.state
@@ -9646,7 +9622,7 @@ func file_bandtss_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_bandtss_v1beta1_query_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+		file_bandtss_v1beta1_query_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryCurrentGroupRequest); i {
 			case 0:
 				return &v.state
@@ -9658,7 +9634,7 @@ func file_bandtss_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_bandtss_v1beta1_query_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+		file_bandtss_v1beta1_query_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryCurrentGroupResponse); i {
 			case 0:
 				return &v.state
@@ -9670,7 +9646,7 @@ func file_bandtss_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_bandtss_v1beta1_query_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+		file_bandtss_v1beta1_query_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryIncomingGroupRequest); i {
 			case 0:
 				return &v.state
@@ -9682,7 +9658,7 @@ func file_bandtss_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_bandtss_v1beta1_query_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+		file_bandtss_v1beta1_query_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryIncomingGroupResponse); i {
 			case 0:
 				return &v.state
@@ -9694,7 +9670,7 @@ func file_bandtss_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_bandtss_v1beta1_query_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+		file_bandtss_v1beta1_query_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QuerySigningRequest); i {
 			case 0:
 				return &v.state
@@ -9706,7 +9682,7 @@ func file_bandtss_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_bandtss_v1beta1_query_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+		file_bandtss_v1beta1_query_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QuerySigningResponse); i {
 			case 0:
 				return &v.state
@@ -9718,7 +9694,7 @@ func file_bandtss_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_bandtss_v1beta1_query_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+		file_bandtss_v1beta1_query_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryGroupTransitionRequest); i {
 			case 0:
 				return &v.state
@@ -9730,8 +9706,32 @@ func file_bandtss_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_bandtss_v1beta1_query_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+		file_bandtss_v1beta1_query_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryGroupTransitionResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_bandtss_v1beta1_query_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*QueryParamsRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_bandtss_v1beta1_query_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*QueryParamsResponse); i {
 			case 0:
 				return &v.state
 			case 1:

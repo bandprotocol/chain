@@ -5,6 +5,7 @@ import "gogoproto/gogo.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "google/api/annotations.proto";
 import "tss/v1beta1/tss.proto";
+import "tss/v1beta1/genesis.proto";
 
 option go_package = "github.com/bandprotocol/chain/v3/x/tss/types";
 
@@ -15,7 +16,12 @@ service Query {
     option (google.api.http).get = "/tss/v1beta1/counts";
   }
 
-  // Group queries group details
+  // Groups queries groups details.
+  rpc Groups(QueryGroupsRequest) returns (QueryGroupsResponse) {
+    option (google.api.http).get = "/tss/v1beta1/groups";
+  }
+
+  // Group queries group details from the given id.
   rpc Group(QueryGroupRequest) returns (QueryGroupResponse) {
     option (google.api.http).get = "/tss/v1beta1/groups/{group_id}";
   }
@@ -49,6 +55,16 @@ service Query {
   rpc Signing(QuerySigningRequest) returns (QuerySigningResponse) {
     option (google.api.http).get = "/tss/v1beta1/signings/{signing_id}";
   }
+
+  // Signings queries signings details.
+  rpc Signings(QuerySigningsRequest) returns (QuerySigningsResponse) {
+    option (google.api.http).get = "/tss/v1beta1/signings";
+  }
+
+  // Params returns all parameters of the module.
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/tss/v1beta1/params";
+  }
 }
 
 // QueryCountsRequest is request type for the Query/Count RPC method.
@@ -70,23 +86,22 @@ message QueryGroupRequest {
 
 // QueryGroupResponse is the response type for the Query/Group RPC method
 message QueryGroupResponse {
-  // group defines the group object containing group information.
-  Group group = 1 [(gogoproto.nullable) = false];
-  // dkg_context defines the DKG context data.
-  bytes dkg_context = 2 [
-    (gogoproto.customname) = "DKGContext",
-    (gogoproto.casttype)   = "github.com/cometbft/cometbft/libs/bytes.HexBytes"
-  ];
-  // members is the list of members in the group.
-  repeated Member members = 3 [(gogoproto.nullable) = false];
-  // round1_infos is the list of Round 1 information.
-  repeated Round1Info round1_infos = 4 [(gogoproto.nullable) = false];
-  // round2_infos is the list of Round 2 information.
-  repeated Round2Info round2_infos = 5 [(gogoproto.nullable) = false];
-  // complaints_with_status is the list of complaints with status.
-  repeated ComplaintsWithStatus complaints_with_status = 6 [(gogoproto.nullable) = false];
-  // confirms is the list of confirms.
-  repeated Confirm confirms = 7 [(gogoproto.nullable) = false];
+  // group_result is the result of the group.
+  GroupResult group_result = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryGroupsRequest is the request type for the Query/Groups RPC method
+message QueryGroupsRequest {
+  // pagination defines pagination settings for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+// QueryGroupsResponse is the response type for the Query/Group RPC method
+message QueryGroupsResponse {
+  // groups is the list of groups.
+  repeated GroupResult groups = 1;
+  // pagination defines an pagination for the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 // QueryMembersRequest is the request type for the Query/Members RPC method
@@ -152,8 +167,7 @@ message QueryPendingSigningsRequest {
 // QueryPendingSigningsResponse is the response type for the Query/PendingSignings RPC method.
 message QueryPendingSigningsResponse {
   // pending_signings is a list of pending signings.
-  repeated uint64 pending_signings = 1
-      [(gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.SigningID"];
+  repeated uint64 pending_signings = 1 [(gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.SigningID"];
 }
 
 // QuerySigningRequest is the request type for the Query/Signing RPC method.
@@ -166,4 +180,27 @@ message QuerySigningRequest {
 message QuerySigningResponse {
   // signing_result is the result of the signing.
   SigningResult signing_result = 1 [(gogoproto.nullable) = false];
+}
+
+// QuerySigningsRequest is the request type for the Query/Signings RPC method.
+message QuerySigningsRequest {
+  // pagination defines pagination settings for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+// QuerySigningsResponse is the response type for the Query/Signings RPC method.
+message QuerySigningsResponse {
+  // signing_results is a list of signing results.
+  repeated SigningResult signing_results = 1;
+  // pagination defines an pagination for the response.
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryParamsRequest is the request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is the response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params are the parameters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
 }

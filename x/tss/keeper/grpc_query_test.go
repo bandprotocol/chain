@@ -224,7 +224,7 @@ func (s *AppTestSuite) TestGRPCQueryGroup() {
 					s.Require().Equal(expectedMember, member)
 				}
 
-				s.Require().Equal(&types.QueryGroupResponse{
+				groupResult := types.GroupResult{
 					Group: types.Group{
 						ID:          1,
 						Size_:       5,
@@ -292,6 +292,10 @@ func (s *AppTestSuite) TestGRPCQueryGroup() {
 						confirm1,
 						confirm2,
 					},
+				}
+
+				s.Require().Equal(&types.QueryGroupResponse{
+					GroupResult: groupResult,
 				}, res)
 			},
 		},

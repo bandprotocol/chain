@@ -80,11 +80,6 @@ func (a AppModuleBasic) GetTxCmd() *cobra.Command {
 	return cli.GetTxCmd()
 }
 
-// GetQueryCmd returns the cli query commands for the module.
-func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	return cli.GetQueryCmd()
-}
-
 // ----------------------------------------------------------------------------
 // AppModule
 // ----------------------------------------------------------------------------

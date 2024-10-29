@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Query_Counts_FullMethodName          = "/tss.v1beta1.Query/Counts"
+	Query_Groups_FullMethodName          = "/tss.v1beta1.Query/Groups"
 	Query_Group_FullMethodName           = "/tss.v1beta1.Query/Group"
 	Query_Members_FullMethodName         = "/tss.v1beta1.Query/Members"
 	Query_IsGrantee_FullMethodName       = "/tss.v1beta1.Query/IsGrantee"
@@ -27,6 +28,8 @@ const (
 	Query_PendingGroups_FullMethodName   = "/tss.v1beta1.Query/PendingGroups"
 	Query_PendingSignings_FullMethodName = "/tss.v1beta1.Query/PendingSignings"
 	Query_Signing_FullMethodName         = "/tss.v1beta1.Query/Signing"
+	Query_Signings_FullMethodName        = "/tss.v1beta1.Query/Signings"
+	Query_Params_FullMethodName          = "/tss.v1beta1.Query/Params"
 )
 
 // QueryClient is the client API for Query service.
@@ -35,7 +38,9 @@ const (
 type QueryClient interface {
 	// Counts queries the number of existing groups and signing.
 	Counts(ctx context.Context, in *QueryCountsRequest, opts ...grpc.CallOption) (*QueryCountsResponse, error)
-	// Group queries group details
+	// Groups queries groups details.
+	Groups(ctx context.Context, in *QueryGroupsRequest, opts ...grpc.CallOption) (*QueryGroupsResponse, error)
+	// Group queries group details from the given id.
 	Group(ctx context.Context, in *QueryGroupRequest, opts ...grpc.CallOption) (*QueryGroupResponse, error)
 	// Members queries all members in this group.
 	Members(ctx context.Context, in *QueryMembersRequest, opts ...grpc.CallOption) (*QueryMembersResponse, error)
@@ -49,6 +54,10 @@ type QueryClient interface {
 	PendingSignings(ctx context.Context, in *QueryPendingSigningsRequest, opts ...grpc.CallOption) (*QueryPendingSigningsResponse, error)
 	// Signing queries signing details from the given id.
 	Signing(ctx context.Context, in *QuerySigningRequest, opts ...grpc.CallOption) (*QuerySigningResponse, error)
+	// Signings queries signings details.
+	Signings(ctx context.Context, in *QuerySigningsRequest, opts ...grpc.CallOption) (*QuerySigningsResponse, error)
+	// Params returns all parameters of the module.
+	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 }
 
 type queryClient struct {
@@ -62,6 +71,15 @@ func NewQueryClient(cc grpc.ClientConnInterface) QueryClient {
 func (c *queryClient) Counts(ctx context.Context, in *QueryCountsRequest, opts ...grpc.CallOption) (*QueryCountsResponse, error) {
 	out := new(QueryCountsResponse)
 	err := c.cc.Invoke(ctx, Query_Counts_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) Groups(ctx context.Context, in *QueryGroupsRequest, opts ...grpc.CallOption) (*QueryGroupsResponse, error) {
+	out := new(QueryGroupsResponse)
+	err := c.cc.Invoke(ctx, Query_Groups_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -131,13 +149,33 @@ func (c *queryClient) Signing(ctx context.Context, in *QuerySigningRequest, opts
 	return out, nil
 }
 
+func (c *queryClient) Signings(ctx context.Context, in *QuerySigningsRequest, opts ...grpc.CallOption) (*QuerySigningsResponse, error) {
+	out := new(QuerySigningsResponse)
+	err := c.cc.Invoke(ctx, Query_Signings_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error) {
+	out := new(QueryParamsResponse)
+	err := c.cc.Invoke(ctx, Query_Params_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 // All implementations must embed UnimplementedQueryServer
 // for forward compatibility
 type QueryServer interface {
 	// Counts queries the number of existing groups and signing.
 	Counts(context.Context, *QueryCountsRequest) (*QueryCountsResponse, error)
-	// Group queries group details
+	// Groups queries groups details.
+	Groups(context.Context, *QueryGroupsRequest) (*QueryGroupsResponse, error)
+	// Group queries group details from the given id.
 	Group(context.Context, *QueryGroupRequest) (*QueryGroupResponse, error)
 	// Members queries all members in this group.
 	Members(context.Context, *QueryMembersRequest) (*QueryMembersResponse, error)
@@ -151,6 +189,10 @@ type QueryServer interface {
 	PendingSignings(context.Context, *QueryPendingSigningsRequest) (*QueryPendingSigningsResponse, error)
 	// Signing queries signing details from the given id.
 	Signing(context.Context, *QuerySigningRequest) (*QuerySigningResponse, error)
+	// Signings queries signings details.
+	Signings(context.Context, *QuerySigningsRequest) (*QuerySigningsResponse, error)
+	// Params returns all parameters of the module.
+	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 	mustEmbedUnimplementedQueryServer()
 }
 
@@ -160,6 +202,9 @@ type UnimplementedQueryServer struct {
 
 func (UnimplementedQueryServer) Counts(context.Context, *QueryCountsRequest) (*QueryCountsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Counts not implemented")
+}
+func (UnimplementedQueryServer) Groups(context.Context, *QueryGroupsRequest) (*QueryGroupsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Groups not implemented")
 }
 func (UnimplementedQueryServer) Group(context.Context, *QueryGroupRequest) (*QueryGroupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Group not implemented")
@@ -181,6 +226,12 @@ func (UnimplementedQueryServer) PendingSignings(context.Context, *QueryPendingSi
 }
 func (UnimplementedQueryServer) Signing(context.Context, *QuerySigningRequest) (*QuerySigningResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Signing not implemented")
+}
+func (UnimplementedQueryServer) Signings(context.Context, *QuerySigningsRequest) (*QuerySigningsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Signings not implemented")
+}
+func (UnimplementedQueryServer) Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
 }
 func (UnimplementedQueryServer) mustEmbedUnimplementedQueryServer() {}
 
@@ -209,6 +260,24 @@ func _Query_Counts_Handler(srv interface{}, ctx context.Context, dec func(interf
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(QueryServer).Counts(ctx, req.(*QueryCountsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_Groups_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryGroupsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Groups(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_Groups_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Groups(ctx, req.(*QueryGroupsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -339,6 +408,42 @@ func _Query_Signing_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_Signings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QuerySigningsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Signings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_Signings_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Signings(ctx, req.(*QuerySigningsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryParamsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Params(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_Params_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Params(ctx, req.(*QueryParamsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Query_ServiceDesc is the grpc.ServiceDesc for Query service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -349,6 +454,10 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Counts",
 			Handler:    _Query_Counts_Handler,
+		},
+		{
+			MethodName: "Groups",
+			Handler:    _Query_Groups_Handler,
 		},
 		{
 			MethodName: "Group",
@@ -377,6 +486,14 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Signing",
 			Handler:    _Query_Signing_Handler,
+		},
+		{
+			MethodName: "Signings",
+			Handler:    _Query_Signings_Handler,
+		},
+		{
+			MethodName: "Params",
+			Handler:    _Query_Params_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
