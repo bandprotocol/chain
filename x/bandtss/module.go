@@ -35,9 +35,13 @@ var (
 	_ appmodule.HasBeginBlocker = AppModule{}
 )
 
+// ----------------------------------------------------------------------------
+// AppModuleBasic
+// ----------------------------------------------------------------------------
+
 // AppModuleBasic defines the basic application module used by the bandtss module.
 type AppModuleBasic struct {
-	cdc                    codec.Codec
+	cdc                    codec.BinaryCodec
 	signatureOrderHandlers []bandtssclient.RequestSignatureHandler
 }
 
@@ -118,7 +122,7 @@ type AppModule struct {
 // NewAppModule creates a new AppModule object.
 func NewAppModule(cdc codec.Codec, k *keeper.Keeper) AppModule {
 	return AppModule{
-		AppModuleBasic: AppModuleBasic{cdc: cdc},
+		AppModuleBasic: NewAppModuleBasic(cdc),
 		keeper:         k,
 	}
 }
@@ -128,6 +132,11 @@ func (am AppModule) IsOnePerModuleType() {}
 
 // IsAppModule implements the appmodule.AppModule interface.
 func (am AppModule) IsAppModule() {}
+
+// Name returns the module's name.
+func (AppModule) Name() string {
+	return types.ModuleName
+}
 
 // RegisterServices registers a GRPC query service to respond to the module-specific GRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
@@ -152,6 +161,9 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 	return cdc.MustMarshalJSON(gs)
 }
 
+// ConsensusVersion implements AppModule/ConsensusVersion.
+func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
+
 // BeginBlock processes ABCI begin block message for this module (SDK AppModule interface).
 func (am AppModule) BeginBlock(ctx context.Context) error {
 	c := sdk.UnwrapSDKContext(ctx)
@@ -163,6 +175,3 @@ func (am AppModule) EndBlock(ctx context.Context) error {
 	c := sdk.UnwrapSDKContext(ctx)
 	return EndBlocker(c, am.keeper)
 }
-
-// ConsensusVersion implements AppModule/ConsensusVersion.
-func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }

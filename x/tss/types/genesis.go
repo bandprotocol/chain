@@ -1,6 +1,6 @@
 package types
 
-// NewGenesisState - Create a new genesis state
+// NewGenesisState creates a new GenesisState instance.
 func NewGenesisState(
 	params Params,
 	groups []Group,
@@ -15,7 +15,7 @@ func NewGenesisState(
 	}
 }
 
-// DefaultGenesisState returns the default tss genesis state.
+// DefaultGenesisState returns the default genesis state.
 func DefaultGenesisState() *GenesisState {
 	return NewGenesisState(
 		DefaultParams(),
@@ -25,8 +25,8 @@ func DefaultGenesisState() *GenesisState {
 	)
 }
 
-// Validate performs basic validation of genesis data returning an error for
-// any failed validation criteria.
+// Validate performs basic validation of genesis data returning an
+// error for any failed validation criteria.
 func (gs GenesisState) Validate() error {
 	if err := gs.Params.Validate(); err != nil {
 		return err
