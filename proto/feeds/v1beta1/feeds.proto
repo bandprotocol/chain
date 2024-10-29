@@ -144,7 +144,7 @@ message ValidatorPrice {
   PriceStatus price_status = 1;
 
   // validator is the validator address.
-  string validator = 2;
+  string validator = 2 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
 
   // signal_id is the signal id of the price.
   string signal_id = 3 [(gogoproto.customname) = "SignalID"];
@@ -165,7 +165,7 @@ message ValidatorPriceList {
   option (gogoproto.equal) = true;
 
   // validator is the validator address.
-  string validator = 1;
+  string validator = 1 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
 
   // validators_prices is a list of validator prices.
   repeated ValidatorPrice validator_prices = 2 [(gogoproto.nullable) = false];
@@ -175,11 +175,11 @@ message ValidatorPriceList {
 message ReferenceSourceConfig {
   option (gogoproto.equal) = true;
 
-  // ipfs_hash is the hash of the reference registry.
-  string ipfs_hash = 1 [(gogoproto.customname) = "IPFSHash"];
+  // registry_ipfs_hash is the hash of the reference registry.
+  string registry_ipfs_hash = 1 [(gogoproto.customname) = "RegistryIPFSHash"];
 
-  // version is the version of the reference price source.
-  string version = 2;
+  // registry_version is the version of the reference registry.
+  string registry_version = 2;
 }
 
 // FeedsPriceData is a structure that defines the price data of the feeds for genenrating signature.

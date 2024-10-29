@@ -33,8 +33,15 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data *types.GenesisState) {
 		k.SetLock(ctx, lock)
 	}
 
+	var totalStakes sdk.Coins
 	for _, stake := range data.Stakes {
 		k.SetStake(ctx, stake)
+		totalStakes = totalStakes.Add(stake.Coins...)
+	}
+
+	// check if total stakes equals balances of the module account.
+	if !balances.Equal(totalStakes) {
+		panic(fmt.Sprintf("expected module account was %s but we got %s", balances.String(), totalStakes.String()))
 	}
 }
 

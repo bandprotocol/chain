@@ -4,7 +4,7 @@ go 1.22.3
 
 require (
 	cosmossdk.io/api v0.7.6
-	cosmossdk.io/client/v2 v2.0.0-beta.3
+	cosmossdk.io/client/v2 v2.0.0-beta.5
 	cosmossdk.io/collections v0.4.0
 	cosmossdk.io/core v0.11.2
 	cosmossdk.io/errors v1.0.1
@@ -17,6 +17,7 @@ require (
 	cosmossdk.io/x/feegrant v0.1.1
 	cosmossdk.io/x/tx v0.13.5
 	cosmossdk.io/x/upgrade v0.1.4
+	github.com/Masterminds/semver/v3 v3.3.0
 	github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.1-alpha.4
 	github.com/bandprotocol/go-owasm v0.3.1
 	github.com/bytecodealliance/wasmtime-go/v20 v20.0.0
@@ -45,7 +46,7 @@ require (
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
-	go.uber.org/mock v0.4.0
+	go.uber.org/mock v0.5.0
 	golang.org/x/crypto v0.26.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240624140628-dc46fd24d27d
 	google.golang.org/grpc v1.66.2

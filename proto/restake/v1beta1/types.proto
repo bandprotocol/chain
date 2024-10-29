@@ -16,7 +16,7 @@ message Vault {
   string key = 1;
 
   // is_active is the status of the vault
-  bool is_active = 3;
+  bool is_active = 2;
 }
 
 // Lock is used to store lock information of each user on each vault.
@@ -42,7 +42,7 @@ message Stake {
   option (gogoproto.equal) = true;
 
   // staker_address is the address that this stake belongs to.
-  string staker_address = 1;
+  string staker_address = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
   // coins are the coins that the address has staked.
   repeated cosmos.base.v1beta1.Coin coins = 2 [

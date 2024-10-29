@@ -82,6 +82,7 @@ func createPersistentPreRunE(rootCmd *cobra.Command, ctx *context.Context) func(
 			initAppOptions,
 			100,
 		)
+		ctx.BandApp = tempApplication
 
 		ctx.Keyring, err = keyring.New("band", keyring.BackendTest, home, nil, tempApplication.AppCodec())
 		if err != nil {
