@@ -566,7 +566,7 @@ func (s *AppTestSuite) TestSuccessSubmitSignatureReq() {
 			msg, err := bandtsstypes.NewMsgRequestSignature(
 				types.NewTextSignatureOrder([]byte("msg")),
 				sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
-				bandtesting.FeePayer.Address,
+				bandtesting.FeePayer.Address.String(),
 			)
 			s.Require().NoError(err)
 			_, err = bandtssMsgSrvr.RequestSignature(ctx, msg)

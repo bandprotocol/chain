@@ -310,7 +310,7 @@ func (ba *BenchmarkApp) RequestSignature(
 ) {
 	ctx, msgSrvr := ba.Ctx, ba.BandtssMsgSrvr
 
-	msg, err := bandtsstypes.NewMsgRequestSignature(content, feeLimit, sender.Address)
+	msg, err := bandtsstypes.NewMsgRequestSignature(content, feeLimit, sender.Address.String())
 	require.NoError(ba.TB, err)
 
 	_, err = msgSrvr.RequestSignature(ctx, msg)
