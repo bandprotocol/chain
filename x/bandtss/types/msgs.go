@@ -32,6 +32,10 @@ var (
 	_ types.UnpackInterfacesMessage = &MsgRequestSignature{}
 )
 
+// ====================================
+// MsgTransitionGroup
+// ====================================
+
 // NewMsgTransitionGroup creates a new MsgTransitionGroup instance.
 func NewMsgTransitionGroup(
 	members []string,
@@ -80,6 +84,10 @@ func (m MsgTransitionGroup) ValidateBasic() error {
 	return nil
 }
 
+// ====================================
+// MsgForceTransitionGroup
+// ====================================
+
 // NewMsgForceTransitionGroup creates a new MsgForceTransitionGroup instance.
 func NewMsgForceTransitionGroup(
 	incomingGroupID tss.GroupID,
@@ -106,6 +114,10 @@ func (m MsgForceTransitionGroup) ValidateBasic() error {
 
 	return nil
 }
+
+// ====================================
+// MsgRequestSignature
+// ====================================
 
 // NewMsgRequestSignature creates a new MsgRequestSignature.
 func NewMsgRequestSignature(
@@ -173,6 +185,10 @@ func (m MsgRequestSignature) UnpackInterfaces(unpacker types.AnyUnpacker) error 
 	return unpacker.UnpackAny(m.Content, &content)
 }
 
+// ====================================
+// MsgActivate
+// ====================================
+
 // NewMsgActivate creates a new MsgActivate instance.
 func NewMsgActivate(sender string, groupID tss.GroupID) *MsgActivate {
 	return &MsgActivate{
@@ -196,6 +212,10 @@ func (m MsgActivate) ValidateBasic() error {
 	return nil
 }
 
+// ====================================
+// MsgHeartbeat
+// ====================================
+
 // NewMsgHeartbeat creates a new MsgHeartbeat instance.
 func NewMsgHeartbeat(sender string, groupID tss.GroupID) *MsgHeartbeat {
 	return &MsgHeartbeat{
@@ -218,6 +238,10 @@ func (m MsgHeartbeat) ValidateBasic() error {
 
 	return nil
 }
+
+// ====================================
+// MsgUpdateParams
+// ====================================
 
 // NewMsgUpdateParams creates a new MsgUpdateParams instance
 func NewMsgUpdateParams(authority string, params Params) *MsgUpdateParams {

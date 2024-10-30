@@ -1,6 +1,10 @@
 package types
 
-import "github.com/bandprotocol/chain/v3/pkg/tss"
+import (
+	"fmt"
+
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+)
 
 // NewGenesisState creates a new GenesisState instance.
 func NewGenesisState(
@@ -29,6 +33,16 @@ func DefaultGenesisState() *GenesisState {
 func (gs GenesisState) Validate() error {
 	if err := gs.Params.Validate(); err != nil {
 		return err
+	}
+
+	for _, m := range gs.Members {
+		if err := m.Validate(); err != nil {
+			return err
+		}
+
+		if m.GroupID != gs.CurrentGroupID {
+			return fmt.Errorf("member %s is not in current group %d", m.Address, gs.CurrentGroupID)
+		}
 	}
 
 	return nil

@@ -9,7 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v3/pkg/tss"
-	types "github.com/bandprotocol/chain/v3/x/bandtss/types"
+	"github.com/bandprotocol/chain/v3/x/bandtss/types"
 )
 
 var (
