@@ -64,4 +64,6 @@ var (
 	ErrInvalidMessage                = errorsmod.Register(ModuleName, 47, "invalid message")
 	ErrSigningAttemptNotFound        = errorsmod.Register(ModuleName, 48, "signing attempt not found")
 	ErrInvalidMember                 = errorsmod.Register(ModuleName, 49, "invalid member")
+	ErrInvalidGroup                  = errorsmod.Register(ModuleName, 50, "invalid group")
+	ErrInvalidSigning                = errorsmod.Register(ModuleName, 51, "invalid signing")
 )

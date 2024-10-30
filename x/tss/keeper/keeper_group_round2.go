@@ -22,17 +22,17 @@ func (k Keeper) AddRound2Info(ctx sdk.Context, groupID tss.GroupID, round2Info t
 // SetRound2Info sets the round2Info of a member in the store and increments the count of round2Info.
 func (k Keeper) SetRound2Info(ctx sdk.Context, groupID tss.GroupID, round2Info types.Round2Info) {
 	ctx.KVStore(k.storeKey).
-		Set(types.Round2InfoMemberStoreKey(groupID, round2Info.MemberID), k.cdc.MustMarshal(&round2Info))
+		Set(types.Round2InfoStoreKey(groupID, round2Info.MemberID), k.cdc.MustMarshal(&round2Info))
 }
 
 // HasRound2Info checks if the round2Info of a member exists in the store.
 func (k Keeper) HasRound2Info(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) bool {
-	return ctx.KVStore(k.storeKey).Has(types.Round2InfoMemberStoreKey(groupID, memberID))
+	return ctx.KVStore(k.storeKey).Has(types.Round2InfoStoreKey(groupID, memberID))
 }
 
 // GetRound2Info retrieves the round2Info of a member from the store.
 func (k Keeper) GetRound2Info(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) (types.Round2Info, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.Round2InfoMemberStoreKey(groupID, memberID))
+	bz := ctx.KVStore(k.storeKey).Get(types.Round2InfoStoreKey(groupID, memberID))
 	if bz == nil {
 		return types.Round2Info{}, types.ErrRound2InfoNotFound.Wrapf(
 			"failed to get round2Info with groupID: %d, memberID: %d",
@@ -76,7 +76,7 @@ func (k Keeper) DeleteRound2InfoCount(ctx sdk.Context, groupID tss.GroupID) {
 
 // GetRound2InfoIterator gets an iterator over all round2Info of a group.
 func (k Keeper) GetRound2InfoIterator(ctx sdk.Context, groupID tss.GroupID) dbm.Iterator {
-	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round2InfoStoreKey(groupID))
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.Round2InfosStoreKey(groupID))
 }
 
 // GetRound2Infos retrieves all round2Info for a given group from the store.

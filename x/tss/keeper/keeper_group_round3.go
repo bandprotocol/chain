@@ -123,14 +123,14 @@ func (k Keeper) SetComplaintsWithStatus(
 	complaintsWithStatus types.ComplaintsWithStatus,
 ) {
 	ctx.KVStore(k.storeKey).Set(
-		types.ComplainsWithStatusMemberStoreKey(groupID, complaintsWithStatus.MemberID),
+		types.ComplainsWithStatusStoreKey(groupID, complaintsWithStatus.MemberID),
 		k.cdc.MustMarshal(&complaintsWithStatus),
 	)
 }
 
 // HasComplaintsWithStatus checks if the complaints with status exists for a specific groupID and memberID in the store.
 func (k Keeper) HasComplaintsWithStatus(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) bool {
-	return ctx.KVStore(k.storeKey).Has(types.ComplainsWithStatusMemberStoreKey(groupID, memberID))
+	return ctx.KVStore(k.storeKey).Has(types.ComplainsWithStatusStoreKey(groupID, memberID))
 }
 
 // GetComplaintsWithStatus retrieves the complaints with status for a specific groupID and memberID from the store.
@@ -139,7 +139,7 @@ func (k Keeper) GetComplaintsWithStatus(
 	groupID tss.GroupID,
 	memberID tss.MemberID,
 ) (types.ComplaintsWithStatus, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.ComplainsWithStatusMemberStoreKey(groupID, memberID))
+	bz := ctx.KVStore(k.storeKey).Get(types.ComplainsWithStatusStoreKey(groupID, memberID))
 	if bz == nil {
 		return types.ComplaintsWithStatus{}, types.ErrComplaintsWithStatusNotFound.Wrapf(
 			"failed to get complaints with status with groupID %d memberID %d",
@@ -156,7 +156,7 @@ func (k Keeper) GetComplaintsWithStatus(
 func (k Keeper) GetComplainsWithStatusIterator(ctx sdk.Context, groupID tss.GroupID) dbm.Iterator {
 	return storetypes.KVStorePrefixIterator(
 		ctx.KVStore(k.storeKey),
-		types.ComplainsWithStatusStoreKey(groupID),
+		types.ComplainsWithStatusesStoreKey(groupID),
 	)
 }
 
@@ -203,12 +203,12 @@ func (k Keeper) SetConfirm(
 	confirm types.Confirm,
 ) {
 	ctx.KVStore(k.storeKey).
-		Set(types.ConfirmMemberStoreKey(groupID, confirm.MemberID), k.cdc.MustMarshal(&confirm))
+		Set(types.ConfirmStoreKey(groupID, confirm.MemberID), k.cdc.MustMarshal(&confirm))
 }
 
 // HasConfirm checks if a confirm exists for a specific groupID and memberID in the store.
 func (k Keeper) HasConfirm(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) bool {
-	return ctx.KVStore(k.storeKey).Has(types.ConfirmMemberStoreKey(groupID, memberID))
+	return ctx.KVStore(k.storeKey).Has(types.ConfirmStoreKey(groupID, memberID))
 }
 
 // GetConfirm retrieves the confirm for a specific groupID and memberID from the store.
@@ -217,7 +217,7 @@ func (k Keeper) GetConfirm(
 	groupID tss.GroupID,
 	memberID tss.MemberID,
 ) (types.Confirm, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.ConfirmMemberStoreKey(groupID, memberID))
+	bz := ctx.KVStore(k.storeKey).Get(types.ConfirmStoreKey(groupID, memberID))
 	if bz == nil {
 		return types.Confirm{}, types.ErrConfirmNotFound.Wrapf(
 			"failed to get confirm with groupID %d memberID %d",
@@ -232,7 +232,7 @@ func (k Keeper) GetConfirm(
 
 // GetConfirmIterator gets an iterator over all confirm data of a group.
 func (k Keeper) GetConfirmIterator(ctx sdk.Context, groupID tss.GroupID) dbm.Iterator {
-	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.ConfirmStoreKey(groupID))
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.ConfirmsStoreKey(groupID))
 }
 
 // GetConfirms retrieves all confirm for a given group from the store.
