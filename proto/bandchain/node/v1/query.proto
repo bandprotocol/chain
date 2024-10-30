@@ -1,0 +1,45 @@
+syntax = "proto3";
+package bandchain.node.v1;
+
+option go_package = "github.com/bandprotocol/chain/v3/client/grpc/node";
+
+import "google/api/annotations.proto";
+import "gogoproto/gogo.proto";
+
+// Service defines the gRPC querier service.
+service Service {
+  // ChainID queries the chain ID of this node
+  rpc ChainID(ChainIDRequest) returns (ChainIDResponse) {
+    option (google.api.http).get = "/bandchain/v1/chain_id";
+  }
+
+  // EVMValidators queries current list of validator's address and power
+  rpc EVMValidators(EVMValidatorsRequest) returns (EVMValidatorsResponse) {
+    option (google.api.http).get = "/bandchain/v1/evm-validators";
+  }
+}
+
+// ChainIDRequest is request type for the Service/ChainID RPC method.
+message ChainIDRequest {}
+
+// ChainIDResponse is response type for the Service/ChainID RPC method.
+message ChainIDResponse {
+  string chain_id = 1 [(gogoproto.customname) = "ChainID"];
+}
+
+// EVMValidatorsRequest is request type for the Service/EVMValidators RPC method.
+message EVMValidatorsRequest {}
+
+// EVMValidatorsResponse is response type for the Service/EVMValidators RPC method.
+message EVMValidatorsResponse {
+  // BlockHeight is the latest block height
+  int64 block_height = 1;
+  // Validators is list of validator's addresss and voting power
+  repeated ValidatorMinimal validators = 2 [(gogoproto.nullable) = false];
+}
+
+// ValidatorMinimal is the data structure for storing validator's address and voting power
+message ValidatorMinimal {
+  string address      = 1;
+  int64  voting_power = 2;
+}
