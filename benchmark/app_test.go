@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	abci "github.com/cometbft/cometbft/abci/types"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/testutil"
@@ -88,7 +88,7 @@ func InitializeBenchmarkApp(tb testing.TB, maxGasPerBlock int64) *BenchmarkApp {
 	}
 
 	ba.TB = tb
-	ba.Ctx = ba.NewUncachedContext(false, tmproto.Header{ChainID: bandtesting.ChainID})
+	ba.Ctx = ba.NewUncachedContext(false, cmtproto.Header{ChainID: bandtesting.ChainID})
 	ba.TSSMsgSrvr = tsskeeper.NewMsgServerImpl(ba.TSSKeeper)
 	ba.BandtssMsgSrvr = bandtsskeeper.NewMsgServerImpl(ba.BandtssKeeper)
 	ba.Querier = keeper.Querier{
