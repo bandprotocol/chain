@@ -13,6 +13,7 @@ import (
 	reflect "reflect"
 
 	price "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
+	signal "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/signal"
 	types "github.com/bandprotocol/chain/v3/x/feeds/types"
 	types0 "github.com/cosmos/cosmos-sdk/types"
 	gomock "go.uber.org/mock/gomock"
@@ -22,6 +23,7 @@ import (
 type MockBothanClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockBothanClientMockRecorder
+	isgomock struct{}
 }
 
 // MockBothanClientMockRecorder is the mock recorder for MockBothanClient.
@@ -41,6 +43,21 @@ func (m *MockBothanClient) EXPECT() *MockBothanClientMockRecorder {
 	return m.recorder
 }
 
+// GetInfo mocks base method.
+func (m *MockBothanClient) GetInfo() (*signal.GetInfoResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetInfo")
+	ret0, _ := ret[0].(*signal.GetInfoResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetInfo indicates an expected call of GetInfo.
+func (mr *MockBothanClientMockRecorder) GetInfo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInfo", reflect.TypeOf((*MockBothanClient)(nil).GetInfo))
+}
+
 // GetPrices mocks base method.
 func (m *MockBothanClient) GetPrices(signalIDs []string) (*price.GetPricesResponse, error) {
 	m.ctrl.T.Helper()
@@ -56,18 +73,18 @@ func (mr *MockBothanClientMockRecorder) GetPrices(signalIDs any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPrices", reflect.TypeOf((*MockBothanClient)(nil).GetPrices), signalIDs)
 }
 
-// SetActiveSignalIDs mocks base method.
-func (m *MockBothanClient) SetActiveSignalIDs(signalIDs []string) error {
+// PushMonitoringRecords mocks base method.
+func (m *MockBothanClient) PushMonitoringRecords(uuid, txHash string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetActiveSignalIDs", signalIDs)
+	ret := m.ctrl.Call(m, "PushMonitoringRecords", uuid, txHash)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// SetActiveSignalIDs indicates an expected call of SetActiveSignalIDs.
-func (mr *MockBothanClientMockRecorder) SetActiveSignalIDs(signalIDs any) *gomock.Call {
+// PushMonitoringRecords indicates an expected call of PushMonitoringRecords.
+func (mr *MockBothanClientMockRecorder) PushMonitoringRecords(uuid, txHash any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetActiveSignalIDs", reflect.TypeOf((*MockBothanClient)(nil).SetActiveSignalIDs), signalIDs)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PushMonitoringRecords", reflect.TypeOf((*MockBothanClient)(nil).PushMonitoringRecords), uuid, txHash)
 }
 
 // UpdateRegistry mocks base method.
@@ -88,6 +105,7 @@ func (mr *MockBothanClientMockRecorder) UpdateRegistry(ipfsHash, version any) *g
 type MockFeedQuerier struct {
 	ctrl     *gomock.Controller
 	recorder *MockFeedQuerierMockRecorder
+	isgomock struct{}
 }
 
 // MockFeedQuerierMockRecorder is the mock recorder for MockFeedQuerier.

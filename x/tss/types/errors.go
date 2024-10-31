@@ -17,8 +17,8 @@ var (
 		"member is not authorized for this group",
 	)
 	ErrInvalidStatus                = errorsmod.Register(ModuleName, 10, "invalid status")
-	ErrVerifyOneTimeSignatureFailed = errorsmod.Register(ModuleName, 11, "failed to verify one time sign")
-	ErrVerifyA0SignatureFailed      = errorsmod.Register(ModuleName, 12, "failed to verify a0 sign")
+	ErrVerifyOneTimeSignatureFailed = errorsmod.Register(ModuleName, 11, "failed to verify one time signature")
+	ErrVerifyA0SignatureFailed      = errorsmod.Register(ModuleName, 12, "failed to verify a0 signature")
 	ErrAddCoeffCommit               = errorsmod.Register(ModuleName, 13, "failed to add coefficient commit")
 	ErrInvalidLengthCoeffCommits    = errorsmod.Register(
 		ModuleName,
@@ -64,4 +64,6 @@ var (
 	ErrInvalidMessage                = errorsmod.Register(ModuleName, 47, "invalid message")
 	ErrSigningAttemptNotFound        = errorsmod.Register(ModuleName, 48, "signing attempt not found")
 	ErrInvalidMember                 = errorsmod.Register(ModuleName, 49, "invalid member")
+	ErrInvalidGroup                  = errorsmod.Register(ModuleName, 50, "invalid group")
+	ErrInvalidSigning                = errorsmod.Register(ModuleName, 51, "invalid signing")
 )

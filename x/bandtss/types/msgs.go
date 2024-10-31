@@ -32,6 +32,10 @@ var (
 	_ types.UnpackInterfacesMessage = &MsgRequestSignature{}
 )
 
+// ====================================
+// MsgTransitionGroup
+// ====================================
+
 // NewMsgTransitionGroup creates a new MsgTransitionGroup instance.
 func NewMsgTransitionGroup(
 	members []string,
@@ -57,8 +61,12 @@ func (m MsgTransitionGroup) ValidateBasic() error {
 	}
 
 	// Check duplicate member
-	if tsstypes.DuplicateInArray(m.Members) {
-		return ErrMemberDuplicate
+	existed := make(map[string]bool)
+	for _, member := range m.Members {
+		if existed[member] {
+			return ErrMemberDuplicate
+		}
+		existed[member] = true
 	}
 
 	// Validate sender address
@@ -75,6 +83,10 @@ func (m MsgTransitionGroup) ValidateBasic() error {
 
 	return nil
 }
+
+// ====================================
+// MsgForceTransitionGroup
+// ====================================
 
 // NewMsgForceTransitionGroup creates a new MsgForceTransitionGroup instance.
 func NewMsgForceTransitionGroup(
@@ -97,21 +109,25 @@ func (m MsgForceTransitionGroup) ValidateBasic() error {
 	}
 
 	if m.IncomingGroupID == 0 {
-		return ErrInvalidIncomingGroup.Wrap("incoming group ID must not be zero")
+		return ErrInvalidGroupID.Wrap("incoming group ID must not be zero")
 	}
 
 	return nil
 }
 
+// ====================================
+// MsgRequestSignature
+// ====================================
+
 // NewMsgRequestSignature creates a new MsgRequestSignature.
 func NewMsgRequestSignature(
 	content tsstypes.Content,
 	feeLimit sdk.Coins,
-	sender sdk.AccAddress,
+	sender string,
 ) (*MsgRequestSignature, error) {
 	m := &MsgRequestSignature{
 		FeeLimit: feeLimit,
-		Sender:   sender.String(),
+		Sender:   sender,
 	}
 	err := m.SetContent(content)
 	if err != nil {
@@ -134,6 +150,16 @@ func (m MsgRequestSignature) ValidateBasic() error {
 	// Validate sender address
 	if _, err := sdk.AccAddressFromBech32(m.Sender); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
+	}
+
+	// validate fee limit
+	if !m.FeeLimit.IsValid() {
+		return sdkerrors.ErrInvalidCoins.Wrap(m.FeeLimit.String())
+	}
+
+	// validate if fee limits are all positive
+	if !m.FeeLimit.IsAllPositive() {
+		return sdkerrors.ErrInvalidCoins.Wrap(m.FeeLimit.String())
 	}
 
 	return nil
@@ -159,6 +185,10 @@ func (m MsgRequestSignature) UnpackInterfaces(unpacker types.AnyUnpacker) error 
 	return unpacker.UnpackAny(m.Content, &content)
 }
 
+// ====================================
+// MsgActivate
+// ====================================
+
 // NewMsgActivate creates a new MsgActivate instance.
 func NewMsgActivate(sender string, groupID tss.GroupID) *MsgActivate {
 	return &MsgActivate{
@@ -174,8 +204,17 @@ func (m MsgActivate) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
 	}
 
+	// Validate group ID
+	if m.GroupID == 0 {
+		return ErrInvalidGroupID.Wrap("group ID must not be zero")
+	}
+
 	return nil
 }
+
+// ====================================
+// MsgHeartbeat
+// ====================================
 
 // NewMsgHeartbeat creates a new MsgHeartbeat instance.
 func NewMsgHeartbeat(sender string, groupID tss.GroupID) *MsgHeartbeat {
@@ -192,8 +231,17 @@ func (m MsgHeartbeat) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
 	}
 
+	// Validate group ID
+	if m.GroupID == 0 {
+		return ErrInvalidGroupID.Wrap("group ID must not be zero")
+	}
+
 	return nil
 }
+
+// ====================================
+// MsgUpdateParams
+// ====================================
 
 // NewMsgUpdateParams creates a new MsgUpdateParams instance
 func NewMsgUpdateParams(authority string, params Params) *MsgUpdateParams {

@@ -114,7 +114,7 @@ func GetTxCmdTextRequestSignature() *cobra.Command {
 			msg, err := types.NewMsgRequestSignature(
 				content,
 				feeLimit,
-				clientCtx.GetFromAddress(),
+				clientCtx.GetFromAddress().String(),
 			)
 			if err != nil {
 				return err

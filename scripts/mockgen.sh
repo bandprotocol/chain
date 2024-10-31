@@ -10,4 +10,3 @@ $mockgen_cmd -source=x/tunnel/types/expected_keepers.go -package testutil -desti
 
 $mockgen_cmd -source=grogu/submitter/expected_types.go -package testutil -destination grogu/submitter/testutil/expected_types_mock.go
 $mockgen_cmd -source=grogu/signaller/expected_types.go -package testutil -destination grogu/signaller/testutil/expected_types_mock.go
-$mockgen_cmd -source=grogu/updater/expected_types.go -package testutil -destination grogu/updater/testutil/expected_types_mock.go

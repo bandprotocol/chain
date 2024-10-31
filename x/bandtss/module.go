@@ -35,14 +35,21 @@ var (
 	_ appmodule.HasBeginBlocker = AppModule{}
 )
 
+// ----------------------------------------------------------------------------
+// AppModuleBasic
+// ----------------------------------------------------------------------------
+
 // AppModuleBasic defines the basic application module used by the bandtss module.
 type AppModuleBasic struct {
-	cdc                    codec.Codec
+	cdc                    codec.BinaryCodec
 	signatureOrderHandlers []bandtssclient.RequestSignatureHandler
 }
 
 // NewAppModuleBasic creates a new AppModuleBasic object
-func NewAppModuleBasic(cdc codec.Codec, signatureOrderHandlers ...bandtssclient.RequestSignatureHandler) AppModuleBasic {
+func NewAppModuleBasic(
+	cdc codec.Codec,
+	signatureOrderHandlers ...bandtssclient.RequestSignatureHandler,
+) AppModuleBasic {
 	return AppModuleBasic{
 		cdc:                    cdc,
 		signatureOrderHandlers: signatureOrderHandlers,
@@ -79,16 +86,18 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
 	return data.Validate()
 }
 
+// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the bandtss module.
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+	if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
+		panic(err)
+	}
+}
+
 // GetTxCmd returns the transaction commands for the bandtss module.
 func (a AppModuleBasic) GetTxCmd() *cobra.Command {
 	signatureOrderHandlers := getSignatureOrderCLIHandlers(a.signatureOrderHandlers)
 
 	return cli.GetTxCmd(signatureOrderHandlers)
-}
-
-// GetQueryCmd returns the cli query commands for the bandtss module.
-func (AppModuleBasic) GetQueryCmd() *cobra.Command {
-	return cli.GetQueryCmd()
 }
 
 func getSignatureOrderCLIHandlers(handlers []bandtssclient.RequestSignatureHandler) []*cobra.Command {
@@ -97,13 +106,6 @@ func getSignatureOrderCLIHandlers(handlers []bandtssclient.RequestSignatureHandl
 		signatureOrderHandlers = append(signatureOrderHandlers, handler.CLIHandler())
 	}
 	return signatureOrderHandlers
-}
-
-// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the bandtss module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	if err := types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx)); err != nil {
-		panic(err)
-	}
 }
 
 // ----------------------------------------------------------------------------
@@ -120,7 +122,7 @@ type AppModule struct {
 // NewAppModule creates a new AppModule object.
 func NewAppModule(cdc codec.Codec, k *keeper.Keeper) AppModule {
 	return AppModule{
-		AppModuleBasic: AppModuleBasic{cdc: cdc},
+		AppModuleBasic: NewAppModuleBasic(cdc),
 		keeper:         k,
 	}
 }
@@ -130,6 +132,11 @@ func (am AppModule) IsOnePerModuleType() {}
 
 // IsAppModule implements the appmodule.AppModule interface.
 func (am AppModule) IsAppModule() {}
+
+// Name returns the module's name.
+func (AppModule) Name() string {
+	return types.ModuleName
+}
 
 // RegisterServices registers a GRPC query service to respond to the module-specific GRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
@@ -154,6 +161,9 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 	return cdc.MustMarshalJSON(gs)
 }
 
+// ConsensusVersion implements AppModule/ConsensusVersion.
+func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
+
 // BeginBlock processes ABCI begin block message for this module (SDK AppModule interface).
 func (am AppModule) BeginBlock(ctx context.Context) error {
 	c := sdk.UnwrapSDKContext(ctx)
@@ -165,6 +175,3 @@ func (am AppModule) EndBlock(ctx context.Context) error {
 	c := sdk.UnwrapSDKContext(ctx)
 	return EndBlocker(c, am.keeper)
 }
-
-// ConsensusVersion implements AppModule/ConsensusVersion.
-func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }

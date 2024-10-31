@@ -9,6 +9,7 @@ import (
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 )
 
+// CallbackRouter is a struct that holds a map of TSSCallback objects for each module.
 type CallbackRouter struct {
 	routes map[string]TSSCallback
 	sealed bool
@@ -30,13 +31,13 @@ func (cbr *CallbackRouter) Seal() {
 	cbr.sealed = true
 }
 
-// Sealed returns a boolean signifying if the CallbackRouter is sealed or not.
+// Sealed returns whether the CallbackRouter can be changed or not.
 func (cbr CallbackRouter) Sealed() bool {
 	return cbr.sealed
 }
 
 // AddRoute adds TSSCallback for a given module name. It returns the CallbackRouter
-// so AddRoute calls can be linked. It will panic if the CallbackRouter is sealed.
+// so that the function can be chained. It will panic if the CallbackRouter is sealed.
 func (cbr *CallbackRouter) AddRoute(module string, cbs TSSCallback) *CallbackRouter {
 	if cbr.sealed {
 		panic(fmt.Errorf("callback router sealed; cannot register %s route callbacks", module))
@@ -52,7 +53,7 @@ func (cbr *CallbackRouter) AddRoute(module string, cbs TSSCallback) *CallbackRou
 	return cbr
 }
 
-// HasRoute returns true if the CallbackRouter has a module registered or false otherwise.
+// HasRoute returns whether the given module is registered.
 func (cbr *CallbackRouter) HasRoute(module string) bool {
 	_, ok := cbr.routes[module]
 	return ok

@@ -9,8 +9,8 @@ func (suite *KeeperTestSuite) TestGetSetReferenceSourceConfig() {
 
 	// set
 	expReferenceSourceConfig := types.ReferenceSourceConfig{
-		IPFSHash: "hash",
-		Version:  "1.0.0",
+		RegistryIPFSHash: "hash",
+		RegistryVersion:  "1.0.0",
 	}
 	err := suite.feedsKeeper.SetReferenceSourceConfig(ctx, expReferenceSourceConfig)
 	suite.Require().NoError(err)
