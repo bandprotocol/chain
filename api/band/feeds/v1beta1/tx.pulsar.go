@@ -74,8 +74,8 @@ var (
 )
 
 func init() {
-	file_feeds_v1beta1_tx_proto_init()
-	md_MsgSubmitSignals = File_feeds_v1beta1_tx_proto.Messages().ByName("MsgSubmitSignals")
+	file_band_feeds_v1beta1_tx_proto_init()
+	md_MsgSubmitSignals = File_band_feeds_v1beta1_tx_proto.Messages().ByName("MsgSubmitSignals")
 	fd_MsgSubmitSignals_delegator = md_MsgSubmitSignals.Fields().ByName("delegator")
 	fd_MsgSubmitSignals_signals = md_MsgSubmitSignals.Fields().ByName("signals")
 }
@@ -89,7 +89,7 @@ func (x *MsgSubmitSignals) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgSubmitSignals) slowProtoReflect() protoreflect.Message {
-	mi := &file_feeds_v1beta1_tx_proto_msgTypes[0]
+	mi := &file_band_feeds_v1beta1_tx_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -172,15 +172,15 @@ func (x *fastReflection_MsgSubmitSignals) Range(f func(protoreflect.FieldDescrip
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgSubmitSignals) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "feeds.v1beta1.MsgSubmitSignals.delegator":
+	case "band.feeds.v1beta1.MsgSubmitSignals.delegator":
 		return x.Delegator != ""
-	case "feeds.v1beta1.MsgSubmitSignals.signals":
+	case "band.feeds.v1beta1.MsgSubmitSignals.signals":
 		return len(x.Signals) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignals"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignals"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignals does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignals does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -192,15 +192,15 @@ func (x *fastReflection_MsgSubmitSignals) Has(fd protoreflect.FieldDescriptor) b
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgSubmitSignals) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "feeds.v1beta1.MsgSubmitSignals.delegator":
+	case "band.feeds.v1beta1.MsgSubmitSignals.delegator":
 		x.Delegator = ""
-	case "feeds.v1beta1.MsgSubmitSignals.signals":
+	case "band.feeds.v1beta1.MsgSubmitSignals.signals":
 		x.Signals = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignals"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignals"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignals does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignals does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -212,10 +212,10 @@ func (x *fastReflection_MsgSubmitSignals) Clear(fd protoreflect.FieldDescriptor)
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgSubmitSignals) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "feeds.v1beta1.MsgSubmitSignals.delegator":
+	case "band.feeds.v1beta1.MsgSubmitSignals.delegator":
 		value := x.Delegator
 		return protoreflect.ValueOfString(value)
-	case "feeds.v1beta1.MsgSubmitSignals.signals":
+	case "band.feeds.v1beta1.MsgSubmitSignals.signals":
 		if len(x.Signals) == 0 {
 			return protoreflect.ValueOfList(&_MsgSubmitSignals_2_list{})
 		}
@@ -223,9 +223,9 @@ func (x *fastReflection_MsgSubmitSignals) Get(descriptor protoreflect.FieldDescr
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignals"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignals"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignals does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignals does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -241,17 +241,17 @@ func (x *fastReflection_MsgSubmitSignals) Get(descriptor protoreflect.FieldDescr
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgSubmitSignals) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "feeds.v1beta1.MsgSubmitSignals.delegator":
+	case "band.feeds.v1beta1.MsgSubmitSignals.delegator":
 		x.Delegator = value.Interface().(string)
-	case "feeds.v1beta1.MsgSubmitSignals.signals":
+	case "band.feeds.v1beta1.MsgSubmitSignals.signals":
 		lv := value.List()
 		clv := lv.(*_MsgSubmitSignals_2_list)
 		x.Signals = *clv.list
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignals"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignals"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignals does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignals does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -267,19 +267,19 @@ func (x *fastReflection_MsgSubmitSignals) Set(fd protoreflect.FieldDescriptor, v
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgSubmitSignals) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "feeds.v1beta1.MsgSubmitSignals.signals":
+	case "band.feeds.v1beta1.MsgSubmitSignals.signals":
 		if x.Signals == nil {
 			x.Signals = []*Signal{}
 		}
 		value := &_MsgSubmitSignals_2_list{list: &x.Signals}
 		return protoreflect.ValueOfList(value)
-	case "feeds.v1beta1.MsgSubmitSignals.delegator":
-		panic(fmt.Errorf("field delegator of message feeds.v1beta1.MsgSubmitSignals is not mutable"))
+	case "band.feeds.v1beta1.MsgSubmitSignals.delegator":
+		panic(fmt.Errorf("field delegator of message band.feeds.v1beta1.MsgSubmitSignals is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignals"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignals"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignals does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignals does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -288,16 +288,16 @@ func (x *fastReflection_MsgSubmitSignals) Mutable(fd protoreflect.FieldDescripto
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgSubmitSignals) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "feeds.v1beta1.MsgSubmitSignals.delegator":
+	case "band.feeds.v1beta1.MsgSubmitSignals.delegator":
 		return protoreflect.ValueOfString("")
-	case "feeds.v1beta1.MsgSubmitSignals.signals":
+	case "band.feeds.v1beta1.MsgSubmitSignals.signals":
 		list := []*Signal{}
 		return protoreflect.ValueOfList(&_MsgSubmitSignals_2_list{list: &list})
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignals"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignals"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignals does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignals does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -307,7 +307,7 @@ func (x *fastReflection_MsgSubmitSignals) NewField(fd protoreflect.FieldDescript
 func (x *fastReflection_MsgSubmitSignals) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in feeds.v1beta1.MsgSubmitSignals", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.feeds.v1beta1.MsgSubmitSignals", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -579,8 +579,8 @@ var (
 )
 
 func init() {
-	file_feeds_v1beta1_tx_proto_init()
-	md_MsgSubmitSignalsResponse = File_feeds_v1beta1_tx_proto.Messages().ByName("MsgSubmitSignalsResponse")
+	file_band_feeds_v1beta1_tx_proto_init()
+	md_MsgSubmitSignalsResponse = File_band_feeds_v1beta1_tx_proto.Messages().ByName("MsgSubmitSignalsResponse")
 }
 
 var _ protoreflect.Message = (*fastReflection_MsgSubmitSignalsResponse)(nil)
@@ -592,7 +592,7 @@ func (x *MsgSubmitSignalsResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgSubmitSignalsResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_feeds_v1beta1_tx_proto_msgTypes[1]
+	mi := &file_band_feeds_v1beta1_tx_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -665,9 +665,9 @@ func (x *fastReflection_MsgSubmitSignalsResponse) Has(fd protoreflect.FieldDescr
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignalsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalsResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignalsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -681,9 +681,9 @@ func (x *fastReflection_MsgSubmitSignalsResponse) Clear(fd protoreflect.FieldDes
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignalsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalsResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignalsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -697,9 +697,9 @@ func (x *fastReflection_MsgSubmitSignalsResponse) Get(descriptor protoreflect.Fi
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignalsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalsResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignalsResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalsResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -717,9 +717,9 @@ func (x *fastReflection_MsgSubmitSignalsResponse) Set(fd protoreflect.FieldDescr
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignalsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalsResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignalsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -737,9 +737,9 @@ func (x *fastReflection_MsgSubmitSignalsResponse) Mutable(fd protoreflect.FieldD
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignalsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalsResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignalsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -750,9 +750,9 @@ func (x *fastReflection_MsgSubmitSignalsResponse) NewField(fd protoreflect.Field
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignalsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalsResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignalsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -762,7 +762,7 @@ func (x *fastReflection_MsgSubmitSignalsResponse) NewField(fd protoreflect.Field
 func (x *fastReflection_MsgSubmitSignalsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in feeds.v1beta1.MsgSubmitSignalsResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.feeds.v1beta1.MsgSubmitSignalsResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -989,8 +989,8 @@ var (
 )
 
 func init() {
-	file_feeds_v1beta1_tx_proto_init()
-	md_MsgSubmitSignalPrices = File_feeds_v1beta1_tx_proto.Messages().ByName("MsgSubmitSignalPrices")
+	file_band_feeds_v1beta1_tx_proto_init()
+	md_MsgSubmitSignalPrices = File_band_feeds_v1beta1_tx_proto.Messages().ByName("MsgSubmitSignalPrices")
 	fd_MsgSubmitSignalPrices_validator = md_MsgSubmitSignalPrices.Fields().ByName("validator")
 	fd_MsgSubmitSignalPrices_timestamp = md_MsgSubmitSignalPrices.Fields().ByName("timestamp")
 	fd_MsgSubmitSignalPrices_prices = md_MsgSubmitSignalPrices.Fields().ByName("prices")
@@ -1005,7 +1005,7 @@ func (x *MsgSubmitSignalPrices) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgSubmitSignalPrices) slowProtoReflect() protoreflect.Message {
-	mi := &file_feeds_v1beta1_tx_proto_msgTypes[2]
+	mi := &file_band_feeds_v1beta1_tx_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1094,17 +1094,17 @@ func (x *fastReflection_MsgSubmitSignalPrices) Range(f func(protoreflect.FieldDe
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgSubmitSignalPrices) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "feeds.v1beta1.MsgSubmitSignalPrices.validator":
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.validator":
 		return x.Validator != ""
-	case "feeds.v1beta1.MsgSubmitSignalPrices.timestamp":
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.timestamp":
 		return x.Timestamp != int64(0)
-	case "feeds.v1beta1.MsgSubmitSignalPrices.prices":
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.prices":
 		return len(x.Prices) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignalPrices"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalPrices"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignalPrices does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalPrices does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1116,17 +1116,17 @@ func (x *fastReflection_MsgSubmitSignalPrices) Has(fd protoreflect.FieldDescript
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgSubmitSignalPrices) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "feeds.v1beta1.MsgSubmitSignalPrices.validator":
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.validator":
 		x.Validator = ""
-	case "feeds.v1beta1.MsgSubmitSignalPrices.timestamp":
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.timestamp":
 		x.Timestamp = int64(0)
-	case "feeds.v1beta1.MsgSubmitSignalPrices.prices":
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.prices":
 		x.Prices = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignalPrices"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalPrices"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignalPrices does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalPrices does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1138,13 +1138,13 @@ func (x *fastReflection_MsgSubmitSignalPrices) Clear(fd protoreflect.FieldDescri
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgSubmitSignalPrices) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "feeds.v1beta1.MsgSubmitSignalPrices.validator":
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.validator":
 		value := x.Validator
 		return protoreflect.ValueOfString(value)
-	case "feeds.v1beta1.MsgSubmitSignalPrices.timestamp":
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.timestamp":
 		value := x.Timestamp
 		return protoreflect.ValueOfInt64(value)
-	case "feeds.v1beta1.MsgSubmitSignalPrices.prices":
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.prices":
 		if len(x.Prices) == 0 {
 			return protoreflect.ValueOfList(&_MsgSubmitSignalPrices_3_list{})
 		}
@@ -1152,9 +1152,9 @@ func (x *fastReflection_MsgSubmitSignalPrices) Get(descriptor protoreflect.Field
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignalPrices"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalPrices"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignalPrices does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalPrices does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1170,19 +1170,19 @@ func (x *fastReflection_MsgSubmitSignalPrices) Get(descriptor protoreflect.Field
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgSubmitSignalPrices) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "feeds.v1beta1.MsgSubmitSignalPrices.validator":
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.validator":
 		x.Validator = value.Interface().(string)
-	case "feeds.v1beta1.MsgSubmitSignalPrices.timestamp":
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.timestamp":
 		x.Timestamp = value.Int()
-	case "feeds.v1beta1.MsgSubmitSignalPrices.prices":
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.prices":
 		lv := value.List()
 		clv := lv.(*_MsgSubmitSignalPrices_3_list)
 		x.Prices = *clv.list
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignalPrices"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalPrices"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignalPrices does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalPrices does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1198,21 +1198,21 @@ func (x *fastReflection_MsgSubmitSignalPrices) Set(fd protoreflect.FieldDescript
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgSubmitSignalPrices) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "feeds.v1beta1.MsgSubmitSignalPrices.prices":
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.prices":
 		if x.Prices == nil {
 			x.Prices = []*SignalPrice{}
 		}
 		value := &_MsgSubmitSignalPrices_3_list{list: &x.Prices}
 		return protoreflect.ValueOfList(value)
-	case "feeds.v1beta1.MsgSubmitSignalPrices.validator":
-		panic(fmt.Errorf("field validator of message feeds.v1beta1.MsgSubmitSignalPrices is not mutable"))
-	case "feeds.v1beta1.MsgSubmitSignalPrices.timestamp":
-		panic(fmt.Errorf("field timestamp of message feeds.v1beta1.MsgSubmitSignalPrices is not mutable"))
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.validator":
+		panic(fmt.Errorf("field validator of message band.feeds.v1beta1.MsgSubmitSignalPrices is not mutable"))
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.timestamp":
+		panic(fmt.Errorf("field timestamp of message band.feeds.v1beta1.MsgSubmitSignalPrices is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignalPrices"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalPrices"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignalPrices does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalPrices does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1221,18 +1221,18 @@ func (x *fastReflection_MsgSubmitSignalPrices) Mutable(fd protoreflect.FieldDesc
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgSubmitSignalPrices) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "feeds.v1beta1.MsgSubmitSignalPrices.validator":
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.validator":
 		return protoreflect.ValueOfString("")
-	case "feeds.v1beta1.MsgSubmitSignalPrices.timestamp":
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.timestamp":
 		return protoreflect.ValueOfInt64(int64(0))
-	case "feeds.v1beta1.MsgSubmitSignalPrices.prices":
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.prices":
 		list := []*SignalPrice{}
 		return protoreflect.ValueOfList(&_MsgSubmitSignalPrices_3_list{list: &list})
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignalPrices"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalPrices"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignalPrices does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalPrices does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1242,7 +1242,7 @@ func (x *fastReflection_MsgSubmitSignalPrices) NewField(fd protoreflect.FieldDes
 func (x *fastReflection_MsgSubmitSignalPrices) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in feeds.v1beta1.MsgSubmitSignalPrices", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.feeds.v1beta1.MsgSubmitSignalPrices", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1541,8 +1541,8 @@ var (
 )
 
 func init() {
-	file_feeds_v1beta1_tx_proto_init()
-	md_MsgSubmitSignalPricesResponse = File_feeds_v1beta1_tx_proto.Messages().ByName("MsgSubmitSignalPricesResponse")
+	file_band_feeds_v1beta1_tx_proto_init()
+	md_MsgSubmitSignalPricesResponse = File_band_feeds_v1beta1_tx_proto.Messages().ByName("MsgSubmitSignalPricesResponse")
 }
 
 var _ protoreflect.Message = (*fastReflection_MsgSubmitSignalPricesResponse)(nil)
@@ -1554,7 +1554,7 @@ func (x *MsgSubmitSignalPricesResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgSubmitSignalPricesResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_feeds_v1beta1_tx_proto_msgTypes[3]
+	mi := &file_band_feeds_v1beta1_tx_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1627,9 +1627,9 @@ func (x *fastReflection_MsgSubmitSignalPricesResponse) Has(fd protoreflect.Field
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignalPricesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalPricesResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignalPricesResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalPricesResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1643,9 +1643,9 @@ func (x *fastReflection_MsgSubmitSignalPricesResponse) Clear(fd protoreflect.Fie
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignalPricesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalPricesResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignalPricesResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalPricesResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1659,9 +1659,9 @@ func (x *fastReflection_MsgSubmitSignalPricesResponse) Get(descriptor protorefle
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignalPricesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalPricesResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignalPricesResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalPricesResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1679,9 +1679,9 @@ func (x *fastReflection_MsgSubmitSignalPricesResponse) Set(fd protoreflect.Field
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignalPricesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalPricesResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignalPricesResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalPricesResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1699,9 +1699,9 @@ func (x *fastReflection_MsgSubmitSignalPricesResponse) Mutable(fd protoreflect.F
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignalPricesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalPricesResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignalPricesResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalPricesResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1712,9 +1712,9 @@ func (x *fastReflection_MsgSubmitSignalPricesResponse) NewField(fd protoreflect.
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgSubmitSignalPricesResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalPricesResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgSubmitSignalPricesResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalPricesResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1724,7 +1724,7 @@ func (x *fastReflection_MsgSubmitSignalPricesResponse) NewField(fd protoreflect.
 func (x *fastReflection_MsgSubmitSignalPricesResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in feeds.v1beta1.MsgSubmitSignalPricesResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.feeds.v1beta1.MsgSubmitSignalPricesResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1899,8 +1899,8 @@ var (
 )
 
 func init() {
-	file_feeds_v1beta1_tx_proto_init()
-	md_MsgUpdateReferenceSourceConfig = File_feeds_v1beta1_tx_proto.Messages().ByName("MsgUpdateReferenceSourceConfig")
+	file_band_feeds_v1beta1_tx_proto_init()
+	md_MsgUpdateReferenceSourceConfig = File_band_feeds_v1beta1_tx_proto.Messages().ByName("MsgUpdateReferenceSourceConfig")
 	fd_MsgUpdateReferenceSourceConfig_admin = md_MsgUpdateReferenceSourceConfig.Fields().ByName("admin")
 	fd_MsgUpdateReferenceSourceConfig_reference_source_config = md_MsgUpdateReferenceSourceConfig.Fields().ByName("reference_source_config")
 }
@@ -1914,7 +1914,7 @@ func (x *MsgUpdateReferenceSourceConfig) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgUpdateReferenceSourceConfig) slowProtoReflect() protoreflect.Message {
-	mi := &file_feeds_v1beta1_tx_proto_msgTypes[4]
+	mi := &file_band_feeds_v1beta1_tx_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1997,15 +1997,15 @@ func (x *fastReflection_MsgUpdateReferenceSourceConfig) Range(f func(protoreflec
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgUpdateReferenceSourceConfig) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "feeds.v1beta1.MsgUpdateReferenceSourceConfig.admin":
+	case "band.feeds.v1beta1.MsgUpdateReferenceSourceConfig.admin":
 		return x.Admin != ""
-	case "feeds.v1beta1.MsgUpdateReferenceSourceConfig.reference_source_config":
+	case "band.feeds.v1beta1.MsgUpdateReferenceSourceConfig.reference_source_config":
 		return x.ReferenceSourceConfig != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateReferenceSourceConfig"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateReferenceSourceConfig"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateReferenceSourceConfig does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateReferenceSourceConfig does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2017,15 +2017,15 @@ func (x *fastReflection_MsgUpdateReferenceSourceConfig) Has(fd protoreflect.Fiel
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgUpdateReferenceSourceConfig) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "feeds.v1beta1.MsgUpdateReferenceSourceConfig.admin":
+	case "band.feeds.v1beta1.MsgUpdateReferenceSourceConfig.admin":
 		x.Admin = ""
-	case "feeds.v1beta1.MsgUpdateReferenceSourceConfig.reference_source_config":
+	case "band.feeds.v1beta1.MsgUpdateReferenceSourceConfig.reference_source_config":
 		x.ReferenceSourceConfig = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateReferenceSourceConfig"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateReferenceSourceConfig"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateReferenceSourceConfig does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateReferenceSourceConfig does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2037,17 +2037,17 @@ func (x *fastReflection_MsgUpdateReferenceSourceConfig) Clear(fd protoreflect.Fi
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgUpdateReferenceSourceConfig) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "feeds.v1beta1.MsgUpdateReferenceSourceConfig.admin":
+	case "band.feeds.v1beta1.MsgUpdateReferenceSourceConfig.admin":
 		value := x.Admin
 		return protoreflect.ValueOfString(value)
-	case "feeds.v1beta1.MsgUpdateReferenceSourceConfig.reference_source_config":
+	case "band.feeds.v1beta1.MsgUpdateReferenceSourceConfig.reference_source_config":
 		value := x.ReferenceSourceConfig
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateReferenceSourceConfig"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateReferenceSourceConfig"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateReferenceSourceConfig does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateReferenceSourceConfig does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2063,15 +2063,15 @@ func (x *fastReflection_MsgUpdateReferenceSourceConfig) Get(descriptor protorefl
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgUpdateReferenceSourceConfig) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "feeds.v1beta1.MsgUpdateReferenceSourceConfig.admin":
+	case "band.feeds.v1beta1.MsgUpdateReferenceSourceConfig.admin":
 		x.Admin = value.Interface().(string)
-	case "feeds.v1beta1.MsgUpdateReferenceSourceConfig.reference_source_config":
+	case "band.feeds.v1beta1.MsgUpdateReferenceSourceConfig.reference_source_config":
 		x.ReferenceSourceConfig = value.Message().Interface().(*ReferenceSourceConfig)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateReferenceSourceConfig"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateReferenceSourceConfig"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateReferenceSourceConfig does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateReferenceSourceConfig does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2087,18 +2087,18 @@ func (x *fastReflection_MsgUpdateReferenceSourceConfig) Set(fd protoreflect.Fiel
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgUpdateReferenceSourceConfig) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "feeds.v1beta1.MsgUpdateReferenceSourceConfig.reference_source_config":
+	case "band.feeds.v1beta1.MsgUpdateReferenceSourceConfig.reference_source_config":
 		if x.ReferenceSourceConfig == nil {
 			x.ReferenceSourceConfig = new(ReferenceSourceConfig)
 		}
 		return protoreflect.ValueOfMessage(x.ReferenceSourceConfig.ProtoReflect())
-	case "feeds.v1beta1.MsgUpdateReferenceSourceConfig.admin":
-		panic(fmt.Errorf("field admin of message feeds.v1beta1.MsgUpdateReferenceSourceConfig is not mutable"))
+	case "band.feeds.v1beta1.MsgUpdateReferenceSourceConfig.admin":
+		panic(fmt.Errorf("field admin of message band.feeds.v1beta1.MsgUpdateReferenceSourceConfig is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateReferenceSourceConfig"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateReferenceSourceConfig"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateReferenceSourceConfig does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateReferenceSourceConfig does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2107,16 +2107,16 @@ func (x *fastReflection_MsgUpdateReferenceSourceConfig) Mutable(fd protoreflect.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgUpdateReferenceSourceConfig) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "feeds.v1beta1.MsgUpdateReferenceSourceConfig.admin":
+	case "band.feeds.v1beta1.MsgUpdateReferenceSourceConfig.admin":
 		return protoreflect.ValueOfString("")
-	case "feeds.v1beta1.MsgUpdateReferenceSourceConfig.reference_source_config":
+	case "band.feeds.v1beta1.MsgUpdateReferenceSourceConfig.reference_source_config":
 		m := new(ReferenceSourceConfig)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateReferenceSourceConfig"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateReferenceSourceConfig"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateReferenceSourceConfig does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateReferenceSourceConfig does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2126,7 +2126,7 @@ func (x *fastReflection_MsgUpdateReferenceSourceConfig) NewField(fd protoreflect
 func (x *fastReflection_MsgUpdateReferenceSourceConfig) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in feeds.v1beta1.MsgUpdateReferenceSourceConfig", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.feeds.v1beta1.MsgUpdateReferenceSourceConfig", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2396,8 +2396,8 @@ var (
 )
 
 func init() {
-	file_feeds_v1beta1_tx_proto_init()
-	md_MsgUpdateReferenceSourceConfigResponse = File_feeds_v1beta1_tx_proto.Messages().ByName("MsgUpdateReferenceSourceConfigResponse")
+	file_band_feeds_v1beta1_tx_proto_init()
+	md_MsgUpdateReferenceSourceConfigResponse = File_band_feeds_v1beta1_tx_proto.Messages().ByName("MsgUpdateReferenceSourceConfigResponse")
 }
 
 var _ protoreflect.Message = (*fastReflection_MsgUpdateReferenceSourceConfigResponse)(nil)
@@ -2409,7 +2409,7 @@ func (x *MsgUpdateReferenceSourceConfigResponse) ProtoReflect() protoreflect.Mes
 }
 
 func (x *MsgUpdateReferenceSourceConfigResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_feeds_v1beta1_tx_proto_msgTypes[5]
+	mi := &file_band_feeds_v1beta1_tx_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2482,9 +2482,9 @@ func (x *fastReflection_MsgUpdateReferenceSourceConfigResponse) Has(fd protorefl
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2498,9 +2498,9 @@ func (x *fastReflection_MsgUpdateReferenceSourceConfigResponse) Clear(fd protore
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2514,9 +2514,9 @@ func (x *fastReflection_MsgUpdateReferenceSourceConfigResponse) Get(descriptor p
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2534,9 +2534,9 @@ func (x *fastReflection_MsgUpdateReferenceSourceConfigResponse) Set(fd protorefl
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2554,9 +2554,9 @@ func (x *fastReflection_MsgUpdateReferenceSourceConfigResponse) Mutable(fd proto
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2567,9 +2567,9 @@ func (x *fastReflection_MsgUpdateReferenceSourceConfigResponse) NewField(fd prot
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2579,7 +2579,7 @@ func (x *fastReflection_MsgUpdateReferenceSourceConfigResponse) NewField(fd prot
 func (x *fastReflection_MsgUpdateReferenceSourceConfigResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2754,8 +2754,8 @@ var (
 )
 
 func init() {
-	file_feeds_v1beta1_tx_proto_init()
-	md_MsgUpdateParams = File_feeds_v1beta1_tx_proto.Messages().ByName("MsgUpdateParams")
+	file_band_feeds_v1beta1_tx_proto_init()
+	md_MsgUpdateParams = File_band_feeds_v1beta1_tx_proto.Messages().ByName("MsgUpdateParams")
 	fd_MsgUpdateParams_authority = md_MsgUpdateParams.Fields().ByName("authority")
 	fd_MsgUpdateParams_params = md_MsgUpdateParams.Fields().ByName("params")
 }
@@ -2769,7 +2769,7 @@ func (x *MsgUpdateParams) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgUpdateParams) slowProtoReflect() protoreflect.Message {
-	mi := &file_feeds_v1beta1_tx_proto_msgTypes[6]
+	mi := &file_band_feeds_v1beta1_tx_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2852,15 +2852,15 @@ func (x *fastReflection_MsgUpdateParams) Range(f func(protoreflect.FieldDescript
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgUpdateParams) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "feeds.v1beta1.MsgUpdateParams.authority":
+	case "band.feeds.v1beta1.MsgUpdateParams.authority":
 		return x.Authority != ""
-	case "feeds.v1beta1.MsgUpdateParams.params":
+	case "band.feeds.v1beta1.MsgUpdateParams.params":
 		return x.Params != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2872,15 +2872,15 @@ func (x *fastReflection_MsgUpdateParams) Has(fd protoreflect.FieldDescriptor) bo
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgUpdateParams) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "feeds.v1beta1.MsgUpdateParams.authority":
+	case "band.feeds.v1beta1.MsgUpdateParams.authority":
 		x.Authority = ""
-	case "feeds.v1beta1.MsgUpdateParams.params":
+	case "band.feeds.v1beta1.MsgUpdateParams.params":
 		x.Params = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2892,17 +2892,17 @@ func (x *fastReflection_MsgUpdateParams) Clear(fd protoreflect.FieldDescriptor) 
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgUpdateParams) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "feeds.v1beta1.MsgUpdateParams.authority":
+	case "band.feeds.v1beta1.MsgUpdateParams.authority":
 		value := x.Authority
 		return protoreflect.ValueOfString(value)
-	case "feeds.v1beta1.MsgUpdateParams.params":
+	case "band.feeds.v1beta1.MsgUpdateParams.params":
 		value := x.Params
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateParams does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateParams does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2918,15 +2918,15 @@ func (x *fastReflection_MsgUpdateParams) Get(descriptor protoreflect.FieldDescri
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgUpdateParams) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "feeds.v1beta1.MsgUpdateParams.authority":
+	case "band.feeds.v1beta1.MsgUpdateParams.authority":
 		x.Authority = value.Interface().(string)
-	case "feeds.v1beta1.MsgUpdateParams.params":
+	case "band.feeds.v1beta1.MsgUpdateParams.params":
 		x.Params = value.Message().Interface().(*Params)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2942,18 +2942,18 @@ func (x *fastReflection_MsgUpdateParams) Set(fd protoreflect.FieldDescriptor, va
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgUpdateParams) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "feeds.v1beta1.MsgUpdateParams.params":
+	case "band.feeds.v1beta1.MsgUpdateParams.params":
 		if x.Params == nil {
 			x.Params = new(Params)
 		}
 		return protoreflect.ValueOfMessage(x.Params.ProtoReflect())
-	case "feeds.v1beta1.MsgUpdateParams.authority":
-		panic(fmt.Errorf("field authority of message feeds.v1beta1.MsgUpdateParams is not mutable"))
+	case "band.feeds.v1beta1.MsgUpdateParams.authority":
+		panic(fmt.Errorf("field authority of message band.feeds.v1beta1.MsgUpdateParams is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2962,16 +2962,16 @@ func (x *fastReflection_MsgUpdateParams) Mutable(fd protoreflect.FieldDescriptor
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgUpdateParams) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "feeds.v1beta1.MsgUpdateParams.authority":
+	case "band.feeds.v1beta1.MsgUpdateParams.authority":
 		return protoreflect.ValueOfString("")
-	case "feeds.v1beta1.MsgUpdateParams.params":
+	case "band.feeds.v1beta1.MsgUpdateParams.params":
 		m := new(Params)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2981,7 +2981,7 @@ func (x *fastReflection_MsgUpdateParams) NewField(fd protoreflect.FieldDescripto
 func (x *fastReflection_MsgUpdateParams) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in feeds.v1beta1.MsgUpdateParams", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.feeds.v1beta1.MsgUpdateParams", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -3251,8 +3251,8 @@ var (
 )
 
 func init() {
-	file_feeds_v1beta1_tx_proto_init()
-	md_MsgUpdateParamsResponse = File_feeds_v1beta1_tx_proto.Messages().ByName("MsgUpdateParamsResponse")
+	file_band_feeds_v1beta1_tx_proto_init()
+	md_MsgUpdateParamsResponse = File_band_feeds_v1beta1_tx_proto.Messages().ByName("MsgUpdateParamsResponse")
 }
 
 var _ protoreflect.Message = (*fastReflection_MsgUpdateParamsResponse)(nil)
@@ -3264,7 +3264,7 @@ func (x *MsgUpdateParamsResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgUpdateParamsResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_feeds_v1beta1_tx_proto_msgTypes[7]
+	mi := &file_band_feeds_v1beta1_tx_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3337,9 +3337,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) Has(fd protoreflect.FieldDescri
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3353,9 +3353,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) Clear(fd protoreflect.FieldDesc
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3369,9 +3369,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) Get(descriptor protoreflect.Fie
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateParamsResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateParamsResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -3389,9 +3389,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) Set(fd protoreflect.FieldDescri
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3409,9 +3409,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) Mutable(fd protoreflect.FieldDe
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3422,9 +3422,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) NewField(fd protoreflect.FieldD
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: feeds.v1beta1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message feeds.v1beta1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3434,7 +3434,7 @@ func (x *fastReflection_MsgUpdateParamsResponse) NewField(fd protoreflect.FieldD
 func (x *fastReflection_MsgUpdateParamsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in feeds.v1beta1.MsgUpdateParamsResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.feeds.v1beta1.MsgUpdateParamsResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -3606,7 +3606,7 @@ func (x *fastReflection_MsgUpdateParamsResponse) ProtoMethods() *protoiface.Meth
 // versions:
 // 	protoc-gen-go v1.27.0
 // 	protoc        (unknown)
-// source: feeds/v1beta1/tx.proto
+// source: band/feeds/v1beta1/tx.proto
 
 const (
 	// Verify that this generated code is sufficiently up-to-date.
@@ -3630,7 +3630,7 @@ type MsgSubmitSignals struct {
 func (x *MsgSubmitSignals) Reset() {
 	*x = MsgSubmitSignals{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_feeds_v1beta1_tx_proto_msgTypes[0]
+		mi := &file_band_feeds_v1beta1_tx_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3644,7 +3644,7 @@ func (*MsgSubmitSignals) ProtoMessage() {}
 
 // Deprecated: Use MsgSubmitSignals.ProtoReflect.Descriptor instead.
 func (*MsgSubmitSignals) Descriptor() ([]byte, []int) {
-	return file_feeds_v1beta1_tx_proto_rawDescGZIP(), []int{0}
+	return file_band_feeds_v1beta1_tx_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *MsgSubmitSignals) GetDelegator() string {
@@ -3671,7 +3671,7 @@ type MsgSubmitSignalsResponse struct {
 func (x *MsgSubmitSignalsResponse) Reset() {
 	*x = MsgSubmitSignalsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_feeds_v1beta1_tx_proto_msgTypes[1]
+		mi := &file_band_feeds_v1beta1_tx_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3685,7 +3685,7 @@ func (*MsgSubmitSignalsResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgSubmitSignalsResponse.ProtoReflect.Descriptor instead.
 func (*MsgSubmitSignalsResponse) Descriptor() ([]byte, []int) {
-	return file_feeds_v1beta1_tx_proto_rawDescGZIP(), []int{1}
+	return file_band_feeds_v1beta1_tx_proto_rawDescGZIP(), []int{1}
 }
 
 // MsgSubmitSignalPrices is the transaction message to submit multiple signal prices.
@@ -3705,7 +3705,7 @@ type MsgSubmitSignalPrices struct {
 func (x *MsgSubmitSignalPrices) Reset() {
 	*x = MsgSubmitSignalPrices{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_feeds_v1beta1_tx_proto_msgTypes[2]
+		mi := &file_band_feeds_v1beta1_tx_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3719,7 +3719,7 @@ func (*MsgSubmitSignalPrices) ProtoMessage() {}
 
 // Deprecated: Use MsgSubmitSignalPrices.ProtoReflect.Descriptor instead.
 func (*MsgSubmitSignalPrices) Descriptor() ([]byte, []int) {
-	return file_feeds_v1beta1_tx_proto_rawDescGZIP(), []int{2}
+	return file_band_feeds_v1beta1_tx_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *MsgSubmitSignalPrices) GetValidator() string {
@@ -3753,7 +3753,7 @@ type MsgSubmitSignalPricesResponse struct {
 func (x *MsgSubmitSignalPricesResponse) Reset() {
 	*x = MsgSubmitSignalPricesResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_feeds_v1beta1_tx_proto_msgTypes[3]
+		mi := &file_band_feeds_v1beta1_tx_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3767,7 +3767,7 @@ func (*MsgSubmitSignalPricesResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgSubmitSignalPricesResponse.ProtoReflect.Descriptor instead.
 func (*MsgSubmitSignalPricesResponse) Descriptor() ([]byte, []int) {
-	return file_feeds_v1beta1_tx_proto_rawDescGZIP(), []int{3}
+	return file_band_feeds_v1beta1_tx_proto_rawDescGZIP(), []int{3}
 }
 
 // MsgUpdateReferenceSourceConfig is the transaction message to update reference price source's configuration.
@@ -3785,7 +3785,7 @@ type MsgUpdateReferenceSourceConfig struct {
 func (x *MsgUpdateReferenceSourceConfig) Reset() {
 	*x = MsgUpdateReferenceSourceConfig{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_feeds_v1beta1_tx_proto_msgTypes[4]
+		mi := &file_band_feeds_v1beta1_tx_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3799,7 +3799,7 @@ func (*MsgUpdateReferenceSourceConfig) ProtoMessage() {}
 
 // Deprecated: Use MsgUpdateReferenceSourceConfig.ProtoReflect.Descriptor instead.
 func (*MsgUpdateReferenceSourceConfig) Descriptor() ([]byte, []int) {
-	return file_feeds_v1beta1_tx_proto_rawDescGZIP(), []int{4}
+	return file_band_feeds_v1beta1_tx_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *MsgUpdateReferenceSourceConfig) GetAdmin() string {
@@ -3826,7 +3826,7 @@ type MsgUpdateReferenceSourceConfigResponse struct {
 func (x *MsgUpdateReferenceSourceConfigResponse) Reset() {
 	*x = MsgUpdateReferenceSourceConfigResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_feeds_v1beta1_tx_proto_msgTypes[5]
+		mi := &file_band_feeds_v1beta1_tx_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3840,7 +3840,7 @@ func (*MsgUpdateReferenceSourceConfigResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgUpdateReferenceSourceConfigResponse.ProtoReflect.Descriptor instead.
 func (*MsgUpdateReferenceSourceConfigResponse) Descriptor() ([]byte, []int) {
-	return file_feeds_v1beta1_tx_proto_rawDescGZIP(), []int{5}
+	return file_band_feeds_v1beta1_tx_proto_rawDescGZIP(), []int{5}
 }
 
 // MsgUpdateParams is the transaction message to update parameters.
@@ -3858,7 +3858,7 @@ type MsgUpdateParams struct {
 func (x *MsgUpdateParams) Reset() {
 	*x = MsgUpdateParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_feeds_v1beta1_tx_proto_msgTypes[6]
+		mi := &file_band_feeds_v1beta1_tx_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3872,7 +3872,7 @@ func (*MsgUpdateParams) ProtoMessage() {}
 
 // Deprecated: Use MsgUpdateParams.ProtoReflect.Descriptor instead.
 func (*MsgUpdateParams) Descriptor() ([]byte, []int) {
-	return file_feeds_v1beta1_tx_proto_rawDescGZIP(), []int{6}
+	return file_band_feeds_v1beta1_tx_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *MsgUpdateParams) GetAuthority() string {
@@ -3899,7 +3899,7 @@ type MsgUpdateParamsResponse struct {
 func (x *MsgUpdateParamsResponse) Reset() {
 	*x = MsgUpdateParamsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_feeds_v1beta1_tx_proto_msgTypes[7]
+		mi := &file_band_feeds_v1beta1_tx_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -3913,164 +3913,171 @@ func (*MsgUpdateParamsResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgUpdateParamsResponse.ProtoReflect.Descriptor instead.
 func (*MsgUpdateParamsResponse) Descriptor() ([]byte, []int) {
-	return file_feeds_v1beta1_tx_proto_rawDescGZIP(), []int{7}
+	return file_band_feeds_v1beta1_tx_proto_rawDescGZIP(), []int{7}
 }
 
-var File_feeds_v1beta1_tx_proto protoreflect.FileDescriptor
+var File_band_feeds_v1beta1_tx_proto protoreflect.FileDescriptor
 
-var file_feeds_v1beta1_tx_proto_rawDesc = []byte{
-	0x0a, 0x16, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f,
-	0x74, 0x78, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x0d, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x19, 0x66,
-	0x65, 0x65, 0x64, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x66, 0x65, 0x65,
-	0x64, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1a, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2f,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x2e, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x19, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x5f, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a,
-	0x17, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x6d, 0x73, 0x67, 0x2f, 0x76, 0x31, 0x2f, 0x6d,
-	0x73, 0x67, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x11, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2f,
-	0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xac, 0x01, 0x0a, 0x10,
-	0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73,
-	0x12, 0x36, 0x0a, 0x09, 0x64, 0x65, 0x6c, 0x65, 0x67, 0x61, 0x74, 0x6f, 0x72, 0x18, 0x01, 0x20,
-	0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e,
-	0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x09, 0x64,
-	0x65, 0x6c, 0x65, 0x67, 0x61, 0x74, 0x6f, 0x72, 0x12, 0x35, 0x0a, 0x07, 0x73, 0x69, 0x67, 0x6e,
-	0x61, 0x6c, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x15, 0x2e, 0x66, 0x65, 0x65, 0x64,
-	0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c,
-	0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x07, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73, 0x3a,
-	0x29, 0x82, 0xe7, 0xb0, 0x2a, 0x09, 0x64, 0x65, 0x6c, 0x65, 0x67, 0x61, 0x74, 0x6f, 0x72, 0x8a,
-	0xe7, 0xb0, 0x2a, 0x16, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2f, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62,
-	0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73, 0x22, 0x1a, 0x0a, 0x18, 0x4d, 0x73,
-	0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xe0, 0x01, 0x0a, 0x15, 0x4d, 0x73, 0x67, 0x53, 0x75,
-	0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73,
-	0x12, 0x3f, 0x0a, 0x09, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x18, 0x01, 0x20,
-	0x01, 0x28, 0x09, 0x42, 0x21, 0xd2, 0xb4, 0x2d, 0x1d, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e,
-	0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73,
-	0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x09, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f,
-	0x72, 0x12, 0x1c, 0x0a, 0x09, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x18, 0x02,
-	0x20, 0x01, 0x28, 0x03, 0x52, 0x09, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x12,
-	0x38, 0x0a, 0x06, 0x70, 0x72, 0x69, 0x63, 0x65, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32,
-	0x1a, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e,
-	0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x42, 0x04, 0xc8, 0xde, 0x1f,
-	0x00, 0x52, 0x06, 0x70, 0x72, 0x69, 0x63, 0x65, 0x73, 0x3a, 0x2e, 0x82, 0xe7, 0xb0, 0x2a, 0x09,
-	0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x8a, 0xe7, 0xb0, 0x2a, 0x1b, 0x66, 0x65,
-	0x65, 0x64, 0x73, 0x2f, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67,
-	0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x22, 0x1f, 0x0a, 0x1d, 0x4d, 0x73, 0x67,
-	0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63,
-	0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xe9, 0x01, 0x0a, 0x1e, 0x4d,
-	0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63,
-	0x65, 0x53, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x2e, 0x0a,
-	0x05, 0x61, 0x64, 0x6d, 0x69, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4,
-	0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73,
-	0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x05, 0x61, 0x64, 0x6d, 0x69, 0x6e, 0x12, 0x62, 0x0a,
-	0x17, 0x72, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x5f, 0x73, 0x6f, 0x75, 0x72, 0x63,
-	0x65, 0x5f, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x24,
-	0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x52,
-	0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x6f,
-	0x6e, 0x66, 0x69, 0x67, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x15, 0x72, 0x65, 0x66, 0x65,
-	0x72, 0x65, 0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69,
-	0x67, 0x3a, 0x33, 0x82, 0xe7, 0xb0, 0x2a, 0x05, 0x61, 0x64, 0x6d, 0x69, 0x6e, 0x8a, 0xe7, 0xb0,
-	0x2a, 0x24, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2f, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74,
-	0x65, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75, 0x72, 0x63, 0x65,
-	0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x22, 0x28, 0x0a, 0x26, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64,
-	0x61, 0x74, 0x65, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75, 0x72,
-	0x63, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
-	0x22, 0xa8, 0x01, 0x0a, 0x0f, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61,
-	0x72, 0x61, 0x6d, 0x73, 0x12, 0x36, 0x0a, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74,
-	0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73,
+var file_band_feeds_v1beta1_tx_proto_rawDesc = []byte{
+	0x0a, 0x1b, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2f, 0x76, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0x2f, 0x74, 0x78, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x12, 0x62,
+	0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
+	0x31, 0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67,
+	0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1e, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x66, 0x65,
+	0x65, 0x64, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x66, 0x65, 0x65, 0x64,
+	0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1f, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x66, 0x65,
+	0x65, 0x64, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x70, 0x61, 0x72, 0x61,
+	0x6d, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x19, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73,
+	0x5f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x1a, 0x17, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x6d, 0x73, 0x67, 0x2f,
+	0x76, 0x31, 0x2f, 0x6d, 0x73, 0x67, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x11, 0x61, 0x6d,
+	0x69, 0x6e, 0x6f, 0x2f, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22,
+	0xb1, 0x01, 0x0a, 0x10, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67,
+	0x6e, 0x61, 0x6c, 0x73, 0x12, 0x36, 0x0a, 0x09, 0x64, 0x65, 0x6c, 0x65, 0x67, 0x61, 0x74, 0x6f,
+	0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73,
 	0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e,
-	0x67, 0x52, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x12, 0x33, 0x0a, 0x06,
-	0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x15, 0x2e, 0x66,
-	0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x72,
-	0x61, 0x6d, 0x73, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d,
-	0x73, 0x3a, 0x28, 0x82, 0xe7, 0xb0, 0x2a, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74,
-	0x79, 0x8a, 0xe7, 0xb0, 0x2a, 0x15, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2f, 0x4d, 0x73, 0x67, 0x55,
-	0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x22, 0x19, 0x0a, 0x17, 0x4d,
-	0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0xaf, 0x03, 0x0a, 0x03, 0x4d, 0x73, 0x67, 0x12, 0x59,
-	0x0a, 0x0d, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73, 0x12,
-	0x1f, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e,
-	0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73,
-	0x1a, 0x27, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0x2e, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c,
-	0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x68, 0x0a, 0x12, 0x53, 0x75, 0x62,
-	0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x12,
-	0x24, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e,
-	0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x50,
-	0x72, 0x69, 0x63, 0x65, 0x73, 0x1a, 0x2c, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31,
-	0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53,
-	0x69, 0x67, 0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x12, 0x83, 0x01, 0x0a, 0x1b, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65,
+	0x67, 0x52, 0x09, 0x64, 0x65, 0x6c, 0x65, 0x67, 0x61, 0x74, 0x6f, 0x72, 0x12, 0x3a, 0x0a, 0x07,
+	0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1a, 0x2e,
+	0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52,
+	0x07, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73, 0x3a, 0x29, 0x82, 0xe7, 0xb0, 0x2a, 0x09, 0x64,
+	0x65, 0x6c, 0x65, 0x67, 0x61, 0x74, 0x6f, 0x72, 0x8a, 0xe7, 0xb0, 0x2a, 0x16, 0x66, 0x65, 0x65,
+	0x64, 0x73, 0x2f, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e,
+	0x61, 0x6c, 0x73, 0x22, 0x1a, 0x0a, 0x18, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74,
+	0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
+	0xe5, 0x01, 0x0a, 0x15, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67,
+	0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x12, 0x3f, 0x0a, 0x09, 0x76, 0x61, 0x6c,
+	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x21, 0xd2, 0xb4,
+	0x2d, 0x1d, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
+	0x6f, 0x72, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52,
+	0x09, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x12, 0x1c, 0x0a, 0x09, 0x74, 0x69,
+	0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x09, 0x74,
+	0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x12, 0x3d, 0x0a, 0x06, 0x70, 0x72, 0x69, 0x63,
+	0x65, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1f, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e,
+	0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x69,
+	0x67, 0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52,
+	0x06, 0x70, 0x72, 0x69, 0x63, 0x65, 0x73, 0x3a, 0x2e, 0x82, 0xe7, 0xb0, 0x2a, 0x09, 0x76, 0x61,
+	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x8a, 0xe7, 0xb0, 0x2a, 0x1b, 0x66, 0x65, 0x65, 0x64,
+	0x73, 0x2f, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61,
+	0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x22, 0x1f, 0x0a, 0x1d, 0x4d, 0x73, 0x67, 0x53, 0x75,
+	0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xee, 0x01, 0x0a, 0x1e, 0x4d, 0x73, 0x67,
+	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x53,
+	0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x2e, 0x0a, 0x05, 0x61,
+	0x64, 0x6d, 0x69, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14,
+	0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74,
+	0x72, 0x69, 0x6e, 0x67, 0x52, 0x05, 0x61, 0x64, 0x6d, 0x69, 0x6e, 0x12, 0x67, 0x0a, 0x17, 0x72,
+	0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x5f, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x5f,
+	0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x29, 0x2e, 0x62,
+	0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
+	0x31, 0x2e, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75, 0x72, 0x63,
+	0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x15, 0x72,
+	0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x6f,
+	0x6e, 0x66, 0x69, 0x67, 0x3a, 0x33, 0x82, 0xe7, 0xb0, 0x2a, 0x05, 0x61, 0x64, 0x6d, 0x69, 0x6e,
+	0x8a, 0xe7, 0xb0, 0x2a, 0x24, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2f, 0x4d, 0x73, 0x67, 0x55, 0x70,
+	0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75,
+	0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x22, 0x28, 0x0a, 0x26, 0x4d, 0x73, 0x67,
+	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x53,
+	0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x22, 0xad, 0x01, 0x0a, 0x0f, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74,
+	0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x36, 0x0a, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f,
+	0x72, 0x69, 0x74, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14,
+	0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74,
+	0x72, 0x69, 0x6e, 0x67, 0x52, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x12,
+	0x38, 0x0a, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32,
+	0x1a, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x42, 0x04, 0xc8, 0xde, 0x1f,
+	0x00, 0x52, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x3a, 0x28, 0x82, 0xe7, 0xb0, 0x2a, 0x09,
+	0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x8a, 0xe7, 0xb0, 0x2a, 0x15, 0x66, 0x65,
+	0x65, 0x64, 0x73, 0x2f, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72,
+	0x61, 0x6d, 0x73, 0x22, 0x19, 0x0a, 0x17, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65,
+	0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0xd7,
+	0x03, 0x0a, 0x03, 0x4d, 0x73, 0x67, 0x12, 0x63, 0x0a, 0x0d, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74,
+	0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73, 0x12, 0x24, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66,
+	0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67,
+	0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73, 0x1a, 0x2c, 0x2e,
+	0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e,
+	0x61, 0x6c, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x72, 0x0a, 0x12, 0x53,
+	0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63, 0x65,
+	0x73, 0x12, 0x29, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74,
+	0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x1a, 0x31, 0x2e, 0x62,
+	0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
+	0x31, 0x2e, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61,
+	0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
+	0x8d, 0x01, 0x0a, 0x1b, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65,
+	0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12,
+	0x32, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65,
 	0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e,
-	0x66, 0x69, 0x67, 0x12, 0x2d, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65,
-	0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x66,
-	0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e, 0x66,
-	0x69, 0x67, 0x1a, 0x35, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x66, 0x65,
-	0x72, 0x65, 0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69,
-	0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x56, 0x0a, 0x0c, 0x55, 0x70, 0x64,
-	0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x1e, 0x2e, 0x66, 0x65, 0x65, 0x64,
-	0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64,
-	0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x1a, 0x26, 0x2e, 0x66, 0x65, 0x65, 0x64,
+	0x66, 0x69, 0x67, 0x1a, 0x3a, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73,
+	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61,
+	0x74, 0x65, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75, 0x72, 0x63,
+	0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
+	0x60, 0x0a, 0x0c, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12,
+	0x23, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61,
+	0x72, 0x61, 0x6d, 0x73, 0x1a, 0x2b, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64,
 	0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64,
 	0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x1a, 0x05, 0x80, 0xe7, 0xb0, 0x2a, 0x01, 0x42, 0xb2, 0x01, 0x0a, 0x11, 0x63, 0x6f, 0x6d,
-	0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x07,
-	0x54, 0x78, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x3f, 0x67, 0x69, 0x74, 0x68, 0x75,
-	0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63,
-	0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x61, 0x70, 0x69, 0x2f,
-	0x66, 0x65, 0x65, 0x64, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b, 0x66, 0x65,
-	0x65, 0x64, 0x73, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x46, 0x58, 0x58,
-	0xaa, 0x02, 0x0d, 0x46, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0xca, 0x02, 0x0d, 0x46, 0x65, 0x65, 0x64, 0x73, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0xe2, 0x02, 0x19, 0x46, 0x65, 0x65, 0x64, 0x73, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x0e, 0x46,
-	0x65, 0x65, 0x64, 0x73, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x65, 0x1a, 0x05, 0x80, 0xe7, 0xb0, 0x2a, 0x01, 0x42, 0xd1, 0x01, 0x0a, 0x16, 0x63, 0x6f, 0x6d,
+	0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65,
+	0x74, 0x61, 0x31, 0x42, 0x07, 0x54, 0x78, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x44,
+	0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33,
+	0x2f, 0x61, 0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2f,
+	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b, 0x66, 0x65, 0x65, 0x64, 0x73, 0x76, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x42, 0x46, 0x58, 0xaa, 0x02, 0x12, 0x42, 0x61, 0x6e,
+	0x64, 0x2e, 0x46, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca,
+	0x02, 0x12, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x46, 0x65, 0x65, 0x64, 0x73, 0x5c, 0x56, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0xe2, 0x02, 0x1e, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x46, 0x65, 0x65, 0x64,
+	0x73, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74,
+	0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x14, 0x42, 0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x46, 0x65,
+	0x65, 0x64, 0x73, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
-	file_feeds_v1beta1_tx_proto_rawDescOnce sync.Once
-	file_feeds_v1beta1_tx_proto_rawDescData = file_feeds_v1beta1_tx_proto_rawDesc
+	file_band_feeds_v1beta1_tx_proto_rawDescOnce sync.Once
+	file_band_feeds_v1beta1_tx_proto_rawDescData = file_band_feeds_v1beta1_tx_proto_rawDesc
 )
 
-func file_feeds_v1beta1_tx_proto_rawDescGZIP() []byte {
-	file_feeds_v1beta1_tx_proto_rawDescOnce.Do(func() {
-		file_feeds_v1beta1_tx_proto_rawDescData = protoimpl.X.CompressGZIP(file_feeds_v1beta1_tx_proto_rawDescData)
+func file_band_feeds_v1beta1_tx_proto_rawDescGZIP() []byte {
+	file_band_feeds_v1beta1_tx_proto_rawDescOnce.Do(func() {
+		file_band_feeds_v1beta1_tx_proto_rawDescData = protoimpl.X.CompressGZIP(file_band_feeds_v1beta1_tx_proto_rawDescData)
 	})
-	return file_feeds_v1beta1_tx_proto_rawDescData
+	return file_band_feeds_v1beta1_tx_proto_rawDescData
 }
 
-var file_feeds_v1beta1_tx_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
-var file_feeds_v1beta1_tx_proto_goTypes = []interface{}{
-	(*MsgSubmitSignals)(nil),                       // 0: feeds.v1beta1.MsgSubmitSignals
-	(*MsgSubmitSignalsResponse)(nil),               // 1: feeds.v1beta1.MsgSubmitSignalsResponse
-	(*MsgSubmitSignalPrices)(nil),                  // 2: feeds.v1beta1.MsgSubmitSignalPrices
-	(*MsgSubmitSignalPricesResponse)(nil),          // 3: feeds.v1beta1.MsgSubmitSignalPricesResponse
-	(*MsgUpdateReferenceSourceConfig)(nil),         // 4: feeds.v1beta1.MsgUpdateReferenceSourceConfig
-	(*MsgUpdateReferenceSourceConfigResponse)(nil), // 5: feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse
-	(*MsgUpdateParams)(nil),                        // 6: feeds.v1beta1.MsgUpdateParams
-	(*MsgUpdateParamsResponse)(nil),                // 7: feeds.v1beta1.MsgUpdateParamsResponse
-	(*Signal)(nil),                                 // 8: feeds.v1beta1.Signal
-	(*SignalPrice)(nil),                            // 9: feeds.v1beta1.SignalPrice
-	(*ReferenceSourceConfig)(nil),                  // 10: feeds.v1beta1.ReferenceSourceConfig
-	(*Params)(nil),                                 // 11: feeds.v1beta1.Params
+var file_band_feeds_v1beta1_tx_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_band_feeds_v1beta1_tx_proto_goTypes = []interface{}{
+	(*MsgSubmitSignals)(nil),                       // 0: band.feeds.v1beta1.MsgSubmitSignals
+	(*MsgSubmitSignalsResponse)(nil),               // 1: band.feeds.v1beta1.MsgSubmitSignalsResponse
+	(*MsgSubmitSignalPrices)(nil),                  // 2: band.feeds.v1beta1.MsgSubmitSignalPrices
+	(*MsgSubmitSignalPricesResponse)(nil),          // 3: band.feeds.v1beta1.MsgSubmitSignalPricesResponse
+	(*MsgUpdateReferenceSourceConfig)(nil),         // 4: band.feeds.v1beta1.MsgUpdateReferenceSourceConfig
+	(*MsgUpdateReferenceSourceConfigResponse)(nil), // 5: band.feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse
+	(*MsgUpdateParams)(nil),                        // 6: band.feeds.v1beta1.MsgUpdateParams
+	(*MsgUpdateParamsResponse)(nil),                // 7: band.feeds.v1beta1.MsgUpdateParamsResponse
+	(*Signal)(nil),                                 // 8: band.feeds.v1beta1.Signal
+	(*SignalPrice)(nil),                            // 9: band.feeds.v1beta1.SignalPrice
+	(*ReferenceSourceConfig)(nil),                  // 10: band.feeds.v1beta1.ReferenceSourceConfig
+	(*Params)(nil),                                 // 11: band.feeds.v1beta1.Params
 }
-var file_feeds_v1beta1_tx_proto_depIdxs = []int32{
-	8,  // 0: feeds.v1beta1.MsgSubmitSignals.signals:type_name -> feeds.v1beta1.Signal
-	9,  // 1: feeds.v1beta1.MsgSubmitSignalPrices.prices:type_name -> feeds.v1beta1.SignalPrice
-	10, // 2: feeds.v1beta1.MsgUpdateReferenceSourceConfig.reference_source_config:type_name -> feeds.v1beta1.ReferenceSourceConfig
-	11, // 3: feeds.v1beta1.MsgUpdateParams.params:type_name -> feeds.v1beta1.Params
-	0,  // 4: feeds.v1beta1.Msg.SubmitSignals:input_type -> feeds.v1beta1.MsgSubmitSignals
-	2,  // 5: feeds.v1beta1.Msg.SubmitSignalPrices:input_type -> feeds.v1beta1.MsgSubmitSignalPrices
-	4,  // 6: feeds.v1beta1.Msg.UpdateReferenceSourceConfig:input_type -> feeds.v1beta1.MsgUpdateReferenceSourceConfig
-	6,  // 7: feeds.v1beta1.Msg.UpdateParams:input_type -> feeds.v1beta1.MsgUpdateParams
-	1,  // 8: feeds.v1beta1.Msg.SubmitSignals:output_type -> feeds.v1beta1.MsgSubmitSignalsResponse
-	3,  // 9: feeds.v1beta1.Msg.SubmitSignalPrices:output_type -> feeds.v1beta1.MsgSubmitSignalPricesResponse
-	5,  // 10: feeds.v1beta1.Msg.UpdateReferenceSourceConfig:output_type -> feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse
-	7,  // 11: feeds.v1beta1.Msg.UpdateParams:output_type -> feeds.v1beta1.MsgUpdateParamsResponse
+var file_band_feeds_v1beta1_tx_proto_depIdxs = []int32{
+	8,  // 0: band.feeds.v1beta1.MsgSubmitSignals.signals:type_name -> band.feeds.v1beta1.Signal
+	9,  // 1: band.feeds.v1beta1.MsgSubmitSignalPrices.prices:type_name -> band.feeds.v1beta1.SignalPrice
+	10, // 2: band.feeds.v1beta1.MsgUpdateReferenceSourceConfig.reference_source_config:type_name -> band.feeds.v1beta1.ReferenceSourceConfig
+	11, // 3: band.feeds.v1beta1.MsgUpdateParams.params:type_name -> band.feeds.v1beta1.Params
+	0,  // 4: band.feeds.v1beta1.Msg.SubmitSignals:input_type -> band.feeds.v1beta1.MsgSubmitSignals
+	2,  // 5: band.feeds.v1beta1.Msg.SubmitSignalPrices:input_type -> band.feeds.v1beta1.MsgSubmitSignalPrices
+	4,  // 6: band.feeds.v1beta1.Msg.UpdateReferenceSourceConfig:input_type -> band.feeds.v1beta1.MsgUpdateReferenceSourceConfig
+	6,  // 7: band.feeds.v1beta1.Msg.UpdateParams:input_type -> band.feeds.v1beta1.MsgUpdateParams
+	1,  // 8: band.feeds.v1beta1.Msg.SubmitSignals:output_type -> band.feeds.v1beta1.MsgSubmitSignalsResponse
+	3,  // 9: band.feeds.v1beta1.Msg.SubmitSignalPrices:output_type -> band.feeds.v1beta1.MsgSubmitSignalPricesResponse
+	5,  // 10: band.feeds.v1beta1.Msg.UpdateReferenceSourceConfig:output_type -> band.feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse
+	7,  // 11: band.feeds.v1beta1.Msg.UpdateParams:output_type -> band.feeds.v1beta1.MsgUpdateParamsResponse
 	8,  // [8:12] is the sub-list for method output_type
 	4,  // [4:8] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
@@ -4078,15 +4085,15 @@ var file_feeds_v1beta1_tx_proto_depIdxs = []int32{
 	0,  // [0:4] is the sub-list for field type_name
 }
 
-func init() { file_feeds_v1beta1_tx_proto_init() }
-func file_feeds_v1beta1_tx_proto_init() {
-	if File_feeds_v1beta1_tx_proto != nil {
+func init() { file_band_feeds_v1beta1_tx_proto_init() }
+func file_band_feeds_v1beta1_tx_proto_init() {
+	if File_band_feeds_v1beta1_tx_proto != nil {
 		return
 	}
-	file_feeds_v1beta1_feeds_proto_init()
-	file_feeds_v1beta1_params_proto_init()
+	file_band_feeds_v1beta1_feeds_proto_init()
+	file_band_feeds_v1beta1_params_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_feeds_v1beta1_tx_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_band_feeds_v1beta1_tx_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgSubmitSignals); i {
 			case 0:
 				return &v.state
@@ -4098,7 +4105,7 @@ func file_feeds_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_feeds_v1beta1_tx_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_band_feeds_v1beta1_tx_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgSubmitSignalsResponse); i {
 			case 0:
 				return &v.state
@@ -4110,7 +4117,7 @@ func file_feeds_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_feeds_v1beta1_tx_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_band_feeds_v1beta1_tx_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgSubmitSignalPrices); i {
 			case 0:
 				return &v.state
@@ -4122,7 +4129,7 @@ func file_feeds_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_feeds_v1beta1_tx_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_band_feeds_v1beta1_tx_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgSubmitSignalPricesResponse); i {
 			case 0:
 				return &v.state
@@ -4134,7 +4141,7 @@ func file_feeds_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_feeds_v1beta1_tx_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_band_feeds_v1beta1_tx_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgUpdateReferenceSourceConfig); i {
 			case 0:
 				return &v.state
@@ -4146,7 +4153,7 @@ func file_feeds_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_feeds_v1beta1_tx_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_band_feeds_v1beta1_tx_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgUpdateReferenceSourceConfigResponse); i {
 			case 0:
 				return &v.state
@@ -4158,7 +4165,7 @@ func file_feeds_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_feeds_v1beta1_tx_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_band_feeds_v1beta1_tx_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgUpdateParams); i {
 			case 0:
 				return &v.state
@@ -4170,7 +4177,7 @@ func file_feeds_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_feeds_v1beta1_tx_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_band_feeds_v1beta1_tx_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgUpdateParamsResponse); i {
 			case 0:
 				return &v.state
@@ -4187,18 +4194,18 @@ func file_feeds_v1beta1_tx_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_feeds_v1beta1_tx_proto_rawDesc,
+			RawDescriptor: file_band_feeds_v1beta1_tx_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_feeds_v1beta1_tx_proto_goTypes,
-		DependencyIndexes: file_feeds_v1beta1_tx_proto_depIdxs,
-		MessageInfos:      file_feeds_v1beta1_tx_proto_msgTypes,
+		GoTypes:           file_band_feeds_v1beta1_tx_proto_goTypes,
+		DependencyIndexes: file_band_feeds_v1beta1_tx_proto_depIdxs,
+		MessageInfos:      file_band_feeds_v1beta1_tx_proto_msgTypes,
 	}.Build()
-	File_feeds_v1beta1_tx_proto = out.File
-	file_feeds_v1beta1_tx_proto_rawDesc = nil
-	file_feeds_v1beta1_tx_proto_goTypes = nil
-	file_feeds_v1beta1_tx_proto_depIdxs = nil
+	File_band_feeds_v1beta1_tx_proto = out.File
+	file_band_feeds_v1beta1_tx_proto_rawDesc = nil
+	file_band_feeds_v1beta1_tx_proto_goTypes = nil
+	file_band_feeds_v1beta1_tx_proto_depIdxs = nil
 }
