@@ -46,6 +46,8 @@ from .db import (
     relayer_tx_stat_days,
 )
 
+from .restake_db import restake_vaults, restake_locks, restake_historical_stakes
+
 from .feeds_db import (
     PRICE_HISTORY_PERIOD,
     signal_prices_txs,
@@ -56,7 +58,6 @@ from .feeds_db import (
     reference_source_configs,
     feeders,
 )
-from .restake_db import restake_vaults, restake_locks, restake_historical_stakes
 
 from .bandtss_db import (
     bandtss_current_groups,
