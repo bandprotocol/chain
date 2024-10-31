@@ -8,8 +8,7 @@ import "cosmos_proto/cosmos.proto";
 
 // Params is the data structure that keeps the parameters of the feeds module.
 message Params {
-  option (gogoproto.equal)            = true;  // Use gogoproto.equal for proto3 message equality checks
-  option (gogoproto.goproto_stringer) = false; // Disable stringer generation for better control
+  option (gogoproto.equal) = true; // Use gogoproto.equal for proto3 message equality checks
 
   // admin is the address of the admin that is allowed to perform operations on modules.
   string admin = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
