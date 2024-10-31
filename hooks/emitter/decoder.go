@@ -24,6 +24,7 @@ import (
 	"github.com/bandprotocol/chain/v3/hooks/common"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
@@ -162,6 +163,12 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeGroupMsgVote(msg, detail)
 	case *group.MsgWithdrawProposal:
 		DecodeGroupMsgWithdrawProposal(msg, detail)
+	case *restaketypes.MsgStake:
+		DecodeRestakeMsgStake(msg, detail)
+	case *restaketypes.MsgUnstake:
+		DecodeRestakeMsgUnstake(msg, detail)
+	case *restaketypes.MsgUpdateParams:
+		DecodeRestakeMsgUpdateParams(msg, detail)
 	default:
 		break
 	}
@@ -676,8 +683,8 @@ func DecodeMsgSubmitSignals(msg *feedstypes.MsgSubmitSignals, detail common.JsDi
 
 func DecodeMsgUpdateReferenceSourceConfig(msg *feedstypes.MsgUpdateReferenceSourceConfig, detail common.JsDict) {
 	rsc := msg.GetReferenceSourceConfig()
-	detail["ipfs_hash"] = rsc.IPFSHash
-	detail["version"] = rsc.Version
+	detail["ipfs_hash"] = rsc.RegistryIPFSHash
+	detail["version"] = rsc.RegistryVersion
 }
 
 func DecodeMsgUpdateParams(msg *feedstypes.MsgUpdateParams, detail common.JsDict) {
@@ -799,4 +806,19 @@ func DecodeGroupMsgVote(msg *group.MsgVote, detail common.JsDict) {
 func DecodeGroupMsgWithdrawProposal(msg *group.MsgWithdrawProposal, detail common.JsDict) {
 	detail["proposal_id"] = msg.ProposalId
 	detail["address"] = msg.Address
+}
+
+func DecodeRestakeMsgStake(msg *restaketypes.MsgStake, detail common.JsDict) {
+	detail["staker_address"] = msg.StakerAddress
+	detail["coins"] = msg.GetCoins()
+}
+
+func DecodeRestakeMsgUnstake(msg *restaketypes.MsgUnstake, detail common.JsDict) {
+	detail["staker_address"] = msg.StakerAddress
+	detail["coins"] = msg.GetCoins()
+}
+
+func DecodeRestakeMsgUpdateParams(msg *restaketypes.MsgUpdateParams, detail common.JsDict) {
+	detail["authority"] = msg.Authority
+	detail["params"] = msg.GetParams()
 }

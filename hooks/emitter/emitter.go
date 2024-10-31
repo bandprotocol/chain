@@ -45,6 +45,8 @@ import (
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+	restakekeeper "github.com/bandprotocol/chain/v3/x/restake/keeper"
+	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
 // Hook uses Kafka functionality to act as an event producer for all events in the blockchains.
@@ -67,6 +69,7 @@ type Hook struct {
 	govKeeper     *govkeeper.Keeper
 	groupKeeper   groupkeeper.Keeper
 	oracleKeeper  oraclekeeper.Keeper
+	restakeKeeper restakekeeper.Keeper
 	feedsKeeper   feedskeeper.Keeper
 	icahostKeeper icahostkeeper.Keeper
 
@@ -90,6 +93,7 @@ func NewHook(
 	govKeeper *govkeeper.Keeper,
 	groupKeeper groupkeeper.Keeper,
 	oracleKeeper oraclekeeper.Keeper,
+	restakeKeeper restakekeeper.Keeper,
 	feedsKeeper feedskeeper.Keeper,
 	icahostKeeper icahostkeeper.Keeper,
 	clientKeeper clientkeeper.Keeper,
@@ -118,6 +122,7 @@ func NewHook(
 		govKeeper:        govKeeper,
 		groupKeeper:      groupKeeper,
 		oracleKeeper:     oracleKeeper,
+		restakeKeeper:    restakeKeeper,
 		feedsKeeper:      feedsKeeper,
 		icahostKeeper:    icahostKeeper,
 		clientKeeper:     clientKeeper,
@@ -305,6 +310,19 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *
 	}
 	for idx, os := range oracleState.OracleScripts {
 		h.emitSetOracleScript(oracletypes.OracleScriptID(idx+1), os, nil)
+	}
+
+	// Restake module
+	var restakeState restaketypes.GenesisState
+	h.cdc.MustUnmarshalJSON(genesisState[restaketypes.ModuleName], &restakeState)
+	for _, vault := range restakeState.Vaults {
+		h.updateRestakeVault(ctx, vault.Key)
+	}
+	for _, lock := range restakeState.Locks {
+		h.updateRestakeLock(ctx, lock.StakerAddress, lock.Key, nil)
+	}
+	for _, stake := range restakeState.Stakes {
+		h.updateRestakeStake(ctx, stake.StakerAddress)
 	}
 
 	// Feeds module
