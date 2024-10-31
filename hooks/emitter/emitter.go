@@ -312,19 +312,6 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *
 		h.emitSetOracleScript(oracletypes.OracleScriptID(idx+1), os, nil)
 	}
 
-	// Restake module
-	var restakeState restaketypes.GenesisState
-	h.cdc.MustUnmarshalJSON(genesisState[restaketypes.ModuleName], &restakeState)
-	for _, vault := range restakeState.Vaults {
-		h.updateRestakeVault(ctx, vault.Key)
-	}
-	for _, lock := range restakeState.Locks {
-		h.updateRestakeLock(ctx, lock.StakerAddress, lock.Key, nil)
-	}
-	for _, stake := range restakeState.Stakes {
-		h.updateRestakeStake(ctx, stake.StakerAddress)
-	}
-
 	// Feeds module
 	var feedsState feedstypes.GenesisState
 	h.cdc.MustUnmarshalJSON(genesisState[feedstypes.ModuleName], &feedsState)
@@ -337,6 +324,19 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *
 	signalTotalPowers := h.feedsKeeper.CalculateNewSignalTotalPowers(ctx)
 	for _, stp := range signalTotalPowers {
 		h.emitSetSignalTotalPower(stp)
+	}
+
+	// Restake module
+	var restakeState restaketypes.GenesisState
+	h.cdc.MustUnmarshalJSON(genesisState[restaketypes.ModuleName], &restakeState)
+	for _, vault := range restakeState.Vaults {
+		h.updateRestakeVault(ctx, vault.Key)
+	}
+	for _, lock := range restakeState.Locks {
+		h.updateRestakeLock(ctx, lock.StakerAddress, lock.Key, nil)
+	}
+	for _, stake := range restakeState.Stakes {
+		h.updateRestakeStake(ctx, stake.StakerAddress)
 	}
 
 	var authzState authz.GenesisState
@@ -494,6 +494,11 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, events []abci.Event) {
 	for _, event := range events {
 		h.handleBeginBlockEndBlockEvent(ctx, event)
 	}
+
+	// Emit all new current prices at every endblock.
+	prices := h.feedsKeeper.GetAllCurrentPrices(ctx)
+	h.emitSetPrices(ctx, prices)
+
 	// Update balances of all affected accounts on this block.
 	// Index 0 is message NEW_BLOCK, we insert SET_ACCOUNT messages right after it.
 	modifiedMsgs := []common.Message{h.msgs[0]}

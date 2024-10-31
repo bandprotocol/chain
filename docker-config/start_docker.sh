@@ -116,6 +116,8 @@ bandd genesis collect-gentxs
 # copy genesis to the proper location!
 cp ~/.band/config/genesis.json $DIR/genesis.json
 cat <<< $(jq '.app_state.gov.params.voting_period = "60s"' $DIR/genesis.json) > $DIR/genesis.json
+cat <<< $(jq '.app_state.feeds.params.current_feeds_update_interval = "10"' $DIR/genesis.json) > $DIR/genesis.json
+cat <<< $(jq --arg addr "$(bandd keys show requester -a --keyring-backend test)" '.app_state.feeds.params.admin = $addr' $DIR/genesis.json) > $DIR/genesis.json
 cat <<< $(jq '.app_state.restake.params.allowed_denoms = ["uband"]' $DIR/genesis.json) > $DIR/genesis.json
 
 # Build
@@ -144,7 +146,7 @@ do
     done
 
     # send band tokens to reporters
-    echo "y" | bandd tx bank multi-send validator$v  $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
+    echo "y" | bandd tx bank multi-send validator$v $(yoda keys list -a) 1000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
 
     # wait for sending band tokens transaction success
     sleep 4

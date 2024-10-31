@@ -210,8 +210,6 @@ func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) 
 		h.handleEventTypeTransfer(evMap)
 	case channeltypes.EventTypeSendPacket:
 		h.handleEventSendPacket(ctx, evMap)
-	case feedstypes.EventTypeUpdatePrice:
-		h.handleEventUpdatePrice(ctx, evMap)
 	case proto.MessageName(&group.EventProposalPruned{}):
 		h.handleGroupEventProposalPruned(ctx, evMap)
 	default:

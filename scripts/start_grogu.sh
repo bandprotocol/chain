@@ -29,7 +29,7 @@ grogu config max-try 5
 echo "y" | bandd tx oracle activate --from validator --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain
 
 # wait for activation transaction success
-sleep 5
+sleep 3
 
 for i in $(eval echo {1..4})
 do
@@ -37,18 +37,18 @@ do
   grogu keys add feeder$i
 done
 
-sleep 5
+sleep 3
 
 # send band tokens to feeders
 echo "y" | bandd tx bank multi-send validator $(grogu keys list -a) 1000000uband --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain
 # wait for sending band tokens transaction success
-sleep 5
+sleep 3
 
 # add feeder to bandchain
 echo "y" | bandd tx feeds add-feeders $(grogu keys list -a) --from validator --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain
 
 # wait for addding feeder transaction success
-sleep 5
+sleep 3
 
 # run grogu
 grogu run

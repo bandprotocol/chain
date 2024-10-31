@@ -288,13 +288,13 @@ SELECT
     p.price,
     p.timestamp
 FROM
-    prices p
+    historical_prices p
 WHERE
     p.timestamp = (
         SELECT
             MAX(timestamp)
         FROM
-            prices
+            historical_prices
     );
     """
     )

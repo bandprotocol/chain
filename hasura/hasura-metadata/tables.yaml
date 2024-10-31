@@ -589,9 +589,6 @@
       using:
         foreign_key_constraint_on: tx_id
 - table:
-    name: prices
-    schema: public
-- table:
     name: proposal_total_votes
     schema: public
 - table:
