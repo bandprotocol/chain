@@ -18,8 +18,8 @@ import (
 	bytes "github.com/cometbft/cometbft/libs/bytes"
 	log "github.com/cometbft/cometbft/libs/log"
 	client "github.com/cometbft/cometbft/rpc/client"
-	types0 "github.com/cometbft/cometbft/rpc/core/types"
-	types1 "github.com/cometbft/cometbft/types"
+	coretypes "github.com/cometbft/cometbft/rpc/core/types"
+	types0 "github.com/cometbft/cometbft/types"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -27,6 +27,7 @@ import (
 type MockBothanClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockBothanClientMockRecorder
+	isgomock struct{}
 }
 
 // MockBothanClientMockRecorder is the mock recorder for MockBothanClient.
@@ -93,6 +94,7 @@ func (mr *MockBothanClientMockRecorder) UpdateRegistry(ipfsHash, version any) *g
 type MockFeedQuerier struct {
 	ctrl     *gomock.Controller
 	recorder *MockFeedQuerierMockRecorder
+	isgomock struct{}
 }
 
 // MockFeedQuerierMockRecorder is the mock recorder for MockFeedQuerier.
@@ -146,6 +148,7 @@ func (mr *MockFeedQuerierMockRecorder) QueryReferenceSourceConfig() *gomock.Call
 type MockRemoteClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockRemoteClientMockRecorder
+	isgomock struct{}
 }
 
 // MockRemoteClientMockRecorder is the mock recorder for MockRemoteClient.
@@ -166,10 +169,10 @@ func (m *MockRemoteClient) EXPECT() *MockRemoteClientMockRecorder {
 }
 
 // ABCIInfo mocks base method.
-func (m *MockRemoteClient) ABCIInfo(arg0 context.Context) (*types0.ResultABCIInfo, error) {
+func (m *MockRemoteClient) ABCIInfo(arg0 context.Context) (*coretypes.ResultABCIInfo, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ABCIInfo", arg0)
-	ret0, _ := ret[0].(*types0.ResultABCIInfo)
+	ret0, _ := ret[0].(*coretypes.ResultABCIInfo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -181,10 +184,10 @@ func (mr *MockRemoteClientMockRecorder) ABCIInfo(arg0 any) *gomock.Call {
 }
 
 // ABCIQuery mocks base method.
-func (m *MockRemoteClient) ABCIQuery(ctx context.Context, path string, data bytes.HexBytes) (*types0.ResultABCIQuery, error) {
+func (m *MockRemoteClient) ABCIQuery(ctx context.Context, path string, data bytes.HexBytes) (*coretypes.ResultABCIQuery, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ABCIQuery", ctx, path, data)
-	ret0, _ := ret[0].(*types0.ResultABCIQuery)
+	ret0, _ := ret[0].(*coretypes.ResultABCIQuery)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -196,10 +199,10 @@ func (mr *MockRemoteClientMockRecorder) ABCIQuery(ctx, path, data any) *gomock.C
 }
 
 // ABCIQueryWithOptions mocks base method.
-func (m *MockRemoteClient) ABCIQueryWithOptions(ctx context.Context, path string, data bytes.HexBytes, opts client.ABCIQueryOptions) (*types0.ResultABCIQuery, error) {
+func (m *MockRemoteClient) ABCIQueryWithOptions(ctx context.Context, path string, data bytes.HexBytes, opts client.ABCIQueryOptions) (*coretypes.ResultABCIQuery, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ABCIQueryWithOptions", ctx, path, data, opts)
-	ret0, _ := ret[0].(*types0.ResultABCIQuery)
+	ret0, _ := ret[0].(*coretypes.ResultABCIQuery)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -211,10 +214,10 @@ func (mr *MockRemoteClientMockRecorder) ABCIQueryWithOptions(ctx, path, data, op
 }
 
 // Block mocks base method.
-func (m *MockRemoteClient) Block(ctx context.Context, height *int64) (*types0.ResultBlock, error) {
+func (m *MockRemoteClient) Block(ctx context.Context, height *int64) (*coretypes.ResultBlock, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Block", ctx, height)
-	ret0, _ := ret[0].(*types0.ResultBlock)
+	ret0, _ := ret[0].(*coretypes.ResultBlock)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -226,10 +229,10 @@ func (mr *MockRemoteClientMockRecorder) Block(ctx, height any) *gomock.Call {
 }
 
 // BlockByHash mocks base method.
-func (m *MockRemoteClient) BlockByHash(ctx context.Context, hash []byte) (*types0.ResultBlock, error) {
+func (m *MockRemoteClient) BlockByHash(ctx context.Context, hash []byte) (*coretypes.ResultBlock, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BlockByHash", ctx, hash)
-	ret0, _ := ret[0].(*types0.ResultBlock)
+	ret0, _ := ret[0].(*coretypes.ResultBlock)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -241,10 +244,10 @@ func (mr *MockRemoteClientMockRecorder) BlockByHash(ctx, hash any) *gomock.Call 
 }
 
 // BlockResults mocks base method.
-func (m *MockRemoteClient) BlockResults(ctx context.Context, height *int64) (*types0.ResultBlockResults, error) {
+func (m *MockRemoteClient) BlockResults(ctx context.Context, height *int64) (*coretypes.ResultBlockResults, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BlockResults", ctx, height)
-	ret0, _ := ret[0].(*types0.ResultBlockResults)
+	ret0, _ := ret[0].(*coretypes.ResultBlockResults)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -256,10 +259,10 @@ func (mr *MockRemoteClientMockRecorder) BlockResults(ctx, height any) *gomock.Ca
 }
 
 // BlockSearch mocks base method.
-func (m *MockRemoteClient) BlockSearch(ctx context.Context, query string, page, perPage *int, orderBy string) (*types0.ResultBlockSearch, error) {
+func (m *MockRemoteClient) BlockSearch(ctx context.Context, query string, page, perPage *int, orderBy string) (*coretypes.ResultBlockSearch, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BlockSearch", ctx, query, page, perPage, orderBy)
-	ret0, _ := ret[0].(*types0.ResultBlockSearch)
+	ret0, _ := ret[0].(*coretypes.ResultBlockSearch)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -271,10 +274,10 @@ func (mr *MockRemoteClientMockRecorder) BlockSearch(ctx, query, page, perPage, o
 }
 
 // BlockchainInfo mocks base method.
-func (m *MockRemoteClient) BlockchainInfo(ctx context.Context, minHeight, maxHeight int64) (*types0.ResultBlockchainInfo, error) {
+func (m *MockRemoteClient) BlockchainInfo(ctx context.Context, minHeight, maxHeight int64) (*coretypes.ResultBlockchainInfo, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BlockchainInfo", ctx, minHeight, maxHeight)
-	ret0, _ := ret[0].(*types0.ResultBlockchainInfo)
+	ret0, _ := ret[0].(*coretypes.ResultBlockchainInfo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -286,10 +289,10 @@ func (mr *MockRemoteClientMockRecorder) BlockchainInfo(ctx, minHeight, maxHeight
 }
 
 // BroadcastEvidence mocks base method.
-func (m *MockRemoteClient) BroadcastEvidence(arg0 context.Context, arg1 types1.Evidence) (*types0.ResultBroadcastEvidence, error) {
+func (m *MockRemoteClient) BroadcastEvidence(arg0 context.Context, arg1 types0.Evidence) (*coretypes.ResultBroadcastEvidence, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BroadcastEvidence", arg0, arg1)
-	ret0, _ := ret[0].(*types0.ResultBroadcastEvidence)
+	ret0, _ := ret[0].(*coretypes.ResultBroadcastEvidence)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -301,10 +304,10 @@ func (mr *MockRemoteClientMockRecorder) BroadcastEvidence(arg0, arg1 any) *gomoc
 }
 
 // BroadcastTxAsync mocks base method.
-func (m *MockRemoteClient) BroadcastTxAsync(arg0 context.Context, arg1 types1.Tx) (*types0.ResultBroadcastTx, error) {
+func (m *MockRemoteClient) BroadcastTxAsync(arg0 context.Context, arg1 types0.Tx) (*coretypes.ResultBroadcastTx, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BroadcastTxAsync", arg0, arg1)
-	ret0, _ := ret[0].(*types0.ResultBroadcastTx)
+	ret0, _ := ret[0].(*coretypes.ResultBroadcastTx)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -316,10 +319,10 @@ func (mr *MockRemoteClientMockRecorder) BroadcastTxAsync(arg0, arg1 any) *gomock
 }
 
 // BroadcastTxCommit mocks base method.
-func (m *MockRemoteClient) BroadcastTxCommit(arg0 context.Context, arg1 types1.Tx) (*types0.ResultBroadcastTxCommit, error) {
+func (m *MockRemoteClient) BroadcastTxCommit(arg0 context.Context, arg1 types0.Tx) (*coretypes.ResultBroadcastTxCommit, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BroadcastTxCommit", arg0, arg1)
-	ret0, _ := ret[0].(*types0.ResultBroadcastTxCommit)
+	ret0, _ := ret[0].(*coretypes.ResultBroadcastTxCommit)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -331,10 +334,10 @@ func (mr *MockRemoteClientMockRecorder) BroadcastTxCommit(arg0, arg1 any) *gomoc
 }
 
 // BroadcastTxSync mocks base method.
-func (m *MockRemoteClient) BroadcastTxSync(arg0 context.Context, arg1 types1.Tx) (*types0.ResultBroadcastTx, error) {
+func (m *MockRemoteClient) BroadcastTxSync(arg0 context.Context, arg1 types0.Tx) (*coretypes.ResultBroadcastTx, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BroadcastTxSync", arg0, arg1)
-	ret0, _ := ret[0].(*types0.ResultBroadcastTx)
+	ret0, _ := ret[0].(*coretypes.ResultBroadcastTx)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -346,10 +349,10 @@ func (mr *MockRemoteClientMockRecorder) BroadcastTxSync(arg0, arg1 any) *gomock.
 }
 
 // CheckTx mocks base method.
-func (m *MockRemoteClient) CheckTx(arg0 context.Context, arg1 types1.Tx) (*types0.ResultCheckTx, error) {
+func (m *MockRemoteClient) CheckTx(arg0 context.Context, arg1 types0.Tx) (*coretypes.ResultCheckTx, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CheckTx", arg0, arg1)
-	ret0, _ := ret[0].(*types0.ResultCheckTx)
+	ret0, _ := ret[0].(*coretypes.ResultCheckTx)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -361,10 +364,10 @@ func (mr *MockRemoteClientMockRecorder) CheckTx(arg0, arg1 any) *gomock.Call {
 }
 
 // Commit mocks base method.
-func (m *MockRemoteClient) Commit(ctx context.Context, height *int64) (*types0.ResultCommit, error) {
+func (m *MockRemoteClient) Commit(ctx context.Context, height *int64) (*coretypes.ResultCommit, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Commit", ctx, height)
-	ret0, _ := ret[0].(*types0.ResultCommit)
+	ret0, _ := ret[0].(*coretypes.ResultCommit)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -376,10 +379,10 @@ func (mr *MockRemoteClientMockRecorder) Commit(ctx, height any) *gomock.Call {
 }
 
 // ConsensusParams mocks base method.
-func (m *MockRemoteClient) ConsensusParams(ctx context.Context, height *int64) (*types0.ResultConsensusParams, error) {
+func (m *MockRemoteClient) ConsensusParams(ctx context.Context, height *int64) (*coretypes.ResultConsensusParams, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ConsensusParams", ctx, height)
-	ret0, _ := ret[0].(*types0.ResultConsensusParams)
+	ret0, _ := ret[0].(*coretypes.ResultConsensusParams)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -391,10 +394,10 @@ func (mr *MockRemoteClientMockRecorder) ConsensusParams(ctx, height any) *gomock
 }
 
 // ConsensusState mocks base method.
-func (m *MockRemoteClient) ConsensusState(arg0 context.Context) (*types0.ResultConsensusState, error) {
+func (m *MockRemoteClient) ConsensusState(arg0 context.Context) (*coretypes.ResultConsensusState, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ConsensusState", arg0)
-	ret0, _ := ret[0].(*types0.ResultConsensusState)
+	ret0, _ := ret[0].(*coretypes.ResultConsensusState)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -406,10 +409,10 @@ func (mr *MockRemoteClientMockRecorder) ConsensusState(arg0 any) *gomock.Call {
 }
 
 // DumpConsensusState mocks base method.
-func (m *MockRemoteClient) DumpConsensusState(arg0 context.Context) (*types0.ResultDumpConsensusState, error) {
+func (m *MockRemoteClient) DumpConsensusState(arg0 context.Context) (*coretypes.ResultDumpConsensusState, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DumpConsensusState", arg0)
-	ret0, _ := ret[0].(*types0.ResultDumpConsensusState)
+	ret0, _ := ret[0].(*coretypes.ResultDumpConsensusState)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -421,10 +424,10 @@ func (mr *MockRemoteClientMockRecorder) DumpConsensusState(arg0 any) *gomock.Cal
 }
 
 // Genesis mocks base method.
-func (m *MockRemoteClient) Genesis(arg0 context.Context) (*types0.ResultGenesis, error) {
+func (m *MockRemoteClient) Genesis(arg0 context.Context) (*coretypes.ResultGenesis, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Genesis", arg0)
-	ret0, _ := ret[0].(*types0.ResultGenesis)
+	ret0, _ := ret[0].(*coretypes.ResultGenesis)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -436,10 +439,10 @@ func (mr *MockRemoteClientMockRecorder) Genesis(arg0 any) *gomock.Call {
 }
 
 // GenesisChunked mocks base method.
-func (m *MockRemoteClient) GenesisChunked(arg0 context.Context, arg1 uint) (*types0.ResultGenesisChunk, error) {
+func (m *MockRemoteClient) GenesisChunked(arg0 context.Context, arg1 uint) (*coretypes.ResultGenesisChunk, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GenesisChunked", arg0, arg1)
-	ret0, _ := ret[0].(*types0.ResultGenesisChunk)
+	ret0, _ := ret[0].(*coretypes.ResultGenesisChunk)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -451,10 +454,10 @@ func (mr *MockRemoteClientMockRecorder) GenesisChunked(arg0, arg1 any) *gomock.C
 }
 
 // Header mocks base method.
-func (m *MockRemoteClient) Header(ctx context.Context, height *int64) (*types0.ResultHeader, error) {
+func (m *MockRemoteClient) Header(ctx context.Context, height *int64) (*coretypes.ResultHeader, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Header", ctx, height)
-	ret0, _ := ret[0].(*types0.ResultHeader)
+	ret0, _ := ret[0].(*coretypes.ResultHeader)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -466,10 +469,10 @@ func (mr *MockRemoteClientMockRecorder) Header(ctx, height any) *gomock.Call {
 }
 
 // HeaderByHash mocks base method.
-func (m *MockRemoteClient) HeaderByHash(ctx context.Context, hash bytes.HexBytes) (*types0.ResultHeader, error) {
+func (m *MockRemoteClient) HeaderByHash(ctx context.Context, hash bytes.HexBytes) (*coretypes.ResultHeader, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "HeaderByHash", ctx, hash)
-	ret0, _ := ret[0].(*types0.ResultHeader)
+	ret0, _ := ret[0].(*coretypes.ResultHeader)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -481,10 +484,10 @@ func (mr *MockRemoteClientMockRecorder) HeaderByHash(ctx, hash any) *gomock.Call
 }
 
 // Health mocks base method.
-func (m *MockRemoteClient) Health(arg0 context.Context) (*types0.ResultHealth, error) {
+func (m *MockRemoteClient) Health(arg0 context.Context) (*coretypes.ResultHealth, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Health", arg0)
-	ret0, _ := ret[0].(*types0.ResultHealth)
+	ret0, _ := ret[0].(*coretypes.ResultHealth)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -510,10 +513,10 @@ func (mr *MockRemoteClientMockRecorder) IsRunning() *gomock.Call {
 }
 
 // NetInfo mocks base method.
-func (m *MockRemoteClient) NetInfo(arg0 context.Context) (*types0.ResultNetInfo, error) {
+func (m *MockRemoteClient) NetInfo(arg0 context.Context) (*coretypes.ResultNetInfo, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "NetInfo", arg0)
-	ret0, _ := ret[0].(*types0.ResultNetInfo)
+	ret0, _ := ret[0].(*coretypes.ResultNetInfo)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -525,10 +528,10 @@ func (mr *MockRemoteClientMockRecorder) NetInfo(arg0 any) *gomock.Call {
 }
 
 // NumUnconfirmedTxs mocks base method.
-func (m *MockRemoteClient) NumUnconfirmedTxs(arg0 context.Context) (*types0.ResultUnconfirmedTxs, error) {
+func (m *MockRemoteClient) NumUnconfirmedTxs(arg0 context.Context) (*coretypes.ResultUnconfirmedTxs, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "NumUnconfirmedTxs", arg0)
-	ret0, _ := ret[0].(*types0.ResultUnconfirmedTxs)
+	ret0, _ := ret[0].(*coretypes.ResultUnconfirmedTxs)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -648,10 +651,10 @@ func (mr *MockRemoteClientMockRecorder) Start() *gomock.Call {
 }
 
 // Status mocks base method.
-func (m *MockRemoteClient) Status(arg0 context.Context) (*types0.ResultStatus, error) {
+func (m *MockRemoteClient) Status(arg0 context.Context) (*coretypes.ResultStatus, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Status", arg0)
-	ret0, _ := ret[0].(*types0.ResultStatus)
+	ret0, _ := ret[0].(*coretypes.ResultStatus)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -691,14 +694,14 @@ func (mr *MockRemoteClientMockRecorder) String() *gomock.Call {
 }
 
 // Subscribe mocks base method.
-func (m *MockRemoteClient) Subscribe(ctx context.Context, subscriber, query string, outCapacity ...int) (<-chan types0.ResultEvent, error) {
+func (m *MockRemoteClient) Subscribe(ctx context.Context, subscriber, query string, outCapacity ...int) (<-chan coretypes.ResultEvent, error) {
 	m.ctrl.T.Helper()
 	varargs := []any{ctx, subscriber, query}
 	for _, a := range outCapacity {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "Subscribe", varargs...)
-	ret0, _ := ret[0].(<-chan types0.ResultEvent)
+	ret0, _ := ret[0].(<-chan coretypes.ResultEvent)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -711,10 +714,10 @@ func (mr *MockRemoteClientMockRecorder) Subscribe(ctx, subscriber, query any, ou
 }
 
 // Tx mocks base method.
-func (m *MockRemoteClient) Tx(ctx context.Context, hash []byte, prove bool) (*types0.ResultTx, error) {
+func (m *MockRemoteClient) Tx(ctx context.Context, hash []byte, prove bool) (*coretypes.ResultTx, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Tx", ctx, hash, prove)
-	ret0, _ := ret[0].(*types0.ResultTx)
+	ret0, _ := ret[0].(*coretypes.ResultTx)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -726,10 +729,10 @@ func (mr *MockRemoteClientMockRecorder) Tx(ctx, hash, prove any) *gomock.Call {
 }
 
 // TxSearch mocks base method.
-func (m *MockRemoteClient) TxSearch(ctx context.Context, query string, prove bool, page, perPage *int, orderBy string) (*types0.ResultTxSearch, error) {
+func (m *MockRemoteClient) TxSearch(ctx context.Context, query string, prove bool, page, perPage *int, orderBy string) (*coretypes.ResultTxSearch, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "TxSearch", ctx, query, prove, page, perPage, orderBy)
-	ret0, _ := ret[0].(*types0.ResultTxSearch)
+	ret0, _ := ret[0].(*coretypes.ResultTxSearch)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -741,10 +744,10 @@ func (mr *MockRemoteClientMockRecorder) TxSearch(ctx, query, prove, page, perPag
 }
 
 // UnconfirmedTxs mocks base method.
-func (m *MockRemoteClient) UnconfirmedTxs(ctx context.Context, limit *int) (*types0.ResultUnconfirmedTxs, error) {
+func (m *MockRemoteClient) UnconfirmedTxs(ctx context.Context, limit *int) (*coretypes.ResultUnconfirmedTxs, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UnconfirmedTxs", ctx, limit)
-	ret0, _ := ret[0].(*types0.ResultUnconfirmedTxs)
+	ret0, _ := ret[0].(*coretypes.ResultUnconfirmedTxs)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -784,10 +787,10 @@ func (mr *MockRemoteClientMockRecorder) UnsubscribeAll(ctx, subscriber any) *gom
 }
 
 // Validators mocks base method.
-func (m *MockRemoteClient) Validators(ctx context.Context, height *int64, page, perPage *int) (*types0.ResultValidators, error) {
+func (m *MockRemoteClient) Validators(ctx context.Context, height *int64, page, perPage *int) (*coretypes.ResultValidators, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Validators", ctx, height, page, perPage)
-	ret0, _ := ret[0].(*types0.ResultValidators)
+	ret0, _ := ret[0].(*coretypes.ResultValidators)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
