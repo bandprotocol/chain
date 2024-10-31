@@ -783,7 +783,7 @@ class Handler(object):
         msg["validator_id"] = self.get_validator_id(msg["validator"])
         del msg["validator"]
 
-        prices = msg["prices"]
+        prices = msg.get("prices", [])
 
         # Prepare a list of dictionaries to batch
         batch_data = [
@@ -792,7 +792,7 @@ class Handler(object):
                 "signal_id": price["signal_id"],
                 "price_status": price["price_status"],
                 "price": price.get("price", 0),
-                "timestamp": msg["timestamp"]
+                "timestamp": msg["timestamp"],
             }
             for price in prices
         ]
@@ -804,8 +804,8 @@ class Handler(object):
             set_={
                 "price_status": stmt.excluded.price_status,
                 "price": stmt.excluded.price,
-                "timestamp": stmt.excluded.timestamp
-            }
+                "timestamp": stmt.excluded.timestamp,
+            },
         )
 
         # Execute the batched upsert
@@ -842,7 +842,7 @@ class Handler(object):
         )
 
     def handle_set_prices(self, msg):
-        prices = msg["prices"]
+        prices = msg.get("prices", [])
         timestamp = msg["timestamp"]
 
         # Prepare batch data for insert
@@ -851,7 +851,7 @@ class Handler(object):
                 "signal_id": price["signal_id"],
                 "price_status": price["price_status"],
                 "price": price.get("price", 0),
-                "timestamp": timestamp
+                "timestamp": timestamp,
             }
             for price in prices
         ]
@@ -863,7 +863,7 @@ class Handler(object):
             set_={
                 "price_status": stmt.excluded.price_status,
                 "price": stmt.excluded.price,
-            }
+            },
         )
 
         self.conn.execute(stmt)
