@@ -44,6 +44,9 @@ type Config struct {
 
 	// LogLevel is the level of logging for the logger.
 	LogLevel string `mapstructure:"log-level"`
+
+	// UpdaterQueryInterval is the interval for updater querying chain.
+	UpdaterQueryInterval string `mapstructure:"updater-query-interval"`
 }
 
 // Context holds the runtime context for the application.
