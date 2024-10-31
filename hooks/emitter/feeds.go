@@ -109,14 +109,6 @@ func (h *Hook) handleMsgSubmitSignalPrices(
 	h.emitSetValidatorPrices(ctx, msg.Validator, msg.Prices)
 }
 
-// handleEventUpdatePrice implements emitter handler for event UpdatePrice.
-func (h *Hook) handleEventUpdatePrice(
-	ctx sdk.Context,
-) {
-	prices := h.feedsKeeper.GetAllCurrentPrices(ctx)
-	h.emitSetPrices(ctx, prices)
-}
-
 // handleMsgUpdateReferenceSourceConfig implements emitter handler for MsgUpdateReferenceSourceConfig.
 func (h *Hook) handleMsgUpdateReferenceSourceConfig(
 	ctx sdk.Context, msg *types.MsgUpdateReferenceSourceConfig,

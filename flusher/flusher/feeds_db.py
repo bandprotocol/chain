@@ -7,7 +7,7 @@ from .db import (
     CustomDateTime,
 )
 
-PRICE_HISTORY_PERIOD = 60 * 60 * 24 * 7 * 10e8  # 1 week
+PRICE_HISTORY_PERIOD = 60 * 60 * 24 * 7 * 1e9  # 1 week
 
 # Define the PriceStatus Enum
 class PriceStatus(enum.Enum):
@@ -63,9 +63,9 @@ historical_prices = sa.Table(
     "historical_prices",
     metadata,
     Column("signal_id", sa.String, primary_key=True),
+    Column("timestamp", CustomDateTime, primary_key=True, index=True),
     Column("price_status", CustomPriceStatus),
     Column("price", sa.BigInteger),
-    Column("timestamp", CustomDateTime, primary_key=True, index=True),
 )
 
 reference_source_configs = sa.Table(
