@@ -22,8 +22,8 @@ var (
 )
 
 func init() {
-	file_bandchain_oracle_v1_proof_proto_init()
-	md_ProofRequest = File_bandchain_oracle_v1_proof_proto.Messages().ByName("ProofRequest")
+	file_band_base_oracle_v1_proof_proto_init()
+	md_ProofRequest = File_band_base_oracle_v1_proof_proto.Messages().ByName("ProofRequest")
 	fd_ProofRequest_request_id = md_ProofRequest.Fields().ByName("request_id")
 	fd_ProofRequest_height = md_ProofRequest.Fields().ByName("height")
 }
@@ -37,7 +37,7 @@ func (x *ProofRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *ProofRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[0]
+	mi := &file_band_base_oracle_v1_proof_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -120,15 +120,15 @@ func (x *fastReflection_ProofRequest) Range(f func(protoreflect.FieldDescriptor,
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_ProofRequest) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.ProofRequest.request_id":
+	case "band.base.oracle.v1.ProofRequest.request_id":
 		return x.RequestId != uint64(0)
-	case "bandchain.oracle.v1.ProofRequest.height":
+	case "band.base.oracle.v1.ProofRequest.height":
 		return x.Height != int64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.ProofRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.ProofRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.ProofRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.ProofRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -140,15 +140,15 @@ func (x *fastReflection_ProofRequest) Has(fd protoreflect.FieldDescriptor) bool 
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ProofRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.ProofRequest.request_id":
+	case "band.base.oracle.v1.ProofRequest.request_id":
 		x.RequestId = uint64(0)
-	case "bandchain.oracle.v1.ProofRequest.height":
+	case "band.base.oracle.v1.ProofRequest.height":
 		x.Height = int64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.ProofRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.ProofRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.ProofRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.ProofRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -160,17 +160,17 @@ func (x *fastReflection_ProofRequest) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_ProofRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.oracle.v1.ProofRequest.request_id":
+	case "band.base.oracle.v1.ProofRequest.request_id":
 		value := x.RequestId
 		return protoreflect.ValueOfUint64(value)
-	case "bandchain.oracle.v1.ProofRequest.height":
+	case "band.base.oracle.v1.ProofRequest.height":
 		value := x.Height
 		return protoreflect.ValueOfInt64(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.ProofRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.ProofRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.ProofRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.ProofRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -186,15 +186,15 @@ func (x *fastReflection_ProofRequest) Get(descriptor protoreflect.FieldDescripto
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ProofRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.ProofRequest.request_id":
+	case "band.base.oracle.v1.ProofRequest.request_id":
 		x.RequestId = value.Uint()
-	case "bandchain.oracle.v1.ProofRequest.height":
+	case "band.base.oracle.v1.ProofRequest.height":
 		x.Height = value.Int()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.ProofRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.ProofRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.ProofRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.ProofRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -210,15 +210,15 @@ func (x *fastReflection_ProofRequest) Set(fd protoreflect.FieldDescriptor, value
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ProofRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.ProofRequest.request_id":
-		panic(fmt.Errorf("field request_id of message bandchain.oracle.v1.ProofRequest is not mutable"))
-	case "bandchain.oracle.v1.ProofRequest.height":
-		panic(fmt.Errorf("field height of message bandchain.oracle.v1.ProofRequest is not mutable"))
+	case "band.base.oracle.v1.ProofRequest.request_id":
+		panic(fmt.Errorf("field request_id of message band.base.oracle.v1.ProofRequest is not mutable"))
+	case "band.base.oracle.v1.ProofRequest.height":
+		panic(fmt.Errorf("field height of message band.base.oracle.v1.ProofRequest is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.ProofRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.ProofRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.ProofRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.ProofRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -227,15 +227,15 @@ func (x *fastReflection_ProofRequest) Mutable(fd protoreflect.FieldDescriptor) p
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_ProofRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.ProofRequest.request_id":
+	case "band.base.oracle.v1.ProofRequest.request_id":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "bandchain.oracle.v1.ProofRequest.height":
+	case "band.base.oracle.v1.ProofRequest.height":
 		return protoreflect.ValueOfInt64(int64(0))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.ProofRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.ProofRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.ProofRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.ProofRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -245,7 +245,7 @@ func (x *fastReflection_ProofRequest) NewField(fd protoreflect.FieldDescriptor) 
 func (x *fastReflection_ProofRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.oracle.v1.ProofRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.oracle.v1.ProofRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -474,8 +474,8 @@ var (
 )
 
 func init() {
-	file_bandchain_oracle_v1_proof_proto_init()
-	md_ProofResponse = File_bandchain_oracle_v1_proof_proto.Messages().ByName("ProofResponse")
+	file_band_base_oracle_v1_proof_proto_init()
+	md_ProofResponse = File_band_base_oracle_v1_proof_proto.Messages().ByName("ProofResponse")
 	fd_ProofResponse_height = md_ProofResponse.Fields().ByName("height")
 	fd_ProofResponse_result = md_ProofResponse.Fields().ByName("result")
 }
@@ -489,7 +489,7 @@ func (x *ProofResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *ProofResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[1]
+	mi := &file_band_base_oracle_v1_proof_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -572,15 +572,15 @@ func (x *fastReflection_ProofResponse) Range(f func(protoreflect.FieldDescriptor
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_ProofResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.ProofResponse.height":
+	case "band.base.oracle.v1.ProofResponse.height":
 		return x.Height != int64(0)
-	case "bandchain.oracle.v1.ProofResponse.result":
+	case "band.base.oracle.v1.ProofResponse.result":
 		return x.Result != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.ProofResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.ProofResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.ProofResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.ProofResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -592,15 +592,15 @@ func (x *fastReflection_ProofResponse) Has(fd protoreflect.FieldDescriptor) bool
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ProofResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.ProofResponse.height":
+	case "band.base.oracle.v1.ProofResponse.height":
 		x.Height = int64(0)
-	case "bandchain.oracle.v1.ProofResponse.result":
+	case "band.base.oracle.v1.ProofResponse.result":
 		x.Result = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.ProofResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.ProofResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.ProofResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.ProofResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -612,17 +612,17 @@ func (x *fastReflection_ProofResponse) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_ProofResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.oracle.v1.ProofResponse.height":
+	case "band.base.oracle.v1.ProofResponse.height":
 		value := x.Height
 		return protoreflect.ValueOfInt64(value)
-	case "bandchain.oracle.v1.ProofResponse.result":
+	case "band.base.oracle.v1.ProofResponse.result":
 		value := x.Result
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.ProofResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.ProofResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.ProofResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.ProofResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -638,15 +638,15 @@ func (x *fastReflection_ProofResponse) Get(descriptor protoreflect.FieldDescript
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ProofResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.ProofResponse.height":
+	case "band.base.oracle.v1.ProofResponse.height":
 		x.Height = value.Int()
-	case "bandchain.oracle.v1.ProofResponse.result":
+	case "band.base.oracle.v1.ProofResponse.result":
 		x.Result = value.Message().Interface().(*SingleProofResult)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.ProofResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.ProofResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.ProofResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.ProofResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -662,18 +662,18 @@ func (x *fastReflection_ProofResponse) Set(fd protoreflect.FieldDescriptor, valu
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ProofResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.ProofResponse.result":
+	case "band.base.oracle.v1.ProofResponse.result":
 		if x.Result == nil {
 			x.Result = new(SingleProofResult)
 		}
 		return protoreflect.ValueOfMessage(x.Result.ProtoReflect())
-	case "bandchain.oracle.v1.ProofResponse.height":
-		panic(fmt.Errorf("field height of message bandchain.oracle.v1.ProofResponse is not mutable"))
+	case "band.base.oracle.v1.ProofResponse.height":
+		panic(fmt.Errorf("field height of message band.base.oracle.v1.ProofResponse is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.ProofResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.ProofResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.ProofResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.ProofResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -682,16 +682,16 @@ func (x *fastReflection_ProofResponse) Mutable(fd protoreflect.FieldDescriptor) 
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_ProofResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.ProofResponse.height":
+	case "band.base.oracle.v1.ProofResponse.height":
 		return protoreflect.ValueOfInt64(int64(0))
-	case "bandchain.oracle.v1.ProofResponse.result":
+	case "band.base.oracle.v1.ProofResponse.result":
 		m := new(SingleProofResult)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.ProofResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.ProofResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.ProofResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.ProofResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -701,7 +701,7 @@ func (x *fastReflection_ProofResponse) NewField(fd protoreflect.FieldDescriptor)
 func (x *fastReflection_ProofResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.oracle.v1.ProofResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.oracle.v1.ProofResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1002,8 +1002,8 @@ var (
 )
 
 func init() {
-	file_bandchain_oracle_v1_proof_proto_init()
-	md_MultiProofRequest = File_bandchain_oracle_v1_proof_proto.Messages().ByName("MultiProofRequest")
+	file_band_base_oracle_v1_proof_proto_init()
+	md_MultiProofRequest = File_band_base_oracle_v1_proof_proto.Messages().ByName("MultiProofRequest")
 	fd_MultiProofRequest_request_ids = md_MultiProofRequest.Fields().ByName("request_ids")
 }
 
@@ -1016,7 +1016,7 @@ func (x *MultiProofRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MultiProofRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[2]
+	mi := &file_band_base_oracle_v1_proof_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1093,13 +1093,13 @@ func (x *fastReflection_MultiProofRequest) Range(f func(protoreflect.FieldDescri
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MultiProofRequest) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiProofRequest.request_ids":
+	case "band.base.oracle.v1.MultiProofRequest.request_ids":
 		return len(x.RequestIds) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProofRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProofRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProofRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProofRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1111,13 +1111,13 @@ func (x *fastReflection_MultiProofRequest) Has(fd protoreflect.FieldDescriptor) 
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MultiProofRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiProofRequest.request_ids":
+	case "band.base.oracle.v1.MultiProofRequest.request_ids":
 		x.RequestIds = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProofRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProofRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProofRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProofRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1129,7 +1129,7 @@ func (x *fastReflection_MultiProofRequest) Clear(fd protoreflect.FieldDescriptor
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MultiProofRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.oracle.v1.MultiProofRequest.request_ids":
+	case "band.base.oracle.v1.MultiProofRequest.request_ids":
 		if len(x.RequestIds) == 0 {
 			return protoreflect.ValueOfList(&_MultiProofRequest_1_list{})
 		}
@@ -1137,9 +1137,9 @@ func (x *fastReflection_MultiProofRequest) Get(descriptor protoreflect.FieldDesc
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProofRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProofRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProofRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProofRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1155,15 +1155,15 @@ func (x *fastReflection_MultiProofRequest) Get(descriptor protoreflect.FieldDesc
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MultiProofRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiProofRequest.request_ids":
+	case "band.base.oracle.v1.MultiProofRequest.request_ids":
 		lv := value.List()
 		clv := lv.(*_MultiProofRequest_1_list)
 		x.RequestIds = *clv.list
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProofRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProofRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProofRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProofRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1179,7 +1179,7 @@ func (x *fastReflection_MultiProofRequest) Set(fd protoreflect.FieldDescriptor, 
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MultiProofRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiProofRequest.request_ids":
+	case "band.base.oracle.v1.MultiProofRequest.request_ids":
 		if x.RequestIds == nil {
 			x.RequestIds = []uint64{}
 		}
@@ -1187,9 +1187,9 @@ func (x *fastReflection_MultiProofRequest) Mutable(fd protoreflect.FieldDescript
 		return protoreflect.ValueOfList(value)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProofRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProofRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProofRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProofRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1198,14 +1198,14 @@ func (x *fastReflection_MultiProofRequest) Mutable(fd protoreflect.FieldDescript
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MultiProofRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiProofRequest.request_ids":
+	case "band.base.oracle.v1.MultiProofRequest.request_ids":
 		list := []uint64{}
 		return protoreflect.ValueOfList(&_MultiProofRequest_1_list{list: &list})
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProofRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProofRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProofRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProofRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1215,7 +1215,7 @@ func (x *fastReflection_MultiProofRequest) NewField(fd protoreflect.FieldDescrip
 func (x *fastReflection_MultiProofRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.oracle.v1.MultiProofRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.oracle.v1.MultiProofRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1493,8 +1493,8 @@ var (
 )
 
 func init() {
-	file_bandchain_oracle_v1_proof_proto_init()
-	md_MultiProofResponse = File_bandchain_oracle_v1_proof_proto.Messages().ByName("MultiProofResponse")
+	file_band_base_oracle_v1_proof_proto_init()
+	md_MultiProofResponse = File_band_base_oracle_v1_proof_proto.Messages().ByName("MultiProofResponse")
 	fd_MultiProofResponse_height = md_MultiProofResponse.Fields().ByName("height")
 	fd_MultiProofResponse_result = md_MultiProofResponse.Fields().ByName("result")
 }
@@ -1508,7 +1508,7 @@ func (x *MultiProofResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MultiProofResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[3]
+	mi := &file_band_base_oracle_v1_proof_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1591,15 +1591,15 @@ func (x *fastReflection_MultiProofResponse) Range(f func(protoreflect.FieldDescr
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MultiProofResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiProofResponse.height":
+	case "band.base.oracle.v1.MultiProofResponse.height":
 		return x.Height != int64(0)
-	case "bandchain.oracle.v1.MultiProofResponse.result":
+	case "band.base.oracle.v1.MultiProofResponse.result":
 		return x.Result != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProofResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProofResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProofResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProofResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1611,15 +1611,15 @@ func (x *fastReflection_MultiProofResponse) Has(fd protoreflect.FieldDescriptor)
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MultiProofResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiProofResponse.height":
+	case "band.base.oracle.v1.MultiProofResponse.height":
 		x.Height = int64(0)
-	case "bandchain.oracle.v1.MultiProofResponse.result":
+	case "band.base.oracle.v1.MultiProofResponse.result":
 		x.Result = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProofResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProofResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProofResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProofResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1631,17 +1631,17 @@ func (x *fastReflection_MultiProofResponse) Clear(fd protoreflect.FieldDescripto
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MultiProofResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.oracle.v1.MultiProofResponse.height":
+	case "band.base.oracle.v1.MultiProofResponse.height":
 		value := x.Height
 		return protoreflect.ValueOfInt64(value)
-	case "bandchain.oracle.v1.MultiProofResponse.result":
+	case "band.base.oracle.v1.MultiProofResponse.result":
 		value := x.Result
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProofResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProofResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProofResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProofResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1657,15 +1657,15 @@ func (x *fastReflection_MultiProofResponse) Get(descriptor protoreflect.FieldDes
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MultiProofResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiProofResponse.height":
+	case "band.base.oracle.v1.MultiProofResponse.height":
 		x.Height = value.Int()
-	case "bandchain.oracle.v1.MultiProofResponse.result":
+	case "band.base.oracle.v1.MultiProofResponse.result":
 		x.Result = value.Message().Interface().(*MultiProofResult)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProofResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProofResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProofResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProofResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1681,18 +1681,18 @@ func (x *fastReflection_MultiProofResponse) Set(fd protoreflect.FieldDescriptor,
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MultiProofResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiProofResponse.result":
+	case "band.base.oracle.v1.MultiProofResponse.result":
 		if x.Result == nil {
 			x.Result = new(MultiProofResult)
 		}
 		return protoreflect.ValueOfMessage(x.Result.ProtoReflect())
-	case "bandchain.oracle.v1.MultiProofResponse.height":
-		panic(fmt.Errorf("field height of message bandchain.oracle.v1.MultiProofResponse is not mutable"))
+	case "band.base.oracle.v1.MultiProofResponse.height":
+		panic(fmt.Errorf("field height of message band.base.oracle.v1.MultiProofResponse is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProofResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProofResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProofResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProofResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1701,16 +1701,16 @@ func (x *fastReflection_MultiProofResponse) Mutable(fd protoreflect.FieldDescrip
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MultiProofResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiProofResponse.height":
+	case "band.base.oracle.v1.MultiProofResponse.height":
 		return protoreflect.ValueOfInt64(int64(0))
-	case "bandchain.oracle.v1.MultiProofResponse.result":
+	case "band.base.oracle.v1.MultiProofResponse.result":
 		m := new(MultiProofResult)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProofResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProofResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProofResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProofResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1720,7 +1720,7 @@ func (x *fastReflection_MultiProofResponse) NewField(fd protoreflect.FieldDescri
 func (x *fastReflection_MultiProofResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.oracle.v1.MultiProofResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.oracle.v1.MultiProofResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1974,8 +1974,8 @@ var (
 )
 
 func init() {
-	file_bandchain_oracle_v1_proof_proto_init()
-	md_RequestCountProofRequest = File_bandchain_oracle_v1_proof_proto.Messages().ByName("RequestCountProofRequest")
+	file_band_base_oracle_v1_proof_proto_init()
+	md_RequestCountProofRequest = File_band_base_oracle_v1_proof_proto.Messages().ByName("RequestCountProofRequest")
 }
 
 var _ protoreflect.Message = (*fastReflection_RequestCountProofRequest)(nil)
@@ -1987,7 +1987,7 @@ func (x *RequestCountProofRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *RequestCountProofRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[4]
+	mi := &file_band_base_oracle_v1_proof_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2060,9 +2060,9 @@ func (x *fastReflection_RequestCountProofRequest) Has(fd protoreflect.FieldDescr
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.RequestCountProofRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.RequestCountProofRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.RequestCountProofRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.RequestCountProofRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2076,9 +2076,9 @@ func (x *fastReflection_RequestCountProofRequest) Clear(fd protoreflect.FieldDes
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.RequestCountProofRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.RequestCountProofRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.RequestCountProofRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.RequestCountProofRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2092,9 +2092,9 @@ func (x *fastReflection_RequestCountProofRequest) Get(descriptor protoreflect.Fi
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.RequestCountProofRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.RequestCountProofRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.RequestCountProofRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.RequestCountProofRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2112,9 +2112,9 @@ func (x *fastReflection_RequestCountProofRequest) Set(fd protoreflect.FieldDescr
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.RequestCountProofRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.RequestCountProofRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.RequestCountProofRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.RequestCountProofRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2132,9 +2132,9 @@ func (x *fastReflection_RequestCountProofRequest) Mutable(fd protoreflect.FieldD
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.RequestCountProofRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.RequestCountProofRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.RequestCountProofRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.RequestCountProofRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2145,9 +2145,9 @@ func (x *fastReflection_RequestCountProofRequest) NewField(fd protoreflect.Field
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.RequestCountProofRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.RequestCountProofRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.RequestCountProofRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.RequestCountProofRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2157,7 +2157,7 @@ func (x *fastReflection_RequestCountProofRequest) NewField(fd protoreflect.Field
 func (x *fastReflection_RequestCountProofRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.oracle.v1.RequestCountProofRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.oracle.v1.RequestCountProofRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2332,8 +2332,8 @@ var (
 )
 
 func init() {
-	file_bandchain_oracle_v1_proof_proto_init()
-	md_RequestCountProofResponse = File_bandchain_oracle_v1_proof_proto.Messages().ByName("RequestCountProofResponse")
+	file_band_base_oracle_v1_proof_proto_init()
+	md_RequestCountProofResponse = File_band_base_oracle_v1_proof_proto.Messages().ByName("RequestCountProofResponse")
 	fd_RequestCountProofResponse_height = md_RequestCountProofResponse.Fields().ByName("height")
 	fd_RequestCountProofResponse_result = md_RequestCountProofResponse.Fields().ByName("result")
 }
@@ -2347,7 +2347,7 @@ func (x *RequestCountProofResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *RequestCountProofResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[5]
+	mi := &file_band_base_oracle_v1_proof_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2430,15 +2430,15 @@ func (x *fastReflection_RequestCountProofResponse) Range(f func(protoreflect.Fie
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_RequestCountProofResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.RequestCountProofResponse.height":
+	case "band.base.oracle.v1.RequestCountProofResponse.height":
 		return x.Height != int64(0)
-	case "bandchain.oracle.v1.RequestCountProofResponse.result":
+	case "band.base.oracle.v1.RequestCountProofResponse.result":
 		return x.Result != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.RequestCountProofResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.RequestCountProofResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.RequestCountProofResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.RequestCountProofResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2450,15 +2450,15 @@ func (x *fastReflection_RequestCountProofResponse) Has(fd protoreflect.FieldDesc
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_RequestCountProofResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.RequestCountProofResponse.height":
+	case "band.base.oracle.v1.RequestCountProofResponse.height":
 		x.Height = int64(0)
-	case "bandchain.oracle.v1.RequestCountProofResponse.result":
+	case "band.base.oracle.v1.RequestCountProofResponse.result":
 		x.Result = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.RequestCountProofResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.RequestCountProofResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.RequestCountProofResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.RequestCountProofResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2470,17 +2470,17 @@ func (x *fastReflection_RequestCountProofResponse) Clear(fd protoreflect.FieldDe
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_RequestCountProofResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.oracle.v1.RequestCountProofResponse.height":
+	case "band.base.oracle.v1.RequestCountProofResponse.height":
 		value := x.Height
 		return protoreflect.ValueOfInt64(value)
-	case "bandchain.oracle.v1.RequestCountProofResponse.result":
+	case "band.base.oracle.v1.RequestCountProofResponse.result":
 		value := x.Result
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.RequestCountProofResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.RequestCountProofResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.RequestCountProofResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.RequestCountProofResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2496,15 +2496,15 @@ func (x *fastReflection_RequestCountProofResponse) Get(descriptor protoreflect.F
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_RequestCountProofResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.RequestCountProofResponse.height":
+	case "band.base.oracle.v1.RequestCountProofResponse.height":
 		x.Height = value.Int()
-	case "bandchain.oracle.v1.RequestCountProofResponse.result":
+	case "band.base.oracle.v1.RequestCountProofResponse.result":
 		x.Result = value.Message().Interface().(*CountProofResult)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.RequestCountProofResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.RequestCountProofResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.RequestCountProofResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.RequestCountProofResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2520,18 +2520,18 @@ func (x *fastReflection_RequestCountProofResponse) Set(fd protoreflect.FieldDesc
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_RequestCountProofResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.RequestCountProofResponse.result":
+	case "band.base.oracle.v1.RequestCountProofResponse.result":
 		if x.Result == nil {
 			x.Result = new(CountProofResult)
 		}
 		return protoreflect.ValueOfMessage(x.Result.ProtoReflect())
-	case "bandchain.oracle.v1.RequestCountProofResponse.height":
-		panic(fmt.Errorf("field height of message bandchain.oracle.v1.RequestCountProofResponse is not mutable"))
+	case "band.base.oracle.v1.RequestCountProofResponse.height":
+		panic(fmt.Errorf("field height of message band.base.oracle.v1.RequestCountProofResponse is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.RequestCountProofResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.RequestCountProofResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.RequestCountProofResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.RequestCountProofResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2540,16 +2540,16 @@ func (x *fastReflection_RequestCountProofResponse) Mutable(fd protoreflect.Field
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_RequestCountProofResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.RequestCountProofResponse.height":
+	case "band.base.oracle.v1.RequestCountProofResponse.height":
 		return protoreflect.ValueOfInt64(int64(0))
-	case "bandchain.oracle.v1.RequestCountProofResponse.result":
+	case "band.base.oracle.v1.RequestCountProofResponse.result":
 		m := new(CountProofResult)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.RequestCountProofResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.RequestCountProofResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.RequestCountProofResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.RequestCountProofResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2559,7 +2559,7 @@ func (x *fastReflection_RequestCountProofResponse) NewField(fd protoreflect.Fiel
 func (x *fastReflection_RequestCountProofResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.oracle.v1.RequestCountProofResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.oracle.v1.RequestCountProofResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2815,8 +2815,8 @@ var (
 )
 
 func init() {
-	file_bandchain_oracle_v1_proof_proto_init()
-	md_SingleProofResult = File_bandchain_oracle_v1_proof_proto.Messages().ByName("SingleProofResult")
+	file_band_base_oracle_v1_proof_proto_init()
+	md_SingleProofResult = File_band_base_oracle_v1_proof_proto.Messages().ByName("SingleProofResult")
 	fd_SingleProofResult_proof = md_SingleProofResult.Fields().ByName("proof")
 	fd_SingleProofResult_evm_proof_bytes = md_SingleProofResult.Fields().ByName("evm_proof_bytes")
 }
@@ -2830,7 +2830,7 @@ func (x *SingleProofResult) ProtoReflect() protoreflect.Message {
 }
 
 func (x *SingleProofResult) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[6]
+	mi := &file_band_base_oracle_v1_proof_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2913,15 +2913,15 @@ func (x *fastReflection_SingleProofResult) Range(f func(protoreflect.FieldDescri
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_SingleProofResult) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.SingleProofResult.proof":
+	case "band.base.oracle.v1.SingleProofResult.proof":
 		return x.Proof != nil
-	case "bandchain.oracle.v1.SingleProofResult.evm_proof_bytes":
+	case "band.base.oracle.v1.SingleProofResult.evm_proof_bytes":
 		return len(x.EvmProofBytes) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.SingleProofResult"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.SingleProofResult"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.SingleProofResult does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.SingleProofResult does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2933,15 +2933,15 @@ func (x *fastReflection_SingleProofResult) Has(fd protoreflect.FieldDescriptor) 
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_SingleProofResult) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.SingleProofResult.proof":
+	case "band.base.oracle.v1.SingleProofResult.proof":
 		x.Proof = nil
-	case "bandchain.oracle.v1.SingleProofResult.evm_proof_bytes":
+	case "band.base.oracle.v1.SingleProofResult.evm_proof_bytes":
 		x.EvmProofBytes = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.SingleProofResult"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.SingleProofResult"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.SingleProofResult does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.SingleProofResult does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2953,17 +2953,17 @@ func (x *fastReflection_SingleProofResult) Clear(fd protoreflect.FieldDescriptor
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_SingleProofResult) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.oracle.v1.SingleProofResult.proof":
+	case "band.base.oracle.v1.SingleProofResult.proof":
 		value := x.Proof
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "bandchain.oracle.v1.SingleProofResult.evm_proof_bytes":
+	case "band.base.oracle.v1.SingleProofResult.evm_proof_bytes":
 		value := x.EvmProofBytes
 		return protoreflect.ValueOfBytes(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.SingleProofResult"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.SingleProofResult"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.SingleProofResult does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.SingleProofResult does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2979,15 +2979,15 @@ func (x *fastReflection_SingleProofResult) Get(descriptor protoreflect.FieldDesc
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_SingleProofResult) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.SingleProofResult.proof":
+	case "band.base.oracle.v1.SingleProofResult.proof":
 		x.Proof = value.Message().Interface().(*SingleProof)
-	case "bandchain.oracle.v1.SingleProofResult.evm_proof_bytes":
+	case "band.base.oracle.v1.SingleProofResult.evm_proof_bytes":
 		x.EvmProofBytes = value.Bytes()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.SingleProofResult"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.SingleProofResult"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.SingleProofResult does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.SingleProofResult does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3003,18 +3003,18 @@ func (x *fastReflection_SingleProofResult) Set(fd protoreflect.FieldDescriptor, 
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_SingleProofResult) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.SingleProofResult.proof":
+	case "band.base.oracle.v1.SingleProofResult.proof":
 		if x.Proof == nil {
 			x.Proof = new(SingleProof)
 		}
 		return protoreflect.ValueOfMessage(x.Proof.ProtoReflect())
-	case "bandchain.oracle.v1.SingleProofResult.evm_proof_bytes":
-		panic(fmt.Errorf("field evm_proof_bytes of message bandchain.oracle.v1.SingleProofResult is not mutable"))
+	case "band.base.oracle.v1.SingleProofResult.evm_proof_bytes":
+		panic(fmt.Errorf("field evm_proof_bytes of message band.base.oracle.v1.SingleProofResult is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.SingleProofResult"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.SingleProofResult"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.SingleProofResult does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.SingleProofResult does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3023,16 +3023,16 @@ func (x *fastReflection_SingleProofResult) Mutable(fd protoreflect.FieldDescript
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_SingleProofResult) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.SingleProofResult.proof":
+	case "band.base.oracle.v1.SingleProofResult.proof":
 		m := new(SingleProof)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "bandchain.oracle.v1.SingleProofResult.evm_proof_bytes":
+	case "band.base.oracle.v1.SingleProofResult.evm_proof_bytes":
 		return protoreflect.ValueOfBytes(nil)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.SingleProofResult"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.SingleProofResult"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.SingleProofResult does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.SingleProofResult does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3042,7 +3042,7 @@ func (x *fastReflection_SingleProofResult) NewField(fd protoreflect.FieldDescrip
 func (x *fastReflection_SingleProofResult) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.oracle.v1.SingleProofResult", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.oracle.v1.SingleProofResult", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -3316,8 +3316,8 @@ var (
 )
 
 func init() {
-	file_bandchain_oracle_v1_proof_proto_init()
-	md_MultiProofResult = File_bandchain_oracle_v1_proof_proto.Messages().ByName("MultiProofResult")
+	file_band_base_oracle_v1_proof_proto_init()
+	md_MultiProofResult = File_band_base_oracle_v1_proof_proto.Messages().ByName("MultiProofResult")
 	fd_MultiProofResult_proof = md_MultiProofResult.Fields().ByName("proof")
 	fd_MultiProofResult_evm_proof_bytes = md_MultiProofResult.Fields().ByName("evm_proof_bytes")
 }
@@ -3331,7 +3331,7 @@ func (x *MultiProofResult) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MultiProofResult) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[7]
+	mi := &file_band_base_oracle_v1_proof_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3414,15 +3414,15 @@ func (x *fastReflection_MultiProofResult) Range(f func(protoreflect.FieldDescrip
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MultiProofResult) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiProofResult.proof":
+	case "band.base.oracle.v1.MultiProofResult.proof":
 		return x.Proof != nil
-	case "bandchain.oracle.v1.MultiProofResult.evm_proof_bytes":
+	case "band.base.oracle.v1.MultiProofResult.evm_proof_bytes":
 		return len(x.EvmProofBytes) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProofResult"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProofResult"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProofResult does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProofResult does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3434,15 +3434,15 @@ func (x *fastReflection_MultiProofResult) Has(fd protoreflect.FieldDescriptor) b
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MultiProofResult) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiProofResult.proof":
+	case "band.base.oracle.v1.MultiProofResult.proof":
 		x.Proof = nil
-	case "bandchain.oracle.v1.MultiProofResult.evm_proof_bytes":
+	case "band.base.oracle.v1.MultiProofResult.evm_proof_bytes":
 		x.EvmProofBytes = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProofResult"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProofResult"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProofResult does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProofResult does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3454,17 +3454,17 @@ func (x *fastReflection_MultiProofResult) Clear(fd protoreflect.FieldDescriptor)
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MultiProofResult) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.oracle.v1.MultiProofResult.proof":
+	case "band.base.oracle.v1.MultiProofResult.proof":
 		value := x.Proof
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "bandchain.oracle.v1.MultiProofResult.evm_proof_bytes":
+	case "band.base.oracle.v1.MultiProofResult.evm_proof_bytes":
 		value := x.EvmProofBytes
 		return protoreflect.ValueOfBytes(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProofResult"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProofResult"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProofResult does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProofResult does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -3480,15 +3480,15 @@ func (x *fastReflection_MultiProofResult) Get(descriptor protoreflect.FieldDescr
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MultiProofResult) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiProofResult.proof":
+	case "band.base.oracle.v1.MultiProofResult.proof":
 		x.Proof = value.Message().Interface().(*MultiProof)
-	case "bandchain.oracle.v1.MultiProofResult.evm_proof_bytes":
+	case "band.base.oracle.v1.MultiProofResult.evm_proof_bytes":
 		x.EvmProofBytes = value.Bytes()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProofResult"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProofResult"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProofResult does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProofResult does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3504,18 +3504,18 @@ func (x *fastReflection_MultiProofResult) Set(fd protoreflect.FieldDescriptor, v
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MultiProofResult) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiProofResult.proof":
+	case "band.base.oracle.v1.MultiProofResult.proof":
 		if x.Proof == nil {
 			x.Proof = new(MultiProof)
 		}
 		return protoreflect.ValueOfMessage(x.Proof.ProtoReflect())
-	case "bandchain.oracle.v1.MultiProofResult.evm_proof_bytes":
-		panic(fmt.Errorf("field evm_proof_bytes of message bandchain.oracle.v1.MultiProofResult is not mutable"))
+	case "band.base.oracle.v1.MultiProofResult.evm_proof_bytes":
+		panic(fmt.Errorf("field evm_proof_bytes of message band.base.oracle.v1.MultiProofResult is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProofResult"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProofResult"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProofResult does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProofResult does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3524,16 +3524,16 @@ func (x *fastReflection_MultiProofResult) Mutable(fd protoreflect.FieldDescripto
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MultiProofResult) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiProofResult.proof":
+	case "band.base.oracle.v1.MultiProofResult.proof":
 		m := new(MultiProof)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "bandchain.oracle.v1.MultiProofResult.evm_proof_bytes":
+	case "band.base.oracle.v1.MultiProofResult.evm_proof_bytes":
 		return protoreflect.ValueOfBytes(nil)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProofResult"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProofResult"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProofResult does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProofResult does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3543,7 +3543,7 @@ func (x *fastReflection_MultiProofResult) NewField(fd protoreflect.FieldDescript
 func (x *fastReflection_MultiProofResult) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.oracle.v1.MultiProofResult", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.oracle.v1.MultiProofResult", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -3817,8 +3817,8 @@ var (
 )
 
 func init() {
-	file_bandchain_oracle_v1_proof_proto_init()
-	md_CountProofResult = File_bandchain_oracle_v1_proof_proto.Messages().ByName("CountProofResult")
+	file_band_base_oracle_v1_proof_proto_init()
+	md_CountProofResult = File_band_base_oracle_v1_proof_proto.Messages().ByName("CountProofResult")
 	fd_CountProofResult_proof = md_CountProofResult.Fields().ByName("proof")
 	fd_CountProofResult_evm_proof_bytes = md_CountProofResult.Fields().ByName("evm_proof_bytes")
 }
@@ -3832,7 +3832,7 @@ func (x *CountProofResult) ProtoReflect() protoreflect.Message {
 }
 
 func (x *CountProofResult) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[8]
+	mi := &file_band_base_oracle_v1_proof_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3915,15 +3915,15 @@ func (x *fastReflection_CountProofResult) Range(f func(protoreflect.FieldDescrip
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_CountProofResult) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.CountProofResult.proof":
+	case "band.base.oracle.v1.CountProofResult.proof":
 		return x.Proof != nil
-	case "bandchain.oracle.v1.CountProofResult.evm_proof_bytes":
+	case "band.base.oracle.v1.CountProofResult.evm_proof_bytes":
 		return len(x.EvmProofBytes) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.CountProofResult"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.CountProofResult"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.CountProofResult does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.CountProofResult does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3935,15 +3935,15 @@ func (x *fastReflection_CountProofResult) Has(fd protoreflect.FieldDescriptor) b
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_CountProofResult) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.CountProofResult.proof":
+	case "band.base.oracle.v1.CountProofResult.proof":
 		x.Proof = nil
-	case "bandchain.oracle.v1.CountProofResult.evm_proof_bytes":
+	case "band.base.oracle.v1.CountProofResult.evm_proof_bytes":
 		x.EvmProofBytes = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.CountProofResult"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.CountProofResult"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.CountProofResult does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.CountProofResult does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3955,17 +3955,17 @@ func (x *fastReflection_CountProofResult) Clear(fd protoreflect.FieldDescriptor)
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_CountProofResult) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.oracle.v1.CountProofResult.proof":
+	case "band.base.oracle.v1.CountProofResult.proof":
 		value := x.Proof
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "bandchain.oracle.v1.CountProofResult.evm_proof_bytes":
+	case "band.base.oracle.v1.CountProofResult.evm_proof_bytes":
 		value := x.EvmProofBytes
 		return protoreflect.ValueOfBytes(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.CountProofResult"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.CountProofResult"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.CountProofResult does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.CountProofResult does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -3981,15 +3981,15 @@ func (x *fastReflection_CountProofResult) Get(descriptor protoreflect.FieldDescr
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_CountProofResult) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.CountProofResult.proof":
+	case "band.base.oracle.v1.CountProofResult.proof":
 		x.Proof = value.Message().Interface().(*CountProof)
-	case "bandchain.oracle.v1.CountProofResult.evm_proof_bytes":
+	case "band.base.oracle.v1.CountProofResult.evm_proof_bytes":
 		x.EvmProofBytes = value.Bytes()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.CountProofResult"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.CountProofResult"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.CountProofResult does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.CountProofResult does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4005,18 +4005,18 @@ func (x *fastReflection_CountProofResult) Set(fd protoreflect.FieldDescriptor, v
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_CountProofResult) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.CountProofResult.proof":
+	case "band.base.oracle.v1.CountProofResult.proof":
 		if x.Proof == nil {
 			x.Proof = new(CountProof)
 		}
 		return protoreflect.ValueOfMessage(x.Proof.ProtoReflect())
-	case "bandchain.oracle.v1.CountProofResult.evm_proof_bytes":
-		panic(fmt.Errorf("field evm_proof_bytes of message bandchain.oracle.v1.CountProofResult is not mutable"))
+	case "band.base.oracle.v1.CountProofResult.evm_proof_bytes":
+		panic(fmt.Errorf("field evm_proof_bytes of message band.base.oracle.v1.CountProofResult is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.CountProofResult"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.CountProofResult"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.CountProofResult does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.CountProofResult does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4025,16 +4025,16 @@ func (x *fastReflection_CountProofResult) Mutable(fd protoreflect.FieldDescripto
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_CountProofResult) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.CountProofResult.proof":
+	case "band.base.oracle.v1.CountProofResult.proof":
 		m := new(CountProof)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "bandchain.oracle.v1.CountProofResult.evm_proof_bytes":
+	case "band.base.oracle.v1.CountProofResult.evm_proof_bytes":
 		return protoreflect.ValueOfBytes(nil)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.CountProofResult"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.CountProofResult"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.CountProofResult does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.CountProofResult does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4044,7 +4044,7 @@ func (x *fastReflection_CountProofResult) NewField(fd protoreflect.FieldDescript
 func (x *fastReflection_CountProofResult) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.oracle.v1.CountProofResult", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.oracle.v1.CountProofResult", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -4319,8 +4319,8 @@ var (
 )
 
 func init() {
-	file_bandchain_oracle_v1_proof_proto_init()
-	md_SingleProof = File_bandchain_oracle_v1_proof_proto.Messages().ByName("SingleProof")
+	file_band_base_oracle_v1_proof_proto_init()
+	md_SingleProof = File_band_base_oracle_v1_proof_proto.Messages().ByName("SingleProof")
 	fd_SingleProof_block_height = md_SingleProof.Fields().ByName("block_height")
 	fd_SingleProof_oracle_data_proof = md_SingleProof.Fields().ByName("oracle_data_proof")
 	fd_SingleProof_block_relay_proof = md_SingleProof.Fields().ByName("block_relay_proof")
@@ -4335,7 +4335,7 @@ func (x *SingleProof) ProtoReflect() protoreflect.Message {
 }
 
 func (x *SingleProof) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[9]
+	mi := &file_band_base_oracle_v1_proof_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4424,17 +4424,17 @@ func (x *fastReflection_SingleProof) Range(f func(protoreflect.FieldDescriptor, 
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_SingleProof) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.SingleProof.block_height":
+	case "band.base.oracle.v1.SingleProof.block_height":
 		return x.BlockHeight != uint64(0)
-	case "bandchain.oracle.v1.SingleProof.oracle_data_proof":
+	case "band.base.oracle.v1.SingleProof.oracle_data_proof":
 		return x.OracleDataProof != nil
-	case "bandchain.oracle.v1.SingleProof.block_relay_proof":
+	case "band.base.oracle.v1.SingleProof.block_relay_proof":
 		return x.BlockRelayProof != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.SingleProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.SingleProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.SingleProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.SingleProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4446,17 +4446,17 @@ func (x *fastReflection_SingleProof) Has(fd protoreflect.FieldDescriptor) bool {
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_SingleProof) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.SingleProof.block_height":
+	case "band.base.oracle.v1.SingleProof.block_height":
 		x.BlockHeight = uint64(0)
-	case "bandchain.oracle.v1.SingleProof.oracle_data_proof":
+	case "band.base.oracle.v1.SingleProof.oracle_data_proof":
 		x.OracleDataProof = nil
-	case "bandchain.oracle.v1.SingleProof.block_relay_proof":
+	case "band.base.oracle.v1.SingleProof.block_relay_proof":
 		x.BlockRelayProof = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.SingleProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.SingleProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.SingleProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.SingleProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4468,20 +4468,20 @@ func (x *fastReflection_SingleProof) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_SingleProof) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.oracle.v1.SingleProof.block_height":
+	case "band.base.oracle.v1.SingleProof.block_height":
 		value := x.BlockHeight
 		return protoreflect.ValueOfUint64(value)
-	case "bandchain.oracle.v1.SingleProof.oracle_data_proof":
+	case "band.base.oracle.v1.SingleProof.oracle_data_proof":
 		value := x.OracleDataProof
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "bandchain.oracle.v1.SingleProof.block_relay_proof":
+	case "band.base.oracle.v1.SingleProof.block_relay_proof":
 		value := x.BlockRelayProof
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.SingleProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.SingleProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.SingleProof does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.SingleProof does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -4497,17 +4497,17 @@ func (x *fastReflection_SingleProof) Get(descriptor protoreflect.FieldDescriptor
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_SingleProof) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.SingleProof.block_height":
+	case "band.base.oracle.v1.SingleProof.block_height":
 		x.BlockHeight = value.Uint()
-	case "bandchain.oracle.v1.SingleProof.oracle_data_proof":
+	case "band.base.oracle.v1.SingleProof.oracle_data_proof":
 		x.OracleDataProof = value.Message().Interface().(*OracleDataProof)
-	case "bandchain.oracle.v1.SingleProof.block_relay_proof":
+	case "band.base.oracle.v1.SingleProof.block_relay_proof":
 		x.BlockRelayProof = value.Message().Interface().(*BlockRelayProof)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.SingleProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.SingleProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.SingleProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.SingleProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4523,23 +4523,23 @@ func (x *fastReflection_SingleProof) Set(fd protoreflect.FieldDescriptor, value 
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_SingleProof) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.SingleProof.oracle_data_proof":
+	case "band.base.oracle.v1.SingleProof.oracle_data_proof":
 		if x.OracleDataProof == nil {
 			x.OracleDataProof = new(OracleDataProof)
 		}
 		return protoreflect.ValueOfMessage(x.OracleDataProof.ProtoReflect())
-	case "bandchain.oracle.v1.SingleProof.block_relay_proof":
+	case "band.base.oracle.v1.SingleProof.block_relay_proof":
 		if x.BlockRelayProof == nil {
 			x.BlockRelayProof = new(BlockRelayProof)
 		}
 		return protoreflect.ValueOfMessage(x.BlockRelayProof.ProtoReflect())
-	case "bandchain.oracle.v1.SingleProof.block_height":
-		panic(fmt.Errorf("field block_height of message bandchain.oracle.v1.SingleProof is not mutable"))
+	case "band.base.oracle.v1.SingleProof.block_height":
+		panic(fmt.Errorf("field block_height of message band.base.oracle.v1.SingleProof is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.SingleProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.SingleProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.SingleProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.SingleProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4548,19 +4548,19 @@ func (x *fastReflection_SingleProof) Mutable(fd protoreflect.FieldDescriptor) pr
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_SingleProof) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.SingleProof.block_height":
+	case "band.base.oracle.v1.SingleProof.block_height":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "bandchain.oracle.v1.SingleProof.oracle_data_proof":
+	case "band.base.oracle.v1.SingleProof.oracle_data_proof":
 		m := new(OracleDataProof)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "bandchain.oracle.v1.SingleProof.block_relay_proof":
+	case "band.base.oracle.v1.SingleProof.block_relay_proof":
 		m := new(BlockRelayProof)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.SingleProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.SingleProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.SingleProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.SingleProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4570,7 +4570,7 @@ func (x *fastReflection_SingleProof) NewField(fd protoreflect.FieldDescriptor) p
 func (x *fastReflection_SingleProof) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.oracle.v1.SingleProof", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.oracle.v1.SingleProof", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -4932,8 +4932,8 @@ var (
 )
 
 func init() {
-	file_bandchain_oracle_v1_proof_proto_init()
-	md_MultiProof = File_bandchain_oracle_v1_proof_proto.Messages().ByName("MultiProof")
+	file_band_base_oracle_v1_proof_proto_init()
+	md_MultiProof = File_band_base_oracle_v1_proof_proto.Messages().ByName("MultiProof")
 	fd_MultiProof_block_height = md_MultiProof.Fields().ByName("block_height")
 	fd_MultiProof_oracle_data_multi_proof = md_MultiProof.Fields().ByName("oracle_data_multi_proof")
 	fd_MultiProof_block_relay_proof = md_MultiProof.Fields().ByName("block_relay_proof")
@@ -4948,7 +4948,7 @@ func (x *MultiProof) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MultiProof) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[10]
+	mi := &file_band_base_oracle_v1_proof_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5037,17 +5037,17 @@ func (x *fastReflection_MultiProof) Range(f func(protoreflect.FieldDescriptor, p
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MultiProof) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiProof.block_height":
+	case "band.base.oracle.v1.MultiProof.block_height":
 		return x.BlockHeight != uint64(0)
-	case "bandchain.oracle.v1.MultiProof.oracle_data_multi_proof":
+	case "band.base.oracle.v1.MultiProof.oracle_data_multi_proof":
 		return len(x.OracleDataMultiProof) != 0
-	case "bandchain.oracle.v1.MultiProof.block_relay_proof":
+	case "band.base.oracle.v1.MultiProof.block_relay_proof":
 		return x.BlockRelayProof != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5059,17 +5059,17 @@ func (x *fastReflection_MultiProof) Has(fd protoreflect.FieldDescriptor) bool {
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MultiProof) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiProof.block_height":
+	case "band.base.oracle.v1.MultiProof.block_height":
 		x.BlockHeight = uint64(0)
-	case "bandchain.oracle.v1.MultiProof.oracle_data_multi_proof":
+	case "band.base.oracle.v1.MultiProof.oracle_data_multi_proof":
 		x.OracleDataMultiProof = nil
-	case "bandchain.oracle.v1.MultiProof.block_relay_proof":
+	case "band.base.oracle.v1.MultiProof.block_relay_proof":
 		x.BlockRelayProof = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5081,23 +5081,23 @@ func (x *fastReflection_MultiProof) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MultiProof) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.oracle.v1.MultiProof.block_height":
+	case "band.base.oracle.v1.MultiProof.block_height":
 		value := x.BlockHeight
 		return protoreflect.ValueOfUint64(value)
-	case "bandchain.oracle.v1.MultiProof.oracle_data_multi_proof":
+	case "band.base.oracle.v1.MultiProof.oracle_data_multi_proof":
 		if len(x.OracleDataMultiProof) == 0 {
 			return protoreflect.ValueOfList(&_MultiProof_2_list{})
 		}
 		listValue := &_MultiProof_2_list{list: &x.OracleDataMultiProof}
 		return protoreflect.ValueOfList(listValue)
-	case "bandchain.oracle.v1.MultiProof.block_relay_proof":
+	case "band.base.oracle.v1.MultiProof.block_relay_proof":
 		value := x.BlockRelayProof
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProof does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProof does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -5113,19 +5113,19 @@ func (x *fastReflection_MultiProof) Get(descriptor protoreflect.FieldDescriptor)
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MultiProof) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiProof.block_height":
+	case "band.base.oracle.v1.MultiProof.block_height":
 		x.BlockHeight = value.Uint()
-	case "bandchain.oracle.v1.MultiProof.oracle_data_multi_proof":
+	case "band.base.oracle.v1.MultiProof.oracle_data_multi_proof":
 		lv := value.List()
 		clv := lv.(*_MultiProof_2_list)
 		x.OracleDataMultiProof = *clv.list
-	case "bandchain.oracle.v1.MultiProof.block_relay_proof":
+	case "band.base.oracle.v1.MultiProof.block_relay_proof":
 		x.BlockRelayProof = value.Message().Interface().(*BlockRelayProof)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5141,24 +5141,24 @@ func (x *fastReflection_MultiProof) Set(fd protoreflect.FieldDescriptor, value p
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MultiProof) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiProof.oracle_data_multi_proof":
+	case "band.base.oracle.v1.MultiProof.oracle_data_multi_proof":
 		if x.OracleDataMultiProof == nil {
 			x.OracleDataMultiProof = []*OracleDataProof{}
 		}
 		value := &_MultiProof_2_list{list: &x.OracleDataMultiProof}
 		return protoreflect.ValueOfList(value)
-	case "bandchain.oracle.v1.MultiProof.block_relay_proof":
+	case "band.base.oracle.v1.MultiProof.block_relay_proof":
 		if x.BlockRelayProof == nil {
 			x.BlockRelayProof = new(BlockRelayProof)
 		}
 		return protoreflect.ValueOfMessage(x.BlockRelayProof.ProtoReflect())
-	case "bandchain.oracle.v1.MultiProof.block_height":
-		panic(fmt.Errorf("field block_height of message bandchain.oracle.v1.MultiProof is not mutable"))
+	case "band.base.oracle.v1.MultiProof.block_height":
+		panic(fmt.Errorf("field block_height of message band.base.oracle.v1.MultiProof is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5167,19 +5167,19 @@ func (x *fastReflection_MultiProof) Mutable(fd protoreflect.FieldDescriptor) pro
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MultiProof) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiProof.block_height":
+	case "band.base.oracle.v1.MultiProof.block_height":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "bandchain.oracle.v1.MultiProof.oracle_data_multi_proof":
+	case "band.base.oracle.v1.MultiProof.oracle_data_multi_proof":
 		list := []*OracleDataProof{}
 		return protoreflect.ValueOfList(&_MultiProof_2_list{list: &list})
-	case "bandchain.oracle.v1.MultiProof.block_relay_proof":
+	case "band.base.oracle.v1.MultiProof.block_relay_proof":
 		m := new(BlockRelayProof)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5189,7 +5189,7 @@ func (x *fastReflection_MultiProof) NewField(fd protoreflect.FieldDescriptor) pr
 func (x *fastReflection_MultiProof) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.oracle.v1.MultiProof", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.oracle.v1.MultiProof", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -5502,8 +5502,8 @@ var (
 )
 
 func init() {
-	file_bandchain_oracle_v1_proof_proto_init()
-	md_CountProof = File_bandchain_oracle_v1_proof_proto.Messages().ByName("CountProof")
+	file_band_base_oracle_v1_proof_proto_init()
+	md_CountProof = File_band_base_oracle_v1_proof_proto.Messages().ByName("CountProof")
 	fd_CountProof_block_height = md_CountProof.Fields().ByName("block_height")
 	fd_CountProof_count_proof = md_CountProof.Fields().ByName("count_proof")
 	fd_CountProof_block_relay_proof = md_CountProof.Fields().ByName("block_relay_proof")
@@ -5518,7 +5518,7 @@ func (x *CountProof) ProtoReflect() protoreflect.Message {
 }
 
 func (x *CountProof) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[11]
+	mi := &file_band_base_oracle_v1_proof_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5607,17 +5607,17 @@ func (x *fastReflection_CountProof) Range(f func(protoreflect.FieldDescriptor, p
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_CountProof) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.CountProof.block_height":
+	case "band.base.oracle.v1.CountProof.block_height":
 		return x.BlockHeight != uint64(0)
-	case "bandchain.oracle.v1.CountProof.count_proof":
+	case "band.base.oracle.v1.CountProof.count_proof":
 		return x.CountProof != nil
-	case "bandchain.oracle.v1.CountProof.block_relay_proof":
+	case "band.base.oracle.v1.CountProof.block_relay_proof":
 		return x.BlockRelayProof != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.CountProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.CountProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.CountProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.CountProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5629,17 +5629,17 @@ func (x *fastReflection_CountProof) Has(fd protoreflect.FieldDescriptor) bool {
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_CountProof) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.CountProof.block_height":
+	case "band.base.oracle.v1.CountProof.block_height":
 		x.BlockHeight = uint64(0)
-	case "bandchain.oracle.v1.CountProof.count_proof":
+	case "band.base.oracle.v1.CountProof.count_proof":
 		x.CountProof = nil
-	case "bandchain.oracle.v1.CountProof.block_relay_proof":
+	case "band.base.oracle.v1.CountProof.block_relay_proof":
 		x.BlockRelayProof = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.CountProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.CountProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.CountProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.CountProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5651,20 +5651,20 @@ func (x *fastReflection_CountProof) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_CountProof) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.oracle.v1.CountProof.block_height":
+	case "band.base.oracle.v1.CountProof.block_height":
 		value := x.BlockHeight
 		return protoreflect.ValueOfUint64(value)
-	case "bandchain.oracle.v1.CountProof.count_proof":
+	case "band.base.oracle.v1.CountProof.count_proof":
 		value := x.CountProof
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "bandchain.oracle.v1.CountProof.block_relay_proof":
+	case "band.base.oracle.v1.CountProof.block_relay_proof":
 		value := x.BlockRelayProof
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.CountProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.CountProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.CountProof does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.CountProof does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -5680,17 +5680,17 @@ func (x *fastReflection_CountProof) Get(descriptor protoreflect.FieldDescriptor)
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_CountProof) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.CountProof.block_height":
+	case "band.base.oracle.v1.CountProof.block_height":
 		x.BlockHeight = value.Uint()
-	case "bandchain.oracle.v1.CountProof.count_proof":
+	case "band.base.oracle.v1.CountProof.count_proof":
 		x.CountProof = value.Message().Interface().(*RequestsCountProof)
-	case "bandchain.oracle.v1.CountProof.block_relay_proof":
+	case "band.base.oracle.v1.CountProof.block_relay_proof":
 		x.BlockRelayProof = value.Message().Interface().(*BlockRelayProof)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.CountProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.CountProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.CountProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.CountProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5706,23 +5706,23 @@ func (x *fastReflection_CountProof) Set(fd protoreflect.FieldDescriptor, value p
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_CountProof) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.CountProof.count_proof":
+	case "band.base.oracle.v1.CountProof.count_proof":
 		if x.CountProof == nil {
 			x.CountProof = new(RequestsCountProof)
 		}
 		return protoreflect.ValueOfMessage(x.CountProof.ProtoReflect())
-	case "bandchain.oracle.v1.CountProof.block_relay_proof":
+	case "band.base.oracle.v1.CountProof.block_relay_proof":
 		if x.BlockRelayProof == nil {
 			x.BlockRelayProof = new(BlockRelayProof)
 		}
 		return protoreflect.ValueOfMessage(x.BlockRelayProof.ProtoReflect())
-	case "bandchain.oracle.v1.CountProof.block_height":
-		panic(fmt.Errorf("field block_height of message bandchain.oracle.v1.CountProof is not mutable"))
+	case "band.base.oracle.v1.CountProof.block_height":
+		panic(fmt.Errorf("field block_height of message band.base.oracle.v1.CountProof is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.CountProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.CountProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.CountProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.CountProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5731,19 +5731,19 @@ func (x *fastReflection_CountProof) Mutable(fd protoreflect.FieldDescriptor) pro
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_CountProof) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.CountProof.block_height":
+	case "band.base.oracle.v1.CountProof.block_height":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "bandchain.oracle.v1.CountProof.count_proof":
+	case "band.base.oracle.v1.CountProof.count_proof":
 		m := new(RequestsCountProof)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "bandchain.oracle.v1.CountProof.block_relay_proof":
+	case "band.base.oracle.v1.CountProof.block_relay_proof":
 		m := new(BlockRelayProof)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.CountProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.CountProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.CountProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.CountProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5753,7 +5753,7 @@ func (x *fastReflection_CountProof) NewField(fd protoreflect.FieldDescriptor) pr
 func (x *fastReflection_CountProof) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.oracle.v1.CountProof", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.oracle.v1.CountProof", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -6115,8 +6115,8 @@ var (
 )
 
 func init() {
-	file_bandchain_oracle_v1_proof_proto_init()
-	md_OracleDataProof = File_bandchain_oracle_v1_proof_proto.Messages().ByName("OracleDataProof")
+	file_band_base_oracle_v1_proof_proto_init()
+	md_OracleDataProof = File_band_base_oracle_v1_proof_proto.Messages().ByName("OracleDataProof")
 	fd_OracleDataProof_result = md_OracleDataProof.Fields().ByName("result")
 	fd_OracleDataProof_version = md_OracleDataProof.Fields().ByName("version")
 	fd_OracleDataProof_merkle_paths = md_OracleDataProof.Fields().ByName("merkle_paths")
@@ -6131,7 +6131,7 @@ func (x *OracleDataProof) ProtoReflect() protoreflect.Message {
 }
 
 func (x *OracleDataProof) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[12]
+	mi := &file_band_base_oracle_v1_proof_proto_msgTypes[12]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6220,17 +6220,17 @@ func (x *fastReflection_OracleDataProof) Range(f func(protoreflect.FieldDescript
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_OracleDataProof) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.OracleDataProof.result":
+	case "band.base.oracle.v1.OracleDataProof.result":
 		return x.Result != nil
-	case "bandchain.oracle.v1.OracleDataProof.version":
+	case "band.base.oracle.v1.OracleDataProof.version":
 		return x.Version != uint64(0)
-	case "bandchain.oracle.v1.OracleDataProof.merkle_paths":
+	case "band.base.oracle.v1.OracleDataProof.merkle_paths":
 		return len(x.MerklePaths) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.OracleDataProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.OracleDataProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.OracleDataProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.OracleDataProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6242,17 +6242,17 @@ func (x *fastReflection_OracleDataProof) Has(fd protoreflect.FieldDescriptor) bo
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_OracleDataProof) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.OracleDataProof.result":
+	case "band.base.oracle.v1.OracleDataProof.result":
 		x.Result = nil
-	case "bandchain.oracle.v1.OracleDataProof.version":
+	case "band.base.oracle.v1.OracleDataProof.version":
 		x.Version = uint64(0)
-	case "bandchain.oracle.v1.OracleDataProof.merkle_paths":
+	case "band.base.oracle.v1.OracleDataProof.merkle_paths":
 		x.MerklePaths = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.OracleDataProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.OracleDataProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.OracleDataProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.OracleDataProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6264,13 +6264,13 @@ func (x *fastReflection_OracleDataProof) Clear(fd protoreflect.FieldDescriptor) 
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_OracleDataProof) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.oracle.v1.OracleDataProof.result":
+	case "band.base.oracle.v1.OracleDataProof.result":
 		value := x.Result
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "bandchain.oracle.v1.OracleDataProof.version":
+	case "band.base.oracle.v1.OracleDataProof.version":
 		value := x.Version
 		return protoreflect.ValueOfUint64(value)
-	case "bandchain.oracle.v1.OracleDataProof.merkle_paths":
+	case "band.base.oracle.v1.OracleDataProof.merkle_paths":
 		if len(x.MerklePaths) == 0 {
 			return protoreflect.ValueOfList(&_OracleDataProof_3_list{})
 		}
@@ -6278,9 +6278,9 @@ func (x *fastReflection_OracleDataProof) Get(descriptor protoreflect.FieldDescri
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.OracleDataProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.OracleDataProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.OracleDataProof does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.OracleDataProof does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -6296,19 +6296,19 @@ func (x *fastReflection_OracleDataProof) Get(descriptor protoreflect.FieldDescri
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_OracleDataProof) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.OracleDataProof.result":
+	case "band.base.oracle.v1.OracleDataProof.result":
 		x.Result = value.Message().Interface().(*v1.Result)
-	case "bandchain.oracle.v1.OracleDataProof.version":
+	case "band.base.oracle.v1.OracleDataProof.version":
 		x.Version = value.Uint()
-	case "bandchain.oracle.v1.OracleDataProof.merkle_paths":
+	case "band.base.oracle.v1.OracleDataProof.merkle_paths":
 		lv := value.List()
 		clv := lv.(*_OracleDataProof_3_list)
 		x.MerklePaths = *clv.list
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.OracleDataProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.OracleDataProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.OracleDataProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.OracleDataProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6324,24 +6324,24 @@ func (x *fastReflection_OracleDataProof) Set(fd protoreflect.FieldDescriptor, va
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_OracleDataProof) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.OracleDataProof.result":
+	case "band.base.oracle.v1.OracleDataProof.result":
 		if x.Result == nil {
 			x.Result = new(v1.Result)
 		}
 		return protoreflect.ValueOfMessage(x.Result.ProtoReflect())
-	case "bandchain.oracle.v1.OracleDataProof.merkle_paths":
+	case "band.base.oracle.v1.OracleDataProof.merkle_paths":
 		if x.MerklePaths == nil {
 			x.MerklePaths = []*IAVLMerklePath{}
 		}
 		value := &_OracleDataProof_3_list{list: &x.MerklePaths}
 		return protoreflect.ValueOfList(value)
-	case "bandchain.oracle.v1.OracleDataProof.version":
-		panic(fmt.Errorf("field version of message bandchain.oracle.v1.OracleDataProof is not mutable"))
+	case "band.base.oracle.v1.OracleDataProof.version":
+		panic(fmt.Errorf("field version of message band.base.oracle.v1.OracleDataProof is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.OracleDataProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.OracleDataProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.OracleDataProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.OracleDataProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6350,19 +6350,19 @@ func (x *fastReflection_OracleDataProof) Mutable(fd protoreflect.FieldDescriptor
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_OracleDataProof) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.OracleDataProof.result":
+	case "band.base.oracle.v1.OracleDataProof.result":
 		m := new(v1.Result)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "bandchain.oracle.v1.OracleDataProof.version":
+	case "band.base.oracle.v1.OracleDataProof.version":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "bandchain.oracle.v1.OracleDataProof.merkle_paths":
+	case "band.base.oracle.v1.OracleDataProof.merkle_paths":
 		list := []*IAVLMerklePath{}
 		return protoreflect.ValueOfList(&_OracleDataProof_3_list{list: &list})
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.OracleDataProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.OracleDataProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.OracleDataProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.OracleDataProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6372,7 +6372,7 @@ func (x *fastReflection_OracleDataProof) NewField(fd protoreflect.FieldDescripto
 func (x *fastReflection_OracleDataProof) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.oracle.v1.OracleDataProof", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.oracle.v1.OracleDataProof", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -6687,8 +6687,8 @@ var (
 )
 
 func init() {
-	file_bandchain_oracle_v1_proof_proto_init()
-	md_IAVLMerklePath = File_bandchain_oracle_v1_proof_proto.Messages().ByName("IAVLMerklePath")
+	file_band_base_oracle_v1_proof_proto_init()
+	md_IAVLMerklePath = File_band_base_oracle_v1_proof_proto.Messages().ByName("IAVLMerklePath")
 	fd_IAVLMerklePath_is_data_on_right = md_IAVLMerklePath.Fields().ByName("is_data_on_right")
 	fd_IAVLMerklePath_subtree_height = md_IAVLMerklePath.Fields().ByName("subtree_height")
 	fd_IAVLMerklePath_subtree_size = md_IAVLMerklePath.Fields().ByName("subtree_size")
@@ -6705,7 +6705,7 @@ func (x *IAVLMerklePath) ProtoReflect() protoreflect.Message {
 }
 
 func (x *IAVLMerklePath) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[13]
+	mi := &file_band_base_oracle_v1_proof_proto_msgTypes[13]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6806,21 +6806,21 @@ func (x *fastReflection_IAVLMerklePath) Range(f func(protoreflect.FieldDescripto
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_IAVLMerklePath) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.IAVLMerklePath.is_data_on_right":
+	case "band.base.oracle.v1.IAVLMerklePath.is_data_on_right":
 		return x.IsDataOnRight != false
-	case "bandchain.oracle.v1.IAVLMerklePath.subtree_height":
+	case "band.base.oracle.v1.IAVLMerklePath.subtree_height":
 		return x.SubtreeHeight != uint32(0)
-	case "bandchain.oracle.v1.IAVLMerklePath.subtree_size":
+	case "band.base.oracle.v1.IAVLMerklePath.subtree_size":
 		return x.SubtreeSize != uint64(0)
-	case "bandchain.oracle.v1.IAVLMerklePath.subtree_version":
+	case "band.base.oracle.v1.IAVLMerklePath.subtree_version":
 		return x.SubtreeVersion != uint64(0)
-	case "bandchain.oracle.v1.IAVLMerklePath.sibling_hash":
+	case "band.base.oracle.v1.IAVLMerklePath.sibling_hash":
 		return len(x.SiblingHash) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.IAVLMerklePath"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.IAVLMerklePath"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.IAVLMerklePath does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.IAVLMerklePath does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6832,21 +6832,21 @@ func (x *fastReflection_IAVLMerklePath) Has(fd protoreflect.FieldDescriptor) boo
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_IAVLMerklePath) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.IAVLMerklePath.is_data_on_right":
+	case "band.base.oracle.v1.IAVLMerklePath.is_data_on_right":
 		x.IsDataOnRight = false
-	case "bandchain.oracle.v1.IAVLMerklePath.subtree_height":
+	case "band.base.oracle.v1.IAVLMerklePath.subtree_height":
 		x.SubtreeHeight = uint32(0)
-	case "bandchain.oracle.v1.IAVLMerklePath.subtree_size":
+	case "band.base.oracle.v1.IAVLMerklePath.subtree_size":
 		x.SubtreeSize = uint64(0)
-	case "bandchain.oracle.v1.IAVLMerklePath.subtree_version":
+	case "band.base.oracle.v1.IAVLMerklePath.subtree_version":
 		x.SubtreeVersion = uint64(0)
-	case "bandchain.oracle.v1.IAVLMerklePath.sibling_hash":
+	case "band.base.oracle.v1.IAVLMerklePath.sibling_hash":
 		x.SiblingHash = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.IAVLMerklePath"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.IAVLMerklePath"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.IAVLMerklePath does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.IAVLMerklePath does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6858,26 +6858,26 @@ func (x *fastReflection_IAVLMerklePath) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_IAVLMerklePath) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.oracle.v1.IAVLMerklePath.is_data_on_right":
+	case "band.base.oracle.v1.IAVLMerklePath.is_data_on_right":
 		value := x.IsDataOnRight
 		return protoreflect.ValueOfBool(value)
-	case "bandchain.oracle.v1.IAVLMerklePath.subtree_height":
+	case "band.base.oracle.v1.IAVLMerklePath.subtree_height":
 		value := x.SubtreeHeight
 		return protoreflect.ValueOfUint32(value)
-	case "bandchain.oracle.v1.IAVLMerklePath.subtree_size":
+	case "band.base.oracle.v1.IAVLMerklePath.subtree_size":
 		value := x.SubtreeSize
 		return protoreflect.ValueOfUint64(value)
-	case "bandchain.oracle.v1.IAVLMerklePath.subtree_version":
+	case "band.base.oracle.v1.IAVLMerklePath.subtree_version":
 		value := x.SubtreeVersion
 		return protoreflect.ValueOfUint64(value)
-	case "bandchain.oracle.v1.IAVLMerklePath.sibling_hash":
+	case "band.base.oracle.v1.IAVLMerklePath.sibling_hash":
 		value := x.SiblingHash
 		return protoreflect.ValueOfBytes(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.IAVLMerklePath"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.IAVLMerklePath"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.IAVLMerklePath does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.IAVLMerklePath does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -6893,21 +6893,21 @@ func (x *fastReflection_IAVLMerklePath) Get(descriptor protoreflect.FieldDescrip
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_IAVLMerklePath) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.IAVLMerklePath.is_data_on_right":
+	case "band.base.oracle.v1.IAVLMerklePath.is_data_on_right":
 		x.IsDataOnRight = value.Bool()
-	case "bandchain.oracle.v1.IAVLMerklePath.subtree_height":
+	case "band.base.oracle.v1.IAVLMerklePath.subtree_height":
 		x.SubtreeHeight = uint32(value.Uint())
-	case "bandchain.oracle.v1.IAVLMerklePath.subtree_size":
+	case "band.base.oracle.v1.IAVLMerklePath.subtree_size":
 		x.SubtreeSize = value.Uint()
-	case "bandchain.oracle.v1.IAVLMerklePath.subtree_version":
+	case "band.base.oracle.v1.IAVLMerklePath.subtree_version":
 		x.SubtreeVersion = value.Uint()
-	case "bandchain.oracle.v1.IAVLMerklePath.sibling_hash":
+	case "band.base.oracle.v1.IAVLMerklePath.sibling_hash":
 		x.SiblingHash = value.Bytes()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.IAVLMerklePath"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.IAVLMerklePath"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.IAVLMerklePath does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.IAVLMerklePath does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6923,21 +6923,21 @@ func (x *fastReflection_IAVLMerklePath) Set(fd protoreflect.FieldDescriptor, val
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_IAVLMerklePath) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.IAVLMerklePath.is_data_on_right":
-		panic(fmt.Errorf("field is_data_on_right of message bandchain.oracle.v1.IAVLMerklePath is not mutable"))
-	case "bandchain.oracle.v1.IAVLMerklePath.subtree_height":
-		panic(fmt.Errorf("field subtree_height of message bandchain.oracle.v1.IAVLMerklePath is not mutable"))
-	case "bandchain.oracle.v1.IAVLMerklePath.subtree_size":
-		panic(fmt.Errorf("field subtree_size of message bandchain.oracle.v1.IAVLMerklePath is not mutable"))
-	case "bandchain.oracle.v1.IAVLMerklePath.subtree_version":
-		panic(fmt.Errorf("field subtree_version of message bandchain.oracle.v1.IAVLMerklePath is not mutable"))
-	case "bandchain.oracle.v1.IAVLMerklePath.sibling_hash":
-		panic(fmt.Errorf("field sibling_hash of message bandchain.oracle.v1.IAVLMerklePath is not mutable"))
+	case "band.base.oracle.v1.IAVLMerklePath.is_data_on_right":
+		panic(fmt.Errorf("field is_data_on_right of message band.base.oracle.v1.IAVLMerklePath is not mutable"))
+	case "band.base.oracle.v1.IAVLMerklePath.subtree_height":
+		panic(fmt.Errorf("field subtree_height of message band.base.oracle.v1.IAVLMerklePath is not mutable"))
+	case "band.base.oracle.v1.IAVLMerklePath.subtree_size":
+		panic(fmt.Errorf("field subtree_size of message band.base.oracle.v1.IAVLMerklePath is not mutable"))
+	case "band.base.oracle.v1.IAVLMerklePath.subtree_version":
+		panic(fmt.Errorf("field subtree_version of message band.base.oracle.v1.IAVLMerklePath is not mutable"))
+	case "band.base.oracle.v1.IAVLMerklePath.sibling_hash":
+		panic(fmt.Errorf("field sibling_hash of message band.base.oracle.v1.IAVLMerklePath is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.IAVLMerklePath"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.IAVLMerklePath"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.IAVLMerklePath does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.IAVLMerklePath does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6946,21 +6946,21 @@ func (x *fastReflection_IAVLMerklePath) Mutable(fd protoreflect.FieldDescriptor)
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_IAVLMerklePath) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.IAVLMerklePath.is_data_on_right":
+	case "band.base.oracle.v1.IAVLMerklePath.is_data_on_right":
 		return protoreflect.ValueOfBool(false)
-	case "bandchain.oracle.v1.IAVLMerklePath.subtree_height":
+	case "band.base.oracle.v1.IAVLMerklePath.subtree_height":
 		return protoreflect.ValueOfUint32(uint32(0))
-	case "bandchain.oracle.v1.IAVLMerklePath.subtree_size":
+	case "band.base.oracle.v1.IAVLMerklePath.subtree_size":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "bandchain.oracle.v1.IAVLMerklePath.subtree_version":
+	case "band.base.oracle.v1.IAVLMerklePath.subtree_version":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "bandchain.oracle.v1.IAVLMerklePath.sibling_hash":
+	case "band.base.oracle.v1.IAVLMerklePath.sibling_hash":
 		return protoreflect.ValueOfBytes(nil)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.IAVLMerklePath"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.IAVLMerklePath"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.IAVLMerklePath does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.IAVLMerklePath does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6970,7 +6970,7 @@ func (x *fastReflection_IAVLMerklePath) NewField(fd protoreflect.FieldDescriptor
 func (x *fastReflection_IAVLMerklePath) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.oracle.v1.IAVLMerklePath", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.oracle.v1.IAVLMerklePath", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -7357,8 +7357,8 @@ var (
 )
 
 func init() {
-	file_bandchain_oracle_v1_proof_proto_init()
-	md_BlockRelayProof = File_bandchain_oracle_v1_proof_proto.Messages().ByName("BlockRelayProof")
+	file_band_base_oracle_v1_proof_proto_init()
+	md_BlockRelayProof = File_band_base_oracle_v1_proof_proto.Messages().ByName("BlockRelayProof")
 	fd_BlockRelayProof_multi_store_proof = md_BlockRelayProof.Fields().ByName("multi_store_proof")
 	fd_BlockRelayProof_block_header_merkle_parts = md_BlockRelayProof.Fields().ByName("block_header_merkle_parts")
 	fd_BlockRelayProof_common_encoded_vote_part = md_BlockRelayProof.Fields().ByName("common_encoded_vote_part")
@@ -7374,7 +7374,7 @@ func (x *BlockRelayProof) ProtoReflect() protoreflect.Message {
 }
 
 func (x *BlockRelayProof) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[14]
+	mi := &file_band_base_oracle_v1_proof_proto_msgTypes[14]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7469,19 +7469,19 @@ func (x *fastReflection_BlockRelayProof) Range(f func(protoreflect.FieldDescript
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_BlockRelayProof) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.BlockRelayProof.multi_store_proof":
+	case "band.base.oracle.v1.BlockRelayProof.multi_store_proof":
 		return x.MultiStoreProof != nil
-	case "bandchain.oracle.v1.BlockRelayProof.block_header_merkle_parts":
+	case "band.base.oracle.v1.BlockRelayProof.block_header_merkle_parts":
 		return x.BlockHeaderMerkleParts != nil
-	case "bandchain.oracle.v1.BlockRelayProof.common_encoded_vote_part":
+	case "band.base.oracle.v1.BlockRelayProof.common_encoded_vote_part":
 		return x.CommonEncodedVotePart != nil
-	case "bandchain.oracle.v1.BlockRelayProof.signatures":
+	case "band.base.oracle.v1.BlockRelayProof.signatures":
 		return len(x.Signatures) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.BlockRelayProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.BlockRelayProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.BlockRelayProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.BlockRelayProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -7493,19 +7493,19 @@ func (x *fastReflection_BlockRelayProof) Has(fd protoreflect.FieldDescriptor) bo
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_BlockRelayProof) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.BlockRelayProof.multi_store_proof":
+	case "band.base.oracle.v1.BlockRelayProof.multi_store_proof":
 		x.MultiStoreProof = nil
-	case "bandchain.oracle.v1.BlockRelayProof.block_header_merkle_parts":
+	case "band.base.oracle.v1.BlockRelayProof.block_header_merkle_parts":
 		x.BlockHeaderMerkleParts = nil
-	case "bandchain.oracle.v1.BlockRelayProof.common_encoded_vote_part":
+	case "band.base.oracle.v1.BlockRelayProof.common_encoded_vote_part":
 		x.CommonEncodedVotePart = nil
-	case "bandchain.oracle.v1.BlockRelayProof.signatures":
+	case "band.base.oracle.v1.BlockRelayProof.signatures":
 		x.Signatures = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.BlockRelayProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.BlockRelayProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.BlockRelayProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.BlockRelayProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -7517,16 +7517,16 @@ func (x *fastReflection_BlockRelayProof) Clear(fd protoreflect.FieldDescriptor) 
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_BlockRelayProof) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.oracle.v1.BlockRelayProof.multi_store_proof":
+	case "band.base.oracle.v1.BlockRelayProof.multi_store_proof":
 		value := x.MultiStoreProof
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "bandchain.oracle.v1.BlockRelayProof.block_header_merkle_parts":
+	case "band.base.oracle.v1.BlockRelayProof.block_header_merkle_parts":
 		value := x.BlockHeaderMerkleParts
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "bandchain.oracle.v1.BlockRelayProof.common_encoded_vote_part":
+	case "band.base.oracle.v1.BlockRelayProof.common_encoded_vote_part":
 		value := x.CommonEncodedVotePart
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "bandchain.oracle.v1.BlockRelayProof.signatures":
+	case "band.base.oracle.v1.BlockRelayProof.signatures":
 		if len(x.Signatures) == 0 {
 			return protoreflect.ValueOfList(&_BlockRelayProof_4_list{})
 		}
@@ -7534,9 +7534,9 @@ func (x *fastReflection_BlockRelayProof) Get(descriptor protoreflect.FieldDescri
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.BlockRelayProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.BlockRelayProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.BlockRelayProof does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.BlockRelayProof does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -7552,21 +7552,21 @@ func (x *fastReflection_BlockRelayProof) Get(descriptor protoreflect.FieldDescri
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_BlockRelayProof) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.BlockRelayProof.multi_store_proof":
+	case "band.base.oracle.v1.BlockRelayProof.multi_store_proof":
 		x.MultiStoreProof = value.Message().Interface().(*MultiStoreProof)
-	case "bandchain.oracle.v1.BlockRelayProof.block_header_merkle_parts":
+	case "band.base.oracle.v1.BlockRelayProof.block_header_merkle_parts":
 		x.BlockHeaderMerkleParts = value.Message().Interface().(*BlockHeaderMerkleParts)
-	case "bandchain.oracle.v1.BlockRelayProof.common_encoded_vote_part":
+	case "band.base.oracle.v1.BlockRelayProof.common_encoded_vote_part":
 		x.CommonEncodedVotePart = value.Message().Interface().(*CommonEncodedVotePart)
-	case "bandchain.oracle.v1.BlockRelayProof.signatures":
+	case "band.base.oracle.v1.BlockRelayProof.signatures":
 		lv := value.List()
 		clv := lv.(*_BlockRelayProof_4_list)
 		x.Signatures = *clv.list
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.BlockRelayProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.BlockRelayProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.BlockRelayProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.BlockRelayProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -7582,22 +7582,22 @@ func (x *fastReflection_BlockRelayProof) Set(fd protoreflect.FieldDescriptor, va
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_BlockRelayProof) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.BlockRelayProof.multi_store_proof":
+	case "band.base.oracle.v1.BlockRelayProof.multi_store_proof":
 		if x.MultiStoreProof == nil {
 			x.MultiStoreProof = new(MultiStoreProof)
 		}
 		return protoreflect.ValueOfMessage(x.MultiStoreProof.ProtoReflect())
-	case "bandchain.oracle.v1.BlockRelayProof.block_header_merkle_parts":
+	case "band.base.oracle.v1.BlockRelayProof.block_header_merkle_parts":
 		if x.BlockHeaderMerkleParts == nil {
 			x.BlockHeaderMerkleParts = new(BlockHeaderMerkleParts)
 		}
 		return protoreflect.ValueOfMessage(x.BlockHeaderMerkleParts.ProtoReflect())
-	case "bandchain.oracle.v1.BlockRelayProof.common_encoded_vote_part":
+	case "band.base.oracle.v1.BlockRelayProof.common_encoded_vote_part":
 		if x.CommonEncodedVotePart == nil {
 			x.CommonEncodedVotePart = new(CommonEncodedVotePart)
 		}
 		return protoreflect.ValueOfMessage(x.CommonEncodedVotePart.ProtoReflect())
-	case "bandchain.oracle.v1.BlockRelayProof.signatures":
+	case "band.base.oracle.v1.BlockRelayProof.signatures":
 		if x.Signatures == nil {
 			x.Signatures = []*TMSignature{}
 		}
@@ -7605,9 +7605,9 @@ func (x *fastReflection_BlockRelayProof) Mutable(fd protoreflect.FieldDescriptor
 		return protoreflect.ValueOfList(value)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.BlockRelayProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.BlockRelayProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.BlockRelayProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.BlockRelayProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -7616,23 +7616,23 @@ func (x *fastReflection_BlockRelayProof) Mutable(fd protoreflect.FieldDescriptor
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_BlockRelayProof) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.BlockRelayProof.multi_store_proof":
+	case "band.base.oracle.v1.BlockRelayProof.multi_store_proof":
 		m := new(MultiStoreProof)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "bandchain.oracle.v1.BlockRelayProof.block_header_merkle_parts":
+	case "band.base.oracle.v1.BlockRelayProof.block_header_merkle_parts":
 		m := new(BlockHeaderMerkleParts)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "bandchain.oracle.v1.BlockRelayProof.common_encoded_vote_part":
+	case "band.base.oracle.v1.BlockRelayProof.common_encoded_vote_part":
 		m := new(CommonEncodedVotePart)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "bandchain.oracle.v1.BlockRelayProof.signatures":
+	case "band.base.oracle.v1.BlockRelayProof.signatures":
 		list := []*TMSignature{}
 		return protoreflect.ValueOfList(&_BlockRelayProof_4_list{list: &list})
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.BlockRelayProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.BlockRelayProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.BlockRelayProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.BlockRelayProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -7642,7 +7642,7 @@ func (x *fastReflection_BlockRelayProof) NewField(fd protoreflect.FieldDescripto
 func (x *fastReflection_BlockRelayProof) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.oracle.v1.BlockRelayProof", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.oracle.v1.BlockRelayProof", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -8038,8 +8038,8 @@ var (
 )
 
 func init() {
-	file_bandchain_oracle_v1_proof_proto_init()
-	md_MultiStoreProof = File_bandchain_oracle_v1_proof_proto.Messages().ByName("MultiStoreProof")
+	file_band_base_oracle_v1_proof_proto_init()
+	md_MultiStoreProof = File_band_base_oracle_v1_proof_proto.Messages().ByName("MultiStoreProof")
 	fd_MultiStoreProof_oracle_iavl_state_hash = md_MultiStoreProof.Fields().ByName("oracle_iavl_state_hash")
 	fd_MultiStoreProof_params_store_merkle_hash = md_MultiStoreProof.Fields().ByName("params_store_merkle_hash")
 	fd_MultiStoreProof_slashing_to_staking_stores_merkle_hash = md_MultiStoreProof.Fields().ByName("slashing_to_staking_stores_merkle_hash")
@@ -8056,7 +8056,7 @@ func (x *MultiStoreProof) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MultiStoreProof) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[15]
+	mi := &file_band_base_oracle_v1_proof_proto_msgTypes[15]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8157,21 +8157,21 @@ func (x *fastReflection_MultiStoreProof) Range(f func(protoreflect.FieldDescript
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MultiStoreProof) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiStoreProof.oracle_iavl_state_hash":
+	case "band.base.oracle.v1.MultiStoreProof.oracle_iavl_state_hash":
 		return len(x.OracleIavlStateHash) != 0
-	case "bandchain.oracle.v1.MultiStoreProof.params_store_merkle_hash":
+	case "band.base.oracle.v1.MultiStoreProof.params_store_merkle_hash":
 		return len(x.ParamsStoreMerkleHash) != 0
-	case "bandchain.oracle.v1.MultiStoreProof.slashing_to_staking_stores_merkle_hash":
+	case "band.base.oracle.v1.MultiStoreProof.slashing_to_staking_stores_merkle_hash":
 		return len(x.SlashingToStakingStoresMerkleHash) != 0
-	case "bandchain.oracle.v1.MultiStoreProof.transfer_to_upgrade_stores_merkle_hash":
+	case "band.base.oracle.v1.MultiStoreProof.transfer_to_upgrade_stores_merkle_hash":
 		return len(x.TransferToUpgradeStoresMerkleHash) != 0
-	case "bandchain.oracle.v1.MultiStoreProof.auth_to_mint_stores_merkle_hash":
+	case "band.base.oracle.v1.MultiStoreProof.auth_to_mint_stores_merkle_hash":
 		return len(x.AuthToMintStoresMerkleHash) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiStoreProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiStoreProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiStoreProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiStoreProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -8183,21 +8183,21 @@ func (x *fastReflection_MultiStoreProof) Has(fd protoreflect.FieldDescriptor) bo
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MultiStoreProof) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiStoreProof.oracle_iavl_state_hash":
+	case "band.base.oracle.v1.MultiStoreProof.oracle_iavl_state_hash":
 		x.OracleIavlStateHash = nil
-	case "bandchain.oracle.v1.MultiStoreProof.params_store_merkle_hash":
+	case "band.base.oracle.v1.MultiStoreProof.params_store_merkle_hash":
 		x.ParamsStoreMerkleHash = nil
-	case "bandchain.oracle.v1.MultiStoreProof.slashing_to_staking_stores_merkle_hash":
+	case "band.base.oracle.v1.MultiStoreProof.slashing_to_staking_stores_merkle_hash":
 		x.SlashingToStakingStoresMerkleHash = nil
-	case "bandchain.oracle.v1.MultiStoreProof.transfer_to_upgrade_stores_merkle_hash":
+	case "band.base.oracle.v1.MultiStoreProof.transfer_to_upgrade_stores_merkle_hash":
 		x.TransferToUpgradeStoresMerkleHash = nil
-	case "bandchain.oracle.v1.MultiStoreProof.auth_to_mint_stores_merkle_hash":
+	case "band.base.oracle.v1.MultiStoreProof.auth_to_mint_stores_merkle_hash":
 		x.AuthToMintStoresMerkleHash = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiStoreProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiStoreProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiStoreProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiStoreProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -8209,26 +8209,26 @@ func (x *fastReflection_MultiStoreProof) Clear(fd protoreflect.FieldDescriptor) 
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MultiStoreProof) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.oracle.v1.MultiStoreProof.oracle_iavl_state_hash":
+	case "band.base.oracle.v1.MultiStoreProof.oracle_iavl_state_hash":
 		value := x.OracleIavlStateHash
 		return protoreflect.ValueOfBytes(value)
-	case "bandchain.oracle.v1.MultiStoreProof.params_store_merkle_hash":
+	case "band.base.oracle.v1.MultiStoreProof.params_store_merkle_hash":
 		value := x.ParamsStoreMerkleHash
 		return protoreflect.ValueOfBytes(value)
-	case "bandchain.oracle.v1.MultiStoreProof.slashing_to_staking_stores_merkle_hash":
+	case "band.base.oracle.v1.MultiStoreProof.slashing_to_staking_stores_merkle_hash":
 		value := x.SlashingToStakingStoresMerkleHash
 		return protoreflect.ValueOfBytes(value)
-	case "bandchain.oracle.v1.MultiStoreProof.transfer_to_upgrade_stores_merkle_hash":
+	case "band.base.oracle.v1.MultiStoreProof.transfer_to_upgrade_stores_merkle_hash":
 		value := x.TransferToUpgradeStoresMerkleHash
 		return protoreflect.ValueOfBytes(value)
-	case "bandchain.oracle.v1.MultiStoreProof.auth_to_mint_stores_merkle_hash":
+	case "band.base.oracle.v1.MultiStoreProof.auth_to_mint_stores_merkle_hash":
 		value := x.AuthToMintStoresMerkleHash
 		return protoreflect.ValueOfBytes(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiStoreProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiStoreProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiStoreProof does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiStoreProof does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -8244,21 +8244,21 @@ func (x *fastReflection_MultiStoreProof) Get(descriptor protoreflect.FieldDescri
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MultiStoreProof) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiStoreProof.oracle_iavl_state_hash":
+	case "band.base.oracle.v1.MultiStoreProof.oracle_iavl_state_hash":
 		x.OracleIavlStateHash = value.Bytes()
-	case "bandchain.oracle.v1.MultiStoreProof.params_store_merkle_hash":
+	case "band.base.oracle.v1.MultiStoreProof.params_store_merkle_hash":
 		x.ParamsStoreMerkleHash = value.Bytes()
-	case "bandchain.oracle.v1.MultiStoreProof.slashing_to_staking_stores_merkle_hash":
+	case "band.base.oracle.v1.MultiStoreProof.slashing_to_staking_stores_merkle_hash":
 		x.SlashingToStakingStoresMerkleHash = value.Bytes()
-	case "bandchain.oracle.v1.MultiStoreProof.transfer_to_upgrade_stores_merkle_hash":
+	case "band.base.oracle.v1.MultiStoreProof.transfer_to_upgrade_stores_merkle_hash":
 		x.TransferToUpgradeStoresMerkleHash = value.Bytes()
-	case "bandchain.oracle.v1.MultiStoreProof.auth_to_mint_stores_merkle_hash":
+	case "band.base.oracle.v1.MultiStoreProof.auth_to_mint_stores_merkle_hash":
 		x.AuthToMintStoresMerkleHash = value.Bytes()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiStoreProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiStoreProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiStoreProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiStoreProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -8274,21 +8274,21 @@ func (x *fastReflection_MultiStoreProof) Set(fd protoreflect.FieldDescriptor, va
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MultiStoreProof) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiStoreProof.oracle_iavl_state_hash":
-		panic(fmt.Errorf("field oracle_iavl_state_hash of message bandchain.oracle.v1.MultiStoreProof is not mutable"))
-	case "bandchain.oracle.v1.MultiStoreProof.params_store_merkle_hash":
-		panic(fmt.Errorf("field params_store_merkle_hash of message bandchain.oracle.v1.MultiStoreProof is not mutable"))
-	case "bandchain.oracle.v1.MultiStoreProof.slashing_to_staking_stores_merkle_hash":
-		panic(fmt.Errorf("field slashing_to_staking_stores_merkle_hash of message bandchain.oracle.v1.MultiStoreProof is not mutable"))
-	case "bandchain.oracle.v1.MultiStoreProof.transfer_to_upgrade_stores_merkle_hash":
-		panic(fmt.Errorf("field transfer_to_upgrade_stores_merkle_hash of message bandchain.oracle.v1.MultiStoreProof is not mutable"))
-	case "bandchain.oracle.v1.MultiStoreProof.auth_to_mint_stores_merkle_hash":
-		panic(fmt.Errorf("field auth_to_mint_stores_merkle_hash of message bandchain.oracle.v1.MultiStoreProof is not mutable"))
+	case "band.base.oracle.v1.MultiStoreProof.oracle_iavl_state_hash":
+		panic(fmt.Errorf("field oracle_iavl_state_hash of message band.base.oracle.v1.MultiStoreProof is not mutable"))
+	case "band.base.oracle.v1.MultiStoreProof.params_store_merkle_hash":
+		panic(fmt.Errorf("field params_store_merkle_hash of message band.base.oracle.v1.MultiStoreProof is not mutable"))
+	case "band.base.oracle.v1.MultiStoreProof.slashing_to_staking_stores_merkle_hash":
+		panic(fmt.Errorf("field slashing_to_staking_stores_merkle_hash of message band.base.oracle.v1.MultiStoreProof is not mutable"))
+	case "band.base.oracle.v1.MultiStoreProof.transfer_to_upgrade_stores_merkle_hash":
+		panic(fmt.Errorf("field transfer_to_upgrade_stores_merkle_hash of message band.base.oracle.v1.MultiStoreProof is not mutable"))
+	case "band.base.oracle.v1.MultiStoreProof.auth_to_mint_stores_merkle_hash":
+		panic(fmt.Errorf("field auth_to_mint_stores_merkle_hash of message band.base.oracle.v1.MultiStoreProof is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiStoreProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiStoreProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiStoreProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiStoreProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -8297,21 +8297,21 @@ func (x *fastReflection_MultiStoreProof) Mutable(fd protoreflect.FieldDescriptor
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MultiStoreProof) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.MultiStoreProof.oracle_iavl_state_hash":
+	case "band.base.oracle.v1.MultiStoreProof.oracle_iavl_state_hash":
 		return protoreflect.ValueOfBytes(nil)
-	case "bandchain.oracle.v1.MultiStoreProof.params_store_merkle_hash":
+	case "band.base.oracle.v1.MultiStoreProof.params_store_merkle_hash":
 		return protoreflect.ValueOfBytes(nil)
-	case "bandchain.oracle.v1.MultiStoreProof.slashing_to_staking_stores_merkle_hash":
+	case "band.base.oracle.v1.MultiStoreProof.slashing_to_staking_stores_merkle_hash":
 		return protoreflect.ValueOfBytes(nil)
-	case "bandchain.oracle.v1.MultiStoreProof.transfer_to_upgrade_stores_merkle_hash":
+	case "band.base.oracle.v1.MultiStoreProof.transfer_to_upgrade_stores_merkle_hash":
 		return protoreflect.ValueOfBytes(nil)
-	case "bandchain.oracle.v1.MultiStoreProof.auth_to_mint_stores_merkle_hash":
+	case "band.base.oracle.v1.MultiStoreProof.auth_to_mint_stores_merkle_hash":
 		return protoreflect.ValueOfBytes(nil)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.MultiStoreProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.MultiStoreProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.MultiStoreProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.MultiStoreProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -8321,7 +8321,7 @@ func (x *fastReflection_MultiStoreProof) NewField(fd protoreflect.FieldDescripto
 func (x *fastReflection_MultiStoreProof) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.oracle.v1.MultiStoreProof", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.oracle.v1.MultiStoreProof", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -8727,8 +8727,8 @@ var (
 )
 
 func init() {
-	file_bandchain_oracle_v1_proof_proto_init()
-	md_BlockHeaderMerkleParts = File_bandchain_oracle_v1_proof_proto.Messages().ByName("BlockHeaderMerkleParts")
+	file_band_base_oracle_v1_proof_proto_init()
+	md_BlockHeaderMerkleParts = File_band_base_oracle_v1_proof_proto.Messages().ByName("BlockHeaderMerkleParts")
 	fd_BlockHeaderMerkleParts_version_and_chain_id_hash = md_BlockHeaderMerkleParts.Fields().ByName("version_and_chain_id_hash")
 	fd_BlockHeaderMerkleParts_height = md_BlockHeaderMerkleParts.Fields().ByName("height")
 	fd_BlockHeaderMerkleParts_time_second = md_BlockHeaderMerkleParts.Fields().ByName("time_second")
@@ -8748,7 +8748,7 @@ func (x *BlockHeaderMerkleParts) ProtoReflect() protoreflect.Message {
 }
 
 func (x *BlockHeaderMerkleParts) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[16]
+	mi := &file_band_base_oracle_v1_proof_proto_msgTypes[16]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8867,27 +8867,27 @@ func (x *fastReflection_BlockHeaderMerkleParts) Range(f func(protoreflect.FieldD
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_BlockHeaderMerkleParts) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.version_and_chain_id_hash":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.version_and_chain_id_hash":
 		return len(x.VersionAndChainIdHash) != 0
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.height":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.height":
 		return x.Height != uint64(0)
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.time_second":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.time_second":
 		return x.TimeSecond != uint64(0)
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.time_nano_second":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.time_nano_second":
 		return x.TimeNanoSecond != uint32(0)
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.last_block_id_and_other":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.last_block_id_and_other":
 		return len(x.LastBlockIdAndOther) != 0
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.next_validator_hash_and_consensus_hash":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.next_validator_hash_and_consensus_hash":
 		return len(x.NextValidatorHashAndConsensusHash) != 0
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.last_results_hash":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.last_results_hash":
 		return len(x.LastResultsHash) != 0
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.evidence_and_proposer_hash":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.evidence_and_proposer_hash":
 		return len(x.EvidenceAndProposerHash) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.BlockHeaderMerkleParts"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.BlockHeaderMerkleParts"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.BlockHeaderMerkleParts does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.BlockHeaderMerkleParts does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -8899,27 +8899,27 @@ func (x *fastReflection_BlockHeaderMerkleParts) Has(fd protoreflect.FieldDescrip
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_BlockHeaderMerkleParts) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.version_and_chain_id_hash":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.version_and_chain_id_hash":
 		x.VersionAndChainIdHash = nil
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.height":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.height":
 		x.Height = uint64(0)
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.time_second":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.time_second":
 		x.TimeSecond = uint64(0)
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.time_nano_second":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.time_nano_second":
 		x.TimeNanoSecond = uint32(0)
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.last_block_id_and_other":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.last_block_id_and_other":
 		x.LastBlockIdAndOther = nil
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.next_validator_hash_and_consensus_hash":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.next_validator_hash_and_consensus_hash":
 		x.NextValidatorHashAndConsensusHash = nil
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.last_results_hash":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.last_results_hash":
 		x.LastResultsHash = nil
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.evidence_and_proposer_hash":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.evidence_and_proposer_hash":
 		x.EvidenceAndProposerHash = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.BlockHeaderMerkleParts"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.BlockHeaderMerkleParts"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.BlockHeaderMerkleParts does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.BlockHeaderMerkleParts does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -8931,35 +8931,35 @@ func (x *fastReflection_BlockHeaderMerkleParts) Clear(fd protoreflect.FieldDescr
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_BlockHeaderMerkleParts) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.version_and_chain_id_hash":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.version_and_chain_id_hash":
 		value := x.VersionAndChainIdHash
 		return protoreflect.ValueOfBytes(value)
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.height":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.height":
 		value := x.Height
 		return protoreflect.ValueOfUint64(value)
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.time_second":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.time_second":
 		value := x.TimeSecond
 		return protoreflect.ValueOfUint64(value)
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.time_nano_second":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.time_nano_second":
 		value := x.TimeNanoSecond
 		return protoreflect.ValueOfUint32(value)
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.last_block_id_and_other":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.last_block_id_and_other":
 		value := x.LastBlockIdAndOther
 		return protoreflect.ValueOfBytes(value)
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.next_validator_hash_and_consensus_hash":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.next_validator_hash_and_consensus_hash":
 		value := x.NextValidatorHashAndConsensusHash
 		return protoreflect.ValueOfBytes(value)
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.last_results_hash":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.last_results_hash":
 		value := x.LastResultsHash
 		return protoreflect.ValueOfBytes(value)
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.evidence_and_proposer_hash":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.evidence_and_proposer_hash":
 		value := x.EvidenceAndProposerHash
 		return protoreflect.ValueOfBytes(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.BlockHeaderMerkleParts"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.BlockHeaderMerkleParts"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.BlockHeaderMerkleParts does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.BlockHeaderMerkleParts does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -8975,27 +8975,27 @@ func (x *fastReflection_BlockHeaderMerkleParts) Get(descriptor protoreflect.Fiel
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_BlockHeaderMerkleParts) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.version_and_chain_id_hash":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.version_and_chain_id_hash":
 		x.VersionAndChainIdHash = value.Bytes()
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.height":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.height":
 		x.Height = value.Uint()
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.time_second":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.time_second":
 		x.TimeSecond = value.Uint()
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.time_nano_second":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.time_nano_second":
 		x.TimeNanoSecond = uint32(value.Uint())
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.last_block_id_and_other":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.last_block_id_and_other":
 		x.LastBlockIdAndOther = value.Bytes()
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.next_validator_hash_and_consensus_hash":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.next_validator_hash_and_consensus_hash":
 		x.NextValidatorHashAndConsensusHash = value.Bytes()
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.last_results_hash":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.last_results_hash":
 		x.LastResultsHash = value.Bytes()
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.evidence_and_proposer_hash":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.evidence_and_proposer_hash":
 		x.EvidenceAndProposerHash = value.Bytes()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.BlockHeaderMerkleParts"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.BlockHeaderMerkleParts"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.BlockHeaderMerkleParts does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.BlockHeaderMerkleParts does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -9011,27 +9011,27 @@ func (x *fastReflection_BlockHeaderMerkleParts) Set(fd protoreflect.FieldDescrip
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_BlockHeaderMerkleParts) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.version_and_chain_id_hash":
-		panic(fmt.Errorf("field version_and_chain_id_hash of message bandchain.oracle.v1.BlockHeaderMerkleParts is not mutable"))
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.height":
-		panic(fmt.Errorf("field height of message bandchain.oracle.v1.BlockHeaderMerkleParts is not mutable"))
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.time_second":
-		panic(fmt.Errorf("field time_second of message bandchain.oracle.v1.BlockHeaderMerkleParts is not mutable"))
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.time_nano_second":
-		panic(fmt.Errorf("field time_nano_second of message bandchain.oracle.v1.BlockHeaderMerkleParts is not mutable"))
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.last_block_id_and_other":
-		panic(fmt.Errorf("field last_block_id_and_other of message bandchain.oracle.v1.BlockHeaderMerkleParts is not mutable"))
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.next_validator_hash_and_consensus_hash":
-		panic(fmt.Errorf("field next_validator_hash_and_consensus_hash of message bandchain.oracle.v1.BlockHeaderMerkleParts is not mutable"))
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.last_results_hash":
-		panic(fmt.Errorf("field last_results_hash of message bandchain.oracle.v1.BlockHeaderMerkleParts is not mutable"))
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.evidence_and_proposer_hash":
-		panic(fmt.Errorf("field evidence_and_proposer_hash of message bandchain.oracle.v1.BlockHeaderMerkleParts is not mutable"))
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.version_and_chain_id_hash":
+		panic(fmt.Errorf("field version_and_chain_id_hash of message band.base.oracle.v1.BlockHeaderMerkleParts is not mutable"))
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.height":
+		panic(fmt.Errorf("field height of message band.base.oracle.v1.BlockHeaderMerkleParts is not mutable"))
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.time_second":
+		panic(fmt.Errorf("field time_second of message band.base.oracle.v1.BlockHeaderMerkleParts is not mutable"))
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.time_nano_second":
+		panic(fmt.Errorf("field time_nano_second of message band.base.oracle.v1.BlockHeaderMerkleParts is not mutable"))
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.last_block_id_and_other":
+		panic(fmt.Errorf("field last_block_id_and_other of message band.base.oracle.v1.BlockHeaderMerkleParts is not mutable"))
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.next_validator_hash_and_consensus_hash":
+		panic(fmt.Errorf("field next_validator_hash_and_consensus_hash of message band.base.oracle.v1.BlockHeaderMerkleParts is not mutable"))
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.last_results_hash":
+		panic(fmt.Errorf("field last_results_hash of message band.base.oracle.v1.BlockHeaderMerkleParts is not mutable"))
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.evidence_and_proposer_hash":
+		panic(fmt.Errorf("field evidence_and_proposer_hash of message band.base.oracle.v1.BlockHeaderMerkleParts is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.BlockHeaderMerkleParts"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.BlockHeaderMerkleParts"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.BlockHeaderMerkleParts does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.BlockHeaderMerkleParts does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -9040,27 +9040,27 @@ func (x *fastReflection_BlockHeaderMerkleParts) Mutable(fd protoreflect.FieldDes
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_BlockHeaderMerkleParts) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.version_and_chain_id_hash":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.version_and_chain_id_hash":
 		return protoreflect.ValueOfBytes(nil)
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.height":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.height":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.time_second":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.time_second":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.time_nano_second":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.time_nano_second":
 		return protoreflect.ValueOfUint32(uint32(0))
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.last_block_id_and_other":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.last_block_id_and_other":
 		return protoreflect.ValueOfBytes(nil)
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.next_validator_hash_and_consensus_hash":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.next_validator_hash_and_consensus_hash":
 		return protoreflect.ValueOfBytes(nil)
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.last_results_hash":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.last_results_hash":
 		return protoreflect.ValueOfBytes(nil)
-	case "bandchain.oracle.v1.BlockHeaderMerkleParts.evidence_and_proposer_hash":
+	case "band.base.oracle.v1.BlockHeaderMerkleParts.evidence_and_proposer_hash":
 		return protoreflect.ValueOfBytes(nil)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.BlockHeaderMerkleParts"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.BlockHeaderMerkleParts"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.BlockHeaderMerkleParts does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.BlockHeaderMerkleParts does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -9070,7 +9070,7 @@ func (x *fastReflection_BlockHeaderMerkleParts) NewField(fd protoreflect.FieldDe
 func (x *fastReflection_BlockHeaderMerkleParts) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.oracle.v1.BlockHeaderMerkleParts", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.oracle.v1.BlockHeaderMerkleParts", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -9551,8 +9551,8 @@ var (
 )
 
 func init() {
-	file_bandchain_oracle_v1_proof_proto_init()
-	md_CommonEncodedVotePart = File_bandchain_oracle_v1_proof_proto.Messages().ByName("CommonEncodedVotePart")
+	file_band_base_oracle_v1_proof_proto_init()
+	md_CommonEncodedVotePart = File_band_base_oracle_v1_proof_proto.Messages().ByName("CommonEncodedVotePart")
 	fd_CommonEncodedVotePart_signed_data_prefix = md_CommonEncodedVotePart.Fields().ByName("signed_data_prefix")
 	fd_CommonEncodedVotePart_signed_data_suffix = md_CommonEncodedVotePart.Fields().ByName("signed_data_suffix")
 }
@@ -9566,7 +9566,7 @@ func (x *CommonEncodedVotePart) ProtoReflect() protoreflect.Message {
 }
 
 func (x *CommonEncodedVotePart) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[17]
+	mi := &file_band_base_oracle_v1_proof_proto_msgTypes[17]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9649,15 +9649,15 @@ func (x *fastReflection_CommonEncodedVotePart) Range(f func(protoreflect.FieldDe
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_CommonEncodedVotePart) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.CommonEncodedVotePart.signed_data_prefix":
+	case "band.base.oracle.v1.CommonEncodedVotePart.signed_data_prefix":
 		return len(x.SignedDataPrefix) != 0
-	case "bandchain.oracle.v1.CommonEncodedVotePart.signed_data_suffix":
+	case "band.base.oracle.v1.CommonEncodedVotePart.signed_data_suffix":
 		return len(x.SignedDataSuffix) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.CommonEncodedVotePart"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.CommonEncodedVotePart"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.CommonEncodedVotePart does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.CommonEncodedVotePart does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -9669,15 +9669,15 @@ func (x *fastReflection_CommonEncodedVotePart) Has(fd protoreflect.FieldDescript
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_CommonEncodedVotePart) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.CommonEncodedVotePart.signed_data_prefix":
+	case "band.base.oracle.v1.CommonEncodedVotePart.signed_data_prefix":
 		x.SignedDataPrefix = nil
-	case "bandchain.oracle.v1.CommonEncodedVotePart.signed_data_suffix":
+	case "band.base.oracle.v1.CommonEncodedVotePart.signed_data_suffix":
 		x.SignedDataSuffix = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.CommonEncodedVotePart"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.CommonEncodedVotePart"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.CommonEncodedVotePart does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.CommonEncodedVotePart does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -9689,17 +9689,17 @@ func (x *fastReflection_CommonEncodedVotePart) Clear(fd protoreflect.FieldDescri
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_CommonEncodedVotePart) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.oracle.v1.CommonEncodedVotePart.signed_data_prefix":
+	case "band.base.oracle.v1.CommonEncodedVotePart.signed_data_prefix":
 		value := x.SignedDataPrefix
 		return protoreflect.ValueOfBytes(value)
-	case "bandchain.oracle.v1.CommonEncodedVotePart.signed_data_suffix":
+	case "band.base.oracle.v1.CommonEncodedVotePart.signed_data_suffix":
 		value := x.SignedDataSuffix
 		return protoreflect.ValueOfBytes(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.CommonEncodedVotePart"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.CommonEncodedVotePart"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.CommonEncodedVotePart does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.CommonEncodedVotePart does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -9715,15 +9715,15 @@ func (x *fastReflection_CommonEncodedVotePart) Get(descriptor protoreflect.Field
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_CommonEncodedVotePart) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.CommonEncodedVotePart.signed_data_prefix":
+	case "band.base.oracle.v1.CommonEncodedVotePart.signed_data_prefix":
 		x.SignedDataPrefix = value.Bytes()
-	case "bandchain.oracle.v1.CommonEncodedVotePart.signed_data_suffix":
+	case "band.base.oracle.v1.CommonEncodedVotePart.signed_data_suffix":
 		x.SignedDataSuffix = value.Bytes()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.CommonEncodedVotePart"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.CommonEncodedVotePart"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.CommonEncodedVotePart does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.CommonEncodedVotePart does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -9739,15 +9739,15 @@ func (x *fastReflection_CommonEncodedVotePart) Set(fd protoreflect.FieldDescript
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_CommonEncodedVotePart) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.CommonEncodedVotePart.signed_data_prefix":
-		panic(fmt.Errorf("field signed_data_prefix of message bandchain.oracle.v1.CommonEncodedVotePart is not mutable"))
-	case "bandchain.oracle.v1.CommonEncodedVotePart.signed_data_suffix":
-		panic(fmt.Errorf("field signed_data_suffix of message bandchain.oracle.v1.CommonEncodedVotePart is not mutable"))
+	case "band.base.oracle.v1.CommonEncodedVotePart.signed_data_prefix":
+		panic(fmt.Errorf("field signed_data_prefix of message band.base.oracle.v1.CommonEncodedVotePart is not mutable"))
+	case "band.base.oracle.v1.CommonEncodedVotePart.signed_data_suffix":
+		panic(fmt.Errorf("field signed_data_suffix of message band.base.oracle.v1.CommonEncodedVotePart is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.CommonEncodedVotePart"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.CommonEncodedVotePart"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.CommonEncodedVotePart does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.CommonEncodedVotePart does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -9756,15 +9756,15 @@ func (x *fastReflection_CommonEncodedVotePart) Mutable(fd protoreflect.FieldDesc
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_CommonEncodedVotePart) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.CommonEncodedVotePart.signed_data_prefix":
+	case "band.base.oracle.v1.CommonEncodedVotePart.signed_data_prefix":
 		return protoreflect.ValueOfBytes(nil)
-	case "bandchain.oracle.v1.CommonEncodedVotePart.signed_data_suffix":
+	case "band.base.oracle.v1.CommonEncodedVotePart.signed_data_suffix":
 		return protoreflect.ValueOfBytes(nil)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.CommonEncodedVotePart"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.CommonEncodedVotePart"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.CommonEncodedVotePart does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.CommonEncodedVotePart does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -9774,7 +9774,7 @@ func (x *fastReflection_CommonEncodedVotePart) NewField(fd protoreflect.FieldDes
 func (x *fastReflection_CommonEncodedVotePart) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.oracle.v1.CommonEncodedVotePart", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.oracle.v1.CommonEncodedVotePart", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -10041,8 +10041,8 @@ var (
 )
 
 func init() {
-	file_bandchain_oracle_v1_proof_proto_init()
-	md_TMSignature = File_bandchain_oracle_v1_proof_proto.Messages().ByName("TMSignature")
+	file_band_base_oracle_v1_proof_proto_init()
+	md_TMSignature = File_band_base_oracle_v1_proof_proto.Messages().ByName("TMSignature")
 	fd_TMSignature_r = md_TMSignature.Fields().ByName("r")
 	fd_TMSignature_s = md_TMSignature.Fields().ByName("s")
 	fd_TMSignature_v = md_TMSignature.Fields().ByName("v")
@@ -10058,7 +10058,7 @@ func (x *TMSignature) ProtoReflect() protoreflect.Message {
 }
 
 func (x *TMSignature) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[18]
+	mi := &file_band_base_oracle_v1_proof_proto_msgTypes[18]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10153,19 +10153,19 @@ func (x *fastReflection_TMSignature) Range(f func(protoreflect.FieldDescriptor, 
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_TMSignature) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.TMSignature.r":
+	case "band.base.oracle.v1.TMSignature.r":
 		return len(x.R) != 0
-	case "bandchain.oracle.v1.TMSignature.s":
+	case "band.base.oracle.v1.TMSignature.s":
 		return len(x.S) != 0
-	case "bandchain.oracle.v1.TMSignature.v":
+	case "band.base.oracle.v1.TMSignature.v":
 		return x.V != uint32(0)
-	case "bandchain.oracle.v1.TMSignature.encoded_timestamp":
+	case "band.base.oracle.v1.TMSignature.encoded_timestamp":
 		return len(x.EncodedTimestamp) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.TMSignature"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.TMSignature"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.TMSignature does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.TMSignature does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -10177,19 +10177,19 @@ func (x *fastReflection_TMSignature) Has(fd protoreflect.FieldDescriptor) bool {
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_TMSignature) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.TMSignature.r":
+	case "band.base.oracle.v1.TMSignature.r":
 		x.R = nil
-	case "bandchain.oracle.v1.TMSignature.s":
+	case "band.base.oracle.v1.TMSignature.s":
 		x.S = nil
-	case "bandchain.oracle.v1.TMSignature.v":
+	case "band.base.oracle.v1.TMSignature.v":
 		x.V = uint32(0)
-	case "bandchain.oracle.v1.TMSignature.encoded_timestamp":
+	case "band.base.oracle.v1.TMSignature.encoded_timestamp":
 		x.EncodedTimestamp = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.TMSignature"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.TMSignature"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.TMSignature does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.TMSignature does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -10201,23 +10201,23 @@ func (x *fastReflection_TMSignature) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_TMSignature) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.oracle.v1.TMSignature.r":
+	case "band.base.oracle.v1.TMSignature.r":
 		value := x.R
 		return protoreflect.ValueOfBytes(value)
-	case "bandchain.oracle.v1.TMSignature.s":
+	case "band.base.oracle.v1.TMSignature.s":
 		value := x.S
 		return protoreflect.ValueOfBytes(value)
-	case "bandchain.oracle.v1.TMSignature.v":
+	case "band.base.oracle.v1.TMSignature.v":
 		value := x.V
 		return protoreflect.ValueOfUint32(value)
-	case "bandchain.oracle.v1.TMSignature.encoded_timestamp":
+	case "band.base.oracle.v1.TMSignature.encoded_timestamp":
 		value := x.EncodedTimestamp
 		return protoreflect.ValueOfBytes(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.TMSignature"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.TMSignature"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.TMSignature does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.TMSignature does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -10233,19 +10233,19 @@ func (x *fastReflection_TMSignature) Get(descriptor protoreflect.FieldDescriptor
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_TMSignature) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.TMSignature.r":
+	case "band.base.oracle.v1.TMSignature.r":
 		x.R = value.Bytes()
-	case "bandchain.oracle.v1.TMSignature.s":
+	case "band.base.oracle.v1.TMSignature.s":
 		x.S = value.Bytes()
-	case "bandchain.oracle.v1.TMSignature.v":
+	case "band.base.oracle.v1.TMSignature.v":
 		x.V = uint32(value.Uint())
-	case "bandchain.oracle.v1.TMSignature.encoded_timestamp":
+	case "band.base.oracle.v1.TMSignature.encoded_timestamp":
 		x.EncodedTimestamp = value.Bytes()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.TMSignature"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.TMSignature"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.TMSignature does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.TMSignature does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -10261,19 +10261,19 @@ func (x *fastReflection_TMSignature) Set(fd protoreflect.FieldDescriptor, value 
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_TMSignature) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.TMSignature.r":
-		panic(fmt.Errorf("field r of message bandchain.oracle.v1.TMSignature is not mutable"))
-	case "bandchain.oracle.v1.TMSignature.s":
-		panic(fmt.Errorf("field s of message bandchain.oracle.v1.TMSignature is not mutable"))
-	case "bandchain.oracle.v1.TMSignature.v":
-		panic(fmt.Errorf("field v of message bandchain.oracle.v1.TMSignature is not mutable"))
-	case "bandchain.oracle.v1.TMSignature.encoded_timestamp":
-		panic(fmt.Errorf("field encoded_timestamp of message bandchain.oracle.v1.TMSignature is not mutable"))
+	case "band.base.oracle.v1.TMSignature.r":
+		panic(fmt.Errorf("field r of message band.base.oracle.v1.TMSignature is not mutable"))
+	case "band.base.oracle.v1.TMSignature.s":
+		panic(fmt.Errorf("field s of message band.base.oracle.v1.TMSignature is not mutable"))
+	case "band.base.oracle.v1.TMSignature.v":
+		panic(fmt.Errorf("field v of message band.base.oracle.v1.TMSignature is not mutable"))
+	case "band.base.oracle.v1.TMSignature.encoded_timestamp":
+		panic(fmt.Errorf("field encoded_timestamp of message band.base.oracle.v1.TMSignature is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.TMSignature"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.TMSignature"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.TMSignature does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.TMSignature does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -10282,19 +10282,19 @@ func (x *fastReflection_TMSignature) Mutable(fd protoreflect.FieldDescriptor) pr
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_TMSignature) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.TMSignature.r":
+	case "band.base.oracle.v1.TMSignature.r":
 		return protoreflect.ValueOfBytes(nil)
-	case "bandchain.oracle.v1.TMSignature.s":
+	case "band.base.oracle.v1.TMSignature.s":
 		return protoreflect.ValueOfBytes(nil)
-	case "bandchain.oracle.v1.TMSignature.v":
+	case "band.base.oracle.v1.TMSignature.v":
 		return protoreflect.ValueOfUint32(uint32(0))
-	case "bandchain.oracle.v1.TMSignature.encoded_timestamp":
+	case "band.base.oracle.v1.TMSignature.encoded_timestamp":
 		return protoreflect.ValueOfBytes(nil)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.TMSignature"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.TMSignature"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.TMSignature does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.TMSignature does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -10304,7 +10304,7 @@ func (x *fastReflection_TMSignature) NewField(fd protoreflect.FieldDescriptor) p
 func (x *fastReflection_TMSignature) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.oracle.v1.TMSignature", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.oracle.v1.TMSignature", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -10693,8 +10693,8 @@ var (
 )
 
 func init() {
-	file_bandchain_oracle_v1_proof_proto_init()
-	md_RequestsCountProof = File_bandchain_oracle_v1_proof_proto.Messages().ByName("RequestsCountProof")
+	file_band_base_oracle_v1_proof_proto_init()
+	md_RequestsCountProof = File_band_base_oracle_v1_proof_proto.Messages().ByName("RequestsCountProof")
 	fd_RequestsCountProof_count = md_RequestsCountProof.Fields().ByName("count")
 	fd_RequestsCountProof_version = md_RequestsCountProof.Fields().ByName("version")
 	fd_RequestsCountProof_merkle_paths = md_RequestsCountProof.Fields().ByName("merkle_paths")
@@ -10709,7 +10709,7 @@ func (x *RequestsCountProof) ProtoReflect() protoreflect.Message {
 }
 
 func (x *RequestsCountProof) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[19]
+	mi := &file_band_base_oracle_v1_proof_proto_msgTypes[19]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -10798,17 +10798,17 @@ func (x *fastReflection_RequestsCountProof) Range(f func(protoreflect.FieldDescr
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_RequestsCountProof) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.RequestsCountProof.count":
+	case "band.base.oracle.v1.RequestsCountProof.count":
 		return x.Count != uint64(0)
-	case "bandchain.oracle.v1.RequestsCountProof.version":
+	case "band.base.oracle.v1.RequestsCountProof.version":
 		return x.Version != uint64(0)
-	case "bandchain.oracle.v1.RequestsCountProof.merkle_paths":
+	case "band.base.oracle.v1.RequestsCountProof.merkle_paths":
 		return len(x.MerklePaths) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.RequestsCountProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.RequestsCountProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.RequestsCountProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.RequestsCountProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -10820,17 +10820,17 @@ func (x *fastReflection_RequestsCountProof) Has(fd protoreflect.FieldDescriptor)
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_RequestsCountProof) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.RequestsCountProof.count":
+	case "band.base.oracle.v1.RequestsCountProof.count":
 		x.Count = uint64(0)
-	case "bandchain.oracle.v1.RequestsCountProof.version":
+	case "band.base.oracle.v1.RequestsCountProof.version":
 		x.Version = uint64(0)
-	case "bandchain.oracle.v1.RequestsCountProof.merkle_paths":
+	case "band.base.oracle.v1.RequestsCountProof.merkle_paths":
 		x.MerklePaths = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.RequestsCountProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.RequestsCountProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.RequestsCountProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.RequestsCountProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -10842,13 +10842,13 @@ func (x *fastReflection_RequestsCountProof) Clear(fd protoreflect.FieldDescripto
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_RequestsCountProof) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.oracle.v1.RequestsCountProof.count":
+	case "band.base.oracle.v1.RequestsCountProof.count":
 		value := x.Count
 		return protoreflect.ValueOfUint64(value)
-	case "bandchain.oracle.v1.RequestsCountProof.version":
+	case "band.base.oracle.v1.RequestsCountProof.version":
 		value := x.Version
 		return protoreflect.ValueOfUint64(value)
-	case "bandchain.oracle.v1.RequestsCountProof.merkle_paths":
+	case "band.base.oracle.v1.RequestsCountProof.merkle_paths":
 		if len(x.MerklePaths) == 0 {
 			return protoreflect.ValueOfList(&_RequestsCountProof_3_list{})
 		}
@@ -10856,9 +10856,9 @@ func (x *fastReflection_RequestsCountProof) Get(descriptor protoreflect.FieldDes
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.RequestsCountProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.RequestsCountProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.RequestsCountProof does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.RequestsCountProof does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -10874,19 +10874,19 @@ func (x *fastReflection_RequestsCountProof) Get(descriptor protoreflect.FieldDes
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_RequestsCountProof) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.RequestsCountProof.count":
+	case "band.base.oracle.v1.RequestsCountProof.count":
 		x.Count = value.Uint()
-	case "bandchain.oracle.v1.RequestsCountProof.version":
+	case "band.base.oracle.v1.RequestsCountProof.version":
 		x.Version = value.Uint()
-	case "bandchain.oracle.v1.RequestsCountProof.merkle_paths":
+	case "band.base.oracle.v1.RequestsCountProof.merkle_paths":
 		lv := value.List()
 		clv := lv.(*_RequestsCountProof_3_list)
 		x.MerklePaths = *clv.list
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.RequestsCountProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.RequestsCountProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.RequestsCountProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.RequestsCountProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -10902,21 +10902,21 @@ func (x *fastReflection_RequestsCountProof) Set(fd protoreflect.FieldDescriptor,
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_RequestsCountProof) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.RequestsCountProof.merkle_paths":
+	case "band.base.oracle.v1.RequestsCountProof.merkle_paths":
 		if x.MerklePaths == nil {
 			x.MerklePaths = []*IAVLMerklePath{}
 		}
 		value := &_RequestsCountProof_3_list{list: &x.MerklePaths}
 		return protoreflect.ValueOfList(value)
-	case "bandchain.oracle.v1.RequestsCountProof.count":
-		panic(fmt.Errorf("field count of message bandchain.oracle.v1.RequestsCountProof is not mutable"))
-	case "bandchain.oracle.v1.RequestsCountProof.version":
-		panic(fmt.Errorf("field version of message bandchain.oracle.v1.RequestsCountProof is not mutable"))
+	case "band.base.oracle.v1.RequestsCountProof.count":
+		panic(fmt.Errorf("field count of message band.base.oracle.v1.RequestsCountProof is not mutable"))
+	case "band.base.oracle.v1.RequestsCountProof.version":
+		panic(fmt.Errorf("field version of message band.base.oracle.v1.RequestsCountProof is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.RequestsCountProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.RequestsCountProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.RequestsCountProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.RequestsCountProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -10925,18 +10925,18 @@ func (x *fastReflection_RequestsCountProof) Mutable(fd protoreflect.FieldDescrip
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_RequestsCountProof) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.oracle.v1.RequestsCountProof.count":
+	case "band.base.oracle.v1.RequestsCountProof.count":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "bandchain.oracle.v1.RequestsCountProof.version":
+	case "band.base.oracle.v1.RequestsCountProof.version":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "bandchain.oracle.v1.RequestsCountProof.merkle_paths":
+	case "band.base.oracle.v1.RequestsCountProof.merkle_paths":
 		list := []*IAVLMerklePath{}
 		return protoreflect.ValueOfList(&_RequestsCountProof_3_list{list: &list})
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.oracle.v1.RequestsCountProof"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.oracle.v1.RequestsCountProof"))
 		}
-		panic(fmt.Errorf("message bandchain.oracle.v1.RequestsCountProof does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.oracle.v1.RequestsCountProof does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -10946,7 +10946,7 @@ func (x *fastReflection_RequestsCountProof) NewField(fd protoreflect.FieldDescri
 func (x *fastReflection_RequestsCountProof) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.oracle.v1.RequestsCountProof", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.oracle.v1.RequestsCountProof", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -11228,7 +11228,7 @@ func (x *fastReflection_RequestsCountProof) ProtoMethods() *protoiface.Methods {
 // versions:
 // 	protoc-gen-go v1.27.0
 // 	protoc        (unknown)
-// source: bandchain/oracle/v1/proof.proto
+// source: band/base/oracle/v1/proof.proto
 
 const (
 	// Verify that this generated code is sufficiently up-to-date.
@@ -11252,7 +11252,7 @@ type ProofRequest struct {
 func (x *ProofRequest) Reset() {
 	*x = ProofRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[0]
+		mi := &file_band_base_oracle_v1_proof_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -11266,7 +11266,7 @@ func (*ProofRequest) ProtoMessage() {}
 
 // Deprecated: Use ProofRequest.ProtoReflect.Descriptor instead.
 func (*ProofRequest) Descriptor() ([]byte, []int) {
-	return file_bandchain_oracle_v1_proof_proto_rawDescGZIP(), []int{0}
+	return file_band_base_oracle_v1_proof_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *ProofRequest) GetRequestId() uint64 {
@@ -11298,7 +11298,7 @@ type ProofResponse struct {
 func (x *ProofResponse) Reset() {
 	*x = ProofResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[1]
+		mi := &file_band_base_oracle_v1_proof_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -11312,7 +11312,7 @@ func (*ProofResponse) ProtoMessage() {}
 
 // Deprecated: Use ProofResponse.ProtoReflect.Descriptor instead.
 func (*ProofResponse) Descriptor() ([]byte, []int) {
-	return file_bandchain_oracle_v1_proof_proto_rawDescGZIP(), []int{1}
+	return file_band_base_oracle_v1_proof_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *ProofResponse) GetHeight() int64 {
@@ -11342,7 +11342,7 @@ type MultiProofRequest struct {
 func (x *MultiProofRequest) Reset() {
 	*x = MultiProofRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[2]
+		mi := &file_band_base_oracle_v1_proof_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -11356,7 +11356,7 @@ func (*MultiProofRequest) ProtoMessage() {}
 
 // Deprecated: Use MultiProofRequest.ProtoReflect.Descriptor instead.
 func (*MultiProofRequest) Descriptor() ([]byte, []int) {
-	return file_bandchain_oracle_v1_proof_proto_rawDescGZIP(), []int{2}
+	return file_band_base_oracle_v1_proof_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *MultiProofRequest) GetRequestIds() []uint64 {
@@ -11379,7 +11379,7 @@ type MultiProofResponse struct {
 func (x *MultiProofResponse) Reset() {
 	*x = MultiProofResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[3]
+		mi := &file_band_base_oracle_v1_proof_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -11393,7 +11393,7 @@ func (*MultiProofResponse) ProtoMessage() {}
 
 // Deprecated: Use MultiProofResponse.ProtoReflect.Descriptor instead.
 func (*MultiProofResponse) Descriptor() ([]byte, []int) {
-	return file_bandchain_oracle_v1_proof_proto_rawDescGZIP(), []int{3}
+	return file_band_base_oracle_v1_proof_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *MultiProofResponse) GetHeight() int64 {
@@ -11420,7 +11420,7 @@ type RequestCountProofRequest struct {
 func (x *RequestCountProofRequest) Reset() {
 	*x = RequestCountProofRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[4]
+		mi := &file_band_base_oracle_v1_proof_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -11434,7 +11434,7 @@ func (*RequestCountProofRequest) ProtoMessage() {}
 
 // Deprecated: Use RequestCountProofRequest.ProtoReflect.Descriptor instead.
 func (*RequestCountProofRequest) Descriptor() ([]byte, []int) {
-	return file_bandchain_oracle_v1_proof_proto_rawDescGZIP(), []int{4}
+	return file_band_base_oracle_v1_proof_proto_rawDescGZIP(), []int{4}
 }
 
 // RequestCountProofResponse is response type for the Service/RequestCountProof RPC method.
@@ -11450,7 +11450,7 @@ type RequestCountProofResponse struct {
 func (x *RequestCountProofResponse) Reset() {
 	*x = RequestCountProofResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[5]
+		mi := &file_band_base_oracle_v1_proof_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -11464,7 +11464,7 @@ func (*RequestCountProofResponse) ProtoMessage() {}
 
 // Deprecated: Use RequestCountProofResponse.ProtoReflect.Descriptor instead.
 func (*RequestCountProofResponse) Descriptor() ([]byte, []int) {
-	return file_bandchain_oracle_v1_proof_proto_rawDescGZIP(), []int{5}
+	return file_band_base_oracle_v1_proof_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *RequestCountProofResponse) GetHeight() int64 {
@@ -11494,7 +11494,7 @@ type SingleProofResult struct {
 func (x *SingleProofResult) Reset() {
 	*x = SingleProofResult{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[6]
+		mi := &file_band_base_oracle_v1_proof_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -11508,7 +11508,7 @@ func (*SingleProofResult) ProtoMessage() {}
 
 // Deprecated: Use SingleProofResult.ProtoReflect.Descriptor instead.
 func (*SingleProofResult) Descriptor() ([]byte, []int) {
-	return file_bandchain_oracle_v1_proof_proto_rawDescGZIP(), []int{6}
+	return file_band_base_oracle_v1_proof_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *SingleProofResult) GetProof() *SingleProof {
@@ -11538,7 +11538,7 @@ type MultiProofResult struct {
 func (x *MultiProofResult) Reset() {
 	*x = MultiProofResult{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[7]
+		mi := &file_band_base_oracle_v1_proof_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -11552,7 +11552,7 @@ func (*MultiProofResult) ProtoMessage() {}
 
 // Deprecated: Use MultiProofResult.ProtoReflect.Descriptor instead.
 func (*MultiProofResult) Descriptor() ([]byte, []int) {
-	return file_bandchain_oracle_v1_proof_proto_rawDescGZIP(), []int{7}
+	return file_band_base_oracle_v1_proof_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *MultiProofResult) GetProof() *MultiProof {
@@ -11582,7 +11582,7 @@ type CountProofResult struct {
 func (x *CountProofResult) Reset() {
 	*x = CountProofResult{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[8]
+		mi := &file_band_base_oracle_v1_proof_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -11596,7 +11596,7 @@ func (*CountProofResult) ProtoMessage() {}
 
 // Deprecated: Use CountProofResult.ProtoReflect.Descriptor instead.
 func (*CountProofResult) Descriptor() ([]byte, []int) {
-	return file_bandchain_oracle_v1_proof_proto_rawDescGZIP(), []int{8}
+	return file_band_base_oracle_v1_proof_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *CountProofResult) GetProof() *CountProof {
@@ -11627,7 +11627,7 @@ type SingleProof struct {
 func (x *SingleProof) Reset() {
 	*x = SingleProof{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[9]
+		mi := &file_band_base_oracle_v1_proof_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -11641,7 +11641,7 @@ func (*SingleProof) ProtoMessage() {}
 
 // Deprecated: Use SingleProof.ProtoReflect.Descriptor instead.
 func (*SingleProof) Descriptor() ([]byte, []int) {
-	return file_bandchain_oracle_v1_proof_proto_rawDescGZIP(), []int{9}
+	return file_band_base_oracle_v1_proof_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *SingleProof) GetBlockHeight() uint64 {
@@ -11679,7 +11679,7 @@ type MultiProof struct {
 func (x *MultiProof) Reset() {
 	*x = MultiProof{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[10]
+		mi := &file_band_base_oracle_v1_proof_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -11693,7 +11693,7 @@ func (*MultiProof) ProtoMessage() {}
 
 // Deprecated: Use MultiProof.ProtoReflect.Descriptor instead.
 func (*MultiProof) Descriptor() ([]byte, []int) {
-	return file_bandchain_oracle_v1_proof_proto_rawDescGZIP(), []int{10}
+	return file_band_base_oracle_v1_proof_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *MultiProof) GetBlockHeight() uint64 {
@@ -11731,7 +11731,7 @@ type CountProof struct {
 func (x *CountProof) Reset() {
 	*x = CountProof{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[11]
+		mi := &file_band_base_oracle_v1_proof_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -11745,7 +11745,7 @@ func (*CountProof) ProtoMessage() {}
 
 // Deprecated: Use CountProof.ProtoReflect.Descriptor instead.
 func (*CountProof) Descriptor() ([]byte, []int) {
-	return file_bandchain_oracle_v1_proof_proto_rawDescGZIP(), []int{11}
+	return file_band_base_oracle_v1_proof_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *CountProof) GetBlockHeight() uint64 {
@@ -11783,7 +11783,7 @@ type OracleDataProof struct {
 func (x *OracleDataProof) Reset() {
 	*x = OracleDataProof{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[12]
+		mi := &file_band_base_oracle_v1_proof_proto_msgTypes[12]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -11797,7 +11797,7 @@ func (*OracleDataProof) ProtoMessage() {}
 
 // Deprecated: Use OracleDataProof.ProtoReflect.Descriptor instead.
 func (*OracleDataProof) Descriptor() ([]byte, []int) {
-	return file_bandchain_oracle_v1_proof_proto_rawDescGZIP(), []int{12}
+	return file_band_base_oracle_v1_proof_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *OracleDataProof) GetResult() *v1.Result {
@@ -11837,7 +11837,7 @@ type IAVLMerklePath struct {
 func (x *IAVLMerklePath) Reset() {
 	*x = IAVLMerklePath{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[13]
+		mi := &file_band_base_oracle_v1_proof_proto_msgTypes[13]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -11851,7 +11851,7 @@ func (*IAVLMerklePath) ProtoMessage() {}
 
 // Deprecated: Use IAVLMerklePath.ProtoReflect.Descriptor instead.
 func (*IAVLMerklePath) Descriptor() ([]byte, []int) {
-	return file_bandchain_oracle_v1_proof_proto_rawDescGZIP(), []int{13}
+	return file_band_base_oracle_v1_proof_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *IAVLMerklePath) GetIsDataOnRight() bool {
@@ -11904,7 +11904,7 @@ type BlockRelayProof struct {
 func (x *BlockRelayProof) Reset() {
 	*x = BlockRelayProof{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[14]
+		mi := &file_band_base_oracle_v1_proof_proto_msgTypes[14]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -11918,7 +11918,7 @@ func (*BlockRelayProof) ProtoMessage() {}
 
 // Deprecated: Use BlockRelayProof.ProtoReflect.Descriptor instead.
 func (*BlockRelayProof) Descriptor() ([]byte, []int) {
-	return file_bandchain_oracle_v1_proof_proto_rawDescGZIP(), []int{14}
+	return file_band_base_oracle_v1_proof_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *BlockRelayProof) GetMultiStoreProof() *MultiStoreProof {
@@ -11987,7 +11987,7 @@ type MultiStoreProof struct {
 func (x *MultiStoreProof) Reset() {
 	*x = MultiStoreProof{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[15]
+		mi := &file_band_base_oracle_v1_proof_proto_msgTypes[15]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -12001,7 +12001,7 @@ func (*MultiStoreProof) ProtoMessage() {}
 
 // Deprecated: Use MultiStoreProof.ProtoReflect.Descriptor instead.
 func (*MultiStoreProof) Descriptor() ([]byte, []int) {
-	return file_bandchain_oracle_v1_proof_proto_rawDescGZIP(), []int{15}
+	return file_band_base_oracle_v1_proof_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *MultiStoreProof) GetOracleIavlStateHash() []byte {
@@ -12083,7 +12083,7 @@ type BlockHeaderMerkleParts struct {
 func (x *BlockHeaderMerkleParts) Reset() {
 	*x = BlockHeaderMerkleParts{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[16]
+		mi := &file_band_base_oracle_v1_proof_proto_msgTypes[16]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -12097,7 +12097,7 @@ func (*BlockHeaderMerkleParts) ProtoMessage() {}
 
 // Deprecated: Use BlockHeaderMerkleParts.ProtoReflect.Descriptor instead.
 func (*BlockHeaderMerkleParts) Descriptor() ([]byte, []int) {
-	return file_bandchain_oracle_v1_proof_proto_rawDescGZIP(), []int{16}
+	return file_band_base_oracle_v1_proof_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *BlockHeaderMerkleParts) GetVersionAndChainIdHash() []byte {
@@ -12169,7 +12169,7 @@ type CommonEncodedVotePart struct {
 func (x *CommonEncodedVotePart) Reset() {
 	*x = CommonEncodedVotePart{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[17]
+		mi := &file_band_base_oracle_v1_proof_proto_msgTypes[17]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -12183,7 +12183,7 @@ func (*CommonEncodedVotePart) ProtoMessage() {}
 
 // Deprecated: Use CommonEncodedVotePart.ProtoReflect.Descriptor instead.
 func (*CommonEncodedVotePart) Descriptor() ([]byte, []int) {
-	return file_bandchain_oracle_v1_proof_proto_rawDescGZIP(), []int{17}
+	return file_band_base_oracle_v1_proof_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *CommonEncodedVotePart) GetSignedDataPrefix() []byte {
@@ -12219,7 +12219,7 @@ type TMSignature struct {
 func (x *TMSignature) Reset() {
 	*x = TMSignature{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[18]
+		mi := &file_band_base_oracle_v1_proof_proto_msgTypes[18]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -12233,7 +12233,7 @@ func (*TMSignature) ProtoMessage() {}
 
 // Deprecated: Use TMSignature.ProtoReflect.Descriptor instead.
 func (*TMSignature) Descriptor() ([]byte, []int) {
-	return file_bandchain_oracle_v1_proof_proto_rawDescGZIP(), []int{18}
+	return file_band_base_oracle_v1_proof_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *TMSignature) GetR() []byte {
@@ -12278,7 +12278,7 @@ type RequestsCountProof struct {
 func (x *RequestsCountProof) Reset() {
 	*x = RequestsCountProof{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_oracle_v1_proof_proto_msgTypes[19]
+		mi := &file_band_base_oracle_v1_proof_proto_msgTypes[19]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -12292,7 +12292,7 @@ func (*RequestsCountProof) ProtoMessage() {}
 
 // Deprecated: Use RequestsCountProof.ProtoReflect.Descriptor instead.
 func (*RequestsCountProof) Descriptor() ([]byte, []int) {
-	return file_bandchain_oracle_v1_proof_proto_rawDescGZIP(), []int{19}
+	return file_band_base_oracle_v1_proof_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *RequestsCountProof) GetCount() uint64 {
@@ -12316,12 +12316,12 @@ func (x *RequestsCountProof) GetMerklePaths() []*IAVLMerklePath {
 	return nil
 }
 
-var File_bandchain_oracle_v1_proof_proto protoreflect.FileDescriptor
+var File_band_base_oracle_v1_proof_proto protoreflect.FileDescriptor
 
-var file_bandchain_oracle_v1_proof_proto_rawDesc = []byte{
-	0x0a, 0x1f, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x6f, 0x72, 0x61, 0x63,
+var file_band_base_oracle_v1_proof_proto_rawDesc = []byte{
+	0x0a, 0x1f, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x62, 0x61, 0x73, 0x65, 0x2f, 0x6f, 0x72, 0x61, 0x63,
 	0x6c, 0x65, 0x2f, 0x76, 0x31, 0x2f, 0x70, 0x72, 0x6f, 0x6f, 0x66, 0x2e, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x12, 0x13, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6f, 0x72, 0x61,
+	0x6f, 0x12, 0x13, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6f, 0x72, 0x61,
 	0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x1a, 0x1c, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x61,
 	0x70, 0x69, 0x2f, 0x61, 0x6e, 0x6e, 0x6f, 0x74, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x2e, 0x70,
 	0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f,
@@ -12335,8 +12335,8 @@ var file_bandchain_oracle_v1_proof_proto_rawDesc = []byte{
 	0x0a, 0x0d, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
 	0x16, 0x0a, 0x06, 0x68, 0x65, 0x69, 0x67, 0x68, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52,
 	0x06, 0x68, 0x65, 0x69, 0x67, 0x68, 0x74, 0x12, 0x44, 0x0a, 0x06, 0x72, 0x65, 0x73, 0x75, 0x6c,
-	0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x26, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68,
-	0x61, 0x69, 0x6e, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x69,
+	0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x26, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62,
+	0x61, 0x73, 0x65, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x69,
 	0x6e, 0x67, 0x6c, 0x65, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x42,
 	0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x22, 0x34, 0x0a,
 	0x11, 0x4d, 0x75, 0x6c, 0x74, 0x69, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x52, 0x65, 0x71, 0x75, 0x65,
@@ -12346,7 +12346,7 @@ var file_bandchain_oracle_v1_proof_proto_rawDesc = []byte{
 	0x66, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x68, 0x65, 0x69,
 	0x67, 0x68, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x06, 0x68, 0x65, 0x69, 0x67, 0x68,
 	0x74, 0x12, 0x43, 0x0a, 0x06, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28,
-	0x0b, 0x32, 0x25, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6f, 0x72,
+	0x0b, 0x32, 0x25, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6f, 0x72,
 	0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x4d, 0x75, 0x6c, 0x74, 0x69, 0x50, 0x72, 0x6f,
 	0x6f, 0x66, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06,
 	0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x22, 0x1a, 0x0a, 0x18, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
@@ -12355,13 +12355,13 @@ var file_bandchain_oracle_v1_proof_proto_rawDesc = []byte{
 	0x6e, 0x74, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
 	0x16, 0x0a, 0x06, 0x68, 0x65, 0x69, 0x67, 0x68, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52,
 	0x06, 0x68, 0x65, 0x69, 0x67, 0x68, 0x74, 0x12, 0x43, 0x0a, 0x06, 0x72, 0x65, 0x73, 0x75, 0x6c,
-	0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x25, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68,
-	0x61, 0x69, 0x6e, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x43, 0x6f,
+	0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x25, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62,
+	0x61, 0x73, 0x65, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x43, 0x6f,
 	0x75, 0x6e, 0x74, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x42, 0x04,
 	0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x22, 0xaf, 0x01, 0x0a,
 	0x11, 0x53, 0x69, 0x6e, 0x67, 0x6c, 0x65, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x52, 0x65, 0x73, 0x75,
 	0x6c, 0x74, 0x12, 0x3c, 0x0a, 0x05, 0x70, 0x72, 0x6f, 0x6f, 0x66, 0x18, 0x01, 0x20, 0x01, 0x28,
-	0x0b, 0x32, 0x20, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6f, 0x72,
+	0x0b, 0x32, 0x20, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6f, 0x72,
 	0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x53, 0x69, 0x6e, 0x67, 0x6c, 0x65, 0x50, 0x72,
 	0x6f, 0x6f, 0x66, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x05, 0x70, 0x72, 0x6f, 0x6f, 0x66,
 	0x12, 0x5c, 0x0a, 0x0f, 0x65, 0x76, 0x6d, 0x5f, 0x70, 0x72, 0x6f, 0x6f, 0x66, 0x5f, 0x62, 0x79,
@@ -12372,7 +12372,7 @@ var file_bandchain_oracle_v1_proof_proto_rawDesc = []byte{
 	0x0d, 0x65, 0x76, 0x6d, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x42, 0x79, 0x74, 0x65, 0x73, 0x22, 0xad,
 	0x01, 0x0a, 0x10, 0x4d, 0x75, 0x6c, 0x74, 0x69, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x52, 0x65, 0x73,
 	0x75, 0x6c, 0x74, 0x12, 0x3b, 0x0a, 0x05, 0x70, 0x72, 0x6f, 0x6f, 0x66, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x0b, 0x32, 0x1f, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6f,
+	0x28, 0x0b, 0x32, 0x1f, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6f,
 	0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x4d, 0x75, 0x6c, 0x74, 0x69, 0x50, 0x72,
 	0x6f, 0x6f, 0x66, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x05, 0x70, 0x72, 0x6f, 0x6f, 0x66,
 	0x12, 0x5c, 0x0a, 0x0f, 0x65, 0x76, 0x6d, 0x5f, 0x70, 0x72, 0x6f, 0x6f, 0x66, 0x5f, 0x62, 0x79,
@@ -12383,7 +12383,7 @@ var file_bandchain_oracle_v1_proof_proto_rawDesc = []byte{
 	0x0d, 0x65, 0x76, 0x6d, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x42, 0x79, 0x74, 0x65, 0x73, 0x22, 0xad,
 	0x01, 0x0a, 0x10, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x52, 0x65, 0x73,
 	0x75, 0x6c, 0x74, 0x12, 0x3b, 0x0a, 0x05, 0x70, 0x72, 0x6f, 0x6f, 0x66, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x0b, 0x32, 0x1f, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6f,
+	0x28, 0x0b, 0x32, 0x1f, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6f,
 	0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x50, 0x72,
 	0x6f, 0x6f, 0x66, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x05, 0x70, 0x72, 0x6f, 0x6f, 0x66,
 	0x12, 0x5c, 0x0a, 0x0f, 0x65, 0x76, 0x6d, 0x5f, 0x70, 0x72, 0x6f, 0x6f, 0x66, 0x5f, 0x62, 0x79,
@@ -12397,12 +12397,12 @@ var file_bandchain_oracle_v1_proof_proto_rawDesc = []byte{
 	0x20, 0x01, 0x28, 0x04, 0x52, 0x0b, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x48, 0x65, 0x69, 0x67, 0x68,
 	0x74, 0x12, 0x56, 0x0a, 0x11, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x5f, 0x64, 0x61, 0x74, 0x61,
 	0x5f, 0x70, 0x72, 0x6f, 0x6f, 0x66, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x24, 0x2e, 0x62,
-	0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e,
+	0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e,
 	0x76, 0x31, 0x2e, 0x4f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x44, 0x61, 0x74, 0x61, 0x50, 0x72, 0x6f,
 	0x6f, 0x66, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x0f, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65,
 	0x44, 0x61, 0x74, 0x61, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x12, 0x56, 0x0a, 0x11, 0x62, 0x6c, 0x6f,
 	0x63, 0x6b, 0x5f, 0x72, 0x65, 0x6c, 0x61, 0x79, 0x5f, 0x70, 0x72, 0x6f, 0x6f, 0x66, 0x18, 0x03,
-	0x20, 0x01, 0x28, 0x0b, 0x32, 0x24, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e,
+	0x20, 0x01, 0x28, 0x0b, 0x32, 0x24, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65,
 	0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x42, 0x6c, 0x6f, 0x63, 0x6b,
 	0x52, 0x65, 0x6c, 0x61, 0x79, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00,
 	0x52, 0x0f, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x52, 0x65, 0x6c, 0x61, 0x79, 0x50, 0x72, 0x6f, 0x6f,
@@ -12411,13 +12411,13 @@ var file_bandchain_oracle_v1_proof_proto_rawDesc = []byte{
 	0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x0b, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x48, 0x65, 0x69,
 	0x67, 0x68, 0x74, 0x12, 0x61, 0x0a, 0x17, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x5f, 0x64, 0x61,
 	0x74, 0x61, 0x5f, 0x6d, 0x75, 0x6c, 0x74, 0x69, 0x5f, 0x70, 0x72, 0x6f, 0x6f, 0x66, 0x18, 0x02,
-	0x20, 0x03, 0x28, 0x0b, 0x32, 0x24, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e,
+	0x20, 0x03, 0x28, 0x0b, 0x32, 0x24, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65,
 	0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x4f, 0x72, 0x61, 0x63, 0x6c,
 	0x65, 0x44, 0x61, 0x74, 0x61, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00,
 	0x52, 0x14, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x44, 0x61, 0x74, 0x61, 0x4d, 0x75, 0x6c, 0x74,
 	0x69, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x12, 0x56, 0x0a, 0x11, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x5f,
 	0x72, 0x65, 0x6c, 0x61, 0x79, 0x5f, 0x70, 0x72, 0x6f, 0x6f, 0x66, 0x18, 0x03, 0x20, 0x01, 0x28,
-	0x0b, 0x32, 0x24, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6f, 0x72,
+	0x0b, 0x32, 0x24, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6f, 0x72,
 	0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x42, 0x6c, 0x6f, 0x63, 0x6b, 0x52, 0x65, 0x6c,
 	0x61, 0x79, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x0f, 0x62,
 	0x6c, 0x6f, 0x63, 0x6b, 0x52, 0x65, 0x6c, 0x61, 0x79, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x22, 0xd7,
@@ -12425,13 +12425,13 @@ var file_bandchain_oracle_v1_proof_proto_rawDesc = []byte{
 	0x0c, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x5f, 0x68, 0x65, 0x69, 0x67, 0x68, 0x74, 0x18, 0x01, 0x20,
 	0x01, 0x28, 0x04, 0x52, 0x0b, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x48, 0x65, 0x69, 0x67, 0x68, 0x74,
 	0x12, 0x4e, 0x0a, 0x0b, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x5f, 0x70, 0x72, 0x6f, 0x6f, 0x66, 0x18,
-	0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x27, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69,
-	0x6e, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x52, 0x65, 0x71, 0x75,
+	0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x27, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73,
+	0x65, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x52, 0x65, 0x71, 0x75,
 	0x65, 0x73, 0x74, 0x73, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x42, 0x04,
 	0xc8, 0xde, 0x1f, 0x00, 0x52, 0x0a, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x50, 0x72, 0x6f, 0x6f, 0x66,
 	0x12, 0x56, 0x0a, 0x11, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x5f, 0x72, 0x65, 0x6c, 0x61, 0x79, 0x5f,
 	0x70, 0x72, 0x6f, 0x6f, 0x66, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x24, 0x2e, 0x62, 0x61,
-	0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76,
+	0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76,
 	0x31, 0x2e, 0x42, 0x6c, 0x6f, 0x63, 0x6b, 0x52, 0x65, 0x6c, 0x61, 0x79, 0x50, 0x72, 0x6f, 0x6f,
 	0x66, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x0f, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x52, 0x65,
 	0x6c, 0x61, 0x79, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x22, 0xaf, 0x01, 0x0a, 0x0f, 0x4f, 0x72, 0x61,
@@ -12442,7 +12442,7 @@ var file_bandchain_oracle_v1_proof_proto_rawDesc = []byte{
 	0x6c, 0x74, 0x12, 0x18, 0x0a, 0x07, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20,
 	0x01, 0x28, 0x04, 0x52, 0x07, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x12, 0x4c, 0x0a, 0x0c,
 	0x6d, 0x65, 0x72, 0x6b, 0x6c, 0x65, 0x5f, 0x70, 0x61, 0x74, 0x68, 0x73, 0x18, 0x03, 0x20, 0x03,
-	0x28, 0x0b, 0x32, 0x23, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6f,
+	0x28, 0x0b, 0x32, 0x23, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6f,
 	0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x49, 0x41, 0x56, 0x4c, 0x4d, 0x65, 0x72,
 	0x6b, 0x6c, 0x65, 0x50, 0x61, 0x74, 0x68, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x0b, 0x6d,
 	0x65, 0x72, 0x6b, 0x6c, 0x65, 0x50, 0x61, 0x74, 0x68, 0x73, 0x22, 0x85, 0x02, 0x0a, 0x0e, 0x49,
@@ -12465,26 +12465,26 @@ var file_bandchain_oracle_v1_proof_proto_rawDesc = []byte{
 	0x73, 0x68, 0x22, 0x8a, 0x03, 0x0a, 0x0f, 0x42, 0x6c, 0x6f, 0x63, 0x6b, 0x52, 0x65, 0x6c, 0x61,
 	0x79, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x12, 0x56, 0x0a, 0x11, 0x6d, 0x75, 0x6c, 0x74, 0x69, 0x5f,
 	0x73, 0x74, 0x6f, 0x72, 0x65, 0x5f, 0x70, 0x72, 0x6f, 0x6f, 0x66, 0x18, 0x01, 0x20, 0x01, 0x28,
-	0x0b, 0x32, 0x24, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6f, 0x72,
+	0x0b, 0x32, 0x24, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6f, 0x72,
 	0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x4d, 0x75, 0x6c, 0x74, 0x69, 0x53, 0x74, 0x6f,
 	0x72, 0x65, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x0f, 0x6d,
 	0x75, 0x6c, 0x74, 0x69, 0x53, 0x74, 0x6f, 0x72, 0x65, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x12, 0x6c,
 	0x0a, 0x19, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x5f, 0x68, 0x65, 0x61, 0x64, 0x65, 0x72, 0x5f, 0x6d,
 	0x65, 0x72, 0x6b, 0x6c, 0x65, 0x5f, 0x70, 0x61, 0x72, 0x74, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28,
-	0x0b, 0x32, 0x2b, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6f, 0x72,
+	0x0b, 0x32, 0x2b, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6f, 0x72,
 	0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x42, 0x6c, 0x6f, 0x63, 0x6b, 0x48, 0x65, 0x61,
 	0x64, 0x65, 0x72, 0x4d, 0x65, 0x72, 0x6b, 0x6c, 0x65, 0x50, 0x61, 0x72, 0x74, 0x73, 0x42, 0x04,
 	0xc8, 0xde, 0x1f, 0x00, 0x52, 0x16, 0x62, 0x6c, 0x6f, 0x63, 0x6b, 0x48, 0x65, 0x61, 0x64, 0x65,
 	0x72, 0x4d, 0x65, 0x72, 0x6b, 0x6c, 0x65, 0x50, 0x61, 0x72, 0x74, 0x73, 0x12, 0x69, 0x0a, 0x18,
 	0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x5f, 0x65, 0x6e, 0x63, 0x6f, 0x64, 0x65, 0x64, 0x5f, 0x76,
 	0x6f, 0x74, 0x65, 0x5f, 0x70, 0x61, 0x72, 0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x2a,
-	0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c,
+	0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c,
 	0x65, 0x2e, 0x76, 0x31, 0x2e, 0x43, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x45, 0x6e, 0x63, 0x6f, 0x64,
 	0x65, 0x64, 0x56, 0x6f, 0x74, 0x65, 0x50, 0x61, 0x72, 0x74, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00,
 	0x52, 0x15, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x45, 0x6e, 0x63, 0x6f, 0x64, 0x65, 0x64, 0x56,
 	0x6f, 0x74, 0x65, 0x50, 0x61, 0x72, 0x74, 0x12, 0x46, 0x0a, 0x0a, 0x73, 0x69, 0x67, 0x6e, 0x61,
 	0x74, 0x75, 0x72, 0x65, 0x73, 0x18, 0x04, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x20, 0x2e, 0x62, 0x61,
-	0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76,
+	0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76,
 	0x31, 0x2e, 0x54, 0x4d, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x42, 0x04, 0xc8,
 	0xde, 0x1f, 0x00, 0x52, 0x0a, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x73, 0x22,
 	0x92, 0x05, 0x0a, 0x0f, 0x4d, 0x75, 0x6c, 0x74, 0x69, 0x53, 0x74, 0x6f, 0x72, 0x65, 0x50, 0x72,
@@ -12608,116 +12608,116 @@ var file_bandchain_oracle_v1_proof_proto_rawDesc = []byte{
 	0x63, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x18, 0x0a, 0x07, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e,
 	0x18, 0x02, 0x20, 0x01, 0x28, 0x04, 0x52, 0x07, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x12,
 	0x4c, 0x0a, 0x0c, 0x6d, 0x65, 0x72, 0x6b, 0x6c, 0x65, 0x5f, 0x70, 0x61, 0x74, 0x68, 0x73, 0x18,
-	0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x23, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69,
-	0x6e, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x49, 0x41, 0x56, 0x4c,
+	0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x23, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73,
+	0x65, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x49, 0x41, 0x56, 0x4c,
 	0x4d, 0x65, 0x72, 0x6b, 0x6c, 0x65, 0x50, 0x61, 0x74, 0x68, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00,
 	0x52, 0x0b, 0x6d, 0x65, 0x72, 0x6b, 0x6c, 0x65, 0x50, 0x61, 0x74, 0x68, 0x73, 0x32, 0xbc, 0x03,
 	0x0a, 0x07, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x7f, 0x0a, 0x05, 0x50, 0x72, 0x6f,
-	0x6f, 0x66, 0x12, 0x21, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6f,
+	0x6f, 0x66, 0x12, 0x21, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6f,
 	0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x52, 0x65,
-	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x22, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69,
-	0x6e, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x72, 0x6f, 0x6f,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x22, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73,
+	0x65, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x50, 0x72, 0x6f, 0x6f,
 	0x66, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x2f, 0x82, 0xd3, 0xe4, 0x93, 0x02,
 	0x29, 0x12, 0x27, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x31,
 	0x2f, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2f, 0x70, 0x72, 0x6f, 0x6f, 0x66, 0x2f, 0x7b, 0x72,
 	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x5f, 0x69, 0x64, 0x7d, 0x12, 0x87, 0x01, 0x0a, 0x0a, 0x4d,
 	0x75, 0x6c, 0x74, 0x69, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x12, 0x26, 0x2e, 0x62, 0x61, 0x6e, 0x64,
-	0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e,
+	0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e,
 	0x4d, 0x75, 0x6c, 0x74, 0x69, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
-	0x74, 0x1a, 0x27, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6f, 0x72,
+	0x74, 0x1a, 0x27, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6f, 0x72,
 	0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x4d, 0x75, 0x6c, 0x74, 0x69, 0x50, 0x72, 0x6f,
 	0x6f, 0x66, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x28, 0x82, 0xd3, 0xe4, 0x93,
 	0x02, 0x22, 0x12, 0x20, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76,
 	0x31, 0x2f, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2f, 0x6d, 0x75, 0x6c, 0x74, 0x69, 0x5f, 0x70,
 	0x72, 0x6f, 0x6f, 0x66, 0x12, 0xa5, 0x01, 0x0a, 0x11, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
 	0x43, 0x6f, 0x75, 0x6e, 0x74, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x12, 0x2d, 0x2e, 0x62, 0x61, 0x6e,
-	0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31,
+	0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31,
 	0x2e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x50, 0x72, 0x6f,
 	0x6f, 0x66, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2e, 0x2e, 0x62, 0x61, 0x6e, 0x64,
-	0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e,
+	0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x2e,
 	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x43, 0x6f, 0x75, 0x6e, 0x74, 0x50, 0x72, 0x6f, 0x6f,
 	0x66, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x31, 0x82, 0xd3, 0xe4, 0x93, 0x02,
 	0x2b, 0x12, 0x29, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x31,
 	0x2f, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2f, 0x72, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x73,
-	0x5f, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x5f, 0x70, 0x72, 0x6f, 0x6f, 0x66, 0x42, 0xd6, 0x01, 0x0a,
-	0x17, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6f,
+	0x5f, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x5f, 0x70, 0x72, 0x6f, 0x6f, 0x66, 0x42, 0xd7, 0x01, 0x0a,
+	0x17, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6f,
 	0x72, 0x61, 0x63, 0x6c, 0x65, 0x2e, 0x76, 0x31, 0x42, 0x0a, 0x50, 0x72, 0x6f, 0x6f, 0x66, 0x50,
 	0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x41, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63,
 	0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f,
 	0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e,
-	0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2f, 0x76, 0x31,
-	0x3b, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x76, 0x31, 0xa2, 0x02, 0x03, 0x42, 0x4f, 0x58, 0xaa,
-	0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x4f, 0x72, 0x61, 0x63,
-	0x6c, 0x65, 0x2e, 0x56, 0x31, 0xca, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69,
-	0x6e, 0x5c, 0x4f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x5c, 0x56, 0x31, 0xe2, 0x02, 0x1f, 0x42, 0x61,
-	0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x5c, 0x4f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x5c, 0x56,
-	0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x15,
-	0x42, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x3a, 0x3a, 0x4f, 0x72, 0x61, 0x63, 0x6c,
-	0x65, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x64, 0x2f, 0x62, 0x61, 0x73, 0x65, 0x2f, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x2f, 0x76, 0x31,
+	0x3b, 0x6f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x76, 0x31, 0xa2, 0x02, 0x03, 0x42, 0x42, 0x4f, 0xaa,
+	0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x2e, 0x42, 0x61, 0x73, 0x65, 0x2e, 0x4f, 0x72, 0x61, 0x63,
+	0x6c, 0x65, 0x2e, 0x56, 0x31, 0xca, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x42, 0x61, 0x73,
+	0x65, 0x5c, 0x4f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x5c, 0x56, 0x31, 0xe2, 0x02, 0x1f, 0x42, 0x61,
+	0x6e, 0x64, 0x5c, 0x42, 0x61, 0x73, 0x65, 0x5c, 0x4f, 0x72, 0x61, 0x63, 0x6c, 0x65, 0x5c, 0x56,
+	0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x16,
+	0x42, 0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x42, 0x61, 0x73, 0x65, 0x3a, 0x3a, 0x4f, 0x72, 0x61, 0x63,
+	0x6c, 0x65, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
-	file_bandchain_oracle_v1_proof_proto_rawDescOnce sync.Once
-	file_bandchain_oracle_v1_proof_proto_rawDescData = file_bandchain_oracle_v1_proof_proto_rawDesc
+	file_band_base_oracle_v1_proof_proto_rawDescOnce sync.Once
+	file_band_base_oracle_v1_proof_proto_rawDescData = file_band_base_oracle_v1_proof_proto_rawDesc
 )
 
-func file_bandchain_oracle_v1_proof_proto_rawDescGZIP() []byte {
-	file_bandchain_oracle_v1_proof_proto_rawDescOnce.Do(func() {
-		file_bandchain_oracle_v1_proof_proto_rawDescData = protoimpl.X.CompressGZIP(file_bandchain_oracle_v1_proof_proto_rawDescData)
+func file_band_base_oracle_v1_proof_proto_rawDescGZIP() []byte {
+	file_band_base_oracle_v1_proof_proto_rawDescOnce.Do(func() {
+		file_band_base_oracle_v1_proof_proto_rawDescData = protoimpl.X.CompressGZIP(file_band_base_oracle_v1_proof_proto_rawDescData)
 	})
-	return file_bandchain_oracle_v1_proof_proto_rawDescData
+	return file_band_base_oracle_v1_proof_proto_rawDescData
 }
 
-var file_bandchain_oracle_v1_proof_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
-var file_bandchain_oracle_v1_proof_proto_goTypes = []interface{}{
-	(*ProofRequest)(nil),              // 0: bandchain.oracle.v1.ProofRequest
-	(*ProofResponse)(nil),             // 1: bandchain.oracle.v1.ProofResponse
-	(*MultiProofRequest)(nil),         // 2: bandchain.oracle.v1.MultiProofRequest
-	(*MultiProofResponse)(nil),        // 3: bandchain.oracle.v1.MultiProofResponse
-	(*RequestCountProofRequest)(nil),  // 4: bandchain.oracle.v1.RequestCountProofRequest
-	(*RequestCountProofResponse)(nil), // 5: bandchain.oracle.v1.RequestCountProofResponse
-	(*SingleProofResult)(nil),         // 6: bandchain.oracle.v1.SingleProofResult
-	(*MultiProofResult)(nil),          // 7: bandchain.oracle.v1.MultiProofResult
-	(*CountProofResult)(nil),          // 8: bandchain.oracle.v1.CountProofResult
-	(*SingleProof)(nil),               // 9: bandchain.oracle.v1.SingleProof
-	(*MultiProof)(nil),                // 10: bandchain.oracle.v1.MultiProof
-	(*CountProof)(nil),                // 11: bandchain.oracle.v1.CountProof
-	(*OracleDataProof)(nil),           // 12: bandchain.oracle.v1.OracleDataProof
-	(*IAVLMerklePath)(nil),            // 13: bandchain.oracle.v1.IAVLMerklePath
-	(*BlockRelayProof)(nil),           // 14: bandchain.oracle.v1.BlockRelayProof
-	(*MultiStoreProof)(nil),           // 15: bandchain.oracle.v1.MultiStoreProof
-	(*BlockHeaderMerkleParts)(nil),    // 16: bandchain.oracle.v1.BlockHeaderMerkleParts
-	(*CommonEncodedVotePart)(nil),     // 17: bandchain.oracle.v1.CommonEncodedVotePart
-	(*TMSignature)(nil),               // 18: bandchain.oracle.v1.TMSignature
-	(*RequestsCountProof)(nil),        // 19: bandchain.oracle.v1.RequestsCountProof
+var file_band_base_oracle_v1_proof_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
+var file_band_base_oracle_v1_proof_proto_goTypes = []interface{}{
+	(*ProofRequest)(nil),              // 0: band.base.oracle.v1.ProofRequest
+	(*ProofResponse)(nil),             // 1: band.base.oracle.v1.ProofResponse
+	(*MultiProofRequest)(nil),         // 2: band.base.oracle.v1.MultiProofRequest
+	(*MultiProofResponse)(nil),        // 3: band.base.oracle.v1.MultiProofResponse
+	(*RequestCountProofRequest)(nil),  // 4: band.base.oracle.v1.RequestCountProofRequest
+	(*RequestCountProofResponse)(nil), // 5: band.base.oracle.v1.RequestCountProofResponse
+	(*SingleProofResult)(nil),         // 6: band.base.oracle.v1.SingleProofResult
+	(*MultiProofResult)(nil),          // 7: band.base.oracle.v1.MultiProofResult
+	(*CountProofResult)(nil),          // 8: band.base.oracle.v1.CountProofResult
+	(*SingleProof)(nil),               // 9: band.base.oracle.v1.SingleProof
+	(*MultiProof)(nil),                // 10: band.base.oracle.v1.MultiProof
+	(*CountProof)(nil),                // 11: band.base.oracle.v1.CountProof
+	(*OracleDataProof)(nil),           // 12: band.base.oracle.v1.OracleDataProof
+	(*IAVLMerklePath)(nil),            // 13: band.base.oracle.v1.IAVLMerklePath
+	(*BlockRelayProof)(nil),           // 14: band.base.oracle.v1.BlockRelayProof
+	(*MultiStoreProof)(nil),           // 15: band.base.oracle.v1.MultiStoreProof
+	(*BlockHeaderMerkleParts)(nil),    // 16: band.base.oracle.v1.BlockHeaderMerkleParts
+	(*CommonEncodedVotePart)(nil),     // 17: band.base.oracle.v1.CommonEncodedVotePart
+	(*TMSignature)(nil),               // 18: band.base.oracle.v1.TMSignature
+	(*RequestsCountProof)(nil),        // 19: band.base.oracle.v1.RequestsCountProof
 	(*v1.Result)(nil),                 // 20: band.oracle.v1.Result
 }
-var file_bandchain_oracle_v1_proof_proto_depIdxs = []int32{
-	6,  // 0: bandchain.oracle.v1.ProofResponse.result:type_name -> bandchain.oracle.v1.SingleProofResult
-	7,  // 1: bandchain.oracle.v1.MultiProofResponse.result:type_name -> bandchain.oracle.v1.MultiProofResult
-	8,  // 2: bandchain.oracle.v1.RequestCountProofResponse.result:type_name -> bandchain.oracle.v1.CountProofResult
-	9,  // 3: bandchain.oracle.v1.SingleProofResult.proof:type_name -> bandchain.oracle.v1.SingleProof
-	10, // 4: bandchain.oracle.v1.MultiProofResult.proof:type_name -> bandchain.oracle.v1.MultiProof
-	11, // 5: bandchain.oracle.v1.CountProofResult.proof:type_name -> bandchain.oracle.v1.CountProof
-	12, // 6: bandchain.oracle.v1.SingleProof.oracle_data_proof:type_name -> bandchain.oracle.v1.OracleDataProof
-	14, // 7: bandchain.oracle.v1.SingleProof.block_relay_proof:type_name -> bandchain.oracle.v1.BlockRelayProof
-	12, // 8: bandchain.oracle.v1.MultiProof.oracle_data_multi_proof:type_name -> bandchain.oracle.v1.OracleDataProof
-	14, // 9: bandchain.oracle.v1.MultiProof.block_relay_proof:type_name -> bandchain.oracle.v1.BlockRelayProof
-	19, // 10: bandchain.oracle.v1.CountProof.count_proof:type_name -> bandchain.oracle.v1.RequestsCountProof
-	14, // 11: bandchain.oracle.v1.CountProof.block_relay_proof:type_name -> bandchain.oracle.v1.BlockRelayProof
-	20, // 12: bandchain.oracle.v1.OracleDataProof.result:type_name -> band.oracle.v1.Result
-	13, // 13: bandchain.oracle.v1.OracleDataProof.merkle_paths:type_name -> bandchain.oracle.v1.IAVLMerklePath
-	15, // 14: bandchain.oracle.v1.BlockRelayProof.multi_store_proof:type_name -> bandchain.oracle.v1.MultiStoreProof
-	16, // 15: bandchain.oracle.v1.BlockRelayProof.block_header_merkle_parts:type_name -> bandchain.oracle.v1.BlockHeaderMerkleParts
-	17, // 16: bandchain.oracle.v1.BlockRelayProof.common_encoded_vote_part:type_name -> bandchain.oracle.v1.CommonEncodedVotePart
-	18, // 17: bandchain.oracle.v1.BlockRelayProof.signatures:type_name -> bandchain.oracle.v1.TMSignature
-	13, // 18: bandchain.oracle.v1.RequestsCountProof.merkle_paths:type_name -> bandchain.oracle.v1.IAVLMerklePath
-	0,  // 19: bandchain.oracle.v1.Service.Proof:input_type -> bandchain.oracle.v1.ProofRequest
-	2,  // 20: bandchain.oracle.v1.Service.MultiProof:input_type -> bandchain.oracle.v1.MultiProofRequest
-	4,  // 21: bandchain.oracle.v1.Service.RequestCountProof:input_type -> bandchain.oracle.v1.RequestCountProofRequest
-	1,  // 22: bandchain.oracle.v1.Service.Proof:output_type -> bandchain.oracle.v1.ProofResponse
-	3,  // 23: bandchain.oracle.v1.Service.MultiProof:output_type -> bandchain.oracle.v1.MultiProofResponse
-	5,  // 24: bandchain.oracle.v1.Service.RequestCountProof:output_type -> bandchain.oracle.v1.RequestCountProofResponse
+var file_band_base_oracle_v1_proof_proto_depIdxs = []int32{
+	6,  // 0: band.base.oracle.v1.ProofResponse.result:type_name -> band.base.oracle.v1.SingleProofResult
+	7,  // 1: band.base.oracle.v1.MultiProofResponse.result:type_name -> band.base.oracle.v1.MultiProofResult
+	8,  // 2: band.base.oracle.v1.RequestCountProofResponse.result:type_name -> band.base.oracle.v1.CountProofResult
+	9,  // 3: band.base.oracle.v1.SingleProofResult.proof:type_name -> band.base.oracle.v1.SingleProof
+	10, // 4: band.base.oracle.v1.MultiProofResult.proof:type_name -> band.base.oracle.v1.MultiProof
+	11, // 5: band.base.oracle.v1.CountProofResult.proof:type_name -> band.base.oracle.v1.CountProof
+	12, // 6: band.base.oracle.v1.SingleProof.oracle_data_proof:type_name -> band.base.oracle.v1.OracleDataProof
+	14, // 7: band.base.oracle.v1.SingleProof.block_relay_proof:type_name -> band.base.oracle.v1.BlockRelayProof
+	12, // 8: band.base.oracle.v1.MultiProof.oracle_data_multi_proof:type_name -> band.base.oracle.v1.OracleDataProof
+	14, // 9: band.base.oracle.v1.MultiProof.block_relay_proof:type_name -> band.base.oracle.v1.BlockRelayProof
+	19, // 10: band.base.oracle.v1.CountProof.count_proof:type_name -> band.base.oracle.v1.RequestsCountProof
+	14, // 11: band.base.oracle.v1.CountProof.block_relay_proof:type_name -> band.base.oracle.v1.BlockRelayProof
+	20, // 12: band.base.oracle.v1.OracleDataProof.result:type_name -> band.oracle.v1.Result
+	13, // 13: band.base.oracle.v1.OracleDataProof.merkle_paths:type_name -> band.base.oracle.v1.IAVLMerklePath
+	15, // 14: band.base.oracle.v1.BlockRelayProof.multi_store_proof:type_name -> band.base.oracle.v1.MultiStoreProof
+	16, // 15: band.base.oracle.v1.BlockRelayProof.block_header_merkle_parts:type_name -> band.base.oracle.v1.BlockHeaderMerkleParts
+	17, // 16: band.base.oracle.v1.BlockRelayProof.common_encoded_vote_part:type_name -> band.base.oracle.v1.CommonEncodedVotePart
+	18, // 17: band.base.oracle.v1.BlockRelayProof.signatures:type_name -> band.base.oracle.v1.TMSignature
+	13, // 18: band.base.oracle.v1.RequestsCountProof.merkle_paths:type_name -> band.base.oracle.v1.IAVLMerklePath
+	0,  // 19: band.base.oracle.v1.Service.Proof:input_type -> band.base.oracle.v1.ProofRequest
+	2,  // 20: band.base.oracle.v1.Service.MultiProof:input_type -> band.base.oracle.v1.MultiProofRequest
+	4,  // 21: band.base.oracle.v1.Service.RequestCountProof:input_type -> band.base.oracle.v1.RequestCountProofRequest
+	1,  // 22: band.base.oracle.v1.Service.Proof:output_type -> band.base.oracle.v1.ProofResponse
+	3,  // 23: band.base.oracle.v1.Service.MultiProof:output_type -> band.base.oracle.v1.MultiProofResponse
+	5,  // 24: band.base.oracle.v1.Service.RequestCountProof:output_type -> band.base.oracle.v1.RequestCountProofResponse
 	22, // [22:25] is the sub-list for method output_type
 	19, // [19:22] is the sub-list for method input_type
 	19, // [19:19] is the sub-list for extension type_name
@@ -12725,13 +12725,13 @@ var file_bandchain_oracle_v1_proof_proto_depIdxs = []int32{
 	0,  // [0:19] is the sub-list for field type_name
 }
 
-func init() { file_bandchain_oracle_v1_proof_proto_init() }
-func file_bandchain_oracle_v1_proof_proto_init() {
-	if File_bandchain_oracle_v1_proof_proto != nil {
+func init() { file_band_base_oracle_v1_proof_proto_init() }
+func file_band_base_oracle_v1_proof_proto_init() {
+	if File_band_base_oracle_v1_proof_proto != nil {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_bandchain_oracle_v1_proof_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_oracle_v1_proof_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ProofRequest); i {
 			case 0:
 				return &v.state
@@ -12743,7 +12743,7 @@ func file_bandchain_oracle_v1_proof_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_oracle_v1_proof_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_oracle_v1_proof_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ProofResponse); i {
 			case 0:
 				return &v.state
@@ -12755,7 +12755,7 @@ func file_bandchain_oracle_v1_proof_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_oracle_v1_proof_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_oracle_v1_proof_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MultiProofRequest); i {
 			case 0:
 				return &v.state
@@ -12767,7 +12767,7 @@ func file_bandchain_oracle_v1_proof_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_oracle_v1_proof_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_oracle_v1_proof_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MultiProofResponse); i {
 			case 0:
 				return &v.state
@@ -12779,7 +12779,7 @@ func file_bandchain_oracle_v1_proof_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_oracle_v1_proof_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_oracle_v1_proof_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*RequestCountProofRequest); i {
 			case 0:
 				return &v.state
@@ -12791,7 +12791,7 @@ func file_bandchain_oracle_v1_proof_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_oracle_v1_proof_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_oracle_v1_proof_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*RequestCountProofResponse); i {
 			case 0:
 				return &v.state
@@ -12803,7 +12803,7 @@ func file_bandchain_oracle_v1_proof_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_oracle_v1_proof_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_oracle_v1_proof_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*SingleProofResult); i {
 			case 0:
 				return &v.state
@@ -12815,7 +12815,7 @@ func file_bandchain_oracle_v1_proof_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_oracle_v1_proof_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_oracle_v1_proof_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MultiProofResult); i {
 			case 0:
 				return &v.state
@@ -12827,7 +12827,7 @@ func file_bandchain_oracle_v1_proof_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_oracle_v1_proof_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_oracle_v1_proof_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*CountProofResult); i {
 			case 0:
 				return &v.state
@@ -12839,7 +12839,7 @@ func file_bandchain_oracle_v1_proof_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_oracle_v1_proof_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_oracle_v1_proof_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*SingleProof); i {
 			case 0:
 				return &v.state
@@ -12851,7 +12851,7 @@ func file_bandchain_oracle_v1_proof_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_oracle_v1_proof_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_oracle_v1_proof_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MultiProof); i {
 			case 0:
 				return &v.state
@@ -12863,7 +12863,7 @@ func file_bandchain_oracle_v1_proof_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_oracle_v1_proof_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_oracle_v1_proof_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*CountProof); i {
 			case 0:
 				return &v.state
@@ -12875,7 +12875,7 @@ func file_bandchain_oracle_v1_proof_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_oracle_v1_proof_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_oracle_v1_proof_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*OracleDataProof); i {
 			case 0:
 				return &v.state
@@ -12887,7 +12887,7 @@ func file_bandchain_oracle_v1_proof_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_oracle_v1_proof_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_oracle_v1_proof_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*IAVLMerklePath); i {
 			case 0:
 				return &v.state
@@ -12899,7 +12899,7 @@ func file_bandchain_oracle_v1_proof_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_oracle_v1_proof_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_oracle_v1_proof_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*BlockRelayProof); i {
 			case 0:
 				return &v.state
@@ -12911,7 +12911,7 @@ func file_bandchain_oracle_v1_proof_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_oracle_v1_proof_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_oracle_v1_proof_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MultiStoreProof); i {
 			case 0:
 				return &v.state
@@ -12923,7 +12923,7 @@ func file_bandchain_oracle_v1_proof_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_oracle_v1_proof_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_oracle_v1_proof_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*BlockHeaderMerkleParts); i {
 			case 0:
 				return &v.state
@@ -12935,7 +12935,7 @@ func file_bandchain_oracle_v1_proof_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_oracle_v1_proof_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_oracle_v1_proof_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*CommonEncodedVotePart); i {
 			case 0:
 				return &v.state
@@ -12947,7 +12947,7 @@ func file_bandchain_oracle_v1_proof_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_oracle_v1_proof_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_oracle_v1_proof_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*TMSignature); i {
 			case 0:
 				return &v.state
@@ -12959,7 +12959,7 @@ func file_bandchain_oracle_v1_proof_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_oracle_v1_proof_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_oracle_v1_proof_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*RequestsCountProof); i {
 			case 0:
 				return &v.state
@@ -12976,18 +12976,18 @@ func file_bandchain_oracle_v1_proof_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_bandchain_oracle_v1_proof_proto_rawDesc,
+			RawDescriptor: file_band_base_oracle_v1_proof_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_bandchain_oracle_v1_proof_proto_goTypes,
-		DependencyIndexes: file_bandchain_oracle_v1_proof_proto_depIdxs,
-		MessageInfos:      file_bandchain_oracle_v1_proof_proto_msgTypes,
+		GoTypes:           file_band_base_oracle_v1_proof_proto_goTypes,
+		DependencyIndexes: file_band_base_oracle_v1_proof_proto_depIdxs,
+		MessageInfos:      file_band_base_oracle_v1_proof_proto_msgTypes,
 	}.Build()
-	File_bandchain_oracle_v1_proof_proto = out.File
-	file_bandchain_oracle_v1_proof_proto_rawDesc = nil
-	file_bandchain_oracle_v1_proof_proto_goTypes = nil
-	file_bandchain_oracle_v1_proof_proto_depIdxs = nil
+	File_band_base_oracle_v1_proof_proto = out.File
+	file_band_base_oracle_v1_proof_proto_rawDesc = nil
+	file_band_base_oracle_v1_proof_proto_goTypes = nil
+	file_band_base_oracle_v1_proof_proto_depIdxs = nil
 }
