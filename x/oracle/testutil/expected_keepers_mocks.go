@@ -445,6 +445,7 @@ func (mr *MockAuthzKeeperMockRecorder) SaveGrant(ctx, grantee, granter, authoriz
 type MockRollingseedKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockRollingseedKeeperMockRecorder
+	isgomock struct{}
 }
 
 // MockRollingseedKeeperMockRecorder is the mock recorder for MockRollingseedKeeper.
@@ -482,6 +483,7 @@ func (mr *MockRollingseedKeeperMockRecorder) GetRollingSeed(ctx any) *gomock.Cal
 type MockBandtssKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockBandtssKeeperMockRecorder
+	isgomock struct{}
 }
 
 // MockBandtssKeeperMockRecorder is the mock recorder for MockBandtssKeeper.
