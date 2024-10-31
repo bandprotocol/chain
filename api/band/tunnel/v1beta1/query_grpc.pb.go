@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: tunnel/v1beta1/query.proto
+// source: band/tunnel/v1beta1/query.proto
 
 package tunnelv1beta1
 
@@ -19,13 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Query_Tunnels_FullMethodName  = "/tunnel.v1beta1.Query/Tunnels"
-	Query_Tunnel_FullMethodName   = "/tunnel.v1beta1.Query/Tunnel"
-	Query_Deposits_FullMethodName = "/tunnel.v1beta1.Query/Deposits"
-	Query_Deposit_FullMethodName  = "/tunnel.v1beta1.Query/Deposit"
-	Query_Packets_FullMethodName  = "/tunnel.v1beta1.Query/Packets"
-	Query_Packet_FullMethodName   = "/tunnel.v1beta1.Query/Packet"
-	Query_Params_FullMethodName   = "/tunnel.v1beta1.Query/Params"
+	Query_Tunnels_FullMethodName  = "/band.tunnel.v1beta1.Query/Tunnels"
+	Query_Tunnel_FullMethodName   = "/band.tunnel.v1beta1.Query/Tunnel"
+	Query_Deposits_FullMethodName = "/band.tunnel.v1beta1.Query/Deposits"
+	Query_Deposit_FullMethodName  = "/band.tunnel.v1beta1.Query/Deposit"
+	Query_Packets_FullMethodName  = "/band.tunnel.v1beta1.Query/Packets"
+	Query_Packet_FullMethodName   = "/band.tunnel.v1beta1.Query/Packet"
+	Query_Params_FullMethodName   = "/band.tunnel.v1beta1.Query/Params"
 )
 
 // QueryClient is the client API for Query service.
@@ -308,7 +308,7 @@ func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interf
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Query_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "tunnel.v1beta1.Query",
+	ServiceName: "band.tunnel.v1beta1.Query",
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -341,5 +341,5 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "tunnel/v1beta1/query.proto",
+	Metadata: "band/tunnel/v1beta1/query.proto",
 }

@@ -22,8 +22,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_query_proto_init()
-	md_QueryTunnelsRequest = File_tunnel_v1beta1_query_proto.Messages().ByName("QueryTunnelsRequest")
+	file_band_tunnel_v1beta1_query_proto_init()
+	md_QueryTunnelsRequest = File_band_tunnel_v1beta1_query_proto.Messages().ByName("QueryTunnelsRequest")
 	fd_QueryTunnelsRequest_status_filter = md_QueryTunnelsRequest.Fields().ByName("status_filter")
 	fd_QueryTunnelsRequest_pagination = md_QueryTunnelsRequest.Fields().ByName("pagination")
 }
@@ -37,7 +37,7 @@ func (x *QueryTunnelsRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryTunnelsRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_query_proto_msgTypes[0]
+	mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -120,15 +120,15 @@ func (x *fastReflection_QueryTunnelsRequest) Range(f func(protoreflect.FieldDesc
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryTunnelsRequest) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryTunnelsRequest.status_filter":
+	case "band.tunnel.v1beta1.QueryTunnelsRequest.status_filter":
 		return x.StatusFilter != 0
-	case "tunnel.v1beta1.QueryTunnelsRequest.pagination":
+	case "band.tunnel.v1beta1.QueryTunnelsRequest.pagination":
 		return x.Pagination != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -140,15 +140,15 @@ func (x *fastReflection_QueryTunnelsRequest) Has(fd protoreflect.FieldDescriptor
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTunnelsRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryTunnelsRequest.status_filter":
+	case "band.tunnel.v1beta1.QueryTunnelsRequest.status_filter":
 		x.StatusFilter = 0
-	case "tunnel.v1beta1.QueryTunnelsRequest.pagination":
+	case "band.tunnel.v1beta1.QueryTunnelsRequest.pagination":
 		x.Pagination = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -160,17 +160,17 @@ func (x *fastReflection_QueryTunnelsRequest) Clear(fd protoreflect.FieldDescript
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryTunnelsRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.QueryTunnelsRequest.status_filter":
+	case "band.tunnel.v1beta1.QueryTunnelsRequest.status_filter":
 		value := x.StatusFilter
 		return protoreflect.ValueOfEnum((protoreflect.EnumNumber)(value))
-	case "tunnel.v1beta1.QueryTunnelsRequest.pagination":
+	case "band.tunnel.v1beta1.QueryTunnelsRequest.pagination":
 		value := x.Pagination
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelsRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelsRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -186,15 +186,15 @@ func (x *fastReflection_QueryTunnelsRequest) Get(descriptor protoreflect.FieldDe
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTunnelsRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryTunnelsRequest.status_filter":
+	case "band.tunnel.v1beta1.QueryTunnelsRequest.status_filter":
 		x.StatusFilter = (TunnelStatusFilter)(value.Enum())
-	case "tunnel.v1beta1.QueryTunnelsRequest.pagination":
+	case "band.tunnel.v1beta1.QueryTunnelsRequest.pagination":
 		x.Pagination = value.Message().Interface().(*v1beta1.PageRequest)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -210,18 +210,18 @@ func (x *fastReflection_QueryTunnelsRequest) Set(fd protoreflect.FieldDescriptor
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTunnelsRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryTunnelsRequest.pagination":
+	case "band.tunnel.v1beta1.QueryTunnelsRequest.pagination":
 		if x.Pagination == nil {
 			x.Pagination = new(v1beta1.PageRequest)
 		}
 		return protoreflect.ValueOfMessage(x.Pagination.ProtoReflect())
-	case "tunnel.v1beta1.QueryTunnelsRequest.status_filter":
-		panic(fmt.Errorf("field status_filter of message tunnel.v1beta1.QueryTunnelsRequest is not mutable"))
+	case "band.tunnel.v1beta1.QueryTunnelsRequest.status_filter":
+		panic(fmt.Errorf("field status_filter of message band.tunnel.v1beta1.QueryTunnelsRequest is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -230,16 +230,16 @@ func (x *fastReflection_QueryTunnelsRequest) Mutable(fd protoreflect.FieldDescri
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryTunnelsRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryTunnelsRequest.status_filter":
+	case "band.tunnel.v1beta1.QueryTunnelsRequest.status_filter":
 		return protoreflect.ValueOfEnum(0)
-	case "tunnel.v1beta1.QueryTunnelsRequest.pagination":
+	case "band.tunnel.v1beta1.QueryTunnelsRequest.pagination":
 		m := new(v1beta1.PageRequest)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -249,7 +249,7 @@ func (x *fastReflection_QueryTunnelsRequest) NewField(fd protoreflect.FieldDescr
 func (x *fastReflection_QueryTunnelsRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.QueryTunnelsRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.QueryTunnelsRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -556,8 +556,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_query_proto_init()
-	md_QueryTunnelsResponse = File_tunnel_v1beta1_query_proto.Messages().ByName("QueryTunnelsResponse")
+	file_band_tunnel_v1beta1_query_proto_init()
+	md_QueryTunnelsResponse = File_band_tunnel_v1beta1_query_proto.Messages().ByName("QueryTunnelsResponse")
 	fd_QueryTunnelsResponse_tunnels = md_QueryTunnelsResponse.Fields().ByName("tunnels")
 	fd_QueryTunnelsResponse_pagination = md_QueryTunnelsResponse.Fields().ByName("pagination")
 }
@@ -571,7 +571,7 @@ func (x *QueryTunnelsResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryTunnelsResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_query_proto_msgTypes[1]
+	mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -654,15 +654,15 @@ func (x *fastReflection_QueryTunnelsResponse) Range(f func(protoreflect.FieldDes
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryTunnelsResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryTunnelsResponse.tunnels":
+	case "band.tunnel.v1beta1.QueryTunnelsResponse.tunnels":
 		return len(x.Tunnels) != 0
-	case "tunnel.v1beta1.QueryTunnelsResponse.pagination":
+	case "band.tunnel.v1beta1.QueryTunnelsResponse.pagination":
 		return x.Pagination != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -674,15 +674,15 @@ func (x *fastReflection_QueryTunnelsResponse) Has(fd protoreflect.FieldDescripto
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTunnelsResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryTunnelsResponse.tunnels":
+	case "band.tunnel.v1beta1.QueryTunnelsResponse.tunnels":
 		x.Tunnels = nil
-	case "tunnel.v1beta1.QueryTunnelsResponse.pagination":
+	case "band.tunnel.v1beta1.QueryTunnelsResponse.pagination":
 		x.Pagination = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -694,20 +694,20 @@ func (x *fastReflection_QueryTunnelsResponse) Clear(fd protoreflect.FieldDescrip
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryTunnelsResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.QueryTunnelsResponse.tunnels":
+	case "band.tunnel.v1beta1.QueryTunnelsResponse.tunnels":
 		if len(x.Tunnels) == 0 {
 			return protoreflect.ValueOfList(&_QueryTunnelsResponse_1_list{})
 		}
 		listValue := &_QueryTunnelsResponse_1_list{list: &x.Tunnels}
 		return protoreflect.ValueOfList(listValue)
-	case "tunnel.v1beta1.QueryTunnelsResponse.pagination":
+	case "band.tunnel.v1beta1.QueryTunnelsResponse.pagination":
 		value := x.Pagination
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelsResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelsResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -723,17 +723,17 @@ func (x *fastReflection_QueryTunnelsResponse) Get(descriptor protoreflect.FieldD
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTunnelsResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryTunnelsResponse.tunnels":
+	case "band.tunnel.v1beta1.QueryTunnelsResponse.tunnels":
 		lv := value.List()
 		clv := lv.(*_QueryTunnelsResponse_1_list)
 		x.Tunnels = *clv.list
-	case "tunnel.v1beta1.QueryTunnelsResponse.pagination":
+	case "band.tunnel.v1beta1.QueryTunnelsResponse.pagination":
 		x.Pagination = value.Message().Interface().(*v1beta1.PageResponse)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -749,22 +749,22 @@ func (x *fastReflection_QueryTunnelsResponse) Set(fd protoreflect.FieldDescripto
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTunnelsResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryTunnelsResponse.tunnels":
+	case "band.tunnel.v1beta1.QueryTunnelsResponse.tunnels":
 		if x.Tunnels == nil {
 			x.Tunnels = []*Tunnel{}
 		}
 		value := &_QueryTunnelsResponse_1_list{list: &x.Tunnels}
 		return protoreflect.ValueOfList(value)
-	case "tunnel.v1beta1.QueryTunnelsResponse.pagination":
+	case "band.tunnel.v1beta1.QueryTunnelsResponse.pagination":
 		if x.Pagination == nil {
 			x.Pagination = new(v1beta1.PageResponse)
 		}
 		return protoreflect.ValueOfMessage(x.Pagination.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -773,17 +773,17 @@ func (x *fastReflection_QueryTunnelsResponse) Mutable(fd protoreflect.FieldDescr
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryTunnelsResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryTunnelsResponse.tunnels":
+	case "band.tunnel.v1beta1.QueryTunnelsResponse.tunnels":
 		list := []*Tunnel{}
 		return protoreflect.ValueOfList(&_QueryTunnelsResponse_1_list{list: &list})
-	case "tunnel.v1beta1.QueryTunnelsResponse.pagination":
+	case "band.tunnel.v1beta1.QueryTunnelsResponse.pagination":
 		m := new(v1beta1.PageResponse)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -793,7 +793,7 @@ func (x *fastReflection_QueryTunnelsResponse) NewField(fd protoreflect.FieldDesc
 func (x *fastReflection_QueryTunnelsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.QueryTunnelsResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.QueryTunnelsResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1077,8 +1077,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_query_proto_init()
-	md_QueryTunnelRequest = File_tunnel_v1beta1_query_proto.Messages().ByName("QueryTunnelRequest")
+	file_band_tunnel_v1beta1_query_proto_init()
+	md_QueryTunnelRequest = File_band_tunnel_v1beta1_query_proto.Messages().ByName("QueryTunnelRequest")
 	fd_QueryTunnelRequest_tunnel_id = md_QueryTunnelRequest.Fields().ByName("tunnel_id")
 }
 
@@ -1091,7 +1091,7 @@ func (x *QueryTunnelRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryTunnelRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_query_proto_msgTypes[2]
+	mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1168,13 +1168,13 @@ func (x *fastReflection_QueryTunnelRequest) Range(f func(protoreflect.FieldDescr
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryTunnelRequest) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryTunnelRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryTunnelRequest.tunnel_id":
 		return x.TunnelId != uint64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1186,13 +1186,13 @@ func (x *fastReflection_QueryTunnelRequest) Has(fd protoreflect.FieldDescriptor)
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTunnelRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryTunnelRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryTunnelRequest.tunnel_id":
 		x.TunnelId = uint64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1204,14 +1204,14 @@ func (x *fastReflection_QueryTunnelRequest) Clear(fd protoreflect.FieldDescripto
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryTunnelRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.QueryTunnelRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryTunnelRequest.tunnel_id":
 		value := x.TunnelId
 		return protoreflect.ValueOfUint64(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1227,13 +1227,13 @@ func (x *fastReflection_QueryTunnelRequest) Get(descriptor protoreflect.FieldDes
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTunnelRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryTunnelRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryTunnelRequest.tunnel_id":
 		x.TunnelId = value.Uint()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1249,13 +1249,13 @@ func (x *fastReflection_QueryTunnelRequest) Set(fd protoreflect.FieldDescriptor,
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTunnelRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryTunnelRequest.tunnel_id":
-		panic(fmt.Errorf("field tunnel_id of message tunnel.v1beta1.QueryTunnelRequest is not mutable"))
+	case "band.tunnel.v1beta1.QueryTunnelRequest.tunnel_id":
+		panic(fmt.Errorf("field tunnel_id of message band.tunnel.v1beta1.QueryTunnelRequest is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1264,13 +1264,13 @@ func (x *fastReflection_QueryTunnelRequest) Mutable(fd protoreflect.FieldDescrip
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryTunnelRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryTunnelRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryTunnelRequest.tunnel_id":
 		return protoreflect.ValueOfUint64(uint64(0))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1280,7 +1280,7 @@ func (x *fastReflection_QueryTunnelRequest) NewField(fd protoreflect.FieldDescri
 func (x *fastReflection_QueryTunnelRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.QueryTunnelRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.QueryTunnelRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1481,8 +1481,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_query_proto_init()
-	md_QueryTunnelResponse = File_tunnel_v1beta1_query_proto.Messages().ByName("QueryTunnelResponse")
+	file_band_tunnel_v1beta1_query_proto_init()
+	md_QueryTunnelResponse = File_band_tunnel_v1beta1_query_proto.Messages().ByName("QueryTunnelResponse")
 	fd_QueryTunnelResponse_tunnel = md_QueryTunnelResponse.Fields().ByName("tunnel")
 }
 
@@ -1495,7 +1495,7 @@ func (x *QueryTunnelResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryTunnelResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_query_proto_msgTypes[3]
+	mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1572,13 +1572,13 @@ func (x *fastReflection_QueryTunnelResponse) Range(f func(protoreflect.FieldDesc
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryTunnelResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryTunnelResponse.tunnel":
+	case "band.tunnel.v1beta1.QueryTunnelResponse.tunnel":
 		return x.Tunnel != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1590,13 +1590,13 @@ func (x *fastReflection_QueryTunnelResponse) Has(fd protoreflect.FieldDescriptor
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTunnelResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryTunnelResponse.tunnel":
+	case "band.tunnel.v1beta1.QueryTunnelResponse.tunnel":
 		x.Tunnel = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1608,14 +1608,14 @@ func (x *fastReflection_QueryTunnelResponse) Clear(fd protoreflect.FieldDescript
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryTunnelResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.QueryTunnelResponse.tunnel":
+	case "band.tunnel.v1beta1.QueryTunnelResponse.tunnel":
 		value := x.Tunnel
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1631,13 +1631,13 @@ func (x *fastReflection_QueryTunnelResponse) Get(descriptor protoreflect.FieldDe
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTunnelResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryTunnelResponse.tunnel":
+	case "band.tunnel.v1beta1.QueryTunnelResponse.tunnel":
 		x.Tunnel = value.Message().Interface().(*Tunnel)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1653,16 +1653,16 @@ func (x *fastReflection_QueryTunnelResponse) Set(fd protoreflect.FieldDescriptor
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryTunnelResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryTunnelResponse.tunnel":
+	case "band.tunnel.v1beta1.QueryTunnelResponse.tunnel":
 		if x.Tunnel == nil {
 			x.Tunnel = new(Tunnel)
 		}
 		return protoreflect.ValueOfMessage(x.Tunnel.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1671,14 +1671,14 @@ func (x *fastReflection_QueryTunnelResponse) Mutable(fd protoreflect.FieldDescri
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryTunnelResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryTunnelResponse.tunnel":
+	case "band.tunnel.v1beta1.QueryTunnelResponse.tunnel":
 		m := new(Tunnel)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1688,7 +1688,7 @@ func (x *fastReflection_QueryTunnelResponse) NewField(fd protoreflect.FieldDescr
 func (x *fastReflection_QueryTunnelResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.QueryTunnelResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.QueryTunnelResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1917,8 +1917,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_query_proto_init()
-	md_QueryDepositsRequest = File_tunnel_v1beta1_query_proto.Messages().ByName("QueryDepositsRequest")
+	file_band_tunnel_v1beta1_query_proto_init()
+	md_QueryDepositsRequest = File_band_tunnel_v1beta1_query_proto.Messages().ByName("QueryDepositsRequest")
 	fd_QueryDepositsRequest_tunnel_id = md_QueryDepositsRequest.Fields().ByName("tunnel_id")
 	fd_QueryDepositsRequest_pagination = md_QueryDepositsRequest.Fields().ByName("pagination")
 }
@@ -1932,7 +1932,7 @@ func (x *QueryDepositsRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryDepositsRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_query_proto_msgTypes[4]
+	mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2015,15 +2015,15 @@ func (x *fastReflection_QueryDepositsRequest) Range(f func(protoreflect.FieldDes
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryDepositsRequest) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryDepositsRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryDepositsRequest.tunnel_id":
 		return x.TunnelId != uint64(0)
-	case "tunnel.v1beta1.QueryDepositsRequest.pagination":
+	case "band.tunnel.v1beta1.QueryDepositsRequest.pagination":
 		return x.Pagination != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2035,15 +2035,15 @@ func (x *fastReflection_QueryDepositsRequest) Has(fd protoreflect.FieldDescripto
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryDepositsRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryDepositsRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryDepositsRequest.tunnel_id":
 		x.TunnelId = uint64(0)
-	case "tunnel.v1beta1.QueryDepositsRequest.pagination":
+	case "band.tunnel.v1beta1.QueryDepositsRequest.pagination":
 		x.Pagination = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2055,17 +2055,17 @@ func (x *fastReflection_QueryDepositsRequest) Clear(fd protoreflect.FieldDescrip
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryDepositsRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.QueryDepositsRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryDepositsRequest.tunnel_id":
 		value := x.TunnelId
 		return protoreflect.ValueOfUint64(value)
-	case "tunnel.v1beta1.QueryDepositsRequest.pagination":
+	case "band.tunnel.v1beta1.QueryDepositsRequest.pagination":
 		value := x.Pagination
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositsRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositsRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2081,15 +2081,15 @@ func (x *fastReflection_QueryDepositsRequest) Get(descriptor protoreflect.FieldD
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryDepositsRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryDepositsRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryDepositsRequest.tunnel_id":
 		x.TunnelId = value.Uint()
-	case "tunnel.v1beta1.QueryDepositsRequest.pagination":
+	case "band.tunnel.v1beta1.QueryDepositsRequest.pagination":
 		x.Pagination = value.Message().Interface().(*v1beta1.PageRequest)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2105,18 +2105,18 @@ func (x *fastReflection_QueryDepositsRequest) Set(fd protoreflect.FieldDescripto
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryDepositsRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryDepositsRequest.pagination":
+	case "band.tunnel.v1beta1.QueryDepositsRequest.pagination":
 		if x.Pagination == nil {
 			x.Pagination = new(v1beta1.PageRequest)
 		}
 		return protoreflect.ValueOfMessage(x.Pagination.ProtoReflect())
-	case "tunnel.v1beta1.QueryDepositsRequest.tunnel_id":
-		panic(fmt.Errorf("field tunnel_id of message tunnel.v1beta1.QueryDepositsRequest is not mutable"))
+	case "band.tunnel.v1beta1.QueryDepositsRequest.tunnel_id":
+		panic(fmt.Errorf("field tunnel_id of message band.tunnel.v1beta1.QueryDepositsRequest is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2125,16 +2125,16 @@ func (x *fastReflection_QueryDepositsRequest) Mutable(fd protoreflect.FieldDescr
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryDepositsRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryDepositsRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryDepositsRequest.tunnel_id":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "tunnel.v1beta1.QueryDepositsRequest.pagination":
+	case "band.tunnel.v1beta1.QueryDepositsRequest.pagination":
 		m := new(v1beta1.PageRequest)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2144,7 +2144,7 @@ func (x *fastReflection_QueryDepositsRequest) NewField(fd protoreflect.FieldDesc
 func (x *fastReflection_QueryDepositsRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.QueryDepositsRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.QueryDepositsRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2451,8 +2451,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_query_proto_init()
-	md_QueryDepositsResponse = File_tunnel_v1beta1_query_proto.Messages().ByName("QueryDepositsResponse")
+	file_band_tunnel_v1beta1_query_proto_init()
+	md_QueryDepositsResponse = File_band_tunnel_v1beta1_query_proto.Messages().ByName("QueryDepositsResponse")
 	fd_QueryDepositsResponse_deposits = md_QueryDepositsResponse.Fields().ByName("deposits")
 	fd_QueryDepositsResponse_pagination = md_QueryDepositsResponse.Fields().ByName("pagination")
 }
@@ -2466,7 +2466,7 @@ func (x *QueryDepositsResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryDepositsResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_query_proto_msgTypes[5]
+	mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2549,15 +2549,15 @@ func (x *fastReflection_QueryDepositsResponse) Range(f func(protoreflect.FieldDe
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryDepositsResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryDepositsResponse.deposits":
+	case "band.tunnel.v1beta1.QueryDepositsResponse.deposits":
 		return len(x.Deposits) != 0
-	case "tunnel.v1beta1.QueryDepositsResponse.pagination":
+	case "band.tunnel.v1beta1.QueryDepositsResponse.pagination":
 		return x.Pagination != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2569,15 +2569,15 @@ func (x *fastReflection_QueryDepositsResponse) Has(fd protoreflect.FieldDescript
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryDepositsResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryDepositsResponse.deposits":
+	case "band.tunnel.v1beta1.QueryDepositsResponse.deposits":
 		x.Deposits = nil
-	case "tunnel.v1beta1.QueryDepositsResponse.pagination":
+	case "band.tunnel.v1beta1.QueryDepositsResponse.pagination":
 		x.Pagination = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2589,20 +2589,20 @@ func (x *fastReflection_QueryDepositsResponse) Clear(fd protoreflect.FieldDescri
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryDepositsResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.QueryDepositsResponse.deposits":
+	case "band.tunnel.v1beta1.QueryDepositsResponse.deposits":
 		if len(x.Deposits) == 0 {
 			return protoreflect.ValueOfList(&_QueryDepositsResponse_1_list{})
 		}
 		listValue := &_QueryDepositsResponse_1_list{list: &x.Deposits}
 		return protoreflect.ValueOfList(listValue)
-	case "tunnel.v1beta1.QueryDepositsResponse.pagination":
+	case "band.tunnel.v1beta1.QueryDepositsResponse.pagination":
 		value := x.Pagination
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositsResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositsResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2618,17 +2618,17 @@ func (x *fastReflection_QueryDepositsResponse) Get(descriptor protoreflect.Field
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryDepositsResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryDepositsResponse.deposits":
+	case "band.tunnel.v1beta1.QueryDepositsResponse.deposits":
 		lv := value.List()
 		clv := lv.(*_QueryDepositsResponse_1_list)
 		x.Deposits = *clv.list
-	case "tunnel.v1beta1.QueryDepositsResponse.pagination":
+	case "band.tunnel.v1beta1.QueryDepositsResponse.pagination":
 		x.Pagination = value.Message().Interface().(*v1beta1.PageResponse)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2644,22 +2644,22 @@ func (x *fastReflection_QueryDepositsResponse) Set(fd protoreflect.FieldDescript
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryDepositsResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryDepositsResponse.deposits":
+	case "band.tunnel.v1beta1.QueryDepositsResponse.deposits":
 		if x.Deposits == nil {
 			x.Deposits = []*Deposit{}
 		}
 		value := &_QueryDepositsResponse_1_list{list: &x.Deposits}
 		return protoreflect.ValueOfList(value)
-	case "tunnel.v1beta1.QueryDepositsResponse.pagination":
+	case "band.tunnel.v1beta1.QueryDepositsResponse.pagination":
 		if x.Pagination == nil {
 			x.Pagination = new(v1beta1.PageResponse)
 		}
 		return protoreflect.ValueOfMessage(x.Pagination.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2668,17 +2668,17 @@ func (x *fastReflection_QueryDepositsResponse) Mutable(fd protoreflect.FieldDesc
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryDepositsResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryDepositsResponse.deposits":
+	case "band.tunnel.v1beta1.QueryDepositsResponse.deposits":
 		list := []*Deposit{}
 		return protoreflect.ValueOfList(&_QueryDepositsResponse_1_list{list: &list})
-	case "tunnel.v1beta1.QueryDepositsResponse.pagination":
+	case "band.tunnel.v1beta1.QueryDepositsResponse.pagination":
 		m := new(v1beta1.PageResponse)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2688,7 +2688,7 @@ func (x *fastReflection_QueryDepositsResponse) NewField(fd protoreflect.FieldDes
 func (x *fastReflection_QueryDepositsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.QueryDepositsResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.QueryDepositsResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2973,8 +2973,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_query_proto_init()
-	md_QueryDepositRequest = File_tunnel_v1beta1_query_proto.Messages().ByName("QueryDepositRequest")
+	file_band_tunnel_v1beta1_query_proto_init()
+	md_QueryDepositRequest = File_band_tunnel_v1beta1_query_proto.Messages().ByName("QueryDepositRequest")
 	fd_QueryDepositRequest_tunnel_id = md_QueryDepositRequest.Fields().ByName("tunnel_id")
 	fd_QueryDepositRequest_depositor = md_QueryDepositRequest.Fields().ByName("depositor")
 }
@@ -2988,7 +2988,7 @@ func (x *QueryDepositRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryDepositRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_query_proto_msgTypes[6]
+	mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3071,15 +3071,15 @@ func (x *fastReflection_QueryDepositRequest) Range(f func(protoreflect.FieldDesc
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryDepositRequest) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryDepositRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryDepositRequest.tunnel_id":
 		return x.TunnelId != uint64(0)
-	case "tunnel.v1beta1.QueryDepositRequest.depositor":
+	case "band.tunnel.v1beta1.QueryDepositRequest.depositor":
 		return x.Depositor != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3091,15 +3091,15 @@ func (x *fastReflection_QueryDepositRequest) Has(fd protoreflect.FieldDescriptor
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryDepositRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryDepositRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryDepositRequest.tunnel_id":
 		x.TunnelId = uint64(0)
-	case "tunnel.v1beta1.QueryDepositRequest.depositor":
+	case "band.tunnel.v1beta1.QueryDepositRequest.depositor":
 		x.Depositor = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3111,17 +3111,17 @@ func (x *fastReflection_QueryDepositRequest) Clear(fd protoreflect.FieldDescript
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryDepositRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.QueryDepositRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryDepositRequest.tunnel_id":
 		value := x.TunnelId
 		return protoreflect.ValueOfUint64(value)
-	case "tunnel.v1beta1.QueryDepositRequest.depositor":
+	case "band.tunnel.v1beta1.QueryDepositRequest.depositor":
 		value := x.Depositor
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -3137,15 +3137,15 @@ func (x *fastReflection_QueryDepositRequest) Get(descriptor protoreflect.FieldDe
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryDepositRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryDepositRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryDepositRequest.tunnel_id":
 		x.TunnelId = value.Uint()
-	case "tunnel.v1beta1.QueryDepositRequest.depositor":
+	case "band.tunnel.v1beta1.QueryDepositRequest.depositor":
 		x.Depositor = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3161,15 +3161,15 @@ func (x *fastReflection_QueryDepositRequest) Set(fd protoreflect.FieldDescriptor
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryDepositRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryDepositRequest.tunnel_id":
-		panic(fmt.Errorf("field tunnel_id of message tunnel.v1beta1.QueryDepositRequest is not mutable"))
-	case "tunnel.v1beta1.QueryDepositRequest.depositor":
-		panic(fmt.Errorf("field depositor of message tunnel.v1beta1.QueryDepositRequest is not mutable"))
+	case "band.tunnel.v1beta1.QueryDepositRequest.tunnel_id":
+		panic(fmt.Errorf("field tunnel_id of message band.tunnel.v1beta1.QueryDepositRequest is not mutable"))
+	case "band.tunnel.v1beta1.QueryDepositRequest.depositor":
+		panic(fmt.Errorf("field depositor of message band.tunnel.v1beta1.QueryDepositRequest is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3178,15 +3178,15 @@ func (x *fastReflection_QueryDepositRequest) Mutable(fd protoreflect.FieldDescri
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryDepositRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryDepositRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryDepositRequest.tunnel_id":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "tunnel.v1beta1.QueryDepositRequest.depositor":
+	case "band.tunnel.v1beta1.QueryDepositRequest.depositor":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3196,7 +3196,7 @@ func (x *fastReflection_QueryDepositRequest) NewField(fd protoreflect.FieldDescr
 func (x *fastReflection_QueryDepositRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.QueryDepositRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.QueryDepositRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -3440,8 +3440,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_query_proto_init()
-	md_QueryDepositResponse = File_tunnel_v1beta1_query_proto.Messages().ByName("QueryDepositResponse")
+	file_band_tunnel_v1beta1_query_proto_init()
+	md_QueryDepositResponse = File_band_tunnel_v1beta1_query_proto.Messages().ByName("QueryDepositResponse")
 	fd_QueryDepositResponse_deposit = md_QueryDepositResponse.Fields().ByName("deposit")
 }
 
@@ -3454,7 +3454,7 @@ func (x *QueryDepositResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryDepositResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_query_proto_msgTypes[7]
+	mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3531,13 +3531,13 @@ func (x *fastReflection_QueryDepositResponse) Range(f func(protoreflect.FieldDes
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryDepositResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryDepositResponse.deposit":
+	case "band.tunnel.v1beta1.QueryDepositResponse.deposit":
 		return x.Deposit != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3549,13 +3549,13 @@ func (x *fastReflection_QueryDepositResponse) Has(fd protoreflect.FieldDescripto
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryDepositResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryDepositResponse.deposit":
+	case "band.tunnel.v1beta1.QueryDepositResponse.deposit":
 		x.Deposit = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3567,14 +3567,14 @@ func (x *fastReflection_QueryDepositResponse) Clear(fd protoreflect.FieldDescrip
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryDepositResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.QueryDepositResponse.deposit":
+	case "band.tunnel.v1beta1.QueryDepositResponse.deposit":
 		value := x.Deposit
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -3590,13 +3590,13 @@ func (x *fastReflection_QueryDepositResponse) Get(descriptor protoreflect.FieldD
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryDepositResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryDepositResponse.deposit":
+	case "band.tunnel.v1beta1.QueryDepositResponse.deposit":
 		x.Deposit = value.Message().Interface().(*Deposit)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3612,16 +3612,16 @@ func (x *fastReflection_QueryDepositResponse) Set(fd protoreflect.FieldDescripto
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryDepositResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryDepositResponse.deposit":
+	case "band.tunnel.v1beta1.QueryDepositResponse.deposit":
 		if x.Deposit == nil {
 			x.Deposit = new(Deposit)
 		}
 		return protoreflect.ValueOfMessage(x.Deposit.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3630,14 +3630,14 @@ func (x *fastReflection_QueryDepositResponse) Mutable(fd protoreflect.FieldDescr
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryDepositResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryDepositResponse.deposit":
+	case "band.tunnel.v1beta1.QueryDepositResponse.deposit":
 		m := new(Deposit)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryDepositResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryDepositResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryDepositResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryDepositResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3647,7 +3647,7 @@ func (x *fastReflection_QueryDepositResponse) NewField(fd protoreflect.FieldDesc
 func (x *fastReflection_QueryDepositResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.QueryDepositResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.QueryDepositResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -3876,8 +3876,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_query_proto_init()
-	md_QueryPacketsRequest = File_tunnel_v1beta1_query_proto.Messages().ByName("QueryPacketsRequest")
+	file_band_tunnel_v1beta1_query_proto_init()
+	md_QueryPacketsRequest = File_band_tunnel_v1beta1_query_proto.Messages().ByName("QueryPacketsRequest")
 	fd_QueryPacketsRequest_tunnel_id = md_QueryPacketsRequest.Fields().ByName("tunnel_id")
 	fd_QueryPacketsRequest_pagination = md_QueryPacketsRequest.Fields().ByName("pagination")
 }
@@ -3891,7 +3891,7 @@ func (x *QueryPacketsRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryPacketsRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_query_proto_msgTypes[8]
+	mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3974,15 +3974,15 @@ func (x *fastReflection_QueryPacketsRequest) Range(f func(protoreflect.FieldDesc
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryPacketsRequest) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryPacketsRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryPacketsRequest.tunnel_id":
 		return x.TunnelId != uint64(0)
-	case "tunnel.v1beta1.QueryPacketsRequest.pagination":
+	case "band.tunnel.v1beta1.QueryPacketsRequest.pagination":
 		return x.Pagination != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3994,15 +3994,15 @@ func (x *fastReflection_QueryPacketsRequest) Has(fd protoreflect.FieldDescriptor
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryPacketsRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryPacketsRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryPacketsRequest.tunnel_id":
 		x.TunnelId = uint64(0)
-	case "tunnel.v1beta1.QueryPacketsRequest.pagination":
+	case "band.tunnel.v1beta1.QueryPacketsRequest.pagination":
 		x.Pagination = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4014,17 +4014,17 @@ func (x *fastReflection_QueryPacketsRequest) Clear(fd protoreflect.FieldDescript
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryPacketsRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.QueryPacketsRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryPacketsRequest.tunnel_id":
 		value := x.TunnelId
 		return protoreflect.ValueOfUint64(value)
-	case "tunnel.v1beta1.QueryPacketsRequest.pagination":
+	case "band.tunnel.v1beta1.QueryPacketsRequest.pagination":
 		value := x.Pagination
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketsRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketsRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -4040,15 +4040,15 @@ func (x *fastReflection_QueryPacketsRequest) Get(descriptor protoreflect.FieldDe
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryPacketsRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryPacketsRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryPacketsRequest.tunnel_id":
 		x.TunnelId = value.Uint()
-	case "tunnel.v1beta1.QueryPacketsRequest.pagination":
+	case "band.tunnel.v1beta1.QueryPacketsRequest.pagination":
 		x.Pagination = value.Message().Interface().(*v1beta1.PageRequest)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4064,18 +4064,18 @@ func (x *fastReflection_QueryPacketsRequest) Set(fd protoreflect.FieldDescriptor
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryPacketsRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryPacketsRequest.pagination":
+	case "band.tunnel.v1beta1.QueryPacketsRequest.pagination":
 		if x.Pagination == nil {
 			x.Pagination = new(v1beta1.PageRequest)
 		}
 		return protoreflect.ValueOfMessage(x.Pagination.ProtoReflect())
-	case "tunnel.v1beta1.QueryPacketsRequest.tunnel_id":
-		panic(fmt.Errorf("field tunnel_id of message tunnel.v1beta1.QueryPacketsRequest is not mutable"))
+	case "band.tunnel.v1beta1.QueryPacketsRequest.tunnel_id":
+		panic(fmt.Errorf("field tunnel_id of message band.tunnel.v1beta1.QueryPacketsRequest is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4084,16 +4084,16 @@ func (x *fastReflection_QueryPacketsRequest) Mutable(fd protoreflect.FieldDescri
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryPacketsRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryPacketsRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryPacketsRequest.tunnel_id":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "tunnel.v1beta1.QueryPacketsRequest.pagination":
+	case "band.tunnel.v1beta1.QueryPacketsRequest.pagination":
 		m := new(v1beta1.PageRequest)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4103,7 +4103,7 @@ func (x *fastReflection_QueryPacketsRequest) NewField(fd protoreflect.FieldDescr
 func (x *fastReflection_QueryPacketsRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.QueryPacketsRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.QueryPacketsRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -4410,8 +4410,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_query_proto_init()
-	md_QueryPacketsResponse = File_tunnel_v1beta1_query_proto.Messages().ByName("QueryPacketsResponse")
+	file_band_tunnel_v1beta1_query_proto_init()
+	md_QueryPacketsResponse = File_band_tunnel_v1beta1_query_proto.Messages().ByName("QueryPacketsResponse")
 	fd_QueryPacketsResponse_packets = md_QueryPacketsResponse.Fields().ByName("packets")
 	fd_QueryPacketsResponse_pagination = md_QueryPacketsResponse.Fields().ByName("pagination")
 }
@@ -4425,7 +4425,7 @@ func (x *QueryPacketsResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryPacketsResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_query_proto_msgTypes[9]
+	mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4508,15 +4508,15 @@ func (x *fastReflection_QueryPacketsResponse) Range(f func(protoreflect.FieldDes
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryPacketsResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryPacketsResponse.packets":
+	case "band.tunnel.v1beta1.QueryPacketsResponse.packets":
 		return len(x.Packets) != 0
-	case "tunnel.v1beta1.QueryPacketsResponse.pagination":
+	case "band.tunnel.v1beta1.QueryPacketsResponse.pagination":
 		return x.Pagination != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4528,15 +4528,15 @@ func (x *fastReflection_QueryPacketsResponse) Has(fd protoreflect.FieldDescripto
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryPacketsResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryPacketsResponse.packets":
+	case "band.tunnel.v1beta1.QueryPacketsResponse.packets":
 		x.Packets = nil
-	case "tunnel.v1beta1.QueryPacketsResponse.pagination":
+	case "band.tunnel.v1beta1.QueryPacketsResponse.pagination":
 		x.Pagination = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4548,20 +4548,20 @@ func (x *fastReflection_QueryPacketsResponse) Clear(fd protoreflect.FieldDescrip
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryPacketsResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.QueryPacketsResponse.packets":
+	case "band.tunnel.v1beta1.QueryPacketsResponse.packets":
 		if len(x.Packets) == 0 {
 			return protoreflect.ValueOfList(&_QueryPacketsResponse_1_list{})
 		}
 		listValue := &_QueryPacketsResponse_1_list{list: &x.Packets}
 		return protoreflect.ValueOfList(listValue)
-	case "tunnel.v1beta1.QueryPacketsResponse.pagination":
+	case "band.tunnel.v1beta1.QueryPacketsResponse.pagination":
 		value := x.Pagination
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketsResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketsResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -4577,17 +4577,17 @@ func (x *fastReflection_QueryPacketsResponse) Get(descriptor protoreflect.FieldD
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryPacketsResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryPacketsResponse.packets":
+	case "band.tunnel.v1beta1.QueryPacketsResponse.packets":
 		lv := value.List()
 		clv := lv.(*_QueryPacketsResponse_1_list)
 		x.Packets = *clv.list
-	case "tunnel.v1beta1.QueryPacketsResponse.pagination":
+	case "band.tunnel.v1beta1.QueryPacketsResponse.pagination":
 		x.Pagination = value.Message().Interface().(*v1beta1.PageResponse)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4603,22 +4603,22 @@ func (x *fastReflection_QueryPacketsResponse) Set(fd protoreflect.FieldDescripto
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryPacketsResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryPacketsResponse.packets":
+	case "band.tunnel.v1beta1.QueryPacketsResponse.packets":
 		if x.Packets == nil {
 			x.Packets = []*Packet{}
 		}
 		value := &_QueryPacketsResponse_1_list{list: &x.Packets}
 		return protoreflect.ValueOfList(value)
-	case "tunnel.v1beta1.QueryPacketsResponse.pagination":
+	case "band.tunnel.v1beta1.QueryPacketsResponse.pagination":
 		if x.Pagination == nil {
 			x.Pagination = new(v1beta1.PageResponse)
 		}
 		return protoreflect.ValueOfMessage(x.Pagination.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4627,17 +4627,17 @@ func (x *fastReflection_QueryPacketsResponse) Mutable(fd protoreflect.FieldDescr
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryPacketsResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryPacketsResponse.packets":
+	case "band.tunnel.v1beta1.QueryPacketsResponse.packets":
 		list := []*Packet{}
 		return protoreflect.ValueOfList(&_QueryPacketsResponse_1_list{list: &list})
-	case "tunnel.v1beta1.QueryPacketsResponse.pagination":
+	case "band.tunnel.v1beta1.QueryPacketsResponse.pagination":
 		m := new(v1beta1.PageResponse)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4647,7 +4647,7 @@ func (x *fastReflection_QueryPacketsResponse) NewField(fd protoreflect.FieldDesc
 func (x *fastReflection_QueryPacketsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.QueryPacketsResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.QueryPacketsResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -4932,8 +4932,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_query_proto_init()
-	md_QueryPacketRequest = File_tunnel_v1beta1_query_proto.Messages().ByName("QueryPacketRequest")
+	file_band_tunnel_v1beta1_query_proto_init()
+	md_QueryPacketRequest = File_band_tunnel_v1beta1_query_proto.Messages().ByName("QueryPacketRequest")
 	fd_QueryPacketRequest_tunnel_id = md_QueryPacketRequest.Fields().ByName("tunnel_id")
 	fd_QueryPacketRequest_sequence = md_QueryPacketRequest.Fields().ByName("sequence")
 }
@@ -4947,7 +4947,7 @@ func (x *QueryPacketRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryPacketRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_query_proto_msgTypes[10]
+	mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5030,15 +5030,15 @@ func (x *fastReflection_QueryPacketRequest) Range(f func(protoreflect.FieldDescr
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryPacketRequest) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryPacketRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryPacketRequest.tunnel_id":
 		return x.TunnelId != uint64(0)
-	case "tunnel.v1beta1.QueryPacketRequest.sequence":
+	case "band.tunnel.v1beta1.QueryPacketRequest.sequence":
 		return x.Sequence != uint64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5050,15 +5050,15 @@ func (x *fastReflection_QueryPacketRequest) Has(fd protoreflect.FieldDescriptor)
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryPacketRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryPacketRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryPacketRequest.tunnel_id":
 		x.TunnelId = uint64(0)
-	case "tunnel.v1beta1.QueryPacketRequest.sequence":
+	case "band.tunnel.v1beta1.QueryPacketRequest.sequence":
 		x.Sequence = uint64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5070,17 +5070,17 @@ func (x *fastReflection_QueryPacketRequest) Clear(fd protoreflect.FieldDescripto
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryPacketRequest) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.QueryPacketRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryPacketRequest.tunnel_id":
 		value := x.TunnelId
 		return protoreflect.ValueOfUint64(value)
-	case "tunnel.v1beta1.QueryPacketRequest.sequence":
+	case "band.tunnel.v1beta1.QueryPacketRequest.sequence":
 		value := x.Sequence
 		return protoreflect.ValueOfUint64(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -5096,15 +5096,15 @@ func (x *fastReflection_QueryPacketRequest) Get(descriptor protoreflect.FieldDes
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryPacketRequest) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryPacketRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryPacketRequest.tunnel_id":
 		x.TunnelId = value.Uint()
-	case "tunnel.v1beta1.QueryPacketRequest.sequence":
+	case "band.tunnel.v1beta1.QueryPacketRequest.sequence":
 		x.Sequence = value.Uint()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5120,15 +5120,15 @@ func (x *fastReflection_QueryPacketRequest) Set(fd protoreflect.FieldDescriptor,
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryPacketRequest) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryPacketRequest.tunnel_id":
-		panic(fmt.Errorf("field tunnel_id of message tunnel.v1beta1.QueryPacketRequest is not mutable"))
-	case "tunnel.v1beta1.QueryPacketRequest.sequence":
-		panic(fmt.Errorf("field sequence of message tunnel.v1beta1.QueryPacketRequest is not mutable"))
+	case "band.tunnel.v1beta1.QueryPacketRequest.tunnel_id":
+		panic(fmt.Errorf("field tunnel_id of message band.tunnel.v1beta1.QueryPacketRequest is not mutable"))
+	case "band.tunnel.v1beta1.QueryPacketRequest.sequence":
+		panic(fmt.Errorf("field sequence of message band.tunnel.v1beta1.QueryPacketRequest is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5137,15 +5137,15 @@ func (x *fastReflection_QueryPacketRequest) Mutable(fd protoreflect.FieldDescrip
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryPacketRequest) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryPacketRequest.tunnel_id":
+	case "band.tunnel.v1beta1.QueryPacketRequest.tunnel_id":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "tunnel.v1beta1.QueryPacketRequest.sequence":
+	case "band.tunnel.v1beta1.QueryPacketRequest.sequence":
 		return protoreflect.ValueOfUint64(uint64(0))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5155,7 +5155,7 @@ func (x *fastReflection_QueryPacketRequest) NewField(fd protoreflect.FieldDescri
 func (x *fastReflection_QueryPacketRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.QueryPacketRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.QueryPacketRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -5383,8 +5383,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_query_proto_init()
-	md_QueryPacketResponse = File_tunnel_v1beta1_query_proto.Messages().ByName("QueryPacketResponse")
+	file_band_tunnel_v1beta1_query_proto_init()
+	md_QueryPacketResponse = File_band_tunnel_v1beta1_query_proto.Messages().ByName("QueryPacketResponse")
 	fd_QueryPacketResponse_packet = md_QueryPacketResponse.Fields().ByName("packet")
 }
 
@@ -5397,7 +5397,7 @@ func (x *QueryPacketResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryPacketResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_query_proto_msgTypes[11]
+	mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5474,13 +5474,13 @@ func (x *fastReflection_QueryPacketResponse) Range(f func(protoreflect.FieldDesc
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryPacketResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryPacketResponse.packet":
+	case "band.tunnel.v1beta1.QueryPacketResponse.packet":
 		return x.Packet != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5492,13 +5492,13 @@ func (x *fastReflection_QueryPacketResponse) Has(fd protoreflect.FieldDescriptor
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryPacketResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryPacketResponse.packet":
+	case "band.tunnel.v1beta1.QueryPacketResponse.packet":
 		x.Packet = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5510,14 +5510,14 @@ func (x *fastReflection_QueryPacketResponse) Clear(fd protoreflect.FieldDescript
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryPacketResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.QueryPacketResponse.packet":
+	case "band.tunnel.v1beta1.QueryPacketResponse.packet":
 		value := x.Packet
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -5533,13 +5533,13 @@ func (x *fastReflection_QueryPacketResponse) Get(descriptor protoreflect.FieldDe
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryPacketResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryPacketResponse.packet":
+	case "band.tunnel.v1beta1.QueryPacketResponse.packet":
 		x.Packet = value.Message().Interface().(*Packet)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5555,16 +5555,16 @@ func (x *fastReflection_QueryPacketResponse) Set(fd protoreflect.FieldDescriptor
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryPacketResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryPacketResponse.packet":
+	case "band.tunnel.v1beta1.QueryPacketResponse.packet":
 		if x.Packet == nil {
 			x.Packet = new(Packet)
 		}
 		return protoreflect.ValueOfMessage(x.Packet.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5573,14 +5573,14 @@ func (x *fastReflection_QueryPacketResponse) Mutable(fd protoreflect.FieldDescri
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryPacketResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryPacketResponse.packet":
+	case "band.tunnel.v1beta1.QueryPacketResponse.packet":
 		m := new(Packet)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryPacketResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryPacketResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryPacketResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryPacketResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5590,7 +5590,7 @@ func (x *fastReflection_QueryPacketResponse) NewField(fd protoreflect.FieldDescr
 func (x *fastReflection_QueryPacketResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.QueryPacketResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.QueryPacketResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -5817,8 +5817,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_query_proto_init()
-	md_QueryParamsRequest = File_tunnel_v1beta1_query_proto.Messages().ByName("QueryParamsRequest")
+	file_band_tunnel_v1beta1_query_proto_init()
+	md_QueryParamsRequest = File_band_tunnel_v1beta1_query_proto.Messages().ByName("QueryParamsRequest")
 }
 
 var _ protoreflect.Message = (*fastReflection_QueryParamsRequest)(nil)
@@ -5830,7 +5830,7 @@ func (x *QueryParamsRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryParamsRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_query_proto_msgTypes[12]
+	mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[12]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5903,9 +5903,9 @@ func (x *fastReflection_QueryParamsRequest) Has(fd protoreflect.FieldDescriptor)
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5919,9 +5919,9 @@ func (x *fastReflection_QueryParamsRequest) Clear(fd protoreflect.FieldDescripto
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5935,9 +5935,9 @@ func (x *fastReflection_QueryParamsRequest) Get(descriptor protoreflect.FieldDes
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryParamsRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryParamsRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -5955,9 +5955,9 @@ func (x *fastReflection_QueryParamsRequest) Set(fd protoreflect.FieldDescriptor,
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5975,9 +5975,9 @@ func (x *fastReflection_QueryParamsRequest) Mutable(fd protoreflect.FieldDescrip
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5988,9 +5988,9 @@ func (x *fastReflection_QueryParamsRequest) NewField(fd protoreflect.FieldDescri
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryParamsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryParamsRequest"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryParamsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryParamsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6000,7 +6000,7 @@ func (x *fastReflection_QueryParamsRequest) NewField(fd protoreflect.FieldDescri
 func (x *fastReflection_QueryParamsRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.QueryParamsRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.QueryParamsRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -6174,8 +6174,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_query_proto_init()
-	md_QueryParamsResponse = File_tunnel_v1beta1_query_proto.Messages().ByName("QueryParamsResponse")
+	file_band_tunnel_v1beta1_query_proto_init()
+	md_QueryParamsResponse = File_band_tunnel_v1beta1_query_proto.Messages().ByName("QueryParamsResponse")
 	fd_QueryParamsResponse_params = md_QueryParamsResponse.Fields().ByName("params")
 }
 
@@ -6188,7 +6188,7 @@ func (x *QueryParamsResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *QueryParamsResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_query_proto_msgTypes[13]
+	mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[13]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6265,13 +6265,13 @@ func (x *fastReflection_QueryParamsResponse) Range(f func(protoreflect.FieldDesc
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_QueryParamsResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryParamsResponse.params":
+	case "band.tunnel.v1beta1.QueryParamsResponse.params":
 		return x.Params != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6283,13 +6283,13 @@ func (x *fastReflection_QueryParamsResponse) Has(fd protoreflect.FieldDescriptor
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryParamsResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryParamsResponse.params":
+	case "band.tunnel.v1beta1.QueryParamsResponse.params":
 		x.Params = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6301,14 +6301,14 @@ func (x *fastReflection_QueryParamsResponse) Clear(fd protoreflect.FieldDescript
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_QueryParamsResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.QueryParamsResponse.params":
+	case "band.tunnel.v1beta1.QueryParamsResponse.params":
 		value := x.Params
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryParamsResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryParamsResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -6324,13 +6324,13 @@ func (x *fastReflection_QueryParamsResponse) Get(descriptor protoreflect.FieldDe
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryParamsResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryParamsResponse.params":
+	case "band.tunnel.v1beta1.QueryParamsResponse.params":
 		x.Params = value.Message().Interface().(*Params)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6346,16 +6346,16 @@ func (x *fastReflection_QueryParamsResponse) Set(fd protoreflect.FieldDescriptor
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_QueryParamsResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryParamsResponse.params":
+	case "band.tunnel.v1beta1.QueryParamsResponse.params":
 		if x.Params == nil {
 			x.Params = new(Params)
 		}
 		return protoreflect.ValueOfMessage(x.Params.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6364,14 +6364,14 @@ func (x *fastReflection_QueryParamsResponse) Mutable(fd protoreflect.FieldDescri
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_QueryParamsResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.QueryParamsResponse.params":
+	case "band.tunnel.v1beta1.QueryParamsResponse.params":
 		m := new(Params)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.QueryParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.QueryParamsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.QueryParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.QueryParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6381,7 +6381,7 @@ func (x *fastReflection_QueryParamsResponse) NewField(fd protoreflect.FieldDescr
 func (x *fastReflection_QueryParamsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.QueryParamsResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.QueryParamsResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -6607,7 +6607,7 @@ func (x *fastReflection_QueryParamsResponse) ProtoMethods() *protoiface.Methods 
 // versions:
 // 	protoc-gen-go v1.27.0
 // 	protoc        (unknown)
-// source: tunnel/v1beta1/query.proto
+// source: band/tunnel/v1beta1/query.proto
 
 const (
 	// Verify that this generated code is sufficiently up-to-date.
@@ -6653,11 +6653,11 @@ func (x TunnelStatusFilter) String() string {
 }
 
 func (TunnelStatusFilter) Descriptor() protoreflect.EnumDescriptor {
-	return file_tunnel_v1beta1_query_proto_enumTypes[0].Descriptor()
+	return file_band_tunnel_v1beta1_query_proto_enumTypes[0].Descriptor()
 }
 
 func (TunnelStatusFilter) Type() protoreflect.EnumType {
-	return &file_tunnel_v1beta1_query_proto_enumTypes[0]
+	return &file_band_tunnel_v1beta1_query_proto_enumTypes[0]
 }
 
 func (x TunnelStatusFilter) Number() protoreflect.EnumNumber {
@@ -6666,7 +6666,7 @@ func (x TunnelStatusFilter) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use TunnelStatusFilter.Descriptor instead.
 func (TunnelStatusFilter) EnumDescriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{0}
+	return file_band_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{0}
 }
 
 // QueryTunnelsRequest is the request type for the Query/Tunnels RPC method.
@@ -6676,7 +6676,7 @@ type QueryTunnelsRequest struct {
 	unknownFields protoimpl.UnknownFields
 
 	// status_filter is a flag to filter tunnels by status.
-	StatusFilter TunnelStatusFilter `protobuf:"varint,1,opt,name=status_filter,json=statusFilter,proto3,enum=tunnel.v1beta1.TunnelStatusFilter" json:"status_filter,omitempty"`
+	StatusFilter TunnelStatusFilter `protobuf:"varint,1,opt,name=status_filter,json=statusFilter,proto3,enum=band.tunnel.v1beta1.TunnelStatusFilter" json:"status_filter,omitempty"`
 	// pagination defines an optional pagination for the request.
 	Pagination *v1beta1.PageRequest `protobuf:"bytes,2,opt,name=pagination,proto3" json:"pagination,omitempty"`
 }
@@ -6684,7 +6684,7 @@ type QueryTunnelsRequest struct {
 func (x *QueryTunnelsRequest) Reset() {
 	*x = QueryTunnelsRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_query_proto_msgTypes[0]
+		mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6698,7 +6698,7 @@ func (*QueryTunnelsRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryTunnelsRequest.ProtoReflect.Descriptor instead.
 func (*QueryTunnelsRequest) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{0}
+	return file_band_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *QueryTunnelsRequest) GetStatusFilter() TunnelStatusFilter {
@@ -6730,7 +6730,7 @@ type QueryTunnelsResponse struct {
 func (x *QueryTunnelsResponse) Reset() {
 	*x = QueryTunnelsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_query_proto_msgTypes[1]
+		mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6744,7 +6744,7 @@ func (*QueryTunnelsResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryTunnelsResponse.ProtoReflect.Descriptor instead.
 func (*QueryTunnelsResponse) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{1}
+	return file_band_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *QueryTunnelsResponse) GetTunnels() []*Tunnel {
@@ -6774,7 +6774,7 @@ type QueryTunnelRequest struct {
 func (x *QueryTunnelRequest) Reset() {
 	*x = QueryTunnelRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_query_proto_msgTypes[2]
+		mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6788,7 +6788,7 @@ func (*QueryTunnelRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryTunnelRequest.ProtoReflect.Descriptor instead.
 func (*QueryTunnelRequest) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{2}
+	return file_band_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *QueryTunnelRequest) GetTunnelId() uint64 {
@@ -6811,7 +6811,7 @@ type QueryTunnelResponse struct {
 func (x *QueryTunnelResponse) Reset() {
 	*x = QueryTunnelResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_query_proto_msgTypes[3]
+		mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6825,7 +6825,7 @@ func (*QueryTunnelResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryTunnelResponse.ProtoReflect.Descriptor instead.
 func (*QueryTunnelResponse) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{3}
+	return file_band_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *QueryTunnelResponse) GetTunnel() *Tunnel {
@@ -6850,7 +6850,7 @@ type QueryDepositsRequest struct {
 func (x *QueryDepositsRequest) Reset() {
 	*x = QueryDepositsRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_query_proto_msgTypes[4]
+		mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6864,7 +6864,7 @@ func (*QueryDepositsRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryDepositsRequest.ProtoReflect.Descriptor instead.
 func (*QueryDepositsRequest) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{4}
+	return file_band_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *QueryDepositsRequest) GetTunnelId() uint64 {
@@ -6896,7 +6896,7 @@ type QueryDepositsResponse struct {
 func (x *QueryDepositsResponse) Reset() {
 	*x = QueryDepositsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_query_proto_msgTypes[5]
+		mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6910,7 +6910,7 @@ func (*QueryDepositsResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryDepositsResponse.ProtoReflect.Descriptor instead.
 func (*QueryDepositsResponse) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{5}
+	return file_band_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *QueryDepositsResponse) GetDeposits() []*Deposit {
@@ -6942,7 +6942,7 @@ type QueryDepositRequest struct {
 func (x *QueryDepositRequest) Reset() {
 	*x = QueryDepositRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_query_proto_msgTypes[6]
+		mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6956,7 +6956,7 @@ func (*QueryDepositRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryDepositRequest.ProtoReflect.Descriptor instead.
 func (*QueryDepositRequest) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{6}
+	return file_band_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *QueryDepositRequest) GetTunnelId() uint64 {
@@ -6986,7 +6986,7 @@ type QueryDepositResponse struct {
 func (x *QueryDepositResponse) Reset() {
 	*x = QueryDepositResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_query_proto_msgTypes[7]
+		mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -7000,7 +7000,7 @@ func (*QueryDepositResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryDepositResponse.ProtoReflect.Descriptor instead.
 func (*QueryDepositResponse) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{7}
+	return file_band_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *QueryDepositResponse) GetDeposit() *Deposit {
@@ -7025,7 +7025,7 @@ type QueryPacketsRequest struct {
 func (x *QueryPacketsRequest) Reset() {
 	*x = QueryPacketsRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_query_proto_msgTypes[8]
+		mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -7039,7 +7039,7 @@ func (*QueryPacketsRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryPacketsRequest.ProtoReflect.Descriptor instead.
 func (*QueryPacketsRequest) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{8}
+	return file_band_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *QueryPacketsRequest) GetTunnelId() uint64 {
@@ -7071,7 +7071,7 @@ type QueryPacketsResponse struct {
 func (x *QueryPacketsResponse) Reset() {
 	*x = QueryPacketsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_query_proto_msgTypes[9]
+		mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -7085,7 +7085,7 @@ func (*QueryPacketsResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryPacketsResponse.ProtoReflect.Descriptor instead.
 func (*QueryPacketsResponse) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{9}
+	return file_band_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *QueryPacketsResponse) GetPackets() []*Packet {
@@ -7117,7 +7117,7 @@ type QueryPacketRequest struct {
 func (x *QueryPacketRequest) Reset() {
 	*x = QueryPacketRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_query_proto_msgTypes[10]
+		mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -7131,7 +7131,7 @@ func (*QueryPacketRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryPacketRequest.ProtoReflect.Descriptor instead.
 func (*QueryPacketRequest) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{10}
+	return file_band_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *QueryPacketRequest) GetTunnelId() uint64 {
@@ -7161,7 +7161,7 @@ type QueryPacketResponse struct {
 func (x *QueryPacketResponse) Reset() {
 	*x = QueryPacketResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_query_proto_msgTypes[11]
+		mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -7175,7 +7175,7 @@ func (*QueryPacketResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryPacketResponse.ProtoReflect.Descriptor instead.
 func (*QueryPacketResponse) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{11}
+	return file_band_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *QueryPacketResponse) GetPacket() *Packet {
@@ -7195,7 +7195,7 @@ type QueryParamsRequest struct {
 func (x *QueryParamsRequest) Reset() {
 	*x = QueryParamsRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_query_proto_msgTypes[12]
+		mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[12]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -7209,7 +7209,7 @@ func (*QueryParamsRequest) ProtoMessage() {}
 
 // Deprecated: Use QueryParamsRequest.ProtoReflect.Descriptor instead.
 func (*QueryParamsRequest) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{12}
+	return file_band_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{12}
 }
 
 // QueryParamsResponse is the response type for the Query/Params RPC method.
@@ -7225,7 +7225,7 @@ type QueryParamsResponse struct {
 func (x *QueryParamsResponse) Reset() {
 	*x = QueryParamsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_query_proto_msgTypes[13]
+		mi := &file_band_tunnel_v1beta1_query_proto_msgTypes[13]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -7239,7 +7239,7 @@ func (*QueryParamsResponse) ProtoMessage() {}
 
 // Deprecated: Use QueryParamsResponse.ProtoReflect.Descriptor instead.
 func (*QueryParamsResponse) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{13}
+	return file_band_tunnel_v1beta1_query_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *QueryParamsResponse) GetParams() *Params {
@@ -7249,258 +7249,269 @@ func (x *QueryParamsResponse) GetParams() *Params {
 	return nil
 }
 
-var File_tunnel_v1beta1_query_proto protoreflect.FileDescriptor
+var File_band_tunnel_v1beta1_query_proto protoreflect.FileDescriptor
 
-var file_tunnel_v1beta1_query_proto_rawDesc = []byte{
-	0x0a, 0x1a, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0x2f, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x0e, 0x74, 0x75,
-	0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x1a, 0x14, 0x67, 0x6f,
-	0x67, 0x6f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x1a, 0x2a, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x62, 0x61, 0x73, 0x65, 0x2f,
-	0x71, 0x75, 0x65, 0x72, 0x79, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x70, 0x61,
-	0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1c,
-	0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x61, 0x6e, 0x6e, 0x6f, 0x74,
-	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1b, 0x74, 0x75,
-	0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x70, 0x61, 0x72,
-	0x61, 0x6d, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1b, 0x74, 0x75, 0x6e, 0x6e, 0x65,
-	0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
-	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xa6, 0x01, 0x0a, 0x13, 0x51, 0x75, 0x65, 0x72, 0x79,
-	0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x47,
-	0x0a, 0x0d, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x5f, 0x66, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x22, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76,
-	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x53, 0x74, 0x61,
-	0x74, 0x75, 0x73, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x52, 0x0c, 0x73, 0x74, 0x61, 0x74, 0x75,
-	0x73, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x12, 0x46, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e,
-	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x26, 0x2e, 0x63, 0x6f,
-	0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x52, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22,
-	0x91, 0x01, 0x0a, 0x14, 0x51, 0x75, 0x65, 0x72, 0x79, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x30, 0x0a, 0x07, 0x74, 0x75, 0x6e, 0x6e,
-	0x65, 0x6c, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x74, 0x75, 0x6e, 0x6e,
-	0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x54, 0x75, 0x6e, 0x6e, 0x65,
-	0x6c, 0x52, 0x07, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x12, 0x47, 0x0a, 0x0a, 0x70, 0x61,
-	0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x27,
-	0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x71, 0x75, 0x65,
-	0x72, 0x79, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x67, 0x65, 0x52,
-	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x52, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74,
-	0x69, 0x6f, 0x6e, 0x22, 0x31, 0x0a, 0x12, 0x51, 0x75, 0x65, 0x72, 0x79, 0x54, 0x75, 0x6e, 0x6e,
-	0x65, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1b, 0x0a, 0x09, 0x74, 0x75, 0x6e,
-	0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08, 0x74, 0x75,
-	0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x22, 0x4b, 0x0a, 0x13, 0x51, 0x75, 0x65, 0x72, 0x79, 0x54,
-	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x34, 0x0a,
-	0x06, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x16, 0x2e,
-	0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x54,
-	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06, 0x74, 0x75, 0x6e,
-	0x6e, 0x65, 0x6c, 0x22, 0x7b, 0x0a, 0x14, 0x51, 0x75, 0x65, 0x72, 0x79, 0x44, 0x65, 0x70, 0x6f,
-	0x73, 0x69, 0x74, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1b, 0x0a, 0x09, 0x74,
-	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08,
-	0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x12, 0x46, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69,
-	0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x26, 0x2e, 0x63,
-	0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79,
-	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x52, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e,
-	0x22, 0x95, 0x01, 0x0a, 0x15, 0x51, 0x75, 0x65, 0x72, 0x79, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69,
-	0x74, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x33, 0x0a, 0x08, 0x64, 0x65,
-	0x70, 0x6f, 0x73, 0x69, 0x74, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x74,
-	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x44, 0x65,
-	0x70, 0x6f, 0x73, 0x69, 0x74, 0x52, 0x08, 0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x73, 0x12,
-	0x47, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x0b, 0x32, 0x27, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73,
-	0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e,
-	0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x52, 0x0a, 0x70, 0x61,
-	0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x50, 0x0a, 0x13, 0x51, 0x75, 0x65, 0x72,
-	0x79, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
-	0x1b, 0x0a, 0x09, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x04, 0x52, 0x08, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x12, 0x1c, 0x0a, 0x09,
-	0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x6f, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52,
-	0x09, 0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x6f, 0x72, 0x22, 0x4f, 0x0a, 0x14, 0x51, 0x75,
-	0x65, 0x72, 0x79, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x12, 0x37, 0x0a, 0x07, 0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x18, 0x01, 0x20,
-	0x01, 0x28, 0x0b, 0x32, 0x17, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x2e, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x42, 0x04, 0xc8, 0xde,
-	0x1f, 0x00, 0x52, 0x07, 0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x22, 0x7a, 0x0a, 0x13, 0x51,
-	0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65,
-	0x73, 0x74, 0x12, 0x1b, 0x0a, 0x09, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x12,
-	0x46, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x0b, 0x32, 0x26, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73,
-	0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e,
-	0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x52, 0x0a, 0x70, 0x61, 0x67,
-	0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x91, 0x01, 0x0a, 0x14, 0x51, 0x75, 0x65, 0x72,
-	0x79, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
-	0x12, 0x30, 0x0a, 0x07, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28,
-	0x0b, 0x32, 0x16, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0x2e, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x52, 0x07, 0x70, 0x61, 0x63, 0x6b, 0x65,
-	0x74, 0x73, 0x12, 0x47, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e,
-	0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x27, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e,
-	0x62, 0x61, 0x73, 0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0x2e, 0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x52,
-	0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x4d, 0x0a, 0x12, 0x51,
-	0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
-	0x74, 0x12, 0x1b, 0x0a, 0x09, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x04, 0x52, 0x08, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x12, 0x1a,
-	0x0a, 0x08, 0x73, 0x65, 0x71, 0x75, 0x65, 0x6e, 0x63, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x04,
-	0x52, 0x08, 0x73, 0x65, 0x71, 0x75, 0x65, 0x6e, 0x63, 0x65, 0x22, 0x45, 0x0a, 0x13, 0x51, 0x75,
-	0x65, 0x72, 0x79, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x12, 0x2e, 0x0a, 0x06, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28,
-	0x0b, 0x32, 0x16, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0x2e, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x52, 0x06, 0x70, 0x61, 0x63, 0x6b, 0x65,
-	0x74, 0x22, 0x14, 0x0a, 0x12, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73,
-	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x4b, 0x0a, 0x13, 0x51, 0x75, 0x65, 0x72, 0x79,
-	0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x34,
-	0x0a, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x16,
+var file_band_tunnel_v1beta1_query_proto_rawDesc = []byte{
+	0x0a, 0x1f, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31,
+	0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x12, 0x13, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x2a, 0x63, 0x6f,
+	0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x62, 0x61, 0x73, 0x65, 0x2f, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2f,
+	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69,
+	0x6f, 0x6e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1c, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65,
+	0x2f, 0x61, 0x70, 0x69, 0x2f, 0x61, 0x6e, 0x6e, 0x6f, 0x74, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73,
+	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x20, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x74, 0x75, 0x6e,
+	0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x70, 0x61, 0x72, 0x61,
+	0x6d, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x20, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x74,
+	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x74, 0x75,
+	0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xab, 0x01, 0x0a, 0x13, 0x51,
+	0x75, 0x65, 0x72, 0x79, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x12, 0x4c, 0x0a, 0x0d, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x5f, 0x66, 0x69, 0x6c,
+	0x74, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x27, 0x2e, 0x62, 0x61, 0x6e, 0x64,
 	0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e,
-	0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06, 0x70, 0x61,
-	0x72, 0x61, 0x6d, 0x73, 0x2a, 0x84, 0x01, 0x0a, 0x12, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x53,
-	0x74, 0x61, 0x74, 0x75, 0x73, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x12, 0x24, 0x0a, 0x20, 0x54,
-	0x55, 0x4e, 0x4e, 0x45, 0x4c, 0x5f, 0x53, 0x54, 0x41, 0x54, 0x55, 0x53, 0x5f, 0x46, 0x49, 0x4c,
-	0x54, 0x45, 0x52, 0x5f, 0x55, 0x4e, 0x53, 0x50, 0x45, 0x43, 0x49, 0x46, 0x49, 0x45, 0x44, 0x10,
-	0x00, 0x12, 0x1f, 0x0a, 0x1b, 0x54, 0x55, 0x4e, 0x4e, 0x45, 0x4c, 0x5f, 0x53, 0x54, 0x41, 0x54,
-	0x55, 0x53, 0x5f, 0x46, 0x49, 0x4c, 0x54, 0x45, 0x52, 0x5f, 0x41, 0x43, 0x54, 0x49, 0x56, 0x45,
-	0x10, 0x01, 0x12, 0x21, 0x0a, 0x1d, 0x54, 0x55, 0x4e, 0x4e, 0x45, 0x4c, 0x5f, 0x53, 0x54, 0x41,
-	0x54, 0x55, 0x53, 0x5f, 0x46, 0x49, 0x4c, 0x54, 0x45, 0x52, 0x5f, 0x49, 0x4e, 0x41, 0x43, 0x54,
-	0x49, 0x56, 0x45, 0x10, 0x02, 0x1a, 0x04, 0x88, 0xa3, 0x1e, 0x00, 0x32, 0xba, 0x07, 0x0a, 0x05,
-	0x51, 0x75, 0x65, 0x72, 0x79, 0x12, 0x75, 0x0a, 0x07, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73,
-	0x12, 0x23, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
-	0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x52, 0x65,
-	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x24, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76,
-	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x54, 0x75, 0x6e, 0x6e,
-	0x65, 0x6c, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x1f, 0x82, 0xd3, 0xe4,
-	0x93, 0x02, 0x19, 0x12, 0x17, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x12, 0x7e, 0x0a, 0x06,
-	0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x22, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x54, 0x75, 0x6e,
-	0x6e, 0x65, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x23, 0x2e, 0x74, 0x75, 0x6e,
-	0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72,
-	0x79, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
-	0x2b, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x25, 0x12, 0x23, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
-	0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73,
-	0x2f, 0x7b, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x7d, 0x12, 0x8d, 0x01, 0x0a,
-	0x08, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x73, 0x12, 0x24, 0x2e, 0x74, 0x75, 0x6e, 0x6e,
-	0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79,
-	0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
-	0x25, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x46, 0x69, 0x6c, 0x74,
+	0x65, 0x72, 0x52, 0x0c, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72,
+	0x12, 0x46, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02,
+	0x20, 0x01, 0x28, 0x0b, 0x32, 0x26, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61,
+	0x73, 0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0x2e, 0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x52, 0x0a, 0x70, 0x61,
+	0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x96, 0x01, 0x0a, 0x14, 0x51, 0x75, 0x65,
+	0x72, 0x79, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x35, 0x0a, 0x07, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x18, 0x01, 0x20, 0x03,
+	0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
+	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52,
+	0x07, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x12, 0x47, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69,
+	0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x27, 0x2e, 0x63,
+	0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79,
+	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x52, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x22, 0x31, 0x0a, 0x12, 0x51, 0x75, 0x65, 0x72, 0x79, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1b, 0x0a, 0x09, 0x74, 0x75, 0x6e, 0x6e, 0x65,
+	0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08, 0x74, 0x75, 0x6e, 0x6e,
+	0x65, 0x6c, 0x49, 0x64, 0x22, 0x50, 0x0a, 0x13, 0x51, 0x75, 0x65, 0x72, 0x79, 0x54, 0x75, 0x6e,
+	0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x39, 0x0a, 0x06, 0x74,
+	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x62, 0x61,
+	0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
+	0x31, 0x2e, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06,
+	0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x22, 0x7b, 0x0a, 0x14, 0x51, 0x75, 0x65, 0x72, 0x79, 0x44,
+	0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1b,
+	0x0a, 0x09, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x04, 0x52, 0x08, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x12, 0x46, 0x0a, 0x0a, 0x70,
+	0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32,
+	0x26, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x71, 0x75,
+	0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x67, 0x65,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x52, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74,
+	0x69, 0x6f, 0x6e, 0x22, 0x9a, 0x01, 0x0a, 0x15, 0x51, 0x75, 0x65, 0x72, 0x79, 0x44, 0x65, 0x70,
+	0x6f, 0x73, 0x69, 0x74, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x38, 0x0a,
+	0x08, 0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32,
+	0x1c, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31,
+	0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x52, 0x08, 0x64,
+	0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x73, 0x12, 0x47, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e,
+	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x27, 0x2e, 0x63, 0x6f,
+	0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e,
+	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x52, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e,
+	0x22, 0x50, 0x0a, 0x13, 0x51, 0x75, 0x65, 0x72, 0x79, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x1b, 0x0a, 0x09, 0x74, 0x75, 0x6e, 0x6e, 0x65,
+	0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08, 0x74, 0x75, 0x6e, 0x6e,
+	0x65, 0x6c, 0x49, 0x64, 0x12, 0x1c, 0x0a, 0x09, 0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x6f,
+	0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74,
+	0x6f, 0x72, 0x22, 0x54, 0x0a, 0x14, 0x51, 0x75, 0x65, 0x72, 0x79, 0x44, 0x65, 0x70, 0x6f, 0x73,
+	0x69, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x3c, 0x0a, 0x07, 0x64, 0x65,
+	0x70, 0x6f, 0x73, 0x69, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x62, 0x61,
+	0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
+	0x31, 0x2e, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52,
+	0x07, 0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x22, 0x7a, 0x0a, 0x13, 0x51, 0x75, 0x65, 0x72,
+	0x79, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12,
+	0x1b, 0x0a, 0x09, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x04, 0x52, 0x08, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x12, 0x46, 0x0a, 0x0a,
+	0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x26, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x71,
+	0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x67,
+	0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x52, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61,
+	0x74, 0x69, 0x6f, 0x6e, 0x22, 0x96, 0x01, 0x0a, 0x14, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61,
+	0x63, 0x6b, 0x65, 0x74, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x35, 0x0a,
+	0x07, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1b,
+	0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x52, 0x07, 0x70, 0x61, 0x63,
+	0x6b, 0x65, 0x74, 0x73, 0x12, 0x47, 0x0a, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69,
+	0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x27, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f,
+	0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x76, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x67, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x52, 0x0a, 0x70, 0x61, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x4d, 0x0a,
+	0x12, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x12, 0x1b, 0x0a, 0x09, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64,
+	0x12, 0x1a, 0x0a, 0x08, 0x73, 0x65, 0x71, 0x75, 0x65, 0x6e, 0x63, 0x65, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x04, 0x52, 0x08, 0x73, 0x65, 0x71, 0x75, 0x65, 0x6e, 0x63, 0x65, 0x22, 0x4a, 0x0a, 0x13,
+	0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x12, 0x33, 0x0a, 0x06, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65,
+	0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74,
+	0x52, 0x06, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x22, 0x14, 0x0a, 0x12, 0x51, 0x75, 0x65, 0x72,
+	0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x50,
+	0x0a, 0x13, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x39, 0x0a, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e,
+	0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x72, 0x61,
+	0x6d, 0x73, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73,
+	0x2a, 0x84, 0x01, 0x0a, 0x12, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x53, 0x74, 0x61, 0x74, 0x75,
+	0x73, 0x46, 0x69, 0x6c, 0x74, 0x65, 0x72, 0x12, 0x24, 0x0a, 0x20, 0x54, 0x55, 0x4e, 0x4e, 0x45,
+	0x4c, 0x5f, 0x53, 0x54, 0x41, 0x54, 0x55, 0x53, 0x5f, 0x46, 0x49, 0x4c, 0x54, 0x45, 0x52, 0x5f,
+	0x55, 0x4e, 0x53, 0x50, 0x45, 0x43, 0x49, 0x46, 0x49, 0x45, 0x44, 0x10, 0x00, 0x12, 0x1f, 0x0a,
+	0x1b, 0x54, 0x55, 0x4e, 0x4e, 0x45, 0x4c, 0x5f, 0x53, 0x54, 0x41, 0x54, 0x55, 0x53, 0x5f, 0x46,
+	0x49, 0x4c, 0x54, 0x45, 0x52, 0x5f, 0x41, 0x43, 0x54, 0x49, 0x56, 0x45, 0x10, 0x01, 0x12, 0x21,
+	0x0a, 0x1d, 0x54, 0x55, 0x4e, 0x4e, 0x45, 0x4c, 0x5f, 0x53, 0x54, 0x41, 0x54, 0x55, 0x53, 0x5f,
+	0x46, 0x49, 0x4c, 0x54, 0x45, 0x52, 0x5f, 0x49, 0x4e, 0x41, 0x43, 0x54, 0x49, 0x56, 0x45, 0x10,
+	0x02, 0x1a, 0x04, 0x88, 0xa3, 0x1e, 0x00, 0x32, 0x81, 0x08, 0x0a, 0x05, 0x51, 0x75, 0x65, 0x72,
+	0x79, 0x12, 0x7f, 0x0a, 0x07, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x12, 0x28, 0x2e, 0x62,
+	0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x29, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75,
+	0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65,
+	0x72, 0x79, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x22, 0x1f, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x19, 0x12, 0x17, 0x2f, 0x74, 0x75, 0x6e, 0x6e,
+	0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65,
+	0x6c, 0x73, 0x12, 0x88, 0x01, 0x0a, 0x06, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x27, 0x2e,
+	0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65,
+	0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x28, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75,
+	0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65,
+	0x72, 0x79, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x22, 0x2b, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x25, 0x12, 0x23, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65,
+	0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
+	0x73, 0x2f, 0x7b, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x7d, 0x12, 0x97, 0x01,
+	0x0a, 0x08, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x73, 0x12, 0x29, 0x2e, 0x62, 0x61, 0x6e,
+	0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
 	0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x73, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x34, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x2e, 0x12, 0x2c,
-	0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f,
-	0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x2f, 0x7b, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f,
-	0x69, 0x64, 0x7d, 0x2f, 0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x73, 0x12, 0x96, 0x01, 0x0a,
-	0x07, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x12, 0x23, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2a, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e,
+	0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72,
+	0x79, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x22, 0x34, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x2e, 0x12, 0x2c, 0x2f, 0x74, 0x75, 0x6e, 0x6e,
+	0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65,
+	0x6c, 0x73, 0x2f, 0x7b, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x7d, 0x2f, 0x64,
+	0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x73, 0x12, 0xa0, 0x01, 0x0a, 0x07, 0x44, 0x65, 0x70, 0x6f,
+	0x73, 0x69, 0x74, 0x12, 0x28, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65,
 	0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x44,
-	0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x24, 0x2e,
+	0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x29, 0x2e,
+	0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65,
+	0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x40, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x3a,
+	0x12, 0x38, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
+	0x31, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x2f, 0x7b, 0x74, 0x75, 0x6e, 0x6e, 0x65,
+	0x6c, 0x5f, 0x69, 0x64, 0x7d, 0x2f, 0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x73, 0x2f, 0x7b,
+	0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x6f, 0x72, 0x7d, 0x12, 0x93, 0x01, 0x0a, 0x07, 0x50,
+	0x61, 0x63, 0x6b, 0x65, 0x74, 0x73, 0x12, 0x28, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75,
+	0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65,
+	0x72, 0x79, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x1a, 0x29, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x63, 0x6b,
+	0x65, 0x74, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x33, 0x82, 0xd3, 0xe4,
+	0x93, 0x02, 0x2d, 0x12, 0x2b, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x2f, 0x7b, 0x74, 0x75,
+	0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x7d, 0x2f, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x73,
+	0x12, 0x9b, 0x01, 0x0a, 0x06, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x12, 0x27, 0x2e, 0x62, 0x61,
+	0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
+	0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x1a, 0x28, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e,
+	0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79,
+	0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x3e,
+	0x82, 0xd3, 0xe4, 0x93, 0x02, 0x38, 0x12, 0x36, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f,
+	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x2f,
+	0x7b, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x7d, 0x2f, 0x70, 0x61, 0x63, 0x6b,
+	0x65, 0x74, 0x73, 0x2f, 0x7b, 0x73, 0x65, 0x71, 0x75, 0x65, 0x6e, 0x63, 0x65, 0x7d, 0x12, 0x7b,
+	0x0a, 0x06, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x27, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e,
 	0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51,
-	0x75, 0x65, 0x72, 0x79, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x22, 0x40, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x3a, 0x12, 0x38, 0x2f, 0x74, 0x75,
-	0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x74, 0x75, 0x6e,
-	0x6e, 0x65, 0x6c, 0x73, 0x2f, 0x7b, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x7d,
-	0x2f, 0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x73, 0x2f, 0x7b, 0x64, 0x65, 0x70, 0x6f, 0x73,
-	0x69, 0x74, 0x6f, 0x72, 0x7d, 0x12, 0x89, 0x01, 0x0a, 0x07, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74,
-	0x73, 0x12, 0x23, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x73, 0x52,
-	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x24, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x63,
-	0x6b, 0x65, 0x74, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x33, 0x82, 0xd3,
-	0xe4, 0x93, 0x02, 0x2d, 0x12, 0x2b, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31,
-	0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x2f, 0x7b, 0x74,
-	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x7d, 0x2f, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74,
-	0x73, 0x12, 0x91, 0x01, 0x0a, 0x06, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x12, 0x22, 0x2e, 0x74,
-	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75,
-	0x65, 0x72, 0x79, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x1a, 0x23, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
-	0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x3e, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x38, 0x12, 0x36, 0x2f,
-	0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x74,
-	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x2f, 0x7b, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69,
-	0x64, 0x7d, 0x2f, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x73, 0x2f, 0x7b, 0x73, 0x65, 0x71, 0x75,
-	0x65, 0x6e, 0x63, 0x65, 0x7d, 0x12, 0x71, 0x0a, 0x06, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12,
-	0x22, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x75,
-	0x65, 0x73, 0x74, 0x1a, 0x23, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x1e, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x18,
-	0x12, 0x16, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
-	0x31, 0x2f, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x42, 0xbc, 0x01, 0x0a, 0x12, 0x63, 0x6f, 0x6d,
-	0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42,
-	0x0a, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x41, 0x67,
-	0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f,
-	0x61, 0x70, 0x69, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0x3b, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0xa2, 0x02, 0x03, 0x54, 0x58, 0x58, 0xaa, 0x02, 0x0e, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e,
-	0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x0e, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
-	0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02, 0x1a, 0x54, 0x75, 0x6e, 0x6e, 0x65,
-	0x6c, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74,
-	0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x0f, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x3a, 0x3a,
-	0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x1a, 0x28, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e,
+	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x61, 0x72,
+	0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x1e, 0x82, 0xd3, 0xe4,
+	0x93, 0x02, 0x18, 0x12, 0x16, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0x2f, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x42, 0xdb, 0x01, 0x0a, 0x17,
+	0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e,
+	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x0a, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x72,
+	0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x46, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f,
+	0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63,
+	0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e, 0x64,
+	0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b,
+	0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03,
+	0x42, 0x54, 0x58, 0xaa, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x2e, 0x54, 0x75, 0x6e, 0x6e, 0x65,
+	0x6c, 0x2e, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64,
+	0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2,
+	0x02, 0x1f, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56, 0x31,
+	0x62, 0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74,
+	0x61, 0xea, 0x02, 0x15, 0x42, 0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
+	0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f,
+	0x33,
 }
 
 var (
-	file_tunnel_v1beta1_query_proto_rawDescOnce sync.Once
-	file_tunnel_v1beta1_query_proto_rawDescData = file_tunnel_v1beta1_query_proto_rawDesc
+	file_band_tunnel_v1beta1_query_proto_rawDescOnce sync.Once
+	file_band_tunnel_v1beta1_query_proto_rawDescData = file_band_tunnel_v1beta1_query_proto_rawDesc
 )
 
-func file_tunnel_v1beta1_query_proto_rawDescGZIP() []byte {
-	file_tunnel_v1beta1_query_proto_rawDescOnce.Do(func() {
-		file_tunnel_v1beta1_query_proto_rawDescData = protoimpl.X.CompressGZIP(file_tunnel_v1beta1_query_proto_rawDescData)
+func file_band_tunnel_v1beta1_query_proto_rawDescGZIP() []byte {
+	file_band_tunnel_v1beta1_query_proto_rawDescOnce.Do(func() {
+		file_band_tunnel_v1beta1_query_proto_rawDescData = protoimpl.X.CompressGZIP(file_band_tunnel_v1beta1_query_proto_rawDescData)
 	})
-	return file_tunnel_v1beta1_query_proto_rawDescData
+	return file_band_tunnel_v1beta1_query_proto_rawDescData
 }
 
-var file_tunnel_v1beta1_query_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_tunnel_v1beta1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
-var file_tunnel_v1beta1_query_proto_goTypes = []interface{}{
-	(TunnelStatusFilter)(0),       // 0: tunnel.v1beta1.TunnelStatusFilter
-	(*QueryTunnelsRequest)(nil),   // 1: tunnel.v1beta1.QueryTunnelsRequest
-	(*QueryTunnelsResponse)(nil),  // 2: tunnel.v1beta1.QueryTunnelsResponse
-	(*QueryTunnelRequest)(nil),    // 3: tunnel.v1beta1.QueryTunnelRequest
-	(*QueryTunnelResponse)(nil),   // 4: tunnel.v1beta1.QueryTunnelResponse
-	(*QueryDepositsRequest)(nil),  // 5: tunnel.v1beta1.QueryDepositsRequest
-	(*QueryDepositsResponse)(nil), // 6: tunnel.v1beta1.QueryDepositsResponse
-	(*QueryDepositRequest)(nil),   // 7: tunnel.v1beta1.QueryDepositRequest
-	(*QueryDepositResponse)(nil),  // 8: tunnel.v1beta1.QueryDepositResponse
-	(*QueryPacketsRequest)(nil),   // 9: tunnel.v1beta1.QueryPacketsRequest
-	(*QueryPacketsResponse)(nil),  // 10: tunnel.v1beta1.QueryPacketsResponse
-	(*QueryPacketRequest)(nil),    // 11: tunnel.v1beta1.QueryPacketRequest
-	(*QueryPacketResponse)(nil),   // 12: tunnel.v1beta1.QueryPacketResponse
-	(*QueryParamsRequest)(nil),    // 13: tunnel.v1beta1.QueryParamsRequest
-	(*QueryParamsResponse)(nil),   // 14: tunnel.v1beta1.QueryParamsResponse
+var file_band_tunnel_v1beta1_query_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_band_tunnel_v1beta1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_band_tunnel_v1beta1_query_proto_goTypes = []interface{}{
+	(TunnelStatusFilter)(0),       // 0: band.tunnel.v1beta1.TunnelStatusFilter
+	(*QueryTunnelsRequest)(nil),   // 1: band.tunnel.v1beta1.QueryTunnelsRequest
+	(*QueryTunnelsResponse)(nil),  // 2: band.tunnel.v1beta1.QueryTunnelsResponse
+	(*QueryTunnelRequest)(nil),    // 3: band.tunnel.v1beta1.QueryTunnelRequest
+	(*QueryTunnelResponse)(nil),   // 4: band.tunnel.v1beta1.QueryTunnelResponse
+	(*QueryDepositsRequest)(nil),  // 5: band.tunnel.v1beta1.QueryDepositsRequest
+	(*QueryDepositsResponse)(nil), // 6: band.tunnel.v1beta1.QueryDepositsResponse
+	(*QueryDepositRequest)(nil),   // 7: band.tunnel.v1beta1.QueryDepositRequest
+	(*QueryDepositResponse)(nil),  // 8: band.tunnel.v1beta1.QueryDepositResponse
+	(*QueryPacketsRequest)(nil),   // 9: band.tunnel.v1beta1.QueryPacketsRequest
+	(*QueryPacketsResponse)(nil),  // 10: band.tunnel.v1beta1.QueryPacketsResponse
+	(*QueryPacketRequest)(nil),    // 11: band.tunnel.v1beta1.QueryPacketRequest
+	(*QueryPacketResponse)(nil),   // 12: band.tunnel.v1beta1.QueryPacketResponse
+	(*QueryParamsRequest)(nil),    // 13: band.tunnel.v1beta1.QueryParamsRequest
+	(*QueryParamsResponse)(nil),   // 14: band.tunnel.v1beta1.QueryParamsResponse
 	(*v1beta1.PageRequest)(nil),   // 15: cosmos.base.query.v1beta1.PageRequest
-	(*Tunnel)(nil),                // 16: tunnel.v1beta1.Tunnel
+	(*Tunnel)(nil),                // 16: band.tunnel.v1beta1.Tunnel
 	(*v1beta1.PageResponse)(nil),  // 17: cosmos.base.query.v1beta1.PageResponse
-	(*Deposit)(nil),               // 18: tunnel.v1beta1.Deposit
-	(*Packet)(nil),                // 19: tunnel.v1beta1.Packet
-	(*Params)(nil),                // 20: tunnel.v1beta1.Params
+	(*Deposit)(nil),               // 18: band.tunnel.v1beta1.Deposit
+	(*Packet)(nil),                // 19: band.tunnel.v1beta1.Packet
+	(*Params)(nil),                // 20: band.tunnel.v1beta1.Params
 }
-var file_tunnel_v1beta1_query_proto_depIdxs = []int32{
-	0,  // 0: tunnel.v1beta1.QueryTunnelsRequest.status_filter:type_name -> tunnel.v1beta1.TunnelStatusFilter
-	15, // 1: tunnel.v1beta1.QueryTunnelsRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
-	16, // 2: tunnel.v1beta1.QueryTunnelsResponse.tunnels:type_name -> tunnel.v1beta1.Tunnel
-	17, // 3: tunnel.v1beta1.QueryTunnelsResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
-	16, // 4: tunnel.v1beta1.QueryTunnelResponse.tunnel:type_name -> tunnel.v1beta1.Tunnel
-	15, // 5: tunnel.v1beta1.QueryDepositsRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
-	18, // 6: tunnel.v1beta1.QueryDepositsResponse.deposits:type_name -> tunnel.v1beta1.Deposit
-	17, // 7: tunnel.v1beta1.QueryDepositsResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
-	18, // 8: tunnel.v1beta1.QueryDepositResponse.deposit:type_name -> tunnel.v1beta1.Deposit
-	15, // 9: tunnel.v1beta1.QueryPacketsRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
-	19, // 10: tunnel.v1beta1.QueryPacketsResponse.packets:type_name -> tunnel.v1beta1.Packet
-	17, // 11: tunnel.v1beta1.QueryPacketsResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
-	19, // 12: tunnel.v1beta1.QueryPacketResponse.packet:type_name -> tunnel.v1beta1.Packet
-	20, // 13: tunnel.v1beta1.QueryParamsResponse.params:type_name -> tunnel.v1beta1.Params
-	1,  // 14: tunnel.v1beta1.Query.Tunnels:input_type -> tunnel.v1beta1.QueryTunnelsRequest
-	3,  // 15: tunnel.v1beta1.Query.Tunnel:input_type -> tunnel.v1beta1.QueryTunnelRequest
-	5,  // 16: tunnel.v1beta1.Query.Deposits:input_type -> tunnel.v1beta1.QueryDepositsRequest
-	7,  // 17: tunnel.v1beta1.Query.Deposit:input_type -> tunnel.v1beta1.QueryDepositRequest
-	9,  // 18: tunnel.v1beta1.Query.Packets:input_type -> tunnel.v1beta1.QueryPacketsRequest
-	11, // 19: tunnel.v1beta1.Query.Packet:input_type -> tunnel.v1beta1.QueryPacketRequest
-	13, // 20: tunnel.v1beta1.Query.Params:input_type -> tunnel.v1beta1.QueryParamsRequest
-	2,  // 21: tunnel.v1beta1.Query.Tunnels:output_type -> tunnel.v1beta1.QueryTunnelsResponse
-	4,  // 22: tunnel.v1beta1.Query.Tunnel:output_type -> tunnel.v1beta1.QueryTunnelResponse
-	6,  // 23: tunnel.v1beta1.Query.Deposits:output_type -> tunnel.v1beta1.QueryDepositsResponse
-	8,  // 24: tunnel.v1beta1.Query.Deposit:output_type -> tunnel.v1beta1.QueryDepositResponse
-	10, // 25: tunnel.v1beta1.Query.Packets:output_type -> tunnel.v1beta1.QueryPacketsResponse
-	12, // 26: tunnel.v1beta1.Query.Packet:output_type -> tunnel.v1beta1.QueryPacketResponse
-	14, // 27: tunnel.v1beta1.Query.Params:output_type -> tunnel.v1beta1.QueryParamsResponse
+var file_band_tunnel_v1beta1_query_proto_depIdxs = []int32{
+	0,  // 0: band.tunnel.v1beta1.QueryTunnelsRequest.status_filter:type_name -> band.tunnel.v1beta1.TunnelStatusFilter
+	15, // 1: band.tunnel.v1beta1.QueryTunnelsRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
+	16, // 2: band.tunnel.v1beta1.QueryTunnelsResponse.tunnels:type_name -> band.tunnel.v1beta1.Tunnel
+	17, // 3: band.tunnel.v1beta1.QueryTunnelsResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
+	16, // 4: band.tunnel.v1beta1.QueryTunnelResponse.tunnel:type_name -> band.tunnel.v1beta1.Tunnel
+	15, // 5: band.tunnel.v1beta1.QueryDepositsRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
+	18, // 6: band.tunnel.v1beta1.QueryDepositsResponse.deposits:type_name -> band.tunnel.v1beta1.Deposit
+	17, // 7: band.tunnel.v1beta1.QueryDepositsResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
+	18, // 8: band.tunnel.v1beta1.QueryDepositResponse.deposit:type_name -> band.tunnel.v1beta1.Deposit
+	15, // 9: band.tunnel.v1beta1.QueryPacketsRequest.pagination:type_name -> cosmos.base.query.v1beta1.PageRequest
+	19, // 10: band.tunnel.v1beta1.QueryPacketsResponse.packets:type_name -> band.tunnel.v1beta1.Packet
+	17, // 11: band.tunnel.v1beta1.QueryPacketsResponse.pagination:type_name -> cosmos.base.query.v1beta1.PageResponse
+	19, // 12: band.tunnel.v1beta1.QueryPacketResponse.packet:type_name -> band.tunnel.v1beta1.Packet
+	20, // 13: band.tunnel.v1beta1.QueryParamsResponse.params:type_name -> band.tunnel.v1beta1.Params
+	1,  // 14: band.tunnel.v1beta1.Query.Tunnels:input_type -> band.tunnel.v1beta1.QueryTunnelsRequest
+	3,  // 15: band.tunnel.v1beta1.Query.Tunnel:input_type -> band.tunnel.v1beta1.QueryTunnelRequest
+	5,  // 16: band.tunnel.v1beta1.Query.Deposits:input_type -> band.tunnel.v1beta1.QueryDepositsRequest
+	7,  // 17: band.tunnel.v1beta1.Query.Deposit:input_type -> band.tunnel.v1beta1.QueryDepositRequest
+	9,  // 18: band.tunnel.v1beta1.Query.Packets:input_type -> band.tunnel.v1beta1.QueryPacketsRequest
+	11, // 19: band.tunnel.v1beta1.Query.Packet:input_type -> band.tunnel.v1beta1.QueryPacketRequest
+	13, // 20: band.tunnel.v1beta1.Query.Params:input_type -> band.tunnel.v1beta1.QueryParamsRequest
+	2,  // 21: band.tunnel.v1beta1.Query.Tunnels:output_type -> band.tunnel.v1beta1.QueryTunnelsResponse
+	4,  // 22: band.tunnel.v1beta1.Query.Tunnel:output_type -> band.tunnel.v1beta1.QueryTunnelResponse
+	6,  // 23: band.tunnel.v1beta1.Query.Deposits:output_type -> band.tunnel.v1beta1.QueryDepositsResponse
+	8,  // 24: band.tunnel.v1beta1.Query.Deposit:output_type -> band.tunnel.v1beta1.QueryDepositResponse
+	10, // 25: band.tunnel.v1beta1.Query.Packets:output_type -> band.tunnel.v1beta1.QueryPacketsResponse
+	12, // 26: band.tunnel.v1beta1.Query.Packet:output_type -> band.tunnel.v1beta1.QueryPacketResponse
+	14, // 27: band.tunnel.v1beta1.Query.Params:output_type -> band.tunnel.v1beta1.QueryParamsResponse
 	21, // [21:28] is the sub-list for method output_type
 	14, // [14:21] is the sub-list for method input_type
 	14, // [14:14] is the sub-list for extension type_name
@@ -7508,15 +7519,15 @@ var file_tunnel_v1beta1_query_proto_depIdxs = []int32{
 	0,  // [0:14] is the sub-list for field type_name
 }
 
-func init() { file_tunnel_v1beta1_query_proto_init() }
-func file_tunnel_v1beta1_query_proto_init() {
-	if File_tunnel_v1beta1_query_proto != nil {
+func init() { file_band_tunnel_v1beta1_query_proto_init() }
+func file_band_tunnel_v1beta1_query_proto_init() {
+	if File_band_tunnel_v1beta1_query_proto != nil {
 		return
 	}
-	file_tunnel_v1beta1_params_proto_init()
-	file_tunnel_v1beta1_tunnel_proto_init()
+	file_band_tunnel_v1beta1_params_proto_init()
+	file_band_tunnel_v1beta1_tunnel_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_tunnel_v1beta1_query_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_query_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryTunnelsRequest); i {
 			case 0:
 				return &v.state
@@ -7528,7 +7539,7 @@ func file_tunnel_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_query_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_query_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryTunnelsResponse); i {
 			case 0:
 				return &v.state
@@ -7540,7 +7551,7 @@ func file_tunnel_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_query_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_query_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryTunnelRequest); i {
 			case 0:
 				return &v.state
@@ -7552,7 +7563,7 @@ func file_tunnel_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_query_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_query_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryTunnelResponse); i {
 			case 0:
 				return &v.state
@@ -7564,7 +7575,7 @@ func file_tunnel_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_query_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_query_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryDepositsRequest); i {
 			case 0:
 				return &v.state
@@ -7576,7 +7587,7 @@ func file_tunnel_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_query_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_query_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryDepositsResponse); i {
 			case 0:
 				return &v.state
@@ -7588,7 +7599,7 @@ func file_tunnel_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_query_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_query_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryDepositRequest); i {
 			case 0:
 				return &v.state
@@ -7600,7 +7611,7 @@ func file_tunnel_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_query_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_query_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryDepositResponse); i {
 			case 0:
 				return &v.state
@@ -7612,7 +7623,7 @@ func file_tunnel_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_query_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_query_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryPacketsRequest); i {
 			case 0:
 				return &v.state
@@ -7624,7 +7635,7 @@ func file_tunnel_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_query_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_query_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryPacketsResponse); i {
 			case 0:
 				return &v.state
@@ -7636,7 +7647,7 @@ func file_tunnel_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_query_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_query_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryPacketRequest); i {
 			case 0:
 				return &v.state
@@ -7648,7 +7659,7 @@ func file_tunnel_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_query_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_query_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryPacketResponse); i {
 			case 0:
 				return &v.state
@@ -7660,7 +7671,7 @@ func file_tunnel_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_query_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_query_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryParamsRequest); i {
 			case 0:
 				return &v.state
@@ -7672,7 +7683,7 @@ func file_tunnel_v1beta1_query_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_query_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_query_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*QueryParamsResponse); i {
 			case 0:
 				return &v.state
@@ -7689,19 +7700,19 @@ func file_tunnel_v1beta1_query_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_tunnel_v1beta1_query_proto_rawDesc,
+			RawDescriptor: file_band_tunnel_v1beta1_query_proto_rawDesc,
 			NumEnums:      1,
 			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_tunnel_v1beta1_query_proto_goTypes,
-		DependencyIndexes: file_tunnel_v1beta1_query_proto_depIdxs,
-		EnumInfos:         file_tunnel_v1beta1_query_proto_enumTypes,
-		MessageInfos:      file_tunnel_v1beta1_query_proto_msgTypes,
+		GoTypes:           file_band_tunnel_v1beta1_query_proto_goTypes,
+		DependencyIndexes: file_band_tunnel_v1beta1_query_proto_depIdxs,
+		EnumInfos:         file_band_tunnel_v1beta1_query_proto_enumTypes,
+		MessageInfos:      file_band_tunnel_v1beta1_query_proto_msgTypes,
 	}.Build()
-	File_tunnel_v1beta1_query_proto = out.File
-	file_tunnel_v1beta1_query_proto_rawDesc = nil
-	file_tunnel_v1beta1_query_proto_goTypes = nil
-	file_tunnel_v1beta1_query_proto_depIdxs = nil
+	File_band_tunnel_v1beta1_query_proto = out.File
+	file_band_tunnel_v1beta1_query_proto_rawDesc = nil
+	file_band_tunnel_v1beta1_query_proto_goTypes = nil
+	file_band_tunnel_v1beta1_query_proto_depIdxs = nil
 }

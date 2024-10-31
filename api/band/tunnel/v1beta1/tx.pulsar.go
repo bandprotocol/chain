@@ -131,8 +131,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_tx_proto_init()
-	md_MsgCreateTunnel = File_tunnel_v1beta1_tx_proto.Messages().ByName("MsgCreateTunnel")
+	file_band_tunnel_v1beta1_tx_proto_init()
+	md_MsgCreateTunnel = File_band_tunnel_v1beta1_tx_proto.Messages().ByName("MsgCreateTunnel")
 	fd_MsgCreateTunnel_signal_deviations = md_MsgCreateTunnel.Fields().ByName("signal_deviations")
 	fd_MsgCreateTunnel_interval = md_MsgCreateTunnel.Fields().ByName("interval")
 	fd_MsgCreateTunnel_route = md_MsgCreateTunnel.Fields().ByName("route")
@@ -150,7 +150,7 @@ func (x *MsgCreateTunnel) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgCreateTunnel) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_tx_proto_msgTypes[0]
+	mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -257,23 +257,23 @@ func (x *fastReflection_MsgCreateTunnel) Range(f func(protoreflect.FieldDescript
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgCreateTunnel) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgCreateTunnel.signal_deviations":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.signal_deviations":
 		return len(x.SignalDeviations) != 0
-	case "tunnel.v1beta1.MsgCreateTunnel.interval":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.interval":
 		return x.Interval != uint64(0)
-	case "tunnel.v1beta1.MsgCreateTunnel.route":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.route":
 		return x.Route != nil
-	case "tunnel.v1beta1.MsgCreateTunnel.encoder":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.encoder":
 		return x.Encoder != 0
-	case "tunnel.v1beta1.MsgCreateTunnel.initial_deposit":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.initial_deposit":
 		return len(x.InitialDeposit) != 0
-	case "tunnel.v1beta1.MsgCreateTunnel.creator":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.creator":
 		return x.Creator != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgCreateTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgCreateTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgCreateTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgCreateTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -285,23 +285,23 @@ func (x *fastReflection_MsgCreateTunnel) Has(fd protoreflect.FieldDescriptor) bo
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgCreateTunnel) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgCreateTunnel.signal_deviations":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.signal_deviations":
 		x.SignalDeviations = nil
-	case "tunnel.v1beta1.MsgCreateTunnel.interval":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.interval":
 		x.Interval = uint64(0)
-	case "tunnel.v1beta1.MsgCreateTunnel.route":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.route":
 		x.Route = nil
-	case "tunnel.v1beta1.MsgCreateTunnel.encoder":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.encoder":
 		x.Encoder = 0
-	case "tunnel.v1beta1.MsgCreateTunnel.initial_deposit":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.initial_deposit":
 		x.InitialDeposit = nil
-	case "tunnel.v1beta1.MsgCreateTunnel.creator":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.creator":
 		x.Creator = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgCreateTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgCreateTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgCreateTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgCreateTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -313,35 +313,35 @@ func (x *fastReflection_MsgCreateTunnel) Clear(fd protoreflect.FieldDescriptor) 
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgCreateTunnel) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.MsgCreateTunnel.signal_deviations":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.signal_deviations":
 		if len(x.SignalDeviations) == 0 {
 			return protoreflect.ValueOfList(&_MsgCreateTunnel_1_list{})
 		}
 		listValue := &_MsgCreateTunnel_1_list{list: &x.SignalDeviations}
 		return protoreflect.ValueOfList(listValue)
-	case "tunnel.v1beta1.MsgCreateTunnel.interval":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.interval":
 		value := x.Interval
 		return protoreflect.ValueOfUint64(value)
-	case "tunnel.v1beta1.MsgCreateTunnel.route":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.route":
 		value := x.Route
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
-	case "tunnel.v1beta1.MsgCreateTunnel.encoder":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.encoder":
 		value := x.Encoder
 		return protoreflect.ValueOfEnum((protoreflect.EnumNumber)(value))
-	case "tunnel.v1beta1.MsgCreateTunnel.initial_deposit":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.initial_deposit":
 		if len(x.InitialDeposit) == 0 {
 			return protoreflect.ValueOfList(&_MsgCreateTunnel_5_list{})
 		}
 		listValue := &_MsgCreateTunnel_5_list{list: &x.InitialDeposit}
 		return protoreflect.ValueOfList(listValue)
-	case "tunnel.v1beta1.MsgCreateTunnel.creator":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.creator":
 		value := x.Creator
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgCreateTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgCreateTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgCreateTunnel does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgCreateTunnel does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -357,27 +357,27 @@ func (x *fastReflection_MsgCreateTunnel) Get(descriptor protoreflect.FieldDescri
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgCreateTunnel) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgCreateTunnel.signal_deviations":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.signal_deviations":
 		lv := value.List()
 		clv := lv.(*_MsgCreateTunnel_1_list)
 		x.SignalDeviations = *clv.list
-	case "tunnel.v1beta1.MsgCreateTunnel.interval":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.interval":
 		x.Interval = value.Uint()
-	case "tunnel.v1beta1.MsgCreateTunnel.route":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.route":
 		x.Route = value.Message().Interface().(*anypb.Any)
-	case "tunnel.v1beta1.MsgCreateTunnel.encoder":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.encoder":
 		x.Encoder = (Encoder)(value.Enum())
-	case "tunnel.v1beta1.MsgCreateTunnel.initial_deposit":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.initial_deposit":
 		lv := value.List()
 		clv := lv.(*_MsgCreateTunnel_5_list)
 		x.InitialDeposit = *clv.list
-	case "tunnel.v1beta1.MsgCreateTunnel.creator":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.creator":
 		x.Creator = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgCreateTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgCreateTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgCreateTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgCreateTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -393,34 +393,34 @@ func (x *fastReflection_MsgCreateTunnel) Set(fd protoreflect.FieldDescriptor, va
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgCreateTunnel) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgCreateTunnel.signal_deviations":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.signal_deviations":
 		if x.SignalDeviations == nil {
 			x.SignalDeviations = []*SignalDeviation{}
 		}
 		value := &_MsgCreateTunnel_1_list{list: &x.SignalDeviations}
 		return protoreflect.ValueOfList(value)
-	case "tunnel.v1beta1.MsgCreateTunnel.route":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.route":
 		if x.Route == nil {
 			x.Route = new(anypb.Any)
 		}
 		return protoreflect.ValueOfMessage(x.Route.ProtoReflect())
-	case "tunnel.v1beta1.MsgCreateTunnel.initial_deposit":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.initial_deposit":
 		if x.InitialDeposit == nil {
 			x.InitialDeposit = []*v1beta1.Coin{}
 		}
 		value := &_MsgCreateTunnel_5_list{list: &x.InitialDeposit}
 		return protoreflect.ValueOfList(value)
-	case "tunnel.v1beta1.MsgCreateTunnel.interval":
-		panic(fmt.Errorf("field interval of message tunnel.v1beta1.MsgCreateTunnel is not mutable"))
-	case "tunnel.v1beta1.MsgCreateTunnel.encoder":
-		panic(fmt.Errorf("field encoder of message tunnel.v1beta1.MsgCreateTunnel is not mutable"))
-	case "tunnel.v1beta1.MsgCreateTunnel.creator":
-		panic(fmt.Errorf("field creator of message tunnel.v1beta1.MsgCreateTunnel is not mutable"))
+	case "band.tunnel.v1beta1.MsgCreateTunnel.interval":
+		panic(fmt.Errorf("field interval of message band.tunnel.v1beta1.MsgCreateTunnel is not mutable"))
+	case "band.tunnel.v1beta1.MsgCreateTunnel.encoder":
+		panic(fmt.Errorf("field encoder of message band.tunnel.v1beta1.MsgCreateTunnel is not mutable"))
+	case "band.tunnel.v1beta1.MsgCreateTunnel.creator":
+		panic(fmt.Errorf("field creator of message band.tunnel.v1beta1.MsgCreateTunnel is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgCreateTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgCreateTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgCreateTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgCreateTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -429,26 +429,26 @@ func (x *fastReflection_MsgCreateTunnel) Mutable(fd protoreflect.FieldDescriptor
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgCreateTunnel) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgCreateTunnel.signal_deviations":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.signal_deviations":
 		list := []*SignalDeviation{}
 		return protoreflect.ValueOfList(&_MsgCreateTunnel_1_list{list: &list})
-	case "tunnel.v1beta1.MsgCreateTunnel.interval":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.interval":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "tunnel.v1beta1.MsgCreateTunnel.route":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.route":
 		m := new(anypb.Any)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
-	case "tunnel.v1beta1.MsgCreateTunnel.encoder":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.encoder":
 		return protoreflect.ValueOfEnum(0)
-	case "tunnel.v1beta1.MsgCreateTunnel.initial_deposit":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.initial_deposit":
 		list := []*v1beta1.Coin{}
 		return protoreflect.ValueOfList(&_MsgCreateTunnel_5_list{list: &list})
-	case "tunnel.v1beta1.MsgCreateTunnel.creator":
+	case "band.tunnel.v1beta1.MsgCreateTunnel.creator":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgCreateTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgCreateTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgCreateTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgCreateTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -458,7 +458,7 @@ func (x *fastReflection_MsgCreateTunnel) NewField(fd protoreflect.FieldDescripto
 func (x *fastReflection_MsgCreateTunnel) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.MsgCreateTunnel", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.MsgCreateTunnel", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -895,8 +895,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_tx_proto_init()
-	md_MsgCreateTunnelResponse = File_tunnel_v1beta1_tx_proto.Messages().ByName("MsgCreateTunnelResponse")
+	file_band_tunnel_v1beta1_tx_proto_init()
+	md_MsgCreateTunnelResponse = File_band_tunnel_v1beta1_tx_proto.Messages().ByName("MsgCreateTunnelResponse")
 	fd_MsgCreateTunnelResponse_tunnel_id = md_MsgCreateTunnelResponse.Fields().ByName("tunnel_id")
 }
 
@@ -909,7 +909,7 @@ func (x *MsgCreateTunnelResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgCreateTunnelResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_tx_proto_msgTypes[1]
+	mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -986,13 +986,13 @@ func (x *fastReflection_MsgCreateTunnelResponse) Range(f func(protoreflect.Field
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgCreateTunnelResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgCreateTunnelResponse.tunnel_id":
+	case "band.tunnel.v1beta1.MsgCreateTunnelResponse.tunnel_id":
 		return x.TunnelId != uint64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgCreateTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgCreateTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgCreateTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgCreateTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1004,13 +1004,13 @@ func (x *fastReflection_MsgCreateTunnelResponse) Has(fd protoreflect.FieldDescri
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgCreateTunnelResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgCreateTunnelResponse.tunnel_id":
+	case "band.tunnel.v1beta1.MsgCreateTunnelResponse.tunnel_id":
 		x.TunnelId = uint64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgCreateTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgCreateTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgCreateTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgCreateTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1022,14 +1022,14 @@ func (x *fastReflection_MsgCreateTunnelResponse) Clear(fd protoreflect.FieldDesc
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgCreateTunnelResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.MsgCreateTunnelResponse.tunnel_id":
+	case "band.tunnel.v1beta1.MsgCreateTunnelResponse.tunnel_id":
 		value := x.TunnelId
 		return protoreflect.ValueOfUint64(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgCreateTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgCreateTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgCreateTunnelResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgCreateTunnelResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1045,13 +1045,13 @@ func (x *fastReflection_MsgCreateTunnelResponse) Get(descriptor protoreflect.Fie
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgCreateTunnelResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgCreateTunnelResponse.tunnel_id":
+	case "band.tunnel.v1beta1.MsgCreateTunnelResponse.tunnel_id":
 		x.TunnelId = value.Uint()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgCreateTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgCreateTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgCreateTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgCreateTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1067,13 +1067,13 @@ func (x *fastReflection_MsgCreateTunnelResponse) Set(fd protoreflect.FieldDescri
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgCreateTunnelResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgCreateTunnelResponse.tunnel_id":
-		panic(fmt.Errorf("field tunnel_id of message tunnel.v1beta1.MsgCreateTunnelResponse is not mutable"))
+	case "band.tunnel.v1beta1.MsgCreateTunnelResponse.tunnel_id":
+		panic(fmt.Errorf("field tunnel_id of message band.tunnel.v1beta1.MsgCreateTunnelResponse is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgCreateTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgCreateTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgCreateTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgCreateTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1082,13 +1082,13 @@ func (x *fastReflection_MsgCreateTunnelResponse) Mutable(fd protoreflect.FieldDe
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgCreateTunnelResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgCreateTunnelResponse.tunnel_id":
+	case "band.tunnel.v1beta1.MsgCreateTunnelResponse.tunnel_id":
 		return protoreflect.ValueOfUint64(uint64(0))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgCreateTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgCreateTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgCreateTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgCreateTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1098,7 +1098,7 @@ func (x *fastReflection_MsgCreateTunnelResponse) NewField(fd protoreflect.FieldD
 func (x *fastReflection_MsgCreateTunnelResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.MsgCreateTunnelResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.MsgCreateTunnelResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1353,8 +1353,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_tx_proto_init()
-	md_MsgEditTunnel = File_tunnel_v1beta1_tx_proto.Messages().ByName("MsgEditTunnel")
+	file_band_tunnel_v1beta1_tx_proto_init()
+	md_MsgEditTunnel = File_band_tunnel_v1beta1_tx_proto.Messages().ByName("MsgEditTunnel")
 	fd_MsgEditTunnel_tunnel_id = md_MsgEditTunnel.Fields().ByName("tunnel_id")
 	fd_MsgEditTunnel_signal_deviations = md_MsgEditTunnel.Fields().ByName("signal_deviations")
 	fd_MsgEditTunnel_interval = md_MsgEditTunnel.Fields().ByName("interval")
@@ -1370,7 +1370,7 @@ func (x *MsgEditTunnel) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgEditTunnel) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_tx_proto_msgTypes[2]
+	mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1465,19 +1465,19 @@ func (x *fastReflection_MsgEditTunnel) Range(f func(protoreflect.FieldDescriptor
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgEditTunnel) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgEditTunnel.tunnel_id":
+	case "band.tunnel.v1beta1.MsgEditTunnel.tunnel_id":
 		return x.TunnelId != uint64(0)
-	case "tunnel.v1beta1.MsgEditTunnel.signal_deviations":
+	case "band.tunnel.v1beta1.MsgEditTunnel.signal_deviations":
 		return len(x.SignalDeviations) != 0
-	case "tunnel.v1beta1.MsgEditTunnel.interval":
+	case "band.tunnel.v1beta1.MsgEditTunnel.interval":
 		return x.Interval != uint64(0)
-	case "tunnel.v1beta1.MsgEditTunnel.creator":
+	case "band.tunnel.v1beta1.MsgEditTunnel.creator":
 		return x.Creator != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgEditTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgEditTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgEditTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgEditTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1489,19 +1489,19 @@ func (x *fastReflection_MsgEditTunnel) Has(fd protoreflect.FieldDescriptor) bool
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgEditTunnel) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgEditTunnel.tunnel_id":
+	case "band.tunnel.v1beta1.MsgEditTunnel.tunnel_id":
 		x.TunnelId = uint64(0)
-	case "tunnel.v1beta1.MsgEditTunnel.signal_deviations":
+	case "band.tunnel.v1beta1.MsgEditTunnel.signal_deviations":
 		x.SignalDeviations = nil
-	case "tunnel.v1beta1.MsgEditTunnel.interval":
+	case "band.tunnel.v1beta1.MsgEditTunnel.interval":
 		x.Interval = uint64(0)
-	case "tunnel.v1beta1.MsgEditTunnel.creator":
+	case "band.tunnel.v1beta1.MsgEditTunnel.creator":
 		x.Creator = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgEditTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgEditTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgEditTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgEditTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1513,26 +1513,26 @@ func (x *fastReflection_MsgEditTunnel) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgEditTunnel) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.MsgEditTunnel.tunnel_id":
+	case "band.tunnel.v1beta1.MsgEditTunnel.tunnel_id":
 		value := x.TunnelId
 		return protoreflect.ValueOfUint64(value)
-	case "tunnel.v1beta1.MsgEditTunnel.signal_deviations":
+	case "band.tunnel.v1beta1.MsgEditTunnel.signal_deviations":
 		if len(x.SignalDeviations) == 0 {
 			return protoreflect.ValueOfList(&_MsgEditTunnel_2_list{})
 		}
 		listValue := &_MsgEditTunnel_2_list{list: &x.SignalDeviations}
 		return protoreflect.ValueOfList(listValue)
-	case "tunnel.v1beta1.MsgEditTunnel.interval":
+	case "band.tunnel.v1beta1.MsgEditTunnel.interval":
 		value := x.Interval
 		return protoreflect.ValueOfUint64(value)
-	case "tunnel.v1beta1.MsgEditTunnel.creator":
+	case "band.tunnel.v1beta1.MsgEditTunnel.creator":
 		value := x.Creator
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgEditTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgEditTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgEditTunnel does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgEditTunnel does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1548,21 +1548,21 @@ func (x *fastReflection_MsgEditTunnel) Get(descriptor protoreflect.FieldDescript
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgEditTunnel) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgEditTunnel.tunnel_id":
+	case "band.tunnel.v1beta1.MsgEditTunnel.tunnel_id":
 		x.TunnelId = value.Uint()
-	case "tunnel.v1beta1.MsgEditTunnel.signal_deviations":
+	case "band.tunnel.v1beta1.MsgEditTunnel.signal_deviations":
 		lv := value.List()
 		clv := lv.(*_MsgEditTunnel_2_list)
 		x.SignalDeviations = *clv.list
-	case "tunnel.v1beta1.MsgEditTunnel.interval":
+	case "band.tunnel.v1beta1.MsgEditTunnel.interval":
 		x.Interval = value.Uint()
-	case "tunnel.v1beta1.MsgEditTunnel.creator":
+	case "band.tunnel.v1beta1.MsgEditTunnel.creator":
 		x.Creator = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgEditTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgEditTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgEditTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgEditTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1578,23 +1578,23 @@ func (x *fastReflection_MsgEditTunnel) Set(fd protoreflect.FieldDescriptor, valu
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgEditTunnel) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgEditTunnel.signal_deviations":
+	case "band.tunnel.v1beta1.MsgEditTunnel.signal_deviations":
 		if x.SignalDeviations == nil {
 			x.SignalDeviations = []*SignalDeviation{}
 		}
 		value := &_MsgEditTunnel_2_list{list: &x.SignalDeviations}
 		return protoreflect.ValueOfList(value)
-	case "tunnel.v1beta1.MsgEditTunnel.tunnel_id":
-		panic(fmt.Errorf("field tunnel_id of message tunnel.v1beta1.MsgEditTunnel is not mutable"))
-	case "tunnel.v1beta1.MsgEditTunnel.interval":
-		panic(fmt.Errorf("field interval of message tunnel.v1beta1.MsgEditTunnel is not mutable"))
-	case "tunnel.v1beta1.MsgEditTunnel.creator":
-		panic(fmt.Errorf("field creator of message tunnel.v1beta1.MsgEditTunnel is not mutable"))
+	case "band.tunnel.v1beta1.MsgEditTunnel.tunnel_id":
+		panic(fmt.Errorf("field tunnel_id of message band.tunnel.v1beta1.MsgEditTunnel is not mutable"))
+	case "band.tunnel.v1beta1.MsgEditTunnel.interval":
+		panic(fmt.Errorf("field interval of message band.tunnel.v1beta1.MsgEditTunnel is not mutable"))
+	case "band.tunnel.v1beta1.MsgEditTunnel.creator":
+		panic(fmt.Errorf("field creator of message band.tunnel.v1beta1.MsgEditTunnel is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgEditTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgEditTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgEditTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgEditTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1603,20 +1603,20 @@ func (x *fastReflection_MsgEditTunnel) Mutable(fd protoreflect.FieldDescriptor) 
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgEditTunnel) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgEditTunnel.tunnel_id":
+	case "band.tunnel.v1beta1.MsgEditTunnel.tunnel_id":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "tunnel.v1beta1.MsgEditTunnel.signal_deviations":
+	case "band.tunnel.v1beta1.MsgEditTunnel.signal_deviations":
 		list := []*SignalDeviation{}
 		return protoreflect.ValueOfList(&_MsgEditTunnel_2_list{list: &list})
-	case "tunnel.v1beta1.MsgEditTunnel.interval":
+	case "band.tunnel.v1beta1.MsgEditTunnel.interval":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "tunnel.v1beta1.MsgEditTunnel.creator":
+	case "band.tunnel.v1beta1.MsgEditTunnel.creator":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgEditTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgEditTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgEditTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgEditTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1626,7 +1626,7 @@ func (x *fastReflection_MsgEditTunnel) NewField(fd protoreflect.FieldDescriptor)
 func (x *fastReflection_MsgEditTunnel) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.MsgEditTunnel", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.MsgEditTunnel", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1952,8 +1952,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_tx_proto_init()
-	md_MsgEditTunnelResponse = File_tunnel_v1beta1_tx_proto.Messages().ByName("MsgEditTunnelResponse")
+	file_band_tunnel_v1beta1_tx_proto_init()
+	md_MsgEditTunnelResponse = File_band_tunnel_v1beta1_tx_proto.Messages().ByName("MsgEditTunnelResponse")
 }
 
 var _ protoreflect.Message = (*fastReflection_MsgEditTunnelResponse)(nil)
@@ -1965,7 +1965,7 @@ func (x *MsgEditTunnelResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgEditTunnelResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_tx_proto_msgTypes[3]
+	mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2038,9 +2038,9 @@ func (x *fastReflection_MsgEditTunnelResponse) Has(fd protoreflect.FieldDescript
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgEditTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgEditTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgEditTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgEditTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2054,9 +2054,9 @@ func (x *fastReflection_MsgEditTunnelResponse) Clear(fd protoreflect.FieldDescri
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgEditTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgEditTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgEditTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgEditTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2070,9 +2070,9 @@ func (x *fastReflection_MsgEditTunnelResponse) Get(descriptor protoreflect.Field
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgEditTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgEditTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgEditTunnelResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgEditTunnelResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2090,9 +2090,9 @@ func (x *fastReflection_MsgEditTunnelResponse) Set(fd protoreflect.FieldDescript
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgEditTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgEditTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgEditTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgEditTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2110,9 +2110,9 @@ func (x *fastReflection_MsgEditTunnelResponse) Mutable(fd protoreflect.FieldDesc
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgEditTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgEditTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgEditTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgEditTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2123,9 +2123,9 @@ func (x *fastReflection_MsgEditTunnelResponse) NewField(fd protoreflect.FieldDes
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgEditTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgEditTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgEditTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgEditTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2135,7 +2135,7 @@ func (x *fastReflection_MsgEditTunnelResponse) NewField(fd protoreflect.FieldDes
 func (x *fastReflection_MsgEditTunnelResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.MsgEditTunnelResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.MsgEditTunnelResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2310,8 +2310,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_tx_proto_init()
-	md_MsgActivate = File_tunnel_v1beta1_tx_proto.Messages().ByName("MsgActivate")
+	file_band_tunnel_v1beta1_tx_proto_init()
+	md_MsgActivate = File_band_tunnel_v1beta1_tx_proto.Messages().ByName("MsgActivate")
 	fd_MsgActivate_tunnel_id = md_MsgActivate.Fields().ByName("tunnel_id")
 	fd_MsgActivate_creator = md_MsgActivate.Fields().ByName("creator")
 }
@@ -2325,7 +2325,7 @@ func (x *MsgActivate) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgActivate) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_tx_proto_msgTypes[4]
+	mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2408,15 +2408,15 @@ func (x *fastReflection_MsgActivate) Range(f func(protoreflect.FieldDescriptor, 
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgActivate) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgActivate.tunnel_id":
+	case "band.tunnel.v1beta1.MsgActivate.tunnel_id":
 		return x.TunnelId != uint64(0)
-	case "tunnel.v1beta1.MsgActivate.creator":
+	case "band.tunnel.v1beta1.MsgActivate.creator":
 		return x.Creator != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgActivate"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgActivate"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgActivate does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgActivate does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2428,15 +2428,15 @@ func (x *fastReflection_MsgActivate) Has(fd protoreflect.FieldDescriptor) bool {
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgActivate) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgActivate.tunnel_id":
+	case "band.tunnel.v1beta1.MsgActivate.tunnel_id":
 		x.TunnelId = uint64(0)
-	case "tunnel.v1beta1.MsgActivate.creator":
+	case "band.tunnel.v1beta1.MsgActivate.creator":
 		x.Creator = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgActivate"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgActivate"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgActivate does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgActivate does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2448,17 +2448,17 @@ func (x *fastReflection_MsgActivate) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgActivate) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.MsgActivate.tunnel_id":
+	case "band.tunnel.v1beta1.MsgActivate.tunnel_id":
 		value := x.TunnelId
 		return protoreflect.ValueOfUint64(value)
-	case "tunnel.v1beta1.MsgActivate.creator":
+	case "band.tunnel.v1beta1.MsgActivate.creator":
 		value := x.Creator
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgActivate"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgActivate"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgActivate does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgActivate does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2474,15 +2474,15 @@ func (x *fastReflection_MsgActivate) Get(descriptor protoreflect.FieldDescriptor
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgActivate) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgActivate.tunnel_id":
+	case "band.tunnel.v1beta1.MsgActivate.tunnel_id":
 		x.TunnelId = value.Uint()
-	case "tunnel.v1beta1.MsgActivate.creator":
+	case "band.tunnel.v1beta1.MsgActivate.creator":
 		x.Creator = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgActivate"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgActivate"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgActivate does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgActivate does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2498,15 +2498,15 @@ func (x *fastReflection_MsgActivate) Set(fd protoreflect.FieldDescriptor, value 
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgActivate) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgActivate.tunnel_id":
-		panic(fmt.Errorf("field tunnel_id of message tunnel.v1beta1.MsgActivate is not mutable"))
-	case "tunnel.v1beta1.MsgActivate.creator":
-		panic(fmt.Errorf("field creator of message tunnel.v1beta1.MsgActivate is not mutable"))
+	case "band.tunnel.v1beta1.MsgActivate.tunnel_id":
+		panic(fmt.Errorf("field tunnel_id of message band.tunnel.v1beta1.MsgActivate is not mutable"))
+	case "band.tunnel.v1beta1.MsgActivate.creator":
+		panic(fmt.Errorf("field creator of message band.tunnel.v1beta1.MsgActivate is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgActivate"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgActivate"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgActivate does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgActivate does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2515,15 +2515,15 @@ func (x *fastReflection_MsgActivate) Mutable(fd protoreflect.FieldDescriptor) pr
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgActivate) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgActivate.tunnel_id":
+	case "band.tunnel.v1beta1.MsgActivate.tunnel_id":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "tunnel.v1beta1.MsgActivate.creator":
+	case "band.tunnel.v1beta1.MsgActivate.creator":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgActivate"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgActivate"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgActivate does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgActivate does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2533,7 +2533,7 @@ func (x *fastReflection_MsgActivate) NewField(fd protoreflect.FieldDescriptor) p
 func (x *fastReflection_MsgActivate) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.MsgActivate", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.MsgActivate", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2776,8 +2776,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_tx_proto_init()
-	md_MsgActivateResponse = File_tunnel_v1beta1_tx_proto.Messages().ByName("MsgActivateResponse")
+	file_band_tunnel_v1beta1_tx_proto_init()
+	md_MsgActivateResponse = File_band_tunnel_v1beta1_tx_proto.Messages().ByName("MsgActivateResponse")
 }
 
 var _ protoreflect.Message = (*fastReflection_MsgActivateResponse)(nil)
@@ -2789,7 +2789,7 @@ func (x *MsgActivateResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgActivateResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_tx_proto_msgTypes[5]
+	mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2862,9 +2862,9 @@ func (x *fastReflection_MsgActivateResponse) Has(fd protoreflect.FieldDescriptor
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgActivateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgActivateResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgActivateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgActivateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2878,9 +2878,9 @@ func (x *fastReflection_MsgActivateResponse) Clear(fd protoreflect.FieldDescript
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgActivateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgActivateResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgActivateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgActivateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2894,9 +2894,9 @@ func (x *fastReflection_MsgActivateResponse) Get(descriptor protoreflect.FieldDe
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgActivateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgActivateResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgActivateResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgActivateResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -2914,9 +2914,9 @@ func (x *fastReflection_MsgActivateResponse) Set(fd protoreflect.FieldDescriptor
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgActivateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgActivateResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgActivateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgActivateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2934,9 +2934,9 @@ func (x *fastReflection_MsgActivateResponse) Mutable(fd protoreflect.FieldDescri
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgActivateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgActivateResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgActivateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgActivateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2947,9 +2947,9 @@ func (x *fastReflection_MsgActivateResponse) NewField(fd protoreflect.FieldDescr
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgActivateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgActivateResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgActivateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgActivateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -2959,7 +2959,7 @@ func (x *fastReflection_MsgActivateResponse) NewField(fd protoreflect.FieldDescr
 func (x *fastReflection_MsgActivateResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.MsgActivateResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.MsgActivateResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -3134,8 +3134,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_tx_proto_init()
-	md_MsgDeactivate = File_tunnel_v1beta1_tx_proto.Messages().ByName("MsgDeactivate")
+	file_band_tunnel_v1beta1_tx_proto_init()
+	md_MsgDeactivate = File_band_tunnel_v1beta1_tx_proto.Messages().ByName("MsgDeactivate")
 	fd_MsgDeactivate_tunnel_id = md_MsgDeactivate.Fields().ByName("tunnel_id")
 	fd_MsgDeactivate_creator = md_MsgDeactivate.Fields().ByName("creator")
 }
@@ -3149,7 +3149,7 @@ func (x *MsgDeactivate) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgDeactivate) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_tx_proto_msgTypes[6]
+	mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3232,15 +3232,15 @@ func (x *fastReflection_MsgDeactivate) Range(f func(protoreflect.FieldDescriptor
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgDeactivate) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgDeactivate.tunnel_id":
+	case "band.tunnel.v1beta1.MsgDeactivate.tunnel_id":
 		return x.TunnelId != uint64(0)
-	case "tunnel.v1beta1.MsgDeactivate.creator":
+	case "band.tunnel.v1beta1.MsgDeactivate.creator":
 		return x.Creator != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDeactivate"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDeactivate"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDeactivate does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDeactivate does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3252,15 +3252,15 @@ func (x *fastReflection_MsgDeactivate) Has(fd protoreflect.FieldDescriptor) bool
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgDeactivate) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgDeactivate.tunnel_id":
+	case "band.tunnel.v1beta1.MsgDeactivate.tunnel_id":
 		x.TunnelId = uint64(0)
-	case "tunnel.v1beta1.MsgDeactivate.creator":
+	case "band.tunnel.v1beta1.MsgDeactivate.creator":
 		x.Creator = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDeactivate"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDeactivate"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDeactivate does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDeactivate does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3272,17 +3272,17 @@ func (x *fastReflection_MsgDeactivate) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgDeactivate) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.MsgDeactivate.tunnel_id":
+	case "band.tunnel.v1beta1.MsgDeactivate.tunnel_id":
 		value := x.TunnelId
 		return protoreflect.ValueOfUint64(value)
-	case "tunnel.v1beta1.MsgDeactivate.creator":
+	case "band.tunnel.v1beta1.MsgDeactivate.creator":
 		value := x.Creator
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDeactivate"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDeactivate"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDeactivate does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDeactivate does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -3298,15 +3298,15 @@ func (x *fastReflection_MsgDeactivate) Get(descriptor protoreflect.FieldDescript
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgDeactivate) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgDeactivate.tunnel_id":
+	case "band.tunnel.v1beta1.MsgDeactivate.tunnel_id":
 		x.TunnelId = value.Uint()
-	case "tunnel.v1beta1.MsgDeactivate.creator":
+	case "band.tunnel.v1beta1.MsgDeactivate.creator":
 		x.Creator = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDeactivate"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDeactivate"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDeactivate does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDeactivate does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3322,15 +3322,15 @@ func (x *fastReflection_MsgDeactivate) Set(fd protoreflect.FieldDescriptor, valu
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgDeactivate) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgDeactivate.tunnel_id":
-		panic(fmt.Errorf("field tunnel_id of message tunnel.v1beta1.MsgDeactivate is not mutable"))
-	case "tunnel.v1beta1.MsgDeactivate.creator":
-		panic(fmt.Errorf("field creator of message tunnel.v1beta1.MsgDeactivate is not mutable"))
+	case "band.tunnel.v1beta1.MsgDeactivate.tunnel_id":
+		panic(fmt.Errorf("field tunnel_id of message band.tunnel.v1beta1.MsgDeactivate is not mutable"))
+	case "band.tunnel.v1beta1.MsgDeactivate.creator":
+		panic(fmt.Errorf("field creator of message band.tunnel.v1beta1.MsgDeactivate is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDeactivate"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDeactivate"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDeactivate does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDeactivate does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3339,15 +3339,15 @@ func (x *fastReflection_MsgDeactivate) Mutable(fd protoreflect.FieldDescriptor) 
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgDeactivate) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgDeactivate.tunnel_id":
+	case "band.tunnel.v1beta1.MsgDeactivate.tunnel_id":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "tunnel.v1beta1.MsgDeactivate.creator":
+	case "band.tunnel.v1beta1.MsgDeactivate.creator":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDeactivate"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDeactivate"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDeactivate does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDeactivate does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3357,7 +3357,7 @@ func (x *fastReflection_MsgDeactivate) NewField(fd protoreflect.FieldDescriptor)
 func (x *fastReflection_MsgDeactivate) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.MsgDeactivate", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.MsgDeactivate", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -3600,8 +3600,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_tx_proto_init()
-	md_MsgDeactivateResponse = File_tunnel_v1beta1_tx_proto.Messages().ByName("MsgDeactivateResponse")
+	file_band_tunnel_v1beta1_tx_proto_init()
+	md_MsgDeactivateResponse = File_band_tunnel_v1beta1_tx_proto.Messages().ByName("MsgDeactivateResponse")
 }
 
 var _ protoreflect.Message = (*fastReflection_MsgDeactivateResponse)(nil)
@@ -3613,7 +3613,7 @@ func (x *MsgDeactivateResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgDeactivateResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_tx_proto_msgTypes[7]
+	mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3686,9 +3686,9 @@ func (x *fastReflection_MsgDeactivateResponse) Has(fd protoreflect.FieldDescript
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDeactivateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDeactivateResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDeactivateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDeactivateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3702,9 +3702,9 @@ func (x *fastReflection_MsgDeactivateResponse) Clear(fd protoreflect.FieldDescri
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDeactivateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDeactivateResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDeactivateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDeactivateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3718,9 +3718,9 @@ func (x *fastReflection_MsgDeactivateResponse) Get(descriptor protoreflect.Field
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDeactivateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDeactivateResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDeactivateResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDeactivateResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -3738,9 +3738,9 @@ func (x *fastReflection_MsgDeactivateResponse) Set(fd protoreflect.FieldDescript
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDeactivateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDeactivateResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDeactivateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDeactivateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3758,9 +3758,9 @@ func (x *fastReflection_MsgDeactivateResponse) Mutable(fd protoreflect.FieldDesc
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDeactivateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDeactivateResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDeactivateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDeactivateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3771,9 +3771,9 @@ func (x *fastReflection_MsgDeactivateResponse) NewField(fd protoreflect.FieldDes
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDeactivateResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDeactivateResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDeactivateResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDeactivateResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -3783,7 +3783,7 @@ func (x *fastReflection_MsgDeactivateResponse) NewField(fd protoreflect.FieldDes
 func (x *fastReflection_MsgDeactivateResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.MsgDeactivateResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.MsgDeactivateResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -3958,8 +3958,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_tx_proto_init()
-	md_MsgTriggerTunnel = File_tunnel_v1beta1_tx_proto.Messages().ByName("MsgTriggerTunnel")
+	file_band_tunnel_v1beta1_tx_proto_init()
+	md_MsgTriggerTunnel = File_band_tunnel_v1beta1_tx_proto.Messages().ByName("MsgTriggerTunnel")
 	fd_MsgTriggerTunnel_tunnel_id = md_MsgTriggerTunnel.Fields().ByName("tunnel_id")
 	fd_MsgTriggerTunnel_creator = md_MsgTriggerTunnel.Fields().ByName("creator")
 }
@@ -3973,7 +3973,7 @@ func (x *MsgTriggerTunnel) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgTriggerTunnel) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_tx_proto_msgTypes[8]
+	mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4056,15 +4056,15 @@ func (x *fastReflection_MsgTriggerTunnel) Range(f func(protoreflect.FieldDescrip
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgTriggerTunnel) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgTriggerTunnel.tunnel_id":
+	case "band.tunnel.v1beta1.MsgTriggerTunnel.tunnel_id":
 		return x.TunnelId != uint64(0)
-	case "tunnel.v1beta1.MsgTriggerTunnel.creator":
+	case "band.tunnel.v1beta1.MsgTriggerTunnel.creator":
 		return x.Creator != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgTriggerTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgTriggerTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgTriggerTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgTriggerTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4076,15 +4076,15 @@ func (x *fastReflection_MsgTriggerTunnel) Has(fd protoreflect.FieldDescriptor) b
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgTriggerTunnel) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgTriggerTunnel.tunnel_id":
+	case "band.tunnel.v1beta1.MsgTriggerTunnel.tunnel_id":
 		x.TunnelId = uint64(0)
-	case "tunnel.v1beta1.MsgTriggerTunnel.creator":
+	case "band.tunnel.v1beta1.MsgTriggerTunnel.creator":
 		x.Creator = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgTriggerTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgTriggerTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgTriggerTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgTriggerTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4096,17 +4096,17 @@ func (x *fastReflection_MsgTriggerTunnel) Clear(fd protoreflect.FieldDescriptor)
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgTriggerTunnel) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.MsgTriggerTunnel.tunnel_id":
+	case "band.tunnel.v1beta1.MsgTriggerTunnel.tunnel_id":
 		value := x.TunnelId
 		return protoreflect.ValueOfUint64(value)
-	case "tunnel.v1beta1.MsgTriggerTunnel.creator":
+	case "band.tunnel.v1beta1.MsgTriggerTunnel.creator":
 		value := x.Creator
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgTriggerTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgTriggerTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgTriggerTunnel does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgTriggerTunnel does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -4122,15 +4122,15 @@ func (x *fastReflection_MsgTriggerTunnel) Get(descriptor protoreflect.FieldDescr
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgTriggerTunnel) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgTriggerTunnel.tunnel_id":
+	case "band.tunnel.v1beta1.MsgTriggerTunnel.tunnel_id":
 		x.TunnelId = value.Uint()
-	case "tunnel.v1beta1.MsgTriggerTunnel.creator":
+	case "band.tunnel.v1beta1.MsgTriggerTunnel.creator":
 		x.Creator = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgTriggerTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgTriggerTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgTriggerTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgTriggerTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4146,15 +4146,15 @@ func (x *fastReflection_MsgTriggerTunnel) Set(fd protoreflect.FieldDescriptor, v
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgTriggerTunnel) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgTriggerTunnel.tunnel_id":
-		panic(fmt.Errorf("field tunnel_id of message tunnel.v1beta1.MsgTriggerTunnel is not mutable"))
-	case "tunnel.v1beta1.MsgTriggerTunnel.creator":
-		panic(fmt.Errorf("field creator of message tunnel.v1beta1.MsgTriggerTunnel is not mutable"))
+	case "band.tunnel.v1beta1.MsgTriggerTunnel.tunnel_id":
+		panic(fmt.Errorf("field tunnel_id of message band.tunnel.v1beta1.MsgTriggerTunnel is not mutable"))
+	case "band.tunnel.v1beta1.MsgTriggerTunnel.creator":
+		panic(fmt.Errorf("field creator of message band.tunnel.v1beta1.MsgTriggerTunnel is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgTriggerTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgTriggerTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgTriggerTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgTriggerTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4163,15 +4163,15 @@ func (x *fastReflection_MsgTriggerTunnel) Mutable(fd protoreflect.FieldDescripto
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgTriggerTunnel) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgTriggerTunnel.tunnel_id":
+	case "band.tunnel.v1beta1.MsgTriggerTunnel.tunnel_id":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "tunnel.v1beta1.MsgTriggerTunnel.creator":
+	case "band.tunnel.v1beta1.MsgTriggerTunnel.creator":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgTriggerTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgTriggerTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgTriggerTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgTriggerTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4181,7 +4181,7 @@ func (x *fastReflection_MsgTriggerTunnel) NewField(fd protoreflect.FieldDescript
 func (x *fastReflection_MsgTriggerTunnel) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.MsgTriggerTunnel", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.MsgTriggerTunnel", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -4424,8 +4424,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_tx_proto_init()
-	md_MsgTriggerTunnelResponse = File_tunnel_v1beta1_tx_proto.Messages().ByName("MsgTriggerTunnelResponse")
+	file_band_tunnel_v1beta1_tx_proto_init()
+	md_MsgTriggerTunnelResponse = File_band_tunnel_v1beta1_tx_proto.Messages().ByName("MsgTriggerTunnelResponse")
 }
 
 var _ protoreflect.Message = (*fastReflection_MsgTriggerTunnelResponse)(nil)
@@ -4437,7 +4437,7 @@ func (x *MsgTriggerTunnelResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgTriggerTunnelResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_tx_proto_msgTypes[9]
+	mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4510,9 +4510,9 @@ func (x *fastReflection_MsgTriggerTunnelResponse) Has(fd protoreflect.FieldDescr
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgTriggerTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgTriggerTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgTriggerTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgTriggerTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4526,9 +4526,9 @@ func (x *fastReflection_MsgTriggerTunnelResponse) Clear(fd protoreflect.FieldDes
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgTriggerTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgTriggerTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgTriggerTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgTriggerTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4542,9 +4542,9 @@ func (x *fastReflection_MsgTriggerTunnelResponse) Get(descriptor protoreflect.Fi
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgTriggerTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgTriggerTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgTriggerTunnelResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgTriggerTunnelResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -4562,9 +4562,9 @@ func (x *fastReflection_MsgTriggerTunnelResponse) Set(fd protoreflect.FieldDescr
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgTriggerTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgTriggerTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgTriggerTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgTriggerTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4582,9 +4582,9 @@ func (x *fastReflection_MsgTriggerTunnelResponse) Mutable(fd protoreflect.FieldD
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgTriggerTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgTriggerTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgTriggerTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgTriggerTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4595,9 +4595,9 @@ func (x *fastReflection_MsgTriggerTunnelResponse) NewField(fd protoreflect.Field
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgTriggerTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgTriggerTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgTriggerTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgTriggerTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4607,7 +4607,7 @@ func (x *fastReflection_MsgTriggerTunnelResponse) NewField(fd protoreflect.Field
 func (x *fastReflection_MsgTriggerTunnelResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.MsgTriggerTunnelResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.MsgTriggerTunnelResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -4834,8 +4834,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_tx_proto_init()
-	md_MsgDepositTunnel = File_tunnel_v1beta1_tx_proto.Messages().ByName("MsgDepositTunnel")
+	file_band_tunnel_v1beta1_tx_proto_init()
+	md_MsgDepositTunnel = File_band_tunnel_v1beta1_tx_proto.Messages().ByName("MsgDepositTunnel")
 	fd_MsgDepositTunnel_tunnel_id = md_MsgDepositTunnel.Fields().ByName("tunnel_id")
 	fd_MsgDepositTunnel_amount = md_MsgDepositTunnel.Fields().ByName("amount")
 	fd_MsgDepositTunnel_depositor = md_MsgDepositTunnel.Fields().ByName("depositor")
@@ -4850,7 +4850,7 @@ func (x *MsgDepositTunnel) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgDepositTunnel) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_tx_proto_msgTypes[10]
+	mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4939,17 +4939,17 @@ func (x *fastReflection_MsgDepositTunnel) Range(f func(protoreflect.FieldDescrip
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgDepositTunnel) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgDepositTunnel.tunnel_id":
+	case "band.tunnel.v1beta1.MsgDepositTunnel.tunnel_id":
 		return x.TunnelId != uint64(0)
-	case "tunnel.v1beta1.MsgDepositTunnel.amount":
+	case "band.tunnel.v1beta1.MsgDepositTunnel.amount":
 		return len(x.Amount) != 0
-	case "tunnel.v1beta1.MsgDepositTunnel.depositor":
+	case "band.tunnel.v1beta1.MsgDepositTunnel.depositor":
 		return x.Depositor != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDepositTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDepositTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDepositTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDepositTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4961,17 +4961,17 @@ func (x *fastReflection_MsgDepositTunnel) Has(fd protoreflect.FieldDescriptor) b
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgDepositTunnel) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgDepositTunnel.tunnel_id":
+	case "band.tunnel.v1beta1.MsgDepositTunnel.tunnel_id":
 		x.TunnelId = uint64(0)
-	case "tunnel.v1beta1.MsgDepositTunnel.amount":
+	case "band.tunnel.v1beta1.MsgDepositTunnel.amount":
 		x.Amount = nil
-	case "tunnel.v1beta1.MsgDepositTunnel.depositor":
+	case "band.tunnel.v1beta1.MsgDepositTunnel.depositor":
 		x.Depositor = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDepositTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDepositTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDepositTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDepositTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -4983,23 +4983,23 @@ func (x *fastReflection_MsgDepositTunnel) Clear(fd protoreflect.FieldDescriptor)
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgDepositTunnel) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.MsgDepositTunnel.tunnel_id":
+	case "band.tunnel.v1beta1.MsgDepositTunnel.tunnel_id":
 		value := x.TunnelId
 		return protoreflect.ValueOfUint64(value)
-	case "tunnel.v1beta1.MsgDepositTunnel.amount":
+	case "band.tunnel.v1beta1.MsgDepositTunnel.amount":
 		if len(x.Amount) == 0 {
 			return protoreflect.ValueOfList(&_MsgDepositTunnel_2_list{})
 		}
 		listValue := &_MsgDepositTunnel_2_list{list: &x.Amount}
 		return protoreflect.ValueOfList(listValue)
-	case "tunnel.v1beta1.MsgDepositTunnel.depositor":
+	case "band.tunnel.v1beta1.MsgDepositTunnel.depositor":
 		value := x.Depositor
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDepositTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDepositTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDepositTunnel does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDepositTunnel does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -5015,19 +5015,19 @@ func (x *fastReflection_MsgDepositTunnel) Get(descriptor protoreflect.FieldDescr
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgDepositTunnel) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgDepositTunnel.tunnel_id":
+	case "band.tunnel.v1beta1.MsgDepositTunnel.tunnel_id":
 		x.TunnelId = value.Uint()
-	case "tunnel.v1beta1.MsgDepositTunnel.amount":
+	case "band.tunnel.v1beta1.MsgDepositTunnel.amount":
 		lv := value.List()
 		clv := lv.(*_MsgDepositTunnel_2_list)
 		x.Amount = *clv.list
-	case "tunnel.v1beta1.MsgDepositTunnel.depositor":
+	case "band.tunnel.v1beta1.MsgDepositTunnel.depositor":
 		x.Depositor = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDepositTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDepositTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDepositTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDepositTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5043,21 +5043,21 @@ func (x *fastReflection_MsgDepositTunnel) Set(fd protoreflect.FieldDescriptor, v
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgDepositTunnel) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgDepositTunnel.amount":
+	case "band.tunnel.v1beta1.MsgDepositTunnel.amount":
 		if x.Amount == nil {
 			x.Amount = []*v1beta1.Coin{}
 		}
 		value := &_MsgDepositTunnel_2_list{list: &x.Amount}
 		return protoreflect.ValueOfList(value)
-	case "tunnel.v1beta1.MsgDepositTunnel.tunnel_id":
-		panic(fmt.Errorf("field tunnel_id of message tunnel.v1beta1.MsgDepositTunnel is not mutable"))
-	case "tunnel.v1beta1.MsgDepositTunnel.depositor":
-		panic(fmt.Errorf("field depositor of message tunnel.v1beta1.MsgDepositTunnel is not mutable"))
+	case "band.tunnel.v1beta1.MsgDepositTunnel.tunnel_id":
+		panic(fmt.Errorf("field tunnel_id of message band.tunnel.v1beta1.MsgDepositTunnel is not mutable"))
+	case "band.tunnel.v1beta1.MsgDepositTunnel.depositor":
+		panic(fmt.Errorf("field depositor of message band.tunnel.v1beta1.MsgDepositTunnel is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDepositTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDepositTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDepositTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDepositTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5066,18 +5066,18 @@ func (x *fastReflection_MsgDepositTunnel) Mutable(fd protoreflect.FieldDescripto
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgDepositTunnel) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgDepositTunnel.tunnel_id":
+	case "band.tunnel.v1beta1.MsgDepositTunnel.tunnel_id":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "tunnel.v1beta1.MsgDepositTunnel.amount":
+	case "band.tunnel.v1beta1.MsgDepositTunnel.amount":
 		list := []*v1beta1.Coin{}
 		return protoreflect.ValueOfList(&_MsgDepositTunnel_2_list{list: &list})
-	case "tunnel.v1beta1.MsgDepositTunnel.depositor":
+	case "band.tunnel.v1beta1.MsgDepositTunnel.depositor":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDepositTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDepositTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDepositTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDepositTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5087,7 +5087,7 @@ func (x *fastReflection_MsgDepositTunnel) NewField(fd protoreflect.FieldDescript
 func (x *fastReflection_MsgDepositTunnel) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.MsgDepositTunnel", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.MsgDepositTunnel", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -5386,8 +5386,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_tx_proto_init()
-	md_MsgDepositTunnelResponse = File_tunnel_v1beta1_tx_proto.Messages().ByName("MsgDepositTunnelResponse")
+	file_band_tunnel_v1beta1_tx_proto_init()
+	md_MsgDepositTunnelResponse = File_band_tunnel_v1beta1_tx_proto.Messages().ByName("MsgDepositTunnelResponse")
 }
 
 var _ protoreflect.Message = (*fastReflection_MsgDepositTunnelResponse)(nil)
@@ -5399,7 +5399,7 @@ func (x *MsgDepositTunnelResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgDepositTunnelResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_tx_proto_msgTypes[11]
+	mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5472,9 +5472,9 @@ func (x *fastReflection_MsgDepositTunnelResponse) Has(fd protoreflect.FieldDescr
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDepositTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDepositTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDepositTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDepositTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5488,9 +5488,9 @@ func (x *fastReflection_MsgDepositTunnelResponse) Clear(fd protoreflect.FieldDes
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDepositTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDepositTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDepositTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDepositTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5504,9 +5504,9 @@ func (x *fastReflection_MsgDepositTunnelResponse) Get(descriptor protoreflect.Fi
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDepositTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDepositTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDepositTunnelResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDepositTunnelResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -5524,9 +5524,9 @@ func (x *fastReflection_MsgDepositTunnelResponse) Set(fd protoreflect.FieldDescr
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDepositTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDepositTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDepositTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDepositTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5544,9 +5544,9 @@ func (x *fastReflection_MsgDepositTunnelResponse) Mutable(fd protoreflect.FieldD
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDepositTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDepositTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDepositTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDepositTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5557,9 +5557,9 @@ func (x *fastReflection_MsgDepositTunnelResponse) NewField(fd protoreflect.Field
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgDepositTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgDepositTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgDepositTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgDepositTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5569,7 +5569,7 @@ func (x *fastReflection_MsgDepositTunnelResponse) NewField(fd protoreflect.Field
 func (x *fastReflection_MsgDepositTunnelResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.MsgDepositTunnelResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.MsgDepositTunnelResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -5796,8 +5796,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_tx_proto_init()
-	md_MsgWithdrawTunnel = File_tunnel_v1beta1_tx_proto.Messages().ByName("MsgWithdrawTunnel")
+	file_band_tunnel_v1beta1_tx_proto_init()
+	md_MsgWithdrawTunnel = File_band_tunnel_v1beta1_tx_proto.Messages().ByName("MsgWithdrawTunnel")
 	fd_MsgWithdrawTunnel_tunnel_id = md_MsgWithdrawTunnel.Fields().ByName("tunnel_id")
 	fd_MsgWithdrawTunnel_amount = md_MsgWithdrawTunnel.Fields().ByName("amount")
 	fd_MsgWithdrawTunnel_withdrawer = md_MsgWithdrawTunnel.Fields().ByName("withdrawer")
@@ -5812,7 +5812,7 @@ func (x *MsgWithdrawTunnel) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgWithdrawTunnel) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_tx_proto_msgTypes[12]
+	mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[12]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5901,17 +5901,17 @@ func (x *fastReflection_MsgWithdrawTunnel) Range(f func(protoreflect.FieldDescri
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgWithdrawTunnel) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgWithdrawTunnel.tunnel_id":
+	case "band.tunnel.v1beta1.MsgWithdrawTunnel.tunnel_id":
 		return x.TunnelId != uint64(0)
-	case "tunnel.v1beta1.MsgWithdrawTunnel.amount":
+	case "band.tunnel.v1beta1.MsgWithdrawTunnel.amount":
 		return len(x.Amount) != 0
-	case "tunnel.v1beta1.MsgWithdrawTunnel.withdrawer":
+	case "band.tunnel.v1beta1.MsgWithdrawTunnel.withdrawer":
 		return x.Withdrawer != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgWithdrawTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgWithdrawTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgWithdrawTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgWithdrawTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5923,17 +5923,17 @@ func (x *fastReflection_MsgWithdrawTunnel) Has(fd protoreflect.FieldDescriptor) 
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgWithdrawTunnel) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgWithdrawTunnel.tunnel_id":
+	case "band.tunnel.v1beta1.MsgWithdrawTunnel.tunnel_id":
 		x.TunnelId = uint64(0)
-	case "tunnel.v1beta1.MsgWithdrawTunnel.amount":
+	case "band.tunnel.v1beta1.MsgWithdrawTunnel.amount":
 		x.Amount = nil
-	case "tunnel.v1beta1.MsgWithdrawTunnel.withdrawer":
+	case "band.tunnel.v1beta1.MsgWithdrawTunnel.withdrawer":
 		x.Withdrawer = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgWithdrawTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgWithdrawTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgWithdrawTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgWithdrawTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -5945,23 +5945,23 @@ func (x *fastReflection_MsgWithdrawTunnel) Clear(fd protoreflect.FieldDescriptor
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgWithdrawTunnel) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.MsgWithdrawTunnel.tunnel_id":
+	case "band.tunnel.v1beta1.MsgWithdrawTunnel.tunnel_id":
 		value := x.TunnelId
 		return protoreflect.ValueOfUint64(value)
-	case "tunnel.v1beta1.MsgWithdrawTunnel.amount":
+	case "band.tunnel.v1beta1.MsgWithdrawTunnel.amount":
 		if len(x.Amount) == 0 {
 			return protoreflect.ValueOfList(&_MsgWithdrawTunnel_2_list{})
 		}
 		listValue := &_MsgWithdrawTunnel_2_list{list: &x.Amount}
 		return protoreflect.ValueOfList(listValue)
-	case "tunnel.v1beta1.MsgWithdrawTunnel.withdrawer":
+	case "band.tunnel.v1beta1.MsgWithdrawTunnel.withdrawer":
 		value := x.Withdrawer
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgWithdrawTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgWithdrawTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgWithdrawTunnel does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgWithdrawTunnel does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -5977,19 +5977,19 @@ func (x *fastReflection_MsgWithdrawTunnel) Get(descriptor protoreflect.FieldDesc
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgWithdrawTunnel) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgWithdrawTunnel.tunnel_id":
+	case "band.tunnel.v1beta1.MsgWithdrawTunnel.tunnel_id":
 		x.TunnelId = value.Uint()
-	case "tunnel.v1beta1.MsgWithdrawTunnel.amount":
+	case "band.tunnel.v1beta1.MsgWithdrawTunnel.amount":
 		lv := value.List()
 		clv := lv.(*_MsgWithdrawTunnel_2_list)
 		x.Amount = *clv.list
-	case "tunnel.v1beta1.MsgWithdrawTunnel.withdrawer":
+	case "band.tunnel.v1beta1.MsgWithdrawTunnel.withdrawer":
 		x.Withdrawer = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgWithdrawTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgWithdrawTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgWithdrawTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgWithdrawTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6005,21 +6005,21 @@ func (x *fastReflection_MsgWithdrawTunnel) Set(fd protoreflect.FieldDescriptor, 
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgWithdrawTunnel) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgWithdrawTunnel.amount":
+	case "band.tunnel.v1beta1.MsgWithdrawTunnel.amount":
 		if x.Amount == nil {
 			x.Amount = []*v1beta1.Coin{}
 		}
 		value := &_MsgWithdrawTunnel_2_list{list: &x.Amount}
 		return protoreflect.ValueOfList(value)
-	case "tunnel.v1beta1.MsgWithdrawTunnel.tunnel_id":
-		panic(fmt.Errorf("field tunnel_id of message tunnel.v1beta1.MsgWithdrawTunnel is not mutable"))
-	case "tunnel.v1beta1.MsgWithdrawTunnel.withdrawer":
-		panic(fmt.Errorf("field withdrawer of message tunnel.v1beta1.MsgWithdrawTunnel is not mutable"))
+	case "band.tunnel.v1beta1.MsgWithdrawTunnel.tunnel_id":
+		panic(fmt.Errorf("field tunnel_id of message band.tunnel.v1beta1.MsgWithdrawTunnel is not mutable"))
+	case "band.tunnel.v1beta1.MsgWithdrawTunnel.withdrawer":
+		panic(fmt.Errorf("field withdrawer of message band.tunnel.v1beta1.MsgWithdrawTunnel is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgWithdrawTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgWithdrawTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgWithdrawTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgWithdrawTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6028,18 +6028,18 @@ func (x *fastReflection_MsgWithdrawTunnel) Mutable(fd protoreflect.FieldDescript
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgWithdrawTunnel) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgWithdrawTunnel.tunnel_id":
+	case "band.tunnel.v1beta1.MsgWithdrawTunnel.tunnel_id":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "tunnel.v1beta1.MsgWithdrawTunnel.amount":
+	case "band.tunnel.v1beta1.MsgWithdrawTunnel.amount":
 		list := []*v1beta1.Coin{}
 		return protoreflect.ValueOfList(&_MsgWithdrawTunnel_2_list{list: &list})
-	case "tunnel.v1beta1.MsgWithdrawTunnel.withdrawer":
+	case "band.tunnel.v1beta1.MsgWithdrawTunnel.withdrawer":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgWithdrawTunnel"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgWithdrawTunnel"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgWithdrawTunnel does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgWithdrawTunnel does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6049,7 +6049,7 @@ func (x *fastReflection_MsgWithdrawTunnel) NewField(fd protoreflect.FieldDescrip
 func (x *fastReflection_MsgWithdrawTunnel) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.MsgWithdrawTunnel", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.MsgWithdrawTunnel", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -6348,8 +6348,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_tx_proto_init()
-	md_MsgWithdrawTunnelResponse = File_tunnel_v1beta1_tx_proto.Messages().ByName("MsgWithdrawTunnelResponse")
+	file_band_tunnel_v1beta1_tx_proto_init()
+	md_MsgWithdrawTunnelResponse = File_band_tunnel_v1beta1_tx_proto.Messages().ByName("MsgWithdrawTunnelResponse")
 }
 
 var _ protoreflect.Message = (*fastReflection_MsgWithdrawTunnelResponse)(nil)
@@ -6361,7 +6361,7 @@ func (x *MsgWithdrawTunnelResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgWithdrawTunnelResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_tx_proto_msgTypes[13]
+	mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[13]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6434,9 +6434,9 @@ func (x *fastReflection_MsgWithdrawTunnelResponse) Has(fd protoreflect.FieldDesc
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgWithdrawTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgWithdrawTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgWithdrawTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgWithdrawTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6450,9 +6450,9 @@ func (x *fastReflection_MsgWithdrawTunnelResponse) Clear(fd protoreflect.FieldDe
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgWithdrawTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgWithdrawTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgWithdrawTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgWithdrawTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6466,9 +6466,9 @@ func (x *fastReflection_MsgWithdrawTunnelResponse) Get(descriptor protoreflect.F
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgWithdrawTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgWithdrawTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgWithdrawTunnelResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgWithdrawTunnelResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -6486,9 +6486,9 @@ func (x *fastReflection_MsgWithdrawTunnelResponse) Set(fd protoreflect.FieldDesc
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgWithdrawTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgWithdrawTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgWithdrawTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgWithdrawTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6506,9 +6506,9 @@ func (x *fastReflection_MsgWithdrawTunnelResponse) Mutable(fd protoreflect.Field
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgWithdrawTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgWithdrawTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgWithdrawTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgWithdrawTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6519,9 +6519,9 @@ func (x *fastReflection_MsgWithdrawTunnelResponse) NewField(fd protoreflect.Fiel
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgWithdrawTunnelResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgWithdrawTunnelResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgWithdrawTunnelResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgWithdrawTunnelResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6531,7 +6531,7 @@ func (x *fastReflection_MsgWithdrawTunnelResponse) NewField(fd protoreflect.Fiel
 func (x *fastReflection_MsgWithdrawTunnelResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.MsgWithdrawTunnelResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.MsgWithdrawTunnelResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -6706,8 +6706,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_tx_proto_init()
-	md_MsgUpdateParams = File_tunnel_v1beta1_tx_proto.Messages().ByName("MsgUpdateParams")
+	file_band_tunnel_v1beta1_tx_proto_init()
+	md_MsgUpdateParams = File_band_tunnel_v1beta1_tx_proto.Messages().ByName("MsgUpdateParams")
 	fd_MsgUpdateParams_authority = md_MsgUpdateParams.Fields().ByName("authority")
 	fd_MsgUpdateParams_params = md_MsgUpdateParams.Fields().ByName("params")
 }
@@ -6721,7 +6721,7 @@ func (x *MsgUpdateParams) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgUpdateParams) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_tx_proto_msgTypes[14]
+	mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[14]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6804,15 +6804,15 @@ func (x *fastReflection_MsgUpdateParams) Range(f func(protoreflect.FieldDescript
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_MsgUpdateParams) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgUpdateParams.authority":
+	case "band.tunnel.v1beta1.MsgUpdateParams.authority":
 		return x.Authority != ""
-	case "tunnel.v1beta1.MsgUpdateParams.params":
+	case "band.tunnel.v1beta1.MsgUpdateParams.params":
 		return x.Params != nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgUpdateParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6824,15 +6824,15 @@ func (x *fastReflection_MsgUpdateParams) Has(fd protoreflect.FieldDescriptor) bo
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgUpdateParams) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgUpdateParams.authority":
+	case "band.tunnel.v1beta1.MsgUpdateParams.authority":
 		x.Authority = ""
-	case "tunnel.v1beta1.MsgUpdateParams.params":
+	case "band.tunnel.v1beta1.MsgUpdateParams.params":
 		x.Params = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgUpdateParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6844,17 +6844,17 @@ func (x *fastReflection_MsgUpdateParams) Clear(fd protoreflect.FieldDescriptor) 
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_MsgUpdateParams) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "tunnel.v1beta1.MsgUpdateParams.authority":
+	case "band.tunnel.v1beta1.MsgUpdateParams.authority":
 		value := x.Authority
 		return protoreflect.ValueOfString(value)
-	case "tunnel.v1beta1.MsgUpdateParams.params":
+	case "band.tunnel.v1beta1.MsgUpdateParams.params":
 		value := x.Params
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgUpdateParams does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgUpdateParams does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -6870,15 +6870,15 @@ func (x *fastReflection_MsgUpdateParams) Get(descriptor protoreflect.FieldDescri
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgUpdateParams) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgUpdateParams.authority":
+	case "band.tunnel.v1beta1.MsgUpdateParams.authority":
 		x.Authority = value.Interface().(string)
-	case "tunnel.v1beta1.MsgUpdateParams.params":
+	case "band.tunnel.v1beta1.MsgUpdateParams.params":
 		x.Params = value.Message().Interface().(*Params)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgUpdateParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6894,18 +6894,18 @@ func (x *fastReflection_MsgUpdateParams) Set(fd protoreflect.FieldDescriptor, va
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgUpdateParams) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgUpdateParams.params":
+	case "band.tunnel.v1beta1.MsgUpdateParams.params":
 		if x.Params == nil {
 			x.Params = new(Params)
 		}
 		return protoreflect.ValueOfMessage(x.Params.ProtoReflect())
-	case "tunnel.v1beta1.MsgUpdateParams.authority":
-		panic(fmt.Errorf("field authority of message tunnel.v1beta1.MsgUpdateParams is not mutable"))
+	case "band.tunnel.v1beta1.MsgUpdateParams.authority":
+		panic(fmt.Errorf("field authority of message band.tunnel.v1beta1.MsgUpdateParams is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgUpdateParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6914,16 +6914,16 @@ func (x *fastReflection_MsgUpdateParams) Mutable(fd protoreflect.FieldDescriptor
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_MsgUpdateParams) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "tunnel.v1beta1.MsgUpdateParams.authority":
+	case "band.tunnel.v1beta1.MsgUpdateParams.authority":
 		return protoreflect.ValueOfString("")
-	case "tunnel.v1beta1.MsgUpdateParams.params":
+	case "band.tunnel.v1beta1.MsgUpdateParams.params":
 		m := new(Params)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgUpdateParams"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgUpdateParams"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgUpdateParams does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgUpdateParams does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -6933,7 +6933,7 @@ func (x *fastReflection_MsgUpdateParams) NewField(fd protoreflect.FieldDescripto
 func (x *fastReflection_MsgUpdateParams) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.MsgUpdateParams", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.MsgUpdateParams", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -7203,8 +7203,8 @@ var (
 )
 
 func init() {
-	file_tunnel_v1beta1_tx_proto_init()
-	md_MsgUpdateParamsResponse = File_tunnel_v1beta1_tx_proto.Messages().ByName("MsgUpdateParamsResponse")
+	file_band_tunnel_v1beta1_tx_proto_init()
+	md_MsgUpdateParamsResponse = File_band_tunnel_v1beta1_tx_proto.Messages().ByName("MsgUpdateParamsResponse")
 }
 
 var _ protoreflect.Message = (*fastReflection_MsgUpdateParamsResponse)(nil)
@@ -7216,7 +7216,7 @@ func (x *MsgUpdateParamsResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgUpdateParamsResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_tunnel_v1beta1_tx_proto_msgTypes[15]
+	mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[15]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7289,9 +7289,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) Has(fd protoreflect.FieldDescri
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -7305,9 +7305,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) Clear(fd protoreflect.FieldDesc
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -7321,9 +7321,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) Get(descriptor protoreflect.Fie
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgUpdateParamsResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgUpdateParamsResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -7341,9 +7341,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) Set(fd protoreflect.FieldDescri
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -7361,9 +7361,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) Mutable(fd protoreflect.FieldDe
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -7374,9 +7374,9 @@ func (x *fastReflection_MsgUpdateParamsResponse) NewField(fd protoreflect.FieldD
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: tunnel.v1beta1.MsgUpdateParamsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.MsgUpdateParamsResponse"))
 		}
-		panic(fmt.Errorf("message tunnel.v1beta1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.MsgUpdateParamsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -7386,7 +7386,7 @@ func (x *fastReflection_MsgUpdateParamsResponse) NewField(fd protoreflect.FieldD
 func (x *fastReflection_MsgUpdateParamsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in tunnel.v1beta1.MsgUpdateParamsResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.MsgUpdateParamsResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -7558,7 +7558,7 @@ func (x *fastReflection_MsgUpdateParamsResponse) ProtoMethods() *protoiface.Meth
 // versions:
 // 	protoc-gen-go v1.27.0
 // 	protoc        (unknown)
-// source: tunnel/v1beta1/tx.proto
+// source: band/tunnel/v1beta1/tx.proto
 
 const (
 	// Verify that this generated code is sufficiently up-to-date.
@@ -7580,7 +7580,7 @@ type MsgCreateTunnel struct {
 	// route is the route for delivering the signal prices
 	Route *anypb.Any `protobuf:"bytes,3,opt,name=route,proto3" json:"route,omitempty"`
 	// encoder is the mode of encoding price signal data.
-	Encoder Encoder `protobuf:"varint,4,opt,name=encoder,proto3,enum=tunnel.v1beta1.Encoder" json:"encoder,omitempty"`
+	Encoder Encoder `protobuf:"varint,4,opt,name=encoder,proto3,enum=band.tunnel.v1beta1.Encoder" json:"encoder,omitempty"`
 	// initial_deposit is the deposit value that must be paid at tunnel creation.
 	InitialDeposit []*v1beta1.Coin `protobuf:"bytes,5,rep,name=initial_deposit,json=initialDeposit,proto3" json:"initial_deposit,omitempty"`
 	// creator is the address of the creator.
@@ -7590,7 +7590,7 @@ type MsgCreateTunnel struct {
 func (x *MsgCreateTunnel) Reset() {
 	*x = MsgCreateTunnel{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_tx_proto_msgTypes[0]
+		mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -7604,7 +7604,7 @@ func (*MsgCreateTunnel) ProtoMessage() {}
 
 // Deprecated: Use MsgCreateTunnel.ProtoReflect.Descriptor instead.
 func (*MsgCreateTunnel) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{0}
+	return file_band_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *MsgCreateTunnel) GetSignalDeviations() []*SignalDeviation {
@@ -7661,7 +7661,7 @@ type MsgCreateTunnelResponse struct {
 func (x *MsgCreateTunnelResponse) Reset() {
 	*x = MsgCreateTunnelResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_tx_proto_msgTypes[1]
+		mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -7675,7 +7675,7 @@ func (*MsgCreateTunnelResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgCreateTunnelResponse.ProtoReflect.Descriptor instead.
 func (*MsgCreateTunnelResponse) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{1}
+	return file_band_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *MsgCreateTunnelResponse) GetTunnelId() uint64 {
@@ -7704,7 +7704,7 @@ type MsgEditTunnel struct {
 func (x *MsgEditTunnel) Reset() {
 	*x = MsgEditTunnel{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_tx_proto_msgTypes[2]
+		mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -7718,7 +7718,7 @@ func (*MsgEditTunnel) ProtoMessage() {}
 
 // Deprecated: Use MsgEditTunnel.ProtoReflect.Descriptor instead.
 func (*MsgEditTunnel) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{2}
+	return file_band_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *MsgEditTunnel) GetTunnelId() uint64 {
@@ -7759,7 +7759,7 @@ type MsgEditTunnelResponse struct {
 func (x *MsgEditTunnelResponse) Reset() {
 	*x = MsgEditTunnelResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_tx_proto_msgTypes[3]
+		mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -7773,7 +7773,7 @@ func (*MsgEditTunnelResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgEditTunnelResponse.ProtoReflect.Descriptor instead.
 func (*MsgEditTunnelResponse) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{3}
+	return file_band_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{3}
 }
 
 // Activate is the transaction message to activate a tunnel.
@@ -7791,7 +7791,7 @@ type MsgActivate struct {
 func (x *MsgActivate) Reset() {
 	*x = MsgActivate{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_tx_proto_msgTypes[4]
+		mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -7805,7 +7805,7 @@ func (*MsgActivate) ProtoMessage() {}
 
 // Deprecated: Use MsgActivate.ProtoReflect.Descriptor instead.
 func (*MsgActivate) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{4}
+	return file_band_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *MsgActivate) GetTunnelId() uint64 {
@@ -7832,7 +7832,7 @@ type MsgActivateResponse struct {
 func (x *MsgActivateResponse) Reset() {
 	*x = MsgActivateResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_tx_proto_msgTypes[5]
+		mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -7846,7 +7846,7 @@ func (*MsgActivateResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgActivateResponse.ProtoReflect.Descriptor instead.
 func (*MsgActivateResponse) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{5}
+	return file_band_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{5}
 }
 
 // MsgDeactivate is the transaction message to deactivate a tunnel.
@@ -7864,7 +7864,7 @@ type MsgDeactivate struct {
 func (x *MsgDeactivate) Reset() {
 	*x = MsgDeactivate{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_tx_proto_msgTypes[6]
+		mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -7878,7 +7878,7 @@ func (*MsgDeactivate) ProtoMessage() {}
 
 // Deprecated: Use MsgDeactivate.ProtoReflect.Descriptor instead.
 func (*MsgDeactivate) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{6}
+	return file_band_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *MsgDeactivate) GetTunnelId() uint64 {
@@ -7905,7 +7905,7 @@ type MsgDeactivateResponse struct {
 func (x *MsgDeactivateResponse) Reset() {
 	*x = MsgDeactivateResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_tx_proto_msgTypes[7]
+		mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -7919,7 +7919,7 @@ func (*MsgDeactivateResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgDeactivateResponse.ProtoReflect.Descriptor instead.
 func (*MsgDeactivateResponse) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{7}
+	return file_band_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{7}
 }
 
 // MsgTriggerTunnel is the transaction message to manually trigger a tunnel.
@@ -7937,7 +7937,7 @@ type MsgTriggerTunnel struct {
 func (x *MsgTriggerTunnel) Reset() {
 	*x = MsgTriggerTunnel{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_tx_proto_msgTypes[8]
+		mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -7951,7 +7951,7 @@ func (*MsgTriggerTunnel) ProtoMessage() {}
 
 // Deprecated: Use MsgTriggerTunnel.ProtoReflect.Descriptor instead.
 func (*MsgTriggerTunnel) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{8}
+	return file_band_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *MsgTriggerTunnel) GetTunnelId() uint64 {
@@ -7978,7 +7978,7 @@ type MsgTriggerTunnelResponse struct {
 func (x *MsgTriggerTunnelResponse) Reset() {
 	*x = MsgTriggerTunnelResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_tx_proto_msgTypes[9]
+		mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -7992,7 +7992,7 @@ func (*MsgTriggerTunnelResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgTriggerTunnelResponse.ProtoReflect.Descriptor instead.
 func (*MsgTriggerTunnelResponse) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{9}
+	return file_band_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{9}
 }
 
 // MsgDepositTunnel defines a message to submit a deposit to an existing tunnel.
@@ -8012,7 +8012,7 @@ type MsgDepositTunnel struct {
 func (x *MsgDepositTunnel) Reset() {
 	*x = MsgDepositTunnel{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_tx_proto_msgTypes[10]
+		mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -8026,7 +8026,7 @@ func (*MsgDepositTunnel) ProtoMessage() {}
 
 // Deprecated: Use MsgDepositTunnel.ProtoReflect.Descriptor instead.
 func (*MsgDepositTunnel) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{10}
+	return file_band_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *MsgDepositTunnel) GetTunnelId() uint64 {
@@ -8060,7 +8060,7 @@ type MsgDepositTunnelResponse struct {
 func (x *MsgDepositTunnelResponse) Reset() {
 	*x = MsgDepositTunnelResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_tx_proto_msgTypes[11]
+		mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -8074,7 +8074,7 @@ func (*MsgDepositTunnelResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgDepositTunnelResponse.ProtoReflect.Descriptor instead.
 func (*MsgDepositTunnelResponse) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{11}
+	return file_band_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{11}
 }
 
 // MsgWithdrawTunnel is the transaction message to withdraw a deposit from an existing tunnel.
@@ -8094,7 +8094,7 @@ type MsgWithdrawTunnel struct {
 func (x *MsgWithdrawTunnel) Reset() {
 	*x = MsgWithdrawTunnel{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_tx_proto_msgTypes[12]
+		mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[12]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -8108,7 +8108,7 @@ func (*MsgWithdrawTunnel) ProtoMessage() {}
 
 // Deprecated: Use MsgWithdrawTunnel.ProtoReflect.Descriptor instead.
 func (*MsgWithdrawTunnel) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{12}
+	return file_band_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *MsgWithdrawTunnel) GetTunnelId() uint64 {
@@ -8142,7 +8142,7 @@ type MsgWithdrawTunnelResponse struct {
 func (x *MsgWithdrawTunnelResponse) Reset() {
 	*x = MsgWithdrawTunnelResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_tx_proto_msgTypes[13]
+		mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[13]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -8156,7 +8156,7 @@ func (*MsgWithdrawTunnelResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgWithdrawTunnelResponse.ProtoReflect.Descriptor instead.
 func (*MsgWithdrawTunnelResponse) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{13}
+	return file_band_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{13}
 }
 
 // MsgUpdateParams is the transaction message to update parameters.
@@ -8174,7 +8174,7 @@ type MsgUpdateParams struct {
 func (x *MsgUpdateParams) Reset() {
 	*x = MsgUpdateParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_tx_proto_msgTypes[14]
+		mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[14]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -8188,7 +8188,7 @@ func (*MsgUpdateParams) ProtoMessage() {}
 
 // Deprecated: Use MsgUpdateParams.ProtoReflect.Descriptor instead.
 func (*MsgUpdateParams) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{14}
+	return file_band_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *MsgUpdateParams) GetAuthority() string {
@@ -8215,7 +8215,7 @@ type MsgUpdateParamsResponse struct {
 func (x *MsgUpdateParamsResponse) Reset() {
 	*x = MsgUpdateParamsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tunnel_v1beta1_tx_proto_msgTypes[15]
+		mi := &file_band_tunnel_v1beta1_tx_proto_msgTypes[15]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -8229,113 +8229,135 @@ func (*MsgUpdateParamsResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgUpdateParamsResponse.ProtoReflect.Descriptor instead.
 func (*MsgUpdateParamsResponse) Descriptor() ([]byte, []int) {
-	return file_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{15}
+	return file_band_tunnel_v1beta1_tx_proto_rawDescGZIP(), []int{15}
 }
 
-var File_tunnel_v1beta1_tx_proto protoreflect.FileDescriptor
+var File_band_tunnel_v1beta1_tx_proto protoreflect.FileDescriptor
 
-var file_tunnel_v1beta1_tx_proto_rawDesc = []byte{
-	0x0a, 0x17, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0x2f, 0x74, 0x78, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x0e, 0x74, 0x75, 0x6e, 0x6e, 0x65,
-	0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x1a, 0x19, 0x67, 0x6f, 0x6f, 0x67, 0x6c,
-	0x65, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2f, 0x61, 0x6e, 0x79, 0x2e, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f,
-	0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1b, 0x74, 0x75, 0x6e, 0x6e,
-	0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x70, 0x61, 0x72, 0x61, 0x6d,
-	0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x19, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x5f,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x1a, 0x1e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x62, 0x61, 0x73, 0x65, 0x2f,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x63, 0x6f, 0x69, 0x6e, 0x2e, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x1a, 0x17, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x6d, 0x73, 0x67, 0x2f, 0x76,
-	0x31, 0x2f, 0x6d, 0x73, 0x67, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x11, 0x61, 0x6d, 0x69,
-	0x6e, 0x6f, 0x2f, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1b,
-	0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x74,
-	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xc3, 0x03, 0x0a, 0x0f,
-	0x4d, 0x73, 0x67, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x12,
-	0x52, 0x0a, 0x11, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x5f, 0x64, 0x65, 0x76, 0x69, 0x61, 0x74,
-	0x69, 0x6f, 0x6e, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1f, 0x2e, 0x74, 0x75, 0x6e,
-	0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x69, 0x67, 0x6e,
-	0x61, 0x6c, 0x44, 0x65, 0x76, 0x69, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x42, 0x04, 0xc8, 0xde, 0x1f,
-	0x00, 0x52, 0x10, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x44, 0x65, 0x76, 0x69, 0x61, 0x74, 0x69,
-	0x6f, 0x6e, 0x73, 0x12, 0x1a, 0x0a, 0x08, 0x69, 0x6e, 0x74, 0x65, 0x72, 0x76, 0x61, 0x6c, 0x18,
-	0x02, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08, 0x69, 0x6e, 0x74, 0x65, 0x72, 0x76, 0x61, 0x6c, 0x12,
-	0x35, 0x0a, 0x05, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x14,
-	0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66,
-	0x2e, 0x41, 0x6e, 0x79, 0x42, 0x09, 0xca, 0xb4, 0x2d, 0x05, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x52,
-	0x05, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x12, 0x31, 0x0a, 0x07, 0x65, 0x6e, 0x63, 0x6f, 0x64, 0x65,
-	0x72, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x17, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
-	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x45, 0x6e, 0x63, 0x6f, 0x64, 0x65, 0x72,
-	0x52, 0x07, 0x65, 0x6e, 0x63, 0x6f, 0x64, 0x65, 0x72, 0x12, 0x79, 0x0a, 0x0f, 0x69, 0x6e, 0x69,
-	0x74, 0x69, 0x61, 0x6c, 0x5f, 0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x18, 0x05, 0x20, 0x03,
-	0x28, 0x0b, 0x32, 0x19, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65,
-	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x42, 0x35, 0xc8,
-	0xde, 0x1f, 0x00, 0xaa, 0xdf, 0x1f, 0x28, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f,
-	0x6d, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2d,
-	0x73, 0x64, 0x6b, 0x2f, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x73, 0xa8,
-	0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x0e, 0x69, 0x6e, 0x69, 0x74, 0x69, 0x61, 0x6c, 0x44, 0x65, 0x70,
-	0x6f, 0x73, 0x69, 0x74, 0x12, 0x32, 0x0a, 0x07, 0x63, 0x72, 0x65, 0x61, 0x74, 0x6f, 0x72, 0x18,
-	0x06, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f,
-	0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52,
-	0x07, 0x63, 0x72, 0x65, 0x61, 0x74, 0x6f, 0x72, 0x3a, 0x27, 0x82, 0xe7, 0xb0, 0x2a, 0x07, 0x63,
-	0x72, 0x65, 0x61, 0x74, 0x6f, 0x72, 0x8a, 0xe7, 0xb0, 0x2a, 0x16, 0x74, 0x75, 0x6e, 0x6e, 0x65,
-	0x6c, 0x2f, 0x4d, 0x73, 0x67, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x75, 0x6e, 0x6e, 0x65,
-	0x6c, 0x22, 0x44, 0x0a, 0x17, 0x4d, 0x73, 0x67, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x75,
-	0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x29, 0x0a, 0x09,
-	0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x42,
-	0x0c, 0xe2, 0xde, 0x1f, 0x08, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x44, 0x52, 0x08, 0x74,
-	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x22, 0x85, 0x02, 0x0a, 0x0d, 0x4d, 0x73, 0x67, 0x45,
-	0x64, 0x69, 0x74, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x29, 0x0a, 0x09, 0x74, 0x75, 0x6e,
-	0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x42, 0x0c, 0xe2, 0xde,
-	0x1f, 0x08, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x44, 0x52, 0x08, 0x74, 0x75, 0x6e, 0x6e,
-	0x65, 0x6c, 0x49, 0x64, 0x12, 0x52, 0x0a, 0x11, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x5f, 0x64,
-	0x65, 0x76, 0x69, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32,
-	0x1f, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0x2e, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x44, 0x65, 0x76, 0x69, 0x61, 0x74, 0x69, 0x6f, 0x6e,
-	0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x10, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x44, 0x65,
-	0x76, 0x69, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x12, 0x1a, 0x0a, 0x08, 0x69, 0x6e, 0x74, 0x65,
-	0x72, 0x76, 0x61, 0x6c, 0x18, 0x03, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08, 0x69, 0x6e, 0x74, 0x65,
-	0x72, 0x76, 0x61, 0x6c, 0x12, 0x32, 0x0a, 0x07, 0x63, 0x72, 0x65, 0x61, 0x74, 0x6f, 0x72, 0x18,
-	0x04, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f,
-	0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52,
-	0x07, 0x63, 0x72, 0x65, 0x61, 0x74, 0x6f, 0x72, 0x3a, 0x25, 0x82, 0xe7, 0xb0, 0x2a, 0x07, 0x63,
-	0x72, 0x65, 0x61, 0x74, 0x6f, 0x72, 0x8a, 0xe7, 0xb0, 0x2a, 0x14, 0x74, 0x75, 0x6e, 0x6e, 0x65,
-	0x6c, 0x2f, 0x4d, 0x73, 0x67, 0x45, 0x64, 0x69, 0x74, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x22,
-	0x17, 0x0a, 0x15, 0x4d, 0x73, 0x67, 0x45, 0x64, 0x69, 0x74, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x91, 0x01, 0x0a, 0x0b, 0x4d, 0x73, 0x67,
-	0x41, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x12, 0x29, 0x0a, 0x09, 0x74, 0x75, 0x6e, 0x6e,
+var file_band_tunnel_v1beta1_tx_proto_rawDesc = []byte{
+	0x0a, 0x1c, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31,
+	0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x74, 0x78, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x13,
+	0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65,
+	0x74, 0x61, 0x31, 0x1a, 0x19, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x62, 0x75, 0x66, 0x2f, 0x61, 0x6e, 0x79, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x14,
+	0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70,
+	0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x19, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x5f, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a,
+	0x1e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x62, 0x61, 0x73, 0x65, 0x2f, 0x76, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0x2f, 0x63, 0x6f, 0x69, 0x6e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a,
+	0x17, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x6d, 0x73, 0x67, 0x2f, 0x76, 0x31, 0x2f, 0x6d,
+	0x73, 0x67, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x11, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2f,
+	0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x20, 0x62, 0x61, 0x6e,
+	0x64, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0x2f, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x20, 0x62,
+	0x61, 0x6e, 0x64, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22,
+	0xcd, 0x03, 0x0a, 0x0f, 0x4d, 0x73, 0x67, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x75, 0x6e,
+	0x6e, 0x65, 0x6c, 0x12, 0x57, 0x0a, 0x11, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x5f, 0x64, 0x65,
+	0x76, 0x69, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x24,
+	0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x44, 0x65, 0x76, 0x69, 0x61,
+	0x74, 0x69, 0x6f, 0x6e, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x10, 0x73, 0x69, 0x67, 0x6e,
+	0x61, 0x6c, 0x44, 0x65, 0x76, 0x69, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x12, 0x1a, 0x0a, 0x08,
+	0x69, 0x6e, 0x74, 0x65, 0x72, 0x76, 0x61, 0x6c, 0x18, 0x02, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08,
+	0x69, 0x6e, 0x74, 0x65, 0x72, 0x76, 0x61, 0x6c, 0x12, 0x35, 0x0a, 0x05, 0x72, 0x6f, 0x75, 0x74,
+	0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x14, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65,
+	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x41, 0x6e, 0x79, 0x42, 0x09, 0xca,
+	0xb4, 0x2d, 0x05, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x52, 0x05, 0x72, 0x6f, 0x75, 0x74, 0x65, 0x12,
+	0x36, 0x0a, 0x07, 0x65, 0x6e, 0x63, 0x6f, 0x64, 0x65, 0x72, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0e,
+	0x32, 0x1c, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x45, 0x6e, 0x63, 0x6f, 0x64, 0x65, 0x72, 0x52, 0x07,
+	0x65, 0x6e, 0x63, 0x6f, 0x64, 0x65, 0x72, 0x12, 0x79, 0x0a, 0x0f, 0x69, 0x6e, 0x69, 0x74, 0x69,
+	0x61, 0x6c, 0x5f, 0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x18, 0x05, 0x20, 0x03, 0x28, 0x0b,
+	0x32, 0x19, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x76,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x42, 0x35, 0xc8, 0xde, 0x1f,
+	0x00, 0xaa, 0xdf, 0x1f, 0x28, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f,
+	0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2d, 0x73, 0x64,
+	0x6b, 0x2f, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x73, 0xa8, 0xe7, 0xb0,
+	0x2a, 0x01, 0x52, 0x0e, 0x69, 0x6e, 0x69, 0x74, 0x69, 0x61, 0x6c, 0x44, 0x65, 0x70, 0x6f, 0x73,
+	0x69, 0x74, 0x12, 0x32, 0x0a, 0x07, 0x63, 0x72, 0x65, 0x61, 0x74, 0x6f, 0x72, 0x18, 0x06, 0x20,
+	0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e,
+	0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x07, 0x63,
+	0x72, 0x65, 0x61, 0x74, 0x6f, 0x72, 0x3a, 0x27, 0x82, 0xe7, 0xb0, 0x2a, 0x07, 0x63, 0x72, 0x65,
+	0x61, 0x74, 0x6f, 0x72, 0x8a, 0xe7, 0xb0, 0x2a, 0x16, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f,
+	0x4d, 0x73, 0x67, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x22,
+	0x44, 0x0a, 0x17, 0x4d, 0x73, 0x67, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x75, 0x6e, 0x6e,
+	0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x29, 0x0a, 0x09, 0x74, 0x75,
+	0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x42, 0x0c, 0xe2,
+	0xde, 0x1f, 0x08, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x44, 0x52, 0x08, 0x74, 0x75, 0x6e,
+	0x6e, 0x65, 0x6c, 0x49, 0x64, 0x22, 0x8a, 0x02, 0x0a, 0x0d, 0x4d, 0x73, 0x67, 0x45, 0x64, 0x69,
+	0x74, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x29, 0x0a, 0x09, 0x74, 0x75, 0x6e, 0x6e, 0x65,
+	0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x42, 0x0c, 0xe2, 0xde, 0x1f, 0x08,
+	0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x44, 0x52, 0x08, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
+	0x49, 0x64, 0x12, 0x57, 0x0a, 0x11, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x5f, 0x64, 0x65, 0x76,
+	0x69, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x24, 0x2e,
+	0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65,
+	0x74, 0x61, 0x31, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x44, 0x65, 0x76, 0x69, 0x61, 0x74,
+	0x69, 0x6f, 0x6e, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x10, 0x73, 0x69, 0x67, 0x6e, 0x61,
+	0x6c, 0x44, 0x65, 0x76, 0x69, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x12, 0x1a, 0x0a, 0x08, 0x69,
+	0x6e, 0x74, 0x65, 0x72, 0x76, 0x61, 0x6c, 0x18, 0x03, 0x20, 0x01, 0x28, 0x04, 0x52, 0x08, 0x69,
+	0x6e, 0x74, 0x65, 0x72, 0x76, 0x61, 0x6c, 0x12, 0x32, 0x0a, 0x07, 0x63, 0x72, 0x65, 0x61, 0x74,
+	0x6f, 0x72, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f,
+	0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69,
+	0x6e, 0x67, 0x52, 0x07, 0x63, 0x72, 0x65, 0x61, 0x74, 0x6f, 0x72, 0x3a, 0x25, 0x82, 0xe7, 0xb0,
+	0x2a, 0x07, 0x63, 0x72, 0x65, 0x61, 0x74, 0x6f, 0x72, 0x8a, 0xe7, 0xb0, 0x2a, 0x14, 0x74, 0x75,
+	0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x4d, 0x73, 0x67, 0x45, 0x64, 0x69, 0x74, 0x54, 0x75, 0x6e, 0x6e,
+	0x65, 0x6c, 0x22, 0x17, 0x0a, 0x15, 0x4d, 0x73, 0x67, 0x45, 0x64, 0x69, 0x74, 0x54, 0x75, 0x6e,
+	0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x91, 0x01, 0x0a, 0x0b,
+	0x4d, 0x73, 0x67, 0x41, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x12, 0x29, 0x0a, 0x09, 0x74,
+	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x42, 0x0c,
+	0xe2, 0xde, 0x1f, 0x08, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x44, 0x52, 0x08, 0x74, 0x75,
+	0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x12, 0x32, 0x0a, 0x07, 0x63, 0x72, 0x65, 0x61, 0x74, 0x6f,
+	0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73,
+	0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e,
+	0x67, 0x52, 0x07, 0x63, 0x72, 0x65, 0x61, 0x74, 0x6f, 0x72, 0x3a, 0x23, 0x82, 0xe7, 0xb0, 0x2a,
+	0x07, 0x63, 0x72, 0x65, 0x61, 0x74, 0x6f, 0x72, 0x8a, 0xe7, 0xb0, 0x2a, 0x12, 0x74, 0x75, 0x6e,
+	0x6e, 0x65, 0x6c, 0x2f, 0x4d, 0x73, 0x67, 0x41, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x22,
+	0x15, 0x0a, 0x13, 0x4d, 0x73, 0x67, 0x41, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x95, 0x01, 0x0a, 0x0d, 0x4d, 0x73, 0x67, 0x44, 0x65,
+	0x61, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x12, 0x29, 0x0a, 0x09, 0x74, 0x75, 0x6e, 0x6e,
 	0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x42, 0x0c, 0xe2, 0xde, 0x1f,
 	0x08, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x44, 0x52, 0x08, 0x74, 0x75, 0x6e, 0x6e, 0x65,
 	0x6c, 0x49, 0x64, 0x12, 0x32, 0x0a, 0x07, 0x63, 0x72, 0x65, 0x61, 0x74, 0x6f, 0x72, 0x18, 0x02,
 	0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73,
 	0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x07,
-	0x63, 0x72, 0x65, 0x61, 0x74, 0x6f, 0x72, 0x3a, 0x23, 0x82, 0xe7, 0xb0, 0x2a, 0x07, 0x63, 0x72,
-	0x65, 0x61, 0x74, 0x6f, 0x72, 0x8a, 0xe7, 0xb0, 0x2a, 0x12, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
-	0x2f, 0x4d, 0x73, 0x67, 0x41, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x22, 0x15, 0x0a, 0x13,
-	0x4d, 0x73, 0x67, 0x41, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x22, 0x95, 0x01, 0x0a, 0x0d, 0x4d, 0x73, 0x67, 0x44, 0x65, 0x61, 0x63, 0x74,
-	0x69, 0x76, 0x61, 0x74, 0x65, 0x12, 0x29, 0x0a, 0x09, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f,
-	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x42, 0x0c, 0xe2, 0xde, 0x1f, 0x08, 0x54, 0x75,
-	0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x44, 0x52, 0x08, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64,
-	0x12, 0x32, 0x0a, 0x07, 0x63, 0x72, 0x65, 0x61, 0x74, 0x6f, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28,
-	0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64,
-	0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x07, 0x63, 0x72, 0x65,
-	0x61, 0x74, 0x6f, 0x72, 0x3a, 0x25, 0x82, 0xe7, 0xb0, 0x2a, 0x07, 0x63, 0x72, 0x65, 0x61, 0x74,
-	0x6f, 0x72, 0x8a, 0xe7, 0xb0, 0x2a, 0x14, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x4d, 0x73,
-	0x67, 0x44, 0x65, 0x61, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x22, 0x17, 0x0a, 0x15, 0x4d,
-	0x73, 0x67, 0x44, 0x65, 0x61, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x9b, 0x01, 0x0a, 0x10, 0x4d, 0x73, 0x67, 0x54, 0x72, 0x69, 0x67,
-	0x67, 0x65, 0x72, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x29, 0x0a, 0x09, 0x74, 0x75, 0x6e,
-	0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x42, 0x0c, 0xe2, 0xde,
-	0x1f, 0x08, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x44, 0x52, 0x08, 0x74, 0x75, 0x6e, 0x6e,
-	0x65, 0x6c, 0x49, 0x64, 0x12, 0x32, 0x0a, 0x07, 0x63, 0x72, 0x65, 0x61, 0x74, 0x6f, 0x72, 0x18,
-	0x02, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f,
-	0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52,
-	0x07, 0x63, 0x72, 0x65, 0x61, 0x74, 0x6f, 0x72, 0x3a, 0x28, 0x82, 0xe7, 0xb0, 0x2a, 0x07, 0x63,
-	0x72, 0x65, 0x61, 0x74, 0x6f, 0x72, 0x8a, 0xe7, 0xb0, 0x2a, 0x17, 0x74, 0x75, 0x6e, 0x6e, 0x65,
-	0x6c, 0x2f, 0x4d, 0x73, 0x67, 0x54, 0x72, 0x69, 0x67, 0x67, 0x65, 0x72, 0x54, 0x75, 0x6e, 0x6e,
-	0x65, 0x6c, 0x22, 0x1a, 0x0a, 0x18, 0x4d, 0x73, 0x67, 0x54, 0x72, 0x69, 0x67, 0x67, 0x65, 0x72,
-	0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x9d,
-	0x02, 0x0a, 0x10, 0x4d, 0x73, 0x67, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x54, 0x75, 0x6e,
+	0x63, 0x72, 0x65, 0x61, 0x74, 0x6f, 0x72, 0x3a, 0x25, 0x82, 0xe7, 0xb0, 0x2a, 0x07, 0x63, 0x72,
+	0x65, 0x61, 0x74, 0x6f, 0x72, 0x8a, 0xe7, 0xb0, 0x2a, 0x14, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
+	0x2f, 0x4d, 0x73, 0x67, 0x44, 0x65, 0x61, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x22, 0x17,
+	0x0a, 0x15, 0x4d, 0x73, 0x67, 0x44, 0x65, 0x61, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x9b, 0x01, 0x0a, 0x10, 0x4d, 0x73, 0x67, 0x54,
+	0x72, 0x69, 0x67, 0x67, 0x65, 0x72, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x29, 0x0a, 0x09,
+	0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x42,
+	0x0c, 0xe2, 0xde, 0x1f, 0x08, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x44, 0x52, 0x08, 0x74,
+	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x12, 0x32, 0x0a, 0x07, 0x63, 0x72, 0x65, 0x61, 0x74,
+	0x6f, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f,
+	0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69,
+	0x6e, 0x67, 0x52, 0x07, 0x63, 0x72, 0x65, 0x61, 0x74, 0x6f, 0x72, 0x3a, 0x28, 0x82, 0xe7, 0xb0,
+	0x2a, 0x07, 0x63, 0x72, 0x65, 0x61, 0x74, 0x6f, 0x72, 0x8a, 0xe7, 0xb0, 0x2a, 0x17, 0x74, 0x75,
+	0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x4d, 0x73, 0x67, 0x54, 0x72, 0x69, 0x67, 0x67, 0x65, 0x72, 0x54,
+	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x22, 0x1a, 0x0a, 0x18, 0x4d, 0x73, 0x67, 0x54, 0x72, 0x69, 0x67,
+	0x67, 0x65, 0x72, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x22, 0x9d, 0x02, 0x0a, 0x10, 0x4d, 0x73, 0x67, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74,
+	0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x3b, 0x0a, 0x09, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
+	0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x42, 0x1e, 0xe2, 0xde, 0x1f, 0x08, 0x54,
+	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x44, 0xea, 0xde, 0x1f, 0x09, 0x74, 0x75, 0x6e, 0x6e, 0x65,
+	0x6c, 0x5f, 0x69, 0x64, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x08, 0x74, 0x75, 0x6e, 0x6e, 0x65,
+	0x6c, 0x49, 0x64, 0x12, 0x68, 0x0a, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x02, 0x20,
+	0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73,
+	0x65, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x42, 0x35,
+	0xc8, 0xde, 0x1f, 0x00, 0xaa, 0xdf, 0x1f, 0x28, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63,
+	0x6f, 0x6d, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73,
+	0x2d, 0x73, 0x64, 0x6b, 0x2f, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x73,
+	0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x36, 0x0a,
+	0x09, 0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x6f, 0x72, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09,
+	0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64,
+	0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x09, 0x64, 0x65, 0x70, 0x6f,
+	0x73, 0x69, 0x74, 0x6f, 0x72, 0x3a, 0x2a, 0x82, 0xe7, 0xb0, 0x2a, 0x09, 0x64, 0x65, 0x70, 0x6f,
+	0x73, 0x69, 0x74, 0x6f, 0x72, 0x8a, 0xe7, 0xb0, 0x2a, 0x17, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
+	0x2f, 0x4d, 0x73, 0x67, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x54, 0x75, 0x6e, 0x6e, 0x65,
+	0x6c, 0x22, 0x1a, 0x0a, 0x18, 0x4d, 0x73, 0x67, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x54,
+	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xa2, 0x02,
+	0x0a, 0x11, 0x4d, 0x73, 0x67, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x54, 0x75, 0x6e,
 	0x6e, 0x65, 0x6c, 0x12, 0x3b, 0x0a, 0x09, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64,
 	0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x42, 0x1e, 0xe2, 0xde, 0x1f, 0x08, 0x54, 0x75, 0x6e, 0x6e,
 	0x65, 0x6c, 0x49, 0x44, 0xea, 0xde, 0x1f, 0x09, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69,
@@ -8346,168 +8368,156 @@ var file_tunnel_v1beta1_tx_proto_rawDesc = []byte{
 	0x00, 0xaa, 0xdf, 0x1f, 0x28, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f,
 	0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2d, 0x73, 0x64,
 	0x6b, 0x2f, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x73, 0xa8, 0xe7, 0xb0,
-	0x2a, 0x01, 0x52, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x36, 0x0a, 0x09, 0x64, 0x65,
-	0x70, 0x6f, 0x73, 0x69, 0x74, 0x6f, 0x72, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2,
-	0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73,
-	0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x09, 0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74,
-	0x6f, 0x72, 0x3a, 0x2a, 0x82, 0xe7, 0xb0, 0x2a, 0x09, 0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74,
-	0x6f, 0x72, 0x8a, 0xe7, 0xb0, 0x2a, 0x17, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x4d, 0x73,
-	0x67, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x22, 0x1a,
-	0x0a, 0x18, 0x4d, 0x73, 0x67, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x54, 0x75, 0x6e, 0x6e,
-	0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xa2, 0x02, 0x0a, 0x11, 0x4d,
-	0x73, 0x67, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
-	0x12, 0x3b, 0x0a, 0x09, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20,
-	0x01, 0x28, 0x04, 0x42, 0x1e, 0xe2, 0xde, 0x1f, 0x08, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49,
-	0x44, 0xea, 0xde, 0x1f, 0x09, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0xa8, 0xe7,
-	0xb0, 0x2a, 0x01, 0x52, 0x08, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x12, 0x68, 0x0a,
-	0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e,
-	0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x76, 0x31, 0x62, 0x65,
-	0x74, 0x61, 0x31, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x42, 0x35, 0xc8, 0xde, 0x1f, 0x00, 0xaa, 0xdf,
-	0x1f, 0x28, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x63, 0x6f, 0x73,
-	0x6d, 0x6f, 0x73, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2d, 0x73, 0x64, 0x6b, 0x2f, 0x74,
-	0x79, 0x70, 0x65, 0x73, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x73, 0xa8, 0xe7, 0xb0, 0x2a, 0x01, 0x52,
-	0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x38, 0x0a, 0x0a, 0x77, 0x69, 0x74, 0x68, 0x64,
-	0x72, 0x61, 0x77, 0x65, 0x72, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d,
-	0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53,
-	0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x0a, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x65,
-	0x72, 0x3a, 0x2c, 0x82, 0xe7, 0xb0, 0x2a, 0x0a, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77,
-	0x65, 0x72, 0x8a, 0xe7, 0xb0, 0x2a, 0x18, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x4d, 0x73,
-	0x67, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x22,
-	0x1b, 0x0a, 0x19, 0x4d, 0x73, 0x67, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x54, 0x75,
-	0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xaa, 0x01, 0x0a,
-	0x0f, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73,
-	0x12, 0x36, 0x0a, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x18, 0x01, 0x20,
-	0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e,
-	0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x09, 0x61,
-	0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x12, 0x34, 0x0a, 0x06, 0x70, 0x61, 0x72, 0x61,
-	0x6d, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65,
-	0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73,
-	0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x3a, 0x29,
-	0x82, 0xe7, 0xb0, 0x2a, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x8a, 0xe7,
-	0xb0, 0x2a, 0x16, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64,
-	0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x22, 0x19, 0x0a, 0x17, 0x4d, 0x73, 0x67,
-	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x32, 0xd0, 0x05, 0x0a, 0x03, 0x4d, 0x73, 0x67, 0x12, 0x58, 0x0a, 0x0c,
-	0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x1f, 0x2e, 0x74,
-	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73,
-	0x67, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x1a, 0x27, 0x2e,
-	0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d,
-	0x73, 0x67, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x52, 0x0a, 0x0a, 0x45, 0x64, 0x69, 0x74, 0x54, 0x75,
-	0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x1d, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31,
-	0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x45, 0x64, 0x69, 0x74, 0x54, 0x75, 0x6e,
-	0x6e, 0x65, 0x6c, 0x1a, 0x25, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x45, 0x64, 0x69, 0x74, 0x54, 0x75, 0x6e, 0x6e,
-	0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x4c, 0x0a, 0x08, 0x41, 0x63,
-	0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x12, 0x1b, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x41, 0x63, 0x74, 0x69, 0x76,
-	0x61, 0x74, 0x65, 0x1a, 0x23, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x41, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x52, 0x0a, 0x0a, 0x44, 0x65, 0x61, 0x63,
-	0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x12, 0x1d, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x44, 0x65, 0x61, 0x63, 0x74,
-	0x69, 0x76, 0x61, 0x74, 0x65, 0x1a, 0x25, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76,
-	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x44, 0x65, 0x61, 0x63, 0x74, 0x69,
-	0x76, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x5b, 0x0a, 0x0d,
-	0x54, 0x72, 0x69, 0x67, 0x67, 0x65, 0x72, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x20, 0x2e,
-	0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d,
-	0x73, 0x67, 0x54, 0x72, 0x69, 0x67, 0x67, 0x65, 0x72, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x1a,
-	0x28, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0x2e, 0x4d, 0x73, 0x67, 0x54, 0x72, 0x69, 0x67, 0x67, 0x65, 0x72, 0x54, 0x75, 0x6e, 0x6e, 0x65,
-	0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x5b, 0x0a, 0x0d, 0x44, 0x65, 0x70,
-	0x6f, 0x73, 0x69, 0x74, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x20, 0x2e, 0x74, 0x75, 0x6e,
-	0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x44,
-	0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x1a, 0x28, 0x2e, 0x74,
-	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73,
-	0x67, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x5e, 0x0a, 0x0e, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72,
-	0x61, 0x77, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x21, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65,
-	0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x57, 0x69, 0x74,
-	0x68, 0x64, 0x72, 0x61, 0x77, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x1a, 0x29, 0x2e, 0x74, 0x75,
+	0x2a, 0x01, 0x52, 0x06, 0x61, 0x6d, 0x6f, 0x75, 0x6e, 0x74, 0x12, 0x38, 0x0a, 0x0a, 0x77, 0x69,
+	0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x65, 0x72, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18,
+	0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65,
+	0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x0a, 0x77, 0x69, 0x74, 0x68, 0x64, 0x72,
+	0x61, 0x77, 0x65, 0x72, 0x3a, 0x2c, 0x82, 0xe7, 0xb0, 0x2a, 0x0a, 0x77, 0x69, 0x74, 0x68, 0x64,
+	0x72, 0x61, 0x77, 0x65, 0x72, 0x8a, 0xe7, 0xb0, 0x2a, 0x18, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
+	0x2f, 0x4d, 0x73, 0x67, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x54, 0x75, 0x6e, 0x6e,
+	0x65, 0x6c, 0x22, 0x1b, 0x0a, 0x19, 0x4d, 0x73, 0x67, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61,
+	0x77, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
+	0xaf, 0x01, 0x0a, 0x0f, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72,
+	0x61, 0x6d, 0x73, 0x12, 0x36, 0x0a, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d,
+	0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67,
+	0x52, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x12, 0x39, 0x0a, 0x06, 0x70,
+	0x61, 0x72, 0x61, 0x6d, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x62, 0x61,
+	0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
+	0x31, 0x2e, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06,
+	0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x3a, 0x29, 0x82, 0xe7, 0xb0, 0x2a, 0x09, 0x61, 0x75, 0x74,
+	0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x8a, 0xe7, 0xb0, 0x2a, 0x16, 0x74, 0x75, 0x6e, 0x6e, 0x65,
+	0x6c, 0x2f, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d,
+	0x73, 0x22, 0x19, 0x0a, 0x17, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61,
+	0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0xa0, 0x06, 0x0a,
+	0x03, 0x4d, 0x73, 0x67, 0x12, 0x62, 0x0a, 0x0c, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x75,
+	0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x24, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e,
+	0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x43, 0x72,
+	0x65, 0x61, 0x74, 0x65, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x1a, 0x2c, 0x2e, 0x62, 0x61, 0x6e,
+	0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0x2e, 0x4d, 0x73, 0x67, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x5c, 0x0a, 0x0a, 0x45, 0x64, 0x69, 0x74,
+	0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x22, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75,
 	0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67,
-	0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65,
-	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x58, 0x0a, 0x0c, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65,
-	0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x1f, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74,
-	0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x1a, 0x27, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
-	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61,
-	0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
-	0x1a, 0x05, 0x80, 0xe7, 0xb0, 0x2a, 0x01, 0x42, 0xb9, 0x01, 0x0a, 0x12, 0x63, 0x6f, 0x6d, 0x2e,
-	0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x07,
-	0x54, 0x78, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x41, 0x67, 0x69, 0x74, 0x68, 0x75,
-	0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63,
-	0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x61, 0x70, 0x69, 0x2f,
-	0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b, 0x74,
-	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x54,
-	0x58, 0x58, 0xaa, 0x02, 0x0e, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x56, 0x31, 0x62, 0x65,
-	0x74, 0x61, 0x31, 0xca, 0x02, 0x0e, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0xe2, 0x02, 0x1a, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56, 0x31,
-	0x62, 0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74,
-	0x61, 0xea, 0x02, 0x0f, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65,
-	0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x45, 0x64, 0x69, 0x74, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x1a, 0x2a, 0x2e, 0x62, 0x61, 0x6e,
+	0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0x2e, 0x4d, 0x73, 0x67, 0x45, 0x64, 0x69, 0x74, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x56, 0x0a, 0x08, 0x41, 0x63, 0x74, 0x69, 0x76, 0x61,
+	0x74, 0x65, 0x12, 0x20, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
+	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x41, 0x63, 0x74, 0x69,
+	0x76, 0x61, 0x74, 0x65, 0x1a, 0x28, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e,
+	0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x41, 0x63,
+	0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x5c,
+	0x0a, 0x0a, 0x44, 0x65, 0x61, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x12, 0x22, 0x2e, 0x62,
+	0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x44, 0x65, 0x61, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65,
+	0x1a, 0x2a, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x44, 0x65, 0x61, 0x63, 0x74, 0x69,
+	0x76, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x65, 0x0a, 0x0d,
+	0x54, 0x72, 0x69, 0x67, 0x67, 0x65, 0x72, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x25, 0x2e,
+	0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65,
+	0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x54, 0x72, 0x69, 0x67, 0x67, 0x65, 0x72, 0x54, 0x75,
+	0x6e, 0x6e, 0x65, 0x6c, 0x1a, 0x2d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e,
+	0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x54, 0x72,
+	0x69, 0x67, 0x67, 0x65, 0x72, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x12, 0x65, 0x0a, 0x0d, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x54, 0x75,
+	0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x25, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e,
+	0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x44, 0x65,
+	0x70, 0x6f, 0x73, 0x69, 0x74, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x1a, 0x2d, 0x2e, 0x62, 0x61,
+	0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
+	0x31, 0x2e, 0x4d, 0x73, 0x67, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x54, 0x75, 0x6e, 0x6e,
+	0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x68, 0x0a, 0x0e, 0x57, 0x69,
+	0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x26, 0x2e, 0x62,
+	0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x57, 0x69, 0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x54, 0x75,
+	0x6e, 0x6e, 0x65, 0x6c, 0x1a, 0x2e, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e,
+	0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x57, 0x69,
+	0x74, 0x68, 0x64, 0x72, 0x61, 0x77, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x62, 0x0a, 0x0c, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61,
+	0x72, 0x61, 0x6d, 0x73, 0x12, 0x24, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e,
+	0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70,
+	0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x1a, 0x2c, 0x2e, 0x62, 0x61, 0x6e,
+	0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x1a, 0x05, 0x80, 0xe7, 0xb0, 0x2a, 0x01, 0x42,
+	0xd8, 0x01, 0x0a, 0x17, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e,
+	0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x07, 0x54, 0x78, 0x50,
+	0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x46, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63,
+	0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f,
+	0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e,
+	0x64, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0x3b, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02,
+	0x03, 0x42, 0x54, 0x58, 0xaa, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x2e, 0x54, 0x75, 0x6e, 0x6e,
+	0x65, 0x6c, 0x2e, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x13, 0x42, 0x61, 0x6e,
+	0x64, 0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0xe2, 0x02, 0x1f, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61,
+	0x74, 0x61, 0xea, 0x02, 0x15, 0x42, 0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x54, 0x75, 0x6e, 0x6e, 0x65,
+	0x6c, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x33,
 }
 
 var (
-	file_tunnel_v1beta1_tx_proto_rawDescOnce sync.Once
-	file_tunnel_v1beta1_tx_proto_rawDescData = file_tunnel_v1beta1_tx_proto_rawDesc
+	file_band_tunnel_v1beta1_tx_proto_rawDescOnce sync.Once
+	file_band_tunnel_v1beta1_tx_proto_rawDescData = file_band_tunnel_v1beta1_tx_proto_rawDesc
 )
 
-func file_tunnel_v1beta1_tx_proto_rawDescGZIP() []byte {
-	file_tunnel_v1beta1_tx_proto_rawDescOnce.Do(func() {
-		file_tunnel_v1beta1_tx_proto_rawDescData = protoimpl.X.CompressGZIP(file_tunnel_v1beta1_tx_proto_rawDescData)
+func file_band_tunnel_v1beta1_tx_proto_rawDescGZIP() []byte {
+	file_band_tunnel_v1beta1_tx_proto_rawDescOnce.Do(func() {
+		file_band_tunnel_v1beta1_tx_proto_rawDescData = protoimpl.X.CompressGZIP(file_band_tunnel_v1beta1_tx_proto_rawDescData)
 	})
-	return file_tunnel_v1beta1_tx_proto_rawDescData
+	return file_band_tunnel_v1beta1_tx_proto_rawDescData
 }
 
-var file_tunnel_v1beta1_tx_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
-var file_tunnel_v1beta1_tx_proto_goTypes = []interface{}{
-	(*MsgCreateTunnel)(nil),           // 0: tunnel.v1beta1.MsgCreateTunnel
-	(*MsgCreateTunnelResponse)(nil),   // 1: tunnel.v1beta1.MsgCreateTunnelResponse
-	(*MsgEditTunnel)(nil),             // 2: tunnel.v1beta1.MsgEditTunnel
-	(*MsgEditTunnelResponse)(nil),     // 3: tunnel.v1beta1.MsgEditTunnelResponse
-	(*MsgActivate)(nil),               // 4: tunnel.v1beta1.MsgActivate
-	(*MsgActivateResponse)(nil),       // 5: tunnel.v1beta1.MsgActivateResponse
-	(*MsgDeactivate)(nil),             // 6: tunnel.v1beta1.MsgDeactivate
-	(*MsgDeactivateResponse)(nil),     // 7: tunnel.v1beta1.MsgDeactivateResponse
-	(*MsgTriggerTunnel)(nil),          // 8: tunnel.v1beta1.MsgTriggerTunnel
-	(*MsgTriggerTunnelResponse)(nil),  // 9: tunnel.v1beta1.MsgTriggerTunnelResponse
-	(*MsgDepositTunnel)(nil),          // 10: tunnel.v1beta1.MsgDepositTunnel
-	(*MsgDepositTunnelResponse)(nil),  // 11: tunnel.v1beta1.MsgDepositTunnelResponse
-	(*MsgWithdrawTunnel)(nil),         // 12: tunnel.v1beta1.MsgWithdrawTunnel
-	(*MsgWithdrawTunnelResponse)(nil), // 13: tunnel.v1beta1.MsgWithdrawTunnelResponse
-	(*MsgUpdateParams)(nil),           // 14: tunnel.v1beta1.MsgUpdateParams
-	(*MsgUpdateParamsResponse)(nil),   // 15: tunnel.v1beta1.MsgUpdateParamsResponse
-	(*SignalDeviation)(nil),           // 16: tunnel.v1beta1.SignalDeviation
+var file_band_tunnel_v1beta1_tx_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_band_tunnel_v1beta1_tx_proto_goTypes = []interface{}{
+	(*MsgCreateTunnel)(nil),           // 0: band.tunnel.v1beta1.MsgCreateTunnel
+	(*MsgCreateTunnelResponse)(nil),   // 1: band.tunnel.v1beta1.MsgCreateTunnelResponse
+	(*MsgEditTunnel)(nil),             // 2: band.tunnel.v1beta1.MsgEditTunnel
+	(*MsgEditTunnelResponse)(nil),     // 3: band.tunnel.v1beta1.MsgEditTunnelResponse
+	(*MsgActivate)(nil),               // 4: band.tunnel.v1beta1.MsgActivate
+	(*MsgActivateResponse)(nil),       // 5: band.tunnel.v1beta1.MsgActivateResponse
+	(*MsgDeactivate)(nil),             // 6: band.tunnel.v1beta1.MsgDeactivate
+	(*MsgDeactivateResponse)(nil),     // 7: band.tunnel.v1beta1.MsgDeactivateResponse
+	(*MsgTriggerTunnel)(nil),          // 8: band.tunnel.v1beta1.MsgTriggerTunnel
+	(*MsgTriggerTunnelResponse)(nil),  // 9: band.tunnel.v1beta1.MsgTriggerTunnelResponse
+	(*MsgDepositTunnel)(nil),          // 10: band.tunnel.v1beta1.MsgDepositTunnel
+	(*MsgDepositTunnelResponse)(nil),  // 11: band.tunnel.v1beta1.MsgDepositTunnelResponse
+	(*MsgWithdrawTunnel)(nil),         // 12: band.tunnel.v1beta1.MsgWithdrawTunnel
+	(*MsgWithdrawTunnelResponse)(nil), // 13: band.tunnel.v1beta1.MsgWithdrawTunnelResponse
+	(*MsgUpdateParams)(nil),           // 14: band.tunnel.v1beta1.MsgUpdateParams
+	(*MsgUpdateParamsResponse)(nil),   // 15: band.tunnel.v1beta1.MsgUpdateParamsResponse
+	(*SignalDeviation)(nil),           // 16: band.tunnel.v1beta1.SignalDeviation
 	(*anypb.Any)(nil),                 // 17: google.protobuf.Any
-	(Encoder)(0),                      // 18: tunnel.v1beta1.Encoder
+	(Encoder)(0),                      // 18: band.tunnel.v1beta1.Encoder
 	(*v1beta1.Coin)(nil),              // 19: cosmos.base.v1beta1.Coin
-	(*Params)(nil),                    // 20: tunnel.v1beta1.Params
+	(*Params)(nil),                    // 20: band.tunnel.v1beta1.Params
 }
-var file_tunnel_v1beta1_tx_proto_depIdxs = []int32{
-	16, // 0: tunnel.v1beta1.MsgCreateTunnel.signal_deviations:type_name -> tunnel.v1beta1.SignalDeviation
-	17, // 1: tunnel.v1beta1.MsgCreateTunnel.route:type_name -> google.protobuf.Any
-	18, // 2: tunnel.v1beta1.MsgCreateTunnel.encoder:type_name -> tunnel.v1beta1.Encoder
-	19, // 3: tunnel.v1beta1.MsgCreateTunnel.initial_deposit:type_name -> cosmos.base.v1beta1.Coin
-	16, // 4: tunnel.v1beta1.MsgEditTunnel.signal_deviations:type_name -> tunnel.v1beta1.SignalDeviation
-	19, // 5: tunnel.v1beta1.MsgDepositTunnel.amount:type_name -> cosmos.base.v1beta1.Coin
-	19, // 6: tunnel.v1beta1.MsgWithdrawTunnel.amount:type_name -> cosmos.base.v1beta1.Coin
-	20, // 7: tunnel.v1beta1.MsgUpdateParams.params:type_name -> tunnel.v1beta1.Params
-	0,  // 8: tunnel.v1beta1.Msg.CreateTunnel:input_type -> tunnel.v1beta1.MsgCreateTunnel
-	2,  // 9: tunnel.v1beta1.Msg.EditTunnel:input_type -> tunnel.v1beta1.MsgEditTunnel
-	4,  // 10: tunnel.v1beta1.Msg.Activate:input_type -> tunnel.v1beta1.MsgActivate
-	6,  // 11: tunnel.v1beta1.Msg.Deactivate:input_type -> tunnel.v1beta1.MsgDeactivate
-	8,  // 12: tunnel.v1beta1.Msg.TriggerTunnel:input_type -> tunnel.v1beta1.MsgTriggerTunnel
-	10, // 13: tunnel.v1beta1.Msg.DepositTunnel:input_type -> tunnel.v1beta1.MsgDepositTunnel
-	12, // 14: tunnel.v1beta1.Msg.WithdrawTunnel:input_type -> tunnel.v1beta1.MsgWithdrawTunnel
-	14, // 15: tunnel.v1beta1.Msg.UpdateParams:input_type -> tunnel.v1beta1.MsgUpdateParams
-	1,  // 16: tunnel.v1beta1.Msg.CreateTunnel:output_type -> tunnel.v1beta1.MsgCreateTunnelResponse
-	3,  // 17: tunnel.v1beta1.Msg.EditTunnel:output_type -> tunnel.v1beta1.MsgEditTunnelResponse
-	5,  // 18: tunnel.v1beta1.Msg.Activate:output_type -> tunnel.v1beta1.MsgActivateResponse
-	7,  // 19: tunnel.v1beta1.Msg.Deactivate:output_type -> tunnel.v1beta1.MsgDeactivateResponse
-	9,  // 20: tunnel.v1beta1.Msg.TriggerTunnel:output_type -> tunnel.v1beta1.MsgTriggerTunnelResponse
-	11, // 21: tunnel.v1beta1.Msg.DepositTunnel:output_type -> tunnel.v1beta1.MsgDepositTunnelResponse
-	13, // 22: tunnel.v1beta1.Msg.WithdrawTunnel:output_type -> tunnel.v1beta1.MsgWithdrawTunnelResponse
-	15, // 23: tunnel.v1beta1.Msg.UpdateParams:output_type -> tunnel.v1beta1.MsgUpdateParamsResponse
+var file_band_tunnel_v1beta1_tx_proto_depIdxs = []int32{
+	16, // 0: band.tunnel.v1beta1.MsgCreateTunnel.signal_deviations:type_name -> band.tunnel.v1beta1.SignalDeviation
+	17, // 1: band.tunnel.v1beta1.MsgCreateTunnel.route:type_name -> google.protobuf.Any
+	18, // 2: band.tunnel.v1beta1.MsgCreateTunnel.encoder:type_name -> band.tunnel.v1beta1.Encoder
+	19, // 3: band.tunnel.v1beta1.MsgCreateTunnel.initial_deposit:type_name -> cosmos.base.v1beta1.Coin
+	16, // 4: band.tunnel.v1beta1.MsgEditTunnel.signal_deviations:type_name -> band.tunnel.v1beta1.SignalDeviation
+	19, // 5: band.tunnel.v1beta1.MsgDepositTunnel.amount:type_name -> cosmos.base.v1beta1.Coin
+	19, // 6: band.tunnel.v1beta1.MsgWithdrawTunnel.amount:type_name -> cosmos.base.v1beta1.Coin
+	20, // 7: band.tunnel.v1beta1.MsgUpdateParams.params:type_name -> band.tunnel.v1beta1.Params
+	0,  // 8: band.tunnel.v1beta1.Msg.CreateTunnel:input_type -> band.tunnel.v1beta1.MsgCreateTunnel
+	2,  // 9: band.tunnel.v1beta1.Msg.EditTunnel:input_type -> band.tunnel.v1beta1.MsgEditTunnel
+	4,  // 10: band.tunnel.v1beta1.Msg.Activate:input_type -> band.tunnel.v1beta1.MsgActivate
+	6,  // 11: band.tunnel.v1beta1.Msg.Deactivate:input_type -> band.tunnel.v1beta1.MsgDeactivate
+	8,  // 12: band.tunnel.v1beta1.Msg.TriggerTunnel:input_type -> band.tunnel.v1beta1.MsgTriggerTunnel
+	10, // 13: band.tunnel.v1beta1.Msg.DepositTunnel:input_type -> band.tunnel.v1beta1.MsgDepositTunnel
+	12, // 14: band.tunnel.v1beta1.Msg.WithdrawTunnel:input_type -> band.tunnel.v1beta1.MsgWithdrawTunnel
+	14, // 15: band.tunnel.v1beta1.Msg.UpdateParams:input_type -> band.tunnel.v1beta1.MsgUpdateParams
+	1,  // 16: band.tunnel.v1beta1.Msg.CreateTunnel:output_type -> band.tunnel.v1beta1.MsgCreateTunnelResponse
+	3,  // 17: band.tunnel.v1beta1.Msg.EditTunnel:output_type -> band.tunnel.v1beta1.MsgEditTunnelResponse
+	5,  // 18: band.tunnel.v1beta1.Msg.Activate:output_type -> band.tunnel.v1beta1.MsgActivateResponse
+	7,  // 19: band.tunnel.v1beta1.Msg.Deactivate:output_type -> band.tunnel.v1beta1.MsgDeactivateResponse
+	9,  // 20: band.tunnel.v1beta1.Msg.TriggerTunnel:output_type -> band.tunnel.v1beta1.MsgTriggerTunnelResponse
+	11, // 21: band.tunnel.v1beta1.Msg.DepositTunnel:output_type -> band.tunnel.v1beta1.MsgDepositTunnelResponse
+	13, // 22: band.tunnel.v1beta1.Msg.WithdrawTunnel:output_type -> band.tunnel.v1beta1.MsgWithdrawTunnelResponse
+	15, // 23: band.tunnel.v1beta1.Msg.UpdateParams:output_type -> band.tunnel.v1beta1.MsgUpdateParamsResponse
 	16, // [16:24] is the sub-list for method output_type
 	8,  // [8:16] is the sub-list for method input_type
 	8,  // [8:8] is the sub-list for extension type_name
@@ -8515,15 +8525,15 @@ var file_tunnel_v1beta1_tx_proto_depIdxs = []int32{
 	0,  // [0:8] is the sub-list for field type_name
 }
 
-func init() { file_tunnel_v1beta1_tx_proto_init() }
-func file_tunnel_v1beta1_tx_proto_init() {
-	if File_tunnel_v1beta1_tx_proto != nil {
+func init() { file_band_tunnel_v1beta1_tx_proto_init() }
+func file_band_tunnel_v1beta1_tx_proto_init() {
+	if File_band_tunnel_v1beta1_tx_proto != nil {
 		return
 	}
-	file_tunnel_v1beta1_params_proto_init()
-	file_tunnel_v1beta1_tunnel_proto_init()
+	file_band_tunnel_v1beta1_params_proto_init()
+	file_band_tunnel_v1beta1_tunnel_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_tunnel_v1beta1_tx_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_tx_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgCreateTunnel); i {
 			case 0:
 				return &v.state
@@ -8535,7 +8545,7 @@ func file_tunnel_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_tx_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_tx_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgCreateTunnelResponse); i {
 			case 0:
 				return &v.state
@@ -8547,7 +8557,7 @@ func file_tunnel_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_tx_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_tx_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgEditTunnel); i {
 			case 0:
 				return &v.state
@@ -8559,7 +8569,7 @@ func file_tunnel_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_tx_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_tx_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgEditTunnelResponse); i {
 			case 0:
 				return &v.state
@@ -8571,7 +8581,7 @@ func file_tunnel_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_tx_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_tx_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgActivate); i {
 			case 0:
 				return &v.state
@@ -8583,7 +8593,7 @@ func file_tunnel_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_tx_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_tx_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgActivateResponse); i {
 			case 0:
 				return &v.state
@@ -8595,7 +8605,7 @@ func file_tunnel_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_tx_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_tx_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgDeactivate); i {
 			case 0:
 				return &v.state
@@ -8607,7 +8617,7 @@ func file_tunnel_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_tx_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_tx_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgDeactivateResponse); i {
 			case 0:
 				return &v.state
@@ -8619,7 +8629,7 @@ func file_tunnel_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_tx_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_tx_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgTriggerTunnel); i {
 			case 0:
 				return &v.state
@@ -8631,7 +8641,7 @@ func file_tunnel_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_tx_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_tx_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgTriggerTunnelResponse); i {
 			case 0:
 				return &v.state
@@ -8643,7 +8653,7 @@ func file_tunnel_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_tx_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_tx_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgDepositTunnel); i {
 			case 0:
 				return &v.state
@@ -8655,7 +8665,7 @@ func file_tunnel_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_tx_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_tx_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgDepositTunnelResponse); i {
 			case 0:
 				return &v.state
@@ -8667,7 +8677,7 @@ func file_tunnel_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_tx_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_tx_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgWithdrawTunnel); i {
 			case 0:
 				return &v.state
@@ -8679,7 +8689,7 @@ func file_tunnel_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_tx_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_tx_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgWithdrawTunnelResponse); i {
 			case 0:
 				return &v.state
@@ -8691,7 +8701,7 @@ func file_tunnel_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_tx_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_tx_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgUpdateParams); i {
 			case 0:
 				return &v.state
@@ -8703,7 +8713,7 @@ func file_tunnel_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_tunnel_v1beta1_tx_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+		file_band_tunnel_v1beta1_tx_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgUpdateParamsResponse); i {
 			case 0:
 				return &v.state
@@ -8720,18 +8730,18 @@ func file_tunnel_v1beta1_tx_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_tunnel_v1beta1_tx_proto_rawDesc,
+			RawDescriptor: file_band_tunnel_v1beta1_tx_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_tunnel_v1beta1_tx_proto_goTypes,
-		DependencyIndexes: file_tunnel_v1beta1_tx_proto_depIdxs,
-		MessageInfos:      file_tunnel_v1beta1_tx_proto_msgTypes,
+		GoTypes:           file_band_tunnel_v1beta1_tx_proto_goTypes,
+		DependencyIndexes: file_band_tunnel_v1beta1_tx_proto_depIdxs,
+		MessageInfos:      file_band_tunnel_v1beta1_tx_proto_msgTypes,
 	}.Build()
-	File_tunnel_v1beta1_tx_proto = out.File
-	file_tunnel_v1beta1_tx_proto_rawDesc = nil
-	file_tunnel_v1beta1_tx_proto_goTypes = nil
-	file_tunnel_v1beta1_tx_proto_depIdxs = nil
+	File_band_tunnel_v1beta1_tx_proto = out.File
+	file_band_tunnel_v1beta1_tx_proto_rawDesc = nil
+	file_band_tunnel_v1beta1_tx_proto_goTypes = nil
+	file_band_tunnel_v1beta1_tx_proto_depIdxs = nil
 }

@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: tunnel/v1beta1/tx.proto
+// source: band/tunnel/v1beta1/tx.proto
 
 package tunnelv1beta1
 
@@ -19,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Msg_CreateTunnel_FullMethodName   = "/tunnel.v1beta1.Msg/CreateTunnel"
-	Msg_EditTunnel_FullMethodName     = "/tunnel.v1beta1.Msg/EditTunnel"
-	Msg_Activate_FullMethodName       = "/tunnel.v1beta1.Msg/Activate"
-	Msg_Deactivate_FullMethodName     = "/tunnel.v1beta1.Msg/Deactivate"
-	Msg_TriggerTunnel_FullMethodName  = "/tunnel.v1beta1.Msg/TriggerTunnel"
-	Msg_DepositTunnel_FullMethodName  = "/tunnel.v1beta1.Msg/DepositTunnel"
-	Msg_WithdrawTunnel_FullMethodName = "/tunnel.v1beta1.Msg/WithdrawTunnel"
-	Msg_UpdateParams_FullMethodName   = "/tunnel.v1beta1.Msg/UpdateParams"
+	Msg_CreateTunnel_FullMethodName   = "/band.tunnel.v1beta1.Msg/CreateTunnel"
+	Msg_EditTunnel_FullMethodName     = "/band.tunnel.v1beta1.Msg/EditTunnel"
+	Msg_Activate_FullMethodName       = "/band.tunnel.v1beta1.Msg/Activate"
+	Msg_Deactivate_FullMethodName     = "/band.tunnel.v1beta1.Msg/Deactivate"
+	Msg_TriggerTunnel_FullMethodName  = "/band.tunnel.v1beta1.Msg/TriggerTunnel"
+	Msg_DepositTunnel_FullMethodName  = "/band.tunnel.v1beta1.Msg/DepositTunnel"
+	Msg_WithdrawTunnel_FullMethodName = "/band.tunnel.v1beta1.Msg/WithdrawTunnel"
+	Msg_UpdateParams_FullMethodName   = "/band.tunnel.v1beta1.Msg/UpdateParams"
 )
 
 // MsgClient is the client API for Msg service.
@@ -343,7 +343,7 @@ func _Msg_UpdateParams_Handler(srv interface{}, ctx context.Context, dec func(in
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Msg_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "tunnel.v1beta1.Msg",
+	ServiceName: "band.tunnel.v1beta1.Msg",
 	HandlerType: (*MsgServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -380,5 +380,5 @@ var Msg_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "tunnel/v1beta1/tx.proto",
+	Metadata: "band/tunnel/v1beta1/tx.proto",
 }

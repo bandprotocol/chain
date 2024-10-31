@@ -1,13 +1,14 @@
 syntax = "proto3";
-package tunnel.v1beta1;
+package band.tunnel.v1beta1;
 
 option go_package = "github.com/bandprotocol/chain/v3/x/tunnel/types";
 
 import "gogoproto/gogo.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "google/api/annotations.proto";
-import "tunnel/v1beta1/params.proto";
-import "tunnel/v1beta1/tunnel.proto";
+
+import "band/tunnel/v1beta1/params.proto";
+import "band/tunnel/v1beta1/tunnel.proto";
 
 // Query service defines the gRPC querier service.
 service Query {

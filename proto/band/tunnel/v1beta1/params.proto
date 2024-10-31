@@ -1,5 +1,5 @@
 syntax = "proto3";
-package tunnel.v1beta1;
+package band.tunnel.v1beta1;
 
 option go_package = "github.com/bandprotocol/chain/v3/x/tunnel/types";
 
