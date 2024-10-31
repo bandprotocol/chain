@@ -8,8 +8,7 @@ import "cosmos/base/v1beta1/coin.proto";
 
 // Params is the data structure that keeps the parameters of the module.
 message Params {
-  option (gogoproto.equal)            = true;  // Use gogoproto.equal for proto3 message equality checks
-  option (gogoproto.goproto_stringer) = false; // Disable stringer generation for better control
+  option (gogoproto.equal) = true; // Use gogoproto.equal for proto3 message equality checks
 
   // min_deposit is the minimum deposit required to create a tunnel
   repeated cosmos.base.v1beta1.Coin min_deposit = 1
