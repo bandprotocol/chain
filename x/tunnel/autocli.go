@@ -21,9 +21,6 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					RpcMethod: "Tunnels",
 					Use:       "tunnels",
 					Short:     "Query all tunnels",
-					PositionalArgs: []*autocliv1.PositionalArgDescriptor{
-						{ProtoField: "status_filter", Optional: true},
-					},
 				},
 				{
 					RpcMethod: "Tunnel",
