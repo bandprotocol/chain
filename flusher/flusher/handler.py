@@ -46,6 +46,19 @@ from .db import (
     relayer_tx_stat_days,
 )
 
+from .restake_db import restake_vaults, restake_locks, restake_historical_stakes
+
+from .feeds_db import (
+    PRICE_HISTORY_PERIOD,
+    price_signals,
+    validator_prices,
+    delegator_signals,
+    signal_total_powers,
+    prices,
+    reference_source_configs,
+    feeders,
+)
+
 from .bandtss_db import (
     bandtss_current_groups,
     bandtss_members,
@@ -60,17 +73,6 @@ from .tss_db import (
     tss_groups,
     tss_members,
     tss_assigned_members,
-)
-
-from .feeds_db import (
-    PRICE_HISTORY_PERIOD,
-    price_signals,
-    validator_prices,
-    delegator_signals,
-    signal_total_powers,
-    prices,
-    reference_source_configs,
-    feeders,
 )
 
 
@@ -909,6 +911,52 @@ class Handler(object):
         self.conn.execute(bandtss_signings.insert(), msg)
 
     ##################################
+    # RESTAKE_HANDLER
+    ##################################
+
+    def handle_set_restake_historical_stake(self, msg):
+        msg["account_id"] = self.get_account_id(msg["staker_address"])
+        del msg["staker_address"]
+        self.conn.execute(
+            insert(restake_historical_stakes)
+            .values(**msg)
+            .on_conflict_do_update(
+                constraint="restake_historical_stakes_pkey", set_=msg
+            )
+        )
+
+    def handle_set_restake_lock(self, msg):
+        if msg["tx_hash"] is not None:
+            msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
+        else:
+            msg["transaction_id"] = None
+        del msg["tx_hash"]
+
+        msg["account_id"] = self.get_account_id(msg["staker_address"])
+        del msg["staker_address"]
+        self.conn.execute(
+            insert(restake_locks)
+            .values(**msg)
+            .on_conflict_do_update(constraint="restake_locks_pkey", set_=msg)
+        )
+
+    def handle_remove_restake_lock(self, msg):
+        msg["account_id"] = self.get_account_id(msg["staker_address"])
+        del msg["staker_address"]
+
+        condition = True
+        for col in restake_locks.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+        self.conn.execute(restake_locks.delete().where(condition))
+
+    def handle_set_restake_vault(self, msg):
+        self.conn.execute(
+            insert(restake_vaults)
+            .values(**msg)
+            .on_conflict_do_update(constraint="restake_vaults_pkey", set_=msg)
+        )
+
+    ##################################
     # FEEDS_HANDLER
     ##################################
 
@@ -1014,3 +1062,45 @@ class Handler(object):
         for col in feeders.primary_key.columns.values():
             condition = (col == msg[col.name]) & condition
         self.conn.execute(feeders.delete().where(condition))
+
+    def handle_set_restake_historical_stake(self, msg):
+        msg["account_id"] = self.get_account_id(msg["staker_address"])
+        del msg["staker_address"]
+        self.conn.execute(
+            insert(restake_historical_stakes)
+            .values(**msg)
+            .on_conflict_do_update(
+                constraint="restake_historical_stakes_pkey", set_=msg
+            )
+        )
+
+    def handle_set_restake_lock(self, msg):
+        if msg["tx_hash"] is not None:
+            msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
+        else:
+            msg["transaction_id"] = None
+        del msg["tx_hash"]
+
+        msg["account_id"] = self.get_account_id(msg["staker_address"])
+        del msg["staker_address"]
+        self.conn.execute(
+            insert(restake_locks)
+            .values(**msg)
+            .on_conflict_do_update(constraint="restake_locks_pkey", set_=msg)
+        )
+
+    def handle_remove_restake_lock(self, msg):
+        msg["account_id"] = self.get_account_id(msg["staker_address"])
+        del msg["staker_address"]
+
+        condition = True
+        for col in restake_locks.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+        self.conn.execute(restake_locks.delete().where(condition))
+
+    def handle_set_restake_vault(self, msg):
+        self.conn.execute(
+            insert(restake_vaults)
+            .values(**msg)
+            .on_conflict_do_update(constraint="restake_vaults_pkey", set_=msg)
+        )

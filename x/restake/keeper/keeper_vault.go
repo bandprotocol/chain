@@ -48,7 +48,7 @@ func (k Keeper) DeactivateVault(ctx sdk.Context, key string) error {
 	}
 
 	if !vault.IsActive {
-		return types.ErrVaultAlreadyDeactivated
+		return types.ErrVaultNotActive
 	}
 
 	vault.IsActive = false

@@ -14,7 +14,6 @@ import (
 
 func (suite *KeeperTestSuite) TestMsgStake() {
 	ctx := suite.ctx
-	suite.setupState()
 
 	testCases := []struct {
 		name      string
@@ -111,6 +110,9 @@ func (suite *KeeperTestSuite) TestMsgStake() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
+			suite.setupState()
+			ctx = suite.ctx
+
 			tc.preCheck()
 			_, err := suite.msgServer.Stake(suite.ctx, tc.input)
 
@@ -128,7 +130,6 @@ func (suite *KeeperTestSuite) TestMsgStake() {
 
 func (suite *KeeperTestSuite) TestMsgUnstake() {
 	ctx := suite.ctx
-	suite.setupState()
 
 	testCases := []struct {
 		name      string
@@ -149,6 +150,24 @@ func (suite *KeeperTestSuite) TestMsgUnstake() {
 			expErr:    true,
 			expErrMsg: "stake not enough",
 			preCheck:  func() {},
+			postCheck: func() {},
+		},
+		{
+			name: "unstake more than locked power",
+			input: &types.MsgUnstake{
+				StakerAddress: ValidAddress1.String(),
+				Coins: sdk.NewCoins(
+					sdk.NewCoin("uband", sdkmath.NewInt(50)),
+				),
+			},
+			expErr:    true,
+			expErrMsg: "power is locked",
+			preCheck: func() {
+				suite.stakingKeeper.EXPECT().
+					GetDelegatorBonded(gomock.Any(), ValidAddress1).
+					Return(sdkmath.NewInt(50), nil).
+					Times(1)
+			},
 			postCheck: func() {},
 		},
 		{
@@ -188,6 +207,9 @@ func (suite *KeeperTestSuite) TestMsgUnstake() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
+			suite.setupState()
+			ctx = suite.ctx
+
 			tc.preCheck()
 			_, err := suite.msgServer.Unstake(suite.ctx, tc.input)
 
@@ -205,7 +227,6 @@ func (suite *KeeperTestSuite) TestMsgUnstake() {
 
 func (suite *KeeperTestSuite) TestMsgUpdateParams() {
 	ctx := suite.ctx
-	suite.setupState()
 
 	testCases := []struct {
 		name      string
@@ -263,6 +284,9 @@ func (suite *KeeperTestSuite) TestMsgUpdateParams() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
+			suite.setupState()
+			ctx = suite.ctx
+
 			tc.preCheck()
 			_, err := suite.msgServer.UpdateParams(suite.ctx, tc.input)
 

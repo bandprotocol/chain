@@ -4,6 +4,7 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 )
@@ -46,6 +47,19 @@ func NewMember(
 		Since:      since,
 		LastActive: lastActive,
 	}
+}
+
+// Validate performs basic validation of member information.
+func (m Member) Validate() error {
+	if _, err := sdk.AccAddressFromBech32(m.Address); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid member address: %s", err)
+	}
+
+	if m.GroupID == 0 {
+		return ErrInvalidGroupID.Wrap("group id is 0")
+	}
+
+	return nil
 }
 
 // NewSigning creates a new signing object.

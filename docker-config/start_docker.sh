@@ -120,7 +120,7 @@ bandd genesis collect-gentxs
 # copy genesis to the proper location!
 cp ~/.band/config/genesis.json $DIR/genesis.json
 cat <<< $(jq '.app_state.gov.params.voting_period = "60s"' $DIR/genesis.json) > $DIR/genesis.json
-cat <<< $(jq '.app_state.feeds.params.blocks_per_feeds_update = "10"' $DIR/genesis.json) > $DIR/genesis.json
+cat <<< $(jq '.app_state.restake.params.allowed_denoms = ["uband"]' $DIR/genesis.json) > $DIR/genesis.json
 
 # Build
 docker-compose up -d --build --force-recreate

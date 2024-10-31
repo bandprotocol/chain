@@ -135,9 +135,9 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 	bankKeeper := restaketestutil.NewMockBankKeeper(ctrl)
 	bankKeeper.EXPECT().
-		GetAllBalances(gomock.Any(), gomock.Any()).
+		GetAllBalances(gomock.Any(), moduleAccount.GetAddress()).
 		Return(nil).
-		AnyTimes()
+		Times(1)
 	suite.bankKeeper = bankKeeper
 
 	stakingKeeper := restaketestutil.NewMockStakingKeeper(ctrl)
@@ -251,9 +251,9 @@ func (suite *KeeperTestSuite) TestGetDelegationPower() {
 func (suite *KeeperTestSuite) TestIsLiquidStaker() {
 	// not liquid staker
 	isLiquidStaker := suite.restakeKeeper.IsLiquidStaker(ValidAddress1)
-	suite.Require().Equal(false, isLiquidStaker)
+	suite.Require().False(isLiquidStaker)
 
 	// is liquid staker
 	isLiquidStaker = suite.restakeKeeper.IsLiquidStaker(LiquidStakerAddress)
-	suite.Require().Equal(true, isLiquidStaker)
+	suite.Require().True(isLiquidStaker)
 }

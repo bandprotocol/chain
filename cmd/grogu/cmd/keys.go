@@ -191,10 +191,9 @@ func createKeysListRunE(ctx *grogu.Context) func(cmd *cobra.Command, args []stri
 
 		nodeURIs := strings.Split(viper.GetString(flagNodes), ",")
 		clients, stopClients, err := createClients(nodeURIs)
-		if err != nil {
-			return err
+		if err == nil {
+			defer stopClients()
 		}
-		defer stopClients()
 
 		maxBlockHeight := new(atomic.Int64)
 		maxBlockHeight.Store(0)

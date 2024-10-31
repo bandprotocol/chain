@@ -80,8 +80,8 @@ func (h *Hook) emitSetPrice(price types.Price) {
 
 func (h *Hook) emitSetReferenceSourceConfig(ctx sdk.Context, rsc types.ReferenceSourceConfig) {
 	h.Write("SET_REFERENCE_SOURCE_CONFIG", common.JsDict{
-		"ipfs_hash": rsc.IPFSHash,
-		"version":   rsc.Version,
+		"ipfs_hash": rsc.RegistryIPFSHash,
+		"version":   rsc.RegistryVersion,
 		"timestamp": ctx.BlockTime().UnixNano(),
 	})
 }

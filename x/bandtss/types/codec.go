@@ -5,6 +5,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	cdctypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/msgservice"
 
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
@@ -13,7 +14,7 @@ import (
 // should ONLY be used in certain instances of tests and for JSON encoding.
 //
 // The actual codec used for serialization should be provided to x/bandtss and
-// defined at the application level
+// defined at the application level.
 var ModuleCdc = codec.NewProtoCodec(cdctypes.NewInterfaceRegistry())
 
 // RegisterLegacyAminoCodec registers the necessary x/bandtss interfaces and concrete types
@@ -27,7 +28,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "bandtss/MsgUpdateParams")
 }
 
-// RegisterInterfaces register the bandtss module interfaces to protobuf Any.
+// RegisterInterfaces registers the x/tss interfaces types with the interface registry
 func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*sdk.Msg)(nil),
 		&MsgTransitionGroup{},
@@ -42,4 +43,6 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		(*tsstypes.Content)(nil),
 		&GroupTransitionSignatureOrder{},
 	)
+
+	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
 }
