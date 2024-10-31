@@ -3,7 +3,7 @@ package sender_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -71,7 +71,7 @@ func TestGetMsgDetails(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			details := sender.GetMsgDetails(test.msgs...)
-			assert.Equal(t, test.expect, details)
+			require.Equal(t, test.expect, details)
 		})
 	}
 }
