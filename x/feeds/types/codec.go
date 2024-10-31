@@ -8,13 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
 )
 
-// ModuleCdc references the global x/feeds module codec. Note, the codec
-// should ONLY be used in certain instances of tests and for JSON encoding.
-//
-// The actual codec used for serialization should be provided to x/feeds and
-// defined at the application level.
-var ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
-
 // RegisterLegacyAminoCodec registers concrete types on the LegacyAmino codec
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgSubmitSignals{}, "feeds/MsgSubmitSignals")
