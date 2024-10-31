@@ -253,8 +253,6 @@ func (h *Hook) handleBeginBlockEndBlockEvent(
 		for _, gid := range groupIDs {
 			h.handleTssSetGroup(ctx, tss.GroupID(common.Atoi(gid)))
 		}
-	case feedstypes.EventTypeUpdatePrice:
-		h.handleEventUpdatePrice(ctx, evMap)
 	case proto.MessageName(&group.EventProposalPruned{}):
 		h.handleGroupEventProposalPruned(ctx, evMap)
 	default:

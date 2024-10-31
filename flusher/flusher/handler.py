@@ -50,11 +50,11 @@ from .restake_db import restake_vaults, restake_locks, restake_historical_stakes
 
 from .feeds_db import (
     PRICE_HISTORY_PERIOD,
-    price_signals,
+    signal_prices_txs,
     validator_prices,
     delegator_signals,
     signal_total_powers,
-    prices,
+    historical_prices,
     reference_source_configs,
     feeders,
 )
@@ -960,7 +960,7 @@ class Handler(object):
     # FEEDS_HANDLER
     ##################################
 
-    def handle_set_price_signal(self, msg):
+    def handle_set_signal_prices_tx(self, msg):
         if msg["tx_hash"] is not None:
             msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
         del msg["tx_hash"]
@@ -969,26 +969,42 @@ class Handler(object):
         msg["feeder_id"] = self.get_account_id(msg["feeder"])
         del msg["feeder"]
         self.conn.execute(
-            insert(price_signals)
+            insert(signal_prices_txs)
             .values(**msg)
-            .on_conflict_do_update(constraint="price_signals_pkey", set_=msg)
+            .on_conflict_do_update(constraint="signal_prices_txs_pkey", set_=msg)
         )
 
-    def handle_set_validator_price(self, msg):
+    def handle_set_validator_prices(self, msg):
         msg["validator_id"] = self.get_validator_id(msg["validator"])
         del msg["validator"]
-        self.conn.execute(
-            insert(validator_prices)
-            .values(**msg)
-            .on_conflict_do_update(constraint="validator_prices_pkey", set_=msg)
+
+        prices = msg.get("prices", [])
+
+        # Prepare a list of dictionaries to batch
+        batch_data = [
+            {
+                "validator_id": msg["validator_id"],
+                "signal_id": price["signal_id"],
+                "price_status": price["price_status"],
+                "price": price.get("price", 0),
+                "timestamp": msg["timestamp"],
+            }
+            for price in prices
+        ]
+
+        # Perform batch insert with on_conflict_do_update using excluded values
+        stmt = insert(validator_prices).values(batch_data)
+        stmt = stmt.on_conflict_do_update(
+            constraint="validator_prices_pkey",
+            set_={
+                "price_status": stmt.excluded.price_status,
+                "price": stmt.excluded.price,
+                "timestamp": stmt.excluded.timestamp,
+            },
         )
 
-    def handle_remove_validator_prices(self, msg):
-        self.conn.execute(
-            validator_prices.delete().where(
-                validator_prices.c.signal_id == msg["signal_id"]
-            )
-        )
+        # Execute the batched upsert
+        self.conn.execute(stmt)
 
     def handle_set_delegator_signal(self, msg):
         msg["account_id"] = self.get_account_id(msg["delegator"])
@@ -1020,20 +1036,38 @@ class Handler(object):
             )
         )
 
-    def handle_set_price(self, msg):
-        self.conn.execute(
-            insert(prices)
-            .values(**msg)
-            .on_conflict_do_update(constraint="prices_pkey", set_=msg)
-        )
-        self.conn.execute(
-            prices.delete().where(
-                prices.c.timestamp < msg["timestamp"] - PRICE_HISTORY_PERIOD
-            )
+    def handle_set_prices(self, msg):
+        prices = msg.get("prices", [])
+        timestamp = msg["timestamp"]
+
+        # Prepare batch data for insert
+        batch_data = [
+            {
+                "signal_id": price["signal_id"],
+                "price_status": price["price_status"],
+                "price": price.get("price", 0),
+                "timestamp": timestamp,
+            }
+            for price in prices
+        ]
+
+        # Batch insert with on_conflict_do_update using excluded values
+        stmt = insert(historical_prices).values(batch_data)
+        stmt = stmt.on_conflict_do_update(
+            constraint="historical_prices_pkey",
+            set_={
+                "price_status": stmt.excluded.price_status,
+                "price": stmt.excluded.price,
+            },
         )
 
-    def handle_remove_price(self, msg):
-        self.conn.execute(prices.delete().where(prices.c.signal_id == msg["signal_id"]))
+        self.conn.execute(stmt)
+
+        self.conn.execute(
+            historical_prices.delete().where(
+                historical_prices.c.timestamp < msg["timestamp"] - PRICE_HISTORY_PERIOD
+            )
+        )
 
     def handle_set_reference_source_config(self, msg):
         self.conn.execute(

@@ -988,7 +988,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgUpdatePriceService() {
 	emitter.DecodeMsgUpdateReferenceSourceConfig(&msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"ipfs_hash\":\"testhash\",\"version\":\"1.0.0\"}",
+		"{\"registry_ipfs_hash\":\"testhash\",\"registry_version\":\"1.0.0\"}",
 	)
 }
 
