@@ -23,6 +23,7 @@ import (
 type MockBothanClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockBothanClientMockRecorder
+	isgomock struct{}
 }
 
 // MockBothanClientMockRecorder is the mock recorder for MockBothanClient.
@@ -104,6 +105,7 @@ func (mr *MockBothanClientMockRecorder) UpdateRegistry(ipfsHash, version any) *g
 type MockFeedQuerier struct {
 	ctrl     *gomock.Controller
 	recorder *MockFeedQuerierMockRecorder
+	isgomock struct{}
 }
 
 // MockFeedQuerierMockRecorder is the mock recorder for MockFeedQuerier.
