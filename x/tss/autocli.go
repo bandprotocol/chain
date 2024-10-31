@@ -3,7 +3,7 @@ package tss
 import (
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 
-	tssv1beta1 "github.com/bandprotocol/chain/v3/api/tss/v1beta1"
+	tssv1beta1 "github.com/bandprotocol/chain/v3/api/band/tss/v1beta1"
 )
 
 // AutoCLIOptions implements the autocli.HasAutoCLIConfig interface.

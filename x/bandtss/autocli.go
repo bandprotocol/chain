@@ -3,7 +3,7 @@ package bandtss
 import (
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 
-	bandtssv1beta1 "github.com/bandprotocol/chain/v3/api/bandtss/v1beta1"
+	bandtssv1beta1 "github.com/bandprotocol/chain/v3/api/band/bandtss/v1beta1"
 )
 
 // AutoCLIOptions implements the autocli.HasAutoCLIConfig interface.
