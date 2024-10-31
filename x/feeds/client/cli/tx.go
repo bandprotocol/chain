@@ -223,7 +223,7 @@ $ %s tx bandtss request-signature feeds-prices CS:ETH-USD,CS:USDT-USD 1 --fee-li
 				return err
 			}
 
-			from := clientCtx.GetFromAddress()
+			from := clientCtx.GetFromAddress().String()
 			content := types.NewFeedSignatureOrder(signalIDs, types.Encoder(encoder))
 
 			msg, err := bandtsstypes.NewMsgRequestSignature(content, feeLimit, from)

@@ -26,6 +26,7 @@ import (
 type MockAuthzKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockAuthzKeeperMockRecorder
+	isgomock struct{}
 }
 
 // MockAuthzKeeperMockRecorder is the mock recorder for MockAuthzKeeper.
@@ -64,6 +65,7 @@ func (mr *MockAuthzKeeperMockRecorder) GetAuthorization(ctx, feeder, granter, ms
 type MockOracleKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockOracleKeeperMockRecorder
+	isgomock struct{}
 }
 
 // MockOracleKeeperMockRecorder is the mock recorder for MockOracleKeeper.
@@ -113,6 +115,7 @@ func (mr *MockOracleKeeperMockRecorder) MissReport(ctx, val, requestTime any) *g
 type MockStakingKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockStakingKeeperMockRecorder
+	isgomock struct{}
 }
 
 // MockStakingKeeperMockRecorder is the mock recorder for MockStakingKeeper.
@@ -180,6 +183,7 @@ func (mr *MockStakingKeeperMockRecorder) TotalBondedTokens(arg0 any) *gomock.Cal
 type MockRestakeKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockRestakeKeeperMockRecorder
+	isgomock struct{}
 }
 
 // MockRestakeKeeperMockRecorder is the mock recorder for MockRestakeKeeper.

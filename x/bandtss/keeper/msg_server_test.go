@@ -346,7 +346,7 @@ func (s *AppTestSuite) TestFailedRequestSignatureReq() {
 				req, err = types.NewMsgRequestSignature(
 					tsstypes.NewTextSignatureOrder([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
-					bandtesting.FeePayer.Address,
+					bandtesting.FeePayer.Address.String(),
 				)
 				s.Require().NoError(err)
 			},
@@ -361,7 +361,7 @@ func (s *AppTestSuite) TestFailedRequestSignatureReq() {
 				req, err = types.NewMsgRequestSignature(
 					tsstypes.NewTextSignatureOrder([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
-					bandtesting.FeePayer.Address,
+					bandtesting.FeePayer.Address.String(),
 				)
 			},
 			PostCheck:   func() {},
@@ -415,7 +415,7 @@ func (s *AppTestSuite) TestSuccessRequestSignatureOnCurrentGroup() {
 	msg, err := types.NewMsgRequestSignature(
 		tsstypes.NewTextSignatureOrder([]byte("msg")),
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
-		bandtesting.FeePayer.Address,
+		bandtesting.FeePayer.Address.String(),
 	)
 	s.Require().NoError(err)
 
@@ -457,7 +457,7 @@ func (s *AppTestSuite) TestFailRequestSignatureInternalMessage() {
 	msg, err := types.NewMsgRequestSignature(
 		types.NewGroupTransitionSignatureOrder([]byte("msg")),
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
-		bandtesting.FeePayer.Address,
+		bandtesting.FeePayer.Address.String(),
 	)
 	s.Require().NoError(err)
 
@@ -480,7 +480,7 @@ func (s *AppTestSuite) TestSuccessRequestSignatureOnIncomingGroup() {
 	msg, err := types.NewMsgRequestSignature(
 		tsstypes.NewTextSignatureOrder([]byte("msg")),
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
-		bandtesting.FeePayer.Address,
+		bandtesting.FeePayer.Address.String(),
 	)
 	s.Require().NoError(err)
 
@@ -529,7 +529,7 @@ func (s *AppTestSuite) TestSuccessRequestSignatureOnBothGroups() {
 	msg, err := types.NewMsgRequestSignature(
 		tsstypes.NewTextSignatureOrder([]byte("msg")),
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
-		bandtesting.FeePayer.Address,
+		bandtesting.FeePayer.Address.String(),
 	)
 	s.Require().NoError(err)
 

@@ -190,17 +190,17 @@ func (u *Updater) updateBothanRegistry() error {
 
 	rfc := queryResp.ReferenceSourceConfig
 
-	if rfc.IPFSHash == "[NOT_SET]" || rfc.Version == "[NOT_SET]" {
+	if rfc.RegistryIPFSHash == "[NOT_SET]" || rfc.RegistryVersion == "[NOT_SET]" {
 		u.logger.Warn("[Updater] reference source config is not set, skipping update")
 		return nil
 	}
 
-	err = u.bothanClient.UpdateRegistry(rfc.IPFSHash, rfc.Version)
+	err = u.bothanClient.UpdateRegistry(rfc.RegistryIPFSHash, rfc.RegistryVersion)
 	if err != nil {
 		u.logger.Error("[Updater] failed to update registry: %v", err)
 		return err
 	}
 
-	u.logger.Info("[Updater] successfully updated registry with IPFS hash: %s", rfc.IPFSHash)
+	u.logger.Info("[Updater] successfully updated registry with IPFS hash: %s", rfc.RegistryIPFSHash)
 	return nil
 }

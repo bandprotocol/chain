@@ -23,6 +23,11 @@ type Originator interface {
 	Validate(p Params) error
 }
 
+// ====================================
+// DirectOriginator
+// ====================================
+
+// Validate checks the validity of the originator.
 func (o DirectOriginator) Validate(p Params) error {
 	if uint64(len(o.Memo)) > p.MaxMemoLength {
 		return ErrInvalidMemo
@@ -31,6 +36,7 @@ func (o DirectOriginator) Validate(p Params) error {
 	return nil
 }
 
+// Encode encodes the originator into a byte array.
 func (o DirectOriginator) Encode() ([]byte, error) {
 	bz := bytes.Join([][]byte{
 		directOriginatorPrefix,
@@ -43,10 +49,16 @@ func (o DirectOriginator) Encode() ([]byte, error) {
 	return bz, nil
 }
 
+// ====================================
+// TunnelOriginator
+// ====================================
+
+// Validate checks the validity of the originator.
 func (o TunnelOriginator) Validate(p Params) error {
 	return nil
 }
 
+// Encode encodes the originator into a byte array.
 func (o TunnelOriginator) Encode() ([]byte, error) {
 	bz := bytes.Join([][]byte{
 		tunnelOriginatorPrefix,

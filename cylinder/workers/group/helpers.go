@@ -9,7 +9,7 @@ import (
 
 // getOwnPrivKey calculates the own private key for the group member.
 // It returns the own private key, a slice of complaints (if any), and an error, if any.
-func getOwnPrivKey(dkg store.DKG, groupRes *client.GroupResponse) (tss.Scalar, []types.Complaint, error) {
+func getOwnPrivKey(dkg store.DKG, groupRes *client.GroupResult) (tss.Scalar, []types.Complaint, error) {
 	var secretShares tss.Scalars
 	var complaints []types.Complaint
 	for senderID := uint64(1); senderID <= groupRes.Group.Size_; senderID++ {
@@ -61,7 +61,7 @@ func getSecretShare(
 	receiverID tss.MemberID,
 	senderID tss.MemberID,
 	privKeyReceiver tss.Scalar,
-	groupRes *client.GroupResponse,
+	groupRes *client.GroupResult,
 ) (tss.Scalar, *types.Complaint, error) {
 	// Get Round1Info of receiver
 	r1Receiver, err := groupRes.GetRound1Info(receiverID)

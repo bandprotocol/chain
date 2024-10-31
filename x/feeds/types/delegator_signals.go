@@ -15,7 +15,7 @@ func NewDelegatorSignals(delegator string, signals []Signal) DelegatorSignals {
 }
 
 // Validate validates the delegator signals
-func (ds *DelegatorSignals) Validate(maxSignalIDCharacters uint64) error {
+func (ds *DelegatorSignals) Validate() error {
 	if _, err := sdk.AccAddressFromBech32(ds.Delegator); err != nil {
 		return errorsmod.Wrap(err, "invalid delegator address")
 	}
