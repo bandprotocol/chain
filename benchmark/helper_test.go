@@ -160,7 +160,7 @@ func GenMsgRequestSignature(
 	content tsstypes.Content,
 	feeLimit sdk.Coins,
 ) []sdk.Msg {
-	msg, err := bandtsstypes.NewMsgRequestSignature(content, feeLimit, sender.Address)
+	msg, err := bandtsstypes.NewMsgRequestSignature(content, feeLimit, sender.Address.String())
 	if err != nil {
 		panic(err)
 	}

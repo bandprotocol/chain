@@ -9,7 +9,7 @@ import (
 )
 
 type TxQuerier struct {
-	contexts []client.Context
+	clientCtxs []client.Context
 }
 
 func NewTxQuerier(clientCtx client.Context, clients []rpcclient.RemoteClient) *TxQuerier {
@@ -21,10 +21,10 @@ func NewTxQuerier(clientCtx client.Context, clients []rpcclient.RemoteClient) *T
 }
 
 func (q *TxQuerier) QueryTx(hash string) (*types.TxResponse, error) {
-	resultCh := make(chan *types.TxResponse, len(q.contexts))
-	failureCh := make(chan error, len(q.contexts))
+	resultCh := make(chan *types.TxResponse, len(q.clientCtxs))
+	failureCh := make(chan error, len(q.clientCtxs))
 
-	for _, ctx := range q.contexts {
+	for _, ctx := range q.clientCtxs {
 		go func(ctx client.Context) {
 			resp, err := tx.QueryTx(ctx, hash)
 			if err != nil {
@@ -37,7 +37,7 @@ func (q *TxQuerier) QueryTx(hash string) (*types.TxResponse, error) {
 	}
 
 	var err error
-	for range q.contexts {
+	for range q.clientCtxs {
 		select {
 		case res := <-resultCh:
 			return res, nil

@@ -15,9 +15,6 @@ var (
 	// RollingSeedSizeInBytes is the size of rolling block hash for random seed.
 	RollingSeedSizeInBytes = 32
 
-	// GlobalStoreKeyPrefix is the prefix for global primitive state variables.
-	GlobalStoreKeyPrefix = []byte{0x00}
-
-	// RollingSeedStoreKey is the key that keeps the seed based on the first 8-bit of the most recent 32 block hashes.
-	RollingSeedStoreKey = append(GlobalStoreKeyPrefix, []byte("RollingSeed")...)
+	// global store keys
+	RollingSeedStoreKey = []byte{0x00}
 )

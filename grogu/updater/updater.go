@@ -1,25 +1,12 @@
 package updater
 
 import (
-	"context"
 	"os"
-	"sync"
-	"sync/atomic"
-	"syscall"
 	"time"
 
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
-	coretypes "github.com/cometbft/cometbft/rpc/core/types"
-	tmtypes "github.com/cometbft/cometbft/types"
 
 	"github.com/bandprotocol/chain/v3/pkg/logger"
-)
-
-const (
-	CurrentFeedsQuery    = "tm.event = 'NewBlock' AND update_current_feeds.last_update_block EXISTS"
-	UpdateRefSourceQuery = "update_reference_source_config.ipfs_hash EXISTS"
-	// EventChannelCapacity is a buffer size of channel between node and this program
-	EventChannelCapacity = 2000
 )
 
 type Updater struct {
@@ -28,8 +15,7 @@ type Updater struct {
 	clients      []rpcclient.RemoteClient
 	logger       *logger.Logger
 
-	maxCurrentFeedsEventHeight    *atomic.Int64
-	maxUpdateRefSourceEventHeight *atomic.Int64
+	queryInterval time.Duration
 }
 
 func New(
@@ -37,170 +23,57 @@ func New(
 	bothanClient BothanClient,
 	clients []rpcclient.RemoteClient,
 	logger *logger.Logger,
-	maxCurrentFeedsEventHeight *atomic.Int64,
-	maxUpdateRefSourceEventHeight *atomic.Int64,
+	queryInterval time.Duration,
 ) *Updater {
 	return &Updater{
-		feedQuerier:                   feedQuerier,
-		bothanClient:                  bothanClient,
-		clients:                       clients,
-		logger:                        logger,
-		maxCurrentFeedsEventHeight:    maxCurrentFeedsEventHeight,
-		maxUpdateRefSourceEventHeight: maxUpdateRefSourceEventHeight,
+		feedQuerier:   feedQuerier,
+		bothanClient:  bothanClient,
+		clients:       clients,
+		logger:        logger,
+		queryInterval: queryInterval,
 	}
 }
 
 func (u *Updater) Start(sigChan chan<- os.Signal) {
-	// initialize the updater
-	if err := u.Init(); err != nil {
-		u.logger.Error("[Updater] failed to initialize updater: %v", err)
-		sigChan <- syscall.SIGTERM
-	}
+	ticker := time.NewTicker(u.queryInterval)
+	defer ticker.Stop()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-
-	eventCurrentFeedsChan := make(chan coretypes.ResultEvent)
-	eventUpdateRefSourceChan := make(chan coretypes.ResultEvent)
-	var wgCurrentFeeds sync.WaitGroup
-	var wgUpdateRefSource sync.WaitGroup
-
-	for _, client := range u.clients {
-		wgCurrentFeeds.Add(1)
-		go u.subscribeToClient(ctx, client, CurrentFeedsQuery, eventCurrentFeedsChan, &wgCurrentFeeds)
-		wgUpdateRefSource.Add(1)
-		go u.subscribeToClient(ctx, client, UpdateRefSourceQuery, eventUpdateRefSourceChan, &wgUpdateRefSource)
-	}
-
-	go u.waitForCompletion(&wgCurrentFeeds, sigChan)
-	go u.waitForCompletion(&wgUpdateRefSource, sigChan)
-
-	for {
-		select {
-		case ev := <-eventCurrentFeedsChan:
-			go processEvent(
-				ev,
-				u.logger,
-				CurrentFeedsQuery,
-				u.maxCurrentFeedsEventHeight,
-				func(ev coretypes.ResultEvent) int64 {
-					return ev.Data.(tmtypes.EventDataNewBlock).Block.Height
-				},
-				u.updateBothanActiveFeeds,
-			)
-		case ev := <-eventUpdateRefSourceChan:
-			go processEvent(
-				ev,
-				u.logger,
-				UpdateRefSourceQuery,
-				u.maxUpdateRefSourceEventHeight,
-				func(ev coretypes.ResultEvent) int64 {
-					switch eventData := ev.Data.(type) {
-					case tmtypes.EventDataTx:
-						return eventData.TxResult.Height
-					case tmtypes.EventDataNewBlock:
-						return eventData.Block.Height
-					default:
-						return 0
-					}
-				},
-				u.updateBothanRegistry,
-			)
-		}
+	for range ticker.C {
+		u.checkAndUpdateBothan()
 	}
 }
 
-// Init initialize the updater
-func (u *Updater) Init() error {
-	if err := u.updateBothanRegistry(); err != nil {
-		return err
-	}
-
-	if err := u.updateBothanActiveFeeds(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (u *Updater) subscribeToClient(
-	ctx context.Context,
-	client rpcclient.RemoteClient,
-	query string,
-	outChan chan<- coretypes.ResultEvent,
-	wg *sync.WaitGroup,
-) {
-	defer wg.Done()
-
-	u.logger.Info("[Updater] Subscribing to events of client with URI: %s, with query: %s ", client.Remote(), query)
-	eventChan, err := client.Subscribe(ctx, "", query, EventChannelCapacity)
+func (u *Updater) checkAndUpdateBothan() {
+	chainConfig, err := u.feedQuerier.QueryReferenceSourceConfig()
 	if err != nil {
-		u.logger.Error(
-			"[Updater] Error subscribing to events of client with URI: %s, with error: %v",
-			client.Remote(),
-			err,
-		)
+		u.logger.Error("[Updater] failed to query chain config: %v", err)
 		return
 	}
 
-	for event := range eventChan {
-		outChan <- event
+	rfc := chainConfig.ReferenceSourceConfig
+
+	if rfc.RegistryIPFSHash == "[NOT_SET]" || rfc.RegistryVersion == "[NOT_SET]" {
+		u.logger.Debug("[Updater] reference source config is not set, skipping update")
+		return
 	}
-}
 
-func (u *Updater) waitForCompletion(
-	wg *sync.WaitGroup,
-	sigChan chan<- os.Signal,
-) {
-	wg.Wait()
-	sigChan <- syscall.SIGTERM
-}
-
-func (u *Updater) updateBothanActiveFeeds() error {
-	queryResp, err := u.feedQuerier.QueryCurrentFeeds()
+	bothanInfo, err := u.bothanClient.GetInfo()
 	if err != nil {
-		u.logger.Error("[Updater] failed to query current feeds: %v", err)
-		return err
+		u.logger.Error("[Updater] failed to query Bothan info: %v", err)
+		return
 	}
 
-	currentFeeds := queryResp.CurrentFeeds.Feeds
-
-	// create a list of signal IDs
-	signalIDs := make([]string, 0, len(currentFeeds))
-	for _, feed := range currentFeeds {
-		signalIDs = append(signalIDs, feed.SignalID)
+	if rfc.RegistryIPFSHash == bothanInfo.RegistryIpfsHash {
+		u.logger.Debug("[Updater] chain and Bothan config match, skipping update")
+		return
 	}
 
-	err = u.bothanClient.SetActiveSignalIDs(signalIDs)
-	if err != nil {
-		u.logger.Error("[Updater] failed to update active feeds: %v", err)
-		return err
-	}
-
-	u.logger.Info("[Updater] successfully updated active feeds with signal IDs: %v", signalIDs)
-	return nil
-}
-
-func (u *Updater) updateBothanRegistry() error {
-	queryResp, err := u.feedQuerier.QueryReferenceSourceConfig()
-	if err != nil {
-		u.logger.Error("[Updater] failed to query reference source config: %v", err)
-		return err
-	}
-
-	rfc := queryResp.ReferenceSourceConfig
-
-	if rfc.IPFSHash == "[NOT_SET]" || rfc.Version == "[NOT_SET]" {
-		u.logger.Warn("[Updater] reference source config is not set, skipping update")
-		return nil
-	}
-
-	err = u.bothanClient.UpdateRegistry(rfc.IPFSHash, rfc.Version)
+	u.logger.Info("[Updater] chain and Bothan config mismatch detected, updating registry")
+	err = u.bothanClient.UpdateRegistry(rfc.RegistryIPFSHash, rfc.RegistryVersion)
 	if err != nil {
 		u.logger.Error("[Updater] failed to update registry: %v", err)
-		return err
+		return
 	}
 
-	u.logger.Info("[Updater] successfully updated registry with IPFS hash: %s", rfc.IPFSHash)
-	return nil
+	u.logger.Info("[Updater] successfully updated registry with IPFS hash: %s", rfc.RegistryIPFSHash)
 }

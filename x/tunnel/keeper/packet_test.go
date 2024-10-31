@@ -3,8 +3,6 @@ package keeper_test
 import (
 	"go.uber.org/mock/gomock"
 
-	sdkmath "cosmossdk.io/math"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
@@ -73,7 +71,7 @@ func (s *KeeperTestSuite) TestProducePacket() {
 	}
 
 	s.bankKeeper.EXPECT().
-		SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(10)))).
+		SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, k.GetParams(ctx).BasePacketFee).
 		Return(nil)
 
 	err := tunnel.SetRoute(route)

@@ -14,9 +14,9 @@ import (
 	"github.com/bandprotocol/chain/v3/x/restake/types"
 )
 
-// Querier is used as Keeper will have duplicate methods if used directly, and gRPC names take precedence over keeper.
+// Querier is used as Keeper will have duplicated methods if used directly, and gRPC names take precedence over keeper.
 type Querier struct {
-	*Keeper
+	Keeper
 }
 
 var _ types.QueryServer = Querier{}

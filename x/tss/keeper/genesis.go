@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
@@ -46,4 +47,41 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 		Members: k.GetMembers(ctx),
 		DEs:     k.GetDEsGenesis(ctx),
 	}
+}
+
+// GetDEsGenesis retrieves all de from the context's KVStore.
+func (k Keeper) GetDEsGenesis(ctx sdk.Context) []types.DEGenesis {
+	var des []types.DEGenesis
+	iterator := k.GetDEQueueIterator(ctx)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		address := types.ExtractAddressFromDEQueueStoreKey(iterator.Key())
+		var deQueue types.DEQueue
+		k.cdc.MustUnmarshal(iterator.Value(), &deQueue)
+
+		for i := deQueue.Head; i < deQueue.Tail; i++ {
+			de, err := k.GetDE(ctx, address, i)
+			if err != nil {
+				panic(err)
+			}
+			des = append(des, types.DEGenesis{
+				Address: address.String(),
+				DE:      de,
+			})
+		}
+	}
+	return des
+}
+
+// SetGroupGenesis sets the group genesis state.
+func (k Keeper) SetGroupGenesis(ctx sdk.Context, groups []types.Group) {
+	maxGroupID := tss.GroupID(0)
+	for _, g := range groups {
+		if g.ID > maxGroupID {
+			maxGroupID = g.ID
+		}
+		k.SetGroup(ctx, g)
+	}
+	k.SetGroupCount(ctx, uint64(maxGroupID))
 }

@@ -16,19 +16,19 @@ import (
 func TestGetOwnPrivKey(t *testing.T) {
 	tests := []struct {
 		name          string
-		modify        func(*store.DKG, *client.GroupResponse, tss.MemberID)
+		modify        func(*store.DKG, *client.GroupResult, tss.MemberID)
 		expPrivKey    bool
 		expComplaints bool
 		expErr        bool
 	}{
 		{
 			"success - without malicious member",
-			func(group *store.DKG, groupRes *client.GroupResponse, mid tss.MemberID) {},
+			func(group *store.DKG, groupRes *client.GroupResult, mid tss.MemberID) {},
 			true, false, false,
 		},
 		{
 			"success - with malicious member",
-			func(group *store.DKG, groupRes *client.GroupResponse, mid tss.MemberID) {
+			func(group *store.DKG, groupRes *client.GroupResult, mid tss.MemberID) {
 				for _, r2Info := range groupRes.Round2Infos {
 					if r2Info.MemberID != mid {
 						r2Info.EncryptedSecretShares[testutil.GetSlot(r2Info.MemberID, mid)] = testutil.HexDecode(
@@ -101,19 +101,19 @@ func TestGetOwnPrivKey(t *testing.T) {
 func TestGetSecretShare(t *testing.T) {
 	tests := []struct {
 		name           string
-		modify         func(*store.DKG, *client.GroupResponse, tss.MemberID, tss.MemberID)
+		modify         func(*store.DKG, *client.GroupResult, tss.MemberID, tss.MemberID)
 		expSecretShare bool
 		expComplaint   bool
 		expErr         bool
 	}{
 		{
 			"success - without malicious member",
-			func(dkg *store.DKG, groupRes *client.GroupResponse, i tss.MemberID, j tss.MemberID) {},
+			func(dkg *store.DKG, groupRes *client.GroupResult, i tss.MemberID, j tss.MemberID) {},
 			true, false, false,
 		},
 		{
 			"success - with malicious member",
-			func(dkg *store.DKG, groupRes *client.GroupResponse, i tss.MemberID, j tss.MemberID) {
+			func(dkg *store.DKG, groupRes *client.GroupResult, i tss.MemberID, j tss.MemberID) {
 				for _, r2Info := range groupRes.Round2Infos {
 					if r2Info.MemberID == j {
 						r2Info.EncryptedSecretShares[testutil.GetSlot(j, i)] = testutil.HexDecode(
@@ -203,7 +203,7 @@ func TestGetSecretShare(t *testing.T) {
 	}
 }
 
-func getTestData(testCase testutil.TestCase, member testutil.Member) (store.DKG, client.GroupResponse) {
+func getTestData(testCase testutil.TestCase, member testutil.Member) (store.DKG, client.GroupResult) {
 	tc := testutil.CopyTestCase(testCase)
 
 	dkg := store.DKG{
@@ -213,8 +213,8 @@ func getTestData(testCase testutil.TestCase, member testutil.Member) (store.DKG,
 		Coefficients:   member.Coefficients,
 	}
 
-	groupRes := client.GroupResponse{
-		QueryGroupResponse: types.QueryGroupResponse{
+	groupRes := client.GroupResult{
+		GroupResult: types.GroupResult{
 			Group: types.Group{
 				Size_: uint64(tc.Group.GetSize()),
 			},

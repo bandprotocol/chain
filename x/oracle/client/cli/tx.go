@@ -722,7 +722,7 @@ $ %s tx bandtss request-signature oracle-result 1 2 --fee-limit 10uband
 				return err
 			}
 
-			from := clientCtx.GetFromAddress()
+			from := clientCtx.GetFromAddress().String()
 			content := types.NewOracleResultSignatureOrder(types.RequestID(rid), types.EncodeType(encodeType))
 
 			msg, err := bandtsstypes.NewMsgRequestSignature(content, feeLimit, from)

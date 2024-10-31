@@ -17,7 +17,6 @@ import (
 	globalfeekeeper "github.com/bandprotocol/chain/v3/x/globalfee/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
 	tsskeeper "github.com/bandprotocol/chain/v3/x/tss/keeper"
-	tunnelkeeper "github.com/bandprotocol/chain/v3/x/tunnel/keeper"
 )
 
 // HandlerOptions extend the SDK's AnteHandler options by requiring the IBC
@@ -33,7 +32,6 @@ type HandlerOptions struct {
 	TSSKeeper       *tsskeeper.Keeper
 	BandtssKeeper   *bandtsskeeper.Keeper
 	FeedsKeeper     *feedskeeper.Keeper
-	TunnelKeeper    *tunnelkeeper.Keeper
 }
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
@@ -63,9 +61,6 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	}
 	if options.FeedsKeeper == nil {
 		return nil, sdkerrors.ErrLogic.Wrap("feeds keeper is required for AnteHandler")
-	}
-	if options.TunnelKeeper == nil {
-		return nil, sdkerrors.ErrLogic.Wrap("tunnel keeper is required for AnteHandler")
 	}
 	if options.IBCKeeper == nil {
 		return nil, sdkerrors.ErrLogic.Wrap("IBC keeper is required for AnteHandler")

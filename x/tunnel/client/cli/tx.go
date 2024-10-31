@@ -23,13 +23,15 @@ func GetTxCmd() *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-	txCmd.AddCommand(GetTxCmdCreateTunnel())
-	txCmd.AddCommand(GetTxCmdUpdateAndResetTunnel())
-	txCmd.AddCommand(GetTxCmdActivate())
-	txCmd.AddCommand(GetTxCmdDeactivate())
-	txCmd.AddCommand(GetTxCmdTriggerTunnel())
-	txCmd.AddCommand(GetTxCmdDepositTunnel())
-	txCmd.AddCommand(GetTxCmdWithdrawTunnel())
+	txCmd.AddCommand(
+		GetTxCmdCreateTunnel(),
+		GetTxCmdUpdateAndResetTunnel(),
+		GetTxCmdActivate(),
+		GetTxCmdDeactivate(),
+		GetTxCmdTriggerTunnel(),
+		GetTxCmdDepositTunnel(),
+		GetTxCmdWithdrawTunnel(),
+	)
 
 	return txCmd
 }
