@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: bandchain/oracle/v1/proof.proto
+// source: band/base/oracle/v1/proof.proto
 
 package oraclev1
 
@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Service_Proof_FullMethodName             = "/bandchain.oracle.v1.Service/Proof"
-	Service_MultiProof_FullMethodName        = "/bandchain.oracle.v1.Service/MultiProof"
-	Service_RequestCountProof_FullMethodName = "/bandchain.oracle.v1.Service/RequestCountProof"
+	Service_Proof_FullMethodName             = "/band.base.oracle.v1.Service/Proof"
+	Service_MultiProof_FullMethodName        = "/band.base.oracle.v1.Service/MultiProof"
+	Service_RequestCountProof_FullMethodName = "/band.base.oracle.v1.Service/RequestCountProof"
 )
 
 // ServiceClient is the client API for Service service.
@@ -168,7 +168,7 @@ func _Service_RequestCountProof_Handler(srv interface{}, ctx context.Context, de
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Service_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "bandchain.oracle.v1.Service",
+	ServiceName: "band.base.oracle.v1.Service",
 	HandlerType: (*ServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -185,5 +185,5 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "bandchain/oracle/v1/proof.proto",
+	Metadata: "band/base/oracle/v1/proof.proto",
 }

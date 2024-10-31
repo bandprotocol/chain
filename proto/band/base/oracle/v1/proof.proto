@@ -1,5 +1,5 @@
 syntax = "proto3";
-package bandchain.oracle.v1;
+package band.base.oracle.v1;
 
 option go_package = "github.com/bandprotocol/chain/v3/client/grpc/oracle/proof";
 
