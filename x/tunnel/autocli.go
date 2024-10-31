@@ -3,7 +3,7 @@ package tunnel
 import (
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 
-	tunnelv1beta1 "github.com/bandprotocol/chain/v3/api/tunnel/v1beta1"
+	tunnelv1beta1 "github.com/bandprotocol/chain/v3/api/band/tunnel/v1beta1"
 )
 
 // AutoCLIOptions returns the AutoCLI options for the tunnel module
