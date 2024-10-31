@@ -514,7 +514,9 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, events []abci.Event) {
 
 	// Emit all new current prices at every endblock.
 	prices := h.feedsKeeper.GetAllCurrentPrices(ctx)
-	h.emitSetPrices(ctx, prices)
+	if len(prices) > 0 {
+		h.emitSetPrices(ctx, prices)
+	}
 
 	// Update balances of all affected accounts on this block.
 	// Index 0 is message NEW_BLOCK, we insert SET_ACCOUNT messages right after it.

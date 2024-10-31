@@ -10,13 +10,6 @@ import (
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-// ModuleCdc references the global x/bandtss module codec. Note, the codec
-// should ONLY be used in certain instances of tests and for JSON encoding.
-//
-// The actual codec used for serialization should be provided to x/bandtss and
-// defined at the application level.
-var ModuleCdc = codec.NewProtoCodec(cdctypes.NewInterfaceRegistry())
-
 // RegisterLegacyAminoCodec registers the necessary x/bandtss interfaces and concrete types
 // on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
