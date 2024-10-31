@@ -11,27 +11,6 @@ import (
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-// SetGroupTransition sets a group transition information in the store.
-func (k Keeper) SetGroupTransition(ctx sdk.Context, groupTransition types.GroupTransition) {
-	ctx.KVStore(k.storeKey).Set(types.GroupTransitionStoreKey, k.cdc.MustMarshal(&groupTransition))
-}
-
-// GetGroupTransition retrieves a group transition information in the store.
-func (k Keeper) GetGroupTransition(ctx sdk.Context) (groupTransition types.GroupTransition, found bool) {
-	bz := ctx.KVStore(k.storeKey).Get(types.GroupTransitionStoreKey)
-	if bz == nil {
-		return groupTransition, false
-	}
-
-	k.cdc.MustUnmarshal(bz, &groupTransition)
-	return groupTransition, true
-}
-
-// DeleteGroupTransition removes the group transition information from the store.
-func (k Keeper) DeleteGroupTransition(ctx sdk.Context) {
-	ctx.KVStore(k.storeKey).Delete(types.GroupTransitionStoreKey)
-}
-
 // SetNewGroupTransition sets a new group transition with the current group ID and public key.
 func (k Keeper) SetNewGroupTransition(
 	ctx sdk.Context,
@@ -138,8 +117,7 @@ func (k Keeper) ValidateTransitionExecTime(ctx sdk.Context, execTime time.Time) 
 
 // ValidateTransitionInProgress checks if there is a group transition in progress.
 func (k Keeper) ValidateTransitionInProgress(ctx sdk.Context) error {
-	_, found := k.GetGroupTransition(ctx)
-	if found {
+	if _, found := k.GetGroupTransition(ctx); found {
 		return types.ErrTransitionInProgress
 	}
 
@@ -150,11 +128,11 @@ func (k Keeper) ValidateTransitionInProgress(ctx sdk.Context) error {
 // WaitingExecution, it returns 0.
 func (k Keeper) GetIncomingGroupID(ctx sdk.Context) tss.GroupID {
 	transition, found := k.GetGroupTransition(ctx)
-	if !found || transition.Status != types.TRANSITION_STATUS_WAITING_EXECUTION {
-		return 0
+	if found && transition.Status == types.TRANSITION_STATUS_WAITING_EXECUTION {
+		return transition.IncomingGroupID
 	}
 
-	return transition.IncomingGroupID
+	return 0
 }
 
 // ExtractEventAttributesFromTransition returns the attributes for the group transition event.
@@ -190,4 +168,29 @@ func (k Keeper) CreateTransitionSigning(
 	}
 
 	return signingID, nil
+}
+
+// =====================================
+// Transition store
+// =====================================
+
+// SetGroupTransition sets a group transition information in the store.
+func (k Keeper) SetGroupTransition(ctx sdk.Context, groupTransition types.GroupTransition) {
+	ctx.KVStore(k.storeKey).Set(types.GroupTransitionStoreKey, k.cdc.MustMarshal(&groupTransition))
+}
+
+// GetGroupTransition retrieves a group transition information in the store.
+func (k Keeper) GetGroupTransition(ctx sdk.Context) (groupTransition types.GroupTransition, found bool) {
+	bz := ctx.KVStore(k.storeKey).Get(types.GroupTransitionStoreKey)
+	if bz == nil {
+		return groupTransition, false
+	}
+
+	k.cdc.MustUnmarshal(bz, &groupTransition)
+	return groupTransition, true
+}
+
+// DeleteGroupTransition removes the group transition information from the store.
+func (k Keeper) DeleteGroupTransition(ctx sdk.Context) {
+	ctx.KVStore(k.storeKey).Delete(types.GroupTransitionStoreKey)
 }

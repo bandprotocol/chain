@@ -18,6 +18,7 @@ func (k Keeper) AllocateTokens(ctx sdk.Context) {
 		return
 	}
 
+	// Get all active members in the current group.
 	members := k.tssKeeper.MustGetMembers(ctx, gid)
 	validMembers := make([]sdk.AccAddress, 0, len(members))
 	for _, m := range members {

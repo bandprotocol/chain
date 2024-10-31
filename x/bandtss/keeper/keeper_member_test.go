@@ -97,7 +97,7 @@ func (s *AppTestSuite) TestHandleInactiveMembers() {
 	})
 	ctx = ctx.WithBlockTime(time.Now())
 
-	k.HandleInactiveMembers(ctx)
+	k.DeactivateInactiveMembers(ctx)
 
 	member, err := k.GetMember(ctx, address, groupCtx.GroupID)
 	s.Require().NoError(err)
