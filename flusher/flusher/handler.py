@@ -46,8 +46,6 @@ from .db import (
     relayer_tx_stat_days,
 )
 
-from .restake_db import restake_vaults, restake_locks, restake_historical_stakes
-
 from .feeds_db import (
     PRICE_HISTORY_PERIOD,
     signal_prices_txs,
@@ -58,6 +56,7 @@ from .feeds_db import (
     reference_source_configs,
     feeders,
 )
+from .restake_db import restake_vaults, restake_locks, restake_historical_stakes
 
 from .bandtss_db import (
     bandtss_current_groups,
@@ -66,7 +65,6 @@ from .bandtss_db import (
     bandtss_group_transitions,
     GroupTransitionStatus,
 )
-
 
 from .tss_db import (
     tss_signings,
@@ -795,171 +793,6 @@ class Handler(object):
                 )
             )
 
-    ##################################
-    # TSS_HANDLER
-    ##################################
-
-    def handle_set_tss_signing(self, msg):
-        self.conn.execute(
-            insert(tss_signings)
-            .values(**msg)
-            .on_conflict_do_update(constraint="tss_signings_pkey", set_=msg)
-        )
-
-    def handle_update_tss_signing(self, msg):
-        condition = True
-        for col in tss_signings.primary_key.columns.values():
-            condition = (col == msg[col.name]) & condition
-        self.conn.execute(tss_signings.update().where(condition).values(**msg))
-
-    def handle_set_tss_group(self, msg):
-        self.conn.execute(
-            insert(tss_groups)
-            .values(**msg)
-            .on_conflict_do_update(constraint="tss_groups_pkey", set_=msg)
-        )
-
-    def handle_set_tss_member(self, msg):
-        msg["account_id"] = self.get_account_id(msg["address"])
-        del msg["address"]
-
-        self.conn.execute(
-            insert(tss_members)
-            .values(**msg)
-            .on_conflict_do_update(constraint="tss_members_pkey", set_=msg)
-        )
-
-    def handle_new_tss_assigned_member(self, msg):
-        self.conn.execute(tss_assigned_members.insert(), msg)
-
-    def handle_update_tss_assigned_member(self, msg):
-        condition = True
-        for col in tss_assigned_members.primary_key.columns.values():
-            condition = (col == msg[col.name]) & condition
-        self.conn.execute(tss_assigned_members.update().where(condition).values(**msg))
-
-    ##################################
-    # BANDTSS_HANDLER
-    ##################################
-
-    def handle_set_bandtss_group_transition(self, msg):
-        if "tss_signing_id" in msg and msg["tss_signing_id"] == 0:
-            del msg["tss_signing_id"]
-        if "current_tss_group_id" in msg and msg["current_tss_group_id"] == 0:
-            del msg["current_tss_group_id"]
-        if "incoming_tss_group_id" in msg and msg["incoming_tss_group_id"] == 0:
-            del msg["incoming_tss_group_id"]
-
-        self.conn.execute(bandtss_group_transitions.insert(), msg)
-
-    def update_bandtss_group_transition(self, msg):
-        if "tss_signing_id" in msg and msg["tss_signing_id"] == 0:
-            del msg["tss_signing_id"]
-        if "current_tss_group_id" in msg and msg["current_tss_group_id"] == 0:
-            del msg["current_tss_group_id"]
-        if "incoming_tss_group_id" in msg and msg["incoming_tss_group_id"] == 0:
-            del msg["incoming_tss_group_id"]
-
-        proposal_column = bandtss_group_transitions.c.proposal_id
-        proposal_id = self.conn.execute(select(func.max(proposal_column))).scalar()
-        if proposal_id is None:
-            proposal_id = 0
-
-        self.conn.execute(
-            bandtss_group_transitions.update()
-            .where(proposal_column == proposal_id)
-            .values(**msg)
-        )
-
-    def handle_update_bandtss_group_transition(self, msg):
-        self.update_bandtss_group_transition(msg)
-
-    def handle_update_bandtss_group_transition_success(self, msg):
-        msg = {"status": GroupTransitionStatus.success}
-        self.update_bandtss_group_transition(msg)
-
-    def handle_update_bandtss_group_transition_failed(self, msg):
-        msg = {"status": GroupTransitionStatus.expired}
-        self.update_bandtss_group_transition(msg)
-
-    def handle_set_bandtss_current_group(self, msg):
-        proposal_column = bandtss_group_transitions.c.proposal_id
-        proposal_id = self.conn.execute(select(func.max(proposal_column))).scalar()
-        if proposal_id is not None:
-            msg["proposal_id"] = proposal_id
-
-        self.conn.execute(bandtss_current_groups.insert(), msg)
-
-    def handle_set_bandtss_member(self, msg):
-        msg["account_id"] = self.get_account_id(msg["address"])
-        del msg["address"]
-
-        self.conn.execute(
-            insert(bandtss_members)
-            .values(**msg)
-            .on_conflict_do_update(constraint="bandtss_members_pkey", set_=msg)
-        )
-
-    def handle_set_bandtss_signing(self, msg):
-        if msg["current_group_tss_signing_id"] == 0:
-            del msg["current_group_tss_signing_id"]
-        if msg["incoming_group_tss_signing_id"] == 0:
-            del msg["incoming_group_tss_signing_id"]
-        msg["requester_account_id"] = self.get_account_id(msg["requester"])
-        del msg["requester"]
-
-        self.conn.execute(bandtss_signings.insert(), msg)
-
-    ##################################
-    # RESTAKE_HANDLER
-    ##################################
-
-    def handle_set_restake_historical_stake(self, msg):
-        msg["account_id"] = self.get_account_id(msg["staker_address"])
-        del msg["staker_address"]
-        self.conn.execute(
-            insert(restake_historical_stakes)
-            .values(**msg)
-            .on_conflict_do_update(
-                constraint="restake_historical_stakes_pkey", set_=msg
-            )
-        )
-
-    def handle_set_restake_lock(self, msg):
-        if msg["tx_hash"] is not None:
-            msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
-        else:
-            msg["transaction_id"] = None
-        del msg["tx_hash"]
-
-        msg["account_id"] = self.get_account_id(msg["staker_address"])
-        del msg["staker_address"]
-        self.conn.execute(
-            insert(restake_locks)
-            .values(**msg)
-            .on_conflict_do_update(constraint="restake_locks_pkey", set_=msg)
-        )
-
-    def handle_remove_restake_lock(self, msg):
-        msg["account_id"] = self.get_account_id(msg["staker_address"])
-        del msg["staker_address"]
-
-        condition = True
-        for col in restake_locks.primary_key.columns.values():
-            condition = (col == msg[col.name]) & condition
-        self.conn.execute(restake_locks.delete().where(condition))
-
-    def handle_set_restake_vault(self, msg):
-        self.conn.execute(
-            insert(restake_vaults)
-            .values(**msg)
-            .on_conflict_do_update(constraint="restake_vaults_pkey", set_=msg)
-        )
-
-    ##################################
-    # FEEDS_HANDLER
-    ##################################
-
     def handle_set_signal_prices_tx(self, msg):
         if msg["tx_hash"] is not None:
             msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
@@ -1138,3 +971,118 @@ class Handler(object):
             .values(**msg)
             .on_conflict_do_update(constraint="restake_vaults_pkey", set_=msg)
         )
+
+    ##################################
+    # TSS_HANDLER
+    ##################################
+
+    def handle_set_tss_signing(self, msg):
+        self.conn.execute(
+            insert(tss_signings)
+            .values(**msg)
+            .on_conflict_do_update(constraint="tss_signings_pkey", set_=msg)
+        )
+
+    def handle_update_tss_signing(self, msg):
+        condition = True
+        for col in tss_signings.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+        self.conn.execute(tss_signings.update().where(condition).values(**msg))
+
+    def handle_set_tss_group(self, msg):
+        self.conn.execute(
+            insert(tss_groups)
+            .values(**msg)
+            .on_conflict_do_update(constraint="tss_groups_pkey", set_=msg)
+        )
+
+    def handle_set_tss_member(self, msg):
+        msg["account_id"] = self.get_account_id(msg["address"])
+        del msg["address"]
+
+        self.conn.execute(
+            insert(tss_members)
+            .values(**msg)
+            .on_conflict_do_update(constraint="tss_members_pkey", set_=msg)
+        )
+
+    def handle_new_tss_assigned_member(self, msg):
+        self.conn.execute(tss_assigned_members.insert(), msg)
+
+    def handle_update_tss_assigned_member(self, msg):
+        condition = True
+        for col in tss_assigned_members.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+        self.conn.execute(tss_assigned_members.update().where(condition).values(**msg))
+
+    ##################################
+    # BANDTSS_HANDLER
+    ##################################
+
+    def handle_set_bandtss_group_transition(self, msg):
+        if "tss_signing_id" in msg and msg["tss_signing_id"] == 0:
+            del msg["tss_signing_id"]
+        if "current_tss_group_id" in msg and msg["current_tss_group_id"] == 0:
+            del msg["current_tss_group_id"]
+        if "incoming_tss_group_id" in msg and msg["incoming_tss_group_id"] == 0:
+            del msg["incoming_tss_group_id"]
+
+        self.conn.execute(bandtss_group_transitions.insert(), msg)
+
+    def update_bandtss_group_transition(self, msg):
+        if "tss_signing_id" in msg and msg["tss_signing_id"] == 0:
+            del msg["tss_signing_id"]
+        if "current_tss_group_id" in msg and msg["current_tss_group_id"] == 0:
+            del msg["current_tss_group_id"]
+        if "incoming_tss_group_id" in msg and msg["incoming_tss_group_id"] == 0:
+            del msg["incoming_tss_group_id"]
+
+        proposal_column = bandtss_group_transitions.c.proposal_id
+        proposal_id = self.conn.execute(select(func.max(proposal_column))).scalar()
+        if proposal_id is None:
+            proposal_id = 0
+
+        self.conn.execute(
+            bandtss_group_transitions.update()
+            .where(proposal_column == proposal_id)
+            .values(**msg)
+        )
+
+    def handle_update_bandtss_group_transition(self, msg):
+        self.update_bandtss_group_transition(msg)
+
+    def handle_update_bandtss_group_transition_success(self, msg):
+        msg = {"status": GroupTransitionStatus.success}
+        self.update_bandtss_group_transition(msg)
+
+    def handle_update_bandtss_group_transition_failed(self, msg):
+        msg = {"status": GroupTransitionStatus.expired}
+        self.update_bandtss_group_transition(msg)
+
+    def handle_set_bandtss_current_group(self, msg):
+        proposal_column = bandtss_group_transitions.c.proposal_id
+        proposal_id = self.conn.execute(select(func.max(proposal_column))).scalar()
+        if proposal_id is not None:
+            msg["proposal_id"] = proposal_id
+
+        self.conn.execute(bandtss_current_groups.insert(), msg)
+
+    def handle_set_bandtss_member(self, msg):
+        msg["account_id"] = self.get_account_id(msg["address"])
+        del msg["address"]
+
+        self.conn.execute(
+            insert(bandtss_members)
+            .values(**msg)
+            .on_conflict_do_update(constraint="bandtss_members_pkey", set_=msg)
+        )
+
+    def handle_set_bandtss_signing(self, msg):
+        if msg["current_group_tss_signing_id"] == 0:
+            del msg["current_group_tss_signing_id"]
+        if msg["incoming_group_tss_signing_id"] == 0:
+            del msg["incoming_group_tss_signing_id"]
+        msg["requester_account_id"] = self.get_account_id(msg["requester"])
+        del msg["requester"]
+
+        self.conn.execute(bandtss_signings.insert(), msg)
