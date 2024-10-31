@@ -7,7 +7,7 @@ core_log_level = "Error"
 source_log_level = "Error"
 
 [ipfs]
-endpoint = "https://gateway.pinata.cloud/ipfs"
+endpoint = "https://gateway.pinata.cloud"
 authentication = "None"
 
 [store]
