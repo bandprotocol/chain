@@ -56,8 +56,8 @@ func emitEventUpdateReferenceSourceConfig(ctx sdk.Context, referenceSourceConfig
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeUpdateReferenceSourceConfig,
-			sdk.NewAttribute(types.AttributeKeyIPFSHash, referenceSourceConfig.RegistryIPFSHash),
-			sdk.NewAttribute(types.AttributeKeyVersion, referenceSourceConfig.RegistryVersion),
+			sdk.NewAttribute(types.AttributeKeyRegistryIPFSHash, referenceSourceConfig.RegistryIPFSHash),
+			sdk.NewAttribute(types.AttributeKeyRegistryVersion, referenceSourceConfig.RegistryVersion),
 		),
 	)
 }
