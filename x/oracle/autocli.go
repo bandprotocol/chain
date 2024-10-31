@@ -3,7 +3,7 @@ package oracle
 import (
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 
-	oraclev1 "github.com/bandprotocol/chain/v3/api/oracle/v1"
+	oraclev1 "github.com/bandprotocol/chain/v3/api/band/oracle/v1"
 )
 
 // AutoCLIOptions implements the autocli.HasAutoCLIConfig interface.
