@@ -29,16 +29,17 @@ import (
 )
 
 const (
-	flagValidator        = "validator"
-	flagNodes            = "nodes"
-	flagBroadcastTimeout = "broadcast-timeout"
-	flagRPCPollInterval  = "rpc-poll-interval"
-	flagMaxTry           = "max-try"
-	flagBothan           = "bothan"
-	flagBothanTimeout    = "bothan-timeout"
-	flagDistrStartPct    = "distribution-start-pct"
-	flagDistrOffsetPct   = "distribution-offset-pct"
-	flagLogLevel         = "log-level"
+	flagValidator            = "validator"
+	flagNodes                = "nodes"
+	flagBroadcastTimeout     = "broadcast-timeout"
+	flagRPCPollInterval      = "rpc-poll-interval"
+	flagMaxTry               = "max-try"
+	flagBothan               = "bothan"
+	flagBothanTimeout        = "bothan-timeout"
+	flagDistrStartPct        = "distribution-start-pct"
+	flagDistrOffsetPct       = "distribution-offset-pct"
+	flagLogLevel             = "log-level"
+	flagUpdaterQueryInterval = "updater-query-interval"
 )
 
 func RunCmd(ctx *context.Context) *cobra.Command {
@@ -62,6 +63,7 @@ func RunCmd(ctx *context.Context) *cobra.Command {
 	cmd.Flags().String(flagBothan, "", "The Bothan URL to connect to.")
 	cmd.Flags().String(flagBothanTimeout, "10s", "The timeout duration for Bothan requests.")
 	cmd.Flags().String(flagLogLevel, "info", "The application's log level.")
+	cmd.Flags().String(flagUpdaterQueryInterval, "1m", "The interval for updater querying chain.")
 
 	_ = viper.BindPFlag(flagValidator, cmd.Flags().Lookup(flagValidator))
 	_ = viper.BindPFlag(flagNodes, cmd.Flags().Lookup(flagNodes))
@@ -75,6 +77,7 @@ func RunCmd(ctx *context.Context) *cobra.Command {
 	_ = viper.BindPFlag(flagBothan, cmd.Flags().Lookup(flagBothan))
 	_ = viper.BindPFlag(flagBothanTimeout, cmd.Flags().Lookup(flagBothanTimeout))
 	_ = viper.BindPFlag(flagLogLevel, cmd.Flags().Lookup(flagLogLevel))
+	_ = viper.BindPFlag(flagUpdaterQueryInterval, cmd.Flags().Lookup(flagUpdaterQueryInterval))
 
 	return cmd
 }
@@ -146,6 +149,12 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 			return err
 		}
 
+		// Parse Updater query interval
+		updaterQueryInterval, err := time.ParseDuration(ctx.Config.UpdaterQueryInterval)
+		if err != nil {
+			return err
+		}
+
 		// Initialize pending signal IDs map
 		pendingSignalIDs := sync.Map{}
 
@@ -193,8 +202,7 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 			bothanService,
 			clients,
 			l,
-			maxCurrentFeedEventHeight,
-			maxUpdateRefSourceEventHeight,
+			updaterQueryInterval,
 		)
 
 		// Listen for termination signals for graceful shutdown

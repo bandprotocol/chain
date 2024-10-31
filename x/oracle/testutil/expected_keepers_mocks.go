@@ -26,7 +26,6 @@ import (
 type MockAccountKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockAccountKeeperMockRecorder
-	isgomock struct{}
 }
 
 // MockAccountKeeperMockRecorder is the mock recorder for MockAccountKeeper.
@@ -78,7 +77,6 @@ func (mr *MockAccountKeeperMockRecorder) GetModuleAccount(ctx, moduleName any) *
 type MockBankKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockBankKeeperMockRecorder
-	isgomock struct{}
 }
 
 // MockBankKeeperMockRecorder is the mock recorder for MockBankKeeper.
@@ -158,7 +156,6 @@ func (mr *MockBankKeeperMockRecorder) SpendableCoins(ctx, addr any) *gomock.Call
 type MockStakingKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockStakingKeeperMockRecorder
-	isgomock struct{}
 }
 
 // MockStakingKeeperMockRecorder is the mock recorder for MockStakingKeeper.
@@ -226,7 +223,6 @@ func (mr *MockStakingKeeperMockRecorder) ValidatorByConsAddr(arg0, arg1 any) *go
 type MockDistrKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockDistrKeeperMockRecorder
-	isgomock struct{}
 }
 
 // MockDistrKeeperMockRecorder is the mock recorder for MockDistrKeeper.
@@ -293,7 +289,6 @@ func (mr *MockDistrKeeperMockRecorder) GetCommunityTax(ctx any) *gomock.Call {
 type MockPortKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockPortKeeperMockRecorder
-	isgomock struct{}
 }
 
 // MockPortKeeperMockRecorder is the mock recorder for MockPortKeeper.
@@ -331,7 +326,6 @@ func (mr *MockPortKeeperMockRecorder) BindPort(ctx, portID any) *gomock.Call {
 type MockAuthzKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockAuthzKeeperMockRecorder
-	isgomock struct{}
 }
 
 // MockAuthzKeeperMockRecorder is the mock recorder for MockAuthzKeeper.

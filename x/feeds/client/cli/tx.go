@@ -153,7 +153,7 @@ $ %s tx feeds remove-feeders band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5
 // GetTxCmdUpdateReferenceSourceConfig creates a CLI command for updating reference source config
 func GetTxCmdUpdateReferenceSourceConfig() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-reference-source-config [ipfs-hash] [version]",
+		Use:   "update-reference-source-config [registry-ipfs-hash] [registry-version]",
 		Short: "Update reference source config",
 		Args:  cobra.ExactArgs(2),
 		Long: strings.TrimSpace(
