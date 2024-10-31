@@ -24,7 +24,6 @@ message GenesisState {
 // Params is the data structure that keeps the parameters.
 message Params {
   option (gogoproto.equal)            = true;
-  option (gogoproto.goproto_stringer) = false;
 
   // allowed_denoms is a list of denoms that the module allows to stake to get power.
   repeated string allowed_denoms = 1;

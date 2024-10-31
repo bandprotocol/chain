@@ -159,8 +159,7 @@ it can be updated with governance proposal or the address with authority.
 ```protobuf
 // Params is the data structure that keeps the parameters of the feeds module.
 message Params {
-  option (gogoproto.equal)            = true;  // Use gogoproto.equal for proto3 message equality checks
-  option (gogoproto.goproto_stringer) = false; // Disable stringer generation for better control
+  option (gogoproto.equal) = true; // Use gogoproto.equal for proto3 message equality checks
 
   // admin is the address of the admin that is allowed to perform operations on modules.
   string admin = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
@@ -199,7 +198,7 @@ message Params {
   int64 current_feeds_update_interval = 11;
 
   // price_quorum is the minimum percentage of power that needs to be reached for a price to be processed.
-  uint64 price_quorum = 12;
+  string price_quorum = 12;
 }
 ```
 
@@ -247,7 +246,7 @@ message MsgSubmitSignalPrices {
   option (amino.name)           = "feeds/MsgSubmitSignalPrices";
 
   // validator is the address of the validator that is performing the operation.
-  string validator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string validator = 1 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
 
   // timestamp is the timestamp used as reference for the data.
   int64 timestamp = 2;

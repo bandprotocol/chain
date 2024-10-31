@@ -3,8 +3,6 @@ package types
 import (
 	"fmt"
 
-	"gopkg.in/yaml.v2"
-
 	"cosmossdk.io/math"
 )
 
@@ -120,10 +118,4 @@ func (p Params) Validate() error {
 	}
 
 	return nil
-}
-
-// String implements the Stringer interface.
-func (p Params) String() string {
-	out, _ := yaml.Marshal(p)
-	return string(out)
 }
