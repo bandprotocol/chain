@@ -19,8 +19,8 @@ var (
 )
 
 func init() {
-	file_bandchain_node_v1_query_proto_init()
-	md_ChainIDRequest = File_bandchain_node_v1_query_proto.Messages().ByName("ChainIDRequest")
+	file_band_base_node_v1_query_proto_init()
+	md_ChainIDRequest = File_band_base_node_v1_query_proto.Messages().ByName("ChainIDRequest")
 }
 
 var _ protoreflect.Message = (*fastReflection_ChainIDRequest)(nil)
@@ -32,7 +32,7 @@ func (x *ChainIDRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *ChainIDRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_node_v1_query_proto_msgTypes[0]
+	mi := &file_band_base_node_v1_query_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -105,9 +105,9 @@ func (x *fastReflection_ChainIDRequest) Has(fd protoreflect.FieldDescriptor) boo
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.ChainIDRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.ChainIDRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.ChainIDRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.ChainIDRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -121,9 +121,9 @@ func (x *fastReflection_ChainIDRequest) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.ChainIDRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.ChainIDRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.ChainIDRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.ChainIDRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -137,9 +137,9 @@ func (x *fastReflection_ChainIDRequest) Get(descriptor protoreflect.FieldDescrip
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.ChainIDRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.ChainIDRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.ChainIDRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.ChainIDRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -157,9 +157,9 @@ func (x *fastReflection_ChainIDRequest) Set(fd protoreflect.FieldDescriptor, val
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.ChainIDRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.ChainIDRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.ChainIDRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.ChainIDRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -177,9 +177,9 @@ func (x *fastReflection_ChainIDRequest) Mutable(fd protoreflect.FieldDescriptor)
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.ChainIDRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.ChainIDRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.ChainIDRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.ChainIDRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -190,9 +190,9 @@ func (x *fastReflection_ChainIDRequest) NewField(fd protoreflect.FieldDescriptor
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.ChainIDRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.ChainIDRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.ChainIDRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.ChainIDRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -202,7 +202,7 @@ func (x *fastReflection_ChainIDRequest) NewField(fd protoreflect.FieldDescriptor
 func (x *fastReflection_ChainIDRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.node.v1.ChainIDRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.node.v1.ChainIDRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -376,8 +376,8 @@ var (
 )
 
 func init() {
-	file_bandchain_node_v1_query_proto_init()
-	md_ChainIDResponse = File_bandchain_node_v1_query_proto.Messages().ByName("ChainIDResponse")
+	file_band_base_node_v1_query_proto_init()
+	md_ChainIDResponse = File_band_base_node_v1_query_proto.Messages().ByName("ChainIDResponse")
 	fd_ChainIDResponse_chain_id = md_ChainIDResponse.Fields().ByName("chain_id")
 }
 
@@ -390,7 +390,7 @@ func (x *ChainIDResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *ChainIDResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_node_v1_query_proto_msgTypes[1]
+	mi := &file_band_base_node_v1_query_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -467,13 +467,13 @@ func (x *fastReflection_ChainIDResponse) Range(f func(protoreflect.FieldDescript
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_ChainIDResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.node.v1.ChainIDResponse.chain_id":
+	case "band.base.node.v1.ChainIDResponse.chain_id":
 		return x.ChainId != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.ChainIDResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.ChainIDResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.ChainIDResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.ChainIDResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -485,13 +485,13 @@ func (x *fastReflection_ChainIDResponse) Has(fd protoreflect.FieldDescriptor) bo
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ChainIDResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.node.v1.ChainIDResponse.chain_id":
+	case "band.base.node.v1.ChainIDResponse.chain_id":
 		x.ChainId = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.ChainIDResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.ChainIDResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.ChainIDResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.ChainIDResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -503,14 +503,14 @@ func (x *fastReflection_ChainIDResponse) Clear(fd protoreflect.FieldDescriptor) 
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_ChainIDResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.node.v1.ChainIDResponse.chain_id":
+	case "band.base.node.v1.ChainIDResponse.chain_id":
 		value := x.ChainId
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.ChainIDResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.ChainIDResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.ChainIDResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.ChainIDResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -526,13 +526,13 @@ func (x *fastReflection_ChainIDResponse) Get(descriptor protoreflect.FieldDescri
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ChainIDResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.node.v1.ChainIDResponse.chain_id":
+	case "band.base.node.v1.ChainIDResponse.chain_id":
 		x.ChainId = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.ChainIDResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.ChainIDResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.ChainIDResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.ChainIDResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -548,13 +548,13 @@ func (x *fastReflection_ChainIDResponse) Set(fd protoreflect.FieldDescriptor, va
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ChainIDResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.node.v1.ChainIDResponse.chain_id":
-		panic(fmt.Errorf("field chain_id of message bandchain.node.v1.ChainIDResponse is not mutable"))
+	case "band.base.node.v1.ChainIDResponse.chain_id":
+		panic(fmt.Errorf("field chain_id of message band.base.node.v1.ChainIDResponse is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.ChainIDResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.ChainIDResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.ChainIDResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.ChainIDResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -563,13 +563,13 @@ func (x *fastReflection_ChainIDResponse) Mutable(fd protoreflect.FieldDescriptor
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_ChainIDResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.node.v1.ChainIDResponse.chain_id":
+	case "band.base.node.v1.ChainIDResponse.chain_id":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.ChainIDResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.ChainIDResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.ChainIDResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.ChainIDResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -579,7 +579,7 @@ func (x *fastReflection_ChainIDResponse) NewField(fd protoreflect.FieldDescripto
 func (x *fastReflection_ChainIDResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.node.v1.ChainIDResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.node.v1.ChainIDResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -795,8 +795,8 @@ var (
 )
 
 func init() {
-	file_bandchain_node_v1_query_proto_init()
-	md_EVMValidatorsRequest = File_bandchain_node_v1_query_proto.Messages().ByName("EVMValidatorsRequest")
+	file_band_base_node_v1_query_proto_init()
+	md_EVMValidatorsRequest = File_band_base_node_v1_query_proto.Messages().ByName("EVMValidatorsRequest")
 }
 
 var _ protoreflect.Message = (*fastReflection_EVMValidatorsRequest)(nil)
@@ -808,7 +808,7 @@ func (x *EVMValidatorsRequest) ProtoReflect() protoreflect.Message {
 }
 
 func (x *EVMValidatorsRequest) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_node_v1_query_proto_msgTypes[2]
+	mi := &file_band_base_node_v1_query_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -881,9 +881,9 @@ func (x *fastReflection_EVMValidatorsRequest) Has(fd protoreflect.FieldDescripto
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.EVMValidatorsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.EVMValidatorsRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.EVMValidatorsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.EVMValidatorsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -897,9 +897,9 @@ func (x *fastReflection_EVMValidatorsRequest) Clear(fd protoreflect.FieldDescrip
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.EVMValidatorsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.EVMValidatorsRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.EVMValidatorsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.EVMValidatorsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -913,9 +913,9 @@ func (x *fastReflection_EVMValidatorsRequest) Get(descriptor protoreflect.FieldD
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.EVMValidatorsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.EVMValidatorsRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.EVMValidatorsRequest does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.EVMValidatorsRequest does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -933,9 +933,9 @@ func (x *fastReflection_EVMValidatorsRequest) Set(fd protoreflect.FieldDescripto
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.EVMValidatorsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.EVMValidatorsRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.EVMValidatorsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.EVMValidatorsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -953,9 +953,9 @@ func (x *fastReflection_EVMValidatorsRequest) Mutable(fd protoreflect.FieldDescr
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.EVMValidatorsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.EVMValidatorsRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.EVMValidatorsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.EVMValidatorsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -966,9 +966,9 @@ func (x *fastReflection_EVMValidatorsRequest) NewField(fd protoreflect.FieldDesc
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.EVMValidatorsRequest"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.EVMValidatorsRequest"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.EVMValidatorsRequest does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.EVMValidatorsRequest does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -978,7 +978,7 @@ func (x *fastReflection_EVMValidatorsRequest) NewField(fd protoreflect.FieldDesc
 func (x *fastReflection_EVMValidatorsRequest) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.node.v1.EVMValidatorsRequest", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.node.v1.EVMValidatorsRequest", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1204,8 +1204,8 @@ var (
 )
 
 func init() {
-	file_bandchain_node_v1_query_proto_init()
-	md_EVMValidatorsResponse = File_bandchain_node_v1_query_proto.Messages().ByName("EVMValidatorsResponse")
+	file_band_base_node_v1_query_proto_init()
+	md_EVMValidatorsResponse = File_band_base_node_v1_query_proto.Messages().ByName("EVMValidatorsResponse")
 	fd_EVMValidatorsResponse_block_height = md_EVMValidatorsResponse.Fields().ByName("block_height")
 	fd_EVMValidatorsResponse_validators = md_EVMValidatorsResponse.Fields().ByName("validators")
 }
@@ -1219,7 +1219,7 @@ func (x *EVMValidatorsResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *EVMValidatorsResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_node_v1_query_proto_msgTypes[3]
+	mi := &file_band_base_node_v1_query_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1302,15 +1302,15 @@ func (x *fastReflection_EVMValidatorsResponse) Range(f func(protoreflect.FieldDe
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_EVMValidatorsResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.node.v1.EVMValidatorsResponse.block_height":
+	case "band.base.node.v1.EVMValidatorsResponse.block_height":
 		return x.BlockHeight != int64(0)
-	case "bandchain.node.v1.EVMValidatorsResponse.validators":
+	case "band.base.node.v1.EVMValidatorsResponse.validators":
 		return len(x.Validators) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.EVMValidatorsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.EVMValidatorsResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.EVMValidatorsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.EVMValidatorsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1322,15 +1322,15 @@ func (x *fastReflection_EVMValidatorsResponse) Has(fd protoreflect.FieldDescript
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EVMValidatorsResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.node.v1.EVMValidatorsResponse.block_height":
+	case "band.base.node.v1.EVMValidatorsResponse.block_height":
 		x.BlockHeight = int64(0)
-	case "bandchain.node.v1.EVMValidatorsResponse.validators":
+	case "band.base.node.v1.EVMValidatorsResponse.validators":
 		x.Validators = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.EVMValidatorsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.EVMValidatorsResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.EVMValidatorsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.EVMValidatorsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1342,10 +1342,10 @@ func (x *fastReflection_EVMValidatorsResponse) Clear(fd protoreflect.FieldDescri
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_EVMValidatorsResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.node.v1.EVMValidatorsResponse.block_height":
+	case "band.base.node.v1.EVMValidatorsResponse.block_height":
 		value := x.BlockHeight
 		return protoreflect.ValueOfInt64(value)
-	case "bandchain.node.v1.EVMValidatorsResponse.validators":
+	case "band.base.node.v1.EVMValidatorsResponse.validators":
 		if len(x.Validators) == 0 {
 			return protoreflect.ValueOfList(&_EVMValidatorsResponse_2_list{})
 		}
@@ -1353,9 +1353,9 @@ func (x *fastReflection_EVMValidatorsResponse) Get(descriptor protoreflect.Field
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.EVMValidatorsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.EVMValidatorsResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.EVMValidatorsResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.EVMValidatorsResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1371,17 +1371,17 @@ func (x *fastReflection_EVMValidatorsResponse) Get(descriptor protoreflect.Field
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EVMValidatorsResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.node.v1.EVMValidatorsResponse.block_height":
+	case "band.base.node.v1.EVMValidatorsResponse.block_height":
 		x.BlockHeight = value.Int()
-	case "bandchain.node.v1.EVMValidatorsResponse.validators":
+	case "band.base.node.v1.EVMValidatorsResponse.validators":
 		lv := value.List()
 		clv := lv.(*_EVMValidatorsResponse_2_list)
 		x.Validators = *clv.list
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.EVMValidatorsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.EVMValidatorsResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.EVMValidatorsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.EVMValidatorsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1397,19 +1397,19 @@ func (x *fastReflection_EVMValidatorsResponse) Set(fd protoreflect.FieldDescript
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_EVMValidatorsResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.node.v1.EVMValidatorsResponse.validators":
+	case "band.base.node.v1.EVMValidatorsResponse.validators":
 		if x.Validators == nil {
 			x.Validators = []*ValidatorMinimal{}
 		}
 		value := &_EVMValidatorsResponse_2_list{list: &x.Validators}
 		return protoreflect.ValueOfList(value)
-	case "bandchain.node.v1.EVMValidatorsResponse.block_height":
-		panic(fmt.Errorf("field block_height of message bandchain.node.v1.EVMValidatorsResponse is not mutable"))
+	case "band.base.node.v1.EVMValidatorsResponse.block_height":
+		panic(fmt.Errorf("field block_height of message band.base.node.v1.EVMValidatorsResponse is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.EVMValidatorsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.EVMValidatorsResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.EVMValidatorsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.EVMValidatorsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1418,16 +1418,16 @@ func (x *fastReflection_EVMValidatorsResponse) Mutable(fd protoreflect.FieldDesc
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_EVMValidatorsResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.node.v1.EVMValidatorsResponse.block_height":
+	case "band.base.node.v1.EVMValidatorsResponse.block_height":
 		return protoreflect.ValueOfInt64(int64(0))
-	case "bandchain.node.v1.EVMValidatorsResponse.validators":
+	case "band.base.node.v1.EVMValidatorsResponse.validators":
 		list := []*ValidatorMinimal{}
 		return protoreflect.ValueOfList(&_EVMValidatorsResponse_2_list{list: &list})
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.EVMValidatorsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.EVMValidatorsResponse"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.EVMValidatorsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.EVMValidatorsResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1437,7 +1437,7 @@ func (x *fastReflection_EVMValidatorsResponse) NewField(fd protoreflect.FieldDes
 func (x *fastReflection_EVMValidatorsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.node.v1.EVMValidatorsResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.node.v1.EVMValidatorsResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -1695,8 +1695,8 @@ var (
 )
 
 func init() {
-	file_bandchain_node_v1_query_proto_init()
-	md_ValidatorMinimal = File_bandchain_node_v1_query_proto.Messages().ByName("ValidatorMinimal")
+	file_band_base_node_v1_query_proto_init()
+	md_ValidatorMinimal = File_band_base_node_v1_query_proto.Messages().ByName("ValidatorMinimal")
 	fd_ValidatorMinimal_address = md_ValidatorMinimal.Fields().ByName("address")
 	fd_ValidatorMinimal_voting_power = md_ValidatorMinimal.Fields().ByName("voting_power")
 }
@@ -1710,7 +1710,7 @@ func (x *ValidatorMinimal) ProtoReflect() protoreflect.Message {
 }
 
 func (x *ValidatorMinimal) slowProtoReflect() protoreflect.Message {
-	mi := &file_bandchain_node_v1_query_proto_msgTypes[4]
+	mi := &file_band_base_node_v1_query_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1793,15 +1793,15 @@ func (x *fastReflection_ValidatorMinimal) Range(f func(protoreflect.FieldDescrip
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_ValidatorMinimal) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "bandchain.node.v1.ValidatorMinimal.address":
+	case "band.base.node.v1.ValidatorMinimal.address":
 		return x.Address != ""
-	case "bandchain.node.v1.ValidatorMinimal.voting_power":
+	case "band.base.node.v1.ValidatorMinimal.voting_power":
 		return x.VotingPower != int64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.ValidatorMinimal"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.ValidatorMinimal"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.ValidatorMinimal does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.ValidatorMinimal does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1813,15 +1813,15 @@ func (x *fastReflection_ValidatorMinimal) Has(fd protoreflect.FieldDescriptor) b
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ValidatorMinimal) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "bandchain.node.v1.ValidatorMinimal.address":
+	case "band.base.node.v1.ValidatorMinimal.address":
 		x.Address = ""
-	case "bandchain.node.v1.ValidatorMinimal.voting_power":
+	case "band.base.node.v1.ValidatorMinimal.voting_power":
 		x.VotingPower = int64(0)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.ValidatorMinimal"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.ValidatorMinimal"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.ValidatorMinimal does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.ValidatorMinimal does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1833,17 +1833,17 @@ func (x *fastReflection_ValidatorMinimal) Clear(fd protoreflect.FieldDescriptor)
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_ValidatorMinimal) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "bandchain.node.v1.ValidatorMinimal.address":
+	case "band.base.node.v1.ValidatorMinimal.address":
 		value := x.Address
 		return protoreflect.ValueOfString(value)
-	case "bandchain.node.v1.ValidatorMinimal.voting_power":
+	case "band.base.node.v1.ValidatorMinimal.voting_power":
 		value := x.VotingPower
 		return protoreflect.ValueOfInt64(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.ValidatorMinimal"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.ValidatorMinimal"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.ValidatorMinimal does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.ValidatorMinimal does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -1859,15 +1859,15 @@ func (x *fastReflection_ValidatorMinimal) Get(descriptor protoreflect.FieldDescr
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ValidatorMinimal) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "bandchain.node.v1.ValidatorMinimal.address":
+	case "band.base.node.v1.ValidatorMinimal.address":
 		x.Address = value.Interface().(string)
-	case "bandchain.node.v1.ValidatorMinimal.voting_power":
+	case "band.base.node.v1.ValidatorMinimal.voting_power":
 		x.VotingPower = value.Int()
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.ValidatorMinimal"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.ValidatorMinimal"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.ValidatorMinimal does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.ValidatorMinimal does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1883,15 +1883,15 @@ func (x *fastReflection_ValidatorMinimal) Set(fd protoreflect.FieldDescriptor, v
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_ValidatorMinimal) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.node.v1.ValidatorMinimal.address":
-		panic(fmt.Errorf("field address of message bandchain.node.v1.ValidatorMinimal is not mutable"))
-	case "bandchain.node.v1.ValidatorMinimal.voting_power":
-		panic(fmt.Errorf("field voting_power of message bandchain.node.v1.ValidatorMinimal is not mutable"))
+	case "band.base.node.v1.ValidatorMinimal.address":
+		panic(fmt.Errorf("field address of message band.base.node.v1.ValidatorMinimal is not mutable"))
+	case "band.base.node.v1.ValidatorMinimal.voting_power":
+		panic(fmt.Errorf("field voting_power of message band.base.node.v1.ValidatorMinimal is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.ValidatorMinimal"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.ValidatorMinimal"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.ValidatorMinimal does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.ValidatorMinimal does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1900,15 +1900,15 @@ func (x *fastReflection_ValidatorMinimal) Mutable(fd protoreflect.FieldDescripto
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_ValidatorMinimal) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "bandchain.node.v1.ValidatorMinimal.address":
+	case "band.base.node.v1.ValidatorMinimal.address":
 		return protoreflect.ValueOfString("")
-	case "bandchain.node.v1.ValidatorMinimal.voting_power":
+	case "band.base.node.v1.ValidatorMinimal.voting_power":
 		return protoreflect.ValueOfInt64(int64(0))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: bandchain.node.v1.ValidatorMinimal"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.base.node.v1.ValidatorMinimal"))
 		}
-		panic(fmt.Errorf("message bandchain.node.v1.ValidatorMinimal does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.base.node.v1.ValidatorMinimal does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -1918,7 +1918,7 @@ func (x *fastReflection_ValidatorMinimal) NewField(fd protoreflect.FieldDescript
 func (x *fastReflection_ValidatorMinimal) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in bandchain.node.v1.ValidatorMinimal", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.base.node.v1.ValidatorMinimal", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -2160,7 +2160,7 @@ func (x *fastReflection_ValidatorMinimal) ProtoMethods() *protoiface.Methods {
 // versions:
 // 	protoc-gen-go v1.27.0
 // 	protoc        (unknown)
-// source: bandchain/node/v1/query.proto
+// source: band/base/node/v1/query.proto
 
 const (
 	// Verify that this generated code is sufficiently up-to-date.
@@ -2179,7 +2179,7 @@ type ChainIDRequest struct {
 func (x *ChainIDRequest) Reset() {
 	*x = ChainIDRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_node_v1_query_proto_msgTypes[0]
+		mi := &file_band_base_node_v1_query_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2193,7 +2193,7 @@ func (*ChainIDRequest) ProtoMessage() {}
 
 // Deprecated: Use ChainIDRequest.ProtoReflect.Descriptor instead.
 func (*ChainIDRequest) Descriptor() ([]byte, []int) {
-	return file_bandchain_node_v1_query_proto_rawDescGZIP(), []int{0}
+	return file_band_base_node_v1_query_proto_rawDescGZIP(), []int{0}
 }
 
 // ChainIDResponse is response type for the Service/ChainID RPC method.
@@ -2208,7 +2208,7 @@ type ChainIDResponse struct {
 func (x *ChainIDResponse) Reset() {
 	*x = ChainIDResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_node_v1_query_proto_msgTypes[1]
+		mi := &file_band_base_node_v1_query_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2222,7 +2222,7 @@ func (*ChainIDResponse) ProtoMessage() {}
 
 // Deprecated: Use ChainIDResponse.ProtoReflect.Descriptor instead.
 func (*ChainIDResponse) Descriptor() ([]byte, []int) {
-	return file_bandchain_node_v1_query_proto_rawDescGZIP(), []int{1}
+	return file_band_base_node_v1_query_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *ChainIDResponse) GetChainId() string {
@@ -2242,7 +2242,7 @@ type EVMValidatorsRequest struct {
 func (x *EVMValidatorsRequest) Reset() {
 	*x = EVMValidatorsRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_node_v1_query_proto_msgTypes[2]
+		mi := &file_band_base_node_v1_query_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2256,7 +2256,7 @@ func (*EVMValidatorsRequest) ProtoMessage() {}
 
 // Deprecated: Use EVMValidatorsRequest.ProtoReflect.Descriptor instead.
 func (*EVMValidatorsRequest) Descriptor() ([]byte, []int) {
-	return file_bandchain_node_v1_query_proto_rawDescGZIP(), []int{2}
+	return file_band_base_node_v1_query_proto_rawDescGZIP(), []int{2}
 }
 
 // EVMValidatorsResponse is response type for the Service/EVMValidators RPC method.
@@ -2274,7 +2274,7 @@ type EVMValidatorsResponse struct {
 func (x *EVMValidatorsResponse) Reset() {
 	*x = EVMValidatorsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_node_v1_query_proto_msgTypes[3]
+		mi := &file_band_base_node_v1_query_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2288,7 +2288,7 @@ func (*EVMValidatorsResponse) ProtoMessage() {}
 
 // Deprecated: Use EVMValidatorsResponse.ProtoReflect.Descriptor instead.
 func (*EVMValidatorsResponse) Descriptor() ([]byte, []int) {
-	return file_bandchain_node_v1_query_proto_rawDescGZIP(), []int{3}
+	return file_band_base_node_v1_query_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *EVMValidatorsResponse) GetBlockHeight() int64 {
@@ -2318,7 +2318,7 @@ type ValidatorMinimal struct {
 func (x *ValidatorMinimal) Reset() {
 	*x = ValidatorMinimal{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bandchain_node_v1_query_proto_msgTypes[4]
+		mi := &file_band_base_node_v1_query_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2332,7 +2332,7 @@ func (*ValidatorMinimal) ProtoMessage() {}
 
 // Deprecated: Use ValidatorMinimal.ProtoReflect.Descriptor instead.
 func (*ValidatorMinimal) Descriptor() ([]byte, []int) {
-	return file_bandchain_node_v1_query_proto_rawDescGZIP(), []int{4}
+	return file_band_base_node_v1_query_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ValidatorMinimal) GetAddress() string {
@@ -2349,12 +2349,12 @@ func (x *ValidatorMinimal) GetVotingPower() int64 {
 	return 0
 }
 
-var File_bandchain_node_v1_query_proto protoreflect.FileDescriptor
+var File_band_base_node_v1_query_proto protoreflect.FileDescriptor
 
-var file_bandchain_node_v1_query_proto_rawDesc = []byte{
-	0x0a, 0x1d, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x6e, 0x6f, 0x64, 0x65,
+var file_band_base_node_v1_query_proto_rawDesc = []byte{
+	0x0a, 0x1d, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x62, 0x61, 0x73, 0x65, 0x2f, 0x6e, 0x6f, 0x64, 0x65,
 	0x2f, 0x76, 0x31, 0x2f, 0x71, 0x75, 0x65, 0x72, 0x79, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12,
-	0x11, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6e, 0x6f, 0x64, 0x65, 0x2e,
+	0x11, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6e, 0x6f, 0x64, 0x65, 0x2e,
 	0x76, 0x31, 0x1a, 0x1c, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x61,
 	0x6e, 0x6e, 0x6f, 0x74, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
 	0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f,
@@ -2370,7 +2370,7 @@ var file_bandchain_node_v1_query_proto_rawDesc = []byte{
 	0x65, 0x69, 0x67, 0x68, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x03, 0x52, 0x0b, 0x62, 0x6c, 0x6f,
 	0x63, 0x6b, 0x48, 0x65, 0x69, 0x67, 0x68, 0x74, 0x12, 0x49, 0x0a, 0x0a, 0x76, 0x61, 0x6c, 0x69,
 	0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x23, 0x2e, 0x62,
-	0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6e, 0x6f, 0x64, 0x65, 0x2e, 0x76, 0x31,
+	0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6e, 0x6f, 0x64, 0x65, 0x2e, 0x76, 0x31,
 	0x2e, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x4d, 0x69, 0x6e, 0x69, 0x6d, 0x61,
 	0x6c, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x0a, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
 	0x6f, 0x72, 0x73, 0x22, 0x4f, 0x0a, 0x10, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72,
@@ -2380,62 +2380,63 @@ var file_bandchain_node_v1_query_proto_rawDesc = []byte{
 	0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x0b, 0x76, 0x6f, 0x74, 0x69, 0x6e, 0x67, 0x50,
 	0x6f, 0x77, 0x65, 0x72, 0x32, 0x86, 0x02, 0x0a, 0x07, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65,
 	0x12, 0x70, 0x0a, 0x07, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x44, 0x12, 0x21, 0x2e, 0x62, 0x61,
-	0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6e, 0x6f, 0x64, 0x65, 0x2e, 0x76, 0x31, 0x2e,
+	0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6e, 0x6f, 0x64, 0x65, 0x2e, 0x76, 0x31, 0x2e,
 	0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x44, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x22,
-	0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6e, 0x6f, 0x64, 0x65, 0x2e,
+	0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6e, 0x6f, 0x64, 0x65, 0x2e,
 	0x76, 0x31, 0x2e, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x44, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
 	0x73, 0x65, 0x22, 0x1e, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x18, 0x12, 0x16, 0x2f, 0x62, 0x61, 0x6e,
 	0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x31, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x5f,
 	0x69, 0x64, 0x12, 0x88, 0x01, 0x0a, 0x0d, 0x45, 0x56, 0x4d, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61,
-	0x74, 0x6f, 0x72, 0x73, 0x12, 0x27, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e,
+	0x74, 0x6f, 0x72, 0x73, 0x12, 0x27, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65,
 	0x2e, 0x6e, 0x6f, 0x64, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x45, 0x56, 0x4d, 0x56, 0x61, 0x6c, 0x69,
 	0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x28, 0x2e,
-	0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x6e, 0x6f, 0x64, 0x65, 0x2e, 0x76,
+	0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x6e, 0x6f, 0x64, 0x65, 0x2e, 0x76,
 	0x31, 0x2e, 0x45, 0x56, 0x4d, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x52,
 	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x24, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x1e, 0x12,
 	0x1c, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x31, 0x2f, 0x65,
-	0x76, 0x6d, 0x2d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x42, 0xc8, 0x01,
-	0x0a, 0x15, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e,
+	0x76, 0x6d, 0x2d, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x73, 0x42, 0xc9, 0x01,
+	0x0a, 0x15, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e,
 	0x6e, 0x6f, 0x64, 0x65, 0x2e, 0x76, 0x31, 0x42, 0x0a, 0x51, 0x75, 0x65, 0x72, 0x79, 0x50, 0x72,
 	0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x3d, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f,
 	0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63,
 	0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e, 0x64,
-	0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x6e, 0x6f, 0x64, 0x65, 0x2f, 0x76, 0x31, 0x3b, 0x6e, 0x6f,
-	0x64, 0x65, 0x76, 0x31, 0xa2, 0x02, 0x03, 0x42, 0x4e, 0x58, 0xaa, 0x02, 0x11, 0x42, 0x61, 0x6e,
-	0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2e, 0x4e, 0x6f, 0x64, 0x65, 0x2e, 0x56, 0x31, 0xca, 0x02,
-	0x11, 0x42, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x5c, 0x4e, 0x6f, 0x64, 0x65, 0x5c,
-	0x56, 0x31, 0xe2, 0x02, 0x1d, 0x42, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x5c, 0x4e,
+	0x2f, 0x62, 0x61, 0x73, 0x65, 0x2f, 0x6e, 0x6f, 0x64, 0x65, 0x2f, 0x76, 0x31, 0x3b, 0x6e, 0x6f,
+	0x64, 0x65, 0x76, 0x31, 0xa2, 0x02, 0x03, 0x42, 0x42, 0x4e, 0xaa, 0x02, 0x11, 0x42, 0x61, 0x6e,
+	0x64, 0x2e, 0x42, 0x61, 0x73, 0x65, 0x2e, 0x4e, 0x6f, 0x64, 0x65, 0x2e, 0x56, 0x31, 0xca, 0x02,
+	0x11, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x42, 0x61, 0x73, 0x65, 0x5c, 0x4e, 0x6f, 0x64, 0x65, 0x5c,
+	0x56, 0x31, 0xe2, 0x02, 0x1d, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x42, 0x61, 0x73, 0x65, 0x5c, 0x4e,
 	0x6f, 0x64, 0x65, 0x5c, 0x56, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61,
-	0x74, 0x61, 0xea, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x3a, 0x3a,
-	0x4e, 0x6f, 0x64, 0x65, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x74, 0x61, 0xea, 0x02, 0x14, 0x42, 0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x42, 0x61, 0x73, 0x65, 0x3a,
+	0x3a, 0x4e, 0x6f, 0x64, 0x65, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f,
+	0x33,
 }
 
 var (
-	file_bandchain_node_v1_query_proto_rawDescOnce sync.Once
-	file_bandchain_node_v1_query_proto_rawDescData = file_bandchain_node_v1_query_proto_rawDesc
+	file_band_base_node_v1_query_proto_rawDescOnce sync.Once
+	file_band_base_node_v1_query_proto_rawDescData = file_band_base_node_v1_query_proto_rawDesc
 )
 
-func file_bandchain_node_v1_query_proto_rawDescGZIP() []byte {
-	file_bandchain_node_v1_query_proto_rawDescOnce.Do(func() {
-		file_bandchain_node_v1_query_proto_rawDescData = protoimpl.X.CompressGZIP(file_bandchain_node_v1_query_proto_rawDescData)
+func file_band_base_node_v1_query_proto_rawDescGZIP() []byte {
+	file_band_base_node_v1_query_proto_rawDescOnce.Do(func() {
+		file_band_base_node_v1_query_proto_rawDescData = protoimpl.X.CompressGZIP(file_band_base_node_v1_query_proto_rawDescData)
 	})
-	return file_bandchain_node_v1_query_proto_rawDescData
+	return file_band_base_node_v1_query_proto_rawDescData
 }
 
-var file_bandchain_node_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
-var file_bandchain_node_v1_query_proto_goTypes = []interface{}{
-	(*ChainIDRequest)(nil),        // 0: bandchain.node.v1.ChainIDRequest
-	(*ChainIDResponse)(nil),       // 1: bandchain.node.v1.ChainIDResponse
-	(*EVMValidatorsRequest)(nil),  // 2: bandchain.node.v1.EVMValidatorsRequest
-	(*EVMValidatorsResponse)(nil), // 3: bandchain.node.v1.EVMValidatorsResponse
-	(*ValidatorMinimal)(nil),      // 4: bandchain.node.v1.ValidatorMinimal
+var file_band_base_node_v1_query_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_band_base_node_v1_query_proto_goTypes = []interface{}{
+	(*ChainIDRequest)(nil),        // 0: band.base.node.v1.ChainIDRequest
+	(*ChainIDResponse)(nil),       // 1: band.base.node.v1.ChainIDResponse
+	(*EVMValidatorsRequest)(nil),  // 2: band.base.node.v1.EVMValidatorsRequest
+	(*EVMValidatorsResponse)(nil), // 3: band.base.node.v1.EVMValidatorsResponse
+	(*ValidatorMinimal)(nil),      // 4: band.base.node.v1.ValidatorMinimal
 }
-var file_bandchain_node_v1_query_proto_depIdxs = []int32{
-	4, // 0: bandchain.node.v1.EVMValidatorsResponse.validators:type_name -> bandchain.node.v1.ValidatorMinimal
-	0, // 1: bandchain.node.v1.Service.ChainID:input_type -> bandchain.node.v1.ChainIDRequest
-	2, // 2: bandchain.node.v1.Service.EVMValidators:input_type -> bandchain.node.v1.EVMValidatorsRequest
-	1, // 3: bandchain.node.v1.Service.ChainID:output_type -> bandchain.node.v1.ChainIDResponse
-	3, // 4: bandchain.node.v1.Service.EVMValidators:output_type -> bandchain.node.v1.EVMValidatorsResponse
+var file_band_base_node_v1_query_proto_depIdxs = []int32{
+	4, // 0: band.base.node.v1.EVMValidatorsResponse.validators:type_name -> band.base.node.v1.ValidatorMinimal
+	0, // 1: band.base.node.v1.Service.ChainID:input_type -> band.base.node.v1.ChainIDRequest
+	2, // 2: band.base.node.v1.Service.EVMValidators:input_type -> band.base.node.v1.EVMValidatorsRequest
+	1, // 3: band.base.node.v1.Service.ChainID:output_type -> band.base.node.v1.ChainIDResponse
+	3, // 4: band.base.node.v1.Service.EVMValidators:output_type -> band.base.node.v1.EVMValidatorsResponse
 	3, // [3:5] is the sub-list for method output_type
 	1, // [1:3] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -2443,13 +2444,13 @@ var file_bandchain_node_v1_query_proto_depIdxs = []int32{
 	0, // [0:1] is the sub-list for field type_name
 }
 
-func init() { file_bandchain_node_v1_query_proto_init() }
-func file_bandchain_node_v1_query_proto_init() {
-	if File_bandchain_node_v1_query_proto != nil {
+func init() { file_band_base_node_v1_query_proto_init() }
+func file_band_base_node_v1_query_proto_init() {
+	if File_band_base_node_v1_query_proto != nil {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_bandchain_node_v1_query_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_node_v1_query_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ChainIDRequest); i {
 			case 0:
 				return &v.state
@@ -2461,7 +2462,7 @@ func file_bandchain_node_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_node_v1_query_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_node_v1_query_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ChainIDResponse); i {
 			case 0:
 				return &v.state
@@ -2473,7 +2474,7 @@ func file_bandchain_node_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_node_v1_query_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_node_v1_query_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*EVMValidatorsRequest); i {
 			case 0:
 				return &v.state
@@ -2485,7 +2486,7 @@ func file_bandchain_node_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_node_v1_query_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_node_v1_query_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*EVMValidatorsResponse); i {
 			case 0:
 				return &v.state
@@ -2497,7 +2498,7 @@ func file_bandchain_node_v1_query_proto_init() {
 				return nil
 			}
 		}
-		file_bandchain_node_v1_query_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_band_base_node_v1_query_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*ValidatorMinimal); i {
 			case 0:
 				return &v.state
@@ -2514,18 +2515,18 @@ func file_bandchain_node_v1_query_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_bandchain_node_v1_query_proto_rawDesc,
+			RawDescriptor: file_band_base_node_v1_query_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_bandchain_node_v1_query_proto_goTypes,
-		DependencyIndexes: file_bandchain_node_v1_query_proto_depIdxs,
-		MessageInfos:      file_bandchain_node_v1_query_proto_msgTypes,
+		GoTypes:           file_band_base_node_v1_query_proto_goTypes,
+		DependencyIndexes: file_band_base_node_v1_query_proto_depIdxs,
+		MessageInfos:      file_band_base_node_v1_query_proto_msgTypes,
 	}.Build()
-	File_bandchain_node_v1_query_proto = out.File
-	file_bandchain_node_v1_query_proto_rawDesc = nil
-	file_bandchain_node_v1_query_proto_goTypes = nil
-	file_bandchain_node_v1_query_proto_depIdxs = nil
+	File_band_base_node_v1_query_proto = out.File
+	file_band_base_node_v1_query_proto_rawDesc = nil
+	file_band_base_node_v1_query_proto_goTypes = nil
+	file_band_base_node_v1_query_proto_depIdxs = nil
 }

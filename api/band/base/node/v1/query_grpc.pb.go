@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: bandchain/node/v1/query.proto
+// source: band/base/node/v1/query.proto
 
 package nodev1
 
@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Service_ChainID_FullMethodName       = "/bandchain.node.v1.Service/ChainID"
-	Service_EVMValidators_FullMethodName = "/bandchain.node.v1.Service/EVMValidators"
+	Service_ChainID_FullMethodName       = "/band.base.node.v1.Service/ChainID"
+	Service_EVMValidators_FullMethodName = "/band.base.node.v1.Service/EVMValidators"
 )
 
 // ServiceClient is the client API for Service service.
@@ -133,7 +133,7 @@ func _Service_EVMValidators_Handler(srv interface{}, ctx context.Context, dec fu
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Service_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "bandchain.node.v1.Service",
+	ServiceName: "band.base.node.v1.Service",
 	HandlerType: (*ServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -146,5 +146,5 @@ var Service_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "bandchain/node/v1/query.proto",
+	Metadata: "band/base/node/v1/query.proto",
 }

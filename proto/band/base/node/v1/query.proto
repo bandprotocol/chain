@@ -1,5 +1,5 @@
 syntax = "proto3";
-package bandchain.node.v1;
+package band.base.node.v1;
 
 option go_package = "github.com/bandprotocol/chain/v3/client/grpc/node";
 
