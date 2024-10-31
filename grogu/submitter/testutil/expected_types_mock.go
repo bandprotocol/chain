@@ -27,7 +27,6 @@ import (
 type MockRemoteClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockRemoteClientMockRecorder
-	isgomock struct{}
 }
 
 // MockRemoteClientMockRecorder is the mock recorder for MockRemoteClient.
@@ -684,7 +683,6 @@ func (mr *MockRemoteClientMockRecorder) Validators(ctx, height, page, perPage an
 type MockAuthQuerier struct {
 	ctrl     *gomock.Controller
 	recorder *MockAuthQuerierMockRecorder
-	isgomock struct{}
 }
 
 // MockAuthQuerierMockRecorder is the mock recorder for MockAuthQuerier.
@@ -723,7 +721,6 @@ func (mr *MockAuthQuerierMockRecorder) QueryAccount(address any) *gomock.Call {
 type MockTxQuerier struct {
 	ctrl     *gomock.Controller
 	recorder *MockTxQuerierMockRecorder
-	isgomock struct{}
 }
 
 // MockTxQuerierMockRecorder is the mock recorder for MockTxQuerier.
