@@ -3,6 +3,7 @@ package context
 import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 
+	band "github.com/bandprotocol/chain/v3/app"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
 )
 
@@ -43,6 +44,9 @@ type Config struct {
 
 	// LogLevel is the level of logging for the logger.
 	LogLevel string `mapstructure:"log-level"`
+
+	// UpdaterQueryInterval is the interval for updater querying chain.
+	UpdaterQueryInterval string `mapstructure:"updater-query-interval"`
 }
 
 // Context holds the runtime context for the application.
@@ -51,4 +55,5 @@ type Context struct {
 	Keyring keyring.Keyring
 	Logger  *logger.Logger
 	Home    string
+	BandApp *band.BandApp
 }

@@ -132,6 +132,7 @@ func (k Keeper) GetSignalTotalPowersByPower(ctx sdk.Context, limit uint64) []typ
 		signalID := string(bz)
 		signalTotalPower, err := k.GetSignalTotalPower(ctx, signalID)
 		if err != nil || signalTotalPower.Power == 0 {
+			// this should not happen
 			continue
 		}
 

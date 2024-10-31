@@ -20,4 +20,5 @@ var (
 	ErrInvalidIncomingGroup    = errorsmod.Register(ModuleName, 15, "invalid incoming group")
 	ErrNoActiveGroup           = errorsmod.Register(ModuleName, 16, "no active group supported")
 	ErrNoIncomingGroup         = errorsmod.Register(ModuleName, 17, "no incoming group")
+	ErrInvalidGroupID          = errorsmod.Register(ModuleName, 18, "invalid group ID")
 )

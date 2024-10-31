@@ -155,7 +155,7 @@ $ %s tx feeds remove-feeders band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5
 // GetTxCmdUpdateReferenceSourceConfig creates a CLI command for updating reference source config
 func GetTxCmdUpdateReferenceSourceConfig() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-reference-source-config [ipfs-hash] [version]",
+		Use:   "update-reference-source-config [registry-ipfs-hash] [registry-version]",
 		Short: "Update reference source config",
 		Args:  cobra.ExactArgs(2),
 		Long: strings.TrimSpace(
@@ -223,7 +223,7 @@ $ %s tx bandtss request-signature feeds-prices CS:ETH-USD,CS:USDT-USD 1 --fee-li
 				return err
 			}
 
-			from := clientCtx.GetFromAddress()
+			from := clientCtx.GetFromAddress().String()
 			content := types.NewFeedSignatureOrder(signalIDs, types.Encoder(encoder))
 
 			msg, err := bandtsstypes.NewMsgRequestSignature(content, feeLimit, from)

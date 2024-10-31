@@ -8,10 +8,12 @@ import (
 	"github.com/bandprotocol/chain/v3/x/rollingseed/types"
 )
 
+// Keeper stores related components of the x/rollingseed store
 type Keeper struct {
 	storeKey storetypes.StoreKey
 }
 
+// NewKeeper creates a new rollingseed Keeper instance.
 func NewKeeper(
 	storeKey storetypes.StoreKey,
 ) Keeper {

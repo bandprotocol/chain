@@ -12,12 +12,10 @@ func createClients(nodeURIs []string) ([]rpcclient.RemoteClient, func(), error) 
 	for _, uri := range nodeURIs {
 		httpClient, err := http.New(uri, "/websocket")
 		if err != nil {
-			fmt.Printf("[Grogu] failed to create HTTP client with error: %v\n", err)
 			continue
 		}
 
 		if err = httpClient.Start(); err != nil {
-			fmt.Printf("[Grogu] failed to start HTTP client with error: %v\n", err)
 			continue
 		}
 

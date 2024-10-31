@@ -57,7 +57,7 @@ message Vault {
   string key = 1;
 
   // is_active is the status of the vault
-  bool is_active = 3;
+  bool is_active = 2;
 }
 ```
 

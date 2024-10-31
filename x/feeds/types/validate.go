@@ -3,6 +3,8 @@ package types
 import (
 	"fmt"
 	"net/url"
+
+	"github.com/Masterminds/semver/v3"
 )
 
 // validateInt64 validates int64 and check its positivity.
@@ -53,5 +55,17 @@ func validateString(name string, allowEmpty bool, i interface{}) error {
 		return fmt.Errorf("%s cannot be empty", name)
 	}
 
+	return nil
+}
+
+// validateVersion checks if the version string is valid according to Semantic Versioning
+func validateVersion(name string, version string) error {
+	if version == "[NOT_SET]" {
+		return nil
+	}
+	_, err := semver.StrictNewVersion(version)
+	if err != nil {
+		return fmt.Errorf("%s is not in a valid version format", name)
+	}
 	return nil
 }

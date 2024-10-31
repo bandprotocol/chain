@@ -3,7 +3,7 @@ package sender_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -28,7 +28,7 @@ func TestGetMsgDetails(t *testing.T) {
 			[]sdk.Msg{&types.MsgSubmitDKGRound1{
 				GroupID: 1,
 			}},
-			[]string{"Type: /tss.v1beta1.MsgSubmitDKGRound1, GroupID: 1"},
+			[]string{"Type: /band.tss.v1beta1.MsgSubmitDKGRound1, GroupID: 1"},
 		},
 		{
 			"multiple messages",
@@ -51,12 +51,12 @@ func TestGetMsgDetails(t *testing.T) {
 				},
 			},
 			[]string{
-				"Type: /tss.v1beta1.MsgSubmitDKGRound1, GroupID: 1",
-				"Type: /tss.v1beta1.MsgSubmitDKGRound2, GroupID: 2",
-				"Type: /tss.v1beta1.MsgConfirm, GroupID: 3",
-				"Type: /tss.v1beta1.MsgComplain, GroupID: 4",
-				"Type: /tss.v1beta1.MsgSubmitDEs",
-				"Type: /tss.v1beta1.MsgSubmitSignature, SigningID: 1",
+				"Type: /band.tss.v1beta1.MsgSubmitDKGRound1, GroupID: 1",
+				"Type: /band.tss.v1beta1.MsgSubmitDKGRound2, GroupID: 2",
+				"Type: /band.tss.v1beta1.MsgConfirm, GroupID: 3",
+				"Type: /band.tss.v1beta1.MsgComplain, GroupID: 4",
+				"Type: /band.tss.v1beta1.MsgSubmitDEs",
+				"Type: /band.tss.v1beta1.MsgSubmitSignature, SigningID: 1",
 			},
 		},
 		{
@@ -71,7 +71,7 @@ func TestGetMsgDetails(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			details := sender.GetMsgDetails(test.msgs...)
-			assert.Equal(t, test.expect, details)
+			require.Equal(t, test.expect, details)
 		})
 	}
 }

@@ -18,13 +18,33 @@ func TestReferenceSourceConfig_Validate(t *testing.T) {
 		{"default reference source config", types.DefaultReferenceSourceConfig(), nil},
 		{
 			"empty IPFS hash",
-			types.ReferenceSourceConfig{IPFSHash: "", Version: "1.0.0"},
-			fmt.Errorf("ipfs hash cannot be empty"),
+			types.ReferenceSourceConfig{RegistryIPFSHash: "", RegistryVersion: "1.0.0"},
+			fmt.Errorf("registry ipfs hash cannot be empty"),
 		},
 		{
 			"empty version",
-			types.ReferenceSourceConfig{IPFSHash: "hash", Version: ""},
-			fmt.Errorf("version cannot be empty"),
+			types.ReferenceSourceConfig{RegistryIPFSHash: "hash", RegistryVersion: ""},
+			fmt.Errorf("registry version cannot be empty"),
+		},
+		{
+			"wrong version format",
+			types.ReferenceSourceConfig{RegistryIPFSHash: "hash", RegistryVersion: "hash"},
+			fmt.Errorf("registry version is not in a valid version format"),
+		},
+		{
+			"pre-release version",
+			types.ReferenceSourceConfig{RegistryIPFSHash: "hash", RegistryVersion: "0.0.1-alpha.3"},
+			nil,
+		},
+		{
+			"semver-ish version with v",
+			types.ReferenceSourceConfig{RegistryIPFSHash: "hash", RegistryVersion: "v0.0.1"},
+			fmt.Errorf("registry version is not in a valid version format"),
+		},
+		{
+			"semver-ish version with less than 3 parts",
+			types.ReferenceSourceConfig{RegistryIPFSHash: "hash", RegistryVersion: "0.1"},
+			fmt.Errorf("registry version is not in a valid version format"),
 		},
 	}
 

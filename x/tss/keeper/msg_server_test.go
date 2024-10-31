@@ -3,13 +3,13 @@ package keeper_test
 import (
 	"fmt"
 
+	"go.uber.org/mock/gomock"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/pkg/tss/testutil"
-	bandtesting "github.com/bandprotocol/chain/v3/testing"
-	bandtsskeeper "github.com/bandprotocol/chain/v3/x/bandtss/keeper"
-	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
+	tssapp "github.com/bandprotocol/chain/v3/x/tss"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
@@ -20,12 +20,13 @@ type TestCase struct {
 	ExpectedErr error
 }
 
-func (s *AppTestSuite) TestFailedSubmitDKGRound1Req() {
-	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
-	tc1Group := testutil.TestCases[0].Group
+func (s *KeeperTestSuite) TestFailedSubmitDKGRound1Req() {
+	ctx, msgSrvr, k := s.ctx, s.msgServer, s.keeper
+	testCase := testutil.TestCases[0].Group
+	member := testCase.Members[0]
 
 	// Setup group
-	s.SetupGroup(types.GROUP_STATUS_ROUND_1)
+	s.SetupWithPreparedTestCase(0, types.GROUP_STATUS_ROUND_1)
 
 	// Add failed cases
 	var req types.MsgSubmitDKGRound1
@@ -36,13 +37,13 @@ func (s *AppTestSuite) TestFailedSubmitDKGRound1Req() {
 				req = types.MsgSubmitDKGRound1{
 					GroupID: 99,
 					Round1Info: types.Round1Info{
-						MemberID:           tc1Group.Members[0].ID,
-						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
-						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
-						A0Signature:        tc1Group.Members[0].A0Signature,
-						OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
+						MemberID:           member.ID,
+						CoefficientCommits: member.CoefficientCommits,
+						OneTimePubKey:      member.OneTimePubKey(),
+						A0Signature:        member.A0Signature,
+						OneTimeSignature:   member.OneTimeSignature,
 					},
-					Sender: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Sender: sdk.AccAddress(member.PubKey()).String(),
 				}
 			},
 			func() {},
@@ -52,15 +53,15 @@ func (s *AppTestSuite) TestFailedSubmitDKGRound1Req() {
 			"member not found",
 			func() {
 				req = types.MsgSubmitDKGRound1{
-					GroupID: tc1Group.ID,
+					GroupID: testCase.ID,
 					Round1Info: types.Round1Info{
 						MemberID:           99,
-						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
-						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
-						A0Signature:        tc1Group.Members[0].A0Signature,
-						OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
+						CoefficientCommits: member.CoefficientCommits,
+						OneTimePubKey:      member.OneTimePubKey(),
+						A0Signature:        member.A0Signature,
+						OneTimeSignature:   member.OneTimeSignature,
 					},
-					Sender: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Sender: sdk.AccAddress(member.PubKey()).String(),
 				}
 			},
 			func() {},
@@ -70,15 +71,15 @@ func (s *AppTestSuite) TestFailedSubmitDKGRound1Req() {
 			"wrong one time sign",
 			func() {
 				req = types.MsgSubmitDKGRound1{
-					GroupID: tc1Group.ID,
+					GroupID: testCase.ID,
 					Round1Info: types.Round1Info{
-						MemberID:           tc1Group.Members[0].ID,
-						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
-						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
-						A0Signature:        tc1Group.Members[0].A0Signature,
+						MemberID:           member.ID,
+						CoefficientCommits: member.CoefficientCommits,
+						OneTimePubKey:      member.OneTimePubKey(),
+						A0Signature:        member.A0Signature,
 						OneTimeSignature:   []byte("wrong one_time_sig"),
 					},
-					Sender: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Sender: sdk.AccAddress(member.PubKey()).String(),
 				}
 			},
 			func() {},
@@ -88,15 +89,15 @@ func (s *AppTestSuite) TestFailedSubmitDKGRound1Req() {
 			"wrong a0 signature",
 			func() {
 				req = types.MsgSubmitDKGRound1{
-					GroupID: tc1Group.ID,
+					GroupID: testCase.ID,
 					Round1Info: types.Round1Info{
-						MemberID:           tc1Group.Members[0].ID,
-						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
-						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
+						MemberID:           member.ID,
+						CoefficientCommits: member.CoefficientCommits,
+						OneTimePubKey:      member.OneTimePubKey(),
 						A0Signature:        []byte("wrong a0_sig"),
-						OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
+						OneTimeSignature:   member.OneTimeSignature,
 					},
-					Sender: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Sender: sdk.AccAddress(member.PubKey()).String(),
 				}
 			},
 			func() {},
@@ -106,24 +107,24 @@ func (s *AppTestSuite) TestFailedSubmitDKGRound1Req() {
 			"round 1 already commit",
 			func() {
 				// Add round 1 info
-				k.AddRound1Info(ctx, tc1Group.ID, types.Round1Info{
-					MemberID:           tc1Group.Members[0].ID,
-					CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
-					OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
-					A0Signature:        tc1Group.Members[0].A0Signature,
-					OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
+				k.AddRound1Info(ctx, testCase.ID, types.Round1Info{
+					MemberID:           member.ID,
+					CoefficientCommits: member.CoefficientCommits,
+					OneTimePubKey:      member.OneTimePubKey(),
+					A0Signature:        member.A0Signature,
+					OneTimeSignature:   member.OneTimeSignature,
 				})
 
 				req = types.MsgSubmitDKGRound1{
-					GroupID: tc1Group.ID,
+					GroupID: testCase.ID,
 					Round1Info: types.Round1Info{
-						MemberID:           tc1Group.Members[0].ID,
-						CoefficientCommits: tc1Group.Members[0].CoefficientCommits,
-						OneTimePubKey:      tc1Group.Members[0].OneTimePubKey(),
-						A0Signature:        tc1Group.Members[0].A0Signature,
-						OneTimeSignature:   tc1Group.Members[0].OneTimeSignature,
+						MemberID:           member.ID,
+						CoefficientCommits: member.CoefficientCommits,
+						OneTimePubKey:      member.OneTimePubKey(),
+						A0Signature:        member.A0Signature,
+						OneTimeSignature:   member.OneTimeSignature,
 					},
-					Sender: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Sender: sdk.AccAddress(member.PubKey()).String(),
 				}
 			},
 			func() {},
@@ -137,20 +138,20 @@ func (s *AppTestSuite) TestFailedSubmitDKGRound1Req() {
 			tc.Malleate()
 
 			_, err := msgSrvr.SubmitDKGRound1(ctx, &req)
-			s.Require().ErrorIs(tc.ExpectedErr, err)
+			s.Require().ErrorIs(err, tc.ExpectedErr)
 
 			tc.PostTest()
 		})
 	}
 }
 
-func (s *AppTestSuite) TestSuccessSubmitDKGRound1Req() {
-	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
-
-	s.SetupGroup(types.GROUP_STATUS_ROUND_1)
+func (s *KeeperTestSuite) TestSuccessSubmitDKGRound1Req() {
+	ctx, msgSrvr, k := s.ctx, s.msgServer, s.keeper
 
 	// Iterate through test cases from testutil
-	for _, tc := range testutil.TestCases {
+	for i, tc := range testutil.TestCases {
+		s.SetupWithPreparedTestCase(i, types.GROUP_STATUS_ROUND_1)
+
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
 			for _, m := range tc.Group.Members {
 				// Submit DKGRound1 message for each member
@@ -169,7 +170,7 @@ func (s *AppTestSuite) TestSuccessSubmitDKGRound1Req() {
 			}
 
 			// Execute the EndBlocker to process groups
-			_, err := app.EndBlocker(ctx.WithBlockHeight(ctx.BlockHeight() + 1))
+			err := tssapp.EndBlocker(ctx.WithBlockHeight(ctx.BlockHeight()+1), k)
 			s.Require().NoError(err)
 
 			// Verify group status, expiration, and public key after submitting Round 1
@@ -184,12 +185,13 @@ func (s *AppTestSuite) TestSuccessSubmitDKGRound1Req() {
 	}
 }
 
-func (s *AppTestSuite) TestFailedSubmitDKGRound2Req() {
-	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
-	tc1Group := testutil.TestCases[0].Group
+func (s *KeeperTestSuite) TestFailedSubmitDKGRound2Req() {
+	ctx, msgSrvr, k := s.ctx, s.msgServer, s.keeper
 
-	// Setup group
-	s.SetupGroup(types.GROUP_STATUS_ROUND_2)
+	testCase := testutil.TestCases[0].Group
+	member := testCase.Members[0]
+
+	s.SetupWithPreparedTestCase(0, types.GROUP_STATUS_ROUND_2)
 
 	// Add failed cases
 	var req types.MsgSubmitDKGRound2
@@ -200,10 +202,10 @@ func (s *AppTestSuite) TestFailedSubmitDKGRound2Req() {
 				req = types.MsgSubmitDKGRound2{
 					GroupID: 99,
 					Round2Info: types.Round2Info{
-						MemberID:              tc1Group.Members[0].ID,
-						EncryptedSecretShares: tc1Group.Members[0].EncSecretShares,
+						MemberID:              member.ID,
+						EncryptedSecretShares: member.EncSecretShares,
 					},
-					Sender: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Sender: sdk.AccAddress(member.PubKey()).String(),
 				}
 			},
 			func() {},
@@ -213,12 +215,12 @@ func (s *AppTestSuite) TestFailedSubmitDKGRound2Req() {
 			"member not found",
 			func() {
 				req = types.MsgSubmitDKGRound2{
-					GroupID: tc1Group.ID,
+					GroupID: testCase.ID,
 					Round2Info: types.Round2Info{
 						MemberID:              99,
-						EncryptedSecretShares: tc1Group.Members[0].EncSecretShares,
+						EncryptedSecretShares: member.EncSecretShares,
 					},
-					Sender: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Sender: sdk.AccAddress(member.PubKey()).String(),
 				}
 			},
 			func() {},
@@ -227,14 +229,14 @@ func (s *AppTestSuite) TestFailedSubmitDKGRound2Req() {
 		{
 			"number of encrypted secret shares is not correct",
 			func() {
-				inValidEncSecretShares := append(tc1Group.Members[0].EncSecretShares, []byte("enc"))
+				inValidEncSecretShares := append(member.EncSecretShares, []byte("enc"))
 				req = types.MsgSubmitDKGRound2{
-					GroupID: tc1Group.ID,
+					GroupID: testCase.ID,
 					Round2Info: types.Round2Info{
-						MemberID:              tc1Group.Members[0].ID,
+						MemberID:              member.ID,
 						EncryptedSecretShares: inValidEncSecretShares,
 					},
-					Sender: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Sender: sdk.AccAddress(member.PubKey()).String(),
 				}
 			},
 			func() {},
@@ -244,18 +246,18 @@ func (s *AppTestSuite) TestFailedSubmitDKGRound2Req() {
 			"round 2 already submit",
 			func() {
 				// Add round 2 info
-				k.AddRound2Info(ctx, tc1Group.ID, types.Round2Info{
-					MemberID:              tc1Group.Members[0].ID,
-					EncryptedSecretShares: tc1Group.Members[0].EncSecretShares,
+				k.AddRound2Info(ctx, testCase.ID, types.Round2Info{
+					MemberID:              member.ID,
+					EncryptedSecretShares: member.EncSecretShares,
 				})
 
 				req = types.MsgSubmitDKGRound2{
-					GroupID: tc1Group.ID,
+					GroupID: testCase.ID,
 					Round2Info: types.Round2Info{
-						MemberID:              tc1Group.Members[0].ID,
-						EncryptedSecretShares: tc1Group.Members[0].EncSecretShares,
+						MemberID:              member.ID,
+						EncryptedSecretShares: member.EncSecretShares,
 					},
-					Sender: sdk.AccAddress(tc1Group.Members[0].PubKey()).String(),
+					Sender: sdk.AccAddress(member.PubKey()).String(),
 				}
 			},
 			func() {},
@@ -276,15 +278,15 @@ func (s *AppTestSuite) TestFailedSubmitDKGRound2Req() {
 	}
 }
 
-func (s *AppTestSuite) TestSuccessSubmitDKGRound2Req() {
-	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
-
-	// Setup group as round 2
-	s.SetupGroup(types.GROUP_STATUS_ROUND_2)
+func (s *KeeperTestSuite) TestSuccessSubmitDKGRound2Req() {
+	ctx, msgSrvr, k := s.ctx, s.msgServer, s.keeper
 
 	// Add success test cases from testutil
-	for _, tc := range testutil.TestCases {
+	for i, tc := range testutil.TestCases {
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
+			// Setup group to GROUP_STATUS_ROUND_2
+			s.SetupWithPreparedTestCase(i, types.GROUP_STATUS_ROUND_2)
+
 			for _, m := range tc.Group.Members {
 				// Submit DKGRound2 message for each member
 				_, err := msgSrvr.SubmitDKGRound2(ctx, &types.MsgSubmitDKGRound2{
@@ -299,7 +301,7 @@ func (s *AppTestSuite) TestSuccessSubmitDKGRound2Req() {
 			}
 
 			// Execute the EndBlocker to process groups
-			_, err := app.EndBlocker(ctx.WithBlockHeight(ctx.BlockHeight() + 1))
+			err := tssapp.EndBlocker(s.ctx.WithBlockHeight(s.ctx.BlockHeight()+1), k)
 			s.Require().NoError(err)
 
 			// Verify group status and expiration after submitting Round 2
@@ -314,15 +316,16 @@ func (s *AppTestSuite) TestSuccessSubmitDKGRound2Req() {
 	}
 }
 
-func (s *AppTestSuite) TestSuccessComplainReq() {
-	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
+func (s *KeeperTestSuite) TestSuccessComplainReq() {
+	ctx, msgSrvr, k := s.ctx, s.msgServer, s.keeper
 	complaintID := tss.MemberID(1)
 
-	s.SetupGroup(types.GROUP_STATUS_ROUND_3)
-
 	// Iterate through test cases from testutil
-	for _, tc := range testutil.TestCases {
+	for i, tc := range testutil.TestCases {
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
+			// Setup group to GROUP_STATUS_ROUND_3
+			s.SetupWithPreparedTestCase(i, types.GROUP_STATUS_ROUND_3)
+
 			// Iterate through the group members to handle complaints
 			for i, m := range tc.Group.Members {
 				// Skip the respondent
@@ -377,7 +380,7 @@ func (s *AppTestSuite) TestSuccessComplainReq() {
 			s.Require().NoError(err)
 
 			// Execute the EndBlocker to process groups
-			_, err = app.EndBlocker(ctx.WithBlockHeight(ctx.BlockHeight() + 1))
+			err = tssapp.EndBlocker(s.ctx.WithBlockHeight(s.ctx.BlockHeight()+1), k)
 			s.Require().NoError(err)
 
 			// Check the group's status and expiration time after complain
@@ -388,13 +391,14 @@ func (s *AppTestSuite) TestSuccessComplainReq() {
 	}
 }
 
-func (s *AppTestSuite) TestSuccessConfirmReq() {
-	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
-
-	s.SetupGroup(types.GROUP_STATUS_ROUND_3)
+func (s *KeeperTestSuite) TestSuccessConfirmReq() {
+	ctx, msgSrvr, k := s.ctx, s.msgServer, s.keeper
 
 	// Iterate through test cases from testutil
-	for _, tc := range testutil.TestCases {
+	for i, tc := range testutil.TestCases {
+		// Setup group to GROUP_STATUS_ROUND_3
+		s.SetupWithPreparedTestCase(i, types.GROUP_STATUS_ROUND_3)
+
 		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
 			// Confirm the participation of each member in the group
 			for _, m := range tc.Group.Members {
@@ -408,7 +412,7 @@ func (s *AppTestSuite) TestSuccessConfirmReq() {
 			}
 
 			// Execute the EndBlocker to process groups
-			_, err := app.EndBlocker(ctx.WithBlockHeight(ctx.BlockHeight() + 1))
+			err := tssapp.EndBlocker(s.ctx.WithBlockHeight(s.ctx.BlockHeight()+1), k)
 			s.Require().NoError(err)
 
 			// Check the group's status and expiration time after confirmation
@@ -419,8 +423,8 @@ func (s *AppTestSuite) TestSuccessConfirmReq() {
 	}
 }
 
-func (s *AppTestSuite) TestFailedSubmitDEsReq() {
-	ctx, msgSrvr := s.ctx, s.msgSrvr
+func (s *KeeperTestSuite) TestFailedSubmitDEsReq() {
+	ctx, msgSrvr := s.ctx, s.msgServer
 
 	var req types.MsgSubmitDEs
 	// Add failed case
@@ -458,38 +462,29 @@ func (s *AppTestSuite) TestFailedSubmitDEsReq() {
 	}
 }
 
-func (s *AppTestSuite) TestSuccessSubmitDEsReq() {
-	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+func (s *KeeperTestSuite) TestSuccessSubmitDEsReq() {
+	ctx, msgSrvr, k := s.ctx, s.msgServer, s.keeper
 	de := types.DE{
 		PubD: []byte("D"),
 		PubE: []byte("E"),
 	}
 
-	// Iterate through test cases from testutil
-	for _, tc := range testutil.TestCases {
-		s.Run(fmt.Sprintf("Case %s", fmt.Sprintf("success %s", tc.Name)), func() {
-			for _, m := range tc.Group.Members {
-				// Submit DEs for each member in the group
-				_, err := msgSrvr.SubmitDEs(ctx, &types.MsgSubmitDEs{
-					DEs:    []types.DE{de},
-					Sender: sdk.AccAddress(m.PubKey()).String(),
-				})
-				s.Require().NoError(err)
-			}
+	// Submit DEs for each member in the group
+	_, err := msgSrvr.SubmitDEs(ctx, &types.MsgSubmitDEs{
+		DEs:    []types.DE{de},
+		Sender: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+	})
+	s.Require().NoError(err)
 
-			// Verify that each member has the correct DE
-			for _, m := range tc.Group.Members {
-				deQueue := k.GetDEQueue(ctx, sdk.AccAddress(m.PubKey()))
-				s.Require().True(deQueue.Head < deQueue.Tail)
-			}
-		})
-	}
+	deQueue := k.GetDEQueue(ctx, sdk.MustAccAddressFromBech32("band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun"))
+	s.Require().True(deQueue.Head < deQueue.Tail)
 }
 
-func (s *AppTestSuite) TestFailedSubmitSignatureReq() {
-	ctx, msgSrvr, k := s.ctx, s.msgSrvr, s.app.TSSKeeper
+func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
+	ctx, msgSrvr, k := s.ctx, s.msgServer, s.keeper
 
-	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
+	// Setup group to GROUP_STATUS_ACTIVE
+	s.SetupWithPreparedTestCase(0, types.GROUP_STATUS_ACTIVE)
 
 	var req types.MsgSubmitSignature
 
@@ -551,33 +546,31 @@ func (s *AppTestSuite) TestFailedSubmitSignatureReq() {
 	}
 }
 
-func (s *AppTestSuite) TestSuccessSubmitSignatureReq() {
-	ctx, app, msgSrvr, k := s.ctx, s.app, s.msgSrvr, s.app.TSSKeeper
-	bandtssMsgSrvr := bandtsskeeper.NewMsgServerImpl(s.app.BandtssKeeper)
-
-	s.SetupGroup(types.GROUP_STATUS_ACTIVE)
+func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
+	ctx, msgSrvr, k := s.ctx, s.msgServer, s.keeper
 
 	// Iterate through test cases from testutil
 	for i, tc := range testutil.TestCases {
-		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
-			s.app.BandtssKeeper.SetCurrentGroupID(ctx, tc.Group.ID)
+		s.rollingseedKeeper.
+			EXPECT().
+			GetRollingSeed(gomock.Any()).
+			Return([]byte("RandomStringThatShouldBeLongEnough")).
+			AnyTimes()
 
-			// Request signature for the first member in the group
-			msg, err := bandtsstypes.NewMsgRequestSignature(
+		s.Run(fmt.Sprintf("success %s", tc.Name), func() {
+			// Setup group to GROUP_STATUS_ACTIVE
+			s.SetupWithPreparedTestCase(i, types.GROUP_STATUS_ACTIVE)
+
+			signingID, err := k.RequestSigning(
+				ctx,
+				tc.Group.ID,
+				types.DirectOriginator{},
 				types.NewTextSignatureOrder([]byte("msg")),
-				sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
-				bandtesting.FeePayer.Address,
 			)
 			s.Require().NoError(err)
-			_, err = bandtssMsgSrvr.RequestSignature(ctx, msg)
-			s.T().Log(err)
-			s.Require().NoError(err)
-
-			bandtssSigningID := bandtsstypes.SigningID(app.BandtssKeeper.GetSigningCount(ctx))
-			s.Require().NotZero(bandtssSigningID)
 
 			// Get the signing information
-			signing, err := k.GetSigning(ctx, tss.SigningID(i+1))
+			signing, err := k.GetSigning(ctx, signingID)
 			s.Require().NoError(err)
 
 			// Get the group information
@@ -621,7 +614,7 @@ func (s *AppTestSuite) TestSuccessSubmitSignatureReq() {
 			}
 
 			// Execute the EndBlocker to process groups
-			_, err = app.EndBlocker(ctx.WithBlockHeight(ctx.BlockHeight() + 1))
+			err = tssapp.EndBlocker(s.ctx.WithBlockHeight(s.ctx.BlockHeight()+1), k)
 			s.Require().NoError(err)
 
 			// Retrieve the signing information after signing
@@ -632,8 +625,8 @@ func (s *AppTestSuite) TestSuccessSubmitSignatureReq() {
 	}
 }
 
-func (s *AppTestSuite) TestUpdateParams() {
-	k, msgSrvr := s.app.TSSKeeper, s.msgSrvr
+func (s *KeeperTestSuite) TestUpdateParams() {
+	k, msgSrvr := s.keeper, s.msgServer
 
 	testCases := []struct {
 		name         string
