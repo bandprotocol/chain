@@ -5,8 +5,8 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-func (s *AppTestSuite) TestGetSetRound1Info() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func (s *KeeperTestSuite) TestGetSetRound1Info() {
+	ctx, k := s.ctx, s.keeper
 	groupID := tss.GroupID(1)
 	memberID := tss.MemberID(1)
 	round1Info := types.Round1Info{
@@ -28,8 +28,8 @@ func (s *AppTestSuite) TestGetSetRound1Info() {
 	s.Require().Equal(round1Info, got)
 }
 
-func (s *AppTestSuite) TestAddRound1Info() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func (s *KeeperTestSuite) TestAddRound1Info() {
+	ctx, k := s.ctx, s.keeper
 	groupID := tss.GroupID(1)
 	memberID := tss.MemberID(1)
 	round1Info := types.Round1Info{
@@ -53,8 +53,8 @@ func (s *AppTestSuite) TestAddRound1Info() {
 	s.Require().Equal(uint64(1), gotR1Count)
 }
 
-func (s *AppTestSuite) TestDeleteRound1Infos() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func (s *KeeperTestSuite) TestDeleteRound1Infos() {
+	ctx, k := s.ctx, s.keeper
 	groupID := tss.GroupID(1)
 	memberID := tss.MemberID(1)
 	round1Info := types.Round1Info{
@@ -83,8 +83,8 @@ func (s *AppTestSuite) TestDeleteRound1Infos() {
 	s.Require().Error(err)
 }
 
-func (s *AppTestSuite) TestGetRound1Infos() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func (s *KeeperTestSuite) TestGetRound1Infos() {
+	ctx, k := s.ctx, s.keeper
 	groupID := tss.GroupID(1)
 	member1 := tss.MemberID(1)
 	member2 := tss.MemberID(2)
@@ -118,8 +118,8 @@ func (s *AppTestSuite) TestGetRound1Infos() {
 	s.Require().Equal([]types.Round1Info{round1InfoMember1, round1InfoMember2}, got)
 }
 
-func (s *AppTestSuite) TestGetSetRound1InfoCount() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func (s *KeeperTestSuite) TestGetSetRound1InfoCount() {
+	ctx, k := s.ctx, s.keeper
 	groupID := tss.GroupID(1)
 
 	// Set round 1 info count
@@ -130,8 +130,8 @@ func (s *AppTestSuite) TestGetSetRound1InfoCount() {
 	s.Require().Equal(uint64(2), got)
 }
 
-func (s *AppTestSuite) TestGetSetAccumulatedCommit() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func (s *KeeperTestSuite) TestGetSetAccumulatedCommit() {
+	ctx, k := s.ctx, s.keeper
 	groupID := tss.GroupID(1)
 	index := uint64(1)
 	commit := tss.Point([]byte("point"))
@@ -145,8 +145,8 @@ func (s *AppTestSuite) TestGetSetAccumulatedCommit() {
 	s.Require().Equal(commit, got)
 }
 
-func (s *AppTestSuite) TestDeleteAccumulatedCommit() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func (s *KeeperTestSuite) TestDeleteAccumulatedCommit() {
+	ctx, k := s.ctx, s.keeper
 	groupID := tss.GroupID(1)
 	index := uint64(1)
 	commit := tss.Point([]byte("point"))
@@ -162,8 +162,8 @@ func (s *AppTestSuite) TestDeleteAccumulatedCommit() {
 	s.Require().Equal(tss.Point(nil), got)
 }
 
-func (s *AppTestSuite) TestDeleteAccumulatedCommits() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func (s *KeeperTestSuite) TestDeleteAccumulatedCommits() {
+	ctx, k := s.ctx, s.keeper
 	groupID := tss.GroupID(1)
 	index := uint64(1)
 	commit := tss.Point([]byte("point"))

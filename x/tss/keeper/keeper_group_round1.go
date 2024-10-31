@@ -11,6 +11,76 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
+// AddCoefficientCommits adds each coefficient commit into the accumulated commit of its index.
+func (k Keeper) AddCoefficientCommits(
+	ctx sdk.Context,
+	groupID tss.GroupID,
+	coefficientCommits tss.Points,
+) error {
+	for i, commit := range coefficientCommits {
+		points := []tss.Point{commit}
+
+		accCommit := k.GetAccumulatedCommit(ctx, groupID, uint64(i))
+		if accCommit != nil {
+			points = append(points, accCommit)
+		}
+
+		total, err := tss.SumPoints(points...)
+		if err != nil {
+			return err
+		}
+		k.SetAccumulatedCommit(ctx, groupID, uint64(i), total)
+	}
+
+	return nil
+}
+
+// ValidateRound1Info validates the round1Info of a group member.
+func (k Keeper) ValidateRound1Info(
+	ctx sdk.Context,
+	group types.Group,
+	round1Info types.Round1Info,
+) error {
+	// Check coefficients commit length
+	if uint64(len(round1Info.CoefficientCommits)) != group.Threshold {
+		return types.ErrInvalidLengthCoeffCommits
+	}
+
+	// Get dkg-context
+	dkgContext, err := k.GetDKGContext(ctx, group.ID)
+	if err != nil {
+		return types.ErrDKGContextNotFound.Wrap("dkg-context is not found")
+	}
+
+	// Verify one time signature
+	err = tss.VerifyOneTimeSignature(
+		round1Info.MemberID,
+		dkgContext,
+		round1Info.OneTimeSignature,
+		round1Info.OneTimePubKey,
+	)
+	if err != nil {
+		return types.ErrVerifyOneTimeSignatureFailed.Wrap(err.Error())
+	}
+
+	// Verify A0 signature
+	err = tss.VerifyA0Signature(
+		round1Info.MemberID,
+		dkgContext,
+		round1Info.A0Signature,
+		round1Info.CoefficientCommits[0],
+	)
+	if err != nil {
+		return types.ErrVerifyA0SignatureFailed.Wrap(err.Error())
+	}
+
+	return nil
+}
+
+// =====================================
+// Round1Info store
+// =====================================
+
 // AddRound1Info adds the round1Info of a member in the store and increments the count of round1Info.
 func (k Keeper) AddRound1Info(ctx sdk.Context, groupID tss.GroupID, round1Info types.Round1Info) {
 	k.SetRound1Info(ctx, groupID, round1Info)
@@ -92,6 +162,10 @@ func (k Keeper) DeleteRound1InfoCount(ctx sdk.Context, groupID tss.GroupID) {
 	ctx.KVStore(k.storeKey).Delete(types.Round1InfoCountStoreKey(groupID))
 }
 
+// =====================================
+// Accumulated commit store
+// =====================================
+
 // GetAccumulatedCommitIterator gets an iterator over all accumulated commits of a group.
 func (k Keeper) GetAccumulatedCommitIterator(ctx sdk.Context, groupID tss.GroupID) dbm.Iterator {
 	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.AccumulatedCommitsStoreKey(groupID))
@@ -132,67 +206,4 @@ func (k Keeper) DeleteAccumulatedCommits(ctx sdk.Context, groupID tss.GroupID) {
 		key := iterator.Key()
 		ctx.KVStore(k.storeKey).Delete(key)
 	}
-}
-
-// AddCommits adds each coefficient commit into the accumulated commit of its index.
-func (k Keeper) AddCommits(ctx sdk.Context, groupID tss.GroupID, commits tss.Points) error {
-	// Add count
-	for i, commit := range commits {
-		points := []tss.Point{commit}
-
-		accCommit := k.GetAccumulatedCommit(ctx, groupID, uint64(i))
-		if accCommit != nil {
-			points = append(points, accCommit)
-		}
-
-		total, err := tss.SumPoints(points...)
-		if err != nil {
-			return err
-		}
-		k.SetAccumulatedCommit(ctx, groupID, uint64(i), total)
-	}
-
-	return nil
-}
-
-// ValidateRound1Info validates the round1Info of a group member.
-func (k Keeper) ValidateRound1Info(
-	ctx sdk.Context,
-	group types.Group,
-	round1Info types.Round1Info,
-) error {
-	// Check coefficients commit length
-	if uint64(len(round1Info.CoefficientCommits)) != group.Threshold {
-		return types.ErrInvalidLengthCoeffCommits
-	}
-
-	// Get dkg-context
-	dkgContext, err := k.GetDKGContext(ctx, group.ID)
-	if err != nil {
-		return types.ErrDKGContextNotFound.Wrap("dkg-context is not found")
-	}
-
-	// Verify one time signature
-	err = tss.VerifyOneTimeSignature(
-		round1Info.MemberID,
-		dkgContext,
-		round1Info.OneTimeSignature,
-		round1Info.OneTimePubKey,
-	)
-	if err != nil {
-		return types.ErrVerifyOneTimeSignatureFailed.Wrap(err.Error())
-	}
-
-	// Verify A0 signature
-	err = tss.VerifyA0Signature(
-		round1Info.MemberID,
-		dkgContext,
-		round1Info.A0Signature,
-		round1Info.CoefficientCommits[0],
-	)
-	if err != nil {
-		return types.ErrVerifyA0SignatureFailed.Wrap(err.Error())
-	}
-
-	return nil
 }

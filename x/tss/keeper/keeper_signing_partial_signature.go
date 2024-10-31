@@ -11,34 +11,26 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-// ==================================
-// Partial signature count
-// ==================================
+// GetMembersNotSubmitSignature get assigned members that haven't signed a requested message.
+func (k Keeper) GetMembersNotSubmitSignature(
+	ctx sdk.Context,
+	signingID tss.SigningID,
+	attempt uint64,
+) []sdk.AccAddress {
+	signingAttempt := k.MustGetSigningAttempt(ctx, signingID, attempt)
 
-// SetPartialSignatureCount sets the count of partial signatures of a given signing ID in the store.
-func (k Keeper) SetPartialSignatureCount(ctx sdk.Context, signingID tss.SigningID, attempt uint64, count uint64) {
-	ctx.KVStore(k.storeKey).Set(types.PartialSignatureCountStoreKey(signingID, attempt), sdk.Uint64ToBigEndian(count))
-}
+	var memberAddrs []sdk.AccAddress
+	for _, am := range signingAttempt.AssignedMembers {
+		if !k.HasPartialSignature(ctx, signingID, attempt, am.MemberID) {
+			memberAddrs = append(memberAddrs, sdk.MustAccAddressFromBech32(am.Address))
+		}
+	}
 
-// GetPartialSignatureCount retrieves the count of partial signatures of a given signing ID from the store.
-func (k Keeper) GetPartialSignatureCount(ctx sdk.Context, signingID tss.SigningID, attempt uint64) uint64 {
-	bz := ctx.KVStore(k.storeKey).Get(types.PartialSignatureCountStoreKey(signingID, attempt))
-	return sdk.BigEndianToUint64(bz)
-}
-
-// AddPartialSignatureCount increments the count of partial signatures of a given signing ID in the store.
-func (k Keeper) AddPartialSignatureCount(ctx sdk.Context, signingID tss.SigningID, attempt uint64) {
-	count := k.GetPartialSignatureCount(ctx, signingID, attempt)
-	k.SetPartialSignatureCount(ctx, signingID, attempt, count+1)
-}
-
-// DeletePartialSignatureCount delete the signature count data of a given signingID and attempt from the store.
-func (k Keeper) DeletePartialSignatureCount(ctx sdk.Context, signingID tss.SigningID, attempt uint64) {
-	ctx.KVStore(k.storeKey).Delete(types.PartialSignatureCountStoreKey(signingID, attempt))
+	return memberAddrs
 }
 
 // ==================================
-// Partial signature
+// Partial signature Store
 // ==================================
 
 // AddPartialSignature adds the partial signature of a specific signing ID from the given member ID
@@ -151,20 +143,28 @@ func (k Keeper) GetPartialSignaturesWithKey(
 	return partialSigs
 }
 
-// GetMembersNotSubmitSignature get assigned members that haven't signed a requested message.
-func (k Keeper) GetMembersNotSubmitSignature(
-	ctx sdk.Context,
-	signingID tss.SigningID,
-	attempt uint64,
-) []sdk.AccAddress {
-	signingAttempt := k.MustGetSigningAttempt(ctx, signingID, attempt)
+// ==================================
+// Partial signature count Store
+// ==================================
 
-	var memberAddrs []sdk.AccAddress
-	for _, am := range signingAttempt.AssignedMembers {
-		if !k.HasPartialSignature(ctx, signingID, attempt, am.MemberID) {
-			memberAddrs = append(memberAddrs, sdk.MustAccAddressFromBech32(am.Address))
-		}
-	}
+// SetPartialSignatureCount sets the count of partial signatures of a given signing ID in the store.
+func (k Keeper) SetPartialSignatureCount(ctx sdk.Context, signingID tss.SigningID, attempt uint64, count uint64) {
+	ctx.KVStore(k.storeKey).Set(types.PartialSignatureCountStoreKey(signingID, attempt), sdk.Uint64ToBigEndian(count))
+}
 
-	return memberAddrs
+// GetPartialSignatureCount retrieves the count of partial signatures of a given signing ID from the store.
+func (k Keeper) GetPartialSignatureCount(ctx sdk.Context, signingID tss.SigningID, attempt uint64) uint64 {
+	bz := ctx.KVStore(k.storeKey).Get(types.PartialSignatureCountStoreKey(signingID, attempt))
+	return sdk.BigEndianToUint64(bz)
+}
+
+// AddPartialSignatureCount increments the count of partial signatures of a given signing ID in the store.
+func (k Keeper) AddPartialSignatureCount(ctx sdk.Context, signingID tss.SigningID, attempt uint64) {
+	count := k.GetPartialSignatureCount(ctx, signingID, attempt)
+	k.SetPartialSignatureCount(ctx, signingID, attempt, count+1)
+}
+
+// DeletePartialSignatureCount delete the signature count data of a given signingID and attempt from the store.
+func (k Keeper) DeletePartialSignatureCount(ctx sdk.Context, signingID tss.SigningID, attempt uint64) {
+	ctx.KVStore(k.storeKey).Delete(types.PartialSignatureCountStoreKey(signingID, attempt))
 }

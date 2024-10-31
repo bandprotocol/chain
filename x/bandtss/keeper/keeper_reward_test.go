@@ -101,7 +101,7 @@ func (s *AppTestSuite) TestAllocateTokensOneActive() {
 	alice := groupCtx.Accounts[0].Address
 	bob := groupCtx.Accounts[1].Address
 	// From 50% of fee, 1% should go to community pool, the rest goes to the only active validator.
-	err = tssKeeper.HandleSetDEs(ctx, alice, []tsstypes.DE{
+	err = tssKeeper.EnqueueDEs(ctx, alice, []tsstypes.DE{
 		{
 			PubD: testutil.HexDecode("dddd"),
 			PubE: testutil.HexDecode("eeee"),

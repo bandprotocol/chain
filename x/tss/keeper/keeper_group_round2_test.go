@@ -5,8 +5,8 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-func (s *AppTestSuite) TestGetSetRound2Info() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func (s *KeeperTestSuite) TestGetSetRound2Info() {
+	ctx, k := s.ctx, s.keeper
 	groupID := tss.GroupID(1)
 	memberID := tss.MemberID(1)
 	round2Info := types.Round2Info{
@@ -26,8 +26,8 @@ func (s *AppTestSuite) TestGetSetRound2Info() {
 	s.Require().Equal(round2Info, got)
 }
 
-func (s *AppTestSuite) TestAddRound2Info() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func (s *KeeperTestSuite) TestAddRound2Info() {
+	ctx, k := s.ctx, s.keeper
 	groupID := tss.GroupID(1)
 	memberID := tss.MemberID(1)
 	round2Info := types.Round2Info{
@@ -49,8 +49,8 @@ func (s *AppTestSuite) TestAddRound2Info() {
 	s.Require().Equal(uint64(1), gotR2Count)
 }
 
-func (s *AppTestSuite) TestDeleteRound2Infos() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func (s *KeeperTestSuite) TestDeleteRound2Infos() {
+	ctx, k := s.ctx, s.keeper
 	groupID := tss.GroupID(1)
 	memberID := tss.MemberID(1)
 	Round2Info := types.Round2Info{
@@ -75,8 +75,8 @@ func (s *AppTestSuite) TestDeleteRound2Infos() {
 	s.Require().Equal(uint64(0), cnt)
 }
 
-func (s *AppTestSuite) TestGetRound2Infos() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func (s *KeeperTestSuite) TestGetRound2Infos() {
+	ctx, k := s.ctx, s.keeper
 	groupID := tss.GroupID(1)
 	member1 := tss.MemberID(1)
 	member2 := tss.MemberID(2)
@@ -105,8 +105,8 @@ func (s *AppTestSuite) TestGetRound2Infos() {
 	s.Require().Equal([]types.Round2Info{round2InfoMember1, round2InfoMember2}, got)
 }
 
-func (s *AppTestSuite) TestGetSetRound2InfoCount() {
-	ctx, k := s.ctx, s.app.TSSKeeper
+func (s *KeeperTestSuite) TestGetSetRound2InfoCount() {
+	ctx, k := s.ctx, s.keeper
 	groupID := tss.GroupID(1)
 
 	// Set round 2 info count

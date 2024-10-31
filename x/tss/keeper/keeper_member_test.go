@@ -1,9 +1,12 @@
 package keeper_test
 
 import (
+	"go.uber.org/mock/gomock"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v3/pkg/tss"
+	tsstestutil "github.com/bandprotocol/chain/v3/x/tss/testutil"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
@@ -83,4 +86,88 @@ func (s *KeeperTestSuite) TestGetSetMemberIsActive() {
 	for _, member := range members {
 		s.Require().False(member.IsActive)
 	}
+}
+
+func (s *KeeperTestSuite) TestMarkMalicious() {
+	ctx, k := s.ctx, s.keeper
+	groupID := tss.GroupID(1)
+	memberID := tss.MemberID(1)
+
+	// Set member
+	k.SetMember(ctx, types.Member{
+		ID:          memberID,
+		GroupID:     groupID,
+		Address:     "member_address",
+		PubKey:      []byte("pub_key"),
+		IsMalicious: false,
+	})
+
+	// Mark malicious
+	err := k.MarkMemberMalicious(ctx, groupID, memberID)
+	s.Require().NoError(err)
+
+	// Get members
+	members, err := k.GetGroupMembers(ctx, groupID)
+	s.Require().NoError(err)
+
+	got := types.Members(members).HaveMalicious()
+	s.Require().Equal(got, true)
+}
+
+func (s *KeeperTestSuite) TestGetRandomMembersSuccess() {
+	ctx, k := s.ctx, s.keeper
+
+	// create a group context and mock the result.
+	groupCtx, err := tsstestutil.CompleteGroupCreation(ctx, k, 4, 2)
+	s.Require().NoError(err)
+	s.rollingseedKeeper.EXPECT().GetRollingSeed(gomock.Any()).
+		Return([]byte("RandomStringThatShouldBeLongEnough"))
+
+	// call GetRandomMembers and check results
+	ams, err := k.GetRandomMembers(ctx, groupCtx.GroupID, []byte("test_nonce"))
+	s.Require().NoError(err)
+
+	memberIDs := []tss.MemberID{}
+	for _, am := range ams {
+		memberIDs = append(memberIDs, am.ID)
+	}
+	s.Require().Equal(memberIDs, []tss.MemberID{3, 4})
+}
+
+func (s *KeeperTestSuite) TestGetRandomMembersInsufficientActiveMembers() {
+	ctx, k := s.ctx, s.keeper
+
+	// create a group context.
+	groupCtx, err := tsstestutil.CompleteGroupCreation(ctx, k, 4, 2)
+	s.Require().NoError(err)
+
+	// set every member to inactive.
+	members, err := k.GetGroupMembers(ctx, groupCtx.GroupID)
+	s.Require().NoError(err)
+	for _, member := range members[:len(members)-1] {
+		member.IsActive = false
+		k.SetMember(ctx, member)
+	}
+
+	_, err = k.GetRandomMembers(ctx, tss.GroupID(1), []byte("test_nonce"))
+	s.Require().ErrorIs(err, types.ErrInsufficientActiveMembers)
+}
+
+func (s *KeeperTestSuite) TestGetRandomMembersNoActiveMember() {
+	ctx, k := s.ctx, s.keeper
+
+	// create a group context.
+	groupCtx, err := tsstestutil.CompleteGroupCreation(ctx, k, 4, 2)
+	s.Require().NoError(err)
+
+	// set every member to inactive.
+	members, err := k.GetGroupMembers(ctx, groupCtx.GroupID)
+	s.Require().NoError(err)
+	for _, member := range members {
+		member.IsActive = false
+		k.SetMember(ctx, member)
+	}
+
+	_, err = k.GetRandomMembers(ctx, tss.GroupID(1), []byte("test_nonce"))
+	s.Require().ErrorIs(err, types.ErrNoActiveMember)
 }

@@ -12,9 +12,7 @@ func (s *KeeperTestSuite) TestGetSetDEQueue() {
 	address := "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
 	accAddress := sdk.MustAccAddressFromBech32(address)
 
-	k.SetDEQueue(ctx, accAddress, types.DEQueue{
-		Head: 1, Tail: 10,
-	})
+	k.SetDEQueue(ctx, accAddress, types.DEQueue{Head: 1, Tail: 10})
 
 	got := k.GetDEQueue(ctx, accAddress)
 	s.Require().Equal(types.DEQueue{Head: 1, Tail: 10}, got)
@@ -35,31 +33,6 @@ func (s *KeeperTestSuite) TestGetSetDE() {
 	s.Require().Equal(de, got)
 }
 
-func (s *KeeperTestSuite) TestGetDEsGenesis() {
-	ctx, k := s.ctx, s.keeper
-
-	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-	before := k.GetDEsGenesis(ctx)
-	de := types.DE{
-		PubD: []byte("D"),
-		PubE: []byte("E"),
-	}
-
-	// Set DE
-	err := k.HandleSetDEs(ctx, address, []types.DE{de})
-	s.Require().NoError(err)
-
-	// Get des with address and index
-	after := k.GetDEsGenesis(ctx)
-	s.Require().Equal(len(before)+1, len(after))
-	for _, q := range after {
-		if q.Address == string(address) {
-			expected := types.DEGenesis{Address: address.String(), DE: de}
-			s.Require().Equal(expected, q)
-		}
-	}
-}
-
 func (s *KeeperTestSuite) TestHandleSetDEs() {
 	ctx, k := s.ctx, s.keeper
 
@@ -76,7 +49,7 @@ func (s *KeeperTestSuite) TestHandleSetDEs() {
 	}
 
 	// Handle setting DEs
-	err := k.HandleSetDEs(ctx, address, des)
+	err := k.EnqueueDEs(ctx, address, des)
 	s.Require().NoError(err)
 
 	// Get DEQueue
@@ -106,18 +79,18 @@ func (s *KeeperTestSuite) TestPollDE() {
 	}
 
 	// Set DE
-	err := k.HandleSetDEs(ctx, address, des)
+	err := k.EnqueueDEs(ctx, address, des)
 	s.Require().NoError(err)
 
 	// Poll DE
-	polledDE, err := k.PollDE(ctx, address)
+	polledDE, err := k.DequeueDE(ctx, address)
 	s.Require().NoError(err)
 
 	// Ensure polled DE is equal to original DE
 	s.Require().Equal(des[0], polledDE)
 
 	// Attempt to get deleted DE
-	got, err := k.PollDE(ctx, address)
+	got, err := k.DequeueDE(ctx, address)
 
 	// Should return error
 	s.Require().ErrorIs(types.ErrDENotFound, err)
@@ -154,11 +127,11 @@ func (s *KeeperTestSuite) TestHandlePollDEForAssignedMembers() {
 
 	for _, m := range members {
 		accM := sdk.MustAccAddressFromBech32(m.Address)
-		err := k.HandleSetDEs(ctx, accM, des)
+		err := k.EnqueueDEs(ctx, accM, des)
 		s.Require().NoError(err)
 	}
 
-	des, err := k.PollDEs(ctx, members)
+	des, err := k.DequeueDEs(ctx, members)
 	s.Require().NoError(err)
 	s.Require().Equal([]types.DE{
 		{

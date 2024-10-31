@@ -14,8 +14,59 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-// HandleVerifyComplaint verifies the complaint signature for a given groupID and complaint.
-func (k Keeper) HandleVerifyComplaint(
+// ProcessComplaint processes the complaints of a group and mark the malicious member.
+func (k Keeper) ProcessComplaint(
+	ctx sdk.Context,
+	complaints []types.Complaint,
+	groupID tss.GroupID,
+	sender string,
+) ([]types.ComplaintWithStatus, error) {
+	var complaintsWithStatus []types.ComplaintWithStatus
+
+	// Verify complaint if fail to verify, mark complainant as malicious instead.
+	for _, c := range complaints {
+		var complaintStatus types.ComplaintStatus
+		var eventComplainStatus string
+		var maliciousMemberID tss.MemberID
+
+		// Verify complaint, if error mark complainant as malicious
+		if err := k.VerifyComplaint(ctx, groupID, c); err != nil {
+			maliciousMemberID = c.Complainant
+			complaintStatus = types.COMPLAINT_STATUS_FAILED
+			eventComplainStatus = types.EventTypeComplainFailed
+		} else {
+			maliciousMemberID = c.Respondent
+			complaintStatus = types.COMPLAINT_STATUS_SUCCESS
+			eventComplainStatus = types.EventTypeComplainSuccess
+		}
+
+		// mark user as malicious
+		if err := k.MarkMemberMalicious(ctx, groupID, maliciousMemberID); err != nil {
+			return nil, err
+		}
+
+		// Add complaint status
+		complaintsWithStatus = append(complaintsWithStatus, types.NewComplaintWithStatus(c, complaintStatus))
+
+		// Emit complain failed event
+		ctx.EventManager().EmitEvent(
+			sdk.NewEvent(
+				eventComplainStatus,
+				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+				sdk.NewAttribute(types.AttributeKeyComplainantID, fmt.Sprintf("%d", c.Complainant)),
+				sdk.NewAttribute(types.AttributeKeyRespondentID, fmt.Sprintf("%d", c.Respondent)),
+				sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
+				sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
+				sdk.NewAttribute(types.AttributeKeyAddress, sender),
+			),
+		)
+	}
+
+	return complaintsWithStatus, nil
+}
+
+// VerifyComplaint verifies the complaint signature for a given groupID and complaint.
+func (k Keeper) VerifyComplaint(
 	ctx sdk.Context,
 	groupID tss.GroupID,
 	complaint types.Complaint,
@@ -72,8 +123,9 @@ func (k Keeper) HandleVerifyComplaint(
 	return nil
 }
 
-// HandleVerifyOwnPubKeySig verifies the own public key signature for a given groupID, memberID, and ownPubKeySig.
-func (k Keeper) HandleVerifyOwnPubKeySig(
+// VerifyOwnPubKeySignature verifies the own public key signature for a given groupID,
+// memberID, and ownPubKeySig.
+func (k Keeper) VerifyOwnPubKeySignature(
 	ctx sdk.Context,
 	groupID tss.GroupID,
 	memberID tss.MemberID,
@@ -103,6 +155,17 @@ func (k Keeper) HandleVerifyOwnPubKeySig(
 
 	return nil
 }
+
+func (k Keeper) DeleteConfirmComplains(ctx sdk.Context, groupID tss.GroupID) {
+	k.DeleteConfirms(ctx, groupID)
+	k.DeleteAllComplainsWithStatus(ctx, groupID)
+
+	k.DeleteConfirmComplainCount(ctx, groupID)
+}
+
+// =====================================
+// ComplaintWithStatus store
+// =====================================
 
 // AddComplaintsWithStatus adds the complaints with status of a member in the store and increments the confirm and complain count.
 func (k Keeper) AddComplaintsWithStatus(
@@ -184,6 +247,10 @@ func (k Keeper) DeleteAllComplainsWithStatus(ctx sdk.Context, groupID tss.GroupI
 	}
 }
 
+// =====================================
+// Confirm store
+// =====================================
+
 // AddConfirm adds the confirm of a member in the store and increments the confirm and complain count.
 func (k Keeper) AddConfirm(
 	ctx sdk.Context,
@@ -259,12 +326,9 @@ func (k Keeper) DeleteConfirms(ctx sdk.Context, groupID tss.GroupID) {
 	}
 }
 
-func (k Keeper) DeleteConfirmComplains(ctx sdk.Context, groupID tss.GroupID) {
-	k.DeleteConfirms(ctx, groupID)
-	k.DeleteAllComplainsWithStatus(ctx, groupID)
-
-	k.DeleteConfirmComplainCount(ctx, groupID)
-}
+// =====================================
+// Confirm & Complaint store
+// =====================================
 
 // GetConfirmComplainCount retrieves the confirm complaint count for a specific groupID from the store.
 func (k Keeper) GetConfirmComplainCount(ctx sdk.Context, groupID tss.GroupID) uint64 {
@@ -280,89 +344,4 @@ func (k Keeper) SetConfirmComplainCount(ctx sdk.Context, groupID tss.GroupID, co
 // DeleteConfirmComplainCount remove the confirm complaint count data of a group from the store.
 func (k Keeper) DeleteConfirmComplainCount(ctx sdk.Context, groupID tss.GroupID) {
 	ctx.KVStore(k.storeKey).Delete(types.ConfirmComplainCountStoreKey(groupID))
-}
-
-// MarkMalicious change member status to malicious.
-func (k Keeper) MarkMalicious(ctx sdk.Context, groupID tss.GroupID, memberID tss.MemberID) error {
-	member, err := k.GetMember(ctx, groupID, memberID)
-	if err != nil {
-		return err
-	}
-	if member.IsMalicious {
-		return nil
-	}
-
-	// update member status
-	member.IsMalicious = true
-	k.SetMember(ctx, member)
-	return nil
-}
-
-// ProcessComplaint processes the complaints of a group and mark the malicious member.
-func (k Keeper) ProcessComplaint(
-	ctx sdk.Context,
-	complaints []types.Complaint,
-	groupID tss.GroupID,
-	sender string,
-) ([]types.ComplaintWithStatus, error) {
-	var complaintsWithStatus []types.ComplaintWithStatus
-
-	// Verify complaint if fail to verify, mark complainant as malicious instead.
-	for _, c := range complaints {
-		var complaintStatus types.ComplaintStatus
-		var eventComplainStatus string
-		var maliciousMemberID tss.MemberID
-
-		err := k.HandleVerifyComplaint(ctx, groupID, c)
-		if err != nil {
-			maliciousMemberID = c.Complainant
-			complaintStatus = types.COMPLAINT_STATUS_FAILED
-			eventComplainStatus = types.EventTypeComplainFailed
-		} else {
-			maliciousMemberID = c.Respondent
-			complaintStatus = types.COMPLAINT_STATUS_SUCCESS
-			eventComplainStatus = types.EventTypeComplainSuccess
-		}
-
-		// mark user as malicious
-		err = k.MarkMalicious(ctx, groupID, maliciousMemberID)
-		if err != nil {
-			return nil, err
-		}
-
-		// Add complaint status
-		complaintsWithStatus = append(complaintsWithStatus, types.NewComplaintWithStatus(c, complaintStatus))
-
-		// Emit complain failed event
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				eventComplainStatus,
-				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
-				sdk.NewAttribute(types.AttributeKeyComplainantID, fmt.Sprintf("%d", c.Complainant)),
-				sdk.NewAttribute(types.AttributeKeyRespondentID, fmt.Sprintf("%d", c.Respondent)),
-				sdk.NewAttribute(types.AttributeKeyKeySym, hex.EncodeToString(c.KeySym)),
-				sdk.NewAttribute(types.AttributeKeySignature, hex.EncodeToString(c.Signature)),
-				sdk.NewAttribute(types.AttributeKeyAddress, sender),
-			),
-		)
-	}
-
-	return complaintsWithStatus, nil
-}
-
-// DeleteAllDKGInterimData deletes all DKG interim data for a given groupID.
-func (k Keeper) DeleteAllDKGInterimData(
-	ctx sdk.Context,
-	groupID tss.GroupID,
-) {
-	// Delete DKG context
-	k.DeleteDKGContext(ctx, groupID)
-	// Delete round1Infos
-	k.DeleteRound1Infos(ctx, groupID)
-	// Delete round2Infos
-	k.DeleteRound2Infos(ctx, groupID)
-	// Delete all confirm and complaint with status
-	k.DeleteConfirmComplains(ctx, groupID)
-	// Delete accumulated commits
-	k.DeleteAccumulatedCommits(ctx, groupID)
 }

@@ -11,6 +11,10 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
+// =====================================
+// Round2Info store
+// =====================================
+
 // AddRound2Info adds the round2Info of a member in the store and increments the count of round2Info.
 func (k Keeper) AddRound2Info(ctx sdk.Context, groupID tss.GroupID, round2Info types.Round2Info) {
 	k.SetRound2Info(ctx, groupID, round2Info)
