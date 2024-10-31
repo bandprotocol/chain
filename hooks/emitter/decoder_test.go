@@ -164,7 +164,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgGrant() {
 	emitter.DecodeMsgGrant(genericMsg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"grant\":{\"authorization\":{\"msg\":\"/oracle.v1.MsgReportData\"},\"expiration\":\"2020-01-02T00:00:00Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
+		"{\"grant\":{\"authorization\":{\"msg\":\"/band.oracle.v1.MsgReportData\"},\"expiration\":\"2020-01-02T00:00:00Z\"},\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\"}",
 	)
 
 	// TestStakeAuthorization
@@ -188,7 +188,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgRevoke() {
 	emitter.DecodeMsgRevoke(&msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\",\"msg_type_url\":\"/oracle.v1.MsgReportData\"}",
+		"{\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"granter\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\",\"msg_type_url\":\"/band.oracle.v1.MsgReportData\"}",
 	)
 }
 
@@ -205,7 +205,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgExec() {
 	emitter.DecodeMsgExec(&msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"msgs\":[{\"msg\":{\"amount\":[{\"denom\":\"uband\",\"amount\":\"1\"}],\"from_address\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\",\"to_address\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\"},\"type\":\"/cosmos.bank.v1beta1.MsgSend\"},{\"msg\":{\"raw_reports\":null,\"request_id\":0,\"validator\":\"\"},\"type\":\"/oracle.v1.MsgReportData\"}]}",
+		"{\"grantee\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\",\"msgs\":[{\"msg\":{\"amount\":[{\"denom\":\"uband\",\"amount\":\"1\"}],\"from_address\":\"band1gaexzmn5v4eqqqqqqqqqqqqqqqqqqqqq3urue8\",\"to_address\":\"band1gaexzmn5v4jsqqqqqqqqqqqqqqqqqqqqwrdaed\"},\"type\":\"/cosmos.bank.v1beta1.MsgSend\"},{\"msg\":{\"raw_reports\":null,\"request_id\":0,\"validator\":\"\"},\"type\":\"/band.oracle.v1.MsgReportData\"}]}",
 	)
 }
 
