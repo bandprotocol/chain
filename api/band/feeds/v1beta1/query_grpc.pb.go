@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: feeds/v1beta1/query.proto
+// source: band/feeds/v1beta1/query.proto
 
 package feedsv1beta1
 
@@ -19,18 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Query_AllCurrentPrices_FullMethodName      = "/feeds.v1beta1.Query/AllCurrentPrices"
-	Query_CurrentFeeds_FullMethodName          = "/feeds.v1beta1.Query/CurrentFeeds"
-	Query_CurrentPrices_FullMethodName         = "/feeds.v1beta1.Query/CurrentPrices"
-	Query_DelegatorSignals_FullMethodName      = "/feeds.v1beta1.Query/DelegatorSignals"
-	Query_IsFeeder_FullMethodName              = "/feeds.v1beta1.Query/IsFeeder"
-	Query_Params_FullMethodName                = "/feeds.v1beta1.Query/Params"
-	Query_Price_FullMethodName                 = "/feeds.v1beta1.Query/Price"
-	Query_Prices_FullMethodName                = "/feeds.v1beta1.Query/Prices"
-	Query_ReferenceSourceConfig_FullMethodName = "/feeds.v1beta1.Query/ReferenceSourceConfig"
-	Query_SignalTotalPowers_FullMethodName     = "/feeds.v1beta1.Query/SignalTotalPowers"
-	Query_ValidValidator_FullMethodName        = "/feeds.v1beta1.Query/ValidValidator"
-	Query_ValidatorPrices_FullMethodName       = "/feeds.v1beta1.Query/ValidatorPrices"
+	Query_AllCurrentPrices_FullMethodName      = "/band.feeds.v1beta1.Query/AllCurrentPrices"
+	Query_CurrentFeeds_FullMethodName          = "/band.feeds.v1beta1.Query/CurrentFeeds"
+	Query_CurrentPrices_FullMethodName         = "/band.feeds.v1beta1.Query/CurrentPrices"
+	Query_DelegatorSignals_FullMethodName      = "/band.feeds.v1beta1.Query/DelegatorSignals"
+	Query_IsFeeder_FullMethodName              = "/band.feeds.v1beta1.Query/IsFeeder"
+	Query_Params_FullMethodName                = "/band.feeds.v1beta1.Query/Params"
+	Query_Price_FullMethodName                 = "/band.feeds.v1beta1.Query/Price"
+	Query_Prices_FullMethodName                = "/band.feeds.v1beta1.Query/Prices"
+	Query_ReferenceSourceConfig_FullMethodName = "/band.feeds.v1beta1.Query/ReferenceSourceConfig"
+	Query_SignalTotalPowers_FullMethodName     = "/band.feeds.v1beta1.Query/SignalTotalPowers"
+	Query_ValidValidator_FullMethodName        = "/band.feeds.v1beta1.Query/ValidValidator"
+	Query_ValidatorPrices_FullMethodName       = "/band.feeds.v1beta1.Query/ValidatorPrices"
 )
 
 // QueryClient is the client API for Query service.
@@ -485,7 +485,7 @@ func _Query_ValidatorPrices_Handler(srv interface{}, ctx context.Context, dec fu
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Query_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "feeds.v1beta1.Query",
+	ServiceName: "band.feeds.v1beta1.Query",
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -538,5 +538,5 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "feeds/v1beta1/query.proto",
+	Metadata: "band/feeds/v1beta1/query.proto",
 }

@@ -3,7 +3,7 @@ package feeds
 import (
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 
-	feedsv1beta1 "github.com/bandprotocol/chain/v3/api/feeds/v1beta1"
+	feedsv1beta1 "github.com/bandprotocol/chain/v3/api/band/feeds/v1beta1"
 )
 
 // AutoCLIOptions implements the autocli.HasAutoCLIConfig interface.
