@@ -3,6 +3,9 @@ package keeper
 import (
 	"context"
 
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"cosmossdk.io/store/prefix"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -35,36 +38,39 @@ func (q queryServer) Group(goCtx context.Context, req *types.QueryGroupRequest) 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	groupID := tss.GroupID(req.GroupId)
 
-	// Get group
-	group, err := q.k.GetGroup(ctx, groupID)
+	groupResult, err := q.k.GetGroupResponse(ctx, groupID)
 	if err != nil {
 		return nil, err
 	}
 
-	// Get group members
-	members, err := q.k.GetGroupMembers(ctx, groupID)
-	if err != nil {
-		return nil, err
-	}
-
-	// Ignore error as dkgContext can be deleted
-	dkgContext, _ := q.k.GetDKGContext(ctx, groupID)
-
-	// Get round infos, complaints, and confirms
-	round1Infos := q.k.GetRound1Infos(ctx, groupID)
-	round2Infos := q.k.GetRound2Infos(ctx, groupID)
-	complaints := q.k.GetAllComplainsWithStatus(ctx, groupID)
-	confirms := q.k.GetConfirms(ctx, groupID)
-
-	// Return all the group information
 	return &types.QueryGroupResponse{
-		Group:                group,
-		DKGContext:           dkgContext,
-		Members:              members,
-		Round1Infos:          round1Infos,
-		Round2Infos:          round2Infos,
-		ComplaintsWithStatus: complaints,
-		Confirms:             confirms,
+		GroupResult: *groupResult,
+	}, nil
+}
+
+// Groups queries groups information.
+func (q queryServer) Groups(goCtx context.Context, req *types.QueryGroupsRequest) (*types.QueryGroupsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	store := ctx.KVStore(q.k.storeKey)
+	groupStore := prefix.NewStore(store, types.GroupStoreKeyPrefix)
+
+	filteredGroups, pageRes, err := query.GenericFilteredPaginate(
+		q.k.cdc,
+		groupStore,
+		req.Pagination,
+		func(key []byte, g *types.Group) (*types.GroupResult, error) {
+			return q.k.GetGroupResponse(ctx, g.ID)
+		}, func() *types.Group {
+			return &types.Group{}
+		},
+	)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &types.QueryGroupsResponse{
+		Groups:     filteredGroups,
+		Pagination: pageRes,
 	}, nil
 }
 
@@ -241,5 +247,43 @@ func (q queryServer) Signing(
 
 	return &types.QuerySigningResponse{
 		SigningResult: *signingResult,
+	}, nil
+}
+
+// Signings queries all signings.
+func (q queryServer) Signings(
+	goCtx context.Context,
+	req *types.QuerySigningsRequest,
+) (*types.QuerySigningsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	store := ctx.KVStore(q.k.storeKey)
+	signingStore := prefix.NewStore(store, types.SigningStoreKeyPrefix)
+
+	filteredSignings, pageRes, err := query.GenericFilteredPaginate(
+		q.k.cdc,
+		signingStore,
+		req.Pagination,
+		func(key []byte, s *types.Signing) (*types.SigningResult, error) {
+			return q.k.GetSigningResult(ctx, s.ID)
+		}, func() *types.Signing {
+			return &types.Signing{}
+		},
+	)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &types.QuerySigningsResponse{
+		SigningResults: filteredSignings,
+		Pagination:     pageRes,
+	}, nil
+}
+
+// Params queries all params of the module.
+func (q queryServer) Params(c context.Context, _ *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	return &types.QueryParamsResponse{
+		Params: q.k.GetParams(ctx),
 	}, nil
 }

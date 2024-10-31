@@ -30,8 +30,8 @@ const (
 
 var (
 	// global store keys
-	TunnelCountStoreKey    = []byte{0x00}
-	TotalPacketFeeStoreKey = []byte{0x01}
+	TunnelCountStoreKey = []byte{0x00}
+	TotalFeeStoreKey    = []byte{0x01}
 
 	// store prefixes
 	ActiveTunnelIDStoreKeyPrefix     = []byte{0x10}

@@ -29,8 +29,13 @@ func (r *ContentRouter) Seal() {
 	r.sealed = true
 }
 
-// AddRoute adds request signature handler for a given path and prefix. It returns the ContentRouter
-// so AddRoute calls can be linked. It will panic if the router is sealed.
+// Sealed returns whether the ContentRouter can be changed or not.
+func (r *ContentRouter) Sealed() bool {
+	return r.sealed
+}
+
+// AddRoute adds signature handler for a given path. It returns the ContentRouter
+// so that the function can be chained. It will panic if the ContentRouter is sealed.
 func (r *ContentRouter) AddRoute(path string, h Handler) *ContentRouter {
 	if r.sealed {
 		panic("router sealed; cannot add route handler")
@@ -48,7 +53,7 @@ func (r *ContentRouter) AddRoute(path string, h Handler) *ContentRouter {
 	return r
 }
 
-// HasRoute returns true if the content router has a path registered or false otherwise.
+// HasRoute returns true whether the path is registered.
 func (r *ContentRouter) HasRoute(path string) bool {
 	_, ok := r.handlers[path]
 	return ok

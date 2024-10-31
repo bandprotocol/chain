@@ -101,7 +101,7 @@ func (suite *KeeperTestSuite) TestAllocateTokensOneActive() {
 			AllocateTokensToValidator(gomock.Any(), validators[1].Validator, (sdk.DecCoins)(nil)),
 	)
 
-	suite.Require().NoError(k.AllocateTokens(ctx, defaultVotes))
+	require.NoError(k.AllocateTokens(ctx, defaultVotes))
 }
 
 func (suite *KeeperTestSuite) TestAllocateTokensAllActive() {
@@ -147,8 +147,7 @@ func (suite *KeeperTestSuite) TestAllocateTokensAllActive() {
 			AllocateTokensToValidator(gomock.Any(), validators[0].Validator, (sdk.DecCoins)(nil)),
 	)
 
-	err = k.AllocateTokens(ctx, defaultVotes)
-	require.NoError(err)
+	require.NoError(k.AllocateTokens(ctx, defaultVotes))
 }
 
 func (suite *KeeperTestSuite) TestGetDefaultValidatorStatus() {

@@ -278,6 +278,9 @@ func TestAppTestSuite(t *testing.T) {
 type KeeperTestSuite struct {
 	suite.Suite
 
+	key  *storetypes.KVStoreKey
+	tkey *storetypes.TransientStoreKey
+
 	keeper      *keeper.Keeper
 	queryServer types.QueryServer
 	tssCallback *keeper.TSSCallback
@@ -296,9 +299,10 @@ type KeeperTestSuite struct {
 // SetupTest initializes the mock keeper and the context
 func (s *KeeperTestSuite) SetupTest() {
 	ctrl := gomock.NewController(s.T())
-	key := storetypes.NewKVStoreKey(types.StoreKey)
+	s.key = storetypes.NewKVStoreKey(types.StoreKey)
+	s.tkey = storetypes.NewTransientStoreKey("transient_test")
 
-	testCtx := sdktestutil.DefaultContextWithDB(s.T(), key, storetypes.NewTransientStoreKey("transient_test"))
+	testCtx := sdktestutil.DefaultContextWithDB(s.T(), s.key, s.tkey)
 	encCfg := moduletestutil.MakeTestEncodingConfig(bandtss.AppModuleBasic{})
 	s.ctx = testCtx.Ctx.WithBlockHeader(cmtproto.Header{Time: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)})
 
@@ -313,7 +317,7 @@ func (s *KeeperTestSuite) SetupTest() {
 	s.accountKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(s.authority).AnyTimes()
 	s.keeper = keeper.NewKeeper(
 		encCfg.Codec.(codec.BinaryCodec),
-		key,
+		s.key,
 		authzKeeper,
 		s.accountKeeper,
 		s.bankKeeper,
@@ -332,4 +336,17 @@ func (s *KeeperTestSuite) SetupTest() {
 	s.queryServer = keeper.NewQueryServer(s.keeper)
 
 	s.moduleAcc = authtypes.NewModuleAccount(&authtypes.BaseAccount{}, types.ModuleName, "auth")
+}
+
+func (s *KeeperTestSuite) SetupSubTest() {
+	// clear the context state and set params
+	testCtx := sdktestutil.DefaultContextWithDB(s.T(), s.key, s.tkey)
+	s.ctx = testCtx.Ctx.WithBlockHeader(cmtproto.Header{Time: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)})
+
+	err := s.keeper.SetParams(s.ctx, types.DefaultParams())
+	s.Require().NoError(err)
+}
+
+func TestKeeperTestSuite(t *testing.T) {
+	suite.Run(t, new(KeeperTestSuite))
 }

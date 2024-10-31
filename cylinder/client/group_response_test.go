@@ -22,9 +22,11 @@ func TestGetRound1Info(t *testing.T) {
 		{
 			name: "Existing MemberID",
 			queryGroupResponse: &types.QueryGroupResponse{
-				Round1Infos: []types.Round1Info{
-					{
-						MemberID: 1,
+				GroupResult: types.GroupResult{
+					Round1Infos: []types.Round1Info{
+						{
+							MemberID: 1,
+						},
 					},
 				},
 			},
@@ -35,9 +37,11 @@ func TestGetRound1Info(t *testing.T) {
 		{
 			name: "No data from MemberID",
 			queryGroupResponse: &types.QueryGroupResponse{
-				Round1Infos: []types.Round1Info{
-					{
-						MemberID: 1,
+				GroupResult: types.GroupResult{
+					Round1Infos: []types.Round1Info{
+						{
+							MemberID: 1,
+						},
 					},
 				},
 			},
@@ -49,7 +53,7 @@ func TestGetRound1Info(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			groupResponse := client.NewGroupResponse(test.queryGroupResponse)
+			groupResponse := client.NewGroupResult(test.queryGroupResponse)
 			data, err := groupResponse.GetRound1Info(test.memberID)
 			assert.Equal(t, test.expectedError, err)
 			assert.Equal(t, test.expectedData, data)
@@ -68,9 +72,11 @@ func TestGetRound2Infos(t *testing.T) {
 		{
 			name: "Existing MemberID",
 			queryGroupResponse: &types.QueryGroupResponse{
-				Round2Infos: []types.Round2Info{
-					{
-						MemberID: 1,
+				GroupResult: types.GroupResult{
+					Round2Infos: []types.Round2Info{
+						{
+							MemberID: 1,
+						},
 					},
 				},
 			},
@@ -81,9 +87,11 @@ func TestGetRound2Infos(t *testing.T) {
 		{
 			name: "No data from MemberID",
 			queryGroupResponse: &types.QueryGroupResponse{
-				Round2Infos: []types.Round2Info{
-					{
-						MemberID: 1,
+				GroupResult: types.GroupResult{
+					Round2Infos: []types.Round2Info{
+						{
+							MemberID: 1,
+						},
 					},
 				},
 			},
@@ -95,7 +103,7 @@ func TestGetRound2Infos(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			groupResponse := client.NewGroupResponse(test.queryGroupResponse)
+			groupResponse := client.NewGroupResult(test.queryGroupResponse)
 			data, err := groupResponse.GetRound2Info(test.memberID)
 			assert.Equal(t, test.expectedError, err)
 			assert.Equal(t, test.expectedData, data)
@@ -115,10 +123,12 @@ func TestGetEncryptedSecretShare(t *testing.T) {
 		{
 			name: "Existing share",
 			queryGroupResponse: &types.QueryGroupResponse{
-				Round2Infos: []types.Round2Info{
-					{
-						MemberID:              1,
-						EncryptedSecretShares: tss.EncSecretShares{[]byte("share1"), []byte("share2")},
+				GroupResult: types.GroupResult{
+					Round2Infos: []types.Round2Info{
+						{
+							MemberID:              1,
+							EncryptedSecretShares: tss.EncSecretShares{[]byte("share1"), []byte("share2")},
+						},
 					},
 				},
 			},
@@ -130,10 +140,12 @@ func TestGetEncryptedSecretShare(t *testing.T) {
 		{
 			name: "Invalid ReceiverID",
 			queryGroupResponse: &types.QueryGroupResponse{
-				Round2Infos: []types.Round2Info{
-					{
-						MemberID:              1,
-						EncryptedSecretShares: tss.EncSecretShares{[]byte("share1"), []byte("share2")},
+				GroupResult: types.GroupResult{
+					Round2Infos: []types.Round2Info{
+						{
+							MemberID:              1,
+							EncryptedSecretShares: tss.EncSecretShares{[]byte("share1"), []byte("share2")},
+						},
 					},
 				},
 			},
@@ -145,10 +157,12 @@ func TestGetEncryptedSecretShare(t *testing.T) {
 		{
 			name: "Invalid SenderID",
 			queryGroupResponse: &types.QueryGroupResponse{
-				Round2Infos: []types.Round2Info{
-					{
-						MemberID:              1,
-						EncryptedSecretShares: tss.EncSecretShares{[]byte("share1"), []byte("share2")},
+				GroupResult: types.GroupResult{
+					Round2Infos: []types.Round2Info{
+						{
+							MemberID:              1,
+							EncryptedSecretShares: tss.EncSecretShares{[]byte("share1"), []byte("share2")},
+						},
 					},
 				},
 			},
@@ -161,7 +175,7 @@ func TestGetEncryptedSecretShare(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			groupResponse := client.NewGroupResponse(test.queryGroupResponse)
+			groupResponse := client.NewGroupResult(test.queryGroupResponse)
 			share, err := groupResponse.GetEncryptedSecretShare(test.senderID, test.receiverID)
 			assert.Equal(t, test.expectedError, err)
 			assert.Equal(t, test.expectedShare, share)

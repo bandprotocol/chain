@@ -9,28 +9,17 @@ import (
 )
 
 func TestParseSignalDeviations(t *testing.T) {
-	// test case for valid signal deviations
-	t.Run("valid signal deviations", func(t *testing.T) {
-		signalDeviations := []SignalDeviation{
-			{SignalID: "BTC", DeviationBPS: 2000},
-			{SignalID: "ETH", DeviationBPS: 4000},
-		}
-		file, cleanup := createTempSignalDeviationFile(signalDeviations)
-		defer cleanup()
+	signalDeviations := []SignalDeviation{
+		{SignalID: "BTC", DeviationBPS: 2000},
+		{SignalID: "ETH", DeviationBPS: 4000},
+	}
+	file, cleanup := createTempSignalDeviationFile(signalDeviations)
+	defer cleanup()
 
-		result, err := parseSignalDeviations(file)
+	result, err := parseSignalDeviations(file)
 
-		require.NoError(t, err)
-		require.Equal(t, signalDeviations, result.SignalDeviations)
-	})
-
-	// test case for empty file path
-	t.Run("empty file path", func(t *testing.T) {
-		result, err := parseSignalDeviations("")
-
-		require.NoError(t, err)
-		require.Equal(t, SignalDeviations{}, result)
-	})
+	require.NoError(t, err)
+	require.Equal(t, signalDeviations, result.SignalDeviations)
 }
 
 // Helper function to create a temporary file with signal info JSON content

@@ -12,8 +12,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	dbm "github.com/cosmos/cosmos-db"
-
 	"cosmossdk.io/log"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -22,7 +20,6 @@ import (
 
 	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client"
 
-	band "github.com/bandprotocol/chain/v3/app"
 	"github.com/bandprotocol/chain/v3/grogu/context"
 	"github.com/bandprotocol/chain/v3/grogu/querier"
 	"github.com/bandprotocol/chain/v3/grogu/signaller"
@@ -32,16 +29,17 @@ import (
 )
 
 const (
-	flagValidator        = "validator"
-	flagNodes            = "nodes"
-	flagBroadcastTimeout = "broadcast-timeout"
-	flagRPCPollInterval  = "rpc-poll-interval"
-	flagMaxTry           = "max-try"
-	flagBothan           = "bothan"
-	flagBothanTimeout    = "bothan-timeout"
-	flagDistrStartPct    = "distribution-start-pct"
-	flagDistrOffsetPct   = "distribution-offset-pct"
-	flagLogLevel         = "log-level"
+	flagValidator            = "validator"
+	flagNodes                = "nodes"
+	flagBroadcastTimeout     = "broadcast-timeout"
+	flagRPCPollInterval      = "rpc-poll-interval"
+	flagMaxTry               = "max-try"
+	flagBothan               = "bothan"
+	flagBothanTimeout        = "bothan-timeout"
+	flagDistrStartPct        = "distribution-start-pct"
+	flagDistrOffsetPct       = "distribution-offset-pct"
+	flagLogLevel             = "log-level"
+	flagUpdaterQueryInterval = "updater-query-interval"
 )
 
 func RunCmd(ctx *context.Context) *cobra.Command {
@@ -65,6 +63,7 @@ func RunCmd(ctx *context.Context) *cobra.Command {
 	cmd.Flags().String(flagBothan, "", "The Bothan URL to connect to.")
 	cmd.Flags().String(flagBothanTimeout, "10s", "The timeout duration for Bothan requests.")
 	cmd.Flags().String(flagLogLevel, "info", "The application's log level.")
+	cmd.Flags().String(flagUpdaterQueryInterval, "1m", "The interval for updater querying chain.")
 
 	_ = viper.BindPFlag(flagValidator, cmd.Flags().Lookup(flagValidator))
 	_ = viper.BindPFlag(flagNodes, cmd.Flags().Lookup(flagNodes))
@@ -78,6 +77,7 @@ func RunCmd(ctx *context.Context) *cobra.Command {
 	_ = viper.BindPFlag(flagBothan, cmd.Flags().Lookup(flagBothan))
 	_ = viper.BindPFlag(flagBothanTimeout, cmd.Flags().Lookup(flagBothanTimeout))
 	_ = viper.BindPFlag(flagLogLevel, cmd.Flags().Lookup(flagLogLevel))
+	_ = viper.BindPFlag(flagUpdaterQueryInterval, cmd.Flags().Lookup(flagUpdaterQueryInterval))
 
 	return cmd
 }
@@ -91,20 +91,6 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 		}
 		l := logger.NewLogger(allowLevel)
 
-		initAppOptions := viper.New()
-		tempDir := tempDir()
-		initAppOptions.Set(flags.FlagHome, tempDir)
-		tempApp := band.NewBandApp(
-			log.NewNopLogger(),
-			dbm.NewMemDB(),
-			nil,
-			true,
-			map[int64]bool{},
-			tempDir,
-			initAppOptions,
-			100,
-		)
-
 		// Split Node URIs and create RPC clients
 		clientCtx, err := client.GetClientQueryContext(cmd)
 		if err != nil {
@@ -112,9 +98,9 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 		}
 		clientCtx = clientCtx.WithKeyring(ctx.Keyring).
 			WithChainID(viper.GetString(flags.FlagChainID)).
-			WithCodec(tempApp.AppCodec()).
-			WithInterfaceRegistry(tempApp.InterfaceRegistry()).
-			WithTxConfig(tempApp.GetTxConfig()).
+			WithCodec(ctx.BandApp.AppCodec()).
+			WithInterfaceRegistry(ctx.BandApp.InterfaceRegistry()).
+			WithTxConfig(ctx.BandApp.GetTxConfig()).
 			WithBroadcastMode(flags.BroadcastSync)
 
 		nodeURIs := strings.Split(viper.GetString(flagNodes), ",")
@@ -159,6 +145,12 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 
 		// Parse RPC poll interval
 		rpcPollInterval, err := time.ParseDuration(ctx.Config.RPCPollInterval)
+		if err != nil {
+			return err
+		}
+
+		// Parse Updater query interval
+		updaterQueryInterval, err := time.ParseDuration(ctx.Config.UpdaterQueryInterval)
 		if err != nil {
 			return err
 		}
@@ -210,8 +202,7 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 			bothanService,
 			clients,
 			l,
-			maxCurrentFeedEventHeight,
-			maxUpdateRefSourceEventHeight,
+			updaterQueryInterval,
 		)
 
 		// Listen for termination signals for graceful shutdown
@@ -231,14 +222,4 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 
 		return nil
 	}
-}
-
-var tempDir = func() string {
-	dir, err := os.MkdirTemp("", ".band")
-	if err != nil {
-		dir = band.DefaultNodeHome
-	}
-	defer os.RemoveAll(dir)
-
-	return dir
 }

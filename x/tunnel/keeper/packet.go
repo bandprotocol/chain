@@ -162,8 +162,6 @@ func (k Keeper) SendPacket(
 	switch r := tunnel.Route.GetCachedValue().(type) {
 	case *types.TSSRoute:
 		content, err = k.SendTSSPacket(ctx, r, packet)
-	case *types.AxelarRoute:
-		content, err = k.SendAxelarPacket(ctx, r, packet)
 	case *types.IBCRoute:
 		content, err = k.SendIBCPacket(ctx, r, packet)
 	default:

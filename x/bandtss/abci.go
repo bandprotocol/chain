@@ -22,7 +22,7 @@ func EndBlocker(ctx sdk.Context, k *keeper.Keeper) error {
 	}
 
 	// Handles marking members as inactive if the member is not active recently.
-	k.HandleInactiveMembers(ctx)
+	k.DeactivateInactiveMembers(ctx)
 
 	return nil
 }

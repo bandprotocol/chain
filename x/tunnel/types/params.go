@@ -3,16 +3,14 @@ package types
 import (
 	"fmt"
 
-	"gopkg.in/yaml.v2"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var (
 	DefaultMinInterval   = uint64(1)
-	DefaultMinDeposit    = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
+	DefaultMinDeposit    = sdk.NewCoins(sdk.NewInt64Coin("uband", 1_000_000_000))
 	DefaultMaxSignals    = uint64(100)
-	DefaultBasePacketFee = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
+	DefaultBasePacketFee = sdk.NewCoins(sdk.NewInt64Coin("uband", 10_000))
 )
 
 // NewParams creates a new Params instance
@@ -63,12 +61,6 @@ func (p Params) Validate() error {
 	}
 
 	return nil
-}
-
-// String implements the Stringer interface.
-func (p Params) String() string {
-	out, _ := yaml.Marshal(p)
-	return string(out)
 }
 
 // validateUint64 validates if a given number is a valid uint64.

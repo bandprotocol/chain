@@ -66,28 +66,6 @@ func NewMsgCreateTSSTunnel(
 	return m, nil
 }
 
-// NewMsgCreateAxelarTunnel creates a new MsgCreateTunnel instance for Axelar tunnel.
-func NewMsgCreateAxelarTunnel(
-	signalDeviations []SignalDeviation,
-	interval uint64,
-	destinationChainID string,
-	destinationContractAddress string,
-	encoder Encoder,
-	initialDeposit sdk.Coins,
-	creator sdk.AccAddress,
-) (*MsgCreateTunnel, error) {
-	r := &AxelarRoute{
-		DestinationChainID:         destinationChainID,
-		DestinationContractAddress: destinationContractAddress,
-	}
-	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, encoder, initialDeposit, creator)
-	if err != nil {
-		return nil, err
-	}
-
-	return m, nil
-}
-
 // NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
 func NewMsgCreateIBCTunnel(
 	signalDeviations []SignalDeviation,

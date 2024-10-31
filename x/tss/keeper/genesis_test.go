@@ -3,6 +3,8 @@ package keeper_test
 import (
 	"sort"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
@@ -116,4 +118,29 @@ func (s *KeeperTestSuite) TestExportGenesis() {
 			PubE: []byte("pubE3"),
 		},
 	})
+}
+
+func (s *KeeperTestSuite) TestGetDEsGenesis() {
+	ctx, k := s.ctx, s.keeper
+
+	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	before := k.GetDEsGenesis(ctx)
+	de := types.DE{
+		PubD: []byte("D"),
+		PubE: []byte("E"),
+	}
+
+	// Set DE
+	err := k.EnqueueDEs(ctx, address, []types.DE{de})
+	s.Require().NoError(err)
+
+	// Get des with address and index
+	after := k.GetDEsGenesis(ctx)
+	s.Require().Equal(len(before)+1, len(after))
+	for _, q := range after {
+		if q.Address == string(address) {
+			expected := types.DEGenesis{Address: address.String(), DE: de}
+			s.Require().Equal(expected, q)
+		}
+	}
 }

@@ -68,6 +68,10 @@ func (s *KeeperTestSuite) TestGRPCQueryPackets() {
 		TunnelID: 1,
 		Sequence: 2,
 	}
+	packet3 := types.Packet{
+		TunnelID: 2,
+		Sequence: 1,
+	}
 	err = packet1.SetPacketContent(&types.TSSPacketContent{
 		SigningID:                  1,
 		DestinationChainID:         r.DestinationChainID,
@@ -80,8 +84,16 @@ func (s *KeeperTestSuite) TestGRPCQueryPackets() {
 		DestinationContractAddress: r.DestinationContractAddress,
 	})
 	s.Require().NoError(err)
+	err = packet3.SetPacketContent(&types.TSSPacketContent{
+		SigningID:                  3,
+		DestinationChainID:         r.DestinationChainID,
+		DestinationContractAddress: r.DestinationContractAddress,
+	})
+	s.Require().NoError(err)
+
 	k.SetPacket(ctx, packet1)
 	k.SetPacket(ctx, packet2)
+	k.SetPacket(ctx, packet3)
 
 	resp, err := q.Packets(ctx, &types.QueryPacketsRequest{
 		TunnelId: 1,
@@ -120,6 +132,18 @@ func (s *KeeperTestSuite) TestGRPCQueryPacket() {
 	})
 	s.Require().NoError(err)
 	k.SetPacket(ctx, packet1)
+
+	packet2 := types.Packet{
+		TunnelID: 1,
+		Sequence: 2,
+	}
+	err = packet2.SetPacketContent(&types.TSSPacketContent{
+		SigningID:                  2,
+		DestinationChainID:         r.DestinationChainID,
+		DestinationContractAddress: r.DestinationContractAddress,
+	})
+	s.Require().NoError(err)
+	k.SetPacket(ctx, packet2)
 
 	res, err := q.Packet(ctx, &types.QueryPacketRequest{
 		TunnelId: 1,
@@ -183,18 +207,25 @@ func (s *KeeperTestSuite) TestGRPCQueryDeposit() {
 	s.Require().NoError(err)
 	k.SetTunnel(ctx, tunnel)
 
-	deposit := types.Deposit{
+	deposit1 := types.Deposit{
 		TunnelID:  1,
 		Depositor: sdk.AccAddress([]byte("depositor")).String(),
 		Amount:    sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(100))),
 	}
-	k.SetDeposit(ctx, deposit)
+	k.SetDeposit(ctx, deposit1)
+
+	deposit2 := types.Deposit{
+		TunnelID:  1,
+		Depositor: sdk.AccAddress([]byte("depositor")).String(),
+		Amount:    sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(100))),
+	}
+	k.SetDeposit(ctx, deposit2)
 
 	resp, err := q.Deposit(ctx, &types.QueryDepositRequest{
 		TunnelId:  1,
-		Depositor: deposit.Depositor,
+		Depositor: deposit1.Depositor,
 	})
 	s.Require().NoError(err)
 	s.Require().NotNil(resp)
-	s.Require().Equal(deposit, resp.Deposit)
+	s.Require().Equal(deposit1, resp.Deposit)
 }

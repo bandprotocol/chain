@@ -60,7 +60,7 @@ func (k msgServer) SubmitDKGRound1(
 	}
 
 	// Add commits to calculate accumulated commits for each index
-	if err = k.AddCommits(ctx, groupID, req.Round1Info.CoefficientCommits); err != nil {
+	if err = k.AddCoefficientCommits(ctx, groupID, req.Round1Info.CoefficientCommits); err != nil {
 		return nil, types.ErrAddCoeffCommit.Wrap(err.Error())
 	}
 
@@ -239,7 +239,7 @@ func (k msgServer) Confirm(
 	}
 
 	// Verify OwnPubKeySig
-	if err := k.HandleVerifyOwnPubKeySig(ctx, groupID, memberID, req.OwnPubKeySig); err != nil {
+	if err := k.VerifyOwnPubKeySignature(ctx, groupID, memberID, req.OwnPubKeySig); err != nil {
 		return nil, err
 	}
 
@@ -278,7 +278,7 @@ func (k msgServer) SubmitDEs(goCtx context.Context, req *types.MsgSubmitDEs) (*t
 		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid account address: %s", err)
 	}
 
-	err = k.HandleSetDEs(ctx, member, req.DEs)
+	err = k.EnqueueDEs(ctx, member, req.DEs)
 	if err != nil {
 		return nil, err
 	}

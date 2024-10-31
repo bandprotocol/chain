@@ -23,6 +23,7 @@ import (
 type MockAuthzKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockAuthzKeeperMockRecorder
+	isgomock struct{}
 }
 
 // MockAuthzKeeperMockRecorder is the mock recorder for MockAuthzKeeper.
@@ -75,6 +76,7 @@ func (mr *MockAuthzKeeperMockRecorder) SaveGrant(ctx, grantee, granter, authoriz
 type MockRollingseedKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockRollingseedKeeperMockRecorder
+	isgomock struct{}
 }
 
 // MockRollingseedKeeperMockRecorder is the mock recorder for MockRollingseedKeeper.

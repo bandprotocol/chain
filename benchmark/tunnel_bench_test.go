@@ -6,9 +6,11 @@ import (
 	"testing"
 	"time"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+
+	abci "github.com/cometbft/cometbft/abci/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"

@@ -17,7 +17,7 @@ import (
 type AccountKeeper interface {
 	GetModuleAddress(name string) sdk.AccAddress
 	GetModuleAccount(ctx context.Context, name string) sdk.ModuleAccountI
-	SetModuleAccount(context.Context, sdk.ModuleAccountI)
+	SetModuleAccount(ctx context.Context, moduleAccount sdk.ModuleAccountI)
 
 	GetAccount(ctx context.Context, addr sdk.AccAddress) sdk.AccountI
 	NewAccount(ctx context.Context, account sdk.AccountI) sdk.AccountI

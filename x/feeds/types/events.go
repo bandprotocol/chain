@@ -22,7 +22,7 @@ const (
 	AttributeKeyLastUpdateBlock     = "last_update_block"
 	AttributeKeyDeviationBasisPoint = "deviation_basis_point"
 	AttributeKeyErrorMessage        = "error_message"
-	AttributeKeyIPFSHash            = "ipfs_hash"
-	AttributeKeyVersion             = "version"
+	AttributeKeyRegistryIPFSHash    = "registry_ipfs_hash"
+	AttributeKeyRegistryVersion     = "registry_version"
 	AttributeKeyParams              = "params"
 )

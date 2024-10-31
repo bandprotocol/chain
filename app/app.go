@@ -273,7 +273,6 @@ func NewBandApp(
 			TSSKeeper:       app.TSSKeeper,
 			BandtssKeeper:   app.BandtssKeeper,
 			FeedsKeeper:     &app.FeedsKeeper,
-			TunnelKeeper:    &app.TunnelKeeper,
 			IBCKeeper:       app.IBCKeeper,
 			StakingKeeper:   app.StakingKeeper,
 			GlobalfeeKeeper: &app.GlobalFeeKeeper,

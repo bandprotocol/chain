@@ -3,8 +3,8 @@ package types
 // NewReferenceSourceConfig creates a new reference source config instance
 func NewReferenceSourceConfig(hash string, version string) ReferenceSourceConfig {
 	return ReferenceSourceConfig{
-		IPFSHash: hash,
-		Version:  version,
+		RegistryIPFSHash: hash,
+		RegistryVersion:  version,
 	}
 }
 
@@ -15,11 +15,15 @@ func DefaultReferenceSourceConfig() ReferenceSourceConfig {
 
 // Validate validates the reference source config
 func (ps *ReferenceSourceConfig) Validate() error {
-	if err := validateString("ipfs hash", false, ps.IPFSHash); err != nil {
+	if err := validateString("registry ipfs hash", false, ps.RegistryIPFSHash); err != nil {
 		return err
 	}
 
-	if err := validateString("version", false, ps.Version); err != nil {
+	if err := validateString("registry version", false, ps.RegistryVersion); err != nil {
+		return err
+	}
+
+	if err := validateVersion("registry version", ps.RegistryVersion); err != nil {
 		return err
 	}
 
