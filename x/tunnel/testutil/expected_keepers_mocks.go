@@ -210,6 +210,7 @@ func (mr *MockBankKeeperMockRecorder) SpendableCoins(ctx, addr any) *gomock.Call
 type MockICS4Wrapper struct {
 	ctrl     *gomock.Controller
 	recorder *MockICS4WrapperMockRecorder
+	isgomock struct{}
 }
 
 // MockICS4WrapperMockRecorder is the mock recorder for MockICS4Wrapper.
@@ -248,6 +249,7 @@ func (mr *MockICS4WrapperMockRecorder) SendPacket(ctx, chanCap, sourcePort, sour
 type MockPortKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockPortKeeperMockRecorder
+	isgomock struct{}
 }
 
 // MockPortKeeperMockRecorder is the mock recorder for MockPortKeeper.
@@ -285,6 +287,7 @@ func (mr *MockPortKeeperMockRecorder) BindPort(ctx, portID any) *gomock.Call {
 type MockScopedKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockScopedKeeperMockRecorder
+	isgomock struct{}
 }
 
 // MockScopedKeeperMockRecorder is the mock recorder for MockScopedKeeper.
