@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* (chain) Remove `gogoproto.goproto_stringer` option on param
 * (chain) Return error on AllocationToken at beginblock instead of panic
 * (chain) Add autocli for oracle module
 * (bump) Use go 1.22.3

@@ -11,11 +11,11 @@ endpoint = "https://gateway.pinata.cloud/ipfs"
 authentication = "None"
 
 [store]
-path = "/Users/ongart/.bothan/data"
+path = "$HOME/.bothan/data"
 
 [monitoring]
 endpoint = "https://bothan-monitoring.bandchain.org"
-path = "/Users/ongart/.bothan/keyring/broadcaster.info"
+path = "$HOME/.bothan/keyring/broadcaster.info"
 enabled = false
 
 [manager.crypto]
