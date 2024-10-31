@@ -475,7 +475,7 @@ func (s *AppTestSuite) TestFailRequestSignatureInternalMessage() {
 			tunneltypes.ENCODER_FIXED_POINT_ABI,
 		),
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
-		bandtesting.FeePayer.Address,
+		bandtesting.FeePayer.Address.String(),
 	)
 	s.Require().NoError(err)
 
