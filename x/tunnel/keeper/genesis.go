@@ -22,6 +22,8 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 	// set module account if its balance is zero
 	if balance := k.GetModuleBalance(ctx); balance.IsZero() {
 		k.SetModuleAccount(ctx, moduleAcc)
+	} else if !balance.Equal(k.GetTotalDeposits(ctx).Add(k.GetTotalFees(ctx).TotalPacketFee...)) {
+		panic("balance in the module account is not equal to the sum of total fees and total deposits")
 	}
 
 	// set the tunnel count
@@ -40,6 +42,11 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 		k.SetLatestSignalPrices(ctx, latestSignalPrices)
 	}
 
+	// set the deposits
+	for _, deposit := range data.Deposits {
+		k.SetDeposit(ctx, deposit)
+	}
+
 	// set the total fees
 	k.SetTotalFees(ctx, data.TotalFees)
 }
@@ -51,6 +58,7 @@ func ExportGenesis(ctx sdk.Context, k Keeper) *types.GenesisState {
 		TunnelCount:            k.GetTunnelCount(ctx),
 		Tunnels:                k.GetTunnels(ctx),
 		LatestSignalPricesList: k.GetAllLatestSignalPrices(ctx),
+		Deposits:               k.GetAllDeposits(ctx),
 		TotalFees:              k.GetTotalFees(ctx),
 	}
 }

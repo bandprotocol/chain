@@ -2,6 +2,7 @@ package cli
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
@@ -38,7 +39,7 @@ func parseSignalDeviations(signalDeviationsFile string) (SignalDeviations, error
 	var signalDeviations SignalDeviations
 
 	if signalDeviationsFile == "" {
-		return SignalDeviations{}, nil
+		return SignalDeviations{}, errors.New("signal deviations file is required")
 	}
 
 	contents, err := os.ReadFile(signalDeviationsFile)

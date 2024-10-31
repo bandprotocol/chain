@@ -3,7 +3,7 @@ package restake
 import (
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 
-	restakev1beta1 "github.com/bandprotocol/chain/v3/api/restake/v1beta1"
+	restakev1beta1 "github.com/bandprotocol/chain/v3/api/band/restake/v1beta1"
 )
 
 // AutoCLIOptions implements the autocli.HasAutoCLIConfig interface.

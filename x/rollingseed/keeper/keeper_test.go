@@ -14,10 +14,6 @@ import (
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
 )
 
-func init() {
-	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
-}
-
 type AppTestSuite struct {
 	suite.Suite
 

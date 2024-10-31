@@ -1,8 +1,12 @@
 package types
 
-import "github.com/bandprotocol/chain/v3/pkg/tss"
+import (
+	"fmt"
 
-// NewGenesisState - Create a new genesis state
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+)
+
+// NewGenesisState creates a new GenesisState instance.
 func NewGenesisState(
 	params Params,
 	members []Member,
@@ -15,7 +19,7 @@ func NewGenesisState(
 	}
 }
 
-// DefaultGenesisState returns the default bandtss genesis state.
+// DefaultGenesisState returns the default genesis state.
 func DefaultGenesisState() *GenesisState {
 	return NewGenesisState(
 		DefaultParams(),
@@ -24,11 +28,21 @@ func DefaultGenesisState() *GenesisState {
 	)
 }
 
-// Validate performs basic validation of genesis data returning an error for
-// any failed validation criteria.
+// Validate performs basic validation of genesis data returning an
+// error for any failed validation criteria.
 func (gs GenesisState) Validate() error {
 	if err := gs.Params.Validate(); err != nil {
 		return err
+	}
+
+	for _, m := range gs.Members {
+		if err := m.Validate(); err != nil {
+			return err
+		}
+
+		if m.GroupID != gs.CurrentGroupID {
+			return fmt.Errorf("member %s is not in current group %d", m.Address, gs.CurrentGroupID)
+		}
 	}
 
 	return nil

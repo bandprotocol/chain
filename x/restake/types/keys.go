@@ -77,10 +77,8 @@ func SplitLockByPowerIndexKey(key []byte) (addr sdk.AccAddress, power sdkmath.In
 	kv.AssertKeyAtLeastLength(key, 2)
 	addrLen := int(key[1])
 
-	kv.AssertKeyAtLeastLength(key, 2+addrLen)
-	addr = sdk.AccAddress(key[2 : 2+addrLen])
-
 	kv.AssertKeyAtLeastLength(key, 2+addrLen+8)
+	addr = sdk.AccAddress(key[2 : 2+addrLen])
 	power = sdkmath.NewIntFromUint64(binary.BigEndian.Uint64(key[2+addrLen : 2+addrLen+8]))
 
 	return

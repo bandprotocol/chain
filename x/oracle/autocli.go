@@ -3,7 +3,7 @@ package oracle
 import (
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 
-	oraclev1 "github.com/bandprotocol/chain/v3/api/oracle/v1"
+	oraclev1 "github.com/bandprotocol/chain/v3/api/band/oracle/v1"
 )
 
 // AutoCLIOptions implements the autocli.HasAutoCLIConfig interface.
@@ -65,7 +65,7 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 				{
 					RpcMethod:      "Reporters",
 					Use:            "reporters [validator-address]",
-					Short:          "Get an oracle request details",
+					Short:          "Get list of reporters owned by given validator",
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "validator_address"}},
 				},
 				{
