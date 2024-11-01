@@ -1,6 +1,8 @@
 package types
 
 import (
+	"encoding/base64"
+
 	"github.com/ethereum/go-ethereum/accounts/abi"
 
 	"github.com/bandprotocol/chain/v3/pkg/tickmath"
@@ -75,6 +77,16 @@ func (p EncodingPacket) EncodeRelayPacketABI() ([]byte, error) {
 	}
 
 	return packet, nil
+}
+
+// EncodeRelayPacketABIBase64 encodes the relay packet to ABI format and then base64
+func (p EncodingPacket) EncodeRelayPacketABIBase64() (string, error) {
+	packet, err := packetArguments.Pack(&p)
+	if err != nil {
+		return "", err
+	}
+
+	return base64.StdEncoding.EncodeToString(packet), nil
 }
 
 // stringToBytes32 converts a string to a fixed size byte array. If the string is longer than
