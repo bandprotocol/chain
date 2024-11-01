@@ -14,8 +14,6 @@ The Tunnel module is designed to decentralize the creation of push-based price d
     - [Route](#route)
       - [IBC Route](#ibc-route)
       - [TSS Route](#tss-route)
-      - [Axelar Route](#axelar-route)
-      - [Hyperlane Stride Route](#hyperlane-stride-route)
     - [Packet](#packet)
       - [Packet Generation](#packet-generation)
   - [State](#state)
@@ -104,18 +102,6 @@ bandd tx tunnel create-tunnel ibc [channel-id] [encoder] [initial-deposit] [inte
 ```
 
 #### TSS Route
-
-#### Axelar Route
-
-#### Hyperlane Stride Route
-
-The Hyperlane Stride Route enables the transmission of data from BandChain to EVM-compatible chains via the Stride chain using Hyperlane bridge. This route sends an IBC transfer to the Stride chain through IBC hooks, which then utilizes the Hyperlane bridge to forward the data to the destination EVM-compatible chain. This method ensures secure and efficient cross-chain communication.
-
-To create a Hyperlane Stride tunnel, use the following CLI command:
-
-```bash
-bandd tx tunnel create-tunnel hyperlane-stride [channel-id] [contract] [dispatchDestDomain] [dispatchRecipientAddr] [fund] [encoder] [initial-deposit] [interval] [signalDeviations-json-file]
-```
 
 ### Packet
 
