@@ -188,26 +188,26 @@ func request_Query_IsFeeder_0(ctx context.Context, marshaler runtime.Marshaler, 
 		_   = err
 	)
 
-	val, ok = pathParams["validator_address"]
+	val, ok = pathParams["validator"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "validator_address")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "validator")
 	}
 
-	protoReq.ValidatorAddress, err = runtime.String(val)
+	protoReq.Validator, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "validator_address", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "validator", err)
 	}
 
-	val, ok = pathParams["feeder_address"]
+	val, ok = pathParams["feeder"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "feeder_address")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "feeder")
 	}
 
-	protoReq.FeederAddress, err = runtime.String(val)
+	protoReq.Feeder, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "feeder_address", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "feeder", err)
 	}
 
 	msg, err := client.IsFeeder(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -226,26 +226,26 @@ func local_request_Query_IsFeeder_0(ctx context.Context, marshaler runtime.Marsh
 		_   = err
 	)
 
-	val, ok = pathParams["validator_address"]
+	val, ok = pathParams["validator"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "validator_address")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "validator")
 	}
 
-	protoReq.ValidatorAddress, err = runtime.String(val)
+	protoReq.Validator, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "validator_address", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "validator", err)
 	}
 
-	val, ok = pathParams["feeder_address"]
+	val, ok = pathParams["feeder"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "feeder_address")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "feeder")
 	}
 
-	protoReq.FeederAddress, err = runtime.String(val)
+	protoReq.Feeder, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "feeder_address", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "feeder", err)
 	}
 
 	msg, err := server.IsFeeder(ctx, &protoReq)
@@ -426,15 +426,15 @@ func request_Query_ValidValidator_0(ctx context.Context, marshaler runtime.Marsh
 		_   = err
 	)
 
-	val, ok = pathParams["validator_address"]
+	val, ok = pathParams["validator"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "validator_address")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "validator")
 	}
 
-	protoReq.ValidatorAddress, err = runtime.String(val)
+	protoReq.Validator, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "validator_address", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "validator", err)
 	}
 
 	msg, err := client.ValidValidator(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -453,15 +453,15 @@ func local_request_Query_ValidValidator_0(ctx context.Context, marshaler runtime
 		_   = err
 	)
 
-	val, ok = pathParams["validator_address"]
+	val, ok = pathParams["validator"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "validator_address")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "validator")
 	}
 
-	protoReq.ValidatorAddress, err = runtime.String(val)
+	protoReq.Validator, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "validator_address", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "validator", err)
 	}
 
 	msg, err := server.ValidValidator(ctx, &protoReq)
@@ -470,7 +470,7 @@ func local_request_Query_ValidValidator_0(ctx context.Context, marshaler runtime
 }
 
 var (
-	filter_Query_ValidatorPrices_0 = &utilities.DoubleArray{Encoding: map[string]int{"validator_address": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+	filter_Query_ValidatorPrices_0 = &utilities.DoubleArray{Encoding: map[string]int{"validator": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 )
 
 func request_Query_ValidatorPrices_0(ctx context.Context, marshaler runtime.Marshaler, client QueryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -484,15 +484,15 @@ func request_Query_ValidatorPrices_0(ctx context.Context, marshaler runtime.Mars
 		_   = err
 	)
 
-	val, ok = pathParams["validator_address"]
+	val, ok = pathParams["validator"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "validator_address")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "validator")
 	}
 
-	protoReq.ValidatorAddress, err = runtime.String(val)
+	protoReq.Validator, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "validator_address", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "validator", err)
 	}
 
 	if err := req.ParseForm(); err != nil {
@@ -518,15 +518,15 @@ func local_request_Query_ValidatorPrices_0(ctx context.Context, marshaler runtim
 		_   = err
 	)
 
-	val, ok = pathParams["validator_address"]
+	val, ok = pathParams["validator"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "validator_address")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "validator")
 	}
 
-	protoReq.ValidatorAddress, err = runtime.String(val)
+	protoReq.Validator, err = runtime.String(val)
 
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "validator_address", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "validator", err)
 	}
 
 	if err := req.ParseForm(); err != nil {
@@ -1116,7 +1116,7 @@ var (
 
 	pattern_Query_Vote_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"feeds", "v1beta1", "voters", "voter", "vote"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_IsFeeder_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 4}, []string{"feeds", "v1beta1", "feeder", "validator_address", "feeder_address"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_IsFeeder_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 2}, []string{"feeds", "v1beta1", "feeder", "validator"}, "", runtime.AssumeColonVerbOpt(false)))
 
 	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"feeds", "v1beta1", "params"}, "", runtime.AssumeColonVerbOpt(false)))
 
@@ -1128,9 +1128,9 @@ var (
 
 	pattern_Query_SignalTotalPowers_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"feeds", "v1beta1", "signal-total-powers"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_ValidValidator_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"feeds", "v1beta1", "validators", "validator_address", "valid"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_ValidValidator_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"feeds", "v1beta1", "validators", "validator", "valid"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_ValidatorPrices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"feeds", "v1beta1", "validators", "validator_address", "prices"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_ValidatorPrices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"feeds", "v1beta1", "validators", "validator", "prices"}, "", runtime.AssumeColonVerbOpt(false)))
 )
 
 var (

@@ -13,6 +13,7 @@ import "amino/amino.proto";
 // Msg defines the feeds Msg service.
 service Msg {
   option (cosmos.msg.v1.service) = true;
+
   // VoteSignals is an RPC method to vote signal ids and their powers.
   rpc VoteSignals(MsgVoteSignals) returns (MsgVoteSignalsResponse);
 

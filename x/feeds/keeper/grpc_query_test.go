@@ -286,7 +286,7 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 
 	// query all prices
 	res, err := queryClient.ValidatorPrices(context.Background(), &types.QueryValidatorPricesRequest{
-		ValidatorAddress: ValidValidator.String(),
+		Validator: ValidValidator.String(),
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryValidatorPricesResponse{
@@ -295,8 +295,8 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 
 	// query with specific SignalIds
 	res, err = queryClient.ValidatorPrices(context.Background(), &types.QueryValidatorPricesRequest{
-		ValidatorAddress: ValidValidator.String(),
-		SignalIds:        []string{"CS:ATOM-USD"},
+		Validator: ValidValidator.String(),
+		SignalIds: []string{"CS:ATOM-USD"},
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryValidatorPricesResponse{
@@ -305,7 +305,7 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 
 	// query with invalid validator
 	res, err = queryClient.ValidatorPrices(context.Background(), &types.QueryValidatorPricesRequest{
-		ValidatorAddress: InvalidValidator.String(),
+		Validator: InvalidValidator.String(),
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryValidatorPricesResponse{
@@ -314,8 +314,8 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 
 	// query with specific SignalIds for invalid validator
 	res, err = queryClient.ValidatorPrices(context.Background(), &types.QueryValidatorPricesRequest{
-		ValidatorAddress: InvalidValidator.String(),
-		SignalIds:        []string{"CS:ATOM-USD"},
+		Validator: InvalidValidator.String(),
+		SignalIds: []string{"CS:ATOM-USD"},
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryValidatorPricesResponse{
@@ -328,7 +328,7 @@ func (suite *KeeperTestSuite) TestQueryValidValidator() {
 
 	// query and check
 	res, err := queryClient.ValidValidator(context.Background(), &types.QueryValidValidatorRequest{
-		ValidatorAddress: ValidValidator.String(),
+		Validator: ValidValidator.String(),
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryValidValidatorResponse{
@@ -336,7 +336,7 @@ func (suite *KeeperTestSuite) TestQueryValidValidator() {
 	}, res)
 
 	res, err = queryClient.ValidValidator(context.Background(), &types.QueryValidValidatorRequest{
-		ValidatorAddress: InvalidValidator.String(),
+		Validator: InvalidValidator.String(),
 	})
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryValidValidatorResponse{
