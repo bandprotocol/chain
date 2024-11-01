@@ -56,7 +56,7 @@ func (k Keeper) UpdateLastInterval(ctx sdk.Context, tunnelID uint64, timestamp i
 		return err
 	}
 
-	latestSignalPrices.LastIntervalTimestamp = timestamp
+	latestSignalPrices.LastInterval = timestamp
 	k.SetLatestSignalPrices(ctx, latestSignalPrices)
 
 	return nil

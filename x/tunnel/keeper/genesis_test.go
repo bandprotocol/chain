@@ -160,7 +160,7 @@ func (s *KeeperTestSuite) TestInitExportGenesis() {
 				SignalPrices: []types.SignalPrice{
 					{SignalID: "ETH", Price: 5000},
 				},
-				LastIntervalTimestamp: 0,
+				LastInterval: 0,
 			},
 		},
 		TotalFees: types.TotalFees{
