@@ -7,15 +7,15 @@ core_log_level = "Error"
 source_log_level = "Error"
 
 [ipfs]
-endpoint = "https://gateway.pinata.cloud/ipfs"
+endpoint = "https://gateway.pinata.cloud"
 authentication = "None"
 
 [store]
-path = "/Users/ongart/.bothan/data"
+path = "$HOME/.bothan/data"
 
 [monitoring]
 endpoint = "https://bothan-monitoring.bandchain.org"
-path = "/Users/ongart/.bothan/keyring/broadcaster.info"
+path = "$HOME/.bothan/keyring/broadcaster.info"
 enabled = false
 
 [manager.crypto]
