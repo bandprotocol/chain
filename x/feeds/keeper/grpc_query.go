@@ -109,7 +109,7 @@ func (q queryServer) ValidatorPrices(
 ) (*types.QueryValidatorPricesResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	val, err := sdk.ValAddressFromBech32(req.ValidatorAddress)
+	val, err := sdk.ValAddressFromBech32(req.Validator)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +153,7 @@ func (q queryServer) ValidValidator(
 ) (*types.QueryValidValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	val, err := sdk.ValAddressFromBech32(req.ValidatorAddress)
+	val, err := sdk.ValAddressFromBech32(req.Validator)
 	if err != nil {
 		return nil, err
 	}
@@ -295,12 +295,12 @@ func (q queryServer) IsFeeder(
 ) (*types.QueryIsFeederResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	val, err := sdk.ValAddressFromBech32(req.ValidatorAddress)
+	val, err := sdk.ValAddressFromBech32(req.Validator)
 	if err != nil {
 		return nil, err
 	}
 
-	feeder, err := sdk.AccAddressFromBech32(req.FeederAddress)
+	feeder, err := sdk.AccAddressFromBech32(req.Feeder)
 	if err != nil {
 		return nil, err
 	}
