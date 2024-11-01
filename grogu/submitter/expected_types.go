@@ -5,10 +5,16 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/types"
+
+	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client"
 )
 
 type RemoteClient interface {
 	rpcclient.RemoteClient
+}
+
+type BothanClient interface {
+	bothan.Client
 }
 
 type AuthQuerier interface {
