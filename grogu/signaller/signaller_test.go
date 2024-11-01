@@ -12,7 +12,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
+	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/bothan/v1"
 
 	"github.com/bandprotocol/chain/v3/grogu/signaller/testutil"
 	"github.com/bandprotocol/chain/v3/grogu/submitter"
@@ -79,7 +79,7 @@ func (s *SignallerTestSuite) SetupTest() {
 				{
 					SignalId: "signal1",
 					Price:    10000,
-					Status:   bothan.Status_AVAILABLE,
+					Status:   bothan.Status_STATUS_AVAILABLE,
 				},
 			},
 			Uuid: "uuid1",
@@ -134,7 +134,7 @@ func (s *SignallerTestSuite) TestFilterAndPrepareSubmitPrices() {
 		{
 			SignalId: "signal1",
 			Price:    10000,
-			Status:   bothan.Status_AVAILABLE,
+			Status:   bothan.Status_STATUS_AVAILABLE,
 		},
 	}
 
@@ -158,7 +158,7 @@ func (s *SignallerTestSuite) TestFilterAndPrepareSubmitPrices() {
 		{
 			SignalId: "signal1",
 			Price:    10000,
-			Status:   bothan.Status_UNAVAILABLE,
+			Status:   bothan.Status_STATUS_UNAVAILABLE,
 		},
 	}
 
@@ -228,7 +228,7 @@ func (s *SignallerTestSuite) TestIsPriceValid() {
 	priceData := &bothan.Price{
 		SignalId: "signal1",
 		Price:    10000,
-		Status:   bothan.Status_AVAILABLE,
+		Status:   bothan.Status_STATUS_AVAILABLE,
 	}
 
 	// Test with time before the assigned time
