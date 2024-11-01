@@ -4,12 +4,12 @@ import (
 	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
-func (suite *KeeperTestSuite) TestGetSetDelegatorSignals() {
+func (suite *KeeperTestSuite) TestGetSetVote() {
 	ctx := suite.ctx
 
 	// set
-	expSignals := types.DelegatorSignals{
-		Delegator: ValidDelegator.String(),
+	expVote := types.Vote{
+		Voter: ValidVoter.String(),
 		Signals: []types.Signal{
 			{
 				ID:    "CS:BAND-USD",
@@ -21,11 +21,11 @@ func (suite *KeeperTestSuite) TestGetSetDelegatorSignals() {
 			},
 		},
 	}
-	suite.feedsKeeper.SetDelegatorSignals(ctx, expSignals)
+	suite.feedsKeeper.SetVote(ctx, expVote)
 
 	// get
-	signals := suite.feedsKeeper.GetDelegatorSignals(ctx, ValidDelegator)
-	suite.Require().Equal(expSignals.Signals, signals)
+	signals := suite.feedsKeeper.GetVoteSignals(ctx, ValidVoter)
+	suite.Require().Equal(expVote.Signals, signals)
 }
 
 func (suite *KeeperTestSuite) TestGetSetDeleteSignalTotalPower() {

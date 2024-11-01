@@ -13,53 +13,53 @@ import (
 	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
-// GetDelegatorSignals returns a list of all signals of a delegator.
-func (k Keeper) GetDelegatorSignals(ctx sdk.Context, delegator sdk.AccAddress) []types.Signal {
-	bz := ctx.KVStore(k.storeKey).Get(types.DelegatorSignalsStoreKey(delegator))
+// GetVoteSignals returns a list of all signals of a voter.
+func (k Keeper) GetVoteSignals(ctx sdk.Context, voter sdk.AccAddress) []types.Signal {
+	bz := ctx.KVStore(k.storeKey).Get(types.VoteStoreKey(voter))
 	if bz == nil {
 		return nil
 	}
 
-	var s types.DelegatorSignals
-	k.cdc.MustUnmarshal(bz, &s)
+	var v types.Vote
+	k.cdc.MustUnmarshal(bz, &v)
 
-	return s.Signals
+	return v.Signals
 }
 
-// DeleteDelegatorSignals deletes all signals of a delegator.
-func (k Keeper) DeleteDelegatorSignals(ctx sdk.Context, delegator sdk.AccAddress) {
-	ctx.KVStore(k.storeKey).Delete(types.DelegatorSignalsStoreKey(delegator))
+// DeleteVote deletes all signals of a voter.
+func (k Keeper) DeleteVote(ctx sdk.Context, voter sdk.AccAddress) {
+	ctx.KVStore(k.storeKey).Delete(types.VoteStoreKey(voter))
 }
 
-// SetDelegatorSignals sets multiple signals of a delegator.
-func (k Keeper) SetDelegatorSignals(ctx sdk.Context, signals types.DelegatorSignals) {
+// SetVote sets multiple signals of a voter.
+func (k Keeper) SetVote(ctx sdk.Context, vote types.Vote) {
 	ctx.KVStore(k.storeKey).
-		Set(types.DelegatorSignalsStoreKey(sdk.MustAccAddressFromBech32(signals.Delegator)), k.cdc.MustMarshal(&signals))
+		Set(types.VoteStoreKey(sdk.MustAccAddressFromBech32(vote.Voter)), k.cdc.MustMarshal(&vote))
 }
 
-// GetDelegatorSignalsIterator returns an iterator of the delegator-signals store.
-func (k Keeper) GetDelegatorSignalsIterator(ctx sdk.Context) dbm.Iterator {
-	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.DelegatorSignalsStoreKeyPrefix)
+// GetVoteIterator returns an iterator of the vote store.
+func (k Keeper) GetVoteIterator(ctx sdk.Context) dbm.Iterator {
+	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.VoteStoreKeyPrefix)
 }
 
-// GetAllDelegatorSignals returns a list of all delegator-signals.
-func (k Keeper) GetAllDelegatorSignals(ctx sdk.Context) (delegatorSignalsList []types.DelegatorSignals) {
-	iterator := k.GetDelegatorSignalsIterator(ctx)
+// GetAllVotes returns a list of all votes.
+func (k Keeper) GetAllVotes(ctx sdk.Context) (votes []types.Vote) {
+	iterator := k.GetVoteIterator(ctx)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var ds types.DelegatorSignals
-		k.cdc.MustUnmarshal(iterator.Value(), &ds)
-		delegatorSignalsList = append(delegatorSignalsList, ds)
+		var v types.Vote
+		k.cdc.MustUnmarshal(iterator.Value(), &v)
+		votes = append(votes, v)
 	}
 
-	return delegatorSignalsList
+	return
 }
 
-// SetAllDelegatorSignals sets multiple delegator-signals.
-func (k Keeper) SetAllDelegatorSignals(ctx sdk.Context, delegatorSignalsList []types.DelegatorSignals) {
-	for _, ds := range delegatorSignalsList {
-		k.SetDelegatorSignals(ctx, ds)
+// SetAllVotes sets multiple votes.
+func (k Keeper) SetAllVotes(ctx sdk.Context, votes []types.Vote) {
+	for _, v := range votes {
+		k.SetVote(ctx, v)
 	}
 }
 
@@ -151,12 +151,12 @@ func (k Keeper) SignalTotalPowersByPowerStoreIterator(ctx sdk.Context) dbm.Itera
 	)
 }
 
-// CalculateNewSignalTotalPowers calculates the new signal-total-powers from all delegator-signals.
+// CalculateNewSignalTotalPowers calculates the new signal-total-powers from all votes.
 func (k Keeper) CalculateNewSignalTotalPowers(ctx sdk.Context) []types.Signal {
-	delegatorSignals := k.GetAllDelegatorSignals(ctx)
+	votes := k.GetAllVotes(ctx)
 	signalIDToPower := make(map[string]int64)
-	for _, ds := range delegatorSignals {
-		for _, signal := range ds.Signals {
+	for _, v := range votes {
+		for _, signal := range v.Signals {
 			signalIDToPower[signal.ID] += signal.Power
 		}
 	}
@@ -178,15 +178,15 @@ func (k Keeper) CalculateNewSignalTotalPowers(ctx sdk.Context) []types.Signal {
 	return signalTotalPowers
 }
 
-// LockDelegatorDelegation locks the delegator's power equal to the sum of the signal powers.
-// It returns an error if the delegator does not have enough power to lock.
-func (k Keeper) LockDelegatorDelegation(
+// LockVoterPower locks the voter's power equal to the sum of the signal powers.
+// It returns an error if the voter does not have enough power to lock.
+func (k Keeper) LockVoterPower(
 	ctx sdk.Context,
-	delegator sdk.AccAddress,
+	voter sdk.AccAddress,
 	signals []types.Signal,
 ) error {
 	sumPower := types.SumPower(signals)
-	if err := k.restakeKeeper.SetLockedPower(ctx, delegator, types.ModuleName, math.NewInt(sumPower)); err != nil {
+	if err := k.restakeKeeper.SetLockedPower(ctx, voter, types.ModuleName, math.NewInt(sumPower)); err != nil {
 		return err
 	}
 
@@ -194,22 +194,22 @@ func (k Keeper) LockDelegatorDelegation(
 }
 
 // RegisterNewSignals delete previous signals and register new signals.
-// It also calculates feed power differences from delegator's previous signals and new signals.
+// It also calculates feed power differences from voter's previous signals and new signals.
 func (k Keeper) RegisterNewSignals(
 	ctx sdk.Context,
-	delegator sdk.AccAddress,
+	voter sdk.AccAddress,
 	signals []types.Signal,
 ) map[string]int64 {
 	signalIDToPowerDiff := make(map[string]int64)
 
-	prevSignals := k.GetDelegatorSignals(ctx, delegator)
-	k.DeleteDelegatorSignals(ctx, delegator)
+	prevSignals := k.GetVoteSignals(ctx, voter)
+	k.DeleteVote(ctx, voter)
 
 	for _, prevSignal := range prevSignals {
 		signalIDToPowerDiff[prevSignal.ID] -= prevSignal.Power
 	}
 
-	k.SetDelegatorSignals(ctx, types.NewDelegatorSignals(delegator.String(), signals))
+	k.SetVote(ctx, types.NewVote(voter.String(), signals))
 
 	for _, signal := range signals {
 		signalIDToPowerDiff[signal.ID] += signal.Power

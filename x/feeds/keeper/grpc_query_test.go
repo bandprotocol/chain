@@ -106,7 +106,7 @@ func (suite *KeeperTestSuite) TestQueryCurrentPrices() {
 	}, res)
 }
 
-func (suite *KeeperTestSuite) TestQueryDelegatorSignals() {
+func (suite *KeeperTestSuite) TestQueryVote() {
 	ctx, queryClient := suite.ctx, suite.queryClient
 
 	// setup
@@ -120,18 +120,18 @@ func (suite *KeeperTestSuite) TestQueryDelegatorSignals() {
 			Power: 1e9,
 		},
 	}
-	_, err := suite.msgServer.SubmitSignals(ctx, &types.MsgSubmitSignals{
-		Delegator: ValidDelegator.String(),
-		Signals:   signals,
+	_, err := suite.msgServer.VoteSignals(ctx, &types.MsgVoteSignals{
+		Voter:   ValidVoter.String(),
+		Signals: signals,
 	})
 	suite.Require().NoError(err)
 
 	// query and check
-	res, err := queryClient.DelegatorSignals(context.Background(), &types.QueryDelegatorSignalsRequest{
-		DelegatorAddress: ValidDelegator.String(),
+	res, err := queryClient.Vote(context.Background(), &types.QueryVoteRequest{
+		Voter: ValidVoter.String(),
 	})
 	suite.Require().NoError(err)
-	suite.Require().Equal(&types.QueryDelegatorSignalsResponse{
+	suite.Require().Equal(&types.QueryVoteResponse{
 		Signals: signals,
 	}, res)
 }

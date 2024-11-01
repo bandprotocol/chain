@@ -16,7 +16,7 @@ func TestGenesisStateValidate(t *testing.T) {
 			"valid genesisState",
 			GenesisState{
 				Params:                DefaultParams(),
-				DelegatorSignals:      []DelegatorSignals{},
+				Votes:                 []Vote{},
 				ReferenceSourceConfig: DefaultReferenceSourceConfig(),
 			},
 			false,
@@ -30,7 +30,7 @@ func TestGenesisStateValidate(t *testing.T) {
 			"invalid params",
 			GenesisState{
 				Params:                Params{},
-				DelegatorSignals:      []DelegatorSignals{},
+				Votes:                 []Vote{},
 				ReferenceSourceConfig: DefaultReferenceSourceConfig(),
 			},
 			true,
@@ -39,7 +39,7 @@ func TestGenesisStateValidate(t *testing.T) {
 			"invalid reference source config",
 			GenesisState{
 				Params:                DefaultParams(),
-				DelegatorSignals:      []DelegatorSignals{},
+				Votes:                 []Vote{},
 				ReferenceSourceConfig: ReferenceSourceConfig{},
 			},
 			true,

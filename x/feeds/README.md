@@ -10,11 +10,11 @@ This module is used in the BandChain.
 
 ## Contents
 
-- [`x/feeds`](#xfeeds)
-  - [Abstract](#abstract)
-  - [Contents](#contents)
-  - [Concepts](#concepts)
-    - [Delegator Signal](#delegator-signal)
+* [`x/feeds`](#xfeeds)
+  + [Abstract](#abstract)
+  + [Contents](#contents)
+  + [Concepts](#concepts)
+    - [Vote](#vote)
     - [Feed](#feed)
       - [Feed Interval](#feed-interval)
       - [Feed Deviation](#feed-deviation)
@@ -23,43 +23,42 @@ This module is used in the BandChain.
     - [Validator Price](#validator-price)
     - [Price](#price)
     - [Reference Source Config](#reference-source-config)
-  - [State](#state)
+  + [State](#state)
     - [ReferenceSourceConfig](#referencesourceconfig)
     - [CurrentFeeds](#currentfeeds)
     - [ValidatorPriceList](#validatorpricelist)
     - [Price](#price-1)
-    - [DelegatorSignals](#delegatorsignals)
+    - [Vote](#vote-1)
     - [SignalTotalPower](#signaltotalpower)
       - [SignalTotalPowerByPowerIndex](#signaltotalpowerbypowerindex)
     - [Params](#params)
-  - [Messages](#messages)
-    - [MsgSubmitSignals](#msgsubmitsignals)
+  + [Messages](#messages)
+    - [MsgVoteSignals](#msgvotesignals)
     - [MsgSubmitSignalPrices](#msgsubmitsignalprices)
     - [MsgUpdateReferenceSourceConfig](#msgupdatereferencesourceconfig)
     - [MsgUpdateParams](#msgupdateparams)
-  - [End-Block](#end-block)
+  + [End-Block](#end-block)
     - [Update Prices](#update-prices)
       - [Input](#input)
       - [Objective](#objective)
       - [Assumption](#assumption)
       - [Procedure](#procedure)
     - [Update current feeds](#update-current-feeds)
-  - [Events](#events)
+  + [Events](#events)
     - [EndBlocker](#endblocker)
     - [Handlers](#handlers)
       - [MsgSubmitSignalPrices](#msgsubmitsignalprices-1)
       - [MsgUpdateReferenceSourceConfig](#msgupdatereferencesourceconfig-1)
       - [MsgUpdateParams](#msgupdateparams-1)
-      - [MsgSubmitSignals](#msgsubmitsignals-1)
-
+      - [MsgVoteSignals](#msgvotesignals-1)
 
 ## Concepts
 
-### Delegator Signal
+### Vote
 
-A Delegator Signal is a vote from a delegator, instructing the chain to provide feed service for the designated ID.
+A Vote is a vote from a voter, instructing the chain to provide feed service for the designated ID.
 
-A Delegator Signal consists of an ID and the power associated with that ID. The feeding interval and deviation are reduced by the sum of the power of the ID. The total power of a delegator cannot exceed their total bonded delegation.
+A Vote consists of an ID and the power associated with that ID. The feeding interval and deviation are reduced by the sum of the power of the ID. The total power of a voter cannot exceed their total bonded delegation and staked tokens.
 
 ### Feed
 
@@ -67,26 +66,26 @@ A Feed is a data structure containing a signal ID and calculated interval and de
 
 #### Feed Interval
 
-The interval is calculated based on the total power of the signal ID; the greater the power, the shorter the interval. The total power of a signal is the sum of the power of its signal IDs received from the delegators. The minimum and maximum intervals are determined by parameters called `MinInterval` and `MaxInterval`, respectively.
+The interval is calculated based on the total power of the signal ID; the greater the power, the shorter the interval. The total power of a signal is the sum of the power of its signal IDs received from the voters. The minimum and maximum intervals are determined by parameters called `MinInterval` and `MaxInterval` , respectively.
 
 #### Feed Deviation
 
-Deviation follows a similar logic to interval. On-chain deviation is measured in basis point, meaning a deviation of 1 indicates a price tolerance within 0.01%. The minimum and maximum deviations are determined by parameters called `MinDeviationBasisPoint` and `MaxDeviationBasisPoint`, respectively.
+Deviation follows a similar logic to interval. On-chain deviation is measured in basis point, meaning a deviation of 1 indicates a price tolerance within 0.01%. The minimum and maximum deviations are determined by parameters called `MinDeviationBasisPoint` and `MaxDeviationBasisPoint` , respectively.
 
 It should be noted that while feed deviation is calculated, it is only used as a reference value for the price service. This is because the chain cannot penalize validators for not reporting on price deviations, unlike time intervals.
 
 #### How Feed Interval and Deviation are calculated
 
-- Power is registered after surpassing the `PowerStepThreshold`.
-- Then, the power factor is calculated as the floor(Power / `PowerStepThreshold`).
-- Subsequently, the interval is calculated as the maximum of `MinInterval` or the floor(`MaxInterval` / power factor).
-- The deviation is then calculated as the max(`MinDeviationBasisPoint`, (`MaxDeviationBasisPoint` / power factor).
+* Power is registered after surpassing the `PowerStepThreshold`.
+* Then, the power factor is calculated as the floor(Power / `PowerStepThreshold`).
+* Subsequently, the interval is calculated as the maximum of `MinInterval` or the floor(`MaxInterval` / power factor).
+* The deviation is then calculated as the max(`MinDeviationBasisPoint`, (`MaxDeviationBasisPoint` / power factor).
 
 You can visualize the interval/deviation as resembling the harmonic series times MaxInterval/MaxDeviationBasisPoint, with the step of PowerStepThreshold.
 
 #### Current Feeds
 
-The list of currently supported feeds includes those with power exceeding the PowerStepThreshold parameter and ranking within the top `MaxCurrentFeeds`. The current feeds will be re-calculated on every `CurrentFeedsUpdateInterval` block(s). Validators are only required to submit their prices for the current feeds.
+The list of currently supported feeds includes those with power exceeding the PowerStepThreshold parameter and ranking within the top `MaxCurrentFeeds` . The current feeds will be re-calculated on every `CurrentFeedsUpdateInterval` block(s). Validators are only required to submit their prices for the current feeds.
 
 ### Validator Price
 
@@ -132,11 +131,11 @@ The Price is a space for holding the current price information of signals.
 
 * Price: `0x11 -> ProtocolBuffer(Price)`
 
-### DelegatorSignals
+### Vote
 
-The DelegatorSignals is a space for holding current Delegator Signals information of delegators.
+The Vote is a space for holding current vote information of voters.
 
-* DelegatorSignals: `0x12 -> ProtocolBuffer(DelegatorSignals)`
+* Vote: `0x12 -> ProtocolBuffer(Vote)`
 
 ### SignalTotalPower
 
@@ -147,11 +146,11 @@ The SignalTotalPower is a space for holding the total power of signals.
 #### SignalTotalPowerByPowerIndex
 
 `SignalTotalPowerByPowerIndex` allow to retrieve SignalTotalPower by power:
-`0x80| BigEndian(Power) | SignalIDLen (1 byte) | SignalID -> SignalID`
+ `0x80| BigEndian(Power) | SignalIDLen (1 byte) | SignalID -> SignalID`
 
 ### Params
 
-The feeds module stores its params in state with the prefix of `0x10`,
+The feeds module stores its params in state with the prefix of `0x10` , 
 it can be updated with governance proposal or the address with authority.
 
 * Params: `0x90 | ProtocolBuffer(Params)`
@@ -206,21 +205,21 @@ message Params {
 
 In this section, we describe the processing of the `feeds` messages and the corresponding updates to the state. All created/modified state objects specified by each message are defined within the [state](#state) section.
 
-### MsgSubmitSignals
+### MsgVoteSignals
 
-Delegator Signals are submitted as a batch using the MsgSubmitSignals message.
+Vote contain a batch of signal and power.
 
-Batched Signals replace the previous Signals of the same delegator as a batch.
+Batched Signals replace the previous Signals of the same voter as a batch.
 Signals are registered, and their power is added to the SignalTotalPower of the same SignalID.
 
 ```protobuf
-// MsgSubmitSignals is the transaction message to submit signals.
-message MsgSubmitSignals {
-  option (cosmos.msg.v1.signer) = "delegator";
-  option (amino.name)           = "feeds/MsgSubmitSignals";
+// MsgVoteSignals is the transaction message to submit signals.
+message MsgVoteSignals {
+  option (cosmos.msg.v1.signer) = "voter";
+  option (amino.name)           = "feeds/MsgVoteSignals";
 
-  // delegator is the address of the delegator that wants to submit signals.
-  string delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // voter is the address of the voter that wants to vote signals.
+  string voter = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
   // signals is a list of submitted signals.
   repeated Signal signals = 2 [(gogoproto.nullable) = false];
@@ -229,8 +228,8 @@ message MsgSubmitSignals {
 
 The message handling can fail if:
 
-* The delegator's address is not correct.
-* The delegator has less delegation than the sum of the Powers.
+* The voter's address is not correct.
+* The voter has less power than the sum of the Powers.
 * The signal is not valid. (e.g. too long signal ID, power is a negative value).
 * The size of the list of signal is too large.
 
@@ -265,6 +264,7 @@ This message is expected to fail if:
 * the price is submitted in the `CooldownTime` param.
 * the signals of the prices are not in the current feeds.
   
+
 ### MsgUpdateReferenceSourceConfig
 
 Reference Source can be updated with the `MsgUpdateReferenceSourceConfig` message.
@@ -326,14 +326,14 @@ The median price is then set as the Price. Here is the price aggregation logic:
 #### Input
 
 A list of PriceFeedInfo objects, each containing:
-- `Price`: The reported price from the feeder
-- `Deviation`: The price deviation
-- `Power`: The feeder's power
-- `Timestamp`: The time at which the price is reported
+* `Price`: The reported price from the feeder
+* `Deviation`: The price deviation
+* `Power`: The feeder's power
+* `Timestamp`: The time at which the price is reported
 
 #### Objective
 
-- An aggregated price from the list of priceFeedInfo.
+* An aggregated price from the list of priceFeedInfo.
 
 #### Assumption
 
@@ -343,35 +343,35 @@ A list of PriceFeedInfo objects, each containing:
 
 1. Order the List:
 
-- Sort the list by `Timestamp` in descending order (latest timestamp first).
-- For entries with the same `Timestamp`, sort by `Power` in descending order.
+* Sort the list by `Timestamp` in descending order (latest timestamp first).
+* For entries with the same `Timestamp`, sort by `Power` in descending order.
 
 2. Apply Power Weights:
 
-- Calculate the total power from the list.
-- Assign weights to the powers in segments as follows:
+* Calculate the total power from the list.
+* Assign weights to the powers in segments as follows:
     - The first 1/32 of the total power is multiplied by 6.
     - The next 1/16 of the total power is multiplied by 4.
     - The next 1/8 of the total power is multiplied by 2.
     - The next 1/4 of the total power is multiplied by 1.1.
-- If PriceFeedInfo overlaps between segments, split it into parts corresponding to each segment and assign the respective multiplier.
-- Any power that falls outside these segments will have a multiplier of 1.
+* If PriceFeedInfo overlaps between segments, split it into parts corresponding to each segment and assign the respective multiplier.
+* Any power that falls outside these segments will have a multiplier of 1.
 
 3. Generate Points:
 
-- For each PriceFeedInfo (or its parts if split), generate three points:
+* For each PriceFeedInfo (or its parts if split), generate three points:
     - One at the `Price` with the assigned `Power`.
     - One at `Price + Deviation` with the assigned `Power`.
     - One at `Price - Deviation` with the assigned `Power`.
 
 4. Calculating Weight Median
 
-- Compute the weighted median of the generated points to determine the final aggregated price.
-- The weighted median price is the price at which the cumulative power (sorted by increasing price) crosses half of the total weighted power.
+* Compute the weighted median of the generated points to determine the final aggregated price.
+* The weighted median price is the price at which the cumulative power (sorted by increasing price) crosses half of the total weighted power.
 
 ### Update current feeds
 
-At every `BlocksPerFeedsUpdate` block(s), the current feeds will be re-calculated based on the parameters of the module (e.g. `MinInterval`, `MaxCurrentFeeds`). 
+At every `BlocksPerFeedsUpdate` block(s), the current feeds will be re-calculated based on the parameters of the module (e.g. `MinInterval` , `MaxCurrentFeeds` ). 
 
 ## Events
 
@@ -401,7 +401,6 @@ The feeds module emits the following events:
 | submit_signal_price | price         | {price}            |
 | submit_signal_price | timestamp     | {timestamp}        |
 
-
 #### MsgUpdateReferenceSourceConfig
 
 | Type                           | Attribute Key | Attribute Value |
@@ -416,7 +415,7 @@ The feeds module emits the following events:
 | ------------- | ------------- | --------------- |
 | update_params | params        | {params}        |
 
-#### MsgSubmitSignals
+#### MsgVoteSignals
 
 | Type                      | Attribute Key | Attribute Value |
 | ------------------------- | ------------- | --------------- |

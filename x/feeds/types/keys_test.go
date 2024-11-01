@@ -30,16 +30,16 @@ func TestPriceStoreKey(t *testing.T) {
 	require.Equal(t, expectEmpty, PriceStoreKey(""))
 }
 
-func TestDelegatorSignalsStoreKey(t *testing.T) {
+func TestVoteStoreKey(t *testing.T) {
 	// Prefix: 0x12
 	acc, _ := sdk.AccAddressFromHexUnsafe("b80f2a5df7d5710b15622d1a9f1e3830ded5bda8")
 	expect, _ := hex.DecodeString("1214b80f2a5df7d5710b15622d1a9f1e3830ded5bda8")
-	require.Equal(t, expect, DelegatorSignalsStoreKey(acc))
+	require.Equal(t, expect, VoteStoreKey(acc))
 
 	// Test with empty address
 	emptyAcc := sdk.AccAddress{}
 	expectEmpty, _ := hex.DecodeString("12")
-	require.Equal(t, expectEmpty, DelegatorSignalsStoreKey(emptyAcc))
+	require.Equal(t, expectEmpty, VoteStoreKey(emptyAcc))
 }
 
 func TestSignalTotalPowerStoreKey(t *testing.T) {

@@ -31,11 +31,11 @@ var (
 	ValidValidator   = sdk.ValAddress("1000000001")
 	ValidValidator2  = sdk.ValAddress("1000000002")
 	ValidValidator3  = sdk.ValAddress("1000000003")
-	ValidDelegator   = sdk.AccAddress("2000000001")
-	ValidDelegator2  = sdk.AccAddress("2000000002")
+	ValidVoter       = sdk.AccAddress("2000000001")
+	ValidVoter2      = sdk.AccAddress("2000000002")
 	ValidFeeder      = sdk.AccAddress("3000000001")
 	InvalidValidator = sdk.ValAddress("9000000001")
-	InvalidDelegator = sdk.AccAddress("9000000002")
+	InvalidVoter     = sdk.AccAddress("9000000002")
 )
 
 type KeeperTestSuite struct {
@@ -136,7 +136,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 	restakeKeeper := feedstestutil.NewMockRestakeKeeper(ctrl)
 	restakeKeeper.EXPECT().
-		SetLockedPower(gomock.Any(), ValidDelegator, types.ModuleName, gomock.Any()).
+		SetLockedPower(gomock.Any(), ValidVoter, types.ModuleName, gomock.Any()).
 		DoAndReturn(func(_ sdk.Context, _ sdk.AccAddress, _ string, amount math.Int) error {
 			if amount.GT(math.NewInt(1e10)) {
 				return restaketypes.ErrPowerNotEnough
@@ -145,7 +145,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 		}).
 		AnyTimes()
 	restakeKeeper.EXPECT().
-		SetLockedPower(gomock.Any(), InvalidDelegator, types.ModuleName, gomock.Any()).
+		SetLockedPower(gomock.Any(), InvalidVoter, types.ModuleName, gomock.Any()).
 		Return(restaketypes.ErrPowerNotEnough).
 		AnyTimes()
 	suite.restakeKeeper = restakeKeeper

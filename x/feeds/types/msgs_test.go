@@ -4,19 +4,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var (
-	ValidAuthority = sdk.AccAddress("636f736d6f7331787963726763336838396e72737671776539337a63").String()
-
-	ValidAdmin     = sdk.AccAddress("1000000001").String()
-	ValidDelegator = sdk.AccAddress("1000000002").String()
-
-	ValidValidator = sdk.ValAddress("2000000001").String()
-
-	ValidSignals = []Signal{
+	ValidValidator = "cosmosvaloper1vdhhxmt0wdmxzmr0wpjhyzzdttz"
+	ValidAuthority = "cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8"
+	ValidAdmin     = "cosmos1quh7acmun7tx6ywkvqr53m3fe39gxu9k00t4ds"
+	ValidVoter     = "cosmos13jt28pf6s8rgjddv8wwj8v3ngrfsccpgsdhjhw"
+	ValidSignals   = []Signal{
 		{
 			ID:    "CS:BAND-USD",
 			Power: 10000000000,
@@ -36,7 +31,7 @@ var (
 	InvalidValidator = "invalidValidator"
 	InvalidAuthority = "invalidAuthority"
 	InvalidAdmin     = "invalidAdmin"
-	InvalidDelegator = "invalidDelegator"
+	InvalidVoter     = "invalidVoter"
 )
 
 // ====================================
@@ -107,23 +102,23 @@ func TestMsgUpdateReferenceSourceConfig_ValidateBasic(t *testing.T) {
 }
 
 // ====================================
-// MsgSubmitSignals
+// MsgVoteSignals
 // ====================================
 
-func TestNewMsgSubmitSignals(t *testing.T) {
-	msg := NewMsgSubmitSignals(ValidDelegator, ValidSignals)
-	require.Equal(t, ValidDelegator, msg.Delegator)
+func TestNewMsgVoteSignals(t *testing.T) {
+	msg := NewMsgVoteSignals(ValidVoter, ValidSignals)
+	require.Equal(t, ValidVoter, msg.Voter)
 	require.Equal(t, ValidSignals, msg.Signals)
 }
 
-func TestMsgSubmitSignals_ValidateBasic(t *testing.T) {
-	// Valid delegator
-	msg := NewMsgSubmitSignals(ValidDelegator, ValidSignals)
+func TestMsgVoteSignals_ValidateBasic(t *testing.T) {
+	// Valid voter
+	msg := NewMsgVoteSignals(ValidVoter, ValidSignals)
 	err := msg.ValidateBasic()
 	require.NoError(t, err)
 
-	// Invalid delegator
-	msg = NewMsgSubmitSignals(InvalidDelegator, ValidSignals)
+	// Invalid voter
+	msg = NewMsgVoteSignals(InvalidVoter, ValidSignals)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 }

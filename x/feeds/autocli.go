@@ -29,10 +29,10 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "signal_ids"}},
 				},
 				{
-					RpcMethod:      "DelegatorSignals",
-					Use:            "delegator-signals [delegator-address]",
-					Short:          "Get signals submitted by a delegator",
-					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "delegator_address"}},
+					RpcMethod:      "Vote",
+					Use:            "vote [voter]",
+					Short:          "Get signals submitted by a voter",
+					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "voter"}},
 				},
 				{
 					RpcMethod: "IsFeeder",
