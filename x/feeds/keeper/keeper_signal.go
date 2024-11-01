@@ -56,8 +56,8 @@ func (k Keeper) GetVotes(ctx sdk.Context) (votes []types.Vote) {
 	return
 }
 
-// SetAllVotes sets multiple votes.
-func (k Keeper) SetAllVotes(ctx sdk.Context, votes []types.Vote) {
+// SetVotes sets multiple votes.
+func (k Keeper) SetVotes(ctx sdk.Context, votes []types.Vote) {
 	for _, v := range votes {
 		k.SetVote(ctx, v)
 	}

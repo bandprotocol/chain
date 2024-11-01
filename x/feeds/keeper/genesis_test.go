@@ -43,7 +43,7 @@ func (suite *KeeperTestSuite) TestExportGenesis() {
 			},
 		},
 	}
-	suite.feedsKeeper.SetAllVotes(ctx, votes)
+	suite.feedsKeeper.SetVotes(ctx, votes)
 
 	exportGenesis := suite.feedsKeeper.ExportGenesis(ctx)
 
