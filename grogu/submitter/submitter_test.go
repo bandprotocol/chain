@@ -30,6 +30,8 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/types"
 
+	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/bothan/v1"
+
 	band "github.com/bandprotocol/chain/v3/app"
 	"github.com/bandprotocol/chain/v3/grogu/submitter/testutil"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
@@ -125,6 +127,7 @@ func (s *SubmitterTestSuite) SetupTest() {
 	mockRPCClients := []rpcclient.RemoteClient{mockClient}
 
 	mockBothanClient := testutil.NewMockBothanClient(ctrl)
+	mockBothanClient.EXPECT().GetInfo().Return(&bothan.GetInfoResponse{MonitoringEnabled: true}, nil).AnyTimes()
 	mockBothanClient.EXPECT().PushMonitoringRecords(gomock.Any(), gomock.Any()).AnyTimes()
 
 	mockAuthQuerier := testutil.NewMockAuthQuerier(ctrl)
