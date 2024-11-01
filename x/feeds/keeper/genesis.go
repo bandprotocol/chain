@@ -12,7 +12,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 		panic(err)
 	}
 
-	k.SetAllVotes(ctx, genState.Votes)
+	k.SetVotes(ctx, genState.Votes)
 
 	signalTotalPowers := k.CalculateNewSignalTotalPowers(ctx)
 	k.SetSignalTotalPowers(ctx, signalTotalPowers)
