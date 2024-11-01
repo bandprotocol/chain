@@ -124,6 +124,9 @@ func (s *SubmitterTestSuite) SetupTest() {
 
 	mockRPCClients := []rpcclient.RemoteClient{mockClient}
 
+	mockBothanClient := testutil.NewMockBothanClient(ctrl)
+	mockBothanClient.EXPECT().PushMonitoringRecords(gomock.Any(), gomock.Any()).AnyTimes()
+
 	mockAuthQuerier := testutil.NewMockAuthQuerier(ctrl)
 	mockAuthQuerier.EXPECT().
 		QueryAccount(gomock.Any()).
@@ -157,6 +160,7 @@ func (s *SubmitterTestSuite) SetupTest() {
 	submitterInstance, err := New(
 		clientCtx,
 		mockRPCClients,
+		mockBothanClient,
 		l,
 		submitSignalPriceCh,
 		mockAuthQuerier,
