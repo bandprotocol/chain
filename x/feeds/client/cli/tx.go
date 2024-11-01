@@ -42,7 +42,7 @@ func GetTxCmd() *cobra.Command {
 		GetTxCmdAddFeeders(),
 		GetTxCmdRemoveFeeders(),
 		GetTxCmdUpdateReferenceSourceConfig(),
-		GetTxCmdVoteSignals(),
+		GetTxCmdVote(),
 	)
 
 	return txCmd
@@ -134,8 +134,8 @@ $ %s tx feeds update-reference-source-config <YOUR_IPFS_HASH> 1.0.0 --from mykey
 	return cmd
 }
 
-// GetTxCmdVoteSignals creates a CLI command for voting signals
-func GetTxCmdVoteSignals() *cobra.Command {
+// GetTxCmdVote creates a CLI command for voting signals
+func GetTxCmdVote() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "vote [signal_id1],[power1] [signal_id2],[power2] ...",
 		Short: "Vote signal ids and their powers",
@@ -174,7 +174,7 @@ $ %s tx feeds vote BTC,1000000 --from mykey
 				)
 			}
 
-			msg := types.NewMsgVoteSignals(voter.String(), signals)
+			msg := types.NewMsgVote(voter.String(), signals)
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},

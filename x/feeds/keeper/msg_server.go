@@ -23,11 +23,11 @@ func NewMsgServerImpl(k Keeper) types.MsgServer {
 	}
 }
 
-// VoteSignals votes signals.
-func (ms msgServer) VoteSignals(
+// Vote votes signals.
+func (ms msgServer) Vote(
 	goCtx context.Context,
-	req *types.MsgVoteSignals,
-) (*types.MsgVoteSignalsResponse, error) {
+	req *types.MsgVote,
+) (*types.MsgVoteResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// convert the voter address from Bech32 format to sdk.AccAddress
@@ -88,7 +88,7 @@ func (ms msgServer) VoteSignals(
 	}
 
 	// return an empty response indicating success
-	return &types.MsgVoteSignalsResponse{}, nil
+	return &types.MsgVoteResponse{}, nil
 }
 
 // SubmitSignalPrices submits new validator prices.

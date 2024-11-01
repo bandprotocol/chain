@@ -2,17 +2,17 @@ package keeper_test
 
 import "github.com/bandprotocol/chain/v3/x/feeds/types"
 
-func (suite *KeeperTestSuite) TestMsgVoteSignals() {
+func (suite *KeeperTestSuite) TestMsgVote() {
 	testCases := []struct {
 		name      string
-		input     *types.MsgVoteSignals
+		input     *types.MsgVote
 		expErr    bool
 		expErrMsg string
 		postCheck func()
 	}{
 		{
 			name: "no power",
-			input: &types.MsgVoteSignals{
+			input: &types.MsgVote{
 				Voter: InvalidVoter.String(),
 				Signals: []types.Signal{
 					{
@@ -27,7 +27,7 @@ func (suite *KeeperTestSuite) TestMsgVoteSignals() {
 		},
 		{
 			name: "1 signal more than powers",
-			input: &types.MsgVoteSignals{
+			input: &types.MsgVote{
 				Voter: ValidVoter.String(),
 				Signals: []types.Signal{
 					{
@@ -42,7 +42,7 @@ func (suite *KeeperTestSuite) TestMsgVoteSignals() {
 		},
 		{
 			name: "2 signals more than powers",
-			input: &types.MsgVoteSignals{
+			input: &types.MsgVote{
 				Voter: ValidVoter.String(),
 				Signals: []types.Signal{
 					{
@@ -61,7 +61,7 @@ func (suite *KeeperTestSuite) TestMsgVoteSignals() {
 		},
 		{
 			name: "valid request",
-			input: &types.MsgVoteSignals{
+			input: &types.MsgVote{
 				Voter: ValidVoter.String(),
 				Signals: []types.Signal{
 					{
@@ -95,7 +95,7 @@ func (suite *KeeperTestSuite) TestMsgVoteSignals() {
 		},
 		{
 			name: "valid request (replace)",
-			input: &types.MsgVoteSignals{
+			input: &types.MsgVote{
 				Voter: ValidVoter.String(),
 				Signals: []types.Signal{
 					{
@@ -143,7 +143,7 @@ func (suite *KeeperTestSuite) TestMsgVoteSignals() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			_, err := suite.msgServer.VoteSignals(suite.ctx, tc.input)
+			_, err := suite.msgServer.Vote(suite.ctx, tc.input)
 
 			if tc.expErr {
 				suite.Require().Error(err)

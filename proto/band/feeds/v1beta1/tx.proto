@@ -14,8 +14,8 @@ import "amino/amino.proto";
 service Msg {
   option (cosmos.msg.v1.service) = true;
 
-  // VoteSignals is an RPC method to vote signal ids and their powers.
-  rpc VoteSignals(MsgVoteSignals) returns (MsgVoteSignalsResponse);
+  // Vote is an RPC method to vote signal ids and their powers.
+  rpc Vote(MsgVote) returns (MsgVoteResponse);
 
   // SubmitSignalPrices is an RPC method to submit signal prices.
   rpc SubmitSignalPrices(MsgSubmitSignalPrices) returns (MsgSubmitSignalPricesResponse);
@@ -27,10 +27,10 @@ service Msg {
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }
 
-// MsgVoteSignals is the transaction message to vote signals.
-message MsgVoteSignals {
+// MsgVote is the transaction message to vote signals.
+message MsgVote {
   option (cosmos.msg.v1.signer) = "voter";
-  option (amino.name)           = "feeds/MsgVoteSignals";
+  option (amino.name)           = "feeds/MsgVote";
 
   // voter is the address of the voter that wants to vote signals.
   string voter = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
@@ -39,8 +39,8 @@ message MsgVoteSignals {
   repeated Signal signals = 2 [(gogoproto.nullable) = false];
 }
 
-// MsgVoteSignalsResponse is the response type for the Msg/VoteSignals RPC method.
-message MsgVoteSignalsResponse {}
+// MsgVoteResponse is the response type for the Msg/Vote RPC method.
+message MsgVoteResponse {}
 
 // MsgSubmitSignalPrices is the transaction message to submit multiple signal prices.
 message MsgSubmitSignalPrices {

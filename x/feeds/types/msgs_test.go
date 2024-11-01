@@ -107,23 +107,23 @@ func TestMsgUpdateReferenceSourceConfig_ValidateBasic(t *testing.T) {
 }
 
 // ====================================
-// MsgVoteSignals
+// MsgVote
 // ====================================
 
-func TestNewMsgVoteSignals(t *testing.T) {
-	msg := NewMsgVoteSignals(ValidVoter, ValidSignals)
+func TestNewMsgVote(t *testing.T) {
+	msg := NewMsgVote(ValidVoter, ValidSignals)
 	require.Equal(t, ValidVoter, msg.Voter)
 	require.Equal(t, ValidSignals, msg.Signals)
 }
 
-func TestMsgVoteSignals_ValidateBasic(t *testing.T) {
+func TestMsgVote_ValidateBasic(t *testing.T) {
 	// Valid voter
-	msg := NewMsgVoteSignals(ValidVoter, ValidSignals)
+	msg := NewMsgVote(ValidVoter, ValidSignals)
 	err := msg.ValidateBasic()
 	require.NoError(t, err)
 
 	// Invalid voter
-	msg = NewMsgVoteSignals(InvalidVoter, ValidSignals)
+	msg = NewMsgVote(InvalidVoter, ValidSignals)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 }

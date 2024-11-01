@@ -33,7 +33,7 @@ This module is used in the BandChain.
       - [SignalTotalPowerByPowerIndex](#signaltotalpowerbypowerindex)
     - [Params](#params)
   + [Messages](#messages)
-    - [MsgVoteSignals](#msgvotesignals)
+    - [MsgVote](#msgvote)
     - [MsgSubmitSignalPrices](#msgsubmitsignalprices)
     - [MsgUpdateReferenceSourceConfig](#msgupdatereferencesourceconfig)
     - [MsgUpdateParams](#msgupdateparams)
@@ -50,7 +50,7 @@ This module is used in the BandChain.
       - [MsgSubmitSignalPrices](#msgsubmitsignalprices-1)
       - [MsgUpdateReferenceSourceConfig](#msgupdatereferencesourceconfig-1)
       - [MsgUpdateParams](#msgupdateparams-1)
-      - [MsgVoteSignals](#msgvotesignals-1)
+      - [MsgVote](#msgvote-1)
 
 ## Concepts
 
@@ -205,7 +205,7 @@ message Params {
 
 In this section, we describe the processing of the `feeds` messages and the corresponding updates to the state. All created/modified state objects specified by each message are defined within the [state](#state) section.
 
-### MsgVoteSignals
+### MsgVote
 
 Vote contain a batch of signal and power.
 
@@ -213,10 +213,10 @@ Batched Signals replace the previous Signals of the same voter as a batch.
 Signals are registered, and their power is added to the SignalTotalPower of the same SignalID.
 
 ```protobuf
-// MsgVoteSignals is the transaction message to submit signals.
-message MsgVoteSignals {
+// MsgVote is the transaction message to submit signals.
+message MsgVote {
   option (cosmos.msg.v1.signer) = "voter";
-  option (amino.name)           = "feeds/MsgVoteSignals";
+  option (amino.name)           = "feeds/MsgVote";
 
   // voter is the address of the voter that wants to vote signals.
   string voter = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
@@ -415,7 +415,7 @@ The feeds module emits the following events:
 | ------------- | ------------- | --------------- |
 | update_params | params        | {params}        |
 
-#### MsgVoteSignals
+#### MsgVote
 
 | Type                      | Attribute Key | Attribute Value |
 | ------------------------- | ------------- | --------------- |
