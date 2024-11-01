@@ -28,6 +28,7 @@ type SignalPriceSubmission struct {
 type Submitter struct {
 	clientCtx           client.Context
 	clients             []rpcclient.RemoteClient
+	bothanClient        BothanClient
 	logger              *logger.Logger
 	submitSignalPriceCh <-chan SignalPriceSubmission
 	authQuerier         AuthQuerier
@@ -46,6 +47,7 @@ type Submitter struct {
 func New(
 	clientCtx client.Context,
 	clients []rpcclient.RemoteClient,
+	bothanClient BothanClient,
 	logger *logger.Logger,
 	submitSignalPriceCh <-chan SignalPriceSubmission,
 	authQuerier AuthQuerier,
@@ -78,6 +80,7 @@ func New(
 	return &Submitter{
 		clientCtx:           clientCtx,
 		clients:             clients,
+		bothanClient:        bothanClient,
 		logger:              logger,
 		submitSignalPriceCh: submitSignalPriceCh,
 		authQuerier:         authQuerier,
@@ -156,6 +159,10 @@ func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID st
 		switch {
 		case finalizedTxResp.Code == 0:
 			s.logger.Info("[Submitter] price submitted at %v", finalizedTxResp.TxHash)
+			err = s.bothanClient.PushMonitoringRecords(uuid, finalizedTxResp.TxHash)
+			if err != nil {
+				s.logger.Error("[Submitter] failed to push monitoring records: %v", err)
+			}
 			return
 		case finalizedTxResp.Codespace == sdkerrors.RootCodespace && finalizedTxResp.Code == sdkerrors.ErrOutOfGas.ABCICode():
 			s.logger.Info("[Submitter] transaction is out of gas, retrying with increased gas adjustment")

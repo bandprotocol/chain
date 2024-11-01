@@ -175,6 +175,7 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 		submitterService, err := submitter.New(
 			clientCtx,
 			clients,
+			bothanService,
 			l,
 			submitSignalPriceCh,
 			authQuerier,
