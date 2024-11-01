@@ -1114,7 +1114,7 @@ var (
 
 	pattern_Query_CurrentPrices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"feeds", "v1beta1", "current-prices", "signal_ids"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_Vote_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"feeds", "v1beta1", "vote", "voter"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Vote_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"feeds", "v1beta1", "voters", "voter", "vote"}, "", runtime.AssumeColonVerbOpt(false)))
 
 	pattern_Query_IsFeeder_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 4}, []string{"feeds", "v1beta1", "feeder", "validator_address", "feeder_address"}, "", runtime.AssumeColonVerbOpt(false)))
 
@@ -1128,7 +1128,7 @@ var (
 
 	pattern_Query_SignalTotalPowers_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"feeds", "v1beta1", "signal-total-powers"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_ValidValidator_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"feeds", "v1beta1", "valid", "validator_address"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_ValidValidator_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"feeds", "v1beta1", "validators", "validator_address", "valid"}, "", runtime.AssumeColonVerbOpt(false)))
 
 	pattern_Query_ValidatorPrices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 2, 4}, []string{"feeds", "v1beta1", "validators", "validator_address", "prices"}, "", runtime.AssumeColonVerbOpt(false)))
 )

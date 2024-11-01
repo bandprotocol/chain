@@ -29,7 +29,7 @@ service Query {
 
   // Vote is an RPC method that returns signals of a voter.
   rpc Vote(QueryVoteRequest) returns (QueryVoteResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/vote/{voter}";
+    option (google.api.http).get = "/feeds/v1beta1/voters/{voter}/vote";
   }
 
   // IsFeeder is an RPC method that returns whether an account is a feeder for a specified validator.
@@ -65,7 +65,7 @@ service Query {
 
   // ValidValidator is an RPC method that returns a flag to show if the validator is required to send prices.
   rpc ValidValidator(QueryValidValidatorRequest) returns (QueryValidValidatorResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/valid/{validator_address}";
+    option (google.api.http).get = "/feeds/v1beta1/validators/{validator_address}/valid";
   }
 
   // ValidatorPrices is an RPC method that returns prices of a validator.

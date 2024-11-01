@@ -95,7 +95,7 @@ func (suite *KeeperTestSuite) TestInitGenesis() {
 	suite.Require().Equal(params, suite.feedsKeeper.GetParams(ctx))
 	for _, v := range votes {
 		suite.Require().
-			Equal(v.Signals, suite.feedsKeeper.GetVoteSignals(ctx, sdk.MustAccAddressFromBech32(v.Voter)))
+			Equal(v.Signals, suite.feedsKeeper.GetVote(ctx, sdk.MustAccAddressFromBech32(v.Voter)))
 	}
 
 	stpBand, err := suite.feedsKeeper.GetSignalTotalPower(ctx, "CS:BAND-USD")

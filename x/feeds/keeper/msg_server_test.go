@@ -80,7 +80,7 @@ func (suite *KeeperTestSuite) TestMsgVoteSignals() {
 							Power: 1e10,
 						},
 					},
-					suite.feedsKeeper.GetVoteSignals(suite.ctx, ValidVoter),
+					suite.feedsKeeper.GetVote(suite.ctx, ValidVoter),
 				)
 				suite.Require().Equal(
 					[]types.Signal{
@@ -122,7 +122,7 @@ func (suite *KeeperTestSuite) TestMsgVoteSignals() {
 							Power: 1e9,
 						},
 					},
-					suite.feedsKeeper.GetVoteSignals(suite.ctx, ValidVoter),
+					suite.feedsKeeper.GetVote(suite.ctx, ValidVoter),
 				)
 				suite.Require().Equal(
 					[]types.Signal{
