@@ -24,7 +24,7 @@ func (suite *KeeperTestSuite) TestGetSetVote() {
 	suite.feedsKeeper.SetVote(ctx, expVote)
 
 	// get
-	signals := suite.feedsKeeper.GetVoteSignals(ctx, ValidVoter)
+	signals := suite.feedsKeeper.GetVote(ctx, ValidVoter)
 	suite.Require().Equal(expVote.Signals, signals)
 }
 

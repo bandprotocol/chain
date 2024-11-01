@@ -29,12 +29,6 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "signal_ids"}},
 				},
 				{
-					RpcMethod:      "Vote",
-					Use:            "vote [voter]",
-					Short:          "Get signals submitted by a voter",
-					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "voter"}},
-				},
-				{
 					RpcMethod: "IsFeeder",
 					Use:       "is-feeder [validator-address] [feeder-address]",
 					Short:     "Check if the given account is a feeder for the validator",
@@ -80,6 +74,12 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					Use:            "validator-prices [validator-address]",
 					Short:          "Get prices submitted by a validator",
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "validator_address"}},
+				},
+				{
+					RpcMethod:      "Vote",
+					Use:            "vote [voter]",
+					Short:          "Get signals submitted by a voter",
+					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "voter"}},
 				},
 			},
 		},

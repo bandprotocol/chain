@@ -13,8 +13,8 @@ import (
 	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
-// GetVoteSignals returns a list of all signals of a voter.
-func (k Keeper) GetVoteSignals(ctx sdk.Context, voter sdk.AccAddress) []types.Signal {
+// GetVote returns all signals of a voter.
+func (k Keeper) GetVote(ctx sdk.Context, voter sdk.AccAddress) []types.Signal {
 	bz := ctx.KVStore(k.storeKey).Get(types.VoteStoreKey(voter))
 	if bz == nil {
 		return nil
@@ -42,8 +42,8 @@ func (k Keeper) GetVoteIterator(ctx sdk.Context) dbm.Iterator {
 	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.VoteStoreKeyPrefix)
 }
 
-// GetAllVotes returns a list of all votes.
-func (k Keeper) GetAllVotes(ctx sdk.Context) (votes []types.Vote) {
+// GetVotes returns all votes.
+func (k Keeper) GetVotes(ctx sdk.Context) (votes []types.Vote) {
 	iterator := k.GetVoteIterator(ctx)
 	defer iterator.Close()
 
@@ -153,7 +153,7 @@ func (k Keeper) SignalTotalPowersByPowerStoreIterator(ctx sdk.Context) dbm.Itera
 
 // CalculateNewSignalTotalPowers calculates the new signal-total-powers from all votes.
 func (k Keeper) CalculateNewSignalTotalPowers(ctx sdk.Context) []types.Signal {
-	votes := k.GetAllVotes(ctx)
+	votes := k.GetVotes(ctx)
 	signalIDToPower := make(map[string]int64)
 	for _, v := range votes {
 		for _, signal := range v.Signals {
@@ -202,7 +202,7 @@ func (k Keeper) RegisterNewSignals(
 ) map[string]int64 {
 	signalIDToPowerDiff := make(map[string]int64)
 
-	prevSignals := k.GetVoteSignals(ctx, voter)
+	prevSignals := k.GetVote(ctx, voter)
 	k.DeleteVote(ctx, voter)
 
 	for _, prevSignal := range prevSignals {

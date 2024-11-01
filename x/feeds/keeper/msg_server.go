@@ -23,7 +23,7 @@ func NewMsgServerImpl(k Keeper) types.MsgServer {
 	}
 }
 
-// SubmitSignals registers new signals and updates feeds.
+// VoteSignals votes signals.
 func (ms msgServer) VoteSignals(
 	goCtx context.Context,
 	req *types.MsgVoteSignals,
@@ -91,7 +91,7 @@ func (ms msgServer) VoteSignals(
 	return &types.MsgVoteSignalsResponse{}, nil
 }
 
-// SubmitSignalPrices register new validator prices.
+// SubmitSignalPrices submits new validator prices.
 func (ms msgServer) SubmitSignalPrices(
 	goCtx context.Context,
 	req *types.MsgSubmitSignalPrices,

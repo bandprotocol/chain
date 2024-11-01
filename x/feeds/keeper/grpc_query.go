@@ -37,7 +37,7 @@ func (q queryServer) Vote(
 		return nil, err
 	}
 
-	signals := q.keeper.GetVoteSignals(ctx, voter)
+	signals := q.keeper.GetVote(ctx, voter)
 
 	return &types.QueryVoteResponse{Signals: signals}, nil
 }

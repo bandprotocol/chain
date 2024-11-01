@@ -27,5 +27,9 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 
 // ExportGenesis returns the module's exported genesis
 func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
-	return types.NewGenesisState(k.GetParams(ctx), k.GetAllVotes(ctx), k.GetReferenceSourceConfig(ctx))
+	return types.NewGenesisState(
+		k.GetParams(ctx),
+		k.GetVotes(ctx),
+		k.GetReferenceSourceConfig(ctx),
+	)
 }
