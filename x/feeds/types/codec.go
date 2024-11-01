@@ -12,7 +12,7 @@ import (
 
 // RegisterLegacyAminoCodec registers concrete types on the LegacyAmino codec
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
-	legacy.RegisterAminoMsg(cdc, &MsgVoteSignals{}, "feeds/MsgVoteSignals")
+	legacy.RegisterAminoMsg(cdc, &MsgVote{}, "feeds/MsgVote")
 	legacy.RegisterAminoMsg(cdc, &MsgSubmitSignalPrices{}, "feeds/MsgSubmitSignalPrices")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateReferenceSourceConfig{}, "feeds/MsgUpdateReferenceSourceConfig")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "feeds/MsgUpdateParams")
@@ -24,7 +24,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
-		&MsgVoteSignals{},
+		&MsgVote{},
 		&MsgSubmitSignalPrices{},
 		&MsgUpdateReferenceSourceConfig{},
 		&MsgUpdateParams{},

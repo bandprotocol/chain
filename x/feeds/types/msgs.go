@@ -11,12 +11,12 @@ var (
 	_ sdk.Msg = (*MsgSubmitSignalPrices)(nil)
 	_ sdk.Msg = (*MsgUpdateParams)(nil)
 	_ sdk.Msg = (*MsgUpdateReferenceSourceConfig)(nil)
-	_ sdk.Msg = (*MsgVoteSignals)(nil)
+	_ sdk.Msg = (*MsgVote)(nil)
 
 	_ sdk.HasValidateBasic = (*MsgSubmitSignalPrices)(nil)
 	_ sdk.HasValidateBasic = (*MsgUpdateParams)(nil)
 	_ sdk.HasValidateBasic = (*MsgUpdateReferenceSourceConfig)(nil)
-	_ sdk.HasValidateBasic = (*MsgVoteSignals)(nil)
+	_ sdk.HasValidateBasic = (*MsgVote)(nil)
 )
 
 // ====================================
@@ -121,22 +121,22 @@ func (m *MsgUpdateReferenceSourceConfig) ValidateBasic() error {
 }
 
 // ====================================
-// MsgVoteSignals
+// MsgVote
 // ====================================
 
-// NewMsgVoteSignals creates a new MsgVoteSignals instance.
-func NewMsgVoteSignals(
+// NewMsgVote creates a new MsgVote instance.
+func NewMsgVote(
 	voter string,
 	signals []Signal,
-) *MsgVoteSignals {
-	return &MsgVoteSignals{
+) *MsgVote {
+	return &MsgVote{
 		Voter:   voter,
 		Signals: signals,
 	}
 }
 
 // ValidateBasic does a check on the provided data.
-func (m *MsgVoteSignals) ValidateBasic() error {
+func (m *MsgVote) ValidateBasic() error {
 	// Check if the voter address is valid
 	if _, err := sdk.AccAddressFromBech32(m.Voter); err != nil {
 		return errorsmod.Wrap(err, "invalid voter address")

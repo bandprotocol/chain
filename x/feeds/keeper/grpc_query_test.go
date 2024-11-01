@@ -120,7 +120,7 @@ func (suite *KeeperTestSuite) TestQueryVote() {
 			Power: 1e9,
 		},
 	}
-	_, err := suite.msgServer.VoteSignals(ctx, &types.MsgVoteSignals{
+	_, err := suite.msgServer.Vote(ctx, &types.MsgVote{
 		Voter:   ValidVoter.String(),
 		Signals: signals,
 	})
