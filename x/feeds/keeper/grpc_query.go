@@ -26,20 +26,20 @@ func NewQueryServer(k Keeper) types.QueryServer {
 	}
 }
 
-// DelegatorSignals queries all signals submitted by a delegator.
-func (q queryServer) DelegatorSignals(
-	goCtx context.Context, req *types.QueryDelegatorSignalsRequest,
-) (*types.QueryDelegatorSignalsResponse, error) {
+// Vote queries all signals vote by a voter.
+func (q queryServer) Vote(
+	goCtx context.Context, req *types.QueryVoteRequest,
+) (*types.QueryVoteResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	delegator, err := sdk.AccAddressFromBech32(req.DelegatorAddress)
+	voter, err := sdk.AccAddressFromBech32(req.Voter)
 	if err != nil {
 		return nil, err
 	}
 
-	signals := q.keeper.GetDelegatorSignals(ctx, delegator)
+	signals := q.keeper.GetVoteSignals(ctx, voter)
 
-	return &types.QueryDelegatorSignalsResponse{Signals: signals}, nil
+	return &types.QueryVoteResponse{Signals: signals}, nil
 }
 
 // Prices queries all current prices.

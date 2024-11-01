@@ -41,24 +41,24 @@ func GetTxCmd() *cobra.Command {
 	txCmd.AddCommand(
 		GetTxCmdAddFeeders(),
 		GetTxCmdRemoveFeeders(),
-		GetTxCmdSubmitSignals(),
+		GetTxCmdVoteSignals(),
 		GetTxCmdUpdateReferenceSourceConfig(),
 	)
 
 	return txCmd
 }
 
-// GetTxCmdSubmitSignals creates a CLI command for submitting signals
-func GetTxCmdSubmitSignals() *cobra.Command {
+// GetTxCmdVoteSignals creates a CLI command for voting signals
+func GetTxCmdVoteSignals() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "signal [signal_id1],[power1] [signal_id2],[power2] ...",
-		Short: "Signal signal ids and their powers",
+		Use:   "vote [signal_id1],[power1] [signal_id2],[power2] ...",
+		Short: "Vote signal ids and their powers",
 		Args:  cobra.MinimumNArgs(0),
 		Long: strings.TrimSpace(
 			fmt.Sprintf(
-				`Signal signal ids and their power.
+				`Vote signal ids and their power.
 Example:
-$ %s tx feeds signal BTC,1000000 --from mykey
+$ %s tx feeds vote BTC,1000000 --from mykey
 `,
 				version.AppName,
 			),
@@ -69,7 +69,7 @@ $ %s tx feeds signal BTC,1000000 --from mykey
 				return err
 			}
 
-			delegator := clientCtx.GetFromAddress()
+			voter := clientCtx.GetFromAddress()
 			var signals []types.Signal
 			for i, arg := range args {
 				idAndPower := strings.SplitN(arg, ",", 2)
@@ -88,7 +88,7 @@ $ %s tx feeds signal BTC,1000000 --from mykey
 				)
 			}
 
-			msg := types.NewMsgSubmitSignals(delegator.String(), signals)
+			msg := types.NewMsgVoteSignals(voter.String(), signals)
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},

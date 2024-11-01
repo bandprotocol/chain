@@ -24,14 +24,14 @@ func NewMsgServerImpl(k Keeper) types.MsgServer {
 }
 
 // SubmitSignals registers new signals and updates feeds.
-func (ms msgServer) SubmitSignals(
+func (ms msgServer) VoteSignals(
 	goCtx context.Context,
-	req *types.MsgSubmitSignals,
-) (*types.MsgSubmitSignalsResponse, error) {
+	req *types.MsgVoteSignals,
+) (*types.MsgVoteSignalsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// convert the delegator address from Bech32 format to sdk.AccAddress
-	delegator, err := sdk.AccAddressFromBech32(req.Delegator)
+	// convert the voter address from Bech32 format to sdk.AccAddress
+	voter, err := sdk.AccAddressFromBech32(req.Voter)
 	if err != nil {
 		return nil, err
 	}
@@ -44,14 +44,14 @@ func (ms msgServer) SubmitSignals(
 		)
 	}
 
-	// lock the delegator's power equal to the sum of the signal powers
-	err = ms.LockDelegatorDelegation(ctx, delegator, req.Signals)
+	// lock the voter's power equal to the sum of the signal powers
+	err = ms.LockVoterPower(ctx, voter, req.Signals)
 	if err != nil {
 		return nil, err
 	}
 
 	// RegisterNewSignals deletes previous signals and registers new signals then returns feed power differences
-	signalIDToPowerDiff := ms.RegisterNewSignals(ctx, delegator, req.Signals)
+	signalIDToPowerDiff := ms.RegisterNewSignals(ctx, voter, req.Signals)
 
 	// sort keys to guarantee order of signalIDToPowerDiff iteration
 	keys := make([]string, 0, len(signalIDToPowerDiff))
@@ -88,7 +88,7 @@ func (ms msgServer) SubmitSignals(
 	}
 
 	// return an empty response indicating success
-	return &types.MsgSubmitSignalsResponse{}, nil
+	return &types.MsgVoteSignalsResponse{}, nil
 }
 
 // SubmitSignalPrices register new validator prices.

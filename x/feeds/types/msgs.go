@@ -11,12 +11,12 @@ var (
 	_ sdk.Msg = (*MsgSubmitSignalPrices)(nil)
 	_ sdk.Msg = (*MsgUpdateParams)(nil)
 	_ sdk.Msg = (*MsgUpdateReferenceSourceConfig)(nil)
-	_ sdk.Msg = (*MsgSubmitSignals)(nil)
+	_ sdk.Msg = (*MsgVoteSignals)(nil)
 
 	_ sdk.HasValidateBasic = (*MsgSubmitSignalPrices)(nil)
 	_ sdk.HasValidateBasic = (*MsgUpdateParams)(nil)
 	_ sdk.HasValidateBasic = (*MsgUpdateReferenceSourceConfig)(nil)
-	_ sdk.HasValidateBasic = (*MsgSubmitSignals)(nil)
+	_ sdk.HasValidateBasic = (*MsgVoteSignals)(nil)
 )
 
 // ====================================
@@ -121,25 +121,25 @@ func (m *MsgUpdateReferenceSourceConfig) ValidateBasic() error {
 }
 
 // ====================================
-// MsgSubmitSignals
+// MsgVoteSignals
 // ====================================
 
-// NewMsgSubmitSignals creates a new MsgSubmitSignals instance.
-func NewMsgSubmitSignals(
-	delegator string,
+// NewMsgVoteSignals creates a new MsgVoteSignals instance.
+func NewMsgVoteSignals(
+	voter string,
 	signals []Signal,
-) *MsgSubmitSignals {
-	return &MsgSubmitSignals{
-		Delegator: delegator,
-		Signals:   signals,
+) *MsgVoteSignals {
+	return &MsgVoteSignals{
+		Voter:   voter,
+		Signals: signals,
 	}
 }
 
 // ValidateBasic does a check on the provided data.
-func (m *MsgSubmitSignals) ValidateBasic() error {
-	// Check if the delegator address is valid
-	if _, err := sdk.AccAddressFromBech32(m.Delegator); err != nil {
-		return errorsmod.Wrap(err, "invalid delegator address")
+func (m *MsgVoteSignals) ValidateBasic() error {
+	// Check if the voter address is valid
+	if _, err := sdk.AccAddressFromBech32(m.Voter); err != nil {
+		return errorsmod.Wrap(err, "invalid voter address")
 	}
 
 	// Map to track signal IDs for duplicate check

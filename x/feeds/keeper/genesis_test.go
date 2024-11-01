@@ -15,9 +15,9 @@ func (suite *KeeperTestSuite) TestExportGenesis() {
 	err = suite.feedsKeeper.SetReferenceSourceConfig(ctx, types.DefaultReferenceSourceConfig())
 	suite.Require().NoError(err)
 
-	delegatorSignals := []types.DelegatorSignals{
+	votes := []types.Vote{
 		{
-			Delegator: ValidDelegator.String(),
+			Voter: ValidVoter.String(),
 			Signals: []types.Signal{
 				{
 					ID:    "CS:BAND-USD",
@@ -30,7 +30,7 @@ func (suite *KeeperTestSuite) TestExportGenesis() {
 			},
 		},
 		{
-			Delegator: ValidDelegator2.String(),
+			Voter: ValidVoter2.String(),
 			Signals: []types.Signal{
 				{
 					ID:    "CS:BAND-USD",
@@ -43,22 +43,22 @@ func (suite *KeeperTestSuite) TestExportGenesis() {
 			},
 		},
 	}
-	suite.feedsKeeper.SetAllDelegatorSignals(ctx, delegatorSignals)
+	suite.feedsKeeper.SetAllVotes(ctx, votes)
 
 	exportGenesis := suite.feedsKeeper.ExportGenesis(ctx)
 
 	suite.Require().Equal(types.DefaultParams(), exportGenesis.Params)
 	suite.Require().Equal(types.DefaultReferenceSourceConfig(), exportGenesis.ReferenceSourceConfig)
-	suite.Require().Equal(delegatorSignals, exportGenesis.DelegatorSignals)
+	suite.Require().Equal(votes, exportGenesis.Votes)
 }
 
 func (suite *KeeperTestSuite) TestInitGenesis() {
 	ctx := suite.ctx
 	params := types.DefaultParams()
 
-	delegatorSignals := []types.DelegatorSignals{
+	votes := []types.Vote{
 		{
-			Delegator: ValidDelegator.String(),
+			Voter: ValidVoter.String(),
 			Signals: []types.Signal{
 				{
 					ID:    "CS:BAND-USD",
@@ -71,7 +71,7 @@ func (suite *KeeperTestSuite) TestInitGenesis() {
 			},
 		},
 		{
-			Delegator: ValidDelegator2.String(),
+			Voter: ValidVoter2.String(),
 			Signals: []types.Signal{
 				{
 					ID:    "CS:BAND-USD",
@@ -86,16 +86,16 @@ func (suite *KeeperTestSuite) TestInitGenesis() {
 	}
 
 	g := types.DefaultGenesisState()
-	g.DelegatorSignals = delegatorSignals
+	g.Votes = votes
 	g.Params = params
 
 	suite.feedsKeeper.InitGenesis(suite.ctx, *g)
 
 	suite.Require().Equal(types.DefaultReferenceSourceConfig(), suite.feedsKeeper.GetReferenceSourceConfig(ctx))
 	suite.Require().Equal(params, suite.feedsKeeper.GetParams(ctx))
-	for _, ds := range delegatorSignals {
+	for _, v := range votes {
 		suite.Require().
-			Equal(ds.Signals, suite.feedsKeeper.GetDelegatorSignals(ctx, sdk.MustAccAddressFromBech32(ds.Delegator)))
+			Equal(v.Signals, suite.feedsKeeper.GetVoteSignals(ctx, sdk.MustAccAddressFromBech32(v.Voter)))
 	}
 
 	stpBand, err := suite.feedsKeeper.GetSignalTotalPower(ctx, "CS:BAND-USD")
