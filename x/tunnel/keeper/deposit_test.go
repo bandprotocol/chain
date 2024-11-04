@@ -54,16 +54,24 @@ func (s *KeeperTestSuite) TestGetSetDeposit() {
 func (s *KeeperTestSuite) TestGetDeposits() {
 	ctx, k := s.ctx, s.keeper
 
-	tunnelID := uint64(1)
+	tunnelID1 := uint64(1)
+	tunnelID2 := uint64(2)
+
 	depositorAddr := sdk.AccAddress([]byte("depositor"))
 	depositAmount := sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(100)))
 
-	deposit := types.Deposit{TunnelID: tunnelID, Depositor: depositorAddr.String(), Amount: depositAmount}
-	k.SetDeposit(ctx, deposit)
+	// add a deposit
+	deposit1 := types.Deposit{TunnelID: tunnelID1, Depositor: depositorAddr.String(), Amount: depositAmount}
+	k.SetDeposit(ctx, deposit1)
 
-	deposits := k.GetDeposits(ctx, tunnelID)
+	// add another deposit
+	deposit2 := types.Deposit{TunnelID: tunnelID2, Depositor: depositorAddr.String(), Amount: depositAmount}
+	k.SetDeposit(ctx, deposit2)
+
+	deposits := k.GetDeposits(ctx, tunnelID2)
 	s.Require().Len(deposits, 1)
-	s.Require().Equal(deposit, deposits[0])
+	s.Require().Equal(deposit1, deposits[0])
+	s.Require().Equal(deposit2, deposits[1])
 }
 
 func (s *KeeperTestSuite) TestGetAllDeposits() {
