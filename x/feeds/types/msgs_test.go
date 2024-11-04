@@ -11,8 +11,8 @@ import (
 var (
 	ValidAuthority = sdk.AccAddress("636f736d6f7331787963726763336838396e72737671776539337a63").String()
 
-	ValidAdmin     = sdk.AccAddress("1000000001").String()
-	ValidDelegator = sdk.AccAddress("1000000002").String()
+	ValidAdmin = sdk.AccAddress("1000000001").String()
+	ValidVoter = sdk.AccAddress("1000000002").String()
 
 	ValidValidator = sdk.ValAddress("2000000001").String()
 
@@ -36,7 +36,7 @@ var (
 	InvalidValidator = "invalidValidator"
 	InvalidAuthority = "invalidAuthority"
 	InvalidAdmin     = "invalidAdmin"
-	InvalidDelegator = "invalidDelegator"
+	InvalidVoter     = "invalidVoter"
 )
 
 // ====================================
@@ -107,23 +107,23 @@ func TestMsgUpdateReferenceSourceConfig_ValidateBasic(t *testing.T) {
 }
 
 // ====================================
-// MsgSubmitSignals
+// MsgVote
 // ====================================
 
-func TestNewMsgSubmitSignals(t *testing.T) {
-	msg := NewMsgSubmitSignals(ValidDelegator, ValidSignals)
-	require.Equal(t, ValidDelegator, msg.Delegator)
+func TestNewMsgVote(t *testing.T) {
+	msg := NewMsgVote(ValidVoter, ValidSignals)
+	require.Equal(t, ValidVoter, msg.Voter)
 	require.Equal(t, ValidSignals, msg.Signals)
 }
 
-func TestMsgSubmitSignals_ValidateBasic(t *testing.T) {
-	// Valid delegator
-	msg := NewMsgSubmitSignals(ValidDelegator, ValidSignals)
+func TestMsgVote_ValidateBasic(t *testing.T) {
+	// Valid voter
+	msg := NewMsgVote(ValidVoter, ValidSignals)
 	err := msg.ValidateBasic()
 	require.NoError(t, err)
 
-	// Invalid delegator
-	msg = NewMsgSubmitSignals(InvalidDelegator, ValidSignals)
+	// Invalid voter
+	msg = NewMsgVote(InvalidVoter, ValidSignals)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 }
