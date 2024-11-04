@@ -13,7 +13,7 @@ import (
 	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
-// GetVote returns all signals of a voter.
+// GetVote returns all signals voted by a voter.
 func (k Keeper) GetVote(ctx sdk.Context, voter sdk.AccAddress) []types.Signal {
 	bz := ctx.KVStore(k.storeKey).Get(types.VoteStoreKey(voter))
 	if bz == nil {
@@ -26,12 +26,12 @@ func (k Keeper) GetVote(ctx sdk.Context, voter sdk.AccAddress) []types.Signal {
 	return v.Signals
 }
 
-// DeleteVote deletes all signals of a voter.
+// DeleteVote deletes all signals voted by a voter.
 func (k Keeper) DeleteVote(ctx sdk.Context, voter sdk.AccAddress) {
 	ctx.KVStore(k.storeKey).Delete(types.VoteStoreKey(voter))
 }
 
-// SetVote sets multiple signals of a voter.
+// SetVote sets signals voted by a voter.
 func (k Keeper) SetVote(ctx sdk.Context, vote types.Vote) {
 	ctx.KVStore(k.storeKey).
 		Set(types.VoteStoreKey(sdk.MustAccAddressFromBech32(vote.Voter)), k.cdc.MustMarshal(&vote))

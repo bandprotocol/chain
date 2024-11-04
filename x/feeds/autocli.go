@@ -78,7 +78,7 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 				{
 					RpcMethod:      "Vote",
 					Use:            "vote [voter]",
-					Short:          "Get signals submitted by a voter",
+					Short:          "Get signals voted by a voter",
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "voter"}},
 				},
 			},
