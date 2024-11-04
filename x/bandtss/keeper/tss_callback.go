@@ -43,7 +43,7 @@ func (cb TSSCallback) OnGroupCreationCompleted(ctx sdk.Context, groupID tss.Grou
 	} else {
 		// create a signing request for transition. If the signing request is failed, set the
 		// transition status to fallen.
-		signingID, err := cb.k.CreateTransitionSigning(ctx, group.PubKey)
+		signingID, err := cb.k.CreateTransitionSigning(ctx, group.PubKey, transition.ExecTime)
 		if err != nil {
 			cb.k.EndGroupTransitionProcess(ctx, transition, false)
 			return

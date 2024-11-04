@@ -2212,14 +2212,16 @@ func (x *fastReflection_GroupTransition) ProtoMethods() *protoiface.Methods {
 }
 
 var (
-	md_GroupTransitionSignatureOrder         protoreflect.MessageDescriptor
-	fd_GroupTransitionSignatureOrder_pub_key protoreflect.FieldDescriptor
+	md_GroupTransitionSignatureOrder                 protoreflect.MessageDescriptor
+	fd_GroupTransitionSignatureOrder_pub_key         protoreflect.FieldDescriptor
+	fd_GroupTransitionSignatureOrder_transition_time protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_band_bandtss_v1beta1_bandtss_proto_init()
 	md_GroupTransitionSignatureOrder = File_band_bandtss_v1beta1_bandtss_proto.Messages().ByName("GroupTransitionSignatureOrder")
 	fd_GroupTransitionSignatureOrder_pub_key = md_GroupTransitionSignatureOrder.Fields().ByName("pub_key")
+	fd_GroupTransitionSignatureOrder_transition_time = md_GroupTransitionSignatureOrder.Fields().ByName("transition_time")
 }
 
 var _ protoreflect.Message = (*fastReflection_GroupTransitionSignatureOrder)(nil)
@@ -2293,6 +2295,12 @@ func (x *fastReflection_GroupTransitionSignatureOrder) Range(f func(protoreflect
 			return
 		}
 	}
+	if x.TransitionTime != nil {
+		value := protoreflect.ValueOfMessage(x.TransitionTime.ProtoReflect())
+		if !f(fd_GroupTransitionSignatureOrder_transition_time, value) {
+			return
+		}
+	}
 }
 
 // Has reports whether a field is populated.
@@ -2310,6 +2318,8 @@ func (x *fastReflection_GroupTransitionSignatureOrder) Has(fd protoreflect.Field
 	switch fd.FullName() {
 	case "band.bandtss.v1beta1.GroupTransitionSignatureOrder.pub_key":
 		return len(x.PubKey) != 0
+	case "band.bandtss.v1beta1.GroupTransitionSignatureOrder.transition_time":
+		return x.TransitionTime != nil
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.GroupTransitionSignatureOrder"))
@@ -2328,6 +2338,8 @@ func (x *fastReflection_GroupTransitionSignatureOrder) Clear(fd protoreflect.Fie
 	switch fd.FullName() {
 	case "band.bandtss.v1beta1.GroupTransitionSignatureOrder.pub_key":
 		x.PubKey = nil
+	case "band.bandtss.v1beta1.GroupTransitionSignatureOrder.transition_time":
+		x.TransitionTime = nil
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.GroupTransitionSignatureOrder"))
@@ -2347,6 +2359,9 @@ func (x *fastReflection_GroupTransitionSignatureOrder) Get(descriptor protorefle
 	case "band.bandtss.v1beta1.GroupTransitionSignatureOrder.pub_key":
 		value := x.PubKey
 		return protoreflect.ValueOfBytes(value)
+	case "band.bandtss.v1beta1.GroupTransitionSignatureOrder.transition_time":
+		value := x.TransitionTime
+		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.GroupTransitionSignatureOrder"))
@@ -2369,6 +2384,8 @@ func (x *fastReflection_GroupTransitionSignatureOrder) Set(fd protoreflect.Field
 	switch fd.FullName() {
 	case "band.bandtss.v1beta1.GroupTransitionSignatureOrder.pub_key":
 		x.PubKey = value.Bytes()
+	case "band.bandtss.v1beta1.GroupTransitionSignatureOrder.transition_time":
+		x.TransitionTime = value.Message().Interface().(*timestamppb.Timestamp)
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.GroupTransitionSignatureOrder"))
@@ -2389,6 +2406,11 @@ func (x *fastReflection_GroupTransitionSignatureOrder) Set(fd protoreflect.Field
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_GroupTransitionSignatureOrder) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
+	case "band.bandtss.v1beta1.GroupTransitionSignatureOrder.transition_time":
+		if x.TransitionTime == nil {
+			x.TransitionTime = new(timestamppb.Timestamp)
+		}
+		return protoreflect.ValueOfMessage(x.TransitionTime.ProtoReflect())
 	case "band.bandtss.v1beta1.GroupTransitionSignatureOrder.pub_key":
 		panic(fmt.Errorf("field pub_key of message band.bandtss.v1beta1.GroupTransitionSignatureOrder is not mutable"))
 	default:
@@ -2406,6 +2428,9 @@ func (x *fastReflection_GroupTransitionSignatureOrder) NewField(fd protoreflect.
 	switch fd.FullName() {
 	case "band.bandtss.v1beta1.GroupTransitionSignatureOrder.pub_key":
 		return protoreflect.ValueOfBytes(nil)
+	case "band.bandtss.v1beta1.GroupTransitionSignatureOrder.transition_time":
+		m := new(timestamppb.Timestamp)
+		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.GroupTransitionSignatureOrder"))
@@ -2479,6 +2504,10 @@ func (x *fastReflection_GroupTransitionSignatureOrder) ProtoMethods() *protoifac
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
+		if x.TransitionTime != nil {
+			l = options.Size(x.TransitionTime)
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
 		if x.unknownFields != nil {
 			n += len(x.unknownFields)
 		}
@@ -2507,6 +2536,20 @@ func (x *fastReflection_GroupTransitionSignatureOrder) ProtoMethods() *protoifac
 		if x.unknownFields != nil {
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
+		}
+		if x.TransitionTime != nil {
+			encoded, err := options.Marshal(x.TransitionTime)
+			if err != nil {
+				return protoiface.MarshalOutput{
+					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+					Buf:               input.Buf,
+				}, err
+			}
+			i -= len(encoded)
+			copy(dAtA[i:], encoded)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+			i--
+			dAtA[i] = 0x12
 		}
 		if len(x.PubKey) > 0 {
 			i -= len(x.PubKey)
@@ -2596,6 +2639,42 @@ func (x *fastReflection_GroupTransitionSignatureOrder) ProtoMethods() *protoifac
 				x.PubKey = append(x.PubKey[:0], dAtA[iNdEx:postIndex]...)
 				if x.PubKey == nil {
 					x.PubKey = []byte{}
+				}
+				iNdEx = postIndex
+			case 2:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field TransitionTime", wireType)
+				}
+				var msglen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					msglen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if x.TransitionTime == nil {
+					x.TransitionTime = &timestamppb.Timestamp{}
+				}
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.TransitionTime); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
 				}
 				iNdEx = postIndex
 			default:
@@ -2962,6 +3041,8 @@ type GroupTransitionSignatureOrder struct {
 
 	// pub_key is the public key of new group that the current group needs to be signed.
 	PubKey []byte `protobuf:"bytes,1,opt,name=pub_key,json=pubKey,proto3" json:"pub_key,omitempty"`
+	// transition_time is the timestamp at which the transition is executed and the public key is active.
+	TransitionTime *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=transition_time,json=transitionTime,proto3" json:"transition_time,omitempty"`
 }
 
 func (x *GroupTransitionSignatureOrder) Reset() {
@@ -2987,6 +3068,13 @@ func (*GroupTransitionSignatureOrder) Descriptor() ([]byte, []int) {
 func (x *GroupTransitionSignatureOrder) GetPubKey() []byte {
 	if x != nil {
 		return x.PubKey
+	}
+	return nil
+}
+
+func (x *GroupTransitionSignatureOrder) GetTransitionTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.TransitionTime
 	}
 	return nil
 }
@@ -3099,14 +3187,19 @@ var file_band_bandtss_v1beta1_bandtss_proto_rawDesc = []byte{
 	0x65, 0x63, 0x54, 0x69, 0x6d, 0x65, 0x12, 0x2e, 0x0a, 0x13, 0x69, 0x73, 0x5f, 0x66, 0x6f, 0x72,
 	0x63, 0x65, 0x5f, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x08, 0x20,
 	0x01, 0x28, 0x08, 0x52, 0x11, 0x69, 0x73, 0x46, 0x6f, 0x72, 0x63, 0x65, 0x54, 0x72, 0x61, 0x6e,
-	0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0x7b, 0x0a, 0x1d, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x54,
-	0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75,
-	0x72, 0x65, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x12, 0x4d, 0x0a, 0x07, 0x70, 0x75, 0x62, 0x5f, 0x6b,
-	0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x42, 0x34, 0xfa, 0xde, 0x1f, 0x30, 0x67, 0x69,
-	0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x63, 0x6f, 0x6d, 0x65, 0x74, 0x62, 0x66,
-	0x74, 0x2f, 0x63, 0x6f, 0x6d, 0x65, 0x74, 0x62, 0x66, 0x74, 0x2f, 0x6c, 0x69, 0x62, 0x73, 0x2f,
-	0x62, 0x79, 0x74, 0x65, 0x73, 0x2e, 0x48, 0x65, 0x78, 0x42, 0x79, 0x74, 0x65, 0x73, 0x52, 0x06,
-	0x70, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x3a, 0x0b, 0xca, 0xb4, 0x2d, 0x07, 0x43, 0x6f, 0x6e, 0x74,
+	0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x22, 0xca, 0x01, 0x0a, 0x1d, 0x47, 0x72, 0x6f, 0x75, 0x70,
+	0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74,
+	0x75, 0x72, 0x65, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x12, 0x4d, 0x0a, 0x07, 0x70, 0x75, 0x62, 0x5f,
+	0x6b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x42, 0x34, 0xfa, 0xde, 0x1f, 0x30, 0x67,
+	0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x63, 0x6f, 0x6d, 0x65, 0x74, 0x62,
+	0x66, 0x74, 0x2f, 0x63, 0x6f, 0x6d, 0x65, 0x74, 0x62, 0x66, 0x74, 0x2f, 0x6c, 0x69, 0x62, 0x73,
+	0x2f, 0x62, 0x79, 0x74, 0x65, 0x73, 0x2e, 0x48, 0x65, 0x78, 0x42, 0x79, 0x74, 0x65, 0x73, 0x52,
+	0x06, 0x70, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x12, 0x4d, 0x0a, 0x0f, 0x74, 0x72, 0x61, 0x6e, 0x73,
+	0x69, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x74, 0x69, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b,
+	0x32, 0x1a, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62,
+	0x75, 0x66, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x42, 0x08, 0xc8, 0xde,
+	0x1f, 0x00, 0x90, 0xdf, 0x1f, 0x01, 0x52, 0x0e, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69,
+	0x6f, 0x6e, 0x54, 0x69, 0x6d, 0x65, 0x3a, 0x0b, 0xca, 0xb4, 0x2d, 0x07, 0x43, 0x6f, 0x6e, 0x74,
 	0x65, 0x6e, 0x74, 0x2a, 0xae, 0x01, 0x0a, 0x10, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69,
 	0x6f, 0x6e, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x12, 0x21, 0x0a, 0x1d, 0x54, 0x52, 0x41, 0x4e,
 	0x53, 0x49, 0x54, 0x49, 0x4f, 0x4e, 0x5f, 0x53, 0x54, 0x41, 0x54, 0x55, 0x53, 0x5f, 0x55, 0x4e,
@@ -3165,11 +3258,12 @@ var file_band_bandtss_v1beta1_bandtss_proto_depIdxs = []int32{
 	6, // 2: band.bandtss.v1beta1.Signing.fee_per_signer:type_name -> cosmos.base.v1beta1.Coin
 	0, // 3: band.bandtss.v1beta1.GroupTransition.status:type_name -> band.bandtss.v1beta1.TransitionStatus
 	5, // 4: band.bandtss.v1beta1.GroupTransition.exec_time:type_name -> google.protobuf.Timestamp
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	5, // 5: band.bandtss.v1beta1.GroupTransitionSignatureOrder.transition_time:type_name -> google.protobuf.Timestamp
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_band_bandtss_v1beta1_bandtss_proto_init() }
