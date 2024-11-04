@@ -43,8 +43,8 @@ validator_prices = sa.Table(
     Column("timestamp", CustomDateTime, index=True),
 )
 
-delegator_signals = sa.Table(
-    "delegator_signals",
+voter_signals = sa.Table(
+    "voter_signals",
     metadata,
     Column("account_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
     Column("signal_id", sa.String, primary_key=True),

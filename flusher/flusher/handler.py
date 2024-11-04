@@ -50,7 +50,7 @@ from .feeds_db import (
     PRICE_HISTORY_PERIOD,
     signal_prices_txs,
     validator_prices,
-    delegator_signals,
+    voter_signals,
     signal_total_powers,
     historical_prices,
     reference_source_configs,
@@ -811,19 +811,19 @@ class Handler(object):
         # Execute the batched upsert
         self.conn.execute(stmt)
 
-    def handle_set_delegator_signal(self, msg):
-        msg["account_id"] = self.get_account_id(msg["delegator"])
-        del msg["delegator"]
+    def handle_set_voter_signal(self, msg):
+        msg["account_id"] = self.get_account_id(msg["voter"])
+        del msg["voter"]
         self.conn.execute(
-            insert(delegator_signals)
+            insert(voter_signals)
             .values(**msg)
-            .on_conflict_do_update(constraint="delegator_signals_pkey", set_=msg)
+            .on_conflict_do_update(constraint="voter_signals_pkey", set_=msg)
         )
 
-    def handle_remove_delegator_signals(self, msg):
+    def handle_remove_voter_signals(self, msg):
         self.conn.execute(
-            delegator_signals.delete().where(
-                delegator_signals.c.account_id == self.get_account_id(msg["delegator"])
+            voter_signals.delete().where(
+                voter_signals.c.account_id == self.get_account_id(msg["voter"])
             )
         )
 

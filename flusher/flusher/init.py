@@ -301,12 +301,12 @@ WHERE
 
     engine.execute(
         """
-CREATE VIEW delegator_power_aggregate AS
+CREATE VIEW voter_power_aggregate AS
 SELECT 
     account_id,
     COALESCE(SUM(power), 0) AS total_power
 FROM 
-    delegator_signals
+    voter_signals
 GROUP BY 
     account_id;
     """
