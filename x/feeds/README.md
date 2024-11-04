@@ -56,9 +56,9 @@ This module is used in the BandChain.
 
 ### Vote
 
-A Vote is a vote from a voter, instructing the chain to provide feed service for the designated ID.
+A Vote is a decision made by a voter, directing the network to deliver feed service for a specified signal ID.
 
-A Vote consists of an ID and the power associated with that ID. The feeding interval and deviation are reduced by the sum of the power of the ID. The total power of a voter cannot exceed their total bonded delegation and staked tokens.
+A signal consists of an signal ID and the power associated with that signal. The feeding interval and deviation are reduced by the sum of the power of the signal. The total power of all signals of voter cannot exceed their total bonded delegation and staked tokens.
 
 ### Feed
 
