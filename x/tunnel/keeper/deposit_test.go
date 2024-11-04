@@ -55,21 +55,22 @@ func (s *KeeperTestSuite) TestGetDeposits() {
 	ctx, k := s.ctx, s.keeper
 
 	tunnelID1 := uint64(1)
-	tunnelID2 := uint64(2)
 
-	depositorAddr := sdk.AccAddress([]byte("depositor"))
+	depositorAddr1 := sdk.AccAddress([]byte("depositor1"))
+	depositorAddr2 := sdk.AccAddress([]byte("depositor2"))
+
 	depositAmount := sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(100)))
 
 	// add a deposit
-	deposit1 := types.Deposit{TunnelID: tunnelID1, Depositor: depositorAddr.String(), Amount: depositAmount}
+	deposit1 := types.Deposit{TunnelID: tunnelID1, Depositor: depositorAddr1.String(), Amount: depositAmount}
 	k.SetDeposit(ctx, deposit1)
 
 	// add another deposit
-	deposit2 := types.Deposit{TunnelID: tunnelID2, Depositor: depositorAddr.String(), Amount: depositAmount}
+	deposit2 := types.Deposit{TunnelID: tunnelID1, Depositor: depositorAddr2.String(), Amount: depositAmount}
 	k.SetDeposit(ctx, deposit2)
 
-	deposits := k.GetDeposits(ctx, tunnelID2)
-	s.Require().Len(deposits, 1)
+	deposits := k.GetDeposits(ctx, tunnelID1)
+	s.Require().Len(deposits, 2)
 	s.Require().Equal(deposit1, deposits[0])
 	s.Require().Equal(deposit2, deposits[1])
 }
@@ -85,7 +86,7 @@ func (s *KeeperTestSuite) TestGetAllDeposits() {
 	k.SetDeposit(ctx, deposit1)
 
 	tunnelID2 := uint64(2)
-	depositorAddr2 := sdk.AccAddress([]byte("depositor"))
+	depositorAddr2 := sdk.AccAddress([]byte("depositor2"))
 	depositAmount2 := sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(200)))
 
 	deposit2 := types.Deposit{TunnelID: tunnelID2, Depositor: depositorAddr2.String(), Amount: depositAmount2}
