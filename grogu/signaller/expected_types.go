@@ -3,13 +3,13 @@ package signaller
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client"
+	bothanclient "github.com/bandprotocol/bothan/bothan-api/client/go-client"
 
 	feeds "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 type BothanClient interface {
-	bothan.Client
+	bothanclient.Client
 }
 
 type FeedQuerier interface {
