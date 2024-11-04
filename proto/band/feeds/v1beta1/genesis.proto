@@ -12,8 +12,8 @@ message GenesisState {
   // params is all parameters of the module.
   Params params = 1 [(gogoproto.nullable) = false];
 
-  // delegator_signals is a list of delegator signals submitted by delegators.
-  repeated DelegatorSignals delegator_signals = 2 [(gogoproto.nullable) = false];
+  // votes is a list of voter signals.
+  repeated Vote votes = 2 [(gogoproto.nullable) = false];
 
   // reference_source_config is the information about reference price config.
   ReferenceSourceConfig reference_source_config = 3 [(gogoproto.nullable) = false];
