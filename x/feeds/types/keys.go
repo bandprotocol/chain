@@ -30,7 +30,7 @@ var (
 	// store prefixes
 	ValidatorPriceListStoreKeyPrefix = []byte{0x10}
 	PriceStoreKeyPrefix              = []byte{0x11}
-	DelegatorSignalsStoreKeyPrefix   = []byte{0x12}
+	VoteStoreKeyPrefix               = []byte{0x12}
 	SignalTotalPowerStoreKeyPrefix   = []byte{0x13}
 
 	// index prefixes
@@ -40,9 +40,9 @@ var (
 	ParamsKey = []byte{0x90}
 )
 
-// DelegatorSignalsStoreKey creates a key for storing delegator signals
-func DelegatorSignalsStoreKey(delegator sdk.AccAddress) []byte {
-	return append(DelegatorSignalsStoreKeyPrefix, address.MustLengthPrefix(delegator.Bytes())...)
+// VoteStoreKey creates a key for storing vote
+func VoteStoreKey(voter sdk.AccAddress) []byte {
+	return append(VoteStoreKeyPrefix, address.MustLengthPrefix(voter.Bytes())...)
 }
 
 // SignalTotalPowerStoreKey creates a key for storing signal-total-powers

@@ -8,7 +8,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
+	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/bothan/v1"
 
 	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
@@ -41,19 +41,19 @@ func isDeviated(deviationBasisPoint int64, oldPrice uint64, newPrice uint64) boo
 
 func convertPriceData(price *bothan.Price) (types.SignalPrice, error) {
 	switch price.Status {
-	case bothan.Status_UNSUPPORTED:
+	case bothan.Status_STATUS_UNSUPPORTED:
 		return types.NewSignalPrice(
 			types.PriceStatusUnsupported,
 			price.SignalId,
 			0,
 		), nil
-	case bothan.Status_UNAVAILABLE:
+	case bothan.Status_STATUS_UNAVAILABLE:
 		return types.NewSignalPrice(
 			types.PriceStatusUnavailable,
 			price.SignalId,
 			0,
 		), nil
-	case bothan.Status_AVAILABLE:
+	case bothan.Status_STATUS_AVAILABLE:
 		return types.NewSignalPrice(
 			types.PriceStatusAvailable,
 			price.SignalId,
