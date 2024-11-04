@@ -840,7 +840,10 @@ func (s *KeeperTestSuite) TestCallbackOnGroupCreationComplete() {
 					gomock.Any(),
 					tss.GroupID(1),
 					gomock.Any(),
-					types.NewGroupTransitionSignatureOrder(tss.Point([]byte("pubkey-2"))),
+					types.NewGroupTransitionSignatureOrder(
+						tss.Point([]byte("pubkey-2")),
+						s.ctx.BlockTime().Add(10*time.Minute),
+					),
 				).Return(tss.SigningID(1), nil)
 			},
 			postCheck: func(s *KeeperTestSuite) {

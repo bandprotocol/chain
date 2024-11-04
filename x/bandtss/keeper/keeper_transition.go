@@ -152,6 +152,7 @@ func (k Keeper) ExtractEventAttributesFromTransition(transition types.GroupTrans
 func (k Keeper) CreateTransitionSigning(
 	ctx sdk.Context,
 	groupPubKey tss.Point,
+	transitionTime time.Time,
 ) (tss.SigningID, error) {
 	currentGroupID := k.GetCurrentGroupID(ctx)
 
@@ -160,7 +161,7 @@ func (k Keeper) CreateTransitionSigning(
 		Requester: moduleAcc.GetAddress().String(),
 	}
 
-	content := types.NewGroupTransitionSignatureOrder(groupPubKey)
+	content := types.NewGroupTransitionSignatureOrder(groupPubKey, transitionTime)
 
 	signingID, err := k.tssKeeper.RequestSigning(ctx, currentGroupID, originator, content)
 	if err != nil {

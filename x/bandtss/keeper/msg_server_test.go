@@ -455,7 +455,7 @@ func (s *AppTestSuite) TestFailRequestSignatureInternalMessage() {
 	k.DeleteGroupTransition(ctx)
 
 	msg, err := types.NewMsgRequestSignature(
-		types.NewGroupTransitionSignatureOrder([]byte("msg")),
+		types.NewGroupTransitionSignatureOrder([]byte("msg"), time.Now()),
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 		bandtesting.FeePayer.Address.String(),
 	)
