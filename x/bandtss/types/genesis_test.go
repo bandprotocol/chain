@@ -5,13 +5,21 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	band "github.com/bandprotocol/chain/v3/app"
 	"github.com/bandprotocol/chain/v3/x/bandtss/types"
 )
+
+func init() {
+	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
+	sdk.DefaultBondDenom = "uband"
+}
 
 func TestGenesisStateValidate(t *testing.T) {
 	validMembers := []types.Member{
 		{
-			Address: "cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8",
+			Address: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 			GroupID: 1,
 		},
 	}

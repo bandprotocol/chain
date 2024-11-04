@@ -14,11 +14,11 @@ import (
 
 var (
 	validMembers = []string{
-		"cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8",
-		"cosmos1quh7acmun7tx6ywkvqr53m3fe39gxu9k00t4ds",
+		"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+		"band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 	}
 
-	validSender = "cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8"
+	validSender = "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
 )
 
 // ====================================
