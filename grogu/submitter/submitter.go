@@ -159,10 +159,7 @@ func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID st
 		switch {
 		case finalizedTxResp.Code == 0:
 			s.logger.Info("[Submitter] price submitted at %v", finalizedTxResp.TxHash)
-			err = s.bothanClient.PushMonitoringRecords(uuid, finalizedTxResp.TxHash)
-			if err != nil {
-				s.logger.Error("[Submitter] failed to push monitoring records: %v", err)
-			}
+			s.pushMonitoringRecords(uuid, finalizedTxResp.TxHash)
 			return
 		case finalizedTxResp.Codespace == sdkerrors.RootCodespace && finalizedTxResp.Code == sdkerrors.ErrOutOfGas.ABCICode():
 			s.logger.Info("[Submitter] transaction is out of gas, retrying with increased gas adjustment")
@@ -173,6 +170,27 @@ func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID st
 	}
 
 	s.logger.Error("[Submitter] failed to submit price")
+}
+
+func (s *Submitter) pushMonitoringRecords(uuid, txHash string) {
+	bothanInfo, err := s.bothanClient.GetInfo()
+	if err != nil {
+		s.logger.Error("[Updater] failed to query Bothan info: %v", err)
+		return
+	}
+
+	if !bothanInfo.MonitoringEnabled {
+		s.logger.Debug("[Updater] monitoring is not enabled, skipping push")
+		return
+	}
+
+	err = s.bothanClient.PushMonitoringRecords(uuid, txHash)
+	if err != nil {
+		s.logger.Error("[Updater] failed to push monitoring records to Bothan: %v", err)
+		return
+	}
+
+	s.logger.Info("[Updater] successfully pushed monitoring records to Bothan")
 }
 
 func (s *Submitter) getAccountFromKey(key *keyring.Record) (client.Account, error) {

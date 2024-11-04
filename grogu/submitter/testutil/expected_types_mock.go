@@ -13,8 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	price "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
-	signal "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/signal"
+	proto "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/bothan/v1"
 	bytes "github.com/cometbft/cometbft/libs/bytes"
 	log "github.com/cometbft/cometbft/libs/log"
 	client "github.com/cometbft/cometbft/rpc/client"
@@ -707,10 +706,10 @@ func (m *MockBothanClient) EXPECT() *MockBothanClientMockRecorder {
 }
 
 // GetInfo mocks base method.
-func (m *MockBothanClient) GetInfo() (*signal.GetInfoResponse, error) {
+func (m *MockBothanClient) GetInfo() (*proto.GetInfoResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetInfo")
-	ret0, _ := ret[0].(*signal.GetInfoResponse)
+	ret0, _ := ret[0].(*proto.GetInfoResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -722,10 +721,10 @@ func (mr *MockBothanClientMockRecorder) GetInfo() *gomock.Call {
 }
 
 // GetPrices mocks base method.
-func (m *MockBothanClient) GetPrices(signalIDs []string) (*price.GetPricesResponse, error) {
+func (m *MockBothanClient) GetPrices(signalIDs []string) (*proto.GetPricesResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPrices", signalIDs)
-	ret0, _ := ret[0].(*price.GetPricesResponse)
+	ret0, _ := ret[0].(*proto.GetPricesResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

@@ -12,8 +12,7 @@ package testutil
 import (
 	reflect "reflect"
 
-	price "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
-	signal "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/signal"
+	proto "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/bothan/v1"
 	types "github.com/bandprotocol/chain/v3/x/feeds/types"
 	types0 "github.com/cosmos/cosmos-sdk/types"
 	gomock "go.uber.org/mock/gomock"
@@ -44,10 +43,10 @@ func (m *MockBothanClient) EXPECT() *MockBothanClientMockRecorder {
 }
 
 // GetInfo mocks base method.
-func (m *MockBothanClient) GetInfo() (*signal.GetInfoResponse, error) {
+func (m *MockBothanClient) GetInfo() (*proto.GetInfoResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetInfo")
-	ret0, _ := ret[0].(*signal.GetInfoResponse)
+	ret0, _ := ret[0].(*proto.GetInfoResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -59,10 +58,10 @@ func (mr *MockBothanClientMockRecorder) GetInfo() *gomock.Call {
 }
 
 // GetPrices mocks base method.
-func (m *MockBothanClient) GetPrices(signalIDs []string) (*price.GetPricesResponse, error) {
+func (m *MockBothanClient) GetPrices(signalIDs []string) (*proto.GetPricesResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetPrices", signalIDs)
-	ret0, _ := ret[0].(*price.GetPricesResponse)
+	ret0, _ := ret[0].(*proto.GetPricesResponse)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

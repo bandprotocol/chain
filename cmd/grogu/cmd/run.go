@@ -18,7 +18,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client"
+	bothanclient "github.com/bandprotocol/bothan/bothan-api/client/go-client"
 
 	"github.com/bandprotocol/chain/v3/grogu/context"
 	"github.com/bandprotocol/chain/v3/grogu/querier"
@@ -123,7 +123,7 @@ func createRunE(ctx *context.Context) func(cmd *cobra.Command, args []string) er
 		if err != nil {
 			return err
 		}
-		bothanService, err := bothan.NewGrpcClient(ctx.Config.Bothan, timeout)
+		bothanService, err := bothanclient.NewGrpcClient(ctx.Config.Bothan, timeout)
 		if err != nil {
 			return err
 		}
