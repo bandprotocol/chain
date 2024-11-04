@@ -12,8 +12,8 @@ var (
 	_ Originator = &DirectOriginator{}
 	_ Originator = &TunnelOriginator{}
 
-	directOriginatorPrefix = tss.Hash([]byte("directOriginatorPrefix"))[:4]
-	tunnelOriginatorPrefix = tss.Hash([]byte("tunnelOriginatorPrefix"))[:4]
+	DirectOriginatorPrefix = tss.Hash([]byte("directOriginatorPrefix"))[:4]
+	TunnelOriginatorPrefix = tss.Hash([]byte("tunnelOriginatorPrefix"))[:4]
 )
 
 // Originator is the interface for identifying the metadata of the message. The hashed of the
@@ -39,7 +39,7 @@ func (o DirectOriginator) Validate(p Params) error {
 // Encode encodes the originator into a byte array.
 func (o DirectOriginator) Encode() ([]byte, error) {
 	bz := bytes.Join([][]byte{
-		directOriginatorPrefix,
+		DirectOriginatorPrefix,
 		sdk.Uint64ToBigEndian(uint64(len(o.Requester))),
 		[]byte(o.Requester),
 		sdk.Uint64ToBigEndian(uint64(len(o.Memo))),
@@ -61,7 +61,7 @@ func (o TunnelOriginator) Validate(p Params) error {
 // Encode encodes the originator into a byte array.
 func (o TunnelOriginator) Encode() ([]byte, error) {
 	bz := bytes.Join([][]byte{
-		tunnelOriginatorPrefix,
+		TunnelOriginatorPrefix,
 		sdk.Uint64ToBigEndian(o.TunnelID),
 		sdk.Uint64ToBigEndian(uint64(len(o.ContractAddress))),
 		[]byte(o.ContractAddress),
