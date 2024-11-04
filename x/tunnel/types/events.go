@@ -9,9 +9,11 @@ const (
 	EventTypeDeactivate           = "deactivate"
 	EventTypeTriggerTunnel        = "trigger_tunnel"
 	EventTypeProducePacketFail    = "produce_packet_fail"
+	EventTypeProducePacketSuccess = "produce_packet_success"
 
 	AttributeKeyParams          = "params"
 	AttributeKeyTunnelID        = "tunnel_id"
+	AttributeKeySequence        = "sequence"
 	AttributeKeyInterval        = "interval"
 	AttributeKeyRoute           = "route"
 	AttributeKeyEncoder         = "encoder"
