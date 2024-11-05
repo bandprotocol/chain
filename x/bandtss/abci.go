@@ -7,7 +7,7 @@ import (
 )
 
 // BeginBlocker handles the logic at the beginning of a block.
-func BeginBlocker(ctx sdk.Context, k *keeper.Keeper) error {
+func BeginBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	// Reward a portion of block rewards (inflation + tx fee) to active tss members.
 	k.AllocateTokens(ctx)
 
@@ -15,7 +15,7 @@ func BeginBlocker(ctx sdk.Context, k *keeper.Keeper) error {
 }
 
 // EndBlocker handles tasks at the end of a block.
-func EndBlocker(ctx sdk.Context, k *keeper.Keeper) error {
+func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	// execute group transition if the transition execution time is reached.
 	if transition, ok := k.ShouldExecuteGroupTransition(ctx); ok {
 		k.ExecuteGroupTransition(ctx, transition)

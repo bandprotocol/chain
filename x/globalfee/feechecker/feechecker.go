@@ -50,7 +50,7 @@ func NewFeeChecker(
 	feedsKeeper *feedskeeper.Keeper,
 ) FeeChecker {
 	tssMsgServer := tsskeeper.NewMsgServerImpl(tssKeeper)
-	bandtssMsgServer := bandtsskeeper.NewMsgServerImpl(bandtssKeeper)
+	bandtssMsgServer := bandtsskeeper.NewMsgServerImpl(*bandtssKeeper)
 	feedsMsgServer := feedskeeper.NewMsgServerImpl(*feedsKeeper)
 
 	return FeeChecker{

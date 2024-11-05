@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"sort"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -24,7 +25,16 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 		desMapping[deq.Address] = append(desMapping[deq.Address], deq.DE)
 	}
 
-	for addr, des := range desMapping {
+	// sort addresses to ensure consistent ordering
+	addresses := make([]string, 0, len(desMapping))
+	for addr := range desMapping {
+		addresses = append(addresses, addr)
+	}
+	sort.Strings(addresses)
+
+	for _, addr := range addresses {
+		des := desMapping[addr]
+
 		if uint64(len(des)) > data.Params.MaxDESize {
 			panic(fmt.Sprintf("DEs of %s size exceeds MaxDESize", addr))
 		}

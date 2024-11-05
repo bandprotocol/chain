@@ -116,13 +116,13 @@ func getSignatureOrderCLIHandlers(handlers []bandtssclient.RequestSignatureHandl
 type AppModule struct {
 	AppModuleBasic
 
-	keeper *keeper.Keeper
+	keeper keeper.Keeper
 }
 
 // NewAppModule creates a new AppModule object.
 func NewAppModule(
 	cdc codec.Codec,
-	k *keeper.Keeper,
+	k keeper.Keeper,
 	signatureOrderHandlers ...bandtssclient.RequestSignatureHandler,
 ) AppModule {
 	return AppModule{

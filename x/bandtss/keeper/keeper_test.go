@@ -281,7 +281,7 @@ type KeeperTestSuite struct {
 	key  *storetypes.KVStoreKey
 	tkey *storetypes.TransientStoreKey
 
-	keeper      *keeper.Keeper
+	keeper      keeper.Keeper
 	queryServer types.QueryServer
 	tssCallback *keeper.TSSCallback
 
