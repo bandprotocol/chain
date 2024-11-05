@@ -12,6 +12,7 @@ import (
 const GroupTransitionPath = "transition"
 
 // GroupTransitionMsgPrefix is the prefix for transition group msg.
+// The value is tss.Hash([]byte("transition"))[:4]
 var GroupTransitionMsgPrefix = tss.Hash([]byte(GroupTransitionPath))[:4]
 
 // Implements SignatureRequest Interface
