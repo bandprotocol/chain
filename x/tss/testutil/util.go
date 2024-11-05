@@ -3,7 +3,7 @@ package testutil
 import (
 	"fmt"
 	"math/rand"
-	time "time"
+	"time"
 
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 	bandtesting "github.com/bandprotocol/chain/v3/testing"

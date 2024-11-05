@@ -20,6 +20,6 @@ const (
 	AttributeKeyGroupID                = "group_id"
 	AttributeKeyIncomingGroupPubKey    = "incoming_group_pub_key"
 	AttributeKeyCurrentGroupPubKey     = "current_group_pub_key"
-	AttributeKeyRAddress               = "r_address"
+	AttributeKeyRandomAddress          = "random_address"
 	AttributeKeySignature              = "signature"
 )
