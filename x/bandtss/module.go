@@ -120,9 +120,13 @@ type AppModule struct {
 }
 
 // NewAppModule creates a new AppModule object.
-func NewAppModule(cdc codec.Codec, k *keeper.Keeper) AppModule {
+func NewAppModule(
+	cdc codec.Codec,
+	k *keeper.Keeper,
+	signatureOrderHandlers ...bandtssclient.RequestSignatureHandler,
+) AppModule {
 	return AppModule{
-		AppModuleBasic: NewAppModuleBasic(cdc),
+		AppModuleBasic: NewAppModuleBasic(cdc, signatureOrderHandlers...),
 		keeper:         k,
 	}
 }
