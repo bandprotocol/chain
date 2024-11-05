@@ -9,6 +9,17 @@ import (
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 )
 
+// NewCurrentGroup creates a new current group object.
+func NewCurrentGroup(
+	id tss.GroupID,
+	transitionSince time.Time,
+) CurrentGroup {
+	return CurrentGroup{
+		GroupID:    id,
+		ActiveTime: transitionSince,
+	}
+}
+
 // NewGroupTransition creates a transition object.
 func NewGroupTransition(
 	signingID tss.SigningID,

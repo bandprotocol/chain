@@ -235,7 +235,7 @@ func (ba *BenchmarkApp) SetupTSSGroup() {
 	tssKeeper.SetDKGContext(ctx, gid, dkg)
 
 	// Set current group in bandtss module
-	bandtssKeeper.SetCurrentGroupID(ctx, gid)
+	bandtssKeeper.SetCurrentGroup(ctx, bandtsstypes.NewCurrentGroup(gid, ctx.BlockTime()))
 	err = bandtssKeeper.AddMember(ctx, ba.Sender.Address, gid)
 	require.NoError(ba.TB, err)
 

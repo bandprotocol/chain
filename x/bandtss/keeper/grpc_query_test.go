@@ -99,7 +99,7 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 	for _, tc := range testCases {
 		s.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			q := s.queryServer
-			s.keeper.SetCurrentGroupID(s.ctx, 1)
+			s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(1, time.Now()))
 
 			for _, member := range members {
 				s.keeper.SetMember(s.ctx, *member)

@@ -176,7 +176,7 @@ func (fc FeeChecker) IsBypassMinFeeMsg(ctx sdk.Context, msg sdk.Msg) bool {
 			return false
 		}
 
-		currentGroupID := fc.BandtssKeeper.GetCurrentGroupID(ctx)
+		currentGroupID := fc.BandtssKeeper.GetCurrentGroup(ctx).GroupID
 		incomingGroupID := fc.BandtssKeeper.GetIncomingGroupID(ctx)
 		if !fc.BandtssKeeper.HasMember(ctx, acc, currentGroupID) &&
 			!fc.BandtssKeeper.HasMember(ctx, acc, incomingGroupID) {

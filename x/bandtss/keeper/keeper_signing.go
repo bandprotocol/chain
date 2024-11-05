@@ -53,7 +53,7 @@ func (k Keeper) createSigningRequest(
 	sender sdk.AccAddress,
 	feeLimit sdk.Coins,
 ) (types.SigningID, error) {
-	currentGroupID := k.GetCurrentGroupID(ctx)
+	currentGroupID := k.GetCurrentGroup(ctx).GroupID
 	incomingGroupID := k.GetIncomingGroupID(ctx)
 	if currentGroupID == 0 && incomingGroupID == 0 {
 		return 0, types.ErrNoActiveGroup

@@ -26,7 +26,7 @@ const (
 var (
 	// global store keys
 	SigningCountStoreKey    = []byte{0x00}
-	CurrentGroupIDStoreKey  = []byte{0x01}
+	CurrentGroupStoreKey    = []byte{0x01}
 	GroupTransitionStoreKey = []byte{0x02}
 
 	// store prefixes

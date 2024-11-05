@@ -26,6 +26,15 @@ message Member {
   google.protobuf.Timestamp last_active = 5 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
 }
 
+// CuurentGroup is a bandtss current group information.
+message CurrentGroup {
+  // group_id is the ID of the current group.
+  uint64 group_id = 1
+      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.GroupID"];
+  // active_time is the timestamp at which the group becomes the current group of the module.
+  google.protobuf.Timestamp active_time = 2 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+}
+
 // Signing is a bandtss signing information.
 message Signing {
   option (gogoproto.equal) = true;
