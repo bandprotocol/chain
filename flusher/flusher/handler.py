@@ -48,13 +48,13 @@ from .db import (
 
 from .feeds_db import (
     PRICE_HISTORY_PERIOD,
-    signal_prices_txs,
-    validator_prices,
-    voter_signals,
-    signal_total_powers,
-    historical_prices,
-    reference_source_configs,
-    feeders,
+    feeds_signal_prices_txs,
+    feeds_validator_prices,
+    feeds_voter_signals,
+    feeds_signal_total_powers,
+    feeds_historical_prices,
+    feeds_reference_source_configs,
+    feeds_feeders,
 )
 from .restake_db import restake_vaults, restake_locks, restake_historical_stakes
 
@@ -774,9 +774,9 @@ class Handler(object):
         msg["feeder_id"] = self.get_account_id(msg["feeder"])
         del msg["feeder"]
         self.conn.execute(
-            insert(signal_prices_txs)
+            insert(feeds_signal_prices_txs)
             .values(**msg)
-            .on_conflict_do_update(constraint="signal_prices_txs_pkey", set_=msg)
+            .on_conflict_do_update(constraint="feeds_signal_prices_txs_pkey", set_=msg)
         )
 
     def handle_set_validator_prices(self, msg):
@@ -798,9 +798,9 @@ class Handler(object):
         ]
 
         # Perform batch insert with on_conflict_do_update using excluded values
-        stmt = insert(validator_prices).values(batch_data)
+        stmt = insert(feeds_validator_prices).values(batch_data)
         stmt = stmt.on_conflict_do_update(
-            constraint="validator_prices_pkey",
+            constraint="feeds_validator_prices_pkey",
             set_={
                 "price_status": stmt.excluded.price_status,
                 "price": stmt.excluded.price,
@@ -815,29 +815,29 @@ class Handler(object):
         msg["account_id"] = self.get_account_id(msg["voter"])
         del msg["voter"]
         self.conn.execute(
-            insert(voter_signals)
+            insert(feeds_voter_signals)
             .values(**msg)
-            .on_conflict_do_update(constraint="voter_signals_pkey", set_=msg)
+            .on_conflict_do_update(constraint="feeds_voter_signals_pkey", set_=msg)
         )
 
     def handle_remove_voter_signals(self, msg):
         self.conn.execute(
-            voter_signals.delete().where(
-                voter_signals.c.account_id == self.get_account_id(msg["voter"])
+            feeds_voter_signals.delete().where(
+                feeds_voter_signals.c.account_id == self.get_account_id(msg["voter"])
             )
         )
 
     def handle_set_signal_total_power(self, msg):
         self.conn.execute(
-            insert(signal_total_powers)
+            insert(feeds_signal_total_powers)
             .values(**msg)
-            .on_conflict_do_update(constraint="signal_total_powers_pkey", set_=msg)
+            .on_conflict_do_update(constraint="feeds_signal_total_powers_pkey", set_=msg)
         )
 
     def handle_remove_signal_total_power(self, msg):
         self.conn.execute(
-            signal_total_powers.delete().where(
-                signal_total_powers.c.signal_id == msg["signal_id"]
+            feeds_signal_total_powers.delete().where(
+                feeds_signal_total_powers.c.signal_id == msg["signal_id"]
             )
         )
 
@@ -857,9 +857,9 @@ class Handler(object):
         ]
 
         # Batch insert with on_conflict_do_update using excluded values
-        stmt = insert(historical_prices).values(batch_data)
+        stmt = insert(feeds_historical_prices).values(batch_data)
         stmt = stmt.on_conflict_do_update(
-            constraint="historical_prices_pkey",
+            constraint="feeds_historical_prices_pkey",
             set_={
                 "price_status": stmt.excluded.price_status,
                 "price": stmt.excluded.price,
@@ -869,16 +869,16 @@ class Handler(object):
         self.conn.execute(stmt)
 
         self.conn.execute(
-            historical_prices.delete().where(
-                historical_prices.c.timestamp < msg["timestamp"] - PRICE_HISTORY_PERIOD
+            feeds_historical_prices.delete().where(
+                feeds_historical_prices.c.timestamp < msg["timestamp"] - PRICE_HISTORY_PERIOD
             )
         )
 
     def handle_set_reference_source_config(self, msg):
         self.conn.execute(
-            insert(reference_source_configs)
+            insert(feeds_reference_source_configs)
             .values(**msg)
-            .on_conflict_do_update(constraint="reference_source_configs_pkey", set_=msg)
+            .on_conflict_do_update(constraint="feeds_reference_source_configs_pkey", set_=msg)
         )
 
     def handle_set_feeder(self, msg):
@@ -887,9 +887,9 @@ class Handler(object):
         msg["feeder_id"] = self.get_account_id(msg["feeder"])
         del msg["feeder"]
         self.conn.execute(
-            insert(feeders)
+            insert(feeds_feeders)
             .values(msg)
-            .on_conflict_do_nothing(constraint="feeders_pkey")
+            .on_conflict_do_nothing(constraint="feeds_feeders_pkey")
         )
 
     def handle_remove_feeder(self, msg):
@@ -898,9 +898,9 @@ class Handler(object):
         msg["feeder_id"] = self.get_account_id(msg["feeder"])
         del msg["feeder"]
         condition = True
-        for col in feeders.primary_key.columns.values():
+        for col in feeds_feeders.primary_key.columns.values():
             condition = (col == msg[col.name]) & condition
-        self.conn.execute(feeders.delete().where(condition))
+        self.conn.execute(feeds_feeders.delete().where(condition))
 
     def handle_set_restake_historical_stake(self, msg):
         msg["account_id"] = self.get_account_id(msg["staker_address"])

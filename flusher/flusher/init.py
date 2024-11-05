@@ -288,13 +288,13 @@ SELECT
     p.price,
     p.timestamp
 FROM
-    historical_prices p
+    feeds_historical_prices p
 WHERE
     p.timestamp = (
         SELECT
             MAX(timestamp)
         FROM
-            historical_prices
+            feeds_historical_prices
     );
     """
     )
@@ -306,7 +306,7 @@ SELECT
     account_id,
     COALESCE(SUM(power), 0) AS total_power
 FROM 
-    voter_signals
+    feeds_voter_signals
 GROUP BY 
     account_id;
     """
