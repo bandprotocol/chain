@@ -7,8 +7,6 @@ import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "google/protobuf/any.proto";
 
-import "band/feeds/v1beta1/feeds.proto";
-
 option go_package            = "github.com/bandprotocol/chain/v3/x/tunnel/types";
 option (gogoproto.equal_all) = true;
 
@@ -98,8 +96,8 @@ message LatestSignalPrices {
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
   // signal_prices is the list of signal prices
   repeated SignalPrice signal_prices = 2 [(gogoproto.nullable) = false];
-  // timestamp is the timestamp when the signal prices are produced
-  int64 timestamp = 3;
+  // last_interval is the last interval when the signal prices are produced by interval trigger
+  int64 last_interval = 3;
 }
 
 // SignalPrice is the type for a signal price

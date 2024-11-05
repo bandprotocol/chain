@@ -103,7 +103,7 @@ func (k Keeper) ProducePacket(
 	latestSignalPrices := k.MustGetLatestSignalPrices(ctx, tunnelID)
 
 	// check if the interval has passed
-	isIntervalReached := unixNow >= int64(tunnel.Interval)+latestSignalPrices.Timestamp
+	isIntervalReached := unixNow >= int64(tunnel.Interval)+latestSignalPrices.LastInterval
 	triggerAll = triggerAll || isIntervalReached
 
 	// generate new signal prices
@@ -140,12 +140,19 @@ func (k Keeper) ProducePacket(
 	// update signal prices info
 	latestSignalPrices.UpdateSignalPrices(nsps)
 	if triggerAll {
-		latestSignalPrices.Timestamp = unixNow
+		latestSignalPrices.LastInterval = unixNow
 	}
 	k.SetLatestSignalPrices(ctx, latestSignalPrices)
 
 	// update sequence number
 	k.SetTunnel(ctx, tunnel)
+
+	// emit an event
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeProducePacketSuccess,
+		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
+		sdk.NewAttribute(types.AttributeKeySequence, fmt.Sprintf("%d", tunnel.Sequence)),
+	))
 
 	return nil
 }
@@ -180,6 +187,7 @@ func (k Keeper) SendPacket(
 
 	// set the packet in the store
 	k.SetPacket(ctx, packet)
+
 	return nil
 }
 
