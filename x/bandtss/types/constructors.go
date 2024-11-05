@@ -10,13 +10,10 @@ import (
 )
 
 // NewCurrentGroup creates a new current group object.
-func NewCurrentGroup(
-	id tss.GroupID,
-	transitionSince time.Time,
-) CurrentGroup {
+func NewCurrentGroup(id tss.GroupID, activeTime time.Time) CurrentGroup {
 	return CurrentGroup{
 		GroupID:    id,
-		ActiveTime: transitionSince,
+		ActiveTime: activeTime,
 	}
 }
 
