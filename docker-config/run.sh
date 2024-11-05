@@ -13,6 +13,7 @@ sed -E -i \
 
 if [ "$1" == "query-node" ];then
     cp /chain/docker-config/app.toml ~/.band/config/app.toml
+    cp /chain/docker-config/config.toml ~/.band/config/config.toml
 fi
 
 if [ "$1" == "emitter" ];then
