@@ -13,15 +13,19 @@ const (
 )
 
 var (
+	// priceX96AtBinaryTicks stores the price at each unit binary tick in x96 format.
 	priceX96AtBinaryTicks = getPricesX96AtBinaryTicks()
+
+	// q96 is the fixed-point number with 96 bits of precision, 2^96.
+	q96, _ = new(big.Int).SetString("1000000000000000000000000", 16)
 
 	maxUint192, _ = new(big.Int).SetString("ffffffffffffffffffffffffffffffffffffffffffffffff", 16)
 	maxUint96, _  = new(big.Int).SetString("ffffffffffffffffffffffff", 16)
 	maxUint64, _  = new(big.Int).SetString("ffffffffffffffff", 16)
-	q96, _        = new(big.Int).SetString("1000000000000000000000000", 16)
-	zero          = new(big.Int).SetUint64(0)
-	one           = new(big.Int).SetUint64(1)
-	billion       = new(big.Int).SetUint64(1000000000)
+
+	zero    = new(big.Int).SetUint64(0)
+	one     = new(big.Int).SetUint64(1)
+	billion = new(big.Int).SetUint64(1000000000)
 )
 
 // TickToPrice converts the tick to price with 10^9 precision. It will return an error

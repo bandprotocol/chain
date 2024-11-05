@@ -12,7 +12,11 @@ var (
 	_ Originator = &DirectOriginator{}
 	_ Originator = &TunnelOriginator{}
 
+	// DirectOriginatorPrefix is the prefix for the originator from direct signing request.
+	// The value is tss.Hash([]byte("directOriginatorPrefix"))[:4]
 	DirectOriginatorPrefix = tss.Hash([]byte("directOriginatorPrefix"))[:4]
+	// TunnelOriginatorPrefix is the prefix for the originator from tunnel module.
+	// The value is tss.Hash([]byte("tunnelOriginatorPrefix"))[:4]
 	TunnelOriginatorPrefix = tss.Hash([]byte("tunnelOriginatorPrefix"))[:4]
 )
 

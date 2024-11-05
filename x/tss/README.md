@@ -142,54 +142,54 @@ type DE struct {
 
 The `x/tss` module stores group information and the number of group existing on chain.
 
-- GroupCount: `0x00 | "GroupCount" -> BigEndian(#group)`. Store the number of group existing on chain.
-- Group: `0x01 | GroupID -> Group`. Store the information of the group.
+- GroupCount: `0x00 -> BigEndian(#group)`. Store the number of group existing on chain.
+- Group: `0x10 | GroupID -> Group`. Store the information of the group.
 
 ### Member
 
 The `x/tss` module stores member information for checking their status during the group and signing request creation process; users can be in multiple groups.
 
-- Member: `0x03 | GroupID | MemberID -> Member`. Store a member information of the specific group.
+- Member: `0x11 | GroupID | MemberID -> Member`. Store a member information of the specific group.
 
 ### Group Creation
 
 During the group creation process, the `x/tss` module stores information for generating group public key and they will be removed after the group creation process is expired.
 
-- PendingProcessGroups: `0x00 | "PendingProcessGroups" -> []GroupID`. Store the list of groupID whose status and information should be updated at the EndBlock.
-- DKGContext: `0x02 | GroupID -> []byte`. Store a nonce that being used in a group creation process.
-- Round1Info: `0x04 | GroupID | MemberID -> Round1Info`. Store an information that member submits during the 1st round group creation message.
-- Round1InfoCount: `0x05 | GroupID -> BigEndian(#Round1Info)`. Store the number of round1 information message.
-- AccumulatedCommit: `0x06 | GroupID | index -> []byte`. Store accumulated commit point for generating a group public key
-- Round2Info: `0x07 | GroupID | MemberID -> Round2Info`. Store an information that member submits during the 1st round group creation message.
-- Round2InfoCount: `0x08 | GroupID -> BigEndian(#Round2Info)`. Store the number of round2 information message.
-- ComplaintWithStatus: `0x09 | GroupID | MemberID -> ComplaintWithStatus`. Store a complaint information that member submits during the 3rd round group creation message with its status.
-- ConfirmComplaintCount: `0x0a | GroupID -> BigEndian(#Confirm + #Complaint)`. Store the number of round3 information message.
-- Confirm: `0x0b | GroupID | MemberID -> Confirm`. Store a confirm information that member submits during the 3rd round group creation message.
+- PendingProcessGroups: `0x02 -> []GroupID`. Store the list of groupID whose status and information should be updated at the EndBlock.
+- DKGContext: `0x12 | GroupID -> []byte`. Store a nonce that being used in a group creation process.
+- Round1Info: `0x13 | GroupID | MemberID -> Round1Info`. Store an information that member submits during the 1st round group creation message.
+- Round1InfoCount: `0x14 | GroupID -> BigEndian(#Round1Info)`. Store the number of round1 information message.
+- AccumulatedCommit: `0x15 | GroupID | index -> []byte`. Store accumulated commit point for generating a group public key
+- Round2Info: `0x16 | GroupID | MemberID -> Round2Info`. Store an information that member submits during the 1st round group creation message.
+- Round2InfoCount: `0x17 | GroupID -> BigEndian(#Round2Info)`. Store the number of round2 information message.
+- ComplaintWithStatus: `0x18 | GroupID | MemberID -> ComplaintWithStatus`. Store a complaint information that member submits during the 3rd round group creation message with its status.
+- ConfirmComplaintCount: `0x19 | GroupID -> BigEndian(#Confirm + #Complaint)`. Store the number of round3 information message.
+- Confirm: `0x1a | GroupID | MemberID -> Confirm`. Store a confirm information that member submits during the 3rd round group creation message.
 
 ### Signing
 
 In signing process, the `x/tss` module stores partial signature submitted from assigned members and aggregates them once every member submits it. The aggregated signature (group signature) will be stored in the signing object and those partial signatures will be removed.
 
-- SigningCount: `0x00 | "SigningCount" -> BigEndian(#signing)`. Store the number of signings existing on chain.
-- PendingProcessSignings: `0x00 | "PendingProcessSignings" -> []SigningID`. Store the list of signingID whose status and information should be updated at the EndBlock.
-- SigningExpirations: `0x00 | "SigningExpirations" -> []SigningExpiration`. Store the list of signing expiration information. The order of expiration time should be increasing (from beginning of the list to the end).
-- Signing `0x0E | SigningID -> Signing`. Store the information of the signing request.
-- PartialSignatureCount: `0x0F | SigningID | Attempt -> BigEndian(#PartialSigning)`. Store the number of partial signature of the given signing ID.
-- PartialSignature: `0x10 | SigningID | Attempt | MemberID -> PartialSignature`. Store the partial signature of the member of the given signing ID.
-- SigningAttempt: `0x11 | SigningID | Attempt -> SigningAttempt`. Store the signing attempt object of the given signing ID and specific attempt. The SigningAttempt object store assigned members and expiration height of that attempt.
+- SigningCount: `0x01 -> BigEndian(#signing)`. Store the number of signings existing on chain.
+- PendingProcessSignings: `0x03 -> []SigningID`. Store the list of signingID whose status and information should be updated at the EndBlock.
+- SigningExpirations: `0x05 -> []SigningExpiration`. Store the list of signing expiration information. The order of expiration time should be increasing (from beginning of the list to the end).
+- Signing `0x1d | SigningID -> Signing`. Store the information of the signing request.
+- PartialSignatureCount: `0x1e | SigningID | Attempt -> BigEndian(#PartialSigning)`. Store the number of partial signature of the given signing ID.
+- PartialSignature: `0x1f | SigningID | Attempt | MemberID -> PartialSignature`. Store the partial signature of the member of the given signing ID.
+- SigningAttempt: `0x20 | SigningID | Attempt -> SigningAttempt`. Store the signing attempt object of the given signing ID and specific attempt. The SigningAttempt object store assigned members and expiration height of that attempt.
 
 ### DE
 
 In generating partial signature, the `x/tss` module use DE submitted from members as a nonce for generating group public nonce for forming a group signature. Members must maintain their DEs for being selected as a signer in signing process.
 
-- DE `0x0c | address | index -> DE`. Store the DE object
-- DEQueue `0x0d | address -> DEQueue`. Store the DEQueue object to identify an index of valid DE.
+- DE `0x1b | address | index -> DE`. Store the DE object
+- DEQueue `0x1c | address -> DEQueue`. Store the DEQueue object to identify an index of valid DE.
 
 ### Params
 
 The `x/tss` module stores its params in state with the prefix of `0x20`, it can be updated with governance proposal or the address with authority.
 
-- Params: `0x20 -> Params`
+- Params: `0x90 -> Params`
 
 The `x/tss` module contains the following parameters
 

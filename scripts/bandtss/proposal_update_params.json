@@ -1,7 +1,7 @@
 {
   "messages": [
     {
-      "@type": "/bandtss.v1beta1.MsgUpdateParams",
+      "@type": "/band.bandtss.v1beta1.MsgUpdateParams",
       "params": {
         "active_duration": "86400s",
         "reward_percentage": "50",

@@ -1,7 +1,7 @@
 {
   "messages": [
     {
-      "@type": "/bandtss.v1beta1.MsgForceTransitionGroup",
+      "@type": "/band.bandtss.v1beta1.MsgForceTransitionGroup",
       "incoming_group_id": "1",
       "exec_time": "2024-09-02T07:40:00+00:00",
       "authority": "band10d07y265gmmuvt4z0w9aw880jnsr700jrdn8wm"

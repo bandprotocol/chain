@@ -17,6 +17,8 @@ const (
 	DefaultRewardPercentage = uint64(8)
 )
 
+// DefaultFee is the default value for the signing request fee
+// The value is ["10uband"]
 var DefaultFee = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
 
 // NewParams creates a new Params instance

@@ -131,26 +131,26 @@ type GroupTransition struct {
 
 The `x/bandtss` module stores group and member information including their active status on the module.
 
-- CurrentGroupID : `0x00 | "CurrentGroupID" -> BigEndian(groupID)`
-- Member: `0x02 | GroupID | MemberAddress -> Member`
+- CurrentGroupID : `0x01 -> BigEndian(groupID)`
+- Member: `0x10 | GroupID | MemberAddress -> Member`
 
 ### Group Transition
 
-- GroupTransition : `0x00 | "GroupTransition" -> GroupTransition`
+- GroupTransition : `0x02 -> GroupTransition`
 
 ### Signing
 
 The `x/bandtss` module stores signing information and mapping between tss SigningID to bandtss SigningID.
 
-- SigningCount : `0x00 | "SigningCount" -> BidEndian(#signing)`
-- Signing : `0x03 | BandtssSigningID -> Signing`
-- SigningMappingID `0x04 | TssSigningID -> BidEndian(BandtssSigningID)`
+- SigningCount : `0x00 -> BidEndian(#signing)`
+- Signing : `0x11 | BandtssSigningID -> Signing`
+- SigningMappingID `0x12 | TssSigningID -> BidEndian(BandtssSigningID)`
 
 ### Params
 
 The `x/bandtss` module stores its params in state with the prefix of `0x01`, it can be updated with governance proposal or the address with authority.
 
-- Params: `0x01 -> Params`
+- Params: `0x90 -> Params`
 
 ## Msg Service
 

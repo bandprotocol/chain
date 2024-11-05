@@ -12,10 +12,10 @@ var _ tsstypes.TSSCallback = &TSSCallback{}
 
 // Wrapper struct
 type TSSCallback struct {
-	k *Keeper
+	k Keeper
 }
 
-func NewTSSCallback(k *Keeper) TSSCallback {
+func NewTSSCallback(k Keeper) TSSCallback {
 	return TSSCallback{k}
 }
 
@@ -171,7 +171,7 @@ func (cb TSSCallback) OnSigningCompleted(
 		// emit an event for the group transition.
 		attrs := cb.k.ExtractEventAttributesFromTransition(transition)
 		attrs = append(attrs,
-			sdk.NewAttribute(types.AttributeKeyRAddress, signingResult.EVMSignature.RAddress.String()),
+			sdk.NewAttribute(types.AttributeKeyRandomAddress, signingResult.EVMSignature.RAddress.String()),
 			sdk.NewAttribute(types.AttributeKeySignature, signingResult.EVMSignature.Signature.String()),
 		)
 
