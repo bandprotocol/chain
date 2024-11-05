@@ -2,7 +2,7 @@ package types
 
 import (
 	"bytes"
-	time "time"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
