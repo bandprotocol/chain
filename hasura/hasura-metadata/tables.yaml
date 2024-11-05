@@ -55,13 +55,6 @@
           table:
             name: deposits
             schema: public
-    - name: feeders
-      using:
-        foreign_key_constraint_on:
-          column: feeder_id
-          table:
-            name: feeders
-            schema: public
     - name: group_members
       using:
         foreign_key_constraint_on:
@@ -340,13 +333,6 @@
 - table:
     name: delegations_view
     schema: public
-- table:
-    name: delegator_signals
-    schema: public
-  object_relationships:
-    - name: account
-      using:
-        foreign_key_constraint_on: account_id
 - table:
     name: deposits
     schema: public
@@ -672,9 +658,6 @@
       using:
         foreign_key_constraint_on: validator_src_id
 - table:
-    name: reference_source_configs
-    schema: public
-- table:
     name: related_data_source_oracle_scripts
     schema: public
   object_relationships:
@@ -770,9 +753,6 @@
           table:
             name: val_requests
             schema: public
-- table:
-    name: signal_total_powers
-    schema: public
 - table:
     name: tracking
     schema: public
@@ -883,13 +863,6 @@
     name: validator_last_250_votes
     schema: public
 - table:
-    name: validator_prices
-    schema: public
-  object_relationships:
-    - name: validator
-      using:
-        foreign_key_constraint_on: validator_id
-- table:
     name: validator_report_count
     schema: public
 - table:
@@ -977,13 +950,6 @@
           column: validator_id
           table:
             name: val_requests
-            schema: public
-    - name: validator_prices
-      using:
-        foreign_key_constraint_on:
-          column: validator_id
-          table:
-            name: validator_prices
             schema: public
     - name: validator_votes
       using:
