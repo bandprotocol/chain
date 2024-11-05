@@ -6,14 +6,10 @@ cp /chain/docker-config/$1/priv_validator_key.json ~/.band/config/priv_validator
 cp /chain/docker-config/$1/node_key.json ~/.band/config/node_key.json
 cp /chain/docker-config/genesis.json ~/.band/config/genesis.json
 cp -r /chain/docker-config/files ~/.band
-
-sed -E -i \
-  "s/timeout_commit = \".*\"/timeout_commit = \"3s\"/" \
-  ~/.band/config/config.toml
+cp /chain/docker-config/config.toml ~/.band/config/config.toml
 
 if [ "$1" == "query-node" ];then
     cp /chain/docker-config/app.toml ~/.band/config/app.toml
-    cp /chain/docker-config/config.toml ~/.band/config/config.toml
 fi
 
 if [ "$1" == "emitter" ];then
