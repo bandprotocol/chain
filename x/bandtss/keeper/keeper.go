@@ -9,7 +9,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/bandtss/types"
 )
 
@@ -83,14 +82,21 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
-// SetCurrentGroupID sets a current groupID of the bandtss module.
-func (k Keeper) SetCurrentGroupID(ctx sdk.Context, groupID tss.GroupID) {
-	ctx.KVStore(k.storeKey).Set(types.CurrentGroupIDStoreKey, sdk.Uint64ToBigEndian(uint64(groupID)))
+// SetCurrentGroup sets a current group information of the bandtss module.
+func (k Keeper) SetCurrentGroup(ctx sdk.Context, currentGroup types.CurrentGroup) {
+	ctx.KVStore(k.storeKey).Set(types.CurrentGroupStoreKey, k.cdc.MustMarshal(&currentGroup))
 }
 
-// GetCurrentGroupID retrieves a current groupID of the bandtss module.
-func (k Keeper) GetCurrentGroupID(ctx sdk.Context) tss.GroupID {
-	return tss.GroupID(sdk.BigEndianToUint64(ctx.KVStore(k.storeKey).Get(types.CurrentGroupIDStoreKey)))
+// GetCurrentGroup retrieves a current group information of the bandtss module.
+func (k Keeper) GetCurrentGroup(ctx sdk.Context) types.CurrentGroup {
+	bz := ctx.KVStore(k.storeKey).Get(types.CurrentGroupStoreKey)
+	if bz == nil {
+		return types.CurrentGroup{}
+	}
+
+	var currentGroup types.CurrentGroup
+	k.cdc.MustUnmarshal(bz, &currentGroup)
+	return currentGroup
 }
 
 // CheckIsGrantee checks if the granter granted permissions to the grantee.

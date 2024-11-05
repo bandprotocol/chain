@@ -150,7 +150,7 @@ func (s *AppTestSuite) ExecuteReplaceGroup() error {
 		return err
 	}
 
-	if transition.IncomingGroupID != s.app.BandtssKeeper.GetCurrentGroupID(s.ctx) {
+	if transition.IncomingGroupID != s.app.BandtssKeeper.GetCurrentGroup(s.ctx).GroupID {
 		return fmt.Errorf("unexpected current group id: %d", transition.IncomingGroupID)
 	}
 	return nil

@@ -36,7 +36,7 @@ func (s *AppTestSuite) TestSuccessTransitionGroupReqWithCurrentGroup() {
 	s.Require().NoError(err)
 
 	// Check if the group is created but not impact current group ID in bandtss.
-	s.Require().Equal(groupCtx.GroupID, k.GetCurrentGroupID(ctx))
+	s.Require().Equal(groupCtx.GroupID, k.GetCurrentGroup(ctx).GroupID)
 	group := s.app.TSSKeeper.MustGetGroup(ctx, groupCtx.GroupID)
 	transition, found := k.GetGroupTransition(ctx)
 	expectedTransition := types.GroupTransition{
@@ -63,7 +63,7 @@ func (s *AppTestSuite) TestSuccessTransitionGroupReqNoCurrentGroup() {
 	s.Require().NoError(err)
 
 	// Check if the group is created but not impact current group ID in bandtss.
-	s.Require().Equal(tss.GroupID(0), k.GetCurrentGroupID(ctx))
+	s.Require().Equal(tss.GroupID(0), k.GetCurrentGroup(ctx).GroupID)
 	transition, found := k.GetGroupTransition(ctx)
 	expectedTransition := types.GroupTransition{
 		Status:          types.TRANSITION_STATUS_CREATING_GROUP,
@@ -333,7 +333,7 @@ func (s *AppTestSuite) TestSuccessForceTransitionGroupFromFallenStatus() {
 func (s *AppTestSuite) TestFailedRequestSignatureReq() {
 	ctx, msgSrvr := s.ctx, s.msgSrvr
 	groupCtx := s.SetupNewGroup(5, 3)
-	s.app.BandtssKeeper.SetCurrentGroupID(ctx, groupCtx.GroupID)
+	s.app.BandtssKeeper.SetCurrentGroup(ctx, types.NewCurrentGroup(groupCtx.GroupID, s.ctx.BlockTime()))
 
 	var req *types.MsgRequestSignature
 	var err error
@@ -342,7 +342,7 @@ func (s *AppTestSuite) TestFailedRequestSignatureReq() {
 		{
 			Name: "failure with no groupID",
 			PreProcess: func() {
-				s.app.BandtssKeeper.SetCurrentGroupID(ctx, 0)
+				s.app.BandtssKeeper.SetCurrentGroup(ctx, types.NewCurrentGroup(0, time.Time{}))
 				req, err = types.NewMsgRequestSignature(
 					tsstypes.NewTextSignatureOrder([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
@@ -351,7 +351,10 @@ func (s *AppTestSuite) TestFailedRequestSignatureReq() {
 				s.Require().NoError(err)
 			},
 			PostCheck: func() {
-				s.app.BandtssKeeper.SetCurrentGroupID(ctx, groupCtx.GroupID)
+				s.app.BandtssKeeper.SetCurrentGroup(
+					ctx,
+					types.NewCurrentGroup(groupCtx.GroupID, s.ctx.BlockTime()),
+				)
 			},
 			ExpectedErr: types.ErrNoActiveGroup,
 		},
@@ -455,7 +458,7 @@ func (s *AppTestSuite) TestFailRequestSignatureInternalMessage() {
 	k.DeleteGroupTransition(ctx)
 
 	msg, err := types.NewMsgRequestSignature(
-		types.NewGroupTransitionSignatureOrder([]byte("msg")),
+		types.NewGroupTransitionSignatureOrder([]byte("msg"), time.Now()),
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 		bandtesting.FeePayer.Address.String(),
 	)

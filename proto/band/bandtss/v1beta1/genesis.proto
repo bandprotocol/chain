@@ -15,11 +15,8 @@ message GenesisState {
   Params params = 1 [(gogoproto.nullable) = false];
   // members is an array containing members information.
   repeated Member members = 2 [(gogoproto.nullable) = false];
-  // current_group_id is the current group id of the module.
-  uint64 current_group_id = 3 [
-    (gogoproto.customname) = "CurrentGroupID",
-    (gogoproto.casttype)   = "github.com/bandprotocol/chain/v3/pkg/tss.GroupID"
-  ];
+  // current_group is the current group information.
+  CurrentGroup current_group = 3 [(gogoproto.nullable) = false];
 }
 
 // Params defines the set of module parameters.

@@ -98,7 +98,7 @@ func (k msgServer) ForceTransitionGroup(
 	}
 
 	// validate incoming group
-	currentGroupID := k.GetCurrentGroupID(ctx)
+	currentGroupID := k.GetCurrentGroup(ctx).GroupID
 	if currentGroupID == req.IncomingGroupID {
 		return nil, types.ErrInvalidIncomingGroup.Wrap("incoming group is the same as the current group")
 	}

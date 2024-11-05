@@ -1,6 +1,9 @@
 package types
 
 import (
+	"bytes"
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
@@ -18,8 +21,14 @@ var GroupTransitionMsgPrefix = tss.Hash([]byte(GroupTransitionPath))[:4]
 // Implements SignatureRequest Interface
 var _ tsstypes.Content = &GroupTransitionSignatureOrder{}
 
-func NewGroupTransitionSignatureOrder(pubKey []byte) *GroupTransitionSignatureOrder {
-	return &GroupTransitionSignatureOrder{PubKey: pubKey}
+func NewGroupTransitionSignatureOrder(
+	pubKey []byte,
+	transitionTime time.Time,
+) *GroupTransitionSignatureOrder {
+	return &GroupTransitionSignatureOrder{
+		PubKey:         pubKey,
+		TransitionTime: transitionTime,
+	}
 }
 
 // OrderRoute returns the order router key
@@ -42,7 +51,14 @@ func NewSignatureOrderHandler() tsstypes.Handler {
 	return func(ctx sdk.Context, content tsstypes.Content) ([]byte, error) {
 		switch c := content.(type) {
 		case *GroupTransitionSignatureOrder:
-			return append(GroupTransitionMsgPrefix, c.PubKey...), nil
+			return bytes.Join(
+				[][]byte{
+					GroupTransitionMsgPrefix,
+					c.PubKey,
+					sdk.Uint64ToBigEndian(uint64(c.TransitionTime.Unix())),
+				},
+				[]byte(""),
+			), nil
 
 		default:
 			return nil, sdkerrors.ErrUnknownRequest.Wrapf(

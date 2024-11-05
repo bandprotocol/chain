@@ -191,7 +191,7 @@ func (s *KeeperTestSuite) TestCallbackOnSignTimeout() {
 						ID:      1,
 						GroupID: 1,
 					})
-				s.keeper.SetCurrentGroupID(s.ctx, 1)
+				s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(1, s.ctx.BlockTime()))
 				s.keeper.SetSigningIDMapping(s.ctx, 1, 1)
 				s.keeper.SetMember(s.ctx, types.Member{
 					Address:    penalizedMembers[0].String(),
@@ -239,7 +239,7 @@ func (s *KeeperTestSuite) TestCallbackOnSignTimeout() {
 						ID:      2,
 						GroupID: 2,
 					})
-				s.keeper.SetCurrentGroupID(s.ctx, 1)
+				s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(1, s.ctx.BlockTime()))
 				s.keeper.SetSigningIDMapping(s.ctx, 1, 1)
 				s.keeper.SetSigningIDMapping(s.ctx, 2, 1)
 				s.keeper.SetMember(s.ctx, types.Member{
@@ -503,7 +503,7 @@ func (s *KeeperTestSuite) TestCallbackOnSignCompleted() {
 					CurrentGroupSigningID:  1,
 					IncomingGroupSigningID: 0,
 				})
-				s.keeper.SetCurrentGroupID(s.ctx, 1)
+				s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(1, s.ctx.BlockTime()))
 				s.keeper.SetGroupTransition(s.ctx, types.GroupTransition{
 					SigningID:       tss.SigningID(3),
 					Status:          types.TRANSITION_STATUS_WAITING_SIGN,
@@ -549,7 +549,7 @@ func (s *KeeperTestSuite) TestCallbackOnSignCompleted() {
 					CurrentGroupSigningID:  1,
 					IncomingGroupSigningID: 0,
 				})
-				s.keeper.SetCurrentGroupID(s.ctx, 1)
+				s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(1, s.ctx.BlockTime()))
 				s.keeper.SetGroupTransition(s.ctx, types.GroupTransition{
 					SigningID:       tss.SigningID(3),
 					Status:          types.TRANSITION_STATUS_WAITING_SIGN,
@@ -582,7 +582,7 @@ func (s *KeeperTestSuite) TestCallbackOnSignCompleted() {
 					CurrentGroupSigningID:  1,
 					IncomingGroupSigningID: 0,
 				})
-				s.keeper.SetCurrentGroupID(s.ctx, 2)
+				s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(2, s.ctx.BlockTime()))
 
 				s.bankKeeper.EXPECT().SendCoinsFromModuleToAccount(
 					gomock.Any(),
@@ -730,12 +730,12 @@ func (s *KeeperTestSuite) TestCallbackOnGroupCreationComplete() {
 			name:  "transition status unspecified",
 			input: 2,
 			preProcess: func(s *KeeperTestSuite) {
-				s.keeper.SetCurrentGroupID(s.ctx, 1)
+				s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(1, s.ctx.BlockTime()))
 			},
 			postCheck: func(s *KeeperTestSuite) {
 				_, found := s.keeper.GetGroupTransition(s.ctx)
 				s.Require().False(found)
-				s.Require().Equal(tss.GroupID(1), s.keeper.GetCurrentGroupID(s.ctx))
+				s.Require().Equal(tss.GroupID(1), s.keeper.GetCurrentGroup(s.ctx).GroupID)
 			},
 		},
 		{
@@ -748,13 +748,13 @@ func (s *KeeperTestSuite) TestCallbackOnGroupCreationComplete() {
 					IncomingGroupID: tss.GroupID(2),
 					ExecTime:        s.ctx.BlockTime().Add(-10 * time.Minute),
 				})
-				s.keeper.SetCurrentGroupID(s.ctx, 1)
+				s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(1, s.ctx.BlockTime()))
 			},
 			postCheck: func(s *KeeperTestSuite) {
 				transition, found := s.keeper.GetGroupTransition(s.ctx)
 				s.Require().True(found)
 				s.Require().Equal(types.TRANSITION_STATUS_CREATING_GROUP, transition.Status)
-				s.Require().Equal(tss.GroupID(1), s.keeper.GetCurrentGroupID(s.ctx))
+				s.Require().Equal(tss.GroupID(1), s.keeper.GetCurrentGroup(s.ctx).GroupID)
 			},
 		},
 		{
@@ -767,13 +767,13 @@ func (s *KeeperTestSuite) TestCallbackOnGroupCreationComplete() {
 					IncomingGroupID: tss.GroupID(3),
 					ExecTime:        s.ctx.BlockTime().Add(10 * time.Minute),
 				})
-				s.keeper.SetCurrentGroupID(s.ctx, 1)
+				s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(1, s.ctx.BlockTime()))
 			},
 			postCheck: func(s *KeeperTestSuite) {
 				transition, found := s.keeper.GetGroupTransition(s.ctx)
 				s.Require().True(found)
 				s.Require().Equal(types.TRANSITION_STATUS_CREATING_GROUP, transition.Status)
-				s.Require().Equal(tss.GroupID(1), s.keeper.GetCurrentGroupID(s.ctx))
+				s.Require().Equal(tss.GroupID(1), s.keeper.GetCurrentGroup(s.ctx).GroupID)
 			},
 		},
 		{
@@ -804,7 +804,7 @@ func (s *KeeperTestSuite) TestCallbackOnGroupCreationComplete() {
 				s.Require().Equal(tss.Point(nil), transition.CurrentGroupPubKey)
 				s.Require().Equal(tss.Point([]byte("pubkey")), transition.IncomingGroupPubKey)
 
-				s.Require().Equal(tss.GroupID(0), s.keeper.GetCurrentGroupID(s.ctx))
+				s.Require().Equal(tss.GroupID(0), s.keeper.GetCurrentGroup(s.ctx).GroupID)
 
 				for _, member := range members {
 					m, err := s.keeper.GetMember(s.ctx, sdk.MustAccAddressFromBech32(member.Address), tss.GroupID(1))
@@ -832,7 +832,7 @@ func (s *KeeperTestSuite) TestCallbackOnGroupCreationComplete() {
 					IncomingGroupID:    tss.GroupID(2),
 					ExecTime:           s.ctx.BlockTime().Add(10 * time.Minute),
 				})
-				s.keeper.SetCurrentGroupID(s.ctx, 1)
+				s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(1, s.ctx.BlockTime()))
 				s.accountKeeper.EXPECT().GetModuleAccount(gomock.Any(), types.ModuleName).Return(
 					s.moduleAcc,
 				)
@@ -840,7 +840,10 @@ func (s *KeeperTestSuite) TestCallbackOnGroupCreationComplete() {
 					gomock.Any(),
 					tss.GroupID(1),
 					gomock.Any(),
-					types.NewGroupTransitionSignatureOrder(tss.Point([]byte("pubkey-2"))),
+					types.NewGroupTransitionSignatureOrder(
+						tss.Point([]byte("pubkey-2")),
+						s.ctx.BlockTime().Add(10*time.Minute),
+					),
 				).Return(tss.SigningID(1), nil)
 			},
 			postCheck: func(s *KeeperTestSuite) {
@@ -853,7 +856,7 @@ func (s *KeeperTestSuite) TestCallbackOnGroupCreationComplete() {
 				s.Require().Equal(tss.SigningID(1), transition.SigningID)
 				s.Require().Equal(tss.Point([]byte("pubkey-2")), transition.IncomingGroupPubKey)
 
-				s.Require().Equal(tss.GroupID(1), s.keeper.GetCurrentGroupID(s.ctx))
+				s.Require().Equal(tss.GroupID(1), s.keeper.GetCurrentGroup(s.ctx).GroupID)
 
 				for _, member := range members {
 					ok := s.keeper.HasMember(s.ctx, sdk.MustAccAddressFromBech32(member.Address), tss.GroupID(2))

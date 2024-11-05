@@ -2,6 +2,7 @@ package types_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 
@@ -32,18 +33,18 @@ func TestGenesisStateValidate(t *testing.T) {
 		{
 			"valid genesisState",
 			types.GenesisState{
-				Params:         types.DefaultParams(),
-				Members:        validMembers,
-				CurrentGroupID: 1,
+				Params:       types.DefaultParams(),
+				Members:      validMembers,
+				CurrentGroup: types.NewCurrentGroup(1, time.Now()),
 			},
 			false,
 		},
 		{
 			"invalid genesisState - members not belongs to current group",
 			types.GenesisState{
-				Params:         types.DefaultParams(),
-				Members:        validMembers,
-				CurrentGroupID: 0,
+				Params:       types.DefaultParams(),
+				Members:      validMembers,
+				CurrentGroup: types.NewCurrentGroup(0, time.Now()),
 			},
 			true,
 		},

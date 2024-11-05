@@ -67,7 +67,7 @@ func (q queryServer) Member(
 		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
 
-	currentGroupID := q.k.GetCurrentGroupID(ctx)
+	currentGroupID := q.k.GetCurrentGroup(ctx).GroupID
 	currentGroupMember, _ := q.k.GetMember(ctx, address, currentGroupID)
 
 	incomingGroupID := q.k.GetIncomingGroupID(ctx)
@@ -90,7 +90,7 @@ func (q queryServer) Members(
 	if req.IsIncomingGroup {
 		groupID = q.k.GetIncomingGroupID(ctx)
 	} else {
-		groupID = q.k.GetCurrentGroupID(ctx)
+		groupID = q.k.GetCurrentGroup(ctx).GroupID
 	}
 
 	iteratorKey := append(types.MemberStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
@@ -138,22 +138,23 @@ func (q queryServer) CurrentGroup(
 ) (*types.QueryCurrentGroupResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	groupID := q.k.GetCurrentGroupID(ctx)
-	if groupID == 0 {
+	currentGroup := q.k.GetCurrentGroup(ctx)
+	if currentGroup.GroupID == 0 {
 		return nil, types.ErrNoCurrentGroup
 	}
 
-	group, err := q.k.tssKeeper.GetGroup(ctx, groupID)
+	group, err := q.k.tssKeeper.GetGroup(ctx, currentGroup.GroupID)
 	if err != nil {
 		return nil, err
 	}
 
 	return &types.QueryCurrentGroupResponse{
-		GroupID:   groupID,
-		Size_:     group.Size_,
-		Threshold: group.Threshold,
-		PubKey:    group.PubKey,
-		Status:    group.Status,
+		GroupID:    currentGroup.GroupID,
+		Size_:      group.Size_,
+		Threshold:  group.Threshold,
+		PubKey:     group.PubKey,
+		Status:     group.Status,
+		ActiveTime: currentGroup.ActiveTime,
 	}, nil
 }
 

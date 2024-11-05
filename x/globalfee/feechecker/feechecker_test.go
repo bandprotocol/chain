@@ -114,7 +114,7 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 	}
 
 	// mock setup bandtss module
-	app.BandtssKeeper.SetCurrentGroupID(ctx, 1)
+	app.BandtssKeeper.SetCurrentGroup(ctx, bandtsstypes.NewCurrentGroup(1, ctx.BlockTime()))
 	app.BandtssKeeper.SetMember(ctx, bandtsstypes.Member{
 		Address:  bandtesting.Validators[0].Address.String(),
 		IsActive: true,

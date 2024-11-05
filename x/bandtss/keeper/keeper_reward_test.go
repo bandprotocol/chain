@@ -18,6 +18,7 @@ import (
 	"github.com/bandprotocol/chain/v3/pkg/tss/testutil"
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
 	"github.com/bandprotocol/chain/v3/x/bandtss/keeper"
+	"github.com/bandprotocol/chain/v3/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
@@ -96,7 +97,7 @@ func (s *AppTestSuite) TestAllocateTokensOneActive() {
 
 	// create a new group
 	groupCtx := s.SetupNewGroup(2, 1)
-	k.SetCurrentGroupID(ctx, groupCtx.GroupID)
+	k.SetCurrentGroup(ctx, types.NewCurrentGroup(groupCtx.GroupID, s.ctx.BlockTime()))
 
 	alice := groupCtx.Accounts[0].Address
 	bob := groupCtx.Accounts[1].Address
@@ -163,7 +164,7 @@ func (s *AppTestSuite) TestAllocateTokensAllActive() {
 	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
 
 	groupCtx := s.SetupNewGroup(3, 2)
-	k.SetCurrentGroupID(ctx, groupCtx.GroupID)
+	k.SetCurrentGroup(ctx, types.NewCurrentGroup(groupCtx.GroupID, s.ctx.BlockTime()))
 
 	for _, acc := range groupCtx.Accounts {
 		deQueue := s.app.TSSKeeper.GetDEQueue(ctx, acc.Address)
