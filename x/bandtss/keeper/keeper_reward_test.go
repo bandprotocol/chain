@@ -91,7 +91,7 @@ func (s *AppTestSuite) TestAllocateTokensOneActive() {
 	tssKeeper, k := app.TSSKeeper, app.BandtssKeeper
 
 	// setup fee collector
-	feeCollector, err := SetupFeeCollector(app, ctx, *k)
+	feeCollector, err := SetupFeeCollector(app, ctx, k)
 	s.Require().NoError(err)
 	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
 
@@ -159,7 +159,7 @@ func (s *AppTestSuite) TestAllocateTokensOneActive() {
 func (s *AppTestSuite) TestAllocateTokensAllActive() {
 	ctx, app, k := s.ctx, s.app, s.app.BandtssKeeper
 
-	feeCollector, err := SetupFeeCollector(app, ctx, *k)
+	feeCollector, err := SetupFeeCollector(app, ctx, k)
 	s.Require().NoError(err)
 	s.Require().Equal(Coins1000000uband, app.BankKeeper.GetAllBalances(ctx, feeCollector.GetAddress()))
 

@@ -38,7 +38,7 @@ func NewKeeper(
 	tssKeeper types.TSSKeeper,
 	authority string,
 	feeCollectorName string,
-) *Keeper {
+) Keeper {
 	// ensure bandtss module account is set
 	if addr := authKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
@@ -48,7 +48,7 @@ func NewKeeper(
 		panic(fmt.Errorf("invalid bandtss authority address: %w", err))
 	}
 
-	return &Keeper{
+	return Keeper{
 		cdc:              cdc,
 		storeKey:         storeKey,
 		authzKeeper:      authzKeeper,

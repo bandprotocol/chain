@@ -145,7 +145,7 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 		&app.GlobalFeeKeeper,
 		app.StakingKeeper,
 		app.TSSKeeper,
-		app.BandtssKeeper,
+		&app.BandtssKeeper,
 		&app.FeedsKeeper,
 	)
 }

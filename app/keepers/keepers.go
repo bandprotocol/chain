@@ -115,7 +115,7 @@ type AppKeepers struct {
 	RollingseedKeeper     rollingseedkeeper.Keeper
 	OracleKeeper          oraclekeeper.Keeper
 	TSSKeeper             *tsskeeper.Keeper
-	BandtssKeeper         *bandtsskeeper.Keeper
+	BandtssKeeper         bandtsskeeper.Keeper
 	FeedsKeeper           feedskeeper.Keeper
 	TunnelKeeper          tunnelkeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper

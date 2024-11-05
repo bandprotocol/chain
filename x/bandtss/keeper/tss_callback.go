@@ -12,10 +12,10 @@ var _ tsstypes.TSSCallback = &TSSCallback{}
 
 // Wrapper struct
 type TSSCallback struct {
-	k *Keeper
+	k Keeper
 }
 
-func NewTSSCallback(k *Keeper) TSSCallback {
+func NewTSSCallback(k Keeper) TSSCallback {
 	return TSSCallback{k}
 }
 
