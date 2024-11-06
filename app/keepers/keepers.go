@@ -501,6 +501,7 @@ func NewAppKeeper(
 		appKeepers.BankKeeper,
 		appKeepers.FeedsKeeper,
 		appKeepers.BandtssKeeper,
+		appKeepers.TransferKeeper,
 		appKeepers.IBCFeeKeeper,
 		appKeepers.IBCKeeper.PortKeeper,
 		appKeepers.ScopedTunnelKeeper,

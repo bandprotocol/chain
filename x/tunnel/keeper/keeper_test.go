@@ -31,13 +31,14 @@ type KeeperTestSuite struct {
 	queryServer types.QueryServer
 	msgServer   types.MsgServer
 
-	accountKeeper *testutil.MockAccountKeeper
-	bankKeeper    *testutil.MockBankKeeper
-	feedsKeeper   *testutil.MockFeedsKeeper
-	bandtssKeeper *testutil.MockBandtssKeeper
-	icsWrapper    *testutil.MockICS4Wrapper
-	portKeeper    *testutil.MockPortKeeper
-	scopedKeeper  *testutil.MockScopedKeeper
+	accountKeeper  *testutil.MockAccountKeeper
+	bankKeeper     *testutil.MockBankKeeper
+	feedsKeeper    *testutil.MockFeedsKeeper
+	bandtssKeeper  *testutil.MockBandtssKeeper
+	transferKeeper *testutil.MockTransferKeeper
+	icsWrapper     *testutil.MockICS4Wrapper
+	portKeeper     *testutil.MockPortKeeper
+	scopedKeeper   *testutil.MockScopedKeeper
 
 	ctx       sdk.Context
 	authority sdk.AccAddress
@@ -57,6 +58,8 @@ func (s *KeeperTestSuite) reset() {
 	bankKeeper := testutil.NewMockBankKeeper(ctrl)
 	feedsKeeper := testutil.NewMockFeedsKeeper(ctrl)
 	bandtssKeeper := testutil.NewMockBandtssKeeper(ctrl)
+
+	transferKeeper := testutil.NewMockTransferKeeper(ctrl)
 	icsWrapper := testutil.NewMockICS4Wrapper(ctrl)
 	portKeeper := testutil.NewMockPortKeeper(ctrl)
 	scopedKeeper := testutil.NewMockScopedKeeper(ctrl)
@@ -72,6 +75,7 @@ func (s *KeeperTestSuite) reset() {
 		bankKeeper,
 		feedsKeeper,
 		bandtssKeeper,
+		transferKeeper,
 		icsWrapper,
 		portKeeper,
 		scopedKeeper,
@@ -83,6 +87,7 @@ func (s *KeeperTestSuite) reset() {
 	s.bankKeeper = bankKeeper
 	s.feedsKeeper = feedsKeeper
 	s.bandtssKeeper = bandtssKeeper
+	s.transferKeeper = transferKeeper
 	s.icsWrapper = icsWrapper
 	s.portKeeper = portKeeper
 	s.scopedKeeper = scopedKeeper

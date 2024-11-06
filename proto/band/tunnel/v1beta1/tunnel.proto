@@ -28,6 +28,30 @@ message IBCRoute {
   string channel_id = 1 [(gogoproto.customname) = "ChannelID"];
 }
 
+// RouterRoute is the type for a router route
+message RouterRoute {
+  option (cosmos_proto.implements_interface) = "Route";
+
+  // channel_id is the IBC channel ID
+  string channel_id = 1 [(gogoproto.customname) = "ChannelID"];
+  // fund is the fund allocated for the Router fee.
+  cosmos.base.v1beta1.Coin fund = 2 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (amino.dont_omitempty)   = true
+  ];
+  // bridge_contract_address is the bridge contract address on router chain
+  string bridge_contract_address = 3;
+  // dest_chain_id is the destination chain ID
+  string dest_chain_id = 4 [(gogoproto.customname) = "DestChainID"];
+  // dest_contract_address is the destination contract address
+  string dest_contract_address = 5;
+  // dest_gas_limit is the destination gas limit
+  uint64 dest_gas_limit = 6;
+  // dest_gas_price is the destination gas price
+  uint64 dest_gas_price = 7;
+}
+
 // SignalDeviation is the type for a signal with soft and hard deviation
 message SignalDeviation {
   option (gogoproto.equal) = true;
@@ -165,6 +189,30 @@ message IBCPacketResult {
   repeated SignalPrice signal_prices = 3 [(gogoproto.nullable) = false];
   // created_at is the timestamp when the packet is created
   int64 created_at = 4;
+}
+
+// RouterPacketContent is the packet content for Router
+message RouterPacketContent {
+  option (cosmos_proto.implements_interface) = "PacketContentI";
+
+  // channel_id is the IBC channel ID
+  string channel_id = 1 [(gogoproto.customname) = "ChannelID"];
+  // fund is the fund allocated for the Router fee.
+  cosmos.base.v1beta1.Coin fund = 2 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coin",
+    (amino.dont_omitempty)   = true
+  ];
+  // bridge_contract_address is the bridge contract address on router chain
+  string bridge_contract_address = 3;
+  // dest_chain_id is the destination chain ID
+  string dest_chain_id = 4 [(gogoproto.customname) = "DestChainID"];
+  // dest_contract_address is the destination contract address
+  string dest_contract_address = 5;
+  // dest_gas_limit is the destination gas limit
+  uint64 dest_gas_limit = 6;
+  // dest_gas_price is the destination gas price
+  uint64 dest_gas_price = 7;
 }
 
 // Encoder is an enumerator that defines the mode of encoding message in tunnel module.

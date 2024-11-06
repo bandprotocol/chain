@@ -20,13 +20,14 @@ type Keeper struct {
 	cdc      codec.BinaryCodec
 	storeKey storetypes.StoreKey
 
-	authKeeper    types.AccountKeeper
-	bankKeeper    types.BankKeeper
-	feedsKeeper   types.FeedsKeeper
-	bandtssKeeper types.BandtssKeeper
-	ics4Wrapper   types.ICS4Wrapper
-	portKeeper    types.PortKeeper
-	scopedKeeper  types.ScopedKeeper
+	authKeeper     types.AccountKeeper
+	bankKeeper     types.BankKeeper
+	feedsKeeper    types.FeedsKeeper
+	bandtssKeeper  types.BandtssKeeper
+	transferKeeper types.TransferKeeper
+	ics4Wrapper    types.ICS4Wrapper
+	portKeeper     types.PortKeeper
+	scopedKeeper   types.ScopedKeeper
 
 	authority string
 }
@@ -39,6 +40,7 @@ func NewKeeper(
 	bankKeeper types.BankKeeper,
 	feedsKeeper types.FeedsKeeper,
 	bandtssKeeper types.BandtssKeeper,
+	transferKeeper types.TransferKeeper,
 	ics4Wrapper types.ICS4Wrapper,
 	portKeeper types.PortKeeper,
 	scopedKeeper types.ScopedKeeper,
@@ -55,16 +57,17 @@ func NewKeeper(
 	}
 
 	return Keeper{
-		cdc:           cdc,
-		storeKey:      key,
-		authKeeper:    authKeeper,
-		bankKeeper:    bankKeeper,
-		feedsKeeper:   feedsKeeper,
-		bandtssKeeper: bandtssKeeper,
-		ics4Wrapper:   ics4Wrapper,
-		portKeeper:    portKeeper,
-		scopedKeeper:  scopedKeeper,
-		authority:     authority,
+		cdc:            cdc,
+		storeKey:       key,
+		authKeeper:     authKeeper,
+		bankKeeper:     bankKeeper,
+		feedsKeeper:    feedsKeeper,
+		bandtssKeeper:  bandtssKeeper,
+		transferKeeper: transferKeeper,
+		ics4Wrapper:    ics4Wrapper,
+		portKeeper:     portKeeper,
+		scopedKeeper:   scopedKeeper,
+		authority:      authority,
 	}
 }
 

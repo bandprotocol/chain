@@ -45,7 +45,7 @@ func GetTxCmdCreateTunnel() *cobra.Command {
 	}
 
 	// add create tunnel subcommands
-	txCmd.AddCommand(GetTxCmdCreateTSSTunnel(), GetTxCmdCreateIBCTunnel())
+	txCmd.AddCommand(GetTxCmdCreateTSSTunnel(), GetTxCmdCreateIBCTunnel(), GetTxCmdRouterTunnel())
 
 	return txCmd
 }
@@ -151,6 +151,79 @@ func GetTxCmdCreateIBCTunnel() *cobra.Command {
 	}
 
 	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+func GetTxCmdRouterTunnel() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "router [channel-id] [fund] [bridge-contract-address] [dest-chain-id] [dest-contract-address] [dest-gas-limit] [dest-gas-price] [encoder] [initial-deposit] [interval] [signalDeviations-json-file]",
+		Short: "Create a new router tunnel",
+		Args:  cobra.ExactArgs(11),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			fund, err := sdk.ParseCoinNormalized(args[1])
+			if err != nil {
+				return err
+			}
+
+			destGasLimit, err := strconv.ParseUint(args[5], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			destGasPrice, err := strconv.ParseUint(args[6], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			encoder, err := strconv.ParseInt(args[7], 10, 32)
+			if err != nil {
+				return err
+			}
+
+			initialDeposit, err := sdk.ParseCoinsNormalized(args[8])
+			if err != nil {
+				return err
+			}
+
+			interval, err := strconv.ParseUint(args[9], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			signalInfos, err := parseSignalDeviations(args[10])
+			if err != nil {
+				return err
+			}
+
+			msg, err := types.NewMsgCreateRouterTunnel(
+				signalInfos.ToSignalDeviations(),
+				interval,
+				args[0],
+				fund,
+				args[2],
+				args[3],
+				args[4],
+				destGasLimit,
+				destGasPrice,
+				types.Encoder(encoder),
+				initialDeposit,
+				clientCtx.GetFromAddress(),
+			)
+			if err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
 	return cmd
 }
 

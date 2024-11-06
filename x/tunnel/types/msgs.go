@@ -84,6 +84,38 @@ func NewMsgCreateIBCTunnel(
 	return m, nil
 }
 
+// NewMsgCreateRouterTunnel creates a new MsgCreateTunnel instance for Router tunnel.
+func NewMsgCreateRouterTunnel(
+	signalDeviations []SignalDeviation,
+	interval uint64,
+	channelID string,
+	fund sdk.Coin,
+	bridgeContractAddress string,
+	destChainID string,
+	destContractAddress string,
+	destGasLimit uint64,
+	destGasPrice uint64,
+	encoder Encoder,
+	initialDeposit sdk.Coins,
+	creator sdk.AccAddress,
+) (*MsgCreateTunnel, error) {
+	r := &RouterRoute{
+		ChannelID:             channelID,
+		Fund:                  fund,
+		BridgeContractAddress: bridgeContractAddress,
+		DestChainID:           destChainID,
+		DestContractAddress:   destContractAddress,
+		DestGasLimit:          destGasLimit,
+		DestGasPrice:          destGasPrice,
+	}
+	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, encoder, initialDeposit, creator)
+	if err != nil {
+		return nil, err
+	}
+
+	return m, nil
+}
+
 // Type Implements Msg.
 func (m MsgCreateTunnel) Type() string { return sdk.MsgTypeURL(&m) }
 
