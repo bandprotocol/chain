@@ -5,7 +5,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
@@ -24,8 +23,6 @@ func GetMsgDetail(msg sdk.Msg) (detail string) {
 		detail = fmt.Sprintf("Type: %s", sdk.MsgTypeURL(t))
 	case *types.MsgSubmitSignature:
 		detail = fmt.Sprintf("Type: %s, SigningID: %d", sdk.MsgTypeURL(t), t.SigningID)
-	case *bandtsstypes.MsgHeartbeat:
-		detail = fmt.Sprintf("Type: %s", sdk.MsgTypeURL(t))
 	default:
 		detail = "Type: Unknown"
 	}

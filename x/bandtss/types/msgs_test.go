@@ -132,28 +132,6 @@ func TestMsgActivate_ValidateBasic(t *testing.T) {
 }
 
 // ====================================
-// MsgHeartbeat
-// ====================================
-
-func TestNewMsgHeartbeat(t *testing.T) {
-	msg := types.NewMsgHeartbeat(validSender, 1)
-	require.Equal(t, tss.GroupID(1), msg.GroupID)
-	require.Equal(t, validSender, msg.Sender)
-}
-
-func TestMsgHeartbeat_ValidateBasic(t *testing.T) {
-	// Valid input
-	msg := types.NewMsgHeartbeat(validSender, 1)
-	err := msg.ValidateBasic()
-	require.NoError(t, err)
-
-	// invalid input
-	msg = types.NewMsgHeartbeat(validSender, 0)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
-}
-
-// ====================================
 // MsgUpdateParams
 // ====================================
 

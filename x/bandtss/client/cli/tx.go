@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/hex"
 	"fmt"
-	"strings"
-	"time"
 
 	"github.com/spf13/cobra"
 
@@ -15,7 +13,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
 
-	"github.com/bandprotocol/chain/v3/pkg/grant"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
@@ -55,9 +52,6 @@ func GetTxCmd(requestSignatureCmds []*cobra.Command) *cobra.Command {
 
 	txCmd.AddCommand(
 		GetTxCmdActivate(),
-		GetTxCmdHeartbeat(),
-		GetTxCmdAddGrantees(),
-		GetTxCmdRemoveGrantees(),
 		cmdRequestSignature,
 	)
 
@@ -160,92 +154,6 @@ func GetTxCmdActivate() *cobra.Command {
 
 	cmd.Flags().
 		Bool(flagIncomingGroup, false, "Whether the activation is for the incoming group or current group.")
-	flags.AddTxFlagsToCmd(cmd)
-
-	return cmd
-}
-
-// GetTxCmdHeartbeat creates a CLI command for keep sender's status to be active.
-func GetTxCmdHeartbeat() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "heartbeat",
-		Args:    cobra.NoArgs,
-		Short:   "update the active status of the address to ensure that the member in the group is active",
-		Example: fmt.Sprintf(`%s tx bandtss heartbeat`, version.AppName),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			isIncomingGroup, err := cmd.Flags().GetBool(flagIncomingGroup)
-			if err != nil {
-				return err
-			}
-
-			queryClient := types.NewQueryClient(clientCtx)
-			groupID, err := getGroupID(queryClient, isIncomingGroup)
-			if err != nil {
-				return err
-			}
-
-			msg := &types.MsgHeartbeat{
-				Sender:  clientCtx.GetFromAddress().String(),
-				GroupID: groupID,
-			}
-
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
-		},
-	}
-
-	cmd.Flags().
-		Bool(flagIncomingGroup, false, "Whether the heartbeat is for the incoming group or current group.")
-	flags.AddTxFlagsToCmd(cmd)
-
-	return cmd
-}
-
-// GetTxCmdAddGrantees creates a CLI command for add new grantees
-func GetTxCmdAddGrantees() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "add-grantees [grantee1] [grantee2] ...",
-		Short: "Add agents authorized to submit bandtss transactions.",
-		Args:  cobra.MinimumNArgs(1),
-		Long: strings.TrimSpace(
-			fmt.Sprintf(`Add agents authorized to submit bandtss transactions.
-Example:
-$ %s tx bandtss add-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs --from mykey
-`,
-				version.AppName,
-			),
-		),
-		RunE: grant.AddGranteeCmd(types.GetGrantMsgTypes(), flagExpiration),
-	}
-
-	cmd.Flags().
-		Int64(flagExpiration, time.Now().AddDate(2500, 0, 0).Unix(), "The Unix timestamp. Default is 2500 years(forever).")
-	flags.AddTxFlagsToCmd(cmd)
-
-	return cmd
-}
-
-// GetTxCmdRemoveGrantees creates a CLI command for remove grantees from granter
-func GetTxCmdRemoveGrantees() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "remove-grantees [grantee1] [grantee2] ...",
-		Short: "Remove agents from the list of authorized grantees.",
-		Args:  cobra.MinimumNArgs(1),
-		Long: strings.TrimSpace(
-			fmt.Sprintf(`Remove agents from the list of authorized grantees.
-Example:
-$ %s tx bandtss remove-grantees band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs --from mykey
-`,
-				version.AppName,
-			),
-		),
-		RunE: grant.RemoveGranteeCmd(types.GetGrantMsgTypes()),
-	}
-
 	flags.AddTxFlagsToCmd(cmd)
 
 	return cmd

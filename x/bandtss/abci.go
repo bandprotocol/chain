@@ -21,8 +21,5 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 		k.ExecuteGroupTransition(ctx, transition)
 	}
 
-	// Handles marking members as inactive if the member is not active recently.
-	k.DeactivateInactiveMembers(ctx)
-
 	return nil
 }

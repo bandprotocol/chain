@@ -13,7 +13,6 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
 	bandtsskeeper "github.com/bandprotocol/chain/v3/x/bandtss/keeper"
-	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	feedskeeper "github.com/bandprotocol/chain/v3/x/feeds/keeper"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/globalfee/keeper"
@@ -34,9 +33,8 @@ type FeeChecker struct {
 	BandtssKeeper   *bandtsskeeper.Keeper
 	FeedsKeeper     *feedskeeper.Keeper
 
-	TSSMsgServer     tsstypes.MsgServer
-	BandtssMsgServer bandtsstypes.MsgServer
-	FeedsMsgServer   feedstypes.MsgServer
+	TSSMsgServer   tsstypes.MsgServer
+	FeedsMsgServer feedstypes.MsgServer
 }
 
 func NewFeeChecker(
@@ -50,21 +48,19 @@ func NewFeeChecker(
 	feedsKeeper *feedskeeper.Keeper,
 ) FeeChecker {
 	tssMsgServer := tsskeeper.NewMsgServerImpl(tssKeeper)
-	bandtssMsgServer := bandtsskeeper.NewMsgServerImpl(*bandtssKeeper)
 	feedsMsgServer := feedskeeper.NewMsgServerImpl(*feedsKeeper)
 
 	return FeeChecker{
-		cdc:              cdc,
-		AuthzKeeper:      authzKeeper,
-		OracleKeeper:     oracleKeeper,
-		GlobalfeeKeeper:  globalfeeKeeper,
-		StakingKeeper:    stakingKeeper,
-		TSSKeeper:        tssKeeper,
-		BandtssKeeper:    bandtssKeeper,
-		FeedsKeeper:      feedsKeeper,
-		TSSMsgServer:     tssMsgServer,
-		BandtssMsgServer: bandtssMsgServer,
-		FeedsMsgServer:   feedsMsgServer,
+		cdc:             cdc,
+		AuthzKeeper:     authzKeeper,
+		OracleKeeper:    oracleKeeper,
+		GlobalfeeKeeper: globalfeeKeeper,
+		StakingKeeper:   stakingKeeper,
+		TSSKeeper:       tssKeeper,
+		BandtssKeeper:   bandtssKeeper,
+		FeedsKeeper:     feedsKeeper,
+		TSSMsgServer:    tssMsgServer,
+		FeedsMsgServer:  feedsMsgServer,
 	}
 }
 
@@ -188,10 +184,6 @@ func (fc FeeChecker) IsBypassMinFeeMsg(ctx sdk.Context, msg sdk.Msg) bool {
 		}
 	case *tsstypes.MsgSubmitSignature:
 		if _, err := fc.TSSMsgServer.SubmitSignature(ctx, msg); err != nil {
-			return false
-		}
-	case *bandtsstypes.MsgHeartbeat:
-		if _, err := fc.BandtssMsgServer.Heartbeat(ctx, msg); err != nil {
 			return false
 		}
 	case *authz.MsgExec:

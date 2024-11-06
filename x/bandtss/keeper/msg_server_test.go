@@ -574,8 +574,8 @@ func (s *AppTestSuite) TestActivateReq() {
 	}
 
 	// skip time frame.
-	activeDuration := s.app.BandtssKeeper.GetParams(ctx).ActiveDuration
-	ctx = ctx.WithBlockTime(ctx.BlockTime().Add(activeDuration))
+	inactivePenaltyDuration := s.app.BandtssKeeper.GetParams(ctx).InactivePenaltyDuration
+	ctx = ctx.WithBlockTime(ctx.BlockTime().Add(inactivePenaltyDuration))
 
 	for _, acc := range groupCtx.Accounts {
 		_, err := msgSrvr.Activate(ctx, &types.MsgActivate{
@@ -614,8 +614,8 @@ func (s *AppTestSuite) TestFailActivateIncorrectGroupID() {
 	}
 
 	// skip time frame.
-	activeDuration := s.app.BandtssKeeper.GetParams(ctx).ActiveDuration
-	ctx = ctx.WithBlockTime(ctx.BlockTime().Add(activeDuration))
+	inactivePenaltyDuration := s.app.BandtssKeeper.GetParams(ctx).InactivePenaltyDuration
+	ctx = ctx.WithBlockTime(ctx.BlockTime().Add(inactivePenaltyDuration))
 
 	for _, acc := range groupCtx.Accounts {
 		_, err := msgSrvr.Activate(ctx, &types.MsgActivate{
@@ -636,45 +636,6 @@ func (s *AppTestSuite) TestFailActivateMemberIsActive() {
 			GroupID: groupCtx.GroupID,
 		})
 		s.Require().ErrorIs(err, types.ErrMemberAlreadyActive)
-	}
-}
-
-func (s *AppTestSuite) TestFailHeartbeatInactive() {
-	ctx, msgSrvr := s.ctx, s.msgSrvr
-	groupCtx := s.SetupNewGroup(5, 3)
-
-	for _, acc := range groupCtx.Accounts {
-		err := s.app.BandtssKeeper.DeactivateMember(ctx, acc.Address, groupCtx.GroupID)
-		s.Require().NoError(err)
-	}
-
-	ctx = ctx.WithBlockTime(ctx.BlockTime().Add(10 * time.Minute))
-
-	for _, acc := range groupCtx.Accounts {
-		_, err := msgSrvr.Heartbeat(ctx, &types.MsgHeartbeat{
-			Sender:  acc.Address.String(),
-			GroupID: groupCtx.GroupID,
-		})
-		s.Require().ErrorIs(err, types.ErrInvalidStatus)
-	}
-}
-
-func (s *AppTestSuite) TestHeartbeatReq() {
-	ctx, msgSrvr := s.ctx, s.msgSrvr
-	groupCtx := s.SetupNewGroup(5, 3)
-
-	ctx = ctx.WithBlockTime(ctx.BlockTime().Add(10 * time.Minute))
-
-	for _, acc := range groupCtx.Accounts {
-		_, err := msgSrvr.Heartbeat(ctx, &types.MsgHeartbeat{
-			Sender:  acc.Address.String(),
-			GroupID: groupCtx.GroupID,
-		})
-		s.Require().NoError(err)
-
-		m, err := s.app.BandtssKeeper.GetMember(ctx, acc.Address, groupCtx.GroupID)
-		s.Require().NoError(err)
-		s.Require().Equal(m.LastActive, ctx.BlockTime())
 	}
 }
 
@@ -700,7 +661,6 @@ func (s *AppTestSuite) TestUpdateParams() {
 			request: &types.MsgUpdateParams{
 				Authority: k.GetAuthority(),
 				Params: types.Params{
-					ActiveDuration:          types.DefaultActiveDuration,
 					RewardPercentage:        types.DefaultRewardPercentage,
 					InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
 					MaxTransitionDuration:   types.DefaultMaxTransitionDuration,

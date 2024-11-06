@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -172,31 +171,6 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 	}
 
 	return &types.MsgActivateResponse{}, nil
-}
-
-// Heartbeat keeps notice that user is alive.
-func (k msgServer) Heartbeat(
-	goCtx context.Context,
-	msg *types.MsgHeartbeat,
-) (*types.MsgHeartbeatResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
-	}
-
-	if err = k.SetLastActive(ctx, sender, msg.GroupID); err != nil {
-		return nil, err
-	}
-
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeHeartbeat,
-		sdk.NewAttribute(types.AttributeKeyAddress, msg.Sender),
-		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", msg.GroupID)),
-	))
-
-	return &types.MsgHeartbeatResponse{}, nil
 }
 
 // UpdateParams update the parameter of the module.

@@ -3,7 +3,6 @@
     {
       "@type": "/band.bandtss.v1beta1.MsgUpdateParams",
       "params": {
-        "active_duration": "86400s",
         "reward_percentage": "50",
         "inactive_penalty_duration": "600s",
         "jail_penalty_duration": "2592000s",

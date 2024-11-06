@@ -453,7 +453,6 @@ func NewAppKeeper(
 	appKeepers.BandtssKeeper = bandtsskeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[bandtsstypes.StoreKey],
-		appKeepers.AuthzKeeper,
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		appKeepers.DistrKeeper,

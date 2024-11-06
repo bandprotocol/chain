@@ -33,28 +33,6 @@ func (q queryServer) Counts(c context.Context, req *types.QueryCountsRequest) (*
 	}, nil
 }
 
-// IsGrantee queries if a specific address is a grantee of another.
-func (q queryServer) IsGrantee(
-	goCtx context.Context,
-	req *types.QueryIsGranteeRequest,
-) (*types.QueryIsGranteeResponse, error) {
-	ctx := sdk.UnwrapSDKContext(goCtx)
-
-	granter, err := sdk.AccAddressFromBech32(req.Granter)
-	if err != nil {
-		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid granter address: %s", err)
-	}
-
-	grantee, err := sdk.AccAddressFromBech32(req.Grantee)
-	if err != nil {
-		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid grantee address: %s", err)
-	}
-
-	return &types.QueryIsGranteeResponse{
-		IsGrantee: q.k.CheckIsGrantee(ctx, granter, grantee),
-	}, nil
-}
-
 // Member queries the member information of a given account address.
 func (q queryServer) Member(
 	goCtx context.Context,

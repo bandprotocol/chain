@@ -26,10 +26,12 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 // DirectOriginator is a message originator defines an information of the requester
 // on direct TSS request.
 type DirectOriginator struct {
+	// source_chain_id is the source chain ID that the data is originated from.
+	SourceChainID string `protobuf:"bytes,1,opt,name=source_chain_id,json=sourceChainId,proto3" json:"source_chain_id,omitempty"`
 	// requester is the address of the requester, it can be the user address or module address.
-	Requester string `protobuf:"bytes,1,opt,name=requester,proto3" json:"requester,omitempty"`
+	Requester string `protobuf:"bytes,2,opt,name=requester,proto3" json:"requester,omitempty"`
 	// memo is the note of the message.
-	Memo string `protobuf:"bytes,2,opt,name=memo,proto3" json:"memo,omitempty"`
+	Memo string `protobuf:"bytes,3,opt,name=memo,proto3" json:"memo,omitempty"`
 }
 
 func (m *DirectOriginator) Reset()         { *m = DirectOriginator{} }
@@ -65,6 +67,13 @@ func (m *DirectOriginator) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_DirectOriginator proto.InternalMessageInfo
 
+func (m *DirectOriginator) GetSourceChainID() string {
+	if m != nil {
+		return m.SourceChainID
+	}
+	return ""
+}
+
 func (m *DirectOriginator) GetRequester() string {
 	if m != nil {
 		return m.Requester
@@ -82,12 +91,14 @@ func (m *DirectOriginator) GetMemo() string {
 // TunnelOriginator is a message originator defines an information of the requester
 // on TSS request via tunnel module.
 type TunnelOriginator struct {
+	// source_chain_id is the source chain ID that the data is originated from.
+	SourceChainID string `protobuf:"bytes,1,opt,name=source_chain_id,json=sourceChainId,proto3" json:"source_chain_id,omitempty"`
 	// tunnel_id is the tunnel ID that the request is originated from.
-	TunnelID uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
+	TunnelID uint64 `protobuf:"varint,2,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
 	// contract_address is the target address that the data should be relayed to.
-	ContractAddress string `protobuf:"bytes,2,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
-	// chain_id is the target chain ID that the data should be relayed to.
-	ChainID string `protobuf:"bytes,3,opt,name=chain_id,json=chainId,proto3" json:"chain_id,omitempty"`
+	ContractAddress string `protobuf:"bytes,3,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
+	// target_chain_id is the target chain ID that the data should be relayed to.
+	TargetChainID string `protobuf:"bytes,4,opt,name=target_chain_id,json=targetChainId,proto3" json:"target_chain_id,omitempty"`
 }
 
 func (m *TunnelOriginator) Reset()         { *m = TunnelOriginator{} }
@@ -123,6 +134,13 @@ func (m *TunnelOriginator) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_TunnelOriginator proto.InternalMessageInfo
 
+func (m *TunnelOriginator) GetSourceChainID() string {
+	if m != nil {
+		return m.SourceChainID
+	}
+	return ""
+}
+
 func (m *TunnelOriginator) GetTunnelID() uint64 {
 	if m != nil {
 		return m.TunnelID
@@ -137,9 +155,9 @@ func (m *TunnelOriginator) GetContractAddress() string {
 	return ""
 }
 
-func (m *TunnelOriginator) GetChainID() string {
+func (m *TunnelOriginator) GetTargetChainID() string {
 	if m != nil {
-		return m.ChainID
+		return m.TargetChainID
 	}
 	return ""
 }
@@ -152,26 +170,28 @@ func init() {
 func init() { proto.RegisterFile("band/tss/v1beta1/originator.proto", fileDescriptor_220839966f1ace88) }
 
 var fileDescriptor_220839966f1ace88 = []byte{
-	// 294 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x4c, 0x90, 0xcf, 0x4a, 0x33, 0x31,
-	0x14, 0xc5, 0x9b, 0xef, 0x2b, 0xb6, 0x8d, 0x82, 0x43, 0x70, 0x51, 0x44, 0x52, 0xed, 0x42, 0x2c,
-	0xc8, 0x84, 0xd2, 0x27, 0xb0, 0x0e, 0xc2, 0xac, 0x84, 0xe2, 0xca, 0x4d, 0xc9, 0x24, 0x61, 0x1a,
-	0x68, 0x93, 0x9a, 0xdc, 0x16, 0x7d, 0x8b, 0x3e, 0x96, 0xcb, 0x2e, 0x5d, 0x15, 0x99, 0xbe, 0x88,
-	0x24, 0x53, 0xff, 0xec, 0x2e, 0xe7, 0xfc, 0xee, 0x6f, 0x71, 0xf0, 0x55, 0xc1, 0x8d, 0x64, 0xe0,
-	0x3d, 0x5b, 0x0f, 0x0b, 0x05, 0x7c, 0xc8, 0xac, 0xd3, 0xa5, 0x36, 0x1c, 0xac, 0x4b, 0x97, 0xce,
-	0x82, 0x25, 0x49, 0x40, 0x52, 0xf0, 0x3e, 0x3d, 0x20, 0xe7, 0x67, 0xa5, 0x2d, 0x6d, 0x2c, 0x59,
-	0xb8, 0x6a, 0xae, 0x9f, 0xe1, 0x24, 0xd3, 0x4e, 0x09, 0x78, 0xfc, 0x31, 0x90, 0x0b, 0xdc, 0x71,
-	0xea, 0x65, 0xa5, 0x3c, 0x28, 0xd7, 0x45, 0x97, 0xe8, 0xa6, 0x33, 0xf9, 0x0d, 0x08, 0xc1, 0xcd,
-	0x85, 0x5a, 0xd8, 0xee, 0xbf, 0x58, 0xc4, 0xbb, 0xbf, 0x41, 0x38, 0x79, 0x5a, 0x19, 0xa3, 0xe6,
-	0x7f, 0x34, 0x03, 0xdc, 0x81, 0x98, 0x4d, 0xb5, 0x8c, 0x9a, 0xe6, 0xf8, 0xa4, 0xda, 0xf5, 0xda,
-	0x35, 0x98, 0x67, 0x93, 0x76, 0x5d, 0xe7, 0x92, 0x0c, 0x70, 0x22, 0xac, 0x01, 0xc7, 0x05, 0x4c,
-	0xb9, 0x94, 0x4e, 0x79, 0x7f, 0xf0, 0x9f, 0x7e, 0xe7, 0x77, 0x75, 0x4c, 0xae, 0x71, 0x5b, 0xcc,
-	0xb8, 0x36, 0x41, 0xfa, 0x3f, 0x20, 0xe3, 0xe3, 0x6a, 0xd7, 0x6b, 0xdd, 0x87, 0x2c, 0xcf, 0x26,
-	0xad, 0x58, 0xe6, 0x72, 0xfc, 0xf0, 0x5e, 0x51, 0xb4, 0xad, 0x28, 0xfa, 0xac, 0x28, 0xda, 0xec,
-	0x69, 0x63, 0xbb, 0xa7, 0x8d, 0x8f, 0x3d, 0x6d, 0x3c, 0xdf, 0x96, 0x1a, 0x66, 0xab, 0x22, 0x15,
-	0x76, 0xc1, 0xc2, 0x4a, 0x71, 0x08, 0x61, 0xe7, 0x2c, 0xbe, 0xb2, 0xf5, 0x88, 0xbd, 0xc6, 0x6d,
-	0xe1, 0x6d, 0xa9, 0x7c, 0x71, 0x14, 0xeb, 0xd1, 0x57, 0x00, 0x00, 0x00, 0xff, 0xff, 0x61, 0xf6,
-	0x8e, 0x75, 0x74, 0x01, 0x00, 0x00,
+	// 324 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x91, 0xc1, 0x4e, 0x32, 0x31,
+	0x10, 0xc7, 0xe9, 0xf7, 0x11, 0x03, 0x8d, 0x84, 0x75, 0xe3, 0x81, 0x18, 0x53, 0x94, 0x93, 0x26,
+	0x66, 0x1b, 0xc2, 0xc9, 0xa3, 0x48, 0x4c, 0x38, 0x99, 0x20, 0x27, 0x2f, 0xa4, 0xdb, 0x36, 0x4b,
+	0x13, 0x68, 0xb1, 0x9d, 0x25, 0x7a, 0xf2, 0x15, 0x7c, 0x2c, 0x8f, 0x1c, 0x3d, 0x11, 0xb3, 0xbc,
+	0x88, 0x69, 0x17, 0x81, 0x07, 0xf0, 0xd6, 0xce, 0xef, 0x3f, 0x33, 0xbf, 0x64, 0xf0, 0x65, 0xca,
+	0xb4, 0xa0, 0xe0, 0x1c, 0x5d, 0x76, 0x53, 0x09, 0xac, 0x4b, 0x8d, 0x55, 0x99, 0xd2, 0x0c, 0x8c,
+	0x4d, 0x16, 0xd6, 0x80, 0x89, 0x23, 0x1f, 0x49, 0xc0, 0xb9, 0x64, 0x1b, 0x39, 0x3b, 0xcd, 0x4c,
+	0x66, 0x02, 0xa4, 0xfe, 0x55, 0xe6, 0x3a, 0xef, 0x38, 0x1a, 0x28, 0x2b, 0x39, 0x3c, 0xee, 0x26,
+	0xc4, 0xb7, 0xb8, 0xe9, 0x4c, 0x6e, 0xb9, 0x9c, 0xf0, 0x29, 0x53, 0x7a, 0xa2, 0x44, 0x0b, 0x5d,
+	0xa0, 0xab, 0x7a, 0xff, 0xa4, 0x58, 0xb7, 0x1b, 0x4f, 0x01, 0xdd, 0x7b, 0x32, 0x1c, 0x8c, 0x1a,
+	0xee, 0xe0, 0x2b, 0xe2, 0x73, 0x5c, 0xb7, 0xf2, 0x25, 0x97, 0x0e, 0xa4, 0x6d, 0xfd, 0xf3, 0x4d,
+	0xa3, 0x7d, 0x21, 0x8e, 0x71, 0x75, 0x2e, 0xe7, 0xa6, 0xf5, 0x3f, 0x80, 0xf0, 0xee, 0xac, 0x11,
+	0x8e, 0xc6, 0xb9, 0xd6, 0x72, 0xf6, 0x37, 0x06, 0xd7, 0xb8, 0x0e, 0x61, 0x9c, 0x6f, 0xf2, 0x06,
+	0xd5, 0xfe, 0x71, 0xb1, 0x6e, 0xd7, 0xca, 0x1d, 0xc3, 0xc1, 0xa8, 0x56, 0xe2, 0x10, 0x8d, 0xb8,
+	0xd1, 0x60, 0x19, 0x87, 0x09, 0x13, 0xc2, 0x4a, 0xe7, 0xb6, 0x6a, 0xcd, 0xdf, 0xfa, 0x5d, 0x59,
+	0xf6, 0x42, 0xc0, 0x6c, 0x26, 0x61, 0x2f, 0x54, 0xdd, 0x0b, 0x8d, 0x03, 0xda, 0x09, 0xc1, 0xc1,
+	0x57, 0xf4, 0x1f, 0x3e, 0x0b, 0x82, 0x56, 0x05, 0x41, 0xdf, 0x05, 0x41, 0x1f, 0x1b, 0x52, 0x59,
+	0x6d, 0x48, 0xe5, 0x6b, 0x43, 0x2a, 0xcf, 0x37, 0x99, 0x82, 0x69, 0x9e, 0x26, 0xdc, 0xcc, 0xa9,
+	0x3f, 0x57, 0xb8, 0x08, 0x37, 0x33, 0x1a, 0x76, 0xd0, 0x65, 0x8f, 0xbe, 0x86, 0x23, 0xc3, 0xdb,
+	0x42, 0xba, 0xf4, 0x28, 0xe0, 0xde, 0x4f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x1f, 0xe0, 0x99, 0x12,
+	0xfd, 0x01, 0x00, 0x00,
 }
 
 func (m *DirectOriginator) Marshal() (dAtA []byte, err error) {
@@ -199,12 +219,19 @@ func (m *DirectOriginator) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		copy(dAtA[i:], m.Memo)
 		i = encodeVarintOriginator(dAtA, i, uint64(len(m.Memo)))
 		i--
-		dAtA[i] = 0x12
+		dAtA[i] = 0x1a
 	}
 	if len(m.Requester) > 0 {
 		i -= len(m.Requester)
 		copy(dAtA[i:], m.Requester)
 		i = encodeVarintOriginator(dAtA, i, uint64(len(m.Requester)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.SourceChainID) > 0 {
+		i -= len(m.SourceChainID)
+		copy(dAtA[i:], m.SourceChainID)
+		i = encodeVarintOriginator(dAtA, i, uint64(len(m.SourceChainID)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -231,24 +258,31 @@ func (m *TunnelOriginator) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.ChainID) > 0 {
-		i -= len(m.ChainID)
-		copy(dAtA[i:], m.ChainID)
-		i = encodeVarintOriginator(dAtA, i, uint64(len(m.ChainID)))
+	if len(m.TargetChainID) > 0 {
+		i -= len(m.TargetChainID)
+		copy(dAtA[i:], m.TargetChainID)
+		i = encodeVarintOriginator(dAtA, i, uint64(len(m.TargetChainID)))
 		i--
-		dAtA[i] = 0x1a
+		dAtA[i] = 0x22
 	}
 	if len(m.ContractAddress) > 0 {
 		i -= len(m.ContractAddress)
 		copy(dAtA[i:], m.ContractAddress)
 		i = encodeVarintOriginator(dAtA, i, uint64(len(m.ContractAddress)))
 		i--
-		dAtA[i] = 0x12
+		dAtA[i] = 0x1a
 	}
 	if m.TunnelID != 0 {
 		i = encodeVarintOriginator(dAtA, i, uint64(m.TunnelID))
 		i--
-		dAtA[i] = 0x8
+		dAtA[i] = 0x10
+	}
+	if len(m.SourceChainID) > 0 {
+		i -= len(m.SourceChainID)
+		copy(dAtA[i:], m.SourceChainID)
+		i = encodeVarintOriginator(dAtA, i, uint64(len(m.SourceChainID)))
+		i--
+		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -270,6 +304,10 @@ func (m *DirectOriginator) Size() (n int) {
 	}
 	var l int
 	_ = l
+	l = len(m.SourceChainID)
+	if l > 0 {
+		n += 1 + l + sovOriginator(uint64(l))
+	}
 	l = len(m.Requester)
 	if l > 0 {
 		n += 1 + l + sovOriginator(uint64(l))
@@ -287,6 +325,10 @@ func (m *TunnelOriginator) Size() (n int) {
 	}
 	var l int
 	_ = l
+	l = len(m.SourceChainID)
+	if l > 0 {
+		n += 1 + l + sovOriginator(uint64(l))
+	}
 	if m.TunnelID != 0 {
 		n += 1 + sovOriginator(uint64(m.TunnelID))
 	}
@@ -294,7 +336,7 @@ func (m *TunnelOriginator) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovOriginator(uint64(l))
 	}
-	l = len(m.ChainID)
+	l = len(m.TargetChainID)
 	if l > 0 {
 		n += 1 + l + sovOriginator(uint64(l))
 	}
@@ -338,6 +380,38 @@ func (m *DirectOriginator) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SourceChainID", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowOriginator
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthOriginator
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthOriginator
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SourceChainID = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Requester", wireType)
 			}
 			var stringLen uint64
@@ -368,7 +442,7 @@ func (m *DirectOriginator) Unmarshal(dAtA []byte) error {
 			}
 			m.Requester = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 2:
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Memo", wireType)
 			}
@@ -451,6 +525,38 @@ func (m *TunnelOriginator) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SourceChainID", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowOriginator
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthOriginator
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthOriginator
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SourceChainID = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field TunnelID", wireType)
 			}
@@ -469,7 +575,7 @@ func (m *TunnelOriginator) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 2:
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ContractAddress", wireType)
 			}
@@ -501,9 +607,9 @@ func (m *TunnelOriginator) Unmarshal(dAtA []byte) error {
 			}
 			m.ContractAddress = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 3:
+		case 4:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ChainID", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field TargetChainID", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -531,7 +637,7 @@ func (m *TunnelOriginator) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.ChainID = string(dAtA[iNdEx:postIndex])
+			m.TargetChainID = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

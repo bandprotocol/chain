@@ -17,7 +17,6 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgForceTransitionGroup{}, "bandtss/MsgForceTransitionGroup")
 	legacy.RegisterAminoMsg(cdc, &MsgRequestSignature{}, "bandtss/MsgRequestSignature")
 	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "bandtss/MsgActivate")
-	legacy.RegisterAminoMsg(cdc, &MsgHeartbeat{}, "bandtss/MsgHeartbeat")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "bandtss/MsgUpdateParams")
 }
 
@@ -28,7 +27,6 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		&MsgForceTransitionGroup{},
 		&MsgRequestSignature{},
 		&MsgActivate{},
-		&MsgHeartbeat{},
 		&MsgUpdateParams{},
 	)
 

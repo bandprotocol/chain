@@ -29,10 +29,9 @@ func (s *KeeperTestSuite) TestExportGenesis() {
 		Params: types.DefaultParams(),
 		Members: []types.Member{
 			{
-				Address:    bandtesting.Alice.Address.String(),
-				Since:      ctx.BlockTime(),
-				IsActive:   true,
-				LastActive: ctx.BlockTime(),
+				Address:  bandtesting.Alice.Address.String(),
+				IsActive: true,
+				Since:    ctx.BlockTime(),
 			},
 		},
 		CurrentGroup: types.NewCurrentGroup(1, ctx.BlockTime()),
@@ -67,10 +66,9 @@ func (s *KeeperTestSuite) TestImportGenesisInvalidActiveTime() {
 		Params: types.DefaultParams(),
 		Members: []types.Member{
 			{
-				Address:    bandtesting.Alice.Address.String(),
-				Since:      ctx.BlockTime(),
-				IsActive:   true,
-				LastActive: ctx.BlockTime(),
+				Address:  bandtesting.Alice.Address.String(),
+				IsActive: true,
+				Since:    ctx.BlockTime(),
 			},
 		},
 		CurrentGroup: types.NewCurrentGroup(1, ctx.BlockTime().Add(time.Hour)),
@@ -98,10 +96,9 @@ func (s *KeeperTestSuite) TestImportGenesisInvalidCurrentGroupInfo() {
 		Params: types.DefaultParams(),
 		Members: []types.Member{
 			{
-				Address:    bandtesting.Alice.Address.String(),
-				Since:      ctx.BlockTime(),
-				IsActive:   true,
-				LastActive: ctx.BlockTime(),
+				Address:  bandtesting.Alice.Address.String(),
+				IsActive: true,
+				Since:    ctx.BlockTime(),
 			},
 		},
 		CurrentGroup: types.NewCurrentGroup(0, ctx.BlockTime().Add(-1*time.Hour)),

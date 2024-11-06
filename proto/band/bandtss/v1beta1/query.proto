@@ -20,11 +20,6 @@ service Query {
     option (google.api.http).get = "/bandtss/v1beta1/counts";
   }
 
-  // IsGrantee queries whether granter grants the grantee.
-  rpc IsGrantee(QueryIsGranteeRequest) returns (QueryIsGranteeResponse) {
-    option (google.api.http).get = "/bandtss/v1beta1/is_grantee/{granter}/{grantee}";
-  }
-
   // Members queries all members.
   rpc Members(QueryMembersRequest) returns (QueryMembersResponse) {
     option (google.api.http).get = "/bandtss/v1beta1/members";
@@ -68,20 +63,6 @@ message QueryCountsRequest {}
 message QueryCountsResponse {
   // signing_count is total number of signing request submitted to bandtss module
   uint64 signing_count = 1;
-}
-
-// QueryIsSignerRequest is request type for the Query/IsGrantee RPC method.
-message QueryIsGranteeRequest {
-  // granter is a granter address
-  string granter = 1;
-  // grantee is a grantee address
-  string grantee = 2;
-}
-
-// QueryIsGranteeResponse is response type for the Query/IsGrantee RPC method.
-message QueryIsGranteeResponse {
-  // is_grantee is true if this account has been granted by granter
-  bool is_grantee = 1;
 }
 
 // QueryMembersRequest is the request type for the Query/Members RPC method.
