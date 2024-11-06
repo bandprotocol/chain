@@ -15,9 +15,11 @@ import (
 func (s *KeeperTestSuite) TestHandleGroupTransition() {
 	acc1 := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
 	acc2 := sdk.MustAccAddressFromBech32("band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun")
+	execTime := s.ctx.BlockTime().Add(-10 * time.Minute)
+
 	type expectOut struct {
-		status         types.TransitionStatus
-		currentGroupID tss.GroupID
+		status       types.TransitionStatus
+		currentGroup types.CurrentGroup
 	}
 
 	testCases := []struct {
@@ -44,21 +46,27 @@ func (s *KeeperTestSuite) TestHandleGroupTransition() {
 				})
 			},
 			expectOut: expectOut{
-				status:         types.TRANSITION_STATUS_UNSPECIFIED,
-				currentGroupID: tss.GroupID(1),
+				status: types.TRANSITION_STATUS_UNSPECIFIED,
+				currentGroup: types.CurrentGroup{
+					GroupID:    tss.GroupID(1),
+					ActiveTime: s.ctx.BlockTime(),
+				},
 			},
 		},
 		{
-			name: "transition with status WaitingExecution; has a current group",
+			name: "force transition with status WaitingExecution; has a current group",
 			preProcess: func(s *KeeperTestSuite) {
 				s.keeper.SetGroupTransition(s.ctx, types.GroupTransition{
 					SigningID:       tss.SigningID(0),
 					CurrentGroupID:  tss.GroupID(1),
 					IncomingGroupID: tss.GroupID(2),
 					Status:          types.TRANSITION_STATUS_WAITING_EXECUTION,
-					ExecTime:        s.ctx.BlockTime().Add(-10 * time.Minute),
+					ExecTime:        execTime,
 				})
-				s.keeper.SetCurrentGroupID(s.ctx, tss.GroupID(1))
+
+				currentGroup := types.NewCurrentGroup(tss.GroupID(1), s.ctx.BlockTime().Add(-30*time.Minute))
+				s.keeper.SetCurrentGroup(s.ctx, currentGroup)
+
 				err := s.keeper.AddMember(s.ctx, acc1, tss.GroupID(1))
 				s.Require().NoError(err)
 				err = s.keeper.AddMember(s.ctx, acc2, tss.GroupID(1))
@@ -70,8 +78,11 @@ func (s *KeeperTestSuite) TestHandleGroupTransition() {
 				})
 			},
 			expectOut: expectOut{
-				status:         types.TRANSITION_STATUS_UNSPECIFIED,
-				currentGroupID: tss.GroupID(2),
+				status: types.TRANSITION_STATUS_UNSPECIFIED,
+				currentGroup: types.CurrentGroup{
+					GroupID:    tss.GroupID(2),
+					ActiveTime: execTime,
+				},
 			},
 			postProcess: func(s *KeeperTestSuite) {
 				members := s.keeper.GetMembers(s.ctx)
@@ -88,9 +99,12 @@ func (s *KeeperTestSuite) TestHandleGroupTransition() {
 					CurrentGroupID:  tss.GroupID(1),
 					IncomingGroupID: tss.GroupID(2),
 					Status:          types.TRANSITION_STATUS_WAITING_EXECUTION,
-					ExecTime:        s.ctx.BlockTime().Add(-10 * time.Minute),
+					ExecTime:        execTime,
 				})
-				s.keeper.SetCurrentGroupID(s.ctx, tss.GroupID(1))
+
+				currentGroup := types.NewCurrentGroup(tss.GroupID(1), s.ctx.BlockTime().Add(-30*time.Minute))
+				s.keeper.SetCurrentGroup(s.ctx, currentGroup)
+
 				err := s.keeper.AddMember(s.ctx, acc1, tss.GroupID(1))
 				s.Require().NoError(err)
 				err = s.keeper.AddMember(s.ctx, acc2, tss.GroupID(1))
@@ -102,8 +116,11 @@ func (s *KeeperTestSuite) TestHandleGroupTransition() {
 				})
 			},
 			expectOut: expectOut{
-				status:         types.TRANSITION_STATUS_UNSPECIFIED,
-				currentGroupID: tss.GroupID(2),
+				status: types.TRANSITION_STATUS_UNSPECIFIED,
+				currentGroup: types.CurrentGroup{
+					GroupID:    tss.GroupID(2),
+					ActiveTime: execTime,
+				},
 			},
 			postProcess: func(s *KeeperTestSuite) {
 				members := s.keeper.GetMembers(s.ctx)
@@ -120,13 +137,18 @@ func (s *KeeperTestSuite) TestHandleGroupTransition() {
 					CurrentGroupID:  tss.GroupID(1),
 					IncomingGroupID: tss.GroupID(2),
 					Status:          types.TRANSITION_STATUS_CREATING_GROUP,
-					ExecTime:        s.ctx.BlockTime().Add(-10 * time.Minute),
+					ExecTime:        execTime,
 				})
-				s.keeper.SetCurrentGroupID(s.ctx, tss.GroupID(1))
+
+				currentGroup := types.NewCurrentGroup(tss.GroupID(1), s.ctx.BlockTime().Add(-30*time.Minute))
+				s.keeper.SetCurrentGroup(s.ctx, currentGroup)
 			},
 			expectOut: expectOut{
-				status:         types.TRANSITION_STATUS_UNSPECIFIED,
-				currentGroupID: tss.GroupID(1),
+				status: types.TRANSITION_STATUS_UNSPECIFIED,
+				currentGroup: types.CurrentGroup{
+					GroupID:    tss.GroupID(1),
+					ActiveTime: s.ctx.BlockTime().Add(-30 * time.Minute),
+				},
 			},
 		},
 		{
@@ -137,13 +159,18 @@ func (s *KeeperTestSuite) TestHandleGroupTransition() {
 					CurrentGroupID:  tss.GroupID(1),
 					IncomingGroupID: tss.GroupID(2),
 					Status:          types.TRANSITION_STATUS_WAITING_SIGN,
-					ExecTime:        s.ctx.BlockTime().Add(-10 * time.Minute),
+					ExecTime:        execTime,
 				})
-				s.keeper.SetCurrentGroupID(s.ctx, tss.GroupID(1))
+
+				currentGroup := types.NewCurrentGroup(tss.GroupID(1), s.ctx.BlockTime().Add(-30*time.Minute))
+				s.keeper.SetCurrentGroup(s.ctx, currentGroup)
 			},
 			expectOut: expectOut{
-				status:         types.TRANSITION_STATUS_UNSPECIFIED,
-				currentGroupID: tss.GroupID(1),
+				status: types.TRANSITION_STATUS_UNSPECIFIED,
+				currentGroup: types.CurrentGroup{
+					GroupID:    tss.GroupID(1),
+					ActiveTime: s.ctx.BlockTime().Add(-30 * time.Minute),
+				},
 			},
 		},
 	}
@@ -165,7 +192,11 @@ func (s *KeeperTestSuite) TestHandleGroupTransition() {
 				s.Require().True(found)
 				s.Require().Equal(tc.expectOut.status, gt.Status)
 			}
-			s.Require().Equal(tc.expectOut.currentGroupID, s.keeper.GetCurrentGroupID(s.ctx))
+
+			currentGroup := s.keeper.GetCurrentGroup(s.ctx)
+			expect := tc.expectOut.currentGroup
+			s.Require().Equal(expect.GroupID, currentGroup.GroupID)
+			s.Require().Equal(expect.ActiveTime, currentGroup.ActiveTime)
 
 			if tc.postProcess != nil {
 				tc.postProcess(s)

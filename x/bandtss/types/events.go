@@ -2,7 +2,6 @@ package types
 
 const (
 	EventTypeActivate               = "activate"
-	EventTypeHeartbeat              = "heartbeat"
 	EventTypeInactiveStatus         = "inactive_status"
 	EventTypeGroupTransition        = "group_transition"
 	EventTypeGroupTransitionSuccess = "group_transition_success"
@@ -20,6 +19,6 @@ const (
 	AttributeKeyGroupID                = "group_id"
 	AttributeKeyIncomingGroupPubKey    = "incoming_group_pub_key"
 	AttributeKeyCurrentGroupPubKey     = "current_group_pub_key"
-	AttributeKeyRAddress               = "r_address"
+	AttributeKeyRandomAddress          = "random_address"
 	AttributeKeySignature              = "signature"
 )

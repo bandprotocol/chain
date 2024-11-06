@@ -13,22 +13,6 @@ import (
 	"github.com/bandprotocol/chain/v3/x/bandtss/types"
 )
 
-// DeactivateInactiveMembers handle inactive members, who haven't activated for a while.
-func (k Keeper) DeactivateInactiveMembers(ctx sdk.Context) {
-	members := k.GetMembers(ctx)
-
-	for _, member := range members {
-		if member.IsActive && ctx.BlockTime().After(member.LastActive.Add(k.GetParams(ctx).ActiveDuration)) {
-			addr := sdk.MustAccAddressFromBech32(member.Address)
-
-			// this shouldn't return any error.
-			if err := k.DeactivateMember(ctx, addr, member.GroupID); err != nil {
-				panic(err)
-			}
-		}
-	}
-}
-
 // DeactivateMember flags is_active to false. This function will return error if the given address
 // isn't the member of the given group.
 func (k Keeper) DeactivateMember(ctx sdk.Context, address sdk.AccAddress, groupID tss.GroupID) error {
@@ -75,7 +59,7 @@ func (k Keeper) ActivateMember(ctx sdk.Context, address sdk.AccAddress, groupID 
 	}
 
 	member.IsActive = true
-	member.LastActive = ctx.BlockTime()
+	member.Since = ctx.BlockTime()
 	k.SetMember(ctx, member)
 
 	if err := k.tssKeeper.ActivateMember(ctx, groupID, address); err != nil {
@@ -87,23 +71,6 @@ func (k Keeper) ActivateMember(ctx sdk.Context, address sdk.AccAddress, groupID 
 		sdk.NewAttribute(types.AttributeKeyAddress, address.String()),
 		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", member.GroupID)),
 	))
-
-	return nil
-}
-
-// SetLastActive sets last active of the member.
-func (k Keeper) SetLastActive(ctx sdk.Context, address sdk.AccAddress, groupID tss.GroupID) error {
-	member, err := k.GetMember(ctx, address, groupID)
-	if err != nil {
-		return err
-	}
-
-	if !member.IsActive {
-		return types.ErrInvalidStatus
-	}
-
-	member.LastActive = ctx.BlockTime()
-	k.SetMember(ctx, member)
 
 	return nil
 }
@@ -135,7 +102,7 @@ func (k Keeper) AddMember(ctx sdk.Context, address sdk.AccAddress, groupID tss.G
 		return types.ErrMemberAlreadyExists.Wrapf("address : %v", address)
 	}
 
-	member := types.NewMember(address, groupID, true, ctx.BlockTime(), ctx.BlockTime())
+	member := types.NewMember(address, groupID, true, ctx.BlockTime())
 	k.SetMember(ctx, member)
 
 	return nil

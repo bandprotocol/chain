@@ -24,7 +24,7 @@ func (k Keeper) SetNewGroupTransition(
 	}
 
 	// get the current group ID and public key.
-	currentGroupID := k.GetCurrentGroupID(ctx)
+	currentGroupID := k.GetCurrentGroup(ctx).GroupID
 	var currentGroupPubKey tss.Point
 	if currentGroupID != 0 {
 		currentGroup, err := k.tssKeeper.GetGroup(ctx, currentGroupID)
@@ -100,7 +100,9 @@ func (k Keeper) ExecuteGroupTransition(ctx sdk.Context, transition types.GroupTr
 	if transition.CurrentGroupID != 0 {
 		k.DeleteMembers(ctx, transition.CurrentGroupID)
 	}
-	k.SetCurrentGroupID(ctx, transition.IncomingGroupID)
+
+	newCurrentGroup := types.NewCurrentGroup(transition.IncomingGroupID, transition.ExecTime)
+	k.SetCurrentGroup(ctx, newCurrentGroup)
 	k.EndGroupTransitionProcess(ctx, transition, true)
 }
 
@@ -152,15 +154,16 @@ func (k Keeper) ExtractEventAttributesFromTransition(transition types.GroupTrans
 func (k Keeper) CreateTransitionSigning(
 	ctx sdk.Context,
 	groupPubKey tss.Point,
+	transitionTime time.Time,
 ) (tss.SigningID, error) {
-	currentGroupID := k.GetCurrentGroupID(ctx)
+	currentGroupID := k.GetCurrentGroup(ctx).GroupID
 
 	moduleAcc := k.GetBandtssAccount(ctx)
 	originator := tsstypes.DirectOriginator{
 		Requester: moduleAcc.GetAddress().String(),
 	}
 
-	content := types.NewGroupTransitionSignatureOrder(groupPubKey)
+	content := types.NewGroupTransitionSignatureOrder(groupPubKey, transitionTime)
 
 	signingID, err := k.tssKeeper.RequestSigning(ctx, currentGroupID, originator, content)
 	if err != nil {

@@ -9,7 +9,6 @@ import (
 )
 
 const (
-	DefaultActiveDuration          time.Duration = time.Hour * 24   // 1 days
 	DefaultInactivePenaltyDuration time.Duration = time.Minute * 10 // 10 minutes
 	DefaultMaxTransitionDuration   time.Duration = time.Hour * 120  // 5 days
 	// compute the bandtss reward following the allocation to Oracle. If the Oracle reward amounts to 40%,
@@ -17,18 +16,18 @@ const (
 	DefaultRewardPercentage = uint64(8)
 )
 
+// DefaultFee is the default value for the signing request fee
+// The value is ["10uband"]
 var DefaultFee = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
 
 // NewParams creates a new Params instance
 func NewParams(
-	activeDuration time.Duration,
 	rewardPercentage uint64,
 	inactivePenaltyDuration time.Duration,
 	maxTransitionDuration time.Duration,
 	fee sdk.Coins,
 ) Params {
 	return Params{
-		ActiveDuration:          activeDuration,
 		RewardPercentage:        rewardPercentage,
 		InactivePenaltyDuration: inactivePenaltyDuration,
 		MaxTransitionDuration:   maxTransitionDuration,
@@ -39,7 +38,6 @@ func NewParams(
 // DefaultParams returns default parameters
 func DefaultParams() Params {
 	return NewParams(
-		DefaultActiveDuration,
 		DefaultRewardPercentage,
 		DefaultInactivePenaltyDuration,
 		DefaultMaxTransitionDuration,
@@ -49,10 +47,6 @@ func DefaultParams() Params {
 
 // Validate validates the set of params
 func (p Params) Validate() error {
-	if err := validateTimeDuration("active duration")(p.ActiveDuration); err != nil {
-		return err
-	}
-
 	if err := validateTimeDuration("inactive penalty duration")(p.InactivePenaltyDuration); err != nil {
 		return err
 	}

@@ -30,7 +30,6 @@ func EncodeSigning(
 	contentMsg []byte,
 ) []byte {
 	return bytes.Join([][]byte{
-		tss.Hash([]byte(ctx.ChainID())),
 		tss.Hash(originator),
 		sdk.Uint64ToBigEndian(uint64(ctx.BlockTime().Unix())),
 		sdk.Uint64ToBigEndian(signingID),

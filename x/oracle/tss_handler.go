@@ -11,8 +11,14 @@ import (
 )
 
 var (
-	EncodeTypeProtoPrefix      = tsslib.Hash([]byte("proto"))[:4]
-	EncodeTypeFullABIPrefix    = tsslib.Hash([]byte("fullABI"))[:4]
+	// EncodeTypeProtoPrefix is the prefix for proto encoding type
+	// The value is tss.Hash([]byte("proto"))[:4]
+	EncodeTypeProtoPrefix = tsslib.Hash([]byte("proto"))[:4]
+	// EncodeTypeFullABIPrefix is the prefix for full ABI encoding type
+	// The value is tss.Hash([]byte("fullABI"))[:4]
+	EncodeTypeFullABIPrefix = tsslib.Hash([]byte("fullABI"))[:4]
+	// EncodeTypePartialABIPrefix is the prefix for partial ABI encoding type
+	// The value is tss.Hash([]byte("partialABI"))[:4]
 	EncodeTypePartialABIPrefix = tsslib.Hash([]byte("partialABI"))[:4]
 )
 
