@@ -16,7 +16,6 @@ type Keeper struct {
 	cdc      codec.BinaryCodec
 	storeKey storetypes.StoreKey
 
-	authzKeeper   types.AuthzKeeper
 	authKeeper    types.AccountKeeper
 	bankKeeper    types.BankKeeper
 	distrKeeper   types.DistrKeeper
@@ -30,7 +29,6 @@ type Keeper struct {
 func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey storetypes.StoreKey,
-	authzKeeper types.AuthzKeeper,
 	authKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
 	distrKeeper types.DistrKeeper,
@@ -51,7 +49,6 @@ func NewKeeper(
 	return Keeper{
 		cdc:              cdc,
 		storeKey:         storeKey,
-		authzKeeper:      authzKeeper,
 		authKeeper:       authKeeper,
 		bankKeeper:       bankKeeper,
 		distrKeeper:      distrKeeper,
@@ -97,16 +94,4 @@ func (k Keeper) GetCurrentGroup(ctx sdk.Context) types.CurrentGroup {
 	var currentGroup types.CurrentGroup
 	k.cdc.MustUnmarshal(bz, &currentGroup)
 	return currentGroup
-}
-
-// CheckIsGrantee checks if the granter granted permissions to the grantee.
-func (k Keeper) CheckIsGrantee(ctx sdk.Context, granter sdk.AccAddress, grantee sdk.AccAddress) bool {
-	for _, msg := range types.GetGrantMsgTypes() {
-		cap, _ := k.authzKeeper.GetAuthorization(ctx, grantee, granter, msg)
-		if cap == nil {
-			return false
-		}
-	}
-
-	return true
 }

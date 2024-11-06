@@ -18,15 +18,6 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					Short:     "Get current number of signing requests to bandtss module on BandChain",
 				},
 				{
-					RpcMethod: "IsGrantee",
-					Use:       "is-grantee [granter_address] [grantee_address]",
-					Short:     "Query grantee status",
-					PositionalArgs: []*autocliv1.PositionalArgDescriptor{
-						{ProtoField: "granter"},
-						{ProtoField: "grantee"},
-					},
-				},
-				{
 					RpcMethod: "Members",
 					Use:       "members",
 					Short:     "Query the members information",

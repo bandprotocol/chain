@@ -46,14 +46,12 @@ func NewMember(
 	groupID tss.GroupID,
 	isActive bool,
 	since time.Time,
-	lastActive time.Time,
 ) Member {
 	return Member{
-		Address:    address.String(),
-		GroupID:    groupID,
-		IsActive:   isActive,
-		Since:      since,
-		LastActive: lastActive,
+		Address:  address.String(),
+		GroupID:  groupID,
+		IsActive: isActive,
+		Since:    since,
 	}
 }
 

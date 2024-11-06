@@ -19,7 +19,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	moduletestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/cosmos/cosmos-sdk/x/authz"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	band "github.com/bandprotocol/chain/v3/app"
@@ -211,7 +210,6 @@ func (s *AppTestSuite) TestParams() {
 		{
 			name: "set invalid params",
 			input: types.Params{
-				ActiveDuration:          time.Duration(0),
 				InactivePenaltyDuration: time.Duration(0),
 				RewardPercentage:        0,
 				Fee:                     sdk.NewCoins(),
@@ -222,7 +220,6 @@ func (s *AppTestSuite) TestParams() {
 		{
 			name: "set full valid params",
 			input: types.Params{
-				ActiveDuration:          types.DefaultActiveDuration,
 				RewardPercentage:        types.DefaultRewardPercentage,
 				InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
 				MaxTransitionDuration:   types.DefaultMaxTransitionDuration,
@@ -248,26 +245,6 @@ func (s *AppTestSuite) TestParams() {
 			s.Require().Equal(expected, p)
 		})
 	}
-}
-
-func (s *AppTestSuite) TestIsGrantee() {
-	ctx, k := s.ctx, s.app.BandtssKeeper
-	expTime := s.ctx.BlockTime().Add(time.Hour)
-
-	// Init grantee address
-	grantee, _ := sdk.AccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
-
-	// Init granter address
-	granter, _ := sdk.AccAddressFromBech32("band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun")
-
-	// Save grant msgs to grantee
-	for _, m := range types.GetGrantMsgTypes() {
-		err := s.app.AuthzKeeper.SaveGrant(ctx, grantee, granter, authz.NewGenericAuthorization(m), &expTime)
-		s.Require().NoError(err)
-	}
-
-	isGrantee := k.CheckIsGrantee(ctx, granter, grantee)
-	s.Require().True(isGrantee)
 }
 
 func TestAppTestSuite(t *testing.T) {
@@ -306,7 +283,6 @@ func (s *KeeperTestSuite) SetupTest() {
 	encCfg := moduletestutil.MakeTestEncodingConfig(bandtss.AppModuleBasic{})
 	s.ctx = testCtx.Ctx.WithBlockHeader(cmtproto.Header{Time: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC)})
 
-	authzKeeper := bandtsstestutil.NewMockAuthzKeeper(ctrl)
 	s.accountKeeper = bandtsstestutil.NewMockAccountKeeper(ctrl)
 	s.bankKeeper = bandtsstestutil.NewMockBankKeeper(ctrl)
 	s.distrKeeper = bandtsstestutil.NewMockDistrKeeper(ctrl)
@@ -318,7 +294,6 @@ func (s *KeeperTestSuite) SetupTest() {
 	s.keeper = keeper.NewKeeper(
 		encCfg.Codec.(codec.BinaryCodec),
 		s.key,
-		authzKeeper,
 		s.accountKeeper,
 		s.bankKeeper,
 		s.distrKeeper,

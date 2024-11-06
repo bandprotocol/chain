@@ -19,14 +19,12 @@ var (
 	_ sdk.Msg = &MsgForceTransitionGroup{}
 	_ sdk.Msg = &MsgRequestSignature{}
 	_ sdk.Msg = &MsgActivate{}
-	_ sdk.Msg = &MsgHeartbeat{}
 	_ sdk.Msg = &MsgUpdateParams{}
 
 	_ sdk.HasValidateBasic = (*MsgTransitionGroup)(nil)
 	_ sdk.HasValidateBasic = (*MsgForceTransitionGroup)(nil)
 	_ sdk.HasValidateBasic = (*MsgRequestSignature)(nil)
 	_ sdk.HasValidateBasic = (*MsgActivate)(nil)
-	_ sdk.HasValidateBasic = (*MsgHeartbeat)(nil)
 	_ sdk.HasValidateBasic = (*MsgUpdateParams)(nil)
 
 	_ types.UnpackInterfacesMessage = &MsgRequestSignature{}
@@ -199,33 +197,6 @@ func NewMsgActivate(sender string, groupID tss.GroupID) *MsgActivate {
 
 // ValidateBasic does a sanity check on the provided data
 func (m MsgActivate) ValidateBasic() error {
-	// Validate member address
-	if _, err := sdk.AccAddressFromBech32(m.Sender); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
-	}
-
-	// Validate group ID
-	if m.GroupID == 0 {
-		return ErrInvalidGroupID.Wrap("group ID must not be zero")
-	}
-
-	return nil
-}
-
-// ====================================
-// MsgHeartbeat
-// ====================================
-
-// NewMsgHeartbeat creates a new MsgHeartbeat instance.
-func NewMsgHeartbeat(sender string, groupID tss.GroupID) *MsgHeartbeat {
-	return &MsgHeartbeat{
-		Sender:  sender,
-		GroupID: groupID,
-	}
-}
-
-// ValidateBasic does a sanity check on the provided data
-func (m MsgHeartbeat) ValidateBasic() error {
 	// Validate member address
 	if _, err := sdk.AccAddressFromBech32(m.Sender); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)

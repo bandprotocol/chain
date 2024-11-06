@@ -194,11 +194,10 @@ func (s *KeeperTestSuite) TestCallbackOnSignTimeout() {
 				s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(1, s.ctx.BlockTime()))
 				s.keeper.SetSigningIDMapping(s.ctx, 1, 1)
 				s.keeper.SetMember(s.ctx, types.Member{
-					Address:    penalizedMembers[0].String(),
-					GroupID:    tss.GroupID(1),
-					IsActive:   true,
-					Since:      s.ctx.BlockTime(),
-					LastActive: s.ctx.BlockTime(),
+					Address:  penalizedMembers[0].String(),
+					GroupID:  tss.GroupID(1),
+					IsActive: true,
+					Since:    s.ctx.BlockTime(),
 				})
 
 				s.keeper.SetSigning(s.ctx, types.Signing{
@@ -243,18 +242,16 @@ func (s *KeeperTestSuite) TestCallbackOnSignTimeout() {
 				s.keeper.SetSigningIDMapping(s.ctx, 1, 1)
 				s.keeper.SetSigningIDMapping(s.ctx, 2, 1)
 				s.keeper.SetMember(s.ctx, types.Member{
-					Address:    penalizedMembers[0].String(),
-					GroupID:    tss.GroupID(2),
-					IsActive:   true,
-					Since:      s.ctx.BlockTime(),
-					LastActive: s.ctx.BlockTime(),
+					Address:  penalizedMembers[0].String(),
+					GroupID:  tss.GroupID(2),
+					IsActive: true,
+					Since:    s.ctx.BlockTime(),
 				})
 				s.keeper.SetMember(s.ctx, types.Member{
-					Address:    penalizedMembers[0].String(),
-					GroupID:    tss.GroupID(1),
-					IsActive:   true,
-					Since:      s.ctx.BlockTime(),
-					LastActive: s.ctx.BlockTime(),
+					Address:  penalizedMembers[0].String(),
+					GroupID:  tss.GroupID(1),
+					IsActive: true,
+					Since:    s.ctx.BlockTime(),
 				})
 				s.keeper.SetGroupTransition(s.ctx, types.GroupTransition{
 					SigningID:       tss.SigningID(3),
@@ -316,18 +313,16 @@ func (s *KeeperTestSuite) TestCallbackOnSignTimeout() {
 					Status:    types.TRANSITION_STATUS_WAITING_SIGN,
 				})
 				s.keeper.SetMember(s.ctx, types.Member{
-					Address:    penalizedMembers[0].String(),
-					GroupID:    tss.GroupID(2),
-					IsActive:   true,
-					Since:      s.ctx.BlockTime(),
-					LastActive: s.ctx.BlockTime(),
+					Address:  penalizedMembers[0].String(),
+					GroupID:  tss.GroupID(2),
+					IsActive: true,
+					Since:    s.ctx.BlockTime(),
 				})
 				s.keeper.SetMember(s.ctx, types.Member{
-					Address:    penalizedMembers[0].String(),
-					GroupID:    tss.GroupID(1),
-					IsActive:   true,
-					Since:      s.ctx.BlockTime(),
-					LastActive: s.ctx.BlockTime(),
+					Address:  penalizedMembers[0].String(),
+					GroupID:  tss.GroupID(1),
+					IsActive: true,
+					Since:    s.ctx.BlockTime(),
 				})
 			},
 			postCheck: func(s *KeeperTestSuite) {
@@ -366,18 +361,16 @@ func (s *KeeperTestSuite) TestCallbackOnSignTimeout() {
 					IncomingGroupSigningID: 2,
 				})
 				s.keeper.SetMember(s.ctx, types.Member{
-					Address:    penalizedMembers[0].String(),
-					GroupID:    tss.GroupID(2),
-					IsActive:   true,
-					Since:      s.ctx.BlockTime(),
-					LastActive: s.ctx.BlockTime(),
+					Address:  penalizedMembers[0].String(),
+					GroupID:  tss.GroupID(2),
+					IsActive: true,
+					Since:    s.ctx.BlockTime(),
 				})
 				s.keeper.SetMember(s.ctx, types.Member{
-					Address:    penalizedMembers[0].String(),
-					GroupID:    tss.GroupID(1),
-					IsActive:   true,
-					Since:      s.ctx.BlockTime(),
-					LastActive: s.ctx.BlockTime(),
+					Address:  penalizedMembers[0].String(),
+					GroupID:  tss.GroupID(1),
+					IsActive: true,
+					Since:    s.ctx.BlockTime(),
 				})
 
 				s.keeper.SetGroupTransition(s.ctx, types.GroupTransition{
@@ -425,18 +418,16 @@ func (s *KeeperTestSuite) TestCallbackOnSignTimeout() {
 					IncomingGroupSigningID: 2,
 				})
 				s.keeper.SetMember(s.ctx, types.Member{
-					Address:    penalizedMembers[0].String(),
-					GroupID:    tss.GroupID(2),
-					IsActive:   true,
-					Since:      s.ctx.BlockTime(),
-					LastActive: s.ctx.BlockTime(),
+					Address:  penalizedMembers[0].String(),
+					GroupID:  tss.GroupID(2),
+					IsActive: true,
+					Since:    s.ctx.BlockTime(),
 				})
 				s.keeper.SetMember(s.ctx, types.Member{
-					Address:    penalizedMembers[0].String(),
-					GroupID:    tss.GroupID(1),
-					IsActive:   true,
-					Since:      s.ctx.BlockTime(),
-					LastActive: s.ctx.BlockTime(),
+					Address:  penalizedMembers[0].String(),
+					GroupID:  tss.GroupID(1),
+					IsActive: true,
+					Since:    s.ctx.BlockTime(),
 				})
 				s.tssKeeper.EXPECT().
 					DeactivateMember(gomock.Any(), tss.GroupID(1), penalizedMembers[0]).

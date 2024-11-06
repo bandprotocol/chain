@@ -31,7 +31,6 @@ The module is configured to charge a fee for each signing request, a cost that i
     - [Msg/ForceTransitionGroup](#msgforcetransitiongroup)
     - [Msg/RequestSignature](#msgrequestsignature)
     - [Msg/Activate](#msgactivate)
-    - [Msg/Heartbeat](#msgheartbeat)
     - [Msg/UpdateParams](#msgupdateparams)
   - [Events](#events)
     - [EventTypeSigningRequestCreated](#eventtypesigningrequestcreated)
@@ -39,7 +38,6 @@ The module is configured to charge a fee for each signing request, a cost that i
     - [EventTypeGroupTransitionFailed](#eventtypegrouptransitionfailed)
     - [EventTypeGroupTransitionSuccess](#eventtypegrouptransitionsuccess)
     - [EventTypeActivate](#eventtypeactivate)
-    - [EventTypeHeartbeat](#eventtypeheartbeat)
     - [EventTypeInactiveStatus](#eventtypeinactivestatus)
   - [Parameters](#parameters)
   - [Client](#client)
@@ -67,7 +65,6 @@ type Member struct {
 	GroupID github_com_bandprotocol_chain_v2_pkg_tss.GroupID
 	IsActive bool
 	Since time.Time
-	LastActive time.Time
 }
 ```
 
@@ -250,25 +247,6 @@ message MsgActivate {
 }
 ```
 
-### Msg/Heartbeat
-
-This message is used by members in the bandtss system. All active members have to regularly send `MsgHeartbeat` to the chain to show if they are still active.
-
-The frequency of sending is determined by `ActiveDuration` parameters.
-
-```protobuf
-message MsgHeartbeat {
-  option (cosmos.msg.v1.signer) = "sender";
-  option (amino.name)           = "bandtss/MsgHeartbeat";
-
-  // address is the signer of this message, who must be a member of the group.
-  string sender = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  // group_id is the group id of the member.
-  uint64 group_id = 2
-      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.GroupID"];
-}
-```
-
 ### Msg/UpdateParams
 
 When anyone wants to update the parameters of the bandtss module, they will have to open a governance proposal by using the `MsgUpdateParams` of the bandtss module to update those parameters.
@@ -332,15 +310,6 @@ This event ( `activate` ) is emitted when an account submitted `MsgActivate` to 
 | address       | {memberAddress} |
 | group_id      | {groupID}       |
 
-### EventTypeHeartbeat
-
-This event ( `heartbeat` ) is emitted when an account submitted `MsgHeartbeat` to the chain
-
-| Attribute Key | Attribute Value |
-| ------------- | --------------- |
-| address       | {memberAddress} |
-| group_id      | {groupID}       |
-
 ### EventTypeInactiveStatus
 
 This event ( `inactive_status` ) is emitted when an account is deactivated
@@ -356,18 +325,16 @@ The module contains the following parameters
 
 ```protobuf
 message Params {
-  // active_duration is the duration where a member is active without interaction.
-  google.protobuf.Duration active_duration = 1 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
   // reward_percentage is the percentage of block rewards allocated to active TSS members.
   // The reward proportion is calculated after being allocated to oracle rewards.
-  uint64 reward_percentage = 2 [(gogoproto.customname) = "RewardPercentage"];
+  uint64 reward_percentage = 1 [(gogoproto.customname) = "RewardPercentage"];
   // inactive_penalty_duration is the duration where a member cannot activate back after being set to inactive.
-  google.protobuf.Duration inactive_penalty_duration = 3 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  google.protobuf.Duration inactive_penalty_duration = 2 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
   // max_transition_duration is the maximum duration where the transition process waits
   // since the start of the process until an incoming group replaces a current group.
-  google.protobuf.Duration max_transition_duration = 4 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  google.protobuf.Duration max_transition_duration = 3 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
   // fee is the tokens that will be paid per signer.
-  repeated cosmos.base.v1beta1.Coin fee = 5
+  repeated cosmos.base.v1beta1.Coin fee = 4
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }
 ```

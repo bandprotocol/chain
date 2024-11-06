@@ -2,7 +2,6 @@ package types
 
 const (
 	EventTypeActivate               = "activate"
-	EventTypeHeartbeat              = "heartbeat"
 	EventTypeInactiveStatus         = "inactive_status"
 	EventTypeGroupTransition        = "group_transition"
 	EventTypeGroupTransitionSuccess = "group_transition_success"

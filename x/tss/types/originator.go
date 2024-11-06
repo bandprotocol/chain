@@ -31,6 +31,15 @@ type Originator interface {
 // DirectOriginator
 // ====================================
 
+// NewDirectOriginator creates a new direct originator.
+func NewDirectOriginator(sourceChainID, requester, memo string) DirectOriginator {
+	return DirectOriginator{
+		SourceChainID: sourceChainID,
+		Requester:     requester,
+		Memo:          memo,
+	}
+}
+
 // Validate checks the validity of the originator.
 func (o DirectOriginator) Validate(p Params) error {
 	if uint64(len(o.Memo)) > p.MaxMemoLength {
@@ -44,10 +53,9 @@ func (o DirectOriginator) Validate(p Params) error {
 func (o DirectOriginator) Encode() ([]byte, error) {
 	bz := bytes.Join([][]byte{
 		DirectOriginatorPrefix,
-		sdk.Uint64ToBigEndian(uint64(len(o.Requester))),
-		[]byte(o.Requester),
-		sdk.Uint64ToBigEndian(uint64(len(o.Memo))),
-		[]byte(o.Memo),
+		tss.Hash([]byte(o.SourceChainID)),
+		tss.Hash([]byte(o.Requester)),
+		tss.Hash([]byte(o.Memo)),
 	}, []byte(""))
 
 	return bz, nil
@@ -56,6 +64,20 @@ func (o DirectOriginator) Encode() ([]byte, error) {
 // ====================================
 // TunnelOriginator
 // ====================================
+
+// NewTunnelOriginator creates a new tunnel originator.
+func NewTunnelOriginator(
+	sourceChainID string,
+	tunnelID uint64,
+	contractAddress, targetChainID string,
+) TunnelOriginator {
+	return TunnelOriginator{
+		SourceChainID:   sourceChainID,
+		TunnelID:        tunnelID,
+		ContractAddress: contractAddress,
+		TargetChainID:   targetChainID,
+	}
+}
 
 // Validate checks the validity of the originator.
 func (o TunnelOriginator) Validate(p Params) error {
@@ -66,11 +88,10 @@ func (o TunnelOriginator) Validate(p Params) error {
 func (o TunnelOriginator) Encode() ([]byte, error) {
 	bz := bytes.Join([][]byte{
 		TunnelOriginatorPrefix,
+		tss.Hash([]byte(o.SourceChainID)),
 		sdk.Uint64ToBigEndian(o.TunnelID),
-		sdk.Uint64ToBigEndian(uint64(len(o.ContractAddress))),
-		[]byte(o.ContractAddress),
-		sdk.Uint64ToBigEndian(uint64(len(o.ChainID))),
-		[]byte(o.ChainID),
+		tss.Hash([]byte(o.ContractAddress)),
+		tss.Hash([]byte(o.TargetChainID)),
 	}, []byte(""))
 
 	return bz, nil
