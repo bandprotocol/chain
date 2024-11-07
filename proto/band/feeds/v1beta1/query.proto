@@ -32,9 +32,14 @@ service Query {
     option (google.api.http).get = "/feeds/v1beta1/prices/{signal_id}";
   }
 
-  // Prices is an RPC method that returns all prices.
+  // Prices is an RPC method that prices by signal ids.
   rpc Prices(QueryPricesRequest) returns (QueryPricesResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/prices";
+    option (google.api.http).get = "/feeds/v1beta1/prices/{signal_ids}";
+  }
+
+  // AllPrices is an RPC method that returns all prices.
+  rpc AllPrices(QueryAllPricesRequest) returns (QueryAllPricesResponse) {
+    option (google.api.http).get = "/feeds/v1beta1/all-prices";
   }
 
   // ReferenceSourceConfig is an RPC method that returns information on the reference price source.
@@ -112,15 +117,24 @@ message QueryPriceResponse {
 message QueryPricesRequest {
   // signal_ids is a list of signal ids to query prices for.
   repeated string signal_ids = 1;
-
-  // pagination is the pagination for the request.
-  cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 
 // QueryPricesResponse is the response type for the Query/Prices RPC method.
 message QueryPricesResponse {
   // prices is a list of prices.
-  repeated Price prices = 1;
+  repeated Price prices = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryAllPricesRequest is the request type for the Query/AllPrices RPC method.
+message QueryAllPricesRequest {
+  // pagination is the pagination for the request.
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+// QueryAllPricesResponse is the response type for the Query/AllPrices RPC method.
+message QueryAllPricesResponse {
+  // prices is a list of prices.
+  repeated Price prices = 1 [(gogoproto.nullable) = false];
 
   // pagination is the pagination information in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;

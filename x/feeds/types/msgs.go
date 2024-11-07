@@ -27,12 +27,12 @@ var (
 func NewMsgSubmitSignalPrices(
 	validator string,
 	timestamp int64,
-	prices []SignalPrice,
+	signalPrices []SignalPrice,
 ) *MsgSubmitSignalPrices {
 	return &MsgSubmitSignalPrices{
-		Validator: validator,
-		Timestamp: timestamp,
-		Prices:    prices,
+		Validator:    validator,
+		Timestamp:    timestamp,
+		SignalPrices: signalPrices,
 	}
 }
 
@@ -45,20 +45,20 @@ func (m *MsgSubmitSignalPrices) ValidateBasic() error {
 	// Map to track signal IDs for duplicate check
 	signalIDSet := make(map[string]struct{})
 
-	for _, price := range m.Prices {
-		if price.PriceStatus != PriceStatusAvailable && price.Price != 0 {
+	for _, signalPrice := range m.SignalPrices {
+		if signalPrice.Status != SignalPriceStatusAvailable && signalPrice.Price != 0 {
 			return sdkerrors.ErrInvalidRequest.Wrap(
-				"price must be initial value if price status is unsupported or unavailable",
+				"signal price must be initial value if price status is unsupported or unavailable",
 			)
 		}
 
 		// Check for duplicate signal IDs
-		if _, exists := signalIDSet[price.SignalID]; exists {
+		if _, exists := signalIDSet[signalPrice.SignalID]; exists {
 			return ErrDuplicateSignalID.Wrapf(
-				"duplicate signal ID found: %s", price.SignalID,
+				"duplicate signal ID found: %s", signalPrice.SignalID,
 			)
 		}
-		signalIDSet[price.SignalID] = struct{}{}
+		signalIDSet[signalPrice.SignalID] = struct{}{}
 	}
 
 	return nil

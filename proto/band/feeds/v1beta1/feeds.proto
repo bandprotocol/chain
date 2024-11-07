@@ -95,22 +95,25 @@ enum PriceStatus {
   // PRICE_STATUS_UNSPECIFIED is an unspecified price status.
   PRICE_STATUS_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "PriceStatusUnspecified"];
 
-  // PRICE_STATUS_UNSUPPORTED is an unsupported price status.
-  PRICE_STATUS_UNSUPPORTED = 1 [(gogoproto.enumvalue_customname) = "PriceStatusUnsupported"];
+  // PRICE_STATUS_UNKNOWN_SIGNAL_ID is an unknown signal id price status.
+  PRICE_STATUS_UNKNOWN_SIGNAL_ID = 1 [(gogoproto.enumvalue_customname) = "PriceStatusUnknownSignalID"];
 
-  // PRICE_STATUS_UNAVAILABLE is an unavailable price status.
-  PRICE_STATUS_UNAVAILABLE = 2 [(gogoproto.enumvalue_customname) = "PriceStatusUnavailable"];
+  // PRICE_STATUS_NOT_READY is a not ready price status.
+  PRICE_STATUS_NOT_READY = 2 [(gogoproto.enumvalue_customname) = "PriceStatusNotReady"];
 
   // PRICE_STATUS_AVAILABLE is an available price status.
   PRICE_STATUS_AVAILABLE = 3 [(gogoproto.enumvalue_customname) = "PriceStatusAvailable"];
+
+  // PRICE_STATUS_NOT_IN_CURRENT_FEEDS is a not in current feed price status.
+  PRICE_STATUS_NOT_IN_CURRENT_FEEDS = 4 [(gogoproto.enumvalue_customname) = "PriceStatusNotInCurrentFeeds"];
 }
 
 // Price is a structure that defines the price of a signal id.
 message Price {
   option (gogoproto.equal) = true;
 
-  // price_status is the price status of a signal id.
-  PriceStatus price_status = 1;
+  // status is the status of a the price.
+  PriceStatus status = 1;
 
   // signal_id is the signal id of the price.
   string signal_id = 2 [(gogoproto.customname) = "SignalID"];
@@ -122,12 +125,29 @@ message Price {
   int64 timestamp = 4;
 }
 
+// SignalPriceStatus is a structure that defines the price status of a signal id.
+enum SignalPriceStatus {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // SIGNAL_PRICE_STATUS_UNSPECIFIED is an unspecified signal price status.
+  SIGNAL_PRICE_STATUS_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "SignalPriceStatusUnspecified"];
+
+  // SIGNAL_PRICE_STATUS_UNSUPPORTED is an unsupported signal price status.
+  SIGNAL_PRICE_STATUS_UNSUPPORTED = 1 [(gogoproto.enumvalue_customname) = "SignalPriceStatusUnsupported"];
+
+  // SIGNAL_PRICE_STATUS_UNAVAILABLE is an unavailable signal price status.
+  SIGNAL_PRICE_STATUS_UNAVAILABLE = 2 [(gogoproto.enumvalue_customname) = "SignalPriceStatusUnavailable"];
+
+  // SIGNAL_PRICE_STATUS_AVAILABLE is an available signal price status.
+  SIGNAL_PRICE_STATUS_AVAILABLE = 3 [(gogoproto.enumvalue_customname) = "SignalPriceStatusAvailable"];
+}
+
 // SignalPrice is a structure that defines the signaled price of a signal id.
 message SignalPrice {
   option (gogoproto.equal) = true;
 
-  // price_status is the price status of a signal id.
-  PriceStatus price_status = 1;
+  // status is the status of the signal price.
+  SignalPriceStatus status = 1;
 
   // signal_id is the signal id of the price.
   string signal_id = 2 [(gogoproto.customname) = "SignalID"];
@@ -140,8 +160,8 @@ message SignalPrice {
 message ValidatorPrice {
   option (gogoproto.equal) = true;
 
-  // price_status is the price status of a price submitted.
-  PriceStatus price_status = 1;
+  // signal_price_status is the status of a signal price submitted.
+  SignalPriceStatus signal_price_status = 1;
 
   // validator is the validator address.
   string validator = 2 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];

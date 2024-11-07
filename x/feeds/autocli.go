@@ -38,8 +38,14 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "signal_id"}},
 				},
 				{
-					RpcMethod: "Prices",
-					Use:       "prices",
+					RpcMethod:      "Prices",
+					Use:            "prices [signal-ids]",
+					Short:          "Get prices for a list of signal IDs",
+					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "signal_ids"}},
+				},
+				{
+					RpcMethod: "AllPrices",
+					Use:       "all-prices",
 					Short:     "Get all prices",
 				},
 				{
