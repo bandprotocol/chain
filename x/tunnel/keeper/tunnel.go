@@ -60,8 +60,8 @@ func (k Keeper) AddTunnel(
 	return &tunnel, nil
 }
 
-// EditTunnel edits a tunnel
-func (k Keeper) EditTunnel(
+// UpdateAndResetTunnel edits a tunnel and reset latest signal price interval.
+func (k Keeper) UpdateAndResetTunnel(
 	ctx sdk.Context,
 	tunnelID uint64,
 	signalDeviations []types.SignalDeviation,
@@ -85,7 +85,7 @@ func (k Keeper) EditTunnel(
 	k.SetLatestSignalPrices(ctx, types.NewLatestSignalPrices(tunnelID, signalPrices, 0))
 
 	event := sdk.NewEvent(
-		types.EventTypeEditTunnel,
+		types.EventTypeUpdateAndResetTunnel,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
 		sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", tunnel.Interval)),
 	)
@@ -246,4 +246,34 @@ func (k Keeper) GetTotalFees(ctx sdk.Context) types.TotalFees {
 	var totalFee types.TotalFees
 	k.cdc.MustUnmarshal(bz, &totalFee)
 	return totalFee
+}
+
+// HasEnoughFundToCreatePacket checks if the fee payer has enough balance to create a packet
+func (k Keeper) HasEnoughFundToCreatePacket(ctx sdk.Context, tunnelID uint64) (bool, error) {
+	tunnel, err := k.GetTunnel(ctx, tunnelID)
+	if err != nil {
+		return false, err
+	}
+
+	// get the route fee from the tunnel
+	route, ok := tunnel.Route.GetCachedValue().(types.RouteI)
+	if !ok {
+		return false, types.ErrInvalidRoute
+	}
+	routeFee, err := route.Fee()
+	if err != nil {
+		return false, err
+	}
+
+	// get the base packet fee and calculate total fee
+	basePacketFee := k.GetParams(ctx).BasePacketFee
+	totalFee := basePacketFee.Add(routeFee...)
+
+	// compare the fee payer's balance with the total fee
+	feePayer, err := sdk.AccAddressFromBech32(tunnel.FeePayer)
+	if err != nil {
+		return false, err
+	}
+	balances := k.bankKeeper.SpendableCoins(ctx, feePayer)
+	return balances.IsAllGTE(totalFee), nil
 }
