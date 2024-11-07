@@ -1173,9 +1173,9 @@ func (suite *DecoderTestSuite) TestDecodeTunnelMsgCreateTunnel() {
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeTunnelMsgEditTunnel() {
+func (suite *DecoderTestSuite) TestDecodeTunnelMsgUpdateAndResetTunnel() {
 	detail := make(common.JsDict)
-	msg := tunneltypes.NewMsgEditTunnel(
+	msg := tunneltypes.NewMsgUpdateAndResetTunnel(
 		1,
 		[]tunneltypes.SignalDeviation{
 			tunneltypes.NewSignalDeviation("CS:BAND-USD", 10000, 10000),
@@ -1184,7 +1184,7 @@ func (suite *DecoderTestSuite) TestDecodeTunnelMsgEditTunnel() {
 		CreatorAddress.String(),
 	)
 
-	emitter.DecodeTunnelMsgEditTunnel(msg, detail)
+	emitter.DecodeTunnelMsgUpdateAndResetTunnel(msg, detail)
 	suite.testCompareJson(
 		detail,
 		"{\"creator\":\"band1vdex2ct5daeqqqqqqqqqqqqqqqqqqqqqqgzyx3\",\"interval\":60,\"signal_deviations\":[{\"signal_id\":\"CS:BAND-USD\",\"soft_deviation_bps\":10000,\"hard_deviation_bps\":10000}],\"tunnel_id\":1}",
