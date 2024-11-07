@@ -27,6 +27,7 @@ import (
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
+	tunneltypes "github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
@@ -195,6 +196,22 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeRestakeMsgUnstake(msg, detail)
 	case *restaketypes.MsgUpdateParams:
 		DecodeRestakeMsgUpdateParams(msg, detail)
+	case *tunneltypes.MsgCreateTunnel:
+		DecodeTunnelMsgCreateTunnel(msg, detail)
+	case *tunneltypes.MsgEditTunnel:
+		DecodeTunnelMsgEditTunnel(msg, detail)
+	case *tunneltypes.MsgActivate:
+		DecodeTunnelMsgActivate(msg, detail)
+	case *tunneltypes.MsgDeactivate:
+		DecodeTunnelMsgDeactivate(msg, detail)
+	case *tunneltypes.MsgTriggerTunnel:
+		DecodeTunnelMsgTriggerTunnel(msg, detail)
+	case *tunneltypes.MsgDepositTunnel:
+		DecodeTunnelMsgDepositTunnel(msg, detail)
+	case *tunneltypes.MsgWithdrawTunnel:
+		DecodeTunnelMsgWithdrawTunnel(msg, detail)
+	case *tunneltypes.MsgUpdateParams:
+		DecodeTunnelMsgUpdateParams(msg, detail)
 	default:
 		break
 	}
@@ -929,6 +946,55 @@ func DecodeRestakeMsgUnstake(msg *restaketypes.MsgUnstake, detail common.JsDict)
 }
 
 func DecodeRestakeMsgUpdateParams(msg *restaketypes.MsgUpdateParams, detail common.JsDict) {
+	detail["authority"] = msg.Authority
+	detail["params"] = msg.GetParams()
+}
+
+func DecodeTunnelMsgCreateTunnel(msg *tunneltypes.MsgCreateTunnel, detail common.JsDict) {
+	detail["signal_deviations"] = msg.GetSignalDeviations()
+	detail["interval"] = msg.Interval
+	detail["route_type"] = msg.GetRoute().TypeUrl
+	detail["route"] = msg.GetRoute().GetCachedValue()
+	detail["encoder"] = msg.Encoder
+	detail["initial_deposit"] = msg.InitialDeposit
+	detail["creator"] = msg.Creator
+}
+
+func DecodeTunnelMsgEditTunnel(msg *tunneltypes.MsgEditTunnel, detail common.JsDict) {
+	detail["tunnel_id"] = msg.TunnelID
+	detail["signal_deviations"] = msg.GetSignalDeviations()
+	detail["interval"] = msg.Interval
+	detail["creator"] = msg.Creator
+}
+
+func DecodeTunnelMsgActivate(msg *tunneltypes.MsgActivate, detail common.JsDict) {
+	detail["tunnel_id"] = msg.TunnelID
+	detail["creator"] = msg.Creator
+}
+
+func DecodeTunnelMsgDeactivate(msg *tunneltypes.MsgDeactivate, detail common.JsDict) {
+	detail["tunnel_id"] = msg.TunnelID
+	detail["creator"] = msg.Creator
+}
+
+func DecodeTunnelMsgTriggerTunnel(msg *tunneltypes.MsgTriggerTunnel, detail common.JsDict) {
+	detail["tunnel_id"] = msg.TunnelID
+	detail["creator"] = msg.Creator
+}
+
+func DecodeTunnelMsgDepositTunnel(msg *tunneltypes.MsgDepositTunnel, detail common.JsDict) {
+	detail["tunnel_id"] = msg.TunnelID
+	detail["amount"] = msg.GetAmount()
+	detail["depositor"] = msg.Depositor
+}
+
+func DecodeTunnelMsgWithdrawTunnel(msg *tunneltypes.MsgWithdrawTunnel, detail common.JsDict) {
+	detail["tunnel_id"] = msg.TunnelID
+	detail["amount"] = msg.GetAmount()
+	detail["withdrawer"] = msg.Withdrawer
+}
+
+func DecodeTunnelMsgUpdateParams(msg *tunneltypes.MsgUpdateParams, detail common.JsDict) {
 	detail["authority"] = msg.Authority
 	detail["params"] = msg.GetParams()
 }

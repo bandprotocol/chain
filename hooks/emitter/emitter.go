@@ -49,6 +49,7 @@ import (
 	restakekeeper "github.com/bandprotocol/chain/v3/x/restake/keeper"
 	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 	tsskeeper "github.com/bandprotocol/chain/v3/x/tss/keeper"
+	tunnelkeeper "github.com/bandprotocol/chain/v3/x/tunnel/keeper"
 )
 
 // Hook uses Kafka functionality to act as an event producer for all events in the blockchains.
@@ -75,6 +76,7 @@ type Hook struct {
 	tssKeeper     *tsskeeper.Keeper
 	bandtssKeeper bandtsskeeper.Keeper
 	feedsKeeper   feedskeeper.Keeper
+	tunnelKeeper  tunnelkeeper.Keeper
 	icahostKeeper icahostkeeper.Keeper
 
 	// ibc keeper
@@ -101,6 +103,7 @@ func NewHook(
 	feedsKeeper feedskeeper.Keeper,
 	tssKeeper *tsskeeper.Keeper,
 	bandtssKeeper bandtsskeeper.Keeper,
+	tunnelKeeper tunnelkeeper.Keeper,
 	icahostKeeper icahostkeeper.Keeper,
 	clientKeeper clientkeeper.Keeper,
 	connectionKeeper connectionkeeper.Keeper,
@@ -132,6 +135,7 @@ func NewHook(
 		feedsKeeper:      feedsKeeper,
 		tssKeeper:        tssKeeper,
 		bandtssKeeper:    bandtssKeeper,
+		tunnelKeeper:     tunnelKeeper,
 		icahostKeeper:    icahostKeeper,
 		clientKeeper:     clientKeeper,
 		connectionKeeper: connectionKeeper,
