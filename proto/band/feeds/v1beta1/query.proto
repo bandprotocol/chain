@@ -12,24 +12,9 @@ import "band/feeds/v1beta1/params.proto";
 
 // Query defines the gRPC querier service.
 service Query {
-  // AllCurrentPrices is an RPC method that returns a list of current prices.
-  rpc AllCurrentPrices(QueryAllCurrentPricesRequest) returns (QueryAllCurrentPricesResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/all-current-prices";
-  }
-
   // CurrentFeeds is an RPC method that returns a list of current supported feeds.
   rpc CurrentFeeds(QueryCurrentFeedsRequest) returns (QueryCurrentFeedsResponse) {
     option (google.api.http).get = "/feeds/v1beta1/current-feeds";
-  }
-
-  // CurrentPrices is an RPC method that returns a list of current prices.
-  rpc CurrentPrices(QueryCurrentPricesRequest) returns (QueryCurrentPricesResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/current-prices/{signal_ids}";
-  }
-
-  // Vote is an RPC method that returns signals of a voter.
-  rpc Vote(QueryVoteRequest) returns (QueryVoteResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/voters/{voter}/vote";
   }
 
   // IsFeeder is an RPC method that returns whether an account is a feeder for a specified validator.
@@ -72,15 +57,11 @@ service Query {
   rpc ValidatorPrices(QueryValidatorPricesRequest) returns (QueryValidatorPricesResponse) {
     option (google.api.http).get = "/feeds/v1beta1/validators/{validator}/prices";
   }
-}
 
-// QueryAllCurrentPricesRequest is the request type for the Query/AllCurrentPrices RPC method.
-message QueryAllCurrentPricesRequest {}
-
-// QueryAllCurrentPricesResponse is the response type for the Query/AllCurrentPrices RPC method.
-message QueryAllCurrentPricesResponse {
-  // prices is a list of current prices.
-  repeated Price prices = 1 [(gogoproto.nullable) = false];
+  // Vote is an RPC method that returns signals of a voter.
+  rpc Vote(QueryVoteRequest) returns (QueryVoteResponse) {
+    option (google.api.http).get = "/feeds/v1beta1/voters/{voter}/vote";
+  }
 }
 
 // QueryCurrentFeedsRequest is the request type for the Query/CurrentFeeds RPC method.
@@ -90,30 +71,6 @@ message QueryCurrentFeedsRequest {}
 message QueryCurrentFeedsResponse {
   // current_feeds is a list of currently supported feed-with-deviations, and its last update time and block.
   CurrentFeedWithDeviations current_feeds = 1 [(gogoproto.nullable) = false];
-}
-
-// QueryCurrentPricesRequest is the request type for the Query/CurrentPrices RPC method.
-message QueryCurrentPricesRequest {
-  // signal_ids is a list of signal ids to query prices for.
-  repeated string signal_ids = 1;
-}
-
-// QueryCurrentPricesResponse is the response type for the Query/CurrentPrices RPC method.
-message QueryCurrentPricesResponse {
-  // prices is a list of current prices.
-  repeated Price prices = 1 [(gogoproto.nullable) = false];
-}
-
-// QueryVoteRequest is the request type for the Query/Vote RPC method.
-message QueryVoteRequest {
-  // voter is the voter address to query signal for.
-  string voter = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-}
-
-// QueryVoteResponse is the response type for the Query/Vote RPC method.
-message QueryVoteResponse {
-  // signals is a list of signals submitted by the voter.
-  repeated Signal signals = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryIsFeederRequest is the request type for the Query/IsFeeder RPC method.
@@ -221,4 +178,16 @@ message QueryValidatorPricesRequest {
 message QueryValidatorPricesResponse {
   // validator_prices is a list of prices submitted by the validator.
   repeated ValidatorPrice validator_prices = 1 [(gogoproto.nullable) = false];
+}
+
+// QueryVoteRequest is the request type for the Query/Vote RPC method.
+message QueryVoteRequest {
+  // voter is the voter address to query signal for.
+  string voter = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// QueryVoteResponse is the response type for the Query/Vote RPC method.
+message QueryVoteResponse {
+  // signals is a list of signals submitted by the voter.
+  repeated Signal signals = 1 [(gogoproto.nullable) = false];
 }

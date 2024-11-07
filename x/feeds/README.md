@@ -10,10 +10,10 @@ This module is used in the BandChain.
 
 ## Contents
 
-* [`x/feeds`](#xfeeds)
-  + [Abstract](#abstract)
-  + [Contents](#contents)
-  + [Concepts](#concepts)
+- [`x/feeds`](#xfeeds)
+  - [Abstract](#abstract)
+  - [Contents](#contents)
+  - [Concepts](#concepts)
     - [Vote](#vote)
     - [Feed](#feed)
       - [Feed Interval](#feed-interval)
@@ -23,7 +23,7 @@ This module is used in the BandChain.
     - [Validator Price](#validator-price)
     - [Price](#price)
     - [Reference Source Config](#reference-source-config)
-  + [State](#state)
+  - [State](#state)
     - [ReferenceSourceConfig](#referencesourceconfig)
     - [CurrentFeeds](#currentfeeds)
     - [ValidatorPriceList](#validatorpricelist)
@@ -32,19 +32,19 @@ This module is used in the BandChain.
     - [SignalTotalPower](#signaltotalpower)
       - [SignalTotalPowerByPowerIndex](#signaltotalpowerbypowerindex)
     - [Params](#params)
-  + [Messages](#messages)
+  - [Messages](#messages)
     - [MsgVote](#msgvote)
     - [MsgSubmitSignalPrices](#msgsubmitsignalprices)
     - [MsgUpdateReferenceSourceConfig](#msgupdatereferencesourceconfig)
     - [MsgUpdateParams](#msgupdateparams)
-  + [End-Block](#end-block)
+  - [End-Block](#end-block)
     - [Update Prices](#update-prices)
       - [Input](#input)
       - [Objective](#objective)
       - [Assumption](#assumption)
       - [Procedure](#procedure)
     - [Update current feeds](#update-current-feeds)
-  + [Events](#events)
+  - [Events](#events)
     - [EndBlocker](#endblocker)
     - [Handlers](#handlers)
       - [MsgSubmitSignalPrices](#msgsubmitsignalprices-1)
@@ -99,7 +99,7 @@ A Price is a structure that maintains the current price state for a signal ID, i
 
 Once the Validator Price is submitted, it will be weighted median which is weighted by how latest the price is and how much power the owner of the price has to get the most accurate and trustworthy price.
 
-The module only contains the latest price of each signal ID.
+The module only contains the latest price of each signal ID of Current feeds.
 
 ### Reference Source Config
 

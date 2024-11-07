@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"fmt"
 	"time"
 
 	dbm "github.com/cosmos/cosmos-db"
@@ -34,43 +33,6 @@ func (k Keeper) GetPrices(ctx sdk.Context) (prices []types.Price) {
 	return
 }
 
-// GetCurrentPrices returns a list of current prices.
-// NOTE: if the price's signal id is not in the current feeds, it will return an unavailable price.
-func (k Keeper) GetCurrentPrices(ctx sdk.Context, signalIDs []string) (prices []types.Price) {
-	currentFeeds := k.GetCurrentFeeds(ctx)
-	currentFeedsMap := make(map[string]int)
-	for idx, feed := range currentFeeds.Feeds {
-		currentFeedsMap[feed.SignalID] = idx
-	}
-	for _, signalID := range signalIDs {
-		price := types.NewPrice(types.PriceStatusUnavailable, signalID, 0, 0)
-		if _, ok := currentFeedsMap[signalID]; ok {
-			p, err := k.GetPrice(ctx, signalID)
-			if err == nil {
-				price = p
-			}
-		}
-		prices = append(prices, price)
-	}
-
-	return
-}
-
-// GetAllCurrentPrices returns a list of all current prices.
-func (k Keeper) GetAllCurrentPrices(ctx sdk.Context) (prices []types.Price) {
-	currentFeeds := k.GetCurrentFeeds(ctx)
-	for _, feed := range currentFeeds.Feeds {
-		price, err := k.GetPrice(ctx, feed.SignalID)
-		if err != nil {
-			continue
-		}
-
-		prices = append(prices, price)
-	}
-
-	return
-}
-
 // GetPrice returns a price by signal id.
 func (k Keeper) GetPrice(ctx sdk.Context, signalID string) (types.Price, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.PriceStoreKey(signalID))
@@ -96,8 +58,51 @@ func (k Keeper) SetPrice(ctx sdk.Context, price types.Price) {
 	ctx.KVStore(k.storeKey).Set(types.PriceStoreKey(price.SignalID), k.cdc.MustMarshal(&price))
 }
 
+// DeleteAllPrices deletes all prices.
+func (k Keeper) DeleteAllPrices(ctx sdk.Context) {
+	iterator := k.GetPricesIterator(ctx)
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		key := iterator.Key()
+		ctx.KVStore(k.storeKey).Delete(key)
+	}
+}
+
+// GetValidatorPriceList gets a validator price by validator address.
+func (k Keeper) GetValidatorPriceList(ctx sdk.Context, val sdk.ValAddress) (types.ValidatorPriceList, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.ValidatorPriceListStoreKey(val))
+	if bz == nil {
+		return types.ValidatorPriceList{}, types.ErrValidatorPriceNotFound.Wrapf(
+			"failed to get validator prices list for validator: %s",
+			val.String(),
+		)
+	}
+
+	var valPricesList types.ValidatorPriceList
+	k.cdc.MustUnmarshal(bz, &valPricesList)
+
+	return valPricesList, nil
+}
+
+// SetValidatorPrices sets validator prices list.
+func (k Keeper) SetValidatorPriceList(
+	ctx sdk.Context,
+	valAddress sdk.ValAddress,
+	valPrices []types.ValidatorPrice,
+) error {
+	valPricesList := types.NewValidatorPriceList(
+		valAddress,
+		valPrices,
+	)
+
+	ctx.KVStore(k.storeKey).Set(types.ValidatorPriceListStoreKey(valAddress), k.cdc.MustMarshal(&valPricesList))
+
+	return nil
+}
+
 // CalculatePrices calculates final prices for all supported feeds.
-func (k Keeper) CalculatePrices(ctx sdk.Context) {
+func (k Keeper) CalculatePrices(ctx sdk.Context) error {
 	// get the current feeds
 	currentFeeds := k.GetCurrentFeeds(ctx)
 
@@ -121,14 +126,7 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) {
 			return false
 		})
 	if err != nil {
-		// emit event for failed price calculation
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeCalculatePriceFailed,
-				sdk.NewAttribute(types.AttributeKeyErrorMessage, err.Error()),
-			),
-		)
-		return
+		return err
 	}
 
 	// collect all validator prices
@@ -150,6 +148,16 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) {
 	}
 
 	gracePeriod := k.GetParams(ctx).GracePeriod
+	tbt, err := k.stakingKeeper.TotalBondedTokens(ctx)
+	if err != nil {
+		return err
+	}
+	totalBondedToken := sdkmath.LegacyNewDecFromInt(tbt)
+	priceQuorum, err := sdkmath.LegacyNewDecFromStr(k.GetParams(ctx).PriceQuorum)
+	if err != nil {
+		return err
+	}
+	powerQuorum := totalBondedToken.Mul(priceQuorum).TruncateInt().Uint64()
 	// calculate prices for each feed
 	for _, feed := range currentFeeds.Feeds {
 		var priceFeedInfos []types.PriceFeedInfo
@@ -157,7 +165,7 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) {
 			valPrice := allValidatorPrices[valInfo.Address.String()][feed.SignalID]
 
 			// check for miss report
-			missReport := checkMissReport(
+			missReport := CheckMissReport(
 				feed,
 				currentFeeds.LastUpdateTimestamp,
 				currentFeeds.LastUpdateBlock,
@@ -187,32 +195,19 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) {
 		}
 
 		// calculate the final price for the feed
-		price, err := k.CalculatePrice(ctx, feed, priceFeedInfos)
+		price, err := k.CalculatePrice(ctx, feed, priceFeedInfos, powerQuorum)
 		if err != nil {
-			// emit event for failed price calculation
-			ctx.EventManager().EmitEvent(
-				sdk.NewEvent(
-					types.EventTypeCalculatePriceFailed,
-					sdk.NewAttribute(types.AttributeKeySignalID, feed.SignalID),
-					sdk.NewAttribute(types.AttributeKeyErrorMessage, err.Error()),
-				),
-			)
-			continue
+			return err
 		}
 
 		// set the calculated price in the store
 		k.SetPrice(ctx, price)
 
 		// emit event for updated price
-		ctx.EventManager().EmitEvent(
-			sdk.NewEvent(
-				types.EventTypeUpdatePrice,
-				sdk.NewAttribute(types.AttributeKeySignalID, price.SignalID),
-				sdk.NewAttribute(types.AttributeKeyPrice, fmt.Sprintf("%d", price.Price)),
-				sdk.NewAttribute(types.AttributeKeyTimestamp, fmt.Sprintf("%d", price.Timestamp)),
-			),
-		)
+		emitEventUpdatePrice(ctx, price)
 	}
+
+	return nil
 }
 
 // CalculatePrice calculates the final price from validator prices and punishes validators who did not report.
@@ -220,22 +215,9 @@ func (k Keeper) CalculatePrice(
 	ctx sdk.Context,
 	feed types.Feed,
 	priceFeedInfos []types.PriceFeedInfo,
+	powerQuorum uint64,
 ) (types.Price, error) {
-	if len(priceFeedInfos) == 0 {
-		return types.Price{}, types.ErrNotEnoughValidatorPrice
-	}
-
 	totalPower, availablePower, _, unsupportedPower := types.CalculatePricesPowers(priceFeedInfos)
-
-	tbt, err := k.stakingKeeper.TotalBondedTokens(ctx)
-	if err != nil {
-		return types.Price{}, err
-	}
-	totalBondedToken := sdkmath.LegacyNewDecFromInt(tbt)
-	priceQuorum, err := sdkmath.LegacyNewDecFromStr(k.GetParams(ctx).PriceQuorum)
-	if err != nil {
-		return types.Price{}, err
-	}
 
 	// If more than half of the total have unsupported price status, it returns an unsupported price status.
 	if unsupportedPower*2 > totalPower {
@@ -249,7 +231,7 @@ func (k Keeper) CalculatePrice(
 
 	// If the total power is less than price quorum percentage of the total bonded token
 	// or less than half of total have available price status, it will not be calculated.
-	if totalPower < totalBondedToken.Mul(priceQuorum).TruncateInt().Uint64() || availablePower*2 < totalPower {
+	if totalPower < powerQuorum || availablePower*2 < totalPower {
 		// else, it returns an unavailable price status.
 		return types.NewPrice(
 			types.PriceStatusUnavailable,
@@ -263,6 +245,7 @@ func (k Keeper) CalculatePrice(
 		types.FilterPriceFeedInfos(priceFeedInfos, types.PriceStatusAvailable),
 	)
 	if err != nil {
+		// should not happen
 		return types.Price{}, err
 	}
 
@@ -274,9 +257,9 @@ func (k Keeper) CalculatePrice(
 	), nil
 }
 
-// checkMissReport checks if a validator has missed a report based on the given parameters.
+// CheckMissReport checks if a validator has missed a report based on the given parameters.
 // And returns a boolean indication whether the validator has price feed.
-func checkMissReport(
+func CheckMissReport(
 	feed types.Feed,
 	lastUpdateTimestamp int64,
 	lastUpdateBlock int64,
@@ -321,38 +304,6 @@ func checkHavePrice(
 	}
 
 	return false
-}
-
-// GetValidatorPriceList gets a validator price by validator address.
-func (k Keeper) GetValidatorPriceList(ctx sdk.Context, val sdk.ValAddress) (types.ValidatorPriceList, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.ValidatorPriceListStoreKey(val))
-	if bz == nil {
-		return types.ValidatorPriceList{}, types.ErrValidatorPriceNotFound.Wrapf(
-			"failed to get validator prices list for validator: %s",
-			val.String(),
-		)
-	}
-
-	var valPricesList types.ValidatorPriceList
-	k.cdc.MustUnmarshal(bz, &valPricesList)
-
-	return valPricesList, nil
-}
-
-// SetValidatorPrices sets validator prices list.
-func (k Keeper) SetValidatorPriceList(
-	ctx sdk.Context,
-	valAddress sdk.ValAddress,
-	valPrices []types.ValidatorPrice,
-) error {
-	valPricesList := types.NewValidatorPriceList(
-		valAddress,
-		valPrices,
-	)
-
-	ctx.KVStore(k.storeKey).Set(types.ValidatorPriceListStoreKey(valAddress), k.cdc.MustMarshal(&valPricesList))
-
-	return nil
 }
 
 // ValidateValidatorRequiredToSend validates validator is required for price submission.

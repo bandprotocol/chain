@@ -19,10 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Query_AllCurrentPrices_FullMethodName      = "/band.feeds.v1beta1.Query/AllCurrentPrices"
 	Query_CurrentFeeds_FullMethodName          = "/band.feeds.v1beta1.Query/CurrentFeeds"
-	Query_CurrentPrices_FullMethodName         = "/band.feeds.v1beta1.Query/CurrentPrices"
-	Query_Vote_FullMethodName                  = "/band.feeds.v1beta1.Query/Vote"
 	Query_IsFeeder_FullMethodName              = "/band.feeds.v1beta1.Query/IsFeeder"
 	Query_Params_FullMethodName                = "/band.feeds.v1beta1.Query/Params"
 	Query_Price_FullMethodName                 = "/band.feeds.v1beta1.Query/Price"
@@ -31,20 +28,15 @@ const (
 	Query_SignalTotalPowers_FullMethodName     = "/band.feeds.v1beta1.Query/SignalTotalPowers"
 	Query_ValidValidator_FullMethodName        = "/band.feeds.v1beta1.Query/ValidValidator"
 	Query_ValidatorPrices_FullMethodName       = "/band.feeds.v1beta1.Query/ValidatorPrices"
+	Query_Vote_FullMethodName                  = "/band.feeds.v1beta1.Query/Vote"
 )
 
 // QueryClient is the client API for Query service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type QueryClient interface {
-	// AllCurrentPrices is an RPC method that returns a list of current prices.
-	AllCurrentPrices(ctx context.Context, in *QueryAllCurrentPricesRequest, opts ...grpc.CallOption) (*QueryAllCurrentPricesResponse, error)
 	// CurrentFeeds is an RPC method that returns a list of current supported feeds.
 	CurrentFeeds(ctx context.Context, in *QueryCurrentFeedsRequest, opts ...grpc.CallOption) (*QueryCurrentFeedsResponse, error)
-	// CurrentPrices is an RPC method that returns a list of current prices.
-	CurrentPrices(ctx context.Context, in *QueryCurrentPricesRequest, opts ...grpc.CallOption) (*QueryCurrentPricesResponse, error)
-	// Vote is an RPC method that returns signals of a voter.
-	Vote(ctx context.Context, in *QueryVoteRequest, opts ...grpc.CallOption) (*QueryVoteResponse, error)
 	// IsFeeder is an RPC method that returns whether an account is a feeder for a specified validator.
 	IsFeeder(ctx context.Context, in *QueryIsFeederRequest, opts ...grpc.CallOption) (*QueryIsFeederResponse, error)
 	// Params is an RPC method that returns all parameters of the module.
@@ -62,6 +54,8 @@ type QueryClient interface {
 	ValidValidator(ctx context.Context, in *QueryValidValidatorRequest, opts ...grpc.CallOption) (*QueryValidValidatorResponse, error)
 	// ValidatorPrices is an RPC method that returns prices of a validator.
 	ValidatorPrices(ctx context.Context, in *QueryValidatorPricesRequest, opts ...grpc.CallOption) (*QueryValidatorPricesResponse, error)
+	// Vote is an RPC method that returns signals of a voter.
+	Vote(ctx context.Context, in *QueryVoteRequest, opts ...grpc.CallOption) (*QueryVoteResponse, error)
 }
 
 type queryClient struct {
@@ -72,36 +66,9 @@ func NewQueryClient(cc grpc.ClientConnInterface) QueryClient {
 	return &queryClient{cc}
 }
 
-func (c *queryClient) AllCurrentPrices(ctx context.Context, in *QueryAllCurrentPricesRequest, opts ...grpc.CallOption) (*QueryAllCurrentPricesResponse, error) {
-	out := new(QueryAllCurrentPricesResponse)
-	err := c.cc.Invoke(ctx, Query_AllCurrentPrices_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *queryClient) CurrentFeeds(ctx context.Context, in *QueryCurrentFeedsRequest, opts ...grpc.CallOption) (*QueryCurrentFeedsResponse, error) {
 	out := new(QueryCurrentFeedsResponse)
 	err := c.cc.Invoke(ctx, Query_CurrentFeeds_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *queryClient) CurrentPrices(ctx context.Context, in *QueryCurrentPricesRequest, opts ...grpc.CallOption) (*QueryCurrentPricesResponse, error) {
-	out := new(QueryCurrentPricesResponse)
-	err := c.cc.Invoke(ctx, Query_CurrentPrices_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *queryClient) Vote(ctx context.Context, in *QueryVoteRequest, opts ...grpc.CallOption) (*QueryVoteResponse, error) {
-	out := new(QueryVoteResponse)
-	err := c.cc.Invoke(ctx, Query_Vote_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -180,18 +147,21 @@ func (c *queryClient) ValidatorPrices(ctx context.Context, in *QueryValidatorPri
 	return out, nil
 }
 
+func (c *queryClient) Vote(ctx context.Context, in *QueryVoteRequest, opts ...grpc.CallOption) (*QueryVoteResponse, error) {
+	out := new(QueryVoteResponse)
+	err := c.cc.Invoke(ctx, Query_Vote_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 // All implementations must embed UnimplementedQueryServer
 // for forward compatibility
 type QueryServer interface {
-	// AllCurrentPrices is an RPC method that returns a list of current prices.
-	AllCurrentPrices(context.Context, *QueryAllCurrentPricesRequest) (*QueryAllCurrentPricesResponse, error)
 	// CurrentFeeds is an RPC method that returns a list of current supported feeds.
 	CurrentFeeds(context.Context, *QueryCurrentFeedsRequest) (*QueryCurrentFeedsResponse, error)
-	// CurrentPrices is an RPC method that returns a list of current prices.
-	CurrentPrices(context.Context, *QueryCurrentPricesRequest) (*QueryCurrentPricesResponse, error)
-	// Vote is an RPC method that returns signals of a voter.
-	Vote(context.Context, *QueryVoteRequest) (*QueryVoteResponse, error)
 	// IsFeeder is an RPC method that returns whether an account is a feeder for a specified validator.
 	IsFeeder(context.Context, *QueryIsFeederRequest) (*QueryIsFeederResponse, error)
 	// Params is an RPC method that returns all parameters of the module.
@@ -209,6 +179,8 @@ type QueryServer interface {
 	ValidValidator(context.Context, *QueryValidValidatorRequest) (*QueryValidValidatorResponse, error)
 	// ValidatorPrices is an RPC method that returns prices of a validator.
 	ValidatorPrices(context.Context, *QueryValidatorPricesRequest) (*QueryValidatorPricesResponse, error)
+	// Vote is an RPC method that returns signals of a voter.
+	Vote(context.Context, *QueryVoteRequest) (*QueryVoteResponse, error)
 	mustEmbedUnimplementedQueryServer()
 }
 
@@ -216,17 +188,8 @@ type QueryServer interface {
 type UnimplementedQueryServer struct {
 }
 
-func (UnimplementedQueryServer) AllCurrentPrices(context.Context, *QueryAllCurrentPricesRequest) (*QueryAllCurrentPricesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AllCurrentPrices not implemented")
-}
 func (UnimplementedQueryServer) CurrentFeeds(context.Context, *QueryCurrentFeedsRequest) (*QueryCurrentFeedsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CurrentFeeds not implemented")
-}
-func (UnimplementedQueryServer) CurrentPrices(context.Context, *QueryCurrentPricesRequest) (*QueryCurrentPricesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CurrentPrices not implemented")
-}
-func (UnimplementedQueryServer) Vote(context.Context, *QueryVoteRequest) (*QueryVoteResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Vote not implemented")
 }
 func (UnimplementedQueryServer) IsFeeder(context.Context, *QueryIsFeederRequest) (*QueryIsFeederResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method IsFeeder not implemented")
@@ -252,6 +215,9 @@ func (UnimplementedQueryServer) ValidValidator(context.Context, *QueryValidValid
 func (UnimplementedQueryServer) ValidatorPrices(context.Context, *QueryValidatorPricesRequest) (*QueryValidatorPricesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ValidatorPrices not implemented")
 }
+func (UnimplementedQueryServer) Vote(context.Context, *QueryVoteRequest) (*QueryVoteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Vote not implemented")
+}
 func (UnimplementedQueryServer) mustEmbedUnimplementedQueryServer() {}
 
 // UnsafeQueryServer may be embedded to opt out of forward compatibility for this service.
@@ -263,24 +229,6 @@ type UnsafeQueryServer interface {
 
 func RegisterQueryServer(s grpc.ServiceRegistrar, srv QueryServer) {
 	s.RegisterService(&Query_ServiceDesc, srv)
-}
-
-func _Query_AllCurrentPrices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryAllCurrentPricesRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).AllCurrentPrices(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Query_AllCurrentPrices_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).AllCurrentPrices(ctx, req.(*QueryAllCurrentPricesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _Query_CurrentFeeds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -297,42 +245,6 @@ func _Query_CurrentFeeds_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(QueryServer).CurrentFeeds(ctx, req.(*QueryCurrentFeedsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Query_CurrentPrices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryCurrentPricesRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).CurrentPrices(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Query_CurrentPrices_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).CurrentPrices(ctx, req.(*QueryCurrentPricesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Query_Vote_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryVoteRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).Vote(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Query_Vote_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).Vote(ctx, req.(*QueryVoteRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -481,6 +393,24 @@ func _Query_ValidatorPrices_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_Vote_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryVoteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Vote(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_Vote_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Vote(ctx, req.(*QueryVoteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Query_ServiceDesc is the grpc.ServiceDesc for Query service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -489,20 +419,8 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "AllCurrentPrices",
-			Handler:    _Query_AllCurrentPrices_Handler,
-		},
-		{
 			MethodName: "CurrentFeeds",
 			Handler:    _Query_CurrentFeeds_Handler,
-		},
-		{
-			MethodName: "CurrentPrices",
-			Handler:    _Query_CurrentPrices_Handler,
-		},
-		{
-			MethodName: "Vote",
-			Handler:    _Query_Vote_Handler,
 		},
 		{
 			MethodName: "IsFeeder",
@@ -535,6 +453,10 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ValidatorPrices",
 			Handler:    _Query_ValidatorPrices_Handler,
+		},
+		{
+			MethodName: "Vote",
+			Handler:    _Query_Vote_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

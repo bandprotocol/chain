@@ -13,20 +13,9 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 			Service: feedsv1beta1.Query_ServiceDesc.ServiceName,
 			RpcCommandOptions: []*autocliv1.RpcCommandOptions{
 				{
-					RpcMethod: "AllCurrentPrices",
-					Use:       "all-current-prices",
-					Short:     "Get a list of all current prices of supported feeds",
-				},
-				{
 					RpcMethod: "CurrentFeeds",
 					Use:       "current-feeds",
 					Short:     "Get a list of all currently supported feeds",
-				},
-				{
-					RpcMethod:      "CurrentPrices",
-					Use:            "current-prices [signal-ids]",
-					Short:          "Get current prices for the provided signal IDs",
-					PositionalArgs: []*autocliv1.PositionalArgDescriptor{{ProtoField: "signal_ids"}},
 				},
 				{
 					RpcMethod: "IsFeeder",

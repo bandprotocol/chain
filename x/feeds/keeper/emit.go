@@ -68,3 +68,14 @@ func emitEventUpdateParams(ctx sdk.Context, params types.Params) {
 		sdk.NewAttribute(types.AttributeKeyParams, params.String()),
 	))
 }
+
+func emitEventUpdatePrice(ctx sdk.Context, price types.Price) {
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeUpdatePrice,
+			sdk.NewAttribute(types.AttributeKeySignalID, price.SignalID),
+			sdk.NewAttribute(types.AttributeKeyPrice, fmt.Sprintf("%d", price.Price)),
+			sdk.NewAttribute(types.AttributeKeyTimestamp, fmt.Sprintf("%d", price.Timestamp)),
+		),
+	)
+}

@@ -31,89 +31,6 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// QueryAllCurrentPricesRequest is the request type for the Query/AllCurrentPrices RPC method.
-type QueryAllCurrentPricesRequest struct {
-}
-
-func (m *QueryAllCurrentPricesRequest) Reset()         { *m = QueryAllCurrentPricesRequest{} }
-func (m *QueryAllCurrentPricesRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryAllCurrentPricesRequest) ProtoMessage()    {}
-func (*QueryAllCurrentPricesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{0}
-}
-func (m *QueryAllCurrentPricesRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryAllCurrentPricesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryAllCurrentPricesRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryAllCurrentPricesRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryAllCurrentPricesRequest.Merge(m, src)
-}
-func (m *QueryAllCurrentPricesRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryAllCurrentPricesRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryAllCurrentPricesRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryAllCurrentPricesRequest proto.InternalMessageInfo
-
-// QueryAllCurrentPricesResponse is the response type for the Query/AllCurrentPrices RPC method.
-type QueryAllCurrentPricesResponse struct {
-	// prices is a list of current prices.
-	Prices []Price `protobuf:"bytes,1,rep,name=prices,proto3" json:"prices"`
-}
-
-func (m *QueryAllCurrentPricesResponse) Reset()         { *m = QueryAllCurrentPricesResponse{} }
-func (m *QueryAllCurrentPricesResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryAllCurrentPricesResponse) ProtoMessage()    {}
-func (*QueryAllCurrentPricesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{1}
-}
-func (m *QueryAllCurrentPricesResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryAllCurrentPricesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryAllCurrentPricesResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryAllCurrentPricesResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryAllCurrentPricesResponse.Merge(m, src)
-}
-func (m *QueryAllCurrentPricesResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryAllCurrentPricesResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryAllCurrentPricesResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryAllCurrentPricesResponse proto.InternalMessageInfo
-
-func (m *QueryAllCurrentPricesResponse) GetPrices() []Price {
-	if m != nil {
-		return m.Prices
-	}
-	return nil
-}
-
 // QueryCurrentFeedsRequest is the request type for the Query/CurrentFeeds RPC method.
 type QueryCurrentFeedsRequest struct {
 }
@@ -122,7 +39,7 @@ func (m *QueryCurrentFeedsRequest) Reset()         { *m = QueryCurrentFeedsReque
 func (m *QueryCurrentFeedsRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryCurrentFeedsRequest) ProtoMessage()    {}
 func (*QueryCurrentFeedsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{2}
+	return fileDescriptor_39690037efa6f66f, []int{0}
 }
 func (m *QueryCurrentFeedsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -161,7 +78,7 @@ func (m *QueryCurrentFeedsResponse) Reset()         { *m = QueryCurrentFeedsResp
 func (m *QueryCurrentFeedsResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryCurrentFeedsResponse) ProtoMessage()    {}
 func (*QueryCurrentFeedsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{3}
+	return fileDescriptor_39690037efa6f66f, []int{1}
 }
 func (m *QueryCurrentFeedsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -197,190 +114,6 @@ func (m *QueryCurrentFeedsResponse) GetCurrentFeeds() CurrentFeedWithDeviations 
 	return CurrentFeedWithDeviations{}
 }
 
-// QueryCurrentPricesRequest is the request type for the Query/CurrentPrices RPC method.
-type QueryCurrentPricesRequest struct {
-	// signal_ids is a list of signal ids to query prices for.
-	SignalIds []string `protobuf:"bytes,1,rep,name=signal_ids,json=signalIds,proto3" json:"signal_ids,omitempty"`
-}
-
-func (m *QueryCurrentPricesRequest) Reset()         { *m = QueryCurrentPricesRequest{} }
-func (m *QueryCurrentPricesRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryCurrentPricesRequest) ProtoMessage()    {}
-func (*QueryCurrentPricesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{4}
-}
-func (m *QueryCurrentPricesRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryCurrentPricesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryCurrentPricesRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryCurrentPricesRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryCurrentPricesRequest.Merge(m, src)
-}
-func (m *QueryCurrentPricesRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryCurrentPricesRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryCurrentPricesRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryCurrentPricesRequest proto.InternalMessageInfo
-
-func (m *QueryCurrentPricesRequest) GetSignalIds() []string {
-	if m != nil {
-		return m.SignalIds
-	}
-	return nil
-}
-
-// QueryCurrentPricesResponse is the response type for the Query/CurrentPrices RPC method.
-type QueryCurrentPricesResponse struct {
-	// prices is a list of current prices.
-	Prices []Price `protobuf:"bytes,1,rep,name=prices,proto3" json:"prices"`
-}
-
-func (m *QueryCurrentPricesResponse) Reset()         { *m = QueryCurrentPricesResponse{} }
-func (m *QueryCurrentPricesResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryCurrentPricesResponse) ProtoMessage()    {}
-func (*QueryCurrentPricesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{5}
-}
-func (m *QueryCurrentPricesResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryCurrentPricesResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryCurrentPricesResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryCurrentPricesResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryCurrentPricesResponse.Merge(m, src)
-}
-func (m *QueryCurrentPricesResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryCurrentPricesResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryCurrentPricesResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryCurrentPricesResponse proto.InternalMessageInfo
-
-func (m *QueryCurrentPricesResponse) GetPrices() []Price {
-	if m != nil {
-		return m.Prices
-	}
-	return nil
-}
-
-// QueryVoteRequest is the request type for the Query/Vote RPC method.
-type QueryVoteRequest struct {
-	// voter is the voter address to query signal for.
-	Voter string `protobuf:"bytes,1,opt,name=voter,proto3" json:"voter,omitempty"`
-}
-
-func (m *QueryVoteRequest) Reset()         { *m = QueryVoteRequest{} }
-func (m *QueryVoteRequest) String() string { return proto.CompactTextString(m) }
-func (*QueryVoteRequest) ProtoMessage()    {}
-func (*QueryVoteRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{6}
-}
-func (m *QueryVoteRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryVoteRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryVoteRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryVoteRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryVoteRequest.Merge(m, src)
-}
-func (m *QueryVoteRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryVoteRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryVoteRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryVoteRequest proto.InternalMessageInfo
-
-func (m *QueryVoteRequest) GetVoter() string {
-	if m != nil {
-		return m.Voter
-	}
-	return ""
-}
-
-// QueryVoteResponse is the response type for the Query/Vote RPC method.
-type QueryVoteResponse struct {
-	// signals is a list of signals submitted by the voter.
-	Signals []Signal `protobuf:"bytes,1,rep,name=signals,proto3" json:"signals"`
-}
-
-func (m *QueryVoteResponse) Reset()         { *m = QueryVoteResponse{} }
-func (m *QueryVoteResponse) String() string { return proto.CompactTextString(m) }
-func (*QueryVoteResponse) ProtoMessage()    {}
-func (*QueryVoteResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{7}
-}
-func (m *QueryVoteResponse) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *QueryVoteResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_QueryVoteResponse.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *QueryVoteResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_QueryVoteResponse.Merge(m, src)
-}
-func (m *QueryVoteResponse) XXX_Size() int {
-	return m.Size()
-}
-func (m *QueryVoteResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_QueryVoteResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_QueryVoteResponse proto.InternalMessageInfo
-
-func (m *QueryVoteResponse) GetSignals() []Signal {
-	if m != nil {
-		return m.Signals
-	}
-	return nil
-}
-
 // QueryIsFeederRequest is the request type for the Query/IsFeeder RPC method.
 type QueryIsFeederRequest struct {
 	// validator is a validator address.
@@ -393,7 +126,7 @@ func (m *QueryIsFeederRequest) Reset()         { *m = QueryIsFeederRequest{} }
 func (m *QueryIsFeederRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryIsFeederRequest) ProtoMessage()    {}
 func (*QueryIsFeederRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{8}
+	return fileDescriptor_39690037efa6f66f, []int{2}
 }
 func (m *QueryIsFeederRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -446,7 +179,7 @@ func (m *QueryIsFeederResponse) Reset()         { *m = QueryIsFeederResponse{} }
 func (m *QueryIsFeederResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryIsFeederResponse) ProtoMessage()    {}
 func (*QueryIsFeederResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{9}
+	return fileDescriptor_39690037efa6f66f, []int{3}
 }
 func (m *QueryIsFeederResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -490,7 +223,7 @@ func (m *QueryParamsRequest) Reset()         { *m = QueryParamsRequest{} }
 func (m *QueryParamsRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryParamsRequest) ProtoMessage()    {}
 func (*QueryParamsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{10}
+	return fileDescriptor_39690037efa6f66f, []int{4}
 }
 func (m *QueryParamsRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -529,7 +262,7 @@ func (m *QueryParamsResponse) Reset()         { *m = QueryParamsResponse{} }
 func (m *QueryParamsResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryParamsResponse) ProtoMessage()    {}
 func (*QueryParamsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{11}
+	return fileDescriptor_39690037efa6f66f, []int{5}
 }
 func (m *QueryParamsResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -575,7 +308,7 @@ func (m *QueryPriceRequest) Reset()         { *m = QueryPriceRequest{} }
 func (m *QueryPriceRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryPriceRequest) ProtoMessage()    {}
 func (*QueryPriceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{12}
+	return fileDescriptor_39690037efa6f66f, []int{6}
 }
 func (m *QueryPriceRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -621,7 +354,7 @@ func (m *QueryPriceResponse) Reset()         { *m = QueryPriceResponse{} }
 func (m *QueryPriceResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryPriceResponse) ProtoMessage()    {}
 func (*QueryPriceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{13}
+	return fileDescriptor_39690037efa6f66f, []int{7}
 }
 func (m *QueryPriceResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -669,7 +402,7 @@ func (m *QueryPricesRequest) Reset()         { *m = QueryPricesRequest{} }
 func (m *QueryPricesRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryPricesRequest) ProtoMessage()    {}
 func (*QueryPricesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{14}
+	return fileDescriptor_39690037efa6f66f, []int{8}
 }
 func (m *QueryPricesRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -724,7 +457,7 @@ func (m *QueryPricesResponse) Reset()         { *m = QueryPricesResponse{} }
 func (m *QueryPricesResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryPricesResponse) ProtoMessage()    {}
 func (*QueryPricesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{15}
+	return fileDescriptor_39690037efa6f66f, []int{9}
 }
 func (m *QueryPricesResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -775,7 +508,7 @@ func (m *QueryReferenceSourceConfigRequest) Reset()         { *m = QueryReferenc
 func (m *QueryReferenceSourceConfigRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryReferenceSourceConfigRequest) ProtoMessage()    {}
 func (*QueryReferenceSourceConfigRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{16}
+	return fileDescriptor_39690037efa6f66f, []int{10}
 }
 func (m *QueryReferenceSourceConfigRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -814,7 +547,7 @@ func (m *QueryReferenceSourceConfigResponse) Reset()         { *m = QueryReferen
 func (m *QueryReferenceSourceConfigResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryReferenceSourceConfigResponse) ProtoMessage()    {}
 func (*QueryReferenceSourceConfigResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{17}
+	return fileDescriptor_39690037efa6f66f, []int{11}
 }
 func (m *QueryReferenceSourceConfigResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -862,7 +595,7 @@ func (m *QuerySignalTotalPowersRequest) Reset()         { *m = QuerySignalTotalP
 func (m *QuerySignalTotalPowersRequest) String() string { return proto.CompactTextString(m) }
 func (*QuerySignalTotalPowersRequest) ProtoMessage()    {}
 func (*QuerySignalTotalPowersRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{18}
+	return fileDescriptor_39690037efa6f66f, []int{12}
 }
 func (m *QuerySignalTotalPowersRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -917,7 +650,7 @@ func (m *QuerySignalTotalPowersResponse) Reset()         { *m = QuerySignalTotal
 func (m *QuerySignalTotalPowersResponse) String() string { return proto.CompactTextString(m) }
 func (*QuerySignalTotalPowersResponse) ProtoMessage()    {}
 func (*QuerySignalTotalPowersResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{19}
+	return fileDescriptor_39690037efa6f66f, []int{13}
 }
 func (m *QuerySignalTotalPowersResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -970,7 +703,7 @@ func (m *QueryValidValidatorRequest) Reset()         { *m = QueryValidValidatorR
 func (m *QueryValidValidatorRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryValidValidatorRequest) ProtoMessage()    {}
 func (*QueryValidValidatorRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{20}
+	return fileDescriptor_39690037efa6f66f, []int{14}
 }
 func (m *QueryValidValidatorRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1016,7 +749,7 @@ func (m *QueryValidValidatorResponse) Reset()         { *m = QueryValidValidator
 func (m *QueryValidValidatorResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryValidValidatorResponse) ProtoMessage()    {}
 func (*QueryValidValidatorResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{21}
+	return fileDescriptor_39690037efa6f66f, []int{15}
 }
 func (m *QueryValidValidatorResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1064,7 +797,7 @@ func (m *QueryValidatorPricesRequest) Reset()         { *m = QueryValidatorPrice
 func (m *QueryValidatorPricesRequest) String() string { return proto.CompactTextString(m) }
 func (*QueryValidatorPricesRequest) ProtoMessage()    {}
 func (*QueryValidatorPricesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{22}
+	return fileDescriptor_39690037efa6f66f, []int{16}
 }
 func (m *QueryValidatorPricesRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1117,7 +850,7 @@ func (m *QueryValidatorPricesResponse) Reset()         { *m = QueryValidatorPric
 func (m *QueryValidatorPricesResponse) String() string { return proto.CompactTextString(m) }
 func (*QueryValidatorPricesResponse) ProtoMessage()    {}
 func (*QueryValidatorPricesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_39690037efa6f66f, []int{23}
+	return fileDescriptor_39690037efa6f66f, []int{17}
 }
 func (m *QueryValidatorPricesResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -1153,15 +886,101 @@ func (m *QueryValidatorPricesResponse) GetValidatorPrices() []ValidatorPrice {
 	return nil
 }
 
+// QueryVoteRequest is the request type for the Query/Vote RPC method.
+type QueryVoteRequest struct {
+	// voter is the voter address to query signal for.
+	Voter string `protobuf:"bytes,1,opt,name=voter,proto3" json:"voter,omitempty"`
+}
+
+func (m *QueryVoteRequest) Reset()         { *m = QueryVoteRequest{} }
+func (m *QueryVoteRequest) String() string { return proto.CompactTextString(m) }
+func (*QueryVoteRequest) ProtoMessage()    {}
+func (*QueryVoteRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_39690037efa6f66f, []int{18}
+}
+func (m *QueryVoteRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryVoteRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryVoteRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryVoteRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryVoteRequest.Merge(m, src)
+}
+func (m *QueryVoteRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryVoteRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryVoteRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryVoteRequest proto.InternalMessageInfo
+
+func (m *QueryVoteRequest) GetVoter() string {
+	if m != nil {
+		return m.Voter
+	}
+	return ""
+}
+
+// QueryVoteResponse is the response type for the Query/Vote RPC method.
+type QueryVoteResponse struct {
+	// signals is a list of signals submitted by the voter.
+	Signals []Signal `protobuf:"bytes,1,rep,name=signals,proto3" json:"signals"`
+}
+
+func (m *QueryVoteResponse) Reset()         { *m = QueryVoteResponse{} }
+func (m *QueryVoteResponse) String() string { return proto.CompactTextString(m) }
+func (*QueryVoteResponse) ProtoMessage()    {}
+func (*QueryVoteResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_39690037efa6f66f, []int{19}
+}
+func (m *QueryVoteResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *QueryVoteResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_QueryVoteResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *QueryVoteResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_QueryVoteResponse.Merge(m, src)
+}
+func (m *QueryVoteResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *QueryVoteResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_QueryVoteResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_QueryVoteResponse proto.InternalMessageInfo
+
+func (m *QueryVoteResponse) GetSignals() []Signal {
+	if m != nil {
+		return m.Signals
+	}
+	return nil
+}
+
 func init() {
-	proto.RegisterType((*QueryAllCurrentPricesRequest)(nil), "band.feeds.v1beta1.QueryAllCurrentPricesRequest")
-	proto.RegisterType((*QueryAllCurrentPricesResponse)(nil), "band.feeds.v1beta1.QueryAllCurrentPricesResponse")
 	proto.RegisterType((*QueryCurrentFeedsRequest)(nil), "band.feeds.v1beta1.QueryCurrentFeedsRequest")
 	proto.RegisterType((*QueryCurrentFeedsResponse)(nil), "band.feeds.v1beta1.QueryCurrentFeedsResponse")
-	proto.RegisterType((*QueryCurrentPricesRequest)(nil), "band.feeds.v1beta1.QueryCurrentPricesRequest")
-	proto.RegisterType((*QueryCurrentPricesResponse)(nil), "band.feeds.v1beta1.QueryCurrentPricesResponse")
-	proto.RegisterType((*QueryVoteRequest)(nil), "band.feeds.v1beta1.QueryVoteRequest")
-	proto.RegisterType((*QueryVoteResponse)(nil), "band.feeds.v1beta1.QueryVoteResponse")
 	proto.RegisterType((*QueryIsFeederRequest)(nil), "band.feeds.v1beta1.QueryIsFeederRequest")
 	proto.RegisterType((*QueryIsFeederResponse)(nil), "band.feeds.v1beta1.QueryIsFeederResponse")
 	proto.RegisterType((*QueryParamsRequest)(nil), "band.feeds.v1beta1.QueryParamsRequest")
@@ -1178,88 +997,84 @@ func init() {
 	proto.RegisterType((*QueryValidValidatorResponse)(nil), "band.feeds.v1beta1.QueryValidValidatorResponse")
 	proto.RegisterType((*QueryValidatorPricesRequest)(nil), "band.feeds.v1beta1.QueryValidatorPricesRequest")
 	proto.RegisterType((*QueryValidatorPricesResponse)(nil), "band.feeds.v1beta1.QueryValidatorPricesResponse")
+	proto.RegisterType((*QueryVoteRequest)(nil), "band.feeds.v1beta1.QueryVoteRequest")
+	proto.RegisterType((*QueryVoteResponse)(nil), "band.feeds.v1beta1.QueryVoteResponse")
 }
 
 func init() { proto.RegisterFile("band/feeds/v1beta1/query.proto", fileDescriptor_39690037efa6f66f) }
 
 var fileDescriptor_39690037efa6f66f = []byte{
-	// 1209 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x97, 0x4f, 0x4f, 0xdc, 0x46,
-	0x14, 0xc0, 0x31, 0x0d, 0x94, 0x7d, 0xe4, 0x0f, 0x4c, 0x40, 0x01, 0x03, 0x9b, 0xe0, 0x50, 0x02,
-	0x14, 0xdb, 0xb0, 0x24, 0x6d, 0x95, 0x4b, 0x15, 0x52, 0xa5, 0x4d, 0x7b, 0x08, 0x5d, 0xda, 0x34,
-	0xaa, 0x54, 0xad, 0x8c, 0x77, 0x30, 0x96, 0x16, 0x7b, 0xe3, 0xf1, 0x6e, 0x13, 0x21, 0x54, 0xb5,
-	0x87, 0x4a, 0x3d, 0x54, 0x6a, 0x94, 0x6f, 0xd0, 0x43, 0x0f, 0x55, 0x8f, 0x69, 0x3f, 0x43, 0x8e,
-	0x51, 0x7a, 0xe9, 0xa9, 0xaa, 0xa0, 0x1f, 0xa4, 0xf2, 0x9b, 0xe7, 0x65, 0x6d, 0x6c, 0xbc, 0x28,
-	0x51, 0x4f, 0xac, 0xe7, 0xfd, 0xfb, 0xcd, 0x9b, 0x37, 0x6f, 0x1e, 0x50, 0xde, 0xb2, 0xbc, 0xba,
-	0xb9, 0xcd, 0x79, 0x5d, 0x98, 0xed, 0xd5, 0x2d, 0x1e, 0x5a, 0xab, 0xe6, 0xc3, 0x16, 0x0f, 0x1e,
-	0x1b, 0xcd, 0xc0, 0x0f, 0x7d, 0xc6, 0x22, 0xb9, 0x81, 0x72, 0x83, 0xe4, 0xea, 0x98, 0xe3, 0x3b,
-	0x3e, 0x8a, 0xcd, 0xe8, 0x97, 0xd4, 0x54, 0xa7, 0x1d, 0xdf, 0x77, 0x1a, 0xdc, 0xb4, 0x9a, 0xae,
-	0x69, 0x79, 0x9e, 0x1f, 0x5a, 0xa1, 0xeb, 0x7b, 0x82, 0xa4, 0x93, 0xb6, 0x2f, 0x76, 0x7d, 0x51,
-	0x93, 0x66, 0xf2, 0x83, 0x44, 0x4b, 0xf2, 0xcb, 0xdc, 0xb2, 0x04, 0x97, 0xb1, 0x3b, 0x24, 0x4d,
-	0xcb, 0x71, 0x3d, 0xf4, 0x43, 0xba, 0x59, 0xb8, 0x12, 0x4e, 0xca, 0x2f, 0x67, 0xc8, 0x9b, 0x56,
-	0x60, 0xed, 0x92, 0x82, 0x56, 0x86, 0xe9, 0x4f, 0xa3, 0x10, 0xb7, 0x1a, 0x8d, 0xdb, 0xad, 0x20,
-	0xe0, 0x5e, 0xb8, 0x11, 0xb8, 0x36, 0x17, 0x55, 0xfe, 0xb0, 0xc5, 0x45, 0xa8, 0x3d, 0x80, 0x99,
-	0x1c, 0xb9, 0x68, 0xfa, 0x9e, 0xe0, 0xec, 0x5d, 0x18, 0x6c, 0xe2, 0xca, 0x84, 0x72, 0xe5, 0x8d,
-	0x85, 0xe1, 0xca, 0xa4, 0x71, 0x3c, 0x43, 0x06, 0xda, 0xac, 0x9f, 0x79, 0xfe, 0xf7, 0xe5, 0xbe,
-	0x2a, 0xa9, 0x6b, 0x2a, 0x4c, 0xa0, 0x67, 0x72, 0x7b, 0x27, 0x32, 0x88, 0xa3, 0xb6, 0x60, 0x32,
-	0x43, 0x46, 0x11, 0x1f, 0xc0, 0x39, 0x5b, 0xae, 0xd7, 0x30, 0xca, 0x84, 0x72, 0x45, 0x59, 0x18,
-	0xae, 0xe8, 0x59, 0x81, 0xbb, 0x1c, 0x7c, 0xe1, 0x86, 0x3b, 0x1f, 0xf0, 0xb6, 0x2b, 0x8f, 0x81,
-	0x60, 0xce, 0xda, 0x5d, 0x11, 0xb4, 0x9b, 0xc9, 0xb0, 0x89, 0x4c, 0xb0, 0x19, 0x00, 0xe1, 0x3a,
-	0x9e, 0xd5, 0xa8, 0xb9, 0x75, 0xb9, 0xd9, 0x52, 0xb5, 0x24, 0x57, 0xee, 0xd6, 0x85, 0xf6, 0x39,
-	0xa8, 0x59, 0xb6, 0xaf, 0x9a, 0xa5, 0x75, 0x18, 0x41, 0xb7, 0xf7, 0xfd, 0x90, 0xc7, 0x24, 0x06,
-	0x0c, 0xb4, 0xfd, 0x90, 0x07, 0xb8, 0xf1, 0xd2, 0xfa, 0xc4, 0xcb, 0x67, 0xfa, 0x18, 0x55, 0xd0,
-	0xad, 0x7a, 0x3d, 0xe0, 0x42, 0x6c, 0x86, 0x81, 0xeb, 0x39, 0x55, 0xa9, 0xa6, 0xdd, 0x83, 0xd1,
-	0x2e, 0x1f, 0x44, 0x74, 0x13, 0xde, 0x94, 0xf0, 0x31, 0x92, 0x9a, 0x85, 0xb4, 0x89, 0x2a, 0xc4,
-	0x14, 0x1b, 0x68, 0x3f, 0x28, 0x30, 0x86, 0x1e, 0xef, 0x8a, 0x28, 0x71, 0x3c, 0x88, 0xc9, 0xde,
-	0x87, 0x52, 0xdb, 0x6a, 0xb8, 0x75, 0x2b, 0xf4, 0x63, 0xba, 0xd9, 0x97, 0xcf, 0xf4, 0x19, 0xa2,
-	0xbb, 0x1f, 0xcb, 0x92, 0x98, 0x47, 0x36, 0x6c, 0x05, 0x06, 0xb7, 0xd1, 0xe3, 0x44, 0x7f, 0xc1,
-	0xde, 0x48, 0x4f, 0xbb, 0x0e, 0xe3, 0x29, 0x14, 0xda, 0xe0, 0x14, 0x94, 0x5c, 0x51, 0x23, 0x6f,
-	0x11, 0xcb, 0x50, 0x75, 0xc8, 0x25, 0x25, 0x6d, 0x0c, 0x18, 0x5a, 0x6d, 0xe0, 0x5d, 0x88, 0xcb,
-	0xee, 0x1e, 0x5c, 0x4c, 0xac, 0x92, 0xa7, 0xf7, 0x60, 0x50, 0xde, 0x19, 0xaa, 0xb4, 0xcc, 0x4c,
-	0x49, 0x9b, 0xce, 0xe9, 0xe1, 0x97, 0xb6, 0x42, 0x99, 0xc7, 0x93, 0x8d, 0x93, 0x34, 0x05, 0xa5,
-	0x4e, 0x21, 0xc9, 0x24, 0x55, 0x87, 0xe2, 0x3a, 0xd2, 0x3e, 0x89, 0xc1, 0xa4, 0x05, 0x11, 0xdc,
-	0x80, 0x01, 0xac, 0x07, 0x02, 0x28, 0xac, 0x1e, 0xa9, 0xad, 0xed, 0x75, 0x3b, 0xeb, 0xb1, 0x90,
-	0xd9, 0x1d, 0x80, 0xa3, 0x36, 0x83, 0xc7, 0x30, 0x5c, 0x99, 0x37, 0xe8, 0x0c, 0xa2, 0x9e, 0x64,
-	0xc8, 0x7e, 0x78, 0xb4, 0x71, 0x27, 0xde, 0x5a, 0xb5, 0xcb, 0x52, 0x7b, 0xa2, 0xc4, 0xd9, 0x4c,
-	0x5e, 0x85, 0xd5, 0x9e, 0xaf, 0x42, 0x7c, 0x09, 0xd8, 0x87, 0x19, 0x48, 0xd7, 0x0a, 0x91, 0x64,
-	0xbc, 0x04, 0xd3, 0x55, 0x98, 0x45, 0xa4, 0x2a, 0xdf, 0xe6, 0x01, 0xf7, 0x6c, 0xbe, 0xe9, 0xb7,
-	0x02, 0x9b, 0xdf, 0xf6, 0xbd, 0x6d, 0xd7, 0x89, 0xab, 0xe0, 0x47, 0x05, 0xb4, 0x93, 0xb4, 0x68,
-	0x1f, 0x0e, 0x5c, 0x0a, 0x62, 0x85, 0x9a, 0x40, 0x8d, 0x9a, 0x8d, 0x2a, 0x74, 0x4a, 0x8b, 0x59,
-	0x1b, 0xcb, 0xf4, 0x49, 0xa7, 0x36, 0x1e, 0x64, 0x09, 0xb5, 0xef, 0x15, 0xea, 0xc1, 0xf2, 0x32,
-	0x7e, 0xe6, 0x87, 0x56, 0x63, 0xc3, 0xff, 0x9a, 0x07, 0xff, 0xf7, 0x89, 0xfe, 0xae, 0x40, 0x39,
-	0x0f, 0x84, 0x92, 0xf2, 0x31, 0x5c, 0x24, 0x92, 0x30, 0x92, 0xd6, 0x9a, 0x28, 0x2e, 0xee, 0x30,
-	0xd5, 0x51, 0x91, 0xf6, 0xf9, 0xfa, 0x4e, 0xfd, 0x2b, 0x6a, 0xcd, 0xd8, 0x7e, 0x3a, 0x3d, 0xe8,
-	0x75, 0xf5, 0x2c, 0x6d, 0x0d, 0xa6, 0x32, 0xdd, 0x53, 0x4a, 0xc6, 0x60, 0x00, 0x75, 0xa9, 0x07,
-	0xc9, 0x0f, 0x6d, 0xbf, 0xdb, 0x28, 0xd2, 0x4f, 0xde, 0xd1, 0x57, 0x6e, 0xa4, 0xc9, 0x92, 0xe8,
-	0x4f, 0xbf, 0x56, 0x82, 0x9e, 0xfd, 0x63, 0xe1, 0x09, 0x7a, 0x13, 0x46, 0x3a, 0xbe, 0x6a, 0x89,
-	0xeb, 0xaa, 0x65, 0x1d, 0x62, 0xd2, 0x0d, 0x95, 0xf3, 0x85, 0x76, 0xd2, 0x79, 0xe5, 0xb7, 0xf3,
-	0x30, 0x80, 0x51, 0xd9, 0xcf, 0x0a, 0x8c, 0xa4, 0x27, 0x0a, 0xb6, 0x92, 0xe5, 0xf9, 0xa4, 0xe1,
-	0x44, 0x5d, 0x3d, 0x85, 0x85, 0xdc, 0x98, 0xb6, 0xf8, 0xdd, 0x9f, 0xff, 0x3e, 0xed, 0xbf, 0xca,
-	0x66, 0x53, 0x43, 0x91, 0xd5, 0x68, 0xe8, 0x34, 0x0b, 0xe8, 0xd4, 0x75, 0x9e, 0x28, 0x70, 0xb6,
-	0x7b, 0x00, 0x61, 0xcb, 0xb9, 0xe1, 0x32, 0x66, 0x18, 0x55, 0xef, 0x51, 0x9b, 0xc0, 0xe6, 0x10,
-	0xac, 0xcc, 0xa6, 0x53, 0x60, 0x31, 0x14, 0xae, 0x46, 0x89, 0x3b, 0x97, 0xcc, 0x5a, 0x61, 0x98,
-	0x64, 0xca, 0x8c, 0x5e, 0xd5, 0x09, 0xab, 0x82, 0x58, 0xcb, 0x6c, 0x29, 0x07, 0x4b, 0xe6, 0xca,
-	0xdc, 0x3b, 0x2a, 0xb6, 0x7d, 0xf6, 0x0d, 0x9c, 0x89, 0x46, 0x0d, 0x36, 0x97, 0x1b, 0xab, 0x6b,
-	0x9a, 0x51, 0xdf, 0x2a, 0xd0, 0x22, 0x90, 0x25, 0x04, 0x99, 0x63, 0x5a, 0x0a, 0x04, 0x47, 0x1c,
-	0x61, 0xee, 0xe1, 0xdf, 0x7d, 0xfc, 0x64, 0x4f, 0x15, 0x18, 0x8a, 0xe7, 0x01, 0xb6, 0x90, 0xeb,
-	0x3f, 0x35, 0xbd, 0xa8, 0x8b, 0x3d, 0x68, 0x16, 0xa4, 0x45, 0x8e, 0x1b, 0xe6, 0x5e, 0xa7, 0xf4,
-	0xf7, 0xcd, 0x3d, 0xb9, 0xb6, 0xcf, 0x1e, 0xc1, 0xa0, 0x1c, 0x12, 0xd8, 0x7c, 0x6e, 0xa0, 0xc4,
-	0x3c, 0xa2, 0x5e, 0x2b, 0xd4, 0x23, 0x9c, 0x19, 0xc4, 0xb9, 0xc4, 0xc6, 0x33, 0x47, 0x7d, 0xf6,
-	0xad, 0x02, 0x03, 0x78, 0xae, 0x2c, 0x3f, 0xd9, 0xdd, 0x23, 0x8a, 0x3a, 0x5f, 0xa4, 0x56, 0x70,
-	0x9b, 0x8e, 0x55, 0x85, 0xdc, 0xbd, 0xac, 0xd8, 0x02, 0xe7, 0xbd, 0xec, 0x3e, 0x59, 0xa3, 0xb9,
-	0xbb, 0x97, 0xf1, 0xfe, 0x50, 0x60, 0x3c, 0xf3, 0xd9, 0x65, 0x37, 0x72, 0x23, 0x9c, 0x34, 0x20,
-	0xa8, 0xef, 0x9c, 0xd6, 0x8c, 0x38, 0x0d, 0xe4, 0x5c, 0x60, 0xf3, 0x29, 0xce, 0xce, 0xb3, 0xaf,
-	0xcb, 0x31, 0x42, 0x97, 0x63, 0x04, 0xfb, 0x45, 0x81, 0xd1, 0x63, 0x4f, 0x2d, 0xcb, 0x6f, 0x7a,
-	0x79, 0xf3, 0x81, 0x5a, 0x39, 0x8d, 0x49, 0xc1, 0x7d, 0x93, 0x47, 0xaa, 0xe3, 0xf3, 0xae, 0xcb,
-	0xe7, 0x3d, 0x02, 0x3d, 0x9f, 0x7c, 0xfd, 0x58, 0x7e, 0x9f, 0xc9, 0x7c, 0x85, 0x55, 0xb3, 0x67,
-	0x7d, 0xe2, 0x5b, 0x43, 0x3e, 0x9d, 0xbd, 0x9d, 0xee, 0x07, 0xb1, 0xa6, 0x48, 0xdc, 0x42, 0xfc,
-	0xc9, 0x7e, 0x55, 0xe0, 0x42, 0xea, 0xc9, 0x63, 0x05, 0x91, 0x8f, 0xbd, 0xcd, 0xea, 0x4a, 0xef,
-	0x06, 0xc4, 0x7a, 0x1d, 0x59, 0x0d, 0xb6, 0xdc, 0x1b, 0xab, 0xac, 0xdb, 0xf5, 0x8f, 0x9e, 0x1f,
-	0x94, 0x95, 0x17, 0x07, 0x65, 0xe5, 0x9f, 0x83, 0xb2, 0xf2, 0xd3, 0x61, 0xb9, 0xef, 0xc5, 0x61,
-	0xb9, 0xef, 0xaf, 0xc3, 0x72, 0xdf, 0x97, 0x86, 0xe3, 0x86, 0x3b, 0xad, 0x2d, 0xc3, 0xf6, 0x77,
-	0xcd, 0x88, 0x05, 0xff, 0x95, 0xb7, 0xfd, 0x86, 0x69, 0xef, 0x58, 0xae, 0x67, 0xb6, 0xd7, 0xcc,
-	0x47, 0x14, 0x29, 0x7c, 0xdc, 0xe4, 0x62, 0x6b, 0x10, 0x15, 0xd6, 0xfe, 0x0b, 0x00, 0x00, 0xff,
-	0xff, 0x8f, 0x6d, 0x4a, 0xd8, 0xdd, 0x10, 0x00, 0x00,
+	// 1117 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x57, 0x41, 0x6f, 0xdc, 0x54,
+	0x10, 0x8e, 0x43, 0x77, 0xc9, 0x4e, 0x0a, 0x6d, 0x5e, 0x37, 0x6a, 0xe2, 0x24, 0x5b, 0xe2, 0xa6,
+	0x69, 0x12, 0x62, 0x3b, 0xd9, 0xb4, 0x08, 0x71, 0x41, 0xa4, 0xa8, 0x50, 0x38, 0xb4, 0x38, 0x08,
+	0x10, 0x12, 0x5a, 0x79, 0xbd, 0x2f, 0x8e, 0xa5, 0x8d, 0xdf, 0xd6, 0xf6, 0x2e, 0xad, 0xa2, 0x08,
+	0xc1, 0x01, 0x89, 0x03, 0x12, 0x55, 0xff, 0x03, 0x07, 0xce, 0x85, 0xdf, 0xd0, 0x63, 0x55, 0x2e,
+	0x9c, 0x10, 0x4a, 0xf8, 0x21, 0xc8, 0xf3, 0xc6, 0x9b, 0xb5, 0x63, 0x67, 0xb7, 0xa2, 0xea, 0xa9,
+	0xf1, 0x9b, 0x6f, 0xe6, 0xfb, 0x66, 0xe6, 0xbd, 0x99, 0x2d, 0xd4, 0x9a, 0xb6, 0xdf, 0x32, 0x77,
+	0x39, 0x6f, 0x85, 0x66, 0x6f, 0xb3, 0xc9, 0x23, 0x7b, 0xd3, 0xbc, 0xdf, 0xe5, 0xc1, 0x43, 0xa3,
+	0x13, 0x88, 0x48, 0x30, 0x16, 0xdb, 0x0d, 0xb4, 0x1b, 0x64, 0x57, 0xab, 0xae, 0x70, 0x05, 0x9a,
+	0xcd, 0xf8, 0x2f, 0x89, 0x54, 0xe7, 0x5d, 0x21, 0xdc, 0x36, 0x37, 0xed, 0x8e, 0x67, 0xda, 0xbe,
+	0x2f, 0x22, 0x3b, 0xf2, 0x84, 0x1f, 0x92, 0x75, 0xd6, 0x11, 0xe1, 0xbe, 0x08, 0x1b, 0xd2, 0x4d,
+	0x7e, 0x90, 0x69, 0x4d, 0x7e, 0x99, 0x4d, 0x3b, 0xe4, 0x92, 0xbb, 0xaf, 0xa4, 0x63, 0xbb, 0x9e,
+	0x8f, 0x71, 0x08, 0x9b, 0x27, 0x57, 0x8a, 0x93, 0xf6, 0x2b, 0x39, 0xf6, 0x8e, 0x1d, 0xd8, 0xfb,
+	0x04, 0xd0, 0x54, 0x98, 0xf9, 0x2c, 0xa6, 0xb8, 0xd5, 0x0d, 0x02, 0xee, 0x47, 0xb7, 0x63, 0xa4,
+	0xc5, 0xef, 0x77, 0x79, 0x18, 0x69, 0x5d, 0x98, 0xcd, 0xb1, 0x85, 0x1d, 0xe1, 0x87, 0x9c, 0x7d,
+	0x05, 0x6f, 0x38, 0xf2, 0xbc, 0x81, 0xe1, 0x67, 0x94, 0xb7, 0x94, 0x95, 0xc9, 0xba, 0x6e, 0x9c,
+	0x2e, 0x90, 0x31, 0x10, 0xe0, 0x4b, 0x2f, 0xda, 0xfb, 0x90, 0xf7, 0x3c, 0x59, 0x8c, 0xed, 0x73,
+	0x4f, 0xff, 0xbe, 0x32, 0x66, 0x9d, 0x77, 0x06, 0x18, 0xb4, 0x9f, 0x14, 0xa8, 0x22, 0xef, 0x9d,
+	0x30, 0x3e, 0xe0, 0x01, 0xe9, 0x61, 0xef, 0x43, 0xa5, 0x67, 0xb7, 0xbd, 0x96, 0x1d, 0x89, 0x00,
+	0xe9, 0x2a, 0xdb, 0x8b, 0xcf, 0x9f, 0xe8, 0x0b, 0x54, 0xbd, 0x2f, 0x12, 0xdb, 0x07, 0xad, 0x56,
+	0xc0, 0xc3, 0x70, 0x27, 0x0a, 0x3c, 0xdf, 0xb5, 0x4e, 0x7c, 0xd8, 0x06, 0x94, 0x77, 0x31, 0xe2,
+	0xcc, 0x38, 0x7a, 0xcf, 0x3c, 0x7f, 0xa2, 0x57, 0xc9, 0x3b, 0xed, 0x44, 0x38, 0xed, 0x06, 0x4c,
+	0x67, 0xa4, 0x50, 0xfa, 0x73, 0x50, 0xf1, 0xc2, 0x06, 0x45, 0x8b, 0xb5, 0x4c, 0x58, 0x13, 0x1e,
+	0x81, 0xb4, 0x2a, 0x30, 0xf4, 0xba, 0x87, 0x95, 0x4e, 0xca, 0x79, 0x17, 0x2e, 0xa5, 0x4e, 0x29,
+	0xd2, 0xbb, 0x50, 0x96, 0x1d, 0xa1, 0x0a, 0xaa, 0x79, 0x15, 0x94, 0x3e, 0x54, 0x2e, 0xc2, 0x6b,
+	0x1b, 0x30, 0x25, 0x03, 0x06, 0x9e, 0xc3, 0x93, 0x22, 0xcd, 0x41, 0x25, 0xf4, 0x5c, 0xdf, 0x6e,
+	0x37, 0xbc, 0x96, 0x2c, 0x92, 0x35, 0x21, 0x0f, 0xee, 0xb4, 0xb4, 0x4f, 0x13, 0x61, 0xd2, 0x83,
+	0x14, 0xdc, 0x84, 0x52, 0x27, 0x3e, 0x20, 0x01, 0xb3, 0xb9, 0x02, 0x62, 0x00, 0xf1, 0x4b, 0xb4,
+	0x76, 0x30, 0x18, 0x2c, 0xc9, 0x92, 0x2d, 0x00, 0xf4, 0xf9, 0xe3, 0x94, 0x5e, 0x5b, 0xa9, 0x58,
+	0x95, 0x44, 0x40, 0xc8, 0x6e, 0x03, 0x9c, 0x5c, 0x62, 0x6c, 0xc3, 0x64, 0x7d, 0xd9, 0xa0, 0x1e,
+	0xc4, 0x37, 0xde, 0x90, 0xaf, 0xed, 0x24, 0x71, 0x37, 0x49, 0xcd, 0x1a, 0xf0, 0xd4, 0x1e, 0x29,
+	0x49, 0x35, 0x89, 0x9d, 0x72, 0xd9, 0x84, 0x32, 0xaa, 0x93, 0xd4, 0x67, 0x25, 0x63, 0x11, 0x90,
+	0x7d, 0x94, 0x23, 0xe9, 0xfa, 0x50, 0x49, 0x92, 0x2f, 0xa5, 0xe9, 0x2a, 0x2c, 0xa2, 0x24, 0x8b,
+	0xef, 0xf2, 0x80, 0xfb, 0x0e, 0xdf, 0x11, 0xdd, 0xc0, 0xe1, 0xb7, 0x84, 0xbf, 0xeb, 0xb9, 0xc9,
+	0x2d, 0xf8, 0x59, 0x01, 0xed, 0x2c, 0x14, 0xe5, 0xe1, 0xc2, 0xe5, 0x20, 0x01, 0x34, 0x42, 0x44,
+	0x34, 0x1c, 0x84, 0x50, 0x97, 0x56, 0xf3, 0x12, 0xcb, 0x8d, 0x49, 0x5d, 0x9b, 0x0e, 0xf2, 0x8c,
+	0xda, 0x8f, 0x0a, 0x2c, 0xa0, 0x9e, 0x1d, 0xec, 0xd1, 0xe7, 0x22, 0xb2, 0xdb, 0xf7, 0xc4, 0xb7,
+	0x3c, 0x78, 0xd5, 0x1d, 0xfd, 0x5d, 0x81, 0x5a, 0x91, 0x10, 0x2a, 0xca, 0x27, 0x70, 0x89, 0x94,
+	0x44, 0xb1, 0xb5, 0xd1, 0x41, 0x33, 0x75, 0x3a, 0xf7, 0xdd, 0xc8, 0x58, 0xd6, 0x54, 0x98, 0x8d,
+	0xf9, 0xf2, 0xba, 0xfe, 0x0d, 0xa8, 0x28, 0x1b, 0xc7, 0x4f, 0x7f, 0x06, 0xbd, 0xac, 0x99, 0xa5,
+	0x6d, 0xc1, 0x5c, 0x6e, 0x78, 0x2a, 0x49, 0x15, 0x4a, 0x88, 0xa5, 0x19, 0x24, 0x3f, 0xb4, 0xc3,
+	0x41, 0xa7, 0x18, 0x9f, 0x7e, 0xa3, 0xff, 0x7b, 0x90, 0xa6, 0xaf, 0xc4, 0x78, 0xe6, 0x4a, 0x68,
+	0x21, 0xcc, 0xe7, 0xd3, 0x93, 0xe8, 0x1d, 0xb8, 0xd8, 0x8f, 0xd5, 0x48, 0x3d, 0x57, 0x2d, 0xaf,
+	0x89, 0xe9, 0x30, 0x74, 0x9d, 0x2f, 0xf4, 0xd2, 0xc1, 0xb5, 0x6d, 0xb8, 0x28, 0x49, 0x45, 0xd4,
+	0x1f, 0x86, 0x06, 0x94, 0x7a, 0x22, 0xe2, 0x49, 0x92, 0xc5, 0xf3, 0x5e, 0xc2, 0xb4, 0xbb, 0x34,
+	0x51, 0x65, 0x0c, 0x52, 0xfb, 0x1e, 0xbc, 0x2e, 0x53, 0x1b, 0xe1, 0xa6, 0x91, 0xb8, 0xc4, 0xa1,
+	0x7e, 0x34, 0x09, 0x25, 0x8c, 0xc8, 0x1e, 0x29, 0x70, 0x7e, 0x70, 0x91, 0xb2, 0xf5, 0xbc, 0x28,
+	0x45, 0xbb, 0x58, 0xd5, 0x47, 0x44, 0x4b, 0xcd, 0xda, 0xd2, 0x0f, 0x7f, 0xfe, 0xfb, 0x78, 0xbc,
+	0xc6, 0xe6, 0x33, 0xbb, 0x9f, 0x16, 0xad, 0x8e, 0xa7, 0xec, 0xb1, 0x02, 0x13, 0xc9, 0x66, 0x63,
+	0x2b, 0x85, 0x0c, 0x99, 0x3d, 0xac, 0xae, 0x8e, 0x80, 0x24, 0x1d, 0x75, 0xd4, 0xb1, 0xce, 0xd6,
+	0x72, 0x7e, 0xa3, 0xf0, 0xc0, 0x3c, 0xe8, 0x37, 0xf1, 0xd0, 0x3c, 0x90, 0x67, 0x87, 0xec, 0x01,
+	0x94, 0xe5, 0xba, 0x63, 0xcb, 0x85, 0x44, 0xa9, 0xcd, 0xaa, 0x5e, 0x1f, 0x8a, 0x23, 0x39, 0x0b,
+	0x28, 0xe7, 0x32, 0x9b, 0xce, 0xfd, 0x49, 0xc4, 0xbe, 0x57, 0xa0, 0x84, 0xb7, 0x89, 0x5d, 0x2b,
+	0x8e, 0x38, 0xb0, 0x6c, 0xd5, 0xe5, 0x61, 0x30, 0xe2, 0x5d, 0x45, 0xde, 0xab, 0x6c, 0x31, 0xcb,
+	0x8b, 0x57, 0xd7, 0x3c, 0xe8, 0x3f, 0x26, 0x99, 0xbd, 0xdc, 0x4b, 0x43, 0x82, 0x8f, 0x92, 0x7d,
+	0xea, 0xd9, 0x15, 0x67, 0x2f, 0xf9, 0xfe, 0x50, 0x60, 0x3a, 0x77, 0x81, 0xb0, 0x9b, 0x85, 0x0c,
+	0x67, 0xad, 0x3a, 0xf5, 0x9d, 0x17, 0x75, 0x23, 0x9d, 0x06, 0xea, 0x5c, 0x61, 0xcb, 0x19, 0x9d,
+	0xfd, 0x05, 0xa6, 0xcb, 0x85, 0xa8, 0xcb, 0x85, 0xc8, 0x7e, 0x55, 0x60, 0xea, 0xd4, 0xd2, 0x60,
+	0x9b, 0x85, 0xec, 0x45, 0x9b, 0x4e, 0xad, 0xbf, 0x88, 0x0b, 0x89, 0x5d, 0x43, 0xb1, 0x4b, 0x4c,
+	0xcb, 0x88, 0x95, 0x2d, 0xd5, 0x71, 0x51, 0xe9, 0x72, 0x51, 0xc5, 0x42, 0xdf, 0x4c, 0xcf, 0x71,
+	0x66, 0x14, 0x52, 0xe6, 0xee, 0x13, 0xd5, 0x1c, 0x19, 0x4f, 0xfa, 0xb6, 0x50, 0x9f, 0xce, 0xde,
+	0xce, 0xe8, 0xeb, 0xbf, 0xbc, 0x30, 0xf5, 0x0a, 0xf1, 0x4f, 0xf6, 0x9b, 0x02, 0x17, 0x32, 0xc3,
+	0x9b, 0x0d, 0x61, 0x3e, 0xb5, 0x65, 0xd4, 0x8d, 0xd1, 0x1d, 0x48, 0xeb, 0x0d, 0xd4, 0x6a, 0xb0,
+	0xf5, 0xd1, 0xb4, 0xd2, 0xbd, 0xfd, 0x0e, 0xce, 0xc5, 0xf3, 0x9a, 0x2d, 0x15, 0xf3, 0x9d, 0xac,
+	0x04, 0xf5, 0xda, 0x10, 0xd4, 0x90, 0xb6, 0xe2, 0x9e, 0x88, 0x65, 0xc4, 0xff, 0x1e, 0xe2, 0xe7,
+	0xf6, 0xc7, 0x4f, 0x8f, 0x6a, 0xca, 0xb3, 0xa3, 0x9a, 0xf2, 0xcf, 0x51, 0x4d, 0xf9, 0xe5, 0xb8,
+	0x36, 0xf6, 0xec, 0xb8, 0x36, 0xf6, 0xd7, 0x71, 0x6d, 0xec, 0x6b, 0xc3, 0xf5, 0xa2, 0xbd, 0x6e,
+	0xd3, 0x70, 0xc4, 0xbe, 0x19, 0xd3, 0xe2, 0xff, 0xb9, 0x1c, 0xd1, 0x36, 0x9d, 0x3d, 0xdb, 0xf3,
+	0xcd, 0xde, 0x96, 0xf9, 0x80, 0xe2, 0x47, 0x0f, 0x3b, 0x3c, 0x6c, 0x96, 0x11, 0xb0, 0xf5, 0x5f,
+	0x00, 0x00, 0x00, 0xff, 0xff, 0x87, 0x5c, 0x40, 0x9d, 0x86, 0x0e, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -1274,14 +1089,8 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
-	// AllCurrentPrices is an RPC method that returns a list of current prices.
-	AllCurrentPrices(ctx context.Context, in *QueryAllCurrentPricesRequest, opts ...grpc.CallOption) (*QueryAllCurrentPricesResponse, error)
 	// CurrentFeeds is an RPC method that returns a list of current supported feeds.
 	CurrentFeeds(ctx context.Context, in *QueryCurrentFeedsRequest, opts ...grpc.CallOption) (*QueryCurrentFeedsResponse, error)
-	// CurrentPrices is an RPC method that returns a list of current prices.
-	CurrentPrices(ctx context.Context, in *QueryCurrentPricesRequest, opts ...grpc.CallOption) (*QueryCurrentPricesResponse, error)
-	// Vote is an RPC method that returns signals of a voter.
-	Vote(ctx context.Context, in *QueryVoteRequest, opts ...grpc.CallOption) (*QueryVoteResponse, error)
 	// IsFeeder is an RPC method that returns whether an account is a feeder for a specified validator.
 	IsFeeder(ctx context.Context, in *QueryIsFeederRequest, opts ...grpc.CallOption) (*QueryIsFeederResponse, error)
 	// Params is an RPC method that returns all parameters of the module.
@@ -1299,6 +1108,8 @@ type QueryClient interface {
 	ValidValidator(ctx context.Context, in *QueryValidValidatorRequest, opts ...grpc.CallOption) (*QueryValidValidatorResponse, error)
 	// ValidatorPrices is an RPC method that returns prices of a validator.
 	ValidatorPrices(ctx context.Context, in *QueryValidatorPricesRequest, opts ...grpc.CallOption) (*QueryValidatorPricesResponse, error)
+	// Vote is an RPC method that returns signals of a voter.
+	Vote(ctx context.Context, in *QueryVoteRequest, opts ...grpc.CallOption) (*QueryVoteResponse, error)
 }
 
 type queryClient struct {
@@ -1309,36 +1120,9 @@ func NewQueryClient(cc grpc1.ClientConn) QueryClient {
 	return &queryClient{cc}
 }
 
-func (c *queryClient) AllCurrentPrices(ctx context.Context, in *QueryAllCurrentPricesRequest, opts ...grpc.CallOption) (*QueryAllCurrentPricesResponse, error) {
-	out := new(QueryAllCurrentPricesResponse)
-	err := c.cc.Invoke(ctx, "/band.feeds.v1beta1.Query/AllCurrentPrices", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *queryClient) CurrentFeeds(ctx context.Context, in *QueryCurrentFeedsRequest, opts ...grpc.CallOption) (*QueryCurrentFeedsResponse, error) {
 	out := new(QueryCurrentFeedsResponse)
 	err := c.cc.Invoke(ctx, "/band.feeds.v1beta1.Query/CurrentFeeds", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *queryClient) CurrentPrices(ctx context.Context, in *QueryCurrentPricesRequest, opts ...grpc.CallOption) (*QueryCurrentPricesResponse, error) {
-	out := new(QueryCurrentPricesResponse)
-	err := c.cc.Invoke(ctx, "/band.feeds.v1beta1.Query/CurrentPrices", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *queryClient) Vote(ctx context.Context, in *QueryVoteRequest, opts ...grpc.CallOption) (*QueryVoteResponse, error) {
-	out := new(QueryVoteResponse)
-	err := c.cc.Invoke(ctx, "/band.feeds.v1beta1.Query/Vote", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1417,16 +1201,19 @@ func (c *queryClient) ValidatorPrices(ctx context.Context, in *QueryValidatorPri
 	return out, nil
 }
 
+func (c *queryClient) Vote(ctx context.Context, in *QueryVoteRequest, opts ...grpc.CallOption) (*QueryVoteResponse, error) {
+	out := new(QueryVoteResponse)
+	err := c.cc.Invoke(ctx, "/band.feeds.v1beta1.Query/Vote", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // QueryServer is the server API for Query service.
 type QueryServer interface {
-	// AllCurrentPrices is an RPC method that returns a list of current prices.
-	AllCurrentPrices(context.Context, *QueryAllCurrentPricesRequest) (*QueryAllCurrentPricesResponse, error)
 	// CurrentFeeds is an RPC method that returns a list of current supported feeds.
 	CurrentFeeds(context.Context, *QueryCurrentFeedsRequest) (*QueryCurrentFeedsResponse, error)
-	// CurrentPrices is an RPC method that returns a list of current prices.
-	CurrentPrices(context.Context, *QueryCurrentPricesRequest) (*QueryCurrentPricesResponse, error)
-	// Vote is an RPC method that returns signals of a voter.
-	Vote(context.Context, *QueryVoteRequest) (*QueryVoteResponse, error)
 	// IsFeeder is an RPC method that returns whether an account is a feeder for a specified validator.
 	IsFeeder(context.Context, *QueryIsFeederRequest) (*QueryIsFeederResponse, error)
 	// Params is an RPC method that returns all parameters of the module.
@@ -1444,23 +1231,16 @@ type QueryServer interface {
 	ValidValidator(context.Context, *QueryValidValidatorRequest) (*QueryValidValidatorResponse, error)
 	// ValidatorPrices is an RPC method that returns prices of a validator.
 	ValidatorPrices(context.Context, *QueryValidatorPricesRequest) (*QueryValidatorPricesResponse, error)
+	// Vote is an RPC method that returns signals of a voter.
+	Vote(context.Context, *QueryVoteRequest) (*QueryVoteResponse, error)
 }
 
 // UnimplementedQueryServer can be embedded to have forward compatible implementations.
 type UnimplementedQueryServer struct {
 }
 
-func (*UnimplementedQueryServer) AllCurrentPrices(ctx context.Context, req *QueryAllCurrentPricesRequest) (*QueryAllCurrentPricesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AllCurrentPrices not implemented")
-}
 func (*UnimplementedQueryServer) CurrentFeeds(ctx context.Context, req *QueryCurrentFeedsRequest) (*QueryCurrentFeedsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CurrentFeeds not implemented")
-}
-func (*UnimplementedQueryServer) CurrentPrices(ctx context.Context, req *QueryCurrentPricesRequest) (*QueryCurrentPricesResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CurrentPrices not implemented")
-}
-func (*UnimplementedQueryServer) Vote(ctx context.Context, req *QueryVoteRequest) (*QueryVoteResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Vote not implemented")
 }
 func (*UnimplementedQueryServer) IsFeeder(ctx context.Context, req *QueryIsFeederRequest) (*QueryIsFeederResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method IsFeeder not implemented")
@@ -1486,27 +1266,12 @@ func (*UnimplementedQueryServer) ValidValidator(ctx context.Context, req *QueryV
 func (*UnimplementedQueryServer) ValidatorPrices(ctx context.Context, req *QueryValidatorPricesRequest) (*QueryValidatorPricesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ValidatorPrices not implemented")
 }
+func (*UnimplementedQueryServer) Vote(ctx context.Context, req *QueryVoteRequest) (*QueryVoteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Vote not implemented")
+}
 
 func RegisterQueryServer(s grpc1.Server, srv QueryServer) {
 	s.RegisterService(&_Query_serviceDesc, srv)
-}
-
-func _Query_AllCurrentPrices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryAllCurrentPricesRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).AllCurrentPrices(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/band.feeds.v1beta1.Query/AllCurrentPrices",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).AllCurrentPrices(ctx, req.(*QueryAllCurrentPricesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _Query_CurrentFeeds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -1523,42 +1288,6 @@ func _Query_CurrentFeeds_Handler(srv interface{}, ctx context.Context, dec func(
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(QueryServer).CurrentFeeds(ctx, req.(*QueryCurrentFeedsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Query_CurrentPrices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryCurrentPricesRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).CurrentPrices(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/band.feeds.v1beta1.Query/CurrentPrices",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).CurrentPrices(ctx, req.(*QueryCurrentPricesRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Query_Vote_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryVoteRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).Vote(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/band.feeds.v1beta1.Query/Vote",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).Vote(ctx, req.(*QueryVoteRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1707,25 +1436,31 @@ func _Query_ValidatorPrices_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_Vote_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryVoteRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Vote(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/band.feeds.v1beta1.Query/Vote",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Vote(ctx, req.(*QueryVoteRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Query_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "band.feeds.v1beta1.Query",
 	HandlerType: (*QueryServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "AllCurrentPrices",
-			Handler:    _Query_AllCurrentPrices_Handler,
-		},
-		{
 			MethodName: "CurrentFeeds",
 			Handler:    _Query_CurrentFeeds_Handler,
-		},
-		{
-			MethodName: "CurrentPrices",
-			Handler:    _Query_CurrentPrices_Handler,
-		},
-		{
-			MethodName: "Vote",
-			Handler:    _Query_Vote_Handler,
 		},
 		{
 			MethodName: "IsFeeder",
@@ -1759,69 +1494,13 @@ var _Query_serviceDesc = grpc.ServiceDesc{
 			MethodName: "ValidatorPrices",
 			Handler:    _Query_ValidatorPrices_Handler,
 		},
+		{
+			MethodName: "Vote",
+			Handler:    _Query_Vote_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "band/feeds/v1beta1/query.proto",
-}
-
-func (m *QueryAllCurrentPricesRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryAllCurrentPricesRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryAllCurrentPricesRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	return len(dAtA) - i, nil
-}
-
-func (m *QueryAllCurrentPricesResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryAllCurrentPricesResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryAllCurrentPricesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Prices) > 0 {
-		for iNdEx := len(m.Prices) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.Prices[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintQuery(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0xa
-		}
-	}
-	return len(dAtA) - i, nil
 }
 
 func (m *QueryCurrentFeedsRequest) Marshal() (dAtA []byte, err error) {
@@ -1877,142 +1556,6 @@ func (m *QueryCurrentFeedsResponse) MarshalToSizedBuffer(dAtA []byte) (int, erro
 	}
 	i--
 	dAtA[i] = 0xa
-	return len(dAtA) - i, nil
-}
-
-func (m *QueryCurrentPricesRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryCurrentPricesRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryCurrentPricesRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.SignalIds) > 0 {
-		for iNdEx := len(m.SignalIds) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.SignalIds[iNdEx])
-			copy(dAtA[i:], m.SignalIds[iNdEx])
-			i = encodeVarintQuery(dAtA, i, uint64(len(m.SignalIds[iNdEx])))
-			i--
-			dAtA[i] = 0xa
-		}
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *QueryCurrentPricesResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryCurrentPricesResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryCurrentPricesResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Prices) > 0 {
-		for iNdEx := len(m.Prices) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.Prices[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintQuery(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0xa
-		}
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *QueryVoteRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryVoteRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryVoteRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Voter) > 0 {
-		i -= len(m.Voter)
-		copy(dAtA[i:], m.Voter)
-		i = encodeVarintQuery(dAtA, i, uint64(len(m.Voter)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *QueryVoteResponse) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *QueryVoteResponse) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *QueryVoteResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Signals) > 0 {
-		for iNdEx := len(m.Signals) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.Signals[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintQuery(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0xa
-		}
-	}
 	return len(dAtA) - i, nil
 }
 
@@ -2586,6 +2129,73 @@ func (m *QueryValidatorPricesResponse) MarshalToSizedBuffer(dAtA []byte) (int, e
 	return len(dAtA) - i, nil
 }
 
+func (m *QueryVoteRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryVoteRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryVoteRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Voter) > 0 {
+		i -= len(m.Voter)
+		copy(dAtA[i:], m.Voter)
+		i = encodeVarintQuery(dAtA, i, uint64(len(m.Voter)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *QueryVoteResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *QueryVoteResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *QueryVoteResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Signals) > 0 {
+		for iNdEx := len(m.Signals) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Signals[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintQuery(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
+		}
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	offset -= sovQuery(v)
 	base := offset
@@ -2597,30 +2207,6 @@ func encodeVarintQuery(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *QueryAllCurrentPricesRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	return n
-}
-
-func (m *QueryAllCurrentPricesResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if len(m.Prices) > 0 {
-		for _, e := range m.Prices {
-			l = e.Size()
-			n += 1 + l + sovQuery(uint64(l))
-		}
-	}
-	return n
-}
-
 func (m *QueryCurrentFeedsRequest) Size() (n int) {
 	if m == nil {
 		return 0
@@ -2638,64 +2224,6 @@ func (m *QueryCurrentFeedsResponse) Size() (n int) {
 	_ = l
 	l = m.CurrentFeeds.Size()
 	n += 1 + l + sovQuery(uint64(l))
-	return n
-}
-
-func (m *QueryCurrentPricesRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if len(m.SignalIds) > 0 {
-		for _, s := range m.SignalIds {
-			l = len(s)
-			n += 1 + l + sovQuery(uint64(l))
-		}
-	}
-	return n
-}
-
-func (m *QueryCurrentPricesResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if len(m.Prices) > 0 {
-		for _, e := range m.Prices {
-			l = e.Size()
-			n += 1 + l + sovQuery(uint64(l))
-		}
-	}
-	return n
-}
-
-func (m *QueryVoteRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Voter)
-	if l > 0 {
-		n += 1 + l + sovQuery(uint64(l))
-	}
-	return n
-}
-
-func (m *QueryVoteResponse) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if len(m.Signals) > 0 {
-		for _, e := range m.Signals {
-			l = e.Size()
-			n += 1 + l + sovQuery(uint64(l))
-		}
-	}
 	return n
 }
 
@@ -2927,145 +2455,39 @@ func (m *QueryValidatorPricesResponse) Size() (n int) {
 	return n
 }
 
+func (m *QueryVoteRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.Voter)
+	if l > 0 {
+		n += 1 + l + sovQuery(uint64(l))
+	}
+	return n
+}
+
+func (m *QueryVoteResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Signals) > 0 {
+		for _, e := range m.Signals {
+			l = e.Size()
+			n += 1 + l + sovQuery(uint64(l))
+		}
+	}
+	return n
+}
+
 func sovQuery(x uint64) (n int) {
 	return (math_bits.Len64(x|1) + 6) / 7
 }
 func sozQuery(x uint64) (n int) {
 	return sovQuery(uint64((x << 1) ^ uint64((int64(x) >> 63))))
-}
-func (m *QueryAllCurrentPricesRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryAllCurrentPricesRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryAllCurrentPricesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryAllCurrentPricesResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryAllCurrentPricesResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryAllCurrentPricesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Prices", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Prices = append(m.Prices, Price{})
-			if err := m.Prices[len(m.Prices)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
 }
 func (m *QueryCurrentFeedsRequest) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
@@ -3176,338 +2598,6 @@ func (m *QueryCurrentFeedsResponse) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if err := m.CurrentFeeds.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryCurrentPricesRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryCurrentPricesRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryCurrentPricesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SignalIds", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.SignalIds = append(m.SignalIds, string(dAtA[iNdEx:postIndex]))
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryCurrentPricesResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryCurrentPricesResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryCurrentPricesResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Prices", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Prices = append(m.Prices, Price{})
-			if err := m.Prices[len(m.Prices)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryVoteRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryVoteRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryVoteRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Voter", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Voter = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipQuery(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *QueryVoteResponse) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowQuery
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: QueryVoteResponse: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: QueryVoteResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Signals", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowQuery
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthQuery
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthQuery
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Signals = append(m.Signals, Signal{})
-			if err := m.Signals[len(m.Signals)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -4949,6 +4039,172 @@ func (m *QueryValidatorPricesResponse) Unmarshal(dAtA []byte) error {
 			}
 			m.ValidatorPrices = append(m.ValidatorPrices, ValidatorPrice{})
 			if err := m.ValidatorPrices[len(m.ValidatorPrices)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryVoteRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryVoteRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryVoteRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Voter", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Voter = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipQuery(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *QueryVoteResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowQuery
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: QueryVoteResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: QueryVoteResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Signals", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowQuery
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthQuery
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthQuery
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Signals = append(m.Signals, Signal{})
+			if err := m.Signals[len(m.Signals)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
