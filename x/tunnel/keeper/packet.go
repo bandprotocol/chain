@@ -75,7 +75,7 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 		}
 
 		producePacketFunc := func(ctx sdk.Context) error {
-			return k.ProducePacket(ctx, id, currentPricesMap, false)
+			return k.ProducePacket(ctx, id, currentPricesMap)
 		}
 
 		// Produce a packet. If error, emits an event.
@@ -94,7 +94,6 @@ func (k Keeper) ProducePacket(
 	ctx sdk.Context,
 	tunnelID uint64,
 	currentPricesMap map[string]feedstypes.Price,
-	sendAll bool,
 ) error {
 	unixNow := ctx.BlockTime().Unix()
 
@@ -109,11 +108,15 @@ func (k Keeper) ProducePacket(
 	}
 
 	// check if the interval has passed
-	isIntervalReached := unixNow >= int64(tunnel.Interval)+latestSignalPrices.LastInterval
-	sendAll = sendAll || isIntervalReached
+	sendAll := unixNow >= int64(tunnel.Interval)+latestSignalPrices.LastInterval
 
 	// generate new signal prices; if no new signal prices, stop the process.
-	newSignalPrices, err := k.GenerateNewSignalPrices(ctx, tunnelID, currentPricesMap, sendAll)
+	newSignalPrices, err := k.GenerateNewSignalPrices(
+		latestSignalPrices,
+		tunnel.GetSignalDeviationMap(),
+		currentPricesMap,
+		sendAll,
+	)
 	if err != nil {
 		return err
 	}
@@ -214,24 +217,11 @@ func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) error {
 // GenerateNewSignalPrices generates new signal prices based on the current prices
 // and signal deviations.
 func (k Keeper) GenerateNewSignalPrices(
-	ctx sdk.Context,
-	tunnelID uint64,
+	latestSignalPrices types.LatestSignalPrices,
+	signalDeviationsMap map[string]types.SignalDeviation,
 	currentFeedsPricesMap map[string]feedstypes.Price,
 	sendAll bool,
 ) ([]types.SignalPrice, error) {
-	// get deviation info from the tunnel
-	tunnel, err := k.GetTunnel(ctx, tunnelID)
-	if err != nil {
-		return nil, err
-	}
-	signalDeviations := tunnel.GetSignalDeviationMap()
-
-	// get latest signal prices
-	latestSignalPrices, err := k.GetLatestSignalPrices(ctx, tunnelID)
-	if err != nil {
-		return nil, err
-	}
-
 	shouldSend := false
 	newSignalPrices := make([]types.SignalPrice, 0)
 	for _, sp := range latestSignalPrices.SignalPrices {
@@ -246,7 +236,7 @@ func (k Keeper) GenerateNewSignalPrices(
 		newPrice := sdkmath.NewIntFromUint64(price)
 
 		// get hard/soft deviation, panic if not found; should not happen.
-		sd, ok := signalDeviations[sp.SignalID]
+		sd, ok := signalDeviationsMap[sp.SignalID]
 		if !ok {
 			panic(fmt.Sprintf("deviation not found for signal ID: %s", sp.SignalID))
 		}
