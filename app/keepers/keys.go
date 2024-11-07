@@ -32,6 +32,7 @@ import (
 	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 	rollingseedtypes "github.com/bandprotocol/chain/v3/x/rollingseed/types"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
+	tunneltypes "github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
@@ -65,6 +66,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		bandtsstypes.StoreKey,
 		tsstypes.StoreKey,
 		rollingseedtypes.StoreKey,
+		tunneltypes.StoreKey,
 	)
 
 	// Define transient store keys

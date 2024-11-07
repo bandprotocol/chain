@@ -57,6 +57,8 @@ import (
 	rollingseedtypes "github.com/bandprotocol/chain/v3/x/rollingseed/types"
 	"github.com/bandprotocol/chain/v3/x/tss"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel"
+	tunneltypes "github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 // GenesisState defines a type alias for the Band genesis application state.
@@ -131,6 +133,7 @@ func NewDefaultGenesisState(cdc codec.Codec) GenesisState {
 		tsstypes.ModuleName:          tss.AppModuleBasic{}.DefaultGenesis(cdc),
 		bandtsstypes.ModuleName:      bandtss.AppModuleBasic{}.DefaultGenesis(cdc),
 		feedstypes.ModuleName:        feeds.AppModuleBasic{}.DefaultGenesis(cdc),
+		tunneltypes.ModuleName:       tunnel.AppModuleBasic{}.DefaultGenesis(cdc),
 		globalfeetypes.ModuleName:    cdc.MustMarshalJSON(globalfeeGenesis),
 		restaketypes.ModuleName:      restake.AppModuleBasic{}.DefaultGenesis(cdc),
 	}

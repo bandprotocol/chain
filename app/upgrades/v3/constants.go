@@ -26,6 +26,7 @@ import (
 	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 	rollingseedtypes "github.com/bandprotocol/chain/v3/x/rollingseed/types"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
+	tunneltypes "github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 const UpgradeName = "v3"
@@ -45,6 +46,7 @@ var Upgrade = upgrades.Upgrade{
 			rollingseedtypes.StoreKey,
 			bandtsstypes.StoreKey,
 			tsstypes.StoreKey,
+			tunneltypes.StoreKey,
 		},
 	},
 }

@@ -1,0 +1,25 @@
+syntax = "proto3";
+package band.tunnel.v1beta1;
+
+option go_package = "github.com/bandprotocol/chain/v3/x/tunnel/types";
+
+import "gogoproto/gogo.proto";
+
+import "band/tunnel/v1beta1/params.proto";
+import "band/tunnel/v1beta1/tunnel.proto";
+
+// GenesisState represents the initial state of the blockchain.
+message GenesisState {
+  // params is all parameters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+  // tunnel_count is the number of tunnels.
+  uint64 tunnel_count = 2;
+  // tunnels is the list of tunnels.
+  repeated Tunnel tunnels = 3 [(gogoproto.nullable) = false];
+  // latest_signal_prices_list is the list of latest signal prices.
+  repeated LatestSignalPrices latest_signal_prices_list = 4 [(gogoproto.nullable) = false];
+  // deposits is the list of deposits.
+  repeated Deposit deposits = 5 [(gogoproto.nullable) = false];
+  // total_fees is the type for the total fees collected by the tunnel
+  TotalFees total_fees = 6 [(gogoproto.nullable) = false];
+}

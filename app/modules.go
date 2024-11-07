@@ -69,6 +69,8 @@ import (
 	rollingseedtypes "github.com/bandprotocol/chain/v3/x/rollingseed/types"
 	"github.com/bandprotocol/chain/v3/x/tss"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel"
+	tunneltypes "github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 var maccPerms = map[string][]string{
@@ -83,6 +85,7 @@ var maccPerms = map[string][]string{
 	ibcfeetypes.ModuleName:         nil,
 	bandtsstypes.ModuleName:        nil,
 	restaketypes.ModuleName:        nil,
+	tunneltypes.ModuleName:         nil,
 }
 
 func appModules(
@@ -173,6 +176,7 @@ func appModules(
 			oracleclient.OracleRequestSignatureHandler,
 			feedsclient.FeedsRequestSignatureHandler,
 		),
+		tunnel.NewAppModule(appCodec, app.TunnelKeeper),
 	}
 }
 
@@ -278,6 +282,7 @@ func orderBeginBlockers() []string {
 		bandtsstypes.ModuleName,
 		restaketypes.ModuleName,
 		feedstypes.ModuleName,
+		tunneltypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -320,6 +325,7 @@ func orderEndBlockers() []string {
 		bandtsstypes.ModuleName,
 		restaketypes.ModuleName,
 		feedstypes.ModuleName,
+		tunneltypes.ModuleName,
 		ibcexported.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
@@ -382,5 +388,6 @@ func orderInitBlockers() []string {
 		globalfeetypes.ModuleName,
 		restaketypes.ModuleName,
 		feedstypes.ModuleName,
+		tunneltypes.ModuleName,
 	}
 }
