@@ -129,12 +129,12 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 		h.handleMsgRevoke(msg, detail)
 	case *authz.MsgExec:
 		h.handleMsgExec(ctx, txHash, msg, events, detail)
-	case *feedstypes.MsgSubmitSignals:
-		h.handleMsgSubmitSignals(ctx, msg, evMap)
+	case *feedstypes.MsgVote:
+		h.handleFeedsMsgVote(ctx, msg, evMap)
 	case *feedstypes.MsgSubmitSignalPrices:
-		h.handleMsgSubmitSignalPrices(ctx, txHash, msg, "")
+		h.handleFeedsMsgSubmitSignalPrices(ctx, txHash, msg, "")
 	case *feedstypes.MsgUpdateReferenceSourceConfig:
-		h.handleMsgUpdateReferenceSourceConfig(ctx, msg)
+		h.handleFeedsMsgUpdateReferenceSourceConfig(ctx, msg)
 	case *group.MsgCreateGroup:
 		h.handleGroupMsgCreateGroup(ctx, evMap)
 	case *group.MsgCreateGroupPolicy:

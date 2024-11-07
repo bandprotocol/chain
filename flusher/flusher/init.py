@@ -288,25 +288,25 @@ SELECT
     p.price,
     p.timestamp
 FROM
-    historical_prices p
+    feeds_historical_prices p
 WHERE
     p.timestamp = (
         SELECT
             MAX(timestamp)
         FROM
-            historical_prices
+            feeds_historical_prices
     );
     """
     )
 
     engine.execute(
         """
-CREATE VIEW delegator_power_aggregate AS
+CREATE VIEW voter_power_aggregate AS
 SELECT 
     account_id,
     COALESCE(SUM(power), 0) AS total_power
 FROM 
-    delegator_signals
+    feeds_voter_signals
 GROUP BY 
     account_id;
     """

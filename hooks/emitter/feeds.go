@@ -7,35 +7,35 @@ import (
 	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
-func (h *Hook) emitSetSignalTotalPower(stp types.Signal) {
+func (h *Hook) emitSetFeedsSignalTotalPower(stp types.Signal) {
 	h.Write("SET_SIGNAL_TOTAL_POWER", common.JsDict{
 		"signal_id": stp.ID,
 		"power":     stp.Power,
 	})
 }
 
-func (h *Hook) emitRemoveSignalTotalPower(signalID string) {
+func (h *Hook) emitRemoveFeedsSignalTotalPower(signalID string) {
 	h.Write("REMOVE_SIGNAL_TOTAL_POWER", common.JsDict{
 		"signal_id": signalID,
 	})
 }
 
-func (h *Hook) emitRemoveDelegatorSignals(delegator string) {
-	h.Write("REMOVE_DELEGATOR_SIGNALS", common.JsDict{
-		"delegator": delegator,
-	})
-}
-
-func (h *Hook) emitSetDelegatorSignal(ctx sdk.Context, delegator string, signal types.Signal) {
-	h.Write("SET_DELEGATOR_SIGNAL", common.JsDict{
-		"delegator": delegator,
+func (h *Hook) emitSetFeedsVoterSignal(ctx sdk.Context, voter string, signal types.Signal) {
+	h.Write("SET_VOTER_SIGNAL", common.JsDict{
+		"voter":     voter,
 		"signal_id": signal.ID,
 		"power":     signal.Power,
 		"timestamp": ctx.BlockTime().UnixNano(),
 	})
 }
 
-func (h *Hook) emitSetSignalPricesTx(ctx sdk.Context, txHash []byte, validator string, feeder string) {
+func (h *Hook) emitRemoveFeedsVoterSignals(voter string) {
+	h.Write("REMOVE_VOTER_SIGNALS", common.JsDict{
+		"voter": voter,
+	})
+}
+
+func (h *Hook) emitSetFeedsSignalPricesTx(ctx sdk.Context, txHash []byte, validator string, feeder string) {
 	h.Write("SET_SIGNAL_PRICES_TX", common.JsDict{
 		"tx_hash":   txHash,
 		"validator": validator,
@@ -44,7 +44,7 @@ func (h *Hook) emitSetSignalPricesTx(ctx sdk.Context, txHash []byte, validator s
 	})
 }
 
-func (h *Hook) emitSetValidatorPrices(ctx sdk.Context, validator string, prices []types.SignalPrice) {
+func (h *Hook) emitSetFeedsValidatorPrices(ctx sdk.Context, validator string, prices []types.SignalPrice) {
 	h.Write("SET_VALIDATOR_PRICES", common.JsDict{
 		"validator": validator,
 		"prices":    prices,
@@ -52,14 +52,14 @@ func (h *Hook) emitSetValidatorPrices(ctx sdk.Context, validator string, prices 
 	})
 }
 
-func (h *Hook) emitSetPrices(ctx sdk.Context, prices []types.Price) {
+func (h *Hook) emitSetFeedsPrices(ctx sdk.Context, prices []types.Price) {
 	h.Write("SET_PRICES", common.JsDict{
 		"prices":    prices,
 		"timestamp": ctx.BlockTime().UnixNano(),
 	})
 }
 
-func (h *Hook) emitSetReferenceSourceConfig(ctx sdk.Context, rsc types.ReferenceSourceConfig) {
+func (h *Hook) emitSetFeedsReferenceSourceConfig(ctx sdk.Context, rsc types.ReferenceSourceConfig) {
 	h.Write("SET_REFERENCE_SOURCE_CONFIG", common.JsDict{
 		"registry_ipfs_hash": rsc.RegistryIPFSHash,
 		"registry_version":   rsc.RegistryVersion,
@@ -67,11 +67,11 @@ func (h *Hook) emitSetReferenceSourceConfig(ctx sdk.Context, rsc types.Reference
 	})
 }
 
-// handleMsgSubmitSignals implements emitter handler for MsgSubmitSignals.
-func (h *Hook) handleMsgSubmitSignals(
-	ctx sdk.Context, msg *types.MsgSubmitSignals, evMap common.EvMap,
+// handleMsgVote implements emitter handler for MsgVote.
+func (h *Hook) handleFeedsMsgVote(
+	ctx sdk.Context, msg *types.MsgVote, evMap common.EvMap,
 ) {
-	h.emitRemoveDelegatorSignals(msg.Delegator)
+	h.emitRemoveFeedsVoterSignals(msg.Voter)
 
 	updatedSignalIDs := evMap[types.EventTypeUpdateSignalTotalPower+"."+types.AttributeKeySignalID]
 	deletedSignalIDs := evMap[types.EventTypeDeleteSignalTotalPower+"."+types.AttributeKeySignalID]
@@ -79,23 +79,23 @@ func (h *Hook) handleMsgSubmitSignals(
 	for _, signalID := range updatedSignalIDs {
 		stp, err := h.feedsKeeper.GetSignalTotalPower(ctx, signalID)
 		if err != nil {
-			h.emitRemoveSignalTotalPower(signalID)
+			h.emitRemoveFeedsSignalTotalPower(signalID)
 		} else {
-			h.emitSetSignalTotalPower(stp)
+			h.emitSetFeedsSignalTotalPower(stp)
 		}
 	}
 
 	for _, signalID := range deletedSignalIDs {
-		h.emitRemoveSignalTotalPower(signalID)
+		h.emitRemoveFeedsSignalTotalPower(signalID)
 	}
 
 	for _, signal := range msg.Signals {
-		h.emitSetDelegatorSignal(ctx, msg.Delegator, signal)
+		h.emitSetFeedsVoterSignal(ctx, msg.Voter, signal)
 	}
 }
 
 // handleMsgSubmitSignalPrices implements emitter handler for MsgSubmitSignalPrices.
-func (h *Hook) handleMsgSubmitSignalPrices(
+func (h *Hook) handleFeedsMsgSubmitSignalPrices(
 	ctx sdk.Context,
 	txHash []byte,
 	msg *types.MsgSubmitSignalPrices,
@@ -105,13 +105,13 @@ func (h *Hook) handleMsgSubmitSignalPrices(
 		feeder = msg.Validator
 	}
 
-	h.emitSetSignalPricesTx(ctx, txHash, msg.Validator, feeder)
-	h.emitSetValidatorPrices(ctx, msg.Validator, msg.Prices)
+	h.emitSetFeedsSignalPricesTx(ctx, txHash, msg.Validator, feeder)
+	h.emitSetFeedsValidatorPrices(ctx, msg.Validator, msg.Prices)
 }
 
 // handleMsgUpdateReferenceSourceConfig implements emitter handler for MsgUpdateReferenceSourceConfig.
-func (h *Hook) handleMsgUpdateReferenceSourceConfig(
+func (h *Hook) handleFeedsMsgUpdateReferenceSourceConfig(
 	ctx sdk.Context, msg *types.MsgUpdateReferenceSourceConfig,
 ) {
-	h.emitSetReferenceSourceConfig(ctx, msg.ReferenceSourceConfig)
+	h.emitSetFeedsReferenceSourceConfig(ctx, msg.ReferenceSourceConfig)
 }

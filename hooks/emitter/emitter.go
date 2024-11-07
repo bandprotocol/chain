@@ -315,15 +315,15 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *
 	// Feeds module
 	var feedsState feedstypes.GenesisState
 	h.cdc.MustUnmarshalJSON(genesisState[feedstypes.ModuleName], &feedsState)
-	for _, delegatorSignal := range feedsState.DelegatorSignals {
-		for _, signal := range delegatorSignal.Signals {
-			h.emitSetDelegatorSignal(ctx, delegatorSignal.Delegator, signal)
+	for _, vote := range feedsState.Votes {
+		for _, signal := range vote.Signals {
+			h.emitSetFeedsVoterSignal(ctx, vote.Voter, signal)
 		}
 	}
 
 	signalTotalPowers := h.feedsKeeper.CalculateNewSignalTotalPowers(ctx)
 	for _, stp := range signalTotalPowers {
-		h.emitSetSignalTotalPower(stp)
+		h.emitSetFeedsSignalTotalPower(stp)
 	}
 
 	// Restake module
@@ -498,7 +498,7 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, events []abci.Event) {
 	// Emit all new current prices at every endblock.
 	prices := h.feedsKeeper.GetAllCurrentPrices(ctx)
 	if len(prices) > 0 {
-		h.emitSetPrices(ctx, prices)
+		h.emitSetFeedsPrices(ctx, prices)
 	}
 
 	// Update balances of all affected accounts on this block.

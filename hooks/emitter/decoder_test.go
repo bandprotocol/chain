@@ -916,7 +916,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgTimeoutOnClose() {
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeMsgSubmitPrices() {
+func (suite *DecoderTestSuite) TestDecodeFeedsMsgSubmitPrices() {
 	detail := make(common.JsDict)
 
 	msg := feedstypes.MsgSubmitSignalPrices{
@@ -936,18 +936,18 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitPrices() {
 		},
 	}
 
-	emitter.DecodeMsgSubmitSignalPrices(&msg, detail)
+	emitter.DecodeFeedsMsgSubmitSignalPrices(&msg, detail)
 	suite.testCompareJson(
 		detail,
 		"{\"prices\":[{\"price_status\":3,\"signal_id\":\"CS:ETH-USD\",\"price\":3500000000000},{\"price_status\":2,\"signal_id\":\"CS:BTC-USD\"}],\"timestamp\":12345678,\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeMsgSubmitSignals() {
+func (suite *DecoderTestSuite) TestDecodeFeedsMsgSubmitSignals() {
 	detail := make(common.JsDict)
 
-	msg := feedstypes.MsgSubmitSignals{
-		Delegator: DelegatorAddress.String(),
+	msg := feedstypes.MsgVote{
+		Voter: DelegatorAddress.String(),
 		Signals: []feedstypes.Signal{
 			{
 				ID:    "crypto_price.btcusd",
@@ -960,14 +960,14 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitSignals() {
 		},
 	}
 
-	emitter.DecodeMsgSubmitSignals(&msg, detail)
+	emitter.DecodeFeedsMsgVote(&msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"delegator\":\"band1g3jkcet8v96x7usqqqqqqqqqqqqqqqqqus6d5g\",\"signals\":[{\"id\":\"crypto_price.btcusd\",\"power\":30000000000},{\"id\":\"crypto_price.ethusd\",\"power\":60000000000}]}",
+		"{\"signals\":[{\"id\":\"crypto_price.btcusd\",\"power\":30000000000},{\"id\":\"crypto_price.ethusd\",\"power\":60000000000}],\"voter\":\"band1g3jkcet8v96x7usqqqqqqqqqqqqqqqqqus6d5g\"}",
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeMsgUpdatePriceService() {
+func (suite *DecoderTestSuite) TestDecodeFeedsMsgUpdatePriceService() {
 	detail := make(common.JsDict)
 
 	msg := feedstypes.MsgUpdateReferenceSourceConfig{
@@ -975,14 +975,14 @@ func (suite *DecoderTestSuite) TestDecodeMsgUpdatePriceService() {
 		ReferenceSourceConfig: feedstypes.NewReferenceSourceConfig("testhash", "1.0.0"),
 	}
 
-	emitter.DecodeMsgUpdateReferenceSourceConfig(&msg, detail)
+	emitter.DecodeFeedsMsgUpdateReferenceSourceConfig(&msg, detail)
 	suite.testCompareJson(
 		detail,
 		"{\"registry_ipfs_hash\":\"testhash\",\"registry_version\":\"1.0.0\"}",
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeMsgUpdateParams() {
+func (suite *DecoderTestSuite) TestDecodeFeedsMsgUpdateParams() {
 	detail := make(common.JsDict)
 
 	msg := feedstypes.MsgUpdateParams{
@@ -1001,7 +1001,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgUpdateParams() {
 		},
 	}
 
-	emitter.DecodeMsgUpdateParams(&msg, detail)
+	emitter.DecodeFeedsMsgUpdateParams(&msg, detail)
 	suite.testCompareJson(
 		detail,
 		"{\"admin\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"allowable_block_time_discrepancy\":30,\"authority\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"cooldown_time\":30,\"current_feeds_update_interval\":0,\"grace_period\":30,\"max_current_feeds\":100,\"max_deviation_basis_point\":3000,\"max_interval\":3600,\"min_deviation_basis_point\":50,\"min_interval\":60,\"power_step_threshold\":1000000000}",
