@@ -114,7 +114,7 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 	}
 
 	// mock setup bandtss module
-	app.BandtssKeeper.SetCurrentGroupID(ctx, 1)
+	app.BandtssKeeper.SetCurrentGroup(ctx, bandtsstypes.NewCurrentGroup(1, ctx.BlockTime()))
 	app.BandtssKeeper.SetMember(ctx, bandtsstypes.Member{
 		Address:  bandtesting.Validators[0].Address.String(),
 		IsActive: true,
@@ -145,7 +145,7 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 		&app.GlobalFeeKeeper,
 		app.StakingKeeper,
 		app.TSSKeeper,
-		app.BandtssKeeper,
+		&app.BandtssKeeper,
 		&app.FeedsKeeper,
 	)
 }
@@ -203,7 +203,10 @@ func (suite *FeeCheckerTestSuite) TestNoAuthzReport() {
 		oracletypes.NewMsgReportData(suite.requestID, []oracletypes.RawReport{}, bandtesting.Validators[0].ValAddress),
 	}
 	authzMsg := authz.NewMsgExec(bandtesting.Bob.Address, reportMsgs)
-	stubTx := &StubTx{Msgs: []sdk.Msg{&authzMsg}, GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1)))}
+	stubTx := &StubTx{
+		Msgs:      []sdk.Msg{&authzMsg},
+		GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))),
+	}
 
 	// test - check bypass min fee
 	isBypassMinFeeMsg := suite.FeeChecker.IsBypassMinFeeMsg(suite.ctx, &authzMsg)
@@ -291,7 +294,10 @@ func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameAuthzMsg
 	)
 	msgs := []sdk.Msg{reportMsg, requestMsg}
 	authzMsg := authz.NewMsgExec(bandtesting.Alice.Address, msgs)
-	stubTx := &StubTx{Msgs: []sdk.Msg{&authzMsg}, GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1)))}
+	stubTx := &StubTx{
+		Msgs:      []sdk.Msg{&authzMsg},
+		GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))),
+	}
 
 	// test - check bypass min fee
 	isBypassMinFeeMsg := suite.FeeChecker.IsBypassMinFeeMsg(suite.ctx, &authzMsg)

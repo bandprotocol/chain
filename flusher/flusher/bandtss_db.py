@@ -92,8 +92,7 @@ bandtss_members = sa.Table(
     ),
     Column("account_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
     Column("is_active", sa.Boolean),
-    Column("penalty_since", CustomDateTime, nullable=True),
-    Column("last_active", CustomDateTime, nullable=True),
+    Column("since", CustomDateTime, nullable=True),
 )
 
 bandtss_signings = sa.Table(

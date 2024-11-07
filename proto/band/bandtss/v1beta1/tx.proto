@@ -22,9 +22,6 @@ service Msg {
   // Activate activates the status of the sender.
   rpc Activate(MsgActivate) returns (MsgActivateResponse);
 
-  // Heartbeat marks last active of the sender.
-  rpc Heartbeat(MsgHeartbeat) returns (MsgHeartbeatResponse);
-
   // UpdateParams updates the x/bandtss parameters.
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 
@@ -70,21 +67,6 @@ message MsgActivate {
 
 // MsgActivateResponse is response data for MsgActivate message
 message MsgActivateResponse {}
-
-// MsgHeartbeat is a message used to show if the address is still active.
-message MsgHeartbeat {
-  option (cosmos.msg.v1.signer) = "sender";
-  option (amino.name)           = "bandtss/MsgHeartbeat";
-
-  // address is the signer of this message, who must be a member of the group.
-  string sender = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
-  // group_id is the group id of the member.
-  uint64 group_id = 2
-      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.GroupID"];
-}
-
-// MsgHeartbeatResponse is response data for MsgHeartbeat message
-message MsgHeartbeatResponse {}
 
 // MsgUpdateParams is the Msg/UpdateParams request type.
 message MsgUpdateParams {

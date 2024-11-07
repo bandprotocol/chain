@@ -35,7 +35,7 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 		{
 			name: "test success with only current group",
 			preProcess: func(s *KeeperTestSuite) {
-				s.keeper.SetCurrentGroupID(s.ctx, currentGroupID)
+				s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(currentGroupID, s.ctx.BlockTime()))
 
 				s.tssKeeper.EXPECT().GetGroup(gomock.Any(), currentGroupID).
 					Return(currentGroup, nil).
@@ -82,7 +82,7 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 					IncomingGroupID: incomingGroupID,
 				}
 				s.keeper.SetGroupTransition(s.ctx, transition)
-				s.keeper.SetCurrentGroupID(s.ctx, currentGroupID)
+				s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(currentGroupID, s.ctx.BlockTime()))
 
 				s.tssKeeper.EXPECT().GetGroup(gomock.Any(), currentGroupID).
 					Return(currentGroup, nil).
@@ -133,7 +133,7 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 					IncomingGroupID: incomingGroupID,
 				}
 				s.keeper.SetGroupTransition(s.ctx, transition)
-				s.keeper.SetCurrentGroupID(s.ctx, currentGroupID)
+				s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(currentGroupID, s.ctx.BlockTime()))
 
 				s.tssKeeper.EXPECT().GetGroup(gomock.Any(), currentGroupID).
 					Return(currentGroup, nil).
@@ -222,7 +222,7 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 				params.Fee = sdk.NewCoins(sdk.NewInt64Coin("uband", 100))
 				err := s.keeper.SetParams(s.ctx, params)
 				s.Require().NoError(err)
-				s.keeper.SetCurrentGroupID(s.ctx, currentGroupID)
+				s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(currentGroupID, s.ctx.BlockTime()))
 
 				s.tssKeeper.EXPECT().GetGroup(gomock.Any(), currentGroupID).
 					Return(currentGroup, nil).
@@ -260,7 +260,7 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequestWithAuthority() {
 	currentGID := tss.GroupID(1)
 	content := &tsstypes.TextSignatureOrder{Message: []byte("test")}
 
-	s.keeper.SetCurrentGroupID(s.ctx, currentGID)
+	s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(currentGID, s.ctx.BlockTime()))
 	s.tssKeeper.EXPECT().RequestSigning(
 		gomock.Any(),
 		currentGID,

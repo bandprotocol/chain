@@ -113,7 +113,7 @@ type AppKeepers struct {
 	RollingseedKeeper     rollingseedkeeper.Keeper
 	OracleKeeper          oraclekeeper.Keeper
 	TSSKeeper             *tsskeeper.Keeper
-	BandtssKeeper         *bandtsskeeper.Keeper
+	BandtssKeeper         bandtsskeeper.Keeper
 	FeedsKeeper           feedskeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	GlobalFeeKeeper       globalfeekeeper.Keeper
@@ -450,7 +450,6 @@ func NewAppKeeper(
 	appKeepers.BandtssKeeper = bandtsskeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[bandtsstypes.StoreKey],
-		appKeepers.AuthzKeeper,
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		appKeepers.DistrKeeper,

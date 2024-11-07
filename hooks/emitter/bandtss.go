@@ -63,11 +63,10 @@ func (h *Hook) emitSetBandtssCurrentGroup(gid tss.GroupID, transitionHeight int6
 
 func (h *Hook) emitSetBandtssMember(member types.Member) {
 	h.Write("SET_BANDTSS_MEMBER", common.JsDict{
-		"address":       member.Address,
-		"tss_group_id":  member.GroupID,
-		"is_active":     member.IsActive,
-		"penalty_since": member.Since.UnixNano(),
-		"last_active":   member.LastActive.UnixNano(),
+		"address":      member.Address,
+		"tss_group_id": member.GroupID,
+		"is_active":    member.IsActive,
+		"since":        member.Since.UnixNano(),
 	})
 }
 
@@ -83,7 +82,7 @@ func (h *Hook) emitSetBandtssSigning(signing types.Signing) {
 
 // handleInitBandTSSModule implements emitter handler for init bandtss module.
 func (h *Hook) handleInitBandtssModule(ctx sdk.Context) {
-	currentGroupID := h.bandtssKeeper.GetCurrentGroupID(ctx)
+	currentGroupID := h.bandtssKeeper.GetCurrentGroup(ctx).GroupID
 	if currentGroupID != 0 {
 		h.emitSetBandtssCurrentGroup(currentGroupID, ctx.BlockHeight())
 	}
@@ -105,16 +104,6 @@ func (h *Hook) handleBandtssUpdateMember(ctx sdk.Context, address sdk.AccAddress
 
 // handleBandtssMsgActivate implements emitter handler for MsgActivate of bandtss.
 func (h *Hook) handleBandtssMsgActivate(ctx sdk.Context, msg *types.MsgActivate) {
-	acc, err := sdk.AccAddressFromBech32(msg.Sender)
-	if err != nil {
-		panic(err)
-	}
-
-	h.handleBandtssUpdateMember(ctx, acc, msg.GroupID)
-}
-
-// handleBandtssMsgHeartbeat implements emitter handler for MsgHeartbeat of bandtss.
-func (h *Hook) handleBandtssMsgHeartbeat(ctx sdk.Context, msg *types.MsgHeartbeat) {
 	acc, err := sdk.AccAddressFromBech32(msg.Sender)
 	if err != nil {
 		panic(err)

@@ -22,8 +22,8 @@ class CustomPriceStatus(sa.types.TypeDecorator):
     def process_bind_param(self, value, dialect):
         return PriceStatus(value)
 
-signal_prices_txs = sa.Table(
-    "signal_prices_txs",
+feeds_signal_prices_txs = sa.Table(
+    "feeds_signal_prices_txs",
     metadata,
     Column("transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), primary_key=True),
     Column("validator_id", sa.Integer, sa.ForeignKey("validators.id"), primary_key=True),
@@ -33,8 +33,8 @@ signal_prices_txs = sa.Table(
     sa.Index("ix_validator_id_timestamp", "validator_id", "timestamp"),
 )
 
-validator_prices = sa.Table(
-    "validator_prices",
+feeds_validator_prices = sa.Table(
+    "feeds_validator_prices",
     metadata,
     Column("validator_id", sa.Integer, sa.ForeignKey("validators.id"), primary_key=True),
     Column("signal_id", sa.String, primary_key=True),
@@ -43,8 +43,8 @@ validator_prices = sa.Table(
     Column("timestamp", CustomDateTime, index=True),
 )
 
-delegator_signals = sa.Table(
-    "delegator_signals",
+feeds_voter_signals = sa.Table(
+    "feeds_voter_signals",
     metadata,
     Column("account_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
     Column("signal_id", sa.String, primary_key=True),
@@ -52,15 +52,15 @@ delegator_signals = sa.Table(
     Column("timestamp", CustomDateTime, index=True),
 )
 
-signal_total_powers = sa.Table(
-    "signal_total_powers",
+feeds_signal_total_powers = sa.Table(
+    "feeds_signal_total_powers",
     metadata,
     Column("signal_id", sa.String, primary_key=True),
     Column("power", sa.BigInteger, index=True),
 )
 
-historical_prices = sa.Table(
-    "historical_prices",
+feeds_historical_prices = sa.Table(
+    "feeds_historical_prices",
     metadata,
     Column("signal_id", sa.String, primary_key=True),
     Column("timestamp", CustomDateTime, primary_key=True, index=True),
@@ -68,16 +68,16 @@ historical_prices = sa.Table(
     Column("price", sa.BigInteger),
 )
 
-reference_source_configs = sa.Table(
-    "reference_source_configs",
+feeds_reference_source_configs = sa.Table(
+    "feeds_reference_source_configs",
     metadata,
     Column("registry_ipfs_hash", sa.String),
     Column("registry_version", sa.String),
     Column("timestamp", CustomDateTime, primary_key=True, index=True),
 )
 
-feeders = sa.Table(
-    "feeders",
+feeds_feeders = sa.Table(
+    "feeds_feeders",
     metadata,
     Column("feeder_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
     Column("operator_address", sa.String, primary_key=True, index=True),

@@ -12,71 +12,16 @@ package testutil
 import (
 	context "context"
 	reflect "reflect"
-	time "time"
 
 	collections "cosmossdk.io/collections"
 	math "cosmossdk.io/math"
 	tss "github.com/bandprotocol/chain/v3/pkg/tss"
 	types "github.com/bandprotocol/chain/v3/x/tss/types"
 	types0 "github.com/cosmos/cosmos-sdk/types"
-	authz "github.com/cosmos/cosmos-sdk/x/authz"
 	types1 "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	types2 "github.com/cosmos/cosmos-sdk/x/staking/types"
 	gomock "go.uber.org/mock/gomock"
 )
-
-// MockAuthzKeeper is a mock of AuthzKeeper interface.
-type MockAuthzKeeper struct {
-	ctrl     *gomock.Controller
-	recorder *MockAuthzKeeperMockRecorder
-	isgomock struct{}
-}
-
-// MockAuthzKeeperMockRecorder is the mock recorder for MockAuthzKeeper.
-type MockAuthzKeeperMockRecorder struct {
-	mock *MockAuthzKeeper
-}
-
-// NewMockAuthzKeeper creates a new mock instance.
-func NewMockAuthzKeeper(ctrl *gomock.Controller) *MockAuthzKeeper {
-	mock := &MockAuthzKeeper{ctrl: ctrl}
-	mock.recorder = &MockAuthzKeeperMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockAuthzKeeper) EXPECT() *MockAuthzKeeperMockRecorder {
-	return m.recorder
-}
-
-// GetAuthorization mocks base method.
-func (m *MockAuthzKeeper) GetAuthorization(ctx context.Context, grantee, granter types0.AccAddress, msgType string) (authz.Authorization, *time.Time) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAuthorization", ctx, grantee, granter, msgType)
-	ret0, _ := ret[0].(authz.Authorization)
-	ret1, _ := ret[1].(*time.Time)
-	return ret0, ret1
-}
-
-// GetAuthorization indicates an expected call of GetAuthorization.
-func (mr *MockAuthzKeeperMockRecorder) GetAuthorization(ctx, grantee, granter, msgType any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAuthorization", reflect.TypeOf((*MockAuthzKeeper)(nil).GetAuthorization), ctx, grantee, granter, msgType)
-}
-
-// SaveGrant mocks base method.
-func (m *MockAuthzKeeper) SaveGrant(ctx context.Context, grantee, granter types0.AccAddress, authorization authz.Authorization, expiration *time.Time) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SaveGrant", ctx, grantee, granter, authorization, expiration)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// SaveGrant indicates an expected call of SaveGrant.
-func (mr *MockAuthzKeeperMockRecorder) SaveGrant(ctx, grantee, granter, authorization, expiration any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveGrant", reflect.TypeOf((*MockAuthzKeeper)(nil).SaveGrant), ctx, grantee, granter, authorization, expiration)
-}
 
 // MockAccountKeeper is a mock of AccountKeeper interface.
 type MockAccountKeeper struct {

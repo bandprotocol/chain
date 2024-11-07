@@ -130,13 +130,13 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 	case *feegranttypes.MsgRevokeAllowance:
 		DecodeMsgRevokeAllowance(msg, detail)
 	case *feedstypes.MsgSubmitSignalPrices:
-		DecodeMsgSubmitSignalPrices(msg, detail)
-	case *feedstypes.MsgSubmitSignals:
-		DecodeMsgSubmitSignals(msg, detail)
+		DecodeFeedsMsgSubmitSignalPrices(msg, detail)
+	case *feedstypes.MsgVote:
+		DecodeFeedsMsgVote(msg, detail)
 	case *feedstypes.MsgUpdateReferenceSourceConfig:
-		DecodeMsgUpdateReferenceSourceConfig(msg, detail)
+		DecodeFeedsMsgUpdateReferenceSourceConfig(msg, detail)
 	case *feedstypes.MsgUpdateParams:
-		DecodeMsgUpdateParams(msg, detail)
+		DecodeFeedsMsgUpdateParams(msg, detail)
 	case *bandtsstypes.MsgTransitionGroup:
 		DecodeBandtssMsgTransitionGroup(msg, detail)
 	case *bandtsstypes.MsgForceTransitionGroup:
@@ -145,8 +145,6 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeBandtssMsgRequestSignature(msg, detail)
 	case *bandtsstypes.MsgActivate:
 		DecodeBandtssMsgActivate(msg, detail)
-	case *bandtsstypes.MsgHeartbeat:
-		DecodeBandtssMsgHeartbeat(msg, detail)
 	case *bandtsstypes.MsgUpdateParams:
 		DecodeBandtssMsgUpdateParams(msg, detail)
 	case *tsstypes.MsgSubmitDKGRound1:
@@ -699,24 +697,24 @@ func DecodeDescription(des stakingtypes.Description) common.JsDict {
 	}
 }
 
-func DecodeMsgSubmitSignalPrices(msg *feedstypes.MsgSubmitSignalPrices, detail common.JsDict) {
+func DecodeFeedsMsgSubmitSignalPrices(msg *feedstypes.MsgSubmitSignalPrices, detail common.JsDict) {
 	detail["validator"] = msg.GetValidator()
 	detail["timestamp"] = msg.GetTimestamp()
 	detail["prices"] = msg.GetPrices()
 }
 
-func DecodeMsgSubmitSignals(msg *feedstypes.MsgSubmitSignals, detail common.JsDict) {
-	detail["delegator"] = msg.GetDelegator()
+func DecodeFeedsMsgVote(msg *feedstypes.MsgVote, detail common.JsDict) {
+	detail["voter"] = msg.GetVoter()
 	detail["signals"] = msg.GetSignals()
 }
 
-func DecodeMsgUpdateReferenceSourceConfig(msg *feedstypes.MsgUpdateReferenceSourceConfig, detail common.JsDict) {
+func DecodeFeedsMsgUpdateReferenceSourceConfig(msg *feedstypes.MsgUpdateReferenceSourceConfig, detail common.JsDict) {
 	rsc := msg.GetReferenceSourceConfig()
 	detail["registry_ipfs_hash"] = rsc.RegistryIPFSHash
 	detail["registry_version"] = rsc.RegistryVersion
 }
 
-func DecodeMsgUpdateParams(msg *feedstypes.MsgUpdateParams, detail common.JsDict) {
+func DecodeFeedsMsgUpdateParams(msg *feedstypes.MsgUpdateParams, detail common.JsDict) {
 	params := msg.GetParams()
 	detail["authority"] = msg.GetAuthority()
 	detail["admin"] = params.GetAdmin()
@@ -757,14 +755,8 @@ func DecodeBandtssMsgActivate(msg *bandtsstypes.MsgActivate, detail common.JsDic
 	detail["group_id"] = msg.GroupID
 }
 
-func DecodeBandtssMsgHeartbeat(msg *bandtsstypes.MsgHeartbeat, detail common.JsDict) {
-	detail["sender"] = msg.Sender
-	detail["group_id"] = msg.GroupID
-}
-
 func DecodeBandtssMsgUpdateParams(msg *bandtsstypes.MsgUpdateParams, detail common.JsDict) {
 	params := msg.GetParams()
-	detail["active_duration"] = params.GetActiveDuration()
 	detail["reward_percentage"] = params.GetRewardPercentage()
 	detail["inactive_penalty_duration"] = params.GetInactivePenaltyDuration()
 	detail["fee"] = params.GetFee()

@@ -5,10 +5,17 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	band "github.com/bandprotocol/chain/v3/app"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/pkg/tss/testutil"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
+
+func init() {
+	band.SetBech32AddressPrefixesAndBip44CoinTypeAndSeal(sdk.GetConfig())
+}
 
 func TestGenesisStateValidate(t *testing.T) {
 	validTssPoint2 := tss.Point(
@@ -16,8 +23,8 @@ func TestGenesisStateValidate(t *testing.T) {
 	)
 
 	validMemberAddrs := []string{
-		"cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8",
-		"cosmos13jt28pf6s8rgjddv8wwj8v3ngrfsccpgsdhjhw",
+		"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+		"band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 	}
 
 	validGroups := []types.Group{
@@ -46,7 +53,7 @@ func TestGenesisStateValidate(t *testing.T) {
 			},
 		},
 		{
-			Address: "cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8",
+			Address: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
 			DE: types.DE{
 				PubD: validTssPoint2,
 				PubE: validTssPoint2,

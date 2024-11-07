@@ -134,17 +134,15 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 		h.handleMsgExec(ctx, txHash, msg, events, detail)
 	case *bandtsstypes.MsgActivate:
 		h.handleBandtssMsgActivate(ctx, msg)
-	case *bandtsstypes.MsgHeartbeat:
-		h.handleBandtssMsgHeartbeat(ctx, msg)
 	case *bandtsstypes.MsgRequestSignature:
 		h.handleTssEventRequestSignature(ctx, evMap)
 		h.handleBandtssEventSigningRequestCreated(ctx, evMap)
-	case *feedstypes.MsgSubmitSignals:
-		h.handleMsgSubmitSignals(ctx, msg, evMap)
+	case *feedstypes.MsgVote:
+		h.handleFeedsMsgVote(ctx, msg, evMap)
 	case *feedstypes.MsgSubmitSignalPrices:
-		h.handleMsgSubmitSignalPrices(ctx, txHash, msg, "")
+		h.handleFeedsMsgSubmitSignalPrices(ctx, txHash, msg, "")
 	case *feedstypes.MsgUpdateReferenceSourceConfig:
-		h.handleMsgUpdateReferenceSourceConfig(ctx, msg)
+		h.handleFeedsMsgUpdateReferenceSourceConfig(ctx, msg)
 	case *group.MsgCreateGroup:
 		h.handleGroupMsgCreateGroup(ctx, evMap)
 	case *group.MsgCreateGroupPolicy:

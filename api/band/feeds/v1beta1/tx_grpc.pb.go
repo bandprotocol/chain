@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Msg_SubmitSignals_FullMethodName               = "/band.feeds.v1beta1.Msg/SubmitSignals"
+	Msg_Vote_FullMethodName                        = "/band.feeds.v1beta1.Msg/Vote"
 	Msg_SubmitSignalPrices_FullMethodName          = "/band.feeds.v1beta1.Msg/SubmitSignalPrices"
 	Msg_UpdateReferenceSourceConfig_FullMethodName = "/band.feeds.v1beta1.Msg/UpdateReferenceSourceConfig"
 	Msg_UpdateParams_FullMethodName                = "/band.feeds.v1beta1.Msg/UpdateParams"
@@ -29,8 +29,8 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MsgClient interface {
-	// SubmitSignals is an RPC method to submit signal ids and their powers.
-	SubmitSignals(ctx context.Context, in *MsgSubmitSignals, opts ...grpc.CallOption) (*MsgSubmitSignalsResponse, error)
+	// Vote is an RPC method to vote signal ids and their powers.
+	Vote(ctx context.Context, in *MsgVote, opts ...grpc.CallOption) (*MsgVoteResponse, error)
 	// SubmitSignalPrices is an RPC method to submit signal prices.
 	SubmitSignalPrices(ctx context.Context, in *MsgSubmitSignalPrices, opts ...grpc.CallOption) (*MsgSubmitSignalPricesResponse, error)
 	// UpdateReferenceSourceConfig is an RPC method to update reference price source configuration.
@@ -47,9 +47,9 @@ func NewMsgClient(cc grpc.ClientConnInterface) MsgClient {
 	return &msgClient{cc}
 }
 
-func (c *msgClient) SubmitSignals(ctx context.Context, in *MsgSubmitSignals, opts ...grpc.CallOption) (*MsgSubmitSignalsResponse, error) {
-	out := new(MsgSubmitSignalsResponse)
-	err := c.cc.Invoke(ctx, Msg_SubmitSignals_FullMethodName, in, out, opts...)
+func (c *msgClient) Vote(ctx context.Context, in *MsgVote, opts ...grpc.CallOption) (*MsgVoteResponse, error) {
+	out := new(MsgVoteResponse)
+	err := c.cc.Invoke(ctx, Msg_Vote_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -87,8 +87,8 @@ func (c *msgClient) UpdateParams(ctx context.Context, in *MsgUpdateParams, opts 
 // All implementations must embed UnimplementedMsgServer
 // for forward compatibility
 type MsgServer interface {
-	// SubmitSignals is an RPC method to submit signal ids and their powers.
-	SubmitSignals(context.Context, *MsgSubmitSignals) (*MsgSubmitSignalsResponse, error)
+	// Vote is an RPC method to vote signal ids and their powers.
+	Vote(context.Context, *MsgVote) (*MsgVoteResponse, error)
 	// SubmitSignalPrices is an RPC method to submit signal prices.
 	SubmitSignalPrices(context.Context, *MsgSubmitSignalPrices) (*MsgSubmitSignalPricesResponse, error)
 	// UpdateReferenceSourceConfig is an RPC method to update reference price source configuration.
@@ -102,8 +102,8 @@ type MsgServer interface {
 type UnimplementedMsgServer struct {
 }
 
-func (UnimplementedMsgServer) SubmitSignals(context.Context, *MsgSubmitSignals) (*MsgSubmitSignalsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SubmitSignals not implemented")
+func (UnimplementedMsgServer) Vote(context.Context, *MsgVote) (*MsgVoteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Vote not implemented")
 }
 func (UnimplementedMsgServer) SubmitSignalPrices(context.Context, *MsgSubmitSignalPrices) (*MsgSubmitSignalPricesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitSignalPrices not implemented")
@@ -127,20 +127,20 @@ func RegisterMsgServer(s grpc.ServiceRegistrar, srv MsgServer) {
 	s.RegisterService(&Msg_ServiceDesc, srv)
 }
 
-func _Msg_SubmitSignals_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgSubmitSignals)
+func _Msg_Vote_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgVote)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).SubmitSignals(ctx, in)
+		return srv.(MsgServer).Vote(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Msg_SubmitSignals_FullMethodName,
+		FullMethod: Msg_Vote_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).SubmitSignals(ctx, req.(*MsgSubmitSignals))
+		return srv.(MsgServer).Vote(ctx, req.(*MsgVote))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -207,8 +207,8 @@ var Msg_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*MsgServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SubmitSignals",
-			Handler:    _Msg_SubmitSignals_Handler,
+			MethodName: "Vote",
+			Handler:    _Msg_Vote_Handler,
 		},
 		{
 			MethodName: "SubmitSignalPrices",

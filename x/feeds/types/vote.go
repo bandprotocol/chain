@@ -6,24 +6,24 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// NewDelegatorSignals creates a new DelegatorSignals instance.
-func NewDelegatorSignals(delegator string, signals []Signal) DelegatorSignals {
-	return DelegatorSignals{
-		Delegator: delegator,
-		Signals:   signals,
+// NewVote creates a new Vote instance.
+func NewVote(voter string, signals []Signal) Vote {
+	return Vote{
+		Voter:   voter,
+		Signals: signals,
 	}
 }
 
-// Validate validates the delegator signals
-func (ds *DelegatorSignals) Validate() error {
-	if _, err := sdk.AccAddressFromBech32(ds.Delegator); err != nil {
-		return errorsmod.Wrap(err, "invalid delegator address")
+// Validate validates the vote
+func (v *Vote) Validate() error {
+	if _, err := sdk.AccAddressFromBech32(v.Voter); err != nil {
+		return errorsmod.Wrap(err, "invalid voter address")
 	}
 
 	// Map to track signal IDs for duplicate check
 	signalIDSet := make(map[string]struct{})
 
-	for _, signal := range ds.Signals {
+	for _, signal := range v.Signals {
 		// Validate signal ID
 		if err := signal.Validate(); err != nil {
 			return err
