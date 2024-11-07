@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	sdkmath "cosmossdk.io/math"
 
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
@@ -33,7 +31,7 @@ func GenerateNewSignalPrices(
 		// get hard/soft deviation, panic if not found; should not happen.
 		sd, ok := signalDeviationsMap[sp.SignalID]
 		if !ok {
-			panic(fmt.Sprintf("deviation not found for signal ID: %s", sp.SignalID))
+			return nil, types.ErrDeviationNotFound.Wrapf("deviation not found for signal ID :%s", sp.SignalID)
 		}
 		hardDeviation := sdkmath.NewIntFromUint64(sd.HardDeviationBPS)
 		softDeviation := sdkmath.NewIntFromUint64(sd.SoftDeviationBPS)

@@ -24,4 +24,5 @@ var (
 	ErrInsufficientDeposit        = errorsmod.Register(ModuleName, 17, "insufficient deposit")
 	ErrSignalPricesNotFound       = errorsmod.Register(ModuleName, 18, "signal prices not found")
 	ErrInsufficientFund           = errorsmod.Register(ModuleName, 19, "insufficient fund")
+	ErrDeviationNotFound          = errorsmod.Register(ModuleName, 20, "deviation not found")
 )
