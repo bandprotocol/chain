@@ -22,7 +22,7 @@ const (
 	Query_AllCurrentPrices_FullMethodName      = "/band.feeds.v1beta1.Query/AllCurrentPrices"
 	Query_CurrentFeeds_FullMethodName          = "/band.feeds.v1beta1.Query/CurrentFeeds"
 	Query_CurrentPrices_FullMethodName         = "/band.feeds.v1beta1.Query/CurrentPrices"
-	Query_DelegatorSignals_FullMethodName      = "/band.feeds.v1beta1.Query/DelegatorSignals"
+	Query_Vote_FullMethodName                  = "/band.feeds.v1beta1.Query/Vote"
 	Query_IsFeeder_FullMethodName              = "/band.feeds.v1beta1.Query/IsFeeder"
 	Query_Params_FullMethodName                = "/band.feeds.v1beta1.Query/Params"
 	Query_Price_FullMethodName                 = "/band.feeds.v1beta1.Query/Price"
@@ -43,8 +43,8 @@ type QueryClient interface {
 	CurrentFeeds(ctx context.Context, in *QueryCurrentFeedsRequest, opts ...grpc.CallOption) (*QueryCurrentFeedsResponse, error)
 	// CurrentPrices is an RPC method that returns a list of current prices.
 	CurrentPrices(ctx context.Context, in *QueryCurrentPricesRequest, opts ...grpc.CallOption) (*QueryCurrentPricesResponse, error)
-	// DelegatorSignals is an RPC method that returns signals of a delegator.
-	DelegatorSignals(ctx context.Context, in *QueryDelegatorSignalsRequest, opts ...grpc.CallOption) (*QueryDelegatorSignalsResponse, error)
+	// Vote is an RPC method that returns signals of a voter.
+	Vote(ctx context.Context, in *QueryVoteRequest, opts ...grpc.CallOption) (*QueryVoteResponse, error)
 	// IsFeeder is an RPC method that returns whether an account is a feeder for a specified validator.
 	IsFeeder(ctx context.Context, in *QueryIsFeederRequest, opts ...grpc.CallOption) (*QueryIsFeederResponse, error)
 	// Params is an RPC method that returns all parameters of the module.
@@ -99,9 +99,9 @@ func (c *queryClient) CurrentPrices(ctx context.Context, in *QueryCurrentPricesR
 	return out, nil
 }
 
-func (c *queryClient) DelegatorSignals(ctx context.Context, in *QueryDelegatorSignalsRequest, opts ...grpc.CallOption) (*QueryDelegatorSignalsResponse, error) {
-	out := new(QueryDelegatorSignalsResponse)
-	err := c.cc.Invoke(ctx, Query_DelegatorSignals_FullMethodName, in, out, opts...)
+func (c *queryClient) Vote(ctx context.Context, in *QueryVoteRequest, opts ...grpc.CallOption) (*QueryVoteResponse, error) {
+	out := new(QueryVoteResponse)
+	err := c.cc.Invoke(ctx, Query_Vote_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -190,8 +190,8 @@ type QueryServer interface {
 	CurrentFeeds(context.Context, *QueryCurrentFeedsRequest) (*QueryCurrentFeedsResponse, error)
 	// CurrentPrices is an RPC method that returns a list of current prices.
 	CurrentPrices(context.Context, *QueryCurrentPricesRequest) (*QueryCurrentPricesResponse, error)
-	// DelegatorSignals is an RPC method that returns signals of a delegator.
-	DelegatorSignals(context.Context, *QueryDelegatorSignalsRequest) (*QueryDelegatorSignalsResponse, error)
+	// Vote is an RPC method that returns signals of a voter.
+	Vote(context.Context, *QueryVoteRequest) (*QueryVoteResponse, error)
 	// IsFeeder is an RPC method that returns whether an account is a feeder for a specified validator.
 	IsFeeder(context.Context, *QueryIsFeederRequest) (*QueryIsFeederResponse, error)
 	// Params is an RPC method that returns all parameters of the module.
@@ -225,8 +225,8 @@ func (UnimplementedQueryServer) CurrentFeeds(context.Context, *QueryCurrentFeeds
 func (UnimplementedQueryServer) CurrentPrices(context.Context, *QueryCurrentPricesRequest) (*QueryCurrentPricesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CurrentPrices not implemented")
 }
-func (UnimplementedQueryServer) DelegatorSignals(context.Context, *QueryDelegatorSignalsRequest) (*QueryDelegatorSignalsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DelegatorSignals not implemented")
+func (UnimplementedQueryServer) Vote(context.Context, *QueryVoteRequest) (*QueryVoteResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Vote not implemented")
 }
 func (UnimplementedQueryServer) IsFeeder(context.Context, *QueryIsFeederRequest) (*QueryIsFeederResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method IsFeeder not implemented")
@@ -319,20 +319,20 @@ func _Query_CurrentPrices_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Query_DelegatorSignals_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryDelegatorSignalsRequest)
+func _Query_Vote_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryVoteRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(QueryServer).DelegatorSignals(ctx, in)
+		return srv.(QueryServer).Vote(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Query_DelegatorSignals_FullMethodName,
+		FullMethod: Query_Vote_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).DelegatorSignals(ctx, req.(*QueryDelegatorSignalsRequest))
+		return srv.(QueryServer).Vote(ctx, req.(*QueryVoteRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -501,8 +501,8 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Query_CurrentPrices_Handler,
 		},
 		{
-			MethodName: "DelegatorSignals",
-			Handler:    _Query_DelegatorSignals_Handler,
+			MethodName: "Vote",
+			Handler:    _Query_Vote_Handler,
 		},
 		{
 			MethodName: "IsFeeder",

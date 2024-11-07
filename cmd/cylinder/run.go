@@ -10,7 +10,6 @@ import (
 	"github.com/bandprotocol/chain/v3/cylinder/context"
 	"github.com/bandprotocol/chain/v3/cylinder/workers/de"
 	"github.com/bandprotocol/chain/v3/cylinder/workers/group"
-	"github.com/bandprotocol/chain/v3/cylinder/workers/heartbeat"
 	"github.com/bandprotocol/chain/v3/cylinder/workers/sender"
 	"github.com/bandprotocol/chain/v3/cylinder/workers/signing"
 )
@@ -37,11 +36,6 @@ func runCmd(ctx *context.Context) *cobra.Command {
 		Short:   "Run the cylinder process",
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			heartbeat, err := heartbeat.New(ctx)
-			if err != nil {
-				return err
-			}
-
 			group, err := group.New(ctx)
 			if err != nil {
 				return err
@@ -62,7 +56,7 @@ func runCmd(ctx *context.Context) *cobra.Command {
 				return err
 			}
 
-			workers := cylinder.Workers{heartbeat, group, de, signing, sender}
+			workers := cylinder.Workers{group, de, signing, sender}
 
 			return cylinder.Run(ctx, workers)
 		},

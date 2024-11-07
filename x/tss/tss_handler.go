@@ -9,7 +9,8 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-// TextMsgPrefix is the prefix for signing request on text msg.
+// TextMsgPrefix is the constant prefix for signing request on text msg.
+// The value is tss.Hash([]byte("Text"))[:4]
 var TextMsgPrefix = tss.Hash([]byte("Text"))[:4]
 
 // NewSignatureOrderHandler implements the Handler interface for tss module-based

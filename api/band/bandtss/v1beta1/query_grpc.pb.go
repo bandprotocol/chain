@@ -20,7 +20,6 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Query_Counts_FullMethodName          = "/band.bandtss.v1beta1.Query/Counts"
-	Query_IsGrantee_FullMethodName       = "/band.bandtss.v1beta1.Query/IsGrantee"
 	Query_Members_FullMethodName         = "/band.bandtss.v1beta1.Query/Members"
 	Query_Member_FullMethodName          = "/band.bandtss.v1beta1.Query/Member"
 	Query_CurrentGroup_FullMethodName    = "/band.bandtss.v1beta1.Query/CurrentGroup"
@@ -36,8 +35,6 @@ const (
 type QueryClient interface {
 	// Counts queries the number of existing signing.
 	Counts(ctx context.Context, in *QueryCountsRequest, opts ...grpc.CallOption) (*QueryCountsResponse, error)
-	// IsGrantee queries whether granter grants the grantee.
-	IsGrantee(ctx context.Context, in *QueryIsGranteeRequest, opts ...grpc.CallOption) (*QueryIsGranteeResponse, error)
 	// Members queries all members.
 	Members(ctx context.Context, in *QueryMembersRequest, opts ...grpc.CallOption) (*QueryMembersResponse, error)
 	// Member queries the member information of the given address.
@@ -65,15 +62,6 @@ func NewQueryClient(cc grpc.ClientConnInterface) QueryClient {
 func (c *queryClient) Counts(ctx context.Context, in *QueryCountsRequest, opts ...grpc.CallOption) (*QueryCountsResponse, error) {
 	out := new(QueryCountsResponse)
 	err := c.cc.Invoke(ctx, Query_Counts_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *queryClient) IsGrantee(ctx context.Context, in *QueryIsGranteeRequest, opts ...grpc.CallOption) (*QueryIsGranteeResponse, error) {
-	out := new(QueryIsGranteeResponse)
-	err := c.cc.Invoke(ctx, Query_IsGrantee_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -149,8 +137,6 @@ func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts .
 type QueryServer interface {
 	// Counts queries the number of existing signing.
 	Counts(context.Context, *QueryCountsRequest) (*QueryCountsResponse, error)
-	// IsGrantee queries whether granter grants the grantee.
-	IsGrantee(context.Context, *QueryIsGranteeRequest) (*QueryIsGranteeResponse, error)
 	// Members queries all members.
 	Members(context.Context, *QueryMembersRequest) (*QueryMembersResponse, error)
 	// Member queries the member information of the given address.
@@ -174,9 +160,6 @@ type UnimplementedQueryServer struct {
 
 func (UnimplementedQueryServer) Counts(context.Context, *QueryCountsRequest) (*QueryCountsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Counts not implemented")
-}
-func (UnimplementedQueryServer) IsGrantee(context.Context, *QueryIsGranteeRequest) (*QueryIsGranteeResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method IsGrantee not implemented")
 }
 func (UnimplementedQueryServer) Members(context.Context, *QueryMembersRequest) (*QueryMembersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Members not implemented")
@@ -226,24 +209,6 @@ func _Query_Counts_Handler(srv interface{}, ctx context.Context, dec func(interf
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(QueryServer).Counts(ctx, req.(*QueryCountsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Query_IsGrantee_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(QueryIsGranteeRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(QueryServer).IsGrantee(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Query_IsGrantee_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueryServer).IsGrantee(ctx, req.(*QueryIsGranteeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -384,10 +349,6 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Counts",
 			Handler:    _Query_Counts_Handler,
-		},
-		{
-			MethodName: "IsGrantee",
-			Handler:    _Query_IsGrantee_Handler,
 		},
 		{
 			MethodName: "Members",

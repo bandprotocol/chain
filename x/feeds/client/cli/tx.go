@@ -43,61 +43,11 @@ func GetTxCmd() *cobra.Command {
 	txCmd.AddCommand(
 		GetTxCmdAddFeeders(),
 		GetTxCmdRemoveFeeders(),
-		GetTxCmdSubmitSignals(),
 		GetTxCmdUpdateReferenceSourceConfig(),
+		GetTxCmdVote(),
 	)
 
 	return txCmd
-}
-
-// GetTxCmdSubmitSignals creates a CLI command for submitting signals
-func GetTxCmdSubmitSignals() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "signal [signal_id1],[power1] [signal_id2],[power2] ...",
-		Short: "Signal signal ids and their powers",
-		Args:  cobra.MinimumNArgs(0),
-		Long: strings.TrimSpace(
-			fmt.Sprintf(
-				`Signal signal ids and their power.
-Example:
-$ %s tx feeds signal BTC,1000000 --from mykey
-`,
-				version.AppName,
-			),
-		),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			delegator := clientCtx.GetFromAddress()
-			var signals []types.Signal
-			for i, arg := range args {
-				idAndPower := strings.SplitN(arg, ",", 2)
-				if len(idAndPower) != 2 {
-					return fmt.Errorf("argument %d is not valid", i)
-				}
-				power, err := strconv.ParseInt(idAndPower[1], 0, 64)
-				if err != nil {
-					return err
-				}
-				signals = append(
-					signals, types.NewSignal(
-						idAndPower[0],
-						power,
-					),
-				)
-			}
-
-			msg := types.NewMsgSubmitSignals(delegator.String(), signals)
-
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
-		},
-	}
-	flags.AddTxFlagsToCmd(cmd)
-
-	return cmd
 }
 
 // GetTxCmdAddFeeders creates a CLI command for adding new feeders
@@ -177,6 +127,56 @@ $ %s tx feeds update-reference-source-config <YOUR_IPFS_HASH> 1.0.0 --from mykey
 			referenceSourceConfig := types.NewReferenceSourceConfig(args[0], args[1])
 
 			msg := types.NewMsgUpdateReferenceSourceConfig(admin.String(), referenceSourceConfig)
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetTxCmdVote creates a CLI command for voting signals
+func GetTxCmdVote() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "vote [signal_id1],[power1] [signal_id2],[power2] ...",
+		Short: "Vote signal ids and their powers",
+		Args:  cobra.MinimumNArgs(0),
+		Long: strings.TrimSpace(
+			fmt.Sprintf(
+				`Vote signal ids and their power.
+Example:
+$ %s tx feeds vote BTC,1000000 --from mykey
+`,
+				version.AppName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			voter := clientCtx.GetFromAddress()
+			var signals []types.Signal
+			for i, arg := range args {
+				idAndPower := strings.SplitN(arg, ",", 2)
+				if len(idAndPower) != 2 {
+					return fmt.Errorf("argument %d is not valid", i)
+				}
+				power, err := strconv.ParseInt(idAndPower[1], 0, 64)
+				if err != nil {
+					return err
+				}
+				signals = append(
+					signals, types.NewSignal(
+						idAndPower[0],
+						power,
+					),
+				)
+			}
+
+			msg := types.NewMsgVote(voter.String(), signals)
 
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},

@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/bandtss/types"
 )
 
@@ -25,7 +26,17 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 		panic(err)
 	}
 
-	k.SetCurrentGroupID(ctx, data.CurrentGroupID)
+	if data.CurrentGroup.GroupID != tss.GroupID(0) &&
+		data.CurrentGroup.ActiveTime.After(ctx.BlockTime()) {
+		panic("invalid genesis state: current group active time is in the future")
+	}
+
+	if data.CurrentGroup.GroupID == tss.GroupID(0) &&
+		!data.CurrentGroup.ActiveTime.IsZero() {
+		panic("invalid genesis state: current group ID is not set but active time is set")
+	}
+
+	k.SetCurrentGroup(ctx, data.CurrentGroup)
 
 	for _, member := range data.Members {
 		k.SetMember(ctx, member)
@@ -35,8 +46,8 @@ func (k Keeper) InitGenesis(ctx sdk.Context, data types.GenesisState) {
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 	return &types.GenesisState{
-		Params:         k.GetParams(ctx),
-		Members:        k.GetMembers(ctx),
-		CurrentGroupID: k.GetCurrentGroupID(ctx),
+		Params:       k.GetParams(ctx),
+		Members:      k.GetMembers(ctx),
+		CurrentGroup: k.GetCurrentGroup(ctx),
 	}
 }

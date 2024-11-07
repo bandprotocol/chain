@@ -1901,830 +1901,6 @@ func (x *fastReflection_MsgActivateResponse) ProtoMethods() *protoiface.Methods 
 }
 
 var (
-	md_MsgHeartbeat          protoreflect.MessageDescriptor
-	fd_MsgHeartbeat_sender   protoreflect.FieldDescriptor
-	fd_MsgHeartbeat_group_id protoreflect.FieldDescriptor
-)
-
-func init() {
-	file_band_bandtss_v1beta1_tx_proto_init()
-	md_MsgHeartbeat = File_band_bandtss_v1beta1_tx_proto.Messages().ByName("MsgHeartbeat")
-	fd_MsgHeartbeat_sender = md_MsgHeartbeat.Fields().ByName("sender")
-	fd_MsgHeartbeat_group_id = md_MsgHeartbeat.Fields().ByName("group_id")
-}
-
-var _ protoreflect.Message = (*fastReflection_MsgHeartbeat)(nil)
-
-type fastReflection_MsgHeartbeat MsgHeartbeat
-
-func (x *MsgHeartbeat) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_MsgHeartbeat)(x)
-}
-
-func (x *MsgHeartbeat) slowProtoReflect() protoreflect.Message {
-	mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[4]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-var _fastReflection_MsgHeartbeat_messageType fastReflection_MsgHeartbeat_messageType
-var _ protoreflect.MessageType = fastReflection_MsgHeartbeat_messageType{}
-
-type fastReflection_MsgHeartbeat_messageType struct{}
-
-func (x fastReflection_MsgHeartbeat_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_MsgHeartbeat)(nil)
-}
-func (x fastReflection_MsgHeartbeat_messageType) New() protoreflect.Message {
-	return new(fastReflection_MsgHeartbeat)
-}
-func (x fastReflection_MsgHeartbeat_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_MsgHeartbeat
-}
-
-// Descriptor returns message descriptor, which contains only the protobuf
-// type information for the message.
-func (x *fastReflection_MsgHeartbeat) Descriptor() protoreflect.MessageDescriptor {
-	return md_MsgHeartbeat
-}
-
-// Type returns the message type, which encapsulates both Go and protobuf
-// type information. If the Go type information is not needed,
-// it is recommended that the message descriptor be used instead.
-func (x *fastReflection_MsgHeartbeat) Type() protoreflect.MessageType {
-	return _fastReflection_MsgHeartbeat_messageType
-}
-
-// New returns a newly allocated and mutable empty message.
-func (x *fastReflection_MsgHeartbeat) New() protoreflect.Message {
-	return new(fastReflection_MsgHeartbeat)
-}
-
-// Interface unwraps the message reflection interface and
-// returns the underlying ProtoMessage interface.
-func (x *fastReflection_MsgHeartbeat) Interface() protoreflect.ProtoMessage {
-	return (*MsgHeartbeat)(x)
-}
-
-// Range iterates over every populated field in an undefined order,
-// calling f for each field descriptor and value encountered.
-// Range returns immediately if f returns false.
-// While iterating, mutating operations may only be performed
-// on the current field descriptor.
-func (x *fastReflection_MsgHeartbeat) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
-	if x.Sender != "" {
-		value := protoreflect.ValueOfString(x.Sender)
-		if !f(fd_MsgHeartbeat_sender, value) {
-			return
-		}
-	}
-	if x.GroupId != uint64(0) {
-		value := protoreflect.ValueOfUint64(x.GroupId)
-		if !f(fd_MsgHeartbeat_group_id, value) {
-			return
-		}
-	}
-}
-
-// Has reports whether a field is populated.
-//
-// Some fields have the property of nullability where it is possible to
-// distinguish between the default value of a field and whether the field
-// was explicitly populated with the default value. Singular message fields,
-// member fields of a oneof, and proto2 scalar fields are nullable. Such
-// fields are populated only if explicitly set.
-//
-// In other cases (aside from the nullable cases above),
-// a proto3 scalar field is populated if it contains a non-zero value, and
-// a repeated field is populated if it is non-empty.
-func (x *fastReflection_MsgHeartbeat) Has(fd protoreflect.FieldDescriptor) bool {
-	switch fd.FullName() {
-	case "band.bandtss.v1beta1.MsgHeartbeat.sender":
-		return x.Sender != ""
-	case "band.bandtss.v1beta1.MsgHeartbeat.group_id":
-		return x.GroupId != uint64(0)
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.MsgHeartbeat"))
-		}
-		panic(fmt.Errorf("message band.bandtss.v1beta1.MsgHeartbeat does not contain field %s", fd.FullName()))
-	}
-}
-
-// Clear clears the field such that a subsequent Has call reports false.
-//
-// Clearing an extension field clears both the extension type and value
-// associated with the given field number.
-//
-// Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgHeartbeat) Clear(fd protoreflect.FieldDescriptor) {
-	switch fd.FullName() {
-	case "band.bandtss.v1beta1.MsgHeartbeat.sender":
-		x.Sender = ""
-	case "band.bandtss.v1beta1.MsgHeartbeat.group_id":
-		x.GroupId = uint64(0)
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.MsgHeartbeat"))
-		}
-		panic(fmt.Errorf("message band.bandtss.v1beta1.MsgHeartbeat does not contain field %s", fd.FullName()))
-	}
-}
-
-// Get retrieves the value for a field.
-//
-// For unpopulated scalars, it returns the default value, where
-// the default value of a bytes scalar is guaranteed to be a copy.
-// For unpopulated composite types, it returns an empty, read-only view
-// of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_MsgHeartbeat) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
-	switch descriptor.FullName() {
-	case "band.bandtss.v1beta1.MsgHeartbeat.sender":
-		value := x.Sender
-		return protoreflect.ValueOfString(value)
-	case "band.bandtss.v1beta1.MsgHeartbeat.group_id":
-		value := x.GroupId
-		return protoreflect.ValueOfUint64(value)
-	default:
-		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.MsgHeartbeat"))
-		}
-		panic(fmt.Errorf("message band.bandtss.v1beta1.MsgHeartbeat does not contain field %s", descriptor.FullName()))
-	}
-}
-
-// Set stores the value for a field.
-//
-// For a field belonging to a oneof, it implicitly clears any other field
-// that may be currently set within the same oneof.
-// For extension fields, it implicitly stores the provided ExtensionType.
-// When setting a composite type, it is unspecified whether the stored value
-// aliases the source's memory in any way. If the composite value is an
-// empty, read-only value, then it panics.
-//
-// Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgHeartbeat) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
-	switch fd.FullName() {
-	case "band.bandtss.v1beta1.MsgHeartbeat.sender":
-		x.Sender = value.Interface().(string)
-	case "band.bandtss.v1beta1.MsgHeartbeat.group_id":
-		x.GroupId = value.Uint()
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.MsgHeartbeat"))
-		}
-		panic(fmt.Errorf("message band.bandtss.v1beta1.MsgHeartbeat does not contain field %s", fd.FullName()))
-	}
-}
-
-// Mutable returns a mutable reference to a composite type.
-//
-// If the field is unpopulated, it may allocate a composite value.
-// For a field belonging to a oneof, it implicitly clears any other field
-// that may be currently set within the same oneof.
-// For extension fields, it implicitly stores the provided ExtensionType
-// if not already stored.
-// It panics if the field does not contain a composite type.
-//
-// Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgHeartbeat) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
-	switch fd.FullName() {
-	case "band.bandtss.v1beta1.MsgHeartbeat.sender":
-		panic(fmt.Errorf("field sender of message band.bandtss.v1beta1.MsgHeartbeat is not mutable"))
-	case "band.bandtss.v1beta1.MsgHeartbeat.group_id":
-		panic(fmt.Errorf("field group_id of message band.bandtss.v1beta1.MsgHeartbeat is not mutable"))
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.MsgHeartbeat"))
-		}
-		panic(fmt.Errorf("message band.bandtss.v1beta1.MsgHeartbeat does not contain field %s", fd.FullName()))
-	}
-}
-
-// NewField returns a new value that is assignable to the field
-// for the given descriptor. For scalars, this returns the default value.
-// For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_MsgHeartbeat) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
-	switch fd.FullName() {
-	case "band.bandtss.v1beta1.MsgHeartbeat.sender":
-		return protoreflect.ValueOfString("")
-	case "band.bandtss.v1beta1.MsgHeartbeat.group_id":
-		return protoreflect.ValueOfUint64(uint64(0))
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.MsgHeartbeat"))
-		}
-		panic(fmt.Errorf("message band.bandtss.v1beta1.MsgHeartbeat does not contain field %s", fd.FullName()))
-	}
-}
-
-// WhichOneof reports which field within the oneof is populated,
-// returning nil if none are populated.
-// It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_MsgHeartbeat) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
-	switch d.FullName() {
-	default:
-		panic(fmt.Errorf("%s is not a oneof field in band.bandtss.v1beta1.MsgHeartbeat", d.FullName()))
-	}
-	panic("unreachable")
-}
-
-// GetUnknown retrieves the entire list of unknown fields.
-// The caller may only mutate the contents of the RawFields
-// if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_MsgHeartbeat) GetUnknown() protoreflect.RawFields {
-	return x.unknownFields
-}
-
-// SetUnknown stores an entire list of unknown fields.
-// The raw fields must be syntactically valid according to the wire format.
-// An implementation may panic if this is not the case.
-// Once stored, the caller must not mutate the content of the RawFields.
-// An empty RawFields may be passed to clear the fields.
-//
-// SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgHeartbeat) SetUnknown(fields protoreflect.RawFields) {
-	x.unknownFields = fields
-}
-
-// IsValid reports whether the message is valid.
-//
-// An invalid message is an empty, read-only value.
-//
-// An invalid message often corresponds to a nil pointer of the concrete
-// message type, but the details are implementation dependent.
-// Validity is not part of the protobuf data model, and may not
-// be preserved in marshaling or other operations.
-func (x *fastReflection_MsgHeartbeat) IsValid() bool {
-	return x != nil
-}
-
-// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
-// This method may return nil.
-//
-// The returned methods type is identical to
-// "google.golang.org/protobuf/runtime/protoiface".Methods.
-// Consult the protoiface package documentation for details.
-func (x *fastReflection_MsgHeartbeat) ProtoMethods() *protoiface.Methods {
-	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*MsgHeartbeat)
-		if x == nil {
-			return protoiface.SizeOutput{
-				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-				Size:              0,
-			}
-		}
-		options := runtime.SizeInputToOptions(input)
-		_ = options
-		var n int
-		var l int
-		_ = l
-		l = len(x.Sender)
-		if l > 0 {
-			n += 1 + l + runtime.Sov(uint64(l))
-		}
-		if x.GroupId != 0 {
-			n += 1 + runtime.Sov(uint64(x.GroupId))
-		}
-		if x.unknownFields != nil {
-			n += len(x.unknownFields)
-		}
-		return protoiface.SizeOutput{
-			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-			Size:              n,
-		}
-	}
-
-	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*MsgHeartbeat)
-		if x == nil {
-			return protoiface.MarshalOutput{
-				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-				Buf:               input.Buf,
-			}, nil
-		}
-		options := runtime.MarshalInputToOptions(input)
-		_ = options
-		size := options.Size(x)
-		dAtA := make([]byte, size)
-		i := len(dAtA)
-		_ = i
-		var l int
-		_ = l
-		if x.unknownFields != nil {
-			i -= len(x.unknownFields)
-			copy(dAtA[i:], x.unknownFields)
-		}
-		if x.GroupId != 0 {
-			i = runtime.EncodeVarint(dAtA, i, uint64(x.GroupId))
-			i--
-			dAtA[i] = 0x10
-		}
-		if len(x.Sender) > 0 {
-			i -= len(x.Sender)
-			copy(dAtA[i:], x.Sender)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Sender)))
-			i--
-			dAtA[i] = 0xa
-		}
-		if input.Buf != nil {
-			input.Buf = append(input.Buf, dAtA...)
-		} else {
-			input.Buf = dAtA
-		}
-		return protoiface.MarshalOutput{
-			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-			Buf:               input.Buf,
-		}, nil
-	}
-	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*MsgHeartbeat)
-		if x == nil {
-			return protoiface.UnmarshalOutput{
-				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-				Flags:             input.Flags,
-			}, nil
-		}
-		options := runtime.UnmarshalInputToOptions(input)
-		_ = options
-		dAtA := input.Buf
-		l := len(dAtA)
-		iNdEx := 0
-		for iNdEx < l {
-			preIndex := iNdEx
-			var wire uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				wire |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			fieldNum := int32(wire >> 3)
-			wireType := int(wire & 0x7)
-			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgHeartbeat: wiretype end group for non-group")
-			}
-			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgHeartbeat: illegal tag %d (wire type %d)", fieldNum, wire)
-			}
-			switch fieldNum {
-			case 1:
-				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Sender", wireType)
-				}
-				var stringLen uint64
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					stringLen |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				intStringLen := int(stringLen)
-				if intStringLen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + intStringLen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				x.Sender = string(dAtA[iNdEx:postIndex])
-				iNdEx = postIndex
-			case 2:
-				if wireType != 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field GroupId", wireType)
-				}
-				x.GroupId = 0
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					x.GroupId |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-			default:
-				iNdEx = preIndex
-				skippy, err := runtime.Skip(dAtA[iNdEx:])
-				if err != nil {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
-				}
-				if (skippy < 0) || (iNdEx+skippy) < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if (iNdEx + skippy) > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				if !options.DiscardUnknown {
-					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
-				}
-				iNdEx += skippy
-			}
-		}
-
-		if iNdEx > l {
-			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-		}
-		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
-	}
-	return &protoiface.Methods{
-		NoUnkeyedLiterals: struct{}{},
-		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
-		Size:              size,
-		Marshal:           marshal,
-		Unmarshal:         unmarshal,
-		Merge:             nil,
-		CheckInitialized:  nil,
-	}
-}
-
-var (
-	md_MsgHeartbeatResponse protoreflect.MessageDescriptor
-)
-
-func init() {
-	file_band_bandtss_v1beta1_tx_proto_init()
-	md_MsgHeartbeatResponse = File_band_bandtss_v1beta1_tx_proto.Messages().ByName("MsgHeartbeatResponse")
-}
-
-var _ protoreflect.Message = (*fastReflection_MsgHeartbeatResponse)(nil)
-
-type fastReflection_MsgHeartbeatResponse MsgHeartbeatResponse
-
-func (x *MsgHeartbeatResponse) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_MsgHeartbeatResponse)(x)
-}
-
-func (x *MsgHeartbeatResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[5]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-var _fastReflection_MsgHeartbeatResponse_messageType fastReflection_MsgHeartbeatResponse_messageType
-var _ protoreflect.MessageType = fastReflection_MsgHeartbeatResponse_messageType{}
-
-type fastReflection_MsgHeartbeatResponse_messageType struct{}
-
-func (x fastReflection_MsgHeartbeatResponse_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_MsgHeartbeatResponse)(nil)
-}
-func (x fastReflection_MsgHeartbeatResponse_messageType) New() protoreflect.Message {
-	return new(fastReflection_MsgHeartbeatResponse)
-}
-func (x fastReflection_MsgHeartbeatResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_MsgHeartbeatResponse
-}
-
-// Descriptor returns message descriptor, which contains only the protobuf
-// type information for the message.
-func (x *fastReflection_MsgHeartbeatResponse) Descriptor() protoreflect.MessageDescriptor {
-	return md_MsgHeartbeatResponse
-}
-
-// Type returns the message type, which encapsulates both Go and protobuf
-// type information. If the Go type information is not needed,
-// it is recommended that the message descriptor be used instead.
-func (x *fastReflection_MsgHeartbeatResponse) Type() protoreflect.MessageType {
-	return _fastReflection_MsgHeartbeatResponse_messageType
-}
-
-// New returns a newly allocated and mutable empty message.
-func (x *fastReflection_MsgHeartbeatResponse) New() protoreflect.Message {
-	return new(fastReflection_MsgHeartbeatResponse)
-}
-
-// Interface unwraps the message reflection interface and
-// returns the underlying ProtoMessage interface.
-func (x *fastReflection_MsgHeartbeatResponse) Interface() protoreflect.ProtoMessage {
-	return (*MsgHeartbeatResponse)(x)
-}
-
-// Range iterates over every populated field in an undefined order,
-// calling f for each field descriptor and value encountered.
-// Range returns immediately if f returns false.
-// While iterating, mutating operations may only be performed
-// on the current field descriptor.
-func (x *fastReflection_MsgHeartbeatResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
-}
-
-// Has reports whether a field is populated.
-//
-// Some fields have the property of nullability where it is possible to
-// distinguish between the default value of a field and whether the field
-// was explicitly populated with the default value. Singular message fields,
-// member fields of a oneof, and proto2 scalar fields are nullable. Such
-// fields are populated only if explicitly set.
-//
-// In other cases (aside from the nullable cases above),
-// a proto3 scalar field is populated if it contains a non-zero value, and
-// a repeated field is populated if it is non-empty.
-func (x *fastReflection_MsgHeartbeatResponse) Has(fd protoreflect.FieldDescriptor) bool {
-	switch fd.FullName() {
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.MsgHeartbeatResponse"))
-		}
-		panic(fmt.Errorf("message band.bandtss.v1beta1.MsgHeartbeatResponse does not contain field %s", fd.FullName()))
-	}
-}
-
-// Clear clears the field such that a subsequent Has call reports false.
-//
-// Clearing an extension field clears both the extension type and value
-// associated with the given field number.
-//
-// Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgHeartbeatResponse) Clear(fd protoreflect.FieldDescriptor) {
-	switch fd.FullName() {
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.MsgHeartbeatResponse"))
-		}
-		panic(fmt.Errorf("message band.bandtss.v1beta1.MsgHeartbeatResponse does not contain field %s", fd.FullName()))
-	}
-}
-
-// Get retrieves the value for a field.
-//
-// For unpopulated scalars, it returns the default value, where
-// the default value of a bytes scalar is guaranteed to be a copy.
-// For unpopulated composite types, it returns an empty, read-only view
-// of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_MsgHeartbeatResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
-	switch descriptor.FullName() {
-	default:
-		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.MsgHeartbeatResponse"))
-		}
-		panic(fmt.Errorf("message band.bandtss.v1beta1.MsgHeartbeatResponse does not contain field %s", descriptor.FullName()))
-	}
-}
-
-// Set stores the value for a field.
-//
-// For a field belonging to a oneof, it implicitly clears any other field
-// that may be currently set within the same oneof.
-// For extension fields, it implicitly stores the provided ExtensionType.
-// When setting a composite type, it is unspecified whether the stored value
-// aliases the source's memory in any way. If the composite value is an
-// empty, read-only value, then it panics.
-//
-// Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgHeartbeatResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
-	switch fd.FullName() {
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.MsgHeartbeatResponse"))
-		}
-		panic(fmt.Errorf("message band.bandtss.v1beta1.MsgHeartbeatResponse does not contain field %s", fd.FullName()))
-	}
-}
-
-// Mutable returns a mutable reference to a composite type.
-//
-// If the field is unpopulated, it may allocate a composite value.
-// For a field belonging to a oneof, it implicitly clears any other field
-// that may be currently set within the same oneof.
-// For extension fields, it implicitly stores the provided ExtensionType
-// if not already stored.
-// It panics if the field does not contain a composite type.
-//
-// Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgHeartbeatResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
-	switch fd.FullName() {
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.MsgHeartbeatResponse"))
-		}
-		panic(fmt.Errorf("message band.bandtss.v1beta1.MsgHeartbeatResponse does not contain field %s", fd.FullName()))
-	}
-}
-
-// NewField returns a new value that is assignable to the field
-// for the given descriptor. For scalars, this returns the default value.
-// For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_MsgHeartbeatResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
-	switch fd.FullName() {
-	default:
-		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.MsgHeartbeatResponse"))
-		}
-		panic(fmt.Errorf("message band.bandtss.v1beta1.MsgHeartbeatResponse does not contain field %s", fd.FullName()))
-	}
-}
-
-// WhichOneof reports which field within the oneof is populated,
-// returning nil if none are populated.
-// It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_MsgHeartbeatResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
-	switch d.FullName() {
-	default:
-		panic(fmt.Errorf("%s is not a oneof field in band.bandtss.v1beta1.MsgHeartbeatResponse", d.FullName()))
-	}
-	panic("unreachable")
-}
-
-// GetUnknown retrieves the entire list of unknown fields.
-// The caller may only mutate the contents of the RawFields
-// if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_MsgHeartbeatResponse) GetUnknown() protoreflect.RawFields {
-	return x.unknownFields
-}
-
-// SetUnknown stores an entire list of unknown fields.
-// The raw fields must be syntactically valid according to the wire format.
-// An implementation may panic if this is not the case.
-// Once stored, the caller must not mutate the content of the RawFields.
-// An empty RawFields may be passed to clear the fields.
-//
-// SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgHeartbeatResponse) SetUnknown(fields protoreflect.RawFields) {
-	x.unknownFields = fields
-}
-
-// IsValid reports whether the message is valid.
-//
-// An invalid message is an empty, read-only value.
-//
-// An invalid message often corresponds to a nil pointer of the concrete
-// message type, but the details are implementation dependent.
-// Validity is not part of the protobuf data model, and may not
-// be preserved in marshaling or other operations.
-func (x *fastReflection_MsgHeartbeatResponse) IsValid() bool {
-	return x != nil
-}
-
-// ProtoMethods returns optional fastReflectionFeature-path implementations of various operations.
-// This method may return nil.
-//
-// The returned methods type is identical to
-// "google.golang.org/protobuf/runtime/protoiface".Methods.
-// Consult the protoiface package documentation for details.
-func (x *fastReflection_MsgHeartbeatResponse) ProtoMethods() *protoiface.Methods {
-	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*MsgHeartbeatResponse)
-		if x == nil {
-			return protoiface.SizeOutput{
-				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-				Size:              0,
-			}
-		}
-		options := runtime.SizeInputToOptions(input)
-		_ = options
-		var n int
-		var l int
-		_ = l
-		if x.unknownFields != nil {
-			n += len(x.unknownFields)
-		}
-		return protoiface.SizeOutput{
-			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-			Size:              n,
-		}
-	}
-
-	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*MsgHeartbeatResponse)
-		if x == nil {
-			return protoiface.MarshalOutput{
-				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-				Buf:               input.Buf,
-			}, nil
-		}
-		options := runtime.MarshalInputToOptions(input)
-		_ = options
-		size := options.Size(x)
-		dAtA := make([]byte, size)
-		i := len(dAtA)
-		_ = i
-		var l int
-		_ = l
-		if x.unknownFields != nil {
-			i -= len(x.unknownFields)
-			copy(dAtA[i:], x.unknownFields)
-		}
-		if input.Buf != nil {
-			input.Buf = append(input.Buf, dAtA...)
-		} else {
-			input.Buf = dAtA
-		}
-		return protoiface.MarshalOutput{
-			NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-			Buf:               input.Buf,
-		}, nil
-	}
-	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*MsgHeartbeatResponse)
-		if x == nil {
-			return protoiface.UnmarshalOutput{
-				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-				Flags:             input.Flags,
-			}, nil
-		}
-		options := runtime.UnmarshalInputToOptions(input)
-		_ = options
-		dAtA := input.Buf
-		l := len(dAtA)
-		iNdEx := 0
-		for iNdEx < l {
-			preIndex := iNdEx
-			var wire uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-				}
-				if iNdEx >= l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				wire |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			fieldNum := int32(wire >> 3)
-			wireType := int(wire & 0x7)
-			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgHeartbeatResponse: wiretype end group for non-group")
-			}
-			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgHeartbeatResponse: illegal tag %d (wire type %d)", fieldNum, wire)
-			}
-			switch fieldNum {
-			default:
-				iNdEx = preIndex
-				skippy, err := runtime.Skip(dAtA[iNdEx:])
-				if err != nil {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
-				}
-				if (skippy < 0) || (iNdEx+skippy) < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if (iNdEx + skippy) > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				if !options.DiscardUnknown {
-					x.unknownFields = append(x.unknownFields, dAtA[iNdEx:iNdEx+skippy]...)
-				}
-				iNdEx += skippy
-			}
-		}
-
-		if iNdEx > l {
-			return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-		}
-		return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, nil
-	}
-	return &protoiface.Methods{
-		NoUnkeyedLiterals: struct{}{},
-		Flags:             protoiface.SupportMarshalDeterministic | protoiface.SupportUnmarshalDiscardUnknown,
-		Size:              size,
-		Marshal:           marshal,
-		Unmarshal:         unmarshal,
-		Merge:             nil,
-		CheckInitialized:  nil,
-	}
-}
-
-var (
 	md_MsgUpdateParams           protoreflect.MessageDescriptor
 	fd_MsgUpdateParams_params    protoreflect.FieldDescriptor
 	fd_MsgUpdateParams_authority protoreflect.FieldDescriptor
@@ -2746,7 +1922,7 @@ func (x *MsgUpdateParams) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgUpdateParams) slowProtoReflect() protoreflect.Message {
-	mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[6]
+	mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3241,7 +2417,7 @@ func (x *MsgUpdateParamsResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgUpdateParamsResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[7]
+	mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3651,7 +2827,7 @@ func (x *MsgTransitionGroup) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgTransitionGroup) slowProtoReflect() protoreflect.Message {
-	mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[8]
+	mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4268,7 +3444,7 @@ func (x *MsgTransitionGroupResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgTransitionGroupResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[9]
+	mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4630,7 +3806,7 @@ func (x *MsgForceTransitionGroup) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgForceTransitionGroup) slowProtoReflect() protoreflect.Message {
-	mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[10]
+	mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5171,7 +4347,7 @@ func (x *MsgForceTransitionGroupResponse) ProtoReflect() protoreflect.Message {
 }
 
 func (x *MsgForceTransitionGroupResponse) slowProtoReflect() protoreflect.Message {
-	mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[11]
+	mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5686,79 +4862,6 @@ func (*MsgActivateResponse) Descriptor() ([]byte, []int) {
 	return file_band_bandtss_v1beta1_tx_proto_rawDescGZIP(), []int{3}
 }
 
-// MsgHeartbeat is a message used to show if the address is still active.
-type MsgHeartbeat struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	// address is the signer of this message, who must be a member of the group.
-	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
-	// group_id is the group id of the member.
-	GroupId uint64 `protobuf:"varint,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
-}
-
-func (x *MsgHeartbeat) Reset() {
-	*x = MsgHeartbeat{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[4]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *MsgHeartbeat) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*MsgHeartbeat) ProtoMessage() {}
-
-// Deprecated: Use MsgHeartbeat.ProtoReflect.Descriptor instead.
-func (*MsgHeartbeat) Descriptor() ([]byte, []int) {
-	return file_band_bandtss_v1beta1_tx_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *MsgHeartbeat) GetSender() string {
-	if x != nil {
-		return x.Sender
-	}
-	return ""
-}
-
-func (x *MsgHeartbeat) GetGroupId() uint64 {
-	if x != nil {
-		return x.GroupId
-	}
-	return 0
-}
-
-// MsgHeartbeatResponse is response data for MsgHeartbeat message
-type MsgHeartbeatResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-}
-
-func (x *MsgHeartbeatResponse) Reset() {
-	*x = MsgHeartbeatResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[5]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *MsgHeartbeatResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*MsgHeartbeatResponse) ProtoMessage() {}
-
-// Deprecated: Use MsgHeartbeatResponse.ProtoReflect.Descriptor instead.
-func (*MsgHeartbeatResponse) Descriptor() ([]byte, []int) {
-	return file_band_bandtss_v1beta1_tx_proto_rawDescGZIP(), []int{5}
-}
-
 // MsgUpdateParams is the Msg/UpdateParams request type.
 type MsgUpdateParams struct {
 	state         protoimpl.MessageState
@@ -5774,7 +4877,7 @@ type MsgUpdateParams struct {
 func (x *MsgUpdateParams) Reset() {
 	*x = MsgUpdateParams{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[6]
+		mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5788,7 +4891,7 @@ func (*MsgUpdateParams) ProtoMessage() {}
 
 // Deprecated: Use MsgUpdateParams.ProtoReflect.Descriptor instead.
 func (*MsgUpdateParams) Descriptor() ([]byte, []int) {
-	return file_band_bandtss_v1beta1_tx_proto_rawDescGZIP(), []int{6}
+	return file_band_bandtss_v1beta1_tx_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *MsgUpdateParams) GetParams() *Params {
@@ -5815,7 +4918,7 @@ type MsgUpdateParamsResponse struct {
 func (x *MsgUpdateParamsResponse) Reset() {
 	*x = MsgUpdateParamsResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[7]
+		mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5829,7 +4932,7 @@ func (*MsgUpdateParamsResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgUpdateParamsResponse.ProtoReflect.Descriptor instead.
 func (*MsgUpdateParamsResponse) Descriptor() ([]byte, []int) {
-	return file_band_bandtss_v1beta1_tx_proto_rawDescGZIP(), []int{7}
+	return file_band_bandtss_v1beta1_tx_proto_rawDescGZIP(), []int{5}
 }
 
 // MsgTransitionGroup is the Msg/TransitionGroup request type.
@@ -5851,7 +4954,7 @@ type MsgTransitionGroup struct {
 func (x *MsgTransitionGroup) Reset() {
 	*x = MsgTransitionGroup{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[8]
+		mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5865,7 +4968,7 @@ func (*MsgTransitionGroup) ProtoMessage() {}
 
 // Deprecated: Use MsgTransitionGroup.ProtoReflect.Descriptor instead.
 func (*MsgTransitionGroup) Descriptor() ([]byte, []int) {
-	return file_band_bandtss_v1beta1_tx_proto_rawDescGZIP(), []int{8}
+	return file_band_bandtss_v1beta1_tx_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *MsgTransitionGroup) GetMembers() []string {
@@ -5906,7 +5009,7 @@ type MsgTransitionGroupResponse struct {
 func (x *MsgTransitionGroupResponse) Reset() {
 	*x = MsgTransitionGroupResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[9]
+		mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5920,7 +5023,7 @@ func (*MsgTransitionGroupResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgTransitionGroupResponse.ProtoReflect.Descriptor instead.
 func (*MsgTransitionGroupResponse) Descriptor() ([]byte, []int) {
-	return file_band_bandtss_v1beta1_tx_proto_rawDescGZIP(), []int{9}
+	return file_band_bandtss_v1beta1_tx_proto_rawDescGZIP(), []int{7}
 }
 
 // MsgForceTransitionGroup is the Msg/ForceTransitionGroup request type.
@@ -5940,7 +5043,7 @@ type MsgForceTransitionGroup struct {
 func (x *MsgForceTransitionGroup) Reset() {
 	*x = MsgForceTransitionGroup{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[10]
+		mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -5954,7 +5057,7 @@ func (*MsgForceTransitionGroup) ProtoMessage() {}
 
 // Deprecated: Use MsgForceTransitionGroup.ProtoReflect.Descriptor instead.
 func (*MsgForceTransitionGroup) Descriptor() ([]byte, []int) {
-	return file_band_bandtss_v1beta1_tx_proto_rawDescGZIP(), []int{10}
+	return file_band_bandtss_v1beta1_tx_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *MsgForceTransitionGroup) GetIncomingGroupId() uint64 {
@@ -5988,7 +5091,7 @@ type MsgForceTransitionGroupResponse struct {
 func (x *MsgForceTransitionGroupResponse) Reset() {
 	*x = MsgForceTransitionGroupResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[11]
+		mi := &file_band_bandtss_v1beta1_tx_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -6002,7 +5105,7 @@ func (*MsgForceTransitionGroupResponse) ProtoMessage() {}
 
 // Deprecated: Use MsgForceTransitionGroupResponse.ProtoReflect.Descriptor instead.
 func (*MsgForceTransitionGroupResponse) Descriptor() ([]byte, []int) {
-	return file_band_bandtss_v1beta1_tx_proto_rawDescGZIP(), []int{11}
+	return file_band_bandtss_v1beta1_tx_proto_rawDescGZIP(), []int{9}
 }
 
 var File_band_bandtss_v1beta1_tx_proto protoreflect.FileDescriptor
@@ -6060,128 +5163,108 @@ var file_band_bandtss_v1beta1_tx_proto_rawDesc = []byte{
 	0x65, 0x72, 0x8a, 0xe7, 0xb0, 0x2a, 0x13, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f, 0x4d,
 	0x73, 0x67, 0x41, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x22, 0x15, 0x0a, 0x13, 0x4d, 0x73,
 	0x67, 0x41, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x22, 0xc2, 0x01, 0x0a, 0x0c, 0x4d, 0x73, 0x67, 0x48, 0x65, 0x61, 0x72, 0x74, 0x62, 0x65,
-	0x61, 0x74, 0x12, 0x30, 0x0a, 0x06, 0x73, 0x65, 0x6e, 0x64, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41,
-	0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x06, 0x73, 0x65,
-	0x6e, 0x64, 0x65, 0x72, 0x12, 0x5a, 0x0a, 0x08, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x69, 0x64,
-	0x18, 0x02, 0x20, 0x01, 0x28, 0x04, 0x42, 0x3f, 0xe2, 0xde, 0x1f, 0x07, 0x47, 0x72, 0x6f, 0x75,
+	0x65, 0x22, 0xb1, 0x01, 0x0a, 0x0f, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50,
+	0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x3a, 0x0a, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e,
+	0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x72,
+	0x61, 0x6d, 0x73, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d,
+	0x73, 0x12, 0x36, 0x0a, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x18, 0x02,
+	0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73,
+	0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x09,
+	0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x3a, 0x2a, 0x82, 0xe7, 0xb0, 0x2a, 0x09,
+	0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x8a, 0xe7, 0xb0, 0x2a, 0x17, 0x62, 0x61,
+	0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50,
+	0x61, 0x72, 0x61, 0x6d, 0x73, 0x22, 0x19, 0x0a, 0x17, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61,
+	0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x22, 0xf6, 0x01, 0x0a, 0x12, 0x4d, 0x73, 0x67, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69,
+	0x6f, 0x6e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x6d, 0x62, 0x65,
+	0x72, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x6d, 0x62, 0x65, 0x72,
+	0x73, 0x12, 0x1c, 0x0a, 0x09, 0x74, 0x68, 0x72, 0x65, 0x73, 0x68, 0x6f, 0x6c, 0x64, 0x18, 0x02,
+	0x20, 0x01, 0x28, 0x04, 0x52, 0x09, 0x74, 0x68, 0x72, 0x65, 0x73, 0x68, 0x6f, 0x6c, 0x64, 0x12,
+	0x41, 0x0a, 0x09, 0x65, 0x78, 0x65, 0x63, 0x5f, 0x74, 0x69, 0x6d, 0x65, 0x18, 0x03, 0x20, 0x01,
+	0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x62, 0x75, 0x66, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x42, 0x08,
+	0xc8, 0xde, 0x1f, 0x00, 0x90, 0xdf, 0x1f, 0x01, 0x52, 0x08, 0x65, 0x78, 0x65, 0x63, 0x54, 0x69,
+	0x6d, 0x65, 0x12, 0x36, 0x0a, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x18,
+	0x04, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f,
+	0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52,
+	0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x3a, 0x2d, 0x82, 0xe7, 0xb0, 0x2a,
+	0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x8a, 0xe7, 0xb0, 0x2a, 0x1a, 0x62,
+	0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f, 0x4d, 0x73, 0x67, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69,
+	0x74, 0x69, 0x6f, 0x6e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x22, 0x1c, 0x0a, 0x1a, 0x4d, 0x73, 0x67,
+	0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xba, 0x02, 0x0a, 0x17, 0x4d, 0x73, 0x67, 0x46,
+	0x6f, 0x72, 0x63, 0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x47, 0x72,
+	0x6f, 0x75, 0x70, 0x12, 0x73, 0x0a, 0x11, 0x69, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x5f,
+	0x67, 0x72, 0x6f, 0x75, 0x70, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x42, 0x47,
+	0xe2, 0xde, 0x1f, 0x0f, 0x49, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x47, 0x72, 0x6f, 0x75,
 	0x70, 0x49, 0x44, 0xfa, 0xde, 0x1f, 0x30, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f,
 	0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63,
 	0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x74, 0x73, 0x73, 0x2e,
-	0x47, 0x72, 0x6f, 0x75, 0x70, 0x49, 0x44, 0x52, 0x07, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x49, 0x64,
-	0x3a, 0x24, 0x82, 0xe7, 0xb0, 0x2a, 0x06, 0x73, 0x65, 0x6e, 0x64, 0x65, 0x72, 0x8a, 0xe7, 0xb0,
-	0x2a, 0x14, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f, 0x4d, 0x73, 0x67, 0x48, 0x65, 0x61,
-	0x72, 0x74, 0x62, 0x65, 0x61, 0x74, 0x22, 0x16, 0x0a, 0x14, 0x4d, 0x73, 0x67, 0x48, 0x65, 0x61,
-	0x72, 0x74, 0x62, 0x65, 0x61, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xb1,
-	0x01, 0x0a, 0x0f, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61,
-	0x6d, 0x73, 0x12, 0x3a, 0x0a, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73,
-	0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73,
-	0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x36,
-	0x0a, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28,
-	0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64,
-	0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x09, 0x61, 0x75, 0x74,
-	0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x3a, 0x2a, 0x82, 0xe7, 0xb0, 0x2a, 0x09, 0x61, 0x75, 0x74,
-	0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x8a, 0xe7, 0xb0, 0x2a, 0x17, 0x62, 0x61, 0x6e, 0x64, 0x74,
-	0x73, 0x73, 0x2f, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61,
-	0x6d, 0x73, 0x22, 0x19, 0x0a, 0x17, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50,
-	0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xf6, 0x01,
-	0x0a, 0x12, 0x4d, 0x73, 0x67, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x47,
-	0x72, 0x6f, 0x75, 0x70, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73, 0x18,
-	0x01, 0x20, 0x03, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73, 0x12, 0x1c,
-	0x0a, 0x09, 0x74, 0x68, 0x72, 0x65, 0x73, 0x68, 0x6f, 0x6c, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28,
-	0x04, 0x52, 0x09, 0x74, 0x68, 0x72, 0x65, 0x73, 0x68, 0x6f, 0x6c, 0x64, 0x12, 0x41, 0x0a, 0x09,
-	0x65, 0x78, 0x65, 0x63, 0x5f, 0x74, 0x69, 0x6d, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32,
-	0x1a, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75,
-	0x66, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x42, 0x08, 0xc8, 0xde, 0x1f,
-	0x00, 0x90, 0xdf, 0x1f, 0x01, 0x52, 0x08, 0x65, 0x78, 0x65, 0x63, 0x54, 0x69, 0x6d, 0x65, 0x12,
-	0x36, 0x0a, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x18, 0x04, 0x20, 0x01,
-	0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41,
-	0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x09, 0x61, 0x75,
-	0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x3a, 0x2d, 0x82, 0xe7, 0xb0, 0x2a, 0x09, 0x61, 0x75,
-	0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x8a, 0xe7, 0xb0, 0x2a, 0x1a, 0x62, 0x61, 0x6e, 0x64,
-	0x74, 0x73, 0x73, 0x2f, 0x4d, 0x73, 0x67, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f,
-	0x6e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x22, 0x1c, 0x0a, 0x1a, 0x4d, 0x73, 0x67, 0x54, 0x72, 0x61,
-	0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x22, 0xba, 0x02, 0x0a, 0x17, 0x4d, 0x73, 0x67, 0x46, 0x6f, 0x72, 0x63,
-	0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x47, 0x72, 0x6f, 0x75, 0x70,
-	0x12, 0x73, 0x0a, 0x11, 0x69, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x5f, 0x67, 0x72, 0x6f,
-	0x75, 0x70, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x42, 0x47, 0xe2, 0xde, 0x1f,
-	0x0f, 0x49, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x49, 0x44,
-	0xfa, 0xde, 0x1f, 0x30, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62,
-	0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69,
-	0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x74, 0x73, 0x73, 0x2e, 0x47, 0x72, 0x6f,
-	0x75, 0x70, 0x49, 0x44, 0x52, 0x0f, 0x69, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e, 0x67, 0x47, 0x72,
-	0x6f, 0x75, 0x70, 0x49, 0x64, 0x12, 0x41, 0x0a, 0x09, 0x65, 0x78, 0x65, 0x63, 0x5f, 0x74, 0x69,
-	0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c,
-	0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73,
-	0x74, 0x61, 0x6d, 0x70, 0x42, 0x08, 0xc8, 0xde, 0x1f, 0x00, 0x90, 0xdf, 0x1f, 0x01, 0x52, 0x08,
-	0x65, 0x78, 0x65, 0x63, 0x54, 0x69, 0x6d, 0x65, 0x12, 0x36, 0x0a, 0x09, 0x61, 0x75, 0x74, 0x68,
-	0x6f, 0x72, 0x69, 0x74, 0x79, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d,
-	0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53,
-	0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79,
-	0x3a, 0x2f, 0x82, 0xe7, 0xb0, 0x2a, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79,
-	0x8a, 0xe7, 0xb0, 0x2a, 0x1c, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f, 0x46, 0x6f, 0x72,
-	0x63, 0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x47, 0x72, 0x6f, 0x75,
-	0x70, 0x22, 0x21, 0x0a, 0x1f, 0x4d, 0x73, 0x67, 0x46, 0x6f, 0x72, 0x63, 0x65, 0x54, 0x72, 0x61,
-	0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x32, 0x88, 0x05, 0x0a, 0x03, 0x4d, 0x73, 0x67, 0x12, 0x70, 0x0a, 0x10,
-	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65,
-	0x12, 0x29, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65,
-	0x73, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x1a, 0x31, 0x2e, 0x62, 0x61,
-	0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x53, 0x69, 0x67,
-	0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x58,
-	0x0a, 0x08, 0x41, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x12, 0x21, 0x2e, 0x62, 0x61, 0x6e,
-	0x64, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
-	0x31, 0x2e, 0x4d, 0x73, 0x67, 0x41, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x1a, 0x29, 0x2e,
+	0x47, 0x72, 0x6f, 0x75, 0x70, 0x49, 0x44, 0x52, 0x0f, 0x69, 0x6e, 0x63, 0x6f, 0x6d, 0x69, 0x6e,
+	0x67, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x49, 0x64, 0x12, 0x41, 0x0a, 0x09, 0x65, 0x78, 0x65, 0x63,
+	0x5f, 0x74, 0x69, 0x6d, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x67, 0x6f,
+	0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x54, 0x69,
+	0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x42, 0x08, 0xc8, 0xde, 0x1f, 0x00, 0x90, 0xdf, 0x1f,
+	0x01, 0x52, 0x08, 0x65, 0x78, 0x65, 0x63, 0x54, 0x69, 0x6d, 0x65, 0x12, 0x36, 0x0a, 0x09, 0x61,
+	0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18,
+	0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65,
+	0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72,
+	0x69, 0x74, 0x79, 0x3a, 0x2f, 0x82, 0xe7, 0xb0, 0x2a, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72,
+	0x69, 0x74, 0x79, 0x8a, 0xe7, 0xb0, 0x2a, 0x1c, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f,
+	0x46, 0x6f, 0x72, 0x63, 0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x47,
+	0x72, 0x6f, 0x75, 0x70, 0x22, 0x21, 0x0a, 0x1f, 0x4d, 0x73, 0x67, 0x46, 0x6f, 0x72, 0x63, 0x65,
+	0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0xab, 0x04, 0x0a, 0x03, 0x4d, 0x73, 0x67, 0x12,
+	0x70, 0x0a, 0x10, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74,
+	0x75, 0x72, 0x65, 0x12, 0x29, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74,
+	0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x1a, 0x31,
+	0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31,
+	0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x53, 0x69, 0x67, 0x6e, 0x61, 0x74, 0x75, 0x72, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x58, 0x0a, 0x08, 0x41, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65, 0x12, 0x21, 0x2e,
 	0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62,
 	0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x41, 0x63, 0x74, 0x69, 0x76, 0x61, 0x74, 0x65,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x5b, 0x0a, 0x09, 0x48, 0x65, 0x61, 0x72,
-	0x74, 0x62, 0x65, 0x61, 0x74, 0x12, 0x22, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e,
-	0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67,
-	0x48, 0x65, 0x61, 0x72, 0x74, 0x62, 0x65, 0x61, 0x74, 0x1a, 0x2a, 0x2e, 0x62, 0x61, 0x6e, 0x64,
-	0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0x2e, 0x4d, 0x73, 0x67, 0x48, 0x65, 0x61, 0x72, 0x74, 0x62, 0x65, 0x61, 0x74, 0x52, 0x65, 0x73,
-	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x64, 0x0a, 0x0c, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50,
-	0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x25, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e,
-	0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67,
-	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x1a, 0x2d, 0x2e, 0x62,
-	0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65,
-	0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72,
-	0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x6d, 0x0a, 0x0f, 0x54,
-	0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x12, 0x28,
+	0x1a, 0x29, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e,
+	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x41, 0x63, 0x74, 0x69, 0x76,
+	0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x64, 0x0a, 0x0c, 0x55,
+	0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x25, 0x2e, 0x62, 0x61,
+	0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61,
+	0x6d, 0x73, 0x1a, 0x2d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73,
+	0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64,
+	0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x6d, 0x0a, 0x0f, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x47,
+	0x72, 0x6f, 0x75, 0x70, 0x12, 0x28, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e, 0x64,
+	0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x54,
+	0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x1a, 0x30,
 	0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31,
 	0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74,
-	0x69, 0x6f, 0x6e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x1a, 0x30, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e,
+	0x69, 0x6f, 0x6e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x12, 0x7c, 0x0a, 0x14, 0x46, 0x6f, 0x72, 0x63, 0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74,
+	0x69, 0x6f, 0x6e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x12, 0x2d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e,
 	0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e,
-	0x4d, 0x73, 0x67, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x47, 0x72, 0x6f,
-	0x75, 0x70, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x7c, 0x0a, 0x14, 0x46, 0x6f,
-	0x72, 0x63, 0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x47, 0x72, 0x6f,
-	0x75, 0x70, 0x12, 0x2d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73,
-	0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x46, 0x6f, 0x72,
-	0x63, 0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x47, 0x72, 0x6f, 0x75,
-	0x70, 0x1a, 0x35, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73,
-	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x46, 0x6f, 0x72, 0x63,
-	0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x47, 0x72, 0x6f, 0x75, 0x70,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x1a, 0x05, 0x80, 0xe7, 0xb0, 0x2a, 0x01, 0x42,
-	0xdf, 0x01, 0x0a, 0x18, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e,
-	0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x07, 0x54, 0x78,
-	0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x48, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e,
-	0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c,
-	0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x62, 0x61,
-	0x6e, 0x64, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0x3b, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
-	0x31, 0xa2, 0x02, 0x03, 0x42, 0x42, 0x58, 0xaa, 0x02, 0x14, 0x42, 0x61, 0x6e, 0x64, 0x2e, 0x42,
-	0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca, 0x02,
-	0x14, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x42, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x5c, 0x56, 0x31,
-	0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02, 0x20, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x42, 0x61, 0x6e,
-	0x64, 0x74, 0x73, 0x73, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42,
-	0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x16, 0x42, 0x61, 0x6e, 0x64, 0x3a,
-	0x3a, 0x42, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61,
-	0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x4d, 0x73, 0x67, 0x46, 0x6f, 0x72, 0x63, 0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69,
+	0x6f, 0x6e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x1a, 0x35, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62,
+	0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d,
+	0x73, 0x67, 0x46, 0x6f, 0x72, 0x63, 0x65, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f,
+	0x6e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x1a, 0x05,
+	0x80, 0xe7, 0xb0, 0x2a, 0x01, 0x42, 0xdf, 0x01, 0x0a, 0x18, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61,
+	0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x42, 0x07, 0x54, 0x78, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x48, 0x67,
+	0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f,
+	0x61, 0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73,
+	0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73,
+	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x42, 0x42, 0x58, 0xaa, 0x02, 0x14,
+	0x42, 0x61, 0x6e, 0x64, 0x2e, 0x42, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x56, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x14, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x42, 0x61, 0x6e, 0x64,
+	0x74, 0x73, 0x73, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02, 0x20, 0x42, 0x61,
+	0x6e, 0x64, 0x5c, 0x42, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02,
+	0x16, 0x42, 0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x42, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x3a, 0x3a,
+	0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -6196,45 +5279,41 @@ func file_band_bandtss_v1beta1_tx_proto_rawDescGZIP() []byte {
 	return file_band_bandtss_v1beta1_tx_proto_rawDescData
 }
 
-var file_band_bandtss_v1beta1_tx_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_band_bandtss_v1beta1_tx_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_band_bandtss_v1beta1_tx_proto_goTypes = []interface{}{
 	(*MsgRequestSignature)(nil),             // 0: band.bandtss.v1beta1.MsgRequestSignature
 	(*MsgRequestSignatureResponse)(nil),     // 1: band.bandtss.v1beta1.MsgRequestSignatureResponse
 	(*MsgActivate)(nil),                     // 2: band.bandtss.v1beta1.MsgActivate
 	(*MsgActivateResponse)(nil),             // 3: band.bandtss.v1beta1.MsgActivateResponse
-	(*MsgHeartbeat)(nil),                    // 4: band.bandtss.v1beta1.MsgHeartbeat
-	(*MsgHeartbeatResponse)(nil),            // 5: band.bandtss.v1beta1.MsgHeartbeatResponse
-	(*MsgUpdateParams)(nil),                 // 6: band.bandtss.v1beta1.MsgUpdateParams
-	(*MsgUpdateParamsResponse)(nil),         // 7: band.bandtss.v1beta1.MsgUpdateParamsResponse
-	(*MsgTransitionGroup)(nil),              // 8: band.bandtss.v1beta1.MsgTransitionGroup
-	(*MsgTransitionGroupResponse)(nil),      // 9: band.bandtss.v1beta1.MsgTransitionGroupResponse
-	(*MsgForceTransitionGroup)(nil),         // 10: band.bandtss.v1beta1.MsgForceTransitionGroup
-	(*MsgForceTransitionGroupResponse)(nil), // 11: band.bandtss.v1beta1.MsgForceTransitionGroupResponse
-	(*anypb.Any)(nil),                       // 12: google.protobuf.Any
-	(*v1beta1.Coin)(nil),                    // 13: cosmos.base.v1beta1.Coin
-	(*Params)(nil),                          // 14: band.bandtss.v1beta1.Params
-	(*timestamppb.Timestamp)(nil),           // 15: google.protobuf.Timestamp
+	(*MsgUpdateParams)(nil),                 // 4: band.bandtss.v1beta1.MsgUpdateParams
+	(*MsgUpdateParamsResponse)(nil),         // 5: band.bandtss.v1beta1.MsgUpdateParamsResponse
+	(*MsgTransitionGroup)(nil),              // 6: band.bandtss.v1beta1.MsgTransitionGroup
+	(*MsgTransitionGroupResponse)(nil),      // 7: band.bandtss.v1beta1.MsgTransitionGroupResponse
+	(*MsgForceTransitionGroup)(nil),         // 8: band.bandtss.v1beta1.MsgForceTransitionGroup
+	(*MsgForceTransitionGroupResponse)(nil), // 9: band.bandtss.v1beta1.MsgForceTransitionGroupResponse
+	(*anypb.Any)(nil),                       // 10: google.protobuf.Any
+	(*v1beta1.Coin)(nil),                    // 11: cosmos.base.v1beta1.Coin
+	(*Params)(nil),                          // 12: band.bandtss.v1beta1.Params
+	(*timestamppb.Timestamp)(nil),           // 13: google.protobuf.Timestamp
 }
 var file_band_bandtss_v1beta1_tx_proto_depIdxs = []int32{
-	12, // 0: band.bandtss.v1beta1.MsgRequestSignature.content:type_name -> google.protobuf.Any
-	13, // 1: band.bandtss.v1beta1.MsgRequestSignature.fee_limit:type_name -> cosmos.base.v1beta1.Coin
-	14, // 2: band.bandtss.v1beta1.MsgUpdateParams.params:type_name -> band.bandtss.v1beta1.Params
-	15, // 3: band.bandtss.v1beta1.MsgTransitionGroup.exec_time:type_name -> google.protobuf.Timestamp
-	15, // 4: band.bandtss.v1beta1.MsgForceTransitionGroup.exec_time:type_name -> google.protobuf.Timestamp
+	10, // 0: band.bandtss.v1beta1.MsgRequestSignature.content:type_name -> google.protobuf.Any
+	11, // 1: band.bandtss.v1beta1.MsgRequestSignature.fee_limit:type_name -> cosmos.base.v1beta1.Coin
+	12, // 2: band.bandtss.v1beta1.MsgUpdateParams.params:type_name -> band.bandtss.v1beta1.Params
+	13, // 3: band.bandtss.v1beta1.MsgTransitionGroup.exec_time:type_name -> google.protobuf.Timestamp
+	13, // 4: band.bandtss.v1beta1.MsgForceTransitionGroup.exec_time:type_name -> google.protobuf.Timestamp
 	0,  // 5: band.bandtss.v1beta1.Msg.RequestSignature:input_type -> band.bandtss.v1beta1.MsgRequestSignature
 	2,  // 6: band.bandtss.v1beta1.Msg.Activate:input_type -> band.bandtss.v1beta1.MsgActivate
-	4,  // 7: band.bandtss.v1beta1.Msg.Heartbeat:input_type -> band.bandtss.v1beta1.MsgHeartbeat
-	6,  // 8: band.bandtss.v1beta1.Msg.UpdateParams:input_type -> band.bandtss.v1beta1.MsgUpdateParams
-	8,  // 9: band.bandtss.v1beta1.Msg.TransitionGroup:input_type -> band.bandtss.v1beta1.MsgTransitionGroup
-	10, // 10: band.bandtss.v1beta1.Msg.ForceTransitionGroup:input_type -> band.bandtss.v1beta1.MsgForceTransitionGroup
-	1,  // 11: band.bandtss.v1beta1.Msg.RequestSignature:output_type -> band.bandtss.v1beta1.MsgRequestSignatureResponse
-	3,  // 12: band.bandtss.v1beta1.Msg.Activate:output_type -> band.bandtss.v1beta1.MsgActivateResponse
-	5,  // 13: band.bandtss.v1beta1.Msg.Heartbeat:output_type -> band.bandtss.v1beta1.MsgHeartbeatResponse
-	7,  // 14: band.bandtss.v1beta1.Msg.UpdateParams:output_type -> band.bandtss.v1beta1.MsgUpdateParamsResponse
-	9,  // 15: band.bandtss.v1beta1.Msg.TransitionGroup:output_type -> band.bandtss.v1beta1.MsgTransitionGroupResponse
-	11, // 16: band.bandtss.v1beta1.Msg.ForceTransitionGroup:output_type -> band.bandtss.v1beta1.MsgForceTransitionGroupResponse
-	11, // [11:17] is the sub-list for method output_type
-	5,  // [5:11] is the sub-list for method input_type
+	4,  // 7: band.bandtss.v1beta1.Msg.UpdateParams:input_type -> band.bandtss.v1beta1.MsgUpdateParams
+	6,  // 8: band.bandtss.v1beta1.Msg.TransitionGroup:input_type -> band.bandtss.v1beta1.MsgTransitionGroup
+	8,  // 9: band.bandtss.v1beta1.Msg.ForceTransitionGroup:input_type -> band.bandtss.v1beta1.MsgForceTransitionGroup
+	1,  // 10: band.bandtss.v1beta1.Msg.RequestSignature:output_type -> band.bandtss.v1beta1.MsgRequestSignatureResponse
+	3,  // 11: band.bandtss.v1beta1.Msg.Activate:output_type -> band.bandtss.v1beta1.MsgActivateResponse
+	5,  // 12: band.bandtss.v1beta1.Msg.UpdateParams:output_type -> band.bandtss.v1beta1.MsgUpdateParamsResponse
+	7,  // 13: band.bandtss.v1beta1.Msg.TransitionGroup:output_type -> band.bandtss.v1beta1.MsgTransitionGroupResponse
+	9,  // 14: band.bandtss.v1beta1.Msg.ForceTransitionGroup:output_type -> band.bandtss.v1beta1.MsgForceTransitionGroupResponse
+	10, // [10:15] is the sub-list for method output_type
+	5,  // [5:10] is the sub-list for method input_type
 	5,  // [5:5] is the sub-list for extension type_name
 	5,  // [5:5] is the sub-list for extension extendee
 	0,  // [0:5] is the sub-list for field type_name
@@ -6296,30 +5375,6 @@ func file_band_bandtss_v1beta1_tx_proto_init() {
 			}
 		}
 		file_band_bandtss_v1beta1_tx_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MsgHeartbeat); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_band_bandtss_v1beta1_tx_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MsgHeartbeatResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_band_bandtss_v1beta1_tx_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgUpdateParams); i {
 			case 0:
 				return &v.state
@@ -6331,7 +5386,7 @@ func file_band_bandtss_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_band_bandtss_v1beta1_tx_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_band_bandtss_v1beta1_tx_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgUpdateParamsResponse); i {
 			case 0:
 				return &v.state
@@ -6343,7 +5398,7 @@ func file_band_bandtss_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_band_bandtss_v1beta1_tx_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_band_bandtss_v1beta1_tx_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgTransitionGroup); i {
 			case 0:
 				return &v.state
@@ -6355,7 +5410,7 @@ func file_band_bandtss_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_band_bandtss_v1beta1_tx_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+		file_band_bandtss_v1beta1_tx_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgTransitionGroupResponse); i {
 			case 0:
 				return &v.state
@@ -6367,7 +5422,7 @@ func file_band_bandtss_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_band_bandtss_v1beta1_tx_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+		file_band_bandtss_v1beta1_tx_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgForceTransitionGroup); i {
 			case 0:
 				return &v.state
@@ -6379,7 +5434,7 @@ func file_band_bandtss_v1beta1_tx_proto_init() {
 				return nil
 			}
 		}
-		file_band_bandtss_v1beta1_tx_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+		file_band_bandtss_v1beta1_tx_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MsgForceTransitionGroupResponse); i {
 			case 0:
 				return &v.state
@@ -6398,7 +5453,7 @@ func file_band_bandtss_v1beta1_tx_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_band_bandtss_v1beta1_tx_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

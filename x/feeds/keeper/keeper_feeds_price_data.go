@@ -30,8 +30,7 @@ func (k Keeper) GetFeedsPriceData(
 
 		// Check if the encoder mode is tick
 		if encoder == types.ENCODER_TICK_ABI {
-			err := p.ToTick()
-			if err != nil {
+			if err := p.ToTick(); err != nil {
 				return nil, err
 			}
 		}

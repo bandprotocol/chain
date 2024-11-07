@@ -277,7 +277,7 @@ func NewBandApp(
 			AuthzKeeper:     &app.AuthzKeeper,
 			OracleKeeper:    &app.OracleKeeper,
 			TSSKeeper:       app.TSSKeeper,
-			BandtssKeeper:   app.BandtssKeeper,
+			BandtssKeeper:   &app.BandtssKeeper,
 			FeedsKeeper:     &app.FeedsKeeper,
 			IBCKeeper:       app.IBCKeeper,
 			StakingKeeper:   app.StakingKeeper,

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export WALLET_NAME=requester
-export SIGNAL_IDs=crypto_price.ethusd,crypto_price.usdtusd
+export SIGNAL_IDs=CS:ETH-USD,CS:USDT-USD
 
 # 0: Unspecified, 1: Default, 2: Tick
 export FEEDS_TYPE=1
