@@ -13,7 +13,7 @@ import (
 // current group. Note that this reward is also subjected to comm tax and this reward is
 // calculate after allocation in oracle module.
 func (k Keeper) AllocateTokens(ctx sdk.Context) {
-	gid := k.GetCurrentGroupID(ctx)
+	gid := k.GetCurrentGroup(ctx).GroupID
 	if gid == tss.GroupID(0) {
 		return
 	}

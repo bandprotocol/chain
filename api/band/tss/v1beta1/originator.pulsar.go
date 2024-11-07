@@ -14,14 +14,16 @@ import (
 )
 
 var (
-	md_DirectOriginator           protoreflect.MessageDescriptor
-	fd_DirectOriginator_requester protoreflect.FieldDescriptor
-	fd_DirectOriginator_memo      protoreflect.FieldDescriptor
+	md_DirectOriginator                 protoreflect.MessageDescriptor
+	fd_DirectOriginator_source_chain_id protoreflect.FieldDescriptor
+	fd_DirectOriginator_requester       protoreflect.FieldDescriptor
+	fd_DirectOriginator_memo            protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_band_tss_v1beta1_originator_proto_init()
 	md_DirectOriginator = File_band_tss_v1beta1_originator_proto.Messages().ByName("DirectOriginator")
+	fd_DirectOriginator_source_chain_id = md_DirectOriginator.Fields().ByName("source_chain_id")
 	fd_DirectOriginator_requester = md_DirectOriginator.Fields().ByName("requester")
 	fd_DirectOriginator_memo = md_DirectOriginator.Fields().ByName("memo")
 }
@@ -91,6 +93,12 @@ func (x *fastReflection_DirectOriginator) Interface() protoreflect.ProtoMessage 
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
 func (x *fastReflection_DirectOriginator) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.SourceChainId != "" {
+		value := protoreflect.ValueOfString(x.SourceChainId)
+		if !f(fd_DirectOriginator_source_chain_id, value) {
+			return
+		}
+	}
 	if x.Requester != "" {
 		value := protoreflect.ValueOfString(x.Requester)
 		if !f(fd_DirectOriginator_requester, value) {
@@ -118,6 +126,8 @@ func (x *fastReflection_DirectOriginator) Range(f func(protoreflect.FieldDescrip
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_DirectOriginator) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
+	case "band.tss.v1beta1.DirectOriginator.source_chain_id":
+		return x.SourceChainId != ""
 	case "band.tss.v1beta1.DirectOriginator.requester":
 		return x.Requester != ""
 	case "band.tss.v1beta1.DirectOriginator.memo":
@@ -138,6 +148,8 @@ func (x *fastReflection_DirectOriginator) Has(fd protoreflect.FieldDescriptor) b
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_DirectOriginator) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
+	case "band.tss.v1beta1.DirectOriginator.source_chain_id":
+		x.SourceChainId = ""
 	case "band.tss.v1beta1.DirectOriginator.requester":
 		x.Requester = ""
 	case "band.tss.v1beta1.DirectOriginator.memo":
@@ -158,6 +170,9 @@ func (x *fastReflection_DirectOriginator) Clear(fd protoreflect.FieldDescriptor)
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_DirectOriginator) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
+	case "band.tss.v1beta1.DirectOriginator.source_chain_id":
+		value := x.SourceChainId
+		return protoreflect.ValueOfString(value)
 	case "band.tss.v1beta1.DirectOriginator.requester":
 		value := x.Requester
 		return protoreflect.ValueOfString(value)
@@ -184,6 +199,8 @@ func (x *fastReflection_DirectOriginator) Get(descriptor protoreflect.FieldDescr
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_DirectOriginator) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
+	case "band.tss.v1beta1.DirectOriginator.source_chain_id":
+		x.SourceChainId = value.Interface().(string)
 	case "band.tss.v1beta1.DirectOriginator.requester":
 		x.Requester = value.Interface().(string)
 	case "band.tss.v1beta1.DirectOriginator.memo":
@@ -208,6 +225,8 @@ func (x *fastReflection_DirectOriginator) Set(fd protoreflect.FieldDescriptor, v
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_DirectOriginator) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
+	case "band.tss.v1beta1.DirectOriginator.source_chain_id":
+		panic(fmt.Errorf("field source_chain_id of message band.tss.v1beta1.DirectOriginator is not mutable"))
 	case "band.tss.v1beta1.DirectOriginator.requester":
 		panic(fmt.Errorf("field requester of message band.tss.v1beta1.DirectOriginator is not mutable"))
 	case "band.tss.v1beta1.DirectOriginator.memo":
@@ -225,6 +244,8 @@ func (x *fastReflection_DirectOriginator) Mutable(fd protoreflect.FieldDescripto
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_DirectOriginator) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
+	case "band.tss.v1beta1.DirectOriginator.source_chain_id":
+		return protoreflect.ValueOfString("")
 	case "band.tss.v1beta1.DirectOriginator.requester":
 		return protoreflect.ValueOfString("")
 	case "band.tss.v1beta1.DirectOriginator.memo":
@@ -298,6 +319,10 @@ func (x *fastReflection_DirectOriginator) ProtoMethods() *protoiface.Methods {
 		var n int
 		var l int
 		_ = l
+		l = len(x.SourceChainId)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
 		l = len(x.Requester)
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
@@ -340,12 +365,19 @@ func (x *fastReflection_DirectOriginator) ProtoMethods() *protoiface.Methods {
 			copy(dAtA[i:], x.Memo)
 			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Memo)))
 			i--
-			dAtA[i] = 0x12
+			dAtA[i] = 0x1a
 		}
 		if len(x.Requester) > 0 {
 			i -= len(x.Requester)
 			copy(dAtA[i:], x.Requester)
 			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Requester)))
+			i--
+			dAtA[i] = 0x12
+		}
+		if len(x.SourceChainId) > 0 {
+			i -= len(x.SourceChainId)
+			copy(dAtA[i:], x.SourceChainId)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.SourceChainId)))
 			i--
 			dAtA[i] = 0xa
 		}
@@ -400,6 +432,38 @@ func (x *fastReflection_DirectOriginator) ProtoMethods() *protoiface.Methods {
 			switch fieldNum {
 			case 1:
 				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field SourceChainId", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.SourceChainId = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			case 2:
+				if wireType != 2 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Requester", wireType)
 				}
 				var stringLen uint64
@@ -430,7 +494,7 @@ func (x *fastReflection_DirectOriginator) ProtoMethods() *protoiface.Methods {
 				}
 				x.Requester = string(dAtA[iNdEx:postIndex])
 				iNdEx = postIndex
-			case 2:
+			case 3:
 				if wireType != 2 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Memo", wireType)
 				}
@@ -499,17 +563,19 @@ func (x *fastReflection_DirectOriginator) ProtoMethods() *protoiface.Methods {
 
 var (
 	md_TunnelOriginator                  protoreflect.MessageDescriptor
+	fd_TunnelOriginator_source_chain_id  protoreflect.FieldDescriptor
 	fd_TunnelOriginator_tunnel_id        protoreflect.FieldDescriptor
 	fd_TunnelOriginator_contract_address protoreflect.FieldDescriptor
-	fd_TunnelOriginator_chain_id         protoreflect.FieldDescriptor
+	fd_TunnelOriginator_target_chain_id  protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_band_tss_v1beta1_originator_proto_init()
 	md_TunnelOriginator = File_band_tss_v1beta1_originator_proto.Messages().ByName("TunnelOriginator")
+	fd_TunnelOriginator_source_chain_id = md_TunnelOriginator.Fields().ByName("source_chain_id")
 	fd_TunnelOriginator_tunnel_id = md_TunnelOriginator.Fields().ByName("tunnel_id")
 	fd_TunnelOriginator_contract_address = md_TunnelOriginator.Fields().ByName("contract_address")
-	fd_TunnelOriginator_chain_id = md_TunnelOriginator.Fields().ByName("chain_id")
+	fd_TunnelOriginator_target_chain_id = md_TunnelOriginator.Fields().ByName("target_chain_id")
 }
 
 var _ protoreflect.Message = (*fastReflection_TunnelOriginator)(nil)
@@ -577,6 +643,12 @@ func (x *fastReflection_TunnelOriginator) Interface() protoreflect.ProtoMessage 
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
 func (x *fastReflection_TunnelOriginator) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.SourceChainId != "" {
+		value := protoreflect.ValueOfString(x.SourceChainId)
+		if !f(fd_TunnelOriginator_source_chain_id, value) {
+			return
+		}
+	}
 	if x.TunnelId != uint64(0) {
 		value := protoreflect.ValueOfUint64(x.TunnelId)
 		if !f(fd_TunnelOriginator_tunnel_id, value) {
@@ -589,9 +661,9 @@ func (x *fastReflection_TunnelOriginator) Range(f func(protoreflect.FieldDescrip
 			return
 		}
 	}
-	if x.ChainId != "" {
-		value := protoreflect.ValueOfString(x.ChainId)
-		if !f(fd_TunnelOriginator_chain_id, value) {
+	if x.TargetChainId != "" {
+		value := protoreflect.ValueOfString(x.TargetChainId)
+		if !f(fd_TunnelOriginator_target_chain_id, value) {
 			return
 		}
 	}
@@ -610,12 +682,14 @@ func (x *fastReflection_TunnelOriginator) Range(f func(protoreflect.FieldDescrip
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_TunnelOriginator) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
+	case "band.tss.v1beta1.TunnelOriginator.source_chain_id":
+		return x.SourceChainId != ""
 	case "band.tss.v1beta1.TunnelOriginator.tunnel_id":
 		return x.TunnelId != uint64(0)
 	case "band.tss.v1beta1.TunnelOriginator.contract_address":
 		return x.ContractAddress != ""
-	case "band.tss.v1beta1.TunnelOriginator.chain_id":
-		return x.ChainId != ""
+	case "band.tss.v1beta1.TunnelOriginator.target_chain_id":
+		return x.TargetChainId != ""
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tss.v1beta1.TunnelOriginator"))
@@ -632,12 +706,14 @@ func (x *fastReflection_TunnelOriginator) Has(fd protoreflect.FieldDescriptor) b
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_TunnelOriginator) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
+	case "band.tss.v1beta1.TunnelOriginator.source_chain_id":
+		x.SourceChainId = ""
 	case "band.tss.v1beta1.TunnelOriginator.tunnel_id":
 		x.TunnelId = uint64(0)
 	case "band.tss.v1beta1.TunnelOriginator.contract_address":
 		x.ContractAddress = ""
-	case "band.tss.v1beta1.TunnelOriginator.chain_id":
-		x.ChainId = ""
+	case "band.tss.v1beta1.TunnelOriginator.target_chain_id":
+		x.TargetChainId = ""
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tss.v1beta1.TunnelOriginator"))
@@ -654,14 +730,17 @@ func (x *fastReflection_TunnelOriginator) Clear(fd protoreflect.FieldDescriptor)
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_TunnelOriginator) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
+	case "band.tss.v1beta1.TunnelOriginator.source_chain_id":
+		value := x.SourceChainId
+		return protoreflect.ValueOfString(value)
 	case "band.tss.v1beta1.TunnelOriginator.tunnel_id":
 		value := x.TunnelId
 		return protoreflect.ValueOfUint64(value)
 	case "band.tss.v1beta1.TunnelOriginator.contract_address":
 		value := x.ContractAddress
 		return protoreflect.ValueOfString(value)
-	case "band.tss.v1beta1.TunnelOriginator.chain_id":
-		value := x.ChainId
+	case "band.tss.v1beta1.TunnelOriginator.target_chain_id":
+		value := x.TargetChainId
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
@@ -683,12 +762,14 @@ func (x *fastReflection_TunnelOriginator) Get(descriptor protoreflect.FieldDescr
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_TunnelOriginator) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
+	case "band.tss.v1beta1.TunnelOriginator.source_chain_id":
+		x.SourceChainId = value.Interface().(string)
 	case "band.tss.v1beta1.TunnelOriginator.tunnel_id":
 		x.TunnelId = value.Uint()
 	case "band.tss.v1beta1.TunnelOriginator.contract_address":
 		x.ContractAddress = value.Interface().(string)
-	case "band.tss.v1beta1.TunnelOriginator.chain_id":
-		x.ChainId = value.Interface().(string)
+	case "band.tss.v1beta1.TunnelOriginator.target_chain_id":
+		x.TargetChainId = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tss.v1beta1.TunnelOriginator"))
@@ -709,12 +790,14 @@ func (x *fastReflection_TunnelOriginator) Set(fd protoreflect.FieldDescriptor, v
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_TunnelOriginator) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
+	case "band.tss.v1beta1.TunnelOriginator.source_chain_id":
+		panic(fmt.Errorf("field source_chain_id of message band.tss.v1beta1.TunnelOriginator is not mutable"))
 	case "band.tss.v1beta1.TunnelOriginator.tunnel_id":
 		panic(fmt.Errorf("field tunnel_id of message band.tss.v1beta1.TunnelOriginator is not mutable"))
 	case "band.tss.v1beta1.TunnelOriginator.contract_address":
 		panic(fmt.Errorf("field contract_address of message band.tss.v1beta1.TunnelOriginator is not mutable"))
-	case "band.tss.v1beta1.TunnelOriginator.chain_id":
-		panic(fmt.Errorf("field chain_id of message band.tss.v1beta1.TunnelOriginator is not mutable"))
+	case "band.tss.v1beta1.TunnelOriginator.target_chain_id":
+		panic(fmt.Errorf("field target_chain_id of message band.tss.v1beta1.TunnelOriginator is not mutable"))
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tss.v1beta1.TunnelOriginator"))
@@ -728,11 +811,13 @@ func (x *fastReflection_TunnelOriginator) Mutable(fd protoreflect.FieldDescripto
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_TunnelOriginator) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
+	case "band.tss.v1beta1.TunnelOriginator.source_chain_id":
+		return protoreflect.ValueOfString("")
 	case "band.tss.v1beta1.TunnelOriginator.tunnel_id":
 		return protoreflect.ValueOfUint64(uint64(0))
 	case "band.tss.v1beta1.TunnelOriginator.contract_address":
 		return protoreflect.ValueOfString("")
-	case "band.tss.v1beta1.TunnelOriginator.chain_id":
+	case "band.tss.v1beta1.TunnelOriginator.target_chain_id":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
@@ -803,6 +888,10 @@ func (x *fastReflection_TunnelOriginator) ProtoMethods() *protoiface.Methods {
 		var n int
 		var l int
 		_ = l
+		l = len(x.SourceChainId)
+		if l > 0 {
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
 		if x.TunnelId != 0 {
 			n += 1 + runtime.Sov(uint64(x.TunnelId))
 		}
@@ -810,7 +899,7 @@ func (x *fastReflection_TunnelOriginator) ProtoMethods() *protoiface.Methods {
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
-		l = len(x.ChainId)
+		l = len(x.TargetChainId)
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
@@ -843,24 +932,31 @@ func (x *fastReflection_TunnelOriginator) ProtoMethods() *protoiface.Methods {
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
 		}
-		if len(x.ChainId) > 0 {
-			i -= len(x.ChainId)
-			copy(dAtA[i:], x.ChainId)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.ChainId)))
+		if len(x.TargetChainId) > 0 {
+			i -= len(x.TargetChainId)
+			copy(dAtA[i:], x.TargetChainId)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.TargetChainId)))
 			i--
-			dAtA[i] = 0x1a
+			dAtA[i] = 0x22
 		}
 		if len(x.ContractAddress) > 0 {
 			i -= len(x.ContractAddress)
 			copy(dAtA[i:], x.ContractAddress)
 			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.ContractAddress)))
 			i--
-			dAtA[i] = 0x12
+			dAtA[i] = 0x1a
 		}
 		if x.TunnelId != 0 {
 			i = runtime.EncodeVarint(dAtA, i, uint64(x.TunnelId))
 			i--
-			dAtA[i] = 0x8
+			dAtA[i] = 0x10
+		}
+		if len(x.SourceChainId) > 0 {
+			i -= len(x.SourceChainId)
+			copy(dAtA[i:], x.SourceChainId)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.SourceChainId)))
+			i--
+			dAtA[i] = 0xa
 		}
 		if input.Buf != nil {
 			input.Buf = append(input.Buf, dAtA...)
@@ -912,6 +1008,38 @@ func (x *fastReflection_TunnelOriginator) ProtoMethods() *protoiface.Methods {
 			}
 			switch fieldNum {
 			case 1:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field SourceChainId", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.SourceChainId = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			case 2:
 				if wireType != 0 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field TunnelId", wireType)
 				}
@@ -930,7 +1058,7 @@ func (x *fastReflection_TunnelOriginator) ProtoMethods() *protoiface.Methods {
 						break
 					}
 				}
-			case 2:
+			case 3:
 				if wireType != 2 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ContractAddress", wireType)
 				}
@@ -962,9 +1090,9 @@ func (x *fastReflection_TunnelOriginator) ProtoMethods() *protoiface.Methods {
 				}
 				x.ContractAddress = string(dAtA[iNdEx:postIndex])
 				iNdEx = postIndex
-			case 3:
+			case 4:
 				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ChainId", wireType)
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field TargetChainId", wireType)
 				}
 				var stringLen uint64
 				for shift := uint(0); ; shift += 7 {
@@ -992,7 +1120,7 @@ func (x *fastReflection_TunnelOriginator) ProtoMethods() *protoiface.Methods {
 				if postIndex > l {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
 				}
-				x.ChainId = string(dAtA[iNdEx:postIndex])
+				x.TargetChainId = string(dAtA[iNdEx:postIndex])
 				iNdEx = postIndex
 			default:
 				iNdEx = preIndex
@@ -1049,10 +1177,12 @@ type DirectOriginator struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// source_chain_id is the source chain ID that the data is originated from.
+	SourceChainId string `protobuf:"bytes,1,opt,name=source_chain_id,json=sourceChainId,proto3" json:"source_chain_id,omitempty"`
 	// requester is the address of the requester, it can be the user address or module address.
-	Requester string `protobuf:"bytes,1,opt,name=requester,proto3" json:"requester,omitempty"`
+	Requester string `protobuf:"bytes,2,opt,name=requester,proto3" json:"requester,omitempty"`
 	// memo is the note of the message.
-	Memo string `protobuf:"bytes,2,opt,name=memo,proto3" json:"memo,omitempty"`
+	Memo string `protobuf:"bytes,3,opt,name=memo,proto3" json:"memo,omitempty"`
 }
 
 func (x *DirectOriginator) Reset() {
@@ -1073,6 +1203,13 @@ func (*DirectOriginator) ProtoMessage() {}
 // Deprecated: Use DirectOriginator.ProtoReflect.Descriptor instead.
 func (*DirectOriginator) Descriptor() ([]byte, []int) {
 	return file_band_tss_v1beta1_originator_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *DirectOriginator) GetSourceChainId() string {
+	if x != nil {
+		return x.SourceChainId
+	}
+	return ""
 }
 
 func (x *DirectOriginator) GetRequester() string {
@@ -1096,12 +1233,14 @@ type TunnelOriginator struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// source_chain_id is the source chain ID that the data is originated from.
+	SourceChainId string `protobuf:"bytes,1,opt,name=source_chain_id,json=sourceChainId,proto3" json:"source_chain_id,omitempty"`
 	// tunnel_id is the tunnel ID that the request is originated from.
-	TunnelId uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
+	TunnelId uint64 `protobuf:"varint,2,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
 	// contract_address is the target address that the data should be relayed to.
-	ContractAddress string `protobuf:"bytes,2,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
-	// chain_id is the target chain ID that the data should be relayed to.
-	ChainId string `protobuf:"bytes,3,opt,name=chain_id,json=chainId,proto3" json:"chain_id,omitempty"`
+	ContractAddress string `protobuf:"bytes,3,opt,name=contract_address,json=contractAddress,proto3" json:"contract_address,omitempty"`
+	// target_chain_id is the target chain ID that the data should be relayed to.
+	TargetChainId string `protobuf:"bytes,4,opt,name=target_chain_id,json=targetChainId,proto3" json:"target_chain_id,omitempty"`
 }
 
 func (x *TunnelOriginator) Reset() {
@@ -1124,6 +1263,13 @@ func (*TunnelOriginator) Descriptor() ([]byte, []int) {
 	return file_band_tss_v1beta1_originator_proto_rawDescGZIP(), []int{1}
 }
 
+func (x *TunnelOriginator) GetSourceChainId() string {
+	if x != nil {
+		return x.SourceChainId
+	}
+	return ""
+}
+
 func (x *TunnelOriginator) GetTunnelId() uint64 {
 	if x != nil {
 		return x.TunnelId
@@ -1138,9 +1284,9 @@ func (x *TunnelOriginator) GetContractAddress() string {
 	return ""
 }
 
-func (x *TunnelOriginator) GetChainId() string {
+func (x *TunnelOriginator) GetTargetChainId() string {
 	if x != nil {
-		return x.ChainId
+		return x.TargetChainId
 	}
 	return ""
 }
@@ -1152,34 +1298,43 @@ var file_band_tss_v1beta1_originator_proto_rawDesc = []byte{
 	0x61, 0x31, 0x2f, 0x6f, 0x72, 0x69, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x6f, 0x72, 0x2e, 0x70, 0x72,
 	0x6f, 0x74, 0x6f, 0x12, 0x10, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31,
 	0x62, 0x65, 0x74, 0x61, 0x31, 0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x44, 0x0a, 0x10, 0x44,
+	0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x7f, 0x0a, 0x10, 0x44,
 	0x69, 0x72, 0x65, 0x63, 0x74, 0x4f, 0x72, 0x69, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x6f, 0x72, 0x12,
-	0x1c, 0x0a, 0x09, 0x72, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01,
-	0x28, 0x09, 0x52, 0x09, 0x72, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x65, 0x72, 0x12, 0x12, 0x0a,
-	0x04, 0x6d, 0x65, 0x6d, 0x6f, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6d, 0x65, 0x6d,
-	0x6f, 0x22, 0x90, 0x01, 0x0a, 0x10, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x4f, 0x72, 0x69, 0x67,
-	0x69, 0x6e, 0x61, 0x74, 0x6f, 0x72, 0x12, 0x29, 0x0a, 0x09, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
-	0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x42, 0x0c, 0xe2, 0xde, 0x1f, 0x08, 0x54,
-	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x44, 0x52, 0x08, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49,
-	0x64, 0x12, 0x29, 0x0a, 0x10, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x5f, 0x61, 0x64,
-	0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0f, 0x63, 0x6f, 0x6e,
-	0x74, 0x72, 0x61, 0x63, 0x74, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x26, 0x0a, 0x08,
-	0x63, 0x68, 0x61, 0x69, 0x6e, 0x5f, 0x69, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x42, 0x0b,
-	0xe2, 0xde, 0x1f, 0x07, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x44, 0x52, 0x07, 0x63, 0x68, 0x61,
-	0x69, 0x6e, 0x49, 0x64, 0x42, 0xcb, 0x01, 0x0a, 0x14, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e,
-	0x64, 0x2e, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x0f, 0x4f,
-	0x72, 0x69, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x6f, 0x72, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01,
-	0x5a, 0x40, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e,
-	0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f,
-	0x76, 0x33, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x74, 0x73, 0x73, 0x2f,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b, 0x74, 0x73, 0x73, 0x76, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0xa2, 0x02, 0x03, 0x42, 0x54, 0x58, 0xaa, 0x02, 0x10, 0x42, 0x61, 0x6e, 0x64, 0x2e,
-	0x54, 0x73, 0x73, 0x2e, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x10, 0x42, 0x61,
-	0x6e, 0x64, 0x5c, 0x54, 0x73, 0x73, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02,
-	0x1c, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54, 0x73, 0x73, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61,
-	0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x12,
-	0x42, 0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x54, 0x73, 0x73, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x39, 0x0a, 0x0f, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x5f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x5f,
+	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x11, 0xe2, 0xde, 0x1f, 0x0d, 0x53, 0x6f,
+	0x75, 0x72, 0x63, 0x65, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x44, 0x52, 0x0d, 0x73, 0x6f, 0x75,
+	0x72, 0x63, 0x65, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x64, 0x12, 0x1c, 0x0a, 0x09, 0x72, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x65, 0x72, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x72,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x65, 0x72, 0x12, 0x12, 0x0a, 0x04, 0x6d, 0x65, 0x6d, 0x6f,
+	0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04, 0x6d, 0x65, 0x6d, 0x6f, 0x22, 0xde, 0x01, 0x0a,
+	0x10, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x4f, 0x72, 0x69, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x6f,
+	0x72, 0x12, 0x39, 0x0a, 0x0f, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x5f, 0x63, 0x68, 0x61, 0x69,
+	0x6e, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x11, 0xe2, 0xde, 0x1f, 0x0d,
+	0x53, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x44, 0x52, 0x0d, 0x73,
+	0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x64, 0x12, 0x29, 0x0a, 0x09,
+	0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x04, 0x42,
+	0x0c, 0xe2, 0xde, 0x1f, 0x08, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x44, 0x52, 0x08, 0x74,
+	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x64, 0x12, 0x29, 0x0a, 0x10, 0x63, 0x6f, 0x6e, 0x74, 0x72,
+	0x61, 0x63, 0x74, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x03, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x0f, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x41, 0x64, 0x64, 0x72, 0x65,
+	0x73, 0x73, 0x12, 0x39, 0x0a, 0x0f, 0x74, 0x61, 0x72, 0x67, 0x65, 0x74, 0x5f, 0x63, 0x68, 0x61,
+	0x69, 0x6e, 0x5f, 0x69, 0x64, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x42, 0x11, 0xe2, 0xde, 0x1f,
+	0x0d, 0x54, 0x61, 0x72, 0x67, 0x65, 0x74, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x44, 0x52, 0x0d,
+	0x74, 0x61, 0x72, 0x67, 0x65, 0x74, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x64, 0x42, 0xcb, 0x01,
+	0x0a, 0x14, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x73, 0x73, 0x2e, 0x76,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x0f, 0x4f, 0x72, 0x69, 0x67, 0x69, 0x6e, 0x61, 0x74,
+	0x6f, 0x72, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x40, 0x67, 0x69, 0x74, 0x68, 0x75,
+	0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63,
+	0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x61, 0x70, 0x69, 0x2f,
+	0x62, 0x61, 0x6e, 0x64, 0x2f, 0x74, 0x73, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0x3b, 0x74, 0x73, 0x73, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x42, 0x54,
+	0x58, 0xaa, 0x02, 0x10, 0x42, 0x61, 0x6e, 0x64, 0x2e, 0x54, 0x73, 0x73, 0x2e, 0x56, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x10, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54, 0x73, 0x73, 0x5c,
+	0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02, 0x1c, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54,
+	0x73, 0x73, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65,
+	0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x12, 0x42, 0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x54,
+	0x73, 0x73, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x33,
 }
 
 var (

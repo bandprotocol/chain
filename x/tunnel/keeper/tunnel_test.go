@@ -42,7 +42,7 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 			{SignalID: "BTC", Price: 0},
 			{SignalID: "ETH", Price: 0},
 		},
-		Timestamp: 0,
+		LastInterval: 0,
 	}
 
 	s.accountKeeper.EXPECT().

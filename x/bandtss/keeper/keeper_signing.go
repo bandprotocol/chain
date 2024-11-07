@@ -21,10 +21,7 @@ func (k Keeper) CreateDirectSigningRequest(
 	sender sdk.AccAddress,
 	feeLimit sdk.Coins,
 ) (types.SigningID, error) {
-	originator := tsstypes.DirectOriginator{
-		Requester: sender.String(),
-		Memo:      memo,
-	}
+	originator := tsstypes.NewDirectOriginator(ctx.ChainID(), sender.String(), memo)
 	return k.createSigningRequest(ctx, &originator, content, sender, feeLimit)
 }
 
@@ -37,11 +34,12 @@ func (k Keeper) CreateTunnelSigningRequest(
 	sender sdk.AccAddress,
 	feeLimit sdk.Coins,
 ) (types.SigningID, error) {
-	originator := tsstypes.TunnelOriginator{
-		TunnelID:        tunnelID,
-		ContractAddress: destinationContractAddr,
-		ChainID:         destinationChainID,
-	}
+	originator := tsstypes.NewTunnelOriginator(
+		ctx.ChainID(),
+		tunnelID,
+		destinationContractAddr,
+		destinationChainID,
+	)
 	return k.createSigningRequest(ctx, &originator, content, sender, feeLimit)
 }
 
@@ -53,7 +51,7 @@ func (k Keeper) createSigningRequest(
 	sender sdk.AccAddress,
 	feeLimit sdk.Coins,
 ) (types.SigningID, error) {
-	currentGroupID := k.GetCurrentGroupID(ctx)
+	currentGroupID := k.GetCurrentGroup(ctx).GroupID
 	incomingGroupID := k.GetIncomingGroupID(ctx)
 	if currentGroupID == 0 && incomingGroupID == 0 {
 		return 0, types.ErrNoActiveGroup

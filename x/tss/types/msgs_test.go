@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	validSender = "cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8"
+	validSender = "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
 
 	validTssPoint = tss.Point(
 		testutil.HexDecode("03a50a76f243836311dd2fbaaf8b5185f5f7f34bd4cb99ac7309af18f89703960b"),

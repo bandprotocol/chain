@@ -15,30 +15,26 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 		members []*types.Member
 	}
 
-	since := time.Now().UTC()
-	lastActive := time.Now().UTC()
+	now := time.Now().UTC()
 
 	members := []*types.Member{
 		{
-			Address:    "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
-			GroupID:    tss.GroupID(1),
-			IsActive:   false,
-			Since:      since,
-			LastActive: lastActive,
+			Address:  "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+			GroupID:  tss.GroupID(1),
+			IsActive: false,
+			Since:    now,
 		},
 		{
-			Address:    "band1t5x8hrmht463eq4m0xhfgz95h62dyvkq049eek",
-			GroupID:    tss.GroupID(1),
-			IsActive:   true,
-			Since:      since,
-			LastActive: lastActive,
+			Address:  "band1t5x8hrmht463eq4m0xhfgz95h62dyvkq049eek",
+			GroupID:  tss.GroupID(1),
+			IsActive: true,
+			Since:    now,
 		},
 		{
-			Address:    "band1a22hgwm4tz8gj82y6zad3de2dcg5dpymtj20m5",
-			GroupID:    tss.GroupID(1),
-			IsActive:   true,
-			Since:      since,
-			LastActive: lastActive,
+			Address:  "band1a22hgwm4tz8gj82y6zad3de2dcg5dpymtj20m5",
+			GroupID:  tss.GroupID(1),
+			IsActive: true,
+			Since:    now,
 		},
 	}
 
@@ -99,7 +95,7 @@ func (s *KeeperTestSuite) TestGRPCQueryMembers() {
 	for _, tc := range testCases {
 		s.Run(fmt.Sprintf("Case %s", tc.name), func() {
 			q := s.queryServer
-			s.keeper.SetCurrentGroupID(s.ctx, 1)
+			s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(1, time.Now()))
 
 			for _, member := range members {
 				s.keeper.SetMember(s.ctx, *member)

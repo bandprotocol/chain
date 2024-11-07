@@ -18,16 +18,16 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData() {
 	}{
 		{
 			name:      "success case - fixed-point abi encoder",
-			signalIDs: []string{"CS:atom-usd", "CS:band-usd"},
+			signalIDs: []string{"CS:ATOM-USD", "CS:BAND-USD"},
 			setPrices: []types.Price{
 				{
-					SignalID:    "CS:atom-usd",
+					SignalID:    "CS:ATOM-USD",
 					Price:       1e10,
 					Timestamp:   suite.ctx.BlockTime().Unix(),
 					PriceStatus: types.PriceStatusAvailable,
 				},
 				{
-					SignalID:    "CS:band-usd",
+					SignalID:    "CS:BAND-USD",
 					Price:       1e10,
 					Timestamp:   suite.ctx.BlockTime().Unix(),
 					PriceStatus: types.PriceStatusAvailable,
@@ -37,11 +37,11 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData() {
 			expectResult: types.FeedsPriceData{
 				SignalPrices: []types.SignalPrice{
 					{
-						SignalID: "CS:atom-usd",
+						SignalID: "CS:ATOM-USD",
 						Price:    1e10,
 					},
 					{
-						SignalID: "CS:band-usd",
+						SignalID: "CS:BAND-USD",
 						Price:    1e10,
 					},
 				},
@@ -51,16 +51,16 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData() {
 		},
 		{
 			name:      "success case - tick abi encoder",
-			signalIDs: []string{"CS:atom-usd", "CS:band-usd"},
+			signalIDs: []string{"CS:ATOM-USD", "CS:BAND-USD"},
 			setPrices: []types.Price{
 				{
-					SignalID:    "CS:atom-usd",
+					SignalID:    "CS:ATOM-USD",
 					Price:       1e10,
 					Timestamp:   suite.ctx.BlockTime().Unix(),
 					PriceStatus: types.PriceStatusAvailable,
 				},
 				{
-					SignalID:    "CS:band-usd",
+					SignalID:    "CS:BAND-USD",
 					Price:       1e10,
 					Timestamp:   suite.ctx.BlockTime().Unix(),
 					PriceStatus: types.PriceStatusAvailable,
@@ -70,11 +70,11 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData() {
 			expectResult: types.FeedsPriceData{
 				SignalPrices: []types.SignalPrice{
 					{
-						SignalID: "CS:atom-usd",
+						SignalID: "CS:ATOM-USD",
 						Price:    285171,
 					},
 					{
-						SignalID: "CS:band-usd",
+						SignalID: "CS:BAND-USD",
 						Price:    285171,
 					},
 				},
@@ -84,10 +84,10 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData() {
 		},
 		{
 			name:      "fail case - price not available",
-			signalIDs: []string{"CS:atom-usd", "CS:band-usd"},
+			signalIDs: []string{"CS:ATOM-USD", "CS:BAND-USD"},
 			setPrices: []types.Price{
 				{
-					SignalID:    "CS:atom-usd",
+					SignalID:    "CS:ATOM-USD",
 					Price:       1e10,
 					Timestamp:   suite.ctx.BlockTime().Unix(),
 					PriceStatus: types.PriceStatusUnavailable,
@@ -95,14 +95,14 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData() {
 			},
 			encoder:      types.ENCODER_FIXED_POINT_ABI,
 			expectResult: types.FeedsPriceData{},
-			expectError:  fmt.Errorf("CS:atom-usd: price not available"),
+			expectError:  fmt.Errorf("CS:ATOM-USD: price not available"),
 		},
 		{
 			name:      "fail case - price too old",
-			signalIDs: []string{"CS:atom-usd"},
+			signalIDs: []string{"CS:ATOM-USD"},
 			setPrices: []types.Price{
 				{
-					SignalID:    "CS:atom-usd",
+					SignalID:    "CS:ATOM-USD",
 					Price:       1e10,
 					Timestamp:   suite.ctx.BlockTime().Unix() - 1000,
 					PriceStatus: types.PriceStatusAvailable,
@@ -110,15 +110,15 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData() {
 			},
 			encoder:      types.ENCODER_FIXED_POINT_ABI,
 			expectResult: types.FeedsPriceData{},
-			expectError:  fmt.Errorf("CS:atom-usd: price too old"),
+			expectError:  fmt.Errorf("CS:ATOM-USD: price too old"),
 		},
 		{
 			name:         "fail case - price not found",
-			signalIDs:    []string{"CS:atom-usdfake"},
+			signalIDs:    []string{"CS:ATOM-USDfake"},
 			setPrices:    []types.Price{},
 			encoder:      types.ENCODER_FIXED_POINT_ABI,
 			expectResult: types.FeedsPriceData{},
-			expectError:  fmt.Errorf("failed to get price for signal id: CS:atom-usdfake: price not found"),
+			expectError:  fmt.Errorf("failed to get price for signal id: CS:ATOM-USDfake: price not found"),
 		},
 	}
 
@@ -164,18 +164,18 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData2() {
 		{
 			name: "valid prices",
 			signalIDs: []string{
-				"CS:atom-usd",
-				"CS:band-usd",
+				"CS:ATOM-USD",
+				"CS:BAND-USD",
 			},
 			setPrices: []types.Price{
 				{
-					SignalID:    "CS:atom-usd",
+					SignalID:    "CS:ATOM-USD",
 					Price:       1e10,
 					Timestamp:   suite.ctx.BlockTime().Unix(),
 					PriceStatus: types.PriceStatusAvailable,
 				},
 				{
-					SignalID:    "CS:band-usd",
+					SignalID:    "CS:BAND-USD",
 					Price:       1e10,
 					Timestamp:   suite.ctx.BlockTime().Unix(),
 					PriceStatus: types.PriceStatusAvailable,
@@ -186,11 +186,11 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData2() {
 		{
 			name: "price not available",
 			signalIDs: []string{
-				"CS:atom-usd",
+				"CS:ATOM-USD",
 			},
 			setPrices: []types.Price{
 				{
-					SignalID:    "CS:atom-usd",
+					SignalID:    "CS:ATOM-USD",
 					Price:       1e10,
 					Timestamp:   suite.ctx.BlockTime().Unix(),
 					PriceStatus: types.PriceStatusUnavailable,
@@ -201,11 +201,11 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData2() {
 		{
 			name: "price too old",
 			signalIDs: []string{
-				"CS:atom-usd",
+				"CS:ATOM-USD",
 			},
 			setPrices: []types.Price{
 				{
-					SignalID:    "CS:atom-usd",
+					SignalID:    "CS:ATOM-USD",
 					Price:       1e10,
 					Timestamp:   suite.ctx.BlockTime().Unix() - 1000,
 					PriceStatus: types.PriceStatusAvailable,
