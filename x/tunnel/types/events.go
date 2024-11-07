@@ -4,7 +4,7 @@ package types
 const (
 	EventTypeUpdateParams         = "update_params"
 	EventTypeCreateTunnel         = "create_tunnel"
-	EventTypeEditTunnel           = "edit_tunnel"
+	EventTypeUpdateAndResetTunnel = "update_and_reset_tunnel"
 	EventTypeActivate             = "activate"
 	EventTypeDeactivate           = "deactivate"
 	EventTypeTriggerTunnel        = "trigger_tunnel"

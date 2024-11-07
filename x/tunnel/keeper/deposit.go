@@ -37,7 +37,7 @@ func (k Keeper) AddDeposit(
 	// update the depositor's deposit
 	deposit, found := k.GetDeposit(ctx, tunnelID, depositorAddr)
 	if !found {
-		deposit = types.NewDeposit(tunnelID, depositorAddr, depositAmount)
+		deposit = types.NewDeposit(tunnelID, depositorAddr.String(), depositAmount)
 	} else {
 		deposit.Amount = deposit.Amount.Add(depositAmount...)
 	}
