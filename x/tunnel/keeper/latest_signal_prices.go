@@ -47,3 +47,31 @@ func (k Keeper) GetAllLatestSignalPrices(ctx sdk.Context) []types.LatestSignalPr
 	}
 	return allLatestSignalPrices
 }
+
+// UpdateLastInterval updates the last interval timestamp of the tunnel in the LatestSignalPrices.
+// LatestSignalPrices of the tunnel must be set before calling this function.
+func (k Keeper) UpdateLastInterval(ctx sdk.Context, tunnelID uint64, timestamp int64) error {
+	latestSignalPrices, err := k.GetLatestSignalPrices(ctx, tunnelID)
+	if err != nil {
+		return err
+	}
+
+	latestSignalPrices.LastInterval = timestamp
+	k.SetLatestSignalPrices(ctx, latestSignalPrices)
+
+	return nil
+}
+
+// UpdatePriceTunnel updates the signal prices of the tunnel in the LatestSignalPrices.
+// LatestSignalPrices of the tunnel must be set before calling this function.
+func (k Keeper) UpdatePriceTunnel(ctx sdk.Context, tunnelID uint64, signalPrices []types.SignalPrice) error {
+	latestSignalPrices, err := k.GetLatestSignalPrices(ctx, tunnelID)
+	if err != nil {
+		return err
+	}
+
+	latestSignalPrices.SignalPrices = signalPrices
+	k.SetLatestSignalPrices(ctx, latestSignalPrices)
+
+	return nil
+}

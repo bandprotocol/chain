@@ -5,9 +5,12 @@ import (
 	"errors"
 	"fmt"
 
+	sdkerrors "cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
@@ -93,11 +96,11 @@ func (ms msgServer) CreateTunnel(
 	}, nil
 }
 
-// EditTunnel edits a tunnel.
-func (ms msgServer) EditTunnel(
+// UpdateAndResetTunnel edits a tunnel and reset latest signal price interval.
+func (ms msgServer) UpdateAndResetTunnel(
 	goCtx context.Context,
-	req *types.MsgEditTunnel,
-) (*types.MsgEditTunnelResponse, error) {
+	req *types.MsgUpdateAndResetTunnel,
+) (*types.MsgUpdateAndResetTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// validate signal infos and interval
@@ -118,12 +121,12 @@ func (ms msgServer) EditTunnel(
 		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", req.Creator, req.TunnelID)
 	}
 
-	err = ms.Keeper.EditTunnel(ctx, req.TunnelID, req.SignalDeviations, req.Interval)
+	err = ms.Keeper.UpdateAndResetTunnel(ctx, req.TunnelID, req.SignalDeviations, req.Interval)
 	if err != nil {
 		return nil, err
 	}
 
-	return &types.MsgEditTunnelResponse{}, nil
+	return &types.MsgUpdateAndResetTunnelResponse{}, nil
 }
 
 // Activate activates a tunnel.
@@ -204,17 +207,52 @@ func (ms msgServer) TriggerTunnel(
 		return nil, types.ErrInactiveTunnel.Wrapf("tunnelID %d", req.TunnelID)
 	}
 
-	currentPrices := ms.Keeper.feedsKeeper.GetAllCurrentPrices(ctx)
-	currentPricesMap := createPricesMap(currentPrices)
-
-	// produce packet with trigger all signals
-	if err := ms.Keeper.ProducePacket(ctx, tunnel.ID, currentPricesMap, true); err != nil {
+	ok, err := ms.Keeper.HasEnoughFundToCreatePacket(ctx, tunnel.ID)
+	if err != nil {
 		return nil, err
 	}
+	if !ok {
+		return nil, types.ErrInsufficientFund.Wrapf("tunnelID %d", req.TunnelID)
+	}
+
+	signalIDs := tunnel.GetSignalIDs()
+	currentPrices := ms.Keeper.feedsKeeper.GetCurrentPrices(ctx, signalIDs)
+
+	newSignalPrices := make([]types.SignalPrice, 0, len(signalIDs))
+	for _, currentPrice := range currentPrices {
+		var price uint64
+		if currentPrice.PriceStatus == feedstypes.PriceStatusAvailable {
+			price = currentPrice.Price
+		}
+
+		newSignalPrices = append(newSignalPrices, types.NewSignalPrice(currentPrice.SignalID, price))
+	}
+
+	// create a new packet
+	packet, err := ms.CreatePacket(ctx, tunnel.ID, newSignalPrices)
+	if err != nil {
+		return nil, err
+	}
+
+	// send packet
+	if err := ms.SendPacket(ctx, packet); err != nil {
+		return nil, sdkerrors.Wrapf(err, "failed to create packet for tunnel %d", tunnel.ID)
+	}
+
+	latestSignalPrices, err := ms.GetLatestSignalPrices(ctx, tunnel.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	// update latest price info.
+	latestSignalPrices.LastInterval = ctx.BlockTime().Unix()
+	latestSignalPrices.SignalPrices = newSignalPrices
+	ms.SetLatestSignalPrices(ctx, latestSignalPrices)
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeTriggerTunnel,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", req.TunnelID)),
+		sdk.NewAttribute(types.AttributeKeySequence, fmt.Sprintf("%d", tunnel.Sequence)),
 	))
 
 	return &types.MsgTriggerTunnelResponse{}, nil

@@ -25,7 +25,7 @@ func GetTxCmd() *cobra.Command {
 
 	txCmd.AddCommand(
 		GetTxCmdCreateTunnel(),
-		GetTxCmdEditTunnel(),
+		GetTxCmdUpdateAndResetTunnel(),
 		GetTxCmdActivate(),
 		GetTxCmdDeactivate(),
 		GetTxCmdTriggerTunnel(),
@@ -103,10 +103,10 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 	return cmd
 }
 
-func GetTxCmdEditTunnel() *cobra.Command {
+func GetTxCmdUpdateAndResetTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "edit-tunnel [tunnel-id] [interval] [signalDeviations-json-file] ",
-		Short: "Edit an existing tunnel",
+		Use:   "update-and-reset-tunnel [tunnel-id] [interval] [signalDeviations-json-file] ",
+		Short: "Update an existing tunnel and reset the latest price interval of the tunnel",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -129,7 +129,7 @@ func GetTxCmdEditTunnel() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgEditTunnel(
+			msg := types.NewMsgUpdateAndResetTunnel(
 				id,
 				signalDeviations.ToSignalDeviations(),
 				interval,
