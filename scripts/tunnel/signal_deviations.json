@@ -1,11 +1,11 @@
 {
   "signal_deviations": [
     {
-      "signal_id": "crypto_price.btcusd",
+      "signal_id": "CS:BTC-USD",
       "deviation_bps": 2000
     },
     {
-      "signal_id": "crypto_price.ethusd",
+      "signal_id": "CS:ETH-USD",
       "deviation_bps": 4000
     }
   ]

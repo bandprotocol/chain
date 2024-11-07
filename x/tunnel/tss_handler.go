@@ -11,8 +11,12 @@ import (
 )
 
 var (
+	// EncoderFixedPointABIPrefix is the prefix for fixed point ABI encoder
+	// The value is tss.Hash([]byte("FixedPointABI"))[:4]
 	EncoderFixedPointABIPrefix = tss.Hash([]byte("FixedPointABI"))[:4]
-	EncoderTickABIPrefix       = tss.Hash([]byte("TickABI"))[:4]
+	// EncoderTickABIPrefix is the prefix for tick ABI encoder
+	// The value is tss.Hash([]byte("TickABI"))[:4]
+	EncoderTickABIPrefix = tss.Hash([]byte("TickABI"))[:4]
 )
 
 // NewSignatureOrderHandler creates a tss handler to handle tunnel signature order
