@@ -239,14 +239,15 @@ func (ms msgServer) TriggerTunnel(
 		return nil, sdkerrors.Wrapf(err, "failed to create packet for tunnel %d", tunnel.ID)
 	}
 
-	// update latest price info.
-	if err := ms.UpdatePriceTunnel(ctx, tunnel.ID, newSignalPrices); err != nil {
+	latestSignalPrices, err := ms.GetLatestSignalPrices(ctx, tunnel.ID)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := ms.UpdateLastInterval(ctx, tunnel.ID, ctx.BlockTime().Unix()); err != nil {
-		return nil, err
-	}
+	// update latest price info.
+	latestSignalPrices.LastInterval = ctx.BlockTime().Unix()
+	latestSignalPrices.SignalPrices = newSignalPrices
+	ms.SetLatestSignalPrices(ctx, latestSignalPrices)
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeTriggerTunnel,
