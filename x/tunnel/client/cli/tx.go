@@ -255,7 +255,7 @@ func GetTxCmdDepositTunnel() *cobra.Command {
 
 func GetTxCmdWithdrawTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "withdraw [tunnel-id] [amount]",
+		Use:   "withdraw-tunnel [tunnel-id] [amount]",
 		Short: "Withdraw deposit from a tunnel",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
