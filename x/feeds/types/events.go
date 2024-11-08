@@ -10,6 +10,7 @@ const (
 	EventTypeUpdateReferenceSourceConfig = "update_reference_source_config"
 	EventTypeUpdateParams                = "update_params"
 
+	AttributeKeySignalPriceStatus   = "signal_price_status"
 	AttributeKeyPriceStatus         = "price_status"
 	AttributeKeyValidator           = "validator"
 	AttributeKeyPrice               = "price"

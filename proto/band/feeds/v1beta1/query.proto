@@ -34,7 +34,7 @@ service Query {
 
   // Prices is an RPC method that prices by signal ids.
   rpc Prices(QueryPricesRequest) returns (QueryPricesResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/prices/{signal_ids}";
+    option (google.api.http).get = "/feeds/v1beta1/prices";
   }
 
   // AllPrices is an RPC method that returns all prices.
