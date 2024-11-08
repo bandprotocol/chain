@@ -11,7 +11,6 @@ import (
 
 	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
-	"github.com/bandprotocol/chain/v3/x/tunnel/keeper"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
@@ -107,7 +106,7 @@ func (s *KeeperTestSuite) TestProducePacket() {
 		{SignalID: "BTC/USD", Price: 0},
 	}, 0))
 
-	err = k.ProducePacket(ctx, tunnelID, currentPricesMap, false)
+	err = k.ProducePacket(ctx, tunnelID, currentPricesMap)
 	s.Require().NoError(err)
 }
 
@@ -234,32 +233,4 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPacketsNotEnoughMoney() {
 
 	activeTunnels := k.GetActiveTunnelIDs(ctx)
 	s.Require().Len(activeTunnels, 0)
-}
-
-func (s *KeeperTestSuite) TestGenerateSignalPrices() {
-	ctx := s.ctx
-
-	tunnelID := uint64(1)
-	currentPricesMap := map[string]feedstypes.Price{
-		"BTC/USD": {PriceStatus: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
-	}
-	triggerAll := true
-	tunnel := types.Tunnel{
-		ID: 1,
-		SignalDeviations: []types.SignalDeviation{
-			{SignalID: "BTC/USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
-		},
-	}
-	latestSignalPrices := types.NewLatestSignalPrices(tunnelID, []types.SignalPrice{
-		{SignalID: "BTC/USD", Price: 0},
-	}, 0)
-
-	nsps := keeper.GenerateSignalPrices(
-		ctx,
-		currentPricesMap,
-		tunnel.GetSignalDeviationMap(),
-		latestSignalPrices.SignalPrices,
-		triggerAll,
-	)
-	s.Require().Len(nsps, 1)
 }

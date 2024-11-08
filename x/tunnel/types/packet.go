@@ -11,14 +11,14 @@ func NewPacket(
 	sequence uint64,
 	signalPrices []SignalPrice,
 	createdAt int64,
-) (Packet, error) {
+) Packet {
 	return Packet{
 		TunnelID:      tunnelID,
 		Sequence:      sequence,
 		SignalPrices:  signalPrices,
 		PacketContent: nil,
 		CreatedAt:     createdAt,
-	}, nil
+	}
 }
 
 // UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces

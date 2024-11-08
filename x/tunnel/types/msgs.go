@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	_, _, _, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgEditTunnel{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositTunnel{}, &MsgWithdrawTunnel{}, &MsgUpdateParams{}
-	_, _, _, _, _, _, _, _ sdk.HasValidateBasic          = &MsgCreateTunnel{}, &MsgEditTunnel{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositTunnel{}, &MsgWithdrawTunnel{}, &MsgUpdateParams{}
+	_, _, _, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgUpdateAndResetTunnel{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositTunnel{}, &MsgWithdrawTunnel{}, &MsgUpdateParams{}
+	_, _, _, _, _, _, _, _ sdk.HasValidateBasic          = &MsgCreateTunnel{}, &MsgUpdateAndResetTunnel{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositTunnel{}, &MsgWithdrawTunnel{}, &MsgUpdateParams{}
 	_                      types.UnpackInterfacesMessage = &MsgCreateTunnel{}
 )
 
@@ -135,14 +135,14 @@ func (m MsgCreateTunnel) GetTunnelRoute() RouteI {
 	return route
 }
 
-// NewMsgEditTunnel creates a new MsgEditTunnel instance.
-func NewMsgEditTunnel(
+// NewMsgUpdateAndResetTunnel creates a new MsgUpdateAndResetTunnel instance.
+func NewMsgUpdateAndResetTunnel(
 	tunnelID uint64,
 	signalDeviations []SignalDeviation,
 	interval uint64,
 	creator string,
-) *MsgEditTunnel {
-	return &MsgEditTunnel{
+) *MsgUpdateAndResetTunnel {
+	return &MsgUpdateAndResetTunnel{
 		TunnelID:         tunnelID,
 		SignalDeviations: signalDeviations,
 		Interval:         interval,
@@ -151,7 +151,7 @@ func NewMsgEditTunnel(
 }
 
 // ValidateBasic does a sanity check on the provided data
-func (m MsgEditTunnel) ValidateBasic() error {
+func (m MsgUpdateAndResetTunnel) ValidateBasic() error {
 	// creator address must be valid
 	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
