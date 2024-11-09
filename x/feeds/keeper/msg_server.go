@@ -159,9 +159,9 @@ func (ms msgServer) SubmitSignalPrices(
 			return nil, types.ErrPriceSubmitTooEarly
 		}
 
-		valPrice = types.NewValidatorPrice(val, signalPrice, blockTime, blockHeight)
+		valPrice = types.NewValidatorPrice(signalPrice, blockTime, blockHeight)
 		valPrices[idx] = valPrice
-		emitEventSubmitSignalPrice(ctx, valPrice)
+		emitEventSubmitSignalPrice(ctx, val, valPrice)
 	}
 
 	if err := ms.SetValidatorPriceList(ctx, val, valPrices); err != nil {

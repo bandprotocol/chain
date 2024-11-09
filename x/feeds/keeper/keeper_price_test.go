@@ -81,13 +81,11 @@ func (suite *KeeperTestSuite) TestGetSetValidatorPriceList() {
 	// set
 	expValPrices := []types.ValidatorPrice{
 		{
-			Validator: ValidValidator.String(),
 			SignalID:  "CS:BAND-USD",
 			Price:     1e10,
 			Timestamp: ctx.BlockTime().Unix(),
 		},
 		{
-			Validator: ValidValidator.String(),
 			SignalID:  "CS:ETH-USD",
 			Price:     1e10 + 5,
 			Timestamp: ctx.BlockTime().Unix(),
