@@ -104,17 +104,22 @@ func (q queryServer) Price(
 	}, nil
 }
 
-// Prices queries all current prices.
+// Prices queries prices by signal ids.
 func (q queryServer) Prices(
 	goCtx context.Context, req *types.QueryPricesRequest,
 ) (*types.QueryPricesResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// convert filter signal ids to map
-	reqSignalIDs := make(map[string]bool)
-	for _, s := range req.SignalIds {
-		reqSignalIDs[s] = true
-	}
+	return &types.QueryPricesResponse{
+		Prices: q.keeper.GetPrices(ctx, req.SignalIds),
+	}, nil
+}
+
+// AllPrices queries all prices.
+func (q queryServer) AllPrices(
+	goCtx context.Context, req *types.QueryAllPricesRequest,
+) (*types.QueryAllPricesResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	store := ctx.KVStore(q.keeper.storeKey)
 	priceStore := prefix.NewStore(store, types.PriceStoreKeyPrefix)
@@ -123,22 +128,10 @@ func (q queryServer) Prices(
 		q.keeper.cdc,
 		priceStore,
 		req.Pagination,
-		func(key []byte, p *types.Price) (*types.Price, error) {
-			matchSignalID := true
-
-			// match signal id
-			if len(reqSignalIDs) != 0 {
-				if _, ok := reqSignalIDs[p.SignalID]; !ok {
-					matchSignalID = false
-				}
-			}
-
-			if matchSignalID {
-				return p, nil
-			}
-
-			return nil, nil
-		}, func() *types.Price {
+		func(key []byte, price *types.Price) (*types.Price, error) {
+			return price, nil
+		},
+		func() *types.Price {
 			return &types.Price{}
 		},
 	)
@@ -146,7 +139,15 @@ func (q queryServer) Prices(
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryPricesResponse{Prices: filteredPrices, Pagination: pageRes}, nil
+	prices := make([]types.Price, 0, len(filteredPrices))
+	for _, price := range filteredPrices {
+		prices = append(prices, *price)
+	}
+
+	return &types.QueryAllPricesResponse{
+		Prices:     prices,
+		Pagination: pageRes,
+	}, nil
 }
 
 // ReferenceSourceConfig queries current reference source config.
@@ -264,7 +265,7 @@ func (q queryServer) ValidatorPrices(
 
 	for _, valPrice := range valPricesList.ValidatorPrices {
 		if _, exists := signalIDSet[valPrice.SignalID]; exists &&
-			valPrice.PriceStatus != types.PriceStatusUnspecified {
+			valPrice.SignalPriceStatus != types.SignalPriceStatusUnspecified {
 			filteredPrices = append(filteredPrices, valPrice)
 		}
 	}

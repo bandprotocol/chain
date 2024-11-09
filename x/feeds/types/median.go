@@ -16,35 +16,35 @@ func getSections() [5]uint64 {
 
 // PriceFeedInfo contains information about a price feed
 type PriceFeedInfo struct {
-	PriceStatus PriceStatus // PriceStatus represents the state of the price feed
-	Power       uint64      // Power represents the power of the price feed
-	Price       uint64      // Price represents the reported price
-	Timestamp   int64       // Timestamp represents the time at which the price feed was reported
-	Index       int64       // Index represents the index of the price feed
+	SignalPriceStatus SignalPriceStatus // SignalPriceStatus represents the state of the price feed
+	Power             uint64            // Power represents the power of the price feed
+	Price             uint64            // Price represents the reported price
+	Timestamp         int64             // Timestamp represents the time at which the price feed was reported
+	Index             int64             // Index represents the index of the price feed
 }
 
 // NewPriceFeedInfo returns a new PriceFeedInfo
 func NewPriceFeedInfo(
-	priceStatus PriceStatus,
+	signalPriceStatus SignalPriceStatus,
 	power uint64,
 	price uint64,
 	timestamp int64,
 	index int64,
 ) PriceFeedInfo {
 	return PriceFeedInfo{
-		PriceStatus: priceStatus,
-		Power:       power,
-		Price:       price,
-		Timestamp:   timestamp,
-		Index:       index,
+		SignalPriceStatus: signalPriceStatus,
+		Power:             power,
+		Price:             price,
+		Timestamp:         timestamp,
+		Index:             index,
 	}
 }
 
-// FilterPriceFeedInfos filters price feed infos based on price status
-func FilterPriceFeedInfos(pfInfos []PriceFeedInfo, opt PriceStatus) []PriceFeedInfo {
+// FilterPriceFeedInfos filters price feed infos based on signal price status
+func FilterPriceFeedInfos(pfInfos []PriceFeedInfo, opt SignalPriceStatus) []PriceFeedInfo {
 	filtered := []PriceFeedInfo{}
 	for _, pfInfo := range pfInfos {
-		if pfInfo.PriceStatus == opt {
+		if pfInfo.SignalPriceStatus == opt {
 			filtered = append(filtered, pfInfo)
 		}
 	}
@@ -58,16 +58,16 @@ func CalculatePricesPowers(
 	for _, pfInfo := range priceFeedInfos {
 		totalPower += pfInfo.Power
 
-		switch pfInfo.PriceStatus {
-		case PriceStatusAvailable:
+		switch pfInfo.SignalPriceStatus {
+		case SignalPriceStatusAvailable:
 			availablePower += pfInfo.Power
-		case PriceStatusUnavailable:
+		case SignalPriceStatusUnavailable:
 			unavailablePower += pfInfo.Power
-		case PriceStatusUnsupported:
+		case SignalPriceStatusUnsupported:
 			unsupportedPower += pfInfo.Power
 		}
 	}
-	return totalPower, availablePower, unavailablePower, unsupportedPower
+	return
 }
 
 // CalculateMedianPriceFeedInfo calculates the median price feed info by timestamp and power

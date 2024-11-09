@@ -43,7 +43,7 @@ func emitEventSubmitSignalPrice(ctx sdk.Context, valPrice types.ValidatorPrice) 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeSubmitSignalPrice,
-			sdk.NewAttribute(types.AttributeKeyPriceStatus, valPrice.PriceStatus.String()),
+			sdk.NewAttribute(types.AttributeKeySignalPriceStatus, valPrice.SignalPriceStatus.String()),
 			sdk.NewAttribute(types.AttributeKeyValidator, valPrice.Validator),
 			sdk.NewAttribute(types.AttributeKeySignalID, valPrice.SignalID),
 			sdk.NewAttribute(types.AttributeKeyPrice, fmt.Sprintf("%d", valPrice.Price)),

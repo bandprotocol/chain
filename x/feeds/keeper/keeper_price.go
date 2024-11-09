@@ -19,8 +19,8 @@ func (k Keeper) GetPricesIterator(ctx sdk.Context) dbm.Iterator {
 	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.PriceStoreKeyPrefix)
 }
 
-// GetPrices returns a list of all prices.
-func (k Keeper) GetPrices(ctx sdk.Context) (prices []types.Price) {
+// GetAllPrices returns a list of all prices.
+func (k Keeper) GetAllPrices(ctx sdk.Context) (prices []types.Price) {
 	iterator := k.GetPricesIterator(ctx)
 	defer iterator.Close()
 
@@ -31,6 +31,26 @@ func (k Keeper) GetPrices(ctx sdk.Context) (prices []types.Price) {
 	}
 
 	return
+}
+
+// GetPrices returns a list of prices by signal ids.
+func (k Keeper) GetPrices(ctx sdk.Context, signalIDs []string) []types.Price {
+	prices := make([]types.Price, 0, len(signalIDs))
+	for _, signalID := range signalIDs {
+		price, err := k.GetPrice(ctx, signalID)
+		if err != nil {
+			price = types.Price{
+				SignalID:  signalID,
+				Status:    types.PriceStatusNotInCurrentFeeds,
+				Price:     0,
+				Timestamp: 0,
+			}
+		}
+
+		prices = append(prices, price)
+	}
+
+	return prices
 }
 
 // GetPrice returns a price by signal id.
@@ -139,7 +159,7 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) error {
 
 		valPricesMap := make(map[string]types.ValidatorPrice)
 		for _, valPrice := range valPricesList.ValidatorPrices {
-			if valPrice.PriceStatus != types.PriceStatusUnspecified {
+			if valPrice.SignalPriceStatus != types.SignalPriceStatusUnspecified {
 				valPricesMap[valPrice.SignalID] = valPrice
 			}
 		}
@@ -184,7 +204,7 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) error {
 			if havePrice {
 				priceFeedInfos = append(
 					priceFeedInfos, types.NewPriceFeedInfo(
-						valPrice.PriceStatus,
+						valPrice.SignalPriceStatus,
 						valInfo.Power,
 						valPrice.Price,
 						valPrice.Timestamp,
@@ -219,10 +239,10 @@ func (k Keeper) CalculatePrice(
 ) (types.Price, error) {
 	totalPower, availablePower, _, unsupportedPower := types.CalculatePricesPowers(priceFeedInfos)
 
-	// If more than half of the total have unsupported price status, it returns an unsupported price status.
+	// If more than half of the total have unsupported price status, it returns an unknown signal id price status.
 	if unsupportedPower*2 > totalPower {
 		return types.NewPrice(
-			types.PriceStatusUnsupported,
+			types.PriceStatusUnknownSignalID,
 			feed.SignalID,
 			0,
 			ctx.BlockTime().Unix(),
@@ -232,9 +252,9 @@ func (k Keeper) CalculatePrice(
 	// If the total power is less than price quorum percentage of the total bonded token
 	// or less than half of total have available price status, it will not be calculated.
 	if totalPower < powerQuorum || availablePower*2 < totalPower {
-		// else, it returns an unavailable price status.
+		// else, it returns an price not ready price status.
 		return types.NewPrice(
-			types.PriceStatusUnavailable,
+			types.PriceStatusNotReady,
 			feed.SignalID,
 			0,
 			ctx.BlockTime().Unix(),
@@ -242,7 +262,7 @@ func (k Keeper) CalculatePrice(
 	}
 
 	price, err := types.CalculateMedianPriceFeedInfo(
-		types.FilterPriceFeedInfos(priceFeedInfos, types.PriceStatusAvailable),
+		types.FilterPriceFeedInfos(priceFeedInfos, types.SignalPriceStatusAvailable),
 	)
 	if err != nil {
 		// should not happen
@@ -279,7 +299,7 @@ func CheckMissReport(
 		lastTime = valInfo.Status.Since.Unix() + gracePeriod
 	}
 
-	if valPrice.PriceStatus != types.PriceStatusUnspecified {
+	if valPrice.SignalPriceStatus != types.SignalPriceStatusUnspecified {
 		if valPrice.Timestamp+feed.Interval > lastTime {
 			lastTime = valPrice.Timestamp + feed.Interval
 		}
@@ -299,7 +319,8 @@ func checkHavePrice(
 	valPrice types.ValidatorPrice,
 	blockTime time.Time,
 ) bool {
-	if valPrice.PriceStatus != types.PriceStatusUnspecified && valPrice.Timestamp >= blockTime.Unix()-feed.Interval {
+	if valPrice.SignalPriceStatus != types.SignalPriceStatusUnspecified &&
+		valPrice.Timestamp >= blockTime.Unix()-feed.Interval {
 		return true
 	}
 

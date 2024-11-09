@@ -197,9 +197,9 @@ func (s *SubmitterTestSuite) TestSubmitterSubmitPrice() {
 	// Add signal price data to channel
 	prices := []types.SignalPrice{
 		{
-			SignalID:    "signal1",
-			Price:       12345,
-			PriceStatus: types.PriceStatusAvailable,
+			SignalID: "signal1",
+			Price:    12345,
+			Status:   types.SignalPriceStatusAvailable,
 		},
 	}
 
@@ -244,9 +244,9 @@ func (s *SubmitterTestSuite) TestSubmitterSubmitPrice_OutOfGas() {
 	// Add signal price data to channel
 	prices := []types.SignalPrice{
 		{
-			SignalID:    "signal1",
-			Price:       12345,
-			PriceStatus: types.PriceStatusAvailable,
+			SignalID: "signal1",
+			Price:    12345,
+			Status:   types.SignalPriceStatusAvailable,
 		},
 	}
 
@@ -282,11 +282,11 @@ func (s *SubmitterTestSuite) TestSubmitterBuildSignedTx() {
 	msg := types.MsgSubmitSignalPrices{
 		Validator: s.Submitter.valAddress.String(),
 		Timestamp: time.Now().Unix(),
-		Prices: []types.SignalPrice{
+		SignalPrices: []types.SignalPrice{
 			{
-				SignalID:    "signal1",
-				Price:       12345,
-				PriceStatus: types.PriceStatusAvailable,
+				SignalID: "signal1",
+				Price:    12345,
+				Status:   types.SignalPriceStatusAvailable,
 			},
 		},
 	}
@@ -316,11 +316,11 @@ func (s *SubmitterTestSuite) TestSubmitterBroadcastMsg() {
 	msg := types.MsgSubmitSignalPrices{
 		Validator: s.Submitter.valAddress.String(),
 		Timestamp: time.Now().Unix(),
-		Prices: []types.SignalPrice{
+		SignalPrices: []types.SignalPrice{
 			{
-				SignalID:    "signal1",
-				Price:       12345,
-				PriceStatus: types.PriceStatusAvailable,
+				SignalID: "signal1",
+				Price:    12345,
+				Status:   types.SignalPriceStatusAvailable,
 			},
 		},
 	}

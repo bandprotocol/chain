@@ -24,6 +24,7 @@ const (
 	Query_Params_FullMethodName                = "/band.feeds.v1beta1.Query/Params"
 	Query_Price_FullMethodName                 = "/band.feeds.v1beta1.Query/Price"
 	Query_Prices_FullMethodName                = "/band.feeds.v1beta1.Query/Prices"
+	Query_AllPrices_FullMethodName             = "/band.feeds.v1beta1.Query/AllPrices"
 	Query_ReferenceSourceConfig_FullMethodName = "/band.feeds.v1beta1.Query/ReferenceSourceConfig"
 	Query_SignalTotalPowers_FullMethodName     = "/band.feeds.v1beta1.Query/SignalTotalPowers"
 	Query_ValidValidator_FullMethodName        = "/band.feeds.v1beta1.Query/ValidValidator"
@@ -43,8 +44,10 @@ type QueryClient interface {
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 	// Price is an RPC method that returns price by signal id.
 	Price(ctx context.Context, in *QueryPriceRequest, opts ...grpc.CallOption) (*QueryPriceResponse, error)
-	// Prices is an RPC method that returns all prices.
+	// Prices is an RPC method that prices by signal ids.
 	Prices(ctx context.Context, in *QueryPricesRequest, opts ...grpc.CallOption) (*QueryPricesResponse, error)
+	// AllPrices is an RPC method that returns all prices.
+	AllPrices(ctx context.Context, in *QueryAllPricesRequest, opts ...grpc.CallOption) (*QueryAllPricesResponse, error)
 	// ReferenceSourceConfig is an RPC method that returns information on the reference price source.
 	ReferenceSourceConfig(ctx context.Context, in *QueryReferenceSourceConfigRequest, opts ...grpc.CallOption) (*QueryReferenceSourceConfigResponse, error)
 	// SignalTotalPowers is an RPC method that returns all signal-total-powers or specified signal-total-power by signal
@@ -111,6 +114,15 @@ func (c *queryClient) Prices(ctx context.Context, in *QueryPricesRequest, opts .
 	return out, nil
 }
 
+func (c *queryClient) AllPrices(ctx context.Context, in *QueryAllPricesRequest, opts ...grpc.CallOption) (*QueryAllPricesResponse, error) {
+	out := new(QueryAllPricesResponse)
+	err := c.cc.Invoke(ctx, Query_AllPrices_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *queryClient) ReferenceSourceConfig(ctx context.Context, in *QueryReferenceSourceConfigRequest, opts ...grpc.CallOption) (*QueryReferenceSourceConfigResponse, error) {
 	out := new(QueryReferenceSourceConfigResponse)
 	err := c.cc.Invoke(ctx, Query_ReferenceSourceConfig_FullMethodName, in, out, opts...)
@@ -168,8 +180,10 @@ type QueryServer interface {
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 	// Price is an RPC method that returns price by signal id.
 	Price(context.Context, *QueryPriceRequest) (*QueryPriceResponse, error)
-	// Prices is an RPC method that returns all prices.
+	// Prices is an RPC method that prices by signal ids.
 	Prices(context.Context, *QueryPricesRequest) (*QueryPricesResponse, error)
+	// AllPrices is an RPC method that returns all prices.
+	AllPrices(context.Context, *QueryAllPricesRequest) (*QueryAllPricesResponse, error)
 	// ReferenceSourceConfig is an RPC method that returns information on the reference price source.
 	ReferenceSourceConfig(context.Context, *QueryReferenceSourceConfigRequest) (*QueryReferenceSourceConfigResponse, error)
 	// SignalTotalPowers is an RPC method that returns all signal-total-powers or specified signal-total-power by signal
@@ -202,6 +216,9 @@ func (UnimplementedQueryServer) Price(context.Context, *QueryPriceRequest) (*Que
 }
 func (UnimplementedQueryServer) Prices(context.Context, *QueryPricesRequest) (*QueryPricesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Prices not implemented")
+}
+func (UnimplementedQueryServer) AllPrices(context.Context, *QueryAllPricesRequest) (*QueryAllPricesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AllPrices not implemented")
 }
 func (UnimplementedQueryServer) ReferenceSourceConfig(context.Context, *QueryReferenceSourceConfigRequest) (*QueryReferenceSourceConfigResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReferenceSourceConfig not implemented")
@@ -317,6 +334,24 @@ func _Query_Prices_Handler(srv interface{}, ctx context.Context, dec func(interf
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(QueryServer).Prices(ctx, req.(*QueryPricesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Query_AllPrices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryAllPricesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).AllPrices(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_AllPrices_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).AllPrices(ctx, req.(*QueryAllPricesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -437,6 +472,10 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Prices",
 			Handler:    _Query_Prices_Handler,
+		},
+		{
+			MethodName: "AllPrices",
+			Handler:    _Query_AllPrices_Handler,
 		},
 		{
 			MethodName: "ReferenceSourceConfig",
