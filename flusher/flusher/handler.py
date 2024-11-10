@@ -1121,9 +1121,15 @@ class Handler(object):
             .on_conflict_do_update(constraint="tunnels_pkey", set_=msg)
         )
 
+    def handle_update_tunnel_status(self, msg):
+        condition = True
+        for col in tunnels.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+        self.conn.execute(tunnels.update().where(condition).values(**msg))
+
     def handle_set_tunnel_deposit(self, msg):
-        msg["depositor_id"] = self.get_account_id(msg["deposit"])
-        del msg["deposit"]
+        msg["depositor_id"] = self.get_account_id(msg["depositor"])
+        del msg["depositor"]
 
         self.conn.execute(
             insert(tunnel_deposits)
@@ -1131,12 +1137,21 @@ class Handler(object):
             .on_conflict_do_update(constraint="tunnel_deposits_pkey", set_=msg)
         )
 
+    def handle_remove_tunnel_deposit(self, msg):
+        msg["depositor_id"] = self.get_account_id(msg["depositor"])
+        del msg["depositor"]
+
+        condition = True
+        for col in tunnel_deposits.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+        self.conn.execute(tunnel_deposits.delete().where(condition))
+
     def handle_set_tunnel_historical_deposit(self, msg):
         msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
         del msg["tx_hash"]
 
-        msg["depositor_id"] = self.get_account_id(msg["deposit"])
-        del msg["deposit"]
+        msg["depositor_id"] = self.get_account_id(msg["depositor"])
+        del msg["depositor"]
 
         self.conn.execute(
             insert(tunnel_historical_deposits)

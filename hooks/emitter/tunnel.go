@@ -1,6 +1,8 @@
 package emitter
 
 import (
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v3/hooks/common"
@@ -17,7 +19,7 @@ func (h *Hook) emitSetTunnel(ctx sdk.Context, tunnelID uint64) {
 		"route":         tunnel.Route.GetCachedValue(),
 		"encoder":       tunnel.Encoder,
 		"fee_payer":     tunnel.FeePayer,
-		"total_deposit": tunnel.TotalDeposit,
+		"total_deposit": tunnel.TotalDeposit.String(),
 		"status":        tunnel.IsActive,
 		"last_interval": latestSignalPrice.LastInterval,
 		"creator":       tunnel.Creator,
@@ -25,12 +27,12 @@ func (h *Hook) emitSetTunnel(ctx sdk.Context, tunnelID uint64) {
 	})
 }
 
-func (h *Hook) emitSetTunnelStatus(ctx sdk.Context, tunnelID uint64) {
+func (h *Hook) emitUpdateTunnelStatus(ctx sdk.Context, tunnelID uint64) {
 	tunnel := h.tunnelKeeper.MustGetTunnel(ctx, tunnelID)
-	h.Write("SET_TUNNEL", common.JsDict{
+	h.Write("UPDATE_TUNNEL_STATUS", common.JsDict{
 		"id":           tunnel.ID,
 		"status":       tunnel.IsActive,
-		"status_since": ctx.BlockTime(),
+		"status_since": ctx.BlockTime().UnixNano(),
 	})
 }
 
@@ -40,7 +42,12 @@ func (h *Hook) emitSetTunnelDeposit(ctx sdk.Context, tunnelID uint64, depositor 
 		h.Write("SET_TUNNEL_DEPOSIT", common.JsDict{
 			"tunnel_id":     deposit.TunnelID,
 			"depositor":     deposit.Depositor,
-			"total_deposit": deposit.Amount,
+			"total_deposit": deposit.Amount.String(),
+		})
+	} else {
+		h.Write("REMOVE_TUNNEL_DEPOSIT", common.JsDict{
+			"tunnel_id": deposit.TunnelID,
+			"depositor": deposit.Depositor,
 		})
 	}
 }
@@ -59,7 +66,7 @@ func (h *Hook) emitSetTunnelHistoricalDeposit(
 		"depositor":    depositor,
 		"deposit_type": depositType,
 		"amount":       amount.String(),
-		"timestamp":    ctx.BlockTime(),
+		"timestamp":    ctx.BlockTime().UnixNano(),
 	})
 }
 
@@ -68,7 +75,7 @@ func (h *Hook) emitSetTunnelHistoricalSignalDeviations(ctx sdk.Context, tunnelID
 
 	h.Write("SET_TUNNEL_HISTORICAL_SIGNAL_DEVIATIONS", common.JsDict{
 		"tunnel_id":         tunnel.ID,
-		"created_at":        ctx.BlockTime(),
+		"created_at":        ctx.BlockTime().UnixNano(),
 		"interval":          tunnel.Interval,
 		"signal_deviations": tunnel.SignalDeviations,
 	})
@@ -78,12 +85,13 @@ func (h *Hook) emitSetTunnelPacket(ctx sdk.Context, tunnelID uint64, sequence ui
 	packet := h.tunnelKeeper.MustGetPacket(ctx, tunnelID, sequence)
 
 	h.Write("SET_TUNNEL_PACKET", common.JsDict{
-		"tunnel_id":      tunnelID,
-		"sequence":       sequence,
-		"packet_content": packet.PacketContent,
-		"base_fees":      "",
-		"route_fees":     "",
-		"created_at":     packet.CreatedAt,
+		"tunnel_id":           tunnelID,
+		"sequence":            sequence,
+		"packet_content_type": packet.PacketContent.TypeUrl,
+		"packet_content":      packet.PacketContent.GetCachedValue(),
+		"base_fees":           "",
+		"route_fees":          "",
+		"created_at":          packet.CreatedAt * int64(time.Second),
 	})
 
 	for _, sp := range packet.SignalPrices {
@@ -117,24 +125,16 @@ func (h *Hook) handleTunnelMsgUpdateAndResetTunnel(ctx sdk.Context, evMap common
 	h.emitSetTunnelHistoricalSignalDeviations(ctx, tunnelID)
 }
 
-// handleTunnelMsgActivate implements emitter handler for MsgActivate.
-func (h *Hook) handleTunnelMsgActivate(ctx sdk.Context, msg *types.MsgActivate) {
-	h.emitSetTunnelStatus(ctx, msg.TunnelID)
-}
-
-// handleTunnelMsgDeactivate implements emitter handler for MsgDeactivate.
-func (h *Hook) handleTunnelMsgDeactivate(ctx sdk.Context, msg *types.MsgDeactivate) {
-	h.emitSetTunnelStatus(ctx, msg.TunnelID)
-}
-
 // handleTunnelMsgDepositTunnel implements emitter handler for MsgDepositTunnel.
 func (h *Hook) handleTunnelMsgDepositTunnel(ctx sdk.Context, txHash []byte, msg *types.MsgDepositTunnel) {
+	h.emitSetTunnel(ctx, msg.TunnelID)
 	h.emitSetTunnelDeposit(ctx, msg.TunnelID, msg.Depositor)
 	h.emitSetTunnelHistoricalDeposit(ctx, txHash, msg.TunnelID, msg.Depositor, 1, msg.Amount)
 }
 
 // handleTunnelMsgWithdrawTunnel implements emitter handler for MsgWithdrawTunnel.
 func (h *Hook) handleTunnelMsgWithdrawTunnel(ctx sdk.Context, txHash []byte, msg *types.MsgWithdrawTunnel) {
+	h.emitSetTunnel(ctx, msg.TunnelID)
 	h.emitSetTunnelDeposit(ctx, msg.TunnelID, msg.Withdrawer)
 	h.emitSetTunnelHistoricalDeposit(ctx, txHash, msg.TunnelID, msg.Withdrawer, 2, msg.Amount)
 }
@@ -152,6 +152,24 @@ func (h *Hook) handleTunnelEventTypeProducePacketSuccess(ctx sdk.Context, evMap 
 	sequences := evMap[types.EventTypeProducePacketSuccess+"."+types.AttributeKeySequence]
 	for idx, tunnelID := range tunnelIDs {
 		sequence := common.Atoui(sequences[idx])
-		h.emitSetTunnelPacket(ctx, common.Atoui(tunnelID), sequence)
+		id := common.Atoui(tunnelID)
+		h.emitSetTunnel(ctx, id)
+		h.emitSetTunnelPacket(ctx, id, sequence)
+	}
+}
+
+// handleTunnelEventTypeActivateTunnel implements emitter handler for EventTypeActivateTunnel.
+func (h *Hook) handleTunnelEventTypeActivateTunnel(ctx sdk.Context, evMap common.EvMap) {
+	tunnelIDs := evMap[types.EventTypeActivateTunnel+"."+types.AttributeKeyTunnelID]
+	for _, tunnelID := range tunnelIDs {
+		h.emitUpdateTunnelStatus(ctx, common.Atoui(tunnelID))
+	}
+}
+
+// handleTunnelEventTypeDeactivateTunnel implements emitter handler for EventTypeDeactivateTunnel.
+func (h *Hook) handleTunnelEventTypeDeactivateTunnel(ctx sdk.Context, evMap common.EvMap) {
+	tunnelIDs := evMap[types.EventTypeDeactivateTunnel+"."+types.AttributeKeyTunnelID]
+	for _, tunnelID := range tunnelIDs {
+		h.emitUpdateTunnelStatus(ctx, common.Atoui(tunnelID))
 	}
 }

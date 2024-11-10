@@ -179,10 +179,6 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 		h.handleTunnelMsgCreateTunnel(ctx, txHash, msg, evMap)
 	case *tunneltypes.MsgUpdateAndResetTunnel:
 		h.handleTunnelMsgUpdateAndResetTunnel(ctx, evMap)
-	case *tunneltypes.MsgActivate:
-		h.handleTunnelMsgActivate(ctx, msg)
-	case *tunneltypes.MsgDeactivate:
-		h.handleTunnelMsgDeactivate(ctx, msg)
 	case *tunneltypes.MsgDepositTunnel:
 		h.handleTunnelMsgDepositTunnel(ctx, txHash, msg)
 	case *tunneltypes.MsgWithdrawTunnel:
@@ -211,6 +207,10 @@ func (h *Hook) handleMsgEvent(ctx sdk.Context, txHash []byte, event abci.Event) 
 		h.handleRestakeEventUnstake(ctx, evMap)
 	case restaketypes.EventTypeDeactivateVault:
 		h.handleRestakeEventDeactivateVault(ctx, evMap)
+	case tunneltypes.EventTypeActivateTunnel:
+		h.handleTunnelEventTypeActivateTunnel(ctx, evMap)
+	case tunneltypes.EventTypeDeactivateTunnel:
+		h.handleTunnelEventTypeDeactivateTunnel(ctx, evMap)
 	}
 }
 
@@ -270,6 +270,10 @@ func (h *Hook) handleBeginBlockEndBlockEvent(
 		h.handleGroupEventProposalPruned(ctx, evMap)
 	case tunneltypes.EventTypeProducePacketSuccess:
 		h.handleTunnelEventTypeProducePacketSuccess(ctx, evMap)
+	case tunneltypes.EventTypeActivateTunnel:
+		h.handleTunnelEventTypeActivateTunnel(ctx, evMap)
+	case tunneltypes.EventTypeDeactivateTunnel:
+		h.handleTunnelEventTypeDeactivateTunnel(ctx, evMap)
 	default:
 		break
 	}

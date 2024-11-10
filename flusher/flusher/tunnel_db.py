@@ -44,8 +44,8 @@ tunnels = sa.Table(
     Column("encoder", CustomTunnelEncoder),
     Column("fee_payer_id", sa.Integer, sa.ForeignKey("accounts.id")),
     Column("total_deposit", sa.String),
-    Column("status", sa.Boolean),
-    Column("status_since", sa.String, nullable=True),
+    Column("status", sa.Boolean, index=True),
+    Column("status_since", CustomDateTime, nullable=True),
     Column("last_interval", CustomDateTime),
     Column("creator_id", sa.Integer, sa.ForeignKey("accounts.id")),
     Column("created_at", CustomDateTime),
@@ -56,7 +56,7 @@ tunnel_historical_signal_deviations = sa.Table(
     metadata,
     Column("tunnel_id", sa.Integer, sa.ForeignKey("tunnels.id"), primary_key=True),
     Column("created_at", CustomDateTime, primary_key=True),
-    Column("interval", sa.Integer),
+    Column("interval", sa.Integer, index=True),
     Column("signal_deviations", sa.JSON),
 )
 
@@ -64,16 +64,18 @@ tunnel_deposits = sa.Table(
     "tunnel_deposits",
     metadata,
     Column("tunnel_id", sa.Integer, sa.ForeignKey("tunnels.id"), primary_key=True),
-    Column("depositor_id", sa.String, sa.ForeignKey("accounts.id"), primary_key=True),
+    Column("depositor_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
     Column("total_deposit", sa.String),
 )
 
 tunnel_historical_deposits = sa.Table(
     "tunnel_historical_deposits",
     metadata,
-    Column("tx_id", sa.Integer, sa.ForeignKey("transactions.id"), primary_key=True),
-    Column("tunnel_id", sa.Integer, sa.ForeignKey("tunnels.id")),
-    Column("depositor_id", sa.String, sa.ForeignKey("accounts.id")),
+    Column(
+        "transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), primary_key=True
+    ),
+    Column("tunnel_id", sa.Integer, sa.ForeignKey("tunnels.id"), index=True),
+    Column("depositor_id", sa.Integer, sa.ForeignKey("accounts.id"), index=True),
     Column("deposit_type", CustomDepositType),
     Column("amount", sa.String),
     Column("timestamp", CustomDateTime),
@@ -84,6 +86,7 @@ tunnel_packets = sa.Table(
     metadata,
     Column("tunnel_id", sa.Integer, sa.ForeignKey("tunnels.id"), primary_key=True),
     Column("sequence", sa.Integer, primary_key=True),
+    Column("packet_content_type", sa.String, index=True),
     Column("packet_content", sa.JSON),
     Column("base_fees", sa.String),
     Column("route_fees", sa.String),
@@ -93,13 +96,12 @@ tunnel_packets = sa.Table(
 tunnel_packet_signal_prices = sa.Table(
     "tunnel_packet_signal_prices",
     metadata,
-    Column("tunnel_id", sa.Integer, sa.ForeignKey("tunnels.id"), primary_key=True),
-    Column(
-        "sequence",
-        sa.Integer,
-        sa.ForeignKey("tunnel_packets.sequence"),
-        primary_key=True,
-    ),
+    Column("tunnel_id", sa.Integer, primary_key=True),
+    Column("sequence", sa.Integer, primary_key=True),
     Column("signal_id", sa.String, primary_key=True),
     Column("price", sa.BigInteger),
+    sa.ForeignKeyConstraint(
+        ["tunnel_id", "sequence"],
+        ["tunnel_packets.tunnel_id", "tunnel_packets.sequence"],
+    ),
 )
