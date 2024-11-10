@@ -193,7 +193,7 @@ func (k Keeper) ActivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 	k.SetTunnel(ctx, tunnel)
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeActivate,
+		types.EventTypeActivateTunnel,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnelID)),
 		sdk.NewAttribute(types.AttributeKeyIsActive, fmt.Sprintf("%t", true)),
 	))
@@ -216,7 +216,7 @@ func (k Keeper) DeactivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 	k.SetTunnel(ctx, tunnel)
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeDeactivate,
+		types.EventTypeDeactivateTunnel,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnelID)),
 		sdk.NewAttribute(types.AttributeKeyIsActive, fmt.Sprintf("%t", tunnel.IsActive)),
 	))
