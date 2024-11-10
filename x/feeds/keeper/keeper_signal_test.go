@@ -1,8 +1,9 @@
 package keeper_test
 
 import (
-	"github.com/bandprotocol/chain/v3/x/feeds/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 func (suite *KeeperTestSuite) TestGetSetVote() {
