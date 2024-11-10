@@ -164,7 +164,7 @@ func (k Keeper) WithdrawDeposit(ctx sdk.Context, tunnelID uint64, amount sdk.Coi
 
 	// deactivate the tunnel if the total deposit is less than the min deposit
 	minDeposit := k.GetParams(ctx).MinDeposit
-	if !tunnel.TotalDeposit.IsAllGTE(minDeposit) {
+	if tunnel.IsActive && !tunnel.TotalDeposit.IsAllGTE(minDeposit) {
 		k.MustDeactivateTunnel(ctx, tunnelID)
 	}
 
