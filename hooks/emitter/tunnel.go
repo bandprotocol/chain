@@ -1,0 +1,118 @@
+package emitter
+
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/hooks/common"
+	"github.com/bandprotocol/chain/v3/x/tunnel/types"
+)
+
+func (h *Hook) emitSetTunnel(ctx sdk.Context, tunnelID uint64) {
+	tunnel := h.tunnelKeeper.MustGetTunnel(ctx, tunnelID)
+	latestSignalPrice := h.tunnelKeeper.MustGetLatestSignalPrices(ctx, tunnelID)
+	h.Write("SET_TUNNEL", common.JsDict{
+		"id":            tunnel.ID,
+		"sequence":      tunnel.Sequence,
+		"route_type":    tunnel.Route.TypeUrl,
+		"route":         tunnel.Route.GetCachedValue(),
+		"encoder":       tunnel.Encoder,
+		"fee_payer":     tunnel.FeePayer,
+		"total_deposit": tunnel.TotalDeposit,
+		"status":        tunnel.IsActive,
+		"last_interval": latestSignalPrice.LastInterval,
+		"creator":       tunnel.Creator,
+		"created_at":    tunnel.CreatedAt,
+	})
+}
+
+func (h *Hook) emitSetTunnelStatus(ctx sdk.Context, tunnelID uint64) {
+	tunnel := h.tunnelKeeper.MustGetTunnel(ctx, tunnelID)
+	h.Write("SET_TUNNEL", common.JsDict{
+		"id":           tunnel.ID,
+		"status":       tunnel.IsActive,
+		"status_since": ctx.BlockTime(),
+	})
+}
+
+func (h *Hook) emitSetTunnelDeposit(ctx sdk.Context, tunnelID uint64, depositor string) {
+	deposit, found := h.tunnelKeeper.GetDeposit(ctx, tunnelID, sdk.MustAccAddressFromBech32(depositor))
+	if found {
+		h.Write("SET_TUNNEL_DEPOSIT", common.JsDict{
+			"tunnel_id":     deposit.TunnelID,
+			"depositor":     deposit.Depositor,
+			"total_deposit": deposit.Amount,
+		})
+	}
+}
+
+func (h *Hook) emitSetTunnelHistoricalDeposit(
+	ctx sdk.Context,
+	txHash []byte,
+	tunnelID uint64,
+	depositor string,
+	depositType int,
+	amount sdk.Coins,
+) {
+	h.Write("SET_TUNNEL_HISTORICAL_DEPOSIT", common.JsDict{
+		"tx_hash":      txHash,
+		"tunnel_id":    tunnelID,
+		"depositor":    depositor,
+		"deposit_type": depositType,
+		"amount":       amount.String(),
+		"timestamp":    ctx.BlockTime(),
+	})
+}
+
+func (h *Hook) emitSetTunnelHistoricalSignalDeviations(ctx sdk.Context, tunnelID uint64) {
+	tunnel := h.tunnelKeeper.MustGetTunnel(ctx, tunnelID)
+
+	h.Write("SET_TUNNEL_HISTORICAL_SIGNAL_DEVIATIONS", common.JsDict{
+		"tunnel_id":         tunnel.ID,
+		"created_at":        ctx.BlockTime(),
+		"interval":          tunnel.Interval,
+		"signal_deviations": tunnel.SignalDeviations,
+	})
+}
+
+// handleTunnelMsgCreateTunnel implements emitter handler for MsgCreateTunnel.
+func (h *Hook) handleTunnelMsgCreateTunnel(
+	ctx sdk.Context,
+	txHash []byte,
+	msg *types.MsgCreateTunnel,
+	evMap common.EvMap,
+) {
+	tunnelID := common.Atoui(evMap[types.EventTypeCreateTunnel+"."+types.AttributeKeyTunnelID][0])
+	h.emitSetTunnel(ctx, tunnelID)
+	h.emitSetTunnelHistoricalSignalDeviations(ctx, tunnelID)
+	h.emitSetTunnelDeposit(ctx, tunnelID, msg.Creator)
+	h.emitSetTunnelHistoricalDeposit(ctx, txHash, tunnelID, msg.Creator, 1, msg.InitialDeposit)
+}
+
+// handleTunnelMsgUpdateAndResetTunnel implements emitter handler for MsgUpdateAndResetTunnel.
+func (h *Hook) handleTunnelMsgUpdateAndResetTunnel(ctx sdk.Context, evMap common.EvMap) {
+	tunnelID := common.Atoui(evMap[types.EventTypeUpdateAndResetTunnel+"."+types.AttributeKeyTunnelID][0])
+	h.emitSetTunnel(ctx, tunnelID)
+	h.emitSetTunnelHistoricalSignalDeviations(ctx, tunnelID)
+}
+
+// handleTunnelMsgActivate implements emitter handler for MsgActivate.
+func (h *Hook) handleTunnelMsgActivate(ctx sdk.Context, msg *types.MsgActivate) {
+	h.emitSetTunnelStatus(ctx, msg.TunnelID)
+}
+
+// handleTunnelMsgDeactivate implements emitter handler for MsgDeactivate.
+func (h *Hook) handleTunnelMsgDeactivate(ctx sdk.Context, msg *types.MsgDeactivate) {
+	h.emitSetTunnelStatus(ctx, msg.TunnelID)
+}
+
+// handleTunnelMsgDepositTunnel implements emitter handler for MsgDepositTunnel.
+func (h *Hook) handleTunnelMsgDepositTunnel(ctx sdk.Context, txHash []byte, msg *types.MsgDepositTunnel) {
+	h.emitSetTunnelDeposit(ctx, msg.TunnelID, msg.Depositor)
+	h.emitSetTunnelHistoricalDeposit(ctx, txHash, msg.TunnelID, msg.Depositor, 1, msg.Amount)
+}
+
+// handleTunnelMsgWithdrawTunnel implements emitter handler for MsgWithdrawTunnel.
+func (h *Hook) handleTunnelMsgWithdrawTunnel(ctx sdk.Context, txHash []byte, msg *types.MsgWithdrawTunnel) {
+	h.emitSetTunnelDeposit(ctx, msg.TunnelID, msg.Withdrawer)
+	h.emitSetTunnelHistoricalDeposit(ctx, txHash, msg.TunnelID, msg.Withdrawer, 2, msg.Amount)
+}

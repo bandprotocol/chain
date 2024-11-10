@@ -50,6 +50,7 @@ import (
 	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 	tsskeeper "github.com/bandprotocol/chain/v3/x/tss/keeper"
 	tunnelkeeper "github.com/bandprotocol/chain/v3/x/tunnel/keeper"
+	tunneltypes "github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 // Hook uses Kafka functionality to act as an event producer for all events in the blockchains.
@@ -330,6 +331,21 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *
 		h.emitSetOracleScript(oracletypes.OracleScriptID(idx+1), os, nil)
 	}
 
+	var authzState authz.GenesisState
+	h.cdc.MustUnmarshalJSON(genesisState[authz.ModuleName], &authzState)
+	for _, authz := range authzState.Authorization {
+		authorization := authz.Authorization
+		switch authorization.GetTypeUrl() {
+		case sdk.MsgTypeURL(&oracletypes.MsgReportData{}):
+			acc, _ := sdk.AccAddressFromBech32(authz.Granter)
+			val := sdk.ValAddress(acc).String()
+			h.Write("SET_REPORTER", common.JsDict{
+				"reporter":  authz.Grantee,
+				"validator": val,
+			})
+		}
+	}
+
 	// Feeds module
 	var feedsState feedstypes.GenesisState
 	h.cdc.MustUnmarshalJSON(genesisState[feedstypes.ModuleName], &feedsState)
@@ -357,19 +373,16 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *
 		h.updateRestakeStake(ctx, stake.StakerAddress)
 	}
 
-	var authzState authz.GenesisState
-	h.cdc.MustUnmarshalJSON(genesisState[authz.ModuleName], &authzState)
-	for _, authz := range authzState.Authorization {
-		authorization := authz.Authorization
-		switch authorization.GetTypeUrl() {
-		case sdk.MsgTypeURL(&oracletypes.MsgReportData{}):
-			acc, _ := sdk.AccAddressFromBech32(authz.Granter)
-			val := sdk.ValAddress(acc).String()
-			h.Write("SET_REPORTER", common.JsDict{
-				"reporter":  authz.Grantee,
-				"validator": val,
-			})
-		}
+	// Tunnel module
+	var tunnelState tunneltypes.GenesisState
+	h.cdc.MustUnmarshalJSON(genesisState[tunneltypes.ModuleName], &tunnelState)
+	for _, tunnel := range tunnelState.Tunnels {
+		h.emitSetTunnel(ctx, tunnel.ID)
+		h.emitSetTunnelHistoricalSignalDeviations(ctx, tunnel.ID)
+	}
+
+	for _, deposit := range tunnelState.Deposits {
+		h.emitSetTunnelDeposit(ctx, deposit.TunnelID, deposit.Depositor)
 	}
 
 	h.Write("COMMIT", common.JsDict{"height": 0})

@@ -30,6 +30,7 @@ import (
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
+	tunneltypes "github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 func parseEvents(events []abci.Event) common.EvMap {
@@ -174,6 +175,20 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 		h.handleGroupMsgWithdrawProposal(ctx, evMap)
 	case *tsstypes.MsgSubmitSignature:
 		h.handleTssEventSubmitSignature(ctx, evMap)
+	case *tunneltypes.MsgCreateTunnel:
+		h.handleTunnelMsgCreateTunnel(ctx, txHash, msg, evMap)
+	case *tunneltypes.MsgUpdateAndResetTunnel:
+		h.handleTunnelMsgUpdateAndResetTunnel(ctx, evMap)
+	case *tunneltypes.MsgActivate:
+		h.handleTunnelMsgActivate(ctx, msg)
+	case *tunneltypes.MsgDeactivate:
+		h.handleTunnelMsgDeactivate(ctx, msg)
+	case *tunneltypes.MsgDepositTunnel:
+		h.handleTunnelMsgDepositTunnel(ctx, txHash, msg)
+	case *tunneltypes.MsgWithdrawTunnel:
+		h.handleTunnelMsgWithdrawTunnel(ctx, txHash, msg)
+	case *tunneltypes.MsgTriggerTunnel:
+		// TODO
 	default:
 		break
 	}
@@ -253,6 +268,7 @@ func (h *Hook) handleBeginBlockEndBlockEvent(
 		}
 	case proto.MessageName(&group.EventProposalPruned{}):
 		h.handleGroupEventProposalPruned(ctx, evMap)
+	// TODO: tunnel event
 	default:
 		break
 	}
