@@ -167,13 +167,15 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) error {
 		allValidatorPrices[val.Address.String()] = valPricesMap
 	}
 
-	gracePeriod := k.GetParams(ctx).GracePeriod
+	params := k.GetParams(ctx)
+
+	gracePeriod := params.GracePeriod
 	tbt, err := k.stakingKeeper.TotalBondedTokens(ctx)
 	if err != nil {
 		return err
 	}
 	totalBondedToken := sdkmath.LegacyNewDecFromInt(tbt)
-	priceQuorum, err := sdkmath.LegacyNewDecFromStr(k.GetParams(ctx).PriceQuorum)
+	priceQuorum, err := sdkmath.LegacyNewDecFromStr(params.PriceQuorum)
 	if err != nil {
 		return err
 	}

@@ -36,11 +36,13 @@ func (ms msgServer) Vote(
 		return nil, err
 	}
 
+	maxCurrentFeeds := ms.GetParams(ctx).MaxCurrentFeeds
+
 	// check if the number of submitted signals exceeds the maximum allowed feeds
-	if len(msg.Signals) > int(ms.GetParams(ctx).MaxCurrentFeeds) {
+	if uint64(len(msg.Signals)) > maxCurrentFeeds {
 		return nil, types.ErrSubmittedSignalsTooLarge.Wrapf(
 			"maximum number of signals is %d but received %d",
-			ms.GetParams(ctx).MaxCurrentFeeds, len(msg.Signals),
+			maxCurrentFeeds, len(msg.Signals),
 		)
 	}
 
@@ -100,8 +102,10 @@ func (ms msgServer) SubmitSignalPrices(
 	blockTime := ctx.BlockTime().Unix()
 	blockHeight := ctx.BlockHeight()
 
+	params := ms.GetParams(ctx)
+
 	// check if the number of signal prices exceeds the maximum allowed feeds
-	if len(msg.SignalPrices) > int(ms.Keeper.GetParams(ctx).MaxCurrentFeeds) {
+	if len(msg.SignalPrices) > int(params.MaxCurrentFeeds) {
 		return nil, types.ErrSignalPricesTooLarge
 	}
 
@@ -116,7 +120,7 @@ func (ms msgServer) SubmitSignalPrices(
 	}
 
 	// check if the timestamp is not too far from the block time
-	if types.AbsInt64(msg.Timestamp-blockTime) > ms.GetParams(ctx).AllowableBlockTimeDiscrepancy {
+	if types.AbsInt64(msg.Timestamp-blockTime) > params.AllowableBlockTimeDiscrepancy {
 		return nil, types.ErrInvalidTimestamp.Wrapf(
 			"block_time: %d, timestamp: %d",
 			blockTime,
@@ -142,7 +146,7 @@ func (ms msgServer) SubmitSignalPrices(
 		}
 	}
 
-	cooldownTime := ms.GetParams(ctx).CooldownTime
+	cooldownTime := params.CooldownTime
 	for _, signalPrice := range msg.SignalPrices {
 		idx, ok := currentFeedsMap[signalPrice.SignalID]
 		if !ok {
