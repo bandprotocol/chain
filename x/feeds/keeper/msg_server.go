@@ -128,47 +128,50 @@ func (ms msgServer) SubmitSignalPrices(
 		)
 	}
 
-	// get current feeds
+	// get current feeds and create current feed map from signal to new idx of validator price
 	currentFeeds := ms.GetCurrentFeeds(ctx)
 	currentFeedsMap := make(map[string]int)
 	for idx, feed := range currentFeeds.Feeds {
 		currentFeedsMap[feed.SignalID] = idx
 	}
 
-	valPrices := make([]types.ValidatorPrice, len(currentFeedsMap))
+	newValidatorPrices := make([]types.ValidatorPrice, len(currentFeedsMap))
+	// fill new validator latest price with latest submitted price
 	prevValPrices, err := ms.GetValidatorPriceList(ctx, val)
 	if err == nil {
-		for _, valPrice := range prevValPrices.ValidatorPrices {
-			idx, ok := currentFeedsMap[valPrice.SignalID]
+		for _, p := range prevValPrices.ValidatorPrices {
+			idx, ok := currentFeedsMap[p.SignalID]
+			// only update if this signal in current feed
 			if ok {
-				valPrices[idx] = valPrice
+				newValidatorPrices[idx] = p
 			}
 		}
 	}
 
 	cooldownTime := params.CooldownTime
-	for _, signalPrice := range msg.SignalPrices {
-		idx, ok := currentFeedsMap[signalPrice.SignalID]
+	for _, msgPrice := range msg.SignalPrices {
+		// revert if send signal price that not in current feed
+		idx, ok := currentFeedsMap[msgPrice.SignalID]
 		if !ok {
 			return nil, types.ErrSignalIDNotSupported.Wrapf(
 				"signal_id: %s",
-				signalPrice.SignalID,
+				msgPrice.SignalID,
 			)
 		}
 
-		// check if price is not too fast
-		valPrice := valPrices[idx]
-		if valPrice.SignalPriceStatus != types.SignalPriceStatusUnspecified &&
-			blockTime < valPrice.Timestamp+cooldownTime {
+		// check if price have been set and update too fast
+		latestPrice := newValidatorPrices[idx]
+		if latestPrice.SignalPriceStatus != types.SignalPriceStatusUnspecified &&
+			blockTime < latestPrice.Timestamp+cooldownTime {
 			return nil, types.ErrPriceSubmitTooEarly
 		}
 
-		valPrice = types.NewValidatorPrice(signalPrice, blockTime, blockHeight)
-		valPrices[idx] = valPrice
-		emitEventSubmitSignalPrice(ctx, val, valPrice)
+		// update new validator price with price from msg
+		newValidatorPrices[idx] = types.NewValidatorPrice(msgPrice, blockTime, blockHeight)
+		emitEventSubmitSignalPrice(ctx, val, newValidatorPrices[idx])
 	}
 
-	if err := ms.SetValidatorPriceList(ctx, val, valPrices); err != nil {
+	if err := ms.SetValidatorPriceList(ctx, val, newValidatorPrices); err != nil {
 		return nil, err
 	}
 
