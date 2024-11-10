@@ -149,7 +149,7 @@ func (k Keeper) ProducePacket(
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeProducePacketSuccess,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
-		sdk.NewAttribute(types.AttributeKeySequence, fmt.Sprintf("%d", tunnel.Sequence)),
+		sdk.NewAttribute(types.AttributeKeySequence, fmt.Sprintf("%d", packet.Sequence)),
 	))
 
 	return nil
