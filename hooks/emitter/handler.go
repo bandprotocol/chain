@@ -188,7 +188,7 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 	case *tunneltypes.MsgWithdrawTunnel:
 		h.handleTunnelMsgWithdrawTunnel(ctx, txHash, msg)
 	case *tunneltypes.MsgTriggerTunnel:
-		// TODO
+		h.handleTunnelMsgTriggerTunnel(ctx, msg, evMap)
 	default:
 		break
 	}
@@ -268,7 +268,8 @@ func (h *Hook) handleBeginBlockEndBlockEvent(
 		}
 	case proto.MessageName(&group.EventProposalPruned{}):
 		h.handleGroupEventProposalPruned(ctx, evMap)
-	// TODO: tunnel event
+	case tunneltypes.EventTypeProducePacketSuccess:
+		h.handleTunnelEventTypeProducePacketSuccess(ctx, evMap)
 	default:
 		break
 	}

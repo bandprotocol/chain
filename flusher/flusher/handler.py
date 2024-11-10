@@ -74,6 +74,15 @@ from .tss_db import (
     tss_assigned_members,
 )
 
+from .tunnel_db import (
+    tunnels,
+    tunnel_historical_signal_deviations,
+    tunnel_deposits,
+    tunnel_historical_deposits,
+    tunnel_packets,
+    tunnel_packet_signal_prices,
+)
+
 
 class Handler(object):
     def __init__(self, conn):
@@ -860,7 +869,9 @@ class Handler(object):
         self.conn.execute(
             insert(feeds_signal_total_powers)
             .values(**msg)
-            .on_conflict_do_update(constraint="feeds_signal_total_powers_pkey", set_=msg)
+            .on_conflict_do_update(
+                constraint="feeds_signal_total_powers_pkey", set_=msg
+            )
         )
 
     def handle_remove_signal_total_power(self, msg):
@@ -899,7 +910,8 @@ class Handler(object):
 
         self.conn.execute(
             feeds_historical_prices.delete().where(
-                feeds_historical_prices.c.timestamp < msg["timestamp"] - PRICE_HISTORY_PERIOD
+                feeds_historical_prices.c.timestamp
+                < msg["timestamp"] - PRICE_HISTORY_PERIOD
             )
         )
 
@@ -907,7 +919,9 @@ class Handler(object):
         self.conn.execute(
             insert(feeds_reference_source_configs)
             .values(**msg)
-            .on_conflict_do_update(constraint="feeds_reference_source_configs_pkey", set_=msg)
+            .on_conflict_do_update(
+                constraint="feeds_reference_source_configs_pkey", set_=msg
+            )
         )
 
     def handle_set_feeder(self, msg):
@@ -1087,3 +1101,72 @@ class Handler(object):
         del msg["requester"]
 
         self.conn.execute(bandtss_signings.insert(), msg)
+
+    ##################################
+    # TUNNEL_HANDLER
+    ##################################
+
+    def handle_set_tunnel(self, msg):
+        if "creator" in msg:
+            msg["creator_id"] = self.get_account_id(msg["creator"])
+            del msg["creator"]
+
+        if "fee_payer" in msg:
+            msg["fee_payer_id"] = self.get_account_id(msg["fee_payer"])
+            del msg["fee_payer"]
+
+        self.conn.execute(
+            insert(tunnels)
+            .values(**msg)
+            .on_conflict_do_update(constraint="tunnels_pkey", set_=msg)
+        )
+
+    def handle_set_tunnel_deposit(self, msg):
+        msg["depositor_id"] = self.get_account_id(msg["deposit"])
+        del msg["deposit"]
+
+        self.conn.execute(
+            insert(tunnel_deposits)
+            .values(**msg)
+            .on_conflict_do_update(constraint="tunnel_deposits_pkey", set_=msg)
+        )
+
+    def handle_set_tunnel_historical_deposit(self, msg):
+        msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
+        del msg["tx_hash"]
+
+        msg["depositor_id"] = self.get_account_id(msg["deposit"])
+        del msg["deposit"]
+
+        self.conn.execute(
+            insert(tunnel_historical_deposits)
+            .values(**msg)
+            .on_conflict_do_update(
+                constraint="tunnel_historical_deposits_pkey", set_=msg
+            )
+        )
+
+    def handle_set_tunnel_historical_signal_deviations(self, msg):
+        self.conn.execute(
+            insert(tunnel_historical_signal_deviations)
+            .values(**msg)
+            .on_conflict_do_update(
+                constraint="tunnel_historical_signal_deviations_pkey", set_=msg
+            )
+        )
+
+    def handle_set_tunnel_packet(self, msg):
+        self.conn.execute(
+            insert(tunnel_packets)
+            .values(**msg)
+            .on_conflict_do_update(constraint="tunnel_packets_pkey", set_=msg)
+        )
+
+    def handle_set_tunnel_packet_signal_price(self, msg):
+        self.conn.execute(
+            insert(tunnel_packet_signal_prices)
+            .values(**msg)
+            .on_conflict_do_update(
+                constraint="tunnel_packet_signal_prices_pkey", set_=msg
+            )
+        )

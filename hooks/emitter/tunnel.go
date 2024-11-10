@@ -74,6 +74,28 @@ func (h *Hook) emitSetTunnelHistoricalSignalDeviations(ctx sdk.Context, tunnelID
 	})
 }
 
+func (h *Hook) emitSetTunnelPacket(ctx sdk.Context, tunnelID uint64, sequence uint64) {
+	packet := h.tunnelKeeper.MustGetPacket(ctx, tunnelID, sequence)
+
+	h.Write("SET_TUNNEL_PACKET", common.JsDict{
+		"tunnel_id":      tunnelID,
+		"sequence":       sequence,
+		"packet_content": packet.PacketContent,
+		"base_fees":      "",
+		"route_fees":     "",
+		"created_at":     packet.CreatedAt,
+	})
+
+	for _, sp := range packet.SignalPrices {
+		h.Write("SET_TUNNEL_PACKET_SIGNAL_PRICE", common.JsDict{
+			"tunnel_id": tunnelID,
+			"sequence":  sequence,
+			"signal_id": sp.SignalID,
+			"price":     sp.Price,
+		})
+	}
+}
+
 // handleTunnelMsgCreateTunnel implements emitter handler for MsgCreateTunnel.
 func (h *Hook) handleTunnelMsgCreateTunnel(
 	ctx sdk.Context,
@@ -115,4 +137,21 @@ func (h *Hook) handleTunnelMsgDepositTunnel(ctx sdk.Context, txHash []byte, msg 
 func (h *Hook) handleTunnelMsgWithdrawTunnel(ctx sdk.Context, txHash []byte, msg *types.MsgWithdrawTunnel) {
 	h.emitSetTunnelDeposit(ctx, msg.TunnelID, msg.Withdrawer)
 	h.emitSetTunnelHistoricalDeposit(ctx, txHash, msg.TunnelID, msg.Withdrawer, 2, msg.Amount)
+}
+
+// handleTunnelMsgTriggerTunnel implements emitter handler for MsgTriggerTunnel.
+func (h *Hook) handleTunnelMsgTriggerTunnel(ctx sdk.Context, msg *types.MsgTriggerTunnel, evMap common.EvMap) {
+	sequence := common.Atoui(evMap[types.EventTypeTriggerTunnel+"."+types.AttributeKeySequence][0])
+	h.emitSetTunnel(ctx, msg.TunnelID)
+	h.emitSetTunnelPacket(ctx, msg.TunnelID, sequence)
+}
+
+// handleTunnelEventTypeProducePacketSuccess implements emitter handler for EventTypeProducePacketSuccess.
+func (h *Hook) handleTunnelEventTypeProducePacketSuccess(ctx sdk.Context, evMap common.EvMap) {
+	tunnelIDs := evMap[types.EventTypeProducePacketSuccess+"."+types.AttributeKeyTunnelID]
+	sequences := evMap[types.EventTypeProducePacketSuccess+"."+types.AttributeKeySequence]
+	for idx, tunnelID := range tunnelIDs {
+		sequence := common.Atoui(sequences[idx])
+		h.emitSetTunnelPacket(ctx, common.Atoui(tunnelID), sequence)
+	}
 }
