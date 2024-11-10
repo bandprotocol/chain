@@ -51,7 +51,7 @@ func (ms msgServer) Vote(
 	}
 
 	// RegisterNewSignals deletes previous signals and registers new signals then returns feed power differences
-	signalIDToPowerDiff := ms.RegisterNewSignals(ctx, voter, req.Signals)
+	signalIDToPowerDiff := ms.UpdateVoteAndReturnPowerDiff(ctx, voter, req.Signals)
 
 	// sort keys to guarantee order of signalIDToPowerDiff iteration
 	keys := make([]string, 0, len(signalIDToPowerDiff))
