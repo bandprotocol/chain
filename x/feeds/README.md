@@ -325,24 +325,25 @@ The median price is then set as the Price. Here is the price aggregation logic:
 
 #### Input
 
-A list of PriceFeedInfo objects, each containing:
+A list of ValidatorPriceInfo objects, each containing:
 * `Price`: The reported price from the feeder
-* `Deviation`: The price deviation
+* `SignalPriceStatus`: The status of price
 * `Power`: The feeder's power
 * `Timestamp`: The time at which the price is reported
 
 #### Objective
 
-* An aggregated price from the list of priceFeedInfo.
+* An aggregated price from the list of ValidatorPriceInfo.
 
 #### Assumption
 
-1. No PriceFeedInfo has a power that exceeds 25% of the total power in the list.
+1. No ValidatorPriceInfo has a power that exceeds 25% of the total power in the list.
 
 #### Procedure
 
-1. Order the List:
+1. Filter and order the List:
 
+* Filter the object with `SignalPriceStatus` as `Available` only.
 * Sort the list by `Timestamp` in descending order (latest timestamp first).
 * For entries with the same `Timestamp`, sort by `Power` in descending order.
 
@@ -354,15 +355,12 @@ A list of PriceFeedInfo objects, each containing:
     - The next 1/16 of the total power is multiplied by 4.
     - The next 1/8 of the total power is multiplied by 2.
     - The next 1/4 of the total power is multiplied by 1.1.
-* If PriceFeedInfo overlaps between segments, split it into parts corresponding to each segment and assign the respective multiplier.
+* If ValidatorPriceInfo overlaps between segments, split it into parts corresponding to each segment and assign the respective multiplier.
 * Any power that falls outside these segments will have a multiplier of 1.
 
 3. Generate Points:
 
-* For each PriceFeedInfo (or its parts if split), generate three points:
-    - One at the `Price` with the assigned `Power`.
-    - One at `Price + Deviation` with the assigned `Power`.
-    - One at `Price - Deviation` with the assigned `Power`.
+* For each ValidatorPriceInfo, generate a point (at the `Price` with the assigned `Weight`.)
 
 4. Calculating Weight Median
 

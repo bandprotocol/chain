@@ -226,35 +226,32 @@ func (suite *KeeperTestSuite) TestCalculatePrice() {
 	}
 
 	tests := []struct {
-		name           string
-		priceFeedInfos []types.PriceFeedInfo
-		powerQuorum    uint64
-		expectedPrice  types.Price
-		expectError    bool
+		name                string
+		validatorPriceInfos []types.ValidatorPriceInfo
+		powerQuorum         uint64
+		expectedPrice       types.Price
+		expectError         bool
 	}{
 		{
 			name: "more than half have unsupported price status",
-			priceFeedInfos: []types.PriceFeedInfo{
+			validatorPriceInfos: []types.ValidatorPriceInfo{
 				{
 					SignalPriceStatus: types.SignalPriceStatusAvailable,
 					Power:             1000,
 					Price:             1000,
 					Timestamp:         ctx.BlockTime().Unix(),
-					Index:             0,
 				},
 				{
 					SignalPriceStatus: types.SignalPriceStatusUnsupported,
 					Power:             2001,
 					Price:             2000,
 					Timestamp:         ctx.BlockTime().Unix(),
-					Index:             1,
 				},
 				{
 					SignalPriceStatus: types.SignalPriceStatusAvailable,
 					Power:             1000,
 					Price:             2000,
 					Timestamp:         ctx.BlockTime().Unix(),
-					Index:             2,
 				},
 			},
 			powerQuorum: 5000,
@@ -268,27 +265,24 @@ func (suite *KeeperTestSuite) TestCalculatePrice() {
 		},
 		{
 			name: "total power is less than quorum",
-			priceFeedInfos: []types.PriceFeedInfo{
+			validatorPriceInfos: []types.ValidatorPriceInfo{
 				{
 					SignalPriceStatus: types.SignalPriceStatusAvailable,
 					Power:             1000,
 					Price:             1000,
 					Timestamp:         ctx.BlockTime().Unix(),
-					Index:             0,
 				},
 				{
 					SignalPriceStatus: types.SignalPriceStatusAvailable,
 					Power:             1000,
 					Price:             2000,
 					Timestamp:         ctx.BlockTime().Unix(),
-					Index:             1,
 				},
 				{
 					SignalPriceStatus: types.SignalPriceStatusAvailable,
 					Power:             1000,
 					Price:             2000,
 					Timestamp:         ctx.BlockTime().Unix(),
-					Index:             2,
 				},
 			},
 			powerQuorum: 5000,
@@ -302,27 +296,24 @@ func (suite *KeeperTestSuite) TestCalculatePrice() {
 		},
 		{
 			name: "normal case",
-			priceFeedInfos: []types.PriceFeedInfo{
+			validatorPriceInfos: []types.ValidatorPriceInfo{
 				{
 					SignalPriceStatus: types.SignalPriceStatusAvailable,
 					Power:             5000,
 					Price:             1000,
 					Timestamp:         ctx.BlockTime().Unix(),
-					Index:             0,
 				},
 				{
 					SignalPriceStatus: types.SignalPriceStatusAvailable,
 					Power:             3000,
 					Price:             2000,
 					Timestamp:         ctx.BlockTime().Unix(),
-					Index:             1,
 				},
 				{
 					SignalPriceStatus: types.SignalPriceStatusAvailable,
 					Power:             3000,
 					Price:             2000,
 					Timestamp:         ctx.BlockTime().Unix(),
-					Index:             2,
 				},
 			},
 			powerQuorum: 7000,
@@ -335,9 +326,9 @@ func (suite *KeeperTestSuite) TestCalculatePrice() {
 			expectError: false,
 		},
 		{
-			name:           "empty price feed infos",
-			priceFeedInfos: []types.PriceFeedInfo{},
-			powerQuorum:    5000,
+			name:                "empty validator price infos",
+			validatorPriceInfos: []types.ValidatorPriceInfo{},
+			powerQuorum:         5000,
 			expectedPrice: types.Price{
 				Status:    types.PriceStatusNotReady,
 				SignalID:  "CS:BAND-USD",
@@ -350,7 +341,7 @@ func (suite *KeeperTestSuite) TestCalculatePrice() {
 
 	for _, tt := range tests {
 		suite.Run(tt.name, func() {
-			price, err := suite.feedsKeeper.CalculatePrice(ctx, feed, tt.priceFeedInfos, tt.powerQuorum)
+			price, err := suite.feedsKeeper.CalculatePrice(ctx, feed, tt.validatorPriceInfos, tt.powerQuorum)
 			if tt.expectError {
 				suite.Require().Error(err)
 			} else {
