@@ -39,7 +39,7 @@ func NewMsgSubmitSignalPrices(
 // ValidateBasic does a check on the provided data.
 func (m *MsgSubmitSignalPrices) ValidateBasic() error {
 	if _, err := sdk.ValAddressFromBech32(m.Validator); err != nil {
-		return err
+		return errorsmod.Wrap(err, "invalid validator address")
 	}
 
 	// Map to track signal IDs for duplicate check

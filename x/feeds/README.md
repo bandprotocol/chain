@@ -56,7 +56,9 @@ This module is used in the BandChain.
 
 ### Vote
 
-A Vote is a decision made by a voter, directing the network to deliver feed service for a specified signal ID.
+A Vote is a decision made by a voter, directing the network to deliver feed service for specified signal IDs.
+
+A vote can contain multiple signal for each distinct signal ID.
 
 A signal consists of an signal ID and the power associated with that signal. The feeding interval and deviation are reduced by the sum of the power of the signal. The total power of all signals of voter cannot exceed their total bonded delegation and staked tokens.
 
@@ -250,8 +252,8 @@ message MsgSubmitSignalPrices {
   // timestamp is the timestamp used as reference for the data.
   int64 timestamp = 2;
 
-  // prices is a list of signal prices to submit.
-  repeated SignalPrice prices = 3 [(gogoproto.nullable) = false];
+  // signal_prices is a list of signal prices to submit.
+  repeated SignalPrice signal_prices = 3 [(gogoproto.nullable) = false];
 }
 ```
 
@@ -377,35 +379,33 @@ The feeds module emits the following events:
 
 ### EndBlocker
 
-| Type                   | Attribute Key         | Attribute Value |
-| ---------------------- | --------------------- | --------------- |
-| calculate_price_failed | signal_id             | {signalID}      |
-| calculate_price_failed | error_message         | {error}         |
-| update_price           | signal_id             | {signalID}      |
-| update_price           | price                 | {price}         |
-| update_price           | timestamp             | {timestamp}     |
-| updated_current_feeds  | last_update_timestamp | {timestamp}     |
-| updated_current_feeds  | last_update_block     | {block_height}  |
+| Type                  | Attribute Key         | Attribute Value |
+| --------------------- | --------------------- | --------------- |
+| update_price          | signal_id             | {signalID}      |
+| update_price          | price_status          | {priceStatus}   |
+| update_price          | price                 | {price}         |
+| update_price          | timestamp             | {timestamp}     |
+| updated_current_feeds | last_update_timestamp | {timestamp}     |
+| updated_current_feeds | last_update_block     | {block_height}  |
 
 ### Handlers
 
 #### MsgSubmitSignalPrices
 
-| Type                | Attribute Key | Attribute Value    |
-| ------------------- | ------------- | ------------------ |
-| submit_signal_price | price_status  | {priceStatus}      |
-| submit_signal_price | validator     | {validatorAddress} |
-| submit_signal_price | signal_id     | {signalID}         |
-| submit_signal_price | price         | {price}            |
-| submit_signal_price | timestamp     | {timestamp}        |
+| Type                | Attribute Key       | Attribute Value     |
+| ------------------- | ------------------- | ------------------- |
+| submit_signal_price | signal_price_status | {signalPriceStatus} |
+| submit_signal_price | validator           | {validatorAddress}  |
+| submit_signal_price | signal_id           | {signalID}          |
+| submit_signal_price | price               | {price}             |
+| submit_signal_price | timestamp           | {timestamp}         |
 
 #### MsgUpdateReferenceSourceConfig
 
-| Type                           | Attribute Key | Attribute Value |
-| ------------------------------ | ------------- | --------------- |
-| update_reference_source_config | hash          | {hash}          |
-| update_reference_source_config | version       | {version}       |
-| update_reference_source_config | url           | {url}           |
+| Type                           | Attribute Key      | Attribute Value    |
+| ------------------------------ | ------------------ | ------------------ |
+| update_reference_source_config | registry_ipfs_hash | {registryIPFSHash} |
+| update_reference_source_config | version            | {registryVersion}  |
 
 #### MsgUpdateParams
 
