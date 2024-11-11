@@ -31,7 +31,7 @@ func BenchmarkSortMap(b *testing.B) {
 	b.ResetTimer()
 	b.StopTimer()
 	ba := InitializeBenchmarkApp(b, -1)
-	expValPrices := generateValidatorPrices(300, ValidValidator.String(), ba.Ctx.BlockTime().Unix())
+	expValPrices := generateValidatorPrices(300, ba.Ctx.BlockTime().Unix())
 	valPricesMap := make(map[string]types.ValidatorPrice)
 	for _, valPrice := range expValPrices {
 		valPricesMap[valPrice.SignalID] = valPrice
@@ -310,7 +310,7 @@ func generateValidators(ba *BenchmarkApp, num int) ([]*Account, error) {
 }
 
 // generateValidatorPrices generates a slice of ValidatorPrice with the specified number of elements.
-func generateValidatorPrices(numElements int, validatorAddress string, timestamp int64) []types.ValidatorPrice {
+func generateValidatorPrices(numElements int, timestamp int64) []types.ValidatorPrice {
 	prices := make([]types.ValidatorPrice, numElements)
 
 	for i := 0; i < numElements; i++ {
