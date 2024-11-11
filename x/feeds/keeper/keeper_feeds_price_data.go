@@ -36,7 +36,7 @@ func (k Keeper) GetFeedsPriceData(
 		}
 
 		// Check if the price is available
-		if p.PriceStatus != types.PriceStatusAvailable {
+		if p.Status != types.PriceStatusAvailable {
 			return nil, fmt.Errorf("%s: price not available", signalID)
 		}
 
