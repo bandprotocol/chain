@@ -784,18 +784,18 @@ class Handler(object):
         msg["validator_id"] = self.get_validator_id(msg["validator"])
         del msg["validator"]
 
-        prices = msg.get("prices", [])
+        signal_prices = msg.get("signal_prices", [])
 
         # Prepare a list of dictionaries to batch
         batch_data = [
             {
                 "validator_id": msg["validator_id"],
-                "signal_id": price["signal_id"],
-                "price_status": price["price_status"],
-                "price": price.get("price", 0),
+                "signal_id": signal_price["signal_id"],
+                "status": signal_price["status"],
+                "price": signal_price.get("price", 0),
                 "timestamp": msg["timestamp"],
             }
-            for price in prices
+            for signal_price in signal_prices
         ]
 
         # Perform batch insert with on_conflict_do_update using excluded values
@@ -803,7 +803,7 @@ class Handler(object):
         stmt = stmt.on_conflict_do_update(
             constraint="feeds_validator_prices_pkey",
             set_={
-                "price_status": stmt.excluded.price_status,
+                "status": stmt.excluded.status,
                 "price": stmt.excluded.price,
                 "timestamp": stmt.excluded.timestamp,
             },
@@ -850,7 +850,7 @@ class Handler(object):
         batch_data = [
             {
                 "signal_id": price["signal_id"],
-                "price_status": price["price_status"],
+                "status": price["status"],
                 "price": price.get("price", 0),
                 "timestamp": timestamp,
             }
@@ -862,7 +862,7 @@ class Handler(object):
         stmt = stmt.on_conflict_do_update(
             constraint="feeds_historical_prices_pkey",
             set_={
-                "price_status": stmt.excluded.price_status,
+                "status": stmt.excluded.status,
                 "price": stmt.excluded.price,
             },
         )

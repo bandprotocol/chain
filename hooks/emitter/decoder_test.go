@@ -922,16 +922,16 @@ func (suite *DecoderTestSuite) TestDecodeFeedsMsgSubmitPrices() {
 	msg := feedstypes.MsgSubmitSignalPrices{
 		Validator: ValAddress.String(),
 		Timestamp: 12345678,
-		Prices: []feedstypes.SignalPrice{
+		SignalPrices: []feedstypes.SignalPrice{
 			{
-				PriceStatus: feedstypes.PriceStatusAvailable,
-				SignalID:    "CS:ETH-USD",
-				Price:       3500000000000,
+				Status:   feedstypes.SignalPriceStatusAvailable,
+				SignalID: "CS:ETH-USD",
+				Price:    3500000000000,
 			},
 			{
-				PriceStatus: feedstypes.PriceStatusUnavailable,
-				SignalID:    "CS:BTC-USD",
-				Price:       0,
+				Status:   feedstypes.SignalPriceStatusUnavailable,
+				SignalID: "CS:BTC-USD",
+				Price:    0,
 			},
 		},
 	}
@@ -939,7 +939,7 @@ func (suite *DecoderTestSuite) TestDecodeFeedsMsgSubmitPrices() {
 	emitter.DecodeFeedsMsgSubmitSignalPrices(&msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"prices\":[{\"price_status\":3,\"signal_id\":\"CS:ETH-USD\",\"price\":3500000000000},{\"price_status\":2,\"signal_id\":\"CS:BTC-USD\"}],\"timestamp\":12345678,\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
+		"{\"signal_prices\":[{\"status\":3,\"signal_id\":\"CS:ETH-USD\",\"price\":3500000000000},{\"status\":2,\"signal_id\":\"CS:BTC-USD\"}],\"timestamp\":12345678,\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
 	)
 }
 

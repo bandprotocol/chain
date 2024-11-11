@@ -673,7 +673,7 @@ func DecodeDescription(des stakingtypes.Description) common.JsDict {
 func DecodeFeedsMsgSubmitSignalPrices(msg *feedstypes.MsgSubmitSignalPrices, detail common.JsDict) {
 	detail["validator"] = msg.GetValidator()
 	detail["timestamp"] = msg.GetTimestamp()
-	detail["prices"] = msg.GetPrices()
+	detail["signal_prices"] = msg.GetSignalPrices()
 }
 
 func DecodeFeedsMsgVote(msg *feedstypes.MsgVote, detail common.JsDict) {
