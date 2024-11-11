@@ -95,7 +95,7 @@ func BenchmarkSubmitSignatureDeliver(b *testing.B) {
 
 				// deliver MsgSubmitSignature to the block
 				for i := 0; i < b.N; i++ {
-					gid := ba.BandtssKeeper.GetCurrentGroupID(ba.Ctx)
+					gid := ba.BandtssKeeper.GetCurrentGroup(ba.Ctx).GroupID
 					require.NotZero(b, gid)
 
 					// generate tx
@@ -144,7 +144,7 @@ func BenchmarkEndBlockHandleProcessSigning(b *testing.B) {
 					)
 					require.NoError(b, err)
 
-					gid := ba.BandtssKeeper.GetCurrentGroupID(ba.Ctx)
+					gid := ba.BandtssKeeper.GetCurrentGroup(ba.Ctx).GroupID
 					require.NotZero(b, gid)
 
 					// generate tx

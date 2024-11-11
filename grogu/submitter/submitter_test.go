@@ -30,6 +30,8 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/types"
 
+	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/bothan/v1"
+
 	band "github.com/bandprotocol/chain/v3/app"
 	"github.com/bandprotocol/chain/v3/grogu/submitter/testutil"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
@@ -124,6 +126,10 @@ func (s *SubmitterTestSuite) SetupTest() {
 
 	mockRPCClients := []rpcclient.RemoteClient{mockClient}
 
+	mockBothanClient := testutil.NewMockBothanClient(ctrl)
+	mockBothanClient.EXPECT().GetInfo().Return(&bothan.GetInfoResponse{MonitoringEnabled: true}, nil).AnyTimes()
+	mockBothanClient.EXPECT().PushMonitoringRecords(gomock.Any(), gomock.Any()).AnyTimes()
+
 	mockAuthQuerier := testutil.NewMockAuthQuerier(ctrl)
 	mockAuthQuerier.EXPECT().
 		QueryAccount(gomock.Any()).
@@ -157,6 +163,7 @@ func (s *SubmitterTestSuite) SetupTest() {
 	submitterInstance, err := New(
 		clientCtx,
 		mockRPCClients,
+		mockBothanClient,
 		l,
 		submitSignalPriceCh,
 		mockAuthQuerier,
@@ -190,9 +197,9 @@ func (s *SubmitterTestSuite) TestSubmitterSubmitPrice() {
 	// Add signal price data to channel
 	prices := []types.SignalPrice{
 		{
-			SignalID:    "signal1",
-			Price:       12345,
-			PriceStatus: types.PriceStatusAvailable,
+			SignalID: "signal1",
+			Price:    12345,
+			Status:   types.SignalPriceStatusAvailable,
 		},
 	}
 
@@ -237,9 +244,9 @@ func (s *SubmitterTestSuite) TestSubmitterSubmitPrice_OutOfGas() {
 	// Add signal price data to channel
 	prices := []types.SignalPrice{
 		{
-			SignalID:    "signal1",
-			Price:       12345,
-			PriceStatus: types.PriceStatusAvailable,
+			SignalID: "signal1",
+			Price:    12345,
+			Status:   types.SignalPriceStatusAvailable,
 		},
 	}
 
@@ -275,11 +282,11 @@ func (s *SubmitterTestSuite) TestSubmitterBuildSignedTx() {
 	msg := types.MsgSubmitSignalPrices{
 		Validator: s.Submitter.valAddress.String(),
 		Timestamp: time.Now().Unix(),
-		Prices: []types.SignalPrice{
+		SignalPrices: []types.SignalPrice{
 			{
-				SignalID:    "signal1",
-				Price:       12345,
-				PriceStatus: types.PriceStatusAvailable,
+				SignalID: "signal1",
+				Price:    12345,
+				Status:   types.SignalPriceStatusAvailable,
 			},
 		},
 	}
@@ -309,11 +316,11 @@ func (s *SubmitterTestSuite) TestSubmitterBroadcastMsg() {
 	msg := types.MsgSubmitSignalPrices{
 		Validator: s.Submitter.valAddress.String(),
 		Timestamp: time.Now().Unix(),
-		Prices: []types.SignalPrice{
+		SignalPrices: []types.SignalPrice{
 			{
-				SignalID:    "signal1",
-				Price:       12345,
-				PriceStatus: types.PriceStatusAvailable,
+				SignalID: "signal1",
+				Price:    12345,
+				Status:   types.SignalPriceStatusAvailable,
 			},
 		},
 	}

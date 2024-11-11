@@ -134,7 +134,7 @@ func createNewTunnels(
 
 	depositor := bandtesting.Bob.Address
 	minDeposit := ba.TunnelKeeper.GetParams(ba.Ctx).MinDeposit
-	if err := ba.TunnelKeeper.AddDeposit(ba.Ctx, tunnel.ID, depositor, minDeposit); err != nil {
+	if err := ba.TunnelKeeper.DepositToTunnel(ba.Ctx, tunnel.ID, depositor, minDeposit); err != nil {
 		return err
 	}
 
@@ -175,11 +175,7 @@ func setupFeedsPrice(ba *BenchmarkApp, signalDeviations []types.SignalDeviation)
 // shiftFeedsPrice shifts current feeds price by given multiplier.
 func shiftFeedsPrice(ba *BenchmarkApp, signalDeviations []types.SignalDeviation, mltpyBps uint64) error {
 	for _, sd := range signalDeviations {
-		p, err := ba.FeedsKeeper.GetPrice(ba.Ctx, sd.SignalID)
-		if err != nil {
-			return err
-		}
-
+		p := ba.FeedsKeeper.GetPrice(ba.Ctx, sd.SignalID)
 		p.Price = p.Price * mltpyBps / 10000
 		ba.FeedsKeeper.SetPrice(ba.Ctx, p)
 	}

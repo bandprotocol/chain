@@ -13,6 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
+	proto "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/bothan/v1"
 	bytes "github.com/cometbft/cometbft/libs/bytes"
 	log "github.com/cometbft/cometbft/libs/log"
 	client "github.com/cometbft/cometbft/rpc/client"
@@ -678,6 +679,88 @@ func (m *MockRemoteClient) Validators(ctx context.Context, height *int64, page, 
 func (mr *MockRemoteClientMockRecorder) Validators(ctx, height, page, perPage any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Validators", reflect.TypeOf((*MockRemoteClient)(nil).Validators), ctx, height, page, perPage)
+}
+
+// MockBothanClient is a mock of BothanClient interface.
+type MockBothanClient struct {
+	ctrl     *gomock.Controller
+	recorder *MockBothanClientMockRecorder
+	isgomock struct{}
+}
+
+// MockBothanClientMockRecorder is the mock recorder for MockBothanClient.
+type MockBothanClientMockRecorder struct {
+	mock *MockBothanClient
+}
+
+// NewMockBothanClient creates a new mock instance.
+func NewMockBothanClient(ctrl *gomock.Controller) *MockBothanClient {
+	mock := &MockBothanClient{ctrl: ctrl}
+	mock.recorder = &MockBothanClientMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockBothanClient) EXPECT() *MockBothanClientMockRecorder {
+	return m.recorder
+}
+
+// GetInfo mocks base method.
+func (m *MockBothanClient) GetInfo() (*proto.GetInfoResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetInfo")
+	ret0, _ := ret[0].(*proto.GetInfoResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetInfo indicates an expected call of GetInfo.
+func (mr *MockBothanClientMockRecorder) GetInfo() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInfo", reflect.TypeOf((*MockBothanClient)(nil).GetInfo))
+}
+
+// GetPrices mocks base method.
+func (m *MockBothanClient) GetPrices(signalIDs []string) (*proto.GetPricesResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetPrices", signalIDs)
+	ret0, _ := ret[0].(*proto.GetPricesResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetPrices indicates an expected call of GetPrices.
+func (mr *MockBothanClientMockRecorder) GetPrices(signalIDs any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPrices", reflect.TypeOf((*MockBothanClient)(nil).GetPrices), signalIDs)
+}
+
+// PushMonitoringRecords mocks base method.
+func (m *MockBothanClient) PushMonitoringRecords(uuid, txHash string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PushMonitoringRecords", uuid, txHash)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// PushMonitoringRecords indicates an expected call of PushMonitoringRecords.
+func (mr *MockBothanClientMockRecorder) PushMonitoringRecords(uuid, txHash any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PushMonitoringRecords", reflect.TypeOf((*MockBothanClient)(nil).PushMonitoringRecords), uuid, txHash)
+}
+
+// UpdateRegistry mocks base method.
+func (m *MockBothanClient) UpdateRegistry(ipfsHash, version string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateRegistry", ipfsHash, version)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateRegistry indicates an expected call of UpdateRegistry.
+func (mr *MockBothanClientMockRecorder) UpdateRegistry(ipfsHash, version any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateRegistry", reflect.TypeOf((*MockBothanClient)(nil).UpdateRegistry), ipfsHash, version)
 }
 
 // MockAuthQuerier is a mock of AuthQuerier interface.

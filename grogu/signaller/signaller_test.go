@@ -12,7 +12,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
+	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/bothan/v1"
 
 	"github.com/bandprotocol/chain/v3/grogu/signaller/testutil"
 	"github.com/bandprotocol/chain/v3/grogu/submitter"
@@ -46,11 +46,10 @@ func (s *SignallerTestSuite) SetupTest() {
 		QueryValidatorPrices(gomock.Any()).
 		Return(&feeds.QueryValidatorPricesResponse{ValidatorPrices: []feeds.ValidatorPrice{
 			{
-				PriceStatus: feeds.PriceStatusAvailable,
-				Validator:   validAddress.String(),
-				SignalID:    "signal1",
-				Price:       10000,
-				Timestamp:   0,
+				SignalPriceStatus: feeds.SignalPriceStatusAvailable,
+				SignalID:          "signal1",
+				Price:             10000,
+				Timestamp:         0,
 			},
 		}}, nil).
 		AnyTimes()
@@ -79,7 +78,7 @@ func (s *SignallerTestSuite) SetupTest() {
 				{
 					SignalId: "signal1",
 					Price:    10000,
-					Status:   bothan.Status_AVAILABLE,
+					Status:   bothan.Status_STATUS_AVAILABLE,
 				},
 			},
 			Uuid: "uuid1",
@@ -126,7 +125,7 @@ func (s *SignallerTestSuite) TestUpdateInternalVariables() {
 	s.Require().NotEmpty(s.Signaller.signalIDToValidatorPrice)
 }
 
-func (s *SignallerTestSuite) TestFilterAndPrepareSubmitPrices() {
+func (s *SignallerTestSuite) TestFilterAndPrepareSignalPrices() {
 	s.TestUpdateInternalVariables()
 
 	// Test with available price
@@ -134,7 +133,7 @@ func (s *SignallerTestSuite) TestFilterAndPrepareSubmitPrices() {
 		{
 			SignalId: "signal1",
 			Price:    10000,
-			Status:   bothan.Status_AVAILABLE,
+			Status:   bothan.Status_STATUS_AVAILABLE,
 		},
 	}
 
@@ -142,13 +141,13 @@ func (s *SignallerTestSuite) TestFilterAndPrepareSubmitPrices() {
 	// Test with time in the middle of the interval
 	middleIntervalTime := time.Unix(30, 0)
 
-	submitPrices := s.Signaller.filterAndPrepareSubmitPrices(prices, signalIDs, middleIntervalTime)
+	submitPrices := s.Signaller.filterAndPrepareSignalPrices(prices, signalIDs, middleIntervalTime)
 	s.Require().Empty(submitPrices)
 
 	// Test with time at the end of the interval
 	endIntervalTime := time.Unix(60, 0)
 
-	submitPrices = s.Signaller.filterAndPrepareSubmitPrices(prices, signalIDs, endIntervalTime)
+	submitPrices = s.Signaller.filterAndPrepareSignalPrices(prices, signalIDs, endIntervalTime)
 	s.Require().NotEmpty(submitPrices)
 	s.Require().Equal("signal1", submitPrices[0].SignalID)
 	s.Require().Equal(uint64(10000), submitPrices[0].Price)
@@ -158,20 +157,20 @@ func (s *SignallerTestSuite) TestFilterAndPrepareSubmitPrices() {
 		{
 			SignalId: "signal1",
 			Price:    10000,
-			Status:   bothan.Status_UNAVAILABLE,
+			Status:   bothan.Status_STATUS_UNAVAILABLE,
 		},
 	}
 
 	// Test with time after the urgent deadline
 	afterUrgentDeadlineTime := time.Unix(51, 0)
-	submitPrices = s.Signaller.filterAndPrepareSubmitPrices(prices, signalIDs, afterUrgentDeadlineTime)
+	submitPrices = s.Signaller.filterAndPrepareSignalPrices(prices, signalIDs, afterUrgentDeadlineTime)
 	s.Require().NotEmpty(submitPrices)
 	s.Require().Equal("signal1", submitPrices[0].SignalID)
 	s.Require().Equal(uint64(0), submitPrices[0].Price)
 
 	// Test with time before the urgent deadline
 	beforeUrgentDeadlineTime := time.Unix(49, 0)
-	submitPrices = s.Signaller.filterAndPrepareSubmitPrices(prices, signalIDs, beforeUrgentDeadlineTime)
+	submitPrices = s.Signaller.filterAndPrepareSignalPrices(prices, signalIDs, beforeUrgentDeadlineTime)
 	s.Require().Empty(submitPrices)
 }
 
@@ -199,12 +198,12 @@ func (s *SignallerTestSuite) TestGetNonPendingSignalIDs() {
 	s.Require().Equal("signal1", signalIDs[0])
 }
 
-func (s *SignallerTestSuite) TestSubmitPrices() {
+func (s *SignallerTestSuite) TestSignalPrices() {
 	prices := []feeds.SignalPrice{
 		{
-			SignalID:    "signal1",
-			Price:       10000,
-			PriceStatus: feeds.PriceStatusAvailable,
+			SignalID: "signal1",
+			Price:    10000,
+			Status:   feeds.SignalPriceStatusAvailable,
 		},
 	}
 
@@ -228,7 +227,7 @@ func (s *SignallerTestSuite) TestIsPriceValid() {
 	priceData := &bothan.Price{
 		SignalId: "signal1",
 		Price:    10000,
-		Status:   bothan.Status_AVAILABLE,
+		Status:   bothan.Status_STATUS_AVAILABLE,
 	}
 
 	// Test with time before the assigned time

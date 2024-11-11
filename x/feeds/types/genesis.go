@@ -3,19 +3,19 @@ package types
 // NewGenesisState creates new GenesisState
 func NewGenesisState(
 	params Params,
-	ds []DelegatorSignals,
+	votes []Vote,
 	rs ReferenceSourceConfig,
 ) *GenesisState {
 	return &GenesisState{
 		Params:                params,
-		DelegatorSignals:      ds,
+		Votes:                 votes,
 		ReferenceSourceConfig: rs,
 	}
 }
 
 // DefaultGenesisState returns the default genesis state
 func DefaultGenesisState() *GenesisState {
-	return NewGenesisState(DefaultParams(), []DelegatorSignals{}, DefaultReferenceSourceConfig())
+	return NewGenesisState(DefaultParams(), []Vote{}, DefaultReferenceSourceConfig())
 }
 
 // Validate performs basic genesis state validation
@@ -24,8 +24,8 @@ func (gs GenesisState) Validate() error {
 		return err
 	}
 
-	for _, ds := range gs.DelegatorSignals {
-		if err := ds.Validate(); err != nil {
+	for _, v := range gs.Votes {
+		if err := v.Validate(); err != nil {
 			return err
 		}
 	}

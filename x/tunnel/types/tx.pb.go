@@ -170,8 +170,9 @@ func (m *MsgCreateTunnelResponse) GetTunnelID() uint64 {
 	return 0
 }
 
-// MsgEditTunnel is the transaction message to edit a tunnel.
-type MsgEditTunnel struct {
+// MsgUpdateAndResetTunnel is the transaction message to update a tunnel information
+// and reset the interval.
+type MsgUpdateAndResetTunnel struct {
 	// tunnel_id is the ID of the tunnel to edit.
 	TunnelID uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
 	// signal_deviations is the list of signal deviations.
@@ -182,18 +183,18 @@ type MsgEditTunnel struct {
 	Creator string `protobuf:"bytes,4,opt,name=creator,proto3" json:"creator,omitempty"`
 }
 
-func (m *MsgEditTunnel) Reset()         { *m = MsgEditTunnel{} }
-func (m *MsgEditTunnel) String() string { return proto.CompactTextString(m) }
-func (*MsgEditTunnel) ProtoMessage()    {}
-func (*MsgEditTunnel) Descriptor() ([]byte, []int) {
+func (m *MsgUpdateAndResetTunnel) Reset()         { *m = MsgUpdateAndResetTunnel{} }
+func (m *MsgUpdateAndResetTunnel) String() string { return proto.CompactTextString(m) }
+func (*MsgUpdateAndResetTunnel) ProtoMessage()    {}
+func (*MsgUpdateAndResetTunnel) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d18351d83b4705d0, []int{2}
 }
-func (m *MsgEditTunnel) XXX_Unmarshal(b []byte) error {
+func (m *MsgUpdateAndResetTunnel) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgEditTunnel) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgUpdateAndResetTunnel) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgEditTunnel.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgUpdateAndResetTunnel.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -203,62 +204,62 @@ func (m *MsgEditTunnel) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 		return b[:n], nil
 	}
 }
-func (m *MsgEditTunnel) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgEditTunnel.Merge(m, src)
+func (m *MsgUpdateAndResetTunnel) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgUpdateAndResetTunnel.Merge(m, src)
 }
-func (m *MsgEditTunnel) XXX_Size() int {
+func (m *MsgUpdateAndResetTunnel) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgEditTunnel) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgEditTunnel.DiscardUnknown(m)
+func (m *MsgUpdateAndResetTunnel) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgUpdateAndResetTunnel.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgEditTunnel proto.InternalMessageInfo
+var xxx_messageInfo_MsgUpdateAndResetTunnel proto.InternalMessageInfo
 
-func (m *MsgEditTunnel) GetTunnelID() uint64 {
+func (m *MsgUpdateAndResetTunnel) GetTunnelID() uint64 {
 	if m != nil {
 		return m.TunnelID
 	}
 	return 0
 }
 
-func (m *MsgEditTunnel) GetSignalDeviations() []SignalDeviation {
+func (m *MsgUpdateAndResetTunnel) GetSignalDeviations() []SignalDeviation {
 	if m != nil {
 		return m.SignalDeviations
 	}
 	return nil
 }
 
-func (m *MsgEditTunnel) GetInterval() uint64 {
+func (m *MsgUpdateAndResetTunnel) GetInterval() uint64 {
 	if m != nil {
 		return m.Interval
 	}
 	return 0
 }
 
-func (m *MsgEditTunnel) GetCreator() string {
+func (m *MsgUpdateAndResetTunnel) GetCreator() string {
 	if m != nil {
 		return m.Creator
 	}
 	return ""
 }
 
-// MsgEditTunnelResponse is the response type for the Msg/EditTunnel RPC method.
-type MsgEditTunnelResponse struct {
+// MsgUpdateAndResetTunnelResponse is the response type for the Msg/UpdateAndResetTunnel RPC method.
+type MsgUpdateAndResetTunnelResponse struct {
 }
 
-func (m *MsgEditTunnelResponse) Reset()         { *m = MsgEditTunnelResponse{} }
-func (m *MsgEditTunnelResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgEditTunnelResponse) ProtoMessage()    {}
-func (*MsgEditTunnelResponse) Descriptor() ([]byte, []int) {
+func (m *MsgUpdateAndResetTunnelResponse) Reset()         { *m = MsgUpdateAndResetTunnelResponse{} }
+func (m *MsgUpdateAndResetTunnelResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgUpdateAndResetTunnelResponse) ProtoMessage()    {}
+func (*MsgUpdateAndResetTunnelResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d18351d83b4705d0, []int{3}
 }
-func (m *MsgEditTunnelResponse) XXX_Unmarshal(b []byte) error {
+func (m *MsgUpdateAndResetTunnelResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgEditTunnelResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgUpdateAndResetTunnelResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgEditTunnelResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgUpdateAndResetTunnelResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -268,17 +269,17 @@ func (m *MsgEditTunnelResponse) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return b[:n], nil
 	}
 }
-func (m *MsgEditTunnelResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgEditTunnelResponse.Merge(m, src)
+func (m *MsgUpdateAndResetTunnelResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgUpdateAndResetTunnelResponse.Merge(m, src)
 }
-func (m *MsgEditTunnelResponse) XXX_Size() int {
+func (m *MsgUpdateAndResetTunnelResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgEditTunnelResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgEditTunnelResponse.DiscardUnknown(m)
+func (m *MsgUpdateAndResetTunnelResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgUpdateAndResetTunnelResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgEditTunnelResponse proto.InternalMessageInfo
+var xxx_messageInfo_MsgUpdateAndResetTunnelResponse proto.InternalMessageInfo
 
 // Activate is the transaction message to activate a tunnel.
 type MsgActivate struct {
@@ -556,8 +557,8 @@ func (m *MsgTriggerTunnelResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgTriggerTunnelResponse proto.InternalMessageInfo
 
-// MsgDepositTunnel defines a message to submit a deposit to an existing tunnel.
-type MsgDepositTunnel struct {
+// MsgDepositToTunnel defines a message to deposit to an existing tunnel.
+type MsgDepositToTunnel struct {
 	// tunnel_id defines the unique id of the tunnel.
 	TunnelID uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id"`
 	// amount to be deposited by depositor.
@@ -566,18 +567,18 @@ type MsgDepositTunnel struct {
 	Depositor string `protobuf:"bytes,3,opt,name=depositor,proto3" json:"depositor,omitempty"`
 }
 
-func (m *MsgDepositTunnel) Reset()         { *m = MsgDepositTunnel{} }
-func (m *MsgDepositTunnel) String() string { return proto.CompactTextString(m) }
-func (*MsgDepositTunnel) ProtoMessage()    {}
-func (*MsgDepositTunnel) Descriptor() ([]byte, []int) {
+func (m *MsgDepositToTunnel) Reset()         { *m = MsgDepositToTunnel{} }
+func (m *MsgDepositToTunnel) String() string { return proto.CompactTextString(m) }
+func (*MsgDepositToTunnel) ProtoMessage()    {}
+func (*MsgDepositToTunnel) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d18351d83b4705d0, []int{10}
 }
-func (m *MsgDepositTunnel) XXX_Unmarshal(b []byte) error {
+func (m *MsgDepositToTunnel) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgDepositTunnel) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgDepositToTunnel) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgDepositTunnel.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgDepositToTunnel.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -587,55 +588,55 @@ func (m *MsgDepositTunnel) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return b[:n], nil
 	}
 }
-func (m *MsgDepositTunnel) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgDepositTunnel.Merge(m, src)
+func (m *MsgDepositToTunnel) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgDepositToTunnel.Merge(m, src)
 }
-func (m *MsgDepositTunnel) XXX_Size() int {
+func (m *MsgDepositToTunnel) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgDepositTunnel) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgDepositTunnel.DiscardUnknown(m)
+func (m *MsgDepositToTunnel) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgDepositToTunnel.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgDepositTunnel proto.InternalMessageInfo
+var xxx_messageInfo_MsgDepositToTunnel proto.InternalMessageInfo
 
-func (m *MsgDepositTunnel) GetTunnelID() uint64 {
+func (m *MsgDepositToTunnel) GetTunnelID() uint64 {
 	if m != nil {
 		return m.TunnelID
 	}
 	return 0
 }
 
-func (m *MsgDepositTunnel) GetAmount() github_com_cosmos_cosmos_sdk_types.Coins {
+func (m *MsgDepositToTunnel) GetAmount() github_com_cosmos_cosmos_sdk_types.Coins {
 	if m != nil {
 		return m.Amount
 	}
 	return nil
 }
 
-func (m *MsgDepositTunnel) GetDepositor() string {
+func (m *MsgDepositToTunnel) GetDepositor() string {
 	if m != nil {
 		return m.Depositor
 	}
 	return ""
 }
 
-// MsgDepositTunnelResponse defines the Msg/Deposit response type.
-type MsgDepositTunnelResponse struct {
+// MsgDepositToTunnelResponse defines the Msg/DepositToTunnel response type.
+type MsgDepositToTunnelResponse struct {
 }
 
-func (m *MsgDepositTunnelResponse) Reset()         { *m = MsgDepositTunnelResponse{} }
-func (m *MsgDepositTunnelResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgDepositTunnelResponse) ProtoMessage()    {}
-func (*MsgDepositTunnelResponse) Descriptor() ([]byte, []int) {
+func (m *MsgDepositToTunnelResponse) Reset()         { *m = MsgDepositToTunnelResponse{} }
+func (m *MsgDepositToTunnelResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgDepositToTunnelResponse) ProtoMessage()    {}
+func (*MsgDepositToTunnelResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d18351d83b4705d0, []int{11}
 }
-func (m *MsgDepositTunnelResponse) XXX_Unmarshal(b []byte) error {
+func (m *MsgDepositToTunnelResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgDepositTunnelResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgDepositToTunnelResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgDepositTunnelResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgDepositToTunnelResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -645,20 +646,20 @@ func (m *MsgDepositTunnelResponse) XXX_Marshal(b []byte, deterministic bool) ([]
 		return b[:n], nil
 	}
 }
-func (m *MsgDepositTunnelResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgDepositTunnelResponse.Merge(m, src)
+func (m *MsgDepositToTunnelResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgDepositToTunnelResponse.Merge(m, src)
 }
-func (m *MsgDepositTunnelResponse) XXX_Size() int {
+func (m *MsgDepositToTunnelResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgDepositTunnelResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgDepositTunnelResponse.DiscardUnknown(m)
+func (m *MsgDepositToTunnelResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgDepositToTunnelResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgDepositTunnelResponse proto.InternalMessageInfo
+var xxx_messageInfo_MsgDepositToTunnelResponse proto.InternalMessageInfo
 
-// MsgWithdrawTunnel is the transaction message to withdraw a deposit from an existing tunnel.
-type MsgWithdrawTunnel struct {
+// MsgWithdrawFromTunnel is the transaction message to withdraw a deposit from an existing tunnel.
+type MsgWithdrawFromTunnel struct {
 	// tunnel_id defines the unique id of the tunnel.
 	TunnelID uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id"`
 	// amount to be withdrawn by withdrawer.
@@ -667,18 +668,18 @@ type MsgWithdrawTunnel struct {
 	Withdrawer string `protobuf:"bytes,3,opt,name=withdrawer,proto3" json:"withdrawer,omitempty"`
 }
 
-func (m *MsgWithdrawTunnel) Reset()         { *m = MsgWithdrawTunnel{} }
-func (m *MsgWithdrawTunnel) String() string { return proto.CompactTextString(m) }
-func (*MsgWithdrawTunnel) ProtoMessage()    {}
-func (*MsgWithdrawTunnel) Descriptor() ([]byte, []int) {
+func (m *MsgWithdrawFromTunnel) Reset()         { *m = MsgWithdrawFromTunnel{} }
+func (m *MsgWithdrawFromTunnel) String() string { return proto.CompactTextString(m) }
+func (*MsgWithdrawFromTunnel) ProtoMessage()    {}
+func (*MsgWithdrawFromTunnel) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d18351d83b4705d0, []int{12}
 }
-func (m *MsgWithdrawTunnel) XXX_Unmarshal(b []byte) error {
+func (m *MsgWithdrawFromTunnel) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgWithdrawTunnel) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgWithdrawFromTunnel) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgWithdrawTunnel.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgWithdrawFromTunnel.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -688,55 +689,55 @@ func (m *MsgWithdrawTunnel) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return b[:n], nil
 	}
 }
-func (m *MsgWithdrawTunnel) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgWithdrawTunnel.Merge(m, src)
+func (m *MsgWithdrawFromTunnel) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgWithdrawFromTunnel.Merge(m, src)
 }
-func (m *MsgWithdrawTunnel) XXX_Size() int {
+func (m *MsgWithdrawFromTunnel) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgWithdrawTunnel) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgWithdrawTunnel.DiscardUnknown(m)
+func (m *MsgWithdrawFromTunnel) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgWithdrawFromTunnel.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgWithdrawTunnel proto.InternalMessageInfo
+var xxx_messageInfo_MsgWithdrawFromTunnel proto.InternalMessageInfo
 
-func (m *MsgWithdrawTunnel) GetTunnelID() uint64 {
+func (m *MsgWithdrawFromTunnel) GetTunnelID() uint64 {
 	if m != nil {
 		return m.TunnelID
 	}
 	return 0
 }
 
-func (m *MsgWithdrawTunnel) GetAmount() github_com_cosmos_cosmos_sdk_types.Coins {
+func (m *MsgWithdrawFromTunnel) GetAmount() github_com_cosmos_cosmos_sdk_types.Coins {
 	if m != nil {
 		return m.Amount
 	}
 	return nil
 }
 
-func (m *MsgWithdrawTunnel) GetWithdrawer() string {
+func (m *MsgWithdrawFromTunnel) GetWithdrawer() string {
 	if m != nil {
 		return m.Withdrawer
 	}
 	return ""
 }
 
-// MsgWithdrawTunnelResponse defines the Msg/Withdraw response type.
-type MsgWithdrawTunnelResponse struct {
+// MsgWithdrawFromTunnelResponse defines the Msg/WithdrawFromTunnel response type.
+type MsgWithdrawFromTunnelResponse struct {
 }
 
-func (m *MsgWithdrawTunnelResponse) Reset()         { *m = MsgWithdrawTunnelResponse{} }
-func (m *MsgWithdrawTunnelResponse) String() string { return proto.CompactTextString(m) }
-func (*MsgWithdrawTunnelResponse) ProtoMessage()    {}
-func (*MsgWithdrawTunnelResponse) Descriptor() ([]byte, []int) {
+func (m *MsgWithdrawFromTunnelResponse) Reset()         { *m = MsgWithdrawFromTunnelResponse{} }
+func (m *MsgWithdrawFromTunnelResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgWithdrawFromTunnelResponse) ProtoMessage()    {}
+func (*MsgWithdrawFromTunnelResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_d18351d83b4705d0, []int{13}
 }
-func (m *MsgWithdrawTunnelResponse) XXX_Unmarshal(b []byte) error {
+func (m *MsgWithdrawFromTunnelResponse) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgWithdrawTunnelResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgWithdrawFromTunnelResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgWithdrawTunnelResponse.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgWithdrawFromTunnelResponse.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -746,17 +747,17 @@ func (m *MsgWithdrawTunnelResponse) XXX_Marshal(b []byte, deterministic bool) ([
 		return b[:n], nil
 	}
 }
-func (m *MsgWithdrawTunnelResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgWithdrawTunnelResponse.Merge(m, src)
+func (m *MsgWithdrawFromTunnelResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgWithdrawFromTunnelResponse.Merge(m, src)
 }
-func (m *MsgWithdrawTunnelResponse) XXX_Size() int {
+func (m *MsgWithdrawFromTunnelResponse) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgWithdrawTunnelResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgWithdrawTunnelResponse.DiscardUnknown(m)
+func (m *MsgWithdrawFromTunnelResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgWithdrawFromTunnelResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgWithdrawTunnelResponse proto.InternalMessageInfo
+var xxx_messageInfo_MsgWithdrawFromTunnelResponse proto.InternalMessageInfo
 
 // MsgUpdateParams is the transaction message to update parameters.
 type MsgUpdateParams struct {
@@ -853,18 +854,18 @@ var xxx_messageInfo_MsgUpdateParamsResponse proto.InternalMessageInfo
 func init() {
 	proto.RegisterType((*MsgCreateTunnel)(nil), "band.tunnel.v1beta1.MsgCreateTunnel")
 	proto.RegisterType((*MsgCreateTunnelResponse)(nil), "band.tunnel.v1beta1.MsgCreateTunnelResponse")
-	proto.RegisterType((*MsgEditTunnel)(nil), "band.tunnel.v1beta1.MsgEditTunnel")
-	proto.RegisterType((*MsgEditTunnelResponse)(nil), "band.tunnel.v1beta1.MsgEditTunnelResponse")
+	proto.RegisterType((*MsgUpdateAndResetTunnel)(nil), "band.tunnel.v1beta1.MsgUpdateAndResetTunnel")
+	proto.RegisterType((*MsgUpdateAndResetTunnelResponse)(nil), "band.tunnel.v1beta1.MsgUpdateAndResetTunnelResponse")
 	proto.RegisterType((*MsgActivate)(nil), "band.tunnel.v1beta1.MsgActivate")
 	proto.RegisterType((*MsgActivateResponse)(nil), "band.tunnel.v1beta1.MsgActivateResponse")
 	proto.RegisterType((*MsgDeactivate)(nil), "band.tunnel.v1beta1.MsgDeactivate")
 	proto.RegisterType((*MsgDeactivateResponse)(nil), "band.tunnel.v1beta1.MsgDeactivateResponse")
 	proto.RegisterType((*MsgTriggerTunnel)(nil), "band.tunnel.v1beta1.MsgTriggerTunnel")
 	proto.RegisterType((*MsgTriggerTunnelResponse)(nil), "band.tunnel.v1beta1.MsgTriggerTunnelResponse")
-	proto.RegisterType((*MsgDepositTunnel)(nil), "band.tunnel.v1beta1.MsgDepositTunnel")
-	proto.RegisterType((*MsgDepositTunnelResponse)(nil), "band.tunnel.v1beta1.MsgDepositTunnelResponse")
-	proto.RegisterType((*MsgWithdrawTunnel)(nil), "band.tunnel.v1beta1.MsgWithdrawTunnel")
-	proto.RegisterType((*MsgWithdrawTunnelResponse)(nil), "band.tunnel.v1beta1.MsgWithdrawTunnelResponse")
+	proto.RegisterType((*MsgDepositToTunnel)(nil), "band.tunnel.v1beta1.MsgDepositToTunnel")
+	proto.RegisterType((*MsgDepositToTunnelResponse)(nil), "band.tunnel.v1beta1.MsgDepositToTunnelResponse")
+	proto.RegisterType((*MsgWithdrawFromTunnel)(nil), "band.tunnel.v1beta1.MsgWithdrawFromTunnel")
+	proto.RegisterType((*MsgWithdrawFromTunnelResponse)(nil), "band.tunnel.v1beta1.MsgWithdrawFromTunnelResponse")
 	proto.RegisterType((*MsgUpdateParams)(nil), "band.tunnel.v1beta1.MsgUpdateParams")
 	proto.RegisterType((*MsgUpdateParamsResponse)(nil), "band.tunnel.v1beta1.MsgUpdateParamsResponse")
 }
@@ -872,71 +873,73 @@ func init() {
 func init() { proto.RegisterFile("band/tunnel/v1beta1/tx.proto", fileDescriptor_d18351d83b4705d0) }
 
 var fileDescriptor_d18351d83b4705d0 = []byte{
-	// 1016 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xd4, 0x57, 0xcf, 0x6f, 0x1b, 0x45,
-	0x14, 0xce, 0xda, 0x89, 0x9b, 0x4c, 0xd2, 0xb4, 0xd9, 0xa6, 0x64, 0xbd, 0xad, 0x1c, 0x6b, 0x21,
-	0xe0, 0x5a, 0xcd, 0xae, 0xe2, 0xaa, 0x15, 0x84, 0x53, 0x5c, 0xf7, 0x90, 0x83, 0x25, 0xb4, 0x2d,
-	0x54, 0x42, 0x48, 0xd1, 0xd8, 0x3b, 0xac, 0x47, 0xd8, 0x33, 0xd6, 0xce, 0xd8, 0xad, 0x6f, 0x88,
-	0x63, 0x4f, 0x70, 0xe0, 0x84, 0x90, 0x10, 0x27, 0xc4, 0x85, 0x1c, 0xfa, 0x47, 0x54, 0x48, 0x48,
-	0x15, 0x27, 0x4e, 0x01, 0x25, 0x87, 0x48, 0xfc, 0x15, 0x68, 0x67, 0x67, 0x7f, 0xc6, 0x9b, 0xb8,
-	0x28, 0x42, 0xe2, 0x12, 0xef, 0xbc, 0xf7, 0xcd, 0xcc, 0x37, 0xdf, 0x7b, 0xf3, 0xde, 0x04, 0xdc,
-	0xee, 0x40, 0xe2, 0x58, 0x7c, 0x44, 0x08, 0xea, 0x5b, 0xe3, 0x9d, 0x0e, 0xe2, 0x70, 0xc7, 0xe2,
-	0xcf, 0xcd, 0xa1, 0x47, 0x39, 0x55, 0x6f, 0xf8, 0x5e, 0x33, 0xf0, 0x9a, 0xd2, 0xab, 0x97, 0x5d,
-	0x4a, 0xdd, 0x3e, 0xb2, 0x04, 0xa4, 0x33, 0xfa, 0xdc, 0x82, 0x64, 0x12, 0xe0, 0xf5, 0x75, 0x97,
-	0xba, 0x54, 0x7c, 0x5a, 0xfe, 0x97, 0xb4, 0x96, 0xbb, 0x94, 0x0d, 0x28, 0x3b, 0x08, 0x1c, 0xc1,
-	0x40, 0xba, 0x2a, 0xc1, 0xc8, 0xea, 0x40, 0x86, 0xa2, 0xed, 0xbb, 0x14, 0x13, 0xe9, 0xdf, 0x90,
-	0xfe, 0x01, 0x73, 0xad, 0xf1, 0x8e, 0xff, 0x23, 0x1d, 0x6b, 0x70, 0x80, 0x09, 0xb5, 0xc4, 0x5f,
-	0x69, 0xaa, 0x4e, 0x3b, 0xca, 0x10, 0x7a, 0x70, 0xc0, 0xce, 0x43, 0xc8, 0xd3, 0x09, 0x84, 0xf1,
-	0x5b, 0x11, 0x5c, 0x6b, 0x33, 0xf7, 0xa1, 0x87, 0x20, 0x47, 0x4f, 0x84, 0x47, 0x7d, 0x0a, 0xd6,
-	0x18, 0x76, 0x09, 0xec, 0x1f, 0x38, 0x68, 0x8c, 0x21, 0xc7, 0x94, 0x30, 0x4d, 0xa9, 0x16, 0x6b,
-	0xcb, 0x8d, 0x77, 0xcc, 0x29, 0x02, 0x99, 0x8f, 0x05, 0xba, 0x15, 0x82, 0x9b, 0xf3, 0xaf, 0x8e,
-	0x36, 0xe7, 0xec, 0xeb, 0x2c, 0x6d, 0x66, 0xaa, 0x0e, 0x16, 0x31, 0xe1, 0xc8, 0x1b, 0xc3, 0xbe,
-	0x56, 0xa8, 0x2a, 0xb5, 0x79, 0x3b, 0x1a, 0xab, 0xf7, 0xc1, 0x82, 0x47, 0x47, 0x1c, 0x69, 0xc5,
-	0xaa, 0x52, 0x5b, 0x6e, 0xac, 0x9b, 0x81, 0xe8, 0x66, 0x28, 0xba, 0xb9, 0x47, 0x26, 0xcd, 0xa5,
-	0x5f, 0x5f, 0x6e, 0x2f, 0xd8, 0x3e, 0xcc, 0x0e, 0xd0, 0xea, 0x03, 0x70, 0x05, 0x91, 0x2e, 0x75,
-	0x90, 0xa7, 0xcd, 0x57, 0x95, 0xda, 0x6a, 0xe3, 0xf6, 0x54, 0x86, 0x8f, 0x02, 0x8c, 0x1d, 0x82,
-	0xd5, 0x09, 0xb8, 0x86, 0x09, 0xe6, 0x58, 0x1c, 0x72, 0x48, 0x19, 0xe6, 0xda, 0x82, 0x38, 0x61,
-	0xd9, 0x94, 0xf1, 0xf2, 0x23, 0x14, 0xcd, 0x7f, 0x48, 0x31, 0x69, 0xde, 0xf7, 0x8f, 0xf5, 0xf3,
-	0x9f, 0x9b, 0x35, 0x17, 0xf3, 0xde, 0xa8, 0x63, 0x76, 0xe9, 0x40, 0x06, 0x57, 0xfe, 0x6c, 0x33,
-	0xe7, 0x0b, 0x8b, 0x4f, 0x86, 0x88, 0x89, 0x09, 0xec, 0xa7, 0xd3, 0xc3, 0xba, 0x62, 0xaf, 0xca,
-	0x8d, 0x5a, 0xc1, 0x3e, 0x6a, 0x03, 0x5c, 0xe9, 0xfa, 0x72, 0x53, 0x4f, 0x2b, 0x55, 0x95, 0xda,
-	0x52, 0x53, 0xfb, 0xfd, 0xe5, 0xf6, 0xba, 0xdc, 0x75, 0xcf, 0x71, 0x3c, 0xc4, 0xd8, 0x63, 0xee,
-	0x61, 0xe2, 0xda, 0x21, 0x70, 0xf7, 0xbd, 0xaf, 0x4e, 0x0f, 0xeb, 0xe1, 0xe8, 0xc5, 0xe9, 0x61,
-	0xfd, 0x2d, 0x19, 0xd4, 0x4c, 0xec, 0x8c, 0x16, 0xd8, 0xc8, 0x98, 0x6c, 0xc4, 0x86, 0x94, 0x30,
-	0xa4, 0xde, 0x01, 0x4b, 0xc1, 0xa4, 0x03, 0xec, 0x68, 0x8a, 0x2f, 0x7f, 0x73, 0xe5, 0xf8, 0x68,
-	0x73, 0x31, 0x80, 0xed, 0xb7, 0xec, 0xc5, 0xc0, 0xbd, 0xef, 0x18, 0x2f, 0x0a, 0xe0, 0x6a, 0x9b,
-	0xb9, 0x8f, 0x1c, 0xcc, 0x65, 0x4e, 0xcc, 0x3e, 0x79, 0x7a, 0xfa, 0x14, 0x2e, 0x39, 0x7d, 0x8a,
-	0x99, 0xf4, 0x49, 0x88, 0x3a, 0x3f, 0xab, 0xa8, 0x5b, 0x59, 0x51, 0xd7, 0x63, 0x51, 0xe3, 0xa3,
-	0x1b, 0x1b, 0xe0, 0x66, 0xca, 0x10, 0x0a, 0x6a, 0x7c, 0xa3, 0x80, 0xe5, 0x36, 0x73, 0xf7, 0xba,
-	0x1c, 0x8f, 0x21, 0x7f, 0x13, 0x81, 0x93, 0x74, 0x0b, 0xb3, 0xd2, 0x7d, 0x3b, 0x4b, 0x57, 0x8d,
-	0xe9, 0x86, 0x1c, 0x8c, 0x9b, 0xe0, 0x46, 0x62, 0x18, 0x51, 0xfd, 0x56, 0x11, 0x01, 0x6d, 0x21,
-	0xf8, 0x1f, 0x91, 0x3d, 0x4f, 0xdb, 0x98, 0x85, 0xd4, 0x36, 0x36, 0x44, 0x84, 0xbf, 0x53, 0xc0,
-	0xf5, 0x36, 0x73, 0x9f, 0x78, 0xd8, 0x75, 0x91, 0xf7, 0xe6, 0x49, 0xf8, 0x6f, 0x38, 0xd7, 0xb2,
-	0x9c, 0x37, 0x62, 0xce, 0x29, 0x22, 0x86, 0x0e, 0xb4, 0xac, 0x2d, 0x62, 0xfe, 0x7d, 0x41, 0x30,
-	0x97, 0xb7, 0x5d, 0x32, 0xff, 0xf0, 0x2c, 0xf3, 0x4a, 0x92, 0xf9, 0xdf, 0x47, 0x9b, 0x31, 0x20,
-	0x28, 0x1b, 0xf1, 0x59, 0x7a, 0xa0, 0x04, 0x07, 0x74, 0x44, 0xb8, 0xbc, 0x45, 0x97, 0x5f, 0xa2,
-	0xe4, 0xfa, 0xea, 0x03, 0xb0, 0x24, 0xab, 0x21, 0xf5, 0xc4, 0x15, 0x3b, 0x4f, 0xb7, 0x18, 0xba,
-	0x5b, 0xf7, 0x95, 0x8b, 0xc7, 0x19, 0xed, 0x52, 0x52, 0x48, 0xed, 0x52, 0xb6, 0x48, 0xbb, 0x1f,
-	0x0b, 0x60, 0xad, 0xcd, 0xdc, 0xa7, 0x98, 0xf7, 0x1c, 0x0f, 0x3e, 0xfb, 0x7f, 0x89, 0xf7, 0x3e,
-	0x00, 0xcf, 0x24, 0x71, 0x74, 0xb1, 0x7a, 0x09, 0xec, 0xee, 0x5d, 0x5f, 0xbe, 0x84, 0xc1, 0xd7,
-	0x4f, 0x8b, 0xf5, 0x4b, 0xcb, 0x61, 0xdc, 0x02, 0xe5, 0x33, 0xc6, 0x48, 0xc1, 0x5f, 0x14, 0xd1,
-	0xcf, 0x3f, 0x1e, 0x3a, 0x90, 0xa3, 0x8f, 0xc4, 0x5b, 0xc0, 0x8f, 0x2a, 0x1c, 0xf1, 0x1e, 0xf5,
-	0x30, 0x9f, 0x08, 0xfd, 0xce, 0x8d, 0x6a, 0x04, 0x55, 0x3f, 0x00, 0xa5, 0xe0, 0x35, 0x21, 0xae,
-	0xd0, 0x72, 0xe3, 0xd6, 0xd4, 0xea, 0x1d, 0x6c, 0x22, 0x8b, 0xb6, 0x9c, 0xb0, 0x7b, 0x47, 0x24,
-	0x44, 0xb4, 0x54, 0xa6, 0x63, 0x25, 0xd9, 0x19, 0x65, 0xd1, 0xb1, 0x92, 0xa6, 0xf0, 0x30, 0x8d,
-	0x1f, 0x4a, 0xa0, 0xd8, 0x66, 0xae, 0xda, 0x01, 0x2b, 0xa9, 0x07, 0xca, 0xf4, 0x36, 0x92, 0xe9,
-	0x7b, 0xfa, 0xdd, 0x59, 0x50, 0x51, 0x77, 0xfc, 0x0c, 0x80, 0x44, 0xbb, 0x33, 0xf2, 0xe6, 0xc6,
-	0x18, 0xbd, 0x7e, 0x31, 0x26, 0x5a, 0xfd, 0x13, 0xb0, 0x18, 0xb5, 0x89, 0x6a, 0xde, 0xbc, 0x10,
-	0xa1, 0xd7, 0x2e, 0x42, 0x24, 0x59, 0x27, 0x6a, 0x7a, 0x2e, 0xeb, 0x18, 0x93, 0xcf, 0xfa, 0x6c,
-	0x11, 0x56, 0x11, 0xb8, 0x9a, 0x2e, 0xc0, 0x5b, 0x79, 0x93, 0x53, 0x30, 0x7d, 0x7b, 0x26, 0x58,
-	0x72, 0x9b, 0x74, 0xb5, 0xdc, 0xca, 0xe7, 0x98, 0x80, 0xe5, 0x6f, 0x33, 0xb5, 0xb8, 0xa8, 0x3d,
-	0xb0, 0x9a, 0x29, 0x2c, 0xef, 0xe6, 0x2d, 0x90, 0xc6, 0xe9, 0xe6, 0x6c, 0xb8, 0x68, 0xa7, 0x0e,
-	0x58, 0x49, 0x5d, 0xc0, 0xdc, 0x7c, 0x4d, 0xa2, 0xf2, 0xf3, 0x75, 0xda, 0xdd, 0xd0, 0x17, 0xbe,
-	0xf4, 0x8b, 0x4f, 0x73, 0xff, 0xd5, 0x71, 0x45, 0x79, 0x7d, 0x5c, 0x51, 0xfe, 0x3a, 0xae, 0x28,
-	0x5f, 0x9f, 0x54, 0xe6, 0x5e, 0x9f, 0x54, 0xe6, 0xfe, 0x38, 0xa9, 0xcc, 0x7d, 0x6a, 0x25, 0xaa,
-	0x98, 0xbf, 0xb0, 0x78, 0x48, 0x77, 0x69, 0xdf, 0xea, 0xf6, 0x20, 0x26, 0xd6, 0xf8, 0x9e, 0xf5,
-	0x3c, 0xfc, 0xcf, 0x40, 0x94, 0xb4, 0x4e, 0x49, 0x20, 0xee, 0xfd, 0x13, 0x00, 0x00, 0xff, 0xff,
-	0xa5, 0xab, 0x48, 0xa4, 0x22, 0x0d, 0x00, 0x00,
+	// 1046 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xd4, 0x57, 0x41, 0x6f, 0x1b, 0x45,
+	0x14, 0xce, 0xda, 0x89, 0x9b, 0x4c, 0xd2, 0xa6, 0xdd, 0xba, 0xc4, 0x5e, 0x82, 0x6d, 0x96, 0x56,
+	0x75, 0xa3, 0x64, 0x97, 0xb8, 0xb4, 0x82, 0x70, 0x8a, 0x6b, 0x90, 0x72, 0xb0, 0x84, 0xb6, 0x81,
+	0x4a, 0x08, 0x29, 0x5a, 0x7b, 0x87, 0xf5, 0xa8, 0xf6, 0x8e, 0xb5, 0x33, 0x76, 0x6b, 0x4e, 0x88,
+	0x23, 0x27, 0x38, 0x70, 0x42, 0x42, 0xe2, 0x86, 0x7a, 0x21, 0x87, 0xfe, 0x88, 0x0a, 0x09, 0x29,
+	0xe2, 0xc4, 0x29, 0xa0, 0xe4, 0x10, 0x89, 0x5f, 0x81, 0x76, 0x66, 0x76, 0x76, 0xbd, 0x59, 0x27,
+	0x0e, 0x8a, 0x90, 0x7a, 0x89, 0x77, 0xde, 0xfb, 0xe6, 0xbd, 0xef, 0x7d, 0x33, 0xfb, 0xde, 0x06,
+	0xac, 0xb6, 0x6c, 0xcf, 0x31, 0xe9, 0xc0, 0xf3, 0x60, 0xd7, 0x1c, 0x6e, 0xb6, 0x20, 0xb5, 0x37,
+	0x4d, 0xfa, 0xdc, 0xe8, 0xfb, 0x98, 0x62, 0xf5, 0x66, 0xe0, 0x35, 0xb8, 0xd7, 0x10, 0x5e, 0xad,
+	0xe8, 0x62, 0xec, 0x76, 0xa1, 0xc9, 0x20, 0xad, 0xc1, 0x97, 0xa6, 0xed, 0x8d, 0x38, 0x5e, 0xcb,
+	0xbb, 0xd8, 0xc5, 0xec, 0xd1, 0x0c, 0x9e, 0x84, 0xb5, 0xd8, 0xc6, 0xa4, 0x87, 0xc9, 0x1e, 0x77,
+	0xf0, 0x85, 0x70, 0x95, 0xf8, 0xca, 0x6c, 0xd9, 0x04, 0xca, 0xf4, 0x6d, 0x8c, 0x3c, 0xe1, 0x5f,
+	0x11, 0xfe, 0x1e, 0x71, 0xcd, 0xe1, 0x66, 0xf0, 0x23, 0x1c, 0x37, 0xec, 0x1e, 0xf2, 0xb0, 0xc9,
+	0xfe, 0x0a, 0x53, 0x25, 0xad, 0x94, 0xbe, 0xed, 0xdb, 0x3d, 0x72, 0x16, 0x42, 0x54, 0xc7, 0x10,
+	0xfa, 0xef, 0x59, 0xb0, 0xdc, 0x24, 0xee, 0x23, 0x1f, 0xda, 0x14, 0xee, 0x32, 0x8f, 0xfa, 0x04,
+	0xdc, 0x20, 0xc8, 0xf5, 0xec, 0xee, 0x9e, 0x03, 0x87, 0xc8, 0xa6, 0x08, 0x7b, 0xa4, 0xa0, 0x54,
+	0xb2, 0xd5, 0xc5, 0xda, 0x6d, 0x23, 0x45, 0x20, 0xe3, 0x31, 0x43, 0x37, 0x42, 0x70, 0x7d, 0xf6,
+	0xd5, 0x61, 0x79, 0xc6, 0xba, 0x4e, 0xc6, 0xcd, 0x44, 0xd5, 0xc0, 0x3c, 0xf2, 0x28, 0xf4, 0x87,
+	0x76, 0xb7, 0x90, 0xa9, 0x28, 0xd5, 0x59, 0x4b, 0xae, 0xd5, 0x07, 0x60, 0xce, 0xc7, 0x03, 0x0a,
+	0x0b, 0xd9, 0x8a, 0x52, 0x5d, 0xac, 0xe5, 0x0d, 0x2e, 0xba, 0x11, 0x8a, 0x6e, 0x6c, 0x7b, 0xa3,
+	0xfa, 0xc2, 0x6f, 0x2f, 0x37, 0xe6, 0xac, 0x00, 0x66, 0x71, 0xb4, 0xfa, 0x10, 0x5c, 0x81, 0x5e,
+	0x1b, 0x3b, 0xd0, 0x2f, 0xcc, 0x56, 0x94, 0xea, 0xb5, 0xda, 0x6a, 0x2a, 0xc3, 0x8f, 0x38, 0xc6,
+	0x0a, 0xc1, 0xea, 0x08, 0x2c, 0x23, 0x0f, 0x51, 0xc4, 0x8a, 0xec, 0x63, 0x82, 0x68, 0x61, 0x8e,
+	0x55, 0x58, 0x34, 0xc4, 0x79, 0x05, 0x27, 0x24, 0xf7, 0x3f, 0xc2, 0xc8, 0xab, 0x3f, 0x08, 0xca,
+	0x7a, 0xf1, 0x57, 0xb9, 0xea, 0x22, 0xda, 0x19, 0xb4, 0x8c, 0x36, 0xee, 0x89, 0xc3, 0x15, 0x3f,
+	0x1b, 0xc4, 0x79, 0x6a, 0xd2, 0x51, 0x1f, 0x12, 0xb6, 0x81, 0xfc, 0x72, 0xb2, 0xbf, 0xa6, 0x58,
+	0xd7, 0x44, 0xa2, 0x06, 0xcf, 0xa3, 0xd6, 0xc0, 0x95, 0x76, 0x20, 0x37, 0xf6, 0x0b, 0xb9, 0x8a,
+	0x52, 0x5d, 0xa8, 0x17, 0xfe, 0x78, 0xb9, 0x91, 0x17, 0x59, 0xb7, 0x1d, 0xc7, 0x87, 0x84, 0x3c,
+	0xa6, 0x3e, 0xf2, 0x5c, 0x2b, 0x04, 0x6e, 0xdd, 0xfd, 0xe6, 0x64, 0x7f, 0x2d, 0x5c, 0x7d, 0x7b,
+	0xb2, 0xbf, 0xf6, 0x86, 0x38, 0xd4, 0xc4, 0xd9, 0xe9, 0x0d, 0xb0, 0x92, 0x30, 0x59, 0x90, 0xf4,
+	0xb1, 0x47, 0xa0, 0x7a, 0x0f, 0x2c, 0xf0, 0x4d, 0x7b, 0xc8, 0x29, 0x28, 0x81, 0xfc, 0xf5, 0xa5,
+	0xa3, 0xc3, 0xf2, 0x3c, 0x87, 0xed, 0x34, 0xac, 0x79, 0xee, 0xde, 0x71, 0xf4, 0x9f, 0x32, 0x2c,
+	0xcc, 0xa7, 0x7d, 0xc7, 0xa6, 0x70, 0xdb, 0x73, 0x2c, 0x48, 0x20, 0x15, 0xb7, 0x63, 0xfa, 0x30,
+	0xe9, 0x17, 0x29, 0x73, 0xc9, 0x17, 0x29, 0x9b, 0xb8, 0x48, 0x31, 0x79, 0x67, 0xa7, 0x95, 0xd7,
+	0x4c, 0xca, 0x5b, 0x8a, 0xe4, 0x4d, 0x13, 0x41, 0x7f, 0x1b, 0x94, 0x27, 0xb8, 0x42, 0xb9, 0xf5,
+	0xef, 0x15, 0xb0, 0xd8, 0x24, 0xee, 0x76, 0x9b, 0xa2, 0xa1, 0x4d, 0x2f, 0x22, 0x7f, 0xbc, 0x84,
+	0xcc, 0xb4, 0x25, 0xbc, 0x93, 0x2c, 0x41, 0x8d, 0x4a, 0x08, 0x39, 0xe8, 0xb7, 0xc0, 0xcd, 0xd8,
+	0x52, 0x52, 0xfd, 0x41, 0x01, 0x57, 0x9b, 0xc4, 0x6d, 0x40, 0xfb, 0x7f, 0x22, 0x7b, 0x27, 0x49,
+	0x36, 0x1f, 0x91, 0x8d, 0x58, 0xe8, 0x2b, 0xe0, 0xd6, 0x98, 0x41, 0x12, 0xfe, 0x51, 0x01, 0xd7,
+	0x9b, 0xc4, 0xdd, 0xf5, 0x91, 0xeb, 0x42, 0xff, 0xe2, 0x17, 0xf3, 0xbf, 0x70, 0xae, 0x26, 0x39,
+	0xaf, 0x44, 0x9c, 0xc7, 0x88, 0xe8, 0x1a, 0x28, 0x24, 0x6d, 0x92, 0xf9, 0xcf, 0x19, 0xa0, 0xb2,
+	0x9a, 0x58, 0x2f, 0xd8, 0xc5, 0x82, 0xfb, 0x87, 0xa7, 0xb9, 0x97, 0xe2, 0xdc, 0xff, 0x39, 0x2c,
+	0x47, 0x00, 0xde, 0x56, 0xa2, 0x6a, 0x3a, 0x20, 0x67, 0xf7, 0xf0, 0xc0, 0xa3, 0xe2, 0xdd, 0xba,
+	0xfc, 0x16, 0x26, 0xe2, 0xab, 0x0f, 0xc1, 0x82, 0xe8, 0x96, 0xd8, 0x67, 0x2f, 0xde, 0x59, 0xca,
+	0x45, 0xd0, 0xad, 0xf5, 0x40, 0xbb, 0x68, 0x1d, 0xa8, 0x57, 0x8c, 0x9f, 0xf8, 0x98, 0x18, 0xfa,
+	0x2a, 0xd0, 0x4e, 0x5b, 0xa5, 0x82, 0x2f, 0x32, 0xec, 0x56, 0x3c, 0x41, 0xb4, 0xe3, 0xf8, 0xf6,
+	0xb3, 0x8f, 0x7d, 0xdc, 0x7b, 0xbd, 0x44, 0x7c, 0x1f, 0x80, 0x67, 0x82, 0x3c, 0x3c, 0x5f, 0xc5,
+	0x18, 0x76, 0xeb, 0xdd, 0x40, 0xc6, 0x98, 0x21, 0xd0, 0x71, 0x35, 0xd2, 0xf1, 0xb4, 0x24, 0x7a,
+	0x19, 0xbc, 0x95, 0xea, 0x90, 0x6a, 0xfe, 0xaa, 0xb0, 0xf9, 0xcf, 0x3b, 0xd9, 0x27, 0xec, 0xdb,
+	0x21, 0x38, 0x65, 0x7b, 0x40, 0x3b, 0xd8, 0x47, 0x74, 0xc4, 0x74, 0x3c, 0xf3, 0x94, 0x25, 0x54,
+	0xfd, 0x00, 0xe4, 0xf8, 0xd7, 0x07, 0x7b, 0xa9, 0x16, 0x6b, 0x6f, 0xa6, 0xf6, 0x78, 0x9e, 0x44,
+	0xb4, 0x76, 0xb1, 0x61, 0xeb, 0x1e, 0xbb, 0x20, 0x32, 0x54, 0x62, 0xc2, 0xc5, 0xd9, 0xe9, 0xc5,
+	0xd8, 0x68, 0xe2, 0xa6, 0xb0, 0x98, 0xda, 0x41, 0x0e, 0x64, 0x9b, 0xc4, 0x55, 0x5b, 0x60, 0x69,
+	0xec, 0x83, 0x26, 0x7d, 0xd8, 0x24, 0xe6, 0xa4, 0xb6, 0x3e, 0x0d, 0x4a, 0x4e, 0xd3, 0xaf, 0x40,
+	0x3e, 0x75, 0x3c, 0x4e, 0x8c, 0x92, 0x86, 0xd6, 0xde, 0xbb, 0x08, 0x5a, 0xe6, 0xfe, 0x0c, 0xcc,
+	0xcb, 0xb1, 0x52, 0x99, 0x14, 0x21, 0x44, 0x68, 0xd5, 0xf3, 0x10, 0x32, 0xee, 0x17, 0x00, 0xc4,
+	0x66, 0x80, 0x3e, 0x69, 0x5f, 0x84, 0xd1, 0xd6, 0xce, 0xc7, 0xc8, 0xe8, 0x10, 0x5c, 0x1d, 0x6f,
+	0xd8, 0x77, 0x26, 0x6d, 0x1e, 0x83, 0x69, 0x1b, 0x53, 0xc1, 0x64, 0x9a, 0xa7, 0x60, 0x39, 0xd9,
+	0x5d, 0xef, 0x4e, 0x66, 0x39, 0x06, 0xd4, 0xcc, 0x29, 0x81, 0x32, 0x19, 0x05, 0x6a, 0x4a, 0x23,
+	0x9a, 0xa8, 0xca, 0x69, 0xac, 0x56, 0x9b, 0x1e, 0x2b, 0xb3, 0xb6, 0xc0, 0xd2, 0xd8, 0x0b, 0x7b,
+	0xfb, 0xec, 0x5b, 0xc4, 0x51, 0xda, 0xfa, 0x34, 0xa8, 0x30, 0x87, 0x36, 0xf7, 0x75, 0xd0, 0xb4,
+	0xea, 0x3b, 0xaf, 0x8e, 0x4a, 0xca, 0xc1, 0x51, 0x49, 0xf9, 0xfb, 0xa8, 0xa4, 0x7c, 0x77, 0x5c,
+	0x9a, 0x39, 0x38, 0x2e, 0xcd, 0xfc, 0x79, 0x5c, 0x9a, 0xf9, 0xdc, 0x8c, 0x75, 0xbf, 0x20, 0x30,
+	0xfb, 0x50, 0x6f, 0xe3, 0xae, 0xd9, 0xee, 0xd8, 0xc8, 0x33, 0x87, 0xf7, 0xcd, 0xe7, 0xe1, 0x7f,
+	0x1e, 0xac, 0x15, 0xb6, 0x72, 0x0c, 0x71, 0xff, 0xdf, 0x00, 0x00, 0x00, 0xff, 0xff, 0xab, 0x1e,
+	0x7b, 0x0b, 0x82, 0x0d, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -953,18 +956,18 @@ const _ = grpc.SupportPackageIsVersion4
 type MsgClient interface {
 	// CreateTunnel is a RPC method to create a new tunnel.
 	CreateTunnel(ctx context.Context, in *MsgCreateTunnel, opts ...grpc.CallOption) (*MsgCreateTunnelResponse, error)
-	// EditTunnel is a RPC method to edit a tunnel.
-	EditTunnel(ctx context.Context, in *MsgEditTunnel, opts ...grpc.CallOption) (*MsgEditTunnelResponse, error)
+	// UpdateAndResetTunnel is a RPC method to update a tunnel information and reset the interval.
+	UpdateAndResetTunnel(ctx context.Context, in *MsgUpdateAndResetTunnel, opts ...grpc.CallOption) (*MsgUpdateAndResetTunnelResponse, error)
 	// Activate is a RPC method to activate a tunnel.
 	Activate(ctx context.Context, in *MsgActivate, opts ...grpc.CallOption) (*MsgActivateResponse, error)
 	// Deactivate is a RPC method to deactivate a tunnel.
 	Deactivate(ctx context.Context, in *MsgDeactivate, opts ...grpc.CallOption) (*MsgDeactivateResponse, error)
 	// TriggerTunnel is a RPC method to manually trigger a tunnel.
 	TriggerTunnel(ctx context.Context, in *MsgTriggerTunnel, opts ...grpc.CallOption) (*MsgTriggerTunnelResponse, error)
-	// DepositTunnel is a RPC method to submit a deposit to an existing tunnel.
-	DepositTunnel(ctx context.Context, in *MsgDepositTunnel, opts ...grpc.CallOption) (*MsgDepositTunnelResponse, error)
-	// WithdrawTunnel is a RPC method to withdraw a deposit from an existing tunnel.
-	WithdrawTunnel(ctx context.Context, in *MsgWithdrawTunnel, opts ...grpc.CallOption) (*MsgWithdrawTunnelResponse, error)
+	// DepositToTunnel is a RPC method to deposit to an existing tunnel.
+	DepositToTunnel(ctx context.Context, in *MsgDepositToTunnel, opts ...grpc.CallOption) (*MsgDepositToTunnelResponse, error)
+	// WithdrawFromTunnel is a RPC method to withdraw a deposit from an existing tunnel.
+	WithdrawFromTunnel(ctx context.Context, in *MsgWithdrawFromTunnel, opts ...grpc.CallOption) (*MsgWithdrawFromTunnelResponse, error)
 	// UpdateParams is a RPC method to update parameters
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
 }
@@ -986,9 +989,9 @@ func (c *msgClient) CreateTunnel(ctx context.Context, in *MsgCreateTunnel, opts 
 	return out, nil
 }
 
-func (c *msgClient) EditTunnel(ctx context.Context, in *MsgEditTunnel, opts ...grpc.CallOption) (*MsgEditTunnelResponse, error) {
-	out := new(MsgEditTunnelResponse)
-	err := c.cc.Invoke(ctx, "/band.tunnel.v1beta1.Msg/EditTunnel", in, out, opts...)
+func (c *msgClient) UpdateAndResetTunnel(ctx context.Context, in *MsgUpdateAndResetTunnel, opts ...grpc.CallOption) (*MsgUpdateAndResetTunnelResponse, error) {
+	out := new(MsgUpdateAndResetTunnelResponse)
+	err := c.cc.Invoke(ctx, "/band.tunnel.v1beta1.Msg/UpdateAndResetTunnel", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1022,18 +1025,18 @@ func (c *msgClient) TriggerTunnel(ctx context.Context, in *MsgTriggerTunnel, opt
 	return out, nil
 }
 
-func (c *msgClient) DepositTunnel(ctx context.Context, in *MsgDepositTunnel, opts ...grpc.CallOption) (*MsgDepositTunnelResponse, error) {
-	out := new(MsgDepositTunnelResponse)
-	err := c.cc.Invoke(ctx, "/band.tunnel.v1beta1.Msg/DepositTunnel", in, out, opts...)
+func (c *msgClient) DepositToTunnel(ctx context.Context, in *MsgDepositToTunnel, opts ...grpc.CallOption) (*MsgDepositToTunnelResponse, error) {
+	out := new(MsgDepositToTunnelResponse)
+	err := c.cc.Invoke(ctx, "/band.tunnel.v1beta1.Msg/DepositToTunnel", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *msgClient) WithdrawTunnel(ctx context.Context, in *MsgWithdrawTunnel, opts ...grpc.CallOption) (*MsgWithdrawTunnelResponse, error) {
-	out := new(MsgWithdrawTunnelResponse)
-	err := c.cc.Invoke(ctx, "/band.tunnel.v1beta1.Msg/WithdrawTunnel", in, out, opts...)
+func (c *msgClient) WithdrawFromTunnel(ctx context.Context, in *MsgWithdrawFromTunnel, opts ...grpc.CallOption) (*MsgWithdrawFromTunnelResponse, error) {
+	out := new(MsgWithdrawFromTunnelResponse)
+	err := c.cc.Invoke(ctx, "/band.tunnel.v1beta1.Msg/WithdrawFromTunnel", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1053,18 +1056,18 @@ func (c *msgClient) UpdateParams(ctx context.Context, in *MsgUpdateParams, opts 
 type MsgServer interface {
 	// CreateTunnel is a RPC method to create a new tunnel.
 	CreateTunnel(context.Context, *MsgCreateTunnel) (*MsgCreateTunnelResponse, error)
-	// EditTunnel is a RPC method to edit a tunnel.
-	EditTunnel(context.Context, *MsgEditTunnel) (*MsgEditTunnelResponse, error)
+	// UpdateAndResetTunnel is a RPC method to update a tunnel information and reset the interval.
+	UpdateAndResetTunnel(context.Context, *MsgUpdateAndResetTunnel) (*MsgUpdateAndResetTunnelResponse, error)
 	// Activate is a RPC method to activate a tunnel.
 	Activate(context.Context, *MsgActivate) (*MsgActivateResponse, error)
 	// Deactivate is a RPC method to deactivate a tunnel.
 	Deactivate(context.Context, *MsgDeactivate) (*MsgDeactivateResponse, error)
 	// TriggerTunnel is a RPC method to manually trigger a tunnel.
 	TriggerTunnel(context.Context, *MsgTriggerTunnel) (*MsgTriggerTunnelResponse, error)
-	// DepositTunnel is a RPC method to submit a deposit to an existing tunnel.
-	DepositTunnel(context.Context, *MsgDepositTunnel) (*MsgDepositTunnelResponse, error)
-	// WithdrawTunnel is a RPC method to withdraw a deposit from an existing tunnel.
-	WithdrawTunnel(context.Context, *MsgWithdrawTunnel) (*MsgWithdrawTunnelResponse, error)
+	// DepositToTunnel is a RPC method to deposit to an existing tunnel.
+	DepositToTunnel(context.Context, *MsgDepositToTunnel) (*MsgDepositToTunnelResponse, error)
+	// WithdrawFromTunnel is a RPC method to withdraw a deposit from an existing tunnel.
+	WithdrawFromTunnel(context.Context, *MsgWithdrawFromTunnel) (*MsgWithdrawFromTunnelResponse, error)
 	// UpdateParams is a RPC method to update parameters
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
 }
@@ -1076,8 +1079,8 @@ type UnimplementedMsgServer struct {
 func (*UnimplementedMsgServer) CreateTunnel(ctx context.Context, req *MsgCreateTunnel) (*MsgCreateTunnelResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTunnel not implemented")
 }
-func (*UnimplementedMsgServer) EditTunnel(ctx context.Context, req *MsgEditTunnel) (*MsgEditTunnelResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method EditTunnel not implemented")
+func (*UnimplementedMsgServer) UpdateAndResetTunnel(ctx context.Context, req *MsgUpdateAndResetTunnel) (*MsgUpdateAndResetTunnelResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateAndResetTunnel not implemented")
 }
 func (*UnimplementedMsgServer) Activate(ctx context.Context, req *MsgActivate) (*MsgActivateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Activate not implemented")
@@ -1088,11 +1091,11 @@ func (*UnimplementedMsgServer) Deactivate(ctx context.Context, req *MsgDeactivat
 func (*UnimplementedMsgServer) TriggerTunnel(ctx context.Context, req *MsgTriggerTunnel) (*MsgTriggerTunnelResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TriggerTunnel not implemented")
 }
-func (*UnimplementedMsgServer) DepositTunnel(ctx context.Context, req *MsgDepositTunnel) (*MsgDepositTunnelResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DepositTunnel not implemented")
+func (*UnimplementedMsgServer) DepositToTunnel(ctx context.Context, req *MsgDepositToTunnel) (*MsgDepositToTunnelResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DepositToTunnel not implemented")
 }
-func (*UnimplementedMsgServer) WithdrawTunnel(ctx context.Context, req *MsgWithdrawTunnel) (*MsgWithdrawTunnelResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method WithdrawTunnel not implemented")
+func (*UnimplementedMsgServer) WithdrawFromTunnel(ctx context.Context, req *MsgWithdrawFromTunnel) (*MsgWithdrawFromTunnelResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WithdrawFromTunnel not implemented")
 }
 func (*UnimplementedMsgServer) UpdateParams(ctx context.Context, req *MsgUpdateParams) (*MsgUpdateParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateParams not implemented")
@@ -1120,20 +1123,20 @@ func _Msg_CreateTunnel_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_EditTunnel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgEditTunnel)
+func _Msg_UpdateAndResetTunnel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgUpdateAndResetTunnel)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).EditTunnel(ctx, in)
+		return srv.(MsgServer).UpdateAndResetTunnel(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/band.tunnel.v1beta1.Msg/EditTunnel",
+		FullMethod: "/band.tunnel.v1beta1.Msg/UpdateAndResetTunnel",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).EditTunnel(ctx, req.(*MsgEditTunnel))
+		return srv.(MsgServer).UpdateAndResetTunnel(ctx, req.(*MsgUpdateAndResetTunnel))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1192,38 +1195,38 @@ func _Msg_TriggerTunnel_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_DepositTunnel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgDepositTunnel)
+func _Msg_DepositToTunnel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgDepositToTunnel)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).DepositTunnel(ctx, in)
+		return srv.(MsgServer).DepositToTunnel(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/band.tunnel.v1beta1.Msg/DepositTunnel",
+		FullMethod: "/band.tunnel.v1beta1.Msg/DepositToTunnel",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).DepositTunnel(ctx, req.(*MsgDepositTunnel))
+		return srv.(MsgServer).DepositToTunnel(ctx, req.(*MsgDepositToTunnel))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_WithdrawTunnel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgWithdrawTunnel)
+func _Msg_WithdrawFromTunnel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgWithdrawFromTunnel)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).WithdrawTunnel(ctx, in)
+		return srv.(MsgServer).WithdrawFromTunnel(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/band.tunnel.v1beta1.Msg/WithdrawTunnel",
+		FullMethod: "/band.tunnel.v1beta1.Msg/WithdrawFromTunnel",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).WithdrawTunnel(ctx, req.(*MsgWithdrawTunnel))
+		return srv.(MsgServer).WithdrawFromTunnel(ctx, req.(*MsgWithdrawFromTunnel))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1255,8 +1258,8 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Msg_CreateTunnel_Handler,
 		},
 		{
-			MethodName: "EditTunnel",
-			Handler:    _Msg_EditTunnel_Handler,
+			MethodName: "UpdateAndResetTunnel",
+			Handler:    _Msg_UpdateAndResetTunnel_Handler,
 		},
 		{
 			MethodName: "Activate",
@@ -1271,12 +1274,12 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Msg_TriggerTunnel_Handler,
 		},
 		{
-			MethodName: "DepositTunnel",
-			Handler:    _Msg_DepositTunnel_Handler,
+			MethodName: "DepositToTunnel",
+			Handler:    _Msg_DepositToTunnel_Handler,
 		},
 		{
-			MethodName: "WithdrawTunnel",
-			Handler:    _Msg_WithdrawTunnel_Handler,
+			MethodName: "WithdrawFromTunnel",
+			Handler:    _Msg_WithdrawFromTunnel_Handler,
 		},
 		{
 			MethodName: "UpdateParams",
@@ -1395,7 +1398,7 @@ func (m *MsgCreateTunnelResponse) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgEditTunnel) Marshal() (dAtA []byte, err error) {
+func (m *MsgUpdateAndResetTunnel) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1405,12 +1408,12 @@ func (m *MsgEditTunnel) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgEditTunnel) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgUpdateAndResetTunnel) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgEditTunnel) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgUpdateAndResetTunnel) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1449,7 +1452,7 @@ func (m *MsgEditTunnel) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgEditTunnelResponse) Marshal() (dAtA []byte, err error) {
+func (m *MsgUpdateAndResetTunnelResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1459,12 +1462,12 @@ func (m *MsgEditTunnelResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgEditTunnelResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgUpdateAndResetTunnelResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgEditTunnelResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgUpdateAndResetTunnelResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1646,7 +1649,7 @@ func (m *MsgTriggerTunnelResponse) MarshalToSizedBuffer(dAtA []byte) (int, error
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgDepositTunnel) Marshal() (dAtA []byte, err error) {
+func (m *MsgDepositToTunnel) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1656,12 +1659,12 @@ func (m *MsgDepositTunnel) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgDepositTunnel) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgDepositToTunnel) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgDepositTunnel) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgDepositToTunnel) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1695,7 +1698,7 @@ func (m *MsgDepositTunnel) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgDepositTunnelResponse) Marshal() (dAtA []byte, err error) {
+func (m *MsgDepositToTunnelResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1705,12 +1708,12 @@ func (m *MsgDepositTunnelResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgDepositTunnelResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgDepositToTunnelResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgDepositTunnelResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgDepositToTunnelResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1718,7 +1721,7 @@ func (m *MsgDepositTunnelResponse) MarshalToSizedBuffer(dAtA []byte) (int, error
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgWithdrawTunnel) Marshal() (dAtA []byte, err error) {
+func (m *MsgWithdrawFromTunnel) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1728,12 +1731,12 @@ func (m *MsgWithdrawTunnel) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgWithdrawTunnel) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgWithdrawFromTunnel) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgWithdrawTunnel) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgWithdrawFromTunnel) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1767,7 +1770,7 @@ func (m *MsgWithdrawTunnel) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgWithdrawTunnelResponse) Marshal() (dAtA []byte, err error) {
+func (m *MsgWithdrawFromTunnelResponse) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1777,12 +1780,12 @@ func (m *MsgWithdrawTunnelResponse) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgWithdrawTunnelResponse) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgWithdrawFromTunnelResponse) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgWithdrawTunnelResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgWithdrawFromTunnelResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1911,7 +1914,7 @@ func (m *MsgCreateTunnelResponse) Size() (n int) {
 	return n
 }
 
-func (m *MsgEditTunnel) Size() (n int) {
+func (m *MsgUpdateAndResetTunnel) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1936,7 +1939,7 @@ func (m *MsgEditTunnel) Size() (n int) {
 	return n
 }
 
-func (m *MsgEditTunnelResponse) Size() (n int) {
+func (m *MsgUpdateAndResetTunnelResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2020,7 +2023,7 @@ func (m *MsgTriggerTunnelResponse) Size() (n int) {
 	return n
 }
 
-func (m *MsgDepositTunnel) Size() (n int) {
+func (m *MsgDepositToTunnel) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2042,7 +2045,7 @@ func (m *MsgDepositTunnel) Size() (n int) {
 	return n
 }
 
-func (m *MsgDepositTunnelResponse) Size() (n int) {
+func (m *MsgDepositToTunnelResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2051,7 +2054,7 @@ func (m *MsgDepositTunnelResponse) Size() (n int) {
 	return n
 }
 
-func (m *MsgWithdrawTunnel) Size() (n int) {
+func (m *MsgWithdrawFromTunnel) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2073,7 +2076,7 @@ func (m *MsgWithdrawTunnel) Size() (n int) {
 	return n
 }
 
-func (m *MsgWithdrawTunnelResponse) Size() (n int) {
+func (m *MsgWithdrawFromTunnelResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2405,7 +2408,7 @@ func (m *MsgCreateTunnelResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgEditTunnel) Unmarshal(dAtA []byte) error {
+func (m *MsgUpdateAndResetTunnel) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2428,10 +2431,10 @@ func (m *MsgEditTunnel) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgEditTunnel: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgUpdateAndResetTunnel: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgEditTunnel: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgUpdateAndResetTunnel: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -2559,7 +2562,7 @@ func (m *MsgEditTunnel) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgEditTunnelResponse) Unmarshal(dAtA []byte) error {
+func (m *MsgUpdateAndResetTunnelResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2582,10 +2585,10 @@ func (m *MsgEditTunnelResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgEditTunnelResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgUpdateAndResetTunnelResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgEditTunnelResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgUpdateAndResetTunnelResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -3062,7 +3065,7 @@ func (m *MsgTriggerTunnelResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgDepositTunnel) Unmarshal(dAtA []byte) error {
+func (m *MsgDepositToTunnel) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3085,10 +3088,10 @@ func (m *MsgDepositTunnel) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgDepositTunnel: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgDepositToTunnel: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgDepositTunnel: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgDepositToTunnel: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -3197,7 +3200,7 @@ func (m *MsgDepositTunnel) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgDepositTunnelResponse) Unmarshal(dAtA []byte) error {
+func (m *MsgDepositToTunnelResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3220,10 +3223,10 @@ func (m *MsgDepositTunnelResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgDepositTunnelResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgDepositToTunnelResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgDepositTunnelResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgDepositToTunnelResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
@@ -3247,7 +3250,7 @@ func (m *MsgDepositTunnelResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgWithdrawTunnel) Unmarshal(dAtA []byte) error {
+func (m *MsgWithdrawFromTunnel) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3270,10 +3273,10 @@ func (m *MsgWithdrawTunnel) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgWithdrawTunnel: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgWithdrawFromTunnel: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgWithdrawTunnel: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgWithdrawFromTunnel: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -3382,7 +3385,7 @@ func (m *MsgWithdrawTunnel) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgWithdrawTunnelResponse) Unmarshal(dAtA []byte) error {
+func (m *MsgWithdrawFromTunnelResponse) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -3405,10 +3408,10 @@ func (m *MsgWithdrawTunnelResponse) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgWithdrawTunnelResponse: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgWithdrawFromTunnelResponse: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgWithdrawTunnelResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgWithdrawFromTunnelResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:

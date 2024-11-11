@@ -28,6 +28,7 @@ type SignalPriceSubmission struct {
 type Submitter struct {
 	clientCtx           client.Context
 	clients             []rpcclient.RemoteClient
+	bothanClient        BothanClient
 	logger              *logger.Logger
 	submitSignalPriceCh <-chan SignalPriceSubmission
 	authQuerier         AuthQuerier
@@ -46,6 +47,7 @@ type Submitter struct {
 func New(
 	clientCtx client.Context,
 	clients []rpcclient.RemoteClient,
+	bothanClient BothanClient,
 	logger *logger.Logger,
 	submitSignalPriceCh <-chan SignalPriceSubmission,
 	authQuerier AuthQuerier,
@@ -78,6 +80,7 @@ func New(
 	return &Submitter{
 		clientCtx:           clientCtx,
 		clients:             clients,
+		bothanClient:        bothanClient,
 		logger:              logger,
 		submitSignalPriceCh: submitSignalPriceCh,
 		authQuerier:         authQuerier,
@@ -104,16 +107,16 @@ func (s *Submitter) Start() {
 }
 
 func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID string) {
-	prices, uuid := pricesSubmission.SignalPrices, pricesSubmission.UUID
+	signalPrices, uuid := pricesSubmission.SignalPrices, pricesSubmission.UUID
 	defer func() {
-		s.removePending(prices)
+		s.removePending(signalPrices)
 		s.idleKeyIDChannel <- keyID
 	}()
 
 	msg := types.MsgSubmitSignalPrices{
-		Validator: s.valAddress.String(),
-		Timestamp: time.Now().Unix(),
-		Prices:    prices,
+		Validator:    s.valAddress.String(),
+		Timestamp:    time.Now().Unix(),
+		SignalPrices: signalPrices,
 	}
 	msgs := []sdk.Msg{&msg}
 	memo := fmt.Sprintf("grogu: %s, uuid: %s", version.Version, uuid)
@@ -156,6 +159,7 @@ func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID st
 		switch {
 		case finalizedTxResp.Code == 0:
 			s.logger.Info("[Submitter] price submitted at %v", finalizedTxResp.TxHash)
+			s.pushMonitoringRecords(uuid, finalizedTxResp.TxHash)
 			return
 		case finalizedTxResp.Codespace == sdkerrors.RootCodespace && finalizedTxResp.Code == sdkerrors.ErrOutOfGas.ABCICode():
 			s.logger.Info("[Submitter] transaction is out of gas, retrying with increased gas adjustment")
@@ -166,6 +170,27 @@ func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID st
 	}
 
 	s.logger.Error("[Submitter] failed to submit price")
+}
+
+func (s *Submitter) pushMonitoringRecords(uuid, txHash string) {
+	bothanInfo, err := s.bothanClient.GetInfo()
+	if err != nil {
+		s.logger.Error("[Updater] failed to query Bothan info: %v", err)
+		return
+	}
+
+	if !bothanInfo.MonitoringEnabled {
+		s.logger.Debug("[Updater] monitoring is not enabled, skipping push")
+		return
+	}
+
+	err = s.bothanClient.PushMonitoringRecords(uuid, txHash)
+	if err != nil {
+		s.logger.Error("[Updater] failed to push monitoring records to Bothan: %v", err)
+		return
+	}
+
+	s.logger.Info("[Updater] successfully pushed monitoring records to Bothan")
 }
 
 func (s *Submitter) getAccountFromKey(key *keyring.Record) (client.Account, error) {

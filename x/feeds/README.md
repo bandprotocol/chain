@@ -14,7 +14,7 @@ This module is used in the BandChain.
   - [Abstract](#abstract)
   - [Contents](#contents)
   - [Concepts](#concepts)
-    - [Delegator Signal](#delegator-signal)
+    - [Vote](#vote)
     - [Feed](#feed)
       - [Feed Interval](#feed-interval)
       - [Feed Deviation](#feed-deviation)
@@ -28,12 +28,12 @@ This module is used in the BandChain.
     - [CurrentFeeds](#currentfeeds)
     - [ValidatorPriceList](#validatorpricelist)
     - [Price](#price-1)
-    - [DelegatorSignals](#delegatorsignals)
+    - [Vote](#vote-1)
     - [SignalTotalPower](#signaltotalpower)
       - [SignalTotalPowerByPowerIndex](#signaltotalpowerbypowerindex)
     - [Params](#params)
   - [Messages](#messages)
-    - [MsgSubmitSignals](#msgsubmitsignals)
+    - [MsgVote](#msgvote)
     - [MsgSubmitSignalPrices](#msgsubmitsignalprices)
     - [MsgUpdateReferenceSourceConfig](#msgupdatereferencesourceconfig)
     - [MsgUpdateParams](#msgupdateparams)
@@ -50,16 +50,17 @@ This module is used in the BandChain.
       - [MsgSubmitSignalPrices](#msgsubmitsignalprices-1)
       - [MsgUpdateReferenceSourceConfig](#msgupdatereferencesourceconfig-1)
       - [MsgUpdateParams](#msgupdateparams-1)
-      - [MsgSubmitSignals](#msgsubmitsignals-1)
-
+      - [MsgVote](#msgvote-1)
 
 ## Concepts
 
-### Delegator Signal
+### Vote
 
-A Delegator Signal is a vote from a delegator, instructing the chain to provide feed service for the designated ID.
+A Vote is a decision made by a voter, directing the network to deliver feed service for specified signal IDs.
 
-A Delegator Signal consists of an ID and the power associated with that ID. The feeding interval and deviation are reduced by the sum of the power of the ID. The total power of a delegator cannot exceed their total bonded delegation.
+A vote can contain multiple signal for each distinct signal ID.
+
+A signal consists of an signal ID and the power associated with that signal. The feeding interval and deviation are reduced by the sum of the power of the signal. The total power of all signals of voter cannot exceed their total bonded delegation and staked tokens.
 
 ### Feed
 
@@ -67,26 +68,26 @@ A Feed is a data structure containing a signal ID and calculated interval and de
 
 #### Feed Interval
 
-The interval is calculated based on the total power of the signal ID; the greater the power, the shorter the interval. The total power of a signal is the sum of the power of its signal IDs received from the delegators. The minimum and maximum intervals are determined by parameters called `MinInterval` and `MaxInterval`, respectively.
+The interval is calculated based on the total power of the signal ID; the greater the power, the shorter the interval. The total power of a signal is the sum of the power of its signal IDs received from the voters. The minimum and maximum intervals are determined by parameters called `MinInterval` and `MaxInterval` , respectively.
 
 #### Feed Deviation
 
-Deviation follows a similar logic to interval. On-chain deviation is measured in basis point, meaning a deviation of 1 indicates a price tolerance within 0.01%. The minimum and maximum deviations are determined by parameters called `MinDeviationBasisPoint` and `MaxDeviationBasisPoint`, respectively.
+Deviation follows a similar logic to interval. On-chain deviation is measured in basis point, meaning a deviation of 1 indicates a price tolerance within 0.01%. The minimum and maximum deviations are determined by parameters called `MinDeviationBasisPoint` and `MaxDeviationBasisPoint` , respectively.
 
 It should be noted that while feed deviation is calculated, it is only used as a reference value for the price service. This is because the chain cannot penalize validators for not reporting on price deviations, unlike time intervals.
 
 #### How Feed Interval and Deviation are calculated
 
-- Power is registered after surpassing the `PowerStepThreshold`.
-- Then, the power factor is calculated as the floor(Power / `PowerStepThreshold`).
-- Subsequently, the interval is calculated as the maximum of `MinInterval` or the floor(`MaxInterval` / power factor).
-- The deviation is then calculated as the max(`MinDeviationBasisPoint`, (`MaxDeviationBasisPoint` / power factor).
+* Power is registered after surpassing the `PowerStepThreshold`.
+* Then, the power factor is calculated as the floor(Power / `PowerStepThreshold`).
+* Subsequently, the interval is calculated as the maximum of `MinInterval` or the floor(`MaxInterval` / power factor).
+* The deviation is then calculated as the max(`MinDeviationBasisPoint`, (`MaxDeviationBasisPoint` / power factor).
 
 You can visualize the interval/deviation as resembling the harmonic series times MaxInterval/MaxDeviationBasisPoint, with the step of PowerStepThreshold.
 
 #### Current Feeds
 
-The list of currently supported feeds includes those with power exceeding the PowerStepThreshold parameter and ranking within the top `MaxCurrentFeeds`. The current feeds will be re-calculated on every `CurrentFeedsUpdateInterval` block(s). Validators are only required to submit their prices for the current feeds.
+The list of currently supported feeds includes those with power exceeding the PowerStepThreshold parameter and ranking within the top `MaxCurrentFeeds` . The current feeds will be re-calculated on every `CurrentFeedsUpdateInterval` block(s). Validators are only required to submit their prices for the current feeds.
 
 ### Validator Price
 
@@ -100,7 +101,7 @@ A Price is a structure that maintains the current price state for a signal ID, i
 
 Once the Validator Price is submitted, it will be weighted median which is weighted by how latest the price is and how much power the owner of the price has to get the most accurate and trustworthy price.
 
-The module only contains the latest price of each signal ID.
+The module only contains the latest price of each signal ID of Current feeds.
 
 ### Reference Source Config
 
@@ -132,11 +133,11 @@ The Price is a space for holding the current price information of signals.
 
 * Price: `0x11 -> ProtocolBuffer(Price)`
 
-### DelegatorSignals
+### Vote
 
-The DelegatorSignals is a space for holding current Delegator Signals information of delegators.
+The Vote is a space for holding current vote information of voters.
 
-* DelegatorSignals: `0x12 -> ProtocolBuffer(DelegatorSignals)`
+* Vote: `0x12 -> ProtocolBuffer(Vote)`
 
 ### SignalTotalPower
 
@@ -147,11 +148,11 @@ The SignalTotalPower is a space for holding the total power of signals.
 #### SignalTotalPowerByPowerIndex
 
 `SignalTotalPowerByPowerIndex` allow to retrieve SignalTotalPower by power:
-`0x80| BigEndian(Power) | SignalIDLen (1 byte) | SignalID -> SignalID`
+ `0x80| BigEndian(Power) | SignalIDLen (1 byte) | SignalID -> SignalID`
 
 ### Params
 
-The feeds module stores its params in state with the prefix of `0x10`,
+The feeds module stores its params in state with the prefix of `0x10` , 
 it can be updated with governance proposal or the address with authority.
 
 * Params: `0x90 | ProtocolBuffer(Params)`
@@ -206,21 +207,21 @@ message Params {
 
 In this section, we describe the processing of the `feeds` messages and the corresponding updates to the state. All created/modified state objects specified by each message are defined within the [state](#state) section.
 
-### MsgSubmitSignals
+### MsgVote
 
-Delegator Signals are submitted as a batch using the MsgSubmitSignals message.
+Vote contain a batch of signal and power.
 
-Batched Signals replace the previous Signals of the same delegator as a batch.
+Batched Signals replace the previous Signals of the same voter as a batch.
 Signals are registered, and their power is added to the SignalTotalPower of the same SignalID.
 
 ```protobuf
-// MsgSubmitSignals is the transaction message to submit signals.
-message MsgSubmitSignals {
-  option (cosmos.msg.v1.signer) = "delegator";
-  option (amino.name)           = "feeds/MsgSubmitSignals";
+// MsgVote is the transaction message to submit signals.
+message MsgVote {
+  option (cosmos.msg.v1.signer) = "voter";
+  option (amino.name)           = "feeds/MsgVote";
 
-  // delegator is the address of the delegator that wants to submit signals.
-  string delegator = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // voter is the address of the voter that wants to vote signals.
+  string voter = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 
   // signals is a list of submitted signals.
   repeated Signal signals = 2 [(gogoproto.nullable) = false];
@@ -229,8 +230,8 @@ message MsgSubmitSignals {
 
 The message handling can fail if:
 
-* The delegator's address is not correct.
-* The delegator has less delegation than the sum of the Powers.
+* The voter's address is not correct.
+* The voter has less power than the sum of the Powers.
 * The signal is not valid. (e.g. too long signal ID, power is a negative value).
 * The size of the list of signal is too large.
 
@@ -251,8 +252,8 @@ message MsgSubmitSignalPrices {
   // timestamp is the timestamp used as reference for the data.
   int64 timestamp = 2;
 
-  // prices is a list of signal prices to submit.
-  repeated SignalPrice prices = 3 [(gogoproto.nullable) = false];
+  // signal_prices is a list of signal prices to submit.
+  repeated SignalPrice signal_prices = 3 [(gogoproto.nullable) = false];
 }
 ```
 
@@ -265,6 +266,7 @@ This message is expected to fail if:
 * the price is submitted in the `CooldownTime` param.
 * the signals of the prices are not in the current feeds.
   
+
 ### MsgUpdateReferenceSourceConfig
 
 Reference Source can be updated with the `MsgUpdateReferenceSourceConfig` message.
@@ -325,53 +327,51 @@ The median price is then set as the Price. Here is the price aggregation logic:
 
 #### Input
 
-A list of PriceFeedInfo objects, each containing:
-- `Price`: The reported price from the feeder
-- `Deviation`: The price deviation
-- `Power`: The feeder's power
-- `Timestamp`: The time at which the price is reported
+A list of ValidatorPriceInfo objects, each containing:
+* `Price`: The reported price from the feeder
+* `SignalPriceStatus`: The status of price
+* `Power`: The feeder's power
+* `Timestamp`: The time at which the price is reported
 
 #### Objective
 
-- An aggregated price from the list of priceFeedInfo.
+* An aggregated price from the list of ValidatorPriceInfo.
 
 #### Assumption
 
-1. No PriceFeedInfo has a power that exceeds 25% of the total power in the list.
+1. No ValidatorPriceInfo has a power that exceeds 25% of the total power in the list.
 
 #### Procedure
 
-1. Order the List:
+1. Filter and order the List:
 
-- Sort the list by `Timestamp` in descending order (latest timestamp first).
-- For entries with the same `Timestamp`, sort by `Power` in descending order.
+* Filter the object with `SignalPriceStatus` as `Available` only.
+* Sort the list by `Timestamp` in descending order (latest timestamp first).
+* For entries with the same `Timestamp`, sort by `Power` in descending order.
 
 2. Apply Power Weights:
 
-- Calculate the total power from the list.
-- Assign weights to the powers in segments as follows:
+* Calculate the total power from the list.
+* Assign weights to the powers in segments as follows:
     - The first 1/32 of the total power is multiplied by 6.
     - The next 1/16 of the total power is multiplied by 4.
     - The next 1/8 of the total power is multiplied by 2.
     - The next 1/4 of the total power is multiplied by 1.1.
-- If PriceFeedInfo overlaps between segments, split it into parts corresponding to each segment and assign the respective multiplier.
-- Any power that falls outside these segments will have a multiplier of 1.
+* If ValidatorPriceInfo overlaps between segments, split it into parts corresponding to each segment and assign the respective multiplier.
+* Any power that falls outside these segments will have a multiplier of 1.
 
 3. Generate Points:
 
-- For each PriceFeedInfo (or its parts if split), generate three points:
-    - One at the `Price` with the assigned `Power`.
-    - One at `Price + Deviation` with the assigned `Power`.
-    - One at `Price - Deviation` with the assigned `Power`.
+* For each ValidatorPriceInfo, generate a point (at the `Price` with the assigned `Weight`.)
 
 4. Calculating Weight Median
 
-- Compute the weighted median of the generated points to determine the final aggregated price.
-- The weighted median price is the price at which the cumulative power (sorted by increasing price) crosses half of the total weighted power.
+* Compute the weighted median of the generated points to determine the final aggregated price.
+* The weighted median price is the price at which the cumulative power (sorted by increasing price) crosses half of the total weighted power.
 
 ### Update current feeds
 
-At every `BlocksPerFeedsUpdate` block(s), the current feeds will be re-calculated based on the parameters of the module (e.g. `MinInterval`, `MaxCurrentFeeds`). 
+At every `BlocksPerFeedsUpdate` block(s), the current feeds will be re-calculated based on the parameters of the module (e.g. `MinInterval` , `MaxCurrentFeeds` ). 
 
 ## Events
 
@@ -379,36 +379,33 @@ The feeds module emits the following events:
 
 ### EndBlocker
 
-| Type                   | Attribute Key         | Attribute Value |
-| ---------------------- | --------------------- | --------------- |
-| calculate_price_failed | signal_id             | {signalID}      |
-| calculate_price_failed | error_message         | {error}         |
-| update_price           | signal_id             | {signalID}      |
-| update_price           | price                 | {price}         |
-| update_price           | timestamp             | {timestamp}     |
-| updated_current_feeds  | last_update_timestamp | {timestamp}     |
-| updated_current_feeds  | last_update_block     | {block_height}  |
+| Type                  | Attribute Key         | Attribute Value |
+| --------------------- | --------------------- | --------------- |
+| update_price          | signal_id             | {signalID}      |
+| update_price          | price_status          | {priceStatus}   |
+| update_price          | price                 | {price}         |
+| update_price          | timestamp             | {timestamp}     |
+| updated_current_feeds | last_update_timestamp | {timestamp}     |
+| updated_current_feeds | last_update_block     | {block_height}  |
 
 ### Handlers
 
 #### MsgSubmitSignalPrices
 
-| Type                | Attribute Key | Attribute Value    |
-| ------------------- | ------------- | ------------------ |
-| submit_signal_price | price_status  | {priceStatus}      |
-| submit_signal_price | validator     | {validatorAddress} |
-| submit_signal_price | signal_id     | {signalID}         |
-| submit_signal_price | price         | {price}            |
-| submit_signal_price | timestamp     | {timestamp}        |
-
+| Type                | Attribute Key       | Attribute Value     |
+| ------------------- | ------------------- | ------------------- |
+| submit_signal_price | signal_price_status | {signalPriceStatus} |
+| submit_signal_price | validator           | {validatorAddress}  |
+| submit_signal_price | signal_id           | {signalID}          |
+| submit_signal_price | price               | {price}             |
+| submit_signal_price | timestamp           | {timestamp}         |
 
 #### MsgUpdateReferenceSourceConfig
 
-| Type                           | Attribute Key | Attribute Value |
-| ------------------------------ | ------------- | --------------- |
-| update_reference_source_config | hash          | {hash}          |
-| update_reference_source_config | version       | {version}       |
-| update_reference_source_config | url           | {url}           |
+| Type                           | Attribute Key      | Attribute Value    |
+| ------------------------------ | ------------------ | ------------------ |
+| update_reference_source_config | registry_ipfs_hash | {registryIPFSHash} |
+| update_reference_source_config | version            | {registryVersion}  |
 
 #### MsgUpdateParams
 
@@ -416,7 +413,7 @@ The feeds module emits the following events:
 | ------------- | ------------- | --------------- |
 | update_params | params        | {params}        |
 
-#### MsgSubmitSignals
+#### MsgVote
 
 | Type                      | Attribute Key | Attribute Value |
 | ------------------------- | ------------- | --------------- |

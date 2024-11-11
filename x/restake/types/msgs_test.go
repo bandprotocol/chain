@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	ValidAddress   = "cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8"
-	ValidAuthority = "cosmos13jt28pf6s8rgjddv8wwj8v3ngrfsccpgsdhjhw"
+	ValidAddress   = sdk.AccAddress("1000000001").String()
+	ValidAuthority = sdk.AccAddress("636f736d6f7331787963726763336838396e72737671776539337a63").String()
 	ValidParams    = Params{
 		AllowedDenoms: []string{"uband"},
 	}

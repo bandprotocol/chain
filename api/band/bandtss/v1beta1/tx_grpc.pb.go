@@ -21,7 +21,6 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	Msg_RequestSignature_FullMethodName     = "/band.bandtss.v1beta1.Msg/RequestSignature"
 	Msg_Activate_FullMethodName             = "/band.bandtss.v1beta1.Msg/Activate"
-	Msg_Heartbeat_FullMethodName            = "/band.bandtss.v1beta1.Msg/Heartbeat"
 	Msg_UpdateParams_FullMethodName         = "/band.bandtss.v1beta1.Msg/UpdateParams"
 	Msg_TransitionGroup_FullMethodName      = "/band.bandtss.v1beta1.Msg/TransitionGroup"
 	Msg_ForceTransitionGroup_FullMethodName = "/band.bandtss.v1beta1.Msg/ForceTransitionGroup"
@@ -35,8 +34,6 @@ type MsgClient interface {
 	RequestSignature(ctx context.Context, in *MsgRequestSignature, opts ...grpc.CallOption) (*MsgRequestSignatureResponse, error)
 	// Activate activates the status of the sender.
 	Activate(ctx context.Context, in *MsgActivate, opts ...grpc.CallOption) (*MsgActivateResponse, error)
-	// Heartbeat marks last active of the sender.
-	Heartbeat(ctx context.Context, in *MsgHeartbeat, opts ...grpc.CallOption) (*MsgHeartbeatResponse, error)
 	// UpdateParams updates the x/bandtss parameters.
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
 	// TransitionGroup creates a request for creating a new group and replacing current group.
@@ -66,15 +63,6 @@ func (c *msgClient) RequestSignature(ctx context.Context, in *MsgRequestSignatur
 func (c *msgClient) Activate(ctx context.Context, in *MsgActivate, opts ...grpc.CallOption) (*MsgActivateResponse, error) {
 	out := new(MsgActivateResponse)
 	err := c.cc.Invoke(ctx, Msg_Activate_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *msgClient) Heartbeat(ctx context.Context, in *MsgHeartbeat, opts ...grpc.CallOption) (*MsgHeartbeatResponse, error) {
-	out := new(MsgHeartbeatResponse)
-	err := c.cc.Invoke(ctx, Msg_Heartbeat_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -116,8 +104,6 @@ type MsgServer interface {
 	RequestSignature(context.Context, *MsgRequestSignature) (*MsgRequestSignatureResponse, error)
 	// Activate activates the status of the sender.
 	Activate(context.Context, *MsgActivate) (*MsgActivateResponse, error)
-	// Heartbeat marks last active of the sender.
-	Heartbeat(context.Context, *MsgHeartbeat) (*MsgHeartbeatResponse, error)
 	// UpdateParams updates the x/bandtss parameters.
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
 	// TransitionGroup creates a request for creating a new group and replacing current group.
@@ -137,9 +123,6 @@ func (UnimplementedMsgServer) RequestSignature(context.Context, *MsgRequestSigna
 }
 func (UnimplementedMsgServer) Activate(context.Context, *MsgActivate) (*MsgActivateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Activate not implemented")
-}
-func (UnimplementedMsgServer) Heartbeat(context.Context, *MsgHeartbeat) (*MsgHeartbeatResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Heartbeat not implemented")
 }
 func (UnimplementedMsgServer) UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateParams not implemented")
@@ -195,24 +178,6 @@ func _Msg_Activate_Handler(srv interface{}, ctx context.Context, dec func(interf
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MsgServer).Activate(ctx, req.(*MsgActivate))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Msg_Heartbeat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgHeartbeat)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MsgServer).Heartbeat(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Msg_Heartbeat_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).Heartbeat(ctx, req.(*MsgHeartbeat))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -285,10 +250,6 @@ var Msg_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Activate",
 			Handler:    _Msg_Activate_Handler,
-		},
-		{
-			MethodName: "Heartbeat",
-			Handler:    _Msg_Heartbeat_Handler,
 		},
 		{
 			MethodName: "UpdateParams",

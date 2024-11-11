@@ -7,7 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
+	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/bothan/v1"
 
 	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
@@ -43,24 +43,24 @@ func TestConvertPriceData(t *testing.T) {
 	}{
 		{
 			"Unsupported price status",
-			&bothan.Price{Status: bothan.Status_UNSUPPORTED, SignalId: "signal1"},
-			types.SignalPrice{PriceStatus: types.PriceStatusUnsupported, SignalID: "signal1", Price: 0},
+			&bothan.Price{Status: bothan.Status_STATUS_UNSUPPORTED, SignalId: "signal1"},
+			types.SignalPrice{Status: types.SignalPriceStatusUnsupported, SignalID: "signal1", Price: 0},
 			false,
 		},
 		{
 			"Unavailable price status",
-			&bothan.Price{Status: bothan.Status_UNAVAILABLE, SignalId: "signal2"},
-			types.SignalPrice{PriceStatus: types.PriceStatusUnavailable, SignalID: "signal2", Price: 0},
+			&bothan.Price{Status: bothan.Status_STATUS_UNAVAILABLE, SignalId: "signal2"},
+			types.SignalPrice{Status: types.SignalPriceStatusUnavailable, SignalID: "signal2", Price: 0},
 			false,
 		},
 		{
 			"Available price status",
 			&bothan.Price{
-				Status:   bothan.Status_AVAILABLE,
+				Status:   bothan.Status_STATUS_AVAILABLE,
 				SignalId: "signal3",
 				Price:    123456000000,
 			},
-			types.SignalPrice{PriceStatus: types.PriceStatusAvailable, SignalID: "signal3", Price: 123456000000},
+			types.SignalPrice{Status: types.SignalPriceStatusAvailable, SignalID: "signal3", Price: 123456000000},
 			false,
 		},
 	}

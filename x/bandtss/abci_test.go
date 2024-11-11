@@ -37,7 +37,7 @@ func TestReplaceGroups(t *testing.T) {
 	ctx = ctx.WithBlockTime(time.Now().UTC())
 
 	now := time.Now().UTC()
-	beforenow := now.Add(time.Duration(-5) * time.Minute)
+	execTime := now.Add(time.Duration(-5) * time.Minute)
 
 	signingID := tss.SigningID(1)
 	currentGroupID := tss.GroupID(1)
@@ -80,14 +80,14 @@ func TestReplaceGroups(t *testing.T) {
 		Address: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 	})
 
-	bandtssKeeper.SetCurrentGroupID(ctx, currentGroupID)
+	bandtssKeeper.SetCurrentGroup(ctx, types.NewCurrentGroup(currentGroupID, time.Time{}))
 	bandtssKeeper.SetGroupTransition(ctx, types.GroupTransition{
 		SigningID:           signingID,
 		CurrentGroupID:      currentGroupID,
 		CurrentGroupPubKey:  currentGroup.PubKey,
 		IncomingGroupID:     incomingGroupID,
 		IncomingGroupPubKey: incomingGroup.PubKey,
-		ExecTime:            beforenow,
+		ExecTime:            execTime,
 		Status:              types.TRANSITION_STATUS_WAITING_EXECUTION,
 	})
 	tssKeeper.SetSigning(ctx, signing)
@@ -98,5 +98,7 @@ func TestReplaceGroups(t *testing.T) {
 
 	_, found := bandtssKeeper.GetGroupTransition(ctx)
 	require.False(t, found)
-	require.Equal(t, incomingGroupID, bandtssKeeper.GetCurrentGroupID(ctx))
+	newCurrentGroup := bandtssKeeper.GetCurrentGroup(ctx)
+	require.Equal(t, incomingGroupID, newCurrentGroup.GroupID)
+	require.Equal(t, execTime, newCurrentGroup.ActiveTime)
 }

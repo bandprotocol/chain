@@ -1,6 +1,8 @@
 package keeper_test
 
 import (
+	"fmt"
+
 	"go.uber.org/mock/gomock"
 
 	sdkmath "cosmossdk.io/math"
@@ -27,7 +29,7 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 		ID:               1,
 		Route:            any,
 		Encoder:          types.ENCODER_FIXED_POINT_ABI,
-		FeePayer:         "cosmos1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62qh49enj",
+		FeePayer:         "band1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62q2yggu0",
 		Creator:          creator.String(),
 		Interval:         interval,
 		SignalDeviations: signalDeviations,
@@ -65,7 +67,7 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 	s.Require().Equal(expectedSignalPrices, latestSignalPrices)
 }
 
-func (s *KeeperTestSuite) TestEditTunnel() {
+func (s *KeeperTestSuite) TestUpdateAndResetTunnel() {
 	ctx, k := s.ctx, s.keeper
 
 	initialRoute := &types.TSSRoute{}
@@ -100,8 +102,8 @@ func (s *KeeperTestSuite) TestEditTunnel() {
 	}
 	newInterval := uint64(20)
 
-	// call the EditTunnel function
-	err = k.EditTunnel(ctx, initialTunnel.ID, newSignalDeviations, newInterval)
+	// call the UpdateAndResetTunnel function
+	err = k.UpdateAndResetTunnel(ctx, initialTunnel.ID, newSignalDeviations, newInterval)
 	s.Require().NoError(err)
 
 	// validate the edited tunnel
@@ -254,4 +256,24 @@ func (s *KeeperTestSuite) TestGetSetTotalFees() {
 
 	retrievedFees := k.GetTotalFees(ctx)
 	s.Require().Equal(totalFees, retrievedFees)
+}
+
+func (s *KeeperTestSuite) TestGenerateTunnelAccount() {
+	ctx, k := s.ctx, s.keeper
+
+	tunnelID := uint64(1)
+	s.accountKeeper.EXPECT().
+		GetAccount(ctx, gomock.Any()).
+		Return(nil).Times(1)
+	s.accountKeeper.EXPECT().NewAccount(ctx, gomock.Any()).Times(1)
+	s.accountKeeper.EXPECT().SetAccount(ctx, gomock.Any()).Times(1)
+
+	addr, err := k.GenerateTunnelAccount(ctx, fmt.Sprintf("%d", tunnelID))
+	s.Require().NoError(err, "expected no error generating account")
+	s.Require().NotNil(addr, "expected generated address to be non-nil")
+	s.Require().Equal(
+		"band1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62q2yggu0",
+		addr.String(),
+		"expected generated address to match",
+	)
 }

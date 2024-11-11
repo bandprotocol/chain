@@ -2,18 +2,18 @@ package keeper_test
 
 import "github.com/bandprotocol/chain/v3/x/feeds/types"
 
-func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
+func (suite *KeeperTestSuite) TestMsgVote() {
 	testCases := []struct {
 		name      string
-		input     *types.MsgSubmitSignals
+		input     *types.MsgVote
 		expErr    bool
 		expErrMsg string
 		postCheck func()
 	}{
 		{
 			name: "no power",
-			input: &types.MsgSubmitSignals{
-				Delegator: InvalidDelegator.String(),
+			input: &types.MsgVote{
+				Voter: InvalidVoter.String(),
 				Signals: []types.Signal{
 					{
 						ID:    "CS:BAND-USD",
@@ -27,8 +27,8 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 		},
 		{
 			name: "1 signal more than powers",
-			input: &types.MsgSubmitSignals{
-				Delegator: ValidDelegator.String(),
+			input: &types.MsgVote{
+				Voter: ValidVoter.String(),
 				Signals: []types.Signal{
 					{
 						ID:    "CS:BAND-USD",
@@ -42,8 +42,8 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 		},
 		{
 			name: "2 signals more than powers",
-			input: &types.MsgSubmitSignals{
-				Delegator: ValidDelegator.String(),
+			input: &types.MsgVote{
+				Voter: ValidVoter.String(),
 				Signals: []types.Signal{
 					{
 						ID:    "CS:BAND-USD",
@@ -61,8 +61,8 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 		},
 		{
 			name: "valid request",
-			input: &types.MsgSubmitSignals{
-				Delegator: ValidDelegator.String(),
+			input: &types.MsgVote{
+				Voter: ValidVoter.String(),
 				Signals: []types.Signal{
 					{
 						ID:    "CS:BAND-USD",
@@ -80,7 +80,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 							Power: 1e10,
 						},
 					},
-					suite.feedsKeeper.GetDelegatorSignals(suite.ctx, ValidDelegator),
+					suite.feedsKeeper.GetVote(suite.ctx, ValidVoter),
 				)
 				suite.Require().Equal(
 					[]types.Signal{
@@ -95,8 +95,8 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 		},
 		{
 			name: "valid request (replace)",
-			input: &types.MsgSubmitSignals{
-				Delegator: ValidDelegator.String(),
+			input: &types.MsgVote{
+				Voter: ValidVoter.String(),
 				Signals: []types.Signal{
 					{
 						ID:    "CS:BAND-USD",
@@ -122,7 +122,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 							Power: 1e9,
 						},
 					},
-					suite.feedsKeeper.GetDelegatorSignals(suite.ctx, ValidDelegator),
+					suite.feedsKeeper.GetVote(suite.ctx, ValidVoter),
 				)
 				suite.Require().Equal(
 					[]types.Signal{
@@ -143,7 +143,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignals() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			_, err := suite.msgServer.SubmitSignals(suite.ctx, tc.input)
+			_, err := suite.msgServer.Vote(suite.ctx, tc.input)
 
 			if tc.expErr {
 				suite.Require().Error(err)
@@ -174,11 +174,11 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
 			input: &types.MsgSubmitSignalPrices{
 				Validator: InvalidValidator.String(),
 				Timestamp: suite.ctx.BlockTime().Unix(),
-				Prices: []types.SignalPrice{
+				SignalPrices: []types.SignalPrice{
 					{
-						PriceStatus: types.PriceStatusAvailable,
-						SignalID:    "CS:BAND-USD",
-						Price:       10e12,
+						Status:   types.SignalPriceStatusAvailable,
+						SignalID: "CS:BAND-USD",
+						Price:    10e12,
 					},
 				},
 			},
@@ -190,11 +190,11 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
 			input: &types.MsgSubmitSignalPrices{
 				Validator: ValidValidator.String(),
 				Timestamp: suite.ctx.BlockTime().Unix(),
-				Prices: []types.SignalPrice{
+				SignalPrices: []types.SignalPrice{
 					{
-						PriceStatus: types.PriceStatusAvailable,
-						SignalID:    "CS:BTC-USD",
-						Price:       10e12,
+						Status:   types.SignalPriceStatusAvailable,
+						SignalID: "CS:BTC-USD",
+						Price:    10e12,
 					},
 				},
 			},
@@ -206,11 +206,11 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
 			input: &types.MsgSubmitSignalPrices{
 				Validator: ValidValidator.String(),
 				Timestamp: suite.ctx.BlockTime().Unix() - 200,
-				Prices: []types.SignalPrice{
+				SignalPrices: []types.SignalPrice{
 					{
-						PriceStatus: types.PriceStatusAvailable,
-						SignalID:    "CS:BAND-USD",
-						Price:       10e12,
+						Status:   types.SignalPriceStatusAvailable,
+						SignalID: "CS:BAND-USD",
+						Price:    10e12,
 					},
 				},
 			},
@@ -222,11 +222,11 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
 			input: &types.MsgSubmitSignalPrices{
 				Validator: ValidValidator.String(),
 				Timestamp: suite.ctx.BlockTime().Unix(),
-				Prices: []types.SignalPrice{
+				SignalPrices: []types.SignalPrice{
 					{
-						PriceStatus: types.PriceStatusAvailable,
-						SignalID:    "CS:BAND-USD",
-						Price:       10e12,
+						Status:   types.SignalPriceStatusAvailable,
+						SignalID: "CS:BAND-USD",
+						Price:    10e12,
 					},
 				},
 			},
@@ -238,11 +238,11 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
 			input: &types.MsgSubmitSignalPrices{
 				Validator: ValidValidator.String(),
 				Timestamp: suite.ctx.BlockTime().Unix(),
-				Prices: []types.SignalPrice{
+				SignalPrices: []types.SignalPrice{
 					{
-						PriceStatus: types.PriceStatusAvailable,
-						SignalID:    "CS:BAND-USD",
-						Price:       10e12,
+						Status:   types.SignalPriceStatusAvailable,
+						SignalID: "CS:BAND-USD",
+						Price:    10e12,
 					},
 				},
 			},

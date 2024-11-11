@@ -36,7 +36,7 @@ func (s *AppTestSuite) TestSuccessTransitionGroupReqWithCurrentGroup() {
 	s.Require().NoError(err)
 
 	// Check if the group is created but not impact current group ID in bandtss.
-	s.Require().Equal(groupCtx.GroupID, k.GetCurrentGroupID(ctx))
+	s.Require().Equal(groupCtx.GroupID, k.GetCurrentGroup(ctx).GroupID)
 	group := s.app.TSSKeeper.MustGetGroup(ctx, groupCtx.GroupID)
 	transition, found := k.GetGroupTransition(ctx)
 	expectedTransition := types.GroupTransition{
@@ -63,7 +63,7 @@ func (s *AppTestSuite) TestSuccessTransitionGroupReqNoCurrentGroup() {
 	s.Require().NoError(err)
 
 	// Check if the group is created but not impact current group ID in bandtss.
-	s.Require().Equal(tss.GroupID(0), k.GetCurrentGroupID(ctx))
+	s.Require().Equal(tss.GroupID(0), k.GetCurrentGroup(ctx).GroupID)
 	transition, found := k.GetGroupTransition(ctx)
 	expectedTransition := types.GroupTransition{
 		Status:          types.TRANSITION_STATUS_CREATING_GROUP,
@@ -333,7 +333,7 @@ func (s *AppTestSuite) TestSuccessForceTransitionGroupFromFallenStatus() {
 func (s *AppTestSuite) TestFailedRequestSignatureReq() {
 	ctx, msgSrvr := s.ctx, s.msgSrvr
 	groupCtx := s.SetupNewGroup(5, 3)
-	s.app.BandtssKeeper.SetCurrentGroupID(ctx, groupCtx.GroupID)
+	s.app.BandtssKeeper.SetCurrentGroup(ctx, types.NewCurrentGroup(groupCtx.GroupID, s.ctx.BlockTime()))
 
 	var req *types.MsgRequestSignature
 	var err error
@@ -342,7 +342,7 @@ func (s *AppTestSuite) TestFailedRequestSignatureReq() {
 		{
 			Name: "failure with no groupID",
 			PreProcess: func() {
-				s.app.BandtssKeeper.SetCurrentGroupID(ctx, 0)
+				s.app.BandtssKeeper.SetCurrentGroup(ctx, types.NewCurrentGroup(0, time.Time{}))
 				req, err = types.NewMsgRequestSignature(
 					tsstypes.NewTextSignatureOrder([]byte("msg")),
 					sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
@@ -351,7 +351,10 @@ func (s *AppTestSuite) TestFailedRequestSignatureReq() {
 				s.Require().NoError(err)
 			},
 			PostCheck: func() {
-				s.app.BandtssKeeper.SetCurrentGroupID(ctx, groupCtx.GroupID)
+				s.app.BandtssKeeper.SetCurrentGroup(
+					ctx,
+					types.NewCurrentGroup(groupCtx.GroupID, s.ctx.BlockTime()),
+				)
 			},
 			ExpectedErr: types.ErrNoActiveGroup,
 		},
@@ -455,7 +458,7 @@ func (s *AppTestSuite) TestFailRequestSignatureInternalMessage() {
 	k.DeleteGroupTransition(ctx)
 
 	msg, err := types.NewMsgRequestSignature(
-		types.NewGroupTransitionSignatureOrder([]byte("msg")),
+		types.NewGroupTransitionSignatureOrder([]byte("msg"), time.Now()),
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 		bandtesting.FeePayer.Address.String(),
 	)
@@ -571,8 +574,8 @@ func (s *AppTestSuite) TestActivateReq() {
 	}
 
 	// skip time frame.
-	activeDuration := s.app.BandtssKeeper.GetParams(ctx).ActiveDuration
-	ctx = ctx.WithBlockTime(ctx.BlockTime().Add(activeDuration))
+	inactivePenaltyDuration := s.app.BandtssKeeper.GetParams(ctx).InactivePenaltyDuration
+	ctx = ctx.WithBlockTime(ctx.BlockTime().Add(inactivePenaltyDuration))
 
 	for _, acc := range groupCtx.Accounts {
 		_, err := msgSrvr.Activate(ctx, &types.MsgActivate{
@@ -611,8 +614,8 @@ func (s *AppTestSuite) TestFailActivateIncorrectGroupID() {
 	}
 
 	// skip time frame.
-	activeDuration := s.app.BandtssKeeper.GetParams(ctx).ActiveDuration
-	ctx = ctx.WithBlockTime(ctx.BlockTime().Add(activeDuration))
+	inactivePenaltyDuration := s.app.BandtssKeeper.GetParams(ctx).InactivePenaltyDuration
+	ctx = ctx.WithBlockTime(ctx.BlockTime().Add(inactivePenaltyDuration))
 
 	for _, acc := range groupCtx.Accounts {
 		_, err := msgSrvr.Activate(ctx, &types.MsgActivate{
@@ -633,45 +636,6 @@ func (s *AppTestSuite) TestFailActivateMemberIsActive() {
 			GroupID: groupCtx.GroupID,
 		})
 		s.Require().ErrorIs(err, types.ErrMemberAlreadyActive)
-	}
-}
-
-func (s *AppTestSuite) TestFailHeartbeatInactive() {
-	ctx, msgSrvr := s.ctx, s.msgSrvr
-	groupCtx := s.SetupNewGroup(5, 3)
-
-	for _, acc := range groupCtx.Accounts {
-		err := s.app.BandtssKeeper.DeactivateMember(ctx, acc.Address, groupCtx.GroupID)
-		s.Require().NoError(err)
-	}
-
-	ctx = ctx.WithBlockTime(ctx.BlockTime().Add(10 * time.Minute))
-
-	for _, acc := range groupCtx.Accounts {
-		_, err := msgSrvr.Heartbeat(ctx, &types.MsgHeartbeat{
-			Sender:  acc.Address.String(),
-			GroupID: groupCtx.GroupID,
-		})
-		s.Require().ErrorIs(err, types.ErrInvalidStatus)
-	}
-}
-
-func (s *AppTestSuite) TestHeartbeatReq() {
-	ctx, msgSrvr := s.ctx, s.msgSrvr
-	groupCtx := s.SetupNewGroup(5, 3)
-
-	ctx = ctx.WithBlockTime(ctx.BlockTime().Add(10 * time.Minute))
-
-	for _, acc := range groupCtx.Accounts {
-		_, err := msgSrvr.Heartbeat(ctx, &types.MsgHeartbeat{
-			Sender:  acc.Address.String(),
-			GroupID: groupCtx.GroupID,
-		})
-		s.Require().NoError(err)
-
-		m, err := s.app.BandtssKeeper.GetMember(ctx, acc.Address, groupCtx.GroupID)
-		s.Require().NoError(err)
-		s.Require().Equal(m.LastActive, ctx.BlockTime())
 	}
 }
 
@@ -697,7 +661,6 @@ func (s *AppTestSuite) TestUpdateParams() {
 			request: &types.MsgUpdateParams{
 				Authority: k.GetAuthority(),
 				Params: types.Params{
-					ActiveDuration:          types.DefaultActiveDuration,
 					RewardPercentage:        types.DefaultRewardPercentage,
 					InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
 					MaxTransitionDuration:   types.DefaultMaxTransitionDuration,
