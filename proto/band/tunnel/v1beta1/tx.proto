@@ -20,8 +20,8 @@ service Msg {
   // CreateTunnel is a RPC method to create a new tunnel.
   rpc CreateTunnel(MsgCreateTunnel) returns (MsgCreateTunnelResponse);
 
-  // EditTunnel is a RPC method to edit a tunnel.
-  rpc EditTunnel(MsgEditTunnel) returns (MsgEditTunnelResponse);
+  // UpdateAndResetTunnel is a RPC method to update a tunnel information and reset the interval.
+  rpc UpdateAndResetTunnel(MsgUpdateAndResetTunnel) returns (MsgUpdateAndResetTunnelResponse);
 
   // Activate is a RPC method to activate a tunnel.
   rpc Activate(MsgActivate) returns (MsgActivateResponse);
@@ -32,11 +32,11 @@ service Msg {
   // TriggerTunnel is a RPC method to manually trigger a tunnel.
   rpc TriggerTunnel(MsgTriggerTunnel) returns (MsgTriggerTunnelResponse);
 
-  // DepositTunnel is a RPC method to submit a deposit to an existing tunnel.
-  rpc DepositTunnel(MsgDepositTunnel) returns (MsgDepositTunnelResponse);
+  // DepositToTunnel is a RPC method to deposit to an existing tunnel.
+  rpc DepositToTunnel(MsgDepositToTunnel) returns (MsgDepositToTunnelResponse);
 
-  // WithdrawTunnel is a RPC method to withdraw a deposit from an existing tunnel.
-  rpc WithdrawTunnel(MsgWithdrawTunnel) returns (MsgWithdrawTunnelResponse);
+  // WithdrawFromTunnel is a RPC method to withdraw a deposit from an existing tunnel.
+  rpc WithdrawFromTunnel(MsgWithdrawFromTunnel) returns (MsgWithdrawFromTunnelResponse);
 
   // UpdateParams is a RPC method to update parameters
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
@@ -70,10 +70,11 @@ message MsgCreateTunnelResponse {
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
 }
 
-// MsgEditTunnel is the transaction message to edit a tunnel.
-message MsgEditTunnel {
+// MsgUpdateAndResetTunnel is the transaction message to update a tunnel information
+// and reset the interval.
+message MsgUpdateAndResetTunnel {
   option (cosmos.msg.v1.signer) = "creator";
-  option (amino.name)           = "tunnel/MsgEditTunnel";
+  option (amino.name)           = "tunnel/MsgUpdateAndResetTunnel";
 
   // tunnel_id is the ID of the tunnel to edit.
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
@@ -85,8 +86,8 @@ message MsgEditTunnel {
   string creator = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// MsgEditTunnelResponse is the response type for the Msg/EditTunnel RPC method.
-message MsgEditTunnelResponse {}
+// MsgUpdateAndResetTunnelResponse is the response type for the Msg/UpdateAndResetTunnel RPC method.
+message MsgUpdateAndResetTunnelResponse {}
 
 // Activate is the transaction message to activate a tunnel.
 message MsgActivate {
@@ -130,10 +131,10 @@ message MsgTriggerTunnel {
 // MsgTriggerTunnelResponse is the response type for the Msg/TriggerTunnel RPC method.
 message MsgTriggerTunnelResponse {}
 
-// MsgDepositTunnel defines a message to submit a deposit to an existing tunnel.
-message MsgDepositTunnel {
+// MsgDepositToTunnel defines a message to deposit to an existing tunnel.
+message MsgDepositToTunnel {
   option (cosmos.msg.v1.signer) = "depositor";
-  option (amino.name)           = "tunnel/MsgDepositTunnel";
+  option (amino.name)           = "tunnel/MsgDepositToTunnel";
 
   // tunnel_id defines the unique id of the tunnel.
   uint64 tunnel_id = 1
@@ -150,13 +151,13 @@ message MsgDepositTunnel {
   string depositor = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// MsgDepositTunnelResponse defines the Msg/Deposit response type.
-message MsgDepositTunnelResponse {}
+// MsgDepositToTunnelResponse defines the Msg/DepositToTunnel response type.
+message MsgDepositToTunnelResponse {}
 
-// MsgWithdrawTunnel is the transaction message to withdraw a deposit from an existing tunnel.
-message MsgWithdrawTunnel {
+// MsgWithdrawFromTunnel is the transaction message to withdraw a deposit from an existing tunnel.
+message MsgWithdrawFromTunnel {
   option (cosmos.msg.v1.signer) = "withdrawer";
-  option (amino.name)           = "tunnel/MsgWithdrawTunnel";
+  option (amino.name)           = "tunnel/MsgWithdrawFromTunnel";
 
   // tunnel_id defines the unique id of the tunnel.
   uint64 tunnel_id = 1
@@ -173,8 +174,8 @@ message MsgWithdrawTunnel {
   string withdrawer = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// MsgWithdrawTunnelResponse defines the Msg/Withdraw response type.
-message MsgWithdrawTunnelResponse {}
+// MsgWithdrawFromTunnelResponse defines the Msg/WithdrawFromTunnel response type.
+message MsgWithdrawFromTunnelResponse {}
 
 // MsgUpdateParams is the transaction message to update parameters.
 message MsgUpdateParams {

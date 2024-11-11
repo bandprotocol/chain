@@ -11,8 +11,12 @@ import (
 )
 
 var (
+	// EncoderFixedPointABIPrefix is the constant prefix for feeds signature order on fixed point
+	// ABI encoder message. The value is tss.Hash([]byte("fixedPointABI"))[:4]
 	EncoderFixedPointABIPrefix = tss.Hash([]byte("fixedPointABI"))[:4]
-	EncoderTickABIPrefix       = tss.Hash([]byte("tickABI"))[:4]
+	// EncoderTickABIPrefix is the constant prefix for feeds signature order on tick
+	// ABI encoder message. The value is tss.Hash([]byte("tickABI"))[:4]
+	EncoderTickABIPrefix = tss.Hash([]byte("tickABI"))[:4]
 )
 
 // NewSignatureOrderHandler creates a tss handler to handle feeds signature order

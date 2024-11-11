@@ -16,79 +16,79 @@ import (
 	sync "sync"
 )
 
-var _ protoreflect.List = (*_MsgSubmitSignals_2_list)(nil)
+var _ protoreflect.List = (*_MsgVote_2_list)(nil)
 
-type _MsgSubmitSignals_2_list struct {
+type _MsgVote_2_list struct {
 	list *[]*Signal
 }
 
-func (x *_MsgSubmitSignals_2_list) Len() int {
+func (x *_MsgVote_2_list) Len() int {
 	if x.list == nil {
 		return 0
 	}
 	return len(*x.list)
 }
 
-func (x *_MsgSubmitSignals_2_list) Get(i int) protoreflect.Value {
+func (x *_MsgVote_2_list) Get(i int) protoreflect.Value {
 	return protoreflect.ValueOfMessage((*x.list)[i].ProtoReflect())
 }
 
-func (x *_MsgSubmitSignals_2_list) Set(i int, value protoreflect.Value) {
+func (x *_MsgVote_2_list) Set(i int, value protoreflect.Value) {
 	valueUnwrapped := value.Message()
 	concreteValue := valueUnwrapped.Interface().(*Signal)
 	(*x.list)[i] = concreteValue
 }
 
-func (x *_MsgSubmitSignals_2_list) Append(value protoreflect.Value) {
+func (x *_MsgVote_2_list) Append(value protoreflect.Value) {
 	valueUnwrapped := value.Message()
 	concreteValue := valueUnwrapped.Interface().(*Signal)
 	*x.list = append(*x.list, concreteValue)
 }
 
-func (x *_MsgSubmitSignals_2_list) AppendMutable() protoreflect.Value {
+func (x *_MsgVote_2_list) AppendMutable() protoreflect.Value {
 	v := new(Signal)
 	*x.list = append(*x.list, v)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
-func (x *_MsgSubmitSignals_2_list) Truncate(n int) {
+func (x *_MsgVote_2_list) Truncate(n int) {
 	for i := n; i < len(*x.list); i++ {
 		(*x.list)[i] = nil
 	}
 	*x.list = (*x.list)[:n]
 }
 
-func (x *_MsgSubmitSignals_2_list) NewElement() protoreflect.Value {
+func (x *_MsgVote_2_list) NewElement() protoreflect.Value {
 	v := new(Signal)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
-func (x *_MsgSubmitSignals_2_list) IsValid() bool {
+func (x *_MsgVote_2_list) IsValid() bool {
 	return x.list != nil
 }
 
 var (
-	md_MsgSubmitSignals           protoreflect.MessageDescriptor
-	fd_MsgSubmitSignals_delegator protoreflect.FieldDescriptor
-	fd_MsgSubmitSignals_signals   protoreflect.FieldDescriptor
+	md_MsgVote         protoreflect.MessageDescriptor
+	fd_MsgVote_voter   protoreflect.FieldDescriptor
+	fd_MsgVote_signals protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_band_feeds_v1beta1_tx_proto_init()
-	md_MsgSubmitSignals = File_band_feeds_v1beta1_tx_proto.Messages().ByName("MsgSubmitSignals")
-	fd_MsgSubmitSignals_delegator = md_MsgSubmitSignals.Fields().ByName("delegator")
-	fd_MsgSubmitSignals_signals = md_MsgSubmitSignals.Fields().ByName("signals")
+	md_MsgVote = File_band_feeds_v1beta1_tx_proto.Messages().ByName("MsgVote")
+	fd_MsgVote_voter = md_MsgVote.Fields().ByName("voter")
+	fd_MsgVote_signals = md_MsgVote.Fields().ByName("signals")
 }
 
-var _ protoreflect.Message = (*fastReflection_MsgSubmitSignals)(nil)
+var _ protoreflect.Message = (*fastReflection_MsgVote)(nil)
 
-type fastReflection_MsgSubmitSignals MsgSubmitSignals
+type fastReflection_MsgVote MsgVote
 
-func (x *MsgSubmitSignals) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_MsgSubmitSignals)(x)
+func (x *MsgVote) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_MsgVote)(x)
 }
 
-func (x *MsgSubmitSignals) slowProtoReflect() protoreflect.Message {
+func (x *MsgVote) slowProtoReflect() protoreflect.Message {
 	mi := &file_band_feeds_v1beta1_tx_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -100,43 +100,43 @@ func (x *MsgSubmitSignals) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgSubmitSignals_messageType fastReflection_MsgSubmitSignals_messageType
-var _ protoreflect.MessageType = fastReflection_MsgSubmitSignals_messageType{}
+var _fastReflection_MsgVote_messageType fastReflection_MsgVote_messageType
+var _ protoreflect.MessageType = fastReflection_MsgVote_messageType{}
 
-type fastReflection_MsgSubmitSignals_messageType struct{}
+type fastReflection_MsgVote_messageType struct{}
 
-func (x fastReflection_MsgSubmitSignals_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_MsgSubmitSignals)(nil)
+func (x fastReflection_MsgVote_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_MsgVote)(nil)
 }
-func (x fastReflection_MsgSubmitSignals_messageType) New() protoreflect.Message {
-	return new(fastReflection_MsgSubmitSignals)
+func (x fastReflection_MsgVote_messageType) New() protoreflect.Message {
+	return new(fastReflection_MsgVote)
 }
-func (x fastReflection_MsgSubmitSignals_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_MsgSubmitSignals
+func (x fastReflection_MsgVote_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgVote
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_MsgSubmitSignals) Descriptor() protoreflect.MessageDescriptor {
-	return md_MsgSubmitSignals
+func (x *fastReflection_MsgVote) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgVote
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_MsgSubmitSignals) Type() protoreflect.MessageType {
-	return _fastReflection_MsgSubmitSignals_messageType
+func (x *fastReflection_MsgVote) Type() protoreflect.MessageType {
+	return _fastReflection_MsgVote_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_MsgSubmitSignals) New() protoreflect.Message {
-	return new(fastReflection_MsgSubmitSignals)
+func (x *fastReflection_MsgVote) New() protoreflect.Message {
+	return new(fastReflection_MsgVote)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_MsgSubmitSignals) Interface() protoreflect.ProtoMessage {
-	return (*MsgSubmitSignals)(x)
+func (x *fastReflection_MsgVote) Interface() protoreflect.ProtoMessage {
+	return (*MsgVote)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -144,16 +144,16 @@ func (x *fastReflection_MsgSubmitSignals) Interface() protoreflect.ProtoMessage 
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_MsgSubmitSignals) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
-	if x.Delegator != "" {
-		value := protoreflect.ValueOfString(x.Delegator)
-		if !f(fd_MsgSubmitSignals_delegator, value) {
+func (x *fastReflection_MsgVote) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+	if x.Voter != "" {
+		value := protoreflect.ValueOfString(x.Voter)
+		if !f(fd_MsgVote_voter, value) {
 			return
 		}
 	}
 	if len(x.Signals) != 0 {
-		value := protoreflect.ValueOfList(&_MsgSubmitSignals_2_list{list: &x.Signals})
-		if !f(fd_MsgSubmitSignals_signals, value) {
+		value := protoreflect.ValueOfList(&_MsgVote_2_list{list: &x.Signals})
+		if !f(fd_MsgVote_signals, value) {
 			return
 		}
 	}
@@ -170,17 +170,17 @@ func (x *fastReflection_MsgSubmitSignals) Range(f func(protoreflect.FieldDescrip
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_MsgSubmitSignals) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_MsgVote) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "band.feeds.v1beta1.MsgSubmitSignals.delegator":
-		return x.Delegator != ""
-	case "band.feeds.v1beta1.MsgSubmitSignals.signals":
+	case "band.feeds.v1beta1.MsgVote.voter":
+		return x.Voter != ""
+	case "band.feeds.v1beta1.MsgVote.signals":
 		return len(x.Signals) != 0
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignals"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgVote"))
 		}
-		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignals does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgVote does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -190,17 +190,17 @@ func (x *fastReflection_MsgSubmitSignals) Has(fd protoreflect.FieldDescriptor) b
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgSubmitSignals) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_MsgVote) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "band.feeds.v1beta1.MsgSubmitSignals.delegator":
-		x.Delegator = ""
-	case "band.feeds.v1beta1.MsgSubmitSignals.signals":
+	case "band.feeds.v1beta1.MsgVote.voter":
+		x.Voter = ""
+	case "band.feeds.v1beta1.MsgVote.signals":
 		x.Signals = nil
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignals"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgVote"))
 		}
-		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignals does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgVote does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -210,22 +210,22 @@ func (x *fastReflection_MsgSubmitSignals) Clear(fd protoreflect.FieldDescriptor)
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_MsgSubmitSignals) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_MsgVote) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "band.feeds.v1beta1.MsgSubmitSignals.delegator":
-		value := x.Delegator
+	case "band.feeds.v1beta1.MsgVote.voter":
+		value := x.Voter
 		return protoreflect.ValueOfString(value)
-	case "band.feeds.v1beta1.MsgSubmitSignals.signals":
+	case "band.feeds.v1beta1.MsgVote.signals":
 		if len(x.Signals) == 0 {
-			return protoreflect.ValueOfList(&_MsgSubmitSignals_2_list{})
+			return protoreflect.ValueOfList(&_MsgVote_2_list{})
 		}
-		listValue := &_MsgSubmitSignals_2_list{list: &x.Signals}
+		listValue := &_MsgVote_2_list{list: &x.Signals}
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignals"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgVote"))
 		}
-		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignals does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgVote does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -239,19 +239,19 @@ func (x *fastReflection_MsgSubmitSignals) Get(descriptor protoreflect.FieldDescr
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgSubmitSignals) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_MsgVote) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "band.feeds.v1beta1.MsgSubmitSignals.delegator":
-		x.Delegator = value.Interface().(string)
-	case "band.feeds.v1beta1.MsgSubmitSignals.signals":
+	case "band.feeds.v1beta1.MsgVote.voter":
+		x.Voter = value.Interface().(string)
+	case "band.feeds.v1beta1.MsgVote.signals":
 		lv := value.List()
-		clv := lv.(*_MsgSubmitSignals_2_list)
+		clv := lv.(*_MsgVote_2_list)
 		x.Signals = *clv.list
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignals"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgVote"))
 		}
-		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignals does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgVote does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -265,49 +265,49 @@ func (x *fastReflection_MsgSubmitSignals) Set(fd protoreflect.FieldDescriptor, v
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgSubmitSignals) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_MsgVote) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "band.feeds.v1beta1.MsgSubmitSignals.signals":
+	case "band.feeds.v1beta1.MsgVote.signals":
 		if x.Signals == nil {
 			x.Signals = []*Signal{}
 		}
-		value := &_MsgSubmitSignals_2_list{list: &x.Signals}
+		value := &_MsgVote_2_list{list: &x.Signals}
 		return protoreflect.ValueOfList(value)
-	case "band.feeds.v1beta1.MsgSubmitSignals.delegator":
-		panic(fmt.Errorf("field delegator of message band.feeds.v1beta1.MsgSubmitSignals is not mutable"))
+	case "band.feeds.v1beta1.MsgVote.voter":
+		panic(fmt.Errorf("field voter of message band.feeds.v1beta1.MsgVote is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignals"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgVote"))
 		}
-		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignals does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgVote does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_MsgSubmitSignals) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_MsgVote) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "band.feeds.v1beta1.MsgSubmitSignals.delegator":
+	case "band.feeds.v1beta1.MsgVote.voter":
 		return protoreflect.ValueOfString("")
-	case "band.feeds.v1beta1.MsgSubmitSignals.signals":
+	case "band.feeds.v1beta1.MsgVote.signals":
 		list := []*Signal{}
-		return protoreflect.ValueOfList(&_MsgSubmitSignals_2_list{list: &list})
+		return protoreflect.ValueOfList(&_MsgVote_2_list{list: &list})
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignals"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgVote"))
 		}
-		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignals does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgVote does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_MsgSubmitSignals) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_MsgVote) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in band.feeds.v1beta1.MsgSubmitSignals", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.feeds.v1beta1.MsgVote", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -315,7 +315,7 @@ func (x *fastReflection_MsgSubmitSignals) WhichOneof(d protoreflect.OneofDescrip
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_MsgSubmitSignals) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_MsgVote) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -326,7 +326,7 @@ func (x *fastReflection_MsgSubmitSignals) GetUnknown() protoreflect.RawFields {
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgSubmitSignals) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_MsgVote) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -338,7 +338,7 @@ func (x *fastReflection_MsgSubmitSignals) SetUnknown(fields protoreflect.RawFiel
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_MsgSubmitSignals) IsValid() bool {
+func (x *fastReflection_MsgVote) IsValid() bool {
 	return x != nil
 }
 
@@ -348,9 +348,9 @@ func (x *fastReflection_MsgSubmitSignals) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_MsgSubmitSignals) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_MsgVote) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*MsgSubmitSignals)
+		x := input.Message.Interface().(*MsgVote)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -362,7 +362,7 @@ func (x *fastReflection_MsgSubmitSignals) ProtoMethods() *protoiface.Methods {
 		var n int
 		var l int
 		_ = l
-		l = len(x.Delegator)
+		l = len(x.Voter)
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
@@ -382,7 +382,7 @@ func (x *fastReflection_MsgSubmitSignals) ProtoMethods() *protoiface.Methods {
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*MsgSubmitSignals)
+		x := input.Message.Interface().(*MsgVote)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -417,10 +417,10 @@ func (x *fastReflection_MsgSubmitSignals) ProtoMethods() *protoiface.Methods {
 				dAtA[i] = 0x12
 			}
 		}
-		if len(x.Delegator) > 0 {
-			i -= len(x.Delegator)
-			copy(dAtA[i:], x.Delegator)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Delegator)))
+		if len(x.Voter) > 0 {
+			i -= len(x.Voter)
+			copy(dAtA[i:], x.Voter)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.Voter)))
 			i--
 			dAtA[i] = 0xa
 		}
@@ -435,7 +435,7 @@ func (x *fastReflection_MsgSubmitSignals) ProtoMethods() *protoiface.Methods {
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*MsgSubmitSignals)
+		x := input.Message.Interface().(*MsgVote)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -467,15 +467,15 @@ func (x *fastReflection_MsgSubmitSignals) ProtoMethods() *protoiface.Methods {
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgSubmitSignals: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgVote: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgSubmitSignals: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgVote: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			case 1:
 				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Delegator", wireType)
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Voter", wireType)
 				}
 				var stringLen uint64
 				for shift := uint(0); ; shift += 7 {
@@ -503,7 +503,7 @@ func (x *fastReflection_MsgSubmitSignals) ProtoMethods() *protoiface.Methods {
 				if postIndex > l {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
 				}
-				x.Delegator = string(dAtA[iNdEx:postIndex])
+				x.Voter = string(dAtA[iNdEx:postIndex])
 				iNdEx = postIndex
 			case 2:
 				if wireType != 2 {
@@ -575,23 +575,23 @@ func (x *fastReflection_MsgSubmitSignals) ProtoMethods() *protoiface.Methods {
 }
 
 var (
-	md_MsgSubmitSignalsResponse protoreflect.MessageDescriptor
+	md_MsgVoteResponse protoreflect.MessageDescriptor
 )
 
 func init() {
 	file_band_feeds_v1beta1_tx_proto_init()
-	md_MsgSubmitSignalsResponse = File_band_feeds_v1beta1_tx_proto.Messages().ByName("MsgSubmitSignalsResponse")
+	md_MsgVoteResponse = File_band_feeds_v1beta1_tx_proto.Messages().ByName("MsgVoteResponse")
 }
 
-var _ protoreflect.Message = (*fastReflection_MsgSubmitSignalsResponse)(nil)
+var _ protoreflect.Message = (*fastReflection_MsgVoteResponse)(nil)
 
-type fastReflection_MsgSubmitSignalsResponse MsgSubmitSignalsResponse
+type fastReflection_MsgVoteResponse MsgVoteResponse
 
-func (x *MsgSubmitSignalsResponse) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_MsgSubmitSignalsResponse)(x)
+func (x *MsgVoteResponse) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_MsgVoteResponse)(x)
 }
 
-func (x *MsgSubmitSignalsResponse) slowProtoReflect() protoreflect.Message {
+func (x *MsgVoteResponse) slowProtoReflect() protoreflect.Message {
 	mi := &file_band_feeds_v1beta1_tx_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -603,43 +603,43 @@ func (x *MsgSubmitSignalsResponse) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_MsgSubmitSignalsResponse_messageType fastReflection_MsgSubmitSignalsResponse_messageType
-var _ protoreflect.MessageType = fastReflection_MsgSubmitSignalsResponse_messageType{}
+var _fastReflection_MsgVoteResponse_messageType fastReflection_MsgVoteResponse_messageType
+var _ protoreflect.MessageType = fastReflection_MsgVoteResponse_messageType{}
 
-type fastReflection_MsgSubmitSignalsResponse_messageType struct{}
+type fastReflection_MsgVoteResponse_messageType struct{}
 
-func (x fastReflection_MsgSubmitSignalsResponse_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_MsgSubmitSignalsResponse)(nil)
+func (x fastReflection_MsgVoteResponse_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_MsgVoteResponse)(nil)
 }
-func (x fastReflection_MsgSubmitSignalsResponse_messageType) New() protoreflect.Message {
-	return new(fastReflection_MsgSubmitSignalsResponse)
+func (x fastReflection_MsgVoteResponse_messageType) New() protoreflect.Message {
+	return new(fastReflection_MsgVoteResponse)
 }
-func (x fastReflection_MsgSubmitSignalsResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_MsgSubmitSignalsResponse
+func (x fastReflection_MsgVoteResponse_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgVoteResponse
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_MsgSubmitSignalsResponse) Descriptor() protoreflect.MessageDescriptor {
-	return md_MsgSubmitSignalsResponse
+func (x *fastReflection_MsgVoteResponse) Descriptor() protoreflect.MessageDescriptor {
+	return md_MsgVoteResponse
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_MsgSubmitSignalsResponse) Type() protoreflect.MessageType {
-	return _fastReflection_MsgSubmitSignalsResponse_messageType
+func (x *fastReflection_MsgVoteResponse) Type() protoreflect.MessageType {
+	return _fastReflection_MsgVoteResponse_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_MsgSubmitSignalsResponse) New() protoreflect.Message {
-	return new(fastReflection_MsgSubmitSignalsResponse)
+func (x *fastReflection_MsgVoteResponse) New() protoreflect.Message {
+	return new(fastReflection_MsgVoteResponse)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_MsgSubmitSignalsResponse) Interface() protoreflect.ProtoMessage {
-	return (*MsgSubmitSignalsResponse)(x)
+func (x *fastReflection_MsgVoteResponse) Interface() protoreflect.ProtoMessage {
+	return (*MsgVoteResponse)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -647,7 +647,7 @@ func (x *fastReflection_MsgSubmitSignalsResponse) Interface() protoreflect.Proto
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_MsgSubmitSignalsResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+func (x *fastReflection_MsgVoteResponse) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
 }
 
 // Has reports whether a field is populated.
@@ -661,13 +661,13 @@ func (x *fastReflection_MsgSubmitSignalsResponse) Range(f func(protoreflect.Fiel
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_MsgSubmitSignalsResponse) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_MsgVoteResponse) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgVoteResponse"))
 		}
-		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgVoteResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -677,13 +677,13 @@ func (x *fastReflection_MsgSubmitSignalsResponse) Has(fd protoreflect.FieldDescr
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgSubmitSignalsResponse) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_MsgVoteResponse) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgVoteResponse"))
 		}
-		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgVoteResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -693,13 +693,13 @@ func (x *fastReflection_MsgSubmitSignalsResponse) Clear(fd protoreflect.FieldDes
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_MsgSubmitSignalsResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_MsgVoteResponse) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgVoteResponse"))
 		}
-		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalsResponse does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgVoteResponse does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -713,13 +713,13 @@ func (x *fastReflection_MsgSubmitSignalsResponse) Get(descriptor protoreflect.Fi
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgSubmitSignalsResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_MsgVoteResponse) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgVoteResponse"))
 		}
-		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgVoteResponse does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -733,36 +733,36 @@ func (x *fastReflection_MsgSubmitSignalsResponse) Set(fd protoreflect.FieldDescr
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgSubmitSignalsResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_MsgVoteResponse) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgVoteResponse"))
 		}
-		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgVoteResponse does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_MsgSubmitSignalsResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_MsgVoteResponse) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalsResponse"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgVoteResponse"))
 		}
-		panic(fmt.Errorf("message band.feeds.v1beta1.MsgSubmitSignalsResponse does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.feeds.v1beta1.MsgVoteResponse does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_MsgSubmitSignalsResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_MsgVoteResponse) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in band.feeds.v1beta1.MsgSubmitSignalsResponse", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.feeds.v1beta1.MsgVoteResponse", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -770,7 +770,7 @@ func (x *fastReflection_MsgSubmitSignalsResponse) WhichOneof(d protoreflect.Oneo
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_MsgSubmitSignalsResponse) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_MsgVoteResponse) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -781,7 +781,7 @@ func (x *fastReflection_MsgSubmitSignalsResponse) GetUnknown() protoreflect.RawF
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_MsgSubmitSignalsResponse) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_MsgVoteResponse) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -793,7 +793,7 @@ func (x *fastReflection_MsgSubmitSignalsResponse) SetUnknown(fields protoreflect
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_MsgSubmitSignalsResponse) IsValid() bool {
+func (x *fastReflection_MsgVoteResponse) IsValid() bool {
 	return x != nil
 }
 
@@ -803,9 +803,9 @@ func (x *fastReflection_MsgSubmitSignalsResponse) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_MsgSubmitSignalsResponse) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_MsgVoteResponse) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*MsgSubmitSignalsResponse)
+		x := input.Message.Interface().(*MsgVoteResponse)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -827,7 +827,7 @@ func (x *fastReflection_MsgSubmitSignalsResponse) ProtoMethods() *protoiface.Met
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*MsgSubmitSignalsResponse)
+		x := input.Message.Interface().(*MsgVoteResponse)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -857,7 +857,7 @@ func (x *fastReflection_MsgSubmitSignalsResponse) ProtoMethods() *protoiface.Met
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*MsgSubmitSignalsResponse)
+		x := input.Message.Interface().(*MsgVoteResponse)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -889,10 +889,10 @@ func (x *fastReflection_MsgSubmitSignalsResponse) ProtoMethods() *protoiface.Met
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgSubmitSignalsResponse: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgVoteResponse: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgSubmitSignalsResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: MsgVoteResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			default:
@@ -982,10 +982,10 @@ func (x *_MsgSubmitSignalPrices_3_list) IsValid() bool {
 }
 
 var (
-	md_MsgSubmitSignalPrices           protoreflect.MessageDescriptor
-	fd_MsgSubmitSignalPrices_validator protoreflect.FieldDescriptor
-	fd_MsgSubmitSignalPrices_timestamp protoreflect.FieldDescriptor
-	fd_MsgSubmitSignalPrices_prices    protoreflect.FieldDescriptor
+	md_MsgSubmitSignalPrices               protoreflect.MessageDescriptor
+	fd_MsgSubmitSignalPrices_validator     protoreflect.FieldDescriptor
+	fd_MsgSubmitSignalPrices_timestamp     protoreflect.FieldDescriptor
+	fd_MsgSubmitSignalPrices_signal_prices protoreflect.FieldDescriptor
 )
 
 func init() {
@@ -993,7 +993,7 @@ func init() {
 	md_MsgSubmitSignalPrices = File_band_feeds_v1beta1_tx_proto.Messages().ByName("MsgSubmitSignalPrices")
 	fd_MsgSubmitSignalPrices_validator = md_MsgSubmitSignalPrices.Fields().ByName("validator")
 	fd_MsgSubmitSignalPrices_timestamp = md_MsgSubmitSignalPrices.Fields().ByName("timestamp")
-	fd_MsgSubmitSignalPrices_prices = md_MsgSubmitSignalPrices.Fields().ByName("prices")
+	fd_MsgSubmitSignalPrices_signal_prices = md_MsgSubmitSignalPrices.Fields().ByName("signal_prices")
 }
 
 var _ protoreflect.Message = (*fastReflection_MsgSubmitSignalPrices)(nil)
@@ -1073,9 +1073,9 @@ func (x *fastReflection_MsgSubmitSignalPrices) Range(f func(protoreflect.FieldDe
 			return
 		}
 	}
-	if len(x.Prices) != 0 {
-		value := protoreflect.ValueOfList(&_MsgSubmitSignalPrices_3_list{list: &x.Prices})
-		if !f(fd_MsgSubmitSignalPrices_prices, value) {
+	if len(x.SignalPrices) != 0 {
+		value := protoreflect.ValueOfList(&_MsgSubmitSignalPrices_3_list{list: &x.SignalPrices})
+		if !f(fd_MsgSubmitSignalPrices_signal_prices, value) {
 			return
 		}
 	}
@@ -1098,8 +1098,8 @@ func (x *fastReflection_MsgSubmitSignalPrices) Has(fd protoreflect.FieldDescript
 		return x.Validator != ""
 	case "band.feeds.v1beta1.MsgSubmitSignalPrices.timestamp":
 		return x.Timestamp != int64(0)
-	case "band.feeds.v1beta1.MsgSubmitSignalPrices.prices":
-		return len(x.Prices) != 0
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.signal_prices":
+		return len(x.SignalPrices) != 0
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalPrices"))
@@ -1120,8 +1120,8 @@ func (x *fastReflection_MsgSubmitSignalPrices) Clear(fd protoreflect.FieldDescri
 		x.Validator = ""
 	case "band.feeds.v1beta1.MsgSubmitSignalPrices.timestamp":
 		x.Timestamp = int64(0)
-	case "band.feeds.v1beta1.MsgSubmitSignalPrices.prices":
-		x.Prices = nil
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.signal_prices":
+		x.SignalPrices = nil
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalPrices"))
@@ -1144,11 +1144,11 @@ func (x *fastReflection_MsgSubmitSignalPrices) Get(descriptor protoreflect.Field
 	case "band.feeds.v1beta1.MsgSubmitSignalPrices.timestamp":
 		value := x.Timestamp
 		return protoreflect.ValueOfInt64(value)
-	case "band.feeds.v1beta1.MsgSubmitSignalPrices.prices":
-		if len(x.Prices) == 0 {
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.signal_prices":
+		if len(x.SignalPrices) == 0 {
 			return protoreflect.ValueOfList(&_MsgSubmitSignalPrices_3_list{})
 		}
-		listValue := &_MsgSubmitSignalPrices_3_list{list: &x.Prices}
+		listValue := &_MsgSubmitSignalPrices_3_list{list: &x.SignalPrices}
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
@@ -1174,10 +1174,10 @@ func (x *fastReflection_MsgSubmitSignalPrices) Set(fd protoreflect.FieldDescript
 		x.Validator = value.Interface().(string)
 	case "band.feeds.v1beta1.MsgSubmitSignalPrices.timestamp":
 		x.Timestamp = value.Int()
-	case "band.feeds.v1beta1.MsgSubmitSignalPrices.prices":
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.signal_prices":
 		lv := value.List()
 		clv := lv.(*_MsgSubmitSignalPrices_3_list)
-		x.Prices = *clv.list
+		x.SignalPrices = *clv.list
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.feeds.v1beta1.MsgSubmitSignalPrices"))
@@ -1198,11 +1198,11 @@ func (x *fastReflection_MsgSubmitSignalPrices) Set(fd protoreflect.FieldDescript
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_MsgSubmitSignalPrices) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "band.feeds.v1beta1.MsgSubmitSignalPrices.prices":
-		if x.Prices == nil {
-			x.Prices = []*SignalPrice{}
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.signal_prices":
+		if x.SignalPrices == nil {
+			x.SignalPrices = []*SignalPrice{}
 		}
-		value := &_MsgSubmitSignalPrices_3_list{list: &x.Prices}
+		value := &_MsgSubmitSignalPrices_3_list{list: &x.SignalPrices}
 		return protoreflect.ValueOfList(value)
 	case "band.feeds.v1beta1.MsgSubmitSignalPrices.validator":
 		panic(fmt.Errorf("field validator of message band.feeds.v1beta1.MsgSubmitSignalPrices is not mutable"))
@@ -1225,7 +1225,7 @@ func (x *fastReflection_MsgSubmitSignalPrices) NewField(fd protoreflect.FieldDes
 		return protoreflect.ValueOfString("")
 	case "band.feeds.v1beta1.MsgSubmitSignalPrices.timestamp":
 		return protoreflect.ValueOfInt64(int64(0))
-	case "band.feeds.v1beta1.MsgSubmitSignalPrices.prices":
+	case "band.feeds.v1beta1.MsgSubmitSignalPrices.signal_prices":
 		list := []*SignalPrice{}
 		return protoreflect.ValueOfList(&_MsgSubmitSignalPrices_3_list{list: &list})
 	default:
@@ -1304,8 +1304,8 @@ func (x *fastReflection_MsgSubmitSignalPrices) ProtoMethods() *protoiface.Method
 		if x.Timestamp != 0 {
 			n += 1 + runtime.Sov(uint64(x.Timestamp))
 		}
-		if len(x.Prices) > 0 {
-			for _, e := range x.Prices {
+		if len(x.SignalPrices) > 0 {
+			for _, e := range x.SignalPrices {
 				l = options.Size(e)
 				n += 1 + l + runtime.Sov(uint64(l))
 			}
@@ -1339,9 +1339,9 @@ func (x *fastReflection_MsgSubmitSignalPrices) ProtoMethods() *protoiface.Method
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
 		}
-		if len(x.Prices) > 0 {
-			for iNdEx := len(x.Prices) - 1; iNdEx >= 0; iNdEx-- {
-				encoded, err := options.Marshal(x.Prices[iNdEx])
+		if len(x.SignalPrices) > 0 {
+			for iNdEx := len(x.SignalPrices) - 1; iNdEx >= 0; iNdEx-- {
+				encoded, err := options.Marshal(x.SignalPrices[iNdEx])
 				if err != nil {
 					return protoiface.MarshalOutput{
 						NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -1469,7 +1469,7 @@ func (x *fastReflection_MsgSubmitSignalPrices) ProtoMethods() *protoiface.Method
 				}
 			case 3:
 				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Prices", wireType)
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field SignalPrices", wireType)
 				}
 				var msglen int
 				for shift := uint(0); ; shift += 7 {
@@ -1496,8 +1496,8 @@ func (x *fastReflection_MsgSubmitSignalPrices) ProtoMethods() *protoiface.Method
 				if postIndex > l {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
 				}
-				x.Prices = append(x.Prices, &SignalPrice{})
-				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.Prices[len(x.Prices)-1]); err != nil {
+				x.SignalPrices = append(x.SignalPrices, &SignalPrice{})
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.SignalPrices[len(x.SignalPrices)-1]); err != nil {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
 				}
 				iNdEx = postIndex
@@ -3615,20 +3615,20 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// MsgSubmitSignals is the transaction message to submit signals.
-type MsgSubmitSignals struct {
+// MsgVote is the transaction message to vote signals.
+type MsgVote struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// delegator is the address of the delegator that wants to submit signals.
-	Delegator string `protobuf:"bytes,1,opt,name=delegator,proto3" json:"delegator,omitempty"`
+	// voter is the address of the voter that wants to vote signals.
+	Voter string `protobuf:"bytes,1,opt,name=voter,proto3" json:"voter,omitempty"`
 	// signals is a list of submitted signals.
 	Signals []*Signal `protobuf:"bytes,2,rep,name=signals,proto3" json:"signals,omitempty"`
 }
 
-func (x *MsgSubmitSignals) Reset() {
-	*x = MsgSubmitSignals{}
+func (x *MsgVote) Reset() {
+	*x = MsgVote{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_band_feeds_v1beta1_tx_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -3636,40 +3636,40 @@ func (x *MsgSubmitSignals) Reset() {
 	}
 }
 
-func (x *MsgSubmitSignals) String() string {
+func (x *MsgVote) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*MsgSubmitSignals) ProtoMessage() {}
+func (*MsgVote) ProtoMessage() {}
 
-// Deprecated: Use MsgSubmitSignals.ProtoReflect.Descriptor instead.
-func (*MsgSubmitSignals) Descriptor() ([]byte, []int) {
+// Deprecated: Use MsgVote.ProtoReflect.Descriptor instead.
+func (*MsgVote) Descriptor() ([]byte, []int) {
 	return file_band_feeds_v1beta1_tx_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *MsgSubmitSignals) GetDelegator() string {
+func (x *MsgVote) GetVoter() string {
 	if x != nil {
-		return x.Delegator
+		return x.Voter
 	}
 	return ""
 }
 
-func (x *MsgSubmitSignals) GetSignals() []*Signal {
+func (x *MsgVote) GetSignals() []*Signal {
 	if x != nil {
 		return x.Signals
 	}
 	return nil
 }
 
-// MsgSubmitSignalsResponse is the response type for the Msg/SubmitSignals RPC method.
-type MsgSubmitSignalsResponse struct {
+// MsgVoteResponse is the response type for the Msg/Vote RPC method.
+type MsgVoteResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 }
 
-func (x *MsgSubmitSignalsResponse) Reset() {
-	*x = MsgSubmitSignalsResponse{}
+func (x *MsgVoteResponse) Reset() {
+	*x = MsgVoteResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_band_feeds_v1beta1_tx_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -3677,14 +3677,14 @@ func (x *MsgSubmitSignalsResponse) Reset() {
 	}
 }
 
-func (x *MsgSubmitSignalsResponse) String() string {
+func (x *MsgVoteResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*MsgSubmitSignalsResponse) ProtoMessage() {}
+func (*MsgVoteResponse) ProtoMessage() {}
 
-// Deprecated: Use MsgSubmitSignalsResponse.ProtoReflect.Descriptor instead.
-func (*MsgSubmitSignalsResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use MsgVoteResponse.ProtoReflect.Descriptor instead.
+func (*MsgVoteResponse) Descriptor() ([]byte, []int) {
 	return file_band_feeds_v1beta1_tx_proto_rawDescGZIP(), []int{1}
 }
 
@@ -3698,8 +3698,8 @@ type MsgSubmitSignalPrices struct {
 	Validator string `protobuf:"bytes,1,opt,name=validator,proto3" json:"validator,omitempty"`
 	// timestamp is the timestamp used as reference for the data.
 	Timestamp int64 `protobuf:"varint,2,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
-	// prices is a list of signal prices to submit.
-	Prices []*SignalPrice `protobuf:"bytes,3,rep,name=prices,proto3" json:"prices,omitempty"`
+	// signal_prices is a list of signal prices to submit.
+	SignalPrices []*SignalPrice `protobuf:"bytes,3,rep,name=signal_prices,json=signalPrices,proto3" json:"signal_prices,omitempty"`
 }
 
 func (x *MsgSubmitSignalPrices) Reset() {
@@ -3736,9 +3736,9 @@ func (x *MsgSubmitSignalPrices) GetTimestamp() int64 {
 	return 0
 }
 
-func (x *MsgSubmitSignalPrices) GetPrices() []*SignalPrice {
+func (x *MsgSubmitSignalPrices) GetSignalPrices() []*SignalPrice {
 	if x != nil {
-		return x.Prices
+		return x.SignalPrices
 	}
 	return nil
 }
@@ -3932,110 +3932,106 @@ var file_band_feeds_v1beta1_tx_proto_rawDesc = []byte{
 	0x6f, 0x74, 0x6f, 0x1a, 0x17, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x6d, 0x73, 0x67, 0x2f,
 	0x76, 0x31, 0x2f, 0x6d, 0x73, 0x67, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x11, 0x61, 0x6d,
 	0x69, 0x6e, 0x6f, 0x2f, 0x61, 0x6d, 0x69, 0x6e, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22,
-	0xb1, 0x01, 0x0a, 0x10, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67,
-	0x6e, 0x61, 0x6c, 0x73, 0x12, 0x36, 0x0a, 0x09, 0x64, 0x65, 0x6c, 0x65, 0x67, 0x61, 0x74, 0x6f,
-	0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73,
-	0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e,
-	0x67, 0x52, 0x09, 0x64, 0x65, 0x6c, 0x65, 0x67, 0x61, 0x74, 0x6f, 0x72, 0x12, 0x3a, 0x0a, 0x07,
-	0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1a, 0x2e,
-	0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52,
-	0x07, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73, 0x3a, 0x29, 0x82, 0xe7, 0xb0, 0x2a, 0x09, 0x64,
-	0x65, 0x6c, 0x65, 0x67, 0x61, 0x74, 0x6f, 0x72, 0x8a, 0xe7, 0xb0, 0x2a, 0x16, 0x66, 0x65, 0x65,
-	0x64, 0x73, 0x2f, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e,
-	0x61, 0x6c, 0x73, 0x22, 0x1a, 0x0a, 0x18, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74,
-	0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
-	0xe5, 0x01, 0x0a, 0x15, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67,
-	0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x12, 0x3f, 0x0a, 0x09, 0x76, 0x61, 0x6c,
-	0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x21, 0xd2, 0xb4,
-	0x2d, 0x1d, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74,
-	0x6f, 0x72, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52,
-	0x09, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x12, 0x1c, 0x0a, 0x09, 0x74, 0x69,
-	0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x09, 0x74,
-	0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x12, 0x3d, 0x0a, 0x06, 0x70, 0x72, 0x69, 0x63,
+	0x93, 0x01, 0x0a, 0x07, 0x4d, 0x73, 0x67, 0x56, 0x6f, 0x74, 0x65, 0x12, 0x2e, 0x0a, 0x05, 0x76,
+	0x6f, 0x74, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14,
+	0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74,
+	0x72, 0x69, 0x6e, 0x67, 0x52, 0x05, 0x76, 0x6f, 0x74, 0x65, 0x72, 0x12, 0x3a, 0x0a, 0x07, 0x73,
+	0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x62,
+	0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
+	0x31, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x07,
+	0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73, 0x3a, 0x1c, 0x82, 0xe7, 0xb0, 0x2a, 0x05, 0x76, 0x6f,
+	0x74, 0x65, 0x72, 0x8a, 0xe7, 0xb0, 0x2a, 0x0d, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2f, 0x4d, 0x73,
+	0x67, 0x56, 0x6f, 0x74, 0x65, 0x22, 0x11, 0x0a, 0x0f, 0x4d, 0x73, 0x67, 0x56, 0x6f, 0x74, 0x65,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xf2, 0x01, 0x0a, 0x15, 0x4d, 0x73, 0x67,
+	0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63,
+	0x65, 0x73, 0x12, 0x3f, 0x0a, 0x09, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x21, 0xd2, 0xb4, 0x2d, 0x1d, 0x63, 0x6f, 0x73, 0x6d, 0x6f,
+	0x73, 0x2e, 0x56, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x41, 0x64, 0x64, 0x72, 0x65,
+	0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x09, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61,
+	0x74, 0x6f, 0x72, 0x12, 0x1c, 0x0a, 0x09, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x03, 0x52, 0x09, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d,
+	0x70, 0x12, 0x4a, 0x0a, 0x0d, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x5f, 0x70, 0x72, 0x69, 0x63,
 	0x65, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1f, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e,
 	0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x53, 0x69,
 	0x67, 0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52,
-	0x06, 0x70, 0x72, 0x69, 0x63, 0x65, 0x73, 0x3a, 0x2e, 0x82, 0xe7, 0xb0, 0x2a, 0x09, 0x76, 0x61,
-	0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x8a, 0xe7, 0xb0, 0x2a, 0x1b, 0x66, 0x65, 0x65, 0x64,
-	0x73, 0x2f, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61,
-	0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x22, 0x1f, 0x0a, 0x1d, 0x4d, 0x73, 0x67, 0x53, 0x75,
-	0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xee, 0x01, 0x0a, 0x1e, 0x4d, 0x73, 0x67,
-	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x53,
-	0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x2e, 0x0a, 0x05, 0x61,
-	0x64, 0x6d, 0x69, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14,
-	0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74,
-	0x72, 0x69, 0x6e, 0x67, 0x52, 0x05, 0x61, 0x64, 0x6d, 0x69, 0x6e, 0x12, 0x67, 0x0a, 0x17, 0x72,
-	0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x5f, 0x73, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x5f,
-	0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x29, 0x2e, 0x62,
-	0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
-	0x31, 0x2e, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75, 0x72, 0x63,
-	0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x15, 0x72,
-	0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x6f,
-	0x6e, 0x66, 0x69, 0x67, 0x3a, 0x33, 0x82, 0xe7, 0xb0, 0x2a, 0x05, 0x61, 0x64, 0x6d, 0x69, 0x6e,
-	0x8a, 0xe7, 0xb0, 0x2a, 0x24, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2f, 0x4d, 0x73, 0x67, 0x55, 0x70,
-	0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75,
-	0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x22, 0x28, 0x0a, 0x26, 0x4d, 0x73, 0x67,
-	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x53,
-	0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f,
-	0x6e, 0x73, 0x65, 0x22, 0xad, 0x01, 0x0a, 0x0f, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74,
-	0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x36, 0x0a, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f,
-	0x72, 0x69, 0x74, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14,
-	0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x53, 0x74,
-	0x72, 0x69, 0x6e, 0x67, 0x52, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x12,
-	0x38, 0x0a, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32,
-	0x1a, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x42, 0x04, 0xc8, 0xde, 0x1f,
-	0x00, 0x52, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x3a, 0x28, 0x82, 0xe7, 0xb0, 0x2a, 0x09,
-	0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x8a, 0xe7, 0xb0, 0x2a, 0x15, 0x66, 0x65,
-	0x65, 0x64, 0x73, 0x2f, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72,
-	0x61, 0x6d, 0x73, 0x22, 0x19, 0x0a, 0x17, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65,
-	0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0xd7,
-	0x03, 0x0a, 0x03, 0x4d, 0x73, 0x67, 0x12, 0x63, 0x0a, 0x0d, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74,
-	0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73, 0x12, 0x24, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66,
-	0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67,
-	0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73, 0x1a, 0x2c, 0x2e,
-	0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e,
-	0x61, 0x6c, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x72, 0x0a, 0x12, 0x53,
-	0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63, 0x65,
-	0x73, 0x12, 0x29, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76,
-	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74,
-	0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x1a, 0x31, 0x2e, 0x62,
+	0x0c, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x3a, 0x2e, 0x82,
+	0xe7, 0xb0, 0x2a, 0x09, 0x76, 0x61, 0x6c, 0x69, 0x64, 0x61, 0x74, 0x6f, 0x72, 0x8a, 0xe7, 0xb0,
+	0x2a, 0x1b, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2f, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69,
+	0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x22, 0x1f, 0x0a,
+	0x1d, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c,
+	0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xee,
+	0x01, 0x0a, 0x1e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x66, 0x65,
+	0x72, 0x65, 0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69,
+	0x67, 0x12, 0x2e, 0x0a, 0x05, 0x61, 0x64, 0x6d, 0x69, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64,
+	0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x05, 0x61, 0x64, 0x6d, 0x69,
+	0x6e, 0x12, 0x67, 0x0a, 0x17, 0x72, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x5f, 0x73,
+	0x6f, 0x75, 0x72, 0x63, 0x65, 0x5f, 0x63, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x0b, 0x32, 0x29, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e,
+	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63,
+	0x65, 0x53, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x42, 0x04, 0xc8,
+	0xde, 0x1f, 0x00, 0x52, 0x15, 0x72, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x53, 0x6f,
+	0x75, 0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x3a, 0x33, 0x82, 0xe7, 0xb0, 0x2a,
+	0x05, 0x61, 0x64, 0x6d, 0x69, 0x6e, 0x8a, 0xe7, 0xb0, 0x2a, 0x24, 0x66, 0x65, 0x65, 0x64, 0x73,
+	0x2f, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65,
+	0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x22,
+	0x28, 0x0a, 0x26, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x66, 0x65,
+	0x72, 0x65, 0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69,
+	0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0xad, 0x01, 0x0a, 0x0f, 0x4d, 0x73,
+	0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x36, 0x0a,
+	0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09,
+	0x42, 0x18, 0xd2, 0xb4, 0x2d, 0x14, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x41, 0x64, 0x64,
+	0x72, 0x65, 0x73, 0x73, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x52, 0x09, 0x61, 0x75, 0x74, 0x68,
+	0x6f, 0x72, 0x69, 0x74, 0x79, 0x12, 0x38, 0x0a, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65,
+	0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x72, 0x61, 0x6d,
+	0x73, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x3a,
+	0x28, 0x82, 0xe7, 0xb0, 0x2a, 0x09, 0x61, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x74, 0x79, 0x8a,
+	0xe7, 0xb0, 0x2a, 0x15, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2f, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64,
+	0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x22, 0x19, 0x0a, 0x17, 0x4d, 0x73, 0x67,
+	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x32, 0xbc, 0x03, 0x0a, 0x03, 0x4d, 0x73, 0x67, 0x12, 0x48, 0x0a, 0x04,
+	0x56, 0x6f, 0x74, 0x65, 0x12, 0x1b, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64,
+	0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x56, 0x6f, 0x74,
+	0x65, 0x1a, 0x23, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x56, 0x6f, 0x74, 0x65, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x72, 0x0a, 0x12, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74,
+	0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x12, 0x29, 0x2e, 0x62,
 	0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
 	0x31, 0x2e, 0x4d, 0x73, 0x67, 0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61,
-	0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
-	0x8d, 0x01, 0x0a, 0x1b, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65,
-	0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12,
-	0x32, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65,
-	0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e,
-	0x66, 0x69, 0x67, 0x1a, 0x3a, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73,
-	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61,
-	0x74, 0x65, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75, 0x72, 0x63,
-	0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
-	0x60, 0x0a, 0x0c, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12,
-	0x23, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61,
-	0x72, 0x61, 0x6d, 0x73, 0x1a, 0x2b, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64,
-	0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64,
-	0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x1a, 0x05, 0x80, 0xe7, 0xb0, 0x2a, 0x01, 0x42, 0xd1, 0x01, 0x0a, 0x16, 0x63, 0x6f, 0x6d,
+	0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x1a, 0x31, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66,
+	0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67,
+	0x53, 0x75, 0x62, 0x6d, 0x69, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63,
+	0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x8d, 0x01, 0x0a, 0x1b, 0x55,
+	0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x53, 0x6f,
+	0x75, 0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x12, 0x32, 0x2e, 0x62, 0x61, 0x6e,
+	0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e,
+	0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x66, 0x65, 0x72, 0x65, 0x6e,
+	0x63, 0x65, 0x53, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e, 0x66, 0x69, 0x67, 0x1a, 0x3a,
 	0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65,
-	0x74, 0x61, 0x31, 0x42, 0x07, 0x54, 0x78, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x44,
-	0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33,
-	0x2f, 0x61, 0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2f,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b, 0x66, 0x65, 0x65, 0x64, 0x73, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x42, 0x46, 0x58, 0xaa, 0x02, 0x12, 0x42, 0x61, 0x6e,
-	0x64, 0x2e, 0x46, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca,
-	0x02, 0x12, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x46, 0x65, 0x65, 0x64, 0x73, 0x5c, 0x56, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0xe2, 0x02, 0x1e, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x46, 0x65, 0x65, 0x64,
-	0x73, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74,
-	0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x14, 0x42, 0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x46, 0x65,
-	0x65, 0x64, 0x73, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x33,
+	0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x66,
+	0x65, 0x72, 0x65, 0x6e, 0x63, 0x65, 0x53, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x43, 0x6f, 0x6e, 0x66,
+	0x69, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x60, 0x0a, 0x0c, 0x55, 0x70,
+	0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x23, 0x2e, 0x62, 0x61, 0x6e,
+	0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e,
+	0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x1a,
+	0x2b, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x73, 0x67, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x50, 0x61,
+	0x72, 0x61, 0x6d, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x1a, 0x05, 0x80, 0xe7,
+	0xb0, 0x2a, 0x01, 0x42, 0xd1, 0x01, 0x0a, 0x16, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64,
+	0x2e, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x07,
+	0x54, 0x78, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x44, 0x67, 0x69, 0x74, 0x68, 0x75,
+	0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63,
+	0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x61, 0x70, 0x69, 0x2f,
+	0x62, 0x61, 0x6e, 0x64, 0x2f, 0x66, 0x65, 0x65, 0x64, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x3b, 0x66, 0x65, 0x65, 0x64, 0x73, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2,
+	0x02, 0x03, 0x42, 0x46, 0x58, 0xaa, 0x02, 0x12, 0x42, 0x61, 0x6e, 0x64, 0x2e, 0x46, 0x65, 0x65,
+	0x64, 0x73, 0x2e, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x12, 0x42, 0x61, 0x6e,
+	0x64, 0x5c, 0x46, 0x65, 0x65, 0x64, 0x73, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2,
+	0x02, 0x1e, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x46, 0x65, 0x65, 0x64, 0x73, 0x5c, 0x56, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61,
+	0xea, 0x02, 0x14, 0x42, 0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x46, 0x65, 0x65, 0x64, 0x73, 0x3a, 0x3a,
+	0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -4052,8 +4048,8 @@ func file_band_feeds_v1beta1_tx_proto_rawDescGZIP() []byte {
 
 var file_band_feeds_v1beta1_tx_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_band_feeds_v1beta1_tx_proto_goTypes = []interface{}{
-	(*MsgSubmitSignals)(nil),                       // 0: band.feeds.v1beta1.MsgSubmitSignals
-	(*MsgSubmitSignalsResponse)(nil),               // 1: band.feeds.v1beta1.MsgSubmitSignalsResponse
+	(*MsgVote)(nil),                                // 0: band.feeds.v1beta1.MsgVote
+	(*MsgVoteResponse)(nil),                        // 1: band.feeds.v1beta1.MsgVoteResponse
 	(*MsgSubmitSignalPrices)(nil),                  // 2: band.feeds.v1beta1.MsgSubmitSignalPrices
 	(*MsgSubmitSignalPricesResponse)(nil),          // 3: band.feeds.v1beta1.MsgSubmitSignalPricesResponse
 	(*MsgUpdateReferenceSourceConfig)(nil),         // 4: band.feeds.v1beta1.MsgUpdateReferenceSourceConfig
@@ -4066,15 +4062,15 @@ var file_band_feeds_v1beta1_tx_proto_goTypes = []interface{}{
 	(*Params)(nil),                                 // 11: band.feeds.v1beta1.Params
 }
 var file_band_feeds_v1beta1_tx_proto_depIdxs = []int32{
-	8,  // 0: band.feeds.v1beta1.MsgSubmitSignals.signals:type_name -> band.feeds.v1beta1.Signal
-	9,  // 1: band.feeds.v1beta1.MsgSubmitSignalPrices.prices:type_name -> band.feeds.v1beta1.SignalPrice
+	8,  // 0: band.feeds.v1beta1.MsgVote.signals:type_name -> band.feeds.v1beta1.Signal
+	9,  // 1: band.feeds.v1beta1.MsgSubmitSignalPrices.signal_prices:type_name -> band.feeds.v1beta1.SignalPrice
 	10, // 2: band.feeds.v1beta1.MsgUpdateReferenceSourceConfig.reference_source_config:type_name -> band.feeds.v1beta1.ReferenceSourceConfig
 	11, // 3: band.feeds.v1beta1.MsgUpdateParams.params:type_name -> band.feeds.v1beta1.Params
-	0,  // 4: band.feeds.v1beta1.Msg.SubmitSignals:input_type -> band.feeds.v1beta1.MsgSubmitSignals
+	0,  // 4: band.feeds.v1beta1.Msg.Vote:input_type -> band.feeds.v1beta1.MsgVote
 	2,  // 5: band.feeds.v1beta1.Msg.SubmitSignalPrices:input_type -> band.feeds.v1beta1.MsgSubmitSignalPrices
 	4,  // 6: band.feeds.v1beta1.Msg.UpdateReferenceSourceConfig:input_type -> band.feeds.v1beta1.MsgUpdateReferenceSourceConfig
 	6,  // 7: band.feeds.v1beta1.Msg.UpdateParams:input_type -> band.feeds.v1beta1.MsgUpdateParams
-	1,  // 8: band.feeds.v1beta1.Msg.SubmitSignals:output_type -> band.feeds.v1beta1.MsgSubmitSignalsResponse
+	1,  // 8: band.feeds.v1beta1.Msg.Vote:output_type -> band.feeds.v1beta1.MsgVoteResponse
 	3,  // 9: band.feeds.v1beta1.Msg.SubmitSignalPrices:output_type -> band.feeds.v1beta1.MsgSubmitSignalPricesResponse
 	5,  // 10: band.feeds.v1beta1.Msg.UpdateReferenceSourceConfig:output_type -> band.feeds.v1beta1.MsgUpdateReferenceSourceConfigResponse
 	7,  // 11: band.feeds.v1beta1.Msg.UpdateParams:output_type -> band.feeds.v1beta1.MsgUpdateParamsResponse
@@ -4094,7 +4090,7 @@ func file_band_feeds_v1beta1_tx_proto_init() {
 	file_band_feeds_v1beta1_params_proto_init()
 	if !protoimpl.UnsafeEnabled {
 		file_band_feeds_v1beta1_tx_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MsgSubmitSignals); i {
+			switch v := v.(*MsgVote); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -4106,7 +4102,7 @@ func file_band_feeds_v1beta1_tx_proto_init() {
 			}
 		}
 		file_band_feeds_v1beta1_tx_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*MsgSubmitSignalsResponse); i {
+			switch v := v.(*MsgVoteResponse); i {
 			case 0:
 				return &v.state
 			case 1:

@@ -6,7 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/price"
+	bothan "github.com/bandprotocol/bothan/bothan-api/client/go-client/proto/bothan/v1"
 
 	"github.com/bandprotocol/chain/v3/grogu/submitter"
 	"github.com/bandprotocol/chain/v3/pkg/logger"
@@ -175,14 +175,14 @@ func (s *Signaller) execute() {
 	prices, uuid := res.Prices, res.Uuid
 
 	s.logger.Debug("[Signaller] filtering prices")
-	submitPrices := s.filterAndPrepareSubmitPrices(prices, nonPendingSignalIDs, now)
-	if len(submitPrices) == 0 {
+	signalPrices := s.filterAndPrepareSignalPrices(prices, nonPendingSignalIDs, now)
+	if len(signalPrices) == 0 {
 		s.logger.Debug("[Signaller] no prices to submit")
 		return
 	}
 
-	s.logger.Debug("[Signaller] submitting prices: %v", submitPrices)
-	s.submitPrices(submitPrices, uuid)
+	s.logger.Debug("[Signaller] submitting prices: %v", signalPrices)
+	s.submitPrices(signalPrices, uuid)
 }
 
 func (s *Signaller) submitPrices(prices []types.SignalPrice, uuid string) {
@@ -222,7 +222,7 @@ func (s *Signaller) getNonPendingSignalIDs() []string {
 	return filtered
 }
 
-func (s *Signaller) filterAndPrepareSubmitPrices(
+func (s *Signaller) filterAndPrepareSignalPrices(
 	prices []*bothan.Price,
 	signalIDs []string,
 	currentTime time.Time,
@@ -231,7 +231,7 @@ func (s *Signaller) filterAndPrepareSubmitPrices(
 		return price.SignalId
 	})
 
-	submitPrices := make([]types.SignalPrice, 0, len(signalIDs))
+	signalPrices := make([]types.SignalPrice, 0, len(signalIDs))
 
 	for _, signalID := range signalIDs {
 		price, ok := pricesMap[signalID]
@@ -244,30 +244,30 @@ func (s *Signaller) filterAndPrepareSubmitPrices(
 			continue
 		}
 
-		submitPrice, err := convertPriceData(price)
+		signalPrice, err := convertPriceData(price)
 		if err != nil {
 			s.logger.Debug("[Signaller] failed to parse price data: %v", err)
 			continue
 		}
 
-		if s.isNonUrgentUnavailablePrices(submitPrice, currentTime.Unix()) {
-			s.logger.Debug("[Signaller] non-urgent unavailable price: %v", submitPrice)
+		if s.isNonUrgentUnavailablePrices(signalPrice, currentTime.Unix()) {
+			s.logger.Debug("[Signaller] non-urgent unavailable price: %v", signalPrice)
 			continue
 		}
 
-		submitPrices = append(submitPrices, submitPrice)
+		signalPrices = append(signalPrices, signalPrice)
 	}
 
-	return submitPrices
+	return signalPrices
 }
 
 func (s *Signaller) isNonUrgentUnavailablePrices(
-	submitPrice types.SignalPrice,
+	signalPrice types.SignalPrice,
 	now int64,
 ) bool {
-	switch submitPrice.PriceStatus {
-	case types.PriceStatusUnavailable:
-		deadline := s.signalIDToValidatorPrice[submitPrice.SignalID].Timestamp + s.signalIDToFeed[submitPrice.SignalID].Interval
+	switch signalPrice.Status {
+	case types.SignalPriceStatusUnavailable:
+		deadline := s.signalIDToValidatorPrice[signalPrice.SignalID].Timestamp + s.signalIDToFeed[signalPrice.SignalID].Interval
 		if now > deadline-FixedIntervalOffset {
 			return false
 		}

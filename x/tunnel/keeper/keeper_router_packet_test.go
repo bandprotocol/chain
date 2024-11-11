@@ -42,7 +42,7 @@ func (s *KeeperTestSuite) TestSendRouterPacket() {
 
 	s.transferKeeper.EXPECT().Transfer(ctx, gomock.Any()).Return(nil, nil)
 
-	content, err := k.SendRouterPacket(
+	content, fee, err := k.SendRouterPacket(
 		ctx,
 		route,
 		packet,
@@ -50,6 +50,7 @@ func (s *KeeperTestSuite) TestSendRouterPacket() {
 		sdk.AccAddress("feePayer"),
 	)
 	s.Require().NoError(err)
+	s.Require().Equal(sdk.NewCoins(), fee)
 
 	packetContent, ok := content.(*types.RouterPacketContent)
 	s.Require().True(ok)

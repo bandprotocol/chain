@@ -20,10 +20,17 @@ message Member {
       [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.GroupID"];
   // is_active is a flag to indicate whether a member is active or not.
   bool is_active = 3;
-  // since is a block timestamp when a member is deactivated
+  // since is a block timestamp when a member status is changed (from active to inactive or vice versa).
   google.protobuf.Timestamp since = 4 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
-  // last_active is a latest block timestamp when a member is active
-  google.protobuf.Timestamp last_active = 5 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+}
+
+// CuurentGroup is a bandtss current group information.
+message CurrentGroup {
+  // group_id is the ID of the current group.
+  uint64 group_id = 1
+      [(gogoproto.customname) = "GroupID", (gogoproto.casttype) = "github.com/bandprotocol/chain/v3/pkg/tss.GroupID"];
+  // active_time is the timestamp at which the group becomes the current group of the module.
+  google.protobuf.Timestamp active_time = 2 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
 }
 
 // Signing is a bandtss signing information.
@@ -103,4 +110,6 @@ message GroupTransitionSignatureOrder {
 
   // pub_key is the public key of new group that the current group needs to be signed.
   bytes pub_key = 1 [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
+  // transition_time is the timestamp at which the transition is executed and the public key is active.
+  google.protobuf.Timestamp transition_time = 2 [(gogoproto.stdtime) = true, (gogoproto.nullable) = false];
 }

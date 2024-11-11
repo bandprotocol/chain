@@ -31,7 +31,7 @@ func BenchmarkSortMap(b *testing.B) {
 	b.ResetTimer()
 	b.StopTimer()
 	ba := InitializeBenchmarkApp(b, -1)
-	expValPrices := generateValidatorPrices(300, ValidValidator.String(), ba.Ctx.BlockTime().Unix())
+	expValPrices := generateValidatorPrices(300, ba.Ctx.BlockTime().Unix())
 	valPricesMap := make(map[string]types.ValidatorPrice)
 	for _, valPrice := range expValPrices {
 		valPricesMap[valPrice.SignalID] = valPrice
@@ -180,11 +180,10 @@ func setupValidatorPriceList(ba *BenchmarkApp, vals []*Account) error {
 		valPrices := []types.ValidatorPrice{}
 		for _, feed := range sfs.Feeds {
 			valPrices = append(valPrices, types.ValidatorPrice{
-				PriceStatus: types.PriceStatusAvailable,
-				Validator:   val.ValAddress.String(),
-				SignalID:    feed.SignalID,
-				Price:       (10000 + uint64(valIdx)) * 10e9,
-				Timestamp:   ba.Ctx.BlockTime().Unix() - 40,
+				SignalPriceStatus: types.SignalPriceStatusAvailable,
+				SignalID:          feed.SignalID,
+				Price:             (10000 + uint64(valIdx)) * 10e9,
+				Timestamp:         ba.Ctx.BlockTime().Unix() - 40,
 			})
 		}
 		err := ba.FeedsKeeper.SetValidatorPriceList(ba.Ctx, val.ValAddress, valPrices)
@@ -203,11 +202,10 @@ func setupValidatorPrices(ba *BenchmarkApp, vals []*Account) error {
 		valPrices := []types.ValidatorPrice{}
 		for _, feed := range sfs.Feeds {
 			valPrices = append(valPrices, types.ValidatorPrice{
-				PriceStatus: types.PriceStatusAvailable,
-				Validator:   val.ValAddress.String(),
-				SignalID:    feed.SignalID,
-				Price:       (10000 + uint64(valIdx)) * 10e9,
-				Timestamp:   ba.Ctx.BlockTime().Unix(),
+				SignalPriceStatus: types.SignalPriceStatusAvailable,
+				SignalID:          feed.SignalID,
+				Price:             (10000 + uint64(valIdx)) * 10e9,
+				Timestamp:         ba.Ctx.BlockTime().Unix(),
 			})
 		}
 
@@ -312,12 +310,11 @@ func generateValidators(ba *BenchmarkApp, num int) ([]*Account, error) {
 }
 
 // generateValidatorPrices generates a slice of ValidatorPrice with the specified number of elements.
-func generateValidatorPrices(numElements int, validatorAddress string, timestamp int64) []types.ValidatorPrice {
+func generateValidatorPrices(numElements int, timestamp int64) []types.ValidatorPrice {
 	prices := make([]types.ValidatorPrice, numElements)
 
 	for i := 0; i < numElements; i++ {
 		prices[i] = types.ValidatorPrice{
-			Validator: validatorAddress,
 			SignalID:  fmt.Sprintf("CS:BAND%d-USD", i),
 			Price:     1e10,
 			Timestamp: timestamp,

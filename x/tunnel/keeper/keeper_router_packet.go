@@ -18,17 +18,17 @@ func (k Keeper) SendRouterPacket(
 	packet types.Packet,
 	encoder types.Encoder,
 	feePayer sdk.AccAddress,
-) (types.PacketContentI, error) {
+) (types.PacketContentI, sdk.Coins, error) {
 	// create encoding packet
 	encodingpacket, err := types.NewEncodingPacket(packet, encoder)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// encode relay packet ABI
 	relayPacket, err := encodingpacket.EncodeRelayPacketABI()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// create memo string for ibc transfer
@@ -43,7 +43,7 @@ func (k Keeper) SendRouterPacket(
 		"",
 	).String()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	msg := ibctransfertypes.NewMsgTransfer(
@@ -58,7 +58,7 @@ func (k Keeper) SendRouterPacket(
 	)
 
 	if _, err := k.transferKeeper.Transfer(ctx, msg); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	packetContent := types.RouterPacketContent{
@@ -71,5 +71,10 @@ func (k Keeper) SendRouterPacket(
 		DestGasPrice:          route.DestGasPrice,
 	}
 
-	return &packetContent, nil
+	fee, err := route.Fee()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return &packetContent, fee, nil
 }

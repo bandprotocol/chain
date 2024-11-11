@@ -79,6 +79,23 @@ func (t Tunnel) GetSignalDeviationMap() map[string]SignalDeviation {
 	return signalDeviationMap
 }
 
+// GetSignalIDs returns the signal IDs of the tunnel.
+func (t Tunnel) GetSignalIDs() []string {
+	signalIDs := make([]string, 0, len(t.SignalDeviations))
+	for _, sd := range t.SignalDeviations {
+		signalIDs = append(signalIDs, sd.SignalID)
+	}
+	return signalIDs
+}
+
+// ValidateEncoder validates the encoder.
+func ValidateEncoder(encoder Encoder) error {
+	if encoder == ENCODER_FIXED_POINT_ABI || encoder == ENCODER_TICK_ABI {
+		return nil
+	}
+	return fmt.Errorf("invalid encoder: %s", encoder)
+}
+
 // NewIBCRoute creates a new IBCRoute instance.
 func NewIBCRoute(channelID string) *IBCRoute {
 	return &IBCRoute{

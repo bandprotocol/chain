@@ -11,12 +11,12 @@ var (
 	_ sdk.Msg = (*MsgSubmitSignalPrices)(nil)
 	_ sdk.Msg = (*MsgUpdateParams)(nil)
 	_ sdk.Msg = (*MsgUpdateReferenceSourceConfig)(nil)
-	_ sdk.Msg = (*MsgSubmitSignals)(nil)
+	_ sdk.Msg = (*MsgVote)(nil)
 
 	_ sdk.HasValidateBasic = (*MsgSubmitSignalPrices)(nil)
 	_ sdk.HasValidateBasic = (*MsgUpdateParams)(nil)
 	_ sdk.HasValidateBasic = (*MsgUpdateReferenceSourceConfig)(nil)
-	_ sdk.HasValidateBasic = (*MsgSubmitSignals)(nil)
+	_ sdk.HasValidateBasic = (*MsgVote)(nil)
 )
 
 // ====================================
@@ -27,38 +27,38 @@ var (
 func NewMsgSubmitSignalPrices(
 	validator string,
 	timestamp int64,
-	prices []SignalPrice,
+	signalPrices []SignalPrice,
 ) *MsgSubmitSignalPrices {
 	return &MsgSubmitSignalPrices{
-		Validator: validator,
-		Timestamp: timestamp,
-		Prices:    prices,
+		Validator:    validator,
+		Timestamp:    timestamp,
+		SignalPrices: signalPrices,
 	}
 }
 
 // ValidateBasic does a check on the provided data.
 func (m *MsgSubmitSignalPrices) ValidateBasic() error {
 	if _, err := sdk.ValAddressFromBech32(m.Validator); err != nil {
-		return err
+		return errorsmod.Wrap(err, "invalid validator address")
 	}
 
 	// Map to track signal IDs for duplicate check
 	signalIDSet := make(map[string]struct{})
 
-	for _, price := range m.Prices {
-		if price.PriceStatus != PriceStatusAvailable && price.Price != 0 {
+	for _, signalPrice := range m.SignalPrices {
+		if signalPrice.Status != SignalPriceStatusAvailable && signalPrice.Price != 0 {
 			return sdkerrors.ErrInvalidRequest.Wrap(
-				"price must be initial value if price status is unsupported or unavailable",
+				"signal price must be initial value if price status is unsupported or unavailable",
 			)
 		}
 
 		// Check for duplicate signal IDs
-		if _, exists := signalIDSet[price.SignalID]; exists {
+		if _, exists := signalIDSet[signalPrice.SignalID]; exists {
 			return ErrDuplicateSignalID.Wrapf(
-				"duplicate signal ID found: %s", price.SignalID,
+				"duplicate signal ID found: %s", signalPrice.SignalID,
 			)
 		}
-		signalIDSet[price.SignalID] = struct{}{}
+		signalIDSet[signalPrice.SignalID] = struct{}{}
 	}
 
 	return nil
@@ -121,25 +121,25 @@ func (m *MsgUpdateReferenceSourceConfig) ValidateBasic() error {
 }
 
 // ====================================
-// MsgSubmitSignals
+// MsgVote
 // ====================================
 
-// NewMsgSubmitSignals creates a new MsgSubmitSignals instance.
-func NewMsgSubmitSignals(
-	delegator string,
+// NewMsgVote creates a new MsgVote instance.
+func NewMsgVote(
+	voter string,
 	signals []Signal,
-) *MsgSubmitSignals {
-	return &MsgSubmitSignals{
-		Delegator: delegator,
-		Signals:   signals,
+) *MsgVote {
+	return &MsgVote{
+		Voter:   voter,
+		Signals: signals,
 	}
 }
 
 // ValidateBasic does a check on the provided data.
-func (m *MsgSubmitSignals) ValidateBasic() error {
-	// Check if the delegator address is valid
-	if _, err := sdk.AccAddressFromBech32(m.Delegator); err != nil {
-		return errorsmod.Wrap(err, "invalid delegator address")
+func (m *MsgVote) ValidateBasic() error {
+	// Check if the voter address is valid
+	if _, err := sdk.AccAddressFromBech32(m.Voter); err != nil {
+		return errorsmod.Wrap(err, "invalid voter address")
 	}
 
 	// Map to track signal IDs for duplicate check

@@ -161,7 +161,10 @@ func (s *KeeperTestSuite) TestInitExportGenesis() {
 		AnyTimes()
 	s.accountKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(sdk.AccAddress{}).AnyTimes()
 	s.accountKeeper.EXPECT().SetModuleAccount(ctx, gomock.Any()).AnyTimes()
-	s.bankKeeper.EXPECT().GetAllBalances(ctx, gomock.Any()).Return(sdk.Coins{}).AnyTimes()
+	s.bankKeeper.EXPECT().
+		GetAllBalances(ctx, gomock.Any()).
+		Return(sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100)))).
+		AnyTimes()
 
 	// Create a valid genesis state
 	genesisState := &types.GenesisState{

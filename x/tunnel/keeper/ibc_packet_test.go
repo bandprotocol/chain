@@ -7,6 +7,8 @@ import (
 
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
@@ -28,8 +30,9 @@ func (s *KeeperTestSuite) TestSendIBCPacket() {
 		SendPacket(ctx, gomock.Any(), types.PortID, route.ChannelID, gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(uint64(0), nil)
 
-	content, err := k.SendIBCPacket(ctx, route, packet)
+	content, fee, err := k.SendIBCPacket(ctx, route, packet)
 	s.Require().NoError(err)
+	s.Require().Equal(sdk.NewCoins(), fee)
 
 	packetContent, ok := content.(*types.IBCPacketContent)
 	s.Require().True(ok)

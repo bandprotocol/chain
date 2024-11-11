@@ -6,6 +6,7 @@ import (
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
@@ -137,14 +138,14 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 	}
 }
 
-func (s *KeeperTestSuite) TestMsgEditTunnel() {
+func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
 	cases := map[string]struct {
-		preRun    func() *types.MsgEditTunnel
+		preRun    func() *types.MsgUpdateAndResetTunnel
 		expErr    bool
 		expErrMsg string
 	}{
 		"max signal exceed": {
-			preRun: func() *types.MsgEditTunnel {
+			preRun: func() *types.MsgUpdateAndResetTunnel {
 				params := types.DefaultParams()
 				params.MaxSignals = 1
 				err := s.keeper.SetParams(s.ctx, params)
@@ -165,7 +166,7 @@ func (s *KeeperTestSuite) TestMsgEditTunnel() {
 					},
 				}
 
-				return types.NewMsgEditTunnel(
+				return types.NewMsgUpdateAndResetTunnel(
 					1,
 					editedSignalDeviations,
 					10,
@@ -176,7 +177,7 @@ func (s *KeeperTestSuite) TestMsgEditTunnel() {
 			expErrMsg: "max signals exceeded",
 		},
 		"interval too low": {
-			preRun: func() *types.MsgEditTunnel {
+			preRun: func() *types.MsgUpdateAndResetTunnel {
 				params := types.DefaultParams()
 				params.MinInterval = 5
 				err := s.keeper.SetParams(s.ctx, params)
@@ -192,7 +193,7 @@ func (s *KeeperTestSuite) TestMsgEditTunnel() {
 					},
 				}
 
-				return types.NewMsgEditTunnel(
+				return types.NewMsgUpdateAndResetTunnel(
 					1,
 					editedSignalDeviations,
 					1,
@@ -203,8 +204,8 @@ func (s *KeeperTestSuite) TestMsgEditTunnel() {
 			expErrMsg: "interval too low",
 		},
 		"tunnel not found": {
-			preRun: func() *types.MsgEditTunnel {
-				return types.NewMsgEditTunnel(
+			preRun: func() *types.MsgUpdateAndResetTunnel {
+				return types.NewMsgUpdateAndResetTunnel(
 					1,
 					[]types.SignalDeviation{},
 					10,
@@ -215,10 +216,10 @@ func (s *KeeperTestSuite) TestMsgEditTunnel() {
 			expErrMsg: "tunnel not found",
 		},
 		"invalid creator of the tunnel": {
-			preRun: func() *types.MsgEditTunnel {
+			preRun: func() *types.MsgUpdateAndResetTunnel {
 				s.AddSampleTunnel(false)
 
-				return types.NewMsgEditTunnel(
+				return types.NewMsgUpdateAndResetTunnel(
 					1,
 					[]types.SignalDeviation{},
 					10,
@@ -229,7 +230,7 @@ func (s *KeeperTestSuite) TestMsgEditTunnel() {
 			expErrMsg: "invalid creator of the tunnel",
 		},
 		"all good": {
-			preRun: func() *types.MsgEditTunnel {
+			preRun: func() *types.MsgUpdateAndResetTunnel {
 				s.AddSampleTunnel(false)
 
 				editedSignalDeviations := []types.SignalDeviation{
@@ -240,7 +241,7 @@ func (s *KeeperTestSuite) TestMsgEditTunnel() {
 					},
 				}
 
-				return types.NewMsgEditTunnel(
+				return types.NewMsgUpdateAndResetTunnel(
 					1,
 					editedSignalDeviations,
 					10,
@@ -256,7 +257,7 @@ func (s *KeeperTestSuite) TestMsgEditTunnel() {
 		s.Run(name, func() {
 			msg := tc.preRun()
 
-			_, err := s.msgServer.EditTunnel(s.ctx, msg)
+			_, err := s.msgServer.UpdateAndResetTunnel(s.ctx, msg)
 			if tc.expErr {
 				s.Require().Error(err)
 				s.Require().Contains(err.Error(), tc.expErrMsg)
@@ -405,6 +406,10 @@ func (s *KeeperTestSuite) TestMsgDeactivate() {
 }
 
 func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
+	feePayer := sdk.MustAccAddressFromBech32(
+		"band1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62q2yggu0",
+	)
+
 	cases := map[string]struct {
 		preRun    func() *types.MsgTriggerTunnel
 		expErr    bool
@@ -438,17 +443,13 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 		"all good": {
 			preRun: func() *types.MsgTriggerTunnel {
 				s.AddSampleTunnel(true)
-
-				feePayer := sdk.MustAccAddressFromBech32(
-					"cosmos1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62qh49enj",
-				)
-
-				s.feedsKeeper.EXPECT().GetAllCurrentPrices(gomock.Any()).Return([]feedstypes.Price{
-					{PriceStatus: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
+				s.feedsKeeper.EXPECT().GetPrices(gomock.Any(), []string{"BTC"}).Return([]feedstypes.Price{
+					{Status: feedstypes.PriceStatusAvailable, SignalID: "BTC", Price: 50000, Timestamp: 0},
 				})
 				s.bankKeeper.EXPECT().
 					SendCoinsFromAccountToModule(gomock.Any(), feePayer, types.ModuleName, types.DefaultBasePacketFee).
 					Return(nil)
+				s.bankKeeper.EXPECT().SpendableCoins(gomock.Any(), feePayer).Return(types.DefaultBasePacketFee)
 
 				return types.NewMsgTriggerTunnel(1, sdk.AccAddress([]byte("creator_address")).String())
 			},
@@ -462,6 +463,194 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 			msg := tc.preRun()
 
 			_, err := s.msgServer.TriggerTunnel(s.ctx, msg)
+			if tc.expErr {
+				s.Require().Error(err)
+				s.Require().Contains(err.Error(), tc.expErrMsg)
+			} else {
+				s.Require().NoError(err)
+			}
+
+			s.reset()
+		})
+	}
+}
+
+func (s *KeeperTestSuite) TestMsgDepositToTunnel() {
+	cases := map[string]struct {
+		preRun    func() *types.MsgDepositToTunnel
+		expErr    bool
+		expErrMsg string
+	}{
+		"tunnel not found": {
+			preRun: func() *types.MsgDepositToTunnel {
+				return types.NewMsgDepositToTunnel(
+					1,
+					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
+					sdk.AccAddress([]byte("depositor")).String(),
+				)
+			},
+			expErr:    true,
+			expErrMsg: "tunnel not found",
+		},
+		"invalid deposit denom": {
+			preRun: func() *types.MsgDepositToTunnel {
+				s.AddSampleTunnel(true)
+
+				return types.NewMsgDepositToTunnel(
+					1,
+					sdk.NewCoins(sdk.NewCoin("invalid_denom", sdkmath.NewInt(100))),
+					sdk.AccAddress([]byte("depositor")).String(),
+				)
+			},
+			expErr:    true,
+			expErrMsg: "invalid deposit denom",
+		},
+		"insufficient fund": {
+			preRun: func() *types.MsgDepositToTunnel {
+				s.AddSampleTunnel(true)
+
+				s.bankKeeper.EXPECT().
+					SendCoinsFromAccountToModule(gomock.Any(), gomock.Any(), types.ModuleName, gomock.Any()).
+					Return(sdkerrors.ErrInsufficientFunds)
+
+				return types.NewMsgDepositToTunnel(
+					1,
+					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
+					sdk.AccAddress([]byte("depositor")).String(),
+				)
+			},
+			expErr:    true,
+			expErrMsg: "insufficient fund",
+		},
+		"all good": {
+			preRun: func() *types.MsgDepositToTunnel {
+				s.AddSampleTunnel(true)
+
+				s.bankKeeper.EXPECT().
+					SendCoinsFromAccountToModule(gomock.Any(), gomock.Any(), types.ModuleName, gomock.Any()).
+					Return(nil)
+
+				return types.NewMsgDepositToTunnel(
+					1,
+					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
+					sdk.AccAddress([]byte("depositor")).String(),
+				)
+			},
+			expErr:    false,
+			expErrMsg: "",
+		},
+	}
+
+	for name, tc := range cases {
+		s.Run(name, func() {
+			msg := tc.preRun()
+
+			_, err := s.msgServer.DepositToTunnel(s.ctx, msg)
+			if tc.expErr {
+				s.Require().Error(err)
+				s.Require().Contains(err.Error(), tc.expErrMsg)
+			} else {
+				s.Require().NoError(err)
+			}
+
+			s.reset()
+		})
+	}
+}
+
+func (s *KeeperTestSuite) TestMsgWithdrawFromTunnel() {
+	cases := map[string]struct {
+		preRun    func() *types.MsgWithdrawFromTunnel
+		expErr    bool
+		expErrMsg string
+	}{
+		"tunnel not found": {
+			preRun: func() *types.MsgWithdrawFromTunnel {
+				return types.NewMsgWithdrawFromTunnel(
+					1,
+					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
+					sdk.AccAddress([]byte("depositor")).String(),
+				)
+			},
+			expErr:    true,
+			expErrMsg: "tunnel not found",
+		},
+		"deposit not found": {
+			preRun: func() *types.MsgWithdrawFromTunnel {
+				s.AddSampleTunnel(true)
+
+				return types.NewMsgWithdrawFromTunnel(
+					1,
+					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
+					sdk.AccAddress([]byte("depositor")).String(),
+				)
+			},
+			expErr:    true,
+			expErrMsg: "deposit not found",
+		},
+		"insufficient deposit": {
+			preRun: func() *types.MsgWithdrawFromTunnel {
+				s.AddSampleTunnel(true)
+
+				depositor := sdk.AccAddress([]byte("depositor"))
+				deposit := types.Deposit{
+					TunnelID:  1,
+					Depositor: depositor.String(),
+					Amount:    sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
+				}
+
+				s.keeper.SetDeposit(
+					s.ctx,
+					deposit,
+				)
+
+				return types.NewMsgWithdrawFromTunnel(
+					1,
+					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(1000))),
+					depositor.String(),
+				)
+			},
+			expErr:    true,
+			expErrMsg: "insufficient deposit",
+		},
+		"all good": {
+			preRun: func() *types.MsgWithdrawFromTunnel {
+				s.AddSampleTunnel(true)
+
+				amount := sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100)))
+
+				depositor := sdk.AccAddress([]byte("depositor"))
+				deposit := types.Deposit{
+					TunnelID:  1,
+					Depositor: depositor.String(),
+					Amount:    amount,
+				}
+
+				s.keeper.SetDeposit(
+					s.ctx,
+					deposit,
+				)
+
+				s.bankKeeper.EXPECT().
+					SendCoinsFromModuleToAccount(gomock.Any(), types.ModuleName, depositor, amount).
+					Return(nil)
+
+				return types.NewMsgWithdrawFromTunnel(
+					1,
+					amount,
+					depositor.String(),
+				)
+			},
+			expErr:    false,
+			expErrMsg: "",
+		},
+	}
+
+	for name, tc := range cases {
+		s.Run(name, func() {
+			msg := tc.preRun()
+
+			_, err := s.msgServer.WithdrawFromTunnel(s.ctx, msg)
 			if tc.expErr {
 				s.Require().Error(err)
 				s.Require().Contains(err.Error(), tc.expErrMsg)

@@ -56,10 +56,12 @@ import (
 	"github.com/bandprotocol/chain/v3/x/bandtss"
 	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	"github.com/bandprotocol/chain/v3/x/feeds"
+	feedsclient "github.com/bandprotocol/chain/v3/x/feeds/client"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/globalfee"
 	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
 	"github.com/bandprotocol/chain/v3/x/oracle"
+	oracleclient "github.com/bandprotocol/chain/v3/x/oracle/client"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	"github.com/bandprotocol/chain/v3/x/restake"
 	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
@@ -167,7 +169,12 @@ func appModules(
 		feeds.NewAppModule(appCodec, app.FeedsKeeper),
 		rollingseed.NewAppModule(appCodec, app.RollingseedKeeper),
 		tss.NewAppModule(appCodec, app.TSSKeeper),
-		bandtss.NewAppModule(appCodec, app.BandtssKeeper),
+		bandtss.NewAppModule(
+			appCodec,
+			app.BandtssKeeper,
+			oracleclient.OracleRequestSignatureHandler,
+			feedsclient.FeedsRequestSignatureHandler,
+		),
 		tunnel.NewAppModule(appCodec, app.TunnelKeeper),
 	}
 }

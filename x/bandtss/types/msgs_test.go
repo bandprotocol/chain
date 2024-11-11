@@ -14,11 +14,11 @@ import (
 
 var (
 	validMembers = []string{
-		"cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8",
-		"cosmos1quh7acmun7tx6ywkvqr53m3fe39gxu9k00t4ds",
+		"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+		"band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
 	}
 
-	validSender = "cosmos1xxjxtce966clgkju06qp475j663tg8pmklxcy8"
+	validSender = "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs"
 )
 
 // ====================================
@@ -127,28 +127,6 @@ func TestMsgActivate_ValidateBasic(t *testing.T) {
 
 	// invalid input
 	msg = types.NewMsgActivate(validSender, 0)
-	err = msg.ValidateBasic()
-	require.Error(t, err)
-}
-
-// ====================================
-// MsgHeartbeat
-// ====================================
-
-func TestNewMsgHeartbeat(t *testing.T) {
-	msg := types.NewMsgHeartbeat(validSender, 1)
-	require.Equal(t, tss.GroupID(1), msg.GroupID)
-	require.Equal(t, validSender, msg.Sender)
-}
-
-func TestMsgHeartbeat_ValidateBasic(t *testing.T) {
-	// Valid input
-	msg := types.NewMsgHeartbeat(validSender, 1)
-	err := msg.ValidateBasic()
-	require.NoError(t, err)
-
-	// invalid input
-	msg = types.NewMsgHeartbeat(validSender, 0)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 }

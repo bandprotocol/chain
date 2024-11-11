@@ -67,10 +67,10 @@ func (x *_GenesisState_2_list) IsValid() bool {
 }
 
 var (
-	md_GenesisState                  protoreflect.MessageDescriptor
-	fd_GenesisState_params           protoreflect.FieldDescriptor
-	fd_GenesisState_members          protoreflect.FieldDescriptor
-	fd_GenesisState_current_group_id protoreflect.FieldDescriptor
+	md_GenesisState               protoreflect.MessageDescriptor
+	fd_GenesisState_params        protoreflect.FieldDescriptor
+	fd_GenesisState_members       protoreflect.FieldDescriptor
+	fd_GenesisState_current_group protoreflect.FieldDescriptor
 )
 
 func init() {
@@ -78,7 +78,7 @@ func init() {
 	md_GenesisState = File_band_bandtss_v1beta1_genesis_proto.Messages().ByName("GenesisState")
 	fd_GenesisState_params = md_GenesisState.Fields().ByName("params")
 	fd_GenesisState_members = md_GenesisState.Fields().ByName("members")
-	fd_GenesisState_current_group_id = md_GenesisState.Fields().ByName("current_group_id")
+	fd_GenesisState_current_group = md_GenesisState.Fields().ByName("current_group")
 }
 
 var _ protoreflect.Message = (*fastReflection_GenesisState)(nil)
@@ -158,9 +158,9 @@ func (x *fastReflection_GenesisState) Range(f func(protoreflect.FieldDescriptor,
 			return
 		}
 	}
-	if x.CurrentGroupId != uint64(0) {
-		value := protoreflect.ValueOfUint64(x.CurrentGroupId)
-		if !f(fd_GenesisState_current_group_id, value) {
+	if x.CurrentGroup != nil {
+		value := protoreflect.ValueOfMessage(x.CurrentGroup.ProtoReflect())
+		if !f(fd_GenesisState_current_group, value) {
 			return
 		}
 	}
@@ -183,8 +183,8 @@ func (x *fastReflection_GenesisState) Has(fd protoreflect.FieldDescriptor) bool 
 		return x.Params != nil
 	case "band.bandtss.v1beta1.GenesisState.members":
 		return len(x.Members) != 0
-	case "band.bandtss.v1beta1.GenesisState.current_group_id":
-		return x.CurrentGroupId != uint64(0)
+	case "band.bandtss.v1beta1.GenesisState.current_group":
+		return x.CurrentGroup != nil
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.GenesisState"))
@@ -205,8 +205,8 @@ func (x *fastReflection_GenesisState) Clear(fd protoreflect.FieldDescriptor) {
 		x.Params = nil
 	case "band.bandtss.v1beta1.GenesisState.members":
 		x.Members = nil
-	case "band.bandtss.v1beta1.GenesisState.current_group_id":
-		x.CurrentGroupId = uint64(0)
+	case "band.bandtss.v1beta1.GenesisState.current_group":
+		x.CurrentGroup = nil
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.GenesisState"))
@@ -232,9 +232,9 @@ func (x *fastReflection_GenesisState) Get(descriptor protoreflect.FieldDescripto
 		}
 		listValue := &_GenesisState_2_list{list: &x.Members}
 		return protoreflect.ValueOfList(listValue)
-	case "band.bandtss.v1beta1.GenesisState.current_group_id":
-		value := x.CurrentGroupId
-		return protoreflect.ValueOfUint64(value)
+	case "band.bandtss.v1beta1.GenesisState.current_group":
+		value := x.CurrentGroup
+		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	default:
 		if descriptor.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.GenesisState"))
@@ -261,8 +261,8 @@ func (x *fastReflection_GenesisState) Set(fd protoreflect.FieldDescriptor, value
 		lv := value.List()
 		clv := lv.(*_GenesisState_2_list)
 		x.Members = *clv.list
-	case "band.bandtss.v1beta1.GenesisState.current_group_id":
-		x.CurrentGroupId = value.Uint()
+	case "band.bandtss.v1beta1.GenesisState.current_group":
+		x.CurrentGroup = value.Message().Interface().(*CurrentGroup)
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.GenesisState"))
@@ -294,8 +294,11 @@ func (x *fastReflection_GenesisState) Mutable(fd protoreflect.FieldDescriptor) p
 		}
 		value := &_GenesisState_2_list{list: &x.Members}
 		return protoreflect.ValueOfList(value)
-	case "band.bandtss.v1beta1.GenesisState.current_group_id":
-		panic(fmt.Errorf("field current_group_id of message band.bandtss.v1beta1.GenesisState is not mutable"))
+	case "band.bandtss.v1beta1.GenesisState.current_group":
+		if x.CurrentGroup == nil {
+			x.CurrentGroup = new(CurrentGroup)
+		}
+		return protoreflect.ValueOfMessage(x.CurrentGroup.ProtoReflect())
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.GenesisState"))
@@ -315,8 +318,9 @@ func (x *fastReflection_GenesisState) NewField(fd protoreflect.FieldDescriptor) 
 	case "band.bandtss.v1beta1.GenesisState.members":
 		list := []*Member{}
 		return protoreflect.ValueOfList(&_GenesisState_2_list{list: &list})
-	case "band.bandtss.v1beta1.GenesisState.current_group_id":
-		return protoreflect.ValueOfUint64(uint64(0))
+	case "band.bandtss.v1beta1.GenesisState.current_group":
+		m := new(CurrentGroup)
+		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.GenesisState"))
@@ -396,8 +400,9 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 				n += 1 + l + runtime.Sov(uint64(l))
 			}
 		}
-		if x.CurrentGroupId != 0 {
-			n += 1 + runtime.Sov(uint64(x.CurrentGroupId))
+		if x.CurrentGroup != nil {
+			l = options.Size(x.CurrentGroup)
+			n += 1 + l + runtime.Sov(uint64(l))
 		}
 		if x.unknownFields != nil {
 			n += len(x.unknownFields)
@@ -428,10 +433,19 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
 		}
-		if x.CurrentGroupId != 0 {
-			i = runtime.EncodeVarint(dAtA, i, uint64(x.CurrentGroupId))
+		if x.CurrentGroup != nil {
+			encoded, err := options.Marshal(x.CurrentGroup)
+			if err != nil {
+				return protoiface.MarshalOutput{
+					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+					Buf:               input.Buf,
+				}, err
+			}
+			i -= len(encoded)
+			copy(dAtA[i:], encoded)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
 			i--
-			dAtA[i] = 0x18
+			dAtA[i] = 0x1a
 		}
 		if len(x.Members) > 0 {
 			for iNdEx := len(x.Members) - 1; iNdEx >= 0; iNdEx-- {
@@ -583,10 +597,10 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 				}
 				iNdEx = postIndex
 			case 3:
-				if wireType != 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field CurrentGroupId", wireType)
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field CurrentGroup", wireType)
 				}
-				x.CurrentGroupId = 0
+				var msglen int
 				for shift := uint(0); ; shift += 7 {
 					if shift >= 64 {
 						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
@@ -596,11 +610,28 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 					}
 					b := dAtA[iNdEx]
 					iNdEx++
-					x.CurrentGroupId |= uint64(b&0x7F) << shift
+					msglen |= int(b&0x7F) << shift
 					if b < 0x80 {
 						break
 					}
 				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if x.CurrentGroup == nil {
+					x.CurrentGroup = &CurrentGroup{}
+				}
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.CurrentGroup); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				iNdEx = postIndex
 			default:
 				iNdEx = preIndex
 				skippy, err := runtime.Skip(dAtA[iNdEx:])
@@ -636,60 +667,59 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 	}
 }
 
-var _ protoreflect.List = (*_Params_5_list)(nil)
+var _ protoreflect.List = (*_Params_4_list)(nil)
 
-type _Params_5_list struct {
+type _Params_4_list struct {
 	list *[]*v1beta1.Coin
 }
 
-func (x *_Params_5_list) Len() int {
+func (x *_Params_4_list) Len() int {
 	if x.list == nil {
 		return 0
 	}
 	return len(*x.list)
 }
 
-func (x *_Params_5_list) Get(i int) protoreflect.Value {
+func (x *_Params_4_list) Get(i int) protoreflect.Value {
 	return protoreflect.ValueOfMessage((*x.list)[i].ProtoReflect())
 }
 
-func (x *_Params_5_list) Set(i int, value protoreflect.Value) {
+func (x *_Params_4_list) Set(i int, value protoreflect.Value) {
 	valueUnwrapped := value.Message()
 	concreteValue := valueUnwrapped.Interface().(*v1beta1.Coin)
 	(*x.list)[i] = concreteValue
 }
 
-func (x *_Params_5_list) Append(value protoreflect.Value) {
+func (x *_Params_4_list) Append(value protoreflect.Value) {
 	valueUnwrapped := value.Message()
 	concreteValue := valueUnwrapped.Interface().(*v1beta1.Coin)
 	*x.list = append(*x.list, concreteValue)
 }
 
-func (x *_Params_5_list) AppendMutable() protoreflect.Value {
+func (x *_Params_4_list) AppendMutable() protoreflect.Value {
 	v := new(v1beta1.Coin)
 	*x.list = append(*x.list, v)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
-func (x *_Params_5_list) Truncate(n int) {
+func (x *_Params_4_list) Truncate(n int) {
 	for i := n; i < len(*x.list); i++ {
 		(*x.list)[i] = nil
 	}
 	*x.list = (*x.list)[:n]
 }
 
-func (x *_Params_5_list) NewElement() protoreflect.Value {
+func (x *_Params_4_list) NewElement() protoreflect.Value {
 	v := new(v1beta1.Coin)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
-func (x *_Params_5_list) IsValid() bool {
+func (x *_Params_4_list) IsValid() bool {
 	return x.list != nil
 }
 
 var (
 	md_Params                           protoreflect.MessageDescriptor
-	fd_Params_active_duration           protoreflect.FieldDescriptor
 	fd_Params_reward_percentage         protoreflect.FieldDescriptor
 	fd_Params_inactive_penalty_duration protoreflect.FieldDescriptor
 	fd_Params_max_transition_duration   protoreflect.FieldDescriptor
@@ -699,7 +729,6 @@ var (
 func init() {
 	file_band_bandtss_v1beta1_genesis_proto_init()
 	md_Params = File_band_bandtss_v1beta1_genesis_proto.Messages().ByName("Params")
-	fd_Params_active_duration = md_Params.Fields().ByName("active_duration")
 	fd_Params_reward_percentage = md_Params.Fields().ByName("reward_percentage")
 	fd_Params_inactive_penalty_duration = md_Params.Fields().ByName("inactive_penalty_duration")
 	fd_Params_max_transition_duration = md_Params.Fields().ByName("max_transition_duration")
@@ -771,12 +800,6 @@ func (x *fastReflection_Params) Interface() protoreflect.ProtoMessage {
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
 func (x *fastReflection_Params) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
-	if x.ActiveDuration != nil {
-		value := protoreflect.ValueOfMessage(x.ActiveDuration.ProtoReflect())
-		if !f(fd_Params_active_duration, value) {
-			return
-		}
-	}
 	if x.RewardPercentage != uint64(0) {
 		value := protoreflect.ValueOfUint64(x.RewardPercentage)
 		if !f(fd_Params_reward_percentage, value) {
@@ -796,7 +819,7 @@ func (x *fastReflection_Params) Range(f func(protoreflect.FieldDescriptor, proto
 		}
 	}
 	if len(x.Fee) != 0 {
-		value := protoreflect.ValueOfList(&_Params_5_list{list: &x.Fee})
+		value := protoreflect.ValueOfList(&_Params_4_list{list: &x.Fee})
 		if !f(fd_Params_fee, value) {
 			return
 		}
@@ -816,8 +839,6 @@ func (x *fastReflection_Params) Range(f func(protoreflect.FieldDescriptor, proto
 // a repeated field is populated if it is non-empty.
 func (x *fastReflection_Params) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "band.bandtss.v1beta1.Params.active_duration":
-		return x.ActiveDuration != nil
 	case "band.bandtss.v1beta1.Params.reward_percentage":
 		return x.RewardPercentage != uint64(0)
 	case "band.bandtss.v1beta1.Params.inactive_penalty_duration":
@@ -842,8 +863,6 @@ func (x *fastReflection_Params) Has(fd protoreflect.FieldDescriptor) bool {
 // Clear is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_Params) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "band.bandtss.v1beta1.Params.active_duration":
-		x.ActiveDuration = nil
 	case "band.bandtss.v1beta1.Params.reward_percentage":
 		x.RewardPercentage = uint64(0)
 	case "band.bandtss.v1beta1.Params.inactive_penalty_duration":
@@ -868,9 +887,6 @@ func (x *fastReflection_Params) Clear(fd protoreflect.FieldDescriptor) {
 // of the value; to obtain a mutable reference, use Mutable.
 func (x *fastReflection_Params) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "band.bandtss.v1beta1.Params.active_duration":
-		value := x.ActiveDuration
-		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	case "band.bandtss.v1beta1.Params.reward_percentage":
 		value := x.RewardPercentage
 		return protoreflect.ValueOfUint64(value)
@@ -882,9 +898,9 @@ func (x *fastReflection_Params) Get(descriptor protoreflect.FieldDescriptor) pro
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	case "band.bandtss.v1beta1.Params.fee":
 		if len(x.Fee) == 0 {
-			return protoreflect.ValueOfList(&_Params_5_list{})
+			return protoreflect.ValueOfList(&_Params_4_list{})
 		}
-		listValue := &_Params_5_list{list: &x.Fee}
+		listValue := &_Params_4_list{list: &x.Fee}
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
@@ -906,8 +922,6 @@ func (x *fastReflection_Params) Get(descriptor protoreflect.FieldDescriptor) pro
 // Set is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_Params) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "band.bandtss.v1beta1.Params.active_duration":
-		x.ActiveDuration = value.Message().Interface().(*durationpb.Duration)
 	case "band.bandtss.v1beta1.Params.reward_percentage":
 		x.RewardPercentage = value.Uint()
 	case "band.bandtss.v1beta1.Params.inactive_penalty_duration":
@@ -916,7 +930,7 @@ func (x *fastReflection_Params) Set(fd protoreflect.FieldDescriptor, value proto
 		x.MaxTransitionDuration = value.Message().Interface().(*durationpb.Duration)
 	case "band.bandtss.v1beta1.Params.fee":
 		lv := value.List()
-		clv := lv.(*_Params_5_list)
+		clv := lv.(*_Params_4_list)
 		x.Fee = *clv.list
 	default:
 		if fd.IsExtension() {
@@ -938,11 +952,6 @@ func (x *fastReflection_Params) Set(fd protoreflect.FieldDescriptor, value proto
 // Mutable is a mutating operation and unsafe for concurrent use.
 func (x *fastReflection_Params) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "band.bandtss.v1beta1.Params.active_duration":
-		if x.ActiveDuration == nil {
-			x.ActiveDuration = new(durationpb.Duration)
-		}
-		return protoreflect.ValueOfMessage(x.ActiveDuration.ProtoReflect())
 	case "band.bandtss.v1beta1.Params.inactive_penalty_duration":
 		if x.InactivePenaltyDuration == nil {
 			x.InactivePenaltyDuration = new(durationpb.Duration)
@@ -957,7 +966,7 @@ func (x *fastReflection_Params) Mutable(fd protoreflect.FieldDescriptor) protore
 		if x.Fee == nil {
 			x.Fee = []*v1beta1.Coin{}
 		}
-		value := &_Params_5_list{list: &x.Fee}
+		value := &_Params_4_list{list: &x.Fee}
 		return protoreflect.ValueOfList(value)
 	case "band.bandtss.v1beta1.Params.reward_percentage":
 		panic(fmt.Errorf("field reward_percentage of message band.bandtss.v1beta1.Params is not mutable"))
@@ -974,9 +983,6 @@ func (x *fastReflection_Params) Mutable(fd protoreflect.FieldDescriptor) protore
 // For lists, maps, and messages, this returns a new, empty, mutable value.
 func (x *fastReflection_Params) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "band.bandtss.v1beta1.Params.active_duration":
-		m := new(durationpb.Duration)
-		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	case "band.bandtss.v1beta1.Params.reward_percentage":
 		return protoreflect.ValueOfUint64(uint64(0))
 	case "band.bandtss.v1beta1.Params.inactive_penalty_duration":
@@ -987,7 +993,7 @@ func (x *fastReflection_Params) NewField(fd protoreflect.FieldDescriptor) protor
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	case "band.bandtss.v1beta1.Params.fee":
 		list := []*v1beta1.Coin{}
-		return protoreflect.ValueOfList(&_Params_5_list{list: &list})
+		return protoreflect.ValueOfList(&_Params_4_list{list: &list})
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.Params"))
@@ -1057,10 +1063,6 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 		var n int
 		var l int
 		_ = l
-		if x.ActiveDuration != nil {
-			l = options.Size(x.ActiveDuration)
-			n += 1 + l + runtime.Sov(uint64(l))
-		}
 		if x.RewardPercentage != 0 {
 			n += 1 + runtime.Sov(uint64(x.RewardPercentage))
 		}
@@ -1120,7 +1122,7 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 				copy(dAtA[i:], encoded)
 				i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
 				i--
-				dAtA[i] = 0x2a
+				dAtA[i] = 0x22
 			}
 		}
 		if x.MaxTransitionDuration != nil {
@@ -1135,7 +1137,7 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 			copy(dAtA[i:], encoded)
 			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
 			i--
-			dAtA[i] = 0x22
+			dAtA[i] = 0x1a
 		}
 		if x.InactivePenaltyDuration != nil {
 			encoded, err := options.Marshal(x.InactivePenaltyDuration)
@@ -1149,26 +1151,12 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 			copy(dAtA[i:], encoded)
 			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
 			i--
-			dAtA[i] = 0x1a
+			dAtA[i] = 0x12
 		}
 		if x.RewardPercentage != 0 {
 			i = runtime.EncodeVarint(dAtA, i, uint64(x.RewardPercentage))
 			i--
-			dAtA[i] = 0x10
-		}
-		if x.ActiveDuration != nil {
-			encoded, err := options.Marshal(x.ActiveDuration)
-			if err != nil {
-				return protoiface.MarshalOutput{
-					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-					Buf:               input.Buf,
-				}, err
-			}
-			i -= len(encoded)
-			copy(dAtA[i:], encoded)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
-			i--
-			dAtA[i] = 0xa
+			dAtA[i] = 0x8
 		}
 		if input.Buf != nil {
 			input.Buf = append(input.Buf, dAtA...)
@@ -1220,42 +1208,6 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 			}
 			switch fieldNum {
 			case 1:
-				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field ActiveDuration", wireType)
-				}
-				var msglen int
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					msglen |= int(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				if msglen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + msglen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				if x.ActiveDuration == nil {
-					x.ActiveDuration = &durationpb.Duration{}
-				}
-				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.ActiveDuration); err != nil {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
-				}
-				iNdEx = postIndex
-			case 2:
 				if wireType != 0 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field RewardPercentage", wireType)
 				}
@@ -1274,7 +1226,7 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 						break
 					}
 				}
-			case 3:
+			case 2:
 				if wireType != 2 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field InactivePenaltyDuration", wireType)
 				}
@@ -1310,7 +1262,7 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
 				}
 				iNdEx = postIndex
-			case 4:
+			case 3:
 				if wireType != 2 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field MaxTransitionDuration", wireType)
 				}
@@ -1346,7 +1298,7 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
 				}
 				iNdEx = postIndex
-			case 5:
+			case 4:
 				if wireType != 2 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Fee", wireType)
 				}
@@ -1438,8 +1390,8 @@ type GenesisState struct {
 	Params *Params `protobuf:"bytes,1,opt,name=params,proto3" json:"params,omitempty"`
 	// members is an array containing members information.
 	Members []*Member `protobuf:"bytes,2,rep,name=members,proto3" json:"members,omitempty"`
-	// current_group_id is the current group id of the module.
-	CurrentGroupId uint64 `protobuf:"varint,3,opt,name=current_group_id,json=currentGroupId,proto3" json:"current_group_id,omitempty"`
+	// current_group is the current group information.
+	CurrentGroup *CurrentGroup `protobuf:"bytes,3,opt,name=current_group,json=currentGroup,proto3" json:"current_group,omitempty"`
 }
 
 func (x *GenesisState) Reset() {
@@ -1476,11 +1428,11 @@ func (x *GenesisState) GetMembers() []*Member {
 	return nil
 }
 
-func (x *GenesisState) GetCurrentGroupId() uint64 {
+func (x *GenesisState) GetCurrentGroup() *CurrentGroup {
 	if x != nil {
-		return x.CurrentGroupId
+		return x.CurrentGroup
 	}
-	return 0
+	return nil
 }
 
 // Params defines the set of module parameters.
@@ -1489,18 +1441,16 @@ type Params struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// active_duration is the duration where a member is active without interaction.
-	ActiveDuration *durationpb.Duration `protobuf:"bytes,1,opt,name=active_duration,json=activeDuration,proto3" json:"active_duration,omitempty"`
 	// reward_percentage is the percentage of block rewards allocated to active TSS members.
 	// The reward proportion is calculated after being allocated to oracle rewards.
-	RewardPercentage uint64 `protobuf:"varint,2,opt,name=reward_percentage,json=rewardPercentage,proto3" json:"reward_percentage,omitempty"`
+	RewardPercentage uint64 `protobuf:"varint,1,opt,name=reward_percentage,json=rewardPercentage,proto3" json:"reward_percentage,omitempty"`
 	// inactive_penalty_duration is the duration where a member cannot activate back after being set to inactive.
-	InactivePenaltyDuration *durationpb.Duration `protobuf:"bytes,3,opt,name=inactive_penalty_duration,json=inactivePenaltyDuration,proto3" json:"inactive_penalty_duration,omitempty"`
+	InactivePenaltyDuration *durationpb.Duration `protobuf:"bytes,2,opt,name=inactive_penalty_duration,json=inactivePenaltyDuration,proto3" json:"inactive_penalty_duration,omitempty"`
 	// max_transition_duration is the maximum duration where the transition process waits
 	// since the start of the process until an incoming group replaces a current group.
-	MaxTransitionDuration *durationpb.Duration `protobuf:"bytes,4,opt,name=max_transition_duration,json=maxTransitionDuration,proto3" json:"max_transition_duration,omitempty"`
+	MaxTransitionDuration *durationpb.Duration `protobuf:"bytes,3,opt,name=max_transition_duration,json=maxTransitionDuration,proto3" json:"max_transition_duration,omitempty"`
 	// fee is the tokens that will be paid per signer.
-	Fee []*v1beta1.Coin `protobuf:"bytes,5,rep,name=fee,proto3" json:"fee,omitempty"`
+	Fee []*v1beta1.Coin `protobuf:"bytes,4,rep,name=fee,proto3" json:"fee,omitempty"`
 }
 
 func (x *Params) Reset() {
@@ -1521,13 +1471,6 @@ func (*Params) ProtoMessage() {}
 // Deprecated: Use Params.ProtoReflect.Descriptor instead.
 func (*Params) Descriptor() ([]byte, []int) {
 	return file_band_bandtss_v1beta1_genesis_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *Params) GetActiveDuration() *durationpb.Duration {
-	if x != nil {
-		return x.ActiveDuration
-	}
-	return nil
 }
 
 func (x *Params) GetRewardPercentage() uint64 {
@@ -1572,7 +1515,7 @@ var file_band_bandtss_v1beta1_genesis_proto_rawDesc = []byte{
 	0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x63, 0x6f, 0x69, 0x6e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
 	0x1a, 0x22, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f, 0x76,
 	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x22, 0xfa, 0x01, 0x0a, 0x0c, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73,
+	0x72, 0x6f, 0x74, 0x6f, 0x22, 0xd7, 0x01, 0x0a, 0x0c, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73,
 	0x53, 0x74, 0x61, 0x74, 0x65, 0x12, 0x3a, 0x0a, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x18,
 	0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e,
 	0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x72,
@@ -1581,56 +1524,49 @@ var file_band_bandtss_v1beta1_genesis_proto_rawDesc = []byte{
 	0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73,
 	0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4d, 0x65, 0x6d, 0x62, 0x65, 0x72,
 	0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x07, 0x6d, 0x65, 0x6d, 0x62, 0x65, 0x72, 0x73, 0x12,
-	0x70, 0x0a, 0x10, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x5f, 0x67, 0x72, 0x6f, 0x75, 0x70,
-	0x5f, 0x69, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x04, 0x42, 0x46, 0xe2, 0xde, 0x1f, 0x0e, 0x43,
-	0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x49, 0x44, 0xfa, 0xde, 0x1f,
-	0x30, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64,
-	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76,
-	0x33, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x74, 0x73, 0x73, 0x2e, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x49,
-	0x44, 0x52, 0x0e, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x49,
-	0x64, 0x22, 0xbc, 0x03, 0x0a, 0x06, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x4c, 0x0a, 0x0f,
-	0x61, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x64, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x44, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e,
-	0x42, 0x08, 0xc8, 0xde, 0x1f, 0x00, 0x98, 0xdf, 0x1f, 0x01, 0x52, 0x0e, 0x61, 0x63, 0x74, 0x69,
-	0x76, 0x65, 0x44, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x41, 0x0a, 0x11, 0x72, 0x65,
-	0x77, 0x61, 0x72, 0x64, 0x5f, 0x70, 0x65, 0x72, 0x63, 0x65, 0x6e, 0x74, 0x61, 0x67, 0x65, 0x18,
-	0x02, 0x20, 0x01, 0x28, 0x04, 0x42, 0x14, 0xe2, 0xde, 0x1f, 0x10, 0x52, 0x65, 0x77, 0x61, 0x72,
-	0x64, 0x50, 0x65, 0x72, 0x63, 0x65, 0x6e, 0x74, 0x61, 0x67, 0x65, 0x52, 0x10, 0x72, 0x65, 0x77,
-	0x61, 0x72, 0x64, 0x50, 0x65, 0x72, 0x63, 0x65, 0x6e, 0x74, 0x61, 0x67, 0x65, 0x12, 0x5f, 0x0a,
-	0x19, 0x69, 0x6e, 0x61, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x70, 0x65, 0x6e, 0x61, 0x6c, 0x74,
-	0x79, 0x5f, 0x64, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b,
-	0x32, 0x19, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62,
-	0x75, 0x66, 0x2e, 0x44, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x42, 0x08, 0xc8, 0xde, 0x1f,
-	0x00, 0x98, 0xdf, 0x1f, 0x01, 0x52, 0x17, 0x69, 0x6e, 0x61, 0x63, 0x74, 0x69, 0x76, 0x65, 0x50,
-	0x65, 0x6e, 0x61, 0x6c, 0x74, 0x79, 0x44, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x5b,
-	0x0a, 0x17, 0x6d, 0x61, 0x78, 0x5f, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e,
-	0x5f, 0x64, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32,
+	0x4d, 0x0a, 0x0d, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x5f, 0x67, 0x72, 0x6f, 0x75, 0x70,
+	0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x22, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61,
+	0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x75,
+	0x72, 0x72, 0x65, 0x6e, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00,
+	0x52, 0x0c, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x22, 0xee,
+	0x02, 0x0a, 0x06, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x41, 0x0a, 0x11, 0x72, 0x65, 0x77,
+	0x61, 0x72, 0x64, 0x5f, 0x70, 0x65, 0x72, 0x63, 0x65, 0x6e, 0x74, 0x61, 0x67, 0x65, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x04, 0x42, 0x14, 0xe2, 0xde, 0x1f, 0x10, 0x52, 0x65, 0x77, 0x61, 0x72, 0x64,
+	0x50, 0x65, 0x72, 0x63, 0x65, 0x6e, 0x74, 0x61, 0x67, 0x65, 0x52, 0x10, 0x72, 0x65, 0x77, 0x61,
+	0x72, 0x64, 0x50, 0x65, 0x72, 0x63, 0x65, 0x6e, 0x74, 0x61, 0x67, 0x65, 0x12, 0x5f, 0x0a, 0x19,
+	0x69, 0x6e, 0x61, 0x63, 0x74, 0x69, 0x76, 0x65, 0x5f, 0x70, 0x65, 0x6e, 0x61, 0x6c, 0x74, 0x79,
+	0x5f, 0x64, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32,
 	0x19, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75,
 	0x66, 0x2e, 0x44, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x42, 0x08, 0xc8, 0xde, 0x1f, 0x00,
-	0x98, 0xdf, 0x1f, 0x01, 0x52, 0x15, 0x6d, 0x61, 0x78, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74,
-	0x69, 0x6f, 0x6e, 0x44, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x5d, 0x0a, 0x03, 0x66,
-	0x65, 0x65, 0x18, 0x05, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f,
-	0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43,
-	0x6f, 0x69, 0x6e, 0x42, 0x30, 0xc8, 0xde, 0x1f, 0x00, 0xaa, 0xdf, 0x1f, 0x28, 0x67, 0x69, 0x74,
-	0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x63,
-	0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2d, 0x73, 0x64, 0x6b, 0x2f, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e,
-	0x43, 0x6f, 0x69, 0x6e, 0x73, 0x52, 0x03, 0x66, 0x65, 0x65, 0x3a, 0x04, 0xe8, 0xa0, 0x1f, 0x01,
-	0x42, 0xe4, 0x01, 0x0a, 0x18, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61,
-	0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x0c, 0x47,
-	0x65, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x48, 0x67,
-	0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f,
-	0x61, 0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73,
-	0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x42, 0x42, 0x58, 0xaa, 0x02, 0x14,
-	0x42, 0x61, 0x6e, 0x64, 0x2e, 0x42, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x56, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x14, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x42, 0x61, 0x6e, 0x64,
-	0x74, 0x73, 0x73, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02, 0x20, 0x42, 0x61,
-	0x6e, 0x64, 0x5c, 0x42, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02,
-	0x16, 0x42, 0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x42, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x3a, 0x3a,
-	0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x98, 0xdf, 0x1f, 0x01, 0x52, 0x17, 0x69, 0x6e, 0x61, 0x63, 0x74, 0x69, 0x76, 0x65, 0x50, 0x65,
+	0x6e, 0x61, 0x6c, 0x74, 0x79, 0x44, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x5b, 0x0a,
+	0x17, 0x6d, 0x61, 0x78, 0x5f, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x5f,
+	0x64, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19,
+	0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66,
+	0x2e, 0x44, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x42, 0x08, 0xc8, 0xde, 0x1f, 0x00, 0x98,
+	0xdf, 0x1f, 0x01, 0x52, 0x15, 0x6d, 0x61, 0x78, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69,
+	0x6f, 0x6e, 0x44, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x5d, 0x0a, 0x03, 0x66, 0x65,
+	0x65, 0x18, 0x04, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73,
+	0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x6f,
+	0x69, 0x6e, 0x42, 0x30, 0xc8, 0xde, 0x1f, 0x00, 0xaa, 0xdf, 0x1f, 0x28, 0x67, 0x69, 0x74, 0x68,
+	0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x63, 0x6f,
+	0x73, 0x6d, 0x6f, 0x73, 0x2d, 0x73, 0x64, 0x6b, 0x2f, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x43,
+	0x6f, 0x69, 0x6e, 0x73, 0x52, 0x03, 0x66, 0x65, 0x65, 0x3a, 0x04, 0xe8, 0xa0, 0x1f, 0x01, 0x42,
+	0xe4, 0x01, 0x0a, 0x18, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61, 0x6e,
+	0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x0c, 0x47, 0x65,
+	0x6e, 0x65, 0x73, 0x69, 0x73, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x48, 0x67, 0x69,
+	0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x61,
+	0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2f,
+	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x76,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x42, 0x42, 0x58, 0xaa, 0x02, 0x14, 0x42,
+	0x61, 0x6e, 0x64, 0x2e, 0x42, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x56, 0x31, 0x62, 0x65,
+	0x74, 0x61, 0x31, 0xca, 0x02, 0x14, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x42, 0x61, 0x6e, 0x64, 0x74,
+	0x73, 0x73, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02, 0x20, 0x42, 0x61, 0x6e,
+	0x64, 0x5c, 0x42, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61,
+	0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x16,
+	0x42, 0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x42, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x3a, 0x3a, 0x56,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1650,16 +1586,17 @@ var file_band_bandtss_v1beta1_genesis_proto_goTypes = []interface{}{
 	(*GenesisState)(nil),        // 0: band.bandtss.v1beta1.GenesisState
 	(*Params)(nil),              // 1: band.bandtss.v1beta1.Params
 	(*Member)(nil),              // 2: band.bandtss.v1beta1.Member
-	(*durationpb.Duration)(nil), // 3: google.protobuf.Duration
-	(*v1beta1.Coin)(nil),        // 4: cosmos.base.v1beta1.Coin
+	(*CurrentGroup)(nil),        // 3: band.bandtss.v1beta1.CurrentGroup
+	(*durationpb.Duration)(nil), // 4: google.protobuf.Duration
+	(*v1beta1.Coin)(nil),        // 5: cosmos.base.v1beta1.Coin
 }
 var file_band_bandtss_v1beta1_genesis_proto_depIdxs = []int32{
 	1, // 0: band.bandtss.v1beta1.GenesisState.params:type_name -> band.bandtss.v1beta1.Params
 	2, // 1: band.bandtss.v1beta1.GenesisState.members:type_name -> band.bandtss.v1beta1.Member
-	3, // 2: band.bandtss.v1beta1.Params.active_duration:type_name -> google.protobuf.Duration
-	3, // 3: band.bandtss.v1beta1.Params.inactive_penalty_duration:type_name -> google.protobuf.Duration
-	3, // 4: band.bandtss.v1beta1.Params.max_transition_duration:type_name -> google.protobuf.Duration
-	4, // 5: band.bandtss.v1beta1.Params.fee:type_name -> cosmos.base.v1beta1.Coin
+	3, // 2: band.bandtss.v1beta1.GenesisState.current_group:type_name -> band.bandtss.v1beta1.CurrentGroup
+	4, // 3: band.bandtss.v1beta1.Params.inactive_penalty_duration:type_name -> google.protobuf.Duration
+	4, // 4: band.bandtss.v1beta1.Params.max_transition_duration:type_name -> google.protobuf.Duration
+	5, // 5: band.bandtss.v1beta1.Params.fee:type_name -> cosmos.base.v1beta1.Coin
 	6, // [6:6] is the sub-list for method output_type
 	6, // [6:6] is the sub-list for method input_type
 	6, // [6:6] is the sub-list for extension type_name

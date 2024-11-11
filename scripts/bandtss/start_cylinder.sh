@@ -64,10 +64,5 @@ bandd tx tss add-grantees $(cylinder keys list -a --home $HOME_PATH) --gas-price
 
 sleep 6
 
-bandd tx bandtss add-grantees $(cylinder keys list -a --home $HOME_PATH) --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain --gas 350000 --from $KEY -b sync -y 
-
-# wait for adding gratees transaction success
-sleep 6
-
 # run cylinder
 cylinder run --home $HOME_PATH
