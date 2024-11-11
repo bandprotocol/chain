@@ -604,10 +604,6 @@ func (s *KeeperTestSuite) TestMsgWithdrawFromTunnel() {
 					deposit,
 				)
 
-				s.bankKeeper.EXPECT().
-					SendCoinsFromModuleToAccount(gomock.Any(), gomock.Any(), types.ModuleName, gomock.Any()).
-					Return(sdkerrors.ErrInsufficientFunds)
-
 				return types.NewMsgWithdrawFromTunnel(
 					1,
 					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(1000))),
