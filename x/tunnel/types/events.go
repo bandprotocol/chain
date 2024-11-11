@@ -17,6 +17,8 @@ const (
 	AttributeKeyParams          = "params"
 	AttributeKeyTunnelID        = "tunnel_id"
 	AttributeKeySequence        = "sequence"
+	AttributeKeyBaseFee         = "base_fee"
+	AttributeKeyRouteFee        = "route_fee"
 	AttributeKeyInterval        = "interval"
 	AttributeKeyRoute           = "route"
 	AttributeKeyEncoder         = "encoder"
