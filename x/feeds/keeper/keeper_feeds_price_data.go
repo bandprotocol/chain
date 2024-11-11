@@ -23,10 +23,7 @@ func (k Keeper) GetFeedsPriceData(
 	var prices []types.SignalPrice
 	for _, signalID := range signalIDs {
 		// Get the price of the signal
-		p, err := k.GetPrice(ctx, signalID)
-		if err != nil {
-			return nil, err
-		}
+		p := k.GetPrice(ctx, signalID)
 
 		// Check if the encoder mode is tick
 		if encoder == types.ENCODER_TICK_ABI {
