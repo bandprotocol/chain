@@ -15,7 +15,7 @@ func (k Keeper) SendTSSPacket(
 	ctx sdk.Context,
 	route *types.TSSRoute,
 	packet types.Packet,
-) (types.PacketContentI, error) {
+) (packetContent types.PacketContentI, fee sdk.Coins, err error) {
 	tunnel := k.MustGetTunnel(ctx, packet.TunnelID)
 	content := types.NewTunnelSignatureOrder(
 		packet,
@@ -42,15 +42,21 @@ func (k Keeper) SendTSSPacket(
 		feeLimits,
 	)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Set the packet content
-	packetContent := types.TSSPacketContent{
+	packetContent = &types.TSSPacketContent{
 		SigningID:                  signingID,
 		DestinationChainID:         route.DestinationChainID,
 		DestinationContractAddress: route.DestinationContractAddress,
 	}
 
-	return &packetContent, nil
+	// TODO: return the actual fee that using in the route if possible
+	fee, err = route.Fee()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return packetContent, fee, nil
 }

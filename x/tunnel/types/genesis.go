@@ -1,6 +1,10 @@
 package types
 
-import "fmt"
+import (
+	"fmt"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
 
 // NewGenesisState creates a new GenesisState instanc e
 func NewGenesisState(
@@ -32,15 +36,15 @@ func ValidateGenesis(data GenesisState) error {
 	}
 
 	// validate the tunnel IDs
-	tunnelIDMap := make(map[uint64]bool)
+	tunnelIDs := make(map[uint64]bool)
 	for _, t := range data.Tunnels {
 		if t.ID > data.TunnelCount {
 			return ErrInvalidGenesis.Wrapf("tunnel count mismatch in tunnels")
 		}
-		if _, exists := tunnelIDMap[t.ID]; exists {
+		if _, exists := tunnelIDs[t.ID]; exists {
 			return ErrInvalidGenesis.Wrapf("duplicate tunnel ID found: %d", t.ID)
 		}
-		tunnelIDMap[t.ID] = true
+		tunnelIDs[t.ID] = true
 	}
 
 	// validate the latest signal prices count
@@ -49,8 +53,36 @@ func ValidateGenesis(data GenesisState) error {
 	}
 
 	// validate latest signal prices
-	if err := validateLastSignalPricesList(data.Tunnels, data.LatestSignalPricesList); err != nil {
+	if err := validateLastestSignalPricesList(data.Tunnels, data.LatestSignalPricesList); err != nil {
 		return ErrInvalidGenesis.Wrapf("invalid latest signal prices: %s", err.Error())
+	}
+
+	// validate no duplicated deposits
+	type depositKey struct {
+		TunnelID  uint64
+		Depositor string
+	}
+	deposits := make(map[depositKey]bool)
+	tunnelDeposit := make(map[uint64]sdk.Coins)
+	for _, d := range data.Deposits {
+		if _, ok := tunnelIDs[d.TunnelID]; !ok {
+			return ErrInvalidGenesis.Wrapf("deposit has non-existent tunnel id: %d, deposit: %+v", d.TunnelID, d)
+		}
+
+		dk := depositKey{d.TunnelID, d.Depositor}
+		if _, ok := deposits[dk]; ok {
+			return ErrInvalidGenesis.Wrapf("duplicate deposit: %v", d)
+		}
+
+		deposits[dk] = true
+		tunnelDeposit[d.TunnelID] = tunnelDeposit[d.TunnelID].Add(d.Amount...)
+	}
+
+	// validate total deposit on tunnels with deposits
+	for _, t := range data.Tunnels {
+		if !t.TotalDeposit.Equal(tunnelDeposit[t.ID]) {
+			return ErrInvalidGenesis.Wrapf("deposits mismatch total deposit for tunnel %d", t.ID)
+		}
 	}
 
 	// validate the total fees
@@ -69,8 +101,8 @@ func (tf TotalFees) Validate() error {
 	return nil
 }
 
-// validateLastSignalPricesList validates the latest signal prices list.
-func validateLastSignalPricesList(
+// validateLastestSignalPricesList validates the latest signal prices list.
+func validateLastestSignalPricesList(
 	tunnels []Tunnel,
 	latestSignalPricesList []LatestSignalPrices,
 ) error {

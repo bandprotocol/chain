@@ -23,7 +23,7 @@ func GenerateNewSignalPrices(
 		// get current price from the feed, if not found, set price to 0
 		price := uint64(0)
 		feedPrice, ok := currentFeedsPricesMap[sp.SignalID]
-		if ok && feedPrice.PriceStatus == feedstypes.PriceStatusAvailable {
+		if ok && feedPrice.Status == feedstypes.PriceStatusAvailable {
 			price = feedPrice.Price
 		}
 		newPrice := sdkmath.NewIntFromUint64(price)

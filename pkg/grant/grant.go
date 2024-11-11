@@ -26,7 +26,7 @@ func AddGranteeCmd(msgGrants []string, flagExpiration string) func(cmd *cobra.Co
 		expTime := time.Unix(exp, 0)
 
 		granter := clientCtx.GetFromAddress()
-		msgs := []sdk.Msg{}
+		msgs := make([]sdk.Msg, 0, len(args)*len(msgGrants))
 
 		for _, arg := range args {
 			grantee, err := sdk.AccAddressFromBech32(arg)
@@ -54,7 +54,7 @@ func RemoveGranteeCmd(msgRevokes []string) func(cmd *cobra.Command, args []strin
 		}
 
 		granter := clientCtx.GetFromAddress()
-		msgs := []sdk.Msg{}
+		msgs := make([]sdk.Msg, 0, len(args)*len(msgRevokes))
 
 		for _, arg := range args {
 			grantee, err := sdk.AccAddressFromBech32(arg)
@@ -80,7 +80,7 @@ func combineGrantMsgs(
 	msgGrants []string,
 	expiration *time.Time,
 ) ([]sdk.Msg, error) {
-	msgs := []sdk.Msg{}
+	msgs := make([]sdk.Msg, 0, len(msgGrants))
 
 	for _, msgGrant := range msgGrants {
 		msg, err := authz.NewMsgGrant(
@@ -101,7 +101,7 @@ func combineGrantMsgs(
 
 // combineRevokeMsgs combines multiple revoke messages into a single slice of messages.
 func combineRevokeMsgs(granter sdk.AccAddress, grantee sdk.AccAddress, msgRevokes []string) ([]sdk.Msg, error) {
-	msgs := []sdk.Msg{}
+	msgs := make([]sdk.Msg, 0, len(msgRevokes))
 
 	for _, msgRevoke := range msgRevokes {
 		msg := authz.NewMsgRevoke(
