@@ -46,6 +46,14 @@ func (m *MsgSubmitSignalPrices) ValidateBasic() error {
 	signalIDSet := make(map[string]struct{})
 
 	for _, signalPrice := range m.SignalPrices {
+		// Validate SignalPrice Status
+		if signalPrice.Status == SignalPriceStatusUnspecified {
+			return sdkerrors.ErrInvalidRequest.Wrap(
+				"signal price status must be specified",
+			)
+		}
+
+		// if signal price is not available, price must be 0
 		if signalPrice.Status != SignalPriceStatusAvailable && signalPrice.Price != 0 {
 			return sdkerrors.ErrInvalidRequest.Wrap(
 				"signal price must be initial value if price status is unsupported or unavailable",
