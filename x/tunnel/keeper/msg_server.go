@@ -28,25 +28,26 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 // CreateTunnel creates a new tunnel.
 func (ms msgServer) CreateTunnel(
 	goCtx context.Context,
-	req *types.MsgCreateTunnel,
+	msg *types.MsgCreateTunnel,
 ) (*types.MsgCreateTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// validate signal infos and interval
 	params := ms.Keeper.GetParams(ctx)
-	if len(req.SignalDeviations) > int(params.MaxSignals) {
+	if len(msg.SignalDeviations) > int(params.MaxSignals) {
 		return nil, types.ErrMaxSignalsExceeded
 	}
-	if req.Interval < params.MinInterval {
+
+	if msg.Interval < params.MinInterval {
 		return nil, types.ErrIntervalTooLow
 	}
 
-	creator, err := sdk.AccAddressFromBech32(req.Creator)
+	creator, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
 		return nil, err
 	}
 
-	route, ok := req.Route.GetCachedValue().(types.RouteI)
+	route, ok := msg.Route.GetCachedValue().(types.RouteI)
 	if !ok {
 		return nil, errors.New("cannot create tunnel, failed to convert proto Any to routeI")
 	}
@@ -55,9 +56,9 @@ func (ms msgServer) CreateTunnel(
 	tunnel, err := ms.Keeper.AddTunnel(
 		ctx,
 		route,
-		req.Encoder,
-		req.SignalDeviations,
-		req.Interval,
+		msg.Encoder,
+		msg.SignalDeviations,
+		msg.Interval,
 		creator,
 	)
 	if err != nil {
@@ -65,31 +66,11 @@ func (ms msgServer) CreateTunnel(
 	}
 
 	// Deposit the initial deposit to the tunnel
-	if !req.InitialDeposit.IsZero() {
-		if err := ms.Keeper.AddDeposit(ctx, tunnel.ID, creator, req.InitialDeposit); err != nil {
+	if !msg.InitialDeposit.IsZero() {
+		if err := ms.Keeper.DepositToTunnel(ctx, tunnel.ID, creator, msg.InitialDeposit); err != nil {
 			return nil, err
 		}
 	}
-
-	// Emit an event
-	event := sdk.NewEvent(
-		types.EventTypeCreateTunnel,
-		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
-		sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", tunnel.Interval)),
-		sdk.NewAttribute(types.AttributeKeyRoute, tunnel.Route.String()),
-		sdk.NewAttribute(types.AttributeKeyEncoder, tunnel.Encoder.String()),
-		sdk.NewAttribute(types.AttributeKeyInitialDeposit, req.InitialDeposit.String()),
-		sdk.NewAttribute(types.AttributeKeyFeePayer, tunnel.FeePayer),
-		sdk.NewAttribute(types.AttributeKeyIsActive, fmt.Sprintf("%t", tunnel.IsActive)),
-		sdk.NewAttribute(types.AttributeKeyCreatedAt, fmt.Sprintf("%d", tunnel.CreatedAt)),
-		sdk.NewAttribute(types.AttributeKeyCreator, tunnel.Creator),
-	)
-	for _, sd := range req.SignalDeviations {
-		event = event.AppendAttributes(
-			sdk.NewAttribute(types.AttributeKeySignalDeviation, sd.String()),
-		)
-	}
-	ctx.EventManager().EmitEvent(event)
 
 	return &types.MsgCreateTunnelResponse{
 		TunnelID: tunnel.ID,
@@ -99,29 +80,29 @@ func (ms msgServer) CreateTunnel(
 // UpdateAndResetTunnel edits a tunnel and reset latest signal price interval.
 func (ms msgServer) UpdateAndResetTunnel(
 	goCtx context.Context,
-	req *types.MsgUpdateAndResetTunnel,
+	msg *types.MsgUpdateAndResetTunnel,
 ) (*types.MsgUpdateAndResetTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// validate signal infos and interval
 	params := ms.Keeper.GetParams(ctx)
-	if len(req.SignalDeviations) > int(params.MaxSignals) {
+	if len(msg.SignalDeviations) > int(params.MaxSignals) {
 		return nil, types.ErrMaxSignalsExceeded
 	}
-	if req.Interval < params.MinInterval {
+	if msg.Interval < params.MinInterval {
 		return nil, types.ErrIntervalTooLow
 	}
 
-	tunnel, err := ms.Keeper.GetTunnel(ctx, req.TunnelID)
+	tunnel, err := ms.Keeper.GetTunnel(ctx, msg.TunnelID)
 	if err != nil {
 		return nil, err
 	}
 
-	if req.Creator != tunnel.Creator {
-		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", req.Creator, req.TunnelID)
+	if msg.Creator != tunnel.Creator {
+		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", msg.Creator, msg.TunnelID)
 	}
 
-	err = ms.Keeper.UpdateAndResetTunnel(ctx, req.TunnelID, req.SignalDeviations, req.Interval)
+	err = ms.Keeper.UpdateAndResetTunnel(ctx, msg.TunnelID, msg.SignalDeviations, msg.Interval)
 	if err != nil {
 		return nil, err
 	}
@@ -132,26 +113,26 @@ func (ms msgServer) UpdateAndResetTunnel(
 // Activate activates a tunnel.
 func (ms msgServer) Activate(
 	goCtx context.Context,
-	req *types.MsgActivate,
+	msg *types.MsgActivate,
 ) (*types.MsgActivateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	tunnel, err := ms.Keeper.GetTunnel(ctx, req.TunnelID)
+	tunnel, err := ms.Keeper.GetTunnel(ctx, msg.TunnelID)
 	if err != nil {
 		return nil, err
 	}
 
 	// check if the creator is the same
-	if req.Creator != tunnel.Creator {
-		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", req.Creator, req.TunnelID)
+	if msg.Creator != tunnel.Creator {
+		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", msg.Creator, msg.TunnelID)
 	}
 
 	// check if the tunnel is already active
 	if tunnel.IsActive {
-		return nil, types.ErrAlreadyActive.Wrapf("tunnelID %d", req.TunnelID)
+		return nil, types.ErrAlreadyActive.Wrapf("tunnelID %d", msg.TunnelID)
 	}
 
-	if err := ms.Keeper.ActivateTunnel(ctx, req.TunnelID); err != nil {
+	if err := ms.Keeper.ActivateTunnel(ctx, msg.TunnelID); err != nil {
 		return nil, err
 	}
 
@@ -161,24 +142,24 @@ func (ms msgServer) Activate(
 // Deactivate deactivates a tunnel.
 func (ms msgServer) Deactivate(
 	goCtx context.Context,
-	req *types.MsgDeactivate,
+	msg *types.MsgDeactivate,
 ) (*types.MsgDeactivateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	tunnel, err := ms.Keeper.GetTunnel(ctx, req.TunnelID)
+	tunnel, err := ms.Keeper.GetTunnel(ctx, msg.TunnelID)
 	if err != nil {
 		return nil, err
 	}
 
-	if req.Creator != tunnel.Creator {
-		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", req.Creator, req.TunnelID)
+	if msg.Creator != tunnel.Creator {
+		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", msg.Creator, msg.TunnelID)
 	}
 
 	if !tunnel.IsActive {
-		return nil, types.ErrAlreadyInactive.Wrapf("tunnelID %d", req.TunnelID)
+		return nil, types.ErrAlreadyInactive.Wrapf("tunnelID %d", msg.TunnelID)
 	}
 
-	if err := ms.Keeper.DeactivateTunnel(ctx, req.TunnelID); err != nil {
+	if err := ms.Keeper.DeactivateTunnel(ctx, msg.TunnelID); err != nil {
 		return nil, err
 	}
 
@@ -188,31 +169,34 @@ func (ms msgServer) Deactivate(
 // TriggerTunnel manually triggers a tunnel.
 func (ms msgServer) TriggerTunnel(
 	goCtx context.Context,
-	req *types.MsgTriggerTunnel,
+	msg *types.MsgTriggerTunnel,
 ) (*types.MsgTriggerTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	tunnel, err := ms.Keeper.GetTunnel(ctx, req.TunnelID)
+	tunnel, err := ms.Keeper.GetTunnel(ctx, msg.TunnelID)
 	if err != nil {
 		return nil, err
 	}
-	if req.Creator != tunnel.Creator {
+
+	if msg.Creator != tunnel.Creator {
 		return nil, types.ErrInvalidTunnelCreator.Wrapf(
 			"creator %s, tunnelID %d",
-			req.Creator,
-			req.TunnelID,
+			msg.Creator,
+			msg.TunnelID,
 		)
 	}
+
 	if !tunnel.IsActive {
-		return nil, types.ErrInactiveTunnel.Wrapf("tunnelID %d", req.TunnelID)
+		return nil, types.ErrInactiveTunnel.Wrapf("tunnelID %d", msg.TunnelID)
 	}
 
 	ok, err := ms.Keeper.HasEnoughFundToCreatePacket(ctx, tunnel.ID)
 	if err != nil {
 		return nil, err
 	}
+
 	if !ok {
-		return nil, types.ErrInsufficientFund.Wrapf("tunnelID %d", req.TunnelID)
+		return nil, types.ErrInsufficientFund.Wrapf("tunnelID %d", msg.TunnelID)
 	}
 
 	signalIDs := tunnel.GetSignalIDs()
@@ -251,74 +235,74 @@ func (ms msgServer) TriggerTunnel(
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeTriggerTunnel,
-		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", req.TunnelID)),
-		sdk.NewAttribute(types.AttributeKeySequence, fmt.Sprintf("%d", tunnel.Sequence)),
+		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", packet.TunnelID)),
+		sdk.NewAttribute(types.AttributeKeySequence, fmt.Sprintf("%d", packet.Sequence)),
 	))
 
 	return &types.MsgTriggerTunnelResponse{}, nil
 }
 
-// DepositTunnel adds deposit to the tunnel.
-func (ms msgServer) DepositTunnel(
+// DepositToTunnel adds deposit to the tunnel.
+func (ms msgServer) DepositToTunnel(
 	goCtx context.Context,
-	req *types.MsgDepositTunnel,
-) (*types.MsgDepositTunnelResponse, error) {
+	msg *types.MsgDepositToTunnel,
+) (*types.MsgDepositToTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	depositor, err := sdk.AccAddressFromBech32(req.Depositor)
+	depositor, err := sdk.AccAddressFromBech32(msg.Depositor)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := ms.Keeper.AddDeposit(ctx, req.TunnelID, depositor, req.Amount); err != nil {
+	if err := ms.Keeper.DepositToTunnel(ctx, msg.TunnelID, depositor, msg.Amount); err != nil {
 		return nil, err
 	}
 
-	return &types.MsgDepositTunnelResponse{}, nil
+	return &types.MsgDepositToTunnelResponse{}, nil
 }
 
-// WithdrawTunnel withdraws deposit from the tunnel.
-func (ms msgServer) WithdrawTunnel(
+// WithdrawFromTunnel withdraws deposit from the tunnel.
+func (ms msgServer) WithdrawFromTunnel(
 	goCtx context.Context,
-	req *types.MsgWithdrawTunnel,
-) (*types.MsgWithdrawTunnelResponse, error) {
+	msg *types.MsgWithdrawFromTunnel,
+) (*types.MsgWithdrawFromTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	withdrawer, err := sdk.AccAddressFromBech32(req.Withdrawer)
+	withdrawer, err := sdk.AccAddressFromBech32(msg.Withdrawer)
 	if err != nil {
 		return nil, err
 	}
 
 	// Withdraw the deposit from the tunnel
-	if err := ms.Keeper.WithdrawDeposit(ctx, req.TunnelID, req.Amount, withdrawer); err != nil {
+	if err := ms.Keeper.WithdrawFromTunnel(ctx, msg.TunnelID, msg.Amount, withdrawer); err != nil {
 		return nil, err
 	}
 
-	return &types.MsgWithdrawTunnelResponse{}, nil
+	return &types.MsgWithdrawFromTunnelResponse{}, nil
 }
 
 // UpdateParams updates the module params.
 func (ms msgServer) UpdateParams(
 	goCtx context.Context,
-	req *types.MsgUpdateParams,
+	msg *types.MsgUpdateParams,
 ) (*types.MsgUpdateParamsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if ms.authority != req.Authority {
+	if ms.authority != msg.Authority {
 		return nil, govtypes.ErrInvalidSigner.Wrapf(
 			"invalid authority; expected %s, got %s",
 			ms.authority,
-			req.Authority,
+			msg.Authority,
 		)
 	}
 
-	if err := ms.SetParams(ctx, req.Params); err != nil {
+	if err := ms.SetParams(ctx, msg.Params); err != nil {
 		return nil, err
 	}
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeUpdateParams,
-		sdk.NewAttribute(types.AttributeKeyParams, req.Params.String()),
+		sdk.NewAttribute(types.AttributeKeyParams, msg.Params.String()),
 	))
 
 	return &types.MsgUpdateParamsResponse{}, nil

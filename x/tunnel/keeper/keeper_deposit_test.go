@@ -22,7 +22,7 @@ func (s *KeeperTestSuite) TestAddDeposit() {
 	tunnel := types.Tunnel{ID: tunnelID, TotalDeposit: sdk.NewCoins()}
 	k.SetTunnel(ctx, tunnel)
 
-	err := k.AddDeposit(ctx, tunnelID, depositorAddr, depositAmount)
+	err := k.DepositToTunnel(ctx, tunnelID, depositorAddr, depositAmount)
 	s.Require().NoError(err)
 
 	// check deposit
@@ -98,27 +98,6 @@ func (s *KeeperTestSuite) TestGetAllDeposits() {
 	s.Require().Equal(deposit2, deposits[1])
 }
 
-func (s *KeeperTestSuite) TestGetTotalDeposits() {
-	ctx, k := s.ctx, s.keeper
-
-	tunnelID1 := uint64(1)
-	depositorAddr1 := sdk.AccAddress([]byte("depositor"))
-	depositAmount1 := sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(100)))
-
-	deposit := types.Deposit{TunnelID: tunnelID1, Depositor: depositorAddr1.String(), Amount: depositAmount1}
-	k.SetDeposit(ctx, deposit)
-
-	tunnelID2 := uint64(2)
-	depositorAddr2 := sdk.AccAddress([]byte("depositor2"))
-	depositAmount2 := sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(200)))
-
-	deposit2 := types.Deposit{TunnelID: tunnelID2, Depositor: depositorAddr2.String(), Amount: depositAmount2}
-	k.SetDeposit(ctx, deposit2)
-
-	deposits := k.GetTotalDeposits(ctx)
-	s.Require().Equal(depositAmount1.Add(depositAmount2...), deposits)
-}
-
 func (s *KeeperTestSuite) TestDeleteDeposit() {
 	ctx, k := s.ctx, s.keeper
 
@@ -135,7 +114,7 @@ func (s *KeeperTestSuite) TestDeleteDeposit() {
 	s.Require().False(found)
 }
 
-func (s *KeeperTestSuite) TestWithdrawDeposit() {
+func (s *KeeperTestSuite) TestWithdrawFromDeposit() {
 	ctx, k := s.ctx, s.keeper
 
 	tunnelID := uint64(1)
@@ -158,7 +137,7 @@ func (s *KeeperTestSuite) TestWithdrawDeposit() {
 	k.SetDeposit(ctx, deposit)
 
 	// partial withdraw
-	err := k.WithdrawDeposit(ctx, tunnelID, firstWithdraw, depositorAddr)
+	err := k.WithdrawFromTunnel(ctx, tunnelID, firstWithdraw, depositorAddr)
 	s.Require().NoError(err)
 
 	// check tunnel's total deposit
@@ -167,7 +146,7 @@ func (s *KeeperTestSuite) TestWithdrawDeposit() {
 	s.Require().Equal(deposit.Amount.Sub(firstWithdraw...), tunnel.TotalDeposit)
 
 	// withdraw all
-	err = k.WithdrawDeposit(ctx, tunnelID, secondWithdraw, depositorAddr)
+	err = k.WithdrawFromTunnel(ctx, tunnelID, secondWithdraw, depositorAddr)
 	s.Require().NoError(err)
 
 	// check tunnel's total deposit
