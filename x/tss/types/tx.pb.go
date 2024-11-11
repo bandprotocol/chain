@@ -849,7 +849,7 @@ type MsgClient interface {
 	SubmitDEs(ctx context.Context, in *MsgSubmitDEs, opts ...grpc.CallOption) (*MsgSubmitDEsResponse, error)
 	// SubmitSignature submits signature on task participant need to do.
 	SubmitSignature(ctx context.Context, in *MsgSubmitSignature, opts ...grpc.CallOption) (*MsgSubmitSignatureResponse, error)
-	// UpdateParams defines a governance operation for updating the x/mint module
+	// UpdateParams defines a governance operation for updating the x/tss module
 	// parameters.
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
 }
@@ -939,7 +939,7 @@ type MsgServer interface {
 	SubmitDEs(context.Context, *MsgSubmitDEs) (*MsgSubmitDEsResponse, error)
 	// SubmitSignature submits signature on task participant need to do.
 	SubmitSignature(context.Context, *MsgSubmitSignature) (*MsgSubmitSignatureResponse, error)
-	// UpdateParams defines a governance operation for updating the x/mint module
+	// UpdateParams defines a governance operation for updating the x/tss module
 	// parameters.
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
 }

@@ -107,16 +107,16 @@ func (s *Submitter) Start() {
 }
 
 func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID string) {
-	prices, uuid := pricesSubmission.SignalPrices, pricesSubmission.UUID
+	signalPrices, uuid := pricesSubmission.SignalPrices, pricesSubmission.UUID
 	defer func() {
-		s.removePending(prices)
+		s.removePending(signalPrices)
 		s.idleKeyIDChannel <- keyID
 	}()
 
 	msg := types.MsgSubmitSignalPrices{
-		Validator: s.valAddress.String(),
-		Timestamp: time.Now().Unix(),
-		Prices:    prices,
+		Validator:    s.valAddress.String(),
+		Timestamp:    time.Now().Unix(),
+		SignalPrices: signalPrices,
 	}
 	msgs := []sdk.Msg{&msg}
 	memo := fmt.Sprintf("grogu: %s, uuid: %s", version.Version, uuid)

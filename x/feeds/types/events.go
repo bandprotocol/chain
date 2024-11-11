@@ -7,10 +7,10 @@ const (
 	EventTypeUpdateSignalTotalPower      = "update_signal_total_power"
 	EventTypeDeleteSignalTotalPower      = "delete_signal_total_power"
 	EventTypeUpdateCurrentFeeds          = "update_current_feeds"
-	EventTypeCalculatePriceFailed        = "calculate_price_failed"
 	EventTypeUpdateReferenceSourceConfig = "update_reference_source_config"
 	EventTypeUpdateParams                = "update_params"
 
+	AttributeKeySignalPriceStatus   = "signal_price_status"
 	AttributeKeyPriceStatus         = "price_status"
 	AttributeKeyValidator           = "validator"
 	AttributeKeyPrice               = "price"
