@@ -53,8 +53,8 @@ message MsgSubmitSignalPrices {
   // timestamp is the timestamp used as reference for the data.
   int64 timestamp = 2;
 
-  // prices is a list of signal prices to submit.
-  repeated SignalPrice prices = 3 [(gogoproto.nullable) = false];
+  // signal_prices is a list of signal prices to submit.
+  repeated SignalPrice signal_prices = 3 [(gogoproto.nullable) = false];
 }
 
 // MsgSubmitSignalPricesResponse is the response type for the Msg/SubmitSignalPrices RPC method.

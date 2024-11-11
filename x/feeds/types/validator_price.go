@@ -7,17 +7,17 @@ import (
 // NewValidatorPrice creates new ValidatorPrice.
 func NewValidatorPrice(
 	val sdk.ValAddress,
-	price SignalPrice,
+	signalPrice SignalPrice,
 	blockTime int64,
 	blockHeight int64,
 ) ValidatorPrice {
 	return ValidatorPrice{
-		PriceStatus: price.PriceStatus,
-		Validator:   val.String(),
-		SignalID:    price.SignalID,
-		Price:       price.Price,
-		Timestamp:   blockTime,
-		BlockHeight: blockHeight,
+		SignalPriceStatus: signalPrice.Status,
+		Validator:         val.String(),
+		SignalID:          signalPrice.SignalID,
+		Price:             signalPrice.Price,
+		Timestamp:         blockTime,
+		BlockHeight:       blockHeight,
 	}
 }
 

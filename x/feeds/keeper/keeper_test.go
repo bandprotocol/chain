@@ -99,38 +99,6 @@ func (suite *KeeperTestSuite) SetupTest() {
 		GetValidator(gomock.Any(), gomock.Eq(InvalidValidator)).
 		Return(stakingtypes.Validator{Status: stakingtypes.Unbonded}, nil).
 		AnyTimes()
-	stakingKeeper.EXPECT().
-		IterateBondedValidatorsByPower(gomock.Any(), gomock.Any()).
-		DoAndReturn(func(ctx sdk.Context, fn func(index int64, validator stakingtypes.ValidatorI) bool) error {
-			vals := []stakingtypes.Validator{
-				{
-					OperatorAddress: ValidValidator.String(),
-					Tokens:          math.NewInt(5000),
-				},
-				{
-					OperatorAddress: ValidValidator2.String(),
-					Tokens:          math.NewInt(3000),
-				},
-				{
-					OperatorAddress: ValidValidator3.String(),
-					Tokens:          math.NewInt(3000),
-				},
-			}
-
-			for i, val := range vals {
-				stop := fn(int64(i), val)
-				if stop {
-					break
-				}
-			}
-
-			return nil
-		}).
-		AnyTimes()
-	stakingKeeper.EXPECT().
-		TotalBondedTokens(gomock.Any()).
-		Return(math.NewInt(11000), nil).
-		AnyTimes()
 
 	suite.stakingKeeper = stakingKeeper
 

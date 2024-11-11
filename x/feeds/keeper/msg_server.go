@@ -100,8 +100,8 @@ func (ms msgServer) SubmitSignalPrices(
 	blockTime := ctx.BlockTime().Unix()
 	blockHeight := ctx.BlockHeight()
 
-	// check if the number of prices exceeds the maximum allowed feeds
-	if len(req.Prices) > int(ms.Keeper.GetParams(ctx).MaxCurrentFeeds) {
+	// check if the number of signal prices exceeds the maximum allowed feeds
+	if len(req.SignalPrices) > int(ms.Keeper.GetParams(ctx).MaxCurrentFeeds) {
 		return nil, types.ErrSignalPricesTooLarge
 	}
 
@@ -143,22 +143,23 @@ func (ms msgServer) SubmitSignalPrices(
 	}
 
 	cooldownTime := ms.GetParams(ctx).CooldownTime
-	for _, price := range req.Prices {
-		idx, ok := currentFeedsMap[price.SignalID]
+	for _, signalPrice := range req.SignalPrices {
+		idx, ok := currentFeedsMap[signalPrice.SignalID]
 		if !ok {
 			return nil, types.ErrSignalIDNotSupported.Wrapf(
 				"signal_id: %s",
-				price.SignalID,
+				signalPrice.SignalID,
 			)
 		}
 
 		// check if price is not too fast
 		valPrice := valPrices[idx]
-		if valPrice.PriceStatus != types.PriceStatusUnspecified && blockTime < valPrice.Timestamp+cooldownTime {
+		if valPrice.SignalPriceStatus != types.SignalPriceStatusUnspecified &&
+			blockTime < valPrice.Timestamp+cooldownTime {
 			return nil, types.ErrPriceSubmitTooEarly
 		}
 
-		valPrice = types.NewValidatorPrice(val, price, blockTime, blockHeight)
+		valPrice = types.NewValidatorPrice(val, signalPrice, blockTime, blockHeight)
 		valPrices[idx] = valPrice
 		emitEventSubmitSignalPrice(ctx, valPrice)
 	}
