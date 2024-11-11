@@ -47,7 +47,6 @@ func (s *SignallerTestSuite) SetupTest() {
 		Return(&feeds.QueryValidatorPricesResponse{ValidatorPrices: []feeds.ValidatorPrice{
 			{
 				SignalPriceStatus: feeds.SignalPriceStatusAvailable,
-				Validator:         validAddress.String(),
 				SignalID:          "signal1",
 				Price:             10000,
 				Timestamp:         0,

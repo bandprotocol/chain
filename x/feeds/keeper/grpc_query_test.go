@@ -224,13 +224,11 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 
 	valPrices := []types.ValidatorPrice{
 		{
-			Validator: ValidValidator.String(),
 			SignalID:  "CS:ATOM-USD",
 			Price:     1e9,
 			Timestamp: ctx.BlockTime().Unix(),
 		},
 		{
-			Validator: ValidValidator.String(),
 			SignalID:  "CS:BAND-USD",
 			Price:     1e9,
 			Timestamp: ctx.BlockTime().Unix(),

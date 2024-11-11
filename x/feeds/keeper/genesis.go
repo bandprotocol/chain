@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"sort"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v3/x/feeds/types"
@@ -14,7 +16,7 @@ func (k Keeper) InitGenesis(ctx sdk.Context, genState types.GenesisState) {
 
 	k.SetVotes(ctx, genState.Votes)
 
-	signalTotalPowers := k.CalculateNewSignalTotalPowers(ctx)
+	signalTotalPowers := CalculateSignalTotalPowersFromVotes(genState.Votes)
 	k.SetSignalTotalPowers(ctx, signalTotalPowers)
 
 	feeds := k.CalculateNewCurrentFeeds(ctx)
@@ -32,4 +34,30 @@ func (k Keeper) ExportGenesis(ctx sdk.Context) *types.GenesisState {
 		k.GetVotes(ctx),
 		k.GetReferenceSourceConfig(ctx),
 	)
+}
+
+// CalculateSignalTotalPowersFromVotes calculates the new signal-total-powers from the given votes using on init genesis process.
+func CalculateSignalTotalPowersFromVotes(votes []types.Vote) []types.Signal {
+	signalIDToPower := make(map[string]int64)
+	for _, v := range votes {
+		for _, signal := range v.Signals {
+			signalIDToPower[signal.ID] += signal.Power
+		}
+	}
+
+	keys := make([]string, 0, len(signalIDToPower))
+	for k := range signalIDToPower {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	signalTotalPowers := []types.Signal{}
+	for _, signalID := range keys {
+		signalTotalPowers = append(signalTotalPowers, types.NewSignal(
+			signalID,
+			signalIDToPower[signalID],
+		))
+	}
+
+	return signalTotalPowers
 }

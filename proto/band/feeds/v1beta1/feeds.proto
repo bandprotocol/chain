@@ -163,20 +163,17 @@ message ValidatorPrice {
   // signal_price_status is the status of a signal price submitted.
   SignalPriceStatus signal_price_status = 1;
 
-  // validator is the validator address.
-  string validator = 2 [(cosmos_proto.scalar) = "cosmos.ValidatorAddressString"];
-
   // signal_id is the signal id of the price.
-  string signal_id = 3 [(gogoproto.customname) = "SignalID"];
+  string signal_id = 2 [(gogoproto.customname) = "SignalID"];
 
   // price is the price submitted by the validator.
-  uint64 price = 4;
+  uint64 price = 3;
 
   // timestamp is the timestamp at which the price was submitted.
-  int64 timestamp = 5;
+  int64 timestamp = 4;
 
   // block_height is the block height at which the price was submitted.
-  int64 block_height = 6;
+  int64 block_height = 5;
 }
 
 // ValidatorPriceList is a structure that holds a list of validator prices of
