@@ -47,6 +47,12 @@ func (m *MsgSubmitSignalPrices) ValidateBasic() error {
 
 	for _, signalPrice := range m.SignalPrices {
 		// Validate SignalPrice Status
+		if _, ok := SignalPriceStatus_name[int32(signalPrice.Status)]; !ok {
+			return sdkerrors.ErrInvalidRequest.Wrapf(
+				"invalid signal price status: %s", signalPrice.Status,
+			)
+		}
+
 		if signalPrice.Status == SignalPriceStatusUnspecified {
 			return sdkerrors.ErrInvalidRequest.Wrap(
 				"signal price status must be specified",
