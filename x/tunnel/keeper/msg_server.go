@@ -274,6 +274,13 @@ func (ms msgServer) DepositTunnel(
 		return nil, err
 	}
 
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeDepositTunnel,
+		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", msg.TunnelID)),
+		sdk.NewAttribute(types.AttributeKeyDepositor, msg.Depositor),
+		sdk.NewAttribute(types.AttributeKeyAmount, msg.Amount.String()),
+	))
+
 	return &types.MsgDepositTunnelResponse{}, nil
 }
 
@@ -293,6 +300,13 @@ func (ms msgServer) WithdrawTunnel(
 	if err := ms.Keeper.WithdrawDeposit(ctx, msg.TunnelID, msg.Amount, withdrawer); err != nil {
 		return nil, err
 	}
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeWithdrawTunnel,
+		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", msg.TunnelID)),
+		sdk.NewAttribute(types.AttributeKeyWithdrawer, msg.Withdrawer),
+		sdk.NewAttribute(types.AttributeKeyAmount, msg.Amount.String()),
+	))
 
 	return &types.MsgWithdrawTunnelResponse{}, nil
 }

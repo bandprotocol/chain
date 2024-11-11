@@ -174,7 +174,14 @@ func (k Keeper) CreatePacket(
 	}
 
 	tunnel.Sequence++
-	packet := types.NewPacket(tunnelID, tunnel.Sequence, signalPrices, ctx.BlockTime().Unix())
+	packet := types.NewPacket(
+		tunnelID,
+		tunnel.Sequence,
+		signalPrices,
+		k.GetParams(ctx).BasePacketFee,
+		sdk.Coins{},
+		ctx.BlockTime().Unix(),
+	)
 
 	// update information in the store
 	k.SetTunnel(ctx, tunnel)
@@ -193,9 +200,10 @@ func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) error {
 	// get the packet content, which is the information receiving after
 	// sending packet to the destination route
 	var content types.PacketContentI
+	var fee sdk.Coins
 	switch r := tunnel.Route.GetCachedValue().(type) {
 	case *types.TSSRoute:
-		content, err = k.SendTSSPacket(ctx, r, packet)
+		content, fee, err = k.SendTSSPacket(ctx, r, packet)
 	default:
 		return types.ErrInvalidRoute.Wrapf("no route found for tunnel ID: %d", tunnel.ID)
 	}
@@ -205,11 +213,22 @@ func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) error {
 		return err
 	}
 
+	// set the route fee
+	packet.RouteFee = fee
+
 	// set the packet content
 	if err := packet.SetPacketContent(content); err != nil {
 		return sdkerrors.Wrapf(err, "failed to set packet content for tunnel ID: %d", tunnel.ID)
 	}
+
 	k.SetPacket(ctx, packet)
+
+	// emit an event
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeSendPacket,
+		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
+		sdk.NewAttribute(types.AttributeKeySequence, fmt.Sprintf("%d", packet.Sequence)),
+	))
 
 	return nil
 }

@@ -2,6 +2,7 @@ package types
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 var _ types.UnpackInterfacesMessage = Packet{}
@@ -10,6 +11,8 @@ func NewPacket(
 	tunnelID uint64,
 	sequence uint64,
 	signalPrices []SignalPrice,
+	baseFee sdk.Coins,
+	routeFee sdk.Coins,
 	createdAt int64,
 ) Packet {
 	return Packet{
@@ -17,6 +20,8 @@ func NewPacket(
 		Sequence:      sequence,
 		SignalPrices:  signalPrices,
 		PacketContent: nil,
+		BaseFee:       baseFee,
+		RouteFee:      routeFee,
 		CreatedAt:     createdAt,
 	}
 }

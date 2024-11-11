@@ -8,8 +8,11 @@ const (
 	EventTypeActivateTunnel       = "activate_tunnel"
 	EventTypeDeactivateTunnel     = "deactivate_tunnel"
 	EventTypeTriggerTunnel        = "trigger_tunnel"
+	EventTypeSendPacket           = "send_packet"
 	EventTypeProducePacketFail    = "produce_packet_fail"
 	EventTypeProducePacketSuccess = "produce_packet_success"
+	EventTypeDepositTunnel        = "deposit_tunnel"
+	EventTypeWithdrawTunnel       = "withdraw_tunnel"
 
 	AttributeKeyParams          = "params"
 	AttributeKeyTunnelID        = "tunnel_id"
@@ -23,5 +26,8 @@ const (
 	AttributeKeyIsActive        = "is_active"
 	AttributeKeyCreatedAt       = "created_at"
 	AttributeKeyCreator         = "creator"
+	AttributeKeyDepositor       = "depositor"
+	AttributeKeyWithdrawer      = "withdrawer"
+	AttributeKeyAmount          = "amount"
 	AttributeKeyReason          = "reason"
 )

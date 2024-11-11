@@ -1,8 +1,6 @@
 package types
 
 import (
-	"fmt"
-
 	"github.com/cosmos/gogoproto/proto"
 
 	"github.com/cosmos/cosmos-sdk/codec/types"
@@ -103,21 +101,6 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 	if !m.InitialDeposit.IsValid() {
 		return sdkerrors.ErrInvalidCoins.Wrapf("invalid initial deposit: %s", m.InitialDeposit)
 	}
-
-	return nil
-}
-
-// SetTunnelRoute sets the route of the tunnel.
-func (m *MsgCreateTunnel) SetTunnelRoute(route RouteI) error {
-	msg, ok := route.(proto.Message)
-	if !ok {
-		return fmt.Errorf("can't proto marshal %T", msg)
-	}
-	any, err := types.NewAnyWithValue(msg)
-	if err != nil {
-		return err
-	}
-	m.Route = any
 
 	return nil
 }

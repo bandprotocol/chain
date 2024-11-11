@@ -66,7 +66,7 @@ func ValidateGenesis(data GenesisState) error {
 	tunnelDeposit := make(map[uint64]sdk.Coins)
 	for _, d := range data.Deposits {
 		if _, ok := tunnelIDs[d.TunnelID]; !ok {
-			return ErrInvalidGenesis.Wrapf("deposit %v has non-existent tunnel id: %d", d, d.TunnelID)
+			return ErrInvalidGenesis.Wrapf("deposit has non-existent tunnel id: %d, deposit: %+v", d.TunnelID, d)
 		}
 
 		dk := depositKey{d.TunnelID, d.Depositor}
