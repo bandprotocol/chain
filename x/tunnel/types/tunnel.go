@@ -88,6 +88,7 @@ func (t Tunnel) GetSignalIDs() []string {
 	return signalIDs
 }
 
+// ValidateEncoder validates the encoder.
 func ValidateEncoder(encoder Encoder) error {
 	if encoder == ENCODER_FIXED_POINT_ABI || encoder == ENCODER_TICK_ABI {
 		return nil
