@@ -35,7 +35,7 @@ The Tunnel module is designed to decentralize the creation of push-based price d
     - [MsgWithdrawFromTunnel](#MsgWithdrawFromTunnel)
   - [Events](#events)
     - [Event: `create_tunnel`](#event-create_tunnel)
-    - [Event: `edit_tunnel`](#event-edit_tunnel)
+    - [Event: `update_and_reset_tunnel`](#event-update_and_reset_tunnel)
     - [Event: `activate`](#event-activate)
     - [Event: `deactivate`](#event-deactivate)
     - [Event: `trigger_tunnel`](#event-trigger_tunnel)
