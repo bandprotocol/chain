@@ -21,6 +21,7 @@ func (suite *KeeperTestSuite) TestGetSetDeletePrice() {
 
 	// set
 	expPrice := types.Price{
+		Status:    types.PriceStatusAvailable,
 		SignalID:  "CS:BAND-USD",
 		Price:     1e10,
 		Timestamp: ctx.BlockTime().Unix(),
@@ -28,8 +29,7 @@ func (suite *KeeperTestSuite) TestGetSetDeletePrice() {
 	suite.feedsKeeper.SetPrice(ctx, expPrice)
 
 	// get
-	price, err := suite.feedsKeeper.GetPrice(ctx, "CS:BAND-USD")
-	suite.Require().NoError(err)
+	price := suite.feedsKeeper.GetPrice(ctx, "CS:BAND-USD")
 	suite.Require().Equal(expPrice, price)
 }
 
@@ -39,11 +39,13 @@ func (suite *KeeperTestSuite) TestGetSetDeletePrices() {
 	// set
 	expPrices := []types.Price{
 		{
+			Status:    types.PriceStatusAvailable,
 			SignalID:  "CS:ATOM-USD",
 			Price:     1e10,
 			Timestamp: ctx.BlockTime().Unix(),
 		},
 		{
+			Status:    types.PriceStatusAvailable,
 			SignalID:  "CS:BAND-USD",
 			Price:     1e10,
 			Timestamp: ctx.BlockTime().Unix(),
@@ -81,14 +83,18 @@ func (suite *KeeperTestSuite) TestGetSetValidatorPriceList() {
 	// set
 	expValPrices := []types.ValidatorPrice{
 		{
-			SignalID:  "CS:BAND-USD",
-			Price:     1e10,
-			Timestamp: ctx.BlockTime().Unix(),
+			SignalPriceStatus: types.SignalPriceStatusAvailable,
+			SignalID:          "CS:BAND-USD",
+			Price:             1e10,
+			Timestamp:         ctx.BlockTime().Unix(),
+			BlockHeight:       ctx.BlockHeight(),
 		},
 		{
-			SignalID:  "CS:ETH-USD",
-			Price:     1e10 + 5,
-			Timestamp: ctx.BlockTime().Unix(),
+			SignalPriceStatus: types.SignalPriceStatusAvailable,
+			SignalID:          "CS:ETH-USD",
+			Price:             1e10 + 5,
+			Timestamp:         ctx.BlockTime().Unix(),
+			BlockHeight:       ctx.BlockHeight(),
 		},
 	}
 	err := suite.feedsKeeper.SetValidatorPriceList(ctx, ValidValidator, expValPrices)
@@ -137,10 +143,11 @@ func (suite *KeeperTestSuite) TestCalculatePrices() {
 				// Set validator prices
 				err := suite.feedsKeeper.SetValidatorPriceList(ctx, ValidValidator, []types.ValidatorPrice{
 					{
-						SignalID:          "CS:BAND-USD",
 						SignalPriceStatus: types.SignalPriceStatusAvailable,
+						SignalID:          "CS:BAND-USD",
 						Price:             1000,
 						Timestamp:         ctx.BlockTime().Unix(),
+						BlockHeight:       ctx.BlockHeight(),
 					},
 				})
 				suite.Require().NoError(err)
@@ -151,6 +158,7 @@ func (suite *KeeperTestSuite) TestCalculatePrices() {
 						SignalPriceStatus: types.SignalPriceStatusAvailable,
 						Price:             2000,
 						Timestamp:         ctx.BlockTime().Unix(),
+						BlockHeight:       ctx.BlockHeight(),
 					},
 				})
 				suite.Require().NoError(err)
@@ -208,7 +216,7 @@ func (suite *KeeperTestSuite) TestCalculatePrices() {
 			} else {
 				suite.Require().NoError(err)
 				for _, expectedPrice := range tt.expectedPrices {
-					price, _ := suite.feedsKeeper.GetPrice(ctx, expectedPrice.SignalID)
+					price := suite.feedsKeeper.GetPrice(ctx, expectedPrice.SignalID)
 					suite.Require().Equal(expectedPrice, price)
 				}
 			}
