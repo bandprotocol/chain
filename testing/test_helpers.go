@@ -105,15 +105,15 @@ var DefaultConsensusParams = &cmtproto.ConsensusParams{
 
 func init() {
 	r := rand.New(rand.NewSource(time.Now().Unix()))
-	Owner = createArbitraryAccount(r)
-	Treasury = createArbitraryAccount(r)
-	FeePayer = createArbitraryAccount(r)
-	Alice = createArbitraryAccount(r)
-	Bob = createArbitraryAccount(r)
-	Carol = createArbitraryAccount(r)
-	MissedValidator = createArbitraryAccount(r)
+	Owner = CreateArbitraryAccount(r)
+	Treasury = CreateArbitraryAccount(r)
+	FeePayer = CreateArbitraryAccount(r)
+	Alice = CreateArbitraryAccount(r)
+	Bob = CreateArbitraryAccount(r)
+	Carol = CreateArbitraryAccount(r)
+	MissedValidator = CreateArbitraryAccount(r)
 	for i := 0; i < 3; i++ {
-		Validators = append(Validators, createArbitraryAccount(r))
+		Validators = append(Validators, CreateArbitraryAccount(r))
 	}
 
 	// Sorted list of validators is needed for ibctest when signing a commit block
@@ -128,8 +128,8 @@ func init() {
 	OwasmVM = owasmVM
 }
 
-// createArbitraryAccount generates a random Account using a provided random number generator.
-func createArbitraryAccount(r *rand.Rand) Account {
+// CreateArbitraryAccount generates a random Account using a provided random number generator.
+func CreateArbitraryAccount(r *rand.Rand) Account {
 	privkeySeed := make([]byte, 12)
 	_, _ = r.Read(privkeySeed)
 	privKey := secp256k1.GenPrivKeyFromSecret(privkeySeed)

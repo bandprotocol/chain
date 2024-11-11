@@ -53,6 +53,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	"github.com/bandprotocol/chain/v3/x/feeds"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/globalfee"
 	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
 	"github.com/bandprotocol/chain/v3/x/oracle"
@@ -152,6 +154,7 @@ func appModules(
 		globalfee.NewAppModule(app.GlobalFeeKeeper),
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		restake.NewAppModule(appCodec, app.RestakeKeeper),
+		feeds.NewAppModule(appCodec, app.FeedsKeeper),
 	}
 }
 
@@ -252,6 +255,7 @@ func orderBeginBlockers() []string {
 		minttypes.ModuleName,
 		oracletypes.ModuleName,
 		restaketypes.ModuleName,
+		feedstypes.ModuleName,
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName,
 		evidencetypes.ModuleName,
@@ -290,6 +294,7 @@ func orderEndBlockers() []string {
 		stakingtypes.ModuleName,
 		oracletypes.ModuleName,
 		restaketypes.ModuleName,
+		feedstypes.ModuleName,
 		ibcexported.ModuleName,
 		ibctransfertypes.ModuleName,
 		icatypes.ModuleName,
@@ -348,5 +353,6 @@ func orderInitBlockers() []string {
 		oracletypes.ModuleName,
 		globalfeetypes.ModuleName,
 		restaketypes.ModuleName,
+		feedstypes.ModuleName,
 	}
 }

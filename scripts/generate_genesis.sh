@@ -19,7 +19,6 @@ bandd genesis add-genesis-account requester 10000000000000uband --keyring-backen
 bandd genesis add-genesis-account account1 10000000000000uband --keyring-backend test
 bandd genesis add-genesis-account account2 10000000000000uband --keyring-backend test
 
-
 # register initial validators
 bandd genesis gentx validator 100000000uband \
     --chain-id bandchain \
@@ -42,6 +41,10 @@ sed -i -e \
 
 # update voting period to be 60s for testing
 cat <<< $(jq '.app_state.gov.params.voting_period = "60s"' ~/.band/config/genesis.json) > ~/.band/config/genesis.json
+
+# update blocks per feeds update to 10 blocks for testing
+cat <<< $(jq '.app_state.feeds.params.current_feeds_update_interval = "10"' ~/.band/config/genesis.json) > ~/.band/config/genesis.json
+cat <<< $(jq --arg addr "$(bandd keys show requester -a --keyring-backend test)" '.app_state.feeds.params.admin = $addr' ~/.band/config/genesis.json) > ~/.band/config/genesis.json
 
 # allow "uband" for restake
 cat <<< $(jq '.app_state.restake.params.allowed_denoms = ["uband"]' ~/.band/config/genesis.json) > ~/.band/config/genesis.json

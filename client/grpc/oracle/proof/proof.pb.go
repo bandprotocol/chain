@@ -900,8 +900,8 @@ func (m *BlockRelayProof) GetSignatures() []TMSignature {
 // [I] - slashing    [J] - staking    [K] - transfer   [L] - upgrade
 //
 // Notice that NOT all leaves of the Merkle tree are needed in order to compute the Merkle
-// root hash, since we only want to validate the correctness of [F] In fact, only
-// [E], [N6], [N10], [N15], and [N20] are needed in order to compute [AppHash].
+// root hash, since we only want to validate the correctness of [G] In fact, only
+// [H], [N13], [N17], and [N18] are needed in order to compute [AppHash].
 type MultiStoreProof struct {
 	OracleIAVLStateHash               github_com_cometbft_cometbft_libs_bytes.HexBytes `protobuf:"bytes,1,opt,name=oracle_iavl_state_hash,json=oracleIavlStateHash,proto3,casttype=github.com/cometbft/cometbft/libs/bytes.HexBytes" json:"oracle_iavl_state_hash,omitempty"`
 	ParamsStoreMerkleHash             github_com_cometbft_cometbft_libs_bytes.HexBytes `protobuf:"bytes,2,opt,name=params_store_merkle_hash,json=paramsStoreMerkleHash,proto3,casttype=github.com/cometbft/cometbft/libs/bytes.HexBytes" json:"params_store_merkle_hash,omitempty"`
