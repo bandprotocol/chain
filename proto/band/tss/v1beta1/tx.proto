@@ -32,7 +32,7 @@ service Msg {
   // SubmitSignature submits signature on task participant need to do.
   rpc SubmitSignature(MsgSubmitSignature) returns (MsgSubmitSignatureResponse);
 
-  // UpdateParams defines a governance operation for updating the x/mint module
+  // UpdateParams defines a governance operation for updating the x/tss module
   // parameters.
   rpc UpdateParams(MsgUpdateParams) returns (MsgUpdateParamsResponse);
 }

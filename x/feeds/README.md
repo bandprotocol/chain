@@ -10,10 +10,10 @@ This module is used in the BandChain.
 
 ## Contents
 
-* [`x/feeds`](#xfeeds)
-  + [Abstract](#abstract)
-  + [Contents](#contents)
-  + [Concepts](#concepts)
+- [`x/feeds`](#xfeeds)
+  - [Abstract](#abstract)
+  - [Contents](#contents)
+  - [Concepts](#concepts)
     - [Vote](#vote)
     - [Feed](#feed)
       - [Feed Interval](#feed-interval)
@@ -23,7 +23,7 @@ This module is used in the BandChain.
     - [Validator Price](#validator-price)
     - [Price](#price)
     - [Reference Source Config](#reference-source-config)
-  + [State](#state)
+  - [State](#state)
     - [ReferenceSourceConfig](#referencesourceconfig)
     - [CurrentFeeds](#currentfeeds)
     - [ValidatorPriceList](#validatorpricelist)
@@ -32,19 +32,19 @@ This module is used in the BandChain.
     - [SignalTotalPower](#signaltotalpower)
       - [SignalTotalPowerByPowerIndex](#signaltotalpowerbypowerindex)
     - [Params](#params)
-  + [Messages](#messages)
+  - [Messages](#messages)
     - [MsgVote](#msgvote)
     - [MsgSubmitSignalPrices](#msgsubmitsignalprices)
     - [MsgUpdateReferenceSourceConfig](#msgupdatereferencesourceconfig)
     - [MsgUpdateParams](#msgupdateparams)
-  + [End-Block](#end-block)
+  - [End-Block](#end-block)
     - [Update Prices](#update-prices)
       - [Input](#input)
       - [Objective](#objective)
       - [Assumption](#assumption)
       - [Procedure](#procedure)
     - [Update current feeds](#update-current-feeds)
-  + [Events](#events)
+  - [Events](#events)
     - [EndBlocker](#endblocker)
     - [Handlers](#handlers)
       - [MsgSubmitSignalPrices](#msgsubmitsignalprices-1)
@@ -56,7 +56,9 @@ This module is used in the BandChain.
 
 ### Vote
 
-A Vote is a decision made by a voter, directing the network to deliver feed service for a specified signal ID.
+A Vote is a decision made by a voter, directing the network to deliver feed service for specified signal IDs.
+
+A vote can contain multiple signal for each distinct signal ID.
 
 A signal consists of an signal ID and the power associated with that signal. The feeding interval and deviation are reduced by the sum of the power of the signal. The total power of all signals of voter cannot exceed their total bonded delegation and staked tokens.
 
@@ -99,7 +101,7 @@ A Price is a structure that maintains the current price state for a signal ID, i
 
 Once the Validator Price is submitted, it will be weighted median which is weighted by how latest the price is and how much power the owner of the price has to get the most accurate and trustworthy price.
 
-The module only contains the latest price of each signal ID.
+The module only contains the latest price of each signal ID of Current feeds.
 
 ### Reference Source Config
 
@@ -250,8 +252,8 @@ message MsgSubmitSignalPrices {
   // timestamp is the timestamp used as reference for the data.
   int64 timestamp = 2;
 
-  // prices is a list of signal prices to submit.
-  repeated SignalPrice prices = 3 [(gogoproto.nullable) = false];
+  // signal_prices is a list of signal prices to submit.
+  repeated SignalPrice signal_prices = 3 [(gogoproto.nullable) = false];
 }
 ```
 
@@ -325,24 +327,25 @@ The median price is then set as the Price. Here is the price aggregation logic:
 
 #### Input
 
-A list of PriceFeedInfo objects, each containing:
+A list of ValidatorPriceInfo objects, each containing:
 * `Price`: The reported price from the feeder
-* `Deviation`: The price deviation
+* `SignalPriceStatus`: The status of price
 * `Power`: The feeder's power
 * `Timestamp`: The time at which the price is reported
 
 #### Objective
 
-* An aggregated price from the list of priceFeedInfo.
+* An aggregated price from the list of ValidatorPriceInfo.
 
 #### Assumption
 
-1. No PriceFeedInfo has a power that exceeds 25% of the total power in the list.
+1. No ValidatorPriceInfo has a power that exceeds 25% of the total power in the list.
 
 #### Procedure
 
-1. Order the List:
+1. Filter and order the List:
 
+* Filter the object with `SignalPriceStatus` as `Available` only.
 * Sort the list by `Timestamp` in descending order (latest timestamp first).
 * For entries with the same `Timestamp`, sort by `Power` in descending order.
 
@@ -354,15 +357,12 @@ A list of PriceFeedInfo objects, each containing:
     - The next 1/16 of the total power is multiplied by 4.
     - The next 1/8 of the total power is multiplied by 2.
     - The next 1/4 of the total power is multiplied by 1.1.
-* If PriceFeedInfo overlaps between segments, split it into parts corresponding to each segment and assign the respective multiplier.
+* If ValidatorPriceInfo overlaps between segments, split it into parts corresponding to each segment and assign the respective multiplier.
 * Any power that falls outside these segments will have a multiplier of 1.
 
 3. Generate Points:
 
-* For each PriceFeedInfo (or its parts if split), generate three points:
-    - One at the `Price` with the assigned `Power`.
-    - One at `Price + Deviation` with the assigned `Power`.
-    - One at `Price - Deviation` with the assigned `Power`.
+* For each ValidatorPriceInfo, generate a point (at the `Price` with the assigned `Weight`.)
 
 4. Calculating Weight Median
 
@@ -379,35 +379,33 @@ The feeds module emits the following events:
 
 ### EndBlocker
 
-| Type                   | Attribute Key         | Attribute Value |
-| ---------------------- | --------------------- | --------------- |
-| calculate_price_failed | signal_id             | {signalID}      |
-| calculate_price_failed | error_message         | {error}         |
-| update_price           | signal_id             | {signalID}      |
-| update_price           | price                 | {price}         |
-| update_price           | timestamp             | {timestamp}     |
-| updated_current_feeds  | last_update_timestamp | {timestamp}     |
-| updated_current_feeds  | last_update_block     | {block_height}  |
+| Type                  | Attribute Key         | Attribute Value |
+| --------------------- | --------------------- | --------------- |
+| update_price          | signal_id             | {signalID}      |
+| update_price          | price_status          | {priceStatus}   |
+| update_price          | price                 | {price}         |
+| update_price          | timestamp             | {timestamp}     |
+| updated_current_feeds | last_update_timestamp | {timestamp}     |
+| updated_current_feeds | last_update_block     | {block_height}  |
 
 ### Handlers
 
 #### MsgSubmitSignalPrices
 
-| Type                | Attribute Key | Attribute Value    |
-| ------------------- | ------------- | ------------------ |
-| submit_signal_price | price_status  | {priceStatus}      |
-| submit_signal_price | validator     | {validatorAddress} |
-| submit_signal_price | signal_id     | {signalID}         |
-| submit_signal_price | price         | {price}            |
-| submit_signal_price | timestamp     | {timestamp}        |
+| Type                | Attribute Key       | Attribute Value     |
+| ------------------- | ------------------- | ------------------- |
+| submit_signal_price | signal_price_status | {signalPriceStatus} |
+| submit_signal_price | validator           | {validatorAddress}  |
+| submit_signal_price | signal_id           | {signalID}          |
+| submit_signal_price | price               | {price}             |
+| submit_signal_price | timestamp           | {timestamp}         |
 
 #### MsgUpdateReferenceSourceConfig
 
-| Type                           | Attribute Key | Attribute Value |
-| ------------------------------ | ------------- | --------------- |
-| update_reference_source_config | hash          | {hash}          |
-| update_reference_source_config | version       | {version}       |
-| update_reference_source_config | url           | {url}           |
+| Type                           | Attribute Key      | Attribute Value    |
+| ------------------------------ | ------------------ | ------------------ |
+| update_reference_source_config | registry_ipfs_hash | {registryIPFSHash} |
+| update_reference_source_config | version            | {registryVersion}  |
 
 #### MsgUpdateParams
 
