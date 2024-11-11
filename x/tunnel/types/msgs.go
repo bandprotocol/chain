@@ -97,6 +97,11 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 		return err
 	}
 
+	// encoder must be valid
+	if err := ValidateEncoder(m.Encoder); err != nil {
+		return err
+	}
+
 	// initial deposit must be valid
 	if !m.InitialDeposit.IsValid() {
 		return sdkerrors.ErrInvalidCoins.Wrapf("invalid initial deposit: %s", m.InitialDeposit)
