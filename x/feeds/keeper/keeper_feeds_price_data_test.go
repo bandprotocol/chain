@@ -118,7 +118,7 @@ func (suite *KeeperTestSuite) TestGetFeedsPriceData() {
 			setPrices:    []types.Price{},
 			encoder:      types.ENCODER_FIXED_POINT_ABI,
 			expectResult: types.FeedsPriceData{},
-			expectError:  fmt.Errorf("failed to get price for signal id: CS:ATOM-USDfake: price not found"),
+			expectError:  fmt.Errorf("CS:ATOM-USDfake: price not available"),
 		},
 	}
 
