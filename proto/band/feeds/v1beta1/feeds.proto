@@ -199,12 +199,12 @@ message ReferenceSourceConfig {
   string registry_version = 2;
 }
 
-// FeedsPriceData is a structure that defines the price data of the feeds for genenrating signature.
+// FeedsPriceData is a structure that defines the price data of the feeds for generating signature.
 message FeedsPriceData {
   option (gogoproto.equal) = true;
 
   // Prices is the list of prices of the feeds.
-  repeated SignalPrice signalPrices = 1 [(gogoproto.nullable) = false];
+  repeated Price prices = 1 [(gogoproto.nullable) = false];
 
   // Timestamp is the timestamp at which the price was submitted.
   uint64 timestamp = 2;
