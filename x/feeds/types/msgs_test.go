@@ -27,9 +27,9 @@ var (
 	ValidTimestamp             = int64(1234567890)
 	ValidSignalPrices          = []SignalPrice{
 		{
-			PriceStatus: PriceStatusAvailable,
-			SignalID:    "CS:BTC-USD",
-			Price:       100000 * 10e9,
+			Status:   SignalPriceStatusAvailable,
+			SignalID: "CS:BTC-USD",
+			Price:    100000 * 10e9,
 		},
 	}
 
@@ -47,7 +47,7 @@ func TestNewMsgSubmitSignalPrices(t *testing.T) {
 	msg := NewMsgSubmitSignalPrices(ValidValidator, ValidTimestamp, ValidSignalPrices)
 	require.Equal(t, ValidValidator, msg.Validator)
 	require.Equal(t, ValidTimestamp, msg.Timestamp)
-	require.Equal(t, ValidSignalPrices, msg.Prices)
+	require.Equal(t, ValidSignalPrices, msg.SignalPrices)
 }
 
 func TestMsgSubmitSignalPrices_ValidateBasic(t *testing.T) {

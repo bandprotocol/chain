@@ -443,8 +443,8 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 		"all good": {
 			preRun: func() *types.MsgTriggerTunnel {
 				s.AddSampleTunnel(true)
-				s.feedsKeeper.EXPECT().GetCurrentPrices(gomock.Any(), []string{"BTC"}).Return([]feedstypes.Price{
-					{PriceStatus: feedstypes.PriceStatusAvailable, SignalID: "BTC", Price: 50000, Timestamp: 0},
+				s.feedsKeeper.EXPECT().GetPrices(gomock.Any(), []string{"BTC"}).Return([]feedstypes.Price{
+					{Status: feedstypes.PriceStatusAvailable, SignalID: "BTC", Price: 50000, Timestamp: 0},
 				})
 				s.bankKeeper.EXPECT().
 					SendCoinsFromAccountToModule(gomock.Any(), feePayer, types.ModuleName, types.DefaultBasePacketFee).

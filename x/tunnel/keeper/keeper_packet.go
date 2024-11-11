@@ -60,7 +60,7 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 	// get active tunnel IDs
 	ids := k.GetActiveTunnelIDs(ctx)
 
-	currentPrices := k.feedsKeeper.GetAllCurrentPrices(ctx)
+	currentPrices := k.feedsKeeper.GetAllPrices(ctx)
 	currentPricesMap := createPricesMap(currentPrices)
 
 	// create new packet if possible for active tunnels. If not enough fund, deactivate the tunnel.
