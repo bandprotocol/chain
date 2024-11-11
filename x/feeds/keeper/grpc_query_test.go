@@ -63,8 +63,15 @@ func (suite *KeeperTestSuite) TestQueryPrice() {
 	res, err = queryClient.Price(context.Background(), &types.QueryPriceRequest{
 		SignalId: "CS:ATOM-USD",
 	})
-	suite.Require().ErrorContains(err, "price not found")
-	suite.Require().Nil(res)
+	suite.Require().NoError(err)
+	suite.Require().Equal(&types.QueryPriceResponse{
+		Price: types.Price{
+			Status:    types.PriceStatusNotInCurrentFeeds,
+			SignalID:  "CS:ATOM-USD",
+			Price:     0,
+			Timestamp: 0,
+		},
+	}, res)
 }
 
 func (suite *KeeperTestSuite) TestQueryPrices() {

@@ -37,16 +37,7 @@ func (k Keeper) GetAllPrices(ctx sdk.Context) (prices []types.Price) {
 func (k Keeper) GetPrices(ctx sdk.Context, signalIDs []string) []types.Price {
 	prices := make([]types.Price, 0, len(signalIDs))
 	for _, signalID := range signalIDs {
-		price, err := k.GetPrice(ctx, signalID)
-		if err != nil {
-			price = types.Price{
-				SignalID:  signalID,
-				Status:    types.PriceStatusNotInCurrentFeeds,
-				Price:     0,
-				Timestamp: 0,
-			}
-		}
-
+		price := k.GetPrice(ctx, signalID)
 		prices = append(prices, price)
 	}
 
@@ -54,16 +45,21 @@ func (k Keeper) GetPrices(ctx sdk.Context, signalIDs []string) []types.Price {
 }
 
 // GetPrice returns a price by signal id.
-func (k Keeper) GetPrice(ctx sdk.Context, signalID string) (types.Price, error) {
+func (k Keeper) GetPrice(ctx sdk.Context, signalID string) types.Price {
 	bz := ctx.KVStore(k.storeKey).Get(types.PriceStoreKey(signalID))
 	if bz == nil {
-		return types.Price{}, types.ErrPriceNotFound.Wrapf("failed to get price for signal id: %s", signalID)
+		return types.Price{
+			SignalID:  signalID,
+			Status:    types.PriceStatusNotInCurrentFeeds,
+			Price:     0,
+			Timestamp: 0,
+		}
 	}
 
 	var price types.Price
 	k.cdc.MustUnmarshal(bz, &price)
 
-	return price, nil
+	return price
 }
 
 // SetPrice sets multiple prices.
