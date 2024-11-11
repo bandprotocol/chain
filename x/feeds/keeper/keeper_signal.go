@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"sort"
-
 	dbm "github.com/cosmos/cosmos-db"
 
 	"cosmossdk.io/math"
@@ -151,33 +149,6 @@ func (k Keeper) SignalTotalPowersByPowerStoreIterator(ctx sdk.Context) dbm.Itera
 	)
 }
 
-// CalculateNewSignalTotalPowers calculates the new signal-total-powers from all votes.
-func (k Keeper) CalculateNewSignalTotalPowers(ctx sdk.Context) []types.Signal {
-	votes := k.GetVotes(ctx)
-	signalIDToPower := make(map[string]int64)
-	for _, v := range votes {
-		for _, signal := range v.Signals {
-			signalIDToPower[signal.ID] += signal.Power
-		}
-	}
-
-	keys := make([]string, 0, len(signalIDToPower))
-	for k := range signalIDToPower {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-
-	signalTotalPowers := []types.Signal{}
-	for _, signalID := range keys {
-		signalTotalPowers = append(signalTotalPowers, types.NewSignal(
-			signalID,
-			signalIDToPower[signalID],
-		))
-	}
-
-	return signalTotalPowers
-}
-
 // LockVoterPower locks the voter's power equal to the sum of the signal powers.
 // It returns an error if the voter does not have enough power to lock.
 func (k Keeper) LockVoterPower(
@@ -193,9 +164,9 @@ func (k Keeper) LockVoterPower(
 	return nil
 }
 
-// RegisterNewSignals delete previous signals and register new signals.
+// UpdateVoteAndReturnPowerDiff delete previous signals and add new signals.
 // It also calculates feed power differences from voter's previous signals and new signals.
-func (k Keeper) RegisterNewSignals(
+func (k Keeper) UpdateVoteAndReturnPowerDiff(
 	ctx sdk.Context,
 	voter sdk.AccAddress,
 	signals []types.Signal,
