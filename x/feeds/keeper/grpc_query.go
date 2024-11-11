@@ -94,10 +94,7 @@ func (q queryServer) Price(
 ) (*types.QueryPriceResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	price, err := q.keeper.GetPrice(ctx, req.SignalId)
-	if err != nil {
-		return &types.QueryPriceResponse{}, err
-	}
+	price := q.keeper.GetPrice(ctx, req.SignalId)
 
 	return &types.QueryPriceResponse{
 		Price: price,
