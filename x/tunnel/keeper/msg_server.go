@@ -37,6 +37,7 @@ func (ms msgServer) CreateTunnel(
 	if len(msg.SignalDeviations) > int(params.MaxSignals) {
 		return nil, types.ErrMaxSignalsExceeded
 	}
+
 	if msg.Interval < params.MinInterval {
 		return nil, types.ErrIntervalTooLow
 	}
@@ -66,30 +67,10 @@ func (ms msgServer) CreateTunnel(
 
 	// Deposit the initial deposit to the tunnel
 	if !msg.InitialDeposit.IsZero() {
-		if err := ms.Keeper.AddDeposit(ctx, tunnel.ID, creator, msg.InitialDeposit); err != nil {
+		if err := ms.Keeper.DepositToTunnel(ctx, tunnel.ID, creator, msg.InitialDeposit); err != nil {
 			return nil, err
 		}
 	}
-
-	// Emit an event
-	event := sdk.NewEvent(
-		types.EventTypeCreateTunnel,
-		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
-		sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", tunnel.Interval)),
-		sdk.NewAttribute(types.AttributeKeyRoute, tunnel.Route.String()),
-		sdk.NewAttribute(types.AttributeKeyEncoder, tunnel.Encoder.String()),
-		sdk.NewAttribute(types.AttributeKeyInitialDeposit, msg.InitialDeposit.String()),
-		sdk.NewAttribute(types.AttributeKeyFeePayer, tunnel.FeePayer),
-		sdk.NewAttribute(types.AttributeKeyIsActive, fmt.Sprintf("%t", tunnel.IsActive)),
-		sdk.NewAttribute(types.AttributeKeyCreatedAt, fmt.Sprintf("%d", tunnel.CreatedAt)),
-		sdk.NewAttribute(types.AttributeKeyCreator, tunnel.Creator),
-	)
-	for _, sd := range msg.SignalDeviations {
-		event = event.AppendAttributes(
-			sdk.NewAttribute(types.AttributeKeySignalDeviation, sd.String()),
-		)
-	}
-	ctx.EventManager().EmitEvent(event)
 
 	return &types.MsgCreateTunnelResponse{
 		TunnelID: tunnel.ID,
@@ -196,6 +177,7 @@ func (ms msgServer) TriggerTunnel(
 	if err != nil {
 		return nil, err
 	}
+
 	if msg.Creator != tunnel.Creator {
 		return nil, types.ErrInvalidTunnelCreator.Wrapf(
 			"creator %s, tunnelID %d",
@@ -203,6 +185,7 @@ func (ms msgServer) TriggerTunnel(
 			msg.TunnelID,
 		)
 	}
+
 	if !tunnel.IsActive {
 		return nil, types.ErrInactiveTunnel.Wrapf("tunnelID %d", msg.TunnelID)
 	}
@@ -211,6 +194,7 @@ func (ms msgServer) TriggerTunnel(
 	if err != nil {
 		return nil, err
 	}
+
 	if !ok {
 		return nil, types.ErrInsufficientFund.Wrapf("tunnelID %d", msg.TunnelID)
 	}
@@ -251,18 +235,18 @@ func (ms msgServer) TriggerTunnel(
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeTriggerTunnel,
-		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", msg.TunnelID)),
-		sdk.NewAttribute(types.AttributeKeySequence, fmt.Sprintf("%d", tunnel.Sequence)),
+		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", packet.TunnelID)),
+		sdk.NewAttribute(types.AttributeKeySequence, fmt.Sprintf("%d", packet.Sequence)),
 	))
 
 	return &types.MsgTriggerTunnelResponse{}, nil
 }
 
-// DepositTunnel adds deposit to the tunnel.
-func (ms msgServer) DepositTunnel(
+// DepositToTunnel adds deposit to the tunnel.
+func (ms msgServer) DepositToTunnel(
 	goCtx context.Context,
-	msg *types.MsgDepositTunnel,
-) (*types.MsgDepositTunnelResponse, error) {
+	msg *types.MsgDepositToTunnel,
+) (*types.MsgDepositToTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	depositor, err := sdk.AccAddressFromBech32(msg.Depositor)
@@ -270,25 +254,18 @@ func (ms msgServer) DepositTunnel(
 		return nil, err
 	}
 
-	if err := ms.Keeper.AddDeposit(ctx, msg.TunnelID, depositor, msg.Amount); err != nil {
+	if err := ms.Keeper.DepositToTunnel(ctx, msg.TunnelID, depositor, msg.Amount); err != nil {
 		return nil, err
 	}
 
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeDepositTunnel,
-		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", msg.TunnelID)),
-		sdk.NewAttribute(types.AttributeKeyDepositor, msg.Depositor),
-		sdk.NewAttribute(types.AttributeKeyAmount, msg.Amount.String()),
-	))
-
-	return &types.MsgDepositTunnelResponse{}, nil
+	return &types.MsgDepositToTunnelResponse{}, nil
 }
 
-// WithdrawTunnel withdraws deposit from the tunnel.
-func (ms msgServer) WithdrawTunnel(
+// WithdrawFromTunnel withdraws deposit from the tunnel.
+func (ms msgServer) WithdrawFromTunnel(
 	goCtx context.Context,
-	msg *types.MsgWithdrawTunnel,
-) (*types.MsgWithdrawTunnelResponse, error) {
+	msg *types.MsgWithdrawFromTunnel,
+) (*types.MsgWithdrawFromTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	withdrawer, err := sdk.AccAddressFromBech32(msg.Withdrawer)
@@ -297,18 +274,11 @@ func (ms msgServer) WithdrawTunnel(
 	}
 
 	// Withdraw the deposit from the tunnel
-	if err := ms.Keeper.WithdrawDeposit(ctx, msg.TunnelID, msg.Amount, withdrawer); err != nil {
+	if err := ms.Keeper.WithdrawFromTunnel(ctx, msg.TunnelID, msg.Amount, withdrawer); err != nil {
 		return nil, err
 	}
 
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeWithdrawTunnel,
-		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", msg.TunnelID)),
-		sdk.NewAttribute(types.AttributeKeyWithdrawer, msg.Withdrawer),
-		sdk.NewAttribute(types.AttributeKeyAmount, msg.Amount.String()),
-	))
-
-	return &types.MsgWithdrawTunnelResponse{}, nil
+	return &types.MsgWithdrawFromTunnelResponse{}, nil
 }
 
 // UpdateParams updates the module params.

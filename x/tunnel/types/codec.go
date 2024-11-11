@@ -23,8 +23,8 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "tunnel/MsgActivate")
 	legacy.RegisterAminoMsg(cdc, &MsgDeactivate{}, "tunnel/MsgDeactivate")
 	legacy.RegisterAminoMsg(cdc, &MsgTriggerTunnel{}, "tunnel/MsgTriggerTunnel")
-	legacy.RegisterAminoMsg(cdc, &MsgDepositTunnel{}, "tunnel/MsgDepositTunnel")
-	legacy.RegisterAminoMsg(cdc, &MsgWithdrawTunnel{}, "tunnel/MsgWithdrawTunnel")
+	legacy.RegisterAminoMsg(cdc, &MsgDepositToTunnel{}, "tunnel/MsgDepositToTunnel")
+	legacy.RegisterAminoMsg(cdc, &MsgWithdrawFromTunnel{}, "tunnel/MsgWithdrawFromTunnel")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "tunnel/MsgUpdateParams")
 
 	cdc.RegisterInterface((*RouteI)(nil), nil)
@@ -42,8 +42,8 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgActivate{},
 		&MsgDeactivate{},
 		&MsgTriggerTunnel{},
-		&MsgDepositTunnel{},
-		&MsgWithdrawTunnel{},
+		&MsgDepositToTunnel{},
+		&MsgWithdrawFromTunnel{},
 		&MsgUpdateParams{},
 	)
 

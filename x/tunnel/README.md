@@ -27,12 +27,12 @@ The Tunnel module is designed to decentralize the creation of push-based price d
     - [Params](#params)
   - [Msg](#msg)
     - [MsgCreateTunnel](#msgcreatetunnel)
-    - [MsgEditTunnel](#msgedittunnel)
+    - [MsgUpdateAndResetTunnel](#msgupdateandresettunnel)
     - [MsgActivate](#msgactivate)
     - [MsgDeactivate](#msgdeactivate)
     - [MsgTriggerTunnel](#msgtriggertunnel)
-    - [MsgDepositTunnel](#msgdeposittunnel)
-    - [MsgWithdrawTunnel](#msgwithdrawtunnel)
+    - [MsgDepositToTunnel](#MsgDepositToTunnel)
+    - [MsgWithdrawFromTunnel](#MsgWithdrawFromTunnel)
   - [Events](#events)
     - [Event: `create_tunnel`](#event-create_tunnel)
     - [Event: `edit_tunnel`](#event-edit_tunnel)
@@ -234,15 +234,16 @@ message MsgCreateTunnel {
   - Tick
 - **Initial Deposit**: The initial deposit can be set to zero. Other users can contribute to the tunnel's deposit until it reaches the required minimum deposit.
 
-### MsgEditTunnel
+### MsgUpdateAndResetTunnel
 
 **Editable Arguments**: The following parameters can be modified within the tunnel: `signal_deviations` and `Interval`
 
 ```protobuf
-// MsgEditTunnel is the transaction message to edit a tunnel.
-message MsgEditTunnel {
+// MsgUpdateAndResetTunnel is the transaction message to update a tunnel information
+// and reset the interval.
+message MsgUpdateAndResetTunnel {
   option (cosmos.msg.v1.signer) = "creator";
-  option (amino.name)           = "tunnel/MsgEditTunnel";
+  option (amino.name)           = "tunnel/MsgUpdateAndResetTunnel";
 
   // tunnel_id is the ID of the tunnel to edit.
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
@@ -253,6 +254,7 @@ message MsgEditTunnel {
   // creator is the address of the creator.
   string creator = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
+
 ```
 
 ### MsgActivate
@@ -309,15 +311,15 @@ message MsgTriggerTunnel {
 }
 ```
 
-### MsgDepositTunnel
+### MsgDepositToTunnel
 
 Increase the `total_deposit` for the tunnel by depositing more coins.
 
 ```protobuf
-// MsgDepositTunnel defines a message to submit a deposit to an existing tunnel.
-message MsgDepositTunnel {
+// MsgDepositToTunnel defines a message to submit a deposit to an existing tunnel.
+message MsgDepositToTunnel {
   option (cosmos.msg.v1.signer) = "depositor";
-  option (amino.name)           = "tunnel/MsgDepositTunnel";
+  option (amino.name)           = "tunnel/MsgDepositToTunnel";
 
   // tunnel_id defines the unique id of the tunnel.
   uint64 tunnel_id = 1
@@ -335,15 +337,15 @@ message MsgDepositTunnel {
 }
 ```
 
-### MsgWithdrawTunnel
+### MsgWithdrawFromTunnel
 
 Allows users to withdraw their deposited coins from the tunnel.
 
 ```protobuf
-// MsgWithdrawTunnel is the transaction message to withdraw a deposit from an existing tunnel.
-message MsgWithdrawTunnel {
+// MsgWithdrawFromTunnel is the transaction message to withdraw a deposit from an existing tunnel.
+message MsgWithdrawFromTunnel {
   option (cosmos.msg.v1.signer) = "withdrawer";
-  option (amino.name)           = "tunnel/MsgWithdrawTunnel";
+  option (amino.name)           = "tunnel/MsgWithdrawFromTunnel";
 
   // tunnel_id defines the unique id of the tunnel.
   uint64 tunnel_id = 1
@@ -369,27 +371,31 @@ The `x/tunnel` module emits several events that can be used to track the state c
 
 This event is emitted when a new tunnel is created.
 
-| Attribute Key   | Attribute Value             |
-| --------------- | --------------------------- |
-| tunnel_id       | `{ID}`                      |
-| interval        | `{Interval}`                |
-| route           | `{Route.String()}`          |
-| encoder         | `{Encoder.String()}`        |
-| initial_deposit | `{InitialDeposit.String()}` |
-| fee_payer       | `{FeePayer}`                |
-| is_active       | `{IsActive}`                |
-| created_at      | `{CreatedAt}`               |
-| creator         | `{Creator}`                 |
+| Attribute Key        | Attribute Value                       |
+| -------------------- | ------------------------------------- |
+| tunnel_id            | `{ID}`                                |
+| interval             | `{Interval}`                          |
+| route                | `{Route.String()}`                    |
+| encoder              | `{Encoder.String()}`                  |
+| fee_payer            | `{FeePayer}`                          |
+| is_active            | `{IsActive}`                          |
+| created_at           | `{CreatedAt}`                         |
+| creator              | `{Creator}`                           |
+| signal_id[]          | `{SignalDeviation.SignalID}}`         |
+| soft_deviation_bps[] | `{SignalDeviation.SoftDeviationBPS}}` |
+| hard_deviation_bps[] | `{SignalDeviation.hardDeviationBPS}}` |
 
-### Event: `edit_tunnel`
+### Event: `update_and_reset_tunnel`
 
 This event is emitted when an existing tunnel is edited.
 
-| Attribute Key      | Attribute Value                |
-| ------------------ | ------------------------------ |
-| tunnel_id          | `{ID}`                         |
-| interval           | `{Interval}`                   |
-| signal_deviation[] | `{[]SignalDeviation.String()}` |
+| Attribute Key        | Attribute Value                       |
+| -------------------- | ------------------------------------- |
+| tunnel_id            | `{ID}`                                |
+| interval             | `{Interval}`                          |
+| signal_id[]          | `{SignalDeviation.SignalID}}`         |
+| soft_deviation_bps[] | `{SignalDeviation.SoftDeviationBPS}}` |
+| hard_deviation_bps[] | `{SignalDeviation.hardDeviationBPS}}` |
 
 ### Event: `activate`
 
@@ -413,9 +419,10 @@ This event is emitted when a tunnel is deactivated.
 
 This event is emitted when a tunnel is triggered to produce a packet due to deviations or intervals.
 
-| Attribute Key | Attribute Value |
-| ------------- | --------------- |
-| tunnel_id     | `{ID}`          |
+| Attribute Key | Attribute Value     |
+| ------------- | ------------------- |
+| tunnel_id     | `{ID}`              |
+| sequence      | `{packet_sequence}` |
 
 ### Event: `produce_packet_fail`
 

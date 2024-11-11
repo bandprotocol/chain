@@ -134,7 +134,7 @@ func createNewTunnels(
 
 	depositor := bandtesting.Bob.Address
 	minDeposit := ba.TunnelKeeper.GetParams(ba.Ctx).MinDeposit
-	if err := ba.TunnelKeeper.AddDeposit(ba.Ctx, tunnel.ID, depositor, minDeposit); err != nil {
+	if err := ba.TunnelKeeper.DepositToTunnel(ba.Ctx, tunnel.ID, depositor, minDeposit); err != nil {
 		return err
 	}
 

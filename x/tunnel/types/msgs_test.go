@@ -125,13 +125,13 @@ func TestMsgTriggerTunnel_ValidateBasic(t *testing.T) {
 }
 
 // ====================================
-// MsgWithdrawTunnel
+// MsgWithdrawFromTunnel
 // ====================================
 
-func TestMsgWithdrawTunnel_ValidateBasic(t *testing.T) {
+func TestMsgWithdrawFromTunnel_ValidateBasic(t *testing.T) {
 	// Valid withdrawer
 	amount := sdk.NewCoins(sdk.NewInt64Coin("stake", 100))
-	msg := types.NewMsgWithdrawTunnel(1, amount, validDepositor.String())
+	msg := types.NewMsgWithdrawFromTunnel(1, amount, validDepositor.String())
 	err := msg.ValidateBasic()
 	require.NoError(t, err)
 

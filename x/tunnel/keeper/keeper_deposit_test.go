@@ -22,7 +22,7 @@ func (s *KeeperTestSuite) TestAddDeposit() {
 	tunnel := types.Tunnel{ID: tunnelID, TotalDeposit: sdk.NewCoins()}
 	k.SetTunnel(ctx, tunnel)
 
-	err := k.AddDeposit(ctx, tunnelID, depositorAddr, depositAmount)
+	err := k.DepositToTunnel(ctx, tunnelID, depositorAddr, depositAmount)
 	s.Require().NoError(err)
 
 	// check deposit
@@ -114,7 +114,7 @@ func (s *KeeperTestSuite) TestDeleteDeposit() {
 	s.Require().False(found)
 }
 
-func (s *KeeperTestSuite) TestWithdrawDeposit() {
+func (s *KeeperTestSuite) TestWithdrawFromDeposit() {
 	ctx, k := s.ctx, s.keeper
 
 	tunnelID := uint64(1)
@@ -137,7 +137,7 @@ func (s *KeeperTestSuite) TestWithdrawDeposit() {
 	k.SetDeposit(ctx, deposit)
 
 	// partial withdraw
-	err := k.WithdrawDeposit(ctx, tunnelID, firstWithdraw, depositorAddr)
+	err := k.WithdrawFromTunnel(ctx, tunnelID, firstWithdraw, depositorAddr)
 	s.Require().NoError(err)
 
 	// check tunnel's total deposit
@@ -146,7 +146,7 @@ func (s *KeeperTestSuite) TestWithdrawDeposit() {
 	s.Require().Equal(deposit.Amount.Sub(firstWithdraw...), tunnel.TotalDeposit)
 
 	// withdraw all
-	err = k.WithdrawDeposit(ctx, tunnelID, secondWithdraw, depositorAddr)
+	err = k.WithdrawFromTunnel(ctx, tunnelID, secondWithdraw, depositorAddr)
 	s.Require().NoError(err)
 
 	// check tunnel's total deposit
