@@ -6,14 +6,12 @@ import (
 
 // NewValidatorPrice creates new ValidatorPrice.
 func NewValidatorPrice(
-	val sdk.ValAddress,
 	signalPrice SignalPrice,
 	blockTime int64,
 	blockHeight int64,
 ) ValidatorPrice {
 	return ValidatorPrice{
 		SignalPriceStatus: signalPrice.Status,
-		Validator:         val.String(),
 		SignalID:          signalPrice.SignalID,
 		Price:             signalPrice.Price,
 		Timestamp:         blockTime,

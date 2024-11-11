@@ -130,7 +130,7 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) error {
 	// iterate over bonded validators sorted by power
 	err := k.stakingKeeper.IterateBondedValidatorsByPower(
 		ctx,
-		func(idx int64, val stakingtypes.ValidatorI) (stop bool) {
+		func(_ int64, val stakingtypes.ValidatorI) (stop bool) {
 			operator, err := sdk.ValAddressFromBech32(val.GetOperator())
 			if err != nil {
 				return false
@@ -141,7 +141,7 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) error {
 				return false
 			}
 			// collect validator information
-			validatorInfo := types.NewValidatorInfo(idx, operator, val.GetTokens().Uint64(), status)
+			validatorInfo := types.NewValidatorInfo(operator, val.GetTokens().Uint64(), status)
 			validatorsByPower = append(validatorsByPower, validatorInfo)
 			return false
 		})
@@ -167,20 +167,22 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) error {
 		allValidatorPrices[val.Address.String()] = valPricesMap
 	}
 
-	gracePeriod := k.GetParams(ctx).GracePeriod
+	params := k.GetParams(ctx)
+
+	gracePeriod := params.GracePeriod
 	tbt, err := k.stakingKeeper.TotalBondedTokens(ctx)
 	if err != nil {
 		return err
 	}
 	totalBondedToken := sdkmath.LegacyNewDecFromInt(tbt)
-	priceQuorum, err := sdkmath.LegacyNewDecFromStr(k.GetParams(ctx).PriceQuorum)
+	priceQuorum, err := sdkmath.LegacyNewDecFromStr(params.PriceQuorum)
 	if err != nil {
 		return err
 	}
 	powerQuorum := totalBondedToken.Mul(priceQuorum).TruncateInt().Uint64()
 	// calculate prices for each feed
 	for _, feed := range currentFeeds.Feeds {
-		var priceFeedInfos []types.PriceFeedInfo
+		var validatorPriceInfos []types.ValidatorPriceInfo
 		for _, valInfo := range validatorsByPower {
 			valPrice := allValidatorPrices[valInfo.Address.String()][feed.SignalID]
 
@@ -202,20 +204,19 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) error {
 			// check if the price is available
 			havePrice := checkHavePrice(feed, valPrice, ctx.BlockTime())
 			if havePrice {
-				priceFeedInfos = append(
-					priceFeedInfos, types.NewPriceFeedInfo(
+				validatorPriceInfos = append(
+					validatorPriceInfos, types.NewValidatorPriceInfo(
 						valPrice.SignalPriceStatus,
 						valInfo.Power,
 						valPrice.Price,
 						valPrice.Timestamp,
-						valInfo.Index,
 					),
 				)
 			}
 		}
 
 		// calculate the final price for the feed
-		price, err := k.CalculatePrice(ctx, feed, priceFeedInfos, powerQuorum)
+		price, err := k.CalculatePrice(ctx, feed, validatorPriceInfos, powerQuorum)
 		if err != nil {
 			return err
 		}
@@ -234,10 +235,10 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) error {
 func (k Keeper) CalculatePrice(
 	ctx sdk.Context,
 	feed types.Feed,
-	priceFeedInfos []types.PriceFeedInfo,
+	validatorPriceInfos []types.ValidatorPriceInfo,
 	powerQuorum uint64,
 ) (types.Price, error) {
-	totalPower, availablePower, _, unsupportedPower := types.CalculatePricesPowers(priceFeedInfos)
+	totalPower, availablePower, _, unsupportedPower := types.CalculatePricesPowers(validatorPriceInfos)
 
 	// If more than half of the total have unsupported price status, it returns an unknown signal id price status.
 	if unsupportedPower*2 > totalPower {
@@ -261,9 +262,7 @@ func (k Keeper) CalculatePrice(
 		), nil
 	}
 
-	price, err := types.CalculateMedianPriceFeedInfo(
-		types.FilterPriceFeedInfos(priceFeedInfos, types.SignalPriceStatusAvailable),
-	)
+	price, err := types.MedianValidatorPriceInfos(validatorPriceInfos)
 	if err != nil {
 		// should not happen
 		return types.Price{}, err
