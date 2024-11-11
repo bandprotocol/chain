@@ -74,6 +74,7 @@ func emitEventUpdatePrice(ctx sdk.Context, price types.Price) {
 		sdk.NewEvent(
 			types.EventTypeUpdatePrice,
 			sdk.NewAttribute(types.AttributeKeySignalID, price.SignalID),
+			sdk.NewAttribute(types.AttributeKeyPriceStatus, price.Status.String()),
 			sdk.NewAttribute(types.AttributeKeyPrice, fmt.Sprintf("%d", price.Price)),
 			sdk.NewAttribute(types.AttributeKeyTimestamp, fmt.Sprintf("%d", price.Timestamp)),
 		),
