@@ -9,12 +9,26 @@ from .db import (
 
 PRICE_HISTORY_PERIOD = 60 * 60 * 24 * 7 * 1e9  # 1 week
 
-# Define the PriceStatus Enum
-class PriceStatus(enum.Enum):
+# Define the SignalPriceStatus Enum
+class SignalPriceStatus(enum.Enum):
     Unspecified = 0
     Unsupported = 1
     Unavailable = 2
     Available = 3
+
+class CustomSignalPriceStatus(sa.types.TypeDecorator):
+    impl = sa.Enum(SignalPriceStatus)
+
+    def process_bind_param(self, value, dialect):
+        return SignalPriceStatus(value)
+
+# Define the PriceStatus Enum
+class PriceStatus(enum.Enum):
+    Unspecified = 0
+    UnknownSignalID = 1
+    NotReady = 2
+    Available = 3
+    NotInCurrentFeeds = 4
 
 class CustomPriceStatus(sa.types.TypeDecorator):
     impl = sa.Enum(PriceStatus)
@@ -38,7 +52,7 @@ feeds_validator_prices = sa.Table(
     metadata,
     Column("validator_id", sa.Integer, sa.ForeignKey("validators.id"), primary_key=True),
     Column("signal_id", sa.String, primary_key=True),
-    Column("price_status", CustomPriceStatus),
+    Column("status", CustomSignalPriceStatus),
     Column("price", sa.BigInteger),
     Column("timestamp", CustomDateTime, index=True),
 )
@@ -64,7 +78,7 @@ feeds_historical_prices = sa.Table(
     metadata,
     Column("signal_id", sa.String, primary_key=True),
     Column("timestamp", CustomDateTime, primary_key=True, index=True),
-    Column("price_status", CustomPriceStatus),
+    Column("status", CustomPriceStatus),
     Column("price", sa.BigInteger),
 )
 
