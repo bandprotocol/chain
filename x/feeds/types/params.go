@@ -17,8 +17,8 @@ var (
 	DefaultCooldownTime                  = int64(30)
 	DefaultMinDeviationBasisPoint        = int64(50)
 	DefaultMaxDeviationBasisPoint        = int64(3000)
-	// estimated from block time of 3 seconds, aims for 1 day update
-	DefaultCurrentFeedsUpdateInterval = int64(28800)
+	// estimated from block time of 1 seconds, aims for 1 day update
+	DefaultCurrentFeedsUpdateInterval = int64(86400)
 	DefaultPriceQuorum                = math.LegacyNewDecWithPrec(30, 2)
 )
 

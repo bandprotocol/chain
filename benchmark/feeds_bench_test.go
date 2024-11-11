@@ -180,11 +180,10 @@ func setupValidatorPriceList(ba *BenchmarkApp, vals []*Account) error {
 		valPrices := []types.ValidatorPrice{}
 		for _, feed := range sfs.Feeds {
 			valPrices = append(valPrices, types.ValidatorPrice{
-				PriceStatus: types.PriceStatusAvailable,
-				Validator:   val.ValAddress.String(),
-				SignalID:    feed.SignalID,
-				Price:       (10000 + uint64(valIdx)) * 10e9,
-				Timestamp:   ba.Ctx.BlockTime().Unix() - 40,
+				SignalPriceStatus: types.SignalPriceStatusAvailable,
+				SignalID:          feed.SignalID,
+				Price:             (10000 + uint64(valIdx)) * 10e9,
+				Timestamp:         ba.Ctx.BlockTime().Unix() - 40,
 			})
 		}
 		err := ba.FeedsKeeper.SetValidatorPriceList(ba.Ctx, val.ValAddress, valPrices)
@@ -203,11 +202,10 @@ func setupValidatorPrices(ba *BenchmarkApp, vals []*Account) error {
 		valPrices := []types.ValidatorPrice{}
 		for _, feed := range sfs.Feeds {
 			valPrices = append(valPrices, types.ValidatorPrice{
-				PriceStatus: types.PriceStatusAvailable,
-				Validator:   val.ValAddress.String(),
-				SignalID:    feed.SignalID,
-				Price:       (10000 + uint64(valIdx)) * 10e9,
-				Timestamp:   ba.Ctx.BlockTime().Unix(),
+				SignalPriceStatus: types.SignalPriceStatusAvailable,
+				SignalID:          feed.SignalID,
+				Price:             (10000 + uint64(valIdx)) * 10e9,
+				Timestamp:         ba.Ctx.BlockTime().Unix(),
 			})
 		}
 
@@ -317,7 +315,6 @@ func generateValidatorPrices(numElements int, validatorAddress string, timestamp
 
 	for i := 0; i < numElements; i++ {
 		prices[i] = types.ValidatorPrice{
-			Validator: validatorAddress,
 			SignalID:  fmt.Sprintf("CS:BAND%d-USD", i),
 			Price:     1e10,
 			Timestamp: timestamp,

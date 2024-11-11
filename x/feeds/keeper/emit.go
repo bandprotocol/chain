@@ -39,12 +39,12 @@ func emitEventUpdateCurrentFeeds(ctx sdk.Context, currentFeeds types.CurrentFeed
 	)
 }
 
-func emitEventSubmitSignalPrice(ctx sdk.Context, valPrice types.ValidatorPrice) {
+func emitEventSubmitSignalPrice(ctx sdk.Context, val sdk.ValAddress, valPrice types.ValidatorPrice) {
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeSubmitSignalPrice,
-			sdk.NewAttribute(types.AttributeKeyPriceStatus, valPrice.PriceStatus.String()),
-			sdk.NewAttribute(types.AttributeKeyValidator, valPrice.Validator),
+			sdk.NewAttribute(types.AttributeKeySignalPriceStatus, valPrice.SignalPriceStatus.String()),
+			sdk.NewAttribute(types.AttributeKeyValidator, val.String()),
 			sdk.NewAttribute(types.AttributeKeySignalID, valPrice.SignalID),
 			sdk.NewAttribute(types.AttributeKeyPrice, fmt.Sprintf("%d", valPrice.Price)),
 			sdk.NewAttribute(types.AttributeKeyTimestamp, fmt.Sprintf("%d", valPrice.Timestamp)),
@@ -67,4 +67,15 @@ func emitEventUpdateParams(ctx sdk.Context, params types.Params) {
 		types.EventTypeUpdateParams,
 		sdk.NewAttribute(types.AttributeKeyParams, params.String()),
 	))
+}
+
+func emitEventUpdatePrice(ctx sdk.Context, price types.Price) {
+	ctx.EventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeUpdatePrice,
+			sdk.NewAttribute(types.AttributeKeySignalID, price.SignalID),
+			sdk.NewAttribute(types.AttributeKeyPrice, fmt.Sprintf("%d", price.Price)),
+			sdk.NewAttribute(types.AttributeKeyTimestamp, fmt.Sprintf("%d", price.Timestamp)),
+		),
+	)
 }

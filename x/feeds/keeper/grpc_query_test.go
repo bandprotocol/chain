@@ -9,103 +9,6 @@ import (
 	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
-func (suite *KeeperTestSuite) TestQueryAllCurrentPrices() {
-	ctx, queryClient := suite.ctx, suite.queryClient
-
-	// setup
-	prices := []types.Price{
-		{
-			SignalID:  "CS:ATOM-USD",
-			Price:     100000000,
-			Timestamp: 1234567890,
-		},
-		{
-			SignalID:  "CS:BAND-USD",
-			Price:     200000000,
-			Timestamp: 1234567890,
-		},
-	}
-
-	for _, price := range prices {
-		suite.feedsKeeper.SetPrice(ctx, price)
-	}
-
-	// query and check
-	res, err := queryClient.AllCurrentPrices(context.Background(), &types.QueryAllCurrentPricesRequest{})
-	suite.Require().NoError(err)
-	// signal ids are not in the current feeds
-	suite.Require().Equal(&types.QueryAllCurrentPricesResponse{
-		Prices: []types.Price(nil),
-	}, res)
-
-	// set current feeds
-	feeds := []types.Feed{
-		{
-			SignalID: "CS:ATOM-USD",
-			Interval: 100,
-		},
-		{
-			SignalID: "CS:BAND-USD",
-			Interval: 100,
-		},
-	}
-
-	suite.feedsKeeper.SetCurrentFeeds(ctx, feeds)
-
-	// query and check
-	res, err = queryClient.AllCurrentPrices(context.Background(), &types.QueryAllCurrentPricesRequest{})
-	suite.Require().NoError(err)
-	suite.Require().Equal(&types.QueryAllCurrentPricesResponse{
-		Prices: prices,
-	}, res)
-}
-
-func (suite *KeeperTestSuite) TestQueryCurrentPrices() {
-	ctx, queryClient := suite.ctx, suite.queryClient
-
-	// setup
-	prices := []types.Price{
-		{
-			SignalID:  "CS:ATOM-USD",
-			Price:     100000000,
-			Timestamp: 1234567890,
-		},
-		{
-			SignalID:  "CS:BAND-USD",
-			Price:     200000000,
-			Timestamp: 1234567890,
-		},
-	}
-
-	for _, price := range prices {
-		suite.feedsKeeper.SetPrice(ctx, price)
-	}
-
-	// set current feeds with only BAND
-	feeds := []types.Feed{
-		{
-			SignalID: "CS:BAND-USD",
-			Interval: 100,
-		},
-	}
-
-	suite.feedsKeeper.SetCurrentFeeds(ctx, feeds)
-
-	// query and check
-	// ATOM is not in the current feeds so it should return unavailable
-	expectedCurrentPrices := []types.Price{
-		types.NewPrice(types.PriceStatusUnavailable, "CS:ATOM-USD", 0, 0),
-		prices[1],
-	}
-	res, err := queryClient.CurrentPrices(context.Background(), &types.QueryCurrentPricesRequest{
-		SignalIds: []string{"CS:ATOM-USD", "CS:BAND-USD"},
-	})
-	suite.Require().NoError(err)
-	suite.Require().Equal(&types.QueryCurrentPricesResponse{
-		Prices: expectedCurrentPrices,
-	}, res)
-}
-
 func (suite *KeeperTestSuite) TestQueryVote() {
 	ctx, queryClient := suite.ctx, suite.queryClient
 
@@ -136,91 +39,6 @@ func (suite *KeeperTestSuite) TestQueryVote() {
 	}, res)
 }
 
-func (suite *KeeperTestSuite) TestQueryPrices() {
-	ctx, queryClient := suite.ctx, suite.queryClient
-
-	// setup
-	prices := []*types.Price{
-		{
-			SignalID:  "CS:ATOM-USD",
-			Price:     100000000,
-			Timestamp: 1234567890,
-		},
-		{
-			SignalID:  "CS:BAND-USD",
-			Price:     200000000,
-			Timestamp: 1234567890,
-		},
-	}
-
-	for _, price := range prices {
-		suite.feedsKeeper.SetPrice(ctx, *price)
-	}
-
-	// query and check
-	var (
-		req    *types.QueryPricesRequest
-		expRes *types.QueryPricesResponse
-	)
-
-	testCases := []struct {
-		msg      string
-		malleate func()
-		expPass  bool
-	}{
-		{
-			"all prices",
-			func() {
-				req = &types.QueryPricesRequest{}
-				expRes = &types.QueryPricesResponse{
-					Prices: prices,
-				}
-			},
-			true,
-		},
-		{
-			"limit 1",
-			func() {
-				req = &types.QueryPricesRequest{
-					Pagination: &query.PageRequest{Limit: 1},
-				}
-				expRes = &types.QueryPricesResponse{
-					Prices: prices[:1],
-				}
-			},
-			true,
-		},
-		{
-			"filter",
-			func() {
-				req = &types.QueryPricesRequest{
-					SignalIds: []string{"CS:BAND-USD"},
-				}
-				expRes = &types.QueryPricesResponse{
-					Prices: prices[1:],
-				}
-			},
-			true,
-		},
-	}
-
-	for _, testCase := range testCases {
-		suite.Run(fmt.Sprintf("Case %s", testCase.msg), func() {
-			testCase.malleate()
-
-			res, err := queryClient.Prices(context.Background(), req)
-
-			if testCase.expPass {
-				suite.Require().NoError(err)
-				suite.Require().Equal(expRes.GetPrices(), res.GetPrices())
-			} else {
-				suite.Require().Error(err)
-				suite.Require().Nil(expRes)
-			}
-		})
-	}
-}
-
 func (suite *KeeperTestSuite) TestQueryPrice() {
 	ctx, queryClient := suite.ctx, suite.queryClient
 
@@ -249,6 +67,144 @@ func (suite *KeeperTestSuite) TestQueryPrice() {
 	suite.Require().Nil(res)
 }
 
+func (suite *KeeperTestSuite) TestQueryPrices() {
+	ctx, queryClient := suite.ctx, suite.queryClient
+
+	// Setup multiple prices
+	prices := []types.Price{
+		{
+			SignalID:  "CS:BAND-USD",
+			Price:     100000000,
+			Timestamp: 1234567890,
+		},
+		{
+			SignalID:  "CS:ATOM-USD",
+			Price:     200000000,
+			Timestamp: 1234567890,
+		},
+		{
+			SignalID:  "CS:BTC-USD",
+			Price:     300000000,
+			Timestamp: 1234567890,
+		},
+	}
+	for _, price := range prices {
+		suite.feedsKeeper.SetPrice(ctx, price)
+	}
+
+	testCases := []struct {
+		name           string
+		signalIDs      []string
+		expectedPrices []types.Price
+	}{
+		{
+			name:      "query multiple existing prices",
+			signalIDs: []string{"CS:BAND-USD", "CS:BTC-USD"},
+			expectedPrices: []types.Price{
+				prices[0],
+				prices[2],
+			},
+		},
+		{
+			name:      "query non-existing price",
+			signalIDs: []string{"CS:NON-EXISTENT"},
+			expectedPrices: []types.Price{
+				{
+					SignalID:  "CS:NON-EXISTENT",
+					Status:    types.PriceStatusNotInCurrentFeeds,
+					Price:     0,
+					Timestamp: 0,
+				},
+			},
+		},
+		{
+			name:      "query all existing prices",
+			signalIDs: []string{"CS:BAND-USD", "CS:ATOM-USD", "CS:BTC-USD"},
+			expectedPrices: []types.Price{
+				prices[0],
+				prices[1],
+				prices[2],
+			},
+		},
+		{
+			name:      "query with existing prices and non-existing price",
+			signalIDs: []string{"CS:BAND-USD", "CS:NON-EXISTENT"},
+			expectedPrices: []types.Price{
+				prices[0],
+				{SignalID: "CS:NON-EXISTENT", Status: types.PriceStatusNotInCurrentFeeds, Price: 0, Timestamp: 0},
+			},
+		},
+		{
+			name:           "query with empty signal IDs",
+			signalIDs:      []string{},
+			expectedPrices: []types.Price(nil),
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			// Query prices
+			res, err := queryClient.Prices(context.Background(), &types.QueryPricesRequest{
+				SignalIds: tc.signalIDs,
+			})
+			suite.Require().NoError(err)
+			suite.Require().Equal(&types.QueryPricesResponse{
+				Prices: tc.expectedPrices,
+			}, res)
+		})
+	}
+}
+
+func (suite *KeeperTestSuite) TestQueryAllPrices() {
+	ctx, queryClient := suite.ctx, suite.queryClient
+
+	// Setup multiple prices
+	prices := []types.Price{
+		{
+			SignalID:  "CS:ATOM-USD",
+			Price:     200000000,
+			Timestamp: 1234567891,
+		},
+		{
+			SignalID:  "CS:BAND-USD",
+			Price:     100000000,
+			Timestamp: 1234567890,
+		},
+		{
+			SignalID:  "CS:BTC-USD",
+			Price:     300000000,
+			Timestamp: 1234567892,
+		},
+	}
+	for _, price := range prices {
+		suite.feedsKeeper.SetPrice(ctx, price)
+	}
+
+	// Query all prices without pagination
+	res, err := queryClient.AllPrices(context.Background(), &types.QueryAllPricesRequest{})
+	suite.Require().NoError(err)
+	suite.Require().Equal(len(prices), len(res.Prices))
+	suite.Require().Equal(prices, res.Prices)
+
+	// Query all prices with pagination
+	pageReq := &query.PageRequest{Limit: 2, CountTotal: true}
+	res, err = queryClient.AllPrices(context.Background(), &types.QueryAllPricesRequest{
+		Pagination: pageReq,
+	})
+	suite.Require().NoError(err)
+	suite.Require().Equal(2, len(res.Prices))
+	suite.Require().Equal(uint64(3), res.Pagination.Total)
+	suite.Require().NotNil(res.Pagination.NextKey)
+
+	// Query the next page
+	resNext, err := queryClient.AllPrices(context.Background(), &types.QueryAllPricesRequest{
+		Pagination: &query.PageRequest{Key: res.Pagination.NextKey, Limit: 2},
+	})
+	suite.Require().NoError(err)
+	suite.Require().Equal(1, len(resNext.Prices))
+	suite.Require().Nil(resNext.Pagination.NextKey)
+}
+
 func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 	ctx, queryClient := suite.ctx, suite.queryClient
 
@@ -268,13 +224,11 @@ func (suite *KeeperTestSuite) TestQueryValidatorPrices() {
 
 	valPrices := []types.ValidatorPrice{
 		{
-			Validator: ValidValidator.String(),
 			SignalID:  "CS:ATOM-USD",
 			Price:     1e9,
 			Timestamp: ctx.BlockTime().Unix(),
 		},
 		{
-			Validator: ValidValidator.String(),
 			SignalID:  "CS:BAND-USD",
 			Price:     1e9,
 			Timestamp: ctx.BlockTime().Unix(),
