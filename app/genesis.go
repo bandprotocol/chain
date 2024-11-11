@@ -44,6 +44,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
+	"github.com/bandprotocol/chain/v3/x/feeds"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
 	"github.com/bandprotocol/chain/v3/x/oracle"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
@@ -119,6 +121,7 @@ func NewDefaultGenesisState(cdc codec.Codec) GenesisState {
 		icatypes.ModuleName:          cdc.MustMarshalJSON(icaGenesis),
 		ibcfeetypes.ModuleName:       ibcfee.AppModuleBasic{}.DefaultGenesis(cdc),
 		oracletypes.ModuleName:       oracle.AppModuleBasic{}.DefaultGenesis(cdc),
+		feedstypes.ModuleName:        feeds.AppModuleBasic{}.DefaultGenesis(cdc),
 		globalfeetypes.ModuleName:    cdc.MustMarshalJSON(globalfeeGenesis),
 		restaketypes.ModuleName:      restake.AppModuleBasic{}.DefaultGenesis(cdc),
 	}

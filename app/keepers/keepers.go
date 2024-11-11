@@ -69,6 +69,8 @@ import (
 	owasm "github.com/bandprotocol/go-owasm/api"
 
 	bandbankkeeper "github.com/bandprotocol/chain/v3/x/bank/keeper"
+	feedskeeper "github.com/bandprotocol/chain/v3/x/feeds/keeper"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	globalfeekeeper "github.com/bandprotocol/chain/v3/x/globalfee/keeper"
 	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
 	"github.com/bandprotocol/chain/v3/x/oracle"
@@ -101,6 +103,7 @@ type AppKeepers struct {
 	AuthzKeeper           authzkeeper.Keeper
 	GroupKeeper           groupkeeper.Keeper
 	OracleKeeper          oraclekeeper.Keeper
+	FeedsKeeper           feedskeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	GlobalFeeKeeper       globalfeekeeper.Keeper
 	RestakeKeeper         restakekeeper.Keeper
@@ -431,6 +434,16 @@ func NewAppKeeper(
 		appKeepers.IBCKeeper.PortKeeper,
 		appKeepers.ScopedOracleKeeper,
 		owasmVM,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
+	appKeepers.FeedsKeeper = feedskeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[feedstypes.StoreKey],
+		appKeepers.OracleKeeper,
+		appKeepers.StakingKeeper,
+		appKeepers.RestakeKeeper,
+		appKeepers.AuthzKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 

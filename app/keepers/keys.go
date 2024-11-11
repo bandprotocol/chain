@@ -25,6 +25,7 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
@@ -57,6 +58,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		globalfeetypes.StoreKey,
 		ibcfeetypes.StoreKey,
 		restaketypes.StoreKey,
+		feedstypes.StoreKey,
 	)
 
 	// Define transient store keys

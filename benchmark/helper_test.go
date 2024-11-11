@@ -23,6 +23,7 @@ import (
 
 	"github.com/bandprotocol/chain/v3/pkg/obi"
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
@@ -72,6 +73,25 @@ func GenMsgRequestData(
 	}
 
 	return []sdk.Msg{&msg}
+}
+
+func GenMsgSubmitSignalPrices(
+	sender *Account,
+	feeds []feedstypes.Feed,
+	timestamp int64,
+) []sdk.Msg {
+	prices := make([]feedstypes.SignalPrice, 0, len(feeds))
+	for _, feed := range feeds {
+		prices = append(prices, feedstypes.SignalPrice{
+			Status:   feedstypes.SignalPriceStatusAvailable,
+			SignalID: feed.SignalID,
+			Price:    60000,
+		})
+	}
+
+	msg := feedstypes.NewMsgSubmitSignalPrices(sender.ValAddress.String(), timestamp, prices)
+
+	return []sdk.Msg{msg}
 }
 
 func GenMsgSend(
