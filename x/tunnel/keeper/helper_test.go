@@ -11,7 +11,7 @@ func (s *KeeperTestSuite) TestGenerateSignalPricesSendAll() {
 
 	tunnelID := uint64(1)
 	currentPricesMap := map[string]feedstypes.Price{
-		"BTC/USD": {PriceStatus: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
+		"BTC/USD": {Status: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
 	}
 	sendAll := true
 	tunnel := types.Tunnel{
@@ -42,8 +42,8 @@ func (s *KeeperTestSuite) TestGenerateSignalPricesMeetHardDeviation() {
 
 	tunnelID := uint64(1)
 	currentPricesMap := map[string]feedstypes.Price{
-		"BTC/USD": {PriceStatus: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
-		"ETH/USD": {PriceStatus: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 2000, Timestamp: 0},
+		"BTC/USD": {Status: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
+		"ETH/USD": {Status: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 2000, Timestamp: 0},
 	}
 	sendAll := false
 	tunnel := types.Tunnel{
@@ -76,8 +76,8 @@ func (s *KeeperTestSuite) TestGenerateSignalPricesNotMeetHardDeviation() {
 
 	tunnelID := uint64(1)
 	currentPricesMap := map[string]feedstypes.Price{
-		"BTC/USD": {PriceStatus: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
-		"ETH/USD": {PriceStatus: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 2000, Timestamp: 0},
+		"BTC/USD": {Status: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
+		"ETH/USD": {Status: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 2000, Timestamp: 0},
 	}
 	sendAll := false
 	tunnel := types.Tunnel{

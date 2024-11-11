@@ -216,12 +216,12 @@ func (ms msgServer) TriggerTunnel(
 	}
 
 	signalIDs := tunnel.GetSignalIDs()
-	currentPrices := ms.Keeper.feedsKeeper.GetCurrentPrices(ctx, signalIDs)
+	currentPrices := ms.Keeper.feedsKeeper.GetPrices(ctx, signalIDs)
 
 	newSignalPrices := make([]types.SignalPrice, 0, len(signalIDs))
 	for _, currentPrice := range currentPrices {
 		var price uint64
-		if currentPrice.PriceStatus == feedstypes.PriceStatusAvailable {
+		if currentPrice.Status == feedstypes.PriceStatusAvailable {
 			price = currentPrice.Price
 		}
 
