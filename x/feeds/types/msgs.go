@@ -49,7 +49,7 @@ func (m *MsgSubmitSignalPrices) ValidateBasic() error {
 		// Validate SignalPrice Status
 		if _, ok := SignalPriceStatus_name[int32(signalPrice.Status)]; !ok {
 			return sdkerrors.ErrInvalidRequest.Wrapf(
-				"invalid signal price status: %s", signalPrice.Status.String(),
+				"invalid signal price status: %d", signalPrice.Status,
 			)
 		}
 
