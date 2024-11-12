@@ -6,6 +6,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 var (
@@ -19,7 +21,7 @@ func NewMsgCreateTunnel(
 	signalDeviations []SignalDeviation,
 	interval uint64,
 	route RouteI,
-	encoder Encoder,
+	encoder feedstypes.Encoder,
 	initialDeposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
@@ -48,7 +50,7 @@ func NewMsgCreateTSSTunnel(
 	interval uint64,
 	destinationChainID string,
 	destinationContractAddress string,
-	encoder Encoder,
+	encoder feedstypes.Encoder,
 	initialDeposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
@@ -98,7 +100,7 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 	}
 
 	// encoder must be valid
-	if err := ValidateEncoder(m.Encoder); err != nil {
+	if err := feedstypes.ValidateEncoder(m.Encoder); err != nil {
 		return err
 	}
 

@@ -48,11 +48,64 @@ func (s *KeeperTestSuite) TestGetSetPacket() {
 	s.Require().Equal(packet, storedPacket)
 }
 
+func (s *KeeperTestSuite) TestCreatePacket() {
+	ctx, k := s.ctx, s.keeper
+
+	params := k.GetParams(ctx)
+
+	feePayer := sdk.AccAddress([]byte("fee_payer_address"))
+	tunnel := types.Tunnel{
+		ID:       1,
+		FeePayer: feePayer.String(),
+		IsActive: true,
+		SignalDeviations: []types.SignalDeviation{
+			{SignalID: "BTC/USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
+		},
+		CreatedAt: ctx.BlockTime().Unix(),
+	}
+	route := &types.TSSRoute{
+		DestinationChainID:         "0x",
+		DestinationContractAddress: "0x",
+	}
+	prices := []feedstypes.Price{
+		{SignalID: "BTC/USD", Price: 0},
+	}
+
+	s.bankKeeper.EXPECT().
+		SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, k.GetParams(ctx).BasePacketFee).
+		Return(nil)
+
+	err := tunnel.SetRoute(route)
+	s.Require().NoError(err)
+
+	// set tunnel to the store
+	k.SetTunnel(ctx, tunnel)
+
+	expectedPacket := types.Packet{
+		TunnelID:  1,
+		Sequence:  1,
+		Prices:    prices,
+		BaseFee:   params.BasePacketFee,
+		RouteFee:  sdk.NewCoins(),
+		CreatedAt: ctx.BlockTime().Unix(),
+	}
+
+	// create a packet
+	packet, err := k.CreatePacket(ctx, tunnel.ID, prices)
+	s.Require().NoError(err)
+	s.Require().Equal(expectedPacket, packet)
+
+	// Verify that the tunnel sequence was incremented
+	updatedTunnel, err := k.GetTunnel(ctx, tunnel.ID)
+	s.Require().NoError(err)
+	s.Require().Equal(uint64(1), updatedTunnel.Sequence)
+}
+
 func (s *KeeperTestSuite) TestProducePacket() {
 	ctx, k := s.ctx, s.keeper
 
 	tunnelID := uint64(1)
-	currentPricesMap := map[string]feedstypes.Price{
+	pricesMap := map[string]feedstypes.Price{
 		"BTC/USD": {Status: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
 	}
 	feePayer := sdk.AccAddress([]byte("fee_payer_address"))
@@ -85,11 +138,11 @@ func (s *KeeperTestSuite) TestProducePacket() {
 	err = k.ActivateTunnel(ctx, tunnelID)
 	s.Require().NoError(err)
 
-	k.SetLatestSignalPrices(ctx, types.NewLatestSignalPrices(tunnelID, []types.SignalPrice{
+	k.SetLatestPrices(ctx, types.NewLatestPrices(tunnelID, []feedstypes.Price{
 		{SignalID: "BTC/USD", Price: 0},
 	}, 0))
 
-	err = k.ProducePacket(ctx, tunnelID, currentPricesMap)
+	err = k.ProducePacket(ctx, tunnelID, pricesMap)
 	s.Require().NoError(err)
 }
 
@@ -134,7 +187,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 	err = k.ActivateTunnel(ctx, tunnelID)
 	s.Require().NoError(err)
 
-	k.SetLatestSignalPrices(ctx, types.NewLatestSignalPrices(tunnelID, []types.SignalPrice{
+	k.SetLatestPrices(ctx, types.NewLatestPrices(tunnelID, []feedstypes.Price{
 		{SignalID: "BTC/USD", Price: 0},
 	}, 0))
 
@@ -188,7 +241,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPacketsNotEnoughMoney() {
 	err = k.ActivateTunnel(ctx, tunnelID)
 	s.Require().NoError(err)
 
-	k.SetLatestSignalPrices(ctx, types.NewLatestSignalPrices(tunnelID, []types.SignalPrice{
+	k.SetLatestPrices(ctx, types.NewLatestPrices(tunnelID, []feedstypes.Price{
 		{SignalID: "BTC/USD", Price: 0},
 	}, 0))
 

@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
@@ -15,7 +16,7 @@ import (
 func (k Keeper) AddTunnel(
 	ctx sdk.Context,
 	route types.RouteI,
-	encoder types.Encoder,
+	encoder feedstypes.Encoder,
 	signalDeviations []types.SignalDeviation,
 	interval uint64,
 	creator sdk.AccAddress,
@@ -29,12 +30,8 @@ func (k Keeper) AddTunnel(
 		return nil, err
 	}
 
-	// set the signal prices info
-	var signalPrices []types.SignalPrice
-	for _, sd := range signalDeviations {
-		signalPrices = append(signalPrices, types.NewSignalPrice(sd.SignalID, 0))
-	}
-	k.SetLatestSignalPrices(ctx, types.NewLatestSignalPrices(newID, signalPrices, 0))
+	// set the prices info
+	k.SetLatestPrices(ctx, types.NewLatestPrices(newID, []feedstypes.Price{}, 0))
 
 	// create a new tunnel
 	tunnel, err := types.NewTunnel(
@@ -99,12 +96,8 @@ func (k Keeper) UpdateAndResetTunnel(
 	tunnel.Interval = interval
 	k.SetTunnel(ctx, tunnel)
 
-	// edit the signal prices info
-	var signalPrices []types.SignalPrice
-	for _, sd := range signalDeviations {
-		signalPrices = append(signalPrices, types.NewSignalPrice(sd.SignalID, 0))
-	}
-	k.SetLatestSignalPrices(ctx, types.NewLatestSignalPrices(tunnelID, signalPrices, 0))
+	// edit the prices info
+	k.SetLatestPrices(ctx, types.NewLatestPrices(tunnelID, []feedstypes.Price{}, 0))
 
 	event := sdk.NewEvent(
 		types.EventTypeUpdateAndResetTunnel,

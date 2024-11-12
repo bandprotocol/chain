@@ -10,7 +10,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
-	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
@@ -77,7 +76,7 @@ func (ms msgServer) CreateTunnel(
 	}, nil
 }
 
-// UpdateAndResetTunnel edits a tunnel and reset latest signal price interval.
+// UpdateAndResetTunnel edits a tunnel and reset latest price interval.
 func (ms msgServer) UpdateAndResetTunnel(
 	goCtx context.Context,
 	msg *types.MsgUpdateAndResetTunnel,
@@ -200,20 +199,10 @@ func (ms msgServer) TriggerTunnel(
 	}
 
 	signalIDs := tunnel.GetSignalIDs()
-	currentPrices := ms.Keeper.feedsKeeper.GetPrices(ctx, signalIDs)
-
-	newSignalPrices := make([]types.SignalPrice, 0, len(signalIDs))
-	for _, currentPrice := range currentPrices {
-		var price uint64
-		if currentPrice.Status == feedstypes.PriceStatusAvailable {
-			price = currentPrice.Price
-		}
-
-		newSignalPrices = append(newSignalPrices, types.NewSignalPrice(currentPrice.SignalID, price))
-	}
+	prices := ms.Keeper.feedsKeeper.GetPrices(ctx, signalIDs)
 
 	// create a new packet
-	packet, err := ms.CreatePacket(ctx, tunnel.ID, newSignalPrices)
+	packet, err := ms.CreatePacket(ctx, tunnel.ID, prices)
 	if err != nil {
 		return nil, err
 	}
@@ -223,15 +212,15 @@ func (ms msgServer) TriggerTunnel(
 		return nil, sdkerrors.Wrapf(err, "failed to create packet for tunnel %d", tunnel.ID)
 	}
 
-	latestSignalPrices, err := ms.GetLatestSignalPrices(ctx, tunnel.ID)
+	latestPrices, err := ms.GetLatestPrices(ctx, tunnel.ID)
 	if err != nil {
 		return nil, err
 	}
 
 	// update latest price info.
-	latestSignalPrices.LastInterval = ctx.BlockTime().Unix()
-	latestSignalPrices.SignalPrices = newSignalPrices
-	ms.SetLatestSignalPrices(ctx, latestSignalPrices)
+	latestPrices.LastInterval = ctx.BlockTime().Unix()
+	latestPrices.UpdatePrices(prices)
+	ms.SetLatestPrices(ctx, latestPrices)
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeTriggerTunnel,

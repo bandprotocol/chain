@@ -3,6 +3,8 @@ package types
 import (
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 var _ types.UnpackInterfacesMessage = Packet{}
@@ -10,7 +12,7 @@ var _ types.UnpackInterfacesMessage = Packet{}
 func NewPacket(
 	tunnelID uint64,
 	sequence uint64,
-	signalPrices []SignalPrice,
+	prices []feedstypes.Price,
 	baseFee sdk.Coins,
 	routeFee sdk.Coins,
 	createdAt int64,
@@ -18,7 +20,7 @@ func NewPacket(
 	return Packet{
 		TunnelID:      tunnelID,
 		Sequence:      sequence,
-		SignalPrices:  signalPrices,
+		Prices:        prices,
 		PacketContent: nil,
 		BaseFee:       baseFee,
 		RouteFee:      routeFee,

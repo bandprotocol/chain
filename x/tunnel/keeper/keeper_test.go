@@ -19,6 +19,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	band "github.com/bandprotocol/chain/v3/app"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel"
 	"github.com/bandprotocol/chain/v3/x/tunnel/keeper"
 	"github.com/bandprotocol/chain/v3/x/tunnel/testutil"
@@ -110,7 +111,7 @@ func (s *KeeperTestSuite) AddSampleTunnel(isActive bool) {
 	tunnel, err := k.AddTunnel(
 		ctx,
 		route,
-		types.ENCODER_FIXED_POINT_ABI,
+		feedstypes.ENCODER_FIXED_POINT_ABI,
 		signalDeviations,
 		10,
 		sdk.AccAddress([]byte("creator_address")),

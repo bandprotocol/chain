@@ -5,73 +5,74 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-// SetLatestSignalPrices sets the latest signal prices in the store
-func (k Keeper) SetLatestSignalPrices(ctx sdk.Context, latestSignalPrices types.LatestSignalPrices) {
+// SetLatestPrices sets the latest prices in the store
+func (k Keeper) SetLatestPrices(ctx sdk.Context, latestPrices types.LatestPrices) {
 	ctx.KVStore(k.storeKey).
-		Set(types.LatestSignalPricesStoreKey(latestSignalPrices.TunnelID), k.cdc.MustMarshal(&latestSignalPrices))
+		Set(types.LatestPricesStoreKey(latestPrices.TunnelID), k.cdc.MustMarshal(&latestPrices))
 }
 
-// GetLatestSignalPrices gets the latest signal prices from the store
-func (k Keeper) GetLatestSignalPrices(ctx sdk.Context, tunnelID uint64) (types.LatestSignalPrices, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.LatestSignalPricesStoreKey(tunnelID))
+// GetLatestPrices gets the latest prices from the store
+func (k Keeper) GetLatestPrices(ctx sdk.Context, tunnelID uint64) (types.LatestPrices, error) {
+	bz := ctx.KVStore(k.storeKey).Get(types.LatestPricesStoreKey(tunnelID))
 	if bz == nil {
-		return types.LatestSignalPrices{}, types.ErrLatestSignalPricesNotFound.Wrapf("tunnelID: %d", tunnelID)
+		return types.LatestPrices{}, types.ErrLatestPricesNotFound.Wrapf("tunnelID: %d", tunnelID)
 	}
 
-	var latestSignalPrices types.LatestSignalPrices
-	k.cdc.MustUnmarshal(bz, &latestSignalPrices)
-	return latestSignalPrices, nil
+	var latestPrices types.LatestPrices
+	k.cdc.MustUnmarshal(bz, &latestPrices)
+	return latestPrices, nil
 }
 
-// MustGetLatestSignalPrices retrieves the latest signal prices by its tunnel ID. Panics if the signal prices does not exist.
-func (k Keeper) MustGetLatestSignalPrices(ctx sdk.Context, tunnelID uint64) types.LatestSignalPrices {
-	latestSignalPrices, err := k.GetLatestSignalPrices(ctx, tunnelID)
+// MustGetLatestPrices retrieves the latest prices by its tunnel ID. Panics if the prices does not exist.
+func (k Keeper) MustGetLatestPrices(ctx sdk.Context, tunnelID uint64) types.LatestPrices {
+	latestPrices, err := k.GetLatestPrices(ctx, tunnelID)
 	if err != nil {
 		panic(err)
 	}
-	return latestSignalPrices
+	return latestPrices
 }
 
-// GetAllLatestSignalPrices gets all the latest signal prices from the store
-func (k Keeper) GetAllLatestSignalPrices(ctx sdk.Context) []types.LatestSignalPrices {
-	var allLatestSignalPrices []types.LatestSignalPrices
-	iterator := storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.LatestSignalPricesStoreKeyPrefix)
+// GetAllLatestPrices gets all the latest prices from the store
+func (k Keeper) GetAllLatestPrices(ctx sdk.Context) []types.LatestPrices {
+	var allLatestPrices []types.LatestPrices
+	iterator := storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.LatestPricesStoreKeyPrefix)
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
-		var latestSignalPrices types.LatestSignalPrices
-		k.cdc.MustUnmarshal(iterator.Value(), &latestSignalPrices)
-		allLatestSignalPrices = append(allLatestSignalPrices, latestSignalPrices)
+		var latestPrices types.LatestPrices
+		k.cdc.MustUnmarshal(iterator.Value(), &latestPrices)
+		allLatestPrices = append(allLatestPrices, latestPrices)
 	}
-	return allLatestSignalPrices
+	return allLatestPrices
 }
 
-// UpdateLastInterval updates the last interval timestamp of the tunnel in the LatestSignalPrices.
-// LatestSignalPrices of the tunnel must be set before calling this function.
+// UpdateLastInterval updates the last interval timestamp of the tunnel in the LatestPrices.
+// LatestPrices of the tunnel must be set before calling this function.
 func (k Keeper) UpdateLastInterval(ctx sdk.Context, tunnelID uint64, timestamp int64) error {
-	latestSignalPrices, err := k.GetLatestSignalPrices(ctx, tunnelID)
+	latestPrices, err := k.GetLatestPrices(ctx, tunnelID)
 	if err != nil {
 		return err
 	}
 
-	latestSignalPrices.LastInterval = timestamp
-	k.SetLatestSignalPrices(ctx, latestSignalPrices)
+	latestPrices.LastInterval = timestamp
+	k.SetLatestPrices(ctx, latestPrices)
 
 	return nil
 }
 
-// UpdatePriceTunnel updates the signal prices of the tunnel in the LatestSignalPrices.
-// LatestSignalPrices of the tunnel must be set before calling this function.
-func (k Keeper) UpdatePriceTunnel(ctx sdk.Context, tunnelID uint64, signalPrices []types.SignalPrice) error {
-	latestSignalPrices, err := k.GetLatestSignalPrices(ctx, tunnelID)
+// UpdatePriceTunnel updates the prices of the tunnel in the LatestPrices.
+// LatestPrices of the tunnel must be set before calling this function.
+func (k Keeper) UpdatePriceTunnel(ctx sdk.Context, tunnelID uint64, prices []feedstypes.Price) error {
+	latestPrices, err := k.GetLatestPrices(ctx, tunnelID)
 	if err != nil {
 		return err
 	}
 
-	latestSignalPrices.SignalPrices = signalPrices
-	k.SetLatestSignalPrices(ctx, latestSignalPrices)
+	latestPrices.UpdatePrices(prices)
+	k.SetLatestPrices(ctx, latestPrices)
 
 	return nil
 }

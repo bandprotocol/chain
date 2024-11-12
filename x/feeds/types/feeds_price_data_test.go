@@ -24,3 +24,13 @@ func TestABIEncodeFeedsPriceData(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, expected, hex.EncodeToString(result))
 }
+
+func TestValidateEncoder(t *testing.T) {
+	// validate encoder
+	err := types.ValidateEncoder(1)
+	require.NoError(t, err)
+
+	// invalid encoder
+	err = types.ValidateEncoder(999)
+	require.Error(t, err)
+}
