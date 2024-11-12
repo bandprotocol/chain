@@ -71,6 +71,12 @@ func (q queryServer) Members(
 		groupID = q.k.GetCurrentGroup(ctx).GroupID
 	}
 
+	if _, ok := types.MemberStatusFilter_name[int32(req.Status)]; !ok {
+		return nil, sdkerrors.ErrInvalidRequest.Wrapf(
+			"invalid member status filter: %s", req.Status.String(),
+		)
+	}
+
 	iteratorKey := append(types.MemberStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(groupID))...)
 	memberStore := prefix.NewStore(ctx.KVStore(q.k.storeKey), iteratorKey)
 

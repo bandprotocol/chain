@@ -40,15 +40,17 @@ type BankKeeper interface {
 }
 
 type FeedsKeeper interface {
-	GetAllCurrentPrices(ctx sdk.Context) (prices []feedstypes.Price)
-	GetCurrentPrices(ctx sdk.Context, signalIDs []string) (prices []feedstypes.Price)
+	GetAllPrices(ctx sdk.Context) (prices []feedstypes.Price)
+	GetPrices(ctx sdk.Context, signalIDs []string) (prices []feedstypes.Price)
 }
 
 type BandtssKeeper interface {
-	CreateDirectSigningRequest(
+	CreateTunnelSigningRequest(
 		ctx sdk.Context,
+		tunnelID uint64,
+		destinationContractAddr string,
+		destinationChainID string,
 		content tsstypes.Content,
-		memo string,
 		sender sdk.AccAddress,
 		feeLimit sdk.Coins,
 	) (bandtsstypes.SigningID, error)

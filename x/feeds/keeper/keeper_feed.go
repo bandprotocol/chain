@@ -28,9 +28,11 @@ func (k Keeper) SetCurrentFeeds(ctx sdk.Context, feeds []types.Feed) {
 
 // CalculateNewCurrentFeeds calculates new supported feeds from current signal-total-powers.
 func (k Keeper) CalculateNewCurrentFeeds(ctx sdk.Context) []types.Feed {
-	signalTotalPowers := k.GetSignalTotalPowersByPower(ctx, k.GetParams(ctx).MaxCurrentFeeds)
-	feeds := make([]types.Feed, 0, len(signalTotalPowers))
 	params := k.GetParams(ctx)
+
+	signalTotalPowers := k.GetSignalTotalPowersByPower(ctx, params.MaxCurrentFeeds)
+	feeds := make([]types.Feed, 0, len(signalTotalPowers))
+
 	for _, signalTotalPower := range signalTotalPowers {
 		interval := types.CalculateInterval(
 			signalTotalPower.Power,

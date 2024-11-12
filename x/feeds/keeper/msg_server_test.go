@@ -174,11 +174,11 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
 			input: &types.MsgSubmitSignalPrices{
 				Validator: InvalidValidator.String(),
 				Timestamp: suite.ctx.BlockTime().Unix(),
-				Prices: []types.SignalPrice{
+				SignalPrices: []types.SignalPrice{
 					{
-						PriceStatus: types.PriceStatusAvailable,
-						SignalID:    "CS:BAND-USD",
-						Price:       10e12,
+						Status:   types.SignalPriceStatusAvailable,
+						SignalID: "CS:BAND-USD",
+						Price:    10e12,
 					},
 				},
 			},
@@ -190,11 +190,11 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
 			input: &types.MsgSubmitSignalPrices{
 				Validator: ValidValidator.String(),
 				Timestamp: suite.ctx.BlockTime().Unix(),
-				Prices: []types.SignalPrice{
+				SignalPrices: []types.SignalPrice{
 					{
-						PriceStatus: types.PriceStatusAvailable,
-						SignalID:    "CS:BTC-USD",
-						Price:       10e12,
+						Status:   types.SignalPriceStatusAvailable,
+						SignalID: "CS:BTC-USD",
+						Price:    10e12,
 					},
 				},
 			},
@@ -206,11 +206,11 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
 			input: &types.MsgSubmitSignalPrices{
 				Validator: ValidValidator.String(),
 				Timestamp: suite.ctx.BlockTime().Unix() - 200,
-				Prices: []types.SignalPrice{
+				SignalPrices: []types.SignalPrice{
 					{
-						PriceStatus: types.PriceStatusAvailable,
-						SignalID:    "CS:BAND-USD",
-						Price:       10e12,
+						Status:   types.SignalPriceStatusAvailable,
+						SignalID: "CS:BAND-USD",
+						Price:    10e12,
 					},
 				},
 			},
@@ -222,11 +222,11 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
 			input: &types.MsgSubmitSignalPrices{
 				Validator: ValidValidator.String(),
 				Timestamp: suite.ctx.BlockTime().Unix(),
-				Prices: []types.SignalPrice{
+				SignalPrices: []types.SignalPrice{
 					{
-						PriceStatus: types.PriceStatusAvailable,
-						SignalID:    "CS:BAND-USD",
-						Price:       10e12,
+						Status:   types.SignalPriceStatusAvailable,
+						SignalID: "CS:BAND-USD",
+						Price:    10e12,
 					},
 				},
 			},
@@ -238,11 +238,11 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
 			input: &types.MsgSubmitSignalPrices{
 				Validator: ValidValidator.String(),
 				Timestamp: suite.ctx.BlockTime().Unix(),
-				Prices: []types.SignalPrice{
+				SignalPrices: []types.SignalPrice{
 					{
-						PriceStatus: types.PriceStatusAvailable,
-						SignalID:    "CS:BAND-USD",
-						Price:       10e12,
+						Status:   types.SignalPriceStatusAvailable,
+						SignalID: "CS:BAND-USD",
+						Price:    10e12,
 					},
 				},
 			},

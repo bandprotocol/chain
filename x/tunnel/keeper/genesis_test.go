@@ -11,6 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/keeper"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
@@ -41,47 +42,12 @@ func TestValidateGenesis(t *testing.T) {
 			requireErr: true,
 			errMsg:     "tunnel count mismatch in tunnels",
 		},
-		"tunnel count mismatch in latest signal prices": {
-			genesis: &types.GenesisState{
-				Tunnels: []types.Tunnel{
-					{ID: 1},
-				},
-				TunnelCount: 1,
-				LatestSignalPricesList: []types.LatestSignalPrices{
-					{TunnelID: 1},
-					{TunnelID: 2},
-				},
-			},
-			requireErr: true,
-			errMsg:     "tunnel count mismatch in latest signal prices",
-		},
-		"invalid latest signal prices": {
-			genesis: &types.GenesisState{
-				Tunnels: []types.Tunnel{
-					{ID: 1},
-				},
-				TunnelCount: 1,
-				LatestSignalPricesList: []types.LatestSignalPrices{
-					{TunnelID: 0},
-				},
-			},
-			requireErr: true,
-			errMsg:     "invalid latest signal prices",
-		},
 		"invalid total fees": {
 			genesis: &types.GenesisState{
 				Tunnels: []types.Tunnel{
 					{ID: 1},
 				},
 				TunnelCount: 1,
-				LatestSignalPricesList: []types.LatestSignalPrices{
-					{
-						TunnelID: 1,
-						SignalPrices: []types.SignalPrice{
-							{SignalID: "ETH", Price: 5000},
-						},
-					},
-				},
 				TotalFees: types.TotalFees{
 					TotalPacketFee: sdk.Coins{
 						{Denom: "uband", Amount: sdkmath.NewInt(-100)},
@@ -98,20 +64,6 @@ func TestValidateGenesis(t *testing.T) {
 					{ID: 2},
 				},
 				TunnelCount: 2,
-				LatestSignalPricesList: []types.LatestSignalPrices{
-					{
-						TunnelID: 1,
-						SignalPrices: []types.SignalPrice{
-							{SignalID: "ETH", Price: 5000},
-						},
-					},
-					{
-						TunnelID: 2,
-						SignalPrices: []types.SignalPrice{
-							{SignalID: "ETH", Price: 5000},
-						},
-					},
-				},
 				TotalFees: types.TotalFees{
 					TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
 				},
@@ -145,7 +97,10 @@ func (s *KeeperTestSuite) TestInitExportGenesis() {
 		AnyTimes()
 	s.accountKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(sdk.AccAddress{}).AnyTimes()
 	s.accountKeeper.EXPECT().SetModuleAccount(ctx, gomock.Any()).AnyTimes()
-	s.bankKeeper.EXPECT().GetAllBalances(ctx, gomock.Any()).Return(sdk.Coins{}).AnyTimes()
+	s.bankKeeper.EXPECT().
+		GetAllBalances(ctx, gomock.Any()).
+		Return(sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100)))).
+		AnyTimes()
 
 	// Create a valid genesis state
 	genesisState := &types.GenesisState{
@@ -153,15 +108,6 @@ func (s *KeeperTestSuite) TestInitExportGenesis() {
 		TunnelCount: 1,
 		Tunnels: []types.Tunnel{
 			{ID: 1},
-		},
-		LatestSignalPricesList: []types.LatestSignalPrices{
-			{
-				TunnelID: 1,
-				SignalPrices: []types.SignalPrice{
-					{SignalID: "ETH", Price: 5000},
-				},
-				LastInterval: 0,
-			},
 		},
 		TotalFees: types.TotalFees{
 			TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
@@ -176,4 +122,15 @@ func (s *KeeperTestSuite) TestInitExportGenesis() {
 
 	// Verify the exported state matches the initialized state
 	s.Require().Equal(genesisState, exportedGenesisState)
+
+	// check latest price on chain.
+	for _, t := range genesisState.Tunnels {
+		latestPrices, err := k.GetLatestPrices(ctx, t.ID)
+		s.Require().NoError(err)
+		s.Require().Equal(types.LatestPrices{
+			TunnelID:     t.ID,
+			Prices:       []feedstypes.Price(nil),
+			LastInterval: 0,
+		}, latestPrices)
+	}
 }

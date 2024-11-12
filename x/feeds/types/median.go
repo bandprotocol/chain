@@ -1,159 +1,196 @@
 package types
 
 import (
-	"sort"
+	"cmp"
+	"slices"
 )
 
-// Constants representing multipliers
+const PowerScalingFactor = 32 // Scaling factor to avoid floating-point calculations
+
+// getMultipliers returns predefined multiplier constants.
 func getMultipliers() [5]uint64 {
 	return [5]uint64{60, 40, 20, 11, 10}
 }
 
-// Constants representing sections
+// getSections returns predefined section constants.
 func getSections() [5]uint64 {
 	return [5]uint64{1, 3, 7, 15, 32}
 }
 
-// PriceFeedInfo contains information about a price feed
-type PriceFeedInfo struct {
-	PriceStatus PriceStatus // PriceStatus represents the state of the price feed
-	Power       uint64      // Power represents the power of the price feed
-	Price       uint64      // Price represents the reported price
-	Timestamp   int64       // Timestamp represents the time at which the price feed was reported
-	Index       int64       // Index represents the index of the price feed
+// ValidatorPriceInfo represents a single entry of price information from a validator.
+// It includes the reported price, associated power (weight), and timestamp.
+type ValidatorPriceInfo struct {
+	SignalPriceStatus SignalPriceStatus // indicates the validity or state of the price entry
+	Power             uint64            // power or weight of this entry in calculations
+	Price             uint64            // reported price value
+	Timestamp         int64             // Unix timestamp for when this entry was recorded
 }
 
-// NewPriceFeedInfo returns a new PriceFeedInfo
-func NewPriceFeedInfo(
-	priceStatus PriceStatus,
+// NewValidatorPriceInfo creates a new instance of ValidatorPriceInfo.
+func NewValidatorPriceInfo(
+	signalPriceStatus SignalPriceStatus,
 	power uint64,
 	price uint64,
 	timestamp int64,
-	index int64,
-) PriceFeedInfo {
-	return PriceFeedInfo{
-		PriceStatus: priceStatus,
-		Power:       power,
-		Price:       price,
-		Timestamp:   timestamp,
-		Index:       index,
+) ValidatorPriceInfo {
+	return ValidatorPriceInfo{
+		SignalPriceStatus: signalPriceStatus,
+		Power:             power,
+		Price:             price,
+		Timestamp:         timestamp,
 	}
-}
-
-// FilterPriceFeedInfos filters price feed infos based on price status
-func FilterPriceFeedInfos(pfInfos []PriceFeedInfo, opt PriceStatus) []PriceFeedInfo {
-	filtered := []PriceFeedInfo{}
-	for _, pfInfo := range pfInfos {
-		if pfInfo.PriceStatus == opt {
-			filtered = append(filtered, pfInfo)
-		}
-	}
-	return filtered
 }
 
 // CalculatePricesPowers calculates total, available, unavailable, and unsupported powers
 func CalculatePricesPowers(
-	priceFeedInfos []PriceFeedInfo,
+	validatorPriceInfos []ValidatorPriceInfo,
 ) (totalPower uint64, availablePower uint64, unavailablePower uint64, unsupportedPower uint64) {
-	for _, pfInfo := range priceFeedInfos {
-		totalPower += pfInfo.Power
+	for _, priceInfo := range validatorPriceInfos {
+		totalPower += priceInfo.Power
 
-		switch pfInfo.PriceStatus {
-		case PriceStatusAvailable:
-			availablePower += pfInfo.Power
-		case PriceStatusUnavailable:
-			unavailablePower += pfInfo.Power
-		case PriceStatusUnsupported:
-			unsupportedPower += pfInfo.Power
+		switch priceInfo.SignalPriceStatus {
+		case SignalPriceStatusAvailable:
+			availablePower += priceInfo.Power
+		case SignalPriceStatusUnavailable:
+			unavailablePower += priceInfo.Power
+		case SignalPriceStatusUnsupported:
+			unsupportedPower += priceInfo.Power
 		}
 	}
-	return totalPower, availablePower, unavailablePower, unsupportedPower
+	return
 }
 
-// CalculateMedianPriceFeedInfo calculates the median price feed info by timestamp and power
-func CalculateMedianPriceFeedInfo(priceFeedInfos []PriceFeedInfo) (uint64, error) {
-	totalPower, _, _, _ := CalculatePricesPowers(priceFeedInfos)
-
-	sort.Slice(priceFeedInfos, func(i, j int) bool {
-		if priceFeedInfos[i].Timestamp == priceFeedInfos[j].Timestamp {
-			if priceFeedInfos[i].Power == priceFeedInfos[j].Power {
-				return priceFeedInfos[i].Index < priceFeedInfos[j].Index
-			}
-			return priceFeedInfos[i].Power > priceFeedInfos[j].Power
+// MedianValidatorPriceInfos calculates a time-weighted and power-weighted median price
+// from ValidatorPriceInfo entries, prioritizing recent timestamps and higher power values.
+//
+// Algorithm Overview:
+//
+//  1. **Filter and Sum Power**: Filter entries with available prices and sum their power
+//     to set a baseline for section capacities.
+//
+//  2. **Sort Entries**: Sort entries by timestamp (newest first) and, within equal timestamps, by power
+//     (highest first). This ensures recent, high-power entries are prioritized.
+//
+//  3. **Set Multipliers and Sections**: Define multipliers and sections for weighting. Each section
+//     has a capacity based on a fraction of the total power, and earlier sections have higher multipliers
+//     to favor recent entries.
+//
+// 4. **Distribute Power Across Sections**: For each entry, distribute power across sections:
+//   - Start from the section where the previous entry left off, progressing until all power is allocated.
+//   - For each section, calculate the maximum power that can be taken without exceeding its capacity.
+//     Apply the section’s multiplier to this power to accumulate a weighted total for the entry.
+//
+// 5. **Store Weighted Prices**: Calculate the weighted price for each entry and store it in a list.
+//
+//  6. **Compute Median**: Calculate the median of weighted prices, yielding a time- and power-weighted
+//     median price that reflects the most recent and influential entries.
+func MedianValidatorPriceInfos(validatorPriceInfos []ValidatorPriceInfo) (uint64, error) {
+	// Step 1: Filter entries with available prices and calculate total power for valid entries.
+	var validPrices []ValidatorPriceInfo
+	totalPower := uint64(0)
+	for _, priceInfo := range validatorPriceInfos {
+		if priceInfo.SignalPriceStatus == SignalPriceStatusAvailable {
+			validPrices = append(validPrices, priceInfo)
+			totalPower += priceInfo.Power
 		}
-		return priceFeedInfos[i].Timestamp > priceFeedInfos[j].Timestamp
+	}
+
+	// Step 2: Sort valid entries by timestamp (descending) and by power (descending).
+	slices.SortStableFunc(validPrices, func(priceA, priceB ValidatorPriceInfo) int {
+		// primary comparison: timestamp (descending)
+		if cmpResult := cmp.Compare(priceB.Timestamp, priceA.Timestamp); cmpResult != 0 {
+			return cmpResult
+		}
+		// secondary comparison: power (descending)
+		return cmp.Compare(priceB.Power, priceA.Power)
 	})
 
+	// Step 3: Define multipliers and sections for sectional weighting.
 	multipliers := getMultipliers()
 	sections := getSections()
 
-	var wps []WeightedPrice
-	currentSection := 0
+	var weightedPrices []WeightedPrice
 	currentPower := uint64(0)
-	for _, priceFeedInfo := range priceFeedInfos {
-		leftPower := priceFeedInfo.Power * 32
-		totalWeight := uint64(0)
-		for ; currentSection < len(sections); currentSection++ {
+	sectionIndex := 0
+
+	// Step 4: Distribute each entry’s power across sections.
+	for _, priceInfo := range validPrices {
+		leftPower := priceInfo.Power * PowerScalingFactor // scale up power to avoid floating-point calculations
+		totalWeight := uint64(0)                          // accumulated weight for this entry
+
+		// distribute the entry's power across remaning sections, starting from the current `sectionIndex`
+		for ; sectionIndex < len(sections); sectionIndex++ {
+			// calculate the power limit for the current section
+			sectionLimit := totalPower * sections[sectionIndex]
+
+			// determine how much power to take from this section, based on available capacity
 			takePower := uint64(0)
-			if currentPower+leftPower <= totalPower*sections[currentSection] {
+			if currentPower+leftPower <= sectionLimit {
 				takePower = leftPower
 			} else {
-				takePower = totalPower*sections[currentSection] - currentPower
+				takePower = sectionLimit - currentPower
 			}
-			totalWeight += takePower * multipliers[currentSection]
+
+			// accumulate the weighted power for this entry based on the section's multiplier
+			totalWeight += takePower * multipliers[sectionIndex]
+
+			// update current power and remaining power for this entry
 			currentPower += takePower
 			leftPower -= takePower
+
+			// if all power has been distributed for this entry, exit the loop
 			if leftPower == 0 {
 				break
 			}
 		}
-		wps = append(
-			wps,
-			NewWeightedPrice(
-				totalWeight,
-				priceFeedInfo.Price,
-			),
-		)
+
+		// Step 5: Store the calculated weighted price for this entry
+		weightedPrices = append(weightedPrices, NewWeightedPrice(totalWeight, priceInfo.Price))
 	}
 
-	return CalculateMedianWeightedPrice(wps)
+	// Step 6: Calculate and return the median of weighted prices.
+	return MedianWeightedPrice(weightedPrices)
 }
 
-// WeightedPrice represents a weighted price
+// WeightedPrice represents a price with an associated weight.
 type WeightedPrice struct {
-	Power uint64 // Power represents the power for the price
-	Price uint64 // Price represents the price
+	Weight uint64 // weight of the price
+	Price  uint64 // actual price value
 }
 
-// NewWeightedPrice returns a new WeightedPrice
-func NewWeightedPrice(power uint64, price uint64) WeightedPrice {
+// NewWeightedPrice creates and returns a new WeightedPrice instance.
+func NewWeightedPrice(weight uint64, price uint64) WeightedPrice {
 	return WeightedPrice{
-		Power: power,
-		Price: price,
+		Weight: weight,
+		Price:  price,
 	}
 }
 
-// CalculateMedianWeightedPrice calculates the median of weighted prices
-func CalculateMedianWeightedPrice(wps []WeightedPrice) (uint64, error) {
-	sort.Slice(wps, func(i, j int) bool {
-		if wps[i].Price == wps[j].Price {
-			return wps[i].Power < wps[j].Power
+// MedianWeightedPrice finds the median price from a list of weighted prices.
+func MedianWeightedPrice(weightedPrices []WeightedPrice) (uint64, error) {
+	// sort by Price (ascending), breaking ties by Weight (ascending)
+	slices.SortStableFunc(weightedPrices, func(a, b WeightedPrice) int {
+		if cmpResult := cmp.Compare(a.Price, b.Price); cmpResult != 0 {
+			return cmpResult
 		}
-		return wps[i].Price < wps[j].Price
+		return cmp.Compare(a.Weight, b.Weight)
 	})
 
-	totalPower := uint64(0)
-	for _, wp := range wps {
-		totalPower += wp.Power
+	// calculate total weight
+	totalWeight := uint64(0)
+	for _, wp := range weightedPrices {
+		totalWeight += wp.Weight
 	}
 
-	currentPower := uint64(0)
-	for _, wp := range wps {
-		currentPower += wp.Power
-		if currentPower*2 >= totalPower {
+	// find median by accumulating weights until reaching the midpoint
+	cumulativeWeight := uint64(0)
+	for _, wp := range weightedPrices {
+		cumulativeWeight += wp.Weight
+		if cumulativeWeight*2 >= totalWeight {
 			return wp.Price, nil
 		}
 	}
 
-	return 0, ErrInvalidWeightedPriceArray
+	// return an error if median cannot be determined
+	return 0, ErrInvalidWeightedPrices
 }

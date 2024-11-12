@@ -1,18 +1,18 @@
 package types
 
 import (
-	"fmt"
-
 	"github.com/cosmos/gogoproto/proto"
 
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 var (
-	_, _, _, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgUpdateAndResetTunnel{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositTunnel{}, &MsgWithdrawTunnel{}, &MsgUpdateParams{}
-	_, _, _, _, _, _, _, _ sdk.HasValidateBasic          = &MsgCreateTunnel{}, &MsgUpdateAndResetTunnel{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositTunnel{}, &MsgWithdrawTunnel{}, &MsgUpdateParams{}
+	_, _, _, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgUpdateAndResetTunnel{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositToTunnel{}, &MsgWithdrawFromTunnel{}, &MsgUpdateParams{}
+	_, _, _, _, _, _, _, _ sdk.HasValidateBasic          = &MsgCreateTunnel{}, &MsgUpdateAndResetTunnel{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositToTunnel{}, &MsgWithdrawFromTunnel{}, &MsgUpdateParams{}
 	_                      types.UnpackInterfacesMessage = &MsgCreateTunnel{}
 )
 
@@ -21,7 +21,7 @@ func NewMsgCreateTunnel(
 	signalDeviations []SignalDeviation,
 	interval uint64,
 	route RouteI,
-	encoder Encoder,
+	encoder feedstypes.Encoder,
 	initialDeposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
@@ -50,7 +50,7 @@ func NewMsgCreateTSSTunnel(
 	interval uint64,
 	destinationChainID string,
 	destinationContractAddress string,
-	encoder Encoder,
+	encoder feedstypes.Encoder,
 	initialDeposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
@@ -99,25 +99,15 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 		return err
 	}
 
+	// encoder must be valid
+	if err := feedstypes.ValidateEncoder(m.Encoder); err != nil {
+		return err
+	}
+
 	// initial deposit must be valid
 	if !m.InitialDeposit.IsValid() {
 		return sdkerrors.ErrInvalidCoins.Wrapf("invalid initial deposit: %s", m.InitialDeposit)
 	}
-
-	return nil
-}
-
-// SetTunnelRoute sets the route of the tunnel.
-func (m *MsgCreateTunnel) SetTunnelRoute(route RouteI) error {
-	msg, ok := route.(proto.Message)
-	if !ok {
-		return fmt.Errorf("can't proto marshal %T", msg)
-	}
-	any, err := types.NewAnyWithValue(msg)
-	if err != nil {
-		return err
-	}
-	m.Route = any
 
 	return nil
 }
@@ -232,13 +222,13 @@ func (m MsgTriggerTunnel) ValidateBasic() error {
 	return nil
 }
 
-// NewMsgDepositTunnel creates a new MsgDeposit instance.
-func NewMsgDepositTunnel(
+// NewMsgDepositToTunnel creates a new MsgDepositToTunnel instance.
+func NewMsgDepositToTunnel(
 	tunnelID uint64,
 	amount sdk.Coins,
 	depositor string,
-) *MsgDepositTunnel {
-	return &MsgDepositTunnel{
+) *MsgDepositToTunnel {
+	return &MsgDepositToTunnel{
 		TunnelID:  tunnelID,
 		Amount:    amount,
 		Depositor: depositor,
@@ -246,7 +236,7 @@ func NewMsgDepositTunnel(
 }
 
 // ValidateBasic does a sanity check on the provided data
-func (m MsgDepositTunnel) ValidateBasic() error {
+func (m MsgDepositToTunnel) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Depositor); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}
@@ -258,13 +248,13 @@ func (m MsgDepositTunnel) ValidateBasic() error {
 	return nil
 }
 
-// NewMsgWithdrawTunnel creates a new MsgWithdrawTunnel instance.
-func NewMsgWithdrawTunnel(
+// NewMsgWithdrawFromTunnel creates a new MsgWithdrawFromTunnel instance.
+func NewMsgWithdrawFromTunnel(
 	tunnelID uint64,
 	amount sdk.Coins,
 	withdrawer string,
-) *MsgWithdrawTunnel {
-	return &MsgWithdrawTunnel{
+) *MsgWithdrawFromTunnel {
+	return &MsgWithdrawFromTunnel{
 		TunnelID:   tunnelID,
 		Amount:     amount,
 		Withdrawer: withdrawer,
@@ -272,7 +262,7 @@ func NewMsgWithdrawTunnel(
 }
 
 // ValidateBasic does a sanity check on the provided data
-func (m MsgWithdrawTunnel) ValidateBasic() error {
+func (m MsgWithdrawFromTunnel) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Withdrawer); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
 	}

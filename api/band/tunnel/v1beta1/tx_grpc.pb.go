@@ -24,8 +24,8 @@ const (
 	Msg_Activate_FullMethodName             = "/band.tunnel.v1beta1.Msg/Activate"
 	Msg_Deactivate_FullMethodName           = "/band.tunnel.v1beta1.Msg/Deactivate"
 	Msg_TriggerTunnel_FullMethodName        = "/band.tunnel.v1beta1.Msg/TriggerTunnel"
-	Msg_DepositTunnel_FullMethodName        = "/band.tunnel.v1beta1.Msg/DepositTunnel"
-	Msg_WithdrawTunnel_FullMethodName       = "/band.tunnel.v1beta1.Msg/WithdrawTunnel"
+	Msg_DepositToTunnel_FullMethodName      = "/band.tunnel.v1beta1.Msg/DepositToTunnel"
+	Msg_WithdrawFromTunnel_FullMethodName   = "/band.tunnel.v1beta1.Msg/WithdrawFromTunnel"
 	Msg_UpdateParams_FullMethodName         = "/band.tunnel.v1beta1.Msg/UpdateParams"
 )
 
@@ -43,10 +43,10 @@ type MsgClient interface {
 	Deactivate(ctx context.Context, in *MsgDeactivate, opts ...grpc.CallOption) (*MsgDeactivateResponse, error)
 	// TriggerTunnel is a RPC method to manually trigger a tunnel.
 	TriggerTunnel(ctx context.Context, in *MsgTriggerTunnel, opts ...grpc.CallOption) (*MsgTriggerTunnelResponse, error)
-	// DepositTunnel is a RPC method to submit a deposit to an existing tunnel.
-	DepositTunnel(ctx context.Context, in *MsgDepositTunnel, opts ...grpc.CallOption) (*MsgDepositTunnelResponse, error)
-	// WithdrawTunnel is a RPC method to withdraw a deposit from an existing tunnel.
-	WithdrawTunnel(ctx context.Context, in *MsgWithdrawTunnel, opts ...grpc.CallOption) (*MsgWithdrawTunnelResponse, error)
+	// DepositToTunnel is a RPC method to deposit to an existing tunnel.
+	DepositToTunnel(ctx context.Context, in *MsgDepositToTunnel, opts ...grpc.CallOption) (*MsgDepositToTunnelResponse, error)
+	// WithdrawFromTunnel is a RPC method to withdraw a deposit from an existing tunnel.
+	WithdrawFromTunnel(ctx context.Context, in *MsgWithdrawFromTunnel, opts ...grpc.CallOption) (*MsgWithdrawFromTunnelResponse, error)
 	// UpdateParams is a RPC method to update parameters
 	UpdateParams(ctx context.Context, in *MsgUpdateParams, opts ...grpc.CallOption) (*MsgUpdateParamsResponse, error)
 }
@@ -104,18 +104,18 @@ func (c *msgClient) TriggerTunnel(ctx context.Context, in *MsgTriggerTunnel, opt
 	return out, nil
 }
 
-func (c *msgClient) DepositTunnel(ctx context.Context, in *MsgDepositTunnel, opts ...grpc.CallOption) (*MsgDepositTunnelResponse, error) {
-	out := new(MsgDepositTunnelResponse)
-	err := c.cc.Invoke(ctx, Msg_DepositTunnel_FullMethodName, in, out, opts...)
+func (c *msgClient) DepositToTunnel(ctx context.Context, in *MsgDepositToTunnel, opts ...grpc.CallOption) (*MsgDepositToTunnelResponse, error) {
+	out := new(MsgDepositToTunnelResponse)
+	err := c.cc.Invoke(ctx, Msg_DepositToTunnel_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *msgClient) WithdrawTunnel(ctx context.Context, in *MsgWithdrawTunnel, opts ...grpc.CallOption) (*MsgWithdrawTunnelResponse, error) {
-	out := new(MsgWithdrawTunnelResponse)
-	err := c.cc.Invoke(ctx, Msg_WithdrawTunnel_FullMethodName, in, out, opts...)
+func (c *msgClient) WithdrawFromTunnel(ctx context.Context, in *MsgWithdrawFromTunnel, opts ...grpc.CallOption) (*MsgWithdrawFromTunnelResponse, error) {
+	out := new(MsgWithdrawFromTunnelResponse)
+	err := c.cc.Invoke(ctx, Msg_WithdrawFromTunnel_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -145,10 +145,10 @@ type MsgServer interface {
 	Deactivate(context.Context, *MsgDeactivate) (*MsgDeactivateResponse, error)
 	// TriggerTunnel is a RPC method to manually trigger a tunnel.
 	TriggerTunnel(context.Context, *MsgTriggerTunnel) (*MsgTriggerTunnelResponse, error)
-	// DepositTunnel is a RPC method to submit a deposit to an existing tunnel.
-	DepositTunnel(context.Context, *MsgDepositTunnel) (*MsgDepositTunnelResponse, error)
-	// WithdrawTunnel is a RPC method to withdraw a deposit from an existing tunnel.
-	WithdrawTunnel(context.Context, *MsgWithdrawTunnel) (*MsgWithdrawTunnelResponse, error)
+	// DepositToTunnel is a RPC method to deposit to an existing tunnel.
+	DepositToTunnel(context.Context, *MsgDepositToTunnel) (*MsgDepositToTunnelResponse, error)
+	// WithdrawFromTunnel is a RPC method to withdraw a deposit from an existing tunnel.
+	WithdrawFromTunnel(context.Context, *MsgWithdrawFromTunnel) (*MsgWithdrawFromTunnelResponse, error)
 	// UpdateParams is a RPC method to update parameters
 	UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error)
 	mustEmbedUnimplementedMsgServer()
@@ -173,11 +173,11 @@ func (UnimplementedMsgServer) Deactivate(context.Context, *MsgDeactivate) (*MsgD
 func (UnimplementedMsgServer) TriggerTunnel(context.Context, *MsgTriggerTunnel) (*MsgTriggerTunnelResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TriggerTunnel not implemented")
 }
-func (UnimplementedMsgServer) DepositTunnel(context.Context, *MsgDepositTunnel) (*MsgDepositTunnelResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DepositTunnel not implemented")
+func (UnimplementedMsgServer) DepositToTunnel(context.Context, *MsgDepositToTunnel) (*MsgDepositToTunnelResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DepositToTunnel not implemented")
 }
-func (UnimplementedMsgServer) WithdrawTunnel(context.Context, *MsgWithdrawTunnel) (*MsgWithdrawTunnelResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method WithdrawTunnel not implemented")
+func (UnimplementedMsgServer) WithdrawFromTunnel(context.Context, *MsgWithdrawFromTunnel) (*MsgWithdrawFromTunnelResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WithdrawFromTunnel not implemented")
 }
 func (UnimplementedMsgServer) UpdateParams(context.Context, *MsgUpdateParams) (*MsgUpdateParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateParams not implemented")
@@ -285,38 +285,38 @@ func _Msg_TriggerTunnel_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_DepositTunnel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgDepositTunnel)
+func _Msg_DepositToTunnel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgDepositToTunnel)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).DepositTunnel(ctx, in)
+		return srv.(MsgServer).DepositToTunnel(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Msg_DepositTunnel_FullMethodName,
+		FullMethod: Msg_DepositToTunnel_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).DepositTunnel(ctx, req.(*MsgDepositTunnel))
+		return srv.(MsgServer).DepositToTunnel(ctx, req.(*MsgDepositToTunnel))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_WithdrawTunnel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgWithdrawTunnel)
+func _Msg_WithdrawFromTunnel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgWithdrawFromTunnel)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).WithdrawTunnel(ctx, in)
+		return srv.(MsgServer).WithdrawFromTunnel(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Msg_WithdrawTunnel_FullMethodName,
+		FullMethod: Msg_WithdrawFromTunnel_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).WithdrawTunnel(ctx, req.(*MsgWithdrawTunnel))
+		return srv.(MsgServer).WithdrawFromTunnel(ctx, req.(*MsgWithdrawFromTunnel))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -367,12 +367,12 @@ var Msg_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Msg_TriggerTunnel_Handler,
 		},
 		{
-			MethodName: "DepositTunnel",
-			Handler:    _Msg_DepositTunnel_Handler,
+			MethodName: "DepositToTunnel",
+			Handler:    _Msg_DepositToTunnel_Handler,
 		},
 		{
-			MethodName: "WithdrawTunnel",
-			Handler:    _Msg_WithdrawTunnel_Handler,
+			MethodName: "WithdrawFromTunnel",
+			Handler:    _Msg_WithdrawFromTunnel_Handler,
 		},
 		{
 			MethodName: "UpdateParams",

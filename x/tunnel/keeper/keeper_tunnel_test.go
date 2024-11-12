@@ -1,6 +1,8 @@
 package keeper_test
 
 import (
+	"fmt"
+
 	"go.uber.org/mock/gomock"
 
 	sdkmath "cosmossdk.io/math"
@@ -8,6 +10,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
@@ -26,8 +29,8 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 	expectedTunnel := types.Tunnel{
 		ID:               1,
 		Route:            any,
-		Encoder:          types.ENCODER_FIXED_POINT_ABI,
-		FeePayer:         "cosmos1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62qh49enj",
+		Encoder:          feedstypes.ENCODER_FIXED_POINT_ABI,
+		FeePayer:         "band1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62q2yggu0",
 		Creator:          creator.String(),
 		Interval:         interval,
 		SignalDeviations: signalDeviations,
@@ -36,12 +39,9 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 		TotalDeposit:     sdk.NewCoins(),
 	}
 
-	expectedSignalPrices := types.LatestSignalPrices{
-		TunnelID: 1,
-		SignalPrices: []types.SignalPrice{
-			{SignalID: "BTC", Price: 0},
-			{SignalID: "ETH", Price: 0},
-		},
+	expectedPrices := types.LatestPrices{
+		TunnelID:     1,
+		Prices:       []feedstypes.Price(nil),
 		LastInterval: 0,
 	}
 
@@ -51,7 +51,7 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 	s.accountKeeper.EXPECT().NewAccount(ctx, gomock.Any()).Times(1)
 	s.accountKeeper.EXPECT().SetAccount(ctx, gomock.Any()).Times(1)
 
-	tunnel, err := k.AddTunnel(ctx, route, types.ENCODER_FIXED_POINT_ABI, signalDeviations, interval, creator)
+	tunnel, err := k.AddTunnel(ctx, route, feedstypes.ENCODER_FIXED_POINT_ABI, signalDeviations, interval, creator)
 	s.Require().NoError(err)
 	s.Require().Equal(expectedTunnel, *tunnel)
 
@@ -59,17 +59,17 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 	tunnelCount := k.GetTunnelCount(ctx)
 	s.Require().Equal(uint64(1), tunnelCount)
 
-	// check the latest signal prices
-	latestSignalPrices, err := k.GetLatestSignalPrices(ctx, tunnel.ID)
+	// check the latest prices
+	latestPrices, err := k.GetLatestPrices(ctx, tunnel.ID)
 	s.Require().NoError(err)
-	s.Require().Equal(expectedSignalPrices, latestSignalPrices)
+	s.Require().Equal(expectedPrices, latestPrices)
 }
 
 func (s *KeeperTestSuite) TestUpdateAndResetTunnel() {
 	ctx, k := s.ctx, s.keeper
 
 	initialRoute := &types.TSSRoute{}
-	initialEncoder := types.ENCODER_FIXED_POINT_ABI
+	initialEncoder := feedstypes.ENCODER_FIXED_POINT_ABI
 	initialSignalDeviations := []types.SignalDeviation{
 		{SignalID: "BTC", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
 		{SignalID: "ETH", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
@@ -110,12 +110,12 @@ func (s *KeeperTestSuite) TestUpdateAndResetTunnel() {
 	s.Require().Equal(newSignalDeviations, editedTunnel.SignalDeviations)
 	s.Require().Equal(newInterval, editedTunnel.Interval)
 
-	// check the latest signal prices
-	latestSignalPrices, err := k.GetLatestSignalPrices(ctx, editedTunnel.ID)
+	// check the latest prices
+	latestPrices, err := k.GetLatestPrices(ctx, editedTunnel.ID)
 	s.Require().NoError(err)
-	s.Require().Equal(editedTunnel.ID, latestSignalPrices.TunnelID)
-	s.Require().Len(latestSignalPrices.SignalPrices, len(newSignalDeviations))
-	for i, sp := range latestSignalPrices.SignalPrices {
+	s.Require().Equal(editedTunnel.ID, latestPrices.TunnelID)
+	s.Require().Len(latestPrices.Prices, 0)
+	for i, sp := range latestPrices.Prices {
 		s.Require().Equal(newSignalDeviations[i].SignalID, sp.SignalID)
 		s.Require().Equal(uint64(0), sp.Price)
 	}
@@ -171,7 +171,7 @@ func (s *KeeperTestSuite) TestActivateTunnel() {
 
 	tunnelID := uint64(1)
 	route := &codectypes.Any{}
-	encoder := types.ENCODER_FIXED_POINT_ABI
+	encoder := feedstypes.ENCODER_FIXED_POINT_ABI
 	signalDeviations := []types.SignalDeviation{
 		{SignalID: "BTC"},
 		{SignalID: "ETH"},
@@ -211,7 +211,7 @@ func (s *KeeperTestSuite) TestDeactivateTunnel() {
 
 	tunnelID := uint64(1)
 	route := &codectypes.Any{}
-	encoder := types.ENCODER_FIXED_POINT_ABI
+	encoder := feedstypes.ENCODER_FIXED_POINT_ABI
 	signalDeviations := []types.SignalDeviation{
 		{SignalID: "BTC"},
 		{SignalID: "ETH"},
@@ -254,4 +254,24 @@ func (s *KeeperTestSuite) TestGetSetTotalFees() {
 
 	retrievedFees := k.GetTotalFees(ctx)
 	s.Require().Equal(totalFees, retrievedFees)
+}
+
+func (s *KeeperTestSuite) TestGenerateTunnelAccount() {
+	ctx, k := s.ctx, s.keeper
+
+	tunnelID := uint64(1)
+	s.accountKeeper.EXPECT().
+		GetAccount(ctx, gomock.Any()).
+		Return(nil).Times(1)
+	s.accountKeeper.EXPECT().NewAccount(ctx, gomock.Any()).Times(1)
+	s.accountKeeper.EXPECT().SetAccount(ctx, gomock.Any()).Times(1)
+
+	addr, err := k.GenerateTunnelAccount(ctx, fmt.Sprintf("%d", tunnelID))
+	s.Require().NoError(err, "expected no error generating account")
+	s.Require().NotNil(addr, "expected generated address to be non-nil")
+	s.Require().Equal(
+		"band1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62q2yggu0",
+		addr.String(),
+		"expected generated address to match",
+	)
 }
