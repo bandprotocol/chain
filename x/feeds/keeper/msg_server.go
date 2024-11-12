@@ -103,9 +103,10 @@ func (ms msgServer) SubmitSignalPrices(
 	blockHeight := ctx.BlockHeight()
 
 	params := ms.GetParams(ctx)
+	currentFeeds := ms.GetCurrentFeeds(ctx)
 
 	// check if the number of signal prices exceeds the maximum allowed feeds
-	if len(msg.SignalPrices) > int(params.MaxCurrentFeeds) {
+	if len(msg.SignalPrices) > len(currentFeeds.Feeds) {
 		return nil, types.ErrSignalPricesTooLarge
 	}
 
@@ -128,8 +129,7 @@ func (ms msgServer) SubmitSignalPrices(
 		)
 	}
 
-	// get current feeds and create current feed map from signal to new idx of validator price
-	currentFeeds := ms.GetCurrentFeeds(ctx)
+	// create current feed map from signal to new idx of validator price
 	currentFeedsMap := make(map[string]int)
 	for idx, feed := range currentFeeds.Feeds {
 		currentFeedsMap[feed.SignalID] = idx
