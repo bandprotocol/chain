@@ -22,6 +22,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bandprotocol/chain/v3/hooks/common"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 )
@@ -126,6 +127,14 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeMsgGrantAllowance(msg, detail)
 	case *feegranttypes.MsgRevokeAllowance:
 		DecodeMsgRevokeAllowance(msg, detail)
+	case *feedstypes.MsgSubmitSignalPrices:
+		DecodeFeedsMsgSubmitSignalPrices(msg, detail)
+	case *feedstypes.MsgVote:
+		DecodeFeedsMsgVote(msg, detail)
+	case *feedstypes.MsgUpdateReferenceSourceConfig:
+		DecodeFeedsMsgUpdateReferenceSourceConfig(msg, detail)
+	case *feedstypes.MsgUpdateParams:
+		DecodeFeedsMsgUpdateParams(msg, detail)
 	case *group.MsgCreateGroup:
 		DecodeGroupMsgCreateGroup(msg, detail)
 	case *group.MsgCreateGroupPolicy:
@@ -659,6 +668,27 @@ func DecodeDescription(des stakingtypes.Description) common.JsDict {
 		"security_contact": des.GetSecurityContact(),
 		"website":          des.GetWebsite(),
 	}
+}
+
+func DecodeFeedsMsgSubmitSignalPrices(msg *feedstypes.MsgSubmitSignalPrices, detail common.JsDict) {
+	detail["validator"] = msg.GetValidator()
+	detail["timestamp"] = msg.GetTimestamp()
+	detail["signal_prices"] = msg.GetSignalPrices()
+}
+
+func DecodeFeedsMsgVote(msg *feedstypes.MsgVote, detail common.JsDict) {
+	detail["voter"] = msg.GetVoter()
+	detail["signals"] = msg.GetSignals()
+}
+
+func DecodeFeedsMsgUpdateReferenceSourceConfig(msg *feedstypes.MsgUpdateReferenceSourceConfig, detail common.JsDict) {
+	detail["admin"] = msg.GetAdmin()
+	detail["reference_source_config"] = msg.GetReferenceSourceConfig()
+}
+
+func DecodeFeedsMsgUpdateParams(msg *feedstypes.MsgUpdateParams, detail common.JsDict) {
+	detail["authority"] = msg.GetAuthority()
+	detail["params"] = msg.GetParams()
 }
 
 func DecodeGroupMsgCreateGroup(msg *group.MsgCreateGroup, detail common.JsDict) {

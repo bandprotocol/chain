@@ -33,6 +33,7 @@ import (
 	"github.com/bandprotocol/chain/v3/hooks/common"
 	"github.com/bandprotocol/chain/v3/hooks/emitter"
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 )
@@ -911,6 +912,98 @@ func (suite *DecoderTestSuite) TestDecodeMsgTimeoutOnClose() {
 	suite.testCompareJson(
 		detail,
 		"{\"next_sequence_recv\":1,\"packet\":{\"data\":\"\",\"destination_channel\":\"channel-0\",\"destination_port\":\"oracle\",\"sequence\":1,\"source_channel\":\"channel-0\",\"source_port\":\"oracle\",\"timeout_height\":{\"revision_height\":10,\"revision_number\":0},\"timeout_timestamp\":0},\"proof_close\":\"\",\"proof_height\":{\"revision_height\":10,\"revision_number\":0},\"proof_unreceived\":\"\",\"signer\":\"band12d5kwmn9wgqqqqqqqqqqqqqqqqqqqqqqr057wh\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeFeedsMsgSubmitPrices() {
+	detail := make(common.JsDict)
+
+	msg := feedstypes.MsgSubmitSignalPrices{
+		Validator: ValAddress.String(),
+		Timestamp: 12345678,
+		SignalPrices: []feedstypes.SignalPrice{
+			{
+				Status:   feedstypes.SignalPriceStatusAvailable,
+				SignalID: "CS:ETH-USD",
+				Price:    3500000000000,
+			},
+			{
+				Status:   feedstypes.SignalPriceStatusUnavailable,
+				SignalID: "CS:BTC-USD",
+				Price:    0,
+			},
+		},
+	}
+
+	emitter.DecodeFeedsMsgSubmitSignalPrices(&msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"signal_prices\":[{\"status\":3,\"signal_id\":\"CS:ETH-USD\",\"price\":3500000000000},{\"status\":2,\"signal_id\":\"CS:BTC-USD\"}],\"timestamp\":12345678,\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeFeedsMsgSubmitSignals() {
+	detail := make(common.JsDict)
+
+	msg := feedstypes.MsgVote{
+		Voter: DelegatorAddress.String(),
+		Signals: []feedstypes.Signal{
+			{
+				ID:    "crypto_price.btcusd",
+				Power: 30000000000,
+			},
+			{
+				ID:    "crypto_price.ethusd",
+				Power: 60000000000,
+			},
+		},
+	}
+
+	emitter.DecodeFeedsMsgVote(&msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"signals\":[{\"id\":\"crypto_price.btcusd\",\"power\":30000000000},{\"id\":\"crypto_price.ethusd\",\"power\":60000000000}],\"voter\":\"band1g3jkcet8v96x7usqqqqqqqqqqqqqqqqqus6d5g\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeFeedsMsgUpdatePriceService() {
+	detail := make(common.JsDict)
+
+	msg := feedstypes.MsgUpdateReferenceSourceConfig{
+		Admin:                 OwnerAddress.String(),
+		ReferenceSourceConfig: feedstypes.NewReferenceSourceConfig("testhash", "1.0.0"),
+	}
+
+	emitter.DecodeFeedsMsgUpdateReferenceSourceConfig(&msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"admin\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"reference_source_config\":{\"registry_ipfs_hash\":\"testhash\",\"registry_version\":\"1.0.0\"}}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeFeedsMsgUpdateParams() {
+	detail := make(common.JsDict)
+
+	msg := feedstypes.MsgUpdateParams{
+		Authority: OwnerAddress.String(),
+		Params: feedstypes.Params{
+			Admin:                         OwnerAddress.String(),
+			AllowableBlockTimeDiscrepancy: 30,
+			GracePeriod:                   30,
+			MinInterval:                   60,
+			MaxInterval:                   3600,
+			PowerStepThreshold:            1_000_000_000,
+			MaxCurrentFeeds:               100,
+			CooldownTime:                  30,
+			MinDeviationBasisPoint:        50,
+			MaxDeviationBasisPoint:        3000,
+		},
+	}
+
+	emitter.DecodeFeedsMsgUpdateParams(&msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"authority\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"params\":{\"admin\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"allowable_block_time_discrepancy\":30,\"grace_period\":30,\"min_interval\":60,\"max_interval\":3600,\"power_step_threshold\":1000000000,\"max_current_feeds\":100,\"cooldown_time\":30,\"min_deviation_basis_point\":50,\"max_deviation_basis_point\":3000}}",
 	)
 }
 

@@ -41,6 +41,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bandprotocol/chain/v3/hooks/common"
+	feedskeeper "github.com/bandprotocol/chain/v3/x/feeds/keeper"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	restakekeeper "github.com/bandprotocol/chain/v3/x/restake/keeper"
@@ -68,6 +70,7 @@ type Hook struct {
 	groupKeeper   groupkeeper.Keeper
 	oracleKeeper  oraclekeeper.Keeper
 	restakeKeeper restakekeeper.Keeper
+	feedsKeeper   feedskeeper.Keeper
 	icahostKeeper icahostkeeper.Keeper
 
 	// ibc keeper
@@ -91,6 +94,7 @@ func NewHook(
 	groupKeeper groupkeeper.Keeper,
 	oracleKeeper oraclekeeper.Keeper,
 	restakeKeeper restakekeeper.Keeper,
+	feedsKeeper feedskeeper.Keeper,
 	icahostKeeper icahostkeeper.Keeper,
 	clientKeeper clientkeeper.Keeper,
 	connectionKeeper connectionkeeper.Keeper,
@@ -119,6 +123,7 @@ func NewHook(
 		groupKeeper:      groupKeeper,
 		oracleKeeper:     oracleKeeper,
 		restakeKeeper:    restakeKeeper,
+		feedsKeeper:      feedsKeeper,
 		icahostKeeper:    icahostKeeper,
 		clientKeeper:     clientKeeper,
 		connectionKeeper: connectionKeeper,
@@ -307,6 +312,31 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *
 		h.emitSetOracleScript(oracletypes.OracleScriptID(idx+1), os, nil)
 	}
 
+	// Feeds module
+	var feedsState feedstypes.GenesisState
+	h.cdc.MustUnmarshalJSON(genesisState[feedstypes.ModuleName], &feedsState)
+	for _, vote := range feedsState.Votes {
+		for _, signal := range vote.Signals {
+			h.emitSetFeedsVoterSignal(ctx, vote.Voter, signal)
+		}
+	}
+
+	stpIterator := h.feedsKeeper.SignalTotalPowersByPowerStoreIterator(ctx)
+	defer stpIterator.Close()
+
+	for ; stpIterator.Valid(); stpIterator.Next() {
+		bz := stpIterator.Value()
+		signalID := string(bz)
+		stp, err := h.feedsKeeper.GetSignalTotalPower(ctx, signalID)
+		if err != nil {
+			// this should not happen
+			continue
+		}
+		h.emitSetFeedsSignalTotalPower(stp)
+	}
+
+	h.emitSetFeedsReferenceSourceConfig(ctx, feedsState.ReferenceSourceConfig)
+
 	// Restake module
 	var restakeState restaketypes.GenesisState
 	h.cdc.MustUnmarshalJSON(genesisState[restaketypes.ModuleName], &restakeState)
@@ -475,6 +505,13 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, events []abci.Event) {
 	for _, event := range events {
 		h.handleBeginBlockEndBlockEvent(ctx, event)
 	}
+
+	// Emit all new current prices at every endblock.
+	prices := h.feedsKeeper.GetAllPrices(ctx)
+	if len(prices) > 0 {
+		h.emitSetFeedsPrices(ctx, prices)
+	}
+
 	// Update balances of all affected accounts on this block.
 	// Index 0 is message NEW_BLOCK, we insert SET_ACCOUNT messages right after it.
 	modifiedMsgs := []common.Message{h.msgs[0]}

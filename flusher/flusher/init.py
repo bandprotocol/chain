@@ -278,3 +278,36 @@ FROM
 GROUP BY proposal_id
 """
     )
+
+    engine.execute(
+        """
+CREATE VIEW current_prices AS
+SELECT
+    p.signal_id,
+    p.status,
+    p.price,
+    p.timestamp
+FROM
+    feeds_historical_prices p
+WHERE
+    p.timestamp = (
+        SELECT
+            MAX(timestamp)
+        FROM
+            feeds_historical_prices
+    );
+    """
+    )
+
+    engine.execute(
+        """
+CREATE VIEW voter_power_aggregate AS
+SELECT 
+    account_id,
+    COALESCE(SUM(power), 0) AS total_power
+FROM 
+    feeds_voter_signals
+GROUP BY 
+    account_id;
+    """
+    )

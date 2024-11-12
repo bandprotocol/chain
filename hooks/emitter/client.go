@@ -27,7 +27,7 @@ func (h *Hook) getChainIdFromClientId(ctx sdk.Context, clientId string) string {
 	return getChainId(clientState)
 }
 
-func (h *Hook) handleMsgCreatClient(ctx sdk.Context, msg *types.MsgCreateClient, detail common.JsDict) {
+func (h *Hook) handleMsgCreatClient(msg *types.MsgCreateClient, detail common.JsDict) {
 	// h.clientkeeper.GetClientConsensusState(ctx,msg.ClientState)
 	clientState, _ := types.UnpackClientState(msg.ClientState)
 	chainId := getChainId(clientState)

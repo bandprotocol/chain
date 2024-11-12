@@ -46,6 +46,16 @@ from .db import (
     relayer_tx_stat_days,
 )
 
+from .feeds_db import (
+    PRICE_HISTORY_PERIOD,
+    feeds_signal_prices_txs,
+    feeds_validator_prices,
+    feeds_voter_signals,
+    feeds_signal_total_powers,
+    feeds_historical_prices,
+    feeds_reference_source_configs,
+    feeds_feeders,
+)
 from .restake_db import restake_vaults, restake_locks, restake_historical_stakes
 
 
@@ -754,6 +764,143 @@ class Handler(object):
                     last_update_at=timestamp,
                 )
             )
+
+    def handle_set_signal_prices_tx(self, msg):
+        if msg["tx_hash"] is not None:
+            msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
+        del msg["tx_hash"]
+        msg["validator_id"] = self.get_validator_id(msg["validator"])
+        del msg["validator"]
+        msg["feeder_id"] = self.get_account_id(msg["feeder"])
+        del msg["feeder"]
+        self.conn.execute(
+            insert(feeds_signal_prices_txs)
+            .values(**msg)
+            .on_conflict_do_update(constraint="feeds_signal_prices_txs_pkey", set_=msg)
+        )
+
+    def handle_set_validator_prices(self, msg):
+        msg["validator_id"] = self.get_validator_id(msg["validator"])
+        del msg["validator"]
+
+        signal_prices = msg.get("signal_prices", [])
+
+        # Prepare a list of dictionaries to batch
+        batch_data = [
+            {
+                "validator_id": msg["validator_id"],
+                "signal_id": signal_price["signal_id"],
+                "status": signal_price["status"],
+                "price": signal_price.get("price", 0),
+                "timestamp": msg["timestamp"],
+            }
+            for signal_price in signal_prices
+        ]
+
+        # Perform batch insert with on_conflict_do_update using excluded values
+        stmt = insert(feeds_validator_prices).values(batch_data)
+        stmt = stmt.on_conflict_do_update(
+            constraint="feeds_validator_prices_pkey",
+            set_={
+                "status": stmt.excluded.status,
+                "price": stmt.excluded.price,
+                "timestamp": stmt.excluded.timestamp,
+            },
+        )
+
+        # Execute the batched upsert
+        self.conn.execute(stmt)
+
+    def handle_set_voter_signal(self, msg):
+        msg["account_id"] = self.get_account_id(msg["voter"])
+        del msg["voter"]
+        self.conn.execute(
+            insert(feeds_voter_signals)
+            .values(**msg)
+            .on_conflict_do_update(constraint="feeds_voter_signals_pkey", set_=msg)
+        )
+
+    def handle_remove_voter_signals(self, msg):
+        self.conn.execute(
+            feeds_voter_signals.delete().where(
+                feeds_voter_signals.c.account_id == self.get_account_id(msg["voter"])
+            )
+        )
+
+    def handle_set_signal_total_power(self, msg):
+        self.conn.execute(
+            insert(feeds_signal_total_powers)
+            .values(**msg)
+            .on_conflict_do_update(constraint="feeds_signal_total_powers_pkey", set_=msg)
+        )
+
+    def handle_remove_signal_total_power(self, msg):
+        self.conn.execute(
+            feeds_signal_total_powers.delete().where(
+                feeds_signal_total_powers.c.signal_id == msg["signal_id"]
+            )
+        )
+
+    def handle_set_prices(self, msg):
+        prices = msg.get("prices", [])
+        timestamp = msg["timestamp"]
+
+        # Prepare batch data for insert
+        batch_data = [
+            {
+                "signal_id": price["signal_id"],
+                "status": price["status"],
+                "price": price.get("price", 0),
+                "timestamp": timestamp,
+            }
+            for price in prices
+        ]
+
+        # Batch insert with on_conflict_do_update using excluded values
+        stmt = insert(feeds_historical_prices).values(batch_data)
+        stmt = stmt.on_conflict_do_update(
+            constraint="feeds_historical_prices_pkey",
+            set_={
+                "status": stmt.excluded.status,
+                "price": stmt.excluded.price,
+            },
+        )
+
+        self.conn.execute(stmt)
+
+        self.conn.execute(
+            feeds_historical_prices.delete().where(
+                feeds_historical_prices.c.timestamp < msg["timestamp"] - PRICE_HISTORY_PERIOD
+            )
+        )
+
+    def handle_set_reference_source_config(self, msg):
+        self.conn.execute(
+            insert(feeds_reference_source_configs)
+            .values(**msg)
+            .on_conflict_do_update(constraint="feeds_reference_source_configs_pkey", set_=msg)
+        )
+
+    def handle_set_feeder(self, msg):
+        msg["operator_address"] = msg["validator"]
+        del msg["validator"]
+        msg["feeder_id"] = self.get_account_id(msg["feeder"])
+        del msg["feeder"]
+        self.conn.execute(
+            insert(feeds_feeders)
+            .values(msg)
+            .on_conflict_do_nothing(constraint="feeds_feeders_pkey")
+        )
+
+    def handle_remove_feeder(self, msg):
+        msg["operator_address"] = msg["validator"]
+        del msg["validator"]
+        msg["feeder_id"] = self.get_account_id(msg["feeder"])
+        del msg["feeder"]
+        condition = True
+        for col in feeds_feeders.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+        self.conn.execute(feeds_feeders.delete().where(condition))
 
     def handle_set_restake_historical_stake(self, msg):
         msg["account_id"] = self.get_account_id(msg["staker_address"])

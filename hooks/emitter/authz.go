@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
 	"github.com/bandprotocol/chain/v3/hooks/common"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
@@ -18,6 +19,14 @@ func (h *Hook) handleMsgGrant(msg *authz.MsgGrant, detail common.JsDict) {
 		val := sdk.ValAddress(acc).String()
 		h.Write("SET_REPORTER", common.JsDict{
 			"reporter":  msg.Grantee,
+			"validator": val,
+		})
+		detail["validator_moniker"] = val
+	case sdk.MsgTypeURL((&feedstypes.MsgSubmitSignalPrices{})):
+		acc, _ := sdk.AccAddressFromBech32(msg.Granter)
+		val := sdk.ValAddress(acc).String()
+		h.Write("SET_FEEDER", common.JsDict{
+			"feeder":    msg.Grantee,
 			"validator": val,
 		})
 		detail["validator_moniker"] = val
@@ -35,6 +44,14 @@ func (h *Hook) handleMsgRevoke(msg *authz.MsgRevoke, detail common.JsDict) {
 		val := sdk.ValAddress(acc).String()
 		h.Write("REMOVE_REPORTER", common.JsDict{
 			"reporter":  msg.Grantee,
+			"validator": val,
+		})
+		detail["validator_moniker"] = val
+	case sdk.MsgTypeURL(&feedstypes.MsgSubmitSignalPrices{}):
+		acc, _ := sdk.AccAddressFromBech32(msg.Granter)
+		val := sdk.ValAddress(acc).String()
+		h.Write("REMOVE_FEEDER", common.JsDict{
+			"feeder":    msg.Grantee,
 			"validator": val,
 		})
 		detail["validator_moniker"] = val
@@ -61,6 +78,8 @@ func (h *Hook) handleMsgExec(
 		switch msg := msg.(type) {
 		case *oracletypes.MsgReportData:
 			h.handleMsgReportData(ctx, txHash, msg, grantee)
+		case *feedstypes.MsgSubmitSignalPrices:
+			h.handleFeedsMsgSubmitSignalPrices(ctx, txHash, msg, grantee)
 		default:
 			// add signers for this message into the transaction
 			signers, _, err := h.cdc.GetMsgV1Signers(msg)

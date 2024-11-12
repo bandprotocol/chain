@@ -38,6 +38,12 @@ echo "smile stem oven genius cave resource better lunar nasty moon company ridge
 echo "audit silver absorb involve more aspect girl report open gather excite mirror bar hammer clay tackle negative example gym group finger shop stool seminar" \
     | bandd keys add relayer --recover --keyring-backend test
 
+echo "erase relief tree tobacco around knee concert toast diesel melody rule sight forum camera oil sick leopard valid furnace casino post dumb tag young" \
+    | bandd keys add account1 --recover --keyring-backend test
+
+echo "thought insane behind cool expand clarify strategy occur arrive broccoli middle despair foot cake genuine dawn goose abuse curve identify dinner derive genre effort" \
+    | bandd keys add account2 --recover --keyring-backend test
+
 # add accounts to genesis
 bandd genesis add-genesis-account validator1 10000000000000uband --keyring-backend test
 bandd genesis add-genesis-account validator2 10000000000000uband --keyring-backend test
@@ -45,6 +51,8 @@ bandd genesis add-genesis-account validator3 10000000000000uband --keyring-backe
 bandd genesis add-genesis-account validator4 10000000000000uband --keyring-backend test
 bandd genesis add-genesis-account requester 100000000000000uband --keyring-backend test
 bandd genesis add-genesis-account relayer 100000000000000uband --keyring-backend test
+bandd genesis add-genesis-account account1 100000000000000uband --keyring-backend test
+bandd genesis add-genesis-account account2 100000000000000uband --keyring-backend test
 
 # create copy of config.toml
 cp ~/.band/config/config.toml ~/.band/config/config.toml.temp
@@ -108,6 +116,8 @@ bandd genesis collect-gentxs
 # copy genesis to the proper location!
 cp ~/.band/config/genesis.json $DIR/genesis.json
 cat <<< $(jq '.app_state.gov.params.voting_period = "60s"' $DIR/genesis.json) > $DIR/genesis.json
+cat <<< $(jq '.app_state.feeds.params.current_feeds_update_interval = "10"' $DIR/genesis.json) > $DIR/genesis.json
+cat <<< $(jq --arg addr "$(bandd keys show requester -a --keyring-backend test)" '.app_state.feeds.params.admin = $addr' $DIR/genesis.json) > $DIR/genesis.json
 cat <<< $(jq '.app_state.restake.params.allowed_denoms = ["uband"]' $DIR/genesis.json) > $DIR/genesis.json
 
 # Build
@@ -151,6 +161,52 @@ do
     docker cp ~/.yoda bandchain-yoda${v}:/root/.yoda
     docker start bandchain-yoda${v}
 done
+
+# pull latest image first
+docker pull bandprotocol/bothan-api:latest
+
+for v in {1..4}
+do
+    # run bothan image
+    docker run --log-opt max-size=10m --log-opt max-file=3 --network chain_bandchain -d --name bothan$v -v "$(pwd)/docker-config/bothan-config.toml:/root/.bothan/config.toml" bandprotocol/bothan-api:latest
+
+    rm -rf ~/.grogu
+    grogu config chain-id bandchain
+    grogu config nodes "tcp://multi-validator$v-node:26657"
+    grogu config validator $(bandd keys show validator$v -a --bech val --keyring-backend test)
+
+    # change url to bothan image
+    grogu config bothan "bothan$v:50051"
+
+    # activate validator
+    echo "y" | bandd tx oracle activate --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
+
+    # wait for activation transaction success
+    sleep 4
+
+    for i in $(eval echo {1..4})
+    do
+        # add feeder key
+        grogu keys add feeder$i
+    done
+
+    # send band tokens to feeders
+    echo "y" | bandd tx bank multi-send validator$v  $(grogu keys list -a) 1000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
+
+    # wait for sending band tokens transaction success
+    sleep 4
+
+    # add feeder to bandchain
+    echo "y" | bandd tx feeds add-feeders $(grogu keys list -a) --from validator$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
+
+    # wait for adding feeder transaction success
+    sleep 4
+
+    docker create --network chain_bandchain --name bandchain-grogu${v} band-validator:latest grogu r
+    docker cp ~/.grogu bandchain-grogu${v}:/root/.grogu
+    docker start bandchain-grogu${v}
+done
+
 
 # Create faucet container
 rm -rf ~/.faucet
