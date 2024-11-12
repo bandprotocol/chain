@@ -30,6 +30,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "oracle/UpdateParams")
 
 	cdc.RegisterConcrete(&OracleResultSignatureOrder{}, "oracle/OracleResultSignatureOrder", nil)
+	cdc.RegisterConcrete(Params{}, "oracle/Params", nil)
 }
 
 // RegisterInterfaces register the oracle module interfaces to protobuf Any.

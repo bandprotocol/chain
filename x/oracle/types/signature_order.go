@@ -32,8 +32,12 @@ func (o *OracleResultSignatureOrder) ValidateBasic() error {
 		return ErrInvalidRequestID
 	}
 
+	if _, ok := EncodeType_name[int32(o.EncodeType)]; !ok {
+		return ErrInvalidOracleEncodeType.Wrapf("invalid encode: %s", o.EncodeType)
+	}
+
 	if o.EncodeType == ENCODE_TYPE_UNSPECIFIED {
-		return ErrInvalidOracleEncodeType
+		return ErrInvalidOracleEncodeType.Wrapf("encode type must be specified")
 	}
 	return nil
 }
