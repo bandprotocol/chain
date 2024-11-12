@@ -194,7 +194,7 @@ do
     echo "y" | bandd tx multi-send 1000000uband $(cylinder keys list -a) --from account$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
     sleep 4
 
-    # activate tss
+    # grant tss
     echo "y" | bandd tx tss add-grantees $(cylinder keys list -a) --from account$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband --gas 350000 -b sync
     sleep 4
 
