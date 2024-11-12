@@ -1029,7 +1029,7 @@ func (suite *DecoderTestSuite) TestDecodeBandtssMsgUpdateParams() {
 	}
 
 	emitter.DecodeBandtssMsgUpdateParams(&msg, detail)
-	expectedJSON := `{"authority":"","fee":[{"denom":"uband","amount":"1"}],"inactive_penalty_duration":50,"max_transition_duration":50,"reward_percentage":10}`
+	expectedJSON := `{"authority":"","params":{"reward_percentage":10,"inactive_penalty_duration":50,"max_transition_duration":50,"fee":[{"denom":"uband","amount":"1"}]}}`
 	suite.testCompareJson(detail, expectedJSON)
 }
 
