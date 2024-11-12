@@ -4,6 +4,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 
 	"github.com/bandprotocol/chain/v3/pkg/tickmath"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 var (
@@ -41,11 +42,11 @@ type EncodingPacket struct {
 }
 
 // NewEncodingPacket returns a new EncodingPacket object
-func NewEncodingPacket(p Packet, encoder Encoder) (*EncodingPacket, error) {
+func NewEncodingPacket(p Packet, encoder feedstypes.Encoder) (*EncodingPacket, error) {
 	var signalPrices []EncodingSignalPrice
-	for _, sp := range p.SignalPrices {
+	for _, sp := range p.Prices {
 		price := sp.Price
-		if encoder == ENCODER_TICK_ABI && price != 0 {
+		if encoder == feedstypes.ENCODER_TICK_ABI && price != 0 {
 			tick, err := tickmath.PriceToTick(price)
 			if err != nil {
 				return nil, err

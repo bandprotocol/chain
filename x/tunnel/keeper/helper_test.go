@@ -6,11 +6,11 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-func (s *KeeperTestSuite) TestGenerateSignalPricesSendAll() {
+func (s *KeeperTestSuite) TestGeneratePricesSendAll() {
 	ctx := s.ctx
 
 	tunnelID := uint64(1)
-	currentPricesMap := map[string]feedstypes.Price{
+	pricesMap := map[string]feedstypes.Price{
 		"BTC/USD": {Status: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
 	}
 	sendAll := true
@@ -20,28 +20,30 @@ func (s *KeeperTestSuite) TestGenerateSignalPricesSendAll() {
 			{SignalID: "BTC/USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
 		},
 	}
-	latestSignalPrices := types.NewLatestSignalPrices(tunnelID, []types.SignalPrice{
-		{SignalID: "BTC/USD", Price: 0},
+	latestPrices := types.NewLatestPrices(tunnelID, []feedstypes.Price{
+		{Status: feedstypes.PriceStatusNotInCurrentFeeds, SignalID: "BTC/USD", Price: 0},
 	}, 0)
 
-	s.keeper.SetTunnel(ctx, tunnel)
-	s.keeper.SetLatestSignalPrices(ctx, latestSignalPrices)
+	latestPricesMap := keeper.CreatePricesMap(latestPrices.Prices)
 
-	newSignalPrices, err := keeper.GenerateNewSignalPrices(
-		latestSignalPrices,
-		tunnel.GetSignalDeviationMap(),
-		currentPricesMap,
+	s.keeper.SetTunnel(ctx, tunnel)
+	s.keeper.SetLatestPrices(ctx, latestPrices)
+
+	newPrices, err := keeper.GenerateNewPrices(
+		tunnel.SignalDeviations,
+		latestPricesMap,
+		pricesMap,
 		sendAll,
 	)
 	s.Require().NoError(err)
-	s.Require().Len(newSignalPrices, 1)
+	s.Require().Len(newPrices, 1)
 }
 
-func (s *KeeperTestSuite) TestGenerateSignalPricesMeetHardDeviation() {
+func (s *KeeperTestSuite) TestGeneratePricesMeetHardDeviation() {
 	ctx := s.ctx
 
 	tunnelID := uint64(1)
-	currentPricesMap := map[string]feedstypes.Price{
+	pricesMap := map[string]feedstypes.Price{
 		"BTC/USD": {Status: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
 		"ETH/USD": {Status: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 2000, Timestamp: 0},
 	}
@@ -53,29 +55,30 @@ func (s *KeeperTestSuite) TestGenerateSignalPricesMeetHardDeviation() {
 			{SignalID: "ETH/USD", SoftDeviationBPS: 100, HardDeviationBPS: 300},
 		},
 	}
-	latestSignalPrices := types.NewLatestSignalPrices(tunnelID, []types.SignalPrice{
-		{SignalID: "BTC/USD", Price: 48500}, // 3%
-		{SignalID: "ETH/USD", Price: 1980},  // 1%
+	latestPrices := types.NewLatestPrices(tunnelID, []feedstypes.Price{
+		{Status: feedstypes.PriceStatusNotInCurrentFeeds, SignalID: "BTC/USD", Price: 48500}, // 3%
+		{Status: feedstypes.PriceStatusNotInCurrentFeeds, SignalID: "ETH/USD", Price: 1980},  // 1%
 	}, 0)
+	latestPricesMap := keeper.CreatePricesMap(latestPrices.Prices)
 
 	s.keeper.SetTunnel(ctx, tunnel)
-	s.keeper.SetLatestSignalPrices(ctx, latestSignalPrices)
+	s.keeper.SetLatestPrices(ctx, latestPrices)
 
-	newSignalPrices, err := keeper.GenerateNewSignalPrices(
-		latestSignalPrices,
-		tunnel.GetSignalDeviationMap(),
-		currentPricesMap,
+	newPrices, err := keeper.GenerateNewPrices(
+		tunnel.SignalDeviations,
+		latestPricesMap,
+		pricesMap,
 		sendAll,
 	)
 	s.Require().NoError(err)
-	s.Require().Len(newSignalPrices, 2)
+	s.Require().Len(newPrices, 2)
 }
 
-func (s *KeeperTestSuite) TestGenerateSignalPricesNotMeetHardDeviation() {
+func (s *KeeperTestSuite) TestGeneratePricesNotMeetHardDeviation() {
 	ctx := s.ctx
 
 	tunnelID := uint64(1)
-	currentPricesMap := map[string]feedstypes.Price{
+	pricesMap := map[string]feedstypes.Price{
 		"BTC/USD": {Status: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
 		"ETH/USD": {Status: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 2000, Timestamp: 0},
 	}
@@ -87,20 +90,21 @@ func (s *KeeperTestSuite) TestGenerateSignalPricesNotMeetHardDeviation() {
 			{SignalID: "ETH/USD", SoftDeviationBPS: 100, HardDeviationBPS: 300},
 		},
 	}
-	latestSignalPrices := types.NewLatestSignalPrices(tunnelID, []types.SignalPrice{
-		{SignalID: "BTC/USD", Price: 49000}, // 2%
-		{SignalID: "ETH/USD", Price: 1950},  // 2.5%
+	latestPrices := types.NewLatestPrices(tunnelID, []feedstypes.Price{
+		{Status: feedstypes.PriceStatusNotInCurrentFeeds, SignalID: "BTC/USD", Price: 49000}, // 2%
+		{Status: feedstypes.PriceStatusNotInCurrentFeeds, SignalID: "ETH/USD", Price: 1950},  // 2.5%
 	}, 0)
+	latestPricesMap := keeper.CreatePricesMap(latestPrices.Prices)
 
 	s.keeper.SetTunnel(ctx, tunnel)
-	s.keeper.SetLatestSignalPrices(ctx, latestSignalPrices)
+	s.keeper.SetLatestPrices(ctx, latestPrices)
 
-	newSignalPrices, err := keeper.GenerateNewSignalPrices(
-		latestSignalPrices,
-		tunnel.GetSignalDeviationMap(),
-		currentPricesMap,
+	newPrices, err := keeper.GenerateNewPrices(
+		tunnel.SignalDeviations,
+		latestPricesMap,
+		pricesMap,
 		sendAll,
 	)
 	s.Require().NoError(err)
-	s.Require().Len(newSignalPrices, 0)
+	s.Require().Len(newPrices, 0)
 }

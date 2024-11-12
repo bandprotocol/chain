@@ -7,6 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
@@ -24,10 +25,10 @@ func (s *KeeperTestSuite) TestSendRouterPacket() {
 	}
 
 	packet := types.Packet{
-		TunnelID:     1,
-		Sequence:     1,
-		SignalPrices: []types.SignalPrice{},
-		CreatedAt:    time.Now().Unix(),
+		TunnelID:  1,
+		Sequence:  1,
+		Prices:    []feedstypes.Price{},
+		CreatedAt: time.Now().Unix(),
 	}
 
 	expectedPacketContent := types.RouterPacketContent{
@@ -42,15 +43,14 @@ func (s *KeeperTestSuite) TestSendRouterPacket() {
 
 	s.transferKeeper.EXPECT().Transfer(ctx, gomock.Any()).Return(nil, nil)
 
-	content, fee, err := k.SendRouterPacket(
+	content, err := k.SendRouterPacket(
 		ctx,
 		route,
 		packet,
-		types.ENCODER_FIXED_POINT_ABI,
+		feedstypes.ENCODER_FIXED_POINT_ABI,
 		sdk.AccAddress("feePayer"),
 	)
 	s.Require().NoError(err)
-	s.Require().Equal(sdk.NewCoins(), fee)
 
 	packetContent, ok := content.(*types.RouterPacketContent)
 	s.Require().True(ok)

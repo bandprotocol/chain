@@ -8,6 +8,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
@@ -16,19 +17,19 @@ func (k Keeper) SendRouterPacket(
 	ctx sdk.Context,
 	route *types.RouterRoute,
 	packet types.Packet,
-	encoder types.Encoder,
+	encoder feedstypes.Encoder,
 	feePayer sdk.AccAddress,
-) (types.PacketContentI, sdk.Coins, error) {
+) (types.PacketContentI, error) {
 	// create encoding packet
 	encodingpacket, err := types.NewEncodingPacket(packet, encoder)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	// encode relay packet ABI
 	relayPacket, err := encodingpacket.EncodeRelayPacketABI()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	// create memo string for ibc transfer
@@ -43,7 +44,7 @@ func (k Keeper) SendRouterPacket(
 		"",
 	).String()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	msg := ibctransfertypes.NewMsgTransfer(
@@ -58,7 +59,7 @@ func (k Keeper) SendRouterPacket(
 	)
 
 	if _, err := k.transferKeeper.Transfer(ctx, msg); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	packetContent := types.RouterPacketContent{
@@ -71,10 +72,5 @@ func (k Keeper) SendRouterPacket(
 		DestGasPrice:          route.DestGasPrice,
 	}
 
-	fee, err := route.Fee()
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return &packetContent, fee, nil
+	return &packetContent, nil
 }

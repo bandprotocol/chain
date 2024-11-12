@@ -36,6 +36,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&TSSPacketContent{}, "tunnel/TSSPacketContent", nil)
 	cdc.RegisterConcrete(&IBCPacketContent{}, "tunnel/IBCPacketContent", nil)
 	cdc.RegisterConcrete(&RouterPacketContent{}, "tunnel/RouterPacketContent", nil)
+	cdc.RegisterConcrete(Params{}, "tunnel/Params", nil)
 }
 
 // RegisterInterfaces registers the x/tunnel interfaces types with the interface registry

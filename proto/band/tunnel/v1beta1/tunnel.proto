@@ -7,6 +7,8 @@ import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "google/protobuf/any.proto";
 
+import "band/feeds/v1beta1/feeds.proto";
+
 option go_package            = "github.com/bandprotocol/chain/v3/x/tunnel/types";
 option (gogoproto.equal_all) = true;
 
@@ -91,7 +93,7 @@ message Tunnel {
   // route is the route for delivering the signal prices
   google.protobuf.Any route = 3 [(cosmos_proto.accepts_interface) = "RouteI"];
   // encoder is the mode of encoding price signal data.
-  Encoder encoder = 4;
+  band.feeds.v1beta1.Encoder encoder = 4;
   // fee_payer is the address of the fee payer
   string fee_payer = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // signal_deviations is the list of signal deviations
@@ -112,26 +114,16 @@ message Tunnel {
   string creator = 11 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// LatestSignalPrices is the type for signal prices that tunnel produces
-message LatestSignalPrices {
+// LatestPrices is the type for prices that tunnel produces
+message LatestPrices {
   option (gogoproto.equal) = true;
 
   // tunnel_id is the tunnel ID
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
-  // signal_prices is the list of signal prices
-  repeated SignalPrice signal_prices = 2 [(gogoproto.nullable) = false];
+  // prices is the list of prices information from feeds module.
+  repeated band.feeds.v1beta1.Price prices = 2 [(gogoproto.nullable) = false];
   // last_interval is the last interval when the signal prices are produced by interval trigger
   int64 last_interval = 3;
-}
-
-// SignalPrice is the type for a signal price
-message SignalPrice {
-  option (gogoproto.equal) = true;
-
-  // signal_id is the signal ID
-  string signal_id = 1 [(gogoproto.customname) = "SignalID"];
-  // price is the price of the signal
-  uint64 price = 2;
 }
 
 // TotalFees is the type for the total fees collected by the tunnel
@@ -149,8 +141,8 @@ message Packet {
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
   // sequence is representing the sequence of the tunnel packet.
   uint64 sequence = 2;
-  // signal_prices is the list of signal prices
-  repeated SignalPrice signal_prices = 3 [(gogoproto.nullable) = false];
+  // prices is the list of prices information from feeds module.
+  repeated band.feeds.v1beta1.Price prices = 3 [(gogoproto.nullable) = false];
   // packet_content is the content of the packet that implements PacketContentI
   google.protobuf.Any packet_content = 4 [(cosmos_proto.accepts_interface) = "PacketContentI"];
   // base_fee is the base fee of the packet
@@ -191,8 +183,8 @@ message IBCPacketResult {
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
   // sequence is representing the sequence of the tunnel packet.
   uint64 sequence = 2;
-  // signal_prices is the list of signal prices
-  repeated SignalPrice signal_prices = 3 [(gogoproto.nullable) = false];
+  // prices is the list of prices information from feeds module.
+  repeated band.feeds.v1beta1.Price prices = 3 [(gogoproto.nullable) = false];
   // created_at is the timestamp when the packet is created
   int64 created_at = 4;
 }
@@ -219,18 +211,4 @@ message RouterPacketContent {
   uint64 dest_gas_limit = 6;
   // dest_gas_price is the destination gas price
   uint64 dest_gas_price = 7;
-}
-
-// Encoder is an enumerator that defines the mode of encoding message in tunnel module.
-enum Encoder {
-  option (gogoproto.goproto_enum_prefix) = false;
-
-  // ENCODER_UNSPECIFIED is an unspecified encoder mode.
-  ENCODER_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "ENCODER_UNSPECIFIED"];
-
-  // ENCODER_FIXED_POINT_ABI is a fixed-point price abi encoder (price * 10^9).
-  ENCODER_FIXED_POINT_ABI = 1 [(gogoproto.enumvalue_customname) = "ENCODER_FIXED_POINT_ABI"];
-
-  // ENCODER_TICK_ABI is a tick abi encoder.
-  ENCODER_TICK_ABI = 2 [(gogoproto.enumvalue_customname) = "ENCODER_TICK_ABI"];
 }

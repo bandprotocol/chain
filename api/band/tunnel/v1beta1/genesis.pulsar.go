@@ -67,7 +67,7 @@ func (x *_GenesisState_3_list) IsValid() bool {
 var _ protoreflect.List = (*_GenesisState_4_list)(nil)
 
 type _GenesisState_4_list struct {
-	list *[]*LatestSignalPrices
+	list *[]*Deposit
 }
 
 func (x *_GenesisState_4_list) Len() int {
@@ -83,18 +83,18 @@ func (x *_GenesisState_4_list) Get(i int) protoreflect.Value {
 
 func (x *_GenesisState_4_list) Set(i int, value protoreflect.Value) {
 	valueUnwrapped := value.Message()
-	concreteValue := valueUnwrapped.Interface().(*LatestSignalPrices)
+	concreteValue := valueUnwrapped.Interface().(*Deposit)
 	(*x.list)[i] = concreteValue
 }
 
 func (x *_GenesisState_4_list) Append(value protoreflect.Value) {
 	valueUnwrapped := value.Message()
-	concreteValue := valueUnwrapped.Interface().(*LatestSignalPrices)
+	concreteValue := valueUnwrapped.Interface().(*Deposit)
 	*x.list = append(*x.list, concreteValue)
 }
 
 func (x *_GenesisState_4_list) AppendMutable() protoreflect.Value {
-	v := new(LatestSignalPrices)
+	v := new(Deposit)
 	*x.list = append(*x.list, v)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
@@ -107,7 +107,7 @@ func (x *_GenesisState_4_list) Truncate(n int) {
 }
 
 func (x *_GenesisState_4_list) NewElement() protoreflect.Value {
-	v := new(LatestSignalPrices)
+	v := new(Deposit)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
@@ -115,65 +115,13 @@ func (x *_GenesisState_4_list) IsValid() bool {
 	return x.list != nil
 }
 
-var _ protoreflect.List = (*_GenesisState_5_list)(nil)
-
-type _GenesisState_5_list struct {
-	list *[]*Deposit
-}
-
-func (x *_GenesisState_5_list) Len() int {
-	if x.list == nil {
-		return 0
-	}
-	return len(*x.list)
-}
-
-func (x *_GenesisState_5_list) Get(i int) protoreflect.Value {
-	return protoreflect.ValueOfMessage((*x.list)[i].ProtoReflect())
-}
-
-func (x *_GenesisState_5_list) Set(i int, value protoreflect.Value) {
-	valueUnwrapped := value.Message()
-	concreteValue := valueUnwrapped.Interface().(*Deposit)
-	(*x.list)[i] = concreteValue
-}
-
-func (x *_GenesisState_5_list) Append(value protoreflect.Value) {
-	valueUnwrapped := value.Message()
-	concreteValue := valueUnwrapped.Interface().(*Deposit)
-	*x.list = append(*x.list, concreteValue)
-}
-
-func (x *_GenesisState_5_list) AppendMutable() protoreflect.Value {
-	v := new(Deposit)
-	*x.list = append(*x.list, v)
-	return protoreflect.ValueOfMessage(v.ProtoReflect())
-}
-
-func (x *_GenesisState_5_list) Truncate(n int) {
-	for i := n; i < len(*x.list); i++ {
-		(*x.list)[i] = nil
-	}
-	*x.list = (*x.list)[:n]
-}
-
-func (x *_GenesisState_5_list) NewElement() protoreflect.Value {
-	v := new(Deposit)
-	return protoreflect.ValueOfMessage(v.ProtoReflect())
-}
-
-func (x *_GenesisState_5_list) IsValid() bool {
-	return x.list != nil
-}
-
 var (
-	md_GenesisState                           protoreflect.MessageDescriptor
-	fd_GenesisState_params                    protoreflect.FieldDescriptor
-	fd_GenesisState_tunnel_count              protoreflect.FieldDescriptor
-	fd_GenesisState_tunnels                   protoreflect.FieldDescriptor
-	fd_GenesisState_latest_signal_prices_list protoreflect.FieldDescriptor
-	fd_GenesisState_deposits                  protoreflect.FieldDescriptor
-	fd_GenesisState_total_fees                protoreflect.FieldDescriptor
+	md_GenesisState              protoreflect.MessageDescriptor
+	fd_GenesisState_params       protoreflect.FieldDescriptor
+	fd_GenesisState_tunnel_count protoreflect.FieldDescriptor
+	fd_GenesisState_tunnels      protoreflect.FieldDescriptor
+	fd_GenesisState_deposits     protoreflect.FieldDescriptor
+	fd_GenesisState_total_fees   protoreflect.FieldDescriptor
 )
 
 func init() {
@@ -182,7 +130,6 @@ func init() {
 	fd_GenesisState_params = md_GenesisState.Fields().ByName("params")
 	fd_GenesisState_tunnel_count = md_GenesisState.Fields().ByName("tunnel_count")
 	fd_GenesisState_tunnels = md_GenesisState.Fields().ByName("tunnels")
-	fd_GenesisState_latest_signal_prices_list = md_GenesisState.Fields().ByName("latest_signal_prices_list")
 	fd_GenesisState_deposits = md_GenesisState.Fields().ByName("deposits")
 	fd_GenesisState_total_fees = md_GenesisState.Fields().ByName("total_fees")
 }
@@ -270,14 +217,8 @@ func (x *fastReflection_GenesisState) Range(f func(protoreflect.FieldDescriptor,
 			return
 		}
 	}
-	if len(x.LatestSignalPricesList) != 0 {
-		value := protoreflect.ValueOfList(&_GenesisState_4_list{list: &x.LatestSignalPricesList})
-		if !f(fd_GenesisState_latest_signal_prices_list, value) {
-			return
-		}
-	}
 	if len(x.Deposits) != 0 {
-		value := protoreflect.ValueOfList(&_GenesisState_5_list{list: &x.Deposits})
+		value := protoreflect.ValueOfList(&_GenesisState_4_list{list: &x.Deposits})
 		if !f(fd_GenesisState_deposits, value) {
 			return
 		}
@@ -309,8 +250,6 @@ func (x *fastReflection_GenesisState) Has(fd protoreflect.FieldDescriptor) bool 
 		return x.TunnelCount != uint64(0)
 	case "band.tunnel.v1beta1.GenesisState.tunnels":
 		return len(x.Tunnels) != 0
-	case "band.tunnel.v1beta1.GenesisState.latest_signal_prices_list":
-		return len(x.LatestSignalPricesList) != 0
 	case "band.tunnel.v1beta1.GenesisState.deposits":
 		return len(x.Deposits) != 0
 	case "band.tunnel.v1beta1.GenesisState.total_fees":
@@ -337,8 +276,6 @@ func (x *fastReflection_GenesisState) Clear(fd protoreflect.FieldDescriptor) {
 		x.TunnelCount = uint64(0)
 	case "band.tunnel.v1beta1.GenesisState.tunnels":
 		x.Tunnels = nil
-	case "band.tunnel.v1beta1.GenesisState.latest_signal_prices_list":
-		x.LatestSignalPricesList = nil
 	case "band.tunnel.v1beta1.GenesisState.deposits":
 		x.Deposits = nil
 	case "band.tunnel.v1beta1.GenesisState.total_fees":
@@ -371,17 +308,11 @@ func (x *fastReflection_GenesisState) Get(descriptor protoreflect.FieldDescripto
 		}
 		listValue := &_GenesisState_3_list{list: &x.Tunnels}
 		return protoreflect.ValueOfList(listValue)
-	case "band.tunnel.v1beta1.GenesisState.latest_signal_prices_list":
-		if len(x.LatestSignalPricesList) == 0 {
-			return protoreflect.ValueOfList(&_GenesisState_4_list{})
-		}
-		listValue := &_GenesisState_4_list{list: &x.LatestSignalPricesList}
-		return protoreflect.ValueOfList(listValue)
 	case "band.tunnel.v1beta1.GenesisState.deposits":
 		if len(x.Deposits) == 0 {
-			return protoreflect.ValueOfList(&_GenesisState_5_list{})
+			return protoreflect.ValueOfList(&_GenesisState_4_list{})
 		}
-		listValue := &_GenesisState_5_list{list: &x.Deposits}
+		listValue := &_GenesisState_4_list{list: &x.Deposits}
 		return protoreflect.ValueOfList(listValue)
 	case "band.tunnel.v1beta1.GenesisState.total_fees":
 		value := x.TotalFees
@@ -414,13 +345,9 @@ func (x *fastReflection_GenesisState) Set(fd protoreflect.FieldDescriptor, value
 		lv := value.List()
 		clv := lv.(*_GenesisState_3_list)
 		x.Tunnels = *clv.list
-	case "band.tunnel.v1beta1.GenesisState.latest_signal_prices_list":
-		lv := value.List()
-		clv := lv.(*_GenesisState_4_list)
-		x.LatestSignalPricesList = *clv.list
 	case "band.tunnel.v1beta1.GenesisState.deposits":
 		lv := value.List()
-		clv := lv.(*_GenesisState_5_list)
+		clv := lv.(*_GenesisState_4_list)
 		x.Deposits = *clv.list
 	case "band.tunnel.v1beta1.GenesisState.total_fees":
 		x.TotalFees = value.Message().Interface().(*TotalFees)
@@ -455,17 +382,11 @@ func (x *fastReflection_GenesisState) Mutable(fd protoreflect.FieldDescriptor) p
 		}
 		value := &_GenesisState_3_list{list: &x.Tunnels}
 		return protoreflect.ValueOfList(value)
-	case "band.tunnel.v1beta1.GenesisState.latest_signal_prices_list":
-		if x.LatestSignalPricesList == nil {
-			x.LatestSignalPricesList = []*LatestSignalPrices{}
-		}
-		value := &_GenesisState_4_list{list: &x.LatestSignalPricesList}
-		return protoreflect.ValueOfList(value)
 	case "band.tunnel.v1beta1.GenesisState.deposits":
 		if x.Deposits == nil {
 			x.Deposits = []*Deposit{}
 		}
-		value := &_GenesisState_5_list{list: &x.Deposits}
+		value := &_GenesisState_4_list{list: &x.Deposits}
 		return protoreflect.ValueOfList(value)
 	case "band.tunnel.v1beta1.GenesisState.total_fees":
 		if x.TotalFees == nil {
@@ -495,12 +416,9 @@ func (x *fastReflection_GenesisState) NewField(fd protoreflect.FieldDescriptor) 
 	case "band.tunnel.v1beta1.GenesisState.tunnels":
 		list := []*Tunnel{}
 		return protoreflect.ValueOfList(&_GenesisState_3_list{list: &list})
-	case "band.tunnel.v1beta1.GenesisState.latest_signal_prices_list":
-		list := []*LatestSignalPrices{}
-		return protoreflect.ValueOfList(&_GenesisState_4_list{list: &list})
 	case "band.tunnel.v1beta1.GenesisState.deposits":
 		list := []*Deposit{}
-		return protoreflect.ValueOfList(&_GenesisState_5_list{list: &list})
+		return protoreflect.ValueOfList(&_GenesisState_4_list{list: &list})
 	case "band.tunnel.v1beta1.GenesisState.total_fees":
 		m := new(TotalFees)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
@@ -586,12 +504,6 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 				n += 1 + l + runtime.Sov(uint64(l))
 			}
 		}
-		if len(x.LatestSignalPricesList) > 0 {
-			for _, e := range x.LatestSignalPricesList {
-				l = options.Size(e)
-				n += 1 + l + runtime.Sov(uint64(l))
-			}
-		}
 		if len(x.Deposits) > 0 {
 			for _, e := range x.Deposits {
 				l = options.Size(e)
@@ -643,27 +555,11 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 			copy(dAtA[i:], encoded)
 			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
 			i--
-			dAtA[i] = 0x32
+			dAtA[i] = 0x2a
 		}
 		if len(x.Deposits) > 0 {
 			for iNdEx := len(x.Deposits) - 1; iNdEx >= 0; iNdEx-- {
 				encoded, err := options.Marshal(x.Deposits[iNdEx])
-				if err != nil {
-					return protoiface.MarshalOutput{
-						NoUnkeyedLiterals: input.NoUnkeyedLiterals,
-						Buf:               input.Buf,
-					}, err
-				}
-				i -= len(encoded)
-				copy(dAtA[i:], encoded)
-				i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
-				i--
-				dAtA[i] = 0x2a
-			}
-		}
-		if len(x.LatestSignalPricesList) > 0 {
-			for iNdEx := len(x.LatestSignalPricesList) - 1; iNdEx >= 0; iNdEx-- {
-				encoded, err := options.Marshal(x.LatestSignalPricesList[iNdEx])
 				if err != nil {
 					return protoiface.MarshalOutput{
 						NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -852,40 +748,6 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 				iNdEx = postIndex
 			case 4:
 				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field LatestSignalPricesList", wireType)
-				}
-				var msglen int
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					msglen |= int(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				if msglen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + msglen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				x.LatestSignalPricesList = append(x.LatestSignalPricesList, &LatestSignalPrices{})
-				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.LatestSignalPricesList[len(x.LatestSignalPricesList)-1]); err != nil {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
-				}
-				iNdEx = postIndex
-			case 5:
-				if wireType != 2 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field Deposits", wireType)
 				}
 				var msglen int
@@ -918,7 +780,7 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
 				}
 				iNdEx = postIndex
-			case 6:
+			case 5:
 				if wireType != 2 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field TotalFees", wireType)
 				}
@@ -1014,12 +876,10 @@ type GenesisState struct {
 	TunnelCount uint64 `protobuf:"varint,2,opt,name=tunnel_count,json=tunnelCount,proto3" json:"tunnel_count,omitempty"`
 	// tunnels is the list of tunnels.
 	Tunnels []*Tunnel `protobuf:"bytes,3,rep,name=tunnels,proto3" json:"tunnels,omitempty"`
-	// latest_signal_prices_list is the list of latest signal prices.
-	LatestSignalPricesList []*LatestSignalPrices `protobuf:"bytes,4,rep,name=latest_signal_prices_list,json=latestSignalPricesList,proto3" json:"latest_signal_prices_list,omitempty"`
 	// deposits is the list of deposits.
-	Deposits []*Deposit `protobuf:"bytes,5,rep,name=deposits,proto3" json:"deposits,omitempty"`
+	Deposits []*Deposit `protobuf:"bytes,4,rep,name=deposits,proto3" json:"deposits,omitempty"`
 	// total_fees is the type for the total fees collected by the tunnel
-	TotalFees *TotalFees `protobuf:"bytes,6,opt,name=total_fees,json=totalFees,proto3" json:"total_fees,omitempty"`
+	TotalFees *TotalFees `protobuf:"bytes,5,opt,name=total_fees,json=totalFees,proto3" json:"total_fees,omitempty"`
 }
 
 func (x *GenesisState) Reset() {
@@ -1063,13 +923,6 @@ func (x *GenesisState) GetTunnels() []*Tunnel {
 	return nil
 }
 
-func (x *GenesisState) GetLatestSignalPricesList() []*LatestSignalPrices {
-	if x != nil {
-		return x.LatestSignalPricesList
-	}
-	return nil
-}
-
 func (x *GenesisState) GetDeposits() []*Deposit {
 	if x != nil {
 		return x.Deposits
@@ -1096,7 +949,7 @@ var file_band_tunnel_v1beta1_genesis_proto_rawDesc = []byte{
 	0x74, 0x61, 0x31, 0x2f, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f,
 	0x1a, 0x20, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31,
 	0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x70, 0x72, 0x6f,
-	0x74, 0x6f, 0x22, 0x98, 0x03, 0x0a, 0x0c, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x53, 0x74,
+	0x74, 0x6f, 0x22, 0xae, 0x02, 0x0a, 0x0c, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x53, 0x74,
 	0x61, 0x74, 0x65, 0x12, 0x39, 0x0a, 0x06, 0x70, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x18, 0x01, 0x20,
 	0x01, 0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65,
 	0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73,
@@ -1106,37 +959,30 @@ var file_band_tunnel_v1beta1_genesis_proto_rawDesc = []byte{
 	0x74, 0x12, 0x3b, 0x0a, 0x07, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x18, 0x03, 0x20, 0x03,
 	0x28, 0x0b, 0x32, 0x1b, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
 	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x42,
-	0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x07, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x12, 0x68,
-	0x0a, 0x19, 0x6c, 0x61, 0x74, 0x65, 0x73, 0x74, 0x5f, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x5f,
-	0x70, 0x72, 0x69, 0x63, 0x65, 0x73, 0x5f, 0x6c, 0x69, 0x73, 0x74, 0x18, 0x04, 0x20, 0x03, 0x28,
-	0x0b, 0x32, 0x27, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e,
-	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x4c, 0x61, 0x74, 0x65, 0x73, 0x74, 0x53, 0x69,
-	0x67, 0x6e, 0x61, 0x6c, 0x50, 0x72, 0x69, 0x63, 0x65, 0x73, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00,
-	0x52, 0x16, 0x6c, 0x61, 0x74, 0x65, 0x73, 0x74, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x50, 0x72,
-	0x69, 0x63, 0x65, 0x73, 0x4c, 0x69, 0x73, 0x74, 0x12, 0x3e, 0x0a, 0x08, 0x64, 0x65, 0x70, 0x6f,
-	0x73, 0x69, 0x74, 0x73, 0x18, 0x05, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x62, 0x61, 0x6e,
-	0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0x2e, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x08,
-	0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x73, 0x12, 0x43, 0x0a, 0x0a, 0x74, 0x6f, 0x74, 0x61,
-	0x6c, 0x5f, 0x66, 0x65, 0x65, 0x73, 0x18, 0x06, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1e, 0x2e, 0x62,
-	0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0x2e, 0x54, 0x6f, 0x74, 0x61, 0x6c, 0x46, 0x65, 0x65, 0x73, 0x42, 0x04, 0xc8, 0xde,
-	0x1f, 0x00, 0x52, 0x09, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x46, 0x65, 0x65, 0x73, 0x42, 0xdd, 0x01,
-	0x0a, 0x17, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65,
-	0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x0c, 0x47, 0x65, 0x6e, 0x65, 0x73,
-	0x69, 0x73, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x46, 0x67, 0x69, 0x74, 0x68, 0x75,
-	0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63,
-	0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x61, 0x70, 0x69, 0x2f,
-	0x62, 0x61, 0x6e, 0x64, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65,
-	0x74, 0x61, 0x31, 0x3b, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
-	0x31, 0xa2, 0x02, 0x03, 0x42, 0x54, 0x58, 0xaa, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x2e, 0x54,
-	0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x13,
-	0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56, 0x31, 0x62, 0x65,
-	0x74, 0x61, 0x31, 0xe2, 0x02, 0x1f, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65,
-	0x6c, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74,
-	0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x15, 0x42, 0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x54, 0x75,
-	0x6e, 0x6e, 0x65, 0x6c, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x07, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x73, 0x12, 0x3e,
+	0x0a, 0x08, 0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x73, 0x18, 0x04, 0x20, 0x03, 0x28, 0x0b,
+	0x32, 0x1c, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x44, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x42, 0x04,
+	0xc8, 0xde, 0x1f, 0x00, 0x52, 0x08, 0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x73, 0x12, 0x43,
+	0x0a, 0x0a, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x5f, 0x66, 0x65, 0x65, 0x73, 0x18, 0x05, 0x20, 0x01,
+	0x28, 0x0b, 0x32, 0x1e, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
+	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x54, 0x6f, 0x74, 0x61, 0x6c, 0x46, 0x65,
+	0x65, 0x73, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00, 0x52, 0x09, 0x74, 0x6f, 0x74, 0x61, 0x6c, 0x46,
+	0x65, 0x65, 0x73, 0x42, 0xdd, 0x01, 0x0a, 0x17, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64,
+	0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42,
+	0x0c, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a,
+	0x46, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76,
+	0x33, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65,
+	0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
+	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x42, 0x54, 0x58, 0xaa, 0x02, 0x13,
+	0x42, 0x61, 0x6e, 0x64, 0x2e, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x56, 0x31, 0x62, 0x65,
+	0x74, 0x61, 0x31, 0xca, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65,
+	0x6c, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02, 0x1f, 0x42, 0x61, 0x6e, 0x64,
+	0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x5c,
+	0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x15, 0x42, 0x61,
+	0x6e, 0x64, 0x3a, 0x3a, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65,
+	0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1153,24 +999,22 @@ func file_band_tunnel_v1beta1_genesis_proto_rawDescGZIP() []byte {
 
 var file_band_tunnel_v1beta1_genesis_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_band_tunnel_v1beta1_genesis_proto_goTypes = []interface{}{
-	(*GenesisState)(nil),       // 0: band.tunnel.v1beta1.GenesisState
-	(*Params)(nil),             // 1: band.tunnel.v1beta1.Params
-	(*Tunnel)(nil),             // 2: band.tunnel.v1beta1.Tunnel
-	(*LatestSignalPrices)(nil), // 3: band.tunnel.v1beta1.LatestSignalPrices
-	(*Deposit)(nil),            // 4: band.tunnel.v1beta1.Deposit
-	(*TotalFees)(nil),          // 5: band.tunnel.v1beta1.TotalFees
+	(*GenesisState)(nil), // 0: band.tunnel.v1beta1.GenesisState
+	(*Params)(nil),       // 1: band.tunnel.v1beta1.Params
+	(*Tunnel)(nil),       // 2: band.tunnel.v1beta1.Tunnel
+	(*Deposit)(nil),      // 3: band.tunnel.v1beta1.Deposit
+	(*TotalFees)(nil),    // 4: band.tunnel.v1beta1.TotalFees
 }
 var file_band_tunnel_v1beta1_genesis_proto_depIdxs = []int32{
 	1, // 0: band.tunnel.v1beta1.GenesisState.params:type_name -> band.tunnel.v1beta1.Params
 	2, // 1: band.tunnel.v1beta1.GenesisState.tunnels:type_name -> band.tunnel.v1beta1.Tunnel
-	3, // 2: band.tunnel.v1beta1.GenesisState.latest_signal_prices_list:type_name -> band.tunnel.v1beta1.LatestSignalPrices
-	4, // 3: band.tunnel.v1beta1.GenesisState.deposits:type_name -> band.tunnel.v1beta1.Deposit
-	5, // 4: band.tunnel.v1beta1.GenesisState.total_fees:type_name -> band.tunnel.v1beta1.TotalFees
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	3, // 2: band.tunnel.v1beta1.GenesisState.deposits:type_name -> band.tunnel.v1beta1.Deposit
+	4, // 3: band.tunnel.v1beta1.GenesisState.total_fees:type_name -> band.tunnel.v1beta1.TotalFees
+	4, // [4:4] is the sub-list for method output_type
+	4, // [4:4] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_band_tunnel_v1beta1_genesis_proto_init() }

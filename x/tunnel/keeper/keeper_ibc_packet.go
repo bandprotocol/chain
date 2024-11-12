@@ -20,18 +20,18 @@ func (k Keeper) SendIBCPacket(
 	ctx sdk.Context,
 	route *types.IBCRoute,
 	packet types.Packet,
-) (types.PacketContentI, sdk.Coins, error) {
+) (types.PacketContentI, error) {
 	// retrieve the dynamic capability for this channel
 	channelCap, ok := k.scopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(types.PortID, route.ChannelID))
 	if !ok {
-		return nil, nil, types.ErrChannelCapabilityNotFound
+		return nil, types.ErrChannelCapabilityNotFound
 	}
 
 	// create the IBC packet result bytes
 	resultBytes := types.NewIBCPacketResult(
 		packet.TunnelID,
 		packet.Sequence,
-		packet.SignalPrices,
+		packet.Prices,
 		packet.CreatedAt,
 	).GetBytes()
 
@@ -45,13 +45,8 @@ func (k Keeper) SendIBCPacket(
 		uint64(ctx.BlockTime().UnixNano()+packetExpireTime),
 		resultBytes,
 	); err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	fee, err := route.Fee()
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return types.NewIBCPacketContent(route.ChannelID), fee, nil
+	return types.NewIBCPacketContent(route.ChannelID), nil
 }

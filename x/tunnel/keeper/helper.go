@@ -7,50 +7,42 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-// GenerateNewSignalPrices generates new signal prices based on the current prices
-// and signal deviations.
-func GenerateNewSignalPrices(
-	latestSignalPrices types.LatestSignalPrices,
-	signalDeviationsMap map[string]types.SignalDeviation,
-	currentFeedsPricesMap map[string]feedstypes.Price,
+// GenerateNewPrices generates new prices based on the current prices and signal deviations.
+func GenerateNewPrices(
+	signalDeviations []types.SignalDeviation,
+	latestPricesMap map[string]feedstypes.Price,
+	feedsPricesMap map[string]feedstypes.Price,
 	sendAll bool,
-) ([]types.SignalPrice, error) {
+) ([]feedstypes.Price, error) {
 	shouldSend := false
-	newSignalPrices := make([]types.SignalPrice, 0)
-	for _, sp := range latestSignalPrices.SignalPrices {
-		oldPrice := sdkmath.NewIntFromUint64(sp.Price)
 
-		// get current price from the feed, if not found, set price to 0
-		price := uint64(0)
-		feedPrice, ok := currentFeedsPricesMap[sp.SignalID]
-		if ok && feedPrice.Status == feedstypes.PriceStatusAvailable {
-			price = feedPrice.Price
+	newFeedPrices := make([]feedstypes.Price, 0)
+	for _, sd := range signalDeviations {
+		oldPrice := sdkmath.NewInt(0)
+		if latestPrices, ok := latestPricesMap[sd.SignalID]; ok {
+			oldPrice = sdkmath.NewIntFromUint64(latestPrices.Price)
 		}
-		newPrice := sdkmath.NewIntFromUint64(price)
 
-		// get hard/soft deviation, panic if not found; should not happen.
-		sd, ok := signalDeviationsMap[sp.SignalID]
+		feedPrice, ok := feedsPricesMap[sd.SignalID]
 		if !ok {
-			return nil, types.ErrDeviationNotFound.Wrapf("deviation not found for signal ID :%s", sp.SignalID)
+			feedPrice = feedstypes.NewPrice(feedstypes.PriceStatusNotInCurrentFeeds, sd.SignalID, 0, 0)
 		}
-		hardDeviation := sdkmath.NewIntFromUint64(sd.HardDeviationBPS)
-		softDeviation := sdkmath.NewIntFromUint64(sd.SoftDeviationBPS)
 
 		// calculate deviation between old price and new price and compare with the threshold.
 		// shouldSend is set to true if sendAll is true or there is a signal whose deviation
 		// is over the hard threshold.
-		deviation := calculateDeviationBPS(oldPrice, newPrice)
-		if sendAll || deviation.GTE(hardDeviation) {
-			newSignalPrices = append(newSignalPrices, types.NewSignalPrice(sp.SignalID, price))
+		deviation := calculateDeviationBPS(oldPrice, sdkmath.NewIntFromUint64(feedPrice.Price))
+		if sendAll || deviation.GTE(sdkmath.NewIntFromUint64(sd.HardDeviationBPS)) {
+			newFeedPrices = append(newFeedPrices, feedPrice)
 			shouldSend = true
-		} else if deviation.GTE(softDeviation) {
-			newSignalPrices = append(newSignalPrices, types.NewSignalPrice(sp.SignalID, price))
+		} else if deviation.GTE(sdkmath.NewIntFromUint64(sd.SoftDeviationBPS)) {
+			newFeedPrices = append(newFeedPrices, feedPrice)
 		}
 	}
 
 	if shouldSend {
-		return newSignalPrices, nil
+		return newFeedPrices, nil
 	} else {
-		return []types.SignalPrice{}, nil
+		return []feedstypes.Price{}, nil
 	}
 }

@@ -76,10 +76,12 @@ type FeedsKeeper interface {
 }
 
 type BandtssKeeper interface {
-	CreateDirectSigningRequest(
+	CreateTunnelSigningRequest(
 		ctx sdk.Context,
+		tunnelID uint64,
+		destinationContractAddr string,
+		destinationChainID string,
 		content tsstypes.Content,
-		memo string,
 		sender sdk.AccAddress,
 		feeLimit sdk.Coins,
 	) (bandtsstypes.SigningID, error)
