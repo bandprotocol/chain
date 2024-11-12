@@ -44,11 +44,11 @@ func (h *Hook) emitSetFeedsSignalPricesTx(ctx sdk.Context, txHash []byte, valida
 	})
 }
 
-func (h *Hook) emitSetFeedsValidatorPrices(ctx sdk.Context, validator string, prices []types.SignalPrice) {
+func (h *Hook) emitSetFeedsValidatorPrices(ctx sdk.Context, validator string, signalPrices []types.SignalPrice) {
 	h.Write("SET_VALIDATOR_PRICES", common.JsDict{
-		"validator": validator,
-		"prices":    prices,
-		"timestamp": ctx.BlockTime().UnixNano(),
+		"validator":     validator,
+		"signal_prices": signalPrices,
+		"timestamp":     ctx.BlockTime().UnixNano(),
 	})
 }
 
@@ -67,7 +67,7 @@ func (h *Hook) emitSetFeedsReferenceSourceConfig(ctx sdk.Context, rsc types.Refe
 	})
 }
 
-// handleMsgVote implements emitter handler for MsgVote.
+// handleFeedsMsgVote implements emitter handler for MsgVote.
 func (h *Hook) handleFeedsMsgVote(
 	ctx sdk.Context, msg *types.MsgVote, evMap common.EvMap,
 ) {
@@ -94,7 +94,7 @@ func (h *Hook) handleFeedsMsgVote(
 	}
 }
 
-// handleMsgSubmitSignalPrices implements emitter handler for MsgSubmitSignalPrices.
+// handleFeedsMsgSubmitSignalPrices implements emitter handler for MsgSubmitSignalPrices.
 func (h *Hook) handleFeedsMsgSubmitSignalPrices(
 	ctx sdk.Context,
 	txHash []byte,
@@ -109,7 +109,7 @@ func (h *Hook) handleFeedsMsgSubmitSignalPrices(
 	h.emitSetFeedsValidatorPrices(ctx, msg.Validator, msg.SignalPrices)
 }
 
-// handleMsgUpdateReferenceSourceConfig implements emitter handler for MsgUpdateReferenceSourceConfig.
+// handleFeedsMsgUpdateReferenceSourceConfig implements emitter handler for MsgUpdateReferenceSourceConfig.
 func (h *Hook) handleFeedsMsgUpdateReferenceSourceConfig(
 	ctx sdk.Context, msg *types.MsgUpdateReferenceSourceConfig,
 ) {

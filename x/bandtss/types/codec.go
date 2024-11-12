@@ -18,6 +18,8 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgRequestSignature{}, "bandtss/MsgRequestSignature")
 	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "bandtss/MsgActivate")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "bandtss/MsgUpdateParams")
+
+	cdc.RegisterConcrete(Params{}, "bandtss/Params", nil)
 }
 
 // RegisterInterfaces registers the x/tss interfaces types with the interface registry

@@ -949,7 +949,7 @@ func (suite *DecoderTestSuite) TestDecodeFeedsMsgSubmitPrices() {
 	emitter.DecodeFeedsMsgSubmitSignalPrices(&msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"prices\":[{\"price_status\":3,\"signal_id\":\"CS:ETH-USD\",\"price\":3500000000000},{\"price_status\":2,\"signal_id\":\"CS:BTC-USD\"}],\"timestamp\":12345678,\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
+		"{\"signal_prices\":[{\"status\":3,\"signal_id\":\"CS:ETH-USD\",\"price\":3500000000000},{\"status\":2,\"signal_id\":\"CS:BTC-USD\"}],\"timestamp\":12345678,\"validator\":\"bandvaloper12eskc6tyv96x7usqqqqqqqqqqqqqqqqqw09xqg\"}",
 	)
 }
 
@@ -988,7 +988,7 @@ func (suite *DecoderTestSuite) TestDecodeFeedsMsgUpdatePriceService() {
 	emitter.DecodeFeedsMsgUpdateReferenceSourceConfig(&msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"registry_ipfs_hash\":\"testhash\",\"registry_version\":\"1.0.0\"}",
+		"{\"admin\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"reference_source_config\":{\"registry_ipfs_hash\":\"testhash\",\"registry_version\":\"1.0.0\"}}",
 	)
 }
 
@@ -1107,7 +1107,7 @@ func (suite *DecoderTestSuite) TestDecodeFeedsMsgUpdateParams() {
 	emitter.DecodeFeedsMsgUpdateParams(&msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"admin\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"allowable_block_time_discrepancy\":30,\"authority\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"cooldown_time\":30,\"current_feeds_update_interval\":0,\"grace_period\":30,\"max_current_feeds\":100,\"max_deviation_basis_point\":3000,\"max_interval\":3600,\"min_deviation_basis_point\":50,\"min_interval\":60,\"power_step_threshold\":1000000000}",
+		"{\"authority\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"params\":{\"admin\":\"band1famkuetjqqqqqqqqqqqqqqqqqqqqqqqqkzrxfg\",\"allowable_block_time_discrepancy\":30,\"grace_period\":30,\"min_interval\":60,\"max_interval\":3600,\"power_step_threshold\":1000000000,\"max_current_feeds\":100,\"cooldown_time\":30,\"min_deviation_basis_point\":50,\"max_deviation_basis_point\":3000}}",
 	)
 }
 

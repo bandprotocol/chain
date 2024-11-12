@@ -106,7 +106,7 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 	case *transfertypes.MsgTransfer:
 		h.handleMsgTransfer(ctx, txHash, msg, evMap, detail)
 	case *clienttypes.MsgCreateClient:
-		h.handleMsgCreatClient(ctx, msg, detail)
+		h.handleMsgCreatClient(msg, detail)
 	case *connectiontypes.MsgConnectionOpenConfirm:
 		h.handleMsgConnectionOpenConfirm(ctx, msg)
 	case *connectiontypes.MsgConnectionOpenAck:
@@ -151,7 +151,7 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 	case *group.MsgCreateGroupWithPolicy:
 		h.handleGroupMsgCreateGroupWithPolicy(ctx, evMap)
 	case *group.MsgExec:
-		h.handleGroupEventExec(ctx, evMap)
+		h.handleGroupEventExec(evMap)
 	case *group.MsgLeaveGroup:
 		h.handleGroupMsgLeaveGroup(ctx, evMap)
 	case *group.MsgSubmitProposal:
@@ -159,7 +159,7 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 	case *group.MsgUpdateGroupAdmin:
 		h.handleGroupMsgUpdateGroupAdmin(ctx, evMap)
 	case *group.MsgUpdateGroupMembers:
-		h.handleGroupMsgUpdateGroupMembers(ctx, msg, evMap)
+		h.handleGroupMsgUpdateGroupMembers(ctx, msg)
 	case *group.MsgUpdateGroupMetadata:
 		h.handleGroupMsgUpdateGroupMetadata(ctx, evMap)
 	case *group.MsgUpdateGroupPolicyAdmin:
@@ -170,7 +170,7 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 		h.handleGroupMsgUpdateGroupPolicyMetadata(ctx, evMap)
 	case *group.MsgVote:
 		h.handleGroupMsgVote(ctx, msg, evMap)
-		h.handleGroupEventExec(ctx, evMap)
+		h.handleGroupEventExec(evMap)
 	case *group.MsgWithdrawProposal:
 		h.handleGroupMsgWithdrawProposal(ctx, evMap)
 	case *tsstypes.MsgSubmitSignature:
@@ -267,7 +267,7 @@ func (h *Hook) handleBeginBlockEndBlockEvent(
 			h.handleTssSetGroup(ctx, tss.GroupID(common.Atoi(gid)))
 		}
 	case proto.MessageName(&group.EventProposalPruned{}):
-		h.handleGroupEventProposalPruned(ctx, evMap)
+		h.handleGroupEventProposalPruned(evMap)
 	case tunneltypes.EventTypeProducePacketSuccess:
 		h.handleTunnelEventTypeProducePacketSuccess(ctx, evMap)
 	case tunneltypes.EventTypeActivateTunnel:

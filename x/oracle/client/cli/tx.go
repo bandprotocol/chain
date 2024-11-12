@@ -681,7 +681,7 @@ $ %s tx oracle remove-reporters band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band
 
 // GetCmdRequestSignature implements the request signature handler.
 func GetCmdRequestSignature() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "oracle-result [request-id] [encode-type]",
 		Short: "Request bandtss signature from oracle request id",
 		Args:  cobra.ExactArgs(2),
@@ -733,4 +733,6 @@ $ %s tx bandtss request-signature oracle-result 1 2 --fee-limit 10uband
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
 }

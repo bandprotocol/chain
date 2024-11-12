@@ -188,7 +188,7 @@ $ %s tx feeds vote BTC,1000000 --from mykey
 
 // GetCmdRequestSignature implements the request signature handler.
 func GetCmdRequestSignature() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "feeds-prices [signal_id1,signal_id2,...] [encoder]",
 		Short: "Request bandtss signature prices from list of signal id and encoder (1: fixed-point abi, 2: tick abi)",
 		Args:  cobra.ExactArgs(2),
@@ -234,4 +234,6 @@ $ %s tx bandtss request-signature feeds-prices CS:ETH-USD,CS:USDT-USD 1 --fee-li
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
 }

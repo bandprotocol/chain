@@ -265,7 +265,6 @@ type KeeperTestSuite struct {
 	accountKeeper *bandtsstestutil.MockAccountKeeper
 	bankKeeper    *bandtsstestutil.MockBankKeeper
 	distrKeeper   *bandtsstestutil.MockDistrKeeper
-	stakingKeeper *bandtsstestutil.MockStakingKeeper
 	tssKeeper     *bandtsstestutil.MockTSSKeeper
 
 	moduleAcc sdk.ModuleAccountI
@@ -286,7 +285,6 @@ func (s *KeeperTestSuite) SetupTest() {
 	s.accountKeeper = bandtsstestutil.NewMockAccountKeeper(ctrl)
 	s.bankKeeper = bandtsstestutil.NewMockBankKeeper(ctrl)
 	s.distrKeeper = bandtsstestutil.NewMockDistrKeeper(ctrl)
-	s.stakingKeeper = bandtsstestutil.NewMockStakingKeeper(ctrl)
 	s.tssKeeper = bandtsstestutil.NewMockTSSKeeper(ctrl)
 
 	s.authority = authtypes.NewModuleAddress(govtypes.ModuleName)
@@ -297,7 +295,6 @@ func (s *KeeperTestSuite) SetupTest() {
 		s.accountKeeper,
 		s.bankKeeper,
 		s.distrKeeper,
-		s.stakingKeeper,
 		s.tssKeeper,
 		s.authority.String(),
 		authtypes.FeeCollectorName,

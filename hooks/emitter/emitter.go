@@ -355,10 +355,21 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *
 		}
 	}
 
-	// signalTotalPowers := h.feedsKeeper.GetSignalTotalPower(ctx)
-	// for _, stp := range signalTotalPowers {
-	// 	h.emitSetFeedsSignalTotalPower(stp)
-	// }
+	stpIterator := h.feedsKeeper.SignalTotalPowersByPowerStoreIterator(ctx)
+	defer stpIterator.Close()
+
+	for ; stpIterator.Valid(); stpIterator.Next() {
+		bz := stpIterator.Value()
+		signalID := string(bz)
+		stp, err := h.feedsKeeper.GetSignalTotalPower(ctx, signalID)
+		if err != nil {
+			// this should not happen
+			continue
+		}
+		h.emitSetFeedsSignalTotalPower(stp)
+	}
+
+	h.emitSetFeedsReferenceSourceConfig(ctx, feedsState.ReferenceSourceConfig)
 
 	// Restake module
 	var restakeState restaketypes.GenesisState

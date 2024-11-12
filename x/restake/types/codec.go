@@ -14,6 +14,8 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgStake{}, "restake/MsgStake")
 	legacy.RegisterAminoMsg(cdc, &MsgUnstake{}, "restake/MsgUnstake")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "restake/MsgUpdateParams")
+
+	cdc.RegisterConcrete(Params{}, "restake/Params", nil)
 }
 
 // RegisterInterfaces registers the x/restake interfaces types with the interface registry
