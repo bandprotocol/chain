@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
@@ -29,8 +30,8 @@ func GetTxCmd() *cobra.Command {
 		GetTxCmdActivate(),
 		GetTxCmdDeactivate(),
 		GetTxCmdTriggerTunnel(),
-		GetTxCmdDepositTunnel(),
-		GetTxCmdWithdrawTunnel(),
+		GetTxCmdDepositToTunnel(),
+		GetTxCmdWithdrawFromTunnel(),
 	)
 
 	return txCmd
@@ -86,7 +87,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 				interval,
 				args[0],
 				args[1],
-				types.Encoder(encoder),
+				feedstypes.Encoder(encoder),
 				initialDeposit,
 				clientCtx.GetFromAddress(),
 			)
@@ -222,9 +223,9 @@ func GetTxCmdTriggerTunnel() *cobra.Command {
 	return cmd
 }
 
-func GetTxCmdDepositTunnel() *cobra.Command {
+func GetTxCmdDepositToTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "deposit-tunnel [tunnel-id] [amount]",
+		Use:   "deposit-to-tunnel [tunnel-id] [amount]",
 		Short: "Deposit to a tunnel",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -243,7 +244,7 @@ func GetTxCmdDepositTunnel() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgDepositTunnel(id, amount, clientCtx.GetFromAddress().String())
+			msg := types.NewMsgDepositToTunnel(id, amount, clientCtx.GetFromAddress().String())
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
@@ -253,9 +254,9 @@ func GetTxCmdDepositTunnel() *cobra.Command {
 	return cmd
 }
 
-func GetTxCmdWithdrawTunnel() *cobra.Command {
+func GetTxCmdWithdrawFromTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "withdraw-tunnel [tunnel-id] [amount]",
+		Use:   "withdraw-from-tunnel [tunnel-id] [amount]",
 		Short: "Withdraw deposit from a tunnel",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -274,7 +275,7 @@ func GetTxCmdWithdrawTunnel() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgWithdrawTunnel(id, amount, clientCtx.GetFromAddress().String())
+			msg := types.NewMsgWithdrawFromTunnel(id, amount, clientCtx.GetFromAddress().String())
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

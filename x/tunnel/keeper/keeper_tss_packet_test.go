@@ -3,7 +3,10 @@ package keeper_test
 import (
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
@@ -15,9 +18,11 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 		DestinationContractAddress: "0x1234567890abcdef",
 	}
 	packet := types.NewPacket(
-		1,                     // tunnelID
-		1,                     // sequence
-		[]types.SignalPrice{}, // signalPriceInfos[]
+		1,                    // tunnelID
+		1,                    // sequence
+		[]feedstypes.Price{}, // priceInfos[]
+		sdk.NewCoins(),       // baseFee
+		sdk.NewCoins(),       // routeFee
 		time.Now().Unix(),
 	)
 

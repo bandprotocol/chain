@@ -60,8 +60,8 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 	// get active tunnel IDs
 	ids := k.GetActiveTunnelIDs(ctx)
 
-	currentPrices := k.feedsKeeper.GetAllCurrentPrices(ctx)
-	currentPricesMap := createPricesMap(currentPrices)
+	prices := k.feedsKeeper.GetAllPrices(ctx)
+	pricesMap := CreatePricesMap(prices)
 
 	// create new packet if possible for active tunnels. If not enough fund, deactivate the tunnel.
 	for _, id := range ids {
@@ -75,7 +75,7 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 		}
 
 		producePacketFunc := func(ctx sdk.Context) error {
-			return k.ProducePacket(ctx, id, currentPricesMap)
+			return k.ProducePacket(ctx, id, pricesMap)
 		}
 
 		// Produce a packet. If error, emits an event.
@@ -93,39 +93,36 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 func (k Keeper) ProducePacket(
 	ctx sdk.Context,
 	tunnelID uint64,
-	currentPricesMap map[string]feedstypes.Price,
+	feedsPricesMap map[string]feedstypes.Price,
 ) error {
 	unixNow := ctx.BlockTime().Unix()
 
-	// get tunnel and signal prices info
+	// get tunnel and prices info
 	tunnel, err := k.GetTunnel(ctx, tunnelID)
 	if err != nil {
 		return err
 	}
-	latestSignalPrices, err := k.GetLatestSignalPrices(ctx, tunnelID)
+
+	latestPrices, err := k.GetLatestPrices(ctx, tunnelID)
 	if err != nil {
 		return err
 	}
+	latestPricesMap := CreatePricesMap(latestPrices.Prices)
 
 	// check if the interval has passed
-	sendAll := unixNow >= int64(tunnel.Interval)+latestSignalPrices.LastInterval
+	sendAll := unixNow >= int64(tunnel.Interval)+latestPrices.LastInterval
 
-	// generate new signal prices; if no new signal prices, stop the process.
-	newSignalPrices, err := GenerateNewSignalPrices(
-		latestSignalPrices,
-		tunnel.GetSignalDeviationMap(),
-		currentPricesMap,
-		sendAll,
-	)
+	// generate newPrices; if no newPrices, stop the process.
+	newPrices, err := GenerateNewPrices(tunnel.SignalDeviations, latestPricesMap, feedsPricesMap, sendAll)
 	if err != nil {
 		return err
 	}
-	if len(newSignalPrices) == 0 {
+	if len(newPrices) == 0 {
 		return nil
 	}
 
 	// create a new packet
-	packet, err := k.CreatePacket(ctx, tunnel.ID, newSignalPrices)
+	packet, err := k.CreatePacket(ctx, tunnel.ID, newPrices)
 	if err != nil {
 		return err
 	}
@@ -136,14 +133,11 @@ func (k Keeper) ProducePacket(
 	}
 
 	// update latest price info.
-	if err := k.UpdatePriceTunnel(ctx, tunnel.ID, newSignalPrices); err != nil {
-		return err
-	}
+	latestPrices.UpdatePrices(newPrices)
 	if sendAll {
-		if err := k.UpdateLastInterval(ctx, tunnel.ID, unixNow); err != nil {
-			return err
-		}
+		latestPrices.LastInterval = unixNow
 	}
+	k.SetLatestPrices(ctx, latestPrices)
 
 	// emit an event
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
@@ -160,8 +154,11 @@ func (k Keeper) ProducePacket(
 func (k Keeper) CreatePacket(
 	ctx sdk.Context,
 	tunnelID uint64,
-	signalPrices []types.SignalPrice,
+	prices []feedstypes.Price,
 ) (types.Packet, error) {
+	// get tunnel and prices info
+	params := k.GetParams(ctx)
+
 	tunnel, err := k.GetTunnel(ctx, tunnelID)
 	if err != nil {
 		return types.Packet{}, err
@@ -173,8 +170,21 @@ func (k Keeper) CreatePacket(
 		return types.Packet{}, sdkerrors.Wrapf(err, "failed to deduct base packet fee for tunnel %d", tunnel.ID)
 	}
 
+	// get the route fee
+	routeFee, err := tunnel.Route.GetCachedValue().(types.RouteI).Fee()
+	if err != nil {
+		return types.Packet{}, sdkerrors.Wrapf(err, "failed to get route fee for tunnel %d", tunnel.ID)
+	}
+
 	tunnel.Sequence++
-	packet := types.NewPacket(tunnelID, tunnel.Sequence, signalPrices, ctx.BlockTime().Unix())
+	packet := types.NewPacket(
+		tunnelID,
+		tunnel.Sequence,
+		prices,
+		params.BasePacketFee,
+		routeFee,
+		ctx.BlockTime().Unix(),
+	)
 
 	// update information in the store
 	k.SetTunnel(ctx, tunnel)
@@ -199,7 +209,6 @@ func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) error {
 	default:
 		return types.ErrInvalidRoute.Wrapf("no route found for tunnel ID: %d", tunnel.ID)
 	}
-
 	// return error if failed to send packet
 	if err != nil {
 		return err
@@ -209,7 +218,17 @@ func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) error {
 	if err := packet.SetPacketContent(content); err != nil {
 		return sdkerrors.Wrapf(err, "failed to set packet content for tunnel ID: %d", tunnel.ID)
 	}
+
 	k.SetPacket(ctx, packet)
+
+	// emit an event
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeSendPacket,
+		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
+		sdk.NewAttribute(types.AttributeKeySequence, fmt.Sprintf("%d", packet.Sequence)),
+		sdk.NewAttribute(types.AttributeKeyBaseFee, packet.BaseFee.String()),
+		sdk.NewAttribute(types.AttributeKeyRouteFee, packet.RouteFee.String()),
+	))
 
 	return nil
 }
@@ -228,8 +247,8 @@ func calculateDeviationBPS(oldPrice, newPrice sdkmath.Int) sdkmath.Int {
 	return newPrice.Sub(oldPrice).Abs().MulRaw(10000).Quo(oldPrice)
 }
 
-// createPricesMap creates a map of prices with signal ID as the key
-func createPricesMap(prices []feedstypes.Price) map[string]feedstypes.Price {
+// CreatePricesMap creates a map of prices with signal ID as the key
+func CreatePricesMap(prices []feedstypes.Price) map[string]feedstypes.Price {
 	pricesMap := make(map[string]feedstypes.Price, len(prices))
 	for _, p := range prices {
 		pricesMap[p.SignalID] = p

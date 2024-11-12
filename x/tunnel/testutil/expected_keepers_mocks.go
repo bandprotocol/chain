@@ -228,32 +228,32 @@ func (m *MockFeedsKeeper) EXPECT() *MockFeedsKeeperMockRecorder {
 	return m.recorder
 }
 
-// GetAllCurrentPrices mocks base method.
-func (m *MockFeedsKeeper) GetAllCurrentPrices(ctx types2.Context) []types0.Price {
+// GetAllPrices mocks base method.
+func (m *MockFeedsKeeper) GetAllPrices(ctx types2.Context) []types0.Price {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllCurrentPrices", ctx)
+	ret := m.ctrl.Call(m, "GetAllPrices", ctx)
 	ret0, _ := ret[0].([]types0.Price)
 	return ret0
 }
 
-// GetAllCurrentPrices indicates an expected call of GetAllCurrentPrices.
-func (mr *MockFeedsKeeperMockRecorder) GetAllCurrentPrices(ctx any) *gomock.Call {
+// GetAllPrices indicates an expected call of GetAllPrices.
+func (mr *MockFeedsKeeperMockRecorder) GetAllPrices(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllCurrentPrices", reflect.TypeOf((*MockFeedsKeeper)(nil).GetAllCurrentPrices), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllPrices", reflect.TypeOf((*MockFeedsKeeper)(nil).GetAllPrices), ctx)
 }
 
-// GetCurrentPrices mocks base method.
-func (m *MockFeedsKeeper) GetCurrentPrices(ctx types2.Context, signalIDs []string) []types0.Price {
+// GetPrices mocks base method.
+func (m *MockFeedsKeeper) GetPrices(ctx types2.Context, signalIDs []string) []types0.Price {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetCurrentPrices", ctx, signalIDs)
+	ret := m.ctrl.Call(m, "GetPrices", ctx, signalIDs)
 	ret0, _ := ret[0].([]types0.Price)
 	return ret0
 }
 
-// GetCurrentPrices indicates an expected call of GetCurrentPrices.
-func (mr *MockFeedsKeeperMockRecorder) GetCurrentPrices(ctx, signalIDs any) *gomock.Call {
+// GetPrices indicates an expected call of GetPrices.
+func (mr *MockFeedsKeeperMockRecorder) GetPrices(ctx, signalIDs any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCurrentPrices", reflect.TypeOf((*MockFeedsKeeper)(nil).GetCurrentPrices), ctx, signalIDs)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetPrices", reflect.TypeOf((*MockFeedsKeeper)(nil).GetPrices), ctx, signalIDs)
 }
 
 // MockBandtssKeeper is a mock of BandtssKeeper interface.
@@ -280,17 +280,17 @@ func (m *MockBandtssKeeper) EXPECT() *MockBandtssKeeperMockRecorder {
 	return m.recorder
 }
 
-// CreateDirectSigningRequest mocks base method.
-func (m *MockBandtssKeeper) CreateDirectSigningRequest(ctx types2.Context, content types1.Content, memo string, sender types2.AccAddress, feeLimit types2.Coins) (types.SigningID, error) {
+// CreateTunnelSigningRequest mocks base method.
+func (m *MockBandtssKeeper) CreateTunnelSigningRequest(ctx types2.Context, tunnelID uint64, destinationContractAddr, destinationChainID string, content types1.Content, sender types2.AccAddress, feeLimit types2.Coins) (types.SigningID, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateDirectSigningRequest", ctx, content, memo, sender, feeLimit)
+	ret := m.ctrl.Call(m, "CreateTunnelSigningRequest", ctx, tunnelID, destinationContractAddr, destinationChainID, content, sender, feeLimit)
 	ret0, _ := ret[0].(types.SigningID)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CreateDirectSigningRequest indicates an expected call of CreateDirectSigningRequest.
-func (mr *MockBandtssKeeperMockRecorder) CreateDirectSigningRequest(ctx, content, memo, sender, feeLimit any) *gomock.Call {
+// CreateTunnelSigningRequest indicates an expected call of CreateTunnelSigningRequest.
+func (mr *MockBandtssKeeperMockRecorder) CreateTunnelSigningRequest(ctx, tunnelID, destinationContractAddr, destinationChainID, content, sender, feeLimit any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDirectSigningRequest", reflect.TypeOf((*MockBandtssKeeper)(nil).CreateDirectSigningRequest), ctx, content, memo, sender, feeLimit)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTunnelSigningRequest", reflect.TypeOf((*MockBandtssKeeper)(nil).CreateTunnelSigningRequest), ctx, tunnelID, destinationContractAddr, destinationChainID, content, sender, feeLimit)
 }

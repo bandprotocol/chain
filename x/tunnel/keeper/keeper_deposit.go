@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"fmt"
+
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -8,11 +10,11 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-// AddDeposit adds a deposit to a tunnel
-func (k Keeper) AddDeposit(
+// DepositToTunnel deposits to a tunnel
+func (k Keeper) DepositToTunnel(
 	ctx sdk.Context,
 	tunnelID uint64,
-	depositorAddr sdk.AccAddress,
+	depositor sdk.AccAddress,
 	depositAmount sdk.Coins,
 ) error {
 	tunnel, err := k.GetTunnel(ctx, tunnelID)
@@ -27,7 +29,7 @@ func (k Keeper) AddDeposit(
 	// transfer the deposit from the depositor to the tunnel module account
 	if err := k.bankKeeper.SendCoinsFromAccountToModule(
 		ctx,
-		depositorAddr,
+		depositor,
 		types.ModuleName,
 		depositAmount,
 	); err != nil {
@@ -35,9 +37,9 @@ func (k Keeper) AddDeposit(
 	}
 
 	// update the depositor's deposit
-	deposit, found := k.GetDeposit(ctx, tunnelID, depositorAddr)
+	deposit, found := k.GetDeposit(ctx, tunnelID, depositor)
 	if !found {
-		deposit = types.NewDeposit(tunnelID, depositorAddr.String(), depositAmount)
+		deposit = types.NewDeposit(tunnelID, depositor.String(), depositAmount)
 	} else {
 		deposit.Amount = deposit.Amount.Add(depositAmount...)
 	}
@@ -46,6 +48,13 @@ func (k Keeper) AddDeposit(
 	// update the tunnel's total deposit
 	tunnel.TotalDeposit = tunnel.TotalDeposit.Add(depositAmount...)
 	k.SetTunnel(ctx, tunnel)
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeDepositToTunnel,
+		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnelID)),
+		sdk.NewAttribute(types.AttributeKeyDepositor, depositor.String()),
+		sdk.NewAttribute(types.AttributeKeyAmount, depositAmount.String()),
+	))
 
 	return nil
 }
@@ -101,30 +110,19 @@ func (k Keeper) GetAllDeposits(ctx sdk.Context) []types.Deposit {
 	return deposits
 }
 
-// GetTotalDeposits returns the total deposits in the store
-func (k Keeper) GetTotalDeposits(ctx sdk.Context) sdk.Coins {
-	var amount sdk.Coins
-
-	iterator := storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.DepositStoreKeyPrefix)
-	defer iterator.Close()
-
-	for ; iterator.Valid(); iterator.Next() {
-		var deposit types.Deposit
-		k.cdc.MustUnmarshal(iterator.Value(), &deposit)
-		amount = amount.Add(deposit.Amount...)
-	}
-
-	return amount
-}
-
 // DeleteDeposit deletes a deposit from the store
 func (k Keeper) DeleteDeposit(ctx sdk.Context, tunnelID uint64, depositorAddr sdk.AccAddress) {
 	ctx.KVStore(k.storeKey).
 		Delete(types.DepositStoreKey(tunnelID, depositorAddr))
 }
 
-// WithdrawDeposit withdraws a deposit from a tunnel
-func (k Keeper) WithdrawDeposit(ctx sdk.Context, tunnelID uint64, amount sdk.Coins, withdrawer sdk.AccAddress) error {
+// WithdrawFromTunnel withdraws a deposit from a tunnel
+func (k Keeper) WithdrawFromTunnel(
+	ctx sdk.Context,
+	tunnelID uint64,
+	amount sdk.Coins,
+	withdrawer sdk.AccAddress,
+) error {
 	tunnel, err := k.GetTunnel(ctx, tunnelID)
 	if err != nil {
 		return err
@@ -167,6 +165,13 @@ func (k Keeper) WithdrawDeposit(ctx sdk.Context, tunnelID uint64, amount sdk.Coi
 	if tunnel.IsActive && !tunnel.TotalDeposit.IsAllGTE(minDeposit) {
 		k.MustDeactivateTunnel(ctx, tunnelID)
 	}
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeWithdrawFromTunnel,
+		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnelID)),
+		sdk.NewAttribute(types.AttributeKeyWithdrawer, withdrawer.String()),
+		sdk.NewAttribute(types.AttributeKeyAmount, amount.String()),
+	))
 
 	return nil
 }

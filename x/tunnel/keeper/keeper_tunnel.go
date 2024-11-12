@@ -6,7 +6,9 @@ import (
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
@@ -14,7 +16,7 @@ import (
 func (k Keeper) AddTunnel(
 	ctx sdk.Context,
 	route types.RouteI,
-	encoder types.Encoder,
+	encoder feedstypes.Encoder,
 	signalDeviations []types.SignalDeviation,
 	interval uint64,
 	creator sdk.AccAddress,
@@ -22,18 +24,14 @@ func (k Keeper) AddTunnel(
 	id := k.GetTunnelCount(ctx)
 	newID := id + 1
 
-	// generate a new fee payer account
-	feePayer, err := k.GenerateAccount(ctx, fmt.Sprintf("%d", newID))
+	// generate a new tunnel account as a fee payer
+	feePayer, err := k.GenerateTunnelAccount(ctx, fmt.Sprintf("%d", newID))
 	if err != nil {
 		return nil, err
 	}
 
-	// set the signal prices info
-	var signalPrices []types.SignalPrice
-	for _, sd := range signalDeviations {
-		signalPrices = append(signalPrices, types.NewSignalPrice(sd.SignalID, 0))
-	}
-	k.SetLatestSignalPrices(ctx, types.NewLatestSignalPrices(newID, signalPrices, 0))
+	// set the prices info
+	k.SetLatestPrices(ctx, types.NewLatestPrices(newID, []feedstypes.Price{}, 0))
 
 	// create a new tunnel
 	tunnel, err := types.NewTunnel(
@@ -57,6 +55,27 @@ func (k Keeper) AddTunnel(
 	// increment the tunnel count
 	k.SetTunnelCount(ctx, newID)
 
+	// Emit an event
+	event := sdk.NewEvent(
+		types.EventTypeCreateTunnel,
+		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
+		sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", tunnel.Interval)),
+		sdk.NewAttribute(types.AttributeKeyRoute, tunnel.Route.String()),
+		sdk.NewAttribute(types.AttributeKeyEncoder, tunnel.Encoder.String()),
+		sdk.NewAttribute(types.AttributeKeyFeePayer, tunnel.FeePayer),
+		sdk.NewAttribute(types.AttributeKeyIsActive, fmt.Sprintf("%t", tunnel.IsActive)),
+		sdk.NewAttribute(types.AttributeKeyCreatedAt, fmt.Sprintf("%d", tunnel.CreatedAt)),
+		sdk.NewAttribute(types.AttributeKeyCreator, tunnel.Creator),
+	)
+	for _, sd := range tunnel.SignalDeviations {
+		event = event.AppendAttributes(
+			sdk.NewAttribute(types.AttributeKeySignalID, sd.SignalID),
+			sdk.NewAttribute(types.AttributeKeySoftDeviationBPS, fmt.Sprintf("%d", sd.SoftDeviationBPS)),
+			sdk.NewAttribute(types.AttributeKeyHardDeviationBPS, fmt.Sprintf("%d", sd.HardDeviationBPS)),
+		)
+	}
+	ctx.EventManager().EmitEvent(event)
+
 	return &tunnel, nil
 }
 
@@ -77,12 +96,8 @@ func (k Keeper) UpdateAndResetTunnel(
 	tunnel.Interval = interval
 	k.SetTunnel(ctx, tunnel)
 
-	// edit the signal prices info
-	var signalPrices []types.SignalPrice
-	for _, sd := range signalDeviations {
-		signalPrices = append(signalPrices, types.NewSignalPrice(sd.SignalID, 0))
-	}
-	k.SetLatestSignalPrices(ctx, types.NewLatestSignalPrices(tunnelID, signalPrices, 0))
+	// edit the prices info
+	k.SetLatestPrices(ctx, types.NewLatestPrices(tunnelID, []feedstypes.Price{}, 0))
 
 	event := sdk.NewEvent(
 		types.EventTypeUpdateAndResetTunnel,
@@ -91,7 +106,9 @@ func (k Keeper) UpdateAndResetTunnel(
 	)
 	for _, sd := range signalDeviations {
 		event = event.AppendAttributes(
-			sdk.NewAttribute(types.AttributeKeySignalDeviation, sd.String()),
+			sdk.NewAttribute(types.AttributeKeySignalID, sd.SignalID),
+			sdk.NewAttribute(types.AttributeKeySoftDeviationBPS, fmt.Sprintf("%d", sd.SoftDeviationBPS)),
+			sdk.NewAttribute(types.AttributeKeyHardDeviationBPS, fmt.Sprintf("%d", sd.HardDeviationBPS)),
 		)
 	}
 	ctx.EventManager().EmitEvent(event)
@@ -276,4 +293,37 @@ func (k Keeper) HasEnoughFundToCreatePacket(ctx sdk.Context, tunnelID uint64) (b
 	}
 	balances := k.bankKeeper.SpendableCoins(ctx, feePayer)
 	return balances.IsAllGTE(totalFee), nil
+}
+
+func (k Keeper) GenerateTunnelAccount(ctx sdk.Context, key string) (sdk.AccAddress, error) {
+	header := ctx.BlockHeader()
+
+	buf := []byte(key)
+	buf = append(buf, header.AppHash...)
+	buf = append(buf, header.DataHash...)
+
+	moduleCred, err := authtypes.NewModuleCredential(types.ModuleName, []byte(types.TunnelAccountsKey), buf)
+	if err != nil {
+		return nil, err
+	}
+
+	tunnelAccAddr := sdk.AccAddress(moduleCred.Address())
+
+	if acc := k.authKeeper.GetAccount(ctx, tunnelAccAddr); acc != nil {
+		// this should not happen
+		return nil, types.ErrAccountAlreadyExist.Wrapf(
+			"existing account for newly generated key account address %s",
+			tunnelAccAddr.String(),
+		)
+	}
+
+	tunnelAcc, err := authtypes.NewBaseAccountWithPubKey(moduleCred)
+	if err != nil {
+		return nil, err
+	}
+
+	k.authKeeper.NewAccount(ctx, tunnelAcc)
+	k.authKeeper.SetAccount(ctx, tunnelAcc)
+
+	return tunnelAccAddr, nil
 }
