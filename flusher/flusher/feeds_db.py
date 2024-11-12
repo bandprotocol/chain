@@ -43,8 +43,8 @@ feeds_signal_prices_txs = sa.Table(
     Column("validator_id", sa.Integer, sa.ForeignKey("validators.id"), primary_key=True),
     Column("feeder_id", sa.Integer, sa.ForeignKey("accounts.id")),
     Column("timestamp", CustomDateTime, index=True),
-    sa.Index("ix_signal_prices_txs_validator_id_transaction_id", "validator_id", "transaction_id"),
-    sa.Index("ix_validator_id_timestamp", "validator_id", "timestamp"),
+    sa.Index("ix_feeds_signal_prices_txs_validator_id_transaction_id", "validator_id", "transaction_id"),
+    sa.Index("ix_feeds_signal_prices_txs_validator_id_timestamp", "validator_id", "timestamp"),
 )
 
 feeds_validator_prices = sa.Table(
@@ -85,9 +85,9 @@ feeds_historical_prices = sa.Table(
 feeds_reference_source_configs = sa.Table(
     "feeds_reference_source_configs",
     metadata,
+    Column("timestamp", CustomDateTime, primary_key=True, index=True),
     Column("registry_ipfs_hash", sa.String),
     Column("registry_version", sa.String),
-    Column("timestamp", CustomDateTime, primary_key=True, index=True),
 )
 
 feeds_feeders = sa.Table(
