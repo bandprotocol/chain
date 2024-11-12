@@ -41,12 +41,10 @@ func GetTxCmd(requestSignatureCmds []*cobra.Command) *cobra.Command {
 	cmdTextRequestSignature := GetTxCmdTextRequestSignature()
 
 	// Add the text signature command as a subcommand.
-	flags.AddTxFlagsToCmd(cmdTextRequestSignature)
 	cmdRequestSignature.AddCommand(cmdTextRequestSignature)
 
 	// Loop through and add the provided request signature commands as subcommands.
 	for _, cmd := range requestSignatureCmds {
-		flags.AddTxFlagsToCmd(cmd)
 		cmdRequestSignature.AddCommand(cmd)
 	}
 
@@ -74,7 +72,7 @@ func GetTxCmdRequestSignature() *cobra.Command {
 
 // GetTxCmdTextRequestSignature creates a CLI command for create a signature on text message.
 func GetTxCmdTextRequestSignature() *cobra.Command {
-	return &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "text [message]",
 		Args:  cobra.ExactArgs(1),
 		Short: "request signature of the message from the current group",
@@ -117,6 +115,8 @@ func GetTxCmdTextRequestSignature() *cobra.Command {
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
 }
 
 // GetTxCmdActivate creates a CLI command for activate the sender.
