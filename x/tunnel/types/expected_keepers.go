@@ -55,5 +55,5 @@ type BandtssKeeper interface {
 		feeLimit sdk.Coins,
 	) (bandtsstypes.SigningID, error)
 
-	GetParams(ctx sdk.Context) (p bandtsstypes.Params)
+	GetSigningFee(ctx sdk.Context) (sdk.Coins, error)
 }

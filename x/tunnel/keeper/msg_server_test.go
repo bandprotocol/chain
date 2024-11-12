@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	"math"
-
 	"go.uber.org/mock/gomock"
 
 	sdkmath "cosmossdk.io/math"
@@ -447,9 +445,9 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 					"band1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62q2yggu0",
 				)
 
-				s.bandtssKeeper.EXPECT().GetParams(gomock.Any()).Return(bandtsstypes.Params{
-					Fee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(10))),
-				})
+				s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
+					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
+				)
 				s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
 					gomock.Any(),
 					uint64(1),
@@ -457,7 +455,7 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 					"chain-1",
 					gomock.Any(),
 					feePayer,
-					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(math.MaxInt))),
+					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))),
 				).Return(bandtsstypes.SigningID(1), nil)
 
 				s.feedsKeeper.EXPECT().GetPrices(gomock.Any(), []string{"BTC"}).Return([]feedstypes.Price{

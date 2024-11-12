@@ -1,8 +1,6 @@
 package keeper_test
 
 import (
-	"math"
-
 	"go.uber.org/mock/gomock"
 
 	sdkmath "cosmossdk.io/math"
@@ -78,9 +76,9 @@ func (s *KeeperTestSuite) TestProducePacket() {
 	s.bankKeeper.EXPECT().
 		SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, k.GetParams(ctx).BasePacketFee).
 		Return(nil)
-	s.bandtssKeeper.EXPECT().GetParams(gomock.Any()).Return(bandtsstypes.Params{
-		Fee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(10))),
-	})
+	s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
+	)
 	s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
 		gomock.Any(),
 		uint64(1),
@@ -88,7 +86,7 @@ func (s *KeeperTestSuite) TestProducePacket() {
 		"chain-1",
 		gomock.Any(),
 		feePayer,
-		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(math.MaxInt))),
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))),
 	).Return(bandtsstypes.SigningID(1), nil)
 
 	err := tunnel.SetRoute(route)
@@ -137,9 +135,9 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 		SendCoinsFromAccountToModule(gomock.Any(), feePayer, types.ModuleName, types.DefaultBasePacketFee).
 		Return(nil)
 
-	s.bandtssKeeper.EXPECT().GetParams(gomock.Any()).Return(bandtsstypes.Params{
-		Fee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(10))),
-	})
+	s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
+	)
 	s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
 		gomock.Any(),
 		uint64(1),
@@ -147,7 +145,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 		"chain-1",
 		gomock.Any(),
 		feePayer,
-		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(math.MaxInt))),
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))),
 	).Return(bandtsstypes.SigningID(1), nil)
 
 	// set tunnel & latest price

@@ -121,6 +121,23 @@ func (k Keeper) createSigningRequest(
 	return bandtssSigningID, nil
 }
 
+// GetSigningFee returns the fee required for signing a message.
+func (k Keeper) GetSigningFee(ctx sdk.Context) (sdk.Coins, error) {
+	currentGroup := k.GetCurrentGroup(ctx)
+	if currentGroup.GroupID == 0 {
+		return sdk.Coins{}, nil
+	}
+
+	group, err := k.tssKeeper.GetGroup(ctx, currentGroup.GroupID)
+	if err != nil {
+		return sdk.Coins{}, err
+	}
+
+	feePerSigner := k.GetParams(ctx).Fee
+
+	return feePerSigner.MulInt(math.NewIntFromUint64(group.Threshold)), nil
+}
+
 func decodeSigningMappingKeyToSigningID(key []byte) tss.SigningID {
 	kv.AssertKeyLength(key, 9)
 	return tss.SigningID(sdk.BigEndianToUint64(key[1:]))

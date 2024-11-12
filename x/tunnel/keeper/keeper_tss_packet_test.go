@@ -1,7 +1,6 @@
 package keeper_test
 
 import (
-	"math"
 	"time"
 
 	"go.uber.org/mock/gomock"
@@ -31,9 +30,9 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 		time.Now().Unix(),
 	)
 
-	s.bandtssKeeper.EXPECT().GetParams(gomock.Any()).Return(bandtsstypes.Params{
-		Fee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(10))),
-	})
+	s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
+	)
 	s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
 		gomock.Any(),
 		uint64(1),
@@ -41,7 +40,7 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 		"chain-1",
 		gomock.Any(),
 		bandtesting.Alice.Address,
-		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(math.MaxInt))),
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))),
 	).Return(bandtsstypes.SigningID(1), nil)
 
 	k.SetTunnel(ctx, types.Tunnel{
@@ -58,6 +57,6 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 	s.Require().True(ok)
 	s.Require().Equal("chain-1", packetContent.DestinationChainID)
 	s.Require().Equal("0x1234567890abcdef", packetContent.DestinationContractAddress)
-	s.Require().Equal(sdk.NewCoins(), fee)
+	s.Require().Equal(sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), fee)
 	s.Require().Equal(bandtsstypes.SigningID(1), packetContent.SigningID)
 }

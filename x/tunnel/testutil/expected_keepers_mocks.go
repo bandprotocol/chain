@@ -295,16 +295,17 @@ func (mr *MockBandtssKeeperMockRecorder) CreateTunnelSigningRequest(ctx, tunnelI
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTunnelSigningRequest", reflect.TypeOf((*MockBandtssKeeper)(nil).CreateTunnelSigningRequest), ctx, tunnelID, destinationContractAddr, destinationChainID, content, sender, feeLimit)
 }
 
-// GetParams mocks base method.
-func (m *MockBandtssKeeper) GetParams(ctx types2.Context) types.Params {
+// GetSigningFee mocks base method.
+func (m *MockBandtssKeeper) GetSigningFee(ctx types2.Context) (types2.Coins, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetParams", ctx)
-	ret0, _ := ret[0].(types.Params)
-	return ret0
+	ret := m.ctrl.Call(m, "GetSigningFee", ctx)
+	ret0, _ := ret[0].(types2.Coins)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
-// GetParams indicates an expected call of GetParams.
-func (mr *MockBandtssKeeperMockRecorder) GetParams(ctx any) *gomock.Call {
+// GetSigningFee indicates an expected call of GetSigningFee.
+func (mr *MockBandtssKeeperMockRecorder) GetSigningFee(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetParams", reflect.TypeOf((*MockBandtssKeeper)(nil).GetParams), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSigningFee", reflect.TypeOf((*MockBandtssKeeper)(nil).GetSigningFee), ctx)
 }
