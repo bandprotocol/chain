@@ -12,7 +12,7 @@ bandd tx gov submit-proposal $BASEDIR/proposal_force_transition_group.json \
 sleep 5
 
 # Query last proposal's id
-PROPOSAL_ID=$(bandd query gov proposals --count-total --limit 1 --output json | jq -r  '.pagination.total')
+PROPOSAL_ID=$(bandd query gov proposals --page-count-total --page-limit 1 --output json | jq -r  '.pagination.total')
 
 # Vote on that proposal
 echo "...Voting to proposal $PROPOSAL_ID..."
