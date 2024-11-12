@@ -8,7 +8,7 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-func TestStringHyperlaneMemo(t *testing.T) {
+func TestStringRouterMemo(t *testing.T) {
 	memo := types.NewRouterMemo(
 		"router17c2txg2px6vna8a6v4ql4eh4ruvprerhytxvwt2ugp4qr473pajsyj9pgm",
 		"17000",
