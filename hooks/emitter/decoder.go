@@ -732,6 +732,7 @@ func DecodeBandtssMsgForceTransitionGroup(msg *bandtsstypes.MsgForceTransitionGr
 }
 
 func DecodeBandtssMsgRequestSignature(msg *bandtsstypes.MsgRequestSignature, detail common.JsDict) {
+	detail["content_type"] = msg.Content.TypeUrl
 	detail["content"] = msg.Content.GetCachedValue()
 	detail["memo"] = msg.Memo
 	detail["fee_limit"] = msg.FeeLimit
