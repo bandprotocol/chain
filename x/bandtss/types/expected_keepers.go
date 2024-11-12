@@ -3,12 +3,9 @@ package types
 import (
 	"context"
 
-	"cosmossdk.io/collections"
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
@@ -43,23 +40,7 @@ type BankKeeper interface {
 // DistrKeeper defines the expected distribution keeper.
 type DistrKeeper interface {
 	GetCommunityTax(ctx context.Context) (math.LegacyDec, error)
-	AllocateTokensToValidator(ctx context.Context, val stakingtypes.ValidatorI, tokens sdk.DecCoins) error
 	FundCommunityPool(ctx context.Context, amount sdk.Coins, sender sdk.AccAddress) error
-}
-
-type FeePoolManager interface {
-	GetFeePool(ctx context.Context) (collections.Item[distrtypes.FeePool], error)
-	SetFeePool(ctx context.Context, feePool distrtypes.FeePool)
-}
-
-// StakingKeeper defines the expected staking keeper.
-type StakingKeeper interface {
-	MaxValidators(ctx context.Context) (res uint32, err error)
-	ValidatorByConsAddr(context.Context, sdk.ConsAddress) (stakingtypes.ValidatorI, error)
-	IterateBondedValidatorsByPower(
-		ctx context.Context,
-		fn func(index int64, validator stakingtypes.ValidatorI) (stop bool),
-	) error
 }
 
 // TSSKeeper defines the expected tss keeper (noalias)
