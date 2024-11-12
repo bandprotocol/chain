@@ -11,7 +11,7 @@ import (
 
 func (h *Hook) emitSetTunnel(ctx sdk.Context, tunnelID uint64) {
 	tunnel := h.tunnelKeeper.MustGetTunnel(ctx, tunnelID)
-	latestSignalPrice := h.tunnelKeeper.MustGetLatestSignalPrices(ctx, tunnelID)
+	latestSignalPrice := h.tunnelKeeper.MustGetLatestPrices(ctx, tunnelID)
 	h.Write("SET_TUNNEL", common.JsDict{
 		"id":            tunnel.ID,
 		"sequence":      tunnel.Sequence,
@@ -89,12 +89,12 @@ func (h *Hook) emitSetTunnelPacket(ctx sdk.Context, tunnelID uint64, sequence ui
 		"sequence":            sequence,
 		"packet_content_type": packet.PacketContent.TypeUrl,
 		"packet_content":      packet.PacketContent.GetCachedValue(),
-		"base_fees":           "",
-		"route_fees":          "",
+		"base_fee":            packet.BaseFee,
+		"route_fee":           packet.RouteFee,
 		"created_at":          packet.CreatedAt * int64(time.Second),
 	})
 
-	for _, sp := range packet.SignalPrices {
+	for _, sp := range packet.Prices {
 		h.Write("SET_TUNNEL_PACKET_SIGNAL_PRICE", common.JsDict{
 			"tunnel_id": tunnelID,
 			"sequence":  sequence,
@@ -125,15 +125,15 @@ func (h *Hook) handleTunnelMsgUpdateAndResetTunnel(ctx sdk.Context, evMap common
 	h.emitSetTunnelHistoricalSignalDeviations(ctx, tunnelID)
 }
 
-// handleTunnelMsgDepositTunnel implements emitter handler for MsgDepositTunnel.
-func (h *Hook) handleTunnelMsgDepositTunnel(ctx sdk.Context, txHash []byte, msg *types.MsgDepositTunnel) {
+// handleTunnelMsgDepositToTunnel implements emitter handler for MsgDepositToTunnel.
+func (h *Hook) handleTunnelMsgDepositToTunnel(ctx sdk.Context, txHash []byte, msg *types.MsgDepositToTunnel) {
 	h.emitSetTunnel(ctx, msg.TunnelID)
 	h.emitSetTunnelDeposit(ctx, msg.TunnelID, msg.Depositor)
 	h.emitSetTunnelHistoricalDeposit(ctx, txHash, msg.TunnelID, msg.Depositor, 1, msg.Amount)
 }
 
-// handleTunnelMsgWithdrawTunnel implements emitter handler for MsgWithdrawTunnel.
-func (h *Hook) handleTunnelMsgWithdrawTunnel(ctx sdk.Context, txHash []byte, msg *types.MsgWithdrawTunnel) {
+// handleTunnelMsgWithdrawFromTunnel implements emitter handler for MsgWithdrawFromTunnel.
+func (h *Hook) handleTunnelMsgWithdrawFromTunnel(ctx sdk.Context, txHash []byte, msg *types.MsgWithdrawFromTunnel) {
 	h.emitSetTunnel(ctx, msg.TunnelID)
 	h.emitSetTunnelDeposit(ctx, msg.TunnelID, msg.Withdrawer)
 	h.emitSetTunnelHistoricalDeposit(ctx, txHash, msg.TunnelID, msg.Withdrawer, 2, msg.Amount)

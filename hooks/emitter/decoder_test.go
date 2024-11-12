@@ -932,16 +932,16 @@ func (suite *DecoderTestSuite) TestDecodeFeedsMsgSubmitPrices() {
 	msg := feedstypes.MsgSubmitSignalPrices{
 		Validator: ValAddress.String(),
 		Timestamp: 12345678,
-		Prices: []feedstypes.SignalPrice{
+		SignalPrices: []feedstypes.SignalPrice{
 			{
-				PriceStatus: feedstypes.PriceStatusAvailable,
-				SignalID:    "CS:ETH-USD",
-				Price:       3500000000000,
+				Status:   feedstypes.SignalPriceStatusAvailable,
+				SignalID: "CS:ETH-USD",
+				Price:    3500000000000,
 			},
 			{
-				PriceStatus: feedstypes.PriceStatusUnavailable,
-				SignalID:    "CS:BTC-USD",
-				Price:       0,
+				Status:   feedstypes.SignalPriceStatusUnavailable,
+				SignalID: "CS:BTC-USD",
+				Price:    0,
 			},
 		},
 	}
@@ -1160,7 +1160,7 @@ func (suite *DecoderTestSuite) TestDecodeTunnelMsgCreateTunnel() {
 		60,
 		"ethereum",
 		"0xcabe9a5e6249c893a4b4fc263",
-		tunneltypes.ENCODER_TICK_ABI,
+		feedstypes.ENCODER_TICK_ABI,
 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(5))),
 		CreatorAddress,
 	)
@@ -1233,30 +1233,30 @@ func (suite *DecoderTestSuite) TestDecodeTunnelMsgTriggerTunnel() {
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeTunnelMsgDepositTunnel() {
+func (suite *DecoderTestSuite) TestDecodeTunnelMsgDepositToTunnel() {
 	detail := make(common.JsDict)
-	msg := tunneltypes.NewMsgDepositTunnel(
+	msg := tunneltypes.NewMsgDepositToTunnel(
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(5))),
 		CreatorAddress.String(),
 	)
 
-	emitter.DecodeTunnelMsgDepositTunnel(msg, detail)
+	emitter.DecodeTunnelMsgDepositToTunnel(msg, detail)
 	suite.testCompareJson(
 		detail,
 		"{\"amount\":[{\"denom\":\"uband\",\"amount\":\"5\"}],\"depositor\":\"band1vdex2ct5daeqqqqqqqqqqqqqqqqqqqqqqgzyx3\",\"tunnel_id\":1}",
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeTunnelMsgWithdrawTunnel() {
+func (suite *DecoderTestSuite) TestDecodeTunnelMsgWithdrawFromTunnel() {
 	detail := make(common.JsDict)
-	msg := tunneltypes.NewMsgWithdrawTunnel(
+	msg := tunneltypes.NewMsgWithdrawFromTunnel(
 		1,
 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(5))),
 		CreatorAddress.String(),
 	)
 
-	emitter.DecodeTunnelMsgWithdrawTunnel(msg, detail)
+	emitter.DecodeTunnelMsgWithdrawFromTunnel(msg, detail)
 	suite.testCompareJson(
 		detail,
 		"{\"amount\":[{\"denom\":\"uband\",\"amount\":\"5\"}],\"tunnel_id\":1,\"withdrawer\":\"band1vdex2ct5daeqqqqqqqqqqqqqqqqqqqqqqgzyx3\"}",

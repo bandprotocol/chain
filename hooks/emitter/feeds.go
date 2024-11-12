@@ -106,7 +106,7 @@ func (h *Hook) handleFeedsMsgSubmitSignalPrices(
 	}
 
 	h.emitSetFeedsSignalPricesTx(ctx, txHash, msg.Validator, feeder)
-	h.emitSetFeedsValidatorPrices(ctx, msg.Validator, msg.Prices)
+	h.emitSetFeedsValidatorPrices(ctx, msg.Validator, msg.SignalPrices)
 }
 
 // handleMsgUpdateReferenceSourceConfig implements emitter handler for MsgUpdateReferenceSourceConfig.

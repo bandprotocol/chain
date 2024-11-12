@@ -88,8 +88,8 @@ tunnel_packets = sa.Table(
     Column("sequence", sa.Integer, primary_key=True),
     Column("packet_content_type", sa.String, index=True),
     Column("packet_content", sa.JSON),
-    Column("base_fees", sa.String),
-    Column("route_fees", sa.String),
+    Column("base_fee", sa.String),
+    Column("route_fee", sa.String),
     Column("created_at", CustomDateTime),
 )
 

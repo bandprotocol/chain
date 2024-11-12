@@ -355,10 +355,10 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *
 		}
 	}
 
-	signalTotalPowers := h.feedsKeeper.CalculateNewSignalTotalPowers(ctx)
-	for _, stp := range signalTotalPowers {
-		h.emitSetFeedsSignalTotalPower(stp)
-	}
+	// signalTotalPowers := h.feedsKeeper.GetSignalTotalPower(ctx)
+	// for _, stp := range signalTotalPowers {
+	// 	h.emitSetFeedsSignalTotalPower(stp)
+	// }
 
 	// Restake module
 	var restakeState restaketypes.GenesisState
@@ -530,7 +530,7 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, events []abci.Event) {
 	}
 
 	// Emit all new current prices at every endblock.
-	prices := h.feedsKeeper.GetAllCurrentPrices(ctx)
+	prices := h.feedsKeeper.GetAllPrices(ctx)
 	if len(prices) > 0 {
 		h.emitSetFeedsPrices(ctx, prices)
 	}

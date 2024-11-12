@@ -206,10 +206,10 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeTunnelMsgDeactivate(msg, detail)
 	case *tunneltypes.MsgTriggerTunnel:
 		DecodeTunnelMsgTriggerTunnel(msg, detail)
-	case *tunneltypes.MsgDepositTunnel:
-		DecodeTunnelMsgDepositTunnel(msg, detail)
-	case *tunneltypes.MsgWithdrawTunnel:
-		DecodeTunnelMsgWithdrawTunnel(msg, detail)
+	case *tunneltypes.MsgDepositToTunnel:
+		DecodeTunnelMsgDepositToTunnel(msg, detail)
+	case *tunneltypes.MsgWithdrawFromTunnel:
+		DecodeTunnelMsgWithdrawFromTunnel(msg, detail)
 	case *tunneltypes.MsgUpdateParams:
 		DecodeTunnelMsgUpdateParams(msg, detail)
 	default:
@@ -717,7 +717,7 @@ func DecodeDescription(des stakingtypes.Description) common.JsDict {
 func DecodeFeedsMsgSubmitSignalPrices(msg *feedstypes.MsgSubmitSignalPrices, detail common.JsDict) {
 	detail["validator"] = msg.GetValidator()
 	detail["timestamp"] = msg.GetTimestamp()
-	detail["prices"] = msg.GetPrices()
+	detail["signal_prices"] = msg.GetSignalPrices()
 }
 
 func DecodeFeedsMsgVote(msg *feedstypes.MsgVote, detail common.JsDict) {
@@ -982,13 +982,13 @@ func DecodeTunnelMsgTriggerTunnel(msg *tunneltypes.MsgTriggerTunnel, detail comm
 	detail["creator"] = msg.Creator
 }
 
-func DecodeTunnelMsgDepositTunnel(msg *tunneltypes.MsgDepositTunnel, detail common.JsDict) {
+func DecodeTunnelMsgDepositToTunnel(msg *tunneltypes.MsgDepositToTunnel, detail common.JsDict) {
 	detail["tunnel_id"] = msg.TunnelID
 	detail["amount"] = msg.GetAmount()
 	detail["depositor"] = msg.Depositor
 }
 
-func DecodeTunnelMsgWithdrawTunnel(msg *tunneltypes.MsgWithdrawTunnel, detail common.JsDict) {
+func DecodeTunnelMsgWithdrawFromTunnel(msg *tunneltypes.MsgWithdrawFromTunnel, detail common.JsDict) {
 	detail["tunnel_id"] = msg.TunnelID
 	detail["amount"] = msg.GetAmount()
 	detail["withdrawer"] = msg.Withdrawer
