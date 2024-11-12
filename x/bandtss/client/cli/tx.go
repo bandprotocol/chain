@@ -60,7 +60,7 @@ func GetTxCmd(requestSignatureCmds []*cobra.Command) *cobra.Command {
 func GetTxCmdRequestSignature() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "request-signature",
-		Short: "request signature from the group",
+		Short: "Request signature from the group",
 	}
 
 	cmd.PersistentFlags().String(flagFeeLimit, "", "The maximum tokens that will be paid for this request")
@@ -75,7 +75,7 @@ func GetTxCmdTextRequestSignature() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "text [message]",
 		Args:  cobra.ExactArgs(1),
-		Short: "request signature of the message from the current group",
+		Short: "Request signature of the message from the current group",
 		Example: fmt.Sprintf(
 			`%s tx bandtss request-signature text [message] --fee-limit 10uband`,
 			version.AppName,
@@ -124,7 +124,7 @@ func GetTxCmdActivate() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "activate",
 		Args:    cobra.NoArgs,
-		Short:   "activate the status of the address",
+		Short:   "Activate the status of the address",
 		Example: fmt.Sprintf(`%s tx bandtss activate`, version.AppName),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
