@@ -219,7 +219,7 @@ func (ms msgServer) TriggerTunnel(
 
 	// update latest price info.
 	latestPrices.LastInterval = ctx.BlockTime().Unix()
-	latestPrices.UpdatePrices(prices)
+	latestPrices.UpdatePrices(packet.Prices)
 	ms.SetLatestPrices(ctx, latestPrices)
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
