@@ -133,14 +133,11 @@ func (k Keeper) ProducePacket(
 	}
 
 	// update latest price info.
-	if err := k.UpdatePriceTunnel(ctx, tunnel.ID, newPrices); err != nil {
-		return err
-	}
+	latestPrices.UpdatePrices(newPrices)
 	if sendAll {
-		if err := k.UpdateLastInterval(ctx, tunnel.ID, unixNow); err != nil {
-			return err
-		}
+		latestPrices.LastInterval = unixNow
 	}
+	k.SetLatestPrices(ctx, latestPrices)
 
 	// emit an event
 	ctx.EventManager().EmitEvent(sdk.NewEvent(

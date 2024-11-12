@@ -5,7 +5,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
@@ -47,32 +46,4 @@ func (k Keeper) GetAllLatestPrices(ctx sdk.Context) []types.LatestPrices {
 		allLatestPrices = append(allLatestPrices, latestPrices)
 	}
 	return allLatestPrices
-}
-
-// UpdateLastInterval updates the last interval timestamp of the tunnel in the LatestPrices.
-// LatestPrices of the tunnel must be set before calling this function.
-func (k Keeper) UpdateLastInterval(ctx sdk.Context, tunnelID uint64, timestamp int64) error {
-	latestPrices, err := k.GetLatestPrices(ctx, tunnelID)
-	if err != nil {
-		return err
-	}
-
-	latestPrices.LastInterval = timestamp
-	k.SetLatestPrices(ctx, latestPrices)
-
-	return nil
-}
-
-// UpdatePriceTunnel updates the prices of the tunnel in the LatestPrices.
-// LatestPrices of the tunnel must be set before calling this function.
-func (k Keeper) UpdatePriceTunnel(ctx sdk.Context, tunnelID uint64, prices []feedstypes.Price) error {
-	latestPrices, err := k.GetLatestPrices(ctx, tunnelID)
-	if err != nil {
-		return err
-	}
-
-	latestPrices.UpdatePrices(prices)
-	k.SetLatestPrices(ctx, latestPrices)
-
-	return nil
 }
