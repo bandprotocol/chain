@@ -744,11 +744,7 @@ func DecodeBandtssMsgActivate(msg *bandtsstypes.MsgActivate, detail common.JsDic
 }
 
 func DecodeBandtssMsgUpdateParams(msg *bandtsstypes.MsgUpdateParams, detail common.JsDict) {
-	params := msg.GetParams()
-	detail["reward_percentage"] = params.GetRewardPercentage()
-	detail["inactive_penalty_duration"] = params.GetInactivePenaltyDuration()
-	detail["fee"] = params.GetFee()
-	detail["max_transition_duration"] = params.GetMaxTransitionDuration()
+	detail["params"] = msg.GetParams()
 	detail["authority"] = msg.GetAuthority()
 }
 
@@ -790,14 +786,7 @@ func DecodeMsgSubmitSignature(msg *tsstypes.MsgSubmitSignature, detail common.Js
 }
 
 func DecodeMsgUpdateParamsTss(msg *tsstypes.MsgUpdateParams, detail common.JsDict) {
-	params := msg.GetParams()
-	detail["max_group_size"] = params.GetMaxGroupSize()
-	detail["max_memo_length"] = params.GetMaxMemoLength()
-	detail["max_message_length"] = params.GetMaxMessageLength()
-	detail["max_d_e_size"] = params.GetMaxDESize()
-	detail["creating_period"] = params.GetCreationPeriod()
-	detail["signing_period"] = params.GetSigningPeriod()
-	detail["max_signing_attempt"] = params.GetMaxSigningAttempt()
+	detail["params"] = msg.GetParams()
 	detail["authority"] = msg.GetAuthority()
 }
 
