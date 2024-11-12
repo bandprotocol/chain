@@ -10,7 +10,6 @@ Key features of cylinder include:
 
 - Nonce Submission: Allows users to submit nonces that are used during the signing process, ensuring proper coordination for message signing.
 - Message Signing: Enables users to sign newly requested messages as part of the TSS protocol.
-- Heartbeat Functionality: Keeps users active in the system by sending periodic heartbeat message, ensuring their readiness for future signing tasks.
 
 This tool is essential for members who need to maintain constant engagement and coordination during TSS message signing operations.
 
@@ -118,7 +117,6 @@ cylinder config min-de 20 --home $CYLINDER_HOME_PATH
 cylinder config gas-adjust-start 1.6 --home $CYLINDER_HOME_PATH
 cylinder config gas-adjust-step 0.2 --home $CYLINDER_HOME_PATH
 cylinder config random-secret "$(openssl rand -hex 32)" --home $CYLINDER_HOME_PATH
-cylinder config active-period "12h" --home $CYLINDER_HOME_PATH
 
 cylinder keys add signer1 --home $CYLINDER_HOME_PATH
 cylinder keys add signer2 --home $CYLINDER_HOME_PATH
@@ -141,7 +139,6 @@ type Config struct {
 	GasAdjustStart   float64       // The start value of gas adjustment
 	GasAdjustStep    float64       // The increment step of gad adjustment
 	RandomSecret     tss.Scalar    // The secret value that is used for random D,E
-	ActivePeriod     time.Duration // The time period that cylinder will send active status to chain
 }
 ```
 
@@ -156,8 +153,6 @@ Run the following commands to send 1 BAND to the predefined signer accounts and 
 bandd tx multi-send 1000000uband $(cylinder keys list -a --home $CYLINDER_HOME_PATH) --gas-prices 0.0025uband --keyring-backend test --chain-id $CHAIN_ID --from $WALLET_NAME -b sync -y --node $RPC_URL
 
 bandd tx tss add-grantees $(cylinder keys list -a --home $CYLINDER_HOME_PATH) --gas-prices 0.0025uband --keyring-backend test --chain-id $CHAIN_ID --gas 350000 --from $WALLET_NAME -b sync -y --node $RPC_URL
-
-bandd tx bandtss add-grantees $(cylinder keys list -a --home $CYLINDER_HOME_PATH) --gas-prices 0.0025uband --keyring-backend test --chain-id $CHAIN_ID --gas 350000 --from $WALLET_NAME -b sync -y --node $RPC_URL
 ```
 
 ## Run the cylinder program
