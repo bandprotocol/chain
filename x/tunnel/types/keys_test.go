@@ -31,9 +31,9 @@ func TestTunnelPacketStoreKey(t *testing.T) {
 	require.Equal(t, expect, types.TunnelPacketStoreKey(1, 2))
 }
 
-func TestLatestSignalPricesStoreKey(t *testing.T) {
+func TestLatestPricesStoreKey(t *testing.T) {
 	expect, _ := hex.DecodeString("130000000000000001")
-	require.Equal(t, expect, types.LatestSignalPricesStoreKey(1))
+	require.Equal(t, expect, types.LatestPricesStoreKey(1))
 }
 
 func TestDepositsStoreKey(t *testing.T) {

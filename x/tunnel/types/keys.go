@@ -34,11 +34,11 @@ var (
 	TotalFeeStoreKey    = []byte{0x01}
 
 	// store prefixes
-	ActiveTunnelIDStoreKeyPrefix     = []byte{0x10}
-	TunnelStoreKeyPrefix             = []byte{0x11}
-	PacketStoreKeyPrefix             = []byte{0x12}
-	LatestSignalPricesStoreKeyPrefix = []byte{0x13}
-	DepositStoreKeyPrefix            = []byte{0x14}
+	ActiveTunnelIDStoreKeyPrefix = []byte{0x10}
+	TunnelStoreKeyPrefix         = []byte{0x11}
+	PacketStoreKeyPrefix         = []byte{0x12}
+	LatestPricesStoreKeyPrefix   = []byte{0x13}
+	DepositStoreKeyPrefix        = []byte{0x14}
 
 	// params store keys
 	ParamsKey = []byte{0x90}
@@ -67,9 +67,9 @@ func TunnelPacketStoreKey(tunnelID uint64, packetID uint64) []byte {
 	return append(TunnelPacketsStoreKey(tunnelID), sdk.Uint64ToBigEndian(packetID)...)
 }
 
-// LatestSignalPricesStoreKey returns the key to retrieve the latest signal prices from the store.
-func LatestSignalPricesStoreKey(tunnelID uint64) []byte {
-	return append(LatestSignalPricesStoreKeyPrefix, sdk.Uint64ToBigEndian(tunnelID)...)
+// LatestPricesStoreKey returns the key to retrieve the latest prices from the store.
+func LatestPricesStoreKey(tunnelID uint64) []byte {
+	return append(LatestPricesStoreKeyPrefix, sdk.Uint64ToBigEndian(tunnelID)...)
 }
 
 // DepositsStoreKey returns the key to retrieve all deposits of a tunnel from the store.

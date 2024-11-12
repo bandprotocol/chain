@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
@@ -86,7 +87,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 				interval,
 				args[0],
 				args[1],
-				types.Encoder(encoder),
+				feedstypes.Encoder(encoder),
 				initialDeposit,
 				clientCtx.GetFromAddress(),
 			)
@@ -138,7 +139,7 @@ func GetTxCmdCreateIBCTunnel() *cobra.Command {
 				signalInfos.ToSignalDeviations(),
 				interval,
 				args[0],
-				types.Encoder(encoder),
+				feedstypes.Encoder(encoder),
 				initialDeposit,
 				clientCtx.GetFromAddress(),
 			)

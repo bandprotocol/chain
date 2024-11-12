@@ -1,48 +1,49 @@
 package keeper_test
 
 import (
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-func (s *KeeperTestSuite) TestGetSetLatestSignalPrices() {
+func (s *KeeperTestSuite) TestGetSetLatestPrices() {
 	ctx, k := s.ctx, s.keeper
 
 	tunnelID := uint64(1)
-	latestSignalPrices := types.LatestSignalPrices{
+	latestPrices := types.LatestPrices{
 		TunnelID: tunnelID,
-		SignalPrices: []types.SignalPrice{
-			{SignalID: "BTC", Price: 50000},
+		Prices: []feedstypes.Price{
+			{Status: feedstypes.PriceStatusNotInCurrentFeeds, SignalID: "BTC", Price: 50000},
 		},
 	}
 
-	k.SetLatestSignalPrices(ctx, latestSignalPrices)
+	k.SetLatestPrices(ctx, latestPrices)
 
-	retrievedSignalPrices, err := k.GetLatestSignalPrices(ctx, tunnelID)
+	retrievedPrices, err := k.GetLatestPrices(ctx, tunnelID)
 	s.Require().NoError(err)
-	s.Require().Equal(latestSignalPrices, retrievedSignalPrices)
+	s.Require().Equal(latestPrices, retrievedPrices)
 }
 
-func (s *KeeperTestSuite) TestGetAllLatestSignalPrices() {
+func (s *KeeperTestSuite) TestGetAllLatestPrices() {
 	ctx, k := s.ctx, s.keeper
 
-	latestSignalPrices1 := types.LatestSignalPrices{
+	latestPrices1 := types.LatestPrices{
 		TunnelID: 1,
-		SignalPrices: []types.SignalPrice{
-			{SignalID: "BTC", Price: 50000},
+		Prices: []feedstypes.Price{
+			{Status: feedstypes.PriceStatusNotInCurrentFeeds, SignalID: "BTC", Price: 50000},
 		},
 	}
-	latestSignalPrices2 := types.LatestSignalPrices{
+	latestPrices2 := types.LatestPrices{
 		TunnelID: 2,
-		SignalPrices: []types.SignalPrice{
-			{SignalID: "ETH", Price: 3000},
+		Prices: []feedstypes.Price{
+			{Status: feedstypes.PriceStatusNotInCurrentFeeds, SignalID: "ETH", Price: 3000},
 		},
 	}
 
-	k.SetLatestSignalPrices(ctx, latestSignalPrices1)
-	k.SetLatestSignalPrices(ctx, latestSignalPrices2)
+	k.SetLatestPrices(ctx, latestPrices1)
+	k.SetLatestPrices(ctx, latestPrices2)
 
-	allLatestSignalPrices := k.GetAllLatestSignalPrices(ctx)
-	s.Require().Len(allLatestSignalPrices, 2)
-	s.Require().Contains(allLatestSignalPrices, latestSignalPrices1)
-	s.Require().Contains(allLatestSignalPrices, latestSignalPrices2)
+	allLatestPrices := k.GetAllLatestPrices(ctx)
+	s.Require().Len(allLatestPrices, 2)
+	s.Require().Contains(allLatestPrices, latestPrices1)
+	s.Require().Contains(allLatestPrices, latestPrices2)
 }

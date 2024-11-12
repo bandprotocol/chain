@@ -23,9 +23,6 @@ func TestValidateGenesis(t *testing.T) {
 				Tunnels: []types.Tunnel{
 					{ID: 1},
 				},
-				LatestSignalPricesList: []types.LatestSignalPrices{
-					{TunnelID: 1},
-				},
 			},
 			expErr:    true,
 			expErrMsg: "length of tunnels does not match tunnel count",
@@ -36,9 +33,6 @@ func TestValidateGenesis(t *testing.T) {
 				TunnelCount: 2,
 				Tunnels: []types.Tunnel{
 					{ID: 1},
-				},
-				LatestSignalPricesList: []types.LatestSignalPrices{
-					{TunnelID: 1},
 				},
 			},
 			expErr:    true,
@@ -52,44 +46,9 @@ func TestValidateGenesis(t *testing.T) {
 					{ID: 1},
 					{ID: 1}, // Duplicate ID
 				},
-				LatestSignalPricesList: []types.LatestSignalPrices{
-					{TunnelID: 1},
-					{TunnelID: 1},
-				},
 			},
 			expErr:    true,
 			expErrMsg: "duplicate tunnel ID found",
-		},
-		"tunnel count mismatch in latest signal prices": {
-			genesisState: types.GenesisState{
-				Params:      types.DefaultParams(),
-				TunnelCount: 2,
-				Tunnels: []types.Tunnel{
-					{ID: 1},
-					{ID: 2},
-				},
-				LatestSignalPricesList: []types.LatestSignalPrices{
-					{TunnelID: 1},
-				},
-			},
-			expErr:    true,
-			expErrMsg: "tunnel count mismatch in latest signal prices",
-		},
-		"invalid latest signal prices": {
-			genesisState: types.GenesisState{
-				Params:      types.DefaultParams(),
-				TunnelCount: 2,
-				Tunnels: []types.Tunnel{
-					{ID: 1},
-					{ID: 2},
-				},
-				LatestSignalPricesList: []types.LatestSignalPrices{
-					{TunnelID: 1},
-					{TunnelID: 2},
-				},
-			},
-			expErr:    true,
-			expErrMsg: "invalid latest signal prices",
 		},
 		"deposit has non-existent": {
 			genesisState: types.GenesisState{
@@ -98,14 +57,6 @@ func TestValidateGenesis(t *testing.T) {
 				Tunnels: []types.Tunnel{
 					{ID: 1},
 					{ID: 2},
-				},
-				LatestSignalPricesList: []types.LatestSignalPrices{
-					{TunnelID: 1, SignalPrices: []types.SignalPrice{
-						{SignalID: "signal1", Price: 100},
-					}, LastInterval: 0},
-					{TunnelID: 2, SignalPrices: []types.SignalPrice{
-						{SignalID: "signal1", Price: 100},
-					}, LastInterval: 0},
 				},
 				Deposits: []types.Deposit{
 					{
@@ -125,14 +76,6 @@ func TestValidateGenesis(t *testing.T) {
 				Tunnels: []types.Tunnel{
 					{ID: 1},
 					{ID: 2},
-				},
-				LatestSignalPricesList: []types.LatestSignalPrices{
-					{TunnelID: 1, SignalPrices: []types.SignalPrice{
-						{SignalID: "signal1", Price: 100},
-					}, LastInterval: 0},
-					{TunnelID: 2, SignalPrices: []types.SignalPrice{
-						{SignalID: "signal1", Price: 100},
-					}, LastInterval: 0},
 				},
 				Deposits: []types.Deposit{
 					{
@@ -158,14 +101,6 @@ func TestValidateGenesis(t *testing.T) {
 					{ID: 1, TotalDeposit: sdk.NewCoins(sdk.NewInt64Coin("stake", 100))},
 					{ID: 2, TotalDeposit: sdk.NewCoins(sdk.NewInt64Coin("stake", 200))},
 				},
-				LatestSignalPricesList: []types.LatestSignalPrices{
-					{TunnelID: 1, SignalPrices: []types.SignalPrice{
-						{SignalID: "signal1", Price: 100},
-					}, LastInterval: 0},
-					{TunnelID: 2, SignalPrices: []types.SignalPrice{
-						{SignalID: "signal1", Price: 100},
-					}, LastInterval: 0},
-				},
 				Deposits: []types.Deposit{
 					{
 						TunnelID:  1,
@@ -184,14 +119,6 @@ func TestValidateGenesis(t *testing.T) {
 				Tunnels: []types.Tunnel{
 					{ID: 1, TotalDeposit: sdk.NewCoins(sdk.NewInt64Coin("stake", 100))},
 					{ID: 2, TotalDeposit: sdk.NewCoins(sdk.NewInt64Coin("stake", 200))},
-				},
-				LatestSignalPricesList: []types.LatestSignalPrices{
-					{TunnelID: 1, SignalPrices: []types.SignalPrice{
-						{SignalID: "signal1", Price: 100},
-					}, LastInterval: 0},
-					{TunnelID: 2, SignalPrices: []types.SignalPrice{
-						{SignalID: "signal1", Price: 100},
-					}, LastInterval: 0},
 				},
 				Deposits: []types.Deposit{
 					{
