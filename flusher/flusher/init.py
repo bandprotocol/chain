@@ -284,7 +284,7 @@ GROUP BY proposal_id
 CREATE VIEW current_prices AS
 SELECT
     p.signal_id,
-    p.price_status,
+    p.status,
     p.price,
     p.timestamp
 FROM

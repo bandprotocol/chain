@@ -20,6 +20,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "tss/MsgUpdateParams")
 
 	cdc.RegisterConcrete(&TextSignatureOrder{}, "tss/TextSignatureOrder", nil)
+	cdc.RegisterConcrete(Params{}, "tss/Params", nil)
 }
 
 // RegisterInterfaces registers the x/tss interfaces types with the interface registry

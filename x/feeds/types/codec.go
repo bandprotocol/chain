@@ -18,6 +18,7 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "feeds/MsgUpdateParams")
 
 	cdc.RegisterConcrete(&FeedsSignatureOrder{}, "feeds/FeedsSignatureOrder", nil)
+	cdc.RegisterConcrete(Params{}, "feeds/Params", nil)
 }
 
 // RegisterInterfaces register the feeds module interfaces to protobuf Any.

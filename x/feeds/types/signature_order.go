@@ -32,8 +32,12 @@ func (f *FeedsSignatureOrder) ValidateBasic() error {
 		return ErrInvalidSignalIDs
 	}
 
+	if _, ok := Encoder_name[int32(f.Encoder)]; !ok {
+		return ErrInvalidEncoder.Wrapf("invalid encoder: %s", f.Encoder)
+	}
+
 	if f.Encoder == ENCODER_UNSPECIFIED {
-		return ErrInvalidEncoder
+		return ErrInvalidEncoder.Wrapf("encoder type must be specified")
 	}
 
 	return nil

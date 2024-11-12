@@ -62,6 +62,27 @@
           table:
             name: deposits
             schema: public
+    - name: feeds_feeders
+      using:
+        foreign_key_constraint_on:
+          column: feeder_id
+          table:
+            name: feeds_feeders
+            schema: public
+    - name: feeds_signal_prices_txs
+      using:
+        foreign_key_constraint_on:
+          column: feeder_id
+          table:
+            name: feeds_signal_prices_txs
+            schema: public
+    - name: feeds_voter_signals
+      using:
+        foreign_key_constraint_on:
+          column: account_id
+          table:
+            name: feeds_voter_signals
+            schema: public
     - name: group_members
       using:
         foreign_key_constraint_on:
@@ -117,6 +138,20 @@
           column: reporter_id
           table:
             name: reports
+            schema: public
+    - name: restake_historical_stakes
+      using:
+        foreign_key_constraint_on:
+          column: account_id
+          table:
+            name: restake_historical_stakes
+            schema: public
+    - name: restake_locks
+      using:
+        foreign_key_constraint_on:
+          column: account_id
+          table:
+            name: restake_locks
             schema: public
     - name: tss_members
       using:
@@ -344,6 +379,9 @@
             name: connections
             schema: public
 - table:
+    name: current_prices
+    schema: public
+- table:
     name: data_source_requests
     schema: public
   object_relationships:
@@ -422,6 +460,49 @@
     - name: transaction
       using:
         foreign_key_constraint_on: tx_id
+- table:
+    name: feeds_feeders
+    schema: public
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: feeder_id
+- table:
+    name: feeds_historical_prices
+    schema: public
+- table:
+    name: feeds_reference_source_configs
+    schema: public
+- table:
+    name: feeds_signal_prices_txs
+    schema: public
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: feeder_id
+    - name: transaction
+      using:
+        foreign_key_constraint_on: transaction_id
+    - name: validator
+      using:
+        foreign_key_constraint_on: validator_id
+- table:
+    name: feeds_signal_total_powers
+    schema: public
+- table:
+    name: feeds_validator_prices
+    schema: public
+  object_relationships:
+    - name: validator
+      using:
+        foreign_key_constraint_on: validator_id
+- table:
+    name: feeds_voter_signals
+    schema: public
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: account_id
 - table:
     name: group_members
     schema: public
@@ -833,6 +914,37 @@
             name: val_requests
             schema: public
 - table:
+    name: restake_historical_stakes
+    schema: public
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: account_id
+- table:
+    name: restake_locks
+    schema: public
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: account_id
+    - name: restake_vault
+      using:
+        foreign_key_constraint_on: key
+    - name: transaction
+      using:
+        foreign_key_constraint_on: transaction_id
+- table:
+    name: restake_vaults
+    schema: public
+  array_relationships:
+    - name: restake_locks
+      using:
+        foreign_key_constraint_on:
+          column: key
+          table:
+            name: restake_locks
+            schema: public
+- table:
     name: tracking
     schema: public
 - table:
@@ -863,6 +975,13 @@
           column: tx_id
           table:
             name: deposits
+            schema: public
+    - name: feeds_signal_prices_txs
+      using:
+        foreign_key_constraint_on:
+          column: transaction_id
+          table:
+            name: feeds_signal_prices_txs
             schema: public
     - name: incoming_packets
       using:
@@ -898,6 +1017,13 @@
           column: transaction_id
           table:
             name: requests
+            schema: public
+    - name: restake_locks
+      using:
+        foreign_key_constraint_on:
+          column: transaction_id
+          table:
+            name: restake_locks
             schema: public
     - name: votes
       using:
@@ -1130,6 +1256,20 @@
           table:
             name: delegations
             schema: public
+    - name: feeds_signal_prices_txs
+      using:
+        foreign_key_constraint_on:
+          column: validator_id
+          table:
+            name: feeds_signal_prices_txs
+            schema: public
+    - name: feeds_validator_prices
+      using:
+        foreign_key_constraint_on:
+          column: validator_id
+          table:
+            name: feeds_validator_prices
+            schema: public
     - name: historical_bonded_token_on_validators
       using:
         foreign_key_constraint_on:
@@ -1179,6 +1319,9 @@
           table:
             name: validator_votes
             schema: public
+- table:
+    name: voter_power_aggregate
+    schema: public
 - table:
     name: votes
     schema: public
