@@ -148,6 +148,7 @@ func HashChallenge(rawGroupPubNonce, rawGroupPubKey Point, data []byte) (Scalar,
 		return nil, NewError(err, "parse group pubic key")
 	}
 
+	paddedPx := PaddingBytes(groupPubKey.X().Bytes(), 32)
 	scalar, err := NewScalar(Hash(
 		[]byte(ContextString),
 		[]byte{0},
@@ -155,7 +156,7 @@ func HashChallenge(rawGroupPubNonce, rawGroupPubKey Point, data []byte) (Scalar,
 		[]byte{0},
 		rAddress,
 		[]byte{rawGroupPubKey[0] + 25},
-		groupPubKey.X().Bytes(),
+		paddedPx,
 		Hash(data),
 	))
 	if err != nil {
