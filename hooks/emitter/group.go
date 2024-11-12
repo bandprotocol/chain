@@ -169,7 +169,7 @@ func (h *Hook) handleGroupMsgUpdateGroupAdmin(
 
 // handleGroupMsgUpdateGroupMembers implements emitter handler for Group's MsgUpdateGroupMembers.
 func (h *Hook) handleGroupMsgUpdateGroupMembers(
-	ctx sdk.Context, msg *group.MsgUpdateGroupMembers, evMap common.EvMap,
+	ctx sdk.Context, msg *group.MsgUpdateGroupMembers,
 ) {
 	h.Write("REMOVE_GROUP_MEMBERS_BY_GROUP_ID", common.JsDict{
 		"group_id": msg.GroupId,
@@ -238,7 +238,7 @@ func (h *Hook) handleGroupMsgWithdrawProposal(
 
 // handleGroupEventExec implements emitter handler for Group's EventExec.
 func (h *Hook) handleGroupEventExec(
-	ctx sdk.Context, evMap common.EvMap,
+	evMap common.EvMap,
 ) {
 	if len(evMap[proto.MessageName(&group.EventExec{})+".proposal_id"]) == 0 {
 		return
@@ -252,12 +252,12 @@ func (h *Hook) handleGroupEventExec(
 		"executor_result": executorResult,
 	})
 
-	h.handleGroupEventProposalPruned(ctx, evMap)
+	h.handleGroupEventProposalPruned(evMap)
 }
 
 // handleGroupEventProposalPruned implements emitter handler for Group's EventProposalPruned.
 func (h *Hook) handleGroupEventProposalPruned(
-	ctx sdk.Context, evMap common.EvMap,
+	evMap common.EvMap,
 ) {
 	if len(evMap[proto.MessageName(&group.EventProposalPruned{})+".proposal_id"]) == 0 {
 		return

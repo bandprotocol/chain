@@ -31,7 +31,7 @@ func (h *Hook) handleMsgTransfer(
 		)
 
 		event, _ := hex.DecodeString(events[0])
-		h.extractFungibleTokenPacket(ctx, event, evMap, detail, packet)
+		h.extractFungibleTokenPacket(event, evMap, detail, packet)
 		h.Write("NEW_OUTGOING_PACKET", packet)
 	}
 }

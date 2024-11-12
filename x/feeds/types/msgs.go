@@ -27,38 +27,52 @@ var (
 func NewMsgSubmitSignalPrices(
 	validator string,
 	timestamp int64,
-	prices []SignalPrice,
+	signalPrices []SignalPrice,
 ) *MsgSubmitSignalPrices {
 	return &MsgSubmitSignalPrices{
-		Validator: validator,
-		Timestamp: timestamp,
-		Prices:    prices,
+		Validator:    validator,
+		Timestamp:    timestamp,
+		SignalPrices: signalPrices,
 	}
 }
 
 // ValidateBasic does a check on the provided data.
 func (m *MsgSubmitSignalPrices) ValidateBasic() error {
 	if _, err := sdk.ValAddressFromBech32(m.Validator); err != nil {
-		return err
+		return errorsmod.Wrap(err, "invalid validator address")
 	}
 
 	// Map to track signal IDs for duplicate check
 	signalIDSet := make(map[string]struct{})
 
-	for _, price := range m.Prices {
-		if price.PriceStatus != PriceStatusAvailable && price.Price != 0 {
+	for _, signalPrice := range m.SignalPrices {
+		// Validate SignalPrice Status
+		if _, ok := SignalPriceStatus_name[int32(signalPrice.Status)]; !ok {
+			return sdkerrors.ErrInvalidRequest.Wrapf(
+				"invalid signal price status: %d", signalPrice.Status,
+			)
+		}
+
+		if signalPrice.Status == SignalPriceStatusUnspecified {
 			return sdkerrors.ErrInvalidRequest.Wrap(
-				"price must be initial value if price status is unsupported or unavailable",
+				"signal price status must be specified",
+			)
+		}
+
+		// if signal price is not available, price must be 0
+		if signalPrice.Status != SignalPriceStatusAvailable && signalPrice.Price != 0 {
+			return sdkerrors.ErrInvalidRequest.Wrap(
+				"signal price must be initial value if price status is unsupported or unavailable",
 			)
 		}
 
 		// Check for duplicate signal IDs
-		if _, exists := signalIDSet[price.SignalID]; exists {
+		if _, exists := signalIDSet[signalPrice.SignalID]; exists {
 			return ErrDuplicateSignalID.Wrapf(
-				"duplicate signal ID found: %s", price.SignalID,
+				"duplicate signal ID found: %s", signalPrice.SignalID,
 			)
 		}
-		signalIDSet[price.SignalID] = struct{}{}
+		signalIDSet[signalPrice.SignalID] = struct{}{}
 	}
 
 	return nil

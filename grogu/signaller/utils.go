@@ -43,19 +43,19 @@ func convertPriceData(price *bothan.Price) (types.SignalPrice, error) {
 	switch price.Status {
 	case bothan.Status_STATUS_UNSUPPORTED:
 		return types.NewSignalPrice(
-			types.PriceStatusUnsupported,
+			types.SignalPriceStatusUnsupported,
 			price.SignalId,
 			0,
 		), nil
 	case bothan.Status_STATUS_UNAVAILABLE:
 		return types.NewSignalPrice(
-			types.PriceStatusUnavailable,
+			types.SignalPriceStatusUnavailable,
 			price.SignalId,
 			0,
 		), nil
 	case bothan.Status_STATUS_AVAILABLE:
 		return types.NewSignalPrice(
-			types.PriceStatusAvailable,
+			types.SignalPriceStatusAvailable,
 			price.SignalId,
 			price.Price,
 		), nil

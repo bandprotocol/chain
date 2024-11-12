@@ -700,7 +700,7 @@ func DecodeDescription(des stakingtypes.Description) common.JsDict {
 func DecodeFeedsMsgSubmitSignalPrices(msg *feedstypes.MsgSubmitSignalPrices, detail common.JsDict) {
 	detail["validator"] = msg.GetValidator()
 	detail["timestamp"] = msg.GetTimestamp()
-	detail["prices"] = msg.GetPrices()
+	detail["signal_prices"] = msg.GetSignalPrices()
 }
 
 func DecodeFeedsMsgVote(msg *feedstypes.MsgVote, detail common.JsDict) {
@@ -709,25 +709,13 @@ func DecodeFeedsMsgVote(msg *feedstypes.MsgVote, detail common.JsDict) {
 }
 
 func DecodeFeedsMsgUpdateReferenceSourceConfig(msg *feedstypes.MsgUpdateReferenceSourceConfig, detail common.JsDict) {
-	rsc := msg.GetReferenceSourceConfig()
-	detail["registry_ipfs_hash"] = rsc.RegistryIPFSHash
-	detail["registry_version"] = rsc.RegistryVersion
+	detail["admin"] = msg.GetAdmin()
+	detail["reference_source_config"] = msg.GetReferenceSourceConfig()
 }
 
 func DecodeFeedsMsgUpdateParams(msg *feedstypes.MsgUpdateParams, detail common.JsDict) {
-	params := msg.GetParams()
 	detail["authority"] = msg.GetAuthority()
-	detail["admin"] = params.GetAdmin()
-	detail["allowable_block_time_discrepancy"] = params.GetAllowableBlockTimeDiscrepancy()
-	detail["grace_period"] = params.GetGracePeriod()
-	detail["min_interval"] = params.GetMinInterval()
-	detail["max_interval"] = params.GetMaxInterval()
-	detail["power_step_threshold"] = params.GetPowerStepThreshold()
-	detail["max_current_feeds"] = params.GetMaxCurrentFeeds()
-	detail["cooldown_time"] = params.GetCooldownTime()
-	detail["min_deviation_basis_point"] = params.GetMinDeviationBasisPoint()
-	detail["max_deviation_basis_point"] = params.GetMaxDeviationBasisPoint()
-	detail["current_feeds_update_interval"] = params.GetCurrentFeedsUpdateInterval()
+	detail["params"] = msg.GetParams()
 }
 
 func DecodeBandtssMsgTransitionGroup(msg *bandtsstypes.MsgTransitionGroup, detail common.JsDict) {

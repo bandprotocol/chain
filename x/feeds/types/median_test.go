@@ -5,59 +5,161 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	sdkmath "cosmossdk.io/math"
+
 	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
-func TestCalculateMedianPriceFeedInfo(t *testing.T) {
+func TestMedianValidatorPriceInfo(t *testing.T) {
 	testCases := []struct {
-		name           string
-		priceFeedInfos []types.PriceFeedInfo
-		expRes         uint64
+		name                string
+		validatorPriceInfos []types.ValidatorPriceInfo
+		expRes              uint64
 	}{
 		{
 			name: "case 1",
-			priceFeedInfos: []types.PriceFeedInfo{
-				{Price: 100, Power: 100, Timestamp: 100, Index: 0},
-				{Price: 103, Power: 100, Timestamp: 101, Index: 1},
-				{Price: 105, Power: 100, Timestamp: 102, Index: 2},
-				{Price: 107, Power: 100, Timestamp: 103, Index: 3},
-				{Price: 109, Power: 100, Timestamp: 104, Index: 4},
+			validatorPriceInfos: []types.ValidatorPriceInfo{
+				{
+					SignalPriceStatus: types.SignalPriceStatusAvailable,
+					Price:             100,
+					Power:             sdkmath.NewInt(100),
+					Timestamp:         100,
+				},
+				{
+					SignalPriceStatus: types.SignalPriceStatusAvailable,
+					Price:             103,
+					Power:             sdkmath.NewInt(100),
+					Timestamp:         101,
+				},
+				{
+					SignalPriceStatus: types.SignalPriceStatusAvailable,
+					Price:             105,
+					Power:             sdkmath.NewInt(100),
+					Timestamp:         102,
+				},
+				{
+					SignalPriceStatus: types.SignalPriceStatusAvailable,
+					Price:             107,
+					Power:             sdkmath.NewInt(100),
+					Timestamp:         103,
+				},
+				{
+					SignalPriceStatus: types.SignalPriceStatusAvailable,
+					Price:             109,
+					Power:             sdkmath.NewInt(100),
+					Timestamp:         104,
+				},
 			},
 			expRes: 107,
 		},
 		{
 			name: "case 2",
-			priceFeedInfos: []types.PriceFeedInfo{
-				{Price: 100, Power: 100, Timestamp: 100, Index: 0},
-				{Price: 103, Power: 200, Timestamp: 101, Index: 1},
-				{Price: 105, Power: 300, Timestamp: 102, Index: 2},
-				{Price: 107, Power: 400, Timestamp: 103, Index: 3},
-				{Price: 109, Power: 500, Timestamp: 104, Index: 4},
+			validatorPriceInfos: []types.ValidatorPriceInfo{
+				{
+					SignalPriceStatus: types.SignalPriceStatusAvailable,
+					Price:             100,
+					Power:             sdkmath.NewInt(100),
+					Timestamp:         100,
+				},
+				{
+					SignalPriceStatus: types.SignalPriceStatusAvailable,
+					Price:             103,
+					Power:             sdkmath.NewInt(200),
+					Timestamp:         101,
+				},
+				{
+					SignalPriceStatus: types.SignalPriceStatusAvailable,
+					Price:             105,
+					Power:             sdkmath.NewInt(300),
+					Timestamp:         102,
+				},
+				{
+					SignalPriceStatus: types.SignalPriceStatusAvailable,
+					Price:             107,
+					Power:             sdkmath.NewInt(400),
+					Timestamp:         103,
+				},
+				{
+					SignalPriceStatus: types.SignalPriceStatusAvailable,
+					Price:             109,
+					Power:             sdkmath.NewInt(500),
+					Timestamp:         104,
+				},
 			},
 			expRes: 109,
 		},
 		{
 			name: "case 3",
-			priceFeedInfos: []types.PriceFeedInfo{
-				{Price: 1000, Power: 5000, Timestamp: 1716448424, Index: 0},
-				{Price: 2000, Power: 4000, Timestamp: 1716448424, Index: 1},
-				{Price: 2000, Power: 4000, Timestamp: 1716448424, Index: 2},
-				{Price: 2000, Power: 4000, Timestamp: 1716448424, Index: 3},
+			validatorPriceInfos: []types.ValidatorPriceInfo{
+				{
+					SignalPriceStatus: types.SignalPriceStatusAvailable,
+					Price:             1000,
+					Power:             sdkmath.NewInt(5000),
+					Timestamp:         1716448424,
+				},
+				{
+					SignalPriceStatus: types.SignalPriceStatusAvailable,
+					Price:             2000,
+					Power:             sdkmath.NewInt(4000),
+					Timestamp:         1716448424,
+				},
+				{
+					SignalPriceStatus: types.SignalPriceStatusAvailable,
+					Price:             2000,
+					Power:             sdkmath.NewInt(4000),
+					Timestamp:         1716448424,
+				},
+				{
+					SignalPriceStatus: types.SignalPriceStatusAvailable,
+					Price:             2000,
+					Power:             sdkmath.NewInt(4000),
+					Timestamp:         1716448424,
+				},
 			},
 			expRes: 1000,
+		},
+		{
+			name: "case 4",
+			validatorPriceInfos: []types.ValidatorPriceInfo{
+				{
+					SignalPriceStatus: types.SignalPriceStatusUnavailable,
+					Price:             0,
+					Power:             sdkmath.NewInt(5000),
+					Timestamp:         1716448424,
+				},
+				{
+					SignalPriceStatus: types.SignalPriceStatusUnsupported,
+					Price:             2000,
+					Power:             sdkmath.NewInt(4000),
+					Timestamp:         1716448424,
+				},
+				{
+					SignalPriceStatus: types.SignalPriceStatusAvailable,
+					Price:             1000,
+					Power:             sdkmath.NewInt(3000),
+					Timestamp:         1716448424,
+				},
+				{
+					SignalPriceStatus: types.SignalPriceStatusAvailable,
+					Price:             3000,
+					Power:             sdkmath.NewInt(4000),
+					Timestamp:         1716448424,
+				},
+			},
+			expRes: 3000,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(tt *testing.T) {
-			price, err := types.CalculateMedianPriceFeedInfo(tc.priceFeedInfos)
+			price, err := types.MedianValidatorPriceInfos(tc.validatorPriceInfos)
 			require.NoError(tt, err)
 			require.Equal(tt, tc.expRes, price)
 		})
 	}
 }
 
-func TestCalculateMedianWeightedPrice(t *testing.T) {
+func TestMedianWeightedPrice(t *testing.T) {
 	testCases := []struct {
 		name           string
 		weightedPrices []types.WeightedPrice
@@ -66,22 +168,22 @@ func TestCalculateMedianWeightedPrice(t *testing.T) {
 		{
 			name: "case 1",
 			weightedPrices: []types.WeightedPrice{
-				{Price: 100, Power: 100},
-				{Price: 103, Power: 100},
-				{Price: 105, Power: 100},
-				{Price: 107, Power: 100},
-				{Price: 109, Power: 100},
+				{Price: 100, Weight: sdkmath.NewInt(100)},
+				{Price: 103, Weight: sdkmath.NewInt(100)},
+				{Price: 105, Weight: sdkmath.NewInt(100)},
+				{Price: 107, Weight: sdkmath.NewInt(100)},
+				{Price: 109, Weight: sdkmath.NewInt(100)},
 			},
 			expRes: 105,
 		},
 		{
 			name: "case 2",
 			weightedPrices: []types.WeightedPrice{
-				{Price: 100, Power: 100},
-				{Price: 103, Power: 200},
-				{Price: 105, Power: 300},
-				{Price: 107, Power: 400},
-				{Price: 109, Power: 500},
+				{Price: 100, Weight: sdkmath.NewInt(100)},
+				{Price: 103, Weight: sdkmath.NewInt(200)},
+				{Price: 105, Weight: sdkmath.NewInt(300)},
+				{Price: 107, Weight: sdkmath.NewInt(400)},
+				{Price: 109, Weight: sdkmath.NewInt(500)},
 			},
 			expRes: 107,
 		},
@@ -89,7 +191,7 @@ func TestCalculateMedianWeightedPrice(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(tt *testing.T) {
-			price, err := types.CalculateMedianWeightedPrice(tc.weightedPrices)
+			price, err := types.MedianWeightedPrice(tc.weightedPrices)
 			require.NoError(tt, err)
 			require.Equal(tt, tc.expRes, price)
 		})

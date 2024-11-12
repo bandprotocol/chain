@@ -36,7 +36,7 @@ func (h *Hook) handleMsgChannelOpenInit(ctx sdk.Context, msg *types.MsgChannelOp
 	h.emitSetChannel(ctx, msg.PortId, evMap[types.EventTypeChannelOpenInit+"."+types.AttributeKeyChannelID][0])
 }
 
-func (h *Hook) handleIcahostChannelOpenTry(ctx sdk.Context, msg *types.MsgChannelOpenTry, evMap common.EvMap) {
+func (h *Hook) handleIcahostChannelOpenTry(ctx sdk.Context, msg *types.MsgChannelOpenTry) {
 	counterpartyPortId := msg.Channel.Counterparty.PortId
 	counterpartyAddress := strings.TrimPrefix(counterpartyPortId, "icacontroller-")
 	connection := msg.Channel.ConnectionHops[0]
@@ -57,7 +57,7 @@ func (h *Hook) handleIcahostChannelOpenTry(ctx sdk.Context, msg *types.MsgChanne
 func (h *Hook) handleMsgChannelOpenTry(ctx sdk.Context, msg *types.MsgChannelOpenTry, evMap common.EvMap) {
 	switch msg.PortId {
 	case "icahost":
-		h.handleIcahostChannelOpenTry(ctx, msg, evMap)
+		h.handleIcahostChannelOpenTry(ctx, msg)
 	}
 
 	h.emitSetChannel(ctx, msg.PortId, evMap[types.EventTypeChannelOpenTry+"."+types.AttributeKeyChannelID][0])
@@ -148,7 +148,7 @@ func newPacket(
 }
 
 func (h *Hook) extractFungibleTokenPacket(
-	ctx sdk.Context, dataOfPacket []byte, evMap common.EvMap, detail common.JsDict, packet common.JsDict,
+	dataOfPacket []byte, evMap common.EvMap, detail common.JsDict, packet common.JsDict,
 ) bool {
 	var data ibcxfertypes.FungibleTokenPacketData
 	err := ibcxfertypes.ModuleCdc.UnmarshalJSON(dataOfPacket, &data)
@@ -204,8 +204,6 @@ func (h *Hook) extractOracleRequestPacket(
 	evMap common.EvMap,
 	detail common.JsDict,
 	packet common.JsDict,
-	port string,
-	channel string,
 ) bool {
 	var data oracletypes.OracleRequestPacketData
 	err := oracletypes.ModuleCdc.UnmarshalJSON(dataOfPacket, &data)
@@ -397,11 +395,11 @@ func (h *Hook) handleMsgRecvPacket(
 		txHash,
 	)
 	if _, ok := evMap[types.EventTypeWriteAck+"."+types.AttributeKeyDataHex]; ok {
-		if ok := h.extractOracleRequestPacket(ctx, txHash, msg.Signer, msg.Packet.Data, evMap, detail, packet, msg.Packet.DestinationPort, msg.Packet.DestinationChannel); ok {
+		if ok := h.extractOracleRequestPacket(ctx, txHash, msg.Signer, msg.Packet.Data, evMap, detail, packet); ok {
 			h.Write("NEW_INCOMING_PACKET", packet)
 			return
 		}
-		if ok := h.extractFungibleTokenPacket(ctx, msg.Packet.Data, evMap, detail, packet); ok {
+		if ok := h.extractFungibleTokenPacket(msg.Packet.Data, evMap, detail, packet); ok {
 			h.Write("NEW_INCOMING_PACKET", packet)
 			return
 		}

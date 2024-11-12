@@ -16,11 +16,10 @@ type Keeper struct {
 	cdc      codec.BinaryCodec
 	storeKey storetypes.StoreKey
 
-	authKeeper    types.AccountKeeper
-	bankKeeper    types.BankKeeper
-	distrKeeper   types.DistrKeeper
-	stakingKeeper types.StakingKeeper
-	tssKeeper     types.TSSKeeper
+	authKeeper  types.AccountKeeper
+	bankKeeper  types.BankKeeper
+	distrKeeper types.DistrKeeper
+	tssKeeper   types.TSSKeeper
 
 	authority        string
 	feeCollectorName string
@@ -32,7 +31,6 @@ func NewKeeper(
 	authKeeper types.AccountKeeper,
 	bankKeeper types.BankKeeper,
 	distrKeeper types.DistrKeeper,
-	stakingKeeper types.StakingKeeper,
 	tssKeeper types.TSSKeeper,
 	authority string,
 	feeCollectorName string,
@@ -52,7 +50,6 @@ func NewKeeper(
 		authKeeper:       authKeeper,
 		bankKeeper:       bankKeeper,
 		distrKeeper:      distrKeeper,
-		stakingKeeper:    stakingKeeper,
 		tssKeeper:        tssKeeper,
 		authority:        authority,
 		feeCollectorName: feeCollectorName,
