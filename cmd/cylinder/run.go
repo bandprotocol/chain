@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -15,17 +17,17 @@ import (
 )
 
 const (
-	flagGranter          = "granter"
-	flagLogLevel         = "log-level"
-	flagMaxMessages      = "max-messages"
-	flagBroadcastTimeout = "broadcast-timeout"
-	flagRPCPollInterval  = "rpc-poll-interval"
-	flagMaxTry           = "max-try"
-	flagMinDE            = "min-de"
-	flagGasAdjustStart   = "gas-adjust-start"
-	flagGasAdjustStep    = "gas-adjust-step"
-	flagRandomSecret     = "random-secret"
-	flagActivePeriod     = "active-period"
+	flagGranter            = "granter"
+	flagLogLevel           = "log-level"
+	flagMaxMessages        = "max-messages"
+	flagBroadcastTimeout   = "broadcast-timeout"
+	flagRPCPollInterval    = "rpc-poll-interval"
+	flagMaxTry             = "max-try"
+	flagMinDE              = "min-de"
+	flagGasAdjustStart     = "gas-adjust-start"
+	flagGasAdjustStep      = "gas-adjust-step"
+	flagRandomSecret       = "random-secret"
+	flagCheckingDEInterval = "checking-de-interval"
 )
 
 // runCmd returns a Cobra command to run the cylinder process.
@@ -75,12 +77,12 @@ func runCmd(ctx *context.Context) *cobra.Command {
 	cmd.Flags().Float64(flagGasAdjustStart, 1.6, "The start value of gas adjustment")
 	cmd.Flags().Float64(flagGasAdjustStep, 0.2, "The increment step of gad adjustment")
 	cmd.Flags().BytesHex(flagRandomSecret, nil, "The secret value that is used for random D,E")
-	cmd.Flags().String(flagActivePeriod, "12h", "The time period that cylinder will send active status to chain")
+	cmd.Flags().Duration(flagCheckingDEInterval, 5*time.Minute, "The interval of checking DE")
 
 	flagNames := []string{
 		flags.FlagChainID, flags.FlagNode, flagGranter, flags.FlagGasPrices, flagLogLevel,
 		flagMaxMessages, flagBroadcastTimeout, flagRPCPollInterval, flagMaxTry, flagMinDE,
-		flagGasAdjustStart, flagGasAdjustStep, flagRandomSecret, flagActivePeriod,
+		flagGasAdjustStart, flagGasAdjustStep, flagRandomSecret, flagCheckingDEInterval,
 	}
 
 	for _, flagName := range flagNames {

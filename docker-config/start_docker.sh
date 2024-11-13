@@ -183,7 +183,7 @@ do
     cylinder config gas-adjust-start 1.6
     cylinder config gas-adjust-step 0.2
     cylinder config random-secret "$(openssl rand -hex 32)"
-    cylinder config active-period "12h"
+    cylinder config checking-de-interval "5m"
 
     for i in $(eval echo {1..1})
     do
@@ -195,11 +195,8 @@ do
     echo "y" | bandd tx multi-send 1000000uband $(cylinder keys list -a) --from account$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
     sleep 4
 
-    # activate tss
+    # grant tss
     echo "y" | bandd tx tss add-grantees $(cylinder keys list -a) --from account$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband --gas 350000 -b sync
-    sleep 4
-
-    echo "y" | bandd tx bandtss add-grantees $(cylinder keys list -a) --from account$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband --gas 350000 -b sync
     sleep 4
 
     docker create --network chain_bandchain --name bandchain-cylinder${v} band-validator:latest cylinder run

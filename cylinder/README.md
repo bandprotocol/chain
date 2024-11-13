@@ -117,6 +117,7 @@ cylinder config min-de 20 --home $CYLINDER_HOME_PATH
 cylinder config gas-adjust-start 1.6 --home $CYLINDER_HOME_PATH
 cylinder config gas-adjust-step 0.2 --home $CYLINDER_HOME_PATH
 cylinder config random-secret "$(openssl rand -hex 32)" --home $CYLINDER_HOME_PATH
+cylinder config checking-de-interval "5m" --home $CYLINDER_HOME_PATH
 
 cylinder keys add signer1 --home $CYLINDER_HOME_PATH
 cylinder keys add signer2 --home $CYLINDER_HOME_PATH
@@ -126,19 +127,20 @@ below is the meaning of the configuration of the system
 
 ```go
 type Config struct {
-	ChainID          string        // ChainID of the target chain
-	NodeURI          string        // Remote RPC URI of BandChain node to connect to
-	Granter          string        // The granter address
-	GasPrices        string        // Gas prices of the transaction
-	LogLevel         string        // Log level of the logger
-	MaxMessages      uint64        // The maximum number of messages in a transaction
-	BroadcastTimeout time.Duration // The time that cylinder will wait for tx commit
-	RPCPollInterval  time.Duration // The duration of rpc poll interval
-	MaxTry           uint64        // The maximum number of tries to submit a report transaction
-	MinDE            uint64        // The minimum number of DE
-	GasAdjustStart   float64       // The start value of gas adjustment
-	GasAdjustStep    float64       // The increment step of gad adjustment
-	RandomSecret     tss.Scalar    // The secret value that is used for random D,E
+	ChainID          	string        		// ChainID of the target chain
+	NodeURI          	string        		// Remote RPC URI of BandChain node to connect to
+	Granter          	string        		// The granter address
+	GasPrices        	string        		// Gas prices of the transaction
+	LogLevel         	string        		// Log level of the logger
+	MaxMessages      	uint64        		// The maximum number of messages in a transaction
+	BroadcastTimeout 	time.Duration 		// The time that cylinder will wait for tx commit
+	RPCPollInterval  	time.Duration 		// The duration of rpc poll interval
+	MaxTry           	uint64        		// The maximum number of tries to submit a report transaction
+	MinDE            	uint64        		// The minimum number of DE
+	GasAdjustStart   	float64       		// The start value of gas adjustment
+	GasAdjustStep    	float64       		// The increment step of gad adjustment
+	RandomSecret     	tss.Scalar    		// The secret value that is used for random D,E
+	CheckingDEInterval 	time.Duration  		// The interval for updating DE
 }
 ```
 

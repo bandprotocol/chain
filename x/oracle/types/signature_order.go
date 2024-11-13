@@ -11,8 +11,8 @@ const (
 var _ tsstypes.Content = &OracleResultSignatureOrder{}
 
 // NewOracleResultSignatureOrder returns a new OracleResultSignatureOrder object
-func NewOracleResultSignatureOrder(rid RequestID, encodeType EncodeType) *OracleResultSignatureOrder {
-	return &OracleResultSignatureOrder{RequestID: rid, EncodeType: encodeType}
+func NewOracleResultSignatureOrder(rid RequestID, encoder Encoder) *OracleResultSignatureOrder {
+	return &OracleResultSignatureOrder{RequestID: rid, Encoder: encoder}
 }
 
 // OrderRoute returns the order router key
@@ -32,12 +32,12 @@ func (o *OracleResultSignatureOrder) ValidateBasic() error {
 		return ErrInvalidRequestID
 	}
 
-	if _, ok := EncodeType_name[int32(o.EncodeType)]; !ok {
-		return ErrInvalidOracleEncodeType.Wrapf("invalid encode: %s", o.EncodeType)
+	if _, ok := Encoder_name[int32(o.Encoder)]; !ok {
+		return ErrInvalidOracleEncoder.Wrapf("invalid encoder: %d", o.Encoder)
 	}
 
-	if o.EncodeType == ENCODE_TYPE_UNSPECIFIED {
-		return ErrInvalidOracleEncodeType.Wrapf("encode type must be specified")
+	if o.Encoder == ENCODER_UNSPECIFIED {
+		return ErrInvalidOracleEncoder.Wrapf("encoder must be specified")
 	}
 	return nil
 }

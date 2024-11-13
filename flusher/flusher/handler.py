@@ -334,17 +334,20 @@ class Handler(object):
             msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
             del msg["tx_hash"]
 
-        if "tss_signing_id" in msg:
-            if msg["tss_signing_id"] == 0:
-                del msg["tss_signing_id"]
+        if "bandtss_signing_id" in msg and msg["bandtss_signing_id"] == 0:
+            del msg["bandtss_signing_id"]
 
-        if "tss_signing_error_codespace" in msg:
-            if msg["tss_signing_error_codespace"] == "":
-                del msg["tss_signing_error_codespace"]
+        if (
+            "bandtss_signing_error_codespace" in msg
+            and msg["bandtss_signing_error_codespace"] == ""
+        ):
+            del msg["bandtss_signing_error_codespace"]
 
-        if "tss_signing_error_code" in msg:
-            if msg["tss_signing_error_code"] == 0:
-                del msg["tss_signing_error_code"]
+        if (
+            "bandtss_signing_error_code" in msg
+            and msg["bandtss_signing_error_code"] == 0
+        ):
+            del msg["bandtss_signing_error_code"]
 
         condition = True
         for col in requests.primary_key.columns.values():
@@ -1097,7 +1100,7 @@ class Handler(object):
             del msg["current_group_tss_signing_id"]
         if msg["incoming_group_tss_signing_id"] == 0:
             del msg["incoming_group_tss_signing_id"]
-        msg["requester_account_id"] = self.get_account_id(msg["requester"])
+        msg["account_id"] = self.get_account_id(msg["requester"])
         del msg["requester"]
 
         self.conn.execute(bandtss_signings.insert(), msg)

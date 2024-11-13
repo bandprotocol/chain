@@ -11,9 +11,9 @@ import (
 const (
 	DefaultInactivePenaltyDuration time.Duration = time.Minute * 10 // 10 minutes
 	DefaultMaxTransitionDuration   time.Duration = time.Hour * 120  // 5 days
-	// compute the bandtss reward following the allocation to Oracle. If the Oracle reward amounts to 40%,
-	// the bandtss reward will be determined from the remaining 60%, which is 8% * 60% = 4.8%.
-	DefaultRewardPercentage = uint64(8)
+	// compute the bandtss reward following the allocation to Oracle. If the Oracle reward amounts to 70%,
+	// the bandtss reward will be determined from the remaining 10%, which is 10% * 30% = 3%.
+	DefaultRewardPercentage = uint64(10)
 )
 
 // DefaultFee is the default value for the signing request fee

@@ -31,7 +31,7 @@ const (
 	flagSourceCodeURL = "url"
 	flagPrepareGas    = "prepare-gas"
 	flagExecuteGas    = "execute-gas"
-	flagTSSEncodeType = "tss-encode-type"
+	flagTSSEncoder    = "tss-encoder"
 	flagFeeLimit      = "fee-limit"
 	flagFee           = "fee"
 	flagTreasury      = "treasury"
@@ -128,7 +128,7 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 				return err
 			}
 
-			tssEncodeType, err := cmd.Flags().GetInt32(flagTSSEncodeType)
+			tssEncoder, err := cmd.Flags().GetInt32(flagTSSEncoder)
 			if err != nil {
 				return err
 			}
@@ -143,7 +143,7 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 				prepareGas,
 				executeGas,
 				clientCtx.GetFromAddress(),
-				types.EncodeType(tssEncodeType),
+				types.Encoder(tssEncoder),
 			)
 
 			err = msg.ValidateBasic()
@@ -161,7 +161,7 @@ $ %s tx oracle request 1 4 3 --calldata 1234abcdef --client-id cliend-id --fee-l
 	cmd.Flags().
 		String(flagFeeLimit, "", "The maximum tokens paid to all data source and TSS signature providers, if any")
 	cmd.Flags().
-		Int32(flagTSSEncodeType, 0, "The encode type of oracle result that will be sent to TSS (1=proto, 2=ABI, 3=Partial ABI)")
+		Int32(flagTSSEncoder, 0, "The encode type of oracle result that will be sent to TSS (1=proto, 2=ABI, 3=Partial ABI)")
 
 	flags.AddTxFlagsToCmd(cmd)
 
@@ -682,7 +682,7 @@ $ %s tx oracle remove-reporters band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun band
 // GetCmdRequestSignature implements the request signature handler.
 func GetCmdRequestSignature() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "oracle-result [request-id] [encode-type]",
+		Use:   "oracle-result [request-id] [encoder]",
 		Short: "Request bandtss signature from oracle request id",
 		Args:  cobra.ExactArgs(2),
 		Long: strings.TrimSpace(
@@ -704,12 +704,12 @@ $ %s tx bandtss request-signature oracle-result 1 2 --fee-limit 10uband
 				return err
 			}
 
-			encodeType, err := strconv.ParseInt(args[1], 10, 32)
+			encoder, err := strconv.ParseInt(args[1], 10, 32)
 			if err != nil {
 				return err
 			}
-			if encodeType == int64(types.ENCODE_TYPE_UNSPECIFIED) {
-				return types.ErrInvalidOracleEncodeType
+			if encoder == int64(types.ENCODER_UNSPECIFIED) {
+				return types.ErrInvalidOracleEncoder
 			}
 
 			coinStr, err := cmd.Flags().GetString(flagFeeLimit)
@@ -723,7 +723,7 @@ $ %s tx bandtss request-signature oracle-result 1 2 --fee-limit 10uband
 			}
 
 			from := clientCtx.GetFromAddress().String()
-			content := types.NewOracleResultSignatureOrder(types.RequestID(rid), types.EncodeType(encodeType))
+			content := types.NewOracleResultSignatureOrder(types.RequestID(rid), types.Encoder(encoder))
 
 			msg, err := bandtsstypes.NewMsgRequestSignature(content, feeLimit, from)
 			if err != nil {

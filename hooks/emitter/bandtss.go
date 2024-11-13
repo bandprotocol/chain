@@ -193,9 +193,9 @@ func (h *Hook) handleBandtssEventGroupTransitionSuccess(ctx sdk.Context, evMap c
 // handleBandtssEventGroupTransitionFailed implements emitter handler for group transition failed event.
 func (h *Hook) handleBandtssEventGroupTransitionFailed(_ sdk.Context, evMap common.EvMap) {
 	// use value from emitted event due to the transition info is removed from the store.
-	signingIDs := evMap[types.EventTypeGroupTransitionSuccess+"."+tsstypes.AttributeKeySigningID]
-	incomingGroupIDs := evMap[types.EventTypeGroupTransitionSuccess+"."+types.AttributeKeyIncomingGroupID]
-	currentGroupIDs := evMap[types.EventTypeGroupTransitionSuccess+"."+types.AttributeKeyCurrentGroupID]
+	signingIDs := evMap[types.EventTypeGroupTransitionFailed+"."+tsstypes.AttributeKeySigningID]
+	incomingGroupIDs := evMap[types.EventTypeGroupTransitionFailed+"."+types.AttributeKeyIncomingGroupID]
+	currentGroupIDs := evMap[types.EventTypeGroupTransitionFailed+"."+types.AttributeKeyCurrentGroupID]
 
 	h.emitUpdateBandtssGroupTransitionStatusFailed(types.GroupTransition{
 		SigningID:       tss.SigningID(common.Atoi(signingIDs[0])),
