@@ -42,12 +42,20 @@ sed -i -e \
   '/\[mempool\]/,+10 s/version = .*/version = \"v1\"/' \
   ~/.band/config/config.toml
 
+REQUESTER_ADDR=$(bandd keys show requester -a --keyring-backend test)
+
 # update voting period to be 60s for testing
 cat <<< $(jq '.app_state.gov.params.voting_period = "60s"' ~/.band/config/genesis.json) > ~/.band/config/genesis.json
 
 # update blocks per feeds update to 10 blocks for testing
 cat <<< $(jq '.app_state.feeds.params.current_feeds_update_interval = "10"' ~/.band/config/genesis.json) > ~/.band/config/genesis.json
-cat <<< $(jq --arg addr "$(bandd keys show requester -a --keyring-backend test)" '.app_state.feeds.params.admin = $addr' ~/.band/config/genesis.json) > ~/.band/config/genesis.json
+cat <<< $(jq --arg addr "$REQUESTER_ADDR" '.app_state.feeds.params.admin = $addr' ~/.band/config/genesis.json) > ~/.band/config/genesis.json
 
 # allow "uband" for restake
 cat <<< $(jq '.app_state.restake.params.allowed_denoms = ["uband"]' ~/.band/config/genesis.json) > ~/.band/config/genesis.json
+
+# update code upload access and instantiate default permission for wasm
+
+cat <<< $(jq --arg addr "$REQUESTER_ADDR" '.app_state.wasm.params.code_upload_access = {"permission": "AnyOfAddresses", "addresses": [$addr]}' ~/.band/config/genesis.json) > ~/.band/config/genesis.json
+
+cat <<< $(jq '.app_state.wasm.params.instantiate_default_permission = "AnyOfAddresses"' ~/.band/config/genesis.json) > ~/.band/config/genesis.json
