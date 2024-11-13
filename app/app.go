@@ -6,11 +6,15 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
 	"github.com/spf13/cast"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtjson "github.com/cometbft/cometbft/libs/json"
 	cmtos "github.com/cometbft/cometbft/libs/os"
+	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/gogoproto/proto"
@@ -112,6 +116,7 @@ func NewBandApp(
 	skipUpgradeHeights map[int64]bool,
 	homePath string,
 	appOpts servertypes.AppOptions,
+	wasmOpts []wasmkeeper.Option,
 	owasmCacheSize uint32,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *BandApp {
@@ -176,6 +181,7 @@ func NewBandApp(
 		invCheckPeriod,
 		logger,
 		appOpts,
+		wasmOpts,
 		owasmCacheSize,
 	)
 
@@ -258,6 +264,11 @@ func NewBandApp(
 	app.MountTransientStores(app.GetTransientStoreKey())
 	app.MountMemoryStores(app.GetMemoryStoreKey())
 
+	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
+	if err != nil {
+		panic("error while reading wasm config: " + err.Error())
+	}
+
 	anteHandler, err := NewAnteHandler(
 		HandlerOptions{
 			HandlerOptions: ante.HandlerOptions{
@@ -267,15 +278,17 @@ func NewBandApp(
 				FeegrantKeeper:  app.FeeGrantKeeper,
 				SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
 			},
-			Cdc:             app.appCodec,
-			AuthzKeeper:     &app.AuthzKeeper,
-			OracleKeeper:    &app.OracleKeeper,
-			TSSKeeper:       app.TSSKeeper,
-			BandtssKeeper:   &app.BandtssKeeper,
-			FeedsKeeper:     &app.FeedsKeeper,
-			IBCKeeper:       app.IBCKeeper,
-			StakingKeeper:   app.StakingKeeper,
-			GlobalfeeKeeper: &app.GlobalFeeKeeper,
+			Cdc:                   app.appCodec,
+			AuthzKeeper:           &app.AuthzKeeper,
+			OracleKeeper:          &app.OracleKeeper,
+			TSSKeeper:             app.TSSKeeper,
+			BandtssKeeper:         &app.BandtssKeeper,
+			FeedsKeeper:           &app.FeedsKeeper,
+			IBCKeeper:             app.IBCKeeper,
+			StakingKeeper:         app.StakingKeeper,
+			GlobalfeeKeeper:       &app.GlobalFeeKeeper,
+			WasmConfig:            &wasmConfig,
+			TXCounterStoreService: runtime.NewKVStoreService(app.AppKeepers.GetKey(wasmtypes.StoreKey)),
 		},
 	)
 	if err != nil {
@@ -306,6 +319,13 @@ func NewBandApp(
 		if err != nil {
 			panic(fmt.Errorf("failed to register snapshot extension: %s", err))
 		}
+
+		err = manager.RegisterExtensions(
+			wasmkeeper.NewWasmSnapshotter(app.CommitMultiStore(), &app.AppKeepers.WasmKeeper),
+		)
+		if err != nil {
+			panic("failed to register snapshot extension: " + err.Error())
+		}
 	}
 
 	app.setupUpgradeHandlers()
@@ -327,6 +347,12 @@ func NewBandApp(
 	if loadLatest {
 		if err := app.LoadLatestVersion(); err != nil {
 			cmtos.Exit(fmt.Sprintf("failed to load latest version: %s", err))
+		}
+
+		ctx := app.BaseApp.NewUncachedContext(true, cmtproto.Header{})
+
+		if err := app.AppKeepers.WasmKeeper.InitializePinnedCodes(ctx); err != nil {
+			cmtos.Exit(fmt.Sprintf("WasmKeeper failed initialize pinned codes %s", err))
 		}
 	}
 

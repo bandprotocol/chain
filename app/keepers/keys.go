@@ -1,6 +1,8 @@
 package keepers
 
 import (
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	icahosttypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
 	ibcfeetypes "github.com/cosmos/ibc-go/v8/modules/apps/29-fee/types"
@@ -67,6 +69,7 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		tsstypes.StoreKey,
 		rollingseedtypes.StoreKey,
 		tunneltypes.StoreKey,
+		wasmtypes.StoreKey,
 	)
 
 	// Define transient store keys

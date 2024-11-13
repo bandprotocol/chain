@@ -9,6 +9,8 @@ import (
 	"testing"
 	"time"
 
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmttypes "github.com/cometbft/cometbft/types"
@@ -322,6 +324,7 @@ func SetupWithCustomHomeAndChainId(isCheckTx bool, dir, chainID string) *band.Ba
 		map[int64]bool{},
 		dir,
 		sims.EmptyAppOptions{},
+		[]wasmkeeper.Option{},
 		100,
 		baseapp.SetChainID(chainID),
 		baseapp.SetSnapshot(snapshotStore, snapshottypes.SnapshotOptions{KeepRecent: 2}),
@@ -360,6 +363,7 @@ func CreateTestingAppFn(t testing.TB) func() (ibctesting.TestingApp, map[string]
 			map[int64]bool{},
 			dir,
 			sims.EmptyAppOptions{},
+			[]wasmkeeper.Option{},
 			100,
 		)
 
