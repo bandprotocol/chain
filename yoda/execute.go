@@ -206,7 +206,7 @@ func GetExecutable(c *Context, l *Logger, hash string) ([]byte, error) {
 		bz := c.bandApp.AppCodec().MustMarshal(&types.QueryDataRequest{
 			DataHash: hash,
 		})
-		res, err := abciQuery(c, l, "/oracle.v1.Query/Data", bz)
+		res, err := abciQuery(c, l, "/band.oracle.v1.Query/Data", bz)
 		if err != nil {
 			l.Error(":exploding_head: Failed to get data source with error: %s", c, err.Error())
 			return nil, err
