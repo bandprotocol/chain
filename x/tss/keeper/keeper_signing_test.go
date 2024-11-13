@@ -159,7 +159,7 @@ func (s *KeeperTestSuite) TestRequestSigning() {
 
 	// Create a new request for the request signature
 	content := types.NewTextSignatureOrder([]byte("example"))
-	signingID, err := k.RequestSigning(ctx, groupID, types.DirectOriginator{}, content)
+	signingID, err := k.RequestSigning(ctx, groupID, &types.DirectOriginator{}, content)
 	s.Require().NoError(err)
 
 	signing, err := k.GetSigning(ctx, signingID)

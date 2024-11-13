@@ -175,22 +175,22 @@ func (s *Submitter) submitPrice(pricesSubmission SignalPriceSubmission, keyID st
 func (s *Submitter) pushMonitoringRecords(uuid, txHash string) {
 	bothanInfo, err := s.bothanClient.GetInfo()
 	if err != nil {
-		s.logger.Error("[Updater] failed to query Bothan info: %v", err)
+		s.logger.Error("[Submitter] failed to query Bothan info: %v", err)
 		return
 	}
 
 	if !bothanInfo.MonitoringEnabled {
-		s.logger.Debug("[Updater] monitoring is not enabled, skipping push")
+		s.logger.Debug("[Submitter] monitoring is not enabled, skipping push")
 		return
 	}
 
 	err = s.bothanClient.PushMonitoringRecords(uuid, txHash)
 	if err != nil {
-		s.logger.Error("[Updater] failed to push monitoring records to Bothan: %v", err)
+		s.logger.Error("[Submitter] failed to push monitoring records to Bothan: %v", err)
 		return
 	}
 
-	s.logger.Info("[Updater] successfully pushed monitoring records to Bothan")
+	s.logger.Info("[Submitter] successfully pushed monitoring records to Bothan")
 }
 
 func (s *Submitter) getAccountFromKey(key *keyring.Record) (client.Account, error) {

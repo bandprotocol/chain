@@ -127,19 +127,20 @@ below is the meaning of the configuration of the system
 
 ```go
 type Config struct {
-	ChainID          string        // ChainID of the target chain
-	NodeURI          string        // Remote RPC URI of BandChain node to connect to
-	Granter          string        // The granter address
-	GasPrices        string        // Gas prices of the transaction
-	LogLevel         string        // Log level of the logger
-	MaxMessages      uint64        // The maximum number of messages in a transaction
-	BroadcastTimeout time.Duration // The time that cylinder will wait for tx commit
-	RPCPollInterval  time.Duration // The duration of rpc poll interval
-	MaxTry           uint64        // The maximum number of tries to submit a report transaction
-	MinDE            uint64        // The minimum number of DE
-	GasAdjustStart   float64       // The start value of gas adjustment
-	GasAdjustStep    float64       // The increment step of gad adjustment
-	RandomSecret     tss.Scalar    // The secret value that is used for random D,E
+	ChainID          	string        		// ChainID of the target chain
+	NodeURI          	string        		// Remote RPC URI of BandChain node to connect to
+	Granter          	string        		// The granter address
+	GasPrices        	string        		// Gas prices of the transaction
+	LogLevel         	string        		// Log level of the logger
+	MaxMessages      	uint64        		// The maximum number of messages in a transaction
+	BroadcastTimeout 	time.Duration 		// The time that cylinder will wait for tx commit
+	RPCPollInterval  	time.Duration 		// The duration of rpc poll interval
+	MaxTry           	uint64        		// The maximum number of tries to submit a report transaction
+	MinDE            	uint64        		// The minimum number of DE
+	GasAdjustStart   	float64       		// The start value of gas adjustment
+	GasAdjustStep    	float64       		// The increment step of gad adjustment
+	RandomSecret     	tss.Scalar    		// The secret value that is used for random D,E
+	CheckingDEInterval 	time.Duration  		// The interval for updating DE
 }
 ```
 
