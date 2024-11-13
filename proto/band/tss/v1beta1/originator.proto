@@ -2,12 +2,15 @@ syntax = "proto3";
 package band.tss.v1beta1;
 
 import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
 
 option go_package = "github.com/bandprotocol/chain/v3/x/tss/types";
 
 // DirectOriginator is a message originator defines an information of the requester
 // on direct TSS request.
 message DirectOriginator {
+  option (cosmos_proto.implements_interface) = "Originator";
+
   // source_chain_id is the source chain ID that the data is originated from.
   string source_chain_id = 1 [(gogoproto.customname) = "SourceChainID"];
   // requester is the address of the requester, it can be the user address or module address.
@@ -20,6 +23,8 @@ message DirectOriginator {
 // TunnelOriginator is a message originator defines an information of the requester
 // on TSS request via tunnel module.
 message TunnelOriginator {
+  option (cosmos_proto.implements_interface) = "Originator";
+  
   // source_chain_id is the source chain ID that the data is originated from.
   string source_chain_id = 1 [(gogoproto.customname) = "SourceChainID"];
   // tunnel_id is the tunnel ID that the request is originated from.
