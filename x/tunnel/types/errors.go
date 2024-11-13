@@ -24,5 +24,5 @@ var (
 	ErrInsufficientDeposit  = errorsmod.Register(ModuleName, 17, "insufficient deposit")
 	ErrInsufficientFund     = errorsmod.Register(ModuleName, 18, "insufficient fund")
 	ErrDeviationNotFound    = errorsmod.Register(ModuleName, 19, "deviation not found")
-	ErrInvalidEncoder       = errorsmod.Register(ModuleName, 21, "invalid encoder mode")
+	ErrInvalidEncoder       = errorsmod.Register(ModuleName, 20, "invalid encoder mode")
 )
