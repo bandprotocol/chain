@@ -38,7 +38,7 @@ func NewMsgRequestData(
 	feeLimit sdk.Coins,
 	prepareGas, executeGas uint64,
 	sender sdk.AccAddress,
-	tssEncodeType EncodeType,
+	tssEncoder Encoder,
 ) *MsgRequestData {
 	return &MsgRequestData{
 		OracleScriptID: oracleScriptID,
@@ -50,7 +50,7 @@ func NewMsgRequestData(
 		Sender:         sender.String(),
 		PrepareGas:     prepareGas,
 		ExecuteGas:     executeGas,
-		TSSEncodeType:  tssEncodeType,
+		TSSEncoder:     tssEncoder,
 	}
 }
 
@@ -88,6 +88,11 @@ func (m MsgRequestData) ValidateBasic() error {
 	if !m.FeeLimit.IsValid() {
 		return sdkerrors.ErrInvalidCoins.Wrap(m.FeeLimit.String())
 	}
+
+	if _, ok := Encoder_name[int32(m.TSSEncoder)]; !ok {
+		return ErrInvalidOracleEncoder.Wrapf("invalid encoder type: %d", m.TSSEncoder)
+	}
+
 	return nil
 }
 
