@@ -196,7 +196,7 @@ do
     sleep 4
 
     # grant tss
-    echo "y" | bandd tx tss add-grantees $(cylinder keys list -a) --from account$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband --gas 350000 -b sync
+    echo "y" | bandd tx tss add-grantees $(cylinder keys list -a) --from account$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband --gas 2000000 -b sync
     sleep 4
 
     docker create --network chain_bandchain --name bandchain-cylinder${v} band-validator:latest cylinder run
