@@ -3,7 +3,6 @@ package keeper
 import (
 	dbm "github.com/cosmos/cosmos-db"
 
-	errorsmod "cosmossdk.io/errors"
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -19,7 +18,7 @@ func (k Keeper) HasReport(ctx sdk.Context, rid types.RequestID, val sdk.ValAddre
 func (k Keeper) GetReport(ctx sdk.Context, rid types.RequestID, val sdk.ValAddress) (types.Report, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.ReportsOfValidatorPrefixKey(rid, val))
 	if bz == nil {
-		return types.Report{}, errorsmod.Wrapf(types.ErrReportNotFound, "reqID: %d, valAddr: %s", rid, val.String())
+		return types.Report{}, types.ErrReportNotFound.Wrapf("reqID: %d, valAddr: %s", rid, val.String())
 	}
 	var report types.Report
 	k.cdc.MustUnmarshal(bz, &report)
