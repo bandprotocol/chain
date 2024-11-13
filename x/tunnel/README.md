@@ -22,7 +22,7 @@ The Tunnel module is designed to decentralize the creation of push-based price d
     - [ActiveTunnelID](#activetunnelid)
     - [Tunnel](#tunnel-1)
     - [Packet](#packet-1)
-    - [LatestSignalPrices](#latestsignalprices)
+    - [LatestPrices](#latestPrices)
     - [Deposit](#deposit)
     - [Params](#params)
   - [Msg](#msg)
@@ -114,7 +114,7 @@ type Packet struct {
     // sequence is representing the sequence of the tunnel packet.
     Sequence uint64
     // signal_prices is the list of signal prices
-    SignalPrices []SignalPrice
+    Prices []feedstypes.Price
     // packet_content is the content of the packet that implements PacketContentI
     PacketContent *types1.Any
     // created_at is the timestamp when the packet is created
@@ -163,11 +163,11 @@ Stores information about packets sent via the routes declared in tunnels.
 
 - **Packet**: `0x12 | TunnelID | Sequence -> Packet`
 
-### LatestSignalPrices
+### LatestPrices
 
 Stores the latest prices that the tunnel has sent to the destination route. These are used to compare intervals and deviations at the end of each block.
 
-- **LatestSignalPrices**: `0x13 | TunnelID -> LatestSignalPrices`
+- **LatestPrices**: `0x13 | TunnelID -> LatestPrices`
 
 ### Deposit
 
