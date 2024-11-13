@@ -5,24 +5,8 @@ import (
 	"fmt"
 	"strconv"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
-
-// GetMessageLogs returns the list of logs from transaction result.
-func GetMessageLogs(tx abci.TxResult) (sdk.ABCIMessageLogs, error) {
-	if tx.Result.Code != 0 {
-		return nil, fmt.Errorf("transaction with non-zero code: %d", tx.Result.Code)
-	}
-
-	logs, err := sdk.ParseABCILogs(tx.Result.Log)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse transaction logs with error: %s", err.Error())
-	}
-
-	return logs, nil
-}
 
 // GetEventValues returns the list of all values in the given events with the given type and key.
 func GetEventValues(events sdk.StringEvents, evType string, evKey string) (res []string) {
