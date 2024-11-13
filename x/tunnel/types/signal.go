@@ -1,6 +1,10 @@
 package types
 
-import "fmt"
+import (
+	"fmt"
+
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
+)
 
 // NewSignalDeviation creates a new SignalDeviation instance.
 func NewSignalDeviation(
@@ -15,56 +19,45 @@ func NewSignalDeviation(
 	}
 }
 
-// NewLatestSignalPrices creates a new LatestSignalPrices instance.
-func NewLatestSignalPrices(
+// NewLatestPrices creates a new LatestPrices instance.
+func NewLatestPrices(
 	tunnelID uint64,
-	signalPrices []SignalPrice,
+	prices []feedstypes.Price,
 	lastInterval int64,
-) LatestSignalPrices {
-	return LatestSignalPrices{
+) LatestPrices {
+	return LatestPrices{
 		TunnelID:     tunnelID,
-		SignalPrices: signalPrices,
+		Prices:       prices,
 		LastInterval: lastInterval,
 	}
 }
 
-// Validate validates the latest signal prices.
-func (l LatestSignalPrices) Validate() error {
+// Validate validates the latest prices.
+func (l LatestPrices) Validate() error {
 	if l.TunnelID == 0 {
 		return fmt.Errorf("tunnel ID cannot be 0")
 	}
-	if len(l.SignalPrices) == 0 {
-		return fmt.Errorf("signal prices cannot be empty")
-	}
+
 	if l.LastInterval < 0 {
 		return fmt.Errorf("last interval cannot be negative")
 	}
+
 	return nil
 }
 
-// UpdateSignalPrices updates the signal prices in the latest signal prices.
-func (l *LatestSignalPrices) UpdateSignalPrices(newSignalPrices []SignalPrice) {
-	// create a map of new signal prices
-	newSpMap := make(map[string]SignalPrice)
-	for _, sp := range newSignalPrices {
-		newSpMap[sp.SignalID] = sp
+// UpdatePrices updates prices in the latest prices.
+func (l *LatestPrices) UpdatePrices(newPrices []feedstypes.Price) {
+	pricesIndex := make(map[string]int)
+	for i, p := range l.Prices {
+		pricesIndex[p.SignalID] = i
 	}
 
-	// update signal prices
-	for i, sp := range l.SignalPrices {
-		if newSp, ok := newSpMap[sp.SignalID]; ok {
-			l.SignalPrices[i] = newSp
+	for _, p := range newPrices {
+		if i, ok := pricesIndex[p.SignalID]; ok {
+			l.Prices[i] = p
+		} else {
+			l.Prices = append(l.Prices, p)
+			pricesIndex[p.SignalID] = len(l.Prices) - 1
 		}
-	}
-}
-
-// NewSignalPrice creates a new SignalPrice instance.
-func NewSignalPrice(
-	signalID string,
-	price uint64,
-) SignalPrice {
-	return SignalPrice{
-		SignalID: signalID,
-		Price:    price,
 	}
 }

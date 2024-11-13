@@ -7,6 +7,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 var _ types.UnpackInterfacesMessage = Tunnel{}
@@ -16,7 +18,7 @@ func NewTunnel(
 	id uint64,
 	sequence uint64,
 	route RouteI,
-	encoder Encoder,
+	encoder feedstypes.Encoder,
 	feePayer string,
 	signalDeviations []SignalDeviation,
 	interval uint64,
@@ -86,12 +88,4 @@ func (t Tunnel) GetSignalIDs() []string {
 		signalIDs = append(signalIDs, sd.SignalID)
 	}
 	return signalIDs
-}
-
-// ValidateEncoder validates the encoder.
-func ValidateEncoder(encoder Encoder) error {
-	if encoder == ENCODER_FIXED_POINT_ABI || encoder == ENCODER_TICK_ABI {
-		return nil
-	}
-	return fmt.Errorf("invalid encoder: %s", encoder)
 }

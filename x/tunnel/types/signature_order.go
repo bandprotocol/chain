@@ -1,6 +1,7 @@
 package types
 
 import (
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
@@ -17,7 +18,7 @@ func NewTunnelSignatureOrder(
 	packet Packet,
 	destinationChainID string,
 	destinationContractAddress string,
-	encoder Encoder,
+	encoder feedstypes.Encoder,
 ) *TunnelSignatureOrder {
 	return &TunnelSignatureOrder{packet, destinationChainID, destinationContractAddress, encoder}
 }

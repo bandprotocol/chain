@@ -22,18 +22,18 @@ func BenchmarkTunnelABCI(b *testing.B) {
 		numTunnels  int
 		numSignals  int
 		maxSignals  int
-		encoderType types.Encoder
+		encoderType feedstypes.Encoder
 	}{
-		{1, 1, 1, types.ENCODER_FIXED_POINT_ABI},
-		{1, 100, 100, types.ENCODER_FIXED_POINT_ABI},
-		{10, 10, 100, types.ENCODER_FIXED_POINT_ABI},
-		{10, 100, 100, types.ENCODER_FIXED_POINT_ABI},
-		{100, 100, 100, types.ENCODER_FIXED_POINT_ABI},
-		{1, 1, 1, types.ENCODER_TICK_ABI},
-		{1, 100, 100, types.ENCODER_TICK_ABI},
-		{10, 10, 100, types.ENCODER_TICK_ABI},
-		{10, 100, 100, types.ENCODER_TICK_ABI},
-		{100, 100, 100, types.ENCODER_TICK_ABI},
+		{1, 1, 1, feedstypes.ENCODER_FIXED_POINT_ABI},
+		{1, 100, 100, feedstypes.ENCODER_FIXED_POINT_ABI},
+		{10, 10, 100, feedstypes.ENCODER_FIXED_POINT_ABI},
+		{10, 100, 100, feedstypes.ENCODER_FIXED_POINT_ABI},
+		{100, 100, 100, feedstypes.ENCODER_FIXED_POINT_ABI},
+		{1, 1, 1, feedstypes.ENCODER_TICK_ABI},
+		{1, 100, 100, feedstypes.ENCODER_TICK_ABI},
+		{10, 10, 100, feedstypes.ENCODER_TICK_ABI},
+		{10, 100, 100, feedstypes.ENCODER_TICK_ABI},
+		{100, 100, 100, feedstypes.ENCODER_TICK_ABI},
 	}
 
 	for _, tc := range testcases {
@@ -47,10 +47,10 @@ func BenchmarkTunnelABCI(b *testing.B) {
 }
 
 // testBenchmarkTunnel is a helper function to benchmark tunnel endblock process.
-func testBenchmarkTunnel(numTunnels, numSignals, maxSignals int, encoder types.Encoder) func(b *testing.B) {
+func testBenchmarkTunnel(numTunnels, numSignals, maxSignals int, encoder feedstypes.Encoder) func(b *testing.B) {
 	return func(b *testing.B) {
 		require.GreaterOrEqual(b, maxSignals, numSignals)
-		require.NotEqual(b, types.ENCODER_UNSPECIFIED, encoder)
+		require.NotEqual(b, feedstypes.ENCODER_UNSPECIFIED, encoder)
 
 		ba := InitializeBenchmarkApp(b, -1)
 
@@ -122,7 +122,7 @@ func createNewTunnels(
 	ba *BenchmarkApp,
 	route types.RouteI,
 	signalDeviations []types.SignalDeviation,
-	encoder types.Encoder,
+	encoder feedstypes.Encoder,
 ) error {
 	creator := bandtesting.Alice.Address
 	tunnel, err := ba.TunnelKeeper.AddTunnel(

@@ -6,22 +6,23 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 func TestEncodeABI(t *testing.T) {
 	packet := types.Packet{
-		TunnelID:     1,
-		Sequence:     3,
-		SignalPrices: []types.SignalPrice{{SignalID: "signal_01", Price: 2}},
-		CreatedAt:    123,
+		TunnelID:  1,
+		Sequence:  3,
+		Prices:    []feedstypes.Price{{SignalID: "signal_01", Price: 2}},
+		CreatedAt: 123,
 	}
 
 	encodingPacket, err := types.NewTssEncodingPacket(
 		packet,
 		"eth",
 		"0xe00F1f85abDB2aF6760759547d450da68CE66Bb1",
-		types.ENCODER_FIXED_POINT_ABI,
+		feedstypes.ENCODER_FIXED_POINT_ABI,
 	)
 	require.NoError(t, err)
 

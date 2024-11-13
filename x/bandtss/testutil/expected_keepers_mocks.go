@@ -13,13 +13,10 @@ import (
 	context "context"
 	reflect "reflect"
 
-	collections "cosmossdk.io/collections"
 	math "cosmossdk.io/math"
 	tss "github.com/bandprotocol/chain/v3/pkg/tss"
 	types "github.com/bandprotocol/chain/v3/x/tss/types"
 	types0 "github.com/cosmos/cosmos-sdk/types"
-	types1 "github.com/cosmos/cosmos-sdk/x/distribution/types"
-	types2 "github.com/cosmos/cosmos-sdk/x/staking/types"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -191,20 +188,6 @@ func (m *MockDistrKeeper) EXPECT() *MockDistrKeeperMockRecorder {
 	return m.recorder
 }
 
-// AllocateTokensToValidator mocks base method.
-func (m *MockDistrKeeper) AllocateTokensToValidator(ctx context.Context, val types2.ValidatorI, tokens types0.DecCoins) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AllocateTokensToValidator", ctx, val, tokens)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// AllocateTokensToValidator indicates an expected call of AllocateTokensToValidator.
-func (mr *MockDistrKeeperMockRecorder) AllocateTokensToValidator(ctx, val, tokens any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AllocateTokensToValidator", reflect.TypeOf((*MockDistrKeeper)(nil).AllocateTokensToValidator), ctx, val, tokens)
-}
-
 // FundCommunityPool mocks base method.
 func (m *MockDistrKeeper) FundCommunityPool(ctx context.Context, amount types0.Coins, sender types0.AccAddress) error {
 	m.ctrl.T.Helper()
@@ -232,125 +215,6 @@ func (m *MockDistrKeeper) GetCommunityTax(ctx context.Context) (math.LegacyDec, 
 func (mr *MockDistrKeeperMockRecorder) GetCommunityTax(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCommunityTax", reflect.TypeOf((*MockDistrKeeper)(nil).GetCommunityTax), ctx)
-}
-
-// MockFeePoolManager is a mock of FeePoolManager interface.
-type MockFeePoolManager struct {
-	ctrl     *gomock.Controller
-	recorder *MockFeePoolManagerMockRecorder
-	isgomock struct{}
-}
-
-// MockFeePoolManagerMockRecorder is the mock recorder for MockFeePoolManager.
-type MockFeePoolManagerMockRecorder struct {
-	mock *MockFeePoolManager
-}
-
-// NewMockFeePoolManager creates a new mock instance.
-func NewMockFeePoolManager(ctrl *gomock.Controller) *MockFeePoolManager {
-	mock := &MockFeePoolManager{ctrl: ctrl}
-	mock.recorder = &MockFeePoolManagerMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockFeePoolManager) EXPECT() *MockFeePoolManagerMockRecorder {
-	return m.recorder
-}
-
-// GetFeePool mocks base method.
-func (m *MockFeePoolManager) GetFeePool(ctx context.Context) (collections.Item[types1.FeePool], error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetFeePool", ctx)
-	ret0, _ := ret[0].(collections.Item[types1.FeePool])
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetFeePool indicates an expected call of GetFeePool.
-func (mr *MockFeePoolManagerMockRecorder) GetFeePool(ctx any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeePool", reflect.TypeOf((*MockFeePoolManager)(nil).GetFeePool), ctx)
-}
-
-// SetFeePool mocks base method.
-func (m *MockFeePoolManager) SetFeePool(ctx context.Context, feePool types1.FeePool) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "SetFeePool", ctx, feePool)
-}
-
-// SetFeePool indicates an expected call of SetFeePool.
-func (mr *MockFeePoolManagerMockRecorder) SetFeePool(ctx, feePool any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetFeePool", reflect.TypeOf((*MockFeePoolManager)(nil).SetFeePool), ctx, feePool)
-}
-
-// MockStakingKeeper is a mock of StakingKeeper interface.
-type MockStakingKeeper struct {
-	ctrl     *gomock.Controller
-	recorder *MockStakingKeeperMockRecorder
-	isgomock struct{}
-}
-
-// MockStakingKeeperMockRecorder is the mock recorder for MockStakingKeeper.
-type MockStakingKeeperMockRecorder struct {
-	mock *MockStakingKeeper
-}
-
-// NewMockStakingKeeper creates a new mock instance.
-func NewMockStakingKeeper(ctrl *gomock.Controller) *MockStakingKeeper {
-	mock := &MockStakingKeeper{ctrl: ctrl}
-	mock.recorder = &MockStakingKeeperMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockStakingKeeper) EXPECT() *MockStakingKeeperMockRecorder {
-	return m.recorder
-}
-
-// IterateBondedValidatorsByPower mocks base method.
-func (m *MockStakingKeeper) IterateBondedValidatorsByPower(ctx context.Context, fn func(int64, types2.ValidatorI) bool) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IterateBondedValidatorsByPower", ctx, fn)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// IterateBondedValidatorsByPower indicates an expected call of IterateBondedValidatorsByPower.
-func (mr *MockStakingKeeperMockRecorder) IterateBondedValidatorsByPower(ctx, fn any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IterateBondedValidatorsByPower", reflect.TypeOf((*MockStakingKeeper)(nil).IterateBondedValidatorsByPower), ctx, fn)
-}
-
-// MaxValidators mocks base method.
-func (m *MockStakingKeeper) MaxValidators(ctx context.Context) (uint32, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "MaxValidators", ctx)
-	ret0, _ := ret[0].(uint32)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// MaxValidators indicates an expected call of MaxValidators.
-func (mr *MockStakingKeeperMockRecorder) MaxValidators(ctx any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MaxValidators", reflect.TypeOf((*MockStakingKeeper)(nil).MaxValidators), ctx)
-}
-
-// ValidatorByConsAddr mocks base method.
-func (m *MockStakingKeeper) ValidatorByConsAddr(arg0 context.Context, arg1 types0.ConsAddress) (types2.ValidatorI, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ValidatorByConsAddr", arg0, arg1)
-	ret0, _ := ret[0].(types2.ValidatorI)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ValidatorByConsAddr indicates an expected call of ValidatorByConsAddr.
-func (mr *MockStakingKeeperMockRecorder) ValidatorByConsAddr(arg0, arg1 any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidatorByConsAddr", reflect.TypeOf((*MockStakingKeeper)(nil).ValidatorByConsAddr), arg0, arg1)
 }
 
 // MockTSSKeeper is a mock of TSSKeeper interface.

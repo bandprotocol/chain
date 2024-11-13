@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
@@ -69,6 +70,10 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 				return err
 			}
 
+			if feedstypes.ValidateEncoder(feedstypes.Encoder(encoder)) != nil {
+				return types.ErrInvalidEncoder
+			}
+
 			initialDeposit, err := sdk.ParseCoinsNormalized(args[3])
 			if err != nil {
 				return err
@@ -89,7 +94,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 				interval,
 				destChainID,
 				destContractAddr,
-				types.Encoder(encoder),
+				feedstypes.Encoder(encoder),
 				initialDeposit,
 				clientCtx.GetFromAddress(),
 			)

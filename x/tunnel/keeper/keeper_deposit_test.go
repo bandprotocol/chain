@@ -8,7 +8,7 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-func (s *KeeperTestSuite) TestAddDeposit() {
+func (s *KeeperTestSuite) TestDepositToTunnel() {
 	ctx, k := s.ctx, s.keeper
 
 	tunnelID := uint64(1)

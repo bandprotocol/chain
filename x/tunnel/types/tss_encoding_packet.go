@@ -4,6 +4,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 
 	"github.com/bandprotocol/chain/v3/pkg/tickmath"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 var (
@@ -30,7 +31,7 @@ var (
 )
 
 // TssEncodingSignalPrice represents the SignalPrice that will be used for encoding a message.
-type TssEncodingSignalPrice struct {
+type TssEncodingPrice struct {
 	SignalID [32]byte
 	Price    uint64
 }
@@ -41,7 +42,7 @@ type TssEncodingPacket struct {
 	Sequence                   uint64
 	DestinationChainID         string
 	DestinationContractAddress string
-	SignalPrices               []TssEncodingSignalPrice
+	SignalPrices               []TssEncodingPrice
 	CreatedAt                  int64
 }
 
@@ -50,12 +51,12 @@ func NewTssEncodingPacket(
 	p Packet,
 	destinationChainID string,
 	destinationContractAddress string,
-	encoder Encoder,
+	encoder feedstypes.Encoder,
 ) (*TssEncodingPacket, error) {
-	var signalPrices []TssEncodingSignalPrice
-	for _, sp := range p.SignalPrices {
+	var signalPrices []TssEncodingPrice
+	for _, sp := range p.Prices {
 		price := sp.Price
-		if encoder == ENCODER_TICK_ABI && price != 0 {
+		if encoder == feedstypes.ENCODER_TICK_ABI && price != 0 {
 			tick, err := tickmath.PriceToTick(price)
 			if err != nil {
 				return nil, err
@@ -63,7 +64,7 @@ func NewTssEncodingPacket(
 			price = tick
 		}
 
-		signalPrices = append(signalPrices, TssEncodingSignalPrice{
+		signalPrices = append(signalPrices, TssEncodingPrice{
 			SignalID: stringToBytes32(sp.SignalID),
 			Price:    price,
 		})

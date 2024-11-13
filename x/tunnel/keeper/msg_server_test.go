@@ -46,7 +46,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 					signalDeviations,
 					10,
 					route,
-					types.ENCODER_FIXED_POINT_ABI,
+					feedstypes.ENCODER_FIXED_POINT_ABI,
 					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
 					sdk.AccAddress([]byte("creator_address")),
 				)
@@ -64,7 +64,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 					signalDeviations,
 					1,
 					route,
-					types.ENCODER_FIXED_POINT_ABI,
+					feedstypes.ENCODER_FIXED_POINT_ABI,
 					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
 					sdk.AccAddress([]byte("creator_address")),
 				)
@@ -84,7 +84,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 					signalDeviations,
 					10,
 					route,
-					types.ENCODER_FIXED_POINT_ABI,
+					feedstypes.ENCODER_FIXED_POINT_ABI,
 					sdk.NewCoins(),
 					sdk.AccAddress([]byte("creator_address")),
 				)
@@ -110,7 +110,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 					signalDeviations,
 					10,
 					route,
-					types.ENCODER_FIXED_POINT_ABI,
+					feedstypes.ENCODER_FIXED_POINT_ABI,
 					depositAmount,
 					depositor,
 				)

@@ -3,6 +3,8 @@ package de
 import (
 	"encoding/hex"
 	"fmt"
+	"sync"
+	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	ctypes "github.com/cometbft/cometbft/rpc/core/types"
@@ -17,6 +19,10 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
+var _ cylinder.Worker = &DE{}
+
+var updateDEMutex sync.Mutex
+
 // DE is a worker responsible for generating own nonce (DE) of signing process
 type DE struct {
 	context       *context.Context
@@ -25,8 +31,6 @@ type DE struct {
 	assignEventCh <-chan ctypes.ResultEvent
 	useEventCh    <-chan ctypes.ResultEvent
 }
-
-var _ cylinder.Worker = &DE{}
 
 // New creates a new instance of the DE worker.
 // It initializes the necessary components and returns the created DE instance or an error if initialization fails.
@@ -102,6 +106,10 @@ func (de *DE) deleteDE(pubDE types.DE) {
 
 // updateDE updates DE if the remaining DE is too low.
 func (de *DE) updateDE() {
+	// Lock task
+	updateDEMutex.Lock()
+	defer updateDEMutex.Unlock()
+
 	// Query DE information
 	deRes, err := de.client.QueryDE(de.context.Config.Granter, 0, 1)
 	if err != nil {
@@ -165,9 +173,15 @@ func (de *DE) Start() {
 		}
 	}()
 
-	// Update if there is assigned DE event.
-	for range de.assignEventCh {
-		go de.updateDE()
+	// Update DE if there is assigned DE event or DE is used.
+	ticker := time.NewTicker(de.context.Config.CheckingDEInterval)
+	for {
+		select {
+		case <-ticker.C:
+			go de.updateDE()
+		case <-de.assignEventCh:
+			go de.updateDE()
+		}
 	}
 }
 

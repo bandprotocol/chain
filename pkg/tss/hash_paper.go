@@ -251,7 +251,9 @@ func H1(msg []byte) ([]byte, error) {
 	if len(result) == 0 || len(result[0]) == 0 {
 		return nil, errors.New("H1: got an empty result from HashToField")
 	}
-	return result[0][0].Bytes(), err
+
+	paddedHashed := PaddingBytes(result[0][0].Bytes(), 32)
+	return paddedHashed, err
 }
 
 // H2(m): Implemented as hash_to_field(m, 1) using expand_message_xmd with SHA-256 with parameters
@@ -264,7 +266,9 @@ func H2(msg []byte) ([]byte, error) {
 	if len(result) == 0 || len(result[0]) == 0 {
 		return nil, errors.New("H2: got an empty result from HashToField")
 	}
-	return result[0][0].Bytes(), err
+
+	paddedHashed := PaddingBytes(result[0][0].Bytes(), 32)
+	return paddedHashed, err
 }
 
 // H3(m): Implemented as hash_to_field(m, 1) using expand_message_xmd with SHA-256 with parameters
@@ -277,7 +281,9 @@ func H3(msg []byte) ([]byte, error) {
 	if len(result) == 0 || len(result[0]) == 0 {
 		return nil, errors.New("H3: got an empty result from HashToField")
 	}
-	return result[0][0].Bytes(), err
+
+	paddedHashed := PaddingBytes(result[0][0].Bytes(), 32)
+	return paddedHashed, err
 }
 
 // H4(m): Implemented by computing H(contextString || "msg" || m).

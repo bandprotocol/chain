@@ -5,51 +5,39 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 func TestLatestSignalPrices_Validate(t *testing.T) {
+	examplePrices := []feedstypes.Price{
+		feedstypes.NewPrice(feedstypes.PriceStatusAvailable, "signal1", 100, 0),
+	}
+
 	cases := map[string]struct {
-		latestSignalPrices types.LatestSignalPrices
-		expErr             bool
-		expErrMsg          string
+		latestPrices types.LatestPrices
+		expErr       bool
+		expErrMsg    string
 	}{
-		"valid latest signal prices": {
-			latestSignalPrices: types.NewLatestSignalPrices(
-				1,
-				[]types.SignalPrice{{SignalID: "signal1", Price: 100}},
-				10,
-			),
-			expErr: false,
+		"valid latest prices": {
+			latestPrices: types.NewLatestPrices(1, examplePrices, 10),
+			expErr:       false,
 		},
 		"invalid tunnel ID": {
-			latestSignalPrices: types.NewLatestSignalPrices(
-				0,
-				[]types.SignalPrice{{SignalID: "signal1", Price: 100}},
-				10,
-			),
-			expErr:    true,
-			expErrMsg: "tunnel ID cannot be 0",
-		},
-		"empty signal prices": {
-			latestSignalPrices: types.NewLatestSignalPrices(1, []types.SignalPrice{}, 10),
-			expErr:             true,
-			expErrMsg:          "signal prices cannot be empty",
+			latestPrices: types.NewLatestPrices(0, examplePrices, 10),
+			expErr:       true,
+			expErrMsg:    "tunnel ID cannot be 0",
 		},
 		"negative last interval": {
-			latestSignalPrices: types.NewLatestSignalPrices(
-				1,
-				[]types.SignalPrice{{SignalID: "signal1", Price: 100}},
-				-1,
-			),
-			expErr:    true,
-			expErrMsg: "last interval cannot be negative",
+			latestPrices: types.NewLatestPrices(1, examplePrices, -1),
+			expErr:       true,
+			expErrMsg:    "last interval cannot be negative",
 		},
 	}
 
 	for name, tc := range cases {
 		t.Run(name, func(t *testing.T) {
-			err := tc.latestSignalPrices.Validate()
+			err := tc.latestPrices.Validate()
 			if tc.expErr {
 				require.Error(t, err)
 				require.Contains(t, err.Error(), tc.expErrMsg)
@@ -60,13 +48,19 @@ func TestLatestSignalPrices_Validate(t *testing.T) {
 	}
 }
 
-func TestLatestSignalPrices_UpdateSignalPrices(t *testing.T) {
-	initialSignalPrices := []types.SignalPrice{{SignalID: "signal1", Price: 100}}
-	latestSignalPrices := types.NewLatestSignalPrices(1, initialSignalPrices, 10)
+func TestLatestPrices_UpdatePrices(t *testing.T) {
+	initialPrices := []feedstypes.Price{
+		{Status: feedstypes.PriceStatusAvailable, SignalID: "signal1", Price: 100},
+	}
+	latestPrices := types.NewLatestPrices(1, initialPrices, 10)
 
-	newSignalPrices := []types.SignalPrice{{SignalID: "signal1", Price: 200}, {SignalID: "signal2", Price: 300}}
-	latestSignalPrices.UpdateSignalPrices(newSignalPrices)
+	newPrices := []feedstypes.Price{
+		{Status: feedstypes.PriceStatusAvailable, SignalID: "signal1", Price: 200},
+		{Status: feedstypes.PriceStatusAvailable, SignalID: "signal2", Price: 300},
+	}
+	latestPrices.UpdatePrices(newPrices)
 
-	require.Len(t, latestSignalPrices.SignalPrices, 1)
-	require.Equal(t, uint64(200), latestSignalPrices.SignalPrices[0].Price)
+	require.Len(t, latestPrices.Prices, 2)
+	require.Equal(t, uint64(200), latestPrices.Prices[0].Price)
+	require.Equal(t, uint64(300), latestPrices.Prices[1].Price)
 }

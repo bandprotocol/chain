@@ -10,6 +10,7 @@ import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "amino/amino.proto";
 
+import "band/feeds/v1beta1/feeds.proto";
 import "band/tunnel/v1beta1/params.proto";
 import "band/tunnel/v1beta1/tunnel.proto";
 
@@ -54,7 +55,7 @@ message MsgCreateTunnel {
   // route is the route for delivering the signal prices
   google.protobuf.Any route = 3 [(cosmos_proto.accepts_interface) = "Route"];
   // encoder is the mode of encoding price signal data.
-  Encoder encoder = 4;
+  band.feeds.v1beta1.Encoder encoder = 4;
   // initial_deposit is the deposit value that must be paid at tunnel creation.
   repeated cosmos.base.v1beta1.Coin initial_deposit = 5 [
     (gogoproto.nullable)     = false,

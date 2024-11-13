@@ -5,6 +5,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bandprotocol/chain/v3/pkg/tss"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/keeper"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
@@ -26,9 +27,9 @@ func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 		case *types.TunnelSignatureOrder:
 			var prefix []byte
 			switch c.Encoder {
-			case types.ENCODER_FIXED_POINT_ABI:
+			case feedstypes.ENCODER_FIXED_POINT_ABI:
 				prefix = EncoderFixedPointABIPrefix
-			case types.ENCODER_TICK_ABI:
+			case feedstypes.ENCODER_TICK_ABI:
 				prefix = EncoderTickABIPrefix
 			default:
 				return nil, types.ErrInvalidEncoder.Wrapf("invalid encoder: %s", c.Encoder)

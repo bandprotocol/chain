@@ -175,7 +175,7 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) error {
 	if err != nil {
 		return err
 	}
-	powerQuorum := totalBondedToken.Mul(priceQuorum).TruncateInt().Uint64()
+	powerQuorum := totalBondedToken.Mul(priceQuorum).TruncateInt()
 	// calculate prices for each feed
 	for _, feed := range currentFeeds.Feeds {
 		var validatorPriceInfos []types.ValidatorPriceInfo
@@ -203,7 +203,7 @@ func (k Keeper) CalculatePrices(ctx sdk.Context) error {
 				validatorPriceInfos = append(
 					validatorPriceInfos, types.NewValidatorPriceInfo(
 						valPrice.SignalPriceStatus,
-						valInfo.Power,
+						sdkmath.NewIntFromUint64(valInfo.Power),
 						valPrice.Price,
 						valPrice.Timestamp,
 					),
@@ -232,12 +232,12 @@ func (k Keeper) CalculatePrice(
 	ctx sdk.Context,
 	feed types.Feed,
 	validatorPriceInfos []types.ValidatorPriceInfo,
-	powerQuorum uint64,
+	powerQuorum sdkmath.Int,
 ) (types.Price, error) {
 	totalPower, availablePower, _, unsupportedPower := types.CalculatePricesPowers(validatorPriceInfos)
 
 	// If more than half of the total have unsupported price status, it returns an unknown signal id price status.
-	if unsupportedPower*2 > totalPower {
+	if unsupportedPower.MulRaw(2).GT(totalPower) {
 		return types.NewPrice(
 			types.PriceStatusUnknownSignalID,
 			feed.SignalID,
@@ -248,7 +248,7 @@ func (k Keeper) CalculatePrice(
 
 	// If the total power is less than price quorum percentage of the total bonded token
 	// or less than half of total have available price status, it will not be calculated.
-	if totalPower < powerQuorum || availablePower*2 < totalPower {
+	if totalPower.LT(powerQuorum) || availablePower.MulRaw(2).LT(totalPower) {
 		// else, it returns an price not ready price status.
 		return types.NewPrice(
 			types.PriceStatusNotReady,

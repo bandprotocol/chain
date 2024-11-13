@@ -47,3 +47,12 @@ func (f FeedsPriceData) ABIEncode() ([]byte, error) {
 
 	return feedsPriceDataArgs.Pack(signalPriceABIs, f.Timestamp)
 }
+
+// ValidateEncoder validates the encoder.
+func ValidateEncoder(encoder Encoder) error {
+	if _, ok := Encoder_name[int32(encoder)]; ok && encoder != ENCODER_UNSPECIFIED {
+		return nil
+	}
+
+	return ErrInvalidEncoder.Wrapf("invalid encoder: %s", encoder)
+}
