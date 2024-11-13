@@ -333,7 +333,7 @@ func (k Keeper) GenerateTunnelAccount(ctx sdk.Context, key string) (sdk.AccAddre
 func (k Keeper) GetRouterFee(ctx sdk.Context, router types.RouteI) (sdk.Coins, error) {
 	switch router.(type) {
 	case *types.TSSRoute:
-		return sdk.Coins{}, nil
+		return k.bandtssKeeper.GetSigningFee(ctx)
 	default:
 		return sdk.Coins{}, types.ErrInvalidRoute
 	}

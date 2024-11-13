@@ -27,13 +27,10 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 		1,                    // sequence
 		[]feedstypes.Price{}, // priceInfos[]
 		sdk.NewCoins(),       // baseFee
-		sdk.NewCoins(),       // routeFee
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), // routeFee
 		time.Now().Unix(),
 	)
 
-	s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
-		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
-	)
 	s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
 		gomock.Any(),
 		uint64(1),
