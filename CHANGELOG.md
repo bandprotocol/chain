@@ -22,12 +22,14 @@
 * (chain) update oracle params to support cosmos-sdk 0.47+
 * (chain) Add consensus module to handle managing Tendermint consensus parameters
 * (chain) Change the allocation of remaining tokens from the community pool to the Proposer
+* (chain) Support tss feature
+* (chain) Add tss (threshold signature scheme) feature for signing an oracle data.
+* (cylinder) provide a new service for supporting tss process
 
 ## [v2.5.3](https://github.com/bandprotocol/chain/releases/tag/v2.5.3)
 
 * (bump) Use cometbft v0.34.29
 * (yoda) Get information of requests through endpoint instead of events
-  
 
 ## [v2.5.2](https://github.com/bandprotocol/chain/releases/tag/v2.5.2)
 

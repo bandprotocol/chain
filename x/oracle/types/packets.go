@@ -12,6 +12,7 @@ func NewOracleRequestPacketData(
 	calldata []byte,
 	askCount uint64,
 	minCount uint64,
+	tssEncoder Encoder,
 	feeLimit sdk.Coins,
 	prepareGas uint64,
 	executeGas uint64,
@@ -25,6 +26,7 @@ func NewOracleRequestPacketData(
 		FeeLimit:       feeLimit,
 		PrepareGas:     prepareGas,
 		ExecuteGas:     executeGas,
+		TSSEncoder:     tssEncoder,
 	}
 }
 

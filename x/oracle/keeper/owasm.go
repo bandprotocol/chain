@@ -52,7 +52,11 @@ func (k Keeper) GetRandomValidators(ctx sdk.Context, size int, id uint64) ([]sdk
 	if len(valOperators) < size {
 		return nil, types.ErrInsufficientValidators.Wrapf("%d < %d", len(valOperators), size)
 	}
-	rng, err := bandrng.NewRng(k.GetRollingSeed(ctx), sdk.Uint64ToBigEndian(id), []byte(ctx.ChainID()))
+	rng, err := bandrng.NewRng(
+		k.rollingseedKepper.GetRollingSeed(ctx),
+		sdk.Uint64ToBigEndian(id),
+		[]byte(ctx.ChainID()),
+	)
 	if err != nil {
 		return nil, types.ErrBadDrbgInitialization.Wrap(err.Error())
 	}
@@ -105,6 +109,9 @@ func (k Keeper) PrepareRequest(
 		nil,
 		ibcChannel,
 		r.GetExecuteGas(),
+		r.GetTSSEncoder(),
+		feePayer.String(),
+		r.GetFeeLimit(),
 	)
 
 	// Create an execution environment and call Owasm prepare function.
@@ -134,11 +141,13 @@ func (k Keeper) PrepareRequest(
 		return 0, types.ErrEmptyRawRequests
 	}
 	// Collect ds fee
-	totalFees, err := k.CollectFee(ctx, feePayer, r.GetFeeLimit(), askCount, req.RawRequests)
+	totalFees, err := k.CollectFee(ctx, feePayer, req.FeeLimit, askCount, req.RawRequests)
 	if err != nil {
 		return 0, err
 	}
+
 	// We now have everything we need to the request, so let's add it to the store.
+	req.FeeLimit = req.FeeLimit.Sub(totalFees...)
 	id := k.AddRequest(ctx, req)
 
 	// Emit an event describing a data request and asked validators.
@@ -194,7 +203,7 @@ func (k Keeper) ResolveRequest(ctx sdk.Context, reqID types.RequestID) {
 	} else if env.Retdata == nil {
 		k.ResolveFailure(ctx, reqID, "no return data")
 	} else {
-		k.ResolveSuccess(ctx, reqID, env.Retdata, output.GasUsed)
+		k.ResolveSuccess(ctx, reqID, req.Requester, req.FeeLimit, env.Retdata, output.GasUsed, req.TSSEncoder)
 	}
 }
 

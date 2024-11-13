@@ -35,6 +35,11 @@ func TestValidatorStatusStoreKey(t *testing.T) {
 	require.Equal(t, expect, ValidatorStatusStoreKey(val))
 }
 
+func TestSigningResultStoreKey(t *testing.T) {
+	expect, _ := hex.DecodeString("070000000000000014")
+	require.Equal(t, expect, SigningResultStoreKey(RequestID(20)))
+}
+
 func TestResultStoreKey(t *testing.T) {
 	expect, _ := hex.DecodeString("ff0000000000000014")
 	require.Equal(t, expect, ResultStoreKey(20))

@@ -15,10 +15,12 @@ import (
 	time "time"
 
 	math "cosmossdk.io/math"
-	types "github.com/cosmos/cosmos-sdk/types"
+	types "github.com/bandprotocol/chain/v3/x/bandtss/types"
+	types0 "github.com/bandprotocol/chain/v3/x/tss/types"
+	types1 "github.com/cosmos/cosmos-sdk/types"
 	authz "github.com/cosmos/cosmos-sdk/x/authz"
-	types0 "github.com/cosmos/cosmos-sdk/x/staking/types"
-	types1 "github.com/cosmos/ibc-go/modules/capability/types"
+	types2 "github.com/cosmos/cosmos-sdk/x/staking/types"
+	types3 "github.com/cosmos/ibc-go/modules/capability/types"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -47,10 +49,10 @@ func (m *MockAccountKeeper) EXPECT() *MockAccountKeeperMockRecorder {
 }
 
 // GetAccount mocks base method.
-func (m *MockAccountKeeper) GetAccount(ctx context.Context, addr types.AccAddress) types.AccountI {
+func (m *MockAccountKeeper) GetAccount(ctx context.Context, addr types1.AccAddress) types1.AccountI {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAccount", ctx, addr)
-	ret0, _ := ret[0].(types.AccountI)
+	ret0, _ := ret[0].(types1.AccountI)
 	return ret0
 }
 
@@ -61,10 +63,10 @@ func (mr *MockAccountKeeperMockRecorder) GetAccount(ctx, addr any) *gomock.Call 
 }
 
 // GetModuleAccount mocks base method.
-func (m *MockAccountKeeper) GetModuleAccount(ctx context.Context, moduleName string) types.ModuleAccountI {
+func (m *MockAccountKeeper) GetModuleAccount(ctx context.Context, moduleName string) types1.ModuleAccountI {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetModuleAccount", ctx, moduleName)
-	ret0, _ := ret[0].(types.ModuleAccountI)
+	ret0, _ := ret[0].(types1.ModuleAccountI)
 	return ret0
 }
 
@@ -99,10 +101,10 @@ func (m *MockBankKeeper) EXPECT() *MockBankKeeperMockRecorder {
 }
 
 // GetAllBalances mocks base method.
-func (m *MockBankKeeper) GetAllBalances(ctx context.Context, addr types.AccAddress) types.Coins {
+func (m *MockBankKeeper) GetAllBalances(ctx context.Context, addr types1.AccAddress) types1.Coins {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllBalances", ctx, addr)
-	ret0, _ := ret[0].(types.Coins)
+	ret0, _ := ret[0].(types1.Coins)
 	return ret0
 }
 
@@ -113,7 +115,7 @@ func (mr *MockBankKeeperMockRecorder) GetAllBalances(ctx, addr any) *gomock.Call
 }
 
 // SendCoins mocks base method.
-func (m *MockBankKeeper) SendCoins(ctx context.Context, from, to types.AccAddress, amt types.Coins) error {
+func (m *MockBankKeeper) SendCoins(ctx context.Context, from, to types1.AccAddress, amt types1.Coins) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SendCoins", ctx, from, to, amt)
 	ret0, _ := ret[0].(error)
@@ -127,7 +129,7 @@ func (mr *MockBankKeeperMockRecorder) SendCoins(ctx, from, to, amt any) *gomock.
 }
 
 // SendCoinsFromModuleToModule mocks base method.
-func (m *MockBankKeeper) SendCoinsFromModuleToModule(ctx context.Context, senderModule, recipientModule string, amt types.Coins) error {
+func (m *MockBankKeeper) SendCoinsFromModuleToModule(ctx context.Context, senderModule, recipientModule string, amt types1.Coins) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SendCoinsFromModuleToModule", ctx, senderModule, recipientModule, amt)
 	ret0, _ := ret[0].(error)
@@ -141,10 +143,10 @@ func (mr *MockBankKeeperMockRecorder) SendCoinsFromModuleToModule(ctx, senderMod
 }
 
 // SpendableCoins mocks base method.
-func (m *MockBankKeeper) SpendableCoins(ctx context.Context, addr types.AccAddress) types.Coins {
+func (m *MockBankKeeper) SpendableCoins(ctx context.Context, addr types1.AccAddress) types1.Coins {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SpendableCoins", ctx, addr)
-	ret0, _ := ret[0].(types.Coins)
+	ret0, _ := ret[0].(types1.Coins)
 	return ret0
 }
 
@@ -179,7 +181,7 @@ func (m *MockStakingKeeper) EXPECT() *MockStakingKeeperMockRecorder {
 }
 
 // IterateBondedValidatorsByPower mocks base method.
-func (m *MockStakingKeeper) IterateBondedValidatorsByPower(arg0 context.Context, arg1 func(int64, types0.ValidatorI) bool) error {
+func (m *MockStakingKeeper) IterateBondedValidatorsByPower(arg0 context.Context, arg1 func(int64, types2.ValidatorI) bool) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "IterateBondedValidatorsByPower", arg0, arg1)
 	ret0, _ := ret[0].(error)
@@ -193,10 +195,10 @@ func (mr *MockStakingKeeperMockRecorder) IterateBondedValidatorsByPower(arg0, ar
 }
 
 // Validator mocks base method.
-func (m *MockStakingKeeper) Validator(arg0 context.Context, arg1 types.ValAddress) (types0.ValidatorI, error) {
+func (m *MockStakingKeeper) Validator(arg0 context.Context, arg1 types1.ValAddress) (types2.ValidatorI, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Validator", arg0, arg1)
-	ret0, _ := ret[0].(types0.ValidatorI)
+	ret0, _ := ret[0].(types2.ValidatorI)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -208,10 +210,10 @@ func (mr *MockStakingKeeperMockRecorder) Validator(arg0, arg1 any) *gomock.Call 
 }
 
 // ValidatorByConsAddr mocks base method.
-func (m *MockStakingKeeper) ValidatorByConsAddr(arg0 context.Context, arg1 types.ConsAddress) (types0.ValidatorI, error) {
+func (m *MockStakingKeeper) ValidatorByConsAddr(arg0 context.Context, arg1 types1.ConsAddress) (types2.ValidatorI, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ValidatorByConsAddr", arg0, arg1)
-	ret0, _ := ret[0].(types0.ValidatorI)
+	ret0, _ := ret[0].(types2.ValidatorI)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -247,7 +249,7 @@ func (m *MockDistrKeeper) EXPECT() *MockDistrKeeperMockRecorder {
 }
 
 // AllocateTokensToValidator mocks base method.
-func (m *MockDistrKeeper) AllocateTokensToValidator(ctx context.Context, val types0.ValidatorI, tokens types.DecCoins) error {
+func (m *MockDistrKeeper) AllocateTokensToValidator(ctx context.Context, val types2.ValidatorI, tokens types1.DecCoins) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "AllocateTokensToValidator", ctx, val, tokens)
 	ret0, _ := ret[0].(error)
@@ -261,7 +263,7 @@ func (mr *MockDistrKeeperMockRecorder) AllocateTokensToValidator(ctx, val, token
 }
 
 // FundCommunityPool mocks base method.
-func (m *MockDistrKeeper) FundCommunityPool(ctx context.Context, amount types.Coins, sender types.AccAddress) error {
+func (m *MockDistrKeeper) FundCommunityPool(ctx context.Context, amount types1.Coins, sender types1.AccAddress) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FundCommunityPool", ctx, amount, sender)
 	ret0, _ := ret[0].(error)
@@ -314,10 +316,10 @@ func (m *MockPortKeeper) EXPECT() *MockPortKeeperMockRecorder {
 }
 
 // BindPort mocks base method.
-func (m *MockPortKeeper) BindPort(ctx types.Context, portID string) *types1.Capability {
+func (m *MockPortKeeper) BindPort(ctx types1.Context, portID string) *types3.Capability {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BindPort", ctx, portID)
-	ret0, _ := ret[0].(*types1.Capability)
+	ret0, _ := ret[0].(*types3.Capability)
 	return ret0
 }
 
@@ -352,7 +354,7 @@ func (m *MockAuthzKeeper) EXPECT() *MockAuthzKeeperMockRecorder {
 }
 
 // DeleteGrant mocks base method.
-func (m *MockAuthzKeeper) DeleteGrant(ctx context.Context, grantee, granter types.AccAddress, msgType string) error {
+func (m *MockAuthzKeeper) DeleteGrant(ctx context.Context, grantee, granter types1.AccAddress, msgType string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteGrant", ctx, grantee, granter, msgType)
 	ret0, _ := ret[0].(error)
@@ -366,7 +368,7 @@ func (mr *MockAuthzKeeperMockRecorder) DeleteGrant(ctx, grantee, granter, msgTyp
 }
 
 // DispatchActions mocks base method.
-func (m *MockAuthzKeeper) DispatchActions(ctx context.Context, grantee types.AccAddress, msgs []types.Msg) ([][]byte, error) {
+func (m *MockAuthzKeeper) DispatchActions(ctx context.Context, grantee types1.AccAddress, msgs []types1.Msg) ([][]byte, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DispatchActions", ctx, grantee, msgs)
 	ret0, _ := ret[0].([][]byte)
@@ -381,7 +383,7 @@ func (mr *MockAuthzKeeperMockRecorder) DispatchActions(ctx, grantee, msgs any) *
 }
 
 // GetAuthorization mocks base method.
-func (m *MockAuthzKeeper) GetAuthorization(ctx context.Context, grantee, granter types.AccAddress, msgType string) (authz.Authorization, *time.Time) {
+func (m *MockAuthzKeeper) GetAuthorization(ctx context.Context, grantee, granter types1.AccAddress, msgType string) (authz.Authorization, *time.Time) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAuthorization", ctx, grantee, granter, msgType)
 	ret0, _ := ret[0].(authz.Authorization)
@@ -396,7 +398,7 @@ func (mr *MockAuthzKeeperMockRecorder) GetAuthorization(ctx, grantee, granter, m
 }
 
 // GetAuthorizations mocks base method.
-func (m *MockAuthzKeeper) GetAuthorizations(ctx context.Context, grantee, granter types.AccAddress) ([]authz.Authorization, error) {
+func (m *MockAuthzKeeper) GetAuthorizations(ctx context.Context, grantee, granter types1.AccAddress) ([]authz.Authorization, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAuthorizations", ctx, grantee, granter)
 	ret0, _ := ret[0].([]authz.Authorization)
@@ -426,7 +428,7 @@ func (mr *MockAuthzKeeperMockRecorder) GranterGrants(ctx, req any) *gomock.Call 
 }
 
 // SaveGrant mocks base method.
-func (m *MockAuthzKeeper) SaveGrant(ctx context.Context, grantee, granter types.AccAddress, authorization authz.Authorization, expiration *time.Time) error {
+func (m *MockAuthzKeeper) SaveGrant(ctx context.Context, grantee, granter types1.AccAddress, authorization authz.Authorization, expiration *time.Time) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SaveGrant", ctx, grantee, granter, authorization, expiration)
 	ret0, _ := ret[0].(error)
@@ -437,4 +439,81 @@ func (m *MockAuthzKeeper) SaveGrant(ctx context.Context, grantee, granter types.
 func (mr *MockAuthzKeeperMockRecorder) SaveGrant(ctx, grantee, granter, authorization, expiration any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveGrant", reflect.TypeOf((*MockAuthzKeeper)(nil).SaveGrant), ctx, grantee, granter, authorization, expiration)
+}
+
+// MockRollingseedKeeper is a mock of RollingseedKeeper interface.
+type MockRollingseedKeeper struct {
+	ctrl     *gomock.Controller
+	recorder *MockRollingseedKeeperMockRecorder
+	isgomock struct{}
+}
+
+// MockRollingseedKeeperMockRecorder is the mock recorder for MockRollingseedKeeper.
+type MockRollingseedKeeperMockRecorder struct {
+	mock *MockRollingseedKeeper
+}
+
+// NewMockRollingseedKeeper creates a new mock instance.
+func NewMockRollingseedKeeper(ctrl *gomock.Controller) *MockRollingseedKeeper {
+	mock := &MockRollingseedKeeper{ctrl: ctrl}
+	mock.recorder = &MockRollingseedKeeperMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockRollingseedKeeper) EXPECT() *MockRollingseedKeeperMockRecorder {
+	return m.recorder
+}
+
+// GetRollingSeed mocks base method.
+func (m *MockRollingseedKeeper) GetRollingSeed(ctx types1.Context) []byte {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetRollingSeed", ctx)
+	ret0, _ := ret[0].([]byte)
+	return ret0
+}
+
+// GetRollingSeed indicates an expected call of GetRollingSeed.
+func (mr *MockRollingseedKeeperMockRecorder) GetRollingSeed(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRollingSeed", reflect.TypeOf((*MockRollingseedKeeper)(nil).GetRollingSeed), ctx)
+}
+
+// MockBandtssKeeper is a mock of BandtssKeeper interface.
+type MockBandtssKeeper struct {
+	ctrl     *gomock.Controller
+	recorder *MockBandtssKeeperMockRecorder
+	isgomock struct{}
+}
+
+// MockBandtssKeeperMockRecorder is the mock recorder for MockBandtssKeeper.
+type MockBandtssKeeperMockRecorder struct {
+	mock *MockBandtssKeeper
+}
+
+// NewMockBandtssKeeper creates a new mock instance.
+func NewMockBandtssKeeper(ctrl *gomock.Controller) *MockBandtssKeeper {
+	mock := &MockBandtssKeeper{ctrl: ctrl}
+	mock.recorder = &MockBandtssKeeperMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockBandtssKeeper) EXPECT() *MockBandtssKeeperMockRecorder {
+	return m.recorder
+}
+
+// CreateDirectSigningRequest mocks base method.
+func (m *MockBandtssKeeper) CreateDirectSigningRequest(ctx types1.Context, content types0.Content, memo string, sender types1.AccAddress, feeLimit types1.Coins) (types.SigningID, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateDirectSigningRequest", ctx, content, memo, sender, feeLimit)
+	ret0, _ := ret[0].(types.SigningID)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateDirectSigningRequest indicates an expected call of CreateDirectSigningRequest.
+func (mr *MockBandtssKeeperMockRecorder) CreateDirectSigningRequest(ctx, content, memo, sender, feeLimit any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDirectSigningRequest", reflect.TypeOf((*MockBandtssKeeper)(nil).CreateDirectSigningRequest), ctx, content, memo, sender, feeLimit)
 }

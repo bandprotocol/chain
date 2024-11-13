@@ -11,22 +11,27 @@ var relayFormat = []byte(`
       },
       {
         "internalType": "bytes32",
-        "name": "paramsStoreMerkleHash",
+        "name": "mintStoreMerkleHash",
         "type": "bytes32"
       },
       {
         "internalType": "bytes32",
-        "name": "slashingToStakingStoresMerkleHash",
+        "name": "paramsToRollingseedStoresMerkleHash",
         "type": "bytes32"
       },
       {
         "internalType": "bytes32",
-        "name": "transferToUpgradeStoresMerkleHash",
+        "name": "slashingToTssStoresMerkleHash",
         "type": "bytes32"
       },
       {
         "internalType": "bytes32",
-        "name": "authToMintStoresMerkleHash",
+        "name": "upgradeStoreMerkleHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "authToIcahostStoresMerkleHash",
         "type": "bytes32"
       }
     ],

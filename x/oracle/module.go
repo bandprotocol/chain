@@ -165,9 +165,6 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 	return cdc.MustMarshalJSON(gs)
 }
 
-// ConsensusVersion implements AppModule/ConsensusVersion.
-func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
-
 // BeginBlock returns the begin blocker for the oracle module.
 func (am AppModule) BeginBlock(ctx context.Context) error {
 	c := sdk.UnwrapSDKContext(ctx)
@@ -180,14 +177,17 @@ func (am AppModule) EndBlock(ctx context.Context) error {
 	return EndBlocker(c, am.keeper)
 }
 
+// ConsensusVersion implements AppModule/ConsensusVersion.
+func (AppModule) ConsensusVersion() uint64 { return ConsensusVersion }
+
 // AppModuleSimulation functions
 
-// GenerateGenesisState creates a randomized GenState of the feegrant module.
+// GenerateGenesisState creates a randomized GenState of the oracle module.
 func (AppModule) GenerateGenesisState(simState *module.SimulationState) {
 	simulation.RandomizedGenState(simState)
 }
 
-// RegisterStoreDecoder registers a decoder for feegrant module's types
+// RegisterStoreDecoder registers a decoder for oracle module's types
 func (am AppModule) RegisterStoreDecoder(sdr simtypes.StoreDecoderRegistry) {
 	sdr[types.StoreKey] = simulation.NewDecodeStore(am.cdc)
 }

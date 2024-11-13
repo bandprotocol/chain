@@ -1,0 +1,33 @@
+package keeper
+
+import (
+	storetypes "cosmossdk.io/store/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/bandprotocol/chain/v3/x/rollingseed/types"
+)
+
+// Keeper stores related components of the x/rollingseed store
+type Keeper struct {
+	storeKey storetypes.StoreKey
+}
+
+// NewKeeper creates a new rollingseed Keeper instance.
+func NewKeeper(
+	storeKey storetypes.StoreKey,
+) Keeper {
+	return Keeper{
+		storeKey: storeKey,
+	}
+}
+
+// SetRollingSeed sets the rolling seed value to be provided value.
+func (k Keeper) SetRollingSeed(ctx sdk.Context, rollingSeed []byte) {
+	ctx.KVStore(k.storeKey).Set(types.RollingSeedStoreKey, rollingSeed)
+}
+
+// GetRollingSeed returns the current rolling seed value.
+func (k Keeper) GetRollingSeed(ctx sdk.Context) []byte {
+	return ctx.KVStore(k.storeKey).Get(types.RollingSeedStoreKey)
+}

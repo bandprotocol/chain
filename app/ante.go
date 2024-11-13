@@ -11,10 +11,12 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	bandtsskeeper "github.com/bandprotocol/chain/v3/x/bandtss/keeper"
 	feedskeeper "github.com/bandprotocol/chain/v3/x/feeds/keeper"
 	"github.com/bandprotocol/chain/v3/x/globalfee/feechecker"
 	globalfeekeeper "github.com/bandprotocol/chain/v3/x/globalfee/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
+	tsskeeper "github.com/bandprotocol/chain/v3/x/tss/keeper"
 )
 
 // HandlerOptions extend the SDK's AnteHandler options by requiring the IBC
@@ -27,6 +29,8 @@ type HandlerOptions struct {
 	IBCKeeper       *ibckeeper.Keeper
 	StakingKeeper   *stakingkeeper.Keeper
 	GlobalfeeKeeper *globalfeekeeper.Keeper
+	TSSKeeper       *tsskeeper.Keeper
+	BandtssKeeper   *bandtsskeeper.Keeper
 	FeedsKeeper     *feedskeeper.Keeper
 }
 
@@ -48,6 +52,12 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 	}
 	if options.OracleKeeper == nil {
 		return nil, sdkerrors.ErrLogic.Wrap("oracle keeper is required for AnteHandler")
+	}
+	if options.TSSKeeper == nil {
+		return nil, sdkerrors.ErrLogic.Wrap("tss keeper is required for AnteHandler")
+	}
+	if options.BandtssKeeper == nil {
+		return nil, sdkerrors.ErrLogic.Wrap("bandtss keeper is required for AnteHandler")
 	}
 	if options.FeedsKeeper == nil {
 		return nil, sdkerrors.ErrLogic.Wrap("feeds keeper is required for AnteHandler")
@@ -74,6 +84,8 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 			options.OracleKeeper,
 			options.GlobalfeeKeeper,
 			options.StakingKeeper,
+			options.TSSKeeper,
+			options.BandtssKeeper,
 			options.FeedsKeeper,
 		)
 		options.TxFeeChecker = feeChecker.CheckTxFee

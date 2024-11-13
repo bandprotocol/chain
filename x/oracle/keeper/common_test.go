@@ -133,5 +133,8 @@ func defaultRequest() types.Request {
 		},
 		nil,
 		0,
+		0,
+		bandtesting.FeePayer.Address.String(),
+		bandtesting.Coins100000000uband,
 	)
 }

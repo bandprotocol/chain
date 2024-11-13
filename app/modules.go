@@ -53,14 +53,22 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	"github.com/bandprotocol/chain/v3/x/bandtss"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	"github.com/bandprotocol/chain/v3/x/feeds"
+	feedsclient "github.com/bandprotocol/chain/v3/x/feeds/client"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/globalfee"
 	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
 	"github.com/bandprotocol/chain/v3/x/oracle"
+	oracleclient "github.com/bandprotocol/chain/v3/x/oracle/client"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	"github.com/bandprotocol/chain/v3/x/restake"
 	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
+	"github.com/bandprotocol/chain/v3/x/rollingseed"
+	rollingseedtypes "github.com/bandprotocol/chain/v3/x/rollingseed/types"
+	"github.com/bandprotocol/chain/v3/x/tss"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 var maccPerms = map[string][]string{
@@ -73,6 +81,7 @@ var maccPerms = map[string][]string{
 	govtypes.ModuleName:            {authtypes.Burner},
 	ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 	ibcfeetypes.ModuleName:         nil,
+	bandtsstypes.ModuleName:        nil,
 	restaketypes.ModuleName:        nil,
 }
 
@@ -156,6 +165,14 @@ func appModules(
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		restake.NewAppModule(appCodec, app.RestakeKeeper),
 		feeds.NewAppModule(appCodec, app.FeedsKeeper),
+		rollingseed.NewAppModule(appCodec, app.RollingseedKeeper),
+		tss.NewAppModule(appCodec, app.TSSKeeper),
+		bandtss.NewAppModule(
+			appCodec,
+			app.BandtssKeeper,
+			oracleclient.OracleRequestSignatureHandler,
+			feedsclient.FeedsRequestSignatureHandler,
+		),
 	}
 }
 
@@ -255,7 +272,10 @@ func orderBeginBlockers() []string {
 	return []string{
 		capabilitytypes.ModuleName,
 		minttypes.ModuleName,
+		rollingseedtypes.ModuleName,
 		oracletypes.ModuleName,
+		tsstypes.ModuleName,
+		bandtsstypes.ModuleName,
 		restaketypes.ModuleName,
 		feedstypes.ModuleName,
 		distrtypes.ModuleName,
@@ -294,7 +314,10 @@ func orderEndBlockers() []string {
 		crisistypes.ModuleName,
 		govtypes.ModuleName,
 		stakingtypes.ModuleName,
+		rollingseedtypes.ModuleName,
 		oracletypes.ModuleName,
+		tsstypes.ModuleName,
+		bandtsstypes.ModuleName,
 		restaketypes.ModuleName,
 		feedstypes.ModuleName,
 		ibcexported.ModuleName,
@@ -352,7 +375,10 @@ func orderInitBlockers() []string {
 		upgradetypes.ModuleName,
 		vestingtypes.ModuleName,
 		consensusparamtypes.ModuleName,
+		rollingseedtypes.ModuleName,
 		oracletypes.ModuleName,
+		tsstypes.ModuleName,
+		bandtsstypes.ModuleName,
 		globalfeetypes.ModuleName,
 		restaketypes.ModuleName,
 		feedstypes.ModuleName,

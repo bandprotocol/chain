@@ -1,0 +1,75 @@
+package client
+
+import (
+	"fmt"
+
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	"github.com/bandprotocol/chain/v3/x/tss/types"
+)
+
+// GroupResult wraps the types.GroupResult to provide additional helper methods.
+type GroupResult struct {
+	types.GroupResult
+}
+
+// NewGroupResult creates a new instance of GroupResponse.
+func NewGroupResult(gr *types.QueryGroupResponse) *GroupResult {
+	return &GroupResult{gr.GroupResult}
+}
+
+// GetRound1Info retrieves the Round1Commitment for the specified member ID.
+func (gr GroupResult) GetRound1Info(mid tss.MemberID) (types.Round1Info, error) {
+	for _, info := range gr.Round1Infos {
+		if info.MemberID == mid {
+			return info, nil
+		}
+	}
+
+	return types.Round1Info{}, fmt.Errorf("no Round1Info from MemberID(%d)", mid)
+}
+
+// GetRound2Info retrieves the Round1Commitment for the specified member ID.
+func (gr GroupResult) GetRound2Info(mid tss.MemberID) (types.Round2Info, error) {
+	for _, info := range gr.Round2Infos {
+		if info.MemberID == mid {
+			return info, nil
+		}
+	}
+
+	return types.Round2Info{}, fmt.Errorf("no Round2Info from MemberID(%d)", mid)
+}
+
+// GetEncryptedSecretShare retrieves the encrypted secret share from member (Sender) to member (Receiver).
+func (gr GroupResult) GetEncryptedSecretShare(senderID, receiverID tss.MemberID) (tss.EncSecretShare, error) {
+	r2Sender, err := gr.GetRound2Info(senderID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Determine which slot of encrypted secret shares is for Receiver
+	slot := types.FindMemberSlot(senderID, receiverID)
+
+	// Return error if the slot exceeds length of shares
+	if int(slot) >= len(r2Sender.EncryptedSecretShares) {
+		return nil, fmt.Errorf("no encrypted secret share from MemberID(%d) to MemberID(%d)", senderID, receiverID)
+	}
+
+	return r2Sender.EncryptedSecretShares[slot], nil
+}
+
+// GetMemberID returns member's id of the address in the group.
+func (gr GroupResult) GetMemberID(address string) (tss.MemberID, error) {
+	for _, member := range gr.Members {
+		if member.Address == address {
+			return member.ID, nil
+		}
+	}
+
+	return 0, fmt.Errorf("%s is not the member", address)
+}
+
+// IsMember returns boolean to show if the address is the member in the group.
+func (gr GroupResult) IsMember(address string) bool {
+	_, err := gr.GetMemberID(address)
+	return err == nil
+}
