@@ -40,8 +40,6 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/kyokomi/emoji v2.2.4+incompatible
 	github.com/levigross/grequests v0.0.0-20231203190023-9c307ef1f48d
-	github.com/lib/pq v1.10.7
-	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/oasisprotocol/oasis-core/go v0.2202.7
 	github.com/peterbourgon/diskv v2.0.1+incompatible
@@ -61,6 +59,8 @@ require (
 
 // extra/rest deps
 require (
+	github.com/lib/pq v1.10.7
+	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d
 	gorm.io/driver/mysql v1.5.7
