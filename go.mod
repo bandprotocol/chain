@@ -33,8 +33,6 @@ require (
 	github.com/cosmos/ics23/go v0.11.0
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0
 	github.com/ethereum/go-ethereum v1.14.8
-	github.com/gin-gonic/gin v1.8.1
-	github.com/go-sql-driver/mysql v1.8.1
 	github.com/golang/protobuf v1.5.4
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
@@ -44,14 +42,12 @@ require (
 	github.com/oasisprotocol/oasis-core/go v0.2202.7
 	github.com/peterbourgon/diskv v2.0.1+incompatible
 	github.com/prometheus/client_golang v1.20.5
-	github.com/segmentio/kafka-go v0.4.47
 	github.com/spf13/cast v1.7.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/mock v0.5.0
 	golang.org/x/crypto v0.26.0
-	golang.org/x/time v0.5.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20241021214115-324edc3d5d38
 	google.golang.org/grpc v1.67.1
 	google.golang.org/protobuf v1.35.1
@@ -59,10 +55,14 @@ require (
 
 // extra/rest deps
 require (
+	github.com/gin-gonic/gin v1.8.1
+	github.com/go-sql-driver/mysql v1.8.1
 	github.com/lib/pq v1.10.7
 	github.com/mattn/go-sqlite3 v1.14.22
 	github.com/patrickmn/go-cache v2.1.0+incompatible
+	github.com/segmentio/kafka-go v0.4.47
 	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d
+	golang.org/x/time v0.5.0
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/driver/postgres v1.5.9
 	gorm.io/driver/sqlite v1.5.6
