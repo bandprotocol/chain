@@ -325,7 +325,7 @@ func DecodeMsgRequestData(msg *oracletypes.MsgRequestData, detail common.JsDict)
 	detail["prepare_gas"] = msg.GetPrepareGas()
 	detail["execute_gas"] = msg.GetExecuteGas()
 	detail["sender"] = msg.GetSender()
-	detail["tss_encode_type"] = msg.GetTSSEncodeType()
+	detail["tss_encoder"] = msg.GetTSSEncoder()
 }
 
 func DecodeMsgReportData(msg *oracletypes.MsgReportData, detail common.JsDict) {

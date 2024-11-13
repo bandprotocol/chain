@@ -21,7 +21,7 @@ class ProposalStatus(enum.Enum):
     Inactive = 6
 
 
-class TSSEncodeType(enum.Enum):
+class TSSEncoder(enum.Enum):
     Unspecified = 0
     Proto = 1
     FullABI = 2
@@ -42,11 +42,11 @@ class CustomProposalStatus(sa.types.TypeDecorator):
         return ProposalStatus(value)
 
 
-class CustomTSSEncodeType(sa.types.TypeDecorator):
-    impl = sa.Enum(TSSEncodeType)
+class CustomTSSEncoder(sa.types.TypeDecorator):
+    impl = sa.Enum(TSSEncoder)
 
     def process_bind_param(self, value, dialect):
-        return TSSEncodeType(value)
+        return TSSEncoder(value)
 
 
 class CustomDateTime(sa.types.TypeDecorator):
@@ -193,7 +193,7 @@ requests = sa.Table(
     Column("prepare_gas_used", sa.Integer, default=0),
     Column("execute_gas", sa.Integer),
     Column("execute_gas_used", sa.Integer, default=0),
-    Column("tss_encode_type", CustomTSSEncodeType),
+    Column("tss_encoder", CustomTSSEncoder),
     Column("sender", sa.String, nullable=True),
     Column("client_id", sa.String),
     Column("request_time", sa.Integer, nullable=True, index=True),
@@ -209,10 +209,13 @@ requests = sa.Table(
     Column("reason", sa.String, nullable=True),
     Column("result", CustomBase64, nullable=True),
     Column(
-        "tss_signing_id", sa.Integer, sa.ForeignKey("tss_signings.id"), nullable=True
+        "bandtss_signing_id",
+        sa.Integer,
+        sa.ForeignKey("bandtss_signings.id"),
+        nullable=True,
     ),
-    Column("tss_signing_error_codespace", sa.String, nullable=True),
-    Column("tss_signing_error_code", sa.Integer, nullable=True),
+    Column("bandtss_signing_error_codespace", sa.String, nullable=True),
+    Column("bandtss_signing_error_code", sa.Integer, nullable=True),
     Column("total_fees", sa.String),
     Column("is_ibc", sa.Boolean),
     sa.Index(

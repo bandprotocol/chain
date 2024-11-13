@@ -47,7 +47,7 @@ tss_signings = sa.Table(
     Column("id", sa.Integer, primary_key=True),
     Column("tss_group_id", sa.Integer, sa.ForeignKey("tss_groups.id")),
     Column("current_attempt", sa.Integer),
-    Column("originator", sa.String),
+    Column("originator", CustomBase64),
     Column("message", CustomBase64),
     Column("group_pub_key", CustomBase64),
     Column("group_pub_nonce", CustomBase64),
