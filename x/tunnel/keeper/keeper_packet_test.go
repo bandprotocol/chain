@@ -74,6 +74,10 @@ func (s *KeeperTestSuite) TestCreatePacket() {
 		{SignalID: "BTC/USD", Price: 0},
 	}
 
+	s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
+	)
+
 	s.bankKeeper.EXPECT().
 		SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, k.GetParams(ctx).BasePacketFee).
 		Return(nil)
@@ -89,7 +93,7 @@ func (s *KeeperTestSuite) TestCreatePacket() {
 		Sequence:  1,
 		Prices:    prices,
 		BaseFee:   params.BasePacketFee,
-		RouteFee:  sdk.NewCoins(),
+		RouteFee:  sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))),
 		CreatedAt: ctx.BlockTime().Unix(),
 	}
 
@@ -180,17 +184,20 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 		DestinationContractAddress: "0x",
 	}
 
+	s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
+	).Times(2)
+
 	s.feedsKeeper.EXPECT().GetAllPrices(gomock.Any()).Return([]feedstypes.Price{
 		{Status: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
 	})
-	s.bankKeeper.EXPECT().SpendableCoins(gomock.Any(), feePayer).Return(types.DefaultBasePacketFee)
+
+	spendableCoins := types.DefaultBasePacketFee.Add(sdk.NewCoin("uband", sdkmath.NewInt(20)))
+	s.bankKeeper.EXPECT().SpendableCoins(gomock.Any(), feePayer).Return(spendableCoins)
 	s.bankKeeper.EXPECT().
 		SendCoinsFromAccountToModule(gomock.Any(), feePayer, types.ModuleName, types.DefaultBasePacketFee).
 		Return(nil)
 
-	s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
-		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
-	)
 	s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
 		gomock.Any(),
 		uint64(1),
@@ -250,6 +257,10 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPacketsNotEnoughMoney() {
 		DestinationChainID:         "0x",
 		DestinationContractAddress: "0x",
 	}
+
+	s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
+	)
 
 	s.feedsKeeper.EXPECT().GetAllPrices(gomock.Any()).Return([]feedstypes.Price{
 		{Status: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},

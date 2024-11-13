@@ -30,7 +30,7 @@ var (
 	}
 )
 
-// TssEncodingSignalPrice represents the SignalPrice that will be used for encoding a message.
+// TssEncodingPrice represents the price that will be used for encoding a message.
 type TssEncodingPrice struct {
 	SignalID [32]byte
 	Price    uint64

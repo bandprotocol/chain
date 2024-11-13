@@ -20,11 +20,6 @@ func (k Keeper) SendTSSPacket(
 		tunnel.Encoder,
 	)
 
-	fee, err = k.bandtssKeeper.GetSigningFee(ctx)
-	if err != nil {
-		return nil, nil, err
-	}
-
 	// Sign TSS packet
 	signingID, err := k.bandtssKeeper.CreateTunnelSigningRequest(
 		ctx,
@@ -33,7 +28,7 @@ func (k Keeper) SendTSSPacket(
 		route.DestinationChainID,
 		content,
 		sdk.MustAccAddressFromBech32(tunnel.FeePayer),
-		fee,
+		packet.RouteFee,
 	)
 	if err != nil {
 		return nil, nil, err
@@ -46,5 +41,5 @@ func (k Keeper) SendTSSPacket(
 		DestinationContractAddress: route.DestinationContractAddress,
 	}
 
-	return packetContent, fee, nil
+	return packetContent, packet.RouteFee, nil
 }
