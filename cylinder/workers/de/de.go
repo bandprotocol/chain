@@ -3,7 +3,6 @@ package de
 import (
 	"encoding/hex"
 	"fmt"
-	"sync"
 	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -20,8 +19,6 @@ import (
 )
 
 var _ cylinder.Worker = &DE{}
-
-var updateDEMutex sync.Mutex
 
 // DE is a worker responsible for generating own nonce (DE) of signing process
 type DE struct {
@@ -106,10 +103,6 @@ func (de *DE) deleteDE(pubDE types.DE) {
 
 // updateDE updates DE if the remaining DE is too low.
 func (de *DE) updateDE() {
-	// Lock task
-	updateDEMutex.Lock()
-	defer updateDEMutex.Unlock()
-
 	// Query DE information
 	deRes, err := de.client.QueryDE(de.context.Config.Granter, 0, 1)
 	if err != nil {
@@ -178,9 +171,9 @@ func (de *DE) Start() {
 	for {
 		select {
 		case <-ticker.C:
-			go de.updateDE()
+			de.updateDE()
 		case <-de.assignEventCh:
-			go de.updateDE()
+			de.updateDE()
 		}
 	}
 }

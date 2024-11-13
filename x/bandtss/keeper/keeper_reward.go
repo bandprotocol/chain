@@ -12,10 +12,10 @@ import (
 // AllocateTokens allocates a portion of fee collected in the previous blocks to members in the
 // current group. Note that this reward is also subjected to comm tax and this reward is
 // calculate after allocation in oracle module.
-func (k Keeper) AllocateTokens(ctx sdk.Context) {
+func (k Keeper) AllocateTokens(ctx sdk.Context) error {
 	gid := k.GetCurrentGroup(ctx).GroupID
 	if gid == tss.GroupID(0) {
-		return
+		return nil
 	}
 
 	// Get all active members in the current group.
@@ -32,7 +32,7 @@ func (k Keeper) AllocateTokens(ctx sdk.Context) {
 
 	// No active members performing tss tasks, nothing needs to be done here.
 	if len(validMembers) == 0 {
-		return
+		return nil
 	}
 
 	feeCollector := k.authKeeper.GetModuleAccount(ctx, k.feeCollectorName)
@@ -45,15 +45,16 @@ func (k Keeper) AllocateTokens(ctx sdk.Context) {
 	// Transfer the reward from fee collector to distr module.
 	err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, k.feeCollectorName, distrtypes.ModuleName, tssRewardInt)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// Convert the transferred tokens back to DecCoins for internal distr allocations.
 	tssReward := sdk.NewDecCoinsFromCoins(tssRewardInt...)
 	communityTax, err := k.distrKeeper.GetCommunityTax(ctx)
 	if err != nil {
-		panic(err)
+		return err
 	}
+
 	rewardMultiplier := math.LegacyOneDec().Sub(communityTax)
 
 	// calculate the reward for each active member.
@@ -66,18 +67,15 @@ func (k Keeper) AllocateTokens(ctx sdk.Context) {
 	for _, acc := range validMembers {
 		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, distrtypes.ModuleName, acc, rewardInt)
 		if err != nil {
-			panic(err)
+			return err
 		}
 	}
 
 	// Allocate the remaining coins to the community pool.
 	communityFund := tssRewardInt.Sub(rewardInt.MulInt(math.NewInt(int64(len(validMembers))))...)
-	err = k.distrKeeper.FundCommunityPool(
+	return k.distrKeeper.FundCommunityPool(
 		ctx,
 		communityFund,
 		k.authKeeper.GetModuleAccount(ctx, distrtypes.ModuleName).GetAddress(),
 	)
-	if err != nil {
-		panic(err)
-	}
 }
