@@ -192,7 +192,7 @@ do
     done
 
     # send band tokens to grantees
-    echo "y" | bandd tx multi-send 1000000uband $(cylinder keys list -a) --from account$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
+    echo "y" | bandd tx bank multi-send 1000000uband $(cylinder keys list -a) --from account$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
     sleep 4
 
     # grant tss
