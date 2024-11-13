@@ -210,7 +210,7 @@ func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) error {
 	var content types.PacketContentI
 	switch r := tunnel.Route.GetCachedValue().(type) {
 	case *types.TSSRoute:
-		content, err = k.SendTSSPacket(ctx, r, packet)
+		content, _, err = k.SendTSSPacket(ctx, r, packet)
 	default:
 		return types.ErrInvalidRoute.Wrapf("no route found for tunnel ID: %d", tunnel.ID)
 	}

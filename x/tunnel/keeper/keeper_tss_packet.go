@@ -11,14 +11,40 @@ func (k Keeper) SendTSSPacket(
 	ctx sdk.Context,
 	route *types.TSSRoute,
 	packet types.Packet,
-) (types.PacketContentI, error) {
-	// TODO: Implement TSS packet handler logic
+) (packetContent types.PacketContentI, fee sdk.Coins, err error) {
+	tunnel := k.MustGetTunnel(ctx, packet.TunnelID)
+	content := types.NewTunnelSignatureOrder(
+		packet,
+		route.DestinationChainID,
+		route.DestinationContractAddress,
+		tunnel.Encoder,
+	)
+
+	fee, err = k.bandtssKeeper.GetSigningFee(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
 
 	// Sign TSS packet
+	signingID, err := k.bandtssKeeper.CreateTunnelSigningRequest(
+		ctx,
+		packet.TunnelID,
+		route.DestinationContractAddress,
+		route.DestinationChainID,
+		content,
+		sdk.MustAccAddressFromBech32(tunnel.FeePayer),
+		fee,
+	)
+	if err != nil {
+		return nil, nil, err
+	}
 
-	return &types.TSSPacketContent{
-		SigningID:                  1,
+	// Set the packet content
+	packetContent = &types.TSSPacketContent{
+		SigningID:                  signingID,
 		DestinationChainID:         route.DestinationChainID,
 		DestinationContractAddress: route.DestinationContractAddress,
-	}, nil
+	}
+
+	return packetContent, fee, nil
 }

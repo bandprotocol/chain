@@ -86,6 +86,7 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss"
 	tsskeeper "github.com/bandprotocol/chain/v3/x/tss/keeper"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel"
 	tunnelkeeper "github.com/bandprotocol/chain/v3/x/tunnel/keeper"
 	tunneltypes "github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
@@ -505,7 +506,8 @@ func NewAppKeeper(
 		AddRoute(tsstypes.RouterKey, tss.NewSignatureOrderHandler(*appKeepers.TSSKeeper)).
 		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(appKeepers.OracleKeeper)).
 		AddRoute(bandtsstypes.RouterKey, bandtsstypes.NewSignatureOrderHandler()).
-		AddRoute(feedstypes.RouterKey, feeds.NewSignatureOrderHandler(appKeepers.FeedsKeeper))
+		AddRoute(feedstypes.RouterKey, feeds.NewSignatureOrderHandler(appKeepers.FeedsKeeper)).
+		AddRoute(tunneltypes.RouterKey, tunnel.NewSignatureOrderHandler(appKeepers.TunnelKeeper))
 
 	tssCbRouter.
 		AddRoute(bandtsstypes.RouterKey, bandtsskeeper.NewTSSCallback(appKeepers.BandtssKeeper))

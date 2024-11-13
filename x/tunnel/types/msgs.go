@@ -54,11 +54,8 @@ func NewMsgCreateTSSTunnel(
 	initialDeposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
-	r := &TSSRoute{
-		DestinationChainID:         destinationChainID,
-		DestinationContractAddress: destinationContractAddress,
-	}
-	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, encoder, initialDeposit, creator)
+	r := NewTSSRoute(destinationChainID, destinationContractAddress)
+	m, err := NewMsgCreateTunnel(signalDeviations, interval, &r, encoder, initialDeposit, creator)
 	if err != nil {
 		return nil, err
 	}

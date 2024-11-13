@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
@@ -406,10 +407,6 @@ func (s *KeeperTestSuite) TestMsgDeactivate() {
 }
 
 func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
-	feePayer := sdk.MustAccAddressFromBech32(
-		"band1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62q2yggu0",
-	)
-
 	cases := map[string]struct {
 		preRun    func() *types.MsgTriggerTunnel
 		expErr    bool
@@ -443,6 +440,24 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 		"all good": {
 			preRun: func() *types.MsgTriggerTunnel {
 				s.AddSampleTunnel(true)
+
+				feePayer := sdk.MustAccAddressFromBech32(
+					"band1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62q2yggu0",
+				)
+
+				s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
+					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
+				)
+				s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
+					gomock.Any(),
+					uint64(1),
+					"0x1234567890abcdef",
+					"chain-1",
+					gomock.Any(),
+					feePayer,
+					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))),
+				).Return(bandtsstypes.SigningID(1), nil)
+
 				s.feedsKeeper.EXPECT().GetPrices(gomock.Any(), []string{"BTC"}).Return([]feedstypes.Price{
 					{Status: feedstypes.PriceStatusAvailable, SignalID: "BTC", Price: 50000, Timestamp: 0},
 				})

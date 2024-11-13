@@ -3,8 +3,11 @@ package keeper_test
 import (
 	"go.uber.org/mock/gomock"
 
+	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
@@ -119,13 +122,25 @@ func (s *KeeperTestSuite) TestProducePacket() {
 		CreatedAt: ctx.BlockTime().Unix(),
 	}
 	route := &types.TSSRoute{
-		DestinationChainID:         "0x",
-		DestinationContractAddress: "0x",
+		DestinationChainID:         "chain-1",
+		DestinationContractAddress: "0x1234567890abcdef",
 	}
 
 	s.bankKeeper.EXPECT().
 		SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, k.GetParams(ctx).BasePacketFee).
 		Return(nil)
+	s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
+	)
+	s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
+		gomock.Any(),
+		uint64(1),
+		"0x1234567890abcdef",
+		"chain-1",
+		gomock.Any(),
+		feePayer,
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))),
+	).Return(bandtsstypes.SigningID(1), nil)
 
 	err := tunnel.SetRoute(route)
 	s.Require().NoError(err)
@@ -161,7 +176,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 		CreatedAt: ctx.BlockTime().Unix(),
 	}
 	route := &types.TSSRoute{
-		DestinationChainID:         "0x",
+		DestinationChainID:         "chain-1",
 		DestinationContractAddress: "0x",
 	}
 
@@ -173,11 +188,21 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 		SendCoinsFromAccountToModule(gomock.Any(), feePayer, types.ModuleName, types.DefaultBasePacketFee).
 		Return(nil)
 
-	err := tunnel.SetRoute(route)
-	s.Require().NoError(err)
+	s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
+	)
+	s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
+		gomock.Any(),
+		uint64(1),
+		"0x",
+		"chain-1",
+		gomock.Any(),
+		feePayer,
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))),
+	).Return(bandtsstypes.SigningID(1), nil)
 
-	defaultParams := types.DefaultParams()
-	err = k.SetParams(ctx, defaultParams)
+	// set tunnel & latest price
+	err := tunnel.SetRoute(route)
 	s.Require().NoError(err)
 
 	// set deposit to the tunnel to be able to activate
@@ -190,6 +215,11 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 	k.SetLatestPrices(ctx, types.NewLatestPrices(tunnelID, []feedstypes.Price{
 		{SignalID: "BTC/USD", Price: 0},
 	}, 0))
+
+	// set params
+	defaultParams := types.DefaultParams()
+	err = k.SetParams(ctx, defaultParams)
+	s.Require().NoError(err)
 
 	k.ProduceActiveTunnelPackets(ctx)
 
