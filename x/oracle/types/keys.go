@@ -25,8 +25,6 @@ const (
 )
 
 var (
-	// RollingSeedSizeInBytes is the size of rolling block hash for random seed.
-	RollingSeedSizeInBytes = 32
 	// GlobalStoreKeyPrefix is the prefix for global primitive state variables.
 	GlobalStoreKeyPrefix = []byte{0x00}
 	// RollingSeedStoreKey is the key that keeps the seed based on the first 8-bit of the most recent 32 block hashes.
@@ -54,6 +52,8 @@ var (
 	ValidatorStatusKeyPrefix = []byte{0x05}
 	// ParamsKeyPrefix is the prefix for the parameters of the module.
 	ParamsKeyPrefix = []byte{0x06}
+	// SigningResultStoreKeyPrefix is the prefix for signing ID store.
+	SigningResultStoreKeyPrefix = []byte{0x07}
 	// ResultStoreKeyPrefix is the prefix for request result store.
 	ResultStoreKeyPrefix = []byte{0xff}
 
@@ -84,6 +84,11 @@ func OracleScriptStoreKey(oracleScriptID OracleScriptID) []byte {
 // ValidatorStatusStoreKey returns the key to a validator's status.
 func ValidatorStatusStoreKey(v sdk.ValAddress) []byte {
 	return append(ValidatorStatusKeyPrefix, v.Bytes()...)
+}
+
+// SigningResultStoreKey returns the key to a signing id in the store.
+func SigningResultStoreKey(requestID RequestID) []byte {
+	return append(SigningResultStoreKeyPrefix, sdk.Uint64ToBigEndian(uint64(requestID))...)
 }
 
 // ResultStoreKey returns the key to a request result in the store.

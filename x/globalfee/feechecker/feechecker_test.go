@@ -19,10 +19,13 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 
+	"github.com/bandprotocol/chain/v3/pkg/tss"
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/globalfee/feechecker"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 var (
@@ -97,16 +100,26 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 	suite.Require().NoError(err)
 
 	expiration := ctx.BlockTime().Add(1000 * time.Hour)
-	err = app.AuthzKeeper.SaveGrant(
-		ctx,
-		bandtesting.Alice.Address,
-		bandtesting.Validators[0].Address,
-		authz.NewGenericAuthorization(
-			sdk.MsgTypeURL(&feedstypes.MsgSubmitSignalPrices{}),
-		),
-		&expiration,
-	)
-	suite.Require().NoError(err)
+
+	msgTypeURLs := []sdk.Msg{&tsstypes.MsgSubmitDEs{}, &feedstypes.MsgSubmitSignalPrices{}}
+	for _, msg := range msgTypeURLs {
+		err = app.AuthzKeeper.SaveGrant(
+			ctx,
+			bandtesting.Alice.Address,
+			bandtesting.Validators[0].Address,
+			authz.NewGenericAuthorization(sdk.MsgTypeURL(msg)),
+			&expiration,
+		)
+		suite.Require().NoError(err)
+	}
+
+	// mock setup bandtss module
+	app.BandtssKeeper.SetCurrentGroup(ctx, bandtsstypes.NewCurrentGroup(1, ctx.BlockTime()))
+	app.BandtssKeeper.SetMember(ctx, bandtsstypes.Member{
+		Address:  bandtesting.Validators[0].Address.String(),
+		IsActive: true,
+		GroupID:  1,
+	})
 
 	req := oracletypes.NewRequest(
 		1,
@@ -119,6 +132,9 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 		nil,
 		nil,
 		0,
+		0,
+		bandtesting.FeePayer.Address.String(),
+		bandtesting.Coins100000000uband,
 	)
 	suite.requestID = app.OracleKeeper.AddRequest(suite.ctx, req)
 
@@ -128,11 +144,207 @@ func (suite *FeeCheckerTestSuite) SetupTest() {
 		&app.OracleKeeper,
 		&app.GlobalFeeKeeper,
 		app.StakingKeeper,
+		app.TSSKeeper,
+		&app.BandtssKeeper,
 		&app.FeedsKeeper,
 	)
 }
 
-func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPrices() {
+func (suite *FeeCheckerTestSuite) TestValidRawReport() {
+	msgs := []sdk.Msg{
+		oracletypes.NewMsgReportData(suite.requestID, []oracletypes.RawReport{}, bandtesting.Validators[0].ValAddress),
+	}
+	stubTx := &StubTx{Msgs: msgs}
+
+	// test - check report tx
+	isReportTx := suite.FeeChecker.IsBypassMinFeeMsg(suite.ctx, msgs[0])
+	suite.Require().True(isReportTx)
+
+	// test - check tx fee
+	fee, priority, err := suite.FeeChecker.CheckTxFee(suite.ctx, stubTx)
+	suite.Require().NoError(err)
+	suite.Require().Equal(sdk.Coins{}, fee)
+	suite.Require().Equal(int64(math.MaxInt64), priority)
+}
+
+func (suite *FeeCheckerTestSuite) TestNotValidRawReport() {
+	msgs := []sdk.Msg{oracletypes.NewMsgReportData(1, []oracletypes.RawReport{}, bandtesting.Alice.ValAddress)}
+	stubTx := &StubTx{Msgs: msgs}
+
+	// test - check report tx
+	isReportTx := suite.FeeChecker.IsBypassMinFeeMsg(suite.ctx, msgs[0])
+	suite.Require().False(isReportTx)
+
+	// test - check tx fee
+	_, _, err := suite.FeeChecker.CheckTxFee(suite.ctx, stubTx)
+	suite.Require().Error(err)
+}
+
+func (suite *FeeCheckerTestSuite) TestValidReport() {
+	reportMsgs := []sdk.Msg{
+		oracletypes.NewMsgReportData(suite.requestID, []oracletypes.RawReport{}, bandtesting.Validators[0].ValAddress),
+	}
+	authzMsg := authz.NewMsgExec(bandtesting.Alice.Address, reportMsgs)
+	stubTx := &StubTx{Msgs: []sdk.Msg{&authzMsg}}
+
+	// test - check bypass min fee
+	isBypassMinFeeMsg := suite.FeeChecker.IsBypassMinFeeMsg(suite.ctx, reportMsgs[0])
+	suite.Require().True(isBypassMinFeeMsg)
+
+	// test - check tx fee
+	fee, priority, err := suite.FeeChecker.CheckTxFee(suite.ctx, stubTx)
+	suite.Require().NoError(err)
+	suite.Require().Equal(sdk.Coins{}, fee)
+	suite.Require().Equal(int64(math.MaxInt64), priority)
+}
+
+func (suite *FeeCheckerTestSuite) TestNoAuthzReport() {
+	reportMsgs := []sdk.Msg{
+		oracletypes.NewMsgReportData(suite.requestID, []oracletypes.RawReport{}, bandtesting.Validators[0].ValAddress),
+	}
+	authzMsg := authz.NewMsgExec(bandtesting.Bob.Address, reportMsgs)
+	stubTx := &StubTx{
+		Msgs:      []sdk.Msg{&authzMsg},
+		GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))),
+	}
+
+	// test - check bypass min fee
+	isBypassMinFeeMsg := suite.FeeChecker.IsBypassMinFeeMsg(suite.ctx, &authzMsg)
+	suite.Require().False(isBypassMinFeeMsg)
+
+	// test - check tx fee
+	_, _, err := suite.FeeChecker.CheckTxFee(suite.ctx, stubTx)
+	suite.Require().NoError(err)
+}
+
+func (suite *FeeCheckerTestSuite) TestNotValidReport() {
+	reportMsgs := []sdk.Msg{
+		oracletypes.NewMsgReportData(
+			suite.requestID+1,
+			[]oracletypes.RawReport{},
+			bandtesting.Validators[0].ValAddress,
+		),
+	}
+	authzMsg := authz.NewMsgExec(bandtesting.Alice.Address, reportMsgs)
+	stubTx := &StubTx{Msgs: []sdk.Msg{&authzMsg}}
+
+	// test - check bypass min fee
+	isBypassMinFeeMsg := suite.FeeChecker.IsBypassMinFeeMsg(suite.ctx, &authzMsg)
+	suite.Require().False(isBypassMinFeeMsg)
+
+	// test - check tx fee
+	_, _, err := suite.FeeChecker.CheckTxFee(suite.ctx, stubTx)
+	suite.Require().Error(err)
+}
+
+func (suite *FeeCheckerTestSuite) TestNotReportMsg() {
+	requestMsg := oracletypes.NewMsgRequestData(
+		1,
+		BasicCalldata,
+		1,
+		1,
+		BasicClientID,
+		bandtesting.Coins100000000uband,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
+		bandtesting.FeePayer.Address,
+		0,
+	)
+	stubTx := &StubTx{
+		Msgs: []sdk.Msg{requestMsg},
+		GasPrices: sdk.NewDecCoins(
+			sdk.NewDecCoinFromDec("uaaaa", sdkmath.LegacyNewDecWithPrec(100, 3)),
+			sdk.NewDecCoinFromDec("uaaab", sdkmath.LegacyNewDecWithPrec(1, 3)),
+			sdk.NewDecCoinFromDec("uaaac", sdkmath.LegacyNewDecWithPrec(0, 3)),
+			sdk.NewDecCoinFromDec("uband", sdkmath.LegacyNewDecWithPrec(3, 3)),
+			sdk.NewDecCoinFromDec("uccca", sdkmath.LegacyNewDecWithPrec(0, 3)),
+			sdk.NewDecCoinFromDec("ucccb", sdkmath.LegacyNewDecWithPrec(1, 3)),
+			sdk.NewDecCoinFromDec("ucccc", sdkmath.LegacyNewDecWithPrec(100, 3)),
+		),
+	}
+
+	// test - check bypass min fee
+	isBypassMinFeeMsg := suite.FeeChecker.IsBypassMinFeeMsg(suite.ctx, requestMsg)
+	suite.Require().False(isBypassMinFeeMsg)
+
+	// test - check tx fee
+	fee, priority, err := suite.FeeChecker.CheckTxFee(suite.ctx, stubTx)
+	suite.Require().NoError(err)
+	suite.Require().Equal(stubTx.GetFee(), fee)
+	suite.Require().Equal(int64(30), priority)
+}
+
+func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameAuthzMsgs() {
+	reportMsg := oracletypes.NewMsgReportData(
+		suite.requestID,
+		[]oracletypes.RawReport{},
+		bandtesting.Validators[0].ValAddress,
+	)
+	requestMsg := oracletypes.NewMsgRequestData(
+		1,
+		BasicCalldata,
+		1,
+		1,
+		BasicClientID,
+		bandtesting.Coins100000000uband,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
+		bandtesting.FeePayer.Address,
+		0,
+	)
+	msgs := []sdk.Msg{reportMsg, requestMsg}
+	authzMsg := authz.NewMsgExec(bandtesting.Alice.Address, msgs)
+	stubTx := &StubTx{
+		Msgs:      []sdk.Msg{&authzMsg},
+		GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))),
+	}
+
+	// test - check bypass min fee
+	isBypassMinFeeMsg := suite.FeeChecker.IsBypassMinFeeMsg(suite.ctx, &authzMsg)
+	suite.Require().False(isBypassMinFeeMsg)
+
+	// test - check tx fee
+	fee, priority, err := suite.FeeChecker.CheckTxFee(suite.ctx, stubTx)
+	suite.Require().NoError(err)
+	suite.Require().Equal(stubTx.GetFee(), fee)
+	suite.Require().Equal(int64(10000), priority)
+}
+
+func (suite *FeeCheckerTestSuite) TestReportMsgAndOthersTypeMsgInTheSameTx() {
+	reportMsg := oracletypes.NewMsgReportData(
+		suite.requestID,
+		[]oracletypes.RawReport{},
+		bandtesting.Validators[0].ValAddress,
+	)
+	requestMsg := oracletypes.NewMsgRequestData(
+		1,
+		BasicCalldata,
+		1,
+		1,
+		BasicClientID,
+		bandtesting.Coins100000000uband,
+		bandtesting.TestDefaultPrepareGas,
+		bandtesting.TestDefaultExecuteGas,
+		bandtesting.FeePayer.Address,
+		0,
+	)
+	stubTx := &StubTx{
+		Msgs:      []sdk.Msg{reportMsg, requestMsg},
+		GasPrices: sdk.NewDecCoins(sdk.NewDecCoin("uband", sdkmath.NewInt(1))),
+	}
+
+	// test - check bypass min fee
+	isBypassMinFeeMsg := suite.FeeChecker.IsBypassMinFeeMsg(suite.ctx, requestMsg)
+	suite.Require().False(isBypassMinFeeMsg)
+
+	// test - check tx fee
+	fee, priority, err := suite.FeeChecker.CheckTxFee(suite.ctx, stubTx)
+	suite.Require().NoError(err)
+	suite.Require().Equal(stubTx.GetFee(), fee)
+	suite.Require().Equal(int64(10000), priority)
+}
+
+func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFee() {
 	testCases := []struct {
 		name                string
 		stubTx              func() *StubTx
@@ -158,6 +370,111 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 			expErr:              nil,
 			expFee:              sdk.Coins{},
 			expPriority:         math.MaxInt64,
+		},
+		{
+			name: "valid MsgSubmitDEs",
+			stubTx: func() *StubTx {
+				privD, _ := tss.GenerateSigningNonce([]byte{})
+				privE, _ := tss.GenerateSigningNonce([]byte{})
+
+				return &StubTx{
+					Msgs: []sdk.Msg{
+						&tsstypes.MsgSubmitDEs{
+							DEs: []tsstypes.DE{
+								{
+									PubD: privD.Point(),
+									PubE: privE.Point(),
+								},
+							},
+							Sender: bandtesting.Validators[0].Address.String(),
+						},
+					},
+				}
+			},
+			expIsBypassMinFeeTx: true,
+			expErr:              nil,
+			expFee:              sdk.Coins{},
+			expPriority:         math.MaxInt64,
+		},
+		{
+			name: "invalid MsgSubmitDEs",
+			stubTx: func() *StubTx {
+				return &StubTx{
+					Msgs: []sdk.Msg{
+						&tsstypes.MsgSubmitDEs{
+							DEs: []tsstypes.DE{
+								{
+									PubD: nil,
+									PubE: nil,
+								},
+							},
+							Sender: "wrong address",
+						},
+					},
+				}
+			},
+			expIsBypassMinFeeTx: false,
+			expErr:              sdkerrors.ErrInsufficientFee,
+			expFee:              nil,
+			expPriority:         0,
+		},
+		{
+			name: "valid MsgSubmitDEs in valid MsgExec",
+			stubTx: func() *StubTx {
+				privD, _ := tss.GenerateSigningNonce([]byte{})
+				privE, _ := tss.GenerateSigningNonce([]byte{})
+
+				msgExec := authz.NewMsgExec(bandtesting.Alice.Address, []sdk.Msg{
+					&tsstypes.MsgSubmitDEs{
+						DEs: []tsstypes.DE{
+							{
+								PubD: privD.Point(),
+								PubE: privE.Point(),
+							},
+						},
+						Sender: bandtesting.Validators[0].Address.String(),
+					},
+				})
+
+				return &StubTx{
+					Msgs: []sdk.Msg{
+						&msgExec,
+					},
+				}
+			},
+			expIsBypassMinFeeTx: true,
+			expErr:              nil,
+			expFee:              sdk.Coins{},
+			expPriority:         math.MaxInt64,
+		},
+		{
+			name: "valid MsgSubmitDEs in invalid MsgExec",
+			stubTx: func() *StubTx {
+				privD, _ := tss.GenerateSigningNonce([]byte{})
+				privE, _ := tss.GenerateSigningNonce([]byte{})
+
+				msgExec := authz.NewMsgExec(bandtesting.Bob.Address, []sdk.Msg{
+					&tsstypes.MsgSubmitDEs{
+						DEs: []tsstypes.DE{
+							{
+								PubD: privD.Point(),
+								PubE: privE.Point(),
+							},
+						},
+						Sender: bandtesting.Validators[0].Address.String(),
+					},
+				})
+
+				return &StubTx{
+					Msgs: []sdk.Msg{
+						&msgExec,
+					},
+				}
+			},
+			expIsBypassMinFeeTx: false,
+			expErr:              sdkerrors.ErrInsufficientFee,
+			expFee:              nil,
+			expPriority:         0,
 		},
 		{
 			name: "valid MsgReportData in valid MsgExec",
@@ -253,6 +570,7 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 					bandtesting.TestDefaultPrepareGas,
 					bandtesting.TestDefaultExecuteGas,
 					bandtesting.FeePayer.Address,
+					0,
 				)
 
 				return &StubTx{
@@ -297,6 +615,7 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 					bandtesting.TestDefaultPrepareGas,
 					bandtesting.TestDefaultExecuteGas,
 					bandtesting.FeePayer.Address,
+					0,
 				)
 				msgs := []sdk.Msg{msgReportData, msgRequestData}
 				authzMsg := authz.NewMsgExec(bandtesting.Alice.Address, msgs)
@@ -331,6 +650,7 @@ func (suite *FeeCheckerTestSuite) TestIsBypassMinFeeTxAndCheckTxFeeWithMinGasPri
 					bandtesting.TestDefaultPrepareGas,
 					bandtesting.TestDefaultExecuteGas,
 					bandtesting.FeePayer.Address,
+					0,
 				)
 
 				return &StubTx{

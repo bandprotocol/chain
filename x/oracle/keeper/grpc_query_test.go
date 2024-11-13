@@ -613,6 +613,9 @@ func (suite *KeeperTestSuite) TestPendingRequestsSuccess() {
 		},
 		nil,
 		0,
+		0,
+		bandtesting.FeePayer.Address.String(),
+		bandtesting.Coins100000000uband,
 	)
 	notBeAssignedReq := types.NewRequest(
 		1,
@@ -629,6 +632,9 @@ func (suite *KeeperTestSuite) TestPendingRequestsSuccess() {
 		},
 		nil,
 		0,
+		0,
+		bandtesting.FeePayer.Address.String(),
+		bandtesting.Coins100000000uband,
 	)
 	alreadyReportAllReq := types.NewRequest(
 		1,
@@ -648,6 +654,9 @@ func (suite *KeeperTestSuite) TestPendingRequestsSuccess() {
 		},
 		nil,
 		0,
+		0,
+		bandtesting.FeePayer.Address.String(),
+		bandtesting.Coins100000000uband,
 	)
 	assignedButReportedReq := types.NewRequest(
 		1,
@@ -667,6 +676,9 @@ func (suite *KeeperTestSuite) TestPendingRequestsSuccess() {
 		},
 		nil,
 		0,
+		0,
+		bandtesting.FeePayer.Address.String(),
+		bandtesting.Coins100000000uband,
 	)
 
 	k.SetRequest(ctx, types.RequestID(3), assignedButPendingReq)

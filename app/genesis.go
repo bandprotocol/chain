@@ -44,6 +44,8 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	v3 "github.com/bandprotocol/chain/v3/app/upgrades/v3"
+	"github.com/bandprotocol/chain/v3/x/bandtss"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	"github.com/bandprotocol/chain/v3/x/feeds"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
@@ -51,6 +53,10 @@ import (
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	"github.com/bandprotocol/chain/v3/x/restake"
 	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
+	"github.com/bandprotocol/chain/v3/x/rollingseed"
+	rollingseedtypes "github.com/bandprotocol/chain/v3/x/rollingseed/types"
+	"github.com/bandprotocol/chain/v3/x/tss"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // GenesisState defines a type alias for the Band genesis application state.
@@ -120,7 +126,10 @@ func NewDefaultGenesisState(cdc codec.Codec) GenesisState {
 		ibctransafertypes.ModuleName: ibctransfer.AppModuleBasic{}.DefaultGenesis(cdc),
 		icatypes.ModuleName:          cdc.MustMarshalJSON(icaGenesis),
 		ibcfeetypes.ModuleName:       ibcfee.AppModuleBasic{}.DefaultGenesis(cdc),
+		rollingseedtypes.ModuleName:  rollingseed.AppModuleBasic{}.DefaultGenesis(cdc),
 		oracletypes.ModuleName:       oracle.AppModuleBasic{}.DefaultGenesis(cdc),
+		tsstypes.ModuleName:          tss.AppModuleBasic{}.DefaultGenesis(cdc),
+		bandtsstypes.ModuleName:      bandtss.AppModuleBasic{}.DefaultGenesis(cdc),
 		feedstypes.ModuleName:        feeds.AppModuleBasic{}.DefaultGenesis(cdc),
 		globalfeetypes.ModuleName:    cdc.MustMarshalJSON(globalfeeGenesis),
 		restaketypes.ModuleName:      restake.AppModuleBasic{}.DefaultGenesis(cdc),

@@ -11,6 +11,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // AccountKeeper defines the expected account keeper.
@@ -64,4 +67,20 @@ type AuthzKeeper interface {
 	) error
 	DeleteGrant(ctx context.Context, grantee, granter sdk.AccAddress, msgType string) error
 	GranterGrants(ctx context.Context, req *authz.QueryGranterGrantsRequest) (*authz.QueryGranterGrantsResponse, error)
+}
+
+// RollingseedKeeper defines the expected rollingseed keeper
+type RollingseedKeeper interface {
+	GetRollingSeed(ctx sdk.Context) []byte
+}
+
+// BandtssKeeper defines the expected tss keeper.
+type BandtssKeeper interface {
+	CreateDirectSigningRequest(
+		ctx sdk.Context,
+		content tsstypes.Content,
+		memo string,
+		sender sdk.AccAddress,
+		feeLimit sdk.Coins,
+	) (bandtsstypes.SigningID, error)
 }

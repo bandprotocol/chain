@@ -23,10 +23,6 @@ import (
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
-const (
-	RollingSeedSizeInBytes = 32
-)
-
 type Keeper struct {
 	storeKey         storetypes.StoreKey
 	cdc              codec.BinaryCodec
@@ -34,14 +30,16 @@ type Keeper struct {
 	feeCollectorName string
 	owasmVM          *owasm.Vm
 
-	authKeeper    types.AccountKeeper
-	bankKeeper    types.BankKeeper
-	stakingKeeper types.StakingKeeper
-	distrKeeper   types.DistrKeeper
-	authzKeeper   types.AuthzKeeper
-	ics4Wrapper   porttypes.ICS4Wrapper
-	portKeeper    types.PortKeeper
-	scopedKeeper  capabilitykeeper.ScopedKeeper
+	authKeeper        types.AccountKeeper
+	bankKeeper        types.BankKeeper
+	stakingKeeper     types.StakingKeeper
+	distrKeeper       types.DistrKeeper
+	authzKeeper       types.AuthzKeeper
+	ics4Wrapper       porttypes.ICS4Wrapper
+	portKeeper        types.PortKeeper
+	rollingseedKepper types.RollingseedKeeper
+	bandtssKeeper     types.BandtssKeeper
+	scopedKeeper      capabilitykeeper.ScopedKeeper
 
 	// the address capable of executing a MsgUpdateParams message. Typically, this
 	// should be the x/gov module account.
@@ -61,25 +59,29 @@ func NewKeeper(
 	authzKeeper types.AuthzKeeper,
 	ics4Wrapper porttypes.ICS4Wrapper,
 	portKeeper types.PortKeeper,
+	rollingseedKepper types.RollingseedKeeper,
+	bandtssKeeper types.BandtssKeeper,
 	scopeKeeper capabilitykeeper.ScopedKeeper,
 	owasmVM *owasm.Vm,
 	authority string,
 ) Keeper {
 	return Keeper{
-		storeKey:         key,
-		cdc:              cdc,
-		fileCache:        filecache.New(fileDir),
-		feeCollectorName: feeCollectorName,
-		owasmVM:          owasmVM,
-		authKeeper:       authKeeper,
-		bankKeeper:       bankKeeper,
-		stakingKeeper:    stakingKeeper,
-		distrKeeper:      distrKeeper,
-		authzKeeper:      authzKeeper,
-		ics4Wrapper:      ics4Wrapper,
-		portKeeper:       portKeeper,
-		scopedKeeper:     scopeKeeper,
-		authority:        authority,
+		storeKey:          key,
+		cdc:               cdc,
+		fileCache:         filecache.New(fileDir),
+		feeCollectorName:  feeCollectorName,
+		owasmVM:           owasmVM,
+		authKeeper:        authKeeper,
+		bankKeeper:        bankKeeper,
+		stakingKeeper:     stakingKeeper,
+		distrKeeper:       distrKeeper,
+		authzKeeper:       authzKeeper,
+		ics4Wrapper:       ics4Wrapper,
+		portKeeper:        portKeeper,
+		rollingseedKepper: rollingseedKepper,
+		bandtssKeeper:     bandtssKeeper,
+		scopedKeeper:      scopeKeeper,
+		authority:         authority,
 	}
 }
 
@@ -91,16 +93,6 @@ func (k Keeper) GetAuthority() string {
 // Logger returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
-}
-
-// SetRollingSeed sets the rolling seed value to be provided value.
-func (k Keeper) SetRollingSeed(ctx sdk.Context, rollingSeed []byte) {
-	ctx.KVStore(k.storeKey).Set(types.RollingSeedStoreKey, rollingSeed)
-}
-
-// GetRollingSeed returns the current rolling seed value.
-func (k Keeper) GetRollingSeed(ctx sdk.Context) []byte {
-	return ctx.KVStore(k.storeKey).Get(types.RollingSeedStoreKey)
 }
 
 // SetRequestCount sets the number of request count to the given value. Useful for genesis state.

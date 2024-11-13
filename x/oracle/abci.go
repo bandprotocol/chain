@@ -9,13 +9,6 @@ import (
 
 // BeginBlocker re-calculates and saves the rolling seed value based on block hashes.
 func BeginBlocker(ctx sdk.Context, k keeper.Keeper) error {
-	// Update rolling seed used for pseudorandom oracle provider selection.
-	hash := ctx.HeaderInfo().Hash
-	// On the first block in the test. it's possible to have empty hash.
-	if len(hash) > 0 {
-		rollingSeed := k.GetRollingSeed(ctx)
-		k.SetRollingSeed(ctx, append(rollingSeed[1:], hash[0]))
-	}
 	// Reward a portion of block rewards (inflation + tx fee) to active oracle validators.
 	return k.AllocateTokens(ctx, ctx.VoteInfos())
 }

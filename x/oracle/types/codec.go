@@ -6,6 +6,8 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/msgservice"
+
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 // ModuleCdc references the global x/oracle module codec. Note, the codec
@@ -26,6 +28,9 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgEditOracleScript{}, "oracle/EditOracleScript")
 	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "oracle/Activate")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "oracle/UpdateParams")
+
+	cdc.RegisterConcrete(&OracleResultSignatureOrder{}, "oracle/OracleResultSignatureOrder", nil)
+	cdc.RegisterConcrete(Params{}, "oracle/Params", nil)
 }
 
 // RegisterInterfaces register the oracle module interfaces to protobuf Any.
@@ -39,6 +44,11 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgEditOracleScript{},
 		&MsgActivate{},
 		&MsgUpdateParams{},
+	)
+
+	registry.RegisterImplementations(
+		(*tsstypes.Content)(nil),
+		&OracleResultSignatureOrder{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

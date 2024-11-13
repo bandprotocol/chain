@@ -60,6 +60,7 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Validators[0].Address,
+		0,
 	)
 
 	res1 := s.app.AccountKeeper.GetAccount(ctx, bandtesting.Validators[0].Address)
@@ -104,6 +105,9 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 		},
 		nil,
 		bandtesting.TestDefaultExecuteGas,
+		0,
+		bandtesting.Validators[0].Address.String(),
+		nil,
 	)
 
 	request, err := s.app.OracleKeeper.GetRequest(ctx, types.RequestID(1))
@@ -173,8 +177,13 @@ func (s *AppTestSuite) TestSuccessRequestOracleData() {
 	require.NoError(err)
 
 	resPacket := types.NewOracleResponsePacketData(
-		expectRequest.ClientID, types.RequestID(1), 2, expectRequest.RequestTime, 1581589795,
-		types.RESOLVE_STATUS_SUCCESS, []byte("test"),
+		expectRequest.ClientID,
+		types.RequestID(1),
+		2,
+		expectRequest.RequestTime,
+		1581589795,
+		types.RESOLVE_STATUS_SUCCESS,
+		[]byte("test"),
 	)
 	expRes := types.NewResult(
 		resPacket.ClientID,
@@ -236,6 +245,7 @@ func (s *AppTestSuite) TestExpiredRequestOracleData() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Validators[0].Address,
+		0,
 	)
 
 	// Signing and delivering the request
@@ -282,6 +292,9 @@ func (s *AppTestSuite) TestExpiredRequestOracleData() {
 		},
 		nil,
 		bandtesting.TestDefaultExecuteGas,
+		0,
+		bandtesting.Validators[0].Address.String(),
+		nil,
 	)
 
 	request, err := s.app.OracleKeeper.GetRequest(ctx, types.RequestID(1))
@@ -295,8 +308,13 @@ func (s *AppTestSuite) TestExpiredRequestOracleData() {
 
 	// Expected events after expiration
 	resPacket := types.NewOracleResponsePacketData(
-		expectRequest.ClientID, types.RequestID(1), 0, expectRequest.RequestTime, ctx.BlockTime().Unix(),
-		types.RESOLVE_STATUS_EXPIRED, []byte{},
+		expectRequest.ClientID,
+		types.RequestID(1),
+		0,
+		expectRequest.RequestTime,
+		ctx.BlockTime().Unix(),
+		types.RESOLVE_STATUS_EXPIRED,
+		[]byte{},
 	)
 	expectEvents := []abci.Event{{
 		Type: types.EventTypeResolve,

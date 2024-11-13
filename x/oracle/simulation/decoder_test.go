@@ -41,6 +41,9 @@ func TestDecodeStore(t *testing.T) {
 		[]types.RawRequest{rawRequest},
 		nil,
 		100000,
+		0,
+		accAddr.String(),
+		sdk.NewCoins(sdk.NewInt64Coin("band", 1000)),
 	)
 
 	rawReport := types.NewRawReport(1, 0, []byte("data"))

@@ -12,12 +12,15 @@ echo "erase relief tree tobacco around knee concert toast diesel melody rule sig
     | bandd keys add account1 --recover --keyring-backend test
 echo "thought insane behind cool expand clarify strategy occur arrive broccoli middle despair foot cake genuine dawn goose abuse curve identify dinner derive genre effort" \
     | bandd keys add account2 --recover --keyring-backend test
+echo "drop video mention casual soldier ostrich resemble harvest casual step design gasp grunt lab meadow buzz envelope today spy cliff column habit fall eyebrow" \
+    | bandd keys add account3 --recover --keyring-backend test
 
 # add accounts to genesis
 bandd genesis add-genesis-account validator 10000000000000uband --keyring-backend test
 bandd genesis add-genesis-account requester 10000000000000uband --keyring-backend test
 bandd genesis add-genesis-account account1 10000000000000uband --keyring-backend test
 bandd genesis add-genesis-account account2 10000000000000uband --keyring-backend test
+bandd genesis add-genesis-account account3 10000000000000uband --keyring-backend test
 
 # register initial validators
 bandd genesis gentx validator 100000000uband \

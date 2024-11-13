@@ -21,7 +21,6 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, data *types.GenesisState) {
 	k.SetOracleScriptCount(ctx, 0)
 	k.SetRequestCount(ctx, 0)
 	k.SetRequestLastExpired(ctx, 0)
-	k.SetRollingSeed(ctx, make([]byte, types.RollingSeedSizeInBytes))
 	for _, dataSource := range data.DataSources {
 		_ = k.AddDataSource(ctx, dataSource)
 	}

@@ -35,13 +35,15 @@ import (
 type KeeperTestSuite struct {
 	suite.Suite
 
-	ctx           sdk.Context
-	oracleKeeper  keeper.Keeper
-	authKeeper    *oracletestutil.MockAccountKeeper
-	bankKeeper    *oracletestutil.MockBankKeeper
-	stakingKeeper *oracletestutil.MockStakingKeeper
-	distrKeeper   *oracletestutil.MockDistrKeeper
-	authzKeeper   *oracletestutil.MockAuthzKeeper
+	ctx               sdk.Context
+	oracleKeeper      keeper.Keeper
+	authKeeper        *oracletestutil.MockAccountKeeper
+	bankKeeper        *oracletestutil.MockBankKeeper
+	stakingKeeper     *oracletestutil.MockStakingKeeper
+	distrKeeper       *oracletestutil.MockDistrKeeper
+	authzKeeper       *oracletestutil.MockAuthzKeeper
+	rollingseedKeeper *oracletestutil.MockRollingseedKeeper
+	bandtssKeeper     *oracletestutil.MockBandtssKeeper
 
 	queryClient types.QueryClient
 	msgServer   types.MsgServer
@@ -69,6 +71,8 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.stakingKeeper = oracletestutil.NewMockStakingKeeper(ctrl)
 	suite.distrKeeper = oracletestutil.NewMockDistrKeeper(ctrl)
 	suite.authzKeeper = oracletestutil.NewMockAuthzKeeper(ctrl)
+	suite.rollingseedKeeper = oracletestutil.NewMockRollingseedKeeper(ctrl)
+	suite.bandtssKeeper = oracletestutil.NewMockBandtssKeeper(ctrl)
 
 	suite.homeDir = testutil.GetTempDir(suite.T())
 	suite.fileDir = filepath.Join(suite.homeDir, "files")
@@ -89,6 +93,8 @@ func (suite *KeeperTestSuite) SetupTest() {
 		suite.authzKeeper,
 		nil,
 		nil,
+		suite.rollingseedKeeper,
+		suite.bandtssKeeper,
 		capabilitykeeper.ScopedKeeper{},
 		owasmVM,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
@@ -186,15 +192,6 @@ func (suite *KeeperTestSuite) TestGetSetOracleScriptCount() {
 
 	k.SetOracleScriptCount(ctx, 42)
 	require.Equal(uint64(42), k.GetOracleScriptCount(ctx))
-}
-
-func (suite *KeeperTestSuite) TestGetSetRollingSeed() {
-	ctx := suite.ctx
-	k := suite.oracleKeeper
-	require := suite.Require()
-
-	k.SetRollingSeed(ctx, []byte("HELLO_WORLD"))
-	require.Equal([]byte("HELLO_WORLD"), k.GetRollingSeed(ctx))
 }
 
 func (suite *KeeperTestSuite) TestGetNextRequestID() {

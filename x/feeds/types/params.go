@@ -20,6 +20,7 @@ var (
 	// estimated from block time of 1 seconds, aims for 1 day update
 	DefaultCurrentFeedsUpdateInterval = int64(86400)
 	DefaultPriceQuorum                = math.LegacyNewDecWithPrec(30, 2)
+	DefaultMaxSignalIDsPerSigning     = uint64(10)
 )
 
 // NewParams creates a new Params instance
@@ -36,6 +37,7 @@ func NewParams(
 	maxDeviationBasisPoint int64,
 	currentFeedsUpdateInterval int64,
 	priceQuorum string,
+	maxSignalIDsPerSigning uint64,
 ) Params {
 	return Params{
 		Admin:                         admin,
@@ -50,6 +52,7 @@ func NewParams(
 		MaxDeviationBasisPoint:        maxDeviationBasisPoint,
 		CurrentFeedsUpdateInterval:    currentFeedsUpdateInterval,
 		PriceQuorum:                   priceQuorum,
+		MaxSignalIDsPerSigning:        maxSignalIDsPerSigning,
 	}
 }
 
@@ -68,6 +71,7 @@ func DefaultParams() Params {
 		DefaultMaxDeviationBasisPoint,
 		DefaultCurrentFeedsUpdateInterval,
 		DefaultPriceQuorum.String(),
+		DefaultMaxSignalIDsPerSigning,
 	)
 }
 
@@ -106,6 +110,7 @@ func (p Params) Validate() error {
 	if err := validateInt64("current feeds update interval", true, p.CurrentFeedsUpdateInterval); err != nil {
 		return err
 	}
+
 	priceQuorum, err := math.LegacyNewDecFromStr(p.PriceQuorum)
 	if err != nil {
 		return fmt.Errorf("invalid price quorum string: %w", err)
@@ -115,6 +120,10 @@ func (p Params) Validate() error {
 	}
 	if priceQuorum.GT(math.LegacyOneDec()) {
 		return fmt.Errorf("price quorom too large: %s", p.PriceQuorum)
+	}
+
+	if err := validateUint64("max signal IDs per signing", false, p.MaxSignalIDsPerSigning); err != nil {
+		return err
 	}
 
 	return nil
