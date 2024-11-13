@@ -17,10 +17,6 @@ var TextMsgPrefix = tss.Hash([]byte("Text"))[:4]
 // request signatures (ie. TextSignatureOrder)
 func NewSignatureOrderHandler(k keeper.Keeper) types.Handler {
 	return func(ctx sdk.Context, content types.Content) ([]byte, error) {
-		if err := content.ValidateBasic(); err != nil {
-			return nil, err
-		}
-
 		switch c := content.(type) {
 		case *types.TextSignatureOrder:
 			maxMessageLength := k.GetParams(ctx).MaxMessageLength
