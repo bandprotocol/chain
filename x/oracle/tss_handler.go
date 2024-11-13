@@ -11,15 +11,15 @@ import (
 )
 
 var (
-	// EncodeTypeProtoPrefix is the prefix for proto encoding type
+	// EncoderProtoPrefix is the prefix for proto encoding type
 	// The value is tss.Hash([]byte("proto"))[:4]
-	EncodeTypeProtoPrefix = tsslib.Hash([]byte("proto"))[:4]
-	// EncodeTypeFullABIPrefix is the prefix for full ABI encoding type
+	EncoderProtoPrefix = tsslib.Hash([]byte("proto"))[:4]
+	// EncoderFullABIPrefix is the prefix for full ABI encoding type
 	// The value is tss.Hash([]byte("fullABI"))[:4]
-	EncodeTypeFullABIPrefix = tsslib.Hash([]byte("fullABI"))[:4]
-	// EncodeTypePartialABIPrefix is the prefix for partial ABI encoding type
+	EncoderFullABIPrefix = tsslib.Hash([]byte("fullABI"))[:4]
+	// EncoderPartialABIPrefix is the prefix for partial ABI encoding type
 	// The value is tss.Hash([]byte("partialABI"))[:4]
-	EncodeTypePartialABIPrefix = tsslib.Hash([]byte("partialABI"))[:4]
+	EncoderPartialABIPrefix = tsslib.Hash([]byte("partialABI"))[:4]
 )
 
 // NewSignatureOrderHandler creates a tss handler to handle oracle result signature order
@@ -32,32 +32,32 @@ func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 				return nil, err
 			}
 
-			switch c.EncodeType {
-			case types.ENCODE_TYPE_PROTO:
+			switch c.Encoder {
+			case types.ENCODER_PROTO:
 				bz, err := k.MarshalResult(ctx, result)
 				if err != nil {
 					return nil, err
 				}
 
-				return append(EncodeTypeProtoPrefix, bz...), nil
-			case types.ENCODE_TYPE_FULL_ABI:
+				return append(EncoderProtoPrefix, bz...), nil
+			case types.ENCODER_FULL_ABI:
 				bz, err := result.PackFullABI()
 				if err != nil {
 					return nil, err
 				}
 
-				return append(EncodeTypeFullABIPrefix, bz...), nil
-			case types.ENCODE_TYPE_PARTIAL_ABI:
+				return append(EncoderFullABIPrefix, bz...), nil
+			case types.ENCODER_PARTIAL_ABI:
 				bz, err := result.PackPartialABI()
 				if err != nil {
 					return nil, err
 				}
 
-				return append(EncodeTypePartialABIPrefix, bz...), nil
+				return append(EncoderPartialABIPrefix, bz...), nil
 			default:
 				return nil, sdkerrors.ErrUnknownRequest.Wrapf(
-					"unrecognized encode type: %d",
-					c.EncodeType,
+					"unrecognized encoder type: %d",
+					c.Encoder,
 				)
 			}
 
