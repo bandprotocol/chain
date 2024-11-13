@@ -27,7 +27,6 @@ var (
 	_ module.AppModuleBasic = AppModuleBasic{}
 
 	_ module.HasGenesis         = AppModule{}
-	_ module.HasServices        = AppModule{}
 	_ appmodule.AppModule       = AppModule{}
 	_ appmodule.HasBeginBlocker = AppModule{}
 )
@@ -109,13 +108,6 @@ func (am AppModule) IsAppModule() {}
 func (AppModule) Name() string {
 	return types.ModuleName
 }
-
-// RegisterServices registers a GRPC query service to respond to the
-// module-specific GRPC queries.
-func (am AppModule) RegisterServices(cfg module.Configurator) {}
-
-// RegisterInvariants registers the module's invariants.
-func (am AppModule) RegisterInvariants(_ sdk.InvariantRegistry) {}
 
 // InitGenesis performs genesis initialization for the module.
 func (am AppModule) InitGenesis(ctx sdk.Context, cdc codec.JSONCodec, data json.RawMessage) {

@@ -125,7 +125,10 @@ func (s *AppTestSuite) TestAllocateTokensOneActive() {
 
 	aliceBalanceBefore := app.BankKeeper.GetAllBalances(ctx, alice)
 	bobBalanceBefore := app.BankKeeper.GetAllBalances(ctx, bob)
-	k.AllocateTokens(ctx)
+
+	err = k.AllocateTokens(ctx)
+	s.Require().NoError(err)
+
 	aliceBalanceAfter := app.BankKeeper.GetAllBalances(ctx, alice)
 	bobBalanceAfter := app.BankKeeper.GetAllBalances(ctx, bob)
 
@@ -177,7 +180,8 @@ func (s *AppTestSuite) TestAllocateTokensAllActive() {
 		balancesBefore[i] = app.BankKeeper.GetAllBalances(ctx, acc.Address)
 	}
 
-	k.AllocateTokens(ctx)
+	err = k.AllocateTokens(ctx)
+	s.Require().NoError(err)
 
 	balancesAfter := make([]sdk.Coins, len(groupCtx.Accounts))
 	for i, acc := range groupCtx.Accounts {

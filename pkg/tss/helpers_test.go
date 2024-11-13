@@ -27,3 +27,13 @@ func (suite *TSSTestSuite) TestGenerateKeyPair() {
 	pubKey := kp.PrivKey.Point()
 	suite.Require().Equal(kp.PubKey, pubKey)
 }
+
+func (suite *TSSTestSuite) TestPaddingBytes() {
+	// Test padding with 0
+	padded := tss.PaddingBytes([]byte{5, 1, 2, 3}, 8)
+	suite.Require().Equal([]byte{0, 0, 0, 0, 5, 1, 2, 3}, padded)
+
+	// Test padding with 1
+	padded = tss.PaddingBytes([]byte{3, 1, 2}, 1)
+	suite.Require().Equal([]byte{3, 1, 2}, padded)
+}

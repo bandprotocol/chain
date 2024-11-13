@@ -293,7 +293,9 @@ func (p Point) Address() ([]byte, error) {
 		return nil, err
 	}
 
-	return Hash(pubKey.X().Bytes(), pubKey.Y().Bytes())[12:], nil
+	paddedPx := PaddingBytes(pubKey.X().Bytes(), 32)
+	paddedPy := PaddingBytes(pubKey.Y().Bytes(), 32)
+	return Hash(paddedPx, paddedPy)[12:], nil
 }
 
 // publicKey converts a Point back to a secp256k1.PublicKey.

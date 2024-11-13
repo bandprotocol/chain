@@ -160,6 +160,15 @@ func (m MsgRequestSignature) ValidateBasic() error {
 		return sdkerrors.ErrInvalidCoins.Wrap(m.FeeLimit.String())
 	}
 
+	content, ok := m.Content.GetCachedValue().(tsstypes.Content)
+	if !ok {
+		return sdkerrors.ErrInvalidType.Wrapf("expected type Content, got %T", content)
+	}
+
+	if err := content.ValidateBasic(); err != nil {
+		return err
+	}
+
 	return nil
 }
 

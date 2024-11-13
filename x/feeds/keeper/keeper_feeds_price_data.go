@@ -14,14 +14,22 @@ func (k Keeper) GetFeedsPriceData(
 ) (*types.FeedsPriceData, error) {
 	prices := k.GetPrices(ctx, signalIDs)
 
-	// convert price to tick if encoder is tick abi
-	if encoder == types.ENCODER_TICK_ABI {
+	switch encoder {
+	case types.ENCODER_TICK_ABI:
+		var tickPrices []types.Price
 		for i := range prices {
-			if err := prices[i].ToTick(); err != nil {
+			tickPrice, err := prices[i].ToTick()
+			if err != nil {
 				return nil, err
 			}
-		}
-	}
 
-	return types.NewFeedsPriceData(prices, uint64(ctx.BlockTime().Unix())), nil
+			tickPrices = append(tickPrices, tickPrice)
+		}
+
+		return types.NewFeedsPriceData(tickPrices, uint64(ctx.BlockTime().Unix())), nil
+	case types.ENCODER_FIXED_POINT_ABI:
+		return types.NewFeedsPriceData(prices, uint64(ctx.BlockTime().Unix())), nil
+	default:
+		return nil, types.ErrInvalidEncoder
+	}
 }

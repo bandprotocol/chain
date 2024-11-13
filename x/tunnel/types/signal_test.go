@@ -9,7 +9,7 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-func TestLatestSignalPrices_Validate(t *testing.T) {
+func TestLatestPrices_Validate(t *testing.T) {
 	examplePrices := []feedstypes.Price{
 		feedstypes.NewPrice(feedstypes.PriceStatusAvailable, "signal1", 100, 0),
 	}

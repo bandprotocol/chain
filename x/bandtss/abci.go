@@ -9,9 +9,7 @@ import (
 // BeginBlocker handles the logic at the beginning of a block.
 func BeginBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	// Reward a portion of block rewards (inflation + tx fee) to active tss members.
-	k.AllocateTokens(ctx)
-
-	return nil
+	return k.AllocateTokens(ctx)
 }
 
 // EndBlocker handles tasks at the end of a block.
