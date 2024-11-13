@@ -222,6 +222,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgRequestData() {
 		TestDefaultPrepareGas,
 		TestDefaultExecuteGas,
 		SenderAddress,
+		0,
 	)
 	emitter.DecodeMsgRequestData(msg, detail)
 	suite.testCompareJson(

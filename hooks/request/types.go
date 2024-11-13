@@ -244,6 +244,9 @@ func (r Request) QueryRequestResponse() types.QueryRequestResponse {
 		rawRequests,
 		ibcChannel,
 		r.ExecuteGas,
+		0,
+		"",
+		nil,
 	)
 
 	// Oracle result for the above request
