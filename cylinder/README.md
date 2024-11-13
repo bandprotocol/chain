@@ -117,6 +117,7 @@ cylinder config min-de 20 --home $CYLINDER_HOME_PATH
 cylinder config gas-adjust-start 1.6 --home $CYLINDER_HOME_PATH
 cylinder config gas-adjust-step 0.2 --home $CYLINDER_HOME_PATH
 cylinder config random-secret "$(openssl rand -hex 32)" --home $CYLINDER_HOME_PATH
+cylinder config checking-de-interval "5m" --home $CYLINDER_HOME_PATH
 
 cylinder keys add signer1 --home $CYLINDER_HOME_PATH
 cylinder keys add signer2 --home $CYLINDER_HOME_PATH
