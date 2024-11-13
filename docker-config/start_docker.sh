@@ -185,7 +185,7 @@ do
     cylinder config random-secret "$(openssl rand -hex 32)"
     cylinder config checking-de-interval "5m"
 
-    for i in $(eval echo {1..1})
+    for i in $(eval echo {1..4})
     do
         # add signer key
         cylinder keys add signer$i
