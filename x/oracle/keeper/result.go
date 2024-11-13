@@ -63,7 +63,7 @@ func (k Keeper) ResolveSuccess(
 	feeLimit sdk.Coins,
 	result []byte,
 	gasUsed uint64,
-	encodeType types.EncodeType,
+	encoder types.Encoder,
 ) {
 	k.SaveResult(ctx, id, types.RESOLVE_STATUS_SUCCESS, result)
 
@@ -75,8 +75,8 @@ func (k Keeper) ResolveSuccess(
 		sdk.NewAttribute(types.AttributeKeyGasUsed, fmt.Sprintf("%d", gasUsed)),
 	)
 
-	// Doesn't require signature from tss module; emit an event and end process here
-	if encodeType == types.ENCODE_TYPE_UNSPECIFIED {
+	// Doesn't require signature from bandtss module; emit an event and end process here
+	if encoder == types.ENCODER_UNSPECIFIED {
 		ctx.EventManager().EmitEvent(event)
 		return
 	}
@@ -85,7 +85,7 @@ func (k Keeper) ResolveSuccess(
 	createSigningFunc := func(ctx sdk.Context) error {
 		signingID, err := k.bandtssKeeper.CreateDirectSigningRequest(
 			ctx,
-			types.NewOracleResultSignatureOrder(id, encodeType),
+			types.NewOracleResultSignatureOrder(id, encoder),
 			"",
 			sdk.MustAccAddressFromBech32(requester),
 			feeLimit,
