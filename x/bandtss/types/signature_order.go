@@ -49,10 +49,6 @@ func (rs *GroupTransitionSignatureOrder) ValidateBasic() error { return nil }
 // request signatures (ie. TextSignatureOrder)
 func NewSignatureOrderHandler() tsstypes.Handler {
 	return func(ctx sdk.Context, content tsstypes.Content) ([]byte, error) {
-		if err := content.ValidateBasic(); err != nil {
-			return nil, err
-		}
-
 		switch c := content.(type) {
 		case *GroupTransitionSignatureOrder:
 			return bytes.Join(

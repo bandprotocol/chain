@@ -17,6 +17,11 @@ func (k Keeper) RequestSigning(
 	originator types.Originator,
 	content types.Content,
 ) (tss.SigningID, error) {
+	// validate content
+	if err := content.ValidateBasic(); err != nil {
+		return 0, err
+	}
+
 	// convert content to bytes
 	if !k.contentRouter.HasRoute(content.OrderRoute()) {
 		return 0, types.ErrNoSignatureOrderHandlerExists.Wrap(content.OrderRoute())

@@ -25,10 +25,6 @@ var (
 // NewSignatureOrderHandler creates a tss handler to handle oracle result signature order
 func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 	return func(ctx sdk.Context, content tsstypes.Content) ([]byte, error) {
-		if err := content.ValidateBasic(); err != nil {
-			return nil, err
-		}
-
 		switch c := content.(type) {
 		case *types.OracleResultSignatureOrder:
 			result, err := k.GetResult(ctx, c.RequestID)
