@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/CosmWasm/wasmd/x/wasm"
+
 	"github.com/cosmos/ibc-go/modules/capability"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	icagenesistypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/genesis/types"
@@ -124,5 +126,6 @@ func NewDefaultGenesisState(cdc codec.Codec) GenesisState {
 		feedstypes.ModuleName:        feeds.AppModuleBasic{}.DefaultGenesis(cdc),
 		globalfeetypes.ModuleName:    cdc.MustMarshalJSON(globalfeeGenesis),
 		restaketypes.ModuleName:      restake.AppModuleBasic{}.DefaultGenesis(cdc),
+		wasm.ModuleName:              wasm.AppModuleBasic{}.DefaultGenesis(cdc),
 	}
 }
