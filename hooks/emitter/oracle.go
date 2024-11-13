@@ -132,24 +132,24 @@ func (h *Hook) emitUpdateResultTSS(
 	id types.RequestID,
 	executeGasUsed uint64,
 	reason string,
-	tssSigningID uint64,
-	tssSigningErrorCodespace string,
-	tssSigningErrorCode uint64,
+	bandtssSigningID uint64,
+	bandtssSigningErrorCodespace string,
+	bandtssSigningErrorCode uint64,
 ) {
 	result := h.oracleKeeper.MustGetResult(ctx, id)
 
 	h.Write("UPDATE_REQUEST", common.JsDict{
-		"id":                          id,
-		"execute_gas_used":            executeGasUsed,
-		"request_time":                result.RequestTime,
-		"resolve_time":                result.ResolveTime,
-		"resolve_status":              result.ResolveStatus,
-		"resolve_height":              ctx.BlockHeight(),
-		"reason":                      reason,
-		"result":                      parseBytes(result.Result),
-		"tss_signing_id":              tssSigningID,
-		"tss_signing_error_codespace": tssSigningErrorCodespace,
-		"tss_signing_error_code":      tssSigningErrorCode,
+		"id":                              id,
+		"execute_gas_used":                executeGasUsed,
+		"request_time":                    result.RequestTime,
+		"resolve_time":                    result.ResolveTime,
+		"resolve_status":                  result.ResolveStatus,
+		"resolve_height":                  ctx.BlockHeight(),
+		"reason":                          reason,
+		"result":                          parseBytes(result.Result),
+		"bandtss_signing_id":              bandtssSigningID,
+		"bandtss_signing_error_codespace": bandtssSigningErrorCodespace,
+		"bandtss_signing_error_code":      bandtssSigningErrorCode,
 	})
 }
 
@@ -180,7 +180,7 @@ func (h *Hook) handleMsgRequestData(
 		"prepare_gas_used": prepareGasUsed,
 		"execute_gas":      msg.ExecuteGas,
 		"execute_gas_used": uint64(0),
-		"tss_encode_type":  msg.TSSEncodeType,
+		"tss_encoder":      msg.TSSEncoder,
 		"fee_limit":        msg.FeeLimit.String(),
 		"total_fees":       evMap[types.EventTypeRequest+"."+types.AttributeKeyTotalFees][0],
 		"is_ibc":           req.IBCChannel != nil,
@@ -266,14 +266,14 @@ func (h *Hook) handleEventRequestExecute(ctx sdk.Context, evMap common.EvMap) {
 			executeGasUsed,
 			reasons[0],
 		)
-	} else if tssErrCodespace, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeySigningErrCodespace]; ok {
+	} else if bandtssErrCodespace, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeySigningErrCodespace]; ok {
 		h.emitUpdateResultTSS(
 			ctx,
 			rid,
 			executeGasUsed,
 			"",
 			0,
-			tssErrCodespace[0],
+			bandtssErrCodespace[0],
 			uint64(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeySigningErrCode][0])),
 		)
 	} else if tssSid, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeySigningID]; ok {

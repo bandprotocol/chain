@@ -74,13 +74,18 @@ bandtss_current_groups = sa.Table(
         nullable=True,
         index=True,
     ),
-    Column("current_tss_group_id", sa.Integer, sa.ForeignKey("tss_groups.id")),
+    Column(
+        "current_tss_group_id",
+        sa.Integer,
+        sa.ForeignKey("tss_groups.id"),
+        primary_key=True,
+    ),
     Column(
         "transition_height",
         sa.Integer,
         sa.ForeignKey("blocks.height"),
-        nullable=True,
         index=True,
+        primary_key=True,
     ),
 )
 
@@ -99,7 +104,7 @@ bandtss_signings = sa.Table(
     "bandtss_signings",
     metadata,
     Column("id", sa.Integer, primary_key=True),
-    Column("requester_account_id", sa.Integer, sa.ForeignKey("accounts.id")),
+    Column("account_id", sa.Integer, sa.ForeignKey("accounts.id")),
     Column("fee_per_signer", sa.String),
     Column(
         "current_group_tss_signing_id",
