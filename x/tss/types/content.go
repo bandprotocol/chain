@@ -3,6 +3,8 @@ package types
 import (
 	"fmt"
 
+	"github.com/cosmos/gogoproto/proto"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	tsslib "github.com/bandprotocol/chain/v3/pkg/tss"
@@ -86,12 +88,13 @@ func wrapHandler(path string, handler Handler) Handler {
 // such as the type and routing information for the appropriate handler to process the order.
 // Content can have additional fields, which is handled by an order's Handler.
 type Content interface {
+	proto.Message
+
 	OrderRoute() string
 	OrderType() string
 	IsInternal() bool
 
 	ValidateBasic() error
-	String() string
 }
 
 // Handler defines a function that receive signature order and return message that should to be signed.

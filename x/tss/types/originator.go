@@ -3,6 +3,8 @@ package types
 import (
 	"bytes"
 
+	"github.com/cosmos/gogoproto/proto"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v3/pkg/tss"
@@ -23,6 +25,8 @@ var (
 // Originator is the interface for identifying the metadata of the message. The hashed of the
 // encoded originator will be included as a part of a signed message.
 type Originator interface {
+	proto.Message
+
 	Encode() ([]byte, error)
 	Validate(p Params) error
 }

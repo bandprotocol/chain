@@ -159,7 +159,7 @@ func (k Keeper) CreateTransitionSigning(
 	currentGroupID := k.GetCurrentGroup(ctx).GroupID
 
 	moduleAcc := k.GetBandtssAccount(ctx)
-	originator := tsstypes.DirectOriginator{
+	originator := &tsstypes.DirectOriginator{
 		Requester: moduleAcc.GetAddress().String(),
 	}
 
