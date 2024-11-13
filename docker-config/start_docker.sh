@@ -183,6 +183,7 @@ do
     cylinder config gas-adjust-start 1.6
     cylinder config gas-adjust-step 0.2
     cylinder config random-secret "$(openssl rand -hex 32)"
+    cylinder config checking-de-interval "5m"
 
     for i in $(eval echo {1..1})
     do
