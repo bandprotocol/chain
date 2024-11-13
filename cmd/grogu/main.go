@@ -6,6 +6,7 @@ import (
 	"path"
 	"path/filepath"
 
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -80,6 +81,7 @@ func createPersistentPreRunE(rootCmd *cobra.Command, ctx *context.Context) func(
 			map[int64]bool{},
 			tempDir,
 			initAppOptions,
+			[]wasmkeeper.Option{},
 			100,
 		)
 		ctx.BandApp = tempApplication

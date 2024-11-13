@@ -6,6 +6,10 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/cast"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -53,6 +57,8 @@ import (
 	"github.com/bandprotocol/chain/v3/x/oracle"
 )
 
+var emptyWasmOption []wasmkeeper.Option
+
 // NewRootCmd creates a new root command for simd. It is called once in the
 // main function.
 func NewRootCmd() *cobra.Command {
@@ -68,6 +74,7 @@ func NewRootCmd() *cobra.Command {
 		map[int64]bool{},
 		tempDir,
 		initAppOptions,
+		emptyWasmOption,
 		100,
 	)
 	defer func() {
@@ -171,12 +178,26 @@ func initCometConfig() *cmtcfg.Config {
 }
 
 func initAppConfig() (string, interface{}) {
+	// Embed additional configurations
+	type CustomAppConfig struct {
+		serverconfig.Config
+
+		Wasm wasmtypes.WasmConfig `mapstructure:"wasm"`
+	}
+
 	// Can optionally overwrite the SDK's default server config.
 	srvCfg := serverconfig.DefaultConfig()
 	srvCfg.StateSync.SnapshotInterval = 20000
 	srvCfg.StateSync.SnapshotKeepRecent = 10
 
-	return serverconfig.DefaultConfigTemplate, srvCfg
+	customAppConfig := CustomAppConfig{
+		Config: *srvCfg,
+		Wasm:   wasmtypes.DefaultWasmConfig(),
+	}
+
+	defaultAppTemplate := serverconfig.DefaultConfigTemplate + wasmtypes.DefaultConfigTemplate()
+
+	return defaultAppTemplate, customAppConfig
 }
 
 func initRootCmd(
@@ -222,6 +243,7 @@ func initRootCmd(
 func addModuleInitFlags(startCmd *cobra.Command) {
 	crisis.AddModuleInitFlags(startCmd)
 	oracle.AddModuleInitFlags(startCmd)
+	wasm.AddModuleInitFlags(startCmd)
 }
 
 // genesisCommand builds genesis-related `bandd genesis` command. Users may provide application specific commands as a parameter
@@ -306,6 +328,11 @@ func (a appCreator) newApp(
 		cache = store.NewCommitKVStoreCacheManager()
 	}
 
+	var wasmOpts []wasmkeeper.Option
+	if cast.ToBool(appOpts.Get("telemetry.enabled")) {
+		wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
+	}
+
 	pruningOpts, err := server.GetPruningOptionsFromFlags(appOpts)
 	if err != nil {
 		panic(err)
@@ -366,6 +393,7 @@ func (a appCreator) newApp(
 		skipUpgradeHeights,
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		appOpts,
+		wasmOpts,
 		cast.ToUint32(appOpts.Get(oracle.FlagWithOwasmCacheSize)),
 		baseappOptions...,
 	)
@@ -412,6 +440,7 @@ func (a appCreator) appExport(
 		map[int64]bool{},
 		homePath,
 		appOpts,
+		emptyWasmOption,
 		cast.ToUint32(appOpts.Get(oracle.FlagWithOwasmCacheSize)),
 	)
 
