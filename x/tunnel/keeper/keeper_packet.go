@@ -226,15 +226,6 @@ func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) error {
 
 	k.SetPacket(ctx, packet)
 
-	// emit an event
-	ctx.EventManager().EmitEvent(sdk.NewEvent(
-		types.EventTypeSendPacket,
-		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
-		sdk.NewAttribute(types.AttributeKeySequence, fmt.Sprintf("%d", packet.Sequence)),
-		sdk.NewAttribute(types.AttributeKeyBaseFee, packet.BaseFee.String()),
-		sdk.NewAttribute(types.AttributeKeyRouteFee, packet.RouteFee.String()),
-	))
-
 	return nil
 }
 
