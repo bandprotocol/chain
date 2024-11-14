@@ -123,3 +123,13 @@ func RandomBytes(length int) ([]byte, error) {
 	}
 	return b, nil
 }
+
+// PaddingBytes pads a byte slice with zero bytes to a specified length.
+func PaddingBytes(data []byte, length int) []byte {
+	if len(data) >= length {
+		return data
+	}
+
+	padding := make([]byte, length-len(data))
+	return append(padding, data...)
+}

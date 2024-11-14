@@ -171,9 +171,14 @@ func (k Keeper) CreatePacket(
 	}
 
 	// get the route fee
-	routeFee, err := tunnel.Route.GetCachedValue().(types.RouteI).Fee()
+	route, ok := tunnel.Route.GetCachedValue().(types.RouteI)
+	if !ok {
+		return types.Packet{}, types.ErrInvalidRoute
+	}
+
+	routeFee, err := k.GetRouterFee(ctx, route)
 	if err != nil {
-		return types.Packet{}, sdkerrors.Wrapf(err, "failed to get route fee for tunnel %d", tunnel.ID)
+		return types.Packet{}, err
 	}
 
 	tunnel.Sequence++

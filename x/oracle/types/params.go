@@ -16,7 +16,7 @@ const (
 	DefaultBaseRequestGas          = uint64(50000)
 	DefaultPerValidatorRequestGas  = uint64(0)
 	DefaultSamplingTryCount        = uint64(3)
-	DefaultOracleRewardPercentage  = uint64(40)
+	DefaultOracleRewardPercentage  = uint64(70)
 	DefaultInactivePenaltyDuration = uint64(10 * time.Minute)
 	DefaultIBCRequestEnabled       = true
 )

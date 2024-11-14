@@ -105,8 +105,8 @@ message Request {
   IBCChannel ibc_channel = 9 [(gogoproto.customname) = "IBCChannel"];
   // ExecuteGas is amount of gas to reserve for executing
   uint64 execute_gas = 10;
-  // TSSEncodeType is the encode type of oracle result that will be sent to TSS.
-  EncodeType tss_encode_type = 11 [(gogoproto.customname) = "TSSEncodeType"];
+  // TSSEncoder is the mode of encoding oracle result signature order.
+  Encoder tss_encoder = 11 [(gogoproto.customname) = "TSSEncoder"];
   // Requester is the address of person who requests the data.
   string requester = 12;
   // FeeLimit is the maximum tokens that will be paid for this request.
@@ -171,8 +171,8 @@ message OracleRequestPacketData {
   uint64 prepare_gas = 7;
   // ExecuteGas is amount of gas to reserve for executing
   uint64 execute_gas = 8;
-  // TSSEncodeType is the encode type of oracle result that will be sent to TSS.
-  EncodeType tss_encode_type = 9 [(gogoproto.customname) = "TSSEncodeType"];
+  // TSSEncoder is the mode of encoding oracle result signature order.
+  Encoder tss_encoder = 9 [(gogoproto.customname) = "TSSEncoder"];
 }
 
 // OracleRequestPacketAcknowledgement encodes an oracle request acknowledgement
@@ -377,20 +377,20 @@ message OracleResultSignatureOrder {
   // RequestID is oracle's unique identifier for this oracle request.
   uint64 request_id = 1 [(gogoproto.customname) = "RequestID", (gogoproto.casttype) = "RequestID"];
 
-  // EncodeType is encoding type of the oracle result when it's sent to bandtss
-  EncodeType encode_type = 2;
+  // encoder is the mode of encoding oracle result signature order.
+  Encoder encoder = 3;
 }
 
-// EncodeType represent encode type of oracle result when using in bandtss
-enum EncodeType {
+// Encoder is an enumerator that defines the mode of encoding message in tss module.
+enum Encoder {
   option (gogoproto.goproto_enum_prefix) = false;
 
-  // ENCODE_TYPE_UNSPECIFIED is for unspecified value
-  ENCODE_TYPE_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "ENCODE_TYPE_UNSPECIFIED"];
-  // ENCODE_TYPE_UNSPECIFIED is for proto encoding
-  ENCODE_TYPE_PROTO = 1 [(gogoproto.enumvalue_customname) = "ENCODE_TYPE_PROTO"];
-  // ENCODE_TYPE_UNSPECIFIED is for ABI encoding for full data
-  ENCODE_TYPE_FULL_ABI = 2 [(gogoproto.enumvalue_customname) = "ENCODE_TYPE_FULL_ABI"];
-  // ENCODE_TYPE_UNSPECIFIED is for ABI encoding for only important data
-  ENCODE_TYPE_PARTIAL_ABI = 3 [(gogoproto.enumvalue_customname) = "ENCODE_TYPE_PARTIAL_ABI"];
+  // ENCODER_UNSPECIFIED is for unspecified value
+  ENCODER_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "ENCODER_UNSPECIFIED"];
+  // ENCODER_UNSPECIFIED is for proto encoding
+  ENCODER_PROTO = 1 [(gogoproto.enumvalue_customname) = "ENCODER_PROTO"];
+  // ENCODER_UNSPECIFIED is for ABI encoding for full data
+  ENCODER_FULL_ABI = 2 [(gogoproto.enumvalue_customname) = "ENCODER_FULL_ABI"];
+  // ENCODER_UNSPECIFIED is for ABI encoding for only important data
+  ENCODER_PARTIAL_ABI = 3 [(gogoproto.enumvalue_customname) = "ENCODER_PARTIAL_ABI"];
 }

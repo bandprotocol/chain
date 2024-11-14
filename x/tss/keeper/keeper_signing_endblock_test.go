@@ -39,7 +39,7 @@ func (s *KeeperTestSuite) TestAggregatePartialSignatures() {
 	signingID, err := k.RequestSigning(
 		ctx,
 		groupCtx.GroupID,
-		types.DirectOriginator{},
+		&types.DirectOriginator{},
 		&types.TextSignatureOrder{Message: []byte("test")},
 	)
 	s.Require().NoError(err)
@@ -73,7 +73,7 @@ func (s *KeeperTestSuite) TestHandleFailedSigning() {
 	signingID, err := k.RequestSigning(
 		ctx,
 		groupCtx.GroupID,
-		types.DirectOriginator{},
+		&types.DirectOriginator{},
 		&types.TextSignatureOrder{Message: []byte("test")},
 	)
 	s.Require().NoError(err)
@@ -129,7 +129,7 @@ func (s *KeeperTestSuite) TestHandleSigningEndblockMembersSubmitSignature() {
 	signingID, err := k.RequestSigning(
 		ctx,
 		groupCtx.GroupID,
-		types.DirectOriginator{},
+		&types.DirectOriginator{},
 		&types.TextSignatureOrder{Message: []byte("test")},
 	)
 	s.Require().NoError(err)
@@ -197,7 +197,7 @@ func (s *KeeperTestSuite) TestHandleSigningEndblockTimeoutSigning() {
 	signingID, err := k.RequestSigning(
 		ctx,
 		groupCtx.GroupID,
-		types.DirectOriginator{},
+		&types.DirectOriginator{},
 		&types.TextSignatureOrder{Message: []byte("test")},
 	)
 	s.Require().NoError(err)
@@ -243,7 +243,7 @@ func (s *KeeperTestSuite) TestHandleSigningEndblockFailAggregate() {
 	signingID, err := k.RequestSigning(
 		ctx,
 		groupCtx.GroupID,
-		types.DirectOriginator{},
+		&types.DirectOriginator{},
 		&types.TextSignatureOrder{Message: []byte("test")},
 	)
 	s.Require().NoError(err)
@@ -315,7 +315,7 @@ func (s *KeeperTestSuite) TestHandleSigningEndblockFailAggregateAndExpired() {
 	signingID, err := k.RequestSigning(
 		ctx,
 		groupCtx.GroupID,
-		types.DirectOriginator{},
+		&types.DirectOriginator{},
 		&types.TextSignatureOrder{Message: []byte("test")},
 	)
 	s.Require().NoError(err)

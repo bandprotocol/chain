@@ -564,7 +564,7 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			signingID, err := k.RequestSigning(
 				ctx,
 				tc.Group.ID,
-				types.DirectOriginator{},
+				&types.DirectOriginator{},
 				types.NewTextSignatureOrder([]byte("msg")),
 			)
 			s.Require().NoError(err)
