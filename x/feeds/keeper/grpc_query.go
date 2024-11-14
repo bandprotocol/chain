@@ -262,7 +262,7 @@ func (q queryServer) ValidatorPrices(
 
 	for _, valPrice := range valPricesList.ValidatorPrices {
 		if _, exists := signalIDSet[valPrice.SignalID]; exists &&
-			valPrice.SignalPriceStatus != types.SignalPriceStatusUnspecified {
+			valPrice.SignalPriceStatus != types.SIGNAL_PRICE_STATUS_UNSPECIFIED {
 			filteredPrices = append(filteredPrices, valPrice)
 		}
 	}
