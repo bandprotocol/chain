@@ -86,6 +86,7 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss"
 	tsskeeper "github.com/bandprotocol/chain/v3/x/tss/keeper"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel"
 	tunnelkeeper "github.com/bandprotocol/chain/v3/x/tunnel/keeper"
 	tunneltypes "github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
@@ -539,9 +540,13 @@ func NewAppKeeper(
 	// Create Oracle Stack
 	var oracleStack porttypes.IBCModule = oracle.NewIBCModule(appKeepers.OracleKeeper)
 
+	// Create Tunnel Stack
+	var tunnelStack porttypes.IBCModule = tunnel.NewIBCModule(appKeepers.TunnelKeeper)
+
 	ibcRouter := porttypes.NewRouter().AddRoute(icahosttypes.SubModuleName, icaHostStack).
 		AddRoute(ibctransfertypes.ModuleName, transferStack).
-		AddRoute(oracletypes.ModuleName, oracleStack)
+		AddRoute(oracletypes.ModuleName, oracleStack).
+		AddRoute(tunneltypes.ModuleName, tunnelStack)
 
 	appKeepers.IBCKeeper.SetRouter(ibcRouter)
 
