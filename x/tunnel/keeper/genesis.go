@@ -36,7 +36,7 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 	k.SetPort(ctx, types.PortID)
 	// only try to bind to port if it is not already bound, since we may already own
 	// port capability from capability InitGenesis
-	if !k.HasCapability(ctx, types.PortID) {
+	if !k.IsBound(ctx, types.PortID) {
 		// tunnel module binds to the tunnel port on InitChain
 		// and claims the returned capability
 		err := k.BindPort(ctx, types.PortID)

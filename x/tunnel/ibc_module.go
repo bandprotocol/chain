@@ -1,6 +1,8 @@
 package tunnel
 
 import (
+	"strings"
+
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
@@ -29,33 +31,6 @@ func NewIBCModule(keeper keeper.Keeper) IBCModule {
 	}
 }
 
-// ValidateChannelParams does validation of a newly created tunnel channel. A tunnel
-// channel must be UNORDERED, use the correct port (by default 'tunnel'), and use the current
-// supported version.
-func validateChannelParams(
-	ctx sdk.Context,
-	keeper keeper.Keeper,
-	order channeltypes.Order,
-	portID string,
-) error {
-	if order != channeltypes.UNORDERED {
-		return errorsmod.Wrapf(
-			channeltypes.ErrInvalidChannelOrdering,
-			"expected %s channel, got %s",
-			channeltypes.UNORDERED,
-			order,
-		)
-	}
-
-	// Require portID is the portID tunnel module is bound to
-	boundPort := keeper.GetPort(ctx)
-	if boundPort != portID {
-		return porttypes.ErrInvalidPort.Wrapf("invalid port: %s, expected %s", portID, boundPort)
-	}
-
-	return nil
-}
-
 // OnChanOpenInit implements the IBCModule interface
 func (im IBCModule) OnChanOpenInit(
 	ctx sdk.Context,
@@ -70,6 +45,15 @@ func (im IBCModule) OnChanOpenInit(
 	err := validateChannelParams(ctx, im.keeper, order, portID)
 	if err != nil {
 		return "", err
+	}
+
+	// If version is empty, set it to the current version
+	if strings.TrimSpace(version) == "" {
+		version = types.Version
+	}
+
+	if version != types.Version {
+		return "", types.ErrInvalidVersion.Wrapf("got %s, expected %s", version, types.Version)
 	}
 
 	// openInit must claim the channelCapability that IBC passes into the callback
@@ -97,7 +81,7 @@ func (im IBCModule) OnChanOpenTry(
 	}
 
 	if counterpartyVersion != types.Version {
-		return "", types.ErrInvalidIBCVersion.Wrapf(
+		return "", types.ErrInvalidVersion.Wrapf(
 			"invalid counterparty version: got: %s, expected %s",
 			counterpartyVersion,
 			types.Version,
@@ -123,11 +107,11 @@ func (im IBCModule) OnChanOpenAck(
 	ctx sdk.Context,
 	portID,
 	channelID string,
-	_ string,
+	counterpartyChannelID string,
 	counterpartyVersion string,
 ) error {
 	if counterpartyVersion != types.Version {
-		return types.ErrInvalidIBCVersion.Wrapf(
+		return types.ErrInvalidVersion.Wrapf(
 			"invalid counterparty version: %s, expected %s",
 			counterpartyVersion,
 			types.Version,
@@ -193,5 +177,31 @@ func (im IBCModule) OnTimeoutPacket(
 	relayer sdk.AccAddress,
 ) error {
 	// do nothing for out-going packet
+	return nil
+}
+
+// validateChannelParams validates the parameters of a newly created tunnel channel.
+// A valid tunnel channel must be UNORDERED, use the correct port (default is 'tunnel').
+func validateChannelParams(
+	ctx sdk.Context,
+	keeper keeper.Keeper,
+	order channeltypes.Order,
+	portID string,
+) error {
+	if order != channeltypes.UNORDERED {
+		return errorsmod.Wrapf(
+			channeltypes.ErrInvalidChannelOrdering,
+			"expected %s channel, got %s",
+			channeltypes.UNORDERED,
+			order,
+		)
+	}
+
+	// Require portID is the portID tunnel module is bound to
+	boundPort := keeper.GetPort(ctx)
+	if boundPort != portID {
+		return porttypes.ErrInvalidPort.Wrapf("invalid port: %s, expected %s", portID, boundPort)
+	}
+
 	return nil
 }
