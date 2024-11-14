@@ -27,7 +27,7 @@ func (s *KeeperTestSuite) TestSendIBCPacket() {
 	s.scopedKeeper.EXPECT().GetCapability(ctx, gomock.Any()).Return(&capabilitytypes.Capability{}, true)
 	s.icsWrapper.EXPECT().
 		SendPacket(ctx, gomock.Any(), types.PortID, route.ChannelID, gomock.Any(), gomock.Any(), gomock.Any()).
-		Return(uint64(0), nil)
+		Return(uint64(1), nil)
 
 	content, err := k.SendIBCPacket(ctx, route, packet)
 	s.Require().NoError(err)
@@ -35,4 +35,5 @@ func (s *KeeperTestSuite) TestSendIBCPacket() {
 	packetContent, ok := content.(*types.IBCPacketContent)
 	s.Require().True(ok)
 	s.Require().Equal("channel-0", packetContent.ChannelID)
+	s.Require().Equal(uint64(1), packetContent.Sequence)
 }

@@ -98,8 +98,9 @@ func NewIBCRoute(channelID string) *IBCRoute {
 }
 
 // NewIBCPacketContent creates a new IBCPacketContent instance.
-func NewIBCPacketContent(channelID string) *IBCPacketContent {
+func NewIBCPacketContent(channelID string, sequence uint64) *IBCPacketContent {
 	return &IBCPacketContent{
 		ChannelID: channelID,
+		Sequence:  sequence,
 	}
 }

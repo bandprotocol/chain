@@ -36,7 +36,7 @@ func (k Keeper) SendIBCPacket(
 	).GetBytes()
 
 	// send packet to IBC, authenticating with channelCap
-	if _, err := k.ics4Wrapper.SendPacket(
+	sequence, err := k.ics4Wrapper.SendPacket(
 		ctx,
 		channelCap,
 		types.PortID,
@@ -44,9 +44,10 @@ func (k Keeper) SendIBCPacket(
 		clienttypes.NewHeight(0, 0),
 		uint64(ctx.BlockTime().UnixNano()+packetExpireTime),
 		resultBytes,
-	); err != nil {
+	)
+	if err != nil {
 		return nil, err
 	}
 
-	return types.NewIBCPacketContent(route.ChannelID), nil
+	return types.NewIBCPacketContent(route.ChannelID, sequence), nil
 }

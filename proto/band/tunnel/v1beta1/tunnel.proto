@@ -150,7 +150,10 @@ message TSSPacketContent {
 message IBCPacketContent {
   option (cosmos_proto.implements_interface) = "PacketContentI";
 
+  // channel_id is the IBC channel ID
   string channel_id = 1 [(gogoproto.customname) = "ChannelID"];
+  // sequence is representing the sequence of the IBC packet.
+  uint64 sequence = 2;
 }
 
 // IBCPacketResult is the packet result for IBC
