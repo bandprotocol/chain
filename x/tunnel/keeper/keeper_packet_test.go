@@ -106,7 +106,7 @@ func (s *KeeperTestSuite) TestProducePacket() {
 
 	tunnelID := uint64(1)
 	pricesMap := map[string]feedstypes.Price{
-		"BTC/USD": {Status: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
+		"BTC/USD": {Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
 	}
 	feePayer := sdk.AccAddress([]byte("fee_payer_address"))
 	tunnel := types.Tunnel{
@@ -166,7 +166,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 	}
 
 	s.feedsKeeper.EXPECT().GetAllPrices(gomock.Any()).Return([]feedstypes.Price{
-		{Status: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
+		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
 	})
 	s.bankKeeper.EXPECT().SpendableCoins(gomock.Any(), feePayer).Return(types.DefaultBasePacketFee)
 	s.bankKeeper.EXPECT().
@@ -222,7 +222,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPacketsNotEnoughMoney() {
 	}
 
 	s.feedsKeeper.EXPECT().GetAllPrices(gomock.Any()).Return([]feedstypes.Price{
-		{Status: feedstypes.PriceStatusAvailable, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
+		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
 	})
 	s.bankKeeper.EXPECT().SpendableCoins(gomock.Any(), feePayer).
 		Return(sdk.Coins{sdk.NewInt64Coin("uband", 1)})
