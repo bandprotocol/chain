@@ -20,7 +20,7 @@ var (
 	// estimated from block time of 1 seconds, aims for 1 day update
 	DefaultCurrentFeedsUpdateInterval = int64(86400)
 	DefaultPriceQuorum                = math.LegacyNewDecWithPrec(30, 2)
-	DefaultMaxSignalIDsPerSigning     = uint64(10)
+	DefaultMaxSignalIDsPerSigning     = uint64(25)
 )
 
 // NewParams creates a new Params instance

@@ -46,7 +46,7 @@ func (s *SignallerTestSuite) SetupTest() {
 		QueryValidatorPrices(gomock.Any()).
 		Return(&feeds.QueryValidatorPricesResponse{ValidatorPrices: []feeds.ValidatorPrice{
 			{
-				SignalPriceStatus: feeds.SignalPriceStatusAvailable,
+				SignalPriceStatus: feeds.SIGNAL_PRICE_STATUS_AVAILABLE,
 				SignalID:          "signal1",
 				Price:             10000,
 				Timestamp:         0,
@@ -203,7 +203,7 @@ func (s *SignallerTestSuite) TestSignalPrices() {
 		{
 			SignalID: "signal1",
 			Price:    10000,
-			Status:   feeds.SignalPriceStatusAvailable,
+			Status:   feeds.SIGNAL_PRICE_STATUS_AVAILABLE,
 		},
 	}
 

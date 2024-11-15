@@ -1,8 +1,13 @@
 package keeper
 
 import (
+	"fmt"
+
+	errorsmod "cosmossdk.io/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/bandprotocol/chain/v3/pkg/ctxcache"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
@@ -41,10 +46,23 @@ func (cb TSSCallback) OnGroupCreationCompleted(ctx sdk.Context, groupID tss.Grou
 
 		transition.Status = types.TRANSITION_STATUS_WAITING_EXECUTION
 	} else {
-		// create a signing request for transition. If the signing request is failed, set the
-		// transition status to fallen.
-		signingID, err := cb.k.CreateTransitionSigning(ctx, group.PubKey, transition.ExecTime)
-		if err != nil {
+		var signingID tss.SigningID
+		createSigningFunc := func(ctx sdk.Context) (err error) {
+			signingID, err = cb.k.CreateTransitionSigning(ctx, group.PubKey, transition.ExecTime)
+			return err
+		}
+
+		// create a signing request for transition. If the signing request is failed,
+		// revert changes and set the transition status to fallen.
+		if err := ctxcache.ApplyFuncIfNoError(ctx, createSigningFunc); err != nil {
+			codespace, code, _ := errorsmod.ABCIInfo(err, false)
+			ctx.EventManager().EmitEvent(sdk.NewEvent(
+				types.EventTypeCreateSigningFailed,
+				sdk.NewAttribute(types.AttributeSigningErrReason, err.Error()),
+				sdk.NewAttribute(types.AttributeKeySigningErrCodespace, codespace),
+				sdk.NewAttribute(types.AttributeKeySigningErrCode, fmt.Sprintf("%d", code)),
+			))
+
 			cb.k.EndGroupTransitionProcess(ctx, transition, false)
 			return
 		}

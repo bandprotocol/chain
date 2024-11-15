@@ -386,11 +386,11 @@ enum Encoder {
   option (gogoproto.goproto_enum_prefix) = false;
 
   // ENCODER_UNSPECIFIED is for unspecified value
-  ENCODER_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "ENCODER_UNSPECIFIED"];
-  // ENCODER_UNSPECIFIED is for proto encoding
-  ENCODER_PROTO = 1 [(gogoproto.enumvalue_customname) = "ENCODER_PROTO"];
-  // ENCODER_UNSPECIFIED is for ABI encoding for full data
-  ENCODER_FULL_ABI = 2 [(gogoproto.enumvalue_customname) = "ENCODER_FULL_ABI"];
-  // ENCODER_UNSPECIFIED is for ABI encoding for only important data
-  ENCODER_PARTIAL_ABI = 3 [(gogoproto.enumvalue_customname) = "ENCODER_PARTIAL_ABI"];
+  ENCODER_UNSPECIFIED = 0;
+  // ENCODER_PROTO is for proto encoding
+  ENCODER_PROTO = 1;
+  // ENCODER_FULL_ABI is for ABI encoding for full data
+  ENCODER_FULL_ABI = 2;
+  // ENCODER_PARTIAL_ABI is for ABI encoding for only important data
+  ENCODER_PARTIAL_ABI = 3;
 }
