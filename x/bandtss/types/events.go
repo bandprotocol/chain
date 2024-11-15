@@ -23,7 +23,7 @@ const (
 	AttributeKeyRandomAddress          = "random_address"
 	AttributeKeySignature              = "signature"
 
-	AttributeSigningErrReason       = "signing_error_reason"
+	AttributeKeySigningErrReason    = "signing_error_reason"
 	AttributeKeySigningErrCode      = "signing_error_code"
 	AttributeKeySigningErrCodespace = "signing_error_codespace"
 )
