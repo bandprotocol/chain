@@ -53,14 +53,14 @@ func (m *MsgSubmitSignalPrices) ValidateBasic() error {
 			)
 		}
 
-		if signalPrice.Status == SignalPriceStatusUnspecified {
+		if signalPrice.Status == SIGNAL_PRICE_STATUS_UNSPECIFIED {
 			return sdkerrors.ErrInvalidRequest.Wrap(
 				"signal price status must be specified",
 			)
 		}
 
 		// if signal price is not available, price must be 0
-		if signalPrice.Status != SignalPriceStatusAvailable && signalPrice.Price != 0 {
+		if signalPrice.Status != SIGNAL_PRICE_STATUS_AVAILABLE && signalPrice.Price != 0 {
 			return sdkerrors.ErrInvalidRequest.Wrap(
 				"signal price must be initial value if price status is unsupported or unavailable",
 			)
