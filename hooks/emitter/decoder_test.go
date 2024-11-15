@@ -934,12 +934,12 @@ func (suite *DecoderTestSuite) TestDecodeFeedsMsgSubmitPrices() {
 		Timestamp: 12345678,
 		SignalPrices: []feedstypes.SignalPrice{
 			{
-				Status:   feedstypes.SignalPriceStatusAvailable,
+				Status:   feedstypes.SIGNAL_PRICE_STATUS_AVAILABLE,
 				SignalID: "CS:ETH-USD",
 				Price:    3500000000000,
 			},
 			{
-				Status:   feedstypes.SignalPriceStatusUnavailable,
+				Status:   feedstypes.SIGNAL_PRICE_STATUS_UNAVAILABLE,
 				SignalID: "CS:BTC-USD",
 				Price:    0,
 			},
