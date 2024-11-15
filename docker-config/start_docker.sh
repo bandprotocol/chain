@@ -174,16 +174,16 @@ do
     cylinder config node tcp://multi-validator$v-node:26657
     cylinder config chain-id bandchain
     cylinder config granter $(bandd keys show account$v -a --keyring-backend test)
-    cylinder config max-messages 10
+    cylinder config max-messages 20
     cylinder config broadcast-timeout "5m"
     cylinder config rpc-poll-interval "1s"
     cylinder config max-try 5
     cylinder config gas-prices "0uband"
-    cylinder config min-de 20
+    cylinder config min-de 100
     cylinder config gas-adjust-start 1.6
     cylinder config gas-adjust-step 0.2
     cylinder config random-secret "$(openssl rand -hex 32)"
-    cylinder config checking-de-interval "5m"
+    cylinder config checking-de-interval "1m"
 
     for i in $(eval echo {1..4})
     do
@@ -196,7 +196,7 @@ do
     sleep 4
 
     # grant tss
-    echo "y" | bandd tx tss add-grantees $(cylinder keys list -a) --from account$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband --gas 2000000 -b sync
+    echo "y" | bandd tx tss add-grantees $(cylinder keys list -a) --from account$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband --gas 700000 -b sync
     sleep 4
 
     docker create --network chain_bandchain --name bandchain-cylinder${v} band-validator:latest cylinder run
