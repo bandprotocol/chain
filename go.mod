@@ -22,6 +22,7 @@ require (
 	github.com/bandprotocol/go-owasm v0.3.1
 	github.com/bytecodealliance/wasmtime-go/v20 v20.0.0
 	github.com/cometbft/cometbft v0.38.12
+	github.com/cometbft/cometbft-db v0.11.0
 	github.com/cosmos/cosmos-db v1.0.2
 	github.com/cosmos/cosmos-proto v1.0.0-beta.5
 	github.com/cosmos/cosmos-sdk v0.50.10
@@ -30,12 +31,14 @@ require (
 	github.com/cosmos/ibc-go/modules/capability v1.0.1
 	github.com/cosmos/ibc-go/v8 v8.5.2
 	github.com/cosmos/ics23/go v0.11.0
+	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0
 	github.com/ethereum/go-ethereum v1.14.8
 	github.com/golang/protobuf v1.5.4
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/kyokomi/emoji v2.2.4+incompatible
 	github.com/levigross/grequests v0.0.0-20231203190023-9c307ef1f48d
+	github.com/mitchellh/mapstructure v1.5.0
 	github.com/oasisprotocol/oasis-core/go v0.2202.7
 	github.com/peterbourgon/diskv v2.0.1+incompatible
 	github.com/prometheus/client_golang v1.20.5
@@ -44,6 +47,7 @@ require (
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/mock v0.5.0
+	golang.org/x/crypto v0.26.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20241021214115-324edc3d5d38
 	google.golang.org/grpc v1.67.1
 	google.golang.org/protobuf v1.35.1
@@ -83,7 +87,6 @@ require (
 	github.com/cockroachdb/redact v1.1.5 // indirect
 	github.com/cockroachdb/tokenbucket v0.0.0-20230807174530-cc333fc44b06 // indirect
 	github.com/coinbase/rosetta-sdk-go/types v1.0.0 // indirect
-	github.com/cometbft/cometbft-db v0.11.0 // indirect
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
 	github.com/cosmos/iavl v1.2.0 // indirect
@@ -93,7 +96,6 @@ require (
 	github.com/creachadair/tomledit v0.0.24 // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
-	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.2.0 // indirect
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/dgraph-io/badger/v2 v2.2007.4 // indirect
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
@@ -165,7 +167,6 @@ require (
 	github.com/minio/highwayhash v1.0.2 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
-	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/oasisprotocol/curve25519-voi v0.0.0-20230904125328-1f23a7beb09a // indirect
@@ -204,7 +205,6 @@ require (
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.26.0 // indirect
 	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8 // indirect
 	golang.org/x/net v0.28.0 // indirect
 	golang.org/x/oauth2 v0.22.0 // indirect

@@ -69,45 +69,6 @@ func fromHex(hexStr string) []byte {
 	return res
 }
 
-func (s *ABCITestSuite) TestRollingSeed() {
-	k := s.app.OracleKeeper
-	ctx := s.app.BaseApp.NewUncachedContext(false, tmproto.Header{})
-	require := s.Require()
-
-	// Initially rolling seed should be all zeros.
-	require.Equal(
-		fromHex("0000000000000000000000000000000000000000000000000000000000000000"),
-		k.GetRollingSeed(ctx),
-	)
-	// Every begin block, the rolling seed should get updated.
-	_, err := s.app.BeginBlocker(ctx.WithHeaderInfo(header.Info{
-		Hash: fromHex("0100000000000000000000000000000000000000000000000000000000000000"),
-	}))
-	require.Equal(
-		fromHex("0000000000000000000000000000000000000000000000000000000000000001"),
-		k.GetRollingSeed(ctx),
-	)
-	require.NoError(err)
-
-	_, err = s.app.BeginBlocker(ctx.WithHeaderInfo(header.Info{
-		Hash: fromHex("0200000000000000000000000000000000000000000000000000000000000000"),
-	}))
-	require.Equal(
-		fromHex("0000000000000000000000000000000000000000000000000000000000000102"),
-		k.GetRollingSeed(ctx),
-	)
-	require.NoError(err)
-
-	_, err = s.app.BeginBlocker(ctx.WithHeaderInfo(header.Info{
-		Hash: fromHex("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"),
-	}))
-	require.Equal(
-		fromHex("00000000000000000000000000000000000000000000000000000000000102ff"),
-		k.GetRollingSeed(ctx),
-	)
-	require.NoError(err)
-}
-
 func (s *ABCITestSuite) TestAllocateTokensCalledOnBeginBlock() {
 	k := s.app.OracleKeeper
 	ctx := s.app.BaseApp.NewUncachedContext(false, tmproto.Header{})

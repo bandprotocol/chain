@@ -1,0 +1,37 @@
+syntax = "proto3";
+package band.bandtss.v1beta1;
+
+import "gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+import "band/bandtss/v1beta1/bandtss.proto";
+
+option go_package = "github.com/bandprotocol/chain/v3/x/bandtss/types";
+
+// GenesisState defines the bandtss module's genesis state.
+message GenesisState {
+  // params defines all the paramiters of the module.
+  Params params = 1 [(gogoproto.nullable) = false];
+  // members is an array containing members information.
+  repeated Member members = 2 [(gogoproto.nullable) = false];
+  // current_group is the current group information.
+  CurrentGroup current_group = 3 [(gogoproto.nullable) = false];
+}
+
+// Params defines the set of module parameters.
+message Params {
+  option (gogoproto.equal) = true;
+
+  // reward_percentage is the percentage of block rewards allocated to active TSS members.
+  // The reward proportion is calculated after being allocated to oracle rewards.
+  uint64 reward_percentage = 1 [(gogoproto.customname) = "RewardPercentage"];
+  // inactive_penalty_duration is the duration where a member cannot activate back after being set to inactive.
+  google.protobuf.Duration inactive_penalty_duration = 2 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  // max_transition_duration is the maximum duration where the transition process waits
+  // since the start of the process until an incoming group replaces a current group.
+  google.protobuf.Duration max_transition_duration = 3 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  // fee is the tokens that will be paid per signer.
+  repeated cosmos.base.v1beta1.Coin fee = 4
+      [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+}

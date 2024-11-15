@@ -38,7 +38,25 @@ func (suite *KeeperTestSuite) TestHasRequest() {
 	// We should not have a request ID 42 without setting it.
 	require.False(k.HasRequest(ctx, 42))
 	// After we set it, we should be able to find it.
-	k.SetRequest(ctx, 42, types.NewRequest(1, basicCalldata, nil, 1, 1, bandtesting.ParseTime(0), "", nil, nil, 0))
+	k.SetRequest(
+		ctx,
+		42,
+		types.NewRequest(
+			1,
+			basicCalldata,
+			nil,
+			1,
+			1,
+			bandtesting.ParseTime(0),
+			"",
+			nil,
+			nil,
+			0,
+			0,
+			bandtesting.FeePayer.Address.String(),
+			bandtesting.Coins100000000uband,
+		),
+	)
 	require.True(k.HasRequest(ctx, 42))
 }
 
@@ -48,7 +66,25 @@ func (suite *KeeperTestSuite) TestDeleteRequest() {
 	require := suite.Require()
 
 	// After we set it, we should be able to find it.
-	k.SetRequest(ctx, 42, types.NewRequest(1, basicCalldata, nil, 1, 1, bandtesting.ParseTime(0), "", nil, nil, 0))
+	k.SetRequest(
+		ctx,
+		42,
+		types.NewRequest(
+			1,
+			basicCalldata,
+			nil,
+			1,
+			1,
+			bandtesting.ParseTime(0),
+			"",
+			nil,
+			nil,
+			0,
+			0,
+			bandtesting.FeePayer.Address.String(),
+			bandtesting.Coins100000000uband,
+		),
+	)
 	require.True(k.HasRequest(ctx, 42))
 	// After we delete it, we should not find it anymore.
 	k.DeleteRequest(ctx, 42)
@@ -68,8 +104,36 @@ func (suite *KeeperTestSuite) TestSetterGetterRequest() {
 	require.ErrorIs(err, types.ErrRequestNotFound)
 	require.Panics(func() { _ = k.MustGetRequest(ctx, 42) })
 	// Creates some basic requests.
-	req1 := types.NewRequest(1, basicCalldata, nil, 1, 1, bandtesting.ParseTime(0), "", nil, nil, 0)
-	req2 := types.NewRequest(2, basicCalldata, nil, 1, 1, bandtesting.ParseTime(0), "", nil, nil, 0)
+	req1 := types.NewRequest(
+		1,
+		basicCalldata,
+		nil,
+		1,
+		1,
+		bandtesting.ParseTime(0),
+		"",
+		nil,
+		nil,
+		0,
+		0,
+		bandtesting.FeePayer.Address.String(),
+		bandtesting.Coins100000000uband,
+	)
+	req2 := types.NewRequest(
+		2,
+		basicCalldata,
+		nil,
+		1,
+		1,
+		bandtesting.ParseTime(0),
+		"",
+		nil,
+		nil,
+		0,
+		0,
+		bandtesting.FeePayer.Address.String(),
+		bandtesting.Coins100000000uband,
+	)
 	// Sets id 42 with request 1 and id 42 with request 2.
 	k.SetRequest(ctx, 42, req1)
 	k.SetRequest(ctx, 43, req2)
@@ -118,13 +182,41 @@ func (suite *KeeperTestSuite) TestAddDataSourceBasic() {
 	// Adding the first request should return ID 1.
 	id := k.AddRequest(
 		ctx,
-		types.NewRequest(42, basicCalldata, []sdk.ValAddress{}, 1, 1, bandtesting.ParseTime(0), "", nil, nil, 0),
+		types.NewRequest(
+			42,
+			basicCalldata,
+			[]sdk.ValAddress{},
+			1,
+			1,
+			bandtesting.ParseTime(0),
+			"",
+			nil,
+			nil,
+			0,
+			0,
+			bandtesting.FeePayer.Address.String(),
+			bandtesting.Coins100000000uband,
+		),
 	)
 	require.Equal(id, types.RequestID(1))
 	// Adding another request should return ID 2.
 	id = k.AddRequest(
 		ctx,
-		types.NewRequest(42, basicCalldata, []sdk.ValAddress{}, 1, 1, bandtesting.ParseTime(0), "", nil, nil, 0),
+		types.NewRequest(
+			42,
+			basicCalldata,
+			[]sdk.ValAddress{},
+			1,
+			1,
+			bandtesting.ParseTime(0),
+			"",
+			nil,
+			nil,
+			0,
+			0,
+			bandtesting.FeePayer.Address.String(),
+			bandtesting.Coins100000000uband,
+		),
 	)
 	require.Equal(id, types.RequestID(2))
 }
@@ -199,9 +291,9 @@ func (suite *KeeperTestSuite) TestProcessExpiredRequests() {
 	require.NoError(err)
 
 	// Request 1, 2 and 4 gets resolved. Request 3 does not.
-	k.ResolveSuccess(ctx, 1, basicResult, 1234)
+	k.ResolveSuccess(ctx, 1, defaultRequest().Requester, defaultRequest().FeeLimit, basicResult, 1234, 0)
 	k.ResolveFailure(ctx, 2, "ARBITRARY_REASON")
-	k.ResolveSuccess(ctx, 4, basicResult, 1234)
+	k.ResolveSuccess(ctx, 4, defaultRequest().Requester, defaultRequest().FeeLimit, basicResult, 1234, 0)
 	// Initially, last expired request ID should be 0.
 	require.Equal(types.RequestID(0), k.GetRequestLastExpired(ctx))
 

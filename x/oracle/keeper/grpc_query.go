@@ -86,6 +86,16 @@ func (k Querier) Request(c context.Context, req *types.QueryRequestRequest) (*ty
 	ctx := sdk.UnwrapSDKContext(c)
 	rid := types.RequestID(req.RequestId)
 
+	// Check if there is a signing ID associated with the request
+	// Note: ignore error because it's possible to not have signing result.
+	var signingResult *types.SigningResult
+	sResult, err := k.GetSigningResult(ctx, rid)
+	if err != nil {
+		signingResult = nil
+	} else {
+		signingResult = &sResult
+	}
+
 	request, err := k.GetRequest(ctx, rid)
 	if err != nil {
 		lastExpired := k.GetRequestLastExpired(ctx)
@@ -100,16 +110,22 @@ func (k Querier) Request(c context.Context, req *types.QueryRequestRequest) (*ty
 			)
 		}
 		result := k.MustGetResult(ctx, rid)
-		return &types.QueryRequestResponse{Request: nil, Reports: nil, Result: &result}, nil
+		return &types.QueryRequestResponse{Request: nil, Reports: nil, Result: &result, Signing: signingResult}, nil
 	}
 
 	reports := k.GetReports(ctx, rid)
 	if !k.HasResult(ctx, rid) {
-		return &types.QueryRequestResponse{Request: &request, Reports: reports, Result: nil}, nil
+		return &types.QueryRequestResponse{Request: &request, Reports: reports, Result: nil, Signing: nil}, nil
 	}
 
 	result := k.MustGetResult(ctx, rid)
-	return &types.QueryRequestResponse{Request: &request, Reports: reports, Result: &result}, nil
+
+	return &types.QueryRequestResponse{
+		Request: &request,
+		Reports: reports,
+		Result:  &result,
+		Signing: signingResult,
+	}, nil
 }
 
 func (k Querier) PendingRequests(
@@ -201,7 +217,6 @@ func (k Querier) Validator(
 		return nil, err
 	}
 	status := k.GetValidatorStatus(ctx, val)
-
 	return &types.QueryValidatorResponse{Status: &status}, nil
 }
 

@@ -69,6 +69,8 @@ message MsgRequestData {
   uint64 execute_gas = 8;
   // Sender is an account address of message sender.
   string sender = 9 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  // TSSEncoder is the mode of encoding oracle result signature order.
+  Encoder tss_encoder = 10 [(gogoproto.customname) = "TSSEncoder"];
 }
 
 // MsgRequestDataResponse is response data for MsgRequestData message

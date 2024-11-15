@@ -57,7 +57,7 @@ func (suite *KeeperTestSuite) TestResolveSuccess() {
 
 	k.SetRequest(ctx, 42, defaultRequest()) // See report_test.go
 	k.SetReport(ctx, 42, types.NewReport(validators[0].Address, true, nil))
-	k.ResolveSuccess(ctx, 42, basicResult, 1234)
+	k.ResolveSuccess(ctx, 42, defaultRequest().Requester, defaultRequest().FeeLimit, basicResult, 1234, 0)
 	require.Equal(types.RESOLVE_STATUS_SUCCESS, k.MustGetResult(ctx, 42).ResolveStatus)
 	require.Equal(basicResult, k.MustGetResult(ctx, 42).Result)
 	require.Equal(sdk.Events{sdk.NewEvent(

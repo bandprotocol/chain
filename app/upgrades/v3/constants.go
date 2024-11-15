@@ -19,10 +19,13 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bandprotocol/chain/v3/app/upgrades"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
+	rollingseedtypes "github.com/bandprotocol/chain/v3/x/rollingseed/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 const UpgradeName = "v3"
@@ -39,6 +42,9 @@ var Upgrade = upgrades.Upgrade{
 			ibcfeetypes.StoreKey,
 			restaketypes.StoreKey,
 			feedstypes.StoreKey,
+			rollingseedtypes.StoreKey,
+			bandtsstypes.StoreKey,
+			tsstypes.StoreKey,
 		},
 	},
 }

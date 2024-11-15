@@ -34,18 +34,20 @@ func TestQueryParams(t *testing.T) {
 		},
 		"multiple coins": {
 			setupStore: func(ctx sdk.Context, k keeper.Keeper) {
-				_ = k.SetParams(ctx, types.Params{
+				err := k.SetParams(ctx, types.Params{
 					MinimumGasPrices: sdk.NewDecCoins(
 						sdk.NewDecCoin("ALX", math.OneInt()),
 						sdk.NewDecCoin("BLX", math.NewInt(2)),
 					),
 				})
+				require.NoError(t, err)
 			},
 			expMin: sdk.NewDecCoins(sdk.NewDecCoin("ALX", math.OneInt()), sdk.NewDecCoin("BLX", math.NewInt(2))),
 		},
 		"no min gas price set": {
 			setupStore: func(ctx sdk.Context, k keeper.Keeper) {
-				_ = k.SetParams(ctx, types.Params{})
+				err := k.SetParams(ctx, types.Params{})
+				require.NoError(t, err)
 			},
 		},
 		"no param set": {

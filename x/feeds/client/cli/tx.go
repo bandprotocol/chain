@@ -15,11 +15,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 
 	"github.com/bandprotocol/chain/v3/pkg/grant"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	"github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 const (
 	flagExpiration = "expiration"
+	flagFeeLimit   = "fee-limit"
 )
 
 // getGrantMsgTypes returns types for GrantMsg.
@@ -181,5 +183,57 @@ $ %s tx feeds vote BTC,1000000 --from mykey
 	}
 	flags.AddTxFlagsToCmd(cmd)
 
+	return cmd
+}
+
+// GetCmdRequestSignature implements the request signature handler.
+func GetCmdRequestSignature() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "feeds-prices [signal_id1,signal_id2,...] [encoder]",
+		Short: "Request bandtss signature prices from list of signal id and encoder (1: fixed-point abi, 2: tick abi)",
+		Args:  cobra.ExactArgs(2),
+		Long: strings.TrimSpace(
+			fmt.Sprintf(`Request bandtss signature from list of signal id and encoder (1: fixed-point abi, 2: tick abi)
+Example:
+$ %s tx bandtss request-signature feeds-prices CS:ETH-USD,CS:USDT-USD 1 --fee-limit 10uband
+`,
+				version.AppName,
+			),
+		),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			coinStr, err := cmd.Flags().GetString(flagFeeLimit)
+			if err != nil {
+				return err
+			}
+
+			feeLimit, err := sdk.ParseCoinsNormalized(coinStr)
+			if err != nil {
+				return err
+			}
+
+			signalIDs := strings.Split(args[0], ",")
+
+			encoder, err := strconv.ParseInt(args[1], 10, 32)
+			if err != nil {
+				return err
+			}
+
+			from := clientCtx.GetFromAddress().String()
+			content := types.NewFeedSignatureOrder(signalIDs, types.Encoder(encoder))
+
+			msg, err := bandtsstypes.NewMsgRequestSignature(content, feeLimit, from)
+			if err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }

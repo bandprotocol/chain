@@ -12,11 +12,14 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 
+	bandtsskeeper "github.com/bandprotocol/chain/v3/x/bandtss/keeper"
 	feedskeeper "github.com/bandprotocol/chain/v3/x/feeds/keeper"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/globalfee/keeper"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+	tsskeeper "github.com/bandprotocol/chain/v3/x/tss/keeper"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 type FeeChecker struct {
@@ -26,8 +29,11 @@ type FeeChecker struct {
 	OracleKeeper    *oraclekeeper.Keeper
 	GlobalfeeKeeper *keeper.Keeper
 	StakingKeeper   *stakingkeeper.Keeper
+	TSSKeeper       *tsskeeper.Keeper
+	BandtssKeeper   *bandtsskeeper.Keeper
 	FeedsKeeper     *feedskeeper.Keeper
 
+	TSSMsgServer   tsstypes.MsgServer
 	FeedsMsgServer feedstypes.MsgServer
 }
 
@@ -37,8 +43,11 @@ func NewFeeChecker(
 	oracleKeeper *oraclekeeper.Keeper,
 	globalfeeKeeper *keeper.Keeper,
 	stakingKeeper *stakingkeeper.Keeper,
+	tssKeeper *tsskeeper.Keeper,
+	bandtssKeeper *bandtsskeeper.Keeper,
 	feedsKeeper *feedskeeper.Keeper,
 ) FeeChecker {
+	tssMsgServer := tsskeeper.NewMsgServerImpl(tssKeeper)
 	feedsMsgServer := feedskeeper.NewMsgServerImpl(*feedsKeeper)
 
 	return FeeChecker{
@@ -47,7 +56,10 @@ func NewFeeChecker(
 		OracleKeeper:    oracleKeeper,
 		GlobalfeeKeeper: globalfeeKeeper,
 		StakingKeeper:   stakingKeeper,
+		TSSKeeper:       tssKeeper,
+		BandtssKeeper:   bandtssKeeper,
 		FeedsKeeper:     feedsKeeper,
+		TSSMsgServer:    tssMsgServer,
 		FeedsMsgServer:  feedsMsgServer,
 	}
 }
@@ -136,6 +148,42 @@ func (fc FeeChecker) IsBypassMinFeeMsg(ctx sdk.Context, msg sdk.Msg) bool {
 		}
 	case *feedstypes.MsgSubmitSignalPrices:
 		if _, err := fc.FeedsMsgServer.SubmitSignalPrices(ctx, msg); err != nil {
+			return false
+		}
+	case *tsstypes.MsgSubmitDKGRound1:
+		if _, err := fc.TSSMsgServer.SubmitDKGRound1(ctx, msg); err != nil {
+			return false
+		}
+	case *tsstypes.MsgSubmitDKGRound2:
+		if _, err := fc.TSSMsgServer.SubmitDKGRound2(ctx, msg); err != nil {
+			return false
+		}
+	case *tsstypes.MsgConfirm:
+		if _, err := fc.TSSMsgServer.Confirm(ctx, msg); err != nil {
+			return false
+		}
+	case *tsstypes.MsgComplain:
+		if _, err := fc.TSSMsgServer.Complain(ctx, msg); err != nil {
+			return false
+		}
+	case *tsstypes.MsgSubmitDEs:
+		acc, err := sdk.AccAddressFromBech32(msg.Sender)
+		if err != nil {
+			return false
+		}
+
+		currentGroupID := fc.BandtssKeeper.GetCurrentGroup(ctx).GroupID
+		incomingGroupID := fc.BandtssKeeper.GetIncomingGroupID(ctx)
+		if !fc.BandtssKeeper.HasMember(ctx, acc, currentGroupID) &&
+			!fc.BandtssKeeper.HasMember(ctx, acc, incomingGroupID) {
+			return false
+		}
+
+		if _, err := fc.TSSMsgServer.SubmitDEs(ctx, msg); err != nil {
+			return false
+		}
+	case *tsstypes.MsgSubmitSignature:
+		if _, err := fc.TSSMsgServer.SubmitSignature(ctx, msg); err != nil {
 			return false
 		}
 	case *authz.MsgExec:

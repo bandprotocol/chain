@@ -1,6 +1,7 @@
 package benchmark
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
 	"os"
@@ -22,9 +23,12 @@ import (
 	owasm "github.com/bandprotocol/go-owasm/api"
 
 	"github.com/bandprotocol/chain/v3/pkg/obi"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 type Account struct {
@@ -143,6 +147,75 @@ func GenMsgActivate(account *Account) []sdk.Msg {
 	return []sdk.Msg{&msg}
 }
 
+func MockByte(n int) []byte {
+	msg := make([]byte, n)
+	for i := 0; i < n; i++ {
+		msg[i] = 'a' + byte(i%26)
+	}
+	return msg
+}
+
+func GenMsgRequestSignature(
+	sender *Account,
+	content tsstypes.Content,
+	feeLimit sdk.Coins,
+) []sdk.Msg {
+	msg, err := bandtsstypes.NewMsgRequestSignature(content, feeLimit, sender.Address.String())
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.Msg{msg}
+}
+
+func GenMsgSubmitSignature(sid tss.SigningID, mid tss.MemberID, sig tss.Signature, member sdk.AccAddress) []sdk.Msg {
+	msg := tsstypes.MsgSubmitSignature{
+		SigningID: sid,
+		MemberID:  mid,
+		Signature: sig,
+		Signer:    member.String(),
+	}
+
+	return []sdk.Msg{&msg}
+}
+
+func CreateSignature(
+	mid tss.MemberID,
+	signing tsstypes.Signing,
+	assignedMembers tsstypes.AssignedMembers,
+	groupPubKey tss.Point,
+	ownPrivKey tss.Scalar,
+) (tss.Signature, error) {
+	// Compute Lagrange coefficient
+	lgc, err := tss.ComputeLagrangeCoefficient(
+		mid,
+		assignedMembers.MemberIDs(),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, am := range assignedMembers {
+		if am.MemberID == mid {
+			// Compute private nonce
+			pn, err := tss.ComputeOwnPrivNonce(PrivD, PrivE, am.BindingFactor)
+			if err != nil {
+				return nil, err
+			}
+			// Sign the message
+			return tss.SignSigning(
+				signing.GroupPubNonce,
+				groupPubKey,
+				signing.Message,
+				lgc,
+				pn,
+				ownPrivKey,
+			)
+		}
+	}
+
+	return nil, fmt.Errorf("this member is not assigned members")
+}
+
 func GenSequenceOfTxs(
 	txEncoder sdk.TxEncoder,
 	txConfig client.TxConfig,
@@ -226,7 +299,9 @@ func InitOwasmTestEnv(
 			Value:        parameter,
 			Text:         strings.Repeat("#", stringLength),
 		}), []sdk.ValAddress{[]byte{}}, 1,
-		1, time.Now(), "", nil, nil, ExecuteGasLimit,
+		1, time.Now(), "", nil, nil, ExecuteGasLimit, 0,
+		bandtesting.FeePayer.Address.String(),
+		bandtesting.Coins100000000uband,
 	)
 
 	return owasmVM, compiledCode, req

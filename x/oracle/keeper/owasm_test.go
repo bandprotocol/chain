@@ -57,7 +57,10 @@ func (suite *KeeperTestSuite) TestGetRandomValidatorsSuccessActivateAll() {
 	suite.mockIterateBondedValidatorsByPower()
 
 	// Getting 3 validators using ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+	suite.rollingseedKeeper.
+		EXPECT().
+		GetRollingSeed(gomock.Any()).
+		Return([]byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
 	vals, err := k.GetRandomValidators(ctx, 3, 1)
 	require.NoError(err)
 	require.Equal(
@@ -68,8 +71,12 @@ func (suite *KeeperTestSuite) TestGetRandomValidatorsSuccessActivateAll() {
 		},
 		vals,
 	)
-	// Getting 3 validators using ROLLING_SEED_A
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_A_WITH_LONG_ENOUGH_ENTROPY"))
+
+	// Getting 3 validators using ROLLING_SEED_A_WITH_LONG_ENOUGH_ENTROPY
+	suite.rollingseedKeeper.
+		EXPECT().
+		GetRollingSeed(gomock.Any()).
+		Return([]byte("ROLLING_SEED_A_WITH_LONG_ENOUGH_ENTROPY"))
 	vals, err = k.GetRandomValidators(ctx, 3, 1)
 	require.NoError(err)
 	require.Equal(
@@ -80,8 +87,12 @@ func (suite *KeeperTestSuite) TestGetRandomValidatorsSuccessActivateAll() {
 		},
 		vals,
 	)
+
 	// Getting 3 validators using ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY again should return the same result as the first one.
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+	suite.rollingseedKeeper.
+		EXPECT().
+		GetRollingSeed(gomock.Any()).
+		Return([]byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
 	vals, err = k.GetRandomValidators(ctx, 3, 1)
 	require.NoError(err)
 	require.Equal(
@@ -92,8 +103,12 @@ func (suite *KeeperTestSuite) TestGetRandomValidatorsSuccessActivateAll() {
 		},
 		vals,
 	)
+
 	// Getting 3 validators using ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY but for a different request ID.
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+	suite.rollingseedKeeper.
+		EXPECT().
+		GetRollingSeed(gomock.Any()).
+		Return([]byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
 	vals, err = k.GetRandomValidators(ctx, 3, 42)
 	require.NoError(err)
 	require.Equal(
@@ -113,7 +128,11 @@ func (suite *KeeperTestSuite) TestGetRandomValidatorsTooBigSize() {
 	suite.activeAllValidators()
 	suite.mockIterateBondedValidatorsByPower()
 
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+	suite.rollingseedKeeper.
+		EXPECT().
+		GetRollingSeed(gomock.Any()).
+		Return([]byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY")).
+		AnyTimes()
 
 	_, err := k.GetRandomValidators(ctx, 1, 1)
 	require.NoError(err)
@@ -134,7 +153,10 @@ func (suite *KeeperTestSuite) TestGetRandomValidatorsNotEnoughEntropy() {
 	suite.activeAllValidators()
 	suite.mockIterateBondedValidatorsByPower()
 
-	k.SetRollingSeed(ctx, []byte(""))
+	suite.rollingseedKeeper.
+		EXPECT().
+		GetRollingSeed(gomock.Any()).
+		Return([]byte(""))
 
 	_, err := k.GetRandomValidators(ctx, 3, 1)
 	require.ErrorIs(err, types.ErrBadDrbgInitialization)
@@ -164,9 +186,15 @@ func (suite *KeeperTestSuite) TestPrepareRequestSuccessBasic() {
 		testDefaultPrepareGas,
 		testDefaultExecuteGas,
 		alice,
+		0,
 	)
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_A_WITH_LONG_ENOUGH_ENTROPY"))
+
 	// Define expected mock keeper
+	suite.rollingseedKeeper.
+		EXPECT().
+		GetRollingSeed(gomock.Any()).
+		Return([]byte("ROLLING_SEED_A_WITH_LONG_ENOUGH_ENTROPY"))
+
 	suite.bankKeeper.EXPECT().SendCoins(gomock.Any(), alice, treasury, coins1000000uband)
 	suite.bankKeeper.EXPECT().SendCoins(gomock.Any(), alice, treasury, coins1000000uband)
 	suite.bankKeeper.EXPECT().SendCoins(gomock.Any(), alice, treasury, coins1000000uband)
@@ -176,12 +204,23 @@ func (suite *KeeperTestSuite) TestPrepareRequestSuccessBasic() {
 	require.Equal(types.RequestID(1), id)
 
 	require.Equal(types.NewRequest(
-		1, basicCalldata, []sdk.ValAddress{validators[0].Address}, 1,
-		42, bandtesting.ParseTime(1581589790), basicClientID, []types.RawRequest{
+		1,
+		basicCalldata,
+		[]sdk.ValAddress{validators[0].Address},
+		1,
+		42,
+		bandtesting.ParseTime(1581589790),
+		basicClientID,
+		[]types.RawRequest{
 			types.NewRawRequest(1, 1, []byte("test")),
 			types.NewRawRequest(2, 2, []byte("test")),
 			types.NewRawRequest(3, 3, []byte("test")),
-		}, nil, testDefaultExecuteGas,
+		},
+		nil,
+		testDefaultExecuteGas,
+		0,
+		alice.String(),
+		sdk.NewCoins(sdk.NewInt64Coin("uband", 97000000)),
 	), k.MustGetRequest(ctx, 1))
 
 	// assert gas consumption
@@ -207,6 +246,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestInvalidCalldataSize() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
+		0,
 	)
 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.EqualError(err, "got: 2000, max: 512: too large calldata")
@@ -218,7 +258,11 @@ func (suite *KeeperTestSuite) TestPrepareRequestOracleScriptNotFound() {
 	ctx := suite.ctx
 	k := suite.oracleKeeper
 	require := suite.Require()
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+
+	suite.rollingseedKeeper.
+		EXPECT().
+		GetRollingSeed(gomock.Any()).
+		Return([]byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
 
 	m := types.NewMsgRequestData(
 		999,
@@ -230,6 +274,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestOracleScriptNotFound() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
+		0,
 	)
 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.EqualError(err, "id: 999: oracle script not found")
@@ -241,7 +286,13 @@ func (suite *KeeperTestSuite) TestPrepareRequestNotEnoughMaxFee() {
 	suite.activeAllValidators()
 	ctx := suite.ctx
 	k := suite.oracleKeeper
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+
+	// Define expected mock keeper
+	suite.rollingseedKeeper.
+		EXPECT().
+		GetRollingSeed(gomock.Any()).
+		Return([]byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY")).
+		AnyTimes()
 
 	suite.bankKeeper.EXPECT().
 		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
@@ -259,9 +310,11 @@ func (suite *KeeperTestSuite) TestPrepareRequestNotEnoughMaxFee() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.FeePayer.Address,
+		0,
 	)
 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.EqualError(err, "require: 1000000uband, max: 0uband: not enough fee")
+
 	m = types.NewMsgRequestData(
 		1,
 		basicCalldata,
@@ -272,6 +325,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestNotEnoughMaxFee() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.FeePayer.Address,
+		0,
 	)
 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.EqualError(err, "require: 2000000uband, max: 1000000uband: not enough fee")
@@ -285,6 +339,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestNotEnoughMaxFee() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.FeePayer.Address,
+		0,
 	)
 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.EqualError(err, "require: 3000000uband, max: 2000000uband: not enough fee")
@@ -298,6 +353,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestNotEnoughMaxFee() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.FeePayer.Address,
+		0,
 	)
 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.EqualError(err, "require: 3000000uband, max: 2999999uband: not enough fee")
@@ -311,6 +367,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestNotEnoughMaxFee() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.FeePayer.Address,
+		0,
 	)
 	id, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.NoError(err)
@@ -323,7 +380,12 @@ func (suite *KeeperTestSuite) TestPrepareRequestNotEnoughFund() {
 	suite.activeAllValidators()
 	ctx := suite.ctx
 	k := suite.oracleKeeper
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+
+	// Define expected mock keeper
+	suite.rollingseedKeeper.
+		EXPECT().
+		GetRollingSeed(gomock.Any()).
+		Return([]byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
 
 	suite.bankKeeper.EXPECT().
 		SendCoins(gomock.Any(), bandtesting.Alice.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
@@ -345,6 +407,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestNotEnoughFund() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
+		0,
 	)
 	_, err := k.PrepareRequest(ctx, m, bandtesting.Alice.Address, nil)
 	require.EqualError(err, "spendable balance 0uband is smaller than 1000000uband: insufficient funds")
@@ -356,7 +419,12 @@ func (suite *KeeperTestSuite) TestPrepareRequestNotEnoughPrepareGas() {
 	suite.activeAllValidators()
 	ctx := suite.ctx
 	k := suite.oracleKeeper
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+
+	// Define expected mock keeper
+	suite.rollingseedKeeper.
+		EXPECT().
+		GetRollingSeed(gomock.Any()).
+		Return([]byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
 
 	ctx = ctx.WithBlockTime(bandtesting.ParseTime(1581589790)).WithBlockHeight(42)
 
@@ -373,6 +441,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestNotEnoughPrepareGas() {
 		1,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
+		0,
 	)
 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.ErrorIs(err, types.ErrBadWasmExecution)
@@ -390,7 +459,12 @@ func (suite *KeeperTestSuite) TestPrepareRequestInvalidAskCountFail() {
 	suite.activeAllValidators()
 	ctx := suite.ctx
 	k := suite.oracleKeeper
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+
+	// Define expected mock keeper
+	suite.rollingseedKeeper.
+		EXPECT().
+		GetRollingSeed(gomock.Any()).
+		Return([]byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
 
 	suite.bankKeeper.EXPECT().
 		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
@@ -414,6 +488,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestInvalidAskCountFail() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
+		0,
 	)
 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.ErrorIs(err, types.ErrInvalidAskCount)
@@ -432,6 +507,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestInvalidAskCountFail() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
+		0,
 	)
 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.ErrorIs(err, types.ErrInsufficientValidators)
@@ -450,6 +526,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestInvalidAskCountFail() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
+		0,
 	)
 	id, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.Equal(types.RequestID(1), id)
@@ -465,7 +542,13 @@ func (suite *KeeperTestSuite) TestPrepareRequestBaseOwasmFeePanic() {
 	suite.activeAllValidators()
 	ctx := suite.ctx
 	k := suite.oracleKeeper
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+
+	// Define expected mock keeper
+	suite.rollingseedKeeper.
+		EXPECT().
+		GetRollingSeed(gomock.Any()).
+		Return([]byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY")).
+		AnyTimes()
 
 	suite.bankKeeper.EXPECT().
 		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
@@ -486,6 +569,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestBaseOwasmFeePanic() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
+		0,
 	)
 	ctx = ctx.WithGasMeter(storetypes.NewGasMeter(90000))
 	require.PanicsWithValue(
@@ -504,7 +588,13 @@ func (suite *KeeperTestSuite) TestPrepareRequestPerValidatorRequestFeePanic() {
 	suite.activeAllValidators()
 	ctx := suite.ctx
 	k := suite.oracleKeeper
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+
+	// Define expected mock keeper
+	suite.rollingseedKeeper.
+		EXPECT().
+		GetRollingSeed(gomock.Any()).
+		Return([]byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY")).
+		AnyTimes()
 
 	suite.bankKeeper.EXPECT().
 		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
@@ -525,6 +615,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestPerValidatorRequestFeePanic() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
+		0,
 	)
 	ctx = ctx.WithGasMeter(storetypes.NewGasMeter(90000))
 	require.PanicsWithValue(
@@ -541,6 +632,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestPerValidatorRequestFeePanic() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
+		0,
 	)
 	ctx = ctx.WithGasMeter(storetypes.NewGasMeter(1000000))
 	id, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
@@ -554,7 +646,13 @@ func (suite *KeeperTestSuite) TestPrepareRequestEmptyCalldata() {
 	suite.activeAllValidators()
 	ctx := suite.ctx
 	k := suite.oracleKeeper
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+
+	// Define expected mock keeper
+	suite.rollingseedKeeper.
+		EXPECT().
+		GetRollingSeed(gomock.Any()).
+		Return([]byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY")).
+		AnyTimes()
 
 	// Send nil while oracle script expects calldata
 	m := types.NewMsgRequestData(
@@ -567,6 +665,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestEmptyCalldata() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
+		0,
 	)
 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.EqualError(err, "runtime error while executing the Wasm script: bad wasm execution")
@@ -578,7 +677,13 @@ func (suite *KeeperTestSuite) TestPrepareRequestBadWasmExecutionFail() {
 	suite.activeAllValidators()
 	ctx := suite.ctx
 	k := suite.oracleKeeper
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+
+	// Define expected mock keeper
+	suite.rollingseedKeeper.
+		EXPECT().
+		GetRollingSeed(gomock.Any()).
+		Return([]byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY")).
+		AnyTimes()
 
 	m := types.NewMsgRequestData(
 		2,
@@ -590,6 +695,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestBadWasmExecutionFail() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
+		0,
 	)
 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.EqualError(err, "OEI action to invoke is not available: bad wasm execution")
@@ -601,7 +707,13 @@ func (suite *KeeperTestSuite) TestPrepareRequestWithEmptyRawRequest() {
 	suite.activeAllValidators()
 	ctx := suite.ctx
 	k := suite.oracleKeeper
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+
+	// Define expected mock keeper
+	suite.rollingseedKeeper.
+		EXPECT().
+		GetRollingSeed(gomock.Any()).
+		Return([]byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY")).
+		AnyTimes()
 
 	m := types.NewMsgRequestData(
 		3,
@@ -613,6 +725,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestWithEmptyRawRequest() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
+		0,
 	)
 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.EqualError(err, "empty raw requests")
@@ -624,7 +737,13 @@ func (suite *KeeperTestSuite) TestPrepareRequestUnknownDataSource() {
 	suite.activeAllValidators()
 	ctx := suite.ctx
 	k := suite.oracleKeeper
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+
+	// Define expected mock keeper
+	suite.rollingseedKeeper.
+		EXPECT().
+		GetRollingSeed(gomock.Any()).
+		Return([]byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY")).
+		AnyTimes()
 
 	suite.bankKeeper.EXPECT().
 		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
@@ -633,7 +752,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestUnknownDataSource() {
 	m := types.NewMsgRequestData(4, obi.MustEncode(testdata.Wasm4Input{
 		IDs:      []int64{1, 2, 99},
 		Calldata: "test",
-	}), 1, 1, basicClientID, bandtesting.Coins100000000uband, bandtesting.TestDefaultPrepareGas, bandtesting.TestDefaultExecuteGas, bandtesting.Alice.Address)
+	}), 1, 1, basicClientID, bandtesting.Coins100000000uband, bandtesting.TestDefaultPrepareGas, bandtesting.TestDefaultExecuteGas, bandtesting.Alice.Address, 0)
 	_, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.EqualError(err, "id: 99: data source not found")
 }
@@ -644,7 +763,13 @@ func (suite *KeeperTestSuite) TestPrepareRequestInvalidDataSourceCount() {
 	suite.activeAllValidators()
 	ctx := suite.ctx
 	k := suite.oracleKeeper
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+
+	// Define expected mock keeper
+	suite.rollingseedKeeper.
+		EXPECT().
+		GetRollingSeed(gomock.Any()).
+		Return([]byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY")).
+		AnyTimes()
 
 	suite.bankKeeper.EXPECT().
 		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
@@ -657,13 +782,13 @@ func (suite *KeeperTestSuite) TestPrepareRequestInvalidDataSourceCount() {
 	m := types.NewMsgRequestData(4, obi.MustEncode(testdata.Wasm4Input{
 		IDs:      []int64{1, 2, 3, 4},
 		Calldata: "test",
-	}), 1, 1, basicClientID, bandtesting.Coins100000000uband, bandtesting.TestDefaultPrepareGas, bandtesting.TestDefaultExecuteGas, bandtesting.Alice.Address)
+	}), 1, 1, basicClientID, bandtesting.Coins100000000uband, bandtesting.TestDefaultPrepareGas, bandtesting.TestDefaultExecuteGas, bandtesting.Alice.Address, 0)
 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.ErrorIs(err, types.ErrBadWasmExecution)
 	m = types.NewMsgRequestData(4, obi.MustEncode(testdata.Wasm4Input{
 		IDs:      []int64{1, 2, 3},
 		Calldata: "test",
-	}), 1, 1, basicClientID, bandtesting.Coins100000000uband, bandtesting.TestDefaultPrepareGas, bandtesting.TestDefaultExecuteGas, bandtesting.Alice.Address)
+	}), 1, 1, basicClientID, bandtesting.Coins100000000uband, bandtesting.TestDefaultPrepareGas, bandtesting.TestDefaultExecuteGas, bandtesting.Alice.Address, 0)
 	id, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.Equal(types.RequestID(1), id)
 	require.NoError(err)
@@ -675,7 +800,13 @@ func (suite *KeeperTestSuite) TestPrepareRequestTooMuchWasmGas() {
 	suite.activeAllValidators()
 	ctx := suite.ctx
 	k := suite.oracleKeeper
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+
+	// Define expected mock keeper
+	suite.rollingseedKeeper.
+		EXPECT().
+		GetRollingSeed(gomock.Any()).
+		Return([]byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY")).
+		AnyTimes()
 
 	suite.bankKeeper.EXPECT().
 		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
@@ -691,6 +822,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestTooMuchWasmGas() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
+		0,
 	)
 	id, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.Equal(types.RequestID(1), id)
@@ -705,6 +837,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestTooMuchWasmGas() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
+		0,
 	)
 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.EqualError(err, "out-of-gas while executing the wasm script: bad wasm execution")
@@ -716,7 +849,13 @@ func (suite *KeeperTestSuite) TestPrepareRequestTooLargeCalldata() {
 	suite.activeAllValidators()
 	ctx := suite.ctx
 	k := suite.oracleKeeper
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
+
+	// Define expected mock keeper
+	suite.rollingseedKeeper.
+		EXPECT().
+		GetRollingSeed(gomock.Any()).
+		Return([]byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY")).
+		AnyTimes()
 
 	suite.bankKeeper.EXPECT().
 		SendCoins(gomock.Any(), bandtesting.FeePayer.Address, bandtesting.Treasury.Address, bandtesting.Coins1000000uband).
@@ -732,6 +871,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestTooLargeCalldata() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
+		0,
 	)
 	id, err := k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.Equal(types.RequestID(1), id)
@@ -746,6 +886,7 @@ func (suite *KeeperTestSuite) TestPrepareRequestTooLargeCalldata() {
 		bandtesting.TestDefaultPrepareGas,
 		bandtesting.TestDefaultExecuteGas,
 		bandtesting.Alice.Address,
+		0,
 	)
 	_, err = k.PrepareRequest(ctx, m, bandtesting.FeePayer.Address, nil)
 	require.EqualError(err, "span to write is too small: bad wasm execution")
@@ -757,7 +898,6 @@ func (suite *KeeperTestSuite) TestResolveRequestOutOfGas() {
 	suite.activeAllValidators()
 	ctx := suite.ctx
 	k := suite.oracleKeeper
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
 
 	ctx = ctx.WithBlockTime(bandtesting.ParseTime(1581589890))
 	k.SetRequest(ctx, 42, types.NewRequest(
@@ -774,6 +914,9 @@ func (suite *KeeperTestSuite) TestResolveRequestOutOfGas() {
 		},
 		nil,
 		0,
+		0,
+		bandtesting.FeePayer.Address.String(),
+		bandtesting.Coins100000000uband,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
@@ -795,7 +938,6 @@ func (suite *KeeperTestSuite) TestResolveReadNilExternalData() {
 	suite.activeAllValidators()
 	ctx := suite.ctx
 	k := suite.oracleKeeper
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
 
 	ctx = ctx.WithBlockTime(bandtesting.ParseTime(1581589890))
 	k.SetRequest(ctx, 42, types.NewRequest(
@@ -808,6 +950,9 @@ func (suite *KeeperTestSuite) TestResolveReadNilExternalData() {
 			types.NewRawRequest(0, 1, basicCalldata),
 			types.NewRawRequest(1, 2, basicCalldata),
 		}, nil, bandtesting.TestDefaultExecuteGas,
+		0,
+		bandtesting.FeePayer.Address.String(),
+		bandtesting.Coins100000000uband,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
@@ -847,7 +992,6 @@ func (suite *KeeperTestSuite) TestResolveRequestNoReturnData() {
 	suite.activeAllValidators()
 	ctx := suite.ctx
 	k := suite.oracleKeeper
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
 
 	ctx = ctx.WithBlockTime(bandtesting.ParseTime(1581589890))
 	k.SetRequest(ctx, 42, types.NewRequest(
@@ -864,6 +1008,9 @@ func (suite *KeeperTestSuite) TestResolveRequestNoReturnData() {
 		},
 		nil,
 		1,
+		0,
+		bandtesting.FeePayer.Address.String(),
+		bandtesting.Coins100000000uband,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
@@ -890,7 +1037,6 @@ func (suite *KeeperTestSuite) TestResolveRequestWasmFailure() {
 	suite.activeAllValidators()
 	ctx := suite.ctx
 	k := suite.oracleKeeper
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
 
 	ctx = ctx.WithBlockTime(bandtesting.ParseTime(1581589890))
 	k.SetRequest(ctx, 42, types.NewRequest(
@@ -907,6 +1053,9 @@ func (suite *KeeperTestSuite) TestResolveRequestWasmFailure() {
 		},
 		nil,
 		0,
+		0,
+		bandtesting.FeePayer.Address.String(),
+		bandtesting.Coins100000000uband,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		bandtesting.Validators[0].ValAddress, true, []types.RawReport{
@@ -933,7 +1082,6 @@ func (suite *KeeperTestSuite) TestResolveRequestCallReturnDataSeveralTimes() {
 	suite.activeAllValidators()
 	ctx := suite.ctx
 	k := suite.oracleKeeper
-	k.SetRollingSeed(ctx, []byte("ROLLING_SEED_1_WITH_LONG_ENOUGH_ENTROPY"))
 
 	ctx = ctx.WithBlockTime(bandtesting.ParseTime(1581589890))
 	k.SetRequest(ctx, 42, types.NewRequest(
@@ -950,6 +1098,9 @@ func (suite *KeeperTestSuite) TestResolveRequestCallReturnDataSeveralTimes() {
 		},
 		nil,
 		bandtesting.TestDefaultExecuteGas,
+		0,
+		bandtesting.FeePayer.Address.String(),
+		bandtesting.Coins100000000uband,
 	))
 	k.ResolveRequest(ctx, 42)
 
@@ -989,6 +1140,9 @@ func (suite *KeeperTestSuite) TestResolveRequestSuccess() {
 		},
 		nil,
 		testDefaultExecuteGas,
+		0,
+		bandtesting.FeePayer.Address.String(),
+		bandtesting.Coins100000000uband,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		validators[0].Address, true, []types.RawReport{
@@ -1013,15 +1167,23 @@ func (suite *KeeperTestSuite) TestResolveRequestSuccessComplex() {
 
 	ctx = ctx.WithBlockTime(bandtesting.ParseTime(1581589890))
 	k.SetRequest(ctx, 42, types.NewRequest(
-		// 4th Wasm. Append all reports from all validators.
-		4, obi.MustEncode(testdata.Wasm4Input{
+		4, // 4th Wasm. Append all reports from all validators.
+		obi.MustEncode(testdata.Wasm4Input{
 			IDs:      []int64{1, 2},
 			Calldata: string(basicCalldata),
-		}), []sdk.ValAddress{validators[0].Address, validators[1].Address}, 1,
-		42, bandtesting.ParseTime(1581589790), basicClientID, []types.RawRequest{
+		}),
+		[]sdk.ValAddress{validators[0].Address, validators[1].Address},
+		1,
+		42,
+		bandtesting.ParseTime(1581589790), basicClientID, []types.RawRequest{
 			types.NewRawRequest(0, 1, basicCalldata),
 			types.NewRawRequest(1, 2, basicCalldata),
-		}, nil, testDefaultExecuteGas,
+		},
+		nil,
+		testDefaultExecuteGas,
+		0,
+		bandtesting.FeePayer.Address.String(),
+		bandtesting.Coins100000000uband,
 	))
 	k.SetReport(ctx, 42, types.NewReport(
 		validators[0].Address, true, []types.RawReport{

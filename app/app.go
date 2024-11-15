@@ -281,6 +281,8 @@ func NewBandApp(
 			Cdc:                   app.appCodec,
 			AuthzKeeper:           &app.AuthzKeeper,
 			OracleKeeper:          &app.OracleKeeper,
+			TSSKeeper:             app.TSSKeeper,
+			BandtssKeeper:         &app.BandtssKeeper,
 			FeedsKeeper:           &app.FeedsKeeper,
 			IBCKeeper:             app.IBCKeeper,
 			StakingKeeper:         app.StakingKeeper,

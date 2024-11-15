@@ -27,10 +27,13 @@ import (
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	globalfeetypes "github.com/bandprotocol/chain/v3/x/globalfee/types"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
+	rollingseedtypes "github.com/bandprotocol/chain/v3/x/rollingseed/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 func (appKeepers *AppKeepers) GenerateKeys() {
@@ -61,6 +64,9 @@ func (appKeepers *AppKeepers) GenerateKeys() {
 		ibcfeetypes.StoreKey,
 		restaketypes.StoreKey,
 		feedstypes.StoreKey,
+		bandtsstypes.StoreKey,
+		tsstypes.StoreKey,
+		rollingseedtypes.StoreKey,
 		wasmtypes.StoreKey,
 	)
 

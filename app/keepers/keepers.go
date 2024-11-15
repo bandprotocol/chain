@@ -72,7 +72,10 @@ import (
 
 	owasm "github.com/bandprotocol/go-owasm/api"
 
+	bandtsskeeper "github.com/bandprotocol/chain/v3/x/bandtss/keeper"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	bandbankkeeper "github.com/bandprotocol/chain/v3/x/bank/keeper"
+	"github.com/bandprotocol/chain/v3/x/feeds"
 	feedskeeper "github.com/bandprotocol/chain/v3/x/feeds/keeper"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	globalfeekeeper "github.com/bandprotocol/chain/v3/x/globalfee/keeper"
@@ -82,6 +85,11 @@ import (
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	restakekeeper "github.com/bandprotocol/chain/v3/x/restake/keeper"
 	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
+	rollingseedkeeper "github.com/bandprotocol/chain/v3/x/rollingseed/keeper"
+	rollingseedtypes "github.com/bandprotocol/chain/v3/x/rollingseed/types"
+	"github.com/bandprotocol/chain/v3/x/tss"
+	tsskeeper "github.com/bandprotocol/chain/v3/x/tss/keeper"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 type AppKeepers struct {
@@ -106,7 +114,10 @@ type AppKeepers struct {
 	EvidenceKeeper        evidencekeeper.Keeper
 	AuthzKeeper           authzkeeper.Keeper
 	GroupKeeper           groupkeeper.Keeper
+	RollingseedKeeper     rollingseedkeeper.Keeper
 	OracleKeeper          oraclekeeper.Keeper
+	TSSKeeper             *tsskeeper.Keeper
+	BandtssKeeper         bandtsskeeper.Keeper
 	FeedsKeeper           feedskeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	GlobalFeeKeeper       globalfeekeeper.Keeper
@@ -455,6 +466,33 @@ func NewAppKeeper(
 		panic(err)
 	}
 
+	appKeepers.RollingseedKeeper = rollingseedkeeper.NewKeeper(appKeepers.keys[rollingseedtypes.StoreKey])
+
+	// register the request signature types
+	tssContentRouter := tsstypes.NewContentRouter()
+	tssCbRouter := tsstypes.NewCallbackRouter()
+
+	appKeepers.TSSKeeper = tsskeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[tsstypes.StoreKey],
+		appKeepers.AuthzKeeper,
+		appKeepers.RollingseedKeeper,
+		tssContentRouter,
+		tssCbRouter,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
+	appKeepers.BandtssKeeper = bandtsskeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[bandtsstypes.StoreKey],
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+		appKeepers.DistrKeeper,
+		appKeepers.TSSKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		authtypes.FeeCollectorName,
+	)
+
 	appKeepers.OracleKeeper = oraclekeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[oracletypes.StoreKey],
@@ -467,6 +505,8 @@ func NewAppKeeper(
 		appKeepers.AuthzKeeper,
 		appKeepers.IBCFeeKeeper,
 		appKeepers.IBCKeeper.PortKeeper,
+		appKeepers.RollingseedKeeper,
+		appKeepers.BandtssKeeper,
 		appKeepers.ScopedOracleKeeper,
 		owasmVM,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
@@ -481,6 +521,22 @@ func NewAppKeeper(
 		appKeepers.AuthzKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
+
+	// Add TSS route
+	tssContentRouter.
+		AddRoute(tsstypes.RouterKey, tss.NewSignatureOrderHandler(*appKeepers.TSSKeeper)).
+		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(appKeepers.OracleKeeper)).
+		AddRoute(bandtsstypes.RouterKey, bandtsstypes.NewSignatureOrderHandler()).
+		AddRoute(feedstypes.RouterKey, feeds.NewSignatureOrderHandler(appKeepers.FeedsKeeper))
+
+	tssCbRouter.
+		AddRoute(bandtsstypes.RouterKey, bandtsskeeper.NewTSSCallback(appKeepers.BandtssKeeper))
+
+	// It is vital to seal the request signature router here as to not allow
+	// further handlers to be registered after the keeper is created since this
+	// could create invalid or non-deterministic behavior.
+	tssContentRouter.Seal()
+	tssCbRouter.Seal()
 
 	// Middleware Stacks
 	appKeepers.ICAModule = ica.NewAppModule(nil, &appKeepers.ICAHostKeeper)
