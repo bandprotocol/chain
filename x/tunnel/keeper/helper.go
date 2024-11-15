@@ -25,7 +25,7 @@ func GenerateNewPrices(
 
 		feedPrice, ok := feedsPricesMap[sd.SignalID]
 		if !ok {
-			feedPrice = feedstypes.NewPrice(feedstypes.PriceStatusNotInCurrentFeeds, sd.SignalID, 0, 0)
+			feedPrice = feedstypes.NewPrice(feedstypes.PRICE_STATUS_NOT_IN_CURRENT_FEEDS, sd.SignalID, 0, 0)
 		}
 
 		// calculate deviation between old price and new price and compare with the threshold.
