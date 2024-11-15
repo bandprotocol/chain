@@ -108,19 +108,21 @@ Run the following command to set the configuration of the cylinder program and a
 cylinder config chain-id $CHAIN_ID --home $CYLINDER_HOME_PATH
 cylinder config node $RPC_URL --home $CYLINDER_HOME_PATH
 cylinder config granter $(bandd keys show $WALLET_NAME -a --keyring-backend test) --home $CYLINDER_HOME_PATH
-cylinder config gas-prices "0.0025uband" --home $CYLINDER_HOME_PATH
-cylinder config max-messages 10 --home $CYLINDER_HOME_PATH
+cylinder config gas-prices "0uband" --home $CYLINDER_HOME_PATH
+cylinder config max-messages 20 --home $CYLINDER_HOME_PATH
 cylinder config broadcast-timeout "5m" --home $CYLINDER_HOME_PATH
 cylinder config rpc-poll-interval "1s" --home $CYLINDER_HOME_PATH
 cylinder config max-try 5 --home $CYLINDER_HOME_PATH
-cylinder config min-de 20 --home $CYLINDER_HOME_PATH
+cylinder config min-de 100 --home $CYLINDER_HOME_PATH
 cylinder config gas-adjust-start 1.6 --home $CYLINDER_HOME_PATH
 cylinder config gas-adjust-step 0.2 --home $CYLINDER_HOME_PATH
 cylinder config random-secret "$(openssl rand -hex 32)" --home $CYLINDER_HOME_PATH
-cylinder config checking-de-interval "5m" --home $CYLINDER_HOME_PATH
+cylinder config checking-de-interval "1m" --home $CYLINDER_HOME_PATH
 
 cylinder keys add signer1 --home $CYLINDER_HOME_PATH
 cylinder keys add signer2 --home $CYLINDER_HOME_PATH
+cylinder keys add signer3 --home $CYLINDER_HOME_PATH
+cylinder keys add signer4 --home $CYLINDER_HOME_PATH
 ```
 
 below is the meaning of the configuration of the system

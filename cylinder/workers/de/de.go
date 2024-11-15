@@ -27,6 +27,7 @@ type DE struct {
 	client        *client.Client
 	assignEventCh <-chan ctypes.ResultEvent
 	useEventCh    <-chan ctypes.ResultEvent
+	cntUsed       uint64
 }
 
 // New creates a new instance of the DE worker.
@@ -101,27 +102,24 @@ func (de *DE) deleteDE(pubDE types.DE) {
 	}
 }
 
-// updateDE updates DE if the remaining DE is too low.
-func (de *DE) updateDE() {
+func (de *DE) getDECount() (uint64, error) {
 	// Query DE information
 	deRes, err := de.client.QueryDE(de.context.Config.Granter, 0, 1)
 	if err != nil {
 		de.logger.Error(":cold_sweat: Failed to query DE information: %s", err)
-		return
+		return 0, err
 	}
 
-	// Check remaining DE, ignore if it's more than min-DE
-	remaining := deRes.GetRemaining()
-	if remaining >= de.context.Config.MinDE {
-		return
-	}
+	return deRes.GetRemaining(), nil
+}
 
-	// Log
+// updateDE updates DE if the remaining DE is too low.
+func (de *DE) updateDE(numNewDE uint64) {
 	de.logger.Info(":delivery_truck: Updating DE")
 
 	// Generate new DE pairs
 	privDEs, err := GenerateDEs(
-		de.context.Config.MinDE,
+		numNewDE,
 		de.context.Config.RandomSecret,
 		de.context.Store,
 	)
@@ -145,6 +143,22 @@ func (de *DE) updateDE() {
 	de.context.MsgCh <- types.NewMsgSubmitDEs(pubDEs, de.context.Config.Granter)
 }
 
+// intervalUpdateDE updates DE on the chain so that the remaining DE is
+// always above the minimum threshold.
+func (de *DE) intervalUpdateDE() error {
+	deCount, err := de.getDECount()
+	if err != nil {
+		return err
+	}
+
+	if deCount < 2*de.context.Config.MinDE {
+		de.updateDE(2*de.context.Config.MinDE - deCount)
+		de.cntUsed = 0
+	}
+
+	return nil
+}
+
 // Start starts the DE worker.
 // It subscribes to events and starts processing incoming events.
 func (de *DE) Start() {
@@ -157,7 +171,10 @@ func (de *DE) Start() {
 	}
 
 	// Update one time when starting worker first time.
-	de.updateDE()
+	if err := de.intervalUpdateDE(); err != nil {
+		de.context.ErrCh <- err
+		return
+	}
 
 	// Remove DE if there is used DE event.
 	go func() {
@@ -171,9 +188,15 @@ func (de *DE) Start() {
 	for {
 		select {
 		case <-ticker.C:
-			de.updateDE()
+			if err := de.intervalUpdateDE(); err != nil {
+				de.logger.Error(":cold_sweat: Failed to do an interval update DE: %s", err)
+			}
 		case <-de.assignEventCh:
-			de.updateDE()
+			de.cntUsed += 1
+			if de.cntUsed >= de.context.Config.MinDE {
+				de.updateDE(de.cntUsed)
+				de.cntUsed = 0
+			}
 		}
 	}
 }
