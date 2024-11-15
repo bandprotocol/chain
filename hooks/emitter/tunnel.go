@@ -89,8 +89,8 @@ func (h *Hook) emitSetTunnelPacket(ctx sdk.Context, tunnelID uint64, sequence ui
 		"sequence":            sequence,
 		"packet_content_type": packet.PacketContent.TypeUrl,
 		"packet_content":      packet.PacketContent.GetCachedValue(),
-		"base_fee":            packet.BaseFee,
-		"route_fee":           packet.RouteFee,
+		"base_fee":            packet.BaseFee.String(),
+		"route_fee":           packet.RouteFee.String(),
 		"created_at":          packet.CreatedAt * int64(time.Second),
 	})
 
