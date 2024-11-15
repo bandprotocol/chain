@@ -266,7 +266,7 @@ func (s *Signaller) isNonUrgentUnavailablePrices(
 	now int64,
 ) bool {
 	switch signalPrice.Status {
-	case types.SignalPriceStatusUnavailable:
+	case types.SIGNAL_PRICE_STATUS_UNAVAILABLE:
 		deadline := s.signalIDToValidatorPrice[signalPrice.SignalID].Timestamp + s.signalIDToFeed[signalPrice.SignalID].Interval
 		if now > deadline-FixedIntervalOffset {
 			return false

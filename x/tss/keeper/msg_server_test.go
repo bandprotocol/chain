@@ -433,7 +433,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDEsReq() {
 			"failure with number of DE more than max",
 			func() {
 				var deList []types.DE
-				for i := 0; i < 101; i++ {
+				for i := 0; i < int(types.DefaultMaxDESize)+1; i++ {
 					deList = append(deList, types.DE{
 						PubD: []byte{uint8(i)},
 						PubE: []byte{uint8(i)},

@@ -161,7 +161,7 @@ func (ms msgServer) SubmitSignalPrices(
 
 		// check if price have been set and update too fast
 		latestPrice := newValidatorPrices[idx]
-		if latestPrice.SignalPriceStatus != types.SignalPriceStatusUnspecified &&
+		if latestPrice.SignalPriceStatus != types.SIGNAL_PRICE_STATUS_UNSPECIFIED &&
 			blockTime < latestPrice.Timestamp+cooldownTime {
 			return nil, types.ErrPriceSubmitTooEarly
 		}

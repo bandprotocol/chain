@@ -44,13 +44,13 @@ func TestConvertPriceData(t *testing.T) {
 		{
 			"Unsupported price status",
 			&bothan.Price{Status: bothan.Status_STATUS_UNSUPPORTED, SignalId: "signal1"},
-			types.SignalPrice{Status: types.SignalPriceStatusUnsupported, SignalID: "signal1", Price: 0},
+			types.SignalPrice{Status: types.SIGNAL_PRICE_STATUS_UNSUPPORTED, SignalID: "signal1", Price: 0},
 			false,
 		},
 		{
 			"Unavailable price status",
 			&bothan.Price{Status: bothan.Status_STATUS_UNAVAILABLE, SignalId: "signal2"},
-			types.SignalPrice{Status: types.SignalPriceStatusUnavailable, SignalID: "signal2", Price: 0},
+			types.SignalPrice{Status: types.SIGNAL_PRICE_STATUS_UNAVAILABLE, SignalID: "signal2", Price: 0},
 			false,
 		},
 		{
@@ -60,7 +60,7 @@ func TestConvertPriceData(t *testing.T) {
 				SignalId: "signal3",
 				Price:    123456000000,
 			},
-			types.SignalPrice{Status: types.SignalPriceStatusAvailable, SignalID: "signal3", Price: 123456000000},
+			types.SignalPrice{Status: types.SIGNAL_PRICE_STATUS_AVAILABLE, SignalID: "signal3", Price: 123456000000},
 			false,
 		},
 	}
