@@ -58,7 +58,7 @@ func (cb TSSCallback) OnGroupCreationCompleted(ctx sdk.Context, groupID tss.Grou
 			codespace, code, _ := errorsmod.ABCIInfo(err, false)
 			ctx.EventManager().EmitEvent(sdk.NewEvent(
 				types.EventTypeCreateSigningFailed,
-				sdk.NewAttribute(types.AttributeSigningErrReason, err.Error()),
+				sdk.NewAttribute(types.AttributeKeySigningErrReason, err.Error()),
 				sdk.NewAttribute(types.AttributeKeySigningErrCodespace, codespace),
 				sdk.NewAttribute(types.AttributeKeySigningErrCode, fmt.Sprintf("%d", code)),
 			))
