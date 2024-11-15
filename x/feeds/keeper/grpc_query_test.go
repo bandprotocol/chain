@@ -66,7 +66,7 @@ func (suite *KeeperTestSuite) TestQueryPrice() {
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryPriceResponse{
 		Price: types.Price{
-			Status:    types.PriceStatusNotInCurrentFeeds,
+			Status:    types.PRICE_STATUS_NOT_IN_CURRENT_FEEDS,
 			SignalID:  "CS:ATOM-USD",
 			Price:     0,
 			Timestamp: 0,
@@ -118,7 +118,7 @@ func (suite *KeeperTestSuite) TestQueryPrices() {
 			expectedPrices: []types.Price{
 				{
 					SignalID:  "CS:NON-EXISTENT",
-					Status:    types.PriceStatusNotInCurrentFeeds,
+					Status:    types.PRICE_STATUS_NOT_IN_CURRENT_FEEDS,
 					Price:     0,
 					Timestamp: 0,
 				},
@@ -138,7 +138,7 @@ func (suite *KeeperTestSuite) TestQueryPrices() {
 			signalIDs: []string{"CS:BAND-USD", "CS:NON-EXISTENT"},
 			expectedPrices: []types.Price{
 				prices[0],
-				{SignalID: "CS:NON-EXISTENT", Status: types.PriceStatusNotInCurrentFeeds, Price: 0, Timestamp: 0},
+				{SignalID: "CS:NON-EXISTENT", Status: types.PRICE_STATUS_NOT_IN_CURRENT_FEEDS, Price: 0, Timestamp: 0},
 			},
 		},
 		{

@@ -87,7 +87,7 @@ func GenMsgSubmitSignalPrices(
 	prices := make([]feedstypes.SignalPrice, 0, len(feeds))
 	for _, feed := range feeds {
 		prices = append(prices, feedstypes.SignalPrice{
-			Status:   feedstypes.SignalPriceStatusAvailable,
+			Status:   feedstypes.SIGNAL_PRICE_STATUS_AVAILABLE,
 			SignalID: feed.SignalID,
 			Price:    60000,
 		})
