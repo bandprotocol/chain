@@ -11,7 +11,7 @@ import (
 
 func TestLatestPrices_Validate(t *testing.T) {
 	examplePrices := []feedstypes.Price{
-		feedstypes.NewPrice(feedstypes.PriceStatusAvailable, "signal1", 100, 0),
+		feedstypes.NewPrice(feedstypes.PRICE_STATUS_AVAILABLE, "signal1", 100, 0),
 	}
 
 	cases := map[string]struct {
@@ -50,13 +50,13 @@ func TestLatestPrices_Validate(t *testing.T) {
 
 func TestLatestPrices_UpdatePrices(t *testing.T) {
 	initialPrices := []feedstypes.Price{
-		{Status: feedstypes.PriceStatusAvailable, SignalID: "signal1", Price: 100},
+		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "signal1", Price: 100},
 	}
 	latestPrices := types.NewLatestPrices(1, initialPrices, 10)
 
 	newPrices := []feedstypes.Price{
-		{Status: feedstypes.PriceStatusAvailable, SignalID: "signal1", Price: 200},
-		{Status: feedstypes.PriceStatusAvailable, SignalID: "signal2", Price: 300},
+		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "signal1", Price: 200},
+		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "signal2", Price: 300},
 	}
 	latestPrices.UpdatePrices(newPrices)
 
