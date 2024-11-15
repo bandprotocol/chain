@@ -27,7 +27,7 @@ var (
 	ValidTimestamp             = int64(1234567890)
 	ValidSignalPrices          = []SignalPrice{
 		{
-			Status:   SignalPriceStatusAvailable,
+			Status:   SIGNAL_PRICE_STATUS_AVAILABLE,
 			SignalID: "CS:BTC-USD",
 			Price:    100000 * 10e9,
 		},
