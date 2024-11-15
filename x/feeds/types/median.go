@@ -71,11 +71,11 @@ func CalculatePricesPowers(
 		totalPower = totalPower.Add(priceInfo.Power)
 
 		switch priceInfo.SignalPriceStatus {
-		case SignalPriceStatusAvailable:
+		case SIGNAL_PRICE_STATUS_AVAILABLE:
 			availablePower = availablePower.Add(priceInfo.Power)
-		case SignalPriceStatusUnavailable:
+		case SIGNAL_PRICE_STATUS_UNAVAILABLE:
 			unavailablePower = unavailablePower.Add(priceInfo.Power)
-		case SignalPriceStatusUnsupported:
+		case SIGNAL_PRICE_STATUS_UNSUPPORTED:
 			unsupportedPower = unsupportedPower.Add(priceInfo.Power)
 		}
 	}
@@ -111,7 +111,7 @@ func MedianValidatorPriceInfos(validatorPriceInfos []ValidatorPriceInfo) (uint64
 	var validPrices []ValidatorPriceInfo
 	totalPower := sdkmath.NewInt(0)
 	for _, priceInfo := range validatorPriceInfos {
-		if priceInfo.SignalPriceStatus == SignalPriceStatusAvailable {
+		if priceInfo.SignalPriceStatus == SIGNAL_PRICE_STATUS_AVAILABLE {
 			validPrices = append(validPrices, priceInfo)
 			totalPower = totalPower.Add(priceInfo.Power)
 		}

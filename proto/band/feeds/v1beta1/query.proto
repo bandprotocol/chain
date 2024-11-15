@@ -14,7 +14,7 @@ import "band/feeds/v1beta1/params.proto";
 service Query {
   // CurrentFeeds is an RPC method that returns a list of current supported feeds.
   rpc CurrentFeeds(QueryCurrentFeedsRequest) returns (QueryCurrentFeedsResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/current-feeds";
+    option (google.api.http).get = "/feeds/v1beta1/current_feeds";
   }
 
   // IsFeeder is an RPC method that returns whether an account is a feeder for a specified validator.
@@ -39,18 +39,18 @@ service Query {
 
   // AllPrices is an RPC method that returns all prices.
   rpc AllPrices(QueryAllPricesRequest) returns (QueryAllPricesResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/all-prices";
+    option (google.api.http).get = "/feeds/v1beta1/all_prices";
   }
 
   // ReferenceSourceConfig is an RPC method that returns information on the reference price source.
   rpc ReferenceSourceConfig(QueryReferenceSourceConfigRequest) returns (QueryReferenceSourceConfigResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/reference-source-config";
+    option (google.api.http).get = "/feeds/v1beta1/reference_source_config";
   }
 
   // SignalTotalPowers is an RPC method that returns all signal-total-powers or specified signal-total-power by signal
   // id.
   rpc SignalTotalPowers(QuerySignalTotalPowersRequest) returns (QuerySignalTotalPowersResponse) {
-    option (google.api.http).get = "/feeds/v1beta1/signal-total-powers";
+    option (google.api.http).get = "/feeds/v1beta1/signal_total_powers";
   }
 
   // ValidValidator is an RPC method that returns a flag to show if the validator is required to send prices.

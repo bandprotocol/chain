@@ -199,7 +199,7 @@ func (s *SubmitterTestSuite) TestSubmitterSubmitPrice() {
 		{
 			SignalID: "signal1",
 			Price:    12345,
-			Status:   types.SignalPriceStatusAvailable,
+			Status:   types.SIGNAL_PRICE_STATUS_AVAILABLE,
 		},
 	}
 
@@ -246,7 +246,7 @@ func (s *SubmitterTestSuite) TestSubmitterSubmitPrice_OutOfGas() {
 		{
 			SignalID: "signal1",
 			Price:    12345,
-			Status:   types.SignalPriceStatusAvailable,
+			Status:   types.SIGNAL_PRICE_STATUS_AVAILABLE,
 		},
 	}
 
@@ -286,7 +286,7 @@ func (s *SubmitterTestSuite) TestSubmitterBuildSignedTx() {
 			{
 				SignalID: "signal1",
 				Price:    12345,
-				Status:   types.SignalPriceStatusAvailable,
+				Status:   types.SIGNAL_PRICE_STATUS_AVAILABLE,
 			},
 		},
 	}
@@ -320,7 +320,7 @@ func (s *SubmitterTestSuite) TestSubmitterBroadcastMsg() {
 			{
 				SignalID: "signal1",
 				Price:    12345,
-				Status:   types.SignalPriceStatusAvailable,
+				Status:   types.SIGNAL_PRICE_STATUS_AVAILABLE,
 			},
 		},
 	}
