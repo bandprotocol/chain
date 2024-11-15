@@ -176,7 +176,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
 				Timestamp: suite.ctx.BlockTime().Unix(),
 				SignalPrices: []types.SignalPrice{
 					{
-						Status:   types.SignalPriceStatusAvailable,
+						Status:   types.SIGNAL_PRICE_STATUS_AVAILABLE,
 						SignalID: "CS:BAND-USD",
 						Price:    10e12,
 					},
@@ -192,7 +192,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
 				Timestamp: suite.ctx.BlockTime().Unix(),
 				SignalPrices: []types.SignalPrice{
 					{
-						Status:   types.SignalPriceStatusAvailable,
+						Status:   types.SIGNAL_PRICE_STATUS_AVAILABLE,
 						SignalID: "CS:BTC-USD",
 						Price:    10e12,
 					},
@@ -208,7 +208,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
 				Timestamp: suite.ctx.BlockTime().Unix() - 200,
 				SignalPrices: []types.SignalPrice{
 					{
-						Status:   types.SignalPriceStatusAvailable,
+						Status:   types.SIGNAL_PRICE_STATUS_AVAILABLE,
 						SignalID: "CS:BAND-USD",
 						Price:    10e12,
 					},
@@ -224,7 +224,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
 				Timestamp: suite.ctx.BlockTime().Unix(),
 				SignalPrices: []types.SignalPrice{
 					{
-						Status:   types.SignalPriceStatusAvailable,
+						Status:   types.SIGNAL_PRICE_STATUS_AVAILABLE,
 						SignalID: "CS:BAND-USD",
 						Price:    10e12,
 					},
@@ -240,7 +240,7 @@ func (suite *KeeperTestSuite) TestMsgSubmitSignalPrices() {
 				Timestamp: suite.ctx.BlockTime().Unix(),
 				SignalPrices: []types.SignalPrice{
 					{
-						Status:   types.SignalPriceStatusAvailable,
+						Status:   types.SIGNAL_PRICE_STATUS_AVAILABLE,
 						SignalID: "CS:BAND-USD",
 						Price:    10e12,
 					},
