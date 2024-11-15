@@ -19,7 +19,7 @@ cylinder config chain-id bandchain --home $HOME_PATH
 cylinder config granter $(bandd keys show $KEY -a --keyring-backend test) --home $HOME_PATH
 
 # setup max-messages to cylinder config
-cylinder config max-messages 10 --home $HOME_PATH
+cylinder config max-messages 20 --home $HOME_PATH
 
 # setup broadcast-timeout to cylinder config
 cylinder config broadcast-timeout "5m" --home $HOME_PATH
@@ -31,10 +31,10 @@ cylinder config rpc-poll-interval "1s" --home $HOME_PATH
 cylinder config max-try 5 --home $HOME_PATH
 
 # setup gas-prices to cylinder config
-cylinder config gas-prices "0.0025uband" --home $HOME_PATH
+cylinder config gas-prices "0uband" --home $HOME_PATH
 
 # setup min-de to cylinder config
-cylinder config min-de 20 --home $HOME_PATH
+cylinder config min-de 100 --home $HOME_PATH
 
 # setup gas-adjust-start to cylinder config
 cylinder config gas-adjust-start 1.6 --home $HOME_PATH
@@ -46,9 +46,9 @@ cylinder config gas-adjust-step 0.2 --home $HOME_PATH
 cylinder config random-secret "$(openssl rand -hex 32)" --home $HOME_PATH
 
 # setup checking DE interval to cylinder config
-cylinder config checking-de-interval "5m" --home $HOME_PATH
+cylinder config checking-de-interval "1m" --home $HOME_PATH
 
-for i in $(eval echo {1..2})
+for i in $(eval echo {1..4})
 do
   # add signer key
   cylinder keys add signer$i --home $HOME_PATH
@@ -60,7 +60,7 @@ bandd tx bank multi-send $KEY $(cylinder keys list -a --home $HOME_PATH) 1000000
 # wait for sending band tokens transaction success
 sleep 6
 
-bandd tx tss add-grantees $(cylinder keys list -a --home $HOME_PATH) --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain --gas 350000 --from $KEY -b sync -y 
+bandd tx tss add-grantees $(cylinder keys list -a --home $HOME_PATH) --gas-prices 0.0025uband --keyring-backend test --chain-id bandchain --gas 700000 --from $KEY -b sync -y 
 
 sleep 6
 
