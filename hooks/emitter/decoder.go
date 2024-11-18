@@ -149,19 +149,19 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 	case *bandtsstypes.MsgUpdateParams:
 		DecodeBandtssMsgUpdateParams(msg, detail)
 	case *tsstypes.MsgSubmitDKGRound1:
-		DecodeMsgSubmitDKGRound1(msg, detail)
+		DecodeTssMsgSubmitDKGRound1(msg, detail)
 	case *tsstypes.MsgSubmitDKGRound2:
-		DecodeMsgSubmitDKGRound2(msg, detail)
+		DecodeTssMsgSubmitDKGRound2(msg, detail)
 	case *tsstypes.MsgComplain:
-		DecodeMsgComplain(msg, detail)
+		DecodeTssMsgComplain(msg, detail)
 	case *tsstypes.MsgConfirm:
-		DecodeMsgConfirm(msg, detail)
+		DecodeTssMsgConfirm(msg, detail)
 	case *tsstypes.MsgSubmitDEs:
-		DecodeMsgSubmitDEs(msg, detail)
+		DecodeTssMsgSubmitDEs(msg, detail)
 	case *tsstypes.MsgSubmitSignature:
-		DecodeMsgSubmitSignature(msg, detail)
+		DecodeTssMsgSubmitSignature(msg, detail)
 	case *tsstypes.MsgUpdateParams:
-		DecodeMsgUpdateParamsTss(msg, detail)
+		DecodeTssMsgUpdateParams(msg, detail)
 	case *group.MsgCreateGroup:
 		DecodeGroupMsgCreateGroup(msg, detail)
 	case *group.MsgCreateGroupPolicy:
@@ -766,44 +766,44 @@ func DecodeBandtssMsgUpdateParams(msg *bandtsstypes.MsgUpdateParams, detail comm
 	detail["authority"] = msg.GetAuthority()
 }
 
-func DecodeMsgSubmitDKGRound1(msg *tsstypes.MsgSubmitDKGRound1, detail common.JsDict) {
+func DecodeTssMsgSubmitDKGRound1(msg *tsstypes.MsgSubmitDKGRound1, detail common.JsDict) {
 	detail["group_id"] = msg.GroupID
 	detail["round1_info"] = msg.Round1Info
 	detail["sender"] = msg.Sender
 }
 
-func DecodeMsgSubmitDKGRound2(msg *tsstypes.MsgSubmitDKGRound2, detail common.JsDict) {
+func DecodeTssMsgSubmitDKGRound2(msg *tsstypes.MsgSubmitDKGRound2, detail common.JsDict) {
 	detail["group_id"] = msg.GroupID
 	detail["round2_info"] = msg.Round2Info
 	detail["sender"] = msg.Sender
 }
 
-func DecodeMsgComplain(msg *tsstypes.MsgComplain, detail common.JsDict) {
+func DecodeTssMsgComplain(msg *tsstypes.MsgComplain, detail common.JsDict) {
 	detail["group_id"] = msg.GroupID
 	detail["complaints"] = msg.Complaints
 	detail["sender"] = msg.Sender
 }
 
-func DecodeMsgConfirm(msg *tsstypes.MsgConfirm, detail common.JsDict) {
+func DecodeTssMsgConfirm(msg *tsstypes.MsgConfirm, detail common.JsDict) {
 	detail["group_id"] = msg.GroupID
 	detail["member_id"] = msg.MemberID
 	detail["own_pub_key_sig"] = msg.OwnPubKeySig
 	detail["sender"] = msg.Sender
 }
 
-func DecodeMsgSubmitDEs(msg *tsstypes.MsgSubmitDEs, detail common.JsDict) {
+func DecodeTssMsgSubmitDEs(msg *tsstypes.MsgSubmitDEs, detail common.JsDict) {
 	detail["des"] = msg.DEs
 	detail["sender"] = msg.Sender
 }
 
-func DecodeMsgSubmitSignature(msg *tsstypes.MsgSubmitSignature, detail common.JsDict) {
+func DecodeTssMsgSubmitSignature(msg *tsstypes.MsgSubmitSignature, detail common.JsDict) {
 	detail["signing_id"] = msg.SigningID
 	detail["member_id"] = msg.MemberID
 	detail["signature"] = msg.Signature
 	detail["signer"] = msg.Signer
 }
 
-func DecodeMsgUpdateParamsTss(msg *tsstypes.MsgUpdateParams, detail common.JsDict) {
+func DecodeTssMsgUpdateParams(msg *tsstypes.MsgUpdateParams, detail common.JsDict) {
 	detail["params"] = msg.GetParams()
 	detail["authority"] = msg.GetAuthority()
 }

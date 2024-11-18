@@ -10,12 +10,12 @@ import (
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-func (h *Hook) emitSetBandtssGroupTransition(
+func (h *Hook) emitNewBandtssGroupTransition(
 	proposalID uint64,
 	transition types.GroupTransition,
 	createdHeight int64,
 ) {
-	h.Write("SET_BANDTSS_GROUP_TRANSITION", common.JsDict{
+	h.Write("NEW_BANDTSS_GROUP_TRANSITION", common.JsDict{
 		"proposal_id":            proposalID,
 		"tss_signing_id":         transition.SigningID,
 		"current_tss_group_id":   transition.CurrentGroupID,
@@ -54,8 +54,8 @@ func (h *Hook) emitUpdateBandtssGroupTransitionStatusFailed(transition types.Gro
 	})
 }
 
-func (h *Hook) emitSetBandtssCurrentGroup(gid tss.GroupID, transitionHeight int64) {
-	h.Write("SET_BANDTSS_CURRENT_GROUP", common.JsDict{
+func (h *Hook) emitNewBandtssCurrentGroup(gid tss.GroupID, transitionHeight int64) {
+	h.Write("NEW_BANDTSS_CURRENT_GROUP", common.JsDict{
 		"current_tss_group_id": gid,
 		"transition_height":    transitionHeight,
 	})
@@ -70,8 +70,8 @@ func (h *Hook) emitSetBandtssMember(member types.Member) {
 	})
 }
 
-func (h *Hook) emitSetBandtssSigning(signing types.Signing) {
-	h.Write("SET_BANDTSS_SIGNING", common.JsDict{
+func (h *Hook) emitNewBandtssSigning(signing types.Signing) {
+	h.Write("New_BANDTSS_SIGNING", common.JsDict{
 		"id":                            signing.ID,
 		"fee_per_signer":                signing.FeePerSigner.String(),
 		"requester":                     signing.Requester,
@@ -84,7 +84,7 @@ func (h *Hook) emitSetBandtssSigning(signing types.Signing) {
 func (h *Hook) handleInitBandtssModule(ctx sdk.Context) {
 	currentGroupID := h.bandtssKeeper.GetCurrentGroup(ctx).GroupID
 	if currentGroupID != 0 {
-		h.emitSetBandtssCurrentGroup(currentGroupID, ctx.BlockHeight())
+		h.emitNewBandtssCurrentGroup(currentGroupID, ctx.BlockHeight())
 	}
 
 	members := h.bandtssKeeper.GetMembers(ctx)
@@ -141,7 +141,7 @@ func (h *Hook) handleBandtssEventGroupTransition(ctx sdk.Context, eventIdx int, 
 		return
 	}
 
-	// set new bandtss members; better approach would be emitting addMember event.
+	// set new bandtss members.
 	if transition.Status == types.TRANSITION_STATUS_WAITING_EXECUTION {
 		tssMembers := h.tssKeeper.MustGetMembers(ctx, transition.IncomingGroupID)
 		for _, tssMember := range tssMembers {
@@ -164,7 +164,7 @@ func (h *Hook) handleBandtssEventGroupTransition(ctx sdk.Context, eventIdx int, 
 			panic("proposal ID not found")
 		}
 
-		h.emitSetBandtssGroupTransition(proposalID, transition, ctx.BlockHeight())
+		h.emitNewBandtssGroupTransition(proposalID, transition, ctx.BlockHeight())
 	} else {
 		h.emitUpdateBandtssGroupTransitionStatus(transition)
 	}
@@ -174,8 +174,8 @@ func (h *Hook) handleBandtssEventGroupTransition(ctx sdk.Context, eventIdx int, 
 func (h *Hook) handleBandtssEventGroupTransitionSuccess(ctx sdk.Context, evMap common.EvMap) {
 	// use value from emitted event due to the transition info is removed from the store.
 	signingIDs := evMap[types.EventTypeGroupTransitionSuccess+"."+tsstypes.AttributeKeySigningID]
-	incomingGroupIDs := evMap[types.EventTypeGroupTransitionSuccess+"."+types.AttributeKeyIncomingGroupID]
 	currentGroupIDs := evMap[types.EventTypeGroupTransitionSuccess+"."+types.AttributeKeyCurrentGroupID]
+	incomingGroupIDs := evMap[types.EventTypeGroupTransitionSuccess+"."+types.AttributeKeyIncomingGroupID]
 
 	signingID := tss.SigningID(common.Atoi(signingIDs[0]))
 	currentGroupID := tss.GroupID(common.Atoi(currentGroupIDs[0]))
@@ -187,7 +187,7 @@ func (h *Hook) handleBandtssEventGroupTransitionSuccess(ctx sdk.Context, evMap c
 		IncomingGroupID: incomingGroupID,
 	})
 
-	h.emitSetBandtssCurrentGroup(incomingGroupID, ctx.BlockHeight())
+	h.emitNewBandtssCurrentGroup(incomingGroupID, ctx.BlockHeight())
 }
 
 // handleBandtssEventGroupTransitionFailed implements emitter handler for group transition failed event.
@@ -209,8 +209,8 @@ func (h *Hook) handleBandtssEventSigningRequestCreated(ctx sdk.Context, evMap co
 	signingIDs := evMap[types.EventTypeSigningRequestCreated+"."+types.AttributeKeySigningID]
 
 	for _, sid := range signingIDs {
-		signing := h.bandtssKeeper.MustGetSigning(ctx, types.SigningID(uint64(common.Atoi(sid))))
-		h.emitSetBandtssSigning(signing)
+		signing := h.bandtssKeeper.MustGetSigning(ctx, types.SigningID(common.Atoui(sid)))
+		h.emitNewBandtssSigning(signing)
 	}
 }
 
@@ -224,7 +224,7 @@ func getCurrentProposalID(eventIdx int, querier *EventQuerier) (id uint64, found
 
 	for _, attr := range proposalIDEvent.Attributes {
 		if attr.Key == govtypes.AttributeKeyProposalID {
-			return uint64(common.Atoi(attr.Value)), true
+			return common.Atoui(attr.Value), true
 		}
 	}
 

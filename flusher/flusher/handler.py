@@ -1037,7 +1037,7 @@ class Handler(object):
     # BANDTSS_HANDLER
     ##################################
 
-    def handle_set_bandtss_group_transition(self, msg):
+    def handle_new_bandtss_group_transition(self, msg):
         if "tss_signing_id" in msg and msg["tss_signing_id"] == 0:
             del msg["tss_signing_id"]
         if "current_tss_group_id" in msg and msg["current_tss_group_id"] == 0:
@@ -1077,7 +1077,7 @@ class Handler(object):
         msg = {"status": GroupTransitionStatus.expired}
         self.update_bandtss_group_transition(msg)
 
-    def handle_set_bandtss_current_group(self, msg):
+    def handle_new_bandtss_current_group(self, msg):
         proposal_column = bandtss_group_transitions.c.proposal_id
         proposal_id = self.conn.execute(select(func.max(proposal_column))).scalar()
         if proposal_id is not None:
@@ -1095,7 +1095,7 @@ class Handler(object):
             .on_conflict_do_update(constraint="bandtss_members_pkey", set_=msg)
         )
 
-    def handle_set_bandtss_signing(self, msg):
+    def handle_new_bandtss_signing(self, msg):
         if msg["current_group_tss_signing_id"] == 0:
             del msg["current_group_tss_signing_id"]
         if msg["incoming_group_tss_signing_id"] == 0:

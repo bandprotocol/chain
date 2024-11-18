@@ -22,7 +22,7 @@ The Tunnel module is designed to decentralize the creation of push-based price d
     - [ActiveTunnelID](#activetunnelid)
     - [Tunnel](#tunnel-1)
     - [Packet](#packet-1)
-    - [LatestPrices](#latestPrices)
+    - [LatestPrices](#latestprices)
     - [Deposit](#deposit)
     - [Params](#params)
   - [Msg](#msg)
@@ -31,8 +31,8 @@ The Tunnel module is designed to decentralize the creation of push-based price d
     - [MsgActivate](#msgactivate)
     - [MsgDeactivate](#msgdeactivate)
     - [MsgTriggerTunnel](#msgtriggertunnel)
-    - [MsgDepositToTunnel](#MsgDepositToTunnel)
-    - [MsgWithdrawFromTunnel](#MsgWithdrawFromTunnel)
+    - [MsgDepositToTunnel](#msgdeposittotunnel)
+    - [MsgWithdrawFromTunnel](#msgwithdrawfromtunnel)
   - [Events](#events)
     - [Event: `create_tunnel`](#event-create_tunnel)
     - [Event: `update_and_reset_tunnel`](#event-update_and_reset_tunnel)
@@ -189,6 +189,12 @@ type Params struct {
     MinDeposit sdk.Coins
     // MinInterval is the minimum interval in seconds.
     MinInterval uint64
+    // MinInterval is the minimum interval in seconds.
+    MinInterval uint64
+    // MinDeviationBPS is the minimum deviation in basis points.
+    MinDeviationBPS uint64
+    // MaxDeviationBPS is the maximum deviation in basis points.
+    MaxDeviationBPS uint64
     // MaxSignals defines the maximum number of signals allowed per tunnel.
     MaxSignals uint64
     // BasePacketFee is the base fee for each packet.
