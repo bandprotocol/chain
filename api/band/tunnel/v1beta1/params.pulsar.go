@@ -65,63 +65,66 @@ func (x *_Params_1_list) IsValid() bool {
 	return x.list != nil
 }
 
-var _ protoreflect.List = (*_Params_4_list)(nil)
+var _ protoreflect.List = (*_Params_7_list)(nil)
 
-type _Params_4_list struct {
+type _Params_7_list struct {
 	list *[]*v1beta1.Coin
 }
 
-func (x *_Params_4_list) Len() int {
+func (x *_Params_7_list) Len() int {
 	if x.list == nil {
 		return 0
 	}
 	return len(*x.list)
 }
 
-func (x *_Params_4_list) Get(i int) protoreflect.Value {
+func (x *_Params_7_list) Get(i int) protoreflect.Value {
 	return protoreflect.ValueOfMessage((*x.list)[i].ProtoReflect())
 }
 
-func (x *_Params_4_list) Set(i int, value protoreflect.Value) {
+func (x *_Params_7_list) Set(i int, value protoreflect.Value) {
 	valueUnwrapped := value.Message()
 	concreteValue := valueUnwrapped.Interface().(*v1beta1.Coin)
 	(*x.list)[i] = concreteValue
 }
 
-func (x *_Params_4_list) Append(value protoreflect.Value) {
+func (x *_Params_7_list) Append(value protoreflect.Value) {
 	valueUnwrapped := value.Message()
 	concreteValue := valueUnwrapped.Interface().(*v1beta1.Coin)
 	*x.list = append(*x.list, concreteValue)
 }
 
-func (x *_Params_4_list) AppendMutable() protoreflect.Value {
+func (x *_Params_7_list) AppendMutable() protoreflect.Value {
 	v := new(v1beta1.Coin)
 	*x.list = append(*x.list, v)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
-func (x *_Params_4_list) Truncate(n int) {
+func (x *_Params_7_list) Truncate(n int) {
 	for i := n; i < len(*x.list); i++ {
 		(*x.list)[i] = nil
 	}
 	*x.list = (*x.list)[:n]
 }
 
-func (x *_Params_4_list) NewElement() protoreflect.Value {
+func (x *_Params_7_list) NewElement() protoreflect.Value {
 	v := new(v1beta1.Coin)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
-func (x *_Params_4_list) IsValid() bool {
+func (x *_Params_7_list) IsValid() bool {
 	return x.list != nil
 }
 
 var (
-	md_Params                 protoreflect.MessageDescriptor
-	fd_Params_min_deposit     protoreflect.FieldDescriptor
-	fd_Params_min_interval    protoreflect.FieldDescriptor
-	fd_Params_max_signals     protoreflect.FieldDescriptor
-	fd_Params_base_packet_fee protoreflect.FieldDescriptor
+	md_Params                   protoreflect.MessageDescriptor
+	fd_Params_min_deposit       protoreflect.FieldDescriptor
+	fd_Params_min_interval      protoreflect.FieldDescriptor
+	fd_Params_max_interval      protoreflect.FieldDescriptor
+	fd_Params_min_deviation_bps protoreflect.FieldDescriptor
+	fd_Params_max_deviation_bps protoreflect.FieldDescriptor
+	fd_Params_max_signals       protoreflect.FieldDescriptor
+	fd_Params_base_packet_fee   protoreflect.FieldDescriptor
 )
 
 func init() {
@@ -129,6 +132,9 @@ func init() {
 	md_Params = File_band_tunnel_v1beta1_params_proto.Messages().ByName("Params")
 	fd_Params_min_deposit = md_Params.Fields().ByName("min_deposit")
 	fd_Params_min_interval = md_Params.Fields().ByName("min_interval")
+	fd_Params_max_interval = md_Params.Fields().ByName("max_interval")
+	fd_Params_min_deviation_bps = md_Params.Fields().ByName("min_deviation_bps")
+	fd_Params_max_deviation_bps = md_Params.Fields().ByName("max_deviation_bps")
 	fd_Params_max_signals = md_Params.Fields().ByName("max_signals")
 	fd_Params_base_packet_fee = md_Params.Fields().ByName("base_packet_fee")
 }
@@ -210,6 +216,24 @@ func (x *fastReflection_Params) Range(f func(protoreflect.FieldDescriptor, proto
 			return
 		}
 	}
+	if x.MaxInterval != uint64(0) {
+		value := protoreflect.ValueOfUint64(x.MaxInterval)
+		if !f(fd_Params_max_interval, value) {
+			return
+		}
+	}
+	if x.MinDeviationBps != uint64(0) {
+		value := protoreflect.ValueOfUint64(x.MinDeviationBps)
+		if !f(fd_Params_min_deviation_bps, value) {
+			return
+		}
+	}
+	if x.MaxDeviationBps != uint64(0) {
+		value := protoreflect.ValueOfUint64(x.MaxDeviationBps)
+		if !f(fd_Params_max_deviation_bps, value) {
+			return
+		}
+	}
 	if x.MaxSignals != uint64(0) {
 		value := protoreflect.ValueOfUint64(x.MaxSignals)
 		if !f(fd_Params_max_signals, value) {
@@ -217,7 +241,7 @@ func (x *fastReflection_Params) Range(f func(protoreflect.FieldDescriptor, proto
 		}
 	}
 	if len(x.BasePacketFee) != 0 {
-		value := protoreflect.ValueOfList(&_Params_4_list{list: &x.BasePacketFee})
+		value := protoreflect.ValueOfList(&_Params_7_list{list: &x.BasePacketFee})
 		if !f(fd_Params_base_packet_fee, value) {
 			return
 		}
@@ -241,6 +265,12 @@ func (x *fastReflection_Params) Has(fd protoreflect.FieldDescriptor) bool {
 		return len(x.MinDeposit) != 0
 	case "band.tunnel.v1beta1.Params.min_interval":
 		return x.MinInterval != uint64(0)
+	case "band.tunnel.v1beta1.Params.max_interval":
+		return x.MaxInterval != uint64(0)
+	case "band.tunnel.v1beta1.Params.min_deviation_bps":
+		return x.MinDeviationBps != uint64(0)
+	case "band.tunnel.v1beta1.Params.max_deviation_bps":
+		return x.MaxDeviationBps != uint64(0)
 	case "band.tunnel.v1beta1.Params.max_signals":
 		return x.MaxSignals != uint64(0)
 	case "band.tunnel.v1beta1.Params.base_packet_fee":
@@ -265,6 +295,12 @@ func (x *fastReflection_Params) Clear(fd protoreflect.FieldDescriptor) {
 		x.MinDeposit = nil
 	case "band.tunnel.v1beta1.Params.min_interval":
 		x.MinInterval = uint64(0)
+	case "band.tunnel.v1beta1.Params.max_interval":
+		x.MaxInterval = uint64(0)
+	case "band.tunnel.v1beta1.Params.min_deviation_bps":
+		x.MinDeviationBps = uint64(0)
+	case "band.tunnel.v1beta1.Params.max_deviation_bps":
+		x.MaxDeviationBps = uint64(0)
 	case "band.tunnel.v1beta1.Params.max_signals":
 		x.MaxSignals = uint64(0)
 	case "band.tunnel.v1beta1.Params.base_packet_fee":
@@ -294,14 +330,23 @@ func (x *fastReflection_Params) Get(descriptor protoreflect.FieldDescriptor) pro
 	case "band.tunnel.v1beta1.Params.min_interval":
 		value := x.MinInterval
 		return protoreflect.ValueOfUint64(value)
+	case "band.tunnel.v1beta1.Params.max_interval":
+		value := x.MaxInterval
+		return protoreflect.ValueOfUint64(value)
+	case "band.tunnel.v1beta1.Params.min_deviation_bps":
+		value := x.MinDeviationBps
+		return protoreflect.ValueOfUint64(value)
+	case "band.tunnel.v1beta1.Params.max_deviation_bps":
+		value := x.MaxDeviationBps
+		return protoreflect.ValueOfUint64(value)
 	case "band.tunnel.v1beta1.Params.max_signals":
 		value := x.MaxSignals
 		return protoreflect.ValueOfUint64(value)
 	case "band.tunnel.v1beta1.Params.base_packet_fee":
 		if len(x.BasePacketFee) == 0 {
-			return protoreflect.ValueOfList(&_Params_4_list{})
+			return protoreflect.ValueOfList(&_Params_7_list{})
 		}
-		listValue := &_Params_4_list{list: &x.BasePacketFee}
+		listValue := &_Params_7_list{list: &x.BasePacketFee}
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
@@ -329,11 +374,17 @@ func (x *fastReflection_Params) Set(fd protoreflect.FieldDescriptor, value proto
 		x.MinDeposit = *clv.list
 	case "band.tunnel.v1beta1.Params.min_interval":
 		x.MinInterval = value.Uint()
+	case "band.tunnel.v1beta1.Params.max_interval":
+		x.MaxInterval = value.Uint()
+	case "band.tunnel.v1beta1.Params.min_deviation_bps":
+		x.MinDeviationBps = value.Uint()
+	case "band.tunnel.v1beta1.Params.max_deviation_bps":
+		x.MaxDeviationBps = value.Uint()
 	case "band.tunnel.v1beta1.Params.max_signals":
 		x.MaxSignals = value.Uint()
 	case "band.tunnel.v1beta1.Params.base_packet_fee":
 		lv := value.List()
-		clv := lv.(*_Params_4_list)
+		clv := lv.(*_Params_7_list)
 		x.BasePacketFee = *clv.list
 	default:
 		if fd.IsExtension() {
@@ -365,10 +416,16 @@ func (x *fastReflection_Params) Mutable(fd protoreflect.FieldDescriptor) protore
 		if x.BasePacketFee == nil {
 			x.BasePacketFee = []*v1beta1.Coin{}
 		}
-		value := &_Params_4_list{list: &x.BasePacketFee}
+		value := &_Params_7_list{list: &x.BasePacketFee}
 		return protoreflect.ValueOfList(value)
 	case "band.tunnel.v1beta1.Params.min_interval":
 		panic(fmt.Errorf("field min_interval of message band.tunnel.v1beta1.Params is not mutable"))
+	case "band.tunnel.v1beta1.Params.max_interval":
+		panic(fmt.Errorf("field max_interval of message band.tunnel.v1beta1.Params is not mutable"))
+	case "band.tunnel.v1beta1.Params.min_deviation_bps":
+		panic(fmt.Errorf("field min_deviation_bps of message band.tunnel.v1beta1.Params is not mutable"))
+	case "band.tunnel.v1beta1.Params.max_deviation_bps":
+		panic(fmt.Errorf("field max_deviation_bps of message band.tunnel.v1beta1.Params is not mutable"))
 	case "band.tunnel.v1beta1.Params.max_signals":
 		panic(fmt.Errorf("field max_signals of message band.tunnel.v1beta1.Params is not mutable"))
 	default:
@@ -389,11 +446,17 @@ func (x *fastReflection_Params) NewField(fd protoreflect.FieldDescriptor) protor
 		return protoreflect.ValueOfList(&_Params_1_list{list: &list})
 	case "band.tunnel.v1beta1.Params.min_interval":
 		return protoreflect.ValueOfUint64(uint64(0))
+	case "band.tunnel.v1beta1.Params.max_interval":
+		return protoreflect.ValueOfUint64(uint64(0))
+	case "band.tunnel.v1beta1.Params.min_deviation_bps":
+		return protoreflect.ValueOfUint64(uint64(0))
+	case "band.tunnel.v1beta1.Params.max_deviation_bps":
+		return protoreflect.ValueOfUint64(uint64(0))
 	case "band.tunnel.v1beta1.Params.max_signals":
 		return protoreflect.ValueOfUint64(uint64(0))
 	case "band.tunnel.v1beta1.Params.base_packet_fee":
 		list := []*v1beta1.Coin{}
-		return protoreflect.ValueOfList(&_Params_4_list{list: &list})
+		return protoreflect.ValueOfList(&_Params_7_list{list: &list})
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.Params"))
@@ -472,6 +535,15 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 		if x.MinInterval != 0 {
 			n += 1 + runtime.Sov(uint64(x.MinInterval))
 		}
+		if x.MaxInterval != 0 {
+			n += 1 + runtime.Sov(uint64(x.MaxInterval))
+		}
+		if x.MinDeviationBps != 0 {
+			n += 1 + runtime.Sov(uint64(x.MinDeviationBps))
+		}
+		if x.MaxDeviationBps != 0 {
+			n += 1 + runtime.Sov(uint64(x.MaxDeviationBps))
+		}
 		if x.MaxSignals != 0 {
 			n += 1 + runtime.Sov(uint64(x.MaxSignals))
 		}
@@ -523,11 +595,26 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 				copy(dAtA[i:], encoded)
 				i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
 				i--
-				dAtA[i] = 0x22
+				dAtA[i] = 0x3a
 			}
 		}
 		if x.MaxSignals != 0 {
 			i = runtime.EncodeVarint(dAtA, i, uint64(x.MaxSignals))
+			i--
+			dAtA[i] = 0x30
+		}
+		if x.MaxDeviationBps != 0 {
+			i = runtime.EncodeVarint(dAtA, i, uint64(x.MaxDeviationBps))
+			i--
+			dAtA[i] = 0x28
+		}
+		if x.MinDeviationBps != 0 {
+			i = runtime.EncodeVarint(dAtA, i, uint64(x.MinDeviationBps))
+			i--
+			dAtA[i] = 0x20
+		}
+		if x.MaxInterval != 0 {
+			i = runtime.EncodeVarint(dAtA, i, uint64(x.MaxInterval))
 			i--
 			dAtA[i] = 0x18
 		}
@@ -656,6 +743,63 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 				}
 			case 3:
 				if wireType != 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field MaxInterval", wireType)
+				}
+				x.MaxInterval = 0
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					x.MaxInterval |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+			case 4:
+				if wireType != 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field MinDeviationBps", wireType)
+				}
+				x.MinDeviationBps = 0
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					x.MinDeviationBps |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+			case 5:
+				if wireType != 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field MaxDeviationBps", wireType)
+				}
+				x.MaxDeviationBps = 0
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					x.MaxDeviationBps |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+			case 6:
+				if wireType != 0 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field MaxSignals", wireType)
 				}
 				x.MaxSignals = 0
@@ -673,7 +817,7 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 						break
 					}
 				}
-			case 4:
+			case 7:
 				if wireType != 2 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field BasePacketFee", wireType)
 				}
@@ -765,10 +909,16 @@ type Params struct {
 	MinDeposit []*v1beta1.Coin `protobuf:"bytes,1,rep,name=min_deposit,json=minDeposit,proto3" json:"min_deposit,omitempty"`
 	// min_interval is the minimum interval in seconds
 	MinInterval uint64 `protobuf:"varint,2,opt,name=min_interval,json=minInterval,proto3" json:"min_interval,omitempty"`
+	// max_interval is the maximum interval in seconds
+	MaxInterval uint64 `protobuf:"varint,3,opt,name=max_interval,json=maxInterval,proto3" json:"max_interval,omitempty"`
+	// min_deviation_bps is the minimum deviation in basis points
+	MinDeviationBps uint64 `protobuf:"varint,4,opt,name=min_deviation_bps,json=minDeviationBps,proto3" json:"min_deviation_bps,omitempty"`
+	// max_deviation_bps is the maximum deviation in basis points
+	MaxDeviationBps uint64 `protobuf:"varint,5,opt,name=max_deviation_bps,json=maxDeviationBps,proto3" json:"max_deviation_bps,omitempty"`
 	// max_signals defines the maximum number of signals allowed per tunnel.
-	MaxSignals uint64 `protobuf:"varint,3,opt,name=max_signals,json=maxSignals,proto3" json:"max_signals,omitempty"`
+	MaxSignals uint64 `protobuf:"varint,6,opt,name=max_signals,json=maxSignals,proto3" json:"max_signals,omitempty"`
 	// base_packet_fee is the base fee for each packet
-	BasePacketFee []*v1beta1.Coin `protobuf:"bytes,4,rep,name=base_packet_fee,json=basePacketFee,proto3" json:"base_packet_fee,omitempty"`
+	BasePacketFee []*v1beta1.Coin `protobuf:"bytes,7,rep,name=base_packet_fee,json=basePacketFee,proto3" json:"base_packet_fee,omitempty"`
 }
 
 func (x *Params) Reset() {
@@ -805,6 +955,27 @@ func (x *Params) GetMinInterval() uint64 {
 	return 0
 }
 
+func (x *Params) GetMaxInterval() uint64 {
+	if x != nil {
+		return x.MaxInterval
+	}
+	return 0
+}
+
+func (x *Params) GetMinDeviationBps() uint64 {
+	if x != nil {
+		return x.MinDeviationBps
+	}
+	return 0
+}
+
+func (x *Params) GetMaxDeviationBps() uint64 {
+	if x != nil {
+		return x.MaxDeviationBps
+	}
+	return 0
+}
+
 func (x *Params) GetMaxSignals() uint64 {
 	if x != nil {
 		return x.MaxSignals
@@ -828,7 +999,7 @@ var file_band_tunnel_v1beta1_params_proto_rawDesc = []byte{
 	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x1a, 0x14, 0x67, 0x6f, 0x67, 0x6f, 0x70, 0x72, 0x6f,
 	0x74, 0x6f, 0x2f, 0x67, 0x6f, 0x67, 0x6f, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x1e, 0x63,
 	0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x62, 0x61, 0x73, 0x65, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74,
-	0x61, 0x31, 0x2f, 0x63, 0x6f, 0x69, 0x6e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xb5, 0x02,
+	0x61, 0x31, 0x2f, 0x63, 0x6f, 0x69, 0x6e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0xda, 0x03,
 	0x0a, 0x06, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x6c, 0x0a, 0x0b, 0x6d, 0x69, 0x6e, 0x5f,
 	0x64, 0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e,
 	0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x76, 0x31, 0x62, 0x65,
@@ -838,31 +1009,42 @@ var file_band_tunnel_v1beta1_params_proto_rawDesc = []byte{
 	0x79, 0x70, 0x65, 0x73, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x73, 0x52, 0x0a, 0x6d, 0x69, 0x6e, 0x44,
 	0x65, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x12, 0x21, 0x0a, 0x0c, 0x6d, 0x69, 0x6e, 0x5f, 0x69, 0x6e,
 	0x74, 0x65, 0x72, 0x76, 0x61, 0x6c, 0x18, 0x02, 0x20, 0x01, 0x28, 0x04, 0x52, 0x0b, 0x6d, 0x69,
-	0x6e, 0x49, 0x6e, 0x74, 0x65, 0x72, 0x76, 0x61, 0x6c, 0x12, 0x1f, 0x0a, 0x0b, 0x6d, 0x61, 0x78,
-	0x5f, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73, 0x18, 0x03, 0x20, 0x01, 0x28, 0x04, 0x52, 0x0a,
-	0x6d, 0x61, 0x78, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73, 0x12, 0x73, 0x0a, 0x0f, 0x62, 0x61,
-	0x73, 0x65, 0x5f, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x5f, 0x66, 0x65, 0x65, 0x18, 0x04, 0x20,
-	0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73,
-	0x65, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x42, 0x30,
-	0xc8, 0xde, 0x1f, 0x00, 0xaa, 0xdf, 0x1f, 0x28, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63,
-	0x6f, 0x6d, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73,
-	0x2d, 0x73, 0x64, 0x6b, 0x2f, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x73,
-	0x52, 0x0d, 0x62, 0x61, 0x73, 0x65, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x46, 0x65, 0x65, 0x3a,
-	0x04, 0xe8, 0xa0, 0x1f, 0x01, 0x42, 0xdc, 0x01, 0x0a, 0x17, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61,
-	0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
-	0x31, 0x42, 0x0b, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01,
-	0x5a, 0x46, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e,
-	0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f,
-	0x76, 0x33, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x74, 0x75, 0x6e, 0x6e,
-	0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b, 0x74, 0x75, 0x6e, 0x6e, 0x65,
-	0x6c, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x42, 0x54, 0x58, 0xaa, 0x02,
-	0x13, 0x42, 0x61, 0x6e, 0x64, 0x2e, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x56, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54, 0x75, 0x6e, 0x6e,
-	0x65, 0x6c, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02, 0x1f, 0x42, 0x61, 0x6e,
-	0x64, 0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x15, 0x42,
-	0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x3a, 0x3a, 0x56, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x6e, 0x49, 0x6e, 0x74, 0x65, 0x72, 0x76, 0x61, 0x6c, 0x12, 0x21, 0x0a, 0x0c, 0x6d, 0x61, 0x78,
+	0x5f, 0x69, 0x6e, 0x74, 0x65, 0x72, 0x76, 0x61, 0x6c, 0x18, 0x03, 0x20, 0x01, 0x28, 0x04, 0x52,
+	0x0b, 0x6d, 0x61, 0x78, 0x49, 0x6e, 0x74, 0x65, 0x72, 0x76, 0x61, 0x6c, 0x12, 0x3f, 0x0a, 0x11,
+	0x6d, 0x69, 0x6e, 0x5f, 0x64, 0x65, 0x76, 0x69, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x62, 0x70,
+	0x73, 0x18, 0x04, 0x20, 0x01, 0x28, 0x04, 0x42, 0x13, 0xe2, 0xde, 0x1f, 0x0f, 0x4d, 0x69, 0x6e,
+	0x44, 0x65, 0x76, 0x69, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x42, 0x50, 0x53, 0x52, 0x0f, 0x6d, 0x69,
+	0x6e, 0x44, 0x65, 0x76, 0x69, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x42, 0x70, 0x73, 0x12, 0x3f, 0x0a,
+	0x11, 0x6d, 0x61, 0x78, 0x5f, 0x64, 0x65, 0x76, 0x69, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x62,
+	0x70, 0x73, 0x18, 0x05, 0x20, 0x01, 0x28, 0x04, 0x42, 0x13, 0xe2, 0xde, 0x1f, 0x0f, 0x4d, 0x61,
+	0x78, 0x44, 0x65, 0x76, 0x69, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x42, 0x50, 0x53, 0x52, 0x0f, 0x6d,
+	0x61, 0x78, 0x44, 0x65, 0x76, 0x69, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x42, 0x70, 0x73, 0x12, 0x1f,
+	0x0a, 0x0b, 0x6d, 0x61, 0x78, 0x5f, 0x73, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73, 0x18, 0x06, 0x20,
+	0x01, 0x28, 0x04, 0x52, 0x0a, 0x6d, 0x61, 0x78, 0x53, 0x69, 0x67, 0x6e, 0x61, 0x6c, 0x73, 0x12,
+	0x73, 0x0a, 0x0f, 0x62, 0x61, 0x73, 0x65, 0x5f, 0x70, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x5f, 0x66,
+	0x65, 0x65, 0x18, 0x07, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f,
+	0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43,
+	0x6f, 0x69, 0x6e, 0x42, 0x30, 0xc8, 0xde, 0x1f, 0x00, 0xaa, 0xdf, 0x1f, 0x28, 0x67, 0x69, 0x74,
+	0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x63,
+	0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2d, 0x73, 0x64, 0x6b, 0x2f, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e,
+	0x43, 0x6f, 0x69, 0x6e, 0x73, 0x52, 0x0d, 0x62, 0x61, 0x73, 0x65, 0x50, 0x61, 0x63, 0x6b, 0x65,
+	0x74, 0x46, 0x65, 0x65, 0x3a, 0x04, 0xe8, 0xa0, 0x1f, 0x01, 0x42, 0xdc, 0x01, 0x0a, 0x17, 0x63,
+	0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2e, 0x76,
+	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x0b, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x50, 0x72,
+	0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x46, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f,
+	0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63,
+	0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e, 0x64,
+	0x2f, 0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b,
+	0x74, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03,
+	0x42, 0x54, 0x58, 0xaa, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64, 0x2e, 0x54, 0x75, 0x6e, 0x6e, 0x65,
+	0x6c, 0x2e, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x13, 0x42, 0x61, 0x6e, 0x64,
+	0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2,
+	0x02, 0x1f, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x5c, 0x56, 0x31,
+	0x62, 0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74,
+	0x61, 0xea, 0x02, 0x15, 0x42, 0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c,
+	0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f,
+	0x33,
 }
 
 var (

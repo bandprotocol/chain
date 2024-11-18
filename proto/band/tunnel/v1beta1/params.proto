@@ -15,9 +15,15 @@ message Params {
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
   // min_interval is the minimum interval in seconds
   uint64 min_interval = 2;
+  // max_interval is the maximum interval in seconds
+  uint64 max_interval = 3;
+  // min_deviation_bps is the minimum deviation in basis points
+  uint64 min_deviation_bps = 4 [(gogoproto.customname) = "MinDeviationBPS"];
+  // max_deviation_bps is the maximum deviation in basis points
+  uint64 max_deviation_bps = 5 [(gogoproto.customname) = "MaxDeviationBPS"];
   // max_signals defines the maximum number of signals allowed per tunnel.
-  uint64 max_signals = 3;
+  uint64 max_signals = 6;
   // base_packet_fee is the base fee for each packet
-  repeated cosmos.base.v1beta1.Coin base_packet_fee = 4
+  repeated cosmos.base.v1beta1.Coin base_packet_fee = 7
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }
