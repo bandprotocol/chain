@@ -195,10 +195,10 @@ requests = sa.Table(
     Column("request_time", sa.Integer, nullable=True, index=True),
     Column("resolve_status", CustomResolveStatus),
     Column("resolve_time", sa.Integer, nullable=True),
-    Column("resolve_height", sa.Integer, sa.ForeignKey("blocks.height"), nullable=True, index=True,),
+    Column("resolve_height", sa.Integer, sa.ForeignKey("blocks.height"), nullable=True, index=True),
     Column("reason", sa.String, nullable=True),
     Column("result", CustomBase64, nullable=True),
-    Column("bandtss_signing_id", sa.Integer, sa.ForeignKey("bandtss_signings.id"), nullable=True,),
+    Column("bandtss_signing_id", sa.Integer, sa.ForeignKey("bandtss_signings.id"), nullable=True),
     Column("bandtss_signing_error_codespace", sa.String, nullable=True),
     Column("bandtss_signing_error_code", sa.Integer, nullable=True),
     Column("total_fees", sa.String),
@@ -254,7 +254,7 @@ raw_reports = sa.Table(
     Column("data", CustomBase64),
     Column("exit_code", sa.BigInteger),
     sa.ForeignKeyConstraint(["request_id", "validator_id"], ["reports.request_id", "reports.validator_id"]),
-    sa.ForeignKeyConstraint(["request_id", "external_id"], ["raw_requests.request_id", "raw_requests.external_id"],),
+    sa.ForeignKeyConstraint(["request_id", "external_id"], ["raw_requests.request_id", "raw_requests.external_id"]),
 )
 
 validators = sa.Table(
@@ -296,7 +296,7 @@ validator_votes = sa.Table(
     "validator_votes",
     metadata,
     Column("block_height", sa.Integer, sa.ForeignKey("blocks.height"), primary_key=True),
-    Column("consensus_address", sa.String, sa.ForeignKey("validators.consensus_address"), primary_key=True,),
+    Column("consensus_address", sa.String, sa.ForeignKey("validators.consensus_address"), primary_key=True),
     Column("voted", sa.Boolean),
 )
 
@@ -325,7 +325,7 @@ account_transactions = sa.Table(
     metadata,
     Column("transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), primary_key=True),
     Column("account_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
-    sa.Index("ix_account_transactions_account_id_transaction_id", "account_id", "transaction_id",),
+    sa.Index("ix_account_transactions_account_id_transaction_id", "account_id", "transaction_id"),
 )
 
 proposals = sa.Table(
@@ -391,7 +391,7 @@ related_data_source_oracle_scripts = sa.Table(
     "related_data_source_oracle_scripts",
     metadata,
     Column("data_source_id", sa.Integer, sa.ForeignKey("data_sources.id"), primary_key=True),
-    Column("oracle_script_id", sa.Integer, sa.ForeignKey("oracle_scripts.id"), primary_key=True,),
+    Column("oracle_script_id", sa.Integer, sa.ForeignKey("oracle_scripts.id"), primary_key=True),
 )
 
 historical_oracle_statuses = sa.Table(
@@ -420,7 +420,7 @@ data_source_requests_per_days = sa.Table(
 oracle_script_requests = sa.Table(
     "oracle_script_requests",
     metadata,
-    Column("oracle_script_id", sa.Integer, sa.ForeignKey("oracle_scripts.id"), primary_key=True,),
+    Column("oracle_script_id", sa.Integer, sa.ForeignKey("oracle_scripts.id"), primary_key=True),
     Column("count", sa.Integer),
 )
 
@@ -428,7 +428,7 @@ oracle_script_requests_per_days = sa.Table(
     "oracle_script_requests_per_days",
     metadata,
     Column("date", CustomDate, primary_key=True),
-    Column("oracle_script_id", sa.Integer, sa.ForeignKey("oracle_scripts.id"), primary_key=True,),
+    Column("oracle_script_id", sa.Integer, sa.ForeignKey("oracle_scripts.id"), primary_key=True),
     Column("count", sa.Integer),
 )
 
@@ -473,7 +473,7 @@ counterparty_chains = sa.Table("counterparty_chains", metadata, Column("chain_id
 connections = sa.Table(
     "connections",
     metadata,
-    Column("counterparty_chain_id", sa.String, sa.ForeignKey("counterparty_chains.chain_id"), primary_key=True,),
+    Column("counterparty_chain_id", sa.String, sa.ForeignKey("counterparty_chains.chain_id"), primary_key=True),
     Column("counterparty_connection_id", sa.String),
     Column("client_id", sa.String),
     Column("counterparty_client_id", sa.String),
@@ -558,7 +558,7 @@ group_proposals = sa.Table(
 group_votes = sa.Table(
     "group_votes",
     metadata,
-    Column("group_proposal_id", sa.Integer, sa.ForeignKey("group_proposals.id"), primary_key=True,),
+    Column("group_proposal_id", sa.Integer, sa.ForeignKey("group_proposals.id"), primary_key=True),
     Column("voter_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
     Column("option", sa.String),
     Column("metadata", sa.String),
