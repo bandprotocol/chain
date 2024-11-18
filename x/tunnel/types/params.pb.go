@@ -27,19 +27,19 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Params is the data structure that keeps the parameters of the module.
 type Params struct {
-	// min_deposit is the minimum deposit required to create a tunnel
+	// min_deposit is the minimum deposit required to create a tunnel.
 	MinDeposit github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=min_deposit,json=minDeposit,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"min_deposit"`
-	// min_interval is the minimum interval in seconds
+	// min_interval is the minimum interval in seconds.
 	MinInterval uint64 `protobuf:"varint,2,opt,name=min_interval,json=minInterval,proto3" json:"min_interval,omitempty"`
-	// max_interval is the maximum interval in seconds
+	// max_interval is the maximum interval in seconds.
 	MaxInterval uint64 `protobuf:"varint,3,opt,name=max_interval,json=maxInterval,proto3" json:"max_interval,omitempty"`
-	// min_deviation_bps is the minimum deviation in basis points
+	// min_deviation_bps is the minimum deviation in basis points.
 	MinDeviationBPS uint64 `protobuf:"varint,4,opt,name=min_deviation_bps,json=minDeviationBps,proto3" json:"min_deviation_bps,omitempty"`
-	// max_deviation_bps is the maximum deviation in basis points
+	// max_deviation_bps is the maximum deviation in basis points.
 	MaxDeviationBPS uint64 `protobuf:"varint,5,opt,name=max_deviation_bps,json=maxDeviationBps,proto3" json:"max_deviation_bps,omitempty"`
 	// max_signals defines the maximum number of signals allowed per tunnel.
 	MaxSignals uint64 `protobuf:"varint,6,opt,name=max_signals,json=maxSignals,proto3" json:"max_signals,omitempty"`
-	// base_packet_fee is the base fee for each packet
+	// base_packet_fee is the base fee for each packet.
 	BasePacketFee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,7,rep,name=base_packet_fee,json=basePacketFee,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"base_packet_fee"`
 }
 
