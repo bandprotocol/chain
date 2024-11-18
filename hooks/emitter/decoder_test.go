@@ -996,28 +996,47 @@ func (suite *DecoderTestSuite) TestDecodeBandtssMsgTransitionGroup() {
 	msg := bandtsstypes.MsgTransitionGroup{
 		Members:   []string{"member1", "member2"},
 		Threshold: 2,
-		Authority: "some-authority-id",
+		Authority: AuthorityAddress.String(),
 		ExecTime:  time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC),
 	}
 
 	emitter.DecodeBandtssMsgTransitionGroup(&msg, detail)
 
-	expectedJSON := `{"authority":"some-authority-id","exec_time":1577923200000000000,"members":["member1","member2"],"threshold":2}`
+	expectedJSON := `{"authority":"band1g96hg6r0wf5hg7gqqqqqqqqqqqqqqqqq4rjgsx","exec_time":1577923200000000000,"members":["member1","member2"],"threshold":2}`
 	suite.testCompareJson(detail, expectedJSON)
 }
 
-func (suite *DecoderTestSuite) TestDecodeGroupMsgReplaceGroup() {
+func (suite *DecoderTestSuite) TestDecodeBandtssGroupMsgForceTransitionGroup() {
 	detail := make(common.JsDict)
 
 	msg := bandtsstypes.MsgForceTransitionGroup{
 		IncomingGroupID: 1,
 		ExecTime:        time.Date(2020, 1, 2, 0, 0, 0, 0, time.UTC),
-		Authority:       "authority123",
+		Authority:       AuthorityAddress.String(),
 	}
 
 	emitter.DecodeBandtssMsgForceTransitionGroup(&msg, detail)
 
-	expectedJSON := `{"authority":"authority123","exec_time":1577923200000000000,"incoming_group_id":1}`
+	expectedJSON := `{"authority":"band1g96hg6r0wf5hg7gqqqqqqqqqqqqqqqqq4rjgsx","exec_time":1577923200000000000,"incoming_group_id":1}`
+	suite.testCompareJson(detail, expectedJSON)
+}
+
+func (suite *DecoderTestSuite) TestDecodeBandtssRequestSignature() {
+	detail := make(common.JsDict)
+
+	content := tsstypes.TextSignatureOrder{Message: []byte("test_message")}
+
+	msg := bandtsstypes.MsgRequestSignature{
+		Memo:     "test_memo",
+		FeeLimit: sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(100))),
+		Sender:   SenderAddress.String(),
+	}
+	err := msg.SetContent(&content)
+	suite.Require().NoError(err)
+
+	emitter.DecodeBandtssMsgRequestSignature(&msg, detail)
+
+	expectedJSON := `{"content":{"message":"746573745F6D657373616765"},"content_type":"/band.tss.v1beta1.TextSignatureOrder","fee_limit":[{"denom":"uband","amount":"100"}],"memo":"test_memo","sender":"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0"}`
 	suite.testCompareJson(detail, expectedJSON)
 }
 
@@ -1025,11 +1044,12 @@ func (suite *DecoderTestSuite) TestDecodeBandtssMsgUpdateParams() {
 	detail := make(common.JsDict)
 
 	msg := bandtsstypes.MsgUpdateParams{
-		Params: bandtsstypes.NewParams(10, 50, 50, sdk.Coins{Amount}),
+		Params:    bandtsstypes.NewParams(10, 50, 50, sdk.Coins{Amount}),
+		Authority: AuthorityAddress.String(),
 	}
 
 	emitter.DecodeBandtssMsgUpdateParams(&msg, detail)
-	expectedJSON := `{"authority":"","params":{"reward_percentage":10,"inactive_penalty_duration":50,"max_transition_duration":50,"fee":[{"denom":"uband","amount":"1"}]}}`
+	expectedJSON := `{"authority":"band1g96hg6r0wf5hg7gqqqqqqqqqqqqqqqqq4rjgsx","params":{"reward_percentage":10,"inactive_penalty_duration":50,"max_transition_duration":50,"fee":[{"denom":"uband","amount":"1"}]}}`
 	suite.testCompareJson(detail, expectedJSON)
 }
 
@@ -1037,12 +1057,12 @@ func (suite *DecoderTestSuite) TestDecodeBandtssMsgActivate() {
 	detail := make(common.JsDict)
 
 	msg := bandtsstypes.MsgActivate{
-		Sender:  "0x123",
+		Sender:  SenderAddress.String(),
 		GroupID: 1,
 	}
 
 	emitter.DecodeBandtssMsgActivate(&msg, detail)
-	expectedJSON := `{"group_id":1,"sender":"0x123"}`
+	expectedJSON := `{"group_id":1,"sender":"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0"}`
 	suite.testCompareJson(detail, expectedJSON)
 }
 
@@ -1058,11 +1078,11 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitDKGRound1() {
 			A0Signature:        tssSignature,
 			OneTimeSignature:   tssSignature,
 		},
-		Sender: "0x123",
+		Sender: SenderAddress.String(),
 	}
 
-	emitter.DecodeMsgSubmitDKGRound1(&msg, detail)
-	expectedJSON := "{\"group_id\":1,\"round1_info\":{\"member_id\":1,\"coefficient_commits\":[\"706F696E74\",\"706F696E74\"],\"one_time_pub_key\":\"706F696E74\",\"a0_signature\":\"7369676E6174757265\",\"one_time_signature\":\"7369676E6174757265\"},\"sender\":\"0x123\"}"
+	emitter.DecodeTssMsgSubmitDKGRound1(&msg, detail)
+	expectedJSON := `{"group_id":1,"round1_info":{"member_id":1,"coefficient_commits":["706F696E74","706F696E74"],"one_time_pub_key":"706F696E74","a0_signature":"7369676E6174757265","one_time_signature":"7369676E6174757265"},"sender":"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0"}`
 	suite.testCompareJson(detail, expectedJSON)
 }
 
@@ -1075,11 +1095,88 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitDKGRound2() {
 			MemberID:              1,
 			EncryptedSecretShares: tss.EncSecretShares{tssEncSecretShare},
 		},
-		Sender: "0x456",
+		Sender: SenderAddress.String(),
 	}
 
-	emitter.DecodeMsgSubmitDKGRound2(&msg, detail)
-	expectedJSON := "{\"group_id\":1,\"round2_info\":{\"member_id\":1,\"encrypted_secret_shares\":[\"656E635365637265745368617265\"]},\"sender\":\"0x456\"}"
+	emitter.DecodeTssMsgSubmitDKGRound2(&msg, detail)
+	expectedJSON := "{\"group_id\":1,\"round2_info\":{\"member_id\":1,\"encrypted_secret_shares\":[\"656E635365637265745368617265\"]},\"sender\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}"
+	suite.testCompareJson(detail, expectedJSON)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgComplain() {
+	detail := make(common.JsDict)
+
+	msg := tsstypes.MsgComplain{
+		GroupID: 1,
+		Complaints: []tsstypes.Complaint{
+			{
+				Complainant: 1,
+				Respondent:  2,
+				KeySym:      tss.Point("key_sym"),
+				Signature:   tss.ComplaintSignature([]byte("signature")),
+			},
+		},
+		Sender: SenderAddress.String(),
+	}
+
+	emitter.DecodeTssMsgComplain(&msg, detail)
+	expectedJSON := `{"complaints":[{"complainant":1,"respondent":2,"key_sym":"6B65795F73796D","signature":"7369676E6174757265"}],"group_id":1,"sender":"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0"}`
+	suite.testCompareJson(detail, expectedJSON)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgConfirm() {
+	detail := make(common.JsDict)
+
+	msg := tsstypes.MsgConfirm{
+		GroupID:      1,
+		MemberID:     1,
+		OwnPubKeySig: tss.Signature([]byte("signature")),
+		Sender:       SenderAddress.String(),
+	}
+
+	emitter.DecodeTssMsgConfirm(&msg, detail)
+	expectedJSON := `{"group_id":1,"member_id":1,"own_pub_key_sig":"7369676E6174757265","sender":"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0"}`
+	suite.testCompareJson(detail, expectedJSON)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgSubmitDE() {
+	detail := make(common.JsDict)
+
+	msg := tsstypes.MsgSubmitDEs{
+		DEs:    []tsstypes.DE{{PubD: tss.Point([]byte("pub_d")), PubE: tss.Point("pub_e")}},
+		Sender: SenderAddress.String(),
+	}
+
+	emitter.DecodeTssMsgSubmitDEs(&msg, detail)
+	expectedJSON := `{"des":[{"pub_d":"7075625F64","pub_e":"7075625F65"}],"sender":"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0"}`
+	suite.testCompareJson(detail, expectedJSON)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgSubmitSignature() {
+	detail := make(common.JsDict)
+
+	msg := tsstypes.MsgSubmitSignature{
+		SigningID: 1,
+		MemberID:  1,
+		Signature: tss.Signature([]byte("signature")),
+		Signer:    SenderAddress.String(),
+	}
+
+	emitter.DecodeTssMsgSubmitSignature(&msg, detail)
+	expectedJSON := `{"member_id":1,"signature":"7369676E6174757265","signer":"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0","signing_id":1}`
+	suite.testCompareJson(detail, expectedJSON)
+}
+
+func (suite *DecoderTestSuite) TestDecodeMsgUpdateParams() {
+	detail := make(common.JsDict)
+
+	msg := tsstypes.MsgUpdateParams{
+		Authority: AuthorityAddress.String(),
+		Params:    tsstypes.DefaultParams(),
+	}
+
+	emitter.DecodeTssMsgUpdateParams(&msg, detail)
+	expectedJSON := `{"authority":"band1g96hg6r0wf5hg7gqqqqqqqqqqqqqqqqq4rjgsx","params":{"max_group_size":20,"max_de_size":300,"creation_period":30000,"signing_period":100,"max_signing_attempt":5,"max_memo_length":100,"max_message_length":1000}}`
 	suite.testCompareJson(detail, expectedJSON)
 }
 
