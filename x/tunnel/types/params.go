@@ -7,24 +7,35 @@ import (
 )
 
 var (
-	DefaultMinInterval   = uint64(1)
-	DefaultMinDeposit    = sdk.NewCoins(sdk.NewInt64Coin("uband", 1_000_000_000))
-	DefaultMaxSignals    = uint64(100)
-	DefaultBasePacketFee = sdk.NewCoins(sdk.NewInt64Coin("uband", 10_000))
+	// Each value below is the default value for each parameter when generating the default
+	// genesis file. See comments in types.proto for explanation for each parameter.
+	DefaultMinInterval     = uint64(60)
+	DefaultMaxInterval     = uint64(3600)
+	DefaultMinDeviationBPS = uint64(50)
+	DefaultMaxDeviationBPS = uint64(3000)
+	DefaultMinDeposit      = sdk.NewCoins(sdk.NewInt64Coin("uband", 1_000_000_000))
+	DefaultMaxSignals      = uint64(25)
+	DefaultBasePacketFee   = sdk.NewCoins(sdk.NewInt64Coin("uband", 10_000))
 )
 
 // NewParams creates a new Params instance
 func NewParams(
 	minDeposit sdk.Coins,
 	minInterval uint64,
+	maxInterval uint64,
+	minDeviationBPS uint64,
+	maxDeviationBPS uint64,
 	maxSignals uint64,
 	basePacketFee sdk.Coins,
 ) Params {
 	return Params{
-		MinDeposit:    minDeposit,
-		MinInterval:   minInterval,
-		MaxSignals:    maxSignals,
-		BasePacketFee: basePacketFee,
+		MinDeposit:      minDeposit,
+		MinInterval:     minInterval,
+		MaxInterval:     maxInterval,
+		MinDeviationBPS: minInterval,
+		MaxDeviationBPS: maxDeviationBPS,
+		MaxSignals:      maxSignals,
+		BasePacketFee:   basePacketFee,
 	}
 }
 
@@ -33,6 +44,9 @@ func DefaultParams() Params {
 	return NewParams(
 		DefaultMinDeposit,
 		DefaultMinInterval,
+		DefaultMaxInterval,
+		DefaultMinDeviationBPS,
+		DefaultMaxDeviationBPS,
 		DefaultMaxSignals,
 		DefaultBasePacketFee,
 	)
@@ -48,6 +62,35 @@ func (p Params) Validate() error {
 	// validate MinInterval
 	if err := validateUint64("min interval", true)(p.MinInterval); err != nil {
 		return err
+	}
+
+	// validate MaxInterval
+	if err := validateUint64("max interval", true)(p.MaxInterval); err != nil {
+		return err
+	}
+
+	// validate max interval is greater than min interval
+	if p.MaxInterval <= p.MinInterval {
+		return fmt.Errorf("max interval must be greater than min interval: %d <= %d", p.MaxInterval, p.MinInterval)
+	}
+
+	// validate MinDeviationBPS
+	if err := validateUint64("min deviation bps", true)(p.MinDeviationBPS); err != nil {
+		return err
+	}
+
+	// validate MaxDeviationBPS
+	if err := validateUint64("max deviation bps", true)(p.MaxDeviationBPS); err != nil {
+		return err
+	}
+
+	// validate max deviation bps is greater than min deviation bps
+	if p.MaxDeviationBPS <= p.MinDeviationBPS {
+		return fmt.Errorf(
+			"max deviation bps must be greater than min deviation bps: %d <= %d",
+			p.MaxDeviationBPS,
+			p.MinDeviationBPS,
+		)
 	}
 
 	// validate MaxSignals
