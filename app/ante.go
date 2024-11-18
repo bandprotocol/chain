@@ -1,8 +1,13 @@
 package band
 
 import (
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
 	ibcante "github.com/cosmos/ibc-go/v8/modules/core/ante"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
+
+	corestoretypes "cosmossdk.io/core/store"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -23,15 +28,17 @@ import (
 // channel keeper.
 type HandlerOptions struct {
 	ante.HandlerOptions
-	Cdc             codec.Codec
-	AuthzKeeper     *authzkeeper.Keeper
-	OracleKeeper    *oraclekeeper.Keeper
-	IBCKeeper       *ibckeeper.Keeper
-	StakingKeeper   *stakingkeeper.Keeper
-	GlobalfeeKeeper *globalfeekeeper.Keeper
-	TSSKeeper       *tsskeeper.Keeper
-	BandtssKeeper   *bandtsskeeper.Keeper
-	FeedsKeeper     *feedskeeper.Keeper
+	Cdc                   codec.Codec
+	AuthzKeeper           *authzkeeper.Keeper
+	OracleKeeper          *oraclekeeper.Keeper
+	IBCKeeper             *ibckeeper.Keeper
+	StakingKeeper         *stakingkeeper.Keeper
+	GlobalfeeKeeper       *globalfeekeeper.Keeper
+	TSSKeeper             *tsskeeper.Keeper
+	BandtssKeeper         *bandtsskeeper.Keeper
+	FeedsKeeper           *feedskeeper.Keeper
+	TXCounterStoreService corestoretypes.KVStoreService
+	WasmConfig            *wasmtypes.WasmConfig
 }
 
 func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
@@ -93,6 +100,10 @@ func NewAnteHandler(options HandlerOptions) (sdk.AnteHandler, error) {
 
 	anteDecorators := []sdk.AnteDecorator{
 		ante.NewSetUpContextDecorator(), // outermost AnteDecorator. SetUpContext must be called first(),
+		wasmkeeper.NewLimitSimulationGasDecorator(
+			options.WasmConfig.SimulationGasLimit,
+		), // after setup context to enforce limits early
+		wasmkeeper.NewCountTXDecorator(options.TXCounterStoreService),
 		ante.NewExtensionOptionsDecorator(options.ExtensionOptionChecker),
 		ante.NewValidateBasicDecorator(),
 		ante.NewTxTimeoutHeightDecorator(),

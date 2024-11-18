@@ -1,6 +1,9 @@
 package band
 
 import (
+	wasm "github.com/CosmWasm/wasmd/x/wasm"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
 	"github.com/cosmos/ibc-go/modules/capability"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
@@ -84,6 +87,7 @@ var maccPerms = map[string][]string{
 	ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 	ibcfeetypes.ModuleName:         nil,
 	bandtsstypes.ModuleName:        nil,
+	wasmtypes.ModuleName:           {authtypes.Burner},
 	restaketypes.ModuleName:        nil,
 	tunneltypes.ModuleName:         nil,
 }
@@ -165,6 +169,15 @@ func appModules(
 		app.TransferModule,
 		app.ICAModule,
 		globalfee.NewAppModule(app.GlobalFeeKeeper),
+		wasm.NewAppModule(
+			appCodec,
+			&app.AppKeepers.WasmKeeper,
+			app.AppKeepers.StakingKeeper,
+			app.AppKeepers.AccountKeeper,
+			app.AppKeepers.BankKeeper,
+			app.MsgServiceRouter(),
+			app.GetSubspace(wasmtypes.ModuleName),
+		),
 		ibcfee.NewAppModule(app.IBCFeeKeeper),
 		restake.NewAppModule(appCodec, app.RestakeKeeper),
 		feeds.NewAppModule(appCodec, app.FeedsKeeper),
@@ -267,6 +280,15 @@ func simulationModules(
 			app.GetSubspace(oracletypes.ModuleName),
 			app.hooks,
 		),
+		wasm.NewAppModule(
+			appCodec,
+			&app.AppKeepers.WasmKeeper,
+			app.AppKeepers.StakingKeeper,
+			app.AppKeepers.AccountKeeper,
+			app.AppKeepers.BankKeeper,
+			app.MsgServiceRouter(),
+			app.GetSubspace(wasmtypes.ModuleName),
+		),
 		ibc.NewAppModule(app.IBCKeeper),
 		app.TransferModule,
 	}
@@ -303,6 +325,7 @@ func orderBeginBlockers() []string {
 		vestingtypes.ModuleName,
 		consensusparamtypes.ModuleName,
 		globalfeetypes.ModuleName,
+		wasmtypes.ModuleName,
 	}
 }
 
@@ -346,6 +369,7 @@ func orderEndBlockers() []string {
 		vestingtypes.ModuleName,
 		consensusparamtypes.ModuleName,
 		globalfeetypes.ModuleName,
+		wasmtypes.ModuleName,
 	}
 }
 
@@ -367,7 +391,6 @@ func orderInitBlockers() []string {
 		stakingtypes.ModuleName,
 		slashingtypes.ModuleName,
 		minttypes.ModuleName,
-		crisistypes.ModuleName,
 		genutiltypes.ModuleName,
 		ibctransfertypes.ModuleName,
 		ibcexported.ModuleName,
@@ -389,5 +412,9 @@ func orderInitBlockers() []string {
 		restaketypes.ModuleName,
 		feedstypes.ModuleName,
 		tunneltypes.ModuleName,
+		wasmtypes.ModuleName,
+		// crisis needs to be last so that the genesis state is consistent
+		// when it checks invariants
+		crisistypes.ModuleName,
 	}
 }

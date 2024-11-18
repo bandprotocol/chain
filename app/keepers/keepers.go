@@ -4,6 +4,10 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/CosmWasm/wasmd/x/wasm"
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
+	wasmtypes "github.com/CosmWasm/wasmd/x/wasm/types"
+
 	capabilitykeeper "github.com/cosmos/ibc-go/modules/capability/keeper"
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	ica "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts"
@@ -122,6 +126,7 @@ type AppKeepers struct {
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	GlobalFeeKeeper       globalfeekeeper.Keeper
 	RestakeKeeper         restakekeeper.Keeper
+	WasmKeeper            wasmkeeper.Keeper
 	// IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
 	IBCKeeper      *ibckeeper.Keeper
 	ICAHostKeeper  icahostkeeper.Keeper
@@ -137,6 +142,7 @@ type AppKeepers struct {
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper  capabilitykeeper.ScopedKeeper
 	ScopedOracleKeeper   capabilitykeeper.ScopedKeeper
+	ScopedWasmKeeper     capabilitykeeper.ScopedKeeper
 }
 
 func NewAppKeeper(
@@ -151,6 +157,7 @@ func NewAppKeeper(
 	invCheckPeriod uint,
 	logger log.Logger,
 	appOpts servertypes.AppOptions,
+	wasmOpts []wasmkeeper.Option,
 	owasmCacheSize uint32,
 ) AppKeepers {
 	appKeepers := AppKeepers{}
@@ -197,6 +204,7 @@ func NewAppKeeper(
 	appKeepers.ScopedICAHostKeeper = appKeepers.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 	appKeepers.ScopedTransferKeeper = appKeepers.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	appKeepers.ScopedOracleKeeper = appKeepers.CapabilityKeeper.ScopeToModule(oracletypes.ModuleName)
+	appKeepers.ScopedWasmKeeper = appKeepers.CapabilityKeeper.ScopeToModule(wasmtypes.ModuleName)
 
 	// Applications that wish to enforce statically created ScopedKeepers should call `Seal` after creating
 	// their scoped modules in `NewApp` with `ScopeToModule`
@@ -430,6 +438,33 @@ func NewAppKeeper(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
+	wasmDir := homePath
+	wasmConfig, err := wasm.ReadWasmConfig(appOpts)
+	if err != nil {
+		panic("error while reading wasm config: " + err.Error())
+	}
+
+	appKeepers.WasmKeeper = wasmkeeper.NewKeeper(
+		appCodec,
+		runtime.NewKVStoreService(appKeepers.keys[wasmtypes.StoreKey]),
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+		appKeepers.StakingKeeper,
+		distrkeeper.NewQuerier(appKeepers.DistrKeeper),
+		appKeepers.IBCFeeKeeper,
+		appKeepers.IBCKeeper.ChannelKeeper,
+		appKeepers.IBCKeeper.PortKeeper,
+		appKeepers.ScopedWasmKeeper,
+		appKeepers.TransferKeeper,
+		bApp.MsgServiceRouter(),
+		bApp.GRPCQueryRouter(),
+		wasmDir,
+		wasmConfig,
+		wasmkeeper.BuiltInCapabilities(),
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+		wasmOpts...,
+	)
+
 	owasmVM, err := owasm.NewVm(owasmCacheSize)
 	if err != nil {
 		panic(err)
@@ -532,12 +567,18 @@ func NewAppKeeper(
 	icaHostStack = icahost.NewIBCModule(appKeepers.ICAHostKeeper)
 	icaHostStack = ibcfee.NewIBCMiddleware(icaHostStack, appKeepers.IBCFeeKeeper)
 
+	var wasmStack porttypes.IBCModule
+	wasmStack = wasm.NewIBCHandler(appKeepers.WasmKeeper, appKeepers.IBCKeeper.ChannelKeeper, appKeepers.IBCFeeKeeper)
+	wasmStack = ibcfee.NewIBCMiddleware(wasmStack, appKeepers.IBCFeeKeeper)
+
 	// Create Oracle Stack
 	var oracleStack porttypes.IBCModule = oracle.NewIBCModule(appKeepers.OracleKeeper)
 
-	ibcRouter := porttypes.NewRouter().AddRoute(icahosttypes.SubModuleName, icaHostStack).
+	ibcRouter := porttypes.NewRouter().
+		AddRoute(icahosttypes.SubModuleName, icaHostStack).
 		AddRoute(ibctransfertypes.ModuleName, transferStack).
-		AddRoute(oracletypes.ModuleName, oracleStack)
+		AddRoute(oracletypes.ModuleName, oracleStack).
+		AddRoute(wasmtypes.ModuleName, wasmStack)
 
 	appKeepers.IBCKeeper.SetRouter(ibcRouter)
 
@@ -583,6 +624,7 @@ func initParamsKeeper(
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(icahosttypes.SubModuleName)
 	paramsKeeper.Subspace(oracletypes.ModuleName)
+	paramsKeeper.Subspace(wasmtypes.ModuleName)
 
 	return paramsKeeper
 }

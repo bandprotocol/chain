@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"reflect"
 
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -110,6 +111,7 @@ func createPersistentPreRunE(rootCmd *cobra.Command, ctx *context.Context) func(
 			map[int64]bool{},
 			tempDir,
 			initAppOptions,
+			[]wasmkeeper.Option{},
 			100,
 		)
 

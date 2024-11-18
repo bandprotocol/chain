@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/stretchr/testify/require"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -44,6 +45,8 @@ import (
 
 // BandAppChainID hardcoded chainID for simulation
 const BandAppChainID = "simulation-app"
+
+var emptyWasmOption []wasmkeeper.Option
 
 // Get flags every time the simulator is run
 func init() {
@@ -101,6 +104,7 @@ func TestFullAppSimulation(t *testing.T) {
 		map[int64]bool{},
 		DefaultNodeHome,
 		appOptions,
+		emptyWasmOption,
 		100,
 		fauxMerkleModeOpt,
 		baseapp.SetChainID(BandAppChainID),
@@ -163,6 +167,7 @@ func TestAppImportExport(t *testing.T) {
 		map[int64]bool{},
 		DefaultNodeHome,
 		appOptions,
+		emptyWasmOption,
 		100,
 		fauxMerkleModeOpt,
 		baseapp.SetChainID(BandAppChainID),
@@ -220,6 +225,7 @@ func TestAppImportExport(t *testing.T) {
 		map[int64]bool{},
 		DefaultNodeHome,
 		appOptions,
+		emptyWasmOption,
 		100,
 		fauxMerkleModeOpt,
 		baseapp.SetChainID(BandAppChainID),
@@ -333,6 +339,7 @@ func TestAppSimulationAfterImport(t *testing.T) {
 		map[int64]bool{},
 		DefaultNodeHome,
 		appOptions,
+		emptyWasmOption,
 		100,
 		fauxMerkleModeOpt,
 		baseapp.SetChainID(BandAppChainID),
@@ -395,6 +402,7 @@ func TestAppSimulationAfterImport(t *testing.T) {
 		map[int64]bool{},
 		DefaultNodeHome,
 		appOptions,
+		emptyWasmOption,
 		100,
 		fauxMerkleModeOpt,
 		baseapp.SetChainID(BandAppChainID),
@@ -473,6 +481,7 @@ func TestAppStateDeterminism(t *testing.T) {
 				map[int64]bool{},
 				DefaultNodeHome,
 				appOptions,
+				emptyWasmOption,
 				100,
 				interBlockCacheOpt(),
 				baseapp.SetChainID(BandAppChainID),

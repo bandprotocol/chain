@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/mock/gomock"
@@ -72,6 +73,7 @@ func (s *SubmitterTestSuite) SetupTest() {
 		map[int64]bool{},
 		tempDir,
 		initAppOptions,
+		[]wasmkeeper.Option{},
 		100,
 	)
 

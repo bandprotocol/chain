@@ -6,6 +6,7 @@ import (
 	"path"
 	"path/filepath"
 
+	wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -108,6 +109,7 @@ func Main() {
 			map[int64]bool{},
 			tempDir,
 			initAppOptions,
+			[]wasmkeeper.Option{},
 			100,
 		)
 		ctx.bandApp = tempApplication
