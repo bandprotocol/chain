@@ -61,6 +61,7 @@ class CustomDateTime(sa.types.TypeDecorator):
     def process_bind_param(self, value, dialect):
         return datetime.fromtimestamp(value / 1e9) if value != None else None
 
+
 class CustomBase64(sa.types.TypeDecorator):
     """Custom LargeBinary type that accepts base64-encoded string."""
 
@@ -202,8 +203,18 @@ requests = sa.Table(
     Column("result", CustomBase64, nullable=True),
     Column("total_fees", sa.String),
     Column("is_ibc", sa.Boolean),
-    sa.Index("ix_requests_oracle_script_id_id", "oracle_script_id", "id", postgresql_include=['transaction_id', 'min_count', 'ask_count', 'resolve_status', 'request_time']),
-    sa.Index("ix_requests_oracle_script_id_resolve_status_request_time", "oracle_script_id", "resolve_status", "request_time"),
+    sa.Index(
+        "ix_requests_oracle_script_id_id",
+        "oracle_script_id",
+        "id",
+        postgresql_include=["transaction_id", "min_count", "ask_count", "resolve_status", "request_time"],
+    ),
+    sa.Index(
+        "ix_requests_oracle_script_id_resolve_status_request_time",
+        "oracle_script_id",
+        "resolve_status",
+        "request_time",
+    ),
 )
 
 raw_requests = sa.Table(
@@ -327,11 +338,11 @@ proposals = sa.Table(
     Column("description", sa.String),
     Column("proposal_route", sa.String),
     Column("status", CustomProposalStatus),
-    Column("submit_time", CustomDateTime),
-    Column("deposit_end_time", CustomDateTime),
+    Column("submit_time", CustomDateTime, nullable=True),
+    Column("deposit_end_time", CustomDateTime, nullable=True),
     Column("total_deposit", sa.String),  # uband suffix
-    Column("voting_time", CustomDateTime),
-    Column("voting_end_time", CustomDateTime),
+    Column("voting_time", CustomDateTime, nullable=True),
+    Column("voting_end_time", CustomDateTime, nullable=True),
     Column("content", sa.JSON, nullable=True),
     Column("total_bonded_tokens", sa.BigInteger, nullable=True),
     Column("yes_vote", sa.BigInteger, nullable=True),
