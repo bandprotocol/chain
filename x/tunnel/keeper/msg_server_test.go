@@ -44,7 +44,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 
 				return types.NewMsgCreateTunnel(
 					signalDeviations,
-					10,
+					60,
 					route,
 					feedstypes.ENCODER_FIXED_POINT_ABI,
 					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
@@ -54,7 +54,26 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 			expErr:    true,
 			expErrMsg: "max signals exceeded",
 		},
-		"interval too low": {
+		"deviation out of range": {
+			preRun: func() (*types.MsgCreateTunnel, error) {
+				params := types.DefaultParams()
+				params.MinDeviationBPS = 1000
+				params.MaxDeviationBPS = 10000
+				s.Require().NoError(s.keeper.SetParams(s.ctx, params))
+
+				return types.NewMsgCreateTunnel(
+					signalDeviations,
+					60,
+					route,
+					feedstypes.ENCODER_FIXED_POINT_ABI,
+					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
+					sdk.AccAddress([]byte("creator_address")),
+				)
+			},
+			expErr:    true,
+			expErrMsg: "deviation out of range",
+		},
+		"interval out of range": {
 			preRun: func() (*types.MsgCreateTunnel, error) {
 				params := types.DefaultParams()
 				params.MinInterval = 5
@@ -70,7 +89,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 				)
 			},
 			expErr:    true,
-			expErrMsg: "interval too low",
+			expErrMsg: "interval out of range",
 		},
 		"all good without initial deposit": {
 			preRun: func() (*types.MsgCreateTunnel, error) {
@@ -82,7 +101,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 
 				return types.NewMsgCreateTunnel(
 					signalDeviations,
-					10,
+					60,
 					route,
 					feedstypes.ENCODER_FIXED_POINT_ABI,
 					sdk.NewCoins(),
@@ -108,7 +127,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 
 				return types.NewMsgCreateTunnel(
 					signalDeviations,
-					10,
+					60,
 					route,
 					feedstypes.ENCODER_FIXED_POINT_ABI,
 					depositAmount,
@@ -170,14 +189,42 @@ func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
 				return types.NewMsgUpdateAndResetTunnel(
 					1,
 					editedSignalDeviations,
-					10,
+					60,
 					sdk.AccAddress([]byte("creator_address")).String(),
 				)
 			},
 			expErr:    true,
 			expErrMsg: "max signals exceeded",
 		},
-		"interval too low": {
+		"deviation out of range": {
+			preRun: func() *types.MsgUpdateAndResetTunnel {
+				params := types.DefaultParams()
+				params.MinDeviationBPS = 1000
+				params.MaxDeviationBPS = 10000
+				err := s.keeper.SetParams(s.ctx, params)
+				s.Require().NoError(err)
+
+				s.AddSampleTunnel(false)
+
+				editedSignalDeviations := []types.SignalDeviation{
+					{
+						SignalID:         "BTC",
+						SoftDeviationBPS: 200,
+						HardDeviationBPS: 200,
+					},
+				}
+
+				return types.NewMsgUpdateAndResetTunnel(
+					1,
+					editedSignalDeviations,
+					60,
+					sdk.AccAddress([]byte("creator_address")).String(),
+				)
+			},
+			expErr:    true,
+			expErrMsg: "deviation out of range",
+		},
+		"interval out of range": {
 			preRun: func() *types.MsgUpdateAndResetTunnel {
 				params := types.DefaultParams()
 				params.MinInterval = 5
@@ -202,14 +249,14 @@ func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
 				)
 			},
 			expErr:    true,
-			expErrMsg: "interval too low",
+			expErrMsg: "interval out of range",
 		},
 		"tunnel not found": {
 			preRun: func() *types.MsgUpdateAndResetTunnel {
 				return types.NewMsgUpdateAndResetTunnel(
 					1,
 					[]types.SignalDeviation{},
-					10,
+					60,
 					sdk.AccAddress([]byte("creator_address")).String(),
 				)
 			},
@@ -223,7 +270,7 @@ func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
 				return types.NewMsgUpdateAndResetTunnel(
 					1,
 					[]types.SignalDeviation{},
-					10,
+					60,
 					sdk.AccAddress([]byte("wrong_creator_address")).String(),
 				)
 			},
@@ -245,7 +292,7 @@ func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
 				return types.NewMsgUpdateAndResetTunnel(
 					1,
 					editedSignalDeviations,
-					10,
+					60,
 					sdk.AccAddress([]byte("creator_address")).String(),
 				)
 			},
