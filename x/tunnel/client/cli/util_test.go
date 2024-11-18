@@ -17,7 +17,6 @@ func TestParseSignalDeviations(t *testing.T) {
 	defer cleanup()
 
 	result, err := parseSignalDeviations(file)
-
 	require.NoError(t, err)
 	require.Equal(t, signalDeviations, result.SignalDeviations)
 }

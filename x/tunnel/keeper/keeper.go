@@ -51,7 +51,7 @@ func NewKeeper(
 
 	// ensure that authority is a valid AccAddress
 	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
-		panic(fmt.Errorf("invalid bandtss authority address: %w", err))
+		panic(fmt.Errorf("invalid authority address: %w", err))
 	}
 
 	return Keeper{

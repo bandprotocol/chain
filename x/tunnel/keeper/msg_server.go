@@ -31,14 +31,16 @@ func (ms msgServer) CreateTunnel(
 ) (*types.MsgCreateTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// validate signal infos and interval
 	params := ms.Keeper.GetParams(ctx)
-	if len(msg.SignalDeviations) > int(params.MaxSignals) {
-		return nil, types.ErrMaxSignalsExceeded
+
+	// validate signal infos and interval
+	if err := types.ValidateSignalDeviations(msg.SignalDeviations, params); err != nil {
+		return nil, err
 	}
 
-	if msg.Interval < params.MinInterval {
-		return nil, types.ErrIntervalTooLow
+	// validate interval
+	if err := types.ValidateInterval(msg.Interval, params); err != nil {
+		return nil, err
 	}
 
 	creator, err := sdk.AccAddressFromBech32(msg.Creator)
@@ -83,13 +85,16 @@ func (ms msgServer) UpdateAndResetTunnel(
 ) (*types.MsgUpdateAndResetTunnelResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// validate signal infos and interval
 	params := ms.Keeper.GetParams(ctx)
-	if len(msg.SignalDeviations) > int(params.MaxSignals) {
-		return nil, types.ErrMaxSignalsExceeded
+
+	// validate signal infos and interval
+	if err := types.ValidateSignalDeviations(msg.SignalDeviations, params); err != nil {
+		return nil, err
 	}
-	if msg.Interval < params.MinInterval {
-		return nil, types.ErrIntervalTooLow
+
+	// validate interval
+	if err := types.ValidateInterval(msg.Interval, params); err != nil {
+		return nil, err
 	}
 
 	tunnel, err := ms.Keeper.GetTunnel(ctx, msg.TunnelID)
