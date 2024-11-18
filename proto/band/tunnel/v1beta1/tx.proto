@@ -138,8 +138,7 @@ message MsgDepositToTunnel {
   option (amino.name)           = "tunnel/MsgDepositToTunnel";
 
   // tunnel_id defines the unique id of the tunnel.
-  uint64 tunnel_id = 1
-      [(gogoproto.customname) = "TunnelID", (gogoproto.jsontag) = "tunnel_id", (amino.dont_omitempty) = true];
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
 
   // amount to be deposited by depositor.
   repeated cosmos.base.v1beta1.Coin amount = 2 [
@@ -161,8 +160,7 @@ message MsgWithdrawFromTunnel {
   option (amino.name)           = "tunnel/MsgWithdrawFromTunnel";
 
   // tunnel_id defines the unique id of the tunnel.
-  uint64 tunnel_id = 1
-      [(gogoproto.customname) = "TunnelID", (gogoproto.jsontag) = "tunnel_id", (amino.dont_omitempty) = true];
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
 
   // amount to be withdrawn by withdrawer.
   repeated cosmos.base.v1beta1.Coin amount = 2 [
