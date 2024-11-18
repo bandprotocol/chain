@@ -207,7 +207,7 @@ requests = sa.Table(
         "ix_requests_oracle_script_id_id",
         "oracle_script_id",
         "id",
-        postgresql_include=["transaction_id", "min_count", "ask_count", "resolve_status", "request_time",],
+        postgresql_include=["transaction_id", "min_count", "ask_count", "resolve_status", "request_time"],
     ),
     sa.Index(
         "ix_requests_oracle_script_id_resolve_status_request_time",
@@ -338,11 +338,11 @@ proposals = sa.Table(
     Column("description", sa.String),
     Column("proposal_route", sa.String),
     Column("status", CustomProposalStatus),
-    Column("submit_time", CustomDateTime),
-    Column("deposit_end_time", CustomDateTime),
+    Column("submit_time", CustomDateTime, nullable=True),
+    Column("deposit_end_time", CustomDateTime, nullable=True),
     Column("total_deposit", sa.String),  # uband suffix
-    Column("voting_time", CustomDateTime),
-    Column("voting_end_time", CustomDateTime),
+    Column("voting_time", CustomDateTime, nullable=True),
+    Column("voting_end_time", CustomDateTime, nullable=True),
     Column("content", sa.JSON, nullable=True),
     Column("total_bonded_tokens", sa.BigInteger, nullable=True),
     Column("yes_vote", sa.BigInteger, nullable=True),
@@ -433,7 +433,10 @@ oracle_script_requests_per_days = sa.Table(
 )
 
 request_count_per_days = sa.Table(
-    "request_count_per_days", metadata, Column("date", CustomDate, primary_key=True), Column("count", sa.Integer),
+    "request_count_per_days",
+    metadata,
+    Column("date", CustomDate, primary_key=True),
+    Column("count", sa.Integer),
 )
 
 incoming_packets = sa.Table(
