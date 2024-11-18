@@ -39,13 +39,8 @@ func (ms msgServer) CreateTunnel(
 	}
 
 	// validate interval
-	if msg.Interval < params.MinInterval || msg.Interval > params.MaxInterval {
-		return nil, types.ErrIntervalOutOfRange.Wrapf(
-			"max %d, min %d, got %d",
-			params.MaxInterval,
-			params.MinInterval,
-			msg.Interval,
-		)
+	if err := types.ValidateInterval(msg.Interval, params); err != nil {
+		return nil, err
 	}
 
 	creator, err := sdk.AccAddressFromBech32(msg.Creator)
@@ -98,13 +93,8 @@ func (ms msgServer) UpdateAndResetTunnel(
 	}
 
 	// validate interval
-	if msg.Interval < params.MinInterval || msg.Interval > params.MaxInterval {
-		return nil, types.ErrIntervalOutOfRange.Wrapf(
-			"max %d, min %d, got %d",
-			params.MaxInterval,
-			params.MinInterval,
-			msg.Interval,
-		)
+	if err := types.ValidateInterval(msg.Interval, params); err != nil {
+		return nil, err
 	}
 
 	tunnel, err := ms.Keeper.GetTunnel(ctx, msg.TunnelID)

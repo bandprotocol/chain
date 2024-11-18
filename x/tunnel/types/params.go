@@ -70,7 +70,7 @@ func (p Params) Validate() error {
 	}
 
 	// validate max interval is greater than min interval
-	if p.MaxInterval <= p.MinInterval {
+	if p.MaxInterval < p.MinInterval {
 		return fmt.Errorf("max interval must be greater than min interval: %d <= %d", p.MaxInterval, p.MinInterval)
 	}
 
@@ -85,7 +85,7 @@ func (p Params) Validate() error {
 	}
 
 	// validate max deviation bps is greater than min deviation bps
-	if p.MaxDeviationBPS <= p.MinDeviationBPS {
+	if p.MaxDeviationBPS < p.MinDeviationBPS {
 		return fmt.Errorf(
 			"max deviation bps must be greater than min deviation bps: %d <= %d",
 			p.MaxDeviationBPS,

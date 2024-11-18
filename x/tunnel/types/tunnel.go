@@ -89,3 +89,16 @@ func (t Tunnel) GetSignalIDs() []string {
 	}
 	return signalIDs
 }
+
+// ValidateInterval validates the interval.
+func ValidateInterval(interval uint64, params Params) error {
+	if interval < params.MinInterval || interval > params.MaxInterval {
+		return ErrIntervalOutOfRange.Wrapf(
+			"max %d, min %d, got %d",
+			params.MaxInterval,
+			params.MinInterval,
+			interval,
+		)
+	}
+	return nil
+}
