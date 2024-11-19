@@ -41,14 +41,8 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))),
 	).Return(bandtsstypes.SigningID(1), nil)
 
-	k.SetTunnel(ctx, types.Tunnel{
-		ID:       1,
-		Encoder:  feedstypes.ENCODER_FIXED_POINT_ABI,
-		FeePayer: bandtesting.Alice.Address.String(),
-	})
-
 	// Send the TSS packet
-	content, fee, err := k.SendTSSPacket(ctx, &route, packet)
+	content, fee, err := k.SendTSSPacket(ctx, &route, packet, bandtesting.Alice.Address)
 	s.Require().NoError(err)
 
 	packetContent, ok := content.(*types.TSSPacketContent)

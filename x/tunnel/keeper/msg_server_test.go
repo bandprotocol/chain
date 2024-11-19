@@ -488,9 +488,10 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 			preRun: func() *types.MsgTriggerTunnel {
 				s.AddSampleTunnel(true)
 
-				feePayer := sdk.MustAccAddressFromBech32(
-					"band1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62q2yggu0",
-				)
+				latestTunnelID := s.keeper.GetTunnelCount(s.ctx)
+				tunnel, err := s.keeper.GetTunnel(s.ctx, latestTunnelID)
+				feePayer := sdk.MustAccAddressFromBech32(tunnel.FeePayer)
+				s.Require().NoError(err)
 
 				s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
 					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,

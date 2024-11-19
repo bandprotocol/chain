@@ -25,17 +25,32 @@ func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 	return func(ctx sdk.Context, content tsstypes.Content) ([]byte, error) {
 		switch c := content.(type) {
 		case *types.TunnelSignatureOrder:
+			tunnel, err := k.GetTunnel(ctx, c.TunnelID)
+			if err != nil {
+				return nil, err
+			}
+
+			route, ok := tunnel.Route.GetCachedValue().(*types.TSSRoute)
+			if !ok {
+				return nil, types.ErrInvalidRoute.Wrap("invalid route type; expect TSSRoute type")
+			}
+
+			packet, err := k.GetPacket(ctx, c.TunnelID, c.Sequence)
+			if err != nil {
+				return nil, err
+			}
+
 			var prefix []byte
-			switch c.Encoder {
+			switch tunnel.Encoder {
 			case feedstypes.ENCODER_FIXED_POINT_ABI:
 				prefix = EncoderFixedPointABIPrefix
 			case feedstypes.ENCODER_TICK_ABI:
 				prefix = EncoderTickABIPrefix
 			default:
-				return nil, types.ErrInvalidEncoder.Wrapf("invalid encoder: %s", c.Encoder)
+				return nil, types.ErrInvalidEncoder.Wrapf("invalid encoder: %s", tunnel.Encoder)
 			}
 
-			bz, err := c.Packet.EncodeTss(c.DestinationChainID, c.DestinationContractAddress, c.Encoder)
+			bz, err := packet.EncodeTss(route.DestinationChainID, route.DestinationContractAddress, tunnel.Encoder)
 			if err != nil {
 				return nil, err
 			}

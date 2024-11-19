@@ -14,7 +14,7 @@ func TestEncodeABI(t *testing.T) {
 	packet := types.Packet{
 		TunnelID:  1,
 		Sequence:  3,
-		Prices:    []feedstypes.Price{{SignalID: "signal_01", Price: 2}},
+		Prices:    []feedstypes.Price{{SignalID: "signal_01", Price: 2, Status: feedstypes.PRICE_STATUS_AVAILABLE}},
 		CreatedAt: 123,
 	}
 

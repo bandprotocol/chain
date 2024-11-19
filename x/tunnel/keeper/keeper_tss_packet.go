@@ -11,14 +11,9 @@ func (k Keeper) SendTSSPacket(
 	ctx sdk.Context,
 	route *types.TSSRoute,
 	packet types.Packet,
+	feePayer sdk.AccAddress,
 ) (packetContent types.PacketContentI, fee sdk.Coins, err error) {
-	tunnel := k.MustGetTunnel(ctx, packet.TunnelID)
-	content := types.NewTunnelSignatureOrder(
-		packet,
-		route.DestinationChainID,
-		route.DestinationContractAddress,
-		tunnel.Encoder,
-	)
+	content := types.NewTunnelSignatureOrder(packet.TunnelID, packet.Sequence)
 
 	// Sign TSS packet
 	signingID, err := k.bandtssKeeper.CreateTunnelSigningRequest(
@@ -27,7 +22,7 @@ func (k Keeper) SendTSSPacket(
 		route.DestinationContractAddress,
 		route.DestinationChainID,
 		content,
-		sdk.MustAccAddressFromBech32(tunnel.FeePayer),
+		feePayer,
 		packet.RouteFee,
 	)
 	if err != nil {

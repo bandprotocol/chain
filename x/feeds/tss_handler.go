@@ -31,14 +31,9 @@ func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 				)
 			}
 
-			// Get feeds price data
-			fp, err := k.GetFeedsPriceData(ctx, c.SignalIDs, c.Encoder)
-			if err != nil {
-				return nil, err
-			}
+			prices := k.GetPrices(ctx, c.SignalIDs)
 
-			// Encode feeds price data
-			bz, err := fp.ABIEncode()
+			priceEncoders, err := types.ToPriceEncoders(prices, c.Encoder)
 			if err != nil {
 				return nil, err
 			}
@@ -46,8 +41,16 @@ func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 			// Append the prefix based on the encoder mode
 			switch c.Encoder {
 			case types.ENCODER_FIXED_POINT_ABI:
+				bz, err := priceEncoders.EncodeABI(uint64(ctx.BlockTime().Unix()))
+				if err != nil {
+					return nil, err
+				}
 				return append(EncoderFixedPointABIPrefix, bz...), nil
 			case types.ENCODER_TICK_ABI:
+				bz, err := priceEncoders.EncodeABI(uint64(ctx.BlockTime().Unix()))
+				if err != nil {
+					return nil, err
+				}
 				return append(EncoderTickABIPrefix, bz...), nil
 			default:
 				return nil, sdkerrors.ErrUnknownRequest.Wrapf(

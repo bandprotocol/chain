@@ -12,8 +12,8 @@ func AbsInt64(x int64) int64 {
 	return x
 }
 
-// stringToBytes32 converts a string to a fixed size byte array.
-func stringToBytes32(str string) ([32]byte, error) {
+// StringToBytes32 converts a string to a fixed size byte array.
+func StringToBytes32(str string) ([32]byte, error) {
 	if len(str) > 32 {
 		return [32]byte{}, fmt.Errorf("string is too long")
 	}
@@ -21,4 +21,13 @@ func stringToBytes32(str string) ([32]byte, error) {
 	var byteArray [32]byte
 	copy(byteArray[32-len(str):], str)
 	return byteArray, nil
+}
+
+// ValidateEncoder validates the encoder.
+func ValidateEncoder(encoder Encoder) error {
+	if _, ok := Encoder_name[int32(encoder)]; ok && encoder != ENCODER_UNSPECIFIED {
+		return nil
+	}
+
+	return ErrInvalidEncoder.Wrapf("invalid encoder: %s", encoder)
 }
