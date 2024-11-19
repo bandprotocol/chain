@@ -42,13 +42,12 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 	).Return(bandtsstypes.SigningID(1), nil)
 
 	// Send the TSS packet
-	content, fee, err := k.SendTSSPacket(ctx, &route, packet, bandtesting.Alice.Address)
+	content, err := k.SendTSSPacket(ctx, &route, packet, bandtesting.Alice.Address)
 	s.Require().NoError(err)
 
 	packetContent, ok := content.(*types.TSSPacketContent)
 	s.Require().True(ok)
 	s.Require().Equal("chain-1", packetContent.DestinationChainID)
 	s.Require().Equal("0x1234567890abcdef", packetContent.DestinationContractAddress)
-	s.Require().Equal(sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), fee)
 	s.Require().Equal(bandtsstypes.SigningID(1), packetContent.SigningID)
 }
