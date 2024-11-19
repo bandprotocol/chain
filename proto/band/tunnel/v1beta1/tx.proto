@@ -50,7 +50,7 @@ message MsgCreateTunnel {
 
   // signal_deviations is the list of signal deviations.
   repeated SignalDeviation signal_deviations = 1 [(gogoproto.nullable) = false];
-  // interval is the interval for delivering the signal prices.
+  // interval is the interval for delivering the signal prices in seconds.
   uint64 interval = 2;
   // route is the route for delivering the signal prices
   google.protobuf.Any route = 3 [(cosmos_proto.accepts_interface) = "Route"];

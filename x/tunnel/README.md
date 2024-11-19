@@ -103,6 +103,8 @@ bandd tx tunnel create-tunnel ibc [channel-id] [encoder] [initial-deposit] [inte
 
 #### TSS Route
 
+// TODO: waiting for implementation
+
 ### Packet
 
 A Packet is the data unit produced and sent to the destination chain based on the specified route.
@@ -189,8 +191,8 @@ type Params struct {
     MinDeposit sdk.Coins
     // MinInterval is the minimum interval in seconds.
     MinInterval uint64
-    // MinInterval is the minimum interval in seconds.
-    MinInterval uint64
+    // MaxInterval is the maximum interval in seconds.
+    MaxInterval uint64
     // MinDeviationBPS is the minimum deviation in basis points.
     MinDeviationBPS uint64
     // MaxDeviationBPS is the maximum deviation in basis points.
