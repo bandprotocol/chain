@@ -66,14 +66,6 @@ func NewMsgCreateTSSTunnel(
 	return m, nil
 }
 
-// Type Implements Msg.
-func (m MsgCreateTunnel) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSigners returns the expected signers for the message.
-func (m *MsgCreateTunnel) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Creator)}
-}
-
 // ValidateBasic does a sanity check on the provided data
 func (m MsgCreateTunnel) ValidateBasic() error {
 	// creator address must be valid
@@ -287,11 +279,6 @@ func NewMsgUpdateParams(
 
 // Type Implements Msg.
 func (m MsgUpdateParams) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSigners returns the expected signers for the message.
-func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
-}
 
 // ValidateBasic does a check on the provided data.
 func (m *MsgUpdateParams) ValidateBasic() error {

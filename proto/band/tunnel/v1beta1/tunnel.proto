@@ -50,7 +50,7 @@ message Deposit {
   ];
 }
 
-// Tunnel is the type for a tunnel
+// Tunnel contains the information of the tunnel that is created by the user
 message Tunnel {
   option (gogoproto.equal) = true;
 

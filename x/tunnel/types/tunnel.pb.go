@@ -213,7 +213,7 @@ func (m *Deposit) GetAmount() github_com_cosmos_cosmos_sdk_types.Coins {
 	return nil
 }
 
-// Tunnel is the type for a tunnel
+// Tunnel contains the information of the tunnel that is created by the user
 type Tunnel struct {
 	// id is the tunnel ID
 	ID uint64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`

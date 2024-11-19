@@ -5535,7 +5535,7 @@ func (x *Deposit) GetAmount() []*v1beta1.Coin {
 	return nil
 }
 
-// Tunnel is the type for a tunnel
+// Tunnel contains the information of the tunnel that is created by the user
 type Tunnel struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

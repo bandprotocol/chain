@@ -176,7 +176,7 @@ func (k Keeper) CreatePacket(
 		return types.Packet{}, types.ErrInvalidRoute
 	}
 
-	routeFee, err := k.GetRouterFee(ctx, route)
+	routeFee, err := k.GetRouteFee(ctx, route)
 	if err != nil {
 		return types.Packet{}, err
 	}

@@ -278,7 +278,7 @@ func (k Keeper) HasEnoughFundToCreatePacket(ctx sdk.Context, tunnelID uint64) (b
 		return false, types.ErrInvalidRoute
 	}
 
-	routeFee, err := k.GetRouterFee(ctx, route)
+	routeFee, err := k.GetRouteFee(ctx, route)
 	if err != nil {
 		return false, err
 	}
@@ -329,9 +329,9 @@ func (k Keeper) GenerateTunnelAccount(ctx sdk.Context, key string) (sdk.AccAddre
 	return tunnelAccAddr, nil
 }
 
-// GetRouterFee returns the fee of the given router
-func (k Keeper) GetRouterFee(ctx sdk.Context, router types.RouteI) (sdk.Coins, error) {
-	switch router.(type) {
+// GetRouteFee returns the fee of the given route
+func (k Keeper) GetRouteFee(ctx sdk.Context, route types.RouteI) (sdk.Coins, error) {
+	switch route.(type) {
 	case *types.TSSRoute:
 		return sdk.Coins{}, nil
 	default:

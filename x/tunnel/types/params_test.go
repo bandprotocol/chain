@@ -40,7 +40,7 @@ func TestParams_Validate(t *testing.T) {
 				return p
 			}(),
 			expErr:    true,
-			expErrMsg: "max interval must be greater than min interval: 5 <= 10",
+			expErrMsg: "max interval must be greater than or equal to min interval",
 		},
 		"invalid MinDeviationBPS": {
 			genesisState: func() types.Params {
@@ -68,7 +68,7 @@ func TestParams_Validate(t *testing.T) {
 				return p
 			}(),
 			expErr:    true,
-			expErrMsg: "max deviation bps must be greater than min deviation bps: 5 <= 10",
+			expErrMsg: "max deviation bps must be greater than or equal to min deviation bps",
 		},
 		"invalid MaxSignals": {
 			genesisState: func() types.Params {

@@ -2,7 +2,7 @@ package types
 
 import "github.com/cosmos/gogoproto/proto"
 
-// PacketI defines a type that implements the Packet interface
+// PacketContentI defines the interface for packet content.
 type PacketContentI interface {
 	proto.Message
 }
