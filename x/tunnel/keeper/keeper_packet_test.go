@@ -223,12 +223,8 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 		{SignalID: "BTC/USD", Price: 0},
 	}, 0))
 
-	// set params
-	defaultParams := types.DefaultParams()
-	err = k.SetParams(ctx, defaultParams)
+	err = k.ProduceActiveTunnelPackets(ctx)
 	s.Require().NoError(err)
-
-	k.ProduceActiveTunnelPackets(ctx)
 
 	newTunnelInfo, err := k.GetTunnel(ctx, tunnelID)
 	s.Require().NoError(err)
@@ -286,7 +282,8 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPacketsNotEnoughMoney() {
 		{SignalID: "BTC/USD", Price: 0},
 	}, 0))
 
-	k.ProduceActiveTunnelPackets(ctx)
+	err = k.ProduceActiveTunnelPackets(ctx)
+	s.Require().NoError(err)
 
 	newTunnelInfo, err := k.GetTunnel(ctx, tunnelID)
 	s.Require().NoError(err)

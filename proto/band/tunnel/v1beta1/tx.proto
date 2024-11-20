@@ -50,7 +50,7 @@ message MsgCreateTunnel {
 
   // signal_deviations is the list of signal deviations.
   repeated SignalDeviation signal_deviations = 1 [(gogoproto.nullable) = false];
-  // interval is the interval for delivering the signal prices.
+  // interval is the interval for delivering the signal prices in seconds.
   uint64 interval = 2;
   // route is the route for delivering the signal prices
   google.protobuf.Any route = 3 [(cosmos_proto.accepts_interface) = "Route"];
@@ -138,8 +138,7 @@ message MsgDepositToTunnel {
   option (amino.name)           = "tunnel/MsgDepositToTunnel";
 
   // tunnel_id defines the unique id of the tunnel.
-  uint64 tunnel_id = 1
-      [(gogoproto.customname) = "TunnelID", (gogoproto.jsontag) = "tunnel_id", (amino.dont_omitempty) = true];
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
 
   // amount to be deposited by depositor.
   repeated cosmos.base.v1beta1.Coin amount = 2 [
@@ -161,8 +160,7 @@ message MsgWithdrawFromTunnel {
   option (amino.name)           = "tunnel/MsgWithdrawFromTunnel";
 
   // tunnel_id defines the unique id of the tunnel.
-  uint64 tunnel_id = 1
-      [(gogoproto.customname) = "TunnelID", (gogoproto.jsontag) = "tunnel_id", (amino.dont_omitempty) = true];
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
 
   // amount to be withdrawn by withdrawer.
   repeated cosmos.base.v1beta1.Coin amount = 2 [

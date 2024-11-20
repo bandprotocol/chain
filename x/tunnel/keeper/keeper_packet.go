@@ -56,7 +56,7 @@ func (k Keeper) MustGetPacket(ctx sdk.Context, tunnelID uint64, sequence uint64)
 }
 
 // ProduceActiveTunnelPackets generates packets and sends packets to the destination route for all active tunnels
-func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
+func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) error {
 	// get active tunnel IDs
 	ids := k.GetActiveTunnelIDs(ctx)
 
@@ -65,12 +65,20 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 
 	// create new packet if possible for active tunnels. If not enough fund, deactivate the tunnel.
 	for _, id := range ids {
+		// check if the tunnel has enough fund to create a packet
+		// error should not happen here since the tunnel is already validated
 		ok, err := k.HasEnoughFundToCreatePacket(ctx, id)
 		if err != nil {
-			continue
+			return err
 		}
 		if !ok {
-			k.MustDeactivateTunnel(ctx, id)
+			// deactivate the tunnel if not enough fund
+			// error should not happen here since the tunnel is already validated
+			err := k.DeactivateTunnel(ctx, id)
+			if err != nil {
+				return err
+			}
+
 			continue
 		}
 
@@ -87,6 +95,8 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) {
 			))
 		}
 	}
+
+	return nil
 }
 
 // ProducePacket generates a packet and sends it to the destination route
@@ -113,10 +123,7 @@ func (k Keeper) ProducePacket(
 	sendAll := unixNow >= int64(tunnel.Interval)+latestPrices.LastInterval
 
 	// generate newPrices; if no newPrices, stop the process.
-	newPrices, err := GenerateNewPrices(tunnel.SignalDeviations, latestPricesMap, feedsPricesMap, sendAll)
-	if err != nil {
-		return err
-	}
+	newPrices := GenerateNewPrices(tunnel.SignalDeviations, latestPricesMap, feedsPricesMap, sendAll)
 	if len(newPrices) == 0 {
 		return nil
 	}
@@ -129,7 +136,7 @@ func (k Keeper) ProducePacket(
 
 	// send packet
 	if err := k.SendPacket(ctx, packet); err != nil {
-		return sdkerrors.Wrapf(err, "failed to create packet for tunnel %d", tunnel.ID)
+		return sdkerrors.Wrapf(err, "failed to send packet for tunnel %d", tunnel.ID)
 	}
 
 	// update latest price info.
@@ -176,7 +183,7 @@ func (k Keeper) CreatePacket(
 		return types.Packet{}, types.ErrInvalidRoute
 	}
 
-	routeFee, err := k.GetRouterFee(ctx, route)
+	routeFee, err := k.GetRouteFee(ctx, route)
 	if err != nil {
 		return types.Packet{}, err
 	}

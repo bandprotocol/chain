@@ -1,8 +1,6 @@
 package types
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -81,10 +79,7 @@ func ValidateGenesis(data GenesisState) error {
 	return data.Params.Validate()
 }
 
-// Validate validates the total fees
-func (tf TotalFees) Validate() error {
-	if !tf.TotalPacketFee.IsValid() {
-		return fmt.Errorf("invalid total packet fee: %s", tf.TotalPacketFee)
-	}
-	return nil
+// Total returns the total fees
+func (tf TotalFees) Total() sdk.Coins {
+	return tf.TotalPacketFee
 }

@@ -49,7 +49,7 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 		k.SetModuleAccount(ctx, moduleAcc)
 	}
 
-	totalBalance := totalDeposits.Add(data.TotalFees.TotalPacketFee...)
+	totalBalance := totalDeposits.Add(data.TotalFees.Total()...)
 	if !balance.Equal(totalBalance) {
 		panic("balance in the module account is not equal to the sum of total fees and total deposits")
 	}

@@ -17,7 +17,6 @@ func TestParseSignalDeviations(t *testing.T) {
 	defer cleanup()
 
 	result, err := parseSignalDeviations(file)
-
 	require.NoError(t, err)
 	require.Equal(t, signalDeviations, result.SignalDeviations)
 }
@@ -30,11 +29,7 @@ func createTempSignalDeviationFile(signalDeviations []SignalDeviation) (string, 
 	}
 	filePath := file.Name()
 
-	data := struct {
-		SignalDeviations []SignalDeviation `json:"signal_deviations"`
-	}{SignalDeviations: signalDeviations}
-
-	content, err := json.Marshal(data)
+	content, err := json.Marshal(SignalDeviations{SignalDeviations: signalDeviations})
 	if err != nil {
 		panic(err)
 	}

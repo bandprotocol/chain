@@ -75,7 +75,7 @@ func testBenchmarkTunnel(numTunnels, numSignals, maxSignals int, encoder feedsty
 				signalDeviations = append(signalDeviations, globalSignalDeviations[signalIdx[j]])
 			}
 
-			err := createNewTunnels(ba, &types.TSSRoute{}, signalDeviations, encoder)
+			err := createNewTunnel(ba, &types.TSSRoute{}, signalDeviations, 1000, encoder)
 			require.NoError(b, err)
 		}
 
@@ -117,16 +117,17 @@ func testBenchmarkTunnel(numTunnels, numSignals, maxSignals int, encoder feedsty
 	}
 }
 
-// createNewTunnels creates new tunnels with given signalInfos and encoder.
-func createNewTunnels(
+// createNewTunnel creates new tunnel with given signalInfos and encoder.
+func createNewTunnel(
 	ba *BenchmarkApp,
 	route types.RouteI,
 	signalDeviations []types.SignalDeviation,
+	interval uint64,
 	encoder feedstypes.Encoder,
 ) error {
 	creator := bandtesting.Alice.Address
 	tunnel, err := ba.TunnelKeeper.AddTunnel(
-		ba.Ctx, route, encoder, signalDeviations, 1000, creator,
+		ba.Ctx, route, encoder, signalDeviations, interval, creator,
 	)
 	if err != nil {
 		return err
@@ -142,12 +143,13 @@ func createNewTunnels(
 		return err
 	}
 
-	depositAmt := sdk.NewCoins(sdk.NewInt64Coin("uband", 50000))
+	// send coins to fee payer
+	amt := sdk.NewCoins(sdk.NewInt64Coin("uband", 50000))
 	if err := ba.BankKeeper.SendCoins(
 		ba.Ctx,
 		bandtesting.Validators[0].Address,
 		sdk.MustAccAddressFromBech32(tunnel.FeePayer),
-		depositAmt,
+		amt,
 	); err != nil {
 		return err
 	}

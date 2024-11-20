@@ -20,7 +20,7 @@ type SignalDeviation struct {
 }
 
 // ToSignalDeviations converts signal information to types.SignalDeviation, excluding soft deviation.
-// Note: Soft deviation may be utilized in the future for deviation adjustments.
+// Note: Soft deviation may be utilized in the future when deviation adjustments are needed.
 func (ss SignalDeviations) ToSignalDeviations() []types.SignalDeviation {
 	var signalDeviations []types.SignalDeviation
 	for _, sd := range ss.SignalDeviations {
