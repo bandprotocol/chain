@@ -13,7 +13,7 @@ func GenerateNewPrices(
 	latestPricesMap map[string]feedstypes.Price,
 	feedsPricesMap map[string]feedstypes.Price,
 	sendAll bool,
-) ([]feedstypes.Price, error) {
+) []feedstypes.Price {
 	shouldSend := false
 
 	newFeedPrices := make([]feedstypes.Price, 0)
@@ -41,8 +41,8 @@ func GenerateNewPrices(
 	}
 
 	if shouldSend {
-		return newFeedPrices, nil
+		return newFeedPrices
 	} else {
-		return []feedstypes.Price{}, nil
+		return []feedstypes.Price{}
 	}
 }

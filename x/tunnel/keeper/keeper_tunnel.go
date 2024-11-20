@@ -241,13 +241,6 @@ func (k Keeper) DeactivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 	return nil
 }
 
-// MustDeactivateTunnel deactivates a tunnel and panics if the tunnel does not exist
-func (k Keeper) MustDeactivateTunnel(ctx sdk.Context, tunnelID uint64) {
-	if err := k.DeactivateTunnel(ctx, tunnelID); err != nil {
-		panic(err)
-	}
-}
-
 // SetTotalFees sets the total fees in the store
 func (k Keeper) SetTotalFees(ctx sdk.Context, totalFee types.TotalFees) {
 	ctx.KVStore(k.storeKey).Set(types.TotalFeeStoreKey, k.cdc.MustMarshal(&totalFee))

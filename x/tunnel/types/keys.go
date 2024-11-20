@@ -24,7 +24,7 @@ const (
 	// QuerierRoute is the querier route for the tunnel module
 	QuerierRoute = ModuleName
 
-	// PortID is the default port id that oracle module binds to.
+	// PortID is the default port id that tunnel module binds to.
 	PortID = ModuleName
 )
 

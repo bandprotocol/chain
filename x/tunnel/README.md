@@ -36,10 +36,13 @@ The Tunnel module is designed to decentralize the creation of push-based price d
   - [Events](#events)
     - [Event: `create_tunnel`](#event-create_tunnel)
     - [Event: `update_and_reset_tunnel`](#event-update_and_reset_tunnel)
-    - [Event: `activate`](#event-activate)
-    - [Event: `deactivate`](#event-deactivate)
+    - [Event: `activate_tunnel`](#event-activate_tunnel)
+    - [Event: `deactivate_tunnel`](#event-deactivate_tunnel)
     - [Event: `trigger_tunnel`](#event-trigger_tunnel)
     - [Event: `produce_packet_fail`](#event-produce_packet_fail)
+    - [Event: `produce_packet_success`](#event-produce_packet_success)
+    - [Event: `deposit_to_tunnel`](#event-deposit_to_tunnel)
+    - [Event: `withdraw_from_tunnel`](#event-withdraw_from_tunnel)
   - [Clients](#clients)
     - [CLI Commands](#cli-commands)
       - [Query Commands](#query-commands)
@@ -405,7 +408,7 @@ This event is emitted when an existing tunnel is edited.
 | soft_deviation_bps[] | `{SignalDeviation.SoftDeviationBPS}}` |
 | hard_deviation_bps[] | `{SignalDeviation.hardDeviationBPS}}` |
 
-### Event: `activate`
+### Event: `activate_tunnel`
 
 This event is emitted when a tunnel is activated.
 
@@ -414,7 +417,7 @@ This event is emitted when a tunnel is activated.
 | tunnel_id     | `{ID}`          |
 | is_active     | `true`          |
 
-### Event: `deactivate`
+### Event: `deactivate_tunnel`
 
 This event is emitted when a tunnel is deactivated.
 
@@ -440,6 +443,35 @@ This event is emitted when the tunnel fails to produce a packet.
 | ------------- | --------------- |
 | tunnel_id     | `{ID}`          |
 | reason        | `{err.Error()}` |
+
+### Event: `produce_packet_success`
+
+This event is emitted when the tunnel successes to produce a packet.
+
+| Attribute Key | Attribute Value     |
+| ------------- | ------------------- |
+| tunnel_id     | `{ID}`              |
+| sequence      | `{packet.Sequence}` |
+
+### Event: `deposit_to_tunnel`
+
+This event is emitted when a deposit is made to the tunnel.
+
+| Attribute Key | Attribute Value            |
+| ------------- | -------------------------- |
+| tunnel_id     | `{tunnelID}`               |
+| depositor     | `{depositor.String()}`     |
+| amount        | `{depositAmount.String()}` |
+
+### Event: `withdraw_from_tunnel`
+
+This event is emitted when a withdrawal deposit is made to the tunnel.
+
+| Attribute Key | Attribute Value            |
+| ------------- | -------------------------- |
+| tunnel_id     | `{tunnelID}`               |
+| depositor     | `{depositor.String()}`     |
+| amount        | `{depositAmount.String()}` |
 
 ## Clients
 
