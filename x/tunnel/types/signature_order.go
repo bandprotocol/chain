@@ -5,9 +5,7 @@ import (
 )
 
 // signature order types
-const (
-	SignatureOrderTypeTunnel = "Tunnel"
-)
+const SignatureOrderTypeTunnel = "Tunnel"
 
 // Implements Content Interface
 var _ tsstypes.Content = &TunnelSignatureOrder{}

@@ -11,17 +11,19 @@ const (
 	EncoderTickABIPrefix       = "\xdb\x99\xb2\xb3" // tss.Hash([]byte("TickABI"))[:4]
 )
 
-var _priceABI, _ = abi.NewType("tuple[]", "struct Prices[]", []abi.ArgumentMarshaling{
-	{Name: "SignalID", Type: "bytes32"},
-	{Name: "Price", Type: "uint64"},
-})
+var (
+	_priceABI, _ = abi.NewType("tuple[]", "struct Prices[]", []abi.ArgumentMarshaling{
+		{Name: "SignalID", Type: "bytes32"},
+		{Name: "Price", Type: "uint64"},
+	})
 
-var _int64ABI, _ = abi.NewType("int64", "", nil)
+	_int64ABI, _ = abi.NewType("int64", "", nil)
 
-var feedsPriceDataArgs = abi.Arguments{
-	abi.Argument{Type: _priceABI, Name: "Prices"},
-	abi.Argument{Type: _int64ABI, Name: "Timestamp"},
-}
+	feedsPriceDataArgs = abi.Arguments{
+		abi.Argument{Type: _priceABI, Name: "Prices"},
+		abi.Argument{Type: _int64ABI, Name: "Timestamp"},
+	}
+)
 
 // TssPrice represents the price data to be encoded for encoding abi
 type TssPrice struct {
