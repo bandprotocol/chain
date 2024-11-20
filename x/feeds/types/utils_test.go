@@ -59,3 +59,13 @@ func TestStringToBytes32(t *testing.T) {
 		})
 	}
 }
+
+func TestValidateEncoder(t *testing.T) {
+	// validate encoder
+	err := types.ValidateEncoder(1)
+	require.NoError(t, err)
+
+	// invalid encoder
+	err = types.ValidateEncoder(999)
+	require.Error(t, err)
+}
