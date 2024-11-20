@@ -4,8 +4,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/chain/v3/x/feeds"
-	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/keeper"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
@@ -31,22 +29,12 @@ func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 				return nil, err
 			}
 
-			var prefix []byte
-			switch tunnel.Encoder {
-			case feedstypes.ENCODER_FIXED_POINT_ABI:
-				prefix = feeds.EncoderFixedPointABIPrefix
-			case feedstypes.ENCODER_TICK_ABI:
-				prefix = feeds.EncoderTickABIPrefix
-			default:
-				return nil, types.ErrInvalidEncoder.Wrapf("invalid encoder: %s", tunnel.Encoder)
-			}
-
-			bz, err := packet.EncodeTss(route.DestinationChainID, route.DestinationContractAddress, tunnel.Encoder)
-			if err != nil {
-				return nil, err
-			}
-
-			return append(prefix, bz...), nil
+			return types.EncodeTss(
+				packet,
+				route.DestinationChainID,
+				route.DestinationContractAddress,
+				tunnel.Encoder,
+			)
 		default:
 			return nil, sdkerrors.ErrUnknownRequest.Wrapf(
 				"unrecognized tss request signature type: %s",

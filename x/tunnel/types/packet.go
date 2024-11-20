@@ -54,26 +54,3 @@ func (p Packet) GetContent() (PacketContentI, error) {
 
 	return packetContent, nil
 }
-
-func (p Packet) EncodeTss(
-	destinationChainID string,
-	destinationContractAddress string,
-	encoder feedstypes.Encoder,
-) ([]byte, error) {
-	encodingPacket, err := NewTssEncodingPacket(
-		p,
-		destinationChainID,
-		destinationContractAddress,
-		encoder,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	switch encoder {
-	case feedstypes.ENCODER_FIXED_POINT_ABI, feedstypes.ENCODER_TICK_ABI:
-		return encodingPacket.EncodeABI()
-	default:
-		return nil, ErrInvalidEncoder.Wrapf("invalid encoder mode: %s", encoder.String())
-	}
-}
