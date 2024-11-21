@@ -30,11 +30,11 @@ func (k Keeper) SendTSSPacket(
 	}
 
 	// Set the packet content
-	packetContent = &types.TSSPacketContent{
-		SigningID:                  signingID,
-		DestinationChainID:         route.DestinationChainID,
-		DestinationContractAddress: route.DestinationContractAddress,
-	}
+	tssPacketContent := types.NewTSSPacketContent(
+		signingID,
+		route.DestinationChainID,
+		route.DestinationContractAddress,
+	)
 
-	return packetContent, nil
+	return &tssPacketContent, nil
 }
