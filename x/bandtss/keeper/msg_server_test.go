@@ -116,7 +116,7 @@ func (s *AppTestSuite) TestFailTransitionGroup() {
 				err := s.app.TSSKeeper.SetParams(ctx, tssParams)
 				s.Require().NoError(err)
 			},
-			expectErr: tsstypes.ErrGroupSizeTooLarge,
+			expectErr: tsstypes.ErrGroupCreationFailed,
 		},
 		{
 			name: "duplicate members",

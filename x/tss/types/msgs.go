@@ -49,7 +49,7 @@ func (m MsgSubmitDKGRound1) ValidateBasic() error {
 
 	// Validate member address
 	if _, err := sdk.AccAddressFromBech32(m.Sender); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
 	}
 
 	if err := m.Round1Info.Validate(); err != nil {
