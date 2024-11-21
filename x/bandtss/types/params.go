@@ -16,22 +16,21 @@ const (
 	DefaultRewardPercentage = uint64(10)
 )
 
-// DefaultFee is the default value for the signing request fee
-// The value is ["10uband"]
-var DefaultFee = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
+// DefaultFeePerSigner is the default value for the signing request fee. The value is ["10uband"]
+var DefaultFeePerSigner = sdk.NewCoins(sdk.NewInt64Coin("uband", 10))
 
 // NewParams creates a new Params instance
 func NewParams(
 	rewardPercentage uint64,
 	inactivePenaltyDuration time.Duration,
 	maxTransitionDuration time.Duration,
-	fee sdk.Coins,
+	feePerSigner sdk.Coins,
 ) Params {
 	return Params{
 		RewardPercentage:        rewardPercentage,
 		InactivePenaltyDuration: inactivePenaltyDuration,
 		MaxTransitionDuration:   maxTransitionDuration,
-		Fee:                     fee,
+		FeePerSigner:            feePerSigner,
 	}
 }
 
@@ -41,7 +40,7 @@ func DefaultParams() Params {
 		DefaultRewardPercentage,
 		DefaultInactivePenaltyDuration,
 		DefaultMaxTransitionDuration,
-		DefaultFee,
+		DefaultFeePerSigner,
 	)
 }
 
@@ -60,8 +59,8 @@ func (p Params) Validate() error {
 	}
 
 	// Validate fee
-	if !p.Fee.IsValid() {
-		return sdkerrors.ErrInvalidCoins.Wrap(p.Fee.String())
+	if !p.FeePerSigner.IsValid() {
+		return sdkerrors.ErrInvalidCoins.Wrap(p.FeePerSigner.String())
 	}
 
 	return nil

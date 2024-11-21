@@ -65,7 +65,7 @@ func (k Keeper) createSigningRequest(
 			return 0, err
 		}
 
-		feePerSigner = k.GetParams(ctx).Fee
+		feePerSigner = k.GetParams(ctx).FeePerSigner
 		totalFee := feePerSigner.MulInt(math.NewInt(int64(currentGroup.Threshold)))
 		for _, fc := range totalFee {
 			limitAmt := feeLimit.AmountOf(fc.Denom)

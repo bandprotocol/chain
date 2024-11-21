@@ -212,7 +212,7 @@ func (s *AppTestSuite) TestParams() {
 			input: types.Params{
 				InactivePenaltyDuration: time.Duration(0),
 				RewardPercentage:        0,
-				Fee:                     sdk.NewCoins(),
+				FeePerSigner:            sdk.NewCoins(),
 			},
 			expectErr:    true,
 			expectErrStr: "must be positive:",
@@ -223,7 +223,7 @@ func (s *AppTestSuite) TestParams() {
 				RewardPercentage:        types.DefaultRewardPercentage,
 				InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
 				MaxTransitionDuration:   types.DefaultMaxTransitionDuration,
-				Fee:                     types.DefaultFee,
+				FeePerSigner:            types.DefaultFeePerSigner,
 			},
 			expectErr: false,
 		},

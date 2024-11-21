@@ -435,7 +435,7 @@ func (s *AppTestSuite) TestSuccessRequestSignatureOnCurrentGroup() {
 	group, err := s.app.TSSKeeper.GetGroup(ctx, groupCtx.GroupID)
 	s.Require().NoError(err)
 
-	diff := k.GetParams(ctx).Fee.MulInt(math.NewInt(int64(group.Threshold)))
+	diff := k.GetParams(ctx).FeePerSigner.MulInt(math.NewInt(int64(group.Threshold)))
 	s.Require().Equal(diff, balancesBefore.Sub(balancesAfter...))
 	s.Require().Equal(diff, balancesModuleAfter.Sub(balancesModuleBefore...))
 
@@ -546,7 +546,7 @@ func (s *AppTestSuite) TestSuccessRequestSignatureOnBothGroups() {
 	)
 
 	group1 := s.app.TSSKeeper.MustGetGroup(ctx, group1Ctx.GroupID)
-	diff := s.app.BandtssKeeper.GetParams(ctx).Fee.MulInt(math.NewInt(int64(group1.Threshold)))
+	diff := s.app.BandtssKeeper.GetParams(ctx).FeePerSigner.MulInt(math.NewInt(int64(group1.Threshold)))
 	s.Require().Equal(diff, balancesBefore.Sub(balancesAfter...))
 	s.Require().Equal(diff, balancesModuleAfter.Sub(balancesModuleBefore...))
 
@@ -664,7 +664,7 @@ func (s *AppTestSuite) TestUpdateParams() {
 					RewardPercentage:        types.DefaultRewardPercentage,
 					InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
 					MaxTransitionDuration:   types.DefaultMaxTransitionDuration,
-					Fee:                     types.DefaultFee,
+					FeePerSigner:            types.DefaultFeePerSigner,
 				},
 			},
 			expectErr: false,
