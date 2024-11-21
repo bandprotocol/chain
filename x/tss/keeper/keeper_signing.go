@@ -55,6 +55,14 @@ func (k Keeper) RequestSigning(
 		return 0, err
 	}
 
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeCreateSigning,
+		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
+		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+		sdk.NewAttribute(types.AttributeKeyContent, content.String()),
+		sdk.NewAttribute(types.AttributeKeyOriginator, originator.String()),
+	))
+
 	return signingID, nil
 }
 
