@@ -306,11 +306,6 @@ func NewMsgUpdateParams(
 // Type Implements Msg.
 func (m MsgUpdateParams) Type() string { return sdk.MsgTypeURL(&m) }
 
-// GetSigners returns the expected signers for the message.
-func (m *MsgUpdateParams) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Authority)}
-}
-
 // ValidateBasic does a check on the provided data.
 func (m *MsgUpdateParams) ValidateBasic() error {
 	if _, err := sdk.AccAddressFromBech32(m.Authority); err != nil {

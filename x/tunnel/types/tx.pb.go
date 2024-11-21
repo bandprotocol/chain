@@ -39,7 +39,7 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 type MsgCreateTunnel struct {
 	// signal_deviations is the list of signal deviations.
 	SignalDeviations []SignalDeviation `protobuf:"bytes,1,rep,name=signal_deviations,json=signalDeviations,proto3" json:"signal_deviations"`
-	// interval is the interval for delivering the signal prices.
+	// interval is the interval for delivering the signal prices in seconds.
 	Interval uint64 `protobuf:"varint,2,opt,name=interval,proto3" json:"interval,omitempty"`
 	// route is the route for delivering the signal prices
 	Route *types.Any `protobuf:"bytes,3,opt,name=route,proto3" json:"route,omitempty"`

@@ -90,19 +90,12 @@ func (t Tunnel) GetSignalIDs() []string {
 	return signalIDs
 }
 
-// NewIBCRoute creates a new IBCRoute instance.
-func NewIBCRoute(channelID string) *IBCRoute {
-	return &IBCRoute{
-		ChannelID: channelID,
+// Validate validates the total fees
+func (tf TotalFees) Validate() error {
+	if !tf.TotalPacketFee.IsValid() {
+		return fmt.Errorf("invalid total packet fee: %s", tf.TotalPacketFee)
 	}
-}
-
-// NewIBCPacketContent creates a new IBCPacketContent instance.
-func NewIBCPacketContent(channelID string, sequence uint64) *IBCPacketContent {
-	return &IBCPacketContent{
-		ChannelID: channelID,
-		Sequence:  sequence,
-	}
+	return nil
 }
 
 // ValidateInterval validates the interval.

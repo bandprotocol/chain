@@ -15,7 +15,6 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-// Keeper of the x/tunnel store
 type Keeper struct {
 	cdc      codec.BinaryCodec
 	storeKey storetypes.StoreKey
