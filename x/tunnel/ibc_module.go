@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
-	icatypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
@@ -154,8 +153,10 @@ func (im IBCModule) OnRecvPacket(
 	packet channeltypes.Packet,
 	relayer sdk.AccAddress,
 ) ibcexported.Acknowledgement {
-	err := errorsmod.Wrapf(icatypes.ErrInvalidChannelFlow, "cannot receive packet on controller chain")
-	ack := channeltypes.NewErrorAcknowledgement(err)
+	// Disallow incoming packets for tunnel channels
+	ack := channeltypes.NewErrorAcknowledgement(
+		sdkerrors.ErrInvalidRequest.Wrap("tunnel does not accept incoming packets"),
+	)
 	return ack
 }
 
@@ -181,18 +182,18 @@ func (im IBCModule) OnTimeoutPacket(
 }
 
 // validateChannelParams validates the parameters of a newly created tunnel channel.
-// A valid tunnel channel must be UNORDERED, use the correct port (default is 'tunnel').
+// A valid tunnel channel must be ORDERED, use the correct port (default is 'tunnel').
 func validateChannelParams(
 	ctx sdk.Context,
 	keeper keeper.Keeper,
 	order channeltypes.Order,
 	portID string,
 ) error {
-	if order != channeltypes.UNORDERED {
+	if order != channeltypes.ORDERED {
 		return errorsmod.Wrapf(
 			channeltypes.ErrInvalidChannelOrdering,
 			"expected %s channel, got %s",
-			channeltypes.UNORDERED,
+			channeltypes.ORDERED,
 			order,
 		)
 	}

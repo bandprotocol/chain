@@ -40,7 +40,7 @@ func NewIBCPacketContent(channelID string, sequence uint64) *IBCPacketContent {
 	}
 }
 
-// IBCPacket defines the packet sent over the IBC channel
+// NewIBCPacketResult creates a new IBCPacketResult instance.
 func NewIBCPacketResult(
 	tunnelID uint64,
 	sequence uint64,
