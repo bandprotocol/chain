@@ -212,14 +212,11 @@ func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) error {
 		return err
 	}
 
-	// get the packet content, which is the information receiving after
-	// sending packet to the destination route
-	var content types.PacketContentI
+	// send packet to the destination route and get the route result
+	var result types.RouteResultI
 	switch r := tunnel.Route.GetCachedValue().(type) {
 	case *types.TSSRoute:
-		content, err = k.SendTSSPacket(ctx, r, packet)
-	case *types.IBCRoute:
-		content, err = k.SendIBCPacket(ctx, r, packet)
+		result, err = k.SendTSSPacket(ctx, r, packet)
 	default:
 		return types.ErrInvalidRoute.Wrapf("no route found for tunnel ID: %d", tunnel.ID)
 	}
@@ -228,9 +225,14 @@ func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) error {
 		return err
 	}
 
-	// set the packet content
-	if err := packet.SetPacketContent(content); err != nil {
-		return sdkerrors.Wrapf(err, "failed to set packet content for tunnel ID: %d", tunnel.ID)
+	// set route result to the packet
+	if err := packet.SetRouteResultValue(result); err != nil {
+		return sdkerrors.Wrapf(
+			err,
+			"failed to set route result for tunnel %d, sequence %d",
+			packet.TunnelID,
+			packet.Sequence,
+		)
 	}
 
 	k.SetPacket(ctx, packet)

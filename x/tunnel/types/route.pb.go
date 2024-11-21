@@ -81,28 +81,24 @@ func (m *TSSRoute) GetDestinationContractAddress() string {
 	return ""
 }
 
-// TSSPacketContent is the packet content for TSS
-type TSSPacketContent struct {
+// TSSRouteResult is the type for a TSS route result
+type TSSRouteResult struct {
 	// signing_id is the signing ID
 	SigningID github_com_bandprotocol_chain_v3_x_bandtss_types.SigningID `protobuf:"varint,1,opt,name=signing_id,json=signingId,proto3,casttype=github.com/bandprotocol/chain/v3/x/bandtss/types.SigningID" json:"signing_id,omitempty"`
-	// destination_chain_id is the destination chain ID
-	DestinationChainID string `protobuf:"bytes,2,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
-	// destination_contract_address is the destination contract address
-	DestinationContractAddress string `protobuf:"bytes,3,opt,name=destination_contract_address,json=destinationContractAddress,proto3" json:"destination_contract_address,omitempty"`
 }
 
-func (m *TSSPacketContent) Reset()         { *m = TSSPacketContent{} }
-func (m *TSSPacketContent) String() string { return proto.CompactTextString(m) }
-func (*TSSPacketContent) ProtoMessage()    {}
-func (*TSSPacketContent) Descriptor() ([]byte, []int) {
+func (m *TSSRouteResult) Reset()         { *m = TSSRouteResult{} }
+func (m *TSSRouteResult) String() string { return proto.CompactTextString(m) }
+func (*TSSRouteResult) ProtoMessage()    {}
+func (*TSSRouteResult) Descriptor() ([]byte, []int) {
 	return fileDescriptor_543238289d94b7a6, []int{1}
 }
-func (m *TSSPacketContent) XXX_Unmarshal(b []byte) error {
+func (m *TSSRouteResult) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *TSSPacketContent) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *TSSRouteResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_TSSPacketContent.Marshal(b, m, deterministic)
+		return xxx_messageInfo_TSSRouteResult.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -112,37 +108,23 @@ func (m *TSSPacketContent) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return b[:n], nil
 	}
 }
-func (m *TSSPacketContent) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_TSSPacketContent.Merge(m, src)
+func (m *TSSRouteResult) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TSSRouteResult.Merge(m, src)
 }
-func (m *TSSPacketContent) XXX_Size() int {
+func (m *TSSRouteResult) XXX_Size() int {
 	return m.Size()
 }
-func (m *TSSPacketContent) XXX_DiscardUnknown() {
-	xxx_messageInfo_TSSPacketContent.DiscardUnknown(m)
+func (m *TSSRouteResult) XXX_DiscardUnknown() {
+	xxx_messageInfo_TSSRouteResult.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_TSSPacketContent proto.InternalMessageInfo
+var xxx_messageInfo_TSSRouteResult proto.InternalMessageInfo
 
-func (m *TSSPacketContent) GetSigningID() github_com_bandprotocol_chain_v3_x_bandtss_types.SigningID {
+func (m *TSSRouteResult) GetSigningID() github_com_bandprotocol_chain_v3_x_bandtss_types.SigningID {
 	if m != nil {
 		return m.SigningID
 	}
 	return 0
-}
-
-func (m *TSSPacketContent) GetDestinationChainID() string {
-	if m != nil {
-		return m.DestinationChainID
-	}
-	return ""
-}
-
-func (m *TSSPacketContent) GetDestinationContractAddress() string {
-	if m != nil {
-		return m.DestinationContractAddress
-	}
-	return ""
 }
 
 // IBCRoute is the type for an IBC route
@@ -191,26 +173,24 @@ func (m *IBCRoute) GetChannelID() string {
 	return ""
 }
 
-// IBCPacketContent is the packet content for IBC
-type IBCPacketContent struct {
-	// channel_id is the IBC channel ID
-	ChannelID string `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+// IBCRouteResult is the type for an IBC route result
+type IBCRouteResult struct {
 	// sequence is representing the sequence of the IBC packet.
 	Sequence uint64 `protobuf:"varint,2,opt,name=sequence,proto3" json:"sequence,omitempty"`
 }
 
-func (m *IBCPacketContent) Reset()         { *m = IBCPacketContent{} }
-func (m *IBCPacketContent) String() string { return proto.CompactTextString(m) }
-func (*IBCPacketContent) ProtoMessage()    {}
-func (*IBCPacketContent) Descriptor() ([]byte, []int) {
+func (m *IBCRouteResult) Reset()         { *m = IBCRouteResult{} }
+func (m *IBCRouteResult) String() string { return proto.CompactTextString(m) }
+func (*IBCRouteResult) ProtoMessage()    {}
+func (*IBCRouteResult) Descriptor() ([]byte, []int) {
 	return fileDescriptor_543238289d94b7a6, []int{3}
 }
-func (m *IBCPacketContent) XXX_Unmarshal(b []byte) error {
+func (m *IBCRouteResult) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *IBCPacketContent) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *IBCRouteResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_IBCPacketContent.Marshal(b, m, deterministic)
+		return xxx_messageInfo_IBCRouteResult.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -220,34 +200,27 @@ func (m *IBCPacketContent) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return b[:n], nil
 	}
 }
-func (m *IBCPacketContent) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_IBCPacketContent.Merge(m, src)
+func (m *IBCRouteResult) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IBCRouteResult.Merge(m, src)
 }
-func (m *IBCPacketContent) XXX_Size() int {
+func (m *IBCRouteResult) XXX_Size() int {
 	return m.Size()
 }
-func (m *IBCPacketContent) XXX_DiscardUnknown() {
-	xxx_messageInfo_IBCPacketContent.DiscardUnknown(m)
+func (m *IBCRouteResult) XXX_DiscardUnknown() {
+	xxx_messageInfo_IBCRouteResult.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_IBCPacketContent proto.InternalMessageInfo
+var xxx_messageInfo_IBCRouteResult proto.InternalMessageInfo
 
-func (m *IBCPacketContent) GetChannelID() string {
-	if m != nil {
-		return m.ChannelID
-	}
-	return ""
-}
-
-func (m *IBCPacketContent) GetSequence() uint64 {
+func (m *IBCRouteResult) GetSequence() uint64 {
 	if m != nil {
 		return m.Sequence
 	}
 	return 0
 }
 
-// IBCPacketResult is the packet result for IBC
-type IBCPacketResult struct {
+// IBCPacket is the type for an IBC packet
+type IBCPacket struct {
 	// tunnel_id is the tunnel ID
 	TunnelID uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
 	// sequence is representing the sequence of the tunnel packet.
@@ -258,18 +231,18 @@ type IBCPacketResult struct {
 	CreatedAt int64 `protobuf:"varint,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 }
 
-func (m *IBCPacketResult) Reset()         { *m = IBCPacketResult{} }
-func (m *IBCPacketResult) String() string { return proto.CompactTextString(m) }
-func (*IBCPacketResult) ProtoMessage()    {}
-func (*IBCPacketResult) Descriptor() ([]byte, []int) {
+func (m *IBCPacket) Reset()         { *m = IBCPacket{} }
+func (m *IBCPacket) String() string { return proto.CompactTextString(m) }
+func (*IBCPacket) ProtoMessage()    {}
+func (*IBCPacket) Descriptor() ([]byte, []int) {
 	return fileDescriptor_543238289d94b7a6, []int{4}
 }
-func (m *IBCPacketResult) XXX_Unmarshal(b []byte) error {
+func (m *IBCPacket) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *IBCPacketResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *IBCPacket) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_IBCPacketResult.Marshal(b, m, deterministic)
+		return xxx_messageInfo_IBCPacket.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -279,40 +252,40 @@ func (m *IBCPacketResult) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return b[:n], nil
 	}
 }
-func (m *IBCPacketResult) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_IBCPacketResult.Merge(m, src)
+func (m *IBCPacket) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IBCPacket.Merge(m, src)
 }
-func (m *IBCPacketResult) XXX_Size() int {
+func (m *IBCPacket) XXX_Size() int {
 	return m.Size()
 }
-func (m *IBCPacketResult) XXX_DiscardUnknown() {
-	xxx_messageInfo_IBCPacketResult.DiscardUnknown(m)
+func (m *IBCPacket) XXX_DiscardUnknown() {
+	xxx_messageInfo_IBCPacket.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_IBCPacketResult proto.InternalMessageInfo
+var xxx_messageInfo_IBCPacket proto.InternalMessageInfo
 
-func (m *IBCPacketResult) GetTunnelID() uint64 {
+func (m *IBCPacket) GetTunnelID() uint64 {
 	if m != nil {
 		return m.TunnelID
 	}
 	return 0
 }
 
-func (m *IBCPacketResult) GetSequence() uint64 {
+func (m *IBCPacket) GetSequence() uint64 {
 	if m != nil {
 		return m.Sequence
 	}
 	return 0
 }
 
-func (m *IBCPacketResult) GetPrices() []types.Price {
+func (m *IBCPacket) GetPrices() []types.Price {
 	if m != nil {
 		return m.Prices
 	}
 	return nil
 }
 
-func (m *IBCPacketResult) GetCreatedAt() int64 {
+func (m *IBCPacket) GetCreatedAt() int64 {
 	if m != nil {
 		return m.CreatedAt
 	}
@@ -321,49 +294,49 @@ func (m *IBCPacketResult) GetCreatedAt() int64 {
 
 func init() {
 	proto.RegisterType((*TSSRoute)(nil), "band.tunnel.v1beta1.TSSRoute")
-	proto.RegisterType((*TSSPacketContent)(nil), "band.tunnel.v1beta1.TSSPacketContent")
+	proto.RegisterType((*TSSRouteResult)(nil), "band.tunnel.v1beta1.TSSRouteResult")
 	proto.RegisterType((*IBCRoute)(nil), "band.tunnel.v1beta1.IBCRoute")
-	proto.RegisterType((*IBCPacketContent)(nil), "band.tunnel.v1beta1.IBCPacketContent")
-	proto.RegisterType((*IBCPacketResult)(nil), "band.tunnel.v1beta1.IBCPacketResult")
+	proto.RegisterType((*IBCRouteResult)(nil), "band.tunnel.v1beta1.IBCRouteResult")
+	proto.RegisterType((*IBCPacket)(nil), "band.tunnel.v1beta1.IBCPacket")
 }
 
 func init() { proto.RegisterFile("band/tunnel/v1beta1/route.proto", fileDescriptor_543238289d94b7a6) }
 
 var fileDescriptor_543238289d94b7a6 = []byte{
-	// 525 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x93, 0xbb, 0x8e, 0x13, 0x31,
-	0x14, 0x86, 0x33, 0x49, 0x88, 0x32, 0xe6, 0xb6, 0x32, 0x2b, 0x94, 0x8d, 0x60, 0x66, 0x95, 0x2a,
-	0x48, 0x64, 0x46, 0xcb, 0x16, 0x48, 0xa9, 0xd8, 0x49, 0x0a, 0x46, 0x08, 0x69, 0x35, 0x49, 0x45,
-	0x13, 0x39, 0xb6, 0x49, 0x06, 0xb2, 0x76, 0x18, 0x7b, 0x56, 0xf0, 0x16, 0x3c, 0x01, 0x05, 0x15,
-	0x25, 0x45, 0x1e, 0x62, 0x95, 0x6a, 0x4b, 0xaa, 0x08, 0x4d, 0xde, 0x82, 0x0a, 0xf9, 0x42, 0x42,
-	0x10, 0x57, 0x89, 0xce, 0xfe, 0xcf, 0xe7, 0x73, 0xec, 0xdf, 0xe7, 0x00, 0x7f, 0x8c, 0x18, 0x09,
-	0x65, 0xce, 0x18, 0x9d, 0x85, 0xe7, 0x47, 0x63, 0x2a, 0xd1, 0x51, 0x98, 0xf1, 0x5c, 0xd2, 0x60,
-	0x9e, 0x71, 0xc9, 0xe1, 0x2d, 0x05, 0x04, 0x06, 0x08, 0x2c, 0xd0, 0x3c, 0xc0, 0x5c, 0x9c, 0x71,
-	0x31, 0xd2, 0x48, 0x68, 0x36, 0x86, 0x6f, 0xee, 0x4f, 0xf8, 0x84, 0x1b, 0x5d, 0xad, 0xac, 0xea,
-	0xe9, 0x32, 0xcf, 0x29, 0x25, 0x62, 0x53, 0x45, 0xef, 0x4c, 0xbc, 0xf5, 0xde, 0x01, 0xf5, 0xe1,
-	0x60, 0x90, 0xa8, 0xc2, 0xf0, 0x31, 0xd8, 0x27, 0x54, 0xc8, 0x94, 0x21, 0x99, 0x72, 0x36, 0xc2,
-	0x53, 0x94, 0xb2, 0x51, 0x4a, 0x1a, 0xce, 0xa1, 0xd3, 0x76, 0xa3, 0xdb, 0xc5, 0xca, 0x87, 0xfd,
-	0x6d, 0xbc, 0xa7, 0xc2, 0x71, 0x3f, 0x81, 0xe4, 0x47, 0x8d, 0xc0, 0x47, 0xe0, 0xce, 0x4e, 0x26,
-	0xce, 0x64, 0x86, 0xb0, 0x1c, 0x21, 0x42, 0x32, 0x2a, 0x44, 0xa3, 0xac, 0x32, 0x26, 0xcd, 0xef,
-	0x4f, 0x5a, 0xe4, 0xc4, 0x10, 0x5d, 0xb0, 0x5c, 0x74, 0x6a, 0xfa, 0x5a, 0x71, 0xeb, 0x5d, 0x19,
-	0xec, 0x0d, 0x07, 0x83, 0x53, 0x84, 0x5f, 0x52, 0xa9, 0x40, 0xca, 0x24, 0x7c, 0x01, 0x80, 0x48,
-	0x27, 0x2c, 0x65, 0x93, 0x6f, 0x57, 0xac, 0x46, 0x4f, 0x8a, 0x95, 0xef, 0x0e, 0x8c, 0x1a, 0xf7,
-	0xbf, 0xac, 0xfc, 0xee, 0x24, 0x95, 0xd3, 0x7c, 0x1c, 0x60, 0x7e, 0x16, 0x2a, 0x27, 0xf4, 0xa3,
-	0x31, 0x9f, 0x85, 0xfa, 0x6d, 0xe1, 0xf9, 0x71, 0xf8, 0x5a, 0xeb, 0x52, 0x88, 0x50, 0xbe, 0x99,
-	0x53, 0x11, 0x6c, 0x4e, 0x27, 0xae, 0x4d, 0x1f, 0x93, 0x5f, 0x1a, 0x53, 0xfe, 0xef, 0xc6, 0x54,
-	0xfe, 0x68, 0x0c, 0x5c, 0x2e, 0x3a, 0x37, 0x76, 0xac, 0x88, 0x5b, 0x3d, 0x50, 0x8f, 0xa3, 0x9e,
-	0xf9, 0xc4, 0xfb, 0x00, 0xe0, 0x29, 0x52, 0x5d, 0xb3, 0xfd, 0xba, 0xeb, 0xca, 0x97, 0x9e, 0x51,
-	0xd5, 0xcb, 0x2c, 0x10, 0x93, 0xae, 0xbb, 0x5c, 0x74, 0xae, 0xe8, 0x83, 0xad, 0x39, 0xd8, 0x8b,
-	0xa3, 0xde, 0xae, 0xc9, 0xff, 0x94, 0x0c, 0x36, 0x41, 0x5d, 0xd0, 0x57, 0x39, 0x65, 0x98, 0x6a,
-	0x6b, 0xaa, 0xc9, 0x66, 0xff, 0xd3, 0x6b, 0x7f, 0x74, 0xc0, 0xcd, 0x4d, 0xc9, 0x84, 0x8a, 0x7c,
-	0x26, 0xe1, 0x3d, 0xe0, 0x9a, 0x9e, 0xdf, 0xfe, 0xea, 0xb5, 0x62, 0xe5, 0xd7, 0x87, 0xb9, 0xad,
-	0x57, 0x37, 0xe1, 0xdf, 0x97, 0x83, 0x0f, 0x41, 0x6d, 0x9e, 0xa5, 0x98, 0x2a, 0x47, 0x2b, 0xed,
-	0xab, 0x0f, 0x0e, 0x02, 0x3d, 0x4e, 0xa6, 0xf5, 0xed, 0x20, 0x04, 0xa7, 0x8a, 0x88, 0xaa, 0x17,
-	0x2b, 0xbf, 0x94, 0x58, 0x1c, 0xde, 0x05, 0x00, 0x67, 0x14, 0x49, 0x4a, 0x46, 0x48, 0x36, 0xaa,
-	0x87, 0x4e, 0xbb, 0x92, 0xb8, 0x56, 0x39, 0x91, 0xd1, 0xd3, 0x0f, 0x85, 0xe7, 0x5c, 0x14, 0x9e,
-	0x73, 0x59, 0x78, 0xce, 0xe7, 0xc2, 0x73, 0xde, 0xae, 0xbd, 0xd2, 0xe5, 0xda, 0x2b, 0x7d, 0x5a,
-	0x7b, 0xa5, 0x67, 0xe1, 0x5f, 0xb4, 0x9b, 0x1d, 0x79, 0xdd, 0x6d, 0xe3, 0x9a, 0x26, 0x8e, 0xbf,
-	0x06, 0x00, 0x00, 0xff, 0xff, 0xc1, 0x3a, 0xa1, 0xe0, 0x0e, 0x04, 0x00, 0x00,
+	// 518 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x93, 0xbf, 0x8e, 0xd3, 0x40,
+	0x10, 0xc6, 0x63, 0x12, 0xa2, 0x78, 0x39, 0x22, 0x64, 0x4e, 0x28, 0x17, 0x81, 0x1d, 0xa5, 0x0a,
+	0x12, 0xb1, 0x75, 0x5c, 0x81, 0x94, 0xea, 0xce, 0x49, 0xc1, 0x0a, 0x21, 0x9d, 0x9c, 0xab, 0x68,
+	0xa2, 0xcd, 0xee, 0x92, 0x18, 0x72, 0xbb, 0xc1, 0xbb, 0x3e, 0xc1, 0x4b, 0x20, 0x9e, 0x81, 0x0a,
+	0x51, 0xe7, 0x21, 0x4e, 0xa9, 0xae, 0xa4, 0xb2, 0x90, 0xf3, 0x16, 0x54, 0x68, 0xff, 0x24, 0x39,
+	0x28, 0x10, 0x9d, 0xf7, 0x9b, 0xdf, 0xce, 0xcc, 0x7e, 0x33, 0x06, 0xc1, 0x14, 0x31, 0x12, 0xc9,
+	0x9c, 0x31, 0xba, 0x88, 0xae, 0x8e, 0xa7, 0x54, 0xa2, 0xe3, 0x28, 0xe3, 0xb9, 0xa4, 0xe1, 0x32,
+	0xe3, 0x92, 0x7b, 0x0f, 0x15, 0x10, 0x1a, 0x20, 0xb4, 0x40, 0xfb, 0x08, 0x73, 0x71, 0xc9, 0xc5,
+	0x44, 0x23, 0x91, 0x39, 0x18, 0xbe, 0x7d, 0x38, 0xe3, 0x33, 0x6e, 0x74, 0xf5, 0x65, 0x55, 0x5f,
+	0x97, 0x79, 0x4b, 0x29, 0x11, 0xbb, 0x2a, 0xfa, 0x64, 0xe2, 0xdd, 0xaf, 0x0e, 0x68, 0x5c, 0x8c,
+	0xc7, 0x89, 0x2a, 0xec, 0xbd, 0x04, 0x87, 0x84, 0x0a, 0x99, 0x32, 0x24, 0x53, 0xce, 0x26, 0x78,
+	0x8e, 0x52, 0x36, 0x49, 0x49, 0xcb, 0xe9, 0x38, 0x3d, 0x37, 0x7e, 0x54, 0x16, 0x81, 0x37, 0xda,
+	0xc7, 0x87, 0x2a, 0x0c, 0x47, 0x89, 0x47, 0xfe, 0xd6, 0x88, 0x77, 0x0a, 0x1e, 0xff, 0x91, 0x89,
+	0x33, 0x99, 0x21, 0x2c, 0x27, 0x88, 0x90, 0x8c, 0x0a, 0xd1, 0xba, 0xa3, 0x32, 0x26, 0xed, 0xdb,
+	0x37, 0x2d, 0x72, 0x66, 0x88, 0x01, 0x58, 0xaf, 0xfa, 0x75, 0xdd, 0x16, 0xec, 0x7e, 0x76, 0x40,
+	0x73, 0xdb, 0x64, 0x42, 0x45, 0xbe, 0x90, 0xde, 0x3b, 0x00, 0x44, 0x3a, 0x63, 0x29, 0x9b, 0x6d,
+	0x1b, 0xac, 0xc5, 0xaf, 0xca, 0x22, 0x70, 0xc7, 0x46, 0x85, 0xa3, 0x5f, 0x45, 0x30, 0x98, 0xa5,
+	0x72, 0x9e, 0x4f, 0x43, 0xcc, 0x2f, 0x23, 0xe5, 0x83, 0x7e, 0x32, 0xe6, 0x8b, 0x48, 0xbf, 0x2c,
+	0xba, 0x3a, 0x89, 0x3e, 0x6a, 0x5d, 0x0a, 0x11, 0xc9, 0x4f, 0x4b, 0x2a, 0xc2, 0xdd, 0xed, 0xc4,
+	0xb5, 0xe9, 0x21, 0x19, 0x3c, 0x58, 0xaf, 0xfa, 0x07, 0xb7, 0x8a, 0xc3, 0xee, 0x10, 0x34, 0x60,
+	0x3c, 0x34, 0xa6, 0x3d, 0x03, 0x00, 0xcf, 0x91, 0x9a, 0xd2, 0xde, 0xaa, 0xfb, 0xaa, 0x93, 0xa1,
+	0x51, 0x55, 0x2e, 0x0b, 0x40, 0x32, 0x70, 0xd7, 0xab, 0xfe, 0x5d, 0x7d, 0xb1, 0x7b, 0x0a, 0x9a,
+	0xdb, 0x24, 0xf6, 0x51, 0x6d, 0xd0, 0x10, 0xf4, 0x43, 0x4e, 0x19, 0xa6, 0xda, 0xa1, 0x5a, 0xb2,
+	0x3b, 0x0f, 0xbc, 0xf5, 0xaa, 0xdf, 0x3c, 0x47, 0xf8, 0x3d, 0x95, 0xca, 0x2a, 0xca, 0x24, 0xec,
+	0x7e, 0x77, 0x80, 0x0b, 0xe3, 0xa1, 0x51, 0xbd, 0xa7, 0xc0, 0x35, 0xdb, 0xb2, 0x77, 0xe4, 0xa0,
+	0x2c, 0x82, 0xc6, 0x45, 0x6e, 0xdb, 0x68, 0x98, 0x30, 0x24, 0xff, 0x2a, 0xe4, 0xbd, 0x00, 0xf5,
+	0x65, 0x96, 0x62, 0x2a, 0x5a, 0xd5, 0x4e, 0xb5, 0x77, 0xef, 0xf9, 0x51, 0xa8, 0x17, 0xd1, 0x2c,
+	0x8d, 0x5d, 0xa1, 0xf0, 0x5c, 0x11, 0x71, 0xed, 0xba, 0x08, 0x2a, 0x89, 0xc5, 0xbd, 0x27, 0x00,
+	0xe0, 0x8c, 0x22, 0x49, 0xc9, 0x04, 0xc9, 0x56, 0xad, 0xe3, 0xf4, 0xaa, 0x89, 0x6b, 0x95, 0x33,
+	0x19, 0xbf, 0xfe, 0x56, 0xfa, 0xce, 0x75, 0xe9, 0x3b, 0x37, 0xa5, 0xef, 0xfc, 0x2c, 0x7d, 0xe7,
+	0xcb, 0xc6, 0xaf, 0xdc, 0x6c, 0xfc, 0xca, 0x8f, 0x8d, 0x5f, 0x79, 0x13, 0xfd, 0xc7, 0xa8, 0xec,
+	0xcf, 0xa2, 0x27, 0x35, 0xad, 0x6b, 0xe2, 0xe4, 0x77, 0x00, 0x00, 0x00, 0xff, 0xff, 0x1e, 0x89,
+	0xc1, 0x9e, 0x48, 0x03, 0x00, 0x00,
 }
 
 func (this *TSSRoute) Equal(that interface{}) bool {
@@ -393,14 +366,14 @@ func (this *TSSRoute) Equal(that interface{}) bool {
 	}
 	return true
 }
-func (this *TSSPacketContent) Equal(that interface{}) bool {
+func (this *TSSRouteResult) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
 	}
 
-	that1, ok := that.(*TSSPacketContent)
+	that1, ok := that.(*TSSRouteResult)
 	if !ok {
-		that2, ok := that.(TSSPacketContent)
+		that2, ok := that.(TSSRouteResult)
 		if ok {
 			that1 = &that2
 		} else {
@@ -413,12 +386,6 @@ func (this *TSSPacketContent) Equal(that interface{}) bool {
 		return false
 	}
 	if this.SigningID != that1.SigningID {
-		return false
-	}
-	if this.DestinationChainID != that1.DestinationChainID {
-		return false
-	}
-	if this.DestinationContractAddress != that1.DestinationContractAddress {
 		return false
 	}
 	return true
@@ -447,14 +414,14 @@ func (this *IBCRoute) Equal(that interface{}) bool {
 	}
 	return true
 }
-func (this *IBCPacketContent) Equal(that interface{}) bool {
+func (this *IBCRouteResult) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
 	}
 
-	that1, ok := that.(*IBCPacketContent)
+	that1, ok := that.(*IBCRouteResult)
 	if !ok {
-		that2, ok := that.(IBCPacketContent)
+		that2, ok := that.(IBCRouteResult)
 		if ok {
 			that1 = &that2
 		} else {
@@ -466,22 +433,19 @@ func (this *IBCPacketContent) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
-	if this.ChannelID != that1.ChannelID {
-		return false
-	}
 	if this.Sequence != that1.Sequence {
 		return false
 	}
 	return true
 }
-func (this *IBCPacketResult) Equal(that interface{}) bool {
+func (this *IBCPacket) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
 	}
 
-	that1, ok := that.(*IBCPacketResult)
+	that1, ok := that.(*IBCPacket)
 	if !ok {
-		that2, ok := that.(IBCPacketResult)
+		that2, ok := that.(IBCPacket)
 		if ok {
 			that1 = &that2
 		} else {
@@ -549,7 +513,7 @@ func (m *TSSRoute) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *TSSPacketContent) Marshal() (dAtA []byte, err error) {
+func (m *TSSRouteResult) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -559,30 +523,16 @@ func (m *TSSPacketContent) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *TSSPacketContent) MarshalTo(dAtA []byte) (int, error) {
+func (m *TSSRouteResult) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *TSSPacketContent) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *TSSRouteResult) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.DestinationContractAddress) > 0 {
-		i -= len(m.DestinationContractAddress)
-		copy(dAtA[i:], m.DestinationContractAddress)
-		i = encodeVarintRoute(dAtA, i, uint64(len(m.DestinationContractAddress)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.DestinationChainID) > 0 {
-		i -= len(m.DestinationChainID)
-		copy(dAtA[i:], m.DestinationChainID)
-		i = encodeVarintRoute(dAtA, i, uint64(len(m.DestinationChainID)))
-		i--
-		dAtA[i] = 0x12
-	}
 	if m.SigningID != 0 {
 		i = encodeVarintRoute(dAtA, i, uint64(m.SigningID))
 		i--
@@ -621,7 +571,7 @@ func (m *IBCRoute) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *IBCPacketContent) Marshal() (dAtA []byte, err error) {
+func (m *IBCRouteResult) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -631,12 +581,12 @@ func (m *IBCPacketContent) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *IBCPacketContent) MarshalTo(dAtA []byte) (int, error) {
+func (m *IBCRouteResult) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *IBCPacketContent) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *IBCRouteResult) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -646,17 +596,10 @@ func (m *IBCPacketContent) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x10
 	}
-	if len(m.ChannelID) > 0 {
-		i -= len(m.ChannelID)
-		copy(dAtA[i:], m.ChannelID)
-		i = encodeVarintRoute(dAtA, i, uint64(len(m.ChannelID)))
-		i--
-		dAtA[i] = 0xa
-	}
 	return len(dAtA) - i, nil
 }
 
-func (m *IBCPacketResult) Marshal() (dAtA []byte, err error) {
+func (m *IBCPacket) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -666,12 +609,12 @@ func (m *IBCPacketResult) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *IBCPacketResult) MarshalTo(dAtA []byte) (int, error) {
+func (m *IBCPacket) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *IBCPacketResult) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *IBCPacket) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -736,7 +679,7 @@ func (m *TSSRoute) Size() (n int) {
 	return n
 }
 
-func (m *TSSPacketContent) Size() (n int) {
+func (m *TSSRouteResult) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -744,14 +687,6 @@ func (m *TSSPacketContent) Size() (n int) {
 	_ = l
 	if m.SigningID != 0 {
 		n += 1 + sovRoute(uint64(m.SigningID))
-	}
-	l = len(m.DestinationChainID)
-	if l > 0 {
-		n += 1 + l + sovRoute(uint64(l))
-	}
-	l = len(m.DestinationContractAddress)
-	if l > 0 {
-		n += 1 + l + sovRoute(uint64(l))
 	}
 	return n
 }
@@ -769,23 +704,19 @@ func (m *IBCRoute) Size() (n int) {
 	return n
 }
 
-func (m *IBCPacketContent) Size() (n int) {
+func (m *IBCRouteResult) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	l = len(m.ChannelID)
-	if l > 0 {
-		n += 1 + l + sovRoute(uint64(l))
-	}
 	if m.Sequence != 0 {
 		n += 1 + sovRoute(uint64(m.Sequence))
 	}
 	return n
 }
 
-func (m *IBCPacketResult) Size() (n int) {
+func (m *IBCPacket) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -929,7 +860,7 @@ func (m *TSSRoute) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *TSSPacketContent) Unmarshal(dAtA []byte) error {
+func (m *TSSRouteResult) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -952,10 +883,10 @@ func (m *TSSPacketContent) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: TSSPacketContent: wiretype end group for non-group")
+			return fmt.Errorf("proto: TSSRouteResult: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: TSSPacketContent: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: TSSRouteResult: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -977,70 +908,6 @@ func (m *TSSPacketContent) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DestinationChainID", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowRoute
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthRoute
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthRoute
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.DestinationChainID = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DestinationContractAddress", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowRoute
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthRoute
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthRoute
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.DestinationContractAddress = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipRoute(dAtA[iNdEx:])
@@ -1144,7 +1011,7 @@ func (m *IBCRoute) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *IBCPacketContent) Unmarshal(dAtA []byte) error {
+func (m *IBCRouteResult) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1167,44 +1034,12 @@ func (m *IBCPacketContent) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: IBCPacketContent: wiretype end group for non-group")
+			return fmt.Errorf("proto: IBCRouteResult: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: IBCPacketContent: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: IBCRouteResult: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ChannelID", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowRoute
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthRoute
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthRoute
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ChannelID = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Sequence", wireType)
@@ -1245,7 +1080,7 @@ func (m *IBCPacketContent) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *IBCPacketResult) Unmarshal(dAtA []byte) error {
+func (m *IBCPacket) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -1268,10 +1103,10 @@ func (m *IBCPacketResult) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: IBCPacketResult: wiretype end group for non-group")
+			return fmt.Errorf("proto: IBCPacket: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: IBCPacketResult: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: IBCPacket: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

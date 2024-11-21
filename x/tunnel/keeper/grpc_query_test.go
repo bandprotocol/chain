@@ -72,22 +72,16 @@ func (s *KeeperTestSuite) TestGRPCQueryPackets() {
 		TunnelID: 2,
 		Sequence: 1,
 	}
-	err = packet1.SetPacketContent(&types.TSSPacketContent{
-		SigningID:                  1,
-		DestinationChainID:         r.DestinationChainID,
-		DestinationContractAddress: r.DestinationContractAddress,
+	err = packet1.SetRouteResultValue(&types.TSSRouteResult{
+		SigningID: 1,
 	})
 	s.Require().NoError(err)
-	err = packet2.SetPacketContent(&types.TSSPacketContent{
-		SigningID:                  2,
-		DestinationChainID:         r.DestinationChainID,
-		DestinationContractAddress: r.DestinationContractAddress,
+	err = packet2.SetRouteResultValue(&types.TSSRouteResult{
+		SigningID: 2,
 	})
 	s.Require().NoError(err)
-	err = packet3.SetPacketContent(&types.TSSPacketContent{
-		SigningID:                  3,
-		DestinationChainID:         r.DestinationChainID,
-		DestinationContractAddress: r.DestinationContractAddress,
+	err = packet3.SetRouteResultValue(&types.TSSRouteResult{
+		SigningID: 3,
 	})
 	s.Require().NoError(err)
 
@@ -125,10 +119,8 @@ func (s *KeeperTestSuite) TestGRPCQueryPacket() {
 		TunnelID: 1,
 		Sequence: 1,
 	}
-	err = packet1.SetPacketContent(&types.TSSPacketContent{
-		SigningID:                  1,
-		DestinationChainID:         r.DestinationChainID,
-		DestinationContractAddress: r.DestinationContractAddress,
+	err = packet1.SetRouteResultValue(&types.TSSRouteResult{
+		SigningID: 1,
 	})
 	s.Require().NoError(err)
 	k.SetPacket(ctx, packet1)
@@ -137,11 +129,7 @@ func (s *KeeperTestSuite) TestGRPCQueryPacket() {
 		TunnelID: 1,
 		Sequence: 2,
 	}
-	err = packet2.SetPacketContent(&types.TSSPacketContent{
-		SigningID:                  2,
-		DestinationChainID:         r.DestinationChainID,
-		DestinationContractAddress: r.DestinationContractAddress,
-	})
+	err = packet2.SetRouteResultValue(&types.TSSRouteResult{})
 	s.Require().NoError(err)
 	k.SetPacket(ctx, packet2)
 

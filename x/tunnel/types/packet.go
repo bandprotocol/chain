@@ -18,39 +18,39 @@ func NewPacket(
 	createdAt int64,
 ) Packet {
 	return Packet{
-		TunnelID:      tunnelID,
-		Sequence:      sequence,
-		Prices:        prices,
-		PacketContent: nil,
-		BaseFee:       baseFee,
-		RouteFee:      routeFee,
-		CreatedAt:     createdAt,
+		TunnelID:    tunnelID,
+		Sequence:    sequence,
+		Prices:      prices,
+		RouteResult: nil,
+		BaseFee:     baseFee,
+		RouteFee:    routeFee,
+		CreatedAt:   createdAt,
 	}
 }
 
 // UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
 func (p Packet) UnpackInterfaces(unpacker types.AnyUnpacker) error {
-	var packetContent PacketContentI
-	return unpacker.UnpackAny(p.PacketContent, &packetContent)
+	var routeResult RouteResultI
+	return unpacker.UnpackAny(p.RouteResult, &routeResult)
 }
 
-// SetPacketContent sets the packet content of the packet.
-func (p *Packet) SetPacketContent(packetContent PacketContentI) error {
-	any, err := types.NewAnyWithValue(packetContent)
+// SetRouteResultValue sets the route result of the packet.
+func (p *Packet) SetRouteResultValue(routeResult RouteResultI) error {
+	any, err := types.NewAnyWithValue(routeResult)
 	if err != nil {
 		return err
 	}
-	p.PacketContent = any
+	p.RouteResult = any
 
 	return nil
 }
 
-// GetContent returns the content of the packet.
-func (p Packet) GetContent() (PacketContentI, error) {
-	packetContent, ok := p.PacketContent.GetCachedValue().(PacketContentI)
+// GetRouteResultValue returns the route result of the packet.
+func (p Packet) GetRouteResultValue() (RouteResultI, error) {
+	routeResult, ok := p.RouteResult.GetCachedValue().(RouteResultI)
 	if !ok {
-		return nil, ErrNoPacketContent.Wrapf("tunnelID: %d, sequence: %d", p.TunnelID, p.Sequence)
+		return nil, ErrNoRouteResult.Wrapf("tunnelID: %d, sequence: %d", p.TunnelID, p.Sequence)
 	}
 
-	return packetContent, nil
+	return routeResult, nil
 }

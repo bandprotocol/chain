@@ -10,7 +10,7 @@ import (
 )
 
 func TestGetByteIBCPacket(t *testing.T) {
-	packet := types.NewIBCPacketResult(
+	packet := types.NewIBCPacket(
 		1,
 		1,
 		[]feedstypes.Price{{SignalID: "BTC", Price: 1000}},

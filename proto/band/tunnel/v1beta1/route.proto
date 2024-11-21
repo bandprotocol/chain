@@ -19,19 +19,15 @@ message TSSRoute {
   string destination_contract_address = 2;
 }
 
-// TSSPacketContent is the packet content for TSS
-message TSSPacketContent {
-  option (cosmos_proto.implements_interface) = "PacketContentI";
+// TSSRouteResult is the type for a TSS route result
+message TSSRouteResult {
+  option (cosmos_proto.implements_interface) = "RouteResultI";
 
   // signing_id is the signing ID
   uint64 signing_id = 1 [
     (gogoproto.customname) = "SigningID",
     (gogoproto.casttype)   = "github.com/bandprotocol/chain/v3/x/bandtss/types.SigningID"
   ];
-  // destination_chain_id is the destination chain ID
-  string destination_chain_id = 2 [(gogoproto.customname) = "DestinationChainID"];
-  // destination_contract_address is the destination contract address
-  string destination_contract_address = 3;
 }
 
 // IBCRoute is the type for an IBC route
@@ -42,18 +38,16 @@ message IBCRoute {
   string channel_id = 1 [(gogoproto.customname) = "ChannelID"];
 }
 
-// IBCPacketContent is the packet content for IBC
-message IBCPacketContent {
+// IBCRouteResult is the type for an IBC route result
+message IBCRouteResult {
   option (cosmos_proto.implements_interface) = "PacketContentI";
 
-  // channel_id is the IBC channel ID
-  string channel_id = 1 [(gogoproto.customname) = "ChannelID"];
   // sequence is representing the sequence of the IBC packet.
   uint64 sequence = 2;
 }
 
-// IBCPacketResult is the packet result for IBC
-message IBCPacketResult {
+// IBCPacket is the type for an IBC packet
+message IBCPacket {
   // tunnel_id is the tunnel ID
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
   // sequence is representing the sequence of the tunnel packet.

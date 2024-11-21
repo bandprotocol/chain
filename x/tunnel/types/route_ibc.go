@@ -32,22 +32,21 @@ func (r *IBCRoute) ValidateBasic() error {
 	return nil
 }
 
-// NewIBCPacketContent creates a new IBCPacketContent instance.
-func NewIBCPacketContent(channelID string, sequence uint64) *IBCPacketContent {
-	return &IBCPacketContent{
-		ChannelID: channelID,
-		Sequence:  sequence,
+// NewIBCRouteResult creates a new IBCRouteResult instance.
+func NewIBCRouteResult(channelID string, sequence uint64) *IBCRouteResult {
+	return &IBCRouteResult{
+		Sequence: sequence,
 	}
 }
 
-// NewIBCPacketResult creates a new IBCPacketResult instance.
-func NewIBCPacketResult(
+// NewIBCPacket creates a new IBCPacket instance. It is used to create the IBC packet data
+func NewIBCPacket(
 	tunnelID uint64,
 	sequence uint64,
 	prices []feedstypes.Price,
 	created_at int64,
-) IBCPacketResult {
-	return IBCPacketResult{
+) IBCPacket {
+	return IBCPacket{
 		TunnelID:  tunnelID,
 		Sequence:  sequence,
 		Prices:    prices,
@@ -56,6 +55,6 @@ func NewIBCPacketResult(
 }
 
 // GetBytes returns the IBCPacketResult bytes
-func (p IBCPacketResult) GetBytes() []byte {
+func (p IBCPacket) GetBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&p))
 }
