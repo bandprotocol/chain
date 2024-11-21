@@ -10,34 +10,24 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-func TestPacket_SetPacketContent(t *testing.T) {
+func TestGetSetRouteResultValue(t *testing.T) {
 	packet := types.NewPacket(1, 1, nil, nil, nil, 0)
-	packetContent := &types.TSSPacketContent{DestinationChainID: "chain-1", DestinationContractAddress: "contract-1"}
+	routeResult := &types.TSSRouteResult{SigningID: 1}
 
-	err := packet.SetPacketContent(packetContent)
+	err := packet.SetRouteResultValue(routeResult)
 	require.NoError(t, err)
-	require.NotNil(t, packet.PacketContent)
-	require.Equal(t, packetContent, packet.PacketContent.GetCachedValue())
+	require.NotNil(t, packet.RouteResult)
+
+	result, err := packet.GetRouteResultValue()
+	require.NoError(t, err)
+	require.Equal(t, routeResult, result)
 }
 
-func TestPacket_GetContent(t *testing.T) {
+func TestRouteUnpackInterfaces(t *testing.T) {
 	packet := types.NewPacket(1, 1, nil, nil, nil, 0)
-	packetContent := &types.TSSPacketContent{DestinationChainID: "chain-1", DestinationContractAddress: "contract-1"}
+	packetResult := &types.TSSRouteResult{SigningID: 1}
 
-	err := packet.SetPacketContent(packetContent)
-	require.NoError(t, err)
-
-	content, err := packet.GetContent()
-	require.NoError(t, err)
-	require.NotNil(t, content)
-	require.Equal(t, packetContent, content)
-}
-
-func TestPacket_UnpackInterfaces(t *testing.T) {
-	packet := types.NewPacket(1, 1, nil, nil, nil, 0)
-	packetContent := &types.TSSPacketContent{DestinationChainID: "chain-1", DestinationContractAddress: "contract-1"}
-
-	err := packet.SetPacketContent(packetContent)
+	err := packet.SetRouteResultValue(packetResult)
 	require.NoError(t, err)
 
 	unpacker := codectypes.NewInterfaceRegistry()

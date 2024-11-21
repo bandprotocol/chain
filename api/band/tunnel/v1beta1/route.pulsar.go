@@ -499,29 +499,25 @@ func (x *fastReflection_TSSRoute) ProtoMethods() *protoiface.Methods {
 }
 
 var (
-	md_TSSPacketContent                              protoreflect.MessageDescriptor
-	fd_TSSPacketContent_signing_id                   protoreflect.FieldDescriptor
-	fd_TSSPacketContent_destination_chain_id         protoreflect.FieldDescriptor
-	fd_TSSPacketContent_destination_contract_address protoreflect.FieldDescriptor
+	md_TSSRouteResult            protoreflect.MessageDescriptor
+	fd_TSSRouteResult_signing_id protoreflect.FieldDescriptor
 )
 
 func init() {
 	file_band_tunnel_v1beta1_route_proto_init()
-	md_TSSPacketContent = File_band_tunnel_v1beta1_route_proto.Messages().ByName("TSSPacketContent")
-	fd_TSSPacketContent_signing_id = md_TSSPacketContent.Fields().ByName("signing_id")
-	fd_TSSPacketContent_destination_chain_id = md_TSSPacketContent.Fields().ByName("destination_chain_id")
-	fd_TSSPacketContent_destination_contract_address = md_TSSPacketContent.Fields().ByName("destination_contract_address")
+	md_TSSRouteResult = File_band_tunnel_v1beta1_route_proto.Messages().ByName("TSSRouteResult")
+	fd_TSSRouteResult_signing_id = md_TSSRouteResult.Fields().ByName("signing_id")
 }
 
-var _ protoreflect.Message = (*fastReflection_TSSPacketContent)(nil)
+var _ protoreflect.Message = (*fastReflection_TSSRouteResult)(nil)
 
-type fastReflection_TSSPacketContent TSSPacketContent
+type fastReflection_TSSRouteResult TSSRouteResult
 
-func (x *TSSPacketContent) ProtoReflect() protoreflect.Message {
-	return (*fastReflection_TSSPacketContent)(x)
+func (x *TSSRouteResult) ProtoReflect() protoreflect.Message {
+	return (*fastReflection_TSSRouteResult)(x)
 }
 
-func (x *TSSPacketContent) slowProtoReflect() protoreflect.Message {
+func (x *TSSRouteResult) slowProtoReflect() protoreflect.Message {
 	mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -533,43 +529,43 @@ func (x *TSSPacketContent) slowProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-var _fastReflection_TSSPacketContent_messageType fastReflection_TSSPacketContent_messageType
-var _ protoreflect.MessageType = fastReflection_TSSPacketContent_messageType{}
+var _fastReflection_TSSRouteResult_messageType fastReflection_TSSRouteResult_messageType
+var _ protoreflect.MessageType = fastReflection_TSSRouteResult_messageType{}
 
-type fastReflection_TSSPacketContent_messageType struct{}
+type fastReflection_TSSRouteResult_messageType struct{}
 
-func (x fastReflection_TSSPacketContent_messageType) Zero() protoreflect.Message {
-	return (*fastReflection_TSSPacketContent)(nil)
+func (x fastReflection_TSSRouteResult_messageType) Zero() protoreflect.Message {
+	return (*fastReflection_TSSRouteResult)(nil)
 }
-func (x fastReflection_TSSPacketContent_messageType) New() protoreflect.Message {
-	return new(fastReflection_TSSPacketContent)
+func (x fastReflection_TSSRouteResult_messageType) New() protoreflect.Message {
+	return new(fastReflection_TSSRouteResult)
 }
-func (x fastReflection_TSSPacketContent_messageType) Descriptor() protoreflect.MessageDescriptor {
-	return md_TSSPacketContent
+func (x fastReflection_TSSRouteResult_messageType) Descriptor() protoreflect.MessageDescriptor {
+	return md_TSSRouteResult
 }
 
 // Descriptor returns message descriptor, which contains only the protobuf
 // type information for the message.
-func (x *fastReflection_TSSPacketContent) Descriptor() protoreflect.MessageDescriptor {
-	return md_TSSPacketContent
+func (x *fastReflection_TSSRouteResult) Descriptor() protoreflect.MessageDescriptor {
+	return md_TSSRouteResult
 }
 
 // Type returns the message type, which encapsulates both Go and protobuf
 // type information. If the Go type information is not needed,
 // it is recommended that the message descriptor be used instead.
-func (x *fastReflection_TSSPacketContent) Type() protoreflect.MessageType {
-	return _fastReflection_TSSPacketContent_messageType
+func (x *fastReflection_TSSRouteResult) Type() protoreflect.MessageType {
+	return _fastReflection_TSSRouteResult_messageType
 }
 
 // New returns a newly allocated and mutable empty message.
-func (x *fastReflection_TSSPacketContent) New() protoreflect.Message {
-	return new(fastReflection_TSSPacketContent)
+func (x *fastReflection_TSSRouteResult) New() protoreflect.Message {
+	return new(fastReflection_TSSRouteResult)
 }
 
 // Interface unwraps the message reflection interface and
 // returns the underlying ProtoMessage interface.
-func (x *fastReflection_TSSPacketContent) Interface() protoreflect.ProtoMessage {
-	return (*TSSPacketContent)(x)
+func (x *fastReflection_TSSRouteResult) Interface() protoreflect.ProtoMessage {
+	return (*TSSRouteResult)(x)
 }
 
 // Range iterates over every populated field in an undefined order,
@@ -577,22 +573,10 @@ func (x *fastReflection_TSSPacketContent) Interface() protoreflect.ProtoMessage 
 // Range returns immediately if f returns false.
 // While iterating, mutating operations may only be performed
 // on the current field descriptor.
-func (x *fastReflection_TSSPacketContent) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
+func (x *fastReflection_TSSRouteResult) Range(f func(protoreflect.FieldDescriptor, protoreflect.Value) bool) {
 	if x.SigningId != uint64(0) {
 		value := protoreflect.ValueOfUint64(x.SigningId)
-		if !f(fd_TSSPacketContent_signing_id, value) {
-			return
-		}
-	}
-	if x.DestinationChainId != "" {
-		value := protoreflect.ValueOfString(x.DestinationChainId)
-		if !f(fd_TSSPacketContent_destination_chain_id, value) {
-			return
-		}
-	}
-	if x.DestinationContractAddress != "" {
-		value := protoreflect.ValueOfString(x.DestinationContractAddress)
-		if !f(fd_TSSPacketContent_destination_contract_address, value) {
+		if !f(fd_TSSRouteResult_signing_id, value) {
 			return
 		}
 	}
@@ -609,19 +593,15 @@ func (x *fastReflection_TSSPacketContent) Range(f func(protoreflect.FieldDescrip
 // In other cases (aside from the nullable cases above),
 // a proto3 scalar field is populated if it contains a non-zero value, and
 // a repeated field is populated if it is non-empty.
-func (x *fastReflection_TSSPacketContent) Has(fd protoreflect.FieldDescriptor) bool {
+func (x *fastReflection_TSSRouteResult) Has(fd protoreflect.FieldDescriptor) bool {
 	switch fd.FullName() {
-	case "band.tunnel.v1beta1.TSSPacketContent.signing_id":
+	case "band.tunnel.v1beta1.TSSRouteResult.signing_id":
 		return x.SigningId != uint64(0)
-	case "band.tunnel.v1beta1.TSSPacketContent.destination_chain_id":
-		return x.DestinationChainId != ""
-	case "band.tunnel.v1beta1.TSSPacketContent.destination_contract_address":
-		return x.DestinationContractAddress != ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.TSSPacketContent"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.TSSRouteResult"))
 		}
-		panic(fmt.Errorf("message band.tunnel.v1beta1.TSSPacketContent does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.TSSRouteResult does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -631,19 +611,15 @@ func (x *fastReflection_TSSPacketContent) Has(fd protoreflect.FieldDescriptor) b
 // associated with the given field number.
 //
 // Clear is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_TSSPacketContent) Clear(fd protoreflect.FieldDescriptor) {
+func (x *fastReflection_TSSRouteResult) Clear(fd protoreflect.FieldDescriptor) {
 	switch fd.FullName() {
-	case "band.tunnel.v1beta1.TSSPacketContent.signing_id":
+	case "band.tunnel.v1beta1.TSSRouteResult.signing_id":
 		x.SigningId = uint64(0)
-	case "band.tunnel.v1beta1.TSSPacketContent.destination_chain_id":
-		x.DestinationChainId = ""
-	case "band.tunnel.v1beta1.TSSPacketContent.destination_contract_address":
-		x.DestinationContractAddress = ""
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.TSSPacketContent"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.TSSRouteResult"))
 		}
-		panic(fmt.Errorf("message band.tunnel.v1beta1.TSSPacketContent does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.TSSRouteResult does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -653,22 +629,16 @@ func (x *fastReflection_TSSPacketContent) Clear(fd protoreflect.FieldDescriptor)
 // the default value of a bytes scalar is guaranteed to be a copy.
 // For unpopulated composite types, it returns an empty, read-only view
 // of the value; to obtain a mutable reference, use Mutable.
-func (x *fastReflection_TSSPacketContent) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_TSSRouteResult) Get(descriptor protoreflect.FieldDescriptor) protoreflect.Value {
 	switch descriptor.FullName() {
-	case "band.tunnel.v1beta1.TSSPacketContent.signing_id":
+	case "band.tunnel.v1beta1.TSSRouteResult.signing_id":
 		value := x.SigningId
 		return protoreflect.ValueOfUint64(value)
-	case "band.tunnel.v1beta1.TSSPacketContent.destination_chain_id":
-		value := x.DestinationChainId
-		return protoreflect.ValueOfString(value)
-	case "band.tunnel.v1beta1.TSSPacketContent.destination_contract_address":
-		value := x.DestinationContractAddress
-		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.TSSPacketContent"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.TSSRouteResult"))
 		}
-		panic(fmt.Errorf("message band.tunnel.v1beta1.TSSPacketContent does not contain field %s", descriptor.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.TSSRouteResult does not contain field %s", descriptor.FullName()))
 	}
 }
 
@@ -682,19 +652,15 @@ func (x *fastReflection_TSSPacketContent) Get(descriptor protoreflect.FieldDescr
 // empty, read-only value, then it panics.
 //
 // Set is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_TSSPacketContent) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
+func (x *fastReflection_TSSRouteResult) Set(fd protoreflect.FieldDescriptor, value protoreflect.Value) {
 	switch fd.FullName() {
-	case "band.tunnel.v1beta1.TSSPacketContent.signing_id":
+	case "band.tunnel.v1beta1.TSSRouteResult.signing_id":
 		x.SigningId = value.Uint()
-	case "band.tunnel.v1beta1.TSSPacketContent.destination_chain_id":
-		x.DestinationChainId = value.Interface().(string)
-	case "band.tunnel.v1beta1.TSSPacketContent.destination_contract_address":
-		x.DestinationContractAddress = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.TSSPacketContent"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.TSSRouteResult"))
 		}
-		panic(fmt.Errorf("message band.tunnel.v1beta1.TSSPacketContent does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.TSSRouteResult does not contain field %s", fd.FullName()))
 	}
 }
 
@@ -708,48 +674,40 @@ func (x *fastReflection_TSSPacketContent) Set(fd protoreflect.FieldDescriptor, v
 // It panics if the field does not contain a composite type.
 //
 // Mutable is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_TSSPacketContent) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_TSSRouteResult) Mutable(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "band.tunnel.v1beta1.TSSPacketContent.signing_id":
-		panic(fmt.Errorf("field signing_id of message band.tunnel.v1beta1.TSSPacketContent is not mutable"))
-	case "band.tunnel.v1beta1.TSSPacketContent.destination_chain_id":
-		panic(fmt.Errorf("field destination_chain_id of message band.tunnel.v1beta1.TSSPacketContent is not mutable"))
-	case "band.tunnel.v1beta1.TSSPacketContent.destination_contract_address":
-		panic(fmt.Errorf("field destination_contract_address of message band.tunnel.v1beta1.TSSPacketContent is not mutable"))
+	case "band.tunnel.v1beta1.TSSRouteResult.signing_id":
+		panic(fmt.Errorf("field signing_id of message band.tunnel.v1beta1.TSSRouteResult is not mutable"))
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.TSSPacketContent"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.TSSRouteResult"))
 		}
-		panic(fmt.Errorf("message band.tunnel.v1beta1.TSSPacketContent does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.TSSRouteResult does not contain field %s", fd.FullName()))
 	}
 }
 
 // NewField returns a new value that is assignable to the field
 // for the given descriptor. For scalars, this returns the default value.
 // For lists, maps, and messages, this returns a new, empty, mutable value.
-func (x *fastReflection_TSSPacketContent) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
+func (x *fastReflection_TSSRouteResult) NewField(fd protoreflect.FieldDescriptor) protoreflect.Value {
 	switch fd.FullName() {
-	case "band.tunnel.v1beta1.TSSPacketContent.signing_id":
+	case "band.tunnel.v1beta1.TSSRouteResult.signing_id":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "band.tunnel.v1beta1.TSSPacketContent.destination_chain_id":
-		return protoreflect.ValueOfString("")
-	case "band.tunnel.v1beta1.TSSPacketContent.destination_contract_address":
-		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
-			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.TSSPacketContent"))
+			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tunnel.v1beta1.TSSRouteResult"))
 		}
-		panic(fmt.Errorf("message band.tunnel.v1beta1.TSSPacketContent does not contain field %s", fd.FullName()))
+		panic(fmt.Errorf("message band.tunnel.v1beta1.TSSRouteResult does not contain field %s", fd.FullName()))
 	}
 }
 
 // WhichOneof reports which field within the oneof is populated,
 // returning nil if none are populated.
 // It panics if the oneof descriptor does not belong to this message.
-func (x *fastReflection_TSSPacketContent) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
+func (x *fastReflection_TSSRouteResult) WhichOneof(d protoreflect.OneofDescriptor) protoreflect.FieldDescriptor {
 	switch d.FullName() {
 	default:
-		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.TSSPacketContent", d.FullName()))
+		panic(fmt.Errorf("%s is not a oneof field in band.tunnel.v1beta1.TSSRouteResult", d.FullName()))
 	}
 	panic("unreachable")
 }
@@ -757,7 +715,7 @@ func (x *fastReflection_TSSPacketContent) WhichOneof(d protoreflect.OneofDescrip
 // GetUnknown retrieves the entire list of unknown fields.
 // The caller may only mutate the contents of the RawFields
 // if the mutated bytes are stored back into the message with SetUnknown.
-func (x *fastReflection_TSSPacketContent) GetUnknown() protoreflect.RawFields {
+func (x *fastReflection_TSSRouteResult) GetUnknown() protoreflect.RawFields {
 	return x.unknownFields
 }
 
@@ -768,7 +726,7 @@ func (x *fastReflection_TSSPacketContent) GetUnknown() protoreflect.RawFields {
 // An empty RawFields may be passed to clear the fields.
 //
 // SetUnknown is a mutating operation and unsafe for concurrent use.
-func (x *fastReflection_TSSPacketContent) SetUnknown(fields protoreflect.RawFields) {
+func (x *fastReflection_TSSRouteResult) SetUnknown(fields protoreflect.RawFields) {
 	x.unknownFields = fields
 }
 
@@ -780,7 +738,7 @@ func (x *fastReflection_TSSPacketContent) SetUnknown(fields protoreflect.RawFiel
 // message type, but the details are implementation dependent.
 // Validity is not part of the protobuf data model, and may not
 // be preserved in marshaling or other operations.
-func (x *fastReflection_TSSPacketContent) IsValid() bool {
+func (x *fastReflection_TSSRouteResult) IsValid() bool {
 	return x != nil
 }
 
@@ -790,9 +748,9 @@ func (x *fastReflection_TSSPacketContent) IsValid() bool {
 // The returned methods type is identical to
 // "google.golang.org/protobuf/runtime/protoiface".Methods.
 // Consult the protoiface package documentation for details.
-func (x *fastReflection_TSSPacketContent) ProtoMethods() *protoiface.Methods {
+func (x *fastReflection_TSSRouteResult) ProtoMethods() *protoiface.Methods {
 	size := func(input protoiface.SizeInput) protoiface.SizeOutput {
-		x := input.Message.Interface().(*TSSPacketContent)
+		x := input.Message.Interface().(*TSSRouteResult)
 		if x == nil {
 			return protoiface.SizeOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -807,14 +765,6 @@ func (x *fastReflection_TSSPacketContent) ProtoMethods() *protoiface.Methods {
 		if x.SigningId != 0 {
 			n += 1 + runtime.Sov(uint64(x.SigningId))
 		}
-		l = len(x.DestinationChainId)
-		if l > 0 {
-			n += 1 + l + runtime.Sov(uint64(l))
-		}
-		l = len(x.DestinationContractAddress)
-		if l > 0 {
-			n += 1 + l + runtime.Sov(uint64(l))
-		}
 		if x.unknownFields != nil {
 			n += len(x.unknownFields)
 		}
@@ -825,7 +775,7 @@ func (x *fastReflection_TSSPacketContent) ProtoMethods() *protoiface.Methods {
 	}
 
 	marshal := func(input protoiface.MarshalInput) (protoiface.MarshalOutput, error) {
-		x := input.Message.Interface().(*TSSPacketContent)
+		x := input.Message.Interface().(*TSSRouteResult)
 		if x == nil {
 			return protoiface.MarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -844,20 +794,6 @@ func (x *fastReflection_TSSPacketContent) ProtoMethods() *protoiface.Methods {
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
 		}
-		if len(x.DestinationContractAddress) > 0 {
-			i -= len(x.DestinationContractAddress)
-			copy(dAtA[i:], x.DestinationContractAddress)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.DestinationContractAddress)))
-			i--
-			dAtA[i] = 0x1a
-		}
-		if len(x.DestinationChainId) > 0 {
-			i -= len(x.DestinationChainId)
-			copy(dAtA[i:], x.DestinationChainId)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.DestinationChainId)))
-			i--
-			dAtA[i] = 0x12
-		}
 		if x.SigningId != 0 {
 			i = runtime.EncodeVarint(dAtA, i, uint64(x.SigningId))
 			i--
@@ -874,7 +810,7 @@ func (x *fastReflection_TSSPacketContent) ProtoMethods() *protoiface.Methods {
 		}, nil
 	}
 	unmarshal := func(input protoiface.UnmarshalInput) (protoiface.UnmarshalOutput, error) {
-		x := input.Message.Interface().(*TSSPacketContent)
+		x := input.Message.Interface().(*TSSRouteResult)
 		if x == nil {
 			return protoiface.UnmarshalOutput{
 				NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -906,10 +842,10 @@ func (x *fastReflection_TSSPacketContent) ProtoMethods() *protoiface.Methods {
 			fieldNum := int32(wire >> 3)
 			wireType := int(wire & 0x7)
 			if wireType == 4 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: TSSPacketContent: wiretype end group for non-group")
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: TSSRouteResult: wiretype end group for non-group")
 			}
 			if fieldNum <= 0 {
-				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: TSSPacketContent: illegal tag %d (wire type %d)", fieldNum, wire)
+				return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: TSSRouteResult: illegal tag %d (wire type %d)", fieldNum, wire)
 			}
 			switch fieldNum {
 			case 1:
@@ -931,70 +867,6 @@ func (x *fastReflection_TSSPacketContent) ProtoMethods() *protoiface.Methods {
 						break
 					}
 				}
-			case 2:
-				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field DestinationChainId", wireType)
-				}
-				var stringLen uint64
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					stringLen |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				intStringLen := int(stringLen)
-				if intStringLen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + intStringLen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				x.DestinationChainId = string(dAtA[iNdEx:postIndex])
-				iNdEx = postIndex
-			case 3:
-				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field DestinationContractAddress", wireType)
-				}
-				var stringLen uint64
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					stringLen |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				intStringLen := int(stringLen)
-				if intStringLen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + intStringLen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				x.DestinationContractAddress = string(dAtA[iNdEx:postIndex])
-				iNdEx = postIndex
 			default:
 				iNdEx = preIndex
 				skippy, err := runtime.Skip(dAtA[iNdEx:])
@@ -1089,22 +961,18 @@ func (x *TSSRoute) GetDestinationContractAddress() string {
 	return ""
 }
 
-// TSSPacketContent is the packet content for TSS
-type TSSPacketContent struct {
+// TSSRouteResult is the type for a TSS route result
+type TSSRouteResult struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
 	// signing_id is the signing ID
 	SigningId uint64 `protobuf:"varint,1,opt,name=signing_id,json=signingId,proto3" json:"signing_id,omitempty"`
-	// destination_chain_id is the destination chain ID
-	DestinationChainId string `protobuf:"bytes,2,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
-	// destination_contract_address is the destination contract address
-	DestinationContractAddress string `protobuf:"bytes,3,opt,name=destination_contract_address,json=destinationContractAddress,proto3" json:"destination_contract_address,omitempty"`
 }
 
-func (x *TSSPacketContent) Reset() {
-	*x = TSSPacketContent{}
+func (x *TSSRouteResult) Reset() {
+	*x = TSSRouteResult{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_band_tunnel_v1beta1_route_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -1112,36 +980,22 @@ func (x *TSSPacketContent) Reset() {
 	}
 }
 
-func (x *TSSPacketContent) String() string {
+func (x *TSSRouteResult) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*TSSPacketContent) ProtoMessage() {}
+func (*TSSRouteResult) ProtoMessage() {}
 
-// Deprecated: Use TSSPacketContent.ProtoReflect.Descriptor instead.
-func (*TSSPacketContent) Descriptor() ([]byte, []int) {
+// Deprecated: Use TSSRouteResult.ProtoReflect.Descriptor instead.
+func (*TSSRouteResult) Descriptor() ([]byte, []int) {
 	return file_band_tunnel_v1beta1_route_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *TSSPacketContent) GetSigningId() uint64 {
+func (x *TSSRouteResult) GetSigningId() uint64 {
 	if x != nil {
 		return x.SigningId
 	}
 	return 0
-}
-
-func (x *TSSPacketContent) GetDestinationChainId() string {
-	if x != nil {
-		return x.DestinationChainId
-	}
-	return ""
-}
-
-func (x *TSSPacketContent) GetDestinationContractAddress() string {
-	if x != nil {
-		return x.DestinationContractAddress
-	}
-	return ""
 }
 
 var File_band_tunnel_v1beta1_route_proto protoreflect.FileDescriptor
@@ -1163,25 +1017,16 @@ var file_band_tunnel_v1beta1_route_proto_rawDesc = []byte{
 	0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x02,
 	0x20, 0x01, 0x28, 0x09, 0x52, 0x1a, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f,
 	0x6e, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73,
-	0x3a, 0x0a, 0xca, 0xb4, 0x2d, 0x06, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x49, 0x22, 0x9e, 0x02, 0x0a,
-	0x10, 0x54, 0x53, 0x53, 0x50, 0x61, 0x63, 0x6b, 0x65, 0x74, 0x43, 0x6f, 0x6e, 0x74, 0x65, 0x6e,
-	0x74, 0x12, 0x6a, 0x0a, 0x0a, 0x73, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x5f, 0x69, 0x64, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x04, 0x42, 0x4b, 0xe2, 0xde, 0x1f, 0x09, 0x53, 0x69, 0x67, 0x6e, 0x69,
-	0x6e, 0x67, 0x49, 0x44, 0xfa, 0xde, 0x1f, 0x3a, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63,
-	0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f,
-	0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x78, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74,
-	0x73, 0x73, 0x2f, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67,
-	0x49, 0x44, 0x52, 0x09, 0x73, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x49, 0x64, 0x12, 0x48, 0x0a,
-	0x14, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x63, 0x68, 0x61,
-	0x69, 0x6e, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x42, 0x16, 0xe2, 0xde, 0x1f,
-	0x12, 0x44, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x69,
-	0x6e, 0x49, 0x44, 0x52, 0x12, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e,
-	0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x64, 0x12, 0x40, 0x0a, 0x1c, 0x64, 0x65, 0x73, 0x74, 0x69,
-	0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x5f,
-	0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x1a, 0x64,
-	0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61,
-	0x63, 0x74, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x3a, 0x12, 0xca, 0xb4, 0x2d, 0x0e, 0x50,
-	0x61, 0x63, 0x6b, 0x65, 0x74, 0x43, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x49, 0x42, 0xdf, 0x01,
+	0x3a, 0x0a, 0xca, 0xb4, 0x2d, 0x06, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x49, 0x22, 0x8e, 0x01, 0x0a,
+	0x0e, 0x54, 0x53, 0x53, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x12,
+	0x6a, 0x0a, 0x0a, 0x73, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x04, 0x42, 0x4b, 0xe2, 0xde, 0x1f, 0x09, 0x53, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67,
+	0x49, 0x44, 0xfa, 0xde, 0x1f, 0x3a, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d,
+	0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68,
+	0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f, 0x78, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73,
+	0x2f, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x53, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x49, 0x44,
+	0x52, 0x09, 0x73, 0x69, 0x67, 0x6e, 0x69, 0x6e, 0x67, 0x49, 0x64, 0x3a, 0x10, 0xca, 0xb4, 0x2d,
+	0x0c, 0x52, 0x6f, 0x75, 0x74, 0x65, 0x52, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x49, 0x42, 0xdf, 0x01,
 	0x0a, 0x17, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x75, 0x6e, 0x6e, 0x65,
 	0x6c, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x0a, 0x52, 0x6f, 0x75, 0x74, 0x65,
 	0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x46, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e,
@@ -1213,8 +1058,8 @@ func file_band_tunnel_v1beta1_route_proto_rawDescGZIP() []byte {
 
 var file_band_tunnel_v1beta1_route_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_band_tunnel_v1beta1_route_proto_goTypes = []interface{}{
-	(*TSSRoute)(nil),         // 0: band.tunnel.v1beta1.TSSRoute
-	(*TSSPacketContent)(nil), // 1: band.tunnel.v1beta1.TSSPacketContent
+	(*TSSRoute)(nil),       // 0: band.tunnel.v1beta1.TSSRoute
+	(*TSSRouteResult)(nil), // 1: band.tunnel.v1beta1.TSSRouteResult
 }
 var file_band_tunnel_v1beta1_route_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
@@ -1243,7 +1088,7 @@ func file_band_tunnel_v1beta1_route_proto_init() {
 			}
 		}
 		file_band_tunnel_v1beta1_route_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*TSSPacketContent); i {
+			switch v := v.(*TSSRouteResult); i {
 			case 0:
 				return &v.state
 			case 1:

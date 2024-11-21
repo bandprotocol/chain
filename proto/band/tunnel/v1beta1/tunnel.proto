@@ -73,8 +73,8 @@ message Packet {
   uint64 sequence = 2;
   // prices is the list of prices information from feeds module.
   repeated band.feeds.v1beta1.Price prices = 3 [(gogoproto.nullable) = false];
-  // packet_content is the content of the packet that implements PacketContentI
-  google.protobuf.Any packet_content = 4 [(cosmos_proto.accepts_interface) = "PacketContentI"];
+  // route_result represents the outcome of the packet delivery, implementing the RouteResultI interface.
+  google.protobuf.Any route_result = 4 [(cosmos_proto.accepts_interface) = "RouteResultI"];
   // base_fee is the base fee of the packet
   repeated cosmos.base.v1beta1.Coin base_fee = 5
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
