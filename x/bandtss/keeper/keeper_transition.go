@@ -162,14 +162,11 @@ func (k Keeper) CreateTransitionSigning(
 	currentGroupID := k.GetCurrentGroup(ctx).GroupID
 
 	moduleAcc := k.GetBandtssAccount(ctx)
-	originator := &tsstypes.DirectOriginator{
-		SourceChainID: ctx.ChainID(),
-		Requester:     moduleAcc.GetAddress().String(),
-	}
+	originator := tsstypes.NewDirectOriginator(ctx.ChainID(), moduleAcc.GetAddress().String(), "")
 
 	content := types.NewGroupTransitionSignatureOrder(groupPubKey, transitionTime)
 
-	signingID, err := k.tssKeeper.RequestSigning(ctx, currentGroupID, originator, content)
+	signingID, err := k.tssKeeper.RequestSigning(ctx, currentGroupID, &originator, content)
 	if err != nil {
 		return 0, err
 	}
