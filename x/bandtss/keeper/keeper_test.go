@@ -60,6 +60,7 @@ func (s *AppTestSuite) SetupTest() {
 	dir := sdktestutil.GetTempDir(s.T())
 	s.app = bandtesting.SetupWithCustomHome(false, dir)
 	s.ctx = s.app.BaseApp.NewUncachedContext(false, cmtproto.Header{ChainID: bandtesting.ChainID})
+	s.ctx = s.ctx.WithBlockTime(time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC))
 
 	_, err := s.app.FinalizeBlock(&abci.RequestFinalizeBlock{Height: s.app.LastBlockHeight() + 1})
 	s.Require().NoError(err)
@@ -72,6 +73,12 @@ func (s *AppTestSuite) SetupTest() {
 	s.msgSrvr = keeper.NewMsgServerImpl(s.app.BandtssKeeper)
 	s.tssMsgSrvr = tsskeeper.NewMsgServerImpl(s.app.TSSKeeper)
 	s.authority = authtypes.NewModuleAddress(govtypes.ModuleName)
+
+	// for testing purpose, set the min transition duration to 1 second
+	params := s.app.BandtssKeeper.GetParams(s.ctx)
+	params.MinTransitionDuration = time.Second
+	err = s.app.BandtssKeeper.SetParams(s.ctx, params)
+	s.Require().NoError(err)
 }
 
 func (s *AppTestSuite) CreateNewGroup(
@@ -222,6 +229,7 @@ func (s *AppTestSuite) TestParams() {
 			input: types.Params{
 				RewardPercentage:        types.DefaultRewardPercentage,
 				InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
+				MinTransitionDuration:   types.DefaultMinTransitionDuration,
 				MaxTransitionDuration:   types.DefaultMaxTransitionDuration,
 				FeePerSigner:            types.DefaultFeePerSigner,
 			},

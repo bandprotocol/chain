@@ -667,54 +667,54 @@ func (x *fastReflection_GenesisState) ProtoMethods() *protoiface.Methods {
 	}
 }
 
-var _ protoreflect.List = (*_Params_4_list)(nil)
+var _ protoreflect.List = (*_Params_5_list)(nil)
 
-type _Params_4_list struct {
+type _Params_5_list struct {
 	list *[]*v1beta1.Coin
 }
 
-func (x *_Params_4_list) Len() int {
+func (x *_Params_5_list) Len() int {
 	if x.list == nil {
 		return 0
 	}
 	return len(*x.list)
 }
 
-func (x *_Params_4_list) Get(i int) protoreflect.Value {
+func (x *_Params_5_list) Get(i int) protoreflect.Value {
 	return protoreflect.ValueOfMessage((*x.list)[i].ProtoReflect())
 }
 
-func (x *_Params_4_list) Set(i int, value protoreflect.Value) {
+func (x *_Params_5_list) Set(i int, value protoreflect.Value) {
 	valueUnwrapped := value.Message()
 	concreteValue := valueUnwrapped.Interface().(*v1beta1.Coin)
 	(*x.list)[i] = concreteValue
 }
 
-func (x *_Params_4_list) Append(value protoreflect.Value) {
+func (x *_Params_5_list) Append(value protoreflect.Value) {
 	valueUnwrapped := value.Message()
 	concreteValue := valueUnwrapped.Interface().(*v1beta1.Coin)
 	*x.list = append(*x.list, concreteValue)
 }
 
-func (x *_Params_4_list) AppendMutable() protoreflect.Value {
+func (x *_Params_5_list) AppendMutable() protoreflect.Value {
 	v := new(v1beta1.Coin)
 	*x.list = append(*x.list, v)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
-func (x *_Params_4_list) Truncate(n int) {
+func (x *_Params_5_list) Truncate(n int) {
 	for i := n; i < len(*x.list); i++ {
 		(*x.list)[i] = nil
 	}
 	*x.list = (*x.list)[:n]
 }
 
-func (x *_Params_4_list) NewElement() protoreflect.Value {
+func (x *_Params_5_list) NewElement() protoreflect.Value {
 	v := new(v1beta1.Coin)
 	return protoreflect.ValueOfMessage(v.ProtoReflect())
 }
 
-func (x *_Params_4_list) IsValid() bool {
+func (x *_Params_5_list) IsValid() bool {
 	return x.list != nil
 }
 
@@ -722,6 +722,7 @@ var (
 	md_Params                           protoreflect.MessageDescriptor
 	fd_Params_reward_percentage         protoreflect.FieldDescriptor
 	fd_Params_inactive_penalty_duration protoreflect.FieldDescriptor
+	fd_Params_min_transition_duration   protoreflect.FieldDescriptor
 	fd_Params_max_transition_duration   protoreflect.FieldDescriptor
 	fd_Params_fee_per_signer            protoreflect.FieldDescriptor
 )
@@ -731,6 +732,7 @@ func init() {
 	md_Params = File_band_bandtss_v1beta1_genesis_proto.Messages().ByName("Params")
 	fd_Params_reward_percentage = md_Params.Fields().ByName("reward_percentage")
 	fd_Params_inactive_penalty_duration = md_Params.Fields().ByName("inactive_penalty_duration")
+	fd_Params_min_transition_duration = md_Params.Fields().ByName("min_transition_duration")
 	fd_Params_max_transition_duration = md_Params.Fields().ByName("max_transition_duration")
 	fd_Params_fee_per_signer = md_Params.Fields().ByName("fee_per_signer")
 }
@@ -812,6 +814,12 @@ func (x *fastReflection_Params) Range(f func(protoreflect.FieldDescriptor, proto
 			return
 		}
 	}
+	if x.MinTransitionDuration != nil {
+		value := protoreflect.ValueOfMessage(x.MinTransitionDuration.ProtoReflect())
+		if !f(fd_Params_min_transition_duration, value) {
+			return
+		}
+	}
 	if x.MaxTransitionDuration != nil {
 		value := protoreflect.ValueOfMessage(x.MaxTransitionDuration.ProtoReflect())
 		if !f(fd_Params_max_transition_duration, value) {
@@ -819,7 +827,7 @@ func (x *fastReflection_Params) Range(f func(protoreflect.FieldDescriptor, proto
 		}
 	}
 	if len(x.FeePerSigner) != 0 {
-		value := protoreflect.ValueOfList(&_Params_4_list{list: &x.FeePerSigner})
+		value := protoreflect.ValueOfList(&_Params_5_list{list: &x.FeePerSigner})
 		if !f(fd_Params_fee_per_signer, value) {
 			return
 		}
@@ -843,6 +851,8 @@ func (x *fastReflection_Params) Has(fd protoreflect.FieldDescriptor) bool {
 		return x.RewardPercentage != uint64(0)
 	case "band.bandtss.v1beta1.Params.inactive_penalty_duration":
 		return x.InactivePenaltyDuration != nil
+	case "band.bandtss.v1beta1.Params.min_transition_duration":
+		return x.MinTransitionDuration != nil
 	case "band.bandtss.v1beta1.Params.max_transition_duration":
 		return x.MaxTransitionDuration != nil
 	case "band.bandtss.v1beta1.Params.fee_per_signer":
@@ -867,6 +877,8 @@ func (x *fastReflection_Params) Clear(fd protoreflect.FieldDescriptor) {
 		x.RewardPercentage = uint64(0)
 	case "band.bandtss.v1beta1.Params.inactive_penalty_duration":
 		x.InactivePenaltyDuration = nil
+	case "band.bandtss.v1beta1.Params.min_transition_duration":
+		x.MinTransitionDuration = nil
 	case "band.bandtss.v1beta1.Params.max_transition_duration":
 		x.MaxTransitionDuration = nil
 	case "band.bandtss.v1beta1.Params.fee_per_signer":
@@ -893,14 +905,17 @@ func (x *fastReflection_Params) Get(descriptor protoreflect.FieldDescriptor) pro
 	case "band.bandtss.v1beta1.Params.inactive_penalty_duration":
 		value := x.InactivePenaltyDuration
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
+	case "band.bandtss.v1beta1.Params.min_transition_duration":
+		value := x.MinTransitionDuration
+		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	case "band.bandtss.v1beta1.Params.max_transition_duration":
 		value := x.MaxTransitionDuration
 		return protoreflect.ValueOfMessage(value.ProtoReflect())
 	case "band.bandtss.v1beta1.Params.fee_per_signer":
 		if len(x.FeePerSigner) == 0 {
-			return protoreflect.ValueOfList(&_Params_4_list{})
+			return protoreflect.ValueOfList(&_Params_5_list{})
 		}
-		listValue := &_Params_4_list{list: &x.FeePerSigner}
+		listValue := &_Params_5_list{list: &x.FeePerSigner}
 		return protoreflect.ValueOfList(listValue)
 	default:
 		if descriptor.IsExtension() {
@@ -926,11 +941,13 @@ func (x *fastReflection_Params) Set(fd protoreflect.FieldDescriptor, value proto
 		x.RewardPercentage = value.Uint()
 	case "band.bandtss.v1beta1.Params.inactive_penalty_duration":
 		x.InactivePenaltyDuration = value.Message().Interface().(*durationpb.Duration)
+	case "band.bandtss.v1beta1.Params.min_transition_duration":
+		x.MinTransitionDuration = value.Message().Interface().(*durationpb.Duration)
 	case "band.bandtss.v1beta1.Params.max_transition_duration":
 		x.MaxTransitionDuration = value.Message().Interface().(*durationpb.Duration)
 	case "band.bandtss.v1beta1.Params.fee_per_signer":
 		lv := value.List()
-		clv := lv.(*_Params_4_list)
+		clv := lv.(*_Params_5_list)
 		x.FeePerSigner = *clv.list
 	default:
 		if fd.IsExtension() {
@@ -957,6 +974,11 @@ func (x *fastReflection_Params) Mutable(fd protoreflect.FieldDescriptor) protore
 			x.InactivePenaltyDuration = new(durationpb.Duration)
 		}
 		return protoreflect.ValueOfMessage(x.InactivePenaltyDuration.ProtoReflect())
+	case "band.bandtss.v1beta1.Params.min_transition_duration":
+		if x.MinTransitionDuration == nil {
+			x.MinTransitionDuration = new(durationpb.Duration)
+		}
+		return protoreflect.ValueOfMessage(x.MinTransitionDuration.ProtoReflect())
 	case "band.bandtss.v1beta1.Params.max_transition_duration":
 		if x.MaxTransitionDuration == nil {
 			x.MaxTransitionDuration = new(durationpb.Duration)
@@ -966,7 +988,7 @@ func (x *fastReflection_Params) Mutable(fd protoreflect.FieldDescriptor) protore
 		if x.FeePerSigner == nil {
 			x.FeePerSigner = []*v1beta1.Coin{}
 		}
-		value := &_Params_4_list{list: &x.FeePerSigner}
+		value := &_Params_5_list{list: &x.FeePerSigner}
 		return protoreflect.ValueOfList(value)
 	case "band.bandtss.v1beta1.Params.reward_percentage":
 		panic(fmt.Errorf("field reward_percentage of message band.bandtss.v1beta1.Params is not mutable"))
@@ -988,12 +1010,15 @@ func (x *fastReflection_Params) NewField(fd protoreflect.FieldDescriptor) protor
 	case "band.bandtss.v1beta1.Params.inactive_penalty_duration":
 		m := new(durationpb.Duration)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
+	case "band.bandtss.v1beta1.Params.min_transition_duration":
+		m := new(durationpb.Duration)
+		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	case "band.bandtss.v1beta1.Params.max_transition_duration":
 		m := new(durationpb.Duration)
 		return protoreflect.ValueOfMessage(m.ProtoReflect())
 	case "band.bandtss.v1beta1.Params.fee_per_signer":
 		list := []*v1beta1.Coin{}
-		return protoreflect.ValueOfList(&_Params_4_list{list: &list})
+		return protoreflect.ValueOfList(&_Params_5_list{list: &list})
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.bandtss.v1beta1.Params"))
@@ -1070,6 +1095,10 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 			l = options.Size(x.InactivePenaltyDuration)
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
+		if x.MinTransitionDuration != nil {
+			l = options.Size(x.MinTransitionDuration)
+			n += 1 + l + runtime.Sov(uint64(l))
+		}
 		if x.MaxTransitionDuration != nil {
 			l = options.Size(x.MaxTransitionDuration)
 			n += 1 + l + runtime.Sov(uint64(l))
@@ -1122,11 +1151,25 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 				copy(dAtA[i:], encoded)
 				i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
 				i--
-				dAtA[i] = 0x22
+				dAtA[i] = 0x2a
 			}
 		}
 		if x.MaxTransitionDuration != nil {
 			encoded, err := options.Marshal(x.MaxTransitionDuration)
+			if err != nil {
+				return protoiface.MarshalOutput{
+					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
+					Buf:               input.Buf,
+				}, err
+			}
+			i -= len(encoded)
+			copy(dAtA[i:], encoded)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(encoded)))
+			i--
+			dAtA[i] = 0x22
+		}
+		if x.MinTransitionDuration != nil {
+			encoded, err := options.Marshal(x.MinTransitionDuration)
 			if err != nil {
 				return protoiface.MarshalOutput{
 					NoUnkeyedLiterals: input.NoUnkeyedLiterals,
@@ -1264,6 +1307,42 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 				iNdEx = postIndex
 			case 3:
 				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field MinTransitionDuration", wireType)
+				}
+				var msglen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					msglen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if msglen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + msglen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				if x.MinTransitionDuration == nil {
+					x.MinTransitionDuration = &durationpb.Duration{}
+				}
+				if err := options.Unmarshal(dAtA[iNdEx:postIndex], x.MinTransitionDuration); err != nil {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
+				}
+				iNdEx = postIndex
+			case 4:
+				if wireType != 2 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field MaxTransitionDuration", wireType)
 				}
 				var msglen int
@@ -1298,7 +1377,7 @@ func (x *fastReflection_Params) ProtoMethods() *protoiface.Methods {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, err
 				}
 				iNdEx = postIndex
-			case 4:
+			case 5:
 				if wireType != 2 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field FeePerSigner", wireType)
 				}
@@ -1446,11 +1525,12 @@ type Params struct {
 	RewardPercentage uint64 `protobuf:"varint,1,opt,name=reward_percentage,json=rewardPercentage,proto3" json:"reward_percentage,omitempty"`
 	// inactive_penalty_duration is the duration where a member cannot activate back after being set to inactive.
 	InactivePenaltyDuration *durationpb.Duration `protobuf:"bytes,2,opt,name=inactive_penalty_duration,json=inactivePenaltyDuration,proto3" json:"inactive_penalty_duration,omitempty"`
-	// max_transition_duration is the maximum duration where the transition process waits
-	// since the start of the process until an incoming group replaces a current group.
-	MaxTransitionDuration *durationpb.Duration `protobuf:"bytes,3,opt,name=max_transition_duration,json=maxTransitionDuration,proto3" json:"max_transition_duration,omitempty"`
+	// min_transition_duration is the minimum duration where the transition process waits.
+	MinTransitionDuration *durationpb.Duration `protobuf:"bytes,3,opt,name=min_transition_duration,json=minTransitionDuration,proto3" json:"min_transition_duration,omitempty"`
+	// max_transition_duration is the maximum duration where the transition process waits.
+	MaxTransitionDuration *durationpb.Duration `protobuf:"bytes,4,opt,name=max_transition_duration,json=maxTransitionDuration,proto3" json:"max_transition_duration,omitempty"`
 	// fee_per_signer is the tokens that will be paid per signer.
-	FeePerSigner []*v1beta1.Coin `protobuf:"bytes,4,rep,name=fee_per_signer,json=feePerSigner,proto3" json:"fee_per_signer,omitempty"`
+	FeePerSigner []*v1beta1.Coin `protobuf:"bytes,5,rep,name=fee_per_signer,json=feePerSigner,proto3" json:"fee_per_signer,omitempty"`
 }
 
 func (x *Params) Reset() {
@@ -1483,6 +1563,13 @@ func (x *Params) GetRewardPercentage() uint64 {
 func (x *Params) GetInactivePenaltyDuration() *durationpb.Duration {
 	if x != nil {
 		return x.InactivePenaltyDuration
+	}
+	return nil
+}
+
+func (x *Params) GetMinTransitionDuration() *durationpb.Duration {
+	if x != nil {
+		return x.MinTransitionDuration
 	}
 	return nil
 }
@@ -1528,7 +1615,7 @@ var file_band_bandtss_v1beta1_genesis_proto_rawDesc = []byte{
 	0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x22, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61,
 	0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x75,
 	0x72, 0x72, 0x65, 0x6e, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x42, 0x04, 0xc8, 0xde, 0x1f, 0x00,
-	0x52, 0x0c, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x22, 0x82,
+	0x52, 0x0c, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x47, 0x72, 0x6f, 0x75, 0x70, 0x22, 0xdf,
 	0x03, 0x0a, 0x06, 0x50, 0x61, 0x72, 0x61, 0x6d, 0x73, 0x12, 0x41, 0x0a, 0x11, 0x72, 0x65, 0x77,
 	0x61, 0x72, 0x64, 0x5f, 0x70, 0x65, 0x72, 0x63, 0x65, 0x6e, 0x74, 0x61, 0x67, 0x65, 0x18, 0x01,
 	0x20, 0x01, 0x28, 0x04, 0x42, 0x14, 0xe2, 0xde, 0x1f, 0x10, 0x52, 0x65, 0x77, 0x61, 0x72, 0x64,
@@ -1540,35 +1627,40 @@ var file_band_bandtss_v1beta1_genesis_proto_rawDesc = []byte{
 	0x66, 0x2e, 0x44, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x42, 0x08, 0xc8, 0xde, 0x1f, 0x00,
 	0x98, 0xdf, 0x1f, 0x01, 0x52, 0x17, 0x69, 0x6e, 0x61, 0x63, 0x74, 0x69, 0x76, 0x65, 0x50, 0x65,
 	0x6e, 0x61, 0x6c, 0x74, 0x79, 0x44, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x5b, 0x0a,
-	0x17, 0x6d, 0x61, 0x78, 0x5f, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x5f,
+	0x17, 0x6d, 0x69, 0x6e, 0x5f, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x5f,
 	0x64, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19,
 	0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66,
 	0x2e, 0x44, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x42, 0x08, 0xc8, 0xde, 0x1f, 0x00, 0x98,
-	0xdf, 0x1f, 0x01, 0x52, 0x15, 0x6d, 0x61, 0x78, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69,
-	0x6f, 0x6e, 0x44, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x71, 0x0a, 0x0e, 0x66, 0x65,
-	0x65, 0x5f, 0x70, 0x65, 0x72, 0x5f, 0x73, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x18, 0x04, 0x20, 0x03,
-	0x28, 0x0b, 0x32, 0x19, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65,
-	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x42, 0x30, 0xc8,
-	0xde, 0x1f, 0x00, 0xaa, 0xdf, 0x1f, 0x28, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f,
-	0x6d, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2d,
-	0x73, 0x64, 0x6b, 0x2f, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x73, 0x52,
-	0x0c, 0x66, 0x65, 0x65, 0x50, 0x65, 0x72, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x3a, 0x04, 0xe8,
-	0xa0, 0x1f, 0x01, 0x42, 0xe4, 0x01, 0x0a, 0x18, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64,
-	0x2e, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
-	0x42, 0x0c, 0x47, 0x65, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01,
-	0x5a, 0x48, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e,
-	0x64, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f,
-	0x76, 0x33, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x62, 0x61, 0x6e, 0x64,
-	0x74, 0x73, 0x73, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b, 0x62, 0x61, 0x6e, 0x64,
-	0x74, 0x73, 0x73, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x42, 0x42, 0x58,
-	0xaa, 0x02, 0x14, 0x42, 0x61, 0x6e, 0x64, 0x2e, 0x42, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e,
-	0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x14, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x42,
-	0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02,
-	0x20, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x42, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x5c, 0x56, 0x31,
-	0x62, 0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74,
-	0x61, 0xea, 0x02, 0x16, 0x42, 0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x42, 0x61, 0x6e, 0x64, 0x74, 0x73,
-	0x73, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x33,
+	0xdf, 0x1f, 0x01, 0x52, 0x15, 0x6d, 0x69, 0x6e, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69,
+	0x6f, 0x6e, 0x44, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x5b, 0x0a, 0x17, 0x6d, 0x61,
+	0x78, 0x5f, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x64, 0x75, 0x72,
+	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x67, 0x6f,
+	0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x44, 0x75,
+	0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x42, 0x08, 0xc8, 0xde, 0x1f, 0x00, 0x98, 0xdf, 0x1f, 0x01,
+	0x52, 0x15, 0x6d, 0x61, 0x78, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x44,
+	0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x71, 0x0a, 0x0e, 0x66, 0x65, 0x65, 0x5f, 0x70,
+	0x65, 0x72, 0x5f, 0x73, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x18, 0x05, 0x20, 0x03, 0x28, 0x0b, 0x32,
+	0x19, 0x2e, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2e, 0x62, 0x61, 0x73, 0x65, 0x2e, 0x76, 0x31,
+	0x62, 0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x42, 0x30, 0xc8, 0xde, 0x1f, 0x00,
+	0xaa, 0xdf, 0x1f, 0x28, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x63,
+	0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2f, 0x63, 0x6f, 0x73, 0x6d, 0x6f, 0x73, 0x2d, 0x73, 0x64, 0x6b,
+	0x2f, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x43, 0x6f, 0x69, 0x6e, 0x73, 0x52, 0x0c, 0x66, 0x65,
+	0x65, 0x50, 0x65, 0x72, 0x53, 0x69, 0x67, 0x6e, 0x65, 0x72, 0x3a, 0x04, 0xe8, 0xa0, 0x1f, 0x01,
+	0x42, 0xe4, 0x01, 0x0a, 0x18, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x62, 0x61,
+	0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x0c, 0x47,
+	0x65, 0x6e, 0x65, 0x73, 0x69, 0x73, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x48, 0x67,
+	0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x2f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x2f, 0x76, 0x33, 0x2f,
+	0x61, 0x70, 0x69, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x2f, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73,
+	0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x3b, 0x62, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73,
+	0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x42, 0x42, 0x58, 0xaa, 0x02, 0x14,
+	0x42, 0x61, 0x6e, 0x64, 0x2e, 0x42, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x2e, 0x56, 0x31, 0x62,
+	0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x14, 0x42, 0x61, 0x6e, 0x64, 0x5c, 0x42, 0x61, 0x6e, 0x64,
+	0x74, 0x73, 0x73, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02, 0x20, 0x42, 0x61,
+	0x6e, 0x64, 0x5c, 0x42, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74,
+	0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02,
+	0x16, 0x42, 0x61, 0x6e, 0x64, 0x3a, 0x3a, 0x42, 0x61, 0x6e, 0x64, 0x74, 0x73, 0x73, 0x3a, 0x3a,
+	0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1597,13 +1689,14 @@ var file_band_bandtss_v1beta1_genesis_proto_depIdxs = []int32{
 	2, // 1: band.bandtss.v1beta1.GenesisState.members:type_name -> band.bandtss.v1beta1.Member
 	3, // 2: band.bandtss.v1beta1.GenesisState.current_group:type_name -> band.bandtss.v1beta1.CurrentGroup
 	4, // 3: band.bandtss.v1beta1.Params.inactive_penalty_duration:type_name -> google.protobuf.Duration
-	4, // 4: band.bandtss.v1beta1.Params.max_transition_duration:type_name -> google.protobuf.Duration
-	5, // 5: band.bandtss.v1beta1.Params.fee_per_signer:type_name -> cosmos.base.v1beta1.Coin
-	6, // [6:6] is the sub-list for method output_type
-	6, // [6:6] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	4, // 4: band.bandtss.v1beta1.Params.min_transition_duration:type_name -> google.protobuf.Duration
+	4, // 5: band.bandtss.v1beta1.Params.max_transition_duration:type_name -> google.protobuf.Duration
+	5, // 6: band.bandtss.v1beta1.Params.fee_per_signer:type_name -> cosmos.base.v1beta1.Coin
+	7, // [7:7] is the sub-list for method output_type
+	7, // [7:7] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_band_bandtss_v1beta1_genesis_proto_init() }

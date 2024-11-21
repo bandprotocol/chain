@@ -109,8 +109,11 @@ func (k Keeper) ExecuteGroupTransition(ctx sdk.Context, transition types.GroupTr
 // ValidateTransitionExecTime validate the transition execution time if it is
 // after the block time but not over the max duration.
 func (k Keeper) ValidateTransitionExecTime(ctx sdk.Context, execTime time.Time) error {
-	maxDuration := k.GetParams(ctx).MaxTransitionDuration
-	if execTime.Before(ctx.BlockTime()) || execTime.After(ctx.BlockTime().Add(maxDuration)) {
+	params := k.GetParams(ctx)
+	minDuration := params.MinTransitionDuration
+	maxDuration := params.MaxTransitionDuration
+
+	if execTime.Before(ctx.BlockTime().Add(minDuration)) || execTime.After(ctx.BlockTime().Add(maxDuration)) {
 		return types.ErrInvalidExecTime
 	}
 

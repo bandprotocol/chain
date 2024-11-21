@@ -166,16 +166,14 @@ func (s *AppTestSuite) TestFailTransitionGroup() {
 }
 
 func (s *AppTestSuite) TestFailForceTransitionGroupInvalidExecTime() {
-	ctx, msgSrvr, _ := s.ctx, s.msgSrvr, s.app.TSSKeeper
-
 	_ = s.SetupNewGroup(5, 3)
-	group2Ctx, err := s.CreateNewGroup(3, 2, ctx.BlockTime().Add(10*time.Minute))
+	group2Ctx, err := s.CreateNewGroup(3, 2, s.ctx.BlockTime().Add(10*time.Minute))
 	s.Require().NoError(err)
 
-	maxTransitionDuration := s.app.BandtssKeeper.GetParams(ctx).MaxTransitionDuration
-	execTime := ctx.BlockTime().Add(10 * time.Minute).Add(maxTransitionDuration)
+	maxTransitionDuration := s.app.BandtssKeeper.GetParams(s.ctx).MaxTransitionDuration
+	execTime := s.ctx.BlockTime().Add(10 * time.Minute).Add(maxTransitionDuration)
 
-	_, err = msgSrvr.ForceTransitionGroup(ctx, &types.MsgForceTransitionGroup{
+	_, err = s.msgSrvr.ForceTransitionGroup(s.ctx, &types.MsgForceTransitionGroup{
 		IncomingGroupID: group2Ctx.GroupID,
 		ExecTime:        execTime,
 		Authority:       s.authority.String(),
@@ -184,21 +182,19 @@ func (s *AppTestSuite) TestFailForceTransitionGroupInvalidExecTime() {
 }
 
 func (s *AppTestSuite) TestFailForceTransitionGroupInvalidGroupStatus() {
-	ctx, msgSrvr, _ := s.ctx, s.msgSrvr, s.app.TSSKeeper
-
 	_ = s.SetupNewGroup(5, 3)
-	group2Ctx, err := s.CreateNewGroup(3, 2, ctx.BlockTime().Add(10*time.Minute))
+	group2Ctx, err := s.CreateNewGroup(3, 2, s.ctx.BlockTime().Add(10*time.Minute))
 	s.Require().NoError(err)
 
-	group2 := s.app.TSSKeeper.MustGetGroup(ctx, group2Ctx.GroupID)
+	group2 := s.app.TSSKeeper.MustGetGroup(s.ctx, group2Ctx.GroupID)
 	group2.Status = tsstypes.GROUP_STATUS_FALLEN
-	s.app.TSSKeeper.SetGroup(ctx, group2)
+	s.app.TSSKeeper.SetGroup(s.ctx, group2)
 
-	s.app.BandtssKeeper.DeleteGroupTransition(ctx)
+	s.app.BandtssKeeper.DeleteGroupTransition(s.ctx)
 
-	_, err = msgSrvr.ForceTransitionGroup(ctx, &types.MsgForceTransitionGroup{
+	_, err = s.msgSrvr.ForceTransitionGroup(s.ctx, &types.MsgForceTransitionGroup{
 		IncomingGroupID: group2Ctx.GroupID,
-		ExecTime:        ctx.BlockTime().Add(10 * time.Minute),
+		ExecTime:        s.ctx.BlockTime().Add(10 * time.Minute),
 		Authority:       s.authority.String(),
 	})
 	s.Require().ErrorIs(err, types.ErrInvalidIncomingGroup)
@@ -217,16 +213,16 @@ func (s *AppTestSuite) TestFailForceTransitionGroupInvalidGroupID() {
 }
 
 func (s *AppTestSuite) TestFailForceTransitionGroupFromWaitingExecutionStatus() {
-	ctx, msgSrvr, _ := s.ctx, s.msgSrvr, s.app.TSSKeeper
-
 	group1Ctx := s.SetupNewGroup(5, 3)
-	group2Ctx, err := s.CreateNewGroup(3, 2, ctx.BlockTime().Add(10*time.Minute))
+	group2Ctx, err := s.CreateNewGroup(3, 2, s.ctx.BlockTime().Add(10*time.Minute))
 	s.Require().NoError(err)
 
-	s.app.BandtssKeeper.DeleteGroupTransition(ctx)
+	s.app.BandtssKeeper.DeleteGroupTransition(s.ctx)
 
-	group3Ctx, err := s.CreateNewGroup(3, 2, ctx.BlockTime().Add(10*time.Minute))
+	group3Ctx, err := s.CreateNewGroup(3, 2, s.ctx.BlockTime().Add(10*time.Minute))
 	s.Require().NoError(err)
+
+	ctx, msgSrvr, _ := s.ctx, s.msgSrvr, s.app.TSSKeeper
 
 	err = s.SignTransition(group1Ctx)
 	s.Require().NoError(err)
@@ -275,29 +271,27 @@ func (s *AppTestSuite) TestFailForceTransitionGroupFromWaitingExecutionStatus() 
 }
 
 func (s *AppTestSuite) TestSuccessForceTransitionGroupFromFallenStatus() {
-	ctx, msgSrvr, _ := s.ctx, s.msgSrvr, s.app.TSSKeeper
-
 	group1Ctx := s.SetupNewGroup(5, 3)
-	group2Ctx, err := s.CreateNewGroup(3, 2, ctx.BlockTime().Add(10*time.Minute))
+	group2Ctx, err := s.CreateNewGroup(3, 2, s.ctx.BlockTime().Add(10*time.Minute))
 	s.Require().NoError(err)
 
-	s.app.BandtssKeeper.DeleteGroupTransition(ctx)
+	s.app.BandtssKeeper.DeleteGroupTransition(s.ctx)
 
-	group3Ctx, err := s.CreateNewGroup(3, 2, ctx.BlockTime().Add(10*time.Minute))
+	group3Ctx, err := s.CreateNewGroup(3, 2, s.ctx.BlockTime().Add(10*time.Minute))
 	s.Require().NoError(err)
 
-	s.app.BandtssKeeper.DeleteGroupTransition(ctx)
+	s.app.BandtssKeeper.DeleteGroupTransition(s.ctx)
 
-	_, err = msgSrvr.ForceTransitionGroup(ctx, &types.MsgForceTransitionGroup{
+	_, err = s.msgSrvr.ForceTransitionGroup(s.ctx, &types.MsgForceTransitionGroup{
 		IncomingGroupID: group2Ctx.GroupID,
-		ExecTime:        ctx.BlockTime().Add(10 * time.Minute),
+		ExecTime:        s.ctx.BlockTime().Add(10 * time.Minute),
 		Authority:       s.authority.String(),
 	})
 	s.Require().NoError(err)
 
-	transition, found := s.app.BandtssKeeper.GetGroupTransition(ctx)
-	g1 := s.app.TSSKeeper.MustGetGroup(ctx, group1Ctx.GroupID)
-	g2 := s.app.TSSKeeper.MustGetGroup(ctx, group2Ctx.GroupID)
+	transition, found := s.app.BandtssKeeper.GetGroupTransition(s.ctx)
+	g1 := s.app.TSSKeeper.MustGetGroup(s.ctx, group1Ctx.GroupID)
+	g2 := s.app.TSSKeeper.MustGetGroup(s.ctx, group2Ctx.GroupID)
 
 	expectedTransition := types.GroupTransition{
 		Status:              types.TRANSITION_STATUS_WAITING_EXECUTION,
@@ -305,7 +299,7 @@ func (s *AppTestSuite) TestSuccessForceTransitionGroupFromFallenStatus() {
 		CurrentGroupPubKey:  g1.PubKey,
 		IncomingGroupID:     group2Ctx.GroupID,
 		IncomingGroupPubKey: g2.PubKey,
-		ExecTime:            ctx.BlockTime().Add(10 * time.Minute),
+		ExecTime:            s.ctx.BlockTime().Add(10 * time.Minute),
 		SigningID:           tss.SigningID(0),
 		IsForceTransition:   true,
 	}
@@ -313,19 +307,19 @@ func (s *AppTestSuite) TestSuccessForceTransitionGroupFromFallenStatus() {
 	s.Require().Equal(expectedTransition, transition)
 
 	for _, acc := range group1Ctx.Accounts {
-		m, err := s.app.BandtssKeeper.GetMember(ctx, acc.Address, group1Ctx.GroupID)
+		m, err := s.app.BandtssKeeper.GetMember(s.ctx, acc.Address, group1Ctx.GroupID)
 		s.Require().NoError(err)
 		s.Require().True(m.IsActive)
 	}
 
 	for _, acc := range group2Ctx.Accounts {
-		m, err := s.app.BandtssKeeper.GetMember(ctx, acc.Address, group2Ctx.GroupID)
+		m, err := s.app.BandtssKeeper.GetMember(s.ctx, acc.Address, group2Ctx.GroupID)
 		s.Require().NoError(err)
 		s.Require().True(m.IsActive)
 	}
 
 	for _, acc := range group3Ctx.Accounts {
-		ok := s.app.BandtssKeeper.HasMember(ctx, acc.Address, group3Ctx.GroupID)
+		ok := s.app.BandtssKeeper.HasMember(s.ctx, acc.Address, group3Ctx.GroupID)
 		s.Require().False(ok)
 	}
 }
@@ -512,21 +506,22 @@ func (s *AppTestSuite) TestSuccessRequestSignatureOnIncomingGroup() {
 }
 
 func (s *AppTestSuite) TestSuccessRequestSignatureOnBothGroups() {
-	ctx, msgSrvr := s.ctx, s.msgSrvr
-
-	group1Ctx, err := s.CreateNewGroup(5, 3, ctx.BlockTime().Add(10*time.Minute))
+	group1Ctx, err := s.CreateNewGroup(5, 3, s.ctx.BlockTime().Add(10*time.Minute))
 	s.Require().NoError(err)
 	err = s.ExecuteReplaceGroup()
 	s.Require().NoError(err)
-	_, err = s.CreateNewGroup(3, 2, ctx.BlockTime().Add(10*time.Minute))
+
+	_, err = s.CreateNewGroup(3, 2, s.ctx.BlockTime().Add(10*time.Minute))
 	s.Require().NoError(err)
 	err = s.SignTransition(group1Ctx)
 	s.Require().NoError(err)
 
-	balancesBefore := s.app.BankKeeper.GetAllBalances(ctx, bandtesting.FeePayer.Address)
+	ctx, msgSrvr := s.ctx, s.msgSrvr
+
+	balancesBefore := s.app.BankKeeper.GetAllBalances(s.ctx, bandtesting.FeePayer.Address)
 	balancesModuleBefore := s.app.BankKeeper.GetAllBalances(
-		ctx,
-		s.app.BandtssKeeper.GetBandtssAccount(ctx).GetAddress(),
+		s.ctx,
+		s.app.BandtssKeeper.GetBandtssAccount(s.ctx).GetAddress(),
 	)
 
 	msg, err := types.NewMsgRequestSignature(
@@ -663,6 +658,7 @@ func (s *AppTestSuite) TestUpdateParams() {
 				Params: types.Params{
 					RewardPercentage:        types.DefaultRewardPercentage,
 					InactivePenaltyDuration: types.DefaultInactivePenaltyDuration,
+					MinTransitionDuration:   types.DefaultMinTransitionDuration,
 					MaxTransitionDuration:   types.DefaultMaxTransitionDuration,
 					FeePerSigner:            types.DefaultFeePerSigner,
 				},
