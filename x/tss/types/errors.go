@@ -60,7 +60,7 @@ var (
 	ErrInvalidDE                     = errorsmod.Register(ModuleName, 43, "invalid DE")
 	ErrMaxSigningAttemptReached      = errorsmod.Register(ModuleName, 44, "max signing attempt reached")
 	ErrEncodeOriginatorFailed        = errorsmod.Register(ModuleName, 45, "failed to encode originator")
-	ErrInvalidMemo                   = errorsmod.Register(ModuleName, 46, "invalid memo")
+	ErrInvalidOriginator             = errorsmod.Register(ModuleName, 46, "invalid originator")
 	ErrInvalidMessage                = errorsmod.Register(ModuleName, 47, "invalid message")
 	ErrSigningAttemptNotFound        = errorsmod.Register(ModuleName, 48, "signing attempt not found")
 	ErrInvalidMember                 = errorsmod.Register(ModuleName, 49, "invalid member")

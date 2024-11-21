@@ -22,6 +22,12 @@ func (k Keeper) RequestSigning(
 		return 0, err
 	}
 
+	// validate originator
+	params := k.GetParams(ctx)
+	if err := originator.Validate(params); err != nil {
+		return 0, err
+	}
+
 	// convert content to bytes
 	if !k.contentRouter.HasRoute(content.OrderRoute()) {
 		return 0, types.ErrNoSignatureOrderHandlerExists.Wrap(content.OrderRoute())
