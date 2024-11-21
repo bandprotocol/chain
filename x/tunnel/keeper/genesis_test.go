@@ -37,7 +37,7 @@ func TestValidateGenesis(t *testing.T) {
 		},
 		"tunnel count mismatch in tunnels": {
 			genesis: &types.GenesisState{
-				TunnelCount: 1,
+				TunnelCount: 2,
 				Tunnels: []types.Tunnel{
 					{ID: 1},
 					{ID: 3},
