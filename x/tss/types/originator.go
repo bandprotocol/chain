@@ -73,13 +73,14 @@ func (o DirectOriginator) Encode() ([]byte, error) {
 func NewTunnelOriginator(
 	sourceChainID string,
 	tunnelID uint64,
-	contractAddress, targetChainID string,
+	destinationContractAddress string,
+	destinationChainID string,
 ) TunnelOriginator {
 	return TunnelOriginator{
-		SourceChainID:   sourceChainID,
-		TunnelID:        tunnelID,
-		ContractAddress: contractAddress,
-		TargetChainID:   targetChainID,
+		SourceChainID:              sourceChainID,
+		TunnelID:                   tunnelID,
+		DestinationContractAddress: destinationContractAddress,
+		DestinationChainID:         destinationChainID,
 	}
 }
 
@@ -94,8 +95,8 @@ func (o TunnelOriginator) Encode() ([]byte, error) {
 		TunnelOriginatorPrefix,
 		tss.Hash([]byte(o.SourceChainID)),
 		sdk.Uint64ToBigEndian(o.TunnelID),
-		tss.Hash([]byte(o.ContractAddress)),
-		tss.Hash([]byte(o.TargetChainID)),
+		tss.Hash([]byte(o.DestinationContractAddress)),
+		tss.Hash([]byte(o.DestinationChainID)),
 	}, []byte(""))
 
 	return bz, nil
