@@ -68,6 +68,7 @@ import (
 
 	owasm "github.com/bandprotocol/go-owasm/api"
 
+	"github.com/bandprotocol/chain/v3/x/bandtss"
 	bandtsskeeper "github.com/bandprotocol/chain/v3/x/bandtss/keeper"
 	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	bandbankkeeper "github.com/bandprotocol/chain/v3/x/bank/keeper"
@@ -491,7 +492,7 @@ func NewAppKeeper(
 	tssContentRouter.
 		AddRoute(tsstypes.RouterKey, tss.NewSignatureOrderHandler(*appKeepers.TSSKeeper)).
 		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(appKeepers.OracleKeeper)).
-		AddRoute(bandtsstypes.RouterKey, bandtsstypes.NewSignatureOrderHandler()).
+		AddRoute(bandtsstypes.RouterKey, bandtss.NewSignatureOrderHandler()).
 		AddRoute(feedstypes.RouterKey, feeds.NewSignatureOrderHandler(appKeepers.FeedsKeeper))
 
 	tssCbRouter.

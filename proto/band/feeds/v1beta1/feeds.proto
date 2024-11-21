@@ -199,17 +199,6 @@ message ReferenceSourceConfig {
   string registry_version = 2;
 }
 
-// FeedsPriceData is a structure that defines the price data of the feeds for generating signature.
-message FeedsPriceData {
-  option (gogoproto.equal) = true;
-
-  // Prices is the list of prices of the feeds.
-  repeated Price prices = 1 [(gogoproto.nullable) = false];
-
-  // Timestamp is the timestamp at which the price was submitted.
-  uint64 timestamp = 2;
-}
-
 // Encoder is an enumerator that defines the mode of encoding message in tss module.
 enum Encoder {
   option (gogoproto.goproto_enum_prefix) = false;
