@@ -446,7 +446,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDEsReq() {
 				}
 			},
 			func() {},
-			types.ErrDEReachMaxLimit,
+			types.ErrDELimitExceeded,
 		},
 	}
 

@@ -15,9 +15,11 @@ import (
 // them into the queue. It returns an error if the DE size exceeds the maximum limit.
 func (k Keeper) EnqueueDEs(ctx sdk.Context, address sdk.AccAddress, des []types.DE) error {
 	deQueue := k.GetDEQueue(ctx, address)
-	cnt := deQueue.Tail - deQueue.Head
-	if cnt+uint64(len(des)) > k.GetParams(ctx).MaxDESize {
-		return types.ErrDEReachMaxLimit.Wrapf("DE size exceeds %d", k.GetParams(ctx).MaxDESize)
+	total := deQueue.Tail - deQueue.Head + uint64(len(des))
+
+	maxDESize := k.GetParams(ctx).MaxDESize
+	if total > maxDESize {
+		return types.ErrDELimitExceeded.Wrapf("DE size exceeds %d; total %d", maxDESize, total)
 	}
 
 	for i, de := range des {
@@ -34,7 +36,7 @@ func (k Keeper) EnqueueDEs(ctx sdk.Context, address sdk.AccAddress, des []types.
 func (k Keeper) DequeueDE(ctx sdk.Context, address sdk.AccAddress) (types.DE, error) {
 	deQueue := k.GetDEQueue(ctx, address)
 	if deQueue.Head >= deQueue.Tail {
-		return types.DE{}, types.ErrDENotFound.Wrapf("DE not found for address %s", address)
+		return types.DE{}, types.ErrDENotFound.Wrapf("no existing DE for address %s", address)
 	}
 
 	de, err := k.GetDE(ctx, address, deQueue.Head)

@@ -47,7 +47,7 @@ func (s *AppTestSuite) TestActivateMember() {
 	s.Require().NoError(err)
 
 	err = k.ActivateMember(ctx, address, groupCtx.GroupID)
-	s.Require().ErrorIs(err, types.ErrTooSoonToActivate)
+	s.Require().ErrorIs(err, types.ErrPenaltyDurationNotElapsed)
 
 	// Failed case - no member
 	err = k.ActivateMember(ctx, address, groupCtx.GroupID)

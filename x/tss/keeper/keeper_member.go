@@ -8,7 +8,6 @@ import (
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bandprotocol/chain/v3/pkg/bandrng"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
@@ -27,35 +26,31 @@ func (k Keeper) GetMemberByAddress(
 	}
 
 	for _, member := range members {
-		if member.IsAddress(address) {
+		if member.Address == address {
 			return member, nil
 		}
 	}
 
 	return types.Member{}, types.ErrMemberNotFound.Wrapf(
-		"failed to get member with groupID: %d and address: %s",
-		groupID,
-		address,
+		"failed to get member address %s from groupID %d", address, groupID,
 	)
 }
 
-// GetAvailableMembers retrieves all active members of a group from the store.
-func (k Keeper) GetAvailableMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member, error) {
-	var availableMembers []types.Member
+// GetAvailableMembers retrieves all members in the given group that are active and have an existing DE.
+func (k Keeper) GetAvailableMembers(ctx sdk.Context, groupID tss.GroupID) []types.Member {
 	iterator := k.GetGroupMembersIterator(ctx, groupID)
 	defer iterator.Close()
+
+	var availableMembers []types.Member
 	for ; iterator.Valid(); iterator.Next() {
 		var member types.Member
 		k.cdc.MustUnmarshal(iterator.Value(), &member)
+
 		if !member.IsActive {
 			continue
 		}
 
-		acc, err := sdk.AccAddressFromBech32(member.Address)
-		if err != nil {
-			return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid account address: %s", err)
-		}
-
+		acc := sdk.MustAccAddressFromBech32(member.Address)
 		if !k.HasDE(ctx, acc) {
 			continue
 		}
@@ -63,10 +58,7 @@ func (k Keeper) GetAvailableMembers(ctx sdk.Context, groupID tss.GroupID) ([]typ
 		availableMembers = append(availableMembers, member)
 	}
 
-	if len(availableMembers) == 0 {
-		return nil, types.ErrNoActiveMember.Wrapf("no active member in groupID: %d", groupID)
-	}
-	return availableMembers, nil
+	return availableMembers
 }
 
 // GetRandomMembers select a random members from the given group for a signing process.
@@ -83,14 +75,14 @@ func (k Keeper) GetRandomMembers(
 	}
 
 	// Get available members
-	members, err := k.GetAvailableMembers(ctx, groupID)
-	if err != nil {
-		return nil, err
-	}
-
+	members := k.GetAvailableMembers(ctx, groupID)
 	members_size := uint64(len(members))
 	if group.Threshold > members_size {
-		return nil, types.ErrInsufficientActiveMembers
+		return nil, types.ErrInsufficientSigners.Wrapf(
+			"the number of required signers %d is greater than available members %d",
+			group.Threshold,
+			members_size,
+		)
 	}
 
 	// Create a deterministic random number generator (DRBG) using the rolling seed, signingID, and chain ID.
@@ -100,7 +92,7 @@ func (k Keeper) GetRandomMembers(
 		[]byte(ctx.ChainID()),
 	)
 	if err != nil {
-		return nil, types.ErrBadDrbgInitialization.Wrap(err.Error())
+		return nil, types.ErrBadDrbgInitialization.Wrapf("fail to get rng: %v", err)
 	}
 
 	var selected []types.Member
@@ -138,11 +130,9 @@ func (k Keeper) ValidateMemberID(
 		return err
 	}
 
-	if !member.IsAddress(address) {
-		return types.ErrMemberNotAuthorized.Wrapf(
-			"memberID %d address %s is not match in this group",
-			memberID,
-			address,
+	if member.Address != address {
+		return types.ErrInvalidMember.Wrapf(
+			"memberID %d doesn't match with address %s in groupID %d", memberID, address, groupID,
 		)
 	}
 
@@ -259,25 +249,29 @@ func (k Keeper) GetGroupMembersIterator(ctx sdk.Context, groupID tss.GroupID) db
 
 // GetGroupMembers retrieves all members of a group from the store.
 func (k Keeper) GetGroupMembers(ctx sdk.Context, groupID tss.GroupID) ([]types.Member, error) {
-	var members []types.Member
 	iterator := k.GetGroupMembersIterator(ctx, groupID)
 	defer iterator.Close()
+
+	var members []types.Member
 	for ; iterator.Valid(); iterator.Next() {
 		var member types.Member
 		k.cdc.MustUnmarshal(iterator.Value(), &member)
 		members = append(members, member)
 	}
+
 	if len(members) == 0 {
 		return nil, types.ErrMemberNotFound.Wrapf("failed to get members with groupID: %d", groupID)
 	}
+
 	return members, nil
 }
 
 // GetMembers retrieves all members from store.
 func (k Keeper) GetMembers(ctx sdk.Context) []types.Member {
-	var members []types.Member
 	iterator := storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.MemberStoreKeyPrefix)
 	defer iterator.Close()
+
+	var members []types.Member
 	for ; iterator.Valid(); iterator.Next() {
 		var member types.Member
 		k.cdc.MustUnmarshal(iterator.Value(), &member)

@@ -7,7 +7,6 @@ import (
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/kv"
 
 	"github.com/bandprotocol/chain/v3/pkg/ctxcache"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
@@ -61,6 +60,7 @@ func (k Keeper) createSigningRequest(
 
 	// charged fee if necessary; If found any coins that exceed limit then return error
 	feePerSigner := sdk.NewCoins()
+	totalFee := sdk.NewCoins()
 	if sender.String() != k.authority && currentGroupID != 0 {
 		currentGroup, err := k.tssKeeper.GetGroup(ctx, currentGroupID)
 		if err != nil {
@@ -68,7 +68,7 @@ func (k Keeper) createSigningRequest(
 		}
 
 		feePerSigner = k.GetParams(ctx).FeePerSigner
-		totalFee := feePerSigner.MulInt(math.NewInt(int64(currentGroup.Threshold)))
+		totalFee = feePerSigner.MulInt(math.NewInt(int64(currentGroup.Threshold)))
 		for _, fc := range totalFee {
 			limitAmt := feeLimit.AmountOf(fc.Denom)
 			if fc.Amount.GT(limitAmt) {
@@ -129,15 +129,11 @@ func (k Keeper) createSigningRequest(
 			sdk.NewAttribute(types.AttributeKeyCurrentGroupSigningID, fmt.Sprintf("%d", currentGroupSigningID)),
 			sdk.NewAttribute(types.AttributeKeyIncomingGroupID, fmt.Sprintf("%d", incomingGroupID)),
 			sdk.NewAttribute(types.AttributeKeyIncomingGroupSigningID, fmt.Sprintf("%d", incomingGroupSigningID)),
+			sdk.NewAttribute(types.AttributeKeyTotalFee, totalFee.String()),
 		),
 	)
 
 	return bandtssSigningID, nil
-}
-
-func decodeSigningMappingKeyToSigningID(key []byte) tss.SigningID {
-	kv.AssertKeyLength(key, 9)
-	return tss.SigningID(sdk.BigEndianToUint64(key[1:]))
 }
 
 // =====================================

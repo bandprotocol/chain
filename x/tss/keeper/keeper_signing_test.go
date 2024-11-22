@@ -144,7 +144,7 @@ func (s *KeeperTestSuite) TestInitiateNewSigningRoundOverMaxAttempt() {
 	k.SetSigning(ctx, signing)
 
 	err = k.InitiateNewSigningRound(ctx, signingID)
-	s.Require().ErrorIs(err, types.ErrMaxSigningAttemptReached)
+	s.Require().ErrorIs(err, types.ErrMaxSigningAttemptExceeded)
 }
 
 func (s *KeeperTestSuite) TestRequestSigning() {

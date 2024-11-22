@@ -150,7 +150,7 @@ func (s *KeeperTestSuite) TestGetRandomMembersInsufficientActiveMembers() {
 	}
 
 	_, err = k.GetRandomMembers(ctx, tss.GroupID(1), []byte("test_nonce"))
-	s.Require().ErrorIs(err, types.ErrInsufficientActiveMembers)
+	s.Require().ErrorIs(err, types.ErrInsufficientSigners)
 }
 
 func (s *KeeperTestSuite) TestGetRandomMembersNoActiveMember() {
@@ -169,5 +169,5 @@ func (s *KeeperTestSuite) TestGetRandomMembersNoActiveMember() {
 	}
 
 	_, err = k.GetRandomMembers(ctx, tss.GroupID(1), []byte("test_nonce"))
-	s.Require().ErrorIs(err, types.ErrNoActiveMember)
+	s.Require().ErrorIs(err, types.ErrInsufficientSigners)
 }
