@@ -5,6 +5,8 @@ import (
 
 	icahosttypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 
 	"cosmossdk.io/math"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
@@ -40,6 +42,7 @@ func CreateUpgradeHandler(
 
 			var keyTable paramstypes.KeyTable
 			switch ss.Name() {
+			// cosmos-sdk types
 			case authtypes.ModuleName:
 				keyTable = authtypes.ParamKeyTable() //nolint:staticcheck
 			case banktypes.ModuleName:
@@ -59,8 +62,13 @@ func CreateUpgradeHandler(
 			// ibc types
 			case ibctransfertypes.ModuleName:
 				keyTable = ibctransfertypes.ParamKeyTable()
+			case ibcclienttypes.SubModuleName:
+				keyTable = ibcclienttypes.ParamKeyTable()
+			case ibcconnectiontypes.SubModuleName:
+				keyTable = ibcconnectiontypes.ParamKeyTable()
 			case icahosttypes.SubModuleName:
 				keyTable = icahosttypes.ParamKeyTable()
+			// band types
 			case oracletypes.ModuleName:
 				keyTable = oracletypes.ParamKeyTable()
 			default:
