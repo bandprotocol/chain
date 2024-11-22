@@ -51,11 +51,12 @@ func (k Keeper) ActivateMember(ctx sdk.Context, address sdk.AccAddress, groupID 
 	}
 
 	if member.IsActive {
-		return types.ErrMemberAlreadyActive
+		return types.ErrMemberAlreadyActive.Wrapf("address %s is already active", address.String())
 	}
 
-	if member.Since.Add(k.GetParams(ctx).InactivePenaltyDuration).After(ctx.BlockTime()) {
-		return types.ErrTooSoonToActivate
+	penaltyEndTime := member.Since.Add(k.GetParams(ctx).InactivePenaltyDuration)
+	if penaltyEndTime.After(ctx.BlockTime()) {
+		return types.ErrPenaltyDurationNotElapsed.Wrapf("penalty end time: %s", penaltyEndTime)
 	}
 
 	member.IsActive = true
@@ -99,7 +100,7 @@ func (k Keeper) AddMembers(ctx sdk.Context, groupID tss.GroupID) error {
 // AddMember adds a new member to the group and return error if already exists
 func (k Keeper) AddMember(ctx sdk.Context, address sdk.AccAddress, groupID tss.GroupID) error {
 	if k.HasMember(ctx, address, groupID) {
-		return types.ErrMemberAlreadyExists.Wrapf("address : %v", address)
+		return types.ErrMemberAlreadyExists.Wrapf("address %s already exists", address.String())
 	}
 
 	member := types.NewMember(address, groupID, true, ctx.BlockTime())
@@ -142,14 +143,16 @@ func (k Keeper) GetMember(ctx sdk.Context, address sdk.AccAddress, groupID tss.G
 
 // GetMembers retrieves all statuses of the store.
 func (k Keeper) GetMembers(ctx sdk.Context) []types.Member {
-	var members []types.Member
 	iterator := k.GetMembersIterator(ctx)
 	defer iterator.Close()
+
+	var members []types.Member
 	for ; iterator.Valid(); iterator.Next() {
 		var status types.Member
 		k.cdc.MustUnmarshal(iterator.Value(), &status)
 		members = append(members, status)
 	}
+
 	return members
 }
 

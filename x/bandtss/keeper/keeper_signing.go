@@ -7,7 +7,6 @@ import (
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/kv"
 
 	"github.com/bandprotocol/chain/v3/pkg/ctxcache"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
@@ -133,11 +132,6 @@ func (k Keeper) createSigningRequest(
 	)
 
 	return bandtssSigningID, nil
-}
-
-func decodeSigningMappingKeyToSigningID(key []byte) tss.SigningID {
-	kv.AssertKeyLength(key, 9)
-	return tss.SigningID(sdk.BigEndianToUint64(key[1:]))
 }
 
 // =====================================
