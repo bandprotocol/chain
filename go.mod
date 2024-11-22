@@ -5,7 +5,6 @@ go 1.22.3
 require (
 	cosmossdk.io/api v0.7.6
 	cosmossdk.io/client/v2 v2.0.0-beta.5
-	cosmossdk.io/collections v0.4.0
 	cosmossdk.io/core v0.11.2
 	cosmossdk.io/errors v1.0.1
 	cosmossdk.io/log v1.4.1
@@ -17,7 +16,7 @@ require (
 	cosmossdk.io/x/feegrant v0.1.1
 	cosmossdk.io/x/tx v0.13.5
 	cosmossdk.io/x/upgrade v0.1.4
-	github.com/Masterminds/semver/v3 v3.3.0
+	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.1-alpha.6
 	github.com/bandprotocol/go-owasm v0.3.1
 	github.com/bytecodealliance/wasmtime-go/v20 v20.0.0
@@ -60,6 +59,7 @@ require (
 	cloud.google.com/go/compute/metadata v0.5.0 // indirect
 	cloud.google.com/go/iam v1.1.9 // indirect
 	cloud.google.com/go/storage v1.41.0 // indirect
+	cosmossdk.io/collections v0.4.0 // indirect
 	cosmossdk.io/depinject v1.0.0 // indirect
 	cosmossdk.io/x/circuit v0.1.1 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
