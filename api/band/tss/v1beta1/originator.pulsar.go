@@ -566,8 +566,8 @@ var (
 	md_TunnelOriginator                              protoreflect.MessageDescriptor
 	fd_TunnelOriginator_source_chain_id              protoreflect.FieldDescriptor
 	fd_TunnelOriginator_tunnel_id                    protoreflect.FieldDescriptor
-	fd_TunnelOriginator_destination_contract_address protoreflect.FieldDescriptor
 	fd_TunnelOriginator_destination_chain_id         protoreflect.FieldDescriptor
+	fd_TunnelOriginator_destination_contract_address protoreflect.FieldDescriptor
 )
 
 func init() {
@@ -575,8 +575,8 @@ func init() {
 	md_TunnelOriginator = File_band_tss_v1beta1_originator_proto.Messages().ByName("TunnelOriginator")
 	fd_TunnelOriginator_source_chain_id = md_TunnelOriginator.Fields().ByName("source_chain_id")
 	fd_TunnelOriginator_tunnel_id = md_TunnelOriginator.Fields().ByName("tunnel_id")
-	fd_TunnelOriginator_destination_contract_address = md_TunnelOriginator.Fields().ByName("destination_contract_address")
 	fd_TunnelOriginator_destination_chain_id = md_TunnelOriginator.Fields().ByName("destination_chain_id")
+	fd_TunnelOriginator_destination_contract_address = md_TunnelOriginator.Fields().ByName("destination_contract_address")
 }
 
 var _ protoreflect.Message = (*fastReflection_TunnelOriginator)(nil)
@@ -656,15 +656,15 @@ func (x *fastReflection_TunnelOriginator) Range(f func(protoreflect.FieldDescrip
 			return
 		}
 	}
-	if x.DestinationContractAddress != "" {
-		value := protoreflect.ValueOfString(x.DestinationContractAddress)
-		if !f(fd_TunnelOriginator_destination_contract_address, value) {
-			return
-		}
-	}
 	if x.DestinationChainId != "" {
 		value := protoreflect.ValueOfString(x.DestinationChainId)
 		if !f(fd_TunnelOriginator_destination_chain_id, value) {
+			return
+		}
+	}
+	if x.DestinationContractAddress != "" {
+		value := protoreflect.ValueOfString(x.DestinationContractAddress)
+		if !f(fd_TunnelOriginator_destination_contract_address, value) {
 			return
 		}
 	}
@@ -687,10 +687,10 @@ func (x *fastReflection_TunnelOriginator) Has(fd protoreflect.FieldDescriptor) b
 		return x.SourceChainId != ""
 	case "band.tss.v1beta1.TunnelOriginator.tunnel_id":
 		return x.TunnelId != uint64(0)
-	case "band.tss.v1beta1.TunnelOriginator.destination_contract_address":
-		return x.DestinationContractAddress != ""
 	case "band.tss.v1beta1.TunnelOriginator.destination_chain_id":
 		return x.DestinationChainId != ""
+	case "band.tss.v1beta1.TunnelOriginator.destination_contract_address":
+		return x.DestinationContractAddress != ""
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tss.v1beta1.TunnelOriginator"))
@@ -711,10 +711,10 @@ func (x *fastReflection_TunnelOriginator) Clear(fd protoreflect.FieldDescriptor)
 		x.SourceChainId = ""
 	case "band.tss.v1beta1.TunnelOriginator.tunnel_id":
 		x.TunnelId = uint64(0)
-	case "band.tss.v1beta1.TunnelOriginator.destination_contract_address":
-		x.DestinationContractAddress = ""
 	case "band.tss.v1beta1.TunnelOriginator.destination_chain_id":
 		x.DestinationChainId = ""
+	case "band.tss.v1beta1.TunnelOriginator.destination_contract_address":
+		x.DestinationContractAddress = ""
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tss.v1beta1.TunnelOriginator"))
@@ -737,11 +737,11 @@ func (x *fastReflection_TunnelOriginator) Get(descriptor protoreflect.FieldDescr
 	case "band.tss.v1beta1.TunnelOriginator.tunnel_id":
 		value := x.TunnelId
 		return protoreflect.ValueOfUint64(value)
-	case "band.tss.v1beta1.TunnelOriginator.destination_contract_address":
-		value := x.DestinationContractAddress
-		return protoreflect.ValueOfString(value)
 	case "band.tss.v1beta1.TunnelOriginator.destination_chain_id":
 		value := x.DestinationChainId
+		return protoreflect.ValueOfString(value)
+	case "band.tss.v1beta1.TunnelOriginator.destination_contract_address":
+		value := x.DestinationContractAddress
 		return protoreflect.ValueOfString(value)
 	default:
 		if descriptor.IsExtension() {
@@ -767,10 +767,10 @@ func (x *fastReflection_TunnelOriginator) Set(fd protoreflect.FieldDescriptor, v
 		x.SourceChainId = value.Interface().(string)
 	case "band.tss.v1beta1.TunnelOriginator.tunnel_id":
 		x.TunnelId = value.Uint()
-	case "band.tss.v1beta1.TunnelOriginator.destination_contract_address":
-		x.DestinationContractAddress = value.Interface().(string)
 	case "band.tss.v1beta1.TunnelOriginator.destination_chain_id":
 		x.DestinationChainId = value.Interface().(string)
+	case "band.tss.v1beta1.TunnelOriginator.destination_contract_address":
+		x.DestinationContractAddress = value.Interface().(string)
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tss.v1beta1.TunnelOriginator"))
@@ -795,10 +795,10 @@ func (x *fastReflection_TunnelOriginator) Mutable(fd protoreflect.FieldDescripto
 		panic(fmt.Errorf("field source_chain_id of message band.tss.v1beta1.TunnelOriginator is not mutable"))
 	case "band.tss.v1beta1.TunnelOriginator.tunnel_id":
 		panic(fmt.Errorf("field tunnel_id of message band.tss.v1beta1.TunnelOriginator is not mutable"))
-	case "band.tss.v1beta1.TunnelOriginator.destination_contract_address":
-		panic(fmt.Errorf("field destination_contract_address of message band.tss.v1beta1.TunnelOriginator is not mutable"))
 	case "band.tss.v1beta1.TunnelOriginator.destination_chain_id":
 		panic(fmt.Errorf("field destination_chain_id of message band.tss.v1beta1.TunnelOriginator is not mutable"))
+	case "band.tss.v1beta1.TunnelOriginator.destination_contract_address":
+		panic(fmt.Errorf("field destination_contract_address of message band.tss.v1beta1.TunnelOriginator is not mutable"))
 	default:
 		if fd.IsExtension() {
 			panic(fmt.Errorf("proto3 declared messages do not support extensions: band.tss.v1beta1.TunnelOriginator"))
@@ -816,9 +816,9 @@ func (x *fastReflection_TunnelOriginator) NewField(fd protoreflect.FieldDescript
 		return protoreflect.ValueOfString("")
 	case "band.tss.v1beta1.TunnelOriginator.tunnel_id":
 		return protoreflect.ValueOfUint64(uint64(0))
-	case "band.tss.v1beta1.TunnelOriginator.destination_contract_address":
-		return protoreflect.ValueOfString("")
 	case "band.tss.v1beta1.TunnelOriginator.destination_chain_id":
+		return protoreflect.ValueOfString("")
+	case "band.tss.v1beta1.TunnelOriginator.destination_contract_address":
 		return protoreflect.ValueOfString("")
 	default:
 		if fd.IsExtension() {
@@ -896,11 +896,11 @@ func (x *fastReflection_TunnelOriginator) ProtoMethods() *protoiface.Methods {
 		if x.TunnelId != 0 {
 			n += 1 + runtime.Sov(uint64(x.TunnelId))
 		}
-		l = len(x.DestinationContractAddress)
+		l = len(x.DestinationChainId)
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
-		l = len(x.DestinationChainId)
+		l = len(x.DestinationContractAddress)
 		if l > 0 {
 			n += 1 + l + runtime.Sov(uint64(l))
 		}
@@ -933,17 +933,17 @@ func (x *fastReflection_TunnelOriginator) ProtoMethods() *protoiface.Methods {
 			i -= len(x.unknownFields)
 			copy(dAtA[i:], x.unknownFields)
 		}
-		if len(x.DestinationChainId) > 0 {
-			i -= len(x.DestinationChainId)
-			copy(dAtA[i:], x.DestinationChainId)
-			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.DestinationChainId)))
-			i--
-			dAtA[i] = 0x22
-		}
 		if len(x.DestinationContractAddress) > 0 {
 			i -= len(x.DestinationContractAddress)
 			copy(dAtA[i:], x.DestinationContractAddress)
 			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.DestinationContractAddress)))
+			i--
+			dAtA[i] = 0x22
+		}
+		if len(x.DestinationChainId) > 0 {
+			i -= len(x.DestinationChainId)
+			copy(dAtA[i:], x.DestinationChainId)
+			i = runtime.EncodeVarint(dAtA, i, uint64(len(x.DestinationChainId)))
 			i--
 			dAtA[i] = 0x1a
 		}
@@ -1061,38 +1061,6 @@ func (x *fastReflection_TunnelOriginator) ProtoMethods() *protoiface.Methods {
 				}
 			case 3:
 				if wireType != 2 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field DestinationContractAddress", wireType)
-				}
-				var stringLen uint64
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
-					}
-					if iNdEx >= l {
-						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					stringLen |= uint64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				intStringLen := int(stringLen)
-				if intStringLen < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				postIndex := iNdEx + intStringLen
-				if postIndex < 0 {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
-				}
-				if postIndex > l {
-					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
-				}
-				x.DestinationContractAddress = string(dAtA[iNdEx:postIndex])
-				iNdEx = postIndex
-			case 4:
-				if wireType != 2 {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field DestinationChainId", wireType)
 				}
 				var stringLen uint64
@@ -1122,6 +1090,38 @@ func (x *fastReflection_TunnelOriginator) ProtoMethods() *protoiface.Methods {
 					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
 				}
 				x.DestinationChainId = string(dAtA[iNdEx:postIndex])
+				iNdEx = postIndex
+			case 4:
+				if wireType != 2 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, fmt.Errorf("proto: wrong wireType = %d for field DestinationContractAddress", wireType)
+				}
+				var stringLen uint64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrIntOverflow
+					}
+					if iNdEx >= l {
+						return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					stringLen |= uint64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				intStringLen := int(stringLen)
+				if intStringLen < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				postIndex := iNdEx + intStringLen
+				if postIndex < 0 {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, runtime.ErrInvalidLength
+				}
+				if postIndex > l {
+					return protoiface.UnmarshalOutput{NoUnkeyedLiterals: input.NoUnkeyedLiterals, Flags: input.Flags}, io.ErrUnexpectedEOF
+				}
+				x.DestinationContractAddress = string(dAtA[iNdEx:postIndex])
 				iNdEx = postIndex
 			default:
 				iNdEx = preIndex
@@ -1238,10 +1238,10 @@ type TunnelOriginator struct {
 	SourceChainId string `protobuf:"bytes,1,opt,name=source_chain_id,json=sourceChainId,proto3" json:"source_chain_id,omitempty"`
 	// tunnel_id is the tunnel ID that the request is originated from.
 	TunnelId uint64 `protobuf:"varint,2,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
-	// destination_contract_address is the destination address that the data should be relayed to.
-	DestinationContractAddress string `protobuf:"bytes,3,opt,name=destination_contract_address,json=destinationContractAddress,proto3" json:"destination_contract_address,omitempty"`
 	// destination_chain_id is the destination chain ID that the data should be relayed to.
-	DestinationChainId string `protobuf:"bytes,4,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
+	DestinationChainId string `protobuf:"bytes,3,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
+	// destination_contract_address is the destination address that the data should be relayed to.
+	DestinationContractAddress string `protobuf:"bytes,4,opt,name=destination_contract_address,json=destinationContractAddress,proto3" json:"destination_contract_address,omitempty"`
 }
 
 func (x *TunnelOriginator) Reset() {
@@ -1278,16 +1278,16 @@ func (x *TunnelOriginator) GetTunnelId() uint64 {
 	return 0
 }
 
-func (x *TunnelOriginator) GetDestinationContractAddress() string {
+func (x *TunnelOriginator) GetDestinationChainId() string {
 	if x != nil {
-		return x.DestinationContractAddress
+		return x.DestinationChainId
 	}
 	return ""
 }
 
-func (x *TunnelOriginator) GetDestinationChainId() string {
+func (x *TunnelOriginator) GetDestinationContractAddress() string {
 	if x != nil {
-		return x.DestinationChainId
+		return x.DestinationContractAddress
 	}
 	return ""
 }
@@ -1318,15 +1318,15 @@ var file_band_tss_v1beta1_originator_proto_rawDesc = []byte{
 	0x65, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x64, 0x12, 0x29, 0x0a, 0x09, 0x74, 0x75, 0x6e, 0x6e,
 	0x65, 0x6c, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x04, 0x42, 0x0c, 0xe2, 0xde, 0x1f,
 	0x08, 0x54, 0x75, 0x6e, 0x6e, 0x65, 0x6c, 0x49, 0x44, 0x52, 0x08, 0x74, 0x75, 0x6e, 0x6e, 0x65,
-	0x6c, 0x49, 0x64, 0x12, 0x40, 0x0a, 0x1c, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69,
-	0x6f, 0x6e, 0x5f, 0x63, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x5f, 0x61, 0x64, 0x64, 0x72,
-	0x65, 0x73, 0x73, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x1a, 0x64, 0x65, 0x73, 0x74, 0x69,
-	0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x41, 0x64,
-	0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x48, 0x0a, 0x14, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61,
-	0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x5f, 0x69, 0x64, 0x18, 0x04, 0x20,
-	0x01, 0x28, 0x09, 0x42, 0x16, 0xe2, 0xde, 0x1f, 0x12, 0x44, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61,
-	0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x44, 0x52, 0x12, 0x64, 0x65, 0x73,
-	0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x64, 0x3a,
+	0x6c, 0x49, 0x64, 0x12, 0x48, 0x0a, 0x14, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69,
+	0x6f, 0x6e, 0x5f, 0x63, 0x68, 0x61, 0x69, 0x6e, 0x5f, 0x69, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28,
+	0x09, 0x42, 0x16, 0xe2, 0xde, 0x1f, 0x12, 0x44, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69,
+	0x6f, 0x6e, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x44, 0x52, 0x12, 0x64, 0x65, 0x73, 0x74, 0x69,
+	0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x43, 0x68, 0x61, 0x69, 0x6e, 0x49, 0x64, 0x12, 0x40, 0x0a,
+	0x1c, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x63, 0x6f, 0x6e,
+	0x74, 0x72, 0x61, 0x63, 0x74, 0x5f, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x04, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x1a, 0x64, 0x65, 0x73, 0x74, 0x69, 0x6e, 0x61, 0x74, 0x69, 0x6f, 0x6e,
+	0x43, 0x6f, 0x6e, 0x74, 0x72, 0x61, 0x63, 0x74, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x3a,
 	0x0e, 0xca, 0xb4, 0x2d, 0x0a, 0x4f, 0x72, 0x69, 0x67, 0x69, 0x6e, 0x61, 0x74, 0x6f, 0x72, 0x42,
 	0xcb, 0x01, 0x0a, 0x14, 0x63, 0x6f, 0x6d, 0x2e, 0x62, 0x61, 0x6e, 0x64, 0x2e, 0x74, 0x73, 0x73,
 	0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x0f, 0x4f, 0x72, 0x69, 0x67, 0x69, 0x6e,

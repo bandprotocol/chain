@@ -11,7 +11,7 @@ import (
 const (
 	DefaultInactivePenaltyDuration time.Duration = time.Minute * 10   // 10 minutes
 	DefaultMinTransitionDuration   time.Duration = time.Hour * 24     // 1 days
-	DefaultMaxTransitionDuration   time.Duration = time.Hour * 24 * 5 // 5 days
+	DefaultMaxTransitionDuration   time.Duration = time.Hour * 24 * 7 // 7 days
 	// compute the bandtss reward following the allocation to Oracle. If the Oracle reward amounts to 70%,
 	// the bandtss reward will be determined from the remaining 10%, which is 10% * 30% = 3%.
 	DefaultRewardPercentage = uint64(10)

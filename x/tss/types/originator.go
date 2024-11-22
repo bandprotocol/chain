@@ -79,14 +79,14 @@ func (o DirectOriginator) Encode() ([]byte, error) {
 func NewTunnelOriginator(
 	sourceChainID string,
 	tunnelID uint64,
-	destinationContractAddress string,
 	destinationChainID string,
+	destinationContractAddress string,
 ) TunnelOriginator {
 	return TunnelOriginator{
 		SourceChainID:              sourceChainID,
 		TunnelID:                   tunnelID,
-		DestinationContractAddress: destinationContractAddress,
 		DestinationChainID:         destinationChainID,
+		DestinationContractAddress: destinationContractAddress,
 	}
 }
 

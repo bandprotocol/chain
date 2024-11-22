@@ -30,8 +30,8 @@ func (k Keeper) CreateDirectSigningRequest(
 func (k Keeper) CreateTunnelSigningRequest(
 	ctx sdk.Context,
 	tunnelID uint64,
-	destinationContractAddr string,
 	destinationChainID string,
+	destinationContractAddr string,
 	content tsstypes.Content,
 	sender sdk.AccAddress,
 	feeLimit sdk.Coins,
@@ -39,8 +39,8 @@ func (k Keeper) CreateTunnelSigningRequest(
 	originator := tsstypes.NewTunnelOriginator(
 		ctx.ChainID(),
 		tunnelID,
-		destinationContractAddr,
 		destinationChainID,
+		destinationContractAddr,
 	)
 	return k.createSigningRequest(ctx, &originator, content, sender, feeLimit)
 }

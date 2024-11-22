@@ -28,8 +28,8 @@ func TestEncodeTunnelOriginator(t *testing.T) {
 			originator: types.NewTunnelOriginator(
 				"bandchain",
 				256,
-				"0x5662ac531A2737C3dB8901E982B43327a2fDe2ae",
 				"BSC",
+				"0x5662ac531A2737C3dB8901E982B43327a2fDe2ae",
 			),
 			expected: "72ebe83d" +
 				"0e1ac2c4a50a82aa49717691fc1ae2e5fa68eff45bd8576b0f2be7a0850fa7c6" +
