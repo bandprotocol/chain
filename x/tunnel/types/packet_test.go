@@ -10,24 +10,24 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-func TestGetSetRouteResultValue(t *testing.T) {
+func TestGetSetPacketReceipt(t *testing.T) {
 	packet := types.NewPacket(1, 1, nil, nil, nil, 0)
-	routeResult := &types.TSSRouteResult{SigningID: 1}
+	routeResult := &types.TSSPacketReceipt{SigningID: 1}
 
-	err := packet.SetRouteResultValue(routeResult)
+	err := packet.SetReceiptValue(routeResult)
 	require.NoError(t, err)
-	require.NotNil(t, packet.RouteResult)
+	require.NotNil(t, packet.Receipt)
 
-	result, err := packet.GetRouteResultValue()
+	result, err := packet.GetReceiptValue()
 	require.NoError(t, err)
 	require.Equal(t, routeResult, result)
 }
 
-func TestRouteUnpackInterfaces(t *testing.T) {
+func TestPacketUnpackInterfaces(t *testing.T) {
 	packet := types.NewPacket(1, 1, nil, nil, nil, 0)
-	packetResult := &types.TSSRouteResult{SigningID: 1}
+	packetResult := &types.TSSPacketReceipt{SigningID: 1}
 
-	err := packet.SetRouteResultValue(packetResult)
+	err := packet.SetReceiptValue(packetResult)
 	require.NoError(t, err)
 
 	unpacker := codectypes.NewInterfaceRegistry()

@@ -20,7 +20,7 @@ func (k Keeper) SendIBCPacket(
 	ctx sdk.Context,
 	route *types.IBCRoute,
 	packet types.Packet,
-) (types.RouteResultI, error) {
+) (types.PacketReceiptI, error) {
 	// retrieve the dynamic capability for this channel
 	channelCap, ok := k.scopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(types.PortID, route.ChannelID))
 	if !ok {
@@ -49,5 +49,5 @@ func (k Keeper) SendIBCPacket(
 		return nil, err
 	}
 
-	return types.NewIBCRouteResult(route.ChannelID, sequence), nil
+	return types.NewIBCPacketReceipt(route.ChannelID, sequence), nil
 }

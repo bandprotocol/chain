@@ -32,7 +32,7 @@ func (s *KeeperTestSuite) TestSendIBCPacket() {
 	content, err := k.SendIBCPacket(ctx, route, packet)
 	s.Require().NoError(err)
 
-	packetContent, ok := content.(*types.IBCRouteResult)
+	packetReceipt, ok := content.(*types.IBCPacketReceipt)
 	s.Require().True(ok)
-	s.Require().Equal(uint64(1), packetContent.Sequence)
+	s.Require().Equal(uint64(1), packetReceipt.Sequence)
 }

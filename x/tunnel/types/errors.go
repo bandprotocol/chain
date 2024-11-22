@@ -13,7 +13,7 @@ var (
 	ErrTunnelNotFound            = errorsmod.Register(ModuleName, 6, "tunnel not found")
 	ErrLatestPricesNotFound      = errorsmod.Register(ModuleName, 7, "latest prices not found")
 	ErrPacketNotFound            = errorsmod.Register(ModuleName, 8, "packet not found")
-	ErrNoRouteResult             = errorsmod.Register(ModuleName, 9, "no route result")
+	ErrNoPacketReceipt           = errorsmod.Register(ModuleName, 9, "no packet receipt")
 	ErrInvalidTunnelCreator      = errorsmod.Register(ModuleName, 10, "invalid creator of the tunnel")
 	ErrAccountAlreadyExist       = errorsmod.Register(ModuleName, 11, "account already exist")
 	ErrInvalidRoute              = errorsmod.Register(ModuleName, 12, "invalid tunnel route")

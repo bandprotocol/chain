@@ -29,7 +29,7 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 	content, err := k.SendTSSPacket(ctx, &route, packet)
 	s.Require().NoError(err)
 
-	packetContent, ok := content.(*types.TSSRouteResult)
+	packetReceipt, ok := content.(*types.TSSPacketReceipt)
 	s.Require().True(ok)
-	s.Require().Equal(bandtsstypes.SigningID(1), packetContent.SigningID)
+	s.Require().Equal(bandtsstypes.SigningID(1), packetReceipt.SigningID)
 }

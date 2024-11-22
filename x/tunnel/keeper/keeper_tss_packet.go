@@ -11,12 +11,12 @@ func (k Keeper) SendTSSPacket(
 	ctx sdk.Context,
 	route *types.TSSRoute,
 	packet types.Packet,
-) (types.RouteResultI, error) {
+) (types.PacketReceiptI, error) {
 	// TODO: Implement TSS packet handler logic
 
 	// Sign TSS packet
 
-	return &types.TSSRouteResult{
+	return &types.TSSPacketReceipt{
 		SigningID: 1,
 	}, nil
 }

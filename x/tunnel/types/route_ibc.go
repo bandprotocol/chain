@@ -32,9 +32,9 @@ func (r *IBCRoute) ValidateBasic() error {
 	return nil
 }
 
-// NewIBCRouteResult creates a new IBCRouteResult instance.
-func NewIBCRouteResult(channelID string, sequence uint64) *IBCRouteResult {
-	return &IBCRouteResult{
+// NewIBCPacketReceipt creates a new IBCPacketReceipt instance.
+func NewIBCPacketReceipt(channelID string, sequence uint64) *IBCPacketReceipt {
+	return &IBCPacketReceipt{
 		Sequence: sequence,
 	}
 }
