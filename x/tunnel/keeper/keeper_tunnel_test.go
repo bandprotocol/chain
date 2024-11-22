@@ -159,7 +159,7 @@ func (s *KeeperTestSuite) TestGetActiveTunnelIDs() {
 
 	activeTunnelIDs := []uint64{1, 2, 3}
 	for _, id := range activeTunnelIDs {
-		k.ActiveTunnelID(ctx, id)
+		k.SetActiveTunnelID(ctx, id)
 	}
 
 	retrievedIDs := k.GetActiveTunnelIDs(ctx)

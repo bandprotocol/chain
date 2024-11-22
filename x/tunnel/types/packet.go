@@ -34,8 +34,8 @@ func (p Packet) UnpackInterfaces(unpacker types.AnyUnpacker) error {
 	return unpacker.UnpackAny(p.Receipt, &receipt)
 }
 
-// SetReceiptValue sets the packet's receipt.
-func (p *Packet) SetReceiptValue(receipt PacketReceiptI) error {
+// SetReceipt sets the packet's receipt.
+func (p *Packet) SetReceipt(receipt PacketReceiptI) error {
 	any, err := types.NewAnyWithValue(receipt)
 	if err != nil {
 		return err

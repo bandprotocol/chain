@@ -2,10 +2,8 @@ package keeper
 
 import (
 	"fmt"
-	"math"
 
 	sdkerrors "cosmossdk.io/errors"
-	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -44,15 +42,6 @@ func (k Keeper) GetPacket(ctx sdk.Context, tunnelID uint64, sequence uint64) (ty
 	var packet types.Packet
 	k.cdc.MustUnmarshal(bz, &packet)
 	return packet, nil
-}
-
-// MustGetPacket retrieves a packet by its tunnel ID and packet ID and panics if the packet does not exist
-func (k Keeper) MustGetPacket(ctx sdk.Context, tunnelID uint64, sequence uint64) types.Packet {
-	packet, err := k.GetPacket(ctx, tunnelID, sequence)
-	if err != nil {
-		panic(err)
-	}
-	return packet
 }
 
 // ProduceActiveTunnelPackets generates packets and sends packets to the destination route for all active tunnels
@@ -226,7 +215,7 @@ func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) error {
 	}
 
 	// set the receipt to the packet
-	if err := packet.SetReceiptValue(receipt); err != nil {
+	if err := packet.SetReceipt(receipt); err != nil {
 		return sdkerrors.Wrapf(
 			err,
 			"failed to set packet receipt for tunnel %d, sequence %d",
@@ -238,27 +227,4 @@ func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) error {
 	k.SetPacket(ctx, packet)
 
 	return nil
-}
-
-// calculateDeviationBPS calculates the deviation between the old price and
-// the new price in basis points, i.e., |(newPrice - oldPrice)| * 10000 / oldPrice
-func calculateDeviationBPS(oldPrice, newPrice sdkmath.Int) sdkmath.Int {
-	if newPrice.Equal(oldPrice) {
-		return sdkmath.ZeroInt()
-	}
-
-	if oldPrice.IsZero() {
-		return sdkmath.NewInt(math.MaxInt64)
-	}
-
-	return newPrice.Sub(oldPrice).Abs().MulRaw(10000).Quo(oldPrice)
-}
-
-// CreatePricesMap creates a map of prices with signal ID as the key
-func CreatePricesMap(prices []feedstypes.Price) map[string]feedstypes.Price {
-	pricesMap := make(map[string]feedstypes.Price, len(prices))
-	for _, p := range prices {
-		pricesMap[p.SignalID] = p
-	}
-	return pricesMap
 }

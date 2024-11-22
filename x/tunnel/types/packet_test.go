@@ -14,7 +14,7 @@ func TestGetSetPacketReceipt(t *testing.T) {
 	packet := types.NewPacket(1, 1, nil, nil, nil, 0)
 	routeResult := &types.TSSPacketReceipt{SigningID: 1}
 
-	err := packet.SetReceiptValue(routeResult)
+	err := packet.SetReceipt(routeResult)
 	require.NoError(t, err)
 	require.NotNil(t, packet.Receipt)
 
@@ -27,7 +27,7 @@ func TestPacketUnpackInterfaces(t *testing.T) {
 	packet := types.NewPacket(1, 1, nil, nil, nil, 0)
 	packetResult := &types.TSSPacketReceipt{SigningID: 1}
 
-	err := packet.SetReceiptValue(packetResult)
+	err := packet.SetReceipt(packetResult)
 	require.NoError(t, err)
 
 	unpacker := codectypes.NewInterfaceRegistry()
