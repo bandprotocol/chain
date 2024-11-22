@@ -44,6 +44,7 @@ func (k Keeper) GetRound2Info(ctx sdk.Context, groupID tss.GroupID, memberID tss
 			memberID,
 		)
 	}
+
 	var r2 types.Round2Info
 	k.cdc.MustUnmarshal(bz, &r2)
 	return r2, nil
@@ -85,13 +86,15 @@ func (k Keeper) GetRound2InfoIterator(ctx sdk.Context, groupID tss.GroupID) dbm.
 
 // GetRound2Infos retrieves all round2Info for a given group from the store.
 func (k Keeper) GetRound2Infos(ctx sdk.Context, groupID tss.GroupID) []types.Round2Info {
-	var round2Infos []types.Round2Info
 	iterator := k.GetRound2InfoIterator(ctx, groupID)
 	defer iterator.Close()
+
+	var round2Infos []types.Round2Info
 	for ; iterator.Valid(); iterator.Next() {
 		var round2Info types.Round2Info
 		k.cdc.MustUnmarshal(iterator.Value(), &round2Info)
 		round2Infos = append(round2Infos, round2Info)
 	}
+
 	return round2Infos
 }

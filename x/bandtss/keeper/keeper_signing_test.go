@@ -219,7 +219,7 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 			name: "error: fee more than limit",
 			preProcess: func(s *KeeperTestSuite) {
 				params := s.keeper.GetParams(s.ctx)
-				params.Fee = sdk.NewCoins(sdk.NewInt64Coin("uband", 100))
+				params.FeePerSigner = sdk.NewCoins(sdk.NewInt64Coin("uband", 100))
 				err := s.keeper.SetParams(s.ctx, params)
 				s.Require().NoError(err)
 				s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(currentGroupID, s.ctx.BlockTime()))

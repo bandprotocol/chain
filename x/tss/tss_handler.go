@@ -4,14 +4,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/tss/keeper"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-// TextMsgPrefix is the constant prefix for signing request on text msg.
-// The value is tss.Hash([]byte("Text"))[:4]
-var TextMsgPrefix = tss.Hash([]byte("Text"))[:4]
+const TextMsgPrefix = "\xb1\xf7\x60\x16" // tss.Hash([]byte("Text"))[:4]
 
 // NewSignatureOrderHandler implements the Handler interface for tss module-based
 // request signatures (ie. TextSignatureOrder)
@@ -26,8 +23,7 @@ func NewSignatureOrderHandler(k keeper.Keeper) types.Handler {
 				)
 			}
 
-			return append(TextMsgPrefix, c.Message...), nil
-
+			return append([]byte(TextMsgPrefix), c.Message...), nil
 		default:
 			return nil, sdkerrors.ErrUnknownRequest.Wrapf(
 				"unrecognized tss request signature message type: %s",
