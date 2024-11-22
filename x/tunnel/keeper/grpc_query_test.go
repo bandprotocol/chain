@@ -72,15 +72,15 @@ func (s *KeeperTestSuite) TestGRPCQueryPackets() {
 		TunnelID: 2,
 		Sequence: 1,
 	}
-	err = packet1.SetRouteResultValue(&types.TSSRouteResult{
+	err = packet1.SetReceiptValue(&types.TSSPacketReceipt{
 		SigningID: 1,
 	})
 	s.Require().NoError(err)
-	err = packet2.SetRouteResultValue(&types.TSSRouteResult{
+	err = packet2.SetReceiptValue(&types.TSSPacketReceipt{
 		SigningID: 2,
 	})
 	s.Require().NoError(err)
-	err = packet3.SetRouteResultValue(&types.TSSRouteResult{
+	err = packet3.SetReceiptValue(&types.TSSPacketReceipt{
 		SigningID: 3,
 	})
 	s.Require().NoError(err)
@@ -119,7 +119,7 @@ func (s *KeeperTestSuite) TestGRPCQueryPacket() {
 		TunnelID: 1,
 		Sequence: 1,
 	}
-	err = packet1.SetRouteResultValue(&types.TSSRouteResult{
+	err = packet1.SetReceiptValue(&types.TSSPacketReceipt{
 		SigningID: 1,
 	})
 	s.Require().NoError(err)
@@ -129,7 +129,7 @@ func (s *KeeperTestSuite) TestGRPCQueryPacket() {
 		TunnelID: 1,
 		Sequence: 2,
 	}
-	err = packet2.SetRouteResultValue(&types.TSSRouteResult{})
+	err = packet2.SetReceiptValue(&types.TSSPacketReceipt{})
 	s.Require().NoError(err)
 	k.SetPacket(ctx, packet2)
 
