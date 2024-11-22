@@ -90,21 +90,13 @@ func (t Tunnel) GetSignalIDs() []string {
 	return signalIDs
 }
 
-// Validate validates the total fees
-func (tf TotalFees) Validate() error {
-	if !tf.TotalPacketFee.IsValid() {
-		return fmt.Errorf("invalid total packet fee: %s", tf.TotalPacketFee)
-	}
-	return nil
-}
-
-// ValidateInterval validates the interval.
-func ValidateInterval(interval uint64, params Params) error {
-	if interval < params.MinInterval || interval > params.MaxInterval {
+// ValidateInterval validates the interval of the tunnel.
+func ValidateInterval(interval, maxInterval, minInterval uint64) error {
+	if interval < minInterval || interval > maxInterval {
 		return ErrIntervalOutOfRange.Wrapf(
 			"max %d, min %d, got %d",
-			params.MaxInterval,
-			params.MinInterval,
+			maxInterval,
+			minInterval,
 			interval,
 		)
 	}

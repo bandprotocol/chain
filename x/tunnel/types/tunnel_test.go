@@ -38,3 +38,46 @@ func TestTunnel_GetSignalIDs(t *testing.T) {
 	require.Contains(t, signalIDs, "signal1")
 	require.Contains(t, signalIDs, "signal2")
 }
+
+func TestValidateInterval(t *testing.T) {
+	tests := []struct {
+		name        string
+		interval    uint64
+		maxInterval uint64
+		minInterval uint64
+		expErr      bool
+	}{
+		{
+			name:        "interval too low",
+			interval:    5,
+			maxInterval: 100,
+			minInterval: 10,
+			expErr:      true,
+		},
+		{
+			name:        "interval too high",
+			interval:    150,
+			maxInterval: 100,
+			minInterval: 10,
+			expErr:      true,
+		},
+		{
+			name:        "all good",
+			interval:    50,
+			maxInterval: 100,
+			minInterval: 10,
+			expErr:      false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := types.ValidateInterval(tt.interval, tt.maxInterval, tt.minInterval)
+			if tt.expErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}

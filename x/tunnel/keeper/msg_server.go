@@ -34,12 +34,12 @@ func (ms msgServer) CreateTunnel(
 	params := ms.Keeper.GetParams(ctx)
 
 	// validate signal infos and interval
-	if err := types.ValidateSignalDeviations(msg.SignalDeviations, params); err != nil {
+	if err := types.ValidateSignalDeviations(msg.SignalDeviations, params.MaxSignals, params.MaxDeviationBPS, params.MinDeviationBPS); err != nil {
 		return nil, err
 	}
 
 	// validate interval
-	if err := types.ValidateInterval(msg.Interval, params); err != nil {
+	if err := types.ValidateInterval(msg.Interval, params.MaxInterval, params.MinInterval); err != nil {
 		return nil, err
 	}
 
@@ -88,12 +88,12 @@ func (ms msgServer) UpdateAndResetTunnel(
 	params := ms.Keeper.GetParams(ctx)
 
 	// validate signal infos and interval
-	if err := types.ValidateSignalDeviations(msg.SignalDeviations, params); err != nil {
+	if err := types.ValidateSignalDeviations(msg.SignalDeviations, params.MaxSignals, params.MaxDeviationBPS, params.MinDeviationBPS); err != nil {
 		return nil, err
 	}
 
 	// validate interval
-	if err := types.ValidateInterval(msg.Interval, params); err != nil {
+	if err := types.ValidateInterval(msg.Interval, params.MaxInterval, params.MinInterval); err != nil {
 		return nil, err
 	}
 

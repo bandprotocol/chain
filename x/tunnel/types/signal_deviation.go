@@ -14,22 +14,27 @@ func NewSignalDeviation(
 }
 
 // ValidateSignalDeviations validates the signal deviations with the given params.
-func ValidateSignalDeviations(signalDeviations []SignalDeviation, params Params) error {
+func ValidateSignalDeviations(
+	signalDeviations []SignalDeviation,
+	maxSignals uint64,
+	maxDeviationBPS uint64,
+	minDeviationBPS uint64,
+) error {
 	// validate max signals
-	if len(signalDeviations) > int(params.MaxSignals) {
-		return ErrMaxSignalsExceeded.Wrapf("max signals %d, got %d", params.MaxSignals, len(signalDeviations))
+	if len(signalDeviations) > int(maxSignals) {
+		return ErrMaxSignalsExceeded.Wrapf("max signals %d, got %d", maxSignals, len(signalDeviations))
 	}
 
 	// validate min and max deviation
 	for _, signalDeviation := range signalDeviations {
-		if signalDeviation.HardDeviationBPS < params.MinDeviationBPS ||
-			signalDeviation.SoftDeviationBPS < params.MinDeviationBPS ||
-			signalDeviation.HardDeviationBPS > params.MaxDeviationBPS ||
-			signalDeviation.SoftDeviationBPS > params.MaxDeviationBPS {
+		if signalDeviation.HardDeviationBPS < minDeviationBPS ||
+			signalDeviation.SoftDeviationBPS < minDeviationBPS ||
+			signalDeviation.HardDeviationBPS > maxDeviationBPS ||
+			signalDeviation.SoftDeviationBPS > maxDeviationBPS {
 			return ErrDeviationOutOfRange.Wrapf(
 				"min %d, max %d, got %d, %d",
-				params.MinDeviationBPS,
-				params.MaxDeviationBPS,
+				minDeviationBPS,
+				maxDeviationBPS,
 				signalDeviation.SoftDeviationBPS,
 				signalDeviation.HardDeviationBPS,
 			)
