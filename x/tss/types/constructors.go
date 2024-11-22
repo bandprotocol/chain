@@ -37,12 +37,12 @@ func NewGroup(
 func (g Group) Validate() error {
 	// validate group id
 	if g.ID == 0 {
-		return ErrInvalidGroup.Wrap("group id is 0")
+		return ErrInvalidGroup.Wrap("group id cannot be 0")
 	}
 
 	// validate group size
 	if g.Threshold > g.Size_ {
-		return ErrInvalidGroup.Wrapf("group threshold is more than the group size")
+		return ErrInvalidGroup.Wrapf("group threshold (%d) is more than the group size (%d)", g.Threshold, g.Size_)
 	}
 
 	// validate group public key
@@ -58,17 +58,17 @@ func (g Group) Validate() error {
 		return ErrInvalidGroup.Wrapf("invalid group status: %d", g.Status)
 	}
 	if g.Status == GROUP_STATUS_UNSPECIFIED {
-		return ErrInvalidGroup.Wrap("group status is unspecified")
+		return ErrInvalidGroup.Wrap("group status cannot be unspecified")
 	}
 
 	// validate created height
 	if g.CreatedHeight == 0 {
-		return ErrInvalidGroup.Wrap("created height is 0")
+		return ErrInvalidGroup.Wrap("created height cannot be 0")
 	}
 
 	// validate module owner
 	if g.ModuleOwner == "" {
-		return ErrInvalidGroup.Wrap("module owner is empty")
+		return ErrInvalidGroup.Wrap("module owner cannot be empty")
 	}
 
 	return nil
@@ -99,7 +99,7 @@ func NewRound1Info(
 func (r Round1Info) Validate() error {
 	// Validate member ID
 	if r.MemberID == 0 {
-		return ErrInvalidMember.Wrap("member id is 0")
+		return ErrInvalidMember.Wrap("member id cannot be 0")
 	}
 
 	// Validate coefficients commit
@@ -145,7 +145,7 @@ func NewRound2Info(
 // Validate performs basic validation of round-2 group creation information.
 func (r Round2Info) Validate() error {
 	if r.MemberID == 0 {
-		return ErrInvalidMember.Wrap("member id is 0")
+		return ErrInvalidMember.Wrap("member id cannot be 0")
 	}
 
 	for i, ess := range r.EncryptedSecretShares {
@@ -191,11 +191,11 @@ func NewComplaint(
 // Validate performs basic validation of complaint information.
 func (c Complaint) Validate() error {
 	if c.Complainant == 0 {
-		return ErrInvalidComplaint.Wrap("complainant is 0")
+		return ErrInvalidComplaint.Wrap("complainant cannot be 0")
 	}
 
 	if c.Respondent == 0 {
-		return ErrInvalidComplaint.Wrap("respondent is 0")
+		return ErrInvalidComplaint.Wrap("respondent cannot be 0")
 	}
 
 	if c.Complainant == c.Respondent {

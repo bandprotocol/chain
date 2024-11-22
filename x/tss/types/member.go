@@ -28,11 +28,11 @@ func NewMember(
 // Validate performs basic validation of group information.
 func (m Member) Validate() error {
 	if m.ID == 0 {
-		return ErrInvalidMember.Wrap("member id is 0")
+		return ErrInvalidMember.Wrap("member id cannot be 0")
 	}
 
 	if m.GroupID == 0 {
-		return ErrInvalidMember.Wrap("group id is 0")
+		return ErrInvalidMember.Wrap("group id cannot be 0")
 	}
 
 	if _, err := sdk.AccAddressFromBech32(m.Address); err != nil {

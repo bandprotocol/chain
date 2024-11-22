@@ -61,7 +61,7 @@ func (m Member) Validate() error {
 	}
 
 	if m.GroupID == 0 {
-		return ErrInvalidMember.Wrap("group id is 0")
+		return ErrInvalidMember.Wrap("group id cannot be 0")
 	}
 
 	return nil

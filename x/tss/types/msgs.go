@@ -44,7 +44,7 @@ func NewMsgSubmitDKGRound1(groupID tss.GroupID, round1Info Round1Info, sender st
 func (m MsgSubmitDKGRound1) ValidateBasic() error {
 	// Validate group ID
 	if m.GroupID == 0 {
-		return ErrInvalidGroup.Wrap("group id is 0")
+		return ErrInvalidGroup.Wrap("group id cannot be 0")
 	}
 
 	// Validate member address
@@ -76,7 +76,7 @@ func NewMsgSubmitDKGRound2(groupID tss.GroupID, round2Info Round2Info, sender st
 func (m MsgSubmitDKGRound2) ValidateBasic() error {
 	// Validate group ID
 	if m.GroupID == 0 {
-		return ErrInvalidGroup.Wrap("group id is 0")
+		return ErrInvalidGroup.Wrap("group id cannot be 0")
 	}
 
 	// Validate member address
@@ -108,7 +108,7 @@ func NewMsgComplain(groupID tss.GroupID, complaints []Complaint, sender string) 
 func (m MsgComplain) ValidateBasic() error {
 	// Validate group ID
 	if m.GroupID == 0 {
-		return ErrInvalidGroup.Wrap("group id is 0")
+		return ErrInvalidGroup.Wrap("group id cannot be 0")
 	}
 
 	// Validate member address
@@ -161,12 +161,12 @@ func NewMsgConfirm(
 func (m MsgConfirm) ValidateBasic() error {
 	// Validate member ID
 	if m.MemberID == 0 {
-		return ErrInvalidMember.Wrap("member id is 0")
+		return ErrInvalidMember.Wrap("member id cannot be 0")
 	}
 
 	// Validate group ID
 	if m.GroupID == 0 {
-		return ErrInvalidGroup.Wrap("group id is 0")
+		return ErrInvalidGroup.Wrap("group id cannot be 0")
 	}
 
 	// Validate own pub key sig
@@ -234,12 +234,12 @@ func NewMsgSubmitSignature(
 func (m MsgSubmitSignature) ValidateBasic() error {
 	// Validate member ID
 	if m.SigningID == 0 {
-		return ErrInvalidSigning.Wrap("signing id is 0")
+		return ErrInvalidSigning.Wrap("signing id cannot be 0")
 	}
 
 	// Validate member ID
 	if m.MemberID == 0 {
-		return ErrInvalidMember.Wrap("member id is 0")
+		return ErrInvalidMember.Wrap("member id cannot be 0")
 	}
 
 	// Validate member address
