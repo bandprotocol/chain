@@ -29,8 +29,9 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 
 	cdc.RegisterInterface((*RouteI)(nil), nil)
 	cdc.RegisterConcrete(&TSSRoute{}, "tunnel/TSSRoute", nil)
-	cdc.RegisterInterface((*PacketContentI)(nil), nil)
-	cdc.RegisterConcrete(&TSSPacketContent{}, "tunnel/TSSPacketContent", nil)
+	cdc.RegisterInterface((*PacketReceiptI)(nil), nil)
+	cdc.RegisterConcrete(&TSSPacketReceipt{}, "tunnel/TSSPacketReceipt", nil)
+
 	cdc.RegisterConcrete(Params{}, "tunnel/Params", nil)
 }
 
@@ -55,9 +56,9 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	)
 
 	registry.RegisterInterface(
-		"tunnel.v1beta1.PacketContentI",
-		(*PacketContentI)(nil),
-		&TSSPacketContent{},
+		"tunnel.v1beta1.PacketReceiptI",
+		(*PacketReceiptI)(nil),
+		&TSSPacketReceipt{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

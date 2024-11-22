@@ -18,39 +18,39 @@ func NewPacket(
 	createdAt int64,
 ) Packet {
 	return Packet{
-		TunnelID:      tunnelID,
-		Sequence:      sequence,
-		Prices:        prices,
-		PacketContent: nil,
-		BaseFee:       baseFee,
-		RouteFee:      routeFee,
-		CreatedAt:     createdAt,
+		TunnelID:  tunnelID,
+		Sequence:  sequence,
+		Prices:    prices,
+		Receipt:   nil,
+		BaseFee:   baseFee,
+		RouteFee:  routeFee,
+		CreatedAt: createdAt,
 	}
 }
 
 // UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
 func (p Packet) UnpackInterfaces(unpacker types.AnyUnpacker) error {
-	var packetContent PacketContentI
-	return unpacker.UnpackAny(p.PacketContent, &packetContent)
+	var receipt PacketReceiptI
+	return unpacker.UnpackAny(p.Receipt, &receipt)
 }
 
-// SetPacketContent sets the packet content of the packet.
-func (p *Packet) SetPacketContent(packetContent PacketContentI) error {
-	any, err := types.NewAnyWithValue(packetContent)
+// SetReceiptValue sets the packet's receipt.
+func (p *Packet) SetReceiptValue(receipt PacketReceiptI) error {
+	any, err := types.NewAnyWithValue(receipt)
 	if err != nil {
 		return err
 	}
-	p.PacketContent = any
+	p.Receipt = any
 
 	return nil
 }
 
-// GetContent returns the content of the packet.
-func (p Packet) GetContent() (PacketContentI, error) {
-	packetContent, ok := p.PacketContent.GetCachedValue().(PacketContentI)
+// GetReceiptValue returns the packet's receipt.
+func (p Packet) GetReceiptValue() (PacketReceiptI, error) {
+	receipt, ok := p.Receipt.GetCachedValue().(PacketReceiptI)
 	if !ok {
-		return nil, ErrNoPacketContent.Wrapf("tunnelID: %d, sequence: %d", p.TunnelID, p.Sequence)
+		return nil, ErrNoPacketReceipt.Wrapf("tunnelID: %d, sequence: %d", p.TunnelID, p.Sequence)
 	}
 
-	return packetContent, nil
+	return receipt, nil
 }

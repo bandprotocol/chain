@@ -12,7 +12,7 @@ func (k Keeper) SendTSSPacket(
 	route *types.TSSRoute,
 	packet types.Packet,
 	feePayer sdk.AccAddress,
-) (packetContent types.PacketContentI, err error) {
+) (receipt types.PacketReceiptI, err error) {
 	content := types.NewTunnelSignatureOrder(packet.TunnelID, packet.Sequence)
 
 	// Sign TSS packet
@@ -29,12 +29,5 @@ func (k Keeper) SendTSSPacket(
 		return nil, err
 	}
 
-	// Set the packet content
-	tssPacketContent := types.NewTSSPacketContent(
-		signingID,
-		route.DestinationChainID,
-		route.DestinationContractAddress,
-	)
-
-	return &tssPacketContent, nil
+	return types.NewTSSPacketReceipt(signingID), nil
 }
