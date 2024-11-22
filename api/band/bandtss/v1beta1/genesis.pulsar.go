@@ -1525,9 +1525,9 @@ type Params struct {
 	RewardPercentage uint64 `protobuf:"varint,1,opt,name=reward_percentage,json=rewardPercentage,proto3" json:"reward_percentage,omitempty"`
 	// inactive_penalty_duration is the duration where a member cannot activate back after being set to inactive.
 	InactivePenaltyDuration *durationpb.Duration `protobuf:"bytes,2,opt,name=inactive_penalty_duration,json=inactivePenaltyDuration,proto3" json:"inactive_penalty_duration,omitempty"`
-	// min_transition_duration is the minimum duration where the transition process waits.
+	// min_transition_duration is the minimum duration that the transition process waits before execution.
 	MinTransitionDuration *durationpb.Duration `protobuf:"bytes,3,opt,name=min_transition_duration,json=minTransitionDuration,proto3" json:"min_transition_duration,omitempty"`
-	// max_transition_duration is the maximum duration where the transition process waits.
+	// max_transition_duration is the maximum duration that the transition process waits before execution.
 	MaxTransitionDuration *durationpb.Duration `protobuf:"bytes,4,opt,name=max_transition_duration,json=maxTransitionDuration,proto3" json:"max_transition_duration,omitempty"`
 	// fee_per_signer is the tokens that will be paid per signer.
 	FeePerSigner []*v1beta1.Coin `protobuf:"bytes,5,rep,name=fee_per_signer,json=feePerSigner,proto3" json:"fee_per_signer,omitempty"`
