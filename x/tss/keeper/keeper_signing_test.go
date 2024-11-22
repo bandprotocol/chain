@@ -159,7 +159,14 @@ func (s *KeeperTestSuite) TestRequestSigning() {
 
 	// Create a new request for the request signature
 	content := types.NewTextSignatureOrder([]byte("example"))
-	signingID, err := k.RequestSigning(ctx, groupID, &types.DirectOriginator{}, content)
+
+	originator := types.NewDirectOriginator(
+		"targetChain",
+		"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+		"test",
+	)
+
+	signingID, err := k.RequestSigning(ctx, groupID, &originator, content)
 	s.Require().NoError(err)
 
 	signing, err := k.GetSigning(ctx, signingID)

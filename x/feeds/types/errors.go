@@ -25,4 +25,5 @@ var (
 	ErrDuplicateSignalID        = errorsmod.Register(ModuleName, 18, "duplicate signal id")
 	ErrInvalidSignalIDs         = errorsmod.Register(ModuleName, 19, "invalid signal ids")
 	ErrInvalidEncoder           = errorsmod.Register(ModuleName, 20, "invalid encoder")
+	ErrEncodingPriceFailed      = errorsmod.Register(ModuleName, 21, "fail to encode price")
 )

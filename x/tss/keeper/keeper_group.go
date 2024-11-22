@@ -51,6 +51,16 @@ func (k Keeper) CreateGroup(
 		return 0, types.ErrGroupSizeTooLarge.Wrap(fmt.Sprintf("group size exceeds %d", maxGroupSize))
 	}
 
+	// Validate duplicate members
+	seenAddresses := make(map[string]bool)
+	for _, addr := range members {
+		if seenAddresses[addr.String()] {
+			return 0, types.ErrInvalidGroup.Wrapf("duplicate member address: %s", addr)
+		}
+
+		seenAddresses[addr.String()] = true
+	}
+
 	// add new group
 	groupID := k.AddGroup(ctx, groupSize, threshold, moduleOwner)
 
