@@ -117,8 +117,8 @@ func (o TunnelOriginator) Encode() ([]byte, error) {
 		[]byte(TunnelOriginatorPrefix),
 		tss.Hash([]byte(o.SourceChainID)),
 		sdk.Uint64ToBigEndian(o.TunnelID),
-		tss.Hash([]byte(o.DestinationContractAddress)),
 		tss.Hash([]byte(o.DestinationChainID)),
+		tss.Hash([]byte(o.DestinationContractAddress)),
 	}, []byte(""))
 
 	return bz, nil

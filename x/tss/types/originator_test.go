@@ -34,8 +34,8 @@ func TestEncodeTunnelOriginator(t *testing.T) {
 			expected: "72ebe83d" +
 				"0e1ac2c4a50a82aa49717691fc1ae2e5fa68eff45bd8576b0f2be7a0850fa7c6" +
 				"0000000000000100" +
-				"1b791f9b381ec74bd523be18b5d02eacfc1811c3817f87e7981664ccabe31e00" +
-				"4602a37e2aeaf2820d53eaeb5ab645d0d45172d006889d176509ed9e7cfa6144",
+				"4602a37e2aeaf2820d53eaeb5ab645d0d45172d006889d176509ed9e7cfa6144" +
+				"1b791f9b381ec74bd523be18b5d02eacfc1811c3817f87e7981664ccabe31e00",
 		},
 	}
 
