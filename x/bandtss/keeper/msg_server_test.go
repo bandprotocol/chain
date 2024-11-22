@@ -116,7 +116,7 @@ func (s *AppTestSuite) TestFailTransitionGroup() {
 				err := s.app.TSSKeeper.SetParams(ctx, tssParams)
 				s.Require().NoError(err)
 			},
-			expectErr: tsstypes.ErrGroupSizeTooLarge,
+			expectErr: tsstypes.ErrGroupCreationFailed,
 		},
 		{
 			name: "duplicate members",
@@ -144,7 +144,7 @@ func (s *AppTestSuite) TestFailTransitionGroup() {
 			},
 			preProcess:  func() {},
 			postProcess: func() {},
-			expectErr:   fmt.Errorf("threshold must be less than or equal to the members but more than zero"),
+			expectErr:   types.ErrInvalidThreshold,
 		},
 	}
 
@@ -209,7 +209,7 @@ func (s *AppTestSuite) TestFailForceTransitionGroupInvalidGroupID() {
 		ExecTime:        ctx.BlockTime().Add(10 * time.Minute),
 		Authority:       s.authority.String(),
 	})
-	s.Require().ErrorIs(err, types.ErrInvalidIncomingGroup)
+	s.Require().ErrorIs(err, types.ErrInvalidGroupID)
 }
 
 func (s *AppTestSuite) TestFailForceTransitionGroupFromWaitingExecutionStatus() {
@@ -595,7 +595,7 @@ func (s *AppTestSuite) TestFailActivateNotPassDuration() {
 			Sender:  acc.Address.String(),
 			GroupID: groupCtx.GroupID,
 		})
-		s.Require().ErrorIs(err, types.ErrTooSoonToActivate)
+		s.Require().ErrorIs(err, types.ErrPenaltyDurationNotElapsed)
 	}
 }
 
