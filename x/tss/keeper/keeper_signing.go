@@ -22,6 +22,12 @@ func (k Keeper) RequestSigning(
 		return 0, err
 	}
 
+	// validate originator
+	params := k.GetParams(ctx)
+	if err := originator.Validate(params); err != nil {
+		return 0, err
+	}
+
 	// convert content to bytes
 	if !k.contentRouter.HasRoute(content.OrderRoute()) {
 		return 0, types.ErrNoSignatureOrderHandlerExists.Wrap(content.OrderRoute())
@@ -48,6 +54,14 @@ func (k Keeper) RequestSigning(
 	if err = k.InitiateNewSigningRound(ctx, signingID); err != nil {
 		return 0, err
 	}
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeCreateSigning,
+		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
+		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+		sdk.NewAttribute(types.AttributeKeyContent, content.String()),
+		sdk.NewAttribute(types.AttributeKeyOriginator, originator.String()),
+	))
 
 	return signingID, nil
 }

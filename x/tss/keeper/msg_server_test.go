@@ -561,10 +561,16 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			// Setup group to GROUP_STATUS_ACTIVE
 			s.SetupWithPreparedTestCase(i, types.GROUP_STATUS_ACTIVE)
 
+			originator := types.NewDirectOriginator(
+				"targetChain",
+				"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				"test",
+			)
+
 			signingID, err := k.RequestSigning(
 				ctx,
 				tc.Group.ID,
-				&types.DirectOriginator{},
+				&originator,
 				types.NewTextSignatureOrder([]byte("msg")),
 			)
 			s.Require().NoError(err)

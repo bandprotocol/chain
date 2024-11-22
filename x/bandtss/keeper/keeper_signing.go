@@ -3,11 +3,13 @@ package keeper
 import (
 	"fmt"
 
+	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/kv"
 
+	"github.com/bandprotocol/chain/v3/pkg/ctxcache"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
@@ -28,8 +30,8 @@ func (k Keeper) CreateDirectSigningRequest(
 func (k Keeper) CreateTunnelSigningRequest(
 	ctx sdk.Context,
 	tunnelID uint64,
-	destinationContractAddr string,
 	destinationChainID string,
+	destinationContractAddr string,
 	content tsstypes.Content,
 	sender sdk.AccAddress,
 	feeLimit sdk.Coins,
@@ -37,8 +39,8 @@ func (k Keeper) CreateTunnelSigningRequest(
 	originator := tsstypes.NewTunnelOriginator(
 		ctx.ChainID(),
 		tunnelID,
-		destinationContractAddr,
 		destinationChainID,
+		destinationContractAddr,
 	)
 	return k.createSigningRequest(ctx, &originator, content, sender, feeLimit)
 }
@@ -65,7 +67,7 @@ func (k Keeper) createSigningRequest(
 			return 0, err
 		}
 
-		feePerSigner = k.GetParams(ctx).Fee
+		feePerSigner = k.GetParams(ctx).FeePerSigner
 		totalFee := feePerSigner.MulInt(math.NewInt(int64(currentGroup.Threshold)))
 		for _, fc := range totalFee {
 			limitAmt := feeLimit.AmountOf(fc.Denom)
@@ -96,12 +98,24 @@ func (k Keeper) createSigningRequest(
 		currentGroupSigningID = signingID
 	}
 
+	// create signing request for incoming group if any. In case of error, emit event and continue
+	// the process, as the signing request for incoming group is optional.
 	if incomingGroupID != 0 {
-		signingID, err := k.tssKeeper.RequestSigning(ctx, incomingGroupID, originator, content)
-		if err != nil {
-			return 0, err
+		createSigningFunc := func(ctx sdk.Context) (err error) {
+			incomingGroupSigningID, err = k.tssKeeper.RequestSigning(ctx, incomingGroupID, originator, content)
+			return err
 		}
-		incomingGroupSigningID = signingID
+
+		if err := ctxcache.ApplyFuncIfNoError(ctx, createSigningFunc); err != nil {
+			codespace, code, _ := errorsmod.ABCIInfo(err, false)
+			ctx.EventManager().EmitEvent(sdk.NewEvent(
+				types.EventTypeCreateSigningFailed,
+				sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", incomingGroupID)),
+				sdk.NewAttribute(types.AttributeKeySigningErrReason, err.Error()),
+				sdk.NewAttribute(types.AttributeKeySigningErrCodespace, codespace),
+				sdk.NewAttribute(types.AttributeKeySigningErrCode, fmt.Sprintf("%d", code)),
+			))
+		}
 	}
 
 	// save signing info
