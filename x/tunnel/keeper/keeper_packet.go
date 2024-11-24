@@ -166,12 +166,13 @@ func (k Keeper) CreatePacket(
 		return types.Packet{}, sdkerrors.Wrapf(err, "failed to deduct base packet fee for tunnel %d", tunnel.ID)
 	}
 
-	// get the route fee
-	route, ok := tunnel.Route.GetCachedValue().(types.RouteI)
-	if !ok {
-		return types.Packet{}, types.ErrInvalidRoute
+	// get the route
+	route, err := tunnel.GetRouteValue()
+	if err != nil {
+		return types.Packet{}, err
 	}
 
+	// get the route fee
 	routeFee, err := k.GetRouteFee(ctx, route)
 	if err != nil {
 		return types.Packet{}, err
@@ -201,9 +202,15 @@ func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) error {
 		return err
 	}
 
+	// get the route
+	route, err := tunnel.GetRouteValue()
+	if err != nil {
+		return err
+	}
+
 	// send packet to the destination route and get the route result
 	var receipt types.PacketReceiptI
-	switch r := tunnel.Route.GetCachedValue().(type) {
+	switch r := route.(type) {
 	case *types.TSSRoute:
 		receipt, err = k.SendTSSPacket(ctx, r, packet)
 	default:

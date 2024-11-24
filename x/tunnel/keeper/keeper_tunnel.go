@@ -266,11 +266,10 @@ func (k Keeper) HasEnoughFundToCreatePacket(ctx sdk.Context, tunnelID uint64) (b
 	}
 
 	// get the route fee from the tunnel
-	route, ok := tunnel.Route.GetCachedValue().(types.RouteI)
-	if !ok {
-		return false, types.ErrInvalidRoute
+	route, err := tunnel.GetRouteValue()
+	if err != nil {
+		return false, err
 	}
-
 	routeFee, err := k.GetRouteFee(ctx, route)
 	if err != nil {
 		return false, err

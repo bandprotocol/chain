@@ -63,6 +63,7 @@ func (t *Tunnel) SetRoute(route RouteI) error {
 	if !ok {
 		return fmt.Errorf("can't proto marshal %T", msg)
 	}
+
 	any, err := types.NewAnyWithValue(msg)
 	if err != nil {
 		return err
@@ -70,6 +71,16 @@ func (t *Tunnel) SetRoute(route RouteI) error {
 	t.Route = any
 
 	return nil
+}
+
+// GetRouteValue returns the route value of the tunnel.
+func (t Tunnel) GetRouteValue() (RouteI, error) {
+	r, ok := t.Route.GetCachedValue().(RouteI)
+	if !ok {
+		return nil, ErrNoRoute.Wrap("failed to get route")
+	}
+
+	return r, nil
 }
 
 // GetSignalDeviationMap returns the signal deviation map of the tunnel.

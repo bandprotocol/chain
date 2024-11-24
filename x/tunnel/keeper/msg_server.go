@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	sdkerrors "cosmossdk.io/errors"
@@ -48,9 +47,9 @@ func (ms msgServer) CreateTunnel(
 		return nil, err
 	}
 
-	route, ok := msg.Route.GetCachedValue().(types.RouteI)
-	if !ok {
-		return nil, errors.New("cannot create tunnel, failed to convert proto Any to routeI")
+	route, err := msg.GetRouteValue()
+	if err != nil {
+		return nil, err
 	}
 
 	// add a new tunnel
