@@ -43,7 +43,7 @@ message IBCPacketReceipt {
   option (cosmos_proto.implements_interface) = "PacketContentI";
 
   // sequence is representing the sequence of the IBC packet.
-  uint64 sequence = 2;
+  uint64 sequence = 1;
 }
 
 // IBCPacket is the type for an IBC packet
