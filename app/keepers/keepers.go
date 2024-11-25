@@ -579,9 +579,9 @@ func initParamsKeeper(
 		WithKeyTable(govv1.ParamKeyTable()) //nolint: staticcheck // SA1019
 	paramsKeeper.Subspace(crisistypes.ModuleName).
 		WithKeyTable(crisistypes.ParamKeyTable()) //nolint: staticcheck // SA1019
-	paramsKeeper.Subspace(ibcexported.ModuleName)
-	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
-	paramsKeeper.Subspace(icahosttypes.SubModuleName)
+	paramsKeeper.Subspace(ibcexported.ModuleName).WithKeyTable(keyTable)
+	paramsKeeper.Subspace(ibctransfertypes.ModuleName).WithKeyTable(ibctransfertypes.ParamKeyTable())
+	paramsKeeper.Subspace(icahosttypes.SubModuleName).WithKeyTable(icahosttypes.ParamKeyTable())
 	paramsKeeper.Subspace(oracletypes.ModuleName)
 
 	return paramsKeeper
