@@ -51,8 +51,22 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) error {
 	prices := k.feedsKeeper.GetAllPrices(ctx)
 	pricesMap := CreatePricesMap(prices)
 
+	// handle in case of panic
+	currentTunnelID := uint64(0)
+	defer func() {
+		if r := recover(); r != nil {
+			ctx.Logger().Error(fmt.Sprintf("Panic recovered: %v", r))
+			ctx.EventManager().EmitEvent(sdk.NewEvent(
+				types.EventTypeProducePacketFail,
+				sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", currentTunnelID)),
+				sdk.NewAttribute(types.AttributeKeyReason, fmt.Sprintf("panic recovered: %v", r)),
+			))
+		}
+	}()
+
 	// create new packet if possible for active tunnels. If not enough fund, deactivate the tunnel.
 	for _, id := range ids {
+		currentTunnelID = id
 		// check if the tunnel has enough fund to create a packet
 		// error should not happen here since the tunnel is already validated
 		ok, err := k.HasEnoughFundToCreatePacket(ctx, id)

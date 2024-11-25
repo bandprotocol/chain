@@ -80,6 +80,14 @@ func (k Keeper) ResolveSuccess(
 		return
 	}
 
+	// handle in case of panic
+	defer func() {
+		if r := recover(); r != nil {
+			ctx.Logger().Error(fmt.Sprintf("Panic recovered: %v", r))
+			k.handleCreateSigningFailed(ctx, id, event, types.ErrCreateSigningFailed)
+		}
+	}()
+
 	// handle signing content
 	cacheCtx, writeFn := ctx.CacheContext()
 	signingID, err := k.bandtssKeeper.CreateDirectSigningRequest(
