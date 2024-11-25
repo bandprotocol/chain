@@ -59,7 +59,11 @@ func (p *Packet) SetReceipt(receipt PacketReceiptI) error {
 func (p Packet) GetReceiptValue() (PacketReceiptI, error) {
 	r, ok := p.Receipt.GetCachedValue().(PacketReceiptI)
 	if !ok {
-		return nil, sdkerrors.ErrPackAny.Wrapf("cannot unpack route")
+		return nil, sdkerrors.ErrInvalidType.Wrapf(
+			"expected %T, got %T",
+			(PacketReceiptI)(nil),
+			p.Receipt.GetCachedValue(),
+		)
 	}
 
 	return r, nil
