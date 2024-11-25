@@ -25,22 +25,19 @@ func (k Keeper) HandleSigningEndBlock(ctx sdk.Context) {
 	// check expired signing
 	timeoutSigningIDs := k.HandleExpiredSignings(ctx)
 
-	// handle in case of panic
-	var currentSigningID tss.SigningID
-	defer func() {
-		if r := recover(); r != nil {
-			ctx.Logger().Error(fmt.Sprintf("Panic recovered: %v", r))
-			k.HandleFailedSigning(ctx, currentSigningID, fmt.Errorf("panic recovered: %v", r).Error())
-		}
-	}()
-
 	// retry every failed and expired signings; rollback and handle failed signing
 	// if any error occurred.
 	retrySigningIDs = append(retrySigningIDs, timeoutSigningIDs...)
 	for _, sid := range retrySigningIDs {
-		cacheCtx, writeFn := ctx.CacheContext()
+		// handle in case of panic
+		defer func() {
+			if r := recover(); r != nil {
+				ctx.Logger().Error(fmt.Sprintf("Panic recovered: %v", r))
+				k.HandleFailedSigning(ctx, sid, fmt.Errorf("panic recovered: %v", r).Error())
+			}
+		}()
 
-		currentSigningID = sid
+		cacheCtx, writeFn := ctx.CacheContext()
 		if err := k.InitiateNewSigningRound(cacheCtx, sid); err != nil {
 			k.HandleFailedSigning(ctx, sid, err.Error())
 		} else {
