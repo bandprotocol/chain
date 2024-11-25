@@ -36,6 +36,7 @@ type KeeperTestSuite struct {
 	keeper      keeper.Keeper
 	queryServer types.QueryServer
 	msgServer   types.MsgServer
+	storeKey    storetypes.StoreKey
 
 	accountKeeper *testutil.MockAccountKeeper
 	bankKeeper    *testutil.MockBankKeeper
@@ -53,7 +54,8 @@ func (s *KeeperTestSuite) SetupTest() {
 func (s *KeeperTestSuite) reset() {
 	ctrl := gomock.NewController(s.T())
 	key := storetypes.NewKVStoreKey(types.StoreKey)
-	testCtx := sdktestutil.DefaultContextWithDB(s.T(), key, storetypes.NewTransientStoreKey("transient_test"))
+	storeKey := storetypes.NewTransientStoreKey("transient_test")
+	testCtx := sdktestutil.DefaultContextWithDB(s.T(), key, storeKey)
 	encCfg := moduletestutil.MakeTestEncodingConfig(tunnel.AppModuleBasic{})
 
 	accountKeeper := testutil.NewMockAccountKeeper(ctrl)
@@ -65,6 +67,7 @@ func (s *KeeperTestSuite) reset() {
 
 	accountKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(authority).AnyTimes()
 
+	s.storeKey = storeKey
 	s.keeper = keeper.NewKeeper(
 		encCfg.Codec.(codec.BinaryCodec),
 		key,

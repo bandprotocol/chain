@@ -15,9 +15,10 @@ func (k Keeper) SendTSSPacket(
 ) (receipt types.PacketReceiptI, err error) {
 	content := types.NewTunnelSignatureOrder(packet.TunnelID, packet.Sequence)
 
-	// Sign TSS packet
+	// try signing TSS packet, if success, write the context.
+	cacheCtx, writeFn := ctx.CacheContext()
 	signingID, err := k.bandtssKeeper.CreateTunnelSigningRequest(
-		ctx,
+		cacheCtx,
 		packet.TunnelID,
 		route.DestinationChainID,
 		route.DestinationContractAddress,
@@ -28,6 +29,7 @@ func (k Keeper) SendTSSPacket(
 	if err != nil {
 		return nil, err
 	}
+	writeFn()
 
 	return types.NewTSSPacketReceipt(signingID), nil
 }
