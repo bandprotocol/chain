@@ -9,18 +9,18 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-func TestGetByteIBCPacket(t *testing.T) {
-	packet := types.NewIBCPacket(
+func TestGetByteTunnelPricesPacketData(t *testing.T) {
+	packet := types.NewTunnelPricesPacketData(
 		1,
-		1,
-		[]feedstypes.Price{{SignalID: "BTC", Price: 1000}},
-		0,
+		2,
+		[]feedstypes.Price{{Status: feedstypes.PRICE_STATUS_NOT_IN_CURRENT_FEEDS, SignalID: "BTC", Price: 50000}},
+		1633024800,
 	)
 
 	require.Equal(
 		t,
 		[]byte(
-			`{"created_at":"0","prices":[{"price":"1000","signal_id":"BTC","status":"PRICE_STATUS_UNSPECIFIED","timestamp":"0"}],"sequence":"1","tunnel_id":"1"}`,
+			`{"created_at":"1633024800","prices":[{"price":"50000","signal_id":"BTC","status":"PRICE_STATUS_NOT_IN_CURRENT_FEEDS","timestamp":"0"}],"sequence":"2","tunnel_id":"1"}`,
 		),
 		packet.GetBytes(),
 	)

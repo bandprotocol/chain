@@ -27,4 +27,5 @@ var (
 	ErrDeviationNotFound         = errorsmod.Register(ModuleName, 20, "deviation not found")
 	ErrInvalidVersion            = errorsmod.Register(ModuleName, 21, "invalid ICS20 version")
 	ErrChannelCapabilityNotFound = errorsmod.Register(ModuleName, 22, "channel capability not found")
+	ErrMaxTunnelChannels         = errorsmod.Register(ModuleName, 23, "max tunnel channels exceeded")
 )

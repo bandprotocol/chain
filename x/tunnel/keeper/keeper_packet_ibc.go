@@ -27,8 +27,8 @@ func (k Keeper) SendIBCPacket(
 		return nil, types.ErrChannelCapabilityNotFound
 	}
 
-	// create the IBC packet bytes
-	packetBytes := types.NewIBCPacket(
+	// create the tunnel prices packet data bytes
+	packetBytes := types.NewTunnelPricesPacketData(
 		packet.TunnelID,
 		packet.Sequence,
 		packet.Prices,

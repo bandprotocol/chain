@@ -39,14 +39,14 @@ func NewIBCPacketReceipt(channelID string, sequence uint64) *IBCPacketReceipt {
 	}
 }
 
-// NewIBCPacket creates a new IBCPacket instance. It is used to create the IBC packet data
-func NewIBCPacket(
+// NewTunnelPricesPacketData creates a new TunnelPricesPacketData instance.
+func NewTunnelPricesPacketData(
 	tunnelID uint64,
 	sequence uint64,
 	prices []feedstypes.Price,
 	created_at int64,
-) IBCPacket {
-	return IBCPacket{
+) TunnelPricesPacketData {
+	return TunnelPricesPacketData{
 		TunnelID:  tunnelID,
 		Sequence:  sequence,
 		Prices:    prices,
@@ -54,7 +54,7 @@ func NewIBCPacket(
 	}
 }
 
-// GetBytes returns the IBCPacketResult bytes
-func (p IBCPacket) GetBytes() []byte {
+// GetBytes is a helper for serialising
+func (p TunnelPricesPacketData) GetBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&p))
 }
