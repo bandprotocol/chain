@@ -33,7 +33,7 @@ func (k Keeper) HandleSigningEndBlock(ctx sdk.Context) {
 		defer func() {
 			if r := recover(); r != nil {
 				ctx.Logger().Error(fmt.Sprintf("Panic recovered: %v", r))
-				k.HandleFailedSigning(ctx, sid, fmt.Errorf("panic recovered: %v", r).Error())
+				k.HandleFailedSigning(ctx, sid, fmt.Sprintf("panic recovered: %v", r))
 			}
 		}()
 
