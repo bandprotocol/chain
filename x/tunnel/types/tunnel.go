@@ -7,6 +7,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
@@ -77,7 +78,11 @@ func (t *Tunnel) SetRoute(route RouteI) error {
 func (t Tunnel) GetRouteValue() (RouteI, error) {
 	r, ok := t.Route.GetCachedValue().(RouteI)
 	if !ok {
-		return nil, ErrNoRoute.Wrap("failed to get route")
+		return nil, sdkerrors.ErrInvalidType.Wrapf(
+			"expected %T, got %T",
+			(RouteI)(nil),
+			t.Route.GetCachedValue(),
+		)
 	}
 
 	return r, nil

@@ -67,7 +67,7 @@ func NewMsgCreateTSSTunnel(
 func (m MsgCreateTunnel) GetRouteValue() (RouteI, error) {
 	r, ok := m.Route.GetCachedValue().(RouteI)
 	if !ok {
-		return nil, ErrNoRoute.Wrap("failed to get route")
+		return nil, sdkerrors.ErrInvalidType.Wrapf("expected %T, got %T", (RouteI)(nil), m.Route.GetCachedValue())
 	}
 	return r, nil
 }
