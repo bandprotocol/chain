@@ -84,7 +84,7 @@ func (k Keeper) ResolveSuccess(
 	defer func() {
 		if r := recover(); r != nil {
 			ctx.Logger().Error(fmt.Sprintf("Panic recovered: %v", r))
-			k.handleCreateSigningFailed(ctx, id, event, types.ErrCreateSigningFailed)
+			k.handleCreateSigningFailed(ctx, id, event, types.ErrCreateSigningPanic)
 		}
 	}()
 

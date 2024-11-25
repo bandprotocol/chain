@@ -52,7 +52,7 @@ var (
 	ErrSigningResultNotFound    = errorsmod.Register(ModuleName, 46, "signing result not found")
 	ErrInvalidRequestID         = errorsmod.Register(ModuleName, 47, "invalid request id")
 	ErrInvalidOracleEncoder     = errorsmod.Register(ModuleName, 48, "invalid oracle encoder")
-	ErrCreateSigningFailed      = errorsmod.Register(ModuleName, 49, "create tss signing failed")
+	ErrCreateSigningPanic       = errorsmod.Register(ModuleName, 49, "panic in creating tss signing")
 )
 
 // WrapMaxError wraps an error message with additional info of the current and max values.
