@@ -1044,12 +1044,12 @@ func (suite *DecoderTestSuite) TestDecodeBandtssMsgUpdateParams() {
 	detail := make(common.JsDict)
 
 	msg := bandtsstypes.MsgUpdateParams{
-		Params:    bandtsstypes.NewParams(10, 50, 50, sdk.Coins{Amount}),
+		Params:    bandtsstypes.NewParams(10, 50, 10, 50, sdk.Coins{Amount}),
 		Authority: AuthorityAddress.String(),
 	}
 
 	emitter.DecodeBandtssMsgUpdateParams(&msg, detail)
-	expectedJSON := `{"authority":"band1g96hg6r0wf5hg7gqqqqqqqqqqqqqqqqq4rjgsx","params":{"reward_percentage":10,"inactive_penalty_duration":50,"max_transition_duration":50,"fee":[{"denom":"uband","amount":"1"}]}}`
+	expectedJSON := `{"authority":"band1g96hg6r0wf5hg7gqqqqqqqqqqqqqqqqq4rjgsx","params":{"reward_percentage":10,"inactive_penalty_duration":50,"min_transition_duration":10,"max_transition_duration":50,"fee_per_signer":[{"denom":"uband","amount":"1"}]}}`
 	suite.testCompareJson(detail, expectedJSON)
 }
 
