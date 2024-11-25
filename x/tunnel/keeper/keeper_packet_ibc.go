@@ -49,5 +49,5 @@ func (k Keeper) SendIBCPacket(
 		return nil, err
 	}
 
-	return types.NewIBCPacketReceipt(route.ChannelID, sequence), nil
+	return types.NewIBCPacketReceipt(sequence), nil
 }

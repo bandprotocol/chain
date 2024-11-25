@@ -2,7 +2,8 @@ package types
 
 import (
 	"fmt"
-	"regexp"
+
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -11,10 +12,6 @@ import (
 
 // IBCRoute defines the IBC route for the tunnel module
 var _ RouteI = &IBCRoute{}
-
-// IsChannelIDFormat checks if a channelID is in the format required on the SDK for
-// parsing channel identifiers. The channel identifier must be in the form: `channel-{N}
-var IsChannelIDFormat = regexp.MustCompile(`^channel-[0-9]{1,20}$`).MatchString
 
 // NewIBCRoute creates a new IBCRoute instance.
 func NewIBCRoute(channelID string) *IBCRoute {
@@ -26,14 +23,14 @@ func NewIBCRoute(channelID string) *IBCRoute {
 // Route defines the IBC route for the tunnel module
 func (r *IBCRoute) ValidateBasic() error {
 	// Validate the ChannelID format
-	if !IsChannelIDFormat(r.ChannelID) {
+	if !channeltypes.IsChannelIDFormat(r.ChannelID) {
 		return fmt.Errorf("channel identifier is not in the format: `channel-{N}`")
 	}
 	return nil
 }
 
 // NewIBCPacketReceipt creates a new IBCPacketReceipt instance.
-func NewIBCPacketReceipt(channelID string, sequence uint64) *IBCPacketReceipt {
+func NewIBCPacketReceipt(sequence uint64) *IBCPacketReceipt {
 	return &IBCPacketReceipt{
 		Sequence: sequence,
 	}
