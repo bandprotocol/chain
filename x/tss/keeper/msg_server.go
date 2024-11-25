@@ -42,7 +42,7 @@ func (k msgServer) SubmitDKGRound1(
 		return nil, err
 	}
 	if group.Status != types.GROUP_STATUS_ROUND_1 {
-		return nil, types.ErrInvalidStatus.Wrap("group status is not round 1")
+		return nil, types.ErrInvalidGroupStatus.Wrapf("the status of groupID %d is not round 1", groupID)
 	}
 
 	// Validate memberID
@@ -52,7 +52,11 @@ func (k msgServer) SubmitDKGRound1(
 
 	// Check previous submit
 	if k.HasRound1Info(ctx, groupID, req.Round1Info.MemberID) {
-		return nil, types.ErrMemberAlreadySubmit.Wrap("this member already submit round 1")
+		return nil, types.ErrMemberAlreadySubmit.Wrapf(
+			"memberID %d in group ID %d already submit round 1 message",
+			memberID,
+			groupID,
+		)
 	}
 
 	if err := k.ValidateRound1Info(ctx, group, req.Round1Info); err != nil {
@@ -61,7 +65,7 @@ func (k msgServer) SubmitDKGRound1(
 
 	// Add commits to calculate accumulated commits for each index
 	if err = k.AddCoefficientCommits(ctx, groupID, req.Round1Info.CoefficientCommits); err != nil {
-		return nil, types.ErrAddCoeffCommit.Wrap(err.Error())
+		return nil, err
 	}
 
 	// Add round 1 info
@@ -108,7 +112,7 @@ func (k msgServer) SubmitDKGRound2(
 		return nil, err
 	}
 	if group.Status != types.GROUP_STATUS_ROUND_2 {
-		return nil, types.ErrInvalidStatus.Wrap("group status is not round 2")
+		return nil, types.ErrInvalidGroupStatus.Wrapf("the status of groupID %d is not round 2", groupID)
 	}
 
 	// Validate memberID
@@ -118,7 +122,11 @@ func (k msgServer) SubmitDKGRound2(
 
 	// Check previous submit
 	if k.HasRound2Info(ctx, groupID, memberID) {
-		return nil, types.ErrMemberAlreadySubmit.Wrap("this member already submit round 2")
+		return nil, types.ErrMemberAlreadySubmit.Wrapf(
+			"memberID %d in group ID %d already submit round 2 message",
+			memberID,
+			groupID,
+		)
 	}
 
 	// Check encrypted secret shares length
@@ -167,7 +175,7 @@ func (k msgServer) Complain(goCtx context.Context, req *types.MsgComplain) (*typ
 		return nil, err
 	}
 	if group.Status != types.GROUP_STATUS_ROUND_3 {
-		return nil, types.ErrInvalidStatus.Wrap("group status is not round 3")
+		return nil, types.ErrInvalidGroupStatus.Wrapf("the status of groupID %d is not round 3", groupID)
 	}
 
 	// Validate memberID
@@ -177,10 +185,18 @@ func (k msgServer) Complain(goCtx context.Context, req *types.MsgComplain) (*typ
 
 	// Check already confirm or complain
 	if k.HasConfirm(ctx, groupID, memberID) {
-		return nil, types.ErrMemberAlreadySubmit.Wrap("this member already submit confirm")
+		return nil, types.ErrMemberAlreadySubmit.Wrapf(
+			"memberID %d in group ID %d already submit confirm message",
+			memberID,
+			groupID,
+		)
 	}
 	if k.HasComplaintsWithStatus(ctx, groupID, memberID) {
-		return nil, types.ErrMemberAlreadySubmit.Wrap("this member already submit complaint")
+		return nil, types.ErrMemberAlreadySubmit.Wrapf(
+			"memberID %d in group ID %d already submit complaint message",
+			memberID,
+			groupID,
+		)
 	}
 
 	// Verify complaint if fail to verify, mark complainant as malicious instead.
@@ -222,7 +238,7 @@ func (k msgServer) Confirm(
 		return nil, err
 	}
 	if group.Status != types.GROUP_STATUS_ROUND_3 {
-		return nil, types.ErrInvalidStatus.Wrap("group status is not round 3")
+		return nil, types.ErrInvalidGroupStatus.Wrapf("the status of groupID %d is not round 3", groupID)
 	}
 
 	// Validate memberID
@@ -232,10 +248,18 @@ func (k msgServer) Confirm(
 
 	// Check already confirm or complain
 	if k.HasConfirm(ctx, groupID, memberID) {
-		return nil, types.ErrMemberAlreadySubmit.Wrap("this member already submit confirm")
+		return nil, types.ErrMemberAlreadySubmit.Wrapf(
+			"memberID %d in group ID %d already submit confirm message",
+			memberID,
+			groupID,
+		)
 	}
 	if k.HasComplaintsWithStatus(ctx, groupID, memberID) {
-		return nil, types.ErrMemberAlreadySubmit.Wrap("this member already submit complaint")
+		return nil, types.ErrMemberAlreadySubmit.Wrapf(
+			"memberID %d in group ID %d already submit complaint message",
+			memberID,
+			groupID,
+		)
 	}
 
 	// Verify OwnPubKeySig
@@ -303,7 +327,7 @@ func (k msgServer) SubmitSignature(
 	}
 	if signing.Status != types.SIGNING_STATUS_WAITING {
 		return nil, types.ErrSigningAlreadySuccess.Wrapf(
-			"signing ID: %d is not in waiting state", req.SigningID,
+			"signing ID: %d is already success", req.SigningID,
 		)
 	}
 
@@ -317,14 +341,14 @@ func (k msgServer) SubmitSignature(
 	am, found := assignedMembers.FindAssignedMember(req.MemberID)
 	if !found || am.Address != req.Signer {
 		return nil, types.ErrMemberNotAssigned.Wrapf(
-			"member ID/Address: %d is not in assigned members", req.MemberID,
+			"member ID %d is not in assigned members", req.MemberID,
 		)
 	}
 
 	// Check member is already signed
 	if k.HasPartialSignature(ctx, req.SigningID, sa.Attempt, req.MemberID) {
 		return nil, types.ErrAlreadySigned.Wrapf(
-			"member ID: %d is already signed on signing ID: %d",
+			"member ID %d already signed on signing ID: %d",
 			req.MemberID,
 			req.SigningID,
 		)
@@ -332,8 +356,8 @@ func (k msgServer) SubmitSignature(
 
 	// Verify signature R
 	if !assignedMembers.VerifySignatureR(req.MemberID, req.Signature.R()) {
-		return nil, types.ErrPubNonceNotEqualToSigR.Wrapf(
-			"public nonce from member ID: %d is not equal signature r",
+		return nil, types.ErrSubmitSigningSignatureFailed.Wrapf(
+			"public nonce from member ID %d is not equal signature r",
 			req.MemberID,
 		)
 	}
@@ -341,7 +365,9 @@ func (k msgServer) SubmitSignature(
 	// Compute lagrange coefficient
 	lagrange, err := tss.ComputeLagrangeCoefficient(req.MemberID, assignedMembers.MemberIDs())
 	if err != nil {
-		return nil, types.ErrInvalidArgument.Wrap(err.Error())
+		return nil, types.ErrSubmitSigningSignatureFailed.Wrapf(
+			"failed to compute lagrange coefficient: %v", err,
+		)
 	}
 
 	// Verify signing signature
@@ -353,7 +379,9 @@ func (k msgServer) SubmitSignature(
 		req.Signature,
 		am.PubKey,
 	); err != nil {
-		return nil, types.ErrVerifySigningSigFailed.Wrap(err.Error())
+		return nil, types.ErrSubmitSigningSignatureFailed.Wrapf(
+			"failed to verify signing signature: %v", err,
+		)
 	}
 
 	// Add partial signature

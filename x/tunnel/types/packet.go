@@ -1,8 +1,13 @@
 package types
 
 import (
+	"fmt"
+
+	proto "github.com/cosmos/gogoproto/proto"
+
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
@@ -34,8 +39,13 @@ func (p Packet) UnpackInterfaces(unpacker types.AnyUnpacker) error {
 	return unpacker.UnpackAny(p.Receipt, &receipt)
 }
 
-// SetReceiptValue sets the packet's receipt.
-func (p *Packet) SetReceiptValue(receipt PacketReceiptI) error {
+// SetReceipt sets the packet's receipt.
+func (p *Packet) SetReceipt(receipt PacketReceiptI) error {
+	msg, ok := receipt.(proto.Message)
+	if !ok {
+		return fmt.Errorf("can't proto marshal %T", msg)
+	}
+
 	any, err := types.NewAnyWithValue(receipt)
 	if err != nil {
 		return err
@@ -47,10 +57,10 @@ func (p *Packet) SetReceiptValue(receipt PacketReceiptI) error {
 
 // GetReceiptValue returns the packet's receipt.
 func (p Packet) GetReceiptValue() (PacketReceiptI, error) {
-	receipt, ok := p.Receipt.GetCachedValue().(PacketReceiptI)
+	r, ok := p.Receipt.GetCachedValue().(PacketReceiptI)
 	if !ok {
-		return nil, ErrNoPacketReceipt.Wrapf("tunnelID: %d, sequence: %d", p.TunnelID, p.Sequence)
+		return nil, sdkerrors.ErrPackAny.Wrapf("cannot unpack route")
 	}
 
-	return receipt, nil
+	return r, nil
 }

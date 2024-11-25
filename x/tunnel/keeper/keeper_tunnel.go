@@ -166,13 +166,13 @@ func (k Keeper) GetTunnels(ctx sdk.Context) []types.Tunnel {
 	return tunnels
 }
 
-// ActiveTunnelID sets the active tunnel ID in the store
-func (k Keeper) ActiveTunnelID(ctx sdk.Context, tunnelID uint64) {
+// SetActiveTunnelID sets the active tunnel ID in the store
+func (k Keeper) SetActiveTunnelID(ctx sdk.Context, tunnelID uint64) {
 	ctx.KVStore(k.storeKey).Set(types.ActiveTunnelIDStoreKey(tunnelID), []byte{0x01})
 }
 
-// DeactivateTunnelID deactivates the tunnel ID in the store
-func (k Keeper) DeactivateTunnelID(ctx sdk.Context, tunnelID uint64) {
+// DeleteActiveTunnelID deletes the active tunnel ID from the store
+func (k Keeper) DeleteActiveTunnelID(ctx sdk.Context, tunnelID uint64) {
 	ctx.KVStore(k.storeKey).Delete(types.ActiveTunnelIDStoreKey(tunnelID))
 }
 
@@ -203,7 +203,7 @@ func (k Keeper) ActivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 	}
 
 	// add the tunnel ID to the active tunnel IDs
-	k.ActiveTunnelID(ctx, tunnelID)
+	k.SetActiveTunnelID(ctx, tunnelID)
 
 	// set the last interval timestamp to the current block time
 	tunnel.IsActive = true
@@ -226,7 +226,7 @@ func (k Keeper) DeactivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 	}
 
 	// remove the tunnel ID from the active tunnel IDs
-	k.DeactivateTunnelID(ctx, tunnelID)
+	k.DeleteActiveTunnelID(ctx, tunnelID)
 
 	// set the last interval timestamp to the current block time
 	tunnel.IsActive = false
@@ -266,11 +266,10 @@ func (k Keeper) HasEnoughFundToCreatePacket(ctx sdk.Context, tunnelID uint64) (b
 	}
 
 	// get the route fee from the tunnel
-	route, ok := tunnel.Route.GetCachedValue().(types.RouteI)
-	if !ok {
-		return false, types.ErrInvalidRoute
+	route, err := tunnel.GetRouteValue()
+	if err != nil {
+		return false, err
 	}
-
 	routeFee, err := k.GetRouteFee(ctx, route)
 	if err != nil {
 		return false, err

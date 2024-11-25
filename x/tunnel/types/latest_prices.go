@@ -1,8 +1,6 @@
 package types
 
 import (
-	fmt "fmt"
-
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
@@ -17,19 +15,6 @@ func NewLatestPrices(
 		Prices:       prices,
 		LastInterval: lastInterval,
 	}
-}
-
-// Validate validates the latest prices.
-func (l LatestPrices) Validate() error {
-	if l.TunnelID == 0 {
-		return fmt.Errorf("tunnel ID cannot be 0")
-	}
-
-	if l.LastInterval < 0 {
-		return fmt.Errorf("last interval cannot be negative")
-	}
-
-	return nil
 }
 
 // UpdatePrices updates prices in the latest prices.

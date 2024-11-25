@@ -9,41 +9,6 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-func TestVerify(t *testing.T) {
-	// Define test cases
-	testCases := []struct {
-		name          string
-		member        types.Member
-		address       string
-		expectedMatch bool
-	}{
-		{
-			name: "MatchingAddress",
-			member: types.Member{
-				Address: "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-			},
-			address:       "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-			expectedMatch: true,
-		},
-		{
-			name: "NonMatchingAddress",
-			member: types.Member{
-				Address: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
-			},
-			address:       "band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
-			expectedMatch: false,
-		},
-	}
-
-	// Run the test cases
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			result := tc.member.IsAddress(tc.address)
-			require.Equal(t, tc.expectedMatch, result)
-		})
-	}
-}
-
 func TestGetIDs(t *testing.T) {
 	// Define test cases
 	testCases := []struct {

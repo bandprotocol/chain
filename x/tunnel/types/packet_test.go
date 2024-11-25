@@ -12,22 +12,21 @@ import (
 
 func TestGetSetPacketReceipt(t *testing.T) {
 	packet := types.NewPacket(1, 1, nil, nil, nil, 0)
-	routeResult := &types.TSSPacketReceipt{SigningID: 1}
+	receipt := &types.TSSPacketReceipt{SigningID: 1}
 
-	err := packet.SetReceiptValue(routeResult)
+	err := packet.SetReceipt(receipt)
 	require.NoError(t, err)
-	require.NotNil(t, packet.Receipt)
 
-	result, err := packet.GetReceiptValue()
+	receiptValue, err := packet.GetReceiptValue()
 	require.NoError(t, err)
-	require.Equal(t, routeResult, result)
+	require.Equal(t, receipt, receiptValue)
 }
 
 func TestPacketUnpackInterfaces(t *testing.T) {
 	packet := types.NewPacket(1, 1, nil, nil, nil, 0)
 	packetResult := &types.TSSPacketReceipt{SigningID: 1}
 
-	err := packet.SetReceiptValue(packetResult)
+	err := packet.SetReceipt(packetResult)
 	require.NoError(t, err)
 
 	unpacker := codectypes.NewInterfaceRegistry()

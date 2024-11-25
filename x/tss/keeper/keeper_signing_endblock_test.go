@@ -36,10 +36,17 @@ func (s *KeeperTestSuite) TestAggregatePartialSignatures() {
 
 	s.rollingseedKeeper.EXPECT().GetRollingSeed(gomock.Any()).
 		Return([]byte("RandomStringThatShouldBeLongEnough"))
+
+	originator := types.NewDirectOriginator(
+		"targetChain",
+		"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+		"test",
+	)
+
 	signingID, err := k.RequestSigning(
 		ctx,
 		groupCtx.GroupID,
-		&types.DirectOriginator{},
+		&originator,
 		&types.TextSignatureOrder{Message: []byte("test")},
 	)
 	s.Require().NoError(err)
@@ -70,10 +77,17 @@ func (s *KeeperTestSuite) TestHandleFailedSigning() {
 
 	s.rollingseedKeeper.EXPECT().GetRollingSeed(gomock.Any()).
 		Return([]byte("RandomStringThatShouldBeLongEnough"))
+
+	originator := types.NewDirectOriginator(
+		"targetChain",
+		"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+		"test",
+	)
+
 	signingID, err := k.RequestSigning(
 		ctx,
 		groupCtx.GroupID,
-		&types.DirectOriginator{},
+		&originator,
 		&types.TextSignatureOrder{Message: []byte("test")},
 	)
 	s.Require().NoError(err)
@@ -126,10 +140,16 @@ func (s *KeeperTestSuite) TestHandleSigningEndblockMembersSubmitSignature() {
 	s.rollingseedKeeper.EXPECT().GetRollingSeed(gomock.Any()).
 		Return([]byte("RandomStringThatShouldBeLongEnough")).AnyTimes()
 
+	originator := types.NewDirectOriginator(
+		"targetChain",
+		"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+		"test",
+	)
+
 	signingID, err := k.RequestSigning(
 		ctx,
 		groupCtx.GroupID,
-		&types.DirectOriginator{},
+		&originator,
 		&types.TextSignatureOrder{Message: []byte("test")},
 	)
 	s.Require().NoError(err)
@@ -194,10 +214,16 @@ func (s *KeeperTestSuite) TestHandleSigningEndblockTimeoutSigning() {
 	s.rollingseedKeeper.EXPECT().GetRollingSeed(gomock.Any()).
 		Return([]byte("RandomStringThatShouldBeLongEnough")).AnyTimes()
 
+	originator := types.NewDirectOriginator(
+		"targetChain",
+		"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+		"test",
+	)
+
 	signingID, err := k.RequestSigning(
 		ctx,
 		groupCtx.GroupID,
-		&types.DirectOriginator{},
+		&originator,
 		&types.TextSignatureOrder{Message: []byte("test")},
 	)
 	s.Require().NoError(err)
@@ -240,10 +266,16 @@ func (s *KeeperTestSuite) TestHandleSigningEndblockFailAggregate() {
 	s.rollingseedKeeper.EXPECT().GetRollingSeed(gomock.Any()).
 		Return([]byte("RandomStringThatShouldBeLongEnough")).AnyTimes()
 
+	originator := types.NewDirectOriginator(
+		"targetChain",
+		"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+		"test",
+	)
+
 	signingID, err := k.RequestSigning(
 		ctx,
 		groupCtx.GroupID,
-		&types.DirectOriginator{},
+		&originator,
 		&types.TextSignatureOrder{Message: []byte("test")},
 	)
 	s.Require().NoError(err)
@@ -312,10 +344,16 @@ func (s *KeeperTestSuite) TestHandleSigningEndblockFailAggregateAndExpired() {
 	s.rollingseedKeeper.EXPECT().GetRollingSeed(gomock.Any()).
 		Return([]byte("RandomStringThatShouldBeLongEnough")).AnyTimes()
 
+	originator := types.NewDirectOriginator(
+		"targetChain",
+		"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+		"test",
+	)
+
 	signingID, err := k.RequestSigning(
 		ctx,
 		groupCtx.GroupID,
-		&types.DirectOriginator{},
+		&originator,
 		&types.TextSignatureOrder{Message: []byte("test")},
 	)
 	s.Require().NoError(err)

@@ -27,8 +27,9 @@ func (k Keeper) AddCoefficientCommits(
 
 		total, err := tss.SumPoints(points...)
 		if err != nil {
-			return err
+			return types.ErrAddCoeffCommit.Wrapf("failed to sum points: %s", err)
 		}
+
 		k.SetAccumulatedCommit(ctx, groupID, uint64(i), total)
 	}
 
@@ -49,7 +50,7 @@ func (k Keeper) ValidateRound1Info(
 	// Get dkg-context
 	dkgContext, err := k.GetDKGContext(ctx, group.ID)
 	if err != nil {
-		return types.ErrDKGContextNotFound.Wrap("dkg-context is not found")
+		return err
 	}
 
 	// Verify one time signature
@@ -60,7 +61,7 @@ func (k Keeper) ValidateRound1Info(
 		round1Info.OneTimePubKey,
 	)
 	if err != nil {
-		return types.ErrVerifyOneTimeSignatureFailed.Wrap(err.Error())
+		return types.ErrVerifyOneTimeSignatureFailed.Wrapf("failed to verify one time signature: %v", err)
 	}
 
 	// Verify A0 signature
@@ -71,7 +72,7 @@ func (k Keeper) ValidateRound1Info(
 		round1Info.CoefficientCommits[0],
 	)
 	if err != nil {
-		return types.ErrVerifyA0SignatureFailed.Wrap(err.Error())
+		return types.ErrVerifyA0SignatureFailed.Wrapf("failed to verify A0 signature: %v", err)
 	}
 
 	return nil
@@ -105,11 +106,12 @@ func (k Keeper) GetRound1Info(ctx sdk.Context, groupID tss.GroupID, memberID tss
 	bz := ctx.KVStore(k.storeKey).Get(types.Round1InfoStoreKey(groupID, memberID))
 	if bz == nil {
 		return types.Round1Info{}, types.ErrRound1InfoNotFound.Wrapf(
-			"failed to get round1Info with groupID: %d and memberID %d",
+			"failed to get round1Info for groupID: %d and memberID %d",
 			groupID,
 			memberID,
 		)
 	}
+
 	var r1 types.Round1Info
 	k.cdc.MustUnmarshal(bz, &r1)
 	return r1, nil
@@ -122,14 +124,16 @@ func (k Keeper) GetRound1InfoIterator(ctx sdk.Context, groupID tss.GroupID) dbm.
 
 // GetRound1Infos retrieves round1Infos for a group from the store.
 func (k Keeper) GetRound1Infos(ctx sdk.Context, groupID tss.GroupID) []types.Round1Info {
-	var round1Infos []types.Round1Info
 	iterator := k.GetRound1InfoIterator(ctx, groupID)
 	defer iterator.Close()
+
+	var round1Infos []types.Round1Info
 	for ; iterator.Valid(); iterator.Next() {
 		var round1Info types.Round1Info
 		k.cdc.MustUnmarshal(iterator.Value(), &round1Info)
 		round1Infos = append(round1Infos, round1Info)
 	}
+
 	return round1Infos
 }
 
@@ -183,12 +187,14 @@ func (k Keeper) GetAccumulatedCommit(ctx sdk.Context, groupID tss.GroupID, index
 
 // GetAllAccumulatedCommits retrieves all accumulated commits of a group from the store.
 func (k Keeper) GetAllAccumulatedCommits(ctx sdk.Context, groupID tss.GroupID) tss.Points {
-	var commits tss.Points
 	iterator := k.GetAccumulatedCommitIterator(ctx, groupID)
 	defer iterator.Close()
+
+	var commits tss.Points
 	for ; iterator.Valid(); iterator.Next() {
 		commits = append(commits, iterator.Value())
 	}
+
 	return commits
 }
 
