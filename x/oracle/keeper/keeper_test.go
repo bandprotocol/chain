@@ -45,6 +45,7 @@ type KeeperTestSuite struct {
 	rollingseedKeeper *oracletestutil.MockRollingseedKeeper
 	bandtssKeeper     *oracletestutil.MockBandtssKeeper
 
+	key         storetypes.StoreKey
 	queryClient types.QueryClient
 	msgServer   types.MsgServer
 
@@ -74,6 +75,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	suite.rollingseedKeeper = oracletestutil.NewMockRollingseedKeeper(ctrl)
 	suite.bandtssKeeper = oracletestutil.NewMockBandtssKeeper(ctrl)
 
+	suite.key = key
 	suite.homeDir = testutil.GetTempDir(suite.T())
 	suite.fileDir = filepath.Join(suite.homeDir, "files")
 

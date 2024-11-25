@@ -7,7 +7,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v3/pkg/ctxcache"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
@@ -71,17 +70,16 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) error {
 			continue
 		}
 
-		producePacketFunc := func(ctx sdk.Context) error {
-			return k.ProducePacket(ctx, id, pricesMap)
-		}
-
 		// Produce a packet. If error, emits an event.
-		if err := ctxcache.ApplyFuncIfNoError(ctx, producePacketFunc); err != nil {
+		cacheCtx, writeFn := ctx.CacheContext()
+		if err := k.ProducePacket(cacheCtx, id, pricesMap); err != nil {
 			ctx.EventManager().EmitEvent(sdk.NewEvent(
 				types.EventTypeProducePacketFail,
 				sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", id)),
 				sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
 			))
+		} else {
+			writeFn()
 		}
 	}
 
