@@ -54,8 +54,7 @@ func (s *KeeperTestSuite) SetupTest() {
 func (s *KeeperTestSuite) reset() {
 	ctrl := gomock.NewController(s.T())
 	key := storetypes.NewKVStoreKey(types.StoreKey)
-	storeKey := storetypes.NewTransientStoreKey("transient_test")
-	testCtx := sdktestutil.DefaultContextWithDB(s.T(), key, storeKey)
+	testCtx := sdktestutil.DefaultContextWithDB(s.T(), key, storetypes.NewTransientStoreKey("transient_test"))
 	encCfg := moduletestutil.MakeTestEncodingConfig(tunnel.AppModuleBasic{})
 
 	accountKeeper := testutil.NewMockAccountKeeper(ctrl)
@@ -67,7 +66,7 @@ func (s *KeeperTestSuite) reset() {
 
 	accountKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(authority).AnyTimes()
 
-	s.storeKey = storeKey
+	s.storeKey = key
 	s.keeper = keeper.NewKeeper(
 		encCfg.Codec.(codec.BinaryCodec),
 		key,
