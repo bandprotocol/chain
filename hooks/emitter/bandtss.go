@@ -70,10 +70,11 @@ func (h *Hook) emitSetBandtssMember(member types.Member) {
 	})
 }
 
-func (h *Hook) emitNewBandtssSigning(signing types.Signing) {
+func (h *Hook) emitNewBandtssSigning(signing types.Signing, totalFee string) {
 	h.Write("New_BANDTSS_SIGNING", common.JsDict{
 		"id":                            signing.ID,
 		"fee_per_signer":                signing.FeePerSigner.String(),
+		"total_fee":                     totalFee,
 		"requester":                     signing.Requester,
 		"current_group_tss_signing_id":  signing.CurrentGroupSigningID,
 		"incoming_group_tss_signing_id": signing.IncomingGroupSigningID,
@@ -207,10 +208,11 @@ func (h *Hook) handleBandtssEventGroupTransitionFailed(_ sdk.Context, evMap comm
 // handleBandtssEventSigningRequestCreated implements emitter handler for MsgRequestSignature of bandtss.
 func (h *Hook) handleBandtssEventSigningRequestCreated(ctx sdk.Context, evMap common.EvMap) {
 	signingIDs := evMap[types.EventTypeSigningRequestCreated+"."+types.AttributeKeySigningID]
+	totalFees := evMap[types.EventTypeSigningRequestCreated+"."+types.AttributeKeyTotalFee]
 
-	for _, sid := range signingIDs {
+	for i, sid := range signingIDs {
 		signing := h.bandtssKeeper.MustGetSigning(ctx, types.SigningID(common.Atoui(sid)))
-		h.emitNewBandtssSigning(signing)
+		h.emitNewBandtssSigning(signing, totalFees[i])
 	}
 }
 
