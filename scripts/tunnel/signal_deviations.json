@@ -6,7 +6,7 @@
         },
         {
             "signal_id": "CS:ETH-USD",
-            "deviation_bps": 4000
+            "deviation_bps": 3000
         }
     ]
 }
