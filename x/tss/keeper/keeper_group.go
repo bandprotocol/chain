@@ -46,9 +46,25 @@ func (k Keeper) CreateGroup(
 ) (tss.GroupID, error) {
 	// Validate group size
 	groupSize := uint64(len(members))
+	if groupSize == 0 {
+		return 0, types.ErrGroupCreationFailed.Wrapf("group size must be greater than 0")
+	}
+
 	maxGroupSize := k.GetParams(ctx).MaxGroupSize
 	if groupSize > maxGroupSize {
-		return 0, types.ErrGroupSizeTooLarge.Wrap(fmt.Sprintf("group size exceeds %d", maxGroupSize))
+		return 0, types.ErrGroupCreationFailed.Wrapf(
+			"the given group size (%d) exceeds the limit (%d)", groupSize, maxGroupSize,
+		)
+	}
+
+	// Validate duplicate members
+	seenAddresses := make(map[string]bool)
+	for _, addr := range members {
+		if seenAddresses[addr.String()] {
+			return 0, types.ErrInvalidGroup.Wrapf("duplicate member address: %s", addr)
+		}
+
+		seenAddresses[addr.String()] = true
 	}
 
 	// add new group
@@ -132,7 +148,7 @@ func (k Keeper) GetGroupResponse(
 func (k Keeper) GetGroup(ctx sdk.Context, groupID tss.GroupID) (types.Group, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.GroupStoreKey(groupID))
 	if bz == nil {
-		return types.Group{}, types.ErrGroupNotFound.Wrapf("failed to get group with groupID: %d", groupID)
+		return types.Group{}, types.ErrGroupNotFound.Wrapf("failed to get groupID: %d", groupID)
 	}
 
 	var group types.Group
@@ -161,9 +177,10 @@ func (k Keeper) GetGroupsIterator(ctx sdk.Context) dbm.Iterator {
 
 // GetGroups retrieves all group of the store.
 func (k Keeper) GetGroups(ctx sdk.Context) []types.Group {
-	var groups []types.Group
 	iterator := k.GetGroupsIterator(ctx)
 	defer iterator.Close()
+
+	var groups []types.Group
 	for ; iterator.Valid(); iterator.Next() {
 		var group types.Group
 		k.cdc.MustUnmarshal(iterator.Value(), &group)

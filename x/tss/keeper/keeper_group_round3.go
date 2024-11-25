@@ -113,7 +113,7 @@ func (k Keeper) VerifyComplaint(
 	)
 	if err != nil {
 		return types.ErrComplainFailed.Wrapf(
-			"failed to complaint member: %d with groupID: %d; %s",
+			"failed to complaint member: %d with groupID: %d; %v",
 			complaint.Respondent,
 			groupID,
 			err,
@@ -147,7 +147,7 @@ func (k Keeper) VerifyOwnPubKeySignature(
 	err = tss.VerifyOwnPubKeySignature(memberID, dkgContext, ownPubKeySig, member.PubKey)
 	if err != nil {
 		return types.ErrConfirmFailed.Wrapf(
-			"failed to verify own public key with memberID: %d; %s",
+			"failed to verify own public key with memberID: %d; %v",
 			memberID,
 			err,
 		)
@@ -210,6 +210,7 @@ func (k Keeper) GetComplaintsWithStatus(
 			memberID,
 		)
 	}
+
 	var c types.ComplaintsWithStatus
 	k.cdc.MustUnmarshal(bz, &c)
 	return c, nil
@@ -225,14 +226,16 @@ func (k Keeper) GetComplainsWithStatusIterator(ctx sdk.Context, groupID tss.Grou
 
 // GetAllComplainsWithStatus retrieves all complaints with status for a given group from the store.
 func (k Keeper) GetAllComplainsWithStatus(ctx sdk.Context, groupID tss.GroupID) []types.ComplaintsWithStatus {
-	var cs []types.ComplaintsWithStatus
 	iterator := k.GetComplainsWithStatusIterator(ctx, groupID)
 	defer iterator.Close()
+
+	var cs []types.ComplaintsWithStatus
 	for ; iterator.Valid(); iterator.Next() {
 		var c types.ComplaintsWithStatus
 		k.cdc.MustUnmarshal(iterator.Value(), &c)
 		cs = append(cs, c)
 	}
+
 	return cs
 }
 
@@ -292,6 +295,7 @@ func (k Keeper) GetConfirm(
 			memberID,
 		)
 	}
+
 	var c types.Confirm
 	k.cdc.MustUnmarshal(bz, &c)
 	return c, nil
@@ -304,14 +308,16 @@ func (k Keeper) GetConfirmIterator(ctx sdk.Context, groupID tss.GroupID) dbm.Ite
 
 // GetConfirms retrieves all confirm for a given group from the store.
 func (k Keeper) GetConfirms(ctx sdk.Context, groupID tss.GroupID) []types.Confirm {
-	var cs []types.Confirm
 	iterator := k.GetConfirmIterator(ctx, groupID)
 	defer iterator.Close()
+
+	var cs []types.Confirm
 	for ; iterator.Valid(); iterator.Next() {
 		var c types.Confirm
 		k.cdc.MustUnmarshal(iterator.Value(), &c)
 		cs = append(cs, c)
 	}
+
 	return cs
 }
 
