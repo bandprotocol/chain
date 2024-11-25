@@ -84,6 +84,25 @@ func NewMsgCreateIBCTunnel(
 	return m, nil
 }
 
+// NewMsgCreateIBCHookTunnel creates a new MsgCreateTunnel instance for IBC hook tunnel.
+func NewMsgCreateIBCHookTunnel(
+	signalDeviations []SignalDeviation,
+	interval uint64,
+	channelID string,
+	destinationContractAddress string,
+	encoder feedstypes.Encoder,
+	deposit sdk.Coins,
+	creator sdk.AccAddress,
+) (*MsgCreateTunnel, error) {
+	r := NewIBCHookRoute(channelID, destinationContractAddress)
+	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, encoder, deposit, creator)
+	if err != nil {
+		return nil, err
+	}
+
+	return m, nil
+}
+
 // GetRouteValue returns the route of the tunnel.
 func (m MsgCreateTunnel) GetRouteValue() (RouteI, error) {
 	r, ok := m.Route.GetCachedValue().(RouteI)

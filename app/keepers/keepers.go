@@ -504,6 +504,7 @@ func NewAppKeeper(
 		appKeepers.IBCFeeKeeper,
 		appKeepers.IBCKeeper.PortKeeper,
 		appKeepers.ScopedTunnelKeeper,
+		appKeepers.TransferKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 

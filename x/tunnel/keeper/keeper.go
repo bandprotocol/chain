@@ -19,13 +19,14 @@ type Keeper struct {
 	cdc      codec.BinaryCodec
 	storeKey storetypes.StoreKey
 
-	authKeeper    types.AccountKeeper
-	bankKeeper    types.BankKeeper
-	feedsKeeper   types.FeedsKeeper
-	bandtssKeeper types.BandtssKeeper
-	ics4Wrapper   types.ICS4Wrapper
-	portKeeper    types.PortKeeper
-	scopedKeeper  types.ScopedKeeper
+	authKeeper     types.AccountKeeper
+	bankKeeper     types.BankKeeper
+	feedsKeeper    types.FeedsKeeper
+	bandtssKeeper  types.BandtssKeeper
+	ics4Wrapper    types.ICS4Wrapper
+	portKeeper     types.PortKeeper
+	scopedKeeper   types.ScopedKeeper
+	transferKeeper types.TransferKeeper
 
 	authority string
 }
@@ -41,6 +42,7 @@ func NewKeeper(
 	ics4Wrapper types.ICS4Wrapper,
 	portKeeper types.PortKeeper,
 	scopedKeeper types.ScopedKeeper,
+	transferKeeper types.TransferKeeper,
 	authority string,
 ) Keeper {
 	// ensure tunnel module account is set
@@ -54,16 +56,17 @@ func NewKeeper(
 	}
 
 	return Keeper{
-		cdc:           cdc,
-		storeKey:      key,
-		authKeeper:    authKeeper,
-		bankKeeper:    bankKeeper,
-		feedsKeeper:   feedsKeeper,
-		bandtssKeeper: bandtssKeeper,
-		ics4Wrapper:   ics4Wrapper,
-		portKeeper:    portKeeper,
-		scopedKeeper:  scopedKeeper,
-		authority:     authority,
+		cdc:            cdc,
+		storeKey:       key,
+		authKeeper:     authKeeper,
+		bankKeeper:     bankKeeper,
+		feedsKeeper:    feedsKeeper,
+		bandtssKeeper:  bandtssKeeper,
+		ics4Wrapper:    ics4Wrapper,
+		portKeeper:     portKeeper,
+		scopedKeeper:   scopedKeeper,
+		transferKeeper: transferKeeper,
+		authority:      authority,
 	}
 }
 

@@ -18,7 +18,8 @@ import (
 	types1 "github.com/bandprotocol/chain/v3/x/tss/types"
 	types2 "github.com/cosmos/cosmos-sdk/types"
 	types3 "github.com/cosmos/ibc-go/modules/capability/types"
-	types4 "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	types4 "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	types5 "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -26,7 +27,6 @@ import (
 type MockAccountKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockAccountKeeperMockRecorder
-	isgomock struct{}
 }
 
 // MockAccountKeeperMockRecorder is the mock recorder for MockAccountKeeper.
@@ -130,7 +130,6 @@ func (mr *MockAccountKeeperMockRecorder) SetModuleAccount(ctx, moduleAccount any
 type MockBankKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockBankKeeperMockRecorder
-	isgomock struct{}
 }
 
 // MockBankKeeperMockRecorder is the mock recorder for MockBankKeeper.
@@ -210,7 +209,6 @@ func (mr *MockBankKeeperMockRecorder) SpendableCoins(ctx, addr any) *gomock.Call
 type MockICS4Wrapper struct {
 	ctrl     *gomock.Controller
 	recorder *MockICS4WrapperMockRecorder
-	isgomock struct{}
 }
 
 // MockICS4WrapperMockRecorder is the mock recorder for MockICS4Wrapper.
@@ -231,7 +229,7 @@ func (m *MockICS4Wrapper) EXPECT() *MockICS4WrapperMockRecorder {
 }
 
 // SendPacket mocks base method.
-func (m *MockICS4Wrapper) SendPacket(ctx types2.Context, chanCap *types3.Capability, sourcePort, sourceChannel string, timeoutHeight types4.Height, timeoutTimestamp uint64, data []byte) (uint64, error) {
+func (m *MockICS4Wrapper) SendPacket(ctx types2.Context, chanCap *types3.Capability, sourcePort, sourceChannel string, timeoutHeight types5.Height, timeoutTimestamp uint64, data []byte) (uint64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SendPacket", ctx, chanCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, data)
 	ret0, _ := ret[0].(uint64)
@@ -249,7 +247,6 @@ func (mr *MockICS4WrapperMockRecorder) SendPacket(ctx, chanCap, sourcePort, sour
 type MockPortKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockPortKeeperMockRecorder
-	isgomock struct{}
 }
 
 // MockPortKeeperMockRecorder is the mock recorder for MockPortKeeper.
@@ -287,7 +284,6 @@ func (mr *MockPortKeeperMockRecorder) BindPort(ctx, portID any) *gomock.Call {
 type MockScopedKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockScopedKeeperMockRecorder
-	isgomock struct{}
 }
 
 // MockScopedKeeperMockRecorder is the mock recorder for MockScopedKeeper.
@@ -350,11 +346,48 @@ func (mr *MockScopedKeeperMockRecorder) GetCapability(ctx, name any) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCapability", reflect.TypeOf((*MockScopedKeeper)(nil).GetCapability), ctx, name)
 }
 
+// MockTransferKeeper is a mock of TransferKeeper interface.
+type MockTransferKeeper struct {
+	ctrl     *gomock.Controller
+	recorder *MockTransferKeeperMockRecorder
+}
+
+// MockTransferKeeperMockRecorder is the mock recorder for MockTransferKeeper.
+type MockTransferKeeperMockRecorder struct {
+	mock *MockTransferKeeper
+}
+
+// NewMockTransferKeeper creates a new mock instance.
+func NewMockTransferKeeper(ctrl *gomock.Controller) *MockTransferKeeper {
+	mock := &MockTransferKeeper{ctrl: ctrl}
+	mock.recorder = &MockTransferKeeperMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockTransferKeeper) EXPECT() *MockTransferKeeperMockRecorder {
+	return m.recorder
+}
+
+// Transfer mocks base method.
+func (m *MockTransferKeeper) Transfer(goCtx context.Context, msg *types4.MsgTransfer) (*types4.MsgTransferResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Transfer", goCtx, msg)
+	ret0, _ := ret[0].(*types4.MsgTransferResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Transfer indicates an expected call of Transfer.
+func (mr *MockTransferKeeperMockRecorder) Transfer(goCtx, msg any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Transfer", reflect.TypeOf((*MockTransferKeeper)(nil).Transfer), goCtx, msg)
+}
+
 // MockFeedsKeeper is a mock of FeedsKeeper interface.
 type MockFeedsKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockFeedsKeeperMockRecorder
-	isgomock struct{}
 }
 
 // MockFeedsKeeperMockRecorder is the mock recorder for MockFeedsKeeper.
@@ -406,7 +439,6 @@ func (mr *MockFeedsKeeperMockRecorder) GetPrices(ctx, signalIDs any) *gomock.Cal
 type MockBandtssKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockBandtssKeeperMockRecorder
-	isgomock struct{}
 }
 
 // MockBandtssKeeperMockRecorder is the mock recorder for MockBandtssKeeper.
