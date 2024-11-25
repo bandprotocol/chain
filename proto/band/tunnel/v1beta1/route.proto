@@ -46,8 +46,8 @@ message IBCPacketReceipt {
   uint64 sequence = 1;
 }
 
-// IBCPacket is the type for an IBC packet
-message IBCPacket {
+// TunnelPricesPacketData represents the IBC packet payload for the tunnel packet.
+message TunnelPricesPacketData {
   // tunnel_id is the tunnel ID
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
   // sequence is representing the sequence of the tunnel packet.

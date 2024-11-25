@@ -2,6 +2,8 @@ package types
 
 import (
 	"fmt"
+
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 )
 
 // IBCRoute defines the IBC route for the tunnel module
@@ -18,7 +20,7 @@ func NewIBCHookRoute(channelID, destinationContractAddress string) *IBCHookRoute
 // Route defines the IBC route for the tunnel module
 func (r *IBCHookRoute) ValidateBasic() error {
 	// Validate the ChannelID format
-	if !IsChannelIDFormat(r.ChannelID) {
+	if !channeltypes.IsChannelIDFormat(r.ChannelID) {
 		return fmt.Errorf("channel identifier is not in the format: `channel-{N}`")
 	}
 	return nil

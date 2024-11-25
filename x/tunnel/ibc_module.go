@@ -1,6 +1,7 @@
 package tunnel
 
 import (
+	"math"
 	"strings"
 
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
@@ -16,6 +17,12 @@ import (
 
 	"github.com/bandprotocol/chain/v3/x/tunnel/keeper"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
+)
+
+var (
+	_ porttypes.IBCModule             = (*IBCModule)(nil)
+	_ porttypes.PacketDataUnmarshaler = (*IBCModule)(nil)
+	_ porttypes.UpgradableModule      = (*IBCModule)(nil)
 )
 
 // IBCModule implements the ICS26 interface for tunnel given the tunnel keeper.
@@ -41,7 +48,7 @@ func (im IBCModule) OnChanOpenInit(
 	counterparty channeltypes.Counterparty,
 	version string,
 ) (string, error) {
-	err := validateChannelParams(ctx, im.keeper, order, portID)
+	err := ValidateTunnelChannelParams(ctx, im.keeper, order, portID, channelID)
 	if err != nil {
 		return "", err
 	}
@@ -74,7 +81,7 @@ func (im IBCModule) OnChanOpenTry(
 	counterparty channeltypes.Counterparty,
 	counterpartyVersion string,
 ) (string, error) {
-	err := validateChannelParams(ctx, im.keeper, order, portID)
+	err := ValidateTunnelChannelParams(ctx, im.keeper, order, portID, channelID)
 	if err != nil {
 		return "", err
 	}
@@ -181,17 +188,100 @@ func (im IBCModule) OnTimeoutPacket(
 	return nil
 }
 
-// validateChannelParams validates the parameters of a newly created tunnel channel.
-// A valid tunnel channel must be ORDERED, use the correct port (default is 'tunnel').
-func validateChannelParams(
+// OnChanUpgradeInit implements the IBCModule interface
+func (im IBCModule) OnChanUpgradeInit(
+	ctx sdk.Context,
+	portID, channelID string,
+	proposedOrder channeltypes.Order,
+	proposedConnectionHops []string,
+	proposedVersion string,
+) (string, error) {
+	if err := ValidateTunnelChannelParams(ctx, im.keeper, proposedOrder, portID, channelID); err != nil {
+		return "", err
+	}
+
+	if proposedVersion != types.Version {
+		return "", errorsmod.Wrapf(types.ErrInvalidVersion, "expected %s, got %s", types.Version, proposedVersion)
+	}
+
+	return proposedVersion, nil
+}
+
+// OnChanUpgradeTry implements the IBCModule interface
+func (im IBCModule) OnChanUpgradeTry(
+	ctx sdk.Context,
+	portID, channelID string,
+	proposedOrder channeltypes.Order,
+	proposedConnectionHops []string,
+	counterpartyVersion string,
+) (string, error) {
+	if err := ValidateTunnelChannelParams(ctx, im.keeper, proposedOrder, portID, channelID); err != nil {
+		return "", err
+	}
+
+	if counterpartyVersion != types.Version {
+		return "", errorsmod.Wrapf(types.ErrInvalidVersion, "expected %s, got %s", types.Version, counterpartyVersion)
+	}
+
+	return counterpartyVersion, nil
+}
+
+// OnChanUpgradeAck implements the IBCModule interface
+func (IBCModule) OnChanUpgradeAck(ctx sdk.Context, portID, channelID, counterpartyVersion string) error {
+	if counterpartyVersion != types.Version {
+		return errorsmod.Wrapf(types.ErrInvalidVersion, "expected %s, got %s", types.Version, counterpartyVersion)
+	}
+
+	return nil
+}
+
+// OnChanUpgradeOpen implements the IBCModule interface
+func (IBCModule) OnChanUpgradeOpen(
+	ctx sdk.Context,
+	portID, channelID string,
+	proposedOrder channeltypes.Order,
+	proposedConnectionHops []string,
+	proposedVersion string,
+) {
+}
+
+// UnmarshalPacketData attempts to unmarshal the provided packet data bytes
+// into a TunnelPricesPacketData. This function implements the optional
+// PacketDataUnmarshaler interface required for ADR 008 support.
+func (IBCModule) UnmarshalPacketData(bz []byte) (interface{}, error) {
+	var packetData types.TunnelPricesPacketData
+	if err := types.ModuleCdc.UnmarshalJSON(bz, &packetData); err != nil {
+		return nil, err
+	}
+
+	return packetData, nil
+}
+
+// ValidateTunnelChannelParams does validation of a newly created tunnel channel. A tunnel
+// channel must be ORDERED, use the correct port (by default 'tunnel'), and use the current
+// supported version. Only 2^32 channels are allowed to be created.
+func ValidateTunnelChannelParams(
 	ctx sdk.Context,
 	keeper keeper.Keeper,
 	order channeltypes.Order,
 	portID string,
+	channelID string,
 ) error {
+	// NOTE: for escrow address security only 2^32 channels are allowed to be created
+	// Issue: https://github.com/cosmos/cosmos-sdk/issues/7737
+	channelSequence, err := channeltypes.ParseChannelSequence(channelID)
+	if err != nil {
+		return err
+	}
+	if channelSequence > uint64(math.MaxUint32) {
+		return types.ErrMaxTunnelChannels.Wrapf(
+			"channel sequence %d is greater than max allowed tunnel channels %d",
+			channelSequence,
+			uint64(math.MaxUint32),
+		)
+	}
 	if order != channeltypes.ORDERED {
-		return errorsmod.Wrapf(
-			channeltypes.ErrInvalidChannelOrdering,
+		return channeltypes.ErrInvalidChannelOrdering.Wrapf(
 			"expected %s channel, got %s",
 			channeltypes.ORDERED,
 			order,
