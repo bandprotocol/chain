@@ -29,7 +29,16 @@ import (
 	tunneltypes "github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-const UpgradeName = "v3"
+// UpgradeName defines the on-chain upgrade name for the Osmosis v26 upgrade.
+const (
+	UpgradeName = "v3"
+
+	// BlockMaxBytes is the max bytes for a block, 3mb
+	BlockMaxBytes = int64(3000000)
+
+	// BlockMaxGas is the max gas allowed in a block
+	BlockMaxGas = int64(50000000)
+)
 
 var Upgrade = upgrades.Upgrade{
 	UpgradeName:          UpgradeName,

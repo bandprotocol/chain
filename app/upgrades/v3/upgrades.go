@@ -3,6 +3,8 @@ package v3
 import (
 	"context"
 
+	cmttypes "github.com/cometbft/cometbft/types"
+
 	icahosttypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
@@ -78,6 +80,16 @@ func CreateUpgradeHandler(
 			if !ss.HasKeyTable() {
 				ss.WithKeyTable(keyTable)
 			}
+		}
+
+		// Set new consensus params with same values as before
+		consensusParams := cmttypes.DefaultConsensusParams().ToProto()
+		consensusParams.Block.MaxBytes = BlockMaxBytes                                     // unchanged
+		consensusParams.Block.MaxGas = BlockMaxGas                                         // unchanged
+		consensusParams.Validator.PubKeyTypes = []string{cmttypes.ABCIPubKeyTypeSecp256k1} // unchanged
+		err := keepers.ConsensusParamsKeeper.ParamsStore.Set(ctx, consensusParams)
+		if err != nil {
+			return nil, err
 		}
 
 		hostParams := icahosttypes.Params{
