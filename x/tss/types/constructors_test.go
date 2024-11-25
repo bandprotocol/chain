@@ -40,7 +40,7 @@ func TestValidateGroup(t *testing.T) {
 				CreatedHeight: 1,
 				ModuleOwner:   "module",
 			},
-			nil,
+			types.ErrInvalidGroup,
 		},
 		{
 			"invalid public key",

@@ -136,7 +136,7 @@ func (q queryServer) DE(goCtx context.Context, req *types.QueryDERequest) (*type
 		return nil
 	})
 	if err != nil {
-		return nil, types.ErrInvalidArgument.Wrapf("paginate: %v", err)
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &types.QueryDEResponse{

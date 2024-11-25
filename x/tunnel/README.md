@@ -36,10 +36,13 @@ The Tunnel module is designed to decentralize the creation of push-based price d
   - [Events](#events)
     - [Event: `create_tunnel`](#event-create_tunnel)
     - [Event: `update_and_reset_tunnel`](#event-update_and_reset_tunnel)
-    - [Event: `activate`](#event-activate)
-    - [Event: `deactivate`](#event-deactivate)
+    - [Event: `activate_tunnel`](#event-activate_tunnel)
+    - [Event: `deactivate_tunnel`](#event-deactivate_tunnel)
     - [Event: `trigger_tunnel`](#event-trigger_tunnel)
     - [Event: `produce_packet_fail`](#event-produce_packet_fail)
+    - [Event: `produce_packet_success`](#event-produce_packet_success)
+    - [Event: `deposit_to_tunnel`](#event-deposit_to_tunnel)
+    - [Event: `withdraw_from_tunnel`](#event-withdraw_from_tunnel)
   - [Clients](#clients)
     - [CLI Commands](#cli-commands)
       - [Query Commands](#query-commands)
@@ -103,22 +106,28 @@ bandd tx tunnel create-tunnel ibc [channel-id] [encoder] [initial-deposit] [inte
 
 #### TSS Route
 
+// TODO: waiting for implementation
+
 ### Packet
 
 A Packet is the data unit produced and sent to the destination chain based on the specified route.
 
 ```go
 type Packet struct {
-    // tunnel_id is the tunnel ID
-    TunnelID uint64
-    // sequence is representing the sequence of the tunnel packet.
-    Sequence uint64
-    // signal_prices is the list of signal prices
-    Prices []feedstypes.Price
-    // packet_content is the content of the packet that implements PacketContentI
-    PacketContent *types1.Any
-    // created_at is the timestamp when the packet is created
-    CreatedAt int64
+  // tunnel_id is the tunnel ID
+  TunnelID uint64
+  // sequence is representing the sequence of the tunnel packet.
+  Sequence uint64
+  // prices is the list of prices information from feeds module.
+  Prices []feedstypes.Price
+  // receipt represents the confirmation of the packet delivery to the destination via the specified route.
+  Receipt *codectypes.Any
+  // base_fee is the base fee of the packet
+  BaseFee sdk.Coins
+  // route_fee is the route fee of the packet
+  RouteFee sdk.Coins
+  // created_at is the timestamp when the packet is created
+  CreatedAt int64
 }
 ```
 
@@ -189,8 +198,8 @@ type Params struct {
     MinDeposit sdk.Coins
     // MinInterval is the minimum interval in seconds.
     MinInterval uint64
-    // MinInterval is the minimum interval in seconds.
-    MinInterval uint64
+    // MaxInterval is the maximum interval in seconds.
+    MaxInterval uint64
     // MinDeviationBPS is the minimum deviation in basis points.
     MinDeviationBPS uint64
     // MaxDeviationBPS is the maximum deviation in basis points.
@@ -403,7 +412,7 @@ This event is emitted when an existing tunnel is edited.
 | soft_deviation_bps[] | `{SignalDeviation.SoftDeviationBPS}}` |
 | hard_deviation_bps[] | `{SignalDeviation.hardDeviationBPS}}` |
 
-### Event: `activate`
+### Event: `activate_tunnel`
 
 This event is emitted when a tunnel is activated.
 
@@ -412,7 +421,7 @@ This event is emitted when a tunnel is activated.
 | tunnel_id     | `{ID}`          |
 | is_active     | `true`          |
 
-### Event: `deactivate`
+### Event: `deactivate_tunnel`
 
 This event is emitted when a tunnel is deactivated.
 
@@ -438,6 +447,35 @@ This event is emitted when the tunnel fails to produce a packet.
 | ------------- | --------------- |
 | tunnel_id     | `{ID}`          |
 | reason        | `{err.Error()}` |
+
+### Event: `produce_packet_success`
+
+This event is emitted when the tunnel successes to produce a packet.
+
+| Attribute Key | Attribute Value     |
+| ------------- | ------------------- |
+| tunnel_id     | `{ID}`              |
+| sequence      | `{packet.Sequence}` |
+
+### Event: `deposit_to_tunnel`
+
+This event is emitted when a deposit is made to the tunnel.
+
+| Attribute Key | Attribute Value            |
+| ------------- | -------------------------- |
+| tunnel_id     | `{tunnelID}`               |
+| depositor     | `{depositor.String()}`     |
+| amount        | `{depositAmount.String()}` |
+
+### Event: `withdraw_from_tunnel`
+
+This event is emitted when a withdrawal deposit is made to the tunnel.
+
+| Attribute Key | Attribute Value            |
+| ------------- | -------------------------- |
+| tunnel_id     | `{tunnelID}`               |
+| depositor     | `{depositor.String()}`     |
+| amount        | `{depositAmount.String()}` |
 
 ## Clients
 

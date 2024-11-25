@@ -29,13 +29,12 @@ func (s *KeeperTestSuite) TestGeneratePricesSendAll() {
 	s.keeper.SetTunnel(ctx, tunnel)
 	s.keeper.SetLatestPrices(ctx, latestPrices)
 
-	newPrices, err := keeper.GenerateNewPrices(
+	newPrices := keeper.GenerateNewPrices(
 		tunnel.SignalDeviations,
 		latestPricesMap,
 		pricesMap,
 		sendAll,
 	)
-	s.Require().NoError(err)
 	s.Require().Len(newPrices, 1)
 }
 
@@ -64,13 +63,12 @@ func (s *KeeperTestSuite) TestGeneratePricesMeetHardDeviation() {
 	s.keeper.SetTunnel(ctx, tunnel)
 	s.keeper.SetLatestPrices(ctx, latestPrices)
 
-	newPrices, err := keeper.GenerateNewPrices(
+	newPrices := keeper.GenerateNewPrices(
 		tunnel.SignalDeviations,
 		latestPricesMap,
 		pricesMap,
 		sendAll,
 	)
-	s.Require().NoError(err)
 	s.Require().Len(newPrices, 2)
 }
 
@@ -99,12 +97,11 @@ func (s *KeeperTestSuite) TestGeneratePricesNotMeetHardDeviation() {
 	s.keeper.SetTunnel(ctx, tunnel)
 	s.keeper.SetLatestPrices(ctx, latestPrices)
 
-	newPrices, err := keeper.GenerateNewPrices(
+	newPrices := keeper.GenerateNewPrices(
 		tunnel.SignalDeviations,
 		latestPricesMap,
 		pricesMap,
 		sendAll,
 	)
-	s.Require().NoError(err)
 	s.Require().Len(newPrices, 0)
 }

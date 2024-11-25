@@ -5,12 +5,11 @@ package types
 
 import (
 	fmt "fmt"
-	github_com_bandprotocol_chain_v3_x_bandtss_types "github.com/bandprotocol/chain/v3/x/bandtss/types"
-	types2 "github.com/bandprotocol/chain/v3/x/feeds/types"
+	types1 "github.com/bandprotocol/chain/v3/x/feeds/types"
 	_ "github.com/cosmos/cosmos-proto"
-	types1 "github.com/cosmos/cosmos-sdk/codec/types"
+	types "github.com/cosmos/cosmos-sdk/codec/types"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
-	types "github.com/cosmos/cosmos-sdk/types"
+	types2 "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/cosmos-sdk/types/tx/amino"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
@@ -30,199 +29,16 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// TSSRoute is the type for a TSS route
-type TSSRoute struct {
-	// destination_chain_id is the destination chain ID
-	DestinationChainID string `protobuf:"bytes,1,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
-	// destination_contract_address is the destination contract address
-	DestinationContractAddress string `protobuf:"bytes,2,opt,name=destination_contract_address,json=destinationContractAddress,proto3" json:"destination_contract_address,omitempty"`
-}
-
-func (m *TSSRoute) Reset()         { *m = TSSRoute{} }
-func (m *TSSRoute) String() string { return proto.CompactTextString(m) }
-func (*TSSRoute) ProtoMessage()    {}
-func (*TSSRoute) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6bb6151451ba2f25, []int{0}
-}
-func (m *TSSRoute) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *TSSRoute) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_TSSRoute.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *TSSRoute) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_TSSRoute.Merge(m, src)
-}
-func (m *TSSRoute) XXX_Size() int {
-	return m.Size()
-}
-func (m *TSSRoute) XXX_DiscardUnknown() {
-	xxx_messageInfo_TSSRoute.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_TSSRoute proto.InternalMessageInfo
-
-func (m *TSSRoute) GetDestinationChainID() string {
-	if m != nil {
-		return m.DestinationChainID
-	}
-	return ""
-}
-
-func (m *TSSRoute) GetDestinationContractAddress() string {
-	if m != nil {
-		return m.DestinationContractAddress
-	}
-	return ""
-}
-
-// SignalDeviation is the type for a signal with soft and hard deviation
-type SignalDeviation struct {
-	// signal_id is the signal ID
-	SignalID string `protobuf:"bytes,1,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
-	// soft_deviation_bps is the soft deviation in basis points
-	SoftDeviationBPS uint64 `protobuf:"varint,2,opt,name=soft_deviation_bps,json=softDeviationBps,proto3" json:"soft_deviation_bps,omitempty"`
-	// hard_deviation_bps is the hard deviation in basis points
-	HardDeviationBPS uint64 `protobuf:"varint,3,opt,name=hard_deviation_bps,json=hardDeviationBps,proto3" json:"hard_deviation_bps,omitempty"`
-}
-
-func (m *SignalDeviation) Reset()         { *m = SignalDeviation{} }
-func (m *SignalDeviation) String() string { return proto.CompactTextString(m) }
-func (*SignalDeviation) ProtoMessage()    {}
-func (*SignalDeviation) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6bb6151451ba2f25, []int{1}
-}
-func (m *SignalDeviation) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *SignalDeviation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_SignalDeviation.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *SignalDeviation) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SignalDeviation.Merge(m, src)
-}
-func (m *SignalDeviation) XXX_Size() int {
-	return m.Size()
-}
-func (m *SignalDeviation) XXX_DiscardUnknown() {
-	xxx_messageInfo_SignalDeviation.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_SignalDeviation proto.InternalMessageInfo
-
-func (m *SignalDeviation) GetSignalID() string {
-	if m != nil {
-		return m.SignalID
-	}
-	return ""
-}
-
-func (m *SignalDeviation) GetSoftDeviationBPS() uint64 {
-	if m != nil {
-		return m.SoftDeviationBPS
-	}
-	return 0
-}
-
-func (m *SignalDeviation) GetHardDeviationBPS() uint64 {
-	if m != nil {
-		return m.HardDeviationBPS
-	}
-	return 0
-}
-
-// Deposit defines an amount deposited by an account address to the tunnel.
-type Deposit struct {
-	// tunnel_id defines the unique id of the tunnel.
-	TunnelID uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
-	// depositor defines the deposit addresses from the proposals.
-	Depositor string `protobuf:"bytes,2,opt,name=depositor,proto3" json:"depositor,omitempty"`
-	// amount to be deposited by depositor.
-	Amount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,3,rep,name=amount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"amount"`
-}
-
-func (m *Deposit) Reset()         { *m = Deposit{} }
-func (m *Deposit) String() string { return proto.CompactTextString(m) }
-func (*Deposit) ProtoMessage()    {}
-func (*Deposit) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6bb6151451ba2f25, []int{2}
-}
-func (m *Deposit) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *Deposit) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_Deposit.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *Deposit) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Deposit.Merge(m, src)
-}
-func (m *Deposit) XXX_Size() int {
-	return m.Size()
-}
-func (m *Deposit) XXX_DiscardUnknown() {
-	xxx_messageInfo_Deposit.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Deposit proto.InternalMessageInfo
-
-func (m *Deposit) GetTunnelID() uint64 {
-	if m != nil {
-		return m.TunnelID
-	}
-	return 0
-}
-
-func (m *Deposit) GetDepositor() string {
-	if m != nil {
-		return m.Depositor
-	}
-	return ""
-}
-
-func (m *Deposit) GetAmount() github_com_cosmos_cosmos_sdk_types.Coins {
-	if m != nil {
-		return m.Amount
-	}
-	return nil
-}
-
-// Tunnel is the type for a tunnel
+// Tunnel contains the information of the tunnel that is created by the user
 type Tunnel struct {
 	// id is the tunnel ID
 	ID uint64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// sequence is representing the sequence of the tunnel packet.
 	Sequence uint64 `protobuf:"varint,2,opt,name=sequence,proto3" json:"sequence,omitempty"`
 	// route is the route for delivering the signal prices
-	Route *types1.Any `protobuf:"bytes,3,opt,name=route,proto3" json:"route,omitempty"`
+	Route *types.Any `protobuf:"bytes,3,opt,name=route,proto3" json:"route,omitempty"`
 	// encoder is the mode of encoding price signal data.
-	Encoder types2.Encoder `protobuf:"varint,4,opt,name=encoder,proto3,enum=band.feeds.v1beta1.Encoder" json:"encoder,omitempty"`
+	Encoder types1.Encoder `protobuf:"varint,4,opt,name=encoder,proto3,enum=band.feeds.v1beta1.Encoder" json:"encoder,omitempty"`
 	// fee_payer is the address of the fee payer
 	FeePayer string `protobuf:"bytes,5,opt,name=fee_payer,json=feePayer,proto3" json:"fee_payer,omitempty"`
 	// signal_deviations is the list of signal deviations
@@ -243,7 +59,7 @@ func (m *Tunnel) Reset()         { *m = Tunnel{} }
 func (m *Tunnel) String() string { return proto.CompactTextString(m) }
 func (*Tunnel) ProtoMessage()    {}
 func (*Tunnel) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6bb6151451ba2f25, []int{3}
+	return fileDescriptor_6bb6151451ba2f25, []int{0}
 }
 func (m *Tunnel) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -286,18 +102,18 @@ func (m *Tunnel) GetSequence() uint64 {
 	return 0
 }
 
-func (m *Tunnel) GetRoute() *types1.Any {
+func (m *Tunnel) GetRoute() *types.Any {
 	if m != nil {
 		return m.Route
 	}
 	return nil
 }
 
-func (m *Tunnel) GetEncoder() types2.Encoder {
+func (m *Tunnel) GetEncoder() types1.Encoder {
 	if m != nil {
 		return m.Encoder
 	}
-	return types2.ENCODER_UNSPECIFIED
+	return types1.ENCODER_UNSPECIFIED
 }
 
 func (m *Tunnel) GetFeePayer() string {
@@ -354,7 +170,7 @@ type LatestPrices struct {
 	// tunnel_id is the tunnel ID
 	TunnelID uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
 	// prices is the list of prices information from feeds module.
-	Prices []types2.Price `protobuf:"bytes,2,rep,name=prices,proto3" json:"prices"`
+	Prices []types1.Price `protobuf:"bytes,2,rep,name=prices,proto3" json:"prices"`
 	// last_interval is the last interval when the signal prices are produced by interval trigger
 	LastInterval int64 `protobuf:"varint,3,opt,name=last_interval,json=lastInterval,proto3" json:"last_interval,omitempty"`
 }
@@ -363,7 +179,7 @@ func (m *LatestPrices) Reset()         { *m = LatestPrices{} }
 func (m *LatestPrices) String() string { return proto.CompactTextString(m) }
 func (*LatestPrices) ProtoMessage()    {}
 func (*LatestPrices) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6bb6151451ba2f25, []int{4}
+	return fileDescriptor_6bb6151451ba2f25, []int{1}
 }
 func (m *LatestPrices) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -399,7 +215,7 @@ func (m *LatestPrices) GetTunnelID() uint64 {
 	return 0
 }
 
-func (m *LatestPrices) GetPrices() []types2.Price {
+func (m *LatestPrices) GetPrices() []types1.Price {
 	if m != nil {
 		return m.Prices
 	}
@@ -415,15 +231,15 @@ func (m *LatestPrices) GetLastInterval() int64 {
 
 // TotalFees is the type for the total fees collected by the tunnel
 type TotalFees struct {
-	// total_packet_fee is the total packet fee collected
-	TotalPacketFee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=total_packet_fee,json=totalPacketFee,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"total_packet_fee"`
+	// total_base_packet_fee is the total base packet fee collected by the tunnel
+	TotalBasePacketFee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,1,rep,name=total_base_packet_fee,json=totalBasePacketFee,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"total_base_packet_fee"`
 }
 
 func (m *TotalFees) Reset()         { *m = TotalFees{} }
 func (m *TotalFees) String() string { return proto.CompactTextString(m) }
 func (*TotalFees) ProtoMessage()    {}
 func (*TotalFees) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6bb6151451ba2f25, []int{5}
+	return fileDescriptor_6bb6151451ba2f25, []int{2}
 }
 func (m *TotalFees) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -452,9 +268,9 @@ func (m *TotalFees) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_TotalFees proto.InternalMessageInfo
 
-func (m *TotalFees) GetTotalPacketFee() github_com_cosmos_cosmos_sdk_types.Coins {
+func (m *TotalFees) GetTotalBasePacketFee() github_com_cosmos_cosmos_sdk_types.Coins {
 	if m != nil {
-		return m.TotalPacketFee
+		return m.TotalBasePacketFee
 	}
 	return nil
 }
@@ -466,9 +282,9 @@ type Packet struct {
 	// sequence is representing the sequence of the tunnel packet.
 	Sequence uint64 `protobuf:"varint,2,opt,name=sequence,proto3" json:"sequence,omitempty"`
 	// prices is the list of prices information from feeds module.
-	Prices []types2.Price `protobuf:"bytes,3,rep,name=prices,proto3" json:"prices"`
-	// packet_content is the content of the packet that implements PacketContentI
-	PacketContent *types1.Any `protobuf:"bytes,4,opt,name=packet_content,json=packetContent,proto3" json:"packet_content,omitempty"`
+	Prices []types1.Price `protobuf:"bytes,3,rep,name=prices,proto3" json:"prices"`
+	// receipt represents the confirmation of the packet delivery to the destination via the specified route.
+	Receipt *types.Any `protobuf:"bytes,4,opt,name=receipt,proto3" json:"receipt,omitempty"`
 	// base_fee is the base fee of the packet
 	BaseFee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,5,rep,name=base_fee,json=baseFee,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"base_fee"`
 	// route_fee is the route fee of the packet
@@ -481,7 +297,7 @@ func (m *Packet) Reset()         { *m = Packet{} }
 func (m *Packet) String() string { return proto.CompactTextString(m) }
 func (*Packet) ProtoMessage()    {}
 func (*Packet) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6bb6151451ba2f25, []int{6}
+	return fileDescriptor_6bb6151451ba2f25, []int{3}
 }
 func (m *Packet) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -524,16 +340,16 @@ func (m *Packet) GetSequence() uint64 {
 	return 0
 }
 
-func (m *Packet) GetPrices() []types2.Price {
+func (m *Packet) GetPrices() []types1.Price {
 	if m != nil {
 		return m.Prices
 	}
 	return nil
 }
 
-func (m *Packet) GetPacketContent() *types1.Any {
+func (m *Packet) GetReceipt() *types.Any {
 	if m != nil {
-		return m.PacketContent
+		return m.Receipt
 	}
 	return nil
 }
@@ -559,28 +375,28 @@ func (m *Packet) GetCreatedAt() int64 {
 	return 0
 }
 
-// TSSPacketContent is the packet content for TSS
-type TSSPacketContent struct {
-	// signing_id is the signing ID
-	SigningID github_com_bandprotocol_chain_v3_x_bandtss_types.SigningID `protobuf:"varint,1,opt,name=signing_id,json=signingId,proto3,casttype=github.com/bandprotocol/chain/v3/x/bandtss/types.SigningID" json:"signing_id,omitempty"`
-	// destination_chain_id is the destination chain ID
-	DestinationChainID string `protobuf:"bytes,2,opt,name=destination_chain_id,json=destinationChainId,proto3" json:"destination_chain_id,omitempty"`
-	// destination_contract_address is the destination contract address
-	DestinationContractAddress string `protobuf:"bytes,3,opt,name=destination_contract_address,json=destinationContractAddress,proto3" json:"destination_contract_address,omitempty"`
+// Deposit defines an amount deposited by an account address to the tunnel.
+type Deposit struct {
+	// tunnel_id defines the unique id of the tunnel.
+	TunnelID uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
+	// depositor defines the deposit addresses from the proposals.
+	Depositor string `protobuf:"bytes,2,opt,name=depositor,proto3" json:"depositor,omitempty"`
+	// amount to be deposited by depositor.
+	Amount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,3,rep,name=amount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"amount"`
 }
 
-func (m *TSSPacketContent) Reset()         { *m = TSSPacketContent{} }
-func (m *TSSPacketContent) String() string { return proto.CompactTextString(m) }
-func (*TSSPacketContent) ProtoMessage()    {}
-func (*TSSPacketContent) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6bb6151451ba2f25, []int{7}
+func (m *Deposit) Reset()         { *m = Deposit{} }
+func (m *Deposit) String() string { return proto.CompactTextString(m) }
+func (*Deposit) ProtoMessage()    {}
+func (*Deposit) Descriptor() ([]byte, []int) {
+	return fileDescriptor_6bb6151451ba2f25, []int{4}
 }
-func (m *TSSPacketContent) XXX_Unmarshal(b []byte) error {
+func (m *Deposit) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *TSSPacketContent) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *Deposit) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_TSSPacketContent.Marshal(b, m, deterministic)
+		return xxx_messageInfo_Deposit.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -590,212 +406,174 @@ func (m *TSSPacketContent) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return b[:n], nil
 	}
 }
-func (m *TSSPacketContent) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_TSSPacketContent.Merge(m, src)
+func (m *Deposit) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Deposit.Merge(m, src)
 }
-func (m *TSSPacketContent) XXX_Size() int {
+func (m *Deposit) XXX_Size() int {
 	return m.Size()
 }
-func (m *TSSPacketContent) XXX_DiscardUnknown() {
-	xxx_messageInfo_TSSPacketContent.DiscardUnknown(m)
+func (m *Deposit) XXX_DiscardUnknown() {
+	xxx_messageInfo_Deposit.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_TSSPacketContent proto.InternalMessageInfo
+var xxx_messageInfo_Deposit proto.InternalMessageInfo
 
-func (m *TSSPacketContent) GetSigningID() github_com_bandprotocol_chain_v3_x_bandtss_types.SigningID {
+func (m *Deposit) GetTunnelID() uint64 {
 	if m != nil {
-		return m.SigningID
+		return m.TunnelID
 	}
 	return 0
 }
 
-func (m *TSSPacketContent) GetDestinationChainID() string {
+func (m *Deposit) GetDepositor() string {
 	if m != nil {
-		return m.DestinationChainID
+		return m.Depositor
 	}
 	return ""
 }
 
-func (m *TSSPacketContent) GetDestinationContractAddress() string {
+func (m *Deposit) GetAmount() github_com_cosmos_cosmos_sdk_types.Coins {
 	if m != nil {
-		return m.DestinationContractAddress
+		return m.Amount
+	}
+	return nil
+}
+
+// SignalDeviation is the type for a signal with soft and hard deviation
+type SignalDeviation struct {
+	// signal_id is the signal ID
+	SignalID string `protobuf:"bytes,1,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
+	// soft_deviation_bps is the soft deviation in basis points
+	SoftDeviationBPS uint64 `protobuf:"varint,2,opt,name=soft_deviation_bps,json=softDeviationBps,proto3" json:"soft_deviation_bps,omitempty"`
+	// hard_deviation_bps is the hard deviation in basis points
+	HardDeviationBPS uint64 `protobuf:"varint,3,opt,name=hard_deviation_bps,json=hardDeviationBps,proto3" json:"hard_deviation_bps,omitempty"`
+}
+
+func (m *SignalDeviation) Reset()         { *m = SignalDeviation{} }
+func (m *SignalDeviation) String() string { return proto.CompactTextString(m) }
+func (*SignalDeviation) ProtoMessage()    {}
+func (*SignalDeviation) Descriptor() ([]byte, []int) {
+	return fileDescriptor_6bb6151451ba2f25, []int{5}
+}
+func (m *SignalDeviation) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *SignalDeviation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_SignalDeviation.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *SignalDeviation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SignalDeviation.Merge(m, src)
+}
+func (m *SignalDeviation) XXX_Size() int {
+	return m.Size()
+}
+func (m *SignalDeviation) XXX_DiscardUnknown() {
+	xxx_messageInfo_SignalDeviation.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SignalDeviation proto.InternalMessageInfo
+
+func (m *SignalDeviation) GetSignalID() string {
+	if m != nil {
+		return m.SignalID
 	}
 	return ""
+}
+
+func (m *SignalDeviation) GetSoftDeviationBPS() uint64 {
+	if m != nil {
+		return m.SoftDeviationBPS
+	}
+	return 0
+}
+
+func (m *SignalDeviation) GetHardDeviationBPS() uint64 {
+	if m != nil {
+		return m.HardDeviationBPS
+	}
+	return 0
 }
 
 func init() {
-	proto.RegisterType((*TSSRoute)(nil), "band.tunnel.v1beta1.TSSRoute")
-	proto.RegisterType((*SignalDeviation)(nil), "band.tunnel.v1beta1.SignalDeviation")
-	proto.RegisterType((*Deposit)(nil), "band.tunnel.v1beta1.Deposit")
 	proto.RegisterType((*Tunnel)(nil), "band.tunnel.v1beta1.Tunnel")
 	proto.RegisterType((*LatestPrices)(nil), "band.tunnel.v1beta1.LatestPrices")
 	proto.RegisterType((*TotalFees)(nil), "band.tunnel.v1beta1.TotalFees")
 	proto.RegisterType((*Packet)(nil), "band.tunnel.v1beta1.Packet")
-	proto.RegisterType((*TSSPacketContent)(nil), "band.tunnel.v1beta1.TSSPacketContent")
+	proto.RegisterType((*Deposit)(nil), "band.tunnel.v1beta1.Deposit")
+	proto.RegisterType((*SignalDeviation)(nil), "band.tunnel.v1beta1.SignalDeviation")
 }
 
 func init() { proto.RegisterFile("band/tunnel/v1beta1/tunnel.proto", fileDescriptor_6bb6151451ba2f25) }
 
 var fileDescriptor_6bb6151451ba2f25 = []byte{
-	// 1014 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x56, 0x4d, 0x6f, 0xe3, 0x44,
-	0x18, 0xae, 0x93, 0x34, 0xb1, 0xa7, 0x1f, 0x74, 0x87, 0x68, 0xe5, 0xed, 0x42, 0x12, 0x15, 0x0e,
-	0x01, 0xa9, 0x36, 0xdb, 0x55, 0x17, 0xa9, 0x27, 0x9a, 0x86, 0x6a, 0x2d, 0x40, 0x54, 0x4e, 0x25,
-	0x24, 0x2e, 0xd6, 0xc4, 0x9e, 0x24, 0xc3, 0xa6, 0x33, 0xc6, 0x33, 0x89, 0xe8, 0x3f, 0xe0, 0xc8,
-	0x1f, 0x00, 0x21, 0x4e, 0x2b, 0x4e, 0x1c, 0xfa, 0x13, 0x38, 0xac, 0x7a, 0x5a, 0x71, 0xe2, 0x80,
-	0x02, 0x4a, 0x0f, 0xf0, 0x1b, 0x38, 0xa1, 0xf9, 0x70, 0xd2, 0x54, 0x5d, 0x4a, 0xa5, 0x72, 0x69,
-	0xfb, 0xbe, 0xf3, 0xbc, 0x5f, 0xcf, 0xfb, 0x8c, 0x3b, 0xa0, 0xd1, 0x45, 0x34, 0xf1, 0xc5, 0x88,
-	0x52, 0x3c, 0xf4, 0xc7, 0x8f, 0xba, 0x58, 0xa0, 0x47, 0xc6, 0xf4, 0xd2, 0x8c, 0x09, 0x06, 0x5f,
-	0x97, 0x08, 0xcf, 0xb8, 0x0c, 0x62, 0xf3, 0x1e, 0x3a, 0x21, 0x94, 0xf9, 0xea, 0xa7, 0xc6, 0x6d,
-	0xd6, 0x62, 0xc6, 0x4f, 0x18, 0xf7, 0xbb, 0x88, 0xe3, 0x59, 0xa6, 0x98, 0x11, 0x6a, 0xce, 0x1f,
-	0xe8, 0xf3, 0x48, 0x59, 0xbe, 0x36, 0xcc, 0x51, 0xb5, 0xcf, 0xfa, 0x4c, 0xfb, 0xe5, 0x5f, 0x79,
-	0x40, 0x9f, 0xb1, 0xfe, 0x10, 0xfb, 0xca, 0xea, 0x8e, 0x7a, 0x3e, 0xa2, 0xa7, 0x79, 0x2d, 0xd5,
-	0x75, 0x0f, 0xe3, 0x84, 0xcf, 0x4a, 0x29, 0x4b, 0x9f, 0x6f, 0xfd, 0x60, 0x01, 0xfb, 0xb8, 0xd3,
-	0x09, 0xd9, 0x48, 0x60, 0xf8, 0x14, 0x54, 0x13, 0xcc, 0x05, 0xa1, 0x48, 0x10, 0x46, 0xa3, 0x78,
-	0x80, 0x08, 0x8d, 0x48, 0xe2, 0x5a, 0x0d, 0xab, 0xe9, 0xb4, 0xee, 0x4f, 0x27, 0x75, 0xd8, 0x9e,
-	0x9f, 0x1f, 0xc8, 0xe3, 0xa0, 0x1d, 0xc2, 0xe4, 0xaa, 0x2f, 0x81, 0x1f, 0x80, 0x37, 0x16, 0x32,
-	0x31, 0x2a, 0x32, 0x14, 0x8b, 0x08, 0x25, 0x49, 0x86, 0x39, 0x77, 0x0b, 0x32, 0x63, 0xb8, 0x79,
-	0x39, 0xd2, 0x40, 0xf6, 0x35, 0x62, 0x0f, 0x9c, 0x9f, 0x6d, 0x97, 0x55, 0x5b, 0xc1, 0xd6, 0xb9,
-	0x05, 0x5e, 0xeb, 0x90, 0x3e, 0x45, 0xc3, 0x36, 0x1e, 0x13, 0x05, 0x87, 0xef, 0x00, 0x87, 0x2b,
-	0xd7, 0xbc, 0xc1, 0xd5, 0xe9, 0xa4, 0x6e, 0x6b, 0x5c, 0xd0, 0x0e, 0x6d, 0x7d, 0x1c, 0x24, 0xb0,
-	0x05, 0x20, 0x67, 0x3d, 0x11, 0x25, 0x79, 0x70, 0xd4, 0x4d, 0x75, 0x0b, 0xa5, 0x56, 0x75, 0x3a,
-	0xa9, 0x6f, 0x74, 0x58, 0x4f, 0xcc, 0x32, 0xb7, 0x8e, 0x3a, 0xe1, 0x06, 0x5f, 0xf0, 0xa4, 0x5c,
-	0xe6, 0x18, 0xa0, 0x2c, 0xb9, 0x92, 0xa3, 0x38, 0xcf, 0xf1, 0x14, 0x65, 0xc9, 0x62, 0x8e, 0xc1,
-	0x82, 0x27, 0xe5, 0x7b, 0xa5, 0xbf, 0xbe, 0xaf, 0x5b, 0x5b, 0xbf, 0x59, 0xa0, 0xd2, 0xc6, 0x29,
-	0xe3, 0x44, 0xc8, 0x21, 0xb4, 0x5c, 0xf2, 0x21, 0x4a, 0x7a, 0x88, 0x63, 0xe5, 0x94, 0x43, 0xe8,
-	0xe3, 0x20, 0x81, 0x4f, 0x80, 0x93, 0xe8, 0x28, 0x96, 0x69, 0xfa, 0x5a, 0xee, 0x2f, 0x67, 0xdb,
-	0x55, 0x23, 0x0f, 0x43, 0x5b, 0x47, 0x64, 0x84, 0xf6, 0xc3, 0x39, 0x14, 0x0e, 0x40, 0x19, 0x9d,
-	0xb0, 0x11, 0x15, 0x6e, 0xb1, 0x51, 0x6c, 0xae, 0xec, 0x3c, 0xf0, 0x4c, 0x84, 0x54, 0x5f, 0xae,
-	0x52, 0xef, 0x80, 0x11, 0xda, 0xda, 0x7d, 0x31, 0xa9, 0x2f, 0xfd, 0xf8, 0x7b, 0xbd, 0xd9, 0x27,
-	0x62, 0x30, 0xea, 0x7a, 0x31, 0x3b, 0x31, 0xea, 0x33, 0xbf, 0xb6, 0x79, 0xf2, 0xcc, 0x17, 0xa7,
-	0x29, 0xe6, 0x2a, 0x80, 0x3f, 0xff, 0xf3, 0xa7, 0x77, 0xad, 0xd0, 0xe4, 0x37, 0xe3, 0xfd, 0x5c,
-	0x02, 0x65, 0xdd, 0x3e, 0xbc, 0x0f, 0x0a, 0xb3, 0xb1, 0xca, 0xd3, 0x49, 0xbd, 0x10, 0xb4, 0xc3,
-	0x02, 0x49, 0xe0, 0x26, 0xb0, 0x39, 0xfe, 0x72, 0x84, 0x69, 0x8c, 0xf5, 0x16, 0xc2, 0x99, 0x0d,
-	0x9f, 0x80, 0xe5, 0x4c, 0x2e, 0x5d, 0x51, 0xbb, 0xb2, 0x53, 0xf5, 0xb4, 0xb4, 0xbd, 0x5c, 0xda,
-	0xde, 0x3e, 0x3d, 0x6d, 0x5d, 0xd2, 0x46, 0xa8, 0xe1, 0x70, 0x17, 0x54, 0x30, 0x8d, 0x59, 0x82,
-	0x33, 0xb7, 0xd4, 0xb0, 0x9a, 0xeb, 0x3b, 0x0f, 0x3d, 0x75, 0x1b, 0xb5, 0xd6, 0xf3, 0x31, 0x3f,
-	0xd4, 0x90, 0x30, 0xc7, 0xc2, 0x5d, 0xe0, 0xf4, 0x30, 0x8e, 0x52, 0x74, 0x8a, 0x33, 0x77, 0xf9,
-	0x06, 0x56, 0xed, 0x1e, 0xc6, 0x47, 0x12, 0x09, 0x3f, 0x03, 0xf7, 0x8c, 0xf8, 0x66, 0x7a, 0xe0,
-	0x6e, 0x59, 0xf1, 0xfb, 0xb6, 0x77, 0xcd, 0x57, 0xc0, 0xbb, 0xa2, 0xde, 0x56, 0x49, 0x52, 0x1d,
-	0x6e, 0xf0, 0x45, 0x37, 0x97, 0xd4, 0x10, 0x2a, 0x70, 0x36, 0x46, 0x43, 0xb7, 0xa2, 0xa9, 0xc9,
-	0x6d, 0x38, 0x02, 0x6b, 0x82, 0x09, 0x55, 0x53, 0x2d, 0xd7, 0xb5, 0xff, 0xa7, 0x85, 0xae, 0xaa,
-	0x32, 0xb9, 0x46, 0x1f, 0x02, 0x87, 0xf0, 0x08, 0xc5, 0x82, 0x8c, 0xb1, 0xeb, 0x34, 0xac, 0xa6,
-	0x1d, 0xda, 0x84, 0xef, 0x2b, 0x1b, 0xbe, 0x09, 0x40, 0x9c, 0x61, 0x24, 0x70, 0x12, 0x21, 0xe1,
-	0x82, 0x86, 0xd5, 0x2c, 0x86, 0x8e, 0xf1, 0xec, 0x0b, 0xb8, 0x03, 0x2a, 0xca, 0x60, 0x99, 0xbb,
-	0x72, 0x03, 0xb9, 0x39, 0xd0, 0xc8, 0xe8, 0x5b, 0x0b, 0xac, 0x7e, 0x8c, 0x04, 0xe6, 0xe2, 0x28,
-	0x23, 0x31, 0xe6, 0xb7, 0xb9, 0x2a, 0xef, 0x83, 0x72, 0xaa, 0x82, 0xdc, 0x82, 0x61, 0xe8, 0x1a,
-	0x29, 0xa8, 0xb4, 0x66, 0x0f, 0x06, 0x0e, 0xdf, 0x02, 0x6b, 0x43, 0xc4, 0x45, 0x34, 0x5b, 0x41,
-	0x51, 0x0d, 0xb4, 0x2a, 0x9d, 0x81, 0xf1, 0x99, 0xfe, 0xbe, 0xb6, 0x80, 0x73, 0x2c, 0x69, 0x3a,
-	0xc4, 0x98, 0xc3, 0x11, 0xd8, 0xd0, 0xab, 0x49, 0x51, 0xfc, 0x0c, 0x8b, 0xa8, 0x87, 0xb1, 0x6b,
-	0xdd, 0xb4, 0x9d, 0xf7, 0x6e, 0xbb, 0x9d, 0x70, 0x5d, 0x15, 0x39, 0x52, 0x35, 0x0e, 0x31, 0x36,
-	0xad, 0x9c, 0x17, 0x41, 0x59, 0xfb, 0x6e, 0x43, 0xd2, 0xbf, 0x5d, 0xc2, 0x39, 0x81, 0xc5, 0xdb,
-	0x11, 0xf8, 0x29, 0x58, 0x37, 0x0c, 0xc8, 0x2f, 0x3e, 0xa6, 0x42, 0x5d, 0xc6, 0x57, 0x5d, 0x63,
-	0x78, 0x7e, 0xb6, 0xbd, 0xae, 0x3b, 0x3f, 0xd0, 0xf0, 0x20, 0x5c, 0x4b, 0x2f, 0xdb, 0xb0, 0x07,
-	0x6c, 0x49, 0x9c, 0x22, 0x74, 0xf9, 0xee, 0x09, 0xad, 0xc8, 0x24, 0x87, 0x18, 0xc3, 0x01, 0x70,
-	0xd4, 0x77, 0x44, 0x15, 0x2a, 0xdf, 0x7d, 0x21, 0x5b, 0x65, 0x97, 0x95, 0x16, 0x6f, 0x4c, 0xe5,
-	0xca, 0x8d, 0xd9, 0xfa, 0xae, 0x00, 0x36, 0x8e, 0x3b, 0x9d, 0x05, 0x56, 0xe0, 0x17, 0x00, 0xc8,
-	0x2f, 0x05, 0xa1, 0xfd, 0xf9, 0x5e, 0x3f, 0x9a, 0x4e, 0xea, 0x4e, 0x47, 0x7b, 0x83, 0xf6, 0xdf,
-	0x93, 0xfa, 0xde, 0xa5, 0x66, 0xe4, 0xba, 0x14, 0xd5, 0x31, 0x1b, 0xfa, 0xea, 0xdf, 0xb8, 0x3f,
-	0x7e, 0xec, 0x7f, 0xa5, 0xfc, 0x82, 0x73, 0xd3, 0xda, 0x2c, 0x3a, 0x74, 0x4c, 0xfa, 0x20, 0x79,
-	0xe5, 0x1b, 0xa0, 0x70, 0xe7, 0x6f, 0x80, 0xe2, 0x8d, 0x6f, 0x80, 0x6b, 0x04, 0xd2, 0xfa, 0xe4,
-	0xf9, 0xb4, 0x66, 0xbd, 0x98, 0xd6, 0xac, 0x97, 0xd3, 0x9a, 0xf5, 0xc7, 0xb4, 0x66, 0x7d, 0x73,
-	0x51, 0x5b, 0x7a, 0x79, 0x51, 0x5b, 0xfa, 0xf5, 0xa2, 0xb6, 0xf4, 0xb9, 0xff, 0x1f, 0x48, 0x30,
-	0x4f, 0x38, 0xc5, 0x41, 0xb7, 0xac, 0x10, 0x8f, 0xff, 0x09, 0x00, 0x00, 0xff, 0xff, 0x2f, 0x3a,
-	0xe1, 0x4d, 0xde, 0x09, 0x00, 0x00,
+	// 891 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x55, 0x4f, 0x6f, 0x1b, 0x45,
+	0x14, 0xcf, 0xd8, 0xce, 0x7a, 0x77, 0x92, 0x96, 0x74, 0x08, 0x68, 0x9b, 0x0a, 0xdb, 0x0a, 0x1c,
+	0x0c, 0x52, 0x76, 0x69, 0xaa, 0x14, 0x89, 0x5b, 0x96, 0x10, 0x61, 0x09, 0xa4, 0x68, 0x53, 0x09,
+	0x89, 0xcb, 0x6a, 0xbc, 0xfb, 0x6c, 0x8f, 0xea, 0xec, 0x2c, 0x3b, 0x63, 0x8b, 0x5c, 0xf8, 0x0c,
+	0xf0, 0x01, 0x90, 0x38, 0x56, 0x9c, 0x38, 0xe4, 0xca, 0x8d, 0x43, 0x95, 0x53, 0xc5, 0x89, 0x03,
+	0x0a, 0xc8, 0x39, 0xc0, 0xc7, 0x40, 0xf3, 0x67, 0x6d, 0x1c, 0x95, 0x56, 0x96, 0x72, 0xb1, 0xfd,
+	0xde, 0xfc, 0xe6, 0xfd, 0xde, 0xfc, 0xde, 0x1f, 0xe3, 0x4e, 0x9f, 0xe6, 0x59, 0x28, 0x27, 0x79,
+	0x0e, 0xe3, 0x70, 0xfa, 0xb0, 0x0f, 0x92, 0x3e, 0xb4, 0x66, 0x50, 0x94, 0x5c, 0x72, 0xf2, 0xa6,
+	0x42, 0x04, 0xd6, 0x65, 0x11, 0x3b, 0xf7, 0xe8, 0x19, 0xcb, 0x79, 0xa8, 0x3f, 0x0d, 0x6e, 0xa7,
+	0x95, 0x72, 0x71, 0xc6, 0x45, 0xd8, 0xa7, 0x02, 0xe6, 0x91, 0x52, 0xce, 0x72, 0x7b, 0x7e, 0xdf,
+	0x9c, 0x27, 0xda, 0x0a, 0x8d, 0x61, 0x8f, 0xb6, 0x87, 0x7c, 0xc8, 0x8d, 0x5f, 0xfd, 0xaa, 0x2e,
+	0x0c, 0x39, 0x1f, 0x8e, 0x21, 0xd4, 0x56, 0x7f, 0x32, 0x08, 0x69, 0x7e, 0x5e, 0x71, 0xe9, 0xac,
+	0x07, 0x00, 0x99, 0x98, 0x53, 0x69, 0xcb, 0x9c, 0xef, 0xfe, 0xda, 0xc0, 0xce, 0x13, 0x9d, 0x31,
+	0x79, 0x1b, 0xd7, 0x58, 0xe6, 0xa3, 0x0e, 0xea, 0x36, 0x22, 0x67, 0x76, 0xd5, 0xae, 0xf5, 0x8e,
+	0xe2, 0x1a, 0xcb, 0xc8, 0x0e, 0x76, 0x05, 0x7c, 0x3d, 0x81, 0x3c, 0x05, 0xbf, 0xa6, 0x4e, 0xe3,
+	0xb9, 0x4d, 0x1e, 0xe3, 0xf5, 0x92, 0x4f, 0x24, 0xf8, 0xf5, 0x0e, 0xea, 0x6e, 0xec, 0x6f, 0x07,
+	0x26, 0x93, 0xa0, 0xca, 0x24, 0x38, 0xcc, 0xcf, 0x23, 0x7c, 0x79, 0xb1, 0xe7, 0xc4, 0x0a, 0xd6,
+	0x8b, 0x0d, 0x9c, 0x1c, 0xe0, 0x26, 0xe4, 0x29, 0xcf, 0xa0, 0xf4, 0x1b, 0x1d, 0xd4, 0xbd, 0xbb,
+	0xff, 0x20, 0xd0, 0xe2, 0x99, 0xd4, 0x6c, 0xa2, 0xc1, 0xa7, 0x06, 0x12, 0x57, 0x58, 0x72, 0x80,
+	0xbd, 0x01, 0x40, 0x52, 0xd0, 0x73, 0x28, 0xfd, 0xf5, 0x0e, 0xea, 0x7a, 0x91, 0xff, 0xdb, 0xc5,
+	0xde, 0xb6, 0xd5, 0xe8, 0x30, 0xcb, 0x4a, 0x10, 0xe2, 0x54, 0x96, 0x2c, 0x1f, 0xc6, 0xee, 0x00,
+	0xe0, 0x44, 0x21, 0xc9, 0x97, 0xf8, 0x9e, 0x60, 0xc3, 0x9c, 0x8e, 0x93, 0x0c, 0xa6, 0x8c, 0x4a,
+	0xc6, 0x73, 0xe1, 0x3b, 0x9d, 0x7a, 0x77, 0x63, 0xff, 0xbd, 0xe0, 0x25, 0x45, 0x0b, 0x4e, 0x35,
+	0xfa, 0xa8, 0x02, 0x47, 0x8d, 0xe7, 0x57, 0xed, 0xb5, 0x78, 0x4b, 0x2c, 0xbb, 0x85, 0x92, 0x86,
+	0xe5, 0x12, 0xca, 0x29, 0x1d, 0xfb, 0x4d, 0x23, 0x4d, 0x65, 0x93, 0x09, 0xbe, 0x23, 0xb9, 0xd4,
+	0x9c, 0x05, 0x17, 0x4c, 0xfa, 0xae, 0x26, 0xbc, 0x1f, 0xd8, 0x64, 0x55, 0xf5, 0xe7, 0x84, 0x9f,
+	0x70, 0x96, 0x47, 0x07, 0x8a, 0xe5, 0xa7, 0x3f, 0xdb, 0xdd, 0x21, 0x93, 0xa3, 0x49, 0x3f, 0x48,
+	0xf9, 0x99, 0xad, 0xbe, 0xfd, 0xda, 0x13, 0xd9, 0xd3, 0x50, 0x9e, 0x17, 0x20, 0xf4, 0x05, 0xf1,
+	0xec, 0xef, 0x9f, 0x3f, 0x40, 0xf1, 0xa6, 0xa6, 0x39, 0x32, 0x2c, 0xe4, 0x01, 0xf6, 0x98, 0x48,
+	0x68, 0x2a, 0xd9, 0x14, 0x7c, 0xaf, 0x83, 0xba, 0x6e, 0xec, 0x32, 0x71, 0xa8, 0x6d, 0xf2, 0x0e,
+	0xc6, 0x69, 0x09, 0x54, 0x42, 0x96, 0x50, 0xe9, 0xe3, 0x0e, 0xea, 0xd6, 0x63, 0xcf, 0x7a, 0x0e,
+	0x25, 0xd9, 0xc7, 0x4d, 0x6d, 0xf0, 0xd2, 0xdf, 0x78, 0x8d, 0xb8, 0x15, 0xf0, 0xe3, 0xc6, 0x3f,
+	0x3f, 0xb6, 0xd1, 0xee, 0x0f, 0x08, 0x6f, 0x7e, 0x4e, 0x25, 0x08, 0x79, 0x52, 0xb2, 0x14, 0x04,
+	0x79, 0x1f, 0x7b, 0x46, 0xd3, 0x64, 0xde, 0x53, 0x9b, 0xb3, 0xab, 0xb6, 0x6b, 0x7a, 0xad, 0x77,
+	0x14, 0xbb, 0xe6, 0xb8, 0x97, 0x91, 0x8f, 0xb0, 0x53, 0xe8, 0x4b, 0x7e, 0xcd, 0x2a, 0xf4, 0x92,
+	0x56, 0xd0, 0x61, 0x6d, 0x1d, 0x2c, 0x9c, 0xbc, 0x8b, 0xef, 0x8c, 0xa9, 0x90, 0xc9, 0xbc, 0x04,
+	0x75, 0xfd, 0xa0, 0x4d, 0xe5, 0xec, 0x59, 0x9f, 0xcd, 0xef, 0x7b, 0x84, 0xbd, 0x27, 0x4a, 0xa6,
+	0x63, 0x00, 0x41, 0xbe, 0xc5, 0x6f, 0x99, 0xd2, 0xa8, 0x1a, 0x24, 0x05, 0x4d, 0x9f, 0x82, 0x4c,
+	0x06, 0x00, 0x3e, 0x7a, 0x5d, 0x89, 0x3e, 0x5c, 0xb5, 0x44, 0x31, 0xd1, 0x4c, 0x11, 0x15, 0x70,
+	0xa2, 0x79, 0x8e, 0x01, 0x6c, 0x4e, 0xbf, 0xd4, 0xb1, 0x63, 0x7c, 0xab, 0xa8, 0xf5, 0xaa, 0x69,
+	0x5c, 0x28, 0x59, 0x5f, 0x4d, 0xc9, 0x08, 0x37, 0x4b, 0x48, 0x81, 0x15, 0x52, 0x8f, 0xe3, 0xff,
+	0x0d, 0x32, 0xb9, 0xbc, 0xd8, 0xbb, 0x6b, 0x52, 0x8e, 0x0d, 0xbc, 0x17, 0x57, 0x17, 0xc9, 0x00,
+	0xbb, 0x5a, 0x4e, 0xa5, 0xe3, 0xfa, 0xed, 0xeb, 0xd8, 0x54, 0x41, 0x8e, 0x01, 0xc8, 0x08, 0x7b,
+	0x7a, 0x87, 0x68, 0x22, 0xe7, 0xf6, 0x89, 0x5c, 0x1d, 0x5d, 0x31, 0x2d, 0x4f, 0x4b, 0xf3, 0xc6,
+	0xb4, 0xec, 0xfe, 0x81, 0x70, 0xb3, 0x9a, 0xba, 0x15, 0x0a, 0xf8, 0x18, 0x7b, 0x76, 0x23, 0xf0,
+	0x52, 0x57, 0xf0, 0x55, 0x63, 0xb6, 0x80, 0x92, 0x11, 0x76, 0xe8, 0x19, 0x9f, 0xe4, 0x72, 0x5e,
+	0xdc, 0xdb, 0x5e, 0x24, 0x36, 0xbe, 0x6d, 0xcf, 0x4b, 0x84, 0xdf, 0xb8, 0xb1, 0x07, 0xd5, 0x33,
+	0xed, 0x22, 0xb5, 0xcf, 0xf4, 0xcc, 0x33, 0x0d, 0x4e, 0x3d, 0xd3, 0x1c, 0xf7, 0x32, 0x12, 0x61,
+	0x22, 0xf8, 0x40, 0x2e, 0x36, 0x6e, 0xd2, 0x2f, 0x84, 0xe9, 0xd8, 0x68, 0x7b, 0x76, 0xd5, 0xde,
+	0x3a, 0xe5, 0x03, 0xb9, 0xd8, 0xb0, 0x27, 0xa7, 0xf1, 0x96, 0x58, 0xf2, 0x14, 0xaa, 0x2d, 0xc9,
+	0x88, 0x96, 0xd9, 0x8d, 0x18, 0xf5, 0x45, 0x8c, 0xcf, 0x68, 0x99, 0x2d, 0xc7, 0x18, 0x2d, 0x79,
+	0x0a, 0x61, 0x1e, 0x13, 0x7d, 0xf1, 0x6c, 0xd6, 0x42, 0xcf, 0x67, 0x2d, 0xf4, 0x62, 0xd6, 0x42,
+	0x7f, 0xcd, 0x5a, 0xe8, 0xbb, 0xeb, 0xd6, 0xda, 0x8b, 0xeb, 0xd6, 0xda, 0xef, 0xd7, 0xad, 0xb5,
+	0xaf, 0xc2, 0xff, 0xe8, 0xa4, 0x26, 0x46, 0x37, 0x7d, 0xca, 0xc7, 0x61, 0x3a, 0xa2, 0x2c, 0x0f,
+	0xa7, 0x8f, 0xc2, 0x6f, 0xaa, 0x3f, 0x7e, 0x2d, 0x5a, 0xdf, 0xd1, 0x88, 0x47, 0xff, 0x06, 0x00,
+	0x00, 0xff, 0xff, 0x8a, 0xc6, 0x10, 0xb6, 0x14, 0x08, 0x00, 0x00,
 }
 
-func (this *TSSRoute) Equal(that interface{}) bool {
-	if that == nil {
-		return this == nil
-	}
-
-	that1, ok := that.(*TSSRoute)
-	if !ok {
-		that2, ok := that.(TSSRoute)
-		if ok {
-			that1 = &that2
-		} else {
-			return false
-		}
-	}
-	if that1 == nil {
-		return this == nil
-	} else if this == nil {
-		return false
-	}
-	if this.DestinationChainID != that1.DestinationChainID {
-		return false
-	}
-	if this.DestinationContractAddress != that1.DestinationContractAddress {
-		return false
-	}
-	return true
-}
-func (this *SignalDeviation) Equal(that interface{}) bool {
-	if that == nil {
-		return this == nil
-	}
-
-	that1, ok := that.(*SignalDeviation)
-	if !ok {
-		that2, ok := that.(SignalDeviation)
-		if ok {
-			that1 = &that2
-		} else {
-			return false
-		}
-	}
-	if that1 == nil {
-		return this == nil
-	} else if this == nil {
-		return false
-	}
-	if this.SignalID != that1.SignalID {
-		return false
-	}
-	if this.SoftDeviationBPS != that1.SoftDeviationBPS {
-		return false
-	}
-	if this.HardDeviationBPS != that1.HardDeviationBPS {
-		return false
-	}
-	return true
-}
-func (this *Deposit) Equal(that interface{}) bool {
-	if that == nil {
-		return this == nil
-	}
-
-	that1, ok := that.(*Deposit)
-	if !ok {
-		that2, ok := that.(Deposit)
-		if ok {
-			that1 = &that2
-		} else {
-			return false
-		}
-	}
-	if that1 == nil {
-		return this == nil
-	} else if this == nil {
-		return false
-	}
-	if this.TunnelID != that1.TunnelID {
-		return false
-	}
-	if this.Depositor != that1.Depositor {
-		return false
-	}
-	if len(this.Amount) != len(that1.Amount) {
-		return false
-	}
-	for i := range this.Amount {
-		if !this.Amount[i].Equal(&that1.Amount[i]) {
-			return false
-		}
-	}
-	return true
-}
 func (this *Tunnel) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
@@ -914,11 +692,11 @@ func (this *TotalFees) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
-	if len(this.TotalPacketFee) != len(that1.TotalPacketFee) {
+	if len(this.TotalBasePacketFee) != len(that1.TotalBasePacketFee) {
 		return false
 	}
-	for i := range this.TotalPacketFee {
-		if !this.TotalPacketFee[i].Equal(&that1.TotalPacketFee[i]) {
+	for i := range this.TotalBasePacketFee {
+		if !this.TotalBasePacketFee[i].Equal(&that1.TotalBasePacketFee[i]) {
 			return false
 		}
 	}
@@ -957,7 +735,7 @@ func (this *Packet) Equal(that interface{}) bool {
 			return false
 		}
 	}
-	if !this.PacketContent.Equal(that1.PacketContent) {
+	if !this.Receipt.Equal(that1.Receipt) {
 		return false
 	}
 	if len(this.BaseFee) != len(that1.BaseFee) {
@@ -981,14 +759,14 @@ func (this *Packet) Equal(that interface{}) bool {
 	}
 	return true
 }
-func (this *TSSPacketContent) Equal(that interface{}) bool {
+func (this *Deposit) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
 	}
 
-	that1, ok := that.(*TSSPacketContent)
+	that1, ok := that.(*Deposit)
 	if !ok {
-		that2, ok := that.(TSSPacketContent)
+		that2, ok := that.(Deposit)
 		if ok {
 			that1 = &that2
 		} else {
@@ -1000,143 +778,52 @@ func (this *TSSPacketContent) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
-	if this.SigningID != that1.SigningID {
+	if this.TunnelID != that1.TunnelID {
 		return false
 	}
-	if this.DestinationChainID != that1.DestinationChainID {
+	if this.Depositor != that1.Depositor {
 		return false
 	}
-	if this.DestinationContractAddress != that1.DestinationContractAddress {
+	if len(this.Amount) != len(that1.Amount) {
+		return false
+	}
+	for i := range this.Amount {
+		if !this.Amount[i].Equal(&that1.Amount[i]) {
+			return false
+		}
+	}
+	return true
+}
+func (this *SignalDeviation) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*SignalDeviation)
+	if !ok {
+		that2, ok := that.(SignalDeviation)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.SignalID != that1.SignalID {
+		return false
+	}
+	if this.SoftDeviationBPS != that1.SoftDeviationBPS {
+		return false
+	}
+	if this.HardDeviationBPS != that1.HardDeviationBPS {
 		return false
 	}
 	return true
 }
-func (m *TSSRoute) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *TSSRoute) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *TSSRoute) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.DestinationContractAddress) > 0 {
-		i -= len(m.DestinationContractAddress)
-		copy(dAtA[i:], m.DestinationContractAddress)
-		i = encodeVarintTunnel(dAtA, i, uint64(len(m.DestinationContractAddress)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if len(m.DestinationChainID) > 0 {
-		i -= len(m.DestinationChainID)
-		copy(dAtA[i:], m.DestinationChainID)
-		i = encodeVarintTunnel(dAtA, i, uint64(len(m.DestinationChainID)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *SignalDeviation) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *SignalDeviation) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *SignalDeviation) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.HardDeviationBPS != 0 {
-		i = encodeVarintTunnel(dAtA, i, uint64(m.HardDeviationBPS))
-		i--
-		dAtA[i] = 0x18
-	}
-	if m.SoftDeviationBPS != 0 {
-		i = encodeVarintTunnel(dAtA, i, uint64(m.SoftDeviationBPS))
-		i--
-		dAtA[i] = 0x10
-	}
-	if len(m.SignalID) > 0 {
-		i -= len(m.SignalID)
-		copy(dAtA[i:], m.SignalID)
-		i = encodeVarintTunnel(dAtA, i, uint64(len(m.SignalID)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *Deposit) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *Deposit) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *Deposit) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Amount) > 0 {
-		for iNdEx := len(m.Amount) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.Amount[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintTunnel(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0x1a
-		}
-	}
-	if len(m.Depositor) > 0 {
-		i -= len(m.Depositor)
-		copy(dAtA[i:], m.Depositor)
-		i = encodeVarintTunnel(dAtA, i, uint64(len(m.Depositor)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if m.TunnelID != 0 {
-		i = encodeVarintTunnel(dAtA, i, uint64(m.TunnelID))
-		i--
-		dAtA[i] = 0x8
-	}
-	return len(dAtA) - i, nil
-}
-
 func (m *Tunnel) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1316,10 +1003,10 @@ func (m *TotalFees) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if len(m.TotalPacketFee) > 0 {
-		for iNdEx := len(m.TotalPacketFee) - 1; iNdEx >= 0; iNdEx-- {
+	if len(m.TotalBasePacketFee) > 0 {
+		for iNdEx := len(m.TotalBasePacketFee) - 1; iNdEx >= 0; iNdEx-- {
 			{
-				size, err := m.TotalPacketFee[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				size, err := m.TotalBasePacketFee[iNdEx].MarshalToSizedBuffer(dAtA[:i])
 				if err != nil {
 					return 0, err
 				}
@@ -1386,9 +1073,9 @@ func (m *Packet) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			dAtA[i] = 0x2a
 		}
 	}
-	if m.PacketContent != nil {
+	if m.Receipt != nil {
 		{
-			size, err := m.PacketContent.MarshalToSizedBuffer(dAtA[:i])
+			size, err := m.Receipt.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
@@ -1425,7 +1112,7 @@ func (m *Packet) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *TSSPacketContent) Marshal() (dAtA []byte, err error) {
+func (m *Deposit) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1435,34 +1122,81 @@ func (m *TSSPacketContent) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *TSSPacketContent) MarshalTo(dAtA []byte) (int, error) {
+func (m *Deposit) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *TSSPacketContent) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *Deposit) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.DestinationContractAddress) > 0 {
-		i -= len(m.DestinationContractAddress)
-		copy(dAtA[i:], m.DestinationContractAddress)
-		i = encodeVarintTunnel(dAtA, i, uint64(len(m.DestinationContractAddress)))
-		i--
-		dAtA[i] = 0x1a
+	if len(m.Amount) > 0 {
+		for iNdEx := len(m.Amount) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Amount[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTunnel(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
 	}
-	if len(m.DestinationChainID) > 0 {
-		i -= len(m.DestinationChainID)
-		copy(dAtA[i:], m.DestinationChainID)
-		i = encodeVarintTunnel(dAtA, i, uint64(len(m.DestinationChainID)))
+	if len(m.Depositor) > 0 {
+		i -= len(m.Depositor)
+		copy(dAtA[i:], m.Depositor)
+		i = encodeVarintTunnel(dAtA, i, uint64(len(m.Depositor)))
 		i--
 		dAtA[i] = 0x12
 	}
-	if m.SigningID != 0 {
-		i = encodeVarintTunnel(dAtA, i, uint64(m.SigningID))
+	if m.TunnelID != 0 {
+		i = encodeVarintTunnel(dAtA, i, uint64(m.TunnelID))
 		i--
 		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *SignalDeviation) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *SignalDeviation) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *SignalDeviation) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.HardDeviationBPS != 0 {
+		i = encodeVarintTunnel(dAtA, i, uint64(m.HardDeviationBPS))
+		i--
+		dAtA[i] = 0x18
+	}
+	if m.SoftDeviationBPS != 0 {
+		i = encodeVarintTunnel(dAtA, i, uint64(m.SoftDeviationBPS))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.SignalID) > 0 {
+		i -= len(m.SignalID)
+		copy(dAtA[i:], m.SignalID)
+		i = encodeVarintTunnel(dAtA, i, uint64(len(m.SignalID)))
+		i--
+		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -1478,64 +1212,6 @@ func encodeVarintTunnel(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
-func (m *TSSRoute) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.DestinationChainID)
-	if l > 0 {
-		n += 1 + l + sovTunnel(uint64(l))
-	}
-	l = len(m.DestinationContractAddress)
-	if l > 0 {
-		n += 1 + l + sovTunnel(uint64(l))
-	}
-	return n
-}
-
-func (m *SignalDeviation) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.SignalID)
-	if l > 0 {
-		n += 1 + l + sovTunnel(uint64(l))
-	}
-	if m.SoftDeviationBPS != 0 {
-		n += 1 + sovTunnel(uint64(m.SoftDeviationBPS))
-	}
-	if m.HardDeviationBPS != 0 {
-		n += 1 + sovTunnel(uint64(m.HardDeviationBPS))
-	}
-	return n
-}
-
-func (m *Deposit) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.TunnelID != 0 {
-		n += 1 + sovTunnel(uint64(m.TunnelID))
-	}
-	l = len(m.Depositor)
-	if l > 0 {
-		n += 1 + l + sovTunnel(uint64(l))
-	}
-	if len(m.Amount) > 0 {
-		for _, e := range m.Amount {
-			l = e.Size()
-			n += 1 + l + sovTunnel(uint64(l))
-		}
-	}
-	return n
-}
-
 func (m *Tunnel) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1614,8 +1290,8 @@ func (m *TotalFees) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if len(m.TotalPacketFee) > 0 {
-		for _, e := range m.TotalPacketFee {
+	if len(m.TotalBasePacketFee) > 0 {
+		for _, e := range m.TotalBasePacketFee {
 			l = e.Size()
 			n += 1 + l + sovTunnel(uint64(l))
 		}
@@ -1641,8 +1317,8 @@ func (m *Packet) Size() (n int) {
 			n += 1 + l + sovTunnel(uint64(l))
 		}
 	}
-	if m.PacketContent != nil {
-		l = m.PacketContent.Size()
+	if m.Receipt != nil {
+		l = m.Receipt.Size()
 		n += 1 + l + sovTunnel(uint64(l))
 	}
 	if len(m.BaseFee) > 0 {
@@ -1663,22 +1339,43 @@ func (m *Packet) Size() (n int) {
 	return n
 }
 
-func (m *TSSPacketContent) Size() (n int) {
+func (m *Deposit) Size() (n int) {
 	if m == nil {
 		return 0
 	}
 	var l int
 	_ = l
-	if m.SigningID != 0 {
-		n += 1 + sovTunnel(uint64(m.SigningID))
+	if m.TunnelID != 0 {
+		n += 1 + sovTunnel(uint64(m.TunnelID))
 	}
-	l = len(m.DestinationChainID)
+	l = len(m.Depositor)
 	if l > 0 {
 		n += 1 + l + sovTunnel(uint64(l))
 	}
-	l = len(m.DestinationContractAddress)
+	if len(m.Amount) > 0 {
+		for _, e := range m.Amount {
+			l = e.Size()
+			n += 1 + l + sovTunnel(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *SignalDeviation) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.SignalID)
 	if l > 0 {
 		n += 1 + l + sovTunnel(uint64(l))
+	}
+	if m.SoftDeviationBPS != 0 {
+		n += 1 + sovTunnel(uint64(m.SoftDeviationBPS))
+	}
+	if m.HardDeviationBPS != 0 {
+		n += 1 + sovTunnel(uint64(m.HardDeviationBPS))
 	}
 	return n
 }
@@ -1688,375 +1385,6 @@ func sovTunnel(x uint64) (n int) {
 }
 func sozTunnel(x uint64) (n int) {
 	return sovTunnel(uint64((x << 1) ^ uint64((int64(x) >> 63))))
-}
-func (m *TSSRoute) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTunnel
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: TSSRoute: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: TSSRoute: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DestinationChainID", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.DestinationChainID = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DestinationContractAddress", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.DestinationContractAddress = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTunnel(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *SignalDeviation) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTunnel
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: SignalDeviation: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: SignalDeviation: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SignalID", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.SignalID = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SoftDeviationBPS", wireType)
-			}
-			m.SoftDeviationBPS = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.SoftDeviationBPS |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field HardDeviationBPS", wireType)
-			}
-			m.HardDeviationBPS = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.HardDeviationBPS |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTunnel(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *Deposit) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTunnel
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: Deposit: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Deposit: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field TunnelID", wireType)
-			}
-			m.TunnelID = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.TunnelID |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Depositor", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Depositor = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Amount = append(m.Amount, types.Coin{})
-			if err := m.Amount[len(m.Amount)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTunnel(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
 }
 func (m *Tunnel) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
@@ -2155,7 +1483,7 @@ func (m *Tunnel) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if m.Route == nil {
-				m.Route = &types1.Any{}
+				m.Route = &types.Any{}
 			}
 			if err := m.Route.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -2175,7 +1503,7 @@ func (m *Tunnel) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.Encoder |= types2.Encoder(b&0x7F) << shift
+				m.Encoder |= types1.Encoder(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
@@ -2294,7 +1622,7 @@ func (m *Tunnel) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.TotalDeposit = append(m.TotalDeposit, types.Coin{})
+			m.TotalDeposit = append(m.TotalDeposit, types2.Coin{})
 			if err := m.TotalDeposit[len(m.TotalDeposit)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -2468,7 +1796,7 @@ func (m *LatestPrices) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Prices = append(m.Prices, types2.Price{})
+			m.Prices = append(m.Prices, types1.Price{})
 			if err := m.Prices[len(m.Prices)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -2544,7 +1872,7 @@ func (m *TotalFees) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field TotalPacketFee", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field TotalBasePacketFee", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -2571,8 +1899,8 @@ func (m *TotalFees) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.TotalPacketFee = append(m.TotalPacketFee, types.Coin{})
-			if err := m.TotalPacketFee[len(m.TotalPacketFee)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			m.TotalBasePacketFee = append(m.TotalBasePacketFee, types2.Coin{})
+			if err := m.TotalBasePacketFee[len(m.TotalBasePacketFee)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -2693,14 +2021,14 @@ func (m *Packet) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Prices = append(m.Prices, types2.Price{})
+			m.Prices = append(m.Prices, types1.Price{})
 			if err := m.Prices[len(m.Prices)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field PacketContent", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Receipt", wireType)
 			}
 			var msglen int
 			for shift := uint(0); ; shift += 7 {
@@ -2727,10 +2055,10 @@ func (m *Packet) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.PacketContent == nil {
-				m.PacketContent = &types1.Any{}
+			if m.Receipt == nil {
+				m.Receipt = &types.Any{}
 			}
-			if err := m.PacketContent.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+			if err := m.Receipt.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -2763,7 +2091,7 @@ func (m *Packet) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.BaseFee = append(m.BaseFee, types.Coin{})
+			m.BaseFee = append(m.BaseFee, types2.Coin{})
 			if err := m.BaseFee[len(m.BaseFee)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -2797,7 +2125,7 @@ func (m *Packet) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.RouteFee = append(m.RouteFee, types.Coin{})
+			m.RouteFee = append(m.RouteFee, types2.Coin{})
 			if err := m.RouteFee[len(m.RouteFee)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -2842,7 +2170,7 @@ func (m *Packet) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *TSSPacketContent) Unmarshal(dAtA []byte) error {
+func (m *Deposit) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2865,17 +2193,17 @@ func (m *TSSPacketContent) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: TSSPacketContent: wiretype end group for non-group")
+			return fmt.Errorf("proto: Deposit: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: TSSPacketContent: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: Deposit: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
 			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SigningID", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field TunnelID", wireType)
 			}
-			m.SigningID = 0
+			m.TunnelID = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTunnel
@@ -2885,14 +2213,14 @@ func (m *TSSPacketContent) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.SigningID |= github_com_bandprotocol_chain_v3_x_bandtss_types.SigningID(b&0x7F) << shift
+				m.TunnelID |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
 		case 2:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DestinationChainID", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Depositor", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -2920,11 +2248,95 @@ func (m *TSSPacketContent) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.DestinationChainID = string(dAtA[iNdEx:postIndex])
+			m.Depositor = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field DestinationContractAddress", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTunnel
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Amount = append(m.Amount, types2.Coin{})
+			if err := m.Amount[len(m.Amount)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTunnel(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *SignalDeviation) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTunnel
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: SignalDeviation: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: SignalDeviation: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SignalID", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -2952,8 +2364,46 @@ func (m *TSSPacketContent) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.DestinationContractAddress = string(dAtA[iNdEx:postIndex])
+			m.SignalID = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SoftDeviationBPS", wireType)
+			}
+			m.SoftDeviationBPS = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTunnel
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.SoftDeviationBPS |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field HardDeviationBPS", wireType)
+			}
+			m.HardDeviationBPS = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTunnel
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.HardDeviationBPS |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTunnel(dAtA[iNdEx:])

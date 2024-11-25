@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	sdkerrors "cosmossdk.io/errors"
@@ -34,18 +33,13 @@ func (ms msgServer) CreateTunnel(
 	params := ms.Keeper.GetParams(ctx)
 
 	// validate signal infos and interval
-	if err := types.ValidateSignalDeviations(msg.SignalDeviations, params); err != nil {
+	if err := types.ValidateSignalDeviations(msg.SignalDeviations, params.MaxSignals, params.MaxDeviationBPS, params.MinDeviationBPS); err != nil {
 		return nil, err
 	}
 
 	// validate interval
-	if msg.Interval < params.MinInterval || msg.Interval > params.MaxInterval {
-		return nil, types.ErrIntervalOutOfRange.Wrapf(
-			"max %d, min %d, got %d",
-			params.MaxInterval,
-			params.MinInterval,
-			msg.Interval,
-		)
+	if err := types.ValidateInterval(msg.Interval, params.MaxInterval, params.MinInterval); err != nil {
+		return nil, err
 	}
 
 	creator, err := sdk.AccAddressFromBech32(msg.Creator)
@@ -53,9 +47,9 @@ func (ms msgServer) CreateTunnel(
 		return nil, err
 	}
 
-	route, ok := msg.Route.GetCachedValue().(types.RouteI)
-	if !ok {
-		return nil, errors.New("cannot create tunnel, failed to convert proto Any to routeI")
+	route, err := msg.GetRouteValue()
+	if err != nil {
+		return nil, err
 	}
 
 	// add a new tunnel
@@ -93,18 +87,13 @@ func (ms msgServer) UpdateAndResetTunnel(
 	params := ms.Keeper.GetParams(ctx)
 
 	// validate signal infos and interval
-	if err := types.ValidateSignalDeviations(msg.SignalDeviations, params); err != nil {
+	if err := types.ValidateSignalDeviations(msg.SignalDeviations, params.MaxSignals, params.MaxDeviationBPS, params.MinDeviationBPS); err != nil {
 		return nil, err
 	}
 
 	// validate interval
-	if msg.Interval < params.MinInterval || msg.Interval > params.MaxInterval {
-		return nil, types.ErrIntervalOutOfRange.Wrapf(
-			"max %d, min %d, got %d",
-			params.MaxInterval,
-			params.MinInterval,
-			msg.Interval,
-		)
+	if err := types.ValidateInterval(msg.Interval, params.MaxInterval, params.MinInterval); err != nil {
+		return nil, err
 	}
 
 	tunnel, err := ms.Keeper.GetTunnel(ctx, msg.TunnelID)

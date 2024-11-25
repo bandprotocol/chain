@@ -29,7 +29,7 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 		k.SetTunnel(ctx, t)
 		k.SetLatestPrices(ctx, types.NewLatestPrices(t.ID, []feedstypes.Price{}, 0))
 		if t.IsActive {
-			k.ActiveTunnelID(ctx, t.ID)
+			k.SetActiveTunnelID(ctx, t.ID)
 		}
 	}
 
@@ -49,7 +49,7 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 		k.SetModuleAccount(ctx, moduleAcc)
 	}
 
-	totalBalance := totalDeposits.Add(data.TotalFees.TotalPacketFee...)
+	totalBalance := totalDeposits.Add(data.TotalFees.Total()...)
 	if !balance.Equal(totalBalance) {
 		panic("balance in the module account is not equal to the sum of total fees and total deposits")
 	}
