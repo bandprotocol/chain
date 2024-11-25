@@ -78,8 +78,3 @@ func ValidateGenesis(data GenesisState) error {
 
 	return data.Params.Validate()
 }
-
-// Total returns the total fees
-func (tf TotalFees) Total() sdk.Coins {
-	return tf.TotalPacketFee
-}

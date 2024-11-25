@@ -60,8 +60,8 @@ message LatestPrices {
 message TotalFees {
   option (gogoproto.equal) = true;
 
-  // total_packet_fee is the total packet fee collected
-  repeated cosmos.base.v1beta1.Coin total_packet_fee = 1
+  // total_base_packet_fee is the total base packet fee collected by the tunnel
+  repeated cosmos.base.v1beta1.Coin total_base_packet_fee = 1
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }
 

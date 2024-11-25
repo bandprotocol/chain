@@ -249,7 +249,7 @@ func (s *KeeperTestSuite) TestDeactivateTunnel() {
 func (s *KeeperTestSuite) TestGetSetTotalFees() {
 	ctx, k := s.ctx, s.keeper
 
-	totalFees := types.TotalFees{TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100)))}
+	totalFees := types.TotalFees{TotalBasePacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100)))}
 	k.SetTotalFees(ctx, totalFees)
 
 	retrievedFees := k.GetTotalFees(ctx)
