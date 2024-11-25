@@ -2,7 +2,6 @@ package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 )
@@ -29,27 +28,22 @@ func NewMember(
 // Validate performs basic validation of group information.
 func (m Member) Validate() error {
 	if m.ID == 0 {
-		return ErrInvalidMember.Wrap("group id is 0")
+		return ErrInvalidMember.Wrap("member id cannot be 0")
 	}
 
 	if m.GroupID == 0 {
-		return ErrInvalidMember.Wrap("group threshold is invalid")
+		return ErrInvalidMember.Wrap("group id cannot be 0")
 	}
 
 	if _, err := sdk.AccAddressFromBech32(m.Address); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("invalid member address: %s", err)
+		return ErrInvalidMember.Wrapf("invalid member address: %v", err)
 	}
 
 	if err := m.PubKey.Validate(); err != nil {
-		return ErrInvalidPublicKey.Wrapf("invalid member public key: %s", err)
+		return ErrInvalidMember.Wrapf("invalid member public key: %v", err)
 	}
 
 	return nil
-}
-
-// IsAddress checks if the address of the Member matches the given address
-func (m Member) IsAddress(address string) bool {
-	return m.Address == address
 }
 
 // Members represents a slice of Member values.

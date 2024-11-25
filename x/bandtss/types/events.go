@@ -22,8 +22,8 @@ const (
 	AttributeKeyCurrentGroupPubKey     = "current_group_pub_key"
 	AttributeKeyRandomAddress          = "random_address"
 	AttributeKeySignature              = "signature"
-
-	AttributeKeySigningErrReason    = "signing_error_reason"
-	AttributeKeySigningErrCode      = "signing_error_code"
-	AttributeKeySigningErrCodespace = "signing_error_codespace"
+	AttributeKeyTotalFee               = "total_fee"
+	AttributeKeySigningErrReason       = "signing_error_reason"
+	AttributeKeySigningErrCode         = "signing_error_code"
+	AttributeKeySigningErrCodespace    = "signing_error_codespace"
 )

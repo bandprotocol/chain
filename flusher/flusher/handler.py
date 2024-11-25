@@ -1,6 +1,6 @@
 import base64 as b64
 from datetime import datetime
-from sqlalchemy import select, func
+from sqlalchemy import select, func, tuple_
 from sqlalchemy.dialects.postgresql import insert
 
 from .db import (
@@ -764,9 +764,15 @@ class Handler(object):
 
         self.conn.execute(stmt)
 
+        delete_keys = (
+            select(feeds_historical_prices.c.signal_id, feeds_historical_prices.c.timestamp)
+            .where(feeds_historical_prices.c.timestamp < msg["timestamp"] - PRICE_HISTORY_PERIOD)
+            .order_by(feeds_historical_prices.c.timestamp.asc())
+            .limit(2000)
+        )
         self.conn.execute(
             feeds_historical_prices.delete().where(
-                feeds_historical_prices.c.timestamp < msg["timestamp"] - PRICE_HISTORY_PERIOD
+                tuple_(feeds_historical_prices.c.signal_id, feeds_historical_prices.c.timestamp).in_(delete_keys)
             )
         )
 

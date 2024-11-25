@@ -68,6 +68,7 @@ import (
 
 	owasm "github.com/bandprotocol/go-owasm/api"
 
+	"github.com/bandprotocol/chain/v3/x/bandtss"
 	bandtsskeeper "github.com/bandprotocol/chain/v3/x/bandtss/keeper"
 	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	bandbankkeeper "github.com/bandprotocol/chain/v3/x/bank/keeper"
@@ -86,6 +87,8 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss"
 	tsskeeper "github.com/bandprotocol/chain/v3/x/tss/keeper"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
+	tunnelkeeper "github.com/bandprotocol/chain/v3/x/tunnel/keeper"
+	tunneltypes "github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 type AppKeepers struct {
@@ -115,6 +118,7 @@ type AppKeepers struct {
 	TSSKeeper             *tsskeeper.Keeper
 	BandtssKeeper         bandtsskeeper.Keeper
 	FeedsKeeper           feedskeeper.Keeper
+	TunnelKeeper          tunnelkeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
 	GlobalFeeKeeper       globalfeekeeper.Keeper
 	RestakeKeeper         restakekeeper.Keeper
@@ -382,7 +386,7 @@ func NewAppKeeper(
 
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	appKeepers.EvidenceKeeper = *evidenceKeeper
-
+	// GlobalFeeKeeper
 	appKeepers.GlobalFeeKeeper = globalfeekeeper.NewKeeper(
 		appCodec,
 		appKeepers.keys[globalfeetypes.StoreKey],
@@ -487,11 +491,21 @@ func NewAppKeeper(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
+	appKeepers.TunnelKeeper = tunnelkeeper.NewKeeper(
+		appCodec,
+		appKeepers.keys[tunneltypes.StoreKey],
+		appKeepers.AccountKeeper,
+		appKeepers.BankKeeper,
+		appKeepers.FeedsKeeper,
+		appKeepers.BandtssKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
+	)
+
 	// Add TSS route
 	tssContentRouter.
 		AddRoute(tsstypes.RouterKey, tss.NewSignatureOrderHandler(*appKeepers.TSSKeeper)).
 		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(appKeepers.OracleKeeper)).
-		AddRoute(bandtsstypes.RouterKey, bandtsstypes.NewSignatureOrderHandler()).
+		AddRoute(bandtsstypes.RouterKey, bandtss.NewSignatureOrderHandler()).
 		AddRoute(feedstypes.RouterKey, feeds.NewSignatureOrderHandler(appKeepers.FeedsKeeper))
 
 	tssCbRouter.

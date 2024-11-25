@@ -62,7 +62,7 @@ func (m MsgTransitionGroup) ValidateBasic() error {
 	existed := make(map[string]bool)
 	for _, member := range m.Members {
 		if existed[member] {
-			return ErrMemberDuplicate
+			return ErrMemberDuplicated.Wrapf("member %s is duplicated", member)
 		}
 		existed[member] = true
 	}
@@ -72,10 +72,15 @@ func (m MsgTransitionGroup) ValidateBasic() error {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
 	}
 
-	// Validate threshold must be less than or equal to members but more than zero
-	if m.Threshold > uint64(len(m.Members)) || m.Threshold <= 0 {
-		return ErrInvalidSigningThreshold.Wrapf(
-			"threshold must be less than or equal to the members but more than zero",
+	// Validate threshold must be less than or equal to members but not zero
+	if m.Threshold == 0 {
+		return ErrInvalidThreshold.Wrap("threshold must be greater than zero")
+	}
+	if m.Threshold > uint64(len(m.Members)) {
+		return ErrInvalidThreshold.Wrapf(
+			"threshold (%d) must be less than or equal to the number of members (%d)",
+			m.Threshold,
+			len(m.Members),
 		)
 	}
 
