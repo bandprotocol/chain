@@ -139,8 +139,8 @@ func (s *KeeperTestSuite) TestProducePacket() {
 	s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
 		gomock.Any(),
 		uint64(1),
-		"0x1234567890abcdef",
 		"chain-1",
+		"0x1234567890abcdef",
 		gomock.Any(),
 		feePayer,
 		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))),
@@ -201,8 +201,8 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 	s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
 		gomock.Any(),
 		uint64(1),
-		"0x",
 		"chain-1",
+		"0x",
 		gomock.Any(),
 		feePayer,
 		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))),

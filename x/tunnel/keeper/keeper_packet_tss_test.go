@@ -34,8 +34,8 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 	s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
 		gomock.Any(),
 		uint64(1),
-		"0x1234567890abcdef",
 		"chain-1",
+		"0x1234567890abcdef",
 		gomock.Any(),
 		bandtesting.Alice.Address,
 		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))),

@@ -19,8 +19,8 @@ func (k Keeper) SendTSSPacket(
 	signingID, err := k.bandtssKeeper.CreateTunnelSigningRequest(
 		ctx,
 		packet.TunnelID,
-		route.DestinationContractAddress,
 		route.DestinationChainID,
+		route.DestinationContractAddress,
 		content,
 		feePayer,
 		packet.RouteFee,
