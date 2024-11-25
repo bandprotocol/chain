@@ -51,47 +51,50 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) error {
 	prices := k.feedsKeeper.GetAllPrices(ctx)
 	pricesMap := CreatePricesMap(prices)
 
-	// create new packet if possible for active tunnels. If not enough fund, deactivate the tunnel.
+	// create new packet. If failed to produce packet, emit an event.
 	for _, id := range ids {
-		defer func() {
-			if r := recover(); r != nil {
-				ctx.Logger().Error(fmt.Sprintf("Panic recovered: %v", r))
-				ctx.EventManager().EmitEvent(sdk.NewEvent(
-					types.EventTypeProducePacketFail,
-					sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", id)),
-					sdk.NewAttribute(types.AttributeKeyReason, fmt.Sprintf("panic recovered: %v", r)),
-				))
-			}
-		}()
-		// check if the tunnel has enough fund to create a packet
-		// error should not happen here since the tunnel is already validated
-		ok, err := k.HasEnoughFundToCreatePacket(ctx, id)
-		if err != nil {
-			return err
-		}
-		if !ok {
-			// deactivate the tunnel if not enough fund
-			// error should not happen here since the tunnel is already validated
-			err := k.DeactivateTunnel(ctx, id)
-			if err != nil {
-				return err
-			}
-
-			continue
-		}
-
-		// Produce a packet. If error, emits an event.
-		cacheCtx, writeFn := ctx.CacheContext()
-		if err := k.ProducePacket(cacheCtx, id, pricesMap); err != nil {
+		if err := k.ProduceActiveTunnelPacket(ctx, id, pricesMap); err != nil {
 			ctx.EventManager().EmitEvent(sdk.NewEvent(
 				types.EventTypeProducePacketFail,
 				sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", id)),
 				sdk.NewAttribute(types.AttributeKeyReason, err.Error()),
 			))
-		} else {
-			writeFn()
 		}
 	}
+
+	return nil
+}
+
+// ProduceActiveTunnelPacket generates a packet and sends it to the destination route for the given tunnel ID.
+// If not enough fund, deactivate the tunnel.
+func (k Keeper) ProduceActiveTunnelPacket(
+	ctx sdk.Context,
+	tunnelID uint64,
+	pricesMap map[string]feedstypes.Price,
+) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = fmt.Errorf("panic recovered: %v", r)
+			return
+		}
+	}()
+
+	// Check if the tunnel has enough fund to create a packet and deactivate the tunnel if not
+	// enough fund. Error should not happen here since the tunnel is already validated.
+	ok, err := k.HasEnoughFundToCreatePacket(ctx, tunnelID)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return k.DeactivateTunnel(ctx, tunnelID)
+	}
+
+	// Produce a packet. If produce packet successfully, update the context state.
+	cacheCtx, writeFn := ctx.CacheContext()
+	if err := k.ProducePacket(cacheCtx, tunnelID, pricesMap); err != nil {
+		return err
+	}
+	writeFn()
 
 	return nil
 }

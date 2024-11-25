@@ -24,13 +24,6 @@ func NewTSSCallback(k Keeper) TSSCallback {
 }
 
 func (cb TSSCallback) OnGroupCreationCompleted(ctx sdk.Context, groupID tss.GroupID) {
-	// handle in case of panic
-	defer func() {
-		if r := recover(); r != nil {
-			ctx.Logger().Error(fmt.Sprintf("Panic recovered: %v", r))
-		}
-	}()
-
 	transition, found := cb.k.GetGroupTransition(ctx)
 	if !found ||
 		transition.IncomingGroupID != groupID ||
