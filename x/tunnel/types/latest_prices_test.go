@@ -9,45 +9,6 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-func TestLatestPrices_Validate(t *testing.T) {
-	examplePrices := []feedstypes.Price{
-		feedstypes.NewPrice(feedstypes.PRICE_STATUS_AVAILABLE, "signal1", 100, 0),
-	}
-
-	cases := map[string]struct {
-		latestPrices types.LatestPrices
-		expErr       bool
-		expErrMsg    string
-	}{
-		"valid latest prices": {
-			latestPrices: types.NewLatestPrices(1, examplePrices, 10),
-			expErr:       false,
-		},
-		"invalid tunnel ID": {
-			latestPrices: types.NewLatestPrices(0, examplePrices, 10),
-			expErr:       true,
-			expErrMsg:    "tunnel ID cannot be 0",
-		},
-		"negative last interval": {
-			latestPrices: types.NewLatestPrices(1, examplePrices, -1),
-			expErr:       true,
-			expErrMsg:    "last interval cannot be negative",
-		},
-	}
-
-	for name, tc := range cases {
-		t.Run(name, func(t *testing.T) {
-			err := tc.latestPrices.Validate()
-			if tc.expErr {
-				require.Error(t, err)
-				require.Contains(t, err.Error(), tc.expErrMsg)
-			} else {
-				require.NoError(t, err)
-			}
-		})
-	}
-}
-
 func TestLatestPrices_UpdatePrices(t *testing.T) {
 	initialPrices := []feedstypes.Price{
 		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "signal1", Price: 100},

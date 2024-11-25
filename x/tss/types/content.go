@@ -76,7 +76,7 @@ func wrapHandler(path string, handler Handler) Handler {
 	return func(ctx sdk.Context, req Content) ([]byte, error) {
 		msg, err := handler(ctx, req)
 		if err != nil {
-			return nil, ErrHandleSignatureOrderFailed.Wrap(err.Error())
+			return nil, ErrHandleSignatureOrderFailed.Wrapf("failed to handle signature order: %v", err)
 		}
 		selector := tsslib.Hash([]byte(path))[:4]
 

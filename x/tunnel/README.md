@@ -114,16 +114,20 @@ A Packet is the data unit produced and sent to the destination chain based on th
 
 ```go
 type Packet struct {
-    // tunnel_id is the tunnel ID
-    TunnelID uint64
-    // sequence is representing the sequence of the tunnel packet.
-    Sequence uint64
-    // signal_prices is the list of signal prices
-    Prices []feedstypes.Price
-    // packet_content is the content of the packet that implements PacketContentI
-    PacketContent *types1.Any
-    // created_at is the timestamp when the packet is created
-    CreatedAt int64
+  // tunnel_id is the tunnel ID
+  TunnelID uint64
+  // sequence is representing the sequence of the tunnel packet.
+  Sequence uint64
+  // prices is the list of prices information from feeds module.
+  Prices []feedstypes.Price
+  // receipt represents the confirmation of the packet delivery to the destination via the specified route.
+  Receipt *codectypes.Any
+  // base_fee is the base fee of the packet
+  BaseFee sdk.Coins
+  // route_fee is the route fee of the packet
+  RouteFee sdk.Coins
+  // created_at is the timestamp when the packet is created
+  CreatedAt int64
 }
 ```
 

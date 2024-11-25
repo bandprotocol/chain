@@ -10,10 +10,5 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) error {
 	// Produce packets for all tunnels that are active and have passed the interval time trigger
 	// or deviated from the last price to destination route.
 	// Error should not happen here since the tunnel is already validated.
-	err := k.ProduceActiveTunnelPackets(ctx)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return k.ProduceActiveTunnelPackets(ctx)
 }

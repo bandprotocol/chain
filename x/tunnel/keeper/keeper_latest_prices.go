@@ -26,15 +26,6 @@ func (k Keeper) GetLatestPrices(ctx sdk.Context, tunnelID uint64) (types.LatestP
 	return latestPrices, nil
 }
 
-// MustGetLatestPrices retrieves the latest prices by its tunnel ID. Panics if the prices does not exist.
-func (k Keeper) MustGetLatestPrices(ctx sdk.Context, tunnelID uint64) types.LatestPrices {
-	latestPrices, err := k.GetLatestPrices(ctx, tunnelID)
-	if err != nil {
-		panic(err)
-	}
-	return latestPrices
-}
-
 // GetAllLatestPrices gets all the latest prices from the store
 func (k Keeper) GetAllLatestPrices(ctx sdk.Context) []types.LatestPrices {
 	var allLatestPrices []types.LatestPrices

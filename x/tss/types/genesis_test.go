@@ -87,6 +87,32 @@ func TestGenesisStateValidate(t *testing.T) {
 			true,
 		},
 		{
+			"invalid genesisState - duplicate member ID",
+			types.GenesisState{
+				Params: types.DefaultParams(),
+				Groups: []types.Group{validGroups[0]},
+				Members: []types.Member{
+					{ID: 1, GroupID: 1, Address: validMemberAddrs[0], PubKey: validTssPoint},
+					{ID: 1, GroupID: 1, Address: validMemberAddrs[1], PubKey: validTssPoint},
+				},
+				DEs: validDEs,
+			},
+			true,
+		},
+		{
+			"invalid genesisState - duplicate member Address",
+			types.GenesisState{
+				Params: types.DefaultParams(),
+				Groups: []types.Group{validGroups[0]},
+				Members: []types.Member{
+					{ID: 1, GroupID: 1, Address: validMemberAddrs[0], PubKey: validTssPoint},
+					{ID: 2, GroupID: 1, Address: validMemberAddrs[0], PubKey: validTssPoint},
+				},
+				DEs: validDEs,
+			},
+			true,
+		},
+		{
 			"invalid genesisState - duplicate group",
 			types.GenesisState{
 				Params:  types.DefaultParams(),

@@ -84,12 +84,13 @@ func NewMsgCreateIBCTunnel(
 	return m, nil
 }
 
-// Type Implements Msg.
-func (m MsgCreateTunnel) Type() string { return sdk.MsgTypeURL(&m) }
-
-// GetSigners returns the expected signers for the message.
-func (m *MsgCreateTunnel) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{sdk.MustAccAddressFromBech32(m.Creator)}
+// GetRouteValue returns the route of the tunnel.
+func (m MsgCreateTunnel) GetRouteValue() (RouteI, error) {
+	r, ok := m.Route.GetCachedValue().(RouteI)
+	if !ok {
+		return nil, ErrNoRoute.Wrap("failed to get route")
+	}
+	return r, nil
 }
 
 // ValidateBasic does a sanity check on the provided data
@@ -109,9 +110,9 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 	}
 
 	// route must be valid
-	r, ok := m.Route.GetCachedValue().(RouteI)
-	if !ok {
-		return sdkerrors.ErrPackAny.Wrapf("cannot unpack route")
+	r, err := m.GetRouteValue()
+	if err != nil {
+		return err
 	}
 	if err := r.ValidateBasic(); err != nil {
 		return err
@@ -134,16 +135,6 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 func (m MsgCreateTunnel) UnpackInterfaces(unpacker types.AnyUnpacker) error {
 	var route RouteI
 	return unpacker.UnpackAny(m.Route, &route)
-}
-
-// GetTunnelRoute returns the route of the tunnel.
-func (m MsgCreateTunnel) GetTunnelRoute() RouteI {
-	route, ok := m.Route.GetCachedValue().(RouteI)
-	if !ok {
-		return nil
-	}
-
-	return route
 }
 
 // NewMsgUpdateAndResetTunnel creates a new MsgUpdateAndResetTunnel instance.

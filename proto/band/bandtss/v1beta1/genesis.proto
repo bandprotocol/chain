@@ -28,10 +28,11 @@ message Params {
   uint64 reward_percentage = 1 [(gogoproto.customname) = "RewardPercentage"];
   // inactive_penalty_duration is the duration where a member cannot activate back after being set to inactive.
   google.protobuf.Duration inactive_penalty_duration = 2 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
-  // max_transition_duration is the maximum duration where the transition process waits
-  // since the start of the process until an incoming group replaces a current group.
-  google.protobuf.Duration max_transition_duration = 3 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
-  // fee is the tokens that will be paid per signer.
-  repeated cosmos.base.v1beta1.Coin fee = 4
+  // min_transition_duration is the minimum duration that the transition process waits before execution.
+  google.protobuf.Duration min_transition_duration = 3 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  // max_transition_duration is the maximum duration that the transition process waits before execution.
+  google.protobuf.Duration max_transition_duration = 4 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
+  // fee_per_signer is the tokens that will be paid per signer.
+  repeated cosmos.base.v1beta1.Coin fee_per_signer = 5
       [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
 }

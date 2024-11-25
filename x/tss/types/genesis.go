@@ -41,7 +41,7 @@ func (gs GenesisState) Validate() error {
 	}
 
 	// validate group information.
-	groupSizes := make(map[tss.GroupID]int)
+	groupSizes := make(map[tss.GroupID]uint64)
 	for _, group := range gs.Groups {
 		if _, ok := groupSizes[group.ID]; ok {
 			return fmt.Errorf("duplicate group ID %d", group.ID)
@@ -51,19 +51,35 @@ func (gs GenesisState) Validate() error {
 			return err
 		}
 
-		groupSizes[group.ID] = int(group.Size_)
+		groupSizes[group.ID] = group.Size_
 	}
 
 	// all members must belong to an existing group.
-	memberCounts := make(map[tss.GroupID]int)
+	memberCounts := make(map[tss.GroupID]uint64)
+	seenMemberIDGroups := make(map[string]bool)
+	seenMemberAddressGroups := make(map[string]bool)
 	for _, member := range gs.Members {
-		if _, ok := groupSizes[member.GroupID]; !ok {
-			return fmt.Errorf("invalid group ID %d for member %s", member.GroupID, member.Address)
-		}
-
 		if err := member.Validate(); err != nil {
 			return err
 		}
+
+		if size, ok := groupSizes[member.GroupID]; !ok || uint64(member.ID) > size {
+			return fmt.Errorf("invalid group ID %d for member %d", member.GroupID, member.ID)
+		}
+
+		// validate duplicate member ID in the same group.
+		memberIDGroupKey := fmt.Sprintf("%d-%d", member.ID, member.GroupID)
+		if seenMemberIDGroups[memberIDGroupKey] {
+			return fmt.Errorf("duplicate member ID %d in group ID %d", member.ID, member.GroupID)
+		}
+		seenMemberIDGroups[memberIDGroupKey] = true
+
+		// validate duplicate member address in the same group.
+		memberAddressGroupKey := fmt.Sprintf("%s-%d", member.Address, member.GroupID)
+		if seenMemberAddressGroups[memberAddressGroupKey] {
+			return fmt.Errorf("duplicate member Address %s in group ID %d", member.Address, member.GroupID)
+		}
+		seenMemberAddressGroups[memberAddressGroupKey] = true
 
 		memberCounts[member.GroupID]++
 	}
