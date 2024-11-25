@@ -1,1 +1,1 @@
-bandd tx tunnel create-tunnel tss eth 0xe00F1f85abDB2aF6760759547d450da68CE66Bb1 1 1uband 10 ./scripts/tunnel/signal_deviations.json --from requester --keyring-backend test --gas-prices 0.0025uband -y --chain-id bandchain
+bandd tx tunnel create-tunnel tss eth 0xe00F1f85abDB2aF6760759547d450da68CE66Bb1 1 1uband 600 ./scripts/tunnel/signal_deviations.json --from requester --keyring-backend test --gas-prices 0.0025uband -y --chain-id bandchain
