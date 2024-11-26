@@ -67,6 +67,12 @@ func (s *SignallerTestSuite) SetupTest() {
 					Interval:            60,
 					DeviationBasisPoint: 50,
 				},
+				{
+					SignalID:            "signal2",
+					Power:               60000000000,
+					Interval:            60,
+					DeviationBasisPoint: 50,
+				},
 			},
 		}}, nil).
 		AnyTimes()
@@ -224,25 +230,18 @@ func (s *SignallerTestSuite) TestIsPriceValid() {
 	// Update internal variables
 	s.TestUpdateInternalVariables()
 
-	priceData := &bothan.Price{
-		SignalId: "signal1",
-		Price:    10000,
-		Status:   bothan.Status_STATUS_AVAILABLE,
+	priceData := feeds.SignalPrice{
+		Status: feeds.SIGNAL_PRICE_STATUS_AVAILABLE,
+		Price:  10000,
 	}
 
-	// Test with time before the assigned time
-	beforeAssignedTime := time.Unix(s.assignedTime.Unix()-1, 0)
-	isValid := s.Signaller.isPriceValid(priceData, beforeAssignedTime)
-	s.Require().False(isValid)
+	// Test with price is not required to be submitted
+	priceData.SignalID = "signal3"
+	s.Require().False(s.Signaller.isPriceValid(priceData, s.assignedTime))
 
-	// Test with time at the assigned time
-	isValid = s.Signaller.isPriceValid(priceData, s.assignedTime)
-	s.Require().True(isValid)
-
-	// Test with time at the start of the interval
-	startOfInterval := time.Unix(0, 0)
-	isValid = s.Signaller.isPriceValid(priceData, startOfInterval)
-	s.Require().False(isValid)
+	// Test with price is required to be submitted and not exist yet
+	priceData.SignalID = "signal2"
+	s.Require().True(s.Signaller.isPriceValid(priceData, s.assignedTime))
 }
 
 func (s *SignallerTestSuite) TestShouldUpdatePrice() {
@@ -256,46 +255,44 @@ func (s *SignallerTestSuite) TestShouldUpdatePrice() {
 	}
 
 	valPrice := feeds.ValidatorPrice{
-		SignalID:  "signal1",
-		Price:     10000,
-		Timestamp: 0,
+		SignalID:          "signal1",
+		Price:             10000,
+		Timestamp:         0,
+		SignalPriceStatus: feeds.SIGNAL_PRICE_STATUS_AVAILABLE,
 	}
 
-	// Test with new price positive deviation
+	newPrice := feeds.SignalPrice{
+		Price:  10000,
+		Status: feeds.SIGNAL_PRICE_STATUS_AVAILABLE,
+	}
+
 	thresholdTime := time.Unix(valPrice.Timestamp+s.Signaller.params.CooldownTime+TimeBuffer, 0)
-	newPrice := uint64(10050)
 
-	shouldUpdate := s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, thresholdTime)
-	s.Require().True(shouldUpdate)
+	// Test case: Time before thresholdTime, should not update
+	s.Require().False(s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, thresholdTime.Add(-time.Second)))
 
-	// Test with new price negative deviation
-	newPrice = uint64(9950)
+	// Test case: Time after thresholdTime and assignedTime
+	assignedTime := calculateAssignedTime(
+		s.Signaller.valAddress,
+		feed.Interval,
+		valPrice.Timestamp,
+		s.Signaller.distributionOffsetPercentage,
+		s.Signaller.distributionStartPercentage,
+	)
+	s.Require().True(s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, assignedTime.Add(time.Second)))
 
-	shouldUpdate = s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, thresholdTime)
-	s.Require().True(shouldUpdate)
+	// Test case: SignalPriceStatus changed, should update
+	newPrice.Status = feeds.SIGNAL_PRICE_STATUS_AVAILABLE
+	s.Require().False(s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, assignedTime.Add(-time.Second)))
 
-	// Test with new price within deviation
-	newPrice = uint64(10025)
+	newPrice.Status = feeds.SIGNAL_PRICE_STATUS_UNAVAILABLE
+	s.Require().True(s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, assignedTime.Add(-time.Second)))
 
-	shouldUpdate = s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, thresholdTime)
-	s.Require().False(shouldUpdate)
+	// Test case: Price deviated
+	newPrice.Status = feeds.SIGNAL_PRICE_STATUS_AVAILABLE
+	newPrice.Price = 11000 // More than deviationBasisPoint
+	s.Require().True(s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, assignedTime.Add(-time.Second)))
 
-	// Test with new price outside deviation
-	newPrice = uint64(10075)
-
-	shouldUpdate = s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, thresholdTime)
-	s.Require().True(shouldUpdate)
-
-	// Test with time before threshold time, price outside deviation
-	newPrice = uint64(10075)
-	beforeThresholdTime := time.Unix(valPrice.Timestamp+s.Signaller.params.CooldownTime, 0)
-
-	shouldUpdate = s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, beforeThresholdTime)
-	s.Require().False(shouldUpdate)
-
-	// Test with time at assigned time, price within deviation
-	newPrice = uint64(10025)
-
-	shouldUpdate = s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, s.assignedTime)
-	s.Require().True(shouldUpdate)
+	newPrice.Price = 10025 // Within deviationBasisPoint
+	s.Require().False(s.Signaller.shouldUpdatePrice(feed, valPrice, newPrice, assignedTime.Add(-time.Second)))
 }
