@@ -1,6 +1,6 @@
 import sqlalchemy as sa
 import enum
-
+from .feeds_db import CustomFeedsEncoder
 from .db import (
     metadata,
     Column,
@@ -8,23 +8,10 @@ from .db import (
 )
 
 
-class TunnelEncoder(enum.Enum):
-    nil = 0
-    fixed_point_abi = 1
-    tick_abi = 2
-
-
 class DepositType(enum.Enum):
     nil = 0
     add = 1
     remove = 2
-
-
-class CustomTunnelEncoder(sa.types.TypeDecorator):
-    impl = sa.Enum(TunnelEncoder)
-
-    def process_bind_param(self, value, dialect):
-        return TunnelEncoder(value)
 
 
 class CustomDepositType(sa.types.TypeDecorator):
@@ -41,7 +28,7 @@ tunnels = sa.Table(
     Column("sequence", sa.Integer),
     Column("route_type", sa.String),
     Column("route", sa.JSON),
-    Column("encoder", CustomTunnelEncoder),
+    Column("encoder", CustomFeedsEncoder),
     Column("fee_payer_id", sa.Integer, sa.ForeignKey("accounts.id")),
     Column("total_deposit", sa.String),
     Column("status", sa.Boolean, index=True),
@@ -71,9 +58,7 @@ tunnel_deposits = sa.Table(
 tunnel_historical_deposits = sa.Table(
     "tunnel_historical_deposits",
     metadata,
-    Column(
-        "transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), primary_key=True
-    ),
+    Column("transaction_id", sa.Integer, sa.ForeignKey("transactions.id"), primary_key=True),
     Column("tunnel_id", sa.Integer, sa.ForeignKey("tunnels.id"), index=True),
     Column("depositor_id", sa.Integer, sa.ForeignKey("accounts.id"), index=True),
     Column("deposit_type", CustomDepositType),
@@ -86,8 +71,8 @@ tunnel_packets = sa.Table(
     metadata,
     Column("tunnel_id", sa.Integer, sa.ForeignKey("tunnels.id"), primary_key=True),
     Column("sequence", sa.Integer, primary_key=True),
-    Column("packet_content_type", sa.String, index=True),
-    Column("packet_content", sa.JSON),
+    Column("receipt_type", sa.String, index=True),
+    Column("receipt", sa.JSON),
     Column("base_fee", sa.String),
     Column("route_fee", sa.String),
     Column("created_at", CustomDateTime),

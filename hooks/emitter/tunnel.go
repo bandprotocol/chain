@@ -11,7 +11,7 @@ import (
 
 func (h *Hook) emitSetTunnel(ctx sdk.Context, tunnelID uint64) {
 	tunnel := h.tunnelKeeper.MustGetTunnel(ctx, tunnelID)
-	latestSignalPrice := h.tunnelKeeper.MustGetLatestPrices(ctx, tunnelID)
+	latestSignalPrice, _ := h.tunnelKeeper.GetLatestPrices(ctx, tunnelID)
 	h.Write("SET_TUNNEL", common.JsDict{
 		"id":            tunnel.ID,
 		"sequence":      tunnel.Sequence,
@@ -82,16 +82,16 @@ func (h *Hook) emitSetTunnelHistoricalSignalDeviations(ctx sdk.Context, tunnelID
 }
 
 func (h *Hook) emitSetTunnelPacket(ctx sdk.Context, tunnelID uint64, sequence uint64) {
-	packet := h.tunnelKeeper.MustGetPacket(ctx, tunnelID, sequence)
+	packet, _ := h.tunnelKeeper.GetPacket(ctx, tunnelID, sequence)
 
 	h.Write("SET_TUNNEL_PACKET", common.JsDict{
-		"tunnel_id":           tunnelID,
-		"sequence":            sequence,
-		"packet_content_type": packet.PacketContent.TypeUrl,
-		"packet_content":      packet.PacketContent.GetCachedValue(),
-		"base_fee":            packet.BaseFee.String(),
-		"route_fee":           packet.RouteFee.String(),
-		"created_at":          packet.CreatedAt * int64(time.Second),
+		"tunnel_id":    tunnelID,
+		"sequence":     sequence,
+		"receipt_type": packet.Receipt.TypeUrl,
+		"receipt":      packet.Receipt.GetCachedValue(),
+		"base_fee":     packet.BaseFee.String(),
+		"route_fee":    packet.RouteFee.String(),
+		"created_at":   packet.CreatedAt * int64(time.Second),
 	})
 
 	for _, sp := range packet.Prices {
