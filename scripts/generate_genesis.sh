@@ -51,3 +51,5 @@ cat <<< $(jq --arg addr "$(bandd keys show requester -a --keyring-backend test)"
 
 # allow "uband" for restake
 cat <<< $(jq '.app_state.restake.params.allowed_denoms = ["uband"]' ~/.band/config/genesis.json) > ~/.band/config/genesis.json
+
+cat <<< $(jq '.app_state.bandtss.params.min_transition_duration = "60s"' ~/.band/config/genesis.json) > ~/.band/config/genesis.json
