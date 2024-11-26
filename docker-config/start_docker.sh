@@ -121,6 +121,7 @@ bandd genesis collect-gentxs
 cp ~/.band/config/genesis.json $DIR/genesis.json
 cat <<< $(jq '.app_state.gov.params.voting_period = "60s"' $DIR/genesis.json) > $DIR/genesis.json
 cat <<< $(jq '.app_state.feeds.params.current_feeds_update_interval = "10"' $DIR/genesis.json) > $DIR/genesis.json
+cat <<< $(jq '.app_state.bandtss.params.min_transition_duration = "60s"' $DIR/genesis.json) > $DIR/genesis.json
 cat <<< $(jq --arg addr "$(bandd keys show requester -a --keyring-backend test)" '.app_state.feeds.params.admin = $addr' $DIR/genesis.json) > $DIR/genesis.json
 cat <<< $(jq '.app_state.restake.params.allowed_denoms = ["uband"]' $DIR/genesis.json) > $DIR/genesis.json
 

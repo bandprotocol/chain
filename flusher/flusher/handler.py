@@ -1,4 +1,5 @@
 import base64 as b64
+import json
 from datetime import datetime
 from sqlalchemy import select, func, tuple_
 from sqlalchemy.dialects.postgresql import insert
@@ -46,8 +47,6 @@ from .db import (
     relayer_tx_stat_days,
 )
 
-from .restake_db import restake_vaults, restake_locks, restake_historical_stakes
-
 from .feeds_db import (
     PRICE_HISTORY_PERIOD,
     feeds_signal_prices_txs,
@@ -58,7 +57,7 @@ from .feeds_db import (
     feeds_reference_source_configs,
     feeds_feeders,
 )
-
+from .restake_db import restake_vaults, restake_locks, restake_historical_stakes
 from .bandtss_db import (
     bandtss_current_groups,
     bandtss_members,
@@ -66,13 +65,14 @@ from .bandtss_db import (
     bandtss_group_transitions,
     GroupTransitionStatus,
 )
-
 from .tss_db import (
     tss_signings,
     tss_groups,
     tss_members,
     tss_assigned_members,
+    tss_signing_contents,
 )
+from .util import convert_proto_str_to_object
 
 from .tunnel_db import (
     tunnels,
@@ -852,6 +852,33 @@ class Handler(object):
     def handle_set_tss_signing(self, msg):
         self.conn.execute(
             insert(tss_signings).values(**msg).on_conflict_do_update(constraint="tss_signings_pkey", set_=msg)
+        )
+
+    def handle_set_tss_signing_content(self, msg):
+        content_obj = {}
+        originator_obj = {}
+
+        try:
+            content_info_text = b64.b64decode(msg["content_info"]).decode()
+            content_obj = convert_proto_str_to_object(content_info_text)
+            content_obj["content_type"] = b64.b64decode(msg["content_type"]).decode()
+
+            originator_info_text = b64.b64decode(msg["originator_info"]).decode()
+            originator_obj = convert_proto_str_to_object(originator_info_text)
+            originator_obj["originator_type"] = b64.b64decode(msg["originator_type"]).decode()
+        except Exception as e:
+            print("An error occurred:", e)
+
+        new_msg = {
+            "id":  msg["id"],
+            "content_info": b64.b64encode(json.dumps(content_obj).encode()).decode(),
+            "originator_info":  b64.b64encode(json.dumps(originator_obj).encode()).decode(),
+        }
+
+        self.conn.execute(
+            insert(tss_signing_contents)
+            .values(**new_msg)
+            .on_conflict_do_update(constraint="tss_signing_contents_pkey", set_=new_msg)
         )
 
     def handle_update_tss_signing(self, msg):

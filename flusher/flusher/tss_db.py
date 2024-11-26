@@ -39,8 +39,7 @@ class CustomGroupStatus(sa.types.TypeDecorator):
 
     def process_bind_param(self, value, dialect):
         return GroupStatus(value)
-
-
+    
 tss_signings = sa.Table(
     "tss_signings",
     metadata,
@@ -64,6 +63,14 @@ tss_signings = sa.Table(
     sa.Index(
         "ix_group_id_group_pub_key_status", "tss_group_id", "group_pub_key", "status"
     ),
+)
+
+tss_signing_contents = sa.Table(
+    "tss_signing_contents",
+    metadata,
+    Column("id", sa.Integer, primary_key=True),
+    Column("content_info", CustomBase64),
+    Column("originator_info", CustomBase64),
 )
 
 tss_groups = sa.Table(

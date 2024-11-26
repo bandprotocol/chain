@@ -1,12 +1,8 @@
-import sqlalchemy as sa
 import enum
 
-from .db import (
-    metadata,
-    Column,
-    CustomBase64,
-    CustomDateTime,
-)
+import sqlalchemy as sa
+
+from .db import Column, CustomBase64, CustomDateTime, metadata
 
 
 class GroupTransitionStatus(enum.Enum):
@@ -106,6 +102,7 @@ bandtss_signings = sa.Table(
     Column("id", sa.Integer, primary_key=True),
     Column("account_id", sa.Integer, sa.ForeignKey("accounts.id")),
     Column("fee_per_signer", sa.String),
+    Column("total_fee", sa.String),
     Column(
         "current_group_tss_signing_id",
         sa.Integer,

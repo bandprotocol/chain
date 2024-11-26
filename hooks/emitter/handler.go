@@ -137,6 +137,7 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 		h.handleBandtssMsgActivate(ctx, msg)
 	case *bandtsstypes.MsgRequestSignature:
 		h.handleTssEventRequestSignature(ctx, evMap)
+		h.handleTssEventCreateSigning(ctx, evMap)
 		h.handleBandtssEventSigningRequestCreated(ctx, evMap)
 	case *feedstypes.MsgVote:
 		h.handleFeedsMsgVote(ctx, msg, evMap)
@@ -250,6 +251,8 @@ func (h *Hook) handleBeginBlockEndBlockEvent(
 		h.handleEventTypeTransfer(evMap)
 	case channeltypes.EventTypeSendPacket:
 		h.handleEventSendPacket(ctx, evMap)
+	case tsstypes.EventTypeCreateSigning:
+		h.handleTssEventCreateSigning(ctx, evMap)
 	case tsstypes.EventTypeRequestSignature:
 		h.handleTssEventRequestSignature(ctx, evMap)
 	case tsstypes.EventTypeSigningSuccess:

@@ -10,6 +10,22 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
+func (h *Hook) emitSetTssSigningContent(
+	signingID tss.SigningID,
+	contentType []byte,
+	content []byte,
+	originatorType []byte,
+	originator []byte,
+) {
+	h.Write("SET_TSS_SIGNING_CONTENT", common.JsDict{
+		"id":              signingID,
+		"content_type":    parseBytes(contentType),
+		"content_info":    parseBytes(content),
+		"originator_type": parseBytes(originatorType),
+		"originator_info": parseBytes(originator),
+	})
+}
+
 func (h *Hook) emitSetTssSigning(signing types.Signing) {
 	h.Write("SET_TSS_SIGNING", common.JsDict{
 		"id":              signing.ID,
@@ -103,6 +119,26 @@ func (h *Hook) handleInitTssModule(ctx sdk.Context) {
 	groups := h.tssKeeper.GetGroups(ctx)
 	for _, group := range groups {
 		h.emitSetTssGroup(group, nil) // DKG data is already removed.
+	}
+}
+
+// handleTssEventCreateGroup implements emitter handler for CreateGroup event.
+func (h *Hook) handleTssEventCreateSigning(_ sdk.Context, evMap common.EvMap) {
+	sids := evMap[types.EventTypeCreateSigning+"."+types.AttributeKeySigningID]
+	contentTypes := evMap[types.EventTypeCreateSigning+"."+types.AttributeKeyContentType]
+	contentInfos := evMap[types.EventTypeCreateSigning+"."+types.AttributeKeyContentInfo]
+	originatorTypes := evMap[types.EventTypeCreateSigning+"."+types.AttributeKeyOriginatorType]
+	originatorInfos := evMap[types.EventTypeCreateSigning+"."+types.AttributeKeyOriginatorInfo]
+
+	for i, sid := range sids {
+		signingID := tss.SigningID(common.Atoui(sid))
+		h.emitSetTssSigningContent(
+			signingID,
+			[]byte(contentTypes[i]),
+			[]byte(contentInfos[i]),
+			[]byte(originatorTypes[i]),
+			[]byte(originatorInfos[i]),
+		)
 	}
 }
 
