@@ -47,8 +47,6 @@ from .db import (
     relayer_tx_stat_days,
 )
 
-from .restake_db import restake_vaults, restake_locks, restake_historical_stakes
-
 from .feeds_db import (
     PRICE_HISTORY_PERIOD,
     feeds_signal_prices_txs,
@@ -59,7 +57,7 @@ from .feeds_db import (
     feeds_reference_source_configs,
     feeds_feeders,
 )
-
+from .restake_db import restake_vaults, restake_locks, restake_historical_stakes
 from .bandtss_db import (
     bandtss_current_groups,
     bandtss_members,
@@ -67,7 +65,6 @@ from .bandtss_db import (
     bandtss_group_transitions,
     GroupTransitionStatus,
 )
-
 from .tss_db import (
     tss_signings,
     tss_groups,
@@ -75,7 +72,6 @@ from .tss_db import (
     tss_assigned_members,
     tss_signing_contents,
 )
-
 from .util import convert_proto_str_to_object
 
 
