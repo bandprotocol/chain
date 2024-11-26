@@ -40,10 +40,8 @@ func CreateUpgradeHandler(
 		// Set param key table for params module migration
 		ctx := sdk.UnwrapSDKContext(c)
 		for _, subspace := range keepers.ParamsKeeper.GetSubspaces() {
-			ss := subspace
-
 			var keyTable paramstypes.KeyTable
-			switch ss.Name() {
+			switch subspace.Name() {
 			// cosmos-sdk types
 			case authtypes.ModuleName:
 				keyTable = authtypes.ParamKeyTable() //nolint:staticcheck
@@ -77,8 +75,8 @@ func CreateUpgradeHandler(
 				continue
 			}
 
-			if !ss.HasKeyTable() {
-				ss.WithKeyTable(keyTable)
+			if !subspace.HasKeyTable() {
+				subspace.WithKeyTable(keyTable)
 			}
 		}
 
