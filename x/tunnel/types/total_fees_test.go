@@ -21,14 +21,14 @@ func TestTotalFees_Validate(t *testing.T) {
 		{
 			name: "invalid total packet fee",
 			totalFees: types.TotalFees{
-				TotalPacketFee: sdk.Coins{(sdk.Coin{Denom: "uband", Amount: math.NewInt(-100)})},
+				TotalBasePacketFee: sdk.Coins{(sdk.Coin{Denom: "uband", Amount: math.NewInt(-100)})},
 			},
 			expErr: true,
 		},
 		{
 			name: "all good",
 			totalFees: types.TotalFees{
-				TotalPacketFee: sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
+				TotalBasePacketFee: sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 			},
 			expErr: false,
 		},

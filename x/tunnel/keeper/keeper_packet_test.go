@@ -33,7 +33,7 @@ func (s *KeeperTestSuite) TestDeductBasePacketFee() {
 
 	// validate the total fees are updated
 	totalFee := k.GetTotalFees(ctx)
-	s.Require().Equal(basePacketFee, totalFee.TotalPacketFee)
+	s.Require().Equal(basePacketFee, totalFee.TotalBasePacketFee)
 }
 
 func (s *KeeperTestSuite) TestGetSetPacket() {
