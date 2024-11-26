@@ -206,17 +206,17 @@ func (ms msgServer) TriggerTunnel(
 	prices := ms.Keeper.feedsKeeper.GetPrices(ctx, signalIDs)
 
 	// create a new packet
-	packet, err := ms.CreatePacket(ctx, tunnel.ID, prices)
+	packet, err := ms.Keeper.CreatePacket(ctx, tunnel.ID, prices)
 	if err != nil {
 		return nil, err
 	}
 
 	// send packet
-	if err := ms.SendPacket(ctx, packet); err != nil {
+	if err := ms.Keeper.SendPacket(ctx, packet); err != nil {
 		return nil, sdkerrors.Wrapf(err, "failed to create packet for tunnel %d", tunnel.ID)
 	}
 
-	latestPrices, err := ms.GetLatestPrices(ctx, tunnel.ID)
+	latestPrices, err := ms.Keeper.GetLatestPrices(ctx, tunnel.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -224,7 +224,7 @@ func (ms msgServer) TriggerTunnel(
 	// update latest price info.
 	latestPrices.LastInterval = ctx.BlockTime().Unix()
 	latestPrices.UpdatePrices(packet.Prices)
-	ms.SetLatestPrices(ctx, latestPrices)
+	ms.Keeper.SetLatestPrices(ctx, latestPrices)
 
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeTriggerTunnel,
@@ -289,7 +289,7 @@ func (ms msgServer) UpdateParams(
 		)
 	}
 
-	if err := ms.SetParams(ctx, msg.Params); err != nil {
+	if err := ms.Keeper.SetParams(ctx, msg.Params); err != nil {
 		return nil, err
 	}
 
