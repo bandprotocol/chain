@@ -29,7 +29,7 @@ func NewTunnelSignatureOrder(
 // OrderRoute returns the order router key
 func (ts *TunnelSignatureOrder) OrderRoute() string { return RouterKey }
 
-// OrderType returns type of signature order that should be "Tunnel"
+// OrderType returns type of signature order that should be "tunnel"
 func (ts *TunnelSignatureOrder) OrderType() string {
 	return SignatureOrderTypeTunnel
 }

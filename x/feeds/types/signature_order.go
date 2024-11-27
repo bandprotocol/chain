@@ -18,7 +18,7 @@ func NewFeedSignatureOrder(signalIDs []string, encoder Encoder) *FeedsSignatureO
 // OrderRoute returns the order router key
 func (f *FeedsSignatureOrder) OrderRoute() string { return RouterKey }
 
-// OrderType returns type of signature order that should be "Feeds"
+// OrderType returns type of signature order that should be "feeds"
 func (f *FeedsSignatureOrder) OrderType() string {
 	return SignatureOrderTypeFeeds
 }
