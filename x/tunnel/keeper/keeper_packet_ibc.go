@@ -11,10 +11,6 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-const (
-	packetExpireTime = int64(10 * time.Minute)
-)
-
 // SendIBCPacket sends IBC packet
 func (k Keeper) SendIBCPacket(
 	ctx sdk.Context,

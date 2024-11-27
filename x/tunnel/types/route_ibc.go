@@ -41,13 +41,13 @@ func NewTunnelPricesPacketData(
 	tunnelID uint64,
 	sequence uint64,
 	prices []feedstypes.Price,
-	created_at int64,
+	createdAt int64,
 ) TunnelPricesPacketData {
 	return TunnelPricesPacketData{
 		TunnelID:  tunnelID,
 		Sequence:  sequence,
 		Prices:    prices,
-		CreatedAt: created_at,
+		CreatedAt: createdAt,
 	}
 }
 
