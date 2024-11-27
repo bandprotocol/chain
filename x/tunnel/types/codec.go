@@ -63,6 +63,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		"tunnel.v1beta1.PacketReceiptI",
 		(*PacketReceiptI)(nil),
 		&TSSPacketReceipt{},
+		&IBCPacketReceipt{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
