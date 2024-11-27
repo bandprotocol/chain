@@ -43,7 +43,13 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 	).Return(bandtsstypes.SigningID(1), nil)
 
 	// Send the TSS packet
-	content, err := k.SendTSSPacket(ctx, &route, packet, bandtesting.Alice.Address)
+	content, err := k.SendTSSPacket(
+		ctx,
+		&route,
+		packet,
+		feedstypes.ENCODER_FIXED_POINT_ABI,
+		bandtesting.Alice.Address,
+	)
 	s.Require().NoError(err)
 
 	packetReceipt, ok := content.(*types.TSSPacketReceipt)
