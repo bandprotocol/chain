@@ -74,7 +74,7 @@ func (o DirectOriginator) Encode() ([]byte, error) {
 
 // Type returns the type of the originator.
 func (o DirectOriginator) Type() string {
-	return "DirectOriginator"
+	return "directOriginator"
 }
 
 // ====================================
@@ -132,5 +132,5 @@ func (o TunnelOriginator) Encode() ([]byte, error) {
 
 // Type returns the type of the originator.
 func (o TunnelOriginator) Type() string {
-	return "TunnelOriginator"
+	return "tunnelOriginator"
 }
