@@ -223,7 +223,13 @@ func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) error {
 	var receipt types.PacketReceiptI
 	switch r := route.(type) {
 	case *types.TSSRoute:
-		receipt, err = k.SendTSSPacket(ctx, r, packet, sdk.MustAccAddressFromBech32(tunnel.FeePayer))
+		receipt, err = k.SendTSSPacket(
+			ctx,
+			r,
+			packet,
+			tunnel.Encoder,
+			sdk.MustAccAddressFromBech32(tunnel.FeePayer),
+		)
 	default:
 		return types.ErrInvalidRoute.Wrapf("no route found for tunnel ID: %d", tunnel.ID)
 	}

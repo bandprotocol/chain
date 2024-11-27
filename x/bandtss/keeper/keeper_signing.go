@@ -117,6 +117,10 @@ func (k Keeper) createSigningRequest(
 		}
 	}
 
+	if currentGroupSigningID == 0 && incomingGroupSigningID == 0 {
+		return 0, types.ErrNoActiveGroup
+	}
+
 	// save signing info
 	bandtssSigningID := k.AddSigning(ctx, feePerSigner, sender, currentGroupSigningID, incomingGroupSigningID)
 
