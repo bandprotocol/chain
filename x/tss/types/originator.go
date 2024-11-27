@@ -27,7 +27,6 @@ type Originator interface {
 
 	Encode() ([]byte, error)
 	Validate(p Params) error
-	Type() string
 }
 
 // ====================================
@@ -70,11 +69,6 @@ func (o DirectOriginator) Encode() ([]byte, error) {
 	}, []byte(""))
 
 	return bz, nil
-}
-
-// Type returns the type of the originator.
-func (o DirectOriginator) Type() string {
-	return "directOriginator"
 }
 
 // ====================================
@@ -128,9 +122,4 @@ func (o TunnelOriginator) Encode() ([]byte, error) {
 	}, []byte(""))
 
 	return bz, nil
-}
-
-// Type returns the type of the originator.
-func (o TunnelOriginator) Type() string {
-	return "tunnelOriginator"
 }
