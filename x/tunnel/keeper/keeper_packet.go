@@ -213,6 +213,8 @@ func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) error {
 	switch r := route.(type) {
 	case *types.TSSRoute:
 		receipt, err = k.SendTSSPacket(ctx, r, packet)
+	case *types.IBCRoute:
+		receipt, err = k.SendIBCPacket(ctx, r, packet, tunnel.Interval)
 	default:
 		return types.ErrInvalidRoute.Wrapf("no route found for tunnel ID: %d", tunnel.ID)
 	}
