@@ -130,9 +130,9 @@ func (h *Hook) handleInitTssModule(ctx sdk.Context) {
 func (h *Hook) handleTssEventCreateSigning(ctx sdk.Context, evMap common.EvMap) {
 	sids := evMap[types.EventTypeCreateSigning+"."+types.AttributeKeySigningID]
 	contentTypes := evMap[types.EventTypeCreateSigning+"."+types.AttributeKeyContentType]
-	contentInfos := evMap[types.EventTypeCreateSigning+"."+types.AttributeKeyContentInfo]
+	contentInfos := evMap[types.EventTypeCreateSigning+"."+types.AttributeKeyContent]
 	originatorTypes := evMap[types.EventTypeCreateSigning+"."+types.AttributeKeyOriginatorType]
-	originatorInfos := evMap[types.EventTypeCreateSigning+"."+types.AttributeKeyOriginatorInfo]
+	originatorInfos := evMap[types.EventTypeCreateSigning+"."+types.AttributeKeyOriginator]
 
 	for i, sid := range sids {
 		id := tss.SigningID(common.Atoi(sid))
