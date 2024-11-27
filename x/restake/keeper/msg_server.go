@@ -35,7 +35,7 @@ func (k msgServer) Stake(
 
 	// check if all coins are allowed denom coins.
 	allowedDenom := make(map[string]bool)
-	for _, denom := range k.GetParams(ctx).AllowedDenoms {
+	for _, denom := range k.Keeper.GetParams(ctx).AllowedDenoms {
 		allowedDenom[denom] = true
 	}
 
@@ -50,9 +50,9 @@ func (k msgServer) Stake(
 		return nil, err
 	}
 
-	stake := k.GetStake(ctx, addr)
+	stake := k.Keeper.GetStake(ctx, addr)
 	stake.Coins = stake.Coins.Add(msg.Coins...)
-	k.SetStake(ctx, stake)
+	k.Keeper.SetStake(ctx, stake)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -79,25 +79,25 @@ func (k msgServer) Unstake(
 
 	// reduce staked coins. return error if unstake more than staked coins
 	var isNeg bool
-	stake := k.GetStake(ctx, addr)
+	stake := k.Keeper.GetStake(ctx, addr)
 	stake.Coins, isNeg = stake.Coins.SafeSub(msg.Coins...)
 	if isNeg {
 		return nil, types.ErrStakeNotEnough
 	}
 
 	if !stake.Coins.IsZero() {
-		k.SetStake(ctx, stake)
+		k.Keeper.SetStake(ctx, stake)
 	} else {
-		k.DeleteStake(ctx, addr)
+		k.Keeper.DeleteStake(ctx, addr)
 	}
 
-	totalPower, err := k.GetTotalPower(ctx, addr)
+	totalPower, err := k.Keeper.GetTotalPower(ctx, addr)
 	if err != nil {
 		return nil, err
 	}
 
 	// check if total power is still more than locked power after unstaking.
-	if !k.isValidPower(ctx, addr, totalPower) {
+	if !k.Keeper.isValidPower(ctx, addr, totalPower) {
 		return nil, types.ErrUnableToUnstake.Wrap("power is locked")
 	}
 
@@ -124,15 +124,15 @@ func (k msgServer) UpdateParams(
 ) (*types.MsgUpdateParamsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	if k.GetAuthority() != req.Authority {
+	if k.Keeper.GetAuthority() != req.Authority {
 		return nil, govtypes.ErrInvalidSigner.Wrapf(
 			"invalid authority; expected %s, got %s",
-			k.GetAuthority(),
+			k.Keeper.GetAuthority(),
 			req.Authority,
 		)
 	}
 
-	if err := k.SetParams(ctx, req.Params); err != nil {
+	if err := k.Keeper.SetParams(ctx, req.Params); err != nil {
 		return nil, err
 	}
 
