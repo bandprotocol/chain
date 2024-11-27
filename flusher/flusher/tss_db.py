@@ -39,13 +39,16 @@ class CustomGroupStatus(sa.types.TypeDecorator):
 
     def process_bind_param(self, value, dialect):
         return GroupStatus(value)
-    
+
+
 tss_signings = sa.Table(
     "tss_signings",
     metadata,
     Column("id", sa.Integer, primary_key=True),
     Column("tss_group_id", sa.Integer, sa.ForeignKey("tss_groups.id")),
     Column("current_attempt", sa.Integer),
+    Column("content_info", CustomBase64),
+    Column("originator_info", CustomBase64),
     Column("originator", CustomBase64),
     Column("message", CustomBase64),
     Column("group_pub_key", CustomBase64),
@@ -60,17 +63,7 @@ tss_signings = sa.Table(
         nullable=True,
         index=True,
     ),
-    sa.Index(
-        "ix_group_id_group_pub_key_status", "tss_group_id", "group_pub_key", "status"
-    ),
-)
-
-tss_signing_contents = sa.Table(
-    "tss_signing_contents",
-    metadata,
-    Column("id", sa.Integer, primary_key=True),
-    Column("content_info", CustomBase64),
-    Column("originator_info", CustomBase64),
+    sa.Index("ix_group_id_group_pub_key_status", "tss_group_id", "group_pub_key", "status"),
 )
 
 tss_groups = sa.Table(
@@ -90,9 +83,7 @@ tss_members = sa.Table(
     "tss_members",
     metadata,
     Column("id", sa.Integer, primary_key=True),
-    Column(
-        "tss_group_id", sa.Integer, sa.ForeignKey("tss_groups.id"), primary_key=True
-    ),
+    Column("tss_group_id", sa.Integer, sa.ForeignKey("tss_groups.id"), primary_key=True),
     Column("account_id", sa.Integer, sa.ForeignKey("accounts.id")),
     Column("pub_key", CustomBase64, nullable=True),
     Column("is_malicious", sa.Boolean),
@@ -102,9 +93,7 @@ tss_members = sa.Table(
 tss_assigned_members = sa.Table(
     "tss_assigned_members",
     metadata,
-    Column(
-        "tss_signing_id", sa.Integer, sa.ForeignKey("tss_signings.id"), primary_key=True
-    ),
+    Column("tss_signing_id", sa.Integer, sa.ForeignKey("tss_signings.id"), primary_key=True),
     Column("tss_signing_attempt", sa.Integer, primary_key=True),
     Column("tss_member_id", sa.Integer, primary_key=True),
     Column("tss_group_id", sa.Integer, sa.ForeignKey("tss_groups.id")),
@@ -113,9 +102,7 @@ tss_assigned_members = sa.Table(
     Column("binding_factor", CustomBase64),
     Column("pub_nonce", CustomBase64),
     Column("signature", CustomBase64, nullable=True),
-    Column(
-        "submitted_height", sa.Integer, sa.ForeignKey("blocks.height"), nullable=True
-    ),
+    Column("submitted_height", sa.Integer, sa.ForeignKey("blocks.height"), nullable=True),
     sa.ForeignKeyConstraint(
         ["tss_group_id", "tss_member_id"],
         ["tss_members.tss_group_id", "tss_members.id"],

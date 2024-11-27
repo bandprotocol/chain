@@ -51,11 +51,6 @@ func (k Keeper) RequestSigning(
 		return 0, err
 	}
 
-	// initiate new signing round
-	if err = k.InitiateNewSigningRound(ctx, signingID); err != nil {
-		return 0, err
-	}
-
 	contentType := fmt.Sprintf("%s/%s", content.OrderRoute(), content.OrderType())
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeCreateSigning,
@@ -66,6 +61,11 @@ func (k Keeper) RequestSigning(
 		sdk.NewAttribute(types.AttributeKeyOriginatorType, originator.Type()),
 		sdk.NewAttribute(types.AttributeKeyOriginatorInfo, originator.String()),
 	))
+
+	// initiate new signing round
+	if err = k.InitiateNewSigningRound(ctx, signingID); err != nil {
+		return 0, err
+	}
 
 	return signingID, nil
 }

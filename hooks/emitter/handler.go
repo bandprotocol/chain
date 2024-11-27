@@ -135,8 +135,8 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 	case *bandtsstypes.MsgActivate:
 		h.handleBandtssMsgActivate(ctx, msg)
 	case *bandtsstypes.MsgRequestSignature:
-		h.handleTssEventRequestSignature(ctx, evMap)
 		h.handleTssEventCreateSigning(ctx, evMap)
+		h.handleTssEventRequestSignature(ctx, evMap)
 		h.handleBandtssEventSigningRequestCreated(ctx, evMap)
 	case *feedstypes.MsgVote:
 		h.handleFeedsMsgVote(ctx, msg, evMap)
