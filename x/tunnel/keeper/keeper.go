@@ -67,6 +67,11 @@ func NewKeeper(
 	}
 }
 
+// GetAuthority returns the x/tunnel module's authority.
+func (k Keeper) GetAuthority() string {
+	return k.authority
+}
+
 // IsBound checks if the  module is already bound to the desired port
 func (k Keeper) IsBound(ctx sdk.Context, portID string) bool {
 	_, ok := k.scopedKeeper.GetCapability(ctx, host.PortPath(portID))
