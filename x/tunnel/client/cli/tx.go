@@ -250,7 +250,7 @@ func GetTxCmdDeactivate() *cobra.Command {
 
 func GetTxCmdTriggerTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "trigger [tunnel-id]",
+		Use:   "trigger-tunnel [tunnel-id]",
 		Short: "Trigger a tunnel to generate a new packet",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
