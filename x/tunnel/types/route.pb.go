@@ -6,6 +6,7 @@ package types
 import (
 	fmt "fmt"
 	github_com_bandprotocol_chain_v3_x_bandtss_types "github.com/bandprotocol/chain/v3/x/bandtss/types"
+	types "github.com/bandprotocol/chain/v3/x/feeds/types"
 	_ "github.com/cosmos/cosmos-proto"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
@@ -126,37 +127,216 @@ func (m *TSSPacketReceipt) GetSigningID() github_com_bandprotocol_chain_v3_x_ban
 	return 0
 }
 
+// IBCRoute is the type for an IBC route
+type IBCRoute struct {
+	// channel_id is the IBC channel ID
+	ChannelID string `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+}
+
+func (m *IBCRoute) Reset()         { *m = IBCRoute{} }
+func (m *IBCRoute) String() string { return proto.CompactTextString(m) }
+func (*IBCRoute) ProtoMessage()    {}
+func (*IBCRoute) Descriptor() ([]byte, []int) {
+	return fileDescriptor_543238289d94b7a6, []int{2}
+}
+func (m *IBCRoute) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *IBCRoute) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_IBCRoute.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *IBCRoute) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IBCRoute.Merge(m, src)
+}
+func (m *IBCRoute) XXX_Size() int {
+	return m.Size()
+}
+func (m *IBCRoute) XXX_DiscardUnknown() {
+	xxx_messageInfo_IBCRoute.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_IBCRoute proto.InternalMessageInfo
+
+func (m *IBCRoute) GetChannelID() string {
+	if m != nil {
+		return m.ChannelID
+	}
+	return ""
+}
+
+// IBCPacketReceipt represents a receipt for a IBC packet and implements the PacketReceiptI interface.
+type IBCPacketReceipt struct {
+	// sequence is representing the sequence of the IBC packet.
+	Sequence uint64 `protobuf:"varint,1,opt,name=sequence,proto3" json:"sequence,omitempty"`
+}
+
+func (m *IBCPacketReceipt) Reset()         { *m = IBCPacketReceipt{} }
+func (m *IBCPacketReceipt) String() string { return proto.CompactTextString(m) }
+func (*IBCPacketReceipt) ProtoMessage()    {}
+func (*IBCPacketReceipt) Descriptor() ([]byte, []int) {
+	return fileDescriptor_543238289d94b7a6, []int{3}
+}
+func (m *IBCPacketReceipt) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *IBCPacketReceipt) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_IBCPacketReceipt.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *IBCPacketReceipt) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_IBCPacketReceipt.Merge(m, src)
+}
+func (m *IBCPacketReceipt) XXX_Size() int {
+	return m.Size()
+}
+func (m *IBCPacketReceipt) XXX_DiscardUnknown() {
+	xxx_messageInfo_IBCPacketReceipt.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_IBCPacketReceipt proto.InternalMessageInfo
+
+func (m *IBCPacketReceipt) GetSequence() uint64 {
+	if m != nil {
+		return m.Sequence
+	}
+	return 0
+}
+
+// TunnelPricesPacketData represents the IBC packet payload for the tunnel packet.
+type TunnelPricesPacketData struct {
+	// tunnel_id is the tunnel ID
+	TunnelID uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
+	// sequence is representing the sequence of the tunnel packet.
+	Sequence uint64 `protobuf:"varint,2,opt,name=sequence,proto3" json:"sequence,omitempty"`
+	// prices is the list of prices information from feeds module.
+	Prices []types.Price `protobuf:"bytes,3,rep,name=prices,proto3" json:"prices"`
+	// created_at is the timestamp when the packet is created
+	CreatedAt int64 `protobuf:"varint,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+}
+
+func (m *TunnelPricesPacketData) Reset()         { *m = TunnelPricesPacketData{} }
+func (m *TunnelPricesPacketData) String() string { return proto.CompactTextString(m) }
+func (*TunnelPricesPacketData) ProtoMessage()    {}
+func (*TunnelPricesPacketData) Descriptor() ([]byte, []int) {
+	return fileDescriptor_543238289d94b7a6, []int{4}
+}
+func (m *TunnelPricesPacketData) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *TunnelPricesPacketData) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_TunnelPricesPacketData.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *TunnelPricesPacketData) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TunnelPricesPacketData.Merge(m, src)
+}
+func (m *TunnelPricesPacketData) XXX_Size() int {
+	return m.Size()
+}
+func (m *TunnelPricesPacketData) XXX_DiscardUnknown() {
+	xxx_messageInfo_TunnelPricesPacketData.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TunnelPricesPacketData proto.InternalMessageInfo
+
+func (m *TunnelPricesPacketData) GetTunnelID() uint64 {
+	if m != nil {
+		return m.TunnelID
+	}
+	return 0
+}
+
+func (m *TunnelPricesPacketData) GetSequence() uint64 {
+	if m != nil {
+		return m.Sequence
+	}
+	return 0
+}
+
+func (m *TunnelPricesPacketData) GetPrices() []types.Price {
+	if m != nil {
+		return m.Prices
+	}
+	return nil
+}
+
+func (m *TunnelPricesPacketData) GetCreatedAt() int64 {
+	if m != nil {
+		return m.CreatedAt
+	}
+	return 0
+}
+
 func init() {
 	proto.RegisterType((*TSSRoute)(nil), "band.tunnel.v1beta1.TSSRoute")
 	proto.RegisterType((*TSSPacketReceipt)(nil), "band.tunnel.v1beta1.TSSPacketReceipt")
+	proto.RegisterType((*IBCRoute)(nil), "band.tunnel.v1beta1.IBCRoute")
+	proto.RegisterType((*IBCPacketReceipt)(nil), "band.tunnel.v1beta1.IBCPacketReceipt")
+	proto.RegisterType((*TunnelPricesPacketData)(nil), "band.tunnel.v1beta1.TunnelPricesPacketData")
 }
 
 func init() { proto.RegisterFile("band/tunnel/v1beta1/route.proto", fileDescriptor_543238289d94b7a6) }
 
 var fileDescriptor_543238289d94b7a6 = []byte{
-	// 351 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x91, 0xbf, 0x4e, 0xeb, 0x30,
-	0x14, 0xc6, 0xeb, 0xab, 0xab, 0xea, 0xd6, 0xc3, 0x15, 0x0a, 0x15, 0x2a, 0x15, 0x4a, 0x50, 0x27,
-	0x96, 0xc6, 0xaa, 0xba, 0x75, 0x82, 0xd2, 0x81, 0x08, 0x21, 0xa1, 0xa4, 0x13, 0x4b, 0xe4, 0xd8,
-	0x56, 0x6a, 0x68, 0xed, 0x2a, 0x76, 0x2b, 0x78, 0x0b, 0xc4, 0x23, 0x30, 0xf1, 0x00, 0x7d, 0x08,
-	0xd4, 0xa9, 0x23, 0x53, 0x85, 0xd2, 0xb7, 0x60, 0x42, 0xb1, 0xc3, 0x9f, 0x32, 0xb1, 0xd9, 0xdf,
-	0xf9, 0x9d, 0xef, 0x3b, 0xc7, 0x86, 0x5e, 0x82, 0x05, 0x45, 0x7a, 0x26, 0x04, 0x1b, 0xa3, 0x79,
-	0x27, 0x61, 0x1a, 0x77, 0x50, 0x26, 0x67, 0x9a, 0xf9, 0xd3, 0x4c, 0x6a, 0xe9, 0xec, 0x16, 0x80,
-	0x6f, 0x01, 0xbf, 0x04, 0x9a, 0xfb, 0x44, 0xaa, 0x89, 0x54, 0xb1, 0x41, 0x90, 0xbd, 0x58, 0xbe,
-	0x59, 0x4f, 0x65, 0x2a, 0xad, 0x5e, 0x9c, 0xac, 0xda, 0x7a, 0x04, 0xf0, 0xdf, 0x30, 0x8a, 0xc2,
-	0xc2, 0xd8, 0x39, 0x83, 0x75, 0xca, 0x94, 0xe6, 0x02, 0x6b, 0x2e, 0x45, 0x4c, 0x46, 0x98, 0x8b,
-	0x98, 0xd3, 0x06, 0x38, 0x04, 0x47, 0xb5, 0xfe, 0x5e, 0xbe, 0xf6, 0x9c, 0xc1, 0x57, 0xfd, 0xb4,
-	0x28, 0x07, 0x83, 0xd0, 0xa1, 0x3f, 0x35, 0xea, 0x1c, 0xc3, 0x83, 0x2d, 0x27, 0x29, 0x74, 0x86,
-	0x89, 0x8e, 0x31, 0xa5, 0x19, 0x53, 0xaa, 0xf1, 0xa7, 0x70, 0x0c, 0x9b, 0xdf, 0x3b, 0x4b, 0xe4,
-	0xc4, 0x12, 0x3d, 0xb8, 0x5c, 0xb4, 0xab, 0x66, 0xac, 0xa0, 0xf5, 0x00, 0xe0, 0xce, 0x30, 0x8a,
-	0x2e, 0x31, 0xb9, 0x61, 0x3a, 0x64, 0x84, 0xf1, 0xa9, 0x76, 0xae, 0x21, 0x54, 0x3c, 0x15, 0x5c,
-	0xa4, 0x1f, 0x23, 0xfe, 0xed, 0x9f, 0xe7, 0x6b, 0xaf, 0x16, 0x59, 0x35, 0x18, 0xbc, 0xad, 0xbd,
-	0x5e, 0xca, 0xf5, 0x68, 0x96, 0xf8, 0x44, 0x4e, 0x50, 0xf1, 0x5e, 0x66, 0x69, 0x22, 0xc7, 0xc8,
-	0xec, 0x86, 0xe6, 0x5d, 0x74, 0x6b, 0x74, 0xad, 0x14, 0xd2, 0x77, 0x53, 0xa6, 0xfc, 0xcf, 0xee,
-	0xb0, 0x56, 0xda, 0x07, 0xb4, 0xe7, 0x2c, 0x17, 0xed, 0xff, 0x5b, 0xf1, 0x41, 0xff, 0xe2, 0x29,
-	0x77, 0xc1, 0x73, 0xee, 0x82, 0x55, 0xee, 0x82, 0xd7, 0xdc, 0x05, 0xf7, 0x1b, 0xb7, 0xb2, 0xda,
-	0xb8, 0x95, 0x97, 0x8d, 0x5b, 0xb9, 0x42, 0xbf, 0x08, 0x2e, 0x3f, 0xd7, 0xe4, 0x26, 0x55, 0x43,
-	0x74, 0xdf, 0x03, 0x00, 0x00, 0xff, 0xff, 0x96, 0xeb, 0xca, 0x84, 0xf8, 0x01, 0x00, 0x00,
+	// 525 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x93, 0xc1, 0x6e, 0x13, 0x3d,
+	0x10, 0xc7, 0xb3, 0x4d, 0xbe, 0x28, 0xeb, 0x0f, 0x50, 0x65, 0xaa, 0x2a, 0x8d, 0x60, 0x37, 0xca,
+	0x29, 0x48, 0x64, 0xad, 0xd2, 0x03, 0x52, 0x4e, 0x74, 0x93, 0x03, 0x16, 0x42, 0xaa, 0x36, 0x39,
+	0x71, 0x89, 0x1c, 0xdb, 0x24, 0x0b, 0xad, 0x1d, 0xd6, 0x4e, 0x05, 0x6f, 0x81, 0x78, 0x04, 0x4e,
+	0x3c, 0x40, 0x24, 0x5e, 0xa1, 0xca, 0xa9, 0x47, 0x4e, 0x11, 0xda, 0xbc, 0x05, 0x27, 0x64, 0x7b,
+	0x49, 0xba, 0x9c, 0xb8, 0xad, 0xff, 0xf3, 0xf3, 0xfc, 0x67, 0xc6, 0xb3, 0x20, 0x9c, 0x12, 0xc1,
+	0x90, 0x5e, 0x0a, 0xc1, 0x2f, 0xd1, 0xf5, 0xe9, 0x94, 0x6b, 0x72, 0x8a, 0x32, 0xb9, 0xd4, 0x3c,
+	0x5a, 0x64, 0x52, 0x4b, 0xf8, 0xd0, 0x00, 0x91, 0x03, 0xa2, 0x02, 0x68, 0x9d, 0x50, 0xa9, 0xae,
+	0xa4, 0x9a, 0x58, 0x04, 0xb9, 0x83, 0xe3, 0x5b, 0x47, 0x33, 0x39, 0x93, 0x4e, 0x37, 0x5f, 0x85,
+	0x1a, 0x58, 0x9b, 0xb7, 0x9c, 0x33, 0xb5, 0x73, 0xb1, 0x27, 0x17, 0xef, 0x7c, 0xf5, 0x40, 0x63,
+	0x3c, 0x1a, 0x25, 0xc6, 0x18, 0xbe, 0x04, 0x47, 0x8c, 0x2b, 0x9d, 0x0a, 0xa2, 0x53, 0x29, 0x26,
+	0x74, 0x4e, 0x52, 0x31, 0x49, 0x59, 0xd3, 0x6b, 0x7b, 0x5d, 0x3f, 0x3e, 0xce, 0x37, 0x21, 0x1c,
+	0xee, 0xe3, 0x03, 0x13, 0xc6, 0xc3, 0x04, 0xb2, 0xbf, 0x35, 0x06, 0x5f, 0x80, 0x47, 0xa5, 0x4c,
+	0x52, 0xe8, 0x8c, 0x50, 0x3d, 0x21, 0x8c, 0x65, 0x5c, 0xa9, 0xe6, 0x81, 0xc9, 0x98, 0xb4, 0xee,
+	0xde, 0x2c, 0x90, 0x73, 0x47, 0xf4, 0xc1, 0x7a, 0xd5, 0xab, 0xdb, 0xb2, 0x70, 0xe7, 0x8b, 0x07,
+	0x0e, 0xc7, 0xa3, 0xd1, 0x05, 0xa1, 0xef, 0xb9, 0x4e, 0x38, 0xe5, 0xe9, 0x42, 0xc3, 0x77, 0x00,
+	0xa8, 0x74, 0x26, 0x52, 0x31, 0xfb, 0x53, 0x62, 0x2d, 0x7e, 0x95, 0x6f, 0x42, 0x7f, 0xe4, 0x54,
+	0x3c, 0xfc, 0xb5, 0x09, 0xfb, 0xb3, 0x54, 0xcf, 0x97, 0xd3, 0x88, 0xca, 0x2b, 0x64, 0x26, 0x61,
+	0x9b, 0xa6, 0xf2, 0x12, 0xd9, 0xde, 0xd0, 0xf5, 0x19, 0xfa, 0x68, 0x75, 0xad, 0x14, 0xd2, 0x9f,
+	0x16, 0x5c, 0x45, 0xbb, 0xdb, 0x89, 0x5f, 0xa4, 0xc7, 0xac, 0x0f, 0xd7, 0xab, 0xde, 0x83, 0x92,
+	0x3d, 0xee, 0x0c, 0x40, 0x03, 0xc7, 0x03, 0x37, 0xb8, 0xa7, 0x00, 0xd0, 0x39, 0x31, 0x2f, 0xb5,
+	0x1f, 0xd7, 0x7d, 0x53, 0xcb, 0xc0, 0xa9, 0x26, 0x5b, 0x01, 0x60, 0xd6, 0xf7, 0xd7, 0xab, 0xde,
+	0x7f, 0xf6, 0x62, 0x27, 0x06, 0x87, 0x38, 0x1e, 0x94, 0x1b, 0x6b, 0x81, 0x86, 0xe2, 0x1f, 0x96,
+	0x5c, 0x50, 0xee, 0xda, 0x4a, 0x76, 0xe7, 0xbb, 0x85, 0x98, 0x81, 0x71, 0xa1, 0x71, 0xe7, 0xbb,
+	0x07, 0x8e, 0xc7, 0x76, 0x4d, 0x2e, 0xb2, 0x94, 0x72, 0xe5, 0xc2, 0x43, 0xa2, 0x09, 0x7c, 0x02,
+	0x7c, 0xb7, 0x40, 0xfb, 0x11, 0xdd, 0xcb, 0x37, 0x61, 0xc3, 0xe1, 0x78, 0x98, 0x34, 0x5c, 0x18,
+	0xb3, 0x92, 0xeb, 0x41, 0xd9, 0x15, 0x3e, 0x07, 0xf5, 0x85, 0x4d, 0xdd, 0xac, 0xb6, 0xab, 0xdd,
+	0xff, 0x9f, 0x9d, 0x44, 0x76, 0x37, 0xdd, 0x1e, 0x15, 0x5b, 0x15, 0x59, 0xf3, 0xb8, 0x76, 0xb3,
+	0x09, 0x2b, 0x49, 0x81, 0xc3, 0xc7, 0x00, 0xd0, 0x8c, 0x13, 0xcd, 0xd9, 0x84, 0xe8, 0x66, 0xad,
+	0xed, 0x75, 0xab, 0x89, 0x5f, 0x28, 0xe7, 0x3a, 0x7e, 0xfd, 0x2d, 0x0f, 0xbc, 0x9b, 0x3c, 0xf0,
+	0x6e, 0xf3, 0xc0, 0xfb, 0x99, 0x07, 0xde, 0xe7, 0x6d, 0x50, 0xb9, 0xdd, 0x06, 0x95, 0x1f, 0xdb,
+	0xa0, 0xf2, 0x06, 0xfd, 0xc3, 0xdb, 0x15, 0xff, 0x8f, 0x7d, 0xba, 0x69, 0xdd, 0x12, 0x67, 0xbf,
+	0x03, 0x00, 0x00, 0xff, 0xff, 0x67, 0x73, 0xe8, 0xaf, 0x5b, 0x03, 0x00, 0x00,
 }
 
 func (this *TSSRoute) Equal(that interface{}) bool {
@@ -206,6 +386,92 @@ func (this *TSSPacketReceipt) Equal(that interface{}) bool {
 		return false
 	}
 	if this.SigningID != that1.SigningID {
+		return false
+	}
+	return true
+}
+func (this *IBCRoute) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*IBCRoute)
+	if !ok {
+		that2, ok := that.(IBCRoute)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.ChannelID != that1.ChannelID {
+		return false
+	}
+	return true
+}
+func (this *IBCPacketReceipt) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*IBCPacketReceipt)
+	if !ok {
+		that2, ok := that.(IBCPacketReceipt)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Sequence != that1.Sequence {
+		return false
+	}
+	return true
+}
+func (this *TunnelPricesPacketData) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*TunnelPricesPacketData)
+	if !ok {
+		that2, ok := that.(TunnelPricesPacketData)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.TunnelID != that1.TunnelID {
+		return false
+	}
+	if this.Sequence != that1.Sequence {
+		return false
+	}
+	if len(this.Prices) != len(that1.Prices) {
+		return false
+	}
+	for i := range this.Prices {
+		if !this.Prices[i].Equal(&that1.Prices[i]) {
+			return false
+		}
+	}
+	if this.CreatedAt != that1.CreatedAt {
 		return false
 	}
 	return true
@@ -275,6 +541,116 @@ func (m *TSSPacketReceipt) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *IBCRoute) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *IBCRoute) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *IBCRoute) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.ChannelID) > 0 {
+		i -= len(m.ChannelID)
+		copy(dAtA[i:], m.ChannelID)
+		i = encodeVarintRoute(dAtA, i, uint64(len(m.ChannelID)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *IBCPacketReceipt) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *IBCPacketReceipt) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *IBCPacketReceipt) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Sequence != 0 {
+		i = encodeVarintRoute(dAtA, i, uint64(m.Sequence))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *TunnelPricesPacketData) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *TunnelPricesPacketData) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *TunnelPricesPacketData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.CreatedAt != 0 {
+		i = encodeVarintRoute(dAtA, i, uint64(m.CreatedAt))
+		i--
+		dAtA[i] = 0x20
+	}
+	if len(m.Prices) > 0 {
+		for iNdEx := len(m.Prices) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Prices[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintRoute(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if m.Sequence != 0 {
+		i = encodeVarintRoute(dAtA, i, uint64(m.Sequence))
+		i--
+		dAtA[i] = 0x10
+	}
+	if m.TunnelID != 0 {
+		i = encodeVarintRoute(dAtA, i, uint64(m.TunnelID))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintRoute(dAtA []byte, offset int, v uint64) int {
 	offset -= sovRoute(v)
 	base := offset
@@ -311,6 +687,55 @@ func (m *TSSPacketReceipt) Size() (n int) {
 	_ = l
 	if m.SigningID != 0 {
 		n += 1 + sovRoute(uint64(m.SigningID))
+	}
+	return n
+}
+
+func (m *IBCRoute) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.ChannelID)
+	if l > 0 {
+		n += 1 + l + sovRoute(uint64(l))
+	}
+	return n
+}
+
+func (m *IBCPacketReceipt) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Sequence != 0 {
+		n += 1 + sovRoute(uint64(m.Sequence))
+	}
+	return n
+}
+
+func (m *TunnelPricesPacketData) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.TunnelID != 0 {
+		n += 1 + sovRoute(uint64(m.TunnelID))
+	}
+	if m.Sequence != 0 {
+		n += 1 + sovRoute(uint64(m.Sequence))
+	}
+	if len(m.Prices) > 0 {
+		for _, e := range m.Prices {
+			l = e.Size()
+			n += 1 + l + sovRoute(uint64(l))
+		}
+	}
+	if m.CreatedAt != 0 {
+		n += 1 + sovRoute(uint64(m.CreatedAt))
 	}
 	return n
 }
@@ -479,6 +904,298 @@ func (m *TSSPacketReceipt) Unmarshal(dAtA []byte) error {
 				b := dAtA[iNdEx]
 				iNdEx++
 				m.SigningID |= github_com_bandprotocol_chain_v3_x_bandtss_types.SigningID(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRoute(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *IBCRoute) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRoute
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: IBCRoute: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: IBCRoute: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ChannelID", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthRoute
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ChannelID = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRoute(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *IBCPacketReceipt) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRoute
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: IBCPacketReceipt: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: IBCPacketReceipt: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Sequence", wireType)
+			}
+			m.Sequence = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Sequence |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRoute(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *TunnelPricesPacketData) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRoute
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: TunnelPricesPacketData: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: TunnelPricesPacketData: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TunnelID", wireType)
+			}
+			m.TunnelID = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.TunnelID |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Sequence", wireType)
+			}
+			m.Sequence = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Sequence |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Prices", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthRoute
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Prices = append(m.Prices, types.Price{})
+			if err := m.Prices[len(m.Prices)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CreatedAt", wireType)
+			}
+			m.CreatedAt = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.CreatedAt |= int64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
