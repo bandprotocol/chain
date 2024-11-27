@@ -10,33 +10,33 @@ import (
 
 // MultiStoreProofEthereum is an Ethereum version of MultiStoreProof for solidity ABI-encoding.
 type MultiStoreProofEthereum struct {
-	OracleIAVLStateHash              common.Hash
-	ParamsStoreMerkleHash            common.Hash
-	IcahostToMintStoresMerkleHash    common.Hash
-	RestakeToStakingStoresMerkleHash common.Hash
-	TransferToUpgradeStoreMerkleHash common.Hash
-	AuthToIbcStoresMerkleHash        common.Hash
+	OracleIAVLStateHash               common.Hash
+	ParamsStoreMerkleHash             common.Hash
+	IcahostToMintStoresMerkleHash     common.Hash
+	RestakeToStakingStoresMerkleHash  common.Hash
+	TransferToUpgradeStoresMerkleHash common.Hash
+	AuthToIbcStoresMerkleHash         common.Hash
 }
 
 func (m *MultiStoreProof) encodeToEthFormat() MultiStoreProofEthereum {
 	return MultiStoreProofEthereum{
-		OracleIAVLStateHash:              common.BytesToHash(m.OracleIAVLStateHash),
-		ParamsStoreMerkleHash:            common.BytesToHash(m.ParamsStoreMerkleHash),
-		IcahostToMintStoresMerkleHash:    common.BytesToHash(m.IcahostToMintStoresMerkleHash),
-		RestakeToStakingStoresMerkleHash: common.BytesToHash(m.RestakeToStakingStoresMerkleHash),
-		TransferToUpgradeStoreMerkleHash: common.BytesToHash(m.TransferToUpgradeStoreMerkleHash),
-		AuthToIbcStoresMerkleHash:        common.BytesToHash(m.AuthToIbcStoresMerkleHash),
+		OracleIAVLStateHash:               common.BytesToHash(m.OracleIAVLStateHash),
+		ParamsStoreMerkleHash:             common.BytesToHash(m.ParamsStoreMerkleHash),
+		IcahostToMintStoresMerkleHash:     common.BytesToHash(m.IcahostToMintStoresMerkleHash),
+		RestakeToStakingStoresMerkleHash:  common.BytesToHash(m.RestakeToStakingStoresMerkleHash),
+		TransferToUpgradeStoresMerkleHash: common.BytesToHash(m.TransferToUpgradeStoresMerkleHash),
+		AuthToIbcStoresMerkleHash:         common.BytesToHash(m.AuthToIbcStoresMerkleHash),
 	}
 }
 
 // GetMultiStoreProof compacts Multi store proof from Tendermint to MultiStoreProof version.
 func GetMultiStoreProof(multiStoreEp *ics23.ExistenceProof) MultiStoreProof {
 	return MultiStoreProof{
-		OracleIAVLStateHash:              tmbytes.HexBytes(multiStoreEp.Value),
-		ParamsStoreMerkleHash:            tmbytes.HexBytes(multiStoreEp.Path[0].Suffix),
-		IcahostToMintStoresMerkleHash:    tmbytes.HexBytes(multiStoreEp.Path[1].Prefix[1:]),
-		RestakeToStakingStoresMerkleHash: tmbytes.HexBytes(multiStoreEp.Path[2].Suffix),
-		TransferToUpgradeStoreMerkleHash: tmbytes.HexBytes(multiStoreEp.Path[3].Suffix),
-		AuthToIbcStoresMerkleHash:        tmbytes.HexBytes(multiStoreEp.Path[4].Prefix[1:]),
+		OracleIAVLStateHash:               tmbytes.HexBytes(multiStoreEp.Value),
+		ParamsStoreMerkleHash:             tmbytes.HexBytes(multiStoreEp.Path[0].Suffix),
+		IcahostToMintStoresMerkleHash:     tmbytes.HexBytes(multiStoreEp.Path[1].Prefix[1:]),
+		RestakeToStakingStoresMerkleHash:  tmbytes.HexBytes(multiStoreEp.Path[2].Suffix),
+		TransferToUpgradeStoresMerkleHash: tmbytes.HexBytes(multiStoreEp.Path[3].Suffix),
+		AuthToIbcStoresMerkleHash:         tmbytes.HexBytes(multiStoreEp.Path[4].Prefix[1:]),
 	}
 }

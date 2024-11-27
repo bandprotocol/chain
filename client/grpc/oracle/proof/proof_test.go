@@ -44,7 +44,7 @@ func TestEncodeRelay(t *testing.T) {
 			RestakeToStakingStoresMerkleHash: hexToBytes(
 				"E8E27CBB44BB654F64EEEF4667868AD48667CEB28E3DB5C4DF7A4B4B87F0C04B",
 			),
-			TransferToUpgradeStoreMerkleHash: hexToBytes(
+			TransferToUpgradeStoresMerkleHash: hexToBytes(
 				"FC96CFFD30E5B8979EA66F9D0DA1CBAB16F69669E8B2A1FB2E1BEB457C9726E8",
 			),
 			AuthToIbcStoresMerkleHash: hexToBytes(

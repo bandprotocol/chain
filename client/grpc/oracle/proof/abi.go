@@ -26,7 +26,7 @@ var relayFormat = []byte(`
       },
       {
         "internalType": "bytes32",
-        "name": "transferToUpgradeStoreMerkleHash",
+        "name": "transferToUpgradeStoresMerkleHash",
         "type": "bytes32"
       },
       {

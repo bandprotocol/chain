@@ -30,16 +30,16 @@ query at localhost:26657/abci_query?path="/store/oracle/key"&data=0xc00000000000
                     {
                         "type": "ics23:iavl",
                         "key": "wAAAAAAAAAA=",
-                        "data": "EpADCgjAAAAAAAAAABK2AQoBBhIdCBAQEBiAAiCABChkMNCGA0ADSEZQgOCllrsRWAEaDAgBGAEgASoEAAKYASIsCAESBQQG7hAgGiEgL9OKizGo0Z4tLP9KaLTbPfPi2jAZVEgXXK18Znu4V9EiKggBEiYGCu4QIGlHkf33ommIkdMfhPuQ14UG07Xp7lKmlq9ZNJSfVOlzICIqCAESJggY+mQgNsCXHqSI4Wc4nRUcu3B7JtZznzlsPzQs4gL/LaWWTCMgGsoBCgHwEgZvcmFjbGUaCwgBGAEgASoDAAICIiwIARIFAgTuECAaISAeDSwCB2vKaX7NoctkSGZ+6OCwUOgp6yg4Ye20FyJXSiIqCAESJgQG7hAgzL3GBeV7EMxT1yR/MzvVQdVSa8kOaTp4k0AkbuqN7XcgIioIARImBgruECBpR5H996JpiJHTH4T7kNeFBtO16e5SppavWTSUn1TpcyAiKggBEiYIGPpkIDbAlx6kiOFnOJ0VHLtweybWc585bD80LOIC/y2llkwjIA=="
+                        "data": "EpADCgjAAAAAAAAAABK2AQoBBhIdCBAQEBiAAiCABChkMNCGA0ADSEZQgOCllrsRWAEaDAgBGAEgASoEAAKYASIsCAESBQQG7hAgGiEgL9OKizGo0Z4tLP9KaLTbPfPi2jAZVEgXXK18Znu4V9EiKggBEiYGCu4QIGlHkf33ommIkdMfhPuQ14UG07Xp7lKmlq9ZNJSfVOlzICIqCAESJggY0GcgWmuKQaZpAh5otqBxJfSoJWrASawo/qPB1V5shwYbbgYgGsoBCgHwEgZvcmFjbGUaCwgBGAEgASoDAAICIiwIARIFAgTuECAaISAeDSwCB2vKaX7NoctkSGZ+6OCwUOgp6yg4Ye20FyJXSiIqCAESJgQG7hAgzL3GBeV7EMxT1yR/MzvVQdVSa8kOaTp4k0AkbuqN7XcgIioIARImBgruECBpR5H996JpiJHTH4T7kNeFBtO16e5SppavWTSUn1TpcyAiKggBEiYIGNBnIFprikGmaQIeaLagcSX0qCVqwEmsKP6jwdVebIcGG24GIA=="
                     },
                     {
                         "type": "ics23:simple",
                         "key": "b3JhY2xl",
-                        "data": "Cv4BCgZvcmFjbGUSICxrji3gkPqdGI8I4w6Cm9w6v89awbV8uoSkKV14K0JpGgkIARgBIAEqAQAiJwgBEgEBGiCI0bT8lYEcR7qf3dcswRSJQN0ZgJdSo0ioy2uIsi/bZSIlCAESIQEEZvq0c6FbK1S9zuMOkLgw5Bxfpao3t2yexQtFgWPdESInCAESAQEaIEiSFz+L5H6FV+AQl38DlIcmMLN2Lyn60r59Izq+loBvIicIARIBARogzAP2Fagk8FbZUa26ZDPyT5yv2E6PD5KVQPkvi4fFMwMiJQgBEiEBHxefupAzs5mcxY3iwVwvEza8VywaWZiHj7j7LUDez9o="
+                        "data": "Cv4BCgZvcmFjbGUSIKlGw34VS+Fki9oMhwxL5Augva71DvOvN6SD4WqsMjAjGgkIARgBIAEqAQAiJwgBEgEBGiCI0bT8lYEcR7qf3dcswRSJQN0ZgJdSo0ioy2uIsi/bZSIlCAESIQFjDp0uLX5qOZ6OLF4/FVCnrviBSSHovSU4TVjJiaS2myInCAESAQEaICjBhguC1q2OSs82GtyruVNh5egqJ15XXOcnOk6HMuJcIicIARIBARogaTJx7rOygthReqj7mtQImvchyp0oRDKbBMhhEN/zjpUiJQgBEiEB8dVwesb0WvvZh6/6bec9nDEIE+ms2MlXWKvAFKRT3fs="
                     }
                 ]
             },
-            "height": "6461",
+            "height": "6632",
             "codespace": ""
         }
     }
@@ -49,7 +49,7 @@ query at localhost:26657/abci_query?path="/store/oracle/key"&data=0xc00000000000
 func TestGetMultiStoreProof(t *testing.T) {
 	key := []byte("oracle")
 	data := base64ToBytes(
-		"Cv4BCgZvcmFjbGUSICxrji3gkPqdGI8I4w6Cm9w6v89awbV8uoSkKV14K0JpGgkIARgBIAEqAQAiJwgBEgEBGiCI0bT8lYEcR7qf3dcswRSJQN0ZgJdSo0ioy2uIsi/bZSIlCAESIQEEZvq0c6FbK1S9zuMOkLgw5Bxfpao3t2yexQtFgWPdESInCAESAQEaIEiSFz+L5H6FV+AQl38DlIcmMLN2Lyn60r59Izq+loBvIicIARIBARogzAP2Fagk8FbZUa26ZDPyT5yv2E6PD5KVQPkvi4fFMwMiJQgBEiEBHxefupAzs5mcxY3iwVwvEza8VywaWZiHj7j7LUDez9o=",
+		"Cv4BCgZvcmFjbGUSIKlGw34VS+Fki9oMhwxL5Augva71DvOvN6SD4WqsMjAjGgkIARgBIAEqAQAiJwgBEgEBGiCI0bT8lYEcR7qf3dcswRSJQN0ZgJdSo0ioy2uIsi/bZSIlCAESIQFjDp0uLX5qOZ6OLF4/FVCnrviBSSHovSU4TVjJiaS2myInCAESAQEaICjBhguC1q2OSs82GtyruVNh5egqJ15XXOcnOk6HMuJcIicIARIBARogaTJx7rOygthReqj7mtQImvchyp0oRDKbBMhhEN/zjpUiJQgBEiEB8dVwesb0WvvZh6/6bec9nDEIE+ms2MlXWKvAFKRT3fs=",
 	)
 
 	var multistoreOps storetypes.CommitmentOp
@@ -86,7 +86,7 @@ func TestGetMultiStoreProof(t *testing.T) {
 				),
 				m.RestakeToStakingStoresMerkleHash,
 			),
-			m.TransferToUpgradeStoreMerkleHash,
+			m.TransferToUpgradeStoresMerkleHash,
 		),
 	)
 
