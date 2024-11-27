@@ -10,7 +10,7 @@ import (
 	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -103,7 +103,7 @@ func CreateUpgradeHandler(
 		}
 
 		err = keepers.GlobalFeeKeeper.SetParams(ctx, globalfeetypes.Params{
-			MinimumGasPrices: sdk.DecCoins{sdk.NewDecCoinFromDec("uband", math.LegacyNewDecWithPrec(25, 4))},
+			MinimumGasPrices: sdk.DecCoins{sdk.NewDecCoinFromDec("uband", sdkmath.LegacyNewDecWithPrec(25, 4))},
 		})
 		if err != nil {
 			return nil, err
