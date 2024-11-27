@@ -43,7 +43,7 @@ func (k Keeper) SendIBCPacket(
 		types.PortID,
 		route.ChannelID,
 		clienttypes.NewHeight(0, 0),
-		uint64(ctx.BlockTime().Unix())+interval,
+		uint64(ctx.BlockTime().UnixNano())+interval*uint64(time.Second),
 		packetBytes,
 	)
 	if err != nil {

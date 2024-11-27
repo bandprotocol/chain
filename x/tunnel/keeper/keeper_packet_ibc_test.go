@@ -24,14 +24,14 @@ func (s *KeeperTestSuite) TestSendIBCPacket() {
 		Prices:    []feedstypes.Price{},
 		CreatedAt: time.Now().Unix(),
 	}
-	timeout := uint64(60)
+	interval := uint64(60)
 
 	s.scopedKeeper.EXPECT().GetCapability(ctx, gomock.Any()).Return(&capabilitytypes.Capability{}, true)
 	s.icsWrapper.EXPECT().
-		SendPacket(ctx, gomock.Any(), types.PortID, route.ChannelID, clienttypes.NewHeight(0, 0), uint64(ctx.BlockTime().Unix())+timeout, gomock.Any()).
+		SendPacket(ctx, gomock.Any(), types.PortID, route.ChannelID, clienttypes.NewHeight(0, 0), uint64(ctx.BlockTime().UnixNano())+interval*uint64(time.Second), gomock.Any()).
 		Return(uint64(1), nil)
 
-	content, err := k.SendIBCPacket(ctx, route, packet, timeout)
+	content, err := k.SendIBCPacket(ctx, route, packet, interval)
 	s.Require().NoError(err)
 
 	packetReceipt, ok := content.(*types.IBCPacketReceipt)
