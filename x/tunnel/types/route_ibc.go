@@ -20,7 +20,7 @@ func NewIBCRoute(channelID string) *IBCRoute {
 	}
 }
 
-// Route defines the IBC route for the tunnel module
+// ValidateBasic validates the IBCRoute
 func (r *IBCRoute) ValidateBasic() error {
 	// Validate the ChannelID format
 	if !channeltypes.IsChannelIDFormat(r.ChannelID) {
