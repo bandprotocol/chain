@@ -230,6 +230,8 @@ func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) error {
 			tunnel.Encoder,
 			sdk.MustAccAddressFromBech32(tunnel.FeePayer),
 		)
+	case *types.IBCRoute:
+		receipt, err = k.SendIBCPacket(ctx, r, packet, tunnel.Interval)
 	default:
 		return types.ErrInvalidRoute.Wrapf("no route found for tunnel ID: %d", tunnel.ID)
 	}

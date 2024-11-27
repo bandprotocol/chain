@@ -63,6 +63,24 @@ func NewMsgCreateTSSTunnel(
 	return m, nil
 }
 
+// NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
+func NewMsgCreateIBCTunnel(
+	signalDeviations []SignalDeviation,
+	interval uint64,
+	channelID string,
+	encoder feedstypes.Encoder,
+	deposit sdk.Coins,
+	creator sdk.AccAddress,
+) (*MsgCreateTunnel, error) {
+	r := NewIBCRoute(channelID)
+	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, encoder, deposit, creator)
+	if err != nil {
+		return nil, err
+	}
+
+	return m, nil
+}
+
 // GetRouteValue returns the route of the tunnel.
 func (m MsgCreateTunnel) GetRouteValue() (RouteI, error) {
 	r, ok := m.Route.GetCachedValue().(RouteI)

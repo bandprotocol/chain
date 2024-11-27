@@ -138,6 +138,7 @@ type AppKeepers struct {
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 	ScopedICAHostKeeper  capabilitykeeper.ScopedKeeper
 	ScopedOracleKeeper   capabilitykeeper.ScopedKeeper
+	ScopedTunnelKeeper   capabilitykeeper.ScopedKeeper
 }
 
 func NewAppKeeper(
@@ -198,6 +199,7 @@ func NewAppKeeper(
 	appKeepers.ScopedICAHostKeeper = appKeepers.CapabilityKeeper.ScopeToModule(icahosttypes.SubModuleName)
 	appKeepers.ScopedTransferKeeper = appKeepers.CapabilityKeeper.ScopeToModule(ibctransfertypes.ModuleName)
 	appKeepers.ScopedOracleKeeper = appKeepers.CapabilityKeeper.ScopeToModule(oracletypes.ModuleName)
+	appKeepers.ScopedTunnelKeeper = appKeepers.CapabilityKeeper.ScopeToModule(tunneltypes.ModuleName)
 
 	// Applications that wish to enforce statically created ScopedKeepers should call `Seal` after creating
 	// their scoped modules in `NewApp` with `ScopeToModule`
@@ -499,6 +501,9 @@ func NewAppKeeper(
 		appKeepers.BankKeeper,
 		appKeepers.FeedsKeeper,
 		appKeepers.BandtssKeeper,
+		appKeepers.IBCFeeKeeper,
+		appKeepers.IBCKeeper.PortKeeper,
+		appKeepers.ScopedTunnelKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
@@ -536,9 +541,13 @@ func NewAppKeeper(
 	// Create Oracle Stack
 	var oracleStack porttypes.IBCModule = oracle.NewIBCModule(appKeepers.OracleKeeper)
 
+	// Create Tunnel Stack
+	var tunnelStack porttypes.IBCModule = tunnel.NewIBCModule(appKeepers.TunnelKeeper)
+
 	ibcRouter := porttypes.NewRouter().AddRoute(icahosttypes.SubModuleName, icaHostStack).
 		AddRoute(ibctransfertypes.ModuleName, transferStack).
-		AddRoute(oracletypes.ModuleName, oracleStack)
+		AddRoute(oracletypes.ModuleName, oracleStack).
+		AddRoute(tunneltypes.ModuleName, tunnelStack)
 
 	appKeepers.IBCKeeper.SetRouter(ibcRouter)
 
