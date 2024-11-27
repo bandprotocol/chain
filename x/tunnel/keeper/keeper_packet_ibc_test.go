@@ -6,6 +6,7 @@ import (
 	"go.uber.org/mock/gomock"
 
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
@@ -23,13 +24,14 @@ func (s *KeeperTestSuite) TestSendIBCPacket() {
 		Prices:    []feedstypes.Price{},
 		CreatedAt: time.Now().Unix(),
 	}
+	timeout := uint64(60)
 
 	s.scopedKeeper.EXPECT().GetCapability(ctx, gomock.Any()).Return(&capabilitytypes.Capability{}, true)
 	s.icsWrapper.EXPECT().
-		SendPacket(ctx, gomock.Any(), types.PortID, route.ChannelID, gomock.Any(), gomock.Any(), gomock.Any()).
+		SendPacket(ctx, gomock.Any(), types.PortID, route.ChannelID, clienttypes.NewHeight(0, 0), uint64(ctx.BlockTime().Unix())+timeout, gomock.Any()).
 		Return(uint64(1), nil)
 
-	content, err := k.SendIBCPacket(ctx, route, packet)
+	content, err := k.SendIBCPacket(ctx, route, packet, timeout)
 	s.Require().NoError(err)
 
 	packetReceipt, ok := content.(*types.IBCPacketReceipt)
