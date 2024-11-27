@@ -46,8 +46,8 @@ func (h *Hook) emitSetTunnelDeposit(ctx sdk.Context, tunnelID uint64, depositor 
 		})
 	} else {
 		h.Write("REMOVE_TUNNEL_DEPOSIT", common.JsDict{
-			"tunnel_id": deposit.TunnelID,
-			"depositor": deposit.Depositor,
+			"tunnel_id": tunnelID,
+			"depositor": depositor,
 		})
 	}
 }
