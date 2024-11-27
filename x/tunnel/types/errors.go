@@ -29,4 +29,5 @@ var (
 	ErrChannelCapabilityNotFound = errorsmod.Register(ModuleName, 22, "channel capability not found")
 	ErrMaxTunnelChannels         = errorsmod.Register(ModuleName, 23, "max tunnel channels exceeded")
 	ErrInvalidEncoder            = errorsmod.Register(ModuleName, 24, "invalid encoder")
+	ErrSendPacketPanic           = errorsmod.Register(ModuleName, 25, "panic in sending packet")
 )

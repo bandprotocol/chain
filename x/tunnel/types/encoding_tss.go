@@ -10,7 +10,7 @@ var (
 	packetABI, _ = abi.NewType("tuple", "result", []abi.ArgumentMarshaling{
 		{Name: "Sequence", Type: "uint64"},
 		{
-			Name:         "TssPrices",
+			Name:         "TSSPrices",
 			Type:         "tuple[]",
 			InternalType: "struct Prices[]",
 			Components: []abi.ArgumentMarshaling{
@@ -26,28 +26,28 @@ var (
 	}
 )
 
-// TssPacket represents the Packet that will be used for encoding a tss message.
-type TssPacket struct {
+// TSSPacket represents the Packet that will be used for encoding a tss message.
+type TSSPacket struct {
 	Sequence  uint64
-	TssPrices []feedstypes.TssPrice
+	TSSPrices []feedstypes.TSSPrice
 	CreatedAt int64
 }
 
-// NewTssPacket returns a new TssPacket object
-func NewTssPacket(
+// NewTSSPacket returns a new TssPacket object
+func NewTSSPacket(
 	sequence uint64,
-	tssPrices []feedstypes.TssPrice,
+	tssPrices []feedstypes.TSSPrice,
 	createdAt int64,
-) TssPacket {
-	return TssPacket{
+) TSSPacket {
+	return TSSPacket{
 		Sequence:  sequence,
-		TssPrices: tssPrices,
+		TSSPrices: tssPrices,
 		CreatedAt: createdAt,
 	}
 }
 
-// EncodeTss encodes the packet to tss message
-func EncodeTss(
+// EncodeTSS encodes the packet to tss message
+func EncodeTSS(
 	sequence uint64,
 	prices []feedstypes.Price,
 	createdAt int64,
@@ -55,12 +55,12 @@ func EncodeTss(
 ) ([]byte, error) {
 	switch encoder {
 	case feedstypes.ENCODER_FIXED_POINT_ABI:
-		tssPrices, err := feedstypes.ToTssPrices(prices)
+		tssPrices, err := feedstypes.ToTSSPrices(prices)
 		if err != nil {
 			return nil, err
 		}
 
-		tssPacket := NewTssPacket(sequence, tssPrices, createdAt)
+		tssPacket := NewTSSPacket(sequence, tssPrices, createdAt)
 
 		bz, err := packetArgs.Pack(&tssPacket)
 		if err != nil {
@@ -69,12 +69,12 @@ func EncodeTss(
 
 		return append([]byte(feedstypes.EncoderFixedPointABIPrefix), bz...), nil
 	case feedstypes.ENCODER_TICK_ABI:
-		tssPrices, err := feedstypes.ToTssTickPrices(prices)
+		tssPrices, err := feedstypes.ToTSSTickPrices(prices)
 		if err != nil {
 			return nil, err
 		}
 
-		tssPacket := NewTssPacket(sequence, tssPrices, createdAt)
+		tssPacket := NewTSSPacket(sequence, tssPrices, createdAt)
 
 		bz, err := packetArgs.Pack(&tssPacket)
 		if err != nil {

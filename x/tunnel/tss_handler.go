@@ -14,7 +14,7 @@ func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 	return func(ctx sdk.Context, content tsstypes.Content) ([]byte, error) {
 		switch c := content.(type) {
 		case *types.TunnelSignatureOrder:
-			return types.EncodeTss(
+			return types.EncodeTSS(
 				c.Sequence,
 				c.Prices,
 				c.CreatedAt,

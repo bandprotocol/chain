@@ -10,7 +10,7 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-func TestEncodeTssFixedPrice(t *testing.T) {
+func TestEncodeTSSFixedPrice(t *testing.T) {
 	expectedMsg := ("cba0ad5a" +
 		"0000000000000000000000000000000000000000000000000000000000000020" +
 		"0000000000000000000000000000000000000000000000000000000000000003" +
@@ -20,7 +20,7 @@ func TestEncodeTssFixedPrice(t *testing.T) {
 		"00000000000000000000000000000000000000000000007369676e616c5f3031" +
 		"0000000000000000000000000000000000000000000000000000000000000002")
 
-	msg, err := types.EncodeTss(
+	msg, err := types.EncodeTSS(
 		3,
 		[]feedstypes.Price{
 			{SignalID: "signal_01", Price: 2, Status: feedstypes.PRICE_STATUS_AVAILABLE},
@@ -33,7 +33,7 @@ func TestEncodeTssFixedPrice(t *testing.T) {
 	require.Equal(t, expectedMsg, hex.EncodeToString(msg))
 }
 
-func TestEncodeTick(t *testing.T) {
+func TestEncodeTSSTick(t *testing.T) {
 	expectedMsg := ("db99b2b3" +
 		"0000000000000000000000000000000000000000000000000000000000000020" +
 		"0000000000000000000000000000000000000000000000000000000000000003" +
@@ -43,7 +43,7 @@ func TestEncodeTick(t *testing.T) {
 		"00000000000000000000000000000000000000000000007369676e616c5f3031" +
 		"000000000000000000000000000000000000000000000000000000000000f188")
 
-	msg, err := types.EncodeTss(
+	msg, err := types.EncodeTSS(
 		3,
 		[]feedstypes.Price{
 			{SignalID: "signal_01", Price: 2, Status: feedstypes.PRICE_STATUS_AVAILABLE},

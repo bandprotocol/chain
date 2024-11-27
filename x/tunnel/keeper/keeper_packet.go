@@ -72,13 +72,6 @@ func (k Keeper) ProduceActiveTunnelPacket(
 	tunnelID uint64,
 	pricesMap map[string]feedstypes.Price,
 ) (err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			err = fmt.Errorf("panic recovered: %v", r)
-			return
-		}
-	}()
-
 	// Check if the tunnel has enough fund to create a packet and deactivate the tunnel if not
 	// enough fund. Error should not happen here since the tunnel is already validated.
 	ok, err := k.HasEnoughFundToCreatePacket(ctx, tunnelID)
@@ -207,7 +200,15 @@ func (k Keeper) CreatePacket(
 }
 
 // SendPacket sends a packet to the destination route
-func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) error {
+func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			ctx.Logger().Error(fmt.Sprintf("Panic recovered: %v", r))
+			err = types.ErrSendPacketPanic
+			return
+		}
+	}()
+
 	tunnel, err := k.GetTunnel(ctx, packet.TunnelID)
 	if err != nil {
 		return err
