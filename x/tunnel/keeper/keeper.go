@@ -55,6 +55,11 @@ func NewKeeper(
 	}
 }
 
+// GetAuthority returns the x/tunnel module's authority.
+func (k Keeper) GetAuthority() string {
+	return k.authority
+}
+
 // GetTunnelAccount returns the tunnel ModuleAccount
 func (k Keeper) GetTunnelAccount(ctx sdk.Context) sdk.ModuleAccountI {
 	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
