@@ -56,6 +56,11 @@ func NewKeeper(
 	}
 }
 
+// GetAuthority returns the x/bandtss module's authority.
+func (k Keeper) GetAuthority() string {
+	return k.authority
+}
+
 // GetBandtssAccount returns the bandtss ModuleAccount
 func (k Keeper) GetBandtssAccount(ctx sdk.Context) sdk.ModuleAccountI {
 	return k.authKeeper.GetModuleAccount(ctx, types.ModuleName)
