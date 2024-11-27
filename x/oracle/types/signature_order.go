@@ -4,7 +4,7 @@ import tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 
 // signature order types
 const (
-	SignatureOrderTypeOracleResult = "OracleResult"
+	SignatureOrderTypeOracleResult = "oracleResult"
 )
 
 // Implements Content Interface

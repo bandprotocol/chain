@@ -4,7 +4,7 @@ import tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 
 // signature order types
 const (
-	SignatureOrderTypeFeeds = "Feeds"
+	SignatureOrderTypeFeeds = "feeds"
 )
 
 // Implements Content Interface
