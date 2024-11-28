@@ -4,7 +4,7 @@ import tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 
 // signature order types
 const (
-	SignatureOrderTypeOracleResult = "OracleResult"
+	SignatureOrderTypeOracle = "oracle"
 )
 
 // Implements Content Interface
@@ -18,9 +18,9 @@ func NewOracleResultSignatureOrder(rid RequestID, encoder Encoder) *OracleResult
 // OrderRoute returns the order router key
 func (o *OracleResultSignatureOrder) OrderRoute() string { return RouterKey }
 
-// OrderType returns type of signature order that should be "OracleResult"
+// OrderType returns type of signature order that should be "oracle"
 func (o *OracleResultSignatureOrder) OrderType() string {
-	return SignatureOrderTypeOracleResult
+	return SignatureOrderTypeOracle
 }
 
 // IsInternal returns false for OracleResultSignatureOrder (allow user to submit this content type).

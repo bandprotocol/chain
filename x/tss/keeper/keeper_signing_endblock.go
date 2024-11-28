@@ -6,7 +6,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v3/pkg/ctxcache"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
@@ -26,16 +25,15 @@ func (k Keeper) HandleSigningEndBlock(ctx sdk.Context) {
 	// check expired signing
 	timeoutSigningIDs := k.HandleExpiredSignings(ctx)
 
-	// retry every failed and expired signings.
+	// retry every failed and expired signings; rollback and handle failed signing
+	// if any error occurred.
 	retrySigningIDs = append(retrySigningIDs, timeoutSigningIDs...)
 	for _, sid := range retrySigningIDs {
-		initiateNewSigningRound := func(ctx sdk.Context) error {
-			return k.InitiateNewSigningRound(ctx, sid)
-		}
-
-		// try initiate new signing round; rollback and handle failed signing if any error occurred.
-		if err := ctxcache.ApplyFuncIfNoError(ctx, initiateNewSigningRound); err != nil {
+		cacheCtx, writeFn := ctx.CacheContext()
+		if err := k.InitiateNewSigningRound(cacheCtx, sid); err != nil {
 			k.HandleFailedSigning(ctx, sid, err.Error())
+		} else {
+			writeFn()
 		}
 	}
 }
