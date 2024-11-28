@@ -1266,7 +1266,7 @@ func (suite *DecoderTestSuite) TestDecodeTunnelMsgCreateTunnel() {
 	emitter.DecodeTunnelMsgCreateTunnel(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"creator\":\"band1vdex2ct5daeqqqqqqqqqqqqqqqqqqqqqqgzyx3\",\"encoder\":2,\"initial_deposit\":[{\"denom\":\"uband\",\"amount\":\"5\"}],\"interval\":60,\"route\":{\"destination_chain_id\":\"ethereum\",\"destination_contract_address\":\"0xcabe9a5e6249c893a4b4fc263\"},\"route_type\":\"/band.tunnel.v1beta1.TSSRoute\",\"signal_deviations\":[{\"signal_id\":\"CS:BAND-USD\",\"soft_deviation_bps\":10000,\"hard_deviation_bps\":10000}]}",
+		"{\"creator\":\"band1gdex2ct5daeqqqqqqqqqqqqqqqqqqqqq8vcand\",\"encoder\":2,\"initial_deposit\":[{\"denom\":\"uband\",\"amount\":\"5\"}],\"interval\":60,\"route\":{\"destination_chain_id\":\"ethereum\",\"destination_contract_address\":\"0xcabe9a5e6249c893a4b4fc263\"},\"route_type\":\"/band.tunnel.v1beta1.TSSRoute\",\"signal_deviations\":[{\"signal_id\":\"CS:BAND-USD\",\"soft_deviation_bps\":10000,\"hard_deviation_bps\":10000}]}",
 	)
 }
 
@@ -1284,7 +1284,7 @@ func (suite *DecoderTestSuite) TestDecodeTunnelMsgUpdateAndResetTunnel() {
 	emitter.DecodeTunnelMsgUpdateAndResetTunnel(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"creator\":\"band1vdex2ct5daeqqqqqqqqqqqqqqqqqqqqqqgzyx3\",\"interval\":60,\"signal_deviations\":[{\"signal_id\":\"CS:BAND-USD\",\"soft_deviation_bps\":10000,\"hard_deviation_bps\":10000}],\"tunnel_id\":1}",
+		"{\"creator\":\"band1gdex2ct5daeqqqqqqqqqqqqqqqqqqqqq8vcand\",\"interval\":60,\"signal_deviations\":[{\"signal_id\":\"CS:BAND-USD\",\"soft_deviation_bps\":10000,\"hard_deviation_bps\":10000}],\"tunnel_id\":1}",
 	)
 }
 
@@ -1298,7 +1298,7 @@ func (suite *DecoderTestSuite) TestDecodeTunnelMsgActivate() {
 	emitter.DecodeTunnelMsgActivate(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"creator\":\"band1vdex2ct5daeqqqqqqqqqqqqqqqqqqqqqqgzyx3\",\"tunnel_id\":1}",
+		"{\"creator\":\"band1gdex2ct5daeqqqqqqqqqqqqqqqqqqqqq8vcand\",\"tunnel_id\":1}",
 	)
 }
 
@@ -1312,7 +1312,7 @@ func (suite *DecoderTestSuite) TestDecodeTunnelMsgDeactivate() {
 	emitter.DecodeTunnelMsgDeactivate(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"creator\":\"band1vdex2ct5daeqqqqqqqqqqqqqqqqqqqqqqgzyx3\",\"tunnel_id\":1}",
+		"{\"creator\":\"band1gdex2ct5daeqqqqqqqqqqqqqqqqqqqqq8vcand\",\"tunnel_id\":1}",
 	)
 }
 
@@ -1326,7 +1326,7 @@ func (suite *DecoderTestSuite) TestDecodeTunnelMsgTriggerTunnel() {
 	emitter.DecodeTunnelMsgTriggerTunnel(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"creator\":\"band1vdex2ct5daeqqqqqqqqqqqqqqqqqqqqqqgzyx3\",\"tunnel_id\":1}",
+		"{\"creator\":\"band1gdex2ct5daeqqqqqqqqqqqqqqqqqqqqq8vcand\",\"tunnel_id\":1}",
 	)
 }
 
@@ -1341,7 +1341,7 @@ func (suite *DecoderTestSuite) TestDecodeTunnelMsgDepositToTunnel() {
 	emitter.DecodeTunnelMsgDepositToTunnel(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"amount\":[{\"denom\":\"uband\",\"amount\":\"5\"}],\"depositor\":\"band1vdex2ct5daeqqqqqqqqqqqqqqqqqqqqqqgzyx3\",\"tunnel_id\":1}",
+		"{\"amount\":[{\"denom\":\"uband\",\"amount\":\"5\"}],\"depositor\":\"band1gdex2ct5daeqqqqqqqqqqqqqqqqqqqqq8vcand\",\"tunnel_id\":1}",
 	)
 }
 
