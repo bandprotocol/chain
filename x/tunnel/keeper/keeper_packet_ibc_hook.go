@@ -31,12 +31,17 @@ func (k Keeper) SendIBCHookPacket(
 		return nil, err
 	}
 
+	// mint coins to the fee payer
+	err = k.MintCoinsToAccount(ctx, feePayer)
+	if err != nil {
+		return nil, err
+	}
+
 	// create ibc transfer message
 	msg := ibctransfertypes.NewMsgTransfer(
 		ibctransfertypes.PortID,
 		route.ChannelID,
-		// TODO: align the token to send with msg transfer
-		sdk.NewInt64Coin("uband", 1),
+		types.TransferAmount,
 		feePayer.String(),
 		route.DestinationContractAddress,
 		clienttypes.ZeroHeight(),
@@ -51,4 +56,21 @@ func (k Keeper) SendIBCHookPacket(
 	}
 
 	return types.NewIBCHookPacketReceipt(res.Sequence), nil
+}
+
+// MintCoinsToAccount mints uhook coins to the account
+func (k Keeper) MintCoinsToAccount(ctx sdk.Context, account sdk.AccAddress) error {
+	// mint coins to the account
+	err := k.bankKeeper.MintCoins(ctx, types.ModuleName, sdk.NewCoins(types.TransferAmount))
+	if err != nil {
+		return err
+	}
+
+	// send coins to the account
+	return k.bankKeeper.SendCoinsFromModuleToAccount(
+		ctx,
+		types.ModuleName,
+		account,
+		sdk.NewCoins(types.TransferAmount),
+	)
 }

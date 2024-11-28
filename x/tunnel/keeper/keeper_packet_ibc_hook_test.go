@@ -27,6 +27,7 @@ func (s *KeeperTestSuite) TestSendRouterPacket() {
 		CreatedAt: time.Now().Unix(),
 	}
 	interval := uint64(60)
+	feePayer := sdk.AccAddress([]byte("feePayer"))
 
 	expectedPacketReceipt := types.IBCHookPacketReceipt{
 		Sequence: 1,
@@ -35,12 +36,16 @@ func (s *KeeperTestSuite) TestSendRouterPacket() {
 	s.transferKeeper.EXPECT().Transfer(ctx, gomock.Any()).Return(&ibctransfertypes.MsgTransferResponse{
 		Sequence: 1,
 	}, nil)
+	s.bankKeeper.EXPECT().MintCoins(ctx, types.ModuleName, sdk.NewCoins(types.TransferAmount)).Return(nil)
+	s.bankKeeper.EXPECT().
+		SendCoinsFromModuleToAccount(ctx, types.ModuleName, feePayer, sdk.NewCoins(types.TransferAmount)).
+		Return(nil)
 
 	content, err := k.SendIBCHookPacket(
 		ctx,
 		route,
 		packet,
-		sdk.AccAddress("feePayer"),
+		feePayer,
 		interval,
 	)
 	s.Require().NoError(err)
@@ -48,4 +53,19 @@ func (s *KeeperTestSuite) TestSendRouterPacket() {
 	receipt, ok := content.(*types.IBCHookPacketReceipt)
 	s.Require().True(ok)
 	s.Require().Equal(expectedPacketReceipt, *receipt)
+}
+
+func (s *KeeperTestSuite) TestMintCoinsToAccount() {
+	ctx, k := s.ctx, s.keeper
+
+	account := sdk.AccAddress([]byte("test_account"))
+
+	s.bankKeeper.EXPECT().MintCoins(ctx, types.ModuleName, sdk.NewCoins(types.TransferAmount)).Return(nil)
+	s.bankKeeper.EXPECT().
+		SendCoinsFromModuleToAccount(ctx, types.ModuleName, account, sdk.NewCoins(types.TransferAmount)).
+		Return(nil)
+
+	// Mint coins to the account
+	err := k.MintCoinsToAccount(ctx, account)
+	s.Require().NoError(err)
 }
