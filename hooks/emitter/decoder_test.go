@@ -60,7 +60,7 @@ var (
 	GranteeAddress   = sdk.AccAddress(genAddressFromString("Grantee"))
 	StakerAddress    = sdk.AccAddress(genAddressFromString("Staker"))
 	AuthorityAddress = sdk.AccAddress(genAddressFromString("Authority"))
-	CreatorAddress   = sdk.AccAddress(genAddressFromString("creator"))
+	CreatorAddress   = sdk.AccAddress(genAddressFromString("Creator"))
 
 	Coins1000000uband   = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
@@ -1356,7 +1356,7 @@ func (suite *DecoderTestSuite) TestDecodeTunnelMsgWithdrawFromTunnel() {
 	emitter.DecodeTunnelMsgWithdrawFromTunnel(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"amount\":[{\"denom\":\"uband\",\"amount\":\"5\"}],\"tunnel_id\":1,\"withdrawer\":\"band1vdex2ct5daeqqqqqqqqqqqqqqqqqqqqqqgzyx3\"}",
+		"{\"amount\":[{\"denom\":\"uband\",\"amount\":\"5\"}],\"tunnel_id\":1,\"withdrawer\":\"band1gdex2ct5daeqqqqqqqqqqqqqqqqqqqqq8vcand\"}",
 	)
 }
 
