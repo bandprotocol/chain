@@ -72,6 +72,121 @@ func (s *KeeperTestSuite) TestCreateDirectSigningRequest() {
 			expectErr: nil,
 		},
 		{
+			name: "test failed insufficient member in current group even normal incoming group",
+			preProcess: func(s *KeeperTestSuite) {
+				incomingGroupID := tss.GroupID(2)
+				transition := types.GroupTransition{
+					SigningID:       tss.SigningID(1),
+					Status:          types.TRANSITION_STATUS_WAITING_EXECUTION,
+					CurrentGroupID:  currentGroupID,
+					IncomingGroupID: incomingGroupID,
+				}
+				s.keeper.SetGroupTransition(s.ctx, transition)
+				s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(currentGroupID, s.ctx.BlockTime()))
+
+				s.tssKeeper.EXPECT().GetGroup(gomock.Any(), currentGroupID).
+					Return(currentGroup, nil).
+					AnyTimes()
+
+				s.tssKeeper.EXPECT().RequestSigning(gomock.Any(), currentGroupID, gomock.Any(), content).
+					DoAndReturn(func(
+						ctx sdk.Context,
+						groupID tss.GroupID,
+						originator tsstypes.Originator,
+						content tsstypes.Content,
+					) (tss.SigningID, error) {
+						ctx.KVStore(s.key).Set([]byte{0xff, 0xfe}, []byte("test"))
+						return tss.SigningID(0), tsstypes.ErrInsufficientSigners
+					})
+
+				s.bankKeeper.EXPECT().SendCoinsFromAccountToModule(
+					gomock.Any(),
+					bandtesting.Alice.Address,
+					types.ModuleName,
+					sdk.NewCoins(sdk.NewInt64Coin("uband", 20)),
+				).Return(nil)
+			},
+			postCheck: func(s *KeeperTestSuite) {
+				s.Require().Equal([]byte("test"), s.ctx.KVStore(s.key).Get([]byte{0xff, 0xfe}))
+			},
+			input: input{
+				sender:   bandtesting.Alice.Address,
+				feeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
+			},
+			expectErr: tsstypes.ErrInsufficientSigners,
+		},
+		{
+			name: "test success with only current group; insufficient member on incoming group",
+			preProcess: func(s *KeeperTestSuite) {
+				incomingGroupID := tss.GroupID(2)
+				transition := types.GroupTransition{
+					SigningID:       tss.SigningID(1),
+					Status:          types.TRANSITION_STATUS_WAITING_EXECUTION,
+					CurrentGroupID:  currentGroupID,
+					IncomingGroupID: incomingGroupID,
+				}
+				s.keeper.SetGroupTransition(s.ctx, transition)
+				s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(currentGroupID, s.ctx.BlockTime()))
+
+				s.tssKeeper.EXPECT().GetGroup(gomock.Any(), currentGroupID).
+					Return(currentGroup, nil).
+					AnyTimes()
+
+				s.tssKeeper.EXPECT().RequestSigning(gomock.Any(), currentGroupID, gomock.Any(), content).
+					DoAndReturn(func(
+						ctx sdk.Context,
+						groupID tss.GroupID,
+						originator tsstypes.Originator,
+						content tsstypes.Content,
+					) (tss.SigningID, error) {
+						ctx.KVStore(s.key).Set([]byte{0xff, 0xfe}, []byte("test"))
+						return tss.SigningID(1), nil
+					})
+
+				s.tssKeeper.EXPECT().RequestSigning(gomock.Any(), incomingGroupID, gomock.Any(), content).
+					DoAndReturn(func(
+						ctx sdk.Context,
+						groupID tss.GroupID,
+						originator tsstypes.Originator,
+						content tsstypes.Content,
+					) (tss.SigningID, error) {
+						ctx.KVStore(s.key).Set([]byte{0xff, 0xff}, []byte("test"))
+						return tss.SigningID(0), tsstypes.ErrInsufficientSigners
+					})
+
+				s.bankKeeper.EXPECT().SendCoinsFromAccountToModule(
+					gomock.Any(),
+					bandtesting.Alice.Address,
+					types.ModuleName,
+					sdk.NewCoins(sdk.NewInt64Coin("uband", 20)),
+				).Return(nil)
+			},
+			postCheck: func(s *KeeperTestSuite) {
+				// check mapping of tss signingID -> bandtss signingID
+				actualMappedSigningID := s.keeper.GetSigningIDMapping(s.ctx, tss.SigningID(1))
+				s.Require().Equal(types.SigningID(1), actualMappedSigningID)
+
+				// check bandtssSigning
+				bandtssSigning, err := s.keeper.GetSigning(s.ctx, types.SigningID(1))
+				s.Require().NoError(err)
+				s.Require().Equal(types.Signing{
+					ID:                     types.SigningID(1),
+					FeePerSigner:           sdk.NewCoins(sdk.NewInt64Coin("uband", 10)),
+					Requester:              bandtesting.Alice.Address.String(),
+					CurrentGroupSigningID:  tss.SigningID(1),
+					IncomingGroupSigningID: tss.SigningID(0),
+				}, bandtssSigning)
+
+				s.Require().Equal([]byte("test"), s.ctx.KVStore(s.key).Get([]byte{0xff, 0xfe}))
+				s.Require().Nil(s.ctx.KVStore(s.key).Get([]byte{0xff, 0xff}))
+			},
+			input: input{
+				sender:   bandtesting.Alice.Address,
+				feeLimit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
+			},
+			expectErr: nil,
+		},
+		{
 			name: "test success with both current and incoming group",
 			preProcess: func(s *KeeperTestSuite) {
 				incomingGroupID := tss.GroupID(2)

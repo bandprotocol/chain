@@ -112,3 +112,17 @@ message SignalDeviation {
   // hard_deviation_bps is the hard deviation in basis points
   uint64 hard_deviation_bps = 3 [(gogoproto.customname) = "HardDeviationBPS"];
 }
+
+// TunnelSignatureOrder defines a general signature order for sending signature to tss group.
+message TunnelSignatureOrder {
+  option (gogoproto.goproto_getters) = false;
+
+  // sequence is the sequence of the packet
+  uint64 sequence = 1;
+  // prices is the list of prices information from feeds module.
+  repeated band.feeds.v1beta1.Price prices = 2 [(gogoproto.nullable) = false];
+  // created_at is the timestamp when the packet is created
+  int64 created_at = 3;
+  // encoder is the mode of encoding price data.
+  band.feeds.v1beta1.Encoder encoder = 4;
+}

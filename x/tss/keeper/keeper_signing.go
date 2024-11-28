@@ -51,18 +51,22 @@ func (k Keeper) RequestSigning(
 		return 0, err
 	}
 
-	// initiate new signing round
-	if err = k.InitiateNewSigningRound(ctx, signingID); err != nil {
-		return 0, err
-	}
-
 	ctx.EventManager().EmitEvent(sdk.NewEvent(
 		types.EventTypeCreateSigning,
 		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
 		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+		sdk.NewAttribute(types.AttributeKeyContentType, sdk.MsgTypeURL(content)),
 		sdk.NewAttribute(types.AttributeKeyContent, content.String()),
+		sdk.NewAttribute(types.AttributeKeyOriginatorType, sdk.MsgTypeURL(originator)),
 		sdk.NewAttribute(types.AttributeKeyOriginator, originator.String()),
+		sdk.NewAttribute(types.AttributeKeyEncodedOriginator, hex.EncodeToString(originatorBz)),
+		sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString(contentMsg)),
 	))
+
+	// initiate new signing round
+	if err = k.InitiateNewSigningRound(ctx, signingID); err != nil {
+		return 0, err
+	}
 
 	return signingID, nil
 }
@@ -218,7 +222,6 @@ func (k Keeper) InitiateNewSigningRound(ctx sdk.Context, signingID tss.SigningID
 		types.EventTypeRequestSignature,
 		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
 		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signing.ID)),
-		sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString(signing.Message)),
 		sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString(signing.GroupPubNonce)),
 		sdk.NewAttribute(types.AttributeKeyAttempt, fmt.Sprintf("%d", signing.CurrentAttempt)),
 	)

@@ -325,7 +325,7 @@ func (k Keeper) GenerateTunnelAccount(ctx sdk.Context, key string) (sdk.AccAddre
 func (k Keeper) GetRouteFee(ctx sdk.Context, route types.RouteI) (sdk.Coins, error) {
 	switch route.(type) {
 	case *types.TSSRoute:
-		return sdk.Coins{}, nil
+		return k.bandtssKeeper.GetSigningFee(ctx)
 	case *types.IBCRoute:
 		return sdk.Coins{}, nil
 	default:
