@@ -34,6 +34,20 @@
           table:
             name: account_transactions
             schema: public
+    - name: bandtss_members
+      using:
+        foreign_key_constraint_on:
+          column: account_id
+          table:
+            name: bandtss_members
+            schema: public
+    - name: bandtss_signings
+      using:
+        foreign_key_constraint_on:
+          column: account_id
+          table:
+            name: bandtss_signings
+            schema: public
     - name: delegations
       using:
         foreign_key_constraint_on:
@@ -139,6 +153,41 @@
           table:
             name: restake_locks
             schema: public
+    - name: tss_members
+      using:
+        foreign_key_constraint_on:
+          column: account_id
+          table:
+            name: tss_members
+            schema: public
+    - name: tunnel_deposits
+      using:
+        foreign_key_constraint_on:
+          column: depositor_id
+          table:
+            name: tunnel_deposits
+            schema: public
+    - name: tunnel_historical_deposits
+      using:
+        foreign_key_constraint_on:
+          column: depositor_id
+          table:
+            name: tunnel_historical_deposits
+            schema: public
+    - name: tunnels
+      using:
+        foreign_key_constraint_on:
+          column: creator_id
+          table:
+            name: tunnels
+            schema: public
+    - name: tunnelsByFeePayerId
+      using:
+        foreign_key_constraint_on:
+          column: fee_payer_id
+          table:
+            name: tunnels
+            schema: public
     - name: unbonding_delegations
       using:
         foreign_key_constraint_on:
@@ -154,6 +203,69 @@
             name: votes
             schema: public
 - table:
+    name: bandtss_group_transitions
+    schema: public
+  object_relationships:
+    - name: block
+      using:
+        foreign_key_constraint_on: created_height
+    - name: proposal
+      using:
+        foreign_key_constraint_on: proposal_id
+    - name: tssGroupByIncomingTssGroupId
+      using:
+        foreign_key_constraint_on: incoming_tss_group_id
+    - name: tss_group
+      using:
+        foreign_key_constraint_on: current_tss_group_id
+    - name: tss_signing
+      using:
+        foreign_key_constraint_on: tss_signing_id
+- table:
+    name: bandtss_historical_current_groups
+    schema: public
+  object_relationships:
+    - name: block
+      using:
+        foreign_key_constraint_on: transition_height
+    - name: proposal
+      using:
+        foreign_key_constraint_on: proposal_id
+    - name: tss_group
+      using:
+        foreign_key_constraint_on: current_tss_group_id
+- table:
+    name: bandtss_members
+    schema: public
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: account_id
+    - name: tss_group
+      using:
+        foreign_key_constraint_on: tss_group_id
+- table:
+    name: bandtss_signings
+    schema: public
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: account_id
+    - name: tssSigningByIncomingGroupTssSigningId
+      using:
+        foreign_key_constraint_on: incoming_group_tss_signing_id
+    - name: tss_signing
+      using:
+        foreign_key_constraint_on: current_group_tss_signing_id
+  array_relationships:
+    - name: requests
+      using:
+        foreign_key_constraint_on:
+          column: bandtss_signing_id
+          table:
+            name: requests
+            schema: public
+- table:
     name: blocks
     schema: public
   object_relationships:
@@ -161,6 +273,20 @@
       using:
         foreign_key_constraint_on: proposer
   array_relationships:
+    - name: bandtss_group_transitions
+      using:
+        foreign_key_constraint_on:
+          column: created_height
+          table:
+            name: bandtss_group_transitions
+            schema: public
+    - name: bandtss_historical_current_groups
+      using:
+        foreign_key_constraint_on:
+          column: transition_height
+          table:
+            name: bandtss_historical_current_groups
+            schema: public
     - name: incoming_packets
       using:
         foreign_key_constraint_on:
@@ -188,6 +314,20 @@
           column: block_height
           table:
             name: transactions
+            schema: public
+    - name: tss_assigned_members
+      using:
+        foreign_key_constraint_on:
+          column: submitted_height
+          table:
+            name: tss_assigned_members
+            schema: public
+    - name: tss_signings
+      using:
+        foreign_key_constraint_on:
+          column: created_height
+          table:
+            name: tss_signings
             schema: public
     - name: unbonding_delegations
       using:
@@ -623,7 +763,21 @@
     - name: account
       using:
         foreign_key_constraint_on: proposer_id
+    - name: bandtss_group_transition
+      using:
+        foreign_key_constraint_on:
+          column: proposal_id
+          table:
+            name: bandtss_group_transitions
+            schema: public
   array_relationships:
+    - name: bandtss_historical_current_groups
+      using:
+        foreign_key_constraint_on:
+          column: proposal_id
+          table:
+            name: bandtss_historical_current_groups
+            schema: public
     - name: deposits
       using:
         foreign_key_constraint_on:
@@ -761,6 +915,9 @@
     name: requests
     schema: public
   object_relationships:
+    - name: bandtss_signing
+      using:
+        foreign_key_constraint_on: bandtss_signing_id
     - name: block
       using:
         foreign_key_constraint_on: resolve_height
@@ -833,6 +990,13 @@
     - name: block
       using:
         foreign_key_constraint_on: block_height
+    - name: tunnel_historical_deposit
+      using:
+        foreign_key_constraint_on:
+          column: transaction_id
+          table:
+            name: tunnel_historical_deposits
+            schema: public
   array_relationships:
     - name: account_transactions
       using:
@@ -910,6 +1074,243 @@
           column: tx_id
           table:
             name: votes
+            schema: public
+- table:
+    name: tss_assigned_members
+    schema: public
+  object_relationships:
+    - name: block
+      using:
+        foreign_key_constraint_on: submitted_height
+    - name: tss_group
+      using:
+        foreign_key_constraint_on: tss_group_id
+    - name: tss_member
+      using:
+        manual_configuration:
+          column_mapping:
+            tss_group_id: tss_group_id
+            tss_member_id: id
+          insertion_order: null
+          remote_table:
+            name: tss_members
+            schema: public
+    - name: tss_signing
+      using:
+        foreign_key_constraint_on: tss_signing_id
+- table:
+    name: tss_groups
+    schema: public
+  array_relationships:
+    - name: bandtssGroupTransitionsByIncomingTssGroupId
+      using:
+        foreign_key_constraint_on:
+          column: incoming_tss_group_id
+          table:
+            name: bandtss_group_transitions
+            schema: public
+    - name: bandtss_group_transitions
+      using:
+        foreign_key_constraint_on:
+          column: current_tss_group_id
+          table:
+            name: bandtss_group_transitions
+            schema: public
+    - name: bandtss_historical_current_groups
+      using:
+        foreign_key_constraint_on:
+          column: current_tss_group_id
+          table:
+            name: bandtss_historical_current_groups
+            schema: public
+    - name: bandtss_members
+      using:
+        foreign_key_constraint_on:
+          column: tss_group_id
+          table:
+            name: bandtss_members
+            schema: public
+    - name: tss_assigned_members
+      using:
+        foreign_key_constraint_on:
+          column: tss_group_id
+          table:
+            name: tss_assigned_members
+            schema: public
+    - name: tss_members
+      using:
+        foreign_key_constraint_on:
+          column: tss_group_id
+          table:
+            name: tss_members
+            schema: public
+    - name: tss_signings
+      using:
+        foreign_key_constraint_on:
+          column: tss_group_id
+          table:
+            name: tss_signings
+            schema: public
+- table:
+    name: tss_members
+    schema: public
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: account_id
+    - name: tss_group
+      using:
+        foreign_key_constraint_on: tss_group_id
+  array_relationships:
+    - name: tss_assigned_members
+      using:
+        manual_configuration:
+          column_mapping:
+            id: tss_member_id
+            tss_group_id: tss_group_id
+          insertion_order: null
+          remote_table:
+            name: tss_assigned_members
+            schema: public
+- table:
+    name: tss_signings
+    schema: public
+  object_relationships:
+    - name: block
+      using:
+        foreign_key_constraint_on: created_height
+    - name: tss_group
+      using:
+        foreign_key_constraint_on: tss_group_id
+  array_relationships:
+    - name: bandtssSigningsByIncomingGroupTssSigningId
+      using:
+        foreign_key_constraint_on:
+          column: incoming_group_tss_signing_id
+          table:
+            name: bandtss_signings
+            schema: public
+    - name: bandtss_group_transitions
+      using:
+        foreign_key_constraint_on:
+          column: tss_signing_id
+          table:
+            name: bandtss_group_transitions
+            schema: public
+    - name: bandtss_signings
+      using:
+        foreign_key_constraint_on:
+          column: current_group_tss_signing_id
+          table:
+            name: bandtss_signings
+            schema: public
+    - name: tss_assigned_members
+      using:
+        foreign_key_constraint_on:
+          column: tss_signing_id
+          table:
+            name: tss_assigned_members
+            schema: public
+- table:
+    name: tunnel_deposits
+    schema: public
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: depositor_id
+    - name: tunnel
+      using:
+        foreign_key_constraint_on: tunnel_id
+- table:
+    name: tunnel_historical_deposits
+    schema: public
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: depositor_id
+    - name: transaction
+      using:
+        foreign_key_constraint_on: transaction_id
+    - name: tunnel
+      using:
+        foreign_key_constraint_on: tunnel_id
+- table:
+    name: tunnel_historical_signal_deviations
+    schema: public
+  object_relationships:
+    - name: tunnel
+      using:
+        foreign_key_constraint_on: tunnel_id
+- table:
+    name: tunnel_packet_signal_prices
+    schema: public
+  object_relationships:
+    - name: tunnel_packet
+      using:
+        manual_configuration:
+          column_mapping:
+            sequence: sequence
+            tunnel_id: tunnel_id
+          insertion_order: null
+          remote_table:
+            name: tunnel_packets
+            schema: public
+- table:
+    name: tunnel_packets
+    schema: public
+  object_relationships:
+    - name: tunnel
+      using:
+        foreign_key_constraint_on: tunnel_id
+  array_relationships:
+    - name: tunnel_packet_signal_prices
+      using:
+        manual_configuration:
+          column_mapping:
+            sequence: sequence
+            tunnel_id: tunnel_id
+          insertion_order: null
+          remote_table:
+            name: tunnel_packet_signal_prices
+            schema: public
+- table:
+    name: tunnels
+    schema: public
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: creator_id
+    - name: accountByFeePayerId
+      using:
+        foreign_key_constraint_on: fee_payer_id
+  array_relationships:
+    - name: tunnel_deposits
+      using:
+        foreign_key_constraint_on:
+          column: tunnel_id
+          table:
+            name: tunnel_deposits
+            schema: public
+    - name: tunnel_historical_deposits
+      using:
+        foreign_key_constraint_on:
+          column: tunnel_id
+          table:
+            name: tunnel_historical_deposits
+            schema: public
+    - name: tunnel_historical_signal_deviations
+      using:
+        foreign_key_constraint_on:
+          column: tunnel_id
+          table:
+            name: tunnel_historical_signal_deviations
+            schema: public
+    - name: tunnel_packets
+      using:
+        foreign_key_constraint_on:
+          column: tunnel_id
+          table:
+            name: tunnel_packets
             schema: public
 - table:
     name: unbonding_delegations
