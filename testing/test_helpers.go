@@ -88,13 +88,13 @@ const (
 // DefaultConsensusParams defines the default Tendermint consensus params used in TestingApp.
 var DefaultConsensusParams = &cmtproto.ConsensusParams{
 	Block: &cmtproto.BlockParams{
-		MaxBytes: 200000,
+		MaxBytes: 3000000,
 		MaxGas:   -1,
 	},
 	Evidence: &cmtproto.EvidenceParams{
-		MaxAgeNumBlocks: 302400,
-		MaxAgeDuration:  504 * time.Hour, // 3 weeks is the max duration
-		// MaxBytes:        10000,
+		MaxAgeNumBlocks: 100000,
+		MaxAgeDuration:  48 * time.Hour, // 3 weeks is the max duration
+		MaxBytes:        1048576,
 	},
 	Validator: &cmtproto.ValidatorParams{
 		PubKeyTypes: []string{

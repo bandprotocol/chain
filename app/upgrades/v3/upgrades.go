@@ -3,10 +3,14 @@ package v3
 import (
 	"context"
 
+	cmttypes "github.com/cometbft/cometbft/types"
+
 	icahosttypes "github.com/cosmos/ibc-go/v8/modules/apps/27-interchain-accounts/host/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
+	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	ibcconnectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 
-	"cosmossdk.io/math"
+	sdkmath "cosmossdk.io/math"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -36,10 +40,9 @@ func CreateUpgradeHandler(
 		// Set param key table for params module migration
 		ctx := sdk.UnwrapSDKContext(c)
 		for _, subspace := range keepers.ParamsKeeper.GetSubspaces() {
-			ss := subspace
-
 			var keyTable paramstypes.KeyTable
-			switch ss.Name() {
+			switch subspace.Name() {
+			// cosmos-sdk types
 			case authtypes.ModuleName:
 				keyTable = authtypes.ParamKeyTable() //nolint:staticcheck
 			case banktypes.ModuleName:
@@ -59,17 +62,32 @@ func CreateUpgradeHandler(
 			// ibc types
 			case ibctransfertypes.ModuleName:
 				keyTable = ibctransfertypes.ParamKeyTable()
+			case ibcclienttypes.SubModuleName:
+				keyTable = ibcclienttypes.ParamKeyTable()
+			case ibcconnectiontypes.SubModuleName:
+				keyTable = ibcconnectiontypes.ParamKeyTable()
 			case icahosttypes.SubModuleName:
 				keyTable = icahosttypes.ParamKeyTable()
+			// band types
 			case oracletypes.ModuleName:
 				keyTable = oracletypes.ParamKeyTable()
 			default:
 				continue
 			}
 
-			if !ss.HasKeyTable() {
-				ss.WithKeyTable(keyTable)
+			if !subspace.HasKeyTable() {
+				subspace.WithKeyTable(keyTable)
 			}
+		}
+
+		// Set new consensus params with same values as before
+		consensusParams := cmttypes.DefaultConsensusParams().ToProto()
+		consensusParams.Block.MaxBytes = BlockMaxBytes                                     // unchanged
+		consensusParams.Block.MaxGas = BlockMaxGas                                         // unchanged
+		consensusParams.Validator.PubKeyTypes = []string{cmttypes.ABCIPubKeyTypeSecp256k1} // unchanged
+		err := keepers.ConsensusParamsKeeper.ParamsStore.Set(ctx, consensusParams)
+		if err != nil {
+			return nil, err
 		}
 
 		hostParams := icahosttypes.Params{
@@ -85,7 +103,7 @@ func CreateUpgradeHandler(
 		}
 
 		err = keepers.GlobalFeeKeeper.SetParams(ctx, globalfeetypes.Params{
-			MinimumGasPrices: sdk.DecCoins{sdk.NewDecCoinFromDec("uband", math.LegacyNewDecWithPrec(25, 4))},
+			MinimumGasPrices: sdk.DecCoins{sdk.NewDecCoinFromDec("uband", sdkmath.LegacyNewDecWithPrec(25, 4))},
 		})
 		if err != nil {
 			return nil, err
