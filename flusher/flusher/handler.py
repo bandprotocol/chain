@@ -59,7 +59,7 @@ from .feeds_db import (
 )
 from .restake_db import restake_vaults, restake_locks, restake_historical_stakes
 from .bandtss_db import (
-    bandtss_current_groups,
+    bandtss_historical_current_groups,
     bandtss_members,
     bandtss_signings,
     bandtss_group_transitions,
@@ -932,7 +932,7 @@ class Handler(object):
         if proposal_id is not None:
             msg["proposal_id"] = proposal_id
 
-        self.conn.execute(bandtss_current_groups.insert(), msg)
+        self.conn.execute(bandtss_historical_current_groups.insert(), msg)
 
     def handle_set_bandtss_member(self, msg):
         msg["account_id"] = self.get_account_id(msg["address"])

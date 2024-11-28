@@ -224,7 +224,7 @@ func (h *Hook) handleBeginBlockEndBlockEvent(
 	evMap := parseEvents([]abci.Event{event})
 	switch event.Type {
 	case bandtsstypes.EventTypeInactiveStatus:
-		h.handleBandtssEventInactiveStatuses(ctx, evMap)
+		h.handleBandtssEventInactiveStatus(ctx, evMap)
 	case bandtsstypes.EventTypeGroupTransition:
 		h.handleBandtssEventGroupTransition(ctx, eventIdx, eventQuerier)
 	case bandtsstypes.EventTypeGroupTransitionSuccess:

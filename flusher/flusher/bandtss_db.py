@@ -25,9 +25,7 @@ bandtss_group_transitions = sa.Table(
     "bandtss_group_transitions",
     metadata,
     Column("proposal_id", sa.Integer, sa.ForeignKey("proposals.id"), primary_key=True),
-    Column(
-        "tss_signing_id", sa.Integer, sa.ForeignKey("tss_signings.id"), nullable=True
-    ),
+    Column("tss_signing_id", sa.Integer, sa.ForeignKey("tss_signings.id"), nullable=True),
     Column(
         "current_tss_group_id",
         sa.Integer,
@@ -60,8 +58,8 @@ bandtss_group_transitions = sa.Table(
     ),
 )
 
-bandtss_current_groups = sa.Table(
-    "bandtss_current_groups",
+bandtss_historical_current_groups = sa.Table(
+    "bandtss_historical_current_groups",
     metadata,
     Column(
         "proposal_id",
@@ -88,9 +86,7 @@ bandtss_current_groups = sa.Table(
 bandtss_members = sa.Table(
     "bandtss_members",
     metadata,
-    Column(
-        "tss_group_id", sa.Integer, sa.ForeignKey("tss_groups.id"), primary_key=True
-    ),
+    Column("tss_group_id", sa.Integer, sa.ForeignKey("tss_groups.id"), primary_key=True),
     Column("account_id", sa.Integer, sa.ForeignKey("accounts.id"), primary_key=True),
     Column("is_active", sa.Boolean),
     Column("since", CustomDateTime, nullable=True),

@@ -113,8 +113,8 @@ func (h *Hook) handleBandtssMsgActivate(ctx sdk.Context, msg *types.MsgActivate)
 	h.handleBandtssUpdateMember(ctx, acc, msg.GroupID)
 }
 
-// handleBandtssEventInactiveStatuses implements emitter handler for inactive status event.
-func (h *Hook) handleBandtssEventInactiveStatuses(ctx sdk.Context, evMap common.EvMap) {
+// handleBandtssEventInactiveStatus implements emitter handler for inactive status event.
+func (h *Hook) handleBandtssEventInactiveStatus(ctx sdk.Context, evMap common.EvMap) {
 	addresses := evMap[types.EventTypeInactiveStatus+"."+types.AttributeKeyAddress]
 	groupIDs := evMap[types.EventTypeInactiveStatus+"."+types.AttributeKeyGroupID]
 	if len(addresses) != len(groupIDs) {
