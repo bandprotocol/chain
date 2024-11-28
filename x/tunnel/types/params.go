@@ -32,7 +32,7 @@ func NewParams(
 		MinDeposit:      minDeposit,
 		MinInterval:     minInterval,
 		MaxInterval:     maxInterval,
-		MinDeviationBPS: minInterval,
+		MinDeviationBPS: minDeviationBPS,
 		MaxDeviationBPS: maxDeviationBPS,
 		MaxSignals:      maxSignals,
 		BasePacketFee:   basePacketFee,

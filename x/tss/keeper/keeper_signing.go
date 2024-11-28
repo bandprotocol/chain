@@ -22,10 +22,17 @@ func (k Keeper) RequestSigning(
 		return 0, err
 	}
 
+	// validate originator
+	params := k.GetParams(ctx)
+	if err := originator.Validate(params); err != nil {
+		return 0, err
+	}
+
 	// convert content to bytes
 	if !k.contentRouter.HasRoute(content.OrderRoute()) {
-		return 0, types.ErrNoSignatureOrderHandlerExists.Wrap(content.OrderRoute())
+		return 0, types.ErrHandlerNotFound.Wrapf("order route not found: %s", content.OrderRoute())
 	}
+
 	handler := k.contentRouter.GetRoute(content.OrderRoute())
 	contentMsg, err := handler(ctx, content)
 	if err != nil {
@@ -35,7 +42,7 @@ func (k Keeper) RequestSigning(
 	// convert originator to bytes
 	originatorBz, err := originator.Encode()
 	if err != nil {
-		return 0, types.ErrEncodeOriginatorFailed
+		return 0, types.ErrEncodeOriginatorFailed.Wrapf("failed to encode originator: %v", err)
 	}
 
 	// create signing object
@@ -43,6 +50,18 @@ func (k Keeper) RequestSigning(
 	if err != nil {
 		return 0, err
 	}
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeCreateSigning,
+		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
+		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+		sdk.NewAttribute(types.AttributeKeyContentType, sdk.MsgTypeURL(content)),
+		sdk.NewAttribute(types.AttributeKeyContent, content.String()),
+		sdk.NewAttribute(types.AttributeKeyOriginatorType, sdk.MsgTypeURL(originator)),
+		sdk.NewAttribute(types.AttributeKeyOriginator, originator.String()),
+		sdk.NewAttribute(types.AttributeKeyEncodedOriginator, hex.EncodeToString(originatorBz)),
+		sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString(contentMsg)),
+	))
 
 	// initiate new signing round
 	if err = k.InitiateNewSigningRound(ctx, signingID); err != nil {
@@ -84,7 +103,9 @@ func (k Keeper) AssignMembersForSigning(
 		assignedMembers.PubEs(),
 	)
 	if err != nil {
-		return types.AssignedMembers{}, err
+		return types.AssignedMembers{}, types.ErrCreateSigningFailed.Wrapf(
+			"failed to compute commitment: %v", err,
+		)
 	}
 
 	// Compute binding factor and public nonce of each assigned member
@@ -92,8 +113,11 @@ func (k Keeper) AssignMembersForSigning(
 		// Compute binding factor
 		assignedMembers[i].BindingFactor, err = tss.ComputeOwnBindingFactor(member.MemberID, msg, commitment)
 		if err != nil {
-			return types.AssignedMembers{}, err
+			return types.AssignedMembers{}, types.ErrCreateSigningFailed.Wrapf(
+				"failed to compute binding factor: %v", err,
+			)
 		}
+
 		// Compute own public nonce
 		assignedMembers[i].PubNonce, err = tss.ComputeOwnPubNonce(
 			member.PubD,
@@ -101,7 +125,9 @@ func (k Keeper) AssignMembersForSigning(
 			assignedMembers[i].BindingFactor,
 		)
 		if err != nil {
-			return types.AssignedMembers{}, err
+			return types.AssignedMembers{}, types.ErrCreateSigningFailed.Wrapf(
+				"failed to compute own public nonce: %v", err,
+			)
 		}
 	}
 
@@ -125,7 +151,7 @@ func (k Keeper) CreateSigning(
 		return 0, err
 	}
 	if group.Status != types.GROUP_STATUS_ACTIVE {
-		return 0, types.ErrGroupIsNotActive.Wrap("group status is not active")
+		return 0, types.ErrGroupIsNotActive.Wrapf("the status of groupID %d is not active", groupID)
 	}
 
 	// set new signing object
@@ -159,7 +185,7 @@ func (k Keeper) InitiateNewSigningRound(ctx sdk.Context, signingID tss.SigningID
 	signing.CurrentAttempt += 1
 	params := k.GetParams(ctx)
 	if signing.CurrentAttempt > params.MaxSigningAttempt {
-		return types.ErrMaxSigningAttemptReached.Wrapf("signingID %d", signingID)
+		return types.ErrMaxSigningAttemptExceeded.Wrapf("signing ID %d reaches max attempt", signingID)
 	}
 
 	// assigned members within the context of the group.
@@ -175,7 +201,7 @@ func (k Keeper) InitiateNewSigningRound(ctx sdk.Context, signingID tss.SigningID
 	// Compute group public nonce for this signing
 	groupPubNonce, err := tss.ComputeGroupPublicNonce(assignedMembers.PubNonces()...)
 	if err != nil {
-		return err
+		return types.ErrCreateSigningFailed.Wrapf("failed to compute group public nonce: %v", err)
 	}
 
 	expiredHeight := uint64(ctx.BlockHeight()) + params.SigningPeriod
@@ -196,7 +222,6 @@ func (k Keeper) InitiateNewSigningRound(ctx sdk.Context, signingID tss.SigningID
 		types.EventTypeRequestSignature,
 		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", signing.GroupID)),
 		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signing.ID)),
-		sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString(signing.Message)),
 		sdk.NewAttribute(types.AttributeKeyGroupPubNonce, hex.EncodeToString(signing.GroupPubNonce)),
 		sdk.NewAttribute(types.AttributeKeyAttempt, fmt.Sprintf("%d", signing.CurrentAttempt)),
 	)

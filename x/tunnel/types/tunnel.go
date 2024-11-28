@@ -7,6 +7,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
@@ -63,6 +64,7 @@ func (t *Tunnel) SetRoute(route RouteI) error {
 	if !ok {
 		return fmt.Errorf("can't proto marshal %T", msg)
 	}
+
 	any, err := types.NewAnyWithValue(msg)
 	if err != nil {
 		return err
@@ -70,6 +72,20 @@ func (t *Tunnel) SetRoute(route RouteI) error {
 	t.Route = any
 
 	return nil
+}
+
+// GetRouteValue returns the route value of the tunnel.
+func (t Tunnel) GetRouteValue() (RouteI, error) {
+	r, ok := t.Route.GetCachedValue().(RouteI)
+	if !ok {
+		return nil, sdkerrors.ErrInvalidType.Wrapf(
+			"expected %T, got %T",
+			(RouteI)(nil),
+			t.Route.GetCachedValue(),
+		)
+	}
+
+	return r, nil
 }
 
 // GetSignalDeviationMap returns the signal deviation map of the tunnel.
@@ -90,21 +106,13 @@ func (t Tunnel) GetSignalIDs() []string {
 	return signalIDs
 }
 
-// Validate validates the total fees
-func (tf TotalFees) Validate() error {
-	if !tf.TotalPacketFee.IsValid() {
-		return fmt.Errorf("invalid total packet fee: %s", tf.TotalPacketFee)
-	}
-	return nil
-}
-
-// ValidateInterval validates the interval.
-func ValidateInterval(interval uint64, params Params) error {
-	if interval < params.MinInterval || interval > params.MaxInterval {
+// ValidateInterval validates the interval of the tunnel.
+func ValidateInterval(interval, maxInterval, minInterval uint64) error {
+	if interval < minInterval || interval > maxInterval {
 		return ErrIntervalOutOfRange.Wrapf(
 			"max %d, min %d, got %d",
-			params.MaxInterval,
-			params.MinInterval,
+			maxInterval,
+			minInterval,
 			interval,
 		)
 	}

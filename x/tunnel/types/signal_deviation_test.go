@@ -63,7 +63,12 @@ func TestValidateSignalDeviations(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			err := types.ValidateSignalDeviations(tc.signalDeviations, params)
+			err := types.ValidateSignalDeviations(
+				tc.signalDeviations,
+				params.MaxSignals,
+				params.MaxDeviationBPS,
+				params.MinDeviationBPS,
+			)
 			if tc.expErr {
 				require.Error(t, err)
 				require.Contains(t, err.Error(), tc.expErrMsg)

@@ -63,6 +63,33 @@ func NewMsgCreateTSSTunnel(
 	return m, nil
 }
 
+// NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
+func NewMsgCreateIBCTunnel(
+	signalDeviations []SignalDeviation,
+	interval uint64,
+	channelID string,
+	encoder feedstypes.Encoder,
+	deposit sdk.Coins,
+	creator sdk.AccAddress,
+) (*MsgCreateTunnel, error) {
+	r := NewIBCRoute(channelID)
+	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, encoder, deposit, creator)
+	if err != nil {
+		return nil, err
+	}
+
+	return m, nil
+}
+
+// GetRouteValue returns the route of the tunnel.
+func (m MsgCreateTunnel) GetRouteValue() (RouteI, error) {
+	r, ok := m.Route.GetCachedValue().(RouteI)
+	if !ok {
+		return nil, sdkerrors.ErrInvalidType.Wrapf("expected %T, got %T", (RouteI)(nil), m.Route.GetCachedValue())
+	}
+	return r, nil
+}
+
 // ValidateBasic does a sanity check on the provided data
 func (m MsgCreateTunnel) ValidateBasic() error {
 	// creator address must be valid
@@ -80,9 +107,9 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 	}
 
 	// route must be valid
-	r, ok := m.Route.GetCachedValue().(RouteI)
-	if !ok {
-		return sdkerrors.ErrPackAny.Wrapf("cannot unpack route")
+	r, err := m.GetRouteValue()
+	if err != nil {
+		return err
 	}
 	if err := r.ValidateBasic(); err != nil {
 		return err
@@ -105,16 +132,6 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 func (m MsgCreateTunnel) UnpackInterfaces(unpacker types.AnyUnpacker) error {
 	var route RouteI
 	return unpacker.UnpackAny(m.Route, &route)
-}
-
-// GetTunnelRoute returns the route of the tunnel.
-func (m MsgCreateTunnel) GetTunnelRoute() RouteI {
-	route, ok := m.Route.GetCachedValue().(RouteI)
-	if !ok {
-		return nil
-	}
-
-	return route
 }
 
 // NewMsgUpdateAndResetTunnel creates a new MsgUpdateAndResetTunnel instance.

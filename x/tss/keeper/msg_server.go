@@ -37,35 +37,39 @@ func (k msgServer) SubmitDKGRound1(
 	memberID := req.Round1Info.MemberID
 
 	// Get group and check group status
-	group, err := k.GetGroup(ctx, groupID)
+	group, err := k.Keeper.GetGroup(ctx, groupID)
 	if err != nil {
 		return nil, err
 	}
 	if group.Status != types.GROUP_STATUS_ROUND_1 {
-		return nil, types.ErrInvalidStatus.Wrap("group status is not round 1")
+		return nil, types.ErrInvalidGroupStatus.Wrapf("the status of groupID %d is not round 1", groupID)
 	}
 
 	// Validate memberID
-	if err := k.ValidateMemberID(ctx, groupID, memberID, req.Sender); err != nil {
+	if err := k.Keeper.ValidateMemberID(ctx, groupID, memberID, req.Sender); err != nil {
 		return nil, err
 	}
 
 	// Check previous submit
-	if k.HasRound1Info(ctx, groupID, req.Round1Info.MemberID) {
-		return nil, types.ErrMemberAlreadySubmit.Wrap("this member already submit round 1")
+	if k.Keeper.HasRound1Info(ctx, groupID, req.Round1Info.MemberID) {
+		return nil, types.ErrMemberAlreadySubmit.Wrapf(
+			"memberID %d in group ID %d already submit round 1 message",
+			memberID,
+			groupID,
+		)
 	}
 
-	if err := k.ValidateRound1Info(ctx, group, req.Round1Info); err != nil {
+	if err := k.Keeper.ValidateRound1Info(ctx, group, req.Round1Info); err != nil {
 		return nil, err
 	}
 
 	// Add commits to calculate accumulated commits for each index
-	if err = k.AddCoefficientCommits(ctx, groupID, req.Round1Info.CoefficientCommits); err != nil {
-		return nil, types.ErrAddCoeffCommit.Wrap(err.Error())
+	if err = k.Keeper.AddCoefficientCommits(ctx, groupID, req.Round1Info.CoefficientCommits); err != nil {
+		return nil, err
 	}
 
 	// Add round 1 info
-	k.AddRound1Info(ctx, groupID, req.Round1Info)
+	k.Keeper.AddRound1Info(ctx, groupID, req.Round1Info)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -81,9 +85,9 @@ func (k msgServer) SubmitDKGRound1(
 	)
 
 	// Add to the pending process group if members submit their information.
-	count := k.GetRound1InfoCount(ctx, groupID)
+	count := k.Keeper.GetRound1InfoCount(ctx, groupID)
 	if count == group.Size_ {
-		k.AddPendingProcessGroup(ctx, groupID)
+		k.Keeper.AddPendingProcessGroup(ctx, groupID)
 	}
 
 	return &types.MsgSubmitDKGRound1Response{}, nil
@@ -103,22 +107,26 @@ func (k msgServer) SubmitDKGRound2(
 	memberID := req.Round2Info.MemberID
 
 	// Get group and check group status
-	group, err := k.GetGroup(ctx, groupID)
+	group, err := k.Keeper.GetGroup(ctx, groupID)
 	if err != nil {
 		return nil, err
 	}
 	if group.Status != types.GROUP_STATUS_ROUND_2 {
-		return nil, types.ErrInvalidStatus.Wrap("group status is not round 2")
+		return nil, types.ErrInvalidGroupStatus.Wrapf("the status of groupID %d is not round 2", groupID)
 	}
 
 	// Validate memberID
-	if err := k.ValidateMemberID(ctx, groupID, memberID, req.Sender); err != nil {
+	if err := k.Keeper.ValidateMemberID(ctx, groupID, memberID, req.Sender); err != nil {
 		return nil, err
 	}
 
 	// Check previous submit
-	if k.HasRound2Info(ctx, groupID, memberID) {
-		return nil, types.ErrMemberAlreadySubmit.Wrap("this member already submit round 2")
+	if k.Keeper.HasRound2Info(ctx, groupID, memberID) {
+		return nil, types.ErrMemberAlreadySubmit.Wrapf(
+			"memberID %d in group ID %d already submit round 2 message",
+			memberID,
+			groupID,
+		)
 	}
 
 	// Check encrypted secret shares length
@@ -127,12 +135,12 @@ func (k msgServer) SubmitDKGRound2(
 	}
 
 	// Update member public key of the group.
-	if err := k.UpdateMemberPubKey(ctx, groupID, memberID); err != nil {
+	if err := k.Keeper.UpdateMemberPubKey(ctx, groupID, memberID); err != nil {
 		return nil, err
 	}
 
 	// Add round 2 info
-	k.AddRound2Info(ctx, groupID, req.Round2Info)
+	k.Keeper.AddRound2Info(ctx, groupID, req.Round2Info)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -145,9 +153,9 @@ func (k msgServer) SubmitDKGRound2(
 	)
 
 	// Add to the pending process group if members submit their information.
-	count := k.GetRound2InfoCount(ctx, groupID)
+	count := k.Keeper.GetRound2InfoCount(ctx, groupID)
 	if count == group.Size_ {
-		k.AddPendingProcessGroup(ctx, groupID)
+		k.Keeper.AddPendingProcessGroup(ctx, groupID)
 	}
 
 	return &types.MsgSubmitDKGRound2Response{}, nil
@@ -162,43 +170,51 @@ func (k msgServer) Complain(goCtx context.Context, req *types.MsgComplain) (*typ
 	memberID := req.Complaints[0].Complainant
 
 	// Get group and check group status
-	group, err := k.GetGroup(ctx, groupID)
+	group, err := k.Keeper.GetGroup(ctx, groupID)
 	if err != nil {
 		return nil, err
 	}
 	if group.Status != types.GROUP_STATUS_ROUND_3 {
-		return nil, types.ErrInvalidStatus.Wrap("group status is not round 3")
+		return nil, types.ErrInvalidGroupStatus.Wrapf("the status of groupID %d is not round 3", groupID)
 	}
 
 	// Validate memberID
-	if err := k.ValidateMemberID(ctx, groupID, memberID, req.Sender); err != nil {
+	if err := k.Keeper.ValidateMemberID(ctx, groupID, memberID, req.Sender); err != nil {
 		return nil, err
 	}
 
 	// Check already confirm or complain
-	if k.HasConfirm(ctx, groupID, memberID) {
-		return nil, types.ErrMemberAlreadySubmit.Wrap("this member already submit confirm")
+	if k.Keeper.HasConfirm(ctx, groupID, memberID) {
+		return nil, types.ErrMemberAlreadySubmit.Wrapf(
+			"memberID %d in group ID %d already submit confirm message",
+			memberID,
+			groupID,
+		)
 	}
-	if k.HasComplaintsWithStatus(ctx, groupID, memberID) {
-		return nil, types.ErrMemberAlreadySubmit.Wrap("this member already submit complaint")
+	if k.Keeper.HasComplaintsWithStatus(ctx, groupID, memberID) {
+		return nil, types.ErrMemberAlreadySubmit.Wrapf(
+			"memberID %d in group ID %d already submit complaint message",
+			memberID,
+			groupID,
+		)
 	}
 
 	// Verify complaint if fail to verify, mark complainant as malicious instead.
-	complaintsWithStatus, err := k.ProcessComplaint(ctx, req.Complaints, groupID, req.Sender)
+	complaintsWithStatus, err := k.Keeper.ProcessComplaint(ctx, req.Complaints, groupID, req.Sender)
 	if err != nil {
 		return nil, err
 	}
 
 	// Add complain with status
-	k.AddComplaintsWithStatus(ctx, groupID, types.ComplaintsWithStatus{
+	k.Keeper.AddComplaintsWithStatus(ctx, groupID, types.ComplaintsWithStatus{
 		MemberID:             memberID,
 		ComplaintsWithStatus: complaintsWithStatus,
 	})
 
 	// Add to the pending process group if everyone sends confirm or complain already
-	confirmComplainCount := k.GetConfirmComplainCount(ctx, groupID)
+	confirmComplainCount := k.Keeper.GetConfirmComplainCount(ctx, groupID)
 	if confirmComplainCount == group.Size_ {
-		k.AddPendingProcessGroup(ctx, groupID)
+		k.Keeper.AddPendingProcessGroup(ctx, groupID)
 	}
 
 	return &types.MsgComplainResponse{}, nil
@@ -217,34 +233,42 @@ func (k msgServer) Confirm(
 	memberID := req.MemberID
 
 	// Get group and check group status
-	group, err := k.GetGroup(ctx, groupID)
+	group, err := k.Keeper.GetGroup(ctx, groupID)
 	if err != nil {
 		return nil, err
 	}
 	if group.Status != types.GROUP_STATUS_ROUND_3 {
-		return nil, types.ErrInvalidStatus.Wrap("group status is not round 3")
+		return nil, types.ErrInvalidGroupStatus.Wrapf("the status of groupID %d is not round 3", groupID)
 	}
 
 	// Validate memberID
-	if err := k.ValidateMemberID(ctx, groupID, memberID, req.Sender); err != nil {
+	if err := k.Keeper.ValidateMemberID(ctx, groupID, memberID, req.Sender); err != nil {
 		return nil, err
 	}
 
 	// Check already confirm or complain
-	if k.HasConfirm(ctx, groupID, memberID) {
-		return nil, types.ErrMemberAlreadySubmit.Wrap("this member already submit confirm")
+	if k.Keeper.HasConfirm(ctx, groupID, memberID) {
+		return nil, types.ErrMemberAlreadySubmit.Wrapf(
+			"memberID %d in group ID %d already submit confirm message",
+			memberID,
+			groupID,
+		)
 	}
-	if k.HasComplaintsWithStatus(ctx, groupID, memberID) {
-		return nil, types.ErrMemberAlreadySubmit.Wrap("this member already submit complaint")
+	if k.Keeper.HasComplaintsWithStatus(ctx, groupID, memberID) {
+		return nil, types.ErrMemberAlreadySubmit.Wrapf(
+			"memberID %d in group ID %d already submit complaint message",
+			memberID,
+			groupID,
+		)
 	}
 
 	// Verify OwnPubKeySig
-	if err := k.VerifyOwnPubKeySignature(ctx, groupID, memberID, req.OwnPubKeySig); err != nil {
+	if err := k.Keeper.VerifyOwnPubKeySignature(ctx, groupID, memberID, req.OwnPubKeySig); err != nil {
 		return nil, err
 	}
 
 	// Add confirm
-	k.AddConfirm(ctx, groupID, types.NewConfirm(memberID, req.OwnPubKeySig))
+	k.Keeper.AddConfirm(ctx, groupID, types.NewConfirm(memberID, req.OwnPubKeySig))
 
 	// Emit event confirm success
 	ctx.EventManager().EmitEvent(
@@ -258,9 +282,9 @@ func (k msgServer) Confirm(
 	)
 
 	// Add to the pending process group if everyone sends confirm or complain already
-	confirmComplainCount := k.GetConfirmComplainCount(ctx, groupID)
+	confirmComplainCount := k.Keeper.GetConfirmComplainCount(ctx, groupID)
 	if confirmComplainCount == group.Size_ {
-		k.AddPendingProcessGroup(ctx, groupID)
+		k.Keeper.AddPendingProcessGroup(ctx, groupID)
 	}
 
 	return &types.MsgConfirmResponse{}, nil
@@ -278,7 +302,7 @@ func (k msgServer) SubmitDEs(goCtx context.Context, req *types.MsgSubmitDEs) (*t
 		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid account address: %s", err)
 	}
 
-	err = k.EnqueueDEs(ctx, member, req.DEs)
+	err = k.Keeper.EnqueueDEs(ctx, member, req.DEs)
 	if err != nil {
 		return nil, err
 	}
@@ -297,17 +321,17 @@ func (k msgServer) SubmitSignature(
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// Get signing and check signing is still waiting for signature
-	signing, err := k.GetSigning(ctx, req.SigningID)
+	signing, err := k.Keeper.GetSigning(ctx, req.SigningID)
 	if err != nil {
 		return nil, err
 	}
 	if signing.Status != types.SIGNING_STATUS_WAITING {
 		return nil, types.ErrSigningAlreadySuccess.Wrapf(
-			"signing ID: %d is not in waiting state", req.SigningID,
+			"signing ID: %d is already success", req.SigningID,
 		)
 	}
 
-	sa, err := k.GetSigningAttempt(ctx, req.SigningID, signing.CurrentAttempt)
+	sa, err := k.Keeper.GetSigningAttempt(ctx, req.SigningID, signing.CurrentAttempt)
 	if err != nil {
 		return nil, err
 	}
@@ -317,14 +341,14 @@ func (k msgServer) SubmitSignature(
 	am, found := assignedMembers.FindAssignedMember(req.MemberID)
 	if !found || am.Address != req.Signer {
 		return nil, types.ErrMemberNotAssigned.Wrapf(
-			"member ID/Address: %d is not in assigned members", req.MemberID,
+			"member ID %d is not in assigned members", req.MemberID,
 		)
 	}
 
 	// Check member is already signed
-	if k.HasPartialSignature(ctx, req.SigningID, sa.Attempt, req.MemberID) {
+	if k.Keeper.HasPartialSignature(ctx, req.SigningID, sa.Attempt, req.MemberID) {
 		return nil, types.ErrAlreadySigned.Wrapf(
-			"member ID: %d is already signed on signing ID: %d",
+			"member ID %d already signed on signing ID: %d",
 			req.MemberID,
 			req.SigningID,
 		)
@@ -332,8 +356,8 @@ func (k msgServer) SubmitSignature(
 
 	// Verify signature R
 	if !assignedMembers.VerifySignatureR(req.MemberID, req.Signature.R()) {
-		return nil, types.ErrPubNonceNotEqualToSigR.Wrapf(
-			"public nonce from member ID: %d is not equal signature r",
+		return nil, types.ErrSubmitSigningSignatureFailed.Wrapf(
+			"public nonce from member ID %d is not equal signature r",
 			req.MemberID,
 		)
 	}
@@ -341,7 +365,9 @@ func (k msgServer) SubmitSignature(
 	// Compute lagrange coefficient
 	lagrange, err := tss.ComputeLagrangeCoefficient(req.MemberID, assignedMembers.MemberIDs())
 	if err != nil {
-		return nil, types.ErrInvalidArgument.Wrap(err.Error())
+		return nil, types.ErrSubmitSigningSignatureFailed.Wrapf(
+			"failed to compute lagrange coefficient: %v", err,
+		)
 	}
 
 	// Verify signing signature
@@ -353,16 +379,18 @@ func (k msgServer) SubmitSignature(
 		req.Signature,
 		am.PubKey,
 	); err != nil {
-		return nil, types.ErrVerifySigningSigFailed.Wrap(err.Error())
+		return nil, types.ErrSubmitSigningSignatureFailed.Wrapf(
+			"failed to verify signing signature: %v", err,
+		)
 	}
 
 	// Add partial signature
-	k.AddPartialSignature(ctx, req.SigningID, sa.Attempt, req.MemberID, req.Signature)
+	k.Keeper.AddPartialSignature(ctx, req.SigningID, sa.Attempt, req.MemberID, req.Signature)
 
 	// Check if the threshold is met, if so, add to the pending process signing.
-	sigCount := k.GetPartialSignatureCount(ctx, req.SigningID, sa.Attempt)
+	sigCount := k.Keeper.GetPartialSignatureCount(ctx, req.SigningID, sa.Attempt)
 	if sigCount == uint64(len(assignedMembers)) {
-		k.AddPendingProcessSigning(ctx, req.SigningID)
+		k.Keeper.AddPendingProcessSigning(ctx, req.SigningID)
 	}
 
 	ctx.EventManager().EmitEvent(
@@ -383,20 +411,20 @@ func (k msgServer) SubmitSignature(
 }
 
 // UpdateParams update parameter of the module.
-func (k Keeper) UpdateParams(
+func (k msgServer) UpdateParams(
 	goCtx context.Context,
 	req *types.MsgUpdateParams,
 ) (*types.MsgUpdateParamsResponse, error) {
-	if k.authority != req.Authority {
+	if k.Keeper.GetAuthority() != req.Authority {
 		return nil, govtypes.ErrInvalidSigner.Wrapf(
 			"invalid authority; expected %s, got %s",
-			k.authority,
+			k.Keeper.GetAuthority(),
 			req.Authority,
 		)
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	if err := k.SetParams(ctx, req.Params); err != nil {
+	if err := k.Keeper.SetParams(ctx, req.Params); err != nil {
 		return nil, err
 	}
 

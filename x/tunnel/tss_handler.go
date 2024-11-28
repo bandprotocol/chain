@@ -14,26 +14,11 @@ func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 	return func(ctx sdk.Context, content tsstypes.Content) ([]byte, error) {
 		switch c := content.(type) {
 		case *types.TunnelSignatureOrder:
-			tunnel, err := k.GetTunnel(ctx, c.TunnelID)
-			if err != nil {
-				return nil, err
-			}
-
-			route, ok := tunnel.Route.GetCachedValue().(*types.TSSRoute)
-			if !ok {
-				return nil, types.ErrInvalidRoute.Wrap("invalid route type; expect TSSRoute type")
-			}
-
-			packet, err := k.GetPacket(ctx, c.TunnelID, c.Sequence)
-			if err != nil {
-				return nil, err
-			}
-
-			return types.EncodeTss(
-				packet,
-				route.DestinationChainID,
-				route.DestinationContractAddress,
-				tunnel.Encoder,
+			return types.EncodeTSS(
+				c.Sequence,
+				c.Prices,
+				c.CreatedAt,
+				c.Encoder,
 			)
 		default:
 			return nil, sdkerrors.ErrUnknownRequest.Wrapf(

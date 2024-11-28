@@ -23,7 +23,7 @@ func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 
 			prices := k.GetPrices(ctx, c.SignalIDs)
 
-			return types.EncodeTss(prices, ctx.BlockTime().Unix(), c.Encoder)
+			return types.EncodeTSS(prices, ctx.BlockTime().Unix(), c.Encoder)
 		default:
 			return nil, sdkerrors.ErrUnknownRequest.Wrapf(
 				"unrecognized tss request signature type: %s",

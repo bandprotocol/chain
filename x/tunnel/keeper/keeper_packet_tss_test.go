@@ -31,23 +31,28 @@ func (s *KeeperTestSuite) TestSendTSSPacket() {
 		time.Now().Unix(),
 	)
 
+	// Mock the TSS keeper and set the state for checking later
 	s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
 		gomock.Any(),
 		uint64(1),
-		"0x1234567890abcdef",
 		"chain-1",
+		"0x1234567890abcdef",
 		gomock.Any(),
 		bandtesting.Alice.Address,
 		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))),
 	).Return(bandtsstypes.SigningID(1), nil)
 
 	// Send the TSS packet
-	content, err := k.SendTSSPacket(ctx, &route, packet, bandtesting.Alice.Address)
+	content, err := k.SendTSSPacket(
+		ctx,
+		&route,
+		packet,
+		feedstypes.ENCODER_FIXED_POINT_ABI,
+		bandtesting.Alice.Address,
+	)
 	s.Require().NoError(err)
 
-	packetContent, ok := content.(*types.TSSPacketContent)
+	packetReceipt, ok := content.(*types.TSSPacketReceipt)
 	s.Require().True(ok)
-	s.Require().Equal("chain-1", packetContent.DestinationChainID)
-	s.Require().Equal("0x1234567890abcdef", packetContent.DestinationContractAddress)
-	s.Require().Equal(bandtsstypes.SigningID(1), packetContent.SigningID)
+	s.Require().Equal(bandtsstypes.SigningID(1), packetReceipt.SigningID)
 }

@@ -27,14 +27,9 @@ func (r *TSSRoute) ValidateBasic() error {
 	return nil
 }
 
-func NewTSSPacketContent(
-	signingID bandtsstypes.SigningID,
-	destinationChainID string,
-	destinationContractAddress string,
-) TSSPacketContent {
-	return TSSPacketContent{
-		SigningID:                  signingID,
-		DestinationChainID:         destinationChainID,
-		DestinationContractAddress: destinationContractAddress,
+// NewTSSPacketReceipt creates a new TSSPacketReceipt instance.
+func NewTSSPacketReceipt(signingID bandtsstypes.SigningID) *TSSPacketReceipt {
+	return &TSSPacketReceipt{
+		SigningID: signingID,
 	}
 }

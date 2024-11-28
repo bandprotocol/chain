@@ -159,7 +159,7 @@ func (s *KeeperTestSuite) TestGetActiveTunnelIDs() {
 
 	activeTunnelIDs := []uint64{1, 2, 3}
 	for _, id := range activeTunnelIDs {
-		k.ActiveTunnelID(ctx, id)
+		k.SetActiveTunnelID(ctx, id)
 	}
 
 	retrievedIDs := k.GetActiveTunnelIDs(ctx)
@@ -249,7 +249,7 @@ func (s *KeeperTestSuite) TestDeactivateTunnel() {
 func (s *KeeperTestSuite) TestGetSetTotalFees() {
 	ctx, k := s.ctx, s.keeper
 
-	totalFees := types.TotalFees{TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100)))}
+	totalFees := types.TotalFees{TotalBasePacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100)))}
 	k.SetTotalFees(ctx, totalFees)
 
 	retrievedFees := k.GetTotalFees(ctx)

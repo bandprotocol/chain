@@ -8,12 +8,9 @@ import (
 
 var (
 	packetABI, _ = abi.NewType("tuple", "result", []abi.ArgumentMarshaling{
-		{Name: "TunnelID", Type: "uint64"},
 		{Name: "Sequence", Type: "uint64"},
-		{Name: "DestinationChainID", Type: "string"},
-		{Name: "DestinationContractAddress", Type: "string"},
 		{
-			Name:         "TssPrices",
+			Name:         "TSSPrices",
 			Type:         "tuple[]",
 			InternalType: "struct Prices[]",
 			Components: []abi.ArgumentMarshaling{
@@ -29,57 +26,41 @@ var (
 	}
 )
 
-// TssPacket represents the Packet that will be used for encoding a tss message.
-type TssPacket struct {
-	TunnelID                   uint64
-	Sequence                   uint64
-	DestinationChainID         string
-	DestinationContractAddress string
-	TssPrices                  []feedstypes.TssPrice
-	CreatedAt                  int64
+// TSSPacket represents the Packet that will be used for encoding a tss message.
+type TSSPacket struct {
+	Sequence  uint64
+	TSSPrices []feedstypes.TSSPrice
+	CreatedAt int64
 }
 
-// NewTssPacket returns a new TssPacket object
-func NewTssPacket(
-	tunnelID uint64,
+// NewTSSPacket returns a new TssPacket object
+func NewTSSPacket(
 	sequence uint64,
-	destinationChainID string,
-	destinationContractAddress string,
-	tssPrices []feedstypes.TssPrice,
+	tssPrices []feedstypes.TSSPrice,
 	createdAt int64,
-) TssPacket {
-	return TssPacket{
-		TunnelID:                   tunnelID,
-		Sequence:                   sequence,
-		DestinationChainID:         destinationChainID,
-		DestinationContractAddress: destinationContractAddress,
-		TssPrices:                  tssPrices,
-		CreatedAt:                  createdAt,
+) TSSPacket {
+	return TSSPacket{
+		Sequence:  sequence,
+		TSSPrices: tssPrices,
+		CreatedAt: createdAt,
 	}
 }
 
-// EncodeTss encodes the packet to tss message
-func EncodeTss(
-	packet Packet,
-	destinationChainID string,
-	destinationContractAddress string,
+// EncodeTSS encodes the packet to tss message
+func EncodeTSS(
+	sequence uint64,
+	prices []feedstypes.Price,
+	createdAt int64,
 	encoder feedstypes.Encoder,
 ) ([]byte, error) {
 	switch encoder {
 	case feedstypes.ENCODER_FIXED_POINT_ABI:
-		tssPrices, err := feedstypes.ToTssPrices(packet.Prices)
+		tssPrices, err := feedstypes.ToTSSPrices(prices)
 		if err != nil {
 			return nil, err
 		}
 
-		tssPacket := NewTssPacket(
-			packet.TunnelID,
-			packet.Sequence,
-			destinationChainID,
-			destinationContractAddress,
-			tssPrices,
-			packet.CreatedAt,
-		)
+		tssPacket := NewTSSPacket(sequence, tssPrices, createdAt)
 
 		bz, err := packetArgs.Pack(&tssPacket)
 		if err != nil {
@@ -88,18 +69,12 @@ func EncodeTss(
 
 		return append([]byte(feedstypes.EncoderFixedPointABIPrefix), bz...), nil
 	case feedstypes.ENCODER_TICK_ABI:
-		tssPrices, err := feedstypes.ToTssTickPrices(packet.Prices)
+		tssPrices, err := feedstypes.ToTSSTickPrices(prices)
 		if err != nil {
 			return nil, err
 		}
-		tssPacket := NewTssPacket(
-			packet.TunnelID,
-			packet.Sequence,
-			destinationChainID,
-			destinationContractAddress,
-			tssPrices,
-			packet.CreatedAt,
-		)
+
+		tssPacket := NewTSSPacket(sequence, tssPrices, createdAt)
 
 		bz, err := packetArgs.Pack(&tssPacket)
 		if err != nil {
