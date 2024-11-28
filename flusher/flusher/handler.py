@@ -844,22 +844,17 @@ class Handler(object):
         originator_obj = {}
 
         try:
-            content_info_text = b64.b64decode(msg["content_info"]).decode()
-            content_obj = convert_proto_str_to_object(content_info_text)
-            content_obj["content_type"] = b64.b64decode(msg["content_type"]).decode()
+            content_text = b64.b64decode(msg["content"]).decode()
+            content_obj = convert_proto_str_to_object(content_text)
 
-            originator_info_text = b64.b64decode(msg["originator_info"]).decode()
-            originator_obj = convert_proto_str_to_object(originator_info_text)
-            originator_obj["originator_type"] = b64.b64decode(msg["originator_type"]).decode()
+            originator_text = b64.b64decode(msg["originator"]).decode()
+            originator_obj = convert_proto_str_to_object(originator_text)
 
-            msg["content_info"] = b64.b64encode(json.dumps(content_obj).encode()).decode()
-            msg["originator_info"] = b64.b64encode(json.dumps(originator_obj).encode()).decode()
+            msg["content"] = content_obj
+            msg["originator"] = originator_obj
 
         except Exception as e:
             print("An error occurred:", e)
-
-        del msg["content_type"]
-        del msg["originator_type"]
 
         self.conn.execute(tss_signings.insert(), msg)
 

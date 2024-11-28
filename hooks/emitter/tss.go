@@ -18,19 +18,19 @@ func (h *Hook) emitNewTssSigning(
 	originator []byte,
 ) {
 	h.Write("NEW_TSS_SIGNING", common.JsDict{
-		"id":              signing.ID,
-		"current_attempt": signing.CurrentAttempt,
-		"tss_group_id":    signing.GroupID,
-		"originator":      parseBytes(signing.Originator),
-		"message":         parseBytes(signing.Message),
-		"group_pub_key":   parseBytes(signing.GroupPubKey),
-		"group_pub_nonce": parseBytes(signing.GroupPubNonce),
-		"status":          signing.Status,
-		"created_height":  signing.CreatedHeight,
-		"content_type":    parseBytes(contentType),
-		"content_info":    parseBytes(content),
-		"originator_type": parseBytes(originatorType),
-		"originator_info": parseBytes(originator),
+		"id":                 signing.ID,
+		"current_attempt":    signing.CurrentAttempt,
+		"tss_group_id":       signing.GroupID,
+		"encoded_originator": parseBytes(signing.Originator),
+		"message":            parseBytes(signing.Message),
+		"group_pub_key":      parseBytes(signing.GroupPubKey),
+		"group_pub_nonce":    parseBytes(signing.GroupPubNonce),
+		"status":             signing.Status,
+		"created_height":     signing.CreatedHeight,
+		"content_type":       parseBytes(contentType),
+		"content":            parseBytes(content),
+		"originator_type":    parseBytes(originatorType),
+		"originator":         parseBytes(originator),
 	})
 }
 
