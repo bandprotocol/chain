@@ -115,6 +115,11 @@ func (de *DE) getDECount() (uint64, error) {
 
 // updateDE updates DE if the remaining DE is too low.
 func (de *DE) updateDE(numNewDE uint64) {
+	if err := de.canUpdateDE(); err != nil {
+		de.logger.Error(":cold_sweat: Cannot update DE: %s", err)
+		return
+	}
+
 	de.logger.Info(":delivery_truck: Updating DE")
 
 	// Generate new DE pairs
@@ -141,6 +146,33 @@ func (de *DE) updateDE(numNewDE uint64) {
 
 	// Send MsgDE
 	de.context.MsgCh <- types.NewMsgSubmitDEs(pubDEs, de.context.Config.Granter)
+}
+
+// canUpdateDE checks if the system allows to update DEs into the system and chain.
+func (de *DE) canUpdateDE() error {
+	gasPrices, err := sdk.ParseDecCoins(de.context.Config.GasPrices)
+	if err != nil {
+		de.logger.Debug(":cold_sweat: Failed to parse gas prices from config: %s", err)
+	}
+
+	// If the gas price is non-zero, it indicates that the user is willing to pay
+	// a transaction fee for submitting DEs to the chain.
+	if gasPrices != nil && !gasPrices.IsZero() {
+		return nil
+	}
+
+	// If the address is a member of the current group, the system can submit DEs to the chain
+	// without paying gas.
+	resp, err := de.client.QueryMember(de.context.Config.Granter)
+	if err != nil {
+		return fmt.Errorf("failed to query member information: %w", err)
+	}
+
+	if resp.CurrentGroupMember.Address == de.context.Config.Granter {
+		return nil
+	}
+
+	return fmt.Errorf("the granter is not a member of the current group and gas price isn't set in the config")
 }
 
 // intervalUpdateDE updates DE on the chain so that the remaining DE is
