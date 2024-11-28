@@ -127,7 +127,7 @@ func (h *Hook) emitUpdateResult(
 	})
 }
 
-func (h *Hook) emitUpdateResultTSS(
+func (h *Hook) emitUpdateResultBandtss(
 	ctx sdk.Context,
 	id types.RequestID,
 	executeGasUsed uint64,
@@ -267,7 +267,7 @@ func (h *Hook) handleEventRequestExecute(ctx sdk.Context, evMap common.EvMap) {
 			reasons[0],
 		)
 	} else if bandtssErrCodespace, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeySigningErrCodespace]; ok {
-		h.emitUpdateResultTSS(
+		h.emitUpdateResultBandtss(
 			ctx,
 			rid,
 			executeGasUsed,
@@ -276,13 +276,13 @@ func (h *Hook) handleEventRequestExecute(ctx sdk.Context, evMap common.EvMap) {
 			bandtssErrCodespace[0],
 			uint64(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeySigningErrCode][0])),
 		)
-	} else if tssSid, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeySigningID]; ok {
-		h.emitUpdateResultTSS(
+	} else if bandtssSigningIDs, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeySigningID]; ok {
+		h.emitUpdateResultBandtss(
 			ctx,
 			rid,
 			executeGasUsed,
 			"",
-			uint64(common.Atoi(tssSid[0])),
+			uint64(common.Atoi(bandtssSigningIDs[0])),
 			"",
 			0,
 		)
