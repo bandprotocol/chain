@@ -21,7 +21,7 @@ func (h *Hook) emitSetTunnel(ctx sdk.Context, tunnelID uint64) {
 		"fee_payer":     tunnel.FeePayer,
 		"total_deposit": tunnel.TotalDeposit.String(),
 		"status":        tunnel.IsActive,
-		"last_interval": latestSignalPrice.LastInterval,
+		"last_interval": latestSignalPrice.LastInterval * 1e9,
 		"creator":       tunnel.Creator,
 		"created_at":    tunnel.CreatedAt,
 	})
