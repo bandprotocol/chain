@@ -44,7 +44,7 @@ service Query {
 
   // TotalFees is a RPC method that returns the total fees collected by the tunnel
   rpc TotalFees(QueryTotalFeesRequest) returns (QueryTotalFeesResponse) {
-    option (google.api.http).get = "/tunnel/v1beta1/total_fee";
+    option (google.api.http).get = "/tunnel/v1beta1/total_fees";
   }
 
   // Params is a RPC method that returns all parameters of the module.
