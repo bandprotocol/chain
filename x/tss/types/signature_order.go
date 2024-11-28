@@ -15,7 +15,7 @@ func NewTextSignatureOrder(msg []byte) *TextSignatureOrder {
 // OrderRoute returns the order router key
 func (rs *TextSignatureOrder) OrderRoute() string { return RouterKey }
 
-// OrderType of TextSignatureOrder is "Text"
+// OrderType of TextSignatureOrder is "text"
 func (rs *TextSignatureOrder) OrderType() string {
 	return SignatureOrderTypeText
 }

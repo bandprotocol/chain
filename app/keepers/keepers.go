@@ -513,7 +513,8 @@ func NewAppKeeper(
 		AddRoute(tsstypes.RouterKey, tss.NewSignatureOrderHandler(*appKeepers.TSSKeeper)).
 		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(appKeepers.OracleKeeper)).
 		AddRoute(bandtsstypes.RouterKey, bandtss.NewSignatureOrderHandler()).
-		AddRoute(feedstypes.RouterKey, feeds.NewSignatureOrderHandler(appKeepers.FeedsKeeper))
+		AddRoute(feedstypes.RouterKey, feeds.NewSignatureOrderHandler(appKeepers.FeedsKeeper)).
+		AddRoute(tunneltypes.RouterKey, tunnel.NewSignatureOrderHandler(appKeepers.TunnelKeeper))
 
 	tssCbRouter.
 		AddRoute(bandtsstypes.RouterKey, bandtsskeeper.NewTSSCallback(appKeepers.BandtssKeeper))

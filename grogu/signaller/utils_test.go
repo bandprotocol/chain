@@ -24,6 +24,9 @@ func TestIsDeviated(t *testing.T) {
 		{"Below threshold", 100, 1000, 1001, false},
 		{"Exact threshold", 100, 1000, 1010, true},
 		{"Above threshold", 100, 1000, 1100, true},
+		{"Zero old price", 100, 0, 1000, true},
+		{"Zero new price", 100, 1000, 0, true},
+		{"Zero old and new price", 100, 0, 0, false},
 	}
 
 	for _, tt := range tests {

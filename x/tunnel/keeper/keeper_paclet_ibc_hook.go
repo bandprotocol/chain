@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"time"
+
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 
@@ -15,6 +17,7 @@ func (k Keeper) SendIBCHookPacket(
 	route *types.IBCHookRoute,
 	packet types.Packet,
 	feePayer sdk.AccAddress,
+	interval uint64,
 ) (types.PacketReceiptI, error) {
 	// create memo string for ibc transfer
 	memoStr, err := types.NewIBCHookMemo(
@@ -37,7 +40,7 @@ func (k Keeper) SendIBCHookPacket(
 		feePayer.String(),
 		route.DestinationContractAddress,
 		clienttypes.ZeroHeight(),
-		uint64(ctx.BlockTime().UnixNano()+packetExpireTime),
+		uint64(ctx.BlockTime().UnixNano())+interval*uint64(time.Second),
 		memoStr,
 	)
 

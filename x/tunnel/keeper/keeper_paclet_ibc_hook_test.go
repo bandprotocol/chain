@@ -20,13 +20,13 @@ func (s *KeeperTestSuite) TestSendRouterPacket() {
 		ChannelID:                  "channel-0",
 		DestinationContractAddress: "wasm1vjq0k3fj47s8wns4a7zw5c4lsjd8l6r2kzzlpk",
 	}
-
 	packet := types.Packet{
 		TunnelID:  1,
 		Sequence:  1,
 		Prices:    []feedstypes.Price{},
 		CreatedAt: time.Now().Unix(),
 	}
+	interval := uint64(60)
 
 	expectedPacketReceipt := types.IBCHookPacketReceipt{
 		Sequence: 1,
@@ -41,6 +41,7 @@ func (s *KeeperTestSuite) TestSendRouterPacket() {
 		route,
 		packet,
 		sdk.AccAddress("feePayer"),
+		interval,
 	)
 	s.Require().NoError(err)
 

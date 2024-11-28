@@ -12,7 +12,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	ctxcache "github.com/bandprotocol/chain/v3/pkg/ctxcache"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
 )
 
@@ -81,40 +81,57 @@ func (k Keeper) ResolveSuccess(
 		return
 	}
 
-	// handle signing content
-	createSigningFunc := func(ctx sdk.Context) error {
-		signingID, err := k.bandtssKeeper.CreateDirectSigningRequest(
-			ctx,
-			types.NewOracleResultSignatureOrder(id, encoder),
-			"",
-			sdk.MustAccAddressFromBech32(requester),
-			feeLimit,
-		)
-		if err != nil {
-			return err
-		}
-
-		// save signing result and emit an event.
-		signingResult := &types.SigningResult{
-			SigningID: signingID,
-		}
-		k.SetSigningResult(ctx, id, *signingResult)
-
-		event = event.AppendAttributes(
-			sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
-		)
-
-		return nil
-	}
-
-	if err := ctxcache.ApplyFuncIfNoError(ctx, createSigningFunc); err != nil {
+	signingID, err := k.safeCreateSigning(ctx, id, requester, feeLimit, encoder)
+	if err != nil {
 		k.handleCreateSigningFailed(ctx, id, event, err)
 		return
 	}
 
+	// save signing result and emit an event.
+	signingResult := &types.SigningResult{
+		SigningID: signingID,
+	}
+	k.SetSigningResult(ctx, id, *signingResult)
+
+	event = event.AppendAttributes(
+		sdk.NewAttribute(types.AttributeKeySigningID, fmt.Sprintf("%d", signingID)),
+	)
 	ctx.EventManager().EmitEvent(event)
 }
 
+// safeCreateSigning creates a signing request for the given request ID.
+func (k Keeper) safeCreateSigning(
+	ctx sdk.Context,
+	id types.RequestID,
+	requester string,
+	feeLimit sdk.Coins,
+	encoder types.Encoder,
+) (signingID bandtsstypes.SigningID, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			ctx.Logger().Error(fmt.Sprintf("Panic recovered: %v", r))
+			err = types.ErrCreateSigningPanic
+		}
+	}()
+
+	cacheCtx, writeFn := ctx.CacheContext()
+	signingID, err = k.bandtssKeeper.CreateDirectSigningRequest(
+		cacheCtx,
+		types.NewOracleResultSignatureOrder(id, encoder),
+		"",
+		sdk.MustAccAddressFromBech32(requester),
+		feeLimit,
+	)
+	if err != nil {
+		return 0, err
+	}
+
+	writeFn()
+
+	return signingID, nil
+}
+
+// handleCreateSigningFailed handles the failure of creating a signing request by sett.
 func (k Keeper) handleCreateSigningFailed(
 	ctx sdk.Context,
 	id types.RequestID,

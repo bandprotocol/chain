@@ -459,16 +459,31 @@ func (m *MockBandtssKeeper) EXPECT() *MockBandtssKeeperMockRecorder {
 }
 
 // CreateTunnelSigningRequest mocks base method.
-func (m *MockBandtssKeeper) CreateTunnelSigningRequest(ctx types2.Context, tunnelID uint64, destinationContractAddr, destinationChainID string, content types1.Content, sender types2.AccAddress, feeLimit types2.Coins) (types.SigningID, error) {
+func (m *MockBandtssKeeper) CreateTunnelSigningRequest(ctx types2.Context, tunnelID uint64, destinationChainID, destinationContractAddr string, content types1.Content, sender types2.AccAddress, feeLimit types2.Coins) (types.SigningID, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateTunnelSigningRequest", ctx, tunnelID, destinationContractAddr, destinationChainID, content, sender, feeLimit)
+	ret := m.ctrl.Call(m, "CreateTunnelSigningRequest", ctx, tunnelID, destinationChainID, destinationContractAddr, content, sender, feeLimit)
 	ret0, _ := ret[0].(types.SigningID)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateTunnelSigningRequest indicates an expected call of CreateTunnelSigningRequest.
-func (mr *MockBandtssKeeperMockRecorder) CreateTunnelSigningRequest(ctx, tunnelID, destinationContractAddr, destinationChainID, content, sender, feeLimit any) *gomock.Call {
+func (mr *MockBandtssKeeperMockRecorder) CreateTunnelSigningRequest(ctx, tunnelID, destinationChainID, destinationContractAddr, content, sender, feeLimit any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTunnelSigningRequest", reflect.TypeOf((*MockBandtssKeeper)(nil).CreateTunnelSigningRequest), ctx, tunnelID, destinationContractAddr, destinationChainID, content, sender, feeLimit)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTunnelSigningRequest", reflect.TypeOf((*MockBandtssKeeper)(nil).CreateTunnelSigningRequest), ctx, tunnelID, destinationChainID, destinationContractAddr, content, sender, feeLimit)
+}
+
+// GetSigningFee mocks base method.
+func (m *MockBandtssKeeper) GetSigningFee(ctx types2.Context) (types2.Coins, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSigningFee", ctx)
+	ret0, _ := ret[0].(types2.Coins)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSigningFee indicates an expected call of GetSigningFee.
+func (mr *MockBandtssKeeperMockRecorder) GetSigningFee(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSigningFee", reflect.TypeOf((*MockBandtssKeeper)(nil).GetSigningFee), ctx)
 }

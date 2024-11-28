@@ -47,7 +47,7 @@ func (s *KeeperTestSuite) TestInitExportGenesis() {
 			{ID: 1},
 		},
 		TotalFees: types.TotalFees{
-			TotalPacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
+			TotalBasePacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
 		},
 	}
 

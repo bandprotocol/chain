@@ -240,13 +240,13 @@ func (s *Signaller) filterAndPrepareSignalPrices(
 			continue
 		}
 
-		if !s.isPriceValid(price, currentTime) {
-			continue
-		}
-
 		signalPrice, err := convertPriceData(price)
 		if err != nil {
 			s.logger.Debug("[Signaller] failed to parse price data: %v", err)
+			continue
+		}
+
+		if !s.isPriceValid(signalPrice, currentTime) {
 			continue
 		}
 
@@ -278,38 +278,34 @@ func (s *Signaller) isNonUrgentUnavailablePrices(
 }
 
 func (s *Signaller) isPriceValid(
-	price *bothan.Price,
+	newPrice types.SignalPrice,
 	now time.Time,
 ) bool {
 	// Check if the price is supported and required to be submitted
-	feed, ok := s.signalIDToFeed[price.SignalId]
+	feed, ok := s.signalIDToFeed[newPrice.SignalID]
 	if !ok {
 		return false
 	}
 
 	// Get the last price submitted by the validator, if it doesn't exist, it is valid to be sent
-	valPrice, ok := s.signalIDToValidatorPrice[price.SignalId]
+	oldPrice, ok := s.signalIDToValidatorPrice[newPrice.SignalID]
 	if !ok {
 		return true
 	}
 
 	// If the last price exists, check if the price can be updated
-	if s.shouldUpdatePrice(feed, valPrice, price.Price, now) {
-		return true
-	}
-
-	return false
+	return s.shouldUpdatePrice(feed, oldPrice, newPrice, now)
 }
 
 func (s *Signaller) shouldUpdatePrice(
 	feed types.FeedWithDeviation,
-	valPrice types.ValidatorPrice,
-	newPrice uint64,
+	oldPrice types.ValidatorPrice,
+	newPrice types.SignalPrice,
 	now time.Time,
 ) bool {
 	// thresholdTime is the time when the price can be updated.
 	// add TimeBuffer to make sure the thresholdTime is not too early.
-	thresholdTime := time.Unix(valPrice.Timestamp+s.params.CooldownTime+TimeBuffer, 0)
+	thresholdTime := time.Unix(oldPrice.Timestamp+s.params.CooldownTime+TimeBuffer, 0)
 
 	if now.Before(thresholdTime) {
 		return false
@@ -319,7 +315,7 @@ func (s *Signaller) shouldUpdatePrice(
 	assignedTime := calculateAssignedTime(
 		s.valAddress,
 		feed.Interval,
-		valPrice.Timestamp,
+		oldPrice.Timestamp,
 		s.distributionOffsetPercentage,
 		s.distributionStartPercentage,
 	)
@@ -328,10 +324,10 @@ func (s *Signaller) shouldUpdatePrice(
 		return true
 	}
 
-	// Check if the price is deviated from the last submission, if it is, add it to the list of prices to update
-	if isDeviated(feed.DeviationBasisPoint, valPrice.Price, newPrice) {
+	if oldPrice.SignalPriceStatus != newPrice.Status {
 		return true
 	}
 
-	return false
+	// Check if the price is deviated from the last submission, if it is, add it to the list of prices to update
+	return isDeviated(feed.DeviationBasisPoint, oldPrice.Price, newPrice.Price)
 }

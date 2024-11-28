@@ -7,12 +7,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v3/pkg/ctxcache"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-// DeductBaseFee deducts the base fee from fee payer's account.
+// DeductBasePacketFee deducts the base packet fee from the fee payer of the packet
 func (k Keeper) DeductBasePacketFee(ctx sdk.Context, feePayer sdk.AccAddress) error {
 	basePacketFee := k.GetParams(ctx).BasePacketFee
 	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, basePacketFee); err != nil {
@@ -21,7 +20,7 @@ func (k Keeper) DeductBasePacketFee(ctx sdk.Context, feePayer sdk.AccAddress) er
 
 	// update total fees
 	totalFees := k.GetTotalFees(ctx)
-	totalFees.TotalPacketFee = totalFees.TotalPacketFee.Add(basePacketFee...)
+	totalFees.TotalBasePacketFee = totalFees.TotalBasePacketFee.Add(basePacketFee...)
 	k.SetTotalFees(ctx, totalFees)
 	return nil
 }
@@ -52,31 +51,9 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) error {
 	prices := k.feedsKeeper.GetAllPrices(ctx)
 	pricesMap := CreatePricesMap(prices)
 
-	// create new packet if possible for active tunnels. If not enough fund, deactivate the tunnel.
+	// create new packet. If failed to produce packet, emit an event.
 	for _, id := range ids {
-		// check if the tunnel has enough fund to create a packet
-		// error should not happen here since the tunnel is already validated
-		ok, err := k.HasEnoughFundToCreatePacket(ctx, id)
-		if err != nil {
-			return err
-		}
-		if !ok {
-			// deactivate the tunnel if not enough fund
-			// error should not happen here since the tunnel is already validated
-			err := k.DeactivateTunnel(ctx, id)
-			if err != nil {
-				return err
-			}
-
-			continue
-		}
-
-		producePacketFunc := func(ctx sdk.Context) error {
-			return k.ProducePacket(ctx, id, pricesMap)
-		}
-
-		// Produce a packet. If error, emits an event.
-		if err := ctxcache.ApplyFuncIfNoError(ctx, producePacketFunc); err != nil {
+		if err := k.ProduceActiveTunnelPacket(ctx, id, pricesMap); err != nil {
 			ctx.EventManager().EmitEvent(sdk.NewEvent(
 				types.EventTypeProducePacketFail,
 				sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", id)),
@@ -84,6 +61,33 @@ func (k Keeper) ProduceActiveTunnelPackets(ctx sdk.Context) error {
 			))
 		}
 	}
+
+	return nil
+}
+
+// ProduceActiveTunnelPacket generates a packet and sends it to the destination route for the given tunnel ID.
+// If not enough fund, deactivate the tunnel.
+func (k Keeper) ProduceActiveTunnelPacket(
+	ctx sdk.Context,
+	tunnelID uint64,
+	pricesMap map[string]feedstypes.Price,
+) (err error) {
+	// Check if the tunnel has enough fund to create a packet and deactivate the tunnel if not
+	// enough fund. Error should not happen here since the tunnel is already validated.
+	ok, err := k.HasEnoughFundToCreatePacket(ctx, tunnelID)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return k.DeactivateTunnel(ctx, tunnelID)
+	}
+
+	// Produce a packet. If produce packet successfully, update the context state.
+	cacheCtx, writeFn := ctx.CacheContext()
+	if err := k.ProducePacket(cacheCtx, tunnelID, pricesMap); err != nil {
+		return err
+	}
+	writeFn()
 
 	return nil
 }
@@ -196,7 +200,15 @@ func (k Keeper) CreatePacket(
 }
 
 // SendPacket sends a packet to the destination route
-func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) error {
+func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			ctx.Logger().Error(fmt.Sprintf("Panic recovered: %v", r))
+			err = types.ErrSendPacketPanic
+			return
+		}
+	}()
+
 	tunnel, err := k.GetTunnel(ctx, packet.TunnelID)
 	if err != nil {
 		return err
@@ -212,11 +224,17 @@ func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) error {
 	var receipt types.PacketReceiptI
 	switch r := route.(type) {
 	case *types.TSSRoute:
-		receipt, err = k.SendTSSPacket(ctx, r, packet)
+		receipt, err = k.SendTSSPacket(
+			ctx,
+			r,
+			packet,
+			tunnel.Encoder,
+			sdk.MustAccAddressFromBech32(tunnel.FeePayer),
+		)
 	case *types.IBCRoute:
-		receipt, err = k.SendIBCPacket(ctx, r, packet)
+		receipt, err = k.SendIBCPacket(ctx, r, packet, tunnel.Interval)
 	case *types.IBCHookRoute:
-		receipt, err = k.SendIBCHookPacket(ctx, r, packet, sdk.MustAccAddressFromBech32(tunnel.FeePayer))
+		receipt, err = k.SendIBCHookPacket(ctx, r, packet, sdk.MustAccAddressFromBech32(tunnel.FeePayer), tunnel.Interval)
 	default:
 		return types.ErrInvalidRoute.Wrapf("no route found for tunnel ID: %d", tunnel.ID)
 	}

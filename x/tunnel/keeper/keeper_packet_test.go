@@ -3,8 +3,11 @@ package keeper_test
 import (
 	"go.uber.org/mock/gomock"
 
+	sdkmath "cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
@@ -30,7 +33,7 @@ func (s *KeeperTestSuite) TestDeductBasePacketFee() {
 
 	// validate the total fees are updated
 	totalFee := k.GetTotalFees(ctx)
-	s.Require().Equal(basePacketFee, totalFee.TotalPacketFee)
+	s.Require().Equal(basePacketFee, totalFee.TotalBasePacketFee)
 }
 
 func (s *KeeperTestSuite) TestGetSetPacket() {
@@ -71,6 +74,10 @@ func (s *KeeperTestSuite) TestCreatePacket() {
 		{SignalID: "BTC/USD", Price: 0},
 	}
 
+	s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
+	)
+
 	s.bankKeeper.EXPECT().
 		SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, k.GetParams(ctx).BasePacketFee).
 		Return(nil)
@@ -86,7 +93,7 @@ func (s *KeeperTestSuite) TestCreatePacket() {
 		Sequence:  1,
 		Prices:    prices,
 		BaseFee:   params.BasePacketFee,
-		RouteFee:  sdk.NewCoins(),
+		RouteFee:  sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))),
 		CreatedAt: ctx.BlockTime().Unix(),
 	}
 
@@ -119,13 +126,25 @@ func (s *KeeperTestSuite) TestProducePacket() {
 		CreatedAt: ctx.BlockTime().Unix(),
 	}
 	route := &types.TSSRoute{
-		DestinationChainID:         "0x",
-		DestinationContractAddress: "0x",
+		DestinationChainID:         "chain-1",
+		DestinationContractAddress: "0x1234567890abcdef",
 	}
 
 	s.bankKeeper.EXPECT().
 		SendCoinsFromAccountToModule(ctx, feePayer, types.ModuleName, k.GetParams(ctx).BasePacketFee).
 		Return(nil)
+	s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
+	)
+	s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
+		gomock.Any(),
+		uint64(1),
+		"chain-1",
+		"0x1234567890abcdef",
+		gomock.Any(),
+		feePayer,
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))),
+	).Return(bandtsstypes.SigningID(1), nil)
 
 	err := tunnel.SetRoute(route)
 	s.Require().NoError(err)
@@ -161,23 +180,36 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 		CreatedAt: ctx.BlockTime().Unix(),
 	}
 	route := &types.TSSRoute{
-		DestinationChainID:         "0x",
+		DestinationChainID:         "chain-1",
 		DestinationContractAddress: "0x",
 	}
+
+	s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
+	).Times(2)
 
 	s.feedsKeeper.EXPECT().GetAllPrices(gomock.Any()).Return([]feedstypes.Price{
 		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
 	})
-	s.bankKeeper.EXPECT().SpendableCoins(gomock.Any(), feePayer).Return(types.DefaultBasePacketFee)
+
+	spendableCoins := types.DefaultBasePacketFee.Add(sdk.NewCoin("uband", sdkmath.NewInt(20)))
+	s.bankKeeper.EXPECT().SpendableCoins(gomock.Any(), feePayer).Return(spendableCoins)
 	s.bankKeeper.EXPECT().
 		SendCoinsFromAccountToModule(gomock.Any(), feePayer, types.ModuleName, types.DefaultBasePacketFee).
 		Return(nil)
 
-	err := tunnel.SetRoute(route)
-	s.Require().NoError(err)
+	s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
+		gomock.Any(),
+		uint64(1),
+		"chain-1",
+		"0x",
+		gomock.Any(),
+		feePayer,
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))),
+	).Return(bandtsstypes.SigningID(1), nil)
 
-	defaultParams := types.DefaultParams()
-	err = k.SetParams(ctx, defaultParams)
+	// set tunnel & latest price
+	err := tunnel.SetRoute(route)
 	s.Require().NoError(err)
 
 	// set deposit to the tunnel to be able to activate
@@ -221,6 +253,10 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPacketsNotEnoughMoney() {
 		DestinationChainID:         "0x",
 		DestinationContractAddress: "0x",
 	}
+
+	s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
+		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
+	)
 
 	s.feedsKeeper.EXPECT().GetAllPrices(gomock.Any()).Return([]feedstypes.Price{
 		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
