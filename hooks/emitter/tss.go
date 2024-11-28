@@ -12,10 +12,10 @@ import (
 
 func (h *Hook) emitNewTssSigning(
 	signing types.Signing,
-	contentType []byte,
-	content []byte,
-	originatorType []byte,
-	originator []byte,
+	contentType string,
+	content string,
+	originatorType string,
+	originator string,
 ) {
 	h.Write("NEW_TSS_SIGNING", common.JsDict{
 		"id":                 signing.ID,
@@ -27,10 +27,10 @@ func (h *Hook) emitNewTssSigning(
 		"group_pub_nonce":    parseBytes(signing.GroupPubNonce),
 		"status":             signing.Status,
 		"created_height":     signing.CreatedHeight,
-		"content_type":       parseBytes(contentType),
-		"content":            parseBytes(content),
-		"originator_type":    parseBytes(originatorType),
-		"originator":         parseBytes(originator),
+		"content_type":       contentType,
+		"content":            content,
+		"originator_type":    originatorType,
+		"originator":         originator,
 	})
 }
 
@@ -140,10 +140,10 @@ func (h *Hook) handleTssEventCreateSigning(ctx sdk.Context, evMap common.EvMap) 
 
 		h.emitNewTssSigning(
 			signing,
-			[]byte(contentTypes[i]),
-			[]byte(contentInfos[i]),
-			[]byte(originatorTypes[i]),
-			[]byte(originatorInfos[i]),
+			contentTypes[i],
+			contentInfos[i],
+			originatorTypes[i],
+			originatorInfos[i],
 		)
 	}
 }
