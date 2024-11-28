@@ -42,12 +42,6 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	)
 
 	registry.RegisterInterface(
-		"tss.v1beta1.Originator",
-		(*Originator)(nil),
-		&DirectOriginator{}, &TunnelOriginator{},
-	)
-
-	registry.RegisterInterface(
 		"tss.v1beta1.Content",
 		(*Content)(nil),
 		&TextSignatureOrder{},
