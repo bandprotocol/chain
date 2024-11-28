@@ -159,7 +159,7 @@ message MultiStoreProof {
       [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
   bytes restake_to_staking_stores_merkle_hash = 4
       [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
-  bytes transfer_to_upgrade_store_merkle_hash = 5
+  bytes transfer_to_upgrade_stores_merkle_hash = 5
       [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
   bytes auth_to_ibc_stores_merkle_hash = 6 [(gogoproto.casttype) = "github.com/cometbft/cometbft/libs/bytes.HexBytes"];
 }
