@@ -10,31 +10,31 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
-func (h *Hook) emitNewTssSigning(
+func (h *Hook) emitNewTSSSigning(
 	signing types.Signing,
-	contentType []byte,
-	content []byte,
-	originatorType []byte,
-	originator []byte,
+	contentType string,
+	content string,
+	originatorType string,
+	originator string,
 ) {
 	h.Write("NEW_TSS_SIGNING", common.JsDict{
-		"id":              signing.ID,
-		"current_attempt": signing.CurrentAttempt,
-		"tss_group_id":    signing.GroupID,
-		"originator":      parseBytes(signing.Originator),
-		"message":         parseBytes(signing.Message),
-		"group_pub_key":   parseBytes(signing.GroupPubKey),
-		"group_pub_nonce": parseBytes(signing.GroupPubNonce),
-		"status":          signing.Status,
-		"created_height":  signing.CreatedHeight,
-		"content_type":    parseBytes(contentType),
-		"content_info":    parseBytes(content),
-		"originator_type": parseBytes(originatorType),
-		"originator_info": parseBytes(originator),
+		"id":                 signing.ID,
+		"current_attempt":    signing.CurrentAttempt,
+		"tss_group_id":       signing.GroupID,
+		"encoded_originator": parseBytes(signing.Originator),
+		"message":            parseBytes(signing.Message),
+		"group_pub_key":      parseBytes(signing.GroupPubKey),
+		"group_pub_nonce":    parseBytes(signing.GroupPubNonce),
+		"status":             signing.Status,
+		"created_height":     signing.CreatedHeight,
+		"content_type":       contentType,
+		"content":            content,
+		"originator_type":    originatorType,
+		"originator":         originator,
 	})
 }
 
-func (h *Hook) emitUpdateTssSigningAttempt(signing types.Signing) {
+func (h *Hook) emitUpdateTSSSigningAttempt(signing types.Signing) {
 	h.Write("UPDATE_TSS_SIGNING", common.JsDict{
 		"id":              signing.ID,
 		"current_attempt": signing.CurrentAttempt,
@@ -44,7 +44,7 @@ func (h *Hook) emitUpdateTssSigningAttempt(signing types.Signing) {
 	})
 }
 
-func (h *Hook) emitUpdateTssSigningSuccess(signing types.Signing) {
+func (h *Hook) emitUpdateTSSSigningSuccess(signing types.Signing) {
 	h.Write("UPDATE_TSS_SIGNING", common.JsDict{
 		"id":        signing.ID,
 		"status":    signing.Status,
@@ -52,7 +52,7 @@ func (h *Hook) emitUpdateTssSigningSuccess(signing types.Signing) {
 	})
 }
 
-func (h *Hook) emitUpdateTssSigningFailed(reason string, signing types.Signing) {
+func (h *Hook) emitUpdateTSSSigningFailed(reason string, signing types.Signing) {
 	h.Write("UPDATE_TSS_SIGNING", common.JsDict{
 		"id":     signing.ID,
 		"status": signing.Status,
@@ -60,7 +60,7 @@ func (h *Hook) emitUpdateTssSigningFailed(reason string, signing types.Signing) 
 	})
 }
 
-func (h *Hook) emitSetTssGroup(group types.Group, dkgContext []byte) {
+func (h *Hook) emitSetTSSGroup(group types.Group, dkgContext []byte) {
 	h.Write("SET_TSS_GROUP", common.JsDict{
 		"id":             group.ID,
 		"size":           group.Size_,
@@ -73,7 +73,7 @@ func (h *Hook) emitSetTssGroup(group types.Group, dkgContext []byte) {
 	})
 }
 
-func (h *Hook) emitSetTssMember(member types.Member) {
+func (h *Hook) emitSetTSSMember(member types.Member) {
 	h.Write("SET_TSS_MEMBER", common.JsDict{
 		"id":           member.ID,
 		"tss_group_id": member.GroupID,
@@ -84,7 +84,7 @@ func (h *Hook) emitSetTssMember(member types.Member) {
 	})
 }
 
-func (h *Hook) emitNewTssAssignedMember(
+func (h *Hook) emitNewTSSAssignedMember(
 	sid tss.SigningID,
 	attempt uint64,
 	gid tss.GroupID,
@@ -102,7 +102,7 @@ func (h *Hook) emitNewTssAssignedMember(
 	})
 }
 
-func (h *Hook) emitUpdateTssAssignedMember(
+func (h *Hook) emitUpdateTSSAssignedMember(
 	signingID tss.SigningID,
 	attempt uint64,
 	memberID tss.MemberID,
@@ -119,15 +119,15 @@ func (h *Hook) emitUpdateTssAssignedMember(
 }
 
 // handleInitTSSModule implements emitter handler for initializing tss module.
-func (h *Hook) handleInitTssModule(ctx sdk.Context) {
+func (h *Hook) handleInitTSSModule(ctx sdk.Context) {
 	groups := h.tssKeeper.GetGroups(ctx)
 	for _, group := range groups {
-		h.emitSetTssGroup(group, nil) // DKG data is already removed.
+		h.emitSetTSSGroup(group, nil) // DKG data is already removed.
 	}
 }
 
-// handleTssEventCreateGroup implements emitter handler for CreateGroup event.
-func (h *Hook) handleTssEventCreateSigning(ctx sdk.Context, evMap common.EvMap) {
+// handleTSSEventCreateGroup implements emitter handler for CreateGroup event.
+func (h *Hook) handleTSSEventCreateSigning(ctx sdk.Context, evMap common.EvMap) {
 	sids := evMap[types.EventTypeCreateSigning+"."+types.AttributeKeySigningID]
 	contentTypes := evMap[types.EventTypeCreateSigning+"."+types.AttributeKeyContentType]
 	contentInfos := evMap[types.EventTypeCreateSigning+"."+types.AttributeKeyContent]
@@ -138,18 +138,18 @@ func (h *Hook) handleTssEventCreateSigning(ctx sdk.Context, evMap common.EvMap) 
 		id := tss.SigningID(common.Atoi(sid))
 		signing := h.tssKeeper.MustGetSigning(ctx, id)
 
-		h.emitNewTssSigning(
+		h.emitNewTSSSigning(
 			signing,
-			[]byte(contentTypes[i]),
-			[]byte(contentInfos[i]),
-			[]byte(originatorTypes[i]),
-			[]byte(originatorInfos[i]),
+			contentTypes[i],
+			contentInfos[i],
+			originatorTypes[i],
+			originatorInfos[i],
 		)
 	}
 }
 
-// handleTssEventRequestSignature implements emitter handler for RequestSignature event.
-func (h *Hook) handleTssEventRequestSignature(ctx sdk.Context, evMap common.EvMap) {
+// handleTSSEventRequestSignature implements emitter handler for RequestSignature event.
+func (h *Hook) handleTSSEventRequestSignature(ctx sdk.Context, evMap common.EvMap) {
 	sids := evMap[types.EventTypeRequestSignature+"."+types.AttributeKeySigningID]
 
 	for _, sid := range sids {
@@ -159,27 +159,27 @@ func (h *Hook) handleTssEventRequestSignature(ctx sdk.Context, evMap common.EvMa
 		attempt := signing.CurrentAttempt
 		attemptInfo := h.tssKeeper.MustGetSigningAttempt(ctx, id, attempt)
 
-		h.emitUpdateTssSigningAttempt(signing)
+		h.emitUpdateTSSSigningAttempt(signing)
 
 		for _, am := range attemptInfo.AssignedMembers {
-			h.emitNewTssAssignedMember(signing.ID, attempt, signing.GroupID, am)
+			h.emitNewTSSAssignedMember(signing.ID, attempt, signing.GroupID, am)
 		}
 	}
 }
 
-// handleTssEventSigningSuccess implements emitter handler for SigningSuccess event.
-func (h *Hook) handleTssEventSigningSuccess(ctx sdk.Context, evMap common.EvMap) {
+// handleTSSEventSigningSuccess implements emitter handler for SigningSuccess event.
+func (h *Hook) handleTSSEventSigningSuccess(ctx sdk.Context, evMap common.EvMap) {
 	sids := evMap[types.EventTypeSigningSuccess+"."+types.AttributeKeySigningID]
 	for _, sid := range sids {
 		id := tss.SigningID(common.Atoi(sid))
 		signing := h.tssKeeper.MustGetSigning(ctx, id)
 
-		h.emitUpdateTssSigningSuccess(signing)
+		h.emitUpdateTSSSigningSuccess(signing)
 	}
 }
 
-// handleTssEventSigningFailed implements emitter handler for SigningSuccess event.
-func (h *Hook) handleTssEventSigningFailed(ctx sdk.Context, evMap common.EvMap) {
+// handleTSSEventSigningFailed implements emitter handler for SigningSuccess event.
+func (h *Hook) handleTSSEventSigningFailed(ctx sdk.Context, evMap common.EvMap) {
 	sids := evMap[types.EventTypeSigningFailed+"."+types.AttributeKeySigningID]
 	errReasons := evMap[types.EventTypeSigningFailed+"."+types.AttributeKeyReason]
 	for i, sid := range sids {
@@ -191,28 +191,28 @@ func (h *Hook) handleTssEventSigningFailed(ctx sdk.Context, evMap common.EvMap) 
 			errReason = errReasons[i]
 		}
 
-		h.emitUpdateTssSigningFailed(errReason, signing)
+		h.emitUpdateTSSSigningFailed(errReason, signing)
 	}
 }
 
-// handleTssSetGroup implements emitter handler events related to group.
-func (h *Hook) handleTssSetGroup(ctx sdk.Context, gid tss.GroupID) {
+// handleTSSSetGroup implements emitter handler events related to group.
+func (h *Hook) handleTSSSetGroup(ctx sdk.Context, gid tss.GroupID) {
 	group := h.tssKeeper.MustGetGroup(ctx, gid)
 	dkgContext, err := h.tssKeeper.GetDKGContext(ctx, gid)
 	if err != nil {
 		dkgContext = []byte{}
 	}
 
-	h.emitSetTssGroup(group, dkgContext)
+	h.emitSetTSSGroup(group, dkgContext)
 
 	members := h.tssKeeper.MustGetMembers(ctx, gid)
 	for _, m := range members {
-		h.emitSetTssMember(m)
+		h.emitSetTSSMember(m)
 	}
 }
 
-// handleTssEventSubmitSignature implements emitter handler for SubmitSignature event.
-func (h *Hook) handleTssEventSubmitSignature(ctx sdk.Context, evMap common.EvMap) {
+// handleTSSEventSubmitSignature implements emitter handler for SubmitSignature event.
+func (h *Hook) handleTSSEventSubmitSignature(ctx sdk.Context, evMap common.EvMap) {
 	sids := evMap[types.EventTypeSubmitSignature+"."+types.AttributeKeySigningID]
 	attempts := evMap[types.EventTypeSubmitSignature+"."+types.AttributeKeyAttempt]
 	memberIDs := evMap[types.EventTypeSubmitSignature+"."+types.AttributeKeyMemberID]
@@ -233,6 +233,6 @@ func (h *Hook) handleTssEventSubmitSignature(ctx sdk.Context, evMap common.EvMap
 		}
 		signature := tss.Signature(bz)
 
-		h.emitUpdateTssAssignedMember(signingID, attempt, memberID, signature, ctx.BlockHeight())
+		h.emitUpdateTSSAssignedMember(signingID, attempt, memberID, signature, ctx.BlockHeight())
 	}
 }

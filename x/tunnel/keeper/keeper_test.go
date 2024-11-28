@@ -36,6 +36,7 @@ type KeeperTestSuite struct {
 	keeper      keeper.Keeper
 	queryServer types.QueryServer
 	msgServer   types.MsgServer
+	storeKey    storetypes.StoreKey
 
 	accountKeeper *testutil.MockAccountKeeper
 	bankKeeper    *testutil.MockBankKeeper
@@ -71,6 +72,7 @@ func (s *KeeperTestSuite) reset() {
 
 	accountKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(authority).AnyTimes()
 
+	s.storeKey = key
 	s.keeper = keeper.NewKeeper(
 		encCfg.Codec.(codec.BinaryCodec),
 		key,

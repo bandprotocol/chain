@@ -62,9 +62,16 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 				return err
 			}
 
+			destChainID := args[0]
+			destContractAddr := args[1]
+
 			encoder, err := strconv.ParseInt(args[2], 10, 32)
 			if err != nil {
 				return err
+			}
+
+			if feedstypes.ValidateEncoder(feedstypes.Encoder(encoder)) != nil {
+				return types.ErrInvalidEncoder
 			}
 
 			initialDeposit, err := sdk.ParseCoinsNormalized(args[3])
@@ -85,8 +92,8 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 			msg, err := types.NewMsgCreateTSSTunnel(
 				signalDeviations.ToSignalDeviations(),
 				interval,
-				args[0],
-				args[1],
+				destChainID,
+				destContractAddr,
 				feedstypes.Encoder(encoder),
 				initialDeposit,
 				clientCtx.GetFromAddress(),

@@ -42,6 +42,11 @@ service Query {
     option (google.api.http).get = "/tunnel/v1beta1/tunnels/{tunnel_id}/packets/{sequence}";
   }
 
+  // TotalFees is a RPC method that returns the total fees collected by the tunnel
+  rpc TotalFees(QueryTotalFeesRequest) returns (QueryTotalFeesResponse) {
+    option (google.api.http).get = "/tunnel/v1beta1/total_fees";
+  }
+
   // Params is a RPC method that returns all parameters of the module.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
     option (google.api.http).get = "/tunnel/v1beta1/params";
@@ -146,6 +151,15 @@ message QueryPacketRequest {
 message QueryPacketResponse {
   // packet is the packet with the given tunnel ID and sequence.
   Packet packet = 1;
+}
+
+// QueryTotalFeesRequest is the request type for the Query/TotalFees RPC method.
+message QueryTotalFeesRequest {}
+
+// QueryTotalFeesResponse is the response type for the Query/TotalFees RPC method.
+message QueryTotalFeesResponse {
+  // total_fees is the total fees collected by the tunnel.
+  TotalFees total_fees = 1 [(gogoproto.nullable) = false];
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.

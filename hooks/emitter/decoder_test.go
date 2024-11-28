@@ -1083,7 +1083,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitDKGRound1() {
 		Sender: SenderAddress.String(),
 	}
 
-	emitter.DecodeTssMsgSubmitDKGRound1(&msg, detail)
+	emitter.DecodeTSSMsgSubmitDKGRound1(&msg, detail)
 	expectedJSON := `{"group_id":1,"round1_info":{"member_id":1,"coefficient_commits":["706F696E74","706F696E74"],"one_time_pub_key":"706F696E74","a0_signature":"7369676E6174757265","one_time_signature":"7369676E6174757265"},"sender":"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0"}`
 	suite.testCompareJson(detail, expectedJSON)
 }
@@ -1100,7 +1100,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitDKGRound2() {
 		Sender: SenderAddress.String(),
 	}
 
-	emitter.DecodeTssMsgSubmitDKGRound2(&msg, detail)
+	emitter.DecodeTSSMsgSubmitDKGRound2(&msg, detail)
 	expectedJSON := "{\"group_id\":1,\"round2_info\":{\"member_id\":1,\"encrypted_secret_shares\":[\"656E635365637265745368617265\"]},\"sender\":\"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0\"}"
 	suite.testCompareJson(detail, expectedJSON)
 }
@@ -1121,7 +1121,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgComplain() {
 		Sender: SenderAddress.String(),
 	}
 
-	emitter.DecodeTssMsgComplain(&msg, detail)
+	emitter.DecodeTSSMsgComplain(&msg, detail)
 	expectedJSON := `{"complaints":[{"complainant":1,"respondent":2,"key_sym":"6B65795F73796D","signature":"7369676E6174757265"}],"group_id":1,"sender":"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0"}`
 	suite.testCompareJson(detail, expectedJSON)
 }
@@ -1136,7 +1136,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgConfirm() {
 		Sender:       SenderAddress.String(),
 	}
 
-	emitter.DecodeTssMsgConfirm(&msg, detail)
+	emitter.DecodeTSSMsgConfirm(&msg, detail)
 	expectedJSON := `{"group_id":1,"member_id":1,"own_pub_key_sig":"7369676E6174757265","sender":"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0"}`
 	suite.testCompareJson(detail, expectedJSON)
 }
@@ -1149,7 +1149,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitDE() {
 		Sender: SenderAddress.String(),
 	}
 
-	emitter.DecodeTssMsgSubmitDEs(&msg, detail)
+	emitter.DecodeTSSMsgSubmitDEs(&msg, detail)
 	expectedJSON := `{"des":[{"pub_d":"7075625F64","pub_e":"7075625F65"}],"sender":"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0"}`
 	suite.testCompareJson(detail, expectedJSON)
 }
@@ -1164,7 +1164,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgSubmitSignature() {
 		Signer:    SenderAddress.String(),
 	}
 
-	emitter.DecodeTssMsgSubmitSignature(&msg, detail)
+	emitter.DecodeTSSMsgSubmitSignature(&msg, detail)
 	expectedJSON := `{"member_id":1,"signature":"7369676E6174757265","signer":"band12djkuer9wgqqqqqqqqqqqqqqqqqqqqqqck96t0","signing_id":1}`
 	suite.testCompareJson(detail, expectedJSON)
 }
@@ -1177,7 +1177,7 @@ func (suite *DecoderTestSuite) TestDecodeMsgUpdateParams() {
 		Params:    tsstypes.DefaultParams(),
 	}
 
-	emitter.DecodeTssMsgUpdateParams(&msg, detail)
+	emitter.DecodeTSSMsgUpdateParams(&msg, detail)
 	expectedJSON := `{"authority":"band1g96hg6r0wf5hg7gqqqqqqqqqqqqqqqqq4rjgsx","params":{"max_group_size":20,"max_de_size":300,"creation_period":30000,"signing_period":100,"max_signing_attempt":5,"max_memo_length":100,"max_message_length":1000}}`
 	suite.testCompareJson(detail, expectedJSON)
 }

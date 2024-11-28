@@ -136,8 +136,8 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 	case *bandtsstypes.MsgActivate:
 		h.handleBandtssMsgActivate(ctx, msg)
 	case *bandtsstypes.MsgRequestSignature:
-		h.handleTssEventCreateSigning(ctx, evMap)
-		h.handleTssEventRequestSignature(ctx, evMap)
+		h.handleTSSEventCreateSigning(ctx, evMap)
+		h.handleTSSEventRequestSignature(ctx, evMap)
 		h.handleBandtssEventSigningRequestCreated(ctx, evMap)
 	case *feedstypes.MsgVote:
 		h.handleFeedsMsgVote(ctx, msg, evMap)
@@ -175,7 +175,7 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 	case *group.MsgWithdrawProposal:
 		h.handleGroupMsgWithdrawProposal(ctx, evMap)
 	case *tsstypes.MsgSubmitSignature:
-		h.handleTssEventSubmitSignature(ctx, evMap)
+		h.handleTSSEventSubmitSignature(ctx, evMap)
 	case *tunneltypes.MsgCreateTunnel:
 		h.handleTunnelMsgCreateTunnel(ctx, txHash, msg, evMap)
 	case *tunneltypes.MsgUpdateAndResetTunnel:
@@ -252,13 +252,13 @@ func (h *Hook) handleBeginBlockEndBlockEvent(
 	case channeltypes.EventTypeSendPacket:
 		h.handleEventSendPacket(ctx, evMap)
 	case tsstypes.EventTypeCreateSigning:
-		h.handleTssEventCreateSigning(ctx, evMap)
+		h.handleTSSEventCreateSigning(ctx, evMap)
 	case tsstypes.EventTypeRequestSignature:
-		h.handleTssEventRequestSignature(ctx, evMap)
+		h.handleTSSEventRequestSignature(ctx, evMap)
 	case tsstypes.EventTypeSigningSuccess:
-		h.handleTssEventSigningSuccess(ctx, evMap)
+		h.handleTSSEventSigningSuccess(ctx, evMap)
 	case tsstypes.EventTypeSigningFailed:
-		h.handleTssEventSigningFailed(ctx, evMap)
+		h.handleTSSEventSigningFailed(ctx, evMap)
 	case tsstypes.EventTypeCreateGroup,
 		tsstypes.EventTypeRound2Success,
 		tsstypes.EventTypeRound3Success,
@@ -267,7 +267,7 @@ func (h *Hook) handleBeginBlockEndBlockEvent(
 		tsstypes.EventTypeRound3Failed:
 		groupIDs := evMap[event.Type+"."+tsstypes.AttributeKeyGroupID]
 		for _, gid := range groupIDs {
-			h.handleTssSetGroup(ctx, tss.GroupID(common.Atoi(gid)))
+			h.handleTSSSetGroup(ctx, tss.GroupID(common.Atoi(gid)))
 		}
 	case proto.MessageName(&group.EventProposalPruned{}):
 		h.handleGroupEventProposalPruned(evMap)

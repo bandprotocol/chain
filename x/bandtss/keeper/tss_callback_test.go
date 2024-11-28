@@ -855,6 +855,59 @@ func (s *KeeperTestSuite) TestCallbackOnGroupCreationComplete() {
 				}
 			},
 		},
+		{
+			name:  "existing current group id but insufficient member",
+			input: 2,
+			preProcess: func(s *KeeperTestSuite) {
+				s.tssKeeper.EXPECT().MustGetGroup(gomock.Any(), tss.GroupID(2)).
+					Return(tsstypes.Group{
+						ID:          2,
+						ModuleOwner: types.ModuleName,
+						Status:      tsstypes.GROUP_STATUS_ACTIVE,
+						PubKey:      []byte("pubkey-2"),
+					})
+				s.keeper.SetGroupTransition(s.ctx, types.GroupTransition{
+					SigningID:          tss.SigningID(1),
+					Status:             types.TRANSITION_STATUS_CREATING_GROUP,
+					CurrentGroupID:     tss.GroupID(1),
+					CurrentGroupPubKey: tss.Point([]byte("pubkey")),
+					IncomingGroupID:    tss.GroupID(2),
+					ExecTime:           s.ctx.BlockTime().Add(10 * time.Minute),
+				})
+				s.keeper.SetCurrentGroup(s.ctx, types.NewCurrentGroup(1, s.ctx.BlockTime()))
+				s.accountKeeper.EXPECT().GetModuleAccount(gomock.Any(), types.ModuleName).Return(
+					s.moduleAcc,
+				)
+
+				s.tssKeeper.EXPECT().RequestSigning(
+					gomock.Any(),
+					tss.GroupID(1),
+					gomock.Any(),
+					types.NewGroupTransitionSignatureOrder(
+						tss.Point([]byte("pubkey-2")),
+						s.ctx.BlockTime().Add(10*time.Minute),
+					),
+				).DoAndReturn(func(
+					ctx sdk.Context,
+					groupID tss.GroupID,
+					originator tsstypes.Originator,
+					content tsstypes.Content,
+				) (tss.SigningID, error) {
+					ctx.KVStore(s.key).Set([]byte{0xff, 0xfe}, []byte("test"))
+					return tss.SigningID(0), tsstypes.ErrInsufficientSigners
+				})
+			},
+			postCheck: func(s *KeeperTestSuite) {
+				_, found := s.keeper.GetGroupTransition(s.ctx)
+				s.Require().False(found)
+				s.Require().Nil(s.ctx.KVStore(s.key).Get([]byte{0xff, 0xfe}))
+
+				for _, member := range members {
+					ok := s.keeper.HasMember(s.ctx, sdk.MustAccAddressFromBech32(member.Address), tss.GroupID(2))
+					s.Require().False(ok)
+				}
+			},
+		},
 	}
 
 	for _, tc := range testCases {

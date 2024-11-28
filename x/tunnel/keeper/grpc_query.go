@@ -144,6 +144,16 @@ func (q queryServer) Packet(c context.Context, req *types.QueryPacketRequest) (*
 	return &types.QueryPacketResponse{Packet: &packet}, nil
 }
 
+func (q queryServer) TotalFees(
+	c context.Context,
+	req *types.QueryTotalFeesRequest,
+) (*types.QueryTotalFeesResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+
+	totalFees := q.k.GetTotalFees(ctx)
+	return &types.QueryTotalFeesResponse{TotalFees: totalFees}, nil
+}
+
 // Params queries all params of the module.
 func (q queryServer) Params(c context.Context, _ *types.QueryParamsRequest) (*types.QueryParamsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)

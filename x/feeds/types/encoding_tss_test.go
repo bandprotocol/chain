@@ -20,7 +20,7 @@ func TestPriceEncoderEncodingABI(t *testing.T) {
 		{SignalID: "testSignal", Price: 100, Status: types.PRICE_STATUS_AVAILABLE},
 	}
 
-	result, err := types.EncodeTss(prices, 123456789, types.ENCODER_FIXED_POINT_ABI)
+	result, err := types.EncodeTSS(prices, 123456789, types.ENCODER_FIXED_POINT_ABI)
 	require.NoError(t, err)
 
 	expected := "cba0ad5a000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000075bcd15000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000746573745369676e616c0000000000000000000000000000000000000000000000000000000000000064"
@@ -32,14 +32,14 @@ func TestTickPriceEncoderEncodingABI(t *testing.T) {
 		{SignalID: "testSignal", Price: 1e10, Status: types.PRICE_STATUS_AVAILABLE},
 	}
 
-	result, err := types.EncodeTss(prices, 123456789, types.ENCODER_TICK_ABI)
+	result, err := types.EncodeTSS(prices, 123456789, types.ENCODER_TICK_ABI)
 	require.NoError(t, err)
 
 	expected := "db99b2b3000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000075bcd15000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000746573745369676e616c00000000000000000000000000000000000000000000000000000000000459f3"
 	require.Equal(t, expected, hex.EncodeToString(result))
 }
 
-func TestTssTick(t *testing.T) {
+func TestTSSTick(t *testing.T) {
 	signalIDAtom, err := types.StringToBytes32("CS:ATOM-USD")
 	require.NoError(t, err)
 
@@ -50,7 +50,7 @@ func TestTssTick(t *testing.T) {
 	testCases := []struct {
 		name         string
 		prices       []types.Price
-		expectResult []types.TssPrice
+		expectResult []types.TSSPrice
 		expectError  error
 	}{
 		{
@@ -69,7 +69,7 @@ func TestTssTick(t *testing.T) {
 					Status:    types.PRICE_STATUS_AVAILABLE,
 				},
 			},
-			expectResult: []types.TssPrice{
+			expectResult: []types.TSSPrice{
 				{SignalID: signalIDAtom, Price: 1e10},
 				{SignalID: signalIDBand, Price: 1e8},
 			},
@@ -91,7 +91,7 @@ func TestTssTick(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			encoderPrices, err := types.ToTssPrices(tc.prices)
+			encoderPrices, err := types.ToTSSPrices(tc.prices)
 
 			// Check the result
 			if tc.expectError != nil {
@@ -104,7 +104,7 @@ func TestTssTick(t *testing.T) {
 	}
 }
 
-func TestToTssTickPrices(t *testing.T) {
+func TestToTSSTickPrices(t *testing.T) {
 	signalIDAtom, err := types.StringToBytes32("CS:ATOM-USD")
 	require.NoError(t, err)
 
@@ -116,7 +116,7 @@ func TestToTssTickPrices(t *testing.T) {
 		name         string
 		prices       []types.Price
 		encoder      types.Encoder
-		expectResult []types.TssPrice
+		expectResult []types.TSSPrice
 		expectError  error
 	}{
 		{
@@ -136,7 +136,7 @@ func TestToTssTickPrices(t *testing.T) {
 				},
 			},
 			encoder: types.ENCODER_TICK_ABI,
-			expectResult: []types.TssPrice{
+			expectResult: []types.TSSPrice{
 				{SignalID: signalIDAtom, Price: 285171},
 				{SignalID: signalIDBand, Price: 239116},
 			},
@@ -159,7 +159,7 @@ func TestToTssTickPrices(t *testing.T) {
 				},
 			},
 			encoder: types.ENCODER_FIXED_POINT_ABI,
-			expectResult: []types.TssPrice{
+			expectResult: []types.TSSPrice{
 				{SignalID: signalIDAtom, Price: 0},
 				{SignalID: signalIDBand, Price: 239116},
 			},
@@ -180,7 +180,7 @@ func TestToTssTickPrices(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			encoderPrices, err := types.ToTssTickPrices(tc.prices)
+			encoderPrices, err := types.ToTSSTickPrices(tc.prices)
 
 			// Check the result
 			if tc.expectError != nil {

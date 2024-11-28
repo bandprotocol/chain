@@ -8,7 +8,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/bandprotocol/chain/v3/pkg/ctxcache"
 	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/bandtss/types"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
@@ -101,12 +100,9 @@ func (k Keeper) createSigningRequest(
 	// create signing request for incoming group if any. In case of error, emit event and continue
 	// the process, as the signing request for incoming group is optional.
 	if incomingGroupID != 0 {
-		createSigningFunc := func(ctx sdk.Context) (err error) {
-			incomingGroupSigningID, err = k.tssKeeper.RequestSigning(ctx, incomingGroupID, originator, content)
-			return err
-		}
-
-		if err := ctxcache.ApplyFuncIfNoError(ctx, createSigningFunc); err != nil {
+		cacheCtx, writeFn := ctx.CacheContext()
+		signingID, err := k.tssKeeper.RequestSigning(cacheCtx, incomingGroupID, originator, content)
+		if err != nil {
 			codespace, code, _ := errorsmod.ABCIInfo(err, false)
 			ctx.EventManager().EmitEvent(sdk.NewEvent(
 				types.EventTypeCreateSigningFailed,
@@ -115,7 +111,14 @@ func (k Keeper) createSigningRequest(
 				sdk.NewAttribute(types.AttributeKeySigningErrCodespace, codespace),
 				sdk.NewAttribute(types.AttributeKeySigningErrCode, fmt.Sprintf("%d", code)),
 			))
+		} else {
+			writeFn()
+			incomingGroupSigningID = signingID
 		}
+	}
+
+	if currentGroupSigningID == 0 && incomingGroupSigningID == 0 {
+		return 0, types.ErrNoActiveGroup
 	}
 
 	// save signing info
@@ -134,6 +137,23 @@ func (k Keeper) createSigningRequest(
 	)
 
 	return bandtssSigningID, nil
+}
+
+// GetSigningFee returns the fee required for signing a message.
+func (k Keeper) GetSigningFee(ctx sdk.Context) (sdk.Coins, error) {
+	currentGroup := k.GetCurrentGroup(ctx)
+	if currentGroup.GroupID == 0 {
+		return sdk.Coins{}, nil
+	}
+
+	group, err := k.tssKeeper.GetGroup(ctx, currentGroup.GroupID)
+	if err != nil {
+		return sdk.Coins{}, err
+	}
+
+	feePerSigner := k.GetParams(ctx).FeePerSigner
+
+	return feePerSigner.MulInt(math.NewIntFromUint64(group.Threshold)), nil
 }
 
 // =====================================

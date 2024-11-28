@@ -849,26 +849,12 @@ class Handler(object):
     ##################################
 
     def handle_new_tss_signing(self, msg):
-        content_obj = {}
-        originator_obj = {}
-
         try:
-            content_info_text = b64.b64decode(msg["content_info"]).decode()
-            content_obj = convert_proto_str_to_object(content_info_text)
-            content_obj["content_type"] = b64.b64decode(msg["content_type"]).decode()
-
-            originator_info_text = b64.b64decode(msg["originator_info"]).decode()
-            originator_obj = convert_proto_str_to_object(originator_info_text)
-            originator_obj["originator_type"] = b64.b64decode(msg["originator_type"]).decode()
-
-            msg["content_info"] = b64.b64encode(json.dumps(content_obj).encode()).decode()
-            msg["originator_info"] = b64.b64encode(json.dumps(originator_obj).encode()).decode()
+            msg["content"] = convert_proto_str_to_object(msg["content"])
+            msg["originator"] = convert_proto_str_to_object(msg["originator"])
 
         except Exception as e:
             print("An error occurred:", e)
-
-        del msg["content_type"]
-        del msg["originator_type"]
 
         self.conn.execute(tss_signings.insert(), msg)
 
