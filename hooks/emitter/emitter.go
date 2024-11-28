@@ -302,7 +302,7 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *
 	}
 
 	// TSS module
-	h.handleInitTssModule(ctx)
+	h.handleInitTSSModule(ctx)
 
 	// Bandtss module
 	h.handleInitBandtssModule(ctx)
