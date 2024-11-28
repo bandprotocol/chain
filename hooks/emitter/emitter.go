@@ -41,12 +41,14 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bandprotocol/chain/v3/hooks/common"
+	bandtsskeeper "github.com/bandprotocol/chain/v3/x/bandtss/keeper"
 	feedskeeper "github.com/bandprotocol/chain/v3/x/feeds/keeper"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	oraclekeeper "github.com/bandprotocol/chain/v3/x/oracle/keeper"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	restakekeeper "github.com/bandprotocol/chain/v3/x/restake/keeper"
 	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
+	tsskeeper "github.com/bandprotocol/chain/v3/x/tss/keeper"
 )
 
 // Hook uses Kafka functionality to act as an event producer for all events in the blockchains.
@@ -70,6 +72,8 @@ type Hook struct {
 	groupKeeper   groupkeeper.Keeper
 	oracleKeeper  oraclekeeper.Keeper
 	restakeKeeper restakekeeper.Keeper
+	tssKeeper     *tsskeeper.Keeper
+	bandtssKeeper bandtsskeeper.Keeper
 	feedsKeeper   feedskeeper.Keeper
 	icahostKeeper icahostkeeper.Keeper
 
@@ -95,6 +99,8 @@ func NewHook(
 	oracleKeeper oraclekeeper.Keeper,
 	restakeKeeper restakekeeper.Keeper,
 	feedsKeeper feedskeeper.Keeper,
+	tssKeeper *tsskeeper.Keeper,
+	bandtssKeeper bandtsskeeper.Keeper,
 	icahostKeeper icahostkeeper.Keeper,
 	clientKeeper clientkeeper.Keeper,
 	connectionKeeper connectionkeeper.Keeper,
@@ -124,6 +130,8 @@ func NewHook(
 		oracleKeeper:     oracleKeeper,
 		restakeKeeper:    restakeKeeper,
 		feedsKeeper:      feedsKeeper,
+		tssKeeper:        tssKeeper,
+		bandtssKeeper:    bandtssKeeper,
 		icahostKeeper:    icahostKeeper,
 		clientKeeper:     clientKeeper,
 		connectionKeeper: connectionKeeper,
@@ -293,6 +301,12 @@ func (h *Hook) AfterInitChain(ctx sdk.Context, req *abci.RequestInitChain, res *
 		h.emitSetVoteWeighted(setVoteWeighted, vote.Options)
 	}
 
+	// TSS module
+	h.handleInitTSSModule(ctx)
+
+	// Bandtss module
+	h.handleInitBandtssModule(ctx)
+
 	// Oracle module
 	var oracleState oracletypes.GenesisState
 	h.cdc.MustUnmarshalJSON(genesisState[oracletypes.ModuleName], &oracleState)
@@ -406,8 +420,10 @@ func (h *Hook) AfterBeginBlock(ctx sdk.Context, req *abci.RequestFinalizeBlock, 
 		"inflation": minter.Inflation.String(),
 		"supply":    totalSupply,
 	})
-	for _, event := range events {
-		h.handleBeginBlockEndBlockEvent(ctx, event)
+
+	eventQuerier := NewEventQuerier(events)
+	for i, event := range events {
+		h.handleBeginBlockEndBlockEvent(ctx, event, i, eventQuerier)
 	}
 }
 
@@ -502,8 +518,9 @@ func (h *Hook) AfterEndBlock(ctx sdk.Context, events []abci.Event) {
 		h.doUpdateGroupProposal(ctx, proposalID)
 	}
 
-	for _, event := range events {
-		h.handleBeginBlockEndBlockEvent(ctx, event)
+	eventQuerier := NewEventQuerier(events)
+	for i, event := range events {
+		h.handleBeginBlockEndBlockEvent(ctx, event, i, eventQuerier)
 	}
 
 	// Emit all new current prices at every endblock.

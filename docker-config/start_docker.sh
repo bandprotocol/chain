@@ -44,6 +44,9 @@ echo "erase relief tree tobacco around knee concert toast diesel melody rule sig
 echo "thought insane behind cool expand clarify strategy occur arrive broccoli middle despair foot cake genuine dawn goose abuse curve identify dinner derive genre effort" \
     | bandd keys add account2 --recover --keyring-backend test
 
+echo "drop video mention casual soldier ostrich resemble harvest casual step design gasp grunt lab meadow buzz envelope today spy cliff column habit fall eyebrow" \
+    | bandd keys add account3 --recover --keyring-backend test
+
 # add accounts to genesis
 bandd genesis add-genesis-account validator1 10000000000000uband --keyring-backend test
 bandd genesis add-genesis-account validator2 10000000000000uband --keyring-backend test
@@ -53,6 +56,7 @@ bandd genesis add-genesis-account requester 100000000000000uband --keyring-backe
 bandd genesis add-genesis-account relayer 100000000000000uband --keyring-backend test
 bandd genesis add-genesis-account account1 100000000000000uband --keyring-backend test
 bandd genesis add-genesis-account account2 100000000000000uband --keyring-backend test
+bandd genesis add-genesis-account account3 100000000000000uband --keyring-backend test
 
 # create copy of config.toml
 cp ~/.band/config/config.toml ~/.band/config/config.toml.temp
@@ -117,6 +121,7 @@ bandd genesis collect-gentxs
 cp ~/.band/config/genesis.json $DIR/genesis.json
 cat <<< $(jq '.app_state.gov.params.voting_period = "60s"' $DIR/genesis.json) > $DIR/genesis.json
 cat <<< $(jq '.app_state.feeds.params.current_feeds_update_interval = "10"' $DIR/genesis.json) > $DIR/genesis.json
+cat <<< $(jq '.app_state.bandtss.params.min_transition_duration = "60s"' $DIR/genesis.json) > $DIR/genesis.json
 cat <<< $(jq --arg addr "$(bandd keys show requester -a --keyring-backend test)" '.app_state.feeds.params.admin = $addr' $DIR/genesis.json) > $DIR/genesis.json
 cat <<< $(jq '.app_state.restake.params.allowed_denoms = ["uband"]' $DIR/genesis.json) > $DIR/genesis.json
 
@@ -160,6 +165,44 @@ do
     docker create --network chain_bandchain --name bandchain-yoda${v} band-validator:latest yoda r
     docker cp ~/.yoda bandchain-yoda${v}:/root/.yoda
     docker start bandchain-yoda${v}
+done
+
+sleep 10
+
+for v in {1..3}
+do
+    rm -rf ~/.cylinder
+    cylinder config node tcp://multi-validator$v-node:26657
+    cylinder config chain-id bandchain
+    cylinder config granter $(bandd keys show account$v -a --keyring-backend test)
+    cylinder config max-messages 20
+    cylinder config broadcast-timeout "5m"
+    cylinder config rpc-poll-interval "1s"
+    cylinder config max-try 5
+    cylinder config gas-prices "0uband"
+    cylinder config min-de 100
+    cylinder config gas-adjust-start 1.6
+    cylinder config gas-adjust-step 0.2
+    cylinder config random-secret "$(openssl rand -hex 32)"
+    cylinder config checking-de-interval "1m"
+
+    for i in $(eval echo {1..4})
+    do
+        # add signer key
+        cylinder keys add signer$i
+    done
+
+    # send band tokens to grantees
+    echo "y" | bandd tx bank multi-send account$v $(cylinder keys list -a) 1000000uband --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband -b sync
+    sleep 4
+
+    # grant tss
+    echo "y" | bandd tx tss add-grantees $(cylinder keys list -a) --from account$v --keyring-backend test --chain-id bandchain --gas-prices 0.0025uband --gas 700000 -b sync
+    sleep 4
+
+    docker create --network chain_bandchain --name bandchain-cylinder${v} band-validator:latest cylinder run
+    docker cp ~/.cylinder bandchain-cylinder${v}:/root/.cylinder
+    docker start bandchain-cylinder${v}
 done
 
 # pull latest image first

@@ -24,9 +24,12 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bandprotocol/chain/v3/hooks/common"
+	"github.com/bandprotocol/chain/v3/pkg/tss"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 func parseEvents(events []abci.Event) common.EvMap {
@@ -129,6 +132,12 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 		h.handleMsgRevoke(msg, detail)
 	case *authz.MsgExec:
 		h.handleMsgExec(ctx, txHash, msg, events, detail)
+	case *bandtsstypes.MsgActivate:
+		h.handleBandtssMsgActivate(ctx, msg)
+	case *bandtsstypes.MsgRequestSignature:
+		h.handleTSSEventCreateSigning(ctx, evMap)
+		h.handleTSSEventRequestSignature(ctx, evMap)
+		h.handleBandtssEventSigningRequestCreated(ctx, evMap)
 	case *feedstypes.MsgVote:
 		h.handleFeedsMsgVote(ctx, msg, evMap)
 	case *feedstypes.MsgSubmitSignalPrices:
@@ -164,6 +173,8 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 		h.handleGroupEventExec(evMap)
 	case *group.MsgWithdrawProposal:
 		h.handleGroupMsgWithdrawProposal(ctx, evMap)
+	case *tsstypes.MsgSubmitSignature:
+		h.handleTSSEventSubmitSignature(ctx, evMap)
 	default:
 		break
 	}
@@ -189,9 +200,24 @@ func (h *Hook) handleMsgEvent(ctx sdk.Context, txHash []byte, event abci.Event) 
 	}
 }
 
-func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) {
+func (h *Hook) handleBeginBlockEndBlockEvent(
+	ctx sdk.Context,
+	event abci.Event,
+	eventIdx int,
+	eventQuerier *EventQuerier,
+) {
 	evMap := parseEvents([]abci.Event{event})
 	switch event.Type {
+	case bandtsstypes.EventTypeInactiveStatus:
+		h.handleBandtssEventInactiveStatus(ctx, evMap)
+	case bandtsstypes.EventTypeGroupTransition:
+		h.handleBandtssEventGroupTransition(ctx, eventIdx, eventQuerier)
+	case bandtsstypes.EventTypeGroupTransitionSuccess:
+		h.handleBandtssEventGroupTransitionSuccess(ctx, evMap)
+	case bandtsstypes.EventTypeGroupTransitionFailed:
+		h.handleBandtssEventGroupTransitionFailed(ctx, evMap)
+	case bandtsstypes.EventTypeSigningRequestCreated:
+		h.handleBandtssEventSigningRequestCreated(ctx, evMap)
 	case oracletypes.EventTypeResolve:
 		h.handleEventRequestExecute(ctx, evMap)
 	case slashingtypes.EventTypeSlash:
@@ -210,6 +236,24 @@ func (h *Hook) handleBeginBlockEndBlockEvent(ctx sdk.Context, event abci.Event) 
 		h.handleEventTypeTransfer(evMap)
 	case channeltypes.EventTypeSendPacket:
 		h.handleEventSendPacket(ctx, evMap)
+	case tsstypes.EventTypeCreateSigning:
+		h.handleTSSEventCreateSigning(ctx, evMap)
+	case tsstypes.EventTypeRequestSignature:
+		h.handleTSSEventRequestSignature(ctx, evMap)
+	case tsstypes.EventTypeSigningSuccess:
+		h.handleTSSEventSigningSuccess(ctx, evMap)
+	case tsstypes.EventTypeSigningFailed:
+		h.handleTSSEventSigningFailed(ctx, evMap)
+	case tsstypes.EventTypeCreateGroup,
+		tsstypes.EventTypeRound2Success,
+		tsstypes.EventTypeRound3Success,
+		tsstypes.EventTypeExpiredGroup,
+		tsstypes.EventTypeComplainSuccess,
+		tsstypes.EventTypeRound3Failed:
+		groupIDs := evMap[event.Type+"."+tsstypes.AttributeKeyGroupID]
+		for _, gid := range groupIDs {
+			h.handleTSSSetGroup(ctx, tss.GroupID(common.Atoi(gid)))
+		}
 	case proto.MessageName(&group.EventProposalPruned{}):
 		h.handleGroupEventProposalPruned(evMap)
 	default:

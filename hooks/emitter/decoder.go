@@ -22,9 +22,11 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bandprotocol/chain/v3/hooks/common"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
@@ -135,6 +137,30 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeFeedsMsgUpdateReferenceSourceConfig(msg, detail)
 	case *feedstypes.MsgUpdateParams:
 		DecodeFeedsMsgUpdateParams(msg, detail)
+	case *bandtsstypes.MsgTransitionGroup:
+		DecodeBandtssMsgTransitionGroup(msg, detail)
+	case *bandtsstypes.MsgForceTransitionGroup:
+		DecodeBandtssMsgForceTransitionGroup(msg, detail)
+	case *bandtsstypes.MsgRequestSignature:
+		DecodeBandtssMsgRequestSignature(msg, detail)
+	case *bandtsstypes.MsgActivate:
+		DecodeBandtssMsgActivate(msg, detail)
+	case *bandtsstypes.MsgUpdateParams:
+		DecodeBandtssMsgUpdateParams(msg, detail)
+	case *tsstypes.MsgSubmitDKGRound1:
+		DecodeTSSMsgSubmitDKGRound1(msg, detail)
+	case *tsstypes.MsgSubmitDKGRound2:
+		DecodeTSSMsgSubmitDKGRound2(msg, detail)
+	case *tsstypes.MsgComplain:
+		DecodeTSSMsgComplain(msg, detail)
+	case *tsstypes.MsgConfirm:
+		DecodeTSSMsgConfirm(msg, detail)
+	case *tsstypes.MsgSubmitDEs:
+		DecodeTSSMsgSubmitDEs(msg, detail)
+	case *tsstypes.MsgSubmitSignature:
+		DecodeTSSMsgSubmitSignature(msg, detail)
+	case *tsstypes.MsgUpdateParams:
+		DecodeTSSMsgUpdateParams(msg, detail)
 	case *group.MsgCreateGroup:
 		DecodeGroupMsgCreateGroup(msg, detail)
 	case *group.MsgCreateGroupPolicy:
@@ -299,6 +325,7 @@ func DecodeMsgRequestData(msg *oracletypes.MsgRequestData, detail common.JsDict)
 	detail["prepare_gas"] = msg.GetPrepareGas()
 	detail["execute_gas"] = msg.GetExecuteGas()
 	detail["sender"] = msg.GetSender()
+	detail["tss_encoder"] = msg.GetTSSEncoder()
 }
 
 func DecodeMsgReportData(msg *oracletypes.MsgReportData, detail common.JsDict) {
@@ -689,6 +716,79 @@ func DecodeFeedsMsgUpdateReferenceSourceConfig(msg *feedstypes.MsgUpdateReferenc
 func DecodeFeedsMsgUpdateParams(msg *feedstypes.MsgUpdateParams, detail common.JsDict) {
 	detail["authority"] = msg.GetAuthority()
 	detail["params"] = msg.GetParams()
+}
+
+func DecodeBandtssMsgTransitionGroup(msg *bandtsstypes.MsgTransitionGroup, detail common.JsDict) {
+	detail["members"] = msg.Members
+	detail["threshold"] = msg.Threshold
+	detail["exec_time"] = msg.ExecTime.UnixNano()
+	detail["authority"] = msg.Authority
+}
+
+func DecodeBandtssMsgForceTransitionGroup(msg *bandtsstypes.MsgForceTransitionGroup, detail common.JsDict) {
+	detail["incoming_group_id"] = msg.IncomingGroupID
+	detail["exec_time"] = msg.ExecTime.UnixNano()
+	detail["authority"] = msg.Authority
+}
+
+func DecodeBandtssMsgRequestSignature(msg *bandtsstypes.MsgRequestSignature, detail common.JsDict) {
+	detail["content_type"] = msg.Content.TypeUrl
+	detail["content"] = msg.Content.GetCachedValue()
+	detail["memo"] = msg.Memo
+	detail["fee_limit"] = msg.FeeLimit
+	detail["sender"] = msg.Sender
+}
+
+func DecodeBandtssMsgActivate(msg *bandtsstypes.MsgActivate, detail common.JsDict) {
+	detail["sender"] = msg.Sender
+	detail["group_id"] = msg.GroupID
+}
+
+func DecodeBandtssMsgUpdateParams(msg *bandtsstypes.MsgUpdateParams, detail common.JsDict) {
+	detail["params"] = msg.GetParams()
+	detail["authority"] = msg.GetAuthority()
+}
+
+func DecodeTSSMsgSubmitDKGRound1(msg *tsstypes.MsgSubmitDKGRound1, detail common.JsDict) {
+	detail["group_id"] = msg.GroupID
+	detail["round1_info"] = msg.Round1Info
+	detail["sender"] = msg.Sender
+}
+
+func DecodeTSSMsgSubmitDKGRound2(msg *tsstypes.MsgSubmitDKGRound2, detail common.JsDict) {
+	detail["group_id"] = msg.GroupID
+	detail["round2_info"] = msg.Round2Info
+	detail["sender"] = msg.Sender
+}
+
+func DecodeTSSMsgComplain(msg *tsstypes.MsgComplain, detail common.JsDict) {
+	detail["group_id"] = msg.GroupID
+	detail["complaints"] = msg.Complaints
+	detail["sender"] = msg.Sender
+}
+
+func DecodeTSSMsgConfirm(msg *tsstypes.MsgConfirm, detail common.JsDict) {
+	detail["group_id"] = msg.GroupID
+	detail["member_id"] = msg.MemberID
+	detail["own_pub_key_sig"] = msg.OwnPubKeySig
+	detail["sender"] = msg.Sender
+}
+
+func DecodeTSSMsgSubmitDEs(msg *tsstypes.MsgSubmitDEs, detail common.JsDict) {
+	detail["des"] = msg.DEs
+	detail["sender"] = msg.Sender
+}
+
+func DecodeTSSMsgSubmitSignature(msg *tsstypes.MsgSubmitSignature, detail common.JsDict) {
+	detail["signing_id"] = msg.SigningID
+	detail["member_id"] = msg.MemberID
+	detail["signature"] = msg.Signature
+	detail["signer"] = msg.Signer
+}
+
+func DecodeTSSMsgUpdateParams(msg *tsstypes.MsgUpdateParams, detail common.JsDict) {
+	detail["params"] = msg.GetParams()
+	detail["authority"] = msg.GetAuthority()
 }
 
 func DecodeGroupMsgCreateGroup(msg *group.MsgCreateGroup, detail common.JsDict) {

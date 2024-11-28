@@ -1,4 +1,5 @@
 import base64 as b64
+import json
 from datetime import datetime
 from sqlalchemy import select, func, tuple_
 from sqlalchemy.dialects.postgresql import insert
@@ -57,6 +58,20 @@ from .feeds_db import (
     feeds_feeders,
 )
 from .restake_db import restake_vaults, restake_locks, restake_historical_stakes
+from .bandtss_db import (
+    bandtss_historical_current_groups,
+    bandtss_members,
+    bandtss_signings,
+    bandtss_group_transitions,
+    GroupTransitionStatus,
+)
+from .tss_db import (
+    tss_signings,
+    tss_groups,
+    tss_members,
+    tss_assigned_members,
+)
+from .util import convert_proto_str_to_object
 
 
 class Handler(object):
@@ -258,6 +273,16 @@ class Handler(object):
         if "tx_hash" in msg:
             msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])
             del msg["tx_hash"]
+
+        if "bandtss_signing_id" in msg and msg["bandtss_signing_id"] == 0:
+            del msg["bandtss_signing_id"]
+
+        if "bandtss_signing_error_codespace" in msg and msg["bandtss_signing_error_codespace"] == "":
+            del msg["bandtss_signing_error_codespace"]
+
+        if "bandtss_signing_error_code" in msg and msg["bandtss_signing_error_code"] == 0:
+            del msg["bandtss_signing_error_code"]
+
         condition = True
         for col in requests.primary_key.columns.values():
             condition = (col == msg[col.name]) & condition
@@ -809,3 +834,111 @@ class Handler(object):
         self.conn.execute(
             insert(restake_vaults).values(**msg).on_conflict_do_update(constraint="restake_vaults_pkey", set_=msg)
         )
+
+    ##################################
+    # TSS_HANDLER
+    ##################################
+
+    def handle_new_tss_signing(self, msg):
+        try:
+            msg["content"] = convert_proto_str_to_object(msg["content"])
+            msg["originator"] = convert_proto_str_to_object(msg["originator"])
+
+        except Exception as e:
+            print("An error occurred:", e)
+
+        self.conn.execute(tss_signings.insert(), msg)
+
+    def handle_update_tss_signing(self, msg):
+        condition = True
+        for col in tss_signings.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+        self.conn.execute(tss_signings.update().where(condition).values(**msg))
+
+    def handle_set_tss_group(self, msg):
+        self.conn.execute(
+            insert(tss_groups).values(**msg).on_conflict_do_update(constraint="tss_groups_pkey", set_=msg)
+        )
+
+    def handle_set_tss_member(self, msg):
+        msg["account_id"] = self.get_account_id(msg["address"])
+        del msg["address"]
+
+        self.conn.execute(
+            insert(tss_members).values(**msg).on_conflict_do_update(constraint="tss_members_pkey", set_=msg)
+        )
+
+    def handle_new_tss_assigned_member(self, msg):
+        self.conn.execute(tss_assigned_members.insert(), msg)
+
+    def handle_update_tss_assigned_member(self, msg):
+        condition = True
+        for col in tss_assigned_members.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+        self.conn.execute(tss_assigned_members.update().where(condition).values(**msg))
+
+    ##################################
+    # BANDTSS_HANDLER
+    ##################################
+
+    def handle_new_bandtss_group_transition(self, msg):
+        if "tss_signing_id" in msg and msg["tss_signing_id"] == 0:
+            del msg["tss_signing_id"]
+        if "current_tss_group_id" in msg and msg["current_tss_group_id"] == 0:
+            del msg["current_tss_group_id"]
+        if "incoming_tss_group_id" in msg and msg["incoming_tss_group_id"] == 0:
+            del msg["incoming_tss_group_id"]
+
+        self.conn.execute(bandtss_group_transitions.insert(), msg)
+
+    def update_bandtss_group_transition(self, msg):
+        if "tss_signing_id" in msg and msg["tss_signing_id"] == 0:
+            del msg["tss_signing_id"]
+        if "current_tss_group_id" in msg and msg["current_tss_group_id"] == 0:
+            del msg["current_tss_group_id"]
+        if "incoming_tss_group_id" in msg and msg["incoming_tss_group_id"] == 0:
+            del msg["incoming_tss_group_id"]
+
+        proposal_column = bandtss_group_transitions.c.proposal_id
+        proposal_id = self.conn.execute(select(func.max(proposal_column))).scalar()
+        if proposal_id is None:
+            proposal_id = 0
+
+        self.conn.execute(bandtss_group_transitions.update().where(proposal_column == proposal_id).values(**msg))
+
+    def handle_update_bandtss_group_transition(self, msg):
+        self.update_bandtss_group_transition(msg)
+
+    def handle_update_bandtss_group_transition_success(self, msg):
+        msg = {"status": GroupTransitionStatus.success}
+        self.update_bandtss_group_transition(msg)
+
+    def handle_update_bandtss_group_transition_failed(self, msg):
+        msg = {"status": GroupTransitionStatus.expired}
+        self.update_bandtss_group_transition(msg)
+
+    def handle_new_bandtss_current_group(self, msg):
+        proposal_column = bandtss_group_transitions.c.proposal_id
+        proposal_id = self.conn.execute(select(func.max(proposal_column))).scalar()
+        if proposal_id is not None:
+            msg["proposal_id"] = proposal_id
+
+        self.conn.execute(bandtss_historical_current_groups.insert(), msg)
+
+    def handle_set_bandtss_member(self, msg):
+        msg["account_id"] = self.get_account_id(msg["address"])
+        del msg["address"]
+
+        self.conn.execute(
+            insert(bandtss_members).values(**msg).on_conflict_do_update(constraint="bandtss_members_pkey", set_=msg)
+        )
+
+    def handle_new_bandtss_signing(self, msg):
+        if msg["current_group_tss_signing_id"] == 0:
+            del msg["current_group_tss_signing_id"]
+        if msg["incoming_group_tss_signing_id"] == 0:
+            del msg["incoming_group_tss_signing_id"]
+        msg["account_id"] = self.get_account_id(msg["requester"])
+        del msg["requester"]
+
+        self.conn.execute(bandtss_signings.insert(), msg)

@@ -107,7 +107,12 @@ func (h *Hook) emitReportAndRawReport(
 	}
 }
 
-func (h *Hook) emitUpdateResult(ctx sdk.Context, id types.RequestID, executeGasUsed uint64, reason string) {
+func (h *Hook) emitUpdateResult(
+	ctx sdk.Context,
+	id types.RequestID,
+	executeGasUsed uint64,
+	reason string,
+) {
 	result := h.oracleKeeper.MustGetResult(ctx, id)
 
 	h.Write("UPDATE_REQUEST", common.JsDict{
@@ -119,6 +124,32 @@ func (h *Hook) emitUpdateResult(ctx sdk.Context, id types.RequestID, executeGasU
 		"resolve_height":   ctx.BlockHeight(),
 		"reason":           reason,
 		"result":           parseBytes(result.Result),
+	})
+}
+
+func (h *Hook) emitUpdateResultBandtss(
+	ctx sdk.Context,
+	id types.RequestID,
+	executeGasUsed uint64,
+	reason string,
+	bandtssSigningID uint64,
+	bandtssSigningErrorCodespace string,
+	bandtssSigningErrorCode uint64,
+) {
+	result := h.oracleKeeper.MustGetResult(ctx, id)
+
+	h.Write("UPDATE_REQUEST", common.JsDict{
+		"id":                              id,
+		"execute_gas_used":                executeGasUsed,
+		"request_time":                    result.RequestTime,
+		"resolve_time":                    result.ResolveTime,
+		"resolve_status":                  result.ResolveStatus,
+		"resolve_height":                  ctx.BlockHeight(),
+		"reason":                          reason,
+		"result":                          parseBytes(result.Result),
+		"bandtss_signing_id":              bandtssSigningID,
+		"bandtss_signing_error_codespace": bandtssSigningErrorCodespace,
+		"bandtss_signing_error_code":      bandtssSigningErrorCode,
 	})
 }
 
@@ -149,6 +180,7 @@ func (h *Hook) handleMsgRequestData(
 		"prepare_gas_used": prepareGasUsed,
 		"execute_gas":      msg.ExecuteGas,
 		"execute_gas_used": uint64(0),
+		"tss_encoder":      msg.TSSEncoder,
 		"fee_limit":        msg.FeeLimit.String(),
 		"total_fees":       evMap[types.EventTypeRequest+"."+types.AttributeKeyTotalFees][0],
 		"is_ibc":           req.IBCChannel != nil,
@@ -226,15 +258,36 @@ func (h *Hook) handleEventRequestExecute(ctx sdk.Context, evMap common.EvMap) {
 		executeGasUsed = ConvertToGas(common.Atoui(eventResolveGasUsed[0]))
 	}
 
+	rid := types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0]))
 	if reasons, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeyReason]; ok {
 		h.emitUpdateResult(
 			ctx,
-			types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])),
+			rid,
 			executeGasUsed,
 			reasons[0],
 		)
+	} else if bandtssErrCodespace, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeySigningErrCodespace]; ok {
+		h.emitUpdateResultBandtss(
+			ctx,
+			rid,
+			executeGasUsed,
+			"",
+			0,
+			bandtssErrCodespace[0],
+			uint64(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeySigningErrCode][0])),
+		)
+	} else if bandtssSigningIDs, ok := evMap[types.EventTypeResolve+"."+types.AttributeKeySigningID]; ok {
+		h.emitUpdateResultBandtss(
+			ctx,
+			rid,
+			executeGasUsed,
+			"",
+			uint64(common.Atoi(bandtssSigningIDs[0])),
+			"",
+			0,
+		)
 	} else {
-		h.emitUpdateResult(ctx, types.RequestID(common.Atoi(evMap[types.EventTypeResolve+"."+types.AttributeKeyID][0])), executeGasUsed, "")
+		h.emitUpdateResult(ctx, rid, executeGasUsed, "")
 	}
 }
 
