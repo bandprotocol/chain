@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
@@ -453,10 +454,6 @@ func (s *KeeperTestSuite) TestMsgDeactivate() {
 }
 
 func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
-	feePayer := sdk.MustAccAddressFromBech32(
-		"band1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62q2yggu0",
-	)
-
 	cases := map[string]struct {
 		preRun    func() *types.MsgTriggerTunnel
 		expErr    bool
@@ -490,13 +487,35 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 		"all good": {
 			preRun: func() *types.MsgTriggerTunnel {
 				s.AddSampleTunnel(true)
+
+				latestTunnelID := s.keeper.GetTunnelCount(s.ctx)
+				tunnel, err := s.keeper.GetTunnel(s.ctx, latestTunnelID)
+				feePayer := sdk.MustAccAddressFromBech32(tunnel.FeePayer)
+				s.Require().NoError(err)
+
+				s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
+					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
+				).Times(2)
+
+				s.bandtssKeeper.EXPECT().CreateTunnelSigningRequest(
+					gomock.Any(),
+					uint64(1),
+					"chain-1",
+					"0x1234567890abcdef",
+					gomock.Any(),
+					feePayer,
+					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))),
+				).Return(bandtsstypes.SigningID(1), nil)
+
 				s.feedsKeeper.EXPECT().GetPrices(gomock.Any(), []string{"BTC"}).Return([]feedstypes.Price{
 					{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "BTC", Price: 50000, Timestamp: 0},
 				})
 				s.bankKeeper.EXPECT().
 					SendCoinsFromAccountToModule(gomock.Any(), feePayer, types.ModuleName, types.DefaultBasePacketFee).
 					Return(nil)
-				s.bankKeeper.EXPECT().SpendableCoins(gomock.Any(), feePayer).Return(types.DefaultBasePacketFee)
+
+				spendableCoins := types.DefaultBasePacketFee.Add(sdk.NewCoin("uband", sdkmath.NewInt(20)))
+				s.bankKeeper.EXPECT().SpendableCoins(gomock.Any(), feePayer).Return(spendableCoins)
 
 				return types.NewMsgTriggerTunnel(1, sdk.AccAddress([]byte("creator_address")).String())
 			},

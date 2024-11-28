@@ -52,6 +52,7 @@ var (
 	ErrSigningResultNotFound    = errorsmod.Register(ModuleName, 46, "signing result not found")
 	ErrInvalidRequestID         = errorsmod.Register(ModuleName, 47, "invalid request id")
 	ErrInvalidOracleEncoder     = errorsmod.Register(ModuleName, 48, "invalid oracle encoder")
+	ErrCreateSigningPanic       = errorsmod.Register(ModuleName, 49, "panic in creating tss signing")
 	ErrReportNotFound           = errorsmod.Register(ModuleName, 101, "report not found")
 )
 

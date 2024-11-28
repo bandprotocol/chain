@@ -44,6 +44,82 @@ func (s *KeeperTestSuite) TestGRPCQueryTunnel() {
 	s.Require().Equal(tunnel, resp.Tunnel)
 }
 
+func (s *KeeperTestSuite) TestGRPCQueryDeposits() {
+	ctx, k, q := s.ctx, s.keeper, s.queryServer
+
+	tunnel := types.Tunnel{
+		ID:       1,
+		Sequence: 2,
+	}
+	r := types.TSSRoute{
+		DestinationChainID:         "1",
+		DestinationContractAddress: "0x123",
+	}
+	err := tunnel.SetRoute(&r)
+	s.Require().NoError(err)
+	k.SetTunnel(ctx, tunnel)
+
+	deposit1 := types.Deposit{
+		TunnelID:  1,
+		Depositor: sdk.AccAddress([]byte("depositor1")).String(),
+		Amount:    sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(100))),
+	}
+	deposit2 := types.Deposit{
+		TunnelID:  1,
+		Depositor: sdk.AccAddress([]byte("depositor2")).String(),
+		Amount:    sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(110))),
+	}
+	k.SetDeposit(ctx, deposit1)
+	k.SetDeposit(ctx, deposit2)
+
+	resp, err := q.Deposits(ctx, &types.QueryDepositsRequest{
+		TunnelId: 1,
+	})
+	s.Require().NoError(err)
+	s.Require().NotNil(resp)
+	s.Require().Len(resp.Deposits, 2)
+	s.Require().Equal(deposit1, *resp.Deposits[0])
+	s.Require().Equal(deposit2, *resp.Deposits[1])
+}
+
+func (s *KeeperTestSuite) TestGRPCQueryDeposit() {
+	ctx, k, q := s.ctx, s.keeper, s.queryServer
+
+	tunnel := types.Tunnel{
+		ID:       1,
+		Sequence: 2,
+	}
+	r := types.TSSRoute{
+		DestinationChainID:         "1",
+		DestinationContractAddress: "0x123",
+	}
+	err := tunnel.SetRoute(&r)
+	s.Require().NoError(err)
+	k.SetTunnel(ctx, tunnel)
+
+	deposit1 := types.Deposit{
+		TunnelID:  1,
+		Depositor: sdk.AccAddress([]byte("depositor")).String(),
+		Amount:    sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(100))),
+	}
+	k.SetDeposit(ctx, deposit1)
+
+	deposit2 := types.Deposit{
+		TunnelID:  1,
+		Depositor: sdk.AccAddress([]byte("depositor")).String(),
+		Amount:    sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(100))),
+	}
+	k.SetDeposit(ctx, deposit2)
+
+	resp, err := q.Deposit(ctx, &types.QueryDepositRequest{
+		TunnelId:  1,
+		Depositor: deposit1.Depositor,
+	})
+	s.Require().NoError(err)
+	s.Require().NotNil(resp)
+	s.Require().Equal(deposit1, resp.Deposit)
+}
+
 func (s *KeeperTestSuite) TestGRPCQueryPackets() {
 	ctx, k, q := s.ctx, s.keeper, s.queryServer
 
@@ -142,78 +218,30 @@ func (s *KeeperTestSuite) TestGRPCQueryPacket() {
 	s.Require().Equal(packet1, *res.Packet)
 }
 
-func (s *KeeperTestSuite) TestGRPCQueryDeposits() {
+func (s *KeeperTestSuite) TestGRPCQueryTotalFees() {
 	ctx, k, q := s.ctx, s.keeper, s.queryServer
 
-	tunnel := types.Tunnel{
-		ID:       1,
-		Sequence: 2,
+	// Set total fees
+	totalFees := types.TotalFees{
+		TotalBasePacketFee: sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(100))),
 	}
-	r := types.TSSRoute{
-		DestinationChainID:         "1",
-		DestinationContractAddress: "0x123",
-	}
-	err := tunnel.SetRoute(&r)
-	s.Require().NoError(err)
-	k.SetTunnel(ctx, tunnel)
+	k.SetTotalFees(ctx, totalFees)
 
-	deposit1 := types.Deposit{
-		TunnelID:  1,
-		Depositor: sdk.AccAddress([]byte("depositor1")).String(),
-		Amount:    sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(100))),
-	}
-	deposit2 := types.Deposit{
-		TunnelID:  1,
-		Depositor: sdk.AccAddress([]byte("depositor2")).String(),
-		Amount:    sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(110))),
-	}
-	k.SetDeposit(ctx, deposit1)
-	k.SetDeposit(ctx, deposit2)
-
-	resp, err := q.Deposits(ctx, &types.QueryDepositsRequest{
-		TunnelId: 1,
-	})
+	// Query total fees
+	res, err := q.TotalFees(ctx, &types.QueryTotalFeesRequest{})
 	s.Require().NoError(err)
-	s.Require().NotNil(resp)
-	s.Require().Len(resp.Deposits, 2)
-	s.Require().Equal(deposit1, *resp.Deposits[0])
-	s.Require().Equal(deposit2, *resp.Deposits[1])
+	s.Require().Equal(totalFees, res.TotalFees)
 }
 
-func (s *KeeperTestSuite) TestGRPCQueryDeposit() {
+func (s *KeeperTestSuite) TestGRPCQueryParams() {
 	ctx, k, q := s.ctx, s.keeper, s.queryServer
 
-	tunnel := types.Tunnel{
-		ID:       1,
-		Sequence: 2,
-	}
-	r := types.TSSRoute{
-		DestinationChainID:         "1",
-		DestinationContractAddress: "0x123",
-	}
-	err := tunnel.SetRoute(&r)
+	// Set params
+	err := k.SetParams(ctx, types.DefaultParams())
 	s.Require().NoError(err)
-	k.SetTunnel(ctx, tunnel)
 
-	deposit1 := types.Deposit{
-		TunnelID:  1,
-		Depositor: sdk.AccAddress([]byte("depositor")).String(),
-		Amount:    sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(100))),
-	}
-	k.SetDeposit(ctx, deposit1)
-
-	deposit2 := types.Deposit{
-		TunnelID:  1,
-		Depositor: sdk.AccAddress([]byte("depositor")).String(),
-		Amount:    sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(100))),
-	}
-	k.SetDeposit(ctx, deposit2)
-
-	resp, err := q.Deposit(ctx, &types.QueryDepositRequest{
-		TunnelId:  1,
-		Depositor: deposit1.Depositor,
-	})
+	// Query params
+	res, err := q.Params(ctx, &types.QueryParamsRequest{})
 	s.Require().NoError(err)
-	s.Require().NotNil(resp)
-	s.Require().Equal(deposit1, resp.Deposit)
+	s.Require().Equal(types.DefaultParams(), res.Params)
 }

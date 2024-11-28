@@ -22,9 +22,9 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterInterface((*Originator)(nil), nil)
 	cdc.RegisterInterface((*Content)(nil), nil)
 
+	cdc.RegisterConcrete(&TextSignatureOrder{}, "tss/TextSignatureOrder", nil)
 	cdc.RegisterConcrete(&DirectOriginator{}, "tss/DirectOriginator", nil)
 	cdc.RegisterConcrete(&TunnelOriginator{}, "tss/TunnelOriginator", nil)
-	cdc.RegisterConcrete(&TextSignatureOrder{}, "tss/TextSignatureOrder", nil)
 	cdc.RegisterConcrete(Params{}, "tss/Params", nil)
 }
 
@@ -51,6 +51,12 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		"tss.v1beta1.Content",
 		(*Content)(nil),
 		&TextSignatureOrder{},
+	)
+
+	registry.RegisterInterface(
+		"tss.v1beta1.Originator",
+		(*Originator)(nil),
+		&DirectOriginator{}, &TunnelOriginator{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)
