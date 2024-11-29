@@ -153,7 +153,7 @@ type Packet struct {
 
 At the end of each block, the tunnel generates packets by evaluating the deviations and intervals for all tunnels. The system uses two types of deviations: hard deviations and soft deviations, which are explained in detail below.
 
-If any signal exceeds the hard deviation threshold, it is appended to the list of signals to be sent. Additionally, if any signal meets its soft deviation criteria while another symbol surpasses the hard deviation threshold, that signal is also added to the list.
+If any signal exceeds the hard deviation threshold, it is appended to the list of signals to be sent. Additionally, if any signal meets its soft deviation criteria while another signal surpasses the hard deviation threshold, that signal is also added to the list.
 
 This mechanism is designed to optimize transaction efficiency on the destination route, particularly during periods of market instability, by reducing the number of unnecessary transactions.
 
@@ -267,7 +267,7 @@ message MsgCreateTunnel {
 - **Deviation and Interval Settings**: Each tunnel must specify the deviation per signal and the interval per tunnel.
 - **Route Selection**: Only one route can be chosen per tunnel.
 - **Encoder Types**: Specifies the type of price value to be sent to the destination route.
-  - Price
+  - Fixed Point
   - Tick
 - **Initial Deposit**: The initial deposit can be set to zero. Other users can contribute to the tunnel's deposit by send [MsgDepositToTunnel](#msgdeposittotunnel) message until it reaches the required minimum deposit.
 
