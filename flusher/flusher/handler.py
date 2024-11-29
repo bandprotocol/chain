@@ -887,6 +887,15 @@ class Handler(object):
             insert(bandtss_members).values(**msg).on_conflict_do_update(constraint="bandtss_members_pkey", set_=msg)
         )
 
+    def handle_remove_bandtss_member(self, msg):
+        msg["account_id"] = self.get_account_id(msg["address"])
+        del msg["address"]
+
+        condition = True
+        for col in bandtss_members.primary_key.columns.values():
+            condition = (col == msg[col.name]) & condition
+        self.conn.execute(bandtss_members.delete().where(condition))
+
     def handle_new_bandtss_signing(self, msg):
         if msg["current_group_tss_signing_id"] == 0:
             del msg["current_group_tss_signing_id"]
