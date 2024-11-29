@@ -51,7 +51,6 @@ tss_signings = sa.Table(
     Column("content", sa.JSON),
     Column("originator_type", sa.String),
     Column("originator", sa.JSON),
-    Column("encoded_originator", CustomBase64),
     Column("message", CustomBase64),
     Column("group_pub_key", CustomBase64),
     Column("group_pub_nonce", CustomBase64),
