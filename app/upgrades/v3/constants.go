@@ -15,7 +15,6 @@ import (
 	crisistypes "github.com/cosmos/cosmos-sdk/x/crisis/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	"github.com/cosmos/cosmos-sdk/x/group"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
 	"github.com/bandprotocol/chain/v3/app/upgrades"
@@ -45,7 +44,6 @@ var Upgrade = upgrades.Upgrade{
 	CreateUpgradeHandler: CreateUpgradeHandler,
 	StoreUpgrades: storetypes.StoreUpgrades{
 		Added: []string{
-			group.StoreKey,
 			globalfeetypes.StoreKey,
 			consensusparamtypes.StoreKey,
 			crisistypes.StoreKey,
@@ -77,21 +75,6 @@ var ICAAllowMessages = []string{
 	sdk.MsgTypeURL(&govv1beta1.MsgSubmitProposal{}),
 	sdk.MsgTypeURL(&govv1beta1.MsgDeposit{}),
 	sdk.MsgTypeURL(&govv1beta1.MsgVote{}),
-	// Change: add messages from Group module
-	sdk.MsgTypeURL(&group.MsgCreateGroupPolicy{}),
-	sdk.MsgTypeURL(&group.MsgCreateGroupWithPolicy{}),
-	sdk.MsgTypeURL(&group.MsgCreateGroup{}),
-	sdk.MsgTypeURL(&group.MsgExec{}),
-	sdk.MsgTypeURL(&group.MsgLeaveGroup{}),
-	sdk.MsgTypeURL(&group.MsgSubmitProposal{}),
-	sdk.MsgTypeURL(&group.MsgUpdateGroupAdmin{}),
-	sdk.MsgTypeURL(&group.MsgUpdateGroupMembers{}),
-	sdk.MsgTypeURL(&group.MsgUpdateGroupMetadata{}),
-	sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyAdmin{}),
-	sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyDecisionPolicy{}),
-	sdk.MsgTypeURL(&group.MsgUpdateGroupPolicyMetadata{}),
-	sdk.MsgTypeURL(&group.MsgVote{}),
-	sdk.MsgTypeURL(&group.MsgWithdrawProposal{}),
 	// Change: add messages from Oracle module
 	sdk.MsgTypeURL(&oracletypes.MsgActivate{}),
 	sdk.MsgTypeURL(&oracletypes.MsgCreateDataSource{}),
