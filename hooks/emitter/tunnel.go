@@ -94,11 +94,13 @@ func (h *Hook) emitSetTunnelPacket(ctx sdk.Context, tunnelID uint64, sequence ui
 	})
 
 	for _, sp := range packet.Prices {
-		h.Write("SET_TUNNEL_PACKET_SIGNAL_PRICE", common.JsDict{
+		h.Write("SET_TUNNEL_PACKET_PRICE", common.JsDict{
 			"tunnel_id": tunnelID,
 			"sequence":  sequence,
 			"signal_id": sp.SignalID,
+			"status":    sp.Status,
 			"price":     sp.Price,
+			"timestamp": sp.Timestamp * 1e9,
 		})
 	}
 }
