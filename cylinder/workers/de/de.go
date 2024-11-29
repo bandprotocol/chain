@@ -134,8 +134,7 @@ func (de *DE) updateDE(numNewDE uint64) {
 	}
 	if !canUpdate {
 		de.logger.Debug(
-			":cold_sweat: Cannot update DE: the granter is not a member of " +
-				"the current or incoming group and gas price isn't set in the config",
+			":cold_sweat: Cannot update DE: the granter is not a member of the current or incoming group and gas price isn't set in the config",
 		)
 		return
 	}
