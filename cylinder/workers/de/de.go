@@ -27,6 +27,7 @@ type DE struct {
 	client        *client.Client
 	assignEventCh <-chan ctypes.ResultEvent
 	useEventCh    <-chan ctypes.ResultEvent
+	deleteEventCh <-chan ctypes.ResultEvent
 	cntUsed       uint64
 }
 
@@ -66,23 +67,34 @@ func (de *DE) subscribe() (err error) {
 		de.context.Config.Granter,
 	)
 	de.useEventCh, err = de.client.Subscribe("DE-submitted", subscriptionQuery, 1000)
+	if err != nil {
+		return
+	}
+
+	subscriptionQuery = fmt.Sprintf(
+		"tm.event = 'Tx' AND %s.%s = '%s'",
+		types.EventTypeDEDeleted,
+		types.AttributeKeyAddress,
+		de.context.Config.Granter,
+	)
+	de.deleteEventCh, err = de.client.Subscribe("DE-deleted", subscriptionQuery, 1000)
 
 	return
 }
 
-// handleABCIEvents signs the specific signingID if the given events contain a request_signature event.
-func (de *DE) handleABCIEvents(abciEvents []abci.Event) {
+// deleteDEFromABCIEvents signs the specific signingID if the given events contain a request_signature event.
+func (de *DE) deleteDEFromABCIEvents(abciEvents []abci.Event) {
 	events := sdk.StringifyEvents(abciEvents)
 	for _, ev := range events {
-		if ev.Type == types.EventTypeSubmitSignature {
-			events, err := ParseSubmitSignEvents(sdk.StringEvents{ev})
+		if ev.Type == types.EventTypeSubmitSignature || ev.Type == types.EventTypeDEDeleted {
+			pubDEs, err := ParsePubDEFromEvents(sdk.StringEvents{ev}, ev.Type)
 			if err != nil {
 				de.logger.Error(":cold_sweat: Failed to parse event with error: %s", err)
 				return
 			}
 
-			for _, event := range events {
-				go de.deleteDE(event.PubDE)
+			for _, pubDE := range pubDEs {
+				go de.deleteDE(pubDE.PubDE)
 			}
 		}
 	}
@@ -115,6 +127,18 @@ func (de *DE) getDECount() (uint64, error) {
 
 // updateDE updates DE if the remaining DE is too low.
 func (de *DE) updateDE(numNewDE uint64) {
+	canUpdate, err := de.canUpdateDE()
+	if err != nil {
+		de.logger.Error(":cold_sweat: Cannot update DE: %s", err)
+		return
+	}
+	if !canUpdate {
+		de.logger.Debug(
+			":cold_sweat: Cannot update DE: the granter is not a member of the current or incoming group and gas price isn't set in the config",
+		)
+		return
+	}
+
 	de.logger.Info(":delivery_truck: Updating DE")
 
 	// Generate new DE pairs
@@ -141,6 +165,34 @@ func (de *DE) updateDE(numNewDE uint64) {
 
 	// Send MsgDE
 	de.context.MsgCh <- types.NewMsgSubmitDEs(pubDEs, de.context.Config.Granter)
+}
+
+// canUpdateDE checks if the system allows to update DEs into the system and chain.
+func (de *DE) canUpdateDE() (bool, error) {
+	gasPrices, err := sdk.ParseDecCoins(de.context.Config.GasPrices)
+	if err != nil {
+		de.logger.Debug(":cold_sweat: Failed to parse gas prices from config: %s", err)
+	}
+
+	// If the gas price is non-zero, it indicates that the user is willing to pay
+	// a transaction fee for submitting DEs to the chain.
+	if gasPrices != nil && !gasPrices.IsZero() {
+		return true, nil
+	}
+
+	// If the address is a member of the current group, the system can submit DEs to the chain
+	// without paying gas.
+	resp, err := de.client.QueryMember(de.context.Config.Granter)
+	if err != nil {
+		return false, fmt.Errorf("failed to query member information: %w", err)
+	}
+
+	if resp.CurrentGroupMember.Address == de.context.Config.Granter ||
+		resp.IncomingGroupMember.Address == de.context.Config.Granter {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 // intervalUpdateDE updates DE on the chain so that the remaining DE is
@@ -176,10 +228,15 @@ func (de *DE) Start() {
 		return
 	}
 
-	// Remove DE if there is used DE event.
+	// Remove DE if there is used DE or deleted DE event.
 	go func() {
-		for ev := range de.useEventCh {
-			go de.handleABCIEvents(ev.Data.(tmtypes.EventDataTx).TxResult.Result.Events)
+		for {
+			select {
+			case ev := <-de.useEventCh:
+				go de.deleteDEFromABCIEvents(ev.Data.(tmtypes.EventDataTx).TxResult.Result.Events)
+			case ev := <-de.deleteEventCh:
+				go de.deleteDEFromABCIEvents(ev.Data.(tmtypes.EventDataTx).TxResult.Result.Events)
+			}
 		}
 	}()
 
