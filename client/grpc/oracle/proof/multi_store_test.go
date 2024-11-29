@@ -30,16 +30,16 @@ query at localhost:26657/abci_query?path="/store/oracle/key"&data=0xc00000000000
                     {
                         "type": "ics23:iavl",
                         "key": "wAAAAAAAAAA=",
-                        "data": "EpADCgjAAAAAAAAAABK2AQoBBhIdCBAQEBiAAiCABChkMNCGA0ADSEZQgOCllrsRWAEaDAgBGAEgASoEAAKYASIsCAESBQQG7hAgGiEgL9OKizGo0Z4tLP9KaLTbPfPi2jAZVEgXXK18Znu4V9EiKggBEiYGCu4QIGlHkf33ommIkdMfhPuQ14UG07Xp7lKmlq9ZNJSfVOlzICIqCAESJggY0GcgWmuKQaZpAh5otqBxJfSoJWrASawo/qPB1V5shwYbbgYgGsoBCgHwEgZvcmFjbGUaCwgBGAEgASoDAAICIiwIARIFAgTuECAaISAeDSwCB2vKaX7NoctkSGZ+6OCwUOgp6yg4Ye20FyJXSiIqCAESJgQG7hAgzL3GBeV7EMxT1yR/MzvVQdVSa8kOaTp4k0AkbuqN7XcgIioIARImBgruECBpR5H996JpiJHTH4T7kNeFBtO16e5SppavWTSUn1TpcyAiKggBEiYIGNBnIFprikGmaQIeaLagcSX0qCVqwEmsKP6jwdVebIcGG24GIA=="
+                        "data": "Eo8DCgjAAAAAAAAAABK1AQoBBhIdCBAQEBiAAiCABChkMNCGA0ADSEZQgOCllrsRWAEaCwgBGAEgASoDAAICIiwIARIFBAaIAiAaISBtvVJ2ZZMSBA4nAMaNXfsRtGLoznC27KcRDwrP60ri1iIqCAESJgYOiAIgwO31fJMlSzouPSDyx4iA998Nt4loM7tLOEWgMKbocKcgIioIARImCBaWAiCrrKlcH2vL7Ylz/D9VqneIhV5LIB9F77VaZ4vPuA2oRCAaygEKAfASBm9yYWNsZRoLCAEYASABKgMAAgIiLAgBEgUCBIgCIBohIIAGWiNcyyPZ8yTKukJcK2Mn8OmpQ6uNjsa8Zp1P07WUIioIARImBAaIAiBgGbJRw5Nm8BZQIg/QP722R1a7TmNh1PnxcjVqJYmKfSAiKggBEiYGDogCIMDt9XyTJUs6Lj0g8seIgPffDbeJaDO7SzhFoDCm6HCnICIqCAESJggWlgIgq6ypXB9ry+2Jc/w/Vap3iIVeSyAfRe+1WmeLz7gNqEQg"
                     },
                     {
                         "type": "ics23:simple",
                         "key": "b3JhY2xl",
-                        "data": "Cv4BCgZvcmFjbGUSIKlGw34VS+Fki9oMhwxL5Augva71DvOvN6SD4WqsMjAjGgkIARgBIAEqAQAiJwgBEgEBGiCI0bT8lYEcR7qf3dcswRSJQN0ZgJdSo0ioy2uIsi/bZSIlCAESIQFjDp0uLX5qOZ6OLF4/FVCnrviBSSHovSU4TVjJiaS2myInCAESAQEaICjBhguC1q2OSs82GtyruVNh5egqJ15XXOcnOk6HMuJcIicIARIBARogaTJx7rOygthReqj7mtQImvchyp0oRDKbBMhhEN/zjpUiJQgBEiEB8dVwesb0WvvZh6/6bec9nDEIE+ms2MlXWKvAFKRT3fs="
+                        "data": "Cv4BCgZvcmFjbGUSILWuAqi7QA1Y943STZKRzdhqI/oM/3sihXiy0WvbYyjtGgkIARgBIAEqAQAiJQgBEiEBXVOth1oJa51+x41GKsXabapY7uL7OJssOImGEiPT298iJwgBEgEBGiDAh+1I3Z5vtDdvCoqbjqdXtDqMS2OQUuNb9RLtMehqtiInCAESAQEaIDqK5Rpdb442lPE4nvtBIBBC+gc6duYo7pQ4EWrTGTZjIicIARIBARogxinvyHFSBjSggcRdbDRvGaaNqaNLpwZ36rA6wxPCgW8iJQgBEiEBPO/QdDCqwo6da1w04OySSpstZJxfeGYlKuwfwmlBFOI="
                     }
                 ]
             },
-            "height": "6632",
+            "height": "139",
             "codespace": ""
         }
     }
@@ -49,7 +49,7 @@ query at localhost:26657/abci_query?path="/store/oracle/key"&data=0xc00000000000
 func TestGetMultiStoreProof(t *testing.T) {
 	key := []byte("oracle")
 	data := base64ToBytes(
-		"Cv4BCgZvcmFjbGUSIKlGw34VS+Fki9oMhwxL5Augva71DvOvN6SD4WqsMjAjGgkIARgBIAEqAQAiJwgBEgEBGiCI0bT8lYEcR7qf3dcswRSJQN0ZgJdSo0ioy2uIsi/bZSIlCAESIQFjDp0uLX5qOZ6OLF4/FVCnrviBSSHovSU4TVjJiaS2myInCAESAQEaICjBhguC1q2OSs82GtyruVNh5egqJ15XXOcnOk6HMuJcIicIARIBARogaTJx7rOygthReqj7mtQImvchyp0oRDKbBMhhEN/zjpUiJQgBEiEB8dVwesb0WvvZh6/6bec9nDEIE+ms2MlXWKvAFKRT3fs=",
+		"Cv4BCgZvcmFjbGUSILWuAqi7QA1Y943STZKRzdhqI/oM/3sihXiy0WvbYyjtGgkIARgBIAEqAQAiJQgBEiEBXVOth1oJa51+x41GKsXabapY7uL7OJssOImGEiPT298iJwgBEgEBGiDAh+1I3Z5vtDdvCoqbjqdXtDqMS2OQUuNb9RLtMehqtiInCAESAQEaIDqK5Rpdb442lPE4nvtBIBBC+gc6duYo7pQ4EWrTGTZjIicIARIBARogxinvyHFSBjSggcRdbDRvGaaNqaNLpwZ36rA6wxPCgW8iJQgBEiEBPO/QdDCqwo6da1w04OySSpstZJxfeGYlKuwfwmlBFOI=",
 	)
 
 	var multistoreOps storetypes.CommitmentOp
@@ -74,19 +74,19 @@ func TestGetMultiStoreProof(t *testing.T) {
 	prefix = append(prefix, 32)     // size of result hash must be 32
 
 	apphash := innerHash(
-		m.AuthToIbcStoresMerkleHash,
+		m.AuthToIcahostStoresMerkleHash,
 		innerHash(
 			innerHash(
 				innerHash(
-					m.IcahostToMintStoresMerkleHash,
 					innerHash(
+						m.MintStoreMerkleHash,
 						leafHash(append(prefix, tmhash.Sum(m.OracleIAVLStateHash)...)),
-						m.ParamsStoreMerkleHash,
 					),
+					m.ParamsToRestakeStoresMerkleHash,
 				),
-				m.RestakeToStakingStoresMerkleHash,
+				m.RollingseedToTransferStoresMerkleHash,
 			),
-			m.TransferToUpgradeStoresMerkleHash,
+			m.TssToUpgradeStoresMerkleHash,
 		),
 	)
 
