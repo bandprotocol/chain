@@ -81,6 +81,12 @@ func (k Keeper) DeleteMembers(ctx sdk.Context, groupID tss.GroupID) {
 	members := k.tssKeeper.MustGetMembers(ctx, groupID)
 	for _, m := range members {
 		k.DeleteMember(ctx, sdk.MustAccAddressFromBech32(m.Address), groupID)
+
+		ctx.EventManager().EmitEvent(sdk.NewEvent(
+			types.EventTypeDeleteMember,
+			sdk.NewAttribute(types.AttributeKeyAddress, m.Address),
+			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+		))
 	}
 }
 

@@ -8,6 +8,7 @@ const (
 	EventTypeGroupTransitionFailed  = "group_transition_failed"
 	EventTypeSigningRequestCreated  = "bandtss_signing_request_created"
 	EventTypeCreateSigningFailed    = "create_signing_failed"
+	EventTypeDeleteMember           = "delete_member"
 
 	AttributeKeyAddress                = "address"
 	AttributeKeySigningID              = "bandtss_signing_id"
