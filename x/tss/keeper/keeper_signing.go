@@ -59,7 +59,6 @@ func (k Keeper) RequestSigning(
 		sdk.NewAttribute(types.AttributeKeyContent, content.String()),
 		sdk.NewAttribute(types.AttributeKeyOriginatorType, sdk.MsgTypeURL(originator)),
 		sdk.NewAttribute(types.AttributeKeyOriginator, originator.String()),
-		sdk.NewAttribute(types.AttributeKeyEncodedOriginator, hex.EncodeToString(originatorBz)),
 		sdk.NewAttribute(types.AttributeKeyMessage, hex.EncodeToString(contentMsg)),
 	))
 
@@ -160,7 +159,6 @@ func (k Keeper) CreateSigning(
 		0,
 		groupID,
 		group.PubKey,
-		originator,
 		message,
 		nil,
 		nil,
