@@ -29,6 +29,9 @@ service Msg {
   // SubmitDEs submits list of pre-commits DE for signing process.
   rpc SubmitDEs(MsgSubmitDEs) returns (MsgSubmitDEsResponse);
 
+  // ResetDE resets the submitted DEs that being stored on chain.
+  rpc ResetDE(MsgResetDE) returns (MsgResetDEResponse);
+
   // SubmitSignature submits signature on task participant need to do.
   rpc SubmitSignature(MsgSubmitSignature) returns (MsgSubmitSignatureResponse);
 
@@ -126,6 +129,18 @@ message MsgSubmitDEs {
 
 // MsgSubmitDEsResponse is response data for MsgSubmitDEs message
 message MsgSubmitDEsResponse {}
+
+// MsgResetDE is a message used to reset the DEs that being stored on chain.
+message MsgResetDE {
+  option (cosmos.msg.v1.signer) = "sender";
+  option (amino.name)           = "tss/MsgResetDE";
+
+  // sender is the user address that request for resetting DEs.
+  string sender = 1 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgResetDEResponse is response data for MsgResetDE message
+message MsgResetDEResponse {}
 
 // MsgSubmitSignature is a message used to submitting signature data.
 message MsgSubmitSignature {

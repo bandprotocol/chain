@@ -102,7 +102,6 @@ func GetExampleSigning() types.Signing {
 		ID:               1,
 		CurrentAttempt:   1,
 		GroupID:          1,
-		Originator:       []byte("originator"),
 		Message:          []byte("data"),
 		GroupPubNonce:    testutil.HexDecode("03fae45376abb0d60c3ae2b5caee749118125ec3d73725f3ad03b0b6e686d0f31a"),
 		Signature:        nil,
