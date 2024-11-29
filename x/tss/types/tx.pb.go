@@ -544,7 +544,7 @@ var xxx_messageInfo_MsgSubmitDEsResponse proto.InternalMessageInfo
 
 // MsgResetDE is a message used to reset the DEs that being stored on chain.
 type MsgResetDE struct {
-	// sender is the user address that submits DE objects.
+	// sender is the user address that request for resetting DEs.
 	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
 }
 

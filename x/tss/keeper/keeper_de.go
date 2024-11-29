@@ -49,7 +49,7 @@ func (k Keeper) DequeueDE(ctx sdk.Context, address sdk.AccAddress) (types.DE, er
 	// Emit an event for the DE dequeued
 	sdk.NewEventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeDequeueDE,
+			types.EventTypeDEDequeued,
 			sdk.NewAttribute(types.AttributeKeyAddress, address.String()),
 			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(de.PubD)),
 			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(de.PubE)),
@@ -75,7 +75,7 @@ func (k Keeper) ResetDE(ctx sdk.Context, address sdk.AccAddress) error {
 
 		// Emit an event for the DE dequeued
 		ctx.EventManager().EmitEvent(sdk.NewEvent(
-			types.EventTypeDequeueDE,
+			types.EventTypeDEDequeued,
 			sdk.NewAttribute(types.AttributeKeyAddress, address.String()),
 			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(de.PubD)),
 			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(de.PubE)),

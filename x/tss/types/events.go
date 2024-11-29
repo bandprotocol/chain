@@ -17,7 +17,7 @@ const (
 	EventTypeSigningSuccess   = "signing_success"
 	EventTypeSigningFailed    = "signing_failed"
 	EventTypeSubmitSignature  = "submit_signature"
-	EventTypeDequeueDE        = "dequeue_de"
+	EventTypeDEDequeued       = "de_dequeued"
 
 	AttributeKeyGroupID        = "group_id"
 	AttributeKeyMemberID       = "member_id"

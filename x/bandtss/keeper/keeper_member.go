@@ -83,7 +83,7 @@ func (k Keeper) DeleteMembers(ctx sdk.Context, groupID tss.GroupID) {
 		k.DeleteMember(ctx, sdk.MustAccAddressFromBech32(m.Address), groupID)
 
 		ctx.EventManager().EmitEvent(sdk.NewEvent(
-			types.EventTypeDeleteMember,
+			types.EventTypeMemberDeleted,
 			sdk.NewAttribute(types.AttributeKeyAddress, m.Address),
 			sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
 		))

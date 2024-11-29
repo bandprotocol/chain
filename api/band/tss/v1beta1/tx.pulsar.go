@@ -7639,7 +7639,7 @@ type MsgResetDE struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	// sender is the user address that submits DE objects.
+	// sender is the user address that request for resetting DEs.
 	Sender string `protobuf:"bytes,1,opt,name=sender,proto3" json:"sender,omitempty"`
 }
 
