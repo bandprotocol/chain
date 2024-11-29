@@ -252,7 +252,6 @@ func (s *KeeperTestSuite) TestCreateSigningSuccess() {
 		CurrentAttempt:   0,
 		GroupID:          1,
 		GroupPubKey:      group.PubKey,
-		Originator:       []byte("originator"),
 		Message:          signingMsg,
 		CreatedHeight:    uint64(ctx.BlockHeight()),
 		CreatedTimestamp: ctx.BlockTime(),

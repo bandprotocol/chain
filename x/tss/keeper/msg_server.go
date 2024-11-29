@@ -299,7 +299,7 @@ func (k msgServer) SubmitDEs(goCtx context.Context, req *types.MsgSubmitDEs) (*t
 	// Convert the address from Bech32 format to AccAddress format
 	member, err := sdk.AccAddressFromBech32(req.Sender)
 	if err != nil {
-		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid account address: %s", err)
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
 	}
 
 	err = k.Keeper.EnqueueDEs(ctx, member, req.DEs)
@@ -308,6 +308,24 @@ func (k msgServer) SubmitDEs(goCtx context.Context, req *types.MsgSubmitDEs) (*t
 	}
 
 	return &types.MsgSubmitDEsResponse{}, nil
+}
+
+// ResetDE removes all DEs of the given member in the queue.
+func (k msgServer) ResetDE(goCtx context.Context, req *types.MsgResetDE) (*types.MsgResetDEResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	// Convert the address from Bech32 format to AccAddress format
+	member, err := sdk.AccAddressFromBech32(req.Sender)
+	if err != nil {
+		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
+	}
+
+	// Reset DE
+	if err := k.Keeper.ResetDE(ctx, member); err != nil {
+		return nil, err
+	}
+
+	return &types.MsgResetDEResponse{}, nil
 }
 
 // SubmitSignature verifies that the member and signing process are valid, and that the member
