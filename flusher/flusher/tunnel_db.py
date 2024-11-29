@@ -1,6 +1,5 @@
 import sqlalchemy as sa
 import enum
-from .feeds_db import CustomFeedsEncoder
 from .db import (
     metadata,
     Column,
@@ -28,7 +27,6 @@ tunnels = sa.Table(
     Column("sequence", sa.Integer),
     Column("route_type", sa.String),
     Column("route", sa.JSON),
-    Column("encoder", CustomFeedsEncoder),
     Column("fee_payer_id", sa.Integer, sa.ForeignKey("accounts.id")),
     Column("total_deposit", sa.String),
     Column("status", sa.Boolean, index=True),

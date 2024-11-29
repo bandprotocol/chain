@@ -799,7 +799,6 @@ func DecodeTunnelMsgCreateTunnel(msg *tunneltypes.MsgCreateTunnel, detail common
 	detail["interval"] = msg.Interval
 	detail["route_type"] = msg.GetRoute().TypeUrl
 	detail["route"] = msg.GetRoute().GetCachedValue()
-	detail["encoder"] = msg.Encoder
 	detail["initial_deposit"] = msg.InitialDeposit
 	detail["creator"] = msg.Creator
 }

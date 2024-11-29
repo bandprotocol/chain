@@ -83,34 +83,6 @@
           table:
             name: feeds_voter_signals
             schema: public
-    - name: group_members
-      using:
-        foreign_key_constraint_on:
-          column: account_id
-          table:
-            name: group_members
-            schema: public
-    - name: group_policies
-      using:
-        foreign_key_constraint_on:
-          column: admin
-          table:
-            name: group_policies
-            schema: public
-    - name: group_votes
-      using:
-        foreign_key_constraint_on:
-          column: voter_id
-          table:
-            name: group_votes
-            schema: public
-    - name: groups
-      using:
-        foreign_key_constraint_on:
-          column: admin
-          table:
-            name: groups
-            schema: public
     - name: proposals
       using:
         foreign_key_constraint_on:
@@ -174,14 +146,14 @@
           table:
             name: tunnel_historical_deposits
             schema: public
-    - name: tunnels
+    - name: tunnels_by_creator_id
       using:
         foreign_key_constraint_on:
           column: creator_id
           table:
             name: tunnels
             schema: public
-    - name: tunnelsByFeePayerId
+    - name: tunnels_by_fee_payer_id
       using:
         foreign_key_constraint_on:
           column: fee_payer_id
@@ -212,10 +184,10 @@
     - name: proposal
       using:
         foreign_key_constraint_on: proposal_id
-    - name: tssGroupByIncomingTssGroupId
+    - name: tss_group_by_incoming_tss_group_id
       using:
         foreign_key_constraint_on: incoming_tss_group_id
-    - name: tss_group
+    - name: tss_group_by_current_tss_group_id
       using:
         foreign_key_constraint_on: current_tss_group_id
     - name: tss_signing
@@ -251,10 +223,10 @@
     - name: account
       using:
         foreign_key_constraint_on: account_id
-    - name: tssSigningByIncomingGroupTssSigningId
+    - name: tss_signing_by_incoming_group_tss_signing_id
       using:
         foreign_key_constraint_on: incoming_group_tss_signing_id
-    - name: tss_signing
+    - name: tss_signing_by_current_group_tss_signing_id
       using:
         foreign_key_constraint_on: current_group_tss_signing_id
   array_relationships:
@@ -540,98 +512,6 @@
       using:
         foreign_key_constraint_on: account_id
 - table:
-    name: group_members
-    schema: public
-  object_relationships:
-    - name: account
-      using:
-        foreign_key_constraint_on: account_id
-    - name: group
-      using:
-        foreign_key_constraint_on: group_id
-- table:
-    name: group_policies
-    schema: public
-  object_relationships:
-    - name: account
-      using:
-        foreign_key_constraint_on: admin
-    - name: group
-      using:
-        foreign_key_constraint_on: group_id
-  array_relationships:
-    - name: group_proposals
-      using:
-        foreign_key_constraint_on:
-          column: group_policy_address
-          table:
-            name: group_proposals
-            schema: public
-- table:
-    name: group_proposals
-    schema: public
-  object_relationships:
-    - name: group
-      using:
-        foreign_key_constraint_on: group_id
-    - name: group_policy
-      using:
-        foreign_key_constraint_on: group_policy_address
-    - name: group_vote
-      using:
-        foreign_key_constraint_on:
-          column: group_proposal_id
-          table:
-            name: group_votes
-            schema: public
-  array_relationships:
-    - name: group_votes
-      using:
-        foreign_key_constraint_on:
-          column: group_proposal_id
-          table:
-            name: group_votes
-            schema: public
-- table:
-    name: group_votes
-    schema: public
-  object_relationships:
-    - name: account
-      using:
-        foreign_key_constraint_on: voter_id
-    - name: group_proposal
-      using:
-        foreign_key_constraint_on: group_proposal_id
-- table:
-    name: groups
-    schema: public
-  object_relationships:
-    - name: account
-      using:
-        foreign_key_constraint_on: admin
-  array_relationships:
-    - name: group_members
-      using:
-        foreign_key_constraint_on:
-          column: group_id
-          table:
-            name: group_members
-            schema: public
-    - name: group_policies
-      using:
-        foreign_key_constraint_on:
-          column: group_id
-          table:
-            name: group_policies
-            schema: public
-    - name: group_proposals
-      using:
-        foreign_key_constraint_on:
-          column: group_id
-          table:
-            name: group_proposals
-            schema: public
-- table:
     name: historical_bonded_token_on_validators
     schema: public
   object_relationships:
@@ -844,10 +724,10 @@
     - name: account
       using:
         foreign_key_constraint_on: delegator_id
-    - name: validatorByValidatorDstId
+    - name: validator_by_validator_dst_id
       using:
         foreign_key_constraint_on: validator_dst_id
-    - name: validatorByValidatorSrcId
+    - name: validator_by_validator_src_id
       using:
         foreign_key_constraint_on: validator_src_id
 - table:
@@ -1102,14 +982,14 @@
     name: tss_groups
     schema: public
   array_relationships:
-    - name: bandtssGroupTransitionsByIncomingTssGroupId
+    - name: bandtss_group_transitions_by_incoming_tss_group_id
       using:
         foreign_key_constraint_on:
           column: incoming_tss_group_id
           table:
             name: bandtss_group_transitions
             schema: public
-    - name: bandtss_group_transitions
+    - name: bandtss_group_transitions_by_current_tss_group_id
       using:
         foreign_key_constraint_on:
           column: current_tss_group_id
@@ -1183,7 +1063,7 @@
       using:
         foreign_key_constraint_on: tss_group_id
   array_relationships:
-    - name: bandtssSigningsByIncomingGroupTssSigningId
+    - name: bandtss_signings_by_incoming_group_tss_signing_id
       using:
         foreign_key_constraint_on:
           column: incoming_group_tss_signing_id
@@ -1197,7 +1077,7 @@
           table:
             name: bandtss_group_transitions
             schema: public
-    - name: bandtss_signings
+    - name: bandtss_signings_by_current_group_tss_signing_id
       using:
         foreign_key_constraint_on:
           column: current_group_tss_signing_id
@@ -1277,10 +1157,10 @@
     name: tunnels
     schema: public
   object_relationships:
-    - name: account
+    - name: account_by_creator_id
       using:
         foreign_key_constraint_on: creator_id
-    - name: accountByFeePayerId
+    - name: account_by_fee_payer_id
       using:
         foreign_key_constraint_on: fee_payer_id
   array_relationships:
@@ -1415,14 +1295,14 @@
           table:
             name: historical_bonded_token_on_validators
             schema: public
-    - name: redelegations
+    - name: redelegations_by_validator_src_id
       using:
         foreign_key_constraint_on:
           column: validator_src_id
           table:
             name: redelegations
             schema: public
-    - name: redelegationsByValidatorDstId
+    - name: redelegations_by_validator_dst_id
       using:
         foreign_key_constraint_on:
           column: validator_dst_id

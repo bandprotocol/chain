@@ -17,7 +17,6 @@ func (h *Hook) emitSetTunnel(ctx sdk.Context, tunnelID uint64) {
 		"sequence":      tunnel.Sequence,
 		"route_type":    tunnel.Route.TypeUrl,
 		"route":         tunnel.Route.GetCachedValue(),
-		"encoder":       tunnel.Encoder,
 		"fee_payer":     tunnel.FeePayer,
 		"total_deposit": tunnel.TotalDeposit.String(),
 		"status":        tunnel.IsActive,
