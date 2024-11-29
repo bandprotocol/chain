@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"encoding/hex"
+
 	dbm "github.com/cosmos/cosmos-db"
 
 	storetypes "cosmossdk.io/store/types"
@@ -43,11 +45,49 @@ func (k Keeper) DequeueDE(ctx sdk.Context, address sdk.AccAddress) (types.DE, er
 	if err != nil {
 		return types.DE{}, err
 	}
+
+	// Emit an event for the DE dequeued
+	sdk.NewEventManager().EmitEvent(
+		sdk.NewEvent(
+			types.EventTypeDequeueDE,
+			sdk.NewAttribute(types.AttributeKeyAddress, address.String()),
+			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(de.PubD)),
+			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(de.PubE)),
+		),
+	)
+
 	k.DeleteDE(ctx, address, deQueue.Head)
 
 	deQueue.Head += 1
 	k.SetDEQueue(ctx, address, deQueue)
 	return de, nil
+}
+
+// ResetDE removes all DEs from the queue for a given address.
+func (k Keeper) ResetDE(ctx sdk.Context, address sdk.AccAddress) error {
+	deQueue := k.GetDEQueue(ctx, address)
+
+	for i := deQueue.Head; i < deQueue.Tail; i++ {
+		de, err := k.GetDE(ctx, address, i)
+		if err != nil {
+			return err
+		}
+
+		// Emit an event for the DE dequeued
+		ctx.EventManager().EmitEvent(sdk.NewEvent(
+			types.EventTypeDequeueDE,
+			sdk.NewAttribute(types.AttributeKeyAddress, address.String()),
+			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(de.PubD)),
+			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(de.PubE)),
+		))
+
+		k.DeleteDE(ctx, address, i)
+	}
+
+	deQueue.Head = deQueue.Tail
+	k.SetDEQueue(ctx, address, deQueue)
+
+	return nil
 }
 
 // DequeueDEs dequeues DEs from the selected members. It takes a list of member IDs (mids)
@@ -112,17 +152,18 @@ func (k Keeper) GetDE(ctx sdk.Context, address sdk.AccAddress, index uint64) (ty
 	return de, nil
 }
 
-// HasDE function checks if the DE exists in the store.
+// HasDE checks if the DE exists in the store.
 func (k Keeper) HasDE(ctx sdk.Context, address sdk.AccAddress) bool {
 	deQueue := k.GetDEQueue(ctx, address)
 	return deQueue.Tail > deQueue.Head
 }
 
+// DeleteDE deletes the DE from the store.
 func (k Keeper) DeleteDE(ctx sdk.Context, address sdk.AccAddress, index uint64) {
 	ctx.KVStore(k.storeKey).Delete(types.DEStoreKey(address, index))
 }
 
-// GetDEQueueIterator function gets an iterator over all de queue from the context's KVStore
+// GetDEQueueIterator gets an iterator over all de queue from the context's KVStore
 func (k Keeper) GetDEQueueIterator(ctx sdk.Context) dbm.Iterator {
 	return storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), types.DEQueueStoreKeyPrefix)
 }

@@ -480,6 +480,44 @@ func (s *KeeperTestSuite) TestSuccessSubmitDEsReq() {
 	s.Require().True(deQueue.Head < deQueue.Tail)
 }
 
+func (s *KeeperTestSuite) TestResetDEReq() {
+	ctx, msgSrvr, k := s.ctx, s.msgServer, s.keeper
+	des := []types.DE{
+		{
+			PubD: []byte("D1"),
+			PubE: []byte("E1"),
+		},
+		{
+			PubD: []byte("D2"),
+			PubE: []byte("E2"),
+		},
+	}
+
+	// Submit DEs for each member in the group
+	_, err := msgSrvr.SubmitDEs(ctx, &types.MsgSubmitDEs{
+		DEs:    des,
+		Sender: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+	})
+	s.Require().NoError(err)
+
+	// Reset DEs
+	_, err = msgSrvr.ResetDE(ctx, &types.MsgResetDE{
+		Sender: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+	})
+	s.Require().NoError(err)
+
+	// Check if DEs are reset
+	deQueue := k.GetDEQueue(ctx, sdk.MustAccAddressFromBech32("band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun"))
+	s.Require().Equal(types.DEQueue{Head: 2, Tail: 2}, deQueue)
+}
+
+func (s *KeeperTestSuite) TestResetDEReqFromEmptyList() {
+	_, err := s.msgServer.ResetDE(s.ctx, &types.MsgResetDE{
+		Sender: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+	})
+	s.Require().NoError(err)
+}
+
 func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
 	ctx, msgSrvr, k := s.ctx, s.msgServer, s.keeper
 
