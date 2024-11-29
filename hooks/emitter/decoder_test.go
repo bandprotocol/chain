@@ -39,6 +39,7 @@ import (
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
+	tunneltypes "github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 const (
@@ -47,18 +48,19 @@ const (
 )
 
 var (
-	SenderAddress    = sdk.AccAddress(genAddresFromString("Sender"))
-	ReceiverAddress  = sdk.AccAddress(genAddresFromString("Receiver"))
-	ValAddress       = sdk.ValAddress(genAddresFromString("Validator"))
-	TreasuryAddress  = sdk.AccAddress(genAddresFromString("Treasury"))
-	OwnerAddress     = sdk.AccAddress(genAddresFromString("Owner"))
-	ReporterAddress  = sdk.AccAddress(genAddresFromString("Reporter"))
-	SignerAddress    = sdk.AccAddress(genAddresFromString("Signer"))
-	DelegatorAddress = sdk.AccAddress(genAddresFromString("Delegator"))
-	GranterAddress   = sdk.AccAddress(genAddresFromString("Granter"))
-	GranteeAddress   = sdk.AccAddress(genAddresFromString("Grantee"))
-	StakerAddress    = sdk.AccAddress(genAddresFromString("Staker"))
-	AuthorityAddress = sdk.AccAddress(genAddresFromString("Authority"))
+	SenderAddress    = sdk.AccAddress(genAddressFromString("Sender"))
+	ReceiverAddress  = sdk.AccAddress(genAddressFromString("Receiver"))
+	ValAddress       = sdk.ValAddress(genAddressFromString("Validator"))
+	TreasuryAddress  = sdk.AccAddress(genAddressFromString("Treasury"))
+	OwnerAddress     = sdk.AccAddress(genAddressFromString("Owner"))
+	ReporterAddress  = sdk.AccAddress(genAddressFromString("Reporter"))
+	SignerAddress    = sdk.AccAddress(genAddressFromString("Signer"))
+	DelegatorAddress = sdk.AccAddress(genAddressFromString("Delegator"))
+	GranterAddress   = sdk.AccAddress(genAddressFromString("Granter"))
+	GranteeAddress   = sdk.AccAddress(genAddressFromString("Grantee"))
+	StakerAddress    = sdk.AccAddress(genAddressFromString("Staker"))
+	AuthorityAddress = sdk.AccAddress(genAddressFromString("Authority"))
+	CreatorAddress   = sdk.AccAddress(genAddressFromString("Creator"))
 
 	Coins1000000uband   = sdk.NewCoins(sdk.NewInt64Coin("uband", 1000000))
 	Coins100000000uband = sdk.NewCoins(sdk.NewInt64Coin("uband", 100000000))
@@ -119,7 +121,7 @@ func NewOraclePath(chainA, chainB *ibctesting.TestChain) *ibctesting.Path {
 	return path
 }
 
-func genAddresFromString(s string) []byte {
+func genAddressFromString(s string) []byte {
 	var b [20]byte
 	copy(b[:], s)
 	return b[:]
@@ -1243,6 +1245,132 @@ func (suite *DecoderTestSuite) TestDecodeRestakeMsgUpdateParams() {
 	suite.testCompareJson(
 		detail,
 		"{\"authority\":\"band1g96hg6r0wf5hg7gqqqqqqqqqqqqqqqqq4rjgsx\",\"params\":{\"allowed_denoms\":[\"stBand\",\"band\"]}}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeTunnelMsgCreateTunnel() {
+	detail := make(common.JsDict)
+	msg, err := tunneltypes.NewMsgCreateTSSTunnel(
+		[]tunneltypes.SignalDeviation{
+			tunneltypes.NewSignalDeviation("CS:BAND-USD", 10000, 10000),
+		},
+		60,
+		"ethereum",
+		"0xcabe9a5e6249c893a4b4fc263",
+		feedstypes.ENCODER_TICK_ABI,
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(5))),
+		CreatorAddress,
+	)
+	suite.NoError(err)
+
+	emitter.DecodeTunnelMsgCreateTunnel(msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"creator\":\"band1gdex2ct5daeqqqqqqqqqqqqqqqqqqqqq8vcand\",\"initial_deposit\":[{\"denom\":\"uband\",\"amount\":\"5\"}],\"interval\":60,\"route\":{\"destination_chain_id\":\"ethereum\",\"destination_contract_address\":\"0xcabe9a5e6249c893a4b4fc263\"},\"route_type\":\"/band.tunnel.v1beta1.TSSRoute\",\"signal_deviations\":[{\"signal_id\":\"CS:BAND-USD\",\"soft_deviation_bps\":10000,\"hard_deviation_bps\":10000}]}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeTunnelMsgUpdateAndResetTunnel() {
+	detail := make(common.JsDict)
+	msg := tunneltypes.NewMsgUpdateAndResetTunnel(
+		1,
+		[]tunneltypes.SignalDeviation{
+			tunneltypes.NewSignalDeviation("CS:BAND-USD", 10000, 10000),
+		},
+		60,
+		CreatorAddress.String(),
+	)
+
+	emitter.DecodeTunnelMsgUpdateAndResetTunnel(msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"creator\":\"band1gdex2ct5daeqqqqqqqqqqqqqqqqqqqqq8vcand\",\"interval\":60,\"signal_deviations\":[{\"signal_id\":\"CS:BAND-USD\",\"soft_deviation_bps\":10000,\"hard_deviation_bps\":10000}],\"tunnel_id\":1}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeTunnelMsgActivate() {
+	detail := make(common.JsDict)
+	msg := tunneltypes.NewMsgActivate(
+		1,
+		CreatorAddress.String(),
+	)
+
+	emitter.DecodeTunnelMsgActivate(msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"creator\":\"band1gdex2ct5daeqqqqqqqqqqqqqqqqqqqqq8vcand\",\"tunnel_id\":1}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeTunnelMsgDeactivate() {
+	detail := make(common.JsDict)
+	msg := tunneltypes.NewMsgDeactivate(
+		1,
+		CreatorAddress.String(),
+	)
+
+	emitter.DecodeTunnelMsgDeactivate(msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"creator\":\"band1gdex2ct5daeqqqqqqqqqqqqqqqqqqqqq8vcand\",\"tunnel_id\":1}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeTunnelMsgTriggerTunnel() {
+	detail := make(common.JsDict)
+	msg := tunneltypes.NewMsgTriggerTunnel(
+		1,
+		CreatorAddress.String(),
+	)
+
+	emitter.DecodeTunnelMsgTriggerTunnel(msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"creator\":\"band1gdex2ct5daeqqqqqqqqqqqqqqqqqqqqq8vcand\",\"tunnel_id\":1}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeTunnelMsgDepositToTunnel() {
+	detail := make(common.JsDict)
+	msg := tunneltypes.NewMsgDepositToTunnel(
+		1,
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(5))),
+		CreatorAddress.String(),
+	)
+
+	emitter.DecodeTunnelMsgDepositToTunnel(msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"amount\":[{\"denom\":\"uband\",\"amount\":\"5\"}],\"depositor\":\"band1gdex2ct5daeqqqqqqqqqqqqqqqqqqqqq8vcand\",\"tunnel_id\":1}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeTunnelMsgWithdrawFromTunnel() {
+	detail := make(common.JsDict)
+	msg := tunneltypes.NewMsgWithdrawFromTunnel(
+		1,
+		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(5))),
+		CreatorAddress.String(),
+	)
+
+	emitter.DecodeTunnelMsgWithdrawFromTunnel(msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"amount\":[{\"denom\":\"uband\",\"amount\":\"5\"}],\"tunnel_id\":1,\"withdrawer\":\"band1gdex2ct5daeqqqqqqqqqqqqqqqqqqqqq8vcand\"}",
+	)
+}
+
+func (suite *DecoderTestSuite) TestDecodeTunnelMsgUpdateParams() {
+	detail := make(common.JsDict)
+	msg := tunneltypes.NewMsgUpdateParams(
+		AuthorityAddress.String(),
+		tunneltypes.DefaultParams(),
+	)
+
+	emitter.DecodeTunnelMsgUpdateParams(msg, detail)
+	suite.testCompareJson(
+		detail,
+		"{\"authority\":\"band1g96hg6r0wf5hg7gqqqqqqqqqqqqqqqqq4rjgsx\",\"params\":{\"min_deposit\":[{\"denom\":\"uband\",\"amount\":\"1000000000\"}],\"min_interval\":60,\"max_interval\":3600,\"min_deviation_bps\":50,\"max_deviation_bps\":3000,\"max_signals\":25,\"base_packet_fee\":[{\"denom\":\"uband\",\"amount\":\"10000\"}]}}",
 	)
 }
 

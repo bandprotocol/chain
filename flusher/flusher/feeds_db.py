@@ -9,6 +9,7 @@ from .db import (
 
 PRICE_HISTORY_PERIOD = 60 * 60 * 24 * 7 * 1e9  # 1 week
 
+
 # Define the SignalPriceStatus Enum
 class SignalPriceStatus(enum.Enum):
     Unspecified = 0
@@ -16,11 +17,13 @@ class SignalPriceStatus(enum.Enum):
     Unavailable = 2
     Available = 3
 
+
 class CustomSignalPriceStatus(sa.types.TypeDecorator):
     impl = sa.Enum(SignalPriceStatus)
 
     def process_bind_param(self, value, dialect):
         return SignalPriceStatus(value)
+
 
 # Define the PriceStatus Enum
 class PriceStatus(enum.Enum):
@@ -30,11 +33,27 @@ class PriceStatus(enum.Enum):
     Available = 3
     NotInCurrentFeeds = 4
 
+
 class CustomPriceStatus(sa.types.TypeDecorator):
     impl = sa.Enum(PriceStatus)
 
     def process_bind_param(self, value, dialect):
         return PriceStatus(value)
+
+
+# Define the FeedsEncoder Enum
+class FeedsEncoder(enum.Enum):
+    nil = 0
+    fixed_point_abi = 1
+    tick_abi = 2
+
+
+class CustomFeedsEncoder(sa.types.TypeDecorator):
+    impl = sa.Enum(FeedsEncoder)
+
+    def process_bind_param(self, value, dialect):
+        return FeedsEncoder(value)
+
 
 feeds_signal_prices_txs = sa.Table(
     "feeds_signal_prices_txs",

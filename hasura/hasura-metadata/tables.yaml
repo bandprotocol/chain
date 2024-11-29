@@ -132,6 +132,34 @@
           table:
             name: tss_members
             schema: public
+    - name: tunnel_deposits
+      using:
+        foreign_key_constraint_on:
+          column: depositor_id
+          table:
+            name: tunnel_deposits
+            schema: public
+    - name: tunnel_historical_deposits
+      using:
+        foreign_key_constraint_on:
+          column: depositor_id
+          table:
+            name: tunnel_historical_deposits
+            schema: public
+    - name: tunnels_by_creator_id
+      using:
+        foreign_key_constraint_on:
+          column: creator_id
+          table:
+            name: tunnels
+            schema: public
+    - name: tunnels_by_fee_payer_id
+      using:
+        foreign_key_constraint_on:
+          column: fee_payer_id
+          table:
+            name: tunnels
+            schema: public
     - name: unbonding_delegations
       using:
         foreign_key_constraint_on:
@@ -156,10 +184,10 @@
     - name: proposal
       using:
         foreign_key_constraint_on: proposal_id
-    - name: tssGroupByIncomingTssGroupId
+    - name: tss_group_by_incoming_tss_group_id
       using:
         foreign_key_constraint_on: incoming_tss_group_id
-    - name: tss_group
+    - name: tss_group_by_current_tss_group_id
       using:
         foreign_key_constraint_on: current_tss_group_id
     - name: tss_signing
@@ -195,10 +223,10 @@
     - name: account
       using:
         foreign_key_constraint_on: account_id
-    - name: tssSigningByIncomingGroupTssSigningId
+    - name: tss_signing_by_incoming_group_tss_signing_id
       using:
         foreign_key_constraint_on: incoming_group_tss_signing_id
-    - name: tss_signing
+    - name: tss_signing_by_current_group_tss_signing_id
       using:
         foreign_key_constraint_on: current_group_tss_signing_id
   array_relationships:
@@ -382,7 +410,7 @@
     name: data_sources
     schema: public
   object_relationships:
-    - name: data_source_request
+    - name: request_stat
       using:
         foreign_key_constraint_on:
           column: data_source_id
@@ -553,7 +581,7 @@
     name: oracle_scripts
     schema: public
   object_relationships:
-    - name: oracle_script_request
+    - name: request_stat
       using:
         foreign_key_constraint_on:
           column: oracle_script_id
@@ -696,10 +724,10 @@
     - name: account
       using:
         foreign_key_constraint_on: delegator_id
-    - name: validator
+    - name: validator_by_validator_dst_id
       using:
         foreign_key_constraint_on: validator_dst_id
-    - name: validatorByValidatorSrcId
+    - name: validator_by_validator_src_id
       using:
         foreign_key_constraint_on: validator_src_id
 - table:
@@ -716,7 +744,7 @@
     name: relayer_tx_stat_days
     schema: public
   object_relationships:
-    - name: channelByChannelPort
+    - name: channel_by_channel_port
       using:
         manual_configuration:
           column_mapping:
@@ -842,6 +870,13 @@
     - name: block
       using:
         foreign_key_constraint_on: block_height
+    - name: tunnel_historical_deposit
+      using:
+        foreign_key_constraint_on:
+          column: transaction_id
+          table:
+            name: tunnel_historical_deposits
+            schema: public
   array_relationships:
     - name: account_transactions
       using:
@@ -936,7 +971,7 @@
           column_mapping:
             tss_group_id: tss_group_id
             tss_member_id: id
-          insertion_order:
+          insertion_order: null
           remote_table:
             name: tss_members
             schema: public
@@ -947,14 +982,14 @@
     name: tss_groups
     schema: public
   array_relationships:
-    - name: bandtssGroupTransitionsByIncomingTssGroupId
+    - name: bandtss_group_transitions_by_incoming_tss_group_id
       using:
         foreign_key_constraint_on:
           column: incoming_tss_group_id
           table:
             name: bandtss_group_transitions
             schema: public
-    - name: bandtss_group_transitions
+    - name: bandtss_group_transitions_by_current_tss_group_id
       using:
         foreign_key_constraint_on:
           column: current_tss_group_id
@@ -1013,7 +1048,7 @@
           column_mapping:
             id: tss_member_id
             tss_group_id: tss_group_id
-          insertion_order:
+          insertion_order: null
           remote_table:
             name: tss_assigned_members
             schema: public
@@ -1028,7 +1063,7 @@
       using:
         foreign_key_constraint_on: tss_group_id
   array_relationships:
-    - name: bandtssSigningsByIncomingGroupTssSigningId
+    - name: bandtss_signings_by_incoming_group_tss_signing_id
       using:
         foreign_key_constraint_on:
           column: incoming_group_tss_signing_id
@@ -1042,7 +1077,7 @@
           table:
             name: bandtss_group_transitions
             schema: public
-    - name: bandtss_signings
+    - name: bandtss_signings_by_current_group_tss_signing_id
       using:
         foreign_key_constraint_on:
           column: current_group_tss_signing_id
@@ -1055,6 +1090,107 @@
           column: tss_signing_id
           table:
             name: tss_assigned_members
+            schema: public
+- table:
+    name: tunnel_deposits
+    schema: public
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: depositor_id
+    - name: tunnel
+      using:
+        foreign_key_constraint_on: tunnel_id
+- table:
+    name: tunnel_historical_deposits
+    schema: public
+  object_relationships:
+    - name: account
+      using:
+        foreign_key_constraint_on: depositor_id
+    - name: transaction
+      using:
+        foreign_key_constraint_on: transaction_id
+    - name: tunnel
+      using:
+        foreign_key_constraint_on: tunnel_id
+- table:
+    name: tunnel_historical_signal_deviations
+    schema: public
+  object_relationships:
+    - name: tunnel
+      using:
+        foreign_key_constraint_on: tunnel_id
+- table:
+    name: tunnel_packet_prices
+    schema: public
+  object_relationships:
+    - name: tunnel_packet
+      using:
+        manual_configuration:
+          column_mapping:
+            sequence: sequence
+            tunnel_id: tunnel_id
+          insertion_order: null
+          remote_table:
+            name: tunnel_packets
+            schema: public
+- table:
+    name: tunnel_packets
+    schema: public
+  object_relationships:
+    - name: tunnel
+      using:
+        foreign_key_constraint_on: tunnel_id
+  array_relationships:
+    - name: tunnel_packet_prices
+      using:
+        manual_configuration:
+          column_mapping:
+            sequence: sequence
+            tunnel_id: tunnel_id
+          insertion_order: null
+          remote_table:
+            name: tunnel_packet_prices
+            schema: public
+- table:
+    name: tunnels
+    schema: public
+  object_relationships:
+    - name: account_by_creator_id
+      using:
+        foreign_key_constraint_on: creator_id
+    - name: account_by_fee_payer_id
+      using:
+        foreign_key_constraint_on: fee_payer_id
+  array_relationships:
+    - name: tunnel_deposits
+      using:
+        foreign_key_constraint_on:
+          column: tunnel_id
+          table:
+            name: tunnel_deposits
+            schema: public
+    - name: tunnel_historical_deposits
+      using:
+        foreign_key_constraint_on:
+          column: tunnel_id
+          table:
+            name: tunnel_historical_deposits
+            schema: public
+    - name: tunnel_historical_signal_deviations
+      using:
+        foreign_key_constraint_on:
+          column: tunnel_id
+          table:
+            name: tunnel_historical_signal_deviations
+            schema: public
+    - name: tunnel_packets
+      using:
+        foreign_key_constraint_on:
+          column: tunnel_id
+          table:
+            name: tunnel_packets
             schema: public
 - table:
     name: unbonding_delegations
@@ -1114,6 +1250,15 @@
     - name: account
       using:
         foreign_key_constraint_on: account_id
+    - name: validator_report_count
+      using:
+        manual_configuration:
+          column_mapping:
+            id: validator_id
+          insertion_order: null
+          remote_table:
+            name: validator_report_count
+            schema: public
   array_relationships:
     - name: blocks
       using:
@@ -1150,17 +1295,17 @@
           table:
             name: historical_bonded_token_on_validators
             schema: public
-    - name: redelegations
-      using:
-        foreign_key_constraint_on:
-          column: validator_dst_id
-          table:
-            name: redelegations
-            schema: public
-    - name: redelegationsByValidatorSrcId
+    - name: redelegations_by_validator_src_id
       using:
         foreign_key_constraint_on:
           column: validator_src_id
+          table:
+            name: redelegations
+            schema: public
+    - name: redelegations_by_validator_dst_id
+      using:
+        foreign_key_constraint_on:
+          column: validator_dst_id
           table:
             name: redelegations
             schema: public

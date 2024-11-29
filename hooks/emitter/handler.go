@@ -25,6 +25,7 @@ import (
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
 	restaketypes "github.com/bandprotocol/chain/v3/x/restake/types"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
+	tunneltypes "github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 func parseEvents(events []abci.Event) common.EvMap {
@@ -141,6 +142,16 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 		h.handleFeedsMsgUpdateReferenceSourceConfig(ctx, msg)
 	case *tsstypes.MsgSubmitSignature:
 		h.handleTSSEventSubmitSignature(ctx, evMap)
+	case *tunneltypes.MsgCreateTunnel:
+		h.handleTunnelMsgCreateTunnel(ctx, txHash, msg, evMap)
+	case *tunneltypes.MsgUpdateAndResetTunnel:
+		h.handleTunnelMsgUpdateAndResetTunnel(ctx, evMap)
+	case *tunneltypes.MsgDepositToTunnel:
+		h.handleTunnelMsgDepositToTunnel(ctx, txHash, msg)
+	case *tunneltypes.MsgWithdrawFromTunnel:
+		h.handleTunnelMsgWithdrawFromTunnel(ctx, txHash, msg)
+	case *tunneltypes.MsgTriggerTunnel:
+		h.handleTunnelMsgTriggerTunnel(ctx, msg, evMap)
 	default:
 		break
 	}
@@ -163,6 +174,10 @@ func (h *Hook) handleMsgEvent(ctx sdk.Context, txHash []byte, event abci.Event) 
 		h.handleRestakeEventUnstake(ctx, evMap)
 	case restaketypes.EventTypeDeactivateVault:
 		h.handleRestakeEventDeactivateVault(ctx, evMap)
+	case tunneltypes.EventTypeActivateTunnel:
+		h.handleTunnelEventTypeActivateTunnel(ctx, evMap)
+	case tunneltypes.EventTypeDeactivateTunnel:
+		h.handleTunnelEventTypeDeactivateTunnel(ctx, evMap)
 	}
 }
 
@@ -222,6 +237,12 @@ func (h *Hook) handleBeginBlockEndBlockEvent(
 		for _, gid := range groupIDs {
 			h.handleTSSSetGroup(ctx, tss.GroupID(common.Atoi(gid)))
 		}
+	case tunneltypes.EventTypeProducePacketSuccess:
+		h.handleTunnelEventTypeProducePacketSuccess(ctx, evMap)
+	case tunneltypes.EventTypeActivateTunnel:
+		h.handleTunnelEventTypeActivateTunnel(ctx, evMap)
+	case tunneltypes.EventTypeDeactivateTunnel:
+		h.handleTunnelEventTypeDeactivateTunnel(ctx, evMap)
 	default:
 		break
 	}
