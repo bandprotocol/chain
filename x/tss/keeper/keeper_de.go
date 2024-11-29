@@ -45,17 +45,6 @@ func (k Keeper) DequeueDE(ctx sdk.Context, address sdk.AccAddress) (types.DE, er
 	if err != nil {
 		return types.DE{}, err
 	}
-
-	// Emit an event for the dequeued DE
-	sdk.NewEventManager().EmitEvent(
-		sdk.NewEvent(
-			types.EventTypeDEDequeued,
-			sdk.NewAttribute(types.AttributeKeyAddress, address.String()),
-			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(de.PubD)),
-			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(de.PubE)),
-		),
-	)
-
 	k.DeleteDE(ctx, address, deQueue.Head)
 
 	deQueue.Head += 1
@@ -73,9 +62,9 @@ func (k Keeper) ResetDE(ctx sdk.Context, address sdk.AccAddress) error {
 			return err
 		}
 
-		// Emit an event for the dequeued DE
+		// Emit an event for the deleted DE
 		ctx.EventManager().EmitEvent(sdk.NewEvent(
-			types.EventTypeDEDequeued,
+			types.EventTypeDEDeleted,
 			sdk.NewAttribute(types.AttributeKeyAddress, address.String()),
 			sdk.NewAttribute(types.AttributeKeyPubD, hex.EncodeToString(de.PubD)),
 			sdk.NewAttribute(types.AttributeKeyPubE, hex.EncodeToString(de.PubE)),
