@@ -1,25 +1,20 @@
 package emitter
 
 import (
-	"time"
-
 	abci "github.com/cometbft/cometbft/abci/types"
 
-	proto "github.com/cosmos/gogoproto/proto"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
 	connectiontypes "github.com/cosmos/ibc-go/v8/modules/core/03-connection/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/kv"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	"github.com/cosmos/cosmos-sdk/x/group"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -145,35 +140,6 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 		h.handleFeedsMsgSubmitSignalPrices(ctx, txHash, msg, "")
 	case *feedstypes.MsgUpdateReferenceSourceConfig:
 		h.handleFeedsMsgUpdateReferenceSourceConfig(ctx, msg)
-	case *group.MsgCreateGroup:
-		h.handleGroupMsgCreateGroup(ctx, evMap)
-	case *group.MsgCreateGroupPolicy:
-		h.handleGroupMsgCreateGroupPolicy(ctx, evMap)
-	case *group.MsgCreateGroupWithPolicy:
-		h.handleGroupMsgCreateGroupWithPolicy(ctx, evMap)
-	case *group.MsgExec:
-		h.handleGroupEventExec(evMap)
-	case *group.MsgLeaveGroup:
-		h.handleGroupMsgLeaveGroup(ctx, evMap)
-	case *group.MsgSubmitProposal:
-		h.handleGroupMsgSubmitProposal(ctx, evMap)
-	case *group.MsgUpdateGroupAdmin:
-		h.handleGroupMsgUpdateGroupAdmin(ctx, evMap)
-	case *group.MsgUpdateGroupMembers:
-		h.handleGroupMsgUpdateGroupMembers(ctx, msg)
-	case *group.MsgUpdateGroupMetadata:
-		h.handleGroupMsgUpdateGroupMetadata(ctx, evMap)
-	case *group.MsgUpdateGroupPolicyAdmin:
-		h.handleGroupMsgUpdateGroupPolicyAdmin(ctx, evMap)
-	case *group.MsgUpdateGroupPolicyDecisionPolicy:
-		h.handleGroupMsgUpdateGroupPolicyDecisionPolicy(ctx, evMap)
-	case *group.MsgUpdateGroupPolicyMetadata:
-		h.handleGroupMsgUpdateGroupPolicyMetadata(ctx, evMap)
-	case *group.MsgVote:
-		h.handleGroupMsgVote(ctx, msg, evMap)
-		h.handleGroupEventExec(evMap)
-	case *group.MsgWithdrawProposal:
-		h.handleGroupMsgWithdrawProposal(ctx, evMap)
 	case *tsstypes.MsgSubmitSignature:
 		h.handleTSSEventSubmitSignature(ctx, evMap)
 	case *tunneltypes.MsgCreateTunnel:
@@ -269,8 +235,6 @@ func (h *Hook) handleBeginBlockEndBlockEvent(
 		for _, gid := range groupIDs {
 			h.handleTSSSetGroup(ctx, tss.GroupID(common.Atoi(gid)))
 		}
-	case proto.MessageName(&group.EventProposalPruned{}):
-		h.handleGroupEventProposalPruned(evMap)
 	case tunneltypes.EventTypeProducePacketSuccess:
 		h.handleTunnelEventTypeProducePacketSuccess(ctx, evMap)
 	case tunneltypes.EventTypeActivateTunnel:
@@ -280,17 +244,4 @@ func (h *Hook) handleBeginBlockEndBlockEvent(
 	default:
 		break
 	}
-}
-
-func splitKeyWithTime(key []byte) (proposalID uint64, endTime time.Time) {
-	lenTime := len(sdk.FormatTimeBytes(time.Now()))
-	kv.AssertKeyLength(key[2:], 8+lenTime)
-
-	endTime, err := sdk.ParseTimeBytes(key[2 : 2+lenTime])
-	if err != nil {
-		panic(err)
-	}
-
-	proposalID = sdk.BigEndianToUint64(key[2+lenTime:])
-	return
 }
