@@ -182,6 +182,8 @@ func (h *Hook) handleBeginBlockEndBlockEvent(
 		h.handleBandtssEventGroupTransitionSuccess(ctx, evMap)
 	case bandtsstypes.EventTypeGroupTransitionFailed:
 		h.handleBandtssEventGroupTransitionFailed(ctx, evMap)
+	case bandtsstypes.EventTypeMemberDeleted:
+		h.handleBandtssEventDeleteMember(ctx, evMap)
 	case bandtsstypes.EventTypeSigningRequestCreated:
 		h.handleBandtssEventSigningRequestCreated(ctx, evMap)
 	case oracletypes.EventTypeResolve:

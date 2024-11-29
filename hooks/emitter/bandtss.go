@@ -70,8 +70,15 @@ func (h *Hook) emitSetBandtssMember(member types.Member) {
 	})
 }
 
+func (h *Hook) emitDeleteBandtssMembers(address string, groupID tss.GroupID) {
+	h.Write("REMOVE_BANDTSS_MEMBER", common.JsDict{
+		"address":      address,
+		"tss_group_id": groupID,
+	})
+}
+
 func (h *Hook) emitNewBandtssSigning(signing types.Signing, totalFee string) {
-	h.Write("New_BANDTSS_SIGNING", common.JsDict{
+	h.Write("NEW_BANDTSS_SIGNING", common.JsDict{
 		"id":                            signing.ID,
 		"fee_per_signer":                signing.FeePerSigner.String(),
 		"total_fee":                     totalFee,
@@ -203,6 +210,14 @@ func (h *Hook) handleBandtssEventGroupTransitionFailed(_ sdk.Context, evMap comm
 		CurrentGroupID:  tss.GroupID(common.Atoi(currentGroupIDs[0])),
 		IncomingGroupID: tss.GroupID(common.Atoi(incomingGroupIDs[0])),
 	})
+}
+
+// handleBandtssEventDeleteMember implements emitter handler for delete member event.
+func (h *Hook) handleBandtssEventDeleteMember(_ sdk.Context, evMap common.EvMap) {
+	groupID := tss.GroupID(common.Atoi(evMap[types.EventTypeMemberDeleted+"."+types.AttributeKeyGroupID][0]))
+	memberAddress := evMap[types.EventTypeMemberDeleted+"."+types.AttributeKeyAddress][0]
+
+	h.emitDeleteBandtssMembers(memberAddress, groupID)
 }
 
 // handleBandtssEventSigningRequestCreated implements emitter handler for MsgRequestSignature of bandtss.
