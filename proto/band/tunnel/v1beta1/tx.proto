@@ -53,7 +53,7 @@ message MsgCreateTunnel {
   // interval is the interval for delivering the signal prices in seconds.
   uint64 interval = 2;
   // route is the route for delivering the signal prices
-  google.protobuf.Any route = 3 [(cosmos_proto.accepts_interface) = "Route"];
+  google.protobuf.Any route = 3 [(cosmos_proto.accepts_interface) = "RouteI"];
   // encoder is the mode of encoding price signal data.
   band.feeds.v1beta1.Encoder encoder = 4;
   // initial_deposit is the deposit value that must be paid at tunnel creation.
