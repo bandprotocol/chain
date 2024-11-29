@@ -6,8 +6,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-
-	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 var (
@@ -48,7 +46,7 @@ func NewMsgCreateTSSTunnel(
 	interval uint64,
 	destinationChainID string,
 	destinationContractAddress string,
-	encoder feedstypes.Encoder,
+	encoder TSSRouteEncoder,
 	initialDeposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {

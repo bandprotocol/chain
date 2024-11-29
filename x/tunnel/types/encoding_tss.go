@@ -10,7 +10,7 @@ var (
 	packetABI, _ = abi.NewType("tuple", "result", []abi.ArgumentMarshaling{
 		{Name: "Sequence", Type: "uint64"},
 		{
-			Name:         "TSSPrices",
+			Name:         "RelayPrices",
 			Type:         "tuple[]",
 			InternalType: "struct Prices[]",
 			Components: []abi.ArgumentMarshaling{
@@ -28,21 +28,21 @@ var (
 
 // TSSPacket represents the Packet that will be used for encoding a tss message.
 type TSSPacket struct {
-	Sequence  uint64
-	TSSPrices []feedstypes.TSSPrice
-	CreatedAt int64
+	Sequence    uint64
+	RelayPrices []feedstypes.RelayPrice
+	CreatedAt   int64
 }
 
 // NewTSSPacket returns a new TssPacket object
 func NewTSSPacket(
 	sequence uint64,
-	tssPrices []feedstypes.TSSPrice,
+	relayPrices []feedstypes.RelayPrice,
 	createdAt int64,
 ) TSSPacket {
 	return TSSPacket{
-		Sequence:  sequence,
-		TSSPrices: tssPrices,
-		CreatedAt: createdAt,
+		Sequence:    sequence,
+		RelayPrices: relayPrices,
+		CreatedAt:   createdAt,
 	}
 }
 
@@ -51,16 +51,16 @@ func EncodeTSS(
 	sequence uint64,
 	prices []feedstypes.Price,
 	createdAt int64,
-	encoder feedstypes.Encoder,
+	encoder TSSRouteEncoder,
 ) ([]byte, error) {
 	switch encoder {
-	case feedstypes.ENCODER_FIXED_POINT_ABI:
-		tssPrices, err := feedstypes.ToTSSPrices(prices)
+	case TSS_ROUTE_ENCODER_FIXED_POINT_ABI:
+		relayPrices, err := feedstypes.ToRelayPrices(prices)
 		if err != nil {
 			return nil, err
 		}
 
-		tssPacket := NewTSSPacket(sequence, tssPrices, createdAt)
+		tssPacket := NewTSSPacket(sequence, relayPrices, createdAt)
 
 		bz, err := packetArgs.Pack(&tssPacket)
 		if err != nil {
@@ -68,13 +68,13 @@ func EncodeTSS(
 		}
 
 		return append([]byte(feedstypes.EncoderFixedPointABIPrefix), bz...), nil
-	case feedstypes.ENCODER_TICK_ABI:
-		tssPrices, err := feedstypes.ToTSSTickPrices(prices)
+	case TSS_ROUTE_ENCODER_TICK_ABI:
+		relayPrices, err := feedstypes.ToRelayTickPrices(prices)
 		if err != nil {
 			return nil, err
 		}
 
-		tssPacket := NewTSSPacket(sequence, tssPrices, createdAt)
+		tssPacket := NewTSSPacket(sequence, relayPrices, createdAt)
 
 		bz, err := packetArgs.Pack(&tssPacket)
 		if err != nil {

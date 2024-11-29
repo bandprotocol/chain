@@ -19,7 +19,6 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 
 	band "github.com/bandprotocol/chain/v3/app"
-	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel"
 	"github.com/bandprotocol/chain/v3/x/tunnel/keeper"
 	"github.com/bandprotocol/chain/v3/x/tunnel/testutil"
@@ -121,7 +120,7 @@ func (s *KeeperTestSuite) AddSampleTunnel(isActive bool) {
 	route := &types.TSSRoute{
 		DestinationChainID:         "chain-1",
 		DestinationContractAddress: "0x1234567890abcdef",
-		Encoder:                    feedstypes.ENCODER_FIXED_POINT_ABI,
+		Encoder:                    types.TSS_ROUTE_ENCODER_FIXED_POINT_ABI,
 	}
 
 	tunnel, err := k.AddTunnel(

@@ -25,20 +25,20 @@ var (
 	}
 )
 
-// TSSPrice represents the price data to be encoded for encoding abi
-type TSSPrice struct {
+// RelayPrice represents the price data for relaying to other chains.
+type RelayPrice struct {
 	SignalID [32]byte
 	Price    uint64
 }
 
-// NewTSSPrice creates a new EncodingPrice instance
-func NewTSSPrice(signalID [32]byte, price uint64) TSSPrice {
-	return TSSPrice{SignalID: signalID, Price: price}
+// NewRelayPrice creates a new RelayPrice instance
+func NewRelayPrice(signalID [32]byte, price uint64) RelayPrice {
+	return RelayPrice{SignalID: signalID, Price: price}
 }
 
-// ToTSSPrices converts a list of prices to TSSPrice
-func ToTSSPrices(prices []Price) ([]TSSPrice, error) {
-	tssPrices := make([]TSSPrice, 0, len(prices))
+// ToRelayPrices converts a list of prices to RelayPrice
+func ToRelayPrices(prices []Price) ([]RelayPrice, error) {
+	relayPrices := make([]RelayPrice, 0, len(prices))
 
 	for _, price := range prices {
 		signalID, err := StringToBytes32(price.SignalID)
@@ -46,15 +46,15 @@ func ToTSSPrices(prices []Price) ([]TSSPrice, error) {
 			return nil, ErrInvalidSignal.Wrapf("invalid signal id %s: %s", price.SignalID, err)
 		}
 
-		tssPrices = append(tssPrices, NewTSSPrice(signalID, price.Price))
+		relayPrices = append(relayPrices, NewRelayPrice(signalID, price.Price))
 	}
 
-	return tssPrices, nil
+	return relayPrices, nil
 }
 
-// ToTSSTickPrices converts a list of prices to TSSPrice with price converted to tick
-func ToTSSTickPrices(prices []Price) ([]TSSPrice, error) {
-	tssPrices := make([]TSSPrice, 0, len(prices))
+// ToRelayTickPrices converts a list of prices to RelayPrice with price converted to tick
+func ToRelayTickPrices(prices []Price) ([]RelayPrice, error) {
+	relayPrices := make([]RelayPrice, 0, len(prices))
 
 	for _, price := range prices {
 		signalID, err := StringToBytes32(price.SignalID)
@@ -70,34 +70,34 @@ func ToTSSTickPrices(prices []Price) ([]TSSPrice, error) {
 			}
 		}
 
-		tssPrices = append(tssPrices, NewTSSPrice(signalID, p))
+		relayPrices = append(relayPrices, NewRelayPrice(signalID, p))
 	}
 
-	return tssPrices, nil
+	return relayPrices, nil
 }
 
 // EncodeTSS encodes the feed prices to tss message
 func EncodeTSS(prices []Price, timestamp int64, encoder Encoder) ([]byte, error) {
 	switch encoder {
 	case ENCODER_FIXED_POINT_ABI:
-		tssPrices, err := ToTSSPrices(prices)
+		relayPrices, err := ToRelayPrices(prices)
 		if err != nil {
 			return nil, err
 		}
 
-		bz, err := feedsPriceDataArgs.Pack(tssPrices, timestamp)
+		bz, err := feedsPriceDataArgs.Pack(relayPrices, timestamp)
 		if err != nil {
 			return nil, ErrEncodingPriceFailed.Wrapf("failed to encode price data: %s", err)
 		}
 
 		return append([]byte(EncoderFixedPointABIPrefix), bz...), nil
 	case ENCODER_TICK_ABI:
-		tssTickPrices, err := ToTSSTickPrices(prices)
+		relayPrices, err := ToRelayTickPrices(prices)
 		if err != nil {
 			return nil, err
 		}
 
-		bz, err := feedsPriceDataArgs.Pack(tssTickPrices, timestamp)
+		bz, err := feedsPriceDataArgs.Pack(relayPrices, timestamp)
 		if err != nil {
 			return nil, ErrEncodingPriceFailed.Wrapf("failed to encode price data: %s", err)
 		}

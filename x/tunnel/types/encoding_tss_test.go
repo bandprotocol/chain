@@ -26,7 +26,7 @@ func TestEncodeTSSFixedPrice(t *testing.T) {
 			{SignalID: "signal_01", Price: 2, Status: feedstypes.PRICE_STATUS_AVAILABLE},
 		},
 		123,
-		feedstypes.ENCODER_FIXED_POINT_ABI,
+		types.TSS_ROUTE_ENCODER_FIXED_POINT_ABI,
 	)
 	require.NoError(t, err)
 
@@ -49,7 +49,7 @@ func TestEncodeTSSTick(t *testing.T) {
 			{SignalID: "signal_01", Price: 2, Status: feedstypes.PRICE_STATUS_AVAILABLE},
 		},
 		123,
-		feedstypes.ENCODER_TICK_ABI,
+		types.TSS_ROUTE_ENCODER_TICK_ABI,
 	)
 	require.NoError(t, err)
 

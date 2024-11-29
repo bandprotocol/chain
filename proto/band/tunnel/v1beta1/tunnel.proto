@@ -121,6 +121,20 @@ message TunnelSignatureOrder {
   repeated band.feeds.v1beta1.Price prices = 2 [(gogoproto.nullable) = false];
   // created_at is the timestamp when the packet is created
   int64 created_at = 3;
-  // encoder is the mode of encoding price data.
-  band.feeds.v1beta1.Encoder encoder = 4;
+  // encoder is the mode of encoding data.
+  TSSRouteEncoder encoder = 4;
+}
+
+// TSSRouteEncoder is an enumerator that defines the mode of encoding packet data of TSS route.
+enum TSSRouteEncoder {
+  option (gogoproto.goproto_enum_prefix) = false;
+
+  // TSS_ROUTE_ENCODER_UNSPECIFIED is an unspecified encoder mode.
+  TSS_ROUTE_ENCODER_UNSPECIFIED = 0;
+
+  // TSS_ROUTE_ENCODER_FIXED_POINT_ABI is a fixed-point price abi encoder (price * 10^9).
+  TSS_ROUTE_ENCODER_FIXED_POINT_ABI = 1;
+
+  // TSS_ROUTE_ENCODER_TICK_ABI is a tick abi encoder.
+  TSS_ROUTE_ENCODER_TICK_ABI = 2;
 }
