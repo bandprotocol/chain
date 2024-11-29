@@ -1266,7 +1266,7 @@ func (suite *DecoderTestSuite) TestDecodeTunnelMsgCreateTunnel() {
 	emitter.DecodeTunnelMsgCreateTunnel(msg, detail)
 	suite.testCompareJson(
 		detail,
-		"{\"creator\":\"band1gdex2ct5daeqqqqqqqqqqqqqqqqqqqqq8vcand\",\"encoder\":2,\"initial_deposit\":[{\"denom\":\"uband\",\"amount\":\"5\"}],\"interval\":60,\"route\":{\"destination_chain_id\":\"ethereum\",\"destination_contract_address\":\"0xcabe9a5e6249c893a4b4fc263\"},\"route_type\":\"/band.tunnel.v1beta1.TSSRoute\",\"signal_deviations\":[{\"signal_id\":\"CS:BAND-USD\",\"soft_deviation_bps\":10000,\"hard_deviation_bps\":10000}]}",
+		"{\"creator\":\"band1gdex2ct5daeqqqqqqqqqqqqqqqqqqqqq8vcand\",\"initial_deposit\":[{\"denom\":\"uband\",\"amount\":\"5\"}],\"interval\":60,\"route\":{\"destination_chain_id\":\"ethereum\",\"destination_contract_address\":\"0xcabe9a5e6249c893a4b4fc263\"},\"route_type\":\"/band.tunnel.v1beta1.TSSRoute\",\"signal_deviations\":[{\"signal_id\":\"CS:BAND-USD\",\"soft_deviation_bps\":10000,\"hard_deviation_bps\":10000}]}",
 	)
 }
 
