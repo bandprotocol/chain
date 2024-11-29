@@ -113,7 +113,6 @@ The IBC Route enables the transmission of data from BandChain to Cosmos-compatib
 We also provide a library, cw-band, that enables the use of the Tunnel via WASM contracts on the destination chain. You can find an example and further details here: [cw-band](https://github.com/bandprotocol/cw-band)
 
 To create an IBC tunnel, use the following CLI command:
-To create an IBC tunnel, use the following CLI command:
 
 > **Note**: An example of the signalInfos-json-file can be found at scripts/tunnel/signal_deviations.json.
 
