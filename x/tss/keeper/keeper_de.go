@@ -73,8 +73,7 @@ func (k Keeper) ResetDE(ctx sdk.Context, address sdk.AccAddress) error {
 		k.DeleteDE(ctx, address, i)
 	}
 
-	deQueue.Head = deQueue.Tail
-	k.SetDEQueue(ctx, address, deQueue)
+	k.SetDEQueue(ctx, address, types.NewDEQueue(0, 0))
 
 	return nil
 }

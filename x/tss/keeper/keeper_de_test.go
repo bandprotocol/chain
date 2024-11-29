@@ -172,7 +172,7 @@ func (s *KeeperTestSuite) TestResetDE() {
 
 	// Ensure DEQueue is reset
 	deQueue = k.GetDEQueue(ctx, address)
-	s.Require().Equal(types.DEQueue{Head: 2, Tail: 2}, deQueue)
+	s.Require().Equal(types.DEQueue{Head: 0, Tail: 0}, deQueue)
 
 	// Attempt to get deleted DE; should return error
 	_, err = k.DequeueDE(ctx, address)

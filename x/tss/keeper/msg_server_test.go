@@ -508,7 +508,7 @@ func (s *KeeperTestSuite) TestResetDEReq() {
 
 	// Check if DEs are reset
 	deQueue := k.GetDEQueue(ctx, sdk.MustAccAddressFromBech32("band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun"))
-	s.Require().Equal(types.DEQueue{Head: 2, Tail: 2}, deQueue)
+	s.Require().Equal(types.DEQueue{Head: 0, Tail: 0}, deQueue)
 }
 
 func (s *KeeperTestSuite) TestResetDEReqFromEmptyList() {
