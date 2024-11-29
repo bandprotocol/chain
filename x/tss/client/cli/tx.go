@@ -41,6 +41,7 @@ func GetTxCmd() *cobra.Command {
 		GetTxCmdComplain(),
 		GetTxCmdConfirm(),
 		GetTxCmdSubmitDEs(),
+		GetTxCmdResetDE(),
 		GetTxCmdSubmitSignature(),
 	)
 
@@ -351,6 +352,29 @@ func GetTxCmdSubmitDEs() *cobra.Command {
 			}
 
 			msg := types.NewMsgSubmitDEs(des, clientCtx.GetFromAddress().String())
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// GetTxCmdResetDE creates a CLI command for resetting DEs on chain.
+func GetTxCmdResetDE() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "reset-de",
+		Args:    cobra.NoArgs,
+		Short:   "Reset DEs on chain",
+		Example: fmt.Sprintf(`%s tx tss reset-de`, version.AppName),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgResetDE(clientCtx.GetFromAddress().String())
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

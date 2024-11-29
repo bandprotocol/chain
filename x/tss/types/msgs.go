@@ -15,6 +15,7 @@ var (
 	_ sdk.Msg = &MsgComplain{}
 	_ sdk.Msg = &MsgConfirm{}
 	_ sdk.Msg = &MsgSubmitDEs{}
+	_ sdk.Msg = &MsgResetDE{}
 	_ sdk.Msg = &MsgSubmitSignature{}
 	_ sdk.Msg = &MsgUpdateParams{}
 
@@ -23,6 +24,7 @@ var (
 	_ sdk.HasValidateBasic = (*MsgComplain)(nil)
 	_ sdk.HasValidateBasic = (*MsgConfirm)(nil)
 	_ sdk.HasValidateBasic = (*MsgSubmitDEs)(nil)
+	_ sdk.HasValidateBasic = (*MsgResetDE)(nil)
 	_ sdk.HasValidateBasic = (*MsgSubmitSignature)(nil)
 	_ sdk.HasValidateBasic = (*MsgUpdateParams)(nil)
 )
@@ -206,6 +208,27 @@ func (m MsgSubmitDEs) ValidateBasic() error {
 		if err := de.Validate(); err != nil {
 			return errorsmod.Wrapf(err, "DE index %d", i)
 		}
+	}
+
+	return nil
+}
+
+// ====================================
+// MsgResetDE
+// ====================================
+
+// NewMsgResetDE creates a new MsgResetDE instance.
+func NewMsgResetDE(sender string) *MsgResetDE {
+	return &MsgResetDE{
+		Sender: sender,
+	}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgResetDE) ValidateBasic() error {
+	// Validate member address
+	if _, err := sdk.AccAddressFromBech32(m.Sender); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
 	}
 
 	return nil
