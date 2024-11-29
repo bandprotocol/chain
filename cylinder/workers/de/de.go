@@ -173,7 +173,9 @@ func (de *DE) canUpdateDE() error {
 		return nil
 	}
 
-	return fmt.Errorf("the granter is not a member of the current group and gas price isn't set in the config")
+	return fmt.Errorf(
+		"the granter is not a member of the current or incoming group and gas price isn't set in the config",
+	)
 }
 
 // intervalUpdateDE updates DE on the chain so that the remaining DE is
