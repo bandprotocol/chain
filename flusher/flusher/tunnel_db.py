@@ -1,5 +1,6 @@
 import sqlalchemy as sa
 import enum
+from .feeds_db import CustomPriceStatus
 from .db import (
     metadata,
     Column,
@@ -76,13 +77,15 @@ tunnel_packets = sa.Table(
     Column("created_at", CustomDateTime),
 )
 
-tunnel_packet_signal_prices = sa.Table(
-    "tunnel_packet_signal_prices",
+tunnel_packet_prices = sa.Table(
+    "tunnel_packet_prices",
     metadata,
     Column("tunnel_id", sa.Integer, primary_key=True),
     Column("sequence", sa.Integer, primary_key=True),
     Column("signal_id", sa.String, primary_key=True),
+    Column("status", CustomPriceStatus),
     Column("price", sa.BigInteger),
+    Column("timestamp", CustomDateTime, index=True),
     sa.ForeignKeyConstraint(
         ["tunnel_id", "sequence"],
         ["tunnel_packets.tunnel_id", "tunnel_packets.sequence"],

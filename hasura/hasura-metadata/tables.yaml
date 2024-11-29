@@ -1122,7 +1122,7 @@
       using:
         foreign_key_constraint_on: tunnel_id
 - table:
-    name: tunnel_packet_signal_prices
+    name: tunnel_packet_prices
     schema: public
   object_relationships:
     - name: tunnel_packet
@@ -1143,7 +1143,7 @@
       using:
         foreign_key_constraint_on: tunnel_id
   array_relationships:
-    - name: tunnel_packet_signal_prices
+    - name: tunnel_packet_prices
       using:
         manual_configuration:
           column_mapping:
@@ -1151,7 +1151,7 @@
             tunnel_id: tunnel_id
           insertion_order: null
           remote_table:
-            name: tunnel_packet_signal_prices
+            name: tunnel_packet_prices
             schema: public
 - table:
     name: tunnels

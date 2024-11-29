@@ -74,7 +74,7 @@ from .tunnel_db import (
     tunnel_deposits,
     tunnel_historical_deposits,
     tunnel_packets,
-    tunnel_packet_signal_prices,
+    tunnel_packet_prices,
 )
 
 
@@ -919,11 +919,7 @@ class Handler(object):
             msg["fee_payer_id"] = self.get_account_id(msg["fee_payer"])
             del msg["fee_payer"]
 
-        self.conn.execute(
-            insert(tunnels)
-            .values(**msg)
-            .on_conflict_do_update(constraint="tunnels_pkey", set_=msg)
-        )
+        self.conn.execute(insert(tunnels).values(**msg).on_conflict_do_update(constraint="tunnels_pkey", set_=msg))
 
     def handle_update_tunnel_status(self, msg):
         condition = True
@@ -936,9 +932,7 @@ class Handler(object):
         del msg["depositor"]
 
         self.conn.execute(
-            insert(tunnel_deposits)
-            .values(**msg)
-            .on_conflict_do_update(constraint="tunnel_deposits_pkey", set_=msg)
+            insert(tunnel_deposits).values(**msg).on_conflict_do_update(constraint="tunnel_deposits_pkey", set_=msg)
         )
 
     def handle_remove_tunnel_deposit(self, msg):
@@ -960,32 +954,24 @@ class Handler(object):
         self.conn.execute(
             insert(tunnel_historical_deposits)
             .values(**msg)
-            .on_conflict_do_update(
-                constraint="tunnel_historical_deposits_pkey", set_=msg
-            )
+            .on_conflict_do_update(constraint="tunnel_historical_deposits_pkey", set_=msg)
         )
 
     def handle_set_tunnel_historical_signal_deviations(self, msg):
         self.conn.execute(
             insert(tunnel_historical_signal_deviations)
             .values(**msg)
-            .on_conflict_do_update(
-                constraint="tunnel_historical_signal_deviations_pkey", set_=msg
-            )
+            .on_conflict_do_update(constraint="tunnel_historical_signal_deviations_pkey", set_=msg)
         )
 
     def handle_set_tunnel_packet(self, msg):
         self.conn.execute(
-            insert(tunnel_packets)
-            .values(**msg)
-            .on_conflict_do_update(constraint="tunnel_packets_pkey", set_=msg)
+            insert(tunnel_packets).values(**msg).on_conflict_do_update(constraint="tunnel_packets_pkey", set_=msg)
         )
 
-    def handle_set_tunnel_packet_signal_price(self, msg):
+    def handle_set_tunnel_packet_price(self, msg):
         self.conn.execute(
-            insert(tunnel_packet_signal_prices)
+            insert(tunnel_packet_prices)
             .values(**msg)
-            .on_conflict_do_update(
-                constraint="tunnel_packet_signal_prices_pkey", set_=msg
-            )
+            .on_conflict_do_update(constraint="tunnel_packet_prices_pkey", set_=msg)
         )
