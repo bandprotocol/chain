@@ -1,8 +1,0 @@
-{
-    "@type": "/cosmos.group.v1.ThresholdDecisionPolicy",
-    "threshold": "2",
-    "windows": {
-        "voting_period": "1m",
-        "min_execution_period": "0s"
-    }
-}

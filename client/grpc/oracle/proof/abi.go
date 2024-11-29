@@ -16,17 +16,17 @@ var relayFormat = []byte(`
       },
       {
         "internalType": "bytes32",
-        "name": "paramsToRollingseedStoresMerkleHash",
+        "name": "paramsToRestakeStoresMerkleHash",
         "type": "bytes32"
       },
       {
         "internalType": "bytes32",
-        "name": "slashingToTssStoresMerkleHash",
+        "name": "rollingseedToTransferStoresMerkleHash",
         "type": "bytes32"
       },
       {
         "internalType": "bytes32",
-        "name": "upgradeStoreMerkleHash",
+        "name": "tssToUpgradeStoresMerkleHash",
         "type": "bytes32"
       },
       {
