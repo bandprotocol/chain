@@ -15,7 +15,7 @@ The Tunnel module is designed to decentralize the creation of push-based price d
       - [IBC Route](#ibc-route)
       - [TSS Route](#tss-route)
     - [Packet](#packet)
-      - [Packet Generation](#packet-generation)
+      - [Packet Generation Workflow](#packet-generation-workflow)
   - [State](#state)
     - [TunnelCount](#tunnelcount)
     - [TotalFee](#totalfee)
@@ -24,6 +24,7 @@ The Tunnel module is designed to decentralize the creation of push-based price d
     - [Packet](#packet-1)
     - [LatestPrices](#latestprices)
     - [Deposit](#deposit)
+    - [Port](#port)
     - [Params](#params)
   - [Msg](#msg)
     - [MsgCreateTunnel](#msgcreatetunnel)
@@ -52,14 +53,17 @@ The Tunnel module is designed to decentralize the creation of push-based price d
         - [Get Deposit by Depositor](#get-deposit-by-depositor)
         - [List All Packets for a Tunnel](#list-all-packets-for-a-tunnel)
         - [Get Packet by Sequence](#get-packet-by-sequence)
+        - [Get Total Fees](#get-total-fees)
 
 ## Concepts
 
 ### Tunnel
 
-The `x/tunnel` module defines a `Tunnel` type that specifies details such as the way to send the data to the destination ([Route](#route)), the type of price data to encode, the fee payer's address for packet fees, and the total deposit of the tunnel (which must meet a minimum requirement to activate). It also includes the interval and deviation settings for the price data used when producing packets at every end-block.
+The `x/tunnel` module defines a `Tunnel` type that specifies details such as the way to send the data to the destination ([Route](#route)), the type of price data to encode, the address of the fee payer responsible for covering packet fees, and the total deposit of the tunnel (which must meet a minimum requirement to activate) and the interval and deviation settings applied to price data during packet production at each end-block.
 
-Users can create a new tunnel by sending a `MsgCreateTunnel` message to BandChain, specifying the desired signals and deviations. The available routes for tunnels are provided in the [Route](#route) concepts.
+Users can create a new tunnel by submitting a `MsgCreateTunnel` message to BandChain, specifying the desired signals, deviations, interval, and the route to which the data should be sent. The available routes for tunnels are detailed in the [Route](#route) section.
+
+The Tunnel type represents a structure with the following fields:
 
 ```go
 type Tunnel struct {
@@ -92,10 +96,23 @@ type Tunnel struct {
 
 A Route defines the secure method for transmitting price data to a destination chain using a tunnel. It specifies the pathway and protocols that ensure safe and reliable data delivery from BandChain to other EVM-compatible chains or Cosmos-based blockchains.
 
+The Route must be implemented using the RouteI interface to ensure compatibility and functionality
+
+```go
+type RouteI interface {
+  proto.Message
+
+  ValidateBasic() error
+}
+```
+
 #### IBC Route
 
 The IBC Route enables the transmission of data from BandChain to Cosmos-compatible chains via the Inter-Blockchain Communication (IBC) protocol. This route allows for secure and efficient cross-chain communication, leveraging the standardized IBC protocol to transmit packets of data between chains.
 
+We also provide a library, cw-band, that enables the use of the Tunnel via WASM contracts on the destination chain. You can find an example and further details here: [cw-band](https://github.com/bandprotocol/cw-band)
+
+To create an IBC tunnel, use the following CLI command:
 To create an IBC tunnel, use the following CLI command:
 
 > **Note**: An example of the signalInfos-json-file can be found at scripts/tunnel/signal_deviations.json.
@@ -110,7 +127,9 @@ bandd tx tunnel create-tunnel ibc [channel-id] [encoder] [initial-deposit] [inte
 
 ### Packet
 
-A Packet is the data unit produced and sent to the destination chain based on the specified route.
+A Packet represents the signal price data produced at the end of a block, based on the interval and deviation configured by the tunnel's creator. This data is then sent to the destination according to the specified route.
+
+The Packet type represents a structure with the following fields:
 
 ```go
 type Packet struct {
@@ -131,14 +150,13 @@ type Packet struct {
 }
 ```
 
-#### Packet Generation
+#### Packet Generation Workflow
 
-At the end of every block, the tunnel generates packets by checking the deviations and intervals for each tunnel. We utilize both hard and soft deviations:
+At the end of each block, the tunnel generates packets by evaluating the deviations and intervals for all tunnels. The system uses two types of deviations: hard deviations and soft deviations, which are explained in detail below.
 
-- **Hard Deviation**: If any signal reaches this threshold, the system triggers a check on all soft deviations.
-- **Soft Deviation**: If any signal meets its soft deviation criteria during this check, the latest price is sent in the packet.
+If any signal exceeds the hard deviation threshold, it is appended to the list of signals to be sent. Additionally, if any signal meets its soft deviation criteria while another symbol surpasses the hard deviation threshold, that signal is also added to the list.
 
-This mechanism helps reduce the number of transactions on the destination route during periods of market instability.
+This mechanism is designed to optimize transaction efficiency on the destination route, particularly during periods of market instability, by reducing the number of unnecessary transactions.
 
 ## State
 
@@ -146,7 +164,7 @@ This mechanism helps reduce the number of transactions on the destination route 
 
 Stores the number of tunnels existing on the chain.
 
-- **TunnelCount**: `0x00 | -> BigEndian(#tunnels)`
+- **TunnelCount**: `0x00 | -> BigEndian(count)`
 
 ### TotalFee
 
@@ -184,6 +202,12 @@ Stores the total deposit per tunnel by each depositor.
 
 - **Deposit**: `0x14 | TunnelID | DepositorAddress -> Deposit`
 
+### Port
+
+Stores the port ID used by the tunnel to interact with the IBC protocol.
+
+- **Port**: `0xf0 -> PortID`
+
 ### Params
 
 Stores the parameters in the state. These parameters can be updated via a governance proposal or by an authority address.
@@ -194,21 +218,20 @@ The `x/tunnel` module contains the following parameters:
 
 ```go
 type Params struct {
-    // MinDeposit is the minimum deposit required to create a tunnel.
-    MinDeposit sdk.Coins
-    // MinInterval is the minimum interval in seconds.
-    MinInterval uint64
-    // MaxInterval is the maximum interval in seconds.
-    MaxInterval uint64
-    // MinDeviationBPS is the minimum deviation in basis points.
-    MinDeviationBPS uint64
-    // MaxDeviationBPS is the maximum deviation in basis points.
-    MaxDeviationBPS uint64
-    // MaxSignals defines the maximum number of signals allowed per tunnel.
-    MaxSignals uint64
-    // BasePacketFee is the base fee for each packet.
-    BasePacketFee sdk.Coins
-}
+  // min_deposit is the minimum deposit required to create a tunnel.
+  MinDeposit sdk.Coins
+  // min_interval is the minimum interval in seconds.
+  MinInterval uint64
+  // max_interval is the maximum interval in seconds.
+  MaxInterval uint64
+  // min_deviation_bps is the minimum deviation in basis points.
+  MinDeviationBPS uint64
+  // max_deviation_bps is the maximum deviation in basis points.
+  MaxDeviationBPS uint64
+  // max_signals defines the maximum number of signals allowed per tunnel.
+  MaxSignals uint64
+  // base_packet_fee is the base fee for each packet.
+  BasePacketFee sdk.Coins
 ```
 
 ## Msg
@@ -228,7 +251,7 @@ message MsgCreateTunnel {
   // interval is the interval for delivering the signal prices.
   uint64 interval = 2;
   // route is the route for delivering the signal prices
-  google.protobuf.Any route = 3 [(cosmos_proto.accepts_interface) = "Route"];
+  google.protobuf.Any route = 3 [(cosmos_proto.accepts_interface) = "RouteI"];
   // encoder is the mode of encoding price signal data.
   Encoder encoder = 4;
   // initial_deposit is the deposit value that must be paid at tunnel creation.
@@ -247,7 +270,7 @@ message MsgCreateTunnel {
 - **Encoder Types**: Specifies the type of price value to be sent to the destination route.
   - Price
   - Tick
-- **Initial Deposit**: The initial deposit can be set to zero. Other users can contribute to the tunnel's deposit until it reaches the required minimum deposit.
+- **Initial Deposit**: The initial deposit can be set to zero. Other users can contribute to the tunnel's deposit by send [MsgDepositToTunnel](#msgdeposittotunnel) message until it reaches the required minimum deposit.
 
 ### MsgUpdateAndResetTunnel
 
@@ -539,4 +562,12 @@ To query a specific packet produced by a tunnel using its sequence number:
 
 ```bash
 bandd query tunnel packet [tunnel-id] [sequence]
+```
+
+##### Get Total Fees
+
+To query the total fees collected by the tunnel module:
+
+```bash
+bandd query tunnel total-fees
 ```
