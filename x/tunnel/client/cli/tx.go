@@ -113,16 +113,11 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 
 func GetTxCmdCreateIBCTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "ibc [channel-id] [encoder] [initial-deposit] [interval] [signalInfos-json-file]",
+		Use:   "ibc [channel-id] [initial-deposit] [interval] [signalInfos-json-file]",
 		Short: "Create a new IBC tunnel",
 		Args:  cobra.ExactArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
-			if err != nil {
-				return err
-			}
-
-			encoder, err := strconv.ParseInt(args[1], 10, 32)
 			if err != nil {
 				return err
 			}
@@ -146,7 +141,6 @@ func GetTxCmdCreateIBCTunnel() *cobra.Command {
 				signalInfos.ToSignalDeviations(),
 				interval,
 				args[0],
-				feedstypes.Encoder(encoder),
 				initialDeposit,
 				clientCtx.GetFromAddress(),
 			)

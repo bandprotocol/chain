@@ -66,7 +66,6 @@ func NewMsgCreateIBCTunnel(
 	signalDeviations []SignalDeviation,
 	interval uint64,
 	channelID string,
-	encoder feedstypes.Encoder,
 	deposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
