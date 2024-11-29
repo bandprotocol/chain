@@ -13,7 +13,6 @@
 * (chain) Remove `gogoproto.goproto_stringer` option on param
 * (chain) Return error on AllocationToken at beginblock instead of panic
 * (chain) Migrate REST Endpoint to GRPC
-* (chain) Add group module from cosmos-sdk
 * (chain) Change the allocation of remaining tokens from the community pool to the Proposer
 * (chain) Add consensus module to handle managing Tendermint consensus parameters
 * (chain) Add autocli for oracle module
