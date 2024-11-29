@@ -39,11 +39,6 @@ from .db import (
     counterparty_chains,
     connections,
     channels,
-    groups,
-    group_members,
-    group_policies,
-    group_proposals,
-    group_votes,
     relayer_tx_stat_days,
 )
 
@@ -123,11 +118,6 @@ class Handler(object):
     def get_oracle_script_id(self, id):
         return self.conn.execute(select([oracle_scripts.c.id]).where(oracle_scripts.c.id == id)).scalar()
 
-    def get_group_id_from_policy_address(self, address):
-        return self.conn.execute(
-            select([group_policies.c.group_id]).where(group_policies.c.address == address)
-        ).scalar()
-
     def get_ibc_received_txs(self, date, port, channel, address):
         msg = {"date": date, "port": port, "channel": channel, "address": address}
         condition = True
@@ -187,51 +177,6 @@ class Handler(object):
         msg["accumulated_revenue"] = 0
         self.conn.execute(data_sources.insert(), msg)
         self.init_data_source_request_count(msg["id"])
-
-    def handle_new_group(self, msg):
-        self.conn.execute(groups.insert(), msg)
-
-    def handle_new_group_member(self, msg):
-        msg["account_id"] = self.get_account_id(msg["address"])
-        del msg["address"]
-        self.conn.execute(group_members.insert(), msg)
-
-    def handle_new_group_policy(self, msg):
-        self.get_account_id(msg["address"])
-        self.conn.execute(group_policies.insert(), msg)
-
-    def handle_new_group_proposal(self, msg):
-        msg["group_id"] = self.get_group_id_from_policy_address(msg["group_policy_address"])
-        self.conn.execute(group_proposals.insert(), msg)
-
-    def handle_new_group_vote(self, msg):
-        msg["voter_id"] = self.get_account_id(msg["voter_address"])
-        del msg["voter_address"]
-        self.conn.execute(group_votes.insert(), msg)
-
-    def handle_update_group(self, msg):
-        self.conn.execute(groups.update().where(groups.c.id == msg["id"]).values(**msg))
-
-    def handle_remove_group_member(self, msg):
-        account_id = self.get_account_id(msg["address"])
-        self.conn.execute(
-            group_members.delete().where(
-                (group_members.c.group_id == msg["group_id"]) & (group_members.c.account_id == account_id)
-            )
-        )
-
-    def handle_remove_group_members_by_group_id(self, msg):
-        self.conn.execute(group_members.delete().where(group_members.c.group_id == msg["group_id"]))
-
-    def handle_update_group_policy(self, msg):
-        self.conn.execute(group_policies.update().where(group_policies.c.address == msg["address"]).values(**msg))
-
-    def handle_update_group_proposal(self, msg):
-        msg["group_id"] = self.get_group_id_from_policy_address(msg["group_policy_address"])
-        self.conn.execute(group_proposals.update().where(group_proposals.c.id == msg["id"]).values(**msg))
-
-    def handle_update_group_proposal_by_id(self, msg):
-        self.conn.execute(group_proposals.update().where(group_proposals.c.id == msg["id"]).values(**msg))
 
     def handle_set_data_source(self, msg):
         msg["transaction_id"] = self.get_transaction_id(msg["tx_hash"])

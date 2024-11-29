@@ -13,7 +13,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	"github.com/cosmos/cosmos-sdk/x/group"
 
 	"github.com/bandprotocol/chain/v3/app/keepers"
 	"github.com/bandprotocol/chain/v3/hooks/common"
@@ -49,7 +48,6 @@ func NewAppHooks(appCodec codec.Codec,
 			keepers.MintKeeper,
 			keepers.DistrKeeper,
 			keepers.GovKeeper,
-			keepers.GroupKeeper,
 			keepers.OracleKeeper,
 			keepers.RestakeKeeper,
 			keepers.FeedsKeeper,
@@ -59,7 +57,6 @@ func NewAppHooks(appCodec codec.Codec,
 			keepers.IBCKeeper.ClientKeeper,
 			keepers.IBCKeeper.ConnectionKeeper,
 			keepers.IBCKeeper.ChannelKeeper,
-			keepers.GetKey(group.StoreKey),
 			emitterURI,
 			false,
 		))

@@ -17,7 +17,6 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	"github.com/cosmos/cosmos-sdk/x/group"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 
@@ -161,34 +160,6 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeTSSMsgSubmitSignature(msg, detail)
 	case *tsstypes.MsgUpdateParams:
 		DecodeTSSMsgUpdateParams(msg, detail)
-	case *group.MsgCreateGroup:
-		DecodeGroupMsgCreateGroup(msg, detail)
-	case *group.MsgCreateGroupPolicy:
-		DecodeGroupMsgCreateGroupPolicy(msg, detail)
-	case *group.MsgCreateGroupWithPolicy:
-		DecodeGroupMsgCreateGroupWithPolicy(msg, detail)
-	case *group.MsgExec:
-		DecodeGroupMsgExec(msg, detail)
-	case *group.MsgLeaveGroup:
-		DecodeGroupMsgLeaveGroup(msg, detail)
-	case *group.MsgSubmitProposal:
-		DecodeGroupMsgSubmitProposal(msg, detail)
-	case *group.MsgUpdateGroupAdmin:
-		DecodeGroupMsgUpdateGroupAdmin(msg, detail)
-	case *group.MsgUpdateGroupMembers:
-		DecodeGroupMsgUpdateGroupMembers(msg, detail)
-	case *group.MsgUpdateGroupMetadata:
-		DecodeGroupMsgUpdateGroupMetadata(msg, detail)
-	case *group.MsgUpdateGroupPolicyAdmin:
-		DecodeGroupMsgUpdateGroupPolicyAdmin(msg, detail)
-	case *group.MsgUpdateGroupPolicyDecisionPolicy:
-		DecodeGroupMsgUpdateGroupPolicyDecisionPolicy(msg, detail)
-	case *group.MsgUpdateGroupPolicyMetadata:
-		DecodeGroupMsgUpdateGroupPolicyMetadata(msg, detail)
-	case *group.MsgVote:
-		DecodeGroupMsgVote(msg, detail)
-	case *group.MsgWithdrawProposal:
-		DecodeGroupMsgWithdrawProposal(msg, detail)
 	case *restaketypes.MsgStake:
 		DecodeRestakeMsgStake(msg, detail)
 	case *restaketypes.MsgUnstake:
@@ -789,111 +760,6 @@ func DecodeTSSMsgSubmitSignature(msg *tsstypes.MsgSubmitSignature, detail common
 func DecodeTSSMsgUpdateParams(msg *tsstypes.MsgUpdateParams, detail common.JsDict) {
 	detail["params"] = msg.GetParams()
 	detail["authority"] = msg.GetAuthority()
-}
-
-func DecodeGroupMsgCreateGroup(msg *group.MsgCreateGroup, detail common.JsDict) {
-	detail["admin"] = msg.Admin
-	detail["members"] = msg.Members
-	detail["metadata"] = msg.Metadata
-}
-
-func DecodeGroupMsgCreateGroupPolicy(msg *group.MsgCreateGroupPolicy, detail common.JsDict) {
-	detail["admin"] = msg.Admin
-	detail["group_id"] = msg.GroupId
-	detail["metadata"] = msg.Metadata
-	detail["decision_policy"] = msg.DecisionPolicy.GetCachedValue()
-}
-
-func DecodeGroupMsgCreateGroupWithPolicy(msg *group.MsgCreateGroupWithPolicy, detail common.JsDict) {
-	detail["admin"] = msg.Admin
-	detail["members"] = msg.Members
-	detail["group_metadata"] = msg.GroupMetadata
-	detail["group_policy_metadata"] = msg.GroupPolicyMetadata
-	detail["group_policy_as_admin"] = msg.GroupPolicyAsAdmin
-	detail["decision_policy"] = msg.DecisionPolicy.GetCachedValue()
-}
-
-func DecodeGroupMsgExec(msg *group.MsgExec, detail common.JsDict) {
-	detail["proposal_id"] = msg.ProposalId
-	detail["executor"] = msg.Executor
-}
-
-func DecodeGroupMsgLeaveGroup(msg *group.MsgLeaveGroup, detail common.JsDict) {
-	detail["address"] = msg.Address
-	detail["group_id"] = msg.GroupId
-}
-
-func DecodeGroupMsgSubmitProposal(msg *group.MsgSubmitProposal, detail common.JsDict) {
-	detail["group_policy_address"] = msg.GroupPolicyAddress
-	detail["proposers"] = msg.Proposers
-	detail["metadata"] = msg.Metadata
-
-	msgs, _ := msg.GetMsgs()
-	messages := make([]common.JsDict, len(msgs))
-	for i, m := range msgs {
-		detail := make(common.JsDict)
-		DecodeMsg(m, detail)
-		messages[i] = common.JsDict{
-			"msg":  detail,
-			"type": sdk.MsgTypeURL(m),
-		}
-	}
-	detail["msgs"] = messages
-
-	detail["exec"] = msg.Exec.String()
-	detail["summary"] = msg.Summary
-}
-
-func DecodeGroupMsgUpdateGroupAdmin(msg *group.MsgUpdateGroupAdmin, detail common.JsDict) {
-	detail["admin"] = msg.Admin
-	detail["group_id"] = msg.GroupId
-	detail["new_admin"] = msg.NewAdmin
-}
-
-func DecodeGroupMsgUpdateGroupMembers(msg *group.MsgUpdateGroupMembers, detail common.JsDict) {
-	detail["admin"] = msg.Admin
-	detail["group_id"] = msg.GroupId
-	detail["members"] = msg.MemberUpdates
-}
-
-func DecodeGroupMsgUpdateGroupMetadata(msg *group.MsgUpdateGroupMetadata, detail common.JsDict) {
-	detail["admin"] = msg.Admin
-	detail["group_id"] = msg.GroupId
-	detail["metadata"] = msg.Metadata
-}
-
-func DecodeGroupMsgUpdateGroupPolicyAdmin(msg *group.MsgUpdateGroupPolicyAdmin, detail common.JsDict) {
-	detail["admin"] = msg.Admin
-	detail["group_policy_address"] = msg.GroupPolicyAddress
-	detail["new_admin"] = msg.NewAdmin
-}
-
-func DecodeGroupMsgUpdateGroupPolicyDecisionPolicy(
-	msg *group.MsgUpdateGroupPolicyDecisionPolicy,
-	detail common.JsDict,
-) {
-	detail["admin"] = msg.Admin
-	detail["group_policy_address"] = msg.GroupPolicyAddress
-	detail["decision_policy"] = msg.DecisionPolicy.GetCachedValue()
-}
-
-func DecodeGroupMsgUpdateGroupPolicyMetadata(msg *group.MsgUpdateGroupPolicyMetadata, detail common.JsDict) {
-	detail["admin"] = msg.Admin
-	detail["group_policy_address"] = msg.GroupPolicyAddress
-	detail["metadata"] = msg.Metadata
-}
-
-func DecodeGroupMsgVote(msg *group.MsgVote, detail common.JsDict) {
-	detail["proposal_id"] = msg.ProposalId
-	detail["voter"] = msg.Voter
-	detail["option"] = msg.Option
-	detail["metadata"] = msg.Metadata
-	detail["exec"] = msg.Exec.String()
-}
-
-func DecodeGroupMsgWithdrawProposal(msg *group.MsgWithdrawProposal, detail common.JsDict) {
-	detail["proposal_id"] = msg.ProposalId
-	detail["address"] = msg.Address
 }
 
 func DecodeRestakeMsgStake(msg *restaketypes.MsgStake, detail common.JsDict) {
