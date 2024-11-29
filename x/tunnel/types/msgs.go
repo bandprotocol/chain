@@ -21,7 +21,6 @@ func NewMsgCreateTunnel(
 	signalDeviations []SignalDeviation,
 	interval uint64,
 	route RouteI,
-	encoder feedstypes.Encoder,
 	initialDeposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
@@ -38,7 +37,6 @@ func NewMsgCreateTunnel(
 		SignalDeviations: signalDeviations,
 		Interval:         interval,
 		Route:            any,
-		Encoder:          encoder,
 		InitialDeposit:   initialDeposit,
 		Creator:          creator.String(),
 	}, nil
@@ -54,8 +52,8 @@ func NewMsgCreateTSSTunnel(
 	initialDeposit sdk.Coins,
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
-	r := NewTSSRoute(destinationChainID, destinationContractAddress)
-	m, err := NewMsgCreateTunnel(signalDeviations, interval, &r, encoder, initialDeposit, creator)
+	r := NewTSSRoute(destinationChainID, destinationContractAddress, encoder)
+	m, err := NewMsgCreateTunnel(signalDeviations, interval, &r, initialDeposit, creator)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +71,7 @@ func NewMsgCreateIBCTunnel(
 	creator sdk.AccAddress,
 ) (*MsgCreateTunnel, error) {
 	r := NewIBCRoute(channelID)
-	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, encoder, deposit, creator)
+	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, deposit, creator)
 	if err != nil {
 		return nil, err
 	}
@@ -112,11 +110,6 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 		return err
 	}
 	if err := r.ValidateBasic(); err != nil {
-		return err
-	}
-
-	// encoder must be valid
-	if err := feedstypes.ValidateEncoder(m.Encoder); err != nil {
 		return err
 	}
 

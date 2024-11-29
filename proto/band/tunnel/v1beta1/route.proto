@@ -17,6 +17,8 @@ message TSSRoute {
   string destination_chain_id = 1 [(gogoproto.customname) = "DestinationChainID"];
   // destination_contract_address is the destination contract address
   string destination_contract_address = 2;
+  // encoder is the mode of encoding price data.
+  band.feeds.v1beta1.Encoder encoder = 3;
 }
 
 // TSSPacketReceipt represents a receipt for a TSS packet and implements the PacketReceiptI interface.

@@ -75,7 +75,7 @@ func testBenchmarkTunnel(numTunnels, numSignals, maxSignals int, encoder feedsty
 				signalDeviations = append(signalDeviations, globalSignalDeviations[signalIdx[j]])
 			}
 
-			err := createNewTunnel(ba, &types.TSSRoute{}, signalDeviations, 1000, encoder)
+			err := createNewTunnel(ba, &types.TSSRoute{Encoder: encoder}, signalDeviations, 1000)
 			require.NoError(b, err)
 		}
 
@@ -123,11 +123,10 @@ func createNewTunnel(
 	route types.RouteI,
 	signalDeviations []types.SignalDeviation,
 	interval uint64,
-	encoder feedstypes.Encoder,
 ) error {
 	creator := bandtesting.Alice.Address
 	tunnel, err := ba.TunnelKeeper.AddTunnel(
-		ba.Ctx, route, encoder, signalDeviations, interval, creator,
+		ba.Ctx, route, signalDeviations, interval, creator,
 	)
 	if err != nil {
 		return err
