@@ -168,7 +168,8 @@ func (de *DE) canUpdateDE() error {
 		return fmt.Errorf("failed to query member information: %w", err)
 	}
 
-	if resp.CurrentGroupMember.Address == de.context.Config.Granter {
+	if resp.CurrentGroupMember.Address == de.context.Config.Granter ||
+		resp.IncomingGroupMember.Address == de.context.Config.Granter {
 		return nil
 	}
 
