@@ -6,9 +6,15 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/bandprotocol/chain/v3/pkg/tss"
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
+
+func TestEncoderPrefix(t *testing.T) {
+	require.Equal(t, []byte(types.EncoderFixedPointABIPrefix), tss.Hash([]byte("FixedPointABI"))[:4])
+	require.Equal(t, []byte(types.EncoderTickABIPrefix), tss.Hash([]byte("TickABI"))[:4])
+}
 
 func TestEncodeTSSFixedPrice(t *testing.T) {
 	expectedMsg := ("cba0ad5a" +

@@ -6,6 +6,11 @@ import (
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
+const (
+	EncoderFixedPointABIPrefix = "\xcb\xa0\xad\x5a" // tss.Hash([]byte("FixedPointABI"))[:4]
+	EncoderTickABIPrefix       = "\xdb\x99\xb2\xb3" // tss.Hash([]byte("TickABI"))[:4]
+)
+
 var (
 	packetABI, _ = abi.NewType("tuple", "result", []abi.ArgumentMarshaling{
 		{Name: "Sequence", Type: "uint64"},
@@ -67,7 +72,7 @@ func EncodeTSS(
 			return nil, err
 		}
 
-		return append([]byte(feedstypes.EncoderFixedPointABIPrefix), bz...), nil
+		return append([]byte(EncoderFixedPointABIPrefix), bz...), nil
 	case TSS_ROUTE_ENCODER_TICK_ABI:
 		relayPrices, err := feedstypes.ToRelayTickPrices(prices)
 		if err != nil {
@@ -81,7 +86,7 @@ func EncodeTSS(
 			return nil, err
 		}
 
-		return append([]byte(feedstypes.EncoderTickABIPrefix), bz...), nil
+		return append([]byte(EncoderTickABIPrefix), bz...), nil
 	default:
 		return nil, ErrInvalidEncoder.Wrapf("invalid encoder mode: %s", encoder.String())
 	}

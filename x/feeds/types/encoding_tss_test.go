@@ -39,7 +39,7 @@ func TestTickPriceEncoderEncodingABI(t *testing.T) {
 	require.Equal(t, expected, hex.EncodeToString(result))
 }
 
-func TestTSSTick(t *testing.T) {
+func TestToRelayPrices(t *testing.T) {
 	signalIDAtom, err := types.StringToBytes32("CS:ATOM-USD")
 	require.NoError(t, err)
 
@@ -104,7 +104,7 @@ func TestTSSTick(t *testing.T) {
 	}
 }
 
-func TestToTSSTickPrices(t *testing.T) {
+func TestToRelayTickPrices(t *testing.T) {
 	signalIDAtom, err := types.StringToBytes32("CS:ATOM-USD")
 	require.NoError(t, err)
 
