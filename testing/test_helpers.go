@@ -89,11 +89,11 @@ const (
 var DefaultConsensusParams = &cmtproto.ConsensusParams{
 	Block: &cmtproto.BlockParams{
 		MaxBytes: 3000000,
-		MaxGas:   -1,
+		MaxGas:   -1, // no limit
 	},
 	Evidence: &cmtproto.EvidenceParams{
 		MaxAgeNumBlocks: 100000,
-		MaxAgeDuration:  48 * time.Hour, // 3 weeks is the max duration
+		MaxAgeDuration:  48 * time.Hour,
 		MaxBytes:        1048576,
 	},
 	Validator: &cmtproto.ValidatorParams{
