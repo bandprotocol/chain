@@ -5,6 +5,7 @@ import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 
 import "band/feeds/v1beta1/feeds.proto";
+import "band/tunnel/v1beta1/tunnel.proto";
 
 option go_package            = "github.com/bandprotocol/chain/v3/x/tunnel/types";
 option (gogoproto.equal_all) = true;
@@ -17,6 +18,8 @@ message TSSRoute {
   string destination_chain_id = 1 [(gogoproto.customname) = "DestinationChainID"];
   // destination_contract_address is the destination contract address
   string destination_contract_address = 2;
+  // encoder is the mode of encoding packet data.
+  TSSRouteEncoder encoder = 3;
 }
 
 // TSSPacketReceipt represents a receipt for a TSS packet and implements the PacketReceiptI interface.

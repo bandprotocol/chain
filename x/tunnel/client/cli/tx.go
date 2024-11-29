@@ -10,7 +10,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
@@ -70,10 +69,6 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 				return err
 			}
 
-			if feedstypes.ValidateEncoder(feedstypes.Encoder(encoder)) != nil {
-				return types.ErrInvalidEncoder
-			}
-
 			initialDeposit, err := sdk.ParseCoinsNormalized(args[3])
 			if err != nil {
 				return err
@@ -94,7 +89,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 				interval,
 				destChainID,
 				destContractAddr,
-				feedstypes.Encoder(encoder),
+				types.TSSRouteEncoder(encoder),
 				initialDeposit,
 				clientCtx.GetFromAddress(),
 			)
@@ -113,31 +108,26 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 
 func GetTxCmdCreateIBCTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "ibc [channel-id] [encoder] [initial-deposit] [interval] [signalInfos-json-file]",
+		Use:   "ibc [channel-id] [initial-deposit] [interval] [signalInfos-json-file]",
 		Short: "Create a new IBC tunnel",
-		Args:  cobra.ExactArgs(5),
+		Args:  cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			encoder, err := strconv.ParseInt(args[1], 10, 32)
+			initialDeposit, err := sdk.ParseCoinsNormalized(args[1])
 			if err != nil {
 				return err
 			}
 
-			initialDeposit, err := sdk.ParseCoinsNormalized(args[2])
+			interval, err := strconv.ParseUint(args[2], 10, 64)
 			if err != nil {
 				return err
 			}
 
-			interval, err := strconv.ParseUint(args[3], 10, 64)
-			if err != nil {
-				return err
-			}
-
-			signalInfos, err := parseSignalDeviations(args[4])
+			signalInfos, err := parseSignalDeviations(args[3])
 			if err != nil {
 				return err
 			}
@@ -146,7 +136,6 @@ func GetTxCmdCreateIBCTunnel() *cobra.Command {
 				signalInfos.ToSignalDeviations(),
 				interval,
 				args[0],
-				feedstypes.Encoder(encoder),
 				initialDeposit,
 				clientCtx.GetFromAddress(),
 			)

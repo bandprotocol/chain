@@ -29,6 +29,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 	route := &types.TSSRoute{
 		DestinationChainID:         "chain-1",
 		DestinationContractAddress: "0x1234567890abcdef",
+		Encoder:                    types.TSS_ROUTE_ENCODER_FIXED_POINT_ABI,
 	}
 
 	cases := map[string]struct {
@@ -46,7 +47,6 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 					signalDeviations,
 					60,
 					route,
-					feedstypes.ENCODER_FIXED_POINT_ABI,
 					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
 					sdk.AccAddress([]byte("creator_address")),
 				)
@@ -65,7 +65,6 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 					signalDeviations,
 					60,
 					route,
-					feedstypes.ENCODER_FIXED_POINT_ABI,
 					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
 					sdk.AccAddress([]byte("creator_address")),
 				)
@@ -83,7 +82,6 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 					signalDeviations,
 					1,
 					route,
-					feedstypes.ENCODER_FIXED_POINT_ABI,
 					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
 					sdk.AccAddress([]byte("creator_address")),
 				)
@@ -103,7 +101,6 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 					signalDeviations,
 					60,
 					route,
-					feedstypes.ENCODER_FIXED_POINT_ABI,
 					sdk.NewCoins(),
 					sdk.AccAddress([]byte("creator_address")),
 				)
@@ -129,7 +126,6 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 					signalDeviations,
 					60,
 					route,
-					feedstypes.ENCODER_FIXED_POINT_ABI,
 					depositAmount,
 					depositor,
 				)

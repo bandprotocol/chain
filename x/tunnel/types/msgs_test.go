@@ -26,12 +26,12 @@ func TestMsgCreateTunnel_ValidateBasic(t *testing.T) {
 		{SignalID: "signal1", SoftDeviationBPS: 5000, HardDeviationBPS: 1000},
 	}
 	initialDeposit := sdk.NewCoins(sdk.NewInt64Coin("uband", 100))
-	route := &types.TSSRoute{DestinationChainID: "chain-1", DestinationContractAddress: "contract-1"}
+
+	route := types.NewTSSRoute("chain-1", "contract-1", types.TSS_ROUTE_ENCODER_FIXED_POINT_ABI)
 	msg, err := types.NewMsgCreateTunnel(
 		signalDeviations,
 		10,
-		route,
-		1,
+		&route,
 		initialDeposit,
 		sdk.AccAddress([]byte("creator1")),
 	)

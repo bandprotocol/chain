@@ -228,7 +228,6 @@ func (k Keeper) SendPacket(ctx sdk.Context, packet types.Packet) (err error) {
 			ctx,
 			r,
 			packet,
-			tunnel.Encoder,
 			sdk.MustAccAddressFromBech32(tunnel.FeePayer),
 		)
 	case *types.IBCRoute:

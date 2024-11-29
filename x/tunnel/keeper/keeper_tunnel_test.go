@@ -29,7 +29,6 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 	expectedTunnel := types.Tunnel{
 		ID:               1,
 		Route:            any,
-		Encoder:          feedstypes.ENCODER_FIXED_POINT_ABI,
 		FeePayer:         "band1mdnfc2ehu7vkkg5nttc8tuvwpa9f3dxskf75yxfr7zwhevvcj62q2yggu0",
 		Creator:          creator.String(),
 		Interval:         interval,
@@ -51,7 +50,7 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 	s.accountKeeper.EXPECT().NewAccount(ctx, gomock.Any()).Times(1)
 	s.accountKeeper.EXPECT().SetAccount(ctx, gomock.Any()).Times(1)
 
-	tunnel, err := k.AddTunnel(ctx, route, feedstypes.ENCODER_FIXED_POINT_ABI, signalDeviations, interval, creator)
+	tunnel, err := k.AddTunnel(ctx, route, signalDeviations, interval, creator)
 	s.Require().NoError(err)
 	s.Require().Equal(expectedTunnel, *tunnel)
 
@@ -69,7 +68,6 @@ func (s *KeeperTestSuite) TestUpdateAndResetTunnel() {
 	ctx, k := s.ctx, s.keeper
 
 	initialRoute := &types.TSSRoute{}
-	initialEncoder := feedstypes.ENCODER_FIXED_POINT_ABI
 	initialSignalDeviations := []types.SignalDeviation{
 		{SignalID: "BTC", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
 		{SignalID: "ETH", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
@@ -86,7 +84,6 @@ func (s *KeeperTestSuite) TestUpdateAndResetTunnel() {
 	initialTunnel, err := k.AddTunnel(
 		ctx,
 		initialRoute,
-		initialEncoder,
 		initialSignalDeviations,
 		initialInterval,
 		creator,
@@ -171,7 +168,6 @@ func (s *KeeperTestSuite) TestActivateTunnel() {
 
 	tunnelID := uint64(1)
 	route := &codectypes.Any{}
-	encoder := feedstypes.ENCODER_FIXED_POINT_ABI
 	signalDeviations := []types.SignalDeviation{
 		{SignalID: "BTC"},
 		{SignalID: "ETH"},
@@ -182,7 +178,6 @@ func (s *KeeperTestSuite) TestActivateTunnel() {
 	tunnel := types.Tunnel{
 		ID:               tunnelID,
 		Route:            route,
-		Encoder:          encoder,
 		SignalDeviations: signalDeviations,
 		Interval:         interval,
 		TotalDeposit:     k.GetParams(ctx).MinDeposit,
@@ -211,7 +206,6 @@ func (s *KeeperTestSuite) TestDeactivateTunnel() {
 
 	tunnelID := uint64(1)
 	route := &codectypes.Any{}
-	encoder := feedstypes.ENCODER_FIXED_POINT_ABI
 	signalDeviations := []types.SignalDeviation{
 		{SignalID: "BTC"},
 		{SignalID: "ETH"},
@@ -223,7 +217,6 @@ func (s *KeeperTestSuite) TestDeactivateTunnel() {
 	tunnel := types.Tunnel{
 		ID:               tunnelID,
 		Route:            route,
-		Encoder:          encoder,
 		SignalDeviations: signalDeviations,
 		Interval:         interval,
 		Creator:          creator,

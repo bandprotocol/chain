@@ -3,7 +3,6 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
@@ -12,14 +11,13 @@ func (k Keeper) SendTSSPacket(
 	ctx sdk.Context,
 	route *types.TSSRoute,
 	packet types.Packet,
-	encoder feedstypes.Encoder,
 	feePayer sdk.AccAddress,
 ) (receipt types.PacketReceiptI, err error) {
 	content := types.NewTunnelSignatureOrder(
 		packet.Sequence,
 		packet.Prices,
 		packet.CreatedAt,
-		encoder,
+		route.Encoder,
 	)
 
 	// try signing TSS packet, if success, write the context.

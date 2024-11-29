@@ -16,7 +16,6 @@ import (
 func (k Keeper) AddTunnel(
 	ctx sdk.Context,
 	route types.RouteI,
-	encoder feedstypes.Encoder,
 	signalDeviations []types.SignalDeviation,
 	interval uint64,
 	creator sdk.AccAddress,
@@ -38,7 +37,6 @@ func (k Keeper) AddTunnel(
 		newID,
 		0,
 		route,
-		encoder,
 		feePayer.String(),
 		signalDeviations,
 		interval,
@@ -61,7 +59,6 @@ func (k Keeper) AddTunnel(
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
 		sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", tunnel.Interval)),
 		sdk.NewAttribute(types.AttributeKeyRoute, tunnel.Route.String()),
-		sdk.NewAttribute(types.AttributeKeyEncoder, tunnel.Encoder.String()),
 		sdk.NewAttribute(types.AttributeKeyFeePayer, tunnel.FeePayer),
 		sdk.NewAttribute(types.AttributeKeyIsActive, fmt.Sprintf("%t", tunnel.IsActive)),
 		sdk.NewAttribute(types.AttributeKeyCreatedAt, fmt.Sprintf("%d", tunnel.CreatedAt)),

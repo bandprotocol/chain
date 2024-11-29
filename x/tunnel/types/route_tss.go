@@ -1,16 +1,21 @@
 package types
 
-import bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
+import (
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
+)
 
 var _ RouteI = &TSSRoute{}
 
 // NewTSSRoute return a new TSSRoute instance.
 func NewTSSRoute(
-	destinationChainID, destinationContractAddress string,
+	destinationChainID string,
+	destinationContractAddress string,
+	encoder TSSRouteEncoder,
 ) TSSRoute {
 	return TSSRoute{
 		DestinationChainID:         destinationChainID,
 		DestinationContractAddress: destinationContractAddress,
+		Encoder:                    encoder,
 	}
 }
 
@@ -22,6 +27,10 @@ func (r *TSSRoute) ValidateBasic() error {
 
 	if r.DestinationContractAddress == "" {
 		return ErrInvalidRoute.Wrapf("destination contract address cannot be empty")
+	}
+
+	if _, ok := TSSRouteEncoder_name[int32(r.Encoder)]; !ok || r.Encoder == TSS_ROUTE_ENCODER_UNSPECIFIED {
+		return ErrInvalidEncoder.Wrapf("invalid encoder: %s", r.Encoder)
 	}
 
 	return nil

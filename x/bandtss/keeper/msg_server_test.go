@@ -466,7 +466,7 @@ func (s *AppTestSuite) TestFailRequestSignatureInternalMessage() {
 
 	// test tunnel message.
 	msg, err = types.NewMsgRequestSignature(
-		tunneltypes.NewTunnelSignatureOrder(1, []feedstypes.Price{}, 1, feedstypes.ENCODER_FIXED_POINT_ABI),
+		tunneltypes.NewTunnelSignatureOrder(1, []feedstypes.Price{}, 1, tunneltypes.TSS_ROUTE_ENCODER_FIXED_POINT_ABI),
 		sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 		bandtesting.FeePayer.Address.String(),
 	)
