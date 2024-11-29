@@ -21,7 +21,9 @@ This module is used in the BandChain.
       - [How Feed Interval and Deviation are calculated](#how-feed-interval-and-deviation-are-calculated)
       - [Current Feeds](#current-feeds)
     - [Validator Price](#validator-price)
+      - [Status](#status)
     - [Price](#price)
+      - [Status](#status-1)
     - [Reference Source Config](#reference-source-config)
   - [State](#state)
     - [ReferenceSourceConfig](#referencesourceconfig)
@@ -42,6 +44,7 @@ This module is used in the BandChain.
       - [Input](#input)
       - [Objective](#objective)
       - [Assumption](#assumption)
+      - [Constraint](#constraint)
       - [Procedure](#procedure)
     - [Update current feeds](#update-current-feeds)
   - [Events](#events)
@@ -95,6 +98,16 @@ The Validator Price refers to the price submitted by each validator before being
 
 The module only contains the latest price of each validator and signal ID.
 
+#### Status
+
+Validator Price can reports three valid price status:
+
+1. `SIGNAL_PRICE_STATUS_UNSUPPORTED`: Indicates that the requested signal ID is not supported by this validator and will not be available in the foreseeable future unless an upgrade occurs.
+
+2. `SIGNAL_PRICE_STATUS_UNAVAILABLE`: Indicates that the requested signal ID is currently unavailable but is expected to become available in the near future.
+
+3. `SIGNAL_PRICE_STATUS_AVAILABLE`: Indicates that the price for the requested signal ID is available.
+
 ### Price
 
 A Price is a structure that maintains the current price state for a signal ID, including its current price, price status, and the most recent timestamp.
@@ -102,6 +115,18 @@ A Price is a structure that maintains the current price state for a signal ID, i
 Once the Validator Price is submitted, it will be weighted median which is weighted by how latest the price is and how much power the owner of the price has to get the most accurate and trustworthy price.
 
 The module only contains the latest price of each signal ID of Current feeds.
+
+#### Status
+
+The price status includes the following valid states:
+
+1. `PRICE_STATUS_UNKNOWN_SIGNAL_ID`: Indicates that the price for this signal ID is not supported by the majority of price feeder and will not be available in the foreseeable future unless the feeders undergoes an upgrade of their price service registry.
+
+2. `PRICE_STATUS_NOT_READY`: Indicates that the price for this signal ID is currently not ready but is expected to become available in the near future.
+
+3. `PRICE_STATUS_AVAILABLE`: Indicates that the price for this signal ID is available.
+
+4. `PRICE_STATUS_NOT_IN_CURRENT_FEEDS`: Indicates that this signal ID is not included in the currently supported feeds but can be added through a voting process.
 
 ### Reference Source Config
 
@@ -200,6 +225,9 @@ message Params {
 
   // price_quorum is the minimum percentage of power that needs to be reached for a price to be processed.
   string price_quorum = 12;
+
+  // MaxSignalIDsPerSigning is the maximum number of signals allowed in a single tss signing request.
+  uint64 max_signal_ids_per_signing = 13 [(gogoproto.customname) = "MaxSignalIDsPerSigning"];
 }
 ```
 
@@ -340,6 +368,12 @@ A list of ValidatorPriceInfo objects, each containing:
 #### Assumption
 
 1. No ValidatorPriceInfo has a power that exceeds 25% of the total power in the list.
+
+#### Constraint
+
+1. If more than half of the total power of the validator price have unsupported price status, it returns a `PRICE_STATUS_UNKNOWN_SIGNAL_ID` price status with price 0.
+2. If the total power of all validator prices reported is than price quorum percentage, it returns an `PRICE_STATUS_NOT_READY` price status with price 0.
+3. If less than half of total power of prices reported have available price status, it also returns an `PRICE_STATUS_NOT_READY` price status with price 0.
 
 #### Procedure
 

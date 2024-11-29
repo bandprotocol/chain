@@ -52,7 +52,7 @@ message MsgCreateTunnel {
   // interval is the interval for delivering the signal prices in seconds.
   uint64 interval = 2;
   // route is the route for delivering the signal prices
-  google.protobuf.Any route = 3 [(cosmos_proto.accepts_interface) = "Route"];
+  google.protobuf.Any route = 3 [(cosmos_proto.accepts_interface) = "RouteI"];
   // initial_deposit is the deposit value that must be paid at tunnel creation.
   repeated cosmos.base.v1beta1.Coin initial_deposit = 4 [
     (gogoproto.nullable)     = false,
