@@ -10,7 +10,6 @@ import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "amino/amino.proto";
 
-import "band/feeds/v1beta1/feeds.proto";
 import "band/tunnel/v1beta1/params.proto";
 import "band/tunnel/v1beta1/tunnel.proto";
 
