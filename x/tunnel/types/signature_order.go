@@ -16,7 +16,7 @@ func NewTunnelSignatureOrder(
 	sequence uint64,
 	prices []feedstypes.Price,
 	createdAt int64,
-	encoder feedstypes.Encoder,
+	encoder TSSRouteEncoder,
 ) *TunnelSignatureOrder {
 	return &TunnelSignatureOrder{
 		Sequence:  sequence,
