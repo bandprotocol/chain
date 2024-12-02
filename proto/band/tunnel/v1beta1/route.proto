@@ -4,6 +4,7 @@ package band.tunnel.v1beta1;
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 
+import "band/feeds/v1beta1/encoder.proto";
 import "band/feeds/v1beta1/feeds.proto";
 import "band/tunnel/v1beta1/tunnel.proto";
 
@@ -19,7 +20,7 @@ message TSSRoute {
   // destination_contract_address is the destination contract address
   string destination_contract_address = 2;
   // encoder is the mode of encoding packet data.
-  TSSRouteEncoder encoder = 3;
+  band.feeds.v1beta1.Encoder encoder = 3;
 }
 
 // TSSPacketReceipt represents a receipt for a TSS packet and implements the PacketReceiptI interface.

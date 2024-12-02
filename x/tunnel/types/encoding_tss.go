@@ -56,10 +56,10 @@ func EncodeTSS(
 	sequence uint64,
 	prices []feedstypes.Price,
 	createdAt int64,
-	encoder TSSRouteEncoder,
+	encoder feedstypes.Encoder,
 ) ([]byte, error) {
 	switch encoder {
-	case TSS_ROUTE_ENCODER_FIXED_POINT_ABI:
+	case feedstypes.ENCODER_FIXED_POINT_ABI:
 		relayPrices, err := feedstypes.ToRelayPrices(prices)
 		if err != nil {
 			return nil, err
@@ -73,7 +73,7 @@ func EncodeTSS(
 		}
 
 		return append([]byte(EncoderFixedPointABIPrefix), bz...), nil
-	case TSS_ROUTE_ENCODER_TICK_ABI:
+	case feedstypes.ENCODER_TICK_ABI:
 		relayPrices, err := feedstypes.ToRelayTickPrices(prices)
 		if err != nil {
 			return nil, err

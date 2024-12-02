@@ -7,6 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
@@ -27,7 +28,7 @@ func TestMsgCreateTunnel_ValidateBasic(t *testing.T) {
 	}
 	initialDeposit := sdk.NewCoins(sdk.NewInt64Coin("uband", 100))
 
-	route := types.NewTSSRoute("chain-1", "contract-1", types.TSS_ROUTE_ENCODER_FIXED_POINT_ABI)
+	route := types.NewTSSRoute("chain-1", "contract-1", feedstypes.ENCODER_FIXED_POINT_ABI)
 	msg, err := types.NewMsgCreateTunnel(
 		signalDeviations,
 		10,

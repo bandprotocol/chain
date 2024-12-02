@@ -29,7 +29,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 	route := &types.TSSRoute{
 		DestinationChainID:         "chain-1",
 		DestinationContractAddress: "0x1234567890abcdef",
-		Encoder:                    types.TSS_ROUTE_ENCODER_FIXED_POINT_ABI,
+		Encoder:                    feedstypes.ENCODER_FIXED_POINT_ABI,
 	}
 
 	cases := map[string]struct {

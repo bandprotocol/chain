@@ -2,6 +2,7 @@ package types
 
 import (
 	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 )
 
 var _ RouteI = &TSSRoute{}
@@ -10,7 +11,7 @@ var _ RouteI = &TSSRoute{}
 func NewTSSRoute(
 	destinationChainID string,
 	destinationContractAddress string,
-	encoder TSSRouteEncoder,
+	encoder feedstypes.Encoder,
 ) TSSRoute {
 	return TSSRoute{
 		DestinationChainID:         destinationChainID,
@@ -29,8 +30,8 @@ func (r *TSSRoute) ValidateBasic() error {
 		return ErrInvalidRoute.Wrapf("destination contract address cannot be empty")
 	}
 
-	if _, ok := TSSRouteEncoder_name[int32(r.Encoder)]; !ok || r.Encoder == TSS_ROUTE_ENCODER_UNSPECIFIED {
-		return ErrInvalidEncoder.Wrapf("invalid encoder: %s", r.Encoder)
+	if err := feedstypes.ValidateEncoder(r.Encoder); err != nil {
+		return err
 	}
 
 	return nil

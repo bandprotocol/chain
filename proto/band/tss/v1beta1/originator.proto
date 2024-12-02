@@ -17,14 +17,13 @@ message DirectOriginator {
   string requester = 2;
   // memo is the note of the message.
   string memo = 3;
-
 }
 
 // TunnelOriginator is a message originator defines an information of the requester
 // on TSS request via tunnel module.
 message TunnelOriginator {
   option (cosmos_proto.implements_interface) = "Originator";
-  
+
   // source_chain_id is the source chain ID that the data is originated from.
   string source_chain_id = 1 [(gogoproto.customname) = "SourceChainID"];
   // tunnel_id is the tunnel ID that the request is originated from.
