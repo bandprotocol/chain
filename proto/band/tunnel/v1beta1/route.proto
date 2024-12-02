@@ -6,7 +6,6 @@ import "gogoproto/gogo.proto";
 
 import "band/feeds/v1beta1/encoder.proto";
 import "band/feeds/v1beta1/feeds.proto";
-import "band/tunnel/v1beta1/tunnel.proto";
 
 option go_package            = "github.com/bandprotocol/chain/v3/x/tunnel/types";
 option (gogoproto.equal_all) = true;
