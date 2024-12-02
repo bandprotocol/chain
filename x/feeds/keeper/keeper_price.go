@@ -52,7 +52,7 @@ func (k Keeper) GetPrice(ctx sdk.Context, signalID string) types.Price {
 			SignalID:  signalID,
 			Status:    types.PRICE_STATUS_NOT_IN_CURRENT_FEEDS,
 			Price:     0,
-			Timestamp: 0,
+			Timestamp: ctx.BlockTime().Unix(),
 		}
 	}
 

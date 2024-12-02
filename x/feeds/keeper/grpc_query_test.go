@@ -69,7 +69,7 @@ func (suite *KeeperTestSuite) TestQueryPrice() {
 			Status:    types.PRICE_STATUS_NOT_IN_CURRENT_FEEDS,
 			SignalID:  "CS:ATOM-USD",
 			Price:     0,
-			Timestamp: 0,
+			Timestamp: suite.ctx.BlockTime().Unix(),
 		},
 	}, res)
 }
@@ -120,7 +120,7 @@ func (suite *KeeperTestSuite) TestQueryPrices() {
 					SignalID:  "CS:NON-EXISTENT",
 					Status:    types.PRICE_STATUS_NOT_IN_CURRENT_FEEDS,
 					Price:     0,
-					Timestamp: 0,
+					Timestamp: suite.ctx.BlockTime().Unix(),
 				},
 			},
 		},
@@ -138,7 +138,12 @@ func (suite *KeeperTestSuite) TestQueryPrices() {
 			signalIDs: []string{"CS:BAND-USD", "CS:NON-EXISTENT"},
 			expectedPrices: []types.Price{
 				prices[0],
-				{SignalID: "CS:NON-EXISTENT", Status: types.PRICE_STATUS_NOT_IN_CURRENT_FEEDS, Price: 0, Timestamp: 0},
+				{
+					SignalID:  "CS:NON-EXISTENT",
+					Status:    types.PRICE_STATUS_NOT_IN_CURRENT_FEEDS,
+					Price:     0,
+					Timestamp: suite.ctx.BlockTime().Unix(),
+				},
 			},
 		},
 		{
