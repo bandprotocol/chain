@@ -21,7 +21,7 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 	any, _ := codectypes.NewAnyWithValue(route)
 	signalDeviations := []types.SignalDeviation{
 		{SignalID: "CS:BAND-USD"},
-		{SignalID: "CS:CS:ETH-USD-USD"},
+		{SignalID: "CS:ETH-USD"},
 	}
 	interval := uint64(10)
 	creator := sdk.AccAddress([]byte("creator_address"))
