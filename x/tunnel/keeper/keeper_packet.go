@@ -116,7 +116,13 @@ func (k Keeper) ProducePacket(
 	sendAll := unixNow >= int64(tunnel.Interval)+latestPrices.LastInterval
 
 	// generate newPrices; if no newPrices, stop the process.
-	newPrices := GenerateNewPrices(tunnel.SignalDeviations, latestPricesMap, feedsPricesMap, sendAll)
+	newPrices := GenerateNewPrices(
+		tunnel.SignalDeviations,
+		latestPricesMap,
+		feedsPricesMap,
+		ctx.BlockTime().Unix(),
+		sendAll,
+	)
 	if len(newPrices) == 0 {
 		return nil
 	}
