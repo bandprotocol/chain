@@ -7,6 +7,7 @@ import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "google/protobuf/any.proto";
 
+import "band/feeds/v1beta1/encoder.proto";
 import "band/feeds/v1beta1/feeds.proto";
 
 option go_package            = "github.com/bandprotocol/chain/v3/x/tunnel/types";
@@ -22,26 +23,24 @@ message Tunnel {
   uint64 sequence = 2;
   // route is the route for delivering the signal prices
   google.protobuf.Any route = 3 [(cosmos_proto.accepts_interface) = "RouteI"];
-  // encoder is the mode of encoding price signal data.
-  band.feeds.v1beta1.Encoder encoder = 4;
   // fee_payer is the address of the fee payer
-  string fee_payer = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string fee_payer = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
   // signal_deviations is the list of signal deviations
-  repeated SignalDeviation signal_deviations = 6 [(gogoproto.nullable) = false];
+  repeated SignalDeviation signal_deviations = 5 [(gogoproto.nullable) = false];
   // interval is the interval for delivering the signal prices
-  uint64 interval = 7;
+  uint64 interval = 6;
   // total_deposit is the total deposit on the tunnel.
-  repeated cosmos.base.v1beta1.Coin total_deposit = 8 [
+  repeated cosmos.base.v1beta1.Coin total_deposit = 7 [
     (gogoproto.nullable)     = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
     (amino.dont_omitempty)   = true
   ];
   // is_active is the flag to indicate if the tunnel is active
-  bool is_active = 9;
+  bool is_active = 8;
   // created_at is the timestamp when the tunnel is created
-  int64 created_at = 10;
+  int64 created_at = 9;
   // creator is the address of the creator
-  string creator = 11 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string creator = 10 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // LatestPrices is the type for prices that tunnel produces
@@ -123,6 +122,6 @@ message TunnelSignatureOrder {
   repeated band.feeds.v1beta1.Price prices = 2 [(gogoproto.nullable) = false];
   // created_at is the timestamp when the packet is created
   int64 created_at = 3;
-  // encoder is the mode of encoding price data.
+  // encoder is the mode of encoding data.
   band.feeds.v1beta1.Encoder encoder = 4;
 }

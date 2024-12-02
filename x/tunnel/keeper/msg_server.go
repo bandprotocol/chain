@@ -56,7 +56,6 @@ func (k msgServer) CreateTunnel(
 	tunnel, err := k.Keeper.AddTunnel(
 		ctx,
 		route,
-		msg.Encoder,
 		msg.SignalDeviations,
 		msg.Interval,
 		creator,
