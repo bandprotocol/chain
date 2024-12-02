@@ -121,12 +121,12 @@ func (s *KeeperTestSuite) AddSampleTunnel(isActive bool) {
 	route := &types.TSSRoute{
 		DestinationChainID:         "chain-1",
 		DestinationContractAddress: "0x1234567890abcdef",
+		Encoder:                    feedstypes.ENCODER_FIXED_POINT_ABI,
 	}
 
 	tunnel, err := k.AddTunnel(
 		ctx,
 		route,
-		feedstypes.ENCODER_FIXED_POINT_ABI,
 		signalDeviations,
 		10,
 		sdk.AccAddress([]byte("creator_address")),

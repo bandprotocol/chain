@@ -39,7 +39,7 @@ func TestTickPriceEncoderEncodingABI(t *testing.T) {
 	require.Equal(t, expected, hex.EncodeToString(result))
 }
 
-func TestTSSTick(t *testing.T) {
+func TestToRelayPrices(t *testing.T) {
 	signalIDAtom, err := types.StringToBytes32("CS:ATOM-USD")
 	require.NoError(t, err)
 
@@ -50,7 +50,7 @@ func TestTSSTick(t *testing.T) {
 	testCases := []struct {
 		name         string
 		prices       []types.Price
-		expectResult []types.TSSPrice
+		expectResult []types.RelayPrice
 		expectError  error
 	}{
 		{
@@ -69,7 +69,7 @@ func TestTSSTick(t *testing.T) {
 					Status:    types.PRICE_STATUS_AVAILABLE,
 				},
 			},
-			expectResult: []types.TSSPrice{
+			expectResult: []types.RelayPrice{
 				{SignalID: signalIDAtom, Price: 1e10},
 				{SignalID: signalIDBand, Price: 1e8},
 			},
@@ -91,7 +91,7 @@ func TestTSSTick(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			encoderPrices, err := types.ToTSSPrices(tc.prices)
+			encoderPrices, err := types.ToRelayPrices(tc.prices)
 
 			// Check the result
 			if tc.expectError != nil {
@@ -104,7 +104,7 @@ func TestTSSTick(t *testing.T) {
 	}
 }
 
-func TestToTSSTickPrices(t *testing.T) {
+func TestToRelayTickPrices(t *testing.T) {
 	signalIDAtom, err := types.StringToBytes32("CS:ATOM-USD")
 	require.NoError(t, err)
 
@@ -116,7 +116,7 @@ func TestToTSSTickPrices(t *testing.T) {
 		name         string
 		prices       []types.Price
 		encoder      types.Encoder
-		expectResult []types.TSSPrice
+		expectResult []types.RelayPrice
 		expectError  error
 	}{
 		{
@@ -136,7 +136,7 @@ func TestToTSSTickPrices(t *testing.T) {
 				},
 			},
 			encoder: types.ENCODER_TICK_ABI,
-			expectResult: []types.TSSPrice{
+			expectResult: []types.RelayPrice{
 				{SignalID: signalIDAtom, Price: 285171},
 				{SignalID: signalIDBand, Price: 239116},
 			},
@@ -159,7 +159,7 @@ func TestToTSSTickPrices(t *testing.T) {
 				},
 			},
 			encoder: types.ENCODER_FIXED_POINT_ABI,
-			expectResult: []types.TSSPrice{
+			expectResult: []types.RelayPrice{
 				{SignalID: signalIDAtom, Price: 0},
 				{SignalID: signalIDBand, Price: 239116},
 			},
@@ -180,7 +180,7 @@ func TestToTSSTickPrices(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			encoderPrices, err := types.ToTSSTickPrices(tc.prices)
+			encoderPrices, err := types.ToRelayTickPrices(tc.prices)
 
 			// Check the result
 			if tc.expectError != nil {

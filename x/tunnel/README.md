@@ -73,8 +73,6 @@ type Tunnel struct {
     Sequence uint64
     // Route defines the path for delivering the signal prices.
     Route *types1.Any
-    // Encoder specifies the mode of encoding price signal data.
-    Encoder Encoder
     // FeePayer is the address responsible for paying the packet fees.
     FeePayer string
     // SignalDeviations is a list of signal deviations.
@@ -117,7 +115,7 @@ To create an IBC tunnel, use the following CLI command:
 > **Note**: An example of the signalInfos-json-file can be found at scripts/tunnel/signal_deviations.json.
 
 ```bash
-bandd tx tunnel create-tunnel ibc [channel-id] [encoder] [initial-deposit] [interval] [signalInfos-json-file]
+bandd tx tunnel create-tunnel ibc [channel-id] [initial-deposit] [interval] [signalInfos-json-file]
 ```
 
 #### TSS Route
@@ -251,10 +249,8 @@ message MsgCreateTunnel {
   uint64 interval = 2;
   // route is the route for delivering the signal prices
   google.protobuf.Any route = 3 [(cosmos_proto.accepts_interface) = "RouteI"];
-  // encoder is the mode of encoding price signal data.
-  Encoder encoder = 4;
   // initial_deposit is the deposit value that must be paid at tunnel creation.
-  repeated cosmos.base.v1beta1.Coin initial_deposit = 5 [
+  repeated cosmos.base.v1beta1.Coin initial_deposit = 4 [
     (gogoproto.nullable)     = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
     (amino.dont_omitempty)   = true
@@ -266,9 +262,6 @@ message MsgCreateTunnel {
 
 - **Deviation and Interval Settings**: Each tunnel must specify the deviation per signal and the interval per tunnel.
 - **Route Selection**: Only one route can be chosen per tunnel.
-- **Encoder Types**: Specifies the type of price value to be sent to the destination route.
-  - Fixed Point
-  - Tick
 - **Initial Deposit**: The initial deposit can be set to zero. Other users can contribute to the tunnel's deposit by send [MsgDepositToTunnel](#msgdeposittotunnel) message until it reaches the required minimum deposit.
 
 ### MsgUpdateAndResetTunnel
@@ -413,7 +406,6 @@ This event is emitted when a new tunnel is created.
 | tunnel_id            | `{ID}`                                |
 | interval             | `{Interval}`                          |
 | route                | `{Route.String()}`                    |
-| encoder              | `{Encoder.String()}`                  |
 | fee_payer            | `{FeePayer}`                          |
 | is_active            | `{IsActive}`                          |
 | created_at           | `{CreatedAt}`                         |
