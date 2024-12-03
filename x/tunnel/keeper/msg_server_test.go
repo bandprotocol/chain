@@ -16,12 +16,12 @@ import (
 func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 	signalDeviations := []types.SignalDeviation{
 		{
-			SignalID:         "BTC",
+			SignalID:         "CS:BAND-USD",
 			SoftDeviationBPS: 100,
 			HardDeviationBPS: 100,
 		},
 		{
-			SignalID:         "ETH",
+			SignalID:         "CS:ETH-USD",
 			SoftDeviationBPS: 100,
 			HardDeviationBPS: 100,
 		},
@@ -171,12 +171,12 @@ func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
 
 				editedSignalDeviations := []types.SignalDeviation{
 					{
-						SignalID:         "BTC",
+						SignalID:         "CS:BAND-USD",
 						SoftDeviationBPS: 200,
 						HardDeviationBPS: 200,
 					},
 					{
-						SignalID:         "ETH",
+						SignalID:         "CS:ETH-USD",
 						SoftDeviationBPS: 200,
 						HardDeviationBPS: 200,
 					},
@@ -204,7 +204,7 @@ func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
 
 				editedSignalDeviations := []types.SignalDeviation{
 					{
-						SignalID:         "BTC",
+						SignalID:         "CS:BAND-USD",
 						SoftDeviationBPS: 200,
 						HardDeviationBPS: 200,
 					},
@@ -231,7 +231,7 @@ func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
 
 				editedSignalDeviations := []types.SignalDeviation{
 					{
-						SignalID:         "BTC",
+						SignalID:         "CS:BAND-USD",
 						SoftDeviationBPS: 200,
 						HardDeviationBPS: 200,
 					},
@@ -279,7 +279,7 @@ func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
 
 				editedSignalDeviations := []types.SignalDeviation{
 					{
-						SignalID:         "BTC",
+						SignalID:         "CS:BAND-USD",
 						SoftDeviationBPS: 200,
 						HardDeviationBPS: 200,
 					},
@@ -503,9 +503,16 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))),
 				).Return(bandtsstypes.SigningID(1), nil)
 
-				s.feedsKeeper.EXPECT().GetPrices(gomock.Any(), []string{"BTC"}).Return([]feedstypes.Price{
-					{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "BTC", Price: 50000, Timestamp: 0},
-				})
+				s.feedsKeeper.EXPECT().
+					GetPrices(gomock.Any(), []string{"CS:BAND-USD"}).
+					Return([]feedstypes.Price{
+						{
+							Status:    feedstypes.PRICE_STATUS_AVAILABLE,
+							SignalID:  "CS:BAND-USD",
+							Price:     50000,
+							Timestamp: 0,
+						},
+					})
 				s.bankKeeper.EXPECT().
 					SendCoinsFromAccountToModule(gomock.Any(), feePayer, types.ModuleName, types.DefaultBasePacketFee).
 					Return(nil)

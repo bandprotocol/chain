@@ -146,7 +146,7 @@ func GetTxCmdVote() *cobra.Command {
 			fmt.Sprintf(
 				`Vote signal ids and their power.
 Example:
-$ %s tx feeds vote BTC,1000000 --from mykey
+$ %s tx feeds vote CS:BAND-USD,1000000 --from mykey
 `,
 				version.AppName,
 			),

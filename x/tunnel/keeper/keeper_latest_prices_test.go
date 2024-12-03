@@ -12,7 +12,12 @@ func (s *KeeperTestSuite) TestGetSetLatestPrices() {
 	latestPrices := types.LatestPrices{
 		TunnelID: tunnelID,
 		Prices: []feedstypes.Price{
-			{Status: feedstypes.PRICE_STATUS_NOT_IN_CURRENT_FEEDS, SignalID: "BTC", Price: 50000},
+			{
+				Status:    feedstypes.PRICE_STATUS_AVAILABLE,
+				SignalID:  "CS:BAND-USD",
+				Price:     50000,
+				Timestamp: 1733000000,
+			},
 		},
 	}
 
@@ -29,13 +34,23 @@ func (s *KeeperTestSuite) TestGetAllLatestPrices() {
 	latestPrices1 := types.LatestPrices{
 		TunnelID: 1,
 		Prices: []feedstypes.Price{
-			{Status: feedstypes.PRICE_STATUS_NOT_IN_CURRENT_FEEDS, SignalID: "BTC", Price: 50000},
+			{
+				Status:    feedstypes.PRICE_STATUS_AVAILABLE,
+				SignalID:  "CS:BAND-USD",
+				Price:     50000,
+				Timestamp: 1733000000,
+			},
 		},
 	}
 	latestPrices2 := types.LatestPrices{
 		TunnelID: 2,
 		Prices: []feedstypes.Price{
-			{Status: feedstypes.PRICE_STATUS_NOT_IN_CURRENT_FEEDS, SignalID: "ETH", Price: 3000},
+			{
+				Status:    feedstypes.PRICE_STATUS_AVAILABLE,
+				SignalID:  "CS:ETH-USD",
+				Price:     3000,
+				Timestamp: 1733000000,
+			},
 		},
 	}
 

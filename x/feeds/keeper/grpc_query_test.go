@@ -80,16 +80,19 @@ func (suite *KeeperTestSuite) TestQueryPrices() {
 	// Setup multiple prices
 	prices := []types.Price{
 		{
+			Status:    types.PRICE_STATUS_AVAILABLE,
 			SignalID:  "CS:BAND-USD",
 			Price:     100000000,
 			Timestamp: 1234567890,
 		},
 		{
+			Status:    types.PRICE_STATUS_AVAILABLE,
 			SignalID:  "CS:ATOM-USD",
 			Price:     200000000,
 			Timestamp: 1234567890,
 		},
 		{
+			Status:    types.PRICE_STATUS_AVAILABLE,
 			SignalID:  "CS:BTC-USD",
 			Price:     300000000,
 			Timestamp: 1234567890,
@@ -173,16 +176,19 @@ func (suite *KeeperTestSuite) TestQueryAllPrices() {
 	// Setup multiple prices
 	prices := []types.Price{
 		{
+			Status:    types.PRICE_STATUS_AVAILABLE,
 			SignalID:  "CS:ATOM-USD",
 			Price:     200000000,
 			Timestamp: 1234567891,
 		},
 		{
+			Status:    types.PRICE_STATUS_AVAILABLE,
 			SignalID:  "CS:BAND-USD",
 			Price:     100000000,
 			Timestamp: 1234567890,
 		},
 		{
+			Status:    types.PRICE_STATUS_AVAILABLE,
 			SignalID:  "CS:BTC-USD",
 			Price:     300000000,
 			Timestamp: 1234567892,

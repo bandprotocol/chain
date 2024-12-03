@@ -10,8 +10,8 @@ import (
 
 func TestParseSignalDeviations(t *testing.T) {
 	signalDeviations := []SignalDeviation{
-		{SignalID: "BTC", DeviationBPS: 2000},
-		{SignalID: "ETH", DeviationBPS: 4000},
+		{SignalID: "CS:BTC-USD", DeviationBPS: 2000},
+		{SignalID: "CS:ETH-USD", DeviationBPS: 4000},
 	}
 	file, cleanup := createTempSignalDeviationFile(signalDeviations)
 	defer cleanup()
