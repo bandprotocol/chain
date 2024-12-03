@@ -31,17 +31,17 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 		if t.IsActive {
 			k.SetActiveTunnelID(ctx, t.ID)
 		}
-	}
 
-	k.SetPort(ctx, types.PortID)
-	// only try to bind to port if it is not already bound, since we may already own
-	// port capability from capability InitGenesis
-	if !k.IsBound(ctx, types.PortID) {
-		// tunnel module binds to the tunnel port on InitChain
-		// and claims the returned capability
-		err := k.BindPort(ctx, types.PortID)
+		route, err := t.GetRouteValue()
 		if err != nil {
-			panic(fmt.Sprintf("could not claim port capability: %v", err))
+			panic("cannot get route")
+		}
+		_, ok := route.(*types.IBCRoute)
+		if ok {
+			_, err = k.ensureIBCPort(ctx, t.ID)
+			if err != nil {
+				panic("cannot bind port for tunnel")
+			}
 		}
 	}
 

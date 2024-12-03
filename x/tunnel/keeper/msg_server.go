@@ -52,6 +52,14 @@ func (k msgServer) CreateTunnel(
 		return nil, err
 	}
 
+	// Check channel id in ibc route should be empty
+	ibcRoute, isIBCRoute := route.(*types.IBCRoute)
+	if isIBCRoute {
+		if ibcRoute.ChannelID != "" {
+			return nil, types.ErrInvalidRoute.Wrap("channel id should be set after create tunnel")
+		}
+	}
+
 	// add a new tunnel
 	tunnel, err := k.Keeper.AddTunnel(
 		ctx,
@@ -64,6 +72,14 @@ func (k msgServer) CreateTunnel(
 		return nil, err
 	}
 
+	// Bind ibc port for the new tunnel
+	if isIBCRoute {
+		_, err = k.ensureIBCPort(ctx, tunnel.ID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	// Deposit the initial deposit to the tunnel
 	if !msg.InitialDeposit.IsZero() {
 		if err := k.Keeper.DepositToTunnel(ctx, tunnel.ID, creator, msg.InitialDeposit); err != nil {
@@ -74,6 +90,43 @@ func (k msgServer) CreateTunnel(
 	return &types.MsgCreateTunnelResponse{
 		TunnelID: tunnel.ID,
 	}, nil
+}
+
+func (k msgServer) UpdateRoute(
+	goCtx context.Context,
+	msg *types.MsgUpdateRoute,
+) (*types.MsgUpdateRouteResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	tunnel, err := k.Keeper.GetTunnel(ctx, msg.TunnelID)
+	if err != nil {
+		return nil, err
+	}
+
+	if msg.Creator != tunnel.Creator {
+		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", msg.Creator, msg.TunnelID)
+	}
+
+	route, err := msg.GetRouteValue()
+	if err != nil {
+		return nil, err
+	}
+
+	switch r := route.(type) {
+	case *types.IBCRoute:
+		_, found := k.channelKeeper.GetChannel(ctx, r.ChannelID, PortIDForTunnel(msg.TunnelID))
+		if !found {
+			return nil, types.ErrInvalidChannelID
+		}
+		tunnel.Route = msg.Route
+
+	default:
+		return nil, types.ErrInvalidRoute.Wrap("cannot update route on this route type")
+	}
+
+	k.Keeper.SetTunnel(ctx, tunnel)
+
+	return &types.MsgUpdateRouteResponse{}, nil
 }
 
 // UpdateAndResetTunnel edits a tunnel and reset latest price interval.

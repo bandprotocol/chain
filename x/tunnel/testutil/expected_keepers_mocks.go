@@ -19,6 +19,7 @@ import (
 	types2 "github.com/cosmos/cosmos-sdk/types"
 	types3 "github.com/cosmos/ibc-go/modules/capability/types"
 	types4 "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	types5 "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -243,6 +244,45 @@ func (m *MockICS4Wrapper) SendPacket(ctx types2.Context, chanCap *types3.Capabil
 func (mr *MockICS4WrapperMockRecorder) SendPacket(ctx, chanCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, data any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendPacket", reflect.TypeOf((*MockICS4Wrapper)(nil).SendPacket), ctx, chanCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, data)
+}
+
+// MockChannelKeeper is a mock of ChannelKeeper interface.
+type MockChannelKeeper struct {
+	ctrl     *gomock.Controller
+	recorder *MockChannelKeeperMockRecorder
+	isgomock struct{}
+}
+
+// MockChannelKeeperMockRecorder is the mock recorder for MockChannelKeeper.
+type MockChannelKeeperMockRecorder struct {
+	mock *MockChannelKeeper
+}
+
+// NewMockChannelKeeper creates a new mock instance.
+func NewMockChannelKeeper(ctrl *gomock.Controller) *MockChannelKeeper {
+	mock := &MockChannelKeeper{ctrl: ctrl}
+	mock.recorder = &MockChannelKeeperMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockChannelKeeper) EXPECT() *MockChannelKeeperMockRecorder {
+	return m.recorder
+}
+
+// GetChannel mocks base method.
+func (m *MockChannelKeeper) GetChannel(ctx types2.Context, srcPort, srcChan string) (types5.Channel, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetChannel", ctx, srcPort, srcChan)
+	ret0, _ := ret[0].(types5.Channel)
+	ret1, _ := ret[1].(bool)
+	return ret0, ret1
+}
+
+// GetChannel indicates an expected call of GetChannel.
+func (mr *MockChannelKeeperMockRecorder) GetChannel(ctx, srcPort, srcChan any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetChannel", reflect.TypeOf((*MockChannelKeeper)(nil).GetChannel), ctx, srcPort, srcChan)
 }
 
 // MockPortKeeper is a mock of PortKeeper interface.

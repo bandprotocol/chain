@@ -64,6 +64,7 @@ func (s *KeeperTestSuite) reset() {
 	bankKeeper := testutil.NewMockBankKeeper(ctrl)
 	feedsKeeper := testutil.NewMockFeedsKeeper(ctrl)
 	bandtssKeeper := testutil.NewMockBandtssKeeper(ctrl)
+	channelKeeper := testutil.NewMockChannelKeeper(ctrl)
 	icsWrapper := testutil.NewMockICS4Wrapper(ctrl)
 	portKeeper := testutil.NewMockPortKeeper(ctrl)
 	scopedKeeper := testutil.NewMockScopedKeeper(ctrl)
@@ -80,6 +81,7 @@ func (s *KeeperTestSuite) reset() {
 		bankKeeper,
 		feedsKeeper,
 		bandtssKeeper,
+		channelKeeper,
 		icsWrapper,
 		portKeeper,
 		scopedKeeper,

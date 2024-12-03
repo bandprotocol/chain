@@ -24,7 +24,6 @@ The Tunnel module is designed to decentralize the creation of push-based price d
     - [Packet](#packet-1)
     - [LatestPrices](#latestprices)
     - [Deposit](#deposit)
-    - [Port](#port)
     - [Params](#params)
   - [Msg](#msg)
     - [MsgCreateTunnel](#msgcreatetunnel)
@@ -198,12 +197,6 @@ Stores the latest prices that the tunnel has sent to the destination route. Thes
 Stores the total deposit per tunnel by each depositor.
 
 - **Deposit**: `0x14 | TunnelID | DepositorAddress -> Deposit`
-
-### Port
-
-Stores the port ID used by the tunnel to interact with the IBC protocol.
-
-- **Port**: `0xf0 -> PortID`
 
 ### Params
 

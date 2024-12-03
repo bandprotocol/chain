@@ -126,6 +126,71 @@ func (m MsgCreateTunnel) UnpackInterfaces(unpacker types.AnyUnpacker) error {
 	return unpacker.UnpackAny(m.Route, &route)
 }
 
+// NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
+func NewMsgUpdateRoute(
+	tunnelID uint64,
+	route RouteI,
+	creator sdk.AccAddress,
+) (*MsgUpdateRoute, error) {
+	msg, ok := route.(proto.Message)
+	if !ok {
+		return nil, sdkerrors.ErrPackAny.Wrapf("cannot proto marshal %T", msg)
+	}
+	any, err := types.NewAnyWithValue(msg)
+	if err != nil {
+		return nil, err
+	}
+
+	return &MsgUpdateRoute{
+		TunnelID: tunnelID,
+		Route:    any,
+		Creator:  creator.String(),
+	}, nil
+}
+
+// NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
+func NewMsgUpdateIBCRoute(
+	tunnelID uint64,
+	channelID string,
+	creator sdk.AccAddress,
+) (*MsgUpdateRoute, error) {
+	return NewMsgUpdateRoute(tunnelID, NewIBCRoute(channelID), creator)
+}
+
+// GetRouteValue returns the route of the message.
+func (m MsgUpdateRoute) GetRouteValue() (RouteI, error) {
+	r, ok := m.Route.GetCachedValue().(RouteI)
+	if !ok {
+		return nil, sdkerrors.ErrInvalidType.Wrapf("expected %T, got %T", (RouteI)(nil), m.Route.GetCachedValue())
+	}
+	return r, nil
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgUpdateRoute) ValidateBasic() error {
+	// creator address must be valid
+	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+	}
+
+	// route must be valid
+	r, err := m.GetRouteValue()
+	if err != nil {
+		return err
+	}
+	if err := r.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
+func (m MsgUpdateRoute) UnpackInterfaces(unpacker types.AnyUnpacker) error {
+	var route RouteI
+	return unpacker.UnpackAny(m.Route, &route)
+}
+
 // NewMsgUpdateAndResetTunnel creates a new MsgUpdateAndResetTunnel instance.
 func NewMsgUpdateAndResetTunnel(
 	tunnelID uint64,

@@ -20,6 +20,9 @@ service Msg {
   // CreateTunnel is a RPC method to create a new tunnel.
   rpc CreateTunnel(MsgCreateTunnel) returns (MsgCreateTunnelResponse);
 
+  // UpdateRoute is a RPC method to update a route tunnel.
+  rpc UpdateRoute(MsgUpdateRoute) returns (MsgUpdateRouteResponse);
+
   // UpdateAndResetTunnel is a RPC method to update a tunnel information and reset the interval.
   rpc UpdateAndResetTunnel(MsgUpdateAndResetTunnel) returns (MsgUpdateAndResetTunnelResponse);
 
@@ -67,6 +70,22 @@ message MsgCreateTunnel {
 message MsgCreateTunnelResponse {
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
 }
+
+// MsgUpdateRoute is the transaction message to update a route tunnel
+message MsgUpdateRoute {
+  option (cosmos.msg.v1.signer) = "creator";
+  option (amino.name)           = "tunnel/MsgUpdateRoute";
+
+  // tunnel_id is the ID of the tunnel to edit.
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
+  // route is the route for delivering the signal prices
+  google.protobuf.Any route = 2 [(cosmos_proto.accepts_interface) = "RouteI"];
+  // creator is the address of the creator.
+  string creator = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgUpdateRouteResponse is the response type for the Msg/UpdateRoute RPC method.
+message MsgUpdateRouteResponse {}
 
 // MsgUpdateAndResetTunnel is the transaction message to update a tunnel information
 // and reset the interval.

@@ -489,6 +489,7 @@ func NewAppKeeper(
 		appKeepers.BankKeeper,
 		appKeepers.FeedsKeeper,
 		appKeepers.BandtssKeeper,
+		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.IBCFeeKeeper,
 		appKeepers.IBCKeeper.PortKeeper,
 		appKeepers.ScopedTunnelKeeper,
