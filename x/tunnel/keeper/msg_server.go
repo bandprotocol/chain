@@ -107,6 +107,10 @@ func (k msgServer) UpdateRoute(
 		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", msg.Creator, msg.TunnelID)
 	}
 
+	if tunnel.Route.TypeUrl != msg.Route.TypeUrl {
+		return nil, types.ErrInvalidRoute.Wrap("cannot change route type")
+	}
+
 	route, err := msg.GetRouteValue()
 	if err != nil {
 		return nil, err

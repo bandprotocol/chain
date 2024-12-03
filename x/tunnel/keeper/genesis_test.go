@@ -3,6 +3,8 @@ package keeper_test
 import (
 	"go.uber.org/mock/gomock"
 
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -16,6 +18,7 @@ import (
 func (s *KeeperTestSuite) TestInitExportGenesis() {
 	ctx, k := s.ctx, s.keeper
 
+	s.scopedKeeper.EXPECT().GetCapability(ctx, gomock.Any()).Return(&capabilitytypes.Capability{}, true)
 	s.accountKeeper.EXPECT().
 		GetModuleAccount(ctx, gomock.Any()).
 		Return(sdk.AccountI(&authtypes.ModuleAccount{
@@ -37,7 +40,6 @@ func (s *KeeperTestSuite) TestInitExportGenesis() {
 		TunnelCount: 1,
 		Tunnels: []types.Tunnel{
 			t,
-			// {ID: 1,},
 		},
 		TotalFees: types.TotalFees{
 			TotalBasePacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),

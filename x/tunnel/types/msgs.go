@@ -22,7 +22,7 @@ func NewMsgCreateTunnel(
 	interval uint64,
 	route RouteI,
 	initialDeposit sdk.Coins,
-	creator sdk.AccAddress,
+	creator string,
 ) (*MsgCreateTunnel, error) {
 	msg, ok := route.(proto.Message)
 	if !ok {
@@ -38,7 +38,7 @@ func NewMsgCreateTunnel(
 		Interval:         interval,
 		Route:            any,
 		InitialDeposit:   initialDeposit,
-		Creator:          creator.String(),
+		Creator:          creator,
 	}, nil
 }
 
@@ -50,7 +50,7 @@ func NewMsgCreateTSSTunnel(
 	destinationContractAddress string,
 	encoder feedstypes.Encoder,
 	initialDeposit sdk.Coins,
-	creator sdk.AccAddress,
+	creator string,
 ) (*MsgCreateTunnel, error) {
 	r := NewTSSRoute(destinationChainID, destinationContractAddress, encoder)
 	m, err := NewMsgCreateTunnel(signalDeviations, interval, &r, initialDeposit, creator)
@@ -61,13 +61,13 @@ func NewMsgCreateTSSTunnel(
 	return m, nil
 }
 
-// NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
+// NewMsgCreateIBCTunnel creates a new MsgCreateTunnel instance with IBC route type.
 func NewMsgCreateIBCTunnel(
 	signalDeviations []SignalDeviation,
 	interval uint64,
 	channelID string,
 	deposit sdk.Coins,
-	creator sdk.AccAddress,
+	creator string,
 ) (*MsgCreateTunnel, error) {
 	r := NewIBCRoute(channelID)
 	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, deposit, creator)
@@ -84,6 +84,7 @@ func (m MsgCreateTunnel) GetRouteValue() (RouteI, error) {
 	if !ok {
 		return nil, sdkerrors.ErrInvalidType.Wrapf("expected %T, got %T", (RouteI)(nil), m.Route.GetCachedValue())
 	}
+
 	return r, nil
 }
 
@@ -98,6 +99,7 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 	if len(m.SignalDeviations) == 0 {
 		return sdkerrors.ErrInvalidRequest.Wrapf("signal deviations cannot be empty")
 	}
+
 	// signal deviations cannot duplicate
 	if err := validateUniqueSignalIDs(m.SignalDeviations); err != nil {
 		return err
@@ -108,6 +110,7 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 	if err != nil {
 		return err
 	}
+
 	if err := r.ValidateBasic(); err != nil {
 		return err
 	}
@@ -126,11 +129,11 @@ func (m MsgCreateTunnel) UnpackInterfaces(unpacker types.AnyUnpacker) error {
 	return unpacker.UnpackAny(m.Route, &route)
 }
 
-// NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
+// NewMsgUpdateRoute creates a new MsgUpdateRoute instance.
 func NewMsgUpdateRoute(
 	tunnelID uint64,
 	route RouteI,
-	creator sdk.AccAddress,
+	creator string,
 ) (*MsgUpdateRoute, error) {
 	msg, ok := route.(proto.Message)
 	if !ok {
@@ -144,15 +147,15 @@ func NewMsgUpdateRoute(
 	return &MsgUpdateRoute{
 		TunnelID: tunnelID,
 		Route:    any,
-		Creator:  creator.String(),
+		Creator:  creator,
 	}, nil
 }
 
-// NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
+// NewMsgUpdateIBCRoute creates a new MsgUpdateRoute instance.
 func NewMsgUpdateIBCRoute(
 	tunnelID uint64,
 	channelID string,
-	creator sdk.AccAddress,
+	creator string,
 ) (*MsgUpdateRoute, error) {
 	return NewMsgUpdateRoute(tunnelID, NewIBCRoute(channelID), creator)
 }
@@ -178,6 +181,7 @@ func (m MsgUpdateRoute) ValidateBasic() error {
 	if err != nil {
 		return err
 	}
+
 	if err := r.ValidateBasic(); err != nil {
 		return err
 	}

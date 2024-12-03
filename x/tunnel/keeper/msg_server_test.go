@@ -3,6 +3,9 @@ package keeper_test
 import (
 	"go.uber.org/mock/gomock"
 
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+
 	sdkmath "cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -48,7 +51,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 					60,
 					route,
 					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
-					sdk.AccAddress([]byte("creator_address")),
+					sdk.AccAddress([]byte("creator_address")).String(),
 				)
 			},
 			expErr:    true,
@@ -66,7 +69,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 					60,
 					route,
 					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
-					sdk.AccAddress([]byte("creator_address")),
+					sdk.AccAddress([]byte("creator_address")).String(),
 				)
 			},
 			expErr:    true,
@@ -83,11 +86,49 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 					1,
 					route,
 					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),
-					sdk.AccAddress([]byte("creator_address")),
+					sdk.AccAddress([]byte("creator_address")).String(),
 				)
 			},
 			expErr:    true,
 			expErrMsg: "interval out of range",
+		},
+		"channel id should be set after create tunnel": {
+			preRun: func() (*types.MsgCreateTunnel, error) {
+				depositor := sdk.AccAddress([]byte("creator_address"))
+				depositAmount := sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100)))
+
+				return types.NewMsgCreateTunnel(
+					signalDeviations,
+					60,
+					types.NewIBCRoute("channel-0"),
+					depositAmount,
+					depositor.String(),
+				)
+			},
+			expErr:    true,
+			expErrMsg: "channel id should be set after create tunnel",
+		},
+		"all good (ibc route)": {
+			preRun: func() (*types.MsgCreateTunnel, error) {
+				s.accountKeeper.EXPECT().
+					GetAccount(s.ctx, gomock.Any()).
+					Return(nil).Times(1)
+				s.accountKeeper.EXPECT().NewAccount(s.ctx, gomock.Any()).Times(1)
+				s.accountKeeper.EXPECT().SetAccount(s.ctx, gomock.Any()).Times(1)
+				s.scopedKeeper.EXPECT().
+					GetCapability(s.ctx, "ports/tunnel.1").
+					Return(&capabilitytypes.Capability{}, true)
+
+				return types.NewMsgCreateTunnel(
+					signalDeviations,
+					60,
+					types.NewIBCRoute(""),
+					sdk.NewCoins(),
+					sdk.AccAddress([]byte("creator_address")).String(),
+				)
+			},
+			expErr:    false,
+			expErrMsg: "",
 		},
 		"all good without initial deposit": {
 			preRun: func() (*types.MsgCreateTunnel, error) {
@@ -102,7 +143,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 					60,
 					route,
 					sdk.NewCoins(),
-					sdk.AccAddress([]byte("creator_address")),
+					sdk.AccAddress([]byte("creator_address")).String(),
 				)
 			},
 			expErr:    false,
@@ -127,7 +168,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 					60,
 					route,
 					depositAmount,
-					depositor,
+					depositor.String(),
 				)
 			},
 			expErr:    false,
@@ -137,6 +178,7 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 
 	for name, tc := range cases {
 		s.Run(name, func() {
+			s.reset()
 			msg, err := tc.preRun()
 			s.Require().NoError(err)
 
@@ -148,8 +190,85 @@ func (s *KeeperTestSuite) TestMsgCreateTunnel() {
 				s.Require().NoError(err)
 				s.Require().NotNil(res.TunnelID)
 			}
+		})
+	}
+}
 
+func (s *KeeperTestSuite) TestMsgUpdateRoute() {
+	cases := map[string]struct {
+		preRun    func() (*types.MsgUpdateRoute, error)
+		expErr    bool
+		expErrMsg string
+	}{
+		"tunnel not found": {
+			preRun: func() (*types.MsgUpdateRoute, error) {
+				return types.NewMsgUpdateIBCRoute(
+					1,
+					"channel-0",
+					sdk.AccAddress([]byte("creator_address")).String(),
+				)
+			},
+			expErr:    true,
+			expErrMsg: "tunnel not found",
+		},
+		"mismatch route type": {
+			preRun: func() (*types.MsgUpdateRoute, error) {
+				s.AddSampleTunnel(false)
+
+				return types.NewMsgUpdateIBCRoute(
+					1,
+					"channel-0",
+					sdk.AccAddress([]byte("creator_address")).String(),
+				)
+			},
+			expErr:    true,
+			expErrMsg: "cannot change route type",
+		},
+		"invalid creator of the tunnel": {
+			preRun: func() (*types.MsgUpdateRoute, error) {
+				s.AddSampleTunnel(false)
+
+				return types.NewMsgUpdateIBCRoute(
+					1,
+					"channel-0",
+					sdk.AccAddress([]byte("wrong_creator_address")).String(),
+				)
+			},
+			expErr:    true,
+			expErrMsg: "invalid creator of the tunnel",
+		},
+		"all good": {
+			preRun: func() (*types.MsgUpdateRoute, error) {
+				s.channelKeeper.EXPECT().
+					GetChannel(gomock.Any(), "channel-0", "tunnel.1").
+					Return(channeltypes.Channel{}, true)
+
+				s.AddSampleIBCTunnel(false)
+
+				return types.NewMsgUpdateIBCRoute(
+					1,
+					"channel-0",
+					sdk.AccAddress([]byte("creator_address")).String(),
+				)
+			},
+			expErr:    false,
+			expErrMsg: "",
+		},
+	}
+
+	for name, tc := range cases {
+		s.Run(name, func() {
 			s.reset()
+			msg, err := tc.preRun()
+			s.Require().NoError(err)
+
+			_, err = s.msgServer.UpdateRoute(s.ctx, msg)
+			if tc.expErr {
+				s.Require().Error(err)
+				s.Require().Contains(err.Error(), tc.expErrMsg)
+			} else {
+				s.Require().NoError(err)
+			}
 		})
 	}
 }
@@ -299,6 +418,7 @@ func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
 
 	for name, tc := range cases {
 		s.Run(name, func() {
+			s.reset()
 			msg := tc.preRun()
 
 			_, err := s.msgServer.UpdateAndResetTunnel(s.ctx, msg)
@@ -308,8 +428,6 @@ func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
 			} else {
 				s.Require().NoError(err)
 			}
-
-			s.reset()
 		})
 	}
 }
@@ -375,6 +493,7 @@ func (s *KeeperTestSuite) TestMsgActivate() {
 
 	for name, tc := range cases {
 		s.Run(name, func() {
+			s.reset()
 			msg := tc.preRun()
 
 			_, err := s.msgServer.Activate(s.ctx, msg)
@@ -384,8 +503,6 @@ func (s *KeeperTestSuite) TestMsgActivate() {
 			} else {
 				s.Require().NoError(err)
 			}
-
-			s.reset()
 		})
 	}
 }
@@ -434,6 +551,7 @@ func (s *KeeperTestSuite) TestMsgDeactivate() {
 
 	for name, tc := range cases {
 		s.Run(name, func() {
+			s.reset()
 			msg := tc.preRun()
 
 			_, err := s.msgServer.Deactivate(s.ctx, msg)
@@ -443,8 +561,6 @@ func (s *KeeperTestSuite) TestMsgDeactivate() {
 			} else {
 				s.Require().NoError(err)
 			}
-
-			s.reset()
 		})
 	}
 }
@@ -522,6 +638,7 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 
 	for name, tc := range cases {
 		s.Run(name, func() {
+			s.reset()
 			msg := tc.preRun()
 
 			_, err := s.msgServer.TriggerTunnel(s.ctx, msg)
@@ -531,8 +648,6 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 			} else {
 				s.Require().NoError(err)
 			}
-
-			s.reset()
 		})
 	}
 }
@@ -605,6 +720,7 @@ func (s *KeeperTestSuite) TestMsgDepositToTunnel() {
 
 	for name, tc := range cases {
 		s.Run(name, func() {
+			s.reset()
 			msg := tc.preRun()
 
 			_, err := s.msgServer.DepositToTunnel(s.ctx, msg)
@@ -614,8 +730,6 @@ func (s *KeeperTestSuite) TestMsgDepositToTunnel() {
 			} else {
 				s.Require().NoError(err)
 			}
-
-			s.reset()
 		})
 	}
 }
@@ -710,6 +824,7 @@ func (s *KeeperTestSuite) TestMsgWithdrawFromTunnel() {
 
 	for name, tc := range cases {
 		s.Run(name, func() {
+			s.reset()
 			msg := tc.preRun()
 
 			_, err := s.msgServer.WithdrawFromTunnel(s.ctx, msg)
@@ -719,8 +834,6 @@ func (s *KeeperTestSuite) TestMsgWithdrawFromTunnel() {
 			} else {
 				s.Require().NoError(err)
 			}
-
-			s.reset()
 		})
 	}
 }

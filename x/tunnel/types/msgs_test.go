@@ -34,7 +34,7 @@ func TestMsgCreateTunnel_ValidateBasic(t *testing.T) {
 		10,
 		&route,
 		initialDeposit,
-		sdk.AccAddress([]byte("creator1")),
+		sdk.AccAddress([]byte("creator1")).String(),
 	)
 	require.NoError(t, err)
 
@@ -44,6 +44,38 @@ func TestMsgCreateTunnel_ValidateBasic(t *testing.T) {
 
 	// Invalid creator
 	msg.Creator = "invalidCreator"
+	err = msg.ValidateBasic()
+	require.Error(t, err)
+}
+
+// ====================================
+// MsgUpdateRoute
+// ====================================
+
+func TestMsgUpdateRoute_ValidateBasic(t *testing.T) {
+	// Valid case - empty channel
+	route := types.NewIBCRoute("")
+	msg, err := types.NewMsgUpdateRoute(1, route, validCreator.String())
+	require.NoError(t, err)
+	err = msg.ValidateBasic()
+	require.NoError(t, err)
+
+	// Valid case - correct channel format
+	route = types.NewIBCRoute("channel-0")
+	msg, err = types.NewMsgUpdateRoute(1, route, validCreator.String())
+	require.NoError(t, err)
+	err = msg.ValidateBasic()
+	require.NoError(t, err)
+
+	// Invalid creator
+	msg.Creator = "invalidCreator"
+	err = msg.ValidateBasic()
+	require.Error(t, err)
+
+	// Invalid route
+	invalidRoute := types.NewIBCRoute("invalid channel")
+	msg, err = types.NewMsgUpdateRoute(1, invalidRoute, validCreator.String())
+	require.NoError(t, err)
 	err = msg.ValidateBasic()
 	require.Error(t, err)
 }

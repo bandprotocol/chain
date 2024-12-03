@@ -92,7 +92,7 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 				destContractAddr,
 				feedstypes.Encoder(encoder),
 				initialDeposit,
-				clientCtx.GetFromAddress(),
+				clientCtx.GetFromAddress().String(),
 			)
 			if err != nil {
 				return err
@@ -138,7 +138,7 @@ func GetTxCmdCreateIBCTunnel() *cobra.Command {
 				interval,
 				args[0],
 				initialDeposit,
-				clientCtx.GetFromAddress(),
+				clientCtx.GetFromAddress().String(),
 			)
 			if err != nil {
 				return err
