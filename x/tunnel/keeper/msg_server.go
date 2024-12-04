@@ -118,7 +118,7 @@ func (k msgServer) UpdateRoute(
 
 	switch r := route.(type) {
 	case *types.IBCRoute:
-		_, found := k.channelKeeper.GetChannel(ctx, r.ChannelID, PortIDForTunnel(msg.TunnelID))
+		_, found := k.channelKeeper.GetChannel(ctx, PortIDForTunnel(msg.TunnelID), r.ChannelID)
 		if !found {
 			return nil, types.ErrInvalidChannelID
 		}
