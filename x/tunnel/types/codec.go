@@ -19,7 +19,7 @@ var ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
 // on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgCreateTunnel{}, "tunnel/MsgCreateTunnel")
-	legacy.RegisterAminoMsg(cdc, &MsgUpdateAndResetTunnel{}, "tunnel/MsgUpdateAndResetTunnel")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateSignalsAndInterval{}, "tunnel/MsgUpdateSignalsAndInterval")
 	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "tunnel/MsgActivate")
 	legacy.RegisterAminoMsg(cdc, &MsgDeactivate{}, "tunnel/MsgDeactivate")
 	legacy.RegisterAminoMsg(cdc, &MsgTriggerTunnel{}, "tunnel/MsgTriggerTunnel")
@@ -43,7 +43,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
 		&MsgCreateTunnel{},
-		&MsgUpdateAndResetTunnel{},
+		&MsgUpdateSignalsAndInterval{},
 		&MsgActivate{},
 		&MsgDeactivate{},
 		&MsgTriggerTunnel{},

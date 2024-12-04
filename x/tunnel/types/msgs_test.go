@@ -81,14 +81,14 @@ func TestMsgUpdateRoute_ValidateBasic(t *testing.T) {
 }
 
 // ====================================
-// MsgUpdateAndResetTunnel
+// MsgUpdateSignalsAndInterval
 // ====================================
 
-func TestMsgUpdateAndResetTunnel_ValidateBasic(t *testing.T) {
+func TestMsgUpdateSignalsAndInterval_ValidateBasic(t *testing.T) {
 	signalDeviations := []types.SignalDeviation{
 		{SignalID: "signal1", SoftDeviationBPS: 5000, HardDeviationBPS: 1000},
 	}
-	msg := types.NewMsgUpdateAndResetTunnel(1, signalDeviations, 10, validCreator.String())
+	msg := types.NewMsgUpdateSignalsAndInterval(1, signalDeviations, 10, validCreator.String())
 
 	// Valid case
 	err := msg.ValidateBasic()

@@ -20,11 +20,11 @@ service Msg {
   // CreateTunnel is a RPC method to create a new tunnel.
   rpc CreateTunnel(MsgCreateTunnel) returns (MsgCreateTunnelResponse);
 
-  // UpdateRoute is a RPC method to update a route tunnel.
+  // UpdateRoute is a RPC method to update a route information of the tunnel.
   rpc UpdateRoute(MsgUpdateRoute) returns (MsgUpdateRouteResponse);
 
-  // UpdateAndResetTunnel is a RPC method to update a tunnel information and reset the interval.
-  rpc UpdateAndResetTunnel(MsgUpdateAndResetTunnel) returns (MsgUpdateAndResetTunnelResponse);
+  // UpdateSignalsAndInterval is a RPC method to update a signals and interval of the tunnel.
+  rpc UpdateSignalsAndInterval(MsgUpdateSignalsAndInterval) returns (MsgUpdateSignalsAndIntervalResponse);
 
   // Activate is a RPC method to activate a tunnel.
   rpc Activate(MsgActivate) returns (MsgActivateResponse);
@@ -71,7 +71,7 @@ message MsgCreateTunnelResponse {
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
 }
 
-// MsgUpdateRoute is the transaction message to update a route tunnel
+// MsgUpdateRoute is the transaction message to update a route information of the tunnel.
 message MsgUpdateRoute {
   option (cosmos.msg.v1.signer) = "creator";
   option (amino.name)           = "tunnel/MsgUpdateRoute";
@@ -87,11 +87,10 @@ message MsgUpdateRoute {
 // MsgUpdateRouteResponse is the response type for the Msg/UpdateRoute RPC method.
 message MsgUpdateRouteResponse {}
 
-// MsgUpdateAndResetTunnel is the transaction message to update a tunnel information
-// and reset the interval.
-message MsgUpdateAndResetTunnel {
+// MsgUpdateSignalsAndInterval is the transaction message to update signals and interval of the tunnel.
+message MsgUpdateSignalsAndInterval {
   option (cosmos.msg.v1.signer) = "creator";
-  option (amino.name)           = "tunnel/MsgUpdateAndResetTunnel";
+  option (amino.name)           = "tunnel/MsgUpdateSignalsAndInterval";
 
   // tunnel_id is the ID of the tunnel to edit.
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
@@ -103,8 +102,8 @@ message MsgUpdateAndResetTunnel {
   string creator = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// MsgUpdateAndResetTunnelResponse is the response type for the Msg/UpdateAndResetTunnel RPC method.
-message MsgUpdateAndResetTunnelResponse {}
+// MsgUpdateSignalsAndIntervalResponse is the response type for the Msg/UpdateSignalsAndInterval RPC method.
+message MsgUpdateSignalsAndIntervalResponse {}
 
 // Activate is the transaction message to activate a tunnel.
 message MsgActivate {

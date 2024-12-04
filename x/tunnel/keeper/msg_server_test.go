@@ -273,14 +273,14 @@ func (s *KeeperTestSuite) TestMsgUpdateRoute() {
 	}
 }
 
-func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
+func (s *KeeperTestSuite) TestMsgUpdateSignalsAndInterval() {
 	cases := map[string]struct {
-		preRun    func() *types.MsgUpdateAndResetTunnel
+		preRun    func() *types.MsgUpdateSignalsAndInterval
 		expErr    bool
 		expErrMsg string
 	}{
 		"max signal exceed": {
-			preRun: func() *types.MsgUpdateAndResetTunnel {
+			preRun: func() *types.MsgUpdateSignalsAndInterval {
 				params := types.DefaultParams()
 				params.MaxSignals = 1
 				err := s.keeper.SetParams(s.ctx, params)
@@ -301,7 +301,7 @@ func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
 					},
 				}
 
-				return types.NewMsgUpdateAndResetTunnel(
+				return types.NewMsgUpdateSignalsAndInterval(
 					1,
 					editedSignalDeviations,
 					60,
@@ -312,7 +312,7 @@ func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
 			expErrMsg: "max signals exceeded",
 		},
 		"deviation out of range": {
-			preRun: func() *types.MsgUpdateAndResetTunnel {
+			preRun: func() *types.MsgUpdateSignalsAndInterval {
 				params := types.DefaultParams()
 				params.MinDeviationBPS = 1000
 				params.MaxDeviationBPS = 10000
@@ -329,7 +329,7 @@ func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
 					},
 				}
 
-				return types.NewMsgUpdateAndResetTunnel(
+				return types.NewMsgUpdateSignalsAndInterval(
 					1,
 					editedSignalDeviations,
 					60,
@@ -340,7 +340,7 @@ func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
 			expErrMsg: "deviation out of range",
 		},
 		"interval out of range": {
-			preRun: func() *types.MsgUpdateAndResetTunnel {
+			preRun: func() *types.MsgUpdateSignalsAndInterval {
 				params := types.DefaultParams()
 				params.MinInterval = 5
 				err := s.keeper.SetParams(s.ctx, params)
@@ -356,7 +356,7 @@ func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
 					},
 				}
 
-				return types.NewMsgUpdateAndResetTunnel(
+				return types.NewMsgUpdateSignalsAndInterval(
 					1,
 					editedSignalDeviations,
 					1,
@@ -367,8 +367,8 @@ func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
 			expErrMsg: "interval out of range",
 		},
 		"tunnel not found": {
-			preRun: func() *types.MsgUpdateAndResetTunnel {
-				return types.NewMsgUpdateAndResetTunnel(
+			preRun: func() *types.MsgUpdateSignalsAndInterval {
+				return types.NewMsgUpdateSignalsAndInterval(
 					1,
 					[]types.SignalDeviation{},
 					60,
@@ -379,10 +379,10 @@ func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
 			expErrMsg: "tunnel not found",
 		},
 		"invalid creator of the tunnel": {
-			preRun: func() *types.MsgUpdateAndResetTunnel {
+			preRun: func() *types.MsgUpdateSignalsAndInterval {
 				s.AddSampleTunnel(false)
 
-				return types.NewMsgUpdateAndResetTunnel(
+				return types.NewMsgUpdateSignalsAndInterval(
 					1,
 					[]types.SignalDeviation{},
 					60,
@@ -393,7 +393,7 @@ func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
 			expErrMsg: "invalid creator of the tunnel",
 		},
 		"all good": {
-			preRun: func() *types.MsgUpdateAndResetTunnel {
+			preRun: func() *types.MsgUpdateSignalsAndInterval {
 				s.AddSampleTunnel(false)
 
 				editedSignalDeviations := []types.SignalDeviation{
@@ -404,7 +404,7 @@ func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
 					},
 				}
 
-				return types.NewMsgUpdateAndResetTunnel(
+				return types.NewMsgUpdateSignalsAndInterval(
 					1,
 					editedSignalDeviations,
 					60,
@@ -421,7 +421,7 @@ func (s *KeeperTestSuite) TestMsgUpdateAndResetTunnel() {
 			s.reset()
 			msg := tc.preRun()
 
-			_, err := s.msgServer.UpdateAndResetTunnel(s.ctx, msg)
+			_, err := s.msgServer.UpdateSignalsAndInterval(s.ctx, msg)
 			if tc.expErr {
 				s.Require().Error(err)
 				s.Require().Contains(err.Error(), tc.expErrMsg)

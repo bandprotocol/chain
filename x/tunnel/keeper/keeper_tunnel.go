@@ -76,8 +76,8 @@ func (k Keeper) AddTunnel(
 	return &tunnel, nil
 }
 
-// UpdateAndResetTunnel edits a tunnel and reset latest signal price interval.
-func (k Keeper) UpdateAndResetTunnel(
+// UpdateSignalsAndInterval edits a tunnel and reset latest signal price interval.
+func (k Keeper) UpdateSignalsAndInterval(
 	ctx sdk.Context,
 	tunnelID uint64,
 	signalDeviations []types.SignalDeviation,
@@ -97,7 +97,7 @@ func (k Keeper) UpdateAndResetTunnel(
 	k.SetLatestPrices(ctx, types.NewLatestPrices(tunnelID, []feedstypes.Price{}, 0))
 
 	event := sdk.NewEvent(
-		types.EventTypeUpdateAndResetTunnel,
+		types.EventTypeUpdateSignalsAndInterval,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
 		sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", tunnel.Interval)),
 	)

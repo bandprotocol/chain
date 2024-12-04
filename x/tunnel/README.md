@@ -27,7 +27,7 @@ The Tunnel module is designed to decentralize the creation of push-based price d
     - [Params](#params)
   - [Msg](#msg)
     - [MsgCreateTunnel](#msgcreatetunnel)
-    - [MsgUpdateAndResetTunnel](#msgupdateandresettunnel)
+    - [MsgUpdateSignalsAndInterval](#msgupdatesignalsandinterval)
     - [MsgActivate](#msgactivate)
     - [MsgDeactivate](#msgdeactivate)
     - [MsgTriggerTunnel](#msgtriggertunnel)
@@ -35,7 +35,7 @@ The Tunnel module is designed to decentralize the creation of push-based price d
     - [MsgWithdrawFromTunnel](#msgwithdrawfromtunnel)
   - [Events](#events)
     - [Event: `create_tunnel`](#event-create_tunnel)
-    - [Event: `update_and_reset_tunnel`](#event-update_and_reset_tunnel)
+    - [Event: `update_signals_and_interval`](#event-update_signals_and_interval)
     - [Event: `activate_tunnel`](#event-activate_tunnel)
     - [Event: `deactivate_tunnel`](#event-deactivate_tunnel)
     - [Event: `trigger_tunnel`](#event-trigger_tunnel)
@@ -257,16 +257,16 @@ message MsgCreateTunnel {
 - **Route Selection**: Only one route can be chosen per tunnel.
 - **Initial Deposit**: The initial deposit can be set to zero. Other users can contribute to the tunnel's deposit by send [MsgDepositToTunnel](#msgdeposittotunnel) message until it reaches the required minimum deposit.
 
-### MsgUpdateAndResetTunnel
+### MsgUpdateSignalsAndInterval
 
 **Editable Arguments**: The following parameters can be modified within the tunnel: `signal_deviations` and `Interval`
 
 ```protobuf
-// MsgUpdateAndResetTunnel is the transaction message to update a tunnel information
+// MsgUpdateSignalsAndInterval is the transaction message to update a tunnel information
 // and reset the interval.
-message MsgUpdateAndResetTunnel {
+message MsgUpdateSignalsAndInterval {
   option (cosmos.msg.v1.signer) = "creator";
-  option (amino.name)           = "tunnel/MsgUpdateAndResetTunnel";
+  option (amino.name)           = "tunnel/MsgUpdateSignalsAndInterval";
 
   // tunnel_id is the ID of the tunnel to edit.
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
@@ -407,7 +407,7 @@ This event is emitted when a new tunnel is created.
 | soft_deviation_bps[] | `{SignalDeviation.SoftDeviationBPS}}` |
 | hard_deviation_bps[] | `{SignalDeviation.hardDeviationBPS}}` |
 
-### Event: `update_and_reset_tunnel`
+### Event: `update_signals_and_interval`
 
 This event is emitted when an existing tunnel is edited.
 

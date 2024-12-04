@@ -133,11 +133,11 @@ func (k msgServer) UpdateRoute(
 	return &types.MsgUpdateRouteResponse{}, nil
 }
 
-// UpdateAndResetTunnel edits a tunnel and reset latest price interval.
-func (k msgServer) UpdateAndResetTunnel(
+// UpdateSignalsAndInterval edits a tunnel and reset latest price interval.
+func (k msgServer) UpdateSignalsAndInterval(
 	goCtx context.Context,
-	msg *types.MsgUpdateAndResetTunnel,
-) (*types.MsgUpdateAndResetTunnelResponse, error) {
+	msg *types.MsgUpdateSignalsAndInterval,
+) (*types.MsgUpdateSignalsAndIntervalResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	params := k.Keeper.GetParams(ctx)
@@ -161,12 +161,12 @@ func (k msgServer) UpdateAndResetTunnel(
 		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", msg.Creator, msg.TunnelID)
 	}
 
-	err = k.Keeper.UpdateAndResetTunnel(ctx, msg.TunnelID, msg.SignalDeviations, msg.Interval)
+	err = k.Keeper.UpdateSignalsAndInterval(ctx, msg.TunnelID, msg.SignalDeviations, msg.Interval)
 	if err != nil {
 		return nil, err
 	}
 
-	return &types.MsgUpdateAndResetTunnelResponse{}, nil
+	return &types.MsgUpdateSignalsAndIntervalResponse{}, nil
 }
 
 // Activate activates a tunnel.

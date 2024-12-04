@@ -27,7 +27,7 @@ func GetTxCmd() *cobra.Command {
 	txCmd.AddCommand(
 		GetTxCmdCreateTunnel(),
 		GetTxCmdUpdateRoute(),
-		GetTxCmdUpdateAndResetTunnel(),
+		GetTxCmdUpdateSignalsAndInterval(),
 		GetTxCmdActivate(),
 		GetTxCmdDeactivate(),
 		GetTxCmdTriggerTunnel(),
@@ -206,7 +206,7 @@ func GetTxCmdUpdateIBCRoute() *cobra.Command {
 	return cmd
 }
 
-func GetTxCmdUpdateAndResetTunnel() *cobra.Command {
+func GetTxCmdUpdateSignalsAndInterval() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "update-and-reset-tunnel [tunnel-id] [interval] [signalDeviations-json-file] ",
 		Short: "Update an existing tunnel and reset the latest price interval of the tunnel",
@@ -232,7 +232,7 @@ func GetTxCmdUpdateAndResetTunnel() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgUpdateAndResetTunnel(
+			msg := types.NewMsgUpdateSignalsAndInterval(
 				id,
 				signalDeviations.ToSignalDeviations(),
 				interval,
