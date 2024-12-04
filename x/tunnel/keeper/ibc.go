@@ -32,10 +32,14 @@ func (k Keeper) ensureIBCPort(ctx sdk.Context, tunnelID uint64) (string, error) 
 
 const portIDPrefix = "tunnel."
 
+// PortIDForTunnel generates a unique port ID for a given tunnel ID.
+// It concatenates a predefined prefix (portIDPrefix) with the tunnel ID.
 func PortIDForTunnel(tunnelID uint64) string {
 	return fmt.Sprintf("%s%d", portIDPrefix, tunnelID)
 }
 
+// IsValidPortID checks if a given port ID is valid.
+// It ensures that the port ID starts with the predefined prefix (portIDPrefix).
 func IsValidPortID(portID string) bool {
 	return strings.HasPrefix(portID, portIDPrefix)
 }
