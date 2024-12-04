@@ -140,7 +140,6 @@ func GetTxCmdCreateIBCTunnel() *cobra.Command {
 			msg, err := types.NewMsgCreateIBCTunnel(
 				signalInfos.ToSignalDeviations(),
 				interval,
-				"",
 				initialDeposit,
 				clientCtx.GetFromAddress().String(),
 			)

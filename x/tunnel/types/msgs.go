@@ -65,11 +65,10 @@ func NewMsgCreateTSSTunnel(
 func NewMsgCreateIBCTunnel(
 	signalDeviations []SignalDeviation,
 	interval uint64,
-	channelID string,
 	deposit sdk.Coins,
 	creator string,
 ) (*MsgCreateTunnel, error) {
-	r := NewIBCRoute(channelID)
+	r := NewIBCRoute("")
 	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, deposit, creator)
 	if err != nil {
 		return nil, err
