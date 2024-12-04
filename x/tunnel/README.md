@@ -114,7 +114,7 @@ To create an IBC tunnel, use the following CLI command:
 > **Note**: An example of the signalInfos-json-file can be found at scripts/tunnel/signal_deviations.json.
 
 ```bash
-bandd tx tunnel create-tunnel ibc [channel-id] [initial-deposit] [interval] [signalInfos-json-file]
+bandd tx tunnel create-tunnel ibc [initial-deposit] [interval] [signalInfos-json-file]
 ```
 
 #### TSS Route

@@ -26,6 +26,7 @@ func GetTxCmd() *cobra.Command {
 
 	txCmd.AddCommand(
 		GetTxCmdCreateTunnel(),
+		GetTxCmdUpdateRoute(),
 		GetTxCmdUpdateAndResetTunnel(),
 		GetTxCmdActivate(),
 		GetTxCmdDeactivate(),
@@ -46,7 +47,10 @@ func GetTxCmdCreateTunnel() *cobra.Command {
 	}
 
 	// add create tunnel subcommands
-	txCmd.AddCommand(GetTxCmdCreateTSSTunnel(), GetTxCmdCreateIBCTunnel())
+	txCmd.AddCommand(
+		GetTxCmdCreateTSSTunnel(),
+		GetTxCmdCreateIBCTunnel(),
+	)
 
 	return txCmd
 }
@@ -109,26 +113,26 @@ func GetTxCmdCreateTSSTunnel() *cobra.Command {
 
 func GetTxCmdCreateIBCTunnel() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "ibc [channel-id] [initial-deposit] [interval] [signalInfos-json-file]",
+		Use:   "ibc [initial-deposit] [interval] [signalInfos-json-file]",
 		Short: "Create a new IBC tunnel",
-		Args:  cobra.ExactArgs(4),
+		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			initialDeposit, err := sdk.ParseCoinsNormalized(args[1])
+			initialDeposit, err := sdk.ParseCoinsNormalized(args[0])
 			if err != nil {
 				return err
 			}
 
-			interval, err := strconv.ParseUint(args[2], 10, 64)
+			interval, err := strconv.ParseUint(args[1], 10, 64)
 			if err != nil {
 				return err
 			}
 
-			signalInfos, err := parseSignalDeviations(args[3])
+			signalInfos, err := parseSignalDeviations(args[2])
 			if err != nil {
 				return err
 			}
@@ -136,7 +140,7 @@ func GetTxCmdCreateIBCTunnel() *cobra.Command {
 			msg, err := types.NewMsgCreateIBCTunnel(
 				signalInfos.ToSignalDeviations(),
 				interval,
-				args[0],
+				"",
 				initialDeposit,
 				clientCtx.GetFromAddress().String(),
 			)
@@ -149,6 +153,56 @@ func GetTxCmdCreateIBCTunnel() *cobra.Command {
 	}
 
 	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+func GetTxCmdUpdateRoute() *cobra.Command {
+	txCmd := &cobra.Command{
+		Use:                "update-route",
+		Short:              "Update route information",
+		DisableFlagParsing: true,
+		RunE:               client.ValidateCmd,
+	}
+
+	// add create tunnel subcommands
+	txCmd.AddCommand(
+		GetTxCmdUpdateIBCRoute(),
+	)
+
+	return txCmd
+}
+
+func GetTxCmdUpdateIBCRoute() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "ibc [tunnel-id] [channel-id]",
+		Short: "Update IBC route of a IBC tunnel",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			id, err := strconv.ParseUint(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			msg, err := types.NewMsgUpdateIBCRoute(
+				id,
+				args[1],
+				clientCtx.GetFromAddress().String(),
+			)
+			if err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
 	return cmd
 }
 
