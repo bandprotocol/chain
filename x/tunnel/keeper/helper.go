@@ -23,6 +23,7 @@ func GenerateNewPrices(
 	signalDeviations []types.SignalDeviation,
 	latestPricesMap map[string]feedstypes.Price,
 	feedsPricesMap map[string]feedstypes.Price,
+	timestamp int64,
 	sendAll bool,
 ) []feedstypes.Price {
 	shouldSend := false
@@ -36,7 +37,7 @@ func GenerateNewPrices(
 
 		feedPrice, ok := feedsPricesMap[sd.SignalID]
 		if !ok {
-			feedPrice = feedstypes.NewPrice(feedstypes.PRICE_STATUS_NOT_IN_CURRENT_FEEDS, sd.SignalID, 0, 0)
+			feedPrice = feedstypes.NewPrice(feedstypes.PRICE_STATUS_NOT_IN_CURRENT_FEEDS, sd.SignalID, 0, timestamp)
 		}
 
 		// calculate deviation between old price and new price and compare with the threshold.
