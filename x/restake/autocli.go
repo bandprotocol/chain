@@ -29,6 +29,9 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 					RpcMethod: "Locks",
 					Use:       "locks [staker-address]",
 					Short:     "shows all locks of an staker address",
+					PositionalArgs: []*autocliv1.PositionalArgDescriptor{
+						{ProtoField: "staker_address"},
+					},
 				},
 				{
 					RpcMethod: "Lock",
