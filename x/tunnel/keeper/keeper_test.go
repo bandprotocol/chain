@@ -44,6 +44,7 @@ type KeeperTestSuite struct {
 	bandtssKeeper *testutil.MockBandtssKeeper
 	icsWrapper    *testutil.MockICS4Wrapper
 	portKeeper    *testutil.MockPortKeeper
+	channelKeeper *testutil.MockChannelKeeper
 	scopedKeeper  *testutil.MockScopedKeeper
 
 	ctx       sdk.Context
@@ -64,6 +65,7 @@ func (s *KeeperTestSuite) reset() {
 	bankKeeper := testutil.NewMockBankKeeper(ctrl)
 	feedsKeeper := testutil.NewMockFeedsKeeper(ctrl)
 	bandtssKeeper := testutil.NewMockBandtssKeeper(ctrl)
+	channelKeeper := testutil.NewMockChannelKeeper(ctrl)
 	icsWrapper := testutil.NewMockICS4Wrapper(ctrl)
 	portKeeper := testutil.NewMockPortKeeper(ctrl)
 	scopedKeeper := testutil.NewMockScopedKeeper(ctrl)
@@ -80,6 +82,7 @@ func (s *KeeperTestSuite) reset() {
 		bankKeeper,
 		feedsKeeper,
 		bandtssKeeper,
+		channelKeeper,
 		icsWrapper,
 		portKeeper,
 		scopedKeeper,
@@ -91,6 +94,7 @@ func (s *KeeperTestSuite) reset() {
 	s.bankKeeper = bankKeeper
 	s.feedsKeeper = feedsKeeper
 	s.bandtssKeeper = bandtssKeeper
+	s.channelKeeper = channelKeeper
 	s.icsWrapper = icsWrapper
 	s.portKeeper = portKeeper
 	s.scopedKeeper = scopedKeeper
@@ -122,6 +126,49 @@ func (s *KeeperTestSuite) AddSampleTunnel(isActive bool) {
 		DestinationChainID:         "chain-1",
 		DestinationContractAddress: "0x1234567890abcdef",
 		Encoder:                    feedstypes.ENCODER_FIXED_POINT_ABI,
+	}
+
+	tunnel, err := k.AddTunnel(
+		ctx,
+		route,
+		signalDeviations,
+		10,
+		sdk.AccAddress([]byte("creator_address")),
+	)
+	s.Require().NoError(err)
+
+	if isActive {
+		tunnel, err := k.GetTunnel(ctx, tunnel.ID)
+		s.Require().NoError(err)
+
+		// set deposit to the tunnel to be able to activate
+		tunnel.TotalDeposit = append(tunnel.TotalDeposit, k.GetParams(ctx).MinDeposit...)
+		k.SetTunnel(ctx, tunnel)
+
+		err = k.ActivateTunnel(ctx, tunnel.ID)
+		s.Require().NoError(err)
+	}
+}
+
+func (s *KeeperTestSuite) AddSampleIBCTunnel(isActive bool) {
+	ctx, k := s.ctx, s.keeper
+
+	s.accountKeeper.EXPECT().
+		GetAccount(ctx, gomock.Any()).
+		Return(nil).Times(1)
+	s.accountKeeper.EXPECT().NewAccount(ctx, gomock.Any()).Times(1)
+	s.accountKeeper.EXPECT().SetAccount(ctx, gomock.Any()).Times(1)
+
+	signalDeviations := []types.SignalDeviation{
+		{
+			SignalID:         "CS:BAND-USD",
+			SoftDeviationBPS: 100,
+			HardDeviationBPS: 100,
+		},
+	}
+
+	route := &types.IBCRoute{
+		ChannelID: "",
 	}
 
 	tunnel, err := k.AddTunnel(

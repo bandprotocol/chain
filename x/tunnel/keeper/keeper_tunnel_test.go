@@ -64,7 +64,7 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 	s.Require().Equal(expectedPrices, latestPrices)
 }
 
-func (s *KeeperTestSuite) TestUpdateAndResetTunnel() {
+func (s *KeeperTestSuite) TestUpdateSignalsAndInterval() {
 	ctx, k := s.ctx, s.keeper
 
 	initialRoute := &types.TSSRoute{}
@@ -97,8 +97,8 @@ func (s *KeeperTestSuite) TestUpdateAndResetTunnel() {
 	}
 	newInterval := uint64(20)
 
-	// call the UpdateAndResetTunnel function
-	err = k.UpdateAndResetTunnel(ctx, initialTunnel.ID, newSignalDeviations, newInterval)
+	// call the UpdateSignalsAndInterval function
+	err = k.UpdateSignalsAndInterval(ctx, initialTunnel.ID, newSignalDeviations, newInterval)
 	s.Require().NoError(err)
 
 	// validate the edited tunnel

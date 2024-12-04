@@ -18,8 +18,12 @@ func (k Keeper) SendIBCPacket(
 	packet types.Packet,
 	interval uint64,
 ) (types.PacketReceiptI, error) {
+	portID := PortIDForTunnel(packet.TunnelID)
 	// retrieve the dynamic capability for this channel
-	channelCap, ok := k.scopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(types.PortID, route.ChannelID))
+	channelCap, ok := k.scopedKeeper.GetCapability(
+		ctx,
+		host.ChannelCapabilityPath(portID, route.ChannelID),
+	)
 	if !ok {
 		return nil, types.ErrChannelCapabilityNotFound
 	}
@@ -36,7 +40,7 @@ func (k Keeper) SendIBCPacket(
 	sequence, err := k.ics4Wrapper.SendPacket(
 		ctx,
 		channelCap,
-		types.PortID,
+		portID,
 		route.ChannelID,
 		clienttypes.NewHeight(0, 0),
 		uint64(ctx.BlockTime().UnixNano())+interval*uint64(time.Second),
