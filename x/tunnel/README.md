@@ -27,6 +27,7 @@ The Tunnel module is designed to decentralize the creation of push-based price d
     - [Params](#params)
   - [Msg](#msg)
     - [MsgCreateTunnel](#msgcreatetunnel)
+    - [MsgUpdateRoute](#msgupdateroute)
     - [MsgUpdateSignalsAndInterval](#msgupdatesignalsandinterval)
     - [MsgActivate](#msgactivate)
     - [MsgDeactivate](#msgdeactivate)
@@ -110,6 +111,8 @@ The IBC Route enables the transmission of data from BandChain to Cosmos-compatib
 We also provide a library, cw-band, that enables the use of the Tunnel via WASM contracts on the destination chain. You can find an example and further details here: [cw-band](https://github.com/bandprotocol/cw-band)
 
 To create an IBC tunnel, use the following CLI command:
+
+> **Note**: You must create a tunnel before establishing an IBC connection using the tunnel ID. For example, if you create a tunnel and receive tunnelID 1, then create a channel with the port: `tunnel.1`.
 
 > **Note**: An example of the signalInfos-json-file can be found at scripts/tunnel/signal_deviations.json.
 
@@ -257,13 +260,29 @@ message MsgCreateTunnel {
 - **Route Selection**: Only one route can be chosen per tunnel.
 - **Initial Deposit**: The initial deposit can be set to zero. Other users can contribute to the tunnel's deposit by send [MsgDepositToTunnel](#msgdeposittotunnel) message until it reaches the required minimum deposit.
 
-### MsgUpdateSignalsAndInterval
+### MsgUpdateRoute
 
-**Editable Arguments**: The following parameters can be modified within the tunnel: `signal_deviations` and `Interval`
+To update the route details based on the route type, allowing certain arguments to be updated.
 
 ```protobuf
-// MsgUpdateSignalsAndInterval is the transaction message to update a tunnel information
-// and reset the interval.
+// MsgUpdateRoute is the transaction message to update a route tunnel
+message MsgUpdateRoute {
+  option (cosmos.msg.v1.signer) = "creator";
+  option (amino.name)           = "tunnel/MsgUpdateRoute";
+
+  // tunnel_id is the ID of the tunnel to edit.
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
+  // route is the route for delivering the signal prices
+  google.protobuf.Any route = 2 [(cosmos_proto.accepts_interface) = "RouteI"];
+  // creator is the address of the creator.
+  string creator = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+```
+
+### MsgUpdateSignalsAndInterval
+
+```protobuf
+// MsgUpdateSignalsAndInterval is the transaction message to update signals and interval of the tunnel.
 message MsgUpdateSignalsAndInterval {
   option (cosmos.msg.v1.signer) = "creator";
   option (amino.name)           = "tunnel/MsgUpdateSignalsAndInterval";
@@ -277,7 +296,6 @@ message MsgUpdateSignalsAndInterval {
   // creator is the address of the creator.
   string creator = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
-
 ```
 
 ### MsgActivate

@@ -92,6 +92,7 @@ func (k msgServer) CreateTunnel(
 	}, nil
 }
 
+// UpdateRoute updates the route details based on the route type, allowing certain arguments to be updated.
 func (k msgServer) UpdateRoute(
 	goCtx context.Context,
 	msg *types.MsgUpdateRoute,
