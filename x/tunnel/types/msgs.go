@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	_, _, _, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgUpdateSignalsAndInterval{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositToTunnel{}, &MsgWithdrawFromTunnel{}, &MsgUpdateParams{}
-	_, _, _, _, _, _, _, _ sdk.HasValidateBasic          = &MsgCreateTunnel{}, &MsgUpdateSignalsAndInterval{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositToTunnel{}, &MsgWithdrawFromTunnel{}, &MsgUpdateParams{}
-	_, _                   types.UnpackInterfacesMessage = &MsgCreateTunnel{}, &MsgUpdateRoute{}
+	_, _, _, _, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgUpdateRoute{}, &MsgUpdateSignalsAndInterval{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositToTunnel{}, &MsgWithdrawFromTunnel{}, &MsgUpdateParams{}
+	_, _, _, _, _, _, _, _, _ sdk.HasValidateBasic          = &MsgCreateTunnel{}, &MsgUpdateRoute{}, &MsgUpdateSignalsAndInterval{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositToTunnel{}, &MsgWithdrawFromTunnel{}, &MsgUpdateParams{}
+	_, _                      types.UnpackInterfacesMessage = &MsgCreateTunnel{}, &MsgUpdateRoute{}
 )
 
 // NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
