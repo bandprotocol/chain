@@ -20,8 +20,8 @@ func (s *KeeperTestSuite) TestAddTunnel() {
 	route := &types.TSSRoute{}
 	any, _ := codectypes.NewAnyWithValue(route)
 	signalDeviations := []types.SignalDeviation{
-		{SignalID: "BTC"},
-		{SignalID: "ETH"},
+		{SignalID: "CS:BAND-USD"},
+		{SignalID: "CS:ETH-USD"},
 	}
 	interval := uint64(10)
 	creator := sdk.AccAddress([]byte("creator_address"))
@@ -69,8 +69,8 @@ func (s *KeeperTestSuite) TestUpdateAndResetTunnel() {
 
 	initialRoute := &types.TSSRoute{}
 	initialSignalDeviations := []types.SignalDeviation{
-		{SignalID: "BTC", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
-		{SignalID: "ETH", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
+		{SignalID: "CS:BAND-USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
+		{SignalID: "CS:ETH-USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
 	}
 	initialInterval := uint64(10)
 	creator := sdk.AccAddress([]byte("creator_address"))
@@ -92,8 +92,8 @@ func (s *KeeperTestSuite) TestUpdateAndResetTunnel() {
 
 	// define new test data for editing the tunnel
 	newSignalDeviations := []types.SignalDeviation{
-		{SignalID: "BTC", SoftDeviationBPS: 1100, HardDeviationBPS: 1100},
-		{SignalID: "ETH", SoftDeviationBPS: 1100, HardDeviationBPS: 1100},
+		{SignalID: "CS:BAND-USD", SoftDeviationBPS: 1100, HardDeviationBPS: 1100},
+		{SignalID: "CS:ETH-USD", SoftDeviationBPS: 1100, HardDeviationBPS: 1100},
 	}
 	newInterval := uint64(20)
 
@@ -169,8 +169,8 @@ func (s *KeeperTestSuite) TestActivateTunnel() {
 	tunnelID := uint64(1)
 	route := &codectypes.Any{}
 	signalDeviations := []types.SignalDeviation{
-		{SignalID: "BTC"},
-		{SignalID: "ETH"},
+		{SignalID: "CS:BAND-USD"},
+		{SignalID: "CS:ETH-USD"},
 	}
 	interval := uint64(10)
 	creator := sdk.AccAddress([]byte("creator_address")).String()
@@ -207,8 +207,8 @@ func (s *KeeperTestSuite) TestDeactivateTunnel() {
 	tunnelID := uint64(1)
 	route := &codectypes.Any{}
 	signalDeviations := []types.SignalDeviation{
-		{SignalID: "BTC"},
-		{SignalID: "ETH"},
+		{SignalID: "CS:BAND-USD"},
+		{SignalID: "CS:ETH-USD"},
 	}
 	interval := uint64(10)
 	creator := sdk.AccAddress([]byte("creator_address")).String()

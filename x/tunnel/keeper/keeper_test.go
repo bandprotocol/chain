@@ -115,7 +115,7 @@ func (s *KeeperTestSuite) AddSampleTunnel(isActive bool) {
 
 	signalDeviations := []types.SignalDeviation{
 		{
-			SignalID:         "BTC",
+			SignalID:         "CS:BAND-USD",
 			SoftDeviationBPS: 100,
 			HardDeviationBPS: 100,
 		},

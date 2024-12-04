@@ -62,7 +62,7 @@ func (s *KeeperTestSuite) TestCreatePacket() {
 		FeePayer: feePayer.String(),
 		IsActive: true,
 		SignalDeviations: []types.SignalDeviation{
-			{SignalID: "BTC/USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
+			{SignalID: "CS:BAND-USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
 		},
 		CreatedAt: ctx.BlockTime().Unix(),
 	}
@@ -71,7 +71,7 @@ func (s *KeeperTestSuite) TestCreatePacket() {
 		DestinationContractAddress: "0x",
 	}
 	prices := []feedstypes.Price{
-		{SignalID: "BTC/USD", Price: 0},
+		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "CS:BAND-USD", Price: 5000000, Timestamp: 1733000000},
 	}
 
 	s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
@@ -113,7 +113,12 @@ func (s *KeeperTestSuite) TestProducePacket() {
 
 	tunnelID := uint64(1)
 	pricesMap := map[string]feedstypes.Price{
-		"BTC/USD": {Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
+		"CS:BAND-USD": {
+			Status:    feedstypes.PRICE_STATUS_AVAILABLE,
+			SignalID:  "CS:BAND-USD",
+			Price:     50000,
+			Timestamp: 1733000000,
+		},
 	}
 	feePayer := sdk.AccAddress([]byte("fee_payer_address"))
 	tunnel := types.Tunnel{
@@ -121,7 +126,7 @@ func (s *KeeperTestSuite) TestProducePacket() {
 		FeePayer: feePayer.String(),
 		IsActive: true,
 		SignalDeviations: []types.SignalDeviation{
-			{SignalID: "BTC/USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
+			{SignalID: "CS:BAND-USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
 		},
 		CreatedAt: ctx.BlockTime().Unix(),
 	}
@@ -158,7 +163,7 @@ func (s *KeeperTestSuite) TestProducePacket() {
 	s.Require().NoError(err)
 
 	k.SetLatestPrices(ctx, types.NewLatestPrices(tunnelID, []feedstypes.Price{
-		{SignalID: "BTC/USD", Price: 0},
+		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "CS:BAND-USD", Price: 600000, Timestamp: 1732000000},
 	}, 0))
 
 	err = k.ProducePacket(ctx, tunnelID, pricesMap)
@@ -175,7 +180,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 		FeePayer: feePayer.String(),
 		IsActive: true,
 		SignalDeviations: []types.SignalDeviation{
-			{SignalID: "BTC/USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
+			{SignalID: "CS:BAND-USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
 		},
 		CreatedAt: ctx.BlockTime().Unix(),
 	}
@@ -189,7 +194,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 	).Times(2)
 
 	s.feedsKeeper.EXPECT().GetAllPrices(gomock.Any()).Return([]feedstypes.Price{
-		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
+		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "CS:BAND-USD", Price: 50000, Timestamp: 1733000000},
 	})
 
 	spendableCoins := types.DefaultBasePacketFee.Add(sdk.NewCoin("uband", sdkmath.NewInt(20)))
@@ -220,7 +225,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 	s.Require().NoError(err)
 
 	k.SetLatestPrices(ctx, types.NewLatestPrices(tunnelID, []feedstypes.Price{
-		{SignalID: "BTC/USD", Price: 0},
+		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "CS:BAND-USD", Price: 6000000, Timestamp: 1732000000},
 	}, 0))
 
 	err = k.ProduceActiveTunnelPackets(ctx)
@@ -245,7 +250,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPacketsNotEnoughMoney() {
 		FeePayer: feePayer.String(),
 		IsActive: true,
 		SignalDeviations: []types.SignalDeviation{
-			{SignalID: "BTC/USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
+			{SignalID: "CS:BAND-USD", SoftDeviationBPS: 1000, HardDeviationBPS: 1000},
 		},
 		CreatedAt: ctx.BlockTime().Unix(),
 	}
@@ -259,7 +264,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPacketsNotEnoughMoney() {
 	)
 
 	s.feedsKeeper.EXPECT().GetAllPrices(gomock.Any()).Return([]feedstypes.Price{
-		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "BTC/USD", Price: 50000, Timestamp: 0},
+		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "CS:BAND-USD", Price: 50000, Timestamp: 1733000000},
 	})
 	s.bankKeeper.EXPECT().SpendableCoins(gomock.Any(), feePayer).
 		Return(sdk.Coins{sdk.NewInt64Coin("uband", 1)})
@@ -279,7 +284,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPacketsNotEnoughMoney() {
 	s.Require().NoError(err)
 
 	k.SetLatestPrices(ctx, types.NewLatestPrices(tunnelID, []feedstypes.Price{
-		{SignalID: "BTC/USD", Price: 0},
+		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "CS:BAND-USD", Price: 600000, Timestamp: 1733000000},
 	}, 0))
 
 	err = k.ProduceActiveTunnelPackets(ctx)

@@ -35,7 +35,12 @@ func TestPacketDataUnmarshalerInterface(t *testing.T) {
 					TunnelID: 1,
 					Sequence: 1,
 					Prices: []feedstypes.Price{
-						{Status: feedstypes.PRICE_STATUS_NOT_IN_CURRENT_FEEDS, SignalID: "BTC", Price: 50000},
+						{
+							Status:    feedstypes.PRICE_STATUS_AVAILABLE,
+							SignalID:  "CS:BAND-USD",
+							Price:     50000,
+							Timestamp: 1733000000,
+						},
 					},
 					CreatedAt: 1633024800,
 				}

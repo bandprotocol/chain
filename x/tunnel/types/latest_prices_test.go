@@ -11,13 +11,13 @@ import (
 
 func TestLatestPrices_UpdatePrices(t *testing.T) {
 	initialPrices := []feedstypes.Price{
-		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "signal1", Price: 100},
+		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "signal1", Price: 100, Timestamp: 1732000000},
 	}
 	latestPrices := types.NewLatestPrices(1, initialPrices, 10)
 
 	newPrices := []feedstypes.Price{
-		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "signal1", Price: 200},
-		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "signal2", Price: 300},
+		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "signal1", Price: 200, Timestamp: 1733000000},
+		{Status: feedstypes.PRICE_STATUS_AVAILABLE, SignalID: "signal2", Price: 300, Timestamp: 1733000000},
 	}
 	latestPrices.UpdatePrices(newPrices)
 
