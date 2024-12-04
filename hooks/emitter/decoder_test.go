@@ -1259,7 +1259,7 @@ func (suite *DecoderTestSuite) TestDecodeTunnelMsgCreateTunnel() {
 		"0xcabe9a5e6249c893a4b4fc263",
 		feedstypes.ENCODER_TICK_ABI,
 		sdk.NewCoins(sdk.NewCoin("uband", math.NewInt(5))),
-		CreatorAddress,
+		CreatorAddress.String(),
 	)
 	suite.NoError(err)
 
@@ -1270,9 +1270,9 @@ func (suite *DecoderTestSuite) TestDecodeTunnelMsgCreateTunnel() {
 	)
 }
 
-func (suite *DecoderTestSuite) TestDecodeTunnelMsgUpdateAndResetTunnel() {
+func (suite *DecoderTestSuite) TestDecodeTunnelMsgUpdateSignalsAndInterval() {
 	detail := make(common.JsDict)
-	msg := tunneltypes.NewMsgUpdateAndResetTunnel(
+	msg := tunneltypes.NewMsgUpdateSignalsAndInterval(
 		1,
 		[]tunneltypes.SignalDeviation{
 			tunneltypes.NewSignalDeviation("CS:BAND-USD", 10000, 10000),
@@ -1281,7 +1281,7 @@ func (suite *DecoderTestSuite) TestDecodeTunnelMsgUpdateAndResetTunnel() {
 		CreatorAddress.String(),
 	)
 
-	emitter.DecodeTunnelMsgUpdateAndResetTunnel(msg, detail)
+	emitter.DecodeTunnelMsgUpdateSignalsAndInterval(msg, detail)
 	suite.testCompareJson(
 		detail,
 		"{\"creator\":\"band1gdex2ct5daeqqqqqqqqqqqqqqqqqqqqq8vcand\",\"interval\":60,\"signal_deviations\":[{\"signal_id\":\"CS:BAND-USD\",\"soft_deviation_bps\":10000,\"hard_deviation_bps\":10000}],\"tunnel_id\":1}",

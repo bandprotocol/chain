@@ -119,9 +119,9 @@ func (h *Hook) handleTunnelMsgCreateTunnel(
 	h.emitSetTunnelHistoricalDeposit(ctx, txHash, tunnelID, msg.Creator, 1, msg.InitialDeposit)
 }
 
-// handleTunnelMsgUpdateAndResetTunnel implements emitter handler for MsgUpdateAndResetTunnel.
-func (h *Hook) handleTunnelMsgUpdateAndResetTunnel(ctx sdk.Context, evMap common.EvMap) {
-	tunnelID := common.Atoui(evMap[types.EventTypeUpdateAndResetTunnel+"."+types.AttributeKeyTunnelID][0])
+// handleTunnelMsgUpdateSignalsAndInterval implements emitter handler for MsgUpdateSignalsAndInterval.
+func (h *Hook) handleTunnelMsgUpdateSignalsAndInterval(ctx sdk.Context, evMap common.EvMap) {
+	tunnelID := common.Atoui(evMap[types.EventTypeUpdateSignalsAndInterval+"."+types.AttributeKeyTunnelID][0])
 	h.emitSetTunnel(ctx, tunnelID)
 	h.emitSetTunnelHistoricalSignalDeviations(ctx, tunnelID)
 }

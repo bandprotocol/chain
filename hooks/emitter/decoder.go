@@ -169,8 +169,8 @@ func DecodeMsg(msg sdk.Msg, detail common.JsDict) {
 		DecodeRestakeMsgUpdateParams(msg, detail)
 	case *tunneltypes.MsgCreateTunnel:
 		DecodeTunnelMsgCreateTunnel(msg, detail)
-	case *tunneltypes.MsgUpdateAndResetTunnel:
-		DecodeTunnelMsgUpdateAndResetTunnel(msg, detail)
+	case *tunneltypes.MsgUpdateSignalsAndInterval:
+		DecodeTunnelMsgUpdateSignalsAndInterval(msg, detail)
 	case *tunneltypes.MsgActivate:
 		DecodeTunnelMsgActivate(msg, detail)
 	case *tunneltypes.MsgDeactivate:
@@ -803,7 +803,7 @@ func DecodeTunnelMsgCreateTunnel(msg *tunneltypes.MsgCreateTunnel, detail common
 	detail["creator"] = msg.Creator
 }
 
-func DecodeTunnelMsgUpdateAndResetTunnel(msg *tunneltypes.MsgUpdateAndResetTunnel, detail common.JsDict) {
+func DecodeTunnelMsgUpdateSignalsAndInterval(msg *tunneltypes.MsgUpdateSignalsAndInterval, detail common.JsDict) {
 	detail["tunnel_id"] = msg.TunnelID
 	detail["signal_deviations"] = msg.GetSignalDeviations()
 	detail["interval"] = msg.Interval

@@ -144,8 +144,8 @@ func (h *Hook) handleMsg(ctx sdk.Context, txHash []byte, msg sdk.Msg, events []a
 		h.handleTSSEventSubmitSignature(ctx, evMap)
 	case *tunneltypes.MsgCreateTunnel:
 		h.handleTunnelMsgCreateTunnel(ctx, txHash, msg, evMap)
-	case *tunneltypes.MsgUpdateAndResetTunnel:
-		h.handleTunnelMsgUpdateAndResetTunnel(ctx, evMap)
+	case *tunneltypes.MsgUpdateSignalsAndInterval:
+		h.handleTunnelMsgUpdateSignalsAndInterval(ctx, evMap)
 	case *tunneltypes.MsgDepositToTunnel:
 		h.handleTunnelMsgDepositToTunnel(ctx, txHash, msg)
 	case *tunneltypes.MsgWithdrawFromTunnel:
