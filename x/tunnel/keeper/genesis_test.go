@@ -4,7 +4,6 @@ import (
 	"go.uber.org/mock/gomock"
 
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
-	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
 
 	sdkmath "cosmossdk.io/math"
 
@@ -19,13 +18,7 @@ import (
 func (s *KeeperTestSuite) TestInitExportGenesis() {
 	ctx, k := s.ctx, s.keeper
 
-	s.scopedKeeper.EXPECT().GetCapability(ctx, host.PortPath(types.PortID)).Return(nil, false).AnyTimes()
-	s.scopedKeeper.EXPECT().
-		ClaimCapability(ctx, &capabilitytypes.Capability{Index: 0}, host.PortPath(types.PortID)).
-		Return(nil).
-		AnyTimes()
-	s.portKeeper.EXPECT().BindPort(ctx, types.PortID).Return(&capabilitytypes.Capability{Index: 0}).AnyTimes()
-
+	s.scopedKeeper.EXPECT().GetCapability(ctx, gomock.Any()).Return(&capabilitytypes.Capability{}, true)
 	s.accountKeeper.EXPECT().
 		GetModuleAccount(ctx, gomock.Any()).
 		Return(sdk.AccountI(&authtypes.ModuleAccount{
@@ -39,12 +32,14 @@ func (s *KeeperTestSuite) TestInitExportGenesis() {
 		Return(sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100)))).
 		AnyTimes()
 
+	t, err := types.NewTunnel(1, 0, types.NewIBCRoute("channel-0"), "", nil, 0, nil, false, 0, "")
+	s.Require().NoError(err)
 	// Create a valid genesis state
 	genesisState := &types.GenesisState{
 		Params:      types.DefaultParams(),
 		TunnelCount: 1,
 		Tunnels: []types.Tunnel{
-			{ID: 1},
+			t,
 		},
 		TotalFees: types.TotalFees{
 			TotalBasePacketFee: sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(100))),

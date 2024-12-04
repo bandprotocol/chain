@@ -53,6 +53,10 @@ func (im IBCModule) OnChanOpenInit(
 		return "", err
 	}
 
+	if !keeper.IsValidPortID(portID) {
+		return "", types.ErrInvalidPortID
+	}
+
 	// If version is empty, set it to the current version
 	if strings.TrimSpace(version) == "" {
 		version = types.Version
@@ -84,6 +88,10 @@ func (im IBCModule) OnChanOpenTry(
 	err := ValidateTunnelChannelParams(ctx, im.keeper, order, portID, channelID)
 	if err != nil {
 		return "", err
+	}
+
+	if !keeper.IsValidPortID(portID) {
+		return "", types.ErrInvalidPortID
 	}
 
 	if counterpartyVersion != types.Version {
@@ -280,18 +288,12 @@ func ValidateTunnelChannelParams(
 			uint64(math.MaxUint32),
 		)
 	}
-	if order != channeltypes.ORDERED {
+	if order != channeltypes.UNORDERED {
 		return channeltypes.ErrInvalidChannelOrdering.Wrapf(
 			"expected %s channel, got %s",
-			channeltypes.ORDERED,
+			channeltypes.UNORDERED,
 			order,
 		)
-	}
-
-	// Require portID is the portID tunnel module is bound to
-	boundPort := keeper.GetPort(ctx)
-	if boundPort != portID {
-		return porttypes.ErrInvalidPort.Wrapf("invalid port: %s, expected %s", portID, boundPort)
 	}
 
 	return nil

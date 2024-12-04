@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	_, _, _, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgUpdateAndResetTunnel{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositToTunnel{}, &MsgWithdrawFromTunnel{}, &MsgUpdateParams{}
-	_, _, _, _, _, _, _, _ sdk.HasValidateBasic          = &MsgCreateTunnel{}, &MsgUpdateAndResetTunnel{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositToTunnel{}, &MsgWithdrawFromTunnel{}, &MsgUpdateParams{}
-	_                      types.UnpackInterfacesMessage = &MsgCreateTunnel{}
+	_, _, _, _, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgUpdateRoute{}, &MsgUpdateSignalsAndInterval{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositToTunnel{}, &MsgWithdrawFromTunnel{}, &MsgUpdateParams{}
+	_, _, _, _, _, _, _, _, _ sdk.HasValidateBasic          = &MsgCreateTunnel{}, &MsgUpdateRoute{}, &MsgUpdateSignalsAndInterval{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositToTunnel{}, &MsgWithdrawFromTunnel{}, &MsgUpdateParams{}
+	_, _                      types.UnpackInterfacesMessage = &MsgCreateTunnel{}, &MsgUpdateRoute{}
 )
 
 // NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
@@ -22,7 +22,7 @@ func NewMsgCreateTunnel(
 	interval uint64,
 	route RouteI,
 	initialDeposit sdk.Coins,
-	creator sdk.AccAddress,
+	creator string,
 ) (*MsgCreateTunnel, error) {
 	msg, ok := route.(proto.Message)
 	if !ok {
@@ -38,7 +38,7 @@ func NewMsgCreateTunnel(
 		Interval:         interval,
 		Route:            any,
 		InitialDeposit:   initialDeposit,
-		Creator:          creator.String(),
+		Creator:          creator,
 	}, nil
 }
 
@@ -50,7 +50,7 @@ func NewMsgCreateTSSTunnel(
 	destinationContractAddress string,
 	encoder feedstypes.Encoder,
 	initialDeposit sdk.Coins,
-	creator sdk.AccAddress,
+	creator string,
 ) (*MsgCreateTunnel, error) {
 	r := NewTSSRoute(destinationChainID, destinationContractAddress, encoder)
 	m, err := NewMsgCreateTunnel(signalDeviations, interval, &r, initialDeposit, creator)
@@ -61,15 +61,14 @@ func NewMsgCreateTSSTunnel(
 	return m, nil
 }
 
-// NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
+// NewMsgCreateIBCTunnel creates a new MsgCreateTunnel instance with IBC route type.
 func NewMsgCreateIBCTunnel(
 	signalDeviations []SignalDeviation,
 	interval uint64,
-	channelID string,
 	deposit sdk.Coins,
-	creator sdk.AccAddress,
+	creator string,
 ) (*MsgCreateTunnel, error) {
-	r := NewIBCRoute(channelID)
+	r := NewIBCRoute("")
 	m, err := NewMsgCreateTunnel(signalDeviations, interval, r, deposit, creator)
 	if err != nil {
 		return nil, err
@@ -84,6 +83,7 @@ func (m MsgCreateTunnel) GetRouteValue() (RouteI, error) {
 	if !ok {
 		return nil, sdkerrors.ErrInvalidType.Wrapf("expected %T, got %T", (RouteI)(nil), m.Route.GetCachedValue())
 	}
+
 	return r, nil
 }
 
@@ -98,6 +98,7 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 	if len(m.SignalDeviations) == 0 {
 		return sdkerrors.ErrInvalidRequest.Wrapf("signal deviations cannot be empty")
 	}
+
 	// signal deviations cannot duplicate
 	if err := validateUniqueSignalIDs(m.SignalDeviations); err != nil {
 		return err
@@ -108,6 +109,7 @@ func (m MsgCreateTunnel) ValidateBasic() error {
 	if err != nil {
 		return err
 	}
+
 	if err := r.ValidateBasic(); err != nil {
 		return err
 	}
@@ -126,14 +128,80 @@ func (m MsgCreateTunnel) UnpackInterfaces(unpacker types.AnyUnpacker) error {
 	return unpacker.UnpackAny(m.Route, &route)
 }
 
-// NewMsgUpdateAndResetTunnel creates a new MsgUpdateAndResetTunnel instance.
-func NewMsgUpdateAndResetTunnel(
+// NewMsgUpdateRoute creates a new MsgUpdateRoute instance.
+func NewMsgUpdateRoute(
+	tunnelID uint64,
+	route RouteI,
+	creator string,
+) (*MsgUpdateRoute, error) {
+	msg, ok := route.(proto.Message)
+	if !ok {
+		return nil, sdkerrors.ErrPackAny.Wrapf("cannot proto marshal %T", msg)
+	}
+	any, err := types.NewAnyWithValue(msg)
+	if err != nil {
+		return nil, err
+	}
+
+	return &MsgUpdateRoute{
+		TunnelID: tunnelID,
+		Route:    any,
+		Creator:  creator,
+	}, nil
+}
+
+// NewMsgUpdateIBCRoute creates a new MsgUpdateRoute instance.
+func NewMsgUpdateIBCRoute(
+	tunnelID uint64,
+	channelID string,
+	creator string,
+) (*MsgUpdateRoute, error) {
+	return NewMsgUpdateRoute(tunnelID, NewIBCRoute(channelID), creator)
+}
+
+// GetRouteValue returns the route of the message.
+func (m MsgUpdateRoute) GetRouteValue() (RouteI, error) {
+	r, ok := m.Route.GetCachedValue().(RouteI)
+	if !ok {
+		return nil, sdkerrors.ErrInvalidType.Wrapf("expected %T, got %T", (RouteI)(nil), m.Route.GetCachedValue())
+	}
+	return r, nil
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgUpdateRoute) ValidateBasic() error {
+	// creator address must be valid
+	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+	}
+
+	// route must be valid
+	r, err := m.GetRouteValue()
+	if err != nil {
+		return err
+	}
+
+	if err := r.ValidateBasic(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
+func (m MsgUpdateRoute) UnpackInterfaces(unpacker types.AnyUnpacker) error {
+	var route RouteI
+	return unpacker.UnpackAny(m.Route, &route)
+}
+
+// NewMsgUpdateSignalsAndInterval creates a new MsgUpdateSignalsAndInterval instance.
+func NewMsgUpdateSignalsAndInterval(
 	tunnelID uint64,
 	signalDeviations []SignalDeviation,
 	interval uint64,
 	creator string,
-) *MsgUpdateAndResetTunnel {
-	return &MsgUpdateAndResetTunnel{
+) *MsgUpdateSignalsAndInterval {
+	return &MsgUpdateSignalsAndInterval{
 		TunnelID:         tunnelID,
 		SignalDeviations: signalDeviations,
 		Interval:         interval,
@@ -142,7 +210,7 @@ func NewMsgUpdateAndResetTunnel(
 }
 
 // ValidateBasic does a sanity check on the provided data
-func (m MsgUpdateAndResetTunnel) ValidateBasic() error {
+func (m MsgUpdateSignalsAndInterval) ValidateBasic() error {
 	// creator address must be valid
 	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
 		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
