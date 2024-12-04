@@ -134,7 +134,7 @@ func (k msgServer) UpdateRoute(
 	return &types.MsgUpdateRouteResponse{}, nil
 }
 
-// UpdateSignalsAndInterval edits a tunnel and reset latest price interval.
+// UpdateSignalsAndInterval update signals and interval for a tunnel.
 func (k msgServer) UpdateSignalsAndInterval(
 	goCtx context.Context,
 	msg *types.MsgUpdateSignalsAndInterval,
