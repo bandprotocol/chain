@@ -34,13 +34,13 @@ func InitGenesis(ctx sdk.Context, k Keeper, data *types.GenesisState) {
 
 		route, err := t.GetRouteValue()
 		if err != nil {
-			panic("cannot get route")
+			panic(fmt.Sprintf("cannot get route for tunnel ID: %d", t.ID))
 		}
-		_, ok := route.(*types.IBCRoute)
-		if ok {
+
+		if _, ok := route.(*types.IBCRoute); ok {
 			_, err = k.ensureIBCPort(ctx, t.ID)
 			if err != nil {
-				panic("cannot bind port for tunnel")
+				panic(fmt.Sprintf("cannot bind port for tunnel ID: %d", t.ID))
 			}
 		}
 	}

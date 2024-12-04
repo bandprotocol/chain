@@ -92,6 +92,7 @@ func (k msgServer) CreateTunnel(
 	}, nil
 }
 
+// UpdateRoute updates the route details based on the route type, allowing certain arguments to be updated.
 func (k msgServer) UpdateRoute(
 	goCtx context.Context,
 	msg *types.MsgUpdateRoute,
@@ -107,6 +108,10 @@ func (k msgServer) UpdateRoute(
 		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", msg.Creator, msg.TunnelID)
 	}
 
+	if tunnel.Route.TypeUrl != msg.Route.TypeUrl {
+		return nil, types.ErrInvalidRoute.Wrap("cannot change route type")
+	}
+
 	route, err := msg.GetRouteValue()
 	if err != nil {
 		return nil, err
@@ -114,7 +119,7 @@ func (k msgServer) UpdateRoute(
 
 	switch r := route.(type) {
 	case *types.IBCRoute:
-		_, found := k.channelKeeper.GetChannel(ctx, r.ChannelID, PortIDForTunnel(msg.TunnelID))
+		_, found := k.channelKeeper.GetChannel(ctx, PortIDForTunnel(msg.TunnelID), r.ChannelID)
 		if !found {
 			return nil, types.ErrInvalidChannelID
 		}
@@ -129,11 +134,11 @@ func (k msgServer) UpdateRoute(
 	return &types.MsgUpdateRouteResponse{}, nil
 }
 
-// UpdateAndResetTunnel edits a tunnel and reset latest price interval.
-func (k msgServer) UpdateAndResetTunnel(
+// UpdateSignalsAndInterval edits a tunnel and reset latest price interval.
+func (k msgServer) UpdateSignalsAndInterval(
 	goCtx context.Context,
-	msg *types.MsgUpdateAndResetTunnel,
-) (*types.MsgUpdateAndResetTunnelResponse, error) {
+	msg *types.MsgUpdateSignalsAndInterval,
+) (*types.MsgUpdateSignalsAndIntervalResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	params := k.Keeper.GetParams(ctx)
@@ -157,12 +162,12 @@ func (k msgServer) UpdateAndResetTunnel(
 		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", msg.Creator, msg.TunnelID)
 	}
 
-	err = k.Keeper.UpdateAndResetTunnel(ctx, msg.TunnelID, msg.SignalDeviations, msg.Interval)
+	err = k.Keeper.UpdateSignalsAndInterval(ctx, msg.TunnelID, msg.SignalDeviations, msg.Interval)
 	if err != nil {
 		return nil, err
 	}
 
-	return &types.MsgUpdateAndResetTunnelResponse{}, nil
+	return &types.MsgUpdateSignalsAndIntervalResponse{}, nil
 }
 
 // Activate activates a tunnel.

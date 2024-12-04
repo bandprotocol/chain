@@ -27,7 +27,8 @@ The Tunnel module is designed to decentralize the creation of push-based price d
     - [Params](#params)
   - [Msg](#msg)
     - [MsgCreateTunnel](#msgcreatetunnel)
-    - [MsgUpdateAndResetTunnel](#msgupdateandresettunnel)
+    - [MsgUpdateRoute](#msgupdateroute)
+    - [MsgUpdateSignalsAndInterval](#msgupdatesignalsandinterval)
     - [MsgActivate](#msgactivate)
     - [MsgDeactivate](#msgdeactivate)
     - [MsgTriggerTunnel](#msgtriggertunnel)
@@ -35,7 +36,7 @@ The Tunnel module is designed to decentralize the creation of push-based price d
     - [MsgWithdrawFromTunnel](#msgwithdrawfromtunnel)
   - [Events](#events)
     - [Event: `create_tunnel`](#event-create_tunnel)
-    - [Event: `update_and_reset_tunnel`](#event-update_and_reset_tunnel)
+    - [Event: `update_signals_and_interval`](#event-update_signals_and_interval)
     - [Event: `activate_tunnel`](#event-activate_tunnel)
     - [Event: `deactivate_tunnel`](#event-deactivate_tunnel)
     - [Event: `trigger_tunnel`](#event-trigger_tunnel)
@@ -111,10 +112,12 @@ We also provide a library, cw-band, that enables the use of the Tunnel via WASM 
 
 To create an IBC tunnel, use the following CLI command:
 
+> **Note**: You must create a tunnel before establishing an IBC connection using the tunnel ID. For example, if you create a tunnel and receive tunnelID 1, then create a channel with the port: `tunnel.1`.
+
 > **Note**: An example of the signalInfos-json-file can be found at scripts/tunnel/signal_deviations.json.
 
 ```bash
-bandd tx tunnel create-tunnel ibc [channel-id] [initial-deposit] [interval] [signalInfos-json-file]
+bandd tx tunnel create-tunnel ibc [initial-deposit] [interval] [signalInfos-json-file]
 ```
 
 #### TSS Route
@@ -257,16 +260,32 @@ message MsgCreateTunnel {
 - **Route Selection**: Only one route can be chosen per tunnel.
 - **Initial Deposit**: The initial deposit can be set to zero. Other users can contribute to the tunnel's deposit by send [MsgDepositToTunnel](#msgdeposittotunnel) message until it reaches the required minimum deposit.
 
-### MsgUpdateAndResetTunnel
+### MsgUpdateRoute
 
-**Editable Arguments**: The following parameters can be modified within the tunnel: `signal_deviations` and `Interval`
+To update the route details based on the route type, allowing certain arguments to be updated.
 
 ```protobuf
-// MsgUpdateAndResetTunnel is the transaction message to update a tunnel information
-// and reset the interval.
-message MsgUpdateAndResetTunnel {
+// MsgUpdateRoute is the transaction message to update a route tunnel
+message MsgUpdateRoute {
   option (cosmos.msg.v1.signer) = "creator";
-  option (amino.name)           = "tunnel/MsgUpdateAndResetTunnel";
+  option (amino.name)           = "tunnel/MsgUpdateRoute";
+
+  // tunnel_id is the ID of the tunnel to edit.
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
+  // route is the route for delivering the signal prices
+  google.protobuf.Any route = 2 [(cosmos_proto.accepts_interface) = "RouteI"];
+  // creator is the address of the creator.
+  string creator = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+```
+
+### MsgUpdateSignalsAndInterval
+
+```protobuf
+// MsgUpdateSignalsAndInterval is the transaction message to update signals and interval of the tunnel.
+message MsgUpdateSignalsAndInterval {
+  option (cosmos.msg.v1.signer) = "creator";
+  option (amino.name)           = "tunnel/MsgUpdateSignalsAndInterval";
 
   // tunnel_id is the ID of the tunnel to edit.
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
@@ -277,7 +296,6 @@ message MsgUpdateAndResetTunnel {
   // creator is the address of the creator.
   string creator = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
-
 ```
 
 ### MsgActivate
@@ -407,7 +425,7 @@ This event is emitted when a new tunnel is created.
 | soft_deviation_bps[] | `{SignalDeviation.SoftDeviationBPS}}` |
 | hard_deviation_bps[] | `{SignalDeviation.hardDeviationBPS}}` |
 
-### Event: `update_and_reset_tunnel`
+### Event: `update_signals_and_interval`
 
 This event is emitted when an existing tunnel is edited.
 

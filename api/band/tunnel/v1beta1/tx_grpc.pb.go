@@ -19,15 +19,15 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Msg_CreateTunnel_FullMethodName         = "/band.tunnel.v1beta1.Msg/CreateTunnel"
-	Msg_UpdateRoute_FullMethodName          = "/band.tunnel.v1beta1.Msg/UpdateRoute"
-	Msg_UpdateAndResetTunnel_FullMethodName = "/band.tunnel.v1beta1.Msg/UpdateAndResetTunnel"
-	Msg_Activate_FullMethodName             = "/band.tunnel.v1beta1.Msg/Activate"
-	Msg_Deactivate_FullMethodName           = "/band.tunnel.v1beta1.Msg/Deactivate"
-	Msg_TriggerTunnel_FullMethodName        = "/band.tunnel.v1beta1.Msg/TriggerTunnel"
-	Msg_DepositToTunnel_FullMethodName      = "/band.tunnel.v1beta1.Msg/DepositToTunnel"
-	Msg_WithdrawFromTunnel_FullMethodName   = "/band.tunnel.v1beta1.Msg/WithdrawFromTunnel"
-	Msg_UpdateParams_FullMethodName         = "/band.tunnel.v1beta1.Msg/UpdateParams"
+	Msg_CreateTunnel_FullMethodName             = "/band.tunnel.v1beta1.Msg/CreateTunnel"
+	Msg_UpdateRoute_FullMethodName              = "/band.tunnel.v1beta1.Msg/UpdateRoute"
+	Msg_UpdateSignalsAndInterval_FullMethodName = "/band.tunnel.v1beta1.Msg/UpdateSignalsAndInterval"
+	Msg_Activate_FullMethodName                 = "/band.tunnel.v1beta1.Msg/Activate"
+	Msg_Deactivate_FullMethodName               = "/band.tunnel.v1beta1.Msg/Deactivate"
+	Msg_TriggerTunnel_FullMethodName            = "/band.tunnel.v1beta1.Msg/TriggerTunnel"
+	Msg_DepositToTunnel_FullMethodName          = "/band.tunnel.v1beta1.Msg/DepositToTunnel"
+	Msg_WithdrawFromTunnel_FullMethodName       = "/band.tunnel.v1beta1.Msg/WithdrawFromTunnel"
+	Msg_UpdateParams_FullMethodName             = "/band.tunnel.v1beta1.Msg/UpdateParams"
 )
 
 // MsgClient is the client API for Msg service.
@@ -36,10 +36,10 @@ const (
 type MsgClient interface {
 	// CreateTunnel is a RPC method to create a new tunnel.
 	CreateTunnel(ctx context.Context, in *MsgCreateTunnel, opts ...grpc.CallOption) (*MsgCreateTunnelResponse, error)
-	// UpdateRoute is a RPC method to update a route tunnel.
+	// UpdateRoute is a RPC method to update a route information of the tunnel.
 	UpdateRoute(ctx context.Context, in *MsgUpdateRoute, opts ...grpc.CallOption) (*MsgUpdateRouteResponse, error)
-	// UpdateAndResetTunnel is a RPC method to update a tunnel information and reset the interval.
-	UpdateAndResetTunnel(ctx context.Context, in *MsgUpdateAndResetTunnel, opts ...grpc.CallOption) (*MsgUpdateAndResetTunnelResponse, error)
+	// UpdateSignalsAndInterval is a RPC method to update a signals and interval of the tunnel.
+	UpdateSignalsAndInterval(ctx context.Context, in *MsgUpdateSignalsAndInterval, opts ...grpc.CallOption) (*MsgUpdateSignalsAndIntervalResponse, error)
 	// Activate is a RPC method to activate a tunnel.
 	Activate(ctx context.Context, in *MsgActivate, opts ...grpc.CallOption) (*MsgActivateResponse, error)
 	// Deactivate is a RPC method to deactivate a tunnel.
@@ -80,9 +80,9 @@ func (c *msgClient) UpdateRoute(ctx context.Context, in *MsgUpdateRoute, opts ..
 	return out, nil
 }
 
-func (c *msgClient) UpdateAndResetTunnel(ctx context.Context, in *MsgUpdateAndResetTunnel, opts ...grpc.CallOption) (*MsgUpdateAndResetTunnelResponse, error) {
-	out := new(MsgUpdateAndResetTunnelResponse)
-	err := c.cc.Invoke(ctx, Msg_UpdateAndResetTunnel_FullMethodName, in, out, opts...)
+func (c *msgClient) UpdateSignalsAndInterval(ctx context.Context, in *MsgUpdateSignalsAndInterval, opts ...grpc.CallOption) (*MsgUpdateSignalsAndIntervalResponse, error) {
+	out := new(MsgUpdateSignalsAndIntervalResponse)
+	err := c.cc.Invoke(ctx, Msg_UpdateSignalsAndInterval_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -149,10 +149,10 @@ func (c *msgClient) UpdateParams(ctx context.Context, in *MsgUpdateParams, opts 
 type MsgServer interface {
 	// CreateTunnel is a RPC method to create a new tunnel.
 	CreateTunnel(context.Context, *MsgCreateTunnel) (*MsgCreateTunnelResponse, error)
-	// UpdateRoute is a RPC method to update a route tunnel.
+	// UpdateRoute is a RPC method to update a route information of the tunnel.
 	UpdateRoute(context.Context, *MsgUpdateRoute) (*MsgUpdateRouteResponse, error)
-	// UpdateAndResetTunnel is a RPC method to update a tunnel information and reset the interval.
-	UpdateAndResetTunnel(context.Context, *MsgUpdateAndResetTunnel) (*MsgUpdateAndResetTunnelResponse, error)
+	// UpdateSignalsAndInterval is a RPC method to update a signals and interval of the tunnel.
+	UpdateSignalsAndInterval(context.Context, *MsgUpdateSignalsAndInterval) (*MsgUpdateSignalsAndIntervalResponse, error)
 	// Activate is a RPC method to activate a tunnel.
 	Activate(context.Context, *MsgActivate) (*MsgActivateResponse, error)
 	// Deactivate is a RPC method to deactivate a tunnel.
@@ -178,8 +178,8 @@ func (UnimplementedMsgServer) CreateTunnel(context.Context, *MsgCreateTunnel) (*
 func (UnimplementedMsgServer) UpdateRoute(context.Context, *MsgUpdateRoute) (*MsgUpdateRouteResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateRoute not implemented")
 }
-func (UnimplementedMsgServer) UpdateAndResetTunnel(context.Context, *MsgUpdateAndResetTunnel) (*MsgUpdateAndResetTunnelResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateAndResetTunnel not implemented")
+func (UnimplementedMsgServer) UpdateSignalsAndInterval(context.Context, *MsgUpdateSignalsAndInterval) (*MsgUpdateSignalsAndIntervalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateSignalsAndInterval not implemented")
 }
 func (UnimplementedMsgServer) Activate(context.Context, *MsgActivate) (*MsgActivateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Activate not implemented")
@@ -248,20 +248,20 @@ func _Msg_UpdateRoute_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Msg_UpdateAndResetTunnel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgUpdateAndResetTunnel)
+func _Msg_UpdateSignalsAndInterval_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgUpdateSignalsAndInterval)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MsgServer).UpdateAndResetTunnel(ctx, in)
+		return srv.(MsgServer).UpdateSignalsAndInterval(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Msg_UpdateAndResetTunnel_FullMethodName,
+		FullMethod: Msg_UpdateSignalsAndInterval_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).UpdateAndResetTunnel(ctx, req.(*MsgUpdateAndResetTunnel))
+		return srv.(MsgServer).UpdateSignalsAndInterval(ctx, req.(*MsgUpdateSignalsAndInterval))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -390,8 +390,8 @@ var Msg_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Msg_UpdateRoute_Handler,
 		},
 		{
-			MethodName: "UpdateAndResetTunnel",
-			Handler:    _Msg_UpdateAndResetTunnel_Handler,
+			MethodName: "UpdateSignalsAndInterval",
+			Handler:    _Msg_UpdateSignalsAndInterval_Handler,
 		},
 		{
 			MethodName: "Activate",

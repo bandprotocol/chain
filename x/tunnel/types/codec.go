@@ -20,7 +20,7 @@ var ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgCreateTunnel{}, "tunnel/MsgCreateTunnel")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateRoute{}, "tunnel/MsgUpdateRoute")
-	legacy.RegisterAminoMsg(cdc, &MsgUpdateAndResetTunnel{}, "tunnel/MsgUpdateAndResetTunnel")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateSignalsAndInterval{}, "tunnel/MsgUpdateSignalsAndInterval")
 	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "tunnel/MsgActivate")
 	legacy.RegisterAminoMsg(cdc, &MsgDeactivate{}, "tunnel/MsgDeactivate")
 	legacy.RegisterAminoMsg(cdc, &MsgTriggerTunnel{}, "tunnel/MsgTriggerTunnel")
@@ -45,7 +45,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		(*sdk.Msg)(nil),
 		&MsgCreateTunnel{},
 		&MsgUpdateRoute{},
-		&MsgUpdateAndResetTunnel{},
+		&MsgUpdateSignalsAndInterval{},
 		&MsgActivate{},
 		&MsgDeactivate{},
 		&MsgTriggerTunnel{},
