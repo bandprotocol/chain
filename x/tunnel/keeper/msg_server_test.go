@@ -240,7 +240,7 @@ func (s *KeeperTestSuite) TestMsgUpdateRoute() {
 		"all good": {
 			preRun: func() (*types.MsgUpdateRoute, error) {
 				s.channelKeeper.EXPECT().
-					GetChannel(gomock.Any(), "channel-0", "tunnel.1").
+					GetChannel(gomock.Any(), "tunnel.1", "channel-0").
 					Return(channeltypes.Channel{}, true)
 
 				s.AddSampleIBCTunnel(false)
