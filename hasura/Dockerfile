@@ -1,4 +1,4 @@
-FROM hasura/graphql-engine:v2.9.0.cli-migrations-v2
+FROM hasura/graphql-engine:v2.45.1.cli-migrations-v2
 RUN apt-get update && apt-get install -y curl && apt-get clean
 
 ENV ALERT_SERVICE ""
