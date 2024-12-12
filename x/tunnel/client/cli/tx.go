@@ -160,7 +160,7 @@ func GetTxCmdCreateRouterTunnel() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "router [channel-id] [fund] [bridge-contract-address] [dest-chain-id] [dest-contract-address] [dest-gas-limit] [dest-gas-price] [initial-deposit] [interval] [signalDeviations-json-file]",
 		Short: "Create a new router tunnel",
-		Args:  cobra.ExactArgs(11),
+		Args:  cobra.ExactArgs(10),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
