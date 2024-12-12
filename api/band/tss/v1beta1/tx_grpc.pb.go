@@ -24,6 +24,7 @@ const (
 	Msg_Complain_FullMethodName        = "/band.tss.v1beta1.Msg/Complain"
 	Msg_Confirm_FullMethodName         = "/band.tss.v1beta1.Msg/Confirm"
 	Msg_SubmitDEs_FullMethodName       = "/band.tss.v1beta1.Msg/SubmitDEs"
+	Msg_ResetDE_FullMethodName         = "/band.tss.v1beta1.Msg/ResetDE"
 	Msg_SubmitSignature_FullMethodName = "/band.tss.v1beta1.Msg/SubmitSignature"
 	Msg_UpdateParams_FullMethodName    = "/band.tss.v1beta1.Msg/UpdateParams"
 )
@@ -42,6 +43,8 @@ type MsgClient interface {
 	Confirm(ctx context.Context, in *MsgConfirm, opts ...grpc.CallOption) (*MsgConfirmResponse, error)
 	// SubmitDEs submits list of pre-commits DE for signing process.
 	SubmitDEs(ctx context.Context, in *MsgSubmitDEs, opts ...grpc.CallOption) (*MsgSubmitDEsResponse, error)
+	// ResetDE resets the submitted DEs that being stored on chain.
+	ResetDE(ctx context.Context, in *MsgResetDE, opts ...grpc.CallOption) (*MsgResetDEResponse, error)
 	// SubmitSignature submits signature on task participant need to do.
 	SubmitSignature(ctx context.Context, in *MsgSubmitSignature, opts ...grpc.CallOption) (*MsgSubmitSignatureResponse, error)
 	// UpdateParams defines a governance operation for updating the x/tss module
@@ -102,6 +105,15 @@ func (c *msgClient) SubmitDEs(ctx context.Context, in *MsgSubmitDEs, opts ...grp
 	return out, nil
 }
 
+func (c *msgClient) ResetDE(ctx context.Context, in *MsgResetDE, opts ...grpc.CallOption) (*MsgResetDEResponse, error) {
+	out := new(MsgResetDEResponse)
+	err := c.cc.Invoke(ctx, Msg_ResetDE_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *msgClient) SubmitSignature(ctx context.Context, in *MsgSubmitSignature, opts ...grpc.CallOption) (*MsgSubmitSignatureResponse, error) {
 	out := new(MsgSubmitSignatureResponse)
 	err := c.cc.Invoke(ctx, Msg_SubmitSignature_FullMethodName, in, out, opts...)
@@ -134,6 +146,8 @@ type MsgServer interface {
 	Confirm(context.Context, *MsgConfirm) (*MsgConfirmResponse, error)
 	// SubmitDEs submits list of pre-commits DE for signing process.
 	SubmitDEs(context.Context, *MsgSubmitDEs) (*MsgSubmitDEsResponse, error)
+	// ResetDE resets the submitted DEs that being stored on chain.
+	ResetDE(context.Context, *MsgResetDE) (*MsgResetDEResponse, error)
 	// SubmitSignature submits signature on task participant need to do.
 	SubmitSignature(context.Context, *MsgSubmitSignature) (*MsgSubmitSignatureResponse, error)
 	// UpdateParams defines a governance operation for updating the x/tss module
@@ -160,6 +174,9 @@ func (UnimplementedMsgServer) Confirm(context.Context, *MsgConfirm) (*MsgConfirm
 }
 func (UnimplementedMsgServer) SubmitDEs(context.Context, *MsgSubmitDEs) (*MsgSubmitDEsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitDEs not implemented")
+}
+func (UnimplementedMsgServer) ResetDE(context.Context, *MsgResetDE) (*MsgResetDEResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ResetDE not implemented")
 }
 func (UnimplementedMsgServer) SubmitSignature(context.Context, *MsgSubmitSignature) (*MsgSubmitSignatureResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitSignature not implemented")
@@ -270,6 +287,24 @@ func _Msg_SubmitDEs_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Msg_ResetDE_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgResetDE)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).ResetDE(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Msg_ResetDE_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).ResetDE(ctx, req.(*MsgResetDE))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Msg_SubmitSignature_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MsgSubmitSignature)
 	if err := dec(in); err != nil {
@@ -332,6 +367,10 @@ var Msg_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SubmitDEs",
 			Handler:    _Msg_SubmitDEs_Handler,
+		},
+		{
+			MethodName: "ResetDE",
+			Handler:    _Msg_ResetDE_Handler,
 		},
 		{
 			MethodName: "SubmitSignature",

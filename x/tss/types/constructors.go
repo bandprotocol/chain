@@ -35,16 +35,40 @@ func NewGroup(
 
 // Validate performs basic validation of group information.
 func (g Group) Validate() error {
+	// validate group id
 	if g.ID == 0 {
-		return ErrInvalidGroup.Wrap("group id is 0")
+		return ErrInvalidGroup.Wrap("group id cannot be 0")
 	}
 
+	// validate group size
 	if g.Threshold > g.Size_ {
-		return ErrInvalidGroup.Wrap("group threshold is invalid")
+		return ErrInvalidGroup.Wrapf("group threshold (%d) is more than the group size (%d)", g.Threshold, g.Size_)
 	}
 
-	if g.PubKey != nil && g.PubKey.Validate() != nil {
-		return ErrInvalidGroup.Wrap("group public key is invalid")
+	// validate group public key
+	if g.PubKey == nil {
+		return ErrInvalidGroup.Wrap("group public key must not be nil")
+	}
+	if err := g.PubKey.Validate(); err != nil {
+		return ErrInvalidGroup.Wrapf("group public key is invalid: %v", err)
+	}
+
+	// validate group status
+	if _, ok := GroupStatus_name[int32(g.Status)]; !ok {
+		return ErrInvalidGroup.Wrapf("invalid group status: %d", g.Status)
+	}
+	if g.Status == GROUP_STATUS_UNSPECIFIED {
+		return ErrInvalidGroup.Wrap("group status cannot be unspecified")
+	}
+
+	// validate created height
+	if g.CreatedHeight == 0 {
+		return ErrInvalidGroup.Wrap("created height cannot be 0")
+	}
+
+	// validate module owner
+	if g.ModuleOwner == "" {
+		return ErrInvalidGroup.Wrap("module owner cannot be empty")
 	}
 
 	return nil
@@ -73,26 +97,31 @@ func NewRound1Info(
 
 // Validate performs basic validation of round-1 group creation information.
 func (r Round1Info) Validate() error {
+	// Validate member ID
+	if r.MemberID == 0 {
+		return ErrInvalidMember.Wrap("member id cannot be 0")
+	}
+
 	// Validate coefficients commit
 	for _, c := range r.CoefficientCommits {
 		if err := c.Validate(); err != nil {
-			return ErrInvalidCoefficientCommit.Wrapf("invalid coefficient commit: %s", err)
+			return ErrInvalidCoefficientCommit.Wrapf("invalid coefficient commit: %v", err)
 		}
 	}
 
 	// Validate one time pub key
 	if err := r.OneTimePubKey.Validate(); err != nil {
-		return ErrInvalidPublicKey.Wrapf("invalid one-time public key: %s", err)
+		return ErrInvalidPublicKey.Wrapf("invalid one-time public key: %v", err)
 	}
 
 	// Validate a0 signature
 	if err := r.A0Signature.Validate(); err != nil {
-		return ErrInvalidSignature.Wrapf("invalid a0 signature: %s", err)
+		return ErrInvalidSignature.Wrapf("invalid a0 signature: %v", err)
 	}
 
 	// Validate one time signature
 	if err := r.OneTimeSignature.Validate(); err != nil {
-		return ErrInvalidSignature.Wrapf("invalid one-time signature: %s", err)
+		return ErrInvalidSignature.Wrapf("invalid one-time signature: %v", err)
 	}
 
 	return nil
@@ -116,12 +145,12 @@ func NewRound2Info(
 // Validate performs basic validation of round-2 group creation information.
 func (r Round2Info) Validate() error {
 	if r.MemberID == 0 {
-		return ErrInvalidMember.Wrap("member id is 0")
+		return ErrInvalidMember.Wrap("member id cannot be 0")
 	}
 
 	for i, ess := range r.EncryptedSecretShares {
 		if err := ess.Validate(); err != nil {
-			return ErrInvalidSecretShare.Wrapf("encrypted secret shares at index %d: %s", i, err)
+			return ErrInvalidSecretShare.Wrapf("encrypted secret shares at index %d: %v", i, err)
 		}
 	}
 
@@ -162,11 +191,11 @@ func NewComplaint(
 // Validate performs basic validation of complaint information.
 func (c Complaint) Validate() error {
 	if c.Complainant == 0 {
-		return ErrInvalidMember.Wrap("complainant is 0")
+		return ErrInvalidComplaint.Wrap("complainant cannot be 0")
 	}
 
 	if c.Respondent == 0 {
-		return ErrInvalidMember.Wrap("respondent is 0")
+		return ErrInvalidComplaint.Wrap("respondent cannot be 0")
 	}
 
 	if c.Complainant == c.Respondent {
@@ -174,11 +203,11 @@ func (c Complaint) Validate() error {
 	}
 
 	if err := c.KeySym.Validate(); err != nil {
-		return ErrInvalidComplaint.Wrapf("invalid symmetric key: %s", err)
+		return ErrInvalidComplaint.Wrapf("invalid symmetric key: %v", err)
 	}
 
 	if err := c.Signature.Validate(); err != nil {
-		return ErrInvalidComplaint.Wrapf("invalid signature: %s", err)
+		return ErrInvalidComplaint.Wrapf("invalid signature: %v", err)
 	}
 
 	return nil
@@ -211,11 +240,11 @@ func NewDE(pubD tss.Point, pubE tss.Point) DE {
 // Validate performs basic validation of de information.
 func (d DE) Validate() error {
 	if err := d.PubD.Validate(); err != nil {
-		return ErrInvalidDE.Wrapf("invalid pub d")
+		return ErrInvalidDE.Wrap("invalid pub d")
 	}
 
 	if err := d.PubE.Validate(); err != nil {
-		return ErrInvalidDE.Wrapf("invalid pub e")
+		return ErrInvalidDE.Wrap("invalid pub e")
 	}
 
 	return nil
@@ -243,7 +272,6 @@ func NewSigning(
 	currentAttempt uint64,
 	gid tss.GroupID,
 	groupPubKey tss.Point,
-	originatorBz []byte,
 	msg []byte,
 	groupPubNonce tss.Point,
 	signature tss.Signature,
@@ -256,7 +284,6 @@ func NewSigning(
 		CurrentAttempt:   currentAttempt,
 		GroupID:          gid,
 		GroupPubKey:      groupPubKey,
-		Originator:       originatorBz,
 		Message:          msg,
 		GroupPubNonce:    groupPubNonce,
 		Signature:        signature,

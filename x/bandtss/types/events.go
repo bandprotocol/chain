@@ -7,6 +7,8 @@ const (
 	EventTypeGroupTransitionSuccess = "group_transition_success"
 	EventTypeGroupTransitionFailed  = "group_transition_failed"
 	EventTypeSigningRequestCreated  = "bandtss_signing_request_created"
+	EventTypeCreateSigningFailed    = "create_signing_failed"
+	EventTypeMemberDeleted          = "member_deleted"
 
 	AttributeKeyAddress                = "address"
 	AttributeKeySigningID              = "bandtss_signing_id"
@@ -21,4 +23,8 @@ const (
 	AttributeKeyCurrentGroupPubKey     = "current_group_pub_key"
 	AttributeKeyRandomAddress          = "random_address"
 	AttributeKeySignature              = "signature"
+	AttributeKeyTotalFee               = "total_fee"
+	AttributeKeySigningErrReason       = "signing_error_reason"
+	AttributeKeySigningErrCode         = "signing_error_code"
+	AttributeKeySigningErrCodespace    = "signing_error_codespace"
 )

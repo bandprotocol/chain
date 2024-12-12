@@ -64,6 +64,11 @@ func (am AppModule) AutoCLIOptions() *autocliv1.ModuleOptions {
 						{ProtoField: "sequence"},
 					},
 				},
+				{
+					RpcMethod: "TotalFees",
+					Use:       "total-fees",
+					Short:     "Query total fees",
+				},
 			},
 		},
 		Tx: &autocliv1.ServiceCommandDescriptor{

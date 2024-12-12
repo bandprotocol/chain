@@ -41,6 +41,7 @@ func GetTxCmd() *cobra.Command {
 		GetTxCmdComplain(),
 		GetTxCmdConfirm(),
 		GetTxCmdSubmitDEs(),
+		GetTxCmdResetDE(),
 		GetTxCmdSubmitSignature(),
 	)
 
@@ -98,7 +99,7 @@ func GetTxCmdSubmitDKGRound1() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-dkg-round1 [group_id] [member_id] [one_time_pub_key] [a0_sign] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...",
 		Args:  cobra.MinimumNArgs(6),
-		Short: "submit tss round 1 containing group_id, member_id, one_time_pub_key, a0_sign, one_time_sign and coefficients_commit",
+		Short: "Submit tss round 1 containing group_id, member_id, one_time_pub_key, a0_sign, one_time_sign and coefficients_commit",
 		Example: fmt.Sprintf(
 			`%s tx tss submit-dkg-round1 [group_id] [member_id] [one_time_pub_key] [a0_sign] [one_time_sign] [coefficients-commit1] [coefficients-commit2] ...`,
 			version.AppName,
@@ -172,7 +173,7 @@ func GetTxCmdSubmitDKGRound2() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-dkg-round2 [group_id] [member_id] [encrypted-secret-share1,encrypted-secret-share2,...]",
 		Args:  cobra.MinimumNArgs(2),
-		Short: "submit tss round 2 containing group_id, member_id, and n-1 encrypted-secret-shares",
+		Short: "Submit tss round 2 containing group_id, member_id, and n-1 encrypted-secret-shares",
 		Example: fmt.Sprintf(
 			`%s tx tss submit-dkg-round2 [group_id] [member_id] [encrypted-secret-share1,encrypted-secret-share2,...]`,
 			version.AppName,
@@ -222,7 +223,7 @@ func GetTxCmdComplain() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "complain [group_id] [complaints-json-file]",
 		Args:  cobra.ExactArgs(2),
-		Short: "complain containing group_id and complaints data",
+		Short: "Complain containing group_id and complaints data",
 		Example: fmt.Sprintf(`
 %s tx tss complain [group_id] [complaints-json-file]
 
@@ -273,7 +274,7 @@ func GetTxCmdConfirm() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "confirm [group_id] [member_id] [own_pub_key_sig]",
 		Args:  cobra.ExactArgs(3),
-		Short: "submit confirm containing group_id, member_id, and own_pub_key_sig",
+		Short: "Submit confirm containing group_id, member_id, and own_pub_key_sig",
 		Example: fmt.Sprintf(
 			`%s tx tss confirm [group_id] [member_id] [own_pub_key_sig]`,
 			version.AppName,
@@ -319,7 +320,7 @@ func GetTxCmdSubmitDEs() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-multi-de [d,e] [d,e] ...",
 		Args:  cobra.MinimumNArgs(1),
-		Short: "submit multiple DE containing address and DEs",
+		Short: "Submit multiple DE containing address and DEs",
 		Example: fmt.Sprintf(
 			`%s tx tss submit-multi-de [d,e] [d,e] ...`,
 			version.AppName,
@@ -360,12 +361,35 @@ func GetTxCmdSubmitDEs() *cobra.Command {
 	return cmd
 }
 
+// GetTxCmdResetDE creates a CLI command for resetting DEs on chain.
+func GetTxCmdResetDE() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "reset-de",
+		Args:    cobra.NoArgs,
+		Short:   "Reset DEs on chain",
+		Example: fmt.Sprintf(`%s tx tss reset-de`, version.AppName),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgResetDE(clientCtx.GetFromAddress().String())
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
+
 // GetTxCmdSubmitSignature creates a CLI command for submitting a signature.
 func GetTxCmdSubmitSignature() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "submit-signature [signing_id] [member_id] [signature]",
 		Args:  cobra.ExactArgs(3),
-		Short: "submit-signature the message by sending signing ID, member ID and signature",
+		Short: "Submit signature of the message by sending signing ID, member ID and signature",
 		Example: fmt.Sprintf(
 			`%s tx tss submit-signature [signing_id] [member_id] [signature]`,
 			version.AppName,

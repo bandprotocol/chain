@@ -10,7 +10,6 @@ import "cosmos/base/v1beta1/coin.proto";
 import "cosmos/msg/v1/msg.proto";
 import "amino/amino.proto";
 
-import "band/feeds/v1beta1/feeds.proto";
 import "band/tunnel/v1beta1/params.proto";
 import "band/tunnel/v1beta1/tunnel.proto";
 
@@ -21,8 +20,11 @@ service Msg {
   // CreateTunnel is a RPC method to create a new tunnel.
   rpc CreateTunnel(MsgCreateTunnel) returns (MsgCreateTunnelResponse);
 
-  // UpdateAndResetTunnel is a RPC method to update a tunnel information and reset the interval.
-  rpc UpdateAndResetTunnel(MsgUpdateAndResetTunnel) returns (MsgUpdateAndResetTunnelResponse);
+  // UpdateRoute is a RPC method to update a route information of the tunnel.
+  rpc UpdateRoute(MsgUpdateRoute) returns (MsgUpdateRouteResponse);
+
+  // UpdateSignalsAndInterval is a RPC method to update a signals and interval of the tunnel.
+  rpc UpdateSignalsAndInterval(MsgUpdateSignalsAndInterval) returns (MsgUpdateSignalsAndIntervalResponse);
 
   // Activate is a RPC method to activate a tunnel.
   rpc Activate(MsgActivate) returns (MsgActivateResponse);
@@ -50,20 +52,18 @@ message MsgCreateTunnel {
 
   // signal_deviations is the list of signal deviations.
   repeated SignalDeviation signal_deviations = 1 [(gogoproto.nullable) = false];
-  // interval is the interval for delivering the signal prices.
+  // interval is the interval for delivering the signal prices in seconds.
   uint64 interval = 2;
   // route is the route for delivering the signal prices
-  google.protobuf.Any route = 3 [(cosmos_proto.accepts_interface) = "Route"];
-  // encoder is the mode of encoding price signal data.
-  band.feeds.v1beta1.Encoder encoder = 4;
+  google.protobuf.Any route = 3 [(cosmos_proto.accepts_interface) = "RouteI"];
   // initial_deposit is the deposit value that must be paid at tunnel creation.
-  repeated cosmos.base.v1beta1.Coin initial_deposit = 5 [
+  repeated cosmos.base.v1beta1.Coin initial_deposit = 4 [
     (gogoproto.nullable)     = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
     (amino.dont_omitempty)   = true
   ];
   // creator is the address of the creator.
-  string creator = 6 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string creator = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
 // MsgCreateTunnelResponse is the response type for the Msg/CreateTunnel RPC method.
@@ -71,11 +71,26 @@ message MsgCreateTunnelResponse {
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
 }
 
-// MsgUpdateAndResetTunnel is the transaction message to update a tunnel information
-// and reset the interval.
-message MsgUpdateAndResetTunnel {
+// MsgUpdateRoute is the transaction message to update a route information of the tunnel.
+message MsgUpdateRoute {
   option (cosmos.msg.v1.signer) = "creator";
-  option (amino.name)           = "tunnel/MsgUpdateAndResetTunnel";
+  option (amino.name)           = "tunnel/MsgUpdateRoute";
+
+  // tunnel_id is the ID of the tunnel to edit.
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
+  // route is the route for delivering the signal prices
+  google.protobuf.Any route = 2 [(cosmos_proto.accepts_interface) = "RouteI"];
+  // creator is the address of the creator.
+  string creator = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgUpdateRouteResponse is the response type for the Msg/UpdateRoute RPC method.
+message MsgUpdateRouteResponse {}
+
+// MsgUpdateSignalsAndInterval is the transaction message to update signals and interval of the tunnel.
+message MsgUpdateSignalsAndInterval {
+  option (cosmos.msg.v1.signer) = "creator";
+  option (amino.name)           = "tunnel/MsgUpdateSignalsAndInterval";
 
   // tunnel_id is the ID of the tunnel to edit.
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
@@ -87,8 +102,8 @@ message MsgUpdateAndResetTunnel {
   string creator = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 
-// MsgUpdateAndResetTunnelResponse is the response type for the Msg/UpdateAndResetTunnel RPC method.
-message MsgUpdateAndResetTunnelResponse {}
+// MsgUpdateSignalsAndIntervalResponse is the response type for the Msg/UpdateSignalsAndInterval RPC method.
+message MsgUpdateSignalsAndIntervalResponse {}
 
 // Activate is the transaction message to activate a tunnel.
 message MsgActivate {
@@ -138,8 +153,7 @@ message MsgDepositToTunnel {
   option (amino.name)           = "tunnel/MsgDepositToTunnel";
 
   // tunnel_id defines the unique id of the tunnel.
-  uint64 tunnel_id = 1
-      [(gogoproto.customname) = "TunnelID", (gogoproto.jsontag) = "tunnel_id", (amino.dont_omitempty) = true];
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
 
   // amount to be deposited by depositor.
   repeated cosmos.base.v1beta1.Coin amount = 2 [
@@ -161,8 +175,7 @@ message MsgWithdrawFromTunnel {
   option (amino.name)           = "tunnel/MsgWithdrawFromTunnel";
 
   // tunnel_id defines the unique id of the tunnel.
-  uint64 tunnel_id = 1
-      [(gogoproto.customname) = "TunnelID", (gogoproto.jsontag) = "tunnel_id", (amino.dont_omitempty) = true];
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
 
   // amount to be withdrawn by withdrawer.
   repeated cosmos.base.v1beta1.Coin amount = 2 [

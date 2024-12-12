@@ -36,15 +36,17 @@ type KeeperTestSuite struct {
 	keeper      keeper.Keeper
 	queryServer types.QueryServer
 	msgServer   types.MsgServer
+	storeKey    storetypes.StoreKey
 
 	accountKeeper  *testutil.MockAccountKeeper
 	bankKeeper     *testutil.MockBankKeeper
 	feedsKeeper    *testutil.MockFeedsKeeper
 	bandtssKeeper  *testutil.MockBandtssKeeper
-	transferKeeper *testutil.MockTransferKeeper
 	icsWrapper     *testutil.MockICS4Wrapper
 	portKeeper     *testutil.MockPortKeeper
+	channelKeeper  *testutil.MockChannelKeeper
 	scopedKeeper   *testutil.MockScopedKeeper
+	transferKeeper *testutil.MockTransferKeeper
 
 	ctx       sdk.Context
 	authority sdk.AccAddress
@@ -64,16 +66,17 @@ func (s *KeeperTestSuite) reset() {
 	bankKeeper := testutil.NewMockBankKeeper(ctrl)
 	feedsKeeper := testutil.NewMockFeedsKeeper(ctrl)
 	bandtssKeeper := testutil.NewMockBandtssKeeper(ctrl)
-
-	transferKeeper := testutil.NewMockTransferKeeper(ctrl)
+	channelKeeper := testutil.NewMockChannelKeeper(ctrl)
 	icsWrapper := testutil.NewMockICS4Wrapper(ctrl)
 	portKeeper := testutil.NewMockPortKeeper(ctrl)
 	scopedKeeper := testutil.NewMockScopedKeeper(ctrl)
+	transferKeeper := testutil.NewMockTransferKeeper(ctrl)
 
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
 
 	accountKeeper.EXPECT().GetModuleAddress(types.ModuleName).Return(authority).AnyTimes()
 
+	s.storeKey = key
 	s.keeper = keeper.NewKeeper(
 		encCfg.Codec.(codec.BinaryCodec),
 		key,
@@ -81,10 +84,11 @@ func (s *KeeperTestSuite) reset() {
 		bankKeeper,
 		feedsKeeper,
 		bandtssKeeper,
-		transferKeeper,
+		channelKeeper,
 		icsWrapper,
 		portKeeper,
 		scopedKeeper,
+		transferKeeper,
 		authority.String(),
 	)
 	s.queryServer = keeper.NewQueryServer(s.keeper)
@@ -93,10 +97,11 @@ func (s *KeeperTestSuite) reset() {
 	s.bankKeeper = bankKeeper
 	s.feedsKeeper = feedsKeeper
 	s.bandtssKeeper = bandtssKeeper
-	s.transferKeeper = transferKeeper
+	s.channelKeeper = channelKeeper
 	s.icsWrapper = icsWrapper
 	s.portKeeper = portKeeper
 	s.scopedKeeper = scopedKeeper
+	s.transferKeeper = transferKeeper
 
 	s.ctx = testCtx.Ctx.WithBlockHeader(tmproto.Header{Time: time.Now().UTC()})
 	s.authority = authority
@@ -116,7 +121,7 @@ func (s *KeeperTestSuite) AddSampleTunnel(isActive bool) {
 
 	signalDeviations := []types.SignalDeviation{
 		{
-			SignalID:         "BTC",
+			SignalID:         "CS:BAND-USD",
 			SoftDeviationBPS: 100,
 			HardDeviationBPS: 100,
 		},
@@ -124,12 +129,55 @@ func (s *KeeperTestSuite) AddSampleTunnel(isActive bool) {
 	route := &types.TSSRoute{
 		DestinationChainID:         "chain-1",
 		DestinationContractAddress: "0x1234567890abcdef",
+		Encoder:                    feedstypes.ENCODER_FIXED_POINT_ABI,
 	}
 
 	tunnel, err := k.AddTunnel(
 		ctx,
 		route,
-		feedstypes.ENCODER_FIXED_POINT_ABI,
+		signalDeviations,
+		10,
+		sdk.AccAddress([]byte("creator_address")),
+	)
+	s.Require().NoError(err)
+
+	if isActive {
+		tunnel, err := k.GetTunnel(ctx, tunnel.ID)
+		s.Require().NoError(err)
+
+		// set deposit to the tunnel to be able to activate
+		tunnel.TotalDeposit = append(tunnel.TotalDeposit, k.GetParams(ctx).MinDeposit...)
+		k.SetTunnel(ctx, tunnel)
+
+		err = k.ActivateTunnel(ctx, tunnel.ID)
+		s.Require().NoError(err)
+	}
+}
+
+func (s *KeeperTestSuite) AddSampleIBCTunnel(isActive bool) {
+	ctx, k := s.ctx, s.keeper
+
+	s.accountKeeper.EXPECT().
+		GetAccount(ctx, gomock.Any()).
+		Return(nil).Times(1)
+	s.accountKeeper.EXPECT().NewAccount(ctx, gomock.Any()).Times(1)
+	s.accountKeeper.EXPECT().SetAccount(ctx, gomock.Any()).Times(1)
+
+	signalDeviations := []types.SignalDeviation{
+		{
+			SignalID:         "CS:BAND-USD",
+			SoftDeviationBPS: 100,
+			HardDeviationBPS: 100,
+		},
+	}
+
+	route := &types.IBCRoute{
+		ChannelID: "",
+	}
+
+	tunnel, err := k.AddTunnel(
+		ctx,
+		route,
 		signalDeviations,
 		10,
 		sdk.AccAddress([]byte("creator_address")),

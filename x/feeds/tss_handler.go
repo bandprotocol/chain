@@ -4,19 +4,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/bandprotocol/chain/v3/pkg/tss"
 	"github.com/bandprotocol/chain/v3/x/feeds/keeper"
 	"github.com/bandprotocol/chain/v3/x/feeds/types"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
-)
-
-var (
-	// EncoderFixedPointABIPrefix is the constant prefix for feeds signature order on fixed point
-	// ABI encoder message. The value is tss.Hash([]byte("fixedPointABI"))[:4]
-	EncoderFixedPointABIPrefix = tss.Hash([]byte("fixedPointABI"))[:4]
-	// EncoderTickABIPrefix is the constant prefix for feeds signature order on tick
-	// ABI encoder message. The value is tss.Hash([]byte("tickABI"))[:4]
-	EncoderTickABIPrefix = tss.Hash([]byte("tickABI"))[:4]
 )
 
 // NewSignatureOrderHandler creates a tss handler to handle feeds signature order
@@ -31,30 +21,9 @@ func NewSignatureOrderHandler(k keeper.Keeper) tsstypes.Handler {
 				)
 			}
 
-			// Get feeds price data
-			fp, err := k.GetFeedsPriceData(ctx, c.SignalIDs, c.Encoder)
-			if err != nil {
-				return nil, err
-			}
+			prices := k.GetPrices(ctx, c.SignalIDs)
 
-			// Encode feeds price data
-			bz, err := fp.ABIEncode()
-			if err != nil {
-				return nil, err
-			}
-
-			// Append the prefix based on the encoder mode
-			switch c.Encoder {
-			case types.ENCODER_FIXED_POINT_ABI:
-				return append(EncoderFixedPointABIPrefix, bz...), nil
-			case types.ENCODER_TICK_ABI:
-				return append(EncoderTickABIPrefix, bz...), nil
-			default:
-				return nil, sdkerrors.ErrUnknownRequest.Wrapf(
-					"unrecognized encoder: %d",
-					c.Encoder,
-				)
-			}
+			return types.EncodeTSS(prices, ctx.BlockTime().Unix(), c.Encoder)
 		default:
 			return nil, sdkerrors.ErrUnknownRequest.Wrapf(
 				"unrecognized tss request signature type: %s",

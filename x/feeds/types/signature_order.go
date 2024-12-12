@@ -4,7 +4,7 @@ import tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 
 // signature order types
 const (
-	SignatureOrderTypeFeeds = "Feeds"
+	SignatureOrderTypeFeeds = "feeds"
 )
 
 // Implements Content Interface
@@ -18,7 +18,7 @@ func NewFeedSignatureOrder(signalIDs []string, encoder Encoder) *FeedsSignatureO
 // OrderRoute returns the order router key
 func (f *FeedsSignatureOrder) OrderRoute() string { return RouterKey }
 
-// OrderType returns type of signature order that should be "Feeds"
+// OrderType returns type of signature order that should be "feeds"
 func (f *FeedsSignatureOrder) OrderType() string {
 	return SignatureOrderTypeFeeds
 }
@@ -32,8 +32,22 @@ func (f *FeedsSignatureOrder) ValidateBasic() error {
 		return ErrInvalidSignalIDs
 	}
 
+	// Map to track signal IDs for duplicate check
+	signalIDs := make(map[string]struct{})
+
+	for _, id := range f.SignalIDs {
+		// Check for duplicate signal IDs
+		if _, exists := signalIDs[id]; exists {
+			return ErrDuplicateSignalID.Wrapf("duplicate signal ID found: %s", id)
+		}
+	}
+
+	if _, ok := Encoder_name[int32(f.Encoder)]; !ok {
+		return ErrInvalidEncoder.Wrapf("invalid encoder: %s", f.Encoder)
+	}
+
 	if f.Encoder == ENCODER_UNSPECIFIED {
-		return ErrInvalidEncoder
+		return ErrInvalidEncoder.Wrapf("encoder type must be specified")
 	}
 
 	return nil

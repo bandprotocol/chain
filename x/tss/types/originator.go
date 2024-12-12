@@ -3,6 +3,8 @@ package types
 import (
 	"bytes"
 
+	"github.com/cosmos/gogoproto/proto"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/bandprotocol/chain/v3/pkg/tss"
@@ -11,18 +13,18 @@ import (
 var (
 	_ Originator = &DirectOriginator{}
 	_ Originator = &TunnelOriginator{}
+)
 
-	// DirectOriginatorPrefix is the prefix for the originator from direct signing request.
-	// The value is tss.Hash([]byte("directOriginatorPrefix"))[:4]
-	DirectOriginatorPrefix = tss.Hash([]byte("directOriginatorPrefix"))[:4]
-	// TunnelOriginatorPrefix is the prefix for the originator from tunnel module.
-	// The value is tss.Hash([]byte("tunnelOriginatorPrefix"))[:4]
-	TunnelOriginatorPrefix = tss.Hash([]byte("tunnelOriginatorPrefix"))[:4]
+const (
+	DirectOriginatorPrefix = "\xb3\x9f\xa5\xd2" // tss.Hash([]byte("DirectOriginator"))[:4]
+	TunnelOriginatorPrefix = "\x72\xeb\xe8\x3d" // tss.Hash([]byte("TunnelOriginator"))[:4]
 )
 
 // Originator is the interface for identifying the metadata of the message. The hashed of the
 // encoded originator will be included as a part of a signed message.
 type Originator interface {
+	proto.Message
+
 	Encode() ([]byte, error)
 	Validate(p Params) error
 }
@@ -42,8 +44,16 @@ func NewDirectOriginator(sourceChainID, requester, memo string) DirectOriginator
 
 // Validate checks the validity of the originator.
 func (o DirectOriginator) Validate(p Params) error {
+	if o.SourceChainID == "" {
+		return ErrInvalidOriginator.Wrap("source chain ID cannot be empty")
+	}
+
+	if o.Requester == "" {
+		return ErrInvalidOriginator.Wrap("requester cannot be empty")
+	}
+
 	if uint64(len(o.Memo)) > p.MaxMemoLength {
-		return ErrInvalidMemo
+		return ErrInvalidOriginator.Wrapf("memo length exceeds maximum length of %d", p.MaxMemoLength)
 	}
 
 	return nil
@@ -52,7 +62,7 @@ func (o DirectOriginator) Validate(p Params) error {
 // Encode encodes the originator into a byte array.
 func (o DirectOriginator) Encode() ([]byte, error) {
 	bz := bytes.Join([][]byte{
-		DirectOriginatorPrefix,
+		[]byte(DirectOriginatorPrefix),
 		tss.Hash([]byte(o.SourceChainID)),
 		tss.Hash([]byte(o.Requester)),
 		tss.Hash([]byte(o.Memo)),
@@ -69,29 +79,46 @@ func (o DirectOriginator) Encode() ([]byte, error) {
 func NewTunnelOriginator(
 	sourceChainID string,
 	tunnelID uint64,
-	contractAddress, targetChainID string,
+	destinationChainID string,
+	destinationContractAddress string,
 ) TunnelOriginator {
 	return TunnelOriginator{
-		SourceChainID:   sourceChainID,
-		TunnelID:        tunnelID,
-		ContractAddress: contractAddress,
-		TargetChainID:   targetChainID,
+		SourceChainID:              sourceChainID,
+		TunnelID:                   tunnelID,
+		DestinationChainID:         destinationChainID,
+		DestinationContractAddress: destinationContractAddress,
 	}
 }
 
 // Validate checks the validity of the originator.
 func (o TunnelOriginator) Validate(p Params) error {
+	if o.SourceChainID == "" {
+		return ErrInvalidOriginator.Wrap("source chain ID cannot be empty")
+	}
+
+	if o.TunnelID == 0 {
+		return ErrInvalidOriginator.Wrap("tunnel ID cannot be zero")
+	}
+
+	if o.DestinationContractAddress == "" {
+		return ErrInvalidOriginator.Wrap("destination contract address cannot be empty")
+	}
+
+	if o.DestinationChainID == "" {
+		return ErrInvalidOriginator.Wrap("destination chain ID cannot be empty")
+	}
+
 	return nil
 }
 
 // Encode encodes the originator into a byte array.
 func (o TunnelOriginator) Encode() ([]byte, error) {
 	bz := bytes.Join([][]byte{
-		TunnelOriginatorPrefix,
+		[]byte(TunnelOriginatorPrefix),
 		tss.Hash([]byte(o.SourceChainID)),
 		sdk.Uint64ToBigEndian(o.TunnelID),
-		tss.Hash([]byte(o.ContractAddress)),
-		tss.Hash([]byte(o.TargetChainID)),
+		tss.Hash([]byte(o.DestinationChainID)),
+		tss.Hash([]byte(o.DestinationContractAddress)),
 	}, []byte(""))
 
 	return bz, nil

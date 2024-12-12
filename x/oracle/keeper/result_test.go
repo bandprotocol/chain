@@ -1,10 +1,14 @@
 package keeper_test
 
 import (
+	"go.uber.org/mock/gomock"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	bandtesting "github.com/bandprotocol/chain/v3/testing"
+	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	"github.com/bandprotocol/chain/v3/x/oracle/types"
+	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 )
 
 func (suite *KeeperTestSuite) TestResultBasicFunctions() {
@@ -67,6 +71,132 @@ func (suite *KeeperTestSuite) TestResolveSuccess() {
 		sdk.NewAttribute(types.AttributeKeyResult, "42415349435f524553554c54"), // BASIC_RESULT
 		sdk.NewAttribute(types.AttributeKeyGasUsed, "1234"),
 	)}, ctx.EventManager().Events())
+}
+
+func (suite *KeeperTestSuite) TestResolveSuccessButInsufficientMember() {
+	ctx := suite.ctx
+	k := suite.oracleKeeper
+	require := suite.Require()
+	request := defaultRequest()
+	request.TSSEncoder = types.ENCODER_FULL_ABI
+
+	k.SetRequest(ctx, 42, request) // See report_test.go
+	k.SetReport(ctx, 42, types.NewReport(validators[0].Address, true, nil))
+
+	suite.bandtssKeeper.EXPECT().CreateDirectSigningRequest(
+		gomock.Any(),
+		types.NewOracleResultSignatureOrder(42, types.ENCODER_FULL_ABI),
+		"",
+		sdk.MustAccAddressFromBech32(request.Requester),
+		request.FeeLimit,
+	).DoAndReturn(func(
+		ctx sdk.Context,
+		content *types.OracleResultSignatureOrder,
+		memo string,
+		sender sdk.AccAddress,
+		feeLimit sdk.Coins,
+	) (bandtsstypes.SigningID, error) {
+		ctx.KVStore(suite.key).Set([]byte{0xff, 0xff}, []byte("test"))
+		return 0, tsstypes.ErrInsufficientSigners
+	})
+
+	k.ResolveSuccess(
+		ctx,
+		42,
+		request.Requester,
+		request.FeeLimit,
+		basicResult,
+		1234,
+		request.TSSEncoder,
+	)
+
+	result := k.MustGetResult(ctx, 42)
+	require.Equal(types.RESOLVE_STATUS_SUCCESS, result.ResolveStatus)
+	require.Equal(basicResult, result.Result)
+	require.Equal(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeHandleRequestSignFail,
+			sdk.NewAttribute(types.AttributeKeyID, "42"),
+			sdk.NewAttribute(types.AttributeKeyReason, "insufficient members for signing message"),
+		),
+		sdk.NewEvent(
+			types.EventTypeResolve,
+			sdk.NewAttribute(types.AttributeKeyID, "42"),
+			sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
+			sdk.NewAttribute(types.AttributeKeyResult, "42415349435f524553554c54"), // BASIC_RESULT
+			sdk.NewAttribute(types.AttributeKeyGasUsed, "1234"),
+			sdk.NewAttribute(types.AttributeKeySigningErrCodespace, "tss"),
+			sdk.NewAttribute(types.AttributeKeySigningErrCode, "22"),
+		),
+	}, ctx.EventManager().Events())
+
+	// Check the signing request is saved correctly.
+	require.Nil(ctx.KVStore(suite.key).Get([]byte{0xff, 0xff}))
+	signingResult, err := k.GetSigningResult(ctx, 42)
+	require.NoError(err)
+	require.Equal(types.SigningResult{
+		SigningID:      0,
+		ErrorCodespace: "tss",
+		ErrorCode:      22,
+	}, signingResult)
+}
+
+func (suite *KeeperTestSuite) TestResolveSuccessAndGetSigningID() {
+	ctx := suite.ctx
+	k := suite.oracleKeeper
+	require := suite.Require()
+	request := defaultRequest()
+	request.TSSEncoder = types.ENCODER_FULL_ABI
+
+	k.SetRequest(ctx, 42, request) // See report_test.go
+	k.SetReport(ctx, 42, types.NewReport(validators[0].Address, true, nil))
+
+	suite.bandtssKeeper.EXPECT().CreateDirectSigningRequest(
+		gomock.Any(),
+		types.NewOracleResultSignatureOrder(42, types.ENCODER_FULL_ABI),
+		"",
+		sdk.MustAccAddressFromBech32(request.Requester),
+		request.FeeLimit,
+	).DoAndReturn(func(
+		ctx sdk.Context,
+		content *types.OracleResultSignatureOrder,
+		memo string,
+		sender sdk.AccAddress,
+		feeLimit sdk.Coins,
+	) (bandtsstypes.SigningID, error) {
+		ctx.KVStore(suite.key).Set([]byte{0xff, 0xff}, []byte("test"))
+		return bandtsstypes.SigningID(1), nil
+	})
+
+	k.ResolveSuccess(
+		ctx,
+		42,
+		request.Requester,
+		request.FeeLimit,
+		basicResult,
+		1234,
+		request.TSSEncoder,
+	)
+
+	result := k.MustGetResult(ctx, 42)
+	require.Equal(types.RESOLVE_STATUS_SUCCESS, result.ResolveStatus)
+	require.Equal(basicResult, result.Result)
+	require.Equal(sdk.Events{
+		sdk.NewEvent(
+			types.EventTypeResolve,
+			sdk.NewAttribute(types.AttributeKeyID, "42"),
+			sdk.NewAttribute(types.AttributeKeyResolveStatus, "1"),
+			sdk.NewAttribute(types.AttributeKeyResult, "42415349435f524553554c54"), // BASIC_RESULT
+			sdk.NewAttribute(types.AttributeKeyGasUsed, "1234"),
+			sdk.NewAttribute(types.AttributeKeySigningID, "1"),
+		),
+	}, ctx.EventManager().Events())
+
+	// Check the signing request is saved correctly.
+	require.Equal([]byte("test"), ctx.KVStore(suite.key).Get([]byte{0xff, 0xff}))
+	signingResult, err := k.GetSigningResult(ctx, 42)
+	require.NoError(err)
+	require.Equal(types.SigningResult{SigningID: 1}, signingResult)
 }
 
 func (suite *KeeperTestSuite) TestResolveFailure() {

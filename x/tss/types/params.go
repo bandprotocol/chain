@@ -6,12 +6,12 @@ import (
 
 const (
 	DefaultMaxGroupSize      = uint64(20)
-	DefaultMaxDESize         = uint64(100)
+	DefaultMaxDESize         = uint64(300)
 	DefaultCreationPeriod    = uint64(30000)
 	DefaultSigningPeriod     = uint64(100)
 	DefaultMaxSigningAttempt = uint64(5)
 	DefaultMaxMemoLength     = uint64(100)
-	DefaultMaxMessageLength  = uint64(300)
+	DefaultMaxMessageLength  = uint64(1000)
 )
 
 // NewParams creates a new Params instance

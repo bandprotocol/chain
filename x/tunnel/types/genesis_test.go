@@ -62,7 +62,7 @@ func TestValidateGenesis(t *testing.T) {
 					{
 						TunnelID:  3,
 						Depositor: "addr1",
-						Amount:    sdk.NewCoins(sdk.NewInt64Coin("stake", 100)),
+						Amount:    sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 					}, // Non-existent tunnel ID
 				},
 			},
@@ -81,12 +81,12 @@ func TestValidateGenesis(t *testing.T) {
 					{
 						TunnelID:  1,
 						Depositor: "addr1",
-						Amount:    sdk.NewCoins(sdk.NewInt64Coin("stake", 100)),
+						Amount:    sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 					},
 					{
 						TunnelID:  1,
 						Depositor: "addr1",
-						Amount:    sdk.NewCoins(sdk.NewInt64Coin("stake", 100)),
+						Amount:    sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 					}, // Duplicate deposit
 				},
 			},
@@ -98,14 +98,14 @@ func TestValidateGenesis(t *testing.T) {
 				Params:      types.DefaultParams(),
 				TunnelCount: 2,
 				Tunnels: []types.Tunnel{
-					{ID: 1, TotalDeposit: sdk.NewCoins(sdk.NewInt64Coin("stake", 100))},
-					{ID: 2, TotalDeposit: sdk.NewCoins(sdk.NewInt64Coin("stake", 200))},
+					{ID: 1, TotalDeposit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100))},
+					{ID: 2, TotalDeposit: sdk.NewCoins(sdk.NewInt64Coin("uband", 200))},
 				},
 				Deposits: []types.Deposit{
 					{
 						TunnelID:  1,
 						Depositor: "addr1",
-						Amount:    sdk.NewCoins(sdk.NewInt64Coin("stake", 50)),
+						Amount:    sdk.NewCoins(sdk.NewInt64Coin("uband", 50)),
 					},
 				},
 			},
@@ -117,19 +117,19 @@ func TestValidateGenesis(t *testing.T) {
 				Params:      types.DefaultParams(),
 				TunnelCount: 2,
 				Tunnels: []types.Tunnel{
-					{ID: 1, TotalDeposit: sdk.NewCoins(sdk.NewInt64Coin("stake", 100))},
-					{ID: 2, TotalDeposit: sdk.NewCoins(sdk.NewInt64Coin("stake", 200))},
+					{ID: 1, TotalDeposit: sdk.NewCoins(sdk.NewInt64Coin("uband", 100))},
+					{ID: 2, TotalDeposit: sdk.NewCoins(sdk.NewInt64Coin("uband", 200))},
 				},
 				Deposits: []types.Deposit{
 					{
 						TunnelID:  1,
 						Depositor: "addr1",
-						Amount:    sdk.NewCoins(sdk.NewInt64Coin("stake", 100)),
+						Amount:    sdk.NewCoins(sdk.NewInt64Coin("uband", 100)),
 					},
 					{
 						TunnelID:  2,
 						Depositor: "addr2",
-						Amount:    sdk.NewCoins(sdk.NewInt64Coin("stake", 200)),
+						Amount:    sdk.NewCoins(sdk.NewInt64Coin("uband", 200)),
 					},
 				},
 			},

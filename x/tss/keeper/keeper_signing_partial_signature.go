@@ -89,8 +89,8 @@ func (k Keeper) GetPartialSignature(
 func (k Keeper) DeletePartialSignatures(ctx sdk.Context, signingID tss.SigningID, attempt uint64) {
 	prefixKey := types.PartialSignaturesStoreKey(signingID, attempt)
 	iterator := storetypes.KVStorePrefixIterator(ctx.KVStore(k.storeKey), prefixKey)
-
 	defer iterator.Close()
+
 	for ; iterator.Valid(); iterator.Next() {
 		ctx.KVStore(k.storeKey).Delete(iterator.Key())
 	}
@@ -112,12 +112,14 @@ func (k Keeper) GetPartialSignatureBySigningAttemptIterator(
 // GetPartialSignatures retrieves all partial signatures for a specific signing ID of
 // the specific attempt from the store.
 func (k Keeper) GetPartialSignatures(ctx sdk.Context, signingID tss.SigningID, attempt uint64) tss.Signatures {
-	var pzs tss.Signatures
 	iterator := k.GetPartialSignatureBySigningAttemptIterator(ctx, signingID, attempt)
 	defer iterator.Close()
+
+	var pzs tss.Signatures
 	for ; iterator.Valid(); iterator.Next() {
 		pzs = append(pzs, iterator.Value())
 	}
+
 	return pzs
 }
 
@@ -128,10 +130,10 @@ func (k Keeper) GetPartialSignaturesWithKey(
 	signingID tss.SigningID,
 	attempt uint64,
 ) []types.PartialSignature {
-	var partialSigs []types.PartialSignature
 	iterator := k.GetPartialSignatureBySigningAttemptIterator(ctx, signingID, attempt)
-
 	defer iterator.Close()
+
+	var partialSigs []types.PartialSignature
 	for ; iterator.Valid(); iterator.Next() {
 		memberID := types.MemberIDFromPartialSignatureStoreKey(iterator.Key())
 		sig := iterator.Value()

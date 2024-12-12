@@ -10,14 +10,13 @@ import (
 
 func TestParseSignalDeviations(t *testing.T) {
 	signalDeviations := []SignalDeviation{
-		{SignalID: "BTC", DeviationBPS: 2000},
-		{SignalID: "ETH", DeviationBPS: 4000},
+		{SignalID: "CS:BTC-USD", DeviationBPS: 2000},
+		{SignalID: "CS:ETH-USD", DeviationBPS: 4000},
 	}
 	file, cleanup := createTempSignalDeviationFile(signalDeviations)
 	defer cleanup()
 
 	result, err := parseSignalDeviations(file)
-
 	require.NoError(t, err)
 	require.Equal(t, signalDeviations, result.SignalDeviations)
 }
@@ -30,11 +29,7 @@ func createTempSignalDeviationFile(signalDeviations []SignalDeviation) (string, 
 	}
 	filePath := file.Name()
 
-	data := struct {
-		SignalDeviations []SignalDeviation `json:"signal_deviations"`
-	}{SignalDeviations: signalDeviations}
-
-	content, err := json.Marshal(data)
+	content, err := json.Marshal(SignalDeviations{SignalDeviations: signalDeviations})
 	if err != nil {
 		panic(err)
 	}

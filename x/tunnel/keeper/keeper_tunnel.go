@@ -16,7 +16,6 @@ import (
 func (k Keeper) AddTunnel(
 	ctx sdk.Context,
 	route types.RouteI,
-	encoder feedstypes.Encoder,
 	signalDeviations []types.SignalDeviation,
 	interval uint64,
 	creator sdk.AccAddress,
@@ -38,7 +37,6 @@ func (k Keeper) AddTunnel(
 		newID,
 		0,
 		route,
-		encoder,
 		feePayer.String(),
 		signalDeviations,
 		interval,
@@ -61,7 +59,6 @@ func (k Keeper) AddTunnel(
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
 		sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", tunnel.Interval)),
 		sdk.NewAttribute(types.AttributeKeyRoute, tunnel.Route.String()),
-		sdk.NewAttribute(types.AttributeKeyEncoder, tunnel.Encoder.String()),
 		sdk.NewAttribute(types.AttributeKeyFeePayer, tunnel.FeePayer),
 		sdk.NewAttribute(types.AttributeKeyIsActive, fmt.Sprintf("%t", tunnel.IsActive)),
 		sdk.NewAttribute(types.AttributeKeyCreatedAt, fmt.Sprintf("%d", tunnel.CreatedAt)),
@@ -79,8 +76,8 @@ func (k Keeper) AddTunnel(
 	return &tunnel, nil
 }
 
-// UpdateAndResetTunnel edits a tunnel and reset latest signal price interval.
-func (k Keeper) UpdateAndResetTunnel(
+// UpdateSignalsAndInterval edits a tunnel and reset latest signal price interval.
+func (k Keeper) UpdateSignalsAndInterval(
 	ctx sdk.Context,
 	tunnelID uint64,
 	signalDeviations []types.SignalDeviation,
@@ -100,7 +97,7 @@ func (k Keeper) UpdateAndResetTunnel(
 	k.SetLatestPrices(ctx, types.NewLatestPrices(tunnelID, []feedstypes.Price{}, 0))
 
 	event := sdk.NewEvent(
-		types.EventTypeUpdateAndResetTunnel,
+		types.EventTypeUpdateSignalsAndInterval,
 		sdk.NewAttribute(types.AttributeKeyTunnelID, fmt.Sprintf("%d", tunnel.ID)),
 		sdk.NewAttribute(types.AttributeKeyInterval, fmt.Sprintf("%d", tunnel.Interval)),
 	)
@@ -166,13 +163,13 @@ func (k Keeper) GetTunnels(ctx sdk.Context) []types.Tunnel {
 	return tunnels
 }
 
-// ActiveTunnelID sets the active tunnel ID in the store
-func (k Keeper) ActiveTunnelID(ctx sdk.Context, tunnelID uint64) {
+// SetActiveTunnelID sets the active tunnel ID in the store
+func (k Keeper) SetActiveTunnelID(ctx sdk.Context, tunnelID uint64) {
 	ctx.KVStore(k.storeKey).Set(types.ActiveTunnelIDStoreKey(tunnelID), []byte{0x01})
 }
 
-// DeactivateTunnelID deactivates the tunnel ID in the store
-func (k Keeper) DeactivateTunnelID(ctx sdk.Context, tunnelID uint64) {
+// DeleteActiveTunnelID deletes the active tunnel ID from the store
+func (k Keeper) DeleteActiveTunnelID(ctx sdk.Context, tunnelID uint64) {
 	ctx.KVStore(k.storeKey).Delete(types.ActiveTunnelIDStoreKey(tunnelID))
 }
 
@@ -203,7 +200,7 @@ func (k Keeper) ActivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 	}
 
 	// add the tunnel ID to the active tunnel IDs
-	k.ActiveTunnelID(ctx, tunnelID)
+	k.SetActiveTunnelID(ctx, tunnelID)
 
 	// set the last interval timestamp to the current block time
 	tunnel.IsActive = true
@@ -226,7 +223,7 @@ func (k Keeper) DeactivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 	}
 
 	// remove the tunnel ID from the active tunnel IDs
-	k.DeactivateTunnelID(ctx, tunnelID)
+	k.DeleteActiveTunnelID(ctx, tunnelID)
 
 	// set the last interval timestamp to the current block time
 	tunnel.IsActive = false
@@ -239,13 +236,6 @@ func (k Keeper) DeactivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 	))
 
 	return nil
-}
-
-// MustDeactivateTunnel deactivates a tunnel and panics if the tunnel does not exist
-func (k Keeper) MustDeactivateTunnel(ctx sdk.Context, tunnelID uint64) {
-	if err := k.DeactivateTunnel(ctx, tunnelID); err != nil {
-		panic(err)
-	}
 }
 
 // SetTotalFees sets the total fees in the store
@@ -273,11 +263,11 @@ func (k Keeper) HasEnoughFundToCreatePacket(ctx sdk.Context, tunnelID uint64) (b
 	}
 
 	// get the route fee from the tunnel
-	route, ok := tunnel.Route.GetCachedValue().(types.RouteI)
-	if !ok {
-		return false, types.ErrInvalidRoute
+	route, err := tunnel.GetRouteValue()
+	if err != nil {
+		return false, err
 	}
-	routeFee, err := route.Fee()
+	routeFee, err := k.GetRouteFee(ctx, route)
 	if err != nil {
 		return false, err
 	}
@@ -326,4 +316,16 @@ func (k Keeper) GenerateTunnelAccount(ctx sdk.Context, key string) (sdk.AccAddre
 	k.authKeeper.SetAccount(ctx, tunnelAcc)
 
 	return tunnelAccAddr, nil
+}
+
+// GetRouteFee returns the fee of the given route
+func (k Keeper) GetRouteFee(ctx sdk.Context, route types.RouteI) (sdk.Coins, error) {
+	switch route.(type) {
+	case *types.TSSRoute:
+		return k.bandtssKeeper.GetSigningFee(ctx)
+	case *types.IBCRoute:
+		return sdk.Coins{}, nil
+	default:
+		return sdk.Coins{}, types.ErrInvalidRoute
+	}
 }

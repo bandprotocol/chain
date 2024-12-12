@@ -44,116 +44,6 @@ func (s *KeeperTestSuite) TestGRPCQueryTunnel() {
 	s.Require().Equal(tunnel, resp.Tunnel)
 }
 
-func (s *KeeperTestSuite) TestGRPCQueryPackets() {
-	ctx, k, q := s.ctx, s.keeper, s.queryServer
-
-	tunnel := types.Tunnel{
-		ID:       1,
-		Sequence: 2,
-	}
-	r := types.TSSRoute{
-		DestinationChainID:         "1",
-		DestinationContractAddress: "0x123",
-	}
-	err := tunnel.SetRoute(&r)
-	s.Require().NoError(err)
-
-	k.SetTunnel(ctx, tunnel)
-
-	packet1 := types.Packet{
-		TunnelID: 1,
-		Sequence: 1,
-	}
-	packet2 := types.Packet{
-		TunnelID: 1,
-		Sequence: 2,
-	}
-	packet3 := types.Packet{
-		TunnelID: 2,
-		Sequence: 1,
-	}
-	err = packet1.SetPacketContent(&types.TSSPacketContent{
-		SigningID:                  1,
-		DestinationChainID:         r.DestinationChainID,
-		DestinationContractAddress: r.DestinationContractAddress,
-	})
-	s.Require().NoError(err)
-	err = packet2.SetPacketContent(&types.TSSPacketContent{
-		SigningID:                  2,
-		DestinationChainID:         r.DestinationChainID,
-		DestinationContractAddress: r.DestinationContractAddress,
-	})
-	s.Require().NoError(err)
-	err = packet3.SetPacketContent(&types.TSSPacketContent{
-		SigningID:                  3,
-		DestinationChainID:         r.DestinationChainID,
-		DestinationContractAddress: r.DestinationContractAddress,
-	})
-	s.Require().NoError(err)
-
-	k.SetPacket(ctx, packet1)
-	k.SetPacket(ctx, packet2)
-	k.SetPacket(ctx, packet3)
-
-	resp, err := q.Packets(ctx, &types.QueryPacketsRequest{
-		TunnelId: 1,
-	})
-	s.Require().NoError(err)
-	s.Require().NotNil(resp)
-	s.Require().Len(resp.Packets, 2)
-	s.Require().Equal(packet1, *resp.Packets[0])
-	s.Require().Equal(packet2, *resp.Packets[1])
-}
-
-func (s *KeeperTestSuite) TestGRPCQueryPacket() {
-	ctx, k, q := s.ctx, s.keeper, s.queryServer
-
-	// set tunnel
-	tunnel := types.Tunnel{
-		ID:       1,
-		Sequence: 2,
-	}
-	r := types.TSSRoute{
-		DestinationChainID:         "1",
-		DestinationContractAddress: "0x123",
-	}
-	err := tunnel.SetRoute(&r)
-	s.Require().NoError(err)
-	k.SetTunnel(ctx, tunnel)
-
-	packet1 := types.Packet{
-		TunnelID: 1,
-		Sequence: 1,
-	}
-	err = packet1.SetPacketContent(&types.TSSPacketContent{
-		SigningID:                  1,
-		DestinationChainID:         r.DestinationChainID,
-		DestinationContractAddress: r.DestinationContractAddress,
-	})
-	s.Require().NoError(err)
-	k.SetPacket(ctx, packet1)
-
-	packet2 := types.Packet{
-		TunnelID: 1,
-		Sequence: 2,
-	}
-	err = packet2.SetPacketContent(&types.TSSPacketContent{
-		SigningID:                  2,
-		DestinationChainID:         r.DestinationChainID,
-		DestinationContractAddress: r.DestinationContractAddress,
-	})
-	s.Require().NoError(err)
-	k.SetPacket(ctx, packet2)
-
-	res, err := q.Packet(ctx, &types.QueryPacketRequest{
-		TunnelId: 1,
-		Sequence: 1,
-	})
-	s.Require().NoError(err)
-	s.Require().NotNil(res)
-	s.Require().Equal(packet1, *res.Packet)
-}
-
 func (s *KeeperTestSuite) TestGRPCQueryDeposits() {
 	ctx, k, q := s.ctx, s.keeper, s.queryServer
 
@@ -228,4 +118,130 @@ func (s *KeeperTestSuite) TestGRPCQueryDeposit() {
 	s.Require().NoError(err)
 	s.Require().NotNil(resp)
 	s.Require().Equal(deposit1, resp.Deposit)
+}
+
+func (s *KeeperTestSuite) TestGRPCQueryPackets() {
+	ctx, k, q := s.ctx, s.keeper, s.queryServer
+
+	tunnel := types.Tunnel{
+		ID:       1,
+		Sequence: 2,
+	}
+	r := types.TSSRoute{
+		DestinationChainID:         "1",
+		DestinationContractAddress: "0x123",
+	}
+	err := tunnel.SetRoute(&r)
+	s.Require().NoError(err)
+
+	k.SetTunnel(ctx, tunnel)
+
+	packet1 := types.Packet{
+		TunnelID: 1,
+		Sequence: 1,
+	}
+	packet2 := types.Packet{
+		TunnelID: 1,
+		Sequence: 2,
+	}
+	packet3 := types.Packet{
+		TunnelID: 2,
+		Sequence: 1,
+	}
+	err = packet1.SetReceipt(&types.TSSPacketReceipt{
+		SigningID: 1,
+	})
+	s.Require().NoError(err)
+	err = packet2.SetReceipt(&types.TSSPacketReceipt{
+		SigningID: 2,
+	})
+	s.Require().NoError(err)
+	err = packet3.SetReceipt(&types.TSSPacketReceipt{
+		SigningID: 3,
+	})
+	s.Require().NoError(err)
+
+	k.SetPacket(ctx, packet1)
+	k.SetPacket(ctx, packet2)
+	k.SetPacket(ctx, packet3)
+
+	resp, err := q.Packets(ctx, &types.QueryPacketsRequest{
+		TunnelId: 1,
+	})
+	s.Require().NoError(err)
+	s.Require().NotNil(resp)
+	s.Require().Len(resp.Packets, 2)
+	s.Require().Equal(packet1, *resp.Packets[0])
+	s.Require().Equal(packet2, *resp.Packets[1])
+}
+
+func (s *KeeperTestSuite) TestGRPCQueryPacket() {
+	ctx, k, q := s.ctx, s.keeper, s.queryServer
+
+	// set tunnel
+	tunnel := types.Tunnel{
+		ID:       1,
+		Sequence: 2,
+	}
+	r := types.TSSRoute{
+		DestinationChainID:         "1",
+		DestinationContractAddress: "0x123",
+	}
+	err := tunnel.SetRoute(&r)
+	s.Require().NoError(err)
+	k.SetTunnel(ctx, tunnel)
+
+	packet1 := types.Packet{
+		TunnelID: 1,
+		Sequence: 1,
+	}
+	err = packet1.SetReceipt(&types.TSSPacketReceipt{
+		SigningID: 1,
+	})
+	s.Require().NoError(err)
+	k.SetPacket(ctx, packet1)
+
+	packet2 := types.Packet{
+		TunnelID: 1,
+		Sequence: 2,
+	}
+	err = packet2.SetReceipt(&types.TSSPacketReceipt{})
+	s.Require().NoError(err)
+	k.SetPacket(ctx, packet2)
+
+	res, err := q.Packet(ctx, &types.QueryPacketRequest{
+		TunnelId: 1,
+		Sequence: 1,
+	})
+	s.Require().NoError(err)
+	s.Require().NotNil(res)
+	s.Require().Equal(packet1, *res.Packet)
+}
+
+func (s *KeeperTestSuite) TestGRPCQueryTotalFees() {
+	ctx, k, q := s.ctx, s.keeper, s.queryServer
+
+	// Set total fees
+	totalFees := types.TotalFees{
+		TotalBasePacketFee: sdk.NewCoins(sdk.NewCoin("band", sdkmath.NewInt(100))),
+	}
+	k.SetTotalFees(ctx, totalFees)
+
+	// Query total fees
+	res, err := q.TotalFees(ctx, &types.QueryTotalFeesRequest{})
+	s.Require().NoError(err)
+	s.Require().Equal(totalFees, res.TotalFees)
+}
+
+func (s *KeeperTestSuite) TestGRPCQueryParams() {
+	ctx, k, q := s.ctx, s.keeper, s.queryServer
+
+	// Set params
+	err := k.SetParams(ctx, types.DefaultParams())
+	s.Require().NoError(err)
+
+	// Query params
+	res, err := q.Params(ctx, &types.QueryParamsRequest{})
+	s.Require().NoError(err)
+	s.Require().Equal(types.DefaultParams(), res.Params)
 }

@@ -4,23 +4,23 @@ import tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
 
 // signature order types
 const (
-	SignatureOrderTypeOracleResult = "OracleResult"
+	SignatureOrderTypeOracle = "oracle"
 )
 
 // Implements Content Interface
 var _ tsstypes.Content = &OracleResultSignatureOrder{}
 
 // NewOracleResultSignatureOrder returns a new OracleResultSignatureOrder object
-func NewOracleResultSignatureOrder(rid RequestID, encodeType EncodeType) *OracleResultSignatureOrder {
-	return &OracleResultSignatureOrder{RequestID: rid, EncodeType: encodeType}
+func NewOracleResultSignatureOrder(rid RequestID, encoder Encoder) *OracleResultSignatureOrder {
+	return &OracleResultSignatureOrder{RequestID: rid, Encoder: encoder}
 }
 
 // OrderRoute returns the order router key
 func (o *OracleResultSignatureOrder) OrderRoute() string { return RouterKey }
 
-// OrderType returns type of signature order that should be "OracleResult"
+// OrderType returns type of signature order that should be "oracle"
 func (o *OracleResultSignatureOrder) OrderType() string {
-	return SignatureOrderTypeOracleResult
+	return SignatureOrderTypeOracle
 }
 
 // IsInternal returns false for OracleResultSignatureOrder (allow user to submit this content type).
@@ -32,8 +32,12 @@ func (o *OracleResultSignatureOrder) ValidateBasic() error {
 		return ErrInvalidRequestID
 	}
 
-	if o.EncodeType == ENCODE_TYPE_UNSPECIFIED {
-		return ErrInvalidOracleEncodeType
+	if _, ok := Encoder_name[int32(o.Encoder)]; !ok {
+		return ErrInvalidOracleEncoder.Wrapf("invalid encoder: %d", o.Encoder)
+	}
+
+	if o.Encoder == ENCODER_UNSPECIFIED {
+		return ErrInvalidOracleEncoder.Wrapf("encoder must be specified")
 	}
 	return nil
 }

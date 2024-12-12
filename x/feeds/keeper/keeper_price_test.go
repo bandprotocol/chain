@@ -21,7 +21,7 @@ func (suite *KeeperTestSuite) TestGetSetDeletePrice() {
 
 	// set
 	expPrice := types.Price{
-		Status:    types.PriceStatusAvailable,
+		Status:    types.PRICE_STATUS_AVAILABLE,
 		SignalID:  "CS:BAND-USD",
 		Price:     1e10,
 		Timestamp: ctx.BlockTime().Unix(),
@@ -39,13 +39,13 @@ func (suite *KeeperTestSuite) TestGetSetDeletePrices() {
 	// set
 	expPrices := []types.Price{
 		{
-			Status:    types.PriceStatusAvailable,
+			Status:    types.PRICE_STATUS_AVAILABLE,
 			SignalID:  "CS:ATOM-USD",
 			Price:     1e10,
 			Timestamp: ctx.BlockTime().Unix(),
 		},
 		{
-			Status:    types.PriceStatusAvailable,
+			Status:    types.PRICE_STATUS_AVAILABLE,
 			SignalID:  "CS:BAND-USD",
 			Price:     1e10,
 			Timestamp: ctx.BlockTime().Unix(),
@@ -64,9 +64,9 @@ func (suite *KeeperTestSuite) TestGetSetDeletePrices() {
 	// get prices not in store should return price with status not in current feeds
 	expPrices = append(expPrices, types.Price{
 		SignalID:  "CS:ETH-USD",
-		Status:    types.PriceStatusNotInCurrentFeeds,
+		Status:    types.PRICE_STATUS_NOT_IN_CURRENT_FEEDS,
 		Price:     0,
-		Timestamp: 0,
+		Timestamp: suite.ctx.BlockTime().Unix(),
 	})
 	prices = suite.feedsKeeper.GetPrices(ctx, []string{"CS:ATOM-USD", "CS:BAND-USD", "CS:ETH-USD"})
 	suite.Require().Equal(expPrices, prices)
@@ -83,14 +83,14 @@ func (suite *KeeperTestSuite) TestGetSetValidatorPriceList() {
 	// set
 	expValPrices := []types.ValidatorPrice{
 		{
-			SignalPriceStatus: types.SignalPriceStatusAvailable,
+			SignalPriceStatus: types.SIGNAL_PRICE_STATUS_AVAILABLE,
 			SignalID:          "CS:BAND-USD",
 			Price:             1e10,
 			Timestamp:         ctx.BlockTime().Unix(),
 			BlockHeight:       ctx.BlockHeight(),
 		},
 		{
-			SignalPriceStatus: types.SignalPriceStatusAvailable,
+			SignalPriceStatus: types.SIGNAL_PRICE_STATUS_AVAILABLE,
 			SignalID:          "CS:ETH-USD",
 			Price:             1e10 + 5,
 			Timestamp:         ctx.BlockTime().Unix(),
@@ -143,7 +143,7 @@ func (suite *KeeperTestSuite) TestCalculatePrices() {
 				// Set validator prices
 				err := suite.feedsKeeper.SetValidatorPriceList(ctx, ValidValidator, []types.ValidatorPrice{
 					{
-						SignalPriceStatus: types.SignalPriceStatusAvailable,
+						SignalPriceStatus: types.SIGNAL_PRICE_STATUS_AVAILABLE,
 						SignalID:          "CS:BAND-USD",
 						Price:             1000,
 						Timestamp:         ctx.BlockTime().Unix(),
@@ -155,7 +155,7 @@ func (suite *KeeperTestSuite) TestCalculatePrices() {
 				err = suite.feedsKeeper.SetValidatorPriceList(ctx, ValidValidator2, []types.ValidatorPrice{
 					{
 						SignalID:          "CS:BAND-USD",
-						SignalPriceStatus: types.SignalPriceStatusAvailable,
+						SignalPriceStatus: types.SIGNAL_PRICE_STATUS_AVAILABLE,
 						Price:             2000,
 						Timestamp:         ctx.BlockTime().Unix(),
 						BlockHeight:       ctx.BlockHeight(),
@@ -169,7 +169,7 @@ func (suite *KeeperTestSuite) TestCalculatePrices() {
 			expectError: false,
 			expectedPrices: []types.Price{
 				{
-					Status:    types.PriceStatusAvailable,
+					Status:    types.PRICE_STATUS_AVAILABLE,
 					SignalID:  "CS:BAND-USD",
 					Price:     1000,
 					Timestamp: ctx.BlockTime().Unix(),
@@ -236,7 +236,7 @@ func (suite *KeeperTestSuite) TestCalculatePrice() {
 	tests := []struct {
 		name                string
 		validatorPriceInfos []types.ValidatorPriceInfo
-		powerQuorum         uint64
+		powerQuorum         sdkmath.Int
 		expectedPrice       types.Price
 		expectError         bool
 	}{
@@ -244,27 +244,27 @@ func (suite *KeeperTestSuite) TestCalculatePrice() {
 			name: "more than half have unsupported price status",
 			validatorPriceInfos: []types.ValidatorPriceInfo{
 				{
-					SignalPriceStatus: types.SignalPriceStatusAvailable,
-					Power:             1000,
+					SignalPriceStatus: types.SIGNAL_PRICE_STATUS_AVAILABLE,
+					Power:             sdkmath.NewInt(1000),
 					Price:             1000,
 					Timestamp:         ctx.BlockTime().Unix(),
 				},
 				{
-					SignalPriceStatus: types.SignalPriceStatusUnsupported,
-					Power:             2001,
+					SignalPriceStatus: types.SIGNAL_PRICE_STATUS_UNSUPPORTED,
+					Power:             sdkmath.NewInt(2001),
 					Price:             2000,
 					Timestamp:         ctx.BlockTime().Unix(),
 				},
 				{
-					SignalPriceStatus: types.SignalPriceStatusAvailable,
-					Power:             1000,
+					SignalPriceStatus: types.SIGNAL_PRICE_STATUS_AVAILABLE,
+					Power:             sdkmath.NewInt(1000),
 					Price:             2000,
 					Timestamp:         ctx.BlockTime().Unix(),
 				},
 			},
-			powerQuorum: 5000,
+			powerQuorum: sdkmath.NewInt(5000),
 			expectedPrice: types.Price{
-				Status:    types.PriceStatusUnknownSignalID,
+				Status:    types.PRICE_STATUS_UNKNOWN_SIGNAL_ID,
 				SignalID:  "CS:BAND-USD",
 				Price:     0,
 				Timestamp: ctx.BlockTime().Unix(),
@@ -275,27 +275,27 @@ func (suite *KeeperTestSuite) TestCalculatePrice() {
 			name: "total power is less than quorum",
 			validatorPriceInfos: []types.ValidatorPriceInfo{
 				{
-					SignalPriceStatus: types.SignalPriceStatusAvailable,
-					Power:             1000,
+					SignalPriceStatus: types.SIGNAL_PRICE_STATUS_AVAILABLE,
+					Power:             sdkmath.NewInt(100),
 					Price:             1000,
 					Timestamp:         ctx.BlockTime().Unix(),
 				},
 				{
-					SignalPriceStatus: types.SignalPriceStatusAvailable,
-					Power:             1000,
+					SignalPriceStatus: types.SIGNAL_PRICE_STATUS_AVAILABLE,
+					Power:             sdkmath.NewInt(100),
 					Price:             2000,
 					Timestamp:         ctx.BlockTime().Unix(),
 				},
 				{
-					SignalPriceStatus: types.SignalPriceStatusAvailable,
-					Power:             1000,
+					SignalPriceStatus: types.SIGNAL_PRICE_STATUS_AVAILABLE,
+					Power:             sdkmath.NewInt(100),
 					Price:             2000,
 					Timestamp:         ctx.BlockTime().Unix(),
 				},
 			},
-			powerQuorum: 5000,
+			powerQuorum: sdkmath.NewInt(5000),
 			expectedPrice: types.Price{
-				Status:    types.PriceStatusNotReady,
+				Status:    types.PRICE_STATUS_NOT_READY,
 				SignalID:  "CS:BAND-USD",
 				Price:     0,
 				Timestamp: ctx.BlockTime().Unix(),
@@ -306,27 +306,27 @@ func (suite *KeeperTestSuite) TestCalculatePrice() {
 			name: "normal case",
 			validatorPriceInfos: []types.ValidatorPriceInfo{
 				{
-					SignalPriceStatus: types.SignalPriceStatusAvailable,
-					Power:             5000,
+					SignalPriceStatus: types.SIGNAL_PRICE_STATUS_AVAILABLE,
+					Power:             sdkmath.NewInt(5000),
 					Price:             1000,
 					Timestamp:         ctx.BlockTime().Unix(),
 				},
 				{
-					SignalPriceStatus: types.SignalPriceStatusAvailable,
-					Power:             3000,
+					SignalPriceStatus: types.SIGNAL_PRICE_STATUS_AVAILABLE,
+					Power:             sdkmath.NewInt(3000),
 					Price:             2000,
 					Timestamp:         ctx.BlockTime().Unix(),
 				},
 				{
-					SignalPriceStatus: types.SignalPriceStatusAvailable,
-					Power:             3000,
+					SignalPriceStatus: types.SIGNAL_PRICE_STATUS_AVAILABLE,
+					Power:             sdkmath.NewInt(3000),
 					Price:             2000,
 					Timestamp:         ctx.BlockTime().Unix(),
 				},
 			},
-			powerQuorum: 7000,
+			powerQuorum: sdkmath.NewInt(7000),
 			expectedPrice: types.Price{
-				Status:    types.PriceStatusAvailable,
+				Status:    types.PRICE_STATUS_AVAILABLE,
 				SignalID:  "CS:BAND-USD",
 				Price:     1000,
 				Timestamp: ctx.BlockTime().Unix(),
@@ -336,9 +336,9 @@ func (suite *KeeperTestSuite) TestCalculatePrice() {
 		{
 			name:                "empty validator price infos",
 			validatorPriceInfos: []types.ValidatorPriceInfo{},
-			powerQuorum:         5000,
+			powerQuorum:         sdkmath.NewInt(5000),
 			expectedPrice: types.Price{
-				Status:    types.PriceStatusNotReady,
+				Status:    types.PRICE_STATUS_NOT_READY,
 				SignalID:  "CS:BAND-USD",
 				Price:     0,
 				Timestamp: ctx.BlockTime().Unix(),
@@ -382,7 +382,7 @@ func (suite *KeeperTestSuite) TestCheckMissReport() {
 			lastUpdateTimestamp: 1000,
 			lastUpdateBlock:     100,
 			valPrice: types.ValidatorPrice{
-				SignalPriceStatus: types.SignalPriceStatusAvailable,
+				SignalPriceStatus: types.SIGNAL_PRICE_STATUS_AVAILABLE,
 				Timestamp:         1000,
 				BlockHeight:       100,
 			},
@@ -406,7 +406,7 @@ func (suite *KeeperTestSuite) TestCheckMissReport() {
 			lastUpdateTimestamp: 1000,
 			lastUpdateBlock:     300,
 			valPrice: types.ValidatorPrice{
-				SignalPriceStatus: types.SignalPriceStatusAvailable,
+				SignalPriceStatus: types.SIGNAL_PRICE_STATUS_AVAILABLE,
 				Timestamp:         1000,
 				BlockHeight:       300,
 			},
@@ -430,7 +430,7 @@ func (suite *KeeperTestSuite) TestCheckMissReport() {
 			lastUpdateTimestamp: 1000,
 			lastUpdateBlock:     100,
 			valPrice: types.ValidatorPrice{
-				SignalPriceStatus: types.SignalPriceStatusAvailable,
+				SignalPriceStatus: types.SIGNAL_PRICE_STATUS_AVAILABLE,
 				Timestamp:         1000,
 				BlockHeight:       100,
 			},
@@ -454,7 +454,7 @@ func (suite *KeeperTestSuite) TestCheckMissReport() {
 			lastUpdateTimestamp: 1000,
 			lastUpdateBlock:     100,
 			valPrice: types.ValidatorPrice{
-				SignalPriceStatus: types.SignalPriceStatusAvailable,
+				SignalPriceStatus: types.SIGNAL_PRICE_STATUS_AVAILABLE,
 				Timestamp:         1000,
 				BlockHeight:       100,
 			},
@@ -478,7 +478,7 @@ func (suite *KeeperTestSuite) TestCheckMissReport() {
 			lastUpdateTimestamp: 1000,
 			lastUpdateBlock:     100,
 			valPrice: types.ValidatorPrice{
-				SignalPriceStatus: types.SignalPriceStatusAvailable,
+				SignalPriceStatus: types.SIGNAL_PRICE_STATUS_AVAILABLE,
 				Timestamp:         1250, // Recent report
 				BlockHeight:       330,
 			},
@@ -502,7 +502,7 @@ func (suite *KeeperTestSuite) TestCheckMissReport() {
 			lastUpdateTimestamp: 1000,
 			lastUpdateBlock:     100,
 			valPrice: types.ValidatorPrice{
-				SignalPriceStatus: types.SignalPriceStatusAvailable,
+				SignalPriceStatus: types.SIGNAL_PRICE_STATUS_AVAILABLE,
 				Timestamp:         1240,
 				BlockHeight:       329,
 			},
@@ -526,7 +526,7 @@ func (suite *KeeperTestSuite) TestCheckMissReport() {
 			lastUpdateTimestamp: 1000,
 			lastUpdateBlock:     100,
 			valPrice: types.ValidatorPrice{
-				SignalPriceStatus: types.SignalPriceStatusAvailable,
+				SignalPriceStatus: types.SIGNAL_PRICE_STATUS_AVAILABLE,
 				Timestamp:         1230,
 				BlockHeight:       328,
 			},
@@ -550,7 +550,7 @@ func (suite *KeeperTestSuite) TestCheckMissReport() {
 			lastUpdateTimestamp: 0,
 			lastUpdateBlock:     0,
 			valPrice: types.ValidatorPrice{
-				SignalPriceStatus: types.SignalPriceStatusUnspecified,
+				SignalPriceStatus: types.SIGNAL_PRICE_STATUS_UNSPECIFIED,
 				Timestamp:         0,
 				BlockHeight:       0,
 			},
@@ -574,7 +574,7 @@ func (suite *KeeperTestSuite) TestCheckMissReport() {
 			lastUpdateTimestamp: 0,
 			lastUpdateBlock:     0,
 			valPrice: types.ValidatorPrice{
-				SignalPriceStatus: types.SignalPriceStatusUnspecified,
+				SignalPriceStatus: types.SIGNAL_PRICE_STATUS_UNSPECIFIED,
 				Timestamp:         0,
 				BlockHeight:       0,
 			},

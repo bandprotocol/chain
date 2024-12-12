@@ -17,7 +17,7 @@ import (
 // exceeds a given threshold in basis points.
 
 // Parameters:
-// - deviationBasisPoint: the allowable deviation in basis points (1/1000th)
+// - deviationBasisPoint: the allowable deviation in basis points (1/10000th)
 // - oldPrice: the original price
 // - newPrice: the new price to compare against the original
 //
@@ -31,6 +31,11 @@ import (
 //     original price and multiplying by 10000.
 //  3. Check if the calculated deviation meets or exceeds the allowable deviation.
 func isDeviated(deviationBasisPoint int64, oldPrice uint64, newPrice uint64) bool {
+	// If the old price is zero and the new price is non-zero, consider it a deviation
+	if oldPrice == 0 {
+		return newPrice != 0
+	}
+
 	// Calculate the deviation
 	diff := math.Abs(float64(newPrice) - float64(oldPrice))
 	dev := int64((diff * 10000) / float64(oldPrice))
@@ -43,19 +48,19 @@ func convertPriceData(price *bothan.Price) (types.SignalPrice, error) {
 	switch price.Status {
 	case bothan.Status_STATUS_UNSUPPORTED:
 		return types.NewSignalPrice(
-			types.SignalPriceStatusUnsupported,
+			types.SIGNAL_PRICE_STATUS_UNSUPPORTED,
 			price.SignalId,
 			0,
 		), nil
 	case bothan.Status_STATUS_UNAVAILABLE:
 		return types.NewSignalPrice(
-			types.SignalPriceStatusUnavailable,
+			types.SIGNAL_PRICE_STATUS_UNAVAILABLE,
 			price.SignalId,
 			0,
 		), nil
 	case bothan.Status_STATUS_AVAILABLE:
 		return types.NewSignalPrice(
-			types.SignalPriceStatusAvailable,
+			types.SIGNAL_PRICE_STATUS_AVAILABLE,
 			price.SignalId,
 			price.Price,
 		), nil

@@ -1,0 +1,57 @@
+package types
+
+import (
+	"fmt"
+
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
+)
+
+// IBCRoute defines the IBC route for the tunnel module
+var _ RouteI = &IBCRoute{}
+
+// NewIBCRoute creates a new IBCRoute instance.
+func NewIBCRoute(channelID string) *IBCRoute {
+	return &IBCRoute{
+		ChannelID: channelID,
+	}
+}
+
+// ValidateBasic validates the IBCRoute
+func (r *IBCRoute) ValidateBasic() error {
+	// Validate the ChannelID format
+	if r.ChannelID != "" && !channeltypes.IsChannelIDFormat(r.ChannelID) {
+		return fmt.Errorf("channel identifier is not in the format: `channel-{N}` or be empty string")
+	}
+	return nil
+}
+
+// NewIBCPacketReceipt creates a new IBCPacketReceipt instance.
+func NewIBCPacketReceipt(sequence uint64) *IBCPacketReceipt {
+	return &IBCPacketReceipt{
+		Sequence: sequence,
+	}
+}
+
+// NewTunnelPricesPacketData creates a new TunnelPricesPacketData instance.
+func NewTunnelPricesPacketData(
+	tunnelID uint64,
+	sequence uint64,
+	prices []feedstypes.Price,
+	createdAt int64,
+) TunnelPricesPacketData {
+	return TunnelPricesPacketData{
+		TunnelID:  tunnelID,
+		Sequence:  sequence,
+		Prices:    prices,
+		CreatedAt: createdAt,
+	}
+}
+
+// GetBytes is a helper for serialising
+func (p TunnelPricesPacketData) GetBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&p))
+}

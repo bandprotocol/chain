@@ -19,13 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Query_Tunnels_FullMethodName  = "/band.tunnel.v1beta1.Query/Tunnels"
-	Query_Tunnel_FullMethodName   = "/band.tunnel.v1beta1.Query/Tunnel"
-	Query_Deposits_FullMethodName = "/band.tunnel.v1beta1.Query/Deposits"
-	Query_Deposit_FullMethodName  = "/band.tunnel.v1beta1.Query/Deposit"
-	Query_Packets_FullMethodName  = "/band.tunnel.v1beta1.Query/Packets"
-	Query_Packet_FullMethodName   = "/band.tunnel.v1beta1.Query/Packet"
-	Query_Params_FullMethodName   = "/band.tunnel.v1beta1.Query/Params"
+	Query_Tunnels_FullMethodName   = "/band.tunnel.v1beta1.Query/Tunnels"
+	Query_Tunnel_FullMethodName    = "/band.tunnel.v1beta1.Query/Tunnel"
+	Query_Deposits_FullMethodName  = "/band.tunnel.v1beta1.Query/Deposits"
+	Query_Deposit_FullMethodName   = "/band.tunnel.v1beta1.Query/Deposit"
+	Query_Packets_FullMethodName   = "/band.tunnel.v1beta1.Query/Packets"
+	Query_Packet_FullMethodName    = "/band.tunnel.v1beta1.Query/Packet"
+	Query_TotalFees_FullMethodName = "/band.tunnel.v1beta1.Query/TotalFees"
+	Query_Params_FullMethodName    = "/band.tunnel.v1beta1.Query/Params"
 )
 
 // QueryClient is the client API for Query service.
@@ -44,6 +45,8 @@ type QueryClient interface {
 	Packets(ctx context.Context, in *QueryPacketsRequest, opts ...grpc.CallOption) (*QueryPacketsResponse, error)
 	// Packet is a RPC method that returns a packet by its tunnel ID and sequence.
 	Packet(ctx context.Context, in *QueryPacketRequest, opts ...grpc.CallOption) (*QueryPacketResponse, error)
+	// TotalFees is a RPC method that returns the total fees collected by the tunnel
+	TotalFees(ctx context.Context, in *QueryTotalFeesRequest, opts ...grpc.CallOption) (*QueryTotalFeesResponse, error)
 	// Params is a RPC method that returns all parameters of the module.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
 }
@@ -110,6 +113,15 @@ func (c *queryClient) Packet(ctx context.Context, in *QueryPacketRequest, opts .
 	return out, nil
 }
 
+func (c *queryClient) TotalFees(ctx context.Context, in *QueryTotalFeesRequest, opts ...grpc.CallOption) (*QueryTotalFeesResponse, error) {
+	out := new(QueryTotalFeesResponse)
+	err := c.cc.Invoke(ctx, Query_TotalFees_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *queryClient) Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error) {
 	out := new(QueryParamsResponse)
 	err := c.cc.Invoke(ctx, Query_Params_FullMethodName, in, out, opts...)
@@ -135,6 +147,8 @@ type QueryServer interface {
 	Packets(context.Context, *QueryPacketsRequest) (*QueryPacketsResponse, error)
 	// Packet is a RPC method that returns a packet by its tunnel ID and sequence.
 	Packet(context.Context, *QueryPacketRequest) (*QueryPacketResponse, error)
+	// TotalFees is a RPC method that returns the total fees collected by the tunnel
+	TotalFees(context.Context, *QueryTotalFeesRequest) (*QueryTotalFeesResponse, error)
 	// Params is a RPC method that returns all parameters of the module.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
 	mustEmbedUnimplementedQueryServer()
@@ -161,6 +175,9 @@ func (UnimplementedQueryServer) Packets(context.Context, *QueryPacketsRequest) (
 }
 func (UnimplementedQueryServer) Packet(context.Context, *QueryPacketRequest) (*QueryPacketResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Packet not implemented")
+}
+func (UnimplementedQueryServer) TotalFees(context.Context, *QueryTotalFeesRequest) (*QueryTotalFeesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TotalFees not implemented")
 }
 func (UnimplementedQueryServer) Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Params not implemented")
@@ -286,6 +303,24 @@ func _Query_Packet_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_TotalFees_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryTotalFeesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).TotalFees(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_TotalFees_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).TotalFees(ctx, req.(*QueryTotalFeesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Query_Params_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(QueryParamsRequest)
 	if err := dec(in); err != nil {
@@ -334,6 +369,10 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Packet",
 			Handler:    _Query_Packet_Handler,
+		},
+		{
+			MethodName: "TotalFees",
+			Handler:    _Query_TotalFees_Handler,
 		},
 		{
 			MethodName: "Params",

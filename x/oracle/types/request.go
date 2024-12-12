@@ -21,7 +21,7 @@ type RequestSpec interface {
 	GetPrepareGas() uint64
 	GetExecuteGas() uint64
 	GetFeeLimit() sdk.Coins
-	GetTSSEncodeType() EncodeType
+	GetTSSEncoder() Encoder
 }
 
 func NewRawRequest(
@@ -47,7 +47,7 @@ func NewRequest(
 	rawRequests []RawRequest,
 	ibcChannel *IBCChannel,
 	executeGas uint64,
-	tssEncodeType EncodeType,
+	tssEncoder Encoder,
 	requester string,
 	feeLimit sdk.Coins,
 ) Request {
@@ -70,7 +70,7 @@ func NewRequest(
 		RawRequests:         rawRequests,
 		IBCChannel:          ibcChannel,
 		ExecuteGas:          executeGas,
-		TSSEncodeType:       tssEncodeType,
+		TSSEncoder:          tssEncoder,
 		Requester:           requester,
 		FeeLimit:            feeLimit,
 	}

@@ -3,25 +3,42 @@ package types
 import (
 	"cmp"
 	"slices"
+
+	sdkmath "cosmossdk.io/math"
 )
 
-const PowerScalingFactor = 32 // Scaling factor to avoid floating-point calculations
+// getPowerScalingFactor returns the scaling factor used to avoid floating-point calculations.
+func getPowerScalingFactor() sdkmath.Int {
+	return sdkmath.NewInt(32)
+}
 
 // getMultipliers returns predefined multiplier constants.
-func getMultipliers() [5]uint64 {
-	return [5]uint64{60, 40, 20, 11, 10}
+func getMultipliers() [5]sdkmath.Int {
+	return [5]sdkmath.Int{
+		sdkmath.NewInt(60),
+		sdkmath.NewInt(40),
+		sdkmath.NewInt(20),
+		sdkmath.NewInt(11),
+		sdkmath.NewInt(10),
+	}
 }
 
 // getSections returns predefined section constants.
-func getSections() [5]uint64 {
-	return [5]uint64{1, 3, 7, 15, 32}
+func getSections() [5]sdkmath.Int {
+	return [5]sdkmath.Int{
+		sdkmath.NewInt(1),
+		sdkmath.NewInt(3),
+		sdkmath.NewInt(7),
+		sdkmath.NewInt(15),
+		sdkmath.NewInt(32),
+	}
 }
 
 // ValidatorPriceInfo represents a single entry of price information from a validator.
 // It includes the reported price, associated power (weight), and timestamp.
 type ValidatorPriceInfo struct {
 	SignalPriceStatus SignalPriceStatus // indicates the validity or state of the price entry
-	Power             uint64            // power or weight of this entry in calculations
+	Power             sdkmath.Int       // power or weight of this entry in calculations
 	Price             uint64            // reported price value
 	Timestamp         int64             // Unix timestamp for when this entry was recorded
 }
@@ -29,7 +46,7 @@ type ValidatorPriceInfo struct {
 // NewValidatorPriceInfo creates a new instance of ValidatorPriceInfo.
 func NewValidatorPriceInfo(
 	signalPriceStatus SignalPriceStatus,
-	power uint64,
+	power sdkmath.Int,
 	price uint64,
 	timestamp int64,
 ) ValidatorPriceInfo {
@@ -44,20 +61,25 @@ func NewValidatorPriceInfo(
 // CalculatePricesPowers calculates total, available, unavailable, and unsupported powers
 func CalculatePricesPowers(
 	validatorPriceInfos []ValidatorPriceInfo,
-) (totalPower uint64, availablePower uint64, unavailablePower uint64, unsupportedPower uint64) {
+) (sdkmath.Int, sdkmath.Int, sdkmath.Int, sdkmath.Int) {
+	totalPower := sdkmath.NewInt(0)
+	availablePower := sdkmath.NewInt(0)
+	unavailablePower := sdkmath.NewInt(0)
+	unsupportedPower := sdkmath.NewInt(0)
+
 	for _, priceInfo := range validatorPriceInfos {
-		totalPower += priceInfo.Power
+		totalPower = totalPower.Add(priceInfo.Power)
 
 		switch priceInfo.SignalPriceStatus {
-		case SignalPriceStatusAvailable:
-			availablePower += priceInfo.Power
-		case SignalPriceStatusUnavailable:
-			unavailablePower += priceInfo.Power
-		case SignalPriceStatusUnsupported:
-			unsupportedPower += priceInfo.Power
+		case SIGNAL_PRICE_STATUS_AVAILABLE:
+			availablePower = availablePower.Add(priceInfo.Power)
+		case SIGNAL_PRICE_STATUS_UNAVAILABLE:
+			unavailablePower = unavailablePower.Add(priceInfo.Power)
+		case SIGNAL_PRICE_STATUS_UNSUPPORTED:
+			unsupportedPower = unsupportedPower.Add(priceInfo.Power)
 		}
 	}
-	return
+	return totalPower, availablePower, unavailablePower, unsupportedPower
 }
 
 // MedianValidatorPriceInfos calculates a time-weighted and power-weighted median price
@@ -87,11 +109,11 @@ func CalculatePricesPowers(
 func MedianValidatorPriceInfos(validatorPriceInfos []ValidatorPriceInfo) (uint64, error) {
 	// Step 1: Filter entries with available prices and calculate total power for valid entries.
 	var validPrices []ValidatorPriceInfo
-	totalPower := uint64(0)
+	totalPower := sdkmath.NewInt(0)
 	for _, priceInfo := range validatorPriceInfos {
-		if priceInfo.SignalPriceStatus == SignalPriceStatusAvailable {
+		if priceInfo.SignalPriceStatus == SIGNAL_PRICE_STATUS_AVAILABLE {
 			validPrices = append(validPrices, priceInfo)
-			totalPower += priceInfo.Power
+			totalPower = totalPower.Add(priceInfo.Power)
 		}
 	}
 
@@ -102,7 +124,7 @@ func MedianValidatorPriceInfos(validatorPriceInfos []ValidatorPriceInfo) (uint64
 			return cmpResult
 		}
 		// secondary comparison: power (descending)
-		return cmp.Compare(priceB.Power, priceA.Power)
+		return priceB.Power.BigInt().Cmp(priceA.Power.BigInt())
 	})
 
 	// Step 3: Define multipliers and sections for sectional weighting.
@@ -110,36 +132,38 @@ func MedianValidatorPriceInfos(validatorPriceInfos []ValidatorPriceInfo) (uint64
 	sections := getSections()
 
 	var weightedPrices []WeightedPrice
-	currentPower := uint64(0)
+	currentPower := sdkmath.NewInt(0)
 	sectionIndex := 0
 
 	// Step 4: Distribute each entry’s power across sections.
 	for _, priceInfo := range validPrices {
-		leftPower := priceInfo.Power * PowerScalingFactor // scale up power to avoid floating-point calculations
-		totalWeight := uint64(0)                          // accumulated weight for this entry
+		// scale up power to avoid floating-point calculations
+		leftPower := getPowerScalingFactor().Mul(priceInfo.Power)
+		// accumulated weight for this entry
+		totalWeight := sdkmath.NewInt(0)
 
 		// distribute the entry's power across remaning sections, starting from the current `sectionIndex`
 		for ; sectionIndex < len(sections); sectionIndex++ {
 			// calculate the power limit for the current section
-			sectionLimit := totalPower * sections[sectionIndex]
+			sectionLimit := totalPower.Mul(sections[sectionIndex])
 
 			// determine how much power to take from this section, based on available capacity
-			takePower := uint64(0)
-			if currentPower+leftPower <= sectionLimit {
+			var takePower sdkmath.Int
+			if currentPower.Add(leftPower).LTE(sectionLimit) {
 				takePower = leftPower
 			} else {
-				takePower = sectionLimit - currentPower
+				takePower = sectionLimit.Sub(currentPower)
 			}
 
 			// accumulate the weighted power for this entry based on the section's multiplier
-			totalWeight += takePower * multipliers[sectionIndex]
+			totalWeight = totalWeight.Add(takePower.Mul(multipliers[sectionIndex]))
 
 			// update current power and remaining power for this entry
-			currentPower += takePower
-			leftPower -= takePower
+			currentPower = currentPower.Add(takePower)
+			leftPower = leftPower.Sub(takePower)
 
 			// if all power has been distributed for this entry, exit the loop
-			if leftPower == 0 {
+			if leftPower.IsZero() {
 				break
 			}
 		}
@@ -154,12 +178,12 @@ func MedianValidatorPriceInfos(validatorPriceInfos []ValidatorPriceInfo) (uint64
 
 // WeightedPrice represents a price with an associated weight.
 type WeightedPrice struct {
-	Weight uint64 // weight of the price
-	Price  uint64 // actual price value
+	Weight sdkmath.Int // weight of the price
+	Price  uint64      // actual price value
 }
 
 // NewWeightedPrice creates and returns a new WeightedPrice instance.
-func NewWeightedPrice(weight uint64, price uint64) WeightedPrice {
+func NewWeightedPrice(weight sdkmath.Int, price uint64) WeightedPrice {
 	return WeightedPrice{
 		Weight: weight,
 		Price:  price,
@@ -173,20 +197,20 @@ func MedianWeightedPrice(weightedPrices []WeightedPrice) (uint64, error) {
 		if cmpResult := cmp.Compare(a.Price, b.Price); cmpResult != 0 {
 			return cmpResult
 		}
-		return cmp.Compare(a.Weight, b.Weight)
+		return a.Weight.BigInt().Cmp(b.Weight.BigInt())
 	})
 
 	// calculate total weight
-	totalWeight := uint64(0)
+	totalWeight := sdkmath.NewInt(0)
 	for _, wp := range weightedPrices {
-		totalWeight += wp.Weight
+		totalWeight = totalWeight.Add(wp.Weight)
 	}
 
 	// find median by accumulating weights until reaching the midpoint
-	cumulativeWeight := uint64(0)
+	cumulativeWeight := sdkmath.NewInt(0)
 	for _, wp := range weightedPrices {
-		cumulativeWeight += wp.Weight
-		if cumulativeWeight*2 >= totalWeight {
+		cumulativeWeight = cumulativeWeight.Add(wp.Weight)
+		if cumulativeWeight.MulRaw(2).GTE(totalWeight) {
 			return wp.Price, nil
 		}
 	}

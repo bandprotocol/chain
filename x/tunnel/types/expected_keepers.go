@@ -6,6 +6,7 @@ import (
 	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
 	ibctransfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	ibcclienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -55,6 +56,11 @@ type ICS4Wrapper interface {
 	) (sequence uint64, err error)
 }
 
+// ChannelKeeper defines the expected IBC channel keeper
+type ChannelKeeper interface {
+	GetChannel(ctx sdk.Context, srcPort, srcChan string) (channel channeltypes.Channel, found bool)
+}
+
 type PortKeeper interface {
 	BindPort(ctx sdk.Context, portID string) *capabilitytypes.Capability
 }
@@ -79,10 +85,11 @@ type BandtssKeeper interface {
 	CreateTunnelSigningRequest(
 		ctx sdk.Context,
 		tunnelID uint64,
-		destinationContractAddr string,
 		destinationChainID string,
+		destinationContractAddr string,
 		content tsstypes.Content,
 		sender sdk.AccAddress,
 		feeLimit sdk.Coins,
 	) (bandtsstypes.SigningID, error)
+	GetSigningFee(ctx sdk.Context) (sdk.Coins, error)
 }

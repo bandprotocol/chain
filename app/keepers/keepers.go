@@ -53,8 +53,6 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	govv1beta1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1beta1"
-	"github.com/cosmos/cosmos-sdk/x/group"
-	groupkeeper "github.com/cosmos/cosmos-sdk/x/group/keeper"
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
@@ -68,6 +66,7 @@ import (
 
 	owasm "github.com/bandprotocol/go-owasm/api"
 
+	"github.com/bandprotocol/chain/v3/x/bandtss"
 	bandtsskeeper "github.com/bandprotocol/chain/v3/x/bandtss/keeper"
 	bandtsstypes "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	bandbankkeeper "github.com/bandprotocol/chain/v3/x/bank/keeper"
@@ -86,6 +85,7 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tss"
 	tsskeeper "github.com/bandprotocol/chain/v3/x/tss/keeper"
 	tsstypes "github.com/bandprotocol/chain/v3/x/tss/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel"
 	tunnelkeeper "github.com/bandprotocol/chain/v3/x/tunnel/keeper"
 	tunneltypes "github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
@@ -111,7 +111,6 @@ type AppKeepers struct {
 	FeeGrantKeeper        feegrantkeeper.Keeper
 	EvidenceKeeper        evidencekeeper.Keeper
 	AuthzKeeper           authzkeeper.Keeper
-	GroupKeeper           groupkeeper.Keeper
 	RollingseedKeeper     rollingseedkeeper.Keeper
 	OracleKeeper          oraclekeeper.Keeper
 	TSSKeeper             *tsskeeper.Keeper
@@ -334,15 +333,6 @@ func NewAppKeeper(
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
-	groupConfig := group.DefaultConfig()
-	appKeepers.GroupKeeper = groupkeeper.NewKeeper(
-		appKeepers.keys[group.StoreKey],
-		appCodec,
-		bApp.MsgServiceRouter(),
-		appKeepers.AccountKeeper,
-		groupConfig,
-	)
-
 	govConfig := govtypes.DefaultConfig()
 	// set the MaxMetadataLen for proposals to the same value as it was pre-sdk v0.47.x
 	govConfig.MaxMetadataLen = 10200
@@ -458,7 +448,6 @@ func NewAppKeeper(
 		appKeepers.AccountKeeper,
 		appKeepers.BankKeeper,
 		appKeepers.DistrKeeper,
-		appKeepers.StakingKeeper,
 		appKeepers.TSSKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 		authtypes.FeeCollectorName,
@@ -500,10 +489,11 @@ func NewAppKeeper(
 		appKeepers.BankKeeper,
 		appKeepers.FeedsKeeper,
 		appKeepers.BandtssKeeper,
-		appKeepers.TransferKeeper,
+		appKeepers.IBCKeeper.ChannelKeeper,
 		appKeepers.IBCFeeKeeper,
 		appKeepers.IBCKeeper.PortKeeper,
 		appKeepers.ScopedTunnelKeeper,
+		appKeepers.TransferKeeper,
 		authtypes.NewModuleAddress(govtypes.ModuleName).String(),
 	)
 
@@ -511,8 +501,9 @@ func NewAppKeeper(
 	tssContentRouter.
 		AddRoute(tsstypes.RouterKey, tss.NewSignatureOrderHandler(*appKeepers.TSSKeeper)).
 		AddRoute(oracletypes.RouterKey, oracle.NewSignatureOrderHandler(appKeepers.OracleKeeper)).
-		AddRoute(bandtsstypes.RouterKey, bandtsstypes.NewSignatureOrderHandler()).
-		AddRoute(feedstypes.RouterKey, feeds.NewSignatureOrderHandler(appKeepers.FeedsKeeper))
+		AddRoute(bandtsstypes.RouterKey, bandtss.NewSignatureOrderHandler()).
+		AddRoute(feedstypes.RouterKey, feeds.NewSignatureOrderHandler(appKeepers.FeedsKeeper)).
+		AddRoute(tunneltypes.RouterKey, tunnel.NewSignatureOrderHandler(appKeepers.TunnelKeeper))
 
 	tssCbRouter.
 		AddRoute(bandtsstypes.RouterKey, bandtsskeeper.NewTSSCallback(appKeepers.BandtssKeeper))
@@ -540,9 +531,13 @@ func NewAppKeeper(
 	// Create Oracle Stack
 	var oracleStack porttypes.IBCModule = oracle.NewIBCModule(appKeepers.OracleKeeper)
 
+	// Create Tunnel Stack
+	var tunnelStack porttypes.IBCModule = tunnel.NewIBCModule(appKeepers.TunnelKeeper)
+
 	ibcRouter := porttypes.NewRouter().AddRoute(icahosttypes.SubModuleName, icaHostStack).
 		AddRoute(ibctransfertypes.ModuleName, transferStack).
-		AddRoute(oracletypes.ModuleName, oracleStack)
+		AddRoute(oracletypes.ModuleName, oracleStack).
+		AddRoute(tunneltypes.ModuleName, tunnelStack)
 
 	appKeepers.IBCKeeper.SetRouter(ibcRouter)
 
@@ -584,9 +579,9 @@ func initParamsKeeper(
 		WithKeyTable(govv1.ParamKeyTable()) //nolint: staticcheck // SA1019
 	paramsKeeper.Subspace(crisistypes.ModuleName).
 		WithKeyTable(crisistypes.ParamKeyTable()) //nolint: staticcheck // SA1019
-	paramsKeeper.Subspace(ibcexported.ModuleName)
-	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
-	paramsKeeper.Subspace(icahosttypes.SubModuleName)
+	paramsKeeper.Subspace(ibcexported.ModuleName).WithKeyTable(keyTable)
+	paramsKeeper.Subspace(ibctransfertypes.ModuleName).WithKeyTable(ibctransfertypes.ParamKeyTable())
+	paramsKeeper.Subspace(icahosttypes.SubModuleName).WithKeyTable(icahosttypes.ParamKeyTable())
 	paramsKeeper.Subspace(oracletypes.ModuleName)
 
 	return paramsKeeper

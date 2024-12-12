@@ -433,7 +433,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDEsReq() {
 			"failure with number of DE more than max",
 			func() {
 				var deList []types.DE
-				for i := 0; i < 101; i++ {
+				for i := 0; i < int(types.DefaultMaxDESize)+1; i++ {
 					deList = append(deList, types.DE{
 						PubD: []byte{uint8(i)},
 						PubE: []byte{uint8(i)},
@@ -446,7 +446,7 @@ func (s *KeeperTestSuite) TestFailedSubmitDEsReq() {
 				}
 			},
 			func() {},
-			types.ErrDEReachMaxLimit,
+			types.ErrDELimitExceeded,
 		},
 	}
 
@@ -478,6 +478,44 @@ func (s *KeeperTestSuite) TestSuccessSubmitDEsReq() {
 
 	deQueue := k.GetDEQueue(ctx, sdk.MustAccAddressFromBech32("band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun"))
 	s.Require().True(deQueue.Head < deQueue.Tail)
+}
+
+func (s *KeeperTestSuite) TestResetDEReq() {
+	ctx, msgSrvr, k := s.ctx, s.msgServer, s.keeper
+	des := []types.DE{
+		{
+			PubD: []byte("D1"),
+			PubE: []byte("E1"),
+		},
+		{
+			PubD: []byte("D2"),
+			PubE: []byte("E2"),
+		},
+	}
+
+	// Submit DEs for each member in the group
+	_, err := msgSrvr.SubmitDEs(ctx, &types.MsgSubmitDEs{
+		DEs:    des,
+		Sender: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+	})
+	s.Require().NoError(err)
+
+	// Reset DEs
+	_, err = msgSrvr.ResetDE(ctx, &types.MsgResetDE{
+		Sender: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+	})
+	s.Require().NoError(err)
+
+	// Check if DEs are reset
+	deQueue := k.GetDEQueue(ctx, sdk.MustAccAddressFromBech32("band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun"))
+	s.Require().Equal(types.DEQueue{Head: 0, Tail: 0}, deQueue)
+}
+
+func (s *KeeperTestSuite) TestResetDEReqFromEmptyList() {
+	_, err := s.msgServer.ResetDE(s.ctx, &types.MsgResetDE{
+		Sender: "band1p40yh3zkmhcv0ecqp3mcazy83sa57rgjp07dun",
+	})
+	s.Require().NoError(err)
 }
 
 func (s *KeeperTestSuite) TestFailedSubmitSignatureReq() {
@@ -561,10 +599,16 @@ func (s *KeeperTestSuite) TestSuccessSubmitSignatureReq() {
 			// Setup group to GROUP_STATUS_ACTIVE
 			s.SetupWithPreparedTestCase(i, types.GROUP_STATUS_ACTIVE)
 
+			originator := types.NewDirectOriginator(
+				"targetChain",
+				"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+				"test",
+			)
+
 			signingID, err := k.RequestSigning(
 				ctx,
 				tc.Group.ID,
-				types.DirectOriginator{},
+				&originator,
 				types.NewTextSignatureOrder([]byte("msg")),
 			)
 			s.Require().NoError(err)

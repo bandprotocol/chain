@@ -38,13 +38,13 @@ func TestEncodeRelay(t *testing.T) {
 			MintStoreMerkleHash: hexToBytes(
 				"7FD5F5C7C2920C187618542901CDC5717BE8204F24BE856E80902A1BB04737E4",
 			),
-			ParamsToRollingseedStoresMerkleHash: hexToBytes(
+			ParamsToRestakeStoresMerkleHash: hexToBytes(
 				"F981716562A49DE06E3DCAFBFB6388C294BAA4FA9D45777E25740A92F81CF65E",
 			),
-			SlashingToTssStoresMerkleHash: hexToBytes(
+			RollingseedToTransferStoresMerkleHash: hexToBytes(
 				"E8E27CBB44BB654F64EEEF4667868AD48667CEB28E3DB5C4DF7A4B4B87F0C04B",
 			),
-			UpgradeStoreMerkleHash: hexToBytes(
+			TssToUpgradeStoresMerkleHash: hexToBytes(
 				"FC96CFFD30E5B8979EA66F9D0DA1CBAB16F69669E8B2A1FB2E1BEB457C9726E8",
 			),
 			AuthToIcahostStoresMerkleHash: hexToBytes(

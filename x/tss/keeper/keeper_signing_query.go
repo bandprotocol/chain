@@ -100,7 +100,7 @@ func (k Keeper) getPendingSigningByFilterFunc(
 
 		for _, am := range signingAttempt.AssignedMembers {
 			if filterFunc(am) && !k.HasPartialSignature(ctx, signingID, attempt, am.MemberID) {
-				return append(signingIDs, signingID)
+				signingIDs = append(signingIDs, signingID)
 			}
 		}
 	}

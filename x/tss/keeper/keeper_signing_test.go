@@ -144,7 +144,7 @@ func (s *KeeperTestSuite) TestInitiateNewSigningRoundOverMaxAttempt() {
 	k.SetSigning(ctx, signing)
 
 	err = k.InitiateNewSigningRound(ctx, signingID)
-	s.Require().ErrorIs(err, types.ErrMaxSigningAttemptReached)
+	s.Require().ErrorIs(err, types.ErrMaxSigningAttemptExceeded)
 }
 
 func (s *KeeperTestSuite) TestRequestSigning() {
@@ -159,7 +159,14 @@ func (s *KeeperTestSuite) TestRequestSigning() {
 
 	// Create a new request for the request signature
 	content := types.NewTextSignatureOrder([]byte("example"))
-	signingID, err := k.RequestSigning(ctx, groupID, types.DirectOriginator{}, content)
+
+	originator := types.NewDirectOriginator(
+		"targetChain",
+		"band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs",
+		"test",
+	)
+
+	signingID, err := k.RequestSigning(ctx, groupID, &originator, content)
 	s.Require().NoError(err)
 
 	signing, err := k.GetSigning(ctx, signingID)
@@ -245,7 +252,6 @@ func (s *KeeperTestSuite) TestCreateSigningSuccess() {
 		CurrentAttempt:   0,
 		GroupID:          1,
 		GroupPubKey:      group.PubKey,
-		Originator:       []byte("originator"),
 		Message:          signingMsg,
 		CreatedHeight:    uint64(ctx.BlockHeight()),
 		CreatedTimestamp: ctx.BlockTime(),

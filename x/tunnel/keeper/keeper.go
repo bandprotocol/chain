@@ -3,9 +3,6 @@ package keeper
 import (
 	"fmt"
 
-	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
-	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
-
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
 
@@ -15,7 +12,6 @@ import (
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-// Keeper of the x/tunnel store
 type Keeper struct {
 	cdc      codec.BinaryCodec
 	storeKey storetypes.StoreKey
@@ -24,10 +20,11 @@ type Keeper struct {
 	bankKeeper     types.BankKeeper
 	feedsKeeper    types.FeedsKeeper
 	bandtssKeeper  types.BandtssKeeper
-	transferKeeper types.TransferKeeper
+	channelKeeper  types.ChannelKeeper
 	ics4Wrapper    types.ICS4Wrapper
 	portKeeper     types.PortKeeper
 	scopedKeeper   types.ScopedKeeper
+	transferKeeper types.TransferKeeper
 
 	authority string
 }
@@ -40,10 +37,11 @@ func NewKeeper(
 	bankKeeper types.BankKeeper,
 	feedsKeeper types.FeedsKeeper,
 	bandtssKeeper types.BandtssKeeper,
-	transferKeeper types.TransferKeeper,
+	channelKeeper types.ChannelKeeper,
 	ics4Wrapper types.ICS4Wrapper,
 	portKeeper types.PortKeeper,
 	scopedKeeper types.ScopedKeeper,
+	transferKeeper types.TransferKeeper,
 	authority string,
 ) Keeper {
 	// ensure tunnel module account is set
@@ -53,7 +51,7 @@ func NewKeeper(
 
 	// ensure that authority is a valid AccAddress
 	if _, err := sdk.AccAddressFromBech32(authority); err != nil {
-		panic(fmt.Errorf("invalid bandtss authority address: %w", err))
+		panic(fmt.Errorf("invalid authority address: %w", err))
 	}
 
 	return Keeper{
@@ -63,48 +61,18 @@ func NewKeeper(
 		bankKeeper:     bankKeeper,
 		feedsKeeper:    feedsKeeper,
 		bandtssKeeper:  bandtssKeeper,
-		transferKeeper: transferKeeper,
+		channelKeeper:  channelKeeper,
 		ics4Wrapper:    ics4Wrapper,
 		portKeeper:     portKeeper,
 		scopedKeeper:   scopedKeeper,
+		transferKeeper: transferKeeper,
 		authority:      authority,
 	}
 }
 
-// HasCapability checks if the IBC app module owns the port capability for the desired port
-func (k Keeper) HasCapability(ctx sdk.Context, portID string) bool {
-	_, ok := k.scopedKeeper.GetCapability(ctx, host.PortPath(portID))
-	return ok
-}
-
-// BindPort defines a wrapper function for the tunnel Keeper's function in
-// order to expose it to module's InitGenesis function
-func (k Keeper) BindPort(ctx sdk.Context, portID string) error {
-	cap := k.portKeeper.BindPort(ctx, portID)
-	return k.ClaimCapability(ctx, cap, host.PortPath(portID))
-}
-
-// GetPort returns the portID for the tunnel module. Used in ExportGenesis
-func (k Keeper) GetPort(ctx sdk.Context) string {
-	store := ctx.KVStore(k.storeKey)
-	return string(store.Get(types.PortKey))
-}
-
-// SetPort sets the portID for the tunnel module. Used in InitGenesis
-func (k Keeper) SetPort(ctx sdk.Context, portID string) {
-	store := ctx.KVStore(k.storeKey)
-	store.Set(types.PortKey, []byte(portID))
-}
-
-// AuthenticateCapability wraps the scopedKeeper's AuthenticateCapability function
-func (k Keeper) AuthenticateCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) bool {
-	return k.scopedKeeper.AuthenticateCapability(ctx, cap, name)
-}
-
-// ClaimCapability allows the tunnel module that can claim a capability that IBC module
-// passes to it
-func (k Keeper) ClaimCapability(ctx sdk.Context, cap *capabilitytypes.Capability, name string) error {
-	return k.scopedKeeper.ClaimCapability(ctx, cap, name)
+// GetAuthority returns the x/tunnel module's authority.
+func (k Keeper) GetAuthority() string {
+	return k.authority
 }
 
 // GetTunnelAccount returns the tunnel ModuleAccount

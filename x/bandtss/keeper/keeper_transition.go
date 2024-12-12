@@ -109,9 +109,12 @@ func (k Keeper) ExecuteGroupTransition(ctx sdk.Context, transition types.GroupTr
 // ValidateTransitionExecTime validate the transition execution time if it is
 // after the block time but not over the max duration.
 func (k Keeper) ValidateTransitionExecTime(ctx sdk.Context, execTime time.Time) error {
-	maxDuration := k.GetParams(ctx).MaxTransitionDuration
-	if execTime.Before(ctx.BlockTime()) || execTime.After(ctx.BlockTime().Add(maxDuration)) {
-		return types.ErrInvalidExecTime
+	params := k.GetParams(ctx)
+	minExecTime := ctx.BlockTime().Add(params.MinTransitionDuration)
+	maxExecTime := ctx.BlockTime().Add(params.MaxTransitionDuration)
+
+	if execTime.Before(minExecTime) || execTime.After(maxExecTime) {
+		return types.ErrInvalidExecTime.Wrapf("exec time should be between %s and %s", minExecTime, maxExecTime)
 	}
 
 	return nil
@@ -159,13 +162,11 @@ func (k Keeper) CreateTransitionSigning(
 	currentGroupID := k.GetCurrentGroup(ctx).GroupID
 
 	moduleAcc := k.GetBandtssAccount(ctx)
-	originator := tsstypes.DirectOriginator{
-		Requester: moduleAcc.GetAddress().String(),
-	}
+	originator := tsstypes.NewDirectOriginator(ctx.ChainID(), moduleAcc.GetAddress().String(), "")
 
 	content := types.NewGroupTransitionSignatureOrder(groupPubKey, transitionTime)
 
-	signingID, err := k.tssKeeper.RequestSigning(ctx, currentGroupID, originator, content)
+	signingID, err := k.tssKeeper.RequestSigning(ctx, currentGroupID, &originator, content)
 	if err != nil {
 		return 0, err
 	}

@@ -7,8 +7,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
 var _ types.UnpackInterfacesMessage = Tunnel{}
@@ -18,7 +17,6 @@ func NewTunnel(
 	id uint64,
 	sequence uint64,
 	route RouteI,
-	encoder feedstypes.Encoder,
 	feePayer string,
 	signalDeviations []SignalDeviation,
 	interval uint64,
@@ -40,7 +38,6 @@ func NewTunnel(
 		ID:               id,
 		Sequence:         sequence,
 		Route:            any,
-		Encoder:          encoder,
 		FeePayer:         feePayer,
 		SignalDeviations: signalDeviations,
 		Interval:         interval,
@@ -63,6 +60,7 @@ func (t *Tunnel) SetRoute(route RouteI) error {
 	if !ok {
 		return fmt.Errorf("can't proto marshal %T", msg)
 	}
+
 	any, err := types.NewAnyWithValue(msg)
 	if err != nil {
 		return err
@@ -70,6 +68,20 @@ func (t *Tunnel) SetRoute(route RouteI) error {
 	t.Route = any
 
 	return nil
+}
+
+// GetRouteValue returns the route value of the tunnel.
+func (t Tunnel) GetRouteValue() (RouteI, error) {
+	r, ok := t.Route.GetCachedValue().(RouteI)
+	if !ok {
+		return nil, sdkerrors.ErrInvalidType.Wrapf(
+			"expected %T, got %T",
+			(RouteI)(nil),
+			t.Route.GetCachedValue(),
+		)
+	}
+
+	return r, nil
 }
 
 // GetSignalDeviationMap returns the signal deviation map of the tunnel.
@@ -90,16 +102,15 @@ func (t Tunnel) GetSignalIDs() []string {
 	return signalIDs
 }
 
-// NewIBCRoute creates a new IBCRoute instance.
-func NewIBCRoute(channelID string) *IBCRoute {
-	return &IBCRoute{
-		ChannelID: channelID,
+// ValidateInterval validates the interval of the tunnel.
+func ValidateInterval(interval, maxInterval, minInterval uint64) error {
+	if interval < minInterval || interval > maxInterval {
+		return ErrIntervalOutOfRange.Wrapf(
+			"max %d, min %d, got %d",
+			maxInterval,
+			minInterval,
+			interval,
+		)
 	}
-}
-
-// NewIBCPacketContent creates a new IBCPacketContent instance.
-func NewIBCPacketContent(channelID string) *IBCPacketContent {
-	return &IBCPacketContent{
-		ChannelID: channelID,
-	}
+	return nil
 }

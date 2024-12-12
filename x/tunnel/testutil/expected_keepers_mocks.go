@@ -20,6 +20,7 @@ import (
 	types3 "github.com/cosmos/ibc-go/modules/capability/types"
 	types4 "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	types5 "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	types6 "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -243,6 +244,44 @@ func (mr *MockICS4WrapperMockRecorder) SendPacket(ctx, chanCap, sourcePort, sour
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendPacket", reflect.TypeOf((*MockICS4Wrapper)(nil).SendPacket), ctx, chanCap, sourcePort, sourceChannel, timeoutHeight, timeoutTimestamp, data)
 }
 
+// MockChannelKeeper is a mock of ChannelKeeper interface.
+type MockChannelKeeper struct {
+	ctrl     *gomock.Controller
+	recorder *MockChannelKeeperMockRecorder
+}
+
+// MockChannelKeeperMockRecorder is the mock recorder for MockChannelKeeper.
+type MockChannelKeeperMockRecorder struct {
+	mock *MockChannelKeeper
+}
+
+// NewMockChannelKeeper creates a new mock instance.
+func NewMockChannelKeeper(ctrl *gomock.Controller) *MockChannelKeeper {
+	mock := &MockChannelKeeper{ctrl: ctrl}
+	mock.recorder = &MockChannelKeeperMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockChannelKeeper) EXPECT() *MockChannelKeeperMockRecorder {
+	return m.recorder
+}
+
+// GetChannel mocks base method.
+func (m *MockChannelKeeper) GetChannel(ctx types2.Context, srcPort, srcChan string) (types6.Channel, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetChannel", ctx, srcPort, srcChan)
+	ret0, _ := ret[0].(types6.Channel)
+	ret1, _ := ret[1].(bool)
+	return ret0, ret1
+}
+
+// GetChannel indicates an expected call of GetChannel.
+func (mr *MockChannelKeeperMockRecorder) GetChannel(ctx, srcPort, srcChan any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetChannel", reflect.TypeOf((*MockChannelKeeper)(nil).GetChannel), ctx, srcPort, srcChan)
+}
+
 // MockPortKeeper is a mock of PortKeeper interface.
 type MockPortKeeper struct {
 	ctrl     *gomock.Controller
@@ -459,16 +498,31 @@ func (m *MockBandtssKeeper) EXPECT() *MockBandtssKeeperMockRecorder {
 }
 
 // CreateTunnelSigningRequest mocks base method.
-func (m *MockBandtssKeeper) CreateTunnelSigningRequest(ctx types2.Context, tunnelID uint64, destinationContractAddr, destinationChainID string, content types1.Content, sender types2.AccAddress, feeLimit types2.Coins) (types.SigningID, error) {
+func (m *MockBandtssKeeper) CreateTunnelSigningRequest(ctx types2.Context, tunnelID uint64, destinationChainID, destinationContractAddr string, content types1.Content, sender types2.AccAddress, feeLimit types2.Coins) (types.SigningID, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateTunnelSigningRequest", ctx, tunnelID, destinationContractAddr, destinationChainID, content, sender, feeLimit)
+	ret := m.ctrl.Call(m, "CreateTunnelSigningRequest", ctx, tunnelID, destinationChainID, destinationContractAddr, content, sender, feeLimit)
 	ret0, _ := ret[0].(types.SigningID)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateTunnelSigningRequest indicates an expected call of CreateTunnelSigningRequest.
-func (mr *MockBandtssKeeperMockRecorder) CreateTunnelSigningRequest(ctx, tunnelID, destinationContractAddr, destinationChainID, content, sender, feeLimit any) *gomock.Call {
+func (mr *MockBandtssKeeperMockRecorder) CreateTunnelSigningRequest(ctx, tunnelID, destinationChainID, destinationContractAddr, content, sender, feeLimit any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTunnelSigningRequest", reflect.TypeOf((*MockBandtssKeeper)(nil).CreateTunnelSigningRequest), ctx, tunnelID, destinationContractAddr, destinationChainID, content, sender, feeLimit)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTunnelSigningRequest", reflect.TypeOf((*MockBandtssKeeper)(nil).CreateTunnelSigningRequest), ctx, tunnelID, destinationChainID, destinationContractAddr, content, sender, feeLimit)
+}
+
+// GetSigningFee mocks base method.
+func (m *MockBandtssKeeper) GetSigningFee(ctx types2.Context) (types2.Coins, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSigningFee", ctx)
+	ret0, _ := ret[0].(types2.Coins)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSigningFee indicates an expected call of GetSigningFee.
+func (mr *MockBandtssKeeperMockRecorder) GetSigningFee(ctx any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSigningFee", reflect.TypeOf((*MockBandtssKeeper)(nil).GetSigningFee), ctx)
 }

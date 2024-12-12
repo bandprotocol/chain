@@ -27,8 +27,8 @@ func (k msgServer) TransitionGroup(
 	goCtx context.Context,
 	req *types.MsgTransitionGroup,
 ) (*types.MsgTransitionGroupResponse, error) {
-	if k.authority != req.Authority {
-		return nil, govtypes.ErrInvalidSigner.Wrapf("expected %s got %s", k.authority, req.Authority)
+	if k.Keeper.GetAuthority() != req.Authority {
+		return nil, govtypes.ErrInvalidSigner.Wrapf("expected %s got %s", k.Keeper.GetAuthority(), req.Authority)
 	}
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
@@ -43,12 +43,12 @@ func (k msgServer) TransitionGroup(
 	}
 
 	// validate transition duration
-	if err := k.ValidateTransitionExecTime(ctx, req.ExecTime); err != nil {
+	if err := k.Keeper.ValidateTransitionExecTime(ctx, req.ExecTime); err != nil {
 		return nil, err
 	}
 
 	// validate if transition is in progress
-	if err := k.ValidateTransitionInProgress(ctx); err != nil {
+	if err := k.Keeper.ValidateTransitionInProgress(ctx); err != nil {
 		return nil, err
 	}
 
@@ -63,13 +63,13 @@ func (k msgServer) TransitionGroup(
 	}
 
 	// set new group transition
-	transition, err := k.SetNewGroupTransition(ctx, groupID, req.ExecTime, false)
+	transition, err := k.Keeper.SetNewGroupTransition(ctx, groupID, req.ExecTime, false)
 	if err != nil {
 		return nil, err
 	}
 
 	// emit an event for the group transition.
-	attrs := k.ExtractEventAttributesFromTransition(transition)
+	attrs := k.Keeper.ExtractEventAttributesFromTransition(transition)
 	ctx.EventManager().EmitEvent(sdk.NewEvent(types.EventTypeGroupTransition, attrs...))
 
 	return &types.MsgTransitionGroupResponse{}, nil
@@ -81,25 +81,25 @@ func (k msgServer) ForceTransitionGroup(
 	goCtx context.Context,
 	req *types.MsgForceTransitionGroup,
 ) (*types.MsgForceTransitionGroupResponse, error) {
-	if k.authority != req.Authority {
-		return nil, govtypes.ErrInvalidSigner.Wrapf("expected %s got %s", k.authority, req.Authority)
+	if k.Keeper.GetAuthority() != req.Authority {
+		return nil, govtypes.ErrInvalidSigner.Wrapf("expected %s got %s", k.Keeper.GetAuthority(), req.Authority)
 	}
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// validate transition duration
-	if err := k.ValidateTransitionExecTime(ctx, req.ExecTime); err != nil {
+	if err := k.Keeper.ValidateTransitionExecTime(ctx, req.ExecTime); err != nil {
 		return nil, err
 	}
 
 	// validate if transition is in progress
-	if err := k.ValidateTransitionInProgress(ctx); err != nil {
+	if err := k.Keeper.ValidateTransitionInProgress(ctx); err != nil {
 		return nil, err
 	}
 
 	// validate incoming group
-	currentGroupID := k.GetCurrentGroup(ctx).GroupID
+	currentGroupID := k.Keeper.GetCurrentGroup(ctx).GroupID
 	if currentGroupID == req.IncomingGroupID {
-		return nil, types.ErrInvalidIncomingGroup.Wrap("incoming group is the same as the current group")
+		return nil, types.ErrInvalidGroupID.Wrap("incoming group is the same as the current group")
 	}
 
 	incomingGroup, err := k.tssKeeper.GetGroup(ctx, req.IncomingGroupID)
@@ -111,18 +111,18 @@ func (k msgServer) ForceTransitionGroup(
 	}
 
 	// add members from new group.
-	if err := k.AddMembers(ctx, req.IncomingGroupID); err != nil {
+	if err := k.Keeper.AddMembers(ctx, req.IncomingGroupID); err != nil {
 		return nil, err
 	}
 
 	// set new group transition
-	transition, err := k.SetNewGroupTransition(ctx, req.IncomingGroupID, req.ExecTime, true)
+	transition, err := k.Keeper.SetNewGroupTransition(ctx, req.IncomingGroupID, req.ExecTime, true)
 	if err != nil {
 		return nil, err
 	}
 
 	// emit an event for the group transition.
-	attrs := k.ExtractEventAttributesFromTransition(transition)
+	attrs := k.Keeper.ExtractEventAttributesFromTransition(transition)
 	ctx.EventManager().EmitEvent(sdk.NewEvent(types.EventTypeGroupTransition, attrs...))
 
 	return &types.MsgForceTransitionGroupResponse{}, nil
@@ -149,7 +149,7 @@ func (k msgServer) RequestSignature(
 	}
 
 	// Execute the handler to process the request.
-	_, err = k.CreateDirectSigningRequest(ctx, content, req.Memo, feePayer, req.FeeLimit)
+	_, err = k.Keeper.CreateDirectSigningRequest(ctx, content, req.Memo, feePayer, req.FeeLimit)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +166,7 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 		return nil, sdkerrors.ErrInvalidAddress.Wrapf("invalid sender address: %s", err)
 	}
 
-	if err = k.ActivateMember(ctx, sender, msg.GroupID); err != nil {
+	if err = k.Keeper.ActivateMember(ctx, sender, msg.GroupID); err != nil {
 		return nil, err
 	}
 
@@ -174,11 +174,11 @@ func (k msgServer) Activate(goCtx context.Context, msg *types.MsgActivate) (*typ
 }
 
 // UpdateParams update the parameter of the module.
-func (k Keeper) UpdateParams(
+func (k msgServer) UpdateParams(
 	goCtx context.Context,
 	req *types.MsgUpdateParams,
 ) (*types.MsgUpdateParamsResponse, error) {
-	if k.authority != req.Authority {
+	if k.Keeper.GetAuthority() != req.Authority {
 		return nil, govtypes.ErrInvalidSigner.Wrapf(
 			"invalid authority; expected %s, got %s",
 			k.authority,
@@ -187,7 +187,7 @@ func (k Keeper) UpdateParams(
 	}
 
 	ctx := sdk.UnwrapSDKContext(goCtx)
-	if err := k.SetParams(ctx, req.Params); err != nil {
+	if err := k.Keeper.SetParams(ctx, req.Params); err != nil {
 		return nil, err
 	}
 

@@ -2,30 +2,34 @@ syntax = "proto3";
 package band.tss.v1beta1;
 
 import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
 
 option go_package = "github.com/bandprotocol/chain/v3/x/tss/types";
 
 // DirectOriginator is a message originator defines an information of the requester
 // on direct TSS request.
 message DirectOriginator {
+  option (cosmos_proto.implements_interface) = "Originator";
+
   // source_chain_id is the source chain ID that the data is originated from.
   string source_chain_id = 1 [(gogoproto.customname) = "SourceChainID"];
   // requester is the address of the requester, it can be the user address or module address.
   string requester = 2;
   // memo is the note of the message.
   string memo = 3;
-
 }
 
 // TunnelOriginator is a message originator defines an information of the requester
 // on TSS request via tunnel module.
 message TunnelOriginator {
+  option (cosmos_proto.implements_interface) = "Originator";
+
   // source_chain_id is the source chain ID that the data is originated from.
   string source_chain_id = 1 [(gogoproto.customname) = "SourceChainID"];
   // tunnel_id is the tunnel ID that the request is originated from.
   uint64 tunnel_id = 2 [(gogoproto.customname) = "TunnelID"];
-  // contract_address is the target address that the data should be relayed to.
-  string contract_address = 3;
-  // target_chain_id is the target chain ID that the data should be relayed to.
-  string target_chain_id = 4 [(gogoproto.customname) = "TargetChainID"];
+  // destination_chain_id is the destination chain ID that the data should be relayed to.
+  string destination_chain_id = 3 [(gogoproto.customname) = "DestinationChainID"];
+  // destination_contract_address is the destination address that the data should be relayed to.
+  string destination_contract_address = 4;
 }

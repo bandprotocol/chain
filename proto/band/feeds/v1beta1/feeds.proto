@@ -5,6 +5,7 @@ option go_package = "github.com/bandprotocol/chain/v3/x/feeds/types";
 
 import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
+import "band/feeds/v1beta1/encoder.proto";
 
 // Signal is the data structure that contains signal id and power of that signal.
 message Signal {
@@ -93,19 +94,19 @@ enum PriceStatus {
   option (gogoproto.goproto_enum_prefix) = false;
 
   // PRICE_STATUS_UNSPECIFIED is an unspecified price status.
-  PRICE_STATUS_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "PriceStatusUnspecified"];
+  PRICE_STATUS_UNSPECIFIED = 0;
 
   // PRICE_STATUS_UNKNOWN_SIGNAL_ID is an unknown signal id price status.
-  PRICE_STATUS_UNKNOWN_SIGNAL_ID = 1 [(gogoproto.enumvalue_customname) = "PriceStatusUnknownSignalID"];
+  PRICE_STATUS_UNKNOWN_SIGNAL_ID = 1;
 
   // PRICE_STATUS_NOT_READY is a not ready price status.
-  PRICE_STATUS_NOT_READY = 2 [(gogoproto.enumvalue_customname) = "PriceStatusNotReady"];
+  PRICE_STATUS_NOT_READY = 2;
 
   // PRICE_STATUS_AVAILABLE is an available price status.
-  PRICE_STATUS_AVAILABLE = 3 [(gogoproto.enumvalue_customname) = "PriceStatusAvailable"];
+  PRICE_STATUS_AVAILABLE = 3;
 
   // PRICE_STATUS_NOT_IN_CURRENT_FEEDS is a not in current feed price status.
-  PRICE_STATUS_NOT_IN_CURRENT_FEEDS = 4 [(gogoproto.enumvalue_customname) = "PriceStatusNotInCurrentFeeds"];
+  PRICE_STATUS_NOT_IN_CURRENT_FEEDS = 4;
 }
 
 // Price is a structure that defines the price of a signal id.
@@ -130,16 +131,16 @@ enum SignalPriceStatus {
   option (gogoproto.goproto_enum_prefix) = false;
 
   // SIGNAL_PRICE_STATUS_UNSPECIFIED is an unspecified signal price status.
-  SIGNAL_PRICE_STATUS_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "SignalPriceStatusUnspecified"];
+  SIGNAL_PRICE_STATUS_UNSPECIFIED = 0;
 
   // SIGNAL_PRICE_STATUS_UNSUPPORTED is an unsupported signal price status.
-  SIGNAL_PRICE_STATUS_UNSUPPORTED = 1 [(gogoproto.enumvalue_customname) = "SignalPriceStatusUnsupported"];
+  SIGNAL_PRICE_STATUS_UNSUPPORTED = 1;
 
   // SIGNAL_PRICE_STATUS_UNAVAILABLE is an unavailable signal price status.
-  SIGNAL_PRICE_STATUS_UNAVAILABLE = 2 [(gogoproto.enumvalue_customname) = "SignalPriceStatusUnavailable"];
+  SIGNAL_PRICE_STATUS_UNAVAILABLE = 2;
 
   // SIGNAL_PRICE_STATUS_AVAILABLE is an available signal price status.
-  SIGNAL_PRICE_STATUS_AVAILABLE = 3 [(gogoproto.enumvalue_customname) = "SignalPriceStatusAvailable"];
+  SIGNAL_PRICE_STATUS_AVAILABLE = 3;
 }
 
 // SignalPrice is a structure that defines the signaled price of a signal id.
@@ -197,31 +198,6 @@ message ReferenceSourceConfig {
 
   // registry_version is the version of the reference registry.
   string registry_version = 2;
-}
-
-// FeedsPriceData is a structure that defines the price data of the feeds for generating signature.
-message FeedsPriceData {
-  option (gogoproto.equal) = true;
-
-  // Prices is the list of prices of the feeds.
-  repeated Price prices = 1 [(gogoproto.nullable) = false];
-
-  // Timestamp is the timestamp at which the price was submitted.
-  uint64 timestamp = 2;
-}
-
-// Encoder is an enumerator that defines the mode of encoding message in tss module.
-enum Encoder {
-  option (gogoproto.goproto_enum_prefix) = false;
-
-  // ENCODER_UNSPECIFIED is an unspecified encoder mode.
-  ENCODER_UNSPECIFIED = 0 [(gogoproto.enumvalue_customname) = "ENCODER_UNSPECIFIED"];
-
-  // ENCODER_FIXED_POINT_ABI is a fixed-point price abi encoder (price * 10^9).
-  ENCODER_FIXED_POINT_ABI = 1 [(gogoproto.enumvalue_customname) = "ENCODER_FIXED_POINT_ABI"];
-
-  // ENCODER_TICK_ABI is a tick abi encoder.
-  ENCODER_TICK_ABI = 2 [(gogoproto.enumvalue_customname) = "ENCODER_TICK_ABI"];
 }
 
 // FeedsSignatureOrder defines a general signature order for feed data.

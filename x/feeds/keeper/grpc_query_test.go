@@ -66,10 +66,10 @@ func (suite *KeeperTestSuite) TestQueryPrice() {
 	suite.Require().NoError(err)
 	suite.Require().Equal(&types.QueryPriceResponse{
 		Price: types.Price{
-			Status:    types.PriceStatusNotInCurrentFeeds,
+			Status:    types.PRICE_STATUS_NOT_IN_CURRENT_FEEDS,
 			SignalID:  "CS:ATOM-USD",
 			Price:     0,
-			Timestamp: 0,
+			Timestamp: suite.ctx.BlockTime().Unix(),
 		},
 	}, res)
 }
@@ -80,16 +80,19 @@ func (suite *KeeperTestSuite) TestQueryPrices() {
 	// Setup multiple prices
 	prices := []types.Price{
 		{
+			Status:    types.PRICE_STATUS_AVAILABLE,
 			SignalID:  "CS:BAND-USD",
 			Price:     100000000,
 			Timestamp: 1234567890,
 		},
 		{
+			Status:    types.PRICE_STATUS_AVAILABLE,
 			SignalID:  "CS:ATOM-USD",
 			Price:     200000000,
 			Timestamp: 1234567890,
 		},
 		{
+			Status:    types.PRICE_STATUS_AVAILABLE,
 			SignalID:  "CS:BTC-USD",
 			Price:     300000000,
 			Timestamp: 1234567890,
@@ -118,9 +121,9 @@ func (suite *KeeperTestSuite) TestQueryPrices() {
 			expectedPrices: []types.Price{
 				{
 					SignalID:  "CS:NON-EXISTENT",
-					Status:    types.PriceStatusNotInCurrentFeeds,
+					Status:    types.PRICE_STATUS_NOT_IN_CURRENT_FEEDS,
 					Price:     0,
-					Timestamp: 0,
+					Timestamp: suite.ctx.BlockTime().Unix(),
 				},
 			},
 		},
@@ -138,7 +141,12 @@ func (suite *KeeperTestSuite) TestQueryPrices() {
 			signalIDs: []string{"CS:BAND-USD", "CS:NON-EXISTENT"},
 			expectedPrices: []types.Price{
 				prices[0],
-				{SignalID: "CS:NON-EXISTENT", Status: types.PriceStatusNotInCurrentFeeds, Price: 0, Timestamp: 0},
+				{
+					SignalID:  "CS:NON-EXISTENT",
+					Status:    types.PRICE_STATUS_NOT_IN_CURRENT_FEEDS,
+					Price:     0,
+					Timestamp: suite.ctx.BlockTime().Unix(),
+				},
 			},
 		},
 		{
@@ -168,16 +176,19 @@ func (suite *KeeperTestSuite) TestQueryAllPrices() {
 	// Setup multiple prices
 	prices := []types.Price{
 		{
+			Status:    types.PRICE_STATUS_AVAILABLE,
 			SignalID:  "CS:ATOM-USD",
 			Price:     200000000,
 			Timestamp: 1234567891,
 		},
 		{
+			Status:    types.PRICE_STATUS_AVAILABLE,
 			SignalID:  "CS:BAND-USD",
 			Price:     100000000,
 			Timestamp: 1234567890,
 		},
 		{
+			Status:    types.PRICE_STATUS_AVAILABLE,
 			SignalID:  "CS:BTC-USD",
 			Price:     300000000,
 			Timestamp: 1234567892,

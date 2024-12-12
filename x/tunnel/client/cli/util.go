@@ -13,14 +13,14 @@ type SignalDeviations struct {
 	SignalDeviations []SignalDeviation `json:"signal_deviations"`
 }
 
-// Note: SignalDeviation represents the signal information without soft deviation, which may be utilized in the future for deviation adjustments
+// SignalDeviation represents the signal information without soft deviation, which may be utilized in the future for deviation adjustments
 type SignalDeviation struct {
 	SignalID     string `json:"signal_id"`
 	DeviationBPS uint64 `json:"deviation_bps"`
 }
 
 // ToSignalDeviations converts signal information to types.SignalDeviation, excluding soft deviation.
-// Note: Soft deviation may be utilized in the future for deviation adjustments.
+// Note: Soft deviation may be utilized in the future when deviation adjustments are needed.
 func (ss SignalDeviations) ToSignalDeviations() []types.SignalDeviation {
 	var signalDeviations []types.SignalDeviation
 	for _, sd := range ss.SignalDeviations {

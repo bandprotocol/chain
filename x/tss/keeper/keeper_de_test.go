@@ -144,3 +144,37 @@ func (s *KeeperTestSuite) TestHandlePollDEForAssignedMembers() {
 		},
 	}, des)
 }
+
+func (s *KeeperTestSuite) TestResetDE() {
+	ctx, k := s.ctx, s.keeper
+
+	address := sdk.MustAccAddressFromBech32("band1m5lq9u533qaya4q3nfyl6ulzqkpkhge9q8tpzs")
+	des := []types.DE{
+		{
+			PubD: []byte("D1"),
+			PubE: []byte("E1"),
+		},
+		{
+			PubD: []byte("D2"),
+			PubE: []byte("E2"),
+		},
+	}
+
+	// Set DE
+	err := k.EnqueueDEs(ctx, address, des)
+	s.Require().NoError(err)
+	deQueue := k.GetDEQueue(ctx, address)
+	s.Require().Equal(types.DEQueue{Head: 0, Tail: 2}, deQueue)
+
+	// Reset DE
+	err = k.ResetDE(ctx, address)
+	s.Require().NoError(err)
+
+	// Ensure DEQueue is reset
+	deQueue = k.GetDEQueue(ctx, address)
+	s.Require().Equal(types.DEQueue{Head: 0, Tail: 0}, deQueue)
+
+	// Attempt to get deleted DE; should return error
+	_, err = k.DequeueDE(ctx, address)
+	s.Require().ErrorIs(types.ErrDENotFound, err)
+}

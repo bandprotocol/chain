@@ -16,10 +16,17 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgComplain{}, "tss/MsgComplaint")
 	legacy.RegisterAminoMsg(cdc, &MsgConfirm{}, "tss/MsgConfirm")
 	legacy.RegisterAminoMsg(cdc, &MsgSubmitDEs{}, "tss/MsgSubmitDEs")
+	legacy.RegisterAminoMsg(cdc, &MsgResetDE{}, "tss/MsgResetDE")
 	legacy.RegisterAminoMsg(cdc, &MsgSubmitSignature{}, "tss/MsgSubmitSignature")
 	legacy.RegisterAminoMsg(cdc, &MsgUpdateParams{}, "tss/MsgUpdateParams")
 
+	cdc.RegisterInterface((*Originator)(nil), nil)
+	cdc.RegisterInterface((*Content)(nil), nil)
+
 	cdc.RegisterConcrete(&TextSignatureOrder{}, "tss/TextSignatureOrder", nil)
+	cdc.RegisterConcrete(&DirectOriginator{}, "tss/DirectOriginator", nil)
+	cdc.RegisterConcrete(&TunnelOriginator{}, "tss/TunnelOriginator", nil)
+	cdc.RegisterConcrete(Params{}, "tss/Params", nil)
 }
 
 // RegisterInterfaces registers the x/tss interfaces types with the interface registry
@@ -31,6 +38,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgComplain{},
 		&MsgConfirm{},
 		&MsgSubmitDEs{},
+		&MsgResetDE{},
 		&MsgSubmitSignature{},
 		&MsgUpdateParams{},
 	)
@@ -39,6 +47,12 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		"tss.v1beta1.Content",
 		(*Content)(nil),
 		&TextSignatureOrder{},
+	)
+
+	registry.RegisterInterface(
+		"tss.v1beta1.Originator",
+		(*Originator)(nil),
+		&DirectOriginator{}, &TunnelOriginator{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

@@ -1,19 +1,31 @@
 package keeper
 
 import (
+	"math"
+
 	sdkmath "cosmossdk.io/math"
 
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
+// CreatePricesMap creates a map of prices with signal ID as the key
+func CreatePricesMap(prices []feedstypes.Price) map[string]feedstypes.Price {
+	pricesMap := make(map[string]feedstypes.Price, len(prices))
+	for _, p := range prices {
+		pricesMap[p.SignalID] = p
+	}
+	return pricesMap
+}
+
 // GenerateNewPrices generates new prices based on the current prices and signal deviations.
 func GenerateNewPrices(
 	signalDeviations []types.SignalDeviation,
 	latestPricesMap map[string]feedstypes.Price,
 	feedsPricesMap map[string]feedstypes.Price,
+	timestamp int64,
 	sendAll bool,
-) ([]feedstypes.Price, error) {
+) []feedstypes.Price {
 	shouldSend := false
 
 	newFeedPrices := make([]feedstypes.Price, 0)
@@ -25,7 +37,7 @@ func GenerateNewPrices(
 
 		feedPrice, ok := feedsPricesMap[sd.SignalID]
 		if !ok {
-			feedPrice = feedstypes.NewPrice(feedstypes.PriceStatusNotInCurrentFeeds, sd.SignalID, 0, 0)
+			feedPrice = feedstypes.NewPrice(feedstypes.PRICE_STATUS_NOT_IN_CURRENT_FEEDS, sd.SignalID, 0, timestamp)
 		}
 
 		// calculate deviation between old price and new price and compare with the threshold.
@@ -41,8 +53,22 @@ func GenerateNewPrices(
 	}
 
 	if shouldSend {
-		return newFeedPrices, nil
+		return newFeedPrices
 	} else {
-		return []feedstypes.Price{}, nil
+		return []feedstypes.Price{}
 	}
+}
+
+// calculateDeviationBPS calculates the deviation between the old price and
+// the new price in basis points, i.e., |(newPrice - oldPrice)| * 10000 / oldPrice
+func calculateDeviationBPS(oldPrice, newPrice sdkmath.Int) sdkmath.Int {
+	if newPrice.Equal(oldPrice) {
+		return sdkmath.ZeroInt()
+	}
+
+	if oldPrice.IsZero() {
+		return sdkmath.NewInt(math.MaxInt64)
+	}
+
+	return newPrice.Sub(oldPrice).Abs().MulRaw(10000).Quo(oldPrice)
 }

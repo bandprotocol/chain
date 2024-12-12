@@ -10,7 +10,6 @@ Key features of cylinder include:
 
 - Nonce Submission: Allows users to submit nonces that are used during the signing process, ensuring proper coordination for message signing.
 - Message Signing: Enables users to sign newly requested messages as part of the TSS protocol.
-- Heartbeat Functionality: Keeps users active in the system by sending periodic heartbeat message, ensuring their readiness for future signing tasks.
 
 This tool is essential for members who need to maintain constant engagement and coordination during TSS message signing operations.
 
@@ -109,39 +108,41 @@ Run the following command to set the configuration of the cylinder program and a
 cylinder config chain-id $CHAIN_ID --home $CYLINDER_HOME_PATH
 cylinder config node $RPC_URL --home $CYLINDER_HOME_PATH
 cylinder config granter $(bandd keys show $WALLET_NAME -a --keyring-backend test) --home $CYLINDER_HOME_PATH
-cylinder config gas-prices "0.0025uband" --home $CYLINDER_HOME_PATH
-cylinder config max-messages 10 --home $CYLINDER_HOME_PATH
+cylinder config gas-prices "0uband" --home $CYLINDER_HOME_PATH
+cylinder config max-messages 20 --home $CYLINDER_HOME_PATH
 cylinder config broadcast-timeout "5m" --home $CYLINDER_HOME_PATH
 cylinder config rpc-poll-interval "1s" --home $CYLINDER_HOME_PATH
 cylinder config max-try 5 --home $CYLINDER_HOME_PATH
-cylinder config min-de 20 --home $CYLINDER_HOME_PATH
+cylinder config min-de 100 --home $CYLINDER_HOME_PATH
 cylinder config gas-adjust-start 1.6 --home $CYLINDER_HOME_PATH
 cylinder config gas-adjust-step 0.2 --home $CYLINDER_HOME_PATH
 cylinder config random-secret "$(openssl rand -hex 32)" --home $CYLINDER_HOME_PATH
-cylinder config active-period "12h" --home $CYLINDER_HOME_PATH
+cylinder config checking-de-interval "1m" --home $CYLINDER_HOME_PATH
 
 cylinder keys add signer1 --home $CYLINDER_HOME_PATH
 cylinder keys add signer2 --home $CYLINDER_HOME_PATH
+cylinder keys add signer3 --home $CYLINDER_HOME_PATH
+cylinder keys add signer4 --home $CYLINDER_HOME_PATH
 ```
 
 below is the meaning of the configuration of the system
 
 ```go
 type Config struct {
-	ChainID          string        // ChainID of the target chain
-	NodeURI          string        // Remote RPC URI of BandChain node to connect to
-	Granter          string        // The granter address
-	GasPrices        string        // Gas prices of the transaction
-	LogLevel         string        // Log level of the logger
-	MaxMessages      uint64        // The maximum number of messages in a transaction
-	BroadcastTimeout time.Duration // The time that cylinder will wait for tx commit
-	RPCPollInterval  time.Duration // The duration of rpc poll interval
-	MaxTry           uint64        // The maximum number of tries to submit a report transaction
-	MinDE            uint64        // The minimum number of DE
-	GasAdjustStart   float64       // The start value of gas adjustment
-	GasAdjustStep    float64       // The increment step of gad adjustment
-	RandomSecret     tss.Scalar    // The secret value that is used for random D,E
-	ActivePeriod     time.Duration // The time period that cylinder will send active status to chain
+	ChainID          	string        		// ChainID of the target chain
+	NodeURI          	string        		// Remote RPC URI of BandChain node to connect to
+	Granter          	string        		// The granter address
+	GasPrices        	string        		// Gas prices of the transaction
+	LogLevel         	string        		// Log level of the logger
+	MaxMessages      	uint64        		// The maximum number of messages in a transaction
+	BroadcastTimeout 	time.Duration 		// The time that cylinder will wait for tx commit
+	RPCPollInterval  	time.Duration 		// The duration of rpc poll interval
+	MaxTry           	uint64        		// The maximum number of tries to submit a report transaction
+	MinDE            	uint64        		// The minimum number of DE
+	GasAdjustStart   	float64       		// The start value of gas adjustment
+	GasAdjustStep    	float64       		// The increment step of gad adjustment
+	RandomSecret     	tss.Scalar    		// The secret value that is used for random D,E
+	CheckingDEInterval 	time.Duration  		// The interval for updating DE
 }
 ```
 
@@ -156,8 +157,6 @@ Run the following commands to send 1 BAND to the predefined signer accounts and 
 bandd tx multi-send 1000000uband $(cylinder keys list -a --home $CYLINDER_HOME_PATH) --gas-prices 0.0025uband --keyring-backend test --chain-id $CHAIN_ID --from $WALLET_NAME -b sync -y --node $RPC_URL
 
 bandd tx tss add-grantees $(cylinder keys list -a --home $CYLINDER_HOME_PATH) --gas-prices 0.0025uband --keyring-backend test --chain-id $CHAIN_ID --gas 350000 --from $WALLET_NAME -b sync -y --node $RPC_URL
-
-bandd tx bandtss add-grantees $(cylinder keys list -a --home $CYLINDER_HOME_PATH) --gas-prices 0.0025uband --keyring-backend test --chain-id $CHAIN_ID --gas 350000 --from $WALLET_NAME -b sync -y --node $RPC_URL
 ```
 
 ## Run the cylinder program

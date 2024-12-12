@@ -19,7 +19,8 @@ var ModuleCdc = codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
 // on the provided LegacyAmino codec. These types are used for Amino JSON serialization.
 func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	legacy.RegisterAminoMsg(cdc, &MsgCreateTunnel{}, "tunnel/MsgCreateTunnel")
-	legacy.RegisterAminoMsg(cdc, &MsgUpdateAndResetTunnel{}, "tunnel/MsgUpdateAndResetTunnel")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateRoute{}, "tunnel/MsgUpdateRoute")
+	legacy.RegisterAminoMsg(cdc, &MsgUpdateSignalsAndInterval{}, "tunnel/MsgUpdateSignalsAndInterval")
 	legacy.RegisterAminoMsg(cdc, &MsgActivate{}, "tunnel/MsgActivate")
 	legacy.RegisterAminoMsg(cdc, &MsgDeactivate{}, "tunnel/MsgDeactivate")
 	legacy.RegisterAminoMsg(cdc, &MsgTriggerTunnel{}, "tunnel/MsgTriggerTunnel")
@@ -32,10 +33,11 @@ func RegisterLegacyAminoCodec(cdc *codec.LegacyAmino) {
 	cdc.RegisterConcrete(&IBCRoute{}, "tunnel/IBCRoute", nil)
 	cdc.RegisterConcrete(&RouterRoute{}, "tunnel/RouterRoute", nil)
 
-	cdc.RegisterInterface((*PacketContentI)(nil), nil)
-	cdc.RegisterConcrete(&TSSPacketContent{}, "tunnel/TSSPacketContent", nil)
-	cdc.RegisterConcrete(&IBCPacketContent{}, "tunnel/IBCPacketContent", nil)
-	cdc.RegisterConcrete(&RouterPacketContent{}, "tunnel/RouterPacketContent", nil)
+	cdc.RegisterInterface((*PacketReceiptI)(nil), nil)
+	cdc.RegisterConcrete(&TSSPacketReceipt{}, "tunnel/TSSPacketReceipt", nil)
+	cdc.RegisterConcrete(&IBCPacketReceipt{}, "tunnel/IBCPacketReceipt", nil)
+	cdc.RegisterConcrete(&RouterPacketReceipt{}, "tunnel/RouterPacketReceipt", nil)
+
 	cdc.RegisterConcrete(Params{}, "tunnel/Params", nil)
 }
 
@@ -44,7 +46,8 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
 		(*sdk.Msg)(nil),
 		&MsgCreateTunnel{},
-		&MsgUpdateAndResetTunnel{},
+		&MsgUpdateRoute{},
+		&MsgUpdateSignalsAndInterval{},
 		&MsgActivate{},
 		&MsgDeactivate{},
 		&MsgTriggerTunnel{},
@@ -62,11 +65,11 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	)
 
 	registry.RegisterInterface(
-		"tunnel.v1beta1.PacketContentI",
-		(*PacketContentI)(nil),
-		&TSSPacketContent{},
-		&IBCPacketContent{},
-		&RouterPacketContent{},
+		"tunnel.v1beta1.PacketReceiptI",
+		(*PacketReceiptI)(nil),
+		&TSSPacketReceipt{},
+		&IBCPacketReceipt{},
+		&RouterPacketReceipt{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

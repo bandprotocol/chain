@@ -20,7 +20,8 @@ func Encrypt(value Scalar, key Point, n16g INonce16Generator) (EncSecretShare, e
 	}
 
 	// Encrypt the value using HKDF-based encryption
-	encValue, err := EncryptHKDF(value.Bytes(), Hash(key), nonceBytes)
+	paddedValue := PaddingBytes(value.Bytes(), 32)
+	encValue, err := EncryptHKDF(paddedValue, Hash(key), nonceBytes)
 	if err != nil {
 		return EncSecretShare{}, err
 	}

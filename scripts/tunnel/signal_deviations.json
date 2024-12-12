@@ -2,11 +2,11 @@
     "signal_deviations": [
         {
             "signal_id": "CS:BTC-USD",
-            "deviation_bps": 2000
+            "deviation_bps": 200
         },
         {
             "signal_id": "CS:ETH-USD",
-            "deviation_bps": 4000
+            "deviation_bps": 400
         }
     ]
 }

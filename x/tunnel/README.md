@@ -15,31 +15,35 @@ The Tunnel module is designed to decentralize the creation of push-based price d
       - [IBC Route](#ibc-route)
       - [TSS Route](#tss-route)
     - [Packet](#packet)
-      - [Packet Generation](#packet-generation)
+      - [Packet Generation Workflow](#packet-generation-workflow)
   - [State](#state)
     - [TunnelCount](#tunnelcount)
     - [TotalFee](#totalfee)
     - [ActiveTunnelID](#activetunnelid)
     - [Tunnel](#tunnel-1)
     - [Packet](#packet-1)
-    - [LatestSignalPrices](#latestsignalprices)
+    - [LatestPrices](#latestprices)
     - [Deposit](#deposit)
     - [Params](#params)
   - [Msg](#msg)
     - [MsgCreateTunnel](#msgcreatetunnel)
-    - [MsgUpdateAndResetTunnel](#msgupdateandresettunnel)
+    - [MsgUpdateRoute](#msgupdateroute)
+    - [MsgUpdateSignalsAndInterval](#msgupdatesignalsandinterval)
     - [MsgActivate](#msgactivate)
     - [MsgDeactivate](#msgdeactivate)
     - [MsgTriggerTunnel](#msgtriggertunnel)
-    - [MsgDepositToTunnel](#MsgDepositToTunnel)
-    - [MsgWithdrawFromTunnel](#MsgWithdrawFromTunnel)
+    - [MsgDepositToTunnel](#msgdeposittotunnel)
+    - [MsgWithdrawFromTunnel](#msgwithdrawfromtunnel)
   - [Events](#events)
     - [Event: `create_tunnel`](#event-create_tunnel)
-    - [Event: `update_and_reset_tunnel`](#event-update_and_reset_tunnel)
-    - [Event: `activate`](#event-activate)
-    - [Event: `deactivate`](#event-deactivate)
+    - [Event: `update_signals_and_interval`](#event-update_signals_and_interval)
+    - [Event: `activate_tunnel`](#event-activate_tunnel)
+    - [Event: `deactivate_tunnel`](#event-deactivate_tunnel)
     - [Event: `trigger_tunnel`](#event-trigger_tunnel)
     - [Event: `produce_packet_fail`](#event-produce_packet_fail)
+    - [Event: `produce_packet_success`](#event-produce_packet_success)
+    - [Event: `deposit_to_tunnel`](#event-deposit_to_tunnel)
+    - [Event: `withdraw_from_tunnel`](#event-withdraw_from_tunnel)
   - [Clients](#clients)
     - [CLI Commands](#cli-commands)
       - [Query Commands](#query-commands)
@@ -49,14 +53,17 @@ The Tunnel module is designed to decentralize the creation of push-based price d
         - [Get Deposit by Depositor](#get-deposit-by-depositor)
         - [List All Packets for a Tunnel](#list-all-packets-for-a-tunnel)
         - [Get Packet by Sequence](#get-packet-by-sequence)
+        - [Get Total Fees](#get-total-fees)
 
 ## Concepts
 
 ### Tunnel
 
-The `x/tunnel` module defines a `Tunnel` type that specifies details such as the way to send the data to the destination ([Route](#route)), the type of price data to encode, the fee payer's address for packet fees, and the total deposit of the tunnel (which must meet a minimum requirement to activate). It also includes the interval and deviation settings for the price data used when producing packets at every end-block.
+The `x/tunnel` module defines a `Tunnel` type that specifies details such as the way to send the data to the destination ([Route](#route)), the type of price data to encode, the address of the fee payer responsible for covering packet fees, and the total deposit of the tunnel (which must meet a minimum requirement to activate) and the interval and deviation settings applied to price data during packet production at each end-block.
 
-Users can create a new tunnel by sending a `MsgCreateTunnel` message to BandChain, specifying the desired signals and deviations. The available routes for tunnels are provided in the [Route](#route) concepts.
+Users can create a new tunnel by submitting a `MsgCreateTunnel` message to BandChain, specifying the desired signals, deviations, interval, and the route to which the data should be sent. The available routes for tunnels are detailed in the [Route](#route) section.
+
+The Tunnel type represents a structure with the following fields:
 
 ```go
 type Tunnel struct {
@@ -66,8 +73,6 @@ type Tunnel struct {
     Sequence uint64
     // Route defines the path for delivering the signal prices.
     Route *types1.Any
-    // Encoder specifies the mode of encoding price signal data.
-    Encoder Encoder
     // FeePayer is the address responsible for paying the packet fees.
     FeePayer string
     // SignalDeviations is a list of signal deviations.
@@ -89,47 +94,76 @@ type Tunnel struct {
 
 A Route defines the secure method for transmitting price data to a destination chain using a tunnel. It specifies the pathway and protocols that ensure safe and reliable data delivery from BandChain to other EVM-compatible chains or Cosmos-based blockchains.
 
+The Route must be implemented using the RouteI interface to ensure compatibility and functionality
+
+```go
+type RouteI interface {
+  proto.Message
+
+  ValidateBasic() error
+}
+```
+
 #### IBC Route
 
 The IBC Route enables the transmission of data from BandChain to Cosmos-compatible chains via the Inter-Blockchain Communication (IBC) protocol. This route allows for secure and efficient cross-chain communication, leveraging the standardized IBC protocol to transmit packets of data between chains.
 
+We also provide a library, cw-band, that enables the use of the Tunnel via WASM contracts on the destination chain. You can find an example and further details here: [cw-band](https://github.com/bandprotocol/cw-band)
+
 To create an IBC tunnel, use the following CLI command:
+
+> **Note**: You must create a tunnel before establishing an IBC connection using the tunnel ID. For example, if you create a tunnel and receive tunnelID 1, then create a channel with the port: `tunnel.1`.
 
 > **Note**: An example of the signalInfos-json-file can be found at scripts/tunnel/signal_deviations.json.
 
 ```bash
-bandd tx tunnel create-tunnel ibc [channel-id] [encoder] [initial-deposit] [interval] [signalInfos-json-file]
+bandd tx tunnel create-tunnel ibc [initial-deposit] [interval] [signalInfos-json-file]
 ```
 
 #### TSS Route
 
+The TSS Route enables the tunnel to send data securely from BandChain to destination chain using a TSS (Threshold Signature Scheme) signature. This approach ensures secure data signing within a decentralized network.
+
+The tunnel requests the BandTSS module to sign the tunnel packet. Once the signing process is complete, a relayer captures the signed message and relays it to the destination chain. The destination chain can also verify that the data originates from BandChain without any modifications, ensuring data integrity.
+
+To create a TSS tunnel, use the following CLI command:
+
+```bash
+bandd tx tunnel create-tunnel tss [destination-chain-id] [destination-contract-address] [encoder] [initial-deposit] [interval] [signalDeviations-json-file]
+```
+
 ### Packet
 
-A Packet is the data unit produced and sent to the destination chain based on the specified route.
+A Packet represents the signal price data produced at the end of a block, based on the interval and deviation configured by the tunnel's creator. This data is then sent to the destination according to the specified route.
+
+The Packet type represents a structure with the following fields:
 
 ```go
 type Packet struct {
-    // tunnel_id is the tunnel ID
-    TunnelID uint64
-    // sequence is representing the sequence of the tunnel packet.
-    Sequence uint64
-    // signal_prices is the list of signal prices
-    SignalPrices []SignalPrice
-    // packet_content is the content of the packet that implements PacketContentI
-    PacketContent *types1.Any
-    // created_at is the timestamp when the packet is created
-    CreatedAt int64
+  // tunnel_id is the tunnel ID
+  TunnelID uint64
+  // sequence is representing the sequence of the tunnel packet.
+  Sequence uint64
+  // prices is the list of prices information from feeds module.
+  Prices []feedstypes.Price
+  // receipt represents the confirmation of the packet delivery to the destination via the specified route.
+  Receipt *codectypes.Any
+  // base_fee is the base fee of the packet
+  BaseFee sdk.Coins
+  // route_fee is the route fee of the packet
+  RouteFee sdk.Coins
+  // created_at is the timestamp when the packet is created
+  CreatedAt int64
 }
 ```
 
-#### Packet Generation
+#### Packet Generation Workflow
 
-At the end of every block, the tunnel generates packets by checking the deviations and intervals for each tunnel. We utilize both hard and soft deviations:
+At the end of each block, the tunnel generates packets by evaluating the deviations and intervals for all tunnels. The system uses two types of deviations: hard deviations and soft deviations, which are explained in detail below.
 
-- **Hard Deviation**: If any signal reaches this threshold, the system triggers a check on all soft deviations.
-- **Soft Deviation**: If any signal meets its soft deviation criteria during this check, the latest price is sent in the packet.
+If any signal exceeds the hard deviation threshold, it is appended to the list of signals to be sent. Additionally, if any signal meets its soft deviation criteria while another signal surpasses the hard deviation threshold, that signal is also added to the list.
 
-This mechanism helps reduce the number of transactions on the destination route during periods of market instability.
+This mechanism is designed to optimize transaction efficiency on the destination route, particularly during periods of market instability, by reducing the number of unnecessary transactions.
 
 ## State
 
@@ -137,7 +171,7 @@ This mechanism helps reduce the number of transactions on the destination route 
 
 Stores the number of tunnels existing on the chain.
 
-- **TunnelCount**: `0x00 | -> BigEndian(#tunnels)`
+- **TunnelCount**: `0x00 | -> BigEndian(count)`
 
 ### TotalFee
 
@@ -163,11 +197,11 @@ Stores information about packets sent via the routes declared in tunnels.
 
 - **Packet**: `0x12 | TunnelID | Sequence -> Packet`
 
-### LatestSignalPrices
+### LatestPrices
 
 Stores the latest prices that the tunnel has sent to the destination route. These are used to compare intervals and deviations at the end of each block.
 
-- **LatestSignalPrices**: `0x13 | TunnelID -> LatestSignalPrices`
+- **LatestPrices**: `0x13 | TunnelID -> LatestPrices`
 
 ### Deposit
 
@@ -185,15 +219,20 @@ The `x/tunnel` module contains the following parameters:
 
 ```go
 type Params struct {
-    // MinDeposit is the minimum deposit required to create a tunnel.
-    MinDeposit sdk.Coins
-    // MinInterval is the minimum interval in seconds.
-    MinInterval uint64
-    // MaxSignals defines the maximum number of signals allowed per tunnel.
-    MaxSignals uint64
-    // BasePacketFee is the base fee for each packet.
-    BasePacketFee sdk.Coins
-}
+  // min_deposit is the minimum deposit required to create a tunnel.
+  MinDeposit sdk.Coins
+  // min_interval is the minimum interval in seconds.
+  MinInterval uint64
+  // max_interval is the maximum interval in seconds.
+  MaxInterval uint64
+  // min_deviation_bps is the minimum deviation in basis points.
+  MinDeviationBPS uint64
+  // max_deviation_bps is the maximum deviation in basis points.
+  MaxDeviationBPS uint64
+  // max_signals defines the maximum number of signals allowed per tunnel.
+  MaxSignals uint64
+  // base_packet_fee is the base fee for each packet.
+  BasePacketFee sdk.Coins
 ```
 
 ## Msg
@@ -213,11 +252,9 @@ message MsgCreateTunnel {
   // interval is the interval for delivering the signal prices.
   uint64 interval = 2;
   // route is the route for delivering the signal prices
-  google.protobuf.Any route = 3 [(cosmos_proto.accepts_interface) = "Route"];
-  // encoder is the mode of encoding price signal data.
-  Encoder encoder = 4;
+  google.protobuf.Any route = 3 [(cosmos_proto.accepts_interface) = "RouteI"];
   // initial_deposit is the deposit value that must be paid at tunnel creation.
-  repeated cosmos.base.v1beta1.Coin initial_deposit = 5 [
+  repeated cosmos.base.v1beta1.Coin initial_deposit = 4 [
     (gogoproto.nullable)     = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
     (amino.dont_omitempty)   = true
@@ -229,21 +266,34 @@ message MsgCreateTunnel {
 
 - **Deviation and Interval Settings**: Each tunnel must specify the deviation per signal and the interval per tunnel.
 - **Route Selection**: Only one route can be chosen per tunnel.
-- **Encoder Types**: Specifies the type of price value to be sent to the destination route.
-  - Price
-  - Tick
-- **Initial Deposit**: The initial deposit can be set to zero. Other users can contribute to the tunnel's deposit until it reaches the required minimum deposit.
+- **Initial Deposit**: The initial deposit can be set to zero. Other users can contribute to the tunnel's deposit by send [MsgDepositToTunnel](#msgdeposittotunnel) message until it reaches the required minimum deposit.
 
-### MsgUpdateAndResetTunnel
+### MsgUpdateRoute
 
-**Editable Arguments**: The following parameters can be modified within the tunnel: `signal_deviations` and `Interval`
+To update the route details based on the route type, allowing certain arguments to be updated.
 
 ```protobuf
-// MsgUpdateAndResetTunnel is the transaction message to update a tunnel information
-// and reset the interval.
-message MsgUpdateAndResetTunnel {
+// MsgUpdateRoute is the transaction message to update a route tunnel
+message MsgUpdateRoute {
   option (cosmos.msg.v1.signer) = "creator";
-  option (amino.name)           = "tunnel/MsgUpdateAndResetTunnel";
+  option (amino.name)           = "tunnel/MsgUpdateRoute";
+
+  // tunnel_id is the ID of the tunnel to edit.
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
+  // route is the route for delivering the signal prices
+  google.protobuf.Any route = 2 [(cosmos_proto.accepts_interface) = "RouteI"];
+  // creator is the address of the creator.
+  string creator = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+```
+
+### MsgUpdateSignalsAndInterval
+
+```protobuf
+// MsgUpdateSignalsAndInterval is the transaction message to update signals and interval of the tunnel.
+message MsgUpdateSignalsAndInterval {
+  option (cosmos.msg.v1.signer) = "creator";
+  option (amino.name)           = "tunnel/MsgUpdateSignalsAndInterval";
 
   // tunnel_id is the ID of the tunnel to edit.
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
@@ -254,7 +304,6 @@ message MsgUpdateAndResetTunnel {
   // creator is the address of the creator.
   string creator = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
-
 ```
 
 ### MsgActivate
@@ -376,7 +425,6 @@ This event is emitted when a new tunnel is created.
 | tunnel_id            | `{ID}`                                |
 | interval             | `{Interval}`                          |
 | route                | `{Route.String()}`                    |
-| encoder              | `{Encoder.String()}`                  |
 | fee_payer            | `{FeePayer}`                          |
 | is_active            | `{IsActive}`                          |
 | created_at           | `{CreatedAt}`                         |
@@ -385,7 +433,7 @@ This event is emitted when a new tunnel is created.
 | soft_deviation_bps[] | `{SignalDeviation.SoftDeviationBPS}}` |
 | hard_deviation_bps[] | `{SignalDeviation.hardDeviationBPS}}` |
 
-### Event: `update_and_reset_tunnel`
+### Event: `update_signals_and_interval`
 
 This event is emitted when an existing tunnel is edited.
 
@@ -397,7 +445,7 @@ This event is emitted when an existing tunnel is edited.
 | soft_deviation_bps[] | `{SignalDeviation.SoftDeviationBPS}}` |
 | hard_deviation_bps[] | `{SignalDeviation.hardDeviationBPS}}` |
 
-### Event: `activate`
+### Event: `activate_tunnel`
 
 This event is emitted when a tunnel is activated.
 
@@ -406,7 +454,7 @@ This event is emitted when a tunnel is activated.
 | tunnel_id     | `{ID}`          |
 | is_active     | `true`          |
 
-### Event: `deactivate`
+### Event: `deactivate_tunnel`
 
 This event is emitted when a tunnel is deactivated.
 
@@ -432,6 +480,35 @@ This event is emitted when the tunnel fails to produce a packet.
 | ------------- | --------------- |
 | tunnel_id     | `{ID}`          |
 | reason        | `{err.Error()}` |
+
+### Event: `produce_packet_success`
+
+This event is emitted when the tunnel successes to produce a packet.
+
+| Attribute Key | Attribute Value     |
+| ------------- | ------------------- |
+| tunnel_id     | `{ID}`              |
+| sequence      | `{packet.Sequence}` |
+
+### Event: `deposit_to_tunnel`
+
+This event is emitted when a deposit is made to the tunnel.
+
+| Attribute Key | Attribute Value            |
+| ------------- | -------------------------- |
+| tunnel_id     | `{tunnelID}`               |
+| depositor     | `{depositor.String()}`     |
+| amount        | `{depositAmount.String()}` |
+
+### Event: `withdraw_from_tunnel`
+
+This event is emitted when a withdrawal deposit is made to the tunnel.
+
+| Attribute Key | Attribute Value            |
+| ------------- | -------------------------- |
+| tunnel_id     | `{tunnelID}`               |
+| depositor     | `{depositor.String()}`     |
+| amount        | `{depositAmount.String()}` |
 
 ## Clients
 
@@ -495,4 +572,12 @@ To query a specific packet produced by a tunnel using its sequence number:
 
 ```bash
 bandd query tunnel packet [tunnel-id] [sequence]
+```
+
+##### Get Total Fees
+
+To query the total fees collected by the tunnel module:
+
+```bash
+bandd query tunnel total-fees
 ```
