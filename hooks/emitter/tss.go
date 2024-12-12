@@ -2,6 +2,7 @@ package emitter
 
 import (
 	"encoding/hex"
+	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -208,6 +209,18 @@ func (h *Hook) handleTSSSetGroup(ctx sdk.Context, gid tss.GroupID) {
 	for _, m := range members {
 		h.emitSetTSSMember(m)
 	}
+}
+
+func (h *Hook) handleTSSSetMember(ctx sdk.Context, evMap common.EvMap) {
+	groupID := tss.GroupID(common.Atoui(evMap[types.EventTypeSetMemberIsActive+"."+types.AttributeKeyGroupID][0]))
+	memberID := tss.MemberID(common.Atoui(evMap[types.EventTypeSetMemberIsActive+"."+types.AttributeKeyMemberID][0]))
+
+	member, err := h.tssKeeper.GetMember(ctx, groupID, memberID)
+	if err != nil {
+		panic(fmt.Sprintf("invalid member; groupID: %d, memberID: %d", groupID, memberID))
+	}
+
+	h.emitSetTSSMember(member)
 }
 
 // handleTSSEventSubmitSignature implements emitter handler for SubmitSignature event.

@@ -178,6 +178,8 @@ func (h *Hook) handleMsgEvent(ctx sdk.Context, txHash []byte, event abci.Event) 
 		h.handleTunnelEventTypeActivateTunnel(ctx, evMap)
 	case tunneltypes.EventTypeDeactivateTunnel:
 		h.handleTunnelEventTypeDeactivateTunnel(ctx, evMap)
+	case tsstypes.EventTypeSetMemberIsActive:
+		h.handleTSSSetMember(ctx, evMap)
 	}
 }
 
@@ -237,6 +239,8 @@ func (h *Hook) handleBeginBlockEndBlockEvent(
 		for _, gid := range groupIDs {
 			h.handleTSSSetGroup(ctx, tss.GroupID(common.Atoi(gid)))
 		}
+	case tsstypes.EventTypeSetMemberIsActive:
+		h.handleTSSSetMember(ctx, evMap)
 	case tunneltypes.EventTypeProducePacketSuccess:
 		h.handleTunnelEventTypeProducePacketSuccess(ctx, evMap)
 	case tunneltypes.EventTypeActivateTunnel:
