@@ -26,6 +26,9 @@ service Msg {
   // UpdateSignalsAndInterval is a RPC method to update a signals and interval of the tunnel.
   rpc UpdateSignalsAndInterval(MsgUpdateSignalsAndInterval) returns (MsgUpdateSignalsAndIntervalResponse);
 
+  // WithdrawFeePayerFunds is a RPC method to withdraw fee payer funds to creator.
+  rpc WithdrawFeePayerFunds(MsgWithdrawFeePayerFunds) returns (MsgWithdrawFeePayerFundsResponse);
+
   // Activate is a RPC method to activate a tunnel.
   rpc Activate(MsgActivate) returns (MsgActivateResponse);
 
@@ -104,6 +107,26 @@ message MsgUpdateSignalsAndInterval {
 
 // MsgUpdateSignalsAndIntervalResponse is the response type for the Msg/UpdateSignalsAndInterval RPC method.
 message MsgUpdateSignalsAndIntervalResponse {}
+
+// MsgWithdrawFeePayerFunds is the transaction message to withdraw fee payer funds to creator.
+message MsgWithdrawFeePayerFunds {
+  option (cosmos.msg.v1.signer) = "fee_payer";
+  option (amino.name)           = "tunnel/MsgWithdrawFeePayerCoins";
+
+  // tunnel_id is the ID of the tunnel to withdraw fee payer coins.
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
+  // coins is the coins to withdraw.
+  repeated cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (amino.dont_omitempty)   = true
+  ];
+  // creator is the address of the creator.
+  string creator = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+
+// MsgWithdrawFeePayerFundsResponse is the response type for the Msg/WithdrawFeePayerFunds RPC method.
+message MsgWithdrawFeePayerFundsResponse {}
 
 // Activate is the transaction message to activate a tunnel.
 message MsgActivate {
