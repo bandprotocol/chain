@@ -8,6 +8,8 @@ import (
 	github_com_bandprotocol_chain_v3_x_bandtss_types "github.com/bandprotocol/chain/v3/x/bandtss/types"
 	types "github.com/bandprotocol/chain/v3/x/feeds/types"
 	_ "github.com/cosmos/cosmos-proto"
+	types1 "github.com/cosmos/cosmos-sdk/types"
+	_ "github.com/cosmos/cosmos-sdk/types/tx/amino"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
 	io "io"
@@ -228,6 +230,152 @@ func (m *IBCPacketReceipt) GetSequence() uint64 {
 	return 0
 }
 
+// RouterRoute is the type for a router route
+type RouterRoute struct {
+	// channel_id is the IBC channel ID
+	ChannelID string `protobuf:"bytes,1,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
+	// fund is the fund allocated for the Router fee.
+	Fund types1.Coin `protobuf:"bytes,2,opt,name=fund,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coin" json:"fund"`
+	// bridge_contract_address is the bridge contract address on router chain
+	BridgeContractAddress string `protobuf:"bytes,3,opt,name=bridge_contract_address,json=bridgeContractAddress,proto3" json:"bridge_contract_address,omitempty"`
+	// dest_chain_id is the destination chain ID
+	DestChainID string `protobuf:"bytes,4,opt,name=dest_chain_id,json=destChainId,proto3" json:"dest_chain_id,omitempty"`
+	// dest_contract_address is the destination contract address
+	DestContractAddress string `protobuf:"bytes,5,opt,name=dest_contract_address,json=destContractAddress,proto3" json:"dest_contract_address,omitempty"`
+	// dest_gas_limit is the destination gas limit
+	DestGasLimit uint64 `protobuf:"varint,6,opt,name=dest_gas_limit,json=destGasLimit,proto3" json:"dest_gas_limit,omitempty"`
+	// dest_gas_price is the destination gas price
+	DestGasPrice uint64 `protobuf:"varint,7,opt,name=dest_gas_price,json=destGasPrice,proto3" json:"dest_gas_price,omitempty"`
+}
+
+func (m *RouterRoute) Reset()         { *m = RouterRoute{} }
+func (m *RouterRoute) String() string { return proto.CompactTextString(m) }
+func (*RouterRoute) ProtoMessage()    {}
+func (*RouterRoute) Descriptor() ([]byte, []int) {
+	return fileDescriptor_543238289d94b7a6, []int{4}
+}
+func (m *RouterRoute) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *RouterRoute) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_RouterRoute.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *RouterRoute) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RouterRoute.Merge(m, src)
+}
+func (m *RouterRoute) XXX_Size() int {
+	return m.Size()
+}
+func (m *RouterRoute) XXX_DiscardUnknown() {
+	xxx_messageInfo_RouterRoute.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RouterRoute proto.InternalMessageInfo
+
+func (m *RouterRoute) GetChannelID() string {
+	if m != nil {
+		return m.ChannelID
+	}
+	return ""
+}
+
+func (m *RouterRoute) GetFund() types1.Coin {
+	if m != nil {
+		return m.Fund
+	}
+	return types1.Coin{}
+}
+
+func (m *RouterRoute) GetBridgeContractAddress() string {
+	if m != nil {
+		return m.BridgeContractAddress
+	}
+	return ""
+}
+
+func (m *RouterRoute) GetDestChainID() string {
+	if m != nil {
+		return m.DestChainID
+	}
+	return ""
+}
+
+func (m *RouterRoute) GetDestContractAddress() string {
+	if m != nil {
+		return m.DestContractAddress
+	}
+	return ""
+}
+
+func (m *RouterRoute) GetDestGasLimit() uint64 {
+	if m != nil {
+		return m.DestGasLimit
+	}
+	return 0
+}
+
+func (m *RouterRoute) GetDestGasPrice() uint64 {
+	if m != nil {
+		return m.DestGasPrice
+	}
+	return 0
+}
+
+// RouterPacketReceipt represents a receipt for a Router packet and implements the PacketReceiptI interface.
+type RouterPacketReceipt struct {
+	// sequence is representing the sequence of the IBC packet.
+	Sequence uint64 `protobuf:"varint,1,opt,name=sequence,proto3" json:"sequence,omitempty"`
+}
+
+func (m *RouterPacketReceipt) Reset()         { *m = RouterPacketReceipt{} }
+func (m *RouterPacketReceipt) String() string { return proto.CompactTextString(m) }
+func (*RouterPacketReceipt) ProtoMessage()    {}
+func (*RouterPacketReceipt) Descriptor() ([]byte, []int) {
+	return fileDescriptor_543238289d94b7a6, []int{5}
+}
+func (m *RouterPacketReceipt) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *RouterPacketReceipt) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_RouterPacketReceipt.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *RouterPacketReceipt) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RouterPacketReceipt.Merge(m, src)
+}
+func (m *RouterPacketReceipt) XXX_Size() int {
+	return m.Size()
+}
+func (m *RouterPacketReceipt) XXX_DiscardUnknown() {
+	xxx_messageInfo_RouterPacketReceipt.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RouterPacketReceipt proto.InternalMessageInfo
+
+func (m *RouterPacketReceipt) GetSequence() uint64 {
+	if m != nil {
+		return m.Sequence
+	}
+	return 0
+}
+
 // TunnelPricesPacketData represents the IBC packet payload for the tunnel packet.
 type TunnelPricesPacketData struct {
 	// tunnel_id is the tunnel ID
@@ -244,7 +392,7 @@ func (m *TunnelPricesPacketData) Reset()         { *m = TunnelPricesPacketData{}
 func (m *TunnelPricesPacketData) String() string { return proto.CompactTextString(m) }
 func (*TunnelPricesPacketData) ProtoMessage()    {}
 func (*TunnelPricesPacketData) Descriptor() ([]byte, []int) {
-	return fileDescriptor_543238289d94b7a6, []int{4}
+	return fileDescriptor_543238289d94b7a6, []int{6}
 }
 func (m *TunnelPricesPacketData) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -306,48 +454,62 @@ func init() {
 	proto.RegisterType((*TSSPacketReceipt)(nil), "band.tunnel.v1beta1.TSSPacketReceipt")
 	proto.RegisterType((*IBCRoute)(nil), "band.tunnel.v1beta1.IBCRoute")
 	proto.RegisterType((*IBCPacketReceipt)(nil), "band.tunnel.v1beta1.IBCPacketReceipt")
+	proto.RegisterType((*RouterRoute)(nil), "band.tunnel.v1beta1.RouterRoute")
+	proto.RegisterType((*RouterPacketReceipt)(nil), "band.tunnel.v1beta1.RouterPacketReceipt")
 	proto.RegisterType((*TunnelPricesPacketData)(nil), "band.tunnel.v1beta1.TunnelPricesPacketData")
 }
 
 func init() { proto.RegisterFile("band/tunnel/v1beta1/route.proto", fileDescriptor_543238289d94b7a6) }
 
 var fileDescriptor_543238289d94b7a6 = []byte{
-	// 553 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x93, 0xc1, 0x6e, 0xd3, 0x30,
-	0x18, 0xc7, 0xeb, 0x75, 0x8c, 0xc6, 0xc0, 0x34, 0x99, 0x69, 0xea, 0x0a, 0x24, 0x55, 0x4f, 0x45,
-	0x62, 0x89, 0xb6, 0x09, 0x21, 0xf5, 0xc4, 0xd2, 0x22, 0x61, 0x21, 0xa4, 0x29, 0xed, 0x89, 0x4b,
-	0xe5, 0xda, 0xa6, 0x0d, 0x6c, 0x76, 0x89, 0xdd, 0x09, 0xde, 0x02, 0xf1, 0x14, 0x3c, 0x40, 0x25,
-	0x5e, 0x61, 0xea, 0x69, 0x47, 0xb8, 0x54, 0x28, 0x7d, 0x0b, 0x4e, 0x28, 0xb6, 0xd7, 0xae, 0x68,
-	0x07, 0x6e, 0xf1, 0xff, 0xfb, 0xf9, 0xfb, 0xfb, 0xfb, 0xdb, 0x81, 0xc1, 0x80, 0x08, 0x16, 0xe9,
-	0x89, 0x10, 0xfc, 0x2c, 0xba, 0x38, 0x1c, 0x70, 0x4d, 0x0e, 0xa3, 0x4c, 0x4e, 0x34, 0x0f, 0xc7,
-	0x99, 0xd4, 0x12, 0x3d, 0x2c, 0x80, 0xd0, 0x02, 0xa1, 0x03, 0x6a, 0xfb, 0x54, 0xaa, 0x73, 0xa9,
-	0xfa, 0x06, 0x89, 0xec, 0xc2, 0xf2, 0xb5, 0xdd, 0xa1, 0x1c, 0x4a, 0xab, 0x17, 0x5f, 0x4e, 0xad,
-	0x1b, 0x9b, 0xf7, 0x9c, 0x33, 0xb5, 0x74, 0xe1, 0x82, 0x4a, 0xc6, 0x33, 0x47, 0xf8, 0xb7, 0x10,
-	0x66, 0x65, 0xeb, 0x8d, 0x5f, 0x00, 0x56, 0x7a, 0xdd, 0x6e, 0x52, 0x1c, 0x0d, 0xbd, 0x86, 0xbb,
-	0x8c, 0x2b, 0x9d, 0x0a, 0xa2, 0x53, 0x29, 0xfa, 0x74, 0x44, 0x52, 0xd1, 0x4f, 0x59, 0x15, 0xd4,
-	0x41, 0xd3, 0x8b, 0xf7, 0xf2, 0x79, 0x80, 0x3a, 0xab, 0x7a, 0xbb, 0x28, 0xe3, 0x4e, 0x82, 0xd8,
-	0xbf, 0x1a, 0x43, 0x2f, 0xe1, 0xe3, 0xb5, 0x4e, 0x52, 0xe8, 0x8c, 0x50, 0xdd, 0x27, 0x8c, 0x65,
-	0x5c, 0xa9, 0xea, 0x46, 0xd1, 0x31, 0xa9, 0xdd, 0xdc, 0xe9, 0x90, 0x13, 0x4b, 0xa0, 0xe7, 0xf0,
-	0xae, 0x9b, 0xa4, 0x5a, 0xae, 0x83, 0xe6, 0xf6, 0xd1, 0xa3, 0xd0, 0x44, 0x66, 0x0f, 0xef, 0x46,
-	0x09, 0x5f, 0x59, 0x24, 0xb9, 0x66, 0x5b, 0x70, 0x36, 0x3d, 0xd8, 0x32, 0xd3, 0xe0, 0xc6, 0x37,
-	0x00, 0x77, 0x7a, 0xdd, 0xee, 0x29, 0xa1, 0x1f, 0xb9, 0x4e, 0x38, 0xe5, 0xe9, 0x58, 0xa3, 0x0f,
-	0x10, 0xaa, 0x74, 0x28, 0x52, 0x31, 0xbc, 0x9e, 0x6c, 0x33, 0x7e, 0x93, 0xcf, 0x03, 0xaf, 0x6b,
-	0x55, 0xdc, 0xf9, 0x33, 0x0f, 0x5a, 0xc3, 0x54, 0x8f, 0x26, 0x83, 0x90, 0xca, 0xf3, 0xa8, 0x70,
-	0x35, 0x59, 0x51, 0x79, 0x16, 0x99, 0x48, 0xa2, 0x8b, 0xe3, 0xe8, 0xb3, 0xd1, 0xb5, 0x52, 0x91,
-	0xfe, 0x32, 0xe6, 0x2a, 0x5c, 0xee, 0x4e, 0x3c, 0xd7, 0x1e, 0xb3, 0x16, 0x9a, 0x4d, 0x0f, 0xb6,
-	0xd7, 0xec, 0x71, 0xa3, 0x0d, 0x2b, 0x38, 0x6e, 0xdb, 0xbc, 0x9f, 0x41, 0x48, 0x47, 0xa4, 0x78,
-	0x02, 0xab, 0x94, 0x1f, 0x14, 0x67, 0x69, 0x5b, 0xb5, 0xe8, 0xe6, 0x00, 0xcc, 0x5a, 0xde, 0x6c,
-	0x7a, 0x70, 0xc7, 0x6c, 0x6c, 0xc4, 0x70, 0x07, 0xc7, 0xed, 0xf5, 0xc1, 0x6a, 0xb0, 0xa2, 0xf8,
-	0xa7, 0x09, 0x17, 0x94, 0xdb, 0xb1, 0x92, 0xe5, 0xfa, 0xe6, 0x41, 0x8a, 0x9c, 0xb9, 0xd0, 0xb8,
-	0xf1, 0x03, 0xc0, 0xbd, 0x9e, 0x79, 0x7f, 0xa7, 0x59, 0x4a, 0xb9, 0xb2, 0xe5, 0x0e, 0xd1, 0x04,
-	0x3d, 0x85, 0x9e, 0x7d, 0x99, 0xab, 0x88, 0xee, 0xe7, 0xf3, 0xa0, 0x62, 0x71, 0xdc, 0x49, 0x2a,
-	0xb6, 0x8c, 0xd9, 0x9a, 0xeb, 0xc6, 0xba, 0x2b, 0x7a, 0x01, 0xb7, 0xc6, 0xa6, 0x75, 0xb5, 0x5c,
-	0x2f, 0x37, 0xef, 0x1d, 0xed, 0xdf, 0x76, 0x83, 0xc6, 0x3c, 0xde, 0xbc, 0x9c, 0x07, 0xa5, 0xc4,
-	0xe1, 0xe8, 0x09, 0x84, 0x34, 0xe3, 0x44, 0x73, 0xd6, 0x27, 0xba, 0xba, 0x59, 0x07, 0xcd, 0x72,
-	0xe2, 0x39, 0xe5, 0x44, 0xc7, 0x6f, 0xbf, 0xe7, 0x3e, 0xb8, 0xcc, 0x7d, 0x70, 0x95, 0xfb, 0xe0,
-	0x77, 0xee, 0x83, 0xaf, 0x0b, 0xbf, 0x74, 0xb5, 0xf0, 0x4b, 0x3f, 0x17, 0x7e, 0xe9, 0x5d, 0xf4,
-	0x1f, 0x77, 0xe7, 0x7e, 0x4c, 0x73, 0x75, 0x83, 0x2d, 0x43, 0x1c, 0xff, 0x0d, 0x00, 0x00, 0xff,
-	0xff, 0xce, 0x51, 0x71, 0xcf, 0xb4, 0x03, 0x00, 0x00,
+	// 744 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x54, 0xcd, 0x4e, 0x1b, 0x49,
+	0x10, 0xf6, 0x60, 0x63, 0xec, 0x36, 0xb0, 0xec, 0xf0, 0xb3, 0xc6, 0xbb, 0x3b, 0x83, 0xac, 0x95,
+	0x96, 0x5d, 0xad, 0x67, 0x04, 0xec, 0x6e, 0x24, 0x9f, 0xc2, 0xd8, 0x28, 0x19, 0x25, 0x91, 0xd0,
+	0x98, 0x53, 0x2e, 0x56, 0x7b, 0xba, 0x31, 0x13, 0x70, 0xb7, 0x33, 0xdd, 0x46, 0xc9, 0x5b, 0x44,
+	0xb9, 0xe5, 0x0d, 0x50, 0x4e, 0x39, 0x20, 0xe5, 0x15, 0x10, 0x27, 0x8e, 0xc9, 0xc5, 0x89, 0x86,
+	0x43, 0xde, 0x21, 0xa7, 0xa8, 0x7f, 0x6c, 0x33, 0x0e, 0x87, 0x88, 0x8b, 0x3d, 0x55, 0xf5, 0x55,
+	0x7d, 0x5d, 0x55, 0x5f, 0x37, 0xb0, 0x3b, 0x90, 0x20, 0x97, 0x0f, 0x08, 0xc1, 0x27, 0xee, 0xe9,
+	0x56, 0x07, 0x73, 0xb8, 0xe5, 0xc6, 0x74, 0xc0, 0xb1, 0xd3, 0x8f, 0x29, 0xa7, 0xe6, 0xb2, 0x00,
+	0x38, 0x0a, 0xe0, 0x68, 0x40, 0xe5, 0x67, 0xd8, 0x8b, 0x08, 0x75, 0xe5, 0xaf, 0xc2, 0x55, 0xd6,
+	0x43, 0xca, 0x7a, 0x94, 0xb5, 0xa5, 0xe5, 0x2a, 0x43, 0x87, 0x2c, 0x65, 0xb9, 0x1d, 0xc8, 0xf0,
+	0x98, 0x23, 0xa4, 0x11, 0xd1, 0xf1, 0x95, 0x2e, 0xed, 0x52, 0x95, 0x27, 0xbe, 0xb4, 0x77, 0x43,
+	0x9e, 0xec, 0x10, 0x63, 0xc4, 0xc6, 0x49, 0x98, 0x84, 0x14, 0xe1, 0x78, 0x54, 0xf7, 0x16, 0x84,
+	0xb4, 0x54, 0xbc, 0xfa, 0xd1, 0x00, 0x85, 0x83, 0x56, 0x2b, 0x10, 0xdd, 0x98, 0x0f, 0xc1, 0x0a,
+	0xc2, 0x8c, 0x47, 0x04, 0xf2, 0x88, 0x92, 0x76, 0x78, 0x04, 0x23, 0xd2, 0x8e, 0x50, 0xd9, 0xd8,
+	0x30, 0x36, 0x8b, 0xde, 0x5a, 0x32, 0xb4, 0xcd, 0xe6, 0x24, 0xde, 0x10, 0x61, 0xbf, 0x19, 0x98,
+	0x68, 0xda, 0x87, 0xcc, 0xfb, 0xe0, 0xb7, 0x54, 0x25, 0x4a, 0x78, 0x0c, 0x43, 0xde, 0x86, 0x08,
+	0xc5, 0x98, 0xb1, 0xf2, 0x8c, 0xa8, 0x18, 0x54, 0x6e, 0x66, 0x6a, 0xc8, 0xae, 0x42, 0x98, 0xff,
+	0x81, 0x39, 0xdd, 0x49, 0x39, 0xbb, 0x61, 0x6c, 0x2e, 0x6e, 0xff, 0xea, 0xc8, 0x29, 0xab, 0xc3,
+	0xeb, 0x56, 0x9c, 0x3d, 0x05, 0x09, 0x46, 0xd8, 0x3a, 0xb8, 0x3c, 0xaf, 0xe5, 0x65, 0x37, 0x7e,
+	0xf5, 0xb5, 0x01, 0x96, 0x0e, 0x5a, 0xad, 0x7d, 0x18, 0x1e, 0x63, 0x1e, 0xe0, 0x10, 0x47, 0x7d,
+	0x6e, 0x3e, 0x03, 0x80, 0x45, 0x5d, 0x12, 0x91, 0xee, 0xa8, 0xb3, 0x9c, 0xf7, 0x28, 0x19, 0xda,
+	0xc5, 0x96, 0xf2, 0xfa, 0xcd, 0xaf, 0x43, 0xbb, 0xde, 0x8d, 0xf8, 0xd1, 0xa0, 0xe3, 0x84, 0xb4,
+	0xe7, 0x0a, 0x56, 0x39, 0xab, 0x90, 0x9e, 0xb8, 0x72, 0x24, 0xee, 0xe9, 0x8e, 0xfb, 0x42, 0xfa,
+	0x39, 0x63, 0x2e, 0x7f, 0xd9, 0xc7, 0xcc, 0x19, 0x67, 0x07, 0x45, 0x5d, 0xde, 0x47, 0x75, 0xf3,
+	0xf2, 0xbc, 0xb6, 0x98, 0xa2, 0xf7, 0xab, 0x0d, 0x50, 0xf0, 0xbd, 0x86, 0x9a, 0xf7, 0x3f, 0x00,
+	0x84, 0x47, 0x50, 0xa8, 0x66, 0x32, 0xe5, 0x05, 0x71, 0x96, 0x86, 0xf2, 0x8a, 0x6a, 0x1a, 0xe0,
+	0xa3, 0x7a, 0xf1, 0xf2, 0xbc, 0x36, 0x2b, 0x13, 0xab, 0x1e, 0x58, 0xf2, 0xbd, 0x46, 0xba, 0xb1,
+	0x0a, 0x28, 0x30, 0xfc, 0x7c, 0x80, 0x49, 0x88, 0x55, 0x5b, 0xc1, 0xd8, 0xbe, 0x79, 0x10, 0x31,
+	0x67, 0x4c, 0xb8, 0x5f, 0x7d, 0x93, 0x05, 0x25, 0x59, 0x2d, 0xbe, 0xc3, 0x61, 0xcc, 0x10, 0xe4,
+	0x0e, 0x07, 0x04, 0xc9, 0x45, 0x96, 0xb6, 0xd7, 0x1d, 0x2d, 0x66, 0x21, 0xdf, 0xf1, 0x72, 0x1a,
+	0x34, 0x22, 0xde, 0xbf, 0x17, 0x43, 0x3b, 0xf3, 0xf6, 0x93, 0xfd, 0xe7, 0x8d, 0x91, 0x6a, 0xad,
+	0xab, 0xbf, 0x1a, 0x43, 0xc7, 0x7a, 0x88, 0x22, 0xe1, 0xec, 0xcb, 0xbb, 0xbf, 0x8d, 0x40, 0x16,
+	0x37, 0xff, 0x07, 0xbf, 0x74, 0xe2, 0x08, 0x75, 0xf1, 0xf7, 0x02, 0xca, 0x4a, 0x01, 0xad, 0xaa,
+	0xf0, 0xb4, 0x76, 0x76, 0xc0, 0x82, 0x50, 0xd6, 0x44, 0xc0, 0x39, 0xd9, 0xcd, 0x4f, 0xc9, 0xd0,
+	0x2e, 0x09, 0x01, 0x8f, 0x94, 0x5b, 0x42, 0x63, 0x03, 0x99, 0xdb, 0x60, 0x55, 0x25, 0x4d, 0x53,
+	0xcd, 0x4a, 0xaa, 0x65, 0x89, 0x9d, 0x22, 0xfa, 0x03, 0x2c, 0xca, 0x9c, 0x2e, 0x64, 0xed, 0x93,
+	0xa8, 0x17, 0xf1, 0x72, 0x5e, 0x4e, 0x7e, 0x5e, 0x78, 0x1f, 0x40, 0xf6, 0x58, 0xf8, 0x52, 0xa8,
+	0x7e, 0x1c, 0x85, 0xb8, 0x3c, 0x97, 0x42, 0xed, 0x0b, 0x5f, 0x4a, 0xb9, 0x7b, 0x60, 0x59, 0xad,
+	0xe6, 0x4e, 0x2b, 0x1e, 0x6b, 0xed, 0xbd, 0x01, 0xd6, 0x0e, 0xe4, 0xab, 0x24, 0x29, 0x98, 0x0a,
+	0x37, 0x21, 0x87, 0xe6, 0x5f, 0xa0, 0xa8, 0xde, 0xab, 0xc9, 0x2d, 0x98, 0x4f, 0x86, 0x76, 0x41,
+	0xc1, 0xfd, 0x66, 0x50, 0x50, 0x61, 0x1f, 0xa5, 0x58, 0x67, 0xd2, 0xac, 0xe6, 0x3d, 0x90, 0x97,
+	0x1d, 0x89, 0x85, 0x64, 0xa5, 0x10, 0x6e, 0xb9, 0xa4, 0x92, 0xdc, 0xcb, 0x09, 0x21, 0x04, 0x1a,
+	0x6e, 0xfe, 0x0e, 0x40, 0x18, 0x63, 0xc8, 0x31, 0x6a, 0x43, 0x2e, 0xf7, 0x93, 0x0d, 0x8a, 0xda,
+	0xb3, 0xcb, 0xbd, 0x27, 0x67, 0x89, 0x65, 0x5c, 0x24, 0x96, 0x71, 0x95, 0x58, 0xc6, 0xe7, 0xc4,
+	0x32, 0x5e, 0x5d, 0x5b, 0x99, 0xab, 0x6b, 0x2b, 0xf3, 0xe1, 0xda, 0xca, 0x3c, 0x75, 0x7f, 0xe0,
+	0x7a, 0xea, 0xe7, 0x5a, 0x0a, 0xab, 0x93, 0x97, 0x88, 0x9d, 0x6f, 0x01, 0x00, 0x00, 0xff, 0xff,
+	0x7c, 0x62, 0x29, 0x6d, 0xca, 0x05, 0x00, 0x00,
 }
 
 func (this *TSSRoute) Equal(that interface{}) bool {
@@ -436,6 +598,72 @@ func (this *IBCPacketReceipt) Equal(that interface{}) bool {
 	that1, ok := that.(*IBCPacketReceipt)
 	if !ok {
 		that2, ok := that.(IBCPacketReceipt)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Sequence != that1.Sequence {
+		return false
+	}
+	return true
+}
+func (this *RouterRoute) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*RouterRoute)
+	if !ok {
+		that2, ok := that.(RouterRoute)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.ChannelID != that1.ChannelID {
+		return false
+	}
+	if !this.Fund.Equal(&that1.Fund) {
+		return false
+	}
+	if this.BridgeContractAddress != that1.BridgeContractAddress {
+		return false
+	}
+	if this.DestChainID != that1.DestChainID {
+		return false
+	}
+	if this.DestContractAddress != that1.DestContractAddress {
+		return false
+	}
+	if this.DestGasLimit != that1.DestGasLimit {
+		return false
+	}
+	if this.DestGasPrice != that1.DestGasPrice {
+		return false
+	}
+	return true
+}
+func (this *RouterPacketReceipt) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*RouterPacketReceipt)
+	if !ok {
+		that2, ok := that.(RouterPacketReceipt)
 		if ok {
 			that1 = &that2
 		} else {
@@ -618,6 +846,105 @@ func (m *IBCPacketReceipt) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *RouterRoute) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *RouterRoute) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *RouterRoute) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.DestGasPrice != 0 {
+		i = encodeVarintRoute(dAtA, i, uint64(m.DestGasPrice))
+		i--
+		dAtA[i] = 0x38
+	}
+	if m.DestGasLimit != 0 {
+		i = encodeVarintRoute(dAtA, i, uint64(m.DestGasLimit))
+		i--
+		dAtA[i] = 0x30
+	}
+	if len(m.DestContractAddress) > 0 {
+		i -= len(m.DestContractAddress)
+		copy(dAtA[i:], m.DestContractAddress)
+		i = encodeVarintRoute(dAtA, i, uint64(len(m.DestContractAddress)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if len(m.DestChainID) > 0 {
+		i -= len(m.DestChainID)
+		copy(dAtA[i:], m.DestChainID)
+		i = encodeVarintRoute(dAtA, i, uint64(len(m.DestChainID)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if len(m.BridgeContractAddress) > 0 {
+		i -= len(m.BridgeContractAddress)
+		copy(dAtA[i:], m.BridgeContractAddress)
+		i = encodeVarintRoute(dAtA, i, uint64(len(m.BridgeContractAddress)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	{
+		size, err := m.Fund.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintRoute(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	if len(m.ChannelID) > 0 {
+		i -= len(m.ChannelID)
+		copy(dAtA[i:], m.ChannelID)
+		i = encodeVarintRoute(dAtA, i, uint64(len(m.ChannelID)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *RouterPacketReceipt) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *RouterPacketReceipt) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *RouterPacketReceipt) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Sequence != 0 {
+		i = encodeVarintRoute(dAtA, i, uint64(m.Sequence))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *TunnelPricesPacketData) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -727,6 +1054,51 @@ func (m *IBCRoute) Size() (n int) {
 }
 
 func (m *IBCPacketReceipt) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Sequence != 0 {
+		n += 1 + sovRoute(uint64(m.Sequence))
+	}
+	return n
+}
+
+func (m *RouterRoute) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.ChannelID)
+	if l > 0 {
+		n += 1 + l + sovRoute(uint64(l))
+	}
+	l = m.Fund.Size()
+	n += 1 + l + sovRoute(uint64(l))
+	l = len(m.BridgeContractAddress)
+	if l > 0 {
+		n += 1 + l + sovRoute(uint64(l))
+	}
+	l = len(m.DestChainID)
+	if l > 0 {
+		n += 1 + l + sovRoute(uint64(l))
+	}
+	l = len(m.DestContractAddress)
+	if l > 0 {
+		n += 1 + l + sovRoute(uint64(l))
+	}
+	if m.DestGasLimit != 0 {
+		n += 1 + sovRoute(uint64(m.DestGasLimit))
+	}
+	if m.DestGasPrice != 0 {
+		n += 1 + sovRoute(uint64(m.DestGasPrice))
+	}
+	return n
+}
+
+func (m *RouterPacketReceipt) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1079,6 +1451,324 @@ func (m *IBCPacketReceipt) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: IBCPacketReceipt: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Sequence", wireType)
+			}
+			m.Sequence = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Sequence |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRoute(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *RouterRoute) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRoute
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: RouterRoute: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: RouterRoute: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ChannelID", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthRoute
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ChannelID = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Fund", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthRoute
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Fund.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BridgeContractAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthRoute
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.BridgeContractAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DestChainID", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthRoute
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.DestChainID = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DestContractAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthRoute
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.DestContractAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 6:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DestGasLimit", wireType)
+			}
+			m.DestGasLimit = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.DestGasLimit |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 7:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DestGasPrice", wireType)
+			}
+			m.DestGasPrice = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowRoute
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.DestGasPrice |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipRoute(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthRoute
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *RouterPacketReceipt) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowRoute
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: RouterPacketReceipt: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: RouterPacketReceipt: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

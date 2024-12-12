@@ -7,9 +7,9 @@ import (
 	fmt "fmt"
 	types2 "github.com/bandprotocol/chain/v3/x/feeds/types"
 	_ "github.com/cosmos/cosmos-proto"
-	types "github.com/cosmos/cosmos-sdk/codec/types"
+	types1 "github.com/cosmos/cosmos-sdk/codec/types"
 	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
-	types1 "github.com/cosmos/cosmos-sdk/types"
+	types "github.com/cosmos/cosmos-sdk/types"
 	_ "github.com/cosmos/cosmos-sdk/types/tx/amino"
 	_ "github.com/cosmos/gogoproto/gogoproto"
 	proto "github.com/cosmos/gogoproto/proto"
@@ -29,6 +29,134 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// SignalDeviation is the type for a signal with soft and hard deviation
+type SignalDeviation struct {
+	// signal_id is the signal ID
+	SignalID string `protobuf:"bytes,1,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
+	// soft_deviation_bps is the soft deviation in basis points
+	SoftDeviationBPS uint64 `protobuf:"varint,2,opt,name=soft_deviation_bps,json=softDeviationBps,proto3" json:"soft_deviation_bps,omitempty"`
+	// hard_deviation_bps is the hard deviation in basis points
+	HardDeviationBPS uint64 `protobuf:"varint,3,opt,name=hard_deviation_bps,json=hardDeviationBps,proto3" json:"hard_deviation_bps,omitempty"`
+}
+
+func (m *SignalDeviation) Reset()         { *m = SignalDeviation{} }
+func (m *SignalDeviation) String() string { return proto.CompactTextString(m) }
+func (*SignalDeviation) ProtoMessage()    {}
+func (*SignalDeviation) Descriptor() ([]byte, []int) {
+	return fileDescriptor_6bb6151451ba2f25, []int{0}
+}
+func (m *SignalDeviation) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *SignalDeviation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_SignalDeviation.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *SignalDeviation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SignalDeviation.Merge(m, src)
+}
+func (m *SignalDeviation) XXX_Size() int {
+	return m.Size()
+}
+func (m *SignalDeviation) XXX_DiscardUnknown() {
+	xxx_messageInfo_SignalDeviation.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SignalDeviation proto.InternalMessageInfo
+
+func (m *SignalDeviation) GetSignalID() string {
+	if m != nil {
+		return m.SignalID
+	}
+	return ""
+}
+
+func (m *SignalDeviation) GetSoftDeviationBPS() uint64 {
+	if m != nil {
+		return m.SoftDeviationBPS
+	}
+	return 0
+}
+
+func (m *SignalDeviation) GetHardDeviationBPS() uint64 {
+	if m != nil {
+		return m.HardDeviationBPS
+	}
+	return 0
+}
+
+// Deposit defines an amount deposited by an account address to the tunnel.
+type Deposit struct {
+	// tunnel_id defines the unique id of the tunnel.
+	TunnelID uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
+	// depositor defines the deposit addresses from the proposals.
+	Depositor string `protobuf:"bytes,2,opt,name=depositor,proto3" json:"depositor,omitempty"`
+	// amount to be deposited by depositor.
+	Amount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,3,rep,name=amount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"amount"`
+}
+
+func (m *Deposit) Reset()         { *m = Deposit{} }
+func (m *Deposit) String() string { return proto.CompactTextString(m) }
+func (*Deposit) ProtoMessage()    {}
+func (*Deposit) Descriptor() ([]byte, []int) {
+	return fileDescriptor_6bb6151451ba2f25, []int{1}
+}
+func (m *Deposit) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Deposit) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Deposit.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Deposit) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Deposit.Merge(m, src)
+}
+func (m *Deposit) XXX_Size() int {
+	return m.Size()
+}
+func (m *Deposit) XXX_DiscardUnknown() {
+	xxx_messageInfo_Deposit.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Deposit proto.InternalMessageInfo
+
+func (m *Deposit) GetTunnelID() uint64 {
+	if m != nil {
+		return m.TunnelID
+	}
+	return 0
+}
+
+func (m *Deposit) GetDepositor() string {
+	if m != nil {
+		return m.Depositor
+	}
+	return ""
+}
+
+func (m *Deposit) GetAmount() github_com_cosmos_cosmos_sdk_types.Coins {
+	if m != nil {
+		return m.Amount
+	}
+	return nil
+}
+
 // Tunnel contains the information of the tunnel that is created by the user
 type Tunnel struct {
 	// id is the tunnel ID
@@ -36,7 +164,7 @@ type Tunnel struct {
 	// sequence is representing the sequence of the tunnel packet.
 	Sequence uint64 `protobuf:"varint,2,opt,name=sequence,proto3" json:"sequence,omitempty"`
 	// route is the route for delivering the signal prices
-	Route *types.Any `protobuf:"bytes,3,opt,name=route,proto3" json:"route,omitempty"`
+	Route *types1.Any `protobuf:"bytes,3,opt,name=route,proto3" json:"route,omitempty"`
 	// fee_payer is the address of the fee payer
 	FeePayer string `protobuf:"bytes,4,opt,name=fee_payer,json=feePayer,proto3" json:"fee_payer,omitempty"`
 	// signal_deviations is the list of signal deviations
@@ -57,7 +185,7 @@ func (m *Tunnel) Reset()         { *m = Tunnel{} }
 func (m *Tunnel) String() string { return proto.CompactTextString(m) }
 func (*Tunnel) ProtoMessage()    {}
 func (*Tunnel) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6bb6151451ba2f25, []int{0}
+	return fileDescriptor_6bb6151451ba2f25, []int{2}
 }
 func (m *Tunnel) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -100,7 +228,7 @@ func (m *Tunnel) GetSequence() uint64 {
 	return 0
 }
 
-func (m *Tunnel) GetRoute() *types.Any {
+func (m *Tunnel) GetRoute() *types1.Any {
 	if m != nil {
 		return m.Route
 	}
@@ -170,7 +298,7 @@ func (m *LatestPrices) Reset()         { *m = LatestPrices{} }
 func (m *LatestPrices) String() string { return proto.CompactTextString(m) }
 func (*LatestPrices) ProtoMessage()    {}
 func (*LatestPrices) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6bb6151451ba2f25, []int{1}
+	return fileDescriptor_6bb6151451ba2f25, []int{3}
 }
 func (m *LatestPrices) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -230,7 +358,7 @@ func (m *TotalFees) Reset()         { *m = TotalFees{} }
 func (m *TotalFees) String() string { return proto.CompactTextString(m) }
 func (*TotalFees) ProtoMessage()    {}
 func (*TotalFees) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6bb6151451ba2f25, []int{2}
+	return fileDescriptor_6bb6151451ba2f25, []int{4}
 }
 func (m *TotalFees) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -275,7 +403,7 @@ type Packet struct {
 	// prices is the list of prices information from feeds module.
 	Prices []types2.Price `protobuf:"bytes,3,rep,name=prices,proto3" json:"prices"`
 	// receipt represents the confirmation of the packet delivery to the destination via the specified route.
-	Receipt *types.Any `protobuf:"bytes,4,opt,name=receipt,proto3" json:"receipt,omitempty"`
+	Receipt *types1.Any `protobuf:"bytes,4,opt,name=receipt,proto3" json:"receipt,omitempty"`
 	// base_fee is the base fee of the packet
 	BaseFee github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,5,rep,name=base_fee,json=baseFee,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"base_fee"`
 	// route_fee is the route fee of the packet
@@ -288,7 +416,7 @@ func (m *Packet) Reset()         { *m = Packet{} }
 func (m *Packet) String() string { return proto.CompactTextString(m) }
 func (*Packet) ProtoMessage()    {}
 func (*Packet) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6bb6151451ba2f25, []int{3}
+	return fileDescriptor_6bb6151451ba2f25, []int{5}
 }
 func (m *Packet) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -338,7 +466,7 @@ func (m *Packet) GetPrices() []types2.Price {
 	return nil
 }
 
-func (m *Packet) GetReceipt() *types.Any {
+func (m *Packet) GetReceipt() *types1.Any {
 	if m != nil {
 		return m.Receipt
 	}
@@ -362,134 +490,6 @@ func (m *Packet) GetRouteFee() github_com_cosmos_cosmos_sdk_types.Coins {
 func (m *Packet) GetCreatedAt() int64 {
 	if m != nil {
 		return m.CreatedAt
-	}
-	return 0
-}
-
-// Deposit defines an amount deposited by an account address to the tunnel.
-type Deposit struct {
-	// tunnel_id defines the unique id of the tunnel.
-	TunnelID uint64 `protobuf:"varint,1,opt,name=tunnel_id,json=tunnelId,proto3" json:"tunnel_id,omitempty"`
-	// depositor defines the deposit addresses from the proposals.
-	Depositor string `protobuf:"bytes,2,opt,name=depositor,proto3" json:"depositor,omitempty"`
-	// amount to be deposited by depositor.
-	Amount github_com_cosmos_cosmos_sdk_types.Coins `protobuf:"bytes,3,rep,name=amount,proto3,castrepeated=github.com/cosmos/cosmos-sdk/types.Coins" json:"amount"`
-}
-
-func (m *Deposit) Reset()         { *m = Deposit{} }
-func (m *Deposit) String() string { return proto.CompactTextString(m) }
-func (*Deposit) ProtoMessage()    {}
-func (*Deposit) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6bb6151451ba2f25, []int{4}
-}
-func (m *Deposit) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *Deposit) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_Deposit.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *Deposit) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Deposit.Merge(m, src)
-}
-func (m *Deposit) XXX_Size() int {
-	return m.Size()
-}
-func (m *Deposit) XXX_DiscardUnknown() {
-	xxx_messageInfo_Deposit.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Deposit proto.InternalMessageInfo
-
-func (m *Deposit) GetTunnelID() uint64 {
-	if m != nil {
-		return m.TunnelID
-	}
-	return 0
-}
-
-func (m *Deposit) GetDepositor() string {
-	if m != nil {
-		return m.Depositor
-	}
-	return ""
-}
-
-func (m *Deposit) GetAmount() github_com_cosmos_cosmos_sdk_types.Coins {
-	if m != nil {
-		return m.Amount
-	}
-	return nil
-}
-
-// SignalDeviation is the type for a signal with soft and hard deviation
-type SignalDeviation struct {
-	// signal_id is the signal ID
-	SignalID string `protobuf:"bytes,1,opt,name=signal_id,json=signalId,proto3" json:"signal_id,omitempty"`
-	// soft_deviation_bps is the soft deviation in basis points
-	SoftDeviationBPS uint64 `protobuf:"varint,2,opt,name=soft_deviation_bps,json=softDeviationBps,proto3" json:"soft_deviation_bps,omitempty"`
-	// hard_deviation_bps is the hard deviation in basis points
-	HardDeviationBPS uint64 `protobuf:"varint,3,opt,name=hard_deviation_bps,json=hardDeviationBps,proto3" json:"hard_deviation_bps,omitempty"`
-}
-
-func (m *SignalDeviation) Reset()         { *m = SignalDeviation{} }
-func (m *SignalDeviation) String() string { return proto.CompactTextString(m) }
-func (*SignalDeviation) ProtoMessage()    {}
-func (*SignalDeviation) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6bb6151451ba2f25, []int{5}
-}
-func (m *SignalDeviation) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *SignalDeviation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_SignalDeviation.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *SignalDeviation) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_SignalDeviation.Merge(m, src)
-}
-func (m *SignalDeviation) XXX_Size() int {
-	return m.Size()
-}
-func (m *SignalDeviation) XXX_DiscardUnknown() {
-	xxx_messageInfo_SignalDeviation.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_SignalDeviation proto.InternalMessageInfo
-
-func (m *SignalDeviation) GetSignalID() string {
-	if m != nil {
-		return m.SignalID
-	}
-	return ""
-}
-
-func (m *SignalDeviation) GetSoftDeviationBPS() uint64 {
-	if m != nil {
-		return m.SoftDeviationBPS
-	}
-	return 0
-}
-
-func (m *SignalDeviation) GetHardDeviationBPS() uint64 {
-	if m != nil {
-		return m.HardDeviationBPS
 	}
 	return 0
 }
@@ -540,80 +540,144 @@ func (m *TunnelSignatureOrder) XXX_DiscardUnknown() {
 var xxx_messageInfo_TunnelSignatureOrder proto.InternalMessageInfo
 
 func init() {
+	proto.RegisterType((*SignalDeviation)(nil), "band.tunnel.v1beta1.SignalDeviation")
+	proto.RegisterType((*Deposit)(nil), "band.tunnel.v1beta1.Deposit")
 	proto.RegisterType((*Tunnel)(nil), "band.tunnel.v1beta1.Tunnel")
 	proto.RegisterType((*LatestPrices)(nil), "band.tunnel.v1beta1.LatestPrices")
 	proto.RegisterType((*TotalFees)(nil), "band.tunnel.v1beta1.TotalFees")
 	proto.RegisterType((*Packet)(nil), "band.tunnel.v1beta1.Packet")
-	proto.RegisterType((*Deposit)(nil), "band.tunnel.v1beta1.Deposit")
-	proto.RegisterType((*SignalDeviation)(nil), "band.tunnel.v1beta1.SignalDeviation")
 	proto.RegisterType((*TunnelSignatureOrder)(nil), "band.tunnel.v1beta1.TunnelSignatureOrder")
 }
 
 func init() { proto.RegisterFile("band/tunnel/v1beta1/tunnel.proto", fileDescriptor_6bb6151451ba2f25) }
 
 var fileDescriptor_6bb6151451ba2f25 = []byte{
-	// 929 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x56, 0x4f, 0x6f, 0x1b, 0x45,
-	0x14, 0xf7, 0xd8, 0x8e, 0xed, 0x9d, 0xa6, 0x25, 0x1d, 0x0c, 0xda, 0xa6, 0xc2, 0xb6, 0x02, 0x07,
-	0x83, 0x94, 0x5d, 0x9a, 0x2a, 0x45, 0xea, 0x2d, 0x4b, 0x88, 0xb0, 0x04, 0x22, 0xda, 0x54, 0x42,
-	0xe2, 0xb2, 0x1a, 0xef, 0x3e, 0xdb, 0xa3, 0x3a, 0x3b, 0xcb, 0xce, 0xd8, 0x22, 0x17, 0xce, 0x5c,
-	0x90, 0xe0, 0x03, 0x20, 0xf5, 0x58, 0x71, 0xe2, 0x90, 0x2b, 0x67, 0xaa, 0x9c, 0x2a, 0x4e, 0x1c,
-	0x50, 0x40, 0xce, 0x01, 0x3e, 0x06, 0x9a, 0x3f, 0x6b, 0xe3, 0x28, 0x6d, 0x64, 0x29, 0x97, 0xc4,
-	0xef, 0xbd, 0xdf, 0xbc, 0x7f, 0xbf, 0xf7, 0x9e, 0x8d, 0x3b, 0x7d, 0x9a, 0x26, 0xbe, 0x9c, 0xa4,
-	0x29, 0x8c, 0xfd, 0xe9, 0x83, 0x3e, 0x48, 0xfa, 0xc0, 0x8a, 0x5e, 0x96, 0x73, 0xc9, 0xc9, 0x9b,
-	0x0a, 0xe1, 0x59, 0x95, 0x45, 0x6c, 0xde, 0xa5, 0xc7, 0x2c, 0xe5, 0xbe, 0xfe, 0x6b, 0x70, 0x9b,
-	0xad, 0x98, 0x8b, 0x63, 0x2e, 0xfc, 0x3e, 0x15, 0x30, 0xf7, 0x14, 0x73, 0x96, 0x5a, 0xfb, 0x3d,
-	0x63, 0x8f, 0xb4, 0xe4, 0x1b, 0xc1, 0x9a, 0x9a, 0x43, 0x3e, 0xe4, 0x46, 0xaf, 0x3e, 0x15, 0x0f,
-	0x86, 0x9c, 0x0f, 0xc7, 0xe0, 0x6b, 0xa9, 0x3f, 0x19, 0xf8, 0x34, 0x3d, 0xb1, 0x26, 0x93, 0xf5,
-	0x00, 0x20, 0x11, 0xf3, 0x50, 0x90, 0xc6, 0x3c, 0x81, 0xbc, 0xc8, 0xe6, 0x0a, 0x84, 0x96, 0x8c,
-	0x7d, 0xeb, 0xfb, 0x2a, 0xae, 0x3d, 0xd1, 0x35, 0x91, 0xb7, 0x71, 0x99, 0x25, 0x2e, 0xea, 0xa0,
-	0x6e, 0x35, 0xa8, 0xcd, 0xce, 0xdb, 0xe5, 0xde, 0x7e, 0x58, 0x66, 0x09, 0xd9, 0xc4, 0x0d, 0x01,
-	0x5f, 0x4f, 0x20, 0x8d, 0xc1, 0x2d, 0x2b, 0x6b, 0x38, 0x97, 0xc9, 0x23, 0xbc, 0x96, 0xf3, 0x89,
-	0x04, 0xb7, 0xd2, 0x41, 0xdd, 0x5b, 0x3b, 0x4d, 0xcf, 0xe4, 0xea, 0x15, 0xb9, 0x7a, 0x7b, 0xe9,
-	0x49, 0x80, 0xcf, 0x4e, 0xb7, 0x6b, 0xa1, 0x82, 0xf5, 0x42, 0x03, 0x27, 0xbb, 0xd8, 0x19, 0x00,
-	0x44, 0x19, 0x3d, 0x81, 0xdc, 0xad, 0x76, 0x50, 0xd7, 0x09, 0xdc, 0xdf, 0x4f, 0xb7, 0x9b, 0xb6,
-	0x1d, 0x7b, 0x49, 0x92, 0x83, 0x10, 0x47, 0x32, 0x67, 0xe9, 0x30, 0x6c, 0x0c, 0x00, 0x0e, 0x15,
-	0x92, 0x7c, 0x89, 0xef, 0x0a, 0x36, 0x4c, 0xe9, 0x38, 0x4a, 0x60, 0xca, 0xa8, 0x64, 0x3c, 0x15,
-	0xee, 0x5a, 0xa7, 0xd2, 0xbd, 0xb5, 0xf3, 0x9e, 0x77, 0x05, 0x3f, 0xde, 0x91, 0x46, 0xef, 0x17,
-	0xe0, 0xa0, 0xfa, 0xe2, 0xbc, 0x5d, 0x0a, 0x37, 0xc4, 0xb2, 0x5a, 0xa8, 0x1a, 0x59, 0x2a, 0x21,
-	0x9f, 0xd2, 0xb1, 0x5b, 0x33, 0x35, 0x16, 0x32, 0x99, 0xe0, 0xdb, 0x92, 0x4b, 0x1d, 0x33, 0xe3,
-	0x82, 0x49, 0xb7, 0xae, 0x03, 0xde, 0xf3, 0x6c, 0xb2, 0x8a, 0xe8, 0x79, 0xc0, 0x8f, 0x39, 0x4b,
-	0x83, 0x5d, 0x15, 0xe5, 0xe7, 0xbf, 0xda, 0xdd, 0x21, 0x93, 0xa3, 0x49, 0xdf, 0x8b, 0xf9, 0xb1,
-	0x25, 0xda, 0xfe, 0xdb, 0x16, 0xc9, 0x53, 0x5f, 0x9e, 0x64, 0x20, 0xf4, 0x03, 0xf1, 0xfc, 0x9f,
-	0x5f, 0x3e, 0x40, 0xe1, 0xba, 0x0e, 0xb3, 0x6f, 0xa2, 0x90, 0xfb, 0xd8, 0x61, 0x22, 0xa2, 0xb1,
-	0x64, 0x53, 0x70, 0x1b, 0x1d, 0xd4, 0x6d, 0x84, 0x0d, 0x26, 0xf6, 0xb4, 0x4c, 0xde, 0xc1, 0x38,
-	0xce, 0x81, 0x4a, 0x48, 0x22, 0x2a, 0x5d, 0xa7, 0x83, 0xba, 0x95, 0xd0, 0xb1, 0x9a, 0x3d, 0x49,
-	0x76, 0x70, 0x5d, 0x0b, 0x3c, 0x77, 0xf1, 0x35, 0xcd, 0x2d, 0x80, 0x8f, 0xab, 0xff, 0x3e, 0x6b,
-	0xa3, 0xad, 0x9f, 0x10, 0x5e, 0xff, 0x8c, 0x4a, 0x10, 0xf2, 0x30, 0x67, 0x31, 0x08, 0xf2, 0x3e,
-	0x76, 0x4c, 0x4f, 0xa3, 0xf9, 0x70, 0xac, 0xcf, 0xce, 0xdb, 0x0d, 0x33, 0x34, 0xbd, 0xfd, 0xb0,
-	0x61, 0xcc, 0xbd, 0x84, 0x7c, 0x84, 0x6b, 0x99, 0x7e, 0xe4, 0x96, 0x6d, 0x87, 0x34, 0x25, 0x66,
-	0xdc, 0x8a, 0x06, 0x69, 0xb7, 0x96, 0x07, 0x0b, 0x27, 0xef, 0xe2, 0xdb, 0x63, 0x2a, 0x64, 0x34,
-	0xa7, 0xa0, 0xa2, 0x0b, 0x5a, 0x57, 0xca, 0x9e, 0xd5, 0xd9, 0xfc, 0x7e, 0x44, 0xd8, 0x79, 0xa2,
-	0xda, 0x74, 0x00, 0x20, 0xc8, 0xb7, 0xf8, 0x2d, 0x43, 0x8d, 0xe2, 0x20, 0xca, 0x68, 0xfc, 0x14,
-	0x64, 0x34, 0x00, 0x70, 0xd1, 0x75, 0x14, 0x7d, 0xb8, 0x2a, 0x45, 0x21, 0xd1, 0x91, 0x02, 0x2a,
-	0xe0, 0x50, 0xc7, 0x39, 0x00, 0xb0, 0x39, 0xfd, 0x5a, 0xc1, 0x35, 0xa3, 0x5b, 0xa5, 0x5b, 0xaf,
-	0x5b, 0xab, 0x45, 0x27, 0x2b, 0xab, 0x75, 0x32, 0xc0, 0xf5, 0x1c, 0x62, 0x60, 0x99, 0xd4, 0x5b,
-	0xf5, 0xaa, 0x8d, 0x24, 0x67, 0xa7, 0xdb, 0x77, 0x4c, 0xca, 0xa1, 0x81, 0xf7, 0xc2, 0xe2, 0x21,
-	0x19, 0xe0, 0x86, 0x6e, 0xa7, 0xea, 0xe3, 0xda, 0xcd, 0xf7, 0xb1, 0xae, 0x9c, 0x1c, 0x00, 0x90,
-	0x11, 0x76, 0xf4, 0x31, 0xd0, 0x81, 0x6a, 0x37, 0x1f, 0xa8, 0xa1, 0xbd, 0xab, 0x48, 0xcb, 0xdb,
-	0x52, 0xbf, 0xb4, 0x2d, 0x5b, 0x7f, 0x22, 0x5c, 0x2f, 0xb6, 0x6e, 0x05, 0x02, 0x1f, 0x61, 0xc7,
-	0x5e, 0x04, 0x9e, 0x6b, 0x06, 0x5f, 0xb7, 0x66, 0x0b, 0x28, 0x19, 0xe1, 0x1a, 0x3d, 0xe6, 0x93,
-	0x54, 0xce, 0xc9, 0xbd, 0xe9, 0x43, 0x62, 0xfd, 0xdb, 0xf1, 0x3c, 0x43, 0xf8, 0x8d, 0x4b, 0x77,
-	0x50, 0x95, 0x69, 0x0f, 0xa9, 0x2d, 0xd3, 0x31, 0x65, 0x1a, 0x9c, 0x2a, 0xd3, 0x98, 0x7b, 0x09,
-	0x09, 0x30, 0x11, 0x7c, 0x20, 0x17, 0x17, 0x37, 0xea, 0x67, 0xc2, 0x4c, 0x6c, 0xd0, 0x9c, 0x9d,
-	0xb7, 0x37, 0x8e, 0xf8, 0x40, 0x2e, 0x2e, 0xec, 0xe1, 0x51, 0xb8, 0x21, 0x96, 0x34, 0x99, 0x1a,
-	0x4b, 0x32, 0xa2, 0x79, 0x72, 0xc9, 0x47, 0x65, 0xe1, 0xe3, 0x53, 0x9a, 0x27, 0xcb, 0x3e, 0x46,
-	0x4b, 0x9a, 0x4c, 0xd8, 0x62, 0x7e, 0x43, 0xb8, 0x69, 0xb8, 0xd0, 0xa9, 0xca, 0x49, 0x0e, 0x5f,
-	0xe4, 0x09, 0xe4, 0x4b, 0xeb, 0x84, 0x5e, 0xb9, 0x4e, 0x2b, 0x1e, 0xa6, 0xe5, 0xc1, 0xa9, 0x5c,
-	0x3e, 0xb3, 0xbb, 0xb8, 0x6e, 0xbf, 0x6d, 0xf5, 0xb6, 0xdd, 0xd9, 0xb9, 0x7f, 0x95, 0xe3, 0x4f,
-	0x0c, 0x24, 0x2c, 0xb0, 0x8f, 0xab, 0xdf, 0x3d, 0x6b, 0x97, 0x82, 0xcf, 0x9f, 0xcf, 0x5a, 0xe8,
-	0xc5, 0xac, 0x85, 0x5e, 0xce, 0x5a, 0xe8, 0xef, 0x59, 0x0b, 0xfd, 0x70, 0xd1, 0x2a, 0xbd, 0xbc,
-	0x68, 0x95, 0xfe, 0xb8, 0x68, 0x95, 0xbe, 0xf2, 0xff, 0xc7, 0xb8, 0xf2, 0xa9, 0xd7, 0x37, 0xe6,
-	0x63, 0x3f, 0x1e, 0x51, 0x96, 0xfa, 0xd3, 0x87, 0xfe, 0x37, 0xc5, 0xaf, 0x15, 0x4d, 0x7f, 0xbf,
-	0xa6, 0x11, 0x0f, 0xff, 0x0b, 0x00, 0x00, 0xff, 0xff, 0xac, 0x82, 0x3f, 0x56, 0xc9, 0x08, 0x00,
-	0x00,
+	// 926 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x56, 0xcf, 0x6f, 0x1b, 0x45,
+	0x14, 0xf6, 0xd8, 0xce, 0x7a, 0x77, 0x9a, 0x96, 0x74, 0x30, 0x68, 0x9b, 0x0a, 0xdb, 0x0a, 0x1c,
+	0x0c, 0x52, 0x76, 0x69, 0xaa, 0x14, 0xa9, 0xb7, 0x2c, 0x21, 0xc2, 0x12, 0x88, 0x68, 0x53, 0x09,
+	0x89, 0xcb, 0x6a, 0xbc, 0xfb, 0x6c, 0x8f, 0xea, 0xec, 0x2c, 0x3b, 0x63, 0x8b, 0x5c, 0x38, 0x73,
+	0x41, 0x82, 0x3f, 0x00, 0xa9, 0xc7, 0x8a, 0x13, 0x87, 0x5c, 0x39, 0x53, 0xe5, 0x54, 0x71, 0xe2,
+	0x80, 0x02, 0x72, 0x0e, 0xf0, 0x67, 0xa0, 0x9d, 0x99, 0x75, 0xb0, 0x95, 0x12, 0x59, 0x0a, 0x97,
+	0xc4, 0xef, 0xcd, 0x37, 0xef, 0xc7, 0xf7, 0xbd, 0x37, 0x36, 0xee, 0xf4, 0x69, 0x9a, 0xf8, 0x72,
+	0x92, 0xa6, 0x30, 0xf6, 0xa7, 0x0f, 0xfa, 0x20, 0xe9, 0x03, 0x63, 0x7a, 0x59, 0xce, 0x25, 0x27,
+	0xaf, 0x17, 0x08, 0xcf, 0xb8, 0x0c, 0x62, 0xf3, 0x2e, 0x3d, 0x66, 0x29, 0xf7, 0xd5, 0x5f, 0x8d,
+	0xdb, 0x6c, 0xc5, 0x5c, 0x1c, 0x73, 0xe1, 0xf7, 0xa9, 0x80, 0x79, 0xa4, 0x98, 0xb3, 0xd4, 0x9c,
+	0xdf, 0xd3, 0xe7, 0x91, 0xb2, 0x7c, 0x6d, 0x98, 0xa3, 0xe6, 0x90, 0x0f, 0xb9, 0xf6, 0x17, 0x9f,
+	0xca, 0x0b, 0x43, 0xce, 0x87, 0x63, 0xf0, 0x95, 0xd5, 0x9f, 0x0c, 0x7c, 0x9a, 0x9e, 0x98, 0x23,
+	0x5d, 0xf5, 0x00, 0x20, 0x11, 0xf3, 0x54, 0x90, 0xc6, 0x3c, 0x81, 0xbc, 0xac, 0xe6, 0x0a, 0x84,
+	0xb2, 0xf4, 0xf9, 0xd6, 0x19, 0xc2, 0xaf, 0x1d, 0xb1, 0x61, 0x4a, 0xc7, 0xfb, 0x30, 0x65, 0x54,
+	0x32, 0x9e, 0x92, 0x77, 0xb1, 0x23, 0x94, 0x2b, 0x62, 0x89, 0x8b, 0x3a, 0xa8, 0xeb, 0x04, 0xeb,
+	0xb3, 0xf3, 0xb6, 0xad, 0x71, 0xbd, 0xfd, 0xd0, 0xd6, 0xc7, 0xbd, 0x84, 0x04, 0x98, 0x08, 0x3e,
+	0x90, 0x51, 0x52, 0x5e, 0x8e, 0xfa, 0x99, 0x70, 0xab, 0x1d, 0xd4, 0xad, 0x07, 0xcd, 0xd9, 0x79,
+	0x7b, 0xe3, 0x88, 0x0f, 0xe4, 0x3c, 0x72, 0x70, 0x78, 0x14, 0x6e, 0x88, 0x05, 0x4f, 0x26, 0x8a,
+	0x18, 0x23, 0x9a, 0x27, 0x4b, 0x31, 0x6a, 0x97, 0x31, 0x3e, 0xa6, 0x79, 0xb2, 0x18, 0x63, 0xb4,
+	0xe0, 0xc9, 0xc4, 0xe3, 0xfa, 0xdf, 0xcf, 0xda, 0x68, 0xeb, 0x77, 0x84, 0x1b, 0xfb, 0x90, 0x71,
+	0xc1, 0x64, 0xd1, 0x84, 0xd6, 0xaa, 0x6c, 0xa2, 0xae, 0x9b, 0x78, 0xa2, 0x9c, 0x45, 0x13, 0xfa,
+	0xb8, 0x97, 0x90, 0x47, 0xd8, 0x49, 0xf4, 0x2d, 0x9e, 0xab, 0xda, 0x9d, 0xc0, 0xfd, 0xf5, 0x74,
+	0xbb, 0x69, 0xb4, 0xd9, 0x4b, 0x92, 0x1c, 0x84, 0x38, 0x92, 0x39, 0x4b, 0x87, 0xe1, 0x25, 0x94,
+	0x8c, 0xb0, 0x45, 0x8f, 0xf9, 0x24, 0x95, 0x6e, 0xad, 0x53, 0xeb, 0xde, 0xda, 0xb9, 0xe7, 0x99,
+	0x1b, 0x85, 0xf4, 0xe5, 0x88, 0x78, 0x1f, 0x72, 0x96, 0x06, 0xbb, 0x2f, 0xce, 0xdb, 0x95, 0x1f,
+	0xff, 0x68, 0x77, 0x87, 0x4c, 0x8e, 0x26, 0x7d, 0x2f, 0xe6, 0xc7, 0x46, 0x7a, 0xf3, 0x6f, 0x5b,
+	0x24, 0x4f, 0x7d, 0x79, 0x92, 0x81, 0x50, 0x17, 0xc4, 0xf3, 0xbf, 0x7e, 0x7a, 0x0f, 0x85, 0x26,
+	0xbe, 0x69, 0xef, 0xdb, 0x3a, 0xb6, 0x74, 0xf9, 0xe4, 0x4d, 0x5c, 0x9d, 0xb7, 0x65, 0xcd, 0xce,
+	0xdb, 0xd5, 0xde, 0x7e, 0x58, 0x65, 0x09, 0xd9, 0xc4, 0xb6, 0x80, 0x2f, 0x27, 0x90, 0xc6, 0xa0,
+	0x55, 0x08, 0xe7, 0x36, 0x79, 0x84, 0xd7, 0x72, 0x3e, 0x91, 0xa0, 0xa8, 0xbd, 0xb5, 0xd3, 0xf4,
+	0xf4, 0x5c, 0x79, 0xe5, 0x5c, 0x79, 0x7b, 0xe9, 0x49, 0x80, 0xcf, 0x4e, 0xb7, 0xad, 0xb0, 0x80,
+	0xf5, 0x42, 0x0d, 0x27, 0xbb, 0xd8, 0x19, 0x00, 0x44, 0x19, 0x3d, 0x81, 0xdc, 0xad, 0x5f, 0x43,
+	0x8f, 0x3d, 0x00, 0x38, 0x2c, 0x90, 0xe4, 0x73, 0x7c, 0xd7, 0x4c, 0xd1, 0x5c, 0x58, 0xe1, 0xae,
+	0x29, 0xa2, 0xde, 0xf1, 0xae, 0xd8, 0x25, 0x6f, 0x69, 0x0c, 0x83, 0x7a, 0xc1, 0x59, 0xb8, 0x21,
+	0x16, 0xdd, 0xa2, 0xe8, 0x91, 0xa5, 0x12, 0xf2, 0x29, 0x1d, 0xbb, 0x96, 0xee, 0xb1, 0xb4, 0xc9,
+	0x04, 0xdf, 0x96, 0x5c, 0xaa, 0x9c, 0x4a, 0x25, 0xb7, 0xf1, 0x3f, 0x29, 0xb3, 0xae, 0xd2, 0x94,
+	0xc3, 0x76, 0x1f, 0x3b, 0x4c, 0x44, 0x34, 0x96, 0x6c, 0x0a, 0xae, 0xdd, 0x41, 0x5d, 0x3b, 0xb4,
+	0x99, 0xd8, 0x53, 0x36, 0x79, 0x0b, 0xe3, 0x38, 0x07, 0x2a, 0x21, 0x89, 0xa8, 0x74, 0x9d, 0x0e,
+	0xea, 0xd6, 0x42, 0xc7, 0x78, 0xf6, 0x24, 0xd9, 0xc1, 0x0d, 0x65, 0xf0, 0xdc, 0xc5, 0xd7, 0x90,
+	0x5b, 0x02, 0xcd, 0x3c, 0xfc, 0x80, 0xf0, 0xfa, 0x27, 0x54, 0x82, 0x90, 0x87, 0x39, 0x8b, 0x41,
+	0xac, 0x32, 0xf3, 0x1f, 0x60, 0x2b, 0x53, 0x97, 0xdc, 0xaa, 0x61, 0x48, 0x49, 0xa2, 0x9f, 0x86,
+	0x92, 0x20, 0x15, 0xd6, 0xe8, 0x60, 0xe0, 0xe4, 0x6d, 0x7c, 0x7b, 0x4c, 0x85, 0x8c, 0xe6, 0x12,
+	0xd4, 0x54, 0x43, 0xeb, 0x85, 0xb3, 0x67, 0x7c, 0xa6, 0xbe, 0xef, 0x11, 0x76, 0x9e, 0x14, 0x34,
+	0x1d, 0x00, 0x08, 0xf2, 0x35, 0x7e, 0x43, 0x4b, 0x53, 0x68, 0x10, 0x65, 0x34, 0x7e, 0x0a, 0x32,
+	0x1a, 0x00, 0xb8, 0xe8, 0x3a, 0x89, 0xde, 0x5f, 0x55, 0xa2, 0x90, 0xa8, 0x4c, 0x01, 0x15, 0x70,
+	0xa8, 0xf2, 0x1c, 0x00, 0x98, 0x9a, 0x7e, 0xae, 0x61, 0x4b, 0xfb, 0x56, 0x61, 0xeb, 0xbf, 0xd6,
+	0xea, 0x92, 0xc9, 0xda, 0x6a, 0x4c, 0x06, 0xb8, 0x91, 0x43, 0x0c, 0x2c, 0x93, 0x6a, 0xab, 0x5e,
+	0xb5, 0x91, 0xe4, 0xec, 0x74, 0xfb, 0x8e, 0x2e, 0x39, 0xd4, 0xf0, 0x5e, 0x58, 0x5e, 0x24, 0x03,
+	0x6c, 0x2b, 0x3a, 0x0b, 0x1e, 0xd7, 0x6e, 0x9e, 0xc7, 0x46, 0x11, 0xe4, 0x00, 0x80, 0x8c, 0xb0,
+	0xa3, 0x1e, 0x03, 0x95, 0xc8, 0xba, 0xf9, 0x44, 0xb6, 0x8a, 0x5e, 0x64, 0x5a, 0xdc, 0x96, 0xc6,
+	0xd2, 0xb6, 0x6c, 0xfd, 0x82, 0x70, 0x53, 0x0b, 0xa4, 0x9e, 0x0b, 0x39, 0xc9, 0xe1, 0xb3, 0x3c,
+	0x81, 0x7c, 0x41, 0x22, 0xf4, 0x4a, 0x89, 0x56, 0x1c, 0xf6, 0xc5, 0x62, 0x6a, 0xcb, 0xab, 0xbb,
+	0x8b, 0x1b, 0xe6, 0xdb, 0x56, 0x29, 0x78, 0x67, 0xe7, 0xfe, 0x55, 0x81, 0x3f, 0xd2, 0x90, 0xb0,
+	0xc4, 0x3e, 0xae, 0x7f, 0xf3, 0xac, 0x5d, 0x09, 0x3e, 0x7d, 0x3e, 0x6b, 0xa1, 0x17, 0xb3, 0x16,
+	0x7a, 0x39, 0x6b, 0xa1, 0x3f, 0x67, 0x2d, 0xf4, 0xdd, 0x45, 0xab, 0xf2, 0xf2, 0xa2, 0x55, 0xf9,
+	0xed, 0xa2, 0x55, 0xf9, 0xc2, 0xff, 0x17, 0x75, 0x45, 0x4c, 0x35, 0x12, 0x31, 0x1f, 0xfb, 0xf1,
+	0x88, 0xb2, 0xd4, 0x9f, 0x3e, 0xf4, 0xbf, 0x2a, 0x7f, 0xad, 0x28, 0x1e, 0xfb, 0x96, 0x42, 0x3c,
+	0xfc, 0x27, 0x00, 0x00, 0xff, 0xff, 0x45, 0xf3, 0xa8, 0xb7, 0xc9, 0x08, 0x00, 0x00,
 }
 
+func (this *SignalDeviation) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*SignalDeviation)
+	if !ok {
+		that2, ok := that.(SignalDeviation)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.SignalID != that1.SignalID {
+		return false
+	}
+	if this.SoftDeviationBPS != that1.SoftDeviationBPS {
+		return false
+	}
+	if this.HardDeviationBPS != that1.HardDeviationBPS {
+		return false
+	}
+	return true
+}
+func (this *Deposit) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Deposit)
+	if !ok {
+		that2, ok := that.(Deposit)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.TunnelID != that1.TunnelID {
+		return false
+	}
+	if this.Depositor != that1.Depositor {
+		return false
+	}
+	if len(this.Amount) != len(that1.Amount) {
+		return false
+	}
+	for i := range this.Amount {
+		if !this.Amount[i].Equal(&that1.Amount[i]) {
+			return false
+		}
+	}
+	return true
+}
 func (this *Tunnel) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
@@ -796,71 +860,6 @@ func (this *Packet) Equal(that interface{}) bool {
 	}
 	return true
 }
-func (this *Deposit) Equal(that interface{}) bool {
-	if that == nil {
-		return this == nil
-	}
-
-	that1, ok := that.(*Deposit)
-	if !ok {
-		that2, ok := that.(Deposit)
-		if ok {
-			that1 = &that2
-		} else {
-			return false
-		}
-	}
-	if that1 == nil {
-		return this == nil
-	} else if this == nil {
-		return false
-	}
-	if this.TunnelID != that1.TunnelID {
-		return false
-	}
-	if this.Depositor != that1.Depositor {
-		return false
-	}
-	if len(this.Amount) != len(that1.Amount) {
-		return false
-	}
-	for i := range this.Amount {
-		if !this.Amount[i].Equal(&that1.Amount[i]) {
-			return false
-		}
-	}
-	return true
-}
-func (this *SignalDeviation) Equal(that interface{}) bool {
-	if that == nil {
-		return this == nil
-	}
-
-	that1, ok := that.(*SignalDeviation)
-	if !ok {
-		that2, ok := that.(SignalDeviation)
-		if ok {
-			that1 = &that2
-		} else {
-			return false
-		}
-	}
-	if that1 == nil {
-		return this == nil
-	} else if this == nil {
-		return false
-	}
-	if this.SignalID != that1.SignalID {
-		return false
-	}
-	if this.SoftDeviationBPS != that1.SoftDeviationBPS {
-		return false
-	}
-	if this.HardDeviationBPS != that1.HardDeviationBPS {
-		return false
-	}
-	return true
-}
 func (this *TunnelSignatureOrder) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
@@ -899,6 +898,95 @@ func (this *TunnelSignatureOrder) Equal(that interface{}) bool {
 	}
 	return true
 }
+func (m *SignalDeviation) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *SignalDeviation) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *SignalDeviation) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.HardDeviationBPS != 0 {
+		i = encodeVarintTunnel(dAtA, i, uint64(m.HardDeviationBPS))
+		i--
+		dAtA[i] = 0x18
+	}
+	if m.SoftDeviationBPS != 0 {
+		i = encodeVarintTunnel(dAtA, i, uint64(m.SoftDeviationBPS))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.SignalID) > 0 {
+		i -= len(m.SignalID)
+		copy(dAtA[i:], m.SignalID)
+		i = encodeVarintTunnel(dAtA, i, uint64(len(m.SignalID)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *Deposit) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Deposit) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Deposit) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Amount) > 0 {
+		for iNdEx := len(m.Amount) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Amount[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTunnel(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.Depositor) > 0 {
+		i -= len(m.Depositor)
+		copy(dAtA[i:], m.Depositor)
+		i = encodeVarintTunnel(dAtA, i, uint64(len(m.Depositor)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.TunnelID != 0 {
+		i = encodeVarintTunnel(dAtA, i, uint64(m.TunnelID))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *Tunnel) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1182,95 +1270,6 @@ func (m *Packet) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *Deposit) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *Deposit) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *Deposit) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Amount) > 0 {
-		for iNdEx := len(m.Amount) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.Amount[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintTunnel(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0x1a
-		}
-	}
-	if len(m.Depositor) > 0 {
-		i -= len(m.Depositor)
-		copy(dAtA[i:], m.Depositor)
-		i = encodeVarintTunnel(dAtA, i, uint64(len(m.Depositor)))
-		i--
-		dAtA[i] = 0x12
-	}
-	if m.TunnelID != 0 {
-		i = encodeVarintTunnel(dAtA, i, uint64(m.TunnelID))
-		i--
-		dAtA[i] = 0x8
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *SignalDeviation) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *SignalDeviation) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *SignalDeviation) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.HardDeviationBPS != 0 {
-		i = encodeVarintTunnel(dAtA, i, uint64(m.HardDeviationBPS))
-		i--
-		dAtA[i] = 0x18
-	}
-	if m.SoftDeviationBPS != 0 {
-		i = encodeVarintTunnel(dAtA, i, uint64(m.SoftDeviationBPS))
-		i--
-		dAtA[i] = 0x10
-	}
-	if len(m.SignalID) > 0 {
-		i -= len(m.SignalID)
-		copy(dAtA[i:], m.SignalID)
-		i = encodeVarintTunnel(dAtA, i, uint64(len(m.SignalID)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
 func (m *TunnelSignatureOrder) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1334,6 +1333,47 @@ func encodeVarintTunnel(dAtA []byte, offset int, v uint64) int {
 	dAtA[offset] = uint8(v)
 	return base
 }
+func (m *SignalDeviation) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = len(m.SignalID)
+	if l > 0 {
+		n += 1 + l + sovTunnel(uint64(l))
+	}
+	if m.SoftDeviationBPS != 0 {
+		n += 1 + sovTunnel(uint64(m.SoftDeviationBPS))
+	}
+	if m.HardDeviationBPS != 0 {
+		n += 1 + sovTunnel(uint64(m.HardDeviationBPS))
+	}
+	return n
+}
+
+func (m *Deposit) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.TunnelID != 0 {
+		n += 1 + sovTunnel(uint64(m.TunnelID))
+	}
+	l = len(m.Depositor)
+	if l > 0 {
+		n += 1 + l + sovTunnel(uint64(l))
+	}
+	if len(m.Amount) > 0 {
+		for _, e := range m.Amount {
+			l = e.Size()
+			n += 1 + l + sovTunnel(uint64(l))
+		}
+	}
+	return n
+}
+
 func (m *Tunnel) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1458,47 +1498,6 @@ func (m *Packet) Size() (n int) {
 	return n
 }
 
-func (m *Deposit) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.TunnelID != 0 {
-		n += 1 + sovTunnel(uint64(m.TunnelID))
-	}
-	l = len(m.Depositor)
-	if l > 0 {
-		n += 1 + l + sovTunnel(uint64(l))
-	}
-	if len(m.Amount) > 0 {
-		for _, e := range m.Amount {
-			l = e.Size()
-			n += 1 + l + sovTunnel(uint64(l))
-		}
-	}
-	return n
-}
-
-func (m *SignalDeviation) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.SignalID)
-	if l > 0 {
-		n += 1 + l + sovTunnel(uint64(l))
-	}
-	if m.SoftDeviationBPS != 0 {
-		n += 1 + sovTunnel(uint64(m.SoftDeviationBPS))
-	}
-	if m.HardDeviationBPS != 0 {
-		n += 1 + sovTunnel(uint64(m.HardDeviationBPS))
-	}
-	return n
-}
-
 func (m *TunnelSignatureOrder) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1528,6 +1527,261 @@ func sovTunnel(x uint64) (n int) {
 }
 func sozTunnel(x uint64) (n int) {
 	return sovTunnel(uint64((x << 1) ^ uint64((int64(x) >> 63))))
+}
+func (m *SignalDeviation) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTunnel
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: SignalDeviation: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: SignalDeviation: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SignalID", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTunnel
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.SignalID = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SoftDeviationBPS", wireType)
+			}
+			m.SoftDeviationBPS = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTunnel
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.SoftDeviationBPS |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field HardDeviationBPS", wireType)
+			}
+			m.HardDeviationBPS = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTunnel
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.HardDeviationBPS |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTunnel(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Deposit) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTunnel
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Deposit: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Deposit: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TunnelID", wireType)
+			}
+			m.TunnelID = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTunnel
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.TunnelID |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Depositor", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTunnel
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Depositor = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTunnel
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Amount = append(m.Amount, types.Coin{})
+			if err := m.Amount[len(m.Amount)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTunnel(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTunnel
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
 }
 func (m *Tunnel) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
@@ -1626,7 +1880,7 @@ func (m *Tunnel) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if m.Route == nil {
-				m.Route = &types.Any{}
+				m.Route = &types1.Any{}
 			}
 			if err := m.Route.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -1746,7 +2000,7 @@ func (m *Tunnel) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.TotalDeposit = append(m.TotalDeposit, types1.Coin{})
+			m.TotalDeposit = append(m.TotalDeposit, types.Coin{})
 			if err := m.TotalDeposit[len(m.TotalDeposit)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -2023,7 +2277,7 @@ func (m *TotalFees) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.TotalBasePacketFee = append(m.TotalBasePacketFee, types1.Coin{})
+			m.TotalBasePacketFee = append(m.TotalBasePacketFee, types.Coin{})
 			if err := m.TotalBasePacketFee[len(m.TotalBasePacketFee)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -2180,7 +2434,7 @@ func (m *Packet) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			if m.Receipt == nil {
-				m.Receipt = &types.Any{}
+				m.Receipt = &types1.Any{}
 			}
 			if err := m.Receipt.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
@@ -2215,7 +2469,7 @@ func (m *Packet) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.BaseFee = append(m.BaseFee, types1.Coin{})
+			m.BaseFee = append(m.BaseFee, types.Coin{})
 			if err := m.BaseFee[len(m.BaseFee)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -2249,7 +2503,7 @@ func (m *Packet) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.RouteFee = append(m.RouteFee, types1.Coin{})
+			m.RouteFee = append(m.RouteFee, types.Coin{})
 			if err := m.RouteFee[len(m.RouteFee)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
@@ -2269,261 +2523,6 @@ func (m *Packet) Unmarshal(dAtA []byte) error {
 				b := dAtA[iNdEx]
 				iNdEx++
 				m.CreatedAt |= int64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTunnel(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *Deposit) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTunnel
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: Deposit: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Deposit: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field TunnelID", wireType)
-			}
-			m.TunnelID = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.TunnelID |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Depositor", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Depositor = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Amount", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Amount = append(m.Amount, types1.Coin{})
-			if err := m.Amount[len(m.Amount)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipTunnel(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *SignalDeviation) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowTunnel
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: SignalDeviation: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: SignalDeviation: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SignalID", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTunnel
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.SignalID = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field SoftDeviationBPS", wireType)
-			}
-			m.SoftDeviationBPS = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.SoftDeviationBPS |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field HardDeviationBPS", wireType)
-			}
-			m.HardDeviationBPS = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTunnel
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.HardDeviationBPS |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}

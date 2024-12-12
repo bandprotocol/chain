@@ -38,14 +38,15 @@ type KeeperTestSuite struct {
 	msgServer   types.MsgServer
 	storeKey    storetypes.StoreKey
 
-	accountKeeper *testutil.MockAccountKeeper
-	bankKeeper    *testutil.MockBankKeeper
-	feedsKeeper   *testutil.MockFeedsKeeper
-	bandtssKeeper *testutil.MockBandtssKeeper
-	icsWrapper    *testutil.MockICS4Wrapper
-	portKeeper    *testutil.MockPortKeeper
-	channelKeeper *testutil.MockChannelKeeper
-	scopedKeeper  *testutil.MockScopedKeeper
+	accountKeeper  *testutil.MockAccountKeeper
+	bankKeeper     *testutil.MockBankKeeper
+	feedsKeeper    *testutil.MockFeedsKeeper
+	bandtssKeeper  *testutil.MockBandtssKeeper
+	icsWrapper     *testutil.MockICS4Wrapper
+	portKeeper     *testutil.MockPortKeeper
+	channelKeeper  *testutil.MockChannelKeeper
+	scopedKeeper   *testutil.MockScopedKeeper
+	transferKeeper *testutil.MockTransferKeeper
 
 	ctx       sdk.Context
 	authority sdk.AccAddress
@@ -69,6 +70,7 @@ func (s *KeeperTestSuite) reset() {
 	icsWrapper := testutil.NewMockICS4Wrapper(ctrl)
 	portKeeper := testutil.NewMockPortKeeper(ctrl)
 	scopedKeeper := testutil.NewMockScopedKeeper(ctrl)
+	transferKeeper := testutil.NewMockTransferKeeper(ctrl)
 
 	authority := authtypes.NewModuleAddress(govtypes.ModuleName)
 
@@ -86,6 +88,7 @@ func (s *KeeperTestSuite) reset() {
 		icsWrapper,
 		portKeeper,
 		scopedKeeper,
+		transferKeeper,
 		authority.String(),
 	)
 	s.queryServer = keeper.NewQueryServer(s.keeper)
@@ -98,6 +101,7 @@ func (s *KeeperTestSuite) reset() {
 	s.icsWrapper = icsWrapper
 	s.portKeeper = portKeeper
 	s.scopedKeeper = scopedKeeper
+	s.transferKeeper = transferKeeper
 
 	s.ctx = testCtx.Ctx.WithBlockHeader(tmproto.Header{Time: time.Now().UTC()})
 	s.authority = authority
