@@ -29,6 +29,7 @@ The Tunnel module is designed to decentralize the creation of push-based price d
     - [MsgCreateTunnel](#msgcreatetunnel)
     - [MsgUpdateRoute](#msgupdateroute)
     - [MsgUpdateSignalsAndInterval](#msgupdatesignalsandinterval)
+    - [MsgWithdrawFeePayerFunds](#msgwithdrawfeepayerfunds)
     - [MsgActivate](#msgactivate)
     - [MsgDeactivate](#msgdeactivate)
     - [MsgTriggerTunnel](#msgtriggertunnel)
@@ -289,6 +290,8 @@ message MsgUpdateRoute {
 
 ### MsgUpdateSignalsAndInterval
 
+Allows the creator of a tunnel to update the list of signal deviations and the interval for the tunnel.
+
 ```protobuf
 // MsgUpdateSignalsAndInterval is the transaction message to update signals and interval of the tunnel.
 message MsgUpdateSignalsAndInterval {
@@ -303,6 +306,29 @@ message MsgUpdateSignalsAndInterval {
   uint64 interval = 3;
   // creator is the address of the creator.
   string creator = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
+```
+
+### MsgWithdrawFeePayerFunds
+
+Allows the creator of a tunnel to withdraw funds from the fee payer to the creator.
+
+```protobuf
+// MsgWithdrawFeePayerFunds is the transaction message to withdraw fee payer funds to creator.
+message MsgWithdrawFeePayerFunds {
+  option (cosmos.msg.v1.signer) = "fee_payer";
+  option (amino.name)           = "tunnel/MsgWithdrawFeePayerCoins";
+
+  // tunnel_id is the ID of the tunnel to withdraw fee payer coins.
+  uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
+  // coins is the coins to withdraw.
+  repeated cosmos.base.v1beta1.Coin amount = 2 [
+    (gogoproto.nullable)     = false,
+    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
+    (amino.dont_omitempty)   = true
+  ];
+  // creator is the address of the creator.
+  string creator = 3 [(cosmos_proto.scalar) = "cosmos.AddressString"];
 }
 ```
 
