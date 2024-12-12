@@ -50,7 +50,7 @@ func GetTxCmdCreateTunnel() *cobra.Command {
 	txCmd.AddCommand(
 		GetTxCmdCreateTSSTunnel(),
 		GetTxCmdCreateIBCTunnel(),
-		GetTxCmdRouterTunnel(),
+		GetTxCmdCreateRouterTunnel(),
 	)
 
 	return txCmd
@@ -156,7 +156,7 @@ func GetTxCmdCreateIBCTunnel() *cobra.Command {
 	return cmd
 }
 
-func GetTxCmdRouterTunnel() *cobra.Command {
+func GetTxCmdCreateRouterTunnel() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "router [channel-id] [fund] [bridge-contract-address] [dest-chain-id] [dest-contract-address] [dest-gas-limit] [dest-gas-price] [initial-deposit] [interval] [signalDeviations-json-file]",
 		Short: "Create a new router tunnel",
