@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	"sort"
 
 	dbm "github.com/cosmos/cosmos-db"
@@ -198,6 +199,14 @@ func (k Keeper) SetMemberIsActive(ctx sdk.Context, groupID tss.GroupID, address 
 
 	m.IsActive = status
 	k.SetMember(ctx, m)
+
+	ctx.EventManager().EmitEvent(sdk.NewEvent(
+		types.EventTypeSetMemberIsActive,
+		sdk.NewAttribute(types.AttributeKeyAddress, address.String()),
+		sdk.NewAttribute(types.AttributeKeyGroupID, fmt.Sprintf("%d", groupID)),
+		sdk.NewAttribute(types.AttributeKeyMemberStatus, fmt.Sprintf("%t", status)),
+	))
+
 	return nil
 }
 
