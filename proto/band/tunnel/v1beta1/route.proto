@@ -33,9 +33,9 @@ message TSSPacketReceipt {
   ];
 }
 
-// IBCRoute is the type for an IBC route
+// IBCRoute represents a route for IBC packets and implements the RouteI interface.
 message IBCRoute {
-  option (cosmos_proto.implements_interface) = "Route";
+  option (cosmos_proto.implements_interface) = "RouteI";
 
   // channel_id is the IBC channel ID
   string channel_id = 1 [(gogoproto.customname) = "ChannelID"];
@@ -43,7 +43,7 @@ message IBCRoute {
 
 // IBCPacketReceipt represents a receipt for a IBC packet and implements the PacketReceiptI interface.
 message IBCPacketReceipt {
-  option (cosmos_proto.implements_interface) = "PacketContentI";
+  option (cosmos_proto.implements_interface) = "PacketReceiptI";
 
   // sequence is representing the sequence of the IBC packet.
   uint64 sequence = 1;
