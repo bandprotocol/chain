@@ -471,7 +471,7 @@ func (s *KeeperTestSuite) TestWithdrawFeePayerFunds() {
 				amount := sdk.NewCoins(sdk.NewInt64Coin("uband", 9999999999))
 
 				s.bankKeeper.EXPECT().
-					SendCoins(s.ctx, sdk.AccAddress(tunnel.FeePayer), sdk.AccAddress(creator), amount).
+					SendCoins(s.ctx, sdk.MustAccAddressFromBech32(tunnel.FeePayer), sdk.MustAccAddressFromBech32(creator), amount).
 					Return(sdkerrors.ErrInsufficientFunds).Times(1)
 
 				return &types.MsgWithdrawFeePayerFunds{
@@ -490,7 +490,7 @@ func (s *KeeperTestSuite) TestWithdrawFeePayerFunds() {
 				amount := sdk.NewCoins(sdk.NewInt64Coin("uband", 500))
 
 				s.bankKeeper.EXPECT().
-					SendCoins(s.ctx, sdk.AccAddress(tunnel.FeePayer), sdk.AccAddress(creator), amount).
+					SendCoins(s.ctx, sdk.MustAccAddressFromBech32(tunnel.FeePayer), sdk.MustAccAddressFromBech32(creator), amount).
 					Return(nil).Times(1)
 
 				return &types.MsgWithdrawFeePayerFunds{
