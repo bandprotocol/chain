@@ -186,11 +186,21 @@ func (k msgServer) WithdrawFeePayerFunds(
 		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", msg.Creator, msg.TunnelID)
 	}
 
+	feePayer, err := sdk.AccAddressFromBech32(tunnel.FeePayer)
+	if err != nil {
+		return nil, err
+	}
+
+	creator, err := sdk.AccAddressFromBech32(msg.Creator)
+	if err != nil {
+		return nil, err
+	}
+
 	// send coins from the fee payer to the creator
 	if err := k.Keeper.bankKeeper.SendCoins(
 		ctx,
-		sdk.AccAddress(tunnel.FeePayer),
-		sdk.AccAddress(tunnel.Creator),
+		feePayer,
+		creator,
 		msg.Amount,
 	); err != nil {
 		return nil, err

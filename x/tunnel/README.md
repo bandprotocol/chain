@@ -316,7 +316,7 @@ Allows the creator of a tunnel to withdraw funds from the fee payer to the creat
 ```protobuf
 // MsgWithdrawFeePayerFunds is the transaction message to withdraw fee payer funds to creator.
 message MsgWithdrawFeePayerFunds {
-  option (cosmos.msg.v1.signer) = "fee_payer";
+  option (cosmos.msg.v1.signer) = "creator";
   option (amino.name)           = "tunnel/MsgWithdrawFeePayerCoins";
 
   // tunnel_id is the ID of the tunnel to withdraw fee payer coins.
