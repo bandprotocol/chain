@@ -111,11 +111,11 @@ message MsgUpdateSignalsAndIntervalResponse {}
 // MsgWithdrawFeePayerFunds is the transaction message to withdraw fee payer funds to creator.
 message MsgWithdrawFeePayerFunds {
   option (cosmos.msg.v1.signer) = "creator";
-  option (amino.name)           = "tunnel/MsgWithdrawFeePayerCoins";
+  option (amino.name)           = "tunnel/MsgWithdrawFeePayerFunds";
 
   // tunnel_id is the ID of the tunnel to withdraw fee payer coins.
   uint64 tunnel_id = 1 [(gogoproto.customname) = "TunnelID"];
-  // coins is the coins to withdraw.
+  // amount is the coins to withdraw.
   repeated cosmos.base.v1beta1.Coin amount = 2 [
     (gogoproto.nullable)     = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins",
