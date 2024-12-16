@@ -28,7 +28,7 @@ import (
 	tunneltypes "github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
-// UpgradeName defines the on-chain upgrade name for the Osmosis v26 upgrade.
+// UpgradeName defines the on-chain upgrade name.
 const (
 	UpgradeName = "v3"
 
