@@ -80,30 +80,37 @@ func (h *Hook) handleMsgChannelCloseConfirm(ctx sdk.Context, msg *types.MsgChann
 	h.emitSetChannel(ctx, msg.PortId, msg.ChannelId)
 }
 
-func (h *Hook) handleMsgAcknowledgement(ctx sdk.Context, msg *types.MsgAcknowledgement, evMap common.EvMap) {
+func (h *Hook) handleMsgAcknowledgement(ctx sdk.Context, msg *types.MsgAcknowledgement, _ common.EvMap) {
 	packet := common.JsDict{
 		"src_channel": msg.Packet.SourceChannel,
 		"src_port":    msg.Packet.SourcePort,
 		"sequence":    msg.Packet.Sequence,
 		"block_time":  ctx.BlockTime().UnixNano(),
 	}
-	var data ibcxfertypes.FungibleTokenPacketData
-	err := ibcxfertypes.ModuleCdc.UnmarshalJSON(msg.Packet.GetData(), &data)
-	if err == nil {
-		if events, ok := evMap[ibcxfertypes.EventTypePacket+"."+ibcxfertypes.AttributeKeyAckError]; ok {
-			packet["acknowledgement"] = common.JsDict{
-				"status": "failure",
-				"reason": events[0],
-			}
-			// Update balance of sender (refund)
-			h.AddAccountsInTx(data.Sender)
-		} else {
+
+	var ack types.Acknowledgement
+	if err := ibcxfertypes.ModuleCdc.UnmarshalJSON(msg.Acknowledgement, &ack); err == nil {
+		switch resp := ack.Response.(type) {
+		case *types.Acknowledgement_Result:
 			packet["acknowledgement"] = common.JsDict{
 				"status": "success",
 			}
+		case *types.Acknowledgement_Error:
+			packet["acknowledgement"] = common.JsDict{
+				"status": "failure",
+				"reason": resp.Error,
+			}
 		}
-		h.Write("UPDATE_OUTGOING_PACKET", packet)
 	}
+
+	var data ibcxfertypes.FungibleTokenPacketData
+	err := ibcxfertypes.ModuleCdc.UnmarshalJSON(msg.Packet.GetData(), &data)
+	if err == nil {
+		// Update balance of sender (refund)
+		h.AddAccountsInTx(data.Sender)
+	}
+
+	h.Write("UPDATE_OUTGOING_PACKET", packet)
 }
 
 func (h *Hook) handleMsgTimeout(ctx sdk.Context, msg *types.MsgTimeout) {
@@ -113,18 +120,21 @@ func (h *Hook) handleMsgTimeout(ctx sdk.Context, msg *types.MsgTimeout) {
 		"sequence":    msg.Packet.Sequence,
 		"block_time":  ctx.BlockTime().UnixNano(),
 	}
+
+	// We use acknowledgement column to track packet status
+	packet["acknowledgement"] = common.JsDict{
+		"status": "timeout",
+	}
+
 	// TODO: Handle other packet type
 	var data ibcxfertypes.FungibleTokenPacketData
 	err := ibcxfertypes.ModuleCdc.UnmarshalJSON(msg.Packet.GetData(), &data)
 	if err == nil {
-		// We use acknowledgement column to track packet status
-		packet["acknowledgement"] = common.JsDict{
-			"status": "timeout",
-		}
 		// Update balance of sender (refund)
 		h.AddAccountsInTx(data.Sender)
-		h.Write("UPDATE_OUTGOING_PACKET", packet)
 	}
+
+	h.Write("UPDATE_OUTGOING_PACKET", packet)
 }
 
 func newPacket(
