@@ -19,8 +19,8 @@ func (h *Hook) handleMsgMultiSend(msg *types.MsgMultiSend) {
 }
 
 func (h *Hook) handleEventTypeTransfer(evMap common.EvMap) {
-	// add sender account in case use bank keeper to send coins
-	h.AddAccountsInBlock(evMap[types.EventTypeTransfer+"."+types.AttributeKeySender][0])
-
-	h.AddAccountsInBlock(evMap[types.EventTypeTransfer+"."+types.AttributeKeyRecipient][0])
+	h.AddAccountsInBlock(
+		evMap[types.EventTypeTransfer+"."+types.AttributeKeyRecipient][0],
+		evMap[types.EventTypeTransfer+"."+types.AttributeKeySender][0],
+	)
 }
