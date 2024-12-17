@@ -111,6 +111,6 @@ sudo ln -s /opt/homebrew/lib/libgmp.10.dylib /usr/local/lib/
 
 BandChain is licensed under the terms of the GPL 3.0 License unless otherwise specified in the LICENSE file at module's root.
 
-We highly encourage participation from the community to help with D3N development. If you are interested in developing with D3N or have suggestions for protocol improvements, please open an issue, submit a pull request, or [drop as a line].
+We highly encourage participation from the community to help with D3N development. If you are interested in developing with D3N or have suggestions for protocol improvements, please open an issue, submit a pull request, or [drop us a line].
 
 [drop us a line]: mailto:connect@bandprotocol.com
