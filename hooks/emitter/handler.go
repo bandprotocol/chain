@@ -165,7 +165,7 @@ func (h *Hook) handleMsgEvent(ctx sdk.Context, txHash []byte, event abci.Event) 
 	evMap := parseEvents([]abci.Event{event})
 	switch event.Type {
 	case banktypes.EventTypeTransfer:
-		h.handleEventTypeTransfer(evMap)
+		h.handleMsgEventTypeTransfer(evMap)
 	case restaketypes.EventTypeCreateVault:
 		h.handleRestakeEventCreateVault(ctx, evMap)
 	case restaketypes.EventTypeLockPower:

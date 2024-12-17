@@ -18,6 +18,15 @@ func (h *Hook) handleMsgMultiSend(msg *types.MsgMultiSend) {
 	}
 }
 
+// handleMsgEventTypeTransfer implements emitter handler for Msg that has EventTypeTransfer.
+func (h *Hook) handleMsgEventTypeTransfer(evMap common.EvMap) {
+	h.AddAccountsInTx(
+		evMap[types.EventTypeTransfer+"."+types.AttributeKeyRecipient][0],
+		evMap[types.EventTypeTransfer+"."+types.AttributeKeySender][0],
+	)
+}
+
+// handleEventTypeTransfer implements emitter handler for Event that has EventTypeTransfer.
 func (h *Hook) handleEventTypeTransfer(evMap common.EvMap) {
 	h.AddAccountsInBlock(
 		evMap[types.EventTypeTransfer+"."+types.AttributeKeyRecipient][0],
