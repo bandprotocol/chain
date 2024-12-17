@@ -27,7 +27,6 @@ import (
 type MockAccountKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockAccountKeeperMockRecorder
-	isgomock struct{}
 }
 
 // MockAccountKeeperMockRecorder is the mock recorder for MockAccountKeeper.
@@ -131,7 +130,6 @@ func (mr *MockAccountKeeperMockRecorder) SetModuleAccount(ctx, moduleAccount any
 type MockBankKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockBankKeeperMockRecorder
-	isgomock struct{}
 }
 
 // MockBankKeeperMockRecorder is the mock recorder for MockBankKeeper.
@@ -163,6 +161,20 @@ func (m *MockBankKeeper) GetAllBalances(ctx context.Context, addr types2.AccAddr
 func (mr *MockBankKeeperMockRecorder) GetAllBalances(ctx, addr any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllBalances", reflect.TypeOf((*MockBankKeeper)(nil).GetAllBalances), ctx, addr)
+}
+
+// SendCoins mocks base method.
+func (m *MockBankKeeper) SendCoins(ctx context.Context, fromAddr, toAddr types2.AccAddress, amt types2.Coins) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SendCoins", ctx, fromAddr, toAddr, amt)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SendCoins indicates an expected call of SendCoins.
+func (mr *MockBankKeeperMockRecorder) SendCoins(ctx, fromAddr, toAddr, amt any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendCoins", reflect.TypeOf((*MockBankKeeper)(nil).SendCoins), ctx, fromAddr, toAddr, amt)
 }
 
 // SendCoinsFromAccountToModule mocks base method.
@@ -211,7 +223,6 @@ func (mr *MockBankKeeperMockRecorder) SpendableCoins(ctx, addr any) *gomock.Call
 type MockICS4Wrapper struct {
 	ctrl     *gomock.Controller
 	recorder *MockICS4WrapperMockRecorder
-	isgomock struct{}
 }
 
 // MockICS4WrapperMockRecorder is the mock recorder for MockICS4Wrapper.
@@ -250,7 +261,6 @@ func (mr *MockICS4WrapperMockRecorder) SendPacket(ctx, chanCap, sourcePort, sour
 type MockChannelKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockChannelKeeperMockRecorder
-	isgomock struct{}
 }
 
 // MockChannelKeeperMockRecorder is the mock recorder for MockChannelKeeper.
@@ -289,7 +299,6 @@ func (mr *MockChannelKeeperMockRecorder) GetChannel(ctx, srcPort, srcChan any) *
 type MockPortKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockPortKeeperMockRecorder
-	isgomock struct{}
 }
 
 // MockPortKeeperMockRecorder is the mock recorder for MockPortKeeper.
@@ -327,7 +336,6 @@ func (mr *MockPortKeeperMockRecorder) BindPort(ctx, portID any) *gomock.Call {
 type MockScopedKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockScopedKeeperMockRecorder
-	isgomock struct{}
 }
 
 // MockScopedKeeperMockRecorder is the mock recorder for MockScopedKeeper.
@@ -394,7 +402,6 @@ func (mr *MockScopedKeeperMockRecorder) GetCapability(ctx, name any) *gomock.Cal
 type MockFeedsKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockFeedsKeeperMockRecorder
-	isgomock struct{}
 }
 
 // MockFeedsKeeperMockRecorder is the mock recorder for MockFeedsKeeper.
@@ -446,7 +453,6 @@ func (mr *MockFeedsKeeperMockRecorder) GetPrices(ctx, signalIDs any) *gomock.Cal
 type MockBandtssKeeper struct {
 	ctrl     *gomock.Controller
 	recorder *MockBandtssKeeperMockRecorder
-	isgomock struct{}
 }
 
 // MockBandtssKeeperMockRecorder is the mock recorder for MockBandtssKeeper.
