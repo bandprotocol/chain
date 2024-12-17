@@ -140,7 +140,7 @@ type Config struct {
 	MaxTry           	uint64        		// The maximum number of tries to submit a report transaction
 	MinDE            	uint64        		// The minimum number of DE
 	GasAdjustStart   	float64       		// The start value of gas adjustment
-	GasAdjustStep    	float64       		// The increment step of gad adjustment
+	GasAdjustStep    	float64       		// The increment step of gas adjustment
 	RandomSecret     	tss.Scalar    		// The secret value that is used for random D,E
 	CheckingDEInterval 	time.Duration  		// The interval for updating DE
 }
