@@ -14,7 +14,7 @@ require (
 	cosmossdk.io/tools/rosetta v0.2.1-0.20230613133644-0a778132a60f
 	cosmossdk.io/x/evidence v0.1.1
 	cosmossdk.io/x/feegrant v0.1.1
-	cosmossdk.io/x/tx v0.13.5
+	cosmossdk.io/x/tx v0.13.7
 	cosmossdk.io/x/upgrade v0.1.4
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/bandprotocol/bothan/bothan-api/client/go-client v0.0.1-alpha.6
