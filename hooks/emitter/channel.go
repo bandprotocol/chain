@@ -15,6 +15,7 @@ import (
 
 	"github.com/bandprotocol/chain/v3/hooks/common"
 	oracletypes "github.com/bandprotocol/chain/v3/x/oracle/types"
+	tunneltypes "github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
 func (h *Hook) emitSetChannel(ctx sdk.Context, portId string, channelId string) {
@@ -437,6 +438,29 @@ func (h *Hook) extractOracleResponsePacket(
 	return false
 }
 
+func (h *Hook) extractTunnelPricesPacket(
+	_ sdk.Context, packet common.JsDict, evMap common.EvMap,
+) bool {
+	var data tunneltypes.TunnelPricesPacketData
+
+	eventData, _ := hex.DecodeString(evMap[types.EventTypeSendPacket+"."+types.AttributeKeyDataHex][0])
+	err := tunneltypes.ModuleCdc.UnmarshalJSON(
+		eventData,
+		&data,
+	)
+	if err == nil {
+		packet["type"] = "tunnel prices"
+		packet["data"] = common.JsDict{
+			"tunnel_id":  data.TunnelID,
+			"sequence":   data.Sequence,
+			"prices":     data.Prices,
+			"created_at": data.CreatedAt,
+		}
+		return true
+	}
+	return false
+}
+
 func (h *Hook) handleEventSendPacket(
 	ctx sdk.Context, evMap common.EvMap,
 ) {
@@ -450,6 +474,9 @@ func (h *Hook) handleEventSendPacket(
 		nil,
 	)
 	if ok := h.extractOracleResponsePacket(ctx, packet, evMap); ok {
+		h.Write("NEW_OUTGOING_PACKET", packet)
+		return
+	} else if ok := h.extractTunnelPricesPacket(ctx, packet, evMap); ok {
 		h.Write("NEW_OUTGOING_PACKET", packet)
 		return
 	}
