@@ -170,6 +170,45 @@ func (k msgServer) UpdateSignalsAndInterval(
 	return &types.MsgUpdateSignalsAndIntervalResponse{}, nil
 }
 
+// WithdrawFeePayerFunds withdraws the fee payer's funds from the tunnel to the creator.
+func (k msgServer) WithdrawFeePayerFunds(
+	goCtx context.Context,
+	msg *types.MsgWithdrawFeePayerFunds,
+) (*types.MsgWithdrawFeePayerFundsResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	tunnel, err := k.Keeper.GetTunnel(ctx, msg.TunnelID)
+	if err != nil {
+		return nil, err
+	}
+
+	if msg.Creator != tunnel.Creator {
+		return nil, types.ErrInvalidTunnelCreator.Wrapf("creator %s, tunnelID %d", msg.Creator, msg.TunnelID)
+	}
+
+	feePayer, err := sdk.AccAddressFromBech32(tunnel.FeePayer)
+	if err != nil {
+		return nil, err
+	}
+
+	creator, err := sdk.AccAddressFromBech32(msg.Creator)
+	if err != nil {
+		return nil, err
+	}
+
+	// send coins from the fee payer to the creator
+	if err := k.Keeper.bankKeeper.SendCoins(
+		ctx,
+		feePayer,
+		creator,
+		msg.Amount,
+	); err != nil {
+		return nil, err
+	}
+
+	return &types.MsgWithdrawFeePayerFundsResponse{}, nil
+}
+
 // Activate activates a tunnel.
 func (k msgServer) Activate(
 	goCtx context.Context,

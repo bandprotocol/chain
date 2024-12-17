@@ -22,6 +22,7 @@ const (
 	Msg_CreateTunnel_FullMethodName             = "/band.tunnel.v1beta1.Msg/CreateTunnel"
 	Msg_UpdateRoute_FullMethodName              = "/band.tunnel.v1beta1.Msg/UpdateRoute"
 	Msg_UpdateSignalsAndInterval_FullMethodName = "/band.tunnel.v1beta1.Msg/UpdateSignalsAndInterval"
+	Msg_WithdrawFeePayerFunds_FullMethodName    = "/band.tunnel.v1beta1.Msg/WithdrawFeePayerFunds"
 	Msg_Activate_FullMethodName                 = "/band.tunnel.v1beta1.Msg/Activate"
 	Msg_Deactivate_FullMethodName               = "/band.tunnel.v1beta1.Msg/Deactivate"
 	Msg_TriggerTunnel_FullMethodName            = "/band.tunnel.v1beta1.Msg/TriggerTunnel"
@@ -40,6 +41,8 @@ type MsgClient interface {
 	UpdateRoute(ctx context.Context, in *MsgUpdateRoute, opts ...grpc.CallOption) (*MsgUpdateRouteResponse, error)
 	// UpdateSignalsAndInterval is a RPC method to update a signals and interval of the tunnel.
 	UpdateSignalsAndInterval(ctx context.Context, in *MsgUpdateSignalsAndInterval, opts ...grpc.CallOption) (*MsgUpdateSignalsAndIntervalResponse, error)
+	// WithdrawFeePayerFunds is a RPC method to withdraw fee payer funds to creator.
+	WithdrawFeePayerFunds(ctx context.Context, in *MsgWithdrawFeePayerFunds, opts ...grpc.CallOption) (*MsgWithdrawFeePayerFundsResponse, error)
 	// Activate is a RPC method to activate a tunnel.
 	Activate(ctx context.Context, in *MsgActivate, opts ...grpc.CallOption) (*MsgActivateResponse, error)
 	// Deactivate is a RPC method to deactivate a tunnel.
@@ -83,6 +86,15 @@ func (c *msgClient) UpdateRoute(ctx context.Context, in *MsgUpdateRoute, opts ..
 func (c *msgClient) UpdateSignalsAndInterval(ctx context.Context, in *MsgUpdateSignalsAndInterval, opts ...grpc.CallOption) (*MsgUpdateSignalsAndIntervalResponse, error) {
 	out := new(MsgUpdateSignalsAndIntervalResponse)
 	err := c.cc.Invoke(ctx, Msg_UpdateSignalsAndInterval_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) WithdrawFeePayerFunds(ctx context.Context, in *MsgWithdrawFeePayerFunds, opts ...grpc.CallOption) (*MsgWithdrawFeePayerFundsResponse, error) {
+	out := new(MsgWithdrawFeePayerFundsResponse)
+	err := c.cc.Invoke(ctx, Msg_WithdrawFeePayerFunds_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -153,6 +165,8 @@ type MsgServer interface {
 	UpdateRoute(context.Context, *MsgUpdateRoute) (*MsgUpdateRouteResponse, error)
 	// UpdateSignalsAndInterval is a RPC method to update a signals and interval of the tunnel.
 	UpdateSignalsAndInterval(context.Context, *MsgUpdateSignalsAndInterval) (*MsgUpdateSignalsAndIntervalResponse, error)
+	// WithdrawFeePayerFunds is a RPC method to withdraw fee payer funds to creator.
+	WithdrawFeePayerFunds(context.Context, *MsgWithdrawFeePayerFunds) (*MsgWithdrawFeePayerFundsResponse, error)
 	// Activate is a RPC method to activate a tunnel.
 	Activate(context.Context, *MsgActivate) (*MsgActivateResponse, error)
 	// Deactivate is a RPC method to deactivate a tunnel.
@@ -180,6 +194,9 @@ func (UnimplementedMsgServer) UpdateRoute(context.Context, *MsgUpdateRoute) (*Ms
 }
 func (UnimplementedMsgServer) UpdateSignalsAndInterval(context.Context, *MsgUpdateSignalsAndInterval) (*MsgUpdateSignalsAndIntervalResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateSignalsAndInterval not implemented")
+}
+func (UnimplementedMsgServer) WithdrawFeePayerFunds(context.Context, *MsgWithdrawFeePayerFunds) (*MsgWithdrawFeePayerFundsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WithdrawFeePayerFunds not implemented")
 }
 func (UnimplementedMsgServer) Activate(context.Context, *MsgActivate) (*MsgActivateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Activate not implemented")
@@ -262,6 +279,24 @@ func _Msg_UpdateSignalsAndInterval_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(MsgServer).UpdateSignalsAndInterval(ctx, req.(*MsgUpdateSignalsAndInterval))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_WithdrawFeePayerFunds_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgWithdrawFeePayerFunds)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).WithdrawFeePayerFunds(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Msg_WithdrawFeePayerFunds_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).WithdrawFeePayerFunds(ctx, req.(*MsgWithdrawFeePayerFunds))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -392,6 +427,10 @@ var Msg_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateSignalsAndInterval",
 			Handler:    _Msg_UpdateSignalsAndInterval_Handler,
+		},
+		{
+			MethodName: "WithdrawFeePayerFunds",
+			Handler:    _Msg_WithdrawFeePayerFunds_Handler,
 		},
 		{
 			MethodName: "Activate",

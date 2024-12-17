@@ -106,7 +106,7 @@ func (s *KeeperTestSuite) reset() {
 	s.Require().NoError(err)
 }
 
-func (s *KeeperTestSuite) AddSampleTunnel(isActive bool) {
+func (s *KeeperTestSuite) AddSampleTunnel(isActive bool) *types.Tunnel {
 	ctx, k := s.ctx, s.keeper
 
 	s.accountKeeper.EXPECT().
@@ -148,6 +148,8 @@ func (s *KeeperTestSuite) AddSampleTunnel(isActive bool) {
 		err = k.ActivateTunnel(ctx, tunnel.ID)
 		s.Require().NoError(err)
 	}
+
+	return tunnel
 }
 
 func (s *KeeperTestSuite) AddSampleIBCTunnel(isActive bool) {

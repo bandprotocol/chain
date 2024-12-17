@@ -432,6 +432,93 @@ func (s *KeeperTestSuite) TestMsgUpdateSignalsAndInterval() {
 	}
 }
 
+func (s *KeeperTestSuite) TestWithdrawFeePayerFunds() {
+	creator := sdk.AccAddress([]byte("creator_address")).String()
+
+	cases := map[string]struct {
+		preRun    func() *types.MsgWithdrawFeePayerFunds
+		expErr    bool
+		expErrMsg string
+	}{
+		"tunnel not found": {
+			preRun: func() *types.MsgWithdrawFeePayerFunds {
+				return &types.MsgWithdrawFeePayerFunds{
+					Creator:  creator,
+					TunnelID: 1,
+					Amount:   sdk.NewCoins(sdk.NewInt64Coin("uband", 500)),
+				}
+			},
+			expErr:    true,
+			expErrMsg: "tunnel not found",
+		},
+		"invalid creator": {
+			preRun: func() *types.MsgWithdrawFeePayerFunds {
+				s.AddSampleTunnel(false)
+
+				return &types.MsgWithdrawFeePayerFunds{
+					Creator:  "invalid_creator",
+					TunnelID: 1,
+					Amount:   sdk.NewCoins(sdk.NewInt64Coin("uband", 500)),
+				}
+			},
+			expErr:    true,
+			expErrMsg: "creator invalid_creator, tunnelID 1",
+		},
+		"insufficient funds": {
+			preRun: func() *types.MsgWithdrawFeePayerFunds {
+				tunnel := s.AddSampleTunnel(false)
+
+				amount := sdk.NewCoins(sdk.NewInt64Coin("uband", 9999999999))
+
+				s.bankKeeper.EXPECT().
+					SendCoins(s.ctx, sdk.MustAccAddressFromBech32(tunnel.FeePayer), sdk.MustAccAddressFromBech32(creator), amount).
+					Return(sdkerrors.ErrInsufficientFunds).Times(1)
+
+				return &types.MsgWithdrawFeePayerFunds{
+					Creator:  creator,
+					TunnelID: tunnel.ID,
+					Amount:   amount,
+				}
+			},
+			expErr:    true,
+			expErrMsg: "insufficient funds",
+		},
+		"all good": {
+			preRun: func() *types.MsgWithdrawFeePayerFunds {
+				tunnel := s.AddSampleTunnel(false)
+
+				amount := sdk.NewCoins(sdk.NewInt64Coin("uband", 500))
+
+				s.bankKeeper.EXPECT().
+					SendCoins(s.ctx, sdk.MustAccAddressFromBech32(tunnel.FeePayer), sdk.MustAccAddressFromBech32(creator), amount).
+					Return(nil).Times(1)
+
+				return &types.MsgWithdrawFeePayerFunds{
+					Creator:  creator,
+					TunnelID: 1,
+					Amount:   amount,
+				}
+			},
+			expErr: false,
+		},
+	}
+
+	for name, tc := range cases {
+		s.Run(name, func() {
+			s.reset()
+			msg := tc.preRun()
+
+			_, err := s.msgServer.WithdrawFeePayerFunds(s.ctx, msg)
+			if tc.expErr {
+				s.Require().Error(err)
+				s.Require().Contains(err.Error(), tc.expErrMsg)
+			} else {
+				s.Require().NoError(err)
+			}
+		})
+	}
+}
+
 func (s *KeeperTestSuite) TestMsgActivate() {
 	cases := map[string]struct {
 		preRun    func() *types.MsgActivate

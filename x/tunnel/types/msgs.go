@@ -11,9 +11,9 @@ import (
 )
 
 var (
-	_, _, _, _, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgUpdateRoute{}, &MsgUpdateSignalsAndInterval{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositToTunnel{}, &MsgWithdrawFromTunnel{}, &MsgUpdateParams{}
-	_, _, _, _, _, _, _, _, _ sdk.HasValidateBasic          = &MsgCreateTunnel{}, &MsgUpdateRoute{}, &MsgUpdateSignalsAndInterval{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositToTunnel{}, &MsgWithdrawFromTunnel{}, &MsgUpdateParams{}
-	_, _                      types.UnpackInterfacesMessage = &MsgCreateTunnel{}, &MsgUpdateRoute{}
+	_, _, _, _, _, _, _, _, _, _ sdk.Msg                       = &MsgCreateTunnel{}, &MsgUpdateRoute{}, &MsgUpdateSignalsAndInterval{}, &MsgWithdrawFeePayerFunds{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositToTunnel{}, &MsgWithdrawFromTunnel{}, &MsgUpdateParams{}
+	_, _, _, _, _, _, _, _, _    sdk.HasValidateBasic          = &MsgCreateTunnel{}, &MsgUpdateRoute{}, &MsgUpdateSignalsAndInterval{}, &MsgActivate{}, &MsgDeactivate{}, &MsgTriggerTunnel{}, &MsgDepositToTunnel{}, &MsgWithdrawFromTunnel{}, &MsgUpdateParams{}
+	_, _                         types.UnpackInterfacesMessage = &MsgCreateTunnel{}, &MsgUpdateRoute{}
 )
 
 // NewMsgCreateTunnel creates a new MsgCreateTunnel instance.
@@ -223,6 +223,30 @@ func (m MsgUpdateSignalsAndInterval) ValidateBasic() error {
 	// signal deviations cannot duplicate
 	if err := validateUniqueSignalIDs(m.SignalDeviations); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// NewMsgWithdrawFeePayerFunds creates a new MsgWithdrawFeePayerFunds instance.
+func NewMsgWithdrawFeePayerFunds(tunnelID uint64, amount sdk.Coins, creator string) *MsgWithdrawFeePayerFunds {
+	return &MsgWithdrawFeePayerFunds{
+		TunnelID: tunnelID,
+		Amount:   amount,
+		Creator:  creator,
+	}
+}
+
+// ValidateBasic does a sanity check on the provided data
+func (m MsgWithdrawFeePayerFunds) ValidateBasic() error {
+	// creator address must be valid
+	if _, err := sdk.AccAddressFromBech32(m.Creator); err != nil {
+		return sdkerrors.ErrInvalidAddress.Wrapf("invalid address: %s", err)
+	}
+
+	// amount must be valid
+	if !m.Amount.IsValid() {
+		return sdkerrors.ErrInvalidCoins.Wrapf("invalid funds: %s", m.Amount)
 	}
 
 	return nil
