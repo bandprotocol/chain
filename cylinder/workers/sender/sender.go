@@ -28,7 +28,7 @@ func New(ctx *context.Context) (*Sender, error) {
 		return nil, err
 	}
 
-	freeKeys := make(chan *keyring.Record, len(keys))
+	freeKeys := make(chan *keyring.Record, 0, len(keys))
 	for _, key := range keys {
 		freeKeys <- key
 	}
