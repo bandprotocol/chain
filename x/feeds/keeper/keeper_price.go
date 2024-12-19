@@ -101,7 +101,7 @@ func (k Keeper) GetValidatorPriceList(ctx sdk.Context, val sdk.ValAddress) (type
 	return valPricesList, nil
 }
 
-// SetValidatorPrices sets validator prices list.
+// SetValidatorPriceList sets validator prices list.
 func (k Keeper) SetValidatorPriceList(
 	ctx sdk.Context,
 	valAddress sdk.ValAddress,
