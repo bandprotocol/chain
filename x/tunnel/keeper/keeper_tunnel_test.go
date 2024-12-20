@@ -5,12 +5,15 @@ import (
 
 	"go.uber.org/mock/gomock"
 
+	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
+
 	sdkmath "cosmossdk.io/math"
 
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	feedstypes "github.com/bandprotocol/chain/v3/x/feeds/types"
+	"github.com/bandprotocol/chain/v3/x/tunnel/keeper"
 	"github.com/bandprotocol/chain/v3/x/tunnel/types"
 )
 
@@ -167,7 +170,9 @@ func (s *KeeperTestSuite) TestActivateTunnel() {
 	ctx, k := s.ctx, s.keeper
 
 	tunnelID := uint64(1)
-	route := &codectypes.Any{}
+	route, err := codectypes.NewAnyWithValue(&types.IBCRoute{ChannelID: "test"})
+	s.Require().NoError(err)
+
 	signalDeviations := []types.SignalDeviation{
 		{SignalID: "CS:BAND-USD"},
 		{SignalID: "CS:ETH-USD"},
@@ -188,7 +193,12 @@ func (s *KeeperTestSuite) TestActivateTunnel() {
 
 	k.SetTunnel(ctx, tunnel)
 
-	err := k.ActivateTunnel(ctx, tunnelID)
+	// mock the GetCapability function to return true
+	portID := keeper.PortIDForTunnel(tunnelID)
+	name := host.ChannelCapabilityPath(portID, "test")
+	s.scopedKeeper.EXPECT().GetCapability(gomock.Any(), name).Return(nil, true)
+
+	err = k.ActivateTunnel(ctx, tunnelID)
 	s.Require().NoError(err)
 
 	// validate the tunnel is activated
@@ -199,6 +209,42 @@ func (s *KeeperTestSuite) TestActivateTunnel() {
 	// validate the active tunnel ID is stored
 	activeTunnelIDs := k.GetActiveTunnelIDs(ctx)
 	s.Require().Contains(activeTunnelIDs, tunnelID)
+}
+
+func (s *KeeperTestSuite) TestActivateTunnelInactiveRoute() {
+	ctx, k := s.ctx, s.keeper
+
+	tunnelID := uint64(1)
+	route, err := codectypes.NewAnyWithValue(&types.IBCRoute{ChannelID: "test"})
+	s.Require().NoError(err)
+
+	signalDeviations := []types.SignalDeviation{
+		{SignalID: "CS:BAND-USD"},
+		{SignalID: "CS:ETH-USD"},
+	}
+	interval := uint64(10)
+	creator := sdk.AccAddress([]byte("creator_address")).String()
+
+	tunnel := types.Tunnel{
+		ID:               tunnelID,
+		Route:            route,
+		SignalDeviations: signalDeviations,
+		Interval:         interval,
+		TotalDeposit:     k.GetParams(ctx).MinDeposit,
+		Creator:          creator,
+		IsActive:         false,
+		CreatedAt:        ctx.BlockTime().Unix(),
+	}
+
+	k.SetTunnel(ctx, tunnel)
+
+	// mock the GetCapability function to return false
+	portID := keeper.PortIDForTunnel(tunnelID)
+	name := host.ChannelCapabilityPath(portID, "test")
+	s.scopedKeeper.EXPECT().GetCapability(gomock.Any(), name).Return(nil, false)
+
+	err = k.ActivateTunnel(ctx, tunnelID)
+	s.Require().ErrorIs(err, types.ErrRouteNotReady)
 }
 
 func (s *KeeperTestSuite) TestDeactivateTunnel() {

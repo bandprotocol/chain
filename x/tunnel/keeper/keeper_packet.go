@@ -72,9 +72,25 @@ func (k Keeper) ProduceActiveTunnelPacket(
 	tunnelID uint64,
 	pricesMap map[string]feedstypes.Price,
 ) (err error) {
+	// get route information
+	tunnel, err := k.GetTunnel(ctx, tunnelID)
+	if err != nil {
+		return err
+	}
+
+	route, err := tunnel.GetRouteValue()
+	if err != nil {
+		return err
+	}
+
+	// Check if the route is ready for receiving a new packet. If not, deactivate the tunnel.
+	if !k.IsRouteReady(ctx, route, tunnelID) {
+		return k.DeactivateTunnel(ctx, tunnelID)
+	}
+
 	// Check if the tunnel has enough fund to create a packet and deactivate the tunnel if not
 	// enough fund. Error should not happen here since the tunnel is already validated.
-	ok, err := k.HasEnoughFundToCreatePacket(ctx, tunnelID)
+	ok, err := k.HasEnoughFundToCreatePacket(ctx, route, sdk.MustAccAddressFromBech32(tunnel.FeePayer))
 	if err != nil {
 		return err
 	}

@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	host "github.com/cosmos/ibc-go/v8/modules/core/24-host"
+
 	storetypes "cosmossdk.io/store/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -202,6 +204,16 @@ func (k Keeper) ActivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 	// add the tunnel ID to the active tunnel IDs
 	k.SetActiveTunnelID(ctx, tunnelID)
 
+	route, err := tunnel.GetRouteValue()
+	if err != nil {
+		return err
+	}
+
+	// check whether the router is ready or not
+	if !k.IsRouteReady(ctx, route, tunnelID) {
+		return types.ErrRouteNotReady.Wrapf("tunnelID: %d", tunnelID)
+	}
+
 	// set the last interval timestamp to the current block time
 	tunnel.IsActive = true
 	k.SetTunnel(ctx, tunnel)
@@ -256,17 +268,11 @@ func (k Keeper) GetTotalFees(ctx sdk.Context) types.TotalFees {
 }
 
 // HasEnoughFundToCreatePacket checks if the fee payer has enough balance to create a packet
-func (k Keeper) HasEnoughFundToCreatePacket(ctx sdk.Context, tunnelID uint64) (bool, error) {
-	tunnel, err := k.GetTunnel(ctx, tunnelID)
-	if err != nil {
-		return false, err
-	}
-
-	// get the route fee from the tunnel
-	route, err := tunnel.GetRouteValue()
-	if err != nil {
-		return false, err
-	}
+func (k Keeper) HasEnoughFundToCreatePacket(
+	ctx sdk.Context,
+	route types.RouteI,
+	feePayer sdk.AccAddress,
+) (bool, error) {
 	routeFee, err := k.GetRouteFee(ctx, route)
 	if err != nil {
 		return false, err
@@ -276,13 +282,27 @@ func (k Keeper) HasEnoughFundToCreatePacket(ctx sdk.Context, tunnelID uint64) (b
 	basePacketFee := k.GetParams(ctx).BasePacketFee
 	totalFee := basePacketFee.Add(routeFee...)
 
-	// compare the fee payer's balance with the total fee
-	feePayer, err := sdk.AccAddressFromBech32(tunnel.FeePayer)
-	if err != nil {
-		return false, err
-	}
 	balances := k.bankKeeper.SpendableCoins(ctx, feePayer)
 	return balances.IsAllGTE(totalFee), nil
+}
+
+// IsRouteReady checks if the given route is ready for receiving a new packet.
+func (k Keeper) IsRouteReady(ctx sdk.Context, routeI types.RouteI, tunnelID uint64) bool {
+	switch route := routeI.(type) {
+	case *types.TSSRoute:
+		return k.bandtssKeeper.IsReady(ctx)
+	case *types.IBCRoute:
+		portID := PortIDForTunnel(tunnelID)
+
+		// retrieve the dynamic capability for this channel
+		_, found := k.scopedKeeper.GetCapability(
+			ctx,
+			host.ChannelCapabilityPath(portID, route.ChannelID),
+		)
+		return found
+	default:
+		return false
+	}
 }
 
 func (k Keeper) GenerateTunnelAccount(ctx sdk.Context, key string) (sdk.AccAddress, error) {

@@ -32,4 +32,5 @@ var (
 	ErrSendPacketPanic           = errorsmod.Register(ModuleName, 25, "panic in sending packet")
 	ErrInvalidChannelID          = errorsmod.Register(ModuleName, 26, "invalid channel id")
 	ErrInvalidPortID             = errorsmod.Register(ModuleName, 27, "invalid port id")
+	ErrRouteNotReady             = errorsmod.Register(ModuleName, 28, "route is not ready")
 )
