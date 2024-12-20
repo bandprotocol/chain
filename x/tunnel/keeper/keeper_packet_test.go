@@ -159,6 +159,7 @@ func (s *KeeperTestSuite) TestProducePacket() {
 
 	k.SetTunnel(ctx, tunnel)
 
+	s.bandtssKeeper.EXPECT().IsReady(gomock.Any()).Return(true)
 	err = k.ActivateTunnel(ctx, tunnelID)
 	s.Require().NoError(err)
 
@@ -189,6 +190,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPackets() {
 		DestinationContractAddress: "0x",
 	}
 
+	s.bandtssKeeper.EXPECT().IsReady(gomock.Any()).Return(true).AnyTimes()
 	s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
 		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
 	).Times(2)
@@ -259,6 +261,7 @@ func (s *KeeperTestSuite) TestProduceActiveTunnelPacketsNotEnoughMoney() {
 		DestinationContractAddress: "0x",
 	}
 
+	s.bandtssKeeper.EXPECT().IsReady(gomock.Any()).Return(true).AnyTimes()
 	s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
 		sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
 	)

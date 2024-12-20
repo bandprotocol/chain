@@ -145,6 +145,13 @@ func (s *KeeperTestSuite) AddSampleTunnel(isActive bool) *types.Tunnel {
 		tunnel.TotalDeposit = append(tunnel.TotalDeposit, k.GetParams(ctx).MinDeposit...)
 		k.SetTunnel(ctx, tunnel)
 
+		route, err := tunnel.GetRouteValue()
+		s.Require().NoError(err)
+
+		if _, ok := route.(*types.TSSRoute); ok {
+			s.bandtssKeeper.EXPECT().IsReady(gomock.Any()).Return(true)
+		}
+
 		err = k.ActivateTunnel(ctx, tunnel.ID)
 		s.Require().NoError(err)
 	}

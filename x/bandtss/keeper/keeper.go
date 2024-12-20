@@ -97,3 +97,11 @@ func (k Keeper) GetCurrentGroup(ctx sdk.Context) types.CurrentGroup {
 	k.cdc.MustUnmarshal(bz, &currentGroup)
 	return currentGroup
 }
+
+// IsReady returns whether the module is ready to produce a tss signing or not.
+func (k Keeper) IsReady(ctx sdk.Context) bool {
+	isCurrentGroupReady := k.GetCurrentGroup(ctx).GroupID != 0
+	isIncomingGroupReady := k.GetIncomingGroupID(ctx) != 0
+
+	return isCurrentGroupReady || isIncomingGroupReady
+}

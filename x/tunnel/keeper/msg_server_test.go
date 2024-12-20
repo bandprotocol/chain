@@ -571,6 +571,8 @@ func (s *KeeperTestSuite) TestMsgActivate() {
 
 				s.AddSampleTunnel(false)
 
+				s.bandtssKeeper.EXPECT().IsReady(gomock.Any()).Return(true)
+
 				return types.NewMsgActivate(1, sdk.AccAddress([]byte("creator_address")).String())
 			},
 			expErr:    false,
@@ -692,6 +694,7 @@ func (s *KeeperTestSuite) TestMsgTriggerTunnel() {
 				feePayer := sdk.MustAccAddressFromBech32(tunnel.FeePayer)
 				s.Require().NoError(err)
 
+				s.bandtssKeeper.EXPECT().IsReady(gomock.Any()).Return(true)
 				s.bandtssKeeper.EXPECT().GetSigningFee(gomock.Any()).Return(
 					sdk.NewCoins(sdk.NewCoin("uband", sdkmath.NewInt(20))), nil,
 				).Times(2)

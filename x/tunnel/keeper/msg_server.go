@@ -74,7 +74,7 @@ func (k msgServer) CreateTunnel(
 
 	// Bind ibc port for the new tunnel
 	if isIBCRoute {
-		_, err = k.ensureIBCPort(ctx, tunnel.ID)
+		_, err = k.Keeper.ensureIBCPort(ctx, tunnel.ID)
 		if err != nil {
 			return nil, err
 		}
@@ -289,11 +289,22 @@ func (k msgServer) TriggerTunnel(
 		return nil, types.ErrInactiveTunnel.Wrapf("tunnelID %d", msg.TunnelID)
 	}
 
-	ok, err := k.Keeper.HasEnoughFundToCreatePacket(ctx, tunnel.ID)
+	route, err := tunnel.GetRouteValue()
 	if err != nil {
 		return nil, err
 	}
 
+	// Check if the route is ready for receiving a new packet.
+	if ok := k.IsRouteReady(ctx, route, tunnel.ID); !ok {
+		return nil, types.ErrRouteNotReady.Wrapf("tunnelID %d", msg.TunnelID)
+	}
+
+	// Check if the fee payer of the tunnel has enough fund to create a packet.
+	feePayer := sdk.MustAccAddressFromBech32(tunnel.FeePayer)
+	ok, err := k.Keeper.HasEnoughFundToCreatePacket(ctx, route, feePayer)
+	if err != nil {
+		return nil, err
+	}
 	if !ok {
 		return nil, types.ErrInsufficientFund.Wrapf("tunnelID %d", msg.TunnelID)
 	}
