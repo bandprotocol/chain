@@ -6,6 +6,11 @@ import (
 	"os"
 	"path/filepath"
 
+	blocksdkabci "github.com/skip-mev/block-sdk/v2/abci"
+	signerextraction "github.com/skip-mev/block-sdk/v2/adapters/signer_extraction_adapter"
+	"github.com/skip-mev/block-sdk/v2/block"
+	"github.com/skip-mev/block-sdk/v2/block/base"
+	defaultlane "github.com/skip-mev/block-sdk/v2/lanes/base"
 	"github.com/spf13/cast"
 
 	abci "github.com/cometbft/cometbft/abci/types"
@@ -21,6 +26,7 @@ import (
 	"cosmossdk.io/client/v2/autocli"
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/log"
+	"cosmossdk.io/math"
 	"cosmossdk.io/x/tx/signing"
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
@@ -253,6 +259,31 @@ func NewBandApp(
 
 	app.sm.RegisterStoreDecoders()
 
+	// Create the signer extractor. This is used to extract the expected signers from
+	// a transaction. Each lane can have a different signer extractor if needed.
+	signerAdapter := signerextraction.NewDefaultAdapter()
+
+	defaultConfig := base.LaneConfig{
+		Logger:          app.Logger(),
+		TxEncoder:       app.txConfig.TxEncoder(),
+		TxDecoder:       app.txConfig.TxDecoder(),
+		MaxBlockSpace:   math.LegacyZeroDec(),
+		SignerExtractor: signerAdapter,
+		MaxTxs:          0,
+	}
+	defaultMatchHandler := base.DefaultMatchHandler()
+	defaultLane := defaultlane.NewDefaultLane(
+		defaultConfig,
+		defaultMatchHandler,
+	)
+
+	lanedMempool, err := block.NewLanedMempool(app.Logger(), []block.Lane{defaultLane})
+	if err != nil {
+		panic(err)
+	}
+	// set the mempool
+	app.SetMempool(lanedMempool)
+
 	// Initialize stores.
 	app.MountKVStores(app.GetKVStoreKey())
 	app.MountTransientStores(app.GetTransientStoreKey())
@@ -281,6 +312,25 @@ func NewBandApp(
 	if err != nil {
 		panic(fmt.Errorf("failed to create ante handler: %s", err))
 	}
+
+	// update ante-handlers on lanes
+	opt := []base.LaneOption{
+		base.WithAnteHandler(anteHandler),
+	}
+	defaultLane.WithOptions(opt...)
+
+	// ABCI handlers
+	// prepare proposal
+	proposalHandler := blocksdkabci.NewDefaultProposalHandler(
+		app.Logger(),
+		txConfig.TxDecoder(),
+		txConfig.TxEncoder(),
+		lanedMempool,
+	)
+
+	// set the Prepare / ProcessProposal Handlers on the app to be the `LanedMempool`'s
+	app.SetPrepareProposal(proposalHandler.PrepareProposalHandler())
+	app.SetProcessProposal(proposalHandler.ProcessProposalHandler())
 
 	postHandler, err := NewPostHandler(
 		PostHandlerOptions{},
