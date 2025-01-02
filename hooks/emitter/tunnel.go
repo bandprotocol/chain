@@ -20,9 +20,9 @@ func (h *Hook) emitSetTunnel(ctx sdk.Context, tunnelID uint64) {
 		"fee_payer":     tunnel.FeePayer,
 		"total_deposit": tunnel.TotalDeposit.String(),
 		"status":        tunnel.IsActive,
-		"last_interval": latestSignalPrice.LastInterval * 1e9,
+		"last_interval": latestSignalPrice.LastInterval * int64(time.Second),
 		"creator":       tunnel.Creator,
-		"created_at":    tunnel.CreatedAt,
+		"created_at":    tunnel.CreatedAt * int64(time.Second),
 	})
 }
 
@@ -100,7 +100,7 @@ func (h *Hook) emitSetTunnelPacket(ctx sdk.Context, tunnelID uint64, sequence ui
 			"signal_id": sp.SignalID,
 			"status":    sp.Status,
 			"price":     sp.Price,
-			"timestamp": sp.Timestamp * 1e9,
+			"timestamp": sp.Timestamp * int64(time.Second),
 		})
 	}
 }
