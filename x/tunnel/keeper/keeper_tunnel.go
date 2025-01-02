@@ -201,9 +201,6 @@ func (k Keeper) ActivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 		return types.ErrInsufficientDeposit
 	}
 
-	// add the tunnel ID to the active tunnel IDs
-	k.SetActiveTunnelID(ctx, tunnelID)
-
 	route, err := tunnel.GetRouteValue()
 	if err != nil {
 		return err
@@ -213,6 +210,9 @@ func (k Keeper) ActivateTunnel(ctx sdk.Context, tunnelID uint64) error {
 	if !k.IsRouteReady(ctx, route, tunnelID) {
 		return types.ErrRouteNotReady.Wrapf("tunnelID: %d", tunnelID)
 	}
+
+	// add the tunnel ID to the active tunnel IDs
+	k.SetActiveTunnelID(ctx, tunnelID)
 
 	// set the last interval timestamp to the current block time
 	tunnel.IsActive = true
