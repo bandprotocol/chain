@@ -509,7 +509,7 @@ This event is emitted when the tunnel fails to produce a packet.
 
 ### Event: `produce_packet_success`
 
-This event is emitted when the tunnel successes to produce a packet.
+This event is emitted when the tunnel succeeds to produce a packet.
 
 | Attribute Key | Attribute Value     |
 | ------------- | ------------------- |
